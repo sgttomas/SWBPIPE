@@ -1,5 +1,6 @@
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
+import { componentBodyNotices } from "../results/componentBody";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import { Download, FileJson } from "lucide-react";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel } from "../../types";
@@ -115,6 +116,15 @@ export function LocalFeaHandoffPanel({
               value={localFeaBoundary(packet)}
               testId="local-fea-boundary"
             />
+            {/* W-15 slice d: a component body in the region (by the displacement node or a fixed
+                preference; the stress headline never names one) is identified. */}
+            {result && regionBodyNotices(result, packet).length > 0 ? (
+              <LocalFeaLine
+                label="Component bodies"
+                value={regionBodyNotices(result, packet).join("; ")}
+                testId="local-fea-component-bodies"
+              />
+            ) : null}
           </div>
         </>
       ) : (
@@ -130,6 +140,11 @@ export function LocalFeaHandoffPanel({
       </small>
     </section>
   );
+}
+
+function regionBodyNotices(result: MechanicsResult, packet: ReturnType<typeof buildLocalFeaHandoffPacket>): string[] {
+  const selected = packet.handoff_package.local_region.selected_entity_ids;
+  return componentBodyNotices(result, { pipeIds: selected.element_ids, resultIds: selected.result_ids });
 }
 
 function LocalFeaLine({ label, value, testId }: { label: string; value: string; testId: string }) {
@@ -153,7 +168,7 @@ export function buildLocalFeaHandoffPacket({
   const run = analysisRun.analysis_run;
   const selected = selectedLocalRegion(model, result);
   const selectedResults = selectedResultRefs(result);
-  const diagnostics = localFeaDiagnostics(selected);
+  const diagnostics = localFeaDiagnostics(selected, componentBodyNotices(result, { pipeIds: selected.elementIds, resultIds: selectedResults }));
   const unitPreservationWitnesses = localFeaUnitPreservationWitnesses(model, result, selectedResults);
   const resultHashScope = analysisResultHashScope(analysisRun.schema_version);
   const resultHash = run.hashes.find((item) => item.payload_scope === resultHashScope);
@@ -408,7 +423,7 @@ function resultDimension(item: MechanicsResult["results"][number]): string {
   return "TBD";
 }
 
-function localFeaDiagnostics(selected: ReturnType<typeof selectedLocalRegion>) {
+function localFeaDiagnostics(selected: ReturnType<typeof selectedLocalRegion>, bodyNotices: string[] = []) {
   const items = [
     diagnostic(
       "LOCAL-FEA-MESH-NOT-GENERATED",
@@ -448,6 +463,18 @@ function localFeaDiagnostics(selected: ReturnType<typeof selectedLocalRegion>) {
         "LOCAL_HANDOFF_WARNING",
         `Result summary fields ${selected.missingSummaryRefs.join(" and ")} are missing; the local region selection basis is incomplete and no substitute entity references are invented.`,
         "Re-run the mechanics preview so the result summary carries explicit location references before using this handoff package.",
+        selected.regionId
+      )
+    );
+  }
+  if (bodyNotices.length > 0) {
+    // W-15 slice d (DEL-03-05 Design §5): appended last, so the standing findings keep their indices.
+    items.push(
+      diagnostic(
+        "LOCAL-FEA-COMPONENT-BODY-REFERENCE-SECTION",
+        "LOCAL_HANDOFF_WARNING",
+        `The region includes component bodies: ${bodyNotices.join("; ")}.`,
+        "Model the component body itself in the local analysis; its global stress rows are reference-section values, not body stresses.",
         selected.regionId
       )
     );

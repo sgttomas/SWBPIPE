@@ -99,8 +99,11 @@ The biggest gaps:
    a local private package for a pressure-free result (W-18 (b2)). The report lacks materials,
    sections and library records. Affected: FR-REP-001..004.
 2. **Saved-state and run comparisons are view-only; selected within-run comparison context is packaged.** Model states, run history and comparison are in v0.1 by OD-1. Named immutable states are in the desktop (W-12 S1, #1589): save, open, label and delete, kept only in the SQLite store. Runs are recorded against states (W-12 S2, #1596), with the model’s rule packs resolved at solve (#1602). Two saved states are compared in the desktop (W-12 S3a, #1605), and two runs (W-12 S3b, #1617). “Within this run” lets the user choose the load case and combination (W-12 S3c). The report line and JSON, preview handoff summary, export review and design-workspace downloads, and the saved local-private report package for a Current pressure-free result (W-18b2) carry the chosen comparison context. A combination whose rows include a kind with no declared dimension is refused by name (`ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED`); those consumers carry its bases, run and reason in a `comparison_unavailable` record. The saved `.swbhandoff` carries no comparison. Mapping editor, tolerance profiles, graphical diffs and DEL-14-05 comparison-output export remain v0.2. Affected: FR-CMP-001..004, -006, FR-GUI-007.
-3. **No rigid elements.** OD-2 chose DEC-045 stiffness scaling (W-15). It is
-   validated but never applied, and EX refuses these components. Affected:
+3. **Rigid components: stiffness only.** OD-2 chose DEC-045 stiffness scaling.
+   W-15 slices a and d (#1604) apply it on both routes, admit valve, flange,
+   rigid and specialty components on EX, and identify body stress rows as
+   reference-section results. Component weight and centre of gravity as loads
+   (slice b) and the eccentric reducer offset (slice c) remain. Affected:
    FR-SOL-004/012.
 4. **Canonical model export.** File › Save Model Document… saves the canonical
    model document (W-6a, #1588). File › Save Handoff… writes a verified handoff
@@ -169,7 +172,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-SOL-001 (510) | Must | D | `core/solver/frame_kernel/src/lib.rs:17,1591`; t3_r1 references | DEL-04-01 | Both routes. |
 | FR-SOL-002 (511) | Must | P | `validation/benchmarks/mechanics/src/lib.rs:934,963,1693`; W9-A (both routes), W9-C | DEL-04-01, DEL-09-01 | Beams, frames, transforms and thermal pass on both routes. The imposed-displacement benchmarks (W9-C, `mechanics/src/lib.rs:948`) run on EX only, because PF refuses support motion (FR-SOL-006). |
 | FR-SOL-003 (512) | Must | D | `core/solver/straight_pipe`; `self_weight.rs:505-512`; `STRESS-*` | DEL-04-02, DEL-05-03 | PF Euler–Bernoulli; EX adds Timoshenko. |
-| FR-SOL-004 (513) | Must | P | No rigid element and no DEC-045 scaling applied: `stiffness_scaling_user_value` is unit-normalized (PP `lib.rs:9483`) and validated (`validation.rs:777,1346-1411`) only. EX refuses rigid and specialty components (`exact_admission.rs:208-210,285`) | DEL-03-05 | OD-2: build the scaling (W-15). Offsets exist only on connectors and tie rods. No rigid-link benchmark. |
+| FR-SOL-004 (513) | Must | P | DEC-045 stiffness scaling of the mapped member on both routes (PP `rigid_component.rs`, `lib.rs` member formation; W-15 a+d, #1604); EX admits valve, flange, rigid and specialty and refuses reducers in pressure regions (`exact_admission.rs`); rigid-link benchmark against independent references (`validation/references/` W-15 package; `tests/w15_rigid_scaling_benchmarks.rs`) | DEL-03-05 | Offsets exist only on connectors and tie rods; the eccentric reducer offset is slice c (with the 0.8.0 document). |
 | FR-SOL-005 (514) | Must | D | `core/solver/linear_supports`; PP `lib.rs:2741`; EX admits linear restraints and springs (`exact_admission.rs:295-305`) | DEL-04-03 | Both routes. |
 | FR-SOL-006 (515) | Must | P | EX applies `boundary_motion` (`exact_admission.rs:106`; W9-C `tests/w9_solver_benchmarks.rs:413`). PF refuses support-targeted loads (`preview_physics.rs:1041-1093`, `IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL`) | DEL-04-03, DEL-04-07, DEL-05-01, DEL-05-05 | Owner (OD-6 row 2): build on PF in two stages (`DEL-04-07 Design/pressure-contract.md`, "Imposed displacement on the pressure-free route"). |
 | FR-SOL-007 (516) | Must | D | Straight pipes and realized bends publish twelve global end rows per member and case (`element_global_end_force_v1`, `element_global_end_moment_v1`) beside their `element_local` rows on PF and EX, each F = Rᵀ f from the published local end rows (PP `lib.rs:12350` `append_element_global_end_results`, called at `:6551`); the readers check them (`result_export/src/global_end_evidence.rs`); tests `core/product_physics/tests/global_end_actions_runtime.rs` (both routes and modes: rotation, nodal balance, bend ends, EX wall axial, PF combinations, readers) and `tests/test_global_end_verifier.py`. Connectors publish global end actions (`:4511`) | DEL-04-01 | Design `global-end-actions.md` (REQ-004, the transform). Source-recovery publications omit the rows by the named rule `global_end_rows_published`. The dormant retained route carries them as named not-covered rows, re-registered in DEL-04-08 §8.20. |
@@ -177,7 +180,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-SOL-009 (518) | Must | P | `core/loads/load_case_algebra`; `preview_physics_runtime.rs:597,682,709` | DEL-05-02 | EX refuses every combination (`pressure_runtime.rs:337-343`; `exact_admission.rs:229`). |
 | FR-SOL-010 (519) | Should | D | `core/solver/curved_bend`; DEC-070 | DEL-03-03, DEL-04-07 | |
 | FR-SOL-011 (520) | Should | P | SIF → intensified measure (`preview_physics.rs:321-347`); `BRANCH_TOPOLOGY_INVALID` (W-8) | DEL-03-04 | Branch flexibility is not assembled (PP `lib.rs:12861`). EX refuses tees (`exact_admission.rs:205`). |
-| FR-SOL-012 (521) | Should | P | As FR-SOL-004; the self-weight request rejects `component_weights` (`self_weight.rs:1453-1457`) | DEL-03-05 | Component weight is never applied as a load. |
+| FR-SOL-012 (521) | Should | P | As FR-SOL-004: rigid and semi-rigid behaviour by the user's scale, with user dimensions and source notes | DEL-03-05 | Component weight and centre of gravity are not yet applied as loads (W-15 slice b; the owner ruled the CoG convention on 2026-10-24). |
 | FR-SOL-013 (522) | Should | D | `frame_kernel/src/connector.rs`, `tie_rod.rs`, `joint.rs:727`; `tests/connector_pp_paths.rs` | DEL-03-06 | EX only. `movement_limit` is normalized, not enforced (PP `lib.rs:9378`). |
 | FR-SOL-014 (523) | Should | P | `core/solver/nonlinear_supports`; `references/kd5_nonlinear`; the native demo converges | DEL-04-04, DEL-04-07, DEL-09-03 | PF only. Rotational gap and friction refused (`validation.rs:88,100`). |
 | FR-SOL-015 (524) | Must | D | `NUMERICAL_INTEGRITY_*` (PP `lib.rs:1198-1230`); health indicator `operation_applier/src/numerical_health.rs`, `ResultsPanel.tsx:97-130`, status bar and Solve panel, with tests (#1544). Observed natively on both routes (§5) | DEL-04-06, DEL-05-04, DEL-07-05 | |
@@ -185,7 +188,7 @@ class, the evidence, and the deliverables. Paths are under
 | §12.5 load types (no row before) | — | P | Wind, seismic and hydrotest categories (PP `lib.rs:14333-14335`) | DEL-05-01 | EX refuses `equivalent_static`; imposed rotations and nozzle movement follow FR-SOL-006. |
 | §12.8 near-duplicate nodes (775) | — | D | W-8 with #1574: `NODE_COINCIDENT`, `NODE_NEAR_DUPLICATE` within an absolute tolerance, 5 mm unless `model_settings.node_proximity_tolerance` sets another (`topology.rs:148,281`; read through `PreviewModel::node_proximity_tolerance_m`); a malformed value is refused by name (`validation.rs` `validate_model_settings`); tests `topology_checks_runtime.rs:143,182,193`. The desktop's Project page sets and resets it (`ModelSettingsSection.tsx`; applier `set_model_setting`/`clear_model_setting`, `model_settings_authoring.rs`); through-solve tests `operation_applier/tests/model_settings_authoring.rs`, src-tauri `a_tolerance_set_through_the_apply_command_changes_which_nodes_warn` | DEL-04-06, DEL-02-01 | REQ-04-06-012 (owner) is met on both routes, and a desktop user can see the effective value ("5 mm (default)") and change it. |
 | §12.8 verified bounds (783) | — | O | Owner, 2026-10-23: "no verified bounds in v0.1; the retained-precision method stays dormant and owner-held." (`DEL-04-08 Design/b7-plan.md:34`; SOW:336, AX-004) | DEL-04-08 | Dormant code is in `product_physics/src/retained_*.rs`. |
-| §22.2 benchmarks (1403) | — | P | 13 of 14: tip force, tip moment, fixed-fixed thermal, simply supported under weight (W9-B, both routes), inclined member, L-frame (W9-A, both routes), U-loop, torsion, anchor displacement (W9-C, EX only), spring, gap, friction, branch | DEL-09-01..03 | **Missing:** rigid link (after W-15). Anchor displacement on PF waits for FR-SOL-006 stage 1. |
+| §22.2 benchmarks (1403) | — | P | 14 of 14: tip force, tip moment, fixed-fixed thermal, simply supported under weight (W9-B, both routes), inclined member, L-frame (W9-A, both routes), U-loop, torsion, anchor displacement (W9-C, EX only), spring, gap, friction, branch, rigid link (W-15, both routes, #1604) | DEL-09-01..03 | Anchor displacement on PF waits for FR-SOL-006 stage 1. |
 | §22.3 stress benchmarks (1422) | — | D | `validation/benchmarks/stress/src/lib.rs:489,513,546,570`; pressure hoop and longitudinal stress in the frozen references `validation/references/t4_u6` (EX); t4_u4b; the suite's pressure family `STRESS-PRESSURE-HOOP-LONGITUDINAL-ORIGINAL` (W-20, #1599: Lamé hoop and radial, closed-end, open-end and restrained membrane, on both section bases, through the exact-pressure preview entry) | DEL-09-02 | The headless runner has no binding for the pressure family (its comparison is the suite's relative check), so it fails closed there. |
 
 ### 2.4 Rule packs, reporting, handoff and export (PRD §11.5, §11.7, §11.9, §16–19)
@@ -362,10 +365,6 @@ REQ-04-06-012's verification row (SOW:189) carry the implemented wording.
     `exactCurrentPanels.test.tsx:7-8,153-157` offers it for exact Current
     results too. The §5 probe saw no glTF action on either route, because the
     byte-exact downloads are withheld.
-- **Code comment:** `product_physics/src/validation.rs:1367` "no stiffness
-  scaling is silently applied without a valid mapping" (and the info text at
-  `:1407`) implies scaling is applied when a mapping is valid; it never is.
-  This is product code and needs a DEC-081 claims check. It goes with W-15.
 - **Pointers:** DEL-10-04 lists `software-workflow.json` and `tools/ci/**` but
   not the root `.github/workflows/piping-*.yml`. DEL-07-02/05/08 still list the
   unused `core/gui/*` reference modules beside the desktop paths. DEL-13-03
@@ -505,7 +504,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-3 | Rendered report for local private sessions, with §19.2 content | #1553 (+#1555); observed natively (§5) |
 | W-5 | Memory-pool headroom (transient free-queue dip) | #1547; the demo result-JSON save succeeded in the smoke and the probe (§5) |
 | W-8 | Pre-solve topology and near-duplicate warnings | #1559; the absolute 5 mm, model-settable tolerance and the branch warning's applied-factor statement are #1574; the desktop control that sets and resets the tolerance is branch `claude/piping-tolerance-control-20261024` |
-| W-9 | Missing benchmarks: L-frame, simply supported weight, anchor settlement | #1548; the rigid link waits for W-15 |
+| W-9 | Missing benchmarks: L-frame, simply supported weight, anchor settlement | #1548; the rigid link is W-15 (#1604) |
 | W-10 | Pipe reconnect | #1563, with its declared limitation |
 | — | Viewport result colour and reaction arrows (OD-5) | #1556 |
 | — | Numerical health indicator (FR-SOL-015 display) | #1544 |
@@ -525,6 +524,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-12 S3c | "Within this run" selects its load case and combination from the bases with result rows, held to the current run | #1619 |
 | W-12 S2 | Analysis runs recorded against saved model states (store v13, Record Run with a checked manifest and model binding, run labels, recorded-form validators in TS and Python), with stored-length read admission for states and runs | #1596 |
 | W-12 S1 | Named immutable model states in the desktop (store v12, Save/Open State, History panel with labels); one unsaved-changes guard for Open Project, New, Open Model Document and Open State | #1589 |
+| W-20 | Pressure stress benchmark family in the DEL-09-02 suite | #1599 |
 | W-4 | From-blank native journey and the output gates as permanent native-smoke checks | #1582: 25 checks, all passing on its head; no `expected.json` change |
 
 **In flight** (not on main):
@@ -532,7 +532,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | # | Unit | PR or branch |
 |---|---|---|
 | — | DBM concordance review | #1567 |
-| W-20 | Pressure stress benchmark family in the DEL-09-02 suite (hoop and longitudinal stress against closed forms) | #1599 |
+| W-15 a+d | DEC-045 stiffness scaling on both routes, EX admission, reference-section identification, rigid-link benchmark | #1604 |
 
 **Remaining:**
 
@@ -541,7 +541,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-2 (rest) | Fresh R6 reproduction bundle at the validation basis, with the current procedure | S | run | heavy | the validation basis | Acceptance of the reproduction is the owner's |
 | W-6 | Canonical model export (save model document to file, independent of a solve; FR-HAND-001); schema-conformant handoff manifest with rule refs and hashes (FR-HAND-002) | M | desktop + schema | heavy | W-13 (0.7.0) | No |
 | W-11 | Exact-route reports: DEL-08-01 limitation sections (ruling 10A), then open; with it, the report's materials, sections and library records (FR-REP-003) | M–L | docs + desktop | heavy | W-3 (done) | Opening returns to the owner |
-| W-15 | DEC-045 stiffness scaling for rigid and semi-rigid components (FR-SOL-004/012), component weight, EX admission, eccentric reducer offset (§12.3), rigid-link benchmark; fix the `validation.rs:1367` comment | M–L | numerical | heavy, scrutiny | — | No (OD-2 decided) |
+| W-15 b, c | Component weight and centre of gravity as nodal loads (slice b; CoG convention ruled 2026-10-24); eccentric reducer offset with the 0.8.0 model document (slice c, §12.3) | M | numerical | heavy, scrutiny | #1604; slice c after the 0.8.0 coordination | No (OD-2, R10 decided) |
 | W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | — | No |
 | W-18 (new) | Report package for current results (FR-REP-001; formerly `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private). Slice (a), the Rust 2.0.0 producer, reader and runner witness, is on main (#1597); slice (b1), native admission and disposition screening of the save (`report_package_save.rs`, shared `export_disposition_screen.rs`), replaces its native hold; slice (b2), the desktop opening (`reportPackageRequest.ts`, the split save service, the solve/rule-check rule-pack agreement and a native smoke step), saves a local private package for a Current pressure-free result, and exact routes stay refused (DEL-08-01 Design `report-package-current-results.md` §6) | M | desktop + Rust | heavy | W-3 | Shareable path decided (owner, 2026-10-24, option B: a per-report user release, W-18b, after (a)–(b2)) |
 | W-14 | Design-knowledge entry and constraint validation | — | — | — | — | Deferred to v0.2 (OD-3) |
@@ -553,7 +553,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 - **Before the owner's hands-on use:** W-6 and W-18 (a model the owner can
   export and a report package). W-3, W-5 and the W-13 slices (#1564–#1566) are
   done.
-- **Before validation:** W-15, W-16, W-20 (#1599) and W-11.
+- **Before validation:** W-15 (a+d #1604; b, c), W-16 and W-11.
   The R6 reproduction bundle (W-2) is then made at the validation
   basis.
 

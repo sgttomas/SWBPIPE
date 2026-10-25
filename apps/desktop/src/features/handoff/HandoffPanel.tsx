@@ -1,6 +1,7 @@
 import type { PreviewComparisonUnavailable } from "../comparison/withinRunComparison";
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
+import { componentBodyNotices } from "../results/componentBody";
 import { Download, Share2 } from "lucide-react";
 import type {
   AgentProposal,
@@ -158,6 +159,14 @@ export function HandoffPanel({
               testId="handoff-review-context"
             />
             <HandoffLine label="Boundary" value={handoffBoundary(handoffPackage)} testId="handoff-boundary" />
+            {/* W-15 slice d: a selected component-body row is identified as a reference-section stress. */}
+            {result && componentBodyNotices(result, { resultIds: selectedResultRefs(result) }).length > 0 ? (
+              <HandoffLine
+                label="Component bodies"
+                value={componentBodyNotices(result, { resultIds: selectedResultRefs(result) }).join("; ")}
+                testId="handoff-component-bodies"
+              />
+            ) : null}
           </div>
         </>
       ) : (

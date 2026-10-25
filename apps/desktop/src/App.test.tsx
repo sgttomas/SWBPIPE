@@ -7224,8 +7224,10 @@ describe("SWBPIPE desktop preview", () => {
     const nodeCount = new Set(displacements.map(row => row.entity_ref)).size;
     expect(new Set(displacements.map(row => row.unit))).toEqual(new Set(["mm"]));
     const referenceOverlay = buildDeformationOverlay(referenceModel, fixtureResult);
-    expect(maximum.toFixed(6)).toBe("7.635384");
-    expect(referenceOverlay.summary).toContain(`available; nodes=${nodeCount}; max=7.635384 mm`);
+    // W-15 (DEL-03-05 Design §6): the regenerated demo solves valve C-130's member with its scale 15
+    // (was 7.635384 unscaled).
+    expect(maximum.toFixed(6)).toBe("7.624972");
+    expect(referenceOverlay.summary).toContain(`available; nodes=${nodeCount}; max=7.624972 mm`);
     // Observe the actual queued UI intent while rendering the unchanged
     // production diff component. No source or operation is reconstructed.
     const diffModule = await import("./features/diff-preview/DiffPreviewPanel");

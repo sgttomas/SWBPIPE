@@ -244,14 +244,15 @@ fn headline_must_govern_with_identity_ties_and_complete_coverage() {
         .as_array_mut()
         .unwrap()
         .retain(|e| e["result_id"] != pipe_max);
-    c["stress_maximum_coverage"] = json!({"complete":false,"unavailable_pipe_ids":["pipe:P-110"],"outside_domain_pipe_ids":[]});
+    // W-15 slice d: every coverage entry keeps the case's body list (valve C-130's pipe:P-130).
+    c["stress_maximum_coverage"] = json!({"complete":false,"unavailable_pipe_ids":["pipe:P-110"],"outside_domain_pipe_ids":[],"component_body_pipe_ids":["pipe:P-130"]});
     refused(&incomplete, "HEADLINE_PRESENCE");
     incomplete["summary"]["max_open_formula_stress"] = Value::Null;
     s::for_source(&incomplete).unwrap();
     // A member missing from the partition is refused even without a headline.
     let mut unpartitioned = incomplete.clone();
     case(&mut unpartitioned, "load:L-200")["stress_maximum_coverage"] =
-        json!({"complete":true,"unavailable_pipe_ids":[],"outside_domain_pipe_ids":[]});
+        json!({"complete":true,"unavailable_pipe_ids":[],"outside_domain_pipe_ids":[],"component_body_pipe_ids":["pipe:P-130"]});
     refused(&unpartitioned, "STRESS_COVERAGE_PARTITION");
 }
 
@@ -554,10 +555,17 @@ fn numerical_standing_progression_on_a_fresh_identity() {
 
 #[test]
 fn rule_binding_refusal_is_limited_to_the_source_blocks_summary() {
+    // W-15 slice d (DEL-03-05 Design §5): the regenerated fixture's valve C-130
+    // body (pipe:P-130, scale 15) is the only refusal; every other row binds.
     let raw = invented();
+    let mut bodies = 0;
     for r in raw["results"].as_array().unwrap() {
-        assert_eq!(s::rule_binding_refusal(&raw, r), None);
+        let expected = r.get("component_body").map(|_| "COMPONENT_BODY_REFERENCE_SECTION");
+        assert_eq!(expected.is_some(), r["entity_ref"] == "pipe:P-130" && r["kind"].as_str().unwrap().contains("stress"), "{}", r["id"]);
+        bodies += usize::from(expected.is_some());
+        assert_eq!(s::rule_binding_refusal(&raw, r), expected);
     }
+    assert!(bodies > 0);
 }
 
 #[test]

@@ -1375,60 +1375,15 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
                     vec![component.id.clone()],
                 ));
             }
-            if rigid_mapping_invalid(component, &pipe_map) {
-                diagnostics.push(diag(
-                    &format!(
-                        "diagnostic:component:{}:rigid-mapping",
-                        stable_suffix(&component.id)
-                    ),
-                    "RIGID_COMPONENT_MAPPING_INPUT_INVALID",
-                    "warning",
-                    "rigid/semi-rigid component pipe mapping must reference an existing generic frame member that terminates at the component node; no stiffness scaling is silently applied without a valid mapping",
-                    vec![component.id.clone()],
-                ));
-            }
-            if rigid_modifier_missing(component) {
-                diagnostics.push(diag(
-                    &format!(
-                        "diagnostic:component:{}:rigid-stiffness",
-                        stable_suffix(&component.id)
-                    ),
-                    "RIGID_COMPONENT_STIFFNESS_INPUT_MISSING",
-                    "warning",
-                    "rigid/semi-rigid component requires user-entered stiffness scaling, optional semi-rigid stiffness quantities, and source reference for DEC-045 mechanics_geometry_only review evidence",
-                    vec![component.id.clone()],
-                ));
-            }
-            if rigid_modifier_invalid(component) {
-                diagnostics.push(diag(
-                    &format!(
-                        "diagnostic:component:{}:rigid-stiffness-invalid",
-                        stable_suffix(&component.id)
-                    ),
-                    "RIGID_COMPONENT_STIFFNESS_INPUT_INVALID",
-                    "warning",
-                    "rigid/semi-rigid user-entered stiffness scale and stiffness quantities must be finite positive values before they can be used as mapping evidence",
-                    vec![component.id.clone()],
-                ));
-            }
-            if !rigid_geometry_missing(component)
-                && !rigid_mapping_invalid(component, &pipe_map)
-                && !rigid_modifier_missing(component)
-                && !rigid_modifier_invalid(component)
-            {
-                diagnostics.push(diag(
-                    &format!(
-                        "diagnostic:component:{}:rigid-review",
-                        stable_suffix(&component.id)
-                    ),
-                    "RIGID_COMPONENT_STIFFNESS_SCALING_REVIEWED",
-                    "info",
-                    "rigid/semi-rigid component carries user-entered dimensions, weight, center of gravity, mapping, stiffness scaling, semi-rigid stiffness quantities, and source notes under DEC-045 mechanics_geometry_only; no protected/default component values are supplied",
-                    vec![component.id.clone()],
-                ));
-            }
+            // W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md`
+            // §2.3, §2.6): the eligibility predicate formation also reads; one
+            // info for an applied scale, or one warning naming the first
+            // unmet condition.
+            crate::rigid_component::append_scaling_diagnostics(component, &pipe_map, diagnostics);
         }
     }
+    // W-15 §2.3: the three mapping conflicts, blocking by name.
+    crate::rigid_component::append_mapping_conflicts(model, diagnostics);
     // T4-U3 (D-4): the annotation disclosure, pressure-free route only. The
     // legacy joint's refusal is the profile gate's; no joint row is produced.
     crate::joint::disclose_annotation_joints(model, diagnostics);
@@ -1586,10 +1541,7 @@ fn is_branch_component(component: &crate::PreviewComponent) -> bool {
 }
 
 fn is_rigid_component(component: &crate::PreviewComponent) -> bool {
-    matches!(
-        component.kind.as_str(),
-        "valve" | "flange" | "reducer" | "rigid" | "specialty"
-    )
+    crate::rigid_component::is_rigid_family(component)
 }
 
 fn is_expansion_joint_component(component: &crate::PreviewComponent) -> bool {
@@ -1812,54 +1764,6 @@ fn rigid_geometry_missing(component: &crate::PreviewComponent) -> bool {
             .as_deref()
             .map(|value| value.trim().is_empty())
             .unwrap_or(true)
-}
-
-fn rigid_mapping_invalid(
-    component: &crate::PreviewComponent,
-    pipe_map: &HashMap<&str, &crate::PreviewPipe>,
-) -> bool {
-    let Some(geometry) = &component.geometry else {
-        return false;
-    };
-    let Some(pipe_ref) = geometry
-        .rigid_pipe_ref
-        .as_deref()
-        .filter(|value| !value.trim().is_empty())
-    else {
-        return false;
-    };
-    pipe_map
-        .get(pipe_ref)
-        .map(|pipe| pipe.from != component.node && pipe.to != component.node)
-        .unwrap_or(true)
-}
-
-fn rigid_modifier_missing(component: &crate::PreviewComponent) -> bool {
-    let Some(modifiers) = &component.modifiers else {
-        return true;
-    };
-    modifiers.stiffness_scaling_user_value.is_none()
-        || modifiers.linear_stiffness_user_value.is_none()
-        || modifiers.rotational_stiffness_user_value.is_none()
-        || modifiers
-            .source_reference
-            .as_deref()
-            .map(|value| value.trim().is_empty())
-            .unwrap_or(true)
-}
-
-fn rigid_modifier_invalid(component: &crate::PreviewComponent) -> bool {
-    let Some(modifiers) = &component.modifiers else {
-        return false;
-    };
-    [
-        modifiers.stiffness_scaling_user_value.as_ref(),
-        modifiers.linear_stiffness_user_value.as_ref(),
-        modifiers.rotational_stiffness_user_value.as_ref(),
-    ]
-    .into_iter()
-    .flatten()
-    .any(|quantity| !quantity.value.is_finite() || quantity.value <= 0.0)
 }
 
 fn validate_thermal_inputs(
