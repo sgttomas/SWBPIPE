@@ -543,7 +543,7 @@ fn nested_records(
 }
 
 /// The named refusal for undeclared keys on the closed records of the actual
-/// request's model, or `None`. Shapes other than unknown keys (a missing or
+/// request's model and on its materials, or `None`. Shapes other than unknown keys (a missing or
 /// mistyped member, a non-object record) are left to the typed parse.
 pub(crate) fn unknown_field_refusal(actual_request: &Value) -> Option<String> {
     let request = actual_request.as_object()?;
