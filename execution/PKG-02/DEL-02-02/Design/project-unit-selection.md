@@ -1,8 +1,10 @@
 # Project unit selection (W-17)
 
-**Basis:** `origin/main` at `356a9be374` (2026-10-23). Slice (a) (§5) is
-implemented in W-17 (`apps/desktop/src/features/project-units/`); slice (b),
-`set_project_unit` and the Project units section, is not implemented. Standard claim fence applies (F-PIP-2; claims taxonomy per
+**Basis:** `origin/main` at `356a9be374` (2026-10-23) for §1–§6; slice (b)'s
+additions (§2.7 refusals, §2.8, §3, §4) at `25b7df82ae` (2026-10-25). Slice (a)
+(§5) is implemented in W-17 (`apps/desktop/src/features/project-units/`). Slice
+(b), `set_project_unit` and the Project units section, is designed here and
+implemented with it. Standard claim fence applies (F-PIP-2; claims taxonomy per
 DEC-081).
 
 Requirement: PRD §10.1 step 1, "User creates a project and selects units". Unit
@@ -131,6 +133,91 @@ keys, including `angle` (§5); the rest still applies.
      existing pattern, `lib.rs:7631-7656`).
    - **After:** the canonical catalog symbol (§2.2). There is no remove form.
    - **Validation:** canonical symbol, dimension and the length lock.
+   - **Wire.** Operation kind `modify`, change kind `set_project_unit`, as
+     `set_model_setting` is wired (`operation_applier/src/model_settings_authoring.rs`).
+     It returns one diff row `{object_type: Project, field_path, before, after}`
+     and changes no other byte of the document.
+   - **Canonical check in Rust.** `unit_by_symbol` resolves aliases and falls
+     back across compatible dimensions, so the applier does not use it here.
+     The check is the desktop's (`projectUnitSelection.ts`
+     `canonicalCatalogEntry`): an entry of `catalog_definitions()` whose
+     `symbol` equals the string exactly, whose review status is accepted, and
+     whose dimension is the key's. The key's dimension is `length`, `force`,
+     `moment`, `pressure`, `stress`, `temperature` or `angle`, matched as the
+     desktop's `unitEntryMatchesDimension` matches it. `core/units` is not
+     changed.
+   - **Refusals, by name.** Each refusal leaves the document unchanged and
+     queues nothing.
+
+     | Condition | Code |
+     |---|---|
+     | Target type is not `Project`, or a member is missing or not a string | `OP-PROJECT-UNIT-SHAPE-INVALID` |
+     | `ref` is not the document's `project.id` | `OP-TARGET-NOT-FOUND` |
+     | Document kind or version not the current model document | `OP-PROJECT-UNIT-DOCUMENT-INVALID` |
+     | Field path is not `project.units.<key>` for one of the seven keys | `OP-PROJECT-UNIT-UNKNOWN-KEY` |
+     | `after` is absent, null or `not_present` (a removal) | `OP-PROJECT-UNIT-REMOVAL-REFUSED` |
+     | `after` is not an exact accepted catalog symbol (unknown, an alias such as `C`, or a different spelling) | `OP-PROJECT-UNIT-NOT-CANONICAL` |
+     | `after` is a canonical symbol of another dimension | `OP-UNIT-DIMENSION-MISMATCH` |
+     | `before` does not match the stored value | `OP-STALE-BEFORE-VALUE` |
+     | `after` equals the stored value | `OP-PROJECT-UNIT-UNCHANGED` |
+     | Key `length`, and the document has at least one node | `OP-PROJECT-UNIT-LENGTH-LOCKED` |
+
+     The checks run in the table's order, so a stale `before` is reported
+     before the length lock.
+   - **Settled in implementation** (`project_units_authoring.rs`):
+     - The change's `unit` must equal `after` (`OP-PROJECT-UNIT-SHAPE-INVALID`),
+       and its `dimension` must be the key (`OP-UNIT-DIMENSION-MISMATCH`).
+     - The applier's generic missing-member check gives way to the table's
+       codes for this change kind. Through an atomic batch, the batch's own
+       shape check still requires string `before` and `after`, so a removal
+       sent that way is refused by the batch.
+     - A `project.units` that is not an object is
+       `OP-PROJECT-UNIT-DOCUMENT-INVALID`; an absent map is created holding
+       the one key.
+     - The `stress` key takes the catalog's pressure-dimension entries (`Pa`,
+       `MPa`, `psi`), as the desktop's dimension match does.
+8. **What a change after creation affects.** The edit changes one string in
+   `project.units`. Everything else follows from the existing readers
+   (survey at `25b7df82ae`):
+   - **Stored values.** None is converted. Positions stay in the length unit,
+     which cannot change while nodes exist; every `{value, unit}` quantity keeps
+     its entered unit. The solver reads only `project.units.length`
+     (`core/product_physics/src/lib.rs`, position normalization), so a change
+     to any other key cannot move a solver result.
+   - **The model document.** The schema is unchanged: model document 0.7.0
+     already admits the seven keys. Changing a present key replaces one string.
+     Setting an absent key adds that key, and setting a key when the map itself
+     is absent adds the map holding it. The document hash changes, as for any
+     edit.
+   - **Defaults and preconditions.** New fields default to the new key's unit
+     (§1 "Desktop defaults", §2.4); fields already authored keep theirs. The
+     applier's preconditions read the new key on the next operation.
+   - **Current results.** The edit goes through the same commit as every
+     operation (`workspaceSession.ts` `commitModel`). That clears the current
+     solve, analysis run, input manifest and rule-check aggregate. Undo and redo
+     restore the checkpoint and clear them the same way. The user solves again.
+   - **Saved states.** A state is the canonical text of the whole document, so
+     a state saved before the change keeps its units. Nothing rewrites it.
+     Comparing it with a later state shows one field at `project.units.<key>`
+     on the `model` row (`stateComparison.ts`): `changed` when a present key
+     was replaced, `added` when an absent key was set. It is not a
+     `unit_changed` row, because that kind is for `{value, unit}` quantities.
+   - **Recorded runs.** A run keeps its input manifest, whose
+     `unit_basis.project_units` records the units at the run, and nothing
+     rewrites it. Result rows carry the solver's own units, so run comparison
+     compares rows of runs made before and after a change. It adds no context
+     delta for the units: no result value depends on a non-length key, and the
+     length key cannot change while nodes exist.
+   - **Reports and exports.** They read the current document and the current
+     result. The edit clears the current result, so a report cannot pair the
+     new units with a result solved under the old ones. The report-package save
+     already requires the report's units to equal the model text's
+     (`report_package_save.rs`). Export unit manifests copy the current units;
+     length conversion in exports uses the length key, which is locked.
+   - **Rule checks.** The rule-check runner and the desktop rule-check service
+     do not read `project.units`; inputs convert to each rule's declared unit.
+     Only the cleared aggregate is affected.
+   - **Display units** are session state and do not read `project.units`.
 
 ## 3. Desktop UX
 
@@ -150,6 +237,19 @@ keys, including `angle` (§5); the rest still applies.
       an interpretation. No fix is offered.
     - **Any other missing key,** or `length` with no nodes, gets an offer to set
       it. The fix is a `set_project_unit` operation, never a silent default.
+  - **Placement.** The section sits in the property inspector's project view,
+    beside Model settings (`PropertyInspector.tsx`, selection type `project`).
+  - **Editing.** It follows Model settings (`ModelSettingsSection.tsx`):
+    - Each key offers the accepted catalog symbols of its dimension, the same
+      list as the creation dialog's Custom choice.
+    - Choosing one builds the intent and validates it against the current
+      model hash. A refusal is shown by its code and message, and nothing is
+      queued. Otherwise the change is queued for Review and Apply.
+    - A second queued change for the same key is refused.
+    - Choosing a unit validates and queues at once; there is no separate
+      Queue button.
+    - A key holding a legacy alias (`C`) is shown as stored, with a note that
+      a new choice must be a catalog symbol.
 - **The display selector is unchanged** and keeps its note.
 
 ## 4. Tests
@@ -176,6 +276,26 @@ keys, including `angle` (§5); the rest still applies.
   - Setting a key absent from an opened document succeeds with
     `before: not_present`. `length` with nodes is refused.
   - Undo restores the previous map.
+  - Every code in the §2.7 table is reached by at least one test.
+  - A legacy `C` temperature changes to `degC` with `before: "C"`.
+  - Through an atomic batch, a unit change applies, and a later failing
+    operation rolls it back with the document bytes unchanged.
+  - The change-kind exemption from the generic shape check reaches no other
+    path: a wrong operation kind, target type or field path is refused with
+    nothing applied.
+- **Through the apply command (src-tauri).** A force-key change applied through
+  the apply command changes `project.units.force` and nothing else, and the
+  same model solves to the same rows.
+- **Vitest, section.** The seven keys shown; the length selector disabled with
+  the reason while nodes exist; each missing-key notice (hard lock for `length`
+  with nodes, an offer otherwise); a refusal shown with nothing queued; a
+  second queued change for one key refused; undo and redo through the
+  checkpoint.
+- **Vitest, Project page without the map.** The property inspector's project
+  view renders a document with no `project.units`, or with keys missing, with
+  and without nodes. It shows the notices, offers the fix with
+  `before: not_present`, and leaves the document unchanged. A model change
+  during validation queues nothing and asks for a re-queue.
 - **Applier, angle.** A rotational imposed displacement is accepted on a new
   blank document.
 - **e2e.** Specs that click "New blank" gain the dialog's Create click.
@@ -205,10 +325,12 @@ keys, including `angle` (§5); the rest still applies.
     default and angle tests.
   - It touches no applier or pinned file.
 - **Slice (b): editing units after creation.**
-  - Scope: `set_project_unit` (§2.5, §2.7), the Project units section with its
-    missing-key handling, and the applier tests.
-  - It reuses the `Project` target that S2 adds in applier `lib.rs`, rather than
-    adding a second one.
+  - Scope: `set_project_unit` (§2.5, §2.7, §2.8), the Project units section
+    with its missing-key handling, and the applier, src-tauri and section tests.
+  - It uses the `Project` singleton target that W-13 S2 added for project tags
+    and notes and that `set_model_setting` uses (`model_data_authoring.rs`,
+    `model_settings_authoring.rs`), rather than adding a second one.
+  - It touches no D3-pinned file and no schema.
 
 ## 6. Review findings resolved
 

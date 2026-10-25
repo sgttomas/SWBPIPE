@@ -9908,6 +9908,54 @@ mod tests {
             assert!(near_pairs(&reset, mode).is_empty(), "reset to the default, 8 mm does not warn");
         }
     }
+
+    /// DEL-02-02 Design `project-unit-selection.md` §2.8, §4 "Through the apply
+    /// command": a force-key change applied through the apply command changes
+    /// `project.units.force` and nothing else, and the same model solves to the
+    /// same rows (the solver reads only the length key). Invented data only.
+    #[test]
+    fn a_project_unit_change_through_the_apply_command_changes_one_key_and_no_result() {
+        let model = read_fixture("invented_demo_model.json").expect("bundled preview model loads");
+        assert_eq!(model["project"]["units"]["force"], "N");
+        let intent = json!({
+            "operation_id": "op:project-units:force", "operation_kind": "modify", "operation_status": "proposed",
+            "author_type": "user", "target": {"object_type": "Project", "ref": model["project"]["id"]},
+            "change": {"change_id": "change:project-units:force", "change_kind": "set_project_unit",
+                "field_label": "Project force unit", "field_path": "project.units.force",
+                "before": "N", "after": "lbf", "unit": "lbf", "dimension": "force", "source_note": "invented test input"},
+            "validation": {"schema_validation":"not_run","constraint_validation":"not_run","unit_validation":"not_run",
+                "diff_preview_status":"not_generated","application_status":"not_applied"},
+            "audit_boundary": {"mutation_route":"structured_operations_only","direct_model_mutation_allowed":false,
+                "requires_user_acceptance":true,"mutates_accepted_model_state":false},
+            "professional_boundary": {"human_review_required":true,"software_makes_compliance_claim":false,
+                "software_makes_certification_claim":false,"software_makes_sealing_claim":false,
+                "software_makes_approval_claim":false,"software_makes_authentication_claim":false},
+            "rationale": "Invented project-unit test"
+        });
+        let outcome = apply_model_operation_value(model.clone(), intent, None).expect("command returns outcome");
+        assert_eq!(outcome["validation"]["application_status"], "applied_to_session_model", "{}", outcome["diagnostics"]);
+        assert_eq!(
+            outcome["diff_preview"],
+            json!([{"entity_ref": model["project"]["id"], "object_type": "Project", "field_path": "project.units.force",
+                "before": "N", "after": "lbf", "unit": "lbf", "dimension": "force", "change_kind": "set_project_unit"}])
+        );
+        let applied = outcome["applied_model"].clone();
+        let mut expected = model.clone();
+        expected["project"]["units"]["force"] = json!("lbf");
+        assert_eq!(applied, expected, "only project.units.force changed");
+        assert_ne!(
+            open_pipe_stress_operation_applier::canonical_json(&applied),
+            open_pipe_stress_operation_applier::canonical_json(&model),
+            "the edit changes the document and its hash"
+        );
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let before = solve_preview_mechanics_value_with_mode(model.clone(), mode).expect("solve returns an envelope");
+            let after = solve_preview_mechanics_value_with_mode(applied.clone(), mode).expect("solve returns an envelope");
+            assert!(!before["results"].as_array().unwrap().is_empty(), "the model solves");
+            assert_eq!(before["results"], after["results"], "the same rows");
+            assert_eq!(before["status"], after["status"]);
+        }
+    }
 }
 
 #[cfg(test)]
