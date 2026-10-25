@@ -359,15 +359,21 @@ manifests, build scripts, `src/`), its lock file, the build script, the compile
 reads cargo's dep-info lists (schemas and fixtures included or digested at
 build time, by the path cargo reported, with every symbolic link on that path
 and its target), the bytes of the cargo configuration files, `rustc -vV` of the
-rustc cargo runs, and the compiler, wrapper, linker, rustflag and profile
-environment (`RUSTC*`, `CARGO_BUILD_*`, `CARGO_TARGET_<triple>_*`,
+rustc cargo runs, and the compiler, linker, rustflag and profile environment
+(`RUSTC`, `RUSTFLAGS`, `CARGO_BUILD_*`, `CARGO_TARGET_<triple>_*`,
 `CARGO_PROFILE_*` and similar). The cargo configuration files' keys are
 decoded as TOML (bare, basic-string with every escape, literal-string, dotted,
 in table headers and inline tables). Refused by name: a configuration file with
 a `rustc`, `rustc-wrapper` or `rustc-workspace-wrapper` key anywhere, a
 `build.build-dir` or `build.target-dir` key, or an `include` key; one the
-scanner cannot tokenize with confidence; and a compile read whose path has a
-`..` that cancels a symbolic link. A `[target.<triple>]` `linker`, `runner` or
+scanner cannot tokenize with confidence; a compile read whose path has a
+`..` that cancels a symbolic link; and, before any cargo runs (the engine build
+and stamp, the manifest reads and the smoke's app build and clean), a non-empty
+`RUSTC_WRAPPER`, `RUSTC_WORKSPACE_WRAPPER`, `CARGO_BUILD_RUSTC_WRAPPER` or
+`CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER` in the environment. Our wrappers never
+set one; an inherited wrapper would run unseen for every compile, and one that
+calls `t3_slot.sh` would take a host slot under the worktree lock. The app
+build's cargo configuration is checked the same way, from `src-tauri`. A `[target.<triple>]` `linker`, `runner` or
 `rustflags` key is not refused: the file's bytes are in the stamp. Each engine
 builds in its own target directory, `apps/desktop/target/wasm-engines/<engine>`:
 every cargo that builds, cleans or reports the target directory (the engine
@@ -405,17 +411,27 @@ and by `run.mjs` from its engine check through the app build and binding,
 released before the launches; `build:wasm` under the smoke inherits it through
 the token the lock records. So two builds or smokes in one worktree never
 interleave, and the `.tmp-`/`.old-` cleanup never removes another active run's
-directories. The lock is created atomically (a complete record hard-linked into
-place) with the holder's pid, the start time `ps` reports for it, its purpose
-and a token. A second taker logs `waiting for the build lock held by pid N`,
-waits at most `OPENPIPESTRESS_BUILD_LOCK_WAIT_MS` (default 30 minutes) and then
-refuses by name. A lock is broken, with a log line, only when its pid is not
-running or is running with another start time (a reused pid); a live holder's
-lock is never broken. Lock order: the host slot first (`t3_slot.sh`,
-`t3_cargo.sh` or `t3_exclusive.sh`, taken by the wrapper that launches the
-build or smoke), then the worktree lock; code holding the worktree lock never
-acquires a host slot, and a command that resolves to one of those wrappers, or
-to a script naming them, is refused by name.
+directories. One build, or one smoke's build phase, per worktree at a time is
+the supported use; a second is refused, not queued. The lock is created
+atomically (a complete record hard-linked into place) with the holder's pid,
+the start time `ps` reports for it (in UTC and the C locale), its purpose, a
+token and when it was acquired. It fails closed: no lock is ever broken
+automatically, since neither a pid's absence nor its start time shows that no
+build process of the holder survives. A taker that finds the lock held refuses
+at once, naming the holder's pid, purpose, recorded start and acquired times,
+with a liveness hint from `ps` (informational; it removes nothing) and the
+exact removal step, so that a crashed run costs a minute, not a diagnosis:
+`TZ=UTC ps -p <pid> -o pid,lstart,command` for the holder and
+`pgrep -fl -- '<project directory>'` for any cargo, rustc, wasm-bindgen,
+build-script or app process whose command line names this worktree's project
+directory (rustc carries it in `--out-dir`, and every cargo build the tooling
+runs names a manifest in it), then `rm -f '<lock path>'`, each with the
+absolute paths quoted for zsh and bash. Lock order: the host slot first
+(`t3_slot.sh`, `t3_cargo.sh` or `t3_exclusive.sh`, taken by the wrapper that
+launches the build or smoke), then the worktree lock; code holding the
+worktree lock never acquires a host slot, and a command that resolves to one of
+those wrappers, or to a script naming them, is refused by name, as is an
+inherited compiler wrapper.
 
 The app embeds `dist/` when cargo builds it. `run.mjs` builds it with
 the target and build directories set to `src-tauri/target` and
@@ -440,8 +456,14 @@ since an ordinary cargo build after the binding (of other sources, later
 restored with their old times) leaves artifacts cargo would take as fresh. `dist/` changing while cargo builds, or
 the frontend inputs changing while Vite builds, stops the run by name with no
 binding and no launch; a changed or newly revealed Rust input means another
-build, up to three. The executable's identity is checked again before each
-launch. Under `--skip-build` the frontend and app are rebuilt when an engine was
+build, up to three. Still under the lock, the bound executable is copied into a
+private per-run directory, `apps/desktop/target/native-smoke/run-<token>/`
+(created exclusively), the copy's SHA-256 must equal the bound binary's, and
+the lock is released; each launch runs the copy, its identity checked again
+first, and the copy is removed when the run ends. A build after the release
+cannot change what the run launches. The app needs nothing beside its
+executable: `dist/` is embedded, it links only system libraries, and its solve
+workers start the same copy (`current_exe`). Under `--skip-build` the frontend and app are rebuilt when an engine was
 rebuilt, a `dist/` engine copy's stamp differs, the record is missing or
 unreadable, or the frontend hash or `dist/` digest differs; the app alone when
 the engine stamps, the Rust inputs, the build or the executable differ. The log
@@ -456,7 +478,8 @@ Out of scope, documented limits: local cargo configuration or filesystem tricks
 deliberately constructed to defeat the check. The refusal of compiler and
 output keys in any TOML spelling, and of files the scanner cannot tokenize,
 also stops such constructions where that was cheap; these limits remain: the
-contents of a wrapper or linker program (only its name); a file swapped between
+contents of a linker or runner program (only its name; compiler wrappers are
+refused); a file swapped between
 the check and cargo's read, or a link created during a build; and cargo
 configuration read from places other than the working directory's ancestry and
 `CARGO_HOME` (command-line `--config`, which the smoke does not pass).
