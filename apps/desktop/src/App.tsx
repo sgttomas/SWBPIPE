@@ -957,6 +957,7 @@ function AppSession() {
               <DormantSection active={activeSection === "solve"} sessionGeneration={projectSessionGeneration}>
               <SolvePanel
                 analysisRun={analysisRun}
+                inputManifest={inputManifest?.manifest ?? null}
                 model={model}
                 result={result}
                 numericalHealth={numericalHealth}

@@ -47,6 +47,7 @@ use open_pipe_stress_canonical_json::{canonical_json, canonical_json_checked_v1_
 use open_pipe_stress_operation_applier::sha256_hex;
 use rusqlite::{Connection, Transaction, TransactionBehavior};
 use serde::Serialize;
+use sha2::{Digest, Sha256};
 use serde_json::Value;
 use std::cell::Cell;
 use std::rc::Rc;
@@ -72,6 +73,8 @@ pub(crate) struct ReadReservation {
 impl Drop for ReadReservation {
     fn drop(&mut self) {
         if let Some(held) = &self.held {
+            #[cfg(test)]
+            release_probe::sqlite_event(held.get());
             held.set(held.get().saturating_sub(self.bytes));
             #[cfg(test)]
             release_probe::record(held.get());
@@ -96,6 +99,45 @@ pub(crate) mod release_probe {
     /// The `(live priced bytes, bytes still held)` at each release since [`start`].
     pub(crate) fn take() -> Vec<(i64, u64)> {
         RELEASES.with(|releases| releases.borrow_mut().take().unwrap_or_default())
+    }
+
+    thread_local! {
+        /// SQLite's memory when the accounting began, and each interval's
+        /// `(SQLite peak above it, bytes the read held throughout)`.
+        static SQLITE: RefCell<Option<(i64, Vec<(u64, u64)>)>> = const { RefCell::new(None) };
+    }
+
+    fn sqlite_status(reset: bool) -> (i64, i64) {
+        let (mut current, mut high) = (0i64, 0i64);
+        // SAFETY: plain out-pointers to two live i64s; the status call takes no other state.
+        unsafe { rusqlite::ffi::sqlite3_status64(rusqlite::ffi::SQLITE_STATUS_MEMORY_USED, &mut current, &mut high, i32::from(reset)) };
+        (current, high)
+    }
+
+    /// Starts SQLite's interval accounting (tests that run alone in their
+    /// process: SQLite's status is process-wide).
+    pub(crate) fn sqlite_start() {
+        let (current, _) = sqlite_status(true);
+        SQLITE.with(|sqlite| *sqlite.borrow_mut() = Some((current, Vec::new())));
+    }
+
+    /// Closes the interval that ends at a change of the read's reservations,
+    /// recording SQLite's peak in it against `held`, what the read held in it.
+    pub(crate) fn sqlite_event(held: u64) {
+        SQLITE.with(|sqlite| {
+            if let Ok(mut sqlite) = sqlite.try_borrow_mut() {
+                if let Some((start, intervals)) = sqlite.as_mut() {
+                    let (_, high) = sqlite_status(true);
+                    intervals.push((u64::try_from(high - *start).unwrap_or(0), held));
+                }
+            }
+        });
+    }
+
+    /// The intervals since [`sqlite_start`], the last ending now with `held`.
+    pub(crate) fn sqlite_take(held: u64) -> Vec<(u64, u64)> {
+        sqlite_event(held);
+        SQLITE.with(|sqlite| sqlite.borrow_mut().take().map(|(_, intervals)| intervals).unwrap_or_default())
     }
 
     pub(crate) fn record(held_after: u64) {
@@ -166,6 +208,8 @@ impl ReadMemory for PoolReadMemory<'_> {
         }
         match self.registry.acquire_interactive_ingress(bytes) {
             Ok(lease) => {
+                #[cfg(test)]
+                release_probe::sqlite_event(self.held.get());
                 self.held.set(required);
                 self.peak.set(self.peak.get().max(required));
                 Ok(ReadReservation { _leases: vec![lease], bytes, held: Some(Rc::clone(&self.held)) })
@@ -225,6 +269,193 @@ pub(crate) fn shown(text: &str) -> std::borrow::Cow<'_, str> {
     match text.char_indices().nth(MAX_SHOWN_CHARS) {
         None => std::borrow::Cow::Borrowed(text),
         Some((cut, _)) => std::borrow::Cow::Owned(format!("{}…", &text[..cut])),
+    }
+}
+
+/// A history list's entry for a stored row that cannot be read (W-12; DEL-14-01
+/// Design §2, §3): only the row's id, cut as a message quotes it ([`shown`]),
+/// its named refusal (code and message, [`capped`]), its delete handle (the
+/// row's SQLite rowid and a digest of its stored id, [`row_handle`], distinct
+/// from the display text), and how many other stored rows name it (a state's
+/// child states and runs, counted from their columns; 0 for a run). None of the
+/// row's unverified fields is presented. The other rows are listed as usual.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub(crate) struct UnreadableRow {
+    pub(crate) id: String,
+    pub(crate) refusal: String,
+    pub(crate) handle: String,
+    pub(crate) references: u64,
+}
+
+/// The bytes an [`UnreadableRow`] can hold: the shown id ([`SHOWN_COLUMN_BYTES`]
+/// with its ellipsis), the capped refusal (at most [`MAX_MESSAGE_CHARS`]
+/// characters and its ellipsis, four bytes each) and the handle, with its
+/// structure.
+pub(crate) const UNREADABLE_ROW_BYTES: u64 = (SHOWN_COLUMN_BYTES as u64 + 8) + ((MAX_MESSAGE_CHARS as u64 + 1) * 4) + 128 + 256;
+
+impl UnreadableRow {
+    /// The entry for a row shown as `id`, refused by `refusal`, deleted by
+    /// `handle`; its caller holds its reservation ([`UNREADABLE_ROW_BYTES`]),
+    /// made before anything of the row was read.
+    pub(crate) fn new(id: &str, refusal: String, handle: String, references: u64) -> Self {
+        Self { id: shown(id).into_owned(), refusal: capped(refusal), handle, references }
+    }
+}
+
+/// SQLite's working set per byte of the largest stored keyed row (W-12, repair
+/// r7; DEL-14-01 Design §3). SQLite allocates inside the desktop process: a
+/// query that compares, joins, seeks an index by, takes a `substr` of or
+/// deletes a stored value materializes the whole value, and index seeks may
+/// materialize other rows' keys on the search path. Measured with
+/// `sqlite3_status64(SQLITE_STATUS_MEMORY_USED)` for a row whose 8 MiB id is
+/// also its labels row's key: a list peaks at 2.03 times the id, a run's
+/// delete by handle at 5.33 times and a state's at 6.34 times (its index and
+/// page work, the foreign-key cascade, the shown head, the chunked digest and
+/// the re-check). 8 covers the largest with margin.
+pub(crate) const SQLITE_WORKING_SET_FACTOR: u64 = 8;
+
+/// The history tables' columns SQLite may materialize beyond what a command
+/// prices when it loads them: every key, identity and time column (the record,
+/// result, manifest, snapshot and label texts are priced at their loaded
+/// lengths when they are loaded; the project name, read only for a refusal's
+/// head, reserves its own, [`reserve_sqlite_value`]).
+const SQLITE_KEYED_COLUMNS: [(&str, &[&str]); 5] = [
+    ("analysis_runs", &["project_id", "recording_id", "state_id", "producer_run_id", "created_at", "run_record_hash", "result_hash"]),
+    ("analysis_run_labels", &["project_id", "recording_id", "updated_at"]),
+    ("model_states", &["project_id", "state_id", "state_kind", "created_at", "parent_state_id", "model_hash", "record_hash"]),
+    ("model_state_labels", &["project_id", "state_id", "updated_at"]),
+    ("local_projects", &["project_id"]),
+];
+
+/// SQL measuring the largest stored keyed row of the history tables, in
+/// bytes, without SQLite loading any value: `octet_length` of a column reads
+/// only the record header (SQLite 3.43+), and `NOT INDEXED` scans each table's
+/// own b-tree, so no index key is compared.
+fn sqlite_keyed_row_sql() -> String {
+    let tables: Vec<String> = SQLITE_KEYED_COLUMNS
+        .iter()
+        .map(|(table, columns)| {
+            let sum: Vec<String> = columns.iter().map(|column| format!("COALESCE(octet_length({column}), 0)")).collect();
+            format!("(SELECT COALESCE(MAX({}), 0) FROM {table} NOT INDEXED)", sum.join(" + "))
+        })
+        .collect();
+    format!("SELECT MAX({})", tables.join(", "))
+}
+
+/// Reserves SQLite's working set for a history command on `connection`, its
+/// transaction, before any other statement of it touches a stored row
+/// (W-12, repair r7): [`SQLITE_WORKING_SET_FACTOR`] times the bytes of the
+/// largest stored keyed row of the history tables, measured over every row (an index
+/// seek may materialize another project's key). A store holding an oversized
+/// key is refused by name (`STORE-READ-MEMORY-UNAVAILABLE`) when its working
+/// set does not fit, before SQLite loads it. The caller holds the reservation
+/// until its transaction ends.
+pub(crate) fn admit_sqlite_working_set(connection: &Connection, memory: &dyn ReadMemory) -> Result<ReadReservation, String> {
+    let largest: i64 = connection.query_row(&sqlite_keyed_row_sql(), [], |row| row.get(0)).map_err(|error| sql_error(&error))?;
+    let largest = u64::try_from(largest).unwrap_or(0);
+    memory.reserve(
+        &format!("SQLite's working set for the stored history (its largest keyed row holds {largest} bytes)"),
+        largest.saturating_mul(SQLITE_WORKING_SET_FACTOR),
+    )
+}
+
+/// Reserves SQLite's working set for one statement that materializes a stored
+/// value of `length` bytes outside the history's keyed rows
+/// ([`admit_sqlite_working_set`]), before the statement runs.
+pub(crate) fn reserve_sqlite_value(memory: &dyn ReadMemory, what: &str, length: i64) -> Result<ReadReservation, String> {
+    memory.reserve(what, u64::try_from(length).unwrap_or(0).saturating_mul(SQLITE_WORKING_SET_FACTOR))
+}
+
+/// The most bytes of a stored id a row handle's digest reads at a time (W-12).
+pub(crate) const HANDLE_CHUNK_BYTES: i64 = 64 * 1024;
+
+/// What a row handle's digest holds while it reads an id: SQLite's value of
+/// one chunk and the statement's copy of it (each chunk is hashed where SQLite
+/// holds it, never copied into the process).
+pub(crate) fn handle_chunk_bytes() -> u64 {
+    envelope(HANDLE_CHUNK_BYTES as u64).saturating_mul(2)
+}
+
+/// A row's delete handle: `<kind>:<rowid>:<id byte length>:<digest>`, the
+/// digest the first 16 hex of the SHA-256 of the row's whole stored id (its
+/// bytes, as `CAST(id AS BLOB)` gives them). The rowid names the row; the
+/// length and digest refuse a stale handle (a rowid reused by another row).
+/// The id is read on `connection`, the caller's transaction (so every chunk is
+/// of one snapshot), in chunks of at most [`HANDLE_CHUNK_BYTES`], within one
+/// reservation of the chunk buffer ([`handle_chunk_bytes`]); it is never
+/// loaded whole. `table` and `id_column` are the caller's own names. A rowid
+/// no row has is a SQLite error (the caller found the row first).
+pub(crate) fn row_handle(connection: &Connection, table: &str, id_column: &str, kind: &str, rowid: i64, memory: &dyn ReadMemory) -> Result<String, String> {
+    let length: Option<i64> = connection
+        .query_row(&format!("SELECT octet_length({id_column}) FROM {table} WHERE rowid = ?1"), rusqlite::params![rowid], |row| row.get(0))
+        .map_err(|error| sql_error(&error))?;
+    let length = length.unwrap_or(0);
+    let _buffer = memory.reserve("a stored id's delete handle", handle_chunk_bytes())?;
+    let mut statement = connection
+        .prepare(&format!("SELECT substr(CAST({id_column} AS BLOB), ?2, ?3) FROM {table} WHERE rowid = ?1"))
+        .map_err(|error| sql_error(&error))?;
+    let mut hasher = Sha256::new();
+    let mut offset: i64 = 1;
+    while offset <= length {
+        statement
+            .query_row(rusqlite::params![rowid, offset, HANDLE_CHUNK_BYTES], |row| {
+                if let rusqlite::types::ValueRef::Blob(bytes) = row.get_ref(0)? {
+                    hasher.update(bytes);
+                }
+                Ok(())
+            })
+            .map_err(|error| sql_error(&error))?;
+        offset = offset.saturating_add(HANDLE_CHUNK_BYTES);
+    }
+    let digest = hasher.finalize();
+    let hex: String = digest.iter().take(8).map(|byte| format!("{byte:02x}")).collect();
+    Ok(format!("{kind}:{rowid}:{length}:{hex}"))
+}
+
+/// The rowid a handle of `kind` names, or `None` when the text is not such a handle.
+pub(crate) fn handle_rowid(kind: &str, handle: &str) -> Option<i64> {
+    let mut parts = handle.split(':');
+    if parts.next() != Some(kind) {
+        return None;
+    }
+    let rowid = parts.next()?.parse().ok()?;
+    let _length: i64 = parts.next()?.parse().ok()?;
+    let digest = parts.next()?;
+    (parts.next().is_none() && digest.len() == 16 && digest.bytes().all(|byte| byte.is_ascii_hexdigit())).then_some(rowid)
+}
+
+/// SQL true when every bounded column of `columns` whose SQL starts with
+/// `prefix` (such as `"s."`) is within its bound, read under `alias` instead:
+/// the rows a relationship may load an id from (an oversized row is never
+/// loaded, W-12).
+pub(crate) fn within_bounds(columns: &[BoundedColumn], prefix: &str, alias: &str) -> String {
+    let terms: Vec<String> = columns
+        .iter()
+        .filter(|(column, _, max)| column.starts_with(prefix) && *max != MEASURED_ONLY)
+        .map(|(column, _, max)| format!("COALESCE(octet_length({alias}.{}), 0) <= {max}", &column[prefix.len()..]))
+        .collect();
+    if terms.is_empty() { "1".to_string() } else { format!("({})", terms.join(" AND ")) }
+}
+
+/// Whether a SQLite error is a stored value's own type or text failure (one
+/// row's), not the database's: such a row is listed as unreadable (W-12).
+pub(crate) fn is_row_value_error(error: &rusqlite::Error) -> bool {
+    matches!(
+        error,
+        rusqlite::Error::FromSqlConversionFailure(..) | rusqlite::Error::InvalidColumnType(..) | rusqlite::Error::Utf8Error(..) | rusqlite::Error::IntegralValueOutOfRange(..)
+    )
+}
+
+/// A stored column fetch's error as a read presents it: a stored value's own
+/// type or text failure ([`is_row_value_error`]) is the row's,
+/// `integrity(detail)` (in a list, the row is unreadable; a single read is
+/// refused by name); any other is the database's ([`sql_error`]).
+pub(crate) fn column_fetch_error(error: rusqlite::Error, integrity: impl FnOnce(String) -> String) -> String {
+    let detail = sql_error(&error);
+    if is_row_value_error(&error) {
+        integrity(format!("a stored column cannot be read ({detail})"))
+    } else {
+        detail
     }
 }
 
