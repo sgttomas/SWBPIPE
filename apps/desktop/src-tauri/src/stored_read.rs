@@ -73,6 +73,8 @@ pub(crate) struct ReadReservation {
 impl Drop for ReadReservation {
     fn drop(&mut self) {
         if let Some(held) = &self.held {
+            #[cfg(test)]
+            release_probe::sqlite_event(held.get());
             held.set(held.get().saturating_sub(self.bytes));
             #[cfg(test)]
             release_probe::record(held.get());
@@ -97,6 +99,45 @@ pub(crate) mod release_probe {
     /// The `(live priced bytes, bytes still held)` at each release since [`start`].
     pub(crate) fn take() -> Vec<(i64, u64)> {
         RELEASES.with(|releases| releases.borrow_mut().take().unwrap_or_default())
+    }
+
+    thread_local! {
+        /// SQLite's memory when the accounting began, and each interval's
+        /// `(SQLite peak above it, bytes the read held throughout)`.
+        static SQLITE: RefCell<Option<(i64, Vec<(u64, u64)>)>> = const { RefCell::new(None) };
+    }
+
+    fn sqlite_status(reset: bool) -> (i64, i64) {
+        let (mut current, mut high) = (0i64, 0i64);
+        // SAFETY: plain out-pointers to two live i64s; the status call takes no other state.
+        unsafe { rusqlite::ffi::sqlite3_status64(rusqlite::ffi::SQLITE_STATUS_MEMORY_USED, &mut current, &mut high, i32::from(reset)) };
+        (current, high)
+    }
+
+    /// Starts SQLite's interval accounting (tests that run alone in their
+    /// process: SQLite's status is process-wide).
+    pub(crate) fn sqlite_start() {
+        let (current, _) = sqlite_status(true);
+        SQLITE.with(|sqlite| *sqlite.borrow_mut() = Some((current, Vec::new())));
+    }
+
+    /// Closes the interval that ends at a change of the read's reservations,
+    /// recording SQLite's peak in it against `held`, what the read held in it.
+    pub(crate) fn sqlite_event(held: u64) {
+        SQLITE.with(|sqlite| {
+            if let Ok(mut sqlite) = sqlite.try_borrow_mut() {
+                if let Some((start, intervals)) = sqlite.as_mut() {
+                    let (_, high) = sqlite_status(true);
+                    intervals.push((u64::try_from(high - *start).unwrap_or(0), held));
+                }
+            }
+        });
+    }
+
+    /// The intervals since [`sqlite_start`], the last ending now with `held`.
+    pub(crate) fn sqlite_take(held: u64) -> Vec<(u64, u64)> {
+        sqlite_event(held);
+        SQLITE.with(|sqlite| sqlite.borrow_mut().take().map(|(_, intervals)| intervals).unwrap_or_default())
     }
 
     pub(crate) fn record(held_after: u64) {
@@ -167,6 +208,8 @@ impl ReadMemory for PoolReadMemory<'_> {
         }
         match self.registry.acquire_interactive_ingress(bytes) {
             Ok(lease) => {
+                #[cfg(test)]
+                release_probe::sqlite_event(self.held.get());
                 self.held.set(required);
                 self.peak.set(self.peak.get().max(required));
                 Ok(ReadReservation { _leases: vec![lease], bytes, held: Some(Rc::clone(&self.held)) })

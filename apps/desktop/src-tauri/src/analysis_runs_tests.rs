@@ -3759,3 +3759,121 @@ fn sqlite_allocations_for_an_oversized_id_are_admitted_before_sqlite_loads_it() 
         assert_eq!(small.pool_status().reserved_bytes, 0);
     });
 }
+
+/// SQLite's page cache, which stays within the accepted residual estimate
+/// (DEL-14-01 Design §3; Codex r8 measured up to 2.48 MB of cache): an
+/// interval's SQLite peak may exceed what the read holds by at most this.
+const SQLITE_PAGE_CACHE_SLACK: u64 = 3 << 20;
+
+/// Runs `command` under `memory` and checks that in every interval between
+/// changes of its reservations SQLite's own peak stayed within what it held
+/// then (plus the page cache): nothing is loaded by SQLite after the lease that
+/// priced it was released. Returns the outcome and SQLite's overall peak.
+fn within_held_reservations<T>(memory: &PoolReadMemory<'_>, what: &str, command: impl FnOnce() -> T) -> (T, u64) {
+    stored_read::release_probe::sqlite_start();
+    let (outcome, peak) = sqlite_peak_during(command);
+    let intervals = stored_read::release_probe::sqlite_take(memory.held());
+    for (index, (sqlite, held)) in intervals.iter().enumerate() {
+        assert!(*sqlite <= held + SQLITE_PAGE_CACHE_SLACK, "{what}: interval {index}: SQLite peaked at {sqlite} bytes while {held} were held ({intervals:?})");
+    }
+    (outcome, peak)
+}
+
+#[test]
+fn a_project_save_time_that_is_not_an_integer_is_refused_by_name_without_sqlite_loading_it() {
+    // Codex r8: an 8 MiB text in updated_at_unix was materialized by the stale-project
+    // guard (10.97 MB in SQLite with 12,488 bytes reserved), then STORE-SQL-ERROR.
+    in_own_process("a_project_save_time_that_is_not_an_integer_is_refused_by_name_without_sqlite_loading_it", || {
+        const BIG: usize = 8 << 20;
+        let path = store_with_project("sqlite-text-save-time");
+        let solved = model("Invented project");
+        save_state(&path, &solved, "Basis", "00000000000000000000000000004201", 1_000);
+        tamper_with(&path, "UPDATE local_projects SET updated_at_unix = ?1", &"t".repeat(BIG));
+        let kind: String = Connection::open(&path).unwrap().query_row("SELECT typeof(updated_at_unix) FROM local_projects", [], |row| row.get(0)).unwrap();
+        assert_eq!(kind, "text");
+        let refusal = format!("PROJECT-BASE-MOVED: project `{PROJECT}` (\"Invented project\", its last save time cannot be read) changed after this session opened or saved it");
+        let small = small_pool();
+        // Save Model State with a stale base.
+        let model_canonical = canonical_json(&model("Other project"));
+        let save = SaveModelStateRequest {
+            project_id: PROJECT.to_string(),
+            expected_base: "sha256:older".to_string(),
+            model_hash: format!("sha256:{}", sha256_hex(&model_canonical)),
+            model_canonical,
+            state_kind: "design_snapshot".to_string(),
+            parent_state_id: None,
+            labels: labels_from_value(json!({ "state_name": "Other" })).unwrap(),
+        };
+        let allocate = || Ok(("00000000000000000000000000004202".to_string(), 2_000));
+        let between_rows = |_: &Transaction<'_>| Ok(());
+        let hooks = StateWriteHooks { allocate: &allocate, between_rows: &between_rows };
+        let memory = PoolReadMemory::unseeded(&small);
+        let (outcome, peak) = within_held_reservations(&memory, "Save Model State", || model_states::save_state_in_store_with(&path, save, &hooks, &memory).map(|_| ()));
+        let error = outcome.unwrap_err();
+        assert!(error.starts_with(&refusal), "{error}");
+        assert!(peak < (BIG as u64) / 4, "Save Model State: SQLite never loaded the time (peak {peak})");
+        drop(memory);
+        // Record Run with a stale base.
+        let mut stale = request(&solved, "Run");
+        stale.expected_base = "sha256:older".to_string();
+        let now = || Ok(T0);
+        let token = || Ok("0000000000000000000000000000e00d".to_string());
+        let run_rows = |_: &Transaction<'_>, _: &str| Ok(());
+        let run_hooks = RunWriteHooks { now: &now, state_token: &token, between_rows: &run_rows };
+        let memory = PoolReadMemory::unseeded(&small);
+        let (outcome, peak) = within_held_reservations(&memory, "Record Run", || record_run_in_store_with(&path, stale, &run_hooks, &memory).map(|_| ()));
+        let error = outcome.unwrap_err();
+        assert!(error.starts_with(&refusal), "{error}");
+        assert!(peak < (BIG as u64) / 4, "Record Run: SQLite never loaded the time (peak {peak})");
+        drop(memory);
+        assert_eq!(small.pool_status().reserved_bytes, 0);
+        assert_eq!(row_count(&path, "model_states"), 1);
+        assert_eq!(row_count(&path, "analysis_runs"), 0);
+    });
+}
+
+#[test]
+fn a_blocked_delete_names_its_children_from_their_verification_without_reloading_a_name() {
+    // Codex r8: a blocked parent delete reloaded each child's name after the child's
+    // lease was released (8.43 MB in SQLite for an 8 MiB name with 526,200 bytes held).
+    in_own_process("a_blocked_delete_names_its_children_from_their_verification_without_reloading_a_name", || {
+        const BIG: usize = 8 << 20;
+        let path = store_with_project("sqlite-blocker-name");
+        let parent = save_state(&path, &model("Invented project"), "Parent", "00000000000000000000000000004301", 1_000);
+        let child_model = model("Child project");
+        let model_canonical = canonical_json(&child_model);
+        let request = SaveModelStateRequest {
+            project_id: PROJECT.to_string(),
+            expected_base: BASE.to_string(),
+            model_hash: format!("sha256:{}", sha256_hex(&model_canonical)),
+            model_canonical,
+            state_kind: "design_snapshot".to_string(),
+            parent_state_id: Some(parent.state_id.clone()),
+            labels: labels_from_value(json!({ "state_name": "Child" })).unwrap(),
+        };
+        let allocate = || Ok(("00000000000000000000000000004302".to_string(), 2_000));
+        let between_rows = |_: &Transaction<'_>| Ok(());
+        let child = save_state_in_store(&path, request, &StateWriteHooks { allocate: &allocate, between_rows: &between_rows }).unwrap().state;
+        tamper_with(&path, &format!("UPDATE model_state_labels SET state_name = ?1 WHERE state_id = '{}'", child.state_id), &"n".repeat(BIG));
+        // A pool that admits the list (each child verified within its own lease).
+        let pool = pool_of(128 << 20);
+        let memory = PoolReadMemory::unseeded(&pool);
+        let listed = model_states::list_states_in_store_with(&path, PROJECT, &memory).unwrap();
+        let children = listed.get().iter().find_map(|entry| match entry {
+            model_states::ListedState::Readable(summary) if summary.state_id == parent.state_id => Some(summary.child_state_ids.clone()),
+            _ => None,
+        });
+        assert_eq!(children, Some(vec![child.state_id.clone()]));
+        drop(listed);
+        drop(memory);
+        let memory = PoolReadMemory::unseeded(&pool);
+        let (outcome, _) = within_held_reservations(&memory, "the blocked delete", || model_states::delete_state_in_store_with(&path, PROJECT, &parent.state_id, &memory).map(|_| ()));
+        let error = outcome.unwrap_err();
+        assert!(error.starts_with("MODEL-STATE-DELETE-BLOCKED: state \"Parent\""), "{}", stored_read::shown(&error));
+        assert!(error.contains(&format!("the parent of saved state \"{}…\" ({})", "n".repeat(120), child.state_id)), "{}", stored_read::shown(&error));
+        assert!(error.chars().count() <= stored_read::MAX_MESSAGE_CHARS + 1, "the message is capped");
+        drop(memory);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+        assert_eq!(row_count(&path, "model_states"), 2);
+    });
+}

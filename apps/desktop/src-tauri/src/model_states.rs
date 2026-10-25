@@ -927,6 +927,12 @@ pub(crate) struct ModelStateSummary {
     pub(crate) labels_updated_at: String,
     /// The saved states whose parent this state is; they block its deletion.
     pub(crate) child_state_ids: Vec<String>,
+    /// The first [`MAX_NAMED_BLOCKERS`] verified children as a blocked
+    /// delete names them, `"<name>" (<id>)` cut by [`stored_read::shown`],
+    /// kept from their verification (W-12, repair r8): a refusal never
+    /// reloads a name once its verification's reservation is released.
+    #[serde(skip)]
+    pub(crate) child_blocker_names: Vec<String>,
     /// How many recorded-run rows name this state, counted from their columns
     /// (W-12): a delete blocker. The runs themselves are presented, each
     /// verified, by the run list (grouped by state in the History panel); a
@@ -1208,6 +1214,8 @@ pub(crate) fn summary_load_bytes(lengths: &SummaryLengths) -> u64 {
         stored_read::loaded_text_bytes(lengths.record),
         stored_read::loaded_text_bytes(lengths.labels),
         stored_read::string_list_bytes(lengths.child_count, lengths.child_bytes),
+        // The kept blocker names (at most one per child; each a name and an id shown).
+        lengths.child_count.saturating_mul(BLOCKER_NAME_BYTES),
         stored_read::string_list_bytes(lengths.rows.saturating_mul(STATE_IDENTITY.len() as u64), lengths.identity),
         lengths.rows.saturating_mul(1024),
     ])
@@ -1261,7 +1269,7 @@ fn verified_relationships(
     project_id: &str,
     state_id: &str,
     memory: &dyn ReadMemory,
-) -> Result<(Vec<String>, u64, u64), String> {
+) -> Result<VerifiedRelationships, String> {
     let (naming_children, naming_runs): (i64, i64) = connection
         .query_row(
             "SELECT (SELECT COUNT(*) FROM model_states c WHERE c.project_id = ?1 AND c.parent_state_id = ?2),
@@ -1289,17 +1297,39 @@ fn verified_relationships(
         ids
     };
     let mut children = Vec::new();
+    let mut names = Vec::new();
     for child in candidates {
         match find_core_with(connection, project_id, &child, memory) {
-            Ok(Some(_verified)) => children.push(child),
+            Ok(Some(verified)) => {
+                if names.len() < MAX_NAMED_BLOCKERS {
+                    names.push(format!("\"{}\" ({})", stored_read::shown(&verified.get().labels.state_name), stored_read::shown(&child)));
+                }
+                drop(verified);
+                children.push(child);
+            }
             Ok(None) => {}
             Err(error) if error.starts_with("MODEL-STATE-INTEGRITY") => {}
             Err(error) => return Err(error),
         }
     }
     let unreadable = u64::try_from(naming_children).unwrap_or(0).saturating_sub(children.len() as u64);
-    Ok((children, u64::try_from(naming_runs).unwrap_or(0), unreadable))
+    Ok(VerifiedRelationships { children, names, runs: u64::try_from(naming_runs).unwrap_or(0), unreadable })
 }
+
+/// [`verified_relationships`]: the verified child ids, the first
+/// [`MAX_NAMED_BLOCKERS`] of them as a refusal names them, the run rows naming
+/// the state and the unreadable child rows.
+struct VerifiedRelationships {
+    children: Vec<String>,
+    names: Vec<String>,
+    runs: u64,
+    unreadable: u64,
+}
+
+/// The most bytes a kept blocker name holds: a shown name and a shown id,
+/// each at most [`stored_read::MAX_SHOWN_CHARS`] characters and `…` (four
+/// bytes each), with its quotes and parentheses.
+const BLOCKER_NAME_BYTES: u64 = 2 * (stored_read::MAX_SHOWN_CHARS as u64 + 1) * 4 + 8;
 
 /// At most this many blockers a refusal names; the rest are counted (repair r4).
 const MAX_NAMED_BLOCKERS: usize = 10;
@@ -1510,6 +1540,7 @@ fn state_core_from_row(
         record_hash,
         labels_updated_at: updated_at,
         child_state_ids: Vec::new(),
+        child_blocker_names: Vec::new(),
         recorded_run_count: 0,
         unreadable_references: 0,
     });
@@ -1523,11 +1554,12 @@ fn summary_from_row(
     memory: &dyn ReadMemory,
 ) -> Result<Metered<ModelStateSummary>, String> {
     let core = state_core_from_row(connection, row, memory)?;
-    let (children, runs, unreadable) = verified_relationships(connection, &core.get().project_id, &core.get().state_id, memory)?;
+    let relationships = verified_relationships(connection, &core.get().project_id, &core.get().state_id, memory)?;
     Ok(core.map(|mut summary| {
-        summary.child_state_ids = children;
-        summary.recorded_run_count = runs;
-        summary.unreadable_references = unreadable;
+        summary.child_state_ids = relationships.children;
+        summary.child_blocker_names = relationships.names;
+        summary.recorded_run_count = relationships.runs;
+        summary.unreadable_references = relationships.unreadable;
         summary
     }))
 }
@@ -1950,20 +1982,32 @@ pub(crate) fn require_project_base(
     if !expected_base.is_empty() && expected_base == stored_base {
         return Ok(());
     }
-    // The name's head is a `substr`: SQLite materializes the whole name (W-12, repair r7).
-    let stored_name_length: Option<i64> = transaction
-        .query_row("SELECT octet_length(project_name) FROM local_projects WHERE project_id = ?1", params![project_id], |row| row.get(0))
+    // The name's head is a `substr`: SQLite materializes the whole name (W-12,
+    // repair r7). The save time is loaded only when it is an integer: SQLite
+    // keeps any text in that column, and would materialize it before its type
+    // is refused (repair r8); `typeof` and `octet_length` read only the header.
+    let (stored_name_length, time_type): (Option<i64>, String) = transaction
+        .query_row(
+            "SELECT octet_length(project_name), typeof(updated_at_unix) FROM local_projects WHERE project_id = ?1",
+            params![project_id],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
         .map_err(sql)?;
     let _name = stored_read::reserve_sqlite_value(memory, &format!("project `{}`'s name in SQLite", stored_read::shown(project_id)), stored_name_length.unwrap_or(0))?;
-    let (head, name_length, updated_at_unix): (Vec<u8>, i64, i64) = transaction
+    let saved = if time_type == "integer" { "updated_at_unix" } else { "NULL" };
+    let (head, name_length, updated_at_unix): (Vec<u8>, i64, Option<i64>) = transaction
         .query_row(
-            &format!("SELECT {}, updated_at_unix FROM local_projects WHERE project_id = ?1", stored_read::shown_column("project_name")),
+            &format!("SELECT {}, {saved} FROM local_projects WHERE project_id = ?1", stored_read::shown_column("project_name")),
             params![project_id],
             |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
         )
         .map_err(sql)?;
+    let saved_at = match updated_at_unix {
+        Some(unix) => format!("last saved at unix {unix}"),
+        None => "its last save time cannot be read".to_string(),
+    };
     Err(format!(
-        "PROJECT-BASE-MOVED: project `{}` (\"{}\", last saved at unix {updated_at_unix}) changed after this session opened or saved it; replacing it needs the user's confirmation.",
+        "PROJECT-BASE-MOVED: project `{}` (\"{}\", {saved_at}) changed after this session opened or saved it; replacing it needs the user's confirmation.",
         stored_read::shown(project_id),
         stored_read::shown_head(&head, name_length)
     ))
@@ -2570,7 +2614,7 @@ pub(crate) fn delete_state_in_store_with(
 /// [`delete_state_in_store`] within `memory`, on its `BEGIN IMMEDIATE`
 /// transaction: the state's summary is reserved before it is loaded. A
 /// refusal names at most ten blockers (the rest are counted) and quotes each
-/// name's head only ([`named_blockers`]). The receipt, holding the summary's
+/// name's head only, kept from its verification ([`named_blockers`]). The receipt, holding the summary's
 /// reservations, goes to `finish` (the command serializes it) before the
 /// transaction commits, so a refusal there deletes nothing (repair r4).
 pub(crate) fn delete_state_in_store_finishing<R>(
@@ -2593,13 +2637,7 @@ pub(crate) fn delete_state_in_store_finishing<R>(
     // Only verified blockers are named (W-12); unreadable rows are counted.
     let mut reasons = Vec::new();
     if children > 0 {
-        let (blockers, _) = named_verified(
-            &transaction,
-            "SELECT substr(CAST(state_name AS BLOB), 1, ?3), octet_length(state_name) FROM model_state_labels WHERE project_id = ?1 AND state_id = ?2",
-            project_id,
-            &state.child_state_ids,
-            MAX_NAMED_BLOCKERS,
-        )?;
+        let blockers = named_blockers(&state.child_blocker_names, children);
         reasons.push(format!("the parent of saved state{} {blockers}", if children == 1 { "" } else { "s" }));
     }
     if runs > 0 {
@@ -2633,29 +2671,17 @@ pub(crate) fn delete_state_in_store_finishing<R>(
     Ok(finished)
 }
 
-/// The verified blockers `ids` as a refusal names them: at most `limit`, each
-/// `"<name>" (<id>)` with only the head of its stored name read (`query`
-/// selecting it for `?1` the project, `?2` the id, `?3` the head's bytes), then
-/// `and N more` (or `N more`). Returns the text and how many it named.
-fn named_verified(connection: &Connection, query: &str, project_id: &str, ids: &[String], limit: usize) -> Result<(String, usize), String> {
-    let mut named = Vec::new();
-    for id in ids.iter().take(limit) {
-        let name: Option<(Vec<u8>, i64)> = connection
-            .query_row(query, params![project_id, id, stored_read::SHOWN_COLUMN_BYTES as i64], |row| Ok((row.get(0)?, row.get(1)?)))
-            .optional()
-            .map_err(sql)?;
-        named.push(match name {
-            Some((head, length)) => format!("\"{}\" ({})", stored_read::shown_head(&head, length), stored_read::shown(id)),
-            None => stored_read::shown(id).into_owned(),
-        });
+/// The verified blockers as a refusal names them: the names kept from their
+/// verification (`"<name>" (<id>)`, at most [`MAX_NAMED_BLOCKERS`]), then
+/// `and N more` of the `total`; nothing is reloaded from the store.
+fn named_blockers(names: &[String], total: usize) -> String {
+    let mut text = names.join(", ");
+    if names.is_empty() {
+        text = format!("{total} more");
+    } else if total > names.len() {
+        text.push_str(&format!(" and {} more", total - names.len()));
     }
-    let mut text = named.join(", ");
-    if named.is_empty() {
-        text = format!("{} more", ids.len());
-    } else if ids.len() > named.len() {
-        text.push_str(&format!(" and {} more", ids.len() - named.len()));
-    }
-    Ok((text, named.len()))
+    text
 }
 
 /// Deletes the state row a list's unreadable entry names by its `handle`

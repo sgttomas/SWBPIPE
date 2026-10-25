@@ -1033,10 +1033,31 @@ the History panel and `useModelStateHistory.ts`.
         - under a large pool, both succeed with SQLite's peak within the
           working set;
         - normal-size rows list and delete under the 2 MiB pool.
-      - **Not covered.** SQLite's page cache stays within the fixed read
-        overhead. The project commands (Save Local Project and the project
-        delete, which cascades to states and runs) are outside this
-        reservation.
+      - **Page cache (accepted residual estimate).** SQLite's page cache is
+        not reserved per command. It is the accepted residual estimate, not
+        a measured bound and not within the fixed 512 KiB read overhead:
+        - a header scan of 100,000 rows peaked at 2.56 MB;
+        - a state delete with many large keys peaked at 9.05 MB against
+          8.52 MB reserved, with cache allocation separately peaking at
+          2.48 MB (Codex review r8).
+
+        The default cache limit (about 2 MB per connection) bounds it. The
+        regression tests allow 3 MiB of SQLite allocation above what a
+        command holds.
+      - **Other columns (repair r8).** A column a refusal reads from a
+        non-history table is loaded only when it can be priced. The stale
+        project guard reads the project's `updated_at_unix` only when
+        `typeof` (header-only) says it is an integer; SQLite keeps any text
+        in that column. Otherwise the guard refuses by name
+        (`PROJECT-BASE-MOVED`, "its last save time cannot be read") without
+        loading the value.
+      - **Blocker names.** A blocked delete names each verified child from
+        the bounded display text kept at its verification (at most ten,
+        priced with the summary). It never reloads a name after the child's
+        reservation is released: S1-era labels have no size bound.
+      - **Not covered.** The project commands (Save Local Project and the
+        project row's cascade to states and runs) are outside this
+        reservation. No command deletes a project.
     - **Unpriced working memory.** Two items are not separately priced:
       - Record Run's transient record copies (the hash projection and the
         recorded revision);
