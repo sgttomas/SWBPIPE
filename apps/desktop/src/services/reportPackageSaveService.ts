@@ -1,5 +1,18 @@
+// File > Save Report Package… native save (DEL-08-01 Design
+// `report-package-current-results.md` §2.5, §2.6). The save is split so that the
+// session's last stale-work guard follows every preparation await:
+// - `prepareReportPackageSave` checks the controlled route evidence and computes the
+//   request's and the model's RFC 8785 (JCS) canonical texts and the request text's
+//   SHA-256 (the screening evidence names exactly those bytes);
+// - `invokeReportPackageSave` then sends them through `invokeWithIngress`, whose
+//   `stillCurrent` guard runs synchronously immediately before every send, the
+//   first and each headroom re-send. A retired basis is never sent and rejects
+//   with `IngressRequestRetiredError`.
+// The native command re-checks the evidence, binds both texts and screens their
+// content before the save dialog (`src-tauri/src/report_package_save.rs`).
 import { invokeWithIngress } from "./nativeIngress";
-import type { ControlledRouteExport } from "../features/redaction-controls/redactionExportControls";
+import { canonicalJsonString, canonicalSha256Hex } from "./hashService";
+import type { ControlledRouteExport, LocalFirstRouteEvidence } from "../features/redaction-controls/redactionExportControls";
 import { REPORT_PACKAGE_SAVE_ROUTE_ID } from "../features/report/reportRedactionProjector";
 
 export type ReportPackageMemberSummary = {
@@ -35,12 +48,43 @@ export type ReportPackageSaveReceipt = {
   selected_basename: string;
   path_containment: "best_effort_non_adversarial";
   limitation: string;
+  /** Non-blocking findings of the native screen (for example `MODEL-LIBRARY-REF-UNRESOLVED`). */
+  warnings?: Array<{ code: string; path: string; message: string }>;
 };
 
 export type ReportPackageSaveRoute =
   | { route: "tauri_report_package_save"; receipt: ReportPackageSaveReceipt }
   | { route: "unavailable_browser"; diagnostic: "REPORT-PACKAGE-SAVE-DESKTOP-ONLY" }
   | { route: "redaction_blocked"; diagnostic: string };
+
+/** The native screening evidence (`ReportPackageSaveScreening`, `deny_unknown_fields`). */
+export type ReportPackageSaveScreening = {
+  route_id: string;
+  export_context: "local_private";
+  explicit_local_private_intent: boolean;
+  blocked: boolean;
+  materialization_withheld: boolean;
+  lossless_required: boolean;
+  exact_payload_match: boolean;
+  blocking_count: number;
+  decision_count: number;
+  finding_count: number;
+  /** `sha256:<hex>` of `requestCanonicalText`. */
+  payload_sha256: string;
+};
+
+/** The native command's arguments (`save_report_package`, §2.6 item 1). */
+export type ReportPackageSaveArgs = {
+  requestCanonicalText: string;
+  modelCanonicalText: string;
+  screening: ReportPackageSaveScreening;
+  localFirstEvidence: LocalFirstRouteEvidence;
+};
+
+/** A prepared save: the native arguments, or the route that ends the save here. */
+export type PreparedReportPackageSave =
+  | { route: "ready"; args: ReportPackageSaveArgs; requestSha256: string }
+  | Exclude<ReportPackageSaveRoute, { route: "tauri_report_package_save" }>;
 
 function isTauriRuntime(): boolean {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -71,40 +115,74 @@ function hasAllowedLocalFirstEvidence(input: ControlledRouteExport): boolean {
   );
 }
 
-export async function saveReportPackage(input: unknown): Promise<ReportPackageSaveRoute> {
-  if (!isControlledPackageRequest(input)) {
+/** The preparation (§2.5, §2.6 "The webview side"): the route evidence, then the
+ * canonical texts. `request` is the request the route control screened; the
+ * controlled payload must be canonically equal to it (the route is lossless). */
+export async function prepareReportPackageSave(controlled: unknown, model: unknown, request: unknown): Promise<PreparedReportPackageSave> {
+  if (!isControlledPackageRequest(controlled)) {
     return {
       route: "redaction_blocked",
-      diagnostic:
-        "REPORT-PACKAGE-REDACTION-CONTROL-REQUIRED: save requires a DREP-PACKAGE-SAVE-009 controlled request."
+      diagnostic: "REPORT-PACKAGE-REDACTION-CONTROL-REQUIRED: save requires a DREP-PACKAGE-SAVE-009 controlled request."
     };
   }
-  if (!hasAllowedLocalFirstEvidence(input)) {
+  if (!hasAllowedLocalFirstEvidence(controlled)) {
     return {
       route: "redaction_blocked",
-      diagnostic:
-        "REPORT-PACKAGE-LOCAL-FIRST-EVIDENCE-REQUIRED: save requires allowed metadata-only local-first route evidence."
+      diagnostic: "REPORT-PACKAGE-LOCAL-FIRST-EVIDENCE-REQUIRED: save requires allowed metadata-only local-first route evidence."
     };
   }
-  if (input.blocked || input.payload === null) {
+  if (controlled.blocked || controlled.payload === null || controlled.summary.materialization_withheld) {
     return {
       route: "redaction_blocked",
-      diagnostic: `REPORT-PACKAGE-REDACTION-BLOCKED: ${input.findings.length} finding(s) prevent package assembly or persistence.`
+      diagnostic: `REPORT-PACKAGE-REDACTION-BLOCKED: ${controlled.findings.length} finding(s) prevent package assembly or persistence.`
     };
   }
   if (!isTauriRuntime()) {
     return { route: "unavailable_browser", diagnostic: "REPORT-PACKAGE-SAVE-DESKTOP-ONLY" };
   }
-  const localFirstEvidence = input.summary.local_first!;
-  const receipt = await invokeWithIngress<ReportPackageSaveReceipt>("save_report_package", {
-    request: input.payload,
-    redactionEvidence: {
-      route_id: input.summary.route_id,
-      decision_count: input.summary.decision_count,
-      finding_count: input.summary.finding_count,
-      blocking_count: input.summary.blocking_count
-    },
-    localFirstEvidence
-  });
+  const [requestCanonicalText, screenedRequestText, hex, modelCanonicalText] = await Promise.all([
+    canonicalJsonString(controlled.payload),
+    canonicalJsonString(request),
+    canonicalSha256Hex(controlled.payload),
+    canonicalJsonString(model)
+  ]);
+  if (requestCanonicalText !== screenedRequestText) {
+    return {
+      route: "redaction_blocked",
+      diagnostic: "REPORT-PACKAGE-REDACTION-BLOCKED: the route control changed the request (CANONICAL_PAYLOAD_MATERIALIZATION_CHANGED)."
+    };
+  }
+  const requestSha256 = `sha256:${hex}`;
+  return {
+    route: "ready",
+    requestSha256,
+    args: {
+      requestCanonicalText,
+      modelCanonicalText,
+      screening: {
+        route_id: controlled.summary.route_id,
+        export_context: "local_private",
+        explicit_local_private_intent: true,
+        blocked: false,
+        materialization_withheld: false,
+        lossless_required: true,
+        exact_payload_match: true,
+        blocking_count: controlled.summary.blocking_count,
+        decision_count: controlled.summary.decision_count,
+        finding_count: controlled.summary.finding_count,
+        payload_sha256: requestSha256
+      },
+      localFirstEvidence: controlled.summary.local_first!
+    }
+  };
+}
+
+/** The native save of a prepared request. `isCurrent` is the session's basis guard,
+ * evaluated by `invokeWithIngress` immediately before each send. */
+export async function invokeReportPackageSave(
+  prepared: Extract<PreparedReportPackageSave, { route: "ready" }>,
+  isCurrent: () => boolean
+): Promise<ReportPackageSaveRoute> {
+  const receipt = await invokeWithIngress<ReportPackageSaveReceipt>("save_report_package", prepared.args, { stillCurrent: isCurrent });
   return { route: "tauri_report_package_save", receipt };
 }

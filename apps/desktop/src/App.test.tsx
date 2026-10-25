@@ -7,7 +7,6 @@ import refusedPreviewSparse from "../../../fixtures/product_preview/invented_mec
 import { PREVIEW_PHYSICS_CONTRACT_ID } from "./features/results/numericalResultQuality";
 import { PREVIEW_PHYSICS_CONTRACT_SHA256 } from "./test-support/contractBindings";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair, REPLAY_RESOURCE_GRANT, resultArrayBuffer, solveBytes } from "./test/nativeMechanicsReplay";
-import { N_REPORT } from "./features/results/knownSemanticLimitations";
 import { DisplayUnitsProvider, DisplayUnitSelector } from "./features/display-units";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
 import { analysisRowSemantics, buildAnalysisRunV03, modelLoadBasisRefs } from "./services/analysisRunCompatibility";
@@ -246,43 +245,14 @@ async function installPreviewReplay() {
   return { ...pair, replay };
 }
 
-// T0R report-package outage (N-REPORT until T6). The App save path runs only on the
-// session's Current result, and every Current identity is fresh and refused at the
-// availability gate. To keep the save sequencer (handleSaveReportPackage: busy
-// state, generation/basis checks, stale completion) under test, these helpers
-// (a) assert the gate refusal first, then (b) lift the gate in the test only and
-// route assembly below it with the registered preview-physics-2 session as data
-// (B1 retired the precision-1 session used before). Production behaviour is
-// unchanged; nothing here is a native witness.
-async function registeredPreviewReportData() {
-  const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
-  const preview = createNativeMechanicsReplay({ profile: "preview" });
-  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-  invokeMock.mockImplementation(preview.invoke);
-  const result = await runPreviewMechanics(pair.model);
-  const inputManifest = await buildCurrentSessionInputManifest({
-    model: pair.model,
-    solver: { solver_name: result.producer!.component_name, solver_version: result.producer!.component_version, solver_build_ref: "open_pipe_stress_product_physics@0.2.0", solver_mode: "sparse_interactive", settings: {} },
-    active_rule_packs: [], external_assets: [],
-  });
-  const analysisRun = await buildAnalysisRunPreview(result, { inputManifest });
-  invokeMock.mockReset();
-  return { result, inputManifest, analysisRun };
-}
-async function expectReportPackageGateRefusal() {
+// W-18 (b2): the report package admits the session's Current pressure-free
+// (preview-physics-2) result (DEL-08-01 Design `report-package-current-results.md`
+// §2.1). The App save path is exercised on the session's own solve: the route gate
+// adds no refusal, so the panel shows no unavailable reason and the menu is enabled.
+function expectReportPackageRouteOpen() {
   const report = openWorkspaceSection("report");
-  expect(within(report).getByTestId("report-package-source-unavailable")).toHaveTextContent(N_REPORT);
-  const savesBefore = invokeMock.mock.calls.filter(([command]) => command === "save_report_package").length;
-  act(() => nativeMenuCommand("file.save-report-package"));
-  expect(invokeMock.mock.calls.filter(([command]) => command === "save_report_package")).toHaveLength(savesBefore);
-  expect(within(report).queryByTestId("report-package-save-status")).not.toBeInTheDocument();
-}
-async function liftReportGateForSequencerTest(data: Awaited<ReturnType<typeof registeredPreviewReportData>>) {
-  const reportPackageModule = await import("./features/report/reportPackageRequest");
-  const gateSpy = vi.spyOn(reportPackageModule, "reportPackageUnavailableReason").mockReturnValue(null);
-  const buildSpy = vi.spyOn(reportPackageModule, "buildReportPackageRequest").mockImplementation((input) =>
-    reportPackageModule.assembleReportPackageRequestBelowAvailabilityGate({ ...input, result: data.result, analysisRun: data.analysisRun, inputManifest: data.inputManifest }));
-  return { gateSpy, buildSpy, restore: () => { gateSpy.mockRestore(); buildSpy.mockRestore(); } };
+  expect(within(report).queryByTestId("report-package-source-unavailable")).not.toBeInTheDocument();
+  return report;
 }
 
 async function runMechanicsButton() {
@@ -14363,19 +14333,19 @@ describe("workflow current and historical result boundaries", () => {
     replacement.summary.project_name = model.project.name;
     replacement.summary.message = "Opened same-ID replacement while rule check is pending.";
     const delayedRuleRun = deferred<unknown>();
-    let serializedReportRequest: Record<string, unknown> | null = null;
+    let serializedReportRequest: Record<string, any> | null = null; // eslint-disable-line @typescript-eslint/no-explicit-any
 
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
     fireEvent.click(await runMechanicsButton());
     await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
 
-    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }, options?: unknown) => {
+    invokeMock.mockImplementation((command: string, args?: { requestCanonicalText?: string }, options?: unknown) => {
       if (command === "get_unit_catalog") return Promise.reject(new Error("Invented catalog unavailable"));
       if (command === "run_rule_checks") return delayedRuleRun.promise;
       if (command === "open_local_project") return Promise.resolve(replacement);
       if (command === "save_report_package") {
-        serializedReportRequest = args?.request ?? null;
+        serializedReportRequest = args?.requestCanonicalText ? JSON.parse(args.requestCanonicalText) : null;
         return Promise.resolve(reportPackageSaveReceipt("fresh-replacement-rule-basis"));
       }
       return replay.invoke(command, args, options);
@@ -14422,20 +14392,23 @@ describe("workflow current and historical result boundaries", () => {
     });
     // Slice B3: with no rule-check aggregate there is no Rule pack chip at all (§5.4 rule 3).
     expect(screen.queryByTestId("status-pill-rule-check")).not.toBeInTheDocument();
-    // T0R: the report package is unavailable for fresh results until T6 (N-REPORT), so the
-    // stale-aggregate rejection is observed through the absent Rule pack chip above and the
-    // refused save, which never reaches the backend.
-    const report = openWorkspaceSection("report");
-    expect(within(report).getByTestId("report-package-source-unavailable")).toHaveTextContent(N_REPORT);
+    // W-18 (b2): the replacement's package carries no stale rule check: no aggregate, no
+    // user-rule outcomes and no rule-pack reference, and the record's rule status is the solve's.
+    const report = expectReportPackageRouteOpen();
+    await waitFor(() => expect(within(report).getByTestId("report-package-private-intent")).toBeInTheDocument());
+    fireEvent.click(within(report).getByTestId("report-package-private-intent"));
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     act(() => nativeMenuCommand("file.save-report-package"));
-    expect(serializedReportRequest).toBeNull();
+    await waitFor(() => expect(serializedReportRequest).not.toBeNull());
+    expect(serializedReportRequest!.rule_check_aggregate).toBeNull();
+    expect(serializedReportRequest!.report.user_rule_checks).toBeNull();
+    expect(serializedReportRequest!.report.calculation_report.rule_pack_refs).toEqual([]);
+    expect(serializedReportRequest!.result_documents[0].result_envelope.analysis_status).not.toContain("USER_RULE_FAILED");
+    await waitFor(() => expect(within(report).getByTestId("report-package-save-status")).toHaveTextContent("fresh-replacement-rule-basis"));
   });
 
-  // T0R: (a) the gate refuses the fresh Current result; (b) the save sequencer runs
-  // below the gate with a registered preview-physics-2 session as assembly data.
+  // W-18 (b2): the save sequencer on the session's own Current pressure-free result.
   it("does not start an obsolete report-package save or publish stale build state", async () => {
-    const previewData = await registeredPreviewReportData();
     const { model, replay } = await installPreviewReplay();
     const replacement = inventedOpenEnvelope(model);
     replacement.model = structuredClone(model);
@@ -14446,7 +14419,6 @@ describe("workflow current and historical result boundaries", () => {
     let delayedModelHashCalls = 0;
     let hashSpy: { mockRestore(): void } | null = null;
     let buildSpy: { mockRestore(): void } | null = null;
-    let gateSpy: { mockRestore(): void } | null = null;
     let outerReportBuild: Promise<unknown> | null = null;
 
     try {
@@ -14454,11 +14426,11 @@ describe("workflow current and historical result boundaries", () => {
       await screen.findByTestId("desktop-preview-shell");
       fireEvent.click(await runMechanicsButton());
       await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
-      await expectReportPackageGateRefusal();
+      expectReportPackageRouteOpen();
       const reportPackageModule = await import("./features/report/reportPackageRequest");
-      gateSpy = vi.spyOn(reportPackageModule, "reportPackageUnavailableReason").mockReturnValue(null);
+      const realBuild = reportPackageModule.buildReportPackageRequest;
       buildSpy = vi.spyOn(reportPackageModule, "buildReportPackageRequest").mockImplementation((input) => {
-        const pendingBuild = reportPackageModule.assembleReportPackageRequestBelowAvailabilityGate({ ...input, result: previewData.result, analysisRun: previewData.analysisRun, inputManifest: previewData.inputManifest });
+        const pendingBuild = realBuild(input);
         outerReportBuild = pendingBuild;
         return pendingBuild;
       });
@@ -14485,7 +14457,7 @@ describe("workflow current and historical result boundaries", () => {
       });
       (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
       act(() => nativeMenuCommand("file.save-report-package"));
-      await waitFor(() => expect(delayedModelHashCalls).toBeGreaterThanOrEqual(2));
+      await waitFor(() => expect(delayedModelHashCalls).toBeGreaterThanOrEqual(1));
       expect(outerReportBuild).not.toBeNull();
       expect(within(report).getByTestId("report-package-save")).toHaveTextContent("Saving report package");
 
@@ -14513,15 +14485,13 @@ describe("workflow current and historical result boundaries", () => {
       buildGate.resolve();
       hashSpy?.mockRestore();
       buildSpy?.mockRestore();
-      gateSpy?.mockRestore();
     }
   });
 
-  // T0R: (a) gate refusal first; (b) the save sequencer below the gate, as above.
+  // W-18 (b2): the save sequencer on the session's own Current result, as above.
   it.each(["success", "error"] as const)(
     "keeps a newer report-package save busy and rejects stale %s completion state",
     async (staleOutcome) => {
-      const previewData = await registeredPreviewReportData();
       const { model, replay } = await installPreviewReplay();
       const replacement = inventedOpenEnvelope(model);
       replacement.model = structuredClone(model);
@@ -14544,10 +14514,8 @@ describe("workflow current and historical result boundaries", () => {
       await screen.findByTestId("desktop-preview-shell");
       fireEvent.click(await runMechanicsButton());
       await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
-      await expectReportPackageGateRefusal();
+      expectReportPackageRouteOpen();
       expect(saveCalls).toBe(0);
-      const lifted = await liftReportGateForSequencerTest(previewData);
-      try {
       let report = openWorkspaceSection("report");
       await waitFor(() => expect(within(report).getByTestId("report-package-private-intent")).toBeInTheDocument());
       fireEvent.click(within(report).getByTestId("report-package-private-intent"));
@@ -14595,7 +14563,6 @@ describe("workflow current and historical result boundaries", () => {
         expect(within(report).getByTestId("report-package-save-status")).toHaveTextContent("current-route.opsreport"),
       );
       expect(within(report).getByTestId("report-package-save")).toBeEnabled();
-      } finally { lifted.restore(); }
     },
   );
 

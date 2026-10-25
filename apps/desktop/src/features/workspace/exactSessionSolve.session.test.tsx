@@ -30,7 +30,6 @@ import { numericalResultStanding, SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED } 
 import { PRESSURE_SOURCE_CONTRACT_ID } from "../results/numericalResultQuality";
 import { PRESSURE_SOURCE_CONTRACT_SHA256 } from "../../test-support/contractBindings";
 import { OUTPUT_SURFACES, PRESSURE_2_OUTPUT_REFUSAL, surfaceOutputRefusal, surfaceRouteRefusal } from "../results/outputPolicy";
-import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE } from "../results/knownSemanticLimitations";
 import { N_LOAD_REFERENCE_RULE_CHECK } from "../results/loadReferenceDisclosure";
 import { loadReferenceOutputRefusal } from "../results/loadReferenceOutputAvailability";
 import { ResultsPanel } from "../results/ResultsPanel";
@@ -357,11 +356,10 @@ describe("the held pressure-2 result: admitted on the opened surfaces, refused b
     const document = await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
     expect(() => resultSchemaVersion(document)).not.toThrow();
     await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).resolves.toBeTruthy();
-    // The report package refuses it as a fresh result (§4.5), through the session too.
-    const freshRefusal = `${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`;
-    expect(reportPackageUnavailableReason(result)).toBe(freshRefusal);
+    // The report package refuses it by its report-package cell (§4.5; ruling 10A), through the session too.
+    expect(reportPackageUnavailableReason(result)).toBe(PRESSURE_2_OUTPUT_REFUSAL);
     await act(async () => { await hook.current.results.handleSaveReportPackage(); });
-    expect(hook.current.results.reportPackageRoute).toEqual({ route: "redaction_blocked", diagnostic: freshRefusal });
+    expect(hook.current.results.reportPackageRoute).toEqual({ route: "redaction_blocked", diagnostic: PRESSURE_2_OUTPUT_REFUSAL });
     // Native package: the export link is replaced by the refusal.
     render(<NativePackagePanel model={model} modelHash={hook.current.model.modelHash} result={result} analysisRun={analysisRun} editorIntents={[]}
       projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={null} />);

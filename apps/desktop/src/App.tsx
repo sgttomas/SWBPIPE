@@ -219,6 +219,10 @@ function AppSession() {
     handleSelectDiagnostic,
     handleSaveReportPackage
   } = session.results;
+  // Save Report Package… (DEL-08-01 Design `report-package-current-results.md` §2.1):
+  // enablement is synchronous, the output policy's route gate plus the presence
+  // checks below. The builder's own refusals (admission, rule-check binding, rule
+  // packs) are shown in the report panel's status line after an attempt.
   const reportPackageUnavailable = reportPackageUnavailableReason(currentSolvedResult);
   // The viewport's result overlays read the same standing and numerical health view as the results panel.
   const viewportResultStanding = useMemo(() => ({ eligible: numericallyEligible, health: numericalHealth }), [numericallyEligible, numericalHealth]);

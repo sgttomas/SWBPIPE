@@ -5158,11 +5158,13 @@ pub fn run() {
     #[cfg(feature = "native-smoke")]
     let builder = native_smoke::install(builder).invoke_handler(app_invoke_handler!(
         native_smoke::native_smoke_choose,
+        native_smoke::native_smoke_clear_choices,
         native_smoke::native_smoke_menu,
         native_smoke::native_smoke_plan,
         native_smoke::native_smoke_log,
         native_smoke::native_smoke_external_save,
         native_smoke::native_smoke_verify_handoff_package,
+        native_smoke::native_smoke_read_report_package,
         native_smoke::native_smoke_finish,
     ));
     builder

@@ -11,8 +11,8 @@
 //!
 //! The harness substitutes exactly two things for a person at the machine: it
 //! names the file the next model-document chooser returns (`native_smoke_choose`;
-//! the Open Model Document…, Save Model Document… and Save Handoff… choosers) instead of
-//! showing the chooser, and it delivers native menu commands through the same
+//! the Open Model Document…, Save Model Document…, Save Handoff… and Save Report
+//! Package… choosers) instead of showing the chooser, and it delivers native menu commands through the same
 //! dispatch a menu click uses (`native_smoke_menu`). Everything else, from the
 //! open checks to solve, persistence and export, runs on the product's code.
 
@@ -26,7 +26,7 @@ pub struct SmokeState {
     driver_started: Mutex<bool>,
 }
 
-/// The path the next model-document chooser (open or save) returns, if the driver named one.
+/// The path the next chooser (model document open or save, handoff or report package) returns, if the driver named one.
 pub fn take_chosen_path<R: Runtime>(app: &AppHandle<R>) -> Option<PathBuf> {
     app.try_state::<SmokeState>()?.chosen.lock().ok()?.pop_front()
 }
@@ -38,6 +38,18 @@ pub fn native_smoke_choose(app: AppHandle, path: String) -> Result<(), String> {
         .lock()
         .map_err(|_| "native smoke state poisoned".to_string())?
         .push_back(PathBuf::from(path));
+    Ok(())
+}
+
+/// Drops every chooser path not yet taken, so a save refused before its chooser
+/// cannot answer a later one.
+#[tauri::command]
+pub fn native_smoke_clear_choices(app: AppHandle) -> Result<(), String> {
+    app.state::<SmokeState>()
+        .chosen
+        .lock()
+        .map_err(|_| "native smoke state poisoned".to_string())?
+        .clear();
     Ok(())
 }
 
@@ -121,4 +133,44 @@ pub fn install<R: Runtime>(builder: Builder<R>) -> Builder<R> {
 #[tauri::command]
 pub fn native_smoke_verify_handoff_package(path: String) -> Result<crate::handoff_package_publish::HandoffVerification, String> {
     crate::handoff_package_publish::verify_handoff_package(std::path::Path::new(&path))
+}
+
+/// Re-reads a saved report package with the product's reader
+/// (`read_report_package_container`, DEL-08-01 W-18) and reports what the smoke
+/// checks: the file's SHA-256, the manifest's member inventory beside each
+/// member's recomputed SHA-256 and length, and the result member's text.
+#[tauri::command]
+pub fn native_smoke_read_report_package(path: String) -> Result<Value, String> {
+    use sha2::{Digest, Sha256};
+    let bytes = fs::read(&path).map_err(|error| format!("{path}: {error}"))?;
+    let read = open_pipe_stress_report_package::read_report_package_container(&bytes).map_err(|refusal| refusal.to_string())?;
+    let hex = |data: &[u8]| format!("{:x}", Sha256::digest(data));
+    let members: Vec<Value> = read
+        .members
+        .iter()
+        .map(|member| {
+            serde_json::json!({
+                "role": member.role,
+                "file_name": member.file_name,
+                "byte_length": member.bytes.len(),
+                "sha256_hex": hex(&member.bytes),
+            })
+        })
+        .collect();
+    let result_member = read
+        .members
+        .iter()
+        .find(|member| member.role == open_pipe_stress_report_package::ROLE_RESULT_EXPORT)
+        .map(|member| String::from_utf8_lossy(&member.bytes).into_owned());
+    Ok(serde_json::json!({
+        "file_sha256_hex": hex(&bytes),
+        "file_byte_length": bytes.len(),
+        "schema_version": read.schema_version,
+        "export_profile_id": read.export_profile_id,
+        "export_blocked": read.export_blocked,
+        "package_identity_sha256_hex": read.package_identity_sha256_hex,
+        "inventory": read.manifest["members"],
+        "members": members,
+        "result_member_text": result_member,
+    }))
 }

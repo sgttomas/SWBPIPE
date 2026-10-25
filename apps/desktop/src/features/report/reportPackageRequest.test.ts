@@ -1,591 +1,394 @@
+// The report-package request (W-18 (b2); DEL-08-01 Design `report-package-current-results.md`
+// §2.1-§2.5): the route gate per identity, admission through the result-export builder,
+// rule-check threading and the solve/rule-check rule-pack agreement, and the request's
+// members. Unit transport replay of committed producer bytes through mocked IPC; NOT a
+// native UI qualification witness. Every rule pack and rule-check outcome here is invented.
 import { describe, expect, it, afterEach, vi } from "vitest";
 import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
-afterEach(() => { invokeMock.mockReset(); delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__; });
+afterEach(() => { invokeMock.mockReset(); vi.restoreAllMocks(); delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__; });
 import { buildAnalysisRunPreview, buildPreviewComparison, runPreviewMechanics } from "../../services/previewService";
-import { canonicalSha256Hex, canonicalSha256HexCheckedV1 } from "../../services/hashService";
-import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
+import { canonicalJsonString, canonicalSha256Hex } from "../../services/hashService";
+import { buildCurrentSessionInputManifest, type InputManifestRulePack } from "../../services/inputManifestService";
+import type { RuleCheckStatus } from "../../services/ruleCheckService";
 import previewConnectedSparse from "../../../../../fixtures/results/preview_physics_connected_sparse.json";
 import demoModel from "../../../../../fixtures/product_preview/invented_demo_model.json";
 import inventedPreviewModel from "../../../../../fixtures/product_preview/invented_preview_model.json";
-import { analysisRecordProjection, buildAnalysisRunV03, verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
-import type { MechanicsResult, PreviewModel } from "../../types";
-import {readerRowSemantics, sourceContract} from "../results/resultReader";
-import { PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL } from "../results/outputPolicy";
-const resultSemantics = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).signature;
-import { assembleReportPackageRequestBelowAvailabilityGate, buildReportPackageRequest, projectReceivedReportResults, reportPackageUnavailableReason } from "./reportPackageRequest";
-import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE } from "../results/knownSemanticLimitations";
+import { buildAnalysisRunV03 } from "../../services/analysisRunCompatibility";
+import type { MechanicsResult, PreviewModel, RulePackReference } from "../../types";
+import { sourceContract } from "../results/resultReader";
+import { PREVIEW_PHYSICS_CONTRACT_ID } from "../results/numericalResultQuality";
+import { PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL, surfaceRouteRefusal } from "../results/outputPolicy";
+import * as resultExportAdapter from "../result-export/resultExportAdapter";
+import {
+  buildReportPackageRequest,
+  checkRulePacksAgree,
+  reportPackageUnavailableReason,
+  REPORT_PACKAGE_DESKTOP_PROFILE,
+  REPORT_PACKAGE_ROUTE_NOT_ADMITTED,
+  REPORT_PACKAGE_RULE_CHECK_BINDING_MISMATCH,
+  REPORT_PACKAGE_RULE_PACK_CHECKSUM_BASIS_UNSUPPORTED,
+  REPORT_PACKAGE_RULE_PACKS_DISAGREE,
+  type ReportPackageRequestInput
+} from "./reportPackageRequest";
 import { numericalResultStanding } from "../results/resultStanding";
-import { buildRenderableReportInput } from "./renderableReportInput";
+import { buildRenderableReportInput, type SessionRuleCheckRun } from "./renderableReportInput";
+import { reportResultRows } from "./reportResultRows";
 import componentProvenanceProjection from "../../../../../fixtures/reports/invented/component_provenance_cross_layer_projection.json";
 
-// The report package refuses every fresh identity (N-REPORT); the gate is asserted
-// below. Analysis runs keep one current version (0.3.0), so no historical carrier
-// can be recorded: the assembly, binding and refusal checks are exercised below the
-// gate with the registered preview-physics-2 session as data
-// (`assembleReportPackageRequestBelowAvailabilityGate`, a test-only seam). B1 retired
-// precision-1, the session these checks used before.
-const assembleBelowGate = assembleReportPackageRequestBelowAvailabilityGate;
-const loadDemoModel = async () => structuredClone(demoModel) as PreviewModel;
+const SOLVER = {
+  solver_name: "open_pipe_stress_product_physics",
+  solver_version: "0.2.0",
+  solver_mode: "sparse_interactive",
+  settings: { nonlinear_iteration_policy: "DEC-046-CV-B-product-preview-active-set-count-v1", sparse_evidence_lane: true }
+};
+const hex = (digit: string) => digit.repeat(64);
 
-// Actual captured full-UI pair through unit IPC replay, NOT native UI qualification.
-async function currentSession(profile: "preview" = "preview", solverBuildRef = "open_pipe_stress_product_physics@0.2.0") {
-  const { model } = nativeMechanicsReplayPair("sparse_interactive", { profile });
+function inventedReference(id: string, checksum: string, version = "1.0.0"): RulePackReference {
+  return {
+    rule_pack_id: id,
+    name: `Invented pack ${id}`,
+    rule_pack_version: version,
+    checksum: { algorithm: "sha256", canonicalization: "JCS", payload_scope: "rule_pack_payload", payload_excludes: ["checksums"], value: checksum },
+    redistribution_status: "invented_non_engineering_example",
+    source_notice: `Invented notice for ${id}; not an engineering basis.`
+  };
+}
+function activePack(id: string, checksum: string, version = "1.0.0"): InputManifestRulePack {
+  return { rule_pack_id: id, version, checksum_sha256: checksum, source_notice: `Invented notice for ${id}; not an engineering basis.` };
+}
+/** An invented rule-check run over an invented loaded pack (unit fixture, not rule evaluation). */
+function inventedRun(id: string, aggregate: RuleCheckStatus, checksum: Record<string, unknown> | null = { algorithm: "sha256", canonicalization: "JCS", value: hex("a") }, version = "1.0.0"): SessionRuleCheckRun {
+  return {
+    rulePackDocument: {
+      metadata: { rule_pack_id: id, name: `Invented pack ${id}`, rule_pack_version: version, source_notice: `Invented notice for ${id}; not an engineering basis.` },
+      classification: { redistribution_status: "invented_non_engineering_example" },
+      ...(checksum ? { checksums: { rule_pack_checksum: checksum } } : {})
+    },
+    result: {
+      document_kind: "openpipestress.rule_check.run",
+      rule_pack_id: id,
+      grammar_version: "1.0.0",
+      aggregate_status: aggregate,
+      checks: [{ check_id: "invented_check", status: aggregate, acceptability_relation: "invented", bound_inputs: [], completeness_findings: [], evaluator_findings: [], diagnostic_codes: [] }],
+      professional_boundary_notice: "Invented notice."
+    }
+  };
+}
+
+type SessionOptions = { solverBuildRef?: string; references?: RulePackReference[]; activeRulePacks?: InputManifestRulePack[]; ruleCheckAggregate?: RuleCheckStatus | null };
+
+/** A Current preview-physics-2 session through the unit replay: the captured pair's model
+ * (with `references`, when given), its native solve, manifest and 0.3.0 record. */
+async function currentSession(options: SessionOptions = {}) {
+  const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
+  const model = structuredClone(pair.model);
+  if (options.references) model.rule_pack_refs = options.references;
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-  invokeMock.mockImplementation(createNativeMechanicsReplay({ profile }).invoke);
+  invokeMock.mockImplementation(options.references
+    ? createSolveJobTransport(() => pair.bytes, { jobIdPrefix: "unit-report-package-references" }).invoke
+    : createNativeMechanicsReplay({ profile: "preview" }).invoke);
   const result = await runPreviewMechanics(model);
   const inputManifest = await buildCurrentSessionInputManifest({
     model,
-    solver: {
-      solver_name: "open_pipe_stress_product_physics",
-      solver_version: "0.2.0",
-      solver_build_ref: solverBuildRef,
-      solver_mode: "sparse_interactive",
-      settings: {
-        nonlinear_iteration_policy:
-          "DEC-046-CV-B-product-preview-active-set-count-v1",
-        sparse_evidence_lane: true
-      }
-    },
-    active_rule_packs: [],
+    solver: { ...SOLVER, solver_build_ref: options.solverBuildRef ?? "open_pipe_stress_product_physics@0.2.0" },
+    active_rule_packs: options.activeRulePacks ?? [],
     external_assets: []
   });
-  const analysisRun = await buildAnalysisRunPreview(result, {
-    inputManifest
-  });
+  const analysisRun = await buildAnalysisRunPreview(result, { inputManifest, ruleCheckAggregate: options.ruleCheckAggregate ?? null });
   return { model, result, inputManifest, analysisRun };
 }
 
-// Pure projection only: no fresh solve is requested for the given model. The
-// connected preview-physics-2 producer output stands for the given model's received
-// result (its model_ref is bound to that model), with a current 0.3.0 record; nothing
-// else changes. (B1 retired the synthetic precision-1 header over the demo carrier.)
-async function syntheticPreviewSession(model: PreviewModel) {
-  const result = structuredClone(previewConnectedSparse) as unknown as MechanicsResult;
-  result.model_ref = model.project.id;
-  const inputManifest = await buildCurrentSessionInputManifest({
-    model,
-    solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.2.0", solver_build_ref: "open_pipe_stress_product_physics@0.2.0", solver_mode: "sparse_interactive", settings: {} },
-    active_rule_packs: [], external_assets: []
-  });
-  const analysisRun = await buildAnalysisRunV03(result, inputManifest);
-  return { model, result, inputManifest, analysisRun };
+function input(session: Awaited<ReturnType<typeof currentSession>>, extra: Partial<ReportPackageRequestInput> = {}): ReportPackageRequestInput {
+  return { ...session, projectSummary: null, comparison: null, ruleCheckAggregate: null, ruleCheckRun: null, ...extra };
 }
 
-describe("report-package current-session request", () => {
-  it("preserves the legacy component-provenance oracle through pure report projection", async () => {
-    // The cross-layer oracle is pinned on the invented preview model (not the
-    // default session model, which is the demo); the projection reads only the
-    // model's component provenance.
-    const modelWithMissingProvenance = structuredClone(inventedPreviewModel) as unknown as PreviewModel;
-    const missingComponent = modelWithMissingProvenance.components.find(
-      (component) => component.id === "component:C-140"
-    );
-    expect(missingComponent).toBeDefined();
-    missingComponent!.provenance = "";
-    const { model, result, inputManifest, analysisRun } = await syntheticPreviewSession(
-      modelWithMissingProvenance
-    );
-    const manifestComponent = inputManifest.manifest.model_basis.model_payload.components.find(
-      (component) => component.id === "component:C-140"
-    );
-
-    expect(inputManifest.manifest.model_basis.model_ref).toBe(model.project.id);
-    expect(inputManifest.manifest.model_basis.model_payload).toEqual(model);
-    expect(manifestComponent).toMatchObject({
-      id: "component:C-140",
-      provenance: ""
-    });
-
-    const projected = await buildRenderableReportInput({ model, result, analysisRun, projectSummary: null, renderContext: { exportContext: "local_private", generatedAt: null } });
-    const recordedIdentity = inputManifest.manifest.solver_basis;
-    expect(analysisRun.schema_version).toBe("0.3.0");
-    expect(analysisRun.analysis_run.solver_version).toMatchObject({ solver_name: recordedIdentity.solver_name, solver_version: recordedIdentity.solver_version, build_ref: { ref: recordedIdentity.solver_build_ref } });
-    expect(result.results).toEqual(previewConnectedSparse.results);
-    const sections = projected.report_sections;
-    const presentId = componentProvenanceProjection.present_component.value.value_id;
-    const missingId = componentProvenanceProjection.missing_component.value.value_id;
-
-    const actualProjection = {
-      schema_version: "1.0.0",
-      present_component: {
-        value: sections.user_supplied_values.find((value) => value.value_id === presentId),
-        provenance_note: sections.provenance_notes.find(
-          (note) => note.source_name === componentProvenanceProjection.present_component.provenance_note.source_name
-        )
-      },
-      missing_component: {
-        value: sections.user_supplied_values.find((value) => value.value_id === missingId),
-        provenance_note: sections.provenance_notes.find(
-          (note) => note.source_name === componentProvenanceProjection.missing_component.provenance_note.source_name
-        ),
-        diagnostic: sections.diagnostics.find(
-          (diagnostic) =>
-            diagnostic.code === "COMPONENT_PROVENANCE_MISSING" &&
-            diagnostic.affected_object.ref_id === "component:C-140"
-          )
-      }
-    };
-
-    expect(componentProvenanceProjection.schema_version).toBe("1.0.0");
-    expect(actualProjection).toEqual(componentProvenanceProjection);
+describe("the route gate (§2.1): the output policy's report-package cell", () => {
+  it("admits the pressure-free route to the builder's own checks", async () => {
+    const { result } = await currentSession();
+    expect(sourceContract(result)).toBe("preview_physics");
+    expect(reportPackageUnavailableReason(result)).toBeNull();
+    expect(reportPackageUnavailableReason(null)).toBeNull();
   });
 
-  it("maps the actual manifest, source dimensions, private copies, and DEL-08-06 records without mutating sources", async () => {
-    const { model, result, inputManifest, analysisRun } =
-      await currentSession("preview");
-    const comparison = buildPreviewComparison({ result, analysisRun });
-    const modelSnapshot = structuredClone(model);
-    const resultSnapshot = structuredClone(result);
-    const runSnapshot = structuredClone(analysisRun);
-
-    const request = await assembleBelowGate({
-      model,
-      result,
-      analysisRun,
-      inputManifest,
-      projectSummary: null,
-      comparison,
-      ruleCheckAggregate: null
-    });
-
-    // The received producer header and the verified manifest supply the recorded identity.
-    const sourceIdentity = { solver_name: result.producer!.component_name, solver_version: result.producer!.component_version, solver_build_ref: inputManifest.manifest.solver_basis.solver_build_ref };
-    expect(sourceIdentity).toEqual({ solver_name: "open_pipe_stress_product_physics", solver_version: "0.2.0", solver_build_ref: "open_pipe_stress_product_physics@0.2.0" });
-    expect(request.result_envelopes[0]).toMatchObject(sourceIdentity);
-    expect(request.audit_manifest.solver_version).toEqual(sourceIdentity);
-    expect(analysisRun.schema_version).toBe("0.3.0");
-    const dimensions = request.result_envelopes[0].result_sets.flatMap(set => set.values).map(value => value.dimension);
-    expect(dimensions).toEqual(expect.arrayContaining(["force", "moment"]));
-    expect(request.export_profile_id).toBe("desktop_local_private_report_package_1");
-    expect(request.source_model_ref.ref_id).toBe(result.model_ref);
-    expect(request.audit_manifest.model_hash?.value).toMatch(/^[a-f0-9]{64}$/);
-    expect(request.audit_manifest.input_manifest_hash?.value).toMatch(/^[a-f0-9]{64}$/);
-    expect(request.audit_manifest.input_manifest_hash?.value).toBe(
-      inputManifest.manifest_sha256
-    );
-    expect(request.audit_manifest.input_manifest_hash?.payload_ref).toBe(
-      inputManifest.manifest_ref.ref
-    );
-    const resultEnvelopeHash = analysisRun.analysis_run.hashes.find(
-      (item) => item.payload_scope === "received_result"
-    )?.value;
-    expect(inputManifest.manifest_sha256).not.toBe(resultEnvelopeHash);
-    expect(request.audit_manifest.rule_pack_refs).toEqual([]);
-    expect(request.result_envelopes[0].run_ref.ref_id).toBe(result.run_id);
-    expect(request.result_envelopes[0].result_sets.flatMap((set) => set.values).length).toBeLessThan(result.results.length);
-    for(const value of request.result_envelopes[0].result_sets.flatMap(set=>set.values)){const row=result.results.find(row=>row.id===value.result_id)!;expect(resultSemantics(row, result)?.category).toBe("physical_quantity");expect(value.magnitude).toBe(row.value);expect(value.unit).toBe(row.unit);expect(value.dimension).toBe(resultSemantics(row, result)?.derivative_target_dimension);}
-    expect(request.result_envelopes[0].diagnostics.some(d=>d.code==="REPORT_SOURCE_EVIDENCE_DISCLOSED")).toBe(true);
-    expect(request.result_envelopes[0].provenance).toMatchObject({
-      source_location: "local desktop session",
-      contributor: "user_local_session",
-      contributor_certification: "not_asserted",
-      redistribution_status: "private_only",
-      review_status: "pending"
-    });
-    expect(request.state_comparison_handoff_records[0]).toMatchObject({
-      deliverable_id: "DEL-08-06",
-      section_set_id: `desktop-current-session:${result.run_id}`,
-      diagnostics: [],
-      professional_boundary: expect.objectContaining({ human_review_required: true })
-    });
-    const packageJson = JSON.stringify(request);
-    expect(packageJson).not.toContain("invented_public_example");
-    expect(packageJson).not.toContain('"redistribution_status":"public_permissive"');
-    expect(packageJson).toContain('"privacy_classification":"private_project_data"');
-    expect(packageJson).toContain('"redistribution_status":"private_only"');
-    expect(packageJson).toContain('"review_status":"pending"');
-    expect(model).toEqual(modelSnapshot);
-    expect(result).toEqual(resultSnapshot);
-    expect(analysisRun).toEqual(runSnapshot);
+  it("keeps a genuine exact-route source (pressure-2) refused with PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE (ruling 10A)", async () => {
+    const { model } = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockImplementation(createNativeMechanicsReplay({ profile: "pressure" }).invoke);
+    const result = await runPreviewMechanics(model);
+    expect(sourceContract(result)).toBe("pressure");
+    expect(numericalResultStanding(result, model).eligible).toBe(true);
+    const before = JSON.stringify(result);
+    expect(reportPackageUnavailableReason(result)).toBe(PRESSURE_2_OUTPUT_REFUSAL);
+    const exportSpy = vi.spyOn(resultExportAdapter, "buildCurrentResultExport");
+    await expect(buildReportPackageRequest({ model, result, analysisRun: null as never, inputManifest: null as never, projectSummary: null, comparison: null, ruleCheckAggregate: null, ruleCheckRun: null }))
+      .rejects.toThrow(new Error(PRESSURE_2_OUTPUT_REFUSAL));
+    expect(exportSpy).not.toHaveBeenCalled();
+    expect(JSON.stringify(result)).toBe(before);
   });
 
-  it("preserves historical fixture component and hanger input oracles as an unqualified projection", async () => {
-    const session = await syntheticPreviewSession(await loadDemoModel());
+  it("refuses an eligible registered pressure-source-1 source by its cell", async () => {
+    const root = resolve(__dirname, "../../../../../");
+    const folder = "fixtures/product_preview/pressure_source/physics_source";
+    const model = JSON.parse(readFileSync(resolve(root, `${folder}/n05.request.json`), "utf8")).model as PreviewModel;
+    const bytes = readFileSync(resolve(root, `${folder}/n05-sparse_interactive.raw.json`), "utf8");
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockImplementation(createSolveJobTransport((sent) => {
+      expect(sent.model).toEqual(model);
+      return bytes;
+    }).invoke);
+    const result = await runPreviewMechanics(model);
+    expect(sourceContract(result)).toBe("pressure_source");
+    expect(numericalResultStanding(result, model).eligible).toBe(true);
+    expect(reportPackageUnavailableReason(result)).toBe(PRESSURE_SOURCE_OUTPUT_REFUSAL);
+    expect(PRESSURE_SOURCE_OUTPUT_REFUSAL.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE: ")).toBe(true);
+    await expect(buildReportPackageRequest({ model, result, analysisRun: null as never, inputManifest: null as never, projectSummary: null, comparison: null, ruleCheckAggregate: null, ruleCheckRun: null }))
+      .rejects.toThrow(new Error(PRESSURE_SOURCE_OUTPUT_REFUSAL));
+  });
+
+  it.each([
+    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json",
+    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json",
+    "fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json",
+    "fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-dense_scrutiny.raw.json",
+    "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json",
+  ])("refuses the load/reference-state result %s with its route's refusal, whatever its standing", path => {
+    const result = JSON.parse(readFileSync(resolve(__dirname, "../../../../../", path), "utf8")) as MechanicsResult;
+    expect(["pressure", "pressure_source"]).toContain(sourceContract(result));
+    const refusal = reportPackageUnavailableReason(result);
+    expect(refusal).toBe(surfaceRouteRefusal(result, "report-package"));
+    expect(refusal?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE: ")).toBe(true);
+  });
+});
+
+describe("admission and the request's members (§2.1-§2.4)", () => {
+  it("builds the 2.0.0 request whose result member is the Export Result JSON document", async () => {
+    const session = await currentSession();
+    const comparison = buildPreviewComparison({ result: session.result, analysisRun: session.analysisRun });
     const before = JSON.stringify(session);
-    const projection = projectReceivedReportResults(session.result, session.analysisRun);
-    const report = await buildRenderableReportInput({ ...session, projectSummary: null, renderContext: { exportContext: "local_private", generatedAt: null } });
-    const resultValues = projection.resultSets.flatMap(
-      (set) => set.values
-    );
-    expect(
-      resultValues.find(
-        (item) =>
-          item.result_id ===
-          "result:component-stiffness:component-C-150:axial"
-      )?.dimension
-    ).toBeUndefined();
-    expect(
-      resultValues.find(
-        (item) =>
-          item.result_id ===
-          "result:component-stiffness:component-C-150:torsional"
-      )?.dimension
-    ).toBeUndefined();
-    const reportValues = report.report_sections.user_supplied_values;
-    expect(
-      reportValues.find((item) => item.value_id === "spring-hanger:support:SH-140")
-    ).toMatchObject({
-      quantity: { magnitude: 390, unit: "N", dimension: "force" },
-      required_for: ["reporting", "human_review"],
-      missing_data_finding: false
+    const request = await buildReportPackageRequest(input(session, { comparison }));
+    const { model, result, inputManifest, analysisRun } = session;
+
+    // The result member is canonically equal to the document Export Result JSON saves.
+    const document = await resultExportAdapter.buildCurrentResultExport({ model, result, analysisRun, inputManifest });
+    expect(request.result_documents).toHaveLength(1);
+    expect(await canonicalJsonString(request.result_documents[0])).toBe(await canonicalJsonString(document));
+    expect(request.result_documents[0].result_envelope.producer.semantic_contract_id).toBe(PREVIEW_PHYSICS_CONTRACT_ID);
+    expect(request.source_results).toEqual([result]);
+    expect(request.export_profile_id).toBe(REPORT_PACKAGE_DESKTOP_PROFILE);
+    expect(request.source_model_ref).toEqual({ ref_type: "model", ref_id: model.project.id });
+    expect(request.source_basis_refs[0]).toEqual({ ref_type: "analysis_run", ref_id: result.run_id });
+    expect(request.source_basis_refs.slice(1)).toEqual(document.result_envelope.load_basis_refs);
+
+    // §2.4: the audit manifest is named by the input-manifest reference, its unit system is
+    // the document's, and both hashes carry the basis they were computed on.
+    const modelHash = await canonicalSha256Hex(model);
+    expect(request.audit_manifest).toMatchObject({
+      manifest_id: inputManifest.manifest_ref.ref,
+      model_hash: { algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_kind: "model_json", payload_ref: model.project.id, value: modelHash },
+      input_manifest_hash: { algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_kind: "input_manifest_json", payload_ref: inputManifest.manifest_ref.ref, value: inputManifest.manifest_sha256 },
+      solver_version: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.2.0", solver_build_ref: "open_pipe_stress_product_physics@0.2.0" },
+      unit_system_ref: `${model.project.id}:units`,
+      rule_pack_refs: [],
+      assets: []
     });
-    expect(
-      reportValues.find((item) => item.value_id === "spring-hanger:support:CE-120")
-    ).toMatchObject({
-      quantity: { magnitude: 375, unit: "N", dimension: "force" },
-      required_for: ["reporting", "human_review"],
-      missing_data_finding: false
-    });
+    expect(document.result_envelope.reproducibility.audit_manifest_ref.ref_id).toBe(request.audit_manifest.manifest_id);
+    expect(document.result_envelope.reproducibility.model_hash.value).toBe(modelHash);
+
+    // The report renders under local_private with no generation time, its rows the
+    // source rows' projection, and no rule check.
+    expect(request.report.report_context.export_context).toBe("local_private");
+    expect(request.report.report_context.generated_at).toBeNull();
+    expect(request.report.result_rows).toEqual(reportResultRows(result));
+    expect(request.report.user_rule_checks).toBeNull();
+    expect(request.report.calculation_report.rule_pack_refs).toEqual([]);
+    expect(request.rule_check_aggregate).toBeNull();
+    expect(request.solve_rule_check_status).toBe(result.status.rule_check);
+    expect(request.state_comparison_handoff_records).toHaveLength(1);
+    expect(request.state_comparison_handoff_records[0]).toMatchObject({ deliverable_id: "DEL-08-06", section_set_id: `desktop-current-session:${result.run_id}` });
+
+    const packageJson = JSON.stringify(request.report);
+    expect(packageJson).not.toContain("invented_public_example");
+    expect(packageJson).toContain('"privacy_classification":"private_project_data"');
     expect(JSON.stringify(session)).toBe(before);
   });
 
-  it("blocks a same-ID model whose canonical payload differs from the verified manifest", async () => {
-    const { model, result, inputManifest, analysisRun } = await currentSession("preview");
-    const changedModel = structuredClone(model);
-    changedModel.project.description = `${changedModel.project.description} changed after manifest`;
-
-    expect(changedModel.project.id).toBe(inputManifest.manifest.model_basis.model_ref);
-    expect(await canonicalSha256Hex(changedModel)).not.toBe(
-      await canonicalSha256Hex(inputManifest.manifest.model_basis.model_payload)
-    );
-    await expect(
-      assembleBelowGate({
-        model: changedModel,
-        result,
-        analysisRun,
-        inputManifest,
-        projectSummary: null,
-        comparison: null,
-        ruleCheckAggregate: null
-      })
-    ).rejects.toThrow("REPORT-PACKAGE-INPUT-MANIFEST-MODEL-PAYLOAD-MISMATCH");
-  });
-
-  it("accepts canonically equal model payloads with reordered object keys", async () => {
-    const { model, result, inputManifest, analysisRun } = await currentSession("preview");
-    const reorderedModel = structuredClone(model);
-    reorderedModel.project.units = Object.fromEntries(
-      Object.entries(reorderedModel.project.units).reverse()
-    );
-    const canonicalModelHash = await canonicalSha256Hex(model);
-
-    expect(JSON.stringify(reorderedModel)).not.toBe(JSON.stringify(model));
-    expect(await canonicalSha256Hex(reorderedModel)).toBe(canonicalModelHash);
-    const request = await assembleBelowGate({
-      model: reorderedModel,
-      result,
-      analysisRun,
-      inputManifest,
-      projectSummary: null,
-      comparison: null,
-      ruleCheckAggregate: null
-    });
-
-    expect(request.audit_manifest.model_hash?.value).toBe(canonicalModelHash);
-  });
-
-  it("blocks every non-null rule-check aggregate before assembly", async () => {
-    const { model, result, inputManifest, analysisRun } = await currentSession("preview");
-
-    await expect(
-      assembleBelowGate({
-        model,
-        result,
-        analysisRun,
-        inputManifest,
-        projectSummary: null,
-        comparison: null,
-        ruleCheckAggregate: "RULE_INPUTS_INCOMPLETE"
-      })
-    ).rejects.toThrow("REPORT-PACKAGE-RULE-PACK-BINDING-UNAVAILABLE");
-  });
-
-  it("maps family from exact kind and source dimension without reading deceptive unit text", async () => {
-    const { model, result, inputManifest } = await currentSession();
-    const deceptive = structuredClone(result);
-    const target = deceptive.results.find(
-      (item) => item.kind === "element_local_axial_force"
-    );
-    expect(target).toBeDefined();
-    target!.unit = "MPa";
-    await expect(buildAnalysisRunPreview(deceptive, {
-      inputManifest
-    })).rejects.toThrow("SOURCE_UNIT_CONTRADICTION");
-  });
-
-  it("blocks a source dimension that contradicts exact result kind semantics", async () => {
-    const { model, result, inputManifest, analysisRun } =
-      await currentSession("preview");
-    const mismatched = structuredClone(analysisRun);
-    const target = mismatched.analysis_run.result_refs.find(
-      (item) =>
-        result.results.find(
-          (source) =>
-            source.id === item.result_ref.ref &&
-            source.kind === "element_local_axial_force"
-        )
-    );
-    expect(target).toBeDefined();
-    target!.source_dimension = "stress";
-
-    await expect(
-      assembleBelowGate({
-        model,
-        result,
-        analysisRun: mismatched,
-        inputManifest,
-        projectSummary: null,
-        comparison: null,
-        ruleCheckAggregate: null
-      })
-    ).rejects.toThrow("REPORT-PACKAGE-SOURCE-DIMENSION-MISMATCH");
-  });
-
-  it("blocks missing or mismatched manifest evidence and malformed SHA-256 before assembly", async () => {
-    const { model, result, inputManifest, analysisRun } =
-      await currentSession("preview");
-    const missing = structuredClone(analysisRun);
-    missing.analysis_run.reproducibility.input_manifest_refs = [];
-    missing.analysis_run.reproducibility.input_manifest_hashes = [];
-    await expect(
-      assembleBelowGate({
-        model,
-        result,
-        analysisRun: missing,
-        inputManifest,
-        projectSummary: null,
-        comparison: null,
-        ruleCheckAggregate: null
-      })
-    ).rejects.toThrow("REPORT-PACKAGE-HASH-BINDING-INCOMPLETE");
-
-    const malformed = structuredClone(analysisRun);
-    malformed.analysis_run.hashes[0].value = "A".repeat(64);
-    await expect(
-      assembleBelowGate({
-        model,
-        result,
-        analysisRun: malformed,
-        inputManifest,
-        projectSummary: null,
-        comparison: null,
-        ruleCheckAggregate: null
-      })
-    ).rejects.toThrow("REPORT-PACKAGE-SHA256-INVALID");
-
-    const mismatched = structuredClone(inputManifest);
-    mismatched.manifest.model_basis.model_ref = "project:different";
-    await expect(
-      assembleBelowGate({
-        model,
-        result,
-        analysisRun,
-        inputManifest: mismatched,
-        projectSummary: null,
-        comparison: null,
-        ruleCheckAggregate: null
-      })
-    ).rejects.toThrow("INPUT-MANIFEST-HASH-MISMATCH");
-
-    for (const ref of [
-      `result-envelope:project-invented-demo-loop-01:${inputManifest.manifest_sha256}`,
-      `input-manifest:project-different:${inputManifest.manifest_sha256}`
-    ]) {
-      const wrongIdentity = structuredClone(inputManifest);
-      wrongIdentity.manifest_ref.ref = ref;
-      await expect(
-        assembleBelowGate({
-          model,
-          result,
-          analysisRun,
-          inputManifest: wrongIdentity,
-          projectSummary: null,
-          comparison: null,
-          ruleCheckAggregate: null
-        })
-      ).rejects.toThrow("INPUT-MANIFEST-HASH-MISMATCH");
-    }
-  });
-  it("rejects future analysis versions and missing current received-result hashes", async () => {
-    const session = await currentSession("preview");
-    const future = structuredClone(session.analysisRun);
-    future.schema_version = "0.4.0";
-    await expect(assembleBelowGate({ ...session, analysisRun: future, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
-      .rejects.toThrow("REPORT-PACKAGE-ANALYSIS-VERSION-UNSUPPORTED");
-    const futureSource = structuredClone(session.result);
-    futureSource.schema_version = "0.4.0";
-    await expect(assembleBelowGate({ ...session, result: futureSource, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
-      .rejects.toThrow("REPORT-PACKAGE-SOURCE-CONTRACT-MISMATCH");
-    const missing = structuredClone(session.analysisRun);
-    missing.analysis_run.hashes = missing.analysis_run.hashes.filter(hash => hash.payload_scope !== "received_result");
-    await expect(assembleBelowGate({ ...session, analysisRun: missing, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
-      .rejects.toThrow("REPORT-PACKAGE-HASH-BINDING-INCOMPLETE");
-  });
-
-  it("discloses a synthetic unknown row on the unqualified historical projection without inferring force from N", async () => {
-    const { model, result, inputManifest, analysisRun: recorded } = await syntheticPreviewSession(await loadDemoModel());
-    const annotated = structuredClone(result);
-    const unknownId = "result:test:unregistered-source";
-    annotated.results.push({ id: unknownId, entity_ref: model.project.id, kind: "unregistered_source_kind", value: 1, unit: "N" });
-    // The preview reader refuses an unregistered kind, so no record admits it (B1 retired the
-    // header-only precision-1 route that did); the pure projection reads the rest's record
-    // with a dimensionless entry for it.
-    await expect(buildAnalysisRunV03(annotated, inputManifest)).rejects.toThrow("SOURCE_PREVIEW_PHYSICS_ROW_SIGNATURE");
-    const analysisRun = structuredClone(recorded);
-    analysisRun.analysis_run.result_refs.push({ ...structuredClone(analysisRun.analysis_run.result_refs[0]), result_ref: { object_type: "Result", ref: unknownId }, source_dimension: null });
-    const before = JSON.stringify(annotated);
-    const projection = projectReceivedReportResults(annotated, analysisRun);
-    expect(projection.resultSets.flatMap(set => set.values).some(value => value.result_id === unknownId)).toBe(false);
-    expect(JSON.stringify(projection.semanticDisclosures)).toContain(unknownId);
-    expect(JSON.stringify(annotated)).toBe(before);
-  });
-
-  it.each(["solver_name", "solver_version", "build_ref"] as const)("rejects recorded %s that differs from the verified manifest", async field => {
-    const session = await currentSession("preview");
-    const analysisRun = structuredClone(session.analysisRun);
-    const solver = analysisRun.analysis_run.solver_version!;
-    if (field === "build_ref") solver.build_ref.ref = "build:conflicting-record";
-    else solver[field] = "conflicting-record";
-    await expect(assembleBelowGate({ ...session, analysisRun, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
-      .rejects.toThrow("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH");
-  });
-
-  // Subject: the received producer header vs the recorded identity on a strict
-  // 0.3.0 record. The public gate refuses this fresh source (N-REPORT), so the
-  // identity check is exercised below the gate with the record as data.
-  it.each(["solver_name", "solver_version"] as const)("rejects a hash-valid manifest and coherent record with the wrong producer %s", async field => {
+  it("refuses a document whose identity is not preview-physics-2 (REPORT-PACKAGE-ROUTE-NOT-ADMITTED)", async () => {
     const session = await currentSession();
-    const receivedSourceBefore = JSON.stringify(session.result);
-    const solver = { ...session.inputManifest.manifest.solver_basis, [field]: field === "solver_version" ? "0.1.0" : "different_solver" };
-    const inputManifest = await buildCurrentSessionInputManifest({ model: session.model, solver, active_rule_packs: [], external_assets: [] });
-    await expect(buildAnalysisRunPreview(session.result, { inputManifest })).rejects.toThrow("ANALYSIS_SOURCE_PRODUCER_MISMATCH");
-    // Deliberately adversarial, test-only record: do not bypass the strict
-    // builder by changing its validator or pretending this is admitted output.
-    const analysisRun = structuredClone(session.analysisRun);
-    const run = analysisRun.analysis_run;
-    run.solver_version = { solver_name: solver.solver_name, solver_version: solver.solver_version, build_ref: { object_type: "ExternalReference", ref: solver.solver_build_ref } };
-    run.settings_ref = { object_type: "SolverSettings", ref: `solver-settings:${inputManifest.manifest_ref.ref}:${inputManifest.manifest_sha256}` };
-    run.unit_system_ref = { object_type: "UnitSystem", ref: `unit-system:${session.result.model_ref}:${inputManifest.manifest_sha256}` };
-    run.reproducibility.input_manifest_refs = [structuredClone(inputManifest.manifest_ref)];
-    run.reproducibility.input_manifest_hashes = [{ ...run.reproducibility.input_manifest_hashes[0], payload_ref: structuredClone(inputManifest.manifest_ref), value: inputManifest.manifest_sha256 }];
-    run.hashes.find(hash => hash.payload_scope === "analysis_run_record")!.value = await canonicalSha256HexCheckedV1(analysisRecordProjection(analysisRun));
-    expect(await verifyAnalysisRunRecord(analysisRun)).toBe("match");
-    expect(run.hashes.find(hash => hash.payload_scope === "received_result"))
-      .toEqual(session.analysisRun.analysis_run.hashes.find(hash => hash.payload_scope === "received_result"));
-    await expect(buildReportPackageRequest({ ...session, inputManifest, analysisRun, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
-      .rejects.toThrow(`REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: ${N_REPORT}`);
-    await expect(assembleReportPackageRequestBelowAvailabilityGate({ ...session, inputManifest, analysisRun, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
-      .rejects.toThrow("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH");
-    expect(JSON.stringify(session.result)).toBe(receivedSourceBefore);
+    const real = resultExportAdapter.buildCurrentResultExport;
+    vi.spyOn(resultExportAdapter, "buildCurrentResultExport").mockImplementation(async (args) => {
+      const document = await real(args);
+      document.result_envelope.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/pressure-2";
+      return document;
+    });
+    await expect(buildReportPackageRequest(input(session))).rejects.toThrow(REPORT_PACKAGE_ROUTE_NOT_ADMITTED);
   });
 
-  it("preserves a consistent recorded build reference without inventing one from producer version", async () => {
+  it("surfaces each result-export builder refusal with its own code", async () => {
+    const session = await currentSession();
+    // A copy carries no registered native invocation.
+    await expect(buildReportPackageRequest(input(session, { result: structuredClone(session.result) })))
+      .rejects.toThrow("CURRENT_NATIVE_INVOCATION_REQUIRED");
+    await expect(buildReportPackageRequest(input(session, { inputManifest: null as never })))
+      .rejects.toThrow("CURRENT_INPUT_MANIFEST_UNAVAILABLE");
+    const changedModel = structuredClone(session.model);
+    changedModel.project.description = `${changedModel.project.description} changed after manifest`;
+    await expect(buildReportPackageRequest(input(session, { model: changedModel }))).rejects.toThrow("CURRENT_MODEL_PAYLOAD_MISMATCH");
+  });
+
+  it("preserves a consistent recorded build reference in the document and the audit manifest", async () => {
     const recordedBuild = "build:captured-historical-product-physics";
-    const session = await currentSession("preview", recordedBuild);
-    const request = await assembleBelowGate({ ...session, projectSummary: null, comparison: null, ruleCheckAggregate: null });
-    expect(request.result_envelopes[0].solver_build_ref).toBe(recordedBuild);
+    const session = await currentSession({ solverBuildRef: recordedBuild });
+    const request = await buildReportPackageRequest(input(session));
+    expect(request.result_documents[0].result_envelope.solver_version.solver_build_ref).toBe(recordedBuild);
     expect(request.audit_manifest.solver_version.solver_build_ref).toBe(recordedBuild);
-    expect(request.audit_manifest.solver_version.solver_version).toBe(session.inputManifest.manifest.solver_basis.solver_version);
+    expect(request.report.report_context.solver_build_ref).toBe(recordedBuild);
+  });
+});
+
+describe("rule-check threading (§2.5)", () => {
+  it("refuses an aggregate without its run, and a run without its aggregate", async () => {
+    const session = await currentSession({ ruleCheckAggregate: "RULE_INPUTS_INCOMPLETE" });
+    await expect(buildReportPackageRequest(input(session, { ruleCheckAggregate: "RULE_INPUTS_INCOMPLETE" })))
+      .rejects.toThrow(REPORT_PACKAGE_RULE_CHECK_BINDING_MISMATCH);
+    const plain = await currentSession();
+    await expect(buildReportPackageRequest(input(plain, { ruleCheckRun: inventedRun("invented-pack-a", "USER_RULE_CHECKED") })))
+      .rejects.toThrow(REPORT_PACKAGE_RULE_CHECK_BINDING_MISMATCH);
   });
 
+  it("refuses a run whose aggregate is not the session's, and a record whose rule token is not the aggregate", async () => {
+    const session = await currentSession({ references: [inventedReference("invented-pack-a", hex("a"))], activeRulePacks: [activePack("invented-pack-a", hex("a"))], ruleCheckAggregate: "USER_RULE_CHECKED" });
+    await expect(buildReportPackageRequest(input(session, { ruleCheckAggregate: "USER_RULE_CHECKED", ruleCheckRun: inventedRun("invented-pack-a", "USER_RULE_FAILED") })))
+      .rejects.toThrow(REPORT_PACKAGE_RULE_CHECK_BINDING_MISMATCH);
+    // The record still carries the solve's status while the session names an aggregate.
+    const unrecorded = await currentSession({ references: [inventedReference("invented-pack-a", hex("a"))], activeRulePacks: [activePack("invented-pack-a", hex("a"))] });
+    await expect(buildReportPackageRequest(input(unrecorded, { ruleCheckAggregate: "USER_RULE_CHECKED", ruleCheckRun: inventedRun("invented-pack-a", "USER_RULE_CHECKED") })))
+      .rejects.toThrow(/REPORT-PACKAGE-RULE-CHECK-BINDING-MISMATCH: the analysis record's rule status/);
+  });
+
+  it("refuses a run whose outcomes name another pack than its loaded document", async () => {
+    const session = await currentSession({ references: [inventedReference("invented-pack-a", hex("a"))], activeRulePacks: [activePack("invented-pack-a", hex("a"))], ruleCheckAggregate: "USER_RULE_CHECKED" });
+    const run = inventedRun("invented-pack-a", "USER_RULE_CHECKED");
+    run.result.rule_pack_id = "invented-pack-other";
+    await expect(buildReportPackageRequest(input(session, { ruleCheckAggregate: "USER_RULE_CHECKED", ruleCheckRun: run })))
+      .rejects.toThrow("REPORT-RULE-CHECK-PACK-MISMATCH");
+  });
 });
 
+describe("solve and rule-check rule packs agree (§2.5, decided)", () => {
+  it("saves equal sets: the rule check of the model's resolved pack, carried in the report and the audit projection", async () => {
+    const session = await currentSession({ references: [inventedReference("invented-pack-a", hex("a"))], activeRulePacks: [activePack("invented-pack-a", hex("a"))], ruleCheckAggregate: "USER_RULE_CHECKED" });
+    const run = inventedRun("invented-pack-a", "USER_RULE_CHECKED");
+    const request = await buildReportPackageRequest(input(session, { ruleCheckAggregate: "USER_RULE_CHECKED", ruleCheckRun: run }));
+    expect(request.rule_check_aggregate).toBe("USER_RULE_CHECKED");
+    expect(request.report.user_rule_checks).toMatchObject({ rule_pack_id: "invented-pack-a", aggregate_status: "USER_RULE_CHECKED" });
+    expect(request.report.calculation_report.rule_pack_refs).toEqual([expect.objectContaining({
+      rule_pack_id: "invented-pack-a", version: "1.0.0",
+      checksum: { algorithm: "sha256", canonicalization: "JCS", payload_ref: { ref_type: "rule_pack", ref_id: "invented-pack-a" }, value: hex("a") }
+    })]);
+    expect(request.audit_manifest.rule_pack_refs).toEqual([{
+      rule_pack_id: "invented-pack-a",
+      rule_pack_version: "1.0.0",
+      source_notice: "Invented notice for invented-pack-a; not an engineering basis.",
+      redistribution_status: "invented_non_engineering_example",
+      checksum: { algorithm: "sha256", canonicalization: "rule_pack_payload_jcs", payload_kind: "rule_pack_reference", payload_ref: "invented-pack-a", value: hex("a") },
+      private_payload_redacted: true
+    }]);
+    expect(request.result_documents[0].result_envelope.analysis_status).toContain("USER_RULE_CHECKED");
+  });
 
-it("refuses an imported or cloned source even when its manifest and analysis hashes match", async () => {
-  const session = await currentSession("preview");
-  const clone = structuredClone(session.result), before = JSON.stringify(clone);
-  await expect(assembleBelowGate({ ...session, result: clone, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
-    .rejects.toThrow("REPORT-PACKAGE-NATIVE-INVOCATION-REQUIRED");
-  expect(JSON.stringify(clone)).toBe(before);
+  it("refuses a rule check of a different pack than the solve recorded, naming both sets", async () => {
+    const session = await currentSession({ references: [inventedReference("invented-pack-a", hex("a"))], activeRulePacks: [activePack("invented-pack-a", hex("a"))], ruleCheckAggregate: "USER_RULE_CHECKED" });
+    const other = inventedRun("invented-pack-b", "USER_RULE_CHECKED", { algorithm: "sha256", canonicalization: "JCS", value: hex("b") });
+    const refusal = buildReportPackageRequest(input(session, { ruleCheckAggregate: "USER_RULE_CHECKED", ruleCheckRun: other }));
+    await expect(refusal).rejects.toThrow(REPORT_PACKAGE_RULE_PACKS_DISAGREE);
+    await expect(refusal).rejects.toThrow(`invented-pack-b@1.0.0 (sha256 ${hex("b")})`);
+    await expect(refusal).rejects.toThrow(`invented-pack-a@1.0.0 (sha256 ${hex("a")})`);
+  });
+
+  it("refuses a solve pack with no rule check", async () => {
+    const session = await currentSession({ references: [inventedReference("invented-pack-a", hex("a"))], activeRulePacks: [activePack("invented-pack-a", hex("a"))] });
+    await expect(buildReportPackageRequest(input(session))).rejects.toThrow(
+      new RegExp(`^${REPORT_PACKAGE_RULE_PACKS_DISAGREE}: the package's rule packs \\(the rule check's: none\\)`)
+    );
+  });
+
+  it("refuses a rule check with no solve pack", async () => {
+    const session = await currentSession({ ruleCheckAggregate: "USER_RULE_CHECKED" });
+    await expect(buildReportPackageRequest(input(session, { ruleCheckAggregate: "USER_RULE_CHECKED", ruleCheckRun: inventedRun("invented-pack-a", "USER_RULE_CHECKED") })))
+      .rejects.toThrow(/REPORT-PACKAGE-RULE-PACKS-DISAGREE: .*are not the packs the solve recorded \(none\)/);
+  });
+
+  it("compares as sets of {rule_pack_id, version, checksum value}", () => {
+    const ref = (id: string, version: string, value: string) => ({ rule_pack_id: id, version, checksum: { value } });
+    expect(() => checkRulePacksAgree([], [])).not.toThrow();
+    expect(() => checkRulePacksAgree([ref("p", "1", hex("a"))], [activePack("p", hex("a"), "1")])).not.toThrow();
+    expect(() => checkRulePacksAgree([ref("p", "2", hex("a"))], [activePack("p", hex("a"), "1")])).toThrow(REPORT_PACKAGE_RULE_PACKS_DISAGREE);
+    expect(() => checkRulePacksAgree([ref("p", "1", hex("b"))], [activePack("p", hex("a"), "1")])).toThrow(REPORT_PACKAGE_RULE_PACKS_DISAGREE);
+    expect(() => checkRulePacksAgree([ref("p", "1", hex("a"))], [activePack("p", hex("a"), "1"), activePack("q", hex("c"), "1")])).toThrow(REPORT_PACKAGE_RULE_PACKS_DISAGREE);
+  });
+
+  it("refuses a rule-pack checksum pair the audit manifest cannot name", async () => {
+    const session = await currentSession({ references: [inventedReference("invented-pack-a", hex("a"))], activeRulePacks: [activePack("invented-pack-a", hex("a"))], ruleCheckAggregate: "USER_RULE_CHECKED" });
+    const run = inventedRun("invented-pack-a", "USER_RULE_CHECKED", { algorithm: "sha512", canonicalization: "JCS", value: hex("a") });
+    await expect(buildReportPackageRequest(input(session, { ruleCheckAggregate: "USER_RULE_CHECKED", ruleCheckRun: run })))
+      .rejects.toThrow(`${REPORT_PACKAGE_RULE_PACK_CHECKSUM_BASIS_UNSUPPORTED}: the rule pack's checksum sha512/JCS`);
+  });
 });
 
-it("keeps a genuine exact-route source (pressure-2) inspectable while withholding this report transport as a fresh result (epoch 8)", async () => {
-  // B7b: the exact route's ordinary identity is pressure-2, the v3 twin of the retired
-  // physics-1. Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §4.5): it is fresh, so
-  // the gate refuses it as every fresh identity, before reading any record.
-  const { model } = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
-  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-  invokeMock.mockImplementation(createNativeMechanicsReplay({ profile: "pressure" }).invoke);
-  const result = await runPreviewMechanics(model);
-  expect(sourceContract(result)).toBe("pressure");
-  expect(numericalResultStanding(result, model).eligible).toBe(true);
-  const before = JSON.stringify(result);
-  await expect(buildReportPackageRequest({ model, result, analysisRun: null as never, inputManifest: null as never, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
-    .rejects.toThrow(new Error(`${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`));
-  expect(reportPackageUnavailableReason(result)).not.toBe(PRESSURE_2_OUTPUT_REFUSAL);
-  expect(JSON.stringify(result)).toBe(before);
-});
-
-it("withholds this report transport from an eligible registered pressure-source-1 source as a fresh result (epoch 8)", async () => {
-  const root = resolve(__dirname, "../../../../../");
-  const folder = "fixtures/product_preview/pressure_source/physics_source";
-  const model = JSON.parse(readFileSync(resolve(root, `${folder}/n05.request.json`), "utf8")).model as PreviewModel;
-  const bytes = readFileSync(resolve(root, `${folder}/n05-sparse_interactive.raw.json`), "utf8");
-  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-  invokeMock.mockImplementation(createSolveJobTransport((sent) => {
-    expect(sent.model).toEqual(model);
-    return bytes;
-  }).invoke);
-  const result = await runPreviewMechanics(model);
-  expect(sourceContract(result)).toBe("pressure_source");
-  expect(numericalResultStanding(result, model).eligible).toBe(true);
-  const before = JSON.stringify(result);
-  await expect(buildReportPackageRequest({ model, result, analysisRun: null as never, inputManifest: null as never, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
-    .rejects.toThrow(new Error(`${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`));
-  expect(reportPackageUnavailableReason(result)).not.toBe(PRESSURE_SOURCE_OUTPUT_REFUSAL);
-  expect(JSON.stringify(result)).toBe(before);
-});
-
-it.each([
-  "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json",
-  "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json",
-  "fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json",
-  "fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-dense_scrutiny.raw.json",
-  "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json",
-])("refuses the load/reference-state result %s with the fresh-result reason, whatever its standing (epoch 8)", path => {
-  const result = JSON.parse(readFileSync(resolve(__dirname, "../../../../../", path), "utf8")) as MechanicsResult;
-  expect(["pressure", "pressure_source"]).toContain(sourceContract(result));
-  expect(reportPackageUnavailableReason(result)).toBe(`${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`);
-});
-
-it("refuses a registered preview session with the frozen T0R reason (report outage until T6)", async () => {
-  const session = await currentSession("preview"), before = JSON.stringify(session);
-  await expect(buildReportPackageRequest({ ...session, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
-    .rejects.toThrow(`REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: ${N_REPORT}`);
-  expect(JSON.stringify(session)).toBe(before);
-});
-
-// Below-gate coverage of the strict 0.3.0 assembly T6 will reuse, with the
-// registered preview-physics-2 session as data (the public gate refuses it).
-it("assembles the strict 0.3.0 package below the availability gate from a registered preview-physics-2 session", async () => {
-  const session = await currentSession("preview");
-  const before = JSON.stringify(session);
-  await expect(buildReportPackageRequest({ ...session, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
-    .rejects.toThrow(`REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: ${N_REPORT}`);
-  const comparison = buildPreviewComparison({ result: session.result, analysisRun: session.analysisRun });
-  const request = await assembleReportPackageRequestBelowAvailabilityGate({ ...session, projectSummary: null, comparison, ruleCheckAggregate: null });
-  const sourceIdentity = { solver_name: session.result.producer!.component_name, solver_version: session.result.producer!.component_version, solver_build_ref: session.inputManifest.manifest.solver_basis.solver_build_ref };
-  expect(sourceIdentity).toEqual({ solver_name: "open_pipe_stress_product_physics", solver_version: "0.2.0", solver_build_ref: "open_pipe_stress_product_physics@0.2.0" });
-  expect(request.result_envelopes[0]).toMatchObject(sourceIdentity);
-  expect(request.audit_manifest.solver_version).toEqual(sourceIdentity);
-  expect(session.analysisRun.schema_version).toBe("0.3.0");
-  expect(request.audit_manifest.input_manifest_hash?.value).toBe(session.inputManifest.manifest_sha256);
-  for (const value of request.result_envelopes[0].result_sets.flatMap(set => set.values)) {
-    const row = session.result.results.find(row => row.id === value.result_id)!;
-    expect(resultSemantics(row, session.result)?.category).toBe("physical_quantity");
-    expect(value.magnitude).toBe(row.value);
-    expect(value.unit).toBe(row.unit);
+// Pure report projection (no package): the component-provenance and hanger oracles of
+// the rendered report input the package carries.
+describe("the report input the package carries", () => {
+  async function syntheticPreviewSession(model: PreviewModel) {
+    const result = structuredClone(previewConnectedSparse) as unknown as MechanicsResult;
+    result.model_ref = model.project.id;
+    const inputManifest = await buildCurrentSessionInputManifest({
+      model,
+      solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.2.0", solver_build_ref: "open_pipe_stress_product_physics@0.2.0", solver_mode: "sparse_interactive", settings: {} },
+      active_rule_packs: [], external_assets: []
+    });
+    const analysisRun = await buildAnalysisRunV03(result, inputManifest);
+    return { model, result, inputManifest, analysisRun };
   }
-  // Below the gate the strict binding checks still refuse a cloned (unregistered) source.
-  await expect(assembleReportPackageRequestBelowAvailabilityGate({ ...session, result: structuredClone(session.result), projectSummary: null, comparison: null, ruleCheckAggregate: null }))
-    .rejects.toThrow("REPORT-PACKAGE-NATIVE-INVOCATION-REQUIRED");
-  // A fresh identity never reaches assembly through the public path.
-  const fresh = await currentSession("preview");
-  await expect(buildReportPackageRequest({ ...fresh, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
-    .rejects.toThrow(`REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: ${N_REPORT}`);
-  expect(JSON.stringify(session)).toBe(before);
+
+  it("preserves the component-provenance oracle", async () => {
+    const modelWithMissingProvenance = structuredClone(inventedPreviewModel) as unknown as PreviewModel;
+    const missingComponent = modelWithMissingProvenance.components.find((component) => component.id === "component:C-140");
+    expect(missingComponent).toBeDefined();
+    missingComponent!.provenance = "";
+    const { model, result, analysisRun } = await syntheticPreviewSession(modelWithMissingProvenance);
+    const projected = await buildRenderableReportInput({ model, result, analysisRun, projectSummary: null, renderContext: { exportContext: "local_private", generatedAt: null } });
+    const sections = projected.report_sections;
+    const presentId = componentProvenanceProjection.present_component.value.value_id;
+    const missingId = componentProvenanceProjection.missing_component.value.value_id;
+    expect({
+      schema_version: "1.0.0",
+      present_component: {
+        value: sections.user_supplied_values.find((value) => value.value_id === presentId),
+        provenance_note: sections.provenance_notes.find((note) => note.source_name === componentProvenanceProjection.present_component.provenance_note.source_name)
+      },
+      missing_component: {
+        value: sections.user_supplied_values.find((value) => value.value_id === missingId),
+        provenance_note: sections.provenance_notes.find((note) => note.source_name === componentProvenanceProjection.missing_component.provenance_note.source_name),
+        diagnostic: sections.diagnostics.find((diagnostic) => diagnostic.code === "COMPONENT_PROVENANCE_MISSING" && diagnostic.affected_object.ref_id === "component:C-140")
+      }
+    }).toEqual(componentProvenanceProjection);
+  });
+
+  it("preserves the hanger input oracles", async () => {
+    const session = await syntheticPreviewSession(structuredClone(demoModel) as PreviewModel);
+    const before = JSON.stringify(session);
+    const report = await buildRenderableReportInput({ ...session, projectSummary: null, renderContext: { exportContext: "local_private", generatedAt: null } });
+    const reportValues = report.report_sections.user_supplied_values;
+    expect(reportValues.find((item) => item.value_id === "spring-hanger:support:SH-140")).toMatchObject({
+      quantity: { magnitude: 390, unit: "N", dimension: "force" }, required_for: ["reporting", "human_review"], missing_data_finding: false
+    });
+    expect(reportValues.find((item) => item.value_id === "spring-hanger:support:CE-120")).toMatchObject({
+      quantity: { magnitude: 375, unit: "N", dimension: "force" }, required_for: ["reporting", "human_review"], missing_data_finding: false
+    });
+    expect(JSON.stringify(session)).toBe(before);
+  });
 });

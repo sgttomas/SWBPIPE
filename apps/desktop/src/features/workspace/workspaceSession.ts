@@ -35,7 +35,7 @@ import {
   terminalJobError
 } from "../../services/previewService";
 import { ResourceUnavailableError } from "../../services/memoryPool";
-import { nativeFailureText } from "../../services/nativeIngress";
+import { IngressRequestRetiredError, nativeFailureText } from "../../services/nativeIngress";
 import {
   buildBlankLocalModelDocument,
   buildBlankLoadStateModelDocument,
@@ -81,7 +81,7 @@ import {
   type HandoffBasis
 } from "../handoff/handoffPackageSave";
 import type { HandoffSaveChoice, HandoffSaveDialogRequest } from "../handoff/HandoffSaveDialog";
-import { saveReportPackage } from "../../services/reportPackageSaveService";
+import { invokeReportPackageSave, prepareReportPackageSave } from "../../services/reportPackageSaveService";
 import type { RuleCheckStatus } from "../../services/ruleCheckService";
 import type { SessionRuleCheckRun } from "../report/renderableReportInput";
 import type {
@@ -375,6 +375,7 @@ export function useWorkspaceSession() {
     inputManifest, setInputManifest,
     ruleCheckAggregate, setRuleCheckAggregate,
     ruleCheckReportRun, heldRuleCheckRun, setRuleCheckReportRun,
+    ruleCheckAggregateRef, ruleCheckReportRunRef,
     proposal, setProposal,
     selectedReviewTarget, setSelectedReviewTarget,
     solveJob, setSolveJob,
@@ -1111,14 +1112,21 @@ export function useWorkspaceSession() {
     if (!renderedBasisIsCurrent()) return;
     // The report reads the run only while its aggregate is the current one.
     const previousRun = heldRuleCheckRun;
-    setRuleCheckReportRun(aggregate !== null && run?.result.aggregate_status === aggregate ? run : null);
+    const nextRun = aggregate !== null && run?.result.aggregate_status === aggregate ? run : null;
+    setRuleCheckReportRun(nextRun);
+    // A different run makes the previously assembled report package stale, even
+    // under the same aggregate (another pack or other outcomes; DEL-08-01 Design
+    // `report-package-current-results.md` §2.5), so this comes before the early
+    // return. The private-package intent remains an independent user choice.
+    const runChanged = nextRun !== previousRun;
+    if (runChanged) invalidateReportPackageComputedState();
     if (aggregate === ruleCheckAggregate) return;
     const previousAggregate = ruleCheckAggregate;
     const revision = ruleRevisionGate.current.start();
     // A different aggregate immediately makes the previously assembled report
     // package stale. Clear its computed route before publishing the new rule
-    // state; the private-package intent remains an independent user choice.
-    invalidateReportPackageComputedState();
+    // state.
+    if (!runChanged) invalidateReportPackageComputedState();
     setRuleCheckAggregate(aggregate);
     if (!currentSolvedResult || !inputManifest) return;
     const capturedResult = currentSolvedResult;
@@ -2847,8 +2855,10 @@ export function useWorkspaceSession() {
       comparison,
       projectSummary,
       ruleCheckAggregate,
+      ruleCheckRun: ruleCheckReportRun,
       privateIntent: reportPackagePrivateIntent
     } as const;
+    // Refs, because the awaited build and preparation outlive this render's closure.
     const isCurrent = () =>
       reportPackageRequestGenerationRef.current === generation &&
       reportPackageBusyGenerationRef.current === generation &&
@@ -2857,7 +2867,9 @@ export function useWorkspaceSession() {
       currentModel.current === basis.model &&
       currentSolvedResultRef.current === basis.result &&
       currentInputManifestRef.current === basis.inputManifest &&
-      analysisBasisRef.current.value === basis.analysisRun;
+      analysisBasisRef.current.value === basis.analysisRun &&
+      ruleCheckAggregateRef.current === basis.ruleCheckAggregate &&
+      ruleCheckReportRunRef.current === basis.ruleCheckRun;
     reportPackageBusyGenerationRef.current = generation;
     setReportPackageBusy(true);
     setReportPackageRoute(null);
@@ -2869,7 +2881,8 @@ export function useWorkspaceSession() {
         inputManifest: basis.inputManifest,
         projectSummary: basis.projectSummary,
         comparison: basis.comparison,
-        ruleCheckAggregate: basis.ruleCheckAggregate
+        ruleCheckAggregate: basis.ruleCheckAggregate,
+        ruleCheckRun: basis.ruleCheckRun
       });
       if (!isCurrent()) return;
       const controlled = controlReportPackageRequest(request, basis.privateIntent);
@@ -2881,11 +2894,19 @@ export function useWorkspaceSession() {
         });
         return;
       }
-      const saved = await saveReportPackage(controlled);
+      const prepared = await prepareReportPackageSave(controlled, basis.model, request);
+      if (!isCurrent()) return;
+      if (prepared.route !== "ready") {
+        setReportPackageRoute(prepared);
+        return;
+      }
+      // The last guard runs inside the invocation, immediately before each send.
+      const saved = await invokeReportPackageSave(prepared, isCurrent);
       if (!isCurrent()) return;
       setReportPackageRoute(saved);
     } catch (error) {
-      if (!isCurrent()) return;
+      // A basis retired before a send: nothing was sent, and the newer basis owns the state.
+      if (error instanceof IngressRequestRetiredError || !isCurrent()) return;
       setReportPackageRedaction(null);
       setReportPackageRoute({
         route: "redaction_blocked",
