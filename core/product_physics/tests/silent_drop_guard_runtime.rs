@@ -370,6 +370,18 @@ fn an_unknown_key_on_a_request_material_refuses_by_field_record_and_path() {
     assert!(typed.contains("unknown field `poison_ratio`"), "{typed}");
 }
 
+/// The desktop's hand-edit refusal (`apps/desktop/src/features/workspace/solveJobResource.session.test.tsx`,
+/// `HAND_EDIT_REFUSAL`): that session's model with one misspelled section key is refused with exactly this text.
+#[test]
+fn the_desktop_hand_edit_is_refused_with_this_text() {
+    const HAND_EDIT_REFUSAL: &str = "UNKNOWN_MODEL_FIELD: request: unknown field `mill_tolerence` in the section of pipe segment `pipe:P-110` (model.pipe_segments[1].section). The model document does not define these keys, so they would be ignored; nothing is solved. Correct or remove each key.";
+    let mut model: Value = serde_json::from_str(include_str!("fixtures/preview_physics_invented_model.json")).unwrap();
+    model["pipe_segments"][1]["section"]["mill_tolerence"] = json!({"value": 0.0005, "unit": "m"});
+    for mode in MODES {
+        assert_eq!(refusal(&model, mode, "the desktop's hand edit"), HAND_EDIT_REFUSAL, "{mode:?}");
+    }
+}
+
 #[test]
 fn every_unknown_key_is_named_with_a_bounded_list() {
     let mut model = linear();
