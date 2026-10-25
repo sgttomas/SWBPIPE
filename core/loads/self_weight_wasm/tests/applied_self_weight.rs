@@ -292,3 +292,55 @@ fn preapply_source_hash_guard_rejects_dependency_edit() {
     assert!(rejected["applied_model"].is_null(), "{rejected}");
     assert_eq!(rejected["validation"]["application_status"], "blocked");
 }
+
+/// W-15 slice b: a valve at the tip mapping the beam, with its weight and
+/// centre of gravity (global X/Y/Z from its node), carries its own weight in
+/// place of the beam's distributed self-weight; a weight edit and a centre of
+/// gravity edit through the applier make the generated loads stale, and the
+/// refresh route reconciles them in place.
+fn component_model() -> Value {
+    let mut m = model();
+    m["components"] = json!([{"id":"component:valve","label":"Invented valve","kind":"valve","node":"node:tip",
+        "geometry":{"rigid_pipe_ref":"pipe:beam","weight":{"value":50.0,"unit":"N"},"center_of_gravity":{"x":-0.5,"y":0.0,"z":0.0,"unit":"m"}},
+        "mechanics_interface":{"solver_consumption":"mechanics_geometry_only"},"provenance":"invented valve weight"}]);
+    m
+}
+fn vector_edit(model: &Value, before: &str, after: &str) -> Value {
+    let draft = json!({"object_type":"Component","target_ref":"component:valve","operation_kind":"modify","change_kind":"set_field","field_label":"Centre of gravity","field_path":"geometry.center_of_gravity","before":before,"after":after,"unit":"m","dimension":"length","source_note":"explicit invented centre of gravity"});
+    let out = apply_operation(model, &operation(&draft, "cog"), Some(&claim(model)));
+    out.applied_model.expect(&format!("{:?}", out.diagnostics))
+}
+#[test]
+fn component_weight_edits_require_refresh_and_refresh_in_place() {
+    let original = component_model();
+    let (_, batch) = generate(&original);
+    let outcome = apply_operation_batch(&original, &batch, Some(&claim(&original)));
+    assert_eq!(outcome["validation"]["application_status"], "applied_to_session_model", "{outcome}");
+    let weighted = outcome["applied_model"].clone();
+    let loads = weighted["load_cases"][0]["primitive_loads"].as_array().unwrap().clone();
+    // F = (0, -50, 0) at the tip, M = r x F = (0, 0, r_x f) = (0, 0, 25).
+    assert_eq!(loads.len(), 2);
+    assert_eq!((loads[0]["category"].as_str(), loads[0]["magnitude"]["value"].as_f64()), (Some("concentrated_force"), Some(-50.0)));
+    assert_eq!((loads[1]["direction"].as_str(), loads[1]["magnitude"]["value"].as_f64()), (Some("rotation_z"), Some(25.0)));
+    let solved = solve(&reopen(&weighted));
+    close("valve root force", root_fy(&solved), 50.0);
+    let weight = edit(&weighted, "Component", "component:valve", "geometry.weight.value", "50", 80.0, "N", "force");
+    let blocked = attempt_solve(&reopen(&weight));
+    assert!(blocked.diagnostics.iter().any(|d| d.code == "SELF_WEIGHT_INPUTS_STALE"), "{:?}", blocked.diagnostics);
+    let refreshed = apply_refresh(&weight, "block");
+    let l = &refreshed["load_cases"][0]["primitive_loads"];
+    assert_eq!((l[0]["id"].clone(), l[1]["id"].clone()), (loads[0]["id"].clone(), loads[1]["id"].clone()));
+    assert_eq!((l[0]["magnitude"]["value"].as_f64(), l[1]["magnitude"]["value"].as_f64()), (Some(-80.0), Some(40.0)));
+    close("refreshed valve root force", root_fy(&solve(&reopen(&refreshed))), 80.0);
+    let moved = vector_edit(&refreshed, "-0.5, 0, 0 m", r#"{"x":-0.25,"y":0,"z":0,"unit":"m"}"#);
+    assert!(attempt_solve(&reopen(&moved)).diagnostics.iter().any(|d| d.code == "SELF_WEIGHT_INPUTS_STALE"));
+    let again = apply_refresh(&moved, "block");
+    assert_eq!(again["load_cases"][0]["primitive_loads"][1]["magnitude"]["value"].as_f64(), Some(20.0));
+    solve(&reopen(&again));
+    // A centre of gravity on the gravity line removes the moment: no in-place
+    // refresh exists, and the case must be generated again.
+    let aligned = vector_edit(&again, "-0.25, 0, 0 m", r#"{"x":0,"y":0.1,"z":0,"unit":"m"}"#);
+    let refused = generate_plan(&aligned, &json!({"mode":"refresh","case_id":"case:weight","source_model_hash":hash(&aligned),"manual_overrides":"block"}));
+    assert_eq!(refused["status"], "blocked");
+    assert_eq!(refused["diagnostics"][0]["code"], "SELF-WEIGHT-REFRESH-UNAVAILABLE", "{refused}");
+}
