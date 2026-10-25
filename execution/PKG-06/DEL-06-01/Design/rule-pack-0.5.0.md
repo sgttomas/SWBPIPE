@@ -1,7 +1,9 @@
 # Rule-pack format 0.5.0: stress categories, load-case mappings and required load cases (W-17)
 
 **Basis:** `origin/main` at `146abe1389` (2026-10-25), with a code survey at
-that commit. Designed, with two Codex design reviews (§7); not yet implemented. Standard claim fence applies (claims taxonomy per DEC-081).
+that commit. Designed, with two Codex design reviews (§7). Slice A (format,
+validation, evaluation, run path, fixtures) is implemented; the desktop is
+slice B; the report change (§6) waits for the owner's W-18b ruling. Standard claim fence applies (claims taxonomy per DEC-081).
 
 **Requirement.** PRD §17.2 lists what a rule pack shall support, including
 "required load cases", "stress categories" and "load-case mappings". FR-RULE-001
@@ -180,17 +182,14 @@ labelled as such (FR-RULE-007; DEL-06-01 REQ-06-01-007, REQ-06-01-011).
      lookups use that identity (today the run panel keys and test-ids outcomes
      by `check_id`, `RuleCheckRunPanel.tsx`, and a runner test helper returns
      the first matching check id, `tests/interval_bounds_run.rs`).
-   - **Count scope is shown.** Beside the unchanged headline, the run panel and
-     the report's rule-check section say: "Counts are per check and load case
-     or combination; one check can contribute more than once." DEL-06-03
-     Design `pack-aggregate-incomplete.md` says the same of its counts.
+   - **Count scope is shown.** Beside the unchanged headline, the run panel
+     says: "Counts are per check and load case or combination; one check can
+     contribute more than once." DEL-06-03 Design `pack-aggregate-incomplete.md`
+     says the same of its counts. The report's rule-check section gets the same
+     note with the report change (§6).
    - **Consumers keyed by `check_id`** now see it repeated once per basis. The
-     run panel shows each outcome with its category and load case. The
-     report's projection (`renderableReportInput.ts` `userRuleChecks`) carries
-     `basis_ref` on each check, and the renderer's rule-check section
-     (`core/reporting/report_renderer`, `UserRuleCheckOutcome`) shows it beside
-     the check id. This is the only report change; the report package's
-     rule-check binding (aggregate and pack identity) is unaffected.
+     run panel shows each outcome with its category and load case. The report
+     is §6.
 8. **Units are unchanged.** Each basis converts its bound values to the
    declared units exactly as a single evaluation does today (B2/B3
    normalization in `rule_check_runner`).
@@ -299,7 +298,7 @@ In `features/rule-packs/` (DEL-07-03; `RulePackManagerPanel.tsx`,
 - **Native smoke.** The demo-pack steps on the demo and exact models still
   refuse as `RULE_INPUTS_INCOMPLETE` naming both inputs missing; `run.mjs` and
   `expected.json` are unchanged.
-- **Schemas.** `rule_check_run_result.schema.json` gains a `BasisOutcome`
+- **Schemas.** `rule_check_run_result.schema.json` gains a `BasisRef`
   definition; `tests/test_operation_result_schemas.py`, which pins the
   definition set, lists it.
 - **e2e.** `r2-smoke.spec.ts` asserts the run panel's caller selector; it moves
@@ -307,13 +306,51 @@ In `features/rule-packs/` (DEL-07-03; `RulePackManagerPanel.tsx`,
 
 ## 6. Effects outside DEL-06
 
-- **Reports:** the rule-check section shows each outcome's load case (§2.7).
-  `renderableReportInput.ts` and the renderer's rule-check section change by
-  that one member; the report package's rule-check binding does not. The
-  reports lane is told of the change through the coordinator.
+- **Reports: deferred.** The intended change is for the report's projection
+  (`renderableReportInput.ts` `userRuleChecks`) to carry `basis_ref` on each
+  outcome, and for the renderer's rule-check section
+  (`core/reporting/report_renderer`, `UserRuleCheckOutcome`) to show it beside
+  the check id with the count-scope note. A new member changes the 2.0.0 report
+  package's bytes, and the owner is ruling (W-18b O-A) on how DEC-028's one
+  version treats a member added at a head. The change therefore lands in a
+  later slice, which the coordinator releases after that ruling.
+  - **Until then**, the report lists a check once per load case or combination
+    without naming it. Each outcome keeps its own status, so failures are still
+    listed and counted. The report package's rule-check binding (aggregate and
+    pack identity) is unaffected either way.
 - **Model document, analysis runs, handoff:** unchanged. They cite packs by id,
   version and checksum.
 - **Solver:** unchanged. No product_physics file is touched.
+
+## 6a. As built in slice A
+
+- **Shared format module.** `core/rules/rule_pack_document/src/format.rs` holds
+  the version, finding codes, `BasisRef`, the selector parser and each check's
+  basis plan, used by both the validator and the runner.
+- **References.** `category_ref` and `required_load_case_refs` are `Reference`
+  objects with `ref_type` `stress_category` and `required_load_case`.
+- **Row selection** is `apps/desktop/src-tauri/src/rule_solver_selection.rs`.
+  - **Tie rods.** `connector_evidence.rs` is priced by the retained-pricing
+    rules, so it is not changed. The module restates the rod-row id convention,
+    citing `connector_evidence.rs` and `core/product_physics/src/joint.rs`.
+    A test cross-checks it on the reader corpus: the reader accepts the
+    corpus, the matcher binds each rod row to exactly one rod, and a forged rod
+    fails both. The convention covers load-case rows only, so a tie-rod row on
+    a combination would be row-missing; no committed envelope has one.
+- **Gates.** Mechanics qualification runs once per run, as before;
+  `rule_binding_refusal` runs on every matched row.
+- **Refusal order.** Any non-null caller `solverResultBindings` is refused
+  after validation, so a `0.4.0` pack is refused by its version first. A bound
+  without a basis refuses its input on every basis.
+- **`basis_ref` may be null** only on an outcome for a check with no bases,
+  which validation already blocks; such an outcome is incomplete.
+- **Single-basis equivalence (pinned).** `pressure_connected_mechanics_dense.json`
+  row `…:end_i:axial_membrane_stress:reduced_section` against an invented
+  7.3 MPa limit gives 0.62266500622665 (`0x3fe3ecdf29c36d59`),
+  `USER_RULE_CHECKED`, the same as the runner before the change at
+  `38e5b73d5b`.
+- **Selector uniqueness** covers 37 files, 55 envelopes and 20,856
+  basis-bearing rows, the connector corpus included.
 
 ## 7. Review findings resolved
 
@@ -339,11 +376,11 @@ Round 2 (`8d5b6495da`) confirmed those and found:
 
 Both rounds reviewed the ScopeOfWork wording in §8 and approved it as written.
 
-## 8. ScopeOfWork wording (pending confirmation)
+## 8. ScopeOfWork wording (applied)
 
-Proposed for DEL-06-01 `ScopeOfWork.md` CLM-011, under the owner's wording
-grant (LOOP_INIT, 2026-10-23). Codex reviewed the exact text in both design
-rounds and approved it. It is applied only after the coordinator confirms.
+Applied to DEL-06-01 `ScopeOfWork.md` CLM-011 under the owner's wording grant
+(LOOP_INIT, 2026-10-23). Codex reviewed the exact text in both design rounds
+and approved it; the coordinator confirmed it (2026-10-25).
 - REQ-06-01-002, replaced. Old: "The schema shall include rule-pack identity,
   schema version, rule-pack version, lifecycle/status, and source-note
   metadata." New: the same sentence, then "One schema version is current; a
