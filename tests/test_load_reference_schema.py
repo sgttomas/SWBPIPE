@@ -37,7 +37,7 @@ PRESSURE_SHA = "6991728e6bc9c88effdbe5d0407671f4d78376c5c67d79d70f2cd1f174f47cba
 PRESSURE_PROFILE = "exact_pressure_v3"
 PRESSURE_SOURCE_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
-PREVIEW_SHA = "ee8036d59d0aeb255ff132e4dee0d6e7a1e8da8b33e4697c7761c695c3f6e387"
+PREVIEW_SHA = "653a4758ebdac9ca04df7a54f794f6651e4da5f3b695535342a8e5700b1f1936"
 RETIRED_LR_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
 RETIRED_IDS = ("openpipestress.result_semantics/0.3.0/physics-1", "openpipestress.result_semantics/0.3.0/physics-source-1",
                RETIRED_LR_ID, "openpipestress.result_semantics/0.3.0/load-reference-source-1")

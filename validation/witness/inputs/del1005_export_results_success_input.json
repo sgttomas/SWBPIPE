@@ -51,7 +51,7 @@
                 "ref_id": "run:headless-preview:del1005-export-results-invented",
                 "ref_type": "analysis_run"
               },
-              "value": "a8ec5a8ec4e52d00c8207c53af13da9f7c644291c5ff1042e73de2925187131e"
+              "value": "aca67c0f213a212b0ee2fc6fded9015225e3adcdf230b3297300a3f60244b209"
             },
             "privacy_classification": "invented_public_example",
             "provenance": {
@@ -81,7 +81,7 @@
                 "ref_id": "result-envelope:run:headless-preview:del1005-export-results-invented",
                 "ref_type": "result_envelope"
               },
-              "value": "852daac1324d3a52510f8717af0c8defb4cd4c8d0cb87d34bc8a88fa0191238a"
+              "value": "0b3ad1a496afb8b0f86dbee4ad8998803950da87bb78e9e23c46cbffa4d5c96f"
             },
             "privacy_classification": "invented_public_example",
             "provenance": {
@@ -4162,7 +4162,7 @@
           "formulation_basis": {
             "limitations": [
               "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
-              "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
+              "Nonzero pressure is refused on this route.",
               "On every member the section normal-stress extremes are N/A ± hypot(My,Mz)/Z at each station and the transverse shear maximum is the straight-annulus Saint-Venant value, with ν = E/(2G) − 1 assuming an isotropic material. On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No equivalent stress or code stress.",
               "On arcs: signed tangent-frame resultants, nominal stress components and section extremes; endpoint force rows are node-on-element actions in the tangent frame at their end. The normal-stress maximum is bounded along the arc and enters the stress headline. The transverse shear uses the straight-annulus field without curvature correction.",
               "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",
@@ -4239,7 +4239,7 @@
                 "ref_type": "derivative_document"
               },
               "payload_scope": "derivative_document_excludes_own_hash",
-              "value": "d648d3f1709e6f42ea89853e4a5e7950999e03479515577cdb1b802ba74d7386"
+              "value": "6226bbcf6e01b89c858b2effd70548dff363d1aaf9971e618715de5f9c8c6a2a"
             },
             "derivative_hash_excludes": "result_envelope.reproducibility.derivative_hash",
             "deterministic_ordering": true,
@@ -4262,7 +4262,7 @@
                   "ref_type": "attested_headless_producer"
                 },
                 "payload_scope": "attested_headless_producer_carrier",
-                "value": "852daac1324d3a52510f8717af0c8defb4cd4c8d0cb87d34bc8a88fa0191238a"
+                "value": "0b3ad1a496afb8b0f86dbee4ad8998803950da87bb78e9e23c46cbffa4d5c96f"
               }
             ],
             "request_hash": {
@@ -4283,7 +4283,7 @@
                   "ref_id": "run:headless-preview:del1005-export-results-invented",
                   "ref_type": "AnalysisRun"
                 },
-                "value": "a8ec5a8ec4e52d00c8207c53af13da9f7c644291c5ff1042e73de2925187131e"
+                "value": "aca67c0f213a212b0ee2fc6fded9015225e3adcdf230b3297300a3f60244b209"
               },
               {
                 "algorithm": "sha256",
@@ -4292,7 +4292,7 @@
                   "ref_id": "result-envelope:run:headless-preview:del1005-export-results-invented",
                   "ref_type": "ResultEnvelope"
                 },
-                "value": "852daac1324d3a52510f8717af0c8defb4cd4c8d0cb87d34bc8a88fa0191238a"
+                "value": "0b3ad1a496afb8b0f86dbee4ad8998803950da87bb78e9e23c46cbffa4d5c96f"
               }
             ],
             "source_origin_bindings": [
@@ -4317,7 +4317,7 @@
                     "ref_type": "attested_headless_producer"
                   },
                   "payload_scope": "attested_headless_producer_carrier",
-                  "value": "852daac1324d3a52510f8717af0c8defb4cd4c8d0cb87d34bc8a88fa0191238a"
+                  "value": "0b3ad1a496afb8b0f86dbee4ad8998803950da87bb78e9e23c46cbffa4d5c96f"
                 },
                 "qualification_ref": {
                   "ref_id": "run:headless-preview:del1005-export-results-invented:0a704c1a3359f0452637702b948db799febc14c5479466a78ee2fa93ee8575cc",
@@ -4331,7 +4331,7 @@
                     "ref_type": "attested_headless_producer"
                   },
                   "payload_scope": "attested_headless_producer_carrier",
-                  "value": "852daac1324d3a52510f8717af0c8defb4cd4c8d0cb87d34bc8a88fa0191238a"
+                  "value": "0b3ad1a496afb8b0f86dbee4ad8998803950da87bb78e9e23c46cbffa4d5c96f"
                 },
                 "request_alias_disclosure": null,
                 "request_model_ref": {
@@ -19924,7 +19924,7 @@
         "formulation_basis": {
           "limitations": [
             "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
-            "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
+            "Nonzero pressure is refused on this route.",
             "On every member the section normal-stress extremes are N/A ± hypot(My,Mz)/Z at each station and the transverse shear maximum is the straight-annulus Saint-Venant value, with ν = E/(2G) − 1 assuming an isotropic material. On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No equivalent stress or code stress.",
             "On arcs: signed tangent-frame resultants, nominal stress components and section extremes; endpoint force rows are node-on-element actions in the tangent frame at their end. The normal-stress maximum is bounded along the arc and enters the stress headline. The transverse shear uses the straight-annulus field without curvature correction.",
             "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",
@@ -21685,7 +21685,7 @@
                     "ref": "run:headless-preview:del1005-export-results-invented"
                   },
                   "payload_scope": "analysis_run_record",
-                  "value": "a8ec5a8ec4e52d00c8207c53af13da9f7c644291c5ff1042e73de2925187131e"
+                  "value": "aca67c0f213a212b0ee2fc6fded9015225e3adcdf230b3297300a3f60244b209"
                 },
                 {
                   "algorithm": "sha256",
@@ -21695,7 +21695,7 @@
                     "ref": "result-envelope:run:headless-preview:del1005-export-results-invented"
                   },
                   "payload_scope": "received_result",
-                  "value": "852daac1324d3a52510f8717af0c8defb4cd4c8d0cb87d34bc8a88fa0191238a"
+                  "value": "0b3ad1a496afb8b0f86dbee4ad8998803950da87bb78e9e23c46cbffa4d5c96f"
                 }
               ],
               "library_refs": [],

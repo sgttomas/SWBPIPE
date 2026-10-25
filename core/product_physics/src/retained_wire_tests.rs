@@ -36,8 +36,8 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// C5 adds the adopted arc end-tangent limitation sentence; the current ordinary
 /// companions preserve every physical row and are still equal under capture.
 const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
-    ("sparse_interactive", 80884, "d599dd9a3f6482743acc9076de157796ec41e3c86335884835b9c56f42cafae3"),
-    ("dense_scrutiny", 80908, "cd9812a90e8f85ad050456aa26621bf17cf7b0ca9c64c4d2e215292b115137a2"),
+    ("sparse_interactive", 80815, "fe35dfa1506a0f63cc38d9e3122224e12bbe16ad5bfcb225ec987d7e34a8e861"),
+    ("dense_scrutiny", 80839, "b9ec2b66b7248160482a7af661d29974ff3d39f4a2dfb976bd567fe4769107f7"),
 ];
 /// The serializer's committed milestone output: sha256 of the pretty-printed
 /// successor envelope, and its receipt_sha256 (byte-stable, both modes).
@@ -50,8 +50,8 @@ const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
 /// hashes, and the receipt, publication and document hashes binding them moved and follow the
 /// maintained writers' bytes; no numeric leaf, class, selection, status or verdict moved.
 const SUCCESSOR_SHA256: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "2527351c49f3c928882dbeda961c0a3e34cb26cbfe00457e7af6d71c6f0bb119", "5d1faa58971f43063cfcd4277ee0f4dab5d6601bb83ec4330f616b767e829136"),
-    ("dense_scrutiny", "fd0c430ca4bfae895851c735207d3424d8d5c835a9d2bd5743cf012e577e1eba", "42fba5d63668f917ed23b0e9b88e946a8b0ba7670ddb8580783ae0397e0d2ca5"),
+    ("sparse_interactive", "67f146bd4411426b2811e5b6ce7cac7a4d22c6783b106d61566ee7454e2b59a9", "bc13dcf4a2479a8566ec739f1dfc7d0c1ec18a4cab0ea8b52887037c6a1b079f"),
+    ("dense_scrutiny", "52ea3e9a29f200ada2bc7d2d73f6ee1e1eafdc5829b220c8b650f8e864e0ffc6", "1dc2d2a6f3fef563ea2998653243085f47310215e8c579e5c82e893a864bb95f"),
 ];
 
 fn sha(bytes: &[u8]) -> String {

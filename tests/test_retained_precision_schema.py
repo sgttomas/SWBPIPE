@@ -95,8 +95,8 @@ PREVIEW = "openpipestress.result_semantics/0.3.0/preview-physics-2"
 # left preview-physics-2's reserved successors (36064ef3... and f675693b... before), the preview successor inherits
 # the new preview hash, the exact successor (D4 (a)) inherits pressure-2's, and pressure-source-1 is the current
 # PRESSURE-SOURCE-1 table (4a1873e7... before).
-SUCC_SHA = "4da08f964605a5080b38c0ea9793731b33720070db001a4c7f1c4f9fbcaeb76f"
-PREVIEW_SHA = "ee8036d59d0aeb255ff132e4dee0d6e7a1e8da8b33e4697c7761c695c3f6e387"
+SUCC_SHA = "5d7535b310d17ab2bf469bf5be83831c9f32bcc6466e2fa3a5912f35ffee5e68"
+PREVIEW_SHA = "653a4758ebdac9ca04df7a54f794f6651e4da5f3b695535342a8e5700b1f1936"
 PROFILE = "product_preview_retained_w1a_v2"
 CODES = ["retained_precision_absolute_verified", "retained_precision_not_covered"]
 # B3b (B3-D §7): the exact successor `<physics-retained>`, whose carrier branches follow
@@ -113,8 +113,8 @@ PRESSURE_SOURCE_SHA = "b5a4b0e585b9ec440d36144860baaf101b628498cfdab9a1de9248c2e
 # B7b: the composite source statement is pressure-source-1's (physics-source-1 is retired).
 SOURCE_RAW = "pressure_source/physics_source/n05-sparse_interactive.raw.json"
 MILESTONES = {
-    "sparse_interactive": "2527351c49f3c928882dbeda961c0a3e34cb26cbfe00457e7af6d71c6f0bb119",
-    "dense_scrutiny": "fd0c430ca4bfae895851c735207d3424d8d5c835a9d2bd5743cf012e577e1eba",
+    "sparse_interactive": "67f146bd4411426b2811e5b6ce7cac7a4d22c6783b106d61566ee7454e2b59a9",
+    "dense_scrutiny": "52ea3e9a29f200ada2bc7d2d73f6ee1e1eafdc5829b220c8b650f8e864e0ffc6",
 }
 
 

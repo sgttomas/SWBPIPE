@@ -34,7 +34,7 @@ CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PROFILE = "product_preview_retained_w1a_v2"
 DEFINITION_ID = "RP-PREPARED-ORDINARY-DUAL-v1"
 DEFINITION_HASH = "64ec69b842d6278323aa2ab2e140e999db52eb28e4a9965a567a90b04e228b41"
-TABLE_HASH = "4da08f964605a5080b38c0ea9793731b33720070db001a4c7f1c4f9fbcaeb76f"
+TABLE_HASH = "5d7535b310d17ab2bf469bf5be83831c9f32bcc6466e2fa3a5912f35ffee5e68"
 # B2-C (CONTRACT §8 row 4, REVISION_02 §0): DEF-C's id and H, the preview table's second formation definition.
 COMBINATION_DEFINITION_ID = "RP-PREPARED-COMBINATION-DUAL-v1"
 COMBINATION_DEFINITION_HASH = "a9219849d4dfecfc4e9529c6b648eb21cdf2e9872f2d681cc0c26cdfd2bdf6f1"

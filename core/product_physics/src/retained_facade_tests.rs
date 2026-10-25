@@ -32,8 +32,8 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "2527351c49f3c928882dbeda961c0a3e34cb26cbfe00457e7af6d71c6f0bb119", "5d1faa58971f43063cfcd4277ee0f4dab5d6601bb83ec4330f616b767e829136"),
-    ("dense_scrutiny", "fd0c430ca4bfae895851c735207d3424d8d5c835a9d2bd5743cf012e577e1eba", "42fba5d63668f917ed23b0e9b88e946a8b0ba7670ddb8580783ae0397e0d2ca5"),
+    ("sparse_interactive", "67f146bd4411426b2811e5b6ce7cac7a4d22c6783b106d61566ee7454e2b59a9", "bc13dcf4a2479a8566ec739f1dfc7d0c1ec18a4cab0ea8b52887037c6a1b079f"),
+    ("dense_scrutiny", "52ea3e9a29f200ada2bc7d2d73f6ee1e1eafdc5829b220c8b650f8e864e0ffc6", "1dc2d2a6f3fef563ea2998653243085f47310215e8c579e5c82e893a864bb95f"),
 ];
 
 fn sha(bytes: &[u8]) -> String {
@@ -1031,10 +1031,10 @@ fn u8_real_input_fallbacks_append_one_notice() {
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const U8_L0_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "e802562dbaefbc0a2b359fbedcf6c904359fd11c31463659a1ac04c572488e67", "b159d02aeea706ca1541c5e5657fbb74181087e03d2cfaf408f03c541111435a",
-        "626cab5d065ea49eac536eff3fd93bcccd2a9bb8356e1714a201fb93b8caf57e"),
-    ("dense_scrutiny", "5cf172c31f12f52d584cd992344ba0f203fe29c5d4ab50b92a33c1d7e5a79eb8", "98907af4fbb4966d95a9ea20335c6854ec8a92dbff0e4e15af6677ee1c8d47df",
-        "5760cbaabbf10d491192ba2adfe4a9276a4113e4a36276f40ec915fb09de80f3"),
+    ("sparse_interactive", "38041a5c31947bd30ba060c978a9590fc2e2a6729eb5ab65ec7afbf73a2f04e4", "e8110f0d78d4905e7326324b3afb4a30e4a5507048fbe0734f7d1769e133da7c",
+        "0d213eae092cdd0e8e6a33a483f1faa495e1dc18789763411ff094e71a4383ae"),
+    ("dense_scrutiny", "d60241dced93dfc5055a443c9af7617a49fca77ec43476310f84dcf4c7cd7eb3", "761805623b76b22a7db89bcd479cebd01a5b20103042ae09735fedf45615bf3c",
+        "035b3aa5b690c2ce2962b598e9ded4231fd617d5ed44974905571bcd1a982373"),
 ];
 /// The milestone's pinned successor documents (U1; the U5-verified reference rows for body 0).
 const U8_MILESTONE_DOCUMENTS: [&str; 2] = [
@@ -1940,8 +1940,8 @@ fn b1_sp_w_c2_through_retained_w1_publishes_t12() {
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// W-8 topology warning added; no number moved.
 const W_C2_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "0ab4bd76c11b34c0233ea145ef706c8afed6795ee3776f50e32e4d499de36c90", "4312b23bb7393cfd0ba4db00e990fbf31b49d923767aae81397456bb06c071fa", "86061cbdb616ebac7f3f61540d96f7112088d42cc61c2e49dba8177e04e81fec"),
-    ("dense_scrutiny", "08caefa0a93b7b174eba819e0a79396174a2620efad0d5d4ffd52a7128a6e4a4", "b4b8ccbce2953f820f9546b450a1c5aaec12440a2b4708201ffd93f11b78f734", "b506d453850613a962807c62de09d142036271c6d4bf30653ec75e2f2346f869"),
+    ("sparse_interactive", "26dbd3b6ce6f47f5940d1e2d9b97f578e062d9dca1eaf383d39303bb6bb99866", "d4c85d99d068c2a2d75dfa34b6986b5256fa389dceb11d561741b556f8a5bf29", "789137603eb951b75b27727f3695c80cb1b9d0a19802d50e7003e6f4ccbbaac7"),
+    ("dense_scrutiny", "738a0bf3ad95fd498d3d350954a9050fff8f8f14cac132e4c2f356abe8472972", "4cf8e2a8131701b7412097e08739cd61e86f3de6a698369dbcdaccdbb2a5319d", "a4c6dba6ff21e3a21c28a73b12b0d52c0d8106f884ffefa1d3a34d343d53f0ca"),
 ];
 /// The W-C2 successor document, in U1's form.
 fn w_c2_document(name: &str, raw: &Value, successor: &Value) -> String {
@@ -2289,9 +2289,9 @@ fn w_c2_plus_a2(ids: &[&str]) -> Value {
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// W-8 topology warning added; no number moved.
 const CBA_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "3a18a6259595c220577f7e958271fc894df58649e11cbfb27ef8da34091787ff", "5acfdccf28b107e3fcfc921a7e76a610119ae9291910b9154ccc735de83bcf40"),
+    ("sparse_interactive", "7a4e92e191aa9f2692f174ade64c22e2949f76e8db24f7f7d9caca55d07becb3", "716131148591a163d93e724d1b6492ebc08c6fd16f113ec53bebd0ec8e8ae904"),
     // Re-pinned by I109 (PR-N): W-C2 case C's correctly rounded `rigid:N0` magnitude; every platform.
-    ("dense_scrutiny", "c89c6662498bdf5a64f776e73917303d975f13fd8e0cd0f8ff23b64af06a5f48", "569fa7cb9b660ba6543a0caaa7ddf473825c6dc08273672811ac5db62bdb3eda"),
+    ("dense_scrutiny", "9c072b198bce6822e59cd3096a4a31075050e3f6e1a63bf35f78b44c1572ff9f", "08ff9d6f78867f8d60b6f0d90ab747960e1029975c56f4fcb929b3ee0664f897"),
 ];
 /// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
 /// at the K-D5 head; against main the successors differ only by the current maximum declaration
@@ -2300,8 +2300,8 @@ const CBA_PINNED: [(&str, &str, &str); 2] = [
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// W-8 topology warning added; no number moved.
 const AA2_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "c2de86b48f04f13b82f8654baed6031da64d58c51fa9ce77dac014eeb8a0b52f", "af820b8f1b52ba5caa111fb1342e17d8e7877812dc25ab43e6b960ffda7a0d90"),
-    ("dense_scrutiny", "0b6599ea83fd60f8a770b24a66807762789374833c20dfd1782c0e3fdbd20686", "80916577f2535bcdb675d3613eda5931eaae03458dfc8f9d8365386e7a2b2fc4"),
+    ("sparse_interactive", "7a850e4fe1264bc71d15bb31499a042ad5d5d15f4b4ae5553c6a179764f0cc72", "02e7c3174ef7f0b510d4d161883a1784c686b48574a0be0f075c067fbea56d89"),
+    ("dense_scrutiny", "005b843f6dbb502b55a73fb0cc29bf6eda4e84535060bb2cccd08523f7b2e4be", "7ca124425610786e026f7efd235701f703515ca6f0b730be429d1239377bfa0c"),
 ];
 
 /// RV109's SF-2 (RR "RV109 passes SP in RV-P round 2; …", ruling 2): two successors pinned in both
@@ -2401,8 +2401,8 @@ fn milestone_reversed() -> Value {
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const REVERSED_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "dd193b6b72702532b1654287a4b09df1b2ea2eea85cfa7dd6480acd9d41a2d3a", "e4ee8922e62142438c11a9d2d62ab600fbe495e017a47bd8c09dfd8cb7375dc8"),
-    ("dense_scrutiny", "6d4f667a71f67517abf2184f6175c792f1df09187ddc268eecff71f48f41b05b", "92e1d99d5417cc32ae87ceee891af3ffa3b07282f9f9a079292bc2d5412a628c"),
+    ("sparse_interactive", "a9199d413f7ff81a3982f2ea0cd27c1a6d70ed1b2a29ea22a38c77e9d84c34ad", "70c2d178ef2f20b931f2c77aeacc435ff1cf5c2975dbc9fc1728ae7a8062bc66"),
+    ("dense_scrutiny", "d42c0c8a3a791e2e5194559783bd46a8d0446f5abfe50b0f99333f52274d4482", "6ef1b76c6b87045ac9e314e04d157960ae1421ace21dbe9fc12f9c064545ee40"),
 ];
 
 /// The nodal-term ordinal (C2 `CONTRACT_DELTA`:104; RR "I98's B2-W verified; …"): a CaseSource's
@@ -4348,46 +4348,46 @@ fn b2p_dispositions(name: &str) -> &'static [&'static str] {
 /// on the declared `diagnostics` member instead of an unknown root member (`sw_stressed`), so
 /// their four rows moved with the request-bound hashes only (scratch structural proof).
 const B2P_PINNED: [(&str, &str, &str, &str); 20] = [
-    ("w_cb1", "sparse_interactive", "4f7b2c2e7eec221b1ae10c25a08a96029fd5625d3ccfcb6f5bf0fa1ca2d5d6db",
-        "fe3ab03ac6749e3920148a07c0322fe4f0722cf1cd58d5a63009a80e780e0f29"),
-    ("w_cb1", "dense_scrutiny", "c8c64551f55d60176e70c31b45507aca4b7dec749f351d834c3e4e4e083cb9c3",
-        "315669fcf04298560602798471d32cc930e9bb0bbb5ad92cf525289d7e35cb2a"),
-    ("w_cb1z", "sparse_interactive", "182181c22e5eabdf011f179bd23ee36d3992277c25c9e10fb20014974653726b",
-        "9869ad87317d3b65223b01f4778eac9e30691d3cec98513f8c0795b405f658d2"),
-    ("w_cb1z", "dense_scrutiny", "491865061285ba4a54101042d1c42b1dcdfe34ff5a194c8904dbfc7e642c070f",
-        "59a37dfc7e7f8e89bfdf3cd77e84cdad8b60907b9026491fbf70a94db51b0d64"),
-    ("w_cb2", "sparse_interactive", "6085c0eed2199574de20279dbbcfdc5c05ba97f6c6bd6a2377a9942c06bb2aca",
-        "e9434ff8b76ed346b6a4aecaddcde3f56a06b7dcdee013c6f39f3d1fd049cc12"),
-    ("w_cb2", "dense_scrutiny", "6363dd535279fd3980525ffd3331c873d2c7742949cdd5f0d8b032983e7ca618",
-        "6a285c45c3f8ba2d1f8686d1fdeb8c4e6e46d140d2ca309750a392cfb45bd30f"),
-    ("w_cb3", "sparse_interactive", "6c7dfc36f58cfc8d48c6057d645c83969fea84879a753864d59515a28db73101",
-        "36df04b08eae68c9910c88510511f77932ea141885d0ba9981bdd91027a76b73"),
-    ("w_cb3", "dense_scrutiny", "de18ad6e48b537d63fb502f2f5ac9189e7b5cba334d7ce6b9af94d26113c1cec",
-        "59349e0a904d5e443b65fcadeec200c664a8976315c7828183bf6fd1fbd74f67"),
-    ("w_cb4a", "sparse_interactive", "a5049a9e2fc095d26bcdc8d09fb4d3055278ed9fe6ac8d34456f6bc9503f5344",
-        "b4cd55c4e1f925b7eac052254b8aaf842114a3f83bf3569c14f1388c93d69916"),
-    ("w_cb4a", "dense_scrutiny", "728a619e7b624fff58fec9ed1271e70a21ef97637b60b4140323770128000481",
-        "12ed4934d16504d6ea0d88361bc83a51ab09bac12d81a7645895e3a3bf470008"),
-    ("w_cb4b", "sparse_interactive", "3b5ef4a966660de3ea071d374a896c14352ee1163d7dbb612c3ae5325d176083",
-        "c89e8e6059de3a188fda6c6b7e893384e20bab532529e4198bce75b43ab2acde"),
-    ("w_cb4b", "dense_scrutiny", "63b9d8fcacfa9a5c3a703d6eddd09a6bcf8403997bd6375b30af173c93d57325",
-        "6be12dbe59e353dedd09dc8febb00fec18c5a02f0c5e348b9f903022a1124ef2"),
-    ("w_cb5", "sparse_interactive", "76f854ab3b7d9a083c16dc1834311ec696e1ecba09c89d7fb85553aeda6eb855",
-        "e1ff884df91148ed080f2cf03e9fef428943a239f949d9afc2b19df840385ed9"),
-    ("w_cb5", "dense_scrutiny", "627d457370b55edc7663155c9711053988a721058bb16c02833b6664e12bbff0",
-        "bb833e8e72ad952268528b33c27efad4ed08db1a7fc852bfd34bcb723471e8d4"),
-    ("c1_range_mechanics", "sparse_interactive", "a3eb8329a2107d4b457db80ae350d5b4c9c121b77fafd14688fbfc72211be6a9",
-        "f0014a56b224712af2bdedf41c840ece365b67b572852c2abddbc11a32dbd3e7"),
-    ("c1_range_mechanics", "dense_scrutiny", "11ca773ecafb6268316d245ff0db4a5ad09707cb0a39bfcdd700ea99f266e0b4",
-        "86d5743697c27f13f6ee4c0e7121e1ce9478635d9dc6dd8ab319520941286fb1"),
-    ("rv123_w_cb3_ba", "sparse_interactive", "71ff6f968eb2d3feadd0a44094bffc819cdd3ef43a7db0b612d238f7a143884d",
-        "822e3b294838df7f8bd3a5dc492e75a20cf225d1cff361a78dd7e452c7ac7957"),
-    ("rv123_w_cb3_ba", "dense_scrutiny", "cc09ca41dceba652f2c806c08df98bc323109a36d9ace7f72162a8c67cf43ad3",
-        "0f45c1c8e697a8c18fb8d7083ce457dc2b43c2c87b2e69d4bd3be40b9dde82d6"),
-    ("rv123_c1_two_mechanics", "sparse_interactive", "406760101db3ad09e6978bcc1479c6f0ea6d0eedc9388082512b193c6d5bc922",
-        "3cb0e4cc7cf17e8befc61cc35213da7db34ffab09ee6ab324a595b1aa7e3c6da"),
-    ("rv123_c1_two_mechanics", "dense_scrutiny", "8d849215bf1be6c4f405b10e3d6a34d274ecfbf8d5cb49ae8efd221b60c723cc",
-        "cf2b340242463deb4e76c821a797c416122b725acfb4b5d81c839fdf2f53698d"),
+    ("w_cb1", "sparse_interactive", "d57c8cdd887688a3baa776d5d714f3a85fe8d8080158652c2aebeee13dea5fe6",
+        "073aebfae36392c2e117f29b8cc067e4f32a399a4023bbb53545e7acbf0d433e"),
+    ("w_cb1", "dense_scrutiny", "62380faa19d0350bfdc2e84299216a9efb2f195a913f9aab2ad7b1e41c1ab335",
+        "c4e457d60f549b5f7ab95ea8ee5ca5b9e3215d2ba163c715bd8ff895757ff363"),
+    ("w_cb1z", "sparse_interactive", "d28a9c6f4aaa20d7ded0a7e1956f14f2fc215a1a5162c0d81bbe451fa4acf8a0",
+        "7a65bddeb9b45ed6de28f4ebe1d12f0958adafafd7466aa060bd0186fac00923"),
+    ("w_cb1z", "dense_scrutiny", "b983062bb6b363c75099f9f69355a64ce5c29cb7a71ab02f7f9df193857aa99e",
+        "38e554279915199fa9c5d14e3441d07d44463d39fc96df885f1497ada11af378"),
+    ("w_cb2", "sparse_interactive", "07fe17b6b276ec694854ebf671a79bc113c2f0cdb494c9eb7e25d230602653b4",
+        "00f0e9d42808070601638c1c6fac813e31bc31a7df4869e4ae33b0380852d9f7"),
+    ("w_cb2", "dense_scrutiny", "e8448f6bf8c3b66374a4e735e7586d41a8a6e959dbcbdd3875367eaf27c05c97",
+        "ff9a34388cfaf9ffe29519e46945b80fa8a9dd6cf3d3a8b3ca5c2d8f3537196a"),
+    ("w_cb3", "sparse_interactive", "35c8a4dd9f6accbbd631746fabad2c4d787937f25e77714aa8f73d040017a131",
+        "2e1951055e53de09806fdadbe79a64eb5265fab44e2c375d9634b71adbe9e7d2"),
+    ("w_cb3", "dense_scrutiny", "8aa5503f894daf71ccc88307eb8af3514b2758d5df4b3db7465e4b3886418067",
+        "1bf3d25bd75230b6621c56f5349de010f53793922ac6b0cd942ed491cc334d51"),
+    ("w_cb4a", "sparse_interactive", "d631a6093baf3d23e3b16a7c7c862ac751bb417deff53322222ed40ad25888a3",
+        "4eb43e3cb9fb4caa4360e6f0afda295c201e3233173559c3dc19392a1e0c2ecd"),
+    ("w_cb4a", "dense_scrutiny", "582739ba3ba13ac21797d4ffa6c7d457193914d33e92133560957099fbf45a19",
+        "b945751e74513a2902907e4f376efa21ee719ed8a93c50e51f75ab9d7c089481"),
+    ("w_cb4b", "sparse_interactive", "60e0a6e60ef8c54efc428f4d6336d715a593b6898e756db9f4583799804237fb",
+        "9a121295e9124f784753d1c9cc635ab1550a0edaa5c4741fb5c194fafa40c717"),
+    ("w_cb4b", "dense_scrutiny", "2c4a60bcb40c9c9a1a68a1d0f77a222bf611f703a276586e4547d75e7a86be3d",
+        "7be415c3aec23a57771f1228ab22f8a764e55cdaaab267b269b40e344fe1dd2d"),
+    ("w_cb5", "sparse_interactive", "8e8e04ac20f1d262edb289d90be219ee955090aa67b8ff58a1160d380bc0aa00",
+        "9836b789a46c936e96fe9e722294e4bae4612ee6f1e55161463b5a4c9ecd590f"),
+    ("w_cb5", "dense_scrutiny", "9141fc0e6d066dab6e4955e4a4172fd0db569c3ff14a65cd82a654e3c42f531b",
+        "14694e06754833c8e83197b06ed7bbf4d4ed1851ec85f30cc993fb9fefaadc83"),
+    ("c1_range_mechanics", "sparse_interactive", "755a90f0eed8bc34e11933ea850aef70420cd0157d87123e4c4aacab872e494e",
+        "4ffb2470c96b5686ce85ec6ad3c2b8c37fb5b3eb8e157aa964f91202a0e12bc4"),
+    ("c1_range_mechanics", "dense_scrutiny", "859e1553efc3afa85a7883ddcb4e6659165d95678950a63975cbcea04d0ac33b",
+        "9642f58eb39bef642959deb5a17fb7dbb75fdf2cd1b7d5d1d377b990089f536a"),
+    ("rv123_w_cb3_ba", "sparse_interactive", "2b5eacb03870599c850fbf5e7836618db573a9da2dbbc3fbd738603e4e5e2ee3",
+        "d886a9b236a61a7742b012980e18c0498743593042898c3bec17a3e8248371e6"),
+    ("rv123_w_cb3_ba", "dense_scrutiny", "e4329fb25f5ceaffdb2170f28b223e1d272331eae3b9ab78e0882163d88daa48",
+        "7a4c84a26cc97e3ba083043efaf75d2bff16220c1dd0269eba0044b1e093b568"),
+    ("rv123_c1_two_mechanics", "sparse_interactive", "3d24d239de7f359010f01ae8fc297207ec4034b99fb4bd97dfd64cc427ba5597",
+        "a02cefd153711044ffad7219a1b3192160c6fbe7130d5cde631eaf35efc7fb34"),
+    ("rv123_c1_two_mechanics", "dense_scrutiny", "d1399644dec10bf1dfdf563de5692f1bb17a9b22fd24a0914e8a4989cfeef9f4",
+        "4b4b1c857f5f0e963614a3f43dcfb9e79598812b2c74977797fffde2ee70edb1"),
 ];
 /// B2-P's small witnesses: (name, request).
 fn b2p_witnesses() -> Vec<(&'static str, Value)> {
