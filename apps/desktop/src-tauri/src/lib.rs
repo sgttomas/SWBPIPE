@@ -1691,18 +1691,12 @@ async fn save_handoff_package(
     respond(Ok(save_handoff_package_decoded(app, request, lease).await))
 }
 
-/// The stored rule-pack documents with `rule_pack_id`, the model's project's
-/// first (the Rule Pack Manager lets a model use a pack stored under any project).
+/// The stored rule-pack document with `rule_pack_id` under the model's project
+/// (at most one), as the solve's rule-pack resolution opens it (#1602:
+/// `open_local_rule_pack` for the model's project), so that a handoff resolves
+/// exactly the references a run of the same model resolves.
 fn stored_rule_packs_with_id(connection: &Connection, project_id: &str, rule_pack_id: &str) -> Result<Vec<Value>, String> {
-    let mut statement = connection
-        .prepare("SELECT document_json FROM local_rule_packs WHERE rule_pack_id = ?1 ORDER BY project_id = ?2 DESC, project_id")
-        .map_err(|error| error.to_string())?;
-    let rows = statement
-        .query_map(params![rule_pack_id, project_id], |row| row.get::<_, String>(0))
-        .map_err(|error| error.to_string())?
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(|error| error.to_string())?;
-    rows.iter().map(|text| serde_json::from_str(text).map_err(|error| error.to_string())).collect()
+    Ok(load_rule_pack(connection, project_id.trim(), rule_pack_id.trim())?.map(|row| row.document).into_iter().collect())
 }
 
 async fn save_handoff_package_decoded(
