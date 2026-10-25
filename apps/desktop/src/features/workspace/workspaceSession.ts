@@ -2894,7 +2894,7 @@ export function useWorkspaceSession() {
         });
         return;
       }
-      const prepared = await prepareReportPackageSave(controlled, basis.model, request);
+      const prepared = await prepareReportPackageSave(controlled, basis.model, request, basis.inputManifest.manifest);
       if (!isCurrent()) return;
       if (prepared.route !== "ready") {
         setReportPackageRoute(prepared);

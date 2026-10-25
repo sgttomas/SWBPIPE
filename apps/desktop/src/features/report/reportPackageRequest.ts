@@ -96,7 +96,9 @@ function identityText(set: readonly RulePackIdentity[]): string {
 
 /** Solve and rule-check rule packs agree (§2.5, decided): the package's set (the
  * rule-check run's pack, else empty) equals the input manifest's `active_rule_packs`,
- * compared as sets of `{rule_pack_id, version, checksum value}`. */
+ * compared as sets of `{rule_pack_id, version, checksum value}`. This is the early
+ * refusal; the native command re-checks the same rule against the input-manifest
+ * text bound to the audit input-manifest hash (`report_package_save.rs`). */
 export function checkRulePacksAgree(
   packageRefs: ReadonlyArray<{ rule_pack_id: string; version: string; checksum?: { value?: string } | null }>,
   activeRulePacks: ReadonlyArray<{ rule_pack_id: string; version: string; checksum_sha256: string }>

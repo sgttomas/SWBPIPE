@@ -331,6 +331,40 @@ describe("solve and rule-check rule packs agree (§2.5, decided)", () => {
     expect(() => checkRulePacksAgree([ref("p", "1", hex("a"))], [activePack("p", hex("a"), "1"), activePack("q", hex("c"), "1")])).toThrow(REPORT_PACKAGE_RULE_PACKS_DISAGREE);
   });
 
+  it("compares as sets: a repeated pack counts once and does not stand in for another", () => {
+    const ref = (id: string, version: string, value: string) => ({ rule_pack_id: id, version, checksum: { value } });
+    expect(() => checkRulePacksAgree([ref("p", "1", hex("a")), ref("p", "1", hex("a"))], [activePack("p", hex("a"), "1")])).not.toThrow();
+    expect(() => checkRulePacksAgree([ref("p", "1", hex("a"))], [activePack("p", hex("a"), "1"), activePack("p", hex("a"), "1")])).not.toThrow();
+    expect(() => checkRulePacksAgree([ref("p", "1", hex("a")), ref("p", "1", hex("a"))], [activePack("p", hex("a"), "1"), activePack("q", hex("c"), "1")]))
+      .toThrow(REPORT_PACKAGE_RULE_PACKS_DISAGREE);
+    expect(() => checkRulePacksAgree([ref("p", "1", hex("a")), ref("q", "1", hex("c"))], [activePack("p", hex("a"), "1"), activePack("p", hex("a"), "1")]))
+      .toThrow(REPORT_PACKAGE_RULE_PACKS_DISAGREE);
+  });
+
+  it("keys a reference without a checksum value as not recorded, which no recorded SHA-256 equals", () => {
+    expect(() => checkRulePacksAgree([{ rule_pack_id: "p", version: "1" }], [activePack("p", hex("a"), "1")]))
+      .toThrow(/the rule check's: p@1 \(sha256 not recorded\)/);
+    expect(() => checkRulePacksAgree([{ rule_pack_id: "p", version: "1", checksum: null }], [activePack("p", hex("a"), "1")]))
+      .toThrow(REPORT_PACKAGE_RULE_PACKS_DISAGREE);
+  });
+
+  it("compares a pack with no declared checksum by its loaded document's SHA-256 (the fallback)", async () => {
+    const run = inventedRun("invented-pack-a", "USER_RULE_CHECKED", null);
+    const fallback = await canonicalSha256Hex(run.rulePackDocument);
+    // The solve recorded the pack's stamped checksum, which is not the fallback.
+    const stamped = await currentSession({ references: [inventedReference("invented-pack-a", hex("a"))], activeRulePacks: [activePack("invented-pack-a", hex("a"))], ruleCheckAggregate: "USER_RULE_CHECKED" });
+    const refusal = buildReportPackageRequest(input(stamped, { ruleCheckAggregate: "USER_RULE_CHECKED", ruleCheckRun: run }));
+    await expect(refusal).rejects.toThrow(REPORT_PACKAGE_RULE_PACKS_DISAGREE);
+    await expect(refusal).rejects.toThrow(`the rule check's: invented-pack-a@1.0.0 (sha256 ${fallback})`);
+    // A solve that recorded that value agrees, and the fallback is projected as rfc8785_jcs.
+    const recorded = await currentSession({ references: [inventedReference("invented-pack-a", fallback)], activeRulePacks: [activePack("invented-pack-a", fallback)], ruleCheckAggregate: "USER_RULE_CHECKED" });
+    const request = await buildReportPackageRequest(input(recorded, { ruleCheckAggregate: "USER_RULE_CHECKED", ruleCheckRun: run }));
+    expect(request.report.calculation_report.rule_pack_refs[0].checksum).toEqual({
+      algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_ref: { ref_type: "rule_pack_document", ref_id: "invented-pack-a" }, value: fallback
+    });
+    expect(request.audit_manifest.rule_pack_refs[0].checksum).toMatchObject({ canonicalization: "rfc8785_jcs", payload_ref: "rule_pack_document:invented-pack-a", value: fallback });
+  });
+
   it("refuses a rule-pack checksum pair the audit manifest cannot name", async () => {
     const session = await currentSession({ references: [inventedReference("invented-pack-a", hex("a"))], activeRulePacks: [activePack("invented-pack-a", hex("a"))], ruleCheckAggregate: "USER_RULE_CHECKED" });
     const run = inventedRun("invented-pack-a", "USER_RULE_CHECKED", { algorithm: "sha512", canonicalization: "JCS", value: hex("a") });

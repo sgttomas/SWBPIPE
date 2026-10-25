@@ -13,6 +13,7 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../test/na
 
 const REQUEST = { package_id: "invented", report: { z: 1, a: [2, "Ω"] } };
 const MODEL = { project: { id: "project:invented", name: "Invented" }, nodes: [{ id: "node:A", x: 1.5 }] };
+const INPUT_MANIFEST = { document_kind: "openpipestress.current_session_input_manifest", active_rule_packs: [], model_basis: { model_ref: "project:invented" } };
 
 function controlledRequest(payload: unknown = structuredClone(REQUEST)): ControlledRouteExport {
   return {
@@ -78,7 +79,7 @@ const desktop = () => { (window as unknown as Record<string, unknown>).__TAURI_I
 
 async function ready() {
   desktop();
-  const prepared = await prepareReportPackageSave(controlledRequest(), MODEL, REQUEST);
+  const prepared = await prepareReportPackageSave(controlledRequest(), MODEL, REQUEST, INPUT_MANIFEST);
   if (prepared.route !== "ready") throw new Error(`not ready: ${JSON.stringify(prepared)}`);
   return prepared;
 }
@@ -91,7 +92,7 @@ afterEach(() => {
 
 describe("prepareReportPackageSave", () => {
   it("reports honest desktop-only browser routing without invoke", async () => {
-    await expect(prepareReportPackageSave(controlledRequest(), MODEL, REQUEST)).resolves.toEqual({
+    await expect(prepareReportPackageSave(controlledRequest(), MODEL, REQUEST, INPUT_MANIFEST)).resolves.toEqual({
       route: "unavailable_browser",
       diagnostic: "REPORT-PACKAGE-SAVE-DESKTOP-ONLY"
     });
@@ -100,14 +101,14 @@ describe("prepareReportPackageSave", () => {
 
   it("refuses raw, blocked and withheld requests", async () => {
     desktop();
-    expect((await prepareReportPackageSave({ package_id: "raw" }, MODEL, REQUEST)).route).toBe("redaction_blocked");
+    expect((await prepareReportPackageSave({ package_id: "raw" }, MODEL, REQUEST, INPUT_MANIFEST)).route).toBe("redaction_blocked");
     const blocked = controlledRequest();
     blocked.blocked = true;
     blocked.payload = null as never;
-    expect((await prepareReportPackageSave(blocked, MODEL, REQUEST)).route).toBe("redaction_blocked");
+    expect((await prepareReportPackageSave(blocked, MODEL, REQUEST, INPUT_MANIFEST)).route).toBe("redaction_blocked");
     const withheld = controlledRequest();
     withheld.summary.materialization_withheld = true;
-    expect((await prepareReportPackageSave(withheld, MODEL, REQUEST)).route).toBe("redaction_blocked");
+    expect((await prepareReportPackageSave(withheld, MODEL, REQUEST, INPUT_MANIFEST)).route).toBe("redaction_blocked");
     expect(invokeMock).not.toHaveBeenCalled();
   });
 
@@ -115,7 +116,7 @@ describe("prepareReportPackageSave", () => {
     desktop();
     const missing = controlledRequest();
     delete missing.summary.local_first;
-    await expect(prepareReportPackageSave(missing, MODEL, REQUEST)).resolves.toEqual({
+    await expect(prepareReportPackageSave(missing, MODEL, REQUEST, INPUT_MANIFEST)).resolves.toEqual({
       route: "redaction_blocked",
       diagnostic: "REPORT-PACKAGE-LOCAL-FIRST-EVIDENCE-REQUIRED: save requires allowed metadata-only local-first route evidence."
     });
@@ -123,24 +124,26 @@ describe("prepareReportPackageSave", () => {
     blocked.summary.local_first!.blocked = true;
     blocked.summary.local_first!.action = "block_storage";
     blocked.summary.local_first!.reason_code = "LOCAL_PRIVATE_INTENT_REQUIRED";
-    expect((await prepareReportPackageSave(blocked, MODEL, REQUEST)).route).toBe("redaction_blocked");
+    expect((await prepareReportPackageSave(blocked, MODEL, REQUEST, INPUT_MANIFEST)).route).toBe("redaction_blocked");
     expect(invokeMock).not.toHaveBeenCalled();
   });
 
   it("refuses a controlled payload that is not canonically the screened request", async () => {
     desktop();
-    const changed = await prepareReportPackageSave(controlledRequest({ ...REQUEST, package_id: "other" }), MODEL, REQUEST);
+    const changed = await prepareReportPackageSave(controlledRequest({ ...REQUEST, package_id: "other" }), MODEL, REQUEST, INPUT_MANIFEST);
     expect(changed).toEqual({
       route: "redaction_blocked",
       diagnostic: "REPORT-PACKAGE-REDACTION-BLOCKED: the route control changed the request (CANONICAL_PAYLOAD_MATERIALIZATION_CHANGED)."
     });
   });
 
-  it("binds the screening evidence to the request text's SHA-256 and sends both canonical texts", async () => {
+  it("binds the screening evidence to the request text's SHA-256 and sends the three canonical texts", async () => {
     const prepared = await ready();
     const requestText = await canonicalJsonString(REQUEST);
     expect(prepared.args.requestCanonicalText).toBe(requestText);
     expect(prepared.args.modelCanonicalText).toBe(await canonicalJsonString(MODEL));
+    // The run's input manifest, for the native rule-pack re-check (§2.6 item 3).
+    expect(prepared.args.inputManifestCanonicalText).toBe(await canonicalJsonString(INPUT_MANIFEST));
     const independent = `sha256:${createHash("sha256").update(requestText, "utf8").digest("hex")}`;
     expect(prepared.requestSha256).toBe(independent);
     expect(prepared.args.screening).toEqual({
@@ -169,10 +172,11 @@ describe("invokeReportPackageSave", () => {
     expect(invokeMock).toHaveBeenCalledWith("save_report_package", {
       requestCanonicalText: prepared.args.requestCanonicalText,
       modelCanonicalText: prepared.args.modelCanonicalText,
+      inputManifestCanonicalText: prepared.args.inputManifestCanonicalText,
       screening: prepared.args.screening,
       localFirstEvidence: prepared.args.localFirstEvidence
     });
-    expect(Object.keys(invokeMock.mock.calls[0][1]).sort()).toEqual(["localFirstEvidence", "modelCanonicalText", "requestCanonicalText", "screening"]);
+    expect(Object.keys(invokeMock.mock.calls[0][1]).sort()).toEqual(["inputManifestCanonicalText", "localFirstEvidence", "modelCanonicalText", "requestCanonicalText", "screening"]);
     expect(route).toEqual({ route: "tauri_report_package_save", receipt });
   });
 

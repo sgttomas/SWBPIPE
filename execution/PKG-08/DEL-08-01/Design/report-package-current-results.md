@@ -700,8 +700,9 @@ rendered members, so the report-side rules apply at the producer.
 - **Placement of the last guard.** The new preparation awaits (canonical text and
   SHA-256, §2.6) run before the native call. A check only before entering the
   service would miss a basis change during them. The service is split:
-  - `prepareReportPackageSave(controlled, model)` (async) returns the request
-    text, its SHA-256 and the model text;
+  - `prepareReportPackageSave(controlled, model, request, inputManifest)` (async)
+    returns the request text, its SHA-256, the model text and the run's
+    input-manifest text;
   - `invokeReportPackageSave(prepared, isCurrent)` then calls
     `invokeWithIngress("save_report_package", …, { stillCurrent: isCurrent })`.
 
@@ -754,6 +755,18 @@ value}`:
   naming both sets. The remedy is to run the rule check with the model's pack,
   or to change the model's references and solve again.
 
+The TypeScript check (`checkRulePacksAgree`) is the early refusal. The native
+command re-checks the rule itself, because a direct request could otherwise keep
+the hash-bound input-manifest reference for one solve while its report and audit
+references name another pack, or none (Codex, (b2) review round 1). The webview
+sends the run's input-manifest text with the save (§2.6 item 1). Rust binds it to
+the request's audit input-manifest hash and reference (§2.6 item 3), reads its
+`active_rule_packs`, and refuses with the same code unless that set equals the
+report's and the audit manifest's rule-pack references, with the same key and set
+semantics (§2.6 item 5). The shared producer does not see the input manifest, so
+the headless runner, whose invented input manifest records no
+`active_rule_packs`, is unchanged.
+
 So a model with no references and no rule check saves as before, and a rule check
 of a pack the solve did not use cannot stand in for the solve's packs, nor the
 reverse. An excluded reference is not in `active_rule_packs`; it reaches the
@@ -768,11 +781,16 @@ and a rule check with no solve pack.
 Today the command decodes the typed request first (`lib.rs:181-205`), then
 checks supplied evidence (`:207-219`), then assembles and opens the picker
 (`:222-236`). The new order, all before the picker:
-1. **Arguments.** `{requestCanonicalText, modelCanonicalText, screening,
-   localFirstEvidence}`, decoded `ArgsDecoding::Moved` as W-6a's save is
-   (W-6a `lib.rs:1813-1835`). `REPORT_PACKAGE_VEC_EXPANSION` and its pricing tests
+1. **Arguments.** `{requestCanonicalText, modelCanonicalText,
+   inputManifestCanonicalText, screening, localFirstEvidence}`, decoded
+   `ArgsDecoding::Moved` as W-6a's save is (W-6a `lib.rs:1813-1835`).
+   `REPORT_PACKAGE_VEC_EXPANSION` and its pricing tests
    (`command_ingress.rs:552-568,976-1181`) are replaced by the moved-string rule
-   plus a priced parse of the text, re-established by the counting-allocator test.
+   plus a priced parse of each text, re-established by the counting-allocator
+   test. The input-manifest text is the run's `CurrentSessionInputManifest`
+   (`inputManifestService.ts`). It is priced as the model text is: a moved string
+   and a parse to `Value`. It is a validation input only: no package member
+   carries it, and it is never saved.
 2. **Evidence shape.** `screening` takes W-6a's `ModelDocumentSaveScreening` form
    (W-6a `model_document_save.rs:68-84`, `deny_unknown_fields`):
    - route `DREP-PACKAGE-SAVE-009`, `local_private`, explicit intent, not blocked;
@@ -783,8 +801,12 @@ checks supplied evidence (`:207-219`), then assembles and opens the picker
    The local-first check is unchanged (`lib.rs:64-86`). This remains defence in
    depth: intent is the user's webview choice, and Rust can only require its
    evidence (W-6a `model_document_save.rs:163-165`).
-3. **Size cap**, then **canonical binding.** Parse `requestCanonicalText` to a
-   `Value` and refuse unless:
+3. **Size caps**, then **canonical binding.** The caps are
+   `MAX_REQUEST_TEXT_BYTES` (four model-document caps), `MAX_MODEL_TEXT_BYTES`
+   (the model-document cap) and `MAX_INPUT_MANIFEST_TEXT_BYTES` (two
+   model-document caps, since the input manifest embeds the model payload and
+   repeats its load cases). Parse `requestCanonicalText` to a `Value` and refuse
+   unless:
    - `canonical_json(value) == text`;
    - `sha256:<hex>` of the text equals `screening.payload_sha256`
      (`REPORT-PACKAGE-SAVE-EVIDENCE-UNBOUND`), as W-6a binds its evidence
@@ -793,6 +815,14 @@ checks supplied evidence (`:207-219`), then assembles and opens the picker
    Parse `modelCanonicalText` likewise and refuse unless its SHA-256 equals the
    raw request's `/audit_manifest/model_hash/value`
    (`REPORT-PACKAGE-SAVE-MODEL-UNBOUND`).
+
+   Parse `inputManifestCanonicalText` likewise and refuse unless its SHA-256
+   equals the raw request's `/audit_manifest/input_manifest_hash/value`
+   (`REPORT-PACKAGE-SAVE-INPUT-MANIFEST-UNBOUND`). That is the `rfc8785_jcs`
+   basis the analysis record and the audit manifest label it with. Its
+   `active_rule_packs` must be a complete inventory: a non-empty id and version
+   and a bare 64-hex `checksum_sha256` per entry
+   (`REPORT-PACKAGE-SAVE-INPUT-MANIFEST-INVALID`).
 4. **Disposition screening of content**, on a blocking worker with the
    local-store lookup. Both screens run over **both** parsed values: the request
    and the model.
@@ -842,6 +872,20 @@ checks supplied evidence (`:207-219`), then assembles and opens the picker
      `version`, as the desktop builder does (`renderableReportInput.ts:16,379-380`).
      `admit_report_package` receives these expected values as arguments, so it
      stays testable without a window.
+   - The audit input-manifest hash's `payload_ref` is the session's reference
+     for the input-manifest text, `input-manifest:<model id>:<sha256>`
+     (`analysis_runs::input_manifest_ref`, as `inputManifestService.ts` derives
+     it), or the save refuses with `REPORT-PACKAGE-SAVE-INPUT-MANIFEST-UNBOUND`.
+     The shared producer binds that reference to the result document's
+     `audit_manifest_ref` and origin `qualification_ref`, the report's
+     `input_manifest_ref` and the handoff records (§2.3 item 5).
+   - §2.5's rule: the input manifest's `active_rule_packs` equal, as a set of
+     `{rule_pack_id, version, checksum value}`, both
+     `/report/calculation_report/rule_pack_refs` (`version`, `checksum.value`)
+     and `/audit_manifest/rule_pack_refs` (`rule_pack_version`,
+     `checksum.value`), else `REPORT-PACKAGE-RULE-PACKS-DISAGREE`, naming both
+     sets. As in the webview, a repeated entry counts once, and a reference
+     without a checksum value is keyed "not recorded".
 6. **Typed conversion and the shared producer** (§2.3), then `export_blocked`
    (`lib.rs:224-229`), then the picker and the atomic write (`:232-310`).
    Admission is a pure `admit_report_package(...)` function, so its tests need
@@ -890,7 +934,8 @@ native hold, local to the desktop command:
 (`reportPackageSaveService.ts:74-111`) becomes the two calls of §2.5:
 - the preparation computes `requestCanonicalText = canonicalJsonString(controlled.payload)`
   and its SHA-256, asserts the controlled payload is canonically equal to the
-  request, and produces `canonicalJsonString(model)`;
+  request, and produces `canonicalJsonString(model)` and
+  `canonicalJsonString(inputManifest.manifest)`;
 - the invocation then sends them under the session's `stillCurrent` guard.
 
 ### 2.7 The headless runner (shared producer consumer)

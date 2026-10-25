@@ -104,17 +104,21 @@ async function recordRuleCheck(state: () => WorkspaceSession, aggregate: RuleChe
 const saveCalls = () => invokeMock.mock.calls.filter(([command]) => command === "save_report_package");
 
 describe("Save Report Package… through the session (W-18 (b2))", () => {
-  it("sends the request and model canonical texts with screening bound to the request text", async () => {
+  it("sends the request, model and input-manifest canonical texts with screening bound to the request text", async () => {
     const { result: hook, model } = await solvedSession();
     await act(async () => { await hook.current.results.handleSaveReportPackage(); });
     expect(saveCalls()).toHaveLength(1);
     const args = saveCalls()[0][1] as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
-    expect(Object.keys(args).sort()).toEqual(["localFirstEvidence", "modelCanonicalText", "requestCanonicalText", "screening"]);
+    expect(Object.keys(args).sort()).toEqual(["inputManifestCanonicalText", "localFirstEvidence", "modelCanonicalText", "requestCanonicalText", "screening"]);
     const request = JSON.parse(args.requestCanonicalText);
     expect(await canonicalJsonString(request)).toBe(args.requestCanonicalText);
     expect(request.export_profile_id).toBe("desktop_local_private_report_package_1");
     expect(request.rule_check_aggregate).toBeNull();
     expect(args.modelCanonicalText).toBe(await canonicalJsonString(model));
+    // The run's input manifest, whose SHA-256 and reference the audit manifest records.
+    const manifest = hook.current.results.inputManifest!;
+    expect(args.inputManifestCanonicalText).toBe(manifest.canonical_bytes);
+    expect(request.audit_manifest.input_manifest_hash).toMatchObject({ payload_ref: manifest.manifest_ref.ref, value: createHash("sha256").update(args.inputManifestCanonicalText, "utf8").digest("hex") });
     expect(args.screening.payload_sha256).toBe(`sha256:${createHash("sha256").update(args.requestCanonicalText, "utf8").digest("hex")}`);
     expect(args.screening).toMatchObject({ route_id: "DREP-PACKAGE-SAVE-009", export_context: "local_private", explicit_local_private_intent: true, exact_payload_match: true, lossless_required: true, blocked: false });
     expect(hook.current.results.reportPackageRoute).toEqual({ route: "tauri_report_package_save", receipt: RECEIPT });

@@ -2,14 +2,17 @@
 // `report-package-current-results.md` §2.5, §2.6). The save is split so that the
 // session's last stale-work guard follows every preparation await:
 // - `prepareReportPackageSave` checks the controlled route evidence and computes the
-//   request's and the model's RFC 8785 (JCS) canonical texts and the request text's
-//   SHA-256 (the screening evidence names exactly those bytes);
+//   RFC 8785 (JCS) canonical texts of the request, the model and the run's input
+//   manifest, and the request text's SHA-256 (the screening evidence names exactly
+//   those bytes);
 // - `invokeReportPackageSave` then sends them through `invokeWithIngress`, whose
 //   `stillCurrent` guard runs synchronously immediately before every send, the
 //   first and each headroom re-send. A retired basis is never sent and rejects
 //   with `IngressRequestRetiredError`.
-// The native command re-checks the evidence, binds both texts and screens their
-// content before the save dialog (`src-tauri/src/report_package_save.rs`).
+// The native command re-checks the evidence, binds the three texts (the input
+// manifest to the audit input-manifest hash, whose `active_rule_packs` must be the
+// package's rule packs) and screens the request and the model before the save
+// dialog (`src-tauri/src/report_package_save.rs`).
 import { invokeWithIngress } from "./nativeIngress";
 import { canonicalJsonString, canonicalSha256Hex } from "./hashService";
 import type { ControlledRouteExport, LocalFirstRouteEvidence } from "../features/redaction-controls/redactionExportControls";
@@ -77,6 +80,9 @@ export type ReportPackageSaveScreening = {
 export type ReportPackageSaveArgs = {
   requestCanonicalText: string;
   modelCanonicalText: string;
+  /** The run's input manifest (`CurrentSessionInputManifest`), whose SHA-256 is the
+   * request's audit input-manifest hash. A validation input only; never saved. */
+  inputManifestCanonicalText: string;
   screening: ReportPackageSaveScreening;
   localFirstEvidence: LocalFirstRouteEvidence;
 };
@@ -117,8 +123,14 @@ function hasAllowedLocalFirstEvidence(input: ControlledRouteExport): boolean {
 
 /** The preparation (§2.5, §2.6 "The webview side"): the route evidence, then the
  * canonical texts. `request` is the request the route control screened; the
- * controlled payload must be canonically equal to it (the route is lossless). */
-export async function prepareReportPackageSave(controlled: unknown, model: unknown, request: unknown): Promise<PreparedReportPackageSave> {
+ * controlled payload must be canonically equal to it (the route is lossless).
+ * `inputManifest` is the run's input manifest the request was built from. */
+export async function prepareReportPackageSave(
+  controlled: unknown,
+  model: unknown,
+  request: unknown,
+  inputManifest: unknown
+): Promise<PreparedReportPackageSave> {
   if (!isControlledPackageRequest(controlled)) {
     return {
       route: "redaction_blocked",
@@ -140,11 +152,12 @@ export async function prepareReportPackageSave(controlled: unknown, model: unkno
   if (!isTauriRuntime()) {
     return { route: "unavailable_browser", diagnostic: "REPORT-PACKAGE-SAVE-DESKTOP-ONLY" };
   }
-  const [requestCanonicalText, screenedRequestText, hex, modelCanonicalText] = await Promise.all([
+  const [requestCanonicalText, screenedRequestText, hex, modelCanonicalText, inputManifestCanonicalText] = await Promise.all([
     canonicalJsonString(controlled.payload),
     canonicalJsonString(request),
     canonicalSha256Hex(controlled.payload),
-    canonicalJsonString(model)
+    canonicalJsonString(model),
+    canonicalJsonString(inputManifest)
   ]);
   if (requestCanonicalText !== screenedRequestText) {
     return {
@@ -159,6 +172,7 @@ export async function prepareReportPackageSave(controlled: unknown, model: unkno
     args: {
       requestCanonicalText,
       modelCanonicalText,
+      inputManifestCanonicalText,
       screening: {
         route_id: controlled.summary.route_id,
         export_context: "local_private",
