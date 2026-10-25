@@ -15,6 +15,7 @@
 import { refuseSurfaceOutput, surfaceRouteRefusal } from "../results/outputPolicy";
 import { PREVIEW_PHYSICS_CONTRACT_ID } from "../results/numericalResultQuality";
 import { buildCurrentResultExport } from "../result-export/resultExportAdapter";
+import type { PreviewComparisonUnavailable } from "../comparison/withinRunComparison";
 import type {
   AnalysisRunEnvelope,
   LocalProjectSummary,
@@ -67,6 +68,9 @@ export type ReportPackageRequestInput = {
   inputManifest: CurrentSessionInputManifestEvidence;
   projectSummary: LocalProjectSummary | null;
   comparison: PreviewComparison | null;
+  /** W-12 S3c: the record of a chosen within-run comparison the builder refused;
+   * carried beside the sections only when present. */
+  comparisonUnavailable?: PreviewComparisonUnavailable | null;
   ruleCheckAggregate: string | null;
   /** The session's rule-check run, exposed only while its aggregate is current. */
   ruleCheckRun: SessionRuleCheckRun | null;
@@ -156,7 +160,7 @@ function auditRulePackRef(pack: JsonRecord) {
  * throw with their own codes; nothing here grants export authority (the route
  * control and the native admission decide). */
 export async function buildReportPackageRequest(input: ReportPackageRequestInput) {
-  const { model, result, analysisRun, inputManifest, projectSummary, comparison, ruleCheckAggregate, ruleCheckRun } = input;
+  const { model, result, analysisRun, inputManifest, projectSummary, comparison, comparisonUnavailable = null, ruleCheckAggregate, ruleCheckRun } = input;
   const unavailable = reportPackageUnavailableReason(result);
   if (unavailable) throw new Error(unavailable);
   // The result-export builder gates on its own cell, which admits the exact routes,
@@ -247,7 +251,7 @@ export async function buildReportPackageRequest(input: ReportPackageRequestInput
     result_documents: [document],
     source_results: [result],
     state_comparison_handoff_records: [
-      buildStateComparisonHandoffSections({ model, result, analysisRun, comparison, modelHash })
+      buildStateComparisonHandoffSections({ model, result, analysisRun, comparison, comparisonUnavailable, modelHash })
     ],
     rule_check_aggregate: ruleCheckAggregate,
     solve_rule_check_status: result.status.rule_check

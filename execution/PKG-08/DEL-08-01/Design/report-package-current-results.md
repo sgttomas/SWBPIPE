@@ -790,12 +790,15 @@ checks supplied evidence (`:207-219`), then assembles and opens the picker
 1. **Arguments.** `{requestCanonicalText, modelCanonicalText,
    inputManifestCanonicalText, screening, localFirstEvidence}`, decoded
    `ArgsDecoding::Moved` as W-6a's save is (W-6a `lib.rs:1813-1835`).
-   `REPORT_PACKAGE_VEC_EXPANSION` and its pricing tests
-   (`command_ingress.rs:552-568,976-1181`) are replaced by the moved-string rule
-   plus a priced parse of each text, re-established by the counting-allocator
-   test. The input-manifest text is the run's `CurrentSessionInputManifest`
-   (`inputManifestService.ts`). It is priced as the model text is: a moved string
-   and a parse to `Value`. It is a validation input only: no package member
+   The arguments are priced by the moved-string rule, and the lease grows by a
+   priced parse of each text before it is parsed (`report_package_save.rs`
+   `parse_lease_bytes`). The request text's growth is DEL-04-07's rule
+   (memory-budget decision, "Report-package request pricing"): its parse, a
+   working-memory term, the rebuilt containers of its opaque `Value` regions
+   and `REPORT_PACKAGE_VEC_EXPANSION` times the containers of its typed-vector
+   regions, checked by the counting-allocator tests. The input-manifest text is
+   the run's `CurrentSessionInputManifest` (`inputManifestService.ts`). It is
+   priced as the model text is: a moved string and a parse to `Value`. It is a validation input only: no package member
    carries it, and it is never saved.
 2. **Evidence shape.** `screening` takes W-6a's `ModelDocumentSaveScreening` form
    (W-6a `model_document_save.rs:68-84`, `deny_unknown_fields`):

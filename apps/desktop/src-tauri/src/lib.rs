@@ -9571,6 +9571,122 @@ mod tests {
             assert!(message.contains("`inputManifestCanonicalText`"), "{message}");
         }
 
+        /// The whole report-package save on one raw args body, under the
+        /// counting allocator (DEL-04-07 memory-budget decision,
+        /// "Report-package request pricing"): the buffered body, admission
+        /// with the moved lease, argument decoding, the lease growth, the
+        /// native admission (parse, binding, screening, conversion and the
+        /// shared producer), a cancelled save dialog and the response, with
+        /// the priced peak of every live allocation against the whole lease.
+        /// Also measures the ingress peak: the parse and binding check of the
+        /// three texts and the typed conversion, as
+        /// `report_package_text_parse_stays_within_its_priced_growth` does.
+        fn report_package_whole_command_within_its_lease(label: &str, body: &[u8]) {
+            use crate::command_ingress::test_support::headers;
+            use crate::command_ingress::{
+                report_package_request_parse_bytes, INGRESS_ARGS_JSON_V1, REPORT_PACKAGE_REQUEST_REGIONS, REPORT_PACKAGE_WORKING_MEMORY_FACTOR,
+            };
+            use report_package_save::test_support::{no_store, software};
+            let registry = registry(ScriptedHost::normal());
+            let current = headers(Some(INGRESS_ARGS_JSON_V1));
+            let (receipt_code, lease, whole) = {
+                let ((code, lease), measured) = ingress::counting::measure(|| {
+                    // The body as the IPC layer buffers it, held until the command returns.
+                    let invoke_body = tauri::ipc::InvokeBody::Raw(body.to_vec());
+                    let (mut args, mut lease) =
+                        command_ingress::admit_body(&registry, &invoke_body, &current, "save_report_package", ArgsDecoding::Moved).unwrap();
+                    let request = report_package_save::save_report_package_args(&mut args).unwrap();
+                    drop(args);
+                    report_package_save::validate_report_package_save_evidence(&request.screening, request.local_first.as_ref()).unwrap();
+                    let growth = report_package_save::parse_lease_bytes(&request.request_text, &request.model_text, &request.input_manifest_text).unwrap();
+                    lease.grow_to(lease.bytes() + growth).unwrap();
+                    let mut picks = 0usize;
+                    let receipt = save_report_package_with_picker(request, &software(), &mut no_store, |_| {
+                        picks += 1;
+                        None
+                    })
+                    .unwrap_or_else(|error| panic!("{label}: refused: {}", error.message));
+                    assert_eq!(picks, 1);
+                    let code = receipt.code.clone();
+                    let response = respond::<_, String>(Ok(receipt)).unwrap();
+                    drop(response);
+                    let bytes = lease.bytes();
+                    drop(lease);
+                    drop(invoke_body);
+                    (code, bytes)
+                });
+                (code, lease, measured.peak_priced)
+            };
+            assert_eq!(receipt_code, "REPORT-PACKAGE-SAVE-CANCELLED");
+            assert_eq!(registry.pool().reserved_total(), 0);
+            // The ingress peak and the request text's regions.
+            let args: Value = serde_json::from_slice(body).unwrap();
+            let text = args["requestCanonicalText"].as_str().unwrap().to_string();
+            let model = args["modelCanonicalText"].as_str().unwrap().to_string();
+            let manifest = args["inputManifestCanonicalText"].as_str().unwrap().to_string();
+            drop(args);
+            let (bound, regions) = ingress::prescan_regions(text.as_bytes(), &REPORT_PACKAGE_REQUEST_REGIONS).unwrap();
+            let (_, ingress_peak) = ingress::counting::measure(|| {
+                let request = report_package_save::parse_canonical("request", &text).unwrap();
+                let model = report_package_save::parse_canonical("model", &model).unwrap();
+                let manifest = report_package_save::parse_canonical("input_manifest", &manifest).unwrap();
+                let packs = report_package_save::solve_rule_packs(&manifest).unwrap();
+                drop((model, manifest, packs));
+                report_package_save::typed_request(request).map(drop).unwrap();
+            });
+            let m = bound.materialization_bytes;
+            let mib = |bytes: u64| bytes as f64 / (1024.0 * 1024.0);
+            eprintln!(
+                "{label}: body {} request text {} M {m} C_V {} C_T {} request growth {} W {REPORT_PACKAGE_WORKING_MEMORY_FACTOR} \
+                 lease {lease} ({:.2} MiB; at W = 0 {} ({:.2} MiB)) ingress peak {} whole-command peak {whole}",
+                body.len(),
+                text.len(),
+                regions.opaque,
+                regions.typed,
+                report_package_request_parse_bytes(&text).unwrap(),
+                mib(lease),
+                lease - REPORT_PACKAGE_WORKING_MEMORY_FACTOR * m,
+                mib(lease - REPORT_PACKAGE_WORKING_MEMORY_FACTOR * m),
+                ingress_peak.peak_priced,
+            );
+            assert!(ingress_peak.peak_priced <= whole, "{label}");
+            assert!(whole <= lease, "{label}: whole-command priced peak {whole} exceeds the lease {lease}");
+        }
+
+        /// The whole command on the committed witness request
+        /// (`del1005_export_results_success_input.json`, as the desktop
+        /// builder derives its request): its peak with the buffered body is
+        /// within the whole lease.
+        #[test]
+        fn report_package_save_whole_command_peak_is_within_its_lease() {
+            use report_package_save::test_support::{args_body, desktop_request, model, save_request};
+            let body = serde_json::to_vec(&args_body(&save_request(&desktop_request(&model()), &model()))).unwrap();
+            report_package_whole_command_within_its_lease("witness", &body);
+        }
+
+        /// The whole command on the demo's request: the bundled demo
+        /// (`invented_demo_model.json`) with its committed dense result
+        /// (`invented_demo_result_preview_physics_1_dense.json`), as the
+        /// native smoke saves it. The request (about 7 MB) is not committed;
+        /// generate its raw args body with the desktop's request builder, then
+        /// run this test with the same variable (an absolute path; the first
+        /// command from `apps/desktop`, the second from `apps/desktop/src-tauri`):
+        ///
+        /// ```text
+        /// OPENPIPESTRESS_DEMO_REPORT_PACKAGE_REQUEST=/abs/demo-request.json \
+        ///   npx vitest run src/test-support/demoReportPackageRequest.test.ts
+        /// OPENPIPESTRESS_DEMO_REPORT_PACKAGE_REQUEST=/abs/demo-request.json \
+        ///   cargo test --locked --offline report_package_save_demo_request -- --ignored --nocapture
+        /// ```
+        #[test]
+        #[ignore = "needs the generated demo request in OPENPIPESTRESS_DEMO_REPORT_PACKAGE_REQUEST"]
+        fn report_package_save_demo_request_peak_is_within_its_lease() {
+            let path = std::env::var("OPENPIPESTRESS_DEMO_REPORT_PACKAGE_REQUEST")
+                .expect("OPENPIPESTRESS_DEMO_REPORT_PACKAGE_REQUEST names the generated demo request");
+            let body = fs::read(&path).unwrap_or_else(|error| panic!("{path}: {error}"));
+            report_package_whole_command_within_its_lease("demo", &body);
+        }
+
         #[test]
         fn local_result_save_command_decodes_its_typed_request() {
             let dir = scratch_store("result-save").parent().unwrap().to_path_buf();

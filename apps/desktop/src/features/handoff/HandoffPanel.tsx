@@ -1,3 +1,4 @@
+import type { PreviewComparisonUnavailable } from "../comparison/withinRunComparison";
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { componentBodyNotices } from "../results/componentBody";
@@ -64,6 +65,7 @@ export function HandoffPanel({
   result,
   analysisRun,
   comparison,
+  comparisonUnavailable = null,
   editorIntents,
   proposal,
   selectedReviewTarget
@@ -73,6 +75,8 @@ export function HandoffPanel({
   result: MechanicsResult | null;
   analysisRun: AnalysisRunEnvelope | null;
   comparison: PreviewComparison | null;
+  /** W-12 S3c: the record of a chosen within-run comparison the builder refused. */
+  comparisonUnavailable?: PreviewComparisonUnavailable | null;
   editorIntents: EditorOperationIntent[];
   proposal: AgentProposal | null;
   selectedReviewTarget: SelectedReviewTarget | null;
@@ -83,6 +87,7 @@ export function HandoffPanel({
     result,
     analysisRun,
     comparison,
+    comparisonUnavailable,
     editorIntents,
     proposal,
     selectedReviewTarget
@@ -194,6 +199,7 @@ export function buildHandoffPackage({
   result,
   analysisRun,
   comparison,
+  comparisonUnavailable = null,
   editorIntents,
   proposal,
   selectedReviewTarget
@@ -203,6 +209,8 @@ export function buildHandoffPackage({
   result: MechanicsResult;
   analysisRun: AnalysisRunEnvelope;
   comparison: PreviewComparison | null;
+  /** W-12 S3c: the record of a chosen within-run comparison the builder refused. */
+  comparisonUnavailable?: PreviewComparisonUnavailable | null;
   editorIntents: EditorOperationIntent[];
   proposal: AgentProposal | null;
   selectedReviewTarget: SelectedReviewTarget | null;
@@ -283,7 +291,8 @@ export function buildHandoffPackage({
       hash_scopes: run.hashes.map((item) => item.payload_scope),
       result_value_hash_count: run.result_refs.reduce((count, item) => count + item.hash_refs.length, 0)
     },
-    comparison_ref: comparison?.comparison_id ?? "not generated",
+    comparison_ref: comparison?.comparison_id ?? comparisonUnavailable?.comparison_id ?? "not generated",
+    ...(comparisonUnavailable ? { comparison_unavailable: comparisonUnavailable } : {}),
     comparison_summary: comparison
       ? {
           comparable_result_pairs: comparison.summary.comparable_result_pairs,

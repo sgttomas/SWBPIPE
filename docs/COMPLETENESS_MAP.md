@@ -94,15 +94,7 @@ The biggest gaps:
    every report and the report package (ruling 10A). Save Report Package saves
    a local private package for a pressure-free result (W-18 (b2)). The report lacks materials,
    sections and library records. Affected: FR-REP-001..004.
-2. **Within-run comparison still uses hard-coded case ids (W-12 S3c).** Model
-   states, run history and comparison are in v0.1 by OD-1. Named immutable states are in the desktop (W-12 S1,
-   #1589): save, open, label and delete, kept only in the SQLite store. Runs are
-   recorded against states (W-12 S2, #1596), with the model's rule packs
-   resolved at solve (#1602). Two saved states are compared in the desktop
-   (W-12 S3a, #1605), and two runs (W-12 S3b). The "Within this run" view still
-   compares fixed case ids. Comparison is view-only; mapping editor, tolerance
-   profiles, graphical diffs and export are v0.2. Affected: FR-CMP-001..004,
-   -006, FR-GUI-007.
+2. **Saved-state and run comparisons are view-only; selected within-run comparison context is packaged.** Model states, run history and comparison are in v0.1 by OD-1. Named immutable states are in the desktop (W-12 S1, #1589): save, open, label and delete, kept only in the SQLite store. Runs are recorded against states (W-12 S2, #1596), with the model’s rule packs resolved at solve (#1602). Two saved states are compared in the desktop (W-12 S3a, #1605), and two runs (W-12 S3b, #1617). “Within this run” lets the user choose the load case and combination (W-12 S3c). The report line and JSON, preview handoff summary, export review and design-workspace downloads, and the saved local-private report package for a Current pressure-free result (W-18b2) carry the chosen comparison context. A combination whose rows include a kind with no declared dimension is refused by name (`ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED`); those consumers carry its bases, run and reason in a `comparison_unavailable` record. The saved `.swbhandoff` carries no comparison. Mapping editor, tolerance profiles, graphical diffs and DEL-14-05 comparison-output export remain v0.2. Affected: FR-CMP-001..004, -006, FR-GUI-007.
 3. **Rigid components: stiffness only.** OD-2 chose DEC-045 stiffness scaling.
    W-15 slices a and d (#1604) apply it on both routes, admit valve, flange,
    rigid and specialty components on EX, and identify body stress rows as
@@ -166,7 +158,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-GUI-004 (501) | Must | D | Create, modify, move, delete (refuses while any record names the pipe; `tests/pipe_delete_dependents.rs`); split, copy, rotate, mirror (`geometry_operations.rs`); reconnect (`operation_applier/src/pipe_reconnect.rs`, `tests/pipe_reconnect.rs`, `e2e/pipe-reconnect.spec.ts:52`; UI `GeometryToolsPanel.tsx:65-88`) | DEL-07-01, DEL-16-06 | Declared v0.1 limitation (DEL-16-06 SOW:79): reconnect refuses component-bearing and pressure-region pipes. All four demo pipes are refused. |
 | FR-GUI-005 (502) | Should | D | `workspaceSession.ts` (depth 25); `e2e/b3a-session-status.spec.ts` | DEL-00-05, DEL-07-11 | Session-only. |
 | FR-GUI-006 (503) | Must | D | `MissingDataBlockingPanel.tsx:24,148-181`; `App.test.tsx`; `e2e/gui-workflow-validation.spec.ts:110` | DEL-07-04 | Topology findings are warnings, not blocking. |
-| FR-GUI-007 (504) | Should | P | `ComparisonPanel.tsx`; `previewService.ts` (`single_run_load_basis_review`); `StateComparisonView.tsx`; `RunComparisonView.tsx` | DEL-07-08, DEL-14-05 | A saved-state comparison view (W-12 S3a: table of changed entities and field paths) and a run comparison view (W-12 S3b: mapped rows with deltas, `not_compared` reasons, context deltas and unmatched rows) sit beside the within-run deltas. No graphical overlays (FR-CMP-009, v0.2). |
+| FR-GUI-007 (504) | Should | P | `ComparisonPanel.tsx`; `previewService.ts` (`single_run_load_basis_review`); `StateComparisonView.tsx`; `RunComparisonView.tsx`; `withinRunComparison.ts` | DEL-07-08, DEL-14-05 | A saved-state comparison view (W-12 S3a: table of changed entities and field paths) and a run comparison view (W-12 S3b: mapped rows with deltas, `not_compared` reasons, context deltas and unmatched rows) sit beside the within-run deltas, whose load case and combination the user selects (W-12 S3c). No graphical overlays (FR-CMP-009, v0.2). |
 | FR-AGENT-001 (568) | Should | D | `OfflineProposalIntakePanel.tsx` → `atomic_batch.rs:285-345` | DEL-16-01, DEL-16-06 | The live provider is O (D-22/DEC-041). |
 | FR-AGENT-002 (569) | Should | D | `atomic_batch.rs:8,112`; tests `:529,593,690,746,806` | DEL-16-02, DEL-16-06 | |
 | FR-AGENT-003 (570) | Should | D | Diff review and explicit Apply (`workspaceSession.ts:1345,1496`) | DEL-07-08, DEL-16-06 | No e2e for offline intake. |
@@ -234,8 +226,8 @@ MVP requirement (PRD §15.6).
 
 | ID (PRD line) | Pri | Class | Evidence | Deliverables | Notes |
 |---|---|---|---|---|---|
-| FR-CMP-001 (542) | Must | P | **Store:** desktop `src-tauri/src/model_states.rs` (store v12: `model_states`, `model_state_labels`, immutability triggers; save, list, read, label edit, delete), with its tests there. **UI:** `features/history/HistoryPanel.tsx`, `useModelStateHistory.ts`; `modelStateHistory.session.test.tsx`. **Record:** `model_state.schema.json` record with Python-pinned record hash; `tests/test_model_state_record_parity.py` | DEL-14-01, DEL-07-08 | Save, reopen, tag and delete named immutable states in the desktop (W-12 S1, #1589); SQLite-only, with history export open under OI-015. Compare is W-12 S3. The desktop crate's Rust store tests do not run in hosted CI. |
-| FR-CMP-002 (543) | Must | P | **Store:** desktop `src-tauri/src/analysis_runs.rs` (store v13, Record Run, list, read, label edit, delete) with `analysis_runs_tests.rs`. **UI:** `features/history/HistoryPanel.tsx`; `recordRun.session.test.tsx`. **Record:** `analysisRunCompatibility.ts` recorded form, `core/analysis_runs/compatibility.py`, `tests/test_recorded_run_record.py`. **Rule packs:** `services/modelRulePackResolution.ts`; `features/workspace/solveRulePacks.session.test.tsx`; fixtures `persistence/transient_run_input_rule_packs.json`, `recorded_run_witness_rule_packs.json` | DEL-14-02, DEL-07-08 | Record Run (W-12 S2, #1596) stores an immutable v0.3 revision tied to a saved state (`{ModelState, id}`), checked against the stored input manifest's model payload. The manifest binds the solver, settings, units and load cases, and many runs can be recorded per state. Library refs come from the shared `library_ref` walk. Rule-pack refs come from the manifest's `active_rule_packs`: at solve the session resolves the model's `rule_pack_refs` against the local rule-pack store (`modelRulePackResolution.ts`), in the model's order; an unresolved or changed reference is excluded and recorded as a run-record diagnostic (`MODEL-RULE-PACK-REF-UNRESOLVED`, `MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH`), kept by the recorded revision under its hash (#1602). The result export, the stress-neutral package and the handoff preview carry them in their own diagnostics, each once (`services/rulePackRefDiagnostics.ts`); Save Handoff resolves the references by the same rules (`handoff_package.rs` `rule_pack_ref_exclusion`, vectors `fixtures/handoff/rule_pack_ref_resolution_vectors.json`). |
+| FR-CMP-001 (542) | Must | P | **Store:** desktop `src-tauri/src/model_states.rs` (store v12: `model_states`, `model_state_labels`, immutability triggers; save, list, read, label edit, delete), with its tests there. **UI:** `features/history/HistoryPanel.tsx`, `useModelStateHistory.ts`; `modelStateHistory.session.test.tsx`. **Record:** `model_state.schema.json` record with Python-pinned record hash; `tests/test_model_state_record_parity.py` | DEL-14-01, DEL-07-08 | Save, reopen, tag and delete named immutable states in the desktop (W-12 S1, #1589); SQLite-only, with history export open under OI-015. |
+| FR-CMP-002 (543) | Must | D | **Store:** desktop `src-tauri/src/analysis_runs.rs` (store v13, Record Run, list, read, label edit, delete) with `analysis_runs_tests.rs`. **UI:** `features/history/HistoryPanel.tsx`; `recordRun.session.test.tsx`. **Record:** `analysisRunCompatibility.ts` recorded form, `core/analysis_runs/compatibility.py`, `tests/test_recorded_run_record.py`. **Rule packs:** `services/modelRulePackResolution.ts`; `features/workspace/solveRulePacks.session.test.tsx`; fixtures `persistence/transient_run_input_rule_packs.json`, `recorded_run_witness_rule_packs.json` | DEL-14-02, DEL-07-08 | Record Run (W-12 S2, #1596) stores an immutable v0.3 revision tied to a saved state (`{ModelState, id}`), checked against the stored input manifest's model payload. The manifest binds the solver, settings, units and load cases, and many runs can be recorded per state. Library refs come from the shared `library_ref` walk. Rule-pack refs come from the manifest's `active_rule_packs`: at solve the session resolves the model's `rule_pack_refs` against the local rule-pack store (`modelRulePackResolution.ts`), in the model's order; an unresolved or changed reference is excluded and recorded as a run-record diagnostic (`MODEL-RULE-PACK-REF-UNRESOLVED`, `MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH`), kept by the recorded revision under its hash (#1602). The result export, the stress-neutral package and the handoff preview carry them in their own diagnostics, each once (`services/rulePackRefDiagnostics.ts`); Save Handoff resolves the references by the same rules (`handoff_package.rs` `rule_pack_ref_exclusion`, vectors `fixtures/handoff/rule_pack_ref_resolution_vectors.json`). |
 | FR-CMP-003 (544) | Must | D | `features/comparison/stateComparison.ts`, `StateComparisonView.tsx`; History panel Compare… (`features/history/`); tests `stateComparison.test.ts`, `compareStates.test.tsx`; parity with `core/comparison/model_state/engine.py` on `fixtures/comparison/model_state_comparison_golden.json` (`tests/test_model_state_comparison_parity.py`) | DEL-14-03, DEL-07-08 | The desktop compares two saved states of one project (W-12 S3a): added, removed, changed and unchanged entities by stable id per family, nested field paths, `unit_changed` without conversion, and a native size admission. View-only; comparison export is v0.2 (FR-CMP-010). |
 | FR-CMP-004 (545) | Must | D | `features/comparison/runComparison.ts`, `runComparisonSides.ts`, `RunComparisonView.tsx`; History panel Compare… (`features/history/`); native `admit_analysis_run_comparison` (`src-tauri/src/analysis_runs.rs`); tests `runComparison.test.ts`, `compareRuns.test.tsx`; parity with `core/comparison/analysis_run/engine.py` on `fixtures/comparison/analysis_run_comparison_golden.json` (`tests/test_analysis_run_comparison_parity.py`) | DEL-14-04, DEL-07-08 | The desktop compares two recorded runs of one project, or one and the session's current run (W-12 S3b). Rows map automatically on the reference identity plus row metadata. A mapped pair gets a right − left delta only with equal units, both envelopes `integrity_checked`, the same result semantic identity and a family the reference compares; otherwise it is `not_compared` with the reason. Settings, load-basis and solve-diagnostic differences and unmatched rows are listed. No unit conversion or tolerance; view-only, with comparison export v0.2 (FR-CMP-010). |
 | FR-CMP-005, -007 (546, 548) | Should | P | `schemas/comparison_mapping.schema.json`; `model_state/engine.py:232` | DEL-14-05 | No editor. |
@@ -243,7 +235,7 @@ MVP requirement (PRD §15.6).
 | FR-CMP-008, -009, -010 (549-551) | Should | P | `schemas/comparison_tolerance.schema.json`; `ComparisonPanel.tsx:55-70` | DEL-14-05, DEL-08-06 | No profiles, overlays or CSV. |
 | FR-CMP-011 (552) | Could | P | `schemas/caepipe_external_run.schema.json` | DEL-14-05 | §15.6: not MVP. |
 | §21.3 human acceptance (1385) | — | D | `docs/claims_registry.md:6,184-186` | DEL-01-04 | No acceptance workflow, as required. |
-| §22.4 regression (1435) | Must | P | `tools/release/run_evidence_sweep.py:163`; last sweep `validation/evidence/sweeps/SWEEP_20260924T162044Z_b9dda2addccc.json` | DEL-00-08, DEL-09-05, DEL-10-04 | No states to hash. The sweep is optional release preparation; the hosted `harness` is the merge check. |
+| §22.4 regression (1435) | Must | P | `tools/release/run_evidence_sweep.py:163`; last sweep `validation/evidence/sweeps/SWEEP_20260924T162044Z_b9dda2addccc.json` | DEL-00-08, DEL-09-05, DEL-10-04 | The cited sweep predates desktop states and recorded runs (W-12). The sweep is optional release preparation; the hosted `harness` is the merge check. |
 | §22.5 prover correlation (1455) | — | O | DEC-080: activation is a future owner-gated row | DEL-09-04, PKG-15 | The schema lacks the §22.5 fields. |
 | R6 reproduction (1636) | — | P | Current runnable procedure `docs/validation_manual/headless_runner_reproduction.md:47-193` (W-2); last bundle still `validation/evidence/reproduction/REPRO_DEL0904_20260720T074714Z_a5235340aae3/` | DEL-09-04 | No fresh bundle (the heavy half of W-2). |
 
@@ -262,12 +254,13 @@ the webview has no network policy.
 ### 2.7 Class counts, MVP (PRD §23) and milestones (§24)
 
 **Class counts.** The #1539 map at `7a780551f0` had 48 P, 28 D, 3 O and no R.
-This map has 37 P, 39 D (including one bounded and one at repository level), 8 O and no R:
-- **P → D (10):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
+This map has 36 P, 40 D (including one bounded and one at repository level), 8 O and no R:
+- **P → D (11):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
   §10.1 step 1 (#1569), the R2 exit (W-4, #1582, after the basis), §12.8
   near-duplicate nodes (the desktop tolerance control, after the basis),
-  FR-CMP-003 (W-12 S3a, #1605), FR-CMP-004 and -006 (W-12 S3b), and FR-SOL-007
-  (W-7, #1581).
+  FR-CMP-002 (W-12 S2, #1596, with its rule-pack references from #1602),
+  FR-CMP-003 (W-12 S3a, #1605), FR-CMP-004 and -006 (W-12 S3b, #1617), and
+  FR-SOL-007 (W-7, #1581).
 - **D → P (1):** FR-SOL-002. Its acceptance criterion includes imposed
   displacements, which pass on EX only; the route rule now applies (Codex, §6).
   (FR-RULE-003 moved D → P by the owner's reading of 2026-10-23 and back to D
@@ -295,7 +288,7 @@ This map has 37 P, 39 D (including one bounded and one at repository level), 8 O
 - **R1:** partly. Rigid elements are absent; §22.2 lacks the rigid link.
 - **R2:** ruled met under v0.1 tokens (D-14/DEC-035). The native smoke now runs
   a GUI-authored model through solve, review, save and reopen (W-4).
-- **R3 (States, Runs, Comparison):** partly. States, run history and basic state and run comparison are in the desktop (v0.1 by OD-1; W-12 S1–S3b); within-run case selection is W-12 S3c. Mapping editor/manual mappings, tolerance profiles, graphical diffs and comparison export remain in v0.2 R3.
+- **R3 (States, Runs, Comparison):** partly. States, run history and basic state and run comparison are in the desktop (v0.1 by OD-1; W-12 S1–S3c). Mapping editor/manual mappings, tolerance profiles, graphical diffs and comparison export remain in v0.2 R3.
 - **R4** and **R5:** met as v0.1 R3/R4 (D-23/DEC-048, D-27/DEC-054). A report
   is obtainable only as a local private PF document.
 - **R6:** partly. Design knowledge is deferred (OD-3); no fresh reproduction
@@ -525,7 +518,8 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-13 S2a | Authoring for the 0.7.0 slots: lines, assumptions and open issues, constraints, equipment interfaces, rule-pack references, tags, notes and provenance records; validator findings in the desktop | #1565 |
 | W-13 S2b, W-17 (part) | Applying library records to model entities: material (E/ν or E/G), section (propagated to bound pipes) and component records, with `provenance_record`/`library_ref` and the store's unresolved/changed-record warnings | #1566 |
 | W-12 S3a | Comparing two saved model states in the desktop: fail-closed flattening of every 0.7.0 member, stable-id classification, field paths, parity with the reference engine | #1605 |
-| W-12 S3b | Comparing two runs in the desktop: automatic row mapping, the whole-run standing gate, deltas with units, context and diagnostic deltas, exactness and S2-era refusals, parity with the reference engine | (this PR) |
+| W-12 S3b | Comparing two runs in the desktop: automatic row mapping, the whole-run standing gate, deltas with units, context and diagnostic deltas, exactness and S2-era refusals, parity with the reference engine | #1617 |
+| W-12 S3c | "Within this run" selects its load case and combination from the bases with result rows, held to the current run | #1619 |
 | W-12 S2 | Analysis runs recorded against saved model states (store v13, Record Run with a checked manifest and model binding, run labels, recorded-form validators in TS and Python), with stored-length read admission for states and runs | #1596 |
 | W-12 S1 | Named immutable model states in the desktop (store v12, Save/Open State, History panel with labels); one unsaved-changes guard for Open Project, New, Open Model Document and Open State | #1589 |
 | W-20 | Pressure stress benchmark family in the DEL-09-02 suite | #1599 |
@@ -545,7 +539,6 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-2 (rest) | Fresh R6 reproduction bundle at the validation basis, with the current procedure | S | run | heavy | the validation basis | Acceptance of the reproduction is the owner's |
 | W-6 | Canonical model export (save model document to file, independent of a solve; FR-HAND-001); schema-conformant handoff manifest with rule refs and hashes (FR-HAND-002) | M | desktop + schema | heavy | W-13 (0.7.0) | No |
 | W-11 | Exact-route reports: DEL-08-01 limitation sections (ruling 10A), then open; with it, the report's materials, sections and library records (FR-REP-003) | M–L | docs + desktop | heavy | W-3 (done) | Opening returns to the owner |
-| W-12 | States, run history, state and run comparison in the desktop (FR-CMP-001..004, -006) | L | desktop + persistence | heavy, scrutiny | W-13 (design agreement) | No (OD-1 decided) |
 | W-15 b, c | Component weight and centre of gravity as nodal loads (slice b; CoG convention ruled 2026-10-24); eccentric reducer offset with the 0.8.0 model document (slice c, §12.3) | M | numerical | heavy, scrutiny | #1604; slice c after the 0.8.0 coordination | No (OD-2, R10 decided) |
 | W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | — | No |
 | W-17 (rest) | Units after creation (slice b, `set_project_unit`); rule-pack §17.2 stress categories, load-case mappings and required load cases | S–M each | desktop / schema | heavy | — | No (§17.2 decided, owner 2026-10-24: "I approve your recommended option A."; stress categories, load-case mappings and required load cases in v0.1, under a new rule-pack format version) |
@@ -559,7 +552,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 - **Before the owner's hands-on use:** W-6 and W-18 (a model the owner can
   export and a report package). W-3, W-5 and the W-13 slices (#1564–#1566) are
   done.
-- **Before validation:** W-12, W-15 (a+d #1604; b, c), W-16 and W-11.
+- **Before validation:** W-15 (a+d #1604; b, c), W-16 and W-11.
   The R6 reproduction bundle (W-2) is then made at the validation
   basis.
 
