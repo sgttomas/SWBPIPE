@@ -195,10 +195,12 @@ def test_the_verifier_is_independent_and_test_only():
     # tests/verifiers/section_basis.py, which is itself standard library only.
     # T4-U4b (§5.1): the new kinds' checks live in the sibling tests/verifiers/u4b.py, standard library only too.
     # W-7 (DEL-04-01 Design global-end-actions.md): the global end-action checks live in the sibling
-    # tests/verifiers/global_end.py, standard library only too.
-    assert _imports(VERIFIER) <= stdlib | {".global_end", ".section_basis", ".u4b"}
-    assert _imports(VERIFIER.with_name("section_basis.py")) <= stdlib
+    # tests/verifiers/global_end.py; W-15 slice d (DEL-03-05 Design §5): the component-body checks live in
+    # the sibling tests/verifiers/component_body.py; both standard library only too.
+    assert _imports(VERIFIER) <= stdlib | {".component_body", ".global_end", ".section_basis", ".u4b"}
+    assert _imports(VERIFIER.with_name("section_basis.py")) <= stdlib | {".component_body"}
     assert _imports(VERIFIER.with_name("u4b.py")) <= stdlib
+    assert _imports(VERIFIER.with_name("component_body.py")) <= stdlib
     assert _imports(VERIFIER.with_name("global_end.py")) <= stdlib
     # No product module imports it (the VP-STATIC gate binds it by path and runs it isolated).
     for root in ("core", "apps", "tools"):

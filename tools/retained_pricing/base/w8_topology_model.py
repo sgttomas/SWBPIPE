@@ -27,8 +27,11 @@ FG = "core/product_physics/src/formation_guard.rs"
 # the branch-warning statement (§8.18, W8-BF): validate_components' warning keeps its topology text only (the applied
 # sides are stated after publication by state_applied_branch_factors); its node-degree map (W8-ND) is unchanged.
 TOP_PIN = "cca9abee30dd68b4fe7d47785d92f4805a921d74742c64687cd7e4542f8be0f9"
+# W-15 D3 (§8.21): validate_components' rigid checks are rigid_component::append_scaling_diagnostics (one call per
+# rigid-family component, 0 on D1 by P2) and one append_mapping_conflicts after the loop (its member map is W15-PM,
+# w15_owners_model); the node-degree map (W8-ND) and the branch check are unchanged.
 BODY_PINS = {
-    (VAL, "validate_components"): "3a242bc7529e4ccdec1767d17e96e6ac55669f8caabf4f3e8e182a8dc8f1abe3",
+    (VAL, "validate_components"): "9d8298d673d6b5e660c38ff8980c7ce94799cf227231757e906598eacb53e33d",
     (VAL, "branch_topology_invalid"): "22c8a42d2750e8145c94e009bd9c6fe7f3a5965926aae487a5948b6db34206ae",
 }
 NAMED = 6

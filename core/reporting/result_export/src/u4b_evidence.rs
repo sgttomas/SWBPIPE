@@ -476,6 +476,9 @@ pub(crate) fn directional_model_checks(source: &Value, model: &Value, route: Rou
 /// `reader_verdict::physics_model_checks` on the pressure-2 reader only: the
 /// directional binding (review item 1).
 pub(crate) fn exact_model_checks(source: &Value, model: &Value) -> Check {
+    // W-15 slice d (DEL-03-05 Design §5): the bodies the model's eligibility
+    // predicate expects, with their records.
+    crate::component_body::model_checks(source, model, crate::semantic_contract::pressure_rows_contract())?;
     directional_model_checks(source, model, Route::Exact)
 }
 
@@ -504,6 +507,9 @@ pub(crate) fn poisson_exempt<'a>(diagnostics: &'a [Value], case: &str) -> HashSe
 /// r_i = (D − 2t)/2, I = π(D⁴ − d⁴)/64.
 pub(crate) fn preview_model_checks(source: &Value, model: &Value) -> Check {
     use open_pipe_stress_units::Dimension;
+    // W-15 slice d (DEL-03-05 Design §5): the bodies the model's eligibility
+    // predicate expects, with their records.
+    crate::component_body::model_checks(source, model, crate::semantic_contract::preview_physics_contract())?;
     let route = Route::Preview;
     let length = |q: &Value| crate::physics_source::normalized_quantity(q, Dimension::Length);
     let stress = |q: &Value| crate::physics_source::normalized_quantity(q, Dimension::Stress);

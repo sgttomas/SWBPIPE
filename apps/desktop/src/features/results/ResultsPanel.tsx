@@ -3,6 +3,7 @@ import { isRetainedRoute } from "./numericalResultQuality";
 import { sourceContract } from "./resultReader";
 import { KnownSemanticNotices } from "./KnownSemanticNotices";
 import { resultRowLabel } from "./knownSemanticLimitations";
+import { componentBodyNotice } from "./componentBody";
 import { retainedPrecisionStandingText } from "./retainedPrecisionStanding";
 import type { ReactNode } from "react";
 import { QuantityReadout } from "../display-units";
@@ -194,7 +195,7 @@ export function ResultsPanel({
                           }}
                           tabIndex={0}
                         >
-                          <td>{item.id}<small> {labels!.category(item)}</small>{labelSource && resultRowLabel(item, labelSource) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource)}</small> : null}<RowHealthBadge health={health} item={item} /></td>
+                          <td>{item.id}<small> {labels!.category(item)}</small>{labelSource && resultRowLabel(item, labelSource) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource)}</small> : null}<RowHealthBadge health={health} item={item} />{item.component_body ? <small data-testid={`result-row-component-body-${item.id}`}> reference section of component body {item.component_body.component_ref}</small> : null}</td>
                           <td>{item.entity_ref}</td>
                           <td>{item.metadata?.location ?? "summary"}</td>
                           <td>
@@ -462,6 +463,11 @@ function ResultDetail({ interpretation, result }: { interpretation: ResultInterp
         <DetailLine label="Location" value={interpretation.location} testId="selected-result-location" />
         <DetailLine label="Recovery basis" value={interpretation.recovery_basis} testId="selected-result-recovery-basis" />
         <DetailLine label="Sign convention" value={interpretation.sign_convention} testId="selected-result-sign-convention" />
+        {(() => {
+          // W-15 slice d (DEL-03-05 Design §5): a component body's row is a reference-section stress.
+          const body = result?.results.find((row) => row.id === interpretation.result_id)?.component_body;
+          return body ? <DetailLine label="Component body" value={componentBodyNotice(interpretation.entity_ref, body)} testId="selected-result-component-body" /> : null;
+        })()}
         <DetailLine
           label="Source results"
           value={

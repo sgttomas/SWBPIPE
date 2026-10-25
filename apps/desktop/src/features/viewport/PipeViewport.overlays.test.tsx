@@ -98,7 +98,8 @@ describe("PipeViewport result overlays", () => {
     expect(focus).toHaveTextContent("support:S-100");
     const fz = source.results.find((row) => row.id === "result:support-action:10:load:L-100:13:support:S-100:Fz")!;
     expect(fz.value).toBeLessThan(0);
-    expect(within(focus).getByTestId("viewport-reaction-focus-force")).toHaveTextContent(/Fz \u2212116\.6\s?N/u);
+    // W-15 (DEL-03-05 Design §6): C-130's scale redistributes the demo's support actions (was −116.6 N unscaled).
+    expect(within(focus).getByTestId("viewport-reaction-focus-force")).toHaveTextContent(/Fz \u2212120\s?N/u);
     // Colour stays off: the reaction legend alone.
     expect(screen.queryByTestId("viewport-result-colour-legend")).toBeNull();
   });

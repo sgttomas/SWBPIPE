@@ -128,18 +128,21 @@ describe("the left basis governs the pairing (Codex r1 on #1619)", () => {
       expect(right.source_result_refs).toContain(left.id);
       expect(delta.raw_delta).toBe(right.value - left.value);
     }
-    // The case Codex reproduced: the old lookup took the L-100 source row and gave 304.629047 N*m.
+    // The case Codex reproduced: the old lookup took the L-100 source row and gave the L-100 delta
+    // (305.419308 N*m). W-15 (DEC-045) forms valve C-130's member pipe:P-130 with its stiffness scale,
+    // so these values moved with the capture of this model (were -304.6290472562317, 236.26369667435384,
+    // 118.13184833717692 and L-100's -609.2580945124633).
     const endJ = comparison.result_deltas.find((delta) => delta.right_result_id === "result:combination:combination-U4B-RANGE-MAX:moment:pipe-P-100:bending-z:end-j")!;
     expect(endJ.left_result_id).toBe("result:loadcase:load-L-200:moment:pipe-P-100:bending-z:end-j");
-    expect([endJ.left_value, endJ.right_value, endJ.raw_delta, endJ.unit]).toEqual([-304.6290472562317, -304.6290472562317, 0, "N*m"]);
+    expect([endJ.left_value, endJ.right_value, endJ.raw_delta, endJ.unit]).toEqual([-305.41930776611434, -305.41930776611434, 0, "N*m"]);
     const bendingZ = comparison.result_deltas.find((delta) => delta.right_result_id === "result:combination:combination-U4B-RANGE-MAX:moment:pipe-P-100:bending-z")!;
     expect(bendingZ.left_result_id).toBe("result:loadcase:load-L-200:moment:pipe-P-100:bending-z");
-    expect(bendingZ.raw_delta).toBe(236.26369667435384 - 118.13184833717692);
+    expect(bendingZ.raw_delta).toBe(226.7444902621995 - 113.37224513109975);
     // The L-100 side of the same row pairs with L-100's own row.
     const fromL100 = buildPreviewComparison({ result: source, analysisRun: run, leftBasisRef: "load:L-100", rightBasisRef: RANGE });
     const endJ100 = fromL100.result_deltas.find((delta) => delta.right_result_id === endJ.right_result_id)!;
     expect(endJ100.left_result_id).toBe("result:moment:pipe-P-100:bending-z:end-j");
-    expect(endJ100.raw_delta).toBe(-304.6290472562317 - -609.2580945124633);
+    expect(endJ100.raw_delta).toBe(-305.41930776611434 - -610.8386155322287);
   });
 
   it("with no L-100 rows, the fixed pair gives 0 pairs and every C-OPER-ALT row target-only, never paired with another case", () => {

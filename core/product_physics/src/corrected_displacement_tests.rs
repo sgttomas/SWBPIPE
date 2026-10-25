@@ -229,7 +229,7 @@ fn published_mm_rows_convert_the_si_corrected_displacement() {
         friction_coefficient: None,
     };
     let id = format!("result:nonlinear-support:{}:{}-displacement", stable_suffix("support:NL"), FrameDof::Ux.as_str());
-    let mut support_rows = vec![ResultItem { id: id.clone(), value: 0.0, ..results[0].clone() }];
+    let mut support_rows = vec![ResultItem { component_body: None, id: id.clone(), value: 0.0, ..results[0].clone() }];
     restate_nonlinear_support_displacements(&mut support_rows, &[support], &published);
     assert_eq!(support_rows[0].value.to_bits(), as_built.to_bits(), "nonlinear support row");
 }
