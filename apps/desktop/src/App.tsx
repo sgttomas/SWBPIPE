@@ -739,7 +739,7 @@ function AppSession() {
               {activeSection === "report" || activatedExpensiveSections.has("report") ? (
               <DormantSection active={activeSection === "report"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`report:${dormantOutputBasis}`}>
-              <ComparisonPackageNotice packaged={packagedWithinRun} testId="report-comparison-package-notice" />
+              <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="report-comparison-package-notice" />
               <RenderedReportPanel
                 model={model}
                 result={currentSolvedResult}
@@ -1071,7 +1071,7 @@ function AppSession() {
                 selectedReviewTarget={selectedReviewTarget}
                 storageCapability={storageCapability}
               />
-              <ComparisonPackageNotice packaged={packagedWithinRun} testId="handoff-comparison-package-notice" />
+              <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="handoff-comparison-package-notice" />
               <HandoffPanel
                 model={model}
                 knowledge={knowledge}

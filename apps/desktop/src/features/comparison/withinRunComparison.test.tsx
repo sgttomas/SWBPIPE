@@ -235,8 +235,8 @@ describe("the choice", () => {
     expect(droppedBases({ left: "load:L-999", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }, options)).toEqual(["load:L-999", DEFAULT_COMPARISON_RIGHT_BASIS_REF]);
     // A load case offered as the combination (or the reverse) is not offered.
     expect(droppedBases({ left: RANGE, right: "load:L-100" }, options)).toEqual([RANGE, "load:L-100"]);
-    expect(droppedNotice(["load:L-999"])).toBe("The chosen load:L-999 has no result rows in this run, so the choice was dropped and the default pair applies.");
-    expect(droppedNotice(["load:A", "combination:B"])).toContain("load:A and combination:B have no result rows");
+    expect(droppedNotice(["load:L-999"])).toBe("The choice was dropped because a Current run had no result rows for load:L-999. The default pair applies until you choose again.");
+    expect(droppedNotice(["load:A", "combination:B"])).toContain("no result rows for load:A and combination:B.");
     // Even if handed a stale choice, the resolution compares the default, not the stale id.
     const stale = resolve(result(), analysisRun("run:invented"), { left: "load:L-999", right: RANGE });
     expect(stale.view.status === "ready" && [stale.view.source, stale.view.pair.left]).toEqual(["default", "load:L-100"]);
@@ -268,25 +268,47 @@ describe("the choice", () => {
 });
 
 describe("the comparison id", () => {
+  const FIXED_ID_SUFFIX = ":load-L-100-to-combination-C-OPER-ALT";
   it("keeps the fixed pair's pre-S3c id, byte for byte", () => {
     const today = buildPreviewComparison({ result: withFixedCombination(), analysisRun: analysisRun("run:invented") });
-    expect(today.comparison_id).toBe("comparison:run:preview-linear-static-001:load-L-100-to-combination-C-OPER-ALT");
-    expect(previewComparisonBases(today.comparison_id)).toEqual({ left: DEFAULT_COMPARISON_LEFT_BASIS_REF, right: DEFAULT_COMPARISON_RIGHT_BASIS_REF });
+    expect(today.comparison_id).toBe(`comparison:run:preview-linear-static-001${FIXED_ID_SUFFIX}`);
+    expect(previewComparisonBases(today.comparison_id)).toEqual({ run: "run:preview-linear-static-001", left: DEFAULT_COMPARISON_LEFT_BASIS_REF, right: DEFAULT_COMPARISON_RIGHT_BASIS_REF });
+    expect(previewComparisonId("run:with:colons", DEFAULT_COMPARISON_LEFT_BASIS_REF, DEFAULT_COMPARISON_RIGHT_BASIS_REF)).toBe(`comparison:run:with:colons${FIXED_ID_SUFFIX}`);
   });
 
-  it("is injective for every other pair and names both bases exactly", () => {
-    const run = "run:with:colons";
-    const pairs: Array<[string, string]> = [
-      ["load:α", RANGE], ["load:β", RANGE], ["load-a", RANGE], ["load:a", RANGE], ["load.a", RANGE], ["load~3a.a", RANGE],
-      ["load:\u{10000}", RANGE], ["load:\u{E000}", RANGE], ["load:\uD800", RANGE], ["", RANGE], ["load:L-200", "combination:Σ"], ["load:L-200", "combination:σ"]
-    ];
-    const ids = pairs.map(([left, right]) => previewComparisonId(run, left, right));
-    expect(new Set(ids).size).toBe(pairs.length);
-    pairs.forEach(([left, right], index) => expect(previewComparisonBases(ids[index])).toEqual({ left, right }));
-    expect(previewComparisonId(run, "load:L-200", RANGE)).toBe("comparison:run:with:colons:load~3a.L-200:to:combination~3a.U4B-RANGE-MAX");
+  it("is never read as the fixed pair for another pair, and never equals the fixed pair's id (Codex r2 on #1619)", () => {
+    // A legal combination id that is the legacy suffix's text.
+    const pairId = previewComparisonId("run:invented", "load:L-200", "load-L-100-to-combination-C-OPER-ALT");
+    expect(previewComparisonBases(pairId)).toEqual({ run: "run:invented", left: "load:L-200", right: "load-L-100-to-combination-C-OPER-ALT" });
+    // The fixed pair with a run that spells the earlier pair form's middle.
+    const fixedId = previewComparisonId("run:invented:load~3a.L-200:to", DEFAULT_COMPARISON_LEFT_BASIS_REF, DEFAULT_COMPARISON_RIGHT_BASIS_REF);
+    expect(pairId).not.toBe(fixedId);
+    expect(previewComparisonBases(fixedId)).toEqual({ run: "run:invented:load~3a.L-200:to", left: DEFAULT_COMPARISON_LEFT_BASIS_REF, right: DEFAULT_COMPARISON_RIGHT_BASIS_REF });
+    expect(pairId).toBe("comparison-pair:run~3a.invented:load~3a.L-200:load-L-100-to-combination-C-OPER-ALT");
+    // Non-canonical or foreign ids read as nothing.
+    for (const id of ["comparison-pair:a:b", "comparison-pair:a:b:c:d", "comparison-pair:~41.:b:c", "comparison-pair:~110000.:b:c", "comparison-pair:a:b:c~", "other:a:b:c"]) {
+      expect(previewComparisonBases(id)).toBeNull();
+    }
+  });
+
+  it("round-trips random runs and bases, so distinct triples give distinct ids", () => {
+    // A deterministic generator over the characters that matter: the escape and
+    // separator characters, the legacy suffix's own text, surrogates and astral code points.
+    let seed = 0x5eed;
+    const next = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed; };
+    const atoms = [":", "~", ".", "-", "_", "a", "Z", "0", "to", "load", "L-100", "-to-", "combination", "C-OPER-ALT", "\u{10000}", "\u{E000}", "\uD800", "\uDC00", "é", "%", " ", "comparison", "comparison-pair"];
+    const randomText = () => Array.from({ length: next() % 7 }, () => atoms[next() % atoms.length]).join("");
+    const seen = new Map<string, string>();
+    for (let index = 0; index < 2000; index += 1) {
+      const run = randomText(), left = index % 50 === 0 ? DEFAULT_COMPARISON_LEFT_BASIS_REF : randomText(), right = index % 50 === 0 ? DEFAULT_COMPARISON_RIGHT_BASIS_REF : randomText();
+      const id = previewComparisonId(run, left, right);
+      expect(previewComparisonBases(id)).toEqual({ run, left, right });
+      const triple = JSON.stringify([run, left, right]);
+      if (seen.has(id)) expect(seen.get(id)).toBe(triple);
+      seen.set(id, triple);
+    }
+    expect(seen.size).toBeGreaterThan(1500);
     expect(escapeComparisonBasis("a:b")).not.toContain(":");
-    // The sanitized form these replace collided: load:α and load:β both read `load`.
-    expect(ids[0]).not.toBe(ids[1]);
   });
 });
 
@@ -356,7 +378,7 @@ describe("the panel", () => {
 
   it("names a dropped choice", () => {
     panel(resolve(result(), analysisRun("run:invented")), { dropped: ["load:L-999"] });
-    expect(screen.getByTestId("comparison-choice-dropped")).toHaveTextContent(droppedNotice(["load:L-999"]));
+    expect(screen.getByTestId("comparison-package-basis-dropped")).toHaveTextContent(droppedNotice(["load:L-999"]));
   });
 
   it("the package notice beside the package actions reads the same", () => {

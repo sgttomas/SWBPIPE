@@ -369,4 +369,5 @@ checks:
 - apps/desktop/src/features/comparison/withinRunComparison.session.test.tsx
 - apps/desktop/src/features/comparison/withinRunPackages.test.tsx
 - apps/desktop/src/features/workspace/withinRun.resultsSessionState.test.ts
+- apps/desktop/src/App.withinRun.test.tsx
 - tests/test_design_authoring_comparison_workspace.py

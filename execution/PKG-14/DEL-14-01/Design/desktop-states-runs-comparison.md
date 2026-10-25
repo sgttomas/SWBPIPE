@@ -1484,7 +1484,9 @@ package notice (`ComparisonPackageNotice.tsx`), the session's cells
   across solves, edits and replacements and applies to every Current run that
   offers both of its bases. When a Current run does not offer one, the session
   drops the choice in the render that first shows that run, reverts to the
-  default and names the dropped bases until the next choice; a dropped choice is
+  default and names the dropped bases until the next choice ("The choice was
+  dropped because a Current run had no result rows for …"), in the Comparison
+  panel and beside the package actions in Report and Exports; a dropped choice is
   not restored when a later run offers its bases again. An id the run does not
   offer is never compared, and nothing is carried or reset without the notice.
   (Reverting keeps the panel usable; refusing by name would leave the panel and
@@ -1499,12 +1501,15 @@ package notice (`ComparisonPackageNotice.tsx`), the session's cells
   summary (`HandoffPanel.tsx`), the export review and the design-workspace
   downloads carry the chosen pair's comparison; without a choice, the fixed pair's
   comparison exactly as before S3c. Each records both bases: the comparison id is
-  `comparison:<run>:<left>:to:<right>` with each basis escaped injectively
-  (`previewComparisonId`, read back by `previewComparisonBases`), and the report
-  summary also holds `left_basis_ref` and `right_basis_ref`. The fixed pair alone
-  keeps its pre-S3c sanitized id, so a document built without a choice is
-  byte-identical; that form is not injective (`load:α` and `load:β` both read
-  `load`) and is used for no other pair. When the builder refuses the chosen pair
+  `comparison-pair:<run>:<left>:<right>` with the run and each basis escaped
+  injectively and without `:` (`previewComparisonId`, read back by
+  `previewComparisonBases`), and the report summary also holds `left_basis_ref`
+  and `right_basis_ref`. The fixed pair alone keeps its pre-S3c sanitized id
+  (`comparison:<run>:load-L-100-to-combination-C-OPER-ALT`), so a document built
+  without a choice is byte-identical; that form is not injective and is used for
+  no other pair. The two forms are disjoint (`comparison:` against
+  `comparison-pair:`), and the pair form is read first (Codex r2 on #1619: an
+  earlier `comparison:<run>:<left>:to:<right>` form could equal a fixed-pair id). When the builder refuses the chosen pair
   (`ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED`: the committed producer outputs'
   combination rows include `support_reaction_*_v2` and
   `combination_modulus_basis_record`, the known gap routed to T6), each of these

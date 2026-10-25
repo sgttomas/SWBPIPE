@@ -17,6 +17,7 @@ import { buildAnalysisRunPreview, buildPreviewComparison, runPreviewMechanics } 
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import type { PreviewModel } from "../../types";
 import { useResultsSessionState } from "./resultsSessionState";
+import { droppedNotice } from "../comparison/withinRunComparison";
 
 afterEach(() => { invokeMock.mockReset(); delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__; });
 const root = resolve(__dirname, "../../../../../");
@@ -67,10 +68,12 @@ it("drops a choice the next Current run does not offer, names it, and applies th
   expect(JSON.stringify(result.current.comparison)).toBe(JSON.stringify(today));
   expect(result.current.comparisonUnavailable).toBeNull();
 
-  // The dropped choice is not carried back to a run that offers its bases again.
+  // The dropped choice is not carried back to a run that offers its bases again, and
+  // the retained notice speaks of the earlier run, not this one.
   show(range);
   expect(pair()).toEqual({ left: "load:L-100", right: RANGE, source: "default" });
   expect(result.current.droppedWithinRunBases).toEqual(["load:L-200", RANGE]);
+  expect(droppedNotice(result.current.droppedWithinRunBases!)).toBe(`The choice was dropped because a Current run had no result rows for load:L-200 and ${RANGE}. The default pair applies until you choose again.`);
   // The next choice clears the notice.
   act(() => { result.current.setHeldWithinRunSelection({ left: "load:L-200", right: RANGE }); result.current.setDroppedWithinRunBases(null); });
   expect(pair()).toEqual({ left: "load:L-200", right: RANGE, source: "selected" });

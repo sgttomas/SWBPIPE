@@ -229,9 +229,10 @@ export function packageNotice(packaged: WithinRunComparisonBuild | null): string
   return `Packages omit the comparison of ${pair}: ${packaged.unavailable?.reason ?? "it could not be built"}`;
 }
 
-/** The notice of a choice dropped because the Current run does not offer its bases. */
+/** The notice of a choice dropped because a Current run did not offer its bases. It
+ * stays until the next choice, so it speaks of that run, not the one shown. */
 export function droppedNotice(dropped: string[]): string {
-  return `The chosen ${dropped.join(" and ")} ${dropped.length === 1 ? "has" : "have"} no result rows in this run, so the choice was dropped and the default pair applies.`;
+  return `The choice was dropped because a Current run had no result rows for ${dropped.join(" and ")}. The default pair applies until you choose again.`;
 }
 
 /** The stated reasons the choice is disabled (and refused) while the session is busy. */

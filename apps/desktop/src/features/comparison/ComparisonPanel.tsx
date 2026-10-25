@@ -5,7 +5,7 @@ import { QuantityReadout } from "../display-units";
 import type { MechanicsResult } from "../../types";
 import { GitCompare } from "lucide-react";
 import type { ComparisonDelta, PreviewComparison } from "../../types";
-import { droppedNotice, type WithinRunBasisOption, type WithinRunComparisonBuild, type WithinRunPair, type WithinRunView } from "./withinRunComparison";
+import { type WithinRunBasisOption, type WithinRunComparisonBuild, type WithinRunPair, type WithinRunView } from "./withinRunComparison";
 import { ComparisonPackageNotice } from "./ComparisonPackageNotice";
 
 const MAX_VISIBLE_DELTAS = 4;
@@ -121,7 +121,6 @@ function WithinRunChoice({ controls }: { controls: WithinRunControls }) {
   return (
     <fieldset className="comparison-within-run" data-testid="comparison-within-run">
       <legend>Within this run</legend>
-      {dropped && dropped.length > 0 ? <p role="status" data-testid="comparison-choice-dropped">{droppedNotice(dropped)}</p> : null}
       {pair ? (
         <div className="comparison-within-run-selects">
           <label>
@@ -157,7 +156,7 @@ function WithinRunChoice({ controls }: { controls: WithinRunControls }) {
         </div>
       ) : null}
       {pair && disabled ? <small id={reasonId} className="muted" data-testid="comparison-within-run-disabled-reason">{disabledReason}</small> : null}
-      <ComparisonPackageNotice packaged={packaged} testId="comparison-package-basis" />
+      <ComparisonPackageNotice packaged={packaged} dropped={dropped} testId="comparison-package-basis" />
     </fieldset>
   );
 }
