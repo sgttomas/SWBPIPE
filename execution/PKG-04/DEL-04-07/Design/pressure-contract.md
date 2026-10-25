@@ -228,7 +228,7 @@ with and without its declared members, and the demo does with its nested
 records' declared members varied or removed. The desktop refuses a hand-edited
 nested key at solve with that reason. Priced changes: DEL-04-08
 [retained-pricing-rules.md](../../DEL-04-08/Design/retained-pricing-rules.md)
-§8.19, and §8.22 for the nested records (measured, not registered; the tree is
+§8.19, and §8.NR for the nested records (measured, not registered; the tree is
 coefficient-identical to §8.20's).
 
 ## Imposed displacement on the pressure-free route

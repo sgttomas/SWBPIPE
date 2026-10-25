@@ -34,19 +34,20 @@ SOURCES = {
 # owner gains a caller. W-8 topology warnings D3 (§8.16): +2 more (`mod topology;` and its call), unchanged text.
 # Silent-zero guard D3 (§8.15): +1 more (one load-state call), unchanged text.
 # Model document 0.7.0 D3 (§8.17): +7 more (`model_settings`), unchanged text.
-# Nested-record closure D3 (§8.22, measured): every lib.rs owner, site and caller moved +106 with unchanged text.
 # W-7 D3 (§8.20): every owner, site and caller moved with unchanged text (lib.rs +5/+37; retained_product.rs
 # +16/+36/+85); no owner gains a caller.
+# W-15 D3 (§8.21): every lib.rs owner, site and caller moved with unchanged text (+60 to the case solve, +103/+111
+# after it); retained_product.rs's are in place (its rows only name `component_body: None`); no owner gains a caller.
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11486,
+    "line": 11483,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11444:exact_straight_summary_extrema",
-    "short": "lib.rs:11486",
-    "from": "lib.rs:11444:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11547:exact_straight_summary_extrema",
+    "short": "lib.rs:11589",
+    "from": "lib.rs:11547:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4956:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:5016:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6189:prepared_maxima'
@@ -54,13 +55,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11492,
+    "line": 11489,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11444:exact_straight_summary_extrema",
-    "short": "lib.rs:11492",
-    "from": "lib.rs:11444:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11547:exact_straight_summary_extrema",
+    "short": "lib.rs:11595",
+    "from": "lib.rs:11547:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4956:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:5016:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6189:prepared_maxima'
@@ -68,13 +69,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12147,
+    "line": 12152,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:12128:recover_curved_bend_local_forces",
-    "short": "lib.rs:12147",
-    "from": "lib.rs:12128:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:12239:recover_curved_bend_local_forces",
+    "short": "lib.rs:12258",
+    "from": "lib.rs:12239:recover_curved_bend_local_forces",
     "parents": [
-      "core/product_physics/src/lib.rs:4956:solve_prepared_load_case"
+      "core/product_physics/src/lib.rs:5016:solve_prepared_load_case"
     ]
   },
   {
@@ -137,12 +138,9 @@ MODE_SOURCE = {
            # W-7 D3 (§8.20): the same _X emitter, with retained_w1 carried to lib.rs:3694 (its only difference from
            # 836d05df…).
            "0955cc3338597f527e0d849d7dc58161059f2d1ea6af59fa04fae572b79448a8",
-           # Nested-record closure D3 (§8.22, measured): the same _X emitter, with retained_w1 carried to lib.rs:3845
-           # (its only difference from 0955cc33…).
-           "abbe7d8a61c9808260ef14ef95e675e42064cfd157323d8796838b37402500a3",
-           # Nested-record closure review repairs (§8.22, measured): the same _X emitter, with retained_w1 carried to
-           # lib.rs:3800 (its only difference from abbe7d8a…).
-           "d50033a8b11ad500e597947e077c95eda46887a4fc5443e4c3b61278acfcd7dc"},
+           # W-15 D3 (§8.21): the same _X emitter, with retained_w1 carried to lib.rs:3745 (its only difference from
+           # 0955cc33…).
+           "3f1e9c513fcafda1d2efd9232791644a3a863697d6d5c41d985bf87a72859af7"},
 }
 
 

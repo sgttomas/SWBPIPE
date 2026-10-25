@@ -7,11 +7,11 @@
       "name": "held-and-matching",
       "stored_under": "project:invented-resolution",
       "document_edits": [],
-      "stamp": "c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd",
+      "stamp": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f",
       "reference": {
         "rule_pack_id": "invented_demo_rule_pack",
         "name": "Invented Demonstration Rule Pack",
-        "rule_pack_version": "0.2.0",
+        "rule_pack_version": "0.3.0",
         "checksum": {
           "algorithm": "sha256",
           "canonicalization": "JCS",
@@ -19,7 +19,7 @@
           "payload_excludes": [
             "checksums"
           ],
-          "value": "c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd"
+          "value": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f"
         },
         "redistribution_status": "invented_non_engineering_example",
         "source_notice": "Invented demonstration data only."
@@ -35,7 +35,7 @@
       "reference": {
         "rule_pack_id": "invented_demo_rule_pack",
         "name": "Invented Demonstration Rule Pack",
-        "rule_pack_version": "0.2.0",
+        "rule_pack_version": "0.3.0",
         "checksum": {
           "algorithm": "sha256",
           "canonicalization": "JCS",
@@ -43,7 +43,7 @@
           "payload_excludes": [
             "checksums"
           ],
-          "value": "c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd"
+          "value": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f"
         },
         "redistribution_status": "invented_non_engineering_example",
         "source_notice": "Invented demonstration data only."
@@ -55,11 +55,11 @@
       "name": "stored-under-another-project-only",
       "stored_under": "project:invented-other",
       "document_edits": [],
-      "stamp": "c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd",
+      "stamp": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f",
       "reference": {
         "rule_pack_id": "invented_demo_rule_pack",
         "name": "Invented Demonstration Rule Pack",
-        "rule_pack_version": "0.2.0",
+        "rule_pack_version": "0.3.0",
         "checksum": {
           "algorithm": "sha256",
           "canonicalization": "JCS",
@@ -67,7 +67,7 @@
           "payload_excludes": [
             "checksums"
           ],
-          "value": "c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd"
+          "value": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f"
         },
         "redistribution_status": "invented_non_engineering_example",
         "source_notice": "Invented demonstration data only."
@@ -79,11 +79,11 @@
       "name": "stamp-differs-from-reference",
       "stored_under": "project:invented-resolution",
       "document_edits": [],
-      "stamp": "c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd",
+      "stamp": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f",
       "reference": {
         "rule_pack_id": "invented_demo_rule_pack",
         "name": "Invented Demonstration Rule Pack",
-        "rule_pack_version": "0.2.0",
+        "rule_pack_version": "0.3.0",
         "checksum": {
           "algorithm": "sha256",
           "canonicalization": "JCS",
@@ -108,11 +108,11 @@
           "value": "Invented pack edited after stamping"
         }
       ],
-      "stamp": "c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd",
+      "stamp": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f",
       "reference": {
         "rule_pack_id": "invented_demo_rule_pack",
         "name": "Invented Demonstration Rule Pack",
-        "rule_pack_version": "0.2.0",
+        "rule_pack_version": "0.3.0",
         "checksum": {
           "algorithm": "sha256",
           "canonicalization": "JCS",
@@ -120,7 +120,7 @@
           "payload_excludes": [
             "checksums"
           ],
-          "value": "c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd"
+          "value": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f"
         },
         "redistribution_status": "invented_non_engineering_example",
         "source_notice": "Invented demonstration data only."
@@ -137,11 +137,11 @@
           "value": "invented_other_pack"
         }
       ],
-      "stamp": "4b03e37ea34d0ca754164ede58843a1045fb6374bc39a1e4f05ecb49234dcb9f",
+      "stamp": "3cf5195002b1dcc51cfa2ef7ede55cbf1ce296894de63e1c890bf4e728a98e2e",
       "reference": {
         "rule_pack_id": "invented_demo_rule_pack",
         "name": "Invented Demonstration Rule Pack",
-        "rule_pack_version": "0.2.0",
+        "rule_pack_version": "0.3.0",
         "checksum": {
           "algorithm": "sha256",
           "canonicalization": "JCS",
@@ -149,7 +149,7 @@
           "payload_excludes": [
             "checksums"
           ],
-          "value": "4b03e37ea34d0ca754164ede58843a1045fb6374bc39a1e4f05ecb49234dcb9f"
+          "value": "3cf5195002b1dcc51cfa2ef7ede55cbf1ce296894de63e1c890bf4e728a98e2e"
         },
         "redistribution_status": "invented_non_engineering_example",
         "source_notice": "Invented demonstration data only."
@@ -166,11 +166,11 @@
           "delete": true
         }
       ],
-      "stamp": "5b9bdcdb08e012b7ccd6602d01592cb43ad0dc31bddbc39bf1f448c7448d4d59",
+      "stamp": "b8b34e97b4dc0fdec32634374b027b285fec2b5abba3fb1298b0fa4c3b5ba61e",
       "reference": {
         "rule_pack_id": "invented_demo_rule_pack",
         "name": "Invented Demonstration Rule Pack",
-        "rule_pack_version": "0.2.0",
+        "rule_pack_version": "0.3.0",
         "checksum": {
           "algorithm": "sha256",
           "canonicalization": "JCS",
@@ -178,7 +178,7 @@
           "payload_excludes": [
             "checksums"
           ],
-          "value": "5b9bdcdb08e012b7ccd6602d01592cb43ad0dc31bddbc39bf1f448c7448d4d59"
+          "value": "b8b34e97b4dc0fdec32634374b027b285fec2b5abba3fb1298b0fa4c3b5ba61e"
         },
         "redistribution_status": "invented_non_engineering_example",
         "source_notice": "Invented demonstration data only."
@@ -195,11 +195,11 @@
           "value": "   "
         }
       ],
-      "stamp": "0d42660b320b3771df17ab8a5a13cc0b603278a1c9951f20dcfd92b1df9ea0ca",
+      "stamp": "5b0fd81bfda2beda408471d32639aed96585ac14c12b507e0806d343f3646238",
       "reference": {
         "rule_pack_id": "invented_demo_rule_pack",
         "name": "Invented Demonstration Rule Pack",
-        "rule_pack_version": "0.2.0",
+        "rule_pack_version": "0.3.0",
         "checksum": {
           "algorithm": "sha256",
           "canonicalization": "JCS",
@@ -207,7 +207,7 @@
           "payload_excludes": [
             "checksums"
           ],
-          "value": "0d42660b320b3771df17ab8a5a13cc0b603278a1c9951f20dcfd92b1df9ea0ca"
+          "value": "5b0fd81bfda2beda408471d32639aed96585ac14c12b507e0806d343f3646238"
         },
         "redistribution_status": "invented_non_engineering_example",
         "source_notice": "Invented demonstration data only."
@@ -221,14 +221,14 @@
       "document_edits": [
         {
           "pointer": "/metadata/source_notice",
-          "value": "\ufeff"
+          "value": "﻿"
         }
       ],
-      "stamp": "4f2f0d6d460a380ec85dca849acedd562fdd270015d905e5bcf91e283f98986e",
+      "stamp": "bc1e3864c8a400b6ebd5b9b03f1a96dcc0e6b585d8add84116b2a2dd2742070d",
       "reference": {
         "rule_pack_id": "invented_demo_rule_pack",
         "name": "Invented Demonstration Rule Pack",
-        "rule_pack_version": "0.2.0",
+        "rule_pack_version": "0.3.0",
         "checksum": {
           "algorithm": "sha256",
           "canonicalization": "JCS",
@@ -236,7 +236,7 @@
           "payload_excludes": [
             "checksums"
           ],
-          "value": "4f2f0d6d460a380ec85dca849acedd562fdd270015d905e5bcf91e283f98986e"
+          "value": "bc1e3864c8a400b6ebd5b9b03f1a96dcc0e6b585d8add84116b2a2dd2742070d"
         },
         "redistribution_status": "invented_non_engineering_example",
         "source_notice": "Invented demonstration data only."
@@ -250,14 +250,14 @@
       "document_edits": [
         {
           "pointer": "/metadata/source_notice",
-          "value": "\u0085"
+          "value": ""
         }
       ],
-      "stamp": "682ca66651a03f1715bc591ca0e176ec3089848cffcb38d0e6d27695e0f418a0",
+      "stamp": "0dd0f18fdd4bd645beda57f8411e0f5411cdd1fe08e34098f3d7e4b8cffa84d7",
       "reference": {
         "rule_pack_id": "invented_demo_rule_pack",
         "name": "Invented Demonstration Rule Pack",
-        "rule_pack_version": "0.2.0",
+        "rule_pack_version": "0.3.0",
         "checksum": {
           "algorithm": "sha256",
           "canonicalization": "JCS",
@@ -265,7 +265,7 @@
           "payload_excludes": [
             "checksums"
           ],
-          "value": "682ca66651a03f1715bc591ca0e176ec3089848cffcb38d0e6d27695e0f418a0"
+          "value": "0dd0f18fdd4bd645beda57f8411e0f5411cdd1fe08e34098f3d7e4b8cffa84d7"
         },
         "redistribution_status": "invented_non_engineering_example",
         "source_notice": "Invented demonstration data only."
@@ -279,14 +279,14 @@
       "document_edits": [
         {
           "pointer": "/metadata/source_notice",
-          "value": "\u3000"
+          "value": "　"
         }
       ],
-      "stamp": "8845e243a7f05e154f0b33b5dcac64c3b71fd6dcc127301cc6f575081ccd2032",
+      "stamp": "901d285c6dc36f85b2ffd591b1212565810a0d82f4c218d2120439464590b75d",
       "reference": {
         "rule_pack_id": "invented_demo_rule_pack",
         "name": "Invented Demonstration Rule Pack",
-        "rule_pack_version": "0.2.0",
+        "rule_pack_version": "0.3.0",
         "checksum": {
           "algorithm": "sha256",
           "canonicalization": "JCS",
@@ -294,7 +294,7 @@
           "payload_excludes": [
             "checksums"
           ],
-          "value": "8845e243a7f05e154f0b33b5dcac64c3b71fd6dcc127301cc6f575081ccd2032"
+          "value": "901d285c6dc36f85b2ffd591b1212565810a0d82f4c218d2120439464590b75d"
         },
         "redistribution_status": "invented_non_engineering_example",
         "source_notice": "Invented demonstration data only."
@@ -308,14 +308,14 @@
       "document_edits": [
         {
           "pointer": "/metadata/rule_pack_version",
-          "value": "\ufeff"
+          "value": "﻿"
         }
       ],
-      "stamp": "34f152de5f2d9b7f6396e1a6c81b0a36dd40451057a086bea0af68d6b32c4f9a",
+      "stamp": "ff010e8e54a3a287b926407d484262b8adf53a2ee582b7dfd0b12023987cdfe0",
       "reference": {
         "rule_pack_id": "invented_demo_rule_pack",
         "name": "Invented Demonstration Rule Pack",
-        "rule_pack_version": "\ufeff",
+        "rule_pack_version": "﻿",
         "checksum": {
           "algorithm": "sha256",
           "canonicalization": "JCS",
@@ -323,7 +323,7 @@
           "payload_excludes": [
             "checksums"
           ],
-          "value": "34f152de5f2d9b7f6396e1a6c81b0a36dd40451057a086bea0af68d6b32c4f9a"
+          "value": "ff010e8e54a3a287b926407d484262b8adf53a2ee582b7dfd0b12023987cdfe0"
         },
         "redistribution_status": "invented_non_engineering_example",
         "source_notice": "Invented demonstration data only."
@@ -337,14 +337,14 @@
       "document_edits": [
         {
           "pointer": "/metadata/rule_pack_version",
-          "value": "0.3.0"
+          "value": "0.4.0"
         }
       ],
-      "stamp": "725819f8b13dd1aa09411ec38b60f7b8adfaed2cdb4d5948678c111e44a88e1f",
+      "stamp": "0fc41239d4938ca4367f702a61a0a9bb988848efbb52fda034f8b7ecff7e3e58",
       "reference": {
         "rule_pack_id": "invented_demo_rule_pack",
         "name": "Invented Demonstration Rule Pack",
-        "rule_pack_version": "0.2.0",
+        "rule_pack_version": "0.3.0",
         "checksum": {
           "algorithm": "sha256",
           "canonicalization": "JCS",
@@ -352,7 +352,7 @@
           "payload_excludes": [
             "checksums"
           ],
-          "value": "725819f8b13dd1aa09411ec38b60f7b8adfaed2cdb4d5948678c111e44a88e1f"
+          "value": "0fc41239d4938ca4367f702a61a0a9bb988848efbb52fda034f8b7ecff7e3e58"
         },
         "redistribution_status": "invented_non_engineering_example",
         "source_notice": "Invented demonstration data only."
@@ -364,11 +364,11 @@
       "name": "stamp-not-lowercase-hex",
       "stored_under": "project:invented-resolution",
       "document_edits": [],
-      "stamp": "C2B4DDCE48CD07BED4BB2FF0BE3A81D3755365E255896A0BBF583725A3FA47BD",
+      "stamp": "C96D28D94A1D4EEE99AE2F501C3D4D5748FB81BFA7FEB034CC8D96D60651E68F",
       "reference": {
         "rule_pack_id": "invented_demo_rule_pack",
         "name": "Invented Demonstration Rule Pack",
-        "rule_pack_version": "0.2.0",
+        "rule_pack_version": "0.3.0",
         "checksum": {
           "algorithm": "sha256",
           "canonicalization": "JCS",
@@ -376,7 +376,7 @@
           "payload_excludes": [
             "checksums"
           ],
-          "value": "C2B4DDCE48CD07BED4BB2FF0BE3A81D3755365E255896A0BBF583725A3FA47BD"
+          "value": "C96D28D94A1D4EEE99AE2F501C3D4D5748FB81BFA7FEB034CC8D96D60651E68F"
         },
         "redistribution_status": "invented_non_engineering_example",
         "source_notice": "Invented demonstration data only."
@@ -392,7 +392,7 @@
       "reference": {
         "rule_pack_id": "invented_demo_rule_pack",
         "name": "Invented Demonstration Rule Pack",
-        "rule_pack_version": "0.2.0",
+        "rule_pack_version": "0.3.0",
         "checksum": {
           "algorithm": "sha256",
           "canonicalization": "JCS",

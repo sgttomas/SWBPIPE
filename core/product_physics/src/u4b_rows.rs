@@ -185,7 +185,7 @@ fn sigma_n(results: &[ResultItem], pipe: &str, location: &str, basis: Option<Sec
 }
 
 fn row(id: String, kind: &str, value: f64, unit: &str, pipe: &str, component: &str, location: &str, basis: &str, sign: &str) -> ResultItem {
-    ResultItem {
+    ResultItem { component_body: None,
         id,
         kind: kind.to_string(),
         value,

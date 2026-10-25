@@ -17,7 +17,7 @@ CALLERS={
  'core/product_physics/src/source_receipt/composite.rs:740:composite_exact':MODEL['SOLVE'],
  'core/product_physics/src/source_receipt/composite.rs:1018:ordinary_physics':MODEL['SOLVE'],
  'core/product_physics/src/source_receipt.rs:661:failed':MODEL['SOLVE'],
- 'core/product_physics/src/source_receipt.rs:747:finalize_composite':'core/product_physics/src/lib.rs:2811:run_linear_static_preview_observed_inner',
+ 'core/product_physics/src/source_receipt.rs:747:finalize_composite':'core/product_physics/src/lib.rs:2856:run_linear_static_preview_observed_inner',
  'core/product_physics/src/source_receipt.rs:763:finalize_for':'core/product_physics/src/source_receipt.rs:747:finalize_composite',
 }
 

@@ -4763,12 +4763,12 @@ impl ProductCapture {
             .and_then(|n|n.checked_add(1)).ok_or(CaptureError::CountRange("failed manifest rows"))?;
         let mut rows=self.adapter.reserve::<ResultItem>(count)?;
         self.capture_entry(AdapterEvent::LibraryBoundary)?; // Existing fixed-id formatting; internals unqualified.
-        rows.push(ResultItem{id:REQUESTED_MODE_ID.into(),kind:REQUESTED_MODE_KIND.into(),value:mode.mode_code(),unit:"mode_code".into(),
+        rows.push(ResultItem{component_body:None,id:REQUESTED_MODE_ID.into(),kind:REQUESTED_MODE_KIND.into(),value:mode.mode_code(),unit:"mode_code".into(),
             entity_ref:"solver:linear_static_preview".into(),basis_ref:None,source_result_refs:Vec::new(),
             metadata:Some(ResultMetadata{component:REQUESTED_MODE_COMPONENT.into(),coordinate_system:REQUESTED_MODE_COORDINATE.into(),
                 location:case.into(),basis:requested_mode_basis(mode,0),sign_convention:REQUESTED_MODE_SIGN.into()})});
         for (id,_) in &self.nodes {
-            rows.push(ResultItem{id:format!("result:disp:{}",stable_suffix(id)),kind:"displacement_magnitude".into(),value:0.0,
+            rows.push(ResultItem{component_body:None,id:format!("result:disp:{}",stable_suffix(id)),kind:"displacement_magnitude".into(),value:0.0,
                 unit:"mm".into(),entity_ref:id.clone(),basis_ref:None,source_result_refs:Vec::new(),metadata:None});
         }
         let zeros=[0.0;6];
@@ -4777,7 +4777,7 @@ impl ProductCapture {
         }
         for (id,_) in &self.supports {
             for (slot,component) in ["Fx","Fy","Fz","Mx","My","Mz","force_magnitude","moment_magnitude"].into_iter().enumerate() {
-                rows.push(ResultItem{id:format!("result:support-action:{}:{}:{}:{}:{}",case.len(),case,id.len(),id,component),
+                rows.push(ResultItem{component_body:None,id:format!("result:support-action:{}:{}:{}:{}:{}",case.len(),case,id.len(),id,component),
                     kind:match slot {6=>"support_reaction_force_magnitude_v2",7=>"support_reaction_moment_magnitude_v2",_=>"support_reaction_component_v2"}.into(),
                     value:0.0,unit:if slot<3 || slot==6 {"N"} else {"N*m"}.into(),entity_ref:id.clone(),basis_ref:None,source_result_refs:Vec::new(),
                     metadata:Some(ResultMetadata{component:component.into(),coordinate_system:"global".into(),location:"node".into(),
@@ -4803,7 +4803,7 @@ impl ProductCapture {
                 "value_lower_pa":0.0,"value_upper_pa":0.0,"global_upper_bound_pa":0.0,"certified_gap_pa":0.0,"subdivisions":0u64,
                 "approximation":"piecewise_quadratic_straight_section_statics","coefficient_basis":"j_side_section_equilibrium_binary64_enclosures",
                 "enclosure_scope":"supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"}));
-            rows.push(ResultItem{id,kind:"pipe_elastic_normal_stress_maximum_v2".into(),value:0.0,unit:"Pa".into(),entity_ref:member.id.clone(),
+            rows.push(ResultItem{component_body:None,id,kind:"pipe_elastic_normal_stress_maximum_v2".into(),value:0.0,unit:"Pa".into(),entity_ref:member.id.clone(),
                 basis_ref:None,source_result_refs:Vec::new(),metadata:Some(ResultMetadata{component:"maximum_absolute_normal_stress".into(),
                     coordinate_system:"pipe_section".into(),location:"governing_station".into(),basis:"recovered_from_open_mechanics_stress_components".into(),
                     sign_convention:MAXIMUM_SIGN.into()})});

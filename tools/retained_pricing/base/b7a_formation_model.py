@@ -18,7 +18,7 @@ SOURCE_FILES = {
     # PP (D-5 mass): an exact-contract section's generated self-weight uses EXACT_MASS_METHOD (metal on the nominal
     # wall, contents on the pressure bore, the allowance among its inputs); the added refusals are static `invalid`
     # messages and retained_basis checks one more input key. The formed-load and finding owners are unchanged.
-    # Nested-record closure (§8.22, measured): the two evidence-reader PreviewPipe literals name the pipe's three
+    # Nested-record closure (§8.NR, measured): the two evidence-reader PreviewPipe literals name the pipe's three
     # declared-and-ignored zero-size members (+3 lines each), old_dependencies_mass removes normalized_dependencies'
     # section_ref before rebuilding the closed section (DEPENDENCY_SECTION_REF), and one evidence test; no formed-load or
     # finding owner changes.
@@ -197,7 +197,7 @@ def decisions(snapshot, resolved):
     audit[1][1]["case_id"] = {"bytes": 128, "source": "IN128"}
     # T4-U6/U8 snapshot keys (PP head 20c6126a16; same text): self_weight.rs 814 -> 869 (the D-5 exact mass branch
     # above it); formation_check.rs +13 from check_at on (PP's frame-member binding before it). Nested-record closure
-    # (§8.22, measured): self_weight.rs 869 -> 874 (the first evidence-reader literal's three members and the
+    # (§8.NR, measured): self_weight.rs 869 -> 874 (the first evidence-reader literal's three members and the
     # dependency key's two lines), same text.
     audit.append((resolved("core/product_physics/src/self_weight.rs:874"), {
         "case.id": {"bytes": 128, "source": "IN128"},

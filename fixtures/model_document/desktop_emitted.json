@@ -2934,12 +2934,12 @@
                 "checksums"
               ],
               "payload_scope": "rule_pack_payload",
-              "value": "c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd"
+              "value": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f"
             },
             "name": "Invented Demonstration Rule Pack",
             "redistribution_status": "invented_non_engineering_example",
             "rule_pack_id": "invented_demo_rule_pack",
-            "rule_pack_version": "0.2.0",
+            "rule_pack_version": "0.3.0",
             "source_notice": "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance."
           }
         ],
@@ -3281,12 +3281,12 @@
                 "checksums"
               ],
               "payload_scope": "rule_pack_payload",
-              "value": "c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd"
+              "value": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f"
             },
             "name": "Invented Demonstration Rule Pack",
             "redistribution_status": "invented_non_engineering_example",
             "rule_pack_id": "invented_demo_rule_pack",
-            "rule_pack_version": "0.2.0",
+            "rule_pack_version": "0.3.0",
             "source_notice": "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance."
           }
         ],

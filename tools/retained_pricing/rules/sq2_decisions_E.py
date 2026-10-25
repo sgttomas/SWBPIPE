@@ -196,8 +196,12 @@ def _composite_exact_line(text):
     if len(hits) != 1:
         raise SystemExit(f"U6-K: {text!r} in composite_exact: {hits}")
     return Resolved(C_ + str(hits[0]))
-_U6_COMPOSITE = any("section_basis_row(ResultItem{id:format!(" in l for l in _C_LINES)
-_C781 = _composite_exact_line("let row = section_basis_row(ResultItem{id:format!(") if _U6_COMPOSITE else C_ + "781"
+# W-15 D3 (§8.21): the maximum row names `component_body:None` first; either spelling selects the D-5 composite, so the
+# W-15 source never falls back to the historical line keys.
+_U6_ROW = next((t for t in ("section_basis_row(ResultItem{component_body:None,id:format!(", "section_basis_row(ResultItem{id:format!(")
+                if any(t in l for l in _C_LINES)), None)
+_U6_COMPOSITE = _U6_ROW is not None
+_C781 = _composite_exact_line("let row = " + _U6_ROW) if _U6_COMPOSITE else C_ + "781"
 _C798 = (_composite_exact_line('),kind:"pipe_elastic_normal_stress_maximum_v2".into(),value:maximum.value_pa(),unit:"Pa".into(),entity_ref:id.clone(),')
          if _U6_COMPOSITE else C_ + "798")
 ID_AUDIT = ID_AUDIT + [

@@ -1,6 +1,7 @@
 import type { PreviewComparisonUnavailable } from "../comparison/withinRunComparison";
 import { N_INTENSIFIED, PREVIEW_INTENSIFIED_KIND } from "../results/knownSemanticLimitations";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
+import { componentBodyNotices } from "../results/componentBody";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import { Download, FileText } from "lucide-react";
 import type {
@@ -162,6 +163,14 @@ export function ReportPanel({
               value={resultRefs.join(", ")}
               testId="report-selected-result-refs"
             />
+            {/* W-15 slice d: a selected component-body row is identified as a reference-section stress. */}
+            {componentBodyNotices(result, { resultIds: resultRefs }).length > 0 ? (
+              <ReportLine
+                label="Component bodies"
+                value={componentBodyNotices(result, { resultIds: resultRefs }).join("; ")}
+                testId="report-component-bodies"
+              />
+            ) : null}
             <ReportLine
               label="Selected review target"
               value={formatSelectedReviewTarget(selectedReviewTarget)}

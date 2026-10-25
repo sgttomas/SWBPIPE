@@ -305,6 +305,12 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
                 problem(diagnostics, code, &[&component.id], message);
             }
         }
+        // W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.7):
+        // the admitted reducer is refused case by case where its mapped member
+        // belongs to a pressure region.
+        for refs in exact_admission::reducer_region_refusals(model) {
+            problem(diagnostics, exact_admission::REDUCER_IN_REGION, &refs, exact_admission::REDUCER_IN_REGION_TEXT);
+        }
         for support in &model.supports {
             if let Some(family) = support_family(support) {
                 if let Admission::Refused { code, message } =

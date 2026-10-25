@@ -1,5 +1,5 @@
 """SD-NF, SD-L1, SD-ID, SD-EV, SD-WT, SD-DT, SD-RK and the SD owners (retained-pricing-rules.md §8.19), and SD-NR for
-the nested records (§8.22, measured): the silent-drop guard's rules apply only where its code exists, zero the
+the nested records (§8.NR, measured): the silent-drop guard's rules apply only where its code exists, zero the
 closed-record scan's finding path by its place before admission, bound its loops and texts, re-key two replaced
 combination audit keys by name, and stop on a changed source."""
 from pathlib import Path

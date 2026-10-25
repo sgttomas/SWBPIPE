@@ -9,6 +9,8 @@
 //! is a professional, certification, sealing, authentication, or code-compliance
 //! claim.
 
+mod common;
+
 use std::fs;
 use std::path::PathBuf;
 
@@ -21,7 +23,7 @@ fn example_document() -> serde_json::Value {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../../examples/rule_packs/invented_demo.yaml");
     let raw = fs::read_to_string(path).expect("example rule pack readable");
-    serde_json::from_str(&raw).expect("example rule pack is strict JSON")
+    common::single_basis(serde_json::from_str(&raw).expect("example rule pack is strict JSON"))
 }
 
 fn supplied(ref_id: &str, value: f64, unit: &str, dimension: &str) -> SuppliedValueBinding {
@@ -36,6 +38,7 @@ fn supplied(ref_id: &str, value: f64, unit: &str, dimension: &str) -> SuppliedVa
 fn solver(value: f64) -> SolverResultBinding {
     SolverResultBinding {
         input_id: "demo_actual_quantity".to_string(),
+        basis_ref: common::basis(),
         result_id: "result:stress:demo".to_string(),
         value,
         unit: "demo_unit".to_string(),
@@ -58,6 +61,7 @@ fn example_pack_passing_run_is_user_rule_checked() {
         rule_pack_document: &document,
         solver_results: vec![solver(50.0)],
         refused_solver_results: Vec::new(),
+        unavailable_bases: Vec::new(),
         supplied_values: limit_supplied(),
         library_values: vec![],
         current_statuses: vec![AnalysisStatus::MechanicsSolved],
@@ -85,6 +89,7 @@ fn example_pack_failing_run_is_user_rule_failed() {
         rule_pack_document: &document,
         solver_results: vec![solver(150.0)],
         refused_solver_results: Vec::new(),
+        unavailable_bases: Vec::new(),
         supplied_values: limit_supplied(),
         library_values: vec![],
         current_statuses: vec![AnalysisStatus::MechanicsSolved],
@@ -104,6 +109,7 @@ fn example_pack_missing_solver_input_is_rule_inputs_incomplete() {
         // Drop the solver binding for demo_actual_quantity.
         solver_results: vec![],
         refused_solver_results: Vec::new(),
+        unavailable_bases: Vec::new(),
         supplied_values: limit_supplied(),
         library_values: vec![],
         current_statuses: vec![AnalysisStatus::MechanicsSolved],

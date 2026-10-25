@@ -15,6 +15,8 @@
 //! is a professional, certification, sealing, authentication, or code-compliance
 //! claim.
 
+mod common;
+
 use std::fs;
 use std::path::PathBuf;
 
@@ -30,7 +32,7 @@ fn example_document() -> Value {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../../examples/rule_packs/invented_demo.yaml");
     let raw = fs::read_to_string(path).expect("example rule pack readable");
-    serde_json::from_str(&raw).expect("example rule pack is strict JSON")
+    common::single_basis(serde_json::from_str(&raw).expect("example rule pack is strict JSON"))
 }
 
 /// The example pack plus a second, boolean check (`actual <= limit`) that does
@@ -65,6 +67,10 @@ fn two_check_document() -> Value {
 /// A pack whose formula is a table over the ratio argument
 /// `actual*1e300 - actual*1e300`, which is NaN once `actual*1e300` overflows.
 fn table_document(kind: &str) -> Value {
+    common::single_basis(table_document_frame(kind))
+}
+
+fn table_document_frame(kind: &str) -> Value {
     let product = json!({ "node": "binary", "operator": "multiply",
         "left": { "node": "variable_ref", "variable_id": "actual" },
         "right": { "node": "literal",
@@ -120,6 +126,7 @@ fn supplied(ref_id: &str, value: f64, unit: &str, dimension: &str) -> SuppliedVa
 fn solver(input_id: &str, value: f64, unit: &str) -> SolverResultBinding {
     SolverResultBinding {
         input_id: input_id.to_string(),
+        basis_ref: common::basis(),
         result_id: "result:invented".to_string(),
         value,
         unit: unit.to_string(),
@@ -134,6 +141,7 @@ fn run_point_and_zero_bound(input: &RuleCheckRunInput, bound_input: &str) -> Rul
         input,
         &[SolverResultBound {
             input_id: bound_input.to_string(),
+            basis_ref: Some(common::basis()),
             absolute_bound: 0.0,
         }],
     );
@@ -160,6 +168,7 @@ fn an_overflowing_ratio_check_blocks_and_the_run_carries_on() {
             rule_pack_document: &document,
             solver_results: vec![solver("demo_actual_quantity", 1.0e308, "demo_unit")],
             refused_solver_results: Vec::new(),
+            unavailable_bases: Vec::new(),
             supplied_values: vec![
                 supplied("demo_limit_quantity", 1.0e-308, "demo_unit", "stress"),
                 supplied("demo_limit_slot", 1.0, "ratio", "dimensionless"),
@@ -212,6 +221,7 @@ fn a_table_check_over_an_overflowing_argument_blocks_at_the_multiply() {
                 rule_pack_document: &document,
                 solver_results: vec![solver("actual", 1.0e10, "ratio")],
                 refused_solver_results: Vec::new(),
+                unavailable_bases: Vec::new(),
                 supplied_values: vec![supplied("stress_limit", 100.0, "demo_unit", "stress")],
                 library_values: Vec::new(),
                 current_statuses: vec![AnalysisStatus::MechanicsSolved],
@@ -274,6 +284,10 @@ fn overflowing_x() -> Value {
 /// stress limit slot `limit` (Pa). `unreferenced` adds the user input `u` to
 /// the check's required inputs, but not to the formula's.
 fn si1c_document(formula: Value, quantity: bool, unreferenced: bool) -> Value {
+    common::single_basis(si1c_document_frame(formula, quantity, unreferenced))
+}
+
+fn si1c_document_frame(formula: Value, quantity: bool, unreferenced: bool) -> Value {
     let input = |id: &str, source: &str| {
         json!({ "input_id": id, "name": id, "source_kind": source,
                 "required_for": "rule_check", "provenance_required": true,
@@ -339,6 +353,7 @@ fn si1c_run(document: &Value, values: &Values, bound: Option<f64>) -> RuleCheckR
         rule_pack_document: document,
         solver_results: vec![solver("x", values.x.0, values.x.1)],
         refused_solver_results: Vec::new(),
+        unavailable_bases: Vec::new(),
         supplied_values: vec![
             supplied("s", values.s.0, values.s.1, "stress"),
             supplied("u", values.u.0, values.u.1, "stress"),
@@ -353,6 +368,7 @@ fn si1c_run(document: &Value, values: &Values, bound: Option<f64>) -> RuleCheckR
             &input,
             &[SolverResultBound {
                 input_id: "x".to_string(),
+                basis_ref: Some(common::basis()),
                 absolute_bound: b,
             }],
         ),
@@ -721,6 +737,7 @@ fn the_n4_note_follows_an_existing_note() {
         rule_pack_document: &document,
         solver_results: vec![solver("x", 1.0, "Pa")],
         refused_solver_results: Vec::new(),
+        unavailable_bases: Vec::new(),
         supplied_values: Vec::new(),
         library_values: vec![LibraryValueBinding {
             input_id: "s".to_string(),

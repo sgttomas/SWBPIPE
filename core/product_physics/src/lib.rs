@@ -136,6 +136,9 @@ use std::f64::consts::PI;
 mod topology;
 mod validation;
 use validation::validate_model_inputs;
+mod rigid_component;
+#[cfg(test)]
+mod w15_rigid_scaling_tests;
 
 #[cfg(test)]
 #[cfg(test)]
@@ -2377,6 +2380,22 @@ pub struct ResultItem {
     pub source_result_refs: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<ResultMetadata>,
+    /// W-15 slice d (DEL-03-05 Design `rigid-component-stiffness-scaling.md`
+    /// §5): present only on a stress row of a member formed with a
+    /// rigid-family component's scale; such a row is a stress of the mapped
+    /// pipe section as a reference section, not of the component body.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub component_body: Option<ComponentBody>,
+}
+
+/// W-15 slice d: the closed `component_body` record of a body member's stress
+/// row, stress extremum and maximum row.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct ComponentBody {
+    pub component_ref: String,
+    #[serde(serialize_with = "serialize_finite_f64")]
+    pub stiffness_scale: f64,
+    pub section_role: &'static str,
 }
 
 // serde_json otherwise converts nonfinite f64s to null. Even independently
@@ -2449,6 +2468,32 @@ struct BuiltModel {
     nonlinear_friction_normal_reactions: Vec<FrictionNormalReaction>,
     nonlinear_derived_friction_normal_reactions: Vec<DerivedFrictionNormalReaction>,
     sections: HashMap<String, DerivedSection>,
+    /// W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.2):
+    /// each member formed with a rigid-family component's scale, keyed by
+    /// member ID, with the selected unscaled E/G pair it was formed from.
+    scaled_members: HashMap<String, ScaledMember>,
+}
+
+/// W-15: a member formed as a component body, with s*E and s*G on its pipe
+/// section. `elastic_modulus` and `shear_modulus` are the selected unscaled
+/// pair (material, named or interpolated basis, or the resolved case's).
+#[derive(Debug, Clone, PartialEq)]
+struct ScaledMember {
+    component_id: String,
+    scale: f64,
+    elastic_modulus: f64,
+    shear_modulus: f64,
+}
+
+impl BuiltModel {
+    /// The selected unscaled (E, G) of a built member: its section's, or for
+    /// a component body the pair its scaled section was formed from.
+    fn unscaled_moduli(&self, pipe: &StraightPipeElement) -> (f64, f64) {
+        self.scaled_members.get(&pipe.element_id).map_or(
+            (pipe.section.elastic_modulus, pipe.section.shear_modulus),
+            |member| (member.elastic_modulus, member.shear_modulus),
+        )
+    }
 }
 
 #[derive(Debug)]
@@ -3318,6 +3363,10 @@ fn run_linear_static_preview_observed_inner(
         }
     } else { None };
     let source_formulation = composite_context.map(|_| formulation_basis_for_model_with_source(&model, true));
+    // W-15 (DEL-03-05 Design §2.5, §2.6): past the last blocked return, the
+    // applied-scale info and the precision warning name the members actually
+    // formed with a scale; a refused or blocked model states none.
+    rigid_component::append_formed_diagnostics(&model, &built.scaled_members, &mut diagnostics);
     let mut envelope = MechanicsEnvelope {
         contract_evidence: pressure_runtime::is_exact(&model).then(|| {
             let mut evidence = serde_json::json!({"pressure": pressure_evidence, "connector": joint::connector_evidence(&model, &built.connectors, &built.connector_records), "exact_cases": exact_cases});
@@ -3380,6 +3429,8 @@ fn run_linear_static_preview_observed_inner(
             }
         }
     }
+    // W-15 slice d (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §5).
+    rigid_component::annotate_component_bodies(&mut envelope, &built.pipes, &built.scaled_members);
     if let Some(observer) = product.as_deref_mut() { observer.finish(&envelope); }
     envelope
 }
@@ -4091,10 +4142,19 @@ fn load_state_eigen_loads(
         .filter(|member| member.strain.total_eigenstrain != 0.0 || certified_loads::has_eigen_source(&member.thermal_input,member.fit_input))
         .map(|member| {
             let section = built.sections.get(&member.pipe_id).ok_or_else(|| member.pipe_id.clone())?;
+            // W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md`
+            // §2.2): the built member's section E, for the thermal and the fit
+            // eigenstrain alike (s*E on a component body; the resolved pair's
+            // E, bit for bit, on any other member).
+            let frame = built
+                .pipes
+                .get(member.pipe_index)
+                .filter(|frame| frame.element_id == member.pipe_id)
+                .ok_or_else(|| member.pipe_id.clone())?;
             Ok(ThermalElementLoad {
                 element_index: member.pipe_index,
                 source: source_recovery::eigen_source_id(&member.pipe_id),
-                axial_load: member.material.pair.elastic_modulus_pa()
+                axial_load: frame.section.elastic_modulus
                     * section.area
                     * member.strain.total_eigenstrain,
                 thermal_strain: member.strain.total_eigenstrain,
@@ -4599,7 +4659,7 @@ fn append_connector_results(
                     }
                 });
                 let component = components[axis];
-                results.push(ResultItem {
+                results.push(ResultItem { component_body: None,
                     id: format!(
                         "result:connector:{}:{}:{location}:{}",
                         stable_suffix(&record.component_id),
@@ -4634,7 +4694,7 @@ fn append_connector_results(
         // `tie_rods` evidence entry.
         for (index, meta) in record.tie_rods.iter().enumerate() {
             let value = certificate.as_ref().map_or(rod_recoveries[index].tension, |(_, rods)| rods[index].tension.published);
-            results.push(ResultItem {
+            results.push(ResultItem { component_body: None,
                 id: joint::tie_rod_row_id(&record.component_id, &meta.id),
                 kind: joint::TIE_ROD_FORCE_KIND.into(),
                 value,
@@ -4672,7 +4732,7 @@ fn append_connector_results(
                 Ok((pe, s)) => for (kind, component, row) in pe.map(|pe| ("connector_pressure_force_v1", "pe_x", pe)).into_iter().chain([
                     ("connector_effective_axial_force_v1", "s_x", s),
                 ]) {
-                    results.push(ResultItem {
+                    results.push(ResultItem { component_body: None,
                         id: format!("result:connector:{}:{}:connector_local:{component}", stable_suffix(&record.component_id),kind.trim_end_matches("_v1").replace('_',"-")),
                         kind: kind.into(), value: row.published, unit: "N".into(), entity_ref: record.component_id.clone(), basis_ref: None, source_result_refs: Vec::new(),
                         metadata: Some(ResultMetadata { component: component.into(), coordinate_system: "connector_axes_q".into(), location: "connector_local".into(), basis: "objective_connector_v1;symmetric_midpoint_small_rotation_v1".into(), sign_convention: "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes".into() }),
@@ -5039,7 +5099,7 @@ fn solve_prepared_load_case(
             load_case,
             &material_map,
             &pipe_map,
-            &built.sections,
+            built,
             diagnostics,
         ),
     };
@@ -5679,7 +5739,7 @@ fn solve_prepared_load_case(
                 result_ref: result_id.clone(),
             });
         }
-        results.push(ResultItem {
+        results.push(ResultItem { component_body: None,
             id: result_id,
             kind: "displacement_magnitude".to_string(),
             value: magnitude_mm,
@@ -5774,7 +5834,7 @@ fn solve_prepared_load_case(
             }
             if let Some(action) = source_action.filter(|_| !pressure_runtime::is_exact(model)) {
                 for (component, name) in ["Fx", "Fy", "Fz", "Mx", "My", "Mz"].iter().enumerate() {
-                    results.push(ResultItem {
+                    results.push(ResultItem { component_body: None,
                         id: format!("result:support-component-v2:{}:{name}", exact_source_identity(&[&load_case.id, &support.id])),
                         kind: "support_reaction_component_v2".into(),
                         value: action.values[component],
@@ -5850,7 +5910,7 @@ fn solve_prepared_load_case(
                 // B3 (b7-plan): an ordinary preview case's row is the slot of the
                 // support's signed actions; the resultant is published only off the
                 // preview record (B4/D1 (b) retired source-blocks-1, which read it).
-                let row = ResultItem {
+                let row = ResultItem { component_body: None,
                     id: format!("result:reaction:{}", stable_suffix(&support.id)),
                     kind: "reaction_resultant".to_string(),
                     value: magnitude,
@@ -5891,6 +5951,10 @@ fn solve_prepared_load_case(
     // evidence carries the list only when it is non-empty).
     let mut directional_measures: Vec<serde_json::Value> = Vec::new();
     for (pipe_index, pipe) in built.pipes.iter().enumerate() {
+        // W-15 slice d (DEL-03-05 Design `rigid-component-stiffness-scaling.md`
+        // §5): a component body keeps its member maxima, but the case maximum
+        // and the headline range over the non-body members only.
+        let body = built.scaled_members.contains_key(&pipe.element_id);
         // T4-U3 (S20): a replaced span has no member rows, maxima or
         // recovery record; its connector's rows follow the loop.
         if built.connector_records.iter().any(|r| r.span_index == pipe_index) {
@@ -6462,7 +6526,7 @@ fn solve_prepared_load_case(
                 match outcome {
                     Ok(maximum) => {
                         let value = maximum.value_pa();
-                        let row = section_basis_row(ResultItem { id: format!("result:elastic-maximum:{}:{}:{}:{}", load_case.id.len(), load_case.id, pipe.element_id.len(), pipe.element_id), kind: "pipe_elastic_normal_stress_maximum_v2".into(), value, unit: "Pa".into(), entity_ref: pipe.element_id.clone(), basis_ref: None, source_result_refs: Vec::new(), metadata: Some(ResultMetadata {
+                        let row = section_basis_row(ResultItem { component_body: None, id: format!("result:elastic-maximum:{}:{}:{}:{}", load_case.id.len(), load_case.id, pipe.element_id.len(), pipe.element_id), kind: "pipe_elastic_normal_stress_maximum_v2".into(), value, unit: "Pa".into(), entity_ref: pipe.element_id.clone(), basis_ref: None, source_result_refs: Vec::new(), metadata: Some(ResultMetadata {
                             component: "maximum_absolute_normal_stress".into(), coordinate_system: "pipe_section".into(), location: "governing_station".into(), basis: "retained_source_endpoint_normal_max_v1".into(),
                             sign_convention: "nonnegative maximum absolute axial-plus-bending normal stress over an unloaded circular straight span; retained endpoint actions with projected-action and arithmetic bounds; endpoint witness does not imply uniqueness; torsional shear separate".into(),
                         }) }, basis, false);
@@ -6472,7 +6536,7 @@ fn solve_prepared_load_case(
                             pressure_exact::SectionBasis::Nominal => &mut max_stress,
                             pressure_exact::SectionBasis::Reduced => &mut max_stress_reduced,
                         };
-                        if headline.as_ref().is_none_or(|q: &LocatedQuantity| value > q.value || (value == q.value && pipe.element_id < q.location_ref)) {
+                        if !body && headline.as_ref().is_none_or(|q: &LocatedQuantity| value > q.value || (value == q.value && pipe.element_id < q.location_ref)) {
                             *headline = Some(LocatedQuantity { value, unit: "Pa".into(), location_ref: pipe.element_id.clone(), result_ref: result_id.clone() });
                         }
                         let mut evidence = maximum.evidence(&result_id);
@@ -6523,7 +6587,7 @@ fn solve_prepared_load_case(
                     Ok(maximum) => {
                         let public_upper=maximum.upper_bound;
                         let value=maximum.value_lower+0.5*(public_upper-maximum.value_lower);
-                        let row = section_basis_row(ResultItem { id:format!(
+                        let row = section_basis_row(ResultItem { component_body: None, id:format!(
                             "result:elastic-maximum:{}:{}:{}:{}",
                             load_case.id.len(),
                             load_case.id,
@@ -6538,7 +6602,7 @@ fn solve_prepared_load_case(
                             pressure_exact::SectionBasis::Nominal => &mut max_stress,
                             pressure_exact::SectionBasis::Reduced => &mut max_stress_reduced,
                         };
-                        if headline
+                        if !body && headline
                             .as_ref()
                             .map(|q: &LocatedQuantity| {
                                 value > q.value
@@ -6578,7 +6642,7 @@ fn solve_prepared_load_case(
         };
         if let Some(value) = summary_value {
             let result_id = format!("result:stress:{}", stable_suffix(&pipe.element_id));
-            if max_stress
+            if !body && max_stress
                 .as_ref()
                 .map(|q: &LocatedQuantity| value > q.value)
                 .unwrap_or(true)
@@ -6592,7 +6656,7 @@ fn solve_prepared_load_case(
             }
             // B3 (b7-plan): an ordinary preview case's row is the slot of the
             // member's maximum; the exact route publishes the summary.
-            let row = ResultItem {
+            let row = ResultItem { component_body: None,
                 id: result_id,
                 kind: "open_formula_stress_summary".to_string(),
                 value: value,
@@ -6685,7 +6749,10 @@ fn solve_prepared_load_case(
                         .map(|q| q.value))
                     .unwrap_or(f64::NAN)
             } else {
-                u4b_rows::preview_poisson_ratio(pipe.section.elastic_modulus, pipe.section.shear_modulus)
+                // W-15 §2.2: a component body's nu is that of the selected
+                // unscaled E/G pair, never of its scaled section.
+                let (elastic_modulus, shear_modulus) = built.unscaled_moduli(pipe);
+                u4b_rows::preview_poisson_ratio(elastic_modulus, shear_modulus)
             };
             let bases = u4b_rows::member_bases(section, exact_bases);
             let directional = macro_bend.and_then(|bend| u4b_rows::directional_pair(model, bend));
@@ -6725,7 +6792,7 @@ fn solve_prepared_load_case(
                                 pressure_exact::SectionBasis::Nominal => &mut max_stress,
                                 pressure_exact::SectionBasis::Reduced => &mut max_stress_reduced,
                             };
-                            if headline.as_ref().is_none_or(|q: &LocatedQuantity| value > q.value || (value == q.value && pipe.element_id < q.location_ref)) {
+                            if !body && headline.as_ref().is_none_or(|q: &LocatedQuantity| value > q.value || (value == q.value && pipe.element_id < q.location_ref)) {
                                 *headline = Some(LocatedQuantity { value, unit: "Pa".into(), location_ref: pipe.element_id.clone(), result_ref: result_id.clone() });
                             }
                             let mut evidence = u4b_rows::arc_record(&pipe.element_id, &result_id, &maximum, u4b_rows::ARC_APPROXIMATION);
@@ -7522,7 +7589,7 @@ fn append_linear_solver_mode_evidence(
             .unwrap_or("none")
     );
 
-    results.push(ResultItem {
+    results.push(ResultItem { component_body: None,
         id: "result:solver-mode:linear-solve-basis".to_string(),
         kind: "linear_solver_mode_basis".to_string(),
         value: if fallback { 3.0 } else { solver_mode.mode_code() },
@@ -7571,7 +7638,7 @@ fn append_nonlinear_scalar_result(
     basis: &str,
     sign_convention: &str,
 ) {
-    results.push(ResultItem {
+    results.push(ResultItem { component_body: None,
         id: id.to_string(),
         kind: kind.to_string(),
         value: value,
@@ -8193,6 +8260,10 @@ fn build_model_for_members(
     // member pair. Straight pipes insert nothing (RV12 S-3).
     let mut member_moduli: HashMap<&str, (f64, f64)> = HashMap::new();
     let mut exact_sections = HashMap::new();
+    // W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.2): each
+    // eligible rigid-family component's member is formed with s*E and s*G.
+    let rigid_scales = rigid_component::applied_scales(model);
+    let mut scaled_members = HashMap::new();
     for pipe in &model.pipe_segments {
         let Some(&from) = node_map.get(pipe.from.as_str()) else {
             diagnostics.push(diag(
@@ -8329,6 +8400,34 @@ fn build_model_for_members(
         } else {
             None
         };
+        // W-15 §2.2: the scale enters once, as the products s*E and s*G, each
+        // rounded once; Phi = 12EI/(kappa*G*A*L^2) is unchanged in exact
+        // arithmetic, and the shear area keeps the member's selected nu. A
+        // product outside binary64's normal range is refused here by name.
+        let mut scaled_member = None;
+        let (elastic_modulus, shear_modulus) = match rigid_scales.get(pipe.id.as_str()) {
+            Some(applied) => {
+                let (scaled_e, scaled_g) = (applied.scale * elastic_modulus, applied.scale * shear_modulus);
+                if !scaled_e.is_normal() || !scaled_g.is_normal() {
+                    diagnostics.push(diag(
+                        &format!("diagnostic:pipe-section:{}:rigid-scale", stable_suffix(&pipe.id)),
+                        "PIPE_SECTION_INPUT_INVALID",
+                        "blocking",
+                        format!("rigid/semi-rigid component {} scales member {} by {}: the scaled moduli s*E = {scaled_e:e} Pa and s*G = {scaled_g:e} Pa must be normal positive binary64 values; the member is not formed", applied.component_id, pipe.id, applied.scale),
+                        vec![pipe.id.clone(), applied.component_id.clone()],
+                    ));
+                    continue;
+                }
+                scaled_member = Some(ScaledMember {
+                    component_id: applied.component_id.clone(),
+                    scale: applied.scale,
+                    elastic_modulus,
+                    shear_modulus,
+                });
+                (scaled_e, scaled_g)
+            }
+            None => (elastic_modulus, shear_modulus),
+        };
         let section = match shear_area.map_or_else(|| StraightPipeSectionProperties::new(
             elastic_modulus,
             shear_modulus,
@@ -8384,6 +8483,9 @@ fn build_model_for_members(
             );
         }
         sections.insert(pipe.id.clone(), derived);
+        if let Some(member) = scaled_member {
+            scaled_members.insert(pipe.id.clone(), member);
+        }
         pipes.push(element);
     }
 
@@ -8495,6 +8597,7 @@ fn build_model_for_members(
         nonlinear_friction_normal_reactions: nonlinear.friction_normal_reactions,
         nonlinear_derived_friction_normal_reactions: nonlinear.derived_friction_normal_reactions,
         sections,
+        scaled_members,
     })
 }
 
@@ -11062,7 +11165,7 @@ fn append_modulus_basis_record(
     let Some(basis_record) = basis_record else {
         return;
     };
-    results.push(ResultItem {
+    results.push(ResultItem { component_body: None,
         id: format!(
             "result:modulus-basis:{}",
             stable_suffix(&load_case.id)
@@ -11126,7 +11229,7 @@ fn append_combination_modulus_basis_records(model: &PreviewModel, results: &mut 
                     );
                     "material_base_values".to_string()
                 });
-            results.push(ResultItem {
+            results.push(ResultItem { component_body: None,
                 id: format!(
                     "result:combination:{}:modulus-basis:{}",
                     stable_suffix(&combination.id),
@@ -11810,7 +11913,7 @@ fn build_thermal_element_loads(
     load_case: &PreviewLoadCase,
     material_map: &HashMap<&str, &MaterialInput>,
     pipe_map: &HashMap<&str, usize>,
-    sections: &HashMap<String, DerivedSection>,
+    built: &BuiltModel,
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Vec<ThermalElementLoad> {
     let mut loads = Vec::new();
@@ -11843,14 +11946,22 @@ fn build_thermal_element_loads(
             ));
             continue;
         };
-        let Some(section) = sections.get(&pipe_input.id) else {
+        let Some(section) = built.sections.get(&pipe_input.id) else {
+            continue;
+        };
+        // W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.2):
+        // E is the built member's section E (s*E for a component body), so the
+        // free growth stays alpha*dT*L and the certified re-formation's
+        // FreeStrainStraight E*A*eps reads the same frame E. For any other
+        // member it is the selected material E, bit for bit.
+        let Some(frame) = built.pipes.get(element_index).filter(|frame| frame.element_id == pipe_input.id) else {
             continue;
         };
         let epsilon_th = alpha * load.magnitude.value;
         loads.push(ThermalElementLoad {
             element_index,
             source: load.id.clone(),
-            axial_load: material.elastic_modulus.value * section.area * epsilon_th,
+            axial_load: frame.section.elastic_modulus * section.area * epsilon_th,
             thermal_strain: epsilon_th,
             strain_primitive: certified_loads::constant_alpha(alpha, load.magnitude.value),
         });
@@ -12517,7 +12628,7 @@ fn append_element_global_end_results(
                 if !value.is_finite() {
                     return Err(format!("{name} at {location} is not finite"));
                 }
-                results.push(ResultItem {
+                results.push(ResultItem { component_body: None,
                     id: format!("result:element-global-end:{suffix}:{location}:{}", name.to_ascii_lowercase()),
                     kind: kind.to_string(),
                     value,
@@ -12604,7 +12715,7 @@ fn append_node_displacement_component_results(
         ),
     ];
     for (id_tail, kind, component, dof, scale, unit, sign_convention) in components {
-        results.push(ResultItem {
+        results.push(ResultItem { component_body: None,
             id: format!("result:disp:{suffix}:{id_tail}"),
             kind: kind.to_string(),
             value: displacements[base + dof] * scale,
@@ -12706,7 +12817,7 @@ fn append_endpoint_force_result(
     location: &str,
     sign_convention: &str,
 ) {
-    results.push(ResultItem {
+    results.push(ResultItem { component_body: None,
         id: id.to_string(),
         kind: kind.to_string(),
         value: value,
@@ -12738,7 +12849,7 @@ fn append_station_force_result(
     sign_convention: &str,
     coordinate_system: &str,
 ) {
-    results.push(ResultItem {
+    results.push(ResultItem { component_body: None,
         id: id.to_string(),
         kind: kind.to_string(),
         value: value,
@@ -12764,7 +12875,7 @@ fn append_signed_support_results(
     action: [f64; 6],
 ) {
     let mut append = |component: &str, kind: &str, value: f64, unit: &str| {
-        results.push(ResultItem {
+        results.push(ResultItem { component_body: None,
             id:format!("result:support-action:{}:{}:{}:{}:{}",case.id.len(),case.id,support.id.len(),support.id,component),
             kind:kind.to_string(), value, unit:unit.to_string(), entity_ref:support.id.clone(),
             basis_ref:Some(ResultBasisRef {ref_type:"load_case".to_string(),ref_id:case.id.clone()}),source_result_refs:Vec::new(),
@@ -12850,7 +12961,7 @@ fn append_exact_pressure_results(
     // is immediately followed by its reduced twin; force rows are published once.
     let mut append =
         |kind: &str, component: &str, location: &str, value: f64, stress: Option<SectionBasis>, sign: &str| {
-            let row = ResultItem {
+            let row = ResultItem { component_body: None,
                 id: format!(
                     "result:pressure-exact:{}:{}:{}:{}:{}:{}",
                     case.id.len(),
@@ -13253,7 +13364,7 @@ fn append_component_stress_multiplier_result(
     } else {
         "positive value is base open-mechanics stress summary multiplied by user-entered component modifiers; base frame stiffness unchanged"
     };
-    results.push(ResultItem {
+    results.push(ResultItem { component_body: None,
         id: result_id.clone(),
         kind: "component_user_stress_multiplier_review".to_string(),
         value,
@@ -13332,7 +13443,7 @@ fn append_curved_bend_macro_element_results(
     let mut appended = 0;
     for element in curved_bend_elements {
         let component_suffix = stable_suffix(&element.component_id);
-        results.push(ResultItem {
+        results.push(ResultItem { component_body: None,
             id: format!("result:component-stiffness:{component_suffix}:curved-bend-flexibility"),
             kind: "curved_bend_macro_element_review".to_string(),
             value: element.flexibility_factor,
@@ -13519,7 +13630,7 @@ fn append_hanger_quantity_result(
     if !positive_finite(quantity.value) {
         return;
     }
-    results.push(ResultItem {
+    results.push(ResultItem { component_body: None,
         id: id.to_string(),
         kind: kind.to_string(),
         value: quantity.value,
@@ -13800,7 +13911,7 @@ fn append_constant_effort_support_results(
             .unwrap_or("load_side_review_reference_missing");
         let suffix = stable_suffix(&support.id);
         let acting_dof = dof_name(application.dof);
-        results.push(ResultItem {
+        results.push(ResultItem { component_body: None,
             id: format!("result:constant-effort-support:{suffix}:applied-load"),
             kind: "constant_effort_support_applied_load".to_string(),
             value: application.force_newtons,
@@ -14011,7 +14122,7 @@ fn append_endpoint_stress_result(
     basis: &str,
     sign_convention: &str,
 ) {
-    results.push(ResultItem {
+    results.push(ResultItem { component_body: None,
         id: id.to_string(),
         kind: kind.to_string(),
         value: value_pa / 1_000_000.0,
@@ -14041,7 +14152,7 @@ fn append_station_stress_result(
     basis: &str,
     sign_convention: &str,
 ) {
-    results.push(ResultItem {
+    results.push(ResultItem { component_body: None,
         id: id.to_string(),
         kind: kind.to_string(),
         value: value_pa / 1_000_000.0,
@@ -16031,7 +16142,7 @@ mod tests {
                     location_ref: "node:test".to_string(),
                     result_ref: "result:test".to_string(),
                 };
-                let row = ResultItem {
+                let row = ResultItem { component_body: None,
                     id: "result:test".to_string(),
                     kind: "global_nodal_rotation_x".to_string(),
                     value,
@@ -16067,7 +16178,7 @@ mod tests {
                 location_ref: "node:test".to_string(),
                 result_ref: "result:test".to_string(),
             };
-            let row = ResultItem {
+            let row = ResultItem { component_body: None,
                 id: "result:test".to_string(),
                 kind: "global_nodal_rotation_x".to_string(),
                 value,

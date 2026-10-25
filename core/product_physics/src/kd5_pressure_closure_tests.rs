@@ -64,7 +64,7 @@ fn case(request: &Value) -> Case {
     let application = prepare_loads(built.nodes.len(), built.pipes.len(), &loads);
     let material_map = materials.iter().map(|m| (m.id.as_str(), m)).collect::<HashMap<_, _>>();
     let pipe_map = model.pipe_segments.iter().enumerate().map(|(i, p)| (p.id.as_str(), i)).collect::<HashMap<_, _>>();
-    let thermal = build_thermal_element_loads(&model, &load_case, &material_map, &pipe_map, &built.sections, &mut diagnostics);
+    let thermal = build_thermal_element_loads(&model, &load_case, &material_map, &pipe_map, &built, &mut diagnostics);
     let bends = built.curved_bend_elements.iter().map(|e| (e.pipe_index, e)).collect::<HashMap<_, _>>();
     let force = case_force_ledger(&model, &built, &application, &bends, &thermal, Some(&exact), &load_case.id, &mut diagnostics)
         .finish(built.nodes.len() * DOF_PER_NODE)
