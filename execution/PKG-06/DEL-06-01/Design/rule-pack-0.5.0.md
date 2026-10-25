@@ -1,7 +1,7 @@
 # Rule-pack format 0.5.0: stress categories, load-case mappings and required load cases (W-17)
 
-**Basis:** `origin/main` at `146abe1389` (2026-10-25). Designed, not yet
-implemented. Standard claim fence applies (claims taxonomy per DEC-081).
+**Basis:** `origin/main` at `146abe1389` (2026-10-25), with a code survey at
+that commit. Designed, not yet implemented. Standard claim fence applies (claims taxonomy per DEC-081).
 
 **Requirement.** PRD §17.2 lists what a rule pack shall support, including
 "required load cases", "stress categories" and "load-case mappings". FR-RULE-001
@@ -21,11 +21,19 @@ labelled as such (FR-RULE-007; DEL-06-01 REQ-06-01-007, REQ-06-01-011).
 - **Format.** Packs declare `schema_version` `0.4.0` (top level and
   `metadata.schema_version`). The validator
   (`core/rules/rule_pack_document/src/lib.rs` `validate_rule_pack_document`)
-  does not check either value, so any version string is accepted.
+  reads the top-level value but never checks it; an empty or absent value is
+  only caught as lifecycle `MISSING_VERSION`. `metadata.schema_version` is not
+  read. The JSON schema checks the pattern only, and only Python tests apply it.
+- **Store.** The desktop keeps the raw document in SQLite `local_rule_packs`
+  (store v10; `apps/desktop/src-tauri/src/lib.rs`), with no format column.
+  List does not validate, open re-validates and attaches findings, and run
+  refuses a pack with blocking findings (`checks: []`).
 - **Solver inputs.** A `solver_result` input binds one row of the solved
   mechanics envelope by its `id` (`RequiredInput.solver_result_ref.result_id`),
   or by a caller-supplied `{input_id, result_id}` selector when the pack carries
-  no reference (`apps/desktop/src-tauri/src/lib.rs` `run_rule_checks_core`).
+  no reference (`apps/desktop/src-tauri/src/lib.rs` `run_rule_checks_core`). The
+  run panel sends such selectors from a per-input dropdown
+  (`RuleCheckRunPanel.tsx`, `solverResultBindings`).
 - **Rows and their basis.** Each envelope row carries
   `basis_ref: {ref_type: load_case | combination, ref_id}`, `kind`,
   `entity_ref` and usually `metadata.location`. Row ids are not a stable function
@@ -33,6 +41,21 @@ labelled as such (FR-RULE-007; DEL-06-01 REQ-06-01-007, REQ-06-01-011).
   (`result:stress:pipe-P-100:end-i:axial-normal`), other load cases are prefixed
   `result:loadcase:<case>:`, and combinations `result:combination:<id>:`
   (observed in `validation/witness/generated/tp_runner_015_final_cli_solve.json`).
+  Exact-route `_v2` ids embed the case instead.
+- **What separates rows within one basis.** `kind`, `entity_ref` and
+  `metadata.location` are not enough. On the exact route, nominal and reduced
+  section twins differ only by the `section_basis=` token in `metadata.basis`
+  (`core/product_physics/src/lib.rs` `section_basis_row`), and several kinds
+  publish one row per `metadata.component` (`Fx`/`Fy`/`Fz`, inner and outer
+  hoop, `sigma_plus`/`sigma_minus`). In
+  `fixtures/results/pressure_connected_mechanics_dense.json`, 82 of 183
+  (basis, kind, entity, location) groups hold more than one row.
+- **What a basis publishes.** Load-case rows carry `basis_ref` `load_case`;
+  combination rows `combination`, for the linear-state kinds only
+  (`preview_physics.rs` `LINEAR_STATE_KINDS`), so a combination has no
+  `open_formula_stress_summary` row. A withheld combination publishes no rows.
+  Exact models carry no combinations. Model-input echo rows have no
+  `basis_ref`.
 - **Evaluation.** Each check is evaluated once against the one row its input
   names. Nothing says which load case or combination a check concerns, so a
   pack cannot ask for "this check on every case of this kind", and a missing
@@ -42,13 +65,17 @@ labelled as such (FR-RULE-007; DEL-06-01 REQ-06-01-007, REQ-06-01-011).
 
 1. **One current format, `0.5.0`.** Top-level `schema_version` and
    `metadata.schema_version` must both equal `0.5.0`.
-   - Any other value, including `0.4.0` and an absent member, is a blocking
-     validation finding `RULE_PACK_SCHEMA_VERSION_UNSUPPORTED`, naming the
-     version found and the version supported. Nothing else is evaluated for
-     that pack.
+   - Any other value, including `0.4.0`, an absent member or a top-level value
+     that differs from `metadata.schema_version`, is a blocking validation
+     finding `RULE_PACK_SCHEMA_VERSION_UNSUPPORTED`, naming the version found
+     and the version supported. No check of that pack runs.
+   - Validation still computes the checksum and its other findings. The model's
+     rule-pack reference resolution (`services/modelRulePackResolution.ts`, the
+     handoff's `handoff_package.rs`) reads the checksum match status, so a
+     refused pack must not also appear as a checksum mismatch.
    - There is no migration and no reader for older packs. A stored `0.4.0`
-     pack in the local store is listed, refused by that code wherever it is
-     validated or run, and can be deleted. The user re-authors it.
+     pack stays listed, opens with the refusal shown, is refused at run, and
+     can be deleted. The user re-authors it. The store schema is unchanged.
    - `grammar_version` is unchanged (`1.0.0`, DEC-022).
 2. **The binding lives in the pack and names the model's own ids.** A pack is
    already specific to its model: its solver inputs name model rows and
@@ -73,11 +100,20 @@ labelled as such (FR-RULE-007; DEL-06-01 REQ-06-01-007, REQ-06-01-011).
    `category_ref`. A check is evaluated once for each required load case mapped
    to its category (its **bases**), in the mapping's order.
 5. **Solver inputs select a row within a basis.** In 0.5.0
-   `solver_result_ref` is `{result_kind, entity_ref, location?}` and
-   `result_id` is removed.
+   `solver_result_ref` is `{result_kind, entity_ref, location?, component?,
+   section_basis?}` and `result_id` is removed.
    - For each basis, the input binds the one envelope row whose `basis_ref`
-     equals the basis and whose `kind`, `entity_ref` and `metadata.location`
-     equal the selector (`location` absent matches a row with no location).
+     equals the basis, whose `kind` and `entity_ref` equal the selector's, and
+     whose `metadata.location`, `metadata.component` and section basis equal
+     the selector's optional members. An absent optional member matches only a
+     row without that member. The section basis is the `section_basis=` token
+     of `metadata.basis` (`nominal_section` or `reduced_section`); the runner
+     reads it with one parser shared with the producer's convention, and a
+     `metadata.basis` with a malformed token matches nothing.
+   - Rows without `basis_ref` are never selected.
+   - A regression test asserts that, in the committed result fixtures of both
+     routes, every row that has a `basis_ref` is selected by exactly one
+     selector within its basis.
    - No row: the input is unsupplied for that basis
      (`RULE_SOLVER_RESULT_ROW_MISSING`). More than one row:
      `RULE_SOLVER_RESULT_ROW_AMBIGUOUS`, also unsupplied. Neither is a pass.
@@ -94,6 +130,11 @@ labelled as such (FR-RULE-007; DEL-06-01 REQ-06-01-007, REQ-06-01-011).
      `RULE_REQUIRED_LOAD_CASE_MISSING`.
    - Present in the model but with no rows in the envelope (for example a
      withheld combination): `RULE_REQUIRED_LOAD_CASE_UNSOLVED`.
+   - Solved, but with no row of the selected kind (for example a formula
+     stress summary on a combination): the input's
+     `RULE_SOLVER_RESULT_ROW_MISSING` for that basis.
+   - The run command passes the current model to the core for these checks;
+     today only the qualification step sees it.
    - Either makes every check whose category maps that load case
      `RULE_INPUTS_INCOMPLETE` for that basis, with the finding naming it. A
      check is never evaluated on a basis it cannot bind.
@@ -114,6 +155,9 @@ labelled as such (FR-RULE-007; DEL-06-01 REQ-06-01-007, REQ-06-01-011).
 8. **Units are unchanged.** Each basis converts its bound values to the
    declared units exactly as a single evaluation does today (B2/B3
    normalization in `rule_check_runner`).
+   - **Interval mode.** A verified bound (`SolverResultBound`) names its input
+     and its basis; a bound without a basis is refused. Only tests use bounds
+     today.
 9. **Static validation of the new members** (blocking findings, each named):
    - unknown references (a mapping's category or load case, a check's
      category): `RULE_PACK_REFERENCE_UNRESOLVED`;
@@ -138,18 +182,31 @@ In `features/rule-packs/` (DEL-07-03; `RulePackManagerPanel.tsx`,
   when no model is open.
 - **Stress categories** editor: name and description.
 - **Load-case mappings**: per category, the required load cases it uses.
-- **Checks**: a category selector. Solver inputs get the row selector
-  (kind, entity, location), offered from the current solved result's rows when
-  one exists.
+- **Checks**: a category selector.
+- **Solver inputs**: the row selector's members, typed. When the session has a
+  current solved result, the editor also offers its rows' selectors (the panel
+  gains a prop for the current result; it receives only the model today).
+- **Run panel** (`RuleCheckRunPanel.tsx`): the per-input selector dropdown and
+  `solverResultBindings` are removed; it shows each check's category and
+  bases.
 - **Validation** shows the §2.9 findings and the version refusal by code. A
   stored `0.4.0` pack shows the refusal and offers delete only.
 
 ## 4. Fixtures, examples and their writers
 
 - `examples/rule_packs/invented_demo.yaml` and
-  `fixtures/product_preview/invented_demo_rule_pack.json` move to `0.5.0`, with
-  invented categories ("Invented category A") and required load cases naming
-  the bundled demo model's ids. Their notices stay invented and non-engineering.
+  `fixtures/product_preview/invented_demo_rule_pack.json` (byte-identical) move
+  to `0.5.0`, with an invented category ("Invented category A") and required
+  load cases naming the bundled demo model's `load:L-100` and `load:L-200`.
+  Their notices stay invented and non-engineering.
+  - The demo pack demonstrates the refusal path, as today: its solver input's
+    selector names the invented kind `invented_demo_quantity`, which no
+    producer publishes, and its limit slot stays unsupplied. On every model it
+    is `RULE_INPUTS_INCOMPLETE` naming `demo_actual_quantity` and
+    `demo_limit_quantity` as missing, as the native smoke requires.
+  - `tests/test_invented_example_models.py` compares the YAML's raw-byte
+    SHA-256 with `rule_pack_refs[].checksum` in `examples/models/invented/*.json`;
+    those references are re-stamped by their writer.
 - Every fixture, test pack and builder that writes a rule pack moves to `0.5.0`
   through its writer (to confirm by the survey: Rust test builders, Python
   schema fixtures, desktop test builders, e2e).
@@ -177,8 +234,14 @@ In `features/rule-packs/` (DEL-07-03; `RulePackManagerPanel.tsx`,
     check bound by row id before the change.
 - **Desktop.** Manager editors and validation; the run panel shows each check's
   bases; the report's per-check projection is unchanged.
-- **Native smoke.** The demo-pack steps still refuse as
-  `RULE_INPUTS_INCOMPLETE` naming the missing inputs (to confirm).
+- **Native smoke.** The demo-pack steps on the demo and exact models still
+  refuse as `RULE_INPUTS_INCOMPLETE` naming both inputs missing; `run.mjs` and
+  `expected.json` are unchanged.
+- **Schemas.** `rule_check_run_result.schema.json` gains a `BasisOutcome`
+  definition; `tests/test_operation_result_schemas.py`, which pins the
+  definition set, lists it.
+- **e2e.** `r2-smoke.spec.ts` asserts the run panel's caller selector; it moves
+  to the authored selector.
 
 ## 6. Effects outside DEL-06
 
