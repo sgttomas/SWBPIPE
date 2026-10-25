@@ -222,3 +222,77 @@ describe("project units section", () => {
     expect(screen.queryByTestId("project-units-details")).toBeNull();
   });
 });
+
+/** The Project page as opened: the property inspector with the project selected. */
+function projectPage(model: PreviewModel, list: EditorOperationIntent[]) {
+  return render(
+    <DisplayUnitsProvider initialPreference="SI">
+      <PropertyInspector model={model} selection={{ type: "project", id: model.project.id }} queuedIntents={list} onQueueIntent={(intent) => list.push(intent)} />
+    </DisplayUnitsProvider>
+  );
+}
+
+// Codex r1: a document opened without `project.units`, or without some keys,
+// must open the Project page and show §3's notices; reading it writes nothing.
+describe("Project page on a document missing project units", () => {
+  it("opens without the map: every key missing, length with nodes locked, another key offered", async () => {
+    const model = seven();
+    delete (model.project as { units?: unknown }).units;
+    const before = JSON.stringify(model);
+    const list: EditorOperationIntent[] = [];
+    projectPage(model, list);
+    expect(byId("model-settings-details")).toBeInTheDocument();
+    for (const key of PROJECT_UNIT_KEYS) {
+      expect(byId(`project-units-section-${key}-notice`)).toHaveTextContent(`Missing project unit: ${key}.`);
+    }
+    const length = byId("project-units-section-length-notice");
+    expect(length).toHaveAttribute("data-notice", "missing-hard-lock");
+    expect(length).toHaveTextContent("no fix is offered");
+    expect(byId("project-units-section-length")).toBeDisabled();
+    expect(byId("project-units-section-force-notice")).toHaveAttribute("data-notice", "missing-offer");
+    expect(byId("project-units-section-force")).toHaveValue("");
+    // No unit is invented for the tolerance entry from the absent map, and the document is untouched.
+    expect(options("model-settings-node-proximity-unit")).not.toContain("");
+    expect(JSON.stringify(model)).toBe(before);
+    fireEvent.change(byId("project-units-section-force"), { target: { value: "N" } });
+    const set = await queued(list, 1);
+    expect(set.change).toMatchObject({ change_kind: "set_project_unit", field_path: "project.units.force", before: "not_present", after: "N" });
+    expect(JSON.stringify(model)).toBe(before);
+    // Applied, the change adds the map holding the one key.
+    expect((await apply(model, set)).project.units).toEqual({ force: "N" });
+  });
+
+  it("with some keys missing and nodes: length is a hard lock, another key queues with before not_present", async () => {
+    const model = seven();
+    const units = model.project.units as Record<string, string>;
+    delete units.length;
+    delete units.pressure;
+    const before = JSON.stringify(model);
+    const list: EditorOperationIntent[] = [];
+    projectPage(model, list);
+    expect(byId("project-units-section-length-notice")).toHaveAttribute("data-notice", "missing-hard-lock");
+    expect(byId("project-units-section-length")).toBeDisabled();
+    expect(byId("project-units-section-pressure-notice")).toHaveAttribute("data-notice", "missing-offer");
+    expect(screen.queryByTestId("project-units-section-force-notice")).toBeNull();
+    expect(byId("project-units-section-force")).toHaveValue("N");
+    fireEvent.change(byId("project-units-section-pressure"), { target: { value: "psi" } });
+    const set = await queued(list, 1);
+    expect(set.change).toMatchObject({ field_path: "project.units.pressure", before: "not_present", after: "psi", dimension: "pressure" });
+    expect(JSON.stringify(model)).toBe(before);
+    expect((await apply(model, set)).project.units).toEqual({ ...units, pressure: "psi" });
+  });
+
+  it("with length missing and no nodes: length is offered and queues with before not_present", async () => {
+    const model = empty(seven());
+    model.project = { ...model.project, units: { ...model.project.units } };
+    delete (model.project.units as Record<string, string>).length;
+    const list: EditorOperationIntent[] = [];
+    projectPage(model, list);
+    expect(byId("project-units-section-length-notice")).toHaveAttribute("data-notice", "missing-offer");
+    expect(byId("project-units-section-length")).toBeEnabled();
+    fireEvent.change(byId("project-units-section-length"), { target: { value: "in" } });
+    const set = await queued(list, 1);
+    expect(set.change).toMatchObject({ field_path: "project.units.length", before: "not_present", after: "in", dimension: "length" });
+    expect((await apply(model, set)).project.units.length).toBe("in");
+  });
+});
