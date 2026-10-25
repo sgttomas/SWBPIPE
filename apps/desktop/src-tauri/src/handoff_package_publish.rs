@@ -38,8 +38,9 @@
 //! 4. After the rename or swap, what is published under the name must be the
 //!    entries this save created (by identity, through the parent's handle),
 //!    and each member must read back as exactly the in-memory bytes verified
-//!    (step 1's read), and after the last read every member's descriptor must
-//!    still show the same identity, size and change time. Otherwise the save
+//!    (step 1's read), and after the last read every member, read again
+//!    through its descriptor, must still hold exactly those bytes, with the
+//!    same identity, size and change time. Otherwise the save
 //!    is refused `HANDOFF-PUBLISH-UNVERIFIED`: a new name is left as found; a
 //!    replacement is swapped back only if, immediately before, the name still
 //!    holds this save's folder and the staging name the entry the swap moved
@@ -47,8 +48,12 @@
 //!    naming where the previous package is). `Saved` is reported only after this check, with
 //!    the receipt computed from the in-memory bytes. What the swap moved out
 //!    must also be the package admitted (else the swap is undone); only when
-//!    both hold is it removed, member by member and only while each entry is
-//!    the one verified at admission (never a recursive delete).
+//!    both hold, and its members, read again through admission's descriptors,
+//!    still hold the bytes admission verified, is it removed, member by member
+//!    and only while each entry is the one verified at admission (never a
+//!    recursive delete). Otherwise it is kept under the staging name
+//!    (`HANDOFF-OLD-PACKAGE-LEFT`); immediately before the swap the same
+//!    re-read must also hold, or nothing is replaced.
 //! 5. A leftover `<name>.swbhandoff.staging-*` from an earlier crash is ignored
 //!    and reported for the user to delete.
 //!
@@ -63,12 +68,17 @@
 //! loses only the package's link.
 //!
 //! Residual (restated after review round 5: what cannot be closed, and why):
-//! - Content: every member is checked through its open descriptor after the
-//!   last read (identity, size, change time) and every name re-checked, so a
-//!   rewrite of either member up to that final check is detected. A rewrite
-//!   or replacement after the final check, before or after `Saved` is
-//!   returned, is not: no call lets one process stop another of the same
-//!   user from writing its files (macOS has no mandatory locks).
+//! - Content: after the last read, every member is read again through its
+//!   open descriptor and compared byte for byte (and its identity, size and
+//!   change time re-checked), and every name re-checked, so a rewrite of
+//!   either member up to that final re-read is detected, a write through a
+//!   shared mapping included (which changes no change time until it is
+//!   synced). The previous package is re-read the same way before the swap
+//!   and before its removal. A rewrite or replacement after the final re-read,
+//!   before or after `Saved` is returned (or of the previous package between
+//!   its final re-read and the unlink), is not detected: no call lets one
+//!   process stop another of the same user from writing its files (macOS has
+//!   no mandatory locks).
 //! - Check-to-call window: between an identity check and the name-based call
 //!   it guards, such a process can substitute that one entry, and the call
 //!   acts on the substitute. macOS has no unlink, rename or exchange that is
@@ -508,9 +518,32 @@ struct MemberRead {
 
 impl MemberRead {
     /// The file read is still, by its descriptor, unchanged since its first
-    /// `fstat`: the same identity and size, still linked, and the same change
-    /// time. Any write (or `utimes`) since sets the change time, which no
-    /// unprivileged process can set back (review round 5, finding 4).
+    /// `fstat` in its metadata: the same identity and size, still linked, and
+    /// the same change time. A `write` or `utimes` sets the change time; a
+    /// write through a shared mapping does not until it is synced, so content
+    /// is judged by [`Self::still_reads_as`], not by this alone.
+    /// The file still holds exactly `expected`: [`Self::unchanged`] and its
+    /// bytes, read again from offset 0 through the same descriptor, equal
+    /// `expected` (review round 6: a write through a shared mapping changes
+    /// neither change time nor size until it is synced, but a read sees it).
+    fn still_reads_as(&self, expected: &[u8]) -> bool {
+        use std::os::unix::fs::FileExt;
+        if !self.unchanged() {
+            return false;
+        }
+        let mut again = vec![0u8; expected.len() + 1];
+        let mut filled = 0;
+        while filled < again.len() {
+            match self.file.read_at(&mut again[filled..], filled as u64) {
+                Ok(0) => break,
+                Ok(count) => filled += count,
+                Err(error) if error.kind() == io::ErrorKind::Interrupted => {}
+                Err(_) => return false,
+            }
+        }
+        filled == expected.len() && &again[..filled] == expected && self.unchanged()
+    }
+
     fn unchanged(&self) -> bool {
         use std::os::unix::fs::MetadataExt;
         self.file.metadata().is_ok_and(|now| {
@@ -693,7 +726,7 @@ struct Admitted {
     parent: Dir,
     parent_path: PathBuf,
     name: String,
-    replacing: Option<PackageIdentity>,
+    replacing: Option<VerifiedPackage>,
 }
 
 /// The target's checks: a `<stem>.swbhandoff` name in an existing non-symlink
@@ -728,8 +761,8 @@ fn admit_target(target: &Path) -> Result<Admitted, Diagnostic> {
             }
             // The identity recorded is the one whose bytes were read and
             // verified (each member opened, fstat-checked, read and re-checked).
-            match verify_dir(&existing) {
-                Ok((_, identity)) => Some(identity),
+            match verify_dir_reads(&existing) {
+                Ok(verified) => Some(verified),
                 Err(_) => return Err(not_package()),
             }
         }
@@ -824,9 +857,10 @@ fn published_is_ours(parent: &Dir, name: &str, staged: PackageIdentity, model: &
     if manifest_read.bytes != manifest {
         return Err(format!("{MANIFEST_MEMBER} does not hold the bytes this save wrote"));
     }
-    // After the last read: both members unchanged since they were opened, and
-    // every name still naming the same entry.
-    if !model_read.unchanged() || !manifest_read.unchanged() {
+    // After the last read: both members, read again through their
+    // descriptors, still hold exactly the in-memory bytes (and their metadata
+    // is unchanged), and every name still names the same entry.
+    if !model_read.still_reads_as(model) || !manifest_read.still_reads_as(manifest) {
         return Err(format!("a member of `{name}` changed while the package was checked"));
     }
     match layout_identity(&dir) {
@@ -848,7 +882,7 @@ pub fn publish_package(target: &Path, model: &[u8], manifest: &[u8], hooks: &Pub
             diagnostic(
                 STAGING_LEFTOVER,
                 "",
-                format!("{leftover} is left from an earlier save that did not finish. It was ignored; delete it when convenient."),
+                format!("{leftover} is left from an earlier save. It was ignored. It may hold a previous handoff package that an earlier save kept (after HANDOFF-ROLLBACK-WITHHELD or HANDOFF-OLD-PACKAGE-LEFT); check what it holds before deleting it."),
             )
         })
         .collect();
@@ -902,7 +936,9 @@ pub fn publish_package(target: &Path, model: &[u8], manifest: &[u8], hooks: &Pub
         Ok(guard) => guard,
         Err(error) => return Err(failed("commit", error, &parent, &staging_name, created)),
     };
-    if let Some(admitted) = replacing {
+    let replaced_existing = replacing.is_some();
+    if let Some(previous) = replacing {
+        let admitted = previous.identity;
         let changed = || {
             diagnostic(
                 DESTINATION_CHANGED,
@@ -912,7 +948,8 @@ pub fn publish_package(target: &Path, model: &[u8], manifest: &[u8], hooks: &Pub
         };
         // Immediately before the swap: the destination is still the package
         // admitted, by identity and layout, and the staging folder still ours.
-        if identity_at(&parent, &name) != Some(admitted) {
+        // Its members still hold the bytes admission verified (review round 6).
+        if identity_at(&parent, &name) != Some(admitted) || !previous.still_as_verified() {
             let _ = remove_known(&parent, &staging_name, created);
             return Err(changed());
         }
@@ -987,13 +1024,22 @@ pub fn publish_package(target: &Path, model: &[u8], manifest: &[u8], hooks: &Pub
             }
             return Err(refusal);
         }
-        // The staging name now holds the admitted package: removed member by
-        // member, each only while it is the entry admitted.
-        if remove_known(&parent, &staging_name, Created::from(admitted)).is_err() {
+        // The staging name now holds the admitted package. It is removed,
+        // member by member and each only while it is the entry admitted, only
+        // if its members, read again through admission's descriptors, still
+        // hold the bytes admission verified (review round 6, R6-1); otherwise
+        // it is kept, since it may hold someone's edits.
+        if !previous.still_as_verified() {
             warnings.push(diagnostic(
                 OLD_PACKAGE_LEFT,
                 "",
-                format!("The replaced package could not be removed and is left as {staging_name}; delete it when convenient."),
+                format!("The previous package changed after it was checked, so it was not deleted: it is kept as {staging_name} and may hold edits. The new package `{name}` is saved."),
+            ));
+        } else if remove_known(&parent, &staging_name, Created::from(admitted)).is_err() {
+            warnings.push(diagnostic(
+                OLD_PACKAGE_LEFT,
+                "",
+                format!("The previous package could not be removed and is kept as {staging_name}; it is the package `{name}` replaced. Check it before deleting it."),
             ));
         }
     } else {
@@ -1028,7 +1074,7 @@ pub fn publish_package(target: &Path, model: &[u8], manifest: &[u8], hooks: &Pub
         }
     }
     let durability = if parent.sync().is_ok() { "durable" } else { "saved_durability_uncertain" };
-    Ok(Published { package_name: name, replaced_existing: replacing.is_some(), durability: durability.to_string(), warnings })
+    Ok(Published { package_name: name, replaced_existing, durability: durability.to_string(), warnings })
 }
 
 // ---------------------------------------------------------------------------
@@ -1080,6 +1126,26 @@ pub fn verify_handoff_package(directory: &Path) -> Result<HandoffVerification, S
 /// bytes verified are one consistent package. Returns the verification and
 /// the identity whose bytes were verified.
 fn verify_dir(dir: &Dir) -> Result<(HandoffVerification, PackageIdentity), String> {
+    verify_dir_reads(dir).map(|verified| (verified.verification, verified.identity))
+}
+
+/// A package verified on disk, with the descriptors its bytes were read through.
+struct VerifiedPackage {
+    verification: HandoffVerification,
+    identity: PackageIdentity,
+    model: MemberRead,
+    manifest: MemberRead,
+}
+
+impl VerifiedPackage {
+    /// Both members still hold, read again through their descriptors, exactly
+    /// the bytes that were verified (review round 6, R6-1).
+    fn still_as_verified(&self) -> bool {
+        self.model.still_reads_as(&self.model.bytes) && self.manifest.still_reads_as(&self.manifest.bytes)
+    }
+}
+
+fn verify_dir_reads(dir: &Dir) -> Result<VerifiedPackage, String> {
     let fail = |detail: String| format!("{VERIFY_FAILED}: {detail}");
     let (identity, model_folder) = match layout_identity(dir) {
         Ok(Some(found)) => found,
@@ -1092,12 +1158,13 @@ fn verify_dir(dir: &Dir) -> Result<(HandoffVerification, PackageIdentity), Strin
     let manifest_read = dir
         .read_member(MANIFEST_MEMBER, MAX_MANIFEST_BYTES, Some(identity.manifest))
         .map_err(|error| fail(format!("{MANIFEST_MEMBER}: {error}")))?;
-    let unchanged = model_read.unchanged() && manifest_read.unchanged();
+    let unchanged = model_read.still_reads_as(&model_read.bytes) && manifest_read.still_reads_as(&manifest_read.bytes);
     match layout_identity(dir) {
         Ok(Some((after, _))) if after == identity && unchanged => {}
         _ => return Err(fail("the folder changed while it was read".to_string())),
     }
-    Ok((verify_bytes(&model_read.bytes, &manifest_read.bytes)?, identity))
+    let verification = verify_bytes(&model_read.bytes, &manifest_read.bytes)?;
+    Ok(VerifiedPackage { verification, identity, model: model_read, manifest: manifest_read })
 }
 
 /// `verify_handoff_package`'s rules on the two members' bytes.

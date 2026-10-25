@@ -58,6 +58,7 @@ pub const ID_UNMAPPABLE: &str = "HANDOFF-ID-UNMAPPABLE";
 pub const LABEL_INVALID: &str = "HANDOFF-LABEL-INVALID";
 pub const PICKER_PATH_INVALID: &str = "HANDOFF-PICKER-PATH-INVALID";
 pub const WORKER_FAILED: &str = "HANDOFF-WORKER-FAILED";
+pub const DISPOSITION_MALFORMED: &str = "HANDOFF-DISPOSITION-MALFORMED";
 /// The store check's codes (W-13 §3.5; `check_model_library_refs`, the Rule
 /// Pack Manager's reference list).
 pub const LIBRARY_REF_VERSION_CHANGED: &str = crate::MODEL_LIBRARY_REF_VERSION_CHANGED;
@@ -340,6 +341,56 @@ pub(crate) fn screen_document(document: &Value) -> Vec<String> {
     let mut found = Vec::new();
     walk(document, "", &mut found);
     found
+}
+
+/// The disposition members of a stored document that are present but are not
+/// strings (review round 6, note 4): `null`, booleans, numbers, arrays, and
+/// objects (except `classification`, which a rule pack holds as an object of
+/// its own disposition members, screened in turn). Returned as `<JSON
+/// pointer> <JSON value kind>`; the save refuses them as malformed rather than
+/// guess what they mean.
+pub(crate) fn malformed_dispositions(document: &Value) -> Vec<String> {
+    fn kind(value: &Value) -> &'static str {
+        match value {
+            Value::Null => "null",
+            Value::Bool(_) => "a boolean",
+            Value::Number(_) => "a number",
+            Value::String(_) => "a string",
+            Value::Array(_) => "an array",
+            Value::Object(_) => "an object",
+        }
+    }
+    fn walk(value: &Value, pointer: &str, found: &mut Vec<String>) {
+        match value {
+            Value::Object(object) => {
+                for (key, child) in object {
+                    let at = format!("{pointer}/{}", pointer_token(key));
+                    let screened = SCREENED_MEMBERS.iter().any(|(member, _)| member == key);
+                    if screened && !child.is_string() && !(key == "classification" && child.is_object()) {
+                        found.push(format!("{at} is {}", kind(child)));
+                    }
+                    walk(child, &at, found);
+                }
+            }
+            Value::Array(items) => {
+                for (index, item) in items.iter().enumerate() {
+                    walk(item, &format!("{pointer}/{index}"), found);
+                }
+            }
+            _ => {}
+        }
+    }
+    let mut found = Vec::new();
+    walk(document, "", &mut found);
+    found
+}
+
+fn malformed_record(path: &str, record: &str, what: &str, found: &[String]) -> Diagnostic {
+    diagnostic(
+        DISPOSITION_MALFORMED,
+        path,
+        format!("{record} ({what}) has disposition members that are not text ({}), so its disposition cannot be judged; nothing was saved. Correct the stored record first.", found.join(", ")),
+    )
 }
 
 fn blocked_record(path: &str, record: &str, what: &str, found: &[String]) -> Diagnostic {
@@ -860,9 +911,13 @@ fn library_refs(document: &Value, project_id: &str, lookup: &mut LibraryLookup<'
     for ((kind, id), stored) in &stored_libraries {
         let Some(stored) = stored else { continue };
         let found_blocking = screen_document(stored);
+        let found_malformed = malformed_dispositions(stored);
+        let path = found.iter().find(|reference| &reference.kind == kind && &reference.id == id).map(|reference| reference.path.as_str()).unwrap_or("");
         if !found_blocking.is_empty() {
-            let path = found.iter().find(|reference| &reference.kind == kind && &reference.id == id).map(|reference| reference.path.as_str()).unwrap_or("");
             refusals.push(blocked_record(path, &format!("{kind}:{id}"), "stored library", &found_blocking));
+        }
+        if !found_malformed.is_empty() {
+            refusals.push(malformed_record(path, &format!("{kind}:{id}"), "stored library", &found_malformed));
         }
     }
     if !refusals.is_empty() {
@@ -998,8 +1053,14 @@ fn rule_pack_refs(document: &Value, project_id: &str, lookup: &mut RulePackLooku
         // (review round 2, finding 2).
         if let Some(pack) = &pack {
             let found = screen_document(pack);
+            let malformed = malformed_dispositions(pack);
             if !found.is_empty() {
                 refusals.push(blocked_record(&path, &format!("rule_pack:{id}"), "stored rule pack", &found));
+            }
+            if !malformed.is_empty() {
+                refusals.push(malformed_record(&path, &format!("rule_pack:{id}"), "stored rule pack", &malformed));
+            }
+            if !found.is_empty() || !malformed.is_empty() {
                 continue;
             }
         }
@@ -3114,9 +3175,11 @@ fn round3_legitimate_stored_library_documents_do_not_over_refuse() {
         assert!(saved.stored, "{kind}: {}", saved.message);
         let row = crate::load_library(&Connection::open(&store.path).unwrap(), "project:slots", kind, &saved.library_id).unwrap().unwrap();
         assert!(screen_document(&row.document).is_empty(), "{kind}: {:?}", screen_document(&row.document));
+        assert!(malformed_dispositions(&row.document).is_empty(), "{kind}: {:?}", malformed_dispositions(&row.document));
     }
     let pack: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
     assert!(screen_document(&pack).is_empty());
+    assert!(malformed_dispositions(&pack).is_empty(), "{:?}", malformed_dispositions(&pack));
 }
 
 #[test]
@@ -3508,10 +3571,20 @@ fn round5_nonstring_privacy_classifications_are_not_public() {
         assert!(saved.stored, "normal private import refused {value}: {}", saved.message);
         let row = crate::load_library(&Connection::open(&store.path).unwrap(), "project:slots", "material", &saved.library_id).unwrap().unwrap();
         let mut lookup = |_: &str, _: &str, _: &str| Ok(Some(row.document.clone()));
-        let (refs, _) = library_refs(&model, "project:slots", &mut lookup).unwrap();
-        let classification = refs[0]["privacy_classification"].clone();
-        println!("ROUND5_NONSTRING_PRIVACY {value} => {classification}");
-        if classification != json!("private_library_data") { failures.push(value); }
+        // Since review round 6 (note 4) the save refuses such a document as
+        // malformed; the classifier itself still counts the value as private.
+        match library_refs(&model, "project:slots", &mut lookup) {
+            Err(refusals) if refusals.iter().any(|refusal| refusal.code == DISPOSITION_MALFORMED) => {}
+            Err(refusals) => panic!("{value}: {refusals:?}"),
+            Ok((refs, _)) => {
+                let classification = refs[0]["privacy_classification"].clone();
+                println!("ROUND5_NONSTRING_PRIVACY {value} => {classification}");
+                if classification != json!("private_library_data") { failures.push(value.clone()); }
+            }
+        }
+        let mut privacies = Vec::new();
+        privacy_values(&lib, &mut privacies);
+        if reference_privacy("public_permissive", &privacies, "private_library_data") != "private_library_data" { failures.push(value); }
         if let Ok(out) = std::env::var("W6B_REVIEW_EVIDENCE") {
             fs::write(PathBuf::from(out).join("nonstring-privacy-library.json"), serde_json::to_vec_pretty(&lib).unwrap()).unwrap();
         }
@@ -3595,5 +3668,246 @@ fn review5_residual_swap_can_move_a_nonempty_substitute() {
             assert!(matches!(&out, HandoffSaveOutcome::Refused { diagnostics } if diagnostics[0].code == publish::PUBLISH_UNVERIFIED), "{rewritten}: {out:?}");
             assert_eq!(package_bytes(&target), old, "{rewritten}: the previous package was not restored");
         }
+    }
+
+    // ---- Independent review round 6 (Claude): probes and regressions ----------
+
+    /// Every path under `root` (not following links) whose inode is `ino`.
+    fn round6_paths_with_inode(root: &Path, ino: u64) -> Vec<PathBuf> {
+        use std::os::unix::fs::MetadataExt;
+        let mut found = Vec::new();
+        let mut stack = vec![root.to_path_buf()];
+        while let Some(dir) = stack.pop() {
+            for entry in fs::read_dir(&dir).unwrap().filter_map(Result::ok) {
+                let meta = fs::symlink_metadata(entry.path()).unwrap();
+                if meta.ino() == ino { found.push(entry.path()); }
+                if meta.is_dir() { stack.push(entry.path()); }
+            }
+        }
+        found
+    }
+
+    /// Finding R6-1 (should-fix): the previous package is removed by identity
+    /// only. A member rewritten in place after admission verified it (same
+    /// inode; the change time moves) is deleted by a save that reports `Saved`.
+    #[test]
+    fn round6_previous_package_rewritten_after_admission_is_not_deleted() {
+        use std::io::{Seek, SeekFrom, Write as _};
+        use std::os::unix::fs::MetadataExt;
+        let mut deleted = Vec::new();
+        for (member, mode) in [(MANIFEST_MEMBER, "same-size"), (MANIFEST_MEMBER, "append"), (publish::MODEL_MEMBER, "same-size")] {
+            let (store, first) = prepared_demo(&format!("round6-old-{mode}"));
+            let target = store.root.join("target.swbhandoff");
+            assert!(matches!(write(&target, first), HandoffSaveOutcome::Saved { .. }));
+            let file = target.join(member);
+            let ino = fs::metadata(&file).unwrap().ino();
+            let (_next_store, next) = prepared_demo(&format!("round6-old-{mode}-next"));
+            let file2 = file.clone();
+            // After admission verified the previous package, before the swap.
+            let edit = move || -> io::Result<()> {
+                let mut handle = fs::OpenOptions::new().write(true).open(&file2)?;
+                if mode == "append" { handle.seek(SeekFrom::End(0))?; handle.write_all(b" user edit")?; } else { handle.write_all(b"[")?; }
+                handle.sync_all()
+            };
+            let out = write_handoff_package(&target, next, CREATED_AT, &PublishHooks { before_commit: &edit, ..PRODUCTION_HOOKS });
+            let survivors = round6_paths_with_inode(&store.root, ino);
+            println!("ROUND6_OLD_REWRITE {member}/{mode}: saved={}; edited file survives at {survivors:?}", matches!(out, HandoffSaveOutcome::Saved { .. }));
+            if survivors.is_empty() { deleted.push(format!("{member}/{mode}")); }
+        }
+        assert!(deleted.is_empty(), "the previous package's member, rewritten after it was verified, was deleted: {deleted:?}");
+    }
+
+    /// Finding R6-2 (should-fix, docs): a write through a shared memory mapping
+    /// does not move the change time on APFS until msync, so the final
+    /// descriptor re-check (identity, size, change time) does not see it.
+    #[test]
+    fn round6_mapped_write_after_the_models_read_is_not_reported_saved() {
+        use std::os::fd::AsRawFd;
+        use std::os::unix::fs::MetadataExt;
+        let (store, first) = prepared_demo("round6-mmap");
+        let target = store.root.join("target.swbhandoff");
+        assert!(matches!(write(&target, first), HandoffSaveOutcome::Saved { .. }));
+        let (_next_store, next) = prepared_demo("round6-mmap-next");
+        let member = target.join(publish::MODEL_MEMBER);
+        let mapping: std::rc::Rc<std::cell::Cell<(usize, usize)>> = Default::default();
+        let ctimes: std::rc::Rc<std::cell::Cell<((i64, i64), (i64, i64))>> = Default::default();
+        let (mapping2, ctimes2) = (mapping.clone(), ctimes.clone());
+        publish::R4_AFTER_ID.with(|hook| *hook.borrow_mut() = Some(Box::new(move || {
+            publish::R4_BEFORE_OPEN.with(|hook| *hook.borrow_mut() = Some(Box::new(move || {
+                publish::R4_BEFORE_OPEN.with(|hook| *hook.borrow_mut() = Some(Box::new(move || {
+                    // After the model's read, before the manifest's open.
+                    let file = fs::OpenOptions::new().read(true).write(true).open(&member).unwrap();
+                    let before = file.metadata().unwrap();
+                    let len = before.len() as usize;
+                    // SAFETY: a valid descriptor and length; unmapped below.
+                    let ptr = unsafe { libc::mmap(std::ptr::null_mut(), len, libc::PROT_READ | libc::PROT_WRITE, libc::MAP_SHARED, file.as_raw_fd(), 0) };
+                    assert_ne!(ptr, libc::MAP_FAILED);
+                    unsafe { *(ptr as *mut u8) = b'[' };
+                    let after = file.metadata().unwrap();
+                    ctimes2.set(((before.ctime(), before.ctime_nsec()), (after.ctime(), after.ctime_nsec())));
+                    mapping2.set((ptr as usize, len));
+                })));
+            })));
+        })));
+        let out = write(&target, next);
+        let on_disk = fs::read(target.join(publish::MODEL_MEMBER)).unwrap();
+        let verified = verify_handoff_package(&target);
+        let (ptr, len) = mapping.get();
+        if ptr != 0 { unsafe { libc::munmap(ptr as *mut libc::c_void, len) }; }
+        let (before, after) = ctimes.get();
+        println!("ROUND6_MMAP outcome_saved={}; ctime_before={before:?} ctime_after_mapped_write={after:?}; first_byte_on_disk={:?}; verifier_afterwards={verified:?}", matches!(out, HandoffSaveOutcome::Saved { .. }), on_disk.first().map(|b| *b as char));
+        assert!(!matches!(out, HandoffSaveOutcome::Saved { .. }), "Saved was reported while model/model.json held bytes other than the ones written (a mapped write after its read)");
+    }
+
+    /// Probe (f): blocking dispositions planted deep in a stored library (also
+    /// in a record the model does not reference) and in a stored rule pack.
+    #[test]
+    fn round6_deep_blocking_dispositions_refuse() {
+        let mut escaped = Vec::new();
+        for (tag, place) in [("lib-deep", 0), ("lib-unreferenced", 1), ("pack-deep", 2)] {
+            let mut model = witness_model();
+            let mut library = material_library();
+            let mut pack: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
+            match place {
+                0 => library["material_records"][0]["notes"] = json!([{ "deep": { "items": [1, { "review_status": "rejected" }] } }]),
+                1 => library["material_records"].as_array_mut().unwrap().push(json!({ "material_id": "other", "name": "Other", "x": [{ "provenance": { "redistribution_status": "protected_suspected" } }] })),
+                _ => {
+                    pack["metadata"]["invented_extension"] = json!({ "a": [[{ "lifecycle_status": "quarantined" }]] });
+                    let hash = open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(&pack).unwrap().value;
+                    pack["checksums"]["rule_pack_checksum"]["value"] = json!(hash);
+                    model["rule_pack_refs"][0]["checksum"]["value"] = json!(hash);
+                }
+            }
+            let store = store(&format!("round6-{tag}"), &model, true);
+            let connection = Connection::open(&store.path).unwrap();
+            crate::upsert_library(&connection, "project:slots", "material", "library:invented-materials", &library).unwrap();
+            crate::upsert_rule_pack(&connection, "project:slots", "invented_demo_rule_pack", &pack).unwrap();
+            let state = save_state(&store, &model, "handoff_basis", "6e6e00006e6e00006e6e00006e6e0000").state;
+            let result = prepare(&store, &model, &state.state_id);
+            println!("ROUND6_DEEP {tag}: {:?}", codes(&result));
+            if !matches!(&result, Err(d) if d.iter().any(|d| d.code == model_document_save::PROTECTED_CONTENT_BLOCKED)) { escaped.push(tag); }
+        }
+        assert!(escaped.is_empty(), "deep blocking dispositions escaped: {escaped:?}");
+    }
+
+    /// Probe (f): a private record, or a private value deep in a record's
+    /// provenance, under a public wrapper is never labelled public; a
+    /// reference naming no record covers every record.
+    #[test]
+    fn round6_private_record_under_public_wrapper_is_private() {
+        let mut public = Vec::new();
+        for tag in ["nested-provenance", "no-record-id"] {
+            let mut model = witness_model();
+            let mut library = material_library();
+            library["material_library"]["privacy_class"] = json!("public");
+            library["material_records"][0]["privacy_class"] = json!("public");
+            if tag == "nested-provenance" {
+                library["material_records"][0]["provenance"]["source_detail"] = json!({ "privacy_classification": "private_user_data" });
+            } else {
+                model["materials"][0]["provenance_record"]["library_ref"].as_object_mut().unwrap().remove("record_id");
+                let provenance = library["material_records"][0]["provenance"].clone();
+                library["material_records"].as_array_mut().unwrap().push(json!({ "material_id": "other", "name": "Other", "privacy_class": "private_user_data", "provenance": provenance }));
+            }
+            let store = store(&format!("round6-private-{tag}"), &model, true);
+            crate::upsert_library(&Connection::open(&store.path).unwrap(), "project:slots", "material", "library:invented-materials", &library).unwrap();
+            let state = save_state(&store, &model, "handoff_basis", "6e6e00006e6e00006e6e00006e6e0000").state;
+            let prepared = prepare(&store, &model, &state.state_id).unwrap();
+            let reference = prepared.library_refs[0].clone();
+            println!("ROUND6_PRIVATE {tag}: privacy={} provenance.privacy={}", reference["privacy_classification"], reference["provenance"]["privacy_classification"]);
+            if reference["privacy_classification"] != json!("private_library_data") || reference["provenance"]["privacy_classification"] != json!("private_library_data") { public.push(tag); }
+        }
+        assert!(public.is_empty(), "private records labelled public: {public:?}");
+    }
+
+    /// Note 4 (review round 6): a disposition value that is not a string, here
+    /// an array holding a blocking value, is refused as malformed by pointer.
+    #[test]
+    fn round6_nonstring_blocking_value_is_refused_as_malformed() {
+        for value in [json!(["protected_suspected"]), Value::Null, json!(false), json!(0), json!({ "status": "rejected" })] {
+            let model = witness_model();
+            let mut library = material_library();
+            library["material_records"][0]["provenance"]["redistribution_status"] = value.clone();
+            let store = store("round6-nonstring-blocking", &model, true);
+            crate::upsert_library(&Connection::open(&store.path).unwrap(), "project:slots", "material", "library:invented-materials", &library).unwrap();
+            let state = save_state(&store, &model, "handoff_basis", "6e6e00006e6e00006e6e00006e6e0000").state;
+            let result = prepare(&store, &model, &state.state_id);
+            assert!(
+                matches!(&result, Err(d) if d.iter().any(|d| d.code == DISPOSITION_MALFORMED && d.message.contains("/material_records/0/provenance/redistribution_status"))),
+                "{value}: {:?}",
+                codes(&result)
+            );
+        }
+    }
+
+    /// Probe (f): checksum subject binding. Each forged subject, resealed so
+    /// the inventory is self-consistent, is refused by the Rust verifier; the
+    /// bytes are written for the Python twin (W6B_R6_FORGED).
+    #[test]
+    fn round6_forged_checksum_subjects_are_refused() {
+        let model = witness_model();
+        let store = store("round6-forge", &model, true);
+        let state = save_state(&store, &model, "handoff_basis", "6e6e00006e6e00006e6e00006e6e0000").state;
+        let prepared = prepare(&store, &model, &state.state_id).unwrap();
+        let model_bytes = prepared.model_text.clone().into_bytes();
+        let base = handoff_manifest(&prepared, &PackageStamp { package_name: "invented.swbhandoff", created_at: CREATED_AT });
+        let (good, _) = publish::seal_manifest(base.clone(), &prepared.model_hex);
+        assert!(publish::verify_bytes(&model_bytes, good.as_bytes()).is_ok());
+        let forgeries: [(&str, &str, Value); 7] = [
+            ("library-subject", "/library_refs/0/checksum/payload_ref/ref", json!("library:other")),
+            ("rule-pack-subject", "/rule_pack_refs/0/checksum/payload_ref/ref", json!("other_pack")),
+            ("units-subject", "/units_manifest/hash_refs/0/payload_ref/ref", json!("unit-system:other")),
+            ("model-basis-subject", "/model_basis/hash_refs/0/payload_ref/ref", json!("project:other")),
+            ("state-record-subject", "/model_state_refs/0/hash_refs/1/payload_ref/ref", json!("state:other")),
+            ("model-hash-scope", "/model_hash/payload_scope", json!("handoff_package_manifest")),
+            ("library-scope", "/library_refs/0/checksum/payload_scope", json!("model_payload")),
+        ];
+        let out_root = std::env::var("W6B_R6_FORGED").ok().map(PathBuf::from);
+        let mut accepted = Vec::new();
+        for (tag, pointer, value) in forgeries {
+            let mut manifest = Value::Object(base.clone());
+            *manifest.pointer_mut(pointer).unwrap_or_else(|| panic!("{tag}: {pointer} absent")) = value;
+            let Value::Object(manifest) = manifest else { unreachable!() };
+            let (text, _) = publish::seal_manifest(manifest, &prepared.model_hex);
+            let verdict = publish::verify_bytes(&model_bytes, text.as_bytes());
+            println!("ROUND6_FORGED {tag}: rust_ok={}", verdict.is_ok());
+            if verdict.is_ok() { accepted.push(tag); }
+            if let Some(root) = &out_root {
+                let dir = root.join(format!("{tag}.swbhandoff"));
+                fs::create_dir_all(dir.join(MODEL_DIRECTORY)).unwrap();
+                fs::write(dir.join(MODEL_DIRECTORY).join(MODEL_FILE), &model_bytes).unwrap();
+                fs::write(dir.join(MANIFEST_MEMBER), text.as_bytes()).unwrap();
+            }
+        }
+        if let Some(root) = &out_root {
+            let dir = root.join("control.swbhandoff");
+            fs::create_dir_all(dir.join(MODEL_DIRECTORY)).unwrap();
+            fs::write(dir.join(MODEL_DIRECTORY).join(MODEL_FILE), &model_bytes).unwrap();
+            fs::write(dir.join(MANIFEST_MEMBER), good.as_bytes()).unwrap();
+        }
+        assert!(accepted.is_empty(), "forged subjects accepted: {accepted:?}");
+    }
+
+    /// Review round 6, R6-1: the previous package edited in place after the
+    /// swap (under the staging name, before its removal) is kept, not deleted;
+    /// the new package, already confirmed, is saved with the warning.
+    #[test]
+    fn a_previous_package_edited_after_the_swap_is_kept_not_deleted() {
+        use std::io::Write as _;
+        let (store, first) = prepared_demo("round6-after-swap");
+        let target = store.root.join("target.swbhandoff");
+        assert!(matches!(write(&target, first), HandoffSaveOutcome::Saved { .. }));
+        let (_next_store, next) = prepared_demo("round6-after-swap-next");
+        let staging = store.root.join("target.swbhandoff.staging-round6-after-swap");
+        let edited = staging.join(MANIFEST_MEMBER);
+        let edited2 = edited.clone();
+        publish::R4_AFTER_ID.with(|hook| *hook.borrow_mut() = Some(Box::new(move || {
+            let mut handle = fs::OpenOptions::new().write(true).open(&edited2).unwrap();
+            handle.write_all(b"[").unwrap();
+        })));
+        let token = || Ok("round6-after-swap".to_string());
+        let out = write_handoff_package(&target, next, CREATED_AT, &PublishHooks { token: &token, ..PRODUCTION_HOOKS });
+        assert!(matches!(&out, HandoffSaveOutcome::Saved { warnings, .. } if warnings.iter().any(|w| w.code == publish::OLD_PACKAGE_LEFT)), "{out:?}");
+        assert_eq!(fs::read(&edited).unwrap().first(), Some(&b'['), "the edited previous package was deleted");
+        assert!(verify_handoff_package(&target).is_ok());
     }
 }
