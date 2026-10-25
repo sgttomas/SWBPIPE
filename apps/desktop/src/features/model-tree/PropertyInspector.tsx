@@ -9,6 +9,7 @@ import { SectionAssignment } from "../toolkit/SectionAssignment";
 import { GuardedRemoval } from "../toolkit/GuardedRemoval";
 import { ModelDataAnnotations } from "../model-data/ModelDataAnnotations";
 import { ModelSettingsSection } from "../model-settings/ModelSettingsSection";
+import { ProjectUnitsSection } from "../project-units/ProjectUnitsSection";
 import { ListPlus, Pencil, PlayCircle, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type {
@@ -593,6 +594,12 @@ export function PropertyInspector({
         <details className="inspector-details" open data-testid="model-settings-details">
           <summary>Model settings</summary>
           <ModelSettingsSection key={`model-settings:${projectSessionGeneration}`} model={model} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} unitCatalogRoute={unitCatalogRoute} />
+        </details>
+      ) : null}
+      {propertiesTarget.type === "project" ? (
+        <details className="inspector-details" open data-testid="project-units-details">
+          <summary>Project units</summary>
+          <ProjectUnitsSection key={`project-units:${projectSessionGeneration}`} model={model} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} unitCatalogRoute={unitCatalogRoute} />
         </details>
       ) : null}
       <details className="inspector-details" data-testid="model-data-annotations-details">
