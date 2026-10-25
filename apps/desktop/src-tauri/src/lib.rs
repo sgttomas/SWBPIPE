@@ -1650,10 +1650,13 @@ async fn save_model_document_decoded(
 /// (`state_id` absent) or a saved state's, which the desktop refuses at open,
 /// written to a file the user chooses exactly as the store holds it
 /// (`stored_model_document_export`). It needs the explicit local-private
-/// intent, screens the document's dispositions, then shows the Save Model
-/// Document chooser and writes with its atomic writer. Nothing is adopted and
-/// the store is only read. The outcome's `model_hash` is the SHA-256 of the
-/// bytes written (for a saved state, its model hash).
+/// intent; the store is opened read-only and not migrated; the read is
+/// admitted by the memory pool as the saved-state reader's is, and capped at
+/// the model-document file size; the text must hold each object member once,
+/// and its dispositions are screened. Then the Save Model Document chooser is
+/// shown and its atomic writer writes, the text's reservation held throughout.
+/// Nothing is adopted. The outcome's `model_hash` is the SHA-256 of the bytes
+/// written (for a saved state, its model hash).
 #[tauri::command]
 async fn save_stored_model_document_file(
     app: AppHandle,
@@ -1661,7 +1664,7 @@ async fn save_stored_model_document_file(
     state_id: Option<String>,
     explicit_local_private_intent: bool,
 ) -> Result<model_document_save::ModelDocumentSaveOutcome, String> {
-    use model_document_save::{ModelDocumentSaveOutcome as Outcome, PICKER_PATH_INVALID, WORKER_FAILED};
+    use model_document_save::{ModelDocumentSaveOutcome as Outcome, WORKER_FAILED};
     use stored_model_document_export as export;
     if !explicit_local_private_intent {
         return Ok(Outcome::refused_one(
@@ -1669,33 +1672,29 @@ async fn save_stored_model_document_file(
             "Saving the stored document needs the explicit choice to save it, including private project data, to a file.",
         ));
     }
-    let store_app = app.clone();
-    let admitted = match tauri::async_runtime::spawn_blocking(move || {
+    // The chooser blocks this worker, not the main thread; the reservations
+    // the read takes are held by it through the write.
+    Ok(tauri::async_runtime::spawn_blocking(move || {
         let named = export::stored_document_name(&project_id, state_id.as_deref());
-        let unavailable = |error: String| vec![export_disposition_screen::diagnostic(export::STORE_UNAVAILABLE, "", format!("The local project store could not be read for {named} ({error}); nothing was written."))];
-        let connection = open_project_store(&app_store_path(&store_app).map_err(&unavailable)?).map_err(&unavailable)?.0;
-        let text = export::read_stored_model_text(&connection, &project_id, state_id.as_deref())
-            .map_err(&unavailable)?
-            .ok_or_else(|| vec![export_disposition_screen::diagnostic(export::NOT_FOUND, "", format!("The local project store holds no {named}; nothing was written."))])?;
-        drop(connection);
-        let mut lookup = library_store_lookup(&store_app);
-        export::admit_stored_model_text(text, &mut lookup)
+        // The store's path, without `app_store_path`'s directory creation and
+        // legacy carry-forward: the export creates and writes nothing there.
+        let store = match app.path().app_local_data_dir() {
+            Ok(directory) => directory.join(PROJECT_STORE_FILE),
+            Err(error) => {
+                return Outcome::refused_one(
+                    export::STORE_UNAVAILABLE,
+                    format!("The local project store could not be located for {named} ({error}); nothing was written."),
+                )
+            }
+        };
+        let registry = app.state::<SolveJobRegistry>();
+        let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
+        export::export_stored_model_document(&store, &project_id, state_id.as_deref(), &registry, |suggested| {
+            choose_model_document_save_path(&app, suggested, directory)
+        })
     })
     .await
-    {
-        Ok(Ok(admitted)) => admitted,
-        Ok(Err(diagnostics)) => return Ok(Outcome::refused(diagnostics)),
-        Err(_) => return Ok(Outcome::refused_one(WORKER_FAILED, "The export's read worker did not complete.")),
-    };
-    let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
-    let destination = match choose_model_document_save_path(&app, &admitted.suggested_file_name, directory) {
-        Ok(Some(destination)) => destination,
-        Ok(None) => return Ok(Outcome::Cancelled),
-        Err(message) => return Ok(Outcome::refused_one(PICKER_PATH_INVALID, message)),
-    };
-    Ok(tauri::async_runtime::spawn_blocking(move || model_document_save::write_admitted_model_document(&destination, admitted))
-        .await
-        .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The export's write worker did not complete; the destination may be unchanged.")))
+    .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The export's worker did not complete; the destination may be unchanged.")))
 }
 
 fn choose_model_document_save_path(
