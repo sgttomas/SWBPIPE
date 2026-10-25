@@ -157,3 +157,4 @@ checks:
 - apps/desktop/src/services/projectService.test.ts
 - apps/desktop/e2e/b3a-session-status.spec.ts
 - apps/desktop/e2e/b3b-project-persistence.spec.ts
+- apps/desktop/native-smoke/driver.test.mjs
