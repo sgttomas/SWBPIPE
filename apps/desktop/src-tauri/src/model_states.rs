@@ -105,6 +105,7 @@ pub(crate) const LIST_MODEL_STATES_MAX_ARGS_BYTES: usize = HISTORY_COMMAND_MAX_A
 pub(crate) const READ_MODEL_STATE_MAX_ARGS_BYTES: usize = HISTORY_COMMAND_MAX_ARGS_BYTES;
 pub(crate) const DELETE_MODEL_STATE_MAX_ARGS_BYTES: usize = HISTORY_COMMAND_MAX_ARGS_BYTES;
 pub(crate) const EDIT_MODEL_STATE_LABELS_MAX_ARGS_BYTES: usize = HISTORY_COMMAND_MAX_ARGS_BYTES;
+pub(crate) const ADMIT_MODEL_STATE_COMPARISON_MAX_ARGS_BYTES: usize = HISTORY_COMMAND_MAX_ARGS_BYTES;
 
 /// The longest tag, as for model tags (DEL-02-01 `model-document-0.7.0.md` §3.1).
 const MAX_TAG_CHARS: usize = 64;
@@ -2857,6 +2858,115 @@ pub(crate) fn delete_model_state_args(
         .map_err(|error| CommandError::Command(stored_read::capped(error)))
 }
 
+/// The refusal of a state comparison whose two snapshots are larger together
+/// than the per-invocation budget (W-12 S3a).
+pub(crate) const COMPARISON_STATES_TOO_LARGE: &str = "COMPARISON-STATES-TOO-LARGE";
+
+/// The size admission of a comparison of two saved states of one project
+/// (W-12 S3a; DEL-14-01 Design `desktop-states-runs-comparison.md` §4.1, with
+/// §4.2's memory rule applied to states). Lengths only: no stored value is
+/// loaded, and no id is echoed, so the response has a small constant size.
+#[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
+pub(crate) struct ModelStateComparisonAdmission {
+    pub(crate) left_snapshot_bytes: u64,
+    pub(crate) right_snapshot_bytes: u64,
+    pub(crate) combined_bytes: u64,
+    pub(crate) budget_bytes: u64,
+}
+
+/// `admit_model_state_comparison` on a given store: the stored byte lengths
+/// of the two states' snapshots (`octet_length`, which reads record headers
+/// and loads no value), in one read transaction that first reserves SQLite's
+/// working set as every history command does. The comparison is refused by
+/// name (`COMPARISON-STATES-TOO-LARGE`) when their sum exceeds
+/// `budget_bytes`, the per-invocation budget, before either snapshot is read;
+/// a state that is not saved in `project_id` is `MODEL-STATE-NOT-FOUND`
+/// (both states are of one project: the desktop compares states within a
+/// project only). The admission is a check, not a lease: the comparison runs
+/// in the webview after the two metered reads (`read_model_state`), and its
+/// working memory there is not priced (DEL-04-07's documented residual).
+pub(crate) fn admit_state_comparison_in_store_with(
+    path: &Path,
+    project_id: &str,
+    left_state_id: &str,
+    right_state_id: &str,
+    budget_bytes: u64,
+    memory: &dyn ReadMemory,
+) -> Result<ModelStateComparisonAdmission, String> {
+    let mut connection = stored_read::open_store(path)?;
+    let transaction = stored_read::read_transaction(&mut connection)?;
+    let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory)?;
+    let snapshot_length = |state_id: &str| -> Result<u64, String> {
+        let length: Option<i64> = transaction
+            .query_row(
+                "SELECT octet_length(model_canonical) FROM model_states WHERE project_id = ?1 AND state_id = ?2",
+                params![project_id, state_id],
+                |row| row.get(0),
+            )
+            .optional()
+            .map_err(sql)?
+            .ok_or_else(|| {
+                format!(
+                    "MODEL-STATE-NOT-FOUND: project `{}` has no saved state `{}`.",
+                    stored_read::shown(project_id),
+                    stored_read::shown(state_id)
+                )
+            })?;
+        Ok(u64::try_from(length.unwrap_or(0)).unwrap_or(0))
+    };
+    let left_snapshot_bytes = snapshot_length(left_state_id)?;
+    let right_snapshot_bytes = snapshot_length(right_state_id)?;
+    let combined_bytes = left_snapshot_bytes.saturating_add(right_snapshot_bytes);
+    if combined_bytes > budget_bytes {
+        return Err(format!(
+            "{COMPARISON_STATES_TOO_LARGE}: comparing saved states `{}` and `{}` needs their two snapshots, {combined_bytes} bytes together, above the per-invocation budget of {budget_bytes} bytes; nothing was read and nothing was compared.",
+            stored_read::shown(left_state_id),
+            stored_read::shown(right_state_id)
+        ));
+    }
+    Ok(ModelStateComparisonAdmission { left_snapshot_bytes, right_snapshot_bytes, combined_bytes, budget_bytes })
+}
+
+/// `{projectId, leftStateId, rightStateId}`.
+pub(crate) fn admit_model_state_comparison_args(
+    args: &mut Args,
+    store: impl FnOnce() -> Result<PathBuf, String>,
+    budget_bytes: u64,
+    memory: &dyn ReadMemory,
+) -> Result<Metered<ModelStateComparisonAdmission>, CommandError> {
+    let project_id: String = args.decode("projectId")?;
+    let left_state_id: String = args.decode("leftStateId")?;
+    let right_state_id: String = args.decode("rightStateId")?;
+    store()
+        .and_then(|path| {
+            admit_state_comparison_in_store_with(&path, &project_id, &left_state_id, &right_state_id, budget_bytes, memory)
+        })
+        .map(Metered::new)
+        .map_err(|error| CommandError::Command(stored_read::capped(error)))
+}
+
+#[tauri::command]
+pub fn admit_model_state_comparison(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError> {
+    let (mut args, lease) = command_ingress::admit_within(
+        &registry,
+        &invoke,
+        "admit_model_state_comparison",
+        ArgsDecoding::Moved,
+        ADMIT_MODEL_STATE_COMPARISON_MAX_ARGS_BYTES,
+    )?;
+    let memory = PoolReadMemory::new(&registry, &lease);
+    let budget_bytes = registry.pool_status().invocation_budget_bytes;
+    stored_read::respond_metered(
+        &memory,
+        "admit_model_state_comparison",
+        admit_model_state_comparison_args(&mut args, || crate::app_store_path(&app), budget_bytes, &memory),
+    )
+}
+
 #[tauri::command]
 pub fn save_model_state(
     app: AppHandle,
@@ -4203,6 +4313,87 @@ mod tests {
         );
     }
 
+    /// W-12 S3a: a comparison of two saved states is admitted when their two
+    /// snapshots fit the per-invocation budget together, and refused by name,
+    /// before either is read, when they do not. Only lengths are read; states of
+    /// another project are not found (comparison is within one project).
+    #[test]
+    fn a_state_comparison_is_admitted_by_the_snapshots_combined_size() {
+        let path = store_with_project("compare-admission", "sha256:base-1");
+        let left_model = model("Invented project");
+        let mut right_model = model("Invented project");
+        right_model["nodes"] = json!([{ "id": "node:N-100", "coordinates": [0, 0, 0] }, { "id": "node:N-200", "coordinates": [1, 0, 0] }]);
+        let left = save(&path, request(&left_model, "sha256:base-1", "Left"), "00000000000000000000000000000c01", 1_000).unwrap();
+        let right = save(&path, request(&right_model, "sha256:base-1", "Right"), "00000000000000000000000000000c02", 2_000).unwrap();
+        let left_bytes = canonical_json(&left_model).len() as u64;
+        let right_bytes = canonical_json(&right_model).len() as u64;
+        let combined = left_bytes + right_bytes;
+        let (left_id, right_id) = (left.state.state_id.as_str(), right.state.state_id.as_str());
+
+        // Within the budget (at it exactly): admitted, with the stored lengths.
+        let admitted = admit_state_comparison_in_store_with(&path, PROJECT, left_id, right_id, combined, &UnmeteredReadMemory).unwrap();
+        assert_eq!(
+            admitted,
+            ModelStateComparisonAdmission { left_snapshot_bytes: left_bytes, right_snapshot_bytes: right_bytes, combined_bytes: combined, budget_bytes: combined }
+        );
+        // One byte over: refused by name, naming both states.
+        let refused = admit_state_comparison_in_store_with(&path, PROJECT, left_id, right_id, combined - 1, &UnmeteredReadMemory).unwrap_err();
+        assert!(refused.starts_with(COMPARISON_STATES_TOO_LARGE), "{refused}");
+        assert!(refused.contains(left_id) && refused.contains(right_id) && refused.contains(&format!("{combined} bytes together")), "{refused}");
+        // A state that is not saved in the project is not found.
+        let missing = admit_state_comparison_in_store_with(&path, PROJECT, left_id, "state:00000000000000000000000000000c99", u64::MAX, &UnmeteredReadMemory).unwrap_err();
+        assert!(missing.starts_with("MODEL-STATE-NOT-FOUND"), "{missing}");
+        let other_project = admit_state_comparison_in_store_with(&path, "project:another-invented", left_id, right_id, u64::MAX, &UnmeteredReadMemory).unwrap_err();
+        assert!(other_project.starts_with("MODEL-STATE-NOT-FOUND"), "{other_project}");
+
+        // Through the command's decoder, under the pool: the response is the four lengths
+        // and every lease is released.
+        let pool = registry(ScriptedHost::normal());
+        let (mut args, lease) = admit_json(
+            &pool,
+            "admit_model_state_comparison",
+            ArgsDecoding::Moved,
+            &json!({ "projectId": PROJECT, "leftStateId": left_id, "rightStateId": right_id }),
+        )
+        .unwrap();
+        {
+            let memory = PoolReadMemory::new(&pool, &lease);
+            let response = stored_read::respond_metered(
+                &memory,
+                "admit_model_state_comparison",
+                admit_model_state_comparison_args(&mut args, || Ok(path.clone()), combined, &memory),
+            )
+            .unwrap();
+            use tauri::ipc::IpcResponse;
+            let body: Value = match response.body().unwrap() {
+                tauri::ipc::InvokeResponseBody::Json(text) => serde_json::from_str(&text).unwrap(),
+                tauri::ipc::InvokeResponseBody::Raw(_) => panic!("raw response"),
+            };
+            assert_eq!(
+                body,
+                json!({ "left_snapshot_bytes": left_bytes, "right_snapshot_bytes": right_bytes, "combined_bytes": combined, "budget_bytes": combined })
+            );
+        }
+        drop(lease);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+        let (mut args, lease) = admit_json(
+            &pool,
+            "admit_model_state_comparison",
+            ArgsDecoding::Moved,
+            &json!({ "projectId": PROJECT, "leftStateId": left_id, "rightStateId": right_id }),
+        )
+        .unwrap();
+        {
+            let memory = PoolReadMemory::new(&pool, &lease);
+            match admit_model_state_comparison_args(&mut args, || Ok(path.clone()), combined - 1, &memory) {
+                Err(CommandError::Command(error)) => assert!(error.starts_with(COMPARISON_STATES_TOO_LARGE), "{error}"),
+                other => panic!("expected the size refusal, got {other:?}"),
+            }
+        }
+        drop(lease);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+    }
+
     #[test]
     fn each_command_is_admitted_with_its_own_budget() {
         let registry = registry(ScriptedHost::normal());
@@ -4213,6 +4404,10 @@ mod tests {
             (
                 "edit_model_state_labels",
                 EDIT_MODEL_STATE_LABELS_MAX_ARGS_BYTES,
+            ),
+            (
+                "admit_model_state_comparison",
+                ADMIT_MODEL_STATE_COMPARISON_MAX_ARGS_BYTES,
             ),
         ] {
             let at_budget = InvokeBody::Raw(

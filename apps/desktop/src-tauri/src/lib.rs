@@ -5256,6 +5256,7 @@ macro_rules! app_invoke_handler {
             model_states::read_model_state,
             model_states::edit_model_state_labels,
             model_states::delete_model_state,
+            model_states::admit_model_state_comparison,
             analysis_runs::record_analysis_run,
             analysis_runs::list_analysis_runs,
             analysis_runs::read_analysis_run,

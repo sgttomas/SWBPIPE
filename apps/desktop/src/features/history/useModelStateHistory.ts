@@ -1,12 +1,14 @@
 // The session's model-state history (W-12 S1 and S2; DEL-14-01 Design
 // `desktop-states-runs-comparison.md` §2, §3): Save Model State…, Open State,
 // Record Run, the History panel's lists of states and recorded runs, label
-// edits, delete and a recorded run's check. Called only by the session
+// edits, delete, a recorded run's check and Compare… of two saved states (S3a).
+// Called only by the session
 // (`useWorkspaceSession`), which hands it the cells and handlers it needs; the
 // History panel reads the result through `useSessionHistory()`.
 import { useEffect, useRef, useState } from "react";
 import type { MutableRefObject } from "react";
 import {
+  admitModelStateComparison,
   deleteModelState,
   deleteUnreadableModelState,
   editModelStateLabels,
@@ -36,6 +38,7 @@ import {
   type RunLabels
 } from "../../services/analysisRunService";
 import { buildRecordedRunContext, type HistoricalRunContext } from "../results/HistoricalRunContext";
+import { compareModelDocuments, StateComparisonRefusal, type StateComparison } from "../comparison/stateComparison";
 import { computeModelHash } from "../../services/hashService";
 import type { UnreadableRow } from "../../services/historyListEntries";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
@@ -104,6 +107,23 @@ export type RecordedRunCheck = {
   manifest?: CurrentSessionInputManifest | null;
 };
 
+/** A comparison of two saved states of the session's project (W-12 S3a): the
+ * earlier-saved state is the left side. View-only; nothing is exported or kept. */
+export type StateComparisonResult = {
+  projectId: string;
+  left: ModelStateSummary;
+  right: ModelStateSummary;
+  comparison: StateComparison;
+};
+
+/** Why Compare… of these states is not offered, or null when it is. */
+export function stateCompareUnavailableReason(selected: readonly string[], states: readonly ModelStateSummary[] | null): string | null {
+  if (!states) return "No saved states are listed.";
+  const listed = selected.filter((id) => states.some((state) => state.state_id === id));
+  if (listed.length !== 2) return "Select two saved states to compare.";
+  return null;
+}
+
 function parsedManifest(text: string): CurrentSessionInputManifest | null {
   try {
     const value: unknown = JSON.parse(text);
@@ -123,6 +143,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   // The rows the store listed as unreadable (W-12): ids and refusals only.
   const [unreadable, setUnreadable] = useState<{ states: UnreadableRow[]; runs: UnreadableRow[] } | null>(null);
   const [runCheck, setRunCheck] = useState<RecordedRunCheck | null>(null);
+  const [stateComparison, setStateComparison] = useState<StateComparisonResult | null>(null);
   // The model hash of the slot's solved model (its input manifest's payload), for
   // naming the state Record Run ties the run to.
   const [solvedModelHash, setSolvedModelHash] = useState<{ manifest: unknown; hash: string | null } | null>(null);
@@ -173,6 +194,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   useEffect(() => {
     void refreshStates(projectId);
     setRunCheck(null);
+    setStateComparison(null);
   }, [projectId, deps.projectSessionGeneration]);
 
   const slotManifest = deps.runSlot.inputManifest;
@@ -570,7 +592,57 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     }
   }
 
+  /** Compare… (W-12 S3a): two saved states of the session's project, read through
+   * the metered store reads after the store admits their combined snapshot size,
+   * then compared by stable id (`stateComparison.ts`). It goes through the
+   * one-owner check and is refused while a prompt or operation holds the session.
+   * Nothing about the session or the states changes. */
+  async function compareStates(firstStateId: string, secondStateId: string): Promise<boolean> {
+    const first = states?.find((candidate) => candidate.state_id === firstStateId);
+    const second = states?.find((candidate) => candidate.state_id === secondStateId);
+    if (!first || !second || first.state_id === second.state_id || first.project_id !== second.project_id) {
+      setHistoryMessage("Not compared: select two different saved states of this project.");
+      setHistoryOperation("compare_states_refused");
+      return false;
+    }
+    if (refusedWhileBusy("Not compared", "compare_states_busy")) return false;
+    // The earlier-saved state is the left side.
+    const [left, right] = first.created_at <= second.created_at ? [first, second] : [second, first];
+    const owner = begin();
+    if (!owner) return false;
+    const generation = depsRef.current.projectSessionGenerationRef.current;
+    const sameSession = () => generation === depsRef.current.projectSessionGenerationRef.current;
+    try {
+      // The store refuses by name, before either snapshot is read, when the two
+      // together exceed the per-invocation budget.
+      await admitModelStateComparison(left.project_id, left.state_id, right.state_id);
+      const leftRead = await readModelState(left.project_id, left.state_id);
+      const rightRead = await readModelState(right.project_id, right.state_id);
+      if (leftRead.model.project.id !== left.project_id || rightRead.model.project.id !== right.project_id) {
+        throw new Error("MODEL-STATE-INTEGRITY: a read snapshot is not of the saved state's project; nothing was compared.");
+      }
+      const comparison = compareModelDocuments(leftRead.model, rightRead.model);
+      if (!sameSession()) return false;
+      setStateComparison({ projectId: left.project_id, left: leftRead.state, right: rightRead.state, comparison });
+      const { added, removed, changed, unchanged } = comparison.summary;
+      setHistoryMessage(`Compared ${modelStateDescription(left)} with ${modelStateDescription(right)}: ${added} added, ${removed} removed, ${changed} changed, ${unchanged} unchanged. Neither state changes.`);
+      setHistoryOperation("compare_states");
+      return true;
+    } catch (error) {
+      if (!sameSession()) return false;
+      setHistoryMessage(`Not compared: ${error instanceof StateComparisonRefusal ? error.message : nativeFailureText(error)}`);
+      setHistoryOperation("compare_states_failed");
+      return false;
+    } finally {
+      end(owner);
+    }
+  }
+
   return {
+    /** The last comparison of two saved states (view-only), or null. */
+    stateComparison: stateComparison && stateComparison.projectId === projectId ? stateComparison : null,
+    compareStates,
+    closeStateComparison: () => setStateComparison(null),
     runs: statesProjectId === projectId ? runs : null,
     /** The rows the store could not read, by id and refusal only. */
     unreadable: statesProjectId === projectId ? unreadable : null,
