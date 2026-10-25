@@ -344,6 +344,7 @@ code_paths:
 - apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx
 - apps/desktop/src/features/comparison/ComparisonPanel.tsx
 - apps/desktop/src/features/comparison/StateComparisonView.tsx
+- apps/desktop/src/features/comparison/RunComparisonView.tsx
 - apps/desktop/src/features/comparison/stateComparison.ts
 - apps/desktop/src/features/history/HistoryPanel.tsx
 - apps/desktop/src/features/history/useModelStateHistory.ts
@@ -361,4 +362,5 @@ checks:
 - apps/desktop/src/features/history/HistoryPanel.runs.test.tsx
 - apps/desktop/src/features/history/recordRun.session.test.tsx
 - apps/desktop/src/features/history/compareStates.test.tsx
+- apps/desktop/src/features/history/compareRuns.test.tsx
 - tests/test_design_authoring_comparison_workspace.py
