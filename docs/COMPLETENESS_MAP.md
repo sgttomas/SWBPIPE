@@ -88,11 +88,11 @@ app at the basis.
 
 The biggest gaps:
 
-1. **No shareable report, no EX report, no report package.** A public render of
+1. **No shareable report, no EX report or report package.** A public render of
    any session stays `blocked=true`, because session provenance is hard-coded
    private (`renderableReportInput.ts:119-131`). EX results are refused for
-   every report (ruling 10A). Save Report Package refuses every current result
-   (`REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`). The report lacks materials,
+   every report and the report package (ruling 10A). Save Report Package saves
+   a local private package for a pressure-free result (W-18 (b2)). The report lacks materials,
    sections and library records. Affected: FR-REP-001..004.
 2. **Desktop run comparison is still missing.** Model states, run history and
    comparison are in v0.1 by OD-1. Named immutable states are in the desktop (W-12 S1,
@@ -464,7 +464,7 @@ exercise today:
 The native smoke's five stale `expected.json` values (§3 rows 1–5) are applied,
 so a run on main shows no known failure.
 
-These are **not ready**: shareable or EX reports, the report package, model
+These are **not ready**: shareable or EX reports and report packages, model
 states and comparison, canonical model export, rigid components, EX
 combinations, PF imposed displacement and the 0.7.0
 document slots.
@@ -546,7 +546,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-15 | DEC-045 stiffness scaling for rigid and semi-rigid components (FR-SOL-004/012), component weight, EX admission, eccentric reducer offset (§12.3), rigid-link benchmark; fix the `validation.rs:1367` comment | M–L | numerical | heavy, scrutiny | — | No (OD-2 decided) |
 | W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | — | No |
 | W-17 (rest) | Units after creation (slice b, `set_project_unit`); rule-pack §17.2 stress categories, load-case mappings and required load cases | S–M each | desktop / schema | heavy | — | No (§17.2 decided, owner 2026-10-24: "I approve your recommended option A."; stress categories, load-case mappings and required load cases in v0.1, under a new rule-pack format version) |
-| W-18 (new) | Report package for current results (FR-REP-001; `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private). Slice (a), the Rust 2.0.0 producer, reader and runner witness, is on main (#1597); slice (b1), native admission and disposition screening of the save (`report_package_save.rs`, shared `export_disposition_screen.rs`), replaces its native hold; (b2) desktop opening remains (DEL-08-01 Design `report-package-current-results.md` §6) | M | desktop + Rust | heavy | W-3 | Shareable path decided (owner, 2026-10-24, option B: a per-report user release, W-18b, after (a)–(b2)) |
+| W-18 (new) | Report package for current results (FR-REP-001; formerly `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private). Slice (a), the Rust 2.0.0 producer, reader and runner witness, is on main (#1597); slice (b1), native admission and disposition screening of the save (`report_package_save.rs`, shared `export_disposition_screen.rs`), replaces its native hold; slice (b2), the desktop opening (`reportPackageRequest.ts`, the split save service, the solve/rule-check rule-pack agreement and a native smoke step), saves a local private package for a Current pressure-free result, and exact routes stay refused (DEL-08-01 Design `report-package-current-results.md` §6) | M | desktop + Rust | heavy | W-3 | Shareable path decided (owner, 2026-10-24, option B: a per-report user release, W-18b, after (a)–(b2)) |
 | W-14 | Design-knowledge entry and constraint validation | — | — | — | — | Deferred to v0.2 (OD-3) |
 
 **Sequencing:**
