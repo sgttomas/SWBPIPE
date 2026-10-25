@@ -180,8 +180,10 @@ only route" statement is made.
   The desktop `imposed_displacement` primitive solves where supported and is
   refused with a named, readable reason elsewhere. Priced change: D3
   re-registration with independent review.
-- **Stage 2:** imposed motion in a model with nonlinear supports, in two
-  separable parts. (R-a) Rigid anchors and restraints carry stage-1 primitives
+- **Stage 2 (designed, not implemented):** until its implementation lands, the
+  pressure-free route refuses imposed motion in a model with nonlinear supports
+  by name (`IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS`). The design covers
+  imposed motion in a model with nonlinear supports, in two separable parts. (R-a) Rigid anchors and restraints carry stage-1 primitives
   as nonzero base prescribed values in the nonlinear active-set loop and its
   K-D5 confirmation; every nonlinear support's ground stays fixed. (R-b) A
   primitive on a nonlinear support's own DOF moves that support's ground: gap

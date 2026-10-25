@@ -1,5 +1,16 @@
 # Imposed displacement with nonlinear supports (stage 2)
 
+**Status: a design, not current behaviour.** Until the stage-2 implementation
+lands, the pressure-free route refuses any imposed motion in a model with
+nonlinear supports by name (`IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS`),
+and refuses motion targeted at a nonlinear support
+(`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`). Throughout this document, "is",
+"becomes" and "publishes" describe the designed stage 2.
+
+**Open items**, outside this design:
+- motion of a linear spring's base, which keeps its refusal (§3.3);
+- motion of the rigid restraints on mixed nonlinear records (§3.3).
+
 This design extends imposed displacement on the pressure-free route (PF) to
 models with nonlinear supports: gap, one-way, lift-off and friction. It is
 stage 2 of the owner's ruling, 2026-10-23, verbatim: "Row 2 I approve option
