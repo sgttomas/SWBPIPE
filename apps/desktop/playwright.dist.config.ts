@@ -1,5 +1,4 @@
 import { defineConfig, devices } from "@playwright/test";
-import { existsSync } from "node:fs";
 
 // TP-APP-R2-WASMPKG-001 production-dist e2e lane: runs against the BUILT
 // `dist/` via `vite preview` (not the dev server), so it exercises the same
@@ -7,14 +6,13 @@ import { existsSync } from "node:fs";
 // caught the wasm-engine assets never reaching `dist`. The tauri:// asset
 // protocol itself is not reachable from a browser; that last hop stays on
 // the packaged manual pass (TP-MAC-141).
-const configuredChrome = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
-const macChrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const executablePath =
-  configuredChrome && existsSync(configuredChrome)
-    ? configuredChrome
-    : existsSync(macChrome)
-      ? macChrome
-      : undefined;
+// Browser: Playwright's pinned Chromium, the build matching the installed
+// @playwright/test (`npx playwright install chromium`). An explicit
+// PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH overrides it, and a missing override
+// fails the launch rather than switching browsers. There is no fallback to an
+// installed Google Chrome: its version drifts with the machine, and wheel and
+// scroll behaviour the specs measure differs between builds.
+const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined;
 
 // Worker cap: identical rationale to playwright.config.ts — run e2e workers
 // serially under the DEC-025 sweep's machine load so slow Chromium teardown

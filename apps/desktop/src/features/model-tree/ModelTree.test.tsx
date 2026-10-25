@@ -45,6 +45,29 @@ describe("ModelTree virtual typed selection", () => {
     })));
   });
 
+  it("shows tree records in the Tree layout only and keeps their drafts across a Grid round trip", () => {
+    render(<ModelTree
+      boundedGrid
+      model={largeModel()}
+      onSelect={vi.fn()}
+      selection={{ type: "node", id: "n/0" }}
+      treeRecords={<section aria-label="Lines" data-testid="lines-section"><input aria-label="New line label" /></section>}
+    />);
+    const tree = screen.getByLabelText("Model tree");
+    const records = screen.getByTestId("lines-section");
+    expect(tree.contains(records)).toBe(true);
+    expect(records.closest("[hidden]")).toBeNull();
+    fireEvent.change(screen.getByLabelText("New line label"), { target: { value: "retained line" } });
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    expect(tree).toHaveAttribute("data-bounded-grid", "true");
+    expect(records.closest("[hidden]")).not.toBeNull();
+    expect(records.closest("[inert]")).not.toBeNull();
+    fireEvent.click(screen.getByTestId("layout-mode-tree"));
+    expect(screen.getByTestId("lines-section")).toBe(records);
+    expect(records.closest("[hidden]")).toBeNull();
+    expect(screen.getByLabelText("New line label")).toHaveValue("retained line");
+  });
+
   it("retains collision-safe grid drafts across type/filter changes and resets them on a same-ID new session", () => {
     const model = largeModel();
     const onQueueIntent = vi.fn();

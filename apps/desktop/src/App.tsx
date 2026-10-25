@@ -444,15 +444,17 @@ function AppSession() {
               onSelect={handleSelectEntity}
               onFocusChange={(key) => commitSelectionState(setSelectionFocus(orderedSelectionRef.current, key))}
               onFilterPublication={handleTreePublication}
-            />
-            <LinesSection
-              key={`lines:${projectSessionGeneration}`}
-              model={model}
-              selection={selection}
-              selectionState={orderedSelection}
-              queuedIntents={editorIntents}
-              onQueueIntent={handleQueueEditorIntent}
-              operationBusy={operationBusy}
+              treeRecords={
+                <LinesSection
+                  key={`lines:${projectSessionGeneration}`}
+                  model={model}
+                  selection={selection}
+                  selectionState={orderedSelection}
+                  queuedIntents={editorIntents}
+                  onQueueIntent={handleQueueEditorIntent}
+                  operationBusy={operationBusy}
+                />
+              }
             />
             </div>
           <div className={shell.tab === "model-tree" ? "workspace-dock-body shell-stage-sections inactive" : "workspace-dock-body shell-stage-sections"}>

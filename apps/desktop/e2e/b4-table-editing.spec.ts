@@ -1,4 +1,3 @@
-import { existsSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { attachBrowserIdentity, currentModelHashThroughVisibleExport, gotoModel, readFixture, gotoRoutedFixture } from "./ui-foundation-workflows";
 import { ensureTreeExpanded, openWorkspaceSection, showModelTree } from "./workspace-driver";
@@ -773,9 +772,10 @@ for (const view of ["model", "both"] as const) {
   });
 }
 
+// Same browser as playwright.config.ts: Playwright's pinned Chromium unless
+// PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH overrides it explicitly.
 const classicTest = test.extend({ browser: [async ({ playwright }, use) => {
-  const chrome = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-  const browser = await playwright.chromium.launch({ ignoreDefaultArgs: ["--hide-scrollbars"], executablePath: existsSync(chrome) ? chrome : undefined });
+  const browser = await playwright.chromium.launch({ ignoreDefaultArgs: ["--hide-scrollbars"], executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined });
   try { await use(browser); } finally { await browser.close(); }
 }, { scope: "worker" }] });
 classicTest.describe("classic scrollbar allocation", () => {
