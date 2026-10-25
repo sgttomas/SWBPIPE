@@ -390,7 +390,7 @@ fn named(kind: &str, id: Option<&str>, index: usize) -> String {
 }
 
 /// Where a nested record sits. Its name and path are formed only for a finding
-/// (`check_at`), so the scan of a request without one forms neither.
+/// (`check_nested`), so the scan of a request without one forms neither.
 #[derive(Clone, Copy)]
 enum At<'a> {
     /// `{collection}[{index}]`, named `{kind} `{id}``.
@@ -402,39 +402,39 @@ enum At<'a> {
 }
 
 impl<'a> At<'a> {
-    fn record(collection: &'static str, kind: &'static str, index: usize, record: &'a serde_json::Map<String, Value>) -> Self {
+    fn in_collection(collection: &'static str, kind: &'static str, index: usize, record: &'a serde_json::Map<String, Value>) -> Self {
         At::Record { collection, kind, index, id: id_of(record) }
     }
 
-    fn name(&self) -> String {
+    fn finding_name(&self) -> String {
         match *self {
             At::Record { kind, index, id, .. } => named(kind, id, index),
-            At::Member { parent, key } => format!("the {key} of {}", parent.name()),
-            At::Entry { parent, kind, index, id, .. } => format!("{} of {}", named(kind, id, index), parent.name()),
+            At::Member { parent, key } => format!("the {key} of {}", parent.finding_name()),
+            At::Entry { parent, kind, index, id, .. } => format!("{} of {}", named(kind, id, index), parent.finding_name()),
         }
     }
 
-    fn path(&self) -> String {
+    fn finding_path(&self) -> String {
         match *self {
             At::Record { collection, index, .. } => format!("{collection}[{index}]"),
-            At::Member { parent, key } => format!("{}.{key}", parent.path()),
-            At::Entry { parent, key, index, .. } => format!("{}.{key}[{index}]", parent.path()),
+            At::Member { parent, key } => format!("{}.{key}", parent.finding_path()),
+            At::Entry { parent, key, index, .. } => format!("{}.{key}[{index}]", parent.finding_path()),
         }
     }
 }
 
 /// `check` for a nested record, which is named and placed only for a finding.
-fn check_at(record: &serde_json::Map<String, Value>, accepted: &[&str], at: &At<'_>, findings: &mut Vec<Finding>) {
+fn check_nested(record: &serde_json::Map<String, Value>, accepted: &[&str], at: &At<'_>, findings: &mut Vec<Finding>) {
     for key in record.keys() {
         if !accepted.contains(&key.as_str()) {
-            findings.push(Finding { field: key.clone(), record: at.name(), path: at.path() });
+            findings.push(Finding { field: key.clone(), record: at.finding_name(), path: at.finding_path() });
         }
     }
 }
 
 /// The member record `key` of `record`, checked when it is an object, with
 /// where it sits.
-fn member<'a>(
+fn nested_member<'a>(
     record: &'a serde_json::Map<String, Value>,
     key: &'a str,
     accepted: &[&str],
@@ -443,12 +443,12 @@ fn member<'a>(
 ) -> Option<(&'a serde_json::Map<String, Value>, At<'a>)> {
     let object = record.get(key)?.as_object()?;
     let at = At::Member { parent, key };
-    check_at(object, accepted, &at, findings);
+    check_nested(object, accepted, &at, findings);
     Some((object, at))
 }
 
 /// The closed quantities `keys` of `record`.
-fn quantities(
+fn nested_quantities(
     record: &serde_json::Map<String, Value>,
     keys: &[&'static str],
     accepted: &[&str],
@@ -456,14 +456,14 @@ fn quantities(
     findings: &mut Vec<Finding>,
 ) {
     for key in keys {
-        member(record, key, accepted, parent, findings);
+        nested_member(record, key, accepted, parent, findings);
     }
 }
 
 /// A support stiffness record and its value.
-fn stiffness(record: &serde_json::Map<String, Value>, fields: &RecordFields, parent: &At<'_>, findings: &mut Vec<Finding>) {
-    if let Some((stiffness, at)) = member(record, "stiffness", fields.stiffness, parent, findings) {
-        member(stiffness, "value", fields.magnitude, &at, findings);
+fn nested_stiffness(record: &serde_json::Map<String, Value>, fields: &RecordFields, parent: &At<'_>, findings: &mut Vec<Finding>) {
+    if let Some((stiffness, at)) = nested_member(record, "stiffness", fields.stiffness, parent, findings) {
+        nested_member(stiffness, "value", fields.magnitude, &at, findings);
     }
 }
 
@@ -475,65 +475,65 @@ fn nested_records(
     findings: &mut Vec<Finding>,
 ) {
     for (i, node) in objects(model, "nodes") {
-        let at = At::record("model.nodes", "node", i, node);
-        check_at(node, fields.node, &at, findings);
-        member(node, "position", fields.vector, &at, findings);
+        let at = At::in_collection("model.nodes", "node", i, node);
+        check_nested(node, fields.node, &at, findings);
+        nested_member(node, "position", fields.vector, &at, findings);
     }
     for (i, pipe) in objects(model, "pipe_segments") {
-        let at = At::record("model.pipe_segments", "pipe segment", i, pipe);
-        check_at(pipe, fields.pipe, &at, findings);
-        member(pipe, "y_reference", fields.vector, &at, findings);
-        if let Some((section, at)) = member(pipe, "section", fields.pipe_section, &at, findings) {
-            quantities(section, &PIPE_SECTION_QUANTITIES, fields.magnitude, &at, findings);
+        let at = At::in_collection("model.pipe_segments", "pipe segment", i, pipe);
+        check_nested(pipe, fields.pipe, &at, findings);
+        nested_member(pipe, "y_reference", fields.vector, &at, findings);
+        if let Some((section, at)) = nested_member(pipe, "section", fields.pipe_section, &at, findings) {
+            nested_quantities(section, &PIPE_SECTION_QUANTITIES, fields.magnitude, &at, findings);
         }
     }
     for (i, section) in objects(model, "sections") {
-        let at = At::record("model.sections", "section", i, section);
-        check_at(section, fields.section, &at, findings);
+        let at = At::in_collection("model.sections", "section", i, section);
+        check_nested(section, fields.section, &at, findings);
         if let Some(properties) = section.get("properties").and_then(Value::as_object) {
             let at = At::Member { parent: &at, key: "properties" };
             for (name, quantity) in properties {
                 if let Some(quantity) = quantity.as_object() {
-                    check_at(quantity, fields.magnitude, &At::Member { parent: &at, key: name }, findings);
+                    check_nested(quantity, fields.magnitude, &At::Member { parent: &at, key: name }, findings);
                 }
             }
         }
     }
     for (i, support) in objects(model, "supports") {
-        let at = At::record("model.supports", "support", i, support);
-        check_at(support, fields.support, &at, findings);
-        stiffness(support, fields, &at, findings);
-        if let Some((hanger, at)) = member(support, "hanger", fields.hanger, &at, findings) {
-            stiffness(hanger, fields, &at, findings);
-            quantities(hanger, &HANGER_QUANTITIES, fields.magnitude, &at, findings);
+        let at = At::in_collection("model.supports", "support", i, support);
+        check_nested(support, fields.support, &at, findings);
+        nested_stiffness(support, fields, &at, findings);
+        if let Some((hanger, at)) = nested_member(support, "hanger", fields.hanger, &at, findings) {
+            nested_stiffness(hanger, fields, &at, findings);
+            nested_quantities(hanger, &HANGER_QUANTITIES, fields.magnitude, &at, findings);
         }
-        if let Some((nonlinear, at)) = member(support, "nonlinear", fields.nonlinear, &at, findings) {
-            member(nonlinear, "normal_reaction_source", fields.reaction_source, &at, findings);
-            quantities(nonlinear, &NONLINEAR_QUANTITIES, fields.magnitude, &at, findings);
+        if let Some((nonlinear, at)) = nested_member(support, "nonlinear", fields.nonlinear, &at, findings) {
+            nested_member(nonlinear, "normal_reaction_source", fields.reaction_source, &at, findings);
+            nested_quantities(nonlinear, &NONLINEAR_QUANTITIES, fields.magnitude, &at, findings);
         }
     }
     for (i, component) in objects(model, "components") {
-        let at = At::record("model.components", "component", i, component);
-        check_at(component, fields.component, &at, findings);
-        member(component, "objective_connector", OBJECTIVE_CONNECTOR_FIELDS, &at, findings);
-        if let Some((geometry, at)) = member(component, "geometry", fields.geometry, &at, findings) {
-            member(geometry, "center_of_gravity", fields.vector_quantity, &at, findings);
-            quantities(geometry, &GEOMETRY_QUANTITIES, fields.magnitude, &at, findings);
+        let at = At::in_collection("model.components", "component", i, component);
+        check_nested(component, fields.component, &at, findings);
+        nested_member(component, "objective_connector", OBJECTIVE_CONNECTOR_FIELDS, &at, findings);
+        if let Some((geometry, at)) = nested_member(component, "geometry", fields.geometry, &at, findings) {
+            nested_member(geometry, "center_of_gravity", fields.vector_quantity, &at, findings);
+            nested_quantities(geometry, &GEOMETRY_QUANTITIES, fields.magnitude, &at, findings);
         }
-        if let Some((modifiers, at)) = member(component, "modifiers", fields.modifiers, &at, findings) {
-            quantities(modifiers, &MODIFIER_QUANTITIES, fields.magnitude, &at, findings);
+        if let Some((modifiers, at)) = nested_member(component, "modifiers", fields.modifiers, &at, findings) {
+            nested_quantities(modifiers, &MODIFIER_QUANTITIES, fields.magnitude, &at, findings);
         }
-        member(component, "mechanics_interface", fields.mechanics_interface, &at, findings);
+        nested_member(component, "mechanics_interface", fields.mechanics_interface, &at, findings);
     }
     for (owner, collection, kind) in [(model, "model.materials", "material"), (request, "materials", "request material")] {
         for (i, material) in objects(owner, "materials") {
-            let at = At::record(collection, kind, i, material);
-            check_at(material, fields.material, &at, findings);
-            quantities(material, &MATERIAL_QUANTITIES, fields.magnitude, &at, findings);
+            let at = At::in_collection(collection, kind, i, material);
+            check_nested(material, fields.material, &at, findings);
+            nested_quantities(material, &MATERIAL_QUANTITIES, fields.magnitude, &at, findings);
             for (k, point) in objects(material, "temperature_points") {
                 let at = At::Entry { parent: &at, key: "temperature_points", kind: "temperature point", index: k, id: id_of(point) };
-                check_at(point, fields.temperature_point, &at, findings);
-                quantities(point, &POINT_QUANTITIES, fields.magnitude, &at, findings);
+                check_nested(point, fields.temperature_point, &at, findings);
+                nested_quantities(point, &POINT_QUANTITIES, fields.magnitude, &at, findings);
             }
         }
     }
