@@ -1662,6 +1662,11 @@ mod tests {
     fn witness_model() -> Value {
         let mut model: Value = serde_json::from_str(EVERY_SLOT).unwrap();
         model["project"]["units"]["stress"] = json!("MPa");
+        // The model cites the stored demo pack as it is now: the demo pack
+        // moved to rule-pack format 0.5.0 (W-17, DEL-06-01 Design
+        // `rule-pack-0.5.0.md` §4), so its checksum moved with it.
+        let pack: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
+        model["rule_pack_refs"][0]["checksum"]["value"] = pack["checksums"]["rule_pack_checksum"]["value"].clone();
         model["diagnostics"] = json!([{
             "id": "diagnostic:invented-review-note",
             "code": "INVENTED-REVIEW-NOTE",

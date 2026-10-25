@@ -65,6 +65,7 @@ RULE_CHECK_REQUIRED_DEFS = {
     "BoundInput",
     "RunFinding",
     "CheckOutcome",
+    "BasisRef",
 }
 
 PROFESSIONAL_BOUNDARY_FALSE_CLAIMS = {
@@ -189,6 +190,12 @@ def test_rule_check_run_result_closed_vocabularies():
     # computed_value / limit_value are serde-skipped when absent — never required.
     assert "computed_value" not in outcome["required"]
     assert "limit_value" not in outcome["required"]
+    # Rule-pack format 0.5.0 (DEL-06-01 Design rule-pack-0.5.0.md §2.7): one
+    # outcome per check and basis, each naming its category and basis.
+    assert {"category_ref", "basis_ref"} <= set(outcome["required"])
+    basis = schema["$defs"]["BasisRef"]
+    assert set(basis["required"]) == {"ref_type", "ref_id"}
+    assert basis["properties"]["ref_type"]["enum"] == ["load_case", "combination"]
     bound = schema["$defs"]["BoundInput"]
     assert set(bound["required"]) == {"input_id", "source_kind", "supplied"}
 

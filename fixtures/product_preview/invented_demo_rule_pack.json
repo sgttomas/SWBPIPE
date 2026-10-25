@@ -1,11 +1,11 @@
 {
-  "schema_version": "0.4.0",
+  "schema_version": "0.5.0",
   "rule_pack_kind": "open_pipe_stress_rule_pack",
   "grammar_version": "1.0.0",
   "metadata": {
     "rule_pack_id": "invented_demo_rule_pack",
     "name": "Invented Demonstration Rule Pack",
-    "schema_version": "0.4.0",
+    "schema_version": "0.5.0",
     "rule_pack_version": "0.2.0",
     "lifecycle_status": "accepted_public_example",
     "source_notice": "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance.",
@@ -45,7 +45,11 @@
       },
       "redistribution_status": "invented_non_engineering_example",
       "provenance_required": true,
-      "redistribution_status_required": true
+      "redistribution_status_required": true,
+      "solver_result_ref": {
+        "result_kind": "invented_demo_quantity",
+        "entity_ref": "pipe:P-100"
+      }
     },
     {
       "input_id": "demo_limit_quantity",
@@ -165,11 +169,94 @@
       "completeness_status": "complete"
     }
   ],
+  "required_load_cases": [
+    {
+      "required_load_case_id": "demo_required_case_1",
+      "name": "Invented required load case 1",
+      "description": "Invented demonstration required load case naming the bundled demo model's load case load:L-100.",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_type": "invented_public_example",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "protected_content_review": "completed_no_protected_content",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "required_load_case_id": "demo_required_case_2",
+      "name": "Invented required load case 2",
+      "description": "Invented demonstration required load case naming the bundled demo model's load case load:L-200.",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_type": "invented_public_example",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "protected_content_review": "completed_no_protected_content",
+        "review_status": "accepted"
+      }
+    }
+  ],
+  "stress_categories": [
+    {
+      "category_id": "demo_category_a",
+      "name": "Invented category A",
+      "description": "Invented demonstration category; it carries no meaning from any standard.",
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_type": "invented_public_example",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "protected_content_review": "completed_no_protected_content",
+        "review_status": "accepted"
+      }
+    }
+  ],
+  "load_case_mappings": [
+    {
+      "mapping_id": "demo_mapping_a",
+      "category_ref": {
+        "ref_id": "demo_category_a",
+        "ref_type": "stress_category"
+      },
+      "required_load_case_refs": [
+        {
+          "ref_id": "demo_required_case_1",
+          "ref_type": "required_load_case"
+        },
+        {
+          "ref_id": "demo_required_case_2",
+          "ref_type": "required_load_case"
+        }
+      ]
+    }
+  ],
   "check_definitions": [
     {
       "check_id": "demo_training_check",
       "name": "Invented training check",
       "description": "Demonstrates user-rule status flow using artificial values only.",
+      "category_ref": {
+        "ref_id": "demo_category_a",
+        "ref_type": "stress_category"
+      },
       "required_input_refs": [
         {
           "ref_id": "demo_actual_quantity",
@@ -259,7 +346,7 @@
         "checksums"
       ],
       "verification_status": "verified",
-      "value": "c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd"
+      "value": "bf4aa377493c4cc8422a50de67f02f1b95c608a0910a0b7a36bc69638fb0f7d8"
     },
     "payload_checksums": [],
     "checksum_lifecycle_status": "verified",

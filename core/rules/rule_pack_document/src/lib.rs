@@ -35,6 +35,16 @@ use open_pipe_stress_rule_pack_lifecycle::{
 };
 use open_pipe_stress_units::{unit_by_symbol, Dimension as UnitDimension};
 
+pub mod format;
+pub use format::{
+    format_findings, parse_solver_result_ref, plan_check_bases, schema_version_finding, BasisRef,
+    CheckBasisPlan, PlannedBasis, SolverResultSelector, RULE_CALLER_SOLVER_BINDING_RETIRED,
+    RULE_PACK_DUPLICATE_ID, RULE_PACK_MAPPING_INCOMPLETE, RULE_PACK_REFERENCE_UNRESOLVED,
+    RULE_PACK_SCHEMA_VERSION, RULE_PACK_SCHEMA_VERSION_UNSUPPORTED, RULE_REQUIRED_LOAD_CASE_MISSING,
+    RULE_REQUIRED_LOAD_CASE_UNSOLVED, RULE_SOLVER_RESULT_REF_MISSING,
+    RULE_SOLVER_RESULT_ROW_AMBIGUOUS, RULE_SOLVER_RESULT_ROW_MISSING,
+};
+
 /// Document member excluded from the canonical checksum payload. The
 /// checksum cannot cover itself; excluding exactly this member keeps the
 /// hash well-defined and is recorded in checksum evidence as
@@ -948,6 +958,15 @@ pub fn validate_rule_pack_document(
             blocking: true,
         });
     }
+
+    // Format 0.5.0 (W-17; DEL-06-01 Design `rule-pack-0.5.0.md` §2.1): any
+    // other declared version is refused by name, with no migration. The
+    // checksum and every other finding are still computed below, so a refused
+    // pack never also reads as a checksum mismatch.
+    document_findings.extend(schema_version_finding(document));
+    // §2.5 and §2.9: categories, required load cases, mappings, reachability
+    // and the solver-row selector; all blocking.
+    document_findings.extend(format_findings(document));
 
     let grammar_supported = is_semver_grammar_version(grammar_version.trim())
         && grammar_version_supported(&grammar_version);
