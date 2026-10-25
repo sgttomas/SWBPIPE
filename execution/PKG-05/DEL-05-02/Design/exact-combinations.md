@@ -93,9 +93,28 @@ may lie outside every region in another. For such a member, the operand's
 values are recovered from the formulas, with p = 0, as follows:
 - **Pressure-only quantities** (Lamé hoop and radial, toroidal hoop and
   radial) are exactly zero.
-- **Total quantities** are taken from the operand's mechanical axial force N_m:
-  N_w = N_m, S = N_m and the membrane σ_m,b = N_m / A_b, all from the same
-  operand's published element axial force on that member.
+- **Total quantities** are derived from N, the operand's tension-positive
+  section force on that member, as follows:
+  - **N at each station.** At `end_i`, N is the negated `element_local_axial_force`
+    end-action row. At `end_j`, N is that row unchanged. At interior stations,
+    N is the matching interior section row. On a realized arc, the same rule
+    applies in the end-tangent frames (`bend_pressure.rs` ~207).
+  - **Wall and effective force.** N_w = S = N at p = 0, from
+    N_w = N_m + 2νpAᵢ and S = N_m + (2ν − 1)pAᵢ on straights, and
+    N_w = N_el + pAᵢ and S = N_el on arcs (`pressure_exact/source_geometry.rs`
+    ~346-378).
+  - **Membrane.** σ_m,b = N / A_b, one binary64 division of the published N by
+    the basis's validated area leaf A_b (from `pipe_sections` evidence),
+    rounded once. This is derived from published operands. It can differ by
+    one ulp from a direct recovery, which divides the internal force
+    (PP `lib.rs` ~12820). The evidence states this.
+  - **`pipe_wall_endpoint_action_v2`** is recovered in its node-on-element
+    convention, −N_w at `end_i` and +N_w at `end_j`: the published end-action
+    row value at each end.
+
+  Each witness records the source row, the station, the sign transformation,
+  the area leaf and the rounding. Tests cover both ends, interior stations,
+  realized arcs and both bases.
 
 A member qualifies only when it is published in that operand's solved case
 and is validated, by the case's region membership, as lying in none of its
@@ -109,9 +128,16 @@ Every other absence is a missing source. This covers:
 - a withheld support group.
 
 As on PF (`preview_physics.rs` ~936-979), the affected row is omitted under
-`LOAD_COMBINATION_SOURCE_RESULT_MISSING` and `LOAD_COMBINATION_ROW_WITHHELD`,
-and the other rows publish. Support groups still publish whole or not at all
-(~987-1049).
+`LOAD_COMBINATION_SOURCE_RESULT_MISSING` alone, and the other rows publish.
+`LOAD_COMBINATION_ROW_WITHHELD` names the rows withheld for other reasons:
+missing key fields and tie rods. Support groups still publish whole or not
+at all (~987-1049).
+
+**Tie rods.** Tie-rod rows share their connector's entity, component, frame
+and location. Their rod identity lives only in their ids and in the connector
+evidence (PP `lib.rs` ~4526). This slice withholds tie-rod rows from EX
+combinations by name, under `LOAD_COMBINATION_ROW_WITHHELD`. Joining the rod
+identity from validated evidence is a later extension.
 
 ## 4. Gates (mechanics basis only)
 
@@ -130,13 +156,23 @@ In precedence order:
    Load-state documents resolve materials per member and case (PP
    `case_state/material.rs` ~13-56). The old modulus key describes only the
    legacy selector (PP `lib.rs` ~10534-10576).
-3. **`COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE`** (new). The model has a
-   connector or tie rod with a nonzero installed reference (q_ref, or the
-   rod's reference extension), and |Σfᵢ − 1| > 64·ε·max(1, Σ|fᵢ|). A
-   connector's action is K(q − q_ref) (PP `lib.rs` ~4516-4520; rod at
-   `joint.rs` ~988). Summing two cases sums their reference loads, so only a
-   unit factor sum leaves the combination the state of the original system.
-   This follows the constant-effort precedent.
+3. **`COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE`** (new). This gate
+   withholds the combination when two things hold:
+   - the model has a connector or tie rod whose raw installed reference is
+     nonzero (q_ref, or the rod's reference extension), including a reference
+     in the null space with K·q_ref = 0;
+   - the exact dyadic sum of the represented binary64 factors, formed with the
+     `load_case_algebra` exact accumulator, is not exactly 1.
+
+   A connector's action is K(q − q_ref) (PP `lib.rs` ~4516-4520; rod at
+   `joint.rs` ~988). Summing cases sums their reference loads. Only an exact
+   unit sum leaves the combination as the state of the original system. No
+   tolerance is used: factors 2^53 and −2^53 sum to zero, which a
+   factor-magnitude tolerance would pass. The accumulator cannot overflow to
+   inf.
+
+   **Pre-existing PF issue.** PF's constant-effort gate has the same tolerance
+   weakness. That gap is reported separately and is not changed here.
 
 `NONLINEAR_COMBINATION_REQUIRES_SOLVE` and
 `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` cannot arise on EX, which refuses
@@ -206,8 +242,9 @@ The retained and source receipt schemas are not broadened.
   this design's statement. It gains `combination_policy` (policy id
   `PRESSURE-2-COMBINATION-v1`) with the gates, pairing, recovery and standing
   rules. `semantic_contract_tables.py` does not inherit `combination_policy`
-  (~70-82), so the member is authored there and its inheritance is decided
-  explicitly.
+  (~70-82), so the member is authored in the pressure-2 table alone.
+  physics-retained-1 and pressure-source-1 do not carry it, because their
+  families refuse combinations. Their table test asserts its absence.
 - **physics-retained-1 and pressure-source-1.** Text and pins are reconciled,
   and their families keep refusing.
 
@@ -289,8 +326,11 @@ axial compliances.
 - **Subtraction**, including across different stiffness, where it is allowed.
 - **Range envelopes** over primitive cases A, B and a third primitive case C
   carrying A's and B's loads together, in every range mode.
-- **Connectors and rods.** Two distinct rods with nonzero installed
-  references, at factor sums 1, 2 and 0. The gate withholds sums 2 and 0.
+- **Connectors and rods.**
+  - Connectors with nonzero installed references at exact factor sums 1, 2
+    and 0, and at 2^53 + (−2^53). The gate withholds every sum except exact 1.
+  - A null-space q_ref.
+  - Two distinct rods, whose rows are withheld by name.
 - **Arcs.** A non-default case with a pressurized realized arc.
 - **Load state.** A load-state document with equal resolved stiffness and
   prescribed boundary motion, which combines; and one with different E/ν,
