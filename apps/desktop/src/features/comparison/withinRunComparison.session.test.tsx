@@ -35,6 +35,7 @@ afterEach(() => {
 });
 
 async function currentSession(answer: (bytes: string) => string | Promise<string> = (bytes) => bytes) {
+  // `answer` maps the producer's bytes to what the replayed job returns.
   const storage = await getLocalStorageCapability(), knowledge = await loadDesignKnowledge();
   const transport = createSolveJobTransport((sent) => {
     if (!isDeepStrictEqual(sent.model, MODEL)) throw new Error("REPLAY_REQUEST_MISMATCH");
@@ -67,38 +68,33 @@ async function solve(hook: { result: { current: ReturnType<typeof useWorkspaceSe
 const pairOf = (results: ReturnType<typeof useWorkspaceSession>["results"]) =>
   results.withinRun.status === "ready" ? { ...results.withinRun.pair, source: results.withinRun.source } : results.withinRun.status;
 
-it("holds the choice with its run: a new solve, an edit and a project replacement read the default again", async () => {
+it("carries the choice across solves that offer its bases, and packages follow it", async () => {
   const hook = await currentSession();
   const results = () => hook.result.current.results;
   // The default: the fixed pair is not offered (C-OPER-ALT has no rows), so the first offered.
   expect(pairOf(results())).toEqual({ left: "load:L-100", right: RANGE, source: "default" });
   // Without a choice, the packaged comparison is the fixed-pair comparison exactly as before.
   const today = buildPreviewComparison({ result: results().currentSolvedResult!, analysisRun: results().analysisRun! });
-  expect(results().comparison).toStrictEqual(today);
+  expect(JSON.stringify(results().comparison)).toBe(JSON.stringify(today));
+  expect(results().comparisonUnavailable).toBeNull();
 
   act(() => results().handleSelectWithinRunBases({ left: "load:L-200", right: RANGE }));
   expect(pairOf(results())).toEqual({ left: "load:L-200", right: RANGE, source: "selected" });
   // The packages now carry the choice: the producer's range-envelope rows are refused by the
-  // unchanged builder (undeclared kinds, the known gap routed to T6), so no comparison.
-  const chosen = results().withinRun;
-  expect(chosen.status === "ready" && chosen.refusal).toContain("ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED");
+  // unchanged builder (undeclared kinds, the known gap routed to T6), so a structured record.
   expect(results().comparison).toBeNull();
+  expect(results().comparisonUnavailable).toMatchObject({ status: "unavailable", left_basis_ref: "load:L-200", right_basis_ref: RANGE, reason_code: "ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED" });
 
-  // A new solve of the same model (the producer's run_id repeats) reads the default.
+  // A new solve that offers both bases carries the choice (the producer's run_id repeats).
   await solve(hook);
-  expect(results().currentSolvedResult!.run_id).toBe(today.left.analysis_run_ref.ref);
-  expect(pairOf(results())).toEqual({ left: "load:L-100", right: RANGE, source: "default" });
-  expect(results().comparison).toStrictEqual(today);
-
-  // A choice made from an earlier run's render never applies to a later run.
-  const staleSelect = results().handleSelectWithinRunBases;
-  await solve(hook);
-  act(() => staleSelect({ left: "load:L-200", right: RANGE }));
-  expect(pairOf(results())).toEqual({ left: "load:L-100", right: RANGE, source: "default" });
-
-  // A model edit retires the run; the next solve reads the default.
-  act(() => results().handleSelectWithinRunBases({ left: "load:L-200", right: RANGE }));
   expect(pairOf(results())).toEqual({ left: "load:L-200", right: RANGE, source: "selected" });
+  expect(results().droppedWithinRunBases).toBeNull();
+
+  // (A run that no longer offers a chosen basis drops it with a notice:
+  // withinRun.resultsSessionState.test.ts, over two producer outputs.)
+
+  // A model edit retires the run: nothing is compared or packaged until the next solve,
+  // which revalidates the choice.
   const edit = await setNodeProximityToleranceIntent(canonicalJsonString, hook.result.current.model.model!, "2", "mm");
   // The edit applies through the browser operation engine (the replay serves solves only).
   delete (window as Json).__TAURI_INTERNALS__;
@@ -106,9 +102,10 @@ it("holds the choice with its run: a new solve, an edit and a project replacemen
   expect(results().currentSolvedResult).toBeNull();
   expect(results().withinRun).toEqual({ status: "no_result" });
   expect(results().comparison).toBeNull();
+  expect(results().droppedWithinRunBases).toBeNull();
 });
 
-it("a project replacement retires the run and its choice", async () => {
+it("a project replacement retires the run; the choice is revalidated against the next Current run", async () => {
   const hook = await currentSession();
   const results = () => hook.result.current.results;
   act(() => results().handleSelectWithinRunBases({ left: "load:L-200", right: RANGE }));
@@ -132,7 +129,7 @@ it("refuses a choice while a solve runs, and states the reason", async () => {
   act(() => { running = results().handleRun(); });
   await waitFor(() => expect(results().running).toBe(true));
   expect(results().withinRunDisabledReason).toBe("A solve is in progress; its run will replace this one.");
-  // Refused from the busy render, and from the render before it.
+  // Refused from the busy render, and from the render before it: no choice is held.
   act(() => results().handleSelectWithinRunBases({ left: "load:L-200", right: RANGE }));
   act(() => select({ left: "load:L-200", right: RANGE }));
   release();

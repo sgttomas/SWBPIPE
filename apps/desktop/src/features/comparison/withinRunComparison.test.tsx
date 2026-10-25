@@ -9,14 +9,21 @@ import { describe, expect, it, vi } from "vitest";
 import {
   buildPreviewComparison,
   DEFAULT_COMPARISON_LEFT_BASIS_REF,
-  DEFAULT_COMPARISON_RIGHT_BASIS_REF
+  DEFAULT_COMPARISON_RIGHT_BASIS_REF,
+  escapeComparisonBasis,
+  previewComparisonBases,
+  previewComparisonId
 } from "../../services/previewService";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 import { ComparisonPanel, type WithinRunControls } from "./ComparisonPanel";
 import {
   codePointCompare,
+  buildWithinRunComparison,
   defaultWithinRunPair,
-  heldPairForRun,
+  droppedBases,
+  droppedNotice,
+  fixedPairComparison,
+  packageNotice,
   NO_COMBINATION_ROWS,
   NO_LOAD_CASE_OR_COMBINATION_ROWS,
   NO_LOAD_CASE_ROWS,
@@ -27,8 +34,10 @@ import {
   WITHIN_RUN_BUSY_SOLVE,
   withinRunBasisOptions,
   withinRunBusyReason,
+  type HeldWithinRunSelection,
   type WithinRunView
 } from "./withinRunComparison";
+import { ComparisonPackageNotice } from "./ComparisonPackageNotice";
 
 const RANGE = "combination:U4B-RANGE-MAX";
 /** The producer's range-envelope combination rows include kinds the unchanged builder
@@ -149,37 +158,42 @@ describe("the left basis governs the pairing (Codex r1 on #1619)", () => {
   });
 });
 
+/** The session's resolution for one Current run (options from its solved model). */
+function resolve(source: MechanicsResult | null, run: AnalysisRunEnvelope | null, held: HeldWithinRunSelection | null = null, withFixedPair = false) {
+  const fixedPair = withFixedPair ? fixedPairComparison(source, run) : null;
+  const resolved = resolveWithinRun({ result: source, analysisRun: run, options: source && run ? withinRunBasisOptions(source, model()) : null, held, fixedPair });
+  return { ...resolved, fixedPair, packaged: packagedComparison(resolved, fixedPair ?? fixedPairComparison(source, run)) };
+}
+
 describe("the default", () => {
   it("reproduces today's comparison when the fixed load case and combination are both offered", () => {
     const source = withFixedCombination(), run = analysisRun("run:invented");
     const options = withinRunBasisOptions(source, model());
     expect(defaultWithinRunPair(options)).toEqual({ left: DEFAULT_COMPARISON_LEFT_BASIS_REF, right: DEFAULT_COMPARISON_RIGHT_BASIS_REF });
     const today = buildPreviewComparison({ result: source, analysisRun: run });
-    const view = resolveWithinRun({ result: source, analysisRun: run, model: model(), held: null, basis: "1:1" });
+    const { view, build, fixedPair, packaged } = resolve(source, run, null, true);
     expect(view.status === "ready" && view.source).toBe("default");
     expect(view.status === "ready" && view.comparison).toStrictEqual(today);
     expect(today.summary.comparable_result_pairs).toBeGreaterThan(0);
-    // The session's fixed-pair comparison is reused as it is.
-    const reused = resolveWithinRun({ result: source, analysisRun: run, model: model(), held: null, basis: "1:1", defaultComparison: today });
-    expect(reused.status === "ready" && reused.comparison).toBe(today);
-    // Without a choice, the packages carry exactly the fixed-pair comparison.
-    expect(packagedComparison(view, today)).toBe(today);
+    // The session's fixed-pair build is reused as it is, and the packages carry it.
+    expect(build).toBe(fixedPair);
+    expect(packaged).toBe(fixedPair);
+    expect(JSON.stringify(packaged!.comparison)).toBe(JSON.stringify(today));
   });
 
   it("is the first offered case and combination when the fixed pair is not offered", () => {
     const source = result(), run = analysisRun("run:invented");
-    const view = resolveWithinRun({ result: source, analysisRun: run, model: model(), held: null, basis: "1:1" });
+    const { view, packaged } = resolve(source, run);
     expect(view.status).toBe("ready");
     if (view.status !== "ready") return;
     expect(view.pair).toEqual({ left: "load:L-100", right: RANGE });
     expect(view.source).toBe("default");
-    // The comparison is the unchanged builder's for that pair.
     const expected = buildPreviewComparison({ result: source, analysisRun: run, leftBasisRef: "load:L-100", rightBasisRef: RANGE });
     expect(view.comparison).toStrictEqual(expected);
     expect(expected.summary.comparable_result_pairs).toBeGreaterThan(0);
-    // The packages keep the fixed-pair comparison until the user chooses.
-    const today = buildPreviewComparison({ result: source, analysisRun: run });
-    expect(packagedComparison(view, today)).toBe(today);
+    // Without a choice the packages keep the fixed-pair comparison, as before.
+    expect(packaged!.comparison).toStrictEqual(buildPreviewComparison({ result: source, analysisRun: run }));
+    expect(packageNotice(packaged)).toBe(`Packages include: ${DEFAULT_COMPARISON_LEFT_BASIS_REF} vs ${DEFAULT_COMPARISON_RIGHT_BASIS_REF}.`);
   });
 
   it("is nothing, with the reason, when no load case or no combination has result rows", () => {
@@ -191,56 +205,88 @@ describe("the default", () => {
     const neither = result();
     neither.results = neither.results.filter((row) => !row.basis_ref);
     const reasons = [noCombination, noCase, neither].map((source) => {
-      const view = resolveWithinRun({ result: source, analysisRun: run, model: model(), held: null, basis: "1:1" });
+      const { view } = resolve(source, run);
       return view.status === "unavailable" ? view.reason : view.status;
     });
     expect(reasons).toEqual([NO_COMBINATION_ROWS, NO_LOAD_CASE_ROWS, NO_LOAD_CASE_OR_COMBINATION_ROWS]);
-    expect(resolveWithinRun({ result: null, analysisRun: run, model: null, held: null, basis: "1:1" })).toEqual({ status: "no_result" });
-    expect(resolveWithinRun({ result: result(), analysisRun: null, model: null, held: null, basis: "1:1" })).toEqual({ status: "no_result" });
+    expect(resolve(null, run).view).toEqual({ status: "no_result" });
+    expect(resolve(result(), null).view).toEqual({ status: "no_result" });
   });
 });
 
 describe("the choice", () => {
-  it("applies to the run it was made on, and the packages then carry it", () => {
+  it("applies while the run offers both bases, and the packages then carry it", () => {
     const source = result(), run = analysisRun("run:invented");
-    const held = { basis: "4:2", left: "load:L-200", right: RANGE };
-    const view = resolveWithinRun({ result: source, analysisRun: run, model: model(), held, basis: "4:2" });
+    const { view, build, packaged } = resolve(source, run, { left: "load:L-200", right: RANGE });
     expect(view.status === "ready" && [view.source, view.pair]).toEqual(["selected", { left: "load:L-200", right: RANGE }]);
-    const today = buildPreviewComparison({ result: source, analysisRun: run });
-    expect(packagedComparison(view, today)).toBe(view.status === "ready" ? view.comparison : undefined);
-    if (view.status === "ready" && view.comparison) {
-      expect(view.comparison.left.basis_ref.ref).toBe("load:L-200");
-      expect(view.comparison.right.basis_ref.ref).toBe(RANGE);
-      expect(view.comparison.summary.tolerance_status).toBe("not_tolerance_checked");
-      expect(view.comparison.summary.tolerance_profile_ref).toBe("TBD");
-      expect(view.comparison.unit_policy_evidence.conversion_performed).toBe(false);
-    }
+    expect(packaged).toBe(build);
+    const comparison = packaged!.comparison!;
+    expect([comparison.left.basis_ref.ref, comparison.right.basis_ref.ref]).toEqual(["load:L-200", RANGE]);
+    expect(comparison.summary.tolerance_status).toBe("not_tolerance_checked");
+    expect(comparison.summary.tolerance_profile_ref).toBe("TBD");
+    expect(comparison.unit_policy_evidence.conversion_performed).toBe(false);
+    expect(packageNotice(packaged)).toBe(`Packages include: load:L-200 vs ${RANGE}.`);
   });
 
-  it("reads as the default on any other run, and a held id the run does not offer is never compared", () => {
+  it("names the bases a run does not offer; such an id is never compared", () => {
     const options = withinRunBasisOptions(result(), model());
-    const held = { basis: "4:2", left: "load:L-200", right: RANGE };
-    expect(heldPairForRun(held, "4:2", options)).toEqual({ left: "load:L-200", right: RANGE });
-    // A new solve, an edit or a replacement gives a new basis key.
-    expect(heldPairForRun(held, "5:3", options)).toBeNull();
-    // The same key with an id this run does not offer: never compared.
-    expect(heldPairForRun({ ...held, left: "load:L-999" }, "4:2", options)).toBeNull();
-    expect(heldPairForRun({ ...held, right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }, "4:2", options)).toBeNull();
-    // A load case id offered as the combination (or the reverse) is not offered.
-    expect(heldPairForRun({ ...held, right: "load:L-100" }, "4:2", options)).toBeNull();
-    const stale = resolveWithinRun({ result: result(), analysisRun: analysisRun("run:invented"), model: model(), held: { ...held, left: "load:L-999" }, basis: "4:2" });
-    expect(stale.status === "ready" && [stale.source, stale.pair.left]).toEqual(["default", "load:L-100"]);
+    expect(droppedBases({ left: "load:L-200", right: RANGE }, options)).toEqual([]);
+    expect(droppedBases({ left: "load:L-999", right: RANGE }, options)).toEqual(["load:L-999"]);
+    expect(droppedBases({ left: "load:L-999", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }, options)).toEqual(["load:L-999", DEFAULT_COMPARISON_RIGHT_BASIS_REF]);
+    // A load case offered as the combination (or the reverse) is not offered.
+    expect(droppedBases({ left: RANGE, right: "load:L-100" }, options)).toEqual([RANGE, "load:L-100"]);
+    expect(droppedNotice(["load:L-999"])).toBe("The chosen load:L-999 has no result rows in this run, so the choice was dropped and the default pair applies.");
+    expect(droppedNotice(["load:A", "combination:B"])).toContain("load:A and combination:B have no result rows");
+    // Even if handed a stale choice, the resolution compares the default, not the stale id.
+    const stale = resolve(result(), analysisRun("run:invented"), { left: "load:L-999", right: RANGE });
+    expect(stale.view.status === "ready" && [stale.view.source, stale.view.pair.left]).toEqual(["default", "load:L-100"]);
   });
 
-  it("states the builder's refusal instead of comparing, and the packages then carry no comparison", () => {
+  it("puts a structured unavailable record in the packages when the builder refuses the choice", () => {
     // The producer's own range-envelope rows: the unchanged builder refuses their
     // undeclared kinds (the known gap routed to T6).
     const source = producerResult(), run = analysisRun("run:invented");
-    const held = { basis: "1:1", left: "load:L-100", right: RANGE };
-    const view = resolveWithinRun({ result: source, analysisRun: run, model: model(), held, basis: "1:1" });
+    const { view, packaged } = resolve(source, run, { left: "load:L-200", right: RANGE });
     expect(view.status === "ready" && view.comparison).toBeNull();
     expect(view.status === "ready" && view.refusal).toContain("ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED");
-    expect(packagedComparison(view, null)).toBeNull();
+    expect(packaged!.comparison).toBeNull();
+    expect(packaged!.unavailable).toEqual({
+      document_kind: "openpipestress.technical_preview.comparison_unavailable",
+      comparison_id: previewComparisonId(source.run_id, "load:L-200", RANGE),
+      comparison_kind: "single_run_load_basis_review",
+      status: "unavailable",
+      left_basis_ref: "load:L-200",
+      right_basis_ref: RANGE,
+      analysis_run_ref: { object_type: "AnalysisRun", ref: "run:invented" },
+      reason_code: "ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED",
+      reason: expect.stringContaining("has no source dimension declaration"),
+      release_or_professional_claim: false
+    });
+    expect(packageNotice(packaged)).toMatch(new RegExp(`^Packages omit the comparison of load:L-200 vs ${RANGE}: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED`));
+    expect(buildWithinRunComparison(source, run, { left: "load:L-100", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }).unavailable).toBeNull();
+  });
+});
+
+describe("the comparison id", () => {
+  it("keeps the fixed pair's pre-S3c id, byte for byte", () => {
+    const today = buildPreviewComparison({ result: withFixedCombination(), analysisRun: analysisRun("run:invented") });
+    expect(today.comparison_id).toBe("comparison:run:preview-linear-static-001:load-L-100-to-combination-C-OPER-ALT");
+    expect(previewComparisonBases(today.comparison_id)).toEqual({ left: DEFAULT_COMPARISON_LEFT_BASIS_REF, right: DEFAULT_COMPARISON_RIGHT_BASIS_REF });
+  });
+
+  it("is injective for every other pair and names both bases exactly", () => {
+    const run = "run:with:colons";
+    const pairs: Array<[string, string]> = [
+      ["load:α", RANGE], ["load:β", RANGE], ["load-a", RANGE], ["load:a", RANGE], ["load.a", RANGE], ["load~3a.a", RANGE],
+      ["load:\u{10000}", RANGE], ["load:\u{E000}", RANGE], ["load:\uD800", RANGE], ["", RANGE], ["load:L-200", "combination:Σ"], ["load:L-200", "combination:σ"]
+    ];
+    const ids = pairs.map(([left, right]) => previewComparisonId(run, left, right));
+    expect(new Set(ids).size).toBe(pairs.length);
+    pairs.forEach(([left, right], index) => expect(previewComparisonBases(ids[index])).toEqual({ left, right }));
+    expect(previewComparisonId(run, "load:L-200", RANGE)).toBe("comparison:run:with:colons:load~3a.L-200:to:combination~3a.U4B-RANGE-MAX");
+    expect(escapeComparisonBasis("a:b")).not.toContain(":");
+    // The sanitized form these replace collided: load:α and load:β both read `load`.
+    expect(ids[0]).not.toBe(ids[1]);
   });
 });
 
@@ -252,17 +298,16 @@ it("states why the choice is disabled while the session is busy", () => {
 });
 
 describe("the panel", () => {
-  const panel = (view: WithinRunView, overrides: Partial<WithinRunControls> = {}) => {
+  const panel = (resolved: ReturnType<typeof resolve>, overrides: Partial<WithinRunControls> = {}) => {
     const onSelect = vi.fn();
-    const controls: WithinRunControls = { view, disabledReason: null, onSelect, packagedComparisonId: view.status === "ready" ? view.comparison?.comparison_id ?? null : null, ...overrides };
-    const rendered = render(<ComparisonPanel comparison={view.status === "ready" ? view.comparison : null} result={null} onSelectResult={() => {}} withinRun={controls} />);
-    return { onSelect, rendered };
+    const view = resolved.view;
+    const controls: WithinRunControls = { view, disabledReason: null, onSelect, packaged: resolved.packaged, dropped: null, ...overrides };
+    render(<ComparisonPanel comparison={view.status === "ready" ? view.comparison : null} result={null} onSelectResult={() => {}} withinRun={controls} />);
+    return { onSelect };
   };
 
   it("offers labelled selects of the run's bases, and a change chooses both ids", () => {
-    const source = withFixedCombination(), run = analysisRun("run:invented");
-    const view = resolveWithinRun({ result: source, analysisRun: run, model: model(), held: null, basis: "1:1" });
-    const { onSelect } = panel(view);
+    const { onSelect } = panel(resolve(withFixedCombination(), analysisRun("run:invented"), null, true));
     const left = screen.getByLabelText("Load case") as HTMLSelectElement;
     const right = screen.getByLabelText("Combination") as HTMLSelectElement;
     expect(left).toBe(screen.getByTestId("comparison-left-select"));
@@ -274,8 +319,7 @@ describe("the panel", () => {
     expect(left.options[0].textContent).toMatch(/^Invented operating gravity and pressure preview \(load:L-100\); \d+ result rows$/);
     expect(screen.getByRole("group", { name: "Within this run" })).toBeTruthy();
     expect(screen.getByTestId("comparison-summary")).toHaveTextContent(`${DEFAULT_COMPARISON_LEFT_BASIS_REF};`);
-    // The shown comparison is the packaged one: no note.
-    expect(screen.queryByTestId("comparison-package-basis")).toBeNull();
+    expect(screen.getByTestId("comparison-package-basis")).toHaveTextContent(`Packages include: ${DEFAULT_COMPARISON_LEFT_BASIS_REF} vs ${DEFAULT_COMPARISON_RIGHT_BASIS_REF}.`);
     fireEvent.change(left, { target: { value: "load:L-200" } });
     expect(onSelect).toHaveBeenLastCalledWith({ left: "load:L-200", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF });
     // No wording of standing.
@@ -283,8 +327,7 @@ describe("the panel", () => {
   });
 
   it("is disabled with the stated reason while busy", () => {
-    const view = resolveWithinRun({ result: result(), analysisRun: analysisRun("run:invented"), model: model(), held: null, basis: "1:1" });
-    panel(view, { disabledReason: WITHIN_RUN_BUSY_SOLVE });
+    panel(resolve(result(), analysisRun("run:invented")), { disabledReason: WITHIN_RUN_BUSY_SOLVE });
     for (const testId of ["comparison-left-select", "comparison-right-select"]) {
       const select = screen.getByTestId(testId) as HTMLSelectElement;
       expect(select.disabled).toBe(true);
@@ -294,35 +337,43 @@ describe("the panel", () => {
     expect(screen.getByTestId("comparison-within-run-disabled-reason")).toHaveTextContent(WITHIN_RUN_BUSY_SOLVE);
   });
 
-  it("says plainly that there is nothing to compare, instead of an empty comparison", () => {
+  it("says plainly that there is nothing to compare, and still names what the packages carry", () => {
     const source = result();
     source.results = source.results.filter((row) => row.basis_ref?.ref_type !== "combination");
-    const run = analysisRun("run:invented");
-    const view = resolveWithinRun({ result: source, analysisRun: run, model: model(), held: null, basis: "1:1" });
-    const today = buildPreviewComparison({ result: source, analysisRun: run });
-    panel(view, { packagedComparisonId: today.comparison_id });
+    panel(resolve(source, analysisRun("run:invented")));
     expect(screen.getByTestId("comparison-unavailable")).toHaveTextContent(NO_COMBINATION_ROWS);
     expect(screen.queryByTestId("comparison-summary")).toBeNull();
     expect(screen.queryByTestId("comparison-left-select")).toBeNull();
-    // The packages keep the fixed-pair comparison, and the panel says so.
-    expect(screen.getByTestId("comparison-package-basis")).toHaveTextContent(today.comparison_id);
+    expect(screen.getByTestId("comparison-package-basis")).toHaveTextContent(`Packages include: ${DEFAULT_COMPARISON_LEFT_BASIS_REF} vs ${DEFAULT_COMPARISON_RIGHT_BASIS_REF}.`);
   });
 
-  it("names the builder's refusal", () => {
-    const view: WithinRunView = { status: "ready", options: withinRunBasisOptions(result(), model()), pair: { left: "load:L-100", right: RANGE }, source: "selected", comparison: null, refusal: "ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED: invented" };
-    panel(view);
-    expect(screen.getByTestId("comparison-refused")).toHaveTextContent("Not compared: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED: invented");
+  it("names the builder's refusal and says the packages omit the comparison, though no comparison id is shown (Codex finding 3)", () => {
+    panel(resolve(producerResult(), analysisRun("run:invented"), { left: "load:L-200", right: RANGE }));
+    expect(screen.getByTestId("comparison-refused")).toHaveTextContent("Not compared: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED");
     expect(screen.queryByTestId("comparison-summary")).toBeNull();
+    expect(screen.getByTestId("comparison-package-basis")).toHaveTextContent(`Packages omit the comparison of load:L-200 vs ${RANGE}: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED`);
+  });
+
+  it("names a dropped choice", () => {
+    panel(resolve(result(), analysisRun("run:invented")), { dropped: ["load:L-999"] });
+    expect(screen.getByTestId("comparison-choice-dropped")).toHaveTextContent(droppedNotice(["load:L-999"]));
+  });
+
+  it("the package notice beside the package actions reads the same", () => {
+    const resolved = resolve(result(), analysisRun("run:invented"), { left: "load:L-200", right: RANGE });
+    render(<ComparisonPackageNotice packaged={resolved.packaged} testId="report-comparison-package-notice" />);
+    expect(screen.getByTestId("report-comparison-package-notice")).toHaveTextContent(`Packages include: load:L-200 vs ${RANGE}.`);
+    const { container } = render(<ComparisonPackageNotice packaged={null} testId="none" />);
+    expect(container.textContent).toBe("");
   });
 
   it("without the session's controls, shows the given comparison as before", () => {
-    const source = withFixedCombination(), run = analysisRun("run:invented");
-    const today = buildPreviewComparison({ result: source, analysisRun: run });
+    const today = buildPreviewComparison({ result: withFixedCombination(), analysisRun: analysisRun("run:invented") });
     const rendered = render(<ComparisonPanel comparison={today} result={null} onSelectResult={() => {}} />);
     expect(within(rendered.container).queryByTestId("comparison-within-run")).toBeNull();
     expect(within(rendered.container).getByTestId("comparison-summary")).toBeTruthy();
     rendered.unmount();
-    render(<ComparisonPanel comparison={null} result={null} onSelectResult={() => {}} withinRun={{ view: { status: "no_result" }, disabledReason: null, onSelect: () => {}, packagedComparisonId: null }} />);
+    render(<ComparisonPanel comparison={null} result={null} onSelectResult={() => {}} withinRun={{ view: { status: "no_result" }, disabledReason: null, onSelect: () => {}, packaged: null, dropped: null }} />);
     expect(screen.getByTestId("comparison-empty")).toBeTruthy();
     expect(screen.queryByTestId("comparison-within-run")).toBeNull();
   });

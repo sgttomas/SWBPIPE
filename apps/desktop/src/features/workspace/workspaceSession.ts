@@ -395,9 +395,12 @@ export function useWorkspaceSession() {
     activeSolveJob,
     solveCancellationTombstones,
     comparison,
+    comparisonUnavailable,
+    packagedWithinRun,
     withinRun,
-    withinRunBasis,
-    setHeldWithinRunSelection
+    droppedWithinRunBases,
+    setHeldWithinRunSelection,
+    setDroppedWithinRunBases
   } = useResultsSessionState();
   // Reference inspection is a transient view. Keep genuine persistence bytes
   // separate, scoped to the unchanged model/session, without retaining Current.
@@ -2841,13 +2844,18 @@ export function useWorkspaceSession() {
   // "Within this run" (W-12 S3c): the load case and combination choice. It is
   // disabled with the stated reason, and refused, while another project operation
   // or prompt owns the session (the one-owner check and the modal holds), a solve
-  // runs or a report package is being prepared. The choice is held with this
-  // render's run basis, so a choice from a render of an earlier run never applies
-  // to a later one.
+  // runs or a report package is being prepared. The choice is the
+  // session's choice, revalidated against every Current run (resultsSessionState.ts);
+  // a new choice clears the notice of a dropped one.
   const withinRunDisabledReason = withinRunBusyReason({ projectBusy, running, reportPackageBusy });
+  const withinRunBusyRef = useRef<string | null>(null);
+  withinRunBusyRef.current = withinRunDisabledReason;
   function handleSelectWithinRunBases(pair: WithinRunPair) {
-    if (withinRunDisabledReason || projectSessionBusy()) return;
-    setHeldWithinRunSelection({ basis: withinRunBasis, left: pair.left, right: pair.right });
+    // The latest render's reason, the one owner and an active solve, read at the
+    // call: a handler from an earlier render cannot choose while the session is busy.
+    if (withinRunBusyRef.current || projectSessionBusy() || solveRunGate.current.current() !== null || reportPackageBusyGenerationRef.current !== null) return;
+    setHeldWithinRunSelection({ left: pair.left, right: pair.right });
+    setDroppedWithinRunBases(null);
   }
 
   async function handleSaveReportPackage() {
@@ -2861,6 +2869,7 @@ export function useWorkspaceSession() {
       inputManifest,
       analysisRun,
       comparison,
+      comparisonUnavailable,
       projectSummary,
       ruleCheckAggregate,
       privateIntent: reportPackagePrivateIntent
@@ -2885,6 +2894,7 @@ export function useWorkspaceSession() {
         inputManifest: basis.inputManifest,
         projectSummary: basis.projectSummary,
         comparison: basis.comparison,
+        comparisonUnavailable: basis.comparisonUnavailable,
         ruleCheckAggregate: basis.ruleCheckAggregate
       });
       if (!isCurrent()) return;
@@ -3439,7 +3449,10 @@ export function useWorkspaceSession() {
       ruleCheckRunBasis,
       dormantOutputBasis,
       comparison,
+      comparisonUnavailable,
+      packagedWithinRun,
       withinRun,
+      droppedWithinRunBases,
       withinRunDisabledReason,
       handleSelectWithinRunBases,
       proposal,

@@ -1,8 +1,9 @@
 // "Within this run" (W-12 S3c; DEL-14-01 Design `desktop-states-runs-comparison.md`
 // §4.3): the user chooses the load case (left) and the combination (right) that
 // `buildPreviewComparison` compares, instead of its fixed ids. The comparison
-// itself is unchanged: pairing through `source_result_refs` with equal explicit
-// units, nothing converted, `not_tolerance_checked`, tolerance profile `TBD`.
+// itself is unchanged: pairing through `source_result_refs` of the left basis with
+// equal explicit units, nothing converted, `not_tolerance_checked`, tolerance
+// profile `TBD`.
 //
 // - **Options** are the bases that have result rows in the current run: each
 //   distinct `basis_ref.ref_id` with `ref_type` `load_case` (left) or
@@ -11,22 +12,50 @@
 // - **Default.** The fixed pair when both are offered (today's view), else the
 //   first offered case and combination; with no case or no combination, nothing,
 //   with the reason.
-// - **Held with its run.** A choice is held with the basis key of the run it was
-//   made on (the session's result and analysis-run sequences). Any other run reads
-//   the default in the very render that first shows it, and a held id that is not
-//   offered by the current run is never compared (the stale-id guard).
+// - **The choice is revalidated, never silently carried or reset.** It stays with
+//   the session across solves, edits and replacements and applies to every Current
+//   run that offers both of its bases. When a Current run does not offer one, the
+//   session drops the choice, reverts to the default and names the dropped bases
+//   (`droppedBases`); an id the run does not offer is never compared.
+// - **Packages follow the choice** (Agent 0, option A): the report, handoff and
+//   export packages carry the chosen pair's comparison, or a structured unavailable
+//   record when the builder refuses it; without a choice, the fixed-pair comparison
+//   exactly as before S3c.
 import {
   buildPreviewComparison,
   DEFAULT_COMPARISON_LEFT_BASIS_REF,
-  DEFAULT_COMPARISON_RIGHT_BASIS_REF
+  DEFAULT_COMPARISON_RIGHT_BASIS_REF,
+  previewComparisonId
 } from "../../services/previewService";
-import type { AnalysisRunEnvelope, MechanicsResult, PreviewComparison, PreviewModel } from "../../types";
+import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewComparison, PreviewModel } from "../../types";
 
 export type WithinRunBasisOption = { ref_id: string; label: string | null; row_count: number };
 export type WithinRunOptions = { loadCases: WithinRunBasisOption[]; combinations: WithinRunBasisOption[] };
 export type WithinRunPair = { left: string; right: string };
-/** The user's choice, held with the basis key of the run it was made on. */
-export type HeldWithinRunSelection = { basis: string; left: string; right: string };
+/** The user's choice of a load case and a combination. */
+export type HeldWithinRunSelection = WithinRunPair;
+
+/** What a package carries in place of a comparison the builder refused: the chosen
+ * bases, the run and the builder's reason, by name. */
+export type PreviewComparisonUnavailable = {
+  document_kind: "openpipestress.technical_preview.comparison_unavailable";
+  comparison_id: string;
+  comparison_kind: "single_run_load_basis_review";
+  status: "unavailable";
+  left_basis_ref: string;
+  right_basis_ref: string;
+  analysis_run_ref: ObjectRef;
+  reason_code: string;
+  reason: string;
+  release_or_professional_claim: false;
+};
+
+/** One pair's outcome: its comparison, or the record of its refusal. */
+export type WithinRunComparisonBuild = {
+  pair: WithinRunPair;
+  comparison: PreviewComparison | null;
+  unavailable: PreviewComparisonUnavailable | null;
+};
 
 export type WithinRunView =
   | { status: "no_result" }
@@ -110,56 +139,99 @@ function unavailableReason(options: WithinRunOptions): string {
   return options.loadCases.length === 0 ? NO_LOAD_CASE_ROWS : NO_COMBINATION_ROWS;
 }
 
-/** The held choice when it was made on this run (`basis`) and both of its ids are
- * offered by this run; otherwise null, and the default applies. */
-export function heldPairForRun(held: HeldWithinRunSelection | null, basis: string, options: WithinRunOptions): WithinRunPair | null {
-  if (!held || held.basis !== basis) return null;
-  const offered =
-    options.loadCases.some((option) => option.ref_id === held.left) &&
-    options.combinations.some((option) => option.ref_id === held.right);
-  return offered ? { left: held.left, right: held.right } : null;
+/** The bases of `held` that `options` does not offer (left as a load case, right as
+ * a combination), in that order; empty when the choice applies. */
+export function droppedBases(held: HeldWithinRunSelection, options: WithinRunOptions): string[] {
+  const dropped: string[] = [];
+  if (!options.loadCases.some((option) => option.ref_id === held.left)) dropped.push(held.left);
+  if (!options.combinations.some((option) => option.ref_id === held.right)) dropped.push(held.right);
+  return dropped;
+}
+
+/** The comparison of one pair, or, when the unchanged builder refuses it, the record
+ * of that refusal with the pair and the reason. */
+export function buildWithinRunComparison(result: MechanicsResult, analysisRun: AnalysisRunEnvelope, pair: WithinRunPair): WithinRunComparisonBuild {
+  try {
+    return { pair, comparison: buildPreviewComparison({ result, analysisRun, leftBasisRef: pair.left, rightBasisRef: pair.right }), unavailable: null };
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    const code = /^([A-Z][A-Z0-9_-]*):/.exec(reason)?.[1] ?? "COMPARISON-BUILD-REFUSED";
+    return {
+      pair,
+      comparison: null,
+      unavailable: {
+        document_kind: "openpipestress.technical_preview.comparison_unavailable",
+        comparison_id: previewComparisonId(result.run_id, pair.left, pair.right),
+        comparison_kind: "single_run_load_basis_review",
+        status: "unavailable",
+        left_basis_ref: pair.left,
+        right_basis_ref: pair.right,
+        analysis_run_ref: { object_type: "AnalysisRun", ref: analysisRun.analysis_run.run_id },
+        reason_code: code,
+        reason,
+        release_or_professional_claim: false
+      }
+    };
+  }
+}
+
+const FIXED_PAIR: WithinRunPair = { left: DEFAULT_COMPARISON_LEFT_BASIS_REF, right: DEFAULT_COMPARISON_RIGHT_BASIS_REF };
+const samePair = (left: WithinRunPair, right: WithinRunPair) => left.left === right.left && left.right === right.right;
+
+/** The fixed pair's build, as the session holds it for the packages without a choice. */
+export function fixedPairComparison(result: MechanicsResult | null, analysisRun: AnalysisRunEnvelope | null): WithinRunComparisonBuild | null {
+  return result && analysisRun ? buildWithinRunComparison(result, analysisRun, FIXED_PAIR) : null;
 }
 
 /** "Within this run" for the session's current result: its options, the pair it
- * compares and that pair's comparison. `defaultComparison`, when given, is the
- * session's comparison of the fixed pair, reused when the pair is the fixed one. */
+ * compares and that pair's outcome. `held` applies only when the run offers both
+ * of its bases (the session drops it otherwise). `fixedPair` is the session's
+ * fixed-pair build, reused when the pair is the fixed one. */
 export function resolveWithinRun({
   result,
   analysisRun,
-  model,
+  options,
   held,
-  basis,
-  defaultComparison = null
+  fixedPair = null
 }: {
   result: MechanicsResult | null;
   analysisRun: AnalysisRunEnvelope | null;
-  model: PreviewModel | null | undefined;
+  options: WithinRunOptions | null;
   held: HeldWithinRunSelection | null;
-  basis: string;
-  defaultComparison?: PreviewComparison | null;
-}): WithinRunView {
-  if (!result || !analysisRun) return { status: "no_result" };
-  const options = withinRunBasisOptions(result, model);
-  const selected = heldPairForRun(held, basis, options);
+  fixedPair?: WithinRunComparisonBuild | null;
+}): { view: WithinRunView; build: WithinRunComparisonBuild | null } {
+  if (!result || !analysisRun || !options) return { view: { status: "no_result" }, build: null };
+  const selected = held && droppedBases(held, options).length === 0 ? held : null;
   const pair = selected ?? defaultWithinRunPair(options);
-  if (!pair) return { status: "unavailable", options, reason: unavailableReason(options) };
-  const source = selected ? "selected" : "default";
-  if (defaultComparison && pair.left === DEFAULT_COMPARISON_LEFT_BASIS_REF && pair.right === DEFAULT_COMPARISON_RIGHT_BASIS_REF) {
-    return { status: "ready", options, pair, source, comparison: defaultComparison, refusal: null };
-  }
-  try {
-    const comparison = buildPreviewComparison({ result, analysisRun, leftBasisRef: pair.left, rightBasisRef: pair.right });
-    return { status: "ready", options, pair, source, comparison, refusal: null };
-  } catch (error) {
-    return { status: "ready", options, pair, source, comparison: null, refusal: error instanceof Error ? error.message : String(error) };
-  }
+  if (!pair) return { view: { status: "unavailable", options, reason: unavailableReason(options) }, build: null };
+  const build = fixedPair && samePair(pair, FIXED_PAIR) ? fixedPair : buildWithinRunComparison(result, analysisRun, pair);
+  return {
+    view: { status: "ready", options, pair, source: selected ? "selected" : "default", comparison: build.comparison, refusal: build.unavailable?.reason ?? null },
+    build
+  };
 }
 
-/** The comparison the report, handoff and export packages carry: the user's
- * choice for this run when one is held, else the fixed-pair comparison exactly as
- * before S3c (so a document built without a choice is unchanged). */
-export function packagedComparison(view: WithinRunView, defaultComparison: PreviewComparison | null): PreviewComparison | null {
-  return view.status === "ready" && view.source === "selected" ? view.comparison : defaultComparison;
+/** What the report, handoff and export packages carry: the choice's outcome when a
+ * choice applies, else the fixed-pair build exactly as before S3c. */
+export function packagedComparison(
+  resolved: { view: WithinRunView; build: WithinRunComparisonBuild | null },
+  fixedPair: WithinRunComparisonBuild | null
+): WithinRunComparisonBuild | null {
+  return resolved.view.status === "ready" && resolved.view.source === "selected" ? resolved.build : fixedPair;
+}
+
+/** The package notice: which comparison the packages carry, or that they omit it
+ * and why. Null when there is no Current run. */
+export function packageNotice(packaged: WithinRunComparisonBuild | null): string | null {
+  if (!packaged) return null;
+  const pair = `${packaged.pair.left} vs ${packaged.pair.right}`;
+  if (packaged.comparison) return `Packages include: ${pair}.`;
+  return `Packages omit the comparison of ${pair}: ${packaged.unavailable?.reason ?? "it could not be built"}`;
+}
+
+/** The notice of a choice dropped because the Current run does not offer its bases. */
+export function droppedNotice(dropped: string[]): string {
+  return `The chosen ${dropped.join(" and ")} ${dropped.length === 1 ? "has" : "have"} no result rows in this run, so the choice was dropped and the default pair applies.`;
 }
 
 /** The stated reasons the choice is disabled (and refused) while the session is busy. */

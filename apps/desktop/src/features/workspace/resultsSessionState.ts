@@ -4,7 +4,7 @@ import { numericalHealthHold, numericalHealthView, readNumericalHealth, type Num
 import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
 import { useMemo, useRef, useState } from "react";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
-import { buildPreviewComparison, hasNativeMechanicsInvocation } from "../../services/previewService";
+import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import type { PreviewSolverMode } from "../../services/previewService";
 import type { ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
 import type { RuleCheckStatus } from "../../services/ruleCheckService";
@@ -20,7 +20,14 @@ import type { ControlledRouteExport } from "../redaction-controls/redactionExpor
 import type { HistoricalRunContext } from "../results/HistoricalRunContext";
 import { RuleRevisionGenerationGate, SolveRunGenerationGate } from "./solveGates";
 import { initialSolveJob } from "./solveJobAudit";
-import { packagedComparison, resolveWithinRun, type HeldWithinRunSelection } from "../comparison/withinRunComparison";
+import {
+  droppedBases,
+  fixedPairComparison,
+  packagedComparison,
+  resolveWithinRun,
+  withinRunBasisOptions,
+  type HeldWithinRunSelection
+} from "../comparison/withinRunComparison";
 import type { SolveProofEvidence } from "./solveProof";
 
 /**
@@ -147,25 +154,37 @@ export function useResultsSessionState() {
     requested: boolean;
     dispatched: boolean;
   }>());
-  const defaultComparison = useMemo(
-    () => (currentSolvedResult && analysisRun ? buildPreviewComparison({ result: currentSolvedResult, analysisRun }) : null),
-    [analysisRun, currentSolvedResult]
-  );
-  // "Within this run" (W-12 S3c): the user's load case and combination, held with
-  // the basis key of the run they were chosen on, as the Results panel holds its
-  // page with its run. A new solve, an edit (which clears the result) or a project
-  // replacement gives a new key, so the default reads in the very render that
-  // first shows the new run; an id the run does not offer is never compared.
+  // The fixed pair's comparison (or its refusal record): what the packages carry
+  // without a choice, exactly as before S3c.
+  const fixedPair = useMemo(() => fixedPairComparison(currentSolvedResult, analysisRun), [analysisRun, currentSolvedResult]);
+  // "Within this run" (W-12 S3c): the user's load case and combination. The choice
+  // stays across solves, edits and replacements and is revalidated against each
+  // Current run; when that run does not offer one of its bases, it is dropped here,
+  // in the render that first shows the run, and the dropped bases are named until
+  // the next choice (never silently carried or reset).
   const [heldWithinRunSelection, setHeldWithinRunSelection] = useState<HeldWithinRunSelection | null>(null);
-  const withinRunBasis = `${resultBasisRef.current.sequence}:${analysisBasisRef.current.sequence}`;
+  const [droppedWithinRunBases, setDroppedWithinRunBases] = useState<string[] | null>(null);
   const solvedModel = inputManifest?.manifest.model_basis.model_payload ?? null;
-  const withinRun = useMemo(
-    () => resolveWithinRun({ result: currentSolvedResult, analysisRun, model: solvedModel, held: heldWithinRunSelection, basis: withinRunBasis, defaultComparison }),
-    [analysisRun, currentSolvedResult, defaultComparison, heldWithinRunSelection, solvedModel, withinRunBasis]
+  const withinRunOptions = useMemo(
+    () => (currentSolvedResult && analysisRun ? withinRunBasisOptions(currentSolvedResult, solvedModel) : null),
+    [analysisRun, currentSolvedResult, solvedModel]
   );
-  // The report, handoff and export packages: the choice when one is held for this
-  // run, else the fixed-pair comparison exactly as before.
-  const comparison = packagedComparison(withinRun, defaultComparison);
+  const dropped = heldWithinRunSelection && withinRunOptions ? droppedBases(heldWithinRunSelection, withinRunOptions) : [];
+  if (dropped.length > 0) {
+    setHeldWithinRunSelection(null);
+    setDroppedWithinRunBases(dropped);
+  }
+  const heldForRun = dropped.length > 0 ? null : heldWithinRunSelection;
+  const resolvedWithinRun = useMemo(
+    () => resolveWithinRun({ result: currentSolvedResult, analysisRun, options: withinRunOptions, held: heldForRun, fixedPair }),
+    [analysisRun, currentSolvedResult, fixedPair, heldForRun, withinRunOptions]
+  );
+  const withinRun = resolvedWithinRun.view;
+  // The report, handoff and export packages: the choice's comparison (or its
+  // refusal record) when a choice applies, else the fixed pair's, as before.
+  const packagedWithinRun = packagedComparison(resolvedWithinRun, fixedPair);
+  const comparison = packagedWithinRun?.comparison ?? null;
+  const comparisonUnavailable = packagedWithinRun?.unavailable ?? null;
   return {
     result, setResult,
     historicalRun, setHistoricalRun,
@@ -200,8 +219,11 @@ export function useResultsSessionState() {
     activeSolveJob,
     solveCancellationTombstones,
     comparison,
+    comparisonUnavailable,
+    packagedWithinRun,
     withinRun,
-    withinRunBasis,
-    setHeldWithinRunSelection
+    droppedWithinRunBases: withinRunOptions ? droppedWithinRunBases : null,
+    setHeldWithinRunSelection,
+    setDroppedWithinRunBases
   };
 }

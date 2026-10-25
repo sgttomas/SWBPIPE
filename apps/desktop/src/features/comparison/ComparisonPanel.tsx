@@ -5,7 +5,8 @@ import { QuantityReadout } from "../display-units";
 import type { MechanicsResult } from "../../types";
 import { GitCompare } from "lucide-react";
 import type { ComparisonDelta, PreviewComparison } from "../../types";
-import type { WithinRunBasisOption, WithinRunPair, WithinRunView } from "./withinRunComparison";
+import { droppedNotice, type WithinRunBasisOption, type WithinRunComparisonBuild, type WithinRunPair, type WithinRunView } from "./withinRunComparison";
+import { ComparisonPackageNotice } from "./ComparisonPackageNotice";
 
 const MAX_VISIBLE_DELTAS = 4;
 
@@ -16,7 +17,10 @@ export type WithinRunControls = {
   view: WithinRunView;
   disabledReason: string | null;
   onSelect: (pair: WithinRunPair) => void;
-  packagedComparisonId: string | null;
+  /** What the packages carry (the choice's outcome, else the fixed pair's). */
+  packaged: WithinRunComparisonBuild | null;
+  /** The bases of a choice dropped because the Current run does not offer them. */
+  dropped: string[] | null;
 };
 
 export function ComparisonPanel({
@@ -40,7 +44,7 @@ export function ComparisonPanel({
         Comparison
       </div>
       <KnownSemanticNotices result={result} testIdPrefix="comparison" />
-      {withinRun && view && view.status !== "no_result" ? <WithinRunChoice controls={withinRun} shownComparisonId={comparison?.comparison_id ?? null} /> : null}
+      {withinRun && view && view.status !== "no_result" ? <WithinRunChoice controls={withinRun} /> : null}
       {view?.status === "unavailable" ? (
         <p className="muted" data-testid="comparison-unavailable">{view.reason}</p>
       ) : view?.status === "ready" && view.refusal ? (
@@ -108,8 +112,8 @@ function basisOptionText(option: WithinRunBasisOption): string {
   return `${name}; ${option.row_count} result row${option.row_count === 1 ? "" : "s"}`;
 }
 
-function WithinRunChoice({ controls, shownComparisonId }: { controls: WithinRunControls; shownComparisonId: string | null }) {
-  const { view, disabledReason, onSelect, packagedComparisonId } = controls;
+function WithinRunChoice({ controls }: { controls: WithinRunControls }) {
+  const { view, disabledReason, onSelect, packaged, dropped } = controls;
   if (view.status === "no_result") return null;
   const pair = view.status === "ready" ? view.pair : null;
   const reasonId = "comparison-within-run-disabled-reason";
@@ -117,6 +121,7 @@ function WithinRunChoice({ controls, shownComparisonId }: { controls: WithinRunC
   return (
     <fieldset className="comparison-within-run" data-testid="comparison-within-run">
       <legend>Within this run</legend>
+      {dropped && dropped.length > 0 ? <p role="status" data-testid="comparison-choice-dropped">{droppedNotice(dropped)}</p> : null}
       {pair ? (
         <div className="comparison-within-run-selects">
           <label>
@@ -152,13 +157,7 @@ function WithinRunChoice({ controls, shownComparisonId }: { controls: WithinRunC
         </div>
       ) : null}
       {pair && disabled ? <small id={reasonId} className="muted" data-testid="comparison-within-run-disabled-reason">{disabledReason}</small> : null}
-      {packagedComparisonId !== shownComparisonId ? (
-        <small className="muted" data-testid="comparison-package-basis">
-          {packagedComparisonId
-            ? `Report, handoff and export packages keep the default comparison (${packagedComparisonId}) unless a load case and a combination are chosen here.`
-            : "Report, handoff and export packages carry no comparison."}
-        </small>
-      ) : null}
+      <ComparisonPackageNotice packaged={packaged} testId="comparison-package-basis" />
     </fieldset>
   );
 }

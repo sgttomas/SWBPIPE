@@ -1462,32 +1462,59 @@ store's `admit_analysis_run_comparison` (`analysis_runs.rs`).
   the combination instead of the hard-coded ids.
 
 **As built (S3c, within this run).** `apps/desktop/src/features/comparison/withinRunComparison.ts`
-(options, default, held choice and packaged comparison), the Comparison panel's
-"Within this run" selects (`ComparisonPanel.tsx`), the session's cell
-(`resultsSessionState.ts`) and handler (`workspaceSession.ts`). The selects
-offer each load case and combination that has result rows in the Current run
-(`basis_ref` of type `load_case` or `combination`, with its row count), in the
-solved model's order and then code-point order. The default is
-`load:L-100` → `combination:C-OPER-ALT` when both are offered, else the first
-case and combination; with no case or no combination the panel says so instead
-of showing an empty comparison (the demo's combination is withheld, so it says
-there is no combination with rows). The comparison is `buildPreviewComparison`,
-unchanged, for the chosen pair; a builder refusal is shown by name. A choice is
-held with the session's result and analysis-run sequences, so a new solve, an
-edit or a project replacement reads the default in the first render that shows
-the new run, and a held id the run does not offer is never compared (the
-producer's `run_id` repeats across solves, so the run id alone is not the key).
-The selects are disabled with the reason, and a choice is refused, while a
-project operation or prompt owns the session, a solve runs or a report package
-is prepared. **Packages (ordinary decision).** The report package, handoff,
-export review, report panel and design-workspace evidence carry the user's
-choice for the current run; without one they carry the fixed-pair comparison
-exactly as before S3c, and the panel names it when it differs from the one
-shown. Residual: the combination rows of the committed producer outputs (range
-envelope, unicode ids) include kinds the builder declares no source dimension
-for (`support_reaction_*_v2`, `combination_modulus_basis_record`), so such a
-combination is refused (`ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED`, the known
-gap routed to T6).
+(options, default, revalidation, packaged comparison and unavailable record),
+the Comparison panel's "Within this run" selects (`ComparisonPanel.tsx`), the
+package notice (`ComparisonPackageNotice.tsx`), the session's cells
+(`resultsSessionState.ts`) and handler (`workspaceSession.ts`).
+- **Options and default.** The selects offer each load case and combination that
+  has result rows in the Current run (`basis_ref` of type `load_case` or
+  `combination`, with its row count), in the solved model's order and then
+  code-point (Unicode scalar) order. The default is `load:L-100` →
+  `combination:C-OPER-ALT` when both are offered, else the first case and
+  combination; with no case or no combination the panel says so instead of
+  showing an empty comparison (the demo's combination is withheld, so it says
+  there is no combination with rows).
+- **The comparison.** `buildPreviewComparison`, unchanged except that a right
+  row pairs only with a source row of the left basis (Codex r1 on #1619; before,
+  the first source row found anywhere, so a chosen L-200 was compared against
+  L-100 rows). The fixed pair's output is byte-identical on every committed
+  result fixture; a C-OPER-ALT without L-100 rows now gives 0 pairs instead of
+  pairing other cases under an L-100 label.
+- **Stale choice: revert with a notice.** The choice stays with the session
+  across solves, edits and replacements and applies to every Current run that
+  offers both of its bases. When a Current run does not offer one, the session
+  drops the choice in the render that first shows that run, reverts to the
+  default and names the dropped bases until the next choice; a dropped choice is
+  not restored when a later run offers its bases again. An id the run does not
+  offer is never compared, and nothing is carried or reset without the notice.
+  (Reverting keeps the panel usable; refusing by name would leave the panel and
+  the packages without a comparison until the user acts. The producer's `run_id`
+  repeats across solves, so it does not identify a run.)
+- **Busy.** The selects are disabled with the reason, and a choice is refused,
+  while a project operation or prompt owns the session, a solve runs or a report
+  package is prepared; the handler reads these at the call, so a handler from an
+  earlier render cannot choose.
+- **Packages follow the choice (Agent 0, option A).** The report panel line and
+  export JSON, the report package's comparison records, the preview handoff
+  summary (`HandoffPanel.tsx`), the export review and the design-workspace
+  downloads carry the chosen pair's comparison; without a choice, the fixed pair's
+  comparison exactly as before S3c. Each records both bases: the comparison id is
+  `comparison:<run>:<left>:to:<right>` with each basis escaped injectively
+  (`previewComparisonId`, read back by `previewComparisonBases`), and the report
+  summary also holds `left_basis_ref` and `right_basis_ref`. The fixed pair alone
+  keeps its pre-S3c sanitized id, so a document built without a choice is
+  byte-identical; that form is not injective (`load:α` and `load:β` both read
+  `load`) and is used for no other pair. When the builder refuses the chosen pair
+  (`ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED`: the committed producer outputs'
+  combination rows include `support_reaction_*_v2` and
+  `combination_modulus_basis_record`, the known gap routed to T6), each of these
+  carries a `comparison_unavailable` record (`openpipestress.technical_preview.comparison_unavailable`:
+  both bases, the run, the reason code and the reason) and `comparison_ref`
+  names its id; the member is absent otherwise. The Comparison panel, the Report
+  section and the Exports section state which comparison the packages include,
+  or that they omit it and why. The saved `.swbhandoff` package
+  (`handoffPackageSave.ts`) carries no within-run comparison and is unaffected;
+  only the preview handoff summary carries the choice.
 
 ## 5. Consumers
 

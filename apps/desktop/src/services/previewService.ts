@@ -751,7 +751,7 @@ export function buildPreviewComparison({
     package_id: "PKG-14",
     scope_items: ["SOW-073"],
     objectives: ["OBJ-016"],
-    comparison_id: `comparison:${result.run_id}:${safeComparisonToken(leftBasisRef)}-to-${safeComparisonToken(rightBasisRef)}`,
+    comparison_id: previewComparisonId(result.run_id, leftBasisRef, rightBasisRef),
     comparison_kind: "single_run_load_basis_review",
     left: {
       label: "Reference load-case result rows",
@@ -845,6 +845,54 @@ function comparisonDiagnostics({
     });
   }
   return diagnostics;
+}
+
+/** The within-run comparison's id, one per (run, left basis, right basis).
+ * - **The fixed pair keeps its pre-S3c id** (`comparison:<run>:load-L-100-to-combination-C-OPER-ALT`),
+ *   so a document built without a choice is byte-identical to before. That form
+ *   sanitizes, so it is not injective (`load:α` and `load:β` both read `load`); it is
+ *   used for that pair alone.
+ * - **Any other pair** is `comparison:<run>:<left>:to:<right>`, each basis escaped by
+ *   `escapeComparisonBasis`. An escaped basis holds no `:`, so the last three
+ *   `:`-separated parts are always left, `to` and right, whatever the run id holds;
+ *   `previewComparisonBases` reads them back. */
+export function previewComparisonId(runId: string, leftBasisRef: string, rightBasisRef: string): string {
+  if (leftBasisRef === DEFAULT_COMPARISON_LEFT_BASIS_REF && rightBasisRef === DEFAULT_COMPARISON_RIGHT_BASIS_REF) {
+    return `comparison:${runId}:${safeComparisonToken(leftBasisRef)}-to-${safeComparisonToken(rightBasisRef)}`;
+  }
+  return `comparison:${runId}:${escapeComparisonBasis(leftBasisRef)}:to:${escapeComparisonBasis(rightBasisRef)}`;
+}
+
+/** Keeps `A-Z a-z 0-9 _ -` and writes every other code point (a lone surrogate
+ * included) as `~<lowercase hex>.`; `~` and `.` are escaped themselves, so the form is
+ * injective and holds no `:`. */
+export function escapeComparisonBasis(value: string): string {
+  let escaped = "";
+  for (const character of value) {
+    escaped += /^[A-Za-z0-9_-]$/.test(character) ? character : `~${character.codePointAt(0)!.toString(16)}.`;
+  }
+  return escaped;
+}
+
+function unescapeComparisonBasis(value: string): string | null {
+  if (!/^(?:[A-Za-z0-9_-]|~[0-9a-f]+\.)*$/.test(value)) return null;
+  try {
+    return value.replace(/~([0-9a-f]+)\./g, (_, hex: string) => String.fromCodePoint(Number.parseInt(hex, 16)));
+  } catch {
+    return null; // beyond U+10FFFF
+  }
+}
+
+/** The two bases a within-run comparison id names: exactly for any pair, and the fixed
+ * pair for its pre-S3c id; null for an id of neither form. */
+export function previewComparisonBases(comparisonId: string): { left: string; right: string } | null {
+  if (comparisonId.endsWith(`:${safeComparisonToken(DEFAULT_COMPARISON_LEFT_BASIS_REF)}-to-${safeComparisonToken(DEFAULT_COMPARISON_RIGHT_BASIS_REF)}`)) {
+    return { left: DEFAULT_COMPARISON_LEFT_BASIS_REF, right: DEFAULT_COMPARISON_RIGHT_BASIS_REF };
+  }
+  const parts = comparisonId.split(":");
+  if (parts.length < 5 || parts[0] !== "comparison" || parts[parts.length - 2] !== "to") return null;
+  const left = unescapeComparisonBasis(parts[parts.length - 3]), right = unescapeComparisonBasis(parts[parts.length - 1]);
+  return left === null || right === null ? null : { left, right };
 }
 
 function safeComparisonToken(value: string): string {

@@ -2,6 +2,7 @@ import { sourceContract } from "../results/resultReader";
 import { isFreshSemanticResult, N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE } from "../results/knownSemanticLimitations";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
+import type { PreviewComparisonUnavailable } from "../comparison/withinRunComparison";
 import type {
   AnalysisRunEnvelope,
   LocalProjectSummary,
@@ -211,6 +212,8 @@ type ReportPackageRequestInput = {
   inputManifest: CurrentSessionInputManifestEvidence;
   projectSummary: LocalProjectSummary | null;
   comparison: PreviewComparison | null;
+  /** W-12 S3c: the record of a chosen within-run comparison the builder refused. */
+  comparisonUnavailable?: PreviewComparisonUnavailable | null;
   ruleCheckAggregate: string | null;
 };
 
@@ -231,6 +234,7 @@ export async function assembleReportPackageRequestBelowAvailabilityGate({
   inputManifest,
   projectSummary,
   comparison,
+  comparisonUnavailable = null,
   ruleCheckAggregate
 }: ReportPackageRequestInput) {
   const resultHashScope = analysisResultHashScope(analysisRun.schema_version);
@@ -408,7 +412,7 @@ export async function assembleReportPackageRequestBelowAvailabilityGate({
     },
     result_envelopes: [resultEnvelope],
     state_comparison_handoff_records: [
-      buildStateComparisonHandoffSections({ model, result, analysisRun, comparison, modelHash })
+      buildStateComparisonHandoffSections({ model, result, analysisRun, comparison, comparisonUnavailable, modelHash })
     ],
     rule_check_aggregate: ruleCheckAggregate,
     solve_rule_check_status: result.status.rule_check

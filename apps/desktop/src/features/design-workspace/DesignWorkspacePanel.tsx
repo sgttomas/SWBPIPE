@@ -1,3 +1,4 @@
+import type { PreviewComparisonUnavailable } from "../comparison/withinRunComparison";
 import { Download, GitCompare } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import type {
@@ -18,6 +19,7 @@ export function DesignWorkspacePanel({
   result,
   analysisRun,
   comparison,
+  comparisonUnavailable = null,
   editorIntents,
   proposal,
   selectedReviewTarget
@@ -27,6 +29,8 @@ export function DesignWorkspacePanel({
   result: MechanicsResult | null;
   analysisRun: AnalysisRunEnvelope | null;
   comparison: PreviewComparison | null;
+  /** W-12 S3c: the record of a chosen within-run comparison the builder refused. */
+  comparisonUnavailable?: PreviewComparisonUnavailable | null;
   editorIntents: EditorOperationIntent[];
   proposal: AgentProposal | null;
   selectedReviewTarget: SelectedReviewTarget | null;
@@ -37,6 +41,7 @@ export function DesignWorkspacePanel({
     result,
     analysisRun,
     comparison,
+    comparisonUnavailable,
     editorIntents,
     proposal,
     selectedReviewTarget
@@ -121,6 +126,7 @@ function buildDesignWorkspacePacket({
   result,
   analysisRun,
   comparison,
+  comparisonUnavailable = null,
   editorIntents,
   proposal,
   selectedReviewTarget
@@ -130,6 +136,8 @@ function buildDesignWorkspacePacket({
   result: MechanicsResult | null;
   analysisRun: AnalysisRunEnvelope | null;
   comparison: PreviewComparison | null;
+  /** W-12 S3c: the record of a chosen within-run comparison the builder refused. */
+  comparisonUnavailable?: PreviewComparisonUnavailable | null;
   editorIntents: EditorOperationIntent[];
   proposal: AgentProposal | null;
   selectedReviewTarget: SelectedReviewTarget | null;
@@ -229,7 +237,8 @@ function buildDesignWorkspacePacket({
       operation_diff_review: operationRecords.length > 0 ? "available" : "empty_operation_queue",
       analysis_run_ref: analysisRun?.analysis_run.run_id ?? "not generated",
       model_state_ref: analysisRun?.analysis_run.model_state_ref.ref ?? "not generated",
-      comparison_ref: comparison?.comparison_id ?? "not generated"
+      comparison_ref: comparison?.comparison_id ?? comparisonUnavailable?.comparison_id ?? "not generated",
+      ...(comparisonUnavailable ? { comparison_unavailable: comparisonUnavailable } : {})
     },
     review_state_routing: {
       selected_review_target_ref: selectedRef,
