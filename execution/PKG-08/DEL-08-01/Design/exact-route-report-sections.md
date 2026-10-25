@@ -515,9 +515,11 @@ means the statement is the producer string byte for byte.
   job or text check then fails at the next check point, and nothing reaches
   IPC.
 - **The native render refuses exact identities before opening (§3.6 step
-  0).** `render_calculation_report` refuses every input whose `exact_route`
-  names an identity outside the render's admitted set, which is empty until
-  opening, with `REPORT-RENDER-ROUTE-NOT-ADMITTED`. The package's Rust
+  0).** `render_calculation_report` refuses every exact-route input (one that
+  carries `exact_route`, names an exact identity or carries exact limitation
+  entries) unless its `exact_route` names an identity in the render's
+  admitted set, which is empty until opening, with
+  `REPORT-RENDER-ROUTE-NOT-ADMITTED`. The package's Rust
   boundary does the same at item 0. Before opening, no production path
   therefore renders or packages an exact-route report, even with every webview
   check bypassed. §3.6 states what the native render can and cannot see.
@@ -859,24 +861,34 @@ package enforces this natively at its Rust identity boundary (item 0,
 - `apps/desktop/src-tauri/src/report_render_exact.rs` (new) holds
   `RENDER_ADMITTED_EXACT_CONTRACTS: [&str; 0] = []`, the exact identities
   whose `exact_route` the native render admits. It also holds
-  `render_calculation_report_args_in`, the render's exact path (§5.5).
+  `render_calculation_report_args_in`, the render's exact path (§5.5), and
+  the step itself, `check_render_route_admitted`. The step lands in slice
+  (a), with the renderer's `exact_route` (§6).
 - The step runs first for every render input, before step 1, any parse of
-  the texts, any custody query and any lease growth. It reads the args body
-  that `command_ingress::admit` already priced, and allocates nothing before
-  it decides.
-- An input whose `exact_route.semantic_contract_id` is outside the admitted
-  set refuses with `REPORT-RENDER-ROUTE-NOT-ADMITTED: the rendered report
-  admits no exact-route identity; found <identity>.` Opening adds
-  `PRESSURE_ID` and `PRESSURE_SOURCE_ID`, and the message then names that set
-  (§5.1).
+  the texts, any custody query, any lease growth and the renderer's decode of
+  the input. It reads, in place, the `input` argument that
+  `command_ingress::admit` already priced and decoded, and allocates nothing
+  before it decides.
+- It treats as exact-route any input that carries a non-null `exact_route`,
+  names an exact identity (`PRESSURE_ID`, `PRESSURE_SOURCE_ID` or
+  `PHYSICS_RETAINED_ID`) as any string value or object key, or carries an
+  exact limitation entry (an id `limitation:…:exact:…`, the renderer's
+  predicate, §3.5). Such an input passes only when its
+  `exact_route.semantic_contract_id` is in the admitted set and every exact
+  identity it names is too. Otherwise it refuses with
+  `REPORT-RENDER-ROUTE-NOT-ADMITTED: the rendered report admits no exact-route
+  identity; found <identity>.` The found text is the identity, or names an
+  `exact_route` without one, or the first exact limitation entry of an input
+  without `exact_route`. Opening adds `PRESSURE_ID` and `PRESSURE_SOURCE_ID`,
+  and the message then names that set (§5.1).
 - Before opening, a genuine exact render input from a live job, with its
   genuine texts, therefore refuses here. The rest of this section runs on a
   render only under the desktop crate's test-only witness set (§5.5).
 - The render input names its source identity only in `exact_route` (§1.2).
   An input that carries the exact texts without `exact_route` refuses with
   `REPORT-EXACT-SECTIONS-MISMATCH: exact_route` (below). One that carries
-  exact limitation entries without it refuses in the renderer (§3.5). Both
-  refusals hold in every build.
+  exact limitation entries without it refuses at step 0, and the renderer's
+  own check stands behind it (§3.5). These refusals hold in every build.
 
 **What the host checks.** The checks apply to a render input with
 `exact_route` that passes step 0, and to a save whose result document has an
@@ -1288,12 +1300,19 @@ committed exact corpora below the gate.
      struct and in `PRODUCTION`'s definition;
   4. `EXACT_WITNESS_ADMITTED` occurs only in its `#[cfg(test)]` definition and
      in the witness module;
-  5. no variant is declared `pub fn`.
+  5. no variant is declared `pub fn`;
+  6. a variant's name occurs in non-test source only in its definition and in
+     direct calls (`name(`). An alias, a function value, a `use` of it or a
+     re-export is a finding, so the set cannot leave the graph through a name
+     the scan does not follow.
 
-  The same module has a negative test of the scanner on invented sources. A
-  sixth caller, a root passing `admitted`, an internal edge passing
-  `PRODUCTION`, and a witness-set use outside the witness module each produce
-  a finding.
+  The rule is `report_package/src/forwarding_graph_scan.rs`, a `#[cfg(test)]`
+  module that the desktop render's scan includes by path. The same module has
+  a negative test of the scanner on invented sources. A sixth caller, a root
+  passing `admitted`, an internal edge passing `PRODUCTION`, a witness-set use
+  outside the witness module, an alias of a variant in another function (with
+  every edge intact), a variant passed as a function value and a re-export
+  each produce a finding.
 - **The witness.** `report_package/src/exact_package_witness_tests.rs` is a
   `#[cfg(test)]` module. It must be in the crate, because `#[cfg(test)]` items
   are visible neither to `tests/` integration tests nor to dependents. It
@@ -1322,15 +1341,17 @@ committed exact corpora below the gate.
   |---|---|---|
   | `render_calculation_report_args` (`lib.rs`; production root) | `render_calculation_report` (the command, `lib.rs:1540`) | none |
   | `report_render_exact::render_calculation_report_args_in` | `render_calculation_report_args` | `report_render_exact::PRODUCTION` |
+  | `report_render_exact::check_render_route_admitted` (step 0) | `report_render_exact::render_calculation_report_args_in` | `admitted` |
   | `render_calculation_report_value` (`lib.rs:1553`, private) | `report_render_exact::render_calculation_report_args_in`, after step 0 and, for an exact input, steps 1-5 and the re-derivation | none |
 
-  `render_calculation_report_args_in` takes `admitted: RenderAdmittedSet` as
-  its last parameter and runs step 0 against it first.
+  `render_calculation_report_args_in` and `check_render_route_admitted` take
+  `admitted: RenderAdmittedSet` as their last parameter, and the first runs
+  step 0 against it first.
   `render_admitted_set_forwarding_graph_is_closed`, in
   `src-tauri/src/report_render_exact_tests.rs`, applies the same scan rule to
   the desktop crate's `src/**/*.rs`. That rule handles the crate's scattered
-  `#[cfg(test)]` functions (`lib.rs:154,1848,2243,5172`). It asserts the three
-  rows above and the analogues of assertions 2-5. `EXACT_RENDER_WITNESS_ADMITTED`
+  `#[cfg(test)]` functions (`lib.rs:154,1848,2243,5172`). It asserts the four
+  rows above and the analogues of assertions 2-6. `EXACT_RENDER_WITNESS_ADMITTED`
   may occur only in its definition and in `report_render_exact_tests.rs`. The
   direct-native render tests (§7) call `render_calculation_report_args_in`
   with `EXACT_RENDER_WITNESS_ADMITTED`. The desktop's package save calls only
@@ -1349,7 +1370,8 @@ committed exact corpora below the gate.
   texts it refuses at item 0 (§7, slice (b)). The production native render,
   `render_calculation_report_args`, refuses a genuine exact render input from
   a live test job with its genuine texts at step 0, with
-  `REPORT-RENDER-ROUTE-NOT-ADMITTED` (§7, slice (b)).
+  `REPORT-RENDER-ROUTE-NOT-ADMITTED` (§7, slice (b)). Slice (a) already pins
+  its refusal of a coherent invented exact input (§7).
 - **Witness requests.** `buildReportPackageRequest` becomes the cell check
   followed by `assembleReportPackageRequest(input, admittedContractIds)`.
   Production passes `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS`. The assembly step
@@ -1377,8 +1399,8 @@ committed exact corpora below the gate.
 
 | Slice | Content | Size | Persistence / data boundary |
 |---|---|---|---|
-| **(a) Rust producers, renderer and the statement table** | The fixture writer on the public producer, its guard and the committed fixture (§2.2); no product source changes. `exactReportLimitations.ts` and its test, which writes `exact_report_statements.json`, and the Rust table that embeds it (§3.5); the TypeScript module is imported by nothing until (b). The renderer's `exact_route` (with the admission-binding check and the composed standing line, §3.2), its exact-limitation check, and `library_references`, in `assemble_report_sections`, so HTML and PDF both emit them. Render and emit tests, including byte-identity when absent. In `report_package`: the row suffix in `expected_report_result_rows`, the dormant item 9 and the public `exact_sections` projection (§3.5), the runner-profile refusal in the producer and the reader (§3.5), the `AdmittedSet` type, the crate-private admitted-set variants on their forwarding graph, and the graph scan with its negative test (§5.5), and both parity vector files. Hosted-CI routing | L (~1.9k lines with tests, plus the generated fixtures and vectors; revision 4: ~1.8k) | None. Numerical meaning untouched. Package and report bytes unchanged for every current input |
-| **(b) Desktop exact sections and admission, behind the gate** | `exactReportAdmission.ts` (§3.1); the exact path of `buildRenderableReportInput` (admission, limitations, profile reference, binding, load/reference line, headlines); the row suffix in `reportResultRows`; `RenderedReportPanel.tsx:171` at surface level, the panel's admission and its pre-IPC re-check; the request builder's split, its pre-IPC re-check and `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS`; the native render's step 0 (`report_render_exact.rs`, `RENDER_ADMITTED_EXACT_CONTRACTS` empty, `REPORT-RENDER-ROUTE-NOT-ADMITTED`) with its witness set and graph scan (§3.6, §5.5); the native source binding (§3.6): the job's custody digests and `custody_binding`, `deliveredIntakeText`, the resubmitted texts, their priced parses, the native standing, the save's source and model equalities and the render's re-derivation; the `rendered-report` disclosure template; still-refused tests, including the production native render's refusal of a genuine exact result; the witness and substitute requests, the in-crate witness and production-refusal tests (§5.5) and the direct-native substitution tests (§7). The DEL-04-07 memory-budget updates (§8). Texts A.1 G2 and G5 | L (~2.4k, plus the witness requests; revision 4: ~2.2k) | None before opening. The webview cells refuse exact results, and the native render (step 0) and the package's Rust boundary (item 0) refuse every input that names an exact identity, so no production path reaches an exact output. The job registry keeps 65 bytes of digest metadata per job, released with custody. The admission and the native binding are an output gate with new priced parses, so they get targeted regression checks and independent scrutiny |
+| **(a) Rust producers, renderer and the statement table** | The fixture writer on the public producer, its guard and the committed fixture (§2.2); no product source changes. `exactReportLimitations.ts` and its test, which writes `exact_report_statements.json`, and the Rust table that embeds it (§3.5); the TypeScript module is imported by nothing until (b). The renderer's `exact_route` (with the admission-binding check and the composed standing line, §3.2), its exact-limitation check, and `library_references`, in `assemble_report_sections`, so HTML and PDF both emit them. Render and emit tests, including byte-identity when absent. In `report_package`: the row suffix in `expected_report_result_rows`, the dormant item 9 and the public `exact_sections` projection (§3.5), the runner-profile refusal in the producer and the reader (§3.5), the `AdmittedSet` type, the crate-private admitted-set variants on their forwarding graph, and the graph scan with its negative test (§5.5), and both parity vector files. The native render's step 0 (`report_render_exact.rs`, `RENDER_ADMITTED_EXACT_CONTRACTS` empty, `REPORT-RENDER-ROUTE-NOT-ADMITTED`) with its witness set and graph scan (§3.6, §5.5), moved here from (b) because the renderer's `exact_route` makes exact reports reachable through the unchanged native render command (Codex review round 1 of #1632). Hosted-CI routing | L (~1.9k lines with tests, plus the generated fixtures and vectors; revision 4: ~1.8k) | None. Numerical meaning untouched. Package and report bytes unchanged for every current input. The native render refuses every exact-route input at step 0 |
+| **(b) Desktop exact sections and admission, behind the gate** | `exactReportAdmission.ts` (§3.1); the exact path of `buildRenderableReportInput` (admission, limitations, profile reference, binding, load/reference line, headlines); the row suffix in `reportResultRows`; `RenderedReportPanel.tsx:171` at surface level, the panel's admission and its pre-IPC re-check; the request builder's split, its pre-IPC re-check and `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS`; the native source binding (§3.6): the job's custody digests and `custody_binding`, `deliveredIntakeText`, the resubmitted texts, their priced parses, the native standing, the save's source and model equalities and the render's re-derivation; the `rendered-report` disclosure template; still-refused tests, including the production native render's refusal of a genuine exact result; the witness and substitute requests, the in-crate witness and production-refusal tests (§5.5) and the direct-native substitution tests (§7). The DEL-04-07 memory-budget updates (§8). Texts A.1 G2 and G5 | L (~2.4k, plus the witness requests; revision 4: ~2.2k) | None before opening. The webview cells refuse exact results, and the native render (step 0) and the package's Rust boundary (item 0) refuse every input that names an exact identity, so no production path reaches an exact output. The job registry keeps 65 bytes of digest metadata per job, released with custody. The admission and the native binding are an output gate with new priced parses, so they get targeted regression checks and independent scrutiny |
 | **(c) FR-REP-003 on every route** | Material, section, component and support records under one provenance predicate; library references and finding diagnostics; callers pass the findings; the schema check of representative records (§7); regenerated witnesses and witness requests; the memory-budget figures re-measured. Texts A.1 G1, G3 and G4 | M (~0.8k, plus regenerated witnesses) | **Data boundary**: new private content in the open pressure-free report and package |
 
 (a) comes first, because Rust drops unknown report fields (§1.1 item 3) and
@@ -1437,6 +1459,20 @@ native render's admitted set, a few lines).
 - Rust unit (`report_package/src/admitted_tests.rs`):
   `admitted_set_forwarding_graph_is_closed` and the scanner's negative test
   (§5.5).
+- Rust unit (`src-tauri/src/report_render_exact_tests.rs`), step 0 (§3.6):
+  - the production native render refuses a coherent invented exact input, which
+    the witness set renders unblocked with "integrity checked", with
+    `REPORT-RENDER-ROUTE-NOT-ADMITTED` and no HTML, through
+    `render_calculation_report_args` and from the raw body through
+    `command_ingress::admit` as the command does;
+  - the refusal precedes the renderer's decode of the input;
+  - an `exact_route` without an identity, an exact identity named elsewhere
+    and exact limitation entries without `exact_route` refuse;
+  - a pressure-free input renders byte-identically to the unchanged renderer
+    call, with `exact_route` absent or null, and the admitting decision
+    allocates nothing;
+  - `render_admitted_set_forwarding_graph_is_closed` and the scanner's negative
+    test on invented desktop sources (§5.5).
 
 **Slice (b).**
 - vitest `features/report/exactReportAdmission.test.ts`:
@@ -1513,8 +1549,6 @@ native render's admitted set, a few lines).
   invented identity refuses likewise. Under the witness set, the last two
   still refuse at step 0. A pressure-free input without `exact_route` renders
   byte-identically under either set.
-- `render_admitted_set_forwarding_graph_is_closed` (same file, §5.5) and the
-  scanner's negative test on invented desktop sources.
 - **Pricing** (same files):
   - `parse_lease_bytes` with the two texts is the former sum plus their
     `text_parse_bytes`;

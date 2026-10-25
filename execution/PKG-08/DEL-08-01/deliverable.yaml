@@ -327,6 +327,7 @@ code_paths:
 - apps/desktop/src/features/report/exactReportLimitations.ts
 - fixtures/reports/exact_route_limitations.json
 - fixtures/reports/exact_report_statements.json
+- apps/desktop/src-tauri/src/report_render_exact.rs
 checks:
 - core/reporting/report_package/tests/container.rs
 - core/reporting/report_package/tests/reader.rs
@@ -344,6 +345,8 @@ checks:
 - apps/desktop/src/features/report/exactReportLimitations.test.ts
 - core/product_physics/tests/exact_route_limitations.rs
 - core/reporting/report_package/src/admitted_tests.rs
+- core/reporting/report_package/src/forwarding_graph_scan.rs
+- apps/desktop/src-tauri/src/report_render_exact_tests.rs
 - core/reporting/report_package/tests/exact_sections_parity.rs
 - core/reporting/report_package/tests/report_rows_parity.rs
 - core/reporting/report_package/tests/current_result_package.rs
