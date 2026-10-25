@@ -63,6 +63,8 @@ pub const DISPOSITION_MALFORMED: &str = "HANDOFF-DISPOSITION-MALFORMED";
 /// Pack Manager's reference list).
 pub const LIBRARY_REF_VERSION_CHANGED: &str = crate::MODEL_LIBRARY_REF_VERSION_CHANGED;
 pub const RULE_PACK_REF_UNRESOLVED: &str = "MODEL-RULE-PACK-REF-UNRESOLVED";
+/// The stored pack is not the one the reference names (#1602's code; `rulePackRefDiagnostics.ts`).
+pub const RULE_PACK_REF_CHECKSUM_MISMATCH: &str = "MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH";
 
 /// The unit catalogue every unit identifier is taken from (`get_unit_catalog`).
 pub const UNIT_SYSTEM_REF: &str = "unit-system:dec-018-si-dual-display";
@@ -135,7 +137,8 @@ pub fn validate_handoff_evidence(screening: &ModelDocumentSaveScreening, local_f
 /// A project's saved state by project id and state id (production: the metered
 /// `model_states::list_states_in_store_with`), or `None` when it has none.
 pub type StateLookup<'a> = dyn FnMut(&str, &str) -> Result<Option<ModelStateSummary>, String> + 'a;
-/// The stored rule-pack documents with a `rule_pack_id`, the model's project's first.
+/// The stored rule-pack document with a `rule_pack_id` under the model's project
+/// (at most one), as the solve's rule-pack resolution opens it (#1602).
 pub type RulePackLookup<'a> = dyn FnMut(&str, &str) -> Result<Vec<Value>, String> + 'a;
 
 // ---------------------------------------------------------------------------
@@ -1025,6 +1028,43 @@ fn library_refs(document: &Value, project_id: &str, lookup: &mut LibraryLookup<'
     if refusals.is_empty() { Ok((refs, warnings)) } else { Err(refusals) }
 }
 
+/// Why a model rule-pack reference is excluded, or `None` when it resolves:
+/// the solve's resolution (#1602; `resolveModelRulePacks` in
+/// `src/services/modelRulePackResolution.ts`), rule for rule, so that a handoff
+/// warns of exactly the references a run of the same model excludes.
+/// `stored` is the model's project's pack with the reference's id, if any.
+/// - Unresolved: no stored pack, or its `metadata.rule_pack_id` is not the
+///   reference's, or it has no `metadata.rule_pack_version` or
+///   `metadata.source_notice` (non-blank text).
+/// - Checksum mismatch: its stamped `checksums.rule_pack_checksum.value` is not
+///   64 lowercase hex digits or not the reference's `checksum.value`, the
+///   document's validation does not report its checksum as `match` (as the open
+///   command's envelope reports it), or its version is not the reference's.
+///
+/// TypeScript twin and shared vectors: `fixtures/handoff/rule_pack_ref_resolution_vectors.json`.
+pub(crate) fn rule_pack_ref_exclusion(reference: &Map<String, Value>, stored: Option<&Value>) -> Option<&'static str> {
+    let Some(document) = stored else { return Some(RULE_PACK_REF_UNRESOLVED) };
+    let metadata = document.get("metadata").and_then(Value::as_object);
+    let stamped = document
+        .get("checksums")
+        .and_then(Value::as_object)
+        .and_then(|checksums| checksums.get("rule_pack_checksum"))
+        .and_then(Value::as_object)
+        .and_then(|checksum| text(Some(checksum), "value"));
+    let id = text(metadata, "rule_pack_id");
+    let version = text(metadata, "rule_pack_version");
+    if id != reference.get("rule_pack_id").and_then(Value::as_str) || version.is_none() || text(metadata, "source_notice").is_none() {
+        return Some(RULE_PACK_REF_UNRESOLVED);
+    }
+    let recomputed_matches = open_pipe_stress_rule_pack_document::validate_rule_pack_document(document, false).checksum.match_status == "match";
+    let sha256_hex = |value: &str| value.len() == 64 && value.bytes().all(|byte| matches!(byte, b'0'..=b'9' | b'a'..=b'f'));
+    let referenced = reference.get("checksum").and_then(|checksum| checksum.get("value")).and_then(Value::as_str);
+    if !stamped.is_some_and(sha256_hex) || stamped != referenced || !recomputed_matches || version != reference.get("rule_pack_version").and_then(Value::as_str) {
+        return Some(RULE_PACK_REF_CHECKSUM_MISMATCH);
+    }
+    None
+}
+
 /// `rule_pack_refs` (design §3): the document's references, each with a
 /// checksum over its reference metadata `{rule_pack_id, version,
 /// stamped_checksum_value, basis, grammar_version}`; the grammar version is the
@@ -1047,22 +1087,30 @@ fn rule_pack_refs(document: &Value, project_id: &str, lookup: &mut RulePackLooku
         }
         let version = entry.get("rule_pack_version").and_then(Value::as_str).unwrap_or("");
         let stamped = entry.get("checksum").and_then(|checksum| checksum.get("value")).and_then(Value::as_str).unwrap_or("");
+        // A store read error refuses the save. This is stricter than the solve's
+        // resolution (#1602), which records the reference as unresolved; both fail
+        // closed, and the handoff keeps its refusal.
         let stored = lookup(project_id, id).map_err(|error| {
             vec![diagnostic(RULE_PACK_STORE_UNAVAILABLE, &path, format!("The local rule-pack store could not be read to resolve `{id}` ({error}); nothing was saved."))]
         })?;
-        // Resolved only when the stored stamp is the reference's and the
-        // pack's checksum, recomputed from its stored document, is that stamp
-        // (review round 1, finding 5: an edited draft keeps its old stamp).
-        let pack = stored.into_iter().find(|pack| {
-            pack.pointer("/checksums/rule_pack_checksum/value").and_then(Value::as_str) == Some(stamped)
-                && open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(pack).is_ok_and(|computed| computed.value == stamped)
-        });
-        if pack.is_none() {
-            warnings.push(diagnostic(
+        // Resolved only as the solve resolves it (#1602, `rule_pack_ref_exclusion`):
+        // among other checks, the stored stamp is the reference's and the pack's
+        // checksum, recomputed from its stored document, matches it (review
+        // round 1, finding 5: an edited draft keeps its old stamp).
+        let exclusion = rule_pack_ref_exclusion(entry, stored.first());
+        let pack = if exclusion.is_none() { stored.into_iter().next() } else { None };
+        match exclusion {
+            Some(RULE_PACK_REF_CHECKSUM_MISMATCH) => warnings.push(diagnostic(
+                RULE_PACK_REF_CHECKSUM_MISMATCH,
+                &path,
+                format!("The local store's rule pack `{id}` for this project is not the referenced one: its stamped checksum, its own recomputed checksum or its version is not the reference's ({stamped}, version {version}); its grammar version, lifecycle and provenance are not known here."),
+            )),
+            Some(_) => warnings.push(diagnostic(
                 RULE_PACK_REF_UNRESOLVED,
                 &path,
-                format!("The local store holds no rule pack `{id}` whose document hashes to the referenced stamped checksum {stamped}; its grammar version, lifecycle and provenance are not known here."),
-            ));
+                format!("The local store holds no rule pack `{id}` for this project with a matching id, a version and a source notice; its grammar version, lifecycle and provenance are not known here."),
+            )),
+            None => {}
         }
         // A resolved pack is screened whole before anything of it is mapped
         // (review round 2, finding 2).
@@ -2438,7 +2486,52 @@ mod tests {
         review_emit("stale-grammar", prepared);
         let mut packs = |project: &str, id: &str| crate::stored_rule_packs_with_id(&Connection::open(&store.path).unwrap(), project, id);
         let (_, warnings) = rule_pack_refs(&model, "project:slots", &mut packs).unwrap();
-        assert!(warnings.iter().any(|w| w.code == RULE_PACK_REF_UNRESOLVED), "invalid stamped checksum was treated as a resolved pack");
+        // aligned with #1602's exclusion codes (export-diagnostics PR)
+        assert!(warnings.iter().any(|w| w.code == RULE_PACK_REF_CHECKSUM_MISMATCH), "invalid stamped checksum was treated as a resolved pack");
+    }
+    /// W-6b resolves a model rule-pack reference as the solve does (#1602): every
+    /// shared vector gives the outcome TypeScript's `resolveModelRulePacks` gives
+    /// (`src/services/rulePackRefResolutionParity.test.ts`), through the store
+    /// lookup the save command wires and through `rule_pack_ref_exclusion` alone.
+    #[test]
+    fn rule_pack_ref_resolution_matches_the_solve_on_the_shared_vectors() {
+        let vectors: Value = serde_json::from_str(include_str!("../../../../fixtures/handoff/rule_pack_ref_resolution_vectors.json")).unwrap();
+        let base: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
+        let project = vectors["model_project_id"].as_str().unwrap();
+        let cases = vectors["vectors"].as_array().unwrap();
+        assert!(cases.len() >= 11);
+        for case in cases {
+            let name = case["name"].as_str().unwrap();
+            let reference = case["reference"].as_object().unwrap();
+            let rule_pack_id = reference["rule_pack_id"].as_str().unwrap();
+            let root = sandbox("rule-pack-resolution");
+            let (connection, _) = crate::open_project_store(&root.join(crate::PROJECT_STORE_FILE)).unwrap();
+            if let Some(stored_under) = case["stored_under"].as_str() {
+                let mut document = base.clone();
+                for edit in case["document_edits"].as_array().unwrap() {
+                    let pointer = edit["pointer"].as_str().unwrap();
+                    let (parent, key) = pointer.rsplit_once('/').unwrap();
+                    let object = document.pointer_mut(parent).unwrap().as_object_mut().unwrap();
+                    if edit["delete"] == json!(true) { object.remove(key); } else { object.insert(key.to_string(), edit["value"].clone()); }
+                }
+                document["checksums"]["rule_pack_checksum"]["value"] = case["stamp"].clone();
+                let validation = open_pipe_stress_rule_pack_document::validate_rule_pack_document(&document, false);
+                assert_eq!(json!(validation.checksum.match_status), case["match_status"], "{name}: the vector's match_status is the validator's");
+                crate::upsert_rule_pack(&connection, stored_under, rule_pack_id, &document).unwrap();
+            }
+            let expected = case["expected"].as_str().unwrap();
+            let held = crate::stored_rule_packs_with_id(&connection, project, rule_pack_id).unwrap();
+            assert!(held.len() <= 1, "{name}");
+            assert_eq!(rule_pack_ref_exclusion(reference, held.first()).unwrap_or("resolved"), expected, "{name}");
+            let model = json!({ "rule_pack_refs": [Value::Object(reference.clone())] });
+            let mut lookup = |project: &str, id: &str| crate::stored_rule_packs_with_id(&connection, project, id);
+            let (refs, warnings) = rule_pack_refs(&model, project, &mut lookup).unwrap();
+            assert_eq!(refs.len(), 1, "{name}: an excluded reference stays listed");
+            let codes: Vec<&str> = warnings.iter().map(|warning| warning.code.as_str()).collect();
+            assert_eq!(codes, if expected == "resolved" { vec![] } else { vec![expected] }, "{name}");
+            drop(connection);
+            fs::remove_dir_all(&root).unwrap();
+        }
     }
     #[test]
     fn review_publication_failures_and_symlinks() {
