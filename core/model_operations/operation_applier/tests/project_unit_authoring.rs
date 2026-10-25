@@ -8,7 +8,8 @@
 //! `before: not_present`; a legacy `C` is replaced by `degC`; and the inverse
 //! change restores the exact prior document. All data are invented.
 use open_pipe_stress_operation_applier::{
-    apply_operation, canonical_json, sha256_hex, validate_model_document, validate_operation, OperationOutcome,
+    apply_operation, apply_operation_batch, canonical_json, sha256_hex, validate_model_document, validate_operation,
+    validate_operation_batch, OperationOutcome,
 };
 use serde_json::{json, Value};
 
@@ -351,4 +352,151 @@ fn the_refusals_run_in_the_table_order() {
     both(&|intent| { intent["change"]["after"] = json!("m"); intent["change"]["unit"] = json!("m"); intent["change"]["before"] = json!("ft"); }, &model, "OP-STALE-BEFORE-VALUE");
     // Unchanged before the length lock.
     both(&|intent| { intent["change"]["after"] = json!("m"); intent["change"]["unit"] = json!("m"); }, &model, "OP-PROJECT-UNIT-UNCHANGED");
+}
+
+/// The batch's blocking codes, from its own diagnostics and each step's.
+fn batch_codes(outcome: &Value) -> Vec<String> {
+    let mut found: Vec<String> = Vec::new();
+    let mut collect = |list: &Value| {
+        for item in list.as_array().into_iter().flatten() {
+            if let Some(code) = item["code"].as_str() {
+                found.push(code.to_string());
+            }
+        }
+    };
+    collect(&outcome["diagnostics"]);
+    for step in outcome["steps"].as_array().into_iter().flatten() {
+        collect(&step["diagnostics"]);
+    }
+    found
+}
+
+/// A `set_project_unit` change travels in an atomic batch: a batch that succeeds
+/// applies it with the other operations; a batch whose later operation fails
+/// returns no document, so the unit change is rolled back with it.
+#[test]
+fn a_batch_applies_a_unit_change_and_rolls_it_back_when_a_later_operation_fails() {
+    let model = with_node();
+    let original = bytes(&model);
+
+    let batch = json!({"batch_id": "batch:units-b", "operations": [set(&model, "force", "lbf"), set(&model, "angle", "deg")]});
+    let preview = validate_operation_batch(&model, &batch, Some(&claim(&model)));
+    assert!(preview["applied_model"].is_null(), "validation returns no document");
+    assert_eq!(preview["validation"]["batch_validation_status"], json!("passed"), "{}", preview["diagnostics"]);
+    let outcome = apply_operation_batch(&model, &batch, Some(&claim(&model)));
+    assert_eq!(outcome["validation"]["application_status"], json!("applied_to_session_model"), "{:?}", batch_codes(&outcome));
+    let next = outcome["applied_model"].clone();
+    assert_eq!(bytes(&next), bytes(&with_unit(&with_unit(&model, "force", Some("lbf")), "angle", Some("deg"))));
+    assert!(validate_model_document(&next).is_empty());
+    assert_eq!(bytes(&model), original, "the input is never mutated");
+
+    // A later operation refused for each of three reasons: the length lock, a
+    // stale before, and a second change of the key the first one changed.
+    let mut stale = set(&model, "pressure", "psi");
+    stale["change"]["before"] = json!("bar");
+    let mut again = set(&model, "force", "kN");
+    again["operation_id"] = json!("operation:set_project_unit:force-again");
+    again["change"]["change_id"] = json!("change:set_project_unit:force-again");
+    for (later, code) in [
+        (set(&model, "length", "mm"), "OP-PROJECT-UNIT-LENGTH-LOCKED"),
+        (stale, "OP-STALE-BEFORE-VALUE"),
+        (again, "OP-STALE-BEFORE-VALUE"),
+    ] {
+        let batch = json!({"batch_id": "batch:units-b-rollback", "operations": [set(&model, "force", "lbf"), later]});
+        for outcome in [validate_operation_batch(&model, &batch, Some(&claim(&model))), apply_operation_batch(&model, &batch, Some(&claim(&model)))] {
+            assert!(outcome["applied_model"].is_null(), "no document from a failed batch");
+            assert_eq!(outcome["validation"]["batch_validation_status"], json!("blocked"));
+            assert!(batch_codes(&outcome).iter().any(|found| found == code), "{code}: {:?}", batch_codes(&outcome));
+        }
+        assert_eq!(bytes(&model), original, "the document bytes are unchanged");
+    }
+
+    // A removal sent through a batch is refused by the batch's own shape check.
+    let mut removal = set(&model, "force", "lbf");
+    removal["change"]["after"] = Value::Null;
+    let outcome = apply_operation_batch(&model, &json!({"batch_id": "batch:units-b-removal", "operations": [removal]}), Some(&claim(&model)));
+    assert!(outcome["applied_model"].is_null());
+    assert_eq!(batch_codes(&outcome), vec!["OP-BATCH-PREFLIGHT-INVALID".to_string()]);
+    assert_eq!(bytes(&model), original);
+}
+
+/// Validate and apply, expecting a refusal with exactly `expected` (in order),
+/// no diff and no document; the input is unchanged.
+fn refused_with(model: &Value, intent: &Value, expected: &[&str]) {
+    let before = model.clone();
+    for outcome in [validate_operation(model, intent, Some(&claim(model))), apply_operation(model, intent, Some(&claim(model)))] {
+        assert!(outcome.applied_model.is_none(), "applied unexpectedly");
+        assert!(outcome.diff_preview.is_empty(), "{:?}", outcome.diff_preview);
+        assert_ne!(outcome.validation.application_status, "applied_to_session_model");
+        let found: Vec<&str> = outcome.diagnostics.iter().map(|item| item.code.as_str()).collect();
+        assert_eq!(found, expected, "{:?}", outcome.diagnostics);
+        assert!(outcome.diagnostics.iter().all(|item| item.severity == "blocking"));
+    }
+    assert_eq!(*model, before);
+}
+
+/// `check_intent_structure` lets `set_project_unit` name its own refusals for
+/// its target and field path. That exemption cannot carry an intent anywhere
+/// else: another operation kind, another target type or a field path outside
+/// `project.units.<key>` is refused by name, reaches no other authoring path
+/// and changes nothing; the members it does not exempt are still required.
+#[test]
+fn the_shape_exemption_carries_no_other_operation() {
+    let model = with_node();
+    let base = || set(&model, "force", "lbf");
+
+    // Another operation kind, including one whose own path would delete or create.
+    for kind in ["create", "delete", "connect", "insert", "remove_invented"] {
+        let mut intent = base();
+        intent["operation_kind"] = json!(kind);
+        refused_with(&model, &intent, &["OP-CHANGE-KIND-MISMATCH"]);
+        // Aimed at a node with no target at all: still only the kind mismatch, and the node stays.
+        intent["target"] = json!({"object_type": "Node", "ref": "node:a"});
+        refused_with(&model, &intent, &["OP-CHANGE-KIND-MISMATCH"]);
+        intent.as_object_mut().unwrap().remove("target");
+        refused_with(&model, &intent, &["OP-CHANGE-KIND-MISMATCH"]);
+    }
+
+    // Another target type, with a project-unit path or a path another authoring path owns.
+    for (object_type, target_ref, field_path, expected) in [
+        ("Node", "node:a", "project.units.force", &["OP-PROJECT-UNIT-SHAPE-INVALID"][..]),
+        ("Node", "node:a", "position.x", &["OP-PROJECT-UNIT-SHAPE-INVALID"][..]),
+        ("Model", PROJECT, "project.units.force", &["OP-PROJECT-UNIT-SHAPE-INVALID"][..]),
+        ("Support", "support:a", "restraints", &["OP-PROJECT-UNIT-SHAPE-INVALID"][..]),
+        ("Support", "support:a", "configuration", &["OP-PROJECT-UNIT-SHAPE-INVALID", "OP-RICH-KIND-INVALID"][..]),
+        ("Model", PROJECT, "pressure_profile", &["OP-PROJECT-UNIT-SHAPE-INVALID", "OP-RICH-KIND-INVALID"][..]),
+        ("Node", "node:a", "tags", &["OP-PROJECT-UNIT-SHAPE-INVALID", "OP-RICH-KIND-INVALID"][..]),
+    ] {
+        let mut intent = base();
+        intent["target"] = json!({"object_type": object_type, "ref": target_ref});
+        intent["change"]["field_path"] = json!(field_path);
+        refused_with(&model, &intent, expected);
+    }
+
+    // The Project target with a field path outside `project.units.<key>`,
+    // including members other change kinds write.
+    for path in ["model_settings.node_proximity_tolerance", "project.id", "project.units", "units.force", "nodes", "configuration"] {
+        let mut intent = base();
+        intent["change"]["field_path"] = json!(path);
+        refused_with(&model, &intent, &["OP-PROJECT-UNIT-UNKNOWN-KEY"]);
+    }
+    // A Project annotation path is also refused by the annotation path's own kind check.
+    let mut tags = base();
+    tags["change"]["field_path"] = json!("tags");
+    refused_with(&model, &tags, &["OP-PROJECT-UNIT-UNKNOWN-KEY", "OP-RICH-KIND-INVALID"]);
+
+    // The members the exemption does not cover are still required, and the
+    // audit boundary still holds.
+    for pointer in ["/operation_id", "/operation_status", "/change/change_id", "/audit_boundary", "/professional_boundary"] {
+        let mut intent = base();
+        let (parent, leaf) = pointer.rsplit_once('/').unwrap();
+        let parent = if parent.is_empty() { &mut intent } else { intent.pointer_mut(parent).unwrap() };
+        parent.as_object_mut().unwrap().remove(leaf);
+        let outcome = apply_operation(&model, &intent, Some(&claim(&model)));
+        assert!(outcome.applied_model.is_none(), "{pointer}");
+        assert!(codes(&outcome).contains(&("OP-INTENT-FIELD-MISSING", "blocking")), "{pointer}: {:?}", codes(&outcome));
+    }
+    let mut direct = base();
+    direct["audit_boundary"]["direct_model_mutation_allowed"] = json!(true);
+    refused_with(&model, &direct, &["OP-DIRECT-MUTATION-BLOCKED"]);
 }
