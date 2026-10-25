@@ -62,7 +62,7 @@ RF_PINS = {
 # Nested-record closure D3 (§8.22, measured): lib.rs's closed nested wire records and material wire change no
 # reduction's owner or lifetime; the L5 guard, shadow, insert and call texts are unchanged.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "d06066c8fd67020c1315d14374080e82fea96c412cb927972de84b394eec803d",
+    "core/product_physics/src/lib.rs": "fa45015fd0bbc7d98d35000dacb8c03b8a3c141ecaaee4d3c82856e791c13125",
     "core/product_physics/src/retained_wire.rs": "1c58db53d9a590d4316aea0fdc855396002935faed3d91a31e7f5434d93d8d40",
     "core/product_physics/src/certified_publication.rs": "8d0fd1f1dba13e8eca74aa62130a0956d3c1ca5c1d197749cf58ee00c501184a",
     "core/product_physics/src/certified_loads.rs": "56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f",

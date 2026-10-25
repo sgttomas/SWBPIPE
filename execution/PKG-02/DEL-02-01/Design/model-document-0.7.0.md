@@ -86,8 +86,10 @@ fields.
 - **Strict solve inputs.** `PreviewModelWire`, `PreviewLoadCase`,
   `PreviewPrimitiveLoad`, `PreviewCombination`, the node, pipe segment (with its
   section), section, support, component and material records, and their member
-  records and quantities refuse unknown keys (`deny_unknown_fields`; DEL-04-07
-  `pressure-contract.md`, "Pressure-free input closure"). Every member a
+  records and quantities refuse unknown keys (`deny_unknown_fields`, or for the
+  flattened material record a check of its other keys; DEL-04-07
+  `pressure-contract.md`, "Pressure-free input closure"). A model record that
+  is not an object is refused by its path. Every member a
   document may carry is declared on them, including the desktop-only
   `data_boundary` and `diagnostics` on the root, `kind`, `label` and `status` on
   load cases and `label` on nodes, pipe segments, supports and materials.

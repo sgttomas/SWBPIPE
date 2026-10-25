@@ -530,7 +530,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | # | Unit | PR or branch |
 |---|---|---|
 | — | DBM concordance review | #1567 |
-| — | Strict inputs, nested records: nodes, pipe segments and their sections, the section library, supports, components and the model's and request's materials closed, with their member records and quantities; each undeclared key named with its record and path; the material wire unchanged | branch `claude/piping-nested-records-20261025` |
+| — | Strict inputs, nested records: nodes, pipe segments and their sections, the section library, supports, components and the model's and request's materials closed, with their member records and quantities; each undeclared key named with its record and path (at most eight kept, the rest counted); a record that is not an object refused by its path; the material wire's outcomes unchanged but an unknown key's; self-weight evidence mass inputs closed | branch `claude/piping-nested-records-20261025` |
 | W-20 | Pressure stress benchmark family in the DEL-09-02 suite (hoop and longitudinal stress against closed forms) | #1599 |
 
 **Remaining:**

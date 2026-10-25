@@ -44,10 +44,11 @@ def test_the_scan_finding_path_is_zeroed_and_its_loops_bound(monkeypatch):
     d = decisions(monkeypatch)
     zeros = {str(k) for k, why in d["O10_SITE_ZERO"] if "SD-NF" in why}
     assert zeros == {f"model_fields.rs:{line_of(FIELDS, t)}" for t in (
-        "findings.push(Finding { field: key.clone(), record: name(), path: path.to_string() });",
-        "findings.push(Finding { field: key.clone(), record: at.finding_name(), path: at.finding_path() });",
-        '.map(|f| format!("unknown field `{}` in {} ({})", f.field, f.record, f.path))', '.join("; ");',
-        'named_findings.push_str(&format!("; and {} more", findings.len() - NAMED_LIMIT));', "    Some(format!(")}
+        "findings.keep_finding(|| Finding { field: key.clone(), record: name(), path: path.to_string() });",
+        "findings.keep_finding(|| Finding { field: key.clone(), record: at.finding_name(), path: at.finding_path() });",
+        'findings.keep_finding(|| NonObject { path: format!("{prefix}{collection}[{i}]"), is: value_kind(record) });',
+        'return Some(listed_refusal(MODEL_RECORD_NOT_OBJECT, &non_objects, |f| format!("{} is {}", f.path, f.is),',
+        'Some(listed_refusal(UNKNOWN_MODEL_FIELD, &findings, |f| format!("unknown field `{}` in {} ({})", f.field, f.record, f.path),')}
     loops = {h: (b, fns) for h, b, why, fns in d["O10_LOOPS_LAST"] if "SD-L1" in why}
     assert loops == {
         'for (i, case) in objects(model, " ")': ("cases", ["model_fields.rs:unknown_field_refusal"]),
@@ -58,7 +59,7 @@ def test_the_scan_finding_path_is_zeroed_and_its_loops_bound(monkeypatch):
         "for key in record.keys()": ("31", ["model_fields.rs:check", "model_fields.rs:check_nested"]),
     }
     edges = [(str(a), str(b)) for a, b, why in d["O10_EDGE_ZERO"] if "SD-EV" in why]
-    assert len(edges) == 1 and edges[0][0].endswith(":check") and ":push" in edges[0][1] and "load_ledger.rs" in edges[0][1]
+    assert len(edges) == 1 and edges[0][0].endswith(":keep_finding") and ":push" in edges[0][1] and "load_ledger.rs" in edges[0][1]
 
 
 def test_the_nested_walk_is_bound_and_its_names_formed_only_for_a_finding(monkeypatch):
@@ -78,9 +79,15 @@ def test_the_nested_walk_is_bound_and_its_names_formed_only_for_a_finding(monkey
         'for (i, material) in objects(owner, " ")': ("4", walk),
         'for (k, point) in objects(material, " ")': ("pts", walk),
         "for key in keys": ("13", ["model_fields.rs:nested_quantities"]),
+        # The non-object pass: the two owners, the model's eight record collections, one collection's records.
+        'for (owner, prefix, collections) in [(model, " ", &RECORD_COLLECTIONS[..]), (request, " ", request_collections)]':
+            ("2", ["model_fields.rs:non_object_records"]),
+        "for collection in collections": ("8", ["model_fields.rs:non_object_records"]),
+        "for (i, record) in owner.get(*collection).and_then(Value::as_array).into_iter().flatten().enumerate()":
+            ("n", ["model_fields.rs:non_object_records"]),
     }
     edges = sorted((str(a).split(":")[-1], str(b).split(":")[-1]) for a, b, why in d["O10_EDGE_ZERO"] if "SD-NR" in why)
-    assert edges == [("check_nested", "finding_name"), ("check_nested", "finding_path")]
+    assert edges == [("check_nested", "finding_name"), ("check_nested", "finding_path"), ("unknown_field_refusal", "listed_refusal")]
     assert sorted(str(k).split(":")[-1] for k, why in d["O10_RECURSION_REVIEWED"] if "SD-NR" in why) == ["finding_name", "finding_path"]
     audit = {}
     for k, v in d["O10_ID_AUDIT"]:
@@ -91,6 +98,16 @@ def test_the_nested_walk_is_bound_and_its_names_formed_only_for_a_finding(monkey
     assert entry["key"]["bytes"] == len("temperature_points") and entry["parent.finding_path()"]["bytes"] == 19 + 2 + 20 + 3 * 129
     record = audit[f"{FIELDS}:{line_of(FIELDS, 'At::Record { kind, id: Some(id), .. } => format!(')}"]
     assert record["kind"]["bytes"] == len("temperature point") and record["id"]["bytes"] == 128
+    # The bounded refusals: a non-object finding is a static collection path and a static kind; the list is bounded by
+    # eight of the longer finding, and the code and remedy are static.
+    non_object = audit[f"{FIELDS}:{line_of(FIELDS, 'findings.keep_finding(|| NonObject {')}"]
+    assert non_object["prefix"]["bytes"] == len("model.") and non_object["collection"]["bytes"] == len("pipe_segments")
+    assert non_object["i"]["bytes"] == 20
+    refused = audit[f"{FIELDS}:{line_of(FIELDS, 'listed_refusal(MODEL_RECORD_NOT_OBJECT')}"]
+    assert refused["f.path"]["bytes"] == len("model.pipe_segments[]") + 20 and refused["f.is"]["bytes"] == len("an array (a positional record)")
+    listed = audit[f"{FIELDS}:{line_of(FIELDS, 'request: {listed}. {remedy}')}"]
+    assert listed["code"]["bytes"] == len("MODEL_RECORD_NOT_OBJECT") and listed["remedy"]["bytes"] == 154
+    assert audit[f"{FIELDS}:{line_of(FIELDS, 'more", findings.more));')}"]["findings.more"]["bytes"] == 20
     # `named` keeps the root records' kind class (the frame names records at its own sites).
     assert audit[f"{FIELDS}:{line_of(FIELDS, 'Some(id) => format!("{kind} `{id}`"),')}"]["kind"]["bytes"] == len("primitive load")
 
@@ -120,10 +137,14 @@ def test_the_owners_are_present_and_positive():
 # lib.rs and preview_physics.rs are also under full-file pins, which stop first.
 @pytest.mark.parametrize("path, old, new, stop", [
     (LIB, "    if let Some(refusal) = model_fields::unknown_field_refusal(&actual_request) {\n        return Err(refusal);\n    }\n", "", "SD-NF|KD5C4|pin changed"),
-    (FIELDS, "    if findings.is_empty() {\n        return None;\n    }\n", "", "SD-NF"),
+    (FIELDS, "    if findings.kept.is_empty() {\n        return None;\n    }\n", "", "SD-NF"),
+    (FIELDS, "            self.kept.push(finding());", "            self.kept.push(finding());\n            self.kept.push(finding());", "SD-NF"),
+    (FIELDS, "    if !non_objects.kept.is_empty() {", "    if non_objects.kept.len() > 1 {", "SD-NF"),
+    (FIELDS, 'format!("{prefix}{collection}[{i}]")', 'format!("{prefix}{collection}.{i}")', "SD-NF"),
+    (FIELDS, '["load_cases", "combinations", "nodes",', '["load_cases", "combinations", "nodes", "groups",', "SD-NR"),
     (FIELDS, 'let case_path = format!("model.load_cases[{i}]");', 'let case_path = format!("model.load_cases.{i}");', "SD-ID"),
-    (FIELDS, "findings.push(Finding { field: key.clone(), record: at.finding_name(), path: at.finding_path() });",
-     "findings.push(Finding { field: key.clone(), record: at.finding_name(), path: at.finding_path() }); at.finding_name();", "SD-NF"),
+    (FIELDS, "findings.keep_finding(|| Finding { field: key.clone(), record: at.finding_name(), path: at.finding_path() });",
+     "findings.keep_finding(|| Finding { field: key.clone(), record: at.finding_name(), path: at.finding_path() }); at.finding_name();", "SD-NF"),
     (FIELDS, '(request, "materials", "request material")', '(request, "materials", "request-level material")', "SD-NR"),
     (FIELDS, 'let at = At::Entry { parent: &at, key: "temperature_points",', 'let at = At::Entry { parent: &at, key: "points",', "SD-NR"),
     (FIELDS, "const NONLINEAR_QUANTITIES: [&str; 3] =", "const NONLINEAR_QUANTITY: [&str; 3] =", "SD-NR"),

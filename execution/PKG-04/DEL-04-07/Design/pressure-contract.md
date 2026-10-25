@@ -149,18 +149,46 @@ every row it does not publish.
   refuses an undeclared key with `UNKNOWN_MODEL_FIELD`. It names each key with
   its record (by id, or by index without one) and path, for example
   ``unknown field `mill_tolerence` in the section of pipe segment `pipe:P-110`
-  (model.pipe_segments[1].section)``. At most eight keys are named and the rest
-  counted; nothing is solved. Every typed reader refuses the same keys.
-  Quantities and vectors are closed where these records carry them; the
-  pressure, case-state and settings records keep their own readers. The
-  material record's members are declared on a closed record in place of the
-  former flattened `MaterialInput`; the wire is unchanged. Every committed
-  material record parses to the same value as before:
-  `material_records_parse_as_before` in `tests/silent_drop_guard_runtime.rs`
-  writes each record's parsed model and request value, compared across the two
-  wires. The objective connector stays an authored value read by key. Its own
-  members are checked against its record's key list; its member records are
-  the connector decoder's, on the exact route.
+  (model.pipe_segments[1].section)``. The scan keeps at most eight findings,
+  forming each only while it is kept, and counts the rest (`; and N more`);
+  nothing is solved. Every typed reader refuses the same keys. Quantities and
+  vectors are closed where these records carry them; the pressure, case-state
+  and settings records keep their own readers. The objective connector stays
+  an authored value read by key. Its own members are checked against its
+  record's key list; its member records are the connector decoder's, on the
+  exact route.
+- **Records that are not objects:** serde's derives also read a record written
+  as an array of its members in order, whose keys cannot be checked. Before
+  the key scan, the value entry refuses any element of a model record
+  collection (load cases, combinations, nodes, pipe segments, sections,
+  supports, components, materials) or of the request's materials that is not
+  an object, with `MODEL_RECORD_NOT_OBJECT` and its path, for example
+  `model.nodes[0] is an array (a positional record)`, at most eight named and
+  the rest counted. Main read and solved a positional node of two or three
+  members (id, position, provenance) and refused a longer one, a null or a
+  scalar in the typed parse. Only those readable positional forms, which are
+  outside the schema, change outcome.
+  Records inside these (loads, terms, temperature points, member records) are
+  left to their typed readers.
+- **Material records:** the material record keeps its flattened wire, so every
+  outcome but an unknown key's is unchanged. A duplicate `label`, `tags`,
+  `notes` or `provenance_record` is accepted as before. An annotation value the
+  wire refused, such as `"notes": 1e400`, is still refused. A duplicate known
+  key is still refused at its position. The record's other keys are collected,
+  and any but the four annotations is refused as an unknown field, in the text
+  reader and the value entry alike. `mod material_wire` in
+  `src/silent_drop_unit_tests.rs` keeps a copy of main's wire and compares
+  outcomes from the text at model and request level. It runs regression cases
+  (duplicate annotations, an overflowing annotation, a duplicate known key,
+  field order, null against absent, positional forms) and, with
+  `MATERIAL_WIRE_CORPUS` set, every committed material record: 807 records in
+  332 files, 694 read the same and 113 are refused by both, with no record
+  refused for an unknown key only.
+- **Self-weight evidence:** a generated self-weight record's `mass_inputs`
+  rebuild a closed pipe section, and its `normalized_dependencies` declare one
+  member beside the section's own, `section_ref`, removed before the section is
+  read. A member either does not declare, such as a misspelled input or an
+  extra key in a quantity, makes the evidence Invalid rather than Fresh.
 - **Declared and ignored:** members a document may carry that the solve does
   not read are declared on the closed records and accepted unread: on the
   root `data_boundary`, `diagnostics` and model document 0.7.0's `lines`,

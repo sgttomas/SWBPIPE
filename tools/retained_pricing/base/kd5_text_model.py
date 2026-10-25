@@ -187,7 +187,7 @@ def inspect_directed_helpers(snapshot):
 # Silent-drop guard D3 (§8.19): lib.rs's closed records and its one refusal call add no `.min(`/`.max(` call.
 # Nested-record closure D3 (§8.22, measured): lib.rs's closed nested records and material wire add or remove no
 # `.min(`/`.max(` call, and the observation lane stays deleted (E14); E13's retired preimage is unchanged.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = 'd06066c8fd67020c1315d14374080e82fea96c412cb927972de84b394eec803d'
+B7A_PRIMITIVE_LIB_SOURCE_PIN = 'fa45015fd0bbc7d98d35000dacb8c03b8a3c141ecaaee4d3c82856e791c13125'
 
 
 def primitive_lib_minmax_callers(snapshot):

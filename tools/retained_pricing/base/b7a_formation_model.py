@@ -19,8 +19,10 @@ SOURCE_FILES = {
     # wall, contents on the pressure bore, the allowance among its inputs); the added refusals are static `invalid`
     # messages and retained_basis checks one more input key. The formed-load and finding owners are unchanged.
     # Nested-record closure (§8.22, measured): the two evidence-reader PreviewPipe literals name the pipe's three
-    # declared-and-ignored zero-size members (+3 lines each); no formed-load or finding owner changes.
-    "core/product_physics/src/self_weight.rs": "fe3f86020690a26b842354f8a80a05b9f543f65dd4ec0d53fbc5f714c187a433",
+    # declared-and-ignored zero-size members (+3 lines each), old_dependencies_mass removes normalized_dependencies'
+    # section_ref before rebuilding the closed section (DEPENDENCY_SECTION_REF), and one evidence test; no formed-load or
+    # finding owner changes.
+    "core/product_physics/src/self_weight.rs": "ec087f37a47f19de37691bd9fcfca21d02ac5456bc28cddc81a83ef7fc5a5ef6",
     "core/product_physics/src/source_receipt/source.rs": "384140db918da65d5e76dd601cd0a2068ae2a098379b41c6907069cf99ced419",
     # T4-U8: retained::assemble's Timoshenko refusal; W1 adds one retained_api
     # export line for member-source types. Existing formation owners stay.
@@ -195,8 +197,9 @@ def decisions(snapshot, resolved):
     audit[1][1]["case_id"] = {"bytes": 128, "source": "IN128"}
     # T4-U6/U8 snapshot keys (PP head 20c6126a16; same text): self_weight.rs 814 -> 869 (the D-5 exact mass branch
     # above it); formation_check.rs +13 from check_at on (PP's frame-member binding before it). Nested-record closure
-    # (§8.22, measured): self_weight.rs 869 -> 872 (the first evidence-reader literal's three members), same text.
-    audit.append((resolved("core/product_physics/src/self_weight.rs:872"), {
+    # (§8.22, measured): self_weight.rs 869 -> 874 (the first evidence-reader literal's three members and the
+    # dependency key's two lines), same text.
+    audit.append((resolved("core/product_physics/src/self_weight.rs:874"), {
         "case.id": {"bytes": 128, "source": "IN128"},
         "pipe": {"bytes": 128, "source": "IN128"},
         "case.id.len()": {"bytes": 20, "source": "NUM"},
