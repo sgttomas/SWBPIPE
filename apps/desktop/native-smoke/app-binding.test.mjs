@@ -1,108 +1,327 @@
-// The native smoke's app-binary binding and its --skip-build plan
-// (`scripts/appBinaryBinding.mjs`), against a temporary dist/ and binary: no
-// cargo, no build.
+// The native smoke's frontend and app builds and the app-binary binding
+// (`scripts/appBinaryBinding.mjs`), against a temporary project with a fake
+// frontend build and a fake cargo: no npm, no cargo.
 //
 //   node --test apps/desktop/native-smoke/app-binding.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, statSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { BINDING_FORMAT, bindingRecord, checkBinding, fileIdentity, planAppBuild, treeDigest } from "../scripts/appBinaryBinding.mjs";
+import { BINDING_FORMAT, bindingPathFor, fileIdentity, frontendInputs, planAppBuild, prepareSmokeApp } from "../scripts/appBinaryBinding.mjs";
+import { STAMP_FORMAT } from "../scripts/engineSourceStamp.mjs";
 
-const BUILD = { command: ["cargo", "build", "--features", "native-smoke"], tauri_config: "{}" };
+const BUILD = { command: ["cargo", "build", "--message-format=json-render-diagnostics", "--features", "native-smoke"], tauri_config: "{}" };
+const CONTEXT = [["rustc -vV", "rustc 1.0.0 (fake)"]];
 const hash = (letter) => `sha256:${letter.repeat(64)}`;
+const stampText = (letter) => JSON.stringify({ format: STAMP_FORMAT, hash: hash(letter), input_count: 1, compile_reads: [] });
 
+// A project with a frontend (one source importing a project fixture), an app
+// crate with a path dependency, and fakes for the frontend build and cargo.
+// The fake cargo writes `<CARGO_TARGET_DIR>/debug/app` from the app's main.rs
+// and dist/index.html, keeps it while its dep-info is newer than both (cargo's
+// freshness by modification time), and reports it in a compiler-artifact
+// message. `cargo.mode`: "elsewhere" builds and reports another directory;
+// "silent" reports nothing; "touch-dist" edits dist/ while it builds; "fail" fails.
 function workspace() {
   const root = realpathSync(mkdtempSync(path.join(tmpdir(), "app-binding-")));
   const write = (relative, text) => {
     mkdirSync(path.dirname(path.join(root, relative)), { recursive: true });
     writeFileSync(path.join(root, relative), text);
   };
-  write("dist/index.html", "<html>1</html>\n");
-  write("dist/wasm-engine/source-stamp.json", `{"hash":"${hash("a")}"}\n`);
-  write("target/debug/app", "binary 1\n");
-  const dist = path.join(root, "dist");
-  const binary = path.join(root, "target/debug/app");
-  const state = (engines) => ({ engines, dist: treeDigest(dist), build: BUILD, binary: fileIdentity(binary) });
-  return { root, write, state, cleanup: () => rmSync(root, { recursive: true, force: true }) };
+  const read = (relative) => readFileSync(path.join(root, relative), "utf8");
+  write("package.json", "{}\n");
+  write("package-lock.json", "{}\n");
+  write("fixtures/data.json", "{\"d\":1}\n");
+  write("fixtures/schema.json", "{\"s\":1}\n");
+  write("apps/desktop/package.json", "{}\n");
+  write("apps/desktop/index.html", "<script src=\"/src/main.ts\"></script>\n");
+  write("apps/desktop/vite.config.ts", "export default {};\n");
+  write("apps/desktop/tsconfig.tsbuildinfo", "output\n");
+  write("apps/desktop/src/main.ts", "import data from \"../../../fixtures/data.json?raw\";\nimport { x } from \"./x\";\n");
+  write("apps/desktop/src/x.ts", "export const x = 1;\n");
+  write("apps/desktop/public/wasm-engine/source-stamp.json", stampText("a"));
+  write("apps/desktop/src-tauri/Cargo.toml", "[package]\nname = \"app\"\n");
+  write("apps/desktop/src-tauri/Cargo.lock", "# lock\n");
+  write("apps/desktop/src-tauri/build.rs", "fn main() {}\n");
+  write("apps/desktop/src-tauri/tauri.conf.json", "{}\n");
+  write("apps/desktop/src-tauri/icons/icon.png", "png\n");
+  write("apps/desktop/src-tauri/src/main.rs", "fn main() {}\n");
+  write("core/lib/Cargo.toml", "[package]\nname = \"lib\"\n");
+  write("core/lib/src/lib.rs", "pub fn f() {}\n");
+  const desktopRoot = path.join(root, "apps/desktop");
+  const tauriDir = path.join(desktopRoot, "src-tauri");
+  const manifests = {
+    [path.join(tauriDir, "Cargo.toml")]: { name: "app", workspaceRoot: tauriDir, pathDependencies: [path.join(root, "core/lib/Cargo.toml")], buildScripts: [] },
+    [path.join(root, "core/lib/Cargo.toml")]: { name: "lib", workspaceRoot: path.join(root, "core/lib"), pathDependencies: [], buildScripts: [] }
+  };
+  const readManifest = (manifest) => {
+    if (!manifests[manifest]) throw new Error(`unexpected manifest ${manifest}`);
+    return manifests[manifest];
+  };
+  const calls = [];
+  const cargo = { mode: "ok" };
+  let engine = "a";
+  const runFrontend = () => {
+    calls.push("frontend");
+    write("apps/desktop/dist/index.html", `built from ${read("apps/desktop/src/main.ts").length} ${read("fixtures/data.json")}`);
+    write("apps/desktop/dist/wasm-engine/source-stamp.json", read("apps/desktop/public/wasm-engine/source-stamp.json"));
+  };
+  const runCargo = (command, env) => {
+    calls.push(command.slice(0, 2).join(" ") + (command[1] === "clean" ? ` ${command.filter((arg, index) => command[index - 1] === "-p").join(",")}` : ""));
+    const target = cargo.mode === "elsewhere" ? path.join(root, "elsewhere") : env.CARGO_TARGET_DIR;
+    const exe = path.join(target, "debug", "app");
+    if (command[1] === "clean") {
+      rmSync(exe, { force: true });
+      rmSync(`${exe}.d`, { force: true });
+      return "";
+    }
+    if (cargo.mode === "fail") throw new Error("cargo build failed");
+    mkdirSync(path.dirname(exe), { recursive: true });
+    const main = path.join(tauriDir, "src/main.rs");
+    const dist = path.join(desktopRoot, "dist/index.html");
+    const fresh = existsSync(exe) && existsSync(`${exe}.d`) && [main, dist].every((input) => statSync(input).mtimeMs <= statSync(`${exe}.d`).mtimeMs);
+    if (!fresh) {
+      writeFileSync(exe, `binary ${read("apps/desktop/src-tauri/src/main.rs")} ${read("apps/desktop/dist/index.html")}`);
+      writeFileSync(`${exe}.d`, `${exe}: ${main} ${root}/core/lib/src/lib.rs ${root}/fixtures/schema.json ${tauriDir}/../dist/index.html ${target}/debug/build/out.rs\n`);
+    }
+    if (cargo.mode === "touch-dist") write("apps/desktop/dist/index.html", "rebuilt meanwhile\n");
+    const artifact = { reason: "compiler-artifact", manifest_path: path.join(tauriDir, "Cargo.toml"), target: { name: "app", kind: ["bin"] }, executable: exe, fresh };
+    return [JSON.stringify({ reason: "build-script-executed" }), cargo.mode === "silent" ? "" : JSON.stringify(artifact), JSON.stringify({ reason: "build-finished", success: true })].join("\n");
+  };
+  const logs = [];
+  const prepare = (skipBuild, extra = {}) =>
+    prepareSmokeApp({
+      projectRoot: root,
+      desktopRoot,
+      tauriDir,
+      binName: "app",
+      skipBuild,
+      engineFolders: ["wasm-engine"],
+      engineHashes: () => ({ "wasm-engine": hash(engine) }),
+      build: BUILD,
+      context: CONTEXT,
+      runFrontend,
+      runCargo,
+      log: (line) => logs.push(line),
+      readManifest,
+      ...extra
+    });
+  const setEngine = (letter) => {
+    engine = letter;
+    write("apps/desktop/public/wasm-engine/source-stamp.json", stampText(letter));
+  };
+  const take = () => {
+    const taken = { calls: calls.splice(0), logs: logs.splice(0) };
+    return taken;
+  };
+  const record = () => (existsSync(bindingPathFor(desktopRoot)) ? JSON.parse(readFileSync(bindingPathFor(desktopRoot), "utf8")) : null);
+  return { root, write, read, desktopRoot, tauriDir, cargo, prepare, take, setEngine, record, cleanup: () => rmSync(root, { recursive: true, force: true }) };
 }
 
-// The run.mjs sequence under --skip-build once engines and dist/ copies are current.
-const skipPlan = (bindingText, current) => planAppBuild({ skipBuild: true, staleEngines: [], distStale: [], binding: checkBinding(bindingText, current) });
-
-test("the binding record names the engine stamps, the dist/ digest, the build and the binary", () => {
+test("the binding record names the engines, frontend, dist/, app sources, build and the binary cargo reported", () => {
   const w = workspace();
   try {
-    const record = bindingRecord(w.state({ "wasm-engine": hash("a") }));
+    const app = w.prepare(false);
+    const exe = path.join(w.tauriDir, "target/debug/app");
+    assert.deepEqual(app, { binary: exe, identity: fileIdentity(exe) });
+    const { calls, logs } = w.take();
+    // No record yet: the app's own packages are cleaned before the build. With
+    // no earlier dep-info either, the build reveals a compile read, so a second
+    // (clean) build is the one bound.
+    assert.deepEqual(calls, ["frontend", "cargo clean app,lib", "cargo build", "cargo clean app,lib", "cargo build"]);
+    assert.match(logs.join("\n"), /cleaning the app's own packages in apps\/desktop\/src-tauri\/target \(no app binding record/);
+    assert.match(logs.join("\n"), /app build not bound \(compile reads not known before the build: fixtures\/schema\.json\); cargo builds it again/);
+    const record = w.record();
     assert.equal(record.format, BINDING_FORMAT);
     assert.deepEqual(record.engines, { "wasm-engine": hash("a") });
+    assert.match(record.frontend, /^sha256:[0-9a-f]{64}$/);
     assert.match(record.dist, /^sha256:[0-9a-f]{64}$/);
-    assert.deepEqual(record.binary, fileIdentity(path.join(w.root, "target/debug/app")));
-    assert.equal(record.binary.size, 9);
-    const current = skipPlan(JSON.stringify(record), w.state({ "wasm-engine": hash("a") }));
-    assert.deepEqual([current.frontend, current.app], [false, false]);
-    assert.match(current.log, /--skip-build applies/);
+    assert.match(record.app_sources.hash, /^sha256:[0-9a-f]{64}$/);
+    // The dep-info read outside the static inputs, dist/ and the target directory.
+    assert.deepEqual(record.app_sources.compile_reads, ["fixtures/schema.json"]);
+    assert.deepEqual(record.build, BUILD);
+    assert.deepEqual(record.binary, { path: exe, ...fileIdentity(exe) });
+    // Then --skip-build changes nothing and launches the bound binary.
+    assert.deepEqual(w.prepare(true), app);
+    const skipped = w.take();
+    assert.deepEqual(skipped.calls, []);
+    assert.match(skipped.logs.join("\n"), /--skip-build applies/);
   } finally {
     w.cleanup();
   }
 });
 
-test("Codex r1: engines and dist/ rebuilt, cargo failed: a retry with --skip-build rebuilds the app", () => {
+test("the frontend inputs: src/, the app's config files, public/ other than engine folders, the workspace lock and fixtures the sources import", () => {
   const w = workspace();
   try {
-    // A good app build bound to engine stamp a.
-    const record = JSON.stringify(bindingRecord(w.state({ "wasm-engine": hash("a") })));
-    // build:wasm and npm run build succeed (engine stamp b, a new dist/), then
-    // cargo fails: the old binary and its old record remain.
-    w.write("dist/wasm-engine/source-stamp.json", `{"hash":"${hash("b")}"}\n`);
-    w.write("dist/index.html", "<html>2</html>\n");
-    const retry = skipPlan(record, w.state({ "wasm-engine": hash("b") }));
-    assert.deepEqual([retry.frontend, retry.app], [false, true]);
-    assert.match(retry.log, /--skip-build overridden for the app \(the engine stamps differ from those the app binary embedded\)/);
-    // run.mjs removes the record before cargo runs, so the failure leaves none.
-    const none = skipPlan(null, w.state({ "wasm-engine": hash("b") }));
-    assert.deepEqual([none.frontend, none.app], [false, true]);
-    assert.match(none.log, /no app binding record/);
+    w.write("apps/desktop/public/logo.svg", "<svg/>\n");
+    assert.deepEqual(frontendInputs(w.root, w.desktopRoot, ["wasm-engine"]), [
+      "apps/desktop/index.html",
+      "apps/desktop/package.json",
+      "apps/desktop/public/logo.svg",
+      "apps/desktop/src/main.ts",
+      "apps/desktop/src/x.ts",
+      "apps/desktop/vite.config.ts",
+      "fixtures/data.json",
+      "package-lock.json",
+      "package.json"
+    ]);
+    w.write("apps/desktop/src/y.ts", "import z from \"../../../fixtures/missing.json\";\n");
+    assert.throws(() => frontendInputs(w.root, w.desktopRoot, ["wasm-engine"]), /src\/y\.ts imports \.\.\/\.\.\/\.\.\/fixtures\/missing\.json, which names no file/);
   } finally {
     w.cleanup();
   }
 });
 
-test("a frontend rebuilt on its own, a replaced or missing binary or another build command rebuild the app", () => {
+test("Codex r2: an old executable at the fixed path is never bound or launched when cargo built elsewhere or reported nothing", () => {
   const w = workspace();
   try {
-    const engines = { "wasm-engine": hash("a") };
-    const record = JSON.stringify(bindingRecord(w.state(engines)));
-    w.write("dist/index.html", "<html>rebuilt</html>\n");
-    assert.match(skipPlan(record, w.state(engines)).log, /dist\/ differs from the copy the app binary embedded/);
-    w.write("dist/index.html", "<html>1</html>\n");
-    assert.equal(skipPlan(record, w.state(engines)).app, false);
-
-    w.write("target/debug/app", "binary 2\n");
-    const replaced = skipPlan(record, w.state(engines));
-    assert.equal(replaced.app, true);
-    assert.match(replaced.log, /the app binary changed since its binding was written/);
-    rmSync(path.join(w.root, "target/debug/app"));
-    assert.match(skipPlan(record, w.state(engines)).log, /app binary missing/);
-    w.write("target/debug/app", "binary 1\n");
-    assert.equal(skipPlan(record, w.state(engines)).app, false);
-
-    const other = { ...w.state(engines), build: { ...BUILD, tauri_config: "{\"x\":1}" } };
-    assert.match(skipPlan(record, other).log, /the app build command differs/);
-    assert.match(skipPlan("{ nope", w.state(engines)).log, /unreadable/);
+    // The executable an earlier build left at the fixed path.
+    w.write("apps/desktop/src-tauri/target/debug/app", "old binary\n");
+    w.cargo.mode = "elsewhere";
+    assert.throws(() => w.prepare(false), /cargo reported the app executable at .*\/elsewhere\/debug\/app, outside .*src-tauri\/target; nothing is bound or launched/);
+    assert.equal(w.record(), null);
+    w.cargo.mode = "silent";
+    assert.throws(() => w.prepare(false), /cargo reported no compiler-artifact executable for app .*; nothing is bound or launched/);
+    assert.equal(w.record(), null);
+    // Under --skip-build too: no record, so cargo builds and its report decides.
+    assert.throws(() => w.prepare(true), /cargo reported no compiler-artifact executable/);
+    assert.equal(w.record(), null);
   } finally {
     w.cleanup();
   }
 });
 
-test("without --skip-build both are built; a rebuilt engine or a stale dist/ copy rebuilds frontend and app", () => {
-  const binding = { match: true, reason: null };
-  assert.deepEqual(planAppBuild({ skipBuild: false, staleEngines: [], distStale: [], binding }), { frontend: true, app: true, log: null });
-  const rebuilt = planAppBuild({ skipBuild: true, staleEngines: ["wasm-engine"], distStale: [], binding });
+test("Codex r2: dist/ changing while cargo builds the app aborts the run: no binding, nothing launched", () => {
+  const w = workspace();
+  try {
+    w.cargo.mode = "touch-dist";
+    assert.throws(() => w.prepare(false), /dist\/ changed while cargo built the app, so what the binary embeds is unknown; nothing is bound or launched/);
+    assert.equal(w.record(), null);
+  } finally {
+    w.cleanup();
+  }
+});
+
+test("Codex r2: under --skip-build a frontend .ts edit rebuilds frontend and app; an app .rs edit, even one keeping its time, rebuilds the app clean", () => {
+  const w = workspace();
+  try {
+    w.prepare(false);
+    w.take();
+    const binary = () => w.read("apps/desktop/src-tauri/target/debug/app");
+
+    w.write("apps/desktop/src/x.ts", "export const x = 2;\n");
+    w.prepare(true);
+    let step = w.take();
+    assert.deepEqual(step.calls, ["frontend", "cargo build"]);
+    assert.match(step.logs[0], /--skip-build overridden \(the frontend sources differ from those dist\/ was built from\); the app embeds dist\/, so the frontend and app are rebuilt/);
+
+    // A fixture the frontend imports from outside src/ is a frontend input too.
+    w.write("fixtures/data.json", "{\"d\":2}\n");
+    w.prepare(true);
+    assert.deepEqual(w.take().calls, ["frontend", "cargo build"]);
+
+    w.write("apps/desktop/src-tauri/src/main.rs", "fn main() { two() }\n");
+    w.prepare(true);
+    step = w.take();
+    assert.deepEqual(step.calls, ["cargo clean app,lib", "cargo build"]);
+    assert.match(step.logs[0], /--skip-build overridden for the app \(the app's Rust sources differ from those the binary was built from\); cargo builds it from the current dist\//);
+    assert.match(binary(), /two\(\)/);
+
+    // New bytes, old time: cargo alone would keep the old binary; the clean does not.
+    const main = path.join(w.tauriDir, "src/main.rs");
+    const old = statSync(main);
+    writeFileSync(main, "fn main() { three() }\n");
+    utimesSync(main, old.atime, old.mtime);
+    w.prepare(true);
+    assert.deepEqual(w.take().calls, ["cargo clean app,lib", "cargo build"]);
+    assert.match(binary(), /three\(\)/);
+
+    // A compile read only the dep-info names, and the toolchain context.
+    w.write("fixtures/schema.json", "{\"s\":2}\n");
+    w.prepare(true);
+    assert.deepEqual(w.take().calls, ["cargo clean app,lib", "cargo build"]);
+    w.prepare(true, { context: [["rustc -vV", "rustc 1.0.1 (fake)"]] });
+    assert.deepEqual(w.take().calls, ["cargo clean app,lib", "cargo build"]);
+    w.prepare(true, { context: [["rustc -vV", "rustc 1.0.1 (fake)"]] });
+    assert.deepEqual(w.take().calls, []);
+  } finally {
+    w.cleanup();
+  }
+});
+
+test("Codex r1: engines and dist/ rebuilt, cargo failed: a retry with --skip-build rebuilds frontend and app", () => {
+  const w = workspace();
+  try {
+    w.prepare(false);
+    w.take();
+    // build:wasm rebuilt the engine (stamp b) and the frontend build ran, then cargo failed.
+    w.setEngine("b");
+    w.cargo.mode = "fail";
+    assert.throws(() => w.prepare(false), /cargo build failed/);
+    // The record is removed before cargo runs, so the failure leaves none.
+    assert.equal(w.record(), null);
+    w.cargo.mode = "ok";
+    w.take();
+    w.prepare(true);
+    const retry = w.take();
+    assert.deepEqual(retry.calls, ["frontend", "cargo clean app,lib", "cargo build"]);
+    assert.match(retry.logs[0], /--skip-build overridden \(no app binding record/);
+    assert.deepEqual(w.record().engines, { "wasm-engine": hash("b") });
+  } finally {
+    w.cleanup();
+  }
+});
+
+test("a replaced or missing binary, other engine stamps or another build command rebuild the app; a stale dist/ copy the frontend too", () => {
+  const w = workspace();
+  try {
+    w.prepare(false);
+    w.take();
+    const exe = path.join(w.tauriDir, "target/debug/app");
+    writeFileSync(exe, "replaced\n");
+    w.prepare(true);
+    let step = w.take();
+    assert.deepEqual(step.calls, ["cargo build"]);
+    assert.match(step.logs[0], /the app binary changed since its binding was written/);
+    rmSync(exe);
+    w.prepare(true);
+    assert.match(w.take().logs[0], /app binary missing/);
+    w.prepare(true, { build: { ...BUILD, tauri_config: "{\"x\":1}" } });
+    assert.match(w.take().logs[0], /the app build command differs/);
+    w.prepare(true);
+    assert.match(w.take().logs[0], /the app build command differs/);
+    // The engine's dist/ copy no longer matches the engine stamp.
+    w.setEngine("c");
+    w.prepare(true);
+    step = w.take();
+    assert.deepEqual(step.calls, ["frontend", "cargo build"]);
+    assert.match(step.logs[0], /dist\/wasm-engine: inputs changed since stamp/);
+    // An unreadable record rebuilds both.
+    writeFileSync(bindingPathFor(w.desktopRoot), "{ nope");
+    w.prepare(true);
+    assert.match(w.take().logs[0], /app binding record unreadable/);
+  } finally {
+    w.cleanup();
+  }
+});
+
+test("the frontend inputs moving while it builds abort the run", () => {
+  const w = workspace();
+  try {
+    assert.throws(
+      () => w.prepare(false, { runFrontend: () => w.write("apps/desktop/src/x.ts", "export const x = 9;\n") }),
+      /the frontend inputs moved while it built \(inputs changed during the build: apps\/desktop\/src\/x\.ts\); nothing is bound or launched/
+    );
+  } finally {
+    w.cleanup();
+  }
+});
+
+test("without --skip-build both are built; a rebuilt engine rebuilds frontend and app", () => {
+  assert.deepEqual(planAppBuild({ skipBuild: false }), { frontend: true, app: true, log: null });
+  const rebuilt = planAppBuild({ skipBuild: true, staleEngines: ["wasm-engine"] });
   assert.deepEqual([rebuilt.frontend, rebuilt.app], [true, true]);
   assert.match(rebuilt.log, /wasm-engine rebuilt/);
-  const dist = planAppBuild({ skipBuild: true, staleEngines: [], distStale: [{ name: "self-weight-engine", reason: "stamp file missing" }], binding });
-  assert.deepEqual([dist.frontend, dist.app], [true, true]);
-  assert.match(dist.log, /dist\/self-weight-engine: stamp file missing/);
 });

@@ -361,31 +361,57 @@ build time, by the path cargo reported, with every symbolic link on that path
 and its target), the bytes of the cargo configuration files, `rustc -vV` of the
 rustc cargo runs, and the compiler, wrapper, linker, rustflag and profile
 environment (`RUSTC*`, `CARGO_BUILD_*`, `CARGO_TARGET_<triple>_*`,
-`CARGO_PROFILE_*` and similar). A `build.rustc` key in cargo configuration is
-refused by name. It writes the stamp only when the complete input set,
-digested before cargo runs and again after, held still; a newly revealed compile
-read or a changed input means another build, and after three the build fails
-naming the inputs. `run.mjs` recomputes each stamp and runs `build:wasm` when a
-folder or stamp is missing or the hash differs, also under `--skip-build`. It
-logs `engine rebuilt: <engine> (<reason>; stamp <hash>)` or `engine current,
-stamp <hash>`.
+`CARGO_PROFILE_*` and similar). Refused by name: a cargo configuration file
+with a `rustc`, `rustc-wrapper` or `rustc-workspace-wrapper` key in any TOML
+spelling (a textual check, so a comment naming one is refused too), and a
+compile read whose path has a `..` that cancels a symbolic link. Each engine
+builds in its own target directory, `apps/desktop/target/wasm-engines/<engine>`.
+When the stamp is missing or differs, that directory is deleted and the engine
+is built clean, so an edit that kept a file's modification time, or a link
+retargeted to an older file, is built rather than kept by cargo's mtime-based
+freshness; a current stamp builds incrementally. The stamp is written only when
+the complete input set, digested before cargo runs and again after, held
+still; a newly revealed compile read or a changed input means another clean
+build, and after three the build fails naming the inputs. `run.mjs` recomputes
+each stamp and runs `build:wasm` when a folder or stamp is missing or the hash
+differs, also under `--skip-build`. It logs `engine rebuilt: <engine>
+(<reason>; stamp <hash>)` or `engine current, stamp <hash>`.
 
-The app embeds `dist/` when cargo builds it, so after each successful app build
-`run.mjs` writes a binding record next to the binary
-(`src-tauri/target/debug/openpipestress-desktop.native-smoke-binding.json`):
-the engine stamps, a digest of `dist/`, the build command and smoke
-configuration, and the binary's size and SHA-256. Under `--skip-build` a
-rebuilt engine or a `dist/` copy whose stamp differs rebuilds the frontend and
-app; otherwise the app alone is rebuilt unless the binding matches all of them
-now. The log names which applies.
+The app embeds `dist/` when cargo builds it. `run.mjs` builds it with
+`CARGO_TARGET_DIR` set to `src-tauri/target` and
+`--message-format=json-render-diagnostics`, and binds and launches only the
+executable cargo's `compiler-artifact` message reports, which must lie in that
+directory; no report, or one elsewhere, stops the run by name before anything is
+bound or launched. After a build whose inputs held still it writes a binding
+record, `apps/desktop/target/native-smoke/app-binding.json`: the engine stamps;
+a hash of the frontend inputs (`src/`, the app's `index.html`, `package.json`,
+Vite, TS, PostCSS and `.env` files, `public/` other than the engine folders, the
+npm workspace's `package.json` and `package-lock.json`, and each file outside
+`src/` a source names in a relative import, such as the project fixtures); a
+digest of `dist/`; a hash, with the stamp's toolchain context, of the app's Rust
+inputs (the `src-tauri` crate closure by the same cargo-metadata method, every
+file at the top of `src-tauri/` including `tauri.conf.json` and `build.rs`,
+`icons/`, `capabilities/`, and the dep-info compile reads, which are recorded);
+the build command and smoke configuration; and the executable's path, size and
+SHA-256. When the Rust inputs are not those a valid record names,
+`cargo clean -p` removes the closure's own packages from `src-tauri/target`
+first, so the build is clean for them. `dist/` changing while cargo builds, or
+the frontend inputs changing while Vite builds, stops the run by name with no
+binding and no launch; a changed or newly revealed Rust input means another
+build, up to three. The executable's identity is checked again before each
+launch. Under `--skip-build` the frontend and app are rebuilt when an engine was
+rebuilt, a `dist/` engine copy's stamp differs, the record is missing or
+unreadable, or the frontend hash or `dist/` digest differs; the app alone when
+the engine stamps, the Rust inputs, the build or the executable differ. The log
+names which applies.
 
-The stamp does not cover the contents of a wrapper or linker program (only its
-name), files outside the project, or an edit that keeps a file's modification
-time, which cargo's own freshness check also misses. `--skip-build` does not
-check the frontend's TypeScript or the app's Rust sources against `dist/` or
-the binary. `native-smoke/engine-stamp.test.mjs`,
+Not covered: the contents of a wrapper or linker program (only its name);
+files outside the project (registry crates and npm packages beyond their lock
+files, the Rust toolchain beyond `rustc -vV`, system SDKs); and a frontend
+import the textual scan does not see (a computed specifier or an
+`import.meta.glob`). `native-smoke/engine-stamp.test.mjs`,
 `native-smoke/app-binding.test.mjs` and `scripts/build-wasm-engine.test.mjs`
-test the stamp, the stable-build rule and these decisions.
+test the stamp, the clean and stable-build rules and these decisions.
 
 Run it on a Mac with a GUI session:
 

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { realpathSync, mkdtempSync, mkdirSync, writeFileSync, copyFileSync, readFileSync, rmSync } from 'node:fs';
+import { realpathSync, mkdtempSync, mkdirSync, writeFileSync, copyFileSync, readFileSync, rmSync, existsSync, statSync, utimesSync, symlinkSync, unlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -8,13 +8,15 @@ import { resolveWasmArtifact } from './build-wasm-engine.mjs';
 import { STAMP_FORMAT, checkEngine, engineStampContext } from './engineSourceStamp.mjs';
 
 // Fake cargo/rustup/rustc/wasm-bindgen. `cargo build` "reads" fixtures/read.json
-// into the wasm artifact and writes the dep-info naming it; with
+// into the wasm artifact in CARGO_TARGET_DIR (else the fixed target) and writes
+// the dep-info naming it; like cargo, it keeps an existing artifact whose
+// dep-info is newer than every input (freshness by modification time). With
 // MUTATE_BUILDS=n the first n builds then edit the fixture, as an editor saving
 // it after cargo read it would. Each build appends to BUILD_LOG when set.
 function fakeToolchain(root, target) {
   return `#!${process.execPath}
 import fs from 'node:fs'; import path from 'node:path';
-const root=${JSON.stringify(root)}, target=${JSON.stringify(target)};
+const root=${JSON.stringify(root)}, fixed=${JSON.stringify(target)}, target=process.env.CARGO_TARGET_DIR||fixed;
 const command=path.basename(process.argv[1]),args=process.argv.slice(2);
 if(command==='cargo') {
   const m=args.indexOf('--manifest-path');
@@ -23,11 +25,15 @@ if(command==='cargo') {
   else if(args[0]==='build'&&m>=0){
     const crate=path.dirname(args[m+1]); const name=crate.includes('self_weight')?'self_weight_wasm':'operation_applier';
     const dir=path.join(target,'wasm32-unknown-unknown/release'); fs.mkdirSync(dir,{recursive:true});
-    fs.writeFileSync(path.join(dir,'open_pipe_stress_'+name+'.wasm'),'wasm:'+fs.readFileSync(path.join(root,'fixtures/read.json'),'utf8'));
-    fs.writeFileSync(path.join(dir,'open_pipe_stress_'+name+'.d'),target+'/x.wasm: '+crate+'/src/lib.rs '+root+'/fixtures/read.json '+target+'/out/generated.rs\\n');
+    const wasm=path.join(dir,'open_pipe_stress_'+name+'.wasm'), dep=path.join(dir,'open_pipe_stress_'+name+'.d'), read=path.join(root,'fixtures/read.json');
+    const fresh=fs.existsSync(wasm)&&fs.existsSync(dep)&&[read,path.join(crate,'src/lib.rs')].every((input)=>fs.statSync(input).mtimeMs<=fs.statSync(dep).mtimeMs);
+    if(!fresh){
+      fs.writeFileSync(wasm,'wasm:'+fs.readFileSync(read,'utf8'));
+      fs.writeFileSync(dep,target+'/x.wasm: '+crate+'/src/lib.rs '+root+'/fixtures/read.json '+target+'/out/generated.rs\\n');
+    }
     if(process.env.BUILD_LOG) fs.appendFileSync(process.env.BUILD_LOG,name+'\\n');
     const counter=path.join(root,'mutations'); const done=fs.existsSync(counter)?Number(fs.readFileSync(counter,'utf8')):0;
-    if(done<Number(process.env.MUTATE_BUILDS||0)){fs.writeFileSync(path.join(root,'fixtures/read.json'),'{"edit":'+(done+1)+'}');fs.writeFileSync(counter,String(done+1));}
+    if(done<Number(process.env.MUTATE_BUILDS||0)){fs.writeFileSync(read,'{"edit":'+(done+1)+'}');fs.writeFileSync(counter,String(done+1));}
   } else console.log('cargo fake');
 }
 if(command==='rustc') console.log('rustc fake');
@@ -66,18 +72,16 @@ test('dual artifact build resolves Cargo target paths and preserves old selfweig
     mkdirSync(path.join(root,'fixtures'),{recursive:true}); writeFileSync(path.join(root,'fixtures/read.json'),'{}');
     for (const name of ['build-wasm-engine.mjs','engineSourceStamp.mjs']) copyFileSync(new URL(`./${name}`, import.meta.url), path.join(scripts, name));
     const target = path.join(root,'custom-target');
-    mkdirSync(path.join(target,'wasm32-unknown-unknown/release'),{recursive:true});
-    for (const name of ['operation_applier','self_weight_wasm']) {
-      writeFileSync(path.join(target,`wasm32-unknown-unknown/release/open_pipe_stress_${name}.wasm`),'wasm');
-      // Cargo's dep-info: a source, a compile read outside src/ and a build output (not an input).
-      writeFileSync(path.join(target,`wasm32-unknown-unknown/release/open_pipe_stress_${name}.d`),`${target}/x.wasm: ${root}/${crates[name==='operation_applier'?0:1]}/src/lib.rs ${root}/fixtures/read.json ${target}/out/generated.rs\n`);
-    }
     const fake = fakeToolchain(root, target);
     for (const name of ['cargo','rustup','rustc','wasm-bindgen']) writeFileSync(path.join(bin,name),fake,{mode:0o755});
     writeFileSync(path.join(bin,'package.json'),'{"type":"module"}');
     process.env.PATH = `${bin}:${previousPath}`;
     assert.equal(resolveWasmArtifact(root),path.join(target,'wasm32-unknown-unknown/release/open_pipe_stress_operation_applier.wasm'));
+    assert.equal(resolveWasmArtifact(root, 'x', { CARGO_TARGET_DIR: path.join(root, 'elsewhere') }), path.join(root, 'elsewhere/wasm32-unknown-unknown/release/x.wasm'));
     execFileSync(process.execPath,[path.join(scripts,'build-wasm-engine.mjs')]);
+    // Each engine built in its own target directory under the app, not cargo's default.
+    for (const name of ['wasm-engine','self-weight-engine']) assert.ok(existsSync(path.join(root,'apps/desktop/target/wasm-engines',name,'wasm32-unknown-unknown/release')), name);
+    assert.ok(!existsSync(target));
     for (const name of ['wasm-engine','self-weight-engine']) assert.equal(readFileSync(path.join(root,'apps/desktop/public',name,'artifact'),'utf8'),'new');
     // Each engine folder carries its source stamp, and a recompute matches it.
     const context = engineStampContext(process.cwd());
@@ -141,5 +145,58 @@ test('a fresh build verifies its newly discovered compile reads with a second bu
     assert.match(failure.stderr, /core\/model_operations\/operation_applier did not hold still across 3 builds/);
     assert.match(failure.stderr, /inputs changed during the build: fixtures\/read\.json/);
     assert.equal(readFileSync(stampPath, 'utf8'), stamp);
+  } finally { p.cleanup(); }
+});
+
+test('Codex r2: an edit that keeps the modification time, or a link retargeted to an older file, is built clean and published', () => {
+  const p = fakeProject();
+  const previousPath = process.env.PATH;
+  try {
+    process.env.PATH = p.env.PATH;
+    p.build();
+    const crate = path.join(p.root, 'core/model_operations/operation_applier');
+    const outDir = path.join(p.root, 'apps/desktop/public/wasm-engine');
+    const fixture = path.join(p.root, 'fixtures/read.json');
+    const context = engineStampContext(process.cwd(), p.env);
+    const published = () => readFileSync(path.join(outDir, 'engine.wasm'), 'utf8');
+    assert.equal(published(), 'wasm:{}');
+    // A current stamp builds incrementally: no clean build.
+    assert.doesNotMatch(p.build(), /clean build/);
+    // New bytes, old modification time: cargo's freshness check would keep the old artifact.
+    const old = statSync(fixture);
+    writeFileSync(fixture, '{"v":2}');
+    utimesSync(fixture, old.atime, old.mtime);
+    const output = p.build();
+    assert.equal(published(), 'wasm:{"v":2}');
+    assert.match(output, /core\/model_operations\/operation_applier: clean build in target\/wasm-engines\/wasm-engine \(inputs changed since stamp sha256:[0-9a-f]{64}\)/);
+    assert.equal(checkEngine({ projectRoot: p.root, crateDirectory: crate, outDir, context }).action, 'current');
+    // The fixture becomes a link to a file older than the last build.
+    const older = path.join(p.root, 'fixtures/older.json');
+    writeFileSync(older, '{"v":"older"}');
+    utimesSync(older, new Date(2000, 0, 1), new Date(2000, 0, 1));
+    unlinkSync(fixture);
+    symlinkSync('older.json', fixture);
+    p.build();
+    assert.equal(published(), 'wasm:{"v":"older"}');
+    assert.equal(checkEngine({ projectRoot: p.root, crateDirectory: crate, outDir, context }).action, 'current');
+  } finally { process.env.PATH = previousPath; p.cleanup(); }
+});
+
+test('the clean build deletes only an engine\'s dedicated target directory, never through a symbolic link', () => {
+  const p = fakeProject();
+  try {
+    p.build();
+    // The app's target directory replaced by a link to a shared one.
+    const shared = path.join(p.root, 'shared-target');
+    mkdirSync(path.join(shared, 'wasm-engines/wasm-engine'), { recursive: true });
+    writeFileSync(path.join(shared, 'wasm-engines/wasm-engine/keep'), 'shared');
+    rmSync(path.join(p.root, 'apps/desktop/target'), { recursive: true, force: true });
+    symlinkSync(shared, path.join(p.root, 'apps/desktop/target'));
+    writeFileSync(path.join(p.root, 'fixtures/read.json'), '{"v":3}');
+    let failure = null;
+    try { p.build(); } catch (error) { failure = error; }
+    assert.ok(failure, 'the build must refuse');
+    assert.match(failure.stderr, /refusing to delete .*wasm-engines\/wasm-engine: .*target is a symbolic link/);
+    assert.equal(readFileSync(path.join(shared, 'wasm-engines/wasm-engine/keep'), 'utf8'), 'shared');
   } finally { p.cleanup(); }
 });

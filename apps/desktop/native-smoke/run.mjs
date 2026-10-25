@@ -6,10 +6,11 @@
 // Checks each WebAssembly engine's content stamp (`scripts/engineSourceStamp.mjs`)
 // and rebuilds a stale or unstamped engine, even under --skip-build; builds the
 // frontend and the app with the `native-smoke` cargo feature (under
-// --skip-build, whatever a stale engine, dist/ copy or app binding requires;
-// `scripts/appBinaryBinding.mjs`), then
-// runs the real app twice against a throwaway HOME (so the project store and
-// Downloads are isolated from the user's own):
+// --skip-build, whatever a stale engine, dist/ copy, frontend or app source or
+// app binding requires) and binds the executable cargo reported
+// (`scripts/appBinaryBinding.mjs`), then runs that executable twice against a
+// throwaway HOME (so the project store and Downloads are isolated from the
+// user's own):
 //
 //   1. open-solve-save: File > Save Model Document… on the bundled demo, re-open
 //      the saved file and save it again (W-6a); three named refusals; then for the milestone model and
@@ -33,14 +34,13 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ENGINE_BUILDS } from "../scripts/build-wasm-engine.mjs";
-import { bindingPathFor, bindingRecord, checkBinding, fileIdentity, planAppBuild, treeDigest } from "../scripts/appBinaryBinding.mjs";
-import { checkEngine, decideEngine, engineStampContext, readStampText } from "../scripts/engineSourceStamp.mjs";
+import { fileIdentity, prepareSmokeApp } from "../scripts/appBinaryBinding.mjs";
+import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const desktop = path.resolve(here, "..");
 const project = path.resolve(desktop, "..", "..");
 const tauriDir = path.join(desktop, "src-tauri");
-const binary = path.join(tauriDir, "target", "debug", "openpipestress-desktop");
 const args = new Set(process.argv.slice(2));
 const expected = JSON.parse(readFileSync(path.join(here, "expected.json"), "utf8"));
 const PHASE_TIMEOUT_MS = 25 * 60 * 1000;
@@ -89,50 +89,43 @@ if (staleEngines.length > 0) {
 } else {
   for (const engine of enginesBefore) console.log(`engine current, stamp ${engine.hash} (${engine.name})`);
 }
-// The app embeds dist/ when cargo builds it. Under --skip-build a rebuilt
-// engine or a dist/ copy whose stamp differs rebuilds the frontend and app; the
-// app alone is rebuilt unless its binding record (scripts/appBinaryBinding.mjs)
-// names the current engine stamps, dist/ digest, build command and binary.
-const APP_BUILD = { command: ["cargo", "build", "--locked", "--offline", "--features", "native-smoke,tauri/custom-protocol"], tauri_config: SMOKE_TAURI_CONFIG };
-const bindingPath = bindingPathFor(binary);
-const distDirectory = path.join(desktop, "dist");
-const currentEngineHashes = () => Object.fromEntries(engineStates().map((engine) => [engine.name, engine.hash]));
-let distStale = [];
-let binding = { match: false, reason: null };
-if (skipBuild) {
-  const engineHashes = currentEngineHashes();
-  distStale = ENGINE_BUILDS.map(({ destination }) => {
-    const name = path.basename(destination);
-    const distDir = path.join(distDirectory, name);
-    const folderPresent = existsSync(distDir);
-    const decision = decideEngine({ folderPresent, stampText: folderPresent ? readStampText(distDir) : null, currentHash: engineHashes[name] });
-    return { name, ...decision };
-  }).filter((engine) => engine.action === "rebuild");
-  const bindingText = existsSync(bindingPath) ? readFileSync(bindingPath, "utf8") : null;
-  binding = checkBinding(bindingText, { engines: engineHashes, dist: treeDigest(distDirectory), build: APP_BUILD, binary: fileIdentity(binary) });
-}
-const appPlan = planAppBuild({ skipBuild, staleEngines: staleEngines.map((engine) => engine.name), distStale, binding });
-if (appPlan.log) console.log(appPlan.log);
-if (appPlan.frontend) run("npm", ["run", "build"], desktop);
-if (appPlan.app) {
-  // No record survives a failed or interrupted build.
-  rmSync(bindingPath, { force: true });
-  const engines = currentEngineHashes();
-  const distBefore = treeDigest(distDirectory);
-  const [command, ...commandArgs] = APP_BUILD.command;
-  run(command, commandArgs, tauriDir, { TAURI_CONFIG: APP_BUILD.tauri_config });
-  const dist = treeDigest(distDirectory);
-  if (dist !== distBefore) {
-    console.log("native smoke: dist/ changed while cargo built the app; no app binding written, so the next --skip-build rebuilds the app");
-  } else {
-    writeFileSync(bindingPath, `${JSON.stringify(bindingRecord({ engines, dist, build: APP_BUILD, binary: fileIdentity(binary) }), null, 2)}\n`);
-    console.log(`native smoke: app binding written: ${path.relative(project, bindingPath)} (dist ${dist})`);
-  }
-}
-if (!existsSync(binary)) {
-  console.error(`native smoke: ${binary} is missing; run without --skip-build`);
+// The app embeds dist/ when cargo builds it. What is rebuilt, the binding record
+// and the executable launched: scripts/appBinaryBinding.mjs.
+const APP_BUILD = {
+  command: ["cargo", "build", "--locked", "--offline", "--message-format=json-render-diagnostics", "--features", "native-smoke,tauri/custom-protocol"],
+  tauri_config: SMOKE_TAURI_CONFIG
+};
+let app;
+try {
+  app = prepareSmokeApp({
+    projectRoot: project,
+    desktopRoot: desktop,
+    tauriDir,
+    binName: "openpipestress-desktop",
+    skipBuild,
+    staleEngines: staleEngines.map((engine) => engine.name),
+    engineFolders: ENGINE_BUILDS.map(({ destination }) => path.basename(destination)),
+    engineHashes: () => Object.fromEntries(engineStates().map((engine) => [engine.name, engine.hash])),
+    build: APP_BUILD,
+    context: engineStampContext(tauriDir),
+    runFrontend: () => run("npm", ["run", "build"], desktop),
+    runCargo: ([command, ...commandArgs], env) => {
+      console.log(`$ (${path.relative(project, tauriDir)}) ${command} ${commandArgs.join(" ")}`);
+      return execFileSync(command, commandArgs, {
+        cwd: tauriDir,
+        encoding: "utf8",
+        maxBuffer: 1 << 30,
+        stdio: ["ignore", "pipe", "inherit"],
+        env: { ...process.env, CARGO_NET_OFFLINE: "true", ...env }
+      });
+    }
+  });
+} catch (error) {
+  console.error(error.message.startsWith("native smoke:") ? error.message : `native smoke: app build failed: ${error.message}`);
   process.exit(2);
 }
+const binary = app.binary;
+console.log(`native smoke: launching ${binary} (${app.identity.sha256})`);
 
 // RFC 8785 JCS for JSON documents (finite numbers; ECMAScript number text).
 function canonical(value) {
@@ -209,6 +202,10 @@ function launch(phase, extra = {}) {
     ...extra
   };
   console.log(`\n== phase ${phase} (HOME=${home})`);
+  if (JSON.stringify(fileIdentity(binary)) !== JSON.stringify(app.identity)) {
+    console.error(`native smoke: ${binary} changed since it was bound; not launched`);
+    process.exit(2);
+  }
   return new Promise((resolve) => {
     // caffeinate keeps the display and system awake for the app's lifetime.
     const child = spawn("/usr/bin/caffeinate", ["-di", binary], {

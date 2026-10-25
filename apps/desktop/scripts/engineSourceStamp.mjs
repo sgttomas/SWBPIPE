@@ -23,13 +23,15 @@
 //     build can list them; a change that adds one edits a file already hashed.
 //
 // and a context: `rustc -vV` of the rustc cargo runs (RUSTC, else
-// CARGO_BUILD_RUSTC, else `rustc`; a `build.rustc` key in cargo configuration
-// is refused by name), the compiler, wrapper, linker, rustflag and profile
-// environment (CONTEXT_ENV), and the bytes of the cargo configuration files
-// cargo would read. Not covered: the contents of a wrapper or linker program
-// (only its name), files outside the project, and edits that keep a file's
-// modification time (cargo's own freshness check relies on it). Build output
-// (`target/`, `node_modules/`, `.git/`) is never an input.
+// CARGO_BUILD_RUSTC, else `rustc`), the compiler, wrapper, linker, rustflag and
+// profile environment (CONTEXT_ENV), and the bytes of the cargo configuration
+// files cargo would read. A configuration file that names a compiler or wrapper
+// (a `rustc`, `rustc-wrapper` or `rustc-workspace-wrapper` key in any TOML
+// spelling) is refused by name. Not covered: the contents of a wrapper or linker
+// program (only its name) and files outside the project. The stamp sees an edit
+// that keeps a file's modification time; `build-wasm-engine.mjs` then builds in
+// a clean target directory, so cargo's mtime-based freshness cannot keep the old
+// output. Build output (`target/`, `node_modules/`, `.git/`) is never an input.
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, lstatSync, readdirSync, readFileSync, readlinkSync, realpathSync, statSync } from "node:fs";
@@ -49,6 +51,10 @@ const SCRIPT_INPUTS = ["apps/desktop/scripts/build-wasm-engine.mjs", "apps/deskt
 const CONTEXT_ENV = /^(RUSTC|RUSTC_WRAPPER|RUSTC_WORKSPACE_WRAPPER|RUSTC_BOOTSTRAP|RUSTFLAGS|CARGO_ENCODED_RUSTFLAGS|RUSTUP_TOOLCHAIN|CARGO_BUILD_.+|CARGO_TARGET_.+|CARGO_HOST_.+|CARGO_PROFILE_.+|CARGO_UNSTABLE_.+)$/;
 const CONTEXT_ENV_IGNORED = new Set(["CARGO_TARGET_DIR"]);
 const MAX_LINK_HOPS = 40;
+// A `rustc`, `rustc-wrapper` or `rustc-workspace-wrapper` key, bare or quoted,
+// at a line start, after a dot (`build.rustc`), or inside an inline table
+// (`build = { rustc = ... }`).
+const COMPILER_CONFIG_KEY = /(^|[\s{,.])["']?(rustc-workspace-wrapper|rustc-wrapper|rustc)["']?\s*=/m;
 
 const toPosix = (value) => value.split(path.sep).join("/");
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
@@ -61,7 +67,7 @@ function isSafeRelative(value) {
 }
 
 // Project-relative POSIX path of an absolute path, or null outside the project.
-function projectRelative(projectRoot, absolute) {
+export function projectRelative(projectRoot, absolute) {
   const relative = path.relative(real(projectRoot), real(absolute));
   if (relative === "" || relative.startsWith("..") || path.isAbsolute(relative)) return null;
   return toPosix(relative);
@@ -170,6 +176,7 @@ export function readCrateManifest(manifestPath) {
   const pkg = (data.packages ?? []).find((candidate) => real(candidate.manifest_path) === wanted);
   if (!pkg) throw new Error(`engine stamp: cargo metadata did not report the package at ${manifestPath}`);
   return {
+    name: pkg.name,
     workspaceRoot: data.workspace_root ?? path.dirname(manifestPath),
     // Normal (kind null) and build path dependencies; dev dependencies are not compiled in.
     pathDependencies: (pkg.dependencies ?? []).filter((dep) => typeof dep.path === "string" && dep.kind !== "dev").map((dep) => path.join(dep.path, "Cargo.toml")),
@@ -177,10 +184,12 @@ export function readCrateManifest(manifestPath) {
   };
 }
 
-// The project-relative input files that exist before a build: the closure's
-// manifests, build scripts and `src/` trees, the lock file and the scripts.
-export function staticEngineInputs(projectRoot, crateDirectory, readManifest = readCrateManifest) {
-  const inputs = new Set(SCRIPT_INPUTS);
+// A crate's closure before a build: its project-relative files (the closure's
+// manifests, build scripts and `src/` trees and the lock file) and the closure's
+// package names.
+export function crateClosure(projectRoot, crateDirectory, readManifest = readCrateManifest) {
+  const inputs = new Set();
+  const packages = new Set();
   const need = (absolute, what) => {
     const relative = projectRelative(projectRoot, absolute);
     if (relative === null) throw new Error(`engine stamp: ${what} is outside the project: ${absolute}`);
@@ -197,17 +206,23 @@ export function staticEngineInputs(projectRoot, crateDirectory, readManifest = r
     seen.add(key);
     const facts = readManifest(manifest);
     if (rootFacts === null) rootFacts = facts;
-    const crate = need(path.dirname(manifest), "engine crate");
+    if (facts.name) packages.add(facts.name);
+    const crate = need(path.dirname(manifest), "crate");
     inputs.add(`${crate}/Cargo.toml`);
     if (existsSync(path.join(projectRoot, crate, "build.rs"))) inputs.add(`${crate}/build.rs`);
     for (const script of facts.buildScripts) inputs.add(need(script, "build script"));
     for (const file of listTreeFiles(projectRoot, `${crate}/src`)) inputs.add(file);
     pending.push(...facts.pathDependencies);
   }
-  const workspace = need(rootFacts.workspaceRoot, "engine workspace root");
+  const workspace = need(rootFacts.workspaceRoot, "workspace root");
   inputs.add(`${workspace}/Cargo.lock`);
   if (real(rootFacts.workspaceRoot) !== real(crateDirectory)) inputs.add(`${workspace}/Cargo.toml`);
-  return [...inputs].sort();
+  return { inputs: [...inputs].sort(), packages: [...packages].sort() };
+}
+
+// An engine's static inputs: its crate closure and the build scripts.
+export function staticEngineInputs(projectRoot, crateDirectory, readManifest = readCrateManifest) {
+  return [...new Set([...SCRIPT_INPUTS, ...crateClosure(projectRoot, crateDirectory, readManifest).inputs])].sort();
 }
 
 // The build context that changes the output without being a project file.
@@ -232,10 +247,12 @@ export function engineStampContext(cargoCwd, env = process.env) {
   for (const config of [...new Set(configs)]) {
     if (!existsSync(config) || !statSync(config).isFile()) continue;
     const bytes = readFileSync(config);
-    // The rustc named there would be the one to identify; this stamp does not
-    // resolve cargo configuration, so it refuses rather than mislabel.
-    if (!env.RUSTC && !env.CARGO_BUILD_RUSTC && /^\s*(build\s*\.\s*)?rustc\s*=/m.test(bytes.toString("utf8"))) {
-      throw new Error(`engine stamp: ${config} sets build.rustc, which the stamp cannot identify; set RUSTC to that compiler instead`);
+    // The compiler or wrapper named there would be the one to identify; this
+    // stamp does not resolve cargo configuration, so it refuses rather than
+    // mislabel, on a conservative textual match of the key in any spelling.
+    const key = bytes.toString("utf8").match(COMPILER_CONFIG_KEY);
+    if (key) {
+      throw new Error(`engine stamp: ${config} sets ${key[2]} (a compiler or wrapper key), which the stamp cannot identify; remove it and set RUSTC or RUSTC_WRAPPER instead`);
     }
     context.push([`cargo config ${config}`, sha256(bytes)]);
   }
@@ -265,9 +282,29 @@ export function parseDepInfo(text) {
   return tokens.slice(targetEnd + 1);
 }
 
+// Whether a "..", read component by component as the kernel does, cancels a
+// symbolic link: it then leaves the link's target, not the link's directory,
+// and the path no longer identifies the file it reaches, even where both agree
+// today. A link in an ancestor that no ".." cancels is harmless.
+export function linkBeforeParent(reported) {
+  let prefix = path.isAbsolute(reported) ? "" : process.cwd();
+  const stack = [];
+  for (const part of reported.split("/")) {
+    if (part === "" || part === ".") continue;
+    if (part === "..") {
+      if (stack.pop() === true) return true;
+    } else {
+      stack.push(lstatSync(`${prefix}/${part}`, { throwIfNoEntry: false })?.isSymbolicLink() === true);
+    }
+    prefix = `${prefix}/${part}`;
+  }
+  return false;
+}
+
 // The dep-info prerequisites inside the project and outside build output, by
 // the path cargo reported (lexically normalised), not their canonical target,
-// so that a symbolic link on the way stays part of the input's identity.
+// so that a symbolic link on the way stays part of the input's identity. A
+// path with a ".." after a symbolic link is refused by name.
 export function compileReadsFromDepInfo(projectRoot, depInfoText, excludedRoots = []) {
   const reads = new Set();
   const roots = [...new Set(excludedRoots.flatMap((root) => [path.resolve(root), real(root)]))];
@@ -276,8 +313,8 @@ export function compileReadsFromDepInfo(projectRoot, depInfoText, excludedRoots 
     const lexical = path.resolve(prerequisite);
     const resolved = real(lexical);
     if (roots.some((root) => within(root, lexical) || within(root, resolved))) continue;
-    if (real(prerequisite) !== resolved) {
-      throw new Error(`engine stamp: compile read ${prerequisite} reaches another file than its lexically normalised path ${lexical} (a ".." after a symbolic link)`);
+    if (linkBeforeParent(prerequisite)) {
+      throw new Error(`engine stamp: compile read ${prerequisite} has a ".." after a symbolic link, so its path does not identify the file read`);
     }
     let relative = null;
     for (const root of projectRoots) {

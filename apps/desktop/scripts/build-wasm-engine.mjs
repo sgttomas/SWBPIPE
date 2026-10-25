@@ -20,14 +20,23 @@
 // read the dep-info newly reveals, a source added or removed, or any changed
 // digest means cargo builds again, up to MAX_STABLE_BUILD_ATTEMPTS, then the
 // build fails naming the inputs.
+// Each engine builds in its own target directory, `target/wasm-engines/<engine>`
+// under this app (CARGO_TARGET_DIR is set to it; cargo metadata must report it
+// back). When the engine's stamp is missing or differs from its sources, and
+// before every further attempt after an unstamped build, that directory is
+// deleted first, so the build is clean: cargo's freshness check, which relies
+// on modification times, cannot keep an old artifact after an edit that kept a
+// file's time or a symbolic link retargeted to an older file. A current stamp
+// builds incrementally.
 
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   STAMP_FILENAME,
+  checkEngine,
   compileReadsFromDepInfo,
   digestInputs,
   engineInputs,
@@ -61,14 +70,14 @@ function fail(lines) {
   process.exit(1);
 }
 
-function tryRun(command, args, { cwd } = {}) {
+function tryRun(command, args, { cwd, env = {} } = {}) {
   try {
     return {
       ok: true,
       stdout: execFileSync(command, args, {
         cwd,
         encoding: "utf8",
-        env: { ...process.env, CARGO_NET_OFFLINE: "true" },
+        env: { ...process.env, CARGO_NET_OFFLINE: "true", ...env },
         stdio: ["ignore", "pipe", "pipe"]
       })
     };
@@ -77,11 +86,11 @@ function tryRun(command, args, { cwd } = {}) {
   }
 }
 
-export function resolveWasmArtifact(crateDirectory = crateDir, crateName = "open_pipe_stress_operation_applier") {
+export function resolveWasmArtifact(crateDirectory = crateDir, crateName = "open_pipe_stress_operation_applier", env = {}) {
   const metadata = tryRun(
     "cargo",
     ["metadata", "--format-version", "1", "--no-deps"],
-    { cwd: crateDirectory }
+    { cwd: crateDirectory, env }
   );
   if (!metadata.ok) {
     throw new Error(`cargo metadata failed: ${metadata.stderr}`);
@@ -104,6 +113,38 @@ export function resolveWasmArtifact(crateDirectory = crateDir, crateName = "open
     `${crateName}.wasm`
   );
 }
+
+// The dedicated target directory of one engine, inside this app.
+const engineTargetsRoot = path.join(desktopRoot, "target", "wasm-engines");
+export const engineTargetDirectory = (engine) => path.join(engineTargetsRoot, engine);
+
+// Delete an engine's dedicated target directory, after checking that it is one:
+// `<app>/target/wasm-engines/<engine>` for an engine this script builds, with no
+// symbolic link from the app down to it.
+export function removeEngineTargetDirectory(directory, engines = ENGINE_BUILDS.map(({ destination }) => path.basename(destination))) {
+  const engine = path.basename(directory);
+  if (!engines.includes(engine) || directory !== engineTargetDirectory(engine)) {
+    throw new Error(`refusing to delete ${directory}: not an engine's dedicated target directory`);
+  }
+  for (const step of [path.dirname(engineTargetsRoot), engineTargetsRoot, directory]) {
+    if (lstatSync(step, { throwIfNoEntry: false })?.isSymbolicLink()) throw new Error(`refusing to delete ${directory}: ${step} is a symbolic link`);
+  }
+  if (!existsSync(directory)) return;
+  if (realpathSync(path.dirname(directory)) !== path.join(realpathSync(desktopRoot), "target", "wasm-engines")) {
+    throw new Error(`refusing to delete ${directory}: it does not resolve inside ${desktopRoot}`);
+  }
+  rmSync(directory, { recursive: true, force: true });
+}
+
+const CARGO_BUILD_ARGS = [
+  "build",
+  "--offline",
+  "--target",
+  "wasm32-unknown-unknown",
+  "--features",
+  "wasm",
+  "--release"
+];
 
 function main() {
 
@@ -170,13 +211,30 @@ for (const { crateDirectory, crateName, destination } of ENGINE_BUILDS) {
 const crateManifest = path.join(crateDirectory, "Cargo.toml");
 const outDir = destination;
 const crateLabel = path.relative(projectRoot, crateDirectory);
-// 4. Compile the engine to wasm32 with the wasm feature, until a build's
-//    complete input set held still across it (4b).
+const targetDirectory = engineTargetDirectory(path.basename(outDir));
+// 4. Compile the engine to wasm32 with the wasm feature, in its own target
+//    directory, until a build's complete input set held still across it (4b).
+//    A missing or stale stamp, or inputs that moved, mean a clean build.
+let clean = null;
+try {
+  const current = checkEngine({ projectRoot, crateDirectory, outDir, context: stampContext });
+  clean = current.action === "rebuild" ? current.reason : null;
+} catch (error) {
+  fail(["Could not check the engine's source stamp:", error.message]);
+}
 let knownReads = parseStampText(readStampText(outDir)).stamp?.compile_reads ?? [];
 let wasmArtifact;
 let stamp = null;
 let drift = [];
 for (let attempt = 1; attempt <= MAX_STABLE_BUILD_ATTEMPTS && stamp === null; attempt += 1) {
+  if (clean !== null) {
+    try {
+      removeEngineTargetDirectory(targetDirectory);
+    } catch (error) {
+      fail([error.message]);
+    }
+    console.log(`[build-wasm-engine] ${crateLabel}: clean build in ${path.relative(desktopRoot, targetDirectory)} (${clean})`);
+  }
   let before;
   let beforeDigests;
   try {
@@ -185,25 +243,19 @@ for (let attempt = 1; attempt <= MAX_STABLE_BUILD_ATTEMPTS && stamp === null; at
   } catch (error) {
     fail(["Could not list the engine's source inputs for its stamp:", error.message]);
   }
-  console.log(`[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release (${crateLabel}, attempt ${attempt}/${MAX_STABLE_BUILD_ATTEMPTS})`);
-  const build = tryRun("cargo", [
-    "build",
-    "--offline",
-    "--manifest-path",
-    crateManifest,
-    "--target",
-    "wasm32-unknown-unknown",
-    "--features",
-    "wasm",
-    "--release"
-  ]);
+  console.log(`[build-wasm-engine] cargo ${CARGO_BUILD_ARGS.join(" ")} (${crateLabel}, attempt ${attempt}/${MAX_STABLE_BUILD_ATTEMPTS})`);
+  const cargoEnv = { CARGO_TARGET_DIR: targetDirectory };
+  const build = tryRun("cargo", [...CARGO_BUILD_ARGS, "--manifest-path", crateManifest], { env: cargoEnv });
   if (!build.ok) {
     fail(["`cargo build` for the wasm32 engine failed:", build.stderr]);
   }
   try {
-    wasmArtifact = resolveWasmArtifact(crateDirectory, crateName);
+    wasmArtifact = resolveWasmArtifact(crateDirectory, crateName, cargoEnv);
   } catch (error) {
     fail(["Could not resolve Cargo's wasm artifact directory:", error.message]);
+  }
+  if (wasmArtifact !== path.join(targetDirectory, "wasm32-unknown-unknown", "release", `${crateName}.wasm`)) {
+    fail([`cargo reports the wasm artifact at ${wasmArtifact}, outside the engine's dedicated target directory ${targetDirectory}`]);
   }
   if (!existsSync(wasmArtifact)) {
     fail([`cargo build succeeded but the expected artifact is missing: ${wasmArtifact}`]);
@@ -213,7 +265,6 @@ for (let attempt = 1; attempt <= MAX_STABLE_BUILD_ATTEMPTS && stamp === null; at
   //     build-script `rerun-if-changed` files). No dep-info, no stamp.
   const depInfo = wasmArtifact.replace(/\.wasm$/, ".d");
   try {
-    const targetDirectory = path.resolve(path.dirname(wasmArtifact), "..", "..");
     const compileReads = compileReadsFromDepInfo(projectRoot, readFileSync(depInfo, "utf8"), [targetDirectory]);
     const after = engineInputs({ projectRoot, crateDirectory, compileReads });
     const afterDigests = digestInputs(projectRoot, after.all);
@@ -223,6 +274,7 @@ for (let attempt = 1; attempt <= MAX_STABLE_BUILD_ATTEMPTS && stamp === null; at
     } else {
       console.log(`[build-wasm-engine] ${crateLabel}: not stamped (${drift.join("; ")}); building again`);
       knownReads = [...new Set([...knownReads, ...compileReads])];
+      clean = "the last build was not stamped";
     }
   } catch (error) {
     fail([`Could not stamp the engine built from ${crateLabel} (dep-info ${depInfo}):`, error.message]);

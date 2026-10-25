@@ -253,14 +253,35 @@ test("a compile read through a symbolic link keeps its link: retargeting it make
     p.write("deep/read.json", "{}\n");
     assert.throws(
       () => compileReadsFromDepInfo(p.root, `${target}/engine.wasm: ${p.root}/core/engine/src/jump/../read.json\n`, [target]),
-      /reaches another file than its lexically normalised path/
+      /compile read .*core\/engine\/src\/jump\/\.\.\/read\.json has a "\.\." after a symbolic link/
     );
   } finally {
     p.cleanup();
   }
 });
 
-test("the compiler, wrapper and linker environment and a cargo build.rustc are part of the context", () => {
+test("Codex r2: a \"..\" after a symbolic link is refused even where kernel and lexical resolution agree", () => {
+  const p = project();
+  try {
+    const target = path.join(p.root, "core/engine/target");
+    // alias -> sub: alias/.. is src both lexically and through the link, today.
+    symlinkSync("sub", path.join(p.root, "core/engine/src/alias"));
+    const depInfo = (read) => `${target}/engine.wasm: ${read}\n`;
+    assert.throws(
+      () => compileReadsFromDepInfo(p.root, depInfo(`${p.root}/core/engine/src/alias/../lib.rs`), [target]),
+      /compile read .*src\/alias\/\.\.\/lib\.rs has a "\.\." after a symbolic link, so its path does not identify the file read/
+    );
+    // Two levels: the second ".." cancels the link.
+    assert.throws(() => compileReadsFromDepInfo(p.root, depInfo(`${p.root}/core/engine/src/alias/x/../../lib.rs`), [target]), /after a symbolic link/);
+    // A ".." that cancels an ordinary directory, or a link no ".." cancels, is accepted.
+    assert.deepEqual(compileReadsFromDepInfo(p.root, depInfo(`${p.root}/core/engine/src/sub/../lib.rs`), [target]), ["core/engine/src/lib.rs"]);
+    assert.deepEqual(compileReadsFromDepInfo(p.root, depInfo(`${p.root}/core/engine/src/alias/mod.rs`), [target]), ["core/engine/src/alias/mod.rs"]);
+  } finally {
+    p.cleanup();
+  }
+});
+
+test("the compiler, wrapper and linker environment and the cargo configuration are part of the context", () => {
   const p = project();
   try {
     const rustc = path.join(p.root, "fake-rustc");
@@ -290,11 +311,9 @@ test("the compiler, wrapper and linker environment and a cargo build.rustc are p
     const { RUSTC: _unused, ...withoutRustc } = env;
     const viaBuild = engineStampContext(p.root, { ...withoutRustc, CARGO_BUILD_RUSTC: other });
     assert.deepEqual(viaBuild[0], ["rustc -vV", "rustc 9.9.10 (fake)"]);
-    // A cargo configuration file is hashed; one naming build.rustc is refused by name.
-    writeFileSync(path.join(home, "config.toml"), "[build]\nrustc-wrapper = \"sccache\"\n");
+    // A cargo configuration file is hashed.
+    writeFileSync(path.join(home, "config.toml"), "[build]\njobs = 4\nrustflags = [\"-Cdebuginfo=0\"]\n");
     assert.notEqual(stampWith({}), base);
-    writeFileSync(path.join(home, "config.toml"), "[build]\nrustc = \"/opt/rustc\"\n");
-    assert.throws(() => engineStampContext(p.root, withoutRustc), /config\.toml sets build\.rustc/);
   } finally {
     p.cleanup();
   }
@@ -315,6 +334,39 @@ test("inputDrift: a newly discovered compile read, an added source or a changed 
     assert.deepEqual(drift([], () => {}, ["fixtures/read.json"]), ["compile reads not known before the build: fixtures/read.json"]);
     assert.deepEqual(drift(["fixtures/read.json"], () => p.write("fixtures/read.json", "{\"a\":9}\n"), ["fixtures/read.json"]), ["inputs changed during the build: fixtures/read.json"]);
     assert.deepEqual(drift(["fixtures/read.json"], () => p.write("core/engine/src/new.rs", "\n"), ["fixtures/read.json"]), ["source files added or removed during the build: core/engine/src/new.rs"]);
+  } finally {
+    p.cleanup();
+  }
+});
+
+test("Codex r2: cargo configuration naming a compiler or wrapper is refused by name in every TOML spelling", () => {
+  const p = project();
+  try {
+    const home = path.join(p.root, "cargo-home");
+    mkdirSync(home);
+    const config = path.join(home, "config.toml");
+    const env = { PATH: process.env.PATH, HOME: process.env.HOME, CARGO_HOME: home };
+    for (const [text, key] of [
+      ["build = { rustc = \"/opt/rustc\" }\n", "rustc"],
+      ["build={rustc=\"/opt/rustc\"}\n", "rustc"],
+      ["build = { jobs = 2, \"rustc-wrapper\" = \"sccache\" }\n", "rustc-wrapper"],
+      ["[build]\nrustc = \"/opt/rustc\"\n", "rustc"],
+      ["build.rustc = \"/opt/rustc\"\n", "rustc"],
+      ["[build]\n\"rustc\" = \"/opt/rustc\"\n", "rustc"],
+      ["[build]\nrustc-wrapper = \"sccache\"\n", "rustc-wrapper"],
+      ["[build]\nrustc-workspace-wrapper = \"clippy-driver\"\n", "rustc-workspace-wrapper"]
+    ]) {
+      writeFileSync(config, text);
+      // Also when RUSTC names a compiler: the configuration is not resolved.
+      for (const extra of [{}, { RUSTC: "rustc" }]) {
+        assert.throws(() => engineStampContext(p.root, { ...env, ...extra }), new RegExp(`config\\.toml sets ${key} \\(a compiler or wrapper key\\)`), text);
+      }
+    }
+    // A cargo configuration in the working directory's ancestry is read too.
+    writeFileSync(config, "[build]\njobs = 4\n");
+    mkdirSync(path.join(p.root, ".cargo"));
+    writeFileSync(path.join(p.root, ".cargo/config.toml"), "[build]\nbuild = 1\nx = { y = 1, rustc = \"r\" }\n");
+    assert.throws(() => engineStampContext(path.join(p.root, "core/engine"), env), /\.cargo\/config\.toml sets rustc/);
   } finally {
     p.cleanup();
   }

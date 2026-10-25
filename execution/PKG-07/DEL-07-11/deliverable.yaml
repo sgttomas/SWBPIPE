@@ -162,3 +162,4 @@ checks:
 - apps/desktop/native-smoke/driver.test.mjs
 - apps/desktop/native-smoke/engine-stamp.test.mjs
 - apps/desktop/native-smoke/app-binding.test.mjs
+- apps/desktop/scripts/build-wasm-engine.test.mjs
