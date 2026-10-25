@@ -961,7 +961,8 @@ pub(crate) mod tests {
     pub(crate) const CHILD_ENV: &str = "SWBPIPE_TEST_SOLVE_WORKER";
     pub(crate) const OUT_FD_ENV: &str = "SWBPIPE_TEST_WORKER_OUT_FD";
     pub(crate) const WORKLOAD_ENV: &str = "SWBPIPE_TEST_WORKER_WORKLOAD";
-    pub(crate) const EXIT_DELAY_ENV: &str = "SWBPIPE_TEST_WORKER_EXIT_DELAY_MS";
+    /// A directory: the worker's exit is held until `exit-released` exists in it.
+    pub(crate) const EXIT_GATE_ENV: &str = "SWBPIPE_TEST_WORKER_EXIT_GATE";
     const MIB: u64 = 1 << 20;
 
     /// The worker entry in the test binary: inert unless started as a worker.
@@ -976,10 +977,39 @@ pub(crate) mod tests {
         std::env::var(WORKLOAD_ENV).ok()
     }
 
+    /// Holds the worker's exit, after its terminal frame is sent, until the
+    /// test releases it ([`EXIT_GATE_ENV`]) or removes the directory.
     pub(super) fn exit_delay() {
-        if let Some(ms) = std::env::var(EXIT_DELAY_ENV).ok().and_then(|v| v.parse().ok()) {
-            std::thread::sleep(Duration::from_millis(ms));
+        if let Some(dir) = std::env::var_os(EXIT_GATE_ENV).map(std::path::PathBuf::from) {
+            await_release(&dir, "exit-released");
         }
+    }
+
+    /// Waits until `dir/name` exists, or `dir` is gone (its test has ended).
+    fn await_release(dir: &std::path::Path, name: &str) {
+        while dir.is_dir() && !dir.join(name).exists() {
+            std::thread::sleep(Duration::from_millis(2));
+        }
+    }
+
+    /// Maps `total` bytes outside the counted heap (anonymous mappings,
+    /// touched) in `step`-byte steps, `interval_ms` apart; returns the bytes mapped.
+    #[cfg(unix)]
+    fn map_uncounted(step: usize, total: usize, interval_ms: u64) -> usize {
+        let mut mapped = 0;
+        while mapped < total {
+            // SAFETY: an anonymous private mapping of `step` bytes, touched page by page (kept until exit).
+            unsafe {
+                let map = libc::mmap(std::ptr::null_mut(), step, libc::PROT_READ | libc::PROT_WRITE, libc::MAP_PRIVATE | libc::MAP_ANON, -1, 0);
+                assert_ne!(map, libc::MAP_FAILED);
+                for offset in (0..step).step_by(4096) {
+                    *(map as *mut u8).add(offset) = 1;
+                }
+            }
+            mapped += step;
+            std::thread::sleep(Duration::from_millis(interval_ms));
+        }
+        mapped
     }
 
     fn touched(bytes: usize) -> Vec<u8> {
@@ -1078,21 +1108,16 @@ pub(crate) mod tests {
             // it for `arg3` ms: only polling sees it.
             #[cfg(unix)]
             "uncounted" => {
-                let (step, total) = (arg(0) as usize, arg(1) as usize);
-                let mut mapped = 0;
-                while mapped < total {
-                    // SAFETY: an anonymous private mapping of `step` bytes, touched page by page (kept until exit).
-                    unsafe {
-                        let map = libc::mmap(std::ptr::null_mut(), step, libc::PROT_READ | libc::PROT_WRITE, libc::MAP_PRIVATE | libc::MAP_ANON, -1, 0);
-                        assert_ne!(map, libc::MAP_FAILED);
-                        for offset in (0..step).step_by(4096) {
-                            *(map as *mut u8).add(offset) = 1;
-                        }
-                    }
-                    mapped += step;
-                    std::thread::sleep(Duration::from_millis(arg(2)));
-                }
+                let mapped = map_uncounted(arg(0) as usize, arg(1) as usize, arg(2));
                 std::thread::sleep(Duration::from_millis(arg(3)));
+                Ok(mapped.to_string())
+            }
+            // As `uncounted`, but the memory is held until the test creates
+            // `hold-released` in the directory `arg3`, not for a fixed time.
+            #[cfg(unix)]
+            "uncounted_gate" => {
+                let mapped = map_uncounted(arg(0) as usize, arg(1) as usize, arg(2));
+                await_release(std::path::Path::new(args.splitn(4, ':').nth(3).unwrap()), "hold-released");
                 Ok(mapped.to_string())
             }
             // The fds open in the worker.
@@ -1152,10 +1177,18 @@ pub(crate) mod tests {
                 Ok(format!("{{\"filled\":{}}}", chunks.len() as u64 * MIB))
             }
             // Makes `arg0` bytes resident outside the counted heap, releases
-            // them, then returns: only the lifetime maximum shows them.
+            // them, then returns: only the lifetime maximum shows them. With a
+            // directory (`transient_mmap:<bytes>:<dir>`) the excursion starts
+            // only once `excursion-go` exists there and `excursion-done` is
+            // created after the unmap, so a test can hold the supervisor (in a
+            // hook, after its poll has sampled) until the excursion is over.
             #[cfg(unix)]
             "transient_mmap" => {
                 let bytes = arg(0) as usize;
+                let gate = args.split_once(':').map(|(_, dir)| std::path::Path::new(dir));
+                if let Some(dir) = gate {
+                    await_release(dir, "excursion-go");
+                }
                 // SAFETY: an anonymous private mapping of `bytes`, touched page by page, then unmapped.
                 unsafe {
                     let map = libc::mmap(std::ptr::null_mut(), bytes, libc::PROT_READ | libc::PROT_WRITE, libc::MAP_PRIVATE | libc::MAP_ANON, -1, 0);
@@ -1165,7 +1198,24 @@ pub(crate) mod tests {
                     }
                     libc::munmap(map, bytes);
                 }
+                if let Some(dir) = gate {
+                    std::fs::write(dir.join("excursion-done"), b"").unwrap();
+                }
                 Ok("{}".to_string())
+            }
+            // Announces itself (`started-<pid>` in the directory `arg1`), sends
+            // a valid `{}` result whose frame reports a lifetime peak of `arg0`
+            // bytes (no such memory is used), then waits for the supervisor's
+            // kill. Not killed within 10 s, it leaves `unkilled-<pid>` and
+            // exits 1, so a missing kill fails its test rather than hangs it.
+            "reported_peak" => {
+                let dir = std::path::Path::new(args.splitn(2, ':').nth(1).unwrap());
+                let pid = std::process::id();
+                std::fs::write(dir.join(format!("started-{pid}")), b"").unwrap();
+                crate::worker_alloc::send_frame(TAG_RESULT, 2, arg(0), b"{}");
+                std::thread::sleep(Duration::from_secs(10));
+                let _ = std::fs::write(dir.join(format!("unkilled-{pid}")), b"");
+                std::process::exit(1)
             }
             // Evidence for the process reserve: footprints of a real worker.
             #[cfg(target_os = "macos")]
@@ -1205,17 +1255,23 @@ pub(crate) mod tests {
 
     struct Hooks {
         attached: Option<Arc<WorkerControl>>,
+        /// When the supervisor attached the spawned worker.
+        attached_at: Option<Instant>,
         cancelled: Arc<std::sync::atomic::AtomicBool>,
         grants: Arc<Mutex<Vec<u64>>>,
         /// The grant in force when each footprint was observed.
         current: u64,
         observed: Vec<(u64, u64)>,
         events: Vec<Event>,
+        /// A `transient_mmap` gate directory: the first footprint observation
+        /// holds the supervisor until the worker's excursion is over.
+        excursion_gate: Option<std::path::PathBuf>,
     }
 
     impl SupervisorHooks for Hooks {
         fn attach(&mut self, control: Arc<WorkerControl>) -> bool {
             self.attached = Some(control);
+            self.attached_at = Some(Instant::now());
             !self.cancelled()
         }
         fn cancelled(&self) -> bool {
@@ -1229,6 +1285,19 @@ pub(crate) mod tests {
         fn footprint_observed(&mut self, footprint_bytes: u64) {
             self.observed.push((self.current, footprint_bytes));
             self.events.push(Event::Footprint { grant: self.current, footprint: footprint_bytes });
+            // This footprint was sampled before the gate opens, so before the
+            // excursion; until the worker has unmapped it the supervisor does
+            // not return here to sample again.
+            if let Some(dir) = self.excursion_gate.take() {
+                std::fs::write(dir.join("excursion-go"), b"").unwrap();
+                // A hang guard: the hold ends after 60 s, and then only with the excursion over.
+                let deadline = Instant::now() + Duration::from_secs(60);
+                while dir.is_dir() && !dir.join("excursion-done").exists() && Instant::now() < deadline {
+                    std::thread::sleep(Duration::from_millis(2));
+                }
+                // Unwinding kills and reaps the worker (its handle's drop) and removes the gate.
+                assert!(dir.join("excursion-done").exists(), "the worker's excursion was not over within the hold: {}", dir.display());
+            }
         }
     }
 
@@ -1239,6 +1308,7 @@ pub(crate) mod tests {
         observed: Vec<(u64, u64)>,
         events: Vec<Event>,
         pid: Option<i32>,
+        attached_at: Option<Instant>,
     }
 
     impl Run {
@@ -1259,16 +1329,30 @@ pub(crate) mod tests {
     /// Runs one worker to its end under a fresh grant; the grant is dropped
     /// after `supervise` returns (after the reap).
     fn run(pool: &Arc<MemoryPool>, launcher: &dyn WorkerLauncher, body: &[u8], max_grant: u64, reserve: u64) -> Run {
+        run_gated(pool, launcher, body, max_grant, reserve, None)
+    }
+
+    /// As [`run`], with a `transient_mmap` gate directory the hooks open.
+    fn run_gated(
+        pool: &Arc<MemoryPool>,
+        launcher: &dyn WorkerLauncher,
+        body: &[u8],
+        max_grant: u64,
+        reserve: u64,
+        excursion_gate: Option<std::path::PathBuf>,
+    ) -> Run {
         let start = initial_grant(reserve, crate::ingress::prescan(body).unwrap().lease_bytes().unwrap()).unwrap();
         let mut grant = pool.acquire(start, LeasePurpose::Worker).unwrap();
         let ingress = pool.acquire(crate::ingress::allocation_envelope(body.len() as u64).unwrap(), LeasePurpose::Ingress).unwrap();
         let mut hooks = Hooks {
             attached: None,
+            attached_at: None,
             cancelled: Default::default(),
             grants: Default::default(),
             current: start,
             observed: Vec::new(),
             events: Vec::new(),
+            excursion_gate,
         };
         let terms = WorkerTerms { pool, launcher, mode: PreviewSolverMode::SparseInteractive, max_grant, reserve };
         let outcome = supervise(&terms, &mut grant, (body.to_vec(), ingress), &mut hooks);
@@ -1277,7 +1361,14 @@ pub(crate) mod tests {
         drop(grant);
         assert_eq!(pool.running_workers(), 0);
         let grants = hooks.grants.lock().unwrap().clone();
-        Run { outcome, grants, observed: hooks.observed, events: hooks.events, pid: hooks.attached.map(|c| c.pid()) }
+        Run {
+            outcome,
+            grants,
+            observed: hooks.observed,
+            events: hooks.events,
+            pid: hooks.attached.map(|c| c.pid()),
+            attached_at: hooks.attached_at,
+        }
     }
 
     fn assert_reaped(pid: Option<i32>) {
@@ -1314,11 +1405,13 @@ pub(crate) mod tests {
         let ingress = pool.acquire(64, LeasePurpose::Ingress).unwrap();
         let mut hooks = Hooks {
             attached: None,
+            attached_at: None,
             cancelled: Default::default(),
             grants: Default::default(),
             current: PROCESS_RESERVE_BYTES + MIB,
             observed: Vec::new(),
             events: Vec::new(),
+            excursion_gate: None,
         };
         let terms = WorkerTerms { pool, launcher: &*launcher, mode, max_grant: 12 * GIB, reserve: PROCESS_RESERVE_BYTES };
         match supervise(&terms, &mut grant, (BODY.to_vec(), ingress), &mut hooks) {
@@ -1493,13 +1586,15 @@ pub(crate) mod tests {
         assert!(*run.grants.last().unwrap() >= 48 * MIB + reserve);
         assert_reaped(run.pid);
         drop(run);
-        // A budget the footprint itself does not fit: refused, typed.
+        // A budget the footprint itself does not fit: refused, typed. A poll
+        // during the touch may refuse first, correctly, with a part-touched
+        // sample above the budget, so only the budget bounds the footprint.
         let budget = reserve + 24 * MIB;
         let run = super::tests::run(&pool, &*launcher, BODY, budget, reserve);
         match run.outcome {
             WorkerOutcome::Refused(ResourceRefusal::WorkerFootprintExceeded { grant_bytes, footprint_bytes }) => {
                 assert!(grant_bytes >= start && grant_bytes <= budget);
-                assert!(footprint_bytes > 48 * MIB && footprint_bytes > budget, "{footprint_bytes}");
+                assert!(footprint_bytes > budget, "{footprint_bytes}");
             }
             other => panic!("{other:?}"),
         }
@@ -1539,8 +1634,26 @@ pub(crate) mod tests {
         let pool = pool();
         let reserve = 16 * MIB;
         let start = initial_grant(reserve, crate::ingress::prescan(BODY).unwrap().lease_bytes().unwrap()).unwrap();
-        let launcher = TestLauncher::scripted(format!("uncounted:{}:{}:50:800", 8 * MIB, 48 * MIB));
+        // The worker holds its memory until a poll has grown the grant to
+        // cover it, not for a fixed time a delayed supervisor could miss.
+        let gate = Gate::new("uncounted");
+        let launcher = TestLauncher::scripted(format!("uncounted_gate:{}:{}:50:{}", 8 * MIB, 48 * MIB, gate.dir.display()));
+        let releaser = {
+            let (pool, dir) = (pool.clone(), gate.dir.clone());
+            std::thread::spawn(move || {
+                // A bounded wait (a hang guard): the hold is released in any
+                // case. A removed gate (the test has ended) ends the releaser.
+                let deadline = Instant::now() + Duration::from_secs(60);
+                while pool.reserved(LeasePurpose::Worker) < 48 * MIB && Instant::now() < deadline && dir.is_dir() {
+                    std::thread::sleep(Duration::from_millis(2));
+                }
+                if let Err(error) = std::fs::write(dir.join("hold-released"), b"") {
+                    assert!(!dir.is_dir(), "{error}");
+                }
+            })
+        };
         let run = run(&pool, &*launcher, BODY, 12 * GIB, reserve);
+        releaser.join().unwrap();
         assert!(matches!(&run.outcome, WorkerOutcome::Completed { result, .. } if result == b"50331648"), "{:?}", run.outcome);
         assert!(run.grew_to_cover_a_footprint_above_the_grant(reserve, 12 * GIB), "{:?}", run.events);
         assert!(*run.grants.last().unwrap() >= 48 * MIB, "the lease covers the uncounted memory: {:?}", run.grants);
@@ -1549,8 +1662,10 @@ pub(crate) mod tests {
         // Beyond the budget: found by a poll, killed, refused.
         let budget = reserve + 24 * MIB;
         let launcher = TestLauncher::scripted(format!("uncounted:{}:{}:50:5000", 8 * MIB, 64 * MIB));
-        let started = std::time::Instant::now();
         let run = super::tests::run(&pool, &*launcher, BODY, budget, reserve);
+        // From the worker's start, which precedes its 5 s hold: the spawn
+        // (serialized with other tests' spawns) is no part of the poll's promptness.
+        let started = run.attached_at.expect("a worker was attached");
         match run.outcome {
             WorkerOutcome::Refused(ResourceRefusal::WorkerFootprintExceeded { grant_bytes, footprint_bytes }) => {
                 assert!(grant_bytes >= start && grant_bytes <= budget);
@@ -1613,27 +1728,45 @@ pub(crate) mod tests {
     /// At the result frame the lifetime-maximum footprint is checked before
     /// anything is released: above the grant it is recorded; above the budget
     /// the result is refused.
+    ///
+    /// The excursion is one no poll or growth exchange sees: the supervisor's
+    /// first poll is held in its hook, after sampling, until the worker has
+    /// mapped, touched and unmapped the memory. Ungated, a poll landing during
+    /// the touch refused the second run with a part-touched sample (hosted
+    /// macos-26-arm64: 28148992 bytes), and one landing before the unmap
+    /// refused it with no result check made.
     #[cfg(target_os = "macos")]
     #[test]
     fn the_lifetime_peak_footprint_is_checked_at_the_result() {
         let pool = pool();
         let reserve = 16 * MIB;
         let start = initial_grant(reserve, crate::ingress::prescan(BODY).unwrap().lease_bytes().unwrap()).unwrap();
-        let launcher = TestLauncher::scripted(format!("transient_mmap:{}", 32 * MIB));
-        let run = run(&pool, &*launcher, BODY, 12 * GIB, reserve);
+        let gated = |max_grant: u64| {
+            let gate = Gate::new("excursion");
+            let launcher = TestLauncher::scripted(format!("transient_mmap:{}:{}", 32 * MIB, gate.dir.display()));
+            run_gated(&pool, &*launcher, BODY, max_grant, reserve, Some(gate.dir.clone()))
+        };
+        // Every observation but the result's lifetime peak preceded or followed the excursion.
+        let unseen_until_the_result = |observed: &[(u64, u64)]| {
+            observed.len() >= 2 && observed[..observed.len() - 1].iter().all(|&(_, footprint)| footprint < 32 * MIB)
+        };
+        let run = gated(12 * GIB);
         assert!(matches!(run.outcome, WorkerOutcome::Completed { .. }), "{:?}", run.outcome);
         let (grant, peak) = *run.observed.last().unwrap();
         assert!(peak > 32 * MIB, "{peak}");
+        assert!(unseen_until_the_result(&run.observed), "{:?}", run.observed);
         if run.grants.is_empty() {
             assert!(grant == start && peak > grant, "recorded above the grant: {peak}");
         }
         drop(run);
         // The budget equals the starting grant: the peak exceeded it, so the result is refused.
-        let run = super::tests::run(&pool, &*launcher, BODY, start, reserve);
+        let run = gated(start);
         match run.outcome {
             WorkerOutcome::Refused(ResourceRefusal::WorkerFootprintExceeded { grant_bytes, footprint_bytes }) => {
                 assert_eq!(grant_bytes, start);
                 assert!(footprint_bytes > 32 * MIB, "{footprint_bytes}");
+                assert_eq!(run.observed.last(), Some(&(start, footprint_bytes)), "the refusal is the last observation");
+                assert!(unseen_until_the_result(&run.observed), "{:?}", run.observed);
             }
             other => panic!("{other:?}"),
         }

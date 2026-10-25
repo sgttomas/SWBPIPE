@@ -593,6 +593,117 @@ def test_route_control_emits_local_first_evidence_and_unknown_route_fails_closed
     assert unknown.summary["local_first_blocking_count"] == 1
 
 
+def test_model_document_save_route_is_governed_local_private_with_explicit_intent():
+    """DEL-15-01 W-6a: File > Save Model Document… is DOTH-MODEL-DOC-007."""
+    from core.security.local_first_storage.route_control import (
+        GOVERNED_LOCAL_FIRST_ROUTE_IDS,
+        enforce_local_first_route,
+    )
+
+    assert "DOTH-MODEL-DOC-007" in GOVERNED_LOCAL_FIRST_ROUTE_IDS
+    allowed = enforce_local_first_route(
+        route_id="DOTH-MODEL-DOC-007",
+        export_context="local_private",
+        explicit_local_private_intent=True,
+    ).as_schema_dict()
+    assert allowed == {
+        "route_id": "DOTH-MODEL-DOC-007",
+        "export_context": "local_private",
+        "storage_context": "local_private",
+        "action": "include_metadata_only",
+        "reason_code": "PRIVATE_LOCAL_METADATA_ALLOWED",
+        "blocked": False,
+        "metadata_only": True,
+        "explicit_local_private_intent": True,
+    }
+    without_intent = enforce_local_first_route(
+        route_id="DOTH-MODEL-DOC-007", export_context="local_private"
+    )
+    assert without_intent.blocked is True
+    assert without_intent.reason_code == "LOCAL_PRIVATE_INTENT_REQUIRED"
+    lookalike = enforce_local_first_route(
+        route_id="DOTH-MODEL-DOC-008",
+        export_context="local_private",
+        explicit_local_private_intent=True,
+    )
+    assert lookalike.blocked is True
+    assert lookalike.reason_code == "LOCAL_FIRST_ROUTE_UNKNOWN"
+
+    controlled = control_route_export(
+        {
+            "field_id": "invented.model.private",
+            "privacy_classification": "private_project_data",
+            "redistribution_status": "private_only",
+            "review_status": "accepted",
+            "value": "Invented private model value",
+        },
+        route_id="DOTH-MODEL-DOC-007",
+        export_context="local_private",
+        explicit_local_private_intent=True,
+        require_lossless_materialization=True,
+    )
+    assert controlled.blocked is False
+    assert controlled.payload["value"] == "Invented private model value"
+    assert controlled.summary["local_first"]["route_id"] == "DOTH-MODEL-DOC-007"
+    assert controlled.summary["local_first"]["blocked"] is False
+
+
+def test_handoff_package_save_route_is_governed_local_private_with_explicit_intent():
+    """DEL-15-01 W-6b: File > Save Handoff… is DOTH-HANDOFF-PACKAGE-008."""
+    from core.security.local_first_storage.route_control import (
+        GOVERNED_LOCAL_FIRST_ROUTE_IDS,
+        enforce_local_first_route,
+    )
+
+    assert "DOTH-HANDOFF-PACKAGE-008" in GOVERNED_LOCAL_FIRST_ROUTE_IDS
+    allowed = enforce_local_first_route(
+        route_id="DOTH-HANDOFF-PACKAGE-008",
+        export_context="local_private",
+        explicit_local_private_intent=True,
+    ).as_schema_dict()
+    assert allowed == {
+        "route_id": "DOTH-HANDOFF-PACKAGE-008",
+        "export_context": "local_private",
+        "storage_context": "local_private",
+        "action": "include_metadata_only",
+        "reason_code": "PRIVATE_LOCAL_METADATA_ALLOWED",
+        "blocked": False,
+        "metadata_only": True,
+        "explicit_local_private_intent": True,
+    }
+    without_intent = enforce_local_first_route(
+        route_id="DOTH-HANDOFF-PACKAGE-008", export_context="local_private"
+    )
+    assert without_intent.blocked is True
+    assert without_intent.reason_code == "LOCAL_PRIVATE_INTENT_REQUIRED"
+    # The downstream preview route is a different route; neither stands in for the other.
+    lookalike = enforce_local_first_route(
+        route_id="DOTH-HANDOFF-PACKAGE-009",
+        export_context="local_private",
+        explicit_local_private_intent=True,
+    )
+    assert lookalike.blocked is True
+    assert lookalike.reason_code == "LOCAL_FIRST_ROUTE_UNKNOWN"
+
+    controlled = control_route_export(
+        {
+            "field_id": "invented.handoff.private",
+            "privacy_classification": "private_project_data",
+            "redistribution_status": "private_only",
+            "review_status": "accepted",
+            "value": "Invented private handoff value",
+        },
+        route_id="DOTH-HANDOFF-PACKAGE-008",
+        export_context="local_private",
+        explicit_local_private_intent=True,
+        require_lossless_materialization=True,
+    )
+    assert controlled.blocked is False
+    assert controlled.payload["value"] == "Invented private handoff value"
+    assert controlled.summary["local_first"]["route_id"] == "DOTH-HANDOFF-PACKAGE-008"
+    assert controlled.summary["local_first"]["blocked"] is False
+
+
 def test_route_control_preserves_public_example_context_compatibility():
     controlled = control_route_export(
         {

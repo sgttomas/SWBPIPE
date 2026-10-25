@@ -36,7 +36,7 @@ MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
 # T4-U6 (D-5, §2.4): the table's per-basis stress signatures (106 signatures, 59 kinds); T4-U5b's tie-rod force
 # and T4-U4b's (§2.2) per-basis kinds (129 signatures, 66 kinds).
-TABLE_SHA256 = '6991728e6bc9c88effdbe5d0407671f4d78376c5c67d79d70f2cd1f174f47cba'
+TABLE_SHA256 = 'a6139f7d2fc92bd777ef0b1801272dc3c6924d7f7a82ac842a934de2c3375815'
 DEPENDENCIES = {
     # T4-U6/U8 re-pins: the D-5 section bases and the Timoshenko beam theory (8bf263d6..., was 38302413...);
     # then §2.5's realized-arc marker (98bdfeee3e: arcs known by `member_kind`, refused on the composite);
@@ -46,8 +46,10 @@ DEPENDENCIES = {
     # then S4 round 2: the composite recomputes every straight member's σ±/τ and their coverage (was 4bc56dea...);
     # then S4 round 3: the composite refuses TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN by name (was 52a15bec...);
     # then the T4-U4b review repairs: basis-twin order and no transverse-shear Poisson exemption (merged with S4;
-    # was c7699864..., 56f18624..., 58491ca8... and 20337f1c...).
-    MODULE: '520e7189dd83b1fd54622cef9b6974d56c636bbe73dc642c20c9cb04eb96dbaa',
+    # was c7699864..., 56f18624..., 58491ca8... and 20337f1c...);
+    # then W-7 (DEL-04-01 global-end-actions.md): the reader checks the global end-action rows (was 520e7189...),
+    # after the published rows' own coverage (was 8b61f340...).
+    MODULE: 'ad8edd633e741bba7cba7139826d755e8805bfa159bcd1da84b607615164089c',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }

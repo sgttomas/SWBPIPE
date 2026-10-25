@@ -5,7 +5,7 @@ import { retiredPrecisionStatement } from "../../test-support/retiredPrecision";
 import pressureSparse from "../../../../../fixtures/results/pressure_connected_ui_mechanics_sparse.json";
 import pressureSourceMixed from "../../../../../fixtures/product_preview/pressure_source/physics_source/mixed-sparse_interactive.raw.json";
 import {
-  COMBINATION_GATE_REASONS, FRESH_SEMANTIC_CONTRACT_IDS, N_HEADLINE, N_HEADLINE_WITHHELD, N_INTENSIFIED, N_REPORT,
+  COMBINATION_GATE_REASONS, FRESH_SEMANTIC_CONTRACT_IDS, N_HEADLINE, N_HEADLINE_WITHHELD, N_INTENSIFIED,
   isFreshSemanticResult, knownSemanticNotices, resultRowLabel, ruleBindingRefusal, standingReason,
 } from "./knownSemanticLimitations";
 import { numericalResultStanding } from "./resultStanding";
@@ -17,7 +17,6 @@ describe("frozen T0R texts (S1 §10), verbatim", () => {
   it("pins the notices and gate reasons", () => {
     expect(N_HEADLINE).toBe("maximum elastic normal stress; nominal; no component intensification; not a code stress");
     expect(N_HEADLINE_WITHHELD).toBe("Stress headline withheld: a stress maximum is not available for every member in every load case (arc members have no maximum on this route).");
-    expect(N_REPORT).toBe("The report package is unavailable for fresh results.");
     expect(N_INTENSIFIED).toBe("equal-factor intensified bending stress i·hypot(My,Mz)/Z; user SIF; member Z; not a code stress; never combined");
     expect(COMBINATION_GATE_REASONS).toEqual({
       NONLINEAR_COMBINATION_REQUIRES_SOLVE: "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.",

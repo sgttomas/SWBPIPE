@@ -7,7 +7,11 @@ import previewPhysicsTable from "../../../../fixtures/results/semantic_contract_
 import previewPhysicsRetainedTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json";
 import physicsRetainedTable from "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json";
 import type { AnalysisRunEnvelope, CanonicalResultDimension, MechanicsResult, ObjectRef, PreviewModel } from "../types";
-import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
+import { canonicalSha256Hex, canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
+import { inputManifestRef, type CurrentSessionInputManifest } from "./inputManifestService";
+import { libraryRefSites } from "./libraryImportService";
+import { trimLikeRust } from "./rustTrim";
+import { manifestExcludedRulePackIdentities, rulePackIdentity, rulePackRefDiagnosticEntries, rulePackRefRecordDiagnostics, type ExcludedRulePackRef } from "./rulePackRefDiagnostics";
 
 /** The one current analysis-run version (b7-plan E1). */
 export const ANALYSIS_RUN_V03 = "0.3.0";
@@ -19,7 +23,7 @@ export const CHECKED_PROFILE_V1 = "openpipestress_jcs_ijson_v1";
 export const ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH = "ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH";
 /** U6d: a record of any other identity carries a retained-precision receipt. */
 export const ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN = "ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
-type ManifestEvidence = { manifest_ref: ObjectRef; manifest_sha256: string; manifest: { model_basis: { model_ref: string }; solver_basis: { solver_name: string; solver_version: string; solver_build_ref: string } } };
+type ManifestEvidence = { manifest_ref: ObjectRef; manifest_sha256: string; manifest: Parameters<typeof manifestExcludedRulePackIdentities>[0] & { model_basis: { model_ref: string }; solver_basis: { solver_name: string; solver_version: string; solver_build_ref: string } } };
 /** The record's provenance labels, Python's (`core/analysis_runs/compatibility.py`
  * `_build_analysis_run`) for the one current (0.3.0) record. */
 const provenance = { source_name: "OpenPipeStress analysis record 0.3", source_location: "analysis_run.compatibility.v0.3", source_license: "project-governed", review_status: "pending", professional_claim: false };
@@ -114,10 +118,31 @@ export function analysisRecordProjection(record: AnalysisRunEnvelope): AnalysisR
   return projected;
 }
 
+/** A record's rule-pack reference diagnostics do not name exactly the references its input
+ * manifest leaves out of `active_rule_packs`. */
+export const ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH = "ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH";
+/** A run recorded before rule-pack resolution (S2, #1596): the model has references, the
+ * manifest's `active_rule_packs` is empty and the record names no exclusion. Refused by name
+ * (not read leniently) so the user knows to re-record it; Rust and Python refuse it alike. */
+export const ANALYSIS_RUN_RULE_PACKS_NOT_RESOLVED = "ANALYSIS-RUN-RULE-PACKS-NOT-RESOLVED";
+const RULE_PACKS_NOT_RESOLVED_REFUSAL = `${ANALYSIS_RUN_RULE_PACKS_NOT_RESOLVED}: recorded before rule-pack resolution; re-record this run`;
+
+/** The refusal for record rule-pack diagnostics naming `identities` against `manifest`'s
+ * exclusions, or null when they agree. */
+function rulePackDiagnosticsRefusal(identities: string[], manifest: Parameters<typeof manifestExcludedRulePackIdentities>[0]): string | null {
+  const excluded = manifestExcludedRulePackIdentities(manifest);
+  if (structurallyEqual(identities, excluded)) return null;
+  const noneResolved = Array.isArray(manifest.active_rule_packs) && manifest.active_rule_packs.length === 0;
+  return identities.length === 0 && excluded.length > 0 && noneResolved ? RULE_PACKS_NOT_RESOLVED_REFUSAL : ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH;
+}
+
 /** The current (0.3.0) record; a result no current record contract reads is refused, never recorded in an older format. */
-export async function buildAnalysisRunV03(result: MechanicsResult, inputManifest: ManifestEvidence, ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[]): Promise<AnalysisRunEnvelope> {
+/** `rulePackExclusions`: the model's rule-pack references the solve left out of the input
+ * manifest's `active_rule_packs` (`resolveModelRulePacks`), recorded as diagnostics after the
+ * producer's, in the model's order. They must be exactly the references the manifest leaves out. */
+export async function buildAnalysisRunV03(result: MechanicsResult, inputManifest: ManifestEvidence, ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[], rulePackExclusions: readonly ExcludedRulePackRef[] = []): Promise<AnalysisRunEnvelope> {
   if (!hasCurrentSourceContract(result)) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
-  return buildAnalysisRecord(result, inputManifest, sourceContract(result) as V03Route, ruleCheckStatus, loadBasisRefs);
+  return buildAnalysisRecord(result, inputManifest, sourceContract(result) as V03Route, ruleCheckStatus, loadBasisRefs, rulePackExclusions);
 }
 /** Every current-record route (Python's `CURRENT_RECORD_CONTRACT_IDS`). B7b: pressure-2 has a
  * record, as Python builds it: the ordinary exact route, with or without the
@@ -125,7 +150,7 @@ export async function buildAnalysisRunV03(result: MechanicsResult, inputManifest
  * Holding a record grants no output by itself: each output surface applies its own policy
  * entry and Rust's standing (epoch 8, DEL-04-07 Design `desktop-exact-outputs.md`). */
 type V03Route = "pressure" | "pressure_source" | "preview_physics" | "retained_preview_physics" | "retained_physics";
-async function buildAnalysisRecord(result: MechanicsResult, inputManifest: ManifestEvidence, route: V03Route, ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[]): Promise<AnalysisRunEnvelope> {
+async function buildAnalysisRecord(result: MechanicsResult, inputManifest: ManifestEvidence, route: V03Route, ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[], rulePackExclusions: readonly ExcludedRulePackRef[] = []): Promise<AnalysisRunEnvelope> {
   // Preview-evidence check: a preview-physics-2 source is recorded only after its closed reader checks pass.
   if (sourceContract(result) === "preview_physics") readerValidate("preview-physics", result);
   // As Python's `_source_contract`: a pressure-2 source is recorded only after its route's reader passes.
@@ -135,6 +160,9 @@ async function buildAnalysisRecord(result: MechanicsResult, inputManifest: Manif
   if (route === "pressure_source") await validateRetainedRecoverySource(result);
   validateSourceRuleStatus(result); expectedLoadBasis(result, loadBasisRefs);
   if (inputManifest.manifest.model_basis.model_ref !== result.model_ref) throw new Error("ANALYSIS-RUN-INPUT-MANIFEST-MODEL-MISMATCH");
+  const rulePackDiagnostics = rulePackRefRecordDiagnostics(rulePackExclusions);
+  const builtRefusal = rulePackDiagnosticsRefusal(rulePackDiagnostics.map((item) => item.source_annotation.affected_refs[0]), inputManifest.manifest);
+  if (builtRefusal) throw new Error(builtRefusal);
   const semanticBinding = sourceSemanticBinding(result);
   const rawResult = structuredClone(result);
   const interpret = analysisRowSemanticsReader(result);
@@ -161,10 +189,10 @@ async function buildAnalysisRecord(result: MechanicsResult, inputManifest: Manif
     schema_version: ANALYSIS_RUN_V03, deliverable_id: "DEL-14-02", package_id: "PKG-14", scope_item: "SOW-072", objectives: ["OBJ-016"],
     run_contract_status: { record_contract: "strict_analysis_run_v0_3", result_binding: "received_mechanics_result", external_validation_boundary: "reference_only_not_determined_by_software" },
     analysis_run: {
-      run_id: rawResult.run_id, run_name: `${rawResult.run_id} analysis record`, run_kind: "mechanics_solve", created_at: null, model_state_ref: { object_type: "ModelState", ref: `state:${rawResult.model_ref}:preview` },
+      run_id: rawResult.run_id, run_name: `${rawResult.run_id} analysis record`, run_kind: "mechanics_solve", created_at: null, model_state_ref: transientModelStateRef(rawResult.model_ref),
       solver_version: { solver_name: inputManifest.manifest.solver_basis.solver_name, solver_version: inputManifest.manifest.solver_basis.solver_version, build_ref: { object_type: "ExternalReference", ref: inputManifest.manifest.solver_basis.solver_build_ref } },
       settings_ref: { object_type: "SolverSettings", ref: `solver-settings:${inputManifest.manifest_ref.ref}:${inputManifest.manifest_sha256}` }, unit_system_ref: { object_type: "UnitSystem", ref: `unit-system:${rawResult.model_ref}:${inputManifest.manifest_sha256}` }, load_basis_refs: effectiveLoadBasisRefs,
-      diagnostics: rawResult.diagnostics.map((item) => ({ source_annotation: structuredClone(item) })), rule_pack_refs: [], library_refs: [],
+      diagnostics: [...rawResult.diagnostics.map((item) => ({ source_annotation: structuredClone(item) })), ...rulePackDiagnostics], rule_pack_refs: [], library_refs: [],
       result_refs: resultRefs, hashes: [{ algorithm: "sha256", canonicalization: CHECKED_PROFILE_V1, payload_ref: { object_type: "ResultEnvelope", ref: `result-envelope:${rawResult.run_id}` }, payload_scope: "received_result", value: await canonicalSha256HexCheckedV1(rawResult) }], analysis_status: statuses,
       reproducibility: { input_manifest_refs: [structuredClone(inputManifest.manifest_ref)], input_manifest_hashes: [{ algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_ref: structuredClone(inputManifest.manifest_ref), payload_scope: "input_manifest", value: inputManifest.manifest_sha256 }], semantic_contract: semanticBinding, determinism_notes: ["created_at_unavailable", "model_state_ref_and_solver_settings_unit_basis_bound_by_input_manifest"], unresolved_tbd: [] },
       immutability_policy: { run_record_is_read_only: true, mutation_policy: "changes_create_new_immutable_record_revision", new_mechanics_run_required_for_record_revision: false, record_revision_identity: "analysis_run_record_sha256", hash_invalidates_external_acceptance: true },
@@ -201,8 +229,154 @@ export async function verifyAnalysisRunRecord(record: AnalysisRunEnvelope): Prom
   return claim.value === await canonicalSha256HexCheckedV1(analysisRecordProjection(record)) ? "match" : "mismatch";
 }
 
-/** Source interpretation validation is distinct from checksum verification and producer authentication. */
-export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source: MechanicsResult, expectedBasisRefs?: ObjectRef[]): Promise<void> {
+// --- Recorded revisions (W-12 S2; DEL-14-01 Design `desktop-states-runs-comparison.md` §3) ---
+// Record Run stores a new immutable revision of a solve's transient record, tied
+// to a saved model state. The native store (`apps/desktop/src-tauri/src/analysis_runs.rs`)
+// allocates `created_at` and computes the revision's hash; this builder is the
+// TypeScript mirror its parity test checks (`recordedRunParity.test.ts`), as
+// Python's `recorded_revision` is (`core/analysis_runs/compatibility.py`).
+
+/** The transient record's determinism note that a recorded revision drops (its `created_at` is set). */
+export const CREATED_AT_UNAVAILABLE = "created_at_unavailable";
+
+/** The stored state a recorded revision names, with the input manifest that binds it. */
+export type RecordedStateBinding = {
+  stateId: string;
+  /** The state's model hash, `sha256:<hex>`. */
+  modelHash: string;
+  /** The recorded run's stored input manifest. */
+  inputManifest: CurrentSessionInputManifest;
+};
+
+/** A transient record's synthetic state ref (`state:<model ref>:preview`). */
+export function transientModelStateRef(modelRef: string): ObjectRef {
+  return { object_type: "ModelState", ref: `state:${modelRef}:preview` };
+}
+
+/** Code-point order (as Rust's `str` and Python's `str` order), not UTF-16 order. */
+function codePointCompare(left: string, right: string): number {
+  const a = Array.from(left), b = Array.from(right);
+  for (let index = 0; index < Math.min(a.length, b.length); index += 1) {
+    const difference = a[index].codePointAt(0)! - b[index].codePointAt(0)!;
+    if (difference !== 0) return difference;
+  }
+  return a.length - b.length;
+}
+
+/** The recorded revision's `rule_pack_refs`: the manifest's `active_rule_packs`, in its order, as
+ * `{RulePack, rulePackIdentity(id, version)}` (`%` and `@` percent-encoded in each component). */
+export function recordedRulePackRefs(manifest: Pick<CurrentSessionInputManifest, "active_rule_packs">): ObjectRef[] {
+  if (!Array.isArray(manifest.active_rule_packs)) throw new Error("ANALYSIS-RUN-MANIFEST-INVALID: the input manifest has no active_rule_packs list.");
+  return manifest.active_rule_packs.map((pack) => {
+    if (typeof pack?.rule_pack_id !== "string" || !pack.rule_pack_id || typeof pack.version !== "string" || !pack.version) throw new Error("ANALYSIS-RUN-MANIFEST-INVALID: an active rule pack has no id or version.");
+    return { object_type: "RulePack", ref: rulePackIdentity(pack.rule_pack_id, pack.version) };
+  });
+}
+
+/** The recorded revision's `library_refs`: every `library_ref` site of the solved model
+ * that the one walk finds (`libraryRefSites`, pinned with the native walk to
+ * `fixtures/model_document/library_ref_sites.json`), its identity normalized as the
+ * native walk normalizes it (`library_ref_identity`: Rust's White_Space trim,
+ * `trimLikeRust`; nothing when blank or not text). `library_version` is kept verbatim
+ * when it is text. A site whose kind or id is blank or not text names no library and is
+ * omitted. Once each, in code-point order, as
+ * `library:<kind>/<id>[@<version>][#<record id>]`. */
+export function recordedLibraryRefs(modelPayload: unknown): ObjectRef[] {
+  const identity = (value: unknown): string | null => {
+    const trimmed = typeof value === "string" ? trimLikeRust(value) : "";
+    return trimmed ? trimmed : null;
+  };
+  const found = new Set<string>();
+  for (const { reference } of libraryRefSites(modelPayload)) {
+    const kind = identity(reference.library_kind);
+    const id = identity(reference.library_id);
+    if (!kind || !id) continue;
+    const record = identity(reference.record_id);
+    found.add(`library:${kind}/${id}${typeof reference.library_version === "string" ? `@${reference.library_version}` : ""}${record ? `#${record}` : ""}`);
+  }
+  return [...found].sort(codePointCompare).map((ref) => ({ object_type: "Library", ref }));
+}
+
+/** The recorded revision of a transient record: `created_at`, the stored state's ref,
+ * the manifest's rule packs and the solved model's library references, the
+ * `created_at_unavailable` note dropped and the record hash recomputed. The received-result
+ * checksum and every other member are unchanged. */
+export async function recordedAnalysisRunRevision(transient: AnalysisRunEnvelope, binding: { stateId: string; createdAt: string; inputManifest: CurrentSessionInputManifest }): Promise<AnalysisRunEnvelope> {
+  const record = structuredClone(transient);
+  const run = record.analysis_run;
+  run.created_at = binding.createdAt;
+  run.model_state_ref = { object_type: "ModelState", ref: binding.stateId };
+  run.rule_pack_refs = recordedRulePackRefs(binding.inputManifest);
+  run.library_refs = recordedLibraryRefs(binding.inputManifest.model_basis.model_payload);
+  if (Array.isArray(run.reproducibility.determinism_notes)) run.reproducibility.determinism_notes = run.reproducibility.determinism_notes.filter((note) => note !== CREATED_AT_UNAVAILABLE);
+  const claim = run.hashes.find((hash) => hash.payload_scope === "analysis_run_record");
+  if (!claim) throw new Error("ANALYSIS-RUN-RECORD-INVALID: the record has no analysis_run_record checksum.");
+  claim.value = await canonicalSha256HexCheckedV1(analysisRecordProjection(record));
+  return record;
+}
+
+/** Structural JSON equality: object member order is not significant, array order is,
+ * and an extra or missing member is a difference (as Rust's and Python's equality). */
+export function structurallyEqual(left: unknown, right: unknown): boolean {
+  if (Array.isArray(left) || Array.isArray(right)) {
+    return Array.isArray(left) && Array.isArray(right) && left.length === right.length && left.every((item, index) => structurallyEqual(item, right[index]));
+  }
+  if (left && right && typeof left === "object" && typeof right === "object") {
+    const a = left as Record<string, unknown>, b = right as Record<string, unknown>;
+    const keys = Object.keys(a);
+    return keys.length === Object.keys(b).length && keys.every((key) => Object.hasOwn(b, key) && structurallyEqual(a[key], b[key]));
+  }
+  return Object.is(left, right) || (typeof left === "number" && left === right);
+}
+
+/** The recorded form's load basis: the stored manifest's load cases, then its combinations. */
+export function manifestLoadBasisRefs(manifest: Pick<CurrentSessionInputManifest, "load_basis">): ObjectRef[] {
+  return [
+    ...manifest.load_basis.load_cases.map((loadCase) => ({ object_type: "LoadCase", ref: loadCase.id })),
+    ...(manifest.load_basis.combinations ?? []).map((combination) => ({ object_type: "Combination", ref: combination.id }))
+  ];
+}
+
+/** Every record member the stored input manifest fixes, derived from the manifest (never
+ * from the record), with the refusal each difference gets: the manifest's ref and checksum,
+ * the solver identity and build ref, the settings and unit-system refs, the load basis,
+ * and the rule-pack and library references. */
+export async function manifestFixedMembers(manifest: CurrentSessionInputManifest): Promise<Array<{ member: keyof AnalysisRunEnvelope["analysis_run"] | "input_manifest_refs" | "input_manifest_hashes"; expected: unknown; code: string }>> {
+  const sha = await canonicalSha256Hex(manifest);
+  const modelRef = manifest.model_basis.model_ref;
+  const manifestRef = { object_type: "InputManifest", ref: inputManifestRef(modelRef, sha) };
+  return [
+    { member: "input_manifest_refs", expected: [manifestRef], code: "ANALYSIS_RECORDED_INPUT_MANIFEST_MISMATCH" },
+    { member: "input_manifest_hashes", expected: [{ algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_ref: manifestRef, payload_scope: "input_manifest", value: sha }], code: "ANALYSIS_RECORDED_INPUT_MANIFEST_MISMATCH" },
+    { member: "solver_version", expected: { solver_name: manifest.solver_basis.solver_name, solver_version: manifest.solver_basis.solver_version, build_ref: { object_type: "ExternalReference", ref: manifest.solver_basis.solver_build_ref } }, code: "ANALYSIS_RECORDED_SOLVER_MISMATCH" },
+    { member: "settings_ref", expected: { object_type: "SolverSettings", ref: `solver-settings:${manifestRef.ref}:${sha}` }, code: "ANALYSIS_RECORDED_SETTINGS_MISMATCH" },
+    { member: "unit_system_ref", expected: { object_type: "UnitSystem", ref: `unit-system:${modelRef}:${sha}` }, code: "ANALYSIS_RECORDED_UNITS_MISMATCH" },
+    { member: "load_basis_refs", expected: manifestLoadBasisRefs(manifest), code: "ANALYSIS_RECORDED_LOAD_BASIS_MISMATCH" },
+    { member: "rule_pack_refs", expected: recordedRulePackRefs(manifest), code: "ANALYSIS_RECORDED_REFERENCES_MISMATCH" },
+    { member: "library_refs", expected: recordedLibraryRefs(manifest.model_basis.model_payload), code: "ANALYSIS_RECORDED_REFERENCES_MISMATCH" }
+  ];
+}
+
+/** A recorded revision's binding to its stored state: its ref names the state; its
+ * `created_at` is set and the `created_at_unavailable` note is gone; the stored manifest
+ * is the source's project's and its model payload hashes to the state's model hash; and
+ * every member the manifest fixes is the manifest's. */
+async function validateRecordedBinding(record: AnalysisRunEnvelope, source: MechanicsResult, binding: RecordedStateBinding): Promise<void> {
+  const run = record.analysis_run;
+  if (!structurallyEqual(run.model_state_ref, { object_type: "ModelState", ref: binding.stateId })) throw new Error("ANALYSIS_SOURCE_MODEL_STATE_MISMATCH");
+  if (typeof run.created_at !== "string" || !run.created_at || run.reproducibility.determinism_notes?.includes(CREATED_AT_UNAVAILABLE)) throw new Error("ANALYSIS_RECORDED_REVISION_TIME_MISSING");
+  if (binding.inputManifest.model_basis?.model_ref !== source.model_ref) throw new Error("ANALYSIS_RECORDED_INPUT_MANIFEST_MISMATCH");
+  if (`sha256:${await canonicalSha256Hex(binding.inputManifest.model_basis.model_payload)}` !== binding.modelHash) throw new Error("ANALYSIS_RECORDED_MODEL_STATE_HASH_MISMATCH");
+  for (const { member, expected, code } of await manifestFixedMembers(binding.inputManifest)) {
+    const actual = member === "input_manifest_refs" || member === "input_manifest_hashes" ? run.reproducibility?.[member] : run[member];
+    if (!structurallyEqual(actual, expected)) throw new Error(code);
+  }
+}
+
+/** Source interpretation validation is distinct from checksum verification and producer authentication.
+ * A transient record (no `recordedState`) names its synthetic state; a recorded revision
+ * (W-12 S2) names the stored state passed in, checked against that state's model hash. */
+export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source: MechanicsResult, expectedBasisRefs?: ObjectRef[], recordedState?: RecordedStateBinding): Promise<void> {
   const same = (a: unknown, b: unknown): boolean => {
     if (a === undefined || b === undefined) return a === b;
     const order = (v: any): any => Array.isArray(v) ? v.map(order) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map(k => [k, order(v[k])])) : v;
@@ -214,6 +388,14 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
   if (sourceContract(source) === "pressure") readerValidate("pressure", source);
   validateSourceRuleStatus(source);
   const run = record.analysis_run;
+  // The recorded form (W-12 S2): every member the stored manifest fixes is checked first,
+  // against the manifest; its load basis is the manifest's, never a caller's or the record's.
+  if (recordedState) {
+    await validateRecordedBinding(record, source, recordedState);
+    const manifestBasis = manifestLoadBasisRefs(recordedState.inputManifest);
+    if (expectedBasisRefs !== undefined && !structurallyEqual(expectedBasisRefs, manifestBasis)) throw new Error("ANALYSIS_RECORDED_LOAD_BASIS_MISMATCH");
+    expectedBasisRefs = manifestBasis;
+  }
   if (sourceContract(source) === "pressure_source") {
     await validateRetainedRecoverySource(source);
     if (!same(run.source_block_recovery, source.source_block_recovery)) throw new Error("ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH");
@@ -227,14 +409,25 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
     await validateRetainedPrecision(source);
     if (!same(run.retained_precision, source.retained_precision)) throw new Error(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
   } else if (Object.hasOwn(run, "retained_precision")) throw new Error(ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
-  if (!same(run.diagnostics, source.diagnostics.map(source_annotation => ({ source_annotation })))) throw new Error("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH");
+  // The producer's diagnostics, then any rule-pack reference diagnostics (each exactly the
+  // one its code and identity determine); a recorded revision's name exactly the references
+  // its stored manifest leaves out of active_rule_packs. Their codes are under the record hash.
+  const producerDiagnostics = source.diagnostics.map(source_annotation => ({ source_annotation }));
+  if (!Array.isArray(run.diagnostics) || run.diagnostics.length < producerDiagnostics.length || !same(run.diagnostics.slice(0, producerDiagnostics.length), producerDiagnostics)) throw new Error("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH");
+  const rulePackEntries = rulePackRefDiagnosticEntries(run.diagnostics.slice(producerDiagnostics.length));
+  if (!rulePackEntries) throw new Error("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH");
+  const recordedRefusal = recordedState ? rulePackDiagnosticsRefusal(rulePackEntries.map((entry) => entry.identity), recordedState.inputManifest) : null;
+  // The named refusal of a run recorded before rule-pack resolution comes only after every
+  // other check below passes (the record checksum last), so corruption keeps its own code.
+  const deferredRefusal = recordedRefusal === RULE_PACKS_NOT_RESOLVED_REFUSAL ? recordedRefusal : null;
+  if (recordedRefusal && !deferredRefusal) throw new Error(recordedRefusal);
   if (!["MECHANICS_SOLVED", "MODEL_INCOMPLETE"].includes(source.status.mechanics)) throw new Error("ANALYSIS_SOURCE_MECHANICS_STATUS_INVALID");
   const statuses = run.analysis_status;
   if (!Array.isArray(statuses) || statuses.length !== 3 || new Set(statuses).size !== 3 || !statuses.includes(source.status.mechanics) || !statuses.includes("HUMAN_REVIEW_REQUIRED") || statuses.filter(s => RULE_STATUSES.includes(s)).length !== 1) throw new Error("ANALYSIS_SOURCE_STATUS_MISMATCH");
   if (!same(run.load_basis_refs, expectedLoadBasis(source, expectedBasisRefs))) throw new Error("ANALYSIS_SOURCE_LOAD_BASIS_MISMATCH");
   if (run.solver_version?.solver_name !== source.producer!.component_name || run.solver_version?.solver_version !== source.producer!.component_version) throw new Error("ANALYSIS_SOURCE_PRODUCER_MISMATCH");
   if (run.run_id !== source.run_id) throw new Error("ANALYSIS_SOURCE_RUN_MISMATCH");
-  if (!same(run.model_state_ref, {object_type:"ModelState",ref:`state:${source.model_ref}:preview`})) throw new Error("ANALYSIS_SOURCE_MODEL_STATE_MISMATCH");
+  if (!recordedState && !same(run.model_state_ref, transientModelStateRef(source.model_ref))) throw new Error("ANALYSIS_SOURCE_MODEL_STATE_MISMATCH");
   const contract = sourceSemanticBinding(source);
   if (!same(run.reproducibility.semantic_contract, contract)) throw new Error("ANALYSIS_SEMANTIC_CONTRACT_MISMATCH");
   const checksum = async (scope: string, ref: ObjectRef, value: unknown) => ({algorithm: "sha256", canonicalization: CHECKED_PROFILE_V1, payload_ref: ref, payload_scope: scope, value: await canonicalSha256HexCheckedV1(value)});
@@ -250,6 +443,7 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
       || !same(actual.source_annotation, {kind:row.kind,unit:row.unit,metadata:row.metadata ?? null})) throw new Error("ANALYSIS_ROW_INTERPRETATION_MISMATCH");
   }
   if (await verifyAnalysisRunRecord(record) !== "match") throw new Error("ANALYSIS_RECORD_CHECKSUM_MISMATCH");
+  if (deferredRefusal) throw new Error(deferredRefusal);
 }
 
 /** A pressure-source-1 source is recorded, and a saved record revalidated, only after

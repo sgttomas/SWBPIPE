@@ -6,9 +6,20 @@ product jobs are explicitly skipped. Selection uses the complete PR diff;
 missing diff information conservatively selects coverage.
 
 On a relevant PR, desktop coverage is a production build and one Chromium
-project running the R2 smoke and save/reopen journey and the rotation-glyph
-browser evidence (DEL-07-05:1). The browser matrix runs only by explicit
-workflow dispatch.
+project (`chromium-desktop`) running core specs: the R2 smoke and save/reopen
+journey, the rotation-glyph browser evidence (DEL-07-05:1) and the result
+overlays. The selection adds a group of specs when the PR diff changes one of
+the group's paths. Open, New and Replace of an edited project add
+`ui-foundation`, `c3-viewport-visibility`, `gui-workflow-validation` and
+`linear-authoring`. Their paths are `apps/desktop/src/features/project-storage/`
+(the replace and unsaved-changes prompts and guard), `workspaceSession.ts` (the
+Open, New and Replace commands), `services/projectService.ts` (the project
+store they read and write), and the four specs themselves. A shared CI input, an
+unmatched project input or full coverage adds every group. The core specs,
+groups and paths are declared in `piping_browser_journeys` in
+`tools/hosted-ci-routing.json`. The product job runs the plan's spec list, and
+the plan's reasons name the path and group behind each added spec. The browser
+matrix runs only by explicit workflow dispatch.
 
 The `piping-desktop` selection adds the full desktop Vitest suite, run in two
 shards (`vitest --shard=1/2` and `2/2`) as jobs beside the product job, under
@@ -32,6 +43,39 @@ and both shards each compute and publish that key. The record is saved only
 after all of them succeed, and only when every one published the same key; if a
 runner image differed between them, nothing is saved. Dispatch runs the
 suite.
+
+The `piping-desktop-rust` selection runs the desktop shell crate's Cargo tests
+(`apps/desktop/src-tauri`: store, command and persistence tests) in their own
+job under the same aggregate: `cargo test --locked --manifest-path
+apps/desktop/src-tauri/Cargo.toml` from the project, with the default test
+threads. The job runs on `macos-26`, the product platform (macOS Apple Silicon),
+which needs no webview packages and runs the macOS memory and worker paths the
+tests cover; it builds no frontend. It restores the main-scoped
+`piping-desktop-rust` dependency cache that `shared-build-cache.yml` warms with
+`cargo test --no-run`. It is selected when the PR diff changes:
+- any shared CI input that selects the piping product, or an unmatched input;
+- any file under `apps/desktop/src-tauri/`;
+- a Cargo control the job's `cargo test` reads: `.cargo/` configuration or a
+  `rust-toolchain` file in the project or a directory above the crate, or a
+  project-level `Cargo.toml` or `Cargo.lock` (Cargo reads configuration from its
+  working directory and its ancestors; repository-root files are shared inputs);
+- Rust or a `Cargo.toml` or `Cargo.lock` in a crate it compiles: its normal,
+  build and dev path dependencies, and their normal and build path
+  dependencies, transitively;
+- a file that the crate or those dependencies read by a literal `include*!` or
+  `#[path]` in `src/` or `build.rs`, or that a declared runtime read in their
+  `src/` or `build.rs` names;
+- a project file or directory that the crate's Rust names by a path-like
+  string literal (a format template names the directory before its first
+  slot), which is how its tests read fixtures at run time.
+
+Other Python, Rust, desktop TypeScript and docs changes do not select it. An
+unreadable crate, compile read or stale runtime-read declaration selects it.
+Dispatch runs it. The selection's reasons are in the plan artifact.
+The literal scan finds fixture paths written as one path-like string or format
+template. A test that assembled a fixture path from fragments (`join` of
+separate parts, `concat!`) or took it from the environment would not be found,
+so such a reader should name its path as one literal.
 
 Rust changes select their owning crate and transitive consumers through resolved
 Cargo path dependencies, including dev, build, target and workspace dependencies.
@@ -81,7 +125,7 @@ macOS release sweep remains available for release preparation.
 
 Successful numerical and core-browser results can be reused on PRs. The key
 covers every tracked file available in the sparse product checkout, the runner
-image/architecture, language runtime and selected numerical command set and the plan's classification, reasons and exact manifest identity. Selection is recomputed before execution or reuse. This
+image/architecture, language runtime and selected numerical command set and the plan's classification, reasons and exact manifest identity. The browser key also covers the selected Chromium project and spec list, so a pass without a group's specs is never reused for a run that selects them. Selection is recomputed before execution or reuse. This
 is intentionally conservative: source, fixture, test or workflow changes rerun;
 changes confined to excluded execution records can reuse a pass. Cache restore
 uses an exact key only, and records are saved only after successful execution.

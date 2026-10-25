@@ -947,16 +947,19 @@ fn work_masked_sha256(source:&Value)->String {
 /// `w1_member_combination_*` pins are those pre-repair documents plus W-8's one inserted
 /// `MODEL_TOPOLOGY_DISCONNECTED` warning and the hashes binding it (W-8 topology warning added;
 /// no number moved), so the work-only rule below still holds against them. They bind model 0.6.0
-/// requests; see `as_pre_repair_invocation`.
+/// requests; see `as_pre_repair_invocation`. W-7 (DEL-04-01 `global-end-actions.md`; DEL-04-08 §8.20) adds
+/// each member's twelve not-covered global end rows per case to all eight documents, with the figures
+/// they move (the proof's row capacity, prepared capacity bytes and visits, the adapter counters, the
+/// later rows' projection positions) and the hashes binding them; no pre-W-7 row, class or status moved.
 const PRE_REPAIR_WORK_MASKED:[(&str,&str);8]=[
-    ("w1_member_load_sparse_interactive","700353cf3af9fb5f0d59bb4ad8b6a1cf75b267b335f888d179437c3e5ec1ac98"),
-    ("w1_member_load_dense_scrutiny","61634aab1b957f7568aa9f4d8dc63cc53e7ee75127890b5c564c1378d700ae58"),
-    ("w1_member_values_failure_sparse_interactive","531479e92dcbcb2477ba7632eb0693e2d1bcff0cbc7f2649615165abce6c7673"),
-    ("w1_member_values_failure_dense_scrutiny","4625a177bd1461d94286b177135f4c5318531b057e93f8092c65b6277485c557"),
-    ("w1_member_multi_sparse_interactive","6751379ffa71af39fe63198048258b1681a33f7c4c17c959c3848a2c82e90f58"),
-    ("w1_member_multi_dense_scrutiny","64d96a6f247acc5033b2bc4c27660a60205d54ca81d1907d3102d1abaecb436f"),
-    ("w1_member_combination_sparse_interactive","8eb0da3e51e34b5c98c7f1de1fc7b7bc9c65daeef4cfb9044662d9f74f1ef5ab"),
-    ("w1_member_combination_dense_scrutiny","c219ccddeb54622aadfc9309ae520bdee8cd0fcfc133ca34befc9e8c95c86ef1"),
+    ("w1_member_load_sparse_interactive","9fe8f34a1a092973bdb482f2ba68ce13faca88908eed5256d7f6942c9d8ed67f"),
+    ("w1_member_load_dense_scrutiny","e3a876d7443f5d537bb8484c4ec7b884095837f2fdb36ed446c3bb21130789ad"),
+    ("w1_member_values_failure_sparse_interactive","dbb52d431f2aa98515cb0c3e946c5bd00167fb0cd9a9ed5b4371a79b59fffc51"),
+    ("w1_member_values_failure_dense_scrutiny","e8e0a0ad17ea8195c4455b68a9397765d20d2ac50848aedfdfb6a538d5d15d6e"),
+    ("w1_member_multi_sparse_interactive","ac429de965114d1bcac0e2c89fa75ddb1f72795df17d315b7c56e12992d0ed44"),
+    ("w1_member_multi_dense_scrutiny","616d2aa5e448e6d0309a1d4c76ccda8095ad4140a7a74199a27ea377425db442"),
+    ("w1_member_combination_sparse_interactive","d049d9643d2fbd33b30b84dc3d52cc09d3445e26e9d04cd5fdce6aaeaace35a3"),
+    ("w1_member_combination_dense_scrutiny","e53469fbb12ce5d6ecf51177169fbbd69c56c2fb6a6e87977cddda2e6d43c67b"),
 ];
 /// W1 coverage repair §1.4 and §5: the committed loaded members on the D = 0.2 m
 /// interval-hull section that converged before the repair (axial loads, so the bending

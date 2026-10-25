@@ -23,21 +23,22 @@ const PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         SPARSE,
-        "2527351c49f3c928882dbeda961c0a3e34cb26cbfe00457e7af6d71c6f0bb119",
-        "5d1faa58971f43063cfcd4277ee0f4dab5d6601bb83ec4330f616b767e829136",
+        "cf053309e8048ae013dc5388d1115399ff89cf493eb2e36772500a3c6985a6e5",
+        "bd64548d321575ab27d11b94c2e258b75665e31d7428639b476729164ce57bcc",
     ),
     (
         "dense_scrutiny",
         DENSE,
-        "fd0c430ca4bfae895851c735207d3424d8d5c835a9d2bd5743cf012e577e1eba",
-        "42fba5d63668f917ed23b0e9b88e946a8b0ba7670ddb8580783ae0397e0d2ca5",
+        "f8078ee2c82ba370ab04591af49ed12c48fda5d88a54a75b0725fbdde317d884",
+        "d8b82e5a1e5449bcb06f2d0a76b0f5102d4778e9fef6f72859fffde256f61bec",
     ),
 ];
 /// The milestone's validated class counts (R/I61 experiment 02; RV86 recount):
-/// relative, absolute, input-derived, non-quantity, and (T4-U4b) the 15 derived not-covered rows.
+/// relative, absolute, input-derived, non-quantity, and (T4-U4b) the 15 derived not-covered rows, with
+/// (W-7) the member's 12 not-covered global end rows.
 const CLASSES: [(&str, [u64; 5]); 2] = [
-    ("sparse_interactive", [25, 69, 3, 1, 15]),
-    ("dense_scrutiny", [25, 69, 3, 1, 15]),
+    ("sparse_interactive", [25, 69, 3, 1, 15 + 12]),
+    ("dense_scrutiny", [25, 69, 3, 1, 15 + 12]),
 ];
 
 struct Milestone {
@@ -642,7 +643,7 @@ fn u6a_classification_summary_counts_validated_classes() {
         assert_eq!(json!(s::classification_summary_from(&validation, &m.source, &refs)), current);
         assert_eq!(json!(s::classification_summary_from(&validation, &m.source, &[])), expected);
         assert_eq!(json!(s::classification_summary_from(&validation, &m.source, &other)), expected);
-        // A not_covered row (beyond the milestone's 15 derived ones) is withheld
+        // A not_covered row (beyond the milestone's 15 derived and 12 global end ones) is withheld
         // whether or not the envelope is Current.
         let relative = validation.classifications.iter().position(|c| c.class == rp::AccuracyClass::RelativeVerified).unwrap();
         validation.classifications[relative].class = rp::AccuracyClass::NotCovered;
@@ -811,8 +812,8 @@ fn expected_summary(source: &Value) -> Value {
 
 /// RV94 S-1: on both D-U7-4 forms Rust, given the invocation and the requested
 /// refs, stands `numerically_eligible` and its summary is Current (69 absolute and, since
-/// T4-U4b, 15 not-covered rows withheld: 84); TS's side (needs_recompute, the not-Current
-/// 112) is pinned in TS. With other
+/// T4-U4b, 15 not-covered rows withheld, with W-7's 12 not-covered global end rows: 96); TS's
+/// side (needs_recompute, the not-Current 124) is pinned in TS. With other
 /// requested refs Rust reads `needs_recompute` and the not-Current summary.
 #[test]
 fn u7_d_u7_4_forms_rust_side_standing_and_summary() {
@@ -829,7 +830,7 @@ fn u7_d_u7_4_forms_rust_side_standing_and_summary() {
             assert_eq!(s::numerical_use_standing_with_context(&source, &requested, invocation.as_ref()), "numerically_eligible", "{label}");
             let summary = json!(s::classification_summary(&source, invocation.as_ref(), &requested));
             assert_eq!(summary, expected_summary_with(&source, true), "{label}");
-            assert!(summary[0]["withheld"] == 69 + 15 && summary[0]["absolute_verified"] == 69 && summary[0]["not_covered"] == 15, "{label}");
+            assert!(summary[0]["withheld"] == 69 + 15 + 12 && summary[0]["absolute_verified"] == 69 && summary[0]["not_covered"] == 15 + 12, "{label}");
             assert_eq!(s::numerical_use_standing_with_context(&source, &other, invocation.as_ref()), "needs_recompute");
             let not_current = json!(s::classification_summary(&source, invocation.as_ref(), &other));
             assert!(not_current == expected_summary(&source) && not_current != summary, "{label}");

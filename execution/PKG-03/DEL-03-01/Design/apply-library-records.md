@@ -351,7 +351,13 @@ and §6 authoring.
    - **Checks.** On project load and on library-list refresh, the desktop's
      Rust side reads the store for each `library_ref` in the document and
      compares record digests. This needs the store, so it is not part of the
-     store-free S1b validator.
+     store-free S1b validator. The check applies the model-document save
+     screen's rules (DEL-15-01 `canonical-model-export.md` §2): every
+     `library_ref` at any depth, found by the one webview walk the save
+     screen also uses; kind, library id and record id trimmed as
+     `open_local_library` trims them; and every stored record with a matching
+     trimmed id, never the first. A recorded version that differs from any
+     matching record's digest is a changed version.
    - **Warnings.** A changed digest reports `MODEL-LIBRARY-REF-VERSION-CHANGED`
      (W-13). A missing library or record reports `MODEL-LIBRARY-REF-UNRESOLVED`
      (new). Both are warnings, and the model's values stand.
@@ -604,12 +610,21 @@ Where the code reads the decisions above differently, this is the reading:
   support.
 - **Store warnings.** `check_model_library_refs` (desktop backend) compares
   each reference with the project's store at project open, model-document
-  open and Library Manager list refresh. The warnings are appended to the
+  open and Library Manager list refresh. It shares the save screen's rules
+  (§2.7 Checks): the webview sends every site `libraryRefSites`
+  (`services/libraryImportService.ts`) finds, keyed to the nearest enclosing
+  object's `id`, and the backend normalizes and matches records with the
+  save's own `library_identity` and `matching_library_records`
+  (`src-tauri/src/model_document_save.rs`). The native save's walk is pinned
+  to the webview walk by `fixtures/model_document/library_ref_sites.json`.
+  Where the save screen reads nothing, the check still warns: a reference
+  with no or a blank record id, a blank library id or an unknown kind reads
+  unresolved, as before. The warnings are appended to the
   project message, listed in the Library Manager with "Re-apply from
   library", entered in the diagnostics list as warnings keyed to the entity,
   and shown in that entity's Provenance record section; the Library
   Manager's list uses the same filter. A finding is shown only while the
-  entity still carries the reference it was raised on
+  entity still carries the reference it was raised on, at any depth
   (`features/library/libraryRefFindings.ts`).
 - **Tests of the derived G against the solver.** Besides the sweep against
   a port of the solver's arithmetic, an applier test solves the exact route

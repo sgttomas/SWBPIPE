@@ -21,6 +21,7 @@ tauri-build = { version = "2", features = [] }
 open_pipe_stress_product_physics = { path = "../../../core/product_physics" }
 open_pipe_stress_self_weight_wasm = { path = "../../../core/loads/self_weight_wasm" }
 open_pipe_stress_operation_applier = { path = "../../../core/model_operations/operation_applier" }
+open_pipe_stress_canonical_json = { path = "../../../core/serialization/canonical_json" }
 open_pipe_stress_library_import_document = { path = "../../../core/library_import/library_import_document" }
 open_pipe_stress_report_renderer = { path = "../../../core/reporting/report_renderer" }
 open_pipe_stress_report_package = { path = "../../../core/reporting/report_package" }
@@ -30,6 +31,7 @@ open_pipe_stress_rule_pack_document = { path = "../../../core/rules/rule_pack_do
 open_pipe_stress_rule_check_runner = { path = "../../../core/rules/rule_check_runner" }
 open_pipe_stress_units = { path = "../../../core/units" }
 rusqlite = { version = "0.32", features = ["bundled"] }
+sha2 = "0.10"
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["float_roundtrip"] }
 getrandom = "0.3"

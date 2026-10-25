@@ -1,0 +1,13 @@
+{
+  "artifact": "openpipestress.invented_input_manifest",
+  "fixture_label": "Invented DEL-10-05 report-package witness input manifest; test fixture only, not a desktop session manifest and not engineering input",
+  "manifest_id": "input-manifest:del1005-invented",
+  "model_basis": {
+    "model_ref": "project:precision-connected-fixture",
+    "model_fixture": "fixtures/model_operations/precision_connected_ui_model.json"
+  },
+  "solver_basis": {
+    "solver_name": "open_pipe_stress_product_physics",
+    "solver_mode": "sparse_interactive"
+  }
+}

@@ -99,6 +99,10 @@ UNBOUND_FROZEN_INPUTS = {
 
 # (file, JSON pointer of the document) -> reason. Keep this list short.
 EXPLICIT_EXCLUSIONS: dict[tuple[str, str], str] = {
+    **{("fixtures/comparison/model_state_comparison_golden.json", f"/pairs/{pair}/{side}_entities/0/fields"):
+       "the `model` entity of a state-comparison parity pair: the document's own members as flattened comparison "
+       "fields of invented inputs (DEL-14-01 Design §4.1), not a model document"
+       for pair in range(8) for side in ("left", "right")},
 }
 
 
@@ -479,3 +483,15 @@ def test_applier_model_data_golden_validates_against_the_format():
         document = entry["applied_model"]
         assert document["schema_version"] == CURRENT_VERSION, entry["operation"]
         _validate(root, document, f"{APPLIER_EMISSION_GOLDEN}#/entries/{index}/applied_model")
+
+
+def test_shape_corpus_does_not_silently_enter_the_current_format_population():
+    # Shape-only and deliberate malformed cases must have an explicit reason
+    # in the document population rules; otherwise the format scan treats them
+    # as claims of current-format conformance.
+    rows = [row for row in classify() if row[1] == "fixtures/model_document/desktop_shape_cases.json"]
+    assert rows, "the shared shape corpus must be discovered"
+    schema = format_schema()
+    for bucket, relative, pointer, document in rows:
+        if bucket in {"format", "desktop"}:
+            _validate(schema, document, f"{relative}#{pointer}")

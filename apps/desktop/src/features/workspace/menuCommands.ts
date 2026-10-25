@@ -14,6 +14,8 @@ export type MenuCommandId =
   | "file.open-local"
   | "file.list-local"
   | "file.save-local"
+  | "file.save-model-document"
+  | "file.save-handoff"
   | "file.save-report-package"
   | "edit.undo"
   | "edit.redo"
@@ -51,6 +53,8 @@ const NATIVE_MENU_COMMAND_IDS: ReadonlySet<string> = new Set([
   "file.open-local",
   "file.list-local",
   "file.save-local",
+  "file.save-model-document",
+  "file.save-handoff",
   "file.save-report-package",
   "edit.undo",
   "edit.redo",

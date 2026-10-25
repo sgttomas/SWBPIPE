@@ -18,6 +18,7 @@ pub use case_state::input::{
 };
 pub use case_state::{LOAD_REFERENCE_STATE_CONTRACT, LOAD_STATE_MODEL_VERSION, LOAD_STATE_PROFILE_ID};
 mod model_format;
+mod model_fields;
 pub mod model_settings;
 pub use model_settings::{ModelSettingError, ModelSettings, DEFAULT_NODE_PROXIMITY_TOLERANCE_M};
 pub use model_format::{
@@ -250,7 +251,14 @@ struct MaterialRecordWire<L> {
 /// Wire form of `PreviewModel`; identical fields and defaults, except that each
 /// material record is split into its unchanged `MaterialInput` and its optional
 /// `expansion_laws`, so the new key is never silently discarded.
+///
+/// Closed record (`model_fields`): an undeclared key refuses by name instead of
+/// being dropped. `data_boundary` and `diagnostics`, and model document 0.7.0's
+/// `lines`, `unresolved_assumptions`, `constraints`, `equipment_interfaces` and
+/// `rule_pack_refs`, are declared document members the solve never reads
+/// (accepted and ignored).
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct PreviewModelWire {
     #[serde(default, deserialize_with = "deserialize_present_object")]
     pressure_contract: Option<PressureContractInput>,
@@ -278,6 +286,27 @@ struct PreviewModelWire {
     reference_configurations: Authored<Vec<ReferenceConfigurationInput>>,
     #[serde(default, deserialize_with = "deserialize_present_object")]
     model_settings: Option<ModelSettings>,
+    #[serde(default)]
+    #[allow(dead_code)]
+    data_boundary: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    diagnostics: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    lines: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    unresolved_assumptions: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    constraints: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    equipment_interfaces: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    rule_pack_refs: serde::de::IgnoredAny,
 }
 
 impl<'de> Deserialize<'de> for PreviewModel {
@@ -660,7 +689,11 @@ pub struct FrictionNormalReactionSourceInput {
     pub dof: String,
 }
 
+/// Closed record (`model_fields`). `kind`, `label` and `status`, and model
+/// document 0.7.0's `tags` and `notes`, are declared document members the solve
+/// never reads (accepted and ignored).
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PreviewLoadCase {
     #[serde(default)]
     pub pressure_regions: Option<Vec<PressureRegionInput>>,
@@ -685,7 +718,7 @@ pub struct PreviewLoadCase {
     /// interpolated between the two adjacent user-entered temperature points.
     /// Requests at or outside the stored range edges are blocking;
     /// extrapolation and base-property fallback are never performed.
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub modulus_basis_temperature: Option<Quantity>,
     #[serde(default)]
     pub provenance: Option<String>,
@@ -693,9 +726,20 @@ pub struct PreviewLoadCase {
     /// 0.4.0). It is the complete resolved-state and ordinary-source request.
     #[serde(default)]
     pub analysis_state: Authored<AnalysisStateInput>,
+    #[serde(default)]
+    pub kind: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub label: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub status: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub tags: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub notes: serde::de::IgnoredAny,
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct EquivalentStaticGenerationInput {
     #[serde(default)]
     pub seismic: Option<SeismicGenerationInput>,
@@ -706,6 +750,7 @@ pub struct EquivalentStaticGenerationInput {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct SeismicGenerationInput {
     /// User-entered gravity acceleration; an explicit input, not an
     /// embedded physical-constant default.
@@ -720,6 +765,7 @@ pub struct SeismicGenerationInput {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct WindGenerationInput {
     #[serde(default)]
     pub pressure: Option<Quantity>,
@@ -743,6 +789,7 @@ pub struct WindGenerationInput {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct WindExposedSpanInput {
     /// User-marked pipe id the partial extent applies to.
     #[serde(default)]
@@ -755,7 +802,10 @@ pub struct WindExposedSpanInput {
     pub end_fraction: Option<Quantity>,
 }
 
+/// Closed record (`model_fields`). Model document 0.7.0's `tags` and `notes`
+/// are declared document members the solve never reads (accepted and ignored).
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PreviewCombination {
     pub id: String,
     #[serde(default)]
@@ -777,20 +827,29 @@ pub struct PreviewCombination {
     pub mode: Option<String>,
     #[serde(default)]
     pub provenance: Option<String>,
+    #[serde(default)]
+    pub tags: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub notes: serde::de::IgnoredAny,
 }
 
+/// Closed record (`model_fields`).
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PreviewCombinationTerm {
     pub load_case: String,
     pub factor: f64,
 }
 
+/// Closed record (`model_fields`), including its target and magnitude.
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PreviewPrimitiveLoad {
     pub id: String,
     pub category: String,
     pub target: LoadTargetInput,
     pub direction: String,
+    #[serde(deserialize_with = "model_fields::closed_quantity")]
     pub magnitude: Quantity,
     pub dimension: String,
     #[serde(default)]
@@ -798,7 +857,7 @@ pub struct PreviewPrimitiveLoad {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum LoadTargetInput {
     Node { node: String },
     Element { pipe: String },
@@ -2502,6 +2561,10 @@ fn run_linear_static_preview_value_dispatch(
     solver_mode: PreviewSolverMode,
     retained_entry: Option<(retained_memory::Entry<'_>, RetainedByteLimit)>,
 ) -> Result<RetainedPreviewOutput, String> {
+    // Closed model records: an undeclared key refuses by name before any route.
+    if let Some(refusal) = model_fields::unknown_field_refusal(&actual_request) {
+        return Err(refusal);
+    }
     if let Some(refused) = preview_physics::imposed_displacement_refusal(&actual_request) {
         return refused.map(|envelope| RetainedPreviewOutput { envelope, admission: None, retained: None });
     }
@@ -3025,7 +3088,12 @@ fn run_linear_static_preview_observed_inner(
     let combining = preview.is_some() && !model.combinations.is_empty();
     #[cfg(test)]
     let combining = combining || (l5_tests::former_aggregation() && preview.is_some());
-    for (index, solve) in load_case_solves.into_iter().enumerate() {
+    for (index, mut solve) in load_case_solves.into_iter().enumerate() {
+        // W-7: a source-recovery publication carries no global end rows, on any of its cases
+        // (an ordinary-physics case of the composite included; its receipt rows omit them).
+        if !global_end_rows_published(source_selected) {
+            solve.results.retain(|row| !is_global_end_kind(&row.kind));
+        }
         pressure_evidence.extend(solve.pressure_evidence.iter().cloned());
         load_reference_states.extend(solve.load_state_evidence.clone());
         if let Some(mut evidence) = solve.exact_case_evidence.clone() {
@@ -3185,7 +3253,7 @@ fn run_linear_static_preview_observed_inner(
     };
     if let Some(rendered) = &preview {
         envelope.formulation_basis = preview_physics::formulation_basis();
-        envelope.contract_evidence = Some(rendered.evidence(preview_gates));
+        validation::state_applied_branch_factors(&model.components, &rendered.preview_cases, &mut envelope.diagnostics); envelope.contract_evidence = Some(rendered.evidence(preview_gates));
     }
     // B4/D1 (b): only an exact-route composite is ever selected (`source_eligible`).
     if let (true, Some(context)) = (source_selected, composite_context) {
@@ -5897,6 +5965,9 @@ fn solve_prepared_load_case(
                 Err(error) => recovery_records.push(certified_publication::unavailable_record(&pipe.element_id, formation_bodies.body_of_node(pipe.node_i.index), format!("{error:?}"))),
             }
         }
+        // W-7: the member's rows start here; its global end rows rotate the
+        // local end rows published from this position on.
+        let member_rows_from = results.len();
         append_element_force_results(&mut results, &pipe.element_id, &corrected_local_forces);
         if macro_bend.is_some() {
             for row in results.iter_mut().rev().take(12) {
@@ -6463,6 +6534,32 @@ fn solve_prepared_load_case(
                 certified_effective.as_ref(),
             );
         }
+        // W-7 (DEL-04-01 Design `global-end-actions.md`): the member's global
+        // end rows, rotated from its published local end rows (after any EX
+        // pressure replacement of the axial rows by the wall action).
+        if global_end_rows_published(selected_source.is_some()) && !has_blocking(diagnostics) {
+            let axes = match macro_bend {
+                Some(bend) => curved_bend_end_axes(bend, false)
+                    .and_then(|i| curved_bend_end_axes(bend, true).map(|j| [i, j])),
+                None => pipe
+                    .frame_element()
+                    .map_err(|error| error.to_string())
+                    .and_then(|element| element.orientation().map_err(|error| error.to_string()))
+                    .map(|orientation| [orientation.local_axes; 2]),
+            };
+            let published = axes.and_then(|axes| {
+                append_element_global_end_results(&mut results, member_rows_from, &pipe.element_id, &axes)
+            });
+            if let Err(message) = published {
+                diagnostics.push(diag(
+                    &format!("diagnostic:stress:{}:global-end-actions", stable_suffix(&pipe.element_id)),
+                    "ELEMENT_FORCE_RECOVERY_FAILED",
+                    "blocking",
+                    format!("member {} global end actions are unavailable: {message}", pipe.element_id),
+                    vec![pipe.element_id.clone(), load_case.id.clone()],
+                ));
+            }
+        }
         {
             // T4-U4b (§2.3–§2.6): the station quantities from this member's
             // published rows, then a realized arc's certified maxima. A
@@ -6768,9 +6865,12 @@ fn solve_prepared_load_case(
 }
 
 fn qualify_source_case_rows(model: &PreviewModel, case_id: &str, rows: &[ResultItem]) -> Vec<ResultItem> {
+    // W-7 (`global_end_rows_published`): a source-recovery receipt never binds a global end row;
+    // its publication omits them.
+    let rows: Vec<&ResultItem> = rows.iter().filter(|row| !is_global_end_kind(&row.kind)).collect();
     let is_default = model.load_cases.first().is_some_and(|case| case.id == case_id);
     let ids: HashMap<_, _> = rows.iter().map(|row| (row.id.clone(), if is_default || (pressure_runtime::is_exact(model) && row.kind.ends_with("_v2")) { row.id.clone() } else { qualified_load_case_result_id(case_id, &row.id) })).collect();
-    rows.iter().cloned().map(|mut row| {
+    rows.into_iter().cloned().map(|mut row| {
         row.id = ids[&row.id].clone();
         row.basis_ref = Some(ResultBasisRef { ref_type: "load_case".into(), ref_id: case_id.into() });
         for reference in &mut row.source_result_refs {
@@ -12214,6 +12314,125 @@ fn append_element_force_results(
     }
 }
 
+/// W-7 (DEL-04-01 Design `global-end-actions.md`): member end actions in
+/// global coordinates, `F = R^T f` and `M = R^T m` per end from the member's
+/// published element-local end rows.
+pub(crate) const GLOBAL_END_FORCE_KIND: &str = "element_global_end_force_v1";
+pub(crate) const GLOBAL_END_MOMENT_KIND: &str = "element_global_end_moment_v1";
+pub(crate) const GLOBAL_END_BASIS: &str = "rotated_from_published_element_local_end_actions_v1";
+pub(crate) const GLOBAL_END_WALL_BASIS: &str =
+    "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action";
+pub(crate) const GLOBAL_END_SIGN: &str = "global end action on the element at its node (node on element), F = R\u{1d40} f; the element acts on its node with \u{2212}F";
+
+/// W-7 named exemption (Design `global-end-actions.md`, Consumers): a
+/// source-recovery publication (an EX invocation with a source-selected case)
+/// does not carry the global end rows, on any of its cases: a selected case
+/// does not form them, the case receipts never bind them
+/// (`qualify_source_case_rows`) and the composite's other cases drop them at
+/// assembly. Every other publication carries them. A retained (W1) successor
+/// carries them as named not-covered rows (`GLOBAL_END_ROWS_NOT_COVERED` in
+/// `retained_product`).
+pub(crate) fn global_end_rows_published(source_selected: bool) -> bool {
+    !source_selected
+}
+
+/// Whether `kind` is one of the W-7 global end row kinds.
+pub(crate) fn is_global_end_kind(kind: &str) -> bool {
+    kind == GLOBAL_END_FORCE_KIND || kind == GLOBAL_END_MOMENT_KIND
+}
+
+/// Appends the twelve global end rows of `pipe_id` from its element-local end
+/// rows published in `results[from..]`. `axes[e]` holds end e's local axes
+/// (rows: local x, y, z in global coordinates). On an EX pressure member the
+/// axial component is the published `pipe_wall_endpoint_action_v2` (the local
+/// axial rows are removed there); shear and moment components are always the
+/// published local rows. Values are rotated as published (no sign change).
+fn append_element_global_end_results(
+    results: &mut Vec<ResultItem>,
+    from: usize,
+    pipe_id: &str,
+    axes: &[[[f64; 3]; 3]; 2],
+) -> Result<(), String> {
+    const LOCAL: [&str; 6] = [
+        "element_local_axial_force",
+        "element_local_shear_force_y",
+        "element_local_shear_force_z",
+        "element_local_torsional_moment",
+        "element_local_bending_moment_y",
+        "element_local_bending_moment_z",
+    ];
+    let mut local = [[None::<f64>; 6]; 2];
+    let mut wall = [false; 2];
+    for row in results.get(from..).unwrap_or(&[]) {
+        if row.entity_ref != pipe_id {
+            continue;
+        }
+        let Some(metadata) = row.metadata.as_ref() else { continue };
+        if metadata.coordinate_system != "element_local" {
+            continue;
+        }
+        let end = match metadata.location.as_str() {
+            "end_i" => 0,
+            "end_j" => 1,
+            _ => continue,
+        };
+        let component = if row.kind == "pipe_wall_endpoint_action_v2" {
+            wall[end] = true;
+            0
+        } else if let Some(component) = LOCAL.iter().position(|kind| *kind == row.kind) {
+            component
+        } else {
+            continue;
+        };
+        if local[end][component].replace(row.value).is_some() {
+            return Err(format!("duplicate published {} row at {}", row.kind, metadata.location));
+        }
+    }
+    if wall[0] != wall[1] {
+        return Err("the wall end action is published at one end only".into());
+    }
+    let suffix = stable_suffix(pipe_id);
+    for (end, location) in ["end_i", "end_j"].into_iter().enumerate() {
+        let mut values = [0.0; 6];
+        for (component, value) in local[end].iter().enumerate() {
+            values[component] = value.ok_or_else(|| format!("published {} row missing at {location}", LOCAL[component]))?;
+        }
+        let r = &axes[end];
+        for (block, (kind, unit, names)) in [
+            (GLOBAL_END_FORCE_KIND, "N", ["Fx", "Fy", "Fz"]),
+            (GLOBAL_END_MOMENT_KIND, "N*m", ["Mx", "My", "Mz"]),
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            let f = &values[3 * block..3 * block + 3];
+            for (k, name) in names.into_iter().enumerate() {
+                let value = r[0][k] * f[0] + r[1][k] * f[1] + r[2][k] * f[2];
+                if !value.is_finite() {
+                    return Err(format!("{name} at {location} is not finite"));
+                }
+                results.push(ResultItem {
+                    id: format!("result:element-global-end:{suffix}:{location}:{}", name.to_ascii_lowercase()),
+                    kind: kind.to_string(),
+                    value,
+                    unit: unit.to_string(),
+                    entity_ref: pipe_id.to_string(),
+                    basis_ref: None,
+                    source_result_refs: Vec::new(),
+                    metadata: Some(ResultMetadata {
+                        component: name.to_string(),
+                        coordinate_system: "global".to_string(),
+                        location: location.to_string(),
+                        basis: if wall[end] { GLOBAL_END_WALL_BASIS } else { GLOBAL_END_BASIS }.to_string(),
+                        sign_convention: GLOBAL_END_SIGN.to_string(),
+                    }),
+                });
+            }
+        }
+    }
+    Ok(())
+}
+
 fn append_node_displacement_component_results(
     results: &mut Vec<ResultItem>,
     node_id: &str,
@@ -15098,7 +15317,7 @@ mod tests {
             assert!(output.diagnostics[index+1].message.contains("standing remains NUMERICAL_INTEGRITY_SENSITIVE"));
             let message=&output.diagnostics[index+1].message;
             let force_bound:f64=message.split("bounded by ").nth(1).unwrap().split(" N").next().unwrap().parse().unwrap();
-            let moment_bound:f64=message.split("every moment row by ").nth(1).unwrap().split(" N*m").next().unwrap().parse().unwrap();
+            let moment_bound:f64=message.split("support moment row by ").nth(1).unwrap().split(" N*m").next().unwrap().parse().unwrap();
             assert!(force_bound>=oracle["force_norm_upper_n"].as_f64().unwrap(),"notice X must contain the independently solved intended force groups");
             assert!(moment_bound>=oracle["moment_norm_upper_nm"].as_f64().unwrap(),"notice Y must contain the tiny nonzero intended moments, not merely published noise");
             for row in &output.results {
@@ -17406,6 +17625,8 @@ mod tests {
             operand_ids: None,
             mode: None,
             provenance: Some("invented_example_no_code_combination".to_string()),
+            tags: Default::default(),
+            notes: Default::default(),
         }];
         request
     }
@@ -21470,6 +21691,8 @@ mod tests {
             operand_ids: None,
             mode: None,
             provenance: Some("invented_example_user_defined_combination".to_string()),
+            tags: Default::default(),
+            notes: Default::default(),
         });
         request.model.combinations.push(PreviewCombination {
             id: "combination:C-OWNER".to_string(),
@@ -21481,6 +21704,8 @@ mod tests {
             operand_ids: None,
             mode: None,
             provenance: Some("invented_example_user_defined_combination".to_string()),
+            tags: Default::default(),
+            notes: Default::default(),
         });
 
         let result = run_linear_static_preview(request);
@@ -21512,6 +21737,8 @@ mod tests {
             provenance: Some(
                 "invented_example_user_defined_subtraction_no_code_default".to_string(),
             ),
+            tags: Default::default(),
+            notes: Default::default(),
         }
     }
 
@@ -21528,6 +21755,8 @@ mod tests {
             provenance: Some(
                 "invented_example_user_defined_range_envelope_no_code_default".to_string(),
             ),
+            tags: Default::default(),
+            notes: Default::default(),
         }
     }
 

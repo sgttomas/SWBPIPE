@@ -270,7 +270,32 @@ coordinates, element edges, a second Bodies, the part map and sets, the cell gri
 at most n-1 entries and at most six named pairs per warning) and validation's node-degree map (W8-ND, <= 2m ids). `rules/o10_rules.py` prices the warnings'
 texts (W8-L1/L2, W8-NI, W8-ID, W8-JN, W8-RF, W8-CG) and guards the branch-topology warning at multiplicity 0 (W8-BT);
 `lib/sq2_rules.py` places the `O10_REFS_FIRST` affected-refs rules before the inherited ones. A snapshot without
-topology.rs adds nothing; a changed or partly present owner stops the run. See the governing rules' §8.16.
+topology.rs adds nothing; a changed or partly present owner stops the run. See the governing rules' §8.16. The absolute
+node-proximity tolerance (§8.18) adds W8-BF (the branch warning's statement of the published factor sides, added after publication over the model's
+components, at multiplicity 0 by W8-BT's premise) and NP-MS
+and NP-PT (validation's refusal of a malformed `model_settings.node_proximity_tolerance` and the accessor's texts).
+
+### Silent-drop guard actual-source owners
+
+`base/sd_owners_model.py` binds, by their exact statements in their functions, the owners the pressure-free input
+closure adds outside the TEXT inventory and prices them positively in `ordinary_caps.py`: SD-WH (the combination
+callee's withheld names, the warning's cloned list and a support group's rows, route L with combinations), SD-HS
+(validation's duplicate-term set) and SD-PB (the closed-record scan's probe error). `rules/o10_rules.py` zeroes the
+scan's finding and refusal sites by its place before admission (SD-NF, guarded), bounds its loops (SD-L1) and texts
+(SD-ID, SD-WT, SD-DT) and the duplicate loops (SD-DL) and removes one by-name false edge (SD-EV); `rules/sq2_decisions_common.py` re-keys two replaced
+combination audit keys by name (SD-RK). A snapshot without the guard adds nothing. See the governing rules' §8.19.
+
+### W-7 global end rows actual-source owners
+
+`base/w7_owners_model.py` binds, by their exact statements in their functions, the owners W-7's member end actions in
+global coordinates add outside the TEXT inventory and prices them positively: W7-NC (`prepared_not_covered`'s per-member
+end-action table, `producer_caps.py` T14.7, per attempted result set), W7-QF (`qualify_source_case_rows`' filtered
+references, `ordinary_caps.py`) and W7-RD (the readers' coverage maps, `g4_caps.py` T17 V5, with four BTree node atoms
+bound in `g5_profile.py`). The rows themselves are inside P_final: route L takes `FAILED_MEMBER_ROWS` = 78 (W7-RL) and route
+E the census's 102 plus the twelve global end rows its pressure-source-1 fixtures omit (W7-RP, `lib/census_patch.py`).
+`rules/o10_rules.py` bounds the new loops (W7-L1) and texts (W7-ID), zeroes one `Option::replace` site (W7-RZ) and re-keys
+the stress-free notice's audit by its new text (W7-SF). A snapshot without W-7 adds nothing; a partly present or changed
+owner stops the run. See the governing rules' §8.20.
 
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and

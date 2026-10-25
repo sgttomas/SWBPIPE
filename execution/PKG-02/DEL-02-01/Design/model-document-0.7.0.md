@@ -35,8 +35,10 @@ unchanged: no new slot renames or re-keys an entity.
   document, version 0.6.0.
 - **Rust decoding.** `PreviewModel` (`core/product_physics/src/lib.rs:209`,
   wire form `:249`) decodes it.
-  - The top level and the node, pipe, support, material and component records
-    ignore unknown keys.
+  - The node, pipe, support, material and component records ignore unknown
+    keys. The top level, load cases, primitive loads and combinations did too
+    at this design's basis; they are closed since the silent-drop guard (§2,
+    "Strict solve inputs").
   - The load/reference-state group (`case_state/input.rs:1-77`) and the pressure
     contract (`pressure_runtime.rs:57,65,79`) are `deny_unknown_fields`.
   - Section `provenance` is a `serde_json::Value` (`lib.rs:402`), so it may be a
@@ -308,7 +310,12 @@ third vocabulary:
 - **UI.** References are added and removed from the Rule Pack Manager ("Use with
   this model"). A reference whose pack is no longer in the local store reports
   `MODEL-RULE-PACK-REF-UNRESOLVED` (warning). A reference never makes a check
-  pass.
+  pass. At solve, the session resolves each reference against the local store
+  for the run's input manifest: a matching pack enters `active_rule_packs`, and
+  an unresolved or changed one is excluded and recorded as a diagnostic of the
+  run's analysis record, `MODEL-RULE-PACK-REF-UNRESOLVED` or
+  `MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH` (warnings, W-12; DEL-14-01 Design
+  `desktop-states-runs-comparison.md` §3).
 
 ### 3.5 Structured provenance (FR-MOD-005, PRD §20.2)
 
@@ -468,9 +475,33 @@ never block deletion, and a missing entity is reported as a warning.
   (`model_settings.rs`, a closed `ModelSettings`) and exposes the effective
   tolerance in metres (`PreviewModel::node_proximity_tolerance_m`). The
   topology check (DEL-04-06 Design `model-topology-checks.md`) reads it through
-  that accessor; until it does, nothing changes behaviour. The desktop editing
-  control comes with the S2 authoring surface; the desktop already round-trips
-  the whole document.
+  that accessor, and the solve refuses a malformed value with the accessor's
+  code before the check runs (`validation::validate_model_settings`).
+- **Authoring (as built).** The applier's `set_model_setting` and
+  `clear_model_setting` (`model_settings_authoring.rs`) target the `Project`
+  singleton (`ref` the document's `project.id`) with `field_path`
+  `model_settings.node_proximity_tolerance`; `before` is the member's canonical
+  JSON or `not_present`.
+  - Set carries the entered number text as `after`, its unit as `unit` and
+    dimension `length`. It writes `{value, unit}` and creates `model_settings`
+    when absent. Value and unit are judged by the accessor above, so a refusal
+    has the accessor's code and message, which the validator also gives.
+  - Clear carries `after` `not_present`, unit `none`, dimension
+    `dimensionless`. It removes the member, and removes `model_settings` when
+    that leaves it empty. Clearing an absent setting, or setting the stored
+    value again, is `OP-MODEL-SETTING-UNCHANGED`.
+  - Each operation's inverse is the other one at the member: the inverse of a
+    set restores the prior member or its absence. The inverse cannot restore
+    an authored empty `model_settings: {}` that a set-then-clear removed. The
+    desktop undoes through its session checkpoint, which restores the exact
+    prior document and model hash, including an authored empty record
+    (`modelSettingsCheckpoint.test.tsx`).
+  - **Desktop.** The Project page of the property inspector has a Model
+    settings section (`features/model-settings/ModelSettingsSection.tsx`). It
+    shows the effective value ("5 mm (default)" while unset), takes a value in
+    a catalog length unit (the project's length unit first), and offers Reset
+    to default. Each edit is checked validate-only by the operation engine and
+    then queued for review and apply; a refusal stays in the section by name.
 
 ## 4. The schema
 
@@ -682,7 +713,10 @@ sentinel (`lib.rs:250-253`) is not used for these slots.
   the project.
 - Materials, sections, components and supports get a Provenance record section.
 - The model tree gets a Lines section: create a line from the selected pipes,
-  rename it, remove it.
+  rename it, remove it. The section belongs to the model tree's Tree layout,
+  below the tree rows (`ModelTree`'s `treeRecords`). The Grid layout owns the
+  whole height-bounded table host, so the section stays mounted there, with
+  its drafts, but is hidden and inert.
 - An Assumptions and open issues panel lets the user add, edit, resolve and
   reject, and filter by status and subject.
 - A Constraints and interfaces list lets the user add and edit records only;
@@ -722,7 +756,9 @@ the text above, the code's reading within this section's intent is:
 - **Desktop.** Edits queue structured operations for review and apply. The
   model-data records live in the operations area's Model records tab.
   `MODEL-RULE-PACK-REF-UNRESOLVED` is shown in the Rule Pack Manager after a
-  list refresh, not in the diagnostics list. Save Local Project and the
+  list refresh, not in the diagnostics list. It and
+  `MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH` are also shown with a solve, the
+  Record Run form and a recorded run's check (W-12). Save Local Project and the
   browser-preview store refuse a document with a blocking finding, and the
   browser-preview store also refuses, by name, when the wasm engine holding
   the validator is absent; the diagnostics list then says the slots were not

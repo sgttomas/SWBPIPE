@@ -505,6 +505,8 @@ fn demo_rule_pack_safe_metadata_and_local_private_context_pass_the_lint_gates() 
     let mut input = fixture_input();
     let rule_pack = &mut input.calculation_report.rule_pack_refs[0];
     rule_pack.rule_pack_id = "invented_demo_rule_pack".to_string();
+    // The checksum names the pack it is attached to (checksum subjects).
+    rule_pack.checksum.payload_ref.ref_id = "invented_demo_rule_pack".to_string();
     rule_pack.version = "0.2.0".to_string();
     rule_pack.source_notice = "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance.".to_string();
     rule_pack.completeness_status = "incomplete".to_string();

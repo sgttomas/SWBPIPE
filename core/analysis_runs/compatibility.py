@@ -14,7 +14,8 @@ from __future__ import annotations
 from copy import deepcopy
 from pathlib import Path
 import json
-from typing import Any, Callable, Mapping
+import re
+from typing import Any, Callable, Mapping, Sequence
 
 from core.serialization.canonical_json.adapter import canonical_json_checked_v1, canonical_sha256_checked_v1
 from . import rust_reader
@@ -80,6 +81,127 @@ def analysis_record_projection(envelope: Mapping[str, Any]) -> dict[str, Any]:
     return projected
 
 
+# Rule-pack reference diagnostics (FR-CMP-002; DEL-14-01 Design
+# `desktop-states-runs-comparison.md` section 3). The desktop solve resolves the model's
+# `rule_pack_refs` against the local rule-pack store; a reference left out of the input
+# manifest's `active_rule_packs` is recorded as a diagnostic of the run record, after the
+# producer's, under the record hash. Mirror of `rulePackRefDiagnostics.ts`: identical bytes.
+RULE_PACK_REF_UNRESOLVED = "MODEL-RULE-PACK-REF-UNRESOLVED"
+RULE_PACK_REF_CHECKSUM_MISMATCH = "MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH"
+RULE_PACK_REF_DIAGNOSTIC_SOURCE = "desktop/solve-rule-pack-resolution"
+ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH = "ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH"
+# A run recorded before rule-pack resolution (S2, #1596): the model has references, the
+# manifest's active_rule_packs is empty and the record names no exclusion. Refused by name, not
+# read leniently, so the user knows to re-record it (as Rust and the TypeScript refuse it).
+ANALYSIS_RUN_RULE_PACKS_NOT_RESOLVED = "ANALYSIS-RUN-RULE-PACKS-NOT-RESOLVED"
+_RULE_PACKS_NOT_RESOLVED_REFUSAL = f"{ANALYSIS_RUN_RULE_PACKS_NOT_RESOLVED}: recorded before rule-pack resolution; re-record this run"
+
+
+def _rule_pack_diagnostics_refusal(identities: list[str], input_manifest: Mapping[str, Any]) -> str | None:
+    """The refusal for record rule-pack diagnostics naming `identities` against the manifest's
+    exclusions, or None when they agree (`rulePackDiagnosticsRefusal` in the TypeScript)."""
+    excluded = manifest_excluded_rule_pack_identities(input_manifest)
+    if identities == excluded:
+        return None
+    none_resolved = input_manifest.get("active_rule_packs") == []
+    return _RULE_PACKS_NOT_RESOLVED_REFUSAL if not identities and excluded and none_resolved else ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH
+_RULE_PACK_REF_CODES = (RULE_PACK_REF_UNRESOLVED, RULE_PACK_REF_CHECKSUM_MISMATCH)
+_MESSAGE_IDENTITY_LIMIT = 160
+
+
+def _identity_component(component: str) -> str:
+    return component.replace("%", "%25").replace("@", "%40")
+
+
+def rule_pack_identity(rule_pack_id: str, version: str) -> str:
+    """`<rule_pack_id>@<version>`, as the recorded revision's `rule_pack_refs` and the rule-pack
+    reference diagnostics name a pack: each component with `%` (as `%25`) and then `@` (as `%40`)
+    percent-encoded, so distinct (id, version) pairs never share a string. An id and version
+    without `%` or `@` are unchanged. Mirrors `rulePackIdentity` (TS) and Rust's `rule_pack_identity`."""
+    return f"{_identity_component(rule_pack_id)}@{_identity_component(version)}"
+
+
+def parse_rule_pack_identity(identity: str) -> tuple[str, str] | None:
+    """The (id, version) pair an identity names, or None when the text is not an identity."""
+    parts = identity.split("@")
+    if len(parts) != 2 or any(re.search(r"%(?!25|40)", part) for part in parts):
+        return None
+    decoded = [re.sub(r"%40|%25", lambda match: "@" if match.group() == "%40" else "%", part) for part in parts]
+    if rule_pack_identity(decoded[0], decoded[1]) != identity:
+        return None
+    return decoded[0], decoded[1]
+
+
+def rule_pack_ref_diagnostic(code: str, identity: str) -> dict[str, Any]:
+    """The diagnostic for an excluded reference, determined by its code and identity alone
+    (the producer's diagnostic shape). The message shows at most 160 code points of the identity."""
+    shown = identity if len(identity) <= _MESSAGE_IDENTITY_LIMIT else identity[:_MESSAGE_IDENTITY_LIMIT] + "\u2026"
+    reason = ("the stored pack's checksum was not the reference's at solve time" if code == RULE_PACK_REF_CHECKSUM_MISMATCH
+              else "the local rule-pack store held no such pack for this project at solve time")
+    return {
+        "id": f"diagnostic:rule-pack-ref:{identity}",
+        "code": code,
+        "severity": "warning",
+        "message": f"Rule pack {shown} is referenced by the model, but {reason}; it is not among this run's rule-pack references.",
+        "source": RULE_PACK_REF_DIAGNOSTIC_SOURCE,
+        "affected_refs": [identity],
+    }
+
+
+def rule_pack_ref_diagnostic_entries(diagnostics: Sequence[Any]) -> list[tuple[str, str]] | None:
+    """The (code, identity) pairs of a record's appended rule-pack reference diagnostics, or
+    None when any is not exactly such a diagnostic or an identity repeats."""
+    entries: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for item in diagnostics:
+        if not isinstance(item, Mapping) or set(item) != {"source_annotation"} or not isinstance(item["source_annotation"], Mapping):
+            return None
+        annotation = item["source_annotation"]
+        code, refs = annotation.get("code"), annotation.get("affected_refs")
+        if code not in _RULE_PACK_REF_CODES or not isinstance(refs, list) or len(refs) != 1 or not isinstance(refs[0], str) or not refs[0]:
+            return None
+        identity = refs[0]
+        if parse_rule_pack_identity(identity) is None or identity in seen or dict(annotation) != rule_pack_ref_diagnostic(code, identity):
+            return None
+        seen.add(identity)
+        entries.append((code, identity))
+    return entries
+
+
+def manifest_excluded_rule_pack_identities(input_manifest: Mapping[str, Any]) -> list[str]:
+    """The identities of the model's references the manifest's `active_rule_packs` leaves
+    out, in the model's order: what a record's rule-pack diagnostics must name."""
+    return [rule_pack_identity(rule_pack_id, version) for rule_pack_id, version in manifest_excluded_rule_packs(input_manifest)]
+
+
+def manifest_excluded_rule_packs(input_manifest: Mapping[str, Any]) -> list[tuple[str, str]]:
+    """The model's references the manifest's `active_rule_packs` leaves out, as (id, version)
+    pairs in the model's order."""
+    # As Rust's `manifest_excluded_rule_packs` and the TypeScript: a list of packs and
+    # references with text ids and versions is required.
+    def pair(item: Any, version_key: str, what: str) -> tuple[str, str]:
+        rule_pack_id = item.get("rule_pack_id") if isinstance(item, Mapping) else None
+        version = item.get(version_key) if isinstance(item, Mapping) else None
+        if not isinstance(rule_pack_id, str) or not isinstance(version, str):
+            raise ValueError(f"ANALYSIS-RUN-MANIFEST-INVALID: {what} has no id or version.")
+        return rule_pack_id, version
+    # A model without references excludes nothing, whatever the manifest holds.
+    payload = input_manifest.get("model_basis", {}).get("model_payload", {})
+    if not isinstance(payload, Mapping) or "rule_pack_refs" not in payload:
+        return []
+    references = payload["rule_pack_refs"]
+    if not isinstance(references, list):
+        raise ValueError("ANALYSIS-RUN-MANIFEST-INVALID: the model's rule_pack_refs is not a list.")
+    if not references:
+        return []
+    packs = input_manifest.get("active_rule_packs")
+    if not isinstance(packs, list):
+        raise ValueError("ANALYSIS-RUN-MANIFEST-INVALID: the input manifest has no active_rule_packs list.")
+    active = [pair(pack, "version", "an active rule pack") for pack in packs]
+    pairs = [pair(reference, "rule_pack_version", "a model rule-pack reference") for reference in references]
+    return [item for item in pairs if item not in active]
+
+
 def _build_analysis_run(
     mechanics_result: Mapping[str, Any], *, input_manifest_ref: Mapping[str, str], input_manifest_hash: str,
     input_manifest: Mapping[str, Any] | None = None,
@@ -88,6 +210,7 @@ def _build_analysis_run(
     solver_name: str = "unavailable:not-supplied", solver_version: str = "unavailable:not-supplied",
     solver_build_ref: Mapping[str, str] | None = None, settings_ref: Mapping[str, str] | None = None,
     unit_system_ref: Mapping[str, str] | None = None,
+    rule_pack_ref_exclusions: Sequence[Mapping[str, str]] = (),
 ) -> dict[str, Any]:
     received = deepcopy(dict(mechanics_result))
     contract_id, contract_hash, contract_path = _source_contract(received)
@@ -122,6 +245,11 @@ def _build_analysis_run(
     manifest = deepcopy(dict(input_manifest)) if input_manifest is not None else None
     if manifest is not None and manifest.get("model_basis", {}).get("model_ref") != received.get("model_ref"):
         raise ValueError("ANALYSIS-RUN-INPUT-MANIFEST-MODEL-MISMATCH")
+    rule_pack_diagnostics = [{"source_annotation": rule_pack_ref_diagnostic(item["code"], rule_pack_identity(item["rule_pack_id"], item["rule_pack_version"]))}
+                             for item in rule_pack_ref_exclusions]
+    built_refusal = _rule_pack_diagnostics_refusal([item["source_annotation"]["affected_refs"][0] for item in rule_pack_diagnostics], manifest) if manifest is not None else None
+    if built_refusal:
+        raise ValueError(built_refusal)
     solver_basis = manifest.get("solver_basis", {}) if manifest is not None else {}
     solver_name = str(solver_basis.get("solver_name", solver_name))
     solver_version = str(solver_basis.get("solver_version", solver_version))
@@ -152,10 +280,10 @@ def _build_analysis_run(
         "run_contract_status": {"record_contract": "strict_analysis_run_v0_3", "result_binding": "received_mechanics_result", "external_validation_boundary": "reference_only_not_determined_by_software"},
         "analysis_run": {
             "run_id": run_id, "run_name": f"{run_id} analysis record", "run_kind": "mechanics_solve", "created_at": created_at,
-            "model_state_ref": {"object_type": "ModelState", "ref": f"state:{received.get('model_ref', 'unknown')}:preview"},
+            "model_state_ref": transient_model_state_ref(received.get('model_ref', 'unknown')),
             "solver_version": {"solver_name": solver_name, "solver_version": solver_version, "build_ref": deepcopy(dict(solver_build_ref or {"object_type": "ExternalReference", "ref": "unavailable:solver-build-not-supplied"}))},
             "settings_ref": deepcopy(dict(settings_ref or {"object_type": "SolverSettings", "ref": "unavailable:solver-settings-not-supplied"})), "unit_system_ref": deepcopy(dict(unit_system_ref or {"object_type": "UnitSystem", "ref": "unavailable:unit-system-not-supplied"})),
-            "load_basis_refs": load_basis_refs, "diagnostics": [{"source_annotation": deepcopy(item)} for item in received.get("diagnostics", [])], "result_refs": refs, "rule_pack_refs": [], "library_refs": [],
+            "load_basis_refs": load_basis_refs, "diagnostics": [{"source_annotation": deepcopy(item)} for item in received.get("diagnostics", [])] + rule_pack_diagnostics, "result_refs": refs, "rule_pack_refs": [], "library_refs": [],
             "hashes": [_checksum("received_result", received_ref, received, hash_fn)], "analysis_status": sorted(statuses),
             "reproducibility": {"input_manifest_refs": [deepcopy(dict(input_manifest_ref))], "input_manifest_hashes": [{"algorithm": "sha256", "canonicalization": "rfc8785_jcs", "payload_ref": deepcopy(dict(input_manifest_ref)), "payload_scope": "input_manifest", "value": input_manifest_hash}], "semantic_contract": {"id": contract_id, "sha256": contract_hash}, "determinism_notes": determinism_notes, "unresolved_tbd": []},
             "immutability_policy": {"run_record_is_read_only": True, "mutation_policy": "changes_create_new_immutable_record_revision", "new_mechanics_run_required_for_record_revision": False, "record_revision_identity": "analysis_run_record_sha256", "hash_invalidates_external_acceptance": True},
@@ -171,6 +299,167 @@ def _build_analysis_run(
         envelope["analysis_run"]["retained_precision"] = deepcopy(received["retained_precision"])
     envelope["analysis_run"]["hashes"].insert(0, _checksum("analysis_run_record", run_ref, analysis_record_projection(envelope), hash_fn))
     return envelope
+
+
+# W-12 S2 (DEL-14-01 Design `desktop-states-runs-comparison.md` section 3): a recorded
+# revision. The desktop store's Record Run (`apps/desktop/src-tauri/src/analysis_runs.rs`)
+# writes a new immutable revision of a solve's transient record, tied to a saved model
+# state; `recorded_revision` mirrors it and the TypeScript `recordedAnalysisRunRevision`,
+# and the parity tests check all three against the store's committed witness.
+CREATED_AT_UNAVAILABLE = "created_at_unavailable"
+
+
+def transient_model_state_ref(model_ref: Any) -> dict[str, str]:
+    """A transient record's synthetic state ref, `state:<model ref>:preview`."""
+    return {"object_type": "ModelState", "ref": f"state:{model_ref}:preview"}
+
+
+def recorded_rule_pack_refs(input_manifest: Mapping[str, Any]) -> list[dict[str, str]]:
+    """The input manifest's `active_rule_packs` (what the solve used), in its order."""
+    packs = input_manifest.get("active_rule_packs")
+    if not isinstance(packs, list):
+        raise ValueError("ANALYSIS-RUN-MANIFEST-INVALID: the input manifest has no active_rule_packs list.")
+    refs = []
+    for pack in packs:
+        rule_pack_id = pack.get("rule_pack_id") if isinstance(pack, Mapping) else None
+        version = pack.get("version") if isinstance(pack, Mapping) else None
+        if not isinstance(rule_pack_id, str) or not rule_pack_id or not isinstance(version, str) or not version:
+            raise ValueError("ANALYSIS-RUN-MANIFEST-INVALID: an active rule pack has no id or version.")
+        refs.append({"object_type": "RulePack", "ref": rule_pack_identity(rule_pack_id, version)})
+    return refs
+
+
+# Unicode White_Space, the set Rust's `str::trim` strips (and `trimLikeRust` in the
+# webview). Python's `str.strip()` also strips U+001C..U+001F, which are not White_Space.
+_RUST_WHITE_SPACE = "\u0009\u000a\u000b\u000c\u000d\u0020\u0085\u00a0\u1680" + "".join(
+    chr(point) for point in range(0x2000, 0x200B)) + "\u2028\u2029\u202f\u205f\u3000"
+
+
+def _library_identity(value: Any) -> str | None:
+    """A `library_ref` identity member as the native walk normalizes it
+    (`library_ref_identity`): Rust's trim, and nothing when blank or not text."""
+    if not isinstance(value, str):
+        return None
+    return value.strip(_RUST_WHITE_SPACE) or None
+
+
+def library_ref_sites(document: Any) -> list[tuple[str, Mapping[str, Any]]]:
+    """Every `library_ref` object of a model document at any depth, with its path: the
+    one walk (`libraryRefSites`, `model_document_save::library_ref_sites`), pinned to
+    `fixtures/model_document/library_ref_sites.json`."""
+    sites: list[tuple[str, Mapping[str, Any]]] = []
+
+    def walk(value: Any, path: str) -> None:
+        if isinstance(value, list):
+            for index, item in enumerate(value):
+                walk(item, f"{path}[{index}]")
+        elif isinstance(value, Mapping):
+            for key, child in value.items():
+                at = f"{path}.{key}" if path else key
+                if key == "library_ref" and isinstance(child, Mapping):
+                    sites.append((at, child))
+                walk(child, at)
+
+    walk(document, "")
+    return sites
+
+
+def recorded_library_refs(model_payload: Any) -> list[dict[str, str]]:
+    """The recorded revision's `library_refs`: every `library_ref` site of the solved
+    model that the one walk finds, its identity normalized as the native walk does
+    (Rust's White_Space trim), `library_version` verbatim when it is text. A site whose
+    kind or id is blank or not text is omitted. Once each, in code-point order, as
+    `library:<kind>/<id>[@<version>][#<record id>]`."""
+    found: set[str] = set()
+    for _, ref in library_ref_sites(model_payload):
+        kind, library_id = _library_identity(ref.get("library_kind")), _library_identity(ref.get("library_id"))
+        if kind is None or library_id is None:
+            continue
+        text = f"library:{kind}/{library_id}"
+        if isinstance(ref.get("library_version"), str):
+            text += f"@{ref['library_version']}"
+        record_id = _library_identity(ref.get("record_id"))
+        if record_id is not None:
+            text += f"#{record_id}"
+        found.add(text)
+    return [{"object_type": "Library", "ref": text} for text in sorted(found)]
+
+
+def recorded_revision(transient: Mapping[str, Any], *, state_id: str, created_at: str, input_manifest: Mapping[str, Any],
+                      hash_fn: Callable[[Any], str] = canonical_sha256_checked_v1) -> dict[str, Any]:
+    """The recorded revision of a transient record: `created_at`, the stored state's ref,
+    the manifest's rule packs and the solved model's library references, the
+    `created_at_unavailable` note dropped and the record hash recomputed. The received-result
+    checksum and every other member are unchanged."""
+    record = deepcopy(dict(transient))
+    run = record["analysis_run"]
+    run["created_at"] = created_at
+    run["model_state_ref"] = {"object_type": "ModelState", "ref": state_id}
+    run["rule_pack_refs"] = recorded_rule_pack_refs(input_manifest)
+    run["library_refs"] = recorded_library_refs(input_manifest["model_basis"]["model_payload"])
+    notes = run.get("reproducibility", {}).get("determinism_notes")
+    if isinstance(notes, list):
+        run["reproducibility"]["determinism_notes"] = [note for note in notes if note != CREATED_AT_UNAVAILABLE]
+    claims = [row for row in run["hashes"] if row.get("payload_scope") == "analysis_run_record"]
+    if len(claims) != 1:
+        raise ValueError("ANALYSIS-RUN-RECORD-INVALID: the record has no single analysis_run_record checksum.")
+    claims[0]["value"] = hash_fn(analysis_record_projection(record))
+    return record
+
+
+def _safe_token(value: str) -> str:
+    """`inputManifestService.ts`'s `safeToken`."""
+    return re.sub(r"[^A-Za-z0-9._-]+", "-", value).strip("-") or "current-session"
+
+
+def manifest_load_basis_refs(input_manifest: Mapping[str, Any]) -> list[dict[str, str]]:
+    """The recorded form's load basis: the stored manifest's load cases, then its combinations."""
+    basis = input_manifest.get("load_basis", {})
+    return ([{"object_type": "LoadCase", "ref": case["id"]} for case in basis.get("load_cases", [])]
+            + [{"object_type": "Combination", "ref": combination["id"]} for combination in basis.get("combinations", [])])
+
+
+def manifest_fixed_members(input_manifest: Mapping[str, Any]) -> list[tuple[str, str, Any, str]]:
+    """Every record member the stored input manifest fixes, derived from the manifest (never
+    from the record), as (section, member, expected, refusal code); mirrors the TypeScript
+    `manifestFixedMembers`."""
+    sha = canonical_sha256_checked_v1(input_manifest)
+    model_ref = input_manifest["model_basis"]["model_ref"]
+    manifest_ref = {"object_type": "InputManifest", "ref": f"input-manifest:{_safe_token(model_ref)}:{sha}"}
+    solver = input_manifest["solver_basis"]
+    return [
+        ("reproducibility", "input_manifest_refs", [manifest_ref], "ANALYSIS_RECORDED_INPUT_MANIFEST_MISMATCH"),
+        ("reproducibility", "input_manifest_hashes", [{"algorithm": "sha256", "canonicalization": "rfc8785_jcs", "payload_ref": manifest_ref, "payload_scope": "input_manifest", "value": sha}], "ANALYSIS_RECORDED_INPUT_MANIFEST_MISMATCH"),
+        ("run", "solver_version", {"solver_name": solver["solver_name"], "solver_version": solver["solver_version"], "build_ref": {"object_type": "ExternalReference", "ref": solver["solver_build_ref"]}}, "ANALYSIS_RECORDED_SOLVER_MISMATCH"),
+        ("run", "settings_ref", {"object_type": "SolverSettings", "ref": f"solver-settings:{manifest_ref['ref']}:{sha}"}, "ANALYSIS_RECORDED_SETTINGS_MISMATCH"),
+        ("run", "unit_system_ref", {"object_type": "UnitSystem", "ref": f"unit-system:{model_ref}:{sha}"}, "ANALYSIS_RECORDED_UNITS_MISMATCH"),
+        ("run", "load_basis_refs", manifest_load_basis_refs(input_manifest), "ANALYSIS_RECORDED_LOAD_BASIS_MISMATCH"),
+        ("run", "rule_pack_refs", recorded_rule_pack_refs(input_manifest), "ANALYSIS_RECORDED_REFERENCES_MISMATCH"),
+        ("run", "library_refs", recorded_library_refs(input_manifest["model_basis"]["model_payload"]), "ANALYSIS_RECORDED_REFERENCES_MISMATCH"),
+    ]
+
+
+def _validate_recorded_binding(run: Mapping[str, Any], source: Mapping[str, Any], recorded_state: Mapping[str, Any]) -> None:
+    """A recorded revision's binding to its stored state (as the TypeScript validator's):
+    its ref names the state; its `created_at` is set and the `created_at_unavailable` note is
+    gone; the stored input manifest is the source's project's and its model payload hashes to
+    the state's model hash; and every member the manifest fixes is the manifest's (JCS: the
+    checked profile's canonical text is JCS for the values it admits). Equality is
+    structural: member order is not significant, array order is, extra members differ."""
+    if run.get("model_state_ref") != {"object_type": "ModelState", "ref": recorded_state["state_id"]}:
+        raise ValueError("ANALYSIS_SOURCE_MODEL_MISMATCH")
+    reproducibility = run.get("reproducibility", {})
+    if not isinstance(run.get("created_at"), str) or not run["created_at"] or CREATED_AT_UNAVAILABLE in reproducibility.get("determinism_notes", []):
+        raise ValueError("ANALYSIS_RECORDED_REVISION_TIME_MISSING")
+    manifest = recorded_state["input_manifest"]
+    if manifest.get("model_basis", {}).get("model_ref") != source.get("model_ref"):
+        raise ValueError("ANALYSIS_RECORDED_INPUT_MANIFEST_MISMATCH")
+    if f"sha256:{canonical_sha256_checked_v1(manifest['model_basis']['model_payload'])}" != recorded_state["model_hash"]:
+        raise ValueError("ANALYSIS_RECORDED_MODEL_STATE_HASH_MISMATCH")
+    for section, member, expected, code in manifest_fixed_members(manifest):
+        holder = reproducibility if section == "reproducibility" else run
+        if member not in holder or holder[member] != expected:
+            raise ValueError(code)
 
 
 def verify_analysis_run_record(envelope: Mapping[str, Any], hash_fn: Callable[[Any], str] = canonical_sha256_checked_v1) -> str:
@@ -203,22 +492,22 @@ _PRESSURE_SOURCE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure
 # pressure-2: the ordinary exact route (a load/reference-state model publishes it with
 # contract_evidence.load_reference_states). Its record carries neither source_block_recovery nor contract_evidence.
 PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
-PRESSURE_CONTRACT_SHA256 = "6991728e6bc9c88effdbe5d0407671f4d78376c5c67d79d70f2cd1f174f47cba"
+PRESSURE_CONTRACT_SHA256 = "a6139f7d2fc92bd777ef0b1801272dc3c6924d7f7a82ac842a934de2c3375815"
 _PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_2.json"
 PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
-PREVIEW_PHYSICS_CONTRACT_SHA256 = "ee8036d59d0aeb255ff132e4dee0d6e7a1e8da8b33e4697c7761c695c3f6e387"
+PREVIEW_PHYSICS_CONTRACT_SHA256 = "f455a61ab9d80a16b24a03c5acbcce6425342d8cc2c839eb4742b2b9bb38a869"
 _PREVIEW_PHYSICS_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_2.json"
 # U6b (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its statements are
 # checked only by the accepted reader (`retained_precision`), and its standing
 # comes only from that reader's verified receipt (D1 5 item 3).
 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
-PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "4da08f964605a5080b38c0ea9793731b33720070db001a4c7f1c4f9fbcaeb76f"
+PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "d95e6acfe79f0e08d84fe7a6a71acbd18b38ff70809614227640ee0a0c16ff60"
 _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_retained_1.json"
 # B3b (B3-D §2, §6.1): the exact successor, whose base is pressure-2 since B7b D4 (a). As the preview successor, its
 # statements are checked only by the accepted reader, which dispatches on this identity, and its standing comes only
 # from that reader.
 PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-PHYSICS_RETAINED_CONTRACT_SHA256 = "ff7f3159d69fca32acfdea00f6b07a7c90a168f77fd264e45c997b053daf3de7"
+PHYSICS_RETAINED_CONTRACT_SHA256 = "92a364559e116f4e4a903ff114e1a530916b9761486bd2441aeb9c3711f290bb"
 _PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_physics_retained_1.json"
 RETAINED_CONTRACTS = {PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: (PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH),
                       PHYSICS_RETAINED_CONTRACT_ID: (PHYSICS_RETAINED_CONTRACT_SHA256, _PHYSICS_RETAINED_CONTRACT_PATH)}
@@ -480,9 +769,13 @@ def build_analysis_run(mechanics_result: Mapping[str, Any], **kwargs: Any) -> di
     return build_analysis_run_v0_3(mechanics_result, **kwargs)
 
 
-def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str, Any], *, hash_fn: Callable[[Any], str] = canonical_sha256_checked_v1, expected_basis_refs: list[Mapping[str, str]] | None = None) -> None:
+def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str, Any], *, hash_fn: Callable[[Any], str] = canonical_sha256_checked_v1, expected_basis_refs: list[Mapping[str, str]] | None = None,
+                               recorded_state: Mapping[str, Any] | None = None) -> None:
     """Validate source interpretation/bindings separately from checksum verification.
 
+    A transient record (no ``recorded_state``) names its synthetic state; a recorded
+    revision (W-12 S2) names the stored state passed in as ``{"state_id", "model_hash",
+    "input_manifest"}``, checked against that state's model hash.
     This accepts supplied evidence only; it does not authenticate a claimed build.
     """
     contract_id, contract_hash, path = _source_contract(source)
@@ -490,6 +783,14 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
     if contract_id not in CURRENT_RECORD_CONTRACT_IDS or envelope.get("schema_version") != "0.3.0" or envelope.get("run_contract_status", {}).get("record_contract") != "strict_analysis_run_v0_3":
         raise ValueError("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH")
     run = envelope.get("analysis_run", {})
+    # The recorded form (W-12 S2): every member the stored manifest fixes is checked first,
+    # against the manifest; its load basis is the manifest's, never a caller's or the record's.
+    if recorded_state is not None:
+        _validate_recorded_binding(run, source, recorded_state)
+        manifest_basis = manifest_load_basis_refs(recorded_state["input_manifest"])
+        if expected_basis_refs is not None and list(expected_basis_refs) != manifest_basis:
+            raise ValueError("ANALYSIS_RECORDED_LOAD_BASIS_MISMATCH")
+        expected_basis_refs = manifest_basis
     if contract_id in SOURCE_RECORD_CONTRACT_IDS:
         if not _same_canonical(run.get("source_block_recovery"), source["source_block_recovery"]):
             raise ValueError("ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH")
@@ -505,8 +806,22 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
             raise ValueError(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH)
     elif "retained_precision" in run:
         raise ValueError(ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN)
-    if run.get("diagnostics") != [{"source_annotation": deepcopy(item)} for item in source.get("diagnostics", [])]:
+    # The producer's diagnostics, then any rule-pack reference diagnostics (each exactly the one
+    # its code and identity determine); a recorded revision's name exactly the references its
+    # stored manifest leaves out of active_rule_packs. Their codes are under the record hash.
+    producer = [{"source_annotation": deepcopy(item)} for item in source.get("diagnostics", [])]
+    diagnostics = run.get("diagnostics")
+    if not isinstance(diagnostics, list) or diagnostics[:len(producer)] != producer:
         raise ValueError("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH")
+    rule_pack_entries = rule_pack_ref_diagnostic_entries(diagnostics[len(producer):])
+    if rule_pack_entries is None:
+        raise ValueError("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH")
+    recorded_refusal = _rule_pack_diagnostics_refusal([identity for _, identity in rule_pack_entries], recorded_state["input_manifest"]) if recorded_state is not None else None
+    # The named refusal of a run recorded before rule-pack resolution comes only after every
+    # other check below passes (the record checksum last), so corruption keeps its own code.
+    deferred_refusal = recorded_refusal if recorded_refusal == _RULE_PACKS_NOT_RESOLVED_REFUSAL else None
+    if recorded_refusal and not deferred_refusal:
+        raise ValueError(recorded_refusal)
     statuses = run.get("analysis_status")
     source_rule = source.get("status", {}).get("rule_check")
     if source_rule is not None and (not isinstance(source_rule, str) or source_rule not in RULE_STATUSES):
@@ -521,7 +836,7 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
     solver = run.get("solver_version", {})
     if solver.get("solver_name") != source["producer"]["component_name"] or solver.get("solver_version") != source["producer"]["component_version"]:
         raise ValueError("ANALYSIS_SOURCE_PRODUCER_MISMATCH")
-    if run.get("model_state_ref") != {"object_type":"ModelState", "ref":f"state:{source.get('model_ref')}:preview"}:
+    if recorded_state is None and run.get("model_state_ref") != transient_model_state_ref(source.get("model_ref")):
         raise ValueError("ANALYSIS_SOURCE_MODEL_MISMATCH")
     if run.get("run_id") != source.get("run_id"):
         raise ValueError("ANALYSIS_SOURCE_RUN_MISMATCH")
@@ -546,3 +861,5 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
             raise ValueError("ANALYSIS_ROW_INTERPRETATION_MISMATCH")
     if verify_analysis_run_record(envelope, hash_fn) != "match":
         raise ValueError("ANALYSIS_RECORD_CHECKSUM_MISMATCH")
+    if deferred_refusal:
+        raise ValueError(deferred_refusal)

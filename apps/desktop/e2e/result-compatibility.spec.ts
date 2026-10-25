@@ -17,8 +17,9 @@ test("browser references remain inspectable and cannot publish qualified result 
     await openSection(page, "results");
     await page.getByRole("button", { name: "Inspect bundled reference", exact: true }).click();
     await expect(page.getByRole("region", { name: "Bundled reference — not a solve for the current model" })).toBeVisible();
-    // The bundled reference is the demo model's product output: 745 rows in each mode.
-    await expect(page.getByTestId("result-filter-summary")).toContainText("745 of 745 results match filter");
+    // The bundled reference is the demo model's product output: 837 rows in each mode (W-7 added 96 global end rows;
+    // the C-120 fix removed the elbow-placed tee component:C-120 and its 4 intensified rows).
+    await expect(page.getByTestId("result-filter-summary")).toContainText("837 of 837 results match filter");
     await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
     await openSection(page, "exports");
     await expect(page.getByTestId("result-export-empty")).toBeVisible();

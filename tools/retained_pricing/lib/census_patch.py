@@ -35,8 +35,13 @@ PREVIEW_T = (s("Value") * _PX["arr"] + X({"Node(String,Value)": _PX["obj"] + _PX
     # U6-RP (T4-U6, D-5): a census taken under D-5 states the route's rows per member, measured on every committed
     # empty-region exact case (census_exact.py); the route's P_final and R0 take it in place of 51 at the caps.
     rpm = census.get("rows_per_member", 51)
+    # W7-RP (W-7, retained-pricing-rules.md §8.20): the twelve global end rows per member the ordinary pressure-2
+    # envelope carries and the census's pressure-source-1 fixtures omit (`global_end_rows_published`).
+    w7 = census.get("global_end_rows_per_member", 0)
+    rpm += w7
     if rpm != 51:
-        why = f"   # U6-RP: route E's census, {rpm} rows per member"
+        why = (f"   # U6-RP: route E's census, {rpm} rows per member" if not w7 else
+               f"   # U6-RP/W7-RP: route E's census, {rpm - w7} rows per member, + {w7} global end rows")
         patch("g3lib.py", "P=7 * n + 51 * m + 8 * g + 3, R0=7 * n + 51 * m + g + 3,",
               f"P=7 * n + {rpm} * m + 8 * g + 3, R0=7 * n + {rpm} * m + g + 3,")
         patch("g4_caps.py", "P = 7 * n + 51 * m + 8 * g + 3                     # P_final",

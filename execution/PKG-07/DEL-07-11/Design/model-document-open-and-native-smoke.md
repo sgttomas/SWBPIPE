@@ -45,7 +45,19 @@ export use their existing routes unchanged.
   - material `elastic_modulus`, section `properties` and pipe `section`
     quantities (`{value: number, unit: string}`);
   - support `restraints[]` strings;
-  - combination `terms[]` (`load_case`, `factor`).
+  - combination `terms[]` (`load_case`, `factor`);
+  - with W-6a (PR #1588), the members adoption and rendering dereference:
+    every `project.units` value a string; a present `section_ref` a string; a
+    present `components[].completeness` an array of `{diagnostic_code, status}`
+    strings; a present `diagnostics[].id` a string; component `geometry`,
+    `modifiers` and `mechanics_interface` members of their `PreviewComponent`
+    types.
+
+  The Rust save (`src-tauri/src/model_document_shape.rs`) applies the same check,
+  kept equal by the shared corpus `fixtures/model_document/desktop_shape_cases.json`.
+  `modelDocumentAdoption.test.tsx` retypes the demo's string members (433 cases)
+  and requires each to be refused at admission or adopted and rendered without
+  error.
 
   It lives in `src/features/model-file/modelDocumentShape.ts`, beside the type
   it mirrors. As a last guard, the session builds the model index for the
@@ -119,6 +131,31 @@ export use their existing routes unchanged.
   - **Modality.** While the prompt is open, the workspace is `inert`, Tab
     cycles the prompt's buttons, and menu commands and window shortcuts are
     ignored. When the prompt closes, focus returns to where it was.
+- **Unsaved edits: never silently discarded (Agent 0, 2026-10-24).** A command
+  that replaces the working model asks first while the model has edits no save
+  holds (the toolbar's "Edited"). These are Open Local Project, opening a
+  project from the index, Open Model Document…, New Blank and the blank
+  load/reference model, and Open State (W-12). New Local Project saves the
+  working model, so it does not ask.
+  - **The prompt.** `UnsavedChangesPrompt` (`unsavedChangesGuard.ts`) is one
+    modal alert dialog for every such command. It is modal as the replace
+    prompt is, and sets its focus and key hold in a layout effect.
+  - **The choices.**
+    - **Cancel** is the default: it has focus as the prompt appears, and
+      Escape chooses it. Nothing is replaced and the edits stay.
+    - **Save Local Project, then …** runs Save Local Project's own flow,
+      including its replace prompt. The command goes ahead only if that save
+      lands.
+    - **Discard edits and …** goes ahead without saving.
+  - **Without edits** a command starts as before, with no prompt.
+  - **One owner at a time (Codex r4).** None of these commands, nor Save
+    Model State, starts a prompt or an operation while another project
+    operation or prompt owns the session. The History panel's controls are
+    disabled meanwhile, with a stated reason.
+  - **Modal holds.** The replace prompt and the unsaved-changes prompt each
+    take a hold on the shared modal flag (`modalHolds.ts`). Menu commands and
+    shortcuts wait until the last hold is released, whichever prompt closes
+    first.
   - **New Blank.** A New Blank whose time-stamped id is already stored takes a
     suffixed id, since a new blank has no identity of its own to keep.
   - **No normalization.** Save never rewrites a model document; B7a removed the
@@ -193,7 +230,17 @@ Then, for the milestone and the demo, it:
 **Phase 2** is a new process. It reopens each project and solves again.
 
 `run.mjs` checks the observations against `native-smoke/expected.json`. Those
-values come from T3's G10 jsdom replay and are not re-pinned from a native run.
+values come from T3's G10 jsdom replay. The owner's ruling of 2026-10-24 set
+the five row and N1 values to the native observations: milestone 113 rows in
+both modes and N1 "…47199 mm" sparse, demo 745 rows in both modes. The causes
+are #1461 (15 rows per member per case) and #1387 E14 (no dense parity row)
+and E15 (correctly rounded norm3); see DEL-07-05 Design `owner-mac-check.md`.
+W-7 (#1581) then added 12 global end rows per member per case, and the owner's
+ruling of 2026-10-25 ("I approve W-7's native-smoke values") set the rows to
+milestone 125 and demo 841 in both modes. The C-120 fix (#1620) then removed
+the demo's malformed tee and its 4 intensified rows, and the owner's ruling of
+2026-10-25 ("Both decisions I approve your recommended options.") set the demo
+rows to 837 in both modes.
 It also checks:
 
 - the proof hash against its own JCS hash of each file;
@@ -244,6 +291,20 @@ refusal named in the product:
     nor the MBF text download.
   - The result JSON export is offered. The driver waits for the asynchronous
     packet.
+  - In the report panel, the report package shows the same code, with no
+    package controls (W-18 (b2); owner ruling 10A).
+- **The demo's report package (W-18 (b2)).** In phase 1, right after the
+  demo's result JSON export and in the same session, the driver selects
+  "Include known private values in this local package" (unchecked until then)
+  and runs File > Save Report Package…, answering the save chooser outside
+  Downloads. A save the native memory pool refuses only for the Mac's
+  momentary free memory (nothing runs or is written) is asked again. Checked, with no value pinned: the receipt is `REPORT-PACKAGE-SAVED`;
+  the file's SHA-256 and length are the receipt's; the product's reader
+  (`read_report_package_container`, through a smoke-only command) re-reads an
+  unblocked 2.0.0 desktop package whose identity is the receipt's; every
+  member's recomputed SHA-256 and length match the manifest inventory; and the
+  result member is the RFC 8785 text of the result JSON the same session
+  exported.
 - **A model authored from blank.**
   - **Authoring.** New Blank Project must open the units dialog (SI, US
     customary, custom); the default SI is accepted. The driver then authors

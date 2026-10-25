@@ -1378,15 +1378,21 @@ mod tests {
     #[test]
     fn result_lease_overlaps_the_grant_until_the_worker_is_reaped() {
         let host = ScriptedHost::normal();
-        let launcher = Arc::new(Arc::unwrap_or_clone(TestLauncher::scripted("result:7")).with_env(crate::solve_worker::tests::EXIT_DELAY_ENV, "400"));
+        // The worker's exit is held at a gate until the overlap has been inspected.
+        let exit = Gate::new("exit");
+        let launcher = Arc::new(
+            Arc::unwrap_or_clone(TestLauncher::scripted("result:7"))
+                .with_env(crate::solve_worker::tests::EXIT_GATE_ENV, exit.dir.display().to_string()),
+        );
         let registry = registry(&host, launcher);
         let receipt = registry.start(MODEL, None).unwrap();
-        // The worker has sent its result and is still alive (exit delay).
+        // The worker has sent its result and is still alive (its exit is held).
         let overlap = wait_for(&registry, &receipt.job_id, |_| registry.pool().reserved(LeasePurpose::Result) > 0);
         assert_eq!(overlap.state, "running");
         assert_eq!(registry.pool().reserved(LeasePurpose::Result), 16);
         assert_eq!(registry.pool().reserved(LeasePurpose::Worker), start_grant(), "the grant is still held");
         assert_eq!(registry.pool_status().running_workers, 1);
+        std::fs::write(exit.dir.join("exit-released"), b"").unwrap();
         let status = wait_terminal(&registry, &receipt.job_id);
         assert_eq!(status.state, "completed");
         assert_eq!((registry.pool().reserved(LeasePurpose::Worker), registry.pool().reserved(LeasePurpose::Result)), (0, 16));
@@ -1528,13 +1534,19 @@ mod tests {
         let pool_bytes = 2 * start + start / 2;
         registry.configure_pool(pool_bytes, 2 * start, false).unwrap();
         let stop = Arc::new(AtomicBool::new(false));
+        // The monitor reports when it has seen two workers running, so the
+        // workers are not released before it has.
+        let (saw_two_tx, saw_two) = mpsc::channel();
         let monitor = {
             let (pool, stop) = (registry.pool().clone(), stop.clone());
             std::thread::spawn(move || {
-                let mut most = 0;
+                let (mut most, mut reported) = (0, false);
                 while !stop.load(Ordering::SeqCst) {
                     assert!(pool.reserved_total() <= pool_bytes, "never over-reserved");
                     most = most.max(pool.running_workers());
+                    if most >= 2 && !reported {
+                        reported = saw_two_tx.send(()).is_ok();
+                    }
                     std::thread::sleep(Duration::from_millis(1));
                 }
                 most
@@ -1555,12 +1567,17 @@ mod tests {
             .map(|h| h.join().unwrap())
             .collect();
         gate.wait_started(2);
-        std::thread::sleep(Duration::from_millis(100));
+        // Every job has either started or been refused its grant at least
+        // once (its supervisor recorded the queue reason).
+        for receipt in &receipts {
+            wait_for(&registry, &receipt.job_id, |s| s.state != "queued" || s.queue_reason.is_some());
+        }
         assert_eq!(gate.started_count(), 2, "only two grants fit");
         let states: Vec<_> = receipts.iter().map(|r| registry.status(&r.job_id).unwrap()).collect();
         assert_eq!(states.iter().filter(|s| s.state == "running").count(), 2);
         assert!(states.iter().filter(|s| s.state == "queued").all(pool_exhausted));
         assert_eq!(registry.pool().reserved(LeasePurpose::Worker), 2 * start);
+        saw_two.recv_timeout(Duration::from_secs(60)).expect("the monitor sees the two running workers");
         for _ in 0..jobs {
             gate.release("{\"r\":1}");
         }
@@ -1602,12 +1619,18 @@ mod tests {
         assert_eq!(registry.pool().reserved_total(), 0);
     }
 
-    /// The lifetime-peak footprint is recorded in the job's resource and a
-    /// peak beyond the budget refuses the result before anything is released.
+    /// An over-budget lifetime peak reported with a worker's result propagates
+    /// through the job: it is recorded in the job's resource, refuses the
+    /// result before anything is released and keeps no lease, and the worker
+    /// is killed at the refusal. The worker reports an 81 MiB peak in a valid
+    /// result frame without using that memory, so no poll can see it first.
+    /// The real kernel lifetime-maximum excursion is covered deterministically
+    /// by `solve_worker::tests::the_lifetime_peak_footprint_is_checked_at_the_result`.
     #[test]
-    fn a_peak_footprint_beyond_the_budget_refuses_the_result() {
+    fn an_over_budget_reported_result_peak_refuses_the_job() {
         let host = ScriptedHost::normal();
-        let registry = registry(&host, TestLauncher::scripted(format!("transient_mmap:{}", 80 * MIB)));
+        let gate = Gate::new("reported-peak");
+        let registry = registry(&host, TestLauncher::scripted(format!("reported_peak:{}:{}", 81 * MIB, gate.dir.display())));
         registry.configure_pool(12 * GIB, start_grant(), false).unwrap();
         let job = registry.start(MODEL, None).unwrap();
         let status = wait_terminal(&registry, &job.job_id);
@@ -1617,6 +1640,11 @@ mod tests {
         assert!(status.resource.worker_peak_footprint_bytes.unwrap() > start_grant());
         assert!(!status.result_available);
         assert_eq!(registry.pool().reserved_total(), 0);
+        // Killed by the supervisor at the refusal, not ended by its own 10 s wait.
+        let pids = gate.pids();
+        assert_eq!(pids.len(), 1, "{pids:?}");
+        assert!(reaped(pids[0]), "the refused worker was reaped before the record turned terminal");
+        assert!(!gate.dir.join(format!("unkilled-{}", pids[0])).exists(), "the refused worker was not killed");
     }
 
     struct FailingLauncher;

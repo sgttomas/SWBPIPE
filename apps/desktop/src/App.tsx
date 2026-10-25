@@ -56,6 +56,7 @@ import { BuildReadinessPanel } from "./features/build-readiness/BuildReadinessPa
 import { CaepipeExternalHarnessPanel } from "./features/caepipe-external/CaepipeExternalHarnessPanel";
 import { CaepipeMbfExportPanel } from "./features/caepipe-mbf/CaepipeMbfExportPanel";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
+import { ComparisonPackageNotice } from "./features/comparison/ComparisonPackageNotice";
 import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel";
 import { DesignWorkspacePanel } from "./features/design-workspace/DesignWorkspacePanel";
 import { DiffPreviewPanel } from "./features/diff-preview/DiffPreviewPanel";
@@ -92,7 +93,11 @@ import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel
 import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
 import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectPrompt";
+import { HistoryPanel } from "./features/history/HistoryPanel";
+import { UnsavedChangesPrompt } from "./features/project-storage/UnsavedChangesPrompt";
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
+import { ModelDocumentSaveDialog } from "./features/model-file/ModelDocumentSaveDialog";
+import { HandoffSaveDialog } from "./features/handoff/HandoffSaveDialog";
 import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
 import { ToolkitPalette, type PaletteShellCommand } from "./features/toolkit/ToolkitPalette";
 import { toolkitCapabilities } from "./features/toolkit/capabilityCatalog";
@@ -196,6 +201,12 @@ function AppSession() {
     ruleCheckRunBasis,
     dormantOutputBasis,
     comparison,
+    comparisonUnavailable,
+    packagedWithinRun,
+    withinRun,
+    droppedWithinRunBases,
+    withinRunDisabledReason,
+    handleSelectWithinRunBases,
     proposal,
     selectedReviewTarget,
     solveJob,
@@ -215,6 +226,10 @@ function AppSession() {
     handleSelectDiagnostic,
     handleSaveReportPackage
   } = session.results;
+  // Save Report Package… (DEL-08-01 Design `report-package-current-results.md` §2.1):
+  // enablement is synchronous, the output policy's route gate plus the presence
+  // checks below. The builder's own refusals (admission, rule-check binding, rule
+  // packs) are shown in the report panel's status line after an attempt.
   const reportPackageUnavailable = reportPackageUnavailableReason(currentSolvedResult);
   // The viewport's result overlays read the same standing and numerical health view as the results panel.
   const viewportResultStanding = useMemo(() => ({ eligible: numericallyEligible, health: numericalHealth }), [numericallyEligible, numericalHealth]);
@@ -266,8 +281,11 @@ function AppSession() {
     handleOpenModelDocument,
     handleSaveProject,
     handleListProjects,
-    replaceProjectPrompt
+    replaceProjectPrompt,
+    modelDocumentSaveRequest,
+    handoffSaveRequest
   } = session.project;
+  const { unsavedChangesPrompt } = session.project;
   const {
     uiPreferences, setUiPreferences,
     resolvedTheme,
@@ -335,8 +353,8 @@ function AppSession() {
       data-theme={resolvedTheme}
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
-      // The replace prompt and the units dialog are modal: the workspace takes no focus or input meanwhile.
-      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null}
+      // The replace prompt, the unsaved-changes prompt, the units dialog and the model-document save dialog are modal: the workspace takes no focus or input meanwhile.
+      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || modelDocumentSaveRequest !== null || handoffSaveRequest !== null}
       ref={workspaceShellRef}
       onFocusCapture={rememberShellFocus}
       onPointerDownCapture={rememberShellFocus}
@@ -351,6 +369,7 @@ function AppSession() {
           issuesOpen={issuesDrawerOpen}
           openMenu={openMenu}
           projectBusy={projectBusy}
+          modelDocumentSaveReady={model !== null && !projectBusy}
           reportPackageReady={!reportPackageUnavailable && Boolean(currentSolvedResult && analysisRun && inputManifest) && !running && !reportPackageBusy}
           running={running}
           treeCollapsed={treeCollapsed}
@@ -436,15 +455,17 @@ function AppSession() {
               onSelect={handleSelectEntity}
               onFocusChange={(key) => commitSelectionState(setSelectionFocus(orderedSelectionRef.current, key))}
               onFilterPublication={handleTreePublication}
-            />
-            <LinesSection
-              key={`lines:${projectSessionGeneration}`}
-              model={model}
-              selection={selection}
-              selectionState={orderedSelection}
-              queuedIntents={editorIntents}
-              onQueueIntent={handleQueueEditorIntent}
-              operationBusy={operationBusy}
+              treeRecords={
+                <LinesSection
+                  key={`lines:${projectSessionGeneration}`}
+                  model={model}
+                  selection={selection}
+                  selectionState={orderedSelection}
+                  queuedIntents={editorIntents}
+                  onQueueIntent={handleQueueEditorIntent}
+                  operationBusy={operationBusy}
+                />
+              }
             />
             </div>
           <div className={shell.tab === "model-tree" ? "workspace-dock-body shell-stage-sections inactive" : "workspace-dock-body shell-stage-sections"}>
@@ -668,13 +689,19 @@ function AppSession() {
                   setIssuesDrawerOpen(true);
                 }}
               />}
-              <ComparisonPanel comparison={comparison} result={currentSolvedResult} onSelectResult={handleSelectResult} />
+              <ComparisonPanel
+                comparison={withinRun.status === "ready" ? withinRun.comparison : null}
+                result={currentSolvedResult}
+                onSelectResult={handleSelectResult}
+                withinRun={{ view: withinRun, disabledReason: withinRunDisabledReason, onSelect: handleSelectWithinRunBases, packaged: packagedWithinRun, dropped: droppedWithinRunBases }}
+              />
               <DesignWorkspacePanel
                 model={model}
                 knowledge={knowledge}
                 result={currentSolvedResult}
                 analysisRun={analysisRun}
                 comparison={comparison}
+                comparisonUnavailable={comparisonUnavailable}
                 editorIntents={editorIntents}
                 proposal={proposal}
                 selectedReviewTarget={selectedReviewTarget}
@@ -716,6 +743,7 @@ function AppSession() {
               {activeSection === "report" || activatedExpensiveSections.has("report") ? (
               <DormantSection active={activeSection === "report"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`report:${dormantOutputBasis}`}>
+              <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="report-comparison-package-notice" />
               <RenderedReportPanel
                 model={model}
                 result={currentSolvedResult}
@@ -739,6 +767,7 @@ function AppSession() {
                 numericalHealth={currentSolvedResult ? numericalHealth : null}
                 analysisRun={analysisRun}
                 comparison={comparison}
+                comparisonUnavailable={comparisonUnavailable}
                 editorIntents={editorIntents}
                 projectOperation={projectOperation}
                 projectSummary={projectSummary}
@@ -949,6 +978,7 @@ function AppSession() {
               <DormantSection active={activeSection === "solve"} sessionGeneration={projectSessionGeneration}>
               <SolvePanel
                 analysisRun={analysisRun}
+                inputManifest={inputManifest?.manifest ?? null}
                 model={model}
                 result={result}
                 numericalHealth={numericalHealth}
@@ -998,6 +1028,7 @@ function AppSession() {
                 modelHashIntegrity={modelHashIntegrity}
                 projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
               />
+              <HistoryPanel />
               <ProjectValidationPanel
                 model={model}
                 storageCapability={storageCapability}
@@ -1044,12 +1075,14 @@ function AppSession() {
                 selectedReviewTarget={selectedReviewTarget}
                 storageCapability={storageCapability}
               />
+              <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="handoff-comparison-package-notice" />
               <HandoffPanel
                 model={model}
                 knowledge={knowledge}
                 result={currentSolvedResult}
                 analysisRun={analysisRun}
                 comparison={comparison}
+                comparisonUnavailable={comparisonUnavailable}
                 editorIntents={editorIntents}
                 proposal={proposal}
                 selectedReviewTarget={selectedReviewTarget}
@@ -1060,6 +1093,7 @@ function AppSession() {
                 result={currentSolvedResult}
                 analysisRun={analysisRun}
                 comparison={comparison}
+                comparisonUnavailable={comparisonUnavailable}
                 editorIntents={editorIntents}
                 projectOperation={projectOperation}
                 projectSummary={projectSummary}
@@ -1102,7 +1136,10 @@ function AppSession() {
         />
       ) : null}
       <ReplaceProjectPrompt prompt={replaceProjectPrompt} />
+      <UnsavedChangesPrompt prompt={unsavedChangesPrompt} />
       <ProjectUnitsDialog request={blankProjectUnitsRequest} />
+      <ModelDocumentSaveDialog request={modelDocumentSaveRequest} />
+      <HandoffSaveDialog request={handoffSaveRequest} />
     </main>
     </CompactSelectScope>
     </WorkspaceSessionProvider>
@@ -1157,6 +1194,7 @@ function MenuBar({
   issuesOpen,
   openMenu,
   projectBusy,
+  modelDocumentSaveReady,
   reportPackageReady,
   running,
   treeCollapsed,
@@ -1186,6 +1224,7 @@ function MenuBar({
   issuesOpen: boolean;
   openMenu: MenuId | null;
   projectBusy: boolean;
+  modelDocumentSaveReady: boolean;
   reportPackageReady: boolean;
   running: boolean;
   treeCollapsed: boolean;
@@ -1209,6 +1248,8 @@ function MenuBar({
         { kind: "command", id: "file.list-local", label: "List Local Projects", disabled: projectBusy },
         { kind: "separator" },
         { kind: "command", id: "file.save-local", label: "Save Local Project", disabled: projectBusy },
+        { kind: "command", id: "file.save-model-document", label: "Save Model Document…", disabled: !modelDocumentSaveReady },
+        { kind: "command", id: "file.save-handoff", label: "Save Handoff…", disabled: !modelDocumentSaveReady },
         { kind: "command", id: "file.save-report-package", label: "Save Report Package…", disabled: !reportPackageReady }
       ]
     },

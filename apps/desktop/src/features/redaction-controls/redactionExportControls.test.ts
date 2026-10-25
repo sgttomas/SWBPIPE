@@ -12,6 +12,7 @@ import {
   REDACTED_VALUE,
   classifyExportItem,
   controlRouteExport,
+  enforceLocalFirstRoute,
   redactExportPayload,
   type RedactionAction,
   type RedactionExportContext,
@@ -324,6 +325,78 @@ describe("route projection", () => {
       blocked: true,
       metadata_only: true
     });
+  });
+
+  // DEL-15-01 W-6a: File > Save Model Document… (twin of the python
+  // `test_model_document_save_route_is_governed_local_private_with_explicit_intent`).
+  it("governs DOTH-MODEL-DOC-007 as a local-private route that needs explicit intent", () => {
+    expect(enforceLocalFirstRoute({ routeId: "DOTH-MODEL-DOC-007", exportContext: "local_private", explicitLocalPrivateIntent: true })).toEqual({
+      route_id: "DOTH-MODEL-DOC-007",
+      export_context: "local_private",
+      storage_context: "local_private",
+      action: "include_metadata_only",
+      reason_code: "PRIVATE_LOCAL_METADATA_ALLOWED",
+      blocked: false,
+      metadata_only: true,
+      explicit_local_private_intent: true
+    });
+    expect(enforceLocalFirstRoute({ routeId: "DOTH-MODEL-DOC-007", exportContext: "local_private" })).toMatchObject({
+      blocked: true,
+      reason_code: "LOCAL_PRIVATE_INTENT_REQUIRED"
+    });
+    expect(enforceLocalFirstRoute({ routeId: "DOTH-MODEL-DOC-008", exportContext: "local_private", explicitLocalPrivateIntent: true })).toMatchObject({
+      blocked: true,
+      reason_code: "LOCAL_FIRST_ROUTE_UNKNOWN"
+    });
+    const controlled = controlRouteExport(
+      {
+        field_id: "invented.model.private",
+        privacy_classification: "private_project_data",
+        redistribution_status: "private_only",
+        review_status: "accepted",
+        value: "Invented private model value"
+      },
+      { routeId: "DOTH-MODEL-DOC-007", exportContext: "local_private", explicitLocalPrivateIntent: true, requireLosslessMaterialization: true }
+    );
+    expect(controlled.blocked).toBe(false);
+    expect(controlled.payload).toMatchObject({ value: "Invented private model value" });
+    expect(controlled.summary.local_first).toMatchObject({ route_id: "DOTH-MODEL-DOC-007", blocked: false });
+  });
+
+  // DEL-15-01 W-6b: File > Save Handoff… (twin of the python
+  // `test_handoff_package_save_route_is_governed_local_private_with_explicit_intent`).
+  it("governs DOTH-HANDOFF-PACKAGE-008 as a local-private route that needs explicit intent", () => {
+    expect(enforceLocalFirstRoute({ routeId: "DOTH-HANDOFF-PACKAGE-008", exportContext: "local_private", explicitLocalPrivateIntent: true })).toEqual({
+      route_id: "DOTH-HANDOFF-PACKAGE-008",
+      export_context: "local_private",
+      storage_context: "local_private",
+      action: "include_metadata_only",
+      reason_code: "PRIVATE_LOCAL_METADATA_ALLOWED",
+      blocked: false,
+      metadata_only: true,
+      explicit_local_private_intent: true
+    });
+    expect(enforceLocalFirstRoute({ routeId: "DOTH-HANDOFF-PACKAGE-008", exportContext: "local_private" })).toMatchObject({
+      blocked: true,
+      reason_code: "LOCAL_PRIVATE_INTENT_REQUIRED"
+    });
+    expect(enforceLocalFirstRoute({ routeId: "DOTH-HANDOFF-PACKAGE-009", exportContext: "local_private", explicitLocalPrivateIntent: true })).toMatchObject({
+      blocked: true,
+      reason_code: "LOCAL_FIRST_ROUTE_UNKNOWN"
+    });
+    const controlled = controlRouteExport(
+      {
+        field_id: "invented.handoff.private",
+        privacy_classification: "private_project_data",
+        redistribution_status: "private_only",
+        review_status: "accepted",
+        value: "Invented private handoff value"
+      },
+      { routeId: "DOTH-HANDOFF-PACKAGE-008", exportContext: "local_private", explicitLocalPrivateIntent: true, requireLosslessMaterialization: true }
+    );
+    expect(controlled.blocked).toBe(false);
+    expect(controlled.payload).toMatchObject({ value: "Invented private handoff value" });
+    expect(controlled.summary.local_first).toMatchObject({ route_id: "DOTH-HANDOFF-PACKAGE-008", blocked: false });
   });
 
   it.each([

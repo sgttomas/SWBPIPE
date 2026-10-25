@@ -140,13 +140,18 @@ needs:
   gating: true
   evidence: execution/PKG-14/DEL-14-03/Specification.md
 code_paths:
+- apps/desktop/src/features/comparison/stateComparison.ts
 - core/comparison/model_state/engine.py
+- fixtures/comparison/model_state_comparison_golden.json
 - schemas/comparison_mapping.schema.json
 - schemas/model_state.schema.json
 checks:
 - tests/test_comparison_contracts.py
 - tests/test_model_schema.py
 - tests/test_model_state_comparison.py
+- tests/test_model_state_comparison_parity.py
+- apps/desktop/src/features/comparison/stateComparison.test.ts
+- apps/desktop/src/features/comparison/stateComparisonParity.test.ts
 - tests/test_model_state_schema.py
 - tests/test_persistence_schema.py
 - tests/test_units_schema.py

@@ -85,7 +85,7 @@ TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_2.json'
 # resident table; the former pin 07a6a308... named the table before its re-issue. T4-U6 (D-5, §2.4) re-issued it
 # with one stress signature per (recovery token x section basis): 106 signatures, 59 kinds (B7b's was a4e3bf2c...);
 # T4-U5b added the tie-rod force and T4-U4b (§2.2) the new per-basis kinds: 129 signatures, 66 kinds.
-TABLE_SHA256 = '6991728e6bc9c88effdbe5d0407671f4d78376c5c67d79d70f2cd1f174f47cba'
+TABLE_SHA256 = 'a6139f7d2fc92bd777ef0b1801272dc3c6924d7f7a82ac842a934de2c3375815'
 # The owned reader is the Rust product reader of pressure-2 (owner, 2026-10-10:
 # "move to one product reader in Rust"): `validate_pressure_evidence` (an envelope
 # carrying the load/reference-state group takes its pre-pass), reached through

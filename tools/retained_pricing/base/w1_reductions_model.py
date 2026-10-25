@@ -53,12 +53,18 @@ RF_PINS = {
 # or lifetime (the L5 guard, shadow, insert and call texts are unchanged).
 # Model document 0.7.0 D3 (§8.17): lib.rs's model_settings lines and retained_wire.rs's DEF-E hash constant change no
 # reduction's owner or lifetime.
+# Branch-warning statement D3 (§8.18): lib.rs's contract_evidence line also calls validation::state_applied_branch_factors
+# (no line moves); no reduction's owner or lifetime changes.
+# Silent-drop guard D3 (§8.19): lib.rs's closed wire records and the value entry's first call
+# (model_fields::unknown_field_refusal) change no reduction's owner or lifetime; preview_physics.rs's
+# append_combination_results keeps the L5 callee's inputs (rows_by_base_id, case_rows) and names its withheld rows; the
+# L5 guard, shadow, insert and call texts are unchanged.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "0380ae977be47652f3ef1fb9458e05827ed12be2d180c51de3f8bd98591473e0",
+    "core/product_physics/src/lib.rs": "8fbc112204c483d0b91e7e9c7e6975290df3ab2bc2cf669eec7d002ef6a25979",
     "core/product_physics/src/retained_wire.rs": "1c58db53d9a590d4316aea0fdc855396002935faed3d91a31e7f5434d93d8d40",
     "core/product_physics/src/certified_publication.rs": "8d0fd1f1dba13e8eca74aa62130a0956d3c1ca5c1d197749cf58ee00c501184a",
     "core/product_physics/src/certified_loads.rs": "56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f",
-    "core/product_physics/src/preview_physics.rs": "a8330f13073d5e6e16ea7550cc64fcbd0dcb9b9c787da1798654e43e9388fda7",
+    "core/product_physics/src/preview_physics.rs": "d742331fdc4647321e2004f25918f49fb515af1a1b89b55420926a85508ce735",
     "core/solver/frame_kernel/src/structural/formation_check.rs": "ec27fd9b61191c292ef24a240efccf667976c25f4d42a0a8eea833fb37d21b5d",
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "518f343f9052a94faf3b93e16a488552f707554a66b532156cdced71a4fd75f7",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",

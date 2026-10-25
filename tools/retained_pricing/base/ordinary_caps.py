@@ -510,6 +510,11 @@ add("Ordinary scalar maximum (one helper at a time)", "Maximum",
 # ---------------- Old case staging (BOUND :77-78) -------------------------------------------
 add("Source row qualification", "OldCaseStaging",
     HashReq("(String,String)", R0) + B(2 * R0 * ID) + Xc("ResultItem", R0) + tx("row") * R0 + tx("row") * 2)
+# W-7 D3 (retained-pricing-rules.md §8.20, W7-QF): qualify_source_case_rows' references to the case's rows other than
+# its global end rows, push-grown, live through the qualification.
+import w7_owners_model as _w7_model
+if _snapshot and _w7_model.inspect(_snapshot):
+    add("Source row qualification: global end filter (W7-QF)", "OldCaseStaging", _w7_model.source_filter(R0))
 add("Existing ordinary/failed source case (FinalizedSourceBlockCase::ordinary)", "OldCaseStaging",
     Xc("RowTreatment", R0) + B(R0 * ID) + B(3 * ID + 64) + value_tree(16, 4, 40, 2048, 40 * 24)
     + s("Value") * (2 * R0) + X({"Node(String,Value)": 3 * R0}) + B(128 * R0) + tx("row") * R0
@@ -528,6 +533,15 @@ if _wide:
     add("Independent combination modulus record map (B7a stage 1)", "AggregationSuffix", _map_req, _map_mov)
     add("Additional held failed-manifest envelope owners (B7a stage 1)", "OldCaseStaging", _wide_model.failed_envelope_copy(CC, ID, _snapshot))
 add("Preview tree final copy (envelope evidence)", "AggregationSuffix", PREVIEW)
+# Silent-drop guard D3 (retained-pricing-rules.md §8.19): the combination callee's withheld names and support-group rows
+# (SD-WH, route L with combinations, beside the W1-L5 index), validation's per-combination term set (SD-HS) and the
+# closed-record scan's probe error (SD-PB), each priced positively where its reviewed source exists (sd_owners_model).
+import sd_owners_model as _sd_model
+if _snapshot and _sd_model.inspect(_snapshot):
+    if _mc.get("z", 0):
+        add("Combination withheld names and group rows (SD-WH)", "AggregationSuffix", _sd_model.withheld_names(PA, g))
+    add("Validation duplicate-term set (SD-HS)", "BuildScratch", _sd_model.seen_terms())
+    add("Closed-record scan probe error (SD-PB)", "BuildScratch", _sd_model.probe_error())
 # Closed formed guard construction pays the native row headers, both source
 # lists, maps, fired backing/moving storage and six independently cloned items.
 if _wide:

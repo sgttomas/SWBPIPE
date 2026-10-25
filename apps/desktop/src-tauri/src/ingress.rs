@@ -20,7 +20,9 @@
 //! what the envelope covers and the cached-block slack it does not.
 //!
 //! The prescan itself does not allocate: it walks the bytes once with a
-//! fixed-size stack of per-container counters.
+//! fixed-size stack of per-container counters. [`prescan_regions`] is the same
+//! walk, which also attributes the bound to the regions of a typed decoding
+//! (the report-package request's, `crate::command_ingress`).
 
 /// serde_json starts `remaining_depth` at 128 and refuses the container whose
 /// entry brings it to 0, so at most 127 containers nest.
@@ -140,6 +142,154 @@ pub(crate) struct IngressInvalid {
 struct Frame {
     object: bool,
     count: u64,
+    /// How the decoder treats this container's entries.
+    ctx: Ctx,
+    /// The region this container's own allocation (array buffer or map
+    /// nodes) is priced in.
+    own: Region,
+}
+
+/// One field of a struct a typed decoding builds, for [`prescan_regions`].
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct RegionField {
+    pub name: &'static str,
+    pub region: FieldRegion,
+}
+
+/// A struct a typed decoding builds from an object (fields matched by name,
+/// after the key's escapes are decoded) or an array (fields by position).
+#[derive(Debug)]
+pub(crate) struct RegionStruct {
+    /// The wire type's name (its table is checked against the type).
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub name: &'static str,
+    /// In declaration order: a field's index is its position in array form.
+    pub fields: &'static [RegionField],
+}
+
+/// What the decoder builds from a struct field's value.
+#[derive(Clone, Copy, Debug)]
+pub(crate) enum FieldRegion {
+    /// Nothing beyond moved strings and inline scalars and structs: the
+    /// value's containers are in neither region.
+    Neither,
+    /// A `Value`, rebuilt by decoding: the value is in the opaque region.
+    Opaque,
+    /// A `Vec` of typed elements: the value is in the typed-vector region.
+    TypedVector,
+    /// A `Vec<Value>`: the value is in the typed-vector region and the
+    /// elements of an array there are in the opaque region.
+    TypedVectorOfOpaque,
+    /// A struct of its own fields; the struct's container is in neither region.
+    Struct(&'static RegionStruct),
+}
+
+/// How the decoder treats a container's entries.
+#[derive(Clone, Copy)]
+enum Ctx {
+    Neither,
+    Opaque,
+    Typed,
+    TypedOfOpaque,
+    Struct(&'static RegionStruct),
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Region {
+    Neither,
+    Opaque,
+    Typed,
+}
+
+impl FieldRegion {
+    fn entered(self) -> (Ctx, Region) {
+        match self {
+            FieldRegion::Neither => (Ctx::Neither, Region::Neither),
+            FieldRegion::Opaque => (Ctx::Opaque, Region::Opaque),
+            FieldRegion::TypedVector => (Ctx::Typed, Region::Typed),
+            FieldRegion::TypedVectorOfOpaque => (Ctx::TypedOfOpaque, Region::Typed),
+            FieldRegion::Struct(table) => (Ctx::Struct(table), Region::Neither),
+        }
+    }
+}
+
+impl Frame {
+    /// The context and region of this container's next entry; `field` is the
+    /// struct field its key matched (objects only).
+    fn entry(&self, field: Option<FieldRegion>) -> (Ctx, Region) {
+        match self.ctx {
+            Ctx::Neither => (Ctx::Neither, Region::Neither),
+            Ctx::Opaque => (Ctx::Opaque, Region::Opaque),
+            Ctx::Typed => (Ctx::Typed, Region::Typed),
+            Ctx::TypedOfOpaque if self.object => (Ctx::Typed, Region::Typed),
+            Ctx::TypedOfOpaque => (Ctx::Opaque, Region::Opaque),
+            Ctx::Struct(table) => {
+                let field = if self.object {
+                    field
+                } else {
+                    usize::try_from(self.count).ok().and_then(|position| table.fields.get(position)).map(|field| field.region)
+                };
+                field.unwrap_or(FieldRegion::Neither).entered()
+            }
+        }
+    }
+}
+
+/// Matches a decoded key against a struct's field names without allocating.
+struct FieldMatch {
+    fields: &'static [RegionField],
+    /// Bit i: field i still matches the bytes decoded so far.
+    alive: u64,
+    len: usize,
+}
+
+impl FieldMatch {
+    fn new(table: &'static RegionStruct) -> Self {
+        assert!(table.fields.len() <= 64, "a region struct has at most 64 fields");
+        let alive = if table.fields.len() == 64 { u64::MAX } else { (1u64 << table.fields.len()) - 1 };
+        Self { fields: table.fields, alive, len: 0 }
+    }
+
+    fn feed(&mut self, byte: u8) {
+        let mut alive = self.alive;
+        while alive != 0 {
+            let index = alive.trailing_zeros() as usize;
+            alive &= alive - 1;
+            if self.fields[index].name.as_bytes().get(self.len) != Some(&byte) {
+                self.alive &= !(1u64 << index);
+            }
+        }
+        self.len += 1;
+    }
+
+    fn matched(&self) -> Option<FieldRegion> {
+        let mut alive = self.alive;
+        while alive != 0 {
+            let index = alive.trailing_zeros() as usize;
+            alive &= alive - 1;
+            if self.fields[index].name.len() == self.len {
+                return Some(self.fields[index].region);
+            }
+        }
+        None
+    }
+}
+
+/// [`prescan_regions`]' attribution of the materialization bound M: every
+/// priced allocation is in exactly one part, so the parts sum to M.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(crate) struct RegionBytes {
+    /// Strings and keys (decoding moves them).
+    pub strings: u64,
+    /// C_V: the containers (array buffers and map nodes) of the opaque regions.
+    pub opaque: u64,
+    /// C_T: the containers of the typed-vector regions.
+    pub typed: u64,
+    /// The containers in neither region.
+    pub neither: u64,
+    /// The fixed allowances: scratch, the array transient, the float
+    /// allowance, the error allowance and the solve wrapper.
+    pub allowances: u64,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -158,6 +308,8 @@ struct Scan<'a> {
     index: usize,
     /// Final-tree bytes: strings, keys, array buffers and map nodes.
     tree: u64,
+    /// `tree`'s attribution (strings and the containers of each region).
+    regions: RegionBytes,
     /// The largest previous-capacity buffer of any array (realloc transient).
     largest_array_transient: u64,
     /// The largest scratch content requirement.
@@ -197,9 +349,23 @@ impl Scan<'_> {
         }
     }
 
-    fn add_tree(&mut self, bytes: u64) -> Result<(), IngressInvalid> {
+    /// Prices one requested allocation of `bytes` in the tree: a string or key
+    /// (`region` `None`) or a container of `region`.
+    fn add_tree(&mut self, bytes: u64, region: Option<Region>) -> Result<(), IngressInvalid> {
         let priced = allocation_envelope(bytes).ok_or(invalid("input too large to price", self.index))?;
+        self.add_priced(priced, region)
+    }
+
+    fn add_priced(&mut self, priced: u64, region: Option<Region>) -> Result<(), IngressInvalid> {
         self.tree = self.tree.checked_add(priced).ok_or(invalid("input too large to price", self.index))?;
+        // Each part is at most `tree`, so it cannot overflow.
+        let part = match region {
+            None => &mut self.regions.strings,
+            Some(Region::Opaque) => &mut self.regions.opaque,
+            Some(Region::Typed) => &mut self.regions.typed,
+            Some(Region::Neither) => &mut self.regions.neither,
+        };
+        *part += priced;
         Ok(())
     }
 
@@ -214,8 +380,9 @@ impl Scan<'_> {
     }
 
     /// Scans a string whose opening quote was consumed; prices its owned copy.
-    /// Returns whether it decodes to the `RawValue` token.
-    fn string(&mut self) -> Result<bool, IngressInvalid> {
+    /// Returns whether it decodes to the `RawValue` token. A key of a struct
+    /// the decoder builds is also matched against its field names (`field`).
+    fn string(&mut self, mut field: Option<&mut FieldMatch>) -> Result<bool, IngressInvalid> {
         let mut decoded: u64 = 0;
         let mut escaped = false;
         let mut token_match = true;
@@ -242,6 +409,9 @@ impl Scan<'_> {
                     let code_point = match simple {
                         Some(decoded_byte) => {
                             feed(decoded_byte, &mut token_match, &mut token_pos);
+                            if let Some(field) = field.as_deref_mut() {
+                                field.feed(decoded_byte);
+                            }
                             decoded += 1;
                             continue;
                         }
@@ -269,17 +439,23 @@ impl Scan<'_> {
                     let mut buffer = [0u8; 4];
                     for byte in ch.encode_utf8(&mut buffer).bytes() {
                         feed(byte, &mut token_match, &mut token_pos);
+                        if let Some(field) = field.as_deref_mut() {
+                            field.feed(byte);
+                        }
                     }
                     decoded += ch.len_utf8() as u64;
                 }
                 0x00..=0x1f => return Err(invalid("control character in string", self.index - 1)),
                 other => {
                     feed(other, &mut token_match, &mut token_pos);
+                    if let Some(field) = field.as_deref_mut() {
+                        field.feed(other);
+                    }
                     decoded += 1;
                 }
             }
         }
-        self.add_tree(decoded)?;
+        self.add_tree(decoded, None)?;
         if escaped {
             self.largest_scratch = self.largest_scratch.max(decoded.saturating_add(SCRATCH_ESCAPE_SLACK));
         }
@@ -354,13 +530,13 @@ impl Scan<'_> {
                 let nodes = frame.count / BTREE_MIN_NON_ROOT_ENTRIES + 1;
                 let node = allocation_envelope(BTREE_INTERNAL_NODE_BYTES.max(BTREE_LEAF_NODE_BYTES)).unwrap();
                 let bytes = nodes.checked_mul(node).ok_or(too_large)?;
-                self.tree = self.tree.checked_add(bytes).ok_or(too_large)?;
+                self.add_priced(bytes, Some(frame.own))?;
             }
         } else if frame.count > 0 {
             // `Vec::new()` + `push`: capacities 4, 8, 16, ...
             let capacity = frame.count.checked_next_power_of_two().ok_or(too_large)?.max(4);
             let buffer = capacity.checked_mul(VALUE_BYTES).ok_or(too_large)?;
-            self.add_tree(buffer)?;
+            self.add_tree(buffer, Some(frame.own))?;
             if capacity > 4 {
                 let previous = allocation_envelope(capacity / 2 * VALUE_BYTES).ok_or(too_large)?;
                 self.largest_array_transient = self.largest_array_transient.max(previous);
@@ -372,6 +548,22 @@ impl Scan<'_> {
 
 /// Validates `input` as one JSON value and bounds its native materialization.
 pub(crate) fn prescan(input: &[u8]) -> Result<IngressBound, IngressInvalid> {
+    scan(input, None).map(|(bound, _)| bound)
+}
+
+/// [`prescan`], which also attributes each priced allocation of the bound M
+/// to a region of the typed value `root` the decoder builds from it, by the
+/// path the decoder follows (DEL-04-07 memory-budget decision, "Report-package
+/// request pricing"). A struct's field is matched by name in an object, after
+/// the key's escapes are decoded as the parser decodes them, or by position in
+/// an array; an unmatched key or position, and everything under a
+/// [`FieldRegion::Neither`] field, is in neither region. The validation, the
+/// bound and the refusals are [`prescan`]'s, and it allocates nothing.
+pub(crate) fn prescan_regions(input: &[u8], root: &'static RegionStruct) -> Result<(IngressBound, RegionBytes), IngressInvalid> {
+    scan(input, Some(root))
+}
+
+fn scan(input: &[u8], root: Option<&'static RegionStruct>) -> Result<(IngressBound, RegionBytes), IngressInvalid> {
     if let Err(error) = std::str::from_utf8(input) {
         return Err(invalid("invalid UTF-8", error.valid_up_to()));
     }
@@ -379,13 +571,16 @@ pub(crate) fn prescan(input: &[u8]) -> Result<IngressBound, IngressInvalid> {
         bytes: input,
         index: 0,
         tree: 0,
+        regions: RegionBytes::default(),
         largest_array_transient: 0,
         largest_scratch: 0,
         float_path_seen: false,
     };
-    let mut stack = [Frame { object: false, count: 0 }; MAX_NESTING];
+    let mut stack = [Frame { object: false, count: 0, ctx: Ctx::Neither, own: Region::Neither }; MAX_NESTING];
     let mut depth = 0usize;
     let mut expect = Expect::Value;
+    // The struct field the last key matched, for the value that follows it.
+    let mut key_field: Option<FieldRegion> = None;
     loop {
         scan.skip_whitespace();
         let Some(byte) = scan.peek() else {
@@ -410,12 +605,16 @@ pub(crate) fn prescan(input: &[u8]) -> Result<IngressBound, IngressInvalid> {
                             if depth == MAX_NESTING {
                                 return Err(invalid("nesting deeper than 127 containers", scan.index - 1));
                             }
-                            stack[depth] = Frame { object: byte == b'{', count: 0 };
+                            let (ctx, own) = match depth {
+                                0 => (root.map_or(Ctx::Neither, Ctx::Struct), Region::Neither),
+                                _ => stack[depth - 1].entry(key_field),
+                            };
+                            stack[depth] = Frame { object: byte == b'{', count: 0, ctx, own };
                             depth += 1;
                             expect = if byte == b'{' { Expect::KeyOrObjectEnd } else { Expect::ValueOrArrayEnd };
                         }
                         b'"' => {
-                            scan.string()?;
+                            scan.string(None)?;
                             value_done = true;
                         }
                         b't' => {
@@ -446,9 +645,14 @@ pub(crate) fn prescan(input: &[u8]) -> Result<IngressBound, IngressInvalid> {
                     scan.close(stack[depth])?;
                     value_done = true;
                 } else if byte == b'"' {
-                    if scan.string()? {
+                    let mut field = match stack[depth - 1].ctx {
+                        Ctx::Struct(table) => Some(FieldMatch::new(table)),
+                        _ => None,
+                    };
+                    if scan.string(field.as_mut())? {
                         return Err(invalid("reserved RawValue token key", scan.index));
                     }
+                    key_field = field.and_then(|field| field.matched());
                     expect = Expect::Colon;
                 } else {
                     return Err(invalid("expected an object key", scan.index - 1));
@@ -499,11 +703,13 @@ pub(crate) fn prescan(input: &[u8]) -> Result<IngressBound, IngressInvalid> {
             .ok_or(too_large)?
     };
     let float = if scan.float_path_seen { FLOAT_PARSE_ALLOWANCE_BYTES } else { 0 };
-    let materialization_bytes = [scratch, scan.largest_array_transient, float, ERROR_ALLOWANCE_BYTES, wrapper_bytes()]
+    let allowances = [scratch, scan.largest_array_transient, float, ERROR_ALLOWANCE_BYTES, wrapper_bytes()]
         .into_iter()
-        .try_fold(scan.tree, u64::checked_add)
+        .try_fold(0u64, u64::checked_add)
         .ok_or(too_large)?;
-    Ok(IngressBound { raw_len: input.len() as u64, materialization_bytes })
+    let materialization_bytes = scan.tree.checked_add(allowances).ok_or(too_large)?;
+    let regions = RegionBytes { allowances, ..scan.regions };
+    Ok((IngressBound { raw_len: input.len() as u64, materialization_bytes }, regions))
 }
 
 #[cfg(test)]
@@ -561,6 +767,11 @@ pub(crate) mod counting {
         /// Peak of the live sum of `allocation_envelope(requested size)`.
         pub peak_priced: u64,
         pub allocations: u64,
+    }
+
+    /// The live priced bytes now (inside [`measure`]).
+    pub fn live_priced() -> i64 {
+        LIVE_PRICED.with(Cell::get)
     }
 
     /// Runs `f` with this thread's accounting active from zero.
@@ -770,6 +981,37 @@ mod tests {
         let (outcome, measured) = measure(|| prescan(b"[1,2,"));
         assert!(outcome.is_err());
         assert_eq!(measured.allocations, 0);
+    }
+
+    /// The region prescan (the report-package request's regions) allocates
+    /// nothing, has the prescan's bound and refusals, and attributes every
+    /// priced allocation to exactly one part, so the parts and the fixed
+    /// allowances sum to M.
+    #[test]
+    fn prescan_regions_allocates_nothing_and_its_parts_sum_to_the_bound() {
+        use crate::command_ingress::REPORT_PACKAGE_REQUEST_REGIONS as REGIONS;
+        let mut inputs = adversarial_inputs();
+        inputs.push(("request_shaped".into(), format!(
+            r#"{{"report":[{}0],"source_basis_refs":[{}[1]],"audit_manifest":["m",null,null,null,"SI",[[1]],[{{"a":[1]}}],null],"result_documents":[{}{{}}],"r\u0065port":{{"k":"\u00e9"}}}}"#,
+            "[[0]],".repeat(2_000), "[1],".repeat(2_000), "{\"a\":[[1]]},".repeat(1_000)
+        ).into_bytes()));
+        inputs.push(("positional_request".into(), format!(r#"["p","e",[],[{}[]],{{}},[],[[]],[[1]],[[[2]]],null,"s"]"#, "[1],".repeat(3_000)).into_bytes()));
+        for (name, input) in &inputs {
+            let (outcome, measured) = measure(|| prescan_regions(input, &REGIONS));
+            assert_eq!(measured.allocations, 0, "{name}: the region prescan allocated");
+            let (bound, regions) = outcome.unwrap_or_else(|e| panic!("{name}: {e:?}"));
+            assert_eq!(Ok(bound), prescan(input), "{name}");
+            let parts = [regions.strings, regions.opaque, regions.typed, regions.neither, regions.allowances];
+            assert_eq!(parts.iter().sum::<u64>(), bound.materialization_bytes, "{name}: {regions:?}");
+            let (_, plain) = scan(input, None).unwrap();
+            assert_eq!((plain.opaque, plain.typed), (0, 0), "{name}: no regions without a table");
+            assert_eq!(plain.neither, regions.opaque + regions.typed + regions.neither, "{name}");
+        }
+        for invalid in [&b"[1,"[..], b"{\"report\":[1]", b"{\"\\x\":1}", br#"{"$serde_json::private::RawValue":"1"}"#] {
+            let (outcome, measured) = measure(|| prescan_regions(invalid, &REGIONS));
+            assert_eq!(measured.allocations, 0);
+            assert_eq!(outcome.map(|(bound, _)| bound), prescan(invalid));
+        }
     }
 
     #[test]
