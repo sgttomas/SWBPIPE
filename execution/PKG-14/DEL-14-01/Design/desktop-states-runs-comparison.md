@@ -1148,7 +1148,8 @@ projection.
 **As built (S3a, state comparison).** `apps/desktop/src/features/comparison/stateComparison.ts`
 (flattening and comparison), `StateComparisonView.tsx` beside it (the view), the
 History panel and `useModelStateHistory.ts` (Compare…), and the store's
-`admit_model_state_comparison` (`model_states.rs`).
+`admit_model_state_comparison` and `read_model_state_for_comparison`
+(`model_states.rs`).
 - **Member assignment (0.7.0, all 22 members).** The `model` entity holds
   `schema_version`, `document_kind`, `project`, `pressure_contract`,
   `data_boundary`, `analysis_status`, `diagnostics` and `model_settings` as
@@ -1213,9 +1214,28 @@ History panel and `useModelStateHistory.ts` (Compare…), and the store's
     SQLite's working set, reads both snapshots' `octet_length` in one read
     transaction, and refuses by name (`COMPARISON-STATES-TOO-LARGE`) when their
     sum exceeds the per-invocation budget, before either is read. It returns
-    four numbers and echoes no id. It is a check, not a lease: the comparison
-    then runs in the webview after S1's two metered `read_model_state` reads,
-    and its working memory there is not priced (DEL-04-07's residual).
+    four numbers and echoes no id. It is a 1× cap on the stored input size, not
+    a bound on webview memory: it is a check, not a lease, and has no
+    multiplier. The webview's parse, flatten and render memory stays unpriced
+    under the documented residual ("command working memory and responses are
+    not separately bounded", DEL-04-07).
+  - **The comparison read (r1).** `read_model_state_for_comparison
+    {projectId, stateId}` (256 KiB of arguments) is `read_model_state` for a
+    comparison: the same metering and leases, SQLite working-set reservation,
+    hash and integrity checks, version refusal and refusals of unreadable or
+    tampered rows. It alone admits blocking document findings, so a
+    `MODEL_INCOMPLETE` state, kept as a comparison basis, is compared;
+    `read_model_state` (Open State) still refuses it, so it is never opened.
+  - **Exactness at the webview boundary (r1).** The webview decodes JSON
+    numbers as binary64, so a stored integer beyond 2^53 (9007199254740993)
+    arrives as another number, and two states the store holds apart would read
+    unchanged. Before comparing, each received snapshot's model hash is
+    recomputed in the webview (the session's wasm canonical hash) and must
+    equal the state's stored model hash; otherwise the comparison is refused
+    by name (`COMPARISON-STATE-NOT-EXACT`: the saved state holds values the
+    desktop cannot represent exactly). There is no exact-number comparison.
+    Open State already makes the same recomputation and refuses a mismatch as
+    `MODEL-STATE-INTEGRITY`.
   - **Sides.** The earlier-saved state is the left side.
   - **Unreadable rows** have no selection; their compare checkbox is
     disabled with the reason. Compare… needs two selected readable states, goes
@@ -1223,7 +1243,9 @@ History panel and `useModelStateHistory.ts` (Compare…), and the store's
     stated reason when busy or when two are not selected.
 - **View.** Counts per classification, entities and unit-changed fields; a
   table filterable by classification (differences only by default), family and
-  id, at most 200 rows rendered; each changed entity's field paths with both
+  id, paged at 200 rows with Previous and Next and "Rows a–b of n", back to the
+  first page on any filter change (r1), so every row is reachable; each changed
+  entity's field paths with both
   values as stored (a quantity with its own unit). View-only, with no export
   (FR-CMP-010 is v0.2), and no wording of standing. The within-run
   `ComparisonPanel.tsx` is unchanged (S3b).

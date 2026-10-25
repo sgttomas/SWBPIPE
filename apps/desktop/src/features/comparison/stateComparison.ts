@@ -108,6 +108,10 @@ export const COMPARISON_MEMBER_UNASSIGNED = "COMPARISON-MEMBER-UNASSIGNED";
 export const COMPARISON_MEMBER_MALFORMED = "COMPARISON-MEMBER-MALFORMED";
 export const COMPARISON_ENTITY_ID_MISSING = "COMPARISON-ENTITY-ID-MISSING";
 export const COMPARISON_DUPLICATE_ID = "COMPARISON-DUPLICATE-ID";
+/** A received snapshot whose model hash in the webview differs from the stored one:
+ * it holds values (such as integers beyond 2^53) the desktop cannot represent
+ * exactly, so comparing it would hide differences. */
+export const COMPARISON_STATE_NOT_EXACT = "COMPARISON-STATE-NOT-EXACT";
 
 /** A comparison the document's content does not admit, refused by name. */
 export class StateComparisonRefusal extends Error {

@@ -106,6 +106,17 @@ pub(crate) const READ_MODEL_STATE_MAX_ARGS_BYTES: usize = HISTORY_COMMAND_MAX_AR
 pub(crate) const DELETE_MODEL_STATE_MAX_ARGS_BYTES: usize = HISTORY_COMMAND_MAX_ARGS_BYTES;
 pub(crate) const EDIT_MODEL_STATE_LABELS_MAX_ARGS_BYTES: usize = HISTORY_COMMAND_MAX_ARGS_BYTES;
 pub(crate) const ADMIT_MODEL_STATE_COMPARISON_MAX_ARGS_BYTES: usize = HISTORY_COMMAND_MAX_ARGS_BYTES;
+pub(crate) const READ_MODEL_STATE_FOR_COMPARISON_MAX_ARGS_BYTES: usize = HISTORY_COMMAND_MAX_ARGS_BYTES;
+
+/// What a state is read for (W-12 S3a r1). Both reads make the same metered,
+/// leased and integrity-checked read; only opening it as the working model
+/// also refuses blocking document findings, so a `MODEL_INCOMPLETE` state is a
+/// comparison basis but is never opened (design §2).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum StateReadPurpose {
+    Open,
+    Compare,
+}
 
 /// The longest tag, as for model tags (DEL-02-01 `model-document-0.7.0.md` §3.1).
 const MAX_TAG_CHARS: usize = 64;
@@ -2350,6 +2361,20 @@ pub(crate) fn read_state_in_store_with(
     state_id: &str,
     memory: &dyn ReadMemory,
 ) -> Result<Metered<ModelStateRead>, String> {
+    read_state_for_in_store_with(path, project_id, state_id, StateReadPurpose::Open, memory)
+}
+
+/// [`read_state_in_store_with`] for `purpose`: the same read, metering and
+/// checks; [`StateReadPurpose::Compare`] alone admits a snapshot with blocking
+/// document findings (a `MODEL_INCOMPLETE` state). A snapshot whose version is
+/// not current is refused for either purpose.
+pub(crate) fn read_state_for_in_store_with(
+    path: &Path,
+    project_id: &str,
+    state_id: &str,
+    purpose: StateReadPurpose,
+    memory: &dyn ReadMemory,
+) -> Result<Metered<ModelStateRead>, String> {
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::read_transaction(&mut connection)?;
     let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory)?;
@@ -2449,7 +2474,9 @@ pub(crate) fn read_state_in_store_with(
     if version.is_refused() {
         return Err(refuse_version(&version));
     }
-    refuse_malformed_slots(&model)?;
+    if purpose == StateReadPurpose::Open {
+        refuse_malformed_slots(&model)?;
+    }
     let record = emitted_record(&stored, &state.labels)?;
     drop(stored);
     drop(record_json);
@@ -2809,6 +2836,19 @@ pub(crate) fn read_model_state_args(
         .map_err(|error| CommandError::Command(stored_read::capped(error)))
 }
 
+/// `{projectId, stateId}`: the read for a comparison (W-12 S3a r1).
+pub(crate) fn read_model_state_for_comparison_args(
+    args: &mut Args,
+    store: impl FnOnce() -> Result<PathBuf, String>,
+    memory: &dyn ReadMemory,
+) -> Result<Metered<ModelStateRead>, CommandError> {
+    let project_id: String = args.decode("projectId")?;
+    let state_id: String = args.decode("stateId")?;
+    store()
+        .and_then(|path| read_state_for_in_store_with(&path, &project_id, &state_id, StateReadPurpose::Compare, memory))
+        .map_err(|error| CommandError::Command(stored_read::capped(error)))
+}
+
 /// `{projectId, stateId, labels, expectedUpdatedAt?}`.
 pub(crate) fn edit_model_state_labels_args(
     args: &mut Args,
@@ -3018,6 +3058,29 @@ pub fn read_model_state(
         &memory,
         "read_model_state",
         read_model_state_args(&mut args, || crate::app_store_path(&app), &memory),
+    )
+}
+
+/// `read_model_state` for a comparison of saved states (W-12 S3a r1): the same
+/// metered, integrity-checked read, admitting a `MODEL_INCOMPLETE` state.
+#[tauri::command]
+pub fn read_model_state_for_comparison(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError> {
+    let (mut args, lease) = command_ingress::admit_within(
+        &registry,
+        &invoke,
+        "read_model_state_for_comparison",
+        ArgsDecoding::Moved,
+        READ_MODEL_STATE_FOR_COMPARISON_MAX_ARGS_BYTES,
+    )?;
+    let memory = PoolReadMemory::new(&registry, &lease);
+    stored_read::respond_metered(
+        &memory,
+        "read_model_state_for_comparison",
+        read_model_state_for_comparison_args(&mut args, || crate::app_store_path(&app), &memory),
     )
 }
 
@@ -3955,6 +4018,79 @@ mod tests {
         );
     }
 
+    /// W-12 S3a r1: the comparison read returns a `MODEL_INCOMPLETE` state that
+    /// opening still refuses, with the same integrity checks and metering.
+    #[test]
+    fn the_comparison_read_admits_an_incomplete_state_with_the_same_checks_and_metering() {
+        let path = store_with_project("compare-incomplete", "sha256:base-1");
+        let mut incomplete = model("Invented project");
+        incomplete["unresolved_assumptions"][1].as_object_mut().unwrap().remove("resolution_note");
+        let saved = save(&path, request(&incomplete, "sha256:base-1", "Incomplete basis"), "00000000000000000000000000000d01", 1_000).unwrap();
+        let state_id = saved.state.state_id.clone();
+        assert!(saved.state.analysis_status.contains(&"MODEL_INCOMPLETE".to_string()));
+
+        // The comparison read returns it, verified.
+        let read = read_state_for_in_store_with(&path, PROJECT, &state_id, StateReadPurpose::Compare, &UnmeteredReadMemory)
+            .unwrap()
+            .into_unreserved()
+            .unwrap();
+        assert_eq!(read.model, incomplete);
+        assert_eq!(read.state.analysis_status, saved.state.analysis_status);
+        assert_eq!(format!("sha256:{}", sha256_hex(&canonical_json(&read.model))), saved.state.model_hash);
+        // Opening still refuses it.
+        let error = read_state_in_store(&path, PROJECT, &state_id).unwrap_err();
+        assert!(error.starts_with("Model document refused: malformed model-data slots: MODEL-ASSUMPTION-RESOLUTION-NOTE-REQUIRED"), "{error}");
+
+        // The metering applies: under a pool too small for the read it is refused
+        // by name and every lease is released; under a normal pool it is admitted.
+        let tiny = registry(ScriptedHost::normal());
+        tiny.configure_pool(64 << 10, 64 << 10, false).unwrap();
+        {
+            let memory = PoolReadMemory::unseeded(&tiny);
+            let refused = read_state_for_in_store_with(&path, PROJECT, &state_id, StateReadPurpose::Compare, &memory).unwrap_err();
+            assert!(refused.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE), "{refused}");
+        }
+        assert_eq!(tiny.pool_status().reserved_bytes, 0);
+        let pool = registry(ScriptedHost::normal());
+        {
+            let memory = PoolReadMemory::unseeded(&pool);
+            let metered = read_state_for_in_store_with(&path, PROJECT, &state_id, StateReadPurpose::Compare, &memory).unwrap();
+            assert!(pool.pool_status().reserved_bytes > 0, "the read holds its reservations");
+            drop(metered);
+        }
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+
+        // Through the command's decoder.
+        let (mut args, lease) = admit_json(
+            &pool,
+            "read_model_state_for_comparison",
+            ArgsDecoding::Moved,
+            &json!({ "projectId": PROJECT, "stateId": state_id }),
+        )
+        .unwrap();
+        {
+            let memory = PoolReadMemory::new(&pool, &lease);
+            let read = read_model_state_for_comparison_args(&mut args, || Ok(path.clone()), &memory).unwrap();
+            assert_eq!(read.get().model, incomplete);
+        }
+        drop(lease);
+
+        // A tampered snapshot (its hash resealed in the column only) and a snapshot
+        // that does not hash to its stored hash are still refused.
+        let mut other = incomplete.clone();
+        other["project"]["name"] = json!("Tampered");
+        let other_canonical = canonical_json(&other).replace('\'', "''");
+        tamper(&path, &format!("UPDATE model_states SET model_canonical = '{other_canonical}' WHERE state_id = '{state_id}';"));
+        let refused = read_state_for_in_store_with(&path, PROJECT, &state_id, StateReadPurpose::Compare, &UnmeteredReadMemory).unwrap_err();
+        assert!(refused.starts_with("MODEL-STATE-INTEGRITY"), "{refused}");
+        tamper(&path, &format!(
+            "UPDATE model_states SET model_hash = 'sha256:{}' WHERE state_id = '{state_id}';",
+            sha256_hex(&canonical_json(&other))
+        ));
+        let refused = read_state_for_in_store_with(&path, PROJECT, &state_id, StateReadPurpose::Compare, &UnmeteredReadMemory).unwrap_err();
+        assert!(refused.starts_with("MODEL-STATE-INTEGRITY"), "{refused}");
+    }
+
     /// Edits rows outside the store's own paths: the triggers dropped and
     /// foreign keys off, as a hand edit of the file could.
     fn tamper(path: &Path, statements: &str) {
@@ -4408,6 +4544,10 @@ mod tests {
             (
                 "admit_model_state_comparison",
                 ADMIT_MODEL_STATE_COMPARISON_MAX_ARGS_BYTES,
+            ),
+            (
+                "read_model_state_for_comparison",
+                READ_MODEL_STATE_FOR_COMPARISON_MAX_ARGS_BYTES,
             ),
         ] {
             let at_budget = InvokeBody::Raw(

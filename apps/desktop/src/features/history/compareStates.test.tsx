@@ -13,7 +13,9 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test
 import everySlotModel from "../../../../../fixtures/model_document/invented_every_slot_model.json";
 import type { ModelStateSummary } from "../../services/modelStateService";
 import { compareModelDocuments } from "../comparison/stateComparison";
-import { MAX_VISIBLE_COMPARISON_ROWS, StateComparisonView } from "../comparison/StateComparisonView";
+import { COMPARISON_PAGE_ROWS, StateComparisonView } from "../comparison/StateComparisonView";
+import { canonicalJsonString, computeModelHash } from "../../services/hashService";
+import { createHash } from "node:crypto";
 import { WorkspaceSessionProvider } from "../workspace/WorkspaceSessionContext";
 import type { WorkspaceSession } from "../workspace/workspaceSession";
 import { HistoryPanel } from "./HistoryPanel";
@@ -165,19 +167,42 @@ describe("the comparison view", () => {
     expect(screen.getByTestId("state-comparison-shown")).toHaveTextContent("No entity matches the filters.");
   });
 
-  it("renders at most a bounded number of rows and says how many match", () => {
-    const left = structuredClone(everySlotModel) as Json;
-    left.nodes = Array.from({ length: MAX_VISIBLE_COMPARISON_ROWS + 50 }, (_, index) => ({ id: `node:M-${String(index).padStart(4, "0")}`, position: { x: index, y: 0, z: 0 } }));
-    render(<StateComparisonView result={{ projectId: PROJECT, left: FIRST, right: SECOND, comparison: compareModelDocuments(left, everySlotModel) }} onClose={() => {}} />);
-    expect(screen.getByTestId("state-comparison-table").querySelectorAll("tbody tr").length).toBe(MAX_VISIBLE_COMPARISON_ROWS);
-    expect(screen.getByTestId("state-comparison-shown")).toHaveTextContent(`Showing the first ${MAX_VISIBLE_COMPARISON_ROWS} of`);
+  it("pages through every matching row, at most a page at once, back to the first page on a filter change", () => {
+    // 201 removed `A-N-1-xxx` nodes sort before the removed `N-1`, which is on the second page.
+    const minimal = (nodes: Json[]) => ({ schema_version: "0.7.0", document_kind: "openpipestress.product_preview.model", project: { id: PROJECT }, nodes });
+    const removed = [...Array.from({ length: 201 }, (_, index) => ({ id: `A-N-1-${String(index).padStart(3, "0")}` })), { id: "N-1" }];
+    render(<StateComparisonView result={{ projectId: PROJECT, left: FIRST, right: SECOND, comparison: compareModelDocuments(minimal(removed), minimal([])) }} onClose={() => {}} />);
+    const ids = () => [...screen.getByTestId("state-comparison-table").querySelectorAll("tbody tr td:nth-child(2)")].map((cell) => cell.textContent);
+    fireEvent.change(screen.getByTestId("state-comparison-filter-classification"), { target: { value: "removed" } });
+    expect(COMPARISON_PAGE_ROWS).toBeLessThanOrEqual(200);
+    expect(ids()).toHaveLength(COMPARISON_PAGE_ROWS);
+    expect(ids()).not.toContain("N-1");
+    expect(screen.getByTestId("state-comparison-shown")).toHaveTextContent(`Rows 1–${COMPARISON_PAGE_ROWS} of 202.`);
+    expect(screen.getByTestId("state-comparison-page-previous")).toBeDisabled();
+    fireEvent.click(screen.getByTestId("state-comparison-page-next"));
+    expect(ids()).toContain("N-1");
+    expect(screen.getByTestId("state-comparison-shown")).toHaveTextContent(`Rows ${COMPARISON_PAGE_ROWS + 1}–202 of 202.`);
+    expect(screen.getByTestId("state-comparison-page-next")).toBeDisabled();
+    fireEvent.click(screen.getByTestId("state-comparison-page-previous"));
+    expect(screen.getByTestId("state-comparison-shown")).toHaveTextContent(`Rows 1–${COMPARISON_PAGE_ROWS} of 202.`);
+    // A filter change returns to the first page.
+    fireEvent.click(screen.getByTestId("state-comparison-page-next"));
+    fireEvent.change(screen.getByTestId("state-comparison-filter-id"), { target: { value: "N-1" } });
+    expect(screen.getByTestId("state-comparison-shown")).toHaveTextContent(`Rows 1–${COMPARISON_PAGE_ROWS} of 202.`);
+    fireEvent.change(screen.getByTestId("state-comparison-filter-id"), { target: { value: "A-N-1-2" } });
+    expect(ids()).toEqual(["A-N-1-200"]);
   });
 });
 
 /** The session's flow, against a fake of the native commands. */
-function nativeStore(options: { admission?: () => unknown } = {}) {
+/** Each read returns the snapshot as the webview decodes the native response, with
+ * the state's stored model hash (the native store's hash of its exact text). */
+async function nativeStore(options: { admission?: () => unknown; reads?: Record<string, { text: string; model_hash: string }> } = {}) {
   (window as Json).__TAURI_INTERNALS__ = {};
-  const snapshots: Record<string, Json> = { [FIRST.state_id]: LEFT_MODEL, [SECOND.state_id]: RIGHT_MODEL };
+  const hashed = async (model: Json) => ({ text: await canonicalJsonString(model), model_hash: (await computeModelHash(model))!.value });
+  const reads: Record<string, { text: string; model_hash: string }> = {
+    [FIRST.state_id]: await hashed(LEFT_MODEL), [SECOND.state_id]: await hashed(RIGHT_MODEL), ...options.reads
+  };
   invokeMock.mockImplementation(async (command: string, args: Record<string, unknown>) => {
     switch (command) {
       case "list_model_states": return [SECOND, FIRST, { unreadable: UNREADABLE }];
@@ -185,10 +210,11 @@ function nativeStore(options: { admission?: () => unknown } = {}) {
       case "admit_model_state_comparison":
         if (options.admission) return options.admission();
         return { left_snapshot_bytes: 10, right_snapshot_bytes: 12, combined_bytes: 22, budget_bytes: 12 * 1024 ** 3 };
-      case "read_model_state": {
+      case "read_model_state_for_comparison": {
         const id = args.stateId as string;
         const summary = [FIRST, SECOND].find((candidate) => candidate.state_id === id)!;
-        return { state: summary, record: {}, model: structuredClone(snapshots[id]), model_document_version: { status: "current" } };
+        const read = reads[id];
+        return { state: { ...summary, model_hash: read.model_hash }, record: {}, model: JSON.parse(read.text), model_document_version: { status: "current" } };
       }
       default: throw new Error(`unexpected ${command}`);
     }
@@ -211,16 +237,16 @@ const commands = () => invokeMock.mock.calls.map(([command]) => command as strin
 
 describe("the session's Compare… flow", () => {
   it("admits the size, reads both states and compares them, the earlier-saved on the left", async () => {
-    nativeStore();
+    await nativeStore();
     const { result: hook, deps } = sessionHistory();
     await act(async () => { await hook.current.refreshStates(PROJECT); });
     let compared = false;
     await act(async () => { compared = await hook.current.compareStates(SECOND.state_id, FIRST.state_id); });
     expect(compared).toBe(true);
-    expect(commands()).toEqual(["admit_model_state_comparison", "read_model_state", "read_model_state"]);
+    expect(commands()).toEqual(["admit_model_state_comparison", "read_model_state_for_comparison", "read_model_state_for_comparison"]);
     const admission = invokeMock.mock.calls.find(([command]) => command === "admit_model_state_comparison")![1];
     expect(admission).toEqual({ projectId: PROJECT, leftStateId: FIRST.state_id, rightStateId: SECOND.state_id });
-    expect(hook.current.stateComparison).toMatchObject({ left: FIRST, right: SECOND });
+    expect(hook.current.stateComparison).toMatchObject({ left: { state_id: FIRST.state_id }, right: { state_id: SECOND.state_id } });
     expect(hook.current.stateComparison!.comparison).toEqual(compareModelDocuments(LEFT_MODEL, RIGHT_MODEL));
     expect(hook.current.historyMessage).toBe(`Compared "Basis" (${FIRST.state_id}) with "Revision" (${SECOND.state_id}): 1 added, 1 removed, 3 changed, ${hook.current.stateComparison!.comparison.summary.unchanged} unchanged. Neither state changes.`);
     // Through the one-owner check, released afterwards.
@@ -232,7 +258,7 @@ describe("the session's Compare… flow", () => {
 
   it("is refused by name before either state is read when the two snapshots exceed the budget", async () => {
     const refusal = `COMPARISON-STATES-TOO-LARGE: comparing saved states \`${FIRST.state_id}\` and \`${SECOND.state_id}\` needs their two snapshots, 30 bytes together, above the per-invocation budget of 20 bytes; nothing was read and nothing was compared.`;
-    nativeStore({ admission: () => { throw refusal; } });
+    await nativeStore({ admission: () => { throw refusal; } });
     const { result: hook } = sessionHistory();
     await act(async () => { await hook.current.refreshStates(PROJECT); });
     await act(async () => { await hook.current.compareStates(FIRST.state_id, SECOND.state_id); });
@@ -243,7 +269,7 @@ describe("the session's Compare… flow", () => {
   });
 
   it("starts nothing while a prompt holds the session or another operation owns it", async () => {
-    nativeStore();
+    await nativeStore();
     const busy = sessionHistory({ projectSessionBusy: () => true });
     await act(async () => { await busy.result.current.refreshStates(PROJECT); });
     await act(async () => { await busy.result.current.compareStates(FIRST.state_id, SECOND.state_id); });
@@ -257,7 +283,7 @@ describe("the session's Compare… flow", () => {
   });
 
   it("refuses an unreadable or unlisted state, and a state compared with itself", async () => {
-    nativeStore();
+    await nativeStore();
     const { result: hook } = sessionHistory();
     await act(async () => { await hook.current.refreshStates(PROJECT); });
     for (const [first, second] of [[FIRST.state_id, UNREADABLE.id], [FIRST.state_id, FIRST.state_id]]) {
@@ -267,15 +293,43 @@ describe("the session's Compare… flow", () => {
     expect(commands()).toEqual([]);
   });
 
+  it("refuses a snapshot whose stored values the webview cannot represent exactly (an integer beyond 2^53)", async () => {
+    // The native store keeps 9007199254740992 and 9007199254740993 apart, with
+    // distinct hashes; the webview decodes both to 9007199254740992.
+    const sha = (text: string) => `sha256:${createHash("sha256").update(text, "utf8").digest("hex")}`;
+    const base = structuredClone(RIGHT_MODEL);
+    base.nodes[0].position = { ...base.nodes[0].position, x: 9007199254740992 };
+    const decodedText = await canonicalJsonString(base);
+    expect(decodedText).toContain('"x":9007199254740992');
+    const exactText = decodedText.replace('"x":9007199254740992', '"x":9007199254740993');
+    expect(sha(exactText)).not.toBe(sha(decodedText));
+    expect(JSON.parse(exactText)).toEqual(JSON.parse(decodedText));
+    // The webview's hash of the decoded document is the hash of the decoded text.
+    expect((await computeModelHash(JSON.parse(decodedText)))!.value).toBe(sha(decodedText));
+    await nativeStore({ reads: { [SECOND.state_id]: { text: exactText, model_hash: sha(exactText) } } });
+    const { result: hook } = sessionHistory();
+    await act(async () => { await hook.current.refreshStates(PROJECT); });
+    let compared = true;
+    await act(async () => { compared = await hook.current.compareStates(FIRST.state_id, SECOND.state_id); });
+    expect(compared).toBe(false);
+    expect(hook.current.stateComparison).toBeNull();
+    expect(hook.current.historyMessage).toMatch(new RegExp(`^Not compared: COMPARISON-STATE-NOT-EXACT: the saved state "Revision" \\(${SECOND.state_id}\\) holds values the desktop cannot represent exactly`));
+    // The same pair with the representable value compares.
+    await nativeStore({ reads: { [SECOND.state_id]: { text: decodedText, model_hash: sha(decodedText) } } });
+    await act(async () => { compared = await hook.current.compareStates(FIRST.state_id, SECOND.state_id); });
+    expect(compared).toBe(true);
+    expect(hook.current.stateComparison!.comparison.rows.find((row) => row.id === "node:N-1")!.classification).toBe("changed");
+  });
+
   it("shows a document the comparison cannot hold as its named refusal", async () => {
-    nativeStore();
+    await nativeStore();
     const odd = structuredClone(RIGHT_MODEL);
     odd.invented_future_member = [];
     const { result: hook } = sessionHistory();
     await act(async () => { await hook.current.refreshStates(PROJECT); });
     const base = invokeMock.getMockImplementation()!;
     invokeMock.mockImplementation(async (command: string, args: Record<string, unknown>) => {
-      if (command === "read_model_state" && args.stateId === SECOND.state_id) return { state: SECOND, record: {}, model: odd, model_document_version: { status: "current" } };
+      if (command === "read_model_state_for_comparison" && args.stateId === SECOND.state_id) return { state: { ...SECOND, model_hash: (await computeModelHash(odd))!.value }, record: {}, model: odd, model_document_version: { status: "current" } };
       return base(command, args);
     });
     await act(async () => { await hook.current.compareStates(FIRST.state_id, SECOND.state_id); });

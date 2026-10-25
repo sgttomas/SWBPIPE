@@ -175,6 +175,14 @@ export async function admitModelStateComparison(projectId: string, leftStateId: 
   return invokeWithIngress<ModelStateComparisonAdmission>("admit_model_state_comparison", { projectId, leftStateId, rightStateId });
 }
 
+/** The read for a comparison (W-12 S3a r1): the same metered, integrity-checked read
+ * as `readModelState`, which also returns a `MODEL_INCOMPLETE` state (a comparison
+ * basis); opening such a state stays refused. */
+export async function readModelStateForComparison(projectId: string, stateId: string): Promise<ModelStateRead> {
+  requireNativeStore();
+  return invokeWithIngress<ModelStateRead>("read_model_state_for_comparison", { projectId, stateId });
+}
+
 export function modelStateDescription(state: Pick<ModelStateSummary, "state_name" | "state_id">): string {
   return `"${state.state_name}" (${state.state_id})`;
 }

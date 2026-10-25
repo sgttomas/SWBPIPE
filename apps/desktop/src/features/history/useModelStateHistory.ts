@@ -16,6 +16,7 @@ import {
   MODEL_STATE_STORE_UNAVAILABLE,
   modelStateDescription,
   readModelState,
+  readModelStateForComparison,
   saveModelState,
   stateIsOpenable,
   type ModelStateKind,
@@ -38,7 +39,7 @@ import {
   type RunLabels
 } from "../../services/analysisRunService";
 import { buildRecordedRunContext, type HistoricalRunContext } from "../results/HistoricalRunContext";
-import { compareModelDocuments, StateComparisonRefusal, type StateComparison } from "../comparison/stateComparison";
+import { COMPARISON_STATE_NOT_EXACT, compareModelDocuments, StateComparisonRefusal, type StateComparison } from "../comparison/stateComparison";
 import { computeModelHash } from "../../services/hashService";
 import type { UnreadableRow } from "../../services/historyListEntries";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
@@ -616,10 +617,25 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       // The store refuses by name, before either snapshot is read, when the two
       // together exceed the per-invocation budget.
       await admitModelStateComparison(left.project_id, left.state_id, right.state_id);
-      const leftRead = await readModelState(left.project_id, left.state_id);
-      const rightRead = await readModelState(right.project_id, right.state_id);
+      // The comparison read: integrity-checked as Open's, and a MODEL_INCOMPLETE
+      // state (a comparison basis) is read too.
+      const leftRead = await readModelStateForComparison(left.project_id, left.state_id);
+      const rightRead = await readModelStateForComparison(right.project_id, right.state_id);
       if (leftRead.model.project.id !== left.project_id || rightRead.model.project.id !== right.project_id) {
         throw new Error("MODEL-STATE-INTEGRITY: a read snapshot is not of the saved state's project; nothing was compared.");
+      }
+      // Fail closed at the native-to-webview boundary: the webview's JSON numbers
+      // are binary64, so a stored value such as 9007199254740993 arrives as another
+      // number. Each received snapshot must hash, in the webview's canonical form,
+      // to the state's stored model hash, or the comparison is refused.
+      for (const read of [leftRead, rightRead]) {
+        const received = await computeModelHash(read.model);
+        if (!received || received.value !== read.state.model_hash) {
+          throw new StateComparisonRefusal(
+            COMPARISON_STATE_NOT_EXACT,
+            `the saved state ${modelStateDescription(read.state)} holds values the desktop cannot represent exactly (its snapshot as received does not hash to the stored ${read.state.model_hash.slice(0, 19)}…), so it is not compared.`
+          );
+        }
       }
       const comparison = compareModelDocuments(leftRead.model, rightRead.model);
       if (!sameSession()) return false;

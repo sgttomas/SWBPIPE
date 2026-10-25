@@ -19,12 +19,14 @@ import {
 // classification, a table of entities filterable by classification, family and
 // id, and each changed entity's field paths with both values and their units.
 // Values are shown as stored: a quantity whose unit differs is marked
-// `unit changed` and is never converted or subtracted. View-only: comparison
+// `unit changed` and is never converted or subtracted. The table pages at
+// `COMPARISON_PAGE_ROWS` rows, so every matching row is reachable. View-only: comparison
 // export is v0.2 (FR-CMP-010). It reports differences and establishes nothing
 // about either state (F-PIP-2, F-PIP-3).
 
-/** The most table rows rendered at once; the filters narrow the rest. */
-export const MAX_VISIBLE_COMPARISON_ROWS = 200;
+/** The table's page size: at most this many rows are rendered at once, and
+ * every matching row is reachable by paging. */
+export const COMPARISON_PAGE_ROWS = 200;
 /** The most characters of one stored value shown in a cell. */
 const MAX_VALUE_CHARS = 160;
 
@@ -81,6 +83,9 @@ export function StateComparisonView({ result, onClose }: { result: StateComparis
   const [classification, setClassification] = useState<ClassificationFilter>("differences");
   const [family, setFamily] = useState<EntityFamily | "all">("all");
   const [idFilter, setIdFilter] = useState("");
+  const [page, setPage] = useState(0);
+  // A filter change returns to the first page.
+  const filtered = <T,>(set: (value: T) => void) => (value: T) => { set(value); setPage(0); };
   const families = useMemo(
     () => ENTITY_FAMILIES.filter((candidate) => comparison.rows.some((row) => row.family === candidate)),
     [comparison]
@@ -90,7 +95,10 @@ export function StateComparisonView({ result, onClose }: { result: StateComparis
     && (family === "all" || row.family === family)
     && (!idFilter.trim() || row.id.includes(idFilter.trim()))
   );
-  const visible = matching.slice(0, MAX_VISIBLE_COMPARISON_ROWS);
+  const pages = Math.max(1, Math.ceil(matching.length / COMPARISON_PAGE_ROWS));
+  const shownPage = Math.min(page, pages - 1);
+  const first = shownPage * COMPARISON_PAGE_ROWS;
+  const visible = matching.slice(first, first + COMPARISON_PAGE_ROWS);
   const { summary } = comparison;
   return (
     <section className="panel state-comparison-panel" aria-label="Saved state comparison" data-testid="state-comparison">
@@ -125,7 +133,7 @@ export function StateComparisonView({ result, onClose }: { result: StateComparis
       <div className="report-actions" role="group" aria-label="Filter the comparison">
         <label className="memory-pool-field">
           <span>Classification</span>
-          <select data-testid="state-comparison-filter-classification" value={classification} onChange={(event) => setClassification(event.target.value as ClassificationFilter)}>
+          <select data-testid="state-comparison-filter-classification" value={classification} onChange={(event) => filtered(setClassification)(event.target.value as ClassificationFilter)}>
             <option value="differences">Differences only</option>
             <option value="all">All entities</option>
             {ROW_CLASSIFICATIONS.map((name) => <option key={name} value={name}>{CLASSIFICATION_LABELS[name]}</option>)}
@@ -133,14 +141,14 @@ export function StateComparisonView({ result, onClose }: { result: StateComparis
         </label>
         <label className="memory-pool-field">
           <span>Family</span>
-          <select data-testid="state-comparison-filter-family" value={family} onChange={(event) => setFamily(event.target.value as EntityFamily | "all")}>
+          <select data-testid="state-comparison-filter-family" value={family} onChange={(event) => filtered(setFamily)(event.target.value as EntityFamily | "all")}>
             <option value="all">All families</option>
             {families.map((name) => <option key={name} value={name}>{FAMILY_LABELS[name]}</option>)}
           </select>
         </label>
         <label className="memory-pool-field">
           <span>Id contains</span>
-          <input data-testid="state-comparison-filter-id" value={idFilter} onChange={(event) => setIdFilter(event.target.value)} />
+          <input data-testid="state-comparison-filter-id" value={idFilter} onChange={(event) => filtered(setIdFilter)(event.target.value)} />
         </label>
         <button type="button" data-testid="state-comparison-close" onClick={onClose}>Close comparison</button>
       </div>
@@ -167,13 +175,15 @@ export function StateComparisonView({ result, onClose }: { result: StateComparis
           ))}
         </tbody>
       </table>
-      <small className="report-note" data-testid="state-comparison-shown">
-        {matching.length === 0
-          ? "No entity matches the filters."
-          : matching.length > visible.length
-            ? `Showing the first ${visible.length} of ${matching.length} matching entities; narrow the filters to see the others.`
-            : `Showing ${matching.length} matching ${matching.length === 1 ? "entity" : "entities"}.`}
-      </small>
+      <div className="report-actions" role="group" aria-label="Comparison pages">
+        <small className="report-note" data-testid="state-comparison-shown">
+          {matching.length === 0
+            ? "No entity matches the filters."
+            : `Rows ${first + 1}–${first + visible.length} of ${matching.length}.`}
+        </small>
+        <button type="button" data-testid="state-comparison-page-previous" disabled={shownPage === 0} title={shownPage === 0 ? "This is the first page." : undefined} onClick={() => setPage(shownPage - 1)}>Previous</button>
+        <button type="button" data-testid="state-comparison-page-next" disabled={shownPage >= pages - 1} title={shownPage >= pages - 1 ? "This is the last page." : undefined} onClick={() => setPage(shownPage + 1)}>Next</button>
+      </div>
     </section>
   );
 }
