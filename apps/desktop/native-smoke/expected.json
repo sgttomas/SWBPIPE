@@ -1,5 +1,5 @@
 {
-  "description": "Expected observations for the desktop walking-skeleton native smoke (run.mjs). Values come from T3's G10 checklist (a jsdom replay of the same models); the five row and N1 values below were set to the native observations by the owner's ruling of 2026-10-24 (G10; causes: #1461 adds 15 rows per member per case, #1387 E14 removes the dense parity row per case, #1387 E15 is the correctly rounded norm3). The bundled invented demo has nonlinear supports; under K-D5 on the converged active set (DEL-04-01 Design/kd5-nonlinear-active-set.md section 5) its converged support states are confirmed and its cases are published NUMERICAL_INTEGRITY_CHECKS_PASSED with certified rows (745 in each mode), so the demo is Current and its result export is offered, as before K-D5's nonlinear fail-closed rule (the milestone stays Sensitive and not offered). The model hash is computed by run.mjs from each file (RFC 8785 JCS, SHA-256), independently of the app.",
+  "description": "Expected observations for the desktop walking-skeleton native smoke (run.mjs). Values come from T3's G10 checklist (a jsdom replay of the same models); the five row and N1 values below were set to the native observations by the owner's ruling of 2026-10-24 (G10; causes: #1461 adds 15 rows per member per case, #1387 E14 removes the dense parity row per case, #1387 E15 is the correctly rounded norm3). The bundled invented demo has nonlinear supports; under K-D5 on the converged active set (DEL-04-01 Design/kd5-nonlinear-active-set.md section 5) its converged support states are confirmed and its cases are published NUMERICAL_INTEGRITY_CHECKS_PASSED with certified rows (841 in each mode), so the demo is Current and its result export is offered, as before K-D5's nonlinear fail-closed rule (the milestone stays Sensitive and not offered). The model hash is computed by run.mjs from each file (RFC 8785 JCS, SHA-256), independently of the app.",
   "bundled_project_id": "project:invented-demo-loop-01",
   "refusals": [
     { "file": "newer-schema.json", "code": "MODEL-FILE-SCHEMA-REFUSED" },
@@ -13,16 +13,16 @@
       "probe": "result:disp:N1",
       "result_export": { "offered": false, "panel_text_prefix": "Run mechanics preview with valid Current input proof" },
       "observations": {
-        "sparse_interactive": { "rows": 113, "probe_entered": "Entered: 0.09426732782247199 mm", "standing_prefix": "Numerical integrity: sensitive." },
-        "dense_scrutiny": { "rows": 113, "probe_entered": "Entered: 0.0942673274792288 mm" }
+        "sparse_interactive": { "rows": 125, "probe_entered": "Entered: 0.09426732782247199 mm", "standing_prefix": "Numerical integrity: sensitive." },
+        "dense_scrutiny": { "rows": 125, "probe_entered": "Entered: 0.0942673274792288 mm" }
       }
     },
     {
       "case": "demo",
       "fixture": "fixtures/product_preview/invented_demo_model.json",
       "observations": {
-        "sparse_interactive": { "rows": 745, "standing_prefix": "Numerical integrity: checks_passed." },
-        "dense_scrutiny": { "rows": 745, "standing_prefix": "Numerical integrity: checks_passed." }
+        "sparse_interactive": { "rows": 841, "standing_prefix": "Numerical integrity: checks_passed." },
+        "dense_scrutiny": { "rows": 841, "standing_prefix": "Numerical integrity: checks_passed." }
       }
     }
   ]
