@@ -2,18 +2,23 @@
 //! `report-package-current-results.md` §2.6, W-18a slice (b1); FR-REP-001,
 //! DEL-12-02 REXC-REQ-006).
 //!
-//! The webview sends the package request and the session's model as their
-//! RFC 8785 (JCS) canonical texts, with the route evidence of
-//! `DREP-PACKAGE-SAVE-009`. Evidence is never trusted for content. Before the
-//! save dialog is shown, [`admit_report_package`]
+//! The webview sends the package request, the session's model and the run's
+//! input manifest as their RFC 8785 (JCS) canonical texts, with the route
+//! evidence of `DREP-PACKAGE-SAVE-009`. Evidence is never trusted for content.
+//! Before the save dialog is shown, [`admit_report_package`]
 //! 1. re-checks the screening and local-first evidence (local-private,
 //!    explicit intent, lossless, not withheld, exact payload, zero blocking):
 //!    defence in depth, since intent is the user's webview choice;
-//! 2. applies the size caps, then binds both texts: each must be its own
+//! 2. applies the size caps, then binds the three texts: each must be its own
 //!    canonical form, the screening evidence must name the request text's
-//!    SHA-256 (`REPORT-PACKAGE-SAVE-EVIDENCE-UNBOUND`), and the model text's
+//!    SHA-256 (`REPORT-PACKAGE-SAVE-EVIDENCE-UNBOUND`), the model text's
 //!    SHA-256 must be the request's audit-manifest model hash
-//!    (`REPORT-PACKAGE-SAVE-MODEL-UNBOUND`);
+//!    (`REPORT-PACKAGE-SAVE-MODEL-UNBOUND`), and the input-manifest text's
+//!    SHA-256 must be the request's audit input-manifest hash
+//!    (`REPORT-PACKAGE-SAVE-INPUT-MANIFEST-UNBOUND`), with a `model_basis`
+//!    naming the model text's `project.id` and embedding the model text's
+//!    canonical form (the same code) and a complete `active_rule_packs`
+//!    inventory (`REPORT-PACKAGE-SAVE-INPUT-MANIFEST-INVALID`);
 //! 3. screens the dispositions of both parsed values itself (the request: the
 //!    report input, result document, source carrier, audit manifest and
 //!    handoff records; and the model) with both shared screens
@@ -24,13 +29,24 @@
 //!    project's local library store; a store read error refuses;
 //! 4. binds the raw report context and the model text: `local_private`, the
 //!    desktop export profile, the model's project id, name and units, and the
-//!    application's own name and version;
+//!    application's own name and version; then the audit input-manifest
+//!    hash's payload reference, which must be the session's reference for the
+//!    input-manifest text (`input-manifest:<model>:<sha256>`,
+//!    `REPORT-PACKAGE-SAVE-INPUT-MANIFEST-UNBOUND`; the shared producer binds
+//!    it to the result document, the report and the handoff records, and, for
+//!    the desktop profile, to the audit `manifest_id`); then it
+//!    refuses a package whose rule packs (the report's and the audit
+//!    manifest's references) are not the input manifest's
+//!    `active_rule_packs`, compared as sets of `{rule_pack_id, version,
+//!    checksum value}` (`REPORT-PACKAGE-RULE-PACKS-DISAGREE`, §2.5);
 //! 5. converts the request to its typed form and runs the shared producer
 //!    (`report_package::wire`, §2.3), refusing a blocked package.
 //!
 //! Admission is a pure function of its arguments and the library lookup, so
 //! its tests need no window. The command (`lib.rs` `save_report_package`)
-//! prices the parse of both texts in its ingress lease before admission.
+//! prices the parse of the three texts in its ingress lease before admission.
+//! The input manifest is a validation input only: it is not screened, because
+//! no package member carries it, and it is never saved.
 //! Nothing is sent anywhere (F-PIP-1). Standard claim fence applies (claims
 //! taxonomy per DEC-081).
 
@@ -47,6 +63,7 @@ use open_pipe_stress_report_package::bindings::{DESKTOP_PROFILE, REPORT_CONTEXT_
 use open_pipe_stress_report_package::ReportPackageContainerOutcome;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::collections::BTreeSet;
 use std::path::PathBuf;
 
 /// The governed local-first route of this save.
@@ -58,6 +75,11 @@ pub const TOO_LARGE: &str = "REPORT-PACKAGE-SAVE-TOO-LARGE";
 pub const NOT_CANONICAL: &str = "REPORT-PACKAGE-SAVE-NOT-CANONICAL";
 pub const EVIDENCE_UNBOUND: &str = "REPORT-PACKAGE-SAVE-EVIDENCE-UNBOUND";
 pub const MODEL_UNBOUND: &str = "REPORT-PACKAGE-SAVE-MODEL-UNBOUND";
+pub const INPUT_MANIFEST_UNBOUND: &str = "REPORT-PACKAGE-SAVE-INPUT-MANIFEST-UNBOUND";
+pub const INPUT_MANIFEST_INVALID: &str = "REPORT-PACKAGE-SAVE-INPUT-MANIFEST-INVALID";
+/// The package's rule packs are not the packs the solve recorded (§2.5; the
+/// webview's early refusal has the same code, `reportPackageRequest.ts`).
+pub const RULE_PACKS_DISAGREE: &str = "REPORT-PACKAGE-RULE-PACKS-DISAGREE";
 pub const LIBRARY_STORE_UNAVAILABLE: &str = "REPORT-PACKAGE-SAVE-LIBRARY-STORE-UNAVAILABLE";
 pub const PROFILE_NOT_DESKTOP: &str = "REPORT-PACKAGE-SAVE-PROFILE-NOT-DESKTOP";
 pub const MODEL_MISMATCH: &str = "REPORT-PACKAGE-SAVE-MODEL-MISMATCH";
@@ -76,6 +98,10 @@ pub use crate::export_disposition_screen::PROTECTED_CONTENT_BLOCKED;
 pub const MAX_REQUEST_TEXT_BYTES: u64 = 4 * MAX_MODEL_DOCUMENT_BYTES;
 /// The model text's cap: the model-document open cap (W-6a).
 pub const MAX_MODEL_TEXT_BYTES: u64 = MAX_MODEL_DOCUMENT_BYTES;
+/// The input-manifest text's cap. The session's input manifest embeds the
+/// model payload and repeats its load cases and combinations
+/// (`inputManifestService.ts`), so its cap is two model-document caps.
+pub const MAX_INPUT_MANIFEST_TEXT_BYTES: u64 = 2 * MAX_MODEL_DOCUMENT_BYTES;
 
 /// The webview's screening evidence: W-6a's `ModelDocumentSaveScreening` form
 /// (the `ControlledExportLink` of a lossless local-private route) plus the
@@ -112,11 +138,14 @@ pub struct ReportPackageLocalFirstEvidence {
     pub explicit_local_private_intent: bool,
 }
 
-/// `{requestCanonicalText, modelCanonicalText, screening, localFirstEvidence?}`.
+/// `{requestCanonicalText, modelCanonicalText, inputManifestCanonicalText,
+/// screening, localFirstEvidence?}`.
 #[derive(Debug)]
 pub struct ReportPackageSaveRequest {
     pub request_text: String,
     pub model_text: String,
+    /// The run's input manifest; a validation input only, never saved.
+    pub input_manifest_text: String,
     pub screening: ReportPackageSaveScreening,
     pub local_first: Option<ReportPackageLocalFirstEvidence>,
 }
@@ -127,6 +156,7 @@ pub(crate) fn save_report_package_args(args: &mut Args) -> Result<ReportPackageS
     Ok(ReportPackageSaveRequest {
         request_text: args.decode("requestCanonicalText")?,
         model_text: args.decode("modelCanonicalText")?,
+        input_manifest_text: args.decode("inputManifestCanonicalText")?,
         screening: args.decode("screening")?,
         local_first: args.decode("localFirstEvidence")?,
     })
@@ -298,8 +328,12 @@ pub fn validate_report_package_save_evidence(
 }
 
 /// The size caps of §2.6 item 3, before anything is parsed or priced.
-pub fn check_text_sizes(request_text: &str, model_text: &str) -> Result<(), ReportPackageSaveCommandError> {
-    for (what, text, cap) in [("request", request_text, MAX_REQUEST_TEXT_BYTES), ("model", model_text, MAX_MODEL_TEXT_BYTES)] {
+pub fn check_text_sizes(request_text: &str, model_text: &str, input_manifest_text: &str) -> Result<(), ReportPackageSaveCommandError> {
+    for (what, text, cap) in [
+        ("request", request_text, MAX_REQUEST_TEXT_BYTES),
+        ("model", model_text, MAX_MODEL_TEXT_BYTES),
+        ("input_manifest", input_manifest_text, MAX_INPUT_MANIFEST_TEXT_BYTES),
+    ] {
         let bytes = text.len() as u64;
         if bytes > cap {
             return Err(refuse(TOO_LARGE, &format!("/{what}"), format!("The {what} text is {bytes} bytes; at most {cap} are admitted.")));
@@ -308,14 +342,15 @@ pub fn check_text_sizes(request_text: &str, model_text: &str) -> Result<(), Repo
     Ok(())
 }
 
-/// The ingress lease growth for parsing both texts (§2.6 item 1, "a priced
-/// parse of the text"): the request is parsed and then typed-decoded
-/// (`(2 + REPORT_PACKAGE_VEC_EXPANSION)` M), the model only parsed (M), each
-/// with its canonical re-serialization ([`crate::command_ingress::text_parse_bytes`]).
-/// Applies the size caps first. A text that is not one JSON value is refused
-/// here, before it is parsed.
-pub fn parse_lease_bytes(request_text: &str, model_text: &str) -> Result<u64, ReportPackageSaveCommandError> {
-    check_text_sizes(request_text, model_text)?;
+/// The ingress lease growth for parsing the three texts (§2.6 item 1, "a
+/// priced parse of the text"): the request is parsed and then typed-decoded
+/// (`(2 + REPORT_PACKAGE_VEC_EXPANSION)` M), the model and the input manifest
+/// only parsed (M), each with its canonical re-serialization
+/// ([`crate::command_ingress::text_parse_bytes`]). Applies the size caps
+/// first. A text that is not one JSON value is refused here, before it is
+/// parsed.
+pub fn parse_lease_bytes(request_text: &str, model_text: &str, input_manifest_text: &str) -> Result<u64, ReportPackageSaveCommandError> {
+    check_text_sizes(request_text, model_text, input_manifest_text)?;
     let priced = |what: &str, text: &str, decoding: ArgsDecoding| {
         crate::command_ingress::text_parse_bytes(text, decoding).map_err(|invalid| {
             refuse(NOT_CANONICAL, &format!("/{what}"), format!("The {what} text is not JSON ({} at byte {}).", invalid.reason, invalid.offset))
@@ -323,7 +358,8 @@ pub fn parse_lease_bytes(request_text: &str, model_text: &str) -> Result<u64, Re
     };
     let request = priced("request", request_text, ArgsDecoding::Rebuilt { vec_expansion: REPORT_PACKAGE_VEC_EXPANSION })?;
     let model = priced("model", model_text, ArgsDecoding::Moved)?;
-    Ok(request.saturating_add(model))
+    let input_manifest = priced("input_manifest", input_manifest_text, ArgsDecoding::Moved)?;
+    Ok(request.saturating_add(model).saturating_add(input_manifest))
 }
 
 /// Parses `text` and refuses unless it is its own RFC 8785 canonical form.
@@ -452,16 +488,113 @@ fn check_context(request: &Value, model: &Value, software: &ExpectedSoftware) ->
     Ok(())
 }
 
+/// The input manifest records a solve of the bound model: its `model_basis`
+/// names the model text's `project.id` (`model_ref`) and embeds the model
+/// (`model_payload`), as `inputManifestService.ts` builds it from the solved
+/// model and `resultExportAdapter.ts` requires it canonically equal to the
+/// session's (`CURRENT_MODEL_PAYLOAD_MISMATCH`). The payload is compared by
+/// the SHA-256 of its RFC 8785 form with the model text's (`model_hex`, the
+/// audit model hash). Its canonical form is part of the input-manifest text's,
+/// so it is no larger than the re-serialization [`parse_lease_bytes`] prices,
+/// which is freed by now, as is the input-manifest text.
+fn check_manifest_model(input_manifest: &Value, model: &Value, model_hex: &str) -> Result<(), ReportPackageSaveCommandError> {
+    let project_id = text_at(model, "/project/id");
+    if project_id.is_none() || text_at(input_manifest, "/model_basis/model_ref") != project_id {
+        return Err(refuse(
+            INPUT_MANIFEST_UNBOUND,
+            "/input_manifest/model_basis/model_ref",
+            "The input manifest's model_basis.model_ref is not the model text's project.id: it records another model's solve.",
+        ));
+    }
+    let embedded = input_manifest.pointer("/model_basis/model_payload").map(|payload| sha256_hex(&canonical_json(payload)));
+    if embedded.as_deref() != Some(model_hex) {
+        return Err(refuse(
+            INPUT_MANIFEST_UNBOUND,
+            "/input_manifest/model_basis/model_payload",
+            format!("The input manifest's embedded model_basis.model_payload is not the model text (sha256 {model_hex}): it records the solve of another model."),
+        ));
+    }
+    Ok(())
+}
+
+/// One rule pack's identity in the §2.5 comparison: `{rule_pack_id, version,
+/// checksum value}`.
+type RulePackIdentity = (String, String, String);
+
+/// The solve's rule packs: the input manifest's `active_rule_packs`, as the
+/// session records them (`InputManifestRulePack`: a non-empty id and version
+/// and a bare lowercase 64-hex `checksum_sha256`). Set semantics: a repeated
+/// entry counts once, as in the webview's check.
+pub(crate) fn solve_rule_packs(input_manifest: &Value) -> Result<BTreeSet<RulePackIdentity>, ReportPackageSaveCommandError> {
+    let invalid = || refuse(INPUT_MANIFEST_INVALID, "/input_manifest/active_rule_packs", "The input manifest records no complete active_rule_packs inventory (rule_pack_id, version and SHA-256 checksum_sha256 per pack).");
+    let packs = input_manifest.get("active_rule_packs").and_then(Value::as_array).ok_or_else(invalid)?;
+    packs
+        .iter()
+        .map(|pack| {
+            let field = |key: &str| pack.get(key).and_then(Value::as_str).filter(|value| !value.trim().is_empty());
+            let checksum = field("checksum_sha256").filter(|value| value.len() == 64 && value.bytes().all(|byte| matches!(byte, b'0'..=b'9' | b'a'..=b'f')));
+            match (field("rule_pack_id"), field("version"), checksum) {
+                (Some(id), Some(version), Some(checksum)) => Ok((id.to_string(), version.to_string(), checksum.to_string())),
+                _ => Err(invalid()),
+            }
+        })
+        .collect()
+}
+
+/// The package's rule packs as one of its records lists them (the array at
+/// `pointer`, whose entries name their version `version_key`), keyed as the
+/// webview keys them: a missing checksum value is "not recorded", which no
+/// recorded SHA-256 equals. Set semantics.
+fn package_rule_packs(request: &Value, pointer: &str, version_key: &str) -> BTreeSet<RulePackIdentity> {
+    let text = |pack: &Value, pointer: &str, absent: &str| pack.pointer(pointer).and_then(Value::as_str).unwrap_or(absent).to_string();
+    request
+        .pointer(pointer)
+        .and_then(Value::as_array)
+        .map(Vec::as_slice)
+        .unwrap_or(&[])
+        .iter()
+        .map(|pack| (text(pack, "/rule_pack_id", ""), text(pack, &format!("/{version_key}"), ""), text(pack, "/checksum/value", "not recorded")))
+        .collect()
+}
+
+fn identity_text(set: &BTreeSet<RulePackIdentity>) -> String {
+    if set.is_empty() {
+        return "none".to_string();
+    }
+    set.iter().map(|(id, version, checksum)| format!("{id}@{version} (sha256 {checksum})")).collect::<Vec<_>>().join(", ")
+}
+
+/// §2.5's decided rule, re-checked natively: the package's rule packs (the
+/// rule-check run's, as the report and the audit manifest record them; else
+/// none) equal the solve's, the bound input manifest's `active_rule_packs`.
+fn check_rule_packs_agree(request: &Value, solve: &BTreeSet<RulePackIdentity>) -> Result<(), ReportPackageSaveCommandError> {
+    for (pointer, version_key) in [("/report/calculation_report/rule_pack_refs", "version"), ("/audit_manifest/rule_pack_refs", "rule_pack_version")] {
+        let package = package_rule_packs(request, pointer, version_key);
+        if package != *solve {
+            return Err(refuse(
+                RULE_PACKS_DISAGREE,
+                &format!("/request{pointer}"),
+                format!(
+                    "The package's rule packs (the rule check's: {}) are not the packs the solve recorded ({}). Run the rule check with the model's pack, or change the model's rule-pack references and solve again.",
+                    identity_text(&package),
+                    identity_text(solve)
+                ),
+            ));
+        }
+    }
+    Ok(())
+}
+
 /// The admission of §2.6 items 2-6, before any file is chosen.
 pub fn admit_report_package(
     request: ReportPackageSaveRequest,
     software: &ExpectedSoftware,
     lookup: &mut LibraryLookup<'_>,
 ) -> Result<AdmittedReportPackage, ReportPackageSaveCommandError> {
-    let ReportPackageSaveRequest { request_text, model_text, screening, local_first } = request;
+    let ReportPackageSaveRequest { request_text, model_text, input_manifest_text, screening, local_first } = request;
     validate_report_package_save_evidence(&screening, local_first.as_ref())?;
     let local_first = local_first.expect("validated local-first evidence");
-    check_text_sizes(&request_text, &model_text)?;
+    check_text_sizes(&request_text, &model_text, &input_manifest_text)?;
 
     // Canonical binding: the evidence names exactly this request text.
     let request_hex = sha256_hex(&request_text);
@@ -484,12 +617,39 @@ pub fn admit_report_package(
             format!("The request's audit model hash is not the model text's SHA-256 ({model_hex})."),
         ));
     }
+    // The run's input manifest: its SHA-256 is the audit input-manifest hash.
+    let input_manifest_value = parse_canonical("input_manifest", &input_manifest_text)?;
+    let input_manifest_hex = sha256_hex(&input_manifest_text);
+    drop(input_manifest_text);
+    if text_at(&request_value, "/audit_manifest/input_manifest_hash/value") != Some(input_manifest_hex.as_str()) {
+        return Err(refuse(
+            INPUT_MANIFEST_UNBOUND,
+            "/request/audit_manifest/input_manifest_hash/value",
+            format!("The request's audit input-manifest hash is not the input-manifest text's SHA-256 ({input_manifest_hex})."),
+        ));
+    }
+    check_manifest_model(&input_manifest_value, &model_value, &model_hex)?;
+    let solve_packs = solve_rule_packs(&input_manifest_value)?;
+    drop(input_manifest_value);
 
     // Disposition screening of both values, then the context bindings.
     let project_id = text_at(&model_value, "/project/id").unwrap_or("").to_string();
     let warnings = screen_content(&request_value, &model_value, &project_id, lookup)?;
     check_context(&request_value, &model_value, software)?;
     drop(model_value);
+    // The audit hash names the input manifest by the session's reference for
+    // that hash and the (now bound) model, which the shared producer binds to
+    // the document, the report and the handoff records; then §2.5's rule.
+    let manifest_ref = crate::analysis_runs::input_manifest_ref(&project_id, &input_manifest_hex);
+    if request_value.pointer("/audit_manifest/input_manifest_hash/payload_ref") != manifest_ref.get("ref") {
+        return Err(refuse(
+            INPUT_MANIFEST_UNBOUND,
+            "/request/audit_manifest/input_manifest_hash/payload_ref",
+            format!("The request's audit input-manifest hash does not name the input-manifest text ({}).", manifest_ref["ref"].as_str().unwrap_or("")),
+        ));
+    }
+    check_rule_packs_agree(&request_value, &solve_packs)?;
+    drop(solve_packs);
 
     // Typed conversion and the shared producer (§2.3).
     let package = report_package_bridge::assemble_request(typed_request(request_value)?).map_err(ReportPackageSaveCommandError::bridge)?;
@@ -596,21 +756,44 @@ pub(crate) mod test_support {
         serde_json::from_str(MODEL).unwrap()
     }
 
+    /// The committed invented input manifest with the desktop session
+    /// manifest's `model_basis` (`model_ref` and the embedded `model_payload`,
+    /// for `model`) and `active_rule_packs` members (`inputManifestService.ts`).
+    pub(crate) fn input_manifest(model: &Value, active_rule_packs: Value) -> Value {
+        let mut manifest: Value = serde_json::from_str(INPUT_MANIFEST).unwrap();
+        manifest["model_basis"] = json!({"model_ref": model["project"]["id"].clone(), "model_payload": model.clone()});
+        manifest["active_rule_packs"] = active_rule_packs;
+        manifest
+    }
+
+    /// One invented `active_rule_packs` entry (`InputManifestRulePack`).
+    pub(crate) fn active_pack(id: &str, version: &str, checksum: &str) -> Value {
+        json!({"rule_pack_id": id, "version": version, "checksum_sha256": checksum, "source_notice": "Invented non-code example only."})
+    }
+
     /// The desktop-profile request derived by the shared builder from the
     /// committed witness and `model` (whose canonical SHA-256 becomes every
-    /// model hash), with the desktop's native report context.
+    /// model hash), with the desktop's native report context, for a solve
+    /// that recorded no rule packs.
     pub(crate) fn desktop_request(model: &Value) -> Value {
+        desktop_request_for(model, &input_manifest(model, json!([])))
+    }
+
+    /// As [`desktop_request`], for the run's input manifest `manifest`: its
+    /// canonical SHA-256 is every input-manifest hash, and its reference is the
+    /// session's (`input-manifest:<model>:<sha256>`).
+    pub(crate) fn desktop_request_for(model: &Value, manifest: &Value) -> Value {
         let witness: Value = serde_json::from_str(WITNESS).unwrap();
         let runner = &witness["export_results"];
-        let manifest: Value = serde_json::from_str(INPUT_MANIFEST).unwrap();
         let solver = &runner["audit_manifest"]["solver_version"];
+        let manifest_ref = crate::analysis_runs::input_manifest_ref(model["project"]["id"].as_str().unwrap(), &sha256_hex(&canonical_json(manifest)));
         let inputs = Inputs {
             model,
             source: &runner["source_results"][0],
             producer_document: &runner["result_documents"][0],
             solve_request: &Value::Null,
-            input_manifest: &manifest,
-            input_manifest_id: runner["audit_manifest"]["input_manifest_hash"]["payload_ref"].as_str().unwrap(),
+            input_manifest: manifest,
+            input_manifest_id: manifest_ref["ref"].as_str().unwrap(),
             solver_name: solver["solver_name"].as_str().unwrap(),
             solver_version: solver["solver_version"].as_str().unwrap(),
             profile: Profile::Desktop,
@@ -621,6 +804,43 @@ pub(crate) mod test_support {
         request["report"]["report_title"] = json!(format!("{name} — Calculation Report"));
         request["report"]["report_context"]["software_name"] = json!(software().name);
         request["report"]["report_context"]["software_version"] = json!(software().version);
+        request
+    }
+
+    /// `request` with a rule-check run of pack `id` (one failed and one
+    /// incomplete check under the document's own `RULE_INPUTS_INCOMPLETE`
+    /// token), its report reference carrying a declared `sha256`/`JCS`
+    /// checksum and the audit reference its projection: consistent with each
+    /// other, whatever the input manifest recorded.
+    pub(crate) fn with_rule_pack(request: &Value, id: &str, version: &str, checksum: &str) -> Value {
+        let mut request = request.clone();
+        request["rule_check_aggregate"] = json!("RULE_INPUTS_INCOMPLETE");
+        request["report"]["user_rule_checks"] = json!({
+            "rule_pack_id": id,
+            "grammar_version": "1.0.0",
+            "aggregate_status": "RULE_INPUTS_INCOMPLETE",
+            "checks": [
+                {"check_id": "invented-check-a", "status": "USER_RULE_FAILED", "missing_inputs": []},
+                {"check_id": "invented-check-b", "status": "RULE_INPUTS_INCOMPLETE", "missing_inputs": ["invented_input_x"]}
+            ]
+        });
+        request["report"]["calculation_report"]["rule_pack_refs"] = json!([{
+            "rule_pack_id": id,
+            "version": version,
+            "checksum": {"algorithm": "sha256", "canonicalization": "JCS", "payload_ref": {"ref_type": "rule_pack", "ref_id": id}, "value": checksum},
+            "source_notice": "Invented non-code example only.",
+            "redistribution_status": "invented_non_engineering_example",
+            "completeness_status": "not_checked",
+            "private_payload_redacted": true
+        }]);
+        request["audit_manifest"]["rule_pack_refs"] = json!([{
+            "rule_pack_id": id,
+            "rule_pack_version": version,
+            "source_notice": "Invented non-code example only.",
+            "redistribution_status": "invented_non_engineering_example",
+            "checksum": {"algorithm": "sha256", "canonicalization": "rule_pack_payload_jcs", "payload_kind": "rule_pack_reference", "payload_ref": id, "value": checksum},
+            "private_payload_redacted": true
+        }]);
         request
     }
 
@@ -658,11 +878,23 @@ pub(crate) mod test_support {
     }
 
     /// The command's arguments for `request` and `model`, with clean evidence
-    /// bound to the request's canonical text.
+    /// bound to the request's canonical text, and the input manifest of
+    /// [`desktop_request`] for `model` (no rule packs).
     pub(crate) fn save_request(request: &Value, model: &Value) -> ReportPackageSaveRequest {
+        save_request_with(request, model, &input_manifest(model, json!([])))
+    }
+
+    /// As [`save_request`], with the input manifest `manifest`.
+    pub(crate) fn save_request_with(request: &Value, model: &Value, manifest: &Value) -> ReportPackageSaveRequest {
         let request_text = canonical_json(request);
         let payload = hash_of(&request_text);
-        ReportPackageSaveRequest { request_text, model_text: canonical_json(model), screening: screening(payload), local_first: Some(local_first()) }
+        ReportPackageSaveRequest {
+            request_text,
+            model_text: canonical_json(model),
+            input_manifest_text: canonical_json(manifest),
+            screening: screening(payload),
+            local_first: Some(local_first()),
+        }
     }
 
     /// The same arguments as the command's raw args object.
@@ -670,6 +902,7 @@ pub(crate) mod test_support {
         json!({
             "requestCanonicalText": request.request_text,
             "modelCanonicalText": request.model_text,
+            "inputManifestCanonicalText": request.input_manifest_text,
             "screening": serde_json::to_value(&request.screening).unwrap(),
             "localFirstEvidence": serde_json::to_value(&request.local_first).unwrap(),
         })
@@ -731,6 +964,7 @@ mod tests {
         let request = desktop();
         let admitted = admit(save_request(&request, &model())).unwrap();
         assert!(admitted.warnings.is_empty(), "{:?}", admitted.warnings);
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
         let root = sandbox("read-back");
         let destination = root.join("invented.opsproj");
         let mut asked = Vec::new();
@@ -845,15 +1079,24 @@ mod tests {
     #[test]
     fn the_size_caps_apply_before_parsing() {
         let over = "x".repeat(MAX_MODEL_TEXT_BYTES as usize + 1);
-        assert_eq!(check_text_sizes("{}", &over).unwrap_err().code, TOO_LARGE);
-        assert_eq!(parse_lease_bytes("{}", &over).unwrap_err().code, TOO_LARGE);
+        assert_eq!(check_text_sizes("{}", &over, "{}").unwrap_err().code, TOO_LARGE);
+        assert_eq!(parse_lease_bytes("{}", &over, "{}").unwrap_err().code, TOO_LARGE);
         let at = "x".repeat(MAX_MODEL_TEXT_BYTES as usize);
-        assert!(check_text_sizes("{}", &at).is_ok());
+        assert!(check_text_sizes("{}", &at, "{}").is_ok());
         // At the cap, the prescan refuses text that is not JSON before any parse.
-        assert_eq!(parse_lease_bytes("{}", &at).unwrap_err().code, NOT_CANONICAL);
+        assert_eq!(parse_lease_bytes("{}", &at, "{}").unwrap_err().code, NOT_CANONICAL);
         drop((over, at));
         let over = "x".repeat(MAX_REQUEST_TEXT_BYTES as usize + 1);
-        assert_eq!(check_text_sizes(&over, "{}").unwrap_err().diagnostics[0].path, "/request");
+        assert_eq!(check_text_sizes(&over, "{}", "{}").unwrap_err().diagnostics[0].path, "/request");
+        drop(over);
+        // The input manifest's cap: two model-document caps.
+        let over = "x".repeat(MAX_INPUT_MANIFEST_TEXT_BYTES as usize + 1);
+        let error = parse_lease_bytes("{}", "{}", &over).unwrap_err();
+        assert_eq!((error.code.as_str(), error.diagnostics[0].path.as_str()), (TOO_LARGE, "/input_manifest"));
+        drop(over);
+        let at = "x".repeat(MAX_INPUT_MANIFEST_TEXT_BYTES as usize);
+        assert!(check_text_sizes("{}", "{}", &at).is_ok());
+        assert_eq!(parse_lease_bytes("{}", "{}", &at).unwrap_err().code, NOT_CANONICAL);
     }
 
     /// Review lesson (W-6a, W-6b): complete caller-authored clean evidence
@@ -988,11 +1231,14 @@ mod tests {
         // A model text naming another project, with its hash audited (the
         // shared producer cannot derive a document from it, so only the native
         // binding speaks here).
+        // The input manifest is that model's, so the manifest's model binding
+        // holds and the context binding is the one that refuses.
         let mut other = model();
         other["project"]["id"] = json!("project:invented-other");
-        let mut request = desktop();
+        let manifest = input_manifest(&other, json!([]));
+        let mut request = desktop_request_for(&model(), &manifest);
         request["audit_manifest"]["model_hash"]["value"] = json!(sha256_hex(&canonical_json(&other)));
-        let (code, paths) = refusal(admit(save_request(&request, &other)));
+        let (code, paths) = refusal(admit(save_request_with(&request, &other, &manifest)));
         assert_eq!((code.as_str(), paths[0].as_str()), (MODEL_MISMATCH, "/request/source_model_ref/ref_id"));
         let (code, paths) = refusal(admit(edited(|r| r["report"]["report_title"] = json!("Invented — Calculation Report"))));
         assert_eq!((code.as_str(), paths[0].as_str()), (MODEL_MISMATCH, "/request/report/report_title"));
@@ -1022,6 +1268,201 @@ mod tests {
         assert_eq!(error.code, "REPORT-PACKAGE-REPORT-ROWS-MISMATCH");
         let error = admit(edited(|r| r["source_basis_refs"] = json!("not a list"))).unwrap_err();
         assert_eq!(error.code, REQUEST_INVALID);
+    }
+
+    const PACK_A: &str = "invented-pack-a";
+    const PACK_B: &str = "invented-pack-b";
+
+    fn hex(digit: char) -> String {
+        digit.to_string().repeat(64)
+    }
+
+    /// The input manifest of a solve of [`model`] that recorded `packs`.
+    fn manifest_with(packs: &[(&str, &str, String)]) -> Value {
+        input_manifest(&model(), Value::Array(packs.iter().map(|(id, version, checksum)| active_pack(id, version, checksum)).collect()))
+    }
+
+    /// Codex W-18a (b2) round 1 (the bypass, before this binding admitted):
+    /// a direct request whose input-manifest hash and reference name a solve
+    /// that recorded pack A, with report and audit references consistent with
+    /// each other for pack B, or for none, is refused with
+    /// `REPORT-PACKAGE-RULE-PACKS-DISAGREE` before the save dialog, naming
+    /// both sets; nothing is written.
+    #[test]
+    fn a_package_whose_rule_packs_are_not_the_bound_input_manifests_is_refused() {
+        let manifest = manifest_with(&[(PACK_A, "1.0.0", hex('a'))]);
+        let none = desktop_request_for(&model(), &manifest);
+        let pack_b = with_rule_pack(&none, PACK_B, "1.0.0", &hex('b'));
+        for (label, request, package) in [("none", &none, "none".to_string()), ("pack B", &pack_b, format!("{PACK_B}@1.0.0 (sha256 {})", hex('b')))] {
+            let root = sandbox("rule-packs-disagree");
+            let mut picks = 0usize;
+            let outcome = admit(save_request_with(request, &model(), &manifest))
+                .and_then(|admitted| save_admitted_report_package(admitted, |_| { picks += 1; Some(Ok(root.join("refused.opsproj"))) }));
+            let error = match outcome { Err(error) => error, Ok(receipt) => panic!("{label}: admitted ({})", receipt.code) };
+            assert_eq!((error.code.as_str(), error.stage.as_str()), (RULE_PACKS_DISAGREE, "admit"), "{label}: {}", error.message);
+            assert_eq!(error.diagnostics[0].path, "/request/report/calculation_report/rule_pack_refs", "{label}");
+            assert!(error.message.contains(&format!("the rule check's: {package})")), "{label}: {}", error.message);
+            assert!(error.message.contains(&format!("{PACK_A}@1.0.0 (sha256 {})", hex('a'))), "{label}: {}", error.message);
+            assert_eq!(picks, 0, "{label}: no save dialog is requested");
+            assert_eq!(fs::read_dir(&root).unwrap().count(), 0, "{label}: nothing is written");
+            fs::remove_dir_all(root).unwrap();
+        }
+        // The reverse: a rule check of pack A when the solve recorded none.
+        let checked = with_rule_pack(&desktop(), PACK_A, "1.0.0", &hex('a'));
+        assert_eq!(refusal(admit(save_request(&checked, &model()))).0, RULE_PACKS_DISAGREE);
+        // The report and the audit references are each compared: an audit
+        // reference naming the solve's pack does not stand in for the report's.
+        let mut audit_only = with_rule_pack(&none, PACK_B, "1.0.0", &hex('b'));
+        audit_only["audit_manifest"]["rule_pack_refs"] = with_rule_pack(&none, PACK_A, "1.0.0", &hex('a'))["audit_manifest"]["rule_pack_refs"].clone();
+        assert_eq!(refusal(admit(save_request_with(&audit_only, &model(), &manifest))).0, RULE_PACKS_DISAGREE);
+    }
+
+    /// The agreeing cases still save: no packs on either side (every request
+    /// above), and the rule check of the solve's own pack.
+    #[test]
+    fn a_rule_check_of_the_solves_pack_saves() {
+        let manifest = manifest_with(&[(PACK_A, "1.0.0", hex('a'))]);
+        let request = with_rule_pack(&desktop_request_for(&model(), &manifest), PACK_A, "1.0.0", &hex('a'));
+        let admitted = admit(save_request_with(&request, &model(), &manifest)).unwrap_or_else(|error| panic!("{}", error.message));
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+        let root = sandbox("rule-packs-agree");
+        let receipt = save_admitted_report_package(admitted, |_| Some(Ok(root.join("agreeing.opsproj")))).unwrap();
+        assert_eq!(receipt.code, "REPORT-PACKAGE-SAVED");
+        let read = read_report_package_container(&fs::read(root.join("agreeing.opsproj")).unwrap()).unwrap();
+        assert!(!read.export_blocked, "{:?}", read.blocking_reasons);
+        fs::remove_dir_all(root).unwrap();
+        // A repeated solve entry counts once (set semantics, as the webview's check).
+        let repeated = manifest_with(&[(PACK_A, "1.0.0", hex('a')), (PACK_A, "1.0.0", hex('a'))]);
+        let request = with_rule_pack(&desktop_request_for(&model(), &repeated), PACK_A, "1.0.0", &hex('a'));
+        assert!(admit(save_request_with(&request, &model(), &repeated)).is_ok());
+        // A repeat does not stand in for another pack, and version and checksum are each compared.
+        let two = manifest_with(&[(PACK_A, "1.0.0", hex('a')), (PACK_A, "1.0.0", hex('a')), (PACK_B, "1.0.0", hex('b'))]);
+        let request = with_rule_pack(&desktop_request_for(&model(), &two), PACK_A, "1.0.0", &hex('a'));
+        assert_eq!(refusal(admit(save_request_with(&request, &model(), &two))).0, RULE_PACKS_DISAGREE);
+        for (version, checksum) in [("2.0.0", hex('a')), ("1.0.0", hex('c'))] {
+            let request = with_rule_pack(&desktop_request_for(&model(), &manifest), PACK_A, version, &checksum);
+            assert_eq!(refusal(admit(save_request_with(&request, &model(), &manifest))).0, RULE_PACKS_DISAGREE, "{version} {checksum}");
+        }
+    }
+
+    /// A report reference without a declared checksum value is keyed "not
+    /// recorded" (the webview's key), which no recorded SHA-256 equals.
+    #[test]
+    fn a_rule_pack_without_a_checksum_value_is_not_the_solves() {
+        let manifest = manifest_with(&[(PACK_A, "1.0.0", hex('a'))]);
+        let mut request = with_rule_pack(&desktop_request_for(&model(), &manifest), PACK_A, "1.0.0", &hex('a'));
+        request["report"]["calculation_report"]["rule_pack_refs"][0]["checksum"].as_object_mut().unwrap().remove("value");
+        let error = admit(save_request_with(&request, &model(), &manifest)).err().expect("refused");
+        assert_eq!(error.code, RULE_PACKS_DISAGREE);
+        assert!(error.message.contains(&format!("{PACK_A}@1.0.0 (sha256 not recorded)")), "{}", error.message);
+    }
+
+    /// The input-manifest text is bound: a text other than the one the
+    /// request's audit hash records, or one the hash's reference does not
+    /// name, is refused before any content check; so is a manifest without a
+    /// complete `active_rule_packs` inventory.
+    #[test]
+    fn an_input_manifest_text_other_than_the_audited_one_is_refused() {
+        let manifest = manifest_with(&[(PACK_A, "1.0.0", hex('a'))]);
+        let request = desktop_request_for(&model(), &manifest);
+        // Tampered: the solve's pack replaced by none, the audited hash kept.
+        let tampered = manifest_with(&[]);
+        let (code, paths) = refusal(admit(save_request_with(&request, &model(), &tampered)));
+        assert_eq!((code.as_str(), paths[0].as_str()), (INPUT_MANIFEST_UNBOUND, "/request/audit_manifest/input_manifest_hash/value"));
+        // The same manifest, not canonical.
+        let mut pretty = save_request_with(&request, &model(), &manifest);
+        pretty.input_manifest_text = serde_json::to_string_pretty(&manifest).unwrap();
+        assert_eq!(refusal(admit(pretty)), (NOT_CANONICAL.to_string(), vec!["/input_manifest".to_string()]));
+        // The audit hash value recomputed for the tampered text, but its
+        // reference (and every record that names it) still the original's.
+        let mut rehashed = desktop_request(&model());
+        rehashed["audit_manifest"]["input_manifest_hash"]["payload_ref"] = request["audit_manifest"]["input_manifest_hash"]["payload_ref"].clone();
+        let (code, paths) = refusal(admit(save_request_with(&rehashed, &model(), &tampered)));
+        assert_eq!((code.as_str(), paths[0].as_str()), (INPUT_MANIFEST_UNBOUND, "/request/audit_manifest/input_manifest_hash/payload_ref"));
+        // An incomplete inventory, bound by its own hash.
+        for packs in [Value::Null, json!([{"rule_pack_id": PACK_A, "version": "1.0.0", "checksum_sha256": "sha256:a"}]), json!([{"rule_pack_id": PACK_A, "checksum_sha256": hex('a')}])] {
+            let mut incomplete = input_manifest(&model(), packs.clone());
+            if packs.is_null() {
+                incomplete.as_object_mut().unwrap().remove("active_rule_packs");
+            }
+            let (code, paths) = refusal(admit(save_request_with(&desktop_request_for(&model(), &incomplete), &model(), &incomplete)));
+            assert_eq!((code.as_str(), paths[0].as_str()), (INPUT_MANIFEST_INVALID, "/input_manifest/active_rule_packs"), "{packs}");
+        }
+    }
+
+    /// The document with its derivative hash recomputed after an edit, so only
+    /// the check the edit targets can refuse it.
+    fn rehash(mut document: Value) -> Value {
+        use open_pipe_stress_result_export::derivative::{checksum, reference};
+        let envelope_id = document["result_envelope"]["envelope_id"].as_str().unwrap().to_string();
+        document["result_envelope"]["reproducibility"].as_object_mut().unwrap().remove("derivative_hash");
+        let hash = checksum(&document, "derivative_document_excludes_own_hash", reference("derivative_document", &envelope_id)).unwrap();
+        document["result_envelope"]["reproducibility"]["derivative_hash"] = hash;
+        document
+    }
+
+    /// Codex W-18a (b2) round 2, finding 1 (admitted before this binding):
+    /// model B's input manifest, whose digest H the request's references name
+    /// as `input-manifest:A:H`, sent with model A and A's result, is refused:
+    /// the manifest's `model_basis` must be the bound model. So is a manifest
+    /// naming model A whose embedded payload is another model, and a manifest
+    /// that embeds no model.
+    #[test]
+    fn an_input_manifest_of_another_model_is_refused() {
+        let project = model()["project"]["id"].as_str().unwrap().to_string();
+        let mut other = model();
+        other["project"]["id"] = json!("project:invented-other");
+        other["project"]["name"] = json!("Invented other model");
+        let manifest_b = input_manifest(&other, json!([]));
+        let relabelled = desktop_request_for(&model(), &manifest_b);
+        // The session's reference for model A and B's digest: `input-manifest:A:H`.
+        let relabel = crate::analysis_runs::input_manifest_ref(&project, &sha256_hex(&canonical_json(&manifest_b)));
+        assert_eq!(relabelled["audit_manifest"]["input_manifest_hash"]["payload_ref"], relabel["ref"]);
+        let (code, paths) = refusal(admit(save_request_with(&relabelled, &model(), &manifest_b)));
+        assert_eq!((code.as_str(), paths[0].as_str()), (INPUT_MANIFEST_UNBOUND, "/input_manifest/model_basis/model_ref"));
+        // Model A's id, another model's payload (an edit of A after the solve).
+        let mut edited = model();
+        edited["project"]["description"] = json!("Invented edit after the solve");
+        let manifest = input_manifest(&edited, json!([]));
+        assert_eq!(manifest["model_basis"]["model_ref"], json!(project));
+        let request = desktop_request_for(&model(), &manifest);
+        let (code, paths) = refusal(admit(save_request_with(&request, &model(), &manifest)));
+        assert_eq!((code.as_str(), paths[0].as_str()), (INPUT_MANIFEST_UNBOUND, "/input_manifest/model_basis/model_payload"));
+        // No embedded model.
+        let mut bare = input_manifest(&model(), json!([]));
+        bare["model_basis"].as_object_mut().unwrap().remove("model_payload");
+        let request = desktop_request_for(&model(), &bare);
+        let (code, paths) = refusal(admit(save_request_with(&request, &model(), &bare)));
+        assert_eq!((code.as_str(), paths[0].as_str()), (INPUT_MANIFEST_UNBOUND, "/input_manifest/model_basis/model_payload"));
+    }
+
+    /// Codex W-18a (b2) round 2, finding 2 (admitted before this binding): a
+    /// request that keeps an old audit `manifest_id` and the result
+    /// document's matching `audit_manifest_ref`, while its audited input hash,
+    /// the hash's payload reference, the report's and the handoff records'
+    /// references and the origin's qualification name another manifest of the
+    /// same model (bound by its text), with the derivative hash recomputed, is
+    /// refused: the desktop names its audit manifest by the input-manifest
+    /// reference (§2.4), which the shared producer now requires.
+    #[test]
+    fn an_audit_manifest_id_other_than_the_input_manifest_reference_is_refused() {
+        let first = input_manifest(&model(), json!([]));
+        let mut second = first.clone();
+        second["fixture_label"] = json!("Invented second session manifest of the same model; test fixture only");
+        let old = desktop_request_for(&model(), &first);
+        let mut moved = desktop_request_for(&model(), &second);
+        let audit_ref = "/result_envelope/reproducibility/audit_manifest_ref";
+        moved["audit_manifest"]["manifest_id"] = old["audit_manifest"]["manifest_id"].clone();
+        *moved["result_documents"][0].pointer_mut(audit_ref).unwrap() = old["result_documents"][0].pointer(audit_ref).unwrap().clone();
+        moved["result_documents"][0] = rehash(moved["result_documents"][0].take());
+        assert_eq!(moved["audit_manifest"]["manifest_id"], old["audit_manifest"]["input_manifest_hash"]["payload_ref"]);
+        assert_ne!(moved["audit_manifest"]["manifest_id"], moved["audit_manifest"]["input_manifest_hash"]["payload_ref"]);
+        let error = admit(save_request_with(&moved, &model(), &second)).err().expect("refused");
+        assert_eq!((error.code.as_str(), error.stage.as_str()), (open_pipe_stress_report_package::bindings::BINDING_MISMATCH, "assemble"), "{}", error.message);
+        assert!(error.message.contains("desktop audit manifest id"), "{}", error.message);
+        // The same edit with the old manifest's text is refused by the input-manifest binding.
+        let (code, _) = refusal(admit(save_request_with(&moved, &model(), &first)));
+        assert_eq!(code, INPUT_MANIFEST_UNBOUND);
     }
 
     // Review round 1 (the reviewer's regressions, adopted): an object-valued

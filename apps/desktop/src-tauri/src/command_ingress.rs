@@ -1147,9 +1147,10 @@ mod tests {
     }
 
     /// The priced parse of `save_report_package`'s texts (DEL-08-01 Design
-    /// §2.6 item 1, W-18 slice (b1)): parsing the request text, its canonical
-    /// re-serialization and its typed conversion, then the model text's parse
-    /// and re-serialization, stay within the lease growth
+    /// §2.6 item 1, W-18 slice (b1); the input manifest since (b2) review
+    /// round 1): parsing the request text, its canonical re-serialization and
+    /// its typed conversion, then the model text's and the input-manifest
+    /// text's parse and re-serialization, stay within the lease growth
     /// `report_package_save::parse_lease_bytes` prices, for the invented
     /// desktop request and adversarial shapes: many one-element struct
     /// vectors in array form, long vectors (growth transients), many result
@@ -1158,9 +1159,16 @@ mod tests {
     /// moved strings, priced by the ingress lease (`ArgsDecoding::Moved`).
     #[test]
     fn report_package_text_parse_stays_within_its_priced_growth() {
-        use crate::report_package_save::{parse_canonical, parse_lease_bytes, test_support, typed_request};
+        use crate::report_package_save::{parse_canonical, parse_lease_bytes, solve_rule_packs, test_support, typed_request};
         use open_pipe_stress_operation_applier::canonical_json;
         let model = canonical_json(&test_support::model());
+        // The input manifest embeds the model and repeats its load cases, as
+        // the session's does (`inputManifestService.ts`).
+        let mut manifest = test_support::input_manifest(&test_support::model(), Value::Array(
+            (0..200).map(|index| test_support::active_pack(&format!("invented-pack-{index}"), "1.0.0", &"a".repeat(64))).collect(),
+        ));
+        manifest["load_basis"] = json!({"load_cases": test_support::model()["load_cases"].clone(), "combinations": []});
+        let manifest = canonical_json(&manifest);
         let desktop = test_support::desktop_request(&test_support::model());
         let one = json!([["analysis_run", "r"]]);
         let mut duplicated = desktop.clone();
@@ -1190,11 +1198,15 @@ mod tests {
         for (name, request, decodes) in cases {
             let text = canonical_json(&request);
             drop(request);
-            let growth = parse_lease_bytes(&text, &model).unwrap();
+            let growth = parse_lease_bytes(&text, &model, &manifest).unwrap();
             let (decoded, measured) = ingress::counting::measure(|| {
                 let request = parse_canonical("request", &text).expect("canonical");
                 let model = parse_canonical("model", &model).expect("canonical");
-                drop(model);
+                let manifest = parse_canonical("input_manifest", &manifest).expect("canonical");
+                // Admission keeps the solve's rule-pack set past the manifest.
+                let packs = solve_rule_packs(&manifest).expect("complete inventory");
+                drop((model, manifest));
+                assert_eq!(packs.len(), 200);
                 typed_request(request).map(drop)
             });
             assert_eq!(decoded.is_ok(), decodes, "{name}: {:?}", decoded.err().map(|error| error.message));

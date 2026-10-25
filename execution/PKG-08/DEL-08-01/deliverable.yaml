@@ -316,6 +316,14 @@ code_paths:
 - apps/desktop/src-tauri/src/report_package_bridge.rs
 - apps/desktop/src-tauri/src/report_package_save.rs
 - apps/desktop/src-tauri/src/atomic_report_package_save.rs
+- apps/desktop/src/features/report/reportPackageRequest.ts
+- apps/desktop/src/features/report/reportResultRows.ts
+- apps/desktop/src/services/reportPackageSaveService.ts
+- apps/desktop/src/features/workspace/workspaceSession.ts
+- apps/desktop/src/features/workspace/resultsSessionState.ts
+- apps/desktop/src-tauri/src/native_smoke.rs
+- apps/desktop/native-smoke/driver.js
+- apps/desktop/native-smoke/run.mjs
 checks:
 - core/reporting/report_package/tests/container.rs
 - core/reporting/report_package/tests/reader.rs
@@ -326,3 +334,7 @@ checks:
 - apps/desktop/src/features/report/reportRedactionProjector.test.ts
 - apps/desktop/e2e/report-package-dist.spec.ts
 - apps/desktop/e2e/r2-smoke.spec.ts
+- apps/desktop/src/features/report/reportPackageRequest.test.ts
+- apps/desktop/src/services/reportPackageSaveService.test.ts
+- apps/desktop/src/features/workspace/reportPackageSave.session.test.tsx
+- apps/desktop/native-smoke/run.mjs

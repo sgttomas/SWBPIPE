@@ -16,7 +16,7 @@ import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import { buildReportPackageRequest } from "../report/reportPackageRequest";
 import { numericalResultStanding } from "./resultStanding";
 import { OUTPUT_SURFACES, PRESSURE_SOURCE_OUTPUT_REFUSAL, surfaceOutputRefusal } from "./outputPolicy";
-import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE, isFreshSemanticResult } from "./knownSemanticLimitations";
+import { isFreshSemanticResult } from "./knownSemanticLimitations";
 import { analysisRowSemantics, analysisRecordProjection, modelLoadBasisRefs, validateAnalysisRunV03 } from '../../services/analysisRunCompatibility';
 import { readerRowSemantics, sourceContract } from './resultReader';
 const resultSemantics = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).signature;
@@ -175,8 +175,8 @@ describe("joined composite (pressure-source-1) native transport unit simulation"
     const copy = structuredClone(source);
     await expect(buildCurrentResultExport({model,result:copy,analysisRun,inputManifest})).rejects.toThrow("CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE");
     await expect(buildStressNeutralExportPacket({model,result:copy,analysisRun})).rejects.toThrow("SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE");
-    // Design §4.5: the report package refuses it as every fresh identity.
-    await expect(buildReportPackageRequest({model,result:source,analysisRun,inputManifest} as never)).rejects.toThrow(`${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`);
+    // Design §4.5; owner ruling 10A: the report package refuses it by its report-package cell.
+    await expect(buildReportPackageRequest({model,result:source,analysisRun,inputManifest} as never)).rejects.toThrow(PRESSURE_SOURCE_OUTPUT_REFUSAL);
     // Mode binding: these bytes were captured under `mode` only.
     const otherMode=mode==="sparse_interactive"?"dense_scrutiny":"sparse_interactive";
     expect(hasNativeMechanicsInvocation(source,model,otherMode)).toBe(false);
