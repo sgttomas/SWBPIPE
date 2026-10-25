@@ -30,7 +30,7 @@ import {
 } from "../../services/unitCatalogService";
 import { entityLabel, selectedProperties, selectedPropertyRows } from "../model-workspace/modelView";
 import { composedDefault, declaredOrComposedDefault } from "../project-units/projectUnitSelection";
-import { missingProjectUnitText, projectUnitMissing, type MissingProjectUnitMode } from "../project-units/missingProjectUnit";
+import { componentDraftMissingUnitNotices, missingProjectUnitText, projectUnitMissing, type MissingProjectUnitMode } from "../project-units/missingProjectUnit";
 import type { ProjectUnitKey } from "../../services/projectService";
 import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selectionState";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
@@ -150,9 +150,7 @@ export function PropertyInspector({
     componentDraft.forceUnit || storedProjectUnits(model).force || "TBD"
   );
   // W-17 §3: a draft unit left unselected because its project key is absent names the key.
-  const componentUnitNotices = componentMissingUnitKeys(componentDraft)
-    .filter((key) => projectUnitMissing(model, key))
-    .map((key) => ({ key, text: missingProjectUnitText(model, key, "choose") }));
+  const componentUnitNotices = componentDraftMissingUnitNotices(model, componentDraft);
   const nodeTargetOptions = useMemo(() => model.nodes.map((node) => ({ value: node.id, label: node.label || node.id })), [model.nodes]);
   const connectedPipeTargetOptions = useMemo(() => model.pipe_segments
     .filter((pipe) => pipe.from === componentDraft.node || pipe.to === componentDraft.node)
@@ -2429,17 +2427,6 @@ function missingProjectUnitRefusal(model: PreviewModel, field: EditableField | u
   if (!missing || !projectUnitMissing(model, missing.key)) return null;
   if (missing.mode === "choose" && proposedUnit.trim() !== "") return null;
   return { text: missingProjectUnitText(model, missing.key, missing.mode), hardLock: missing.mode === "positions" };
-}
-
-/** The project keys whose unit the component draft still lacks ("TBD"), for its kind. */
-function componentMissingUnitKeys(draft: ComponentDraft): ProjectUnitKey[] {
-  if (draft.kind === "expansion_joint") return [];
-  const unset = (unit: string) => unit.trim() === "" || unit.trim() === "TBD";
-  const keys: ProjectUnitKey[] = [];
-  if (unset(draft.lengthUnit)) keys.push("length");
-  if ((draft.kind === "bend" || draft.kind === "tee") && unset(draft.angleUnit)) keys.push("angle");
-  if (draft.kind !== "bend" && draft.kind !== "tee" && unset(draft.forceUnit)) keys.push("force");
-  return keys;
 }
 
 function isBendComponent(component: PreviewComponent): boolean {

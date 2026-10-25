@@ -126,6 +126,7 @@ import {
   type UiDiagnosticsPublication
 } from "../workspace/uiDiagnostics";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
+import { componentDraftMissingUnitNotices, missingProjectUnitText, projectUnitMissing } from "../project-units/missingProjectUnit";
 
 export { buildDeformationOverlay, buildRotationOverlay } from "./deformationOverlay";
 
@@ -752,6 +753,19 @@ export function PipeViewport({
     "force",
     componentDraft.forceUnit || model.project.units.force || "TBD"
   );
+  // W-17 §3: the forms name a missing project key as the property inspector does;
+  // nothing is assumed in its place. Node positions are stored in
+  // project.units.length (the hard lock when nodes exist).
+  const lengthMissing = projectUnitMissing(model, "length");
+  const unitUnset = (unit: string) => unit.trim() === "" || unit.trim() === "TBD";
+  const nodeUnitNotice = lengthMissing ? missingProjectUnitText(model, "length", "positions") : null;
+  const pipeUnitNotices = lengthMissing
+    ? [
+      ...(unitUnset(pipeDraft.lengthUnit) ? [{ id: "length", text: missingProjectUnitText(model, "length", "choose") }] : []),
+      ...(routeEndMode === "new" ? [{ id: "length-positions", text: missingProjectUnitText(model, "length", "positions") }] : [])
+    ]
+    : [];
+  const componentUnitNotices = componentDraftMissingUnitNotices(model, componentDraft);
   useEffect(() => {
     let cancelled = false;
     loadUnitCatalog()
@@ -2641,6 +2655,7 @@ export function PipeViewport({
               />
             </label>
             <small data-testid="viewport-create-node-unit-basis">Coordinates: {nodeUnitBasis.label}</small>
+            {nodeUnitNotice ? <p role={model.nodes.length > 0 ? "alert" : "status"} data-testid="viewport-create-node-missing-project-unit-length">{nodeUnitNotice}</p> : null}
             <small data-testid="viewport-node-construction-plane">Pointer plane: global XZ · Y=0 {defaultLengthUnit}</small>
             <small data-testid="viewport-node-pointer-status" title={nodePointerReason}>{placementMessage ?? nodePointerReason}</small>
             <label>
@@ -2826,6 +2841,9 @@ export function PipeViewport({
                 options={pipeLengthUnitOptions.map((option) => ({ value: option.symbol, label: option.symbol }))}
               />
             </label>
+            {pipeUnitNotices.map(({ id, text }) => (
+              <p key={id} role={id === "length-positions" && model.nodes.length > 0 ? "alert" : "status"} data-testid={`viewport-create-pipe-missing-project-unit-${id}`}>{text}</p>
+            ))}
             <small data-testid="viewport-create-pipe-unit-basis">Pipe geometry: {pipeUnitBasis.label}</small>
             <small data-testid="viewport-construction-plane">{routeEndMode === "new" ? constructionPlaneReadout : "Construction plane inactive: existing endpoint uses exact node IDs."}</small>
             <small data-testid="viewport-route-ghost-status">
@@ -2999,6 +3017,9 @@ export function PipeViewport({
                 value={componentDraft.provenance}
               />
             </label>
+            {componentUnitNotices.map(({ key, text }) => (
+              <p key={key} role="status" data-testid={`viewport-create-component-missing-project-unit-${key}`}>{text}</p>
+            ))}
             <button
               data-testid="queue-explicit-component-intent"
               disabled={!componentDraftValid}

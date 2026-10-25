@@ -7,6 +7,7 @@
 // unit there. Node positions are stored in `project.units.length`, so missing
 // `length` with nodes is §3's hard lock, with its re-author text.
 import type { PreviewModel } from "../../types";
+import type { ComponentDraft } from "../component-creation/componentIntent";
 import { PROJECT_UNIT_KEYS, type ProjectUnitKey } from "../../services/projectService";
 import { projectUnitRow } from "./ProjectUnitsSection";
 import { storedProjectUnit } from "./projectUnitIntents";
@@ -34,4 +35,21 @@ export function missingProjectUnitText(model: PreviewModel, key: ProjectUnitKey,
   return mode === "choose"
     ? `Missing project unit: ${key}. This field has no default unit, and nothing is assumed. Choose its unit here, or set ${key} in Project units on the Project page.`
     : `Missing project unit: ${key}. This field takes its unit from project.units.${key}, and nothing is assumed. Set ${key} in Project units on the Project page before editing it.`;
+}
+
+/** The keys a component creation draft (the property inspector's and the
+ * viewport's) leaves unselected because the project key is absent. */
+export function componentDraftMissingUnitKeys(model: PreviewModel, draft: Pick<ComponentDraft, "kind" | "lengthUnit" | "angleUnit" | "forceUnit">): ProjectUnitKey[] {
+  if (draft.kind === "expansion_joint") return [];
+  const unset = (unit: string) => unit.trim() === "" || unit.trim() === "TBD";
+  const keys: ProjectUnitKey[] = [];
+  if (unset(draft.lengthUnit)) keys.push("length");
+  if ((draft.kind === "bend" || draft.kind === "tee") && unset(draft.angleUnit)) keys.push("angle");
+  if (draft.kind !== "bend" && draft.kind !== "tee" && unset(draft.forceUnit)) keys.push("force");
+  return keys.filter((key) => projectUnitMissing(model, key));
+}
+
+/** The component creation form's notices: one per unselected unit whose key is absent. */
+export function componentDraftMissingUnitNotices(model: PreviewModel, draft: Pick<ComponentDraft, "kind" | "lengthUnit" | "angleUnit" | "forceUnit">): Array<{ key: ProjectUnitKey; text: string }> {
+  return componentDraftMissingUnitKeys(model, draft).map((key) => ({ key, text: missingProjectUnitText(model, key, "choose") }));
 }
