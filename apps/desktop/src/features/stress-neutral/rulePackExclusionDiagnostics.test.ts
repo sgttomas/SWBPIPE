@@ -141,6 +141,26 @@ describe("the stress-neutral package carries the run record's rule-pack exclusio
     }
   }, 120_000);
 
+  it("the exclusion diagnostics' provenance is the desktop builder's, not the package's top-level provenance", async () => {
+    const session = await solvedWith([HELD, MISSING, CHANGED]);
+    const packet = await buildStressNeutralExportPacket(session);
+    const basis = modelLoadBasisRefs(session.model);
+    const substituted = { ...structuredClone(packet.provenance), source_name: "Invented substituted exporter" };
+    const withholding = (item: Json) => typeof item.code === "string" && (item.code.startsWith("SN-UNIT-WITNESS-WITHHELD") || item.code === "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE");
+    // A coordinated substitution: the top-level provenance and the exclusion diagnostics' (and
+    // any witness-withholding finding's, which are bound to the top level), restamped.
+    const coordinated = structuredClone(packet);
+    coordinated.provenance = structuredClone(substituted);
+    for (const item of coordinated.diagnostics as Json[]) if (RULE_PACK_CODES.includes(item.code) || withholding(item)) item.provenance = structuredClone(substituted);
+    await expect(validateStressNeutralExportPacket(await rehash(coordinated), session.result, session.analysisRun, basis)).rejects.toThrow("SN-RULE-PACK-REF-DIAGNOSTICS-MISMATCH");
+    // Another exporter's top-level provenance (the interop shape the validator admits) leaves
+    // the builder's exclusion diagnostics, which only the desktop builder emits, as they are.
+    const interop = structuredClone(packet);
+    interop.provenance = structuredClone(substituted);
+    for (const item of interop.diagnostics as Json[]) if (withholding(item)) item.provenance = structuredClone(substituted);
+    await expect(validateStressNeutralExportPacket(await rehash(interop), session.result, session.analysisRun, basis)).resolves.toBeUndefined();
+  }, 120_000);
+
   it("a producer diagnostic naming the same exclusion neither suppresses nor repeats the package's one", async () => {
     // The duplicate case the other outputs test cannot arise here: the package carries none of the
     // producer's diagnostics, and none of its own (comparison, witness-withholding) has a rule-pack

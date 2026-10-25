@@ -645,10 +645,12 @@ export async function validateStressNeutralExportPacket(packet: any, source?: Me
     // The expected list comes from trusted inputs alone: the record, and the package's own
     // diagnostics as the builder makes them from the source (comparison, witness withholding),
     // never from the packet's list. Every packet diagnostic with a reserved exclusion code, or
-    // the exclusion class, is held to it in full and in order, whatever its class.
+    // the exclusion class, is held to it in full and in order, whatever its class. Their
+    // provenance is the desktop builder's fixed one, never the packet's: only that builder
+    // emits them, while another exporter's package may carry its own top-level provenance.
     if (analysisRun !== undefined && Array.isArray(packet.diagnostics)) {
-      const trustedOwn = [comparisonSemanticsDiagnostic(`stress-neutral:${safeFileToken(source.run_id)}`, packet.provenance), ...expectedFindings];
-      const expected = [...trustedOwn.filter(isRulePackRefPackageDiagnostic), ...rulePackRefPackageDiagnostics(analysisRun, source, trustedOwn, packet.provenance)];
+      const trustedOwn = [comparisonSemanticsDiagnostic(`stress-neutral:${safeFileToken(source.run_id)}`, previewProvenance()), ...expectedFindings];
+      const expected = [...trustedOwn.filter(isRulePackRefPackageDiagnostic), ...rulePackRefPackageDiagnostics(analysisRun, source, trustedOwn, previewProvenance())];
       if (!await same(packet.diagnostics.filter(isRulePackRefPackageDiagnostic), expected)) throw new Error("SN-RULE-PACK-REF-DIAGNOSTICS-MISMATCH");
     }
     // T6S-5 (S-d): the class findings are counted in the loss report's exported reason.
