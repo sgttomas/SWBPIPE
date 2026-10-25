@@ -194,7 +194,8 @@ it("binds a combination successor's Combination basis references (T6S, B2-C §10
   const doc = structuredClone(combinationSuccessor) as any, source = doc.source as MechanicsResult, model = doc.invocation.request.model;
   const own = { ...manifest, manifest: { model_basis: { model_ref: source.model_ref }, solver_basis: { solver_name: source.producer!.component_name, solver_version: source.producer!.component_version, solver_build_ref: "build:test" } } };
   const rows = source.results.filter(r => r.basis_ref?.ref_type === "combination");
-  expect(rows.length).toBe(111);
+  // W-7: the combination's 12 global end rows (111 + 12).
+  expect(rows.length).toBe(111 + 12);
   expect(new Set(rows.map(r => JSON.stringify(sourceBasisReference(r.basis_ref))))).toEqual(new Set([JSON.stringify({ object_type: "Combination", ref: "combination:ab" })]));
   for (const bad of [{ ref_type: "combination", ref_id: "" }, { ref_type: "combination" }, { ref_type: "combination", ref_id: "combination:ab", extra: 1 }]) expect(() => sourceBasisReference(bad)).toThrow("ANALYSIS_SOURCE_REFERENCE_INVALID");
   const refs = modelLoadBasisRefs(model);

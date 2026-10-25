@@ -203,6 +203,11 @@ rows.update(_w1_member_model.producer_additions(n, m, l, CC, ID))
 import u4b_u5b_owners_model as _u45_model
 if os.environ.get("RP_SNAPSHOT") and _u45_model.inspect(os.environ["RP_SNAPSHOT"])["not_covered"]:
     rows["T14.4 prepared_not_covered operand table (U4B-W1)"] = _u45_model.producer_not_covered(m)
+# W-7 D3 (retained-pricing-rules.md §8.20, W7-NC): prepared_not_covered's end-action table beside U4B-W1's, one
+# [[Option<usize>; 6]; 2] per member, per attempted result set (freeze_combination completes its global end rows too).
+import w7_owners_model as _w7_model
+if os.environ.get("RP_SNAPSHOT") and _w7_model.inspect(os.environ["RP_SNAPSHOT"]):
+    rows["T14.7 prepared_not_covered end-action table (W7-NC)"] = _w7_model.end_action_operands(m)
 if _o4:
     # O4 S5 D3 (§8.9): O4-PS (invocation sidecars, T11), O4-PA (preparation sidecars, T12), O4-RS/NC/PP/KS (the proof's
     # reduced sections, maps, tables, copies, maxima and payload, T14) and O4-TR (the trace's second preparation record,

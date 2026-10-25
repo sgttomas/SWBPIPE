@@ -35,7 +35,6 @@ the previous map left open; rows cite them where they apply.
 - **EX:** the exact pressure route, `3.0.0/exact_pressure_v3`.
 
 **Not on main, so not counted here (in flight):**
-- branch `claude/piping-w7-global-end-forces-20261023` (W-7, no PR yet);
 - #1567 (DBM concordance review).
 
 ## 1. What a user can do today
@@ -121,8 +120,6 @@ The biggest gaps:
    - Combinations are refused on EX (FR-SOL-009).
    - Imposed displacement is refused on PF (FR-SOL-006); the owner ruled to
      build it there in two stages.
-   - Pipe and bend end forces are element-local only (FR-SOL-007; W-7 is in
-     flight).
 7. **Rule-pack scope (§17.2).** No stress categories, load-case mappings or
    required load cases (FR-RULE-001). In v0.1 by ruling (owner, 2026-10-24,
    option A: all three; W-17 rest).
@@ -180,7 +177,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-SOL-004 (513) | Must | P | No rigid element and no DEC-045 scaling applied: `stiffness_scaling_user_value` is unit-normalized (PP `lib.rs:9483`) and validated (`validation.rs:777,1346-1411`) only. EX refuses rigid and specialty components (`exact_admission.rs:208-210,285`) | DEL-03-05 | OD-2: build the scaling (W-15). Offsets exist only on connectors and tie rods. No rigid-link benchmark. |
 | FR-SOL-005 (514) | Must | D | `core/solver/linear_supports`; PP `lib.rs:2741`; EX admits linear restraints and springs (`exact_admission.rs:295-305`) | DEL-04-03 | Both routes. |
 | FR-SOL-006 (515) | Must | P | EX applies `boundary_motion` (`exact_admission.rs:106`; W9-C `tests/w9_solver_benchmarks.rs:413`). PF refuses support-targeted loads (`preview_physics.rs:1041-1093`, `IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL`) | DEL-04-03, DEL-04-07, DEL-05-01, DEL-05-05 | Owner (OD-6 row 2): build on PF in two stages (`DEL-04-07 Design/pressure-contract.md`, "Imposed displacement on the pressure-free route"). |
-| FR-SOL-007 (516) | Must | P | Pipe and bend end rows are `element_local` only (PP `lib.rs:12366-12392`; test `:16030`). Connectors publish global end actions (`:4436`) | DEL-04-01/02 | W-7 in flight. No deliverable commits to global end forces (DEL-04-01 SOW:140 covers transforms). |
+| FR-SOL-007 (516) | Must | D | Straight pipes and realized bends publish twelve global end rows per member and case (`element_global_end_force_v1`, `element_global_end_moment_v1`) beside their `element_local` rows on PF and EX, each F = Rᵀ f from the published local end rows (PP `lib.rs:12350` `append_element_global_end_results`, called at `:6551`); the readers check them (`result_export/src/global_end_evidence.rs`); tests `core/product_physics/tests/global_end_actions_runtime.rs` (both routes and modes: rotation, nodal balance, bend ends, EX wall axial, PF combinations, readers) and `tests/test_global_end_verifier.py`. Connectors publish global end actions (`:4511`) | DEL-04-01 | Design `global-end-actions.md` (REQ-004, the transform). Source-recovery publications omit the rows by the named rule `global_end_rows_published`. The dormant retained route carries them as named not-covered rows, re-registered in DEL-04-08 §8.20. |
 | FR-SOL-008 (517) | Must | D | `core/loads/stress_recovery`; `tests/t4_u6_section_bases.rs:270` | DEL-05-03 | Pressure stresses exist where pressure exists (EX). |
 | FR-SOL-009 (518) | Must | P | `core/loads/load_case_algebra`; `preview_physics_runtime.rs:597,682,709` | DEL-05-02 | EX refuses every combination (`pressure_runtime.rs:337-343`; `exact_admission.rs:229`). |
 | FR-SOL-010 (519) | Should | D | `core/solver/curved_bend`; DEC-070 | DEL-03-03, DEL-04-07 | |
@@ -313,9 +310,8 @@ architecture, governance or contract basis:
 
 **No deliverable owns these outcomes:**
 - **Formats and stores:** the desktop project store (partly DEL-12-01).
-- **Solver:** the rigid link; global-frame element-end forces (no deliverable
-  commitment; W-7 is building them under DEL-04-01); component-weight load
-  application; the eccentric reducer offset.
+- **Solver:** the rigid link; component-weight load application; the eccentric
+  reducer offset.
 - **Model and inspector:** the "lines" entity; inspector dependencies and
   assumptions.
 - **Records:** the §22.5 correlation-record fields; the R3 exit review.
@@ -390,11 +386,11 @@ scope or acceptance wording. "Rec." is the recommendation.
 
 | # | Location | Old | New | Reason | Rec. |
 |---|---|---|---|---|---|
-| 1 | `apps/desktop/native-smoke/expected.json`, milestone `sparse_interactive.rows` | `98` | `113` | #1461 (T4-U4b/U5b) adds 15 σ±/shear rows per member per case (`DEL-04-07 Design/u4b-u5b-implementation.md:296`); milestone: 1 member × 1 case | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") |
-| 2 | same, milestone `dense_scrutiny.rows` | `99` | `113` | #1461 +15; #1387 (B7 E14) deleted the dense parity row, −1 (`DEL-04-08 Design/b7-plan.md:292`) | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") |
+| 1 | `apps/desktop/native-smoke/expected.json`, milestone `sparse_interactive.rows` | `98` | `113` | #1461 (T4-U4b/U5b) adds 15 σ±/shear rows per member per case (`DEL-04-07 Design/u4b-u5b-implementation.md:296`); milestone: 1 member × 1 case | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") Then `113` → `125` with W-7 (#1581: 12 global end rows per member per case; owner, 2026-10-25: "I approve W-7's native-smoke values"). |
+| 2 | same, milestone `dense_scrutiny.rows` | `99` | `113` | #1461 +15; #1387 (B7 E14) deleted the dense parity row, −1 (`DEL-04-08 Design/b7-plan.md:292`) | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") Then `113` → `125` with W-7 (#1581: 12 global end rows per member per case; owner, 2026-10-25: "I approve W-7's native-smoke values"). |
 | 3 | same, milestone `sparse_interactive.probe_entered` | `"Entered: 0.09426732782247198 mm"` | `"Entered: 0.09426732782247199 mm"` | #1387 (B7 E15): one correctly rounded `norm3` (`b7-plan.md:293`); one unit in the last printed digit. The dense value is unchanged | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") |
-| 4 | same, demo `sparse_interactive.rows` | `625` | `745` | #1461 +120 (4 members × 2 cases × 15) | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") |
-| 5 | same, demo `dense_scrutiny.rows` | `627` | `745` | #1461 +120; #1387 −2 parity rows (one per case) | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") |
+| 4 | same, demo `sparse_interactive.rows` | `625` | `745` | #1461 +120 (4 members × 2 cases × 15) | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") Then `745` → `841` with W-7 (#1581: 12 global end rows × 4 members × 2 cases; owner, 2026-10-25: "I approve W-7's native-smoke values"). |
+| 5 | same, demo `dense_scrutiny.rows` | `627` | `745` | #1461 +120; #1387 −2 parity rows (one per case) | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") Then `745` → `841` with W-7 (#1581: 12 global end rows × 4 members × 2 cases; owner, 2026-10-25: "I approve W-7's native-smoke values"). |
 | 6 | DEL-09-01 SOW:69 | "The future mechanics benchmark suite must stay aligned…" | "The mechanics benchmark suite must stay aligned…" | The suite exists (`validation/benchmarks/mechanics`, W-9) | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
 | 7 | DEL-09-01 SOW:135 | "This deliverable specifies setup evidence for a future mechanics benchmark suite covering…" | "This deliverable specifies the contract and evidence basis for the implemented mechanics benchmark suite covering…" | as #6 | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
 | 8 | DEL-09-02 SOW:81 | "This setup kit defines the future benchmark-suite boundary only. It does not create benchmark source files, implement tests, …" | "The original setup kit defined the benchmark-suite boundary only. It did not create benchmark source files, implement tests, …; the suite now exists in `validation/benchmarks/stress`." | the suite exists | Applied (owner, 2026-10-23: "I approve items 6-15 in the form above.") |
@@ -470,7 +466,7 @@ so a run on main shows no known failure.
 
 These are **not ready**: shareable or EX reports, the report package, model
 states and comparison, canonical model export, rigid components, EX
-combinations, PF imposed displacement, global-frame end forces and the 0.7.0
+combinations, PF imposed displacement and the 0.7.0
 document slots.
 
 ### 4.2 Owner decisions that shape the plan
@@ -523,6 +519,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-17 (part) | Project units at creation; static rule-pack unit check | #1569, #1570 |
 | W-2 (part) | Validation manual current procedure, user guide, SMOKE note | #1543; the user guide updated again in #1580 after W-3 and W-17 |
 | W-19 | Rule-check aggregate headlines INCOMPLETE while any check is incomplete (FR-RULE-003) | #1585 |
+| W-7 | Global-frame element-end forces (FR-SOL-007): twelve global end rows per member and case on PF and EX, their readers and verifiers; the retained route's re-registration (DEL-04-08 §8.20) | #1581 |
 | W-13 S1b | Model document 0.7.0: the new member slots, one document validator, `model_settings.node_proximity_tolerance` (default 5 mm) | #1564; native smoke with no change beyond the five stale `expected.json` values (§3 rows 1–5) |
 | W-13 S2a | Authoring for the 0.7.0 slots: lines, assumptions and open issues, constraints, equipment interfaces, rule-pack references, tags, notes and provenance records; validator findings in the desktop | #1565 |
 | W-13 S2b, W-17 (part) | Applying library records to model entities: material (E/ν or E/G), section (propagated to bound pipes) and component records, with `provenance_record`/`library_ref` and the store's unresolved/changed-record warnings | #1566 |
@@ -535,7 +532,6 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 
 | # | Unit | PR or branch |
 |---|---|---|
-| W-7 | Global-frame element-end forces (FR-SOL-007) | branch `claude/piping-w7-global-end-forces-20261023` (no PR) |
 | — | DBM concordance review | #1567 |
 | W-20 | Pressure stress benchmark family in the DEL-09-02 suite (hoop and longitudinal stress against closed forms) | #1599 |
 
@@ -560,7 +556,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 - **Before the owner's hands-on use:** W-6 and W-18 (a model the owner can
   export and a report package). W-3, W-5 and the W-13 slices (#1564–#1566) are
   done.
-- **Before validation:** W-12, W-15, W-16, W-20 (#1599), W-11 and the in-flight W-7.
+- **Before validation:** W-12, W-15, W-16, W-20 (#1599) and W-11.
   The R6 reproduction bundle (W-2) is then made at the validation
   basis.
 

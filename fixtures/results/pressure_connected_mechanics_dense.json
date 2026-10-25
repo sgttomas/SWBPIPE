@@ -3220,6 +3220,222 @@
       }
     },
     {
+      "id": "result:element-global-end:pipe-fixture-span:end_i:fx",
+      "kind": "element_global_end_force_v1",
+      "value": -15707.963267948964,
+      "unit": "N",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:closed-pressure"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-fixture-span:end_i:fy",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:closed-pressure"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-fixture-span:end_i:fz",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:closed-pressure"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-fixture-span:end_i:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:closed-pressure"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-fixture-span:end_i:my",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:closed-pressure"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-fixture-span:end_i:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:closed-pressure"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-fixture-span:end_j:fx",
+      "kind": "element_global_end_force_v1",
+      "value": 15707.963267948964,
+      "unit": "N",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:closed-pressure"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-fixture-span:end_j:fy",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:closed-pressure"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-fixture-span:end_j:fz",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:closed-pressure"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-fixture-span:end_j:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:closed-pressure"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-fixture-span:end_j:my",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:closed-pressure"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-fixture-span:end_j:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:closed-pressure"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
       "id": "result:stress:pipe-fixture-span:end-i:sigma-plus:nominal-section",
       "kind": "element_local_normal_stress_extreme",
       "value": 4.545454545454545,
@@ -5453,6 +5669,222 @@
         "location": "governing_station",
         "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
         "sign_convention": "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim"
+      }
+    },
+    {
+      "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_i:fx",
+      "kind": "element_global_end_force_v1",
+      "value": -1000.0,
+      "unit": "N",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:six-component-load"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_i:fy",
+      "kind": "element_global_end_force_v1",
+      "value": -2000.0,
+      "unit": "N",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:six-component-load"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_i:fz",
+      "kind": "element_global_end_force_v1",
+      "value": 3000.0,
+      "unit": "N",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:six-component-load"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_i:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": -400.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:six-component-load"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_i:my",
+      "kind": "element_global_end_moment_v1",
+      "value": -2500.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:six-component-load"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_i:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": -2600.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:six-component-load"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_j:fx",
+      "kind": "element_global_end_force_v1",
+      "value": 1000.0,
+      "unit": "N",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:six-component-load"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_j:fy",
+      "kind": "element_global_end_force_v1",
+      "value": 2000.0,
+      "unit": "N",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:six-component-load"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_j:fz",
+      "kind": "element_global_end_force_v1",
+      "value": -3000.0,
+      "unit": "N",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:six-component-load"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_j:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": 400.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:six-component-load"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_j:my",
+      "kind": "element_global_end_moment_v1",
+      "value": -500.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:six-component-load"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_j:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": 600.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:six-component-load"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
       }
     },
     {

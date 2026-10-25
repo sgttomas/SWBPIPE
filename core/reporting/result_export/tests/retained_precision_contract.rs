@@ -5327,15 +5327,15 @@ const M3X: [(&str, &str, &str, &str, &str); 2] = [
         "m3x_sparse_interactive",
         "<s1:m3x_sparse_interactive>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "08f9c9f654b4f18871cc9b08a23655fb8517c91fbfc5d9a3f24932f8694ace82",
-        "a6f0815b30fa042a51552fa8d1881fe1af39479fffbc0382a866248e2276f531",
+        "8015669b3b5f32baf2b785076d8694752b2e95d258180a85a24126142205f332",
+        "56fba7f1688a74b07498f98234d49b5f271995c28dc9f0aaa16ec8f9a9eb3636",
     ),
     (
         "m3x_dense_scrutiny",
         "<s1:m3x_dense_scrutiny>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "04ee8f329c19d19278b01be56365c3b76ee5fc8469bf8b9d488e4bd54b4aa535",
-        "6aea076aaf67042cbd61bab4697a9da2d6fb873f331510643d0764a00cd6dafc",
+        "60b1b8e88c15d61ccb178febe250fc929c3a4d0ed53533cfcfe56e8c78873b67",
+        "56d062febe90df0370b9bb3d407c14199178a28e3b8e88558a58a7470247f528",
     ),
 ];
 fn exact_base(shared: &Value, base: &str) -> (Value, Value) {
@@ -5611,7 +5611,7 @@ fn b3b_repair03_n2b_physics_code_is_array_ordered_and_stable() {
 /// 29993a70... and 1a907970...); RV120's inputs were re-derived the same way.
 const REPAIR03_N2B_INPUTS: [&str; 2] = ["b70082f2ec110cb82f2c46294f59ba9fe9902d8c7c6a86ceb5de41dc08037c27", "e2aac985479b3b7901e546e9cbb70c1301d2cbd64f5128f291c8c6488f1582f1"];
 /// RV120's N2 probe inputs (sha256 of the canonical `[source, invocation]`), as in its index.
-const RV120_N2_INPUTS: [&str; 2] = ["fab66d1ab53dc09e88efb3fc42ea9ecd37eea95c5b5df4345b7fbab30bd692b3", "c4f6dda5433102cf9fb579e723817767e719f6b38b35dda493d2e75035339996"];
+const RV120_N2_INPUTS: [&str; 2] = ["fab66d1ab53dc09e88efb3fc42ea9ecd37eea95c5b5df4345b7fbab30bd692b3", "8db37ea6c27eeb1dd8097fe27fd9dc381ef208b324b8b1a1ad05aa297bd5a905"];
 fn sha256_canonical(v: &Value) -> String {
     use open_pipe_stress_canonical_json::canonical_json;
     use sha2::{Digest, Sha256};
@@ -5622,8 +5622,8 @@ fn sha256_canonical(v: &Value) -> String {
 const RV120_FORGERY_INPUTS: [(&str, &str, &str); 4] = [
     ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "b262fc9144ed4357674a13ddfa2a7c01a3b18840e740ac3069bf59a46920f5cf"),
     ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "ad38a8c45358e24274745efe9e44dcfebb45aa288e3d1e0949b1b303db09d0d5"),
-    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "796a633f266209561dd20bf55261243d6814268b0951909d30060b9e8d9eccd5"),
-    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "e1ac7b26db9d835abfae967e3561f233eac5017432fdc7ccbdddbc63671ba974"),
+    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "af1cd290d015681618890f7d9ecb5aa085489ef8997881e01bd21d00390af7cf"),
+    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "12006aefd3b413279f3adfbe0684a64813e18422935a8f07260cfd1acef833d3"),
 ];
 /// RV120 F2: the four forgeries are RV120's inputs (by digest), and all three readings
 /// hold: bound G8 PREPARATION_MISMATCH (step 4), unbound and on transport never eligible.

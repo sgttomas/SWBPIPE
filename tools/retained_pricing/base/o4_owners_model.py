@@ -37,7 +37,8 @@ BODY_PINS = {
     # reduced maximum outputs and the payload's reduced sections and shear leaves)
     (RP, "reduced_section_set"): "298ecb9242a154133aa1d3a45510999d81e48778bccc53830a9906387b33e6fc",
     (RP, "distinct_copy"): "951b22a65be7c1590c2f01c772234eb22655a865a52fc9068fc977b28205ba6c",
-    (RP, "prepared_not_covered"): "91b82b246cb463082b64da0b6a4ff2d3a1e26819d37b75024de9642cb2b53e78",
+    # W-7 D3 (§8.20): prepared_not_covered adds the end-action table (W7-NC); the reduced table and bound bitmap are unchanged.
+    (RP, "prepared_not_covered"): "373fc109510882da46338c0a81da6e91b0eb9f5d4803dd2a1954be0a429bcd19",
     (RP, "prepared_maxima"): "10f81029578641e0c05914cab95b3a8cfefc0a45cb9b21fd94fbd27aba8adaa0",
     (RP, "prepared_sections"): "9b5b2b6a6094db92c72790e22d7c956f2a5215ae08e25aa3990f32a38eed9ed2",
     # Stack-headroom repair D3 (b7-plan 5a, retained-pricing-rules.md §8.10): read 27e4dfa972;
@@ -66,7 +67,8 @@ BODY_PINS = {
     # O4-SR (the source route's second maximum) and O4-SP (its payload keys and per-station components)
     # Pre-0.4 failure unification D3 (§8.14): the screen and withheld decline on both exact routes, the support-norm
     # cause String and the route-neutral cause records (PU-TX). The second maximum and the payload keys are unchanged.
-    (LIB, "solve_prepared_load_case"): "9d7a4c2a7a2a699ee75d0f2fa79d36c0e8b54239c64cbb2ffb99b2b9a2b9d8dd",
+    # W-7 D3 (retained-pricing-rules.md §8.20): solve_prepared_load_case appends the member's global end rows or one blocking diagnostic (W7-GE); the second composite maximum it prices is unchanged.
+    (LIB, "solve_prepared_load_case"): "2a48b8e9418a54c04cd32ad70a49e87154d26b7f83fa5e697dd296ddd22ad1a4",
     (SRC, "distinct_reduced_section"): "179e447476ae2a7cf8b01d1e5da22bddd66b9057403453ffc79f9e57747fd100",
     (SRC, "stress_operands"): "de7a26eb0574635be8c808bc42070cdb132f8f8b67fee83542bd79f667cb6050",
     (SRC, "commitment"): "279ce112036664d7802e2952d87a67abe6dd7fe04879a4d498fd2544fe86753d",
@@ -74,7 +76,8 @@ BODY_PINS = {
     # O4-KS (kernel sidecar, identity block, ReducedSectionSet maps): the bodies that allocate them
     (FKO, "solve_timoshenko_cases"): "1c949e3cd60a8adb1f46cdb574b241fa3f089b89b1710050152daab82e3f45ae",
     (FKF, "reduced_index"): "0ff5eaec24cb7d64f50ee6155100bd817531481703c71c5a3597a348d2cff16a",
-    (FKF, "row_scales_reduced"): "32ecd1ac312a0f82efea73531d1f27e9f099f1315876975ea717c9e90a3b4e78",
+    # W-7 D3 (retained-pricing-rules.md §8.20): row_scales_reduced admits a not-covered force or moment row in a combination (a predicate); no owner changes.
+    (FKF, "row_scales_reduced"): "3322775097f9f9ab59aac76ff2b38bf3dfa3769a76debebe8b155d9403068d26",
 }
 # FK source.rs from the TimoshenkoLeaf doc comment to the Station doc comment: the leaf, its error, the validated set
 # (new: one sorted Vec; validate: no allocation; encode_block: tag + count + 12-byte entries) and the two constants.
