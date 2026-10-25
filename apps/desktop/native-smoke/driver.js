@@ -15,11 +15,12 @@
   const byTestId = (id) => document.querySelector(`[data-testid="${CSS.escape(id)}"]`);
   const text = (id) => byTestId(id)?.textContent?.trim() ?? null;
 
+  // A probe that throws ends the wait at once with its own error: a failure the
+  // window names is reported as itself, not as a timeout.
   async function waitFor(label, probe, timeoutMs = 120000) {
     const started = Date.now();
     for (;;) {
-      let value;
-      try { value = probe(); } catch { value = null; }
+      const value = probe();
       if (value) return value;
       if (Date.now() - started > timeoutMs) throw new Error(`timed out after ${timeoutMs} ms waiting for ${label}`);
       await sleep(100);
@@ -246,6 +247,94 @@
     return observation;
   }
 
+  // What the window and the native memory pool say about the current solve job,
+  // so a memory refusal or a queue wait is told apart from a slow solve. Read
+  // only: the Solve panel's own lines, the typed queue reason and refusal in the
+  // solve job JSON the panel offers, and `get_memory_pool_status` (the Memory
+  // pool panel's own read). It never throws.
+  function composeSolveDiagnostics(shown, jobResource, pool) {
+    const [source, reason] = jobResource?.refusal ? ["job refusal", jobResource.refusal]
+      : jobResource?.queue_reason ? ["job queue reason", jobResource.queue_reason]
+      : pool?.last_refusal ? ["memory pool's last refusal", pool.last_refusal] : [null, null];
+    // A refused worker growth carries the pool's own verdict as its cause.
+    const leaf = reason?.kind === "worker_growth_refused" && reason.cause ? reason.cause : reason;
+    const fields = {
+      shown,
+      job_record: jobResource ? "read" : "not readable",
+      reason: reason ? {
+        source,
+        code: leaf === reason ? reason.kind : `${reason.kind}/${leaf.kind}`,
+        required_bytes: reason.required_bytes ?? reason.requested_bytes ?? leaf.required_bytes ?? leaf.requested_bytes ?? null,
+        headroom_bytes: leaf.available_bytes ?? null,
+        pressure: leaf.level ?? null,
+        typed: reason
+      } : null,
+      memory_pool: !pool || pool.error ? { error: pool?.error ?? "not read" } : {
+        headroom_bytes: pool.headroom?.available_bytes ?? null,
+        pressure: pool.headroom?.pressure ?? null,
+        sample_age_ms: pool.headroom?.sample_age_ms ?? null,
+        queued_jobs: pool.queued_jobs ?? null,
+        running_jobs: pool.running_jobs ?? null,
+        running_workers: pool.running_workers ?? null,
+        reserved_bytes: pool.reserved_bytes ?? null,
+        pool_bytes: pool.pool_bytes ?? null,
+        invocation_budget_bytes: pool.invocation_budget_bytes ?? null,
+        last_refusal: pool.last_refusal ?? null
+      }
+    };
+    const q = JSON.stringify;
+    const r = fields.reason;
+    const m = fields.memory_pool;
+    const text = [
+      `solve job: summary=${q(shown.summary)}`,
+      `progress=${q(shown.progress)}`,
+      `queue_reason=${q(shown.queue_reason)}`,
+      `refusal=${q(shown.refusal)}`,
+      `worker_failure=${q(shown.worker_failure)}`,
+      `error=${q(shown.error)}`,
+      `memory=${q(shown.resource)}`,
+      `job record ${fields.job_record}`,
+      r ? `reason code=${r.code} (${r.source}); required_bytes=${r.required_bytes}; headroom_bytes=${r.headroom_bytes}${r.pressure ? `; pressure=${r.pressure}` : ""}` : "reason: none reported",
+      m.error ? `memory pool status: ${m.error}`
+        : `memory pool now: headroom_bytes=${m.headroom_bytes}; pressure=${m.pressure}; sample_age_ms=${m.sample_age_ms}; queued_jobs=${m.queued_jobs}; running_jobs=${m.running_jobs}; running_workers=${m.running_workers}; reserved_bytes=${m.reserved_bytes}; pool_bytes=${m.pool_bytes}; invocation_budget_bytes=${m.invocation_budget_bytes}; last_refusal=${q(m.last_refusal)}`
+    ].join("; ");
+    return { fields, text };
+  }
+  function solveJobRecord() {
+    try {
+      const href = byTestId("solve-job-export-link")?.getAttribute("href") ?? "";
+      if (!href.startsWith("data:")) return null;
+      const record = JSON.parse(decodeURIComponent(href.slice(href.indexOf(",") + 1)));
+      return record?.resource ?? null;
+    } catch {
+      return null;
+    }
+  }
+  async function solveJobDiagnostics() {
+    const shown = {
+      summary: text("solve-job-summary"),
+      progress: text("solve-job-progress"),
+      queue_reason: text("solve-job-queue-reason"),
+      refusal: text("solve-job-resource-refusal"),
+      worker_failure: text("solve-job-worker-failure"),
+      error: text("solve-job-error"),
+      resource: text("solve-job-resource")
+    };
+    const pool = await Promise.resolve().then(() => call("get_memory_pool_status")).then((value) => value, (error) => ({ error: String(error?.message ?? error) }));
+    return composeSolveDiagnostics(shown, solveJobRecord(), pool);
+  }
+  // A solve that failed, was refused or did not finish in time is reported with
+  // its job's diagnostics, in the error and in the driver's log.
+  async function waitForSolve(label, probe, timeoutMs) {
+    try {
+      return await waitFor(label, probe, timeoutMs);
+    } catch (error) {
+      const diagnostics = await solveJobDiagnostics();
+      await log(`${label}: ${diagnostics.text}`);
+      throw Object.assign(new Error(`${error?.message ?? error}; ${diagnostics.text}`, { cause: error }), { hard: error?.hard, solve_job: diagnostics.fields });
+    }
+  }
+
   async function solve(mode, label, projectId, probe) {
     await showSection("solve");
     click(mode === "dense_scrutiny" ? "solver-mode-dense" : "solver-mode-sparse");
@@ -253,7 +342,7 @@
     const priorProof = byTestId("status-pill-solve-proof")?.querySelector("code")?.textContent ?? null;
     await log(`${label}: run`);
     await menu("analyze.run");
-    await waitFor(`${label} solve completed`, () => {
+    await waitForSolve(`${label} solve completed`, () => {
       const summary = text("solve-job-summary") ?? "";
       if (/state=(failed|cancelled)/.test(summary)) throw new Error(`${label}: ${summary}; ${text("solve-job-error") ?? ""}`);
       const proof = byTestId("status-pill-solve-proof")?.querySelector("code")?.textContent ?? null;
@@ -485,7 +574,7 @@
     await waitFor("sparse selected", () => byTestId("solver-mode-sparse")?.getAttribute("aria-pressed") === "true");
     const prior = proofText();
     await menu("analyze.run");
-    await waitFor(`${label} solve`, () => {
+    await waitForSolve(`${label} solve`, () => {
       const summary = text("solve-job-summary") ?? "";
       if (/state=(failed|cancelled)/.test(summary)) throw Object.assign(new Error(`${label}: ${summary}; ${text("solve-job-error") ?? ""}`), { hard: true });
       const proof = proofText();
@@ -705,6 +794,13 @@
     if (plan.handoff) await handoffRoundTrip(plan, report, previousId);
   }
 
+  // Under the driver's node test only: hand over the helpers instead of running.
+  const testHooks = globalThis.__SWBPIPE_NATIVE_SMOKE_DRIVER_TEST__;
+  if (testHooks) {
+    Object.assign(testHooks, { waitFor, waitForSolve, solveJobDiagnostics, composeSolveDiagnostics });
+    return;
+  }
+
   (async () => {
     const report = { phase: null, ok: false, refusals: [], opened: [], observations: [], exports: [], saved: [], prompts: [], user_agent: navigator.userAgent, location: String(window.location) };
     try {
@@ -718,6 +814,7 @@
       report.ok = true;
     } catch (error) {
       report.error = `${error?.message ?? error}${error?.stack ? `\n${error.stack}` : ""}`;
+      if (error?.solve_job) report.solve_job_diagnostics = error.solve_job;
       await log(`FAILED: ${report.error}`);
     }
     await call("native_smoke_finish", { report });
