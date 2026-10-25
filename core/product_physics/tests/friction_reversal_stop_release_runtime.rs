@@ -69,6 +69,14 @@ const EXPECTED: [Expected; 6] = [
 /// The demo with the variant's primitive loads negated; nothing else changes.
 fn demo_request(variant: Variant) -> Value {
     let mut model: Value = serde_json::from_str(DEMO).unwrap();
+    // The reference models C-130 as unconsumed ("components and CE-120 not
+    // consumed"); W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md`)
+    // now consumes the demo's valve, scaling P-130 by its user scale. This
+    // test-local copy declares C-130 not_solver_consumed so the input matches
+    // the reference's stated basis.
+    let valve = model["components"].as_array_mut().unwrap().iter_mut()
+        .find(|component| component["id"] == "component:C-130").expect("the demo's valve C-130");
+    valve["mechanics_interface"]["solver_consumption"] = json!("not_solver_consumed");
     for case in model["load_cases"].as_array_mut().unwrap() {
         for load in case["primitive_loads"].as_array_mut().unwrap() {
             let reverse = match variant {

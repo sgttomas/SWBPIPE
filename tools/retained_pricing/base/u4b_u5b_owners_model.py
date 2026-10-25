@@ -35,11 +35,13 @@ BODY_PINS = {
     # its maximum (rows inside FAILED_MEMBER_ROWS = 78, W7-RL; their texts are TEXT sites), and prepared_not_covered
     # adds its end-action table (W7-NC, w7_owners_model) and completes the global end rows; the Poisson flags, the
     # grown diagnostics and this operand table are unchanged.
-    (RP, "failed_manifest"): "c67b66d832027a5da512947a8bad05355e68136974eb4e03cc0a1e6c462c6b1f",
+    # W-15 D3 (§8.21): failed_manifest's rows name `component_body: None` (no owner moves); preview_model_checks first
+    # calls component_body::model_checks, whose working set is W15-RB (w15_owners_model); U4B-RD's sets are unchanged.
+    (RP, "failed_manifest"): "e394440d8fba5059d51168bb5919c2d52f2a119fc0f43b81c990c4394092eb93",
     (RP, "prepared_not_covered"): "373fc109510882da46338c0a81da6e91b0eb9f5d4803dd2a1954be0a429bcd19",
     (EVID, "member_stations"): "422def17cd2b550f2654109416449ee04276fddd13a42175dcfe5606b7f93cad",
     (EVID, "poisson_exempt"): "087720dfa55869d73d7b277affd80e7dffb34a83f2488b85900387caae4f33d4",
-    (EVID, "preview_model_checks"): "5580d56f7b5f41ec230d9b2d02aa84fc9dfcbb2a633f17a594985de9819ff29a",
+    (EVID, "preview_model_checks"): "14832c4f79d882883367834aa8c5b168160c4295d5cced0fff960187eb6fb8f3",
     (PHYS, "u4b_cases"): "ef840d771fad2b50bef538f1e6b57466bc1902ba4b7c4406de53a9a31b5849ed",
     (ROWS, "not_qualified_for"): "c76bc3bdb40be7ca80e348223b7cf3a7373bd7d05f74013f93567020b0abf222",
     (ROWS, "not_qualified_inputs"): "14c9b4d161963de572fe32bcd9fc1c58191eebea441728054a624b998f97e4e3",

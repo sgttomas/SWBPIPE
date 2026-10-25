@@ -28,6 +28,8 @@ FKO = "core/solver/frame_kernel/src/structural/retained/origins.rs"
 FKF = "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs"
 CENSUS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "census_u4b_7c77bf8072.json")
 
+# W-15 D3 (§8.21): solve_prepared_load_case keeps a body's maxima out of the headline, reads a body's PF nu from the
+# unscaled pair and names `component_body: None` on its rows; the second composite maximum it prices (O4-SR) is unchanged.
 BODY_PINS = {
     # O4-PS (capture: exact_members, distinct_bases) and O4-PA (prepare: leaves, reduced_facts, reduced preparations,
     # shear associations, the invocation's TimoshenkoLeafSet and reduced facts)
@@ -68,7 +70,7 @@ BODY_PINS = {
     # Pre-0.4 failure unification D3 (§8.14): the screen and withheld decline on both exact routes, the support-norm
     # cause String and the route-neutral cause records (PU-TX). The second maximum and the payload keys are unchanged.
     # W-7 D3 (retained-pricing-rules.md §8.20): solve_prepared_load_case appends the member's global end rows or one blocking diagnostic (W7-GE); the second composite maximum it prices is unchanged.
-    (LIB, "solve_prepared_load_case"): "2a48b8e9418a54c04cd32ad70a49e87154d26b7f83fa5e697dd296ddd22ad1a4",
+    (LIB, "solve_prepared_load_case"): "27d888b1c13a98aed6bb498baa7dcdf91933abf264f8b40509102fc2039e4676",
     (SRC, "distinct_reduced_section"): "179e447476ae2a7cf8b01d1e5da22bddd66b9057403453ffc79f9e57747fd100",
     (SRC, "stress_operands"): "de7a26eb0574635be8c808bc42070cdb132f8f8b67fee83542bd79f667cb6050",
     (SRC, "commitment"): "279ce112036664d7802e2952d87a67abe6dd7fe04879a4d498fd2544fe86753d",
