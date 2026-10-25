@@ -232,7 +232,7 @@ MVP requirement (PRD §15.6).
 | FR-CMP-008, -009, -010 (549-551) | Should | P | `schemas/comparison_tolerance.schema.json`; `ComparisonPanel.tsx:55-70` | DEL-14-05, DEL-08-06 | No profiles, overlays or CSV. |
 | FR-CMP-011 (552) | Could | P | `schemas/caepipe_external_run.schema.json` | DEL-14-05 | §15.6: not MVP. |
 | §21.3 human acceptance (1385) | — | D | `docs/claims_registry.md:6,184-186` | DEL-01-04 | No acceptance workflow, as required. |
-| §22.4 regression (1435) | Must | P | `tools/release/run_evidence_sweep.py:163`; last sweep `validation/evidence/sweeps/SWEEP_20260924T162044Z_b9dda2addccc.json` | DEL-00-08, DEL-09-05, DEL-10-04 | No states to hash. The sweep is optional release preparation; the hosted `harness` is the merge check. |
+| §22.4 regression (1435) | Must | P | `tools/release/run_evidence_sweep.py:163`; last sweep `validation/evidence/sweeps/SWEEP_20260924T162044Z_b9dda2addccc.json` | DEL-00-08, DEL-09-05, DEL-10-04 | The cited sweep predates desktop states and recorded runs (W-12). The sweep is optional release preparation; the hosted `harness` is the merge check. |
 | §22.5 prover correlation (1455) | — | O | DEC-080: activation is a future owner-gated row | DEL-09-04, PKG-15 | The schema lacks the §22.5 fields. |
 | R6 reproduction (1636) | — | P | Current runnable procedure `docs/validation_manual/headless_runner_reproduction.md:47-193` (W-2); last bundle still `validation/evidence/reproduction/REPRO_DEL0904_20260720T074714Z_a5235340aae3/` | DEL-09-04 | No fresh bundle (the heavy half of W-2). |
 
@@ -539,7 +539,6 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-2 (rest) | Fresh R6 reproduction bundle at the validation basis, with the current procedure | S | run | heavy | the validation basis | Acceptance of the reproduction is the owner's |
 | W-6 | Canonical model export (save model document to file, independent of a solve; FR-HAND-001); schema-conformant handoff manifest with rule refs and hashes (FR-HAND-002) | M | desktop + schema | heavy | W-13 (0.7.0) | No |
 | W-11 | Exact-route reports: DEL-08-01 limitation sections (ruling 10A), then open; with it, the report's materials, sections and library records (FR-REP-003) | M–L | docs + desktop | heavy | W-3 (done) | Opening returns to the owner |
-| W-12 | States, run history, state and run comparison in the desktop (FR-CMP-001..004, -006) | L | desktop + persistence | heavy, scrutiny | W-13 (design agreement) | No (OD-1 decided) |
 | W-15 | DEC-045 stiffness scaling for rigid and semi-rigid components (FR-SOL-004/012), component weight, EX admission, eccentric reducer offset (§12.3), rigid-link benchmark; fix the `validation.rs:1367` comment | M–L | numerical | heavy, scrutiny | — | No (OD-2 decided) |
 | W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | — | No |
 | W-17 (rest) | Units after creation (slice b, `set_project_unit`); rule-pack §17.2 stress categories, load-case mappings and required load cases | S–M each | desktop / schema | heavy | — | No (§17.2 decided, owner 2026-10-24: "I approve your recommended option A."; stress categories, load-case mappings and required load cases in v0.1, under a new rule-pack format version) |
@@ -553,7 +552,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 - **Before the owner's hands-on use:** W-6 and W-18 (a model the owner can
   export and a report package). W-3, W-5 and the W-13 slices (#1564–#1566) are
   done.
-- **Before validation:** W-12, W-15, W-16, W-20 (#1599) and W-11.
+- **Before validation:** W-15, W-16, W-20 (#1599) and W-11.
   The R6 reproduction bundle (W-2) is then made at the validation
   basis.
 
