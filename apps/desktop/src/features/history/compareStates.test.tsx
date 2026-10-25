@@ -210,6 +210,7 @@ async function nativeStore(options: { admission?: () => unknown; reads?: Record<
       case "admit_model_state_comparison":
         if (options.admission) return options.admission();
         return { left_snapshot_bytes: 10, right_snapshot_bytes: 12, combined_bytes: 22, budget_bytes: 12 * 1024 ** 3 };
+      case "read_model_state":
       case "read_model_state_for_comparison": {
         const id = args.stateId as string;
         const summary = [FIRST, SECOND].find((candidate) => candidate.state_id === id)!;
@@ -319,6 +320,37 @@ describe("the session's Compare… flow", () => {
     await act(async () => { compared = await hook.current.compareStates(FIRST.state_id, SECOND.state_id); });
     expect(compared).toBe(true);
     expect(hook.current.stateComparison!.comparison.rows.find((row) => row.id === "node:N-1")!.classification).toBe("changed");
+  });
+
+  it("Open State names the cause: a snapshot not representable exactly, apart from a snapshot of another project", async () => {
+    const sha = (text: string) => `sha256:${createHash("sha256").update(text, "utf8").digest("hex")}`;
+    const base = structuredClone(RIGHT_MODEL);
+    base.nodes[0].position = { ...base.nodes[0].position, x: 9007199254740992 };
+    const exactText = (await canonicalJsonString(base)).replace('"x":9007199254740992', '"x":9007199254740993');
+    const open = sessionHistory({
+      captureProjectBinding: () => ({ base: null, summary: null, envelopeHash: null }),
+      confirmReplacingEdits: async () => "proceed",
+      adoptStateSnapshot: vi.fn(async () => "")
+    } as Partial<ModelStateHistoryDeps>);
+    await nativeStore({ reads: { [SECOND.state_id]: { text: exactText, model_hash: sha(exactText) } } });
+    await act(async () => { await open.result.current.refreshStates(PROJECT); });
+    await act(async () => { await open.result.current.openState(SECOND.state_id); });
+    expect(open.result.current.historyOperation).toBe("open_state_failed");
+    expect(open.result.current.historyMessage).toBe(
+      `Not opened: Error: MODEL-STATE-INTEGRITY: the saved state "Revision" (${SECOND.state_id}) holds values the desktop cannot represent exactly (its snapshot as received does not hash to the stored ${sha(exactText).slice(0, 19)}…), so it is not opened.`
+    );
+    expect(open.deps.adoptStateSnapshot).not.toHaveBeenCalled();
+    // The same wording as Compare…'s refusal.
+    await act(async () => { await open.result.current.compareStates(FIRST.state_id, SECOND.state_id); });
+    expect(open.result.current.historyMessage).toContain(`COMPARISON-STATE-NOT-EXACT: the saved state "Revision" (${SECOND.state_id}) holds values the desktop cannot represent exactly`);
+    // A snapshot of another project, hashing correctly, has its own message.
+    const stranger = structuredClone(RIGHT_MODEL);
+    stranger.project = { ...stranger.project, id: "project:another-invented" };
+    const strangerText = await canonicalJsonString(stranger);
+    await nativeStore({ reads: { [SECOND.state_id]: { text: strangerText, model_hash: sha(strangerText) } } });
+    await act(async () => { await open.result.current.openState(SECOND.state_id); });
+    expect(open.result.current.historyMessage).toBe("Not opened: Error: MODEL-STATE-INTEGRITY: the opened snapshot is not of the saved state's project, so it is not opened.");
+    expect(open.deps.adoptStateSnapshot).not.toHaveBeenCalled();
   });
 
   it("shows a document the comparison cannot hold as its named refusal", async () => {

@@ -78,6 +78,14 @@ export type ModelStateHistoryDeps = {
   runSlot: CurrentRunSlot;
 };
 
+/** Why a received snapshot that does not hash to its state's stored model hash is
+ * not used (Open State and Compare…): the webview decodes JSON numbers as
+ * binary64, so a stored value such as an integer beyond 2^53 arrives as another
+ * number. */
+export function notExactReason(state: Pick<ModelStateSummary, "state_name" | "state_id" | "model_hash">): string {
+  return `the saved state ${modelStateDescription(state)} holds values the desktop cannot represent exactly (its snapshot as received does not hash to the stored ${state.model_hash.slice(0, 19)}…)`;
+}
+
 /** Why a state with blocking document findings is not opened. */
 export function notOpenableReason(state: ModelStateSummary): string {
   return `the saved state ${modelStateDescription(state)} is MODEL_INCOMPLETE: its model has blocking document findings, so it is kept as a comparison basis but cannot be opened as the working model (as such a project cannot be opened).`;
@@ -346,8 +354,11 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
         throw new Error(`Model document refused for editing: status=${version.status}; ${version.detail}`);
       }
       const hash = await computeModelHash(opened.model);
-      if (!hash || hash.value !== opened.state.model_hash || opened.model.project.id !== requestProjectId) {
-        throw new Error("MODEL-STATE-INTEGRITY: the opened snapshot does not match the saved state's model hash or project.");
+      if (!hash || hash.value !== opened.state.model_hash) {
+        throw new Error(`MODEL-STATE-INTEGRITY: ${notExactReason(opened.state)}, so it is not opened.`);
+      }
+      if (opened.model.project.id !== requestProjectId) {
+        throw new Error("MODEL-STATE-INTEGRITY: the opened snapshot is not of the saved state's project, so it is not opened.");
       }
       buildModelIndex(opened.model, 0, 0);
       if (!unchanged()) {
@@ -631,10 +642,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       for (const read of [leftRead, rightRead]) {
         const received = await computeModelHash(read.model);
         if (!received || received.value !== read.state.model_hash) {
-          throw new StateComparisonRefusal(
-            COMPARISON_STATE_NOT_EXACT,
-            `the saved state ${modelStateDescription(read.state)} holds values the desktop cannot represent exactly (its snapshot as received does not hash to the stored ${read.state.model_hash.slice(0, 19)}…), so it is not compared.`
-          );
+          throw new StateComparisonRefusal(COMPARISON_STATE_NOT_EXACT, `${notExactReason(read.state)}, so it is not compared.`);
         }
       }
       const comparison = compareModelDocuments(leftRead.model, rightRead.model);
