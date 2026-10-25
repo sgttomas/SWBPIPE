@@ -108,7 +108,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "6b07669e1c381da9a3fe13393248801cb41807932fdb978436a37ca997d50436",
+            "received_result_sha256": "03e2fc1f52595063867c68fd3f54fc47bc431dbb7085599f5bc2a66de1de08d1",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -150,7 +150,7 @@
             }
           ],
           "load_reference_states": null,
-          "received_result_sha256": "6b07669e1c381da9a3fe13393248801cb41807932fdb978436a37ca997d50436",
+          "received_result_sha256": "03e2fc1f52595063867c68fd3f54fc47bc431dbb7085599f5bc2a66de1de08d1",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -166,7 +166,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
           },
           {
             "affected_scope": {
@@ -286,7 +286,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 a6139f7d2fc92bd777ef0b1801272dc3c6924d7f7a82ac842a934de2c3375815) are bound by reference and are not restated in this report."
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d) are bound by reference and are not restated in this report."
           }
         ]
       },
@@ -307,7 +307,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "2082ec874c3851caccf211384982a1f3888d4f6b8505bd53a2a17464ebc7457e",
+            "received_result_sha256": "622d4c4f577f10412f366a24c21eef9847c28ba4f05de6458451acac0b407a78",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -349,7 +349,7 @@
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases case:cold-pressure, case:hot-pressure; history independent_equilibrium). Their published limitations are listed under Limitations.",
-          "received_result_sha256": "2082ec874c3851caccf211384982a1f3888d4f6b8505bd53a2a17464ebc7457e",
+          "received_result_sha256": "622d4c4f577f10412f366a24c21eef9847c28ba4f05de6458451acac0b407a78",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -365,7 +365,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
           },
           {
             "affected_scope": {
@@ -545,7 +545,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 a6139f7d2fc92bd777ef0b1801272dc3c6924d7f7a82ac842a934de2c3375815) are bound by reference and are not restated in this report."
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d) are bound by reference and are not restated in this report."
           }
         ]
       },
@@ -566,7 +566,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "c4c17b0438da00175f7ae4ce3592f44ad88c006989cf72368cebd229da4a1533",
+            "received_result_sha256": "95ad8ccf85aa9cf3c3b32e48855cbb1845422e63457071c5cd4a8b63c1d97aef",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -608,7 +608,7 @@
             }
           ],
           "load_reference_states": null,
-          "received_result_sha256": "c4c17b0438da00175f7ae4ce3592f44ad88c006989cf72368cebd229da4a1533",
+          "received_result_sha256": "95ad8ccf85aa9cf3c3b32e48855cbb1845422e63457071c5cd4a8b63c1d97aef",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -624,7 +624,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
           },
           {
             "affected_scope": {
@@ -756,7 +756,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 a6139f7d2fc92bd777ef0b1801272dc3c6924d7f7a82ac842a934de2c3375815) are bound by reference and are not restated in this report."
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d) are bound by reference and are not restated in this report."
           }
         ]
       },
@@ -777,7 +777,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "6dbe0d9fe65a1b54a7b21cc56b661964cde0982707b76e4361961212b4ef4179",
+            "received_result_sha256": "271de1787add0e1eb761ec2b6d4a9272a66cc6254a6a2934e0525cbe716bcc35",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -819,7 +819,7 @@
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases case:u2; history independent_equilibrium). Their published limitations are listed under Limitations.",
-          "received_result_sha256": "6dbe0d9fe65a1b54a7b21cc56b661964cde0982707b76e4361961212b4ef4179",
+          "received_result_sha256": "271de1787add0e1eb761ec2b6d4a9272a66cc6254a6a2934e0525cbe716bcc35",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -835,7 +835,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
           },
           {
             "affected_scope": {
@@ -1027,7 +1027,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 a6139f7d2fc92bd777ef0b1801272dc3c6924d7f7a82ac842a934de2c3375815) are bound by reference and are not restated in this report."
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d) are bound by reference and are not restated in this report."
           }
         ]
       },
@@ -1048,7 +1048,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "5c2c85893a334c4c18b30835bb5b923792cd8d009b0309f64b2b9dfd781983c1",
+            "received_result_sha256": "6c53b6e3a34c8e0a5781b5f6099116d02e1942201f729add3c8a0bb6757a90fe",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -1090,7 +1090,7 @@
             }
           ],
           "load_reference_states": null,
-          "received_result_sha256": "5c2c85893a334c4c18b30835bb5b923792cd8d009b0309f64b2b9dfd781983c1",
+          "received_result_sha256": "6c53b6e3a34c8e0a5781b5f6099116d02e1942201f729add3c8a0bb6757a90fe",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -1106,7 +1106,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
           },
           {
             "affected_scope": {
@@ -1250,7 +1250,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 a6139f7d2fc92bd777ef0b1801272dc3c6924d7f7a82ac842a934de2c3375815) are bound by reference and are not restated in this report."
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d) are bound by reference and are not restated in this report."
           }
         ]
       },
@@ -1271,7 +1271,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "1f4252f0a162f8b174d12e44ad0195afda71d47a354dce7dc1bed732c7601de5",
+            "received_result_sha256": "2949be102714c438e3e63a93a06bdf0bcb7b396697f1c75247132280f17581c1",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -1313,7 +1313,7 @@
             }
           ],
           "load_reference_states": null,
-          "received_result_sha256": "1f4252f0a162f8b174d12e44ad0195afda71d47a354dce7dc1bed732c7601de5",
+          "received_result_sha256": "2949be102714c438e3e63a93a06bdf0bcb7b396697f1c75247132280f17581c1",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -1329,7 +1329,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
           },
           {
             "affected_scope": {
@@ -1461,7 +1461,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 a6139f7d2fc92bd777ef0b1801272dc3c6924d7f7a82ac842a934de2c3375815) are bound by reference and are not restated in this report."
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d) are bound by reference and are not restated in this report."
           }
         ]
       },
@@ -1482,7 +1482,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "56a15064900f3df312371c85c70df5d6d3b8708c323c30abdbe8cda94a8b706b",
+            "received_result_sha256": "7def2b8851554738e8cbe105f917d5ab07d08df478f3ebf7f2ce5996766ef1de",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -1524,7 +1524,7 @@
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases load:L-100, load:L-200, load:L-300; history independent_equilibrium). Their published limitations are listed under Limitations.",
-          "received_result_sha256": "56a15064900f3df312371c85c70df5d6d3b8708c323c30abdbe8cda94a8b706b",
+          "received_result_sha256": "7def2b8851554738e8cbe105f917d5ab07d08df478f3ebf7f2ce5996766ef1de",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -1540,7 +1540,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
           },
           {
             "affected_scope": {
@@ -1732,7 +1732,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 a6139f7d2fc92bd777ef0b1801272dc3c6924d7f7a82ac842a934de2c3375815) are bound by reference and are not restated in this report."
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d) are bound by reference and are not restated in this report."
           }
         ]
       },
@@ -2211,7 +2211,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "c5ac6c70f39b29a74f4abeb65bf8b8e58729d29f72d9c8f99a393b4357cbd45b",
+            "received_result_sha256": "e270ae31033891a47abd2cc38ed94eb4d0e5132d4ef916de5601d99fb37fab10",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -2253,7 +2253,7 @@
             }
           ],
           "load_reference_states": null,
-          "received_result_sha256": "c5ac6c70f39b29a74f4abeb65bf8b8e58729d29f72d9c8f99a393b4357cbd45b",
+          "received_result_sha256": "e270ae31033891a47abd2cc38ed94eb4d0e5132d4ef916de5601d99fb37fab10",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -2269,7 +2269,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
           },
           {
             "affected_scope": {
@@ -2389,7 +2389,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 a6139f7d2fc92bd777ef0b1801272dc3c6924d7f7a82ac842a934de2c3375815) are bound by reference and are not restated in this report."
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d) are bound by reference and are not restated in this report."
           }
         ]
       },
