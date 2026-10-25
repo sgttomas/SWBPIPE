@@ -119,6 +119,37 @@ export function rulePackRefDiagnosticEntries(diagnostics: readonly unknown[]): A
   return entries;
 }
 
+/** The rule-pack reference diagnostics a run record appends after its producer's
+ * `producerDiagnosticCount` diagnostics, as recorded, in the record's order. The outputs built
+ * from a record (result export, stress-neutral package, preview handoff) project these, so
+ * that each output and the record name the same exclusions. A record with none gives `[]`;
+ * appended diagnostics that are not exactly such are refused, as the record validator refuses
+ * them ("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH"). */
+export function recordRulePackRefAnnotations(recordDiagnostics: readonly unknown[] | null | undefined, producerDiagnosticCount: number): RulePackRefDiagnosticAnnotation[] {
+  const entries = rulePackRefDiagnosticEntries((recordDiagnostics ?? []).slice(producerDiagnosticCount));
+  if (!entries) throw new Error("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH");
+  return entries.map(({ code, identity }) => rulePackRefDiagnostic(code, identity));
+}
+
+/** Whether `item`, a diagnostic already in an output, carries `annotation`: it has the same
+ * code and names the same reference, by the annotation's id or the reference's identity, as its
+ * `id`, among its `affected_refs`, or as its `affected_object`'s id (either reference shape). */
+export function carriesRulePackRefDiagnostic(item: unknown, annotation: RulePackRefDiagnosticAnnotation): boolean {
+  if (!item || typeof item !== "object" || Array.isArray(item)) return false;
+  const { code, id, affected_refs: refs, affected_object: object } = item as Record<string, unknown>;
+  if (code !== annotation.code) return false;
+  const names = new Set<string>([annotation.id, annotation.affected_refs[0]]);
+  const objectIds = object && typeof object === "object" ? [(object as Record<string, unknown>).ref_id, (object as Record<string, unknown>).ref] : [];
+  return [id, ...(Array.isArray(refs) ? refs : []), ...objectIds].some((name) => typeof name === "string" && names.has(name));
+}
+
+/** The record's rule-pack reference diagnostics an output adds to the diagnostics it already
+ * carries (`present`), in the record's order: each one no diagnostic there carries, so that an
+ * exclusion appears once. */
+export function rulePackRefAnnotationsToAdd(annotations: readonly RulePackRefDiagnosticAnnotation[], present: readonly unknown[]): RulePackRefDiagnosticAnnotation[] {
+  return annotations.filter((annotation) => !present.some((item) => carriesRulePackRefDiagnostic(item, annotation)));
+}
+
 /** The model's references the manifest's `active_rule_packs` leaves out, as (id, version)
  * pairs in the model's order: the references a run record's rule-pack diagnostics must name. */
 export function manifestExcludedRulePacks(manifest: {

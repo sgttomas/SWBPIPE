@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { canonicalSha256HexCheckedV1, canonicalJsonCheckedV1, checkedJsonText } from "../../services/hashService";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel, ObjectRef } from "../../types";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
+import { recordRulePackRefAnnotations, rulePackRefAnnotationsToAdd } from "../../services/rulePackRefDiagnostics";
 
 const STRESS_NEUTRAL_EXPORT_VERSION = "0.3.0";
 const STRESS_NEUTRAL_EXPORT_PROFILE = "ops.stress_neutral.v3";
@@ -405,6 +406,24 @@ function strictWithholdingDiagnostic(disposition: Exclude<StrictWitnessDispositi
   };
 }
 
+/** The package diagnostics' class for a run record's rule-pack reference diagnostic. */
+const RULE_PACK_REFERENCE_CLASS = "rule_pack_reference";
+/** The run record's rule-pack reference diagnostics (a model reference the solve left out of
+ * the input manifest's `active_rule_packs`: unresolved, or a checksum mismatch), as package
+ * diagnostics after the package's own (`present`): code, severity and message copied from the
+ * record; the source the run record, the affected object the excluded reference by identity.
+ * One that a diagnostic in `present` already carries is not added again. */
+function rulePackRefPackageDiagnostics(analysisRun: AnalysisRunEnvelope, result: MechanicsResult, present: readonly unknown[], packetProvenance = previewProvenance()) {
+  const run = analysisRun.analysis_run;
+  return rulePackRefAnnotationsToAdd(recordRulePackRefAnnotations(run.diagnostics, result.diagnostics.length), present).map((annotation) => ({
+    code: annotation.code, class: RULE_PACK_REFERENCE_CLASS, severity: annotation.severity,
+    source: reference("AnalysisRun", run.run_id), affected_object: reference("RulePack", annotation.affected_refs[0]),
+    message: annotation.message,
+    remediation: "Review the excluded rule-pack reference before downstream use; it is not among this run's rule-pack references.",
+    provenance: structuredClone(packetProvenance)
+  }));
+}
+
 /** T6S-5: the successor package's boundary note (D2 4.9.7, 4.9.9; CQ-4, CQ-5). */
 const RETAINED_PRECISION_BOUNDARY_NOTE = "The retained-precision receipt travels whole with this package. A row that the accepted reader classes as verified only to the receipt's absolute bound, or as uncovered, keeps its CSV row and value; its unit-preservation witness is withheld with a class finding, and it is withheld from rule binding and reliance. No invocation travels with this package, so numerical eligibility cannot be re-established from the package alone, and the package makes no producer-origin claim.";
 /** T6S-5 (S-d): the class findings, counted in the loss report's exported reason. */
@@ -470,11 +489,12 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
     message: `${withheld.length} retained rows are explicitly categorized as ineligible for unit-preservation witnesses; ${strictWitnesses.length} rows have accepted semantic-contract interpretations and exact value/unit witnesses.`,
     remediation: "Review every explicit witness-withholding finding before downstream use.", provenance: previewProvenance()
   }] : [];
-  const diagnostics = [
+  const packageDiagnostics = [
     ...inputs.diagnostics,
     ...withheldDiagnostics,
     ...aggregateWithholdingDiagnostic
   ];
+  const diagnostics = [...packageDiagnostics, ...rulePackRefPackageDiagnostics(args.analysisRun, args.result, packageDiagnostics)];
   const blockingCount = diagnostics.filter((item) => item.severity === "blocking").length;
   const semanticContractRef = reference("ExternalReference", semanticTablePath(args.result));
   const decisionBasisRefs = [...structuredClone(inputs.unit_system_disclosure.decision_basis_refs), semanticContractRef, inputs.source_run_ref];
@@ -607,6 +627,11 @@ export async function validateStressNeutralExportPacket(packet: any, source?: Me
     });
     const codes = [...Object.values(WITHHOLDING_CODES), "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE"];
     if (!await same(packet.unit_preservation_witnesses, expectedWitnesses) || !await same(packet.diagnostics.filter((d: any) => codes.includes(d.code)), expectedFindings)) throw new Error("SN-PRECISION-WITNESS-BINDING-MISMATCH");
+    // The run record's rule-pack reference diagnostics, each once, as the builder projects them.
+    if (analysisRun !== undefined && Array.isArray(packet.diagnostics)) {
+      const own = packet.diagnostics.filter((d: any) => d?.class !== RULE_PACK_REFERENCE_CLASS);
+      if (!await same(packet.diagnostics.filter((d: any) => d?.class === RULE_PACK_REFERENCE_CLASS), rulePackRefPackageDiagnostics(analysisRun, source, own, packet.provenance))) throw new Error("SN-RULE-PACK-REF-DIAGNOSTICS-MISMATCH");
+    }
     // T6S-5 (S-d): the class findings are counted in the loss report's exported reason.
     if (sourceRetained) {
       const withheldCount = expectedFindings.length ? expectedFindings.length - 1 : 0;
