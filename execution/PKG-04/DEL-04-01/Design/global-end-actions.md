@@ -5,11 +5,12 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 ## Purpose
 
 PRD FR-SOL-007 (Must): "Element-end forces/moments are available in local and
-global coordinates." Before this change straight pipes and curved bends
-published their twelve end rows in `element_local` only, on both routes
-(`append_element_force_results`; bends in their end-tangent frames). Only
-connectors published global end actions (`joint::connector_rows`). This
-deliverable owns the local-to-global transform (REQ-004).
+global coordinates." Straight pipes and curved bends publish their twelve end
+rows in `element_local` (`append_element_force_results`; bends in their
+end-tangent frames) and, beside them, twelve global end rows
+(`append_element_global_end_results`), on both routes. Connectors publish their
+own global end actions (`joint::connector_rows`). This deliverable owns the
+local-to-global transform (REQ-004).
 
 ## Ruling
 
@@ -79,16 +80,18 @@ Twelve rows per member per case, after the member's local end rows:
   the notice's sentence is scoped to the element-local member rows and the
   support rows it actually bounds.
 - **Retained precision** (dormant in v0.1, DEL-04-08 B8): the retained route's
-  admission gate counts every row of the ordinary envelope, whose priced bound
-  is P_FINAL = 7n + 66m + 8g + 3 (`retained_memory.rs`): a member publishes
-  66 rows today. The ordinary envelope carries the new rows on every run,
-  watched or not ("the observed run is the plain run"), so the priced bound
-  rises to **78 rows per member** (R + 12 on the exact route), and P_FINAL and
-  P_FINAL_EXACT rise with it through a D3 re-registration under independent
-  review (Agent 0, 2026-10-23, option A). The re-registration shows the
-  compare and the fit of every priced phase against M = 12 GiB; a phase that
-  no longer fits stops the work for the owner (decision 22). The retained
-  method is dormant in v0.1, so this changes nothing a user sees.
+  admission gate counts every row of the ordinary envelope. The ordinary
+  envelope carries the global end rows on every run, watched or not ("the
+  observed run is the plain run"), so the priced bound is **78 rows per
+  member**: P_FINAL = 7n + 78m + 8g + 3 and, on the exact route,
+  P_FINAL_EXACT = 7n + 114m + 8g + 3 (`retained_memory.rs`; Agent 0,
+  2026-10-23, option A). DEL-04-08 `retained-pricing-rules.md` §8.20 records
+  the re-registration, the bounds that lean on the row counts and the fit of
+  every priced phase against M = 12 GiB; a phase that no longer fits would
+  stop the work for the owner (decision 22). A W1 successor carries the rows
+  as named not-covered rows (`GLOBAL_END_ROWS_NOT_COVERED`), completed from
+  its projected end actions. The retained method is dormant in v0.1, so this
+  changes nothing a user sees.
 - **Source-recovery publications** (source-selected cases): the composite
   receipt admits only qualified physical rows, so these publications omit the
   new rows by a named rule (`global_end_rows_published`).

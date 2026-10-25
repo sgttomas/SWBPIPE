@@ -285,6 +285,18 @@ scan's finding and refusal sites by its place before admission (SD-NF, guarded),
 (SD-ID, SD-WT, SD-DT) and the duplicate loops (SD-DL) and removes one by-name false edge (SD-EV); `rules/sq2_decisions_common.py` re-keys two replaced
 combination audit keys by name (SD-RK). A snapshot without the guard adds nothing. See the governing rules' §8.19.
 
+### W-7 global end rows actual-source owners
+
+`base/w7_owners_model.py` binds, by their exact statements in their functions, the owners W-7's member end actions in
+global coordinates add outside the TEXT inventory and prices them positively: W7-NC (`prepared_not_covered`'s per-member
+end-action table, `producer_caps.py` T14.7, per attempted result set), W7-QF (`qualify_source_case_rows`' filtered
+references, `ordinary_caps.py`) and W7-RD (the readers' coverage maps, `g4_caps.py` T17 V5, with four BTree node atoms
+bound in `g5_profile.py`). The rows themselves are inside P_final: route L takes `FAILED_MEMBER_ROWS` = 78 (W7-RL) and route
+E the census's 102 plus the twelve global end rows its pressure-source-1 fixtures omit (W7-RP, `lib/census_patch.py`).
+`rules/o10_rules.py` bounds the new loops (W7-L1) and texts (W7-ID), zeroes one `Option::replace` site (W7-RZ) and re-keys
+the stress-free notice's audit by its new text (W7-SF). A snapshot without W-7 adds nothing; a partly present or changed
+owner stops the run. See the governing rules' §8.20.
+
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual
