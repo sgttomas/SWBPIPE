@@ -309,6 +309,15 @@ sites by P2 under a source guard (W15-NZ), bounds the new loops (W15-L1) and tex
 the record's `STRESS_KINDS` list, a reader of the derived kinds (W15-SK). A snapshot without the modules adds nothing;
 a changed or partly present owner stops the run. See the governing rules' §8.21 and `tests/test_w15_rigid_scaling.py`.
 
+### W-15 slice b component weight
+
+Slice b's component-weight generator adds no owner on D1. Its lineage functions are reached only after
+`inspect_applied_self_weight`'s `continue`, which every admitted load takes because D1.10 refuses object provenance
+and D1.7 refuses the deterministic element form and, since slice b, a node load in the generated self-weight
+namespace. `rules/o10_rules.py` zeroes the edge into `generation_basis` and the wrench-set key site under a source
+guard (W15B-NS). The tree is coefficient-identical to §8.21's. See the governing rules' §8.22 and
+`tests/test_w15b_component_weight.py`.
+
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual
