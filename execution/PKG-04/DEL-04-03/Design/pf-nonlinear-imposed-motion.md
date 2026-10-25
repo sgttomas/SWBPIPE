@@ -296,7 +296,7 @@ criterion is the K-D5 ball bound, or 1e-9 relative for gap projections.
     φ = c_f·α/(1 − c_f·γ), u_t = (f_t + φ − b·g_n)/d, with
     c_f = −dir·μ·β.
   - It checks this identity against a full direct-stiffness solve. An
-    independent unit Euler–Bernoulli L-frame with a free tip rotation gives
+    independent Euler–Bernoulli L-frame, with both members at L = EA = EI = 1 and the tip rotation free, gives
     K_(n,t) = (1/103)·[[84, 18], [18, 48]] and γ = 3/8. The committed fixture
     pins the lengths, the normalized section and material leaves, the loads,
     the settlement, μ, and an admissible dir and β. Materializing it checks
@@ -330,8 +330,9 @@ criterion is the K-D5 ball bound, or 1e-9 relative for gap projections.
     interval is (P_x − μN)/k_x ≤ g_t ≤ (P_x + μN)/k_x, with k_x = EA/L. Both
     signs of g_t are run, to kill an absolute-slip mutant.
 
-**Property.** Apply a compatible rigid translation by one representable dyadic
-t to the translational DOFs, moving every relevant ground (anchors and
+**Property.** Apply a compatible rigid translation by one dyadic t to the
+translational DOFs, chosen so that every translated input stays exactly
+representable, moving every relevant ground (anchors and
 nonlinear grounds) with it. States and reactions are then unchanged and u
 shifts by t. Models with a fixed-ground parallel spring are excluded, because
 that spring's ground does not move under this scope.
