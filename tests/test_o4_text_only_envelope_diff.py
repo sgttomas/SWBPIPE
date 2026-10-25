@@ -750,10 +750,24 @@ def _with(value, path, leaf):
 
 def _w15_identity_restored(key, base, entry):
     """The entry with its one W-15 identity field put back to the old text; asserts the field held exactly
-    the old text at SD_BASE and holds exactly the new text now."""
-    assert _at(base, W15_IDENTITY_PATH) == W15_IDENTITY_OLD, (key, "identity field at SD_BASE")
+    the old text at the base and holds exactly the new text now."""
+    assert _at(base, W15_IDENTITY_PATH) == W15_IDENTITY_OLD, (key, "identity field at the base")
     assert _at(entry, W15_IDENTITY_PATH) == W15_IDENTITY_NEW, (key, "identity field")
     return _with(entry, W15_IDENTITY_PATH, W15_IDENTITY_OLD)
+
+
+def _w15_identity_old(value, restored, path=()):
+    """`value` with every W-15 identity field put back to the old text (counted in `restored`). A field is a
+    formulation basis's first limitation holding exactly W15_IDENTITY_NEW; the new text or its clause anywhere
+    else is left in place, so it fails the classification that follows."""
+    if isinstance(value, Obj):
+        return Obj((k, _w15_identity_old(v, restored, path + (k,))) for k, v in value)
+    if isinstance(value, list):
+        return [_w15_identity_old(v, restored, path + (i,)) for i, v in enumerate(value)]
+    if value == W15_IDENTITY_NEW and path[-3:] == ("formulation_basis", "limitations", 0):
+        restored.append(path)
+        return W15_IDENTITY_OLD
+    return value
 
 
 def _silent_drop_restored(key, entry):
@@ -791,12 +805,10 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_sil
         assert [k for k, _ in after] == [k for k, _ in before], (member, "entries or order")
         known = dict(before)
         moved = {k for k, entry in after if classify(known[k], entry)}
-        w15 = W15_IDENTITY_MOVED if member == "cases" else frozenset()
-        assert moved == SILENT_DROP_MOVED[member] | w15, (member, sorted(moved ^ (SILENT_DROP_MOVED[member] | w15)))
+        assert moved == SILENT_DROP_MOVED[member], (member, sorted(moved ^ SILENT_DROP_MOVED[member]))
         for key, entry in after:
             if key in moved:
-                restored = _w15_identity_restored(key, known[key], entry) if key in w15 else _silent_drop_restored(key, entry)
-                leaves = classify(known[key], restored)
+                leaves = classify(known[key], _silent_drop_restored(key, entry))
                 assert leaves and all(kind == "hash" for kind, _ in leaves), (member, key, "beyond binding hashes", leaves)
     before, after = dict(load(base)), dict(load(now))
     assert list(before) == list(after)
@@ -825,7 +837,7 @@ def test_o4_text_only_envelope_diff_silent_drop_enumeration_refuses_other_moves(
 
 def test_o4_text_only_envelope_diff_w15_identity_exception_is_its_one_field():
     """W-15's identity exception admits the clause only where it belongs: the clause planted in another
-    limitation of a W-15 base, or moved within the identity field, fails the enumeration (scrutiny of #1604)."""
+    limitation of a W-15 base, or moved within the identity field, fails the enumeration (scrutiny of #1604); on W-7 the exception sits in W-7's corpus check."""
     from tests.retained_precision_corpus import _STORAGE as storage
     committed = json.loads((PROJECT / RETAINED_CORPUS).read_text())
     ident = "w1_member_route_e_baseline_sparse_interactive"
@@ -839,11 +851,11 @@ def test_o4_text_only_envelope_diff_w15_identity_exception_is_its_one_field():
     assert ". " in limitations(document)[1]
     limitations(document)[1] = limitations(document)[1].replace(". ", W15_IDENTITY_CLAUSE + " ", 1)
     with pytest.raises(AssertionError, match=ident):
-        test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_silent_drop_carrier(current=json.dumps(document))
+        test_o4_text_only_envelope_diff_w7_corpus_moves_only_global_end_rows(current=json.dumps(document))
     document = storage.expand(committed)
     limitations(document)[0] = W15_IDENTITY_OLD[:-1] + W15_IDENTITY_CLAUSE
     with pytest.raises(AssertionError, match=ident):
-        test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_silent_drop_carrier(current=json.dumps(document))
+        test_o4_text_only_envelope_diff_w7_corpus_moves_only_global_end_rows(current=json.dumps(document))
 
 
 def _w7_corpus_stripped(value):
@@ -879,6 +891,9 @@ def test_o4_text_only_envelope_diff_w7_corpus_moves_only_global_end_rows(current
     assert list(old_cases) == list(new_cases), "cases: entries or order"
     for key, entry in new_cases.items():
         old = old_cases[key]
+        # W-15 (DEL-03-05) on W-7: the six exact bases also restate the pressure-2 identity, at their one field.
+        if key in W15_IDENTITY_MOVED:
+            entry = _w15_identity_restored(key, old, entry)
         producer = isinstance(dict(old)["provenance"], Obj)
         rows = [r for r in _w7_row_ids(dict(entry)["source"]) if "element-global-end" in r]
         assert not [r for r in _w7_row_ids(dict(old)["source"]) if "element-global-end" in r], (key, "no global end row before W-7")
@@ -1293,6 +1308,12 @@ def test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current=
         before = load(_before_w7(name))
         after = load((PROJECT / name).read_text() if current is None or name not in current else current[name])
         derived = name in W7_DERIVED
+        # W-15 (DEL-03-05) on W-7: the exact envelopes and their carriers also restate the pressure-2 identity, at
+        # each formulation basis's first limitation, exactly old -> new.
+        w15 = []
+        after = _w15_identity_old(after, w15)
+        # An AnalysisRun record binds its document by digest and carries no formulation basis.
+        assert bool(w15) != name.endswith(".analysis_run.json"), (name, "the W-15 identity field")
         removed_before, removed = [], []
         before = _without_w7(before, removed_before, derived)
         after = _without_w7(after, removed, derived)
@@ -1315,9 +1336,15 @@ def test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current=
         if not found:
             continue
         public = dict(dict(b)["public"])
-        assert public["outcome"] == "ordinary_published" and public["identity"].endswith("/pressure-2"), (W7_J7, dict(b)["id"])
-        assert {(kind, path) for kind, path in found} <= {("hash", "/public/envelope_sha256"), ("hash", "/public/results_sha256")}, \
-            (W7_J7, dict(b)["id"], found)
+        assert public["identity"].endswith("/pressure-2"), (W7_J7, dict(b)["id"])
+        # W-15 (DEL-03-05) on W-7: every pressure-2 envelope restates the identity, so a refused one's envelope
+        # digest moves too; only an ordinary publication's results digest (W-7's rows) may move with it.
+        allowed = {("hash", "/public/envelope_sha256")}
+        if public["outcome"] == "ordinary_published":
+            allowed |= {("hash", "/public/results_sha256")}
+        else:
+            assert public["outcome"] == "refused_blocking", (W7_J7, dict(b)["id"])
+        assert {(kind, path) for kind, path in found} <= allowed, (W7_J7, dict(b)["id"], found)
 
 
 def test_o4_text_only_envelope_diff_w7_enumeration_refuses_other_moves():

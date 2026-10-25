@@ -5328,15 +5328,15 @@ const M3X: [(&str, &str, &str, &str, &str); 2] = [
         "m3x_sparse_interactive",
         "<s1:m3x_sparse_interactive>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "8015669b3b5f32baf2b785076d8694752b2e95d258180a85a24126142205f332",
-        "56fba7f1688a74b07498f98234d49b5f271995c28dc9f0aaa16ec8f9a9eb3636",
+        "53df81b7f576e714816bccfc54d96baca3814a0e919b9823e5aa9bf29b97826c",
+        "0c7b14b6b08c689eee3be11ac164b0ec9296fd759c91595955eee7056dbc6ff4",
     ),
     (
         "m3x_dense_scrutiny",
         "<s1:m3x_dense_scrutiny>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "60b1b8e88c15d61ccb178febe250fc929c3a4d0ed53533cfcfe56e8c78873b67",
-        "56d062febe90df0370b9bb3d407c14199178a28e3b8e88558a58a7470247f528",
+        "1a3f9eed3731e123264dcca1e7f46645434cc9b66b95656de837cce3f7a431ea",
+        "d9a6e8073a6207abd426c6d88f3cdae21c41a660a61230178921cfcd3260d872",
     ),
 ];
 fn exact_base(shared: &Value, base: &str) -> (Value, Value) {
@@ -5613,10 +5613,13 @@ fn b3b_repair03_n2b_physics_code_is_array_ordered_and_stable() {
 /// W-15 (DEL-03-05) restated the pressure-2 identity limitation of the exact bases, moving the
 /// hashes binding it, so all eight moved again (N2b were b70082f2... and e2aac985...; N2 fab66d1a...
 /// and c4f6dda5...; F2 b262fc91..., ad38a8c4..., 796a633f... and e1ac7b26...); RV120's inputs were
+/// re-derived the same way. Merged with W-7 (#1581), whose regeneration re-based the exact and
+/// ordinary bases, RV120's N2 and F2 digests moved again (N2 were fab66d1a... and 8db37ea6...; F2
+/// b262fc91..., ad38a8c4..., af1cd290... and 12006aef...); N2b's did not; RV120's inputs were
 /// re-derived the same way.
 const REPAIR03_N2B_INPUTS: [&str; 2] = ["927641bcc2ed704922da05fa77526d2b5bab77cdb76c065afed5e343586e3683", "2fced73e35246c7ed88e4027823b0734dbd7e62ebaa8d6b356b9402dc99c8d60"];
 /// RV120's N2 probe inputs (sha256 of the canonical `[source, invocation]`), as in its index.
-const RV120_N2_INPUTS: [&str; 2] = ["fab66d1ab53dc09e88efb3fc42ea9ecd37eea95c5b5df4345b7fbab30bd692b3", "8db37ea6c27eeb1dd8097fe27fd9dc381ef208b324b8b1a1ad05aa297bd5a905"];
+const RV120_N2_INPUTS: [&str; 2] = ["82a4b6011cf9b316905a4e8fe8f0e87feef6917b3e8a817c76c0e99e662eed65", "00d1acddd29a13a58c3b9744d6c5cbdd32cb7736247f3387c6f0e284d41ba573"];
 fn sha256_canonical(v: &Value) -> String {
     use open_pipe_stress_canonical_json::canonical_json;
     use sha2::{Digest, Sha256};
@@ -5625,10 +5628,10 @@ fn sha256_canonical(v: &Value) -> String {
 /// The forgeries' materialized inputs: sha256 of the canonical JSON of `[source, invocation]`
 /// (`canonical_json`), the same bytes as RV120's input lines (checked against its index).
 const RV120_FORGERY_INPUTS: [(&str, &str, &str); 4] = [
-    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "b262fc9144ed4357674a13ddfa2a7c01a3b18840e740ac3069bf59a46920f5cf"),
-    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "ad38a8c45358e24274745efe9e44dcfebb45aa288e3d1e0949b1b303db09d0d5"),
-    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "af1cd290d015681618890f7d9ecb5aa085489ef8997881e01bd21d00390af7cf"),
-    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "12006aefd3b413279f3adfbe0684a64813e18422935a8f07260cfd1acef833d3"),
+    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "e0466b9c6401d42e3892c49fe89c07fa04a7cf1fd56519218ce3b85fc118b866"),
+    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "8055f52f628506e48d0d78d33823efb4e29f53e4d522fea8c288bd7533bd0416"),
+    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "f10fe0cddc759b7e26202f0417b2b0312f5bbe20d9cd56528ae3545569ba286d"),
+    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "cd558ffd27a83c4e50408b6097d26090f2004a4280a5cec19279d9e8bd89cf23"),
 ];
 /// RV120 F2: the four forgeries are RV120's inputs (by digest), and all three readings
 /// hold: bound G8 PREPARATION_MISMATCH (step 4), unbound and on transport never eligible.
