@@ -24,7 +24,6 @@ export const FRESH_SEMANTIC_CONTRACT_IDS: readonly string[] = Object.freeze([
 
 export const N_HEADLINE = "maximum elastic normal stress; nominal; no component intensification; not a code stress";
 export const N_HEADLINE_WITHHELD = "Stress headline withheld: a stress maximum is not available for every member in every load case (arc members have no maximum on this route).";
-export const N_REPORT = "The report package is unavailable for fresh results.";
 export const N_INTENSIFIED = "equal-factor intensified bending stress i·hypot(My,Mz)/Z; user SIF; member Z; not a code stress; never combined";
 
 export const COMBINATION_GATE_REASONS: Readonly<Record<string, string>> = Object.freeze({
@@ -32,8 +31,6 @@ export const COMBINATION_GATE_REASONS: Readonly<Record<string, string>> = Object
   CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE: "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
   COMBINATION_MODULUS_BASIS_MIXED: "Combination withheld: its load cases were solved on different modulus bases.",
 });
-
-export const REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE = "REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE";
 
 export const PREVIEW_INTENSIFIED_KIND = "component_equal_factor_intensified_bending_stress_v1";
 export const PREVIEW_MAXIMUM_KIND = "pipe_elastic_normal_stress_maximum_v2";

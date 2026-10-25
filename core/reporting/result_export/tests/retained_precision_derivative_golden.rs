@@ -48,27 +48,27 @@ const PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         SPARSE,
-        "2527351c49f3c928882dbeda961c0a3e34cb26cbfe00457e7af6d71c6f0bb119",
-        "5d1faa58971f43063cfcd4277ee0f4dab5d6601bb83ec4330f616b767e829136",
+        "cf053309e8048ae013dc5388d1115399ff89cf493eb2e36772500a3c6985a6e5",
+        "bd64548d321575ab27d11b94c2e258b75665e31d7428639b476729164ce57bcc",
     ),
     (
         "dense_scrutiny",
         DENSE,
-        "fd0c430ca4bfae895851c735207d3424d8d5c835a9d2bd5743cf012e577e1eba",
-        "42fba5d63668f917ed23b0e9b88e946a8b0ba7670ddb8580783ae0397e0d2ca5",
+        "f8078ee2c82ba370ab04591af49ed12c48fda5d88a54a75b0725fbdde317d884",
+        "d8b82e5a1e5449bcb06f2d0a76b0f5102d4778e9fef6f72859fffde256f61bec",
     ),
 ];
 /// The committed goldens' file sha256 (= the documents' canonical digests).
 const GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "33b9ddce5374f7f539df1874b020188bbfe9e73f787c93e76830480ae193a41d"),
-    ("dense_scrutiny", "5d32c01d47da2e5f254c7136001feff41bc0c9e8d011978d0fa41e8dd1512a37"),
+    ("sparse_interactive", "79d492da2ed150568f705c5ed6ad11e609dabfad1783a4101066bacf2dca4bb5"),
+    ("dense_scrutiny", "c456915ab647ce0eb50c386db0fffe4318e3cee7c653404718cb9efd5e0ac6dd"),
 ];
 /// The milestone's validated class counts (as retained_precision_carriers.rs
 /// `CLASSES`): relative, absolute, input-derived, non-quantity and not-covered (T4-U4b: the member's 15
-/// derived σ⁺, σ⁻ and τ_v,max rows at five stations).
+/// derived σ⁺, σ⁻ and τ_v,max rows at five stations; W-7: its 12 global end rows).
 const CLASSES: [(&str, [usize; 5]); 2] = [
-    ("sparse_interactive", [25, 69, 3, 1, 15]),
-    ("dense_scrutiny", [25, 69, 3, 1, 15]),
+    ("sparse_interactive", [25, 69, 3, 1, 15 + 12]),
+    ("dense_scrutiny", [25, 69, 3, 1, 15 + 12]),
 ];
 /// B3b-T: lane P's m3x exact successors (PP retained_facade_tests.rs `EXACT_PINNED`):
 /// mode, file text, file sha256 (the fixture document's), receipt sha256.
@@ -79,29 +79,30 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "7ce37436665a61677edf2de3f6c95a3ff8f513285814c21de89df82ce3558fd4",
-        "a24b05601d7524d27e26da8762ab639ecb1798cf452bca25adc33b4cf18ff4b8",
+        "53df81b7f576e714816bccfc54d96baca3814a0e919b9823e5aa9bf29b97826c",
+        "0c7b14b6b08c689eee3be11ac164b0ec9296fd759c91595955eee7056dbc6ff4",
     ),
     (
         "dense_scrutiny",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "2471ee1bf7b46a612883464caec7483a9cfecb08da439be65e7b184de51f516b",
-        "2feffea994cad251b1827d38bb6d408bb72b108c2a640275b19db661afc90c96",
+        "1a3f9eed3731e123264dcca1e7f46645434cc9b66b95656de837cce3f7a431ea",
+        "d9a6e8073a6207abd426c6d88f3cdae21c41a660a61230178921cfcd3260d872",
     ),
 ];
 /// The committed exact goldens' file sha256.
 const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "dc3143e9ba3ebed267738a9439acc08c23e414ce5bd3b53c29385363c772b165"),
-    ("dense_scrutiny", "229f21121658a17c853bf0eff2881bb37c3112a9f9e408bba9c5be7ab9a5b599"),
+    // W-15 (DEL-03-05) on W-7: the exact successors restate the pressure-2 identity limitation.
+    ("sparse_interactive", "9c4756e9289a5062a0e2e8474ddae5047297588ac7575799293b5b8b92400f07"),
+    ("dense_scrutiny", "579878c8e800ef2e4d17dd11c8ed3ec76c7c646caf786e4dab5f027d6144faef"),
 ];
 /// The m3x successors' validated class counts (relative, absolute, input-derived,
 /// non-quantity, not-covered). T4-U6 (D-5 §2.5): each of the member's 21
 /// reduced stress twins takes its nominal row's class (5 relative, 16 absolute;
 /// the receipt's own lists stay at 25 and 69). T4-U4b (U4B-RP): the 30 derived
-/// σ⁺, σ⁻ and τ_v,max rows (five stations, both bases) are not covered.
+/// σ⁺, σ⁻ and τ_v,max rows (five stations, both bases) are not covered; so are W-7's 12 global end rows.
 const EXACT_CLASSES: [(&str, [usize; 5]); 2] = [
-    ("sparse_interactive", [25 + 5, 69 + 16, 3, 1, 30]),
-    ("dense_scrutiny", [25 + 5, 69 + 16, 3, 1, 30]),
+    ("sparse_interactive", [25 + 5, 69 + 16, 3, 1, 30 + 12]),
+    ("dense_scrutiny", [25 + 5, 69 + 16, 3, 1, 30 + 12]),
 ];
 /// One set of goldens: the pinned successors, their identity, the goldens' file
 /// prefix and sha256, and the class counts; `label` prefixes the mode in messages

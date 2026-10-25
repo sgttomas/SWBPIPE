@@ -310,6 +310,9 @@ code_paths:
 - fixtures/model_operations/pressure_v3_l_line_authoring.json
 - apps/desktop/src-tauri/src/memory_pool.rs
 - apps/desktop/src-tauri/src/host_memory.rs
+- apps/desktop/src-tauri/src/ingress.rs
+- apps/desktop/src-tauri/src/command_ingress.rs
+- apps/desktop/src/test-support/demoReportPackageRequest.ts
 checks:
 - core/product_physics/tests/exact_admission_seam.rs
 - core/product_physics/tests/silent_zero_guard_runtime.rs
@@ -325,3 +328,7 @@ checks:
 - core/product_physics/src/tie_rod_tests.rs
 - core/product_physics/src/corrected_displacement_tests.rs
 - core/model_operations/operation_applier/tests/l_line_authoring.rs
+- apps/desktop/src-tauri/src/ingress.rs
+- apps/desktop/src-tauri/src/command_ingress.rs
+- apps/desktop/src-tauri/src/lib.rs
+- apps/desktop/src/test-support/demoReportPackageRequest.test.ts

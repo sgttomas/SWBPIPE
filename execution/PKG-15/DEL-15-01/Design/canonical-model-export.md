@@ -184,12 +184,33 @@ chooses:
    point.
 3. **An existing target is replaced by an atomic swap.** macOS
    `renamex_np(staging, target, RENAME_SWAP)` exchanges the two directories in
-   one step, so there is no interval without a target. The swapped-out old
-   package is then deleted.
+   one step, so there is no interval without a target. The swapped-out old package is deleted only after each published member is
+   confirmed, by identity and by a final byte-for-byte re-read through its
+   descriptor, to be what the save wrote and verified in memory, and only if the
+   old package's members, re-read through admission's descriptors, still hold
+   the bytes admission verified; otherwise the following holds.
+   If the old package's members no longer hold those bytes after the swap, it is
+   kept under the staging name and the confirmed new package is saved with the
+   warning `HANDOFF-OLD-PACKAGE-LEFT`; if they no longer hold them before the
+   swap, nothing is replaced and the save is refused
+   `HANDOFF-DESTINATION-CHANGED`. If a published member is not confirmed, the
+   save is refused and the old package is never deleted: the swap is undone only
+   if both names still hold what the swap left there
+   (`HANDOFF-PUBLISH-UNVERIFIED`), and otherwise nothing is moved
+   (`HANDOFF-ROLLBACK-WITHHELD`). If the
+   destination was replaced between the pre-swap check and the swap, the swap is
+   likewise undone only while both names still hold what the swap left there,
+   and the save is refused `HANDOFF-DESTINATION-CHANGED`. A
+   new name on a volume without exclusive rename is refused
+   (`HANDOFF-NEW-NAME-UNSUPPORTED`). The module documents the residual: a
+   same-user process can still rewrite the folder after the final check, or
+   substitute one entry, including a non-empty folder through the swap, between
+   a check and its call.
    - If the volume does not support the swap, the command refuses with
      `HANDOFF-REPLACE-UNSUPPORTED` and asks for a new name.
-   - A leftover `*.staging-*` from a crash is ignored, and is reported for the
-     user to delete.
+   - A leftover `*.staging-*` is ignored and reported. It may hold a previous
+     package, so the report asks the user to check what it holds before deleting
+     it.
 4. **Failure tests.** A failure injected between the member writes, or before
    the swap, leaves the previous package intact.
 
@@ -247,11 +268,11 @@ is hard-coded to look complete.
   its provenance `source_name` when there is none.
 - `provenance` is the library's provenance mapped to the eight handoff fields
   (as the `provenance` row maps them). |
-| `rule_pack_refs` | The document's `rule_pack_refs`, mapped: `rule_pack_version → version`. `checksum`: sha256 JCS over the reference metadata `{rule_pack_id, version, stamped_checksum_value, basis, grammar_version}`, copied from the pack's stamped `ComputedRulePackChecksum`; `payload_scope: rule_pack_reference_metadata`, `payload_ref` `{RulePack, <id>}`. This hash truthfully covers the reference metadata, and through it the pack's own checksum. The stamped record itself cannot be a handoff `Checksum`, because its fields and scope differ (`rule_pack_document/src/lib.rs:742-751`). Also `source_notice`, `redistribution_status`, `review_classification` (from the pack's lifecycle status, by fixed table), `privacy_classification: private_rule_pack_data` unless public, `private_payload_redacted: true`, `provenance` |
+| `rule_pack_refs` | The document's `rule_pack_refs`, mapped: `rule_pack_version → version`. `checksum`: sha256 JCS over the reference metadata `{rule_pack_id, version, stamped_checksum_value, basis, grammar_version}`, copied from the pack's stamped `ComputedRulePackChecksum`; `payload_scope: rule_pack_reference_metadata`, `payload_ref` `{RulePack, <id>}`. This hash truthfully covers the reference metadata, and through it the pack's own checksum. The stamped record itself cannot be a handoff `Checksum`, because its fields and scope differ (`rule_pack_document/src/lib.rs:742-751`). Also `source_notice`, `redistribution_status`, `review_classification` (from the pack's lifecycle status, by fixed table), `privacy_classification: private_rule_pack_data` unless public, `private_payload_redacted: true`, `provenance`. **Resolution** is the solve's (#1602; `rule_pack_ref_exclusion`, a port of `resolveModelRulePacks`, pinned by `fixtures/handoff/rule_pack_ref_resolution_vectors.json`): only the pack stored under the model's own project counts. It is unresolved (`MODEL-RULE-PACK-REF-UNRESOLVED`) when none is stored or its metadata lacks the reference's id, a version or a source notice (text that is blank by JavaScript's `trim`, U+FEFF included and U+0085 excluded, counts as absent, as in the solve). It is a checksum mismatch (`MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH`) when its stamp is not 64 lowercase hex or not the reference's, its recomputed checksum does not match its stamp, or its version is not the reference's. An excluded reference stays listed with that warning, so a handoff warns of exactly the references a run of the same model excludes. A store read error refuses the save (`HANDOFF-RULE-PACK-STORE-UNAVAILABLE`), stricter than the solve, which records the reference as unresolved |
 | `unresolved_assumptions` | The document's records with `status: unresolved`: `assumption_id`, `statement`, `status: unresolved`, `affected_refs` (below), `provenance` |
 | `warnings`, `diagnostics` | The document validator's and the solve-independent model diagnostics, mapped to the handoff `Diagnostic` (`code`, `class` by fixed table from code family, `severity`, `source`, `affected_object`, `message`, `remediation`, `provenance`) |
 | `unsupported_behavior_flags`, `target_mapping_metadata` | `reserved_metadata_only`, per DEL-15-02. Nothing target-specific is claimed |
-| `checksums` | The member inventory: (1) `model/model.json`, sha256 of its bytes, `canonicalization: JCS` (the bytes are JCS), `payload_scope: model_payload`; (2) the export hash, sha256 of the JCS of the instance's `handoff_package_manifest` object with its `checksums` member removed, `payload_scope: handoff_package_manifest`. The verifier is `verify_handoff_package` (Rust, in the desktop crate; a Python twin under `tests/verifiers/`). It recomputes both and is run by the tamper witnesses: one byte changed in each member must fail |
+| `checksums` | The member inventory: (1) `model/model.json`, sha256 of its bytes, `canonicalization: JCS` (the bytes are JCS), `payload_scope: model_payload`; (2) the export hash, sha256 of the JCS of the instance's `handoff_package_manifest` object with its `checksums` member removed, `payload_scope: handoff_package_manifest`. The verifier is `verify_handoff_package` (Rust, in the desktop crate; a Python twin under `tests/verifiers/`). It recomputes both and is run by the tamper witnesses: one byte changed in each member must fail. The verifier proves the package's internal consistency only, not that the records it references outside the package exist or hold what their digests say (the basis state and its record hash, the stored libraries and rule packs): references rewritten together with their digests pass it. Only the local store can confirm them; the save re-reads the basis state from the store immediately before publication. The twins' verdicts are pinned case by case, on the same bytes, by `fixtures/handoff/verifier_parity_cases.json` |
 | `privacy` | `local_only: true`, `telemetry_allowed: false`, `private_payload_embedded: false`, and the other required flags as they actually hold |
 | `redistribution_classification`, `review_classification` | `private_only` / `unreviewed` unless every included record is public, in which case it is the least permissive of them |
 | `provenance` | A product-generated handoff `Provenance` with all eight required fields: `source_name` "SWBPIPE desktop", `source_location` (the package name), `source_license` "user_private_project_data", `contributor` (the local user label), `contributor_attestation` (W-13's `contributor_certification` maps here wherever it is copied), `redistribution_status: private_only`, `review_classification: unreviewed`, `privacy_classification: private_project_data` |
@@ -288,7 +309,10 @@ The vocabulary is not extended here.
 **The preview panels.**
 - `HandoffPanel` stays a preview. Its download is relabelled "Preview handoff
   summary (not a handoff manifest)" and it points to File › Save Handoff….
-- Its hard-coded `rule_pack_refs: []` takes the document's references.
+- Its hard-coded `rule_pack_refs: []` takes the document's references, every
+  one, as Save Handoff lists them. A reference the solve excluded stays listed;
+  the run record's exclusion diagnostic is named once in its `diagnostic_refs`
+  (`services/rulePackRefDiagnostics.ts`), never duplicating one already carried.
 - `NativePackagePanel` is PKG-17 and unchanged.
 
 ## 4. Verification

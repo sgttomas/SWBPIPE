@@ -9,6 +9,7 @@ import { SectionAssignment } from "../toolkit/SectionAssignment";
 import { GuardedRemoval } from "../toolkit/GuardedRemoval";
 import { ModelDataAnnotations } from "../model-data/ModelDataAnnotations";
 import { ModelSettingsSection } from "../model-settings/ModelSettingsSection";
+import { ProjectUnitsSection } from "../project-units/ProjectUnitsSection";
 import { ListPlus, Pencil, PlayCircle, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type {
@@ -87,7 +88,7 @@ export function PropertyInspector({
   const [materialDraftState, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
   const [supportDraftState, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
   const [componentDraft, setComponentDraft] = useState(() =>
-    defaultComponentDraft(model, selection, queuedIntents)
+    componentDraftFor(model, selection, queuedIntents)
   );
   const aggregateRefs = selectionState?.orderedKeys.flatMap((key) => {
     const ref = entityRefFromKey(key);
@@ -141,12 +142,12 @@ export function PropertyInspector({
   const componentAngleUnitOptions = unitOptions(
     unitCatalogRoute,
     "angle",
-    componentDraft.angleUnit || model.project.units.angle || "rad"
+    componentDraft.angleUnit || storedProjectUnits(model).angle || "rad"
   );
   const componentForceUnitOptions = unitOptions(
     unitCatalogRoute,
     "force",
-    componentDraft.forceUnit || model.project.units.force || "TBD"
+    componentDraft.forceUnit || storedProjectUnits(model).force || "TBD"
   );
   const nodeTargetOptions = useMemo(() => model.nodes.map((node) => ({ value: node.id, label: node.label || node.id })), [model.nodes]);
   const connectedPipeTargetOptions = useMemo(() => model.pipe_segments
@@ -215,7 +216,7 @@ export function PropertyInspector({
     setProposedUnit(firstField?.unit ?? "");
     setRationale("user_entered_preview_change");
     setSupportDraft(defaultSupportDraft(model, selection, queuedIntents, unitCatalogRoute));
-    setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
+    setComponentDraft(componentDraftFor(model, selection, queuedIntents));
     setMaterialDraft(defaultMaterialDraft(model, queuedIntents, unitCatalogRoute));
     setSectionDraft(defaultSectionDraft(model, queuedIntents));
     setInspectorView("properties");
@@ -338,7 +339,7 @@ export function PropertyInspector({
     if (multiSelection || !componentCreateIntent) return;
     onQueueIntent(componentCreateIntent);
     setComponentDraft(
-      defaultComponentDraft(model, propertiesTarget, [...queuedIntents, componentCreateIntent], componentDraft.kind)
+      componentDraftFor(model, propertiesTarget, [...queuedIntents, componentCreateIntent], componentDraft.kind)
     );
   }
 
@@ -595,6 +596,12 @@ export function PropertyInspector({
         <details className="inspector-details" open data-testid="model-settings-details">
           <summary>Model settings</summary>
           <ModelSettingsSection key={`model-settings:${projectSessionGeneration}`} model={model} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} unitCatalogRoute={unitCatalogRoute} />
+        </details>
+      ) : null}
+      {propertiesTarget.type === "project" ? (
+        <details className="inspector-details" open data-testid="project-units-details">
+          <summary>Project units</summary>
+          <ProjectUnitsSection key={`project-units:${projectSessionGeneration}`} model={model} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} unitCatalogRoute={unitCatalogRoute} />
         </details>
       ) : null}
       <details className="inspector-details" data-testid="model-data-annotations-details">
@@ -3172,33 +3179,49 @@ function isSupportDraftValid(model: PreviewModel, draft: SupportDraft): boolean 
   );
 }
 
+// An opened document may lack `project.units` or some of its keys (W-17 §3):
+// each then reads as absent, shown as missing ("TBD" or unselected) and offered
+// on the Project page, never written or defaulted here.
+function storedProjectUnits(model: PreviewModel): Readonly<Partial<Record<string, string>>> {
+  return (model.project.units as PreviewModel["project"]["units"] | undefined) ?? {};
+}
+
+// The component draft reads `project.units` as present; it gets a read-only view
+// in which an absent map is empty, so it does not throw. Its length and force
+// units then start as missing ("TBD"); its angle unit still falls back
+// to `rad` inside `defaultComponentDraft` (a separate, open item).
+function componentDraftFor(...[model, ...rest]: Parameters<typeof defaultComponentDraft>): ComponentDraft {
+  const view = model.project.units === undefined ? { ...model, project: { ...model.project, units: {} } } : model;
+  return defaultComponentDraft(view, ...rest);
+}
+
 function lengthUnit(model: PreviewModel): string {
-  return model.project.units.length ?? "TBD";
+  return storedProjectUnits(model).length ?? "TBD";
 }
 
 function stressUnit(model: PreviewModel): string {
-  return model.project.units.pressure ?? "TBD";
+  return storedProjectUnits(model).pressure ?? "TBD";
 }
 
 // Composed defaults (W-17 §2.4): `1/<temperature>` and `<force>/<length>`, each
 // checked against the loaded catalog. A composition the catalog lacks gives ""
 // (unselected), never a substitute. A declared `linear_stiffness` key is used as is.
 function thermalExpansionUnit(model: PreviewModel, route: UnitCatalogRoute | null = null): string {
-  return composedDefault(route, "thermal_expansion", model.project.units).symbol;
+  return composedDefault(route, "thermal_expansion", storedProjectUnits(model)).symbol;
 }
 
 function thermalExpansionUnitNoticeFor(model: PreviewModel, route: UnitCatalogRoute | null): string | null {
-  return composedDefault(route, "thermal_expansion", model.project.units).notice;
+  return composedDefault(route, "thermal_expansion", storedProjectUnits(model)).notice;
 }
 
 // A present `linear_stiffness` key is used as declared (unchecked, as before); a
 // present but invalid one gives no default. Only an absent key composes.
 function linearStiffnessUnit(model: PreviewModel, route: UnitCatalogRoute | null = null): string {
-  return declaredOrComposedDefault(route, "linear_stiffness", "linear_stiffness", model.project.units, false).symbol;
+  return declaredOrComposedDefault(route, "linear_stiffness", "linear_stiffness", storedProjectUnits(model), false).symbol;
 }
 
 function linearStiffnessUnitNotice(model: PreviewModel, route: UnitCatalogRoute | null): string | null {
-  return declaredOrComposedDefault(route, "linear_stiffness", "linear_stiffness", model.project.units, false).notice;
+  return declaredOrComposedDefault(route, "linear_stiffness", "linear_stiffness", storedProjectUnits(model), false).notice;
 }
 
 function isFiniteInput(value: string): boolean {

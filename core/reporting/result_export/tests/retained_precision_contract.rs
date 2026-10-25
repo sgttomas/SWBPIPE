@@ -5328,15 +5328,15 @@ const M3X: [(&str, &str, &str, &str, &str); 2] = [
         "m3x_sparse_interactive",
         "<s1:m3x_sparse_interactive>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "7ce37436665a61677edf2de3f6c95a3ff8f513285814c21de89df82ce3558fd4",
-        "a24b05601d7524d27e26da8762ab639ecb1798cf452bca25adc33b4cf18ff4b8",
+        "53df81b7f576e714816bccfc54d96baca3814a0e919b9823e5aa9bf29b97826c",
+        "0c7b14b6b08c689eee3be11ac164b0ec9296fd759c91595955eee7056dbc6ff4",
     ),
     (
         "m3x_dense_scrutiny",
         "<s1:m3x_dense_scrutiny>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "2471ee1bf7b46a612883464caec7483a9cfecb08da439be65e7b184de51f516b",
-        "2feffea994cad251b1827d38bb6d408bb72b108c2a640275b19db661afc90c96",
+        "1a3f9eed3731e123264dcca1e7f46645434cc9b66b95656de837cce3f7a431ea",
+        "d9a6e8073a6207abd426c6d88f3cdae21c41a660a61230178921cfcd3260d872",
     ),
 ];
 fn exact_base(shared: &Value, base: &str) -> (Value, Value) {
@@ -5613,10 +5613,13 @@ fn b3b_repair03_n2b_physics_code_is_array_ordered_and_stable() {
 /// W-15 (DEL-03-05) restated the pressure-2 identity limitation of the exact bases, moving the
 /// hashes binding it, so all eight moved again (N2b were b70082f2... and e2aac985...; N2 fab66d1a...
 /// and c4f6dda5...; F2 b262fc91..., ad38a8c4..., 796a633f... and e1ac7b26...); RV120's inputs were
+/// re-derived the same way. Merged with W-7 (#1581), whose regeneration re-based the exact and
+/// ordinary bases, RV120's N2 and F2 digests moved again (N2 were fab66d1a... and 8db37ea6...; F2
+/// b262fc91..., ad38a8c4..., af1cd290... and 12006aef...); N2b's did not; RV120's inputs were
 /// re-derived the same way.
 const REPAIR03_N2B_INPUTS: [&str; 2] = ["927641bcc2ed704922da05fa77526d2b5bab77cdb76c065afed5e343586e3683", "2fced73e35246c7ed88e4027823b0734dbd7e62ebaa8d6b356b9402dc99c8d60"];
 /// RV120's N2 probe inputs (sha256 of the canonical `[source, invocation]`), as in its index.
-const RV120_N2_INPUTS: [&str; 2] = ["82a4b6011cf9b316905a4e8fe8f0e87feef6917b3e8a817c76c0e99e662eed65", "4eb83cbc5964c68082e7ffc7789b87ab46803cee689ff839d03299de29794171"];
+const RV120_N2_INPUTS: [&str; 2] = ["82a4b6011cf9b316905a4e8fe8f0e87feef6917b3e8a817c76c0e99e662eed65", "00d1acddd29a13a58c3b9744d6c5cbdd32cb7736247f3387c6f0e284d41ba573"];
 fn sha256_canonical(v: &Value) -> String {
     use open_pipe_stress_canonical_json::canonical_json;
     use sha2::{Digest, Sha256};
@@ -5627,8 +5630,8 @@ fn sha256_canonical(v: &Value) -> String {
 const RV120_FORGERY_INPUTS: [(&str, &str, &str); 4] = [
     ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "e0466b9c6401d42e3892c49fe89c07fa04a7cf1fd56519218ce3b85fc118b866"),
     ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "8055f52f628506e48d0d78d33823efb4e29f53e4d522fea8c288bd7533bd0416"),
-    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "c6d832a9a1f72ba96a90b9315c32d95e8aeb5cf4a992a68bbe744efdd4625a07"),
-    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "195d3d41bc0b3c5cb9863f276f08d3810d8d0f1119fb2c54820ff998c0ad77ad"),
+    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "f10fe0cddc759b7e26202f0417b2b0312f5bbe20d9cd56528ae3545569ba286d"),
+    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "cd558ffd27a83c4e50408b6097d26090f2004a4280a5cec19279d9e8bd89cf23"),
 ];
 /// RV120 F2: the four forgeries are RV120's inputs (by digest), and all three readings
 /// hold: bound G8 PREPARATION_MISMATCH (step 4), unbound and on transport never eligible.

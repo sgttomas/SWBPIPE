@@ -1,5 +1,8 @@
 mod atomic_report_package_save;
 mod command_ingress;
+mod export_disposition_screen;
+mod handoff_package;
+mod handoff_package_publish;
 mod host_memory;
 mod ingress;
 mod memory_pool;
@@ -14,6 +17,7 @@ mod stored_read;
 mod native_smoke;
 mod native_result_download;
 mod report_package_bridge;
+mod report_package_save;
 mod solve_jobs;
 mod solve_worker;
 mod worker_alloc;
@@ -22,6 +26,7 @@ pub use solve_worker::{run_solve_worker, WORKER_FLAG as SOLVE_WORKER_FLAG};
 
 use command_ingress::{respond, Args, ArgsDecoding, CommandError, NoCommandError};
 use model_document_version::{evaluate_model_document, ModelDocumentVersionStatus};
+use report_package_save::ReportPackageSaveCommandError;
 use open_pipe_stress_library_import_document as library_import_document;
 use open_pipe_stress_operation_applier::{apply_operation, validate_operation};
 use open_pipe_stress_product_physics::PreviewSolverMode;
@@ -46,370 +51,90 @@ use tauri_plugin_dialog::DialogExt;
 
 const PROJECT_STORE_FILE: &str = "openpipestress-projects.sqlite3";
 
-#[derive(Debug, Deserialize)]
-struct ReportPackageRedactionEvidence {
-    route_id: String,
-    decision_count: usize,
-    finding_count: usize,
-    blocking_count: usize,
-}
-
-#[derive(Debug, Deserialize)]
-struct ReportPackageLocalFirstEvidence {
-    route_id: String,
-    export_context: String,
-    storage_context: String,
-    action: String,
-    reason_code: String,
-    blocked: bool,
-    metadata_only: bool,
-    explicit_local_private_intent: bool,
-}
-
-fn validate_report_package_local_first_evidence(
-    evidence: Option<&ReportPackageLocalFirstEvidence>,
-) -> Result<(), &'static str> {
-    let Some(evidence) = evidence else {
-        return Err(
-            "REPORT-PACKAGE-LOCAL-FIRST-EVIDENCE-INVALID: metadata-only local-first route evidence is missing or blocked",
-        );
-    };
-    if evidence.route_id != "DREP-PACKAGE-SAVE-009"
-        || evidence.export_context != "local_private"
-        || evidence.storage_context != "local_private"
-        || evidence.action != "include_metadata_only"
-        || evidence.reason_code != "PRIVATE_LOCAL_METADATA_ALLOWED"
-        || evidence.blocked
-        || !evidence.metadata_only
-        || !evidence.explicit_local_private_intent
-    {
-        return Err(
-            "REPORT-PACKAGE-LOCAL-FIRST-EVIDENCE-INVALID: metadata-only local-first route evidence is missing or blocked",
-        );
-    }
-    Ok(())
-}
-
-#[derive(Debug, Serialize)]
-struct ReportPackageMemberSummary {
-    role: String,
-    file_name: String,
-    sha256_hex: String,
-    byte_length: usize,
-}
-
-#[derive(Debug, Serialize)]
-struct ReportPackageSaveReceipt {
-    outcome: String,
-    stage: String,
-    code: String,
-    container_file_name: String,
-    byte_count: usize,
-    package_identity_sha256_hex: String,
-    container_sha256_hex: String,
-    members: Vec<ReportPackageMemberSummary>,
-    replaced_existing: bool,
-    durability: String,
-    redaction_route_id: String,
-    redaction_decision_count: usize,
-    redaction_finding_count: usize,
-    redaction_blocking_count: usize,
-    local_first_route_id: String,
-    local_first_export_context: String,
-    local_first_storage_context: String,
-    local_first_action: String,
-    local_first_reason_code: String,
-    local_first_blocked: bool,
-    local_first_metadata_only: bool,
-    local_first_explicit_local_private_intent: bool,
-    selected_basename: String,
-    path_containment: String,
-    limitation: String,
-}
-
-#[derive(Debug, Serialize)]
-struct ReportPackageSaveCommandError {
-    code: String,
-    stage: String,
-    message: String,
-    os_error_kind: Option<String>,
-    os_error_code: Option<i32>,
-    cleanup_code: Option<String>,
-    cleanup_message: Option<String>,
-    selected_basename: String,
-    path_containment: String,
-    limitation: String,
-}
-
-impl ReportPackageSaveCommandError {
-    fn bridge(message: String) -> Self {
-        Self {
-            code: message
-                .split(':')
-                .next()
-                .unwrap_or("REPORT-PACKAGE-BRIDGE-FAILED")
-                .to_string(),
-            stage: "assemble".to_string(),
-            message,
-            os_error_kind: None,
-            os_error_code: None,
-            cleanup_code: None,
-            cleanup_message: None,
-            selected_basename: String::new(),
-            path_containment: atomic_report_package_save::PATH_CONTAINMENT.to_string(),
-            limitation: atomic_report_package_save::TOCTOU_LIMITATION.to_string(),
-        }
-    }
-}
-
-impl From<atomic_report_package_save::AtomicSaveError> for ReportPackageSaveCommandError {
-    fn from(value: atomic_report_package_save::AtomicSaveError) -> Self {
-        Self {
-            code: value.code,
-            stage: value.stage,
-            message: value.message,
-            os_error_kind: value.os_error_kind,
-            os_error_code: value.os_error_code,
-            cleanup_code: value.cleanup_code,
-            cleanup_message: value.cleanup_message,
-            selected_basename: value.selected_basename,
-            path_containment: value.path_containment,
-            limitation: value.limitation,
-        }
-    }
-}
-
 #[tauri::command]
-// `blocking_save_file` may not execute on Tauri's main thread. Keeping the
-// command async places the blocking dialog call on the async command runtime
-// and leaves the native modal responsive.
+// `blocking_save_file` may not execute on Tauri's main thread. The admission,
+// the save dialog and the write run on a blocking worker, which leaves the
+// native modal responsive.
 async fn save_report_package(
     app: AppHandle,
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<ReportPackageSaveCommandError>> {
-    // The typed request rebuilds its `Value` fields and builds typed vectors.
-    let decoding = ArgsDecoding::Rebuilt { vec_expansion: command_ingress::REPORT_PACKAGE_VEC_EXPANSION };
-    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "save_report_package", decoding)?;
-    let (request, redaction_evidence, local_first_evidence) = save_report_package_args(&mut args)?;
+    // The arguments are three canonical texts and two structs of scalars, moved.
+    let (mut args, mut lease) = command_ingress::admit(&registry, &invoke, "save_report_package", ArgsDecoding::Moved)?;
+    let request = report_package_save::save_report_package_args(&mut args)?;
     drop(args);
-    // The lease is held through assembly and the save dialog.
-    respond(
-        save_report_package_decoded(app, request, redaction_evidence, local_first_evidence)
-            .await
-            .map_err(CommandError::Command),
-    )
-}
-
-type ReportPackageArgs =
-    (report_package_bridge::ReportPackageRequest, ReportPackageRedactionEvidence, Option<ReportPackageLocalFirstEvidence>);
-
-/// `{request, redactionEvidence, localFirstEvidence?}`.
-fn save_report_package_args(args: &mut Args) -> Result<ReportPackageArgs, solve_jobs::SolveJobError> {
-    Ok((args.decode("request")?, args.decode("redactionEvidence")?, args.decode("localFirstEvidence")?))
+    // Evidence shape, the size caps, then the priced parse of the three texts:
+    // the lease grows by their parse before any is parsed (DEL-08-01 Design
+    // `report-package-current-results.md` §2.6 items 1-3). The lease is held
+    // through admission, the save dialog and the write.
+    let growth = report_package_save::validate_report_package_save_evidence(&request.screening, request.local_first.as_ref())
+        .and_then(|()| report_package_save::parse_lease_bytes(&request.request_text, &request.model_text, &request.input_manifest_text));
+    let growth = match growth {
+        Ok(growth) => growth,
+        Err(error) => return respond::<report_package_save::ReportPackageSaveReceipt, _>(Err(CommandError::Command(error))),
+    };
+    lease.grow_to(lease.bytes().saturating_add(growth)).map_err(|refusal| registry.refuse(refusal))?;
+    respond(save_report_package_decoded(app, request).await.map_err(CommandError::Command))
 }
 
 async fn save_report_package_decoded(
     app: AppHandle,
-    request: report_package_bridge::ReportPackageRequest,
-    redaction_evidence: ReportPackageRedactionEvidence,
-    local_first_evidence: Option<ReportPackageLocalFirstEvidence>,
-) -> Result<ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
-    save_report_package_with_picker(request, redaction_evidence, local_first_evidence, |file_name| {
-        app.dialog()
-            .file()
-            .set_file_name(file_name)
-            .add_filter("SWBPIPE Project Package", &["opsproj"])
-            .blocking_save_file()
-            .map(|selected| selected.into_path().map_err(|error| error.to_string()))
+    request: report_package_save::ReportPackageSaveRequest,
+) -> Result<report_package_save::ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
+    let info = app.package_info();
+    let software = report_package_save::ExpectedSoftware { name: info.name.clone(), version: info.version.to_string() };
+    tauri::async_runtime::spawn_blocking(move || {
+        let mut lookup = library_store_lookup(&app);
+        save_report_package_with_picker(request, &software, &mut lookup, |file_name| choose_report_package_save_path(&app, file_name))
+    })
+    .await
+    .unwrap_or_else(|_| {
+        Err(ReportPackageSaveCommandError::bridge(format!(
+            "{}: the save's worker did not complete; the destination may be unchanged.",
+            report_package_save::WORKER_FAILED
+        )))
     })
 }
 
-/// The W-18 slice (a) native hold (DEL-08-01 Design
-/// `report-package-current-results.md` §2.6, "Slice (a) hold"). From package
-/// version 2.0.0 the shared producer admits Current pressure-free requests,
-/// and the TypeScript availability gate is not an IPC boundary. Until slice
-/// (b1) installs the content-screened admission, this desktop command refuses
-/// every request before evidence use, package assembly, the save dialog or any
-/// write. It does not close the shared producer or the headless runner. Slice
-/// (b1) removes this hold and its test.
-const REPORT_PACKAGE_SAVE_HOLD: &str =
-    "REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: The report package is unavailable for fresh results.";
-
-fn report_package_save_hold() -> Result<(), ReportPackageSaveCommandError> {
-    Err(ReportPackageSaveCommandError::bridge(REPORT_PACKAGE_SAVE_HOLD.to_string()))
+fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<Result<PathBuf, String>> {
+    #[cfg(feature = "native-smoke")]
+    if let Some(path) = native_smoke::take_chosen_path(app) {
+        return Some(Ok(path));
+    }
+    app.dialog()
+        .file()
+        .set_file_name(file_name)
+        .add_filter("SWBPIPE Project Package", &["opsproj"])
+        .blocking_save_file()
+        .map(|selected| selected.into_path().map_err(|error| error.to_string()))
 }
 
-/// The save after argument decoding; `choose` is the save dialog (a counting
-/// seam in tests): `None` is a cancel, `Some(Err)` an unusable path.
+/// The save after argument decoding: the native admission
+/// (`report_package_save::admit_report_package`), then the save dialog and the
+/// atomic write. `choose` is the save dialog (a counting seam in tests).
 fn save_report_package_with_picker(
-    request: report_package_bridge::ReportPackageRequest,
-    redaction_evidence: ReportPackageRedactionEvidence,
-    local_first_evidence: Option<ReportPackageLocalFirstEvidence>,
+    request: report_package_save::ReportPackageSaveRequest,
+    software: &report_package_save::ExpectedSoftware,
+    lookup: &mut model_document_save::LibraryLookup<'_>,
     choose: impl FnOnce(&str) -> Option<Result<PathBuf, String>>,
-) -> Result<ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
-    report_package_save_hold()?;
-    if redaction_evidence.route_id != "DREP-PACKAGE-SAVE-009"
-        || redaction_evidence.blocking_count != 0
-    {
-        return Err(ReportPackageSaveCommandError::bridge(
-            "REPORT-PACKAGE-REDACTION-EVIDENCE-INVALID: controlled route evidence is missing or blocked".to_string(),
-        ));
-    }
-    validate_report_package_local_first_evidence(local_first_evidence.as_ref())
-        .map_err(|message| ReportPackageSaveCommandError::bridge(message.to_string()))?;
-    let package = report_package_bridge::assemble_request(request)
-        .map_err(ReportPackageSaveCommandError::bridge)?;
-    if package.export_blocked {
-        return Err(ReportPackageSaveCommandError::bridge(format!(
-            "REPORT-PACKAGE-PRODUCER-BLOCKED: {}",
-            package.blocking_reasons.join(" | ")
-        )));
-    }
+) -> Result<report_package_save::ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
+    let admitted = report_package_save::admit_report_package(request, software, lookup)?;
+    report_package_save::save_admitted_report_package(admitted, choose)
+}
 
-    let Some(selected) = choose(&package.container_file_name) else {
-        return Ok(ReportPackageSaveReceipt {
-            outcome: "cancelled".to_string(),
-            stage: "picker".to_string(),
-            code: "REPORT-PACKAGE-SAVE-CANCELLED".to_string(),
-            container_file_name: package.container_file_name,
-            byte_count: 0,
-            package_identity_sha256_hex: package.package_identity_sha256_hex,
-            container_sha256_hex: package.container_sha256_hex,
-            members: package
-                .members
-                .into_iter()
-                .map(|member| ReportPackageMemberSummary {
-                    role: member.role,
-                    file_name: member.file_name,
-                    sha256_hex: member.sha256_hex,
-                    byte_length: member.byte_length,
-                })
-                .collect(),
-            replaced_existing: false,
-            durability: "not_applicable".to_string(),
-            redaction_route_id: redaction_evidence.route_id,
-            redaction_decision_count: redaction_evidence.decision_count,
-            redaction_finding_count: redaction_evidence.finding_count,
-            redaction_blocking_count: redaction_evidence.blocking_count,
-            local_first_route_id: local_first_evidence
-                .as_ref()
-                .expect("validated local-first evidence")
-                .route_id
-                .clone(),
-            local_first_export_context: local_first_evidence
-                .as_ref()
-                .expect("validated local-first evidence")
-                .export_context
-                .clone(),
-            local_first_storage_context: local_first_evidence
-                .as_ref()
-                .expect("validated local-first evidence")
-                .storage_context
-                .clone(),
-            local_first_action: local_first_evidence
-                .as_ref()
-                .expect("validated local-first evidence")
-                .action
-                .clone(),
-            local_first_reason_code: local_first_evidence
-                .as_ref()
-                .expect("validated local-first evidence")
-                .reason_code
-                .clone(),
-            local_first_blocked: local_first_evidence
-                .as_ref()
-                .expect("validated local-first evidence")
-                .blocked,
-            local_first_metadata_only: local_first_evidence
-                .as_ref()
-                .expect("validated local-first evidence")
-                .metadata_only,
-            local_first_explicit_local_private_intent: local_first_evidence
-                .as_ref()
-                .expect("validated local-first evidence")
-                .explicit_local_private_intent,
-            selected_basename: String::new(),
-            path_containment: atomic_report_package_save::PATH_CONTAINMENT.to_string(),
-            limitation: atomic_report_package_save::TOCTOU_LIMITATION.to_string(),
-        });
-    };
-    let destination = selected.map_err(|error| {
-        ReportPackageSaveCommandError::bridge(format!(
-            "REPORT-PACKAGE-PICKER-PATH-INVALID: {error}"
-        ))
-    })?;
-    let save =
-        atomic_report_package_save::atomic_save_bytes(&destination, &package.container_bytes)?;
-    Ok(ReportPackageSaveReceipt {
-        outcome: "saved".to_string(),
-        stage: "complete".to_string(),
-        code: if save.durability == "durable" {
-            "REPORT-PACKAGE-SAVED".to_string()
-        } else {
-            "REPORT-PACKAGE-SAVED-DURABILITY-UNCERTAIN".to_string()
-        },
-        container_file_name: package.container_file_name,
-        byte_count: package.container_bytes.len(),
-        package_identity_sha256_hex: package.package_identity_sha256_hex,
-        container_sha256_hex: package.container_sha256_hex,
-        members: package
-            .members
-            .into_iter()
-            .map(|member| ReportPackageMemberSummary {
-                role: member.role,
-                file_name: member.file_name,
-                sha256_hex: member.sha256_hex,
-                byte_length: member.byte_length,
-            })
-            .collect(),
-        replaced_existing: save.replaced_existing,
-        durability: save.durability,
-        redaction_route_id: redaction_evidence.route_id,
-        redaction_decision_count: redaction_evidence.decision_count,
-        redaction_finding_count: redaction_evidence.finding_count,
-        redaction_blocking_count: redaction_evidence.blocking_count,
-        local_first_route_id: local_first_evidence
-            .as_ref()
-            .expect("validated local-first evidence")
-            .route_id
-            .clone(),
-        local_first_export_context: local_first_evidence
-            .as_ref()
-            .expect("validated local-first evidence")
-            .export_context
-            .clone(),
-        local_first_storage_context: local_first_evidence
-            .as_ref()
-            .expect("validated local-first evidence")
-            .storage_context
-            .clone(),
-        local_first_action: local_first_evidence
-            .as_ref()
-            .expect("validated local-first evidence")
-            .action
-            .clone(),
-        local_first_reason_code: local_first_evidence
-            .as_ref()
-            .expect("validated local-first evidence")
-            .reason_code
-            .clone(),
-        local_first_blocked: local_first_evidence
-            .as_ref()
-            .expect("validated local-first evidence")
-            .blocked,
-        local_first_metadata_only: local_first_evidence
-            .as_ref()
-            .expect("validated local-first evidence")
-            .metadata_only,
-        local_first_explicit_local_private_intent: local_first_evidence
-            .as_ref()
-            .expect("validated local-first evidence")
-            .explicit_local_private_intent,
-        selected_basename: save.selected_basename,
-        path_containment: save.path_containment,
-        limitation: save.limitation,
-    })
+/// The local library store as the native saves read it (W-6a, W-18): opened
+/// only when a library is first referenced, as `open_local_library` opens it,
+/// with the identities trimmed as it normalizes them. A read error is an `Err`.
+fn library_store_lookup(app: &AppHandle) -> impl FnMut(&str, &str, &str) -> Result<Option<Value>, String> + '_ {
+    let mut connection: Option<Connection> = None;
+    move |project_id: &str, library_kind: &str, library_id: &str| {
+        if connection.is_none() {
+            connection = Some(open_project_store(&app_store_path(app)?)?.0);
+        }
+        let connection = connection.as_ref().expect("opened above");
+        load_library(connection, project_id.trim(), library_kind.trim(), library_id.trim()).map(|row| row.map(|row| row.document))
+    }
 }
 
 /// The bundled invented demo model and its design knowledge, compiled into the
@@ -1899,16 +1624,8 @@ async fn save_model_document_decoded(
     let store_app = app.clone();
     let admitted = match tauri::async_runtime::spawn_blocking(move || {
         // The local library store, opened only if the document references a
-        // library, as `open_local_library` opens it. A read error refuses.
-        let mut connection: Option<Connection> = None;
-        let mut lookup = |project_id: &str, library_kind: &str, library_id: &str| -> Result<Option<Value>, String> {
-            if connection.is_none() {
-                connection = Some(open_project_store(&app_store_path(&store_app)?)?.0);
-            }
-            let connection = connection.as_ref().expect("opened above");
-            // The identities as `open_local_library` normalizes them.
-            load_library(connection, project_id.trim(), library_kind.trim(), library_id.trim()).map(|row| row.map(|row| row.document))
-        };
+        // library. A read error refuses.
+        let mut lookup = library_store_lookup(&store_app);
         model_document_save::admit_model_document_text(canonical_text, &claimed_model_hash, &screening.payload_sha256, &mut lookup)
     })
     .await
@@ -1942,6 +1659,139 @@ fn choose_model_document_save_path(
         .file()
         .set_file_name(suggested_file_name)
         .add_filter("SWBPIPE model document", &["json"]);
+    if let Some(directory) = directory {
+        chooser = chooser.set_directory(directory);
+    }
+    let Some(selected) = chooser.blocking_save_file() else {
+        return Ok(None);
+    };
+    selected.into_path().map(Some).map_err(|error| error.to_string())
+}
+
+/// File > Save Handoff… (DEL-15-01 W-6b): the session's model document as its
+/// RFC 8785 canonical text, with the saved basis state the webview resolved or
+/// created first (W-12 S1's store) and the package label. `handoff_package`
+/// admits it (route evidence, W-6a's admission and screening, the basis state,
+/// every manifest part) before the chooser is shown; the directory package is
+/// then published atomically (`handoff_package_publish`). Cancel is an outcome,
+/// not an error. The ingress lease is held through admission, the chooser and
+/// the write.
+#[tauri::command]
+async fn save_handoff_package(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<NoCommandError>> {
+    let (mut args, lease) = command_ingress::admit(&registry, &invoke, "save_handoff_package", ArgsDecoding::Moved)?;
+    let request = handoff_package::save_handoff_package_args(&mut args)?;
+    drop(args);
+    // The lease is held until the command returns; each store read is metered
+    // against the pool with it (W-12 S2's `PoolReadMemory`).
+    let lease = std::sync::Arc::new(lease);
+    respond(Ok(save_handoff_package_decoded(app, request, lease).await))
+}
+
+/// The stored rule-pack document with `rule_pack_id` under the model's project
+/// (at most one), as the solve's rule-pack resolution opens it (#1602:
+/// `open_local_rule_pack` for the model's project), so that a handoff resolves
+/// exactly the references a run of the same model resolves.
+fn stored_rule_packs_with_id(connection: &Connection, project_id: &str, rule_pack_id: &str) -> Result<Vec<Value>, String> {
+    Ok(load_rule_pack(connection, project_id.trim(), rule_pack_id.trim())?.map(|row| row.document).into_iter().collect())
+}
+
+async fn save_handoff_package_decoded(
+    app: AppHandle,
+    request: handoff_package::HandoffSaveRequest,
+    lease: std::sync::Arc<memory_pool::Lease>,
+) -> handoff_package::HandoffSaveOutcome {
+    use handoff_package::{HandoffSaveOutcome as Outcome, PICKER_PATH_INVALID, WORKER_FAILED};
+    if let Err(diagnostic) = handoff_package::validate_handoff_evidence(&request.screening, &request.local_first) {
+        return Outcome::Refused { diagnostics: vec![diagnostic] };
+    }
+    let handoff_package::HandoffSaveRequest { canonical_text, claimed_model_hash, screening, basis_state_id, package_label, .. } = request;
+    let store_app = app.clone();
+    let store_lease = std::sync::Arc::clone(&lease);
+    let prepared = match tauri::async_runtime::spawn_blocking(move || {
+        let registry = store_app.state::<SolveJobRegistry>();
+        let memory = stored_read::PoolReadMemory::new(&registry, &store_lease);
+        // One store connection, opened on first use, as the model-document save opens it.
+        let connection: std::cell::RefCell<Option<Connection>> = std::cell::RefCell::new(None);
+        let with_store = |read: &mut dyn FnMut(&Connection) -> Result<(), String>| -> Result<(), String> {
+            let mut held = connection.borrow_mut();
+            if held.is_none() {
+                *held = Some(open_project_store(&app_store_path(&store_app)?)?.0);
+            }
+            read(held.as_ref().expect("opened above"))
+        };
+        let mut states = |project_id: &str, state_id: &str| {
+            handoff_package::stored_state(&app_store_path(&store_app)?, project_id, state_id, &memory)
+        };
+        let mut libraries = |project_id: &str, library_kind: &str, library_id: &str| -> Result<Option<Value>, String> {
+            let mut found = None;
+            with_store(&mut |connection| {
+                found = load_library(connection, project_id.trim(), library_kind.trim(), library_id.trim())?.map(|row| row.document);
+                Ok(())
+            })?;
+            Ok(found)
+        };
+        let mut rule_packs = |project_id: &str, rule_pack_id: &str| -> Result<Vec<Value>, String> {
+            let mut found = Vec::new();
+            with_store(&mut |connection| {
+                found = stored_rule_packs_with_id(connection, project_id, rule_pack_id)?;
+                Ok(())
+            })?;
+            Ok(found)
+        };
+        handoff_package::prepare_handoff(
+            canonical_text,
+            &claimed_model_hash,
+            &screening.payload_sha256,
+            &basis_state_id,
+            &package_label,
+            &mut states,
+            &mut libraries,
+            &mut rule_packs,
+        )
+    })
+    .await
+    {
+        Ok(Ok(prepared)) => prepared,
+        Ok(Err(diagnostics)) => return Outcome::Refused { diagnostics },
+        Err(_) => return Outcome::refused_one(WORKER_FAILED, "The handoff's admission worker did not complete."),
+    };
+    let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
+    let destination = match choose_handoff_package_path(&app, &prepared.suggested_package_name, directory) {
+        Ok(Some(destination)) => destination,
+        Ok(None) => return Outcome::Cancelled,
+        Err(message) => return Outcome::refused_one(PICKER_PATH_INVALID, message),
+    };
+    let write_app = app.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        // The basis state is read again immediately before publication.
+        let registry = write_app.state::<SolveJobRegistry>();
+        let memory = stored_read::PoolReadMemory::new(&registry, &lease);
+        let mut states = |project_id: &str, state_id: &str| {
+            handoff_package::stored_state(&app_store_path(&write_app)?, project_id, state_id, &memory)
+        };
+        if let Err(diagnostics) = handoff_package::confirm_basis_state(&prepared, &mut states) {
+            return Outcome::Refused { diagnostics };
+        }
+        handoff_package::write_handoff_package(&destination, prepared, &handoff_package::local_iso_now(), &handoff_package_publish::PRODUCTION_HOOKS)
+    })
+    .await
+    .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The handoff's write worker did not complete; the destination may be unchanged."))
+}
+
+fn choose_handoff_package_path(app: &AppHandle, suggested_name: &str, directory: Option<PathBuf>) -> Result<Option<PathBuf>, String> {
+    #[cfg(feature = "native-smoke")]
+    if let Some(path) = native_smoke::take_chosen_path(app) {
+        return Ok(Some(path));
+    }
+    let mut chooser = app
+        .dialog()
+        .file()
+        .set_file_name(suggested_name)
+        .add_filter("SWBPIPE handoff package", &[handoff_package_publish::PACKAGE_EXTENSION]);
     if let Some(directory) = directory {
         chooser = chooser.set_directory(directory);
     }
@@ -4316,7 +4166,7 @@ fn library_ref_findings(
     project_id: &str,
     references: &[ModelLibraryRef],
 ) -> Result<Vec<LibraryRefFinding>, String> {
-    use model_document_save::{library_identity, matching_library_records};
+    use export_disposition_screen::{library_identity, matching_library_records};
     let mut findings = Vec::new();
     for reference in references {
         let finding = |code, stored_version: Option<String>, message: String| LibraryRefFinding {
@@ -4513,6 +4363,7 @@ fn native_menu_mutations(state: &NativeShellState) -> Vec<NativeMenuMutation> {
         ("file.open-local", !state.project_busy),
         ("file.save-local", !state.project_busy),
         ("file.save-model-document", !state.project_busy),
+        ("file.save-handoff", !state.project_busy),
         ("file.list-local", !state.project_busy),
         ("view.view.table", true),
         ("view.view.model", state.stage != "review"),
@@ -4671,6 +4522,7 @@ fn build_app_menu<R: tauri::Runtime>(
         .separator()
         .text("file.save-local", "Save Local Project")
         .text("file.save-model-document", "Save Model Document…")
+        .text("file.save-handoff", "Save Handoff…")
         .text("file.save-report-package", "Save Report Package…")
         .build()?;
 
@@ -5229,6 +5081,7 @@ macro_rules! app_invoke_handler {
             load_design_knowledge,
             open_model_document_file,
             save_model_document_file,
+            save_handoff_package,
             start_preview_mechanics_job,
             poll_preview_mechanics_job,
             take_preview_mechanics_job_result,
@@ -5256,11 +5109,14 @@ macro_rules! app_invoke_handler {
             model_states::read_model_state,
             model_states::edit_model_state_labels,
             model_states::delete_model_state,
+            model_states::admit_model_state_comparison,
+            model_states::read_model_state_for_comparison,
             analysis_runs::record_analysis_run,
             analysis_runs::list_analysis_runs,
             analysis_runs::read_analysis_run,
             analysis_runs::edit_analysis_run_labels,
             analysis_runs::delete_analysis_run,
+            analysis_runs::admit_analysis_run_comparison,
             sync_native_shell_state,
             validate_rule_pack,
             compute_rule_pack_document_checksum,
@@ -5297,10 +5153,13 @@ pub fn run() {
     #[cfg(feature = "native-smoke")]
     let builder = native_smoke::install(builder).invoke_handler(app_invoke_handler!(
         native_smoke::native_smoke_choose,
+        native_smoke::native_smoke_clear_choices,
         native_smoke::native_smoke_menu,
         native_smoke::native_smoke_plan,
         native_smoke::native_smoke_log,
         native_smoke::native_smoke_external_save,
+        native_smoke::native_smoke_verify_handoff_package,
+        native_smoke::native_smoke_read_report_package,
         native_smoke::native_smoke_finish,
     ));
     builder
@@ -5810,52 +5669,6 @@ mod tests {
         }
     }
 
-    fn allowed_report_package_local_first_evidence() -> ReportPackageLocalFirstEvidence {
-        ReportPackageLocalFirstEvidence {
-            route_id: "DREP-PACKAGE-SAVE-009".to_string(),
-            export_context: "local_private".to_string(),
-            storage_context: "local_private".to_string(),
-            action: "include_metadata_only".to_string(),
-            reason_code: "PRIVATE_LOCAL_METADATA_ALLOWED".to_string(),
-            blocked: false,
-            metadata_only: true,
-            explicit_local_private_intent: true,
-        }
-    }
-
-    #[test]
-    fn report_package_local_first_evidence_validator_allows_exact_evidence() {
-        let evidence = allowed_report_package_local_first_evidence();
-        assert_eq!(
-            validate_report_package_local_first_evidence(Some(&evidence)),
-            Ok(())
-        );
-    }
-
-    #[test]
-    fn report_package_local_first_evidence_validator_rejects_missing_or_mismatched_evidence() {
-        assert!(validate_report_package_local_first_evidence(None).is_err());
-
-        let mut evidence = allowed_report_package_local_first_evidence();
-        evidence.route_id = "DREP-JSON-002".to_string();
-        assert!(validate_report_package_local_first_evidence(Some(&evidence)).is_err());
-
-        let mut evidence = allowed_report_package_local_first_evidence();
-        evidence.metadata_only = false;
-        assert!(validate_report_package_local_first_evidence(Some(&evidence)).is_err());
-    }
-
-    #[test]
-    fn report_package_local_first_evidence_validator_rejects_blocked_evidence() {
-        let mut evidence = allowed_report_package_local_first_evidence();
-        evidence.blocked = true;
-        evidence.action = "block_storage".to_string();
-        evidence.reason_code = "LOCAL_PRIVATE_INTENT_REQUIRED".to_string();
-        evidence.explicit_local_private_intent = false;
-
-        assert!(validate_report_package_local_first_evidence(Some(&evidence)).is_err());
-    }
-
     #[test]
     fn packaged_binary_self_test_persists_restores_and_solves_edited_load() {
         let evidence = run_packaged_saved_edited_load_self_test().expect("frozen cantilever file-native lifecycle passes");
@@ -5963,7 +5776,7 @@ mod tests {
             let mut state = sample_native_shell_state();
             state.project_busy = busy;
             let mutations = native_menu_mutations(&state);
-            for id in ["file.new-local", "file.new-blank", "file.open-model", "file.open-local", "file.save-local", "file.save-model-document", "file.list-local"] {
+            for id in ["file.new-local", "file.new-blank", "file.open-model", "file.open-local", "file.save-local", "file.save-model-document", "file.save-handoff", "file.list-local"] {
                 assert!(mutations.contains(&NativeMenuMutation::Enabled(id, !busy)));
             }
             assert!(mutations.contains(&NativeMenuMutation::Enabled("analyze.run", true)));
@@ -7484,9 +7297,10 @@ mod tests {
     /// bytes unchanged. With `G10_DESKTOP_RESULT_OUT` set, writes the copies there.
     #[test]
     fn solves_hand_the_desktop_the_producers_exact_bytes() {
+        // W-7 global end rows added (12 element_global_end rows on the one member); no other byte moved.
         const PINS: [(&str, usize, &str); 2] = [
-            ("sparse_interactive", 80884, "d599dd9a3f6482743acc9076de157796ec41e3c86335884835b9c56f42cafae3"),
-            ("dense_scrutiny", 80908, "cd9812a90e8f85ad050456aa26621bf17cf7b0ca9c64c4d2e215292b115137a2"),
+            ("sparse_interactive", 86553, "a35f7a85780e66bd20f4060a0668098aef0f6f9d1bc2bb43166499cceaa3de99"),
+            ("dense_scrutiny", 86579, "ab62383de29f770a1c66e33a9a23131f7644dbee6a10ad00f9ae9775f8dbf20c"),
         ];
         let fixtures = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/product_preview");
         let model: Value = serde_json::from_str(include_str!(
@@ -7752,7 +7566,8 @@ mod tests {
     }
 
     // PP's derived pressure-free, joint-free invented model. The bundled default
-    // (`invented_demo_model.json`) is the same model under its own project identity.
+    // (`invented_demo_model.json`) is the same model under its own project identity,
+    // without the malformed tee component:C-120.
     fn derived_invented_model() -> Value {
         serde_json::from_str(include_str!(
             "../../../../core/product_physics/tests/fixtures/preview_physics_invented_model.json"
@@ -9656,87 +9471,220 @@ mod tests {
             fs::remove_dir_all(store.parent().unwrap()).unwrap();
         }
 
-        fn witness_report_request() -> Value {
-            let witness: Value = serde_json::from_str(include_str!(
-                "../../../../validation/witness/inputs/del1005_export_results_success_input.json"
-            ))
-            .unwrap();
-            witness["export_results"].clone()
-        }
-
-        fn redaction_evidence() -> Value {
-            json!({"route_id": "DREP-PACKAGE-SAVE-009", "decision_count": 1, "finding_count": 0, "blocking_count": 0})
-        }
-
-        fn local_first_evidence() -> Value {
-            json!({
-                "route_id": "DREP-PACKAGE-SAVE-009", "export_context": "local_private", "storage_context": "local_private",
-                "action": "include_metadata_only", "reason_code": "PRIVATE_LOCAL_METADATA_ALLOWED", "blocked": false,
-                "metadata_only": true, "explicit_local_private_intent": true
-            })
-        }
-
-        /// W-18 slice (a) native hold (DEL-08-01 Design §2.6): an otherwise
-        /// valid 2.0.0 request with clean caller-supplied evidence, decoded
-        /// through the command's own argument path, is refused before the save
-        /// dialog or any write. Control: the shared producer alone assembles
-        /// the same request unblocked, so the refusal is the hold's. Slice (b1)
-        /// replaces this test with the screened admission's.
+        /// The screened admission through the command's own path (DEL-08-01
+        /// Design §2.6; it replaces slice (a)'s hold): arguments decoded from
+        /// a raw body under the moved lease rule, the priced parse, admission,
+        /// one save dialog and the atomic write; the saved package reads back.
         #[test]
-        fn report_package_save_is_held_until_native_screening() {
-            let request = witness_report_request();
-            let direct: report_package_bridge::ReportPackageRequest = serde_json::from_value(request.clone()).unwrap();
-            let control = report_package_bridge::assemble_request(direct).expect("the witness request assembles");
-            assert!(!control.export_blocked, "{:?}", control.blocking_reasons);
-
+        fn report_package_save_admits_screened_requests_through_the_command_path() {
+            use report_package_save::test_support::{args_body, desktop_request, model, no_store, sandbox, save_request, software};
+            let body = args_body(&save_request(&desktop_request(&model()), &model()));
             let registry = registry(ScriptedHost::normal());
-            let decoding = ArgsDecoding::Rebuilt { vec_expansion: command_ingress::REPORT_PACKAGE_VEC_EXPANSION };
-            let body = json!({"request": request, "redactionEvidence": redaction_evidence(), "localFirstEvidence": local_first_evidence()});
-            let (mut args, _lease) = admit_json(&registry, "save_report_package", decoding, &body).unwrap();
-            let (decoded, redaction, local_first) = save_report_package_args(&mut args).unwrap();
-            let sandbox = std::env::temp_dir().join(format!("ops-w18a-hold-{}", std::process::id()));
-            fs::create_dir_all(&sandbox).unwrap();
+            let (mut args, mut lease) = admit_json(&registry, "save_report_package", ArgsDecoding::Moved, &body).unwrap();
+            let decoded = report_package_save::save_report_package_args(&mut args).unwrap();
+            drop(args);
+            let growth = report_package_save::parse_lease_bytes(&decoded.request_text, &decoded.model_text, &decoded.input_manifest_text).unwrap();
+            lease.grow_to(lease.bytes() + growth).unwrap();
+            let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+            let root = sandbox("command-path");
             let mut picks = 0usize;
-            let outcome = save_report_package_with_picker(decoded, redaction, local_first, |_| {
+            let receipt = save_report_package_with_picker(decoded, &software(), &mut no_store, |_| {
                 picks += 1;
-                Some(Ok(sandbox.join("held.opsproj")))
-            });
-            let error = match outcome {
-                Err(error) => error,
-                Ok(receipt) => panic!("the hold must refuse, got {}", receipt.code),
-            };
-            assert_eq!(error.code, "REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE");
-            assert_eq!(error.message, REPORT_PACKAGE_SAVE_HOLD);
-            assert_eq!(error.stage, "assemble");
-            assert_eq!(picks, 0, "no save dialog is requested");
-            assert_eq!(fs::read_dir(&sandbox).unwrap().count(), 0, "nothing is written");
-            fs::remove_dir_all(&sandbox).unwrap();
+                Some(Ok(root.join("admitted.opsproj")))
+            })
+            .unwrap_or_else(|error| panic!("refused: {}", error.message));
+            assert_eq!((receipt.outcome.as_str(), picks), ("saved", 1));
+            let bytes = fs::read(root.join("admitted.opsproj")).unwrap();
+            let read = open_pipe_stress_report_package::read_report_package_container(&bytes).unwrap();
+            assert!(!read.export_blocked);
+            assert_eq!(read.package_identity_sha256_hex, receipt.package_identity_sha256_hex);
+            fs::remove_dir_all(&root).unwrap();
         }
 
+        /// Clean, bound caller evidence over blocked content is refused
+        /// through the command path before the save dialog, and nothing is written.
         #[test]
-        fn report_package_command_decodes_its_typed_request() {
-            let request = witness_report_request();
+        fn report_package_save_refuses_forged_evidence_before_the_dialog() {
+            use report_package_save::test_support::{args_body, desktop_request, model, no_store, sandbox, save_request, software};
+            let mut request = desktop_request(&model());
+            request["source_results"][0]["results"][0]["metadata"] = json!({"component": "c", "provenance": {"review_status": "quarantined"}});
+            let body = args_body(&save_request(&request, &model()));
             let registry = registry(ScriptedHost::normal());
-            let decoding = ArgsDecoding::Rebuilt { vec_expansion: command_ingress::REPORT_PACKAGE_VEC_EXPANSION };
-            let body = json!({"request": request, "redactionEvidence": redaction_evidence(), "localFirstEvidence": local_first_evidence()});
-            let (mut args, _lease) = admit_json(&registry, "save_report_package", decoding, &body).unwrap();
-            let (decoded, redaction, local_first) = save_report_package_args(&mut args).unwrap();
-            assert_eq!(redaction.route_id, "DREP-PACKAGE-SAVE-009");
-            validate_report_package_local_first_evidence(local_first.as_ref()).unwrap();
-            // The same typed request serde_json's own decoding gives.
-            let direct: report_package_bridge::ReportPackageRequest = serde_json::from_value(request.clone()).unwrap();
-            assert_eq!(format!("{decoded:?}"), format!("{direct:?}"));
-            // Absent local-first evidence decodes as None (the command then refuses it).
-            let (mut args, _lease) =
-                admit_json(&registry, "save_report_package", decoding, &json!({"request": request, "redactionEvidence": redaction_evidence()}))
-                    .unwrap();
-            assert!(save_report_package_args(&mut args).unwrap().2.is_none());
-            let (mut args, _lease) = admit_json(&registry, "save_report_package", decoding, &json!({"request": {}})).unwrap();
-            let message = match save_report_package_args(&mut args).unwrap_err() {
+            let (mut args, _lease) = admit_json(&registry, "save_report_package", ArgsDecoding::Moved, &body).unwrap();
+            let decoded = report_package_save::save_report_package_args(&mut args).unwrap();
+            let root = sandbox("forged");
+            let mut picks = 0usize;
+            let error = match save_report_package_with_picker(decoded, &software(), &mut no_store, |_| {
+                picks += 1;
+                Some(Ok(root.join("forged.opsproj")))
+            }) {
+                Err(error) => error,
+                Ok(receipt) => panic!("admitted: {}", receipt.code),
+            };
+            assert_eq!((error.code.as_str(), error.stage.as_str()), (report_package_save::PROTECTED_CONTENT_BLOCKED, "admit"));
+            assert_eq!(error.diagnostics[0].path, "/request/source_results/0/results/0/metadata/provenance/review_status");
+            assert_eq!(picks, 0, "no save dialog is requested");
+            assert_eq!(fs::read_dir(&root).unwrap().count(), 0, "nothing is written");
+            fs::remove_dir_all(&root).unwrap();
+        }
+
+        /// The raw-body arguments decode within the moved lease rule: the three
+        /// texts are moved strings, the evidence structs of scalars.
+        #[test]
+        fn report_package_command_decodes_its_arguments() {
+            use report_package_save::test_support::{args_body, desktop_request, model, save_request};
+            let request = save_request(&desktop_request(&model()), &model());
+            let body = args_body(&request);
+            let registry = registry(ScriptedHost::normal());
+            let (mut args, _lease) = admit_json(&registry, "save_report_package", ArgsDecoding::Moved, &body).unwrap();
+            let decoded = report_package_save::save_report_package_args(&mut args).unwrap();
+            assert_eq!(decoded.request_text, request.request_text);
+            assert_eq!(decoded.model_text, request.model_text);
+            assert_eq!(decoded.input_manifest_text, request.input_manifest_text);
+            assert_eq!(decoded.screening, request.screening);
+            assert_eq!(decoded.local_first, request.local_first);
+            // Absent local-first evidence decodes as None (admission then refuses it).
+            let mut without = body.clone();
+            without.as_object_mut().unwrap().remove("localFirstEvidence");
+            let (mut args, _lease) = admit_json(&registry, "save_report_package", ArgsDecoding::Moved, &without).unwrap();
+            assert!(report_package_save::save_report_package_args(&mut args).unwrap().local_first.is_none());
+            // The screening evidence's form is closed.
+            let mut unknown = body.clone();
+            unknown["screening"]["extra"] = json!(true);
+            let (mut args, _lease) = admit_json(&registry, "save_report_package", ArgsDecoding::Moved, &unknown).unwrap();
+            assert!(report_package_save::save_report_package_args(&mut args).is_err());
+            // The 1.0.0 argument form is refused by name.
+            let (mut args, _lease) = admit_json(&registry, "save_report_package", ArgsDecoding::Moved, &json!({"request": {}})).unwrap();
+            let message = match report_package_save::save_report_package_args(&mut args).unwrap_err() {
                 SolveJobError::InvalidRequest { message } => message,
                 other => panic!("{other:?}"),
             };
-            assert!(message.contains("`request`") && message.contains("missing field"), "{message}");
+            assert!(message.contains("`requestCanonicalText`"), "{message}");
+            // The input manifest is a required argument (§2.6 item 1).
+            let mut no_manifest = body.clone();
+            no_manifest.as_object_mut().unwrap().remove("inputManifestCanonicalText");
+            let (mut args, _lease) = admit_json(&registry, "save_report_package", ArgsDecoding::Moved, &no_manifest).unwrap();
+            let message = match report_package_save::save_report_package_args(&mut args).unwrap_err() {
+                SolveJobError::InvalidRequest { message } => message,
+                other => panic!("{other:?}"),
+            };
+            assert!(message.contains("`inputManifestCanonicalText`"), "{message}");
+        }
+
+        /// The whole report-package save on one raw args body, under the
+        /// counting allocator (DEL-04-07 memory-budget decision,
+        /// "Report-package request pricing"): the buffered body, admission
+        /// with the moved lease, argument decoding, the lease growth, the
+        /// native admission (parse, binding, screening, conversion and the
+        /// shared producer), a cancelled save dialog and the response, with
+        /// the priced peak of every live allocation against the whole lease.
+        /// Also measures the ingress peak: the parse and binding check of the
+        /// three texts and the typed conversion, as
+        /// `report_package_text_parse_stays_within_its_priced_growth` does.
+        fn report_package_whole_command_within_its_lease(label: &str, body: &[u8]) {
+            use crate::command_ingress::test_support::headers;
+            use crate::command_ingress::{
+                report_package_request_parse_bytes, INGRESS_ARGS_JSON_V1, REPORT_PACKAGE_REQUEST_REGIONS, REPORT_PACKAGE_WORKING_MEMORY_FACTOR,
+            };
+            use report_package_save::test_support::{no_store, software};
+            let registry = registry(ScriptedHost::normal());
+            let current = headers(Some(INGRESS_ARGS_JSON_V1));
+            let (receipt_code, lease, whole) = {
+                let ((code, lease), measured) = ingress::counting::measure(|| {
+                    // The body as the IPC layer buffers it, held until the command returns.
+                    let invoke_body = tauri::ipc::InvokeBody::Raw(body.to_vec());
+                    let (mut args, mut lease) =
+                        command_ingress::admit_body(&registry, &invoke_body, &current, "save_report_package", ArgsDecoding::Moved).unwrap();
+                    let request = report_package_save::save_report_package_args(&mut args).unwrap();
+                    drop(args);
+                    report_package_save::validate_report_package_save_evidence(&request.screening, request.local_first.as_ref()).unwrap();
+                    let growth = report_package_save::parse_lease_bytes(&request.request_text, &request.model_text, &request.input_manifest_text).unwrap();
+                    lease.grow_to(lease.bytes() + growth).unwrap();
+                    let mut picks = 0usize;
+                    let receipt = save_report_package_with_picker(request, &software(), &mut no_store, |_| {
+                        picks += 1;
+                        None
+                    })
+                    .unwrap_or_else(|error| panic!("{label}: refused: {}", error.message));
+                    assert_eq!(picks, 1);
+                    let code = receipt.code.clone();
+                    let response = respond::<_, String>(Ok(receipt)).unwrap();
+                    drop(response);
+                    let bytes = lease.bytes();
+                    drop(lease);
+                    drop(invoke_body);
+                    (code, bytes)
+                });
+                (code, lease, measured.peak_priced)
+            };
+            assert_eq!(receipt_code, "REPORT-PACKAGE-SAVE-CANCELLED");
+            assert_eq!(registry.pool().reserved_total(), 0);
+            // The ingress peak and the request text's regions.
+            let args: Value = serde_json::from_slice(body).unwrap();
+            let text = args["requestCanonicalText"].as_str().unwrap().to_string();
+            let model = args["modelCanonicalText"].as_str().unwrap().to_string();
+            let manifest = args["inputManifestCanonicalText"].as_str().unwrap().to_string();
+            drop(args);
+            let (bound, regions) = ingress::prescan_regions(text.as_bytes(), &REPORT_PACKAGE_REQUEST_REGIONS).unwrap();
+            let (_, ingress_peak) = ingress::counting::measure(|| {
+                let request = report_package_save::parse_canonical("request", &text).unwrap();
+                let model = report_package_save::parse_canonical("model", &model).unwrap();
+                let manifest = report_package_save::parse_canonical("input_manifest", &manifest).unwrap();
+                let packs = report_package_save::solve_rule_packs(&manifest).unwrap();
+                drop((model, manifest, packs));
+                report_package_save::typed_request(request).map(drop).unwrap();
+            });
+            let m = bound.materialization_bytes;
+            let mib = |bytes: u64| bytes as f64 / (1024.0 * 1024.0);
+            eprintln!(
+                "{label}: body {} request text {} M {m} C_V {} C_T {} request growth {} W {REPORT_PACKAGE_WORKING_MEMORY_FACTOR} \
+                 lease {lease} ({:.2} MiB; at W = 0 {} ({:.2} MiB)) ingress peak {} whole-command peak {whole}",
+                body.len(),
+                text.len(),
+                regions.opaque,
+                regions.typed,
+                report_package_request_parse_bytes(&text).unwrap(),
+                mib(lease),
+                lease - REPORT_PACKAGE_WORKING_MEMORY_FACTOR * m,
+                mib(lease - REPORT_PACKAGE_WORKING_MEMORY_FACTOR * m),
+                ingress_peak.peak_priced,
+            );
+            assert!(ingress_peak.peak_priced <= whole, "{label}");
+            assert!(whole <= lease, "{label}: whole-command priced peak {whole} exceeds the lease {lease}");
+        }
+
+        /// The whole command on the committed witness request
+        /// (`del1005_export_results_success_input.json`, as the desktop
+        /// builder derives its request): its peak with the buffered body is
+        /// within the whole lease.
+        #[test]
+        fn report_package_save_whole_command_peak_is_within_its_lease() {
+            use report_package_save::test_support::{args_body, desktop_request, model, save_request};
+            let body = serde_json::to_vec(&args_body(&save_request(&desktop_request(&model()), &model()))).unwrap();
+            report_package_whole_command_within_its_lease("witness", &body);
+        }
+
+        /// The whole command on the demo's request: the bundled demo
+        /// (`invented_demo_model.json`) with its committed dense result
+        /// (`invented_demo_result_preview_physics_1_dense.json`), as the
+        /// native smoke saves it. The request (about 7 MB) is not committed;
+        /// generate its raw args body with the desktop's request builder, then
+        /// run this test with the same variable (an absolute path; the first
+        /// command from `apps/desktop`, the second from `apps/desktop/src-tauri`):
+        ///
+        /// ```text
+        /// OPENPIPESTRESS_DEMO_REPORT_PACKAGE_REQUEST=/abs/demo-request.json \
+        ///   npx vitest run src/test-support/demoReportPackageRequest.test.ts
+        /// OPENPIPESTRESS_DEMO_REPORT_PACKAGE_REQUEST=/abs/demo-request.json \
+        ///   cargo test --locked --offline report_package_save_demo_request -- --ignored --nocapture
+        /// ```
+        #[test]
+        #[ignore = "needs the generated demo request in OPENPIPESTRESS_DEMO_REPORT_PACKAGE_REQUEST"]
+        fn report_package_save_demo_request_peak_is_within_its_lease() {
+            let path = std::env::var("OPENPIPESTRESS_DEMO_REPORT_PACKAGE_REQUEST")
+                .expect("OPENPIPESTRESS_DEMO_REPORT_PACKAGE_REQUEST names the generated demo request");
+            let body = fs::read(&path).unwrap_or_else(|error| panic!("{path}: {error}"));
+            report_package_whole_command_within_its_lease("demo", &body);
         }
 
         #[test]
@@ -9797,19 +9745,22 @@ mod tests {
                     let _ = args.decode::<Option<SelectedReviewTarget>>("selectedTarget");
                 });
             }
-            let decoding = ArgsDecoding::Rebuilt { vec_expansion: command_ingress::REPORT_PACKAGE_VEC_EXPANSION };
-            let mut refused_evidence = redaction_evidence();
-            refused_evidence["blocking_count"] = json!(long.clone());
-            let mut refused_local_first = local_first_evidence();
-            refused_local_first["blocked"] = json!(long.clone());
-            for (redaction, local_first) in [
-                (redaction_evidence(), local_first_evidence()),
-                (refused_evidence, local_first_evidence()),
-                (redaction_evidence(), refused_local_first),
-            ] {
-                let body = json!({"request": witness_report_request(), "redactionEvidence": redaction, "localFirstEvidence": local_first});
+            let report = report_package_save::test_support::save_request(
+                &report_package_save::test_support::desktop_request(&report_package_save::test_support::model()),
+                &report_package_save::test_support::model(),
+            );
+            let clean = report_package_save::test_support::args_body(&report);
+            let mut refused_screening = clean.clone();
+            refused_screening["screening"]["blocking_count"] = json!(long.clone());
+            let mut refused_local_first = clean.clone();
+            refused_local_first["localFirstEvidence"]["blocked"] = json!(long.clone());
+            let mut refused_text = clean.clone();
+            refused_text["requestCanonicalText"] = json!([long.clone()]);
+            let mut refused_manifest = clean.clone();
+            refused_manifest["inputManifestCanonicalText"] = json!([long.clone()]);
+            for body in [clean, refused_screening, refused_local_first, refused_text, refused_manifest] {
                 let raw = serde_json::to_vec(&body).unwrap();
-                let _ = check_decode_bound(&raw, decoding, |args| save_report_package_args(args).map(drop));
+                let _ = check_decode_bound(&raw, ArgsDecoding::Moved, |args| report_package_save::save_report_package_args(args).map(drop));
             }
             let screening = json!({"route_id": "DOTH-JSON-001", "export_context": "local_private",
                 "explicit_local_private_intent": true, "blocked": false, "materialization_withheld": false,
@@ -9892,6 +9843,54 @@ mod tests {
             let reset = applied(&one_cm_tolerance, intent(&one_cm_tolerance, "clear_model_setting", "not_present", "none", "dimensionless"));
             assert!(reset.get("model_settings").is_none(), "reset never writes the default");
             assert!(near_pairs(&reset, mode).is_empty(), "reset to the default, 8 mm does not warn");
+        }
+    }
+
+    /// DEL-02-02 Design `project-unit-selection.md` §2.8, §4 "Through the apply
+    /// command": a force-key change applied through the apply command changes
+    /// `project.units.force` and nothing else, and the same model solves to the
+    /// same rows (the solver reads only the length key). Invented data only.
+    #[test]
+    fn a_project_unit_change_through_the_apply_command_changes_one_key_and_no_result() {
+        let model = read_fixture("invented_demo_model.json").expect("bundled preview model loads");
+        assert_eq!(model["project"]["units"]["force"], "N");
+        let intent = json!({
+            "operation_id": "op:project-units:force", "operation_kind": "modify", "operation_status": "proposed",
+            "author_type": "user", "target": {"object_type": "Project", "ref": model["project"]["id"]},
+            "change": {"change_id": "change:project-units:force", "change_kind": "set_project_unit",
+                "field_label": "Project force unit", "field_path": "project.units.force",
+                "before": "N", "after": "lbf", "unit": "lbf", "dimension": "force", "source_note": "invented test input"},
+            "validation": {"schema_validation":"not_run","constraint_validation":"not_run","unit_validation":"not_run",
+                "diff_preview_status":"not_generated","application_status":"not_applied"},
+            "audit_boundary": {"mutation_route":"structured_operations_only","direct_model_mutation_allowed":false,
+                "requires_user_acceptance":true,"mutates_accepted_model_state":false},
+            "professional_boundary": {"human_review_required":true,"software_makes_compliance_claim":false,
+                "software_makes_certification_claim":false,"software_makes_sealing_claim":false,
+                "software_makes_approval_claim":false,"software_makes_authentication_claim":false},
+            "rationale": "Invented project-unit test"
+        });
+        let outcome = apply_model_operation_value(model.clone(), intent, None).expect("command returns outcome");
+        assert_eq!(outcome["validation"]["application_status"], "applied_to_session_model", "{}", outcome["diagnostics"]);
+        assert_eq!(
+            outcome["diff_preview"],
+            json!([{"entity_ref": model["project"]["id"], "object_type": "Project", "field_path": "project.units.force",
+                "before": "N", "after": "lbf", "unit": "lbf", "dimension": "force", "change_kind": "set_project_unit"}])
+        );
+        let applied = outcome["applied_model"].clone();
+        let mut expected = model.clone();
+        expected["project"]["units"]["force"] = json!("lbf");
+        assert_eq!(applied, expected, "only project.units.force changed");
+        assert_ne!(
+            open_pipe_stress_operation_applier::canonical_json(&applied),
+            open_pipe_stress_operation_applier::canonical_json(&model),
+            "the edit changes the document and its hash"
+        );
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let before = solve_preview_mechanics_value_with_mode(model.clone(), mode).expect("solve returns an envelope");
+            let after = solve_preview_mechanics_value_with_mode(applied.clone(), mode).expect("solve returns an envelope");
+            assert!(!before["results"].as_array().unwrap().is_empty(), "the model solves");
+            assert_eq!(before["results"], after["results"], "the same rows");
+            assert_eq!(before["status"], after["status"]);
         }
     }
 }
@@ -10032,5 +10031,306 @@ mod replace_confirmation_tests {
         assert!(stored_project_entry(&connection, "project:another").unwrap().is_none());
         drop(connection);
         fs::remove_dir_all(&root).unwrap();
+    }
+}
+
+#[cfg(test)]
+mod independent_round1_review {
+    use super::*;
+    use report_package_save::{test_support::*, *};
+    use serde_json::json;
+
+    fn check(request: &Value, model: &Value) -> Result<AdmittedReportPackage, ReportPackageSaveCommandError> {
+        admit_report_package(save_request(request, model), &software(), &mut no_store)
+    }
+
+    #[test]
+    fn independent_blocked_disposition_matrix() {
+        let statuses = [
+            ("redistribution_status", vec!["protected_suspected", "rejected"]),
+            ("review_status", vec!["quarantined", "rejected"]),
+            ("privacy_class", vec!["protected_suspected", "quarantined", "rejected"]),
+            ("privacy_classification", vec!["protected_suspected", "quarantined", "rejected"]),
+            ("classification", vec!["protected_suspected", "quarantined", "rejected"]),
+            ("lifecycle_status", vec!["quarantined", "rejected"]),
+        ];
+        let sites = ["/report/report_sections/provenance_notes/0/review_probe", "/result_documents/0/result_envelope/review_probe", "/source_results/0/results/0/metadata", "/state_comparison_handoff_records/0/review_probe", "/audit_manifest/rule_pack_refs"];
+        let mut cases=0;
+        for (key, values) in statuses {
+            for value in values {
+                for site in sites {
+                    let m=model(); let mut r=desktop_request(&m);
+                    if site.ends_with("review_probe") { let (parent,key)=site.rsplit_once('/').unwrap(); r.pointer_mut(parent).unwrap()[key]=json!({}); }
+                    let target=r.pointer_mut(site).expect(site);
+                    *target=json!([{ "a/b~c": [{ "provenance": {key: value} }]}]);
+                    let err=check(&r,&m).unwrap_err();
+                    assert_eq!(err.code, PROTECTED_CONTENT_BLOCKED, "{site} {key} {value}");
+                    assert!(err.diagnostics.iter().any(|d|d.path.contains("a~1b~0c")));
+                    cases+=1;
+                }
+                let mut m=model(); m["nodes"][0]["review_probe"]=json!([{ "provenance": {key:value}}]);
+                let r=desktop_request(&m); assert_eq!(check(&r,&m).unwrap_err().code,PROTECTED_CONTENT_BLOCKED); cases+=1;
+            }
+        }
+        eprintln!("independent blocked cases: {cases}");
+    }
+
+    #[test]
+    fn independent_structured_dispositions_must_be_refused() {
+        let mut failures=Vec::new(); let mut cases=0;
+        for key in ["redistribution_status","review_status","privacy_class","privacy_classification","classification","lifecycle_status"] {
+            for value in [json!(["quarantined"]),json!({"value":"protected_suspected"})] {
+                for is_model in [false,true] {
+                    let mut m=model();
+                    if is_model {m["nodes"][0][key]=value.clone();}
+                    let mut r=desktop_request(&m);
+                    if !is_model {r["report"]["report_sections"]["provenance_notes"][0][key]=value.clone();}
+                    let result=check(&r,&m); cases+=1;
+                    match result {
+                        Err(err) if err.code==DISPOSITION_MALFORMED=>(),
+                        other=>failures.push(format!("model={is_model} {key} {value}: {}",match other {Ok(_)=>"ADMITTED".to_string(),Err(e)=>e.code})),
+                    }
+                }
+            }
+        }
+        eprintln!("structured cases: {cases}; failures: {failures:?}");
+        assert!(failures.is_empty(),"{}",failures.join("; "));
+    }
+
+    #[test]
+    fn independent_request_only_refs_all_carriers() {
+        let sites=["/report/report_sections/provenance_notes/0", "/result_documents/0/result_envelope", "/source_results/0/results/0", "/state_comparison_handoff_records/0", "/audit_manifest"];
+        for site in sites {
+            let m=model(); let mut r=desktop_request(&m);
+            r.pointer_mut(site).unwrap()["library_ref"]=json!({"library_kind":"material","library_id":" review-lib ","record_id":" review-record "});
+            for store_error in [false,true] {
+                let mut calls=0;
+                let mut lookup=|pid:&str,kind:&str,id:&str| {calls+=1; assert_eq!(pid,m["project"]["id"].as_str().unwrap());assert_eq!((kind,id),("material","review-lib"));
+                    if store_error {Err("review-store-error".to_string())} else {Ok(Some(json!({"material_records":[{"material_id":"review-record","review_status":"quarantined"}]})))} };
+                let e=admit_report_package(save_request(&r,&m),&software(),&mut lookup).unwrap_err();
+                assert_eq!(e.code,if store_error {LIBRARY_STORE_UNAVAILABLE}else{PROTECTED_CONTENT_BLOCKED});assert_eq!(calls,1);
+            }
+        }
+    }
+
+    #[test]
+    fn independent_order_binding_and_cancel() {
+        let mut m=model(); m["nodes"][0]["review_status"]=json!("quarantined");
+        let mut r=desktop_request(&m); r["report"]["report_context"]["software_name"]=json!("incorrect");
+        let mut args=save_request(&r,&m); args.screening.payload_sha256="sha256:unbound".to_string();
+        assert_eq!(admit_report_package(args,&software(),&mut no_store).unwrap_err().code,EVIDENCE_UNBOUND);
+        assert_eq!(check(&r,&m).unwrap_err().code,PROTECTED_CONTENT_BLOCKED);
+        let m=model(); let r=desktop_request(&m);
+        let admitted=check(&r,&m).unwrap(); let receipt=save_admitted_report_package(admitted,|_|None).unwrap();
+        assert_eq!((receipt.outcome.as_str(),receipt.byte_count),("cancelled",0));
+    }
+}
+
+#[cfg(test)]
+mod independent_round2_review {
+    use super::*;
+    use report_package_save::{test_support::*, *};
+    use export_disposition_screen::{screen_document,malformed_dispositions};
+    use serde_json::json;
+    fn check(payload: Value, is_model: bool, deep: bool) -> Result<AdmittedReportPackage,ReportPackageSaveCommandError> {
+        let mut m=model();
+        if is_model {m["nodes"][0]["review_probe"]=if deep {json!([{"a/b~c":[payload.clone()]}])}else{payload.clone()};}
+        let mut r=desktop_request(&m);
+        if !is_model {r["report"]["report_sections"]["provenance_notes"][0]["review_probe"]=if deep {json!([{"a/b~c":[payload]}])}else{payload};}
+        admit_report_package(save_request(&r,&m),&software(),&mut no_store)
+    }
+    #[test]
+    fn forged_pack_markers_cannot_hide_blocking_strings() {
+        let mut cases=0;
+        for key in ["redistribution_status","review_status","privacy_class","privacy_classification","classification","lifecycle_status","public_repository_policy","arbitrary"] {
+            for status in ["protected_suspected","quarantined","rejected"] {
+                for is_model in [false,true] {for deep in [false,true] {
+                    let payload=json!({"rule_pack_kind":"open_pipe_stress_rule_pack","classification":{key:status}});
+                    let result=check(payload,is_model,deep);
+                    // Round 2: the marker grants nothing here, so the classification object is malformed if no member blocks first.
+                    assert!(matches!(&result,Err(e) if e.code==PROTECTED_CONTENT_BLOCKED || e.code==DISPOSITION_MALFORMED),"{is_model} {deep} {key} {status}: {result:?}"); cases+=1;
+                }}
+            }
+        }
+        eprintln!("R2 forged-marker blocking-string cases: {cases}");
+    }
+    #[test]
+    fn structured_members_and_wrong_markers_refuse() {
+        let mut cases=0;
+        for key in ["redistribution_status","review_status","privacy_class","privacy_classification","classification","lifecycle_status"] {
+            for marker in [Value::Null,json!(true),json!("wrong")] {
+                for value in [json!({"value":"protected_suspected"}),json!(["quarantined"])] {
+                    for is_model in [false,true] {
+                        let p=json!({"rule_pack_kind":marker,key:value});
+                        assert!(matches!(check(p,is_model,true),Err(e) if e.code==DISPOSITION_MALFORMED));cases+=1;
+                    }
+                }
+            }
+        }
+        for key in ["redistribution_status","review_status","privacy_class","privacy_classification","classification","lifecycle_status","public_repository_policy","arbitrary"] {
+            for value in [json!({"value":"clear"}),json!(["clear"])] {
+                for is_model in [false,true] {
+                    let p=json!({"rule_pack_kind":"open_pipe_stress_rule_pack","classification":{key:value}});
+                    assert!(matches!(check(p,is_model,true),Err(e) if e.code==DISPOSITION_MALFORMED));cases+=1;
+                }
+            }
+        }
+        eprintln!("R2 structured / wrong-marker cases: {cases}");
+    }
+    #[test]
+    fn nested_classification_objects_must_be_refused_even_with_pack_markers() {
+        let mut failures=vec![];let mut cases=0;
+        for is_model in [false,true] {for deep in [false,true] {
+            let p=json!({"rule_pack_kind":"open_pipe_stress_rule_pack","classification":{"rule_pack_kind":"open_pipe_stress_rule_pack","classification":{"value":"clear"}}});
+            let result=check(p,is_model,deep);cases+=1;
+            match result {Err(e) if e.code==DISPOSITION_MALFORMED=>(),other=>failures.push(format!("model={is_model} deep={deep}: {}",match other {Ok(_)=>"ADMITTED".to_string(),Err(e)=>e.code}))}
+        }}
+        eprintln!("R2 nested-classification cases: {cases}; failures={failures:?}");assert!(failures.is_empty());
+    }
+    #[test]
+    fn classification_recursion_still_blocks_strings() {
+        let mut cases=0;
+        for depth in 1..=8 {for status in ["protected_suspected","quarantined","rejected"] {
+            let mut classification=json!({"arbitrary":status});
+            for _ in 0..depth {classification=json!({"rule_pack_kind":"open_pipe_stress_rule_pack","classification":classification});}
+            for is_model in [false,true] {
+                assert!(matches!(check(classification.clone(),is_model,true),Err(e) if e.code==PROTECTED_CONTENT_BLOCKED || e.code==DISPOSITION_MALFORMED));cases+=1;
+            }
+        }}
+        eprintln!("R2 recursive marker blocking cases: {cases}");
+    }
+    #[test]
+    fn committed_clear_library_and_rule_pack_fixtures_pass() {
+        // Rule packs with their root classification admitted; libraries with none.
+        let packs=[include_str!("../../../../fixtures/product_preview/invented_demo_rule_pack.json"),include_str!("../../../../examples/rule_packs/invented_demo.yaml")];
+        let libraries=[include_str!("../../../../fixtures/material/invented_material_library_valid.json"),include_str!("../../../../fixtures/component/invented_component_library_valid.json"),
+            include_str!("../../../../fixtures/component/invented_section_library_valid.json"),include_str!("../../../../fixtures/component/invented_section_component_library_valid.json"),
+            include_str!("../../../../fixtures/hanger/invented_hanger_library_valid.json")];
+        for text in packs {
+            let value:Value=serde_json::from_str(text).unwrap();
+            assert!(value["classification"].is_object());
+            assert!(malformed_dispositions(&value).is_empty(),"{:?}",malformed_dispositions(&value));
+            assert!(screen_document(&value).is_empty(),"{:?}",screen_document(&value));
+        }
+        for text in libraries {
+            let value:Value=serde_json::from_str(text).unwrap();
+            assert!(export_disposition_screen::malformed_values(&value).is_empty(),"{:?}",export_disposition_screen::malformed_values(&value));
+            assert!(export_disposition_screen::screen_value(&value).is_empty(),"{:?}",export_disposition_screen::screen_value(&value));
+        }
+        eprintln!("R2 committed clear library / rule-pack fixtures: {}",packs.len()+libraries.len());
+    }
+}
+
+#[cfg(test)]
+mod independent_round2_context {
+    use super::*;
+    use report_package_save::{test_support::*,*};
+    use serde_json::json;
+    /// Round 2 (the reviewer's context probe, now a regression): a forged
+    /// `rule_pack_kind` grants no exemption in a request provenance note or a
+    /// model node; the classification object is malformed.
+    #[test]
+    fn a_forged_rule_pack_marker_grants_nothing_in_request_or_model() {
+        for is_model in [false,true] {
+            let mut m=model();
+            if is_model {m["nodes"][0]["rule_pack_kind"]=json!("open_pipe_stress_rule_pack");m["nodes"][0]["classification"]=json!({"value":"clear"});}
+            let mut r=desktop_request(&m);
+            if !is_model {r["report"]["report_sections"]["provenance_notes"][0]["rule_pack_kind"]=json!("open_pipe_stress_rule_pack");r["report"]["report_sections"]["provenance_notes"][0]["classification"]=json!({"value":"clear"});}
+            let result=admit_report_package(save_request(&r,&m),&software(),&mut no_store);
+            let error=match result {Err(e)=>e,Ok(_)=>panic!("forged marker admitted in {}",if is_model {"model node"}else{"request provenance"})};
+            assert_eq!(error.code,DISPOSITION_MALFORMED);
+            assert!(error.diagnostics[0].path.ends_with("/classification"),"{}",error.diagnostics[0].path);
+        }
+    }
+    #[test]
+    fn genuine_marker_does_not_exempt_other_structured_dispositions() {
+        let mut cases=0;
+        for key in ["redistribution_status","review_status","privacy_class","privacy_classification","lifecycle_status"] {
+            for value in [json!({"value":"protected_suspected"}),json!(["quarantined"])] {
+                for is_model in [false,true] {
+                    let mut m=model();
+                    let v=json!({"rule_pack_kind":"open_pipe_stress_rule_pack",key:value});
+                    if is_model {m["nodes"][0]["review_probe"]=v.clone();}
+                    let mut r=desktop_request(&m);
+                    if !is_model {r["report"]["report_sections"]["provenance_notes"][0]["review_probe"]=v;}
+                    assert!(matches!(admit_report_package(save_request(&r,&m),&software(),&mut no_store),Err(e) if e.code==DISPOSITION_MALFORMED));cases+=1;
+                }
+            }
+        }
+        eprintln!("R2 genuine marker / other structured dispositions: {cases}");
+    }
+}
+
+#[cfg(test)]
+mod independent_round3_review {
+    use super::*;
+    use report_package_save::{test_support::*, *};
+    use export_disposition_screen::{screen_document, malformed_dispositions, screen_value, malformed_values, SCREENED_MEMBERS};
+    use serde_json::json;
+
+    fn markers() -> Vec<Value> { vec![Value::Null,json!(false),json!(13),json!("wrong"),json!("open_pipe_stress_rule_pack"),json!(["open_pipe_stress_rule_pack"]),json!({"rule_pack_kind":"open_pipe_stress_rule_pack"})] }
+    fn wrap(mut value: Value, depth: usize) -> Value {
+        for n in 0..depth { value=match n%3 { 0=>json!({"":value}),1=>json!([{"a/b~c":value}]),_=>json!({"rule_pack_kind":"open_pipe_stress_rule_pack","annotation":value}) }; }
+        value
+    }
+    #[test]
+    fn markers_positions_and_depth_cannot_hide_blocking_or_malformed_values() {
+        let mut scalar_cases=0; let mut structured_cases=0;
+        for marker in markers() {for depth in 0..=8 {for (key,statuses) in SCREENED_MEMBERS {
+            for status in statuses {
+                let doc=wrap(json!({"rule_pack_kind":marker,key:status}),depth);
+                assert!(!screen_document(&doc).is_empty(),"{doc}");
+                assert!(!screen_value(&doc).is_empty(),"{doc}");
+                scalar_cases+=2;
+            }
+            for inner in [json!([]),json!({}),json!(["quarantined"]),json!({"value":"protected_suspected"})] {
+                let doc=wrap(json!({"rule_pack_kind":marker,key:inner}),depth);
+                assert!(!malformed_values(&doc).is_empty(),"{doc}"); structured_cases+=1;
+                if key!="classification" || depth>0 {
+                    assert!(!malformed_dispositions(&doc).is_empty(),"{doc}");structured_cases+=1;
+                }
+            }
+        }}}
+        eprintln!("R3 direct scalar checks={scalar_cases}; structured checks={structured_cases}");
+    }
+    #[test]
+    fn root_classification_screens_every_string_and_never_regrants_an_exemption() {
+        let mut blocked=0;let mut malformed=0;let mut clear=0;
+        for marker in markers() {for key in ["arbitrary","rule_pack_kind","privacy_class","review_status","classification","","a/b~c"] {
+            for status in ["protected_suspected","quarantined","rejected"] {
+                let doc=json!({"rule_pack_kind":marker,"classification":{key:status}});
+                let findings=screen_document(&doc);
+                assert_eq!(findings.len(),1,"{doc}: {findings:?}");blocked+=1;
+            }
+            for inner in [json!({}),json!([]),json!({"rule_pack_kind":"open_pipe_stress_rule_pack","classification":{"value":"clear"}}),json!([{"rule_pack_kind":"open_pipe_stress_rule_pack","classification":{"arbitrary":"rejected"}}])] {
+                let doc=json!({"rule_pack_kind":marker,"classification":{key:inner}});
+                assert!(!malformed_dispositions(&doc).is_empty(),"{doc}");malformed+=1;
+            }
+            for inner in [Value::Null,json!(true),json!(17),json!("private_only"),json!("unknown")] {
+                let doc=json!({"rule_pack_kind":"open_pipe_stress_rule_pack","classification":{key:inner}});
+                assert!(screen_document(&doc).is_empty(),"{doc}");
+                assert!(malformed_dispositions(&doc).is_empty(),"{doc}");clear+=1;
+            }
+        }}
+        eprintln!("R3 root-classification blocked={blocked}; malformed={malformed}; allowed scalars={clear}");
+    }
+    #[test]
+    fn report_admission_refuses_markers_at_root_and_below() {
+        let mut cases=0;
+        for marker in markers() {for depth in 0..=5 {for is_model in [false,true] {
+            for inner in [json!({}),json!([]),json!({"value":"protected_suspected"}),json!({"rule_pack_kind":"open_pipe_stress_rule_pack","classification":{"value":"clear"}})] {
+                let payload=wrap(json!({"rule_pack_kind":marker,"classification":inner}),depth);
+                for at_root in [false,true] {
+                    let mut m=model();
+                    if is_model { if at_root { for (k,v) in payload.as_object().into_iter().flatten() {m[k]=v.clone();} if payload.is_array(){m["review_probe"]=payload.clone();} } else {m["nodes"][0]["review_probe"]=payload.clone();} }
+                    let mut r=desktop_request(&m);
+                    if !is_model { if at_root {for (k,v) in payload.as_object().into_iter().flatten(){r[k]=v.clone();} if payload.is_array(){r["review_probe"]=payload.clone();}} else {r["report"]["report_sections"]["provenance_notes"][0]["review_probe"]=payload.clone();} }
+                    let result=admit_report_package(save_request(&r,&m),&software(),&mut no_store);
+                    match result {Err(e)=>{assert!(e.code==DISPOSITION_MALFORMED || e.code==PROTECTED_CONTENT_BLOCKED,"{}",e.code); assert!(e.diagnostics.iter().any(|d|d.path.ends_with("/classification")||d.path.contains("/classification/")));},Ok(_)=>panic!("admitted model={is_model} root={at_root} depth={depth} payload={payload}")}
+                    cases+=1;
+                }
+            }
+        }}}
+        eprintln!("R3 report admission refusals={cases}");
     }
 }

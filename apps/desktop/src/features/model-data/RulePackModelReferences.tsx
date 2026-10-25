@@ -7,8 +7,9 @@
 import type { LocalRulePackIndexEntry, RulePackOpenRoute } from "../../services/rulePackService";
 import { RECORD_FAMILIES, disabledBy, recordIntent, rulePackReferenceFromDocument } from "./modelDataIntents";
 import { useModelDataQueue, type ModelDataQueueProps } from "./useModelDataQueue";
+import { RULE_PACK_REF_UNRESOLVED } from "../../services/rulePackRefDiagnostics";
 
-export const RULE_PACK_REF_UNRESOLVED = "MODEL-RULE-PACK-REF-UNRESOLVED";
+export { RULE_PACK_REF_UNRESOLVED };
 
 export function RulePackModelReferences(props: ModelDataQueueProps & {
   entries: LocalRulePackIndexEntry[];

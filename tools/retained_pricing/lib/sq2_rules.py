@@ -205,7 +205,11 @@ if D.get("ZW_ADD"):
 if D.get("CENSUS"):
     import importlib.util
     _spec = importlib.util.spec_from_file_location("census_patch", D["CENSUS"]["patcher"]); _cp = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(_cp)
-    LOG["census"] = _cp.apply(dst, json.load(open(D["CENSUS"]["json"])), patch)
+    _census = json.load(open(D["CENSUS"]["json"]))
+    if D["CENSUS"].get("global_end_rows_per_member"):
+        # W7-RP (retained-pricing-rules.md §8.20): rows the ordinary envelope carries and the census's source fixtures omit.
+        _census = dict(_census, global_end_rows_per_member=D["CENSUS"]["global_end_rows_per_member"])
+    LOG["census"] = _cp.apply(dst, _census, patch)
 # T4-U6 (O-10): a route's typed-chain substitution, each by exact text with its argued reason (o10_rules.py).
 for fname, old, new, why in D.get("O10_TYPED_PATCHES", []):
     patch(fname, old, new); LOG.setdefault("o10_typed_patches", []).append({"file": fname, "why": why})

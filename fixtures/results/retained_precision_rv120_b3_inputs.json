@@ -29109,7 +29109,7 @@
    ],
    "name": "forge E-hat+1ulp, every copy, native hashes resealed [m3x_sparse_interactive]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "2c15f2061389d37cc3ea9a86ea96dffd3fe7671b8d82dbc915c5d9fb8cc36ab9",
+   "input_sha256": "adc0689db3e9f9d4445ce4649cf349691b6e6a6cf60aaaf6b0ebc03220fa883c",
    "edits": [
     {
      "op": "set",
@@ -29294,7 +29294,7 @@
    ],
    "name": "forge G-hat+1ulp, every copy, native hashes resealed [m3x_sparse_interactive]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "74fa6ccfb168cc16e3d34d015116810a479acad9a742383cf049e7bae0fd267a",
+   "input_sha256": "6a9b15a014ed575be99d1e70cefc2553199362a7428f65a74ccfdd326e28b788",
    "edits": [
     {
      "op": "set",
@@ -32506,7 +32506,7 @@
    ],
    "name": "X G8: an exact_cases entry for a case not in the invocation [m3x_sparse_interactive]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (transport: maximum result ID)",
-   "input_sha256": "eb3f4e49607a48086ac32ae36e5873ad50d43a2c6ac0f02dc1052511b29cb415",
+   "input_sha256": "c02f020b2fdecbf17ac6f4689ee66800f0d583c5215401119bc83d5f6fff4a37",
    "edits": [
     {
      "op": "set",

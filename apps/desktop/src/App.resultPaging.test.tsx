@@ -15,8 +15,9 @@ import type { MechanicsResult } from "./types";
 // this under load). The page reset on a run change must not be such an effect,
 // or it lands after the click and silently undoes it.
 
-const PAGE_ONE = "Showing 1 to 50 of 745 matching results; page 1 of 15";
-const PAGE_TWO = "Showing 51 to 100 of 745 matching results; page 2 of 15";
+// C-120 fix: the demo drops the elbow-placed tee component:C-120 and its 4 intensified rows (841 -> 837; still 17 pages).
+const PAGE_ONE = "Showing 1 to 50 of 837 matching results; page 1 of 17";
+const PAGE_TWO = "Showing 51 to 100 of 837 matching results; page 2 of 17";
 
 function openWorkspaceSection(section: "solve"): HTMLElement {
   fireEvent.click(screen.getByTestId("menu-view"));
@@ -128,6 +129,6 @@ describe("result paging keeps the user's page for the run shown", () => {
       observer.disconnect();
     }
     expect(screen.getByTestId("result-page-summary")).toHaveTextContent(PAGE_ONE);
-    expect(summaries.every((summary) => summary.includes("page 1 of 15"))).toBe(true);
+    expect(summaries.every((summary) => summary.includes("page 1 of 17"))).toBe(true);
   });
 });

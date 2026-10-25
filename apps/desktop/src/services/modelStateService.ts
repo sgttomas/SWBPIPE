@@ -5,6 +5,7 @@
 // the record hash and refuses what does not match. The browser preview keeps no
 // states (SQLite-only history, design §7), so every call there is refused by name.
 import { invokeWithIngress } from "./nativeIngress";
+import { partitionListed, type UnreadableRow } from "./historyListEntries";
 import { canonicalJsonString, computeModelHash } from "./hashService";
 import type { ModelDocumentVersionStatus, PreviewModel } from "../types";
 
@@ -46,10 +47,14 @@ export type ModelStateSummary = StateLabels & {
   model_hash: string;
   record_hash: string;
   labels_updated_at: string;
-  /** Saved states whose parent this is; they block its deletion. */
+  /** Saved states whose parent this is, each verified (W-12); they block its deletion. */
   child_state_ids: string[];
-  /** Recorded runs tied to this state (W-12 S2, oldest first); they block its deletion too. */
-  recorded_run_ids?: string[];
+  /** How many recorded-run rows name this state, counted from their columns (W-12); they
+   * block its deletion. The runs themselves come from the run list, each verified. */
+  recorded_run_count?: number;
+  /** How many saved-state rows name this state as their parent but cannot be read (W-12);
+   * counted, never listed. They block its deletion too. */
+  unreadable_references?: number;
   /** The record's analysis status. `MODEL_INCOMPLETE`: blocking document
    * findings; the state is kept (a comparison basis) but cannot be opened. */
   analysis_status: string[];
@@ -118,9 +123,12 @@ export async function saveModelState(input: SaveModelStateInput): Promise<ModelS
   });
 }
 
-export async function listModelStates(projectId: string): Promise<ModelStateSummary[]> {
+/** The project's saved states: the readable summaries and, separately, each row the
+ * store cannot read, by its id and refusal only (`historyListEntries.ts`). */
+export async function listModelStates(projectId: string): Promise<{ states: ModelStateSummary[]; unreadable: UnreadableRow[] }> {
   requireNativeStore();
-  return invokeWithIngress<ModelStateSummary[]>("list_model_states", { projectId });
+  const { readable, unreadable } = partitionListed(await invokeWithIngress<Array<ModelStateSummary | { unreadable: UnreadableRow }>>("list_model_states", { projectId }));
+  return { states: readable, unreadable };
 }
 
 export async function readModelState(projectId: string, stateId: string): Promise<ModelStateRead> {
@@ -141,6 +149,38 @@ export async function editModelStateLabels(
 export async function deleteModelState(projectId: string, stateId: string): Promise<ModelStateDeleteReceipt> {
   requireNativeStore();
   return invokeWithIngress<ModelStateDeleteReceipt>("delete_model_state", { projectId, stateId });
+}
+
+/** Deletes the state row an unreadable list entry names, by its handle (never its shown id). */
+export async function deleteUnreadableModelState(projectId: string, unreadableHandle: string): Promise<ModelStateDeleteReceipt> {
+  requireNativeStore();
+  return invokeWithIngress<ModelStateDeleteReceipt>("delete_model_state", { projectId, unreadableHandle });
+}
+
+/** The native size admission of a comparison of two saved states of one project (W-12 S3a):
+ * the two snapshots' stored byte lengths, read without loading them. */
+export type ModelStateComparisonAdmission = {
+  left_snapshot_bytes: number;
+  right_snapshot_bytes: number;
+  combined_bytes: number;
+  budget_bytes: number;
+};
+
+/** Checks, before either state is read, that the two states' snapshots fit the
+ * per-invocation budget together; the store refuses by name
+ * (`COMPARISON-STATES-TOO-LARGE`) when they do not, and a state not saved in the
+ * project is `MODEL-STATE-NOT-FOUND`. Both states are of one project. */
+export async function admitModelStateComparison(projectId: string, leftStateId: string, rightStateId: string): Promise<ModelStateComparisonAdmission> {
+  requireNativeStore();
+  return invokeWithIngress<ModelStateComparisonAdmission>("admit_model_state_comparison", { projectId, leftStateId, rightStateId });
+}
+
+/** The read for a comparison (W-12 S3a r1): the same metered, integrity-checked read
+ * as `readModelState`, which also returns a `MODEL_INCOMPLETE` state (a comparison
+ * basis); opening such a state stays refused. */
+export async function readModelStateForComparison(projectId: string, stateId: string): Promise<ModelStateRead> {
+  requireNativeStore();
+  return invokeWithIngress<ModelStateRead>("read_model_state_for_comparison", { projectId, stateId });
 }
 
 export function modelStateDescription(state: Pick<ModelStateSummary, "state_name" | "state_id">): string {

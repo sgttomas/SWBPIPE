@@ -1436,6 +1436,13 @@ fn b2k_c05_the_combination_coverage_rule() {
     let mut derived = rows.clone();
     derived.push(("derived".into(), ProductUnit::Megapascal, 0, ProductRecipe::NotCovered { row: rows.len() as u32 }));
     assert_eq!(begin(&derived), Some("combination row family"), "a not-covered derived row");
+    // W-7 (DEL-04-01 Design global-end-actions.md): a not-covered force or moment row (a member's
+    // global end action, signed linear) is combined, so a combination admits it.
+    for unit in [ProductUnit::Newton, ProductUnit::NewtonMetre] {
+        let mut global = rows.clone();
+        global.push(("global".into(), unit, 0, ProductRecipe::NotCovered { row: rows.len() as u32 }));
+        assert_eq!(begin(&global), None, "a not-covered {unit:?} row");
+    }
     for recipe in [ProductRecipe::ModulusBasisRecord] {
         let mut extra = rows.clone();
         extra.push(("record".into(), ProductUnit::Record, 0, recipe));

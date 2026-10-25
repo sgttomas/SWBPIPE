@@ -148,6 +148,7 @@ code_paths:
 - schemas/stress_neutral_export.schema.json
 - schemas/stress_neutral_export.v0.3.schema.json
 - apps/desktop/src/features/stress-neutral/**
+- apps/desktop/src/services/rulePackRefDiagnostics.ts
 - tests/test_stress_neutral_*.py
 checks:
 - tests/test_stress_neutral_export_package.py
@@ -155,5 +156,6 @@ checks:
 - tests/test_stress_neutral_transport.py
 - apps/desktop/src/features/stress-neutral/nativeStressNeutralBuilder.test.tsx
 - apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx
+- apps/desktop/src/features/stress-neutral/rulePackExclusionDiagnostics.test.ts
 - apps/desktop/src/features/result-export/exactOutputTwins.test.tsx
 - apps/desktop/src/features/result-export/exactOutputContractMutations.test.ts

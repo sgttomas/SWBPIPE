@@ -9,6 +9,7 @@ import {
   computeProjectEnvelopeHash
 } from "../../services/hashService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
+import { NO_RULE_PACK_RESOLUTION, recordRulePackExclusions, resolveModelRulePacks } from "../../services/modelRulePackResolution";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import { applyOperationBatch, validateOperationBatch } from "../../services/operationBatchService";
 import type { OperationBatch, OperationBatchOutcome } from "../../services/operationBatchService";
@@ -34,7 +35,7 @@ import {
   terminalJobError
 } from "../../services/previewService";
 import { ResourceUnavailableError } from "../../services/memoryPool";
-import { nativeFailureText } from "../../services/nativeIngress";
+import { IngressRequestRetiredError, nativeFailureText } from "../../services/nativeIngress";
 import {
   buildBlankLocalModelDocument,
   buildBlankLoadStateModelDocument,
@@ -60,6 +61,7 @@ import {
 } from "../project-storage/storedProjectConflict";
 import { MODEL_FILE_SHAPE } from "../model-file/modelDocumentShape";
 import {
+  MODEL_DOC_SAVE_HASH_PENDING,
   modelDocumentSaveFailureMessage,
   modelDocumentSaveMessage,
   modelDocumentSaveRefusalMessage,
@@ -68,7 +70,18 @@ import {
   saveModelDocumentFile
 } from "../model-file/modelDocumentSave";
 import type { ModelDocumentSaveDialogRequest } from "../model-file/ModelDocumentSaveDialog";
-import { saveReportPackage } from "../../services/reportPackageSaveService";
+import {
+  HANDOFF_SAVE_DESKTOP_ONLY,
+  HANDOFF_SAVE_ROUTE,
+  handoffBasis,
+  handoffSaveFailureMessage,
+  handoffSaveMessage,
+  handoffSaveRefusalMessage,
+  saveHandoffPackage,
+  type HandoffBasis
+} from "../handoff/handoffPackageSave";
+import type { HandoffSaveChoice, HandoffSaveDialogRequest } from "../handoff/HandoffSaveDialog";
+import { invokeReportPackageSave, prepareReportPackageSave } from "../../services/reportPackageSaveService";
 import type { RuleCheckStatus } from "../../services/ruleCheckService";
 import type { SessionRuleCheckRun } from "../report/renderableReportInput";
 import type {
@@ -125,7 +138,8 @@ import { persistenceHashesMatch } from "./savedModelBasis";
 import { useModelStateHistory, type LandedProjectSave, type ProjectBinding } from "../history/useModelStateHistory";
 import { unsavedChangesRefusal, useUnsavedChangesGuard } from "../project-storage/unsavedChangesGuard";
 import { createModalHolds, type ModalHolds } from "../project-storage/modalHolds";
-import type { ModelStateRead } from "../../services/modelStateService";
+import { withinRunBusyReason, type WithinRunPair } from "../comparison/withinRunComparison";
+import { listModelStates, modelStateDescription, saveModelState, type ModelStateRead } from "../../services/modelStateService";
 import { useProjectSessionState } from "./projectSessionState";
 import { useResultsSessionState } from "./resultsSessionState";
 import { useSelectionSessionState } from "./selectionSessionState";
@@ -308,6 +322,9 @@ export function useWorkspaceSession() {
   // The open Save Model Document… dialog (DEL-15-01 W-6a), modal in the same way.
   const [modelDocumentSaveRequest, setModelDocumentSaveRequest] = useState<ModelDocumentSaveDialogRequest | null>(null);
   const modelDocumentSaveDialogOpenRef = useRef(false);
+  // The open Save Handoff… dialog (DEL-15-01 W-6b), modal in the same way.
+  const [handoffSaveRequest, setHandoffSaveRequest] = useState<HandoffSaveDialogRequest | null>(null);
+  const handoffSaveDialogOpenRef = useRef(false);
   // The stored project this session is, at the revision it last opened or wrote:
   // its id and stored envelope hash. Set wherever an open or a write lands for
   // this project session, whether or not a later edit superseded the request,
@@ -359,6 +376,7 @@ export function useWorkspaceSession() {
     inputManifest, setInputManifest,
     ruleCheckAggregate, setRuleCheckAggregate,
     ruleCheckReportRun, heldRuleCheckRun, setRuleCheckReportRun,
+    ruleCheckAggregateRef, ruleCheckReportRunRef,
     proposal, setProposal,
     selectedReviewTarget, setSelectedReviewTarget,
     solveJob, setSolveJob,
@@ -377,7 +395,13 @@ export function useWorkspaceSession() {
     currentInputManifestRef,
     activeSolveJob,
     solveCancellationTombstones,
-    comparison
+    comparison,
+    comparisonUnavailable,
+    packagedWithinRun,
+    withinRun,
+    droppedWithinRunBases,
+    setHeldWithinRunSelection,
+    setDroppedWithinRunBases
   } = useResultsSessionState();
   // Reference inspection is a transient view. Keep genuine persistence bytes
   // separate, scoped to the unchanged model/session, without retaining Current.
@@ -987,6 +1011,13 @@ export function useWorkspaceSession() {
       if (!hasCurrentSourceContract(output) || !output.producer) {
         throw new Error("SOLVE-PRODUCER-CONTRACT-UNSUPPORTED: a fresh result requires a recognized current producer contract; historical and unsupported carriers remain available only through their inspection routes.");
       }
+      // The model's rule-pack references, resolved against the local store now
+      // (identity only: nothing here reaches the solve, and no check is run).
+      // A model without references makes no store call and keeps `[]`.
+      const rulePacks = solveModel.rule_pack_refs?.length
+        ? await resolveModelRulePacks(solveModel)
+        : NO_RULE_PACK_RESOLUTION;
+      if (!solveRunGate.current.isCurrent(runGeneration)) return;
       const manifest = await buildCurrentSessionInputManifest({
         model: solveModel,
         solver: {
@@ -1000,12 +1031,14 @@ export function useWorkspaceSession() {
             sparse_evidence_lane: solverMode === "sparse_interactive"
           }
         },
-        active_rule_packs: [],
+        active_rule_packs: rulePacks.active_rule_packs,
         external_assets: []
       });
       if (!solveRunGate.current.isCurrent(runGeneration)) return;
+      // References left out of active_rule_packs become the record's diagnostics.
       const runRecord = await buildAnalysisRunPreview(output, {
-        inputManifest: manifest
+        inputManifest: manifest,
+        rulePackExclusions: rulePacks.excluded
       });
       if (
         modelRevision.current !== solveModelRevision ||
@@ -1086,18 +1119,27 @@ export function useWorkspaceSession() {
     if (!renderedBasisIsCurrent()) return;
     // The report reads the run only while its aggregate is the current one.
     const previousRun = heldRuleCheckRun;
-    setRuleCheckReportRun(aggregate !== null && run?.result.aggregate_status === aggregate ? run : null);
+    const nextRun = aggregate !== null && run?.result.aggregate_status === aggregate ? run : null;
+    setRuleCheckReportRun(nextRun);
+    // A different run makes the previously assembled report package stale, even
+    // under the same aggregate (another pack or other outcomes; DEL-08-01 Design
+    // `report-package-current-results.md` §2.5), so this comes before the early
+    // return. The private-package intent remains an independent user choice.
+    const runChanged = nextRun !== previousRun;
+    if (runChanged) invalidateReportPackageComputedState();
     if (aggregate === ruleCheckAggregate) return;
     const previousAggregate = ruleCheckAggregate;
     const revision = ruleRevisionGate.current.start();
     // A different aggregate immediately makes the previously assembled report
     // package stale. Clear its computed route before publishing the new rule
-    // state; the private-package intent remains an independent user choice.
-    invalidateReportPackageComputedState();
+    // state.
+    if (!runChanged) invalidateReportPackageComputedState();
     setRuleCheckAggregate(aggregate);
     if (!currentSolvedResult || !inputManifest) return;
     const capturedResult = currentSolvedResult;
     const capturedManifest = inputManifest;
+    // The solve-time record's rule-pack reference diagnostics carry over to the revised record.
+    const capturedRulePackExclusions = recordRulePackExclusions(analysisRun, inputManifest.manifest, currentSolvedResult.diagnostics.length);
     const capturedModelRevision = modelRevision.current;
     const capturedSolveGeneration = solveRunGate.current.current();
     const stillCurrent = () =>
@@ -1111,7 +1153,8 @@ export function useWorkspaceSession() {
     try {
       const revisedRecord = await buildAnalysisRunPreview(capturedResult, {
           inputManifest: capturedManifest,
-          ruleCheckAggregate: aggregate
+          ruleCheckAggregate: aggregate,
+          rulePackExclusions: capturedRulePackExclusions
       });
       if (!stillCurrent()) return;
       setAnalysisRun(revisedRecord);
@@ -2352,7 +2395,7 @@ export function useWorkspaceSession() {
   function requestSaveModelDocument() {
     const saveModel = modelDocumentSaveBasisRef.current.model;
     if (!saveModel) return;
-    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || projectOperationOwner.current !== null) return;
+    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || projectOperationOwner.current !== null) return;
     // Captured before the workspace turns inert, which drops its focus.
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const close = () => { modelDocumentSaveDialogOpenRef.current = false; setModelDocumentSaveRequest(null); };
@@ -2394,6 +2437,117 @@ export function useWorkspaceSession() {
     } finally {
       releaseProjectOperation(owner);
     }
+  }
+
+  /** File > Save Handoff… (DEL-15-01 W-6b): finds the basis (the project's saved
+   * state of this model, or a new `handoff_basis` state to confirm) and asks for
+   * the explicit local-private intent. Desktop only (states live in the native
+   * store); it needs no solve. Nothing happens while another project operation
+   * or modal is open. */
+  async function requestSaveHandoff() {
+    const { model: saveModel, modelHash: saveHash } = modelDocumentSaveBasisRef.current;
+    if (!saveModel || projectSessionBusy()) return;
+    const refuse = (code: string, message: string) => {
+      setProjectMessage(handoffSaveRefusalMessage([{ code, path: "", message }]));
+      setProjectOperation("save_handoff_refused");
+    };
+    if (!isTauriRuntime()) return refuse(HANDOFF_SAVE_DESKTOP_ONLY, "Saving a handoff package needs the desktop app: its basis is a saved model state in the local store.");
+    if (!saveHash) return refuse(MODEL_DOC_SAVE_HASH_PENDING, "The session's model hash is not computed yet; try again once it is shown.");
+    // Captured before the workspace turns inert, which drops its focus.
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    let basis: HandoffBasis;
+    try {
+      // The basis is chosen among the readable saved states; a row the store
+      // cannot read (W-12) is never a basis.
+      basis = handoffBasis((await listModelStates(saveModel.project.id)).states, saveModel.project.id, saveHash.value);
+    } catch (error) {
+      setProjectMessage(handoffSaveFailureMessage(error));
+      setProjectOperation("save_handoff_failed");
+      return;
+    }
+    // The session moved on while the states were listed: nothing is asked.
+    if (modelDocumentSaveBasisRef.current.model !== saveModel || modelDocumentSaveBasisRef.current.modelHash?.value !== saveHash.value || projectSessionBusy()) return;
+    const close = () => { handoffSaveDialogOpenRef.current = false; setHandoffSaveRequest(null); };
+    handoffSaveDialogOpenRef.current = true;
+    setHandoffSaveRequest({
+      projectName: saveModel.project.name,
+      basis,
+      opener,
+      cancel: close,
+      save: (choice) => {
+        close();
+        void handleSaveHandoff(choice, basis, saveModel);
+      }
+    });
+  }
+
+  /** Saves the handoff under the dialog's answers. A new basis state is saved
+   * through W-12 S1's store first (after Save Local Project's flow when the
+   * session is not that stored project), then the package is published; a
+   * state left by a refused or cancelled publication stays and is reused.
+   * Changes only the status line (and, for a new state, the History list). */
+  async function handleSaveHandoff(choice: HandoffSaveChoice, basis: HandoffBasis, dialogModel: PreviewModel) {
+    let saveModel = modelDocumentSaveBasisRef.current.model;
+    let saveHash = modelDocumentSaveBasisRef.current.modelHash;
+    const refuse = (message: string, operation = "save_handoff_refused") => {
+      setProjectMessage(`Save handoff refused: ${message}`);
+      setProjectOperation(operation);
+    };
+    if (!saveModel || saveModel !== dialogModel) return refuse("the working model changed while the dialog was open; nothing was saved.", "save_handoff_superseded");
+    let stateId = basis.kind === "existing" ? basis.state.state_id : null;
+    let parentStateId = history.basisStateId;
+    if (stateId === null && !isStoredProjectFor(saveModel.project.id)) {
+      setProjectMessage("A handoff basis state needs its project's stored copy: saving the local project first.");
+      const landed = await saveLocalProjectFirst();
+      if (!landed || !isStoredProjectFor(landed.projectId)) return refuse("the local project was not saved, so no basis state and no package were saved.", "save_handoff_needs_project");
+      if (currentModel.current !== landed.model) return refuse("the working model changed while the local project was saved; nothing else was saved.", "save_handoff_superseded");
+      // After "Save as a new project" the working model is the renamed copy.
+      if (landed.projectId !== saveModel.project.id) parentStateId = null;
+      saveModel = landed.model;
+      saveHash = await computeModelHash(saveModel);
+    }
+    const owner = acquireProjectOperation();
+    if (!owner) return refuse("another project operation is in progress; try again when it finishes.", "save_handoff_busy");
+    let basisNote = "";
+    try {
+      const libraries = await resolveLibraryDispositions(saveModel);
+      const prepared = await prepareModelDocumentSave({
+        model: saveModel, modelHash: saveHash, explicitLocalPrivateIntent: choice.explicitLocalPrivateIntent, libraries, route: HANDOFF_SAVE_ROUTE
+      });
+      if (prepared.status === "refused") {
+        setProjectMessage(handoffSaveRefusalMessage(prepared.diagnostics));
+        setProjectOperation("save_handoff_refused");
+        return;
+      }
+      if (stateId === null) {
+        const saved = await saveModelState({
+          expectedBase: storedBaseRef.current!.value!,
+          model: saveModel,
+          kind: "handoff_basis",
+          parentStateId,
+          labels: { state_name: choice.newStateName ?? "", tags: [], notes: [], assumptions: [] }
+        });
+        stateId = saved.state.state_id;
+        basisNote = saved.outcome === "saved"
+          ? `Saved model state ${modelStateDescription(saved.state)} as the handoff basis; it stays saved.`
+          : `This model was already saved as state ${modelStateDescription(saved.state)}; that state is the basis.`;
+        void history.refreshStates(saveModel.project.id);
+      }
+      const outcome = await saveHandoffPackage({ ...prepared.args, basisStateId: stateId, packageLabel: choice.packageLabel });
+      setProjectMessage(handoffSaveMessage(outcome, basisNote));
+      setProjectOperation(outcome.outcome === "saved" ? "save_handoff"
+        : outcome.outcome === "cancelled" ? "save_handoff_cancelled" : "save_handoff_refused");
+    } catch (error) {
+      setProjectMessage(`${handoffSaveFailureMessage(error)}${basisNote ? ` ${basisNote}` : ""}`);
+      setProjectOperation("save_handoff_failed");
+    } finally {
+      releaseProjectOperation(owner);
+    }
+  }
+
+  /** The session is the stored project `projectId`, with a stored base. */
+  function isStoredProjectFor(projectId: string): boolean {
+    return storedBaseRef.current?.projectId === projectId && Boolean(storedBaseRef.current.value);
   }
 
   async function handleSaveProject() {
@@ -2695,6 +2849,23 @@ export function useWorkspaceSession() {
     if (route.surface !== "inspector") setToolkitFocus({ testId: route.focusTestId, elementId: route.elementId });
   }
 
+  // "Within this run" (W-12 S3c): the load case and combination choice. It is
+  // disabled with the stated reason, and refused, while another project operation
+  // or prompt owns the session (the one-owner check and the modal holds), a solve
+  // runs or a report package is being prepared. The choice is the
+  // session's choice, revalidated against every Current run (resultsSessionState.ts);
+  // a new choice clears the notice of a dropped one.
+  const withinRunDisabledReason = withinRunBusyReason({ projectBusy, running, reportPackageBusy });
+  const withinRunBusyRef = useRef<string | null>(null);
+  withinRunBusyRef.current = withinRunDisabledReason;
+  function handleSelectWithinRunBases(pair: WithinRunPair) {
+    // The latest render's reason, the one owner and an active solve, read at the
+    // call: a handler from an earlier render cannot choose while the session is busy.
+    if (withinRunBusyRef.current || projectSessionBusy() || solveRunGate.current.current() !== null || reportPackageBusyGenerationRef.current !== null) return;
+    setHeldWithinRunSelection({ left: pair.left, right: pair.right });
+    setDroppedWithinRunBases(null);
+  }
+
   async function handleSaveReportPackage() {
     if (!model || !currentSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusy) return;
     const generation = ++reportPackageRequestGenerationRef.current;
@@ -2706,10 +2877,13 @@ export function useWorkspaceSession() {
       inputManifest,
       analysisRun,
       comparison,
+      comparisonUnavailable,
       projectSummary,
       ruleCheckAggregate,
+      ruleCheckRun: ruleCheckReportRun,
       privateIntent: reportPackagePrivateIntent
     } as const;
+    // Refs, because the awaited build and preparation outlive this render's closure.
     const isCurrent = () =>
       reportPackageRequestGenerationRef.current === generation &&
       reportPackageBusyGenerationRef.current === generation &&
@@ -2718,7 +2892,9 @@ export function useWorkspaceSession() {
       currentModel.current === basis.model &&
       currentSolvedResultRef.current === basis.result &&
       currentInputManifestRef.current === basis.inputManifest &&
-      analysisBasisRef.current.value === basis.analysisRun;
+      analysisBasisRef.current.value === basis.analysisRun &&
+      ruleCheckAggregateRef.current === basis.ruleCheckAggregate &&
+      ruleCheckReportRunRef.current === basis.ruleCheckRun;
     reportPackageBusyGenerationRef.current = generation;
     setReportPackageBusy(true);
     setReportPackageRoute(null);
@@ -2730,7 +2906,9 @@ export function useWorkspaceSession() {
         inputManifest: basis.inputManifest,
         projectSummary: basis.projectSummary,
         comparison: basis.comparison,
-        ruleCheckAggregate: basis.ruleCheckAggregate
+        comparisonUnavailable: basis.comparisonUnavailable,
+        ruleCheckAggregate: basis.ruleCheckAggregate,
+        ruleCheckRun: basis.ruleCheckRun
       });
       if (!isCurrent()) return;
       const controlled = controlReportPackageRequest(request, basis.privateIntent);
@@ -2742,11 +2920,19 @@ export function useWorkspaceSession() {
         });
         return;
       }
-      const saved = await saveReportPackage(controlled);
+      const prepared = await prepareReportPackageSave(controlled, basis.model, request, basis.inputManifest.manifest);
+      if (!isCurrent()) return;
+      if (prepared.route !== "ready") {
+        setReportPackageRoute(prepared);
+        return;
+      }
+      // The last guard runs inside the invocation, immediately before each send.
+      const saved = await invokeReportPackageSave(prepared, isCurrent);
       if (!isCurrent()) return;
       setReportPackageRoute(saved);
     } catch (error) {
-      if (!isCurrent()) return;
+      // A basis retired before a send: nothing was sent, and the newer basis owns the state.
+      if (error instanceof IngressRequestRetiredError || !isCurrent()) return;
       setReportPackageRedaction(null);
       setReportPackageRoute({
         route: "redaction_blocked",
@@ -2766,7 +2952,7 @@ export function useWorkspaceSession() {
   // viewport | inspector) is always present, so Insert commands arm the same
   // creation tools exposed in the command bar instead of acting as navigation.
   function runMenuCommand(command: MenuCommandId) {
-    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current) return;
+    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current) return;
     setOpenMenu(null);
     switch (command) {
       case "file.new-local":
@@ -2789,6 +2975,9 @@ export function useWorkspaceSession() {
         break;
       case "file.save-model-document":
         requestSaveModelDocument();
+        break;
+      case "file.save-handoff":
+        void requestSaveHandoff();
         break;
       case "file.save-report-package":
         setActiveSection("report");
@@ -3120,7 +3309,7 @@ export function useWorkspaceSession() {
   shellKeyHandlersRef.current = shellKeyHandlers;
   useEffect(() => {
     function handleShellAccelerator(event: KeyboardEvent) {
-      if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current) return;
+      if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current) return;
       if ((!event.metaKey && !event.ctrlKey) || event.altKey || event.defaultPrevented) return;
       const key = event.key.toLowerCase();
       if (key === "z") {
@@ -3218,7 +3407,7 @@ export function useWorkspaceSession() {
    * model-replacing commands, Open State and Save Model State start nothing then. */
   function projectSessionBusy(): boolean {
     return projectOperationOwner.current !== null || replacePromptOpenRef.current || projectUnitsDialogOpenRef.current
-      || modelDocumentSaveDialogOpenRef.current;
+      || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current;
   }
 
   async function saveLocalProjectFirst(): Promise<LandedProjectSave | null> {
@@ -3281,6 +3470,12 @@ export function useWorkspaceSession() {
       ruleCheckRunBasis,
       dormantOutputBasis,
       comparison,
+      comparisonUnavailable,
+      packagedWithinRun,
+      withinRun,
+      droppedWithinRunBases,
+      withinRunDisabledReason,
+      handleSelectWithinRunBases,
       proposal,
       selectedReviewTarget,
       solveJob,
@@ -3356,7 +3551,9 @@ export function useWorkspaceSession() {
       // W-12 S1: the saved model states of the session's project (History panel).
       history,
       requestSaveModelDocument,
-      modelDocumentSaveRequest
+      modelDocumentSaveRequest,
+      requestSaveHandoff,
+      handoffSaveRequest
     },
     chrome: {
       uiPreferences, setUiPreferences,

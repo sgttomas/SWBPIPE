@@ -43,12 +43,13 @@ FROZEN = {
     # T4-U6 (D-5): the regenerated producer envelopes (both section-basis families);
     # O4 (DEL-04-08 `o4-source-extension.md` §3.3): regenerated for limitation [7] only.
     # connected: silent-zero diagnostic added; no number moved (two LOAD_STATE_SOURCE_EXCLUDED warnings).
+    # W-7 global end rows added; no other number moved (connected +48 rows, pressure +24 rows).
     # W-15 (DEL-03-05): regenerated for the pressure-2 identity limitation (identity bytes only).
-    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "bd1f9c2151fe2e4f82495883c93eba13e9d8e243c101b2a2ec0bd89d469fea20",
-    "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "d9328cecfc7abd67189c4348f39554e8a4b8777e0a78886fe1ef2dbdd6e5b8b6",
+    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "39ad0082a313e042eb0c26bab499bf1ed6b364d5ce0e97cc85d9e8e7cc05a332",
+    "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "f576755134a8f487255b194d2c27ac51717b4a77de4301e4db79791392e6de32",
     "fixtures/product_preview/pressure/load_reference/pressure.request.json": "a187c0949ce6fad0f357f9439daf95b63886be582f95ebee4181d327da882eca",
-    "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "d7af490baa882d439a52d6b7d7fd71025eaf62bd2cc3d6192cdf320f23c5477e",
-    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "68bf29ba316b31095cd37f03029fccf8e59eb52d02b5f8a9380861dd2e257043",
+    "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "41d7afc0da0df6d6bcca598dc75bbbf28da8c1af4b643a262abcffb6dccce373",
+    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "b2a25f63d524bd11ddd8195dc6077843f768416b6663a310ed24f33effc3be1a",
     "fixtures/results/semantic_contract_v0_3_pressure_2.json": PRESSURE_CONTRACT_SHA256,
     "schemas/load_reference_state.schema.json": TRANSPORT_SCHEMA_SHA256,
 }

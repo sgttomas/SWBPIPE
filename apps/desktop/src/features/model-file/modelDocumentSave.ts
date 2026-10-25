@@ -403,10 +403,15 @@ export async function prepareModelDocumentSave(input: {
   modelHash: ModelHashEvidence | null;
   explicitLocalPrivateIntent: boolean;
   libraries?: LibraryResolution;
+  /** The governed local-private route of the save: `DOTH-MODEL-DOC-007` by
+   * default; File > Save Handoff… (W-6b) admits the same bytes under
+   * `DOTH-HANDOFF-PACKAGE-008`, with its own intent label. */
+  route?: { routeId: string; intentLabel: string };
 }): Promise<ModelDocumentSavePreparation> {
   const { model, modelHash } = input;
+  const routeId = input.route?.routeId ?? MODEL_DOCUMENT_SAVE_ROUTE_ID;
   if (input.explicitLocalPrivateIntent !== true) {
-    return refused(MODEL_DOC_SAVE_INTENT_REQUIRED, `Saving the model document needs the explicit choice "${MODEL_DOCUMENT_SAVE_INTENT_LABEL}".`);
+    return refused(MODEL_DOC_SAVE_INTENT_REQUIRED, `Saving the model document needs the explicit choice "${input.route?.intentLabel ?? MODEL_DOCUMENT_SAVE_INTENT_LABEL}".`);
   }
   if (!modelHash || modelHash.algorithm !== "sha256" || modelHash.canonicalization !== "rfc8785_jcs"
     || modelHash.payload_scope !== "model_payload" || !/^sha256:[0-9a-f]{64}$/.test(modelHash.value)) {
@@ -427,7 +432,7 @@ export async function prepareModelDocumentSave(input: {
   });
   if (dispositions.blocking.length > 0) return { status: "refused", diagnostics: dispositions.blocking };
   const controlled = controlRouteExport(model, {
-    routeId: MODEL_DOCUMENT_SAVE_ROUTE_ID,
+    routeId,
     exportContext: "local_private",
     explicitLocalPrivateIntent: true,
     requireLosslessMaterialization: true
@@ -436,11 +441,11 @@ export async function prepareModelDocumentSave(input: {
   if (!localFirst || controlled.blocked || controlled.payload === null) {
     const reason = localFirst?.blocked ? localFirst.reason_code : controlled.summary.materialization_withheld
       ? "CANONICAL_PAYLOAD_MATERIALIZATION_WITHHELD" : `${controlled.summary.blocking_count} blocking finding(s)`;
-    return refused(MODEL_DOC_SAVE_ROUTE_BLOCKED, `The ${MODEL_DOCUMENT_SAVE_ROUTE_ID} route control blocked the save (${reason}).`);
+    return refused(MODEL_DOC_SAVE_ROUTE_BLOCKED, `The ${routeId} route control blocked the save (${reason}).`);
   }
   const exact = sameJson(controlled.payload, model);
   if (!exact) {
-    return refused(MODEL_DOC_SAVE_ROUTE_BLOCKED, `The ${MODEL_DOCUMENT_SAVE_ROUTE_ID} route control changed the document (CANONICAL_PAYLOAD_MATERIALIZATION_CHANGED).`);
+    return refused(MODEL_DOC_SAVE_ROUTE_BLOCKED, `The ${routeId} route control changed the document (CANONICAL_PAYLOAD_MATERIALIZATION_CHANGED).`);
   }
   const canonicalText = await canonicalJsonString(model);
   // The hash of the very document screened, which is the hash of `canonicalText`.
@@ -457,7 +462,7 @@ export async function prepareModelDocumentSave(input: {
       canonicalText,
       claimedModelHash: modelHash.value,
       screening: {
-        route_id: MODEL_DOCUMENT_SAVE_ROUTE_ID,
+        route_id: routeId,
         export_context: "local_private",
         explicit_local_private_intent: true,
         blocked: false,

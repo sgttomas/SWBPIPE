@@ -587,14 +587,14 @@ const TABLE_BYTES: &[u8] = include_bytes!(
 );
 const INHERITED_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json");
-const TABLE_HASH: &str = "4da08f964605a5080b38c0ea9793731b33720070db001a4c7f1c4f9fbcaeb76f";
+const TABLE_HASH: &str = "d95e6acfe79f0e08d84fe7a6a71acbd18b38ff70809614227640ee0a0c16ff60";
 /// The exact successor's table (XTABLE) and its inherited pressure-2 table.
 const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
     "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
 );
 const PRESSURE_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json");
-const EXACT_TABLE_HASH: &str = "a0dac6244cfbb5b930e439d9d64a6eb45001d95271af6e8eb90939c7b3d323dd";
+const EXACT_TABLE_HASH: &str = "d6d86dfc418978257d1d3370684e879ba9711465ceba1de72729eb48bb12ad3c";
 /// RV78-N1's policies (B3D-8): the receipt values XTABLE's `receipt_bindings`
 /// binds from version 1, keyed by the receipt body's own paths.
 fn receipt_bindings() -> Value {
@@ -958,6 +958,13 @@ fn reduced_twin(row: &Value) -> bool {
 /// G7 recomputes them); never projected, never verified.
 fn derived_kind(row: &Value) -> bool {
     matches!(row["kind"].as_str(), Some("element_local_normal_stress_extreme" | "element_local_transverse_shear_stress_maximum"))
+}
+/// GLOBAL_END_ROWS_NOT_COVERED (W-7, DEL-04-01 Design `global-end-actions.md`): a W1
+/// successor carries its members' global end rows as recipe-free `not_covered` rows, each
+/// the rotation of its member's own successor end rows (the base read checks them); never
+/// projected, never verified.
+fn global_end_kind(row: &Value) -> bool {
+    row["kind"].as_str().is_some_and(crate::global_end_evidence::is_kind)
 }
 /// The receipt's row universe of a case or combination entry: its rows, less
 /// the reduced-section twins (`rows_all_for` keeps them). O4 (DEL-04-08 Design
@@ -3667,6 +3674,8 @@ fn row_kind(r: &Value) -> &'static str {
         }
         // T4-U4b §4.1 (REQ-001 "every other row kind"): explicitly not covered.
         "element_local_normal_stress_extreme" | "element_local_transverse_shear_stress_maximum" => "not_covered",
+        // W-7: GLOBAL_END_ROWS_NOT_COVERED.
+        "element_global_end_force_v1" | "element_global_end_moment_v1" => "not_covered",
         _ => "not_covered",
     }
 }
@@ -3689,6 +3698,7 @@ fn owner_projected(owner: &Value, r: &Value, s:Option<&Value>,route_l:bool) -> b
 fn hull_projected(r: &Value) -> bool {
     row_kind(r) != "non_quantity"
         && !derived_kind(r)
+        && !global_end_kind(r)
         && !matches!(
             text(&r["kind"]),
             "support_reaction_force_magnitude_v2"

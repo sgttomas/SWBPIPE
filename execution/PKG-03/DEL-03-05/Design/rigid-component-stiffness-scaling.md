@@ -234,6 +234,13 @@ mapping-conflict check are pricing inputs, to be priced or bounded in the
 registration, not assumed free. The registration must still show every priced
 phase fits M = 12 GiB; a misfit stops for the owner (decision 22).
 
+D3 prices this in DEL-04-08 `Design/retained-pricing-rules.md` §8.21: the
+predicate's member maps and the readers' component-body working set are priced
+positively (W15-PM, W15-RB), the scaled-member path is zero on D1 by its premise
+(no admitted component), P_FINAL is unchanged, and all 80 evaluations fit M,
+the tightest at +2,364,000,893 B (merged dense W3). The AC-004 stack-headroom
+witnesses are a separate exclusive-lane run.
+
 ## 3. Component weight and centre of gravity (slice b)
 
 The component's weight W (a force) acts at its centre of gravity. The

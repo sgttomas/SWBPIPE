@@ -1,3 +1,4 @@
+import type { PreviewComparisonUnavailable } from "../comparison/withinRunComparison";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewComparison, PreviewModel } from "../../types";
 
 const PROFESSIONAL_BOUNDARY = {
@@ -199,12 +200,17 @@ export function buildStateComparisonHandoffSections({
   result,
   analysisRun,
   comparison,
+  comparisonUnavailable = null,
   modelHash
 }: {
   model: PreviewModel;
   result: MechanicsResult;
   analysisRun: AnalysisRunEnvelope;
   comparison: PreviewComparison | null;
+  /** W-12 S3c: a chosen within-run comparison the builder refused. It is carried
+   * beside the sections (not as a section, which the DEL-08-06 assembler's contract
+   * does not hold), and only when present, so other records are unchanged. */
+  comparisonUnavailable?: PreviewComparisonUnavailable | null;
   modelHash: string;
 }) {
   const stateRunSections = stableSort([
@@ -229,6 +235,7 @@ export function buildStateComparisonHandoffSections({
       comparison_sections: comparisonSections,
       handoff_sections: handoffSections
     },
+    ...(comparisonUnavailable ? { comparison_unavailable: comparisonUnavailable } : {}),
     sow_024_coverage: {
       inputs: "represented_by_state_run_and_handoff_references",
       sources: "represented_by_source_provenance_and_source_notes",

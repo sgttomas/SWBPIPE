@@ -143,6 +143,18 @@ if U6_D5:
     CENSUS["json"] = os.path.join(os.path.dirname(H), "data", "census_u4b_7c77bf8072.json")
     if json.load(open(CENSUS["json"]))["rows_per_member"] != 51 + 21 + 30:
         raise SystemExit("U6-RP: the U4b census no longer measures 102 rows per member; re-review")
+    # W7-RP (W-7, DEL-04-01 Design global-end-actions.md; retained-pricing-rules.md §8.20): the census is taken on the
+    # pressure-source-1 producer fixtures, which omit the global end rows by the named rule `global_end_rows_published`
+    # (a source-recovery publication); route E's ordinary pressure-2 envelope carries them on every run, twelve per
+    # member and case, so route E's P_final and R0 take 102 + 12 = 114 rows per member. Guard: the rule and the producer
+    # call are read at the snapshot (w7_owners_model).
+    _W7 = runpy.run_path(os.path.join(os.path.dirname(H), "base", "w7_owners_model.py"))
+    if _W7["inspect"](os.environ["SQ2_SNAP"]):
+        _lib = open(os.path.join(os.environ["SQ2_SNAP"], "core/product_physics/src/lib.rs"), encoding="utf-8").read()
+        if (_lib.count("fn global_end_rows_published(source_selected: bool) -> bool {\n    !source_selected\n}") != 1
+                or _lib.count("if global_end_rows_published(selected_source.is_some()) && !has_blocking(diagnostics) {") != 1):
+            raise SystemExit("W7-RP: the global end rows' publication rule changed; re-review route E's rows per member")
+        CENSUS["global_end_rows_per_member"] = 12
 # ---- route E batch 2: B3b's exact loops (PP W1, RS reader, RE physics-1 base validator) and the identifier audit
 NEW.update({
     'for v in assembly[key].as_array().ok_or(" ")?': ("N", "PP retained_product.rs exact_case_evidence: one assembled pressure RHS vector (6n entries; the producer's own evidence)"),
@@ -184,8 +196,12 @@ def _composite_exact_line(text):
     if len(hits) != 1:
         raise SystemExit(f"U6-K: {text!r} in composite_exact: {hits}")
     return Resolved(C_ + str(hits[0]))
-_U6_COMPOSITE = any("section_basis_row(ResultItem{id:format!(" in l for l in _C_LINES)
-_C781 = _composite_exact_line("let row = section_basis_row(ResultItem{id:format!(") if _U6_COMPOSITE else C_ + "781"
+# W-15 D3 (§8.21): the maximum row names `component_body:None` first; either spelling selects the D-5 composite, so the
+# W-15 source never falls back to the historical line keys.
+_U6_ROW = next((t for t in ("section_basis_row(ResultItem{component_body:None,id:format!(", "section_basis_row(ResultItem{id:format!(")
+                if any(t in l for l in _C_LINES)), None)
+_U6_COMPOSITE = _U6_ROW is not None
+_C781 = _composite_exact_line("let row = " + _U6_ROW) if _U6_COMPOSITE else C_ + "781"
 _C798 = (_composite_exact_line('),kind:"pipe_elastic_normal_stress_maximum_v2".into(),value:maximum.value_pa(),unit:"Pa".into(),entity_ref:id.clone(),')
          if _U6_COMPOSITE else C_ + "798")
 ID_AUDIT = ID_AUDIT + [

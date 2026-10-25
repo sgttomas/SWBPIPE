@@ -4,7 +4,7 @@ import { numericalHealthHold, numericalHealthView, readNumericalHealth, type Num
 import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
 import { useMemo, useRef, useState } from "react";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
-import { buildPreviewComparison, hasNativeMechanicsInvocation } from "../../services/previewService";
+import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import type { PreviewSolverMode } from "../../services/previewService";
 import type { ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
 import type { RuleCheckStatus } from "../../services/ruleCheckService";
@@ -20,6 +20,14 @@ import type { ControlledRouteExport } from "../redaction-controls/redactionExpor
 import type { HistoricalRunContext } from "../results/HistoricalRunContext";
 import { RuleRevisionGenerationGate, SolveRunGenerationGate } from "./solveGates";
 import { initialSolveJob } from "./solveJobAudit";
+import {
+  droppedBases,
+  fixedPairComparison,
+  packagedComparison,
+  resolveWithinRun,
+  withinRunBasisOptions,
+  type HeldWithinRunSelection
+} from "../comparison/withinRunComparison";
 import type { SolveProofEvidence } from "./solveProof";
 
 /**
@@ -61,9 +69,11 @@ export function currentRequirementsExceptNumericalEligibility({ result, analysis
  * render-time bumps; the rule-check aggregate; the proposal and the selected
  * review target, which are review context cleared and saved with the results;
  * the solve job, the solve proof, the running flag and the solver mode; the
- * report-package cells and refs; the two generation gates; the current-result
- * and current-manifest refs with their render-time assignments; the active
- * solve job, the cancellation tombstones and the comparison. It declares no
+ * report-package cells and refs; the two generation gates; the current-result,
+ * current-manifest, rule-check aggregate and rule-check run refs with their
+ * render-time assignments; the active
+ * solve job, the cancellation tombstones, the comparison and the "Within this
+ * run" choice (W-12 S3c) with its view. It declares no
  * effect and no handler.
  *
  * Called only by the session, which is `useWorkspaceSession` in
@@ -118,6 +128,12 @@ export function useResultsSessionState() {
     heldRuleCheckRun && ruleCheckAggregate !== null && heldRuleCheckRun.result.aggregate_status === ruleCheckAggregate
       ? heldRuleCheckRun
       : null;
+  // Render-time refs of the aggregate and the exposed run, for a stale-work guard
+  // whose awaited build outlives the render closure (the report-package save).
+  const ruleCheckAggregateRef = useRef<RuleCheckStatus | null>(null);
+  const ruleCheckReportRunRef = useRef<SessionRuleCheckRun | null>(null);
+  ruleCheckAggregateRef.current = ruleCheckAggregate;
+  ruleCheckReportRunRef.current = ruleCheckReportRun;
   const [proposal, setProposal] = useState<AgentProposal | null>(null);
   const [selectedReviewTarget, setSelectedReviewTarget] = useState<SelectedReviewTarget | null>(null);
   const [solveJob, setSolveJob] = useState<SolveJobAuditState>(() => initialSolveJob());
@@ -145,10 +161,37 @@ export function useResultsSessionState() {
     requested: boolean;
     dispatched: boolean;
   }>());
-  const comparison = useMemo(
-    () => (currentSolvedResult && analysisRun ? buildPreviewComparison({ result: currentSolvedResult, analysisRun }) : null),
-    [analysisRun, currentSolvedResult]
+  // The fixed pair's comparison (or its refusal record): what the packages carry
+  // without a choice, exactly as before S3c.
+  const fixedPair = useMemo(() => fixedPairComparison(currentSolvedResult, analysisRun), [analysisRun, currentSolvedResult]);
+  // "Within this run" (W-12 S3c): the user's load case and combination. The choice
+  // stays across solves, edits and replacements and is revalidated against each
+  // Current run; when that run does not offer one of its bases, it is dropped here,
+  // in the render that first shows the run, and the dropped bases are named until
+  // the next choice (never silently carried or reset).
+  const [heldWithinRunSelection, setHeldWithinRunSelection] = useState<HeldWithinRunSelection | null>(null);
+  const [droppedWithinRunBases, setDroppedWithinRunBases] = useState<string[] | null>(null);
+  const solvedModel = inputManifest?.manifest.model_basis.model_payload ?? null;
+  const withinRunOptions = useMemo(
+    () => (currentSolvedResult && analysisRun ? withinRunBasisOptions(currentSolvedResult, solvedModel) : null),
+    [analysisRun, currentSolvedResult, solvedModel]
   );
+  const dropped = heldWithinRunSelection && withinRunOptions ? droppedBases(heldWithinRunSelection, withinRunOptions) : [];
+  if (dropped.length > 0) {
+    setHeldWithinRunSelection(null);
+    setDroppedWithinRunBases(dropped);
+  }
+  const heldForRun = dropped.length > 0 ? null : heldWithinRunSelection;
+  const resolvedWithinRun = useMemo(
+    () => resolveWithinRun({ result: currentSolvedResult, analysisRun, options: withinRunOptions, held: heldForRun, fixedPair }),
+    [analysisRun, currentSolvedResult, fixedPair, heldForRun, withinRunOptions]
+  );
+  const withinRun = resolvedWithinRun.view;
+  // The report, handoff and export packages: the choice's comparison (or its
+  // refusal record) when a choice applies, else the fixed pair's, as before.
+  const packagedWithinRun = packagedComparison(resolvedWithinRun, fixedPair);
+  const comparison = packagedWithinRun?.comparison ?? null;
+  const comparisonUnavailable = packagedWithinRun?.unavailable ?? null;
   return {
     result, setResult,
     historicalRun, setHistoricalRun,
@@ -164,6 +207,7 @@ export function useResultsSessionState() {
     inputManifest, setInputManifest,
     ruleCheckAggregate, setRuleCheckAggregate,
     ruleCheckReportRun, heldRuleCheckRun, setRuleCheckReportRun,
+    ruleCheckAggregateRef, ruleCheckReportRunRef,
     proposal, setProposal,
     selectedReviewTarget, setSelectedReviewTarget,
     solveJob, setSolveJob,
@@ -182,6 +226,12 @@ export function useResultsSessionState() {
     currentInputManifestRef,
     activeSolveJob,
     solveCancellationTombstones,
-    comparison
+    comparison,
+    comparisonUnavailable,
+    packagedWithinRun,
+    withinRun,
+    droppedWithinRunBases: withinRunOptions ? droppedWithinRunBases : null,
+    setHeldWithinRunSelection,
+    setDroppedWithinRunBases
   };
 }
