@@ -1,193 +1,324 @@
 # Load combinations on the exact route
 
 This design admits model-authored load combinations on the exact pressure
-route (EX, `3.0.0/exact_pressure_v3`), for FR-SOL-009. Today EX refuses every
-combination by name (`core/product_physics/src/pressure_runtime.rs` ~337-343;
-`exact_admission.rs` `ExactFamily::Combination`), while the pressure-free route
-(PF) evaluates them through `core/loads/load_case_algebra`. It is W-16 slice b
-in `docs/COMPLETENESS_MAP.md` §4.3.
+route (EX, `3.0.0/exact_pressure_v3`) for FR-SOL-009 (PRD ~518). The PRD
+defines combinations and ranges over primitive solved cases.
+
+Today EX refuses every combination by name (PP `pressure_runtime.rs` ~337-343;
+`exact_admission.rs` `ExactFamily::Combination`). The pressure-free route (PF)
+already evaluates combinations through `core/loads/load_case_algebra`. This is
+W-16 slice b in `docs/COMPLETENESS_MAP.md` §4.3.
 
 Paths are relative to `projects/chirality-piping/`. PP is
-`core/product_physics/src`.
+`core/product_physics/src`; RE is `core/reporting/result_export/src`.
 
-## 1. Scope and inputs
+## 1. Inputs
 
-The input is the model's existing `combinations`, in the closed records #1573
-introduced (DEL-04-07 `Design/pressure-contract.md` ~122-167). It has three
-bases: `mechanics` (a linear combination), `result_state_subtraction` and
-`range_envelope`. Each is evaluated by the same `load_case_algebra` functions
-PF uses: `linear_combination` (one exact sum of exact products, rounded once),
-`subtract` and `range_envelope`.
+The input is the model's existing `combinations`, in the closed records of
+#1573 (DEL-04-07 `Design/pressure-contract.md` ~122-167). There are three bases:
+- `mechanics`: a linear combination over primitive load cases;
+- `result_state_subtraction`;
+- `range_envelope`: over primitive load cases, with its mode.
 
-Every #1573 validation and refusal code applies unchanged on EX:
-- `LOAD_COMBINATION_BASIS_UNSUPPORTED`, `_SHAPE_INVALID`,
-  `_LOAD_CASE_UNKNOWN`, `_TERMS_EMPTY`, `_FACTOR_INVALID`,
-  `_RANGE_MODE_UNKNOWN`, `_OPERANDS_EMPTY`;
-- `LOAD_COMBINATION_DUPLICATE_TERM`;
-- `LOAD_COMBINATION_SOURCE_RESULT_MISSING`;
-- `LOAD_COMBINATION_ROW_WITHHELD`.
+Operands are primitive load-case ids, as they are today (PP `validation.rs`
+~1973-1989, ~2142-2176). A combination cannot be an operand.
 
-`UNKNOWN_MODEL_FIELD` keeps refusing undeclared keys. No new input key is
-added.
+Each basis is evaluated by the same `load_case_algebra` functions PF uses. The
+dimension helper (PP `lib.rs` ~14241-14248) gains Pa, the unit of pressure-family
+stresses, and m for connector displacements.
 
-## 2. Which rows combine
+Every #1573 code applies unchanged on EX: the `LOAD_COMBINATION_*` validation
+codes, `LOAD_COMBINATION_DUPLICATE_TERM` (once per repeated case),
+`LOAD_COMBINATION_SOURCE_RESULT_MISSING` (including the first operand), and
+`LOAD_COMBINATION_ROW_WITHHELD`. `UNKNOWN_MODEL_FIELD` still applies. No input
+key is added.
 
-The pressure-2 semantic table already classifies every row kind by
-`combination_algebra` (DEL-04-07 `u4b-u5b-implementation.md` §2.7):
-- **`signed_linear` rows** (81 kinds) combine directly as matching signed
-  quantities. They include displacements, rotations, section resultants,
-  signed stress components, torsional shear, the pressure-family forces (wall
-  force, effective force S) and stresses (membrane, Lamé hoop and radial),
-  support components and connector generalized actions. Lamé hoop and radial
-  stress are linear in p for a fixed annulus, and pressure stiffening is not
-  modelled (`exact_admission.rs` ~95), so their sum is the stress of the
-  summed pressure state.
-- **`recomputed_from_combined` rows** (3 kinds: the displacement and support
-  magnitudes) are formed from the combination's own components, never summed.
-  A range envelope keeps its per-row selection, as on PF.
-- **`never_combined` rows** (45 kinds: every maximum, extreme and headline
-  row, the shear maximum, intensified rows, nonlinear rows) are not published
-  for a combination. As on PF, `COMBINATION_STRESS_MAXIMUM_UNAVAILABLE` says
-  so.
+## 2. Mechanics of a combined row
+
+EX is linear in its resolved loads and eigenstrains for a fixed stiffness and
+reference state:
+- **Straight pressure recovery** is linear in mechanical force and pressure:
+  N_w = N_m + 2νpAᵢ and S = N_m + (2ν − 1)pAᵢ (PP
+  `pressure_exact/source_geometry.rs` ~346-375).
+- **Membrane stress** is linear on each basis area (~396-403).
+- **Thermal and pressure-Poisson loads** are additive, with no product term
+  (PP `pressure_exact.rs` ~310-330).
+- **Closure transfer** selects a linear cap load (PP `pressure_runtime.rs`
+  ~864-890).
+- **Realized bends** are pressure-linear (PP `bend_pressure.rs` ~4-20).
+- **Toroidal hoop and radial stress** are pressure-linear at fixed admissible
+  geometry.
+
+The linearity is in resolved loads, not necessarily in authored temperatures or
+reference-state parameters. A load-state strain composition can contain a
+fit/thermal product (DEL-04-01 `kd5-member-relative-bound.md` ~98), which is
+resolved per case before the solve.
+
+The pressure-2 table classifies each row signature by `combination_algebra`
+(DEL-04-07 `u4b-u5b-implementation.md` §2.7). The reviewed table has these
+counts:
+- 87 `signed_linear` signatures (39 kinds), combined directly as matching
+  signed quantities;
+- 3 `recomputed_from_combined` signatures (3 kinds), formed from the
+  combination's own components. A range envelope keeps its per-row selection,
+  as on PF.
+- 45 `never_combined` signatures (26 kinds), not published for a combination.
+  The one exception is the combination's own modulus-basis record, as on PF
+  (§2.7). `COMBINATION_STRESS_MAXIMUM_UNAVAILABLE` says so.
+
+Headlines and maxima stay primitive-case only.
 
 **Section bases.** A row combines only with the same row on the same section
-basis. Nominal twins combine with nominal twins, and reduced twins with
-reduced. A combination publishes both bases' twins where its operands do.
+basis. Combination stress metadata keeps the section-basis suffixes; PF's
+generic metadata replacement is not used for these rows.
 
-**Pairing.** EX pressure rows are `_v2` and carry their case id inside the row
-id (PP `u4b_rows.rs` ~441), so PF's base-id index would never pair them.
-Combination pairing on EX uses a structural key: the row id with its case-id
-component removed. That leaves kind, member, station, section basis and
-component.
+## 3. Pairing operands
 
-**An operand with no row for a key.** A pipe pressurized in one operand may be
-outside every region in another. That operand then has no pressure rows for
-the pipe. The design treats this as an exact zero only when the pipe is
-published in that operand's solved case and lies in none of that case's
-pressure regions. A pressure-family row there is structurally zero, because no
-pressure term acts on the member. Any other absence is a missing source, and
-`LOAD_COMBINATION_SOURCE_RESULT_MISSING` withholds the combination, as #1573
-specifies.
+Rows are paired by a typed structural key built from the rows' structured
+fields. Row-id strings are never parsed. The key is:
+- kind and unit;
+- the entity references: member, connector, tie-rod (rod identity included),
+  support or node;
+- station and frame;
+- component and section basis.
 
-## 3. Gates
+A row family whose rows lack a field needed for its key is not combined. Each
+withheld row is named by `LOAD_COMBINATION_ROW_WITHHELD`, never silently
+dropped. Tests cover non-default cases with pressurized arcs, whose `_v1`
+toroidal rows already carry the case in their base id (PP `u4b_rows.rs`
+~37-38, ~279-285, ~419-441), and ids rich in delimiters.
 
-The PF mechanics gates apply to EX combinations in the same precedence order,
-where the conditions can arise. `NONLINEAR_COMBINATION_REQUIRES_SOLVE` and
-`CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` cannot arise there, because EX
-refuses nonlinear and constant-effort supports.
+When one operand lacks a pressure-family row, a pipe pressurized in one operand
+may lie outside every region in another. For such a member, the operand's
+values are recovered from the formulas, with p = 0, as follows:
+- **Pressure-only quantities** (Lamé hoop and radial, toroidal hoop and
+  radial) are exactly zero.
+- **Total quantities** are taken from the operand's mechanical axial force N_m:
+  N_w = N_m, S = N_m and the membrane σ_m,b = N_m / A_b, all from the same
+  operand's published element axial force on that member.
 
-`COMBINATION_MODULUS_BASIS_MIXED` applies to EX, and one gate is added,
-`COMBINATION_RESOLVED_STIFFNESS_MIXED`. It withholds a combination whose
-operands were solved with different resolved member stiffness:
-- a member's selected E/ν pair differs between operands;
-- or its section bases, shear model or Timoshenko shear area differ.
+A member qualifies only when it is published in that operand's solved case
+and is validated, by the case's region membership, as lying in none of its
+pressure regions. Each recovered operand value is recorded in the
+combination's evidence with its provenance, `pressure_free_operand_recovery`.
 
-This can happen on a load/reference-state document with per-case material
-selection. A combination of states solved against different stiffness is not
-the response of one linear system. The gate follows the modulus-basis
-precedent.
+Every other absence is a missing source. This covers:
+- a toroidal domain withheld (PP `u4b_rows.rs` ~313-339);
+- a recovery failure (PP `lib.rs` ~12719-12731, ~12835-12843);
+- a span replaced by a connector;
+- a withheld support group.
 
-## 4. Standing and certification
+As on PF (`preview_physics.rs` ~936-979), the affected row is omitted under
+`LOAD_COMBINATION_SOURCE_RESULT_MISSING` and `LOAD_COMBINATION_ROW_WITHHELD`,
+and the other rows publish. Support groups still publish whole or not at all
+(~987-1049).
 
-Each EX operand is certified against its own intended system. A combination
-has no combination-level enclosure. A combination result therefore:
-- carries no certified status of its own;
-- has a standing equal to the weakest of its operands' standings;
-- is labelled as derived from its operands.
+## 4. Gates (mechanics basis only)
 
-Product text says its rows are "combined from certified case results", never
-"certified". This follows the existing precedent that a source-blocks envelope
-containing any combination is `SOURCE_BLOCKS_ENVELOPE_UNQUALIFIED`
-(`result_export/src/reader_verdict.rs` ~366-370) and K-D5 R5's
-"established", not "certified".
+The gates apply to `mechanics` combinations only, as on PF (~799-819).
+Subtraction and envelopes compare states and may legitimately span different
+stiffness.
 
-A subtraction keeps PF's `SUBTRACTION_SIGN` meaning, "not an equilibrium
-state". A range envelope keeps its row-envelope meaning.
+In precedence order:
+1. **`COMBINATION_MODULUS_BASIS_MIXED`**, as today.
+2. **`COMBINATION_RESOLVED_STIFFNESS_MIXED`** (new). Some member's resolved
+   stiffness differs between operands:
+   - its selected E/ν, or its operating or property temperature selection;
+   - its section bases, shear model or Timoshenko shear area;
+   - its W-15 effective stiffness scale.
 
-## 5. Publication and contract
+   Load-state documents resolve materials per member and case (PP
+   `case_state/material.rs` ~13-56). The old modulus key describes only the
+   legacy selector (PP `lib.rs` ~10534-10576).
+3. **`COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE`** (new). The model has a
+   connector or tie rod with a nonzero installed reference (q_ref, or the
+   rod's reference extension), and |Σfᵢ − 1| > 64·ε·max(1, Σ|fᵢ|). A
+   connector's action is K(q − q_ref) (PP `lib.rs` ~4516-4520; rod at
+   `joint.rs` ~988). Summing two cases sums their reference loads, so only a
+   unit factor sum leaves the combination the state of the original system.
+   This follows the constant-effort precedent.
 
-`contract_evidence` gains `exact_combinations` (closed): one record per
-combination. Each record holds:
-- the combination id and basis;
-- the terms (case id and factor) or the operands;
-- each operand's standing and the combination's derived standing;
+`NONLINEAR_COMBINATION_REQUIRES_SOLVE` and
+`CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` cannot arise on EX, which refuses
+those supports.
+
+Pressure regions, closure transfer, reference eigenstrains and prescribed
+boundary motion may differ between operands. They are right-hand-side
+contributions to the same K. Boundary motion combines through both f and the
+prescribed values g, on already restrained rigid DOFs (PP
+`case_state/resolve.rs` ~1050-1085). A combined right-hand side is not claimed
+to correspond to one authorable pressure-region topology.
+
+## 5. Standing and wording
+
+A combination has no numerical check of its own:
+- **Product text.** It says its rows are "derived from case results". It
+  never says "certified" (DEL-04-01 `kd5-nonlinear-active-set.md` R5
+  ~259-264; `docs/claims_registry.md` ~143-162).
+- **Operand findings.** The combination's evidence reports each operand's
+  actual numerical findings and standing, including fallback or non-passing
+  cases.
+- **Reader eligibility.** Combination rows are derived inspection results.
+  They never count towards a document's numerical-eligibility verdict, which
+  stays based on primitive cases (RE `reader_verdict.rs` ~391-415;
+  `semantic_contract.rs` ~910-945). An envelope of source blocks containing a
+  combination stays `SOURCE_BLOCKS_ENVELOPE_UNQUALIFIED` (~366-370).
+
+A derived enclosure, rounded up from Σ|fᵢ|·rᵢ plus δ_publication, would be
+needed for numerical eligibility. It is not part of this slice.
+
+A subtraction keeps `SUBTRACTION_SIGN`, meaning it is not an equilibrium state.
+A range envelope keeps its row-envelope meaning.
+
+## 6. Contract and readers
+
+**`contract_evidence.exact_combinations`** (closed; omitted when the document
+has no combination, so existing bytes hold) has one record per combination:
+- id and basis;
+- the complete expression: terms (case id and factor), the subtraction's
+  minuend and subtrahend, or the envelope's operands and mode;
+- per operand: its standing and numerical findings;
 - the gate outcome;
-- the pairing outcome (paired rows, structural zeros used, withheld rows).
+- the expected published rows, with their operand source rows;
+- the `pressure_free_operand_recovery` witnesses;
+- the withheld rows with reasons;
+- the source-recovery exclusion (§7).
 
-`results_pressure_2.v0.3.schema.json`'s closed `PressureContractEvidence`
-gains the member. The pressure-2 table gains a `combination_policy` modelled
-on preview-physics-2's (policy id `PRESSURE-2-COMBINATION-v1`), with:
-- the gates of §3;
-- the pairing rule of §2;
-- the standing rule of §4.
+The raw reference token for a combination row stays `combination` (PP
+`preview_physics.rs` ~843).
 
-The derived tables and pins are regenerated with `semantic_contract_tables.py`,
-and the checksum-bearing carriers with their own writers.
+**Schemas:**
+- `results_pressure_2.v0.3.schema.json`: `PressureContractEvidence`
+  (~1786-1819) gains the closed member. The combination stress metadata keeps
+  the basis suffixes (~1937-1970).
+- `results.v0.3.schema.yaml`: pressure references, metadata and identity
+  constants, and pins.
+- `stress_neutral_export.v0.3.schema.json`: the pressure evidence reference
+  (~3982) and pins.
+- `analysis_run.v0.3.schema.json`: pins only.
 
-**Readers.** The model-bound readers re-derive every combination row from its
-operand rows, using the policy:
-- `physics_evidence.rs` admits `ref_type == "load_combination"` alongside
-  `load_case`;
-- `load_reference.rs` handles combinations on load-state documents;
-- `tools/validation/qualification_exact_pressure.py` already accepts
-  `combination`;
-- the Python verifiers mirror the Rust readers.
+No input record changes. No combination `LoadReferenceStateRecord` is created.
+The retained and source receipt schemas are not broadened.
 
-## 6. Text that changes
+**Semantic tables:**
+- **Pressure-2 table.** Its limitation "Direct load cases only; derived
+  combinations and state differences are unsupported." (~2284) is replaced by
+  this design's statement. It gains `combination_policy` (policy id
+  `PRESSURE-2-COMBINATION-v1`) with the gates, pairing, recovery and standing
+  rules. `semantic_contract_tables.py` does not inherit `combination_policy`
+  (~70-82), so the member is authored there and its inheritance is decided
+  explicitly.
+- **physics-retained-1 and pressure-source-1.** Text and pins are reconciled,
+  and their families keep refusing.
 
-- **The identity sentence** in `exact_admission.rs` ~83-85, "Every other
-  component, support, combination or equivalent-static family is refused by
-  name", loses "combination". About 98 files carry it, including fixtures,
-  desktop twins, the `schemas/results.v0.3.schema.yaml` `const` and
-  `source_receipt/pressure_source_context_tests.rs`. They are regenerated by
-  their writers. W-15 (#1604) also edits this sentence. This slice lands after
-  it and takes in its text.
-- **The retained ruling-4 premise** (`retained_memory.rs` ~913-918) says EX
-  combinations are refused "which the ordinary route also blocks". It is
-  restated: the retained exact route still refuses combinations, and the
-  ordinary exact route now evaluates them. The retained refusal itself is
-  unchanged.
-- **DEL-05-02 ScopeOfWork** ~77, "the exact pressure route refuses a
-  combination by name", goes through the owner's wording grant.
+**Readers** (Rust and their Python mirrors):
+- A direct-case pass first validates the operands as today.
+- A separate combination pass, bound to the model, then re-derives every
+  combination row from the complete expression, the validated operand rows
+  and the model's region and stiffness facts. It compares complete coverage:
+  extras, omissions, provenance, recovery witnesses, gates, standing and
+  withheld reasons. A forgery of any of these is refused.
 
-## 7. What stays refused
+Surfaces:
+- Rust: RE `physics_evidence.rs` (direct derivation refs stay refused;
+  combinations go through the new pass), `load_reference.rs` (closed keys
+  ~56-61, projection ~600-615), `connector_evidence.rs`, `section_basis.rs`,
+  `u4b_evidence.rs`, `global_end_evidence.rs`, `reader_verdict.rs`,
+  `semantic_contract.rs`.
+- Python: `tests/verifiers/pressure_2.py`, `physics_evidence.py`,
+  `load_reference_evidence.py`, and the section and U4b helpers.
+- `tools/validation/qualification_exact_pressure.py`: its input binding
+  (~725-731) learns combination rows.
+- W-15's `component_body` record (#1604) is carried on body stress rows
+  across combinations, with consistent records, and its rule-input restriction
+  is preserved.
 
-- **Retained exact route.** Combinations stay refused there
-  (`retained_memory.rs` ~916-918).
-- **Source recovery.** `source_eligible` requires no combinations (PP
-  `lib.rs` ~1348-1350). An EX model with a combination therefore loses
-  retained-source recovery for the whole document, as a PF model already does.
-  This is disclosed in the combination's evidence record. The design does not
-  extend source recovery to combinations.
-- **`equivalent_static` on EX** is slice c.
+## 7. Text, refusals that remain, and the source-recovery exclusion
+
+**Text that changes:**
+- **The identity sentence** (PP `exact_admission.rs` ~83-85) loses
+  "combination". About 98 files carry it, and they are regenerated by their
+  writers. W-15 (#1604) also edits this sentence; this slice follows it and
+  takes in its text.
+- **DEL-04-07 `pressure-contract.md`** ~7 changes.
+- **The retained ruling-4 premise** (`retained_memory.rs` ~913-918) becomes:
+  "the retained exact route refuses combinations; the ordinary exact route
+  evaluates them". The refusal itself is unchanged.
+- **Completeness map:** ~120, ~182 and the FR-SOL-009 row.
+- **DEL-05-02 ScopeOfWork:77**, through the owner's wording grant. The old
+  row is: "| Product use | The product preview route evaluates model-authored
+  `combinations` (bases `mechanics`, `result_state_subtraction` and
+  `range_envelope`) through this crate; the exact pressure route refuses a
+  combination by name. | Implemented in DEL-04-07's `core/product_physics` |".
+- No acceptance criterion changes. DEL-05-02 AC-001 and DEL-04-08's retained
+  and source exclusions stay.
+
+**Still refused:** the retained exact route keeps refusing combinations (~916);
+`equivalent_static` on EX is slice c.
+
+**Source recovery.** `source_eligible` requires no combinations (PP `lib.rs`
+~1343-1349). An EX document with any combination therefore loses
+retained-source recovery for all its cases, including its primitive cases. PF
+never attempts source recovery, because it fails the exact condition. The
+combination evidence and the user-facing diagnostic both state this exclusion.
 
 ## 8. Verification
 
-- **Independent references** under `validation/references/w16_exact_combinations/`,
-  from an exact-rational generator that runs no product code. Cases:
-  - **Pressure and force.** An invented two-case EX model: case A has pressure
-    on member 1 only and case B a tip force. Checks a linear combination
-    1.0·A + 1.3·B on both bases (Lamé hoop and radial, membrane, wall force,
-    displacements, reactions), and the structural zero for member 2's pressure
-    rows in A.
-  - **Subtraction.** A − B.
-  - **Range envelope.** Over A, B and A + B.
-  - **Load-state document.** A two-case document with equal resolved
-    stiffness that combines, and one with differing E/ν that is withheld by
-    `COMBINATION_RESOLVED_STIFFNESS_MIXED`.
-- **Route parity** with PF on a pressure-free EX model, for the force rows.
-- **Negatives:** every #1573 code on EX, the missing-source case that is not a
-  structural zero, mismatched bases and a forged combination row through the
-  readers.
-- **Byte identity.** Every EX document without a combination is unchanged
-  except for the identity-sentence text and its pins.
+**Independent references** go in `validation/references/w16_exact_combinations/`.
+They come from an exact-rational generator that runs no product code and has a
+documented independent π treatment. Exact algebra checks use the represented
+binary64 factors.
+
+**Closed form.** A straight, closed-ended cantilever has P = p·A_i,r (the
+reduced bore), nominal area Aₙ, length L and tip force F:
+- u_A = (1 − 2ν)PL/(E·Aₙ) and u_B = FL/(E·Aₙ);
+- for A + cB: N_w = P + cF, S = cF and σ_m,b = (P + cF)/A_b;
+- R_x = −cF.
+
+The Lamé stresses on each basis b use C_b = p·r_i,b²/(r_o² − r_i,b²),
+σ_θ = C_b(1 + r_o²/r²) and σ_r = C_b(1 − r_o²/r²). Serial members add their
+axial compliances.
+
+**Cases:**
+- **Pressure and axial force.** A pressurized member 1 and an unpressurized
+  member 2. Case A has pressure. Case B has axial force on both members and
+  pressure on member 2 only. The case checks:
+  - pairing against existing member-2 pressure keys;
+  - the `pressure_free_operand_recovery` values;
+  - A + 1.3B with negative, zero and cancelling factors.
+- **Subtraction**, including across different stiffness, where it is allowed.
+- **Range envelopes** over primitive cases A, B and a third primitive case C
+  carrying A's and B's loads together, in every range mode.
+- **Connectors and rods.** Two distinct rods with nonzero installed
+  references, at factor sums 1, 2 and 0. The gate withholds sums 2 and 0.
+- **Arcs.** A non-default case with a pressurized realized arc.
+- **Load state.** A load-state document with equal resolved stiffness and
+  prescribed boundary motion, which combines; and one with different E/ν,
+  which is withheld.
+- **W-15 body rows** across a combination (after #1604).
+
+**Other checks:**
+- **Parity.** Sparse and dense; native and wasm readers; PF parity for the
+  force rows of a pressure-free EX model.
+- **Negatives.** Every #1573 code on EX; missing sources that are not
+  recoverable; mismatched bases; forged expressions, gates, recoveries,
+  standing and rows through the readers.
+- **Byte identity.** Every EX document without a combination is unchanged,
+  except for the identity sentence and its pins.
 
 ## 9. Retained-memory pricing (D3)
 
-The ordinary EX combination path is in priced files: PP `lib.rs`,
-`preview_physics.rs` (or a new module), `pressure_runtime.rs`,
-`exact_admission.rs`, the pressure-2 table (a static owner), and the result
-readers (`physics_source.rs`, `semantic_contract.rs`). The identity text is
-priced TEXT. The retained route keeps refusing combinations on E but prices
-them on L. Re-pricing and re-registration, with independent review, queue
-behind the solver lane's W-15 and W-16a turns.
+**Priced files.** The path touches priced files: PP `lib.rs`,
+`preview_physics.rs` or a new module, `pressure_runtime.rs`,
+`exact_admission.rs`, the RE readers, `physics_source.rs` and
+`semantic_contract.rs`. It also touches the pressure-2 table and its inheriting
+tables, which are static owners, and the identity TEXT.
+
+**Retained route.** The retained E branch keeps refusing combinations
+(`retained_memory.rs` ~913-918). It still prices combinations on L. The
+premises of §8.19 are kept: the first-missing-source rule, the withheld names
+and the whole support group.
+
+**Queue.** Re-pricing and re-registration, with independent review, queue
+behind the solver lane's W-15 and W-16a turns. Fit is not established until
+then.
