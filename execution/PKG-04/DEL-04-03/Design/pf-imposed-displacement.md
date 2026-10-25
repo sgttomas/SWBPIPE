@@ -19,103 +19,199 @@ Paths are relative to `projects/chirality-piping/`. PP is
 
 ## 1. What the user authors
 
-A primitive load in a load case:
+A primitive load in a load case uses the existing wire shape, which the schema
+defines (`schemas/model.schema.yaml` ~1456-1474) and the desktop already emits
+(`LoadCaseManagerPanel.tsx` ~1713):
 - `category` is `imposed_displacement`;
-- `target` is `{type: support, ref: <support id>}`, which the schema's support
-  arm already has (`schemas/model.schema.yaml` ~1455);
-- `direction` is a DOF, one of `UX`, `UY`, `UZ`, `RX`, `RY`, `RZ`;
-- the magnitude has dimension length for a translation or rotation for a
-  rotation, in model units.
+- `target` is `{type: "support", support: <support id>, dof: <DOF>}`;
+- `direction` names the same DOF;
+- `dimension` is `displacement` for `UX`, `UY` and `UZ`, and `rotation` for
+  `RX`, `RY` and `RZ` (PP `lib.rs` ~14420-14444; desktop
+  `primitiveLoadVocabulary.ts` ~52);
+- the magnitude is a quantity with an explicit unit. It is normalized to
+  metres or radians by the existing conversion path (PP `lib.rs` ~9663-9678),
+  as the exact resolver does (`case_state/resolve.rs` ~1067-1084).
 
-A nozzle movement is a six-DOF anchor with up to six such primitives in one
+`target.dof` and `direction` must agree.
+
+A nozzle movement is a six-DOF anchor carrying up to six such primitives in one
 case. Thermal growth of the equipment is the user's input; the product supplies
 no nozzle or equipment movement.
 
 ## 2. Meaning
 
 In each case, every primitive becomes one prescribed value g on the global DOF
-of its support's node. The system is solved by the same partitioned reduction
-the exact route uses for `boundary_motion` (PP `lib.rs` ~4998-5051, both solver
-modes, ~7287-7350). The full displacement vector includes g, and reactions come
-from the unreduced K·u − f (~4781), so a moved support publishes the force that
-holds it at g.
+of its support's node. The system is the partitioned reduction:
 
-A case with no imposed displacement takes the existing path with no prescribed
-map. Its bytes do not change.
+  K_ff·u_f = f_f − K_fc·g_c,  u_c = g_c,  R_c = (K·u − f)_c.
 
-Imposed displacement is linear on PF. It superposes with every other primitive
-in its case, and PF combinations (linear combination, subtraction, range
-envelope) combine its rows like any other case's.
+The exact route already solves this for `boundary_motion` through the shared
+implementation:
+- prescribed values are formed at PP `lib.rs` ~4998-5008;
+- the reduction runs at ~5042-5050;
+- the structural solver receives them in both modes at ~7328-7348;
+- the full u is rebuilt at ~5355-5362;
+- the unreduced reactions are formed at ~4781-4788.
 
-## 3. Refusals (blocking, by name, per case)
+That is the mechanical meaning. Published reactions keep the existing
+corrected-recovery semantics (`certified_publication.rs` ~358-366).
 
-| Code | When |
+**Plumbing.** PF reaches this shared solve, but today it supplies no motion:
+its case calls pass `load_state: None` (~2984, ~3051), and prescribed values
+come only from `load_state.prescribed`. Stage 1 therefore:
+- deserializes the support target (a `LoadTargetInput::Support` variant);
+- resolves and validates its rigid global DOF;
+- carries a separate optional PF prescribed map into both the reduction and
+  the structural solve.
+
+It does not fabricate a load/reference-state case. It does not also add the
+motion as a force, because the solve already applies −K_fc·g.
+
+**Unaffected cases.** A case with no motion primitive takes the existing `None`
+path and gains no diagnostic. Its bytes stay unchanged except for the declared
+text and pin changes of §4.
+
+**Superposition.** For fixed stiffness and a fixed boundary partition, motion
+superposes with thermal, weight and every other supported contribution in its
+case (~4297-4319). A model with a fixed installed preload or reference load,
+such as a connector's `q_ref` (~4613-4617), superposes about that baseline:
+summing complete case responses also sums their baselines.
+
+**Combinations.** PF combinations take motion cases under their existing gates
+(`preview_physics.rs` ~791-818). Linear combinations combine signed rows.
+Subtraction stays a labelled state difference. A range envelope keeps its
+row-envelope meaning rather than representing one equilibrium state. Mixed
+modulus bases and nonlinear models stay gated, and constant-effort
+combinations keep their factor-sum restriction. Signed support components and
+magnitudes already have dedicated combination handling (~984-1046), so no
+motion-specific gate is needed.
+
+## 3. Refusals
+
+PF diagnoses each case by name. As today, any blocking input diagnostic
+withholds the whole document's results: the blocked envelope has `results: []`
+(PP `lib.rs` ~2991, ~3058, ~14183). Stage 1 adds no partial publication.
+
+| Code (blocking) | When |
 |---|---|
 | `IMPOSED_DISPLACEMENT_SUPPORT_UNKNOWN` | the target support does not exist |
-| `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` | the support is a spring, a hanger, nonlinear or constant-effort |
-| `IMPOSED_DISPLACEMENT_DOF_UNRESTRAINED` | the support does not restrain the DOF |
-| `IMPOSED_DISPLACEMENT_DOF_DUPLICATE` | two primitives in one case prescribe one support DOF |
-| `IMPOSED_DISPLACEMENT_COINCIDENT_RESTRAINT` | another support restrains the same node DOF, so two restraints would hold one DOF at different values |
-| `IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` | the model has any nonlinear or constant-effort support (stage 2) |
-| `IMPOSED_DISPLACEMENT_DIMENSION_INVALID` | the dimension does not match the DOF (length for UX–UZ, rotation for RX–RZ), or the magnitude is not finite |
+| `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` | the target is a spring, a variable spring hanger, a nonlinear device or a constant-effort device |
+| `IMPOSED_DISPLACEMENT_DOF_UNRESTRAINED` | the DOF is not among the target's rigid restraints |
+| `IMPOSED_DISPLACEMENT_DOF_MISMATCH` | `target.dof` and `direction` disagree, or a DOF token is invalid |
+| `IMPOSED_DISPLACEMENT_DOF_DUPLICATE` | two primitives in one case prescribe one global DOF, even with equal values. No map insertion may overwrite another. |
+| `IMPOSED_DISPLACEMENT_COINCIDENT_RESTRAINT` | another rigid restraint holds the same global node DOF |
+| `IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` | the model has a nonlinear support and the case authors any motion primitive, including a zero one (stage 2) |
+| `IMPOSED_DISPLACEMENT_DIMENSION_INVALID` | the dimension does not match the DOF, the unit is incompatible, or the magnitude is not finite |
+| `IMPOSED_DISPLACEMENT_TARGET_INVALID` | a support target with any other category, or `imposed_displacement` on a node or element target |
 
-**Validation.** The rigid-support and restrained-DOF checks reuse the exact
-route's resolver rules (PP `case_state/resolve.rs` ~60 `is_spring`,
-~1037-1086). PF keeps its existing per-case prepare-or-refuse flow: a refused
-case publishes nothing, and other cases solve.
+**Rigid target and restrained DOF.** These checks reuse the exact resolver's
+rules (`case_state/resolve.rs` ~61-63, ~1050-1064). A flexible connected member
+does not make a rigid support non-rigid.
 
-**The exact route.** A support-targeted primitive is refused there by
+**Allowed alongside motion.** Each of these is a regression case, and none is
+a refusal:
+- an elastic spring, a connector or a W-15 rigid component at the same node,
+  provided no other rigid restraint holds that DOF;
+- a different DOF of the same node;
+- an unrelated constant-effort support. It contributes a fixed nodal force
+  (PP `lib.rs` ~13487-13495), does not select nonlinear solving (~2869), and
+  keeps its consumption rules and combination gates.
+
+**Order of checks.** The named coincident and duplicate checks run before the
+generic repeated-rigid-DOF refusal in boundary preparation
+(`core/solver/linear_supports/src/lib.rs` ~634-649).
+
+**The exact route.** EX refuses a support-targeted primitive with
 `EXACT_IMPOSED_DISPLACEMENT_PRIMITIVE_UNSUPPORTED`, with or without the
-load/reference-state group. The refusal names the exact route's form,
-`analysis_state.support_states[].boundary_motion`. Without this refusal a
-load-state document could silently leave the primitive unused.
+load/reference-state group, and names `analysis_state.support_states[].boundary_motion`
+as the exact route's form. The check scans the authored primitives before
+effective-case selection, so an unlisted primitive cannot escape it. This
+refusal prevents unintended admission once the shared target type gains the
+support variant.
 
-**The retained sub-route.** It refuses the new variant at its D1.7 admission
-(`retained_memory.rs` ~968-990), as it already declines imposed displacement
+**The retained sub-route.** It refuses the support target at D1.7
+(`retained_memory.rs` ~971-998), and its census gains the variant (~433-436).
+Its existing guards on prepared imposed contributions stay
 (`retained_product.rs` ~1915, `source_recovery.rs` ~903).
 
-**The old code.** `IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL` is retired
-on PF, because PF now accepts the input.
+**The old code.** `IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL` is retired,
+and its regression at `tests/preview_physics_runtime.rs` ~1043-1053 is
+replaced. Its pre-parse path (`preview_physics.rs` ~1087-1138) must not
+intercept the EX refusal.
 
 ## 4. Text and contract changes
 
-These are stated, and their fixtures regenerated by their writers:
-- PF `LIMITATIONS[1]` (PP `preview_physics.rs` ~58) drops "and so is a support
-  displacement imposed outside a load-state model". About 34 files carry it,
-  including `semantic_contract_v0_3_preview_physics_2.json` and its schema.
-  The table's derived pins are regenerated with `semantic_contract_tables.py`
-  `derive` and `repin`, and the checksum-bearing carriers with their writers.
-- DEL-04-07 `pressure-contract.md` ~186, "Until stage 1 lands ...", becomes
-  the stage-1 statement.
-- DEL-09-01's W-9 README, "W9-C runs on EX only", becomes "both routes". The
-  README is hashed in its `SHA256SUMS`, re-derived by the generator.
-- DEL-04-01 K-D5 §0 M1, "Imposed displacements cannot reach this route", stays
-  true: the nonlinear route refuses imposed displacement until stage 2.
+Each change below is stated, and its carriers are regenerated by their writers.
 
-Every ScopeOfWork text that changes goes through the owner's wording grant:
-DEL-04-03 SOW ~294, and DEL-09-01 RQ-002 if its wording names EX only.
+- **PF `LIMITATIONS[1]`** (PP `preview_physics.rs` ~58) drops "and so is a
+  support displacement imposed outside a load-state model". There are 34
+  exact-string carriers, including both preview semantic tables
+  (`semantic_contract_v0_3_preview_physics_2.json` ~1321,
+  `semantic_contract_v0_3_preview_physics_retained_1.json` ~1337), the
+  results schema, fixtures, and DEL-04-08 `b7-plan.md` ~283.
+  `semantic_contract_tables.py derive` replaces preview slots 2-4 only (~162,
+  ~276, ~295), so slot 1 is edited in both maintained tables by hand. Then
+  schemas are derived and carriers repinned.
+- **DEL-04-07 `pressure-contract.md`** ~186-187 ("Until stage 1 lands ...")
+  becomes the stage-1 statement.
+- **W-9 README** (`validation/references/w9_benchmarks/README.md` ~182 and
+  ~184-185): both EX-only statements become "both routes", and its
+  `SHA256SUMS` is regenerated. Observations tied to the old revision are kept
+  as such.
+- **K-D5 §0 M1** (DEL-04-01 `kd5-nonlinear-active-set.md` ~59) keeps its
+  conclusion: the nonlinear route still cannot receive imposed displacement
+  until stage 2. Its explanation that preview refuses imposed displacement
+  everywhere is corrected.
+- **Completeness map**: rows FR-SOL-002, FR-SOL-006, §12.5 and §22.2 (~178,
+  ~182, ~193, ~196).
+- **ScopeOfWork, through the owner's wording grant.** DEL-04-03 ~294 reads:
+  "Imposed displacement boundary data may interact with load-case handling in
+  PKG-05, but this deliverable currently implements the support-side boundary
+  data and frame-kernel prescribed-displacement reduction only." The revision
+  names the PF product hookup and keeps the support crate's ownership. DEL-09-01
+  RQ-002 does not name a route, and DEL-04-07 and DEL-05-01 already own the
+  composition and interface, so none of them changes.
 
 ## 5. Verification
 
-- **W9-C settlement** on PF in both solver modes. Its rows in
-  `validation/references/w9_benchmarks/references.json` do not depend on the
-  route and are reused unchanged. The test gains a PF builder; its
-  `request()` currently asserts that no motion reaches the Preview route
+- **W9-C settlement on PF** in both modes. Its frozen rows are reused
+  unchanged: its force-method compatibility F·R = d does not depend on the
+  route (`w9_reference.py` ~173-195), and its unloaded out-of-plane problem
+  makes the PF/EX shear-modulus difference irrelevant. The test gains a PF
+  builder; its `request()` asserts today that no motion reaches Preview
   (`tests/w9_solver_benchmarks.rs` ~248).
-- **Nozzle movement.** A new, independently derived frozen reference
-  (`validation/references/w16_imposed_motion/`), from an exact-rational
-  generator that runs no product code. An invented L-frame is anchored at both
-  ends. One anchor moves in three translations and one rotation. The reference
-  gives every displacement, rotation, end action and the reactions of both
-  anchors, including the moved anchor's holding force. A second case combines
-  the motion with a thermal load, to check superposition.
-- **Route parity.** The PF result equals the EX `boundary_motion` result for
-  the same model and motion, within 1e-9 relative, in both modes.
-- **Negative cases.** One per refusal in §3, on PF and EX.
-- **Combinations.** A PF linear combination and a range envelope that include
-  an imposed-displacement case.
-- **Byte identity.** Unchanged bytes for every case and fixture without an
-  imposed displacement, except for the limitation-text change of §4.
+- **Nozzle movement.** A new frozen reference
+  (`validation/references/w16_imposed_motion/`) comes from an exact-rational
+  generator that runs no product code.
+  - **Model.** An invented L-frame anchored at both ends. One anchor moves in
+    three translations and one rotation.
+  - **Method.** A six-redundant force-method (complementary-energy) closed
+    form. Release the moved anchor and form
+    F_ij = Σ_e ∫ (n_i·n_j/EA + m_yi·m_yj/EI_y + m_zi·m_zj/EI_z + t_i·t_j/GJ) ds
+    from statics on the released frame. Then R = F⁻¹(g − d_T). The fixed
+    anchor's actions follow by equilibrium, and the interior motions by member
+    integration.
+  - **Cases.** Motion alone, thermal alone, and both together.
+  - **Cross-check.** An independently written direct-stiffness calculation.
+  - **Matching.** E, G and the section theory match the product's on both
+    routes, with Euler–Bernoulli explicitly on EX.
+  - **Criterion.** 1e-9 relative, with the scaled-zero rule
+    (`w9_solver_benchmarks.rs` ~17-19).
+- **Route parity.** PF against EX `boundary_motion` for the same model and
+  motion, in both modes. This supplements the oracle.
+- **Negatives.** Every refusal in §3, on PF. The EX refusal for listed and
+  unlisted primitives, with and without the group. The retained D1.7 refusal,
+  with the ordinary PF result returned after retained admission declines. A
+  mixed document with one valid and one invalid case, which is refused as a
+  whole document.
+- **Allowed cases** (§3): node-sharing with a spring, a connector or a rigid
+  component; a different DOF; an unrelated constant-effort support; motion
+  together with ordinary forces and generated weight; non-SI translation and
+  rotation inputs.
+- **Combinations.** Linear combination, subtraction and range envelope with a
+  motion case.
+- **Byte identity.** Exceptions are limited to the declared text and hash
+  changes of §4.
 
 ## 6. Stage 2 (separate design)
 
@@ -132,8 +228,21 @@ independent numerical reviews and its own benchmarks, before any code.
 
 ## 7. Retained-memory pricing (D3)
 
-Stage 1 changes the priced files PP `lib.rs`, `preview_physics.rs`,
-`pressure_runtime.rs`, `retained_memory.rs` admission, `model_fields.rs` and,
-if needed, `primitive_loads`. It also changes the preview-physics-2 table, which
-is a static owner. It needs re-pricing and re-registration with independent
-review, queued behind the solver lane's W-15 turn.
+Stage 1 touches these priced files:
+
+| File | Why | Pricing coverage |
+|---|---|---|
+| PP `lib.rs` | target variant, preparation, prescribed-map plumbing | `b7a_domain_model.py` ~89; `w1_reductions_model.py` ~63 |
+| PP `preview_physics.rs` | retired refusal, limitation text | `b7a_domain_model.py` ~89; `w1_reductions_model.py` ~67 |
+| PP `model_fields.rs` | support-target keys and schema binding | `sd_owners_model.py` ~15-47; `rules/o10_rules.py` ~2376-2405 |
+| PP `retained_memory.rs` | census and D1.7 refusal | `b7a_domain_model.py` ~130-147 |
+| PP `retained_product.rs` | exhaustive captured-target match (~4575) | `b7a_domain_model.py` ~89 |
+| PP `self_weight.rs` | payload and identity matches (~601, ~866) | `b7a_formation_model.py` ~21 |
+| PP `pressure_runtime.rs` | the EX refusal, if placed there | `b7a_domain_model.py` ~89 |
+
+Both preview tables are static owners (`b7a_domain_model.py` ~119).
+`primitive_loads` already prepares support motion (~953-965, ~2473-2513), so it
+needs no change. Re-pricing must consider any enlarged target/primitive layout,
+even though D1 refuses support primitives. Excluding the variant does not show
+that admitted variants' memory is unchanged. Re-pricing and re-registration,
+with independent review, queue behind the solver lane's W-15 turn.
