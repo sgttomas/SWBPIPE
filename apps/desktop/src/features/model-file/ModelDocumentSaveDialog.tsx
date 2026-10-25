@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { MODEL_DOCUMENT_SAVE_INTENT_LABEL } from "./modelDocumentSave";
+import { STORED_DOCUMENT_EXPORT_INTENT_LABEL } from "./storedDocumentExport";
 
 /** The open Save Model Document… dialog: its opener (focus returns there) and
  * the two answers. `save` carries the dialog's own explicit intent. */
@@ -9,6 +10,9 @@ export type ModelDocumentSaveDialogRequest = {
   opener: HTMLElement | null;
   cancel: () => void;
   save: (explicitLocalPrivateIntent: boolean) => void;
+  /** W-17 recovery export (`storedDocumentExport.ts`): a stored document the
+   * open refused, saved to a file as stored instead of the session's model. */
+  recovery?: { description: string; refusal: string };
 };
 
 /** File > Save Model Document… (DEL-15-01 W-6a). The save is the local-private
@@ -67,13 +71,27 @@ export function ModelDocumentSaveDialog({ request }: { request: ModelDocumentSav
         className="replace-project-prompt panel"
         data-testid="model-document-save-dialog"
       >
-        <h2 id="model-document-save-title">Save Model Document</h2>
-        <p id="model-document-save-detail" data-testid="model-document-save-detail">
-          Saves the model document of "{request.projectName}" as its canonical JSON (RFC 8785) to a file you
-          choose, starting in your Documents folder. The file's SHA-256 is the session's model hash, and the file
-          opens again with Open Model Document…. It holds your private project data. Nothing is sent anywhere, and
-          the session's model and results are unchanged.
-        </p>
+        {request.recovery ? (
+          <>
+            <h2 id="model-document-save-title">Save the stored document to a file</h2>
+            <p id="model-document-save-detail" data-testid="model-document-save-detail">
+              Not opened: {request.recovery.refusal} You can save {request.recovery.description} to a file you choose,
+              exactly as the local store holds it, starting in your Documents folder. Add project.units to the file, then
+              open it with Open Model Document…. It holds your private project data. Nothing is sent anywhere, the store
+              is not changed, and the session's model and results are unchanged.
+            </p>
+          </>
+        ) : (
+          <>
+            <h2 id="model-document-save-title">Save Model Document</h2>
+            <p id="model-document-save-detail" data-testid="model-document-save-detail">
+              Saves the model document of "{request.projectName}" as its canonical JSON (RFC 8785) to a file you
+              choose, starting in your Documents folder. The file's SHA-256 is the session's model hash, and the file
+              opens again with Open Model Document…. It holds your private project data. Nothing is sent anywhere, and
+              the session's model and results are unchanged.
+            </p>
+          </>
+        )}
         <label className="model-document-save-intent">
           <input
             type="checkbox"
@@ -81,7 +99,7 @@ export function ModelDocumentSaveDialog({ request }: { request: ModelDocumentSav
             data-testid="model-document-save-intent"
             onChange={(event) => setIntent(event.currentTarget.checked)}
           />
-          {MODEL_DOCUMENT_SAVE_INTENT_LABEL}
+          {request.recovery ? STORED_DOCUMENT_EXPORT_INTENT_LABEL : MODEL_DOCUMENT_SAVE_INTENT_LABEL}
         </label>
         <div className="report-actions">
           <button type="button" ref={cancel} data-testid="model-document-save-cancel" onClick={() => request.cancel()}>
@@ -93,7 +111,7 @@ export function ModelDocumentSaveDialog({ request }: { request: ModelDocumentSav
             disabled={!intent}
             onClick={() => { if (intent) request.save(true); }}
           >
-            Choose file and save…
+            {request.recovery ? "Save the stored document to a file…" : "Choose file and save…"}
           </button>
         </div>
       </section>

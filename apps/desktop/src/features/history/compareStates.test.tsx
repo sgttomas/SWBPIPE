@@ -198,7 +198,7 @@ describe("the comparison view", () => {
 // W-17: Open State applies the desktop's open check for the `project.units` map
 // (`MODEL-FILE-SHAPE`), as File > Open Model Document does; a missing key alone opens.
 describe("Open State and project.units", () => {
-  async function openWith(mutate: (units: Json, project: Json) => void) {
+  async function openWith(mutate: (units: Json, project: Json) => void, extra: Partial<ModelStateHistoryDeps> = {}) {
     const sha = (text: string) => `sha256:${createHash("sha256").update(text, "utf8").digest("hex")}`;
     const changed = structuredClone(RIGHT_MODEL);
     mutate(changed.project.units, changed.project);
@@ -206,7 +206,8 @@ describe("Open State and project.units", () => {
     const open = sessionHistory({
       captureProjectBinding: () => ({ base: null, summary: null, envelopeHash: null }),
       confirmReplacingEdits: async () => "proceed",
-      adoptStateSnapshot: vi.fn(async () => "")
+      adoptStateSnapshot: vi.fn(async () => ""),
+      ...extra
     } as Partial<ModelStateHistoryDeps>);
     await nativeStore({ reads: { [SECOND.state_id]: { text, model_hash: sha(text) } } });
     await act(async () => { await open.result.current.refreshStates(PROJECT); });
@@ -227,6 +228,48 @@ describe("Open State and project.units", () => {
     const open = await openWith((units) => { delete units.angle; });
     expect(open.result.current.historyOperation).toBe("open_state");
     expect(open.deps.adoptStateSnapshot).toHaveBeenCalledTimes(1);
+    expect(open.result.current.refusedStateExport).toBeNull();
+  });
+
+  // The recovery export: the refused state can be saved to a file as stored,
+  // through the session's dialog; its outcome is the history message.
+  it("offers the refused state's recovery export, which adopts nothing", async () => {
+    const requestStoredDocumentExport = vi.fn((_target: unknown, done: (message: string, operation: string) => void) => {
+      done("Saved the saved state to invented.json exactly as stored.", "export_stored_document");
+      return true;
+    });
+    const open = await openWith((_units, project) => { delete project.units; }, { requestStoredDocumentExport });
+    const target = open.result.current.refusedStateExport;
+    expect(target).toEqual({
+      projectId: PROJECT,
+      stateId: SECOND.state_id,
+      description: `the saved state "Revision" (${SECOND.state_id})`,
+      refusal: "Model document refused: MODEL-FILE-SHAPE at project.units: project.units is missing (object required)."
+    });
+    let offered = false;
+    act(() => { offered = open.result.current.exportRefusedState(); });
+    expect(offered).toBe(true);
+    expect(requestStoredDocumentExport).toHaveBeenCalledWith(target, expect.any(Function));
+    expect(open.result.current.historyMessage).toBe("Saved the saved state to invented.json exactly as stored.");
+    expect(open.deps.adoptStateSnapshot).not.toHaveBeenCalled();
+    // Only the list and the one read reached the native store: nothing was written.
+    expect(commands()).toEqual(["read_model_state"]);
+  });
+
+  it("shows Save the stored document to a file… in the History panel for the refused state", () => {
+    const exportRefusedState = vi.fn(() => true);
+    renderPanel(slice({
+      refusedStateExport: { projectId: PROJECT, stateId: SECOND.state_id, description: `the saved state "Revision" (${SECOND.state_id})`, refusal: "invented" },
+      exportRefusedState
+    } as Json));
+    const button = screen.getByTestId("model-history-export-stored-state");
+    expect(button).toHaveTextContent("Save the stored document to a file…");
+    expect(screen.getByTestId("model-history-refused-state-export")).toHaveTextContent(`Saves the saved state "Revision" (${SECOND.state_id}) exactly as stored, without opening it`);
+    fireEvent.click(button);
+    expect(exportRefusedState).toHaveBeenCalledTimes(1);
+    cleanup();
+    renderPanel(slice({ refusedStateExport: null } as Json));
+    expect(screen.queryByTestId("model-history-export-stored-state")).toBeNull();
   });
 });
 

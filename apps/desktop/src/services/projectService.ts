@@ -582,7 +582,7 @@ export async function openLocalProject(projectId: string | null = null): Promise
     if (!stored) return null;
     await loadValidatorEngine();
     requireEditableModelDocument(stored.envelope.model);
-    refuseMissingProjectUnits(stored.envelope.model);
+    refuseMissingProjectUnits(stored.envelope.model, stored.envelope.summary.project_id);
     const opened = cloneEnvelope(stored.envelope);
     opened.summary.message = projectId
       ? `Opened local browser-preview project snapshot by id ${projectId}.`
@@ -590,16 +590,25 @@ export async function openLocalProject(projectId: string | null = null): Promise
     return opened;
   }
   const opened = await invoke<LocalProjectEnvelope | null>("open_local_project", { projectId });
-  if (opened) refuseMissingProjectUnits(opened.model);
+  if (opened) refuseMissingProjectUnits(opened.model, opened.summary?.project_id ?? projectId ?? "");
   return opened;
+}
+
+/** W-17: the refusal of a stored project whose document lacks the
+ * `project.units` map, naming the stored project so the open's caller can offer
+ * the recovery export (`features/model-file/storedDocumentExport.ts`). */
+export class StoredProjectUnitsRefusal extends Error {
+  constructor(message: string, readonly projectId: string) {
+    super(message);
+  }
 }
 
 /** W-17: a stored document without the `project.units` map (or with a
  * non-string symbol) is refused by name at open, as File > Open Model Document
  * refuses it (`MODEL-FILE-SHAPE`); nothing is filled in. */
-function refuseMissingProjectUnits(model: unknown): void {
+function refuseMissingProjectUnits(model: unknown, projectId: string): void {
   const refusal = projectUnitsShapeRefusal(model);
-  if (refusal) throw new Error(refusal);
+  if (refusal) throw new StoredProjectUnitsRefusal(refusal, projectId);
 }
 
 export async function listLocalProjects(): Promise<LocalProjectIndexEntry[]> {

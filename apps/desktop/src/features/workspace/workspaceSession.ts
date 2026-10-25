@@ -44,6 +44,7 @@ import {
   getLocalStorageCapability,
   listLocalProjects,
   openLocalProject,
+  StoredProjectUnitsRefusal,
   saveLocalProject,
   SI_PROJECT_UNITS,
   type ProjectUnitMap
@@ -70,6 +71,13 @@ import {
   saveModelDocumentFile
 } from "../model-file/modelDocumentSave";
 import type { ModelDocumentSaveDialogRequest } from "../model-file/ModelDocumentSaveDialog";
+import {
+  saveStoredModelDocumentFile,
+  storedDocumentExportFailureMessage,
+  storedDocumentExportMessage,
+  storedProjectDescription,
+  type StoredDocumentExportTarget
+} from "../model-file/storedDocumentExport";
 import {
   HANDOFF_SAVE_DESKTOP_ONLY,
   HANDOFF_SAVE_ROUTE,
@@ -2200,6 +2208,7 @@ export function useWorkspaceSession() {
     const request = ++projectRequest.current;
     let epoch = requestEpochRef.current;
     const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
+    let recovery: StoredDocumentExportTarget | null = null;
     try {
       const opened = await openLocalProject(projectId);
       if (!stillCurrent()) return;
@@ -2291,8 +2300,19 @@ export function useWorkspaceSession() {
       if (!stillCurrent()) return;
       setProjectMessage(`Open failed: ${String(error)}`);
       setProjectOperation("open_failed");
+      // W-17: a stored project refused for lacking project.units is offered the
+      // recovery export (desktop store only); nothing was adopted.
+      if (error instanceof StoredProjectUnitsRefusal && isTauriRuntime()) {
+        recovery = { projectId: error.projectId, stateId: null, description: storedProjectDescription(error.projectId), refusal: error.message };
+      }
     } finally {
       releaseProjectOperation(owner);
+    }
+    if (recovery) {
+      requestStoredDocumentExport(recovery, (message, operation) => {
+        setProjectMessage(message);
+        setProjectOperation(operation);
+      });
     }
   }
 
@@ -2409,6 +2429,43 @@ export function useWorkspaceSession() {
         void handleSaveModelDocument(explicitLocalPrivateIntent);
       }
     });
+  }
+
+  /** W-17 recovery export (`storedDocumentExport.ts`): offers to save a stored
+   * document the open refused for lacking `project.units` to a file, exactly as
+   * stored, behind the Save Model Document dialog's explicit intent. Nothing is
+   * adopted; `report` gets the outcome's status line. False when another
+   * operation or modal owns the session (nothing is offered then). */
+  function requestStoredDocumentExport(target: StoredDocumentExportTarget, report: (message: string, operation: string) => void): boolean {
+    if (projectSessionBusy()) return false;
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const close = () => { modelDocumentSaveDialogOpenRef.current = false; setModelDocumentSaveRequest(null); };
+    modelDocumentSaveDialogOpenRef.current = true;
+    setModelDocumentSaveRequest({
+      projectName: target.projectId,
+      opener,
+      cancel: close,
+      recovery: { description: target.description, refusal: target.refusal },
+      save: (explicitLocalPrivateIntent) => {
+        close();
+        void handleStoredDocumentExport(target, explicitLocalPrivateIntent, report);
+      }
+    });
+    return true;
+  }
+
+  async function handleStoredDocumentExport(target: StoredDocumentExportTarget, explicitLocalPrivateIntent: boolean, report: (message: string, operation: string) => void) {
+    const owner = acquireProjectOperation();
+    if (!owner) return;
+    try {
+      const outcome = await saveStoredModelDocumentFile(target, explicitLocalPrivateIntent);
+      report(storedDocumentExportMessage(target, outcome), outcome.outcome === "saved" ? "export_stored_document"
+        : outcome.outcome === "cancelled" ? "export_stored_document_cancelled" : "export_stored_document_refused");
+    } catch (error) {
+      report(storedDocumentExportFailureMessage(target, error), "export_stored_document_failed");
+    } finally {
+      releaseProjectOperation(owner);
+    }
   }
 
   /** Saves the session's model document under the dialog's intent. Reads the
@@ -3424,6 +3481,7 @@ export function useWorkspaceSession() {
     model, currentModel, projectSessionGeneration, projectSessionGenerationRef, storedBaseRef,
     confirmReplacingEdits, acquireProjectOperation, releaseProjectOperation,
     saveLocalProject: saveLocalProjectFirst, captureProjectBinding, adoptStateSnapshot, projectSessionBusy,
+    requestStoredDocumentExport,
     runSlot: { result, analysisRun, inputManifest, restored: historicalRun?.designation === "historical_saved_run" }
   });
 
