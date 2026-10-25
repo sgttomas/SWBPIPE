@@ -268,6 +268,88 @@ unambiguous and needs no component-local frame. A model transformation rotates
 r without translating it. Slice b's tests include a nontrivial offset along
 each axis, checking both the force and the moment.
 
+As implemented (PP `self_weight.rs`; the applier
+`core/model_operations/operation_applier/src/lib.rs` and `rich_authoring.rs`;
+the desktop component-creation, inspector and self-weight features):
+
+- **Selection.** A selected member mapped (slice a's mapping rule) by a
+  rigid-family component carries the component's weight when the component's
+  `solver_consumption` is `mechanics_geometry_only`, its `geometry.weight` is
+  a finite positive force and its `geometry.center_of_gravity` a finite length
+  vector. No stiffness scale is required. The gravity acceleration contributes
+  its axis and sign only: W is the user's force.
+- **Replacement.** That member's distributed self-weight is not generated, and
+  its section is not a mass input. A component that fails a condition gets
+  one warning, `SELF_WEIGHT_COMPONENT_WEIGHT_NOT_APPLIED`. The warning names
+  the component and the first unmet condition, in the order consumption
+  (absent, or another mode), mapping (the member does not end at the node),
+  weight, centre of gravity. The member keeps its pipe weight. A
+  `not_solver_consumed` component is honoured with no warning. A mapping
+  conflict on a selected member blocks with slice a's
+  `RIGID_COMPONENT_MAPPING_CONFLICT`. A plan with a component weight has the
+  scope label `selected_pipe_mass_and_component_weight`; any other plan keeps
+  `selected_pipe_mass_only`. The plan's `warnings` are omitted when empty, so
+  a plan without one keeps its bytes.
+- **Wrench.** One `concentrated_force` primitive along the gravity axis
+  (value ±W), then one `concentrated_moment` primitive (`rotation_x|y|z`) per
+  nonzero component of r × F, in x, y, z order. Each moment component is one
+  product r_j·f, rounded once. A nonzero lever whose product is zero or not
+  finite is the blocking `SELF_WEIGHT_RANGE_INVALID`, never a dropped
+  moment. The identity is
+  `load:self-weight:{len}:{case}:component:{len}:{component}:{force|moment}:{x|y|z}`.
+  The literal `component` cannot be read as a length, so it never meets a
+  member identity.
+- **Evidence and lineage.** Each primitive's evidence row carries:
+  - the method `component_weight_at_center_of_gravity_global_offset/v1`;
+  - the component, its kind, node and provenance, and the omitted member;
+  - the weight and centre of gravity as entered and in SI;
+  - the whole wrench, the convention and the request's gravity and
+    provenance;
+  - the generated payload;
+  - the normalized dependencies: component, kind, node, mapping,
+    consumption, weight and centre of gravity, in SI, so an equivalent unit is
+    no change.
+
+  Inspection recomputes the wrench from the retained inputs; a self-authenticating
+  snapshot is invalid. A node-targeted load whose id is in the
+  `load:self-weight:` namespace, or whose method claims the family, is
+  inspected as lineage.
+- **Staleness.** Editing the weight, centre of gravity, mapping, consumption,
+  node or kind makes the component's primitives stale. An edit that keeps the
+  primitive set refreshes in place: the wasm refresh plan, applied through the
+  applier's managed refresh. An edit that changes the set needs the case
+  generated again. Such edits are: a moment component appears or vanishes,
+  the component starts or stops carrying the weight, or the mapping moves.
+  The same holds for a member's distributed load once its component starts
+  carrying the weight. A modified primitive is preserved only as an explicit
+  manual override.
+- **Applier.** The centre-of-gravity edit is an explicit `{x, y, z, unit}`
+  vector of a length unit, every component finite. Its before value is
+  `x, y, z unit` (`TBD` when absent), compared number by number and unit
+  exactly. A weight edit requires a positive force, as creation does.
+  `mechanics_interface.solver_consumption` (`mechanics_geometry_only` or
+  `not_solver_consumed`) is editable on a rigid-family component only, and
+  `modifiers.source_reference` is editable. Valve, flange and reducer creation
+  accepts an exact `modifiers` {finite positive dimensionless
+  `stiffness_scaling_user_value`, nonblank `source_reference`} and an exact
+  `mechanics_interface` {`solver_consumption`}; both are optional and nothing
+  is defaulted.
+- **Desktop.** Valve, flange and reducer creation, in the inspector and the
+  viewport, offers the scale with its source reference and the consumption
+  mode. The inspector edits the centre of gravity as a vector, and the scale
+  source and consumption beside the weight and scale. Both state the
+  convention, "global X/Y/Z from the component's node". The desktop offers
+  no rigid or specialty creation. The self-weight panel accepts both scopes
+  and shows the warnings.
+- **Both routes.** The primitives are ordinary nodal forces and moments; PF
+  and EX solve them (W15-B, §6).
+- **Fixtures and pricing.** The bundled demo has no generated self-weight
+  case, so slice b moves no demo or result fixture. PP `self_weight.rs` is a
+  retained-pricing input (`tools/retained_pricing/base/b7a_formation_model.py`
+  pins its hash). Its inspection's node arm gains an allocation-free prefix
+  check, so slice b joins the D3 re-pricing turn (§2.8). The retained route
+  still refuses every component.
+
 ## 4. Eccentric reducer offset (slice c)
 
 PRD §12.3 requires an eccentric offset vector for reducers. No slot exists.
@@ -466,7 +548,16 @@ As implemented (`core/product_physics/src/rigid_component.rs`,
     no applied-scale info or warning on a refused or blocked model (input
     refusal, mapping conflict, scaled moduli outside the normal range).
   - Slice b: weight replacement, staleness, every gravity axis and sign, and
-    wrench components.
+    wrench components. The frozen references are
+    `validation/references/w15_component_weight` (W15-B). They give the
+    wrench for each gravity axis and sign, with an offset along each axis and
+    in combination. They also give the reactions, motions and section actions
+    of a cantilever whose tip body carries the weight: scaled and unscaled,
+    Euler–Bernoulli and Timoshenko. Both routes and solver modes meet 1e-9.
+    Every failed weight condition, `not_solver_consumed`, an unselected member,
+    a mapping conflict, identities, and staleness after each edit kind are
+    tested (`tests/w15_component_weight.rs`, the self-weight wasm end-to-end
+    test).
   - Slice c: eccentric geometry, accepted and refused.
 - **Regression.** The bundled demo's valve C-130 (s = 15, `pipe:P-130`) moves
   the demo and preview-physics result fixtures. They are regenerated by their

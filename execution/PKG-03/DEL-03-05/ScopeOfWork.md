@@ -55,7 +55,7 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 > | Component families | SOW-009; `ComponentType`; fixture `contract.component.rigid-semirigid`; test enum checks | `valve`, `flange`, `reducer`, `rigid`, and `specialty` are accepted component types and are covered by the rigid/semi-rigid family contract. |
 > | Geometry slots | `ComponentFieldKind`; fixture field definitions; strict fixture tests | `rigid_body_length`, `end_a_size`, `end_b_size`, `connection_end_a_reference`, and `connection_end_b_reference` are schema/fixture-recognized slots. Public fixture values remain schema-shape-only. |
 > | Weight input | SOW-009; fixture rigid record; protected-value policy | `weight` is implemented as a required mechanics-solve field kind. Public catalog/vendor weights remain omitted; value policy remains private or public-permissive only after review. |
-> | Center of gravity input | SOW-009; fixture rigid record; protected-value policy | `center_of_gravity` is implemented as a required mechanics-solve field kind. Coordinate convention/reference-frame policy remains `TBD`. |
+> | Center of gravity input | SOW-009; fixture rigid record; protected-value policy | `center_of_gravity` is implemented as a required mechanics-solve field kind. Its convention is the owner's R10 ruling of 2026-10-24 ("For the centre-of-gravity I approve option A as recommended."): a vector in the model's global X/Y/Z axes, measured from the component's node, in model length units. |
 > | Semi-rigid behavior | `ComponentQuantityDimension`; fixture field definitions; review finding resolution evidence | Stiffness is split into `linear_stiffness` and `rotational_stiffness`; generic `stiffness` is not used as a component quantity dimension. Under DEC-045 and OD-2 the solve applies one uniform scale (`stiffness_scaling_user_value`) to the mapped member; the split stiffness quantities are optional, checked and recorded, and not applied (Design `rigid-component-stiffness-scaling.md` §1, §2). |
 > | Provenance and review metadata | OPS-K-DATA-3; OPS-K-IP-2; schema required fields | Component library metadata, records, fields, diagnostics, and fixture slots carry provenance/review status requirements. The two local findings are `ACCEPT_AS_IS` / `RESOLVED` under the recorded 2026-06-05 Gate C disposition. |
 > | Unit handling | OPS-K-UNIT-1; AB-00-04; schema/test evidence | Unit-bearing dimensions include length, force, linear stiffness, and rotational stiffness. Connection/reference slots keep `dimension_id: TBD` where no unit-bearing value is defined. |
@@ -101,7 +101,7 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 >
 > | Surface | Current evidence | Disposition |
 > |---|---|---|
-> | COG mechanics convention | Value slot exists; coordinate convention and reference frame are unset. | Held pending authorized selection; no mechanics value accepted. |
+> | COG mechanics convention | Value slot exists; the owner's R10 ruling of 2026-10-24 sets its convention: global X/Y/Z axes, measured from the component's node, in model length units. | Convention selected; weight is applied as a nodal force at the component's node plus r × F moments (Design `rigid-component-stiffness-scaling.md` §3). |
 > | Component geometry scalar trace | Paired field paths on valid copied quantities. | Bounded transform evidence; runtime result-envelope continuation held. |
 
 ## Completion and Reliance Basis — Epistemology
@@ -141,7 +141,7 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 > | R07 | Keep dependencies inward toward domain contracts and through validation/diagnostics boundaries. | AB-00-02; AB-00-07 | Architecture review confirms adapters/plugins cannot bypass validation or public/private data boundaries. |
 > | R08 | Use deterministic, versioned, schema-governed persistence for component records. | AB-00-04 | Round-trip and canonical JSON/hash checks where JSON payloads are hashed. |
 > | R09 | Include strict fixture evidence for the rigid/semi-rigid contract using synthetic schema-shape records only. | Deliverables.csv (retired in `48584391de`; see Git history) artifact expectation; OPS-K-IP-1; invented component fixture | Fixture tests confirm the family contract and rigid record slots without proprietary/vendor/protected values. Concrete public fixture values for reducer, flange, valve, and specialty items remain `TBD`. |
-> | R10 | Define COG coordinate convention and reference frame before project or library COG values are accepted for mechanics use. | SOW-009; OPS-K-UNIT-1 | Human ruling remains `TBD`; implemented schema slots do not settle the convention. |
+> | R10 | Define COG coordinate convention and reference frame before project or library COG values are accepted for mechanics use. | SOW-009; OPS-K-UNIT-1 | Owner ruling, 2026-10-24: "For the centre-of-gravity I approve option A as recommended." The convention is global X/Y/Z axes, measured from the component's node, in model length units (Design `rigid-component-stiffness-scaling.md` §3). Tests check a nontrivial offset along each axis, for both the force and the moment. |
 > | R11 | Preserve minimum provenance fields for user-supplied and library-imported component data before reusable public fixtures are accepted. | OPS-K-IP-2; OPS-K-DATA-3; AB-00-07 | Provenance validator checks source, rights/redistribution status where applicable, and review disposition. Source catalogs remain separately governed; DEC-045 permits invented non-engineering fixtures with truthful provenance and review status. |
 >
 
@@ -192,7 +192,7 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 
 > ##### D-41 R5 T2B PDU-013 Evidence Disposition (2026-07-12)
 >
-> R10 remains held. Existing COG schema slots do not define an axis convention or reference frame and therefore are not mechanics-acceptance evidence. E2/E4/E8 are evidence requirements only; this tranche selected no convention and introduced no COG value or outcome.
+> The owner's ruling of 2026-10-24 settles R10's convention: global X/Y/Z axes, measured from the component's node, in model length units. The 2026-07-12 tranche selected no convention and introduced no COG value or outcome; E2/E4/E8 remain evidence requirements only.
 >
 
 ### CLM-016 — D-41 R5 T2C PDU-023 E6 Evidence (2026-07-12)
@@ -274,7 +274,7 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 
 > ##### D-41 R5 T2B PDU-013 Check
 >
-> Before any COG value is accepted for mechanics use, verify that an authorized record defines both its coordinate convention and reference frame. Until then, preserve the slot as non-operative metadata and record the gap; do not infer axes, origins, signs, or component-local/global transforms.
+> Before any COG value is used for mechanics, verify that it is read under the owner's R10 convention (2026-10-24): global X/Y/Z axes, measured from the component's node, in model length units. Do not infer any other axes, origins, signs, or component-local transforms.
 >
 > For PDU-023, validate paired scalar paths on copied component geometry quantities and reject incomplete quantity metadata; do not infer a runtime envelope producer.
 
@@ -358,7 +358,7 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 
 > ##### D-41 R5 T2B PDU-013 Boundary
 >
-> An invented or rights-safe COG magnitude would not close R10 by itself. Without an accepted coordinate convention and reference frame, such a value is ambiguous at the mechanics boundary. Preserve that ambiguity as a held residual rather than inventing a convention.
+> An invented or rights-safe COG magnitude does not by itself establish a value's provenance or public-data clearance. Its mechanics meaning is fixed by the owner's R10 convention (2026-10-24): global X/Y/Z axes, measured from the component's node, in model length units.
 >
 > PDU-023 scalar paths document identity-preserving copy-through only. They do not turn component metadata into a solver result or runtime envelope.
 
@@ -372,5 +372,5 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 
 These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
 
-- **DEL-03-05:1** — Bind public rigid-family fixture provenance and protected-content review to the actual shared fixture and preview values, and evidence component adapter/API no-bypass checks. Keep the separate COG coordinate/reference-frame authority hold. (R5 continuation claim references: DEL-03-05:SOW#CLM-010.r07; CLM-013; CLM-014.)
-- **DEL-03-05:2** — Hold PDU-013 COG mechanics acceptance until an authorized coordinate convention and reference frame are selected; the existing value slot is not mechanics-ready evidence (source: D-41 R5 T2B E2/E4/E8 evidence-only backcheck, 2026-07-12)
+- **DEL-03-05:1** — Bind public rigid-family fixture provenance and protected-content review to the actual shared fixture and preview values, and evidence component adapter/API no-bypass checks. The COG coordinate/reference-frame hold is closed by the owner's R10 ruling (2026-10-24). (R5 continuation claim references: DEL-03-05:SOW#CLM-010.r07; CLM-013; CLM-014.)
+- **DEL-03-05:2** — PDU-013's COG coordinate convention and reference frame are selected by the owner's R10 ruling (2026-10-24): global X/Y/Z axes, measured from the component's node, in model length units (source of the hold: D-41 R5 T2B E2/E4/E8 evidence-only backcheck, 2026-07-12).
