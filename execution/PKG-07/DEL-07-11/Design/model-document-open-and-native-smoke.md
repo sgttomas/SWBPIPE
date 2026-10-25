@@ -337,6 +337,21 @@ refusal named in the product:
 A broken step stops the driver, the phase reports not completed, and every
 later check fails for want of its observation.
 
+A step the window reports as failed stops the driver at once with that
+report, rather than waiting out its timeout. One example is a solve whose job
+state is `failed` or `cancelled`. A solve that fails or does not finish in time
+is reported with:
+- its job's summary, and any queue reason, resource refusal or error the Solve
+  panel shows;
+- the typed reason (code, required bytes, headroom bytes, pressure);
+- the native memory pool's current headroom and pressure, as
+  `get_memory_pool_status` reads them.
+A memory refusal or queue wait is then told apart from a slow solve. The
+details go to the driver log, the phase error and `summary.json`
+(`solve_job_diagnostics`). Timeouts and expected values are unchanged.
+`native-smoke/driver.test.mjs` tests this behaviour with a fake window
+(`node --test`); no CI job runs it.
+
 Run it on a Mac with a GUI session:
 
 ```sh
