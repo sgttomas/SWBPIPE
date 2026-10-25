@@ -1368,7 +1368,7 @@
   },
   "metadata_policy": "preserve_source_producer_numerical_quality_formulation_basis_contract_evidence",
   "reserved_inactive_successors": [],
-  "inherited_semantic_contract_sha256": "f455a61ab9d80a16b24a03c5acbcce6425342d8cc2c839eb4742b2b9bb38a869",
+  "inherited_semantic_contract_sha256": "5e3285343565883e961239fc189fb3cb1fd49d45250191340ecc5e8f3df9d74a",
   "source_basis_signature_policy": "where_declared_require_exact_metadata_basis_first_match_in_table_order",
   "formulation_profile_id": "product_preview_retained_w1a_v2",
   "contract_evidence_policy": "closed_preview_case_extrema_coverage_attribution_intensification_and_combination_gate_binding_v1",
@@ -1381,7 +1381,7 @@
       },
       {
         "code": "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE",
-        "condition": "the model has a consuming constant-effort support and |sum(factors) - 1| > 64*epsilon*max(1, sum(|factors|))"
+        "condition": "the model has a consuming constant-effort support and a factor is not finite or |sum(factors) - 1| > 64*epsilon, with sum(factors) the exact sum of the binary64 factors, compared exactly and not scaled by sum(|factors|)"
       },
       {
         "code": "COMBINATION_MODULUS_BASIS_MIXED",

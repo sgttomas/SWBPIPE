@@ -42,7 +42,7 @@ MAX_CASES = 256
 MAX_ASSERTIONS = 65536
 SEMANTICS = PROJECT / 'fixtures/results/semantic_contract_v0_3_preview_physics_2.json'
 # B7b (a43583c625): pressure-1 left the table's reserved_inactive_successors (now []); its rows are unchanged.
-SEMANTICS_SHA256 = 'f455a61ab9d80a16b24a03c5acbcce6425342d8cc2c839eb4742b2b9bb38a869'
+SEMANTICS_SHA256 = '5e3285343565883e961239fc189fb3cb1fd49d45250191340ecc5e8f3df9d74a'
 CLASSIFIER = PROJECT / 'core/comparison/analysis_run/engine.py'
 CLASSIFIER_SHA256 = '14aada4049fde08c6f68a99a844f84e73b16fd8b6e4bb2a91cb7e4c8f63b7f2c'
 META = ('component', 'coordinate_system', 'location', 'basis', 'sign_convention')
