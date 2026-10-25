@@ -50,7 +50,7 @@ it('is labelled a preview summary, points to Save Handoff, and carries the docum
  const packet=buildHandoffPackage({model,result,analysisRun,knowledge:null,comparison:null,editorIntents:[],proposal:null,selectedReviewTarget:null});
  expect(packet.library_refs.rule_pack_refs).toEqual(everySlot.rule_pack_refs);
  // The excluded reference stays listed; its exclusion is named once among the diagnostics.
- expect(packet.diagnostic_refs.filter(ref=>ref==='diagnostic:rule-pack-ref:invented_demo_rule_pack@0.2.0')).toHaveLength(1);
+ expect(packet.diagnostic_refs.filter(ref=>ref==='diagnostic:rule-pack-ref:invented_demo_rule_pack@0.3.0')).toHaveLength(1);
  render(<HandoffPanel model={model} knowledge={null} result={result} analysisRun={analysisRun} comparison={null} editorIntents={[]} proposal={null} selectedReviewTarget={null}/>);
  expect(screen.getByTestId('handoff-export-link')).toHaveTextContent(HANDOFF_PREVIEW_DOWNLOAD_LABEL);
  expect(screen.getByTestId('handoff-save-pointer')).toHaveTextContent(HANDOFF_SAVE_POINTER);

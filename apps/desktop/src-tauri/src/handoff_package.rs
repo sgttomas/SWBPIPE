@@ -1662,11 +1662,6 @@ mod tests {
     fn witness_model() -> Value {
         let mut model: Value = serde_json::from_str(EVERY_SLOT).unwrap();
         model["project"]["units"]["stress"] = json!("MPa");
-        // The model cites the stored demo pack as it is now: the demo pack
-        // moved to rule-pack format 0.5.0 (W-17, DEL-06-01 Design
-        // `rule-pack-0.5.0.md` §4), so its checksum moved with it.
-        let pack: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
-        model["rule_pack_refs"][0]["checksum"]["value"] = pack["checksums"]["rule_pack_checksum"]["value"].clone();
         model["diagnostics"] = json!([{
             "id": "diagnostic:invented-review-note",
             "code": "INVENTED-REVIEW-NOTE",
@@ -1955,7 +1950,7 @@ mod tests {
         let pack = &prepared.rule_pack_refs[0];
         let stored: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
         let metadata = json!({
-            "rule_pack_id": "invented_demo_rule_pack", "version": "0.2.0",
+            "rule_pack_id": "invented_demo_rule_pack", "version": "0.3.0",
             "stamped_checksum_value": stored["checksums"]["rule_pack_checksum"]["value"],
             "basis": open_pipe_stress_rule_pack_document::CHECKSUM_BASIS, "grammar_version": stored["grammar_version"]
         });

@@ -6,7 +6,7 @@
     "rule_pack_id": "invented_demo_rule_pack",
     "name": "Invented Demonstration Rule Pack",
     "schema_version": "0.5.0",
-    "rule_pack_version": "0.2.0",
+    "rule_pack_version": "0.3.0",
     "lifecycle_status": "accepted_public_example",
     "source_notice": "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance.",
     "status": "active"
@@ -346,7 +346,7 @@
         "checksums"
       ],
       "verification_status": "verified",
-      "value": "bf4aa377493c4cc8422a50de67f02f1b95c608a0910a0b7a36bc69638fb0f7d8"
+      "value": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f"
     },
     "payload_checksums": [],
     "checksum_lifecycle_status": "verified",
