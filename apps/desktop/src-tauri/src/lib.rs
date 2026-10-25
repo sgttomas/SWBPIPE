@@ -7569,7 +7569,8 @@ mod tests {
     }
 
     // PP's derived pressure-free, joint-free invented model. The bundled default
-    // (`invented_demo_model.json`) is the same model under its own project identity.
+    // (`invented_demo_model.json`) is the same model under its own project identity,
+    // without the malformed tee component:C-120.
     fn derived_invented_model() -> Value {
         serde_json::from_str(include_str!(
             "../../../../core/product_physics/tests/fixtures/preview_physics_invented_model.json"
