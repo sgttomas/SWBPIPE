@@ -212,6 +212,7 @@ code_paths:
 - apps/desktop/src/features/display-units/**
 - apps/desktop/src/features/project-units/**
 - apps/desktop/src/services/projectService.ts
+- core/model_operations/operation_applier/src/project_units_authoring.rs
 checks:
 - core/units/src/lib.rs
 - apps/desktop/src/services/displayQuantityPrecision.test.ts
@@ -221,3 +222,6 @@ checks:
 - apps/desktop/src/features/project-units/projectUnitSelection.test.ts
 - apps/desktop/src/features/project-units/ProjectUnitsDialog.test.tsx
 - apps/desktop/src/features/project-units/composedDefaultForms.test.tsx
+- apps/desktop/src/features/project-units/ProjectUnitsSection.test.tsx
+- apps/desktop/src/features/project-units/projectUnitsCheckpoint.test.tsx
+- core/model_operations/operation_applier/tests/project_unit_authoring.rs

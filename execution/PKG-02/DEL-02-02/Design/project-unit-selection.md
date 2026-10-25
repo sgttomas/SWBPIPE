@@ -164,6 +164,18 @@ keys, including `angle` (§5); the rest still applies.
 
      The checks run in the table's order, so a stale `before` is reported
      before the length lock.
+   - **Settled in implementation** (`project_units_authoring.rs`):
+     - The change's `unit` must equal `after` (`OP-PROJECT-UNIT-SHAPE-INVALID`),
+       and its `dimension` must be the key (`OP-UNIT-DIMENSION-MISMATCH`).
+     - The applier's generic missing-member check gives way to the table's
+       codes for this change kind. Through an atomic batch, the batch's own
+       shape check still requires string `before` and `after`, so a removal
+       sent that way is refused by the batch.
+     - A `project.units` that is not an object is
+       `OP-PROJECT-UNIT-DOCUMENT-INVALID`; an absent map is created holding
+       the one key.
+     - The `stress` key takes the catalog's pressure-dimension entries (`Pa`,
+       `MPa`, `psi`), as the desktop's dimension match does.
 8. **What a change after creation affects.** The edit changes one string in
    `project.units`. Everything else follows from the existing readers
    (survey at `25b7df82ae`):
@@ -231,6 +243,8 @@ keys, including `angle` (§5); the rest still applies.
       model hash. A refusal is shown by its code and message, and nothing is
       queued. Otherwise the change is queued for Review and Apply.
     - A second queued change for the same key is refused.
+    - Choosing a unit validates and queues at once; there is no separate
+      Queue button.
     - A key holding a legacy alias (`C`) is shown as stored, with a note that
       a new choice must be a catalog symbol.
 - **The display selector is unchanged** and keeps its note.

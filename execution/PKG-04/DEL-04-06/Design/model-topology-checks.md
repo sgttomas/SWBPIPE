@@ -135,7 +135,7 @@ relative tolerance.
   - a non-finite, non-positive or non-length value is refused by name, with
     nothing queued.
 - **Editing.** The edit is an applier operation on the `Project` singleton
-  target, as `set_project_unit` is designed (DEL-02-02 Design
+  target, the target `set_project_unit` also uses (DEL-02-02 Design
   `project-unit-selection.md` §2.7): `set_model_setting` and
   `clear_model_setting` (`operation_applier/src/model_settings_authoring.rs`;
   wire in DEL-02-01 Design `model-document-0.7.0.md` §3.8). Each is shown as a
