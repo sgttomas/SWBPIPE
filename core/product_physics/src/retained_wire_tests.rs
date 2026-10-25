@@ -50,9 +50,11 @@ const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
 /// successors' invocation digests, the exact route's DEF-E-bound preparation and source identity
 /// hashes, and the receipt, publication and document hashes binding them moved and follow the
 /// maintained writers' bytes; no numeric leaf, class, selection, status or verdict moved.
+/// W-7 re-pin (DEL-04-01 Design `global-end-actions.md`): the member's twelve not-covered global end
+/// rows, the receipt figures counted over the rows, and the hashes binding them moved.
 const SUCCESSOR_SHA256: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "2527351c49f3c928882dbeda961c0a3e34cb26cbfe00457e7af6d71c6f0bb119", "5d1faa58971f43063cfcd4277ee0f4dab5d6601bb83ec4330f616b767e829136"),
-    ("dense_scrutiny", "fd0c430ca4bfae895851c735207d3424d8d5c835a9d2bd5743cf012e577e1eba", "42fba5d63668f917ed23b0e9b88e946a8b0ba7670ddb8580783ae0397e0d2ca5"),
+    ("sparse_interactive", "cf053309e8048ae013dc5388d1115399ff89cf493eb2e36772500a3c6985a6e5", "bd64548d321575ab27d11b94c2e258b75665e31d7428639b476729164ce57bcc"),
+    ("dense_scrutiny", "f8078ee2c82ba370ab04591af49ed12c48fda5d88a54a75b0725fbdde317d884", "d8b82e5a1e5449bcb06f2d0a76b0f5102d4778e9fef6f72859fffde256f61bec"),
 ];
 
 fn sha(bytes: &[u8]) -> String {
