@@ -175,7 +175,7 @@ class, the evidence, and the deliverables. Paths are under
 | ID (PRD line) | Pri | Class | Evidence | Deliverables | Notes |
 |---|---|---|---|---|---|
 | FR-SOL-001 (510) | Must | D | `core/solver/frame_kernel/src/lib.rs:17,1591`; t3_r1 references | DEL-04-01 | Both routes. |
-| FR-SOL-002 (511) | Must | D | `validation/benchmarks/mechanics/src/lib.rs:934,963,1693`; W9-A and W9-C (both routes, `tests/w9_solver_benchmarks.rs`); the nozzle movement (`tests/w16_imposed_motion.rs`) | DEL-04-01, DEL-09-01 | Beams, frames, transforms, thermal and imposed displacement pass on both routes. PF takes the settlement as a support-targeted primitive (FR-SOL-006 stage 1, W-16 slice a). |
+| FR-SOL-002 (511) | Must | D | `validation/benchmarks/mechanics/src/lib.rs:934,963,1693`; W9-A (both routes) and W9-C (EX and, since #1615, PF), in `tests/w9_solver_benchmarks.rs`; the PF and EX nozzle movement against independent references (`tests/w16_imposed_motion.rs`, `validation/references/w16_imposed_motion/`) | DEL-04-01, DEL-09-01 | Beams, frames, transforms, thermal and imposed displacement pass on both routes. PF takes the settlement as a support-targeted primitive (FR-SOL-006 stage 1, W-16 slice a). |
 | FR-SOL-003 (512) | Must | D | `core/solver/straight_pipe`; `self_weight.rs:505-512`; `STRESS-*` | DEL-04-02, DEL-05-03 | PF Euler–Bernoulli; EX adds Timoshenko. |
 | FR-SOL-004 (513) | Must | P | No rigid element and no DEC-045 scaling applied: `stiffness_scaling_user_value` is unit-normalized (PP `lib.rs:9483`) and validated (`validation.rs:777,1346-1411`) only. EX refuses rigid and specialty components (`exact_admission.rs:208-210,285`) | DEL-03-05 | OD-2: build the scaling (W-15). Offsets exist only on connectors and tie rods. No rigid-link benchmark. |
 | FR-SOL-005 (514) | Must | D | `core/solver/linear_supports`; PP `lib.rs:2741`; EX admits linear restraints and springs (`exact_admission.rs:295-305`) | DEL-04-03 | Both routes. |
@@ -259,12 +259,17 @@ the webview has no network policy.
 ### 2.7 Class counts, MVP (PRD §23) and milestones (§24)
 
 **Class counts.** The #1539 map at `7a780551f0` had 48 P, 28 D, 3 O and no R.
-This map has 40 P, 36 D, 8 O and no R:
+This map has 39 P, 37 D, 8 O and no R:
 - **P → D (7):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
   §10.1 step 1 (#1569), the R2 exit (W-4, #1582, after the basis), §12.8
   near-duplicate nodes (the desktop tolerance control, after the basis), and
   FR-CMP-003 (W-12 S3a, #1605). The
   first two and the last two were updated in the map by their own changes.
+- **D → P → D (1):** FR-SOL-002 moved D → P only because imposed displacements
+  passed on EX alone (below). PRD :511's criterion, benchmarks for imposed
+  displacements among them, now passes on both routes: W9-C runs on PF as a
+  support-targeted primitive, and the nozzle-movement benchmark runs on both
+  (W-16 slice a, #1615). This is evidence of implementation, not acceptance.
 - **D → P (2):** FR-SOL-002. Its acceptance criterion includes imposed
   displacements, which pass on EX only; the route rule now applies (Codex, §6).
   (FR-RULE-003 moved D → P by the owner's reading of 2026-10-23 and back to D
