@@ -745,7 +745,7 @@ export function PipeViewport({
   const componentAngleUnitOptions = unitOptions(
     unitCatalogRoute,
     "angle",
-    componentDraft.angleUnit || model.project.units.angle || "rad"
+    componentDraft.angleUnit || model.project.units.angle || "TBD"
   );
   const componentForceUnitOptions = unitOptions(
     unitCatalogRoute,

@@ -43,6 +43,7 @@ import {
 import { buildRecordedRunContext, type HistoricalRunContext } from "../results/HistoricalRunContext";
 import { COMPARISON_STATE_NOT_EXACT, compareModelDocuments, StateComparisonRefusal, type StateComparison } from "../comparison/stateComparison";
 import { computeModelHash } from "../../services/hashService";
+import { projectUnitsShapeRefusal } from "../model-file/modelDocumentShape";
 import { RULE_PACKS_NOT_RESOLVED, type UnreadableRow } from "../../services/historyListEntries";
 import { compareRunInputs, RunComparisonRefusal, type RunComparison } from "../comparison/runComparison";
 import { CURRENT_RUN_ID, currentRunBytes, currentRunSide, currentRunUnavailableReason, recordedRunSide, type RunComparisonSide } from "../comparison/runComparisonSides";
@@ -412,6 +413,10 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       if (version.status !== "current") {
         throw new Error(`Model document refused for editing: status=${version.status}; ${version.detail}`);
       }
+      // W-17: a state without the `project.units` map is refused by name, as
+      // File > Open Model Document refuses it; nothing is filled in.
+      const unitsRefusal = projectUnitsShapeRefusal(opened.model);
+      if (unitsRefusal) throw new Error(unitsRefusal);
       const hash = await computeModelHash(opened.model);
       if (!hash || hash.value !== opened.state.model_hash) {
         throw new Error(`MODEL-STATE-INTEGRITY: ${notExactReason(opened.state)}, so it is not opened.`);

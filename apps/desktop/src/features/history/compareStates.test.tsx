@@ -195,6 +195,41 @@ describe("the comparison view", () => {
   });
 });
 
+// W-17: Open State applies the desktop's open check for the `project.units` map
+// (`MODEL-FILE-SHAPE`), as File > Open Model Document does; a missing key alone opens.
+describe("Open State and project.units", () => {
+  async function openWith(mutate: (units: Json, project: Json) => void) {
+    const sha = (text: string) => `sha256:${createHash("sha256").update(text, "utf8").digest("hex")}`;
+    const changed = structuredClone(RIGHT_MODEL);
+    mutate(changed.project.units, changed.project);
+    const text = await canonicalJsonString(changed);
+    const open = sessionHistory({
+      captureProjectBinding: () => ({ base: null, summary: null, envelopeHash: null }),
+      confirmReplacingEdits: async () => "proceed",
+      adoptStateSnapshot: vi.fn(async () => "")
+    } as Partial<ModelStateHistoryDeps>);
+    await nativeStore({ reads: { [SECOND.state_id]: { text, model_hash: sha(text) } } });
+    await act(async () => { await open.result.current.refreshStates(PROJECT); });
+    await act(async () => { await open.result.current.openState(SECOND.state_id); });
+    return open;
+  }
+
+  it("refuses a saved state without the map by name, and adopts nothing", async () => {
+    const open = await openWith((_units, project) => { delete project.units; });
+    expect(open.result.current.historyOperation).toBe("open_state_failed");
+    expect(open.result.current.historyMessage).toBe(
+      "Not opened: Error: Model document refused: MODEL-FILE-SHAPE at project.units: project.units is missing (object required)."
+    );
+    expect(open.deps.adoptStateSnapshot).not.toHaveBeenCalled();
+  });
+
+  it("opens a saved state missing one key", async () => {
+    const open = await openWith((units) => { delete units.angle; });
+    expect(open.result.current.historyOperation).toBe("open_state");
+    expect(open.deps.adoptStateSnapshot).toHaveBeenCalledTimes(1);
+  });
+});
+
 /** The session's flow, against a fake of the native commands. */
 /** Each read returns the snapshot as the webview decodes the native response, with
  * the state's stored model hash (the native store's hash of its exact text). */

@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { invokeWithIngress } from "./nativeIngress";
 import { MODEL_SCHEMA_VERSION, RETIRED_MODEL_SCHEMA_VERSIONS } from "./modelSchemaVersion";
 import { loadWasmEngine } from "./wasmEngine/loadWasmEngine";
-import { modelDocumentSlotValidation } from "../features/model-file/modelDocumentShape";
+import { modelDocumentSlotValidation, projectUnitsShapeRefusal } from "../features/model-file/modelDocumentShape";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -582,13 +582,24 @@ export async function openLocalProject(projectId: string | null = null): Promise
     if (!stored) return null;
     await loadValidatorEngine();
     requireEditableModelDocument(stored.envelope.model);
+    refuseMissingProjectUnits(stored.envelope.model);
     const opened = cloneEnvelope(stored.envelope);
     opened.summary.message = projectId
       ? `Opened local browser-preview project snapshot by id ${projectId}.`
       : "Opened local browser-preview project snapshot.";
     return opened;
   }
-  return invoke<LocalProjectEnvelope | null>("open_local_project", { projectId });
+  const opened = await invoke<LocalProjectEnvelope | null>("open_local_project", { projectId });
+  if (opened) refuseMissingProjectUnits(opened.model);
+  return opened;
+}
+
+/** W-17: a stored document without the `project.units` map (or with a
+ * non-string symbol) is refused by name at open, as File > Open Model Document
+ * refuses it (`MODEL-FILE-SHAPE`); nothing is filled in. */
+function refuseMissingProjectUnits(model: unknown): void {
+  const refusal = projectUnitsShapeRefusal(model);
+  if (refusal) throw new Error(refusal);
 }
 
 export async function listLocalProjects(): Promise<LocalProjectIndexEntry[]> {

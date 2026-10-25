@@ -257,6 +257,7 @@ export function defaultComponentDraft(
     selection?.type === "node" && model.nodes.some((node) => node.id === selection.id) ? selection.id : null;
   const node = selectedNode ?? model.nodes[0]?.id ?? "";
   const connectedPipes = incidentPipes(model, node);
+  const units = model.project.units as PreviewModel["project"]["units"] | undefined;
   return {
     id,
     label: `${componentKindLabel(kind)} ${shortEntityToken(id)}`,
@@ -264,9 +265,10 @@ export function defaultComponentDraft(
     node,
     primaryPipeRef: kind === "bend" ? (connectedPipes[0]?.id ?? "") : "",
     secondaryPipeRef: "",
-    lengthUnit: model.project.units.length ?? "TBD",
-    angleUnit: model.project.units.angle ?? "rad",
-    forceUnit: model.project.units.force ?? "TBD",
+    // W-17 §3: an absent project key leaves the unit unselected ("TBD"); nothing is assumed.
+    lengthUnit: units?.length ?? "TBD",
+    angleUnit: units?.angle ?? "TBD",
+    forceUnit: units?.force ?? "TBD",
     bendRadius: "",
     bendAngle: "",
     branchRunSize: "",
