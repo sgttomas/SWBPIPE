@@ -39,6 +39,8 @@ export const PREVIEW_MAXIMUM_KIND = "pipe_elastic_normal_stress_maximum_v2";
  * before S-I. They never demote the envelope's standing. */
 export const RULE_QUANTITY_BELOW_VERIFIED_FLOOR = "RULE_QUANTITY_BELOW_VERIFIED_FLOOR";
 export const RULE_QUANTITY_NOT_COVERED = "RULE_QUANTITY_NOT_COVERED";
+/** W-15 slice d (DEL-03-05 Design §5): the binding refusal of a component body's row. */
+export const COMPONENT_BODY_REFERENCE_SECTION = "COMPONENT_BODY_REFERENCE_SECTION";
 /** D2 4.9.9 notice texts (before S-I). `{b}` is the receipt's published absolute
  * bound and `{unit}` the SI unit the reader classified the quantity in. */
 export const N_RP_ABSOLUTE = "Uncovered quantity: verified only to an absolute bound of ±{b} {unit}, below the relative accuracy floor for this body. It is shown for inspection; rule checks cannot bind to it.";
@@ -96,7 +98,9 @@ export function standingReason(_source: MechanicsResult | null | undefined): str
  * its validated class allows it; a headline binds the row its `result_ref` names
  * and is refused exactly as that row. Without a valid registration no row has a
  * validated class, so every row is refused (fail closed, as Rust F5). */
-export function ruleBindingRefusal(source: MechanicsResult, row: Pick<MechanicsResult["results"][number], "id" | "kind">): string | null {
+export function ruleBindingRefusal(source: MechanicsResult, row: Pick<MechanicsResult["results"][number], "id" | "kind"> & { component_body?: unknown }): string | null {
+  // W-15 slice d: a component body's row is a reference-section stress, not a body stress.
+  if (row.component_body !== undefined) return COMPONENT_BODY_REFERENCE_SECTION;
   if (isRetainedIdentity(source.producer?.semantic_contract_id)) {
     const classes = retainedRowClasses(source);
     return classes ? classBindingRefusal(classes.get(row.id)?.class) : RULE_QUANTITY_NOT_COVERED;

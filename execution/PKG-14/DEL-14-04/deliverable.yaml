@@ -158,6 +158,8 @@ code_paths:
 - apps/desktop/src/features/comparison/runComparison.ts
 - apps/desktop/src/features/comparison/runComparisonSides.ts
 - apps/desktop/src/features/comparison/RunComparisonView.tsx
+- apps/desktop/src/features/comparison/withinRunComparison.ts
+- apps/desktop/src/features/comparison/ComparisonPackageNotice.tsx
 - apps/desktop/src-tauri/src/analysis_runs.rs
 - fixtures/comparison/analysis_run_comparison_golden.json
 checks:
@@ -168,5 +170,9 @@ checks:
 - apps/desktop/src/features/comparison/runComparison.test.ts
 - apps/desktop/src/features/comparison/runComparisonParity.test.ts
 - apps/desktop/src/features/history/compareRuns.test.tsx
+- apps/desktop/src/features/comparison/withinRunComparison.test.tsx
+- apps/desktop/src/features/comparison/withinRunComparison.session.test.tsx
+- apps/desktop/src/features/comparison/withinRunPackages.test.tsx
+- apps/desktop/src/features/workspace/withinRun.resultsSessionState.test.ts
 - apps/desktop/src-tauri/src/analysis_runs_tests.rs
 - tests/test_analysis_run_comparison_parity.py

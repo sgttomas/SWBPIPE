@@ -28,6 +28,7 @@ mod geometry_operations;
 mod library_apply;
 mod model_data_authoring;
 mod model_settings_authoring;
+mod project_units_authoring;
 mod pipe_reconnect;
 mod rich_authoring;
 mod retained_semantics_binding;
@@ -1530,6 +1531,31 @@ fn run_with_context(
         }
     }
 
+    // Project units (DEL-02-02 Design project-unit-selection.md §2.7): one
+    // key of `project.units` on the Project singleton.
+    if project_units_authoring::is_change_kind(&change_kind) && !checker.schema_blocked {
+        match project_units_authoring::resolve(model, intent) {
+            Ok(edit) => {
+                checker.reference_state = "passed";
+                checker.unit_state = "passed";
+                checker.before_state = "passed";
+                geometry_edit = Some(edit);
+            }
+            Err(error) => {
+                if error.code == "OP-STALE-BEFORE-VALUE" {
+                    checker.before_state = "blocked_stale";
+                }
+                checker.push(
+                    error.code,
+                    "blocking",
+                    error.message,
+                    "Choose an accepted catalog unit of the key's dimension from the current project units; the length unit is fixed once nodes exist.",
+                    error.affected_refs,
+                );
+            }
+        }
+    }
+
     // W-17 (DEL-03-01 Design apply-library-records.md §2.2): a library
     // record applied to an existing material, section or component. The
     // change names every member it writes; a section carries its bound pipes.
@@ -2538,6 +2564,10 @@ struct QuantityEdit {
 }
 
 fn check_intent_structure(intent: &Value, operation_id: &str, checker: &mut Checker) {
+    // `set_project_unit` names its own refusals for its target and change
+    // members (DEL-02-02 Design §2.7): a missing or non-string member is
+    // `OP-PROJECT-UNIT-SHAPE-INVALID`, an absent `after` a refused removal.
+    let own_shape = string_at(intent, &["change", "change_kind"]).as_deref() == Some(project_units_authoring::SET);
     let required: [&[&str]; 10] = [
         &["operation_id"],
         &["operation_kind"],
@@ -2551,6 +2581,9 @@ fn check_intent_structure(intent: &Value, operation_id: &str, checker: &mut Chec
         &["professional_boundary"],
     ];
     for path in required {
+        if own_shape && matches!(path, ["target", _] | ["change", "field_path"]) {
+            continue;
+        }
         if value_at(intent, path).is_none() {
             checker.schema_blocked = true;
             checker.push(
@@ -2567,6 +2600,9 @@ fn check_intent_structure(intent: &Value, operation_id: &str, checker: &mut Chec
     }
     // `before` and `after` must be present as strings (they may be empty;
     // emptiness is judged per field kind later).
+    if own_shape {
+        return;
+    }
     for leaf in ["before", "after", "unit", "dimension"] {
         if string_at(intent, &["change", leaf]).is_none() {
             checker.schema_blocked = true;
@@ -2636,7 +2672,8 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "insert_component_symbol"
             | "apply_library_record"
     ) || model_data_authoring::operation_kind_for(change_kind).is_some()
-        || model_settings_authoring::is_change_kind(change_kind);
+        || model_settings_authoring::is_change_kind(change_kind)
+        || project_units_authoring::is_change_kind(change_kind);
     if !supported_change {
         checker.schema_blocked = true;
         checker.push(
@@ -2654,7 +2691,8 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
     let expected_operation_kind = match change_kind {
         "set_field" | "update_load" | "update_support" | "assign_section" | "detach_section"
         | "split_pipe_run" | "transform_pipe_run" | "reconnect_pipe_run" | "insert_bend_at_corner"
-        | "apply_library_record" | "set_model_setting" | "clear_model_setting" => "modify",
+        | "apply_library_record" | "set_model_setting" | "clear_model_setting"
+        | "set_project_unit" => "modify",
         "create_node"
         | "create_section"
         | "create_material"

@@ -78,7 +78,8 @@ test("recorded reference sources retain the original row, quantity, unit and dia
     expect(source.results).toHaveLength(rows);
     const magnitudes = source.results.filter((row: any) => row.kind === "displacement_magnitude");
     expect(new Set(magnitudes.map((row: any) => row.entity_ref)).size).toBe(5);
-    expect(Math.max(...magnitudes.map((row: any) => row.value)).toFixed(6)).toBe("7.635384");
+    // W-15 (DEL-03-05 Design §6): valve C-130's member is solved with its scale 15 (was 7.635384 unscaled).
+    expect(Math.max(...magnitudes.map((row: any) => row.value)).toFixed(6)).toBe("7.624972");
     const vectors = source.results.filter((row: any) => ["global_nodal_displacement_x", "global_nodal_displacement_y", "global_nodal_displacement_z"].includes(row.kind));
     expect(vectors.length).toBeGreaterThanOrEqual(15);
     expect(vectors.every((row: any) => row.metadata.coordinate_system === "global" && row.unit === "mm")).toBe(true);
@@ -678,7 +679,7 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await showCanvas(page);
   await setDisclosure(page.getByTestId("viewport-deformation-status"));
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
-  // The preserved 5-node / 7.635384 mm and signed-vector source oracles above
+  // The preserved 5-node / 7.624972 mm and signed-vector source oracles above
   // do not grant a current-model overlay from reference inspection.
   await setDisclosure(page.getByTestId("viewport-deformation-status"), false);
 

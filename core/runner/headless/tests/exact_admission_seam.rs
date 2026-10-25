@@ -1,6 +1,7 @@
 //! T4-U2a through the headless runner: a v3 (`3.0.0/exact_pressure_v3`)
-//! document with a family the seam does not admit (a valve; a geometry-only
-//! bend, D-2) is blocked by name with no export, in both solver modes; a
+//! document with a family the seam does not admit (a tee, since W-15 admits
+//! the valve; a geometry-only bend, D-2) is blocked by name with no export, in
+//! both solver modes; a
 //! straight v3 document, and since T4-U2 phase 1 one whose region member is a
 //! realized bend, solves under `pressure-2`; since T4-U2 phase 2 both produce
 //! a pressure-2 export document that the exporter's own check admits.
@@ -108,11 +109,11 @@ fn a_v3_document_with_a_realized_bend_solves_and_exports_under_pressure_1() {
 
 #[test]
 fn families_not_yet_admitted_are_blocked_by_name_without_export_in_both_modes() {
-    let mut valve = v3();
-    valve["model"]["components"] = json!([{"id":"component:valve","kind":"valve",
+    let mut tee = v3();
+    tee["model"]["components"] = json!([{"id":"component:tee","kind":"tee",
         "node":"node:fixture-tip","provenance":"invented_u2a_control"}]);
     for (name, payload, id, family) in [
-        ("valve", valve, "component:valve", "valve"),
+        ("tee", tee, "component:tee", "branch connection (tee)"),
         ("geometry-only bend", bend("mechanics_geometry_only"), "component:bend", "geometry-only bend"),
     ] {
         for mode in MODES {
