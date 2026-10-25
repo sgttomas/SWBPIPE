@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { modelStateDescription } from "../../services/modelStateService";
 import { HANDOFF_NEW_STATE_LABEL, HANDOFF_SAVE_INTENT_LABEL, type HandoffBasis } from "./handoffPackageSave";
@@ -41,7 +41,7 @@ function HandoffSaveDialogBody({ request }: { request: HandoffSaveDialogRequest 
   const [label, setLabel] = useState(request.projectName);
   const [stateName, setStateName] = useState(request.basis.kind === "new" ? request.basis.defaultName : "");
   const [stateConfirmed, setStateConfirmed] = useState(false);
-  useEffect(() => {
+  useLayoutEffect(() => {
     const opener = request.opener;
     cancel.current?.focus();
     const hold = (event: KeyboardEvent) => {

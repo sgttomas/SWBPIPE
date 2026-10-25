@@ -385,7 +385,7 @@ pub(crate) fn rule_pack_refs(manifest: &Value) -> Result<Vec<Value>, String> {
 
 /// The recorded revision's `library_refs`: every `library_ref` site of the
 /// solved model that the model document's one walk finds
-/// (`model_document_save::library_ref_sites`, pinned to
+/// (`export_disposition_screen::library_ref_sites`, pinned to
 /// `fixtures/model_document/library_ref_sites.json`), with its identity
 /// normalized as that walk normalizes it (`library_ref_identity`: Rust's
 /// White_Space trim). Each is written as
@@ -396,10 +396,10 @@ pub(crate) fn rule_pack_refs(manifest: &Value) -> Result<Vec<Value>, String> {
 /// library and is omitted; the state's hashed model payload still holds it, and
 /// the open-time store check reports it as unresolved.
 pub(crate) fn library_refs(model_payload: &Value) -> Vec<Value> {
-    let found: BTreeSet<String> = crate::model_document_save::library_ref_sites(model_payload)
+    let found: BTreeSet<String> = crate::export_disposition_screen::library_ref_sites(model_payload)
         .into_iter()
         .filter_map(|(_, reference)| {
-            let (kind, id, record_id) = crate::model_document_save::library_ref_identity(reference)?;
+            let (kind, id, record_id) = crate::export_disposition_screen::library_ref_identity(reference)?;
             let mut text = format!("library:{kind}/{id}");
             if let Some(version) = reference.get("library_version").and_then(Value::as_str) {
                 text.push('@');

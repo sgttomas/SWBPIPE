@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { MODEL_DOCUMENT_SAVE_INTENT_LABEL } from "./modelDocumentSave";
 
@@ -22,7 +22,7 @@ export function ModelDocumentSaveDialog({ request }: { request: ModelDocumentSav
   const dialog = useRef<HTMLElement>(null);
   const cancel = useRef<HTMLButtonElement>(null);
   const [intent, setIntent] = useState(false);
-  useEffect(() => {
+  useLayoutEffect(() => {
     setIntent(false);
     if (!request) return;
     const opener = request.opener;

@@ -729,6 +729,22 @@ rendered members, so the report-side rules apply at the producer.
   `incomplete` (`renderableReportInput.ts:438-445`). Nothing in the package
   re-derives the headline.
 
+**Solve and rule-check rule packs (slice (b2); W-12 finding, HELP_HUMAN, 2026-10-24).**
+W-12 (#1602, open at this writing) makes the solve use the model's rule packs:
+"Use with this model", resolved by checksum and version. Recorded runs and the
+input manifest will then carry them in `rule_pack_refs`. The package takes its
+`rule_pack_refs` from the rule-check run, or leaves them empty. The packs the solve
+used and the packs the rule check evaluated can differ. FR-REP-001 asks for
+"rule-pack references", so (b2) must not let one stand in for the other. Either:
+- **agree:** refuse the package (a named code) when the rule-check run's packs
+  differ from the solve's recorded packs; or
+- **label both:** carry the solve's packs (from the input manifest) and the
+  rule-check run's packs as two separately labelled sets in the report input and
+  the audit manifest, each bound to its own source.
+
+(b2) chooses one, records it here, and tests the differing case. If #1602 has not
+merged by then, (b2) builds on its design.
+
 ### 2.6 Native admission and screening (Tauri)
 
 Today the command decodes the typed request first (`lib.rs:181-205`), then

@@ -91,6 +91,14 @@
     },
     {
       "paths": [
+        "core/reporting/report_package/tests/common/package_basis.rs"
+      ],
+      "checks": [
+        "desktop-rust-test"
+      ]
+    },
+    {
+      "paths": [
         "core/**",
         "validation/**",
         "tests/**"
