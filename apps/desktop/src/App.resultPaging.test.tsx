@@ -15,9 +15,9 @@ import type { MechanicsResult } from "./types";
 // this under load). The page reset on a run change must not be such an effect,
 // or it lands after the click and silently undoes it.
 
-// W-7 global end rows added; no other number moved (the bundled demo gains 96 element_global_end rows: 4 pipes x 12 x 2 cases).
-const PAGE_ONE = "Showing 1 to 50 of 841 matching results; page 1 of 17";
-const PAGE_TWO = "Showing 51 to 100 of 841 matching results; page 2 of 17";
+// C-120 fix: the demo drops the elbow-placed tee component:C-120 and its 4 intensified rows (841 -> 837; still 17 pages).
+const PAGE_ONE = "Showing 1 to 50 of 837 matching results; page 1 of 17";
+const PAGE_TWO = "Showing 51 to 100 of 837 matching results; page 2 of 17";
 
 function openWorkspaceSection(section: "solve"): HTMLElement {
   fireEvent.click(screen.getByTestId("menu-view"));

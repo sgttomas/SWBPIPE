@@ -11,7 +11,7 @@
   },
   "input_model": {
     "path": "fixtures/product_preview/invented_demo_model.json",
-    "sha256": "5ba1c08f5a8d47bb778a14abbef080c405efeed4c4deeee09648a4efaa18d168",
+    "sha256": "9d41c7fa5c80a0f49b2031e4911907dd5a0d356d9f57b686b2b8a8bfacc13673",
     "generator_argument": "invented_demo_model"
   },
   "semantic_contract_id": "openpipestress.result_semantics/0.3.0/preview-physics-2",
@@ -243,7 +243,7 @@
     "core/reporting/result_export/tests/fixtures/load_reference_mutations.json": "2b2efb9307aeb5a70aea49162d45c4bca9f3f2dc7fcca4ebc04f855afaeed668",
     "core/reporting/result_export/tests/fixtures/load_reference_source_mutations.json": "ff642e5984e790315362f856629cf09ac16abb032e2e5aa7e8e2d8b56c4ac60b",
     "core/reporting/result_export/tests/hash_corpus.rs": "b67d7a9dd4e5c36c546ad476982755b6c36ac2c273bd6fffef59a5b2401bb0ed",
-    "core/reporting/result_export/tests/load_reference_contract.rs": "3ad58d568c6115bcd04be3ad489b8c0277639c2aef813dac5e62889414d4e6e3",
+    "core/reporting/result_export/tests/load_reference_contract.rs": "5d33807181ddc32666f5a8446677a04ff97629ff692903101ab829366613605f",
     "core/reporting/result_export/tests/load_reference_source_contract.rs": "1728dab26f49f9d80abf216107770db205acdcf299215c66ec076ef7d938d546",
     "core/reporting/result_export/tests/number_form.rs": "cefedc1de0a1d8ac556d3d6acae6af6c1c5553d3d99392adef76faa7ecd06dde",
     "core/reporting/result_export/tests/physics_contract.rs": "abfc0221e65ca1fd76beb9d1cea6413fec17c33dc6e683ba385dc308397a5111",
@@ -525,7 +525,7 @@
     "core/units/schema_vocabulary.py": "4e95f6e327beb96869656dad3b0191c1feec3d2523534f77c7570823f1fe5cd3",
     "core/units/src/bin/openpipestress_units.rs": "b470f2cb8aa0d9b7faaac76671034fab5d43cbb72933e7a85b9416c8c76086f2",
     "core/units/src/lib.rs": "521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c",
-    "fixtures/product_preview/invented_demo_model.json": "5ba1c08f5a8d47bb778a14abbef080c405efeed4c4deeee09648a4efaa18d168",
+    "fixtures/product_preview/invented_demo_model.json": "9d41c7fa5c80a0f49b2031e4911907dd5a0d356d9f57b686b2b8a8bfacc13673",
     "fixtures/product_preview/invented_preview_model.json": "e4bc6df171920074a7ef332009d0fd185e2e7df0cf999a3e8b01384b1e015cb6",
     "package.json": "1d7aea8cb74abef7a297141219944a9726dd08b6541d9470ff61cacdf97a1ed0",
     "schemas/adapter_framework.schema.yaml": "9092628377cfa8305a62c8a7f612411e13c1a9841640e24bb6cf1bd093c6e934",
@@ -805,7 +805,7 @@
     "core/reporting/result_export/tests/fixtures/load_reference_mutations.json": "2b2efb9307aeb5a70aea49162d45c4bca9f3f2dc7fcca4ebc04f855afaeed668",
     "core/reporting/result_export/tests/fixtures/load_reference_source_mutations.json": "ff642e5984e790315362f856629cf09ac16abb032e2e5aa7e8e2d8b56c4ac60b",
     "core/reporting/result_export/tests/hash_corpus.rs": "b67d7a9dd4e5c36c546ad476982755b6c36ac2c273bd6fffef59a5b2401bb0ed",
-    "core/reporting/result_export/tests/load_reference_contract.rs": "3ad58d568c6115bcd04be3ad489b8c0277639c2aef813dac5e62889414d4e6e3",
+    "core/reporting/result_export/tests/load_reference_contract.rs": "5d33807181ddc32666f5a8446677a04ff97629ff692903101ab829366613605f",
     "core/reporting/result_export/tests/load_reference_source_contract.rs": "1728dab26f49f9d80abf216107770db205acdcf299215c66ec076ef7d938d546",
     "core/reporting/result_export/tests/number_form.rs": "cefedc1de0a1d8ac556d3d6acae6af6c1c5553d3d99392adef76faa7ecd06dde",
     "core/reporting/result_export/tests/physics_contract.rs": "abfc0221e65ca1fd76beb9d1cea6413fec17c33dc6e683ba385dc308397a5111",
@@ -1087,7 +1087,7 @@
     "core/units/schema_vocabulary.py": "4e95f6e327beb96869656dad3b0191c1feec3d2523534f77c7570823f1fe5cd3",
     "core/units/src/bin/openpipestress_units.rs": "b470f2cb8aa0d9b7faaac76671034fab5d43cbb72933e7a85b9416c8c76086f2",
     "core/units/src/lib.rs": "521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c",
-    "fixtures/product_preview/invented_demo_model.json": "5ba1c08f5a8d47bb778a14abbef080c405efeed4c4deeee09648a4efaa18d168",
+    "fixtures/product_preview/invented_demo_model.json": "9d41c7fa5c80a0f49b2031e4911907dd5a0d356d9f57b686b2b8a8bfacc13673",
     "fixtures/product_preview/invented_preview_model.json": "e4bc6df171920074a7ef332009d0fd185e2e7df0cf999a3e8b01384b1e015cb6",
     "package.json": "1d7aea8cb74abef7a297141219944a9726dd08b6541d9470ff61cacdf97a1ed0",
     "schemas/adapter_framework.schema.yaml": "9092628377cfa8305a62c8a7f612411e13c1a9841640e24bb6cf1bd093c6e934",
@@ -1139,7 +1139,7 @@
     "schemas/viewport_editor.schema.yaml": "d23ce086b82ff6196edec81319257515bf5aa12dee3e2b79ae0c17246a56fcb3",
     "tools/serialization/generate_product_preview_mechanics.mjs": "a5bdbab5b10c4d127574cf91da1693b919bc5fdf6db9801a853608eea4b265a4"
   },
-  "inventory_json_sha256": "be31169dafcf170f8c4602f51c5d6cfbff64a909a919bc1ef9bba88114fbfad4",
+  "inventory_json_sha256": "dc8ee6d370c164b30c4a331bc4668ff6fb824ae9edd7843a6a919d2e25f5df6a",
   "dependencies": [
     {
       "name": "block-buffer",
@@ -1357,7 +1357,7 @@
     {
       "mode": "sparse_interactive",
       "path": "fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json",
-      "sha256": "f35e6814f655cb3784883e3a318752d5fded58fa78de23fc5841573636d20878",
+      "sha256": "21278893f983dd8dba2ff35f8232bbda42ca40a79849a926a28691665fd93ced",
       "command": [
         "cargo",
         "run",
@@ -1376,7 +1376,7 @@
       "model_ref": "project:invented-demo-loop-01",
       "mechanics_status": "MECHANICS_SOLVED",
       "numerical_status": "checks_passed",
-      "row_count": 841,
+      "row_count": 837,
       "load_case_ids": [
         "load:L-100",
         "load:L-200"
@@ -1385,7 +1385,7 @@
     {
       "mode": "dense_scrutiny",
       "path": "fixtures/product_preview/invented_demo_result_preview_physics_1_dense.json",
-      "sha256": "1511788f25815f9dfa4645ae84ce06e2d8e09ae5d992d1591b5e209f2f63198e",
+      "sha256": "d057e47896a2e18c24bd8798bfff896ba8ccc5234e715d9170babe2e9df472ae",
       "command": [
         "cargo",
         "run",
@@ -1404,7 +1404,7 @@
       "model_ref": "project:invented-demo-loop-01",
       "mechanics_status": "MECHANICS_SOLVED",
       "numerical_status": "checks_passed",
-      "row_count": 841,
+      "row_count": 837,
       "load_case_ids": [
         "load:L-100",
         "load:L-200"

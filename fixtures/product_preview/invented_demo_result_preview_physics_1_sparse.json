@@ -33,30 +33,6 @@
             "section_modulus_m3": 0.0001368284682855212,
             "sif": 1.15,
             "sif_source_reference": "invented_user_entered_preview_no_code_table"
-          },
-          {
-            "bending_moment_y_n_m": 0.0,
-            "bending_moment_z_n_m": -125.24221589983698,
-            "component_id": "component:C-120",
-            "factor_role": "branch_branch",
-            "location": "end_j",
-            "pipe_id": "pipe:P-110",
-            "result_id": "result:intensified-bending:component-C-120:pipe-P-110:end-j",
-            "section_modulus_m3": 0.0001368284682855212,
-            "sif": 1.31,
-            "sif_source_reference": "invented_user_entered_branch_modifiers_no_code_table"
-          },
-          {
-            "bending_moment_y_n_m": 0.0,
-            "bending_moment_z_n_m": -610.8386155322287,
-            "component_id": "component:C-120",
-            "factor_role": "branch_header",
-            "location": "end_i",
-            "pipe_id": "pipe:P-120",
-            "result_id": "result:intensified-bending:component-C-120:pipe-P-120:end-i",
-            "section_modulus_m3": 0.0001368284682855212,
-            "sif": 1.22,
-            "sif_source_reference": "invented_user_entered_branch_modifiers_no_code_table"
           }
         ],
         "load_case_id": "load:L-100",
@@ -177,30 +153,6 @@
             "section_modulus_m3": 0.0001368284682855212,
             "sif": 1.15,
             "sif_source_reference": "invented_user_entered_preview_no_code_table"
-          },
-          {
-            "bending_moment_y_n_m": 0.0,
-            "bending_moment_z_n_m": -62.62110794991849,
-            "component_id": "component:C-120",
-            "factor_role": "branch_branch",
-            "location": "end_j",
-            "pipe_id": "pipe:P-110",
-            "result_id": "result:loadcase:load-L-200:intensified-bending:component-C-120:pipe-P-110:end-j",
-            "section_modulus_m3": 0.0001368284682855212,
-            "sif": 1.31,
-            "sif_source_reference": "invented_user_entered_branch_modifiers_no_code_table"
-          },
-          {
-            "bending_moment_y_n_m": 0.0,
-            "bending_moment_z_n_m": -305.41930776611434,
-            "component_id": "component:C-120",
-            "factor_role": "branch_header",
-            "location": "end_i",
-            "pipe_id": "pipe:P-120",
-            "result_id": "result:loadcase:load-L-200:intensified-bending:component-C-120:pipe-P-120:end-i",
-            "section_modulus_m3": 0.0001368284682855212,
-            "sif": 1.22,
-            "sif_source_reference": "invented_user_entered_branch_modifiers_no_code_table"
           }
         ],
         "load_case_id": "load:L-200",
@@ -365,7 +317,7 @@
     "segment_count": 4,
     "support_count": 7,
     "load_case_count": 2,
-    "component_stress_modifier_count": 8,
+    "component_stress_modifier_count": 4,
     "curved_bend_macro_element_count": 0,
     "spring_hanger_user_input_count": 7,
     "max_displacement": {
@@ -8006,50 +7958,6 @@
       }
     },
     {
-      "id": "result:intensified-bending:component-C-120:pipe-P-110:end-j",
-      "kind": "component_equal_factor_intensified_bending_stress_v1",
-      "value": 1199072.8602356764,
-      "unit": "Pa",
-      "entity_ref": "component:C-120",
-      "basis_ref": {
-        "ref_type": "load_case",
-        "ref_id": "load:L-100"
-      },
-      "source_result_refs": [
-        "result:stress:pipe-P-110:end-j:bending-normal-y",
-        "result:stress:pipe-P-110:end-j:bending-normal-z"
-      ],
-      "metadata": {
-        "component": "equal_factor_intensified_bending_stress",
-        "coordinate_system": "pipe_section",
-        "location": "end_j",
-        "basis": "user_sif_times_member_section_bending_stress_v1",
-        "sign_convention": "nonnegative i*hypot(My,Mz)/Z at the member end; i=1.31 user-entered branch branch SIF (source: invented_user_entered_branch_modifiers_no_code_table); member Z; not a code effective section modulus; not a code stress; no flexibility factor, axial or torsion term; never combined"
-      }
-    },
-    {
-      "id": "result:intensified-bending:component-C-120:pipe-P-120:end-i",
-      "kind": "component_equal_factor_intensified_bending_stress_v1",
-      "value": 5446403.955895021,
-      "unit": "Pa",
-      "entity_ref": "component:C-120",
-      "basis_ref": {
-        "ref_type": "load_case",
-        "ref_id": "load:L-100"
-      },
-      "source_result_refs": [
-        "result:stress:pipe-P-120:end-i:bending-normal-y",
-        "result:stress:pipe-P-120:end-i:bending-normal-z"
-      ],
-      "metadata": {
-        "component": "equal_factor_intensified_bending_stress",
-        "coordinate_system": "pipe_section",
-        "location": "end_i",
-        "basis": "user_sif_times_member_section_bending_stress_v1",
-        "sign_convention": "nonnegative i*hypot(My,Mz)/Z at the member end; i=1.22 user-entered branch header SIF (source: invented_user_entered_branch_modifiers_no_code_table); member Z; not a code effective section modulus; not a code stress; no flexibility factor, axial or torsion term; never combined"
-      }
-    },
-    {
       "id": "result:loadcase:load-L-200:solver-mode:linear-solve-basis",
       "kind": "linear_solver_mode_basis",
       "value": 1.0,
@@ -15673,50 +15581,6 @@
       }
     },
     {
-      "id": "result:loadcase:load-L-200:intensified-bending:component-C-120:pipe-P-110:end-j",
-      "kind": "component_equal_factor_intensified_bending_stress_v1",
-      "value": 599536.4301178382,
-      "unit": "Pa",
-      "entity_ref": "component:C-120",
-      "basis_ref": {
-        "ref_type": "load_case",
-        "ref_id": "load:L-200"
-      },
-      "source_result_refs": [
-        "result:loadcase:load-L-200:stress:pipe-P-110:end-j:bending-normal-y",
-        "result:loadcase:load-L-200:stress:pipe-P-110:end-j:bending-normal-z"
-      ],
-      "metadata": {
-        "component": "equal_factor_intensified_bending_stress",
-        "coordinate_system": "pipe_section",
-        "location": "end_j",
-        "basis": "user_sif_times_member_section_bending_stress_v1",
-        "sign_convention": "nonnegative i*hypot(My,Mz)/Z at the member end; i=1.31 user-entered branch branch SIF (source: invented_user_entered_branch_modifiers_no_code_table); member Z; not a code effective section modulus; not a code stress; no flexibility factor, axial or torsion term; never combined"
-      }
-    },
-    {
-      "id": "result:loadcase:load-L-200:intensified-bending:component-C-120:pipe-P-120:end-i",
-      "kind": "component_equal_factor_intensified_bending_stress_v1",
-      "value": 2723201.9779475103,
-      "unit": "Pa",
-      "entity_ref": "component:C-120",
-      "basis_ref": {
-        "ref_type": "load_case",
-        "ref_id": "load:L-200"
-      },
-      "source_result_refs": [
-        "result:loadcase:load-L-200:stress:pipe-P-120:end-i:bending-normal-y",
-        "result:loadcase:load-L-200:stress:pipe-P-120:end-i:bending-normal-z"
-      ],
-      "metadata": {
-        "component": "equal_factor_intensified_bending_stress",
-        "coordinate_system": "pipe_section",
-        "location": "end_i",
-        "basis": "user_sif_times_member_section_bending_stress_v1",
-        "sign_convention": "nonnegative i*hypot(My,Mz)/Z at the member end; i=1.22 user-entered branch header SIF (source: invented_user_entered_branch_modifiers_no_code_table); member Z; not a code effective section modulus; not a code stress; no flexibility factor, axial or torsion term; never combined"
-      }
-    },
-    {
       "id": "result:spring-hanger:support-SH-140:stiffness",
       "kind": "spring_hanger_user_input_review",
       "value": 42000.0,
@@ -15836,17 +15700,6 @@
       "affected_refs": [
         "support:CE-120",
         "hanger"
-      ]
-    },
-    {
-      "id": "diagnostic:component:component-C-120:branch-topology",
-      "code": "BRANCH_TOPOLOGY_INVALID",
-      "severity": "warning",
-      "message": "a branch component's node must join exactly three pipes, and its header and branch pipes must differ; node node:N-120 joins 2; its branch stress factors are still applied (header SIF to pipe:P-120, branch SIF to pipe:P-110)",
-      "source": "core/product_physics",
-      "affected_refs": [
-        "component:C-120",
-        "node:N-120"
       ]
     },
     {
@@ -15975,34 +15828,6 @@
       ]
     },
     {
-      "id": "diagnostic:preview-physics:intensification:10:load:L-10015:component:C-12010:pipe:P-1105:end_j",
-      "code": "COMPONENT_EQUAL_FACTOR_INTENSIFICATION_APPLIED",
-      "severity": "info",
-      "message": "branch_branch component:C-120 applies the user-entered branch branch SIF 1.31 to the member-Z bending stress at pipe:P-110 end_j: i*hypot(My,Mz)/Z; no flexibility factor, axial or torsion term; not a code stress",
-      "source": "core/product_physics",
-      "affected_refs": [
-        "component:C-120",
-        "pipe:P-110",
-        "result:intensified-bending:component-C-120:pipe-P-110:end-j",
-        "invented_user_entered_branch_modifiers_no_code_table",
-        "load:L-100"
-      ]
-    },
-    {
-      "id": "diagnostic:preview-physics:intensification:10:load:L-10015:component:C-12010:pipe:P-1205:end_i",
-      "code": "COMPONENT_EQUAL_FACTOR_INTENSIFICATION_APPLIED",
-      "severity": "info",
-      "message": "branch_header component:C-120 applies the user-entered branch header SIF 1.22 to the member-Z bending stress at pipe:P-120 end_i: i*hypot(My,Mz)/Z; no flexibility factor, axial or torsion term; not a code stress",
-      "source": "core/product_physics",
-      "affected_refs": [
-        "component:C-120",
-        "pipe:P-120",
-        "result:intensified-bending:component-C-120:pipe-P-120:end-i",
-        "invented_user_entered_branch_modifiers_no_code_table",
-        "load:L-100"
-      ]
-    },
-    {
       "id": "diagnostic:preview-physics:intensification:10:load:L-20015:component:C-11010:pipe:P-1005:end_j",
       "code": "COMPONENT_EQUAL_FACTOR_INTENSIFICATION_APPLIED",
       "severity": "info",
@@ -16027,34 +15852,6 @@
         "pipe:P-110",
         "result:loadcase:load-L-200:intensified-bending:component-C-110:pipe-P-110:end-i",
         "invented_user_entered_preview_no_code_table",
-        "load:L-200"
-      ]
-    },
-    {
-      "id": "diagnostic:preview-physics:intensification:10:load:L-20015:component:C-12010:pipe:P-1105:end_j",
-      "code": "COMPONENT_EQUAL_FACTOR_INTENSIFICATION_APPLIED",
-      "severity": "info",
-      "message": "branch_branch component:C-120 applies the user-entered branch branch SIF 1.31 to the member-Z bending stress at pipe:P-110 end_j: i*hypot(My,Mz)/Z; no flexibility factor, axial or torsion term; not a code stress",
-      "source": "core/product_physics",
-      "affected_refs": [
-        "component:C-120",
-        "pipe:P-110",
-        "result:loadcase:load-L-200:intensified-bending:component-C-120:pipe-P-110:end-j",
-        "invented_user_entered_branch_modifiers_no_code_table",
-        "load:L-200"
-      ]
-    },
-    {
-      "id": "diagnostic:preview-physics:intensification:10:load:L-20015:component:C-12010:pipe:P-1205:end_i",
-      "code": "COMPONENT_EQUAL_FACTOR_INTENSIFICATION_APPLIED",
-      "severity": "info",
-      "message": "branch_header component:C-120 applies the user-entered branch header SIF 1.22 to the member-Z bending stress at pipe:P-120 end_i: i*hypot(My,Mz)/Z; no flexibility factor, axial or torsion term; not a code stress",
-      "source": "core/product_physics",
-      "affected_refs": [
-        "component:C-120",
-        "pipe:P-120",
-        "result:loadcase:load-L-200:intensified-bending:component-C-120:pipe-P-120:end-i",
-        "invented_user_entered_branch_modifiers_no_code_table",
         "load:L-200"
       ]
     },
