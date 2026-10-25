@@ -352,17 +352,40 @@ details go to the driver log, the phase error and `summary.json`
 `native-smoke/driver.test.mjs` tests this behaviour with a fake window
 (`node --test`); no CI job runs it.
 
-The smoke never reuses a stale WebAssembly engine. After a successful build,
-`build:wasm` writes `source-stamp.json` into each engine folder: a SHA-256 over
-the engine crate's closure (normal and build path dependencies: manifests,
-build scripts, `src/`), its lock file, the build script, the compile reads
-cargo's dep-info lists (schemas and fixtures included or digested at build
-time) and `rustc -vV`. `run.mjs` recomputes each stamp and runs `build:wasm`
-when a folder or stamp is missing or the hash differs. It logs `engine rebuilt:
-<engine> (<reason>; stamp <hash>)` or `engine current, stamp <hash>`. This
-holds under `--skip-build` too, which then also rebuilds the frontend and app
-(they embed `dist/`) if an engine or its `dist/` copy was stale.
-`native-smoke/engine-stamp.test.mjs` tests the stamp and that decision.
+The smoke checks each WebAssembly engine against a content stamp before it
+runs. `build:wasm` writes `source-stamp.json` into each engine folder: a
+SHA-256 over the engine crate's closure (normal and build path dependencies:
+manifests, build scripts, `src/`), its lock file, the build script, the compile
+reads cargo's dep-info lists (schemas and fixtures included or digested at
+build time, by the path cargo reported, with every symbolic link on that path
+and its target), the bytes of the cargo configuration files, `rustc -vV` of the
+rustc cargo runs, and the compiler, wrapper, linker, rustflag and profile
+environment (`RUSTC*`, `CARGO_BUILD_*`, `CARGO_TARGET_<triple>_*`,
+`CARGO_PROFILE_*` and similar). A `build.rustc` key in cargo configuration is
+refused by name. It writes the stamp only when the complete input set,
+digested before cargo runs and again after, held still; a newly revealed compile
+read or a changed input means another build, and after three the build fails
+naming the inputs. `run.mjs` recomputes each stamp and runs `build:wasm` when a
+folder or stamp is missing or the hash differs, also under `--skip-build`. It
+logs `engine rebuilt: <engine> (<reason>; stamp <hash>)` or `engine current,
+stamp <hash>`.
+
+The app embeds `dist/` when cargo builds it, so after each successful app build
+`run.mjs` writes a binding record next to the binary
+(`src-tauri/target/debug/openpipestress-desktop.native-smoke-binding.json`):
+the engine stamps, a digest of `dist/`, the build command and smoke
+configuration, and the binary's size and SHA-256. Under `--skip-build` a
+rebuilt engine or a `dist/` copy whose stamp differs rebuilds the frontend and
+app; otherwise the app alone is rebuilt unless the binding matches all of them
+now. The log names which applies.
+
+The stamp does not cover the contents of a wrapper or linker program (only its
+name), files outside the project, or an edit that keeps a file's modification
+time, which cargo's own freshness check also misses. `--skip-build` does not
+check the frontend's TypeScript or the app's Rust sources against `dist/` or
+the binary. `native-smoke/engine-stamp.test.mjs`,
+`native-smoke/app-binding.test.mjs` and `scripts/build-wasm-engine.test.mjs`
+test the stamp, the stable-build rule and these decisions.
 
 Run it on a Mac with a GUI session:
 

@@ -5,7 +5,9 @@
 //
 // Checks each WebAssembly engine's content stamp (`scripts/engineSourceStamp.mjs`)
 // and rebuilds a stale or unstamped engine, even under --skip-build; builds the
-// frontend and the app with the `native-smoke` cargo feature, then
+// frontend and the app with the `native-smoke` cargo feature (under
+// --skip-build, whatever a stale engine, dist/ copy or app binding requires;
+// `scripts/appBinaryBinding.mjs`), then
 // runs the real app twice against a throwaway HOME (so the project store and
 // Downloads are isolated from the user's own):
 //
@@ -31,7 +33,8 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ENGINE_BUILDS } from "../scripts/build-wasm-engine.mjs";
-import { STAMP_FILENAME, checkEngine, decideEngine, engineStampContext, readStampText } from "../scripts/engineSourceStamp.mjs";
+import { bindingPathFor, bindingRecord, checkBinding, fileIdentity, planAppBuild, treeDigest } from "../scripts/appBinaryBinding.mjs";
+import { checkEngine, decideEngine, engineStampContext, readStampText } from "../scripts/engineSourceStamp.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const desktop = path.resolve(here, "..");
@@ -86,31 +89,44 @@ if (staleEngines.length > 0) {
 } else {
   for (const engine of enginesBefore) console.log(`engine current, stamp ${engine.hash} (${engine.name})`);
 }
-if (!skipBuild) {
-  run("npm", ["run", "build"], desktop);
-  run("cargo", ["build", "--locked", "--offline", "--features", "native-smoke,tauri/custom-protocol"], tauriDir, { TAURI_CONFIG: SMOKE_TAURI_CONFIG });
-} else {
-  // The app embeds dist/ when cargo builds it, so under --skip-build a rebuilt
-  // engine, or a dist/ copy whose stamp differs, means the frontend and app are
-  // rebuilt too.
-  const currentHashes = new Map(engineStates().map((engine) => [engine.name, engine.hash]));
-  const distStale = ENGINE_BUILDS.map(({ destination }) => {
+// The app embeds dist/ when cargo builds it. Under --skip-build a rebuilt
+// engine or a dist/ copy whose stamp differs rebuilds the frontend and app; the
+// app alone is rebuilt unless its binding record (scripts/appBinaryBinding.mjs)
+// names the current engine stamps, dist/ digest, build command and binary.
+const APP_BUILD = { command: ["cargo", "build", "--locked", "--offline", "--features", "native-smoke,tauri/custom-protocol"], tauri_config: SMOKE_TAURI_CONFIG };
+const bindingPath = bindingPathFor(binary);
+const distDirectory = path.join(desktop, "dist");
+const currentEngineHashes = () => Object.fromEntries(engineStates().map((engine) => [engine.name, engine.hash]));
+let distStale = [];
+let binding = { match: false, reason: null };
+if (skipBuild) {
+  const engineHashes = currentEngineHashes();
+  distStale = ENGINE_BUILDS.map(({ destination }) => {
     const name = path.basename(destination);
-    const distDir = path.join(desktop, "dist", name);
+    const distDir = path.join(distDirectory, name);
     const folderPresent = existsSync(distDir);
-    const decision = decideEngine({ folderPresent, stampText: folderPresent ? readStampText(distDir) : null, currentHash: currentHashes.get(name) });
+    const decision = decideEngine({ folderPresent, stampText: folderPresent ? readStampText(distDir) : null, currentHash: engineHashes[name] });
     return { name, ...decision };
   }).filter((engine) => engine.action === "rebuild");
-  if (staleEngines.length > 0 || distStale.length > 0) {
-    const reasons = [
-      ...staleEngines.map((engine) => `${engine.name} rebuilt`),
-      ...distStale.map((engine) => `dist/${engine.name}/${STAMP_FILENAME}: ${engine.reason}`)
-    ];
-    console.log(`native smoke: --skip-build overridden (${reasons.join("; ")}); the app embeds dist/, so the frontend and app are rebuilt`);
-    run("npm", ["run", "build"], desktop);
-    run("cargo", ["build", "--locked", "--offline", "--features", "native-smoke,tauri/custom-protocol"], tauriDir, { TAURI_CONFIG: SMOKE_TAURI_CONFIG });
+  const bindingText = existsSync(bindingPath) ? readFileSync(bindingPath, "utf8") : null;
+  binding = checkBinding(bindingText, { engines: engineHashes, dist: treeDigest(distDirectory), build: APP_BUILD, binary: fileIdentity(binary) });
+}
+const appPlan = planAppBuild({ skipBuild, staleEngines: staleEngines.map((engine) => engine.name), distStale, binding });
+if (appPlan.log) console.log(appPlan.log);
+if (appPlan.frontend) run("npm", ["run", "build"], desktop);
+if (appPlan.app) {
+  // No record survives a failed or interrupted build.
+  rmSync(bindingPath, { force: true });
+  const engines = currentEngineHashes();
+  const distBefore = treeDigest(distDirectory);
+  const [command, ...commandArgs] = APP_BUILD.command;
+  run(command, commandArgs, tauriDir, { TAURI_CONFIG: APP_BUILD.tauri_config });
+  const dist = treeDigest(distDirectory);
+  if (dist !== distBefore) {
+    console.log("native smoke: dist/ changed while cargo built the app; no app binding written, so the next --skip-build rebuilds the app");
   } else {
-    console.log("native smoke: --skip-build applies: engines and their dist/ copies are current; frontend and app builds skipped");
+    writeFileSync(bindingPath, `${JSON.stringify(bindingRecord({ engines, dist, build: APP_BUILD, binary: fileIdentity(binary) }), null, 2)}\n`);
+    console.log(`native smoke: app binding written: ${path.relative(project, bindingPath)} (dist ${dist})`);
   }
 }
 if (!existsSync(binary)) {

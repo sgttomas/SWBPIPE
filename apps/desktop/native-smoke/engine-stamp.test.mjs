@@ -5,7 +5,7 @@
 //   node --test apps/desktop/native-smoke/engine-stamp.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, realpathSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import {
@@ -15,6 +15,10 @@ import {
   compileReadsFromDepInfo,
   computeEngineStamp,
   decideEngine,
+  digestInputs,
+  engineInputs,
+  engineStampContext,
+  inputDrift,
   parseDepInfo,
   staticEngineInputs
 } from "../scripts/engineSourceStamp.mjs";
@@ -204,6 +208,113 @@ test("checkEngine recomputes from the sources and the stamp's recorded compile r
     // Only the stamp names the compile read, and a change to it is seen.
     p.write("fixtures/read.json", "{\"a\":3}\n");
     assert.deepEqual([check().action, check().reason], ["rebuild", `inputs changed since stamp ${stamp.hash}`]);
+  } finally {
+    p.cleanup();
+  }
+});
+
+test("a compile read through a symbolic link keeps its link: retargeting it makes the stamp stale", () => {
+  const p = project();
+  try {
+    p.write("assets/a.json", "{\"v\":\"a\"}\n");
+    p.write("assets/b.json", "{\"v\":\"b\"}\n");
+    p.write("assets/same-as-a.json", "{\"v\":\"a\"}\n");
+    symlinkSync("a.json", path.join(p.root, "assets/active.json"));
+    const target = path.join(p.root, "core/engine/target");
+    const reads = compileReadsFromDepInfo(p.root, `${target}/engine.wasm: ${p.root}/assets/active.json\n`, [target]);
+    // The path cargo reported, not its canonical target.
+    assert.deepEqual(reads, ["assets/active.json"]);
+    const base = p.stamp({ compileReads: reads }).hash;
+    const retarget = (to) => {
+      unlinkSync(path.join(p.root, "assets/active.json"));
+      symlinkSync(to, path.join(p.root, "assets/active.json"));
+    };
+    retarget("b.json");
+    assert.notEqual(p.stamp({ compileReads: reads }).hash, base);
+    // Same bytes behind another target: still another input identity.
+    retarget("same-as-a.json");
+    assert.notEqual(p.stamp({ compileReads: reads }).hash, base);
+    retarget("a.json");
+    assert.equal(p.stamp({ compileReads: reads }).hash, base);
+
+    // A symbolic link on a directory component on the way.
+    p.write("data-v1/x.json", "1\n");
+    p.write("data-v2/x.json", "2\n");
+    symlinkSync("data-v1", path.join(p.root, "data"));
+    const before = p.stamp({ compileReads: ["data/x.json"] }).hash;
+    unlinkSync(path.join(p.root, "data"));
+    symlinkSync("data-v2", path.join(p.root, "data"));
+    assert.notEqual(p.stamp({ compileReads: ["data/x.json"] }).hash, before);
+    assert.match(digestInputs(p.root, ["data/x.json"]).get("data/x.json"), /^link "data" "data-v2" 2 [0-9a-f]{64}$/);
+
+    // A ".." after a link, whose lexical normal form is another file, is refused by name.
+    mkdirSync(path.join(p.root, "deep/inner"), { recursive: true });
+    symlinkSync(path.join(p.root, "deep/inner"), path.join(p.root, "core/engine/src/jump"));
+    p.write("deep/read.json", "{}\n");
+    assert.throws(
+      () => compileReadsFromDepInfo(p.root, `${target}/engine.wasm: ${p.root}/core/engine/src/jump/../read.json\n`, [target]),
+      /reaches another file than its lexically normalised path/
+    );
+  } finally {
+    p.cleanup();
+  }
+});
+
+test("the compiler, wrapper and linker environment and a cargo build.rustc are part of the context", () => {
+  const p = project();
+  try {
+    const rustc = path.join(p.root, "fake-rustc");
+    writeFileSync(rustc, "#!/bin/sh\necho 'rustc 9.9.9 (fake)'\n");
+    chmodSync(rustc, 0o755);
+    const home = path.join(p.root, "cargo-home");
+    mkdirSync(home);
+    const env = { PATH: process.env.PATH, HOME: process.env.HOME, CARGO_HOME: home, RUSTC: rustc };
+    const stampWith = (extra) => p.stamp({ context: engineStampContext(p.root, { ...env, ...extra }) }).hash;
+    const base = stampWith({});
+    assert.equal(stampWith({ CARGO_TARGET_DIR: "/elsewhere" }), base);
+    for (const extra of [
+      { RUSTC_WRAPPER: "sccache" },
+      { RUSTC_WORKSPACE_WRAPPER: "clippy-driver" },
+      { CARGO_BUILD_RUSTC_WRAPPER: "sccache" },
+      { CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_LINKER: "wasm-ld" },
+      { CARGO_TARGET_AARCH64_APPLE_DARWIN_RUSTFLAGS: "-Ctarget-cpu=native" },
+      { CARGO_ENCODED_RUSTFLAGS: "-Copt-level=1" },
+      { CARGO_PROFILE_RELEASE_LTO: "true" }
+    ]) {
+      assert.notEqual(stampWith(extra), base, JSON.stringify(extra));
+    }
+    // The effective rustc's identity: CARGO_BUILD_RUSTC when RUSTC is unset.
+    const other = path.join(p.root, "other-rustc");
+    writeFileSync(other, "#!/bin/sh\necho 'rustc 9.9.10 (fake)'\n");
+    chmodSync(other, 0o755);
+    const { RUSTC: _unused, ...withoutRustc } = env;
+    const viaBuild = engineStampContext(p.root, { ...withoutRustc, CARGO_BUILD_RUSTC: other });
+    assert.deepEqual(viaBuild[0], ["rustc -vV", "rustc 9.9.10 (fake)"]);
+    // A cargo configuration file is hashed; one naming build.rustc is refused by name.
+    writeFileSync(path.join(home, "config.toml"), "[build]\nrustc-wrapper = \"sccache\"\n");
+    assert.notEqual(stampWith({}), base);
+    writeFileSync(path.join(home, "config.toml"), "[build]\nrustc = \"/opt/rustc\"\n");
+    assert.throws(() => engineStampContext(p.root, withoutRustc), /config\.toml sets build\.rustc/);
+  } finally {
+    p.cleanup();
+  }
+});
+
+test("inputDrift: a newly discovered compile read, an added source or a changed input block the stamp", () => {
+  const p = project();
+  try {
+    const input = (compileReads) => engineInputs({ projectRoot: p.root, crateDirectory: p.crateDirectory, compileReads, readManifest: p.readManifest });
+    const drift = (knownReads, mutate, foundReads) => {
+      const before = input(knownReads);
+      const beforeDigests = digestInputs(p.root, before.all);
+      mutate();
+      const after = input(foundReads);
+      return inputDrift({ beforeStatic: before.staticInputs, beforeDigests, after, afterDigests: digestInputs(p.root, after.all) });
+    };
+    assert.deepEqual(drift(["fixtures/read.json"], () => {}, ["fixtures/read.json"]), []);
+    assert.deepEqual(drift([], () => {}, ["fixtures/read.json"]), ["compile reads not known before the build: fixtures/read.json"]);
+    assert.deepEqual(drift(["fixtures/read.json"], () => p.write("fixtures/read.json", "{\"a\":9}\n"), ["fixtures/read.json"]), ["inputs changed during the build: fixtures/read.json"]);
+    assert.deepEqual(drift(["fixtures/read.json"], () => p.write("core/engine/src/new.rs", "\n"), ["fixtures/read.json"]), ["source files added or removed during the build: core/engine/src/new.rs"]);
   } finally {
     p.cleanup();
   }

@@ -14,7 +14,12 @@
 // Each engine folder also receives `source-stamp.json`, the content stamp of
 // the sources it was built from (`engineSourceStamp.mjs`), written with the
 // glue so it exists only after a successful build; the native smoke recomputes
-// it and rebuilds a stale engine.
+// it and rebuilds a stale engine. The stamp is written only for a build whose
+// complete input set held still: the inputs (static ones plus every compile
+// read known so far) are digested before cargo runs and again after; a compile
+// read the dep-info newly reveals, a source added or removed, or any changed
+// digest means cargo builds again, up to MAX_STABLE_BUILD_ATTEMPTS, then the
+// build fails naming the inputs.
 
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
@@ -24,13 +29,17 @@ import { fileURLToPath } from "node:url";
 import {
   STAMP_FILENAME,
   compileReadsFromDepInfo,
-  computeEngineStamp,
+  digestInputs,
+  engineInputs,
   engineStampContext,
-  hashInputs,
-  staticEngineInputs
+  inputDrift,
+  parseStampText,
+  readStampText,
+  stampFromDigests
 } from "./engineSourceStamp.mjs";
 
 const PINNED_WASM_BINDGEN_VERSION = "0.2.123";
+export const MAX_STABLE_BUILD_ATTEMPTS = 3;
 
 const desktopRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const projectRoot = path.resolve(desktopRoot, "..", "..");
@@ -147,8 +156,9 @@ if (bindgenVersion !== PINNED_WASM_BINDGEN_VERSION) {
   ]);
 }
 
-// The stamp context (rustc identity, rustflags, cargo configuration); cargo
-// runs from this process's working directory.
+// The stamp context (rustc identity, compiler, wrapper, linker and rustflag
+// environment, cargo configuration); cargo runs from this process's working
+// directory.
 let stampContext;
 try {
   stampContext = engineStampContext(process.cwd());
@@ -159,53 +169,67 @@ try {
 for (const { crateDirectory, crateName, destination } of ENGINE_BUILDS) {
 const crateManifest = path.join(crateDirectory, "Cargo.toml");
 const outDir = destination;
-// The sources' hash before the build, to refuse a stamp for sources that
-// changed while cargo ran.
-let staticBefore;
-try {
-  staticBefore = hashInputs(projectRoot, staticEngineInputs(projectRoot, crateDirectory), stampContext).hash;
-} catch (error) {
-  fail(["Could not list the engine's source inputs for its stamp:", error.message]);
-}
-// 4. Compile the engine to wasm32 with the wasm feature.
-console.log("[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release");
-const build = tryRun("cargo", [
-  "build",
-  "--offline",
-  "--manifest-path",
-  crateManifest,
-  "--target",
-  "wasm32-unknown-unknown",
-  "--features",
-  "wasm",
-  "--release"
-]);
-if (!build.ok) {
-  fail(["`cargo build` for the wasm32 engine failed:", build.stderr]);
-}
+const crateLabel = path.relative(projectRoot, crateDirectory);
+// 4. Compile the engine to wasm32 with the wasm feature, until a build's
+//    complete input set held still across it (4b).
+let knownReads = parseStampText(readStampText(outDir)).stamp?.compile_reads ?? [];
 let wasmArtifact;
-try {
-  wasmArtifact = resolveWasmArtifact(crateDirectory, crateName);
-} catch (error) {
-  fail(["Could not resolve Cargo's wasm artifact directory:", error.message]);
-}
-if (!existsSync(wasmArtifact)) {
-  fail([`cargo build succeeded but the expected artifact is missing: ${wasmArtifact}`]);
-}
-// 4b. The content stamp: the static inputs plus the compile reads cargo's
-//     dep-info lists for this artifact (schemas, fixtures, `#[path]` modules,
-//     build-script `rerun-if-changed` files). No dep-info, no stamp.
-const depInfo = wasmArtifact.replace(/\.wasm$/, ".d");
-let stamp;
-try {
-  const targetDirectory = path.resolve(path.dirname(wasmArtifact), "..", "..");
-  const compileReads = compileReadsFromDepInfo(projectRoot, readFileSync(depInfo, "utf8"), [targetDirectory]);
-  if (hashInputs(projectRoot, staticEngineInputs(projectRoot, crateDirectory), stampContext).hash !== staticBefore) {
-    throw new Error("the engine's sources changed while cargo built it; run `npm run build:wasm` again");
+let stamp = null;
+let drift = [];
+for (let attempt = 1; attempt <= MAX_STABLE_BUILD_ATTEMPTS && stamp === null; attempt += 1) {
+  let before;
+  let beforeDigests;
+  try {
+    before = engineInputs({ projectRoot, crateDirectory, compileReads: knownReads });
+    beforeDigests = digestInputs(projectRoot, before.all);
+  } catch (error) {
+    fail(["Could not list the engine's source inputs for its stamp:", error.message]);
   }
-  stamp = { engine: path.basename(outDir), ...computeEngineStamp({ projectRoot, crateDirectory, compileReads, context: stampContext }) };
-} catch (error) {
-  fail([`Could not stamp the engine built from ${path.relative(projectRoot, crateDirectory)} (dep-info ${depInfo}):`, error.message]);
+  console.log(`[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release (${crateLabel}, attempt ${attempt}/${MAX_STABLE_BUILD_ATTEMPTS})`);
+  const build = tryRun("cargo", [
+    "build",
+    "--offline",
+    "--manifest-path",
+    crateManifest,
+    "--target",
+    "wasm32-unknown-unknown",
+    "--features",
+    "wasm",
+    "--release"
+  ]);
+  if (!build.ok) {
+    fail(["`cargo build` for the wasm32 engine failed:", build.stderr]);
+  }
+  try {
+    wasmArtifact = resolveWasmArtifact(crateDirectory, crateName);
+  } catch (error) {
+    fail(["Could not resolve Cargo's wasm artifact directory:", error.message]);
+  }
+  if (!existsSync(wasmArtifact)) {
+    fail([`cargo build succeeded but the expected artifact is missing: ${wasmArtifact}`]);
+  }
+  // 4b. The content stamp: the static inputs plus the compile reads cargo's
+  //     dep-info lists for this artifact (schemas, fixtures, `#[path]` modules,
+  //     build-script `rerun-if-changed` files). No dep-info, no stamp.
+  const depInfo = wasmArtifact.replace(/\.wasm$/, ".d");
+  try {
+    const targetDirectory = path.resolve(path.dirname(wasmArtifact), "..", "..");
+    const compileReads = compileReadsFromDepInfo(projectRoot, readFileSync(depInfo, "utf8"), [targetDirectory]);
+    const after = engineInputs({ projectRoot, crateDirectory, compileReads });
+    const afterDigests = digestInputs(projectRoot, after.all);
+    drift = inputDrift({ beforeStatic: before.staticInputs, beforeDigests, after, afterDigests });
+    if (drift.length === 0) {
+      stamp = { engine: path.basename(outDir), ...stampFromDigests({ projectRoot, crateDirectory, digests: afterDigests, recorded: after.recorded, context: stampContext }) };
+    } else {
+      console.log(`[build-wasm-engine] ${crateLabel}: not stamped (${drift.join("; ")}); building again`);
+      knownReads = [...new Set([...knownReads, ...compileReads])];
+    }
+  } catch (error) {
+    fail([`Could not stamp the engine built from ${crateLabel} (dep-info ${depInfo}):`, error.message]);
+  }
+}
+if (stamp === null) {
+  fail([`The inputs of the engine built from ${crateLabel} did not hold still across ${MAX_STABLE_BUILD_ATTEMPTS} builds, so it is not stamped:`, ...drift, "Stop whatever is editing them and run `npm run build:wasm` again."]);
 }
 
 // 5. Generate the web-target JS glue into a sibling temp directory, then
