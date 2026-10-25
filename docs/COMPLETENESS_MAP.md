@@ -88,11 +88,11 @@ app at the basis.
 
 The biggest gaps:
 
-1. **No shareable report, no EX report, no report package.** A public render of
+1. **No shareable report, no EX report or report package.** A public render of
    any session stays `blocked=true`, because session provenance is hard-coded
    private (`renderableReportInput.ts:119-131`). EX results are refused for
-   every report (ruling 10A). Save Report Package refuses every current result
-   (`REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`). The report lacks materials,
+   every report and the report package (ruling 10A). Save Report Package saves
+   a local private package for a pressure-free result (W-18 (b2)). The report lacks materials,
    sections and library records. Affected: FR-REP-001..004.
 2. **Saved-state and run comparisons are view-only; selected within-run comparison context is packaged.** Model states, run history and comparison are in v0.1 by OD-1. Named immutable states are in the desktop (W-12 S1, #1589): save, open, label and delete, kept only in the SQLite store. Runs are recorded against states (W-12 S2, #1596), with the model’s rule packs resolved at solve (#1602). Two saved states are compared in the desktop (W-12 S3a, #1605), and two runs (W-12 S3b, #1617). “Within this run” lets the user choose the load case and combination (W-12 S3c). The report line and JSON, preview handoff summary, export review and design-workspace downloads, and report-package assembly input carry the chosen comparison context. A combination whose rows include a kind with no declared dimension is refused by name (`ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED`); those consumers carry its bases, run and reason in a `comparison_unavailable` record. The saved `.swbhandoff` carries no comparison. Mapping editor, tolerance profiles, graphical diffs and DEL-14-05 comparison-output export remain v0.2. Affected: FR-CMP-001..004, -006, FR-GUI-007.
 3. **No rigid elements.** OD-2 chose DEC-045 stiffness scaling (W-15). It is
@@ -211,7 +211,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-HAND-003 (560) | Should | P | `HandoffPanel.tsx:243` `target_field_coverage: "TBD"` | DEL-15-02 | |
 | FR-HAND-004 (561) | Should | P | Loss reports (`HandoffPanel.tsx:187`, PCF) | DEL-15-02, DEL-17-07 | PF only. |
 | FR-HAND-005 (562) | Could | D | PCF, MBF, adapter and SDK panels (`App.tsx:1009-1017`); observed natively (§5) | DEL-17-04/07/08/09 | The MBF target version is `TBD` (`CaepipeMbfExportPanel.tsx:38`). |
-| Result JSON, stress-neutral | — | D | `App.tsx:1007-1008`; `exactOutputTwins.test.tsx`; observed natively (§5) | DEL-08-04, DEL-17-06 | Both carry the run record's rule-pack exclusion diagnostics (#1602), without duplicating producer diagnostics. |
+| Result JSON, stress-neutral | — | D | `App.tsx:1007-1008`; `exactOutputTwins.test.tsx`; observed natively (§5) | DEL-08-04, DEL-17-06 | Both carry the run record's rule-pack exclusion diagnostics (#1602), without duplicating producer diagnostics. Open issues (#1613): the result-export validator does not check diagnostics; the generic stress-neutral validator binds the witness-withholding findings to the package's own provenance, as the Python validator does (the desktop path binds it to the builder's). |
 | Local FEA handoff | — | O | DEC-078 (D-12 O-B): FR-025 post-beta (DEL-10-03 SOW:486) | DEL-10-03 | A gated panel exists. |
 
 ### 2.5 States, runs, comparison, V&V (PRD §11.6, §15, §21–22)
@@ -458,7 +458,7 @@ exercise today:
 The native smoke's five stale `expected.json` values (§3 rows 1–5) are applied,
 so a run on main shows no known failure.
 
-These are **not ready**: shareable or EX reports, the report package, model
+These are **not ready**: shareable or EX reports and report packages, model
 states and comparison, canonical model export, rigid components, EX
 combinations, PF imposed displacement and the 0.7.0
 document slots.
@@ -542,7 +542,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-15 | DEC-045 stiffness scaling for rigid and semi-rigid components (FR-SOL-004/012), component weight, EX admission, eccentric reducer offset (§12.3), rigid-link benchmark; fix the `validation.rs:1367` comment | M–L | numerical | heavy, scrutiny | — | No (OD-2 decided) |
 | W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | — | No |
 | W-17 (rest) | Units after creation (slice b, `set_project_unit`); rule-pack §17.2 stress categories, load-case mappings and required load cases | S–M each | desktop / schema | heavy | — | No (§17.2 decided, owner 2026-10-24: "I approve your recommended option A."; stress categories, load-case mappings and required load cases in v0.1, under a new rule-pack format version) |
-| W-18 (new) | Report package for current results (FR-REP-001; `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private). Slice (a), the Rust 2.0.0 producer, reader and runner witness, is on main (#1597); slice (b1), native admission and disposition screening of the save (`report_package_save.rs`, shared `export_disposition_screen.rs`), replaces its native hold; (b2) desktop opening remains (DEL-08-01 Design `report-package-current-results.md` §6) | M | desktop + Rust | heavy | W-3 | Shareable path decided (owner, 2026-10-24, option B: a per-report user release, W-18b, after (a)–(b2)) |
+| W-18 (new) | Report package for current results (FR-REP-001; formerly `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private). Slice (a), the Rust 2.0.0 producer, reader and runner witness, is on main (#1597); slice (b1), native admission and disposition screening of the save (`report_package_save.rs`, shared `export_disposition_screen.rs`), replaces its native hold; slice (b2), the desktop opening (`reportPackageRequest.ts`, the split save service, the solve/rule-check rule-pack agreement and a native smoke step), saves a local private package for a Current pressure-free result, and exact routes stay refused (DEL-08-01 Design `report-package-current-results.md` §6) | M | desktop + Rust | heavy | W-3 | Shareable path decided (owner, 2026-10-24, option B: a per-report user release, W-18b, after (a)–(b2)) |
 | W-14 | Design-knowledge entry and constraint validation | — | — | — | — | Deferred to v0.2 (OD-3) |
 
 **Sequencing:**

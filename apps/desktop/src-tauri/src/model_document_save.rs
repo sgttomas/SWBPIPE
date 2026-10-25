@@ -431,6 +431,7 @@ mod tests {
     /// returned hash) is the model hash of the document it re-opens as.
     #[test]
     fn save_then_open_gives_identical_bytes_and_an_equal_model_hash() {
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
         for (label, source) in [("demo", DEMO), ("every-slot", EVERY_SLOT)] {
             let text = canonical_of(source);
             let claimed = hash_of(&text);
@@ -816,6 +817,7 @@ mod tests {
     /// warning, never a refusal.
     #[test]
     fn every_emitted_authoring_and_library_apply_document_saves_and_reopens() {
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
         let root = sandbox("emitted");
         let mut saved = 0;
         for (fixture, member) in [
@@ -844,6 +846,7 @@ mod tests {
     /// open with a clean shape (the webview half is in modelDocumentSave.test.tsx).
     #[test]
     fn every_shape_corpus_case_that_admits_reopens() {
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
         let corpus: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/desktop_shape_cases.json")).unwrap();
         let root = sandbox("corpus-reopen");
         let mut admitted_cases = 0;

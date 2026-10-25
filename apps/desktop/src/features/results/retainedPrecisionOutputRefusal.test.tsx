@@ -35,7 +35,7 @@ import {
   PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL, RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE, RETAINED_PRECISION_OUTPUT_REFUSAL, RETAINED_PHYSICS_OUTPUT_REFUSAL,
   loadReferenceOutputRefusal, refuseLoadReferenceOutput,
 } from "./loadReferenceOutputAvailability";
-import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE, isFreshSemanticResult } from "./knownSemanticLimitations";
+import { isFreshSemanticResult } from "./knownSemanticLimitations";
 import { currentSemanticContract } from "./resultReader";
 import { numericalResultStanding } from "./resultStanding";
 import { RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED, RETAINED_PRECISION_VALIDATION_REQUIRED } from "./retainedPrecisionStanding";
@@ -207,9 +207,9 @@ describe.each(MODES)("%s: stress-neutral, result export and the report package k
     expect(screen.queryByText(RETAINED_PRECISION_OUTPUT_REFUSAL, { exact: false })).toBeNull();
     expect(document.querySelectorAll("a[download]")).toHaveLength(0);
   });
-  it("the report package keeps T0R's fresh-result refusal", async () => {
+  it("the report package refuses the successor by its report-package cell", async () => {
     const { result } = await successor(mode);
-    expect(reportPackageUnavailableReason(result)).toBe(`${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`);
+    expect(reportPackageUnavailableReason(result)).toBe(RETAINED_PRECISION_OUTPUT_REFUSAL);
   });
 });
 

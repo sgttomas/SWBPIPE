@@ -4,9 +4,9 @@
 //
 // It works the app as a person would: native menu commands go through the same
 // dispatch a menu click uses, buttons are clicked, and every observation is read
-// from what the window shows. The only substitution is the model-document and
-// handoff choosers (open and save): the driver names the file it returns. It
-// records what it saw; `run.mjs` judges.
+// from what the window shows. The only substitution is the model-document,
+// handoff and report-package choosers (open and save): the driver names the file
+// it returns. It records what it saw; `run.mjs` judges.
 (() => {
   const ipc = window.__TAURI_INTERNALS__;
   const call = (command, args) => ipc.invoke(command, args ?? {});
@@ -168,6 +168,49 @@
     const first = await saveHandoff(plan.handoff.path, "handoff/save");
     const second = await saveHandoff(plan.handoff.path, "handoff/replace");
     report.handoff = { opened, first, second };
+  }
+
+  // W-18 (b2). File > Save Report Package… on the session's Current pressure-free
+  // result, after its own local-private selection, answering the save chooser with
+  // `path`; then the saved file is re-read with the product's reader. A save refused
+  // before its chooser drops the queued path, so it cannot answer a later chooser.
+  async function saveReportPackage(path, label) {
+    await showSection("report");
+    const intent = await waitFor(`${label}: package controls`, () => byTestId("report-package-private-intent"), 30000);
+    const record = {
+      label,
+      unavailable: text("report-package-source-unavailable"),
+      intent_checked_initially: intent.checked === true,
+      intent_label: intent.closest("label")?.textContent?.trim() ?? null
+    };
+    if (!intent.checked) {
+      intent.click();
+      await waitFor(`${label}: package intent recorded`, () => byTestId("report-package-private-intent")?.checked, 10000);
+    }
+    await call("native_smoke_choose", { path });
+    // A save the native memory pool refused only for this Mac's momentary free
+    // memory (nothing ran, nothing was written) is asked again, as a person would.
+    record.memory_refusals = 0;
+    for (;;) {
+      await waitFor(`${label}: package save enabled`, () => byTestId("report-package-save") && !byTestId("report-package-save").disabled, 30000);
+      await menu("file.save-report-package");
+      await waitFor(`${label}: package save started`, () => /Saving report package/.test(byTestId("report-package-save")?.textContent ?? "") || null, 10000).catch(() => null);
+      record.status = await waitFor(`${label}: package saved`, () => {
+        const now = text("report-package-save-status");
+        return now && !/Saving report package/.test(byTestId("report-package-save")?.textContent ?? "") ? now : null;
+      }, 300000);
+      await log(`${label}: ${record.status}`);
+      if (!/RESOURCE_UNAVAILABLE: Not enough free memory/.test(record.status) || record.memory_refusals >= 20) break;
+      record.memory_refusals += 1;
+      await sleep(5000);
+    }
+    record.redaction = text("report-package-redaction-summary");
+    if (!record.status.startsWith("outcome=saved")) {
+      await call("native_smoke_clear_choices");
+      return record;
+    }
+    record.read = await call("native_smoke_read_report_package", { path }).then((value) => value, (error) => ({ error: String(error) }));
+    return record;
   }
 
   async function observe(label, projectId, probe) {
@@ -514,7 +557,10 @@
       solve: solved,
       rendered_report_panel: Boolean(renderedPanel),
       render_control_present: Boolean(renderedPanel?.querySelector('[data-testid="rendered-report-render"]')),
-      render_refusal: renderedPanel?.querySelector('[data-testid="rendered-report-load-reference-output-unavailable"]')?.textContent?.trim() ?? null
+      render_refusal: renderedPanel?.querySelector('[data-testid="rendered-report-load-reference-output-unavailable"]')?.textContent?.trim() ?? null,
+      // W-18 (b2): the report package keeps refusing the exact route (ruling 10A).
+      report_package_refusal: text("report-package-source-unavailable"),
+      report_package_controls: Boolean(byTestId("report-package-controls"))
     };
     await showSection("exports");
     // The result packet is assembled asynchronously (8.5 s observed on a loaded Mac).
@@ -628,6 +674,8 @@
       report.opened.push({ case: doc.case, message: shown });
       for (const mode of doc.modes) report.observations.push({ case: doc.case, mode, ...(await solve(mode, `${doc.case}/${mode}`, doc.project_id, doc.probe)) });
       report.exports.push(await exportResult(doc.case));
+      // W-18 (b2): the bundled demo's package, in the session whose result JSON was just exported.
+      if (plan.report_package && doc.project_id === plan.bundled_project_id) report.report_package = await saveReportPackage(plan.report_package.path, `${doc.case}/report-package`);
       report.saved.push({ case: doc.case, message: await saveAsProject(doc.project_id) });
       if (doc.replace_flows) await replaceFlows(doc, report);
     }

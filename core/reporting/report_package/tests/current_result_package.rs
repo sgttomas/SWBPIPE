@@ -46,9 +46,15 @@ fn desktop_with(run_override: Option<&str>) -> Value {
 /// The desktop-profile basis, derived by the shared builder from the
 /// committed source after `edit_source`.
 fn desktop_from(run_override: Option<&str>, edit_source: impl FnOnce(&mut Value)) -> Value {
+    let manifest: Value = serde_json::from_str(INPUT_MANIFEST).unwrap();
+    let manifest_id = runner()["audit_manifest"]["input_manifest_hash"]["payload_ref"].as_str().unwrap().to_string();
+    desktop_basis(run_override, edit_source, &manifest, &manifest_id)
+}
+
+/// As [`desktop_from`], for the input manifest `manifest` named `manifest_id`.
+fn desktop_basis(run_override: Option<&str>, edit_source: impl FnOnce(&mut Value), manifest: &Value, manifest_id: &str) -> Value {
     let runner = runner();
     let model: Value = serde_json::from_str(MODEL).unwrap();
-    let manifest: Value = serde_json::from_str(INPUT_MANIFEST).unwrap();
     let solver = &runner["audit_manifest"]["solver_version"];
     let mut source = runner["source_results"][0].clone();
     edit_source(&mut source);
@@ -57,8 +63,8 @@ fn desktop_from(run_override: Option<&str>, edit_source: impl FnOnce(&mut Value)
         source: &source,
         producer_document: &runner["result_documents"][0],
         solve_request: &Value::Null,
-        input_manifest: &manifest,
-        input_manifest_id: runner["audit_manifest"]["input_manifest_hash"]["payload_ref"].as_str().unwrap(),
+        input_manifest: manifest,
+        input_manifest_id: manifest_id,
         solver_name: solver["solver_name"].as_str().unwrap(),
         solver_version: solver["solver_version"].as_str().unwrap(),
         profile: Profile::Desktop,
@@ -436,6 +442,32 @@ fn a_desktop_origin_naming_another_input_manifest_is_refused() {
     });
     let error = assemble(&edited).unwrap_err();
     assert!(error.starts_with(BINDING_MISMATCH) || error.starts_with(SOURCE_INVALID), "{error}");
+}
+
+/// Codex W-18a (b2) round 2 (assembled before this binding): a desktop
+/// request that keeps its audit `manifest_id` and the document's matching
+/// `audit_manifest_ref`, while the audited input-manifest hash and its payload
+/// reference, the report's and the handoff records' references and the
+/// origin's qualification name another input manifest, with the derivative
+/// hash recomputed, is refused. The runner names its audit manifest by its
+/// run, so the rule is the desktop's (§2.4).
+#[test]
+fn a_desktop_audit_manifest_id_other_than_its_input_manifest_reference_is_refused() {
+    let old = desktop();
+    let mut manifest: Value = serde_json::from_str(INPUT_MANIFEST).unwrap();
+    manifest["fixture_label"] = json!("Invented other input manifest; test fixture only");
+    let mut moved = desktop_basis(None, |_| {}, &manifest, "input-manifest:invented-other");
+    let audit_ref = "/result_envelope/reproducibility/audit_manifest_ref";
+    moved["audit_manifest"]["manifest_id"] = old["audit_manifest"]["manifest_id"].clone();
+    *at(&mut moved["result_documents"][0], audit_ref) = old["result_documents"][0].pointer(audit_ref).unwrap().clone();
+    moved["result_documents"][0] = common::rehash(moved["result_documents"][0].take());
+    assert_eq!(moved["audit_manifest"]["input_manifest_hash"]["payload_ref"], "input-manifest:invented-other");
+    let error = refused(&moved, BINDING_MISMATCH, "desktop: old audit id, moved input manifest");
+    assert!(error.contains("desktop audit manifest id"), "{error}");
+    // The runner's audit id is its run's, not its input manifest's.
+    let runner = runner();
+    assert_ne!(runner["audit_manifest"]["manifest_id"], runner["audit_manifest"]["input_manifest_hash"]["payload_ref"]);
+    unblocked(&runner);
 }
 
 // ---------------------------------------------------------------------------

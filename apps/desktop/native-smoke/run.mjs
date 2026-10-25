@@ -11,7 +11,9 @@
 //      the saved file and save it again (W-6a); three named refusals; then for the milestone model and
 //      the demo model, File > Open Model Document…, solve sparse and dense,
 //      read standing, rows, N1 displacement and the solve proof, export the
-//      result JSON where the product offers it, and save as a local project;
+//      result JSON where the product offers it (W-18: and File > Save Report
+//      Package… for the demo, re-read with the product's reader), and save as a
+//      local project;
 //   2. reopen: a fresh process opens each saved project and solves it again,
 //      then File > Save Handoff… on the stored demo twice: a new handoff-basis
 //      state and package, then the same package replaced (W-6b).
@@ -88,6 +90,11 @@ const MODEL_DOCUMENT_SAVE = { first: path.join(savedModels, "saved-demo.json"), 
 const savedHandoffs = path.join(root, "saved-handoffs");
 mkdirSync(savedHandoffs);
 const HANDOFF_SAVE = { path: path.join(savedHandoffs, "saved-demo.swbhandoff") };
+// W-18 (b2). Where the report-package save chooser is answered, outside HOME's
+// Documents and Downloads.
+const savedReportPackages = path.join(root, "saved-report-packages");
+mkdirSync(savedReportPackages);
+const REPORT_PACKAGE_SAVE = { path: path.join(savedReportPackages, "saved-demo.opsproj") };
 const documents = expected.cases.map((entry) => {
   const source = path.join(project, entry.fixture);
   const target = path.join(models, path.basename(entry.fixture));
@@ -181,7 +188,7 @@ function checkObservation(prefix, seen, want, modelHash) {
   check(`${prefix}: no retained-precision diagnostics`, seen.retained_precision_codes.length === 0 && seen.retained_precision_elements === 0, seen.retained_precision_codes);
 }
 
-const first = await launch("open-solve-save");
+const first = await launch("open-solve-save", { report_package: REPORT_PACKAGE_SAVE });
 check("phase open-solve-save completed", first.ok, first.error);
 // W-6a (DEL-15-01 Design canonical-model-export.md §2). Nothing here is pinned:
 // the expected bytes and hash are computed from the bundled demo fixture.
@@ -272,6 +279,8 @@ const namesMissingInputs = (rules) => Boolean(rules?.aggregate?.includes("RULE_I
   check("exact route: MBF refused by its own gate (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE), no package or MBF text download",
     exact?.mbf_panel && !exact.mbf_download_controls && exact.mbf_refusal?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE"), exact?.mbf_refusal);
   check("exact route: result JSON export offered", exact?.result_export_link === true);
+  check("exact route: report package refused by its route (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE), no package controls",
+    exact?.report_package_refusal?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE") && exact.report_package_controls === false, exact?.report_package_refusal);
   check("exact route: rule checks refused as RULE_INPUTS_INCOMPLETE, naming the missing inputs", namesMissingInputs(exact?.rule_checks), exact?.rule_checks?.outcomes);
 }
 // W-4. The model authored from blank in the GUI.
@@ -403,6 +412,36 @@ for (const doc of documents) {
   check(`${doc.case}: saved run names the refusal: ${integrity.count} ${integrity.severity} ${integrity.code} with the route's sentence, none blocking`,
     named.length === integrity.count && named.every((item) => item.severity === integrity.severity && item.message?.includes(integrity.sentence))
       && !(run?.diagnostics ?? []).some((item) => item.severity === "blocking" || item.severity === "error"), named.map((item) => item.severity));
+}
+// W-18 (b2; DEL-08-01 Design report-package-current-results.md §4). File > Save
+// Report Package… on the demo's Current pressure-free result. Nothing here is
+// pinned: the receipt, the file and the product reader's re-read are compared with
+// each other and with the result JSON the same session exported.
+{
+  const pkg = first.report_package;
+  const read = pkg?.read;
+  const fileBytes = existsSync(REPORT_PACKAGE_SAVE.path) ? readFileSync(REPORT_PACKAGE_SAVE.path) : null;
+  const hex = (bytes) => createHash("sha256").update(bytes).digest("hex");
+  const shown = (pattern) => pkg?.status?.match(pattern)?.[1] ?? null;
+  check("save report package: offered for the demo's Current pressure-free result, after its own local-private selection (unchecked first)",
+    pkg && pkg.unavailable === null && pkg.intent_checked_initially === false && pkg.intent_label === "Include known private values in this local package", pkg && { ...pkg, read: undefined });
+  check("save report package: saved (REPORT-PACKAGE-SAVED) to the chosen file", pkg?.status?.startsWith("outcome=saved; code=REPORT-PACKAGE-SAVED; file=") && fileBytes !== null, pkg?.status);
+  check("save report package: the file's SHA-256 and length are the receipt's",
+    fileBytes && shown(/container_sha256=([0-9a-f]{64})/) === hex(fileBytes) && Number(shown(/bytes=(\d+);/)) === fileBytes.length && read?.file_sha256_hex === hex(fileBytes), shown(/container_sha256=([0-9a-f]{64})/));
+  check("save report package: the product reader re-reads an unblocked version 2.0.0 desktop package, its identity the receipt's",
+    read && !read.error && read.schema_version === "2.0.0" && read.export_profile_id === "desktop_local_private_report_package_1" && read.export_blocked === false
+      && read.package_identity_sha256_hex === shown(/package_identity=([0-9a-f]{64})/), read?.error ?? (read && { schema_version: read.schema_version, export_blocked: read.export_blocked }));
+  const inventory = Array.isArray(read?.inventory) ? read.inventory : [];
+  const members = Array.isArray(read?.members) ? read.members.filter((member) => member.role !== "package_manifest") : [];
+  check("save report package: every member's recomputed SHA-256 and length match the manifest inventory",
+    inventory.length > 0 && inventory.length === members.length && inventory.every((entry, index) => members[index]?.role === entry.role && members[index].file_name === entry.file_name
+      && members[index].sha256_hex === entry.sha256_hex && members[index].byte_length === entry.byte_length), members.map((member) => member.role));
+  const demoExport = (first.exports ?? []).find((item) => item.label === "demo");
+  const exportName = demoExport?.status?.match(/^Saved (.+) \(\d+ bytes\)\.$/)?.[1];
+  let exportedDocument = null;
+  try { exportedDocument = exportName ? JSON.parse(readFileSync(path.join(downloads, exportName), "utf8")) : null; } catch { exportedDocument = null; }
+  check("save report package: the result member is the RFC 8785 text of the Export Result JSON document the same session saved",
+    exportedDocument && typeof read?.result_member_text === "string" && read.result_member_text === canonical(exportedDocument), exportName);
 }
 if (documents.some((doc) => (doc.result_export ?? { offered: true }).offered)) check("at least one result export written", exported.length > 0, exported);
 else check("no result export written: no case offers one", exported.length === 0, exported);

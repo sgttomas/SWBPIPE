@@ -69,8 +69,9 @@ export function currentRequirementsExceptNumericalEligibility({ result, analysis
  * render-time bumps; the rule-check aggregate; the proposal and the selected
  * review target, which are review context cleared and saved with the results;
  * the solve job, the solve proof, the running flag and the solver mode; the
- * report-package cells and refs; the two generation gates; the current-result
- * and current-manifest refs with their render-time assignments; the active
+ * report-package cells and refs; the two generation gates; the current-result,
+ * current-manifest, rule-check aggregate and rule-check run refs with their
+ * render-time assignments; the active
  * solve job, the cancellation tombstones, the comparison and the "Within this
  * run" choice (W-12 S3c) with its view. It declares no
  * effect and no handler.
@@ -127,6 +128,12 @@ export function useResultsSessionState() {
     heldRuleCheckRun && ruleCheckAggregate !== null && heldRuleCheckRun.result.aggregate_status === ruleCheckAggregate
       ? heldRuleCheckRun
       : null;
+  // Render-time refs of the aggregate and the exposed run, for a stale-work guard
+  // whose awaited build outlives the render closure (the report-package save).
+  const ruleCheckAggregateRef = useRef<RuleCheckStatus | null>(null);
+  const ruleCheckReportRunRef = useRef<SessionRuleCheckRun | null>(null);
+  ruleCheckAggregateRef.current = ruleCheckAggregate;
+  ruleCheckReportRunRef.current = ruleCheckReportRun;
   const [proposal, setProposal] = useState<AgentProposal | null>(null);
   const [selectedReviewTarget, setSelectedReviewTarget] = useState<SelectedReviewTarget | null>(null);
   const [solveJob, setSolveJob] = useState<SolveJobAuditState>(() => initialSolveJob());
@@ -200,6 +207,7 @@ export function useResultsSessionState() {
     inputManifest, setInputManifest,
     ruleCheckAggregate, setRuleCheckAggregate,
     ruleCheckReportRun, heldRuleCheckRun, setRuleCheckReportRun,
+    ruleCheckAggregateRef, ruleCheckReportRunRef,
     proposal, setProposal,
     selectedReviewTarget, setSelectedReviewTarget,
     solveJob, setSolveJob,

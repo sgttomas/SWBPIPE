@@ -60,16 +60,16 @@ async fn save_report_package(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<ReportPackageSaveCommandError>> {
-    // The arguments are two canonical texts and two structs of scalars, moved.
+    // The arguments are three canonical texts and two structs of scalars, moved.
     let (mut args, mut lease) = command_ingress::admit(&registry, &invoke, "save_report_package", ArgsDecoding::Moved)?;
     let request = report_package_save::save_report_package_args(&mut args)?;
     drop(args);
-    // Evidence shape, the size caps, then the priced parse of both texts: the
-    // lease grows by their parse before either is parsed (DEL-08-01 Design
+    // Evidence shape, the size caps, then the priced parse of the three texts:
+    // the lease grows by their parse before any is parsed (DEL-08-01 Design
     // `report-package-current-results.md` §2.6 items 1-3). The lease is held
     // through admission, the save dialog and the write.
     let growth = report_package_save::validate_report_package_save_evidence(&request.screening, request.local_first.as_ref())
-        .and_then(|()| report_package_save::parse_lease_bytes(&request.request_text, &request.model_text));
+        .and_then(|()| report_package_save::parse_lease_bytes(&request.request_text, &request.model_text, &request.input_manifest_text));
     let growth = match growth {
         Ok(growth) => growth,
         Err(error) => return respond::<report_package_save::ReportPackageSaveReceipt, _>(Err(CommandError::Command(error))),
@@ -5153,11 +5153,13 @@ pub fn run() {
     #[cfg(feature = "native-smoke")]
     let builder = native_smoke::install(builder).invoke_handler(app_invoke_handler!(
         native_smoke::native_smoke_choose,
+        native_smoke::native_smoke_clear_choices,
         native_smoke::native_smoke_menu,
         native_smoke::native_smoke_plan,
         native_smoke::native_smoke_log,
         native_smoke::native_smoke_external_save,
         native_smoke::native_smoke_verify_handoff_package,
+        native_smoke::native_smoke_read_report_package,
         native_smoke::native_smoke_finish,
     ));
     builder
@@ -9480,8 +9482,9 @@ mod tests {
             let (mut args, mut lease) = admit_json(&registry, "save_report_package", ArgsDecoding::Moved, &body).unwrap();
             let decoded = report_package_save::save_report_package_args(&mut args).unwrap();
             drop(args);
-            let growth = report_package_save::parse_lease_bytes(&decoded.request_text, &decoded.model_text).unwrap();
+            let growth = report_package_save::parse_lease_bytes(&decoded.request_text, &decoded.model_text, &decoded.input_manifest_text).unwrap();
             lease.grow_to(lease.bytes() + growth).unwrap();
+            let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
             let root = sandbox("command-path");
             let mut picks = 0usize;
             let receipt = save_report_package_with_picker(decoded, &software(), &mut no_store, |_| {
@@ -9524,7 +9527,7 @@ mod tests {
             fs::remove_dir_all(&root).unwrap();
         }
 
-        /// The raw-body arguments decode within the moved lease rule: the two
+        /// The raw-body arguments decode within the moved lease rule: the three
         /// texts are moved strings, the evidence structs of scalars.
         #[test]
         fn report_package_command_decodes_its_arguments() {
@@ -9536,6 +9539,7 @@ mod tests {
             let decoded = report_package_save::save_report_package_args(&mut args).unwrap();
             assert_eq!(decoded.request_text, request.request_text);
             assert_eq!(decoded.model_text, request.model_text);
+            assert_eq!(decoded.input_manifest_text, request.input_manifest_text);
             assert_eq!(decoded.screening, request.screening);
             assert_eq!(decoded.local_first, request.local_first);
             // Absent local-first evidence decodes as None (admission then refuses it).
@@ -9555,6 +9559,15 @@ mod tests {
                 other => panic!("{other:?}"),
             };
             assert!(message.contains("`requestCanonicalText`"), "{message}");
+            // The input manifest is a required argument (§2.6 item 1).
+            let mut no_manifest = body.clone();
+            no_manifest.as_object_mut().unwrap().remove("inputManifestCanonicalText");
+            let (mut args, _lease) = admit_json(&registry, "save_report_package", ArgsDecoding::Moved, &no_manifest).unwrap();
+            let message = match report_package_save::save_report_package_args(&mut args).unwrap_err() {
+                SolveJobError::InvalidRequest { message } => message,
+                other => panic!("{other:?}"),
+            };
+            assert!(message.contains("`inputManifestCanonicalText`"), "{message}");
         }
 
         #[test]
@@ -9626,7 +9639,9 @@ mod tests {
             refused_local_first["localFirstEvidence"]["blocked"] = json!(long.clone());
             let mut refused_text = clean.clone();
             refused_text["requestCanonicalText"] = json!([long.clone()]);
-            for body in [clean, refused_screening, refused_local_first, refused_text] {
+            let mut refused_manifest = clean.clone();
+            refused_manifest["inputManifestCanonicalText"] = json!([long.clone()]);
+            for body in [clean, refused_screening, refused_local_first, refused_text, refused_manifest] {
                 let raw = serde_json::to_vec(&body).unwrap();
                 let _ = check_decode_bound(&raw, ArgsDecoding::Moved, |args| report_package_save::save_report_package_args(args).map(drop));
             }
