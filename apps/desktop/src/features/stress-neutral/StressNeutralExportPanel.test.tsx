@@ -319,7 +319,10 @@ it('binds preview v3 metadata and preserves shared f64 bits in CSV and JSON',asy
 
 it('binds the witness-withholding findings to the builder provenance on the desktop path; the generic validator keeps them bound to the top level',async()=>{
  // The withheld-row fixture of the test above (an unknown semantic), built by the desktop builder.
- const model=structuredClone(modelJson) as PreviewModel,result=minimalPreviewStatement({run_id:'run:transport-vectors',model_ref:model.project.id,
+ // W-15 slice d: as above, the synthetic statement forms no member, so valve C-130 is not solver-consumed here.
+ const model=structuredClone(modelJson) as PreviewModel;
+ (model.components.find(c=>c.id==='component:C-130') as any).mechanics_interface.solver_consumption='not_solver_consumed'; // eslint-disable-line @typescript-eslint/no-explicit-any
+ const result=minimalPreviewStatement({run_id:'run:transport-vectors',model_ref:model.project.id,
   rows:transport.vectors.map(v=>({id:v.id,kind:'global_nodal_rotation_x',entity_ref:'node:transport',value:JSON.parse(v.decimal),unit:'rad',metadata:{component:'nodal_rotation_x',coordinate_system:'global',location:'summary',basis:'synthetic consumer transport fixture',sign_convention:'synthetic signed scalar'}})),
   diagnostics:[{id:'gate:test',code:'SYNTHETIC_GATE',severity:'info',message:'Consumer fixture only'}],
   cases:model.load_cases.map(c=>({basis_ref:{ref_type:'load_case',ref_id:c.id},structural_status:'passive_model_basis',solve_quality:'checks_passed',model_matrix_fidelity:'represented_equations_retained',accuracy_evidence:'not_claimed',evidence_refs:['gate:test']}))});
