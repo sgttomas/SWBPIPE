@@ -11,8 +11,12 @@
 //      the saved file and save it again (W-6a); three named refusals; then for the milestone model and
 //      the demo model, File > Open Model Document…, solve sparse and dense,
 //      read standing, rows, N1 displacement and the solve proof, export the
-//      result JSON where the product offers it, and save as a local project;
-//   2. reopen: a fresh process opens each saved project and solves it again.
+//      result JSON where the product offers it (W-18: and File > Save Report
+//      Package… for the demo, re-read with the product's reader), and save as a
+//      local project;
+//   2. reopen: a fresh process opens each saved project and solves it again,
+//      then File > Save Handoff… on the stored demo twice: a new handoff-basis
+//      state and package, then the same package replaced (W-6b).
 //
 // It then checks the observations against `expected.json`, the model hash
 // against an RFC 8785 JCS SHA-256 of the files it opened, the saved projects
@@ -82,6 +86,15 @@ mkdirSync(models);
 const savedModels = path.join(root, "saved-model-documents");
 mkdirSync(savedModels);
 const MODEL_DOCUMENT_SAVE = { first: path.join(savedModels, "saved-demo.json"), second: path.join(savedModels, "saved-demo-reopened.json") };
+// W-6b. Where the handoff folder chooser is answered, outside HOME's Documents.
+const savedHandoffs = path.join(root, "saved-handoffs");
+mkdirSync(savedHandoffs);
+const HANDOFF_SAVE = { path: path.join(savedHandoffs, "saved-demo.swbhandoff") };
+// W-18 (b2). Where the report-package save chooser is answered, outside HOME's
+// Documents and Downloads.
+const savedReportPackages = path.join(root, "saved-report-packages");
+mkdirSync(savedReportPackages);
+const REPORT_PACKAGE_SAVE = { path: path.join(savedReportPackages, "saved-demo.opsproj") };
 const documents = expected.cases.map((entry) => {
   const source = path.join(project, entry.fixture);
   const target = path.join(models, path.basename(entry.fixture));
@@ -175,7 +188,7 @@ function checkObservation(prefix, seen, want, modelHash) {
   check(`${prefix}: no retained-precision diagnostics`, seen.retained_precision_codes.length === 0 && seen.retained_precision_elements === 0, seen.retained_precision_codes);
 }
 
-const first = await launch("open-solve-save");
+const first = await launch("open-solve-save", { report_package: REPORT_PACKAGE_SAVE });
 check("phase open-solve-save completed", first.ok, first.error);
 // W-6a (DEL-15-01 Design canonical-model-export.md §2). Nothing here is pinned:
 // the expected bytes and hash are computed from the bundled demo fixture.
@@ -266,6 +279,8 @@ const namesMissingInputs = (rules) => Boolean(rules?.aggregate?.includes("RULE_I
   check("exact route: MBF refused by its own gate (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE), no package or MBF text download",
     exact?.mbf_panel && !exact.mbf_download_controls && exact.mbf_refusal?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE"), exact?.mbf_refusal);
   check("exact route: result JSON export offered", exact?.result_export_link === true);
+  check("exact route: report package refused by its route (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE), no package controls",
+    exact?.report_package_refusal?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE") && exact.report_package_controls === false, exact?.report_package_refusal);
   check("exact route: rule checks refused as RULE_INPUTS_INCOMPLETE, naming the missing inputs", namesMissingInputs(exact?.rule_checks), exact?.rule_checks?.outcomes);
 }
 // W-4. The model authored from blank in the GUI.
@@ -398,10 +413,40 @@ for (const doc of documents) {
     named.length === integrity.count && named.every((item) => item.severity === integrity.severity && item.message?.includes(integrity.sentence))
       && !(run?.diagnostics ?? []).some((item) => item.severity === "blocking" || item.severity === "error"), named.map((item) => item.severity));
 }
+// W-18 (b2; DEL-08-01 Design report-package-current-results.md §4). File > Save
+// Report Package… on the demo's Current pressure-free result. Nothing here is
+// pinned: the receipt, the file and the product reader's re-read are compared with
+// each other and with the result JSON the same session exported.
+{
+  const pkg = first.report_package;
+  const read = pkg?.read;
+  const fileBytes = existsSync(REPORT_PACKAGE_SAVE.path) ? readFileSync(REPORT_PACKAGE_SAVE.path) : null;
+  const hex = (bytes) => createHash("sha256").update(bytes).digest("hex");
+  const shown = (pattern) => pkg?.status?.match(pattern)?.[1] ?? null;
+  check("save report package: offered for the demo's Current pressure-free result, after its own local-private selection (unchecked first)",
+    pkg && pkg.unavailable === null && pkg.intent_checked_initially === false && pkg.intent_label === "Include known private values in this local package", pkg && { ...pkg, read: undefined });
+  check("save report package: saved (REPORT-PACKAGE-SAVED) to the chosen file", pkg?.status?.startsWith("outcome=saved; code=REPORT-PACKAGE-SAVED; file=") && fileBytes !== null, pkg?.status);
+  check("save report package: the file's SHA-256 and length are the receipt's",
+    fileBytes && shown(/container_sha256=([0-9a-f]{64})/) === hex(fileBytes) && Number(shown(/bytes=(\d+);/)) === fileBytes.length && read?.file_sha256_hex === hex(fileBytes), shown(/container_sha256=([0-9a-f]{64})/));
+  check("save report package: the product reader re-reads an unblocked version 2.0.0 desktop package, its identity the receipt's",
+    read && !read.error && read.schema_version === "2.0.0" && read.export_profile_id === "desktop_local_private_report_package_1" && read.export_blocked === false
+      && read.package_identity_sha256_hex === shown(/package_identity=([0-9a-f]{64})/), read?.error ?? (read && { schema_version: read.schema_version, export_blocked: read.export_blocked }));
+  const inventory = Array.isArray(read?.inventory) ? read.inventory : [];
+  const members = Array.isArray(read?.members) ? read.members.filter((member) => member.role !== "package_manifest") : [];
+  check("save report package: every member's recomputed SHA-256 and length match the manifest inventory",
+    inventory.length > 0 && inventory.length === members.length && inventory.every((entry, index) => members[index]?.role === entry.role && members[index].file_name === entry.file_name
+      && members[index].sha256_hex === entry.sha256_hex && members[index].byte_length === entry.byte_length), members.map((member) => member.role));
+  const demoExport = (first.exports ?? []).find((item) => item.label === "demo");
+  const exportName = demoExport?.status?.match(/^Saved (.+) \(\d+ bytes\)\.$/)?.[1];
+  let exportedDocument = null;
+  try { exportedDocument = exportName ? JSON.parse(readFileSync(path.join(downloads, exportName), "utf8")) : null; } catch { exportedDocument = null; }
+  check("save report package: the result member is the RFC 8785 text of the Export Result JSON document the same session saved",
+    exportedDocument && typeof read?.result_member_text === "string" && read.result_member_text === canonical(exportedDocument), exportName);
+}
 if (documents.some((doc) => (doc.result_export ?? { offered: true }).offered)) check("at least one result export written", exported.length > 0, exported);
 else check("no result export written: no case offers one", exported.length === 0, exported);
 
-const second = await launch("reopen", blankId ? { blank: { ...BLANK, project_id: blankId } } : {});
+const second = await launch("reopen", { handoff: HANDOFF_SAVE, ...(blankId ? { blank: { ...BLANK, project_id: blankId } } : {}) });
 check("phase reopen completed", second.ok, second.error);
 {
   const bundled = promptFor(second, "bundled-demo/save");
@@ -427,6 +472,65 @@ for (const doc of documents) {
   check("from blank, reopened: same rows, tip value and model hash as before save", after && before && after.proof_rows === before.proof_rows && after.probe_entered === before.probe_entered && after.proof_model_sha256 === before.proof_model_sha256, `${after?.proof_rows}; ${after?.probe_entered}`);
   check("from blank, reopened: tip deflection still equals PL^3/3EI, along +Y only", withinCriterion(tipMm(after)) && signedTip(after), after?.components);
   check("from blank, reopened: the unfiltered results count every solved row", after && after.all_rows_summary === `${after.proof_rows} of ${after.proof_rows} results match filter`, after?.all_rows_summary);
+}
+
+// W-6b (DEL-15-01 Design canonical-model-export.md §3). File > Save Handoff… on
+// the stored demo, twice. Nothing here is pinned: the bytes and hashes are
+// computed from the stored demo model and from the saved package itself.
+{
+  const handoff = second.handoff;
+  const firstSave = handoff?.first;
+  const replaced = handoff?.second;
+  const demoDoc = documents.find((doc) => doc.project_id === expected.bundled_project_id);
+  const demoModel = demoDoc?.saved_model ?? null;
+  const reported = (shown) => shown?.match(/^Saved handoff package (\S+) \(model hash (sha256:[0-9a-f]{64}); export hash (sha256:[0-9a-f]{64}); basis state (\S+)\)\./);
+  const sha = (bytes) => `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
+  const packageDir = HANDOFF_SAVE.path;
+  const listing = (dir) => (existsSync(dir) ? readdirSync(dir).sort() : null);
+  check("save handoff: the dialog asks for the explicit intent and confirms the new basis state before the chooser",
+    firstSave && !firstSave.intent_checked_initially && firstSave.confirm_disabled_before_intent && firstSave.cancel_focused
+      && firstSave.new_state && firstSave.confirm_disabled_before_state_confirmed && /^Handoff \d{4}-\d{2}-\d{2}$/.test(firstSave.state_name ?? "")
+      && firstSave.intent_label === "Save my handoff package, including private project data, to a folder I choose", firstSave && { ...firstSave, message: undefined, verified: undefined });
+  const shown = reported(firstSave?.message);
+  check("save handoff: saved with a new handoff-basis model state", shown && firstSave.message.includes(`Saved model state "${firstSave.state_name}" (${shown[4]}) as the handoff basis`), firstSave?.message);
+  check("save handoff: the package folder holds exactly handoff_package.json and model/model.json",
+    canonical(listing(packageDir)) === canonical(["handoff_package.json", "model"]) && canonical(listing(path.join(packageDir, "model"))) === canonical(["model.json"]), listing(packageDir));
+  check("save handoff: the folder beside it holds only the package (no staging folder, the replaced package removed)",
+    canonical(listing(savedHandoffs)) === canonical([path.basename(packageDir)]), listing(savedHandoffs));
+  const modelBytes = existsSync(path.join(packageDir, "model", "model.json")) ? readFileSync(path.join(packageDir, "model", "model.json")) : null;
+  const manifestBytes = existsSync(path.join(packageDir, "handoff_package.json")) ? readFileSync(path.join(packageDir, "handoff_package.json")) : null;
+  const finalShown = reported(replaced?.message);
+  check("save handoff: model/model.json is the stored demo's RFC 8785 text, its SHA-256 the model hash the status line and the verifier report",
+    modelBytes && demoModel && modelBytes.toString("utf8") === canonical(demoModel) && sha(modelBytes) === modelSha256(demoModel)
+      && finalShown?.[2] === sha(modelBytes) && replaced?.verified?.model_hash === sha(modelBytes), finalShown?.[2] ?? replaced?.message);
+  let manifest = null;
+  try { manifest = manifestBytes ? JSON.parse(manifestBytes.toString("utf8")) : null; } catch { manifest = null; }
+  const inner = manifest?.handoff_package_manifest;
+  const { checksums: _checksums, ...unsealed } = inner ?? {};
+  void _checksums;
+  const exportHash = inner ? `sha256:${createHash("sha256").update(canonical(unsealed), "utf8").digest("hex")}` : null;
+  check("save handoff: handoff_package.json is its own RFC 8785 text, and its recomputed export hash is the verifier's and the status line's",
+    manifest && manifestBytes.toString("utf8") === canonical(manifest) && exportHash === replaced?.verified?.export_hash && exportHash === finalShown?.[3], exportHash);
+  check("save handoff: the manifest binds model/model.json by its SHA-256 and claims nothing embedded",
+    inner && inner.checksums?.[0]?.value === sha(modelBytes ?? Buffer.alloc(0)).slice(7) && inner.model_hash?.value === inner.checksums[0].value
+      && inner.privacy?.private_payload_embedded === false && inner.professional_boundary?.human_review_required === true, inner?.checksums);
+  check("save handoff: the manifest's basis is the new handoff_basis state the status line names",
+    inner && shown && inner.model_state_refs?.[0]?.model_state_ref?.ref === shown[4] && inner.model_state_refs[0].state_kind === "handoff_basis"
+      && inner.model_basis?.basis_state_ref?.ref === shown[4], inner?.model_state_refs?.[0]?.model_state_ref);
+  check("save handoff: the product's verifier verified both saves", firstSave?.verified?.model_hash && !firstSave.verified.error && replaced?.verified?.export_hash && !replaced.verified.error,
+    { first: firstSave?.verified, second: replaced?.verified });
+  check("save handoff again: the dialog names the saved basis state, the same package is replaced, the state reused",
+    replaced && !replaced.new_state && replaced.basis?.includes(`(${shown?.[4]})`) && finalShown?.[4] === shown?.[4]
+      && finalShown?.[1] === path.basename(packageDir) && replaced.verified?.export_hash !== firstSave?.verified?.export_hash, replaced && { basis: replaced.basis, message: replaced.message });
+  let storedState = null;
+  if (existsSync(storePath) && shown) {
+    const { DatabaseSync } = await import("node:sqlite");
+    const db = new DatabaseSync(storePath, { readOnly: true });
+    storedState = db.prepare("SELECT state_kind, model_hash FROM model_states WHERE project_id = ? AND state_id = ?").get(expected.bundled_project_id, shown[4]) ?? null;
+    db.close();
+  }
+  check("save handoff: the basis state is in the local store as handoff_basis with the package's model hash",
+    storedState?.state_kind === "handoff_basis" && storedState.model_hash === sha(modelBytes ?? Buffer.alloc(0)), storedState);
 }
 
 const failed = checks.filter((item) => !item.ok);

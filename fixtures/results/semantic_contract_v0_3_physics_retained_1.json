@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 129,
-  "source_kind_count": 66,
+  "source_signature_count": 135,
+  "source_kind_count": 68,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -137,7 +137,9 @@
         "user_directional_sif_times_tangent_frame_bending_stress_v1; section_basis=nominal_section",
         "user_directional_sif_times_tangent_frame_bending_stress_v1; section_basis=reduced_section",
         "bore_load_transferred_toroidal_membrane_v1; section_basis=nominal_section",
-        "bore_load_transferred_toroidal_membrane_v1; section_basis=reduced_section"
+        "bore_load_transferred_toroidal_membrane_v1; section_basis=reduced_section",
+        "rotated_from_published_element_local_end_actions_v1",
+        "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action"
       ]
     },
     "sign_convention": {
@@ -2130,6 +2132,96 @@
       "governing_ratio_eligible": false,
       "source_basis": "bore_load_transferred_toroidal_membrane_v1; section_basis=reduced_section",
       "combination_algebra": "signed_linear"
+    },
+    {
+      "signature_id": "supported-source-108",
+      "kind": "element_global_end_force_v1",
+      "unit": "N",
+      "component": "Fx",
+      "source_physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
+    },
+    {
+      "signature_id": "supported-source-109",
+      "kind": "element_global_end_force_v1",
+      "unit": "N",
+      "component": "Fy",
+      "source_physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
+    },
+    {
+      "signature_id": "supported-source-110",
+      "kind": "element_global_end_force_v1",
+      "unit": "N",
+      "component": "Fz",
+      "source_physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
+    },
+    {
+      "signature_id": "supported-source-111",
+      "kind": "element_global_end_moment_v1",
+      "unit": "N*m",
+      "component": "Mx",
+      "source_physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
+    },
+    {
+      "signature_id": "supported-source-112",
+      "kind": "element_global_end_moment_v1",
+      "unit": "N*m",
+      "component": "My",
+      "source_physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
+    },
+    {
+      "signature_id": "supported-source-113",
+      "kind": "element_global_end_moment_v1",
+      "unit": "N*m",
+      "component": "Mz",
+      "source_physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     }
   ],
   "hash_vectors": [
@@ -2180,7 +2272,7 @@
   },
   "metadata_policy": "preserve_source_producer_numerical_quality_formulation_basis_contract_evidence",
   "reserved_inactive_successors": [],
-  "inherited_semantic_contract_sha256": "9183ef9b83f879620df45c03994f71808cc9c04c4a093c86b0bedfca2f96e59f",
+  "inherited_semantic_contract_sha256": "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d",
   "formulation_profile_id": "exact_straight_retained_w1a_v2",
   "contract_evidence_policy": "closed_finite_case_member_material_geometry_region_result_and_extrema_binding_v1",
   "supported_profile_limitations": [

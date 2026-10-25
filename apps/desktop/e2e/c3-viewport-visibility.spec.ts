@@ -271,7 +271,11 @@ test("C3 deletion retains active empty snapshot; new geometry dims; project repl
   await page.getByTestId("workspace-select").click();
   await page.getByTestId("viewport-fit-model").click();
   await expect(label(page, "node:C3-new")).toHaveAttribute("data-dimmed", "true");
+  // The applied edits are unsaved: New asks first (W-12 S1), and Discard replaces them.
   await projectCommand(page, "new-blank");
+  await expect(page.getByTestId("unsaved-changes-prompt")).toBeVisible();
+  await page.getByTestId("unsaved-changes-discard").click();
+  await expect(page.getByTestId("unsaved-changes-prompt")).toHaveCount(0);
   await confirmProjectUnits(page);
   await expect(control(page, "Show All")).toBeDisabled();
   await expect(page.getByTestId("viewport-hidden-count")).toHaveCount(0);

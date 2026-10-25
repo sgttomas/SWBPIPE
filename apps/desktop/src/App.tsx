@@ -96,6 +96,7 @@ import { HistoryPanel } from "./features/history/HistoryPanel";
 import { UnsavedChangesPrompt } from "./features/project-storage/UnsavedChangesPrompt";
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ModelDocumentSaveDialog } from "./features/model-file/ModelDocumentSaveDialog";
+import { HandoffSaveDialog } from "./features/handoff/HandoffSaveDialog";
 import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
 import { ToolkitPalette, type PaletteShellCommand } from "./features/toolkit/ToolkitPalette";
 import { toolkitCapabilities } from "./features/toolkit/capabilityCatalog";
@@ -218,6 +219,10 @@ function AppSession() {
     handleSelectDiagnostic,
     handleSaveReportPackage
   } = session.results;
+  // Save Report Package… (DEL-08-01 Design `report-package-current-results.md` §2.1):
+  // enablement is synchronous, the output policy's route gate plus the presence
+  // checks below. The builder's own refusals (admission, rule-check binding, rule
+  // packs) are shown in the report panel's status line after an attempt.
   const reportPackageUnavailable = reportPackageUnavailableReason(currentSolvedResult);
   // The viewport's result overlays read the same standing and numerical health view as the results panel.
   const viewportResultStanding = useMemo(() => ({ eligible: numericallyEligible, health: numericalHealth }), [numericallyEligible, numericalHealth]);
@@ -270,7 +275,8 @@ function AppSession() {
     handleSaveProject,
     handleListProjects,
     replaceProjectPrompt,
-    modelDocumentSaveRequest
+    modelDocumentSaveRequest,
+    handoffSaveRequest
   } = session.project;
   const { unsavedChangesPrompt } = session.project;
   const {
@@ -341,7 +347,7 @@ function AppSession() {
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
       // The replace prompt, the unsaved-changes prompt, the units dialog and the model-document save dialog are modal: the workspace takes no focus or input meanwhile.
-      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || modelDocumentSaveRequest !== null}
+      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || modelDocumentSaveRequest !== null || handoffSaveRequest !== null}
       ref={workspaceShellRef}
       onFocusCapture={rememberShellFocus}
       onPointerDownCapture={rememberShellFocus}
@@ -442,15 +448,17 @@ function AppSession() {
               onSelect={handleSelectEntity}
               onFocusChange={(key) => commitSelectionState(setSelectionFocus(orderedSelectionRef.current, key))}
               onFilterPublication={handleTreePublication}
-            />
-            <LinesSection
-              key={`lines:${projectSessionGeneration}`}
-              model={model}
-              selection={selection}
-              selectionState={orderedSelection}
-              queuedIntents={editorIntents}
-              onQueueIntent={handleQueueEditorIntent}
-              operationBusy={operationBusy}
+              treeRecords={
+                <LinesSection
+                  key={`lines:${projectSessionGeneration}`}
+                  model={model}
+                  selection={selection}
+                  selectionState={orderedSelection}
+                  queuedIntents={editorIntents}
+                  onQueueIntent={handleQueueEditorIntent}
+                  operationBusy={operationBusy}
+                />
+              }
             />
             </div>
           <div className={shell.tab === "model-tree" ? "workspace-dock-body shell-stage-sections inactive" : "workspace-dock-body shell-stage-sections"}>
@@ -955,6 +963,7 @@ function AppSession() {
               <DormantSection active={activeSection === "solve"} sessionGeneration={projectSessionGeneration}>
               <SolvePanel
                 analysisRun={analysisRun}
+                inputManifest={inputManifest?.manifest ?? null}
                 model={model}
                 result={result}
                 numericalHealth={numericalHealth}
@@ -1112,6 +1121,7 @@ function AppSession() {
       <UnsavedChangesPrompt prompt={unsavedChangesPrompt} />
       <ProjectUnitsDialog request={blankProjectUnitsRequest} />
       <ModelDocumentSaveDialog request={modelDocumentSaveRequest} />
+      <HandoffSaveDialog request={handoffSaveRequest} />
     </main>
     </CompactSelectScope>
     </WorkspaceSessionProvider>
@@ -1221,6 +1231,7 @@ function MenuBar({
         { kind: "separator" },
         { kind: "command", id: "file.save-local", label: "Save Local Project", disabled: projectBusy },
         { kind: "command", id: "file.save-model-document", label: "Save Model Document…", disabled: !modelDocumentSaveReady },
+        { kind: "command", id: "file.save-handoff", label: "Save Handoff…", disabled: !modelDocumentSaveReady },
         { kind: "command", id: "file.save-report-package", label: "Save Report Package…", disabled: !reportPackageReady }
       ]
     },

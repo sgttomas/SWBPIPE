@@ -235,6 +235,9 @@ the five row and N1 values to the native observations: milestone 113 rows in
 both modes and N1 "…47199 mm" sparse, demo 745 rows in both modes. The causes
 are #1461 (15 rows per member per case) and #1387 E14 (no dense parity row)
 and E15 (correctly rounded norm3); see DEL-07-05 Design `owner-mac-check.md`.
+W-7 (#1581) then added 12 global end rows per member per case, and the owner's
+ruling of 2026-10-25 ("I approve W-7's native-smoke values") set the rows to
+milestone 125 and demo 841 in both modes.
 It also checks:
 
 - the proof hash against its own JCS hash of each file;
@@ -285,6 +288,20 @@ refusal named in the product:
     nor the MBF text download.
   - The result JSON export is offered. The driver waits for the asynchronous
     packet.
+  - In the report panel, the report package shows the same code, with no
+    package controls (W-18 (b2); owner ruling 10A).
+- **The demo's report package (W-18 (b2)).** In phase 1, right after the
+  demo's result JSON export and in the same session, the driver selects
+  "Include known private values in this local package" (unchecked until then)
+  and runs File > Save Report Package…, answering the save chooser outside
+  Downloads. A save the native memory pool refuses only for the Mac's
+  momentary free memory (nothing runs or is written) is asked again. Checked, with no value pinned: the receipt is `REPORT-PACKAGE-SAVED`;
+  the file's SHA-256 and length are the receipt's; the product's reader
+  (`read_report_package_container`, through a smoke-only command) re-reads an
+  unblocked 2.0.0 desktop package whose identity is the receipt's; every
+  member's recomputed SHA-256 and length match the manifest inventory; and the
+  result member is the RFC 8785 text of the result JSON the same session
+  exported.
 - **A model authored from blank.**
   - **Authoring.** New Blank Project must open the units dialog (SI, US
     customary, custom); the default SI is accepted. The driver then authors

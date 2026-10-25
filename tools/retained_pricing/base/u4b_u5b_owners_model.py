@@ -31,8 +31,12 @@ BODY_PINS = {
     (U4B, "member_bases"): "760afaf0e6145df8f837cb75c6976d87afd98b3d20f873789ab4427fd0c8e372",
     (U4B, "append_station_quantities"): "778a4751ce9402583307ce8ae1b3a153fe9b40ee483b601722d43786fe73f06a",
     (SPARSE, "sparse_contribution_sums"): "3a7bb0911b4646798f6cbc6f104f0b852ba5beaf3ef439d6535004b06c8f4a7a",
-    (RP, "failed_manifest"): "8ea948cac438d10dd218a12402c5b5f1e28af0cb4f02e94386e79b17506c731a",
-    (RP, "prepared_not_covered"): "91b82b246cb463082b64da0b6a4ff2d3a1e26819d37b75024de9642cb2b53e78",
+    # W-7 D3 (retained-pricing-rules.md §8.20): failed_manifest adds each member's twelve global end placeholders after
+    # its maximum (rows inside FAILED_MEMBER_ROWS = 78, W7-RL; their texts are TEXT sites), and prepared_not_covered
+    # adds its end-action table (W7-NC, w7_owners_model) and completes the global end rows; the Poisson flags, the
+    # grown diagnostics and this operand table are unchanged.
+    (RP, "failed_manifest"): "c67b66d832027a5da512947a8bad05355e68136974eb4e03cc0a1e6c462c6b1f",
+    (RP, "prepared_not_covered"): "373fc109510882da46338c0a81da6e91b0eb9f5d4803dd2a1954be0a429bcd19",
     (EVID, "member_stations"): "422def17cd2b550f2654109416449ee04276fddd13a42175dcfe5606b7f93cad",
     (EVID, "poisson_exempt"): "087720dfa55869d73d7b277affd80e7dffb34a83f2488b85900387caae4f33d4",
     (EVID, "preview_model_checks"): "5580d56f7b5f41ec230d9b2d02aa84fc9dfcbb2a633f17a594985de9819ff29a",

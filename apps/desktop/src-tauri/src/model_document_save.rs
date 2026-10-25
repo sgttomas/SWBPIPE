@@ -43,10 +43,14 @@ use crate::command_ingress::Args;
 use crate::model_document_file::{check_model_document, ModelDocumentOpenOutcome, MAX_MODEL_DOCUMENT_BYTES};
 use crate::model_document_shape::{model_document_shape_diagnostics, MODEL_FILE_SHAPE};
 use crate::solve_jobs::SolveJobError;
+pub use crate::export_disposition_screen::DispositionDiagnostic as ModelDocumentSaveDiagnostic;
+pub use crate::export_disposition_screen::{LibraryLookup, PROTECTED_CONTENT_BLOCKED};
+#[cfg(test)]
+pub use crate::export_disposition_screen::LIBRARY_REF_UNRESOLVED;
+use crate::export_disposition_screen::{diagnostic, screen_dispositions_in, PathStyle};
 use open_pipe_stress_operation_applier::{canonical_json, sha256_hex};
 use serde::{Deserialize, Serialize};
-use serde_json::{Map, Value};
-use std::collections::BTreeMap;
+use serde_json::Value;
 use std::path::{Path, PathBuf};
 
 /// The governed local-first route of this save.
@@ -60,10 +64,6 @@ pub const PICKER_PATH_INVALID: &str = "MODEL-DOC-SAVE-PICKER-PATH-INVALID";
 pub const WORKER_FAILED: &str = "MODEL-DOC-SAVE-WORKER-FAILED";
 pub const EVIDENCE_UNBOUND: &str = "MODEL-DOC-SAVE-EVIDENCE-UNBOUND";
 pub const LIBRARY_STORE_UNAVAILABLE: &str = "MODEL-DOC-SAVE-LIBRARY-STORE-UNAVAILABLE";
-/// The webview screener's code for a blocked disposition (`redactionExportControls.ts`).
-pub const PROTECTED_CONTENT_BLOCKED: &str = "PROTECTED_CONTENT_BLOCKED";
-/// The store check's code (`check_model_library_refs`, W-13 §3.5).
-pub const LIBRARY_REF_UNRESOLVED: &str = crate::MODEL_LIBRARY_REF_UNRESOLVED;
 
 /// The webview's screening evidence (the `ControlledExportLink` shape of a
 /// lossless local-private route).
@@ -116,18 +116,6 @@ pub(crate) fn save_model_document_args(args: &mut Args) -> Result<ModelDocumentS
     })
 }
 
-#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
-pub struct ModelDocumentSaveDiagnostic {
-    pub code: String,
-    /// JSON path of the offending member, or "" for the whole document.
-    pub path: String,
-    pub message: String,
-}
-
-fn diagnostic(code: &str, path: &str, message: impl Into<String>) -> ModelDocumentSaveDiagnostic {
-    ModelDocumentSaveDiagnostic { code: code.to_string(), path: path.to_string(), message: message.into() }
-}
-
 #[derive(Debug, Clone, Serialize, PartialEq)]
 #[serde(tag = "outcome", rename_all = "snake_case")]
 pub enum ModelDocumentSaveOutcome {
@@ -167,9 +155,19 @@ pub fn validate_model_document_save_evidence(
     screening: &ModelDocumentSaveScreening,
     local_first: &ModelDocumentSaveLocalFirst,
 ) -> Result<(), ModelDocumentSaveDiagnostic> {
+    validate_local_private_route_evidence(MODEL_DOCUMENT_SAVE_ROUTE_ID, screening, local_first)
+}
+
+/// The same re-check for another governed local-private, lossless route with
+/// explicit intent (File > Save Handoff…, `DOTH-HANDOFF-PACKAGE-008`, W-6b).
+pub fn validate_local_private_route_evidence(
+    route_id: &str,
+    screening: &ModelDocumentSaveScreening,
+    local_first: &ModelDocumentSaveLocalFirst,
+) -> Result<(), ModelDocumentSaveDiagnostic> {
     let s = screening;
     let l = local_first;
-    let admitted = s.route_id == MODEL_DOCUMENT_SAVE_ROUTE_ID
+    let admitted = s.route_id == route_id
         && s.export_context == "local_private"
         && s.explicit_local_private_intent
         && !s.blocked
@@ -177,7 +175,7 @@ pub fn validate_model_document_save_evidence(
         && s.lossless_required
         && s.exact_payload_match
         && s.blocking_count == 0
-        && l.route_id == MODEL_DOCUMENT_SAVE_ROUTE_ID
+        && l.route_id == route_id
         && l.export_context == "local_private"
         && l.storage_context == "local_private"
         && l.action == "include_metadata_only"
@@ -191,7 +189,7 @@ pub fn validate_model_document_save_evidence(
         Err(diagnostic(
             EVIDENCE_INVALID,
             "",
-            format!("{MODEL_DOCUMENT_SAVE_ROUTE_ID} local-private, lossless route evidence with explicit intent is missing or blocked."),
+            format!("{route_id} local-private, lossless route evidence with explicit intent is missing or blocked."),
         ))
     }
 }
@@ -206,305 +204,14 @@ pub struct AdmittedModelDocument {
     pub warnings: Vec<ModelDocumentSaveDiagnostic>,
 }
 
-/// Reads one stored library document: `(project_id, library_kind, library_id)`
-/// to the stored `document_json`, `None` when the store holds no such library,
-/// `Err` when the store cannot be read.
-pub type LibraryLookup<'a> = dyn FnMut(&str, &str, &str) -> Result<Option<Value>, String> + 'a;
-
-/// `truthy_str` of the library import: a non-empty string, else nothing.
-fn truthy_str(value: Option<&Value>) -> Option<&str> {
-    match value {
-        Some(Value::String(text)) if !text.is_empty() => Some(text.as_str()),
-        _ => None,
-    }
-}
-
-/// The library import's status resolution: the item's own field wins when
-/// usable, otherwise its `provenance`'s.
-fn own_or_provenance<'a>(item: &'a Map<String, Value>, key: &str) -> Option<&'a str> {
-    truthy_str(item.get(key)).or_else(|| truthy_str(item.get("provenance").and_then(Value::as_object).and_then(|provenance| provenance.get(key))))
-}
-
-/// The dispositions the library import quarantines (`protected_suspected`,
-/// `quarantined`) or rejects (`rejected`, in either field), as `member value`.
-fn blocking_dispositions(item: &Map<String, Value>) -> Vec<String> {
-    let redistribution = own_or_provenance(item, "redistribution_status");
-    let review = own_or_provenance(item, "review_status");
-    let mut found = Vec::new();
-    if let Some(status @ ("protected_suspected" | "rejected")) = redistribution {
-        found.push(format!("redistribution_status {status}"));
-    }
-    if let Some(status @ ("quarantined" | "rejected")) = review {
-        found.push(format!("review_status {status}"));
-    }
-    found
-}
-
-/// The library import's disposition verdict for one stored library object or
-/// record of `library_kind`, as the blocking `member value` pairs it finds.
-/// Material, section and component libraries judge the object itself
-/// (`validate_object_disposition`). Hanger libraries
-/// (`validate_hanger_import`, `library_import_document/src/lib.rs:797-829`)
-/// judge every object in it that carries a `provenance` or a disposition member,
-/// and, where an object's own `redistribution_status` or `review_status`
-/// differs from its provenance's, the provenance alone as well. Own fields
-/// also block where the import would first refuse a missing provenance.
-/// Pinned against the import by `disposition_verdicts_match_the_library_import`.
-pub(crate) fn stored_item_blocking(library_kind: &str, item: &Map<String, Value>) -> Vec<String> {
-    if library_kind != "hanger" {
-        return blocking_dispositions(item);
-    }
-    let mut objects = Vec::new();
-    collect_objects(item, "$", &mut objects);
-    let mut found = Vec::new();
-    for (path, object) in objects {
-        let judged = object.contains_key("provenance")
-            || (!path.ends_with(".provenance")
-                && ["redistribution_status", "review_status", "privacy_class"].iter().any(|key| object.contains_key(*key)));
-        if !judged {
-            continue;
-        }
-        found.extend(blocking_dispositions(object));
-        if let Some(provenance) = object.get("provenance").and_then(Value::as_object) {
-            let conflict = ["redistribution_status", "review_status"]
-                .iter()
-                .any(|key| object.contains_key(*key) && object.get(*key) != provenance.get(*key));
-            if conflict {
-                let mut alone = Map::new();
-                alone.insert("provenance".to_string(), Value::Object(provenance.clone()));
-                found.extend(blocking_dispositions(&alone).into_iter().map(|item| format!("provenance {item}")));
-            }
-        }
-    }
-    found.sort();
-    found.dedup();
-    found
-}
-
-fn collect_objects<'a>(object: &'a Map<String, Value>, path: &str, out: &mut Vec<(String, &'a Map<String, Value>)>) {
-    out.push((path.to_string(), object));
-    for (key, value) in object {
-        collect_values(value, &format!("{path}.{key}"), out);
-    }
-}
-
-fn collect_values<'a>(value: &'a Value, path: &str, out: &mut Vec<(String, &'a Map<String, Value>)>) {
-    match value {
-        Value::Object(object) => collect_objects(object, path, out),
-        Value::Array(items) => {
-            for (index, item) in items.iter().enumerate() {
-                collect_values(item, &format!("{path}[{index}]"), out);
-            }
-        }
-        _ => {}
-    }
-}
-
-/// A `library_ref` identity member (`library_kind`, `library_id`,
-/// `record_id`) as the store's open path normalizes it: Rust `trim`
-/// (`open_local_library`), and nothing when blank. The one rule of the save
-/// screen and the open-time store check (`check_model_library_refs`).
-pub(crate) fn library_identity(value: &str) -> Option<&str> {
-    Some(value.trim()).filter(|value| !value.is_empty())
-}
-
-/// Every record of a stored `kind` library document whose record id, trimmed,
-/// equals `record_id` (already normalized by [`library_identity`]). All of them,
-/// never the first: a clear first record never hides a blocked or changed
-/// duplicate, and a padded id never escapes. The one rule of the save screen
-/// and the open-time store check (`check_model_library_refs`).
-pub(crate) fn matching_library_records<'a>(kind: &str, stored: &'a Value, record_id: &str) -> Vec<&'a Map<String, Value>> {
-    // The store's kind table (`library_records_key`).
-    let Some((records_key, id_key)) = crate::library_records_key(kind) else {
-        return Vec::new();
-    };
-    stored
-        .get(records_key)
-        .and_then(Value::as_array)
-        .map(|records| {
-            records
-                .iter()
-                .filter_map(Value::as_object)
-                .filter(|record| record.get(id_key).and_then(Value::as_str).map(str::trim) == Some(record_id))
-                .collect()
-        })
-        .unwrap_or_default()
-}
-
-fn join(path: &str, key: &str) -> String {
-    if path.is_empty() { key.to_string() } else { format!("{path}.{key}") }
-}
-
-#[derive(Default)]
-struct DispositionScreen {
-    blocking: Vec<ModelDocumentSaveDiagnostic>,
-    /// `library_ref`s by `(kind, id)`: each reference's path and record id.
-    library_refs: BTreeMap<(String, String), Vec<(String, Option<String>)>>,
-}
-
-impl DispositionScreen {
-    fn screen(&mut self, item: &Map<String, Value>, path: &str, record: &str, what: &str) {
-        let found = blocking_dispositions(item);
-        self.block(found, path, record, what);
-    }
-
-    fn screen_stored(&mut self, library_kind: &str, item: &Map<String, Value>, path: &str, record: &str, what: &str) {
-        let found = stored_item_blocking(library_kind, item);
-        self.block(found, path, record, what);
-    }
-
-    fn block(&mut self, found: Vec<String>, path: &str, record: &str, what: &str) {
-        if !found.is_empty() {
-            self.blocking.push(diagnostic(
-                PROTECTED_CONTENT_BLOCKED,
-                path,
-                format!("{record} ({what}: {}) blocks the save; request human review of the record's disposition first.", found.join(", ")),
-            ));
-        }
-    }
-
-    /// Every `provenance_record` (at any depth, including inside another),
-    /// every `rule_pack_refs[]` entry and every `library_ref`: the one walk
-    /// ([`walk_document`]).
-    fn walk(&mut self, value: &Value, path: &str) {
-        walk_document(value, path, &mut |site, at| match site {
-            DocumentSite::Provenance { record, name } => self.screen(record, at, &name, "provenance_record"),
-            DocumentSite::RulePackRef { entry, name } => self.screen(entry, at, &name, "rule_pack_ref"),
-            DocumentSite::LibraryRef(reference) => {
-                if let Some((kind, id, record_id)) = library_ref_identity(reference) {
-                    self.library_refs.entry((kind.to_string(), id.to_string())).or_default().push((at.to_string(), record_id.map(str::to_string)));
-                }
-            }
-        });
-    }
-}
-
-/// A site of the model document's one walk.
-enum DocumentSite<'a> {
-    /// A `provenance_record` object, named by its owner's `id`, else the
-    /// enclosing object's path (`$` at the root).
-    Provenance { record: &'a Map<String, Value>, name: String },
-    /// A `rule_pack_refs[]` object entry, named by its `rule_pack_id`, else its path.
-    RulePackRef { entry: &'a Map<String, Value>, name: String },
-    /// A `library_ref` object, at any depth and under any owner.
-    LibraryRef(&'a Map<String, Value>),
-}
-
-/// The one walk of a model document (the native save's screen, and the
-/// recorded run revision's `library_refs`), pinned for `library_ref`s to
-/// `fixtures/model_document/library_ref_sites.json` as the webview's
-/// `libraryRefSites` is. Each site is visited with its path before the walk
-/// descends into it.
-fn walk_document<'a>(value: &'a Value, path: &str, visit: &mut dyn FnMut(DocumentSite<'a>, &str)) {
-    match value {
-        Value::Array(items) => {
-            for (index, item) in items.iter().enumerate() {
-                walk_document(item, &format!("{path}[{index}]"), visit);
-            }
-        }
-        Value::Object(object) => {
-            let owner = object.get("id").and_then(Value::as_str).filter(|id| !id.is_empty());
-            for (key, child) in object {
-                let at = join(path, key);
-                match (key.as_str(), child) {
-                    ("provenance_record", Value::Object(record)) => {
-                        let name = owner.map(str::to_string).unwrap_or_else(|| if path.is_empty() { "$".to_string() } else { path.to_string() });
-                        visit(DocumentSite::Provenance { record, name }, &at);
-                    }
-                    ("rule_pack_refs", Value::Array(refs)) => {
-                        for (index, entry) in refs.iter().enumerate() {
-                            if let Some(entry) = entry.as_object() {
-                                let entry_at = format!("{at}[{index}]");
-                                let name = entry.get("rule_pack_id").and_then(Value::as_str).filter(|id| !id.is_empty()).unwrap_or(&entry_at).to_string();
-                                visit(DocumentSite::RulePackRef { entry, name }, &entry_at);
-                            }
-                        }
-                    }
-                    ("library_ref", Value::Object(reference)) => visit(DocumentSite::LibraryRef(reference), &at),
-                    _ => {}
-                }
-                walk_document(child, &at, visit);
-            }
-        }
-        _ => {}
-    }
-}
-
-/// A `library_ref`'s identity `(kind, id, record id)` as the store's open path
-/// normalizes it (`open_local_library` trims; [`library_identity`]): `None`
-/// when the kind or id is not text or is blank, and no record id when it is
-/// not text or is blank. The site table's `identity`.
-pub(crate) fn library_ref_identity(reference: &Map<String, Value>) -> Option<(&str, &str, Option<&str>)> {
-    let text = |key: &str| truthy_str(reference.get(key)).and_then(library_identity);
-    Some((text("library_kind")?, text("library_id")?, text("record_id")))
-}
-
-/// Every `library_ref` object of a model document, with its path, in the
-/// walk's order (arrays in order, object keys sorted): the one walk's
-/// `library_ref` sites.
-pub(crate) fn library_ref_sites(document: &Value) -> Vec<(String, &Map<String, Value>)> {
-    let mut sites = Vec::new();
-    walk_document(document, "", &mut |site, at| {
-        if let DocumentSite::LibraryRef(reference) = site {
-            sites.push((at.to_string(), reference));
-        }
-    });
-    sites
-}
-
-/// Native disposition screening of the exact admitted document (review repair 1b/1c).
+/// Native disposition screening of the exact admitted document (review repair
+/// 1b/1c), by the shared store-resolved screen (`export_disposition_screen`).
 pub fn screen_model_document_dispositions(
     document: &Value,
     lookup: &mut LibraryLookup<'_>,
 ) -> Result<Vec<ModelDocumentSaveDiagnostic>, Vec<ModelDocumentSaveDiagnostic>> {
-    let mut screen = DispositionScreen::default();
-    screen.walk(document, "");
-    let project_id = document.pointer("/project/id").and_then(Value::as_str).unwrap_or("").trim().to_string();
-    let mut warnings = Vec::new();
-    for ((kind, id), references) in std::mem::take(&mut screen.library_refs) {
-        let named = format!("{kind}:{id}");
-        let stored = match lookup(&project_id, &kind, &id) {
-            Ok(stored) => stored,
-            Err(error) => {
-                return Err(vec![diagnostic(
-                    LIBRARY_STORE_UNAVAILABLE,
-                    &references[0].0,
-                    format!("The local library store could not be read to resolve {named} ({error}); nothing was saved."),
-                )]);
-            }
-        };
-        let Some(stored) = stored else {
-            for (path, _) in &references {
-                warnings.push(diagnostic(LIBRARY_REF_UNRESOLVED, path, format!("The local library store holds no {kind} library `{id}`; its disposition is not known here.")));
-            }
-            continue;
-        };
-        if let Some(library) = stored.get(format!("{kind}_library")).and_then(Value::as_object) {
-            screen.screen_stored(&kind, library, &references[0].0, &named, "stored library");
-        }
-        let mut screened = Vec::new();
-        for (path, record_id) in &references {
-            let Some(record_id) = record_id else { continue };
-            if screened.contains(record_id) {
-                continue;
-            }
-            screened.push(record_id.clone());
-            // Every record with this id is screened (`matching_library_records`).
-            let matching = matching_library_records(&kind, &stored, record_id);
-            for record in &matching {
-                screen.screen_stored(&kind, record, path, &format!("{named}#{record_id}"), "stored library record");
-            }
-            match matching.first() {
-                Some(_) => {}
-                None => warnings.push(diagnostic(
-                    LIBRARY_REF_UNRESOLVED,
-                    path,
-                    format!("The stored {kind} library `{id}` holds no record `{record_id}`; its disposition is not known here."),
-                )),
-            }
-        }
-    }
-    if screen.blocking.is_empty() { Ok(warnings) } else { Err(screen.blocking) }
+    let project_id = document.pointer("/project/id").and_then(Value::as_str).unwrap_or("");
+    screen_dispositions_in(document, "", PathStyle::Dotted, project_id, LIBRARY_STORE_UNAVAILABLE, lookup)
 }
 
 fn claimed_hex(claimed: &str) -> Option<&str> {
@@ -724,6 +431,7 @@ mod tests {
     /// returned hash) is the model hash of the document it re-opens as.
     #[test]
     fn save_then_open_gives_identical_bytes_and_an_equal_model_hash() {
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
         for (label, source) in [("demo", DEMO), ("every-slot", EVERY_SLOT)] {
             let text = canonical_of(source);
             let claimed = hash_of(&text);
@@ -864,36 +572,6 @@ mod tests {
         let hash = hash_of(&text);
         let refused = admit_model_document_text(text, &hash, &hash_of("{}"), &mut no_store).unwrap_err();
         assert_eq!(refused[0].code, EVIDENCE_UNBOUND);
-    }
-
-    /// The native save's walk finds the `library_ref`s, with the identities,
-    /// that the webview's one walk (`libraryRefSites`, used by the save screen
-    /// and the open-time store check) finds: the shared site table. The table
-    /// holds known kinds only. For an unknown `library_kind` the surfaces differ,
-    /// as on main: the webview save skips the lookup and reports nothing, while
-    /// the native save and the open check report `MODEL-LIBRARY-REF-UNRESOLVED`.
-    #[test]
-    fn library_ref_walk_matches_the_shared_site_table() {
-        let table: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/library_ref_sites.json")).unwrap();
-        let mut screen = DispositionScreen::default();
-        screen.walk(&table["document"], "");
-        let by_path = |left: &Value, right: &Value| left["path"].as_str().cmp(&right["path"].as_str());
-        let mut walked: Vec<Value> = std::mem::take(&mut screen.library_refs)
-            .into_iter()
-            .flat_map(|((kind, id), references)| {
-                references.into_iter().map(move |(path, record_id)| json!({"path": path, "identity": [kind, id, record_id]}))
-            })
-            .collect();
-        walked.sort_by(by_path);
-        let mut expected: Vec<Value> = table["sites"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .filter(|site| !site["identity"].is_null())
-            .map(|site| json!({"path": site["path"], "identity": site["identity"]}))
-            .collect();
-        expected.sort_by(by_path);
-        assert_eq!(walked, expected);
     }
 
     #[test]
@@ -1104,6 +782,25 @@ mod tests {
         assert_eq!(refused[0].code, PROTECTED_CONTENT_BLOCKED);
     }
 
+    /// W-18a (b1) review round 1 probe: W-6a's model save does not run the
+    /// structural screen (its stored-item verdicts are the library import's,
+    /// `disposition_verdicts_match_the_library_import`), so a `classification`
+    /// object is judged as the import judges it. Pinned here so a change to
+    /// that scope is a visible decision.
+    #[test]
+    fn b1r1_classification_objects_follow_the_import_verdict() {
+        let every_slot: Value = serde_json::from_str(EVERY_SLOT).unwrap();
+        let record = every_slot["materials"][0]["provenance_record"]["library_ref"]["record_id"].as_str().unwrap().to_string();
+        let library = stored_library(json!({"provenance": {"review_status": "accepted"}}),
+            json!([{"material_id": record, "provenance": {"review_status": "accepted"}, "classification": {"value": "protected_suspected"}}]));
+        let imported = open_pipe_stress_library_import_document::validate_library_import_tokens(&library, "material", "private").unwrap();
+        let import_blocks = imported.findings.iter().any(|finding| matches!(finding.code.as_str(), "IMPORT_PROTECTED_CONTENT_SUSPECTED" | "IMPORT_REJECTED_SOURCE"));
+        let (result, _) = admit_with_store(canonical_of(EVERY_SLOT), Ok(Some(library)));
+        assert_eq!(result.is_err(), import_blocks, "the stored record: {:?}", codes(result));
+        let (text, hash) = canonical_variant(|d| d["materials"][0]["provenance_record"]["classification"] = json!({"value": "protected_suspected"}));
+        println!("B1R1_W6A_MODEL_PROVENANCE {:?}", codes(admit(text, &hash)));
+    }
+
     #[test]
     fn duplicate_matching_library_records_do_not_hide_a_quarantine() {
         let text = canonical_of(EVERY_SLOT);
@@ -1120,6 +817,7 @@ mod tests {
     /// warning, never a refusal.
     #[test]
     fn every_emitted_authoring_and_library_apply_document_saves_and_reopens() {
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
         let root = sandbox("emitted");
         let mut saved = 0;
         for (fixture, member) in [
@@ -1148,6 +846,7 @@ mod tests {
     /// open with a clean shape (the webview half is in modelDocumentSave.test.tsx).
     #[test]
     fn every_shape_corpus_case_that_admits_reopens() {
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
         let corpus: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/desktop_shape_cases.json")).unwrap();
         let root = sandbox("corpus-reopen");
         let mut admitted_cases = 0;
@@ -1196,102 +895,5 @@ mod tests {
         unknown["screening"]["extra"] = json!(true);
         let (mut args, _lease) = admit_json(&registry, "save_model_document_file", ArgsDecoding::Moved, &unknown).unwrap();
         assert!(save_model_document_args(&mut args).is_err());
-    }
-}
-
-/// The disposition parity table (review round 2): the library import's public
-/// API and `stored_item_blocking` judge the same stored documents, across every
-/// library kind, both levels (the library object and a record) and every
-/// combination of own and provenance dispositions below; the verdicts must be
-/// equal and equal to `fixtures/model_document/library_disposition_parity.json`,
-/// which also pins the webview adapter (`modelDocumentSave.parity.test.ts`).
-/// Regenerate the table after an intended import change with
-/// `SWBPIPE_WRITE_DISPOSITION_PARITY=<path> cargo test disposition_verdicts`.
-/// Every row carries a provenance object: where the import first refuses a
-/// missing provenance, the port judges own fields alone (stricter), which this
-/// table does not cover.
-#[cfg(test)]
-mod disposition_parity {
-    use super::*;
-    use open_pipe_stress_library_import_document::validate_library_import_tokens;
-    use serde_json::json;
-
-    const TABLE: &str = include_str!("../../../../fixtures/model_document/library_disposition_parity.json");
-    const KINDS: [&str; 4] = ["material", "section", "component", "hanger"];
-    const LEVELS: [&str; 2] = ["library", "record"];
-    const OWN_REDISTRIBUTION: [Option<&str>; 5] = [None, Some(""), Some("private_only"), Some("protected_suspected"), Some("rejected")];
-    const OWN_REVIEW: [Option<&str>; 4] = [None, Some("accepted"), Some("quarantined"), Some("rejected")];
-    const PROVENANCE_REDISTRIBUTION: [&str; 3] = ["private_only", "protected_suspected", "rejected"];
-    const PROVENANCE_REVIEW: [&str; 3] = ["accepted", "quarantined", "rejected"];
-
-    /// The stored document of one row; the other level is clear.
-    pub(super) fn document(kind: &str, level: &str, own: (Option<&str>, Option<&str>), provenance: (&str, &str)) -> Value {
-        let clear = json!({"redistribution_status": "private_only", "review_status": "accepted"});
-        let mut varied = json!({"provenance": {"redistribution_status": provenance.0, "review_status": provenance.1}});
-        if let Some(status) = own.0 { varied["redistribution_status"] = json!(status); }
-        if let Some(status) = own.1 { varied["review_status"] = json!(status); }
-        let mut library = json!({"library_id": "invented.parity", "provenance": clear});
-        let id_key = crate::library_records_key(kind).unwrap().1;
-        let mut record = json!({id_key: "invented.record", "provenance": clear});
-        let target = if level == "library" { &mut library } else { &mut record };
-        for (key, value) in varied.as_object().unwrap() {
-            target[key] = value.clone();
-        }
-        json!({"schema_version": "0.1.0", format!("{kind}_library"): library, format!("{kind}_records"): [record]})
-    }
-
-    fn import_blocks(kind: &str, document: &Value) -> bool {
-        validate_library_import_tokens(document, kind, "private")
-            .unwrap()
-            .findings
-            .iter()
-            .any(|finding| matches!(finding.code.as_str(), "IMPORT_PROTECTED_CONTENT_SUSPECTED" | "IMPORT_REJECTED_SOURCE"))
-    }
-
-    fn port_blocks(kind: &str, document: &Value) -> bool {
-        let library = document[format!("{kind}_library")].as_object().unwrap();
-        let record = document[format!("{kind}_records")][0].as_object().unwrap();
-        !stored_item_blocking(kind, library).is_empty() || !stored_item_blocking(kind, record).is_empty()
-    }
-
-    #[test]
-    fn disposition_verdicts_match_the_library_import() {
-        let mut rows = Vec::new();
-        for kind in KINDS {
-            for level in LEVELS {
-                for own_redistribution in OWN_REDISTRIBUTION {
-                    for own_review in OWN_REVIEW {
-                        for provenance_redistribution in PROVENANCE_REDISTRIBUTION {
-                            for provenance_review in PROVENANCE_REVIEW {
-                                let stored = document(kind, level, (own_redistribution, own_review), (provenance_redistribution, provenance_review));
-                                let imported = import_blocks(kind, &stored);
-                                assert_eq!(port_blocks(kind, &stored), imported, "{kind}/{level}: own {own_redistribution:?}/{own_review:?}, provenance {provenance_redistribution}/{provenance_review}");
-                                rows.push(json!([kind, level, own_redistribution, own_review, provenance_redistribution, provenance_review, imported]));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        assert_eq!(rows.len(), 1440);
-        // The hanger conflict rule is exercised: an accepted own review over a quarantined provenance.
-        assert!(rows.contains(&json!(["hanger", "record", null, "accepted", "private_only", "quarantined", true])));
-        assert!(rows.contains(&json!(["material", "record", null, "accepted", "private_only", "quarantined", false])));
-        let table = json!({
-            "description": "Invented library-disposition parity table (DEL-15-01 W-6a review round 2). Columns: library_kind, level (library object or record), own redistribution_status, own review_status (null = absent), provenance redistribution_status, provenance review_status, blocked. blocked is the library import's verdict (IMPORT_PROTECTED_CONTENT_SUSPECTED or IMPORT_REJECTED_SOURCE); the native save and the webview adapter must agree. Generated by model_document_save.rs disposition_verdicts_match_the_library_import.",
-            "columns": ["library_kind", "level", "own_redistribution_status", "own_review_status", "provenance_redistribution_status", "provenance_review_status", "blocked"],
-            "rows": rows,
-        });
-        if let Ok(path) = std::env::var("SWBPIPE_WRITE_DISPOSITION_PARITY") {
-            let lines: Vec<String> = table["rows"].as_array().unwrap().iter().map(|row| format!("    {row}")).collect();
-            let text = format!(
-                "{{\n  \"description\": {},\n  \"columns\": {},\n  \"rows\": [\n{}\n  ]\n}}\n",
-                table["description"], table["columns"], lines.join(",\n")
-            );
-            std::fs::write(path, text).unwrap();
-            return;
-        }
-        let pinned: Value = serde_json::from_str(TABLE).unwrap();
-        assert_eq!(pinned["rows"], table["rows"], "the pinned table differs from the import's verdicts; regenerate it");
     }
 }

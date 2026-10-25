@@ -3297,6 +3297,222 @@
               "ref_type": "load_case"
             },
             "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_i:fx",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fx",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 15707.963267948964
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_i:fy",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fy",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_i:fz",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fz",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_i:mx",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mx",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_i:my",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "My",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_i:mz",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mz",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_j:fx",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fx",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": -15707.963267948964
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_j:fy",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fy",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_j:fz",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fz",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_j:mx",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mx",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_j:my",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "My",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_j:mz",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mz",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
             "id": "result:stress:pipe-fixture-span:end-i:sigma-plus:nominal-section",
             "kind": "element_local_normal_stress_extreme",
             "metadata": {
@@ -5526,6 +5742,222 @@
             },
             "unit": "Pa",
             "value": 41354908.75465696
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_i:fx",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Fx",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": -1000.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_i:fy",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Fy",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": -2000.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_i:fz",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Fz",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 3000.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_i:mx",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Mx",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": -400.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_i:my",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "My",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": -2500.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_i:mz",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Mz",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": -2600.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_j:fx",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Fx",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 1000.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_j:fy",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Fy",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 2000.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_j:fz",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Fz",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": -3000.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_j:mx",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Mx",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 400.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_j:my",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "My",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": -500.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_j:mz",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Mz",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 600.0
           },
           {
             "basis_ref": {
@@ -9404,6 +9836,222 @@
               "ref_type": "load_case"
             },
             "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_i:fx",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fx",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 15707.963267948964
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_i:fy",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fy",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_i:fz",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fz",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_i:mx",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mx",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_i:my",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "My",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_i:mz",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mz",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_j:fx",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fx",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": -15707.963267948964
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_j:fy",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fy",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_j:fz",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fz",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_j:mx",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mx",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_j:my",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "My",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:element-global-end:pipe-fixture-span:end_j:mz",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mz",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:closed-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
             "id": "result:stress:pipe-fixture-span:end-i:sigma-plus:nominal-section",
             "kind": "element_local_normal_stress_extreme",
             "metadata": {
@@ -11633,6 +12281,222 @@
             },
             "unit": "Pa",
             "value": 41354908.75465696
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_i:fx",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Fx",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": -1000.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_i:fy",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Fy",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": -2000.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_i:fz",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Fz",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 3000.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_i:mx",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Mx",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": -400.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_i:my",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "My",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": -2500.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_i:mz",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Mz",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": -2600.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_j:fx",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Fx",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 1000.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_j:fy",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Fy",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 2000.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_j:fz",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Fz",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": -3000.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_j:mx",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Mx",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 400.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_j:my",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "My",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": -500.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:six-component-load",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:fixture-span",
+            "id": "result:loadcase:case-six-component-load:element-global-end:pipe-fixture-span:end_j:mz",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1",
+              "component": "Mz",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 600.0
           },
           {
             "basis_ref": {
@@ -16035,6 +16899,222 @@
               "ref_type": "load_case"
             },
             "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_i:fx",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fx",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": -30536.280592892792
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_i:fy",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fy",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_i:fz",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fz",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_i:mx",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mx",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_i:my",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "My",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_i:mz",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mz",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_j:fx",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fx",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 30536.280592892792
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_j:fy",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fy",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_j:fz",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fz",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_j:mx",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mx",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_j:my",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "My",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_j:mz",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mz",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
             "id": "result:stress:pipe-first:end-i:sigma-plus:nominal-section",
             "kind": "element_local_normal_stress_extreme",
             "metadata": {
@@ -19254,6 +20334,222 @@
             },
             "unit": "Pa",
             "value": 17052631.578947373
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_i:fx",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fx",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 1366215.8131931294
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_i:fy",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fy",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_i:fz",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fz",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_i:mx",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mx",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_i:my",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "My",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_i:mz",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mz",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_j:fx",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fx",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": -1366215.8131931294
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_j:fy",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fy",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_j:fz",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fz",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_j:mx",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mx",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_j:my",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "My",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_j:mz",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mz",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -23656,6 +24952,222 @@
               "ref_type": "load_case"
             },
             "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_i:fx",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fx",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": -30536.280592892792
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_i:fy",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fy",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_i:fz",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fz",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_i:mx",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mx",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_i:my",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "My",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_i:mz",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mz",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_j:fx",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fx",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 30536.280592892792
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_j:fy",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fy",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_j:fz",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fz",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_j:mx",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mx",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_j:my",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "My",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:element-global-end:pipe-first:end_j:mz",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mz",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:cold-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
             "id": "result:stress:pipe-first:end-i:sigma-plus:nominal-section",
             "kind": "element_local_normal_stress_extreme",
             "metadata": {
@@ -26875,6 +28387,222 @@
             },
             "unit": "Pa",
             "value": 17052631.578947373
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_i:fx",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fx",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 1366215.8131931294
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_i:fy",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fy",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_i:fz",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fz",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_i:mx",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mx",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_i:my",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "My",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_i:mz",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mz",
+              "coordinate_system": "global",
+              "location": "end_i",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_j:fx",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fx",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": -1366215.8131931294
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_j:fy",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fy",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_j:fz",
+            "kind": "element_global_end_force_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Fz",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_j:mx",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mx",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_j:my",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "My",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "case:hot-pressure",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:first",
+            "id": "result:loadcase:case-hot-pressure:element-global-end:pipe-first:end_j:mz",
+            "kind": "element_global_end_moment_v1",
+            "metadata": {
+              "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+              "component": "Mz",
+              "coordinate_system": "global",
+              "location": "end_j",
+              "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+            },
+            "unit": "N*m",
+            "value": 0.0
           },
           {
             "basis_ref": {

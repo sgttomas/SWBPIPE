@@ -95,15 +95,15 @@ PREVIEW = "openpipestress.result_semantics/0.3.0/preview-physics-2"
 # left preview-physics-2's reserved successors (36064ef3... and f675693b... before), the preview successor inherits
 # the new preview hash, the exact successor (D4 (a)) inherits pressure-2's, and pressure-source-1 is the current
 # PRESSURE-SOURCE-1 table (4a1873e7... before).
-SUCC_SHA = "4da08f964605a5080b38c0ea9793731b33720070db001a4c7f1c4f9fbcaeb76f"
-PREVIEW_SHA = "ee8036d59d0aeb255ff132e4dee0d6e7a1e8da8b33e4697c7761c695c3f6e387"
+SUCC_SHA = "d95e6acfe79f0e08d84fe7a6a71acbd18b38ff70809614227640ee0a0c16ff60"
+PREVIEW_SHA = "f455a61ab9d80a16b24a03c5acbcce6425342d8cc2c839eb4742b2b9bb38a869"
 PROFILE = "product_preview_retained_w1a_v2"
 CODES = ["retained_precision_absolute_verified", "retained_precision_not_covered"]
 # B3b (B3-D §7): the exact successor `<physics-retained>`, whose carrier branches follow
 # the preview successor's. Both successors, and only they, carry a receipt.
 EXACT = "openpipestress.result_semantics/0.3.0/physics-retained-1"
 # T4-U6 (D-5, §2.4): follows pressure-2's per-basis table by its inherited hash (was 69581249...).
-EXACT_SHA = "a0dac6244cfbb5b930e439d9d64a6eb45001d95271af6e8eb90939c7b3d323dd"
+EXACT_SHA = "d6d86dfc418978257d1d3370684e879ba9711465ceba1de72729eb48bb12ad3c"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 SUCCESSORS = (SUCC, EXACT)
 # b7-plan's pressure-source join: a tenth run branch (no receipt); its contract
@@ -113,8 +113,8 @@ PRESSURE_SOURCE_SHA = "b5a4b0e585b9ec440d36144860baaf101b628498cfdab9a1de9248c2e
 # B7b: the composite source statement is pressure-source-1's (physics-source-1 is retired).
 SOURCE_RAW = "pressure_source/physics_source/n05-sparse_interactive.raw.json"
 MILESTONES = {
-    "sparse_interactive": "2527351c49f3c928882dbeda961c0a3e34cb26cbfe00457e7af6d71c6f0bb119",
-    "dense_scrutiny": "fd0c430ca4bfae895851c735207d3424d8d5c835a9d2bd5743cf012e577e1eba",
+    "sparse_interactive": "cf053309e8048ae013dc5388d1115399ff89cf493eb2e36772500a3c6985a6e5",
+    "dense_scrutiny": "f8078ee2c82ba370ab04591af49ed12c48fda5d88a54a75b0725fbdde317d884",
 }
 
 

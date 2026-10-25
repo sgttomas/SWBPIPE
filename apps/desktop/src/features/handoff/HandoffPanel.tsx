@@ -10,9 +10,11 @@ import type {
   MechanicsResult,
   PreviewComparison,
   PreviewModel,
+  RulePackReference,
   SelectedReviewTarget
 } from "../../types";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
+import { recordRulePackRefAnnotations, rulePackRefAnnotationsToAdd } from "../../services/rulePackRefDiagnostics";
 
 type HandoffUnitPreservationWitness = {
   witness_id: string;
@@ -41,6 +43,20 @@ type HandoffUnitPreservationWitness = {
   };
   provenance: ReturnType<typeof previewProvenance>;
 };
+
+/** This panel's download is a preview summary; the handoff package with its
+ * schema manifest is File > Save Handoff… (DEL-15-01 W-6b). */
+export const HANDOFF_PREVIEW_DOWNLOAD_LABEL = "Preview handoff summary (not a handoff manifest)";
+export const HANDOFF_SAVE_POINTER =
+  "This is a preview summary, not a handoff manifest. To save a handoff package (the model document and its manifest), use File › Save Handoff….";
+
+/** The document's rule-pack references, every one as the model records them (identity,
+ * version, stamped checksum and disposition; no rule content), as Save Handoff's manifest
+ * lists them (W-6b). A reference the solve excluded stays listed; its exclusion is named
+ * among the summary's diagnostics. */
+export function handoffRulePackRefs(model: PreviewModel): RulePackReference[] {
+  return (model.rule_pack_refs ?? []).map((reference) => structuredClone(reference));
+}
 
 export function HandoffPanel({
   model,
@@ -90,7 +106,7 @@ export function HandoffPanel({
               href={jsonDataHref(handoffPackage)}
             >
               <Download size={14} aria-hidden="true" />
-              Local package JSON
+              {HANDOFF_PREVIEW_DOWNLOAD_LABEL}
         </ControlledExportLink>
         </LoadReferenceOutputGate>
             <span data-testid="handoff-export-summary">
@@ -153,6 +169,9 @@ export function HandoffPanel({
           Run mechanics preview to assemble a local review handoff package with stable IDs, warnings, and unsupported-behavior notes.
         </p>
       )}
+      <small className="report-note" data-testid="handoff-save-pointer">
+        {HANDOFF_SAVE_POINTER}
+      </small>
       <small className="report-note">
         Local handoff packages are review context only; target-specific mappings and external validation remain user-controlled.
       </small>
@@ -189,9 +208,14 @@ export function buildHandoffPackage({
   selectedReviewTarget: SelectedReviewTarget | null;
 }) {
   const run = analysisRun.analysis_run;
-  const diagnosticRefs = [...model.diagnostics, ...(knowledge?.diagnostics ?? []), ...result.diagnostics].map(
-    (item) => item.id ?? item.code
-  );
+  // The run record's rule-pack reference diagnostics (references the solve excluded), named
+  // after the others by id, each once.
+  const rulePackExclusions = recordRulePackRefAnnotations(run.diagnostics, result.diagnostics.length);
+  const carried = [...model.diagnostics, ...(knowledge?.diagnostics ?? []), ...result.diagnostics];
+  const diagnosticRefs = carried.map((item) => item.id ?? item.code);
+  for (const annotation of rulePackRefAnnotationsToAdd(rulePackExclusions, carried)) {
+    if (!diagnosticRefs.includes(annotation.id)) diagnosticRefs.push(annotation.id);
+  }
   const entityRefs = stableEntityRefs(model);
   const lossReport = {
     omitted_behavior_refs: [] as string[],
@@ -243,7 +267,8 @@ export function buildHandoffPackage({
     library_refs: {
       material_refs: model.materials?.map((item) => ({ ref: item.id, provenance: item.provenance })) ?? [],
       component_refs: model.components.map((item) => ({ ref: item.id, provenance: item.provenance })),
-      rule_pack_refs: [] as string[],
+      // The document's rule-pack references (identity only; W-13 §3.4), every one.
+      rule_pack_refs: handoffRulePackRefs(model),
       private_library_payload_included: false
     },
     target_mapping: {

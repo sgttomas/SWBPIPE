@@ -24,6 +24,14 @@ const TRANSIENT_INPUT: &str = include_str!("../../../../fixtures/persistence/tra
 const SOURCE_RESULT: &str = include_str!("../../../../fixtures/results/preview_physics_connected_sparse.json");
 const WITNESS: &str = include_str!("../../../../fixtures/persistence/recorded_run_witness.json");
 const WITNESS_PATH_ENV: &str = "OPENPIPESTRESS_WRITE_RECORDED_RUN_WITNESS";
+/// The same pair with invented model rule-pack references, whose transient record carries
+/// rule-pack reference diagnostics after the producer's, and its witness.
+const TRANSIENT_INPUT_RULE_PACKS: &str = include_str!("../../../../fixtures/persistence/transient_run_input_rule_packs.json");
+const WITNESS_RULE_PACKS: &str = include_str!("../../../../fixtures/persistence/recorded_run_witness_rule_packs.json");
+const WITNESS_RULE_PACKS_PATH_ENV: &str = "OPENPIPESTRESS_WRITE_RECORDED_RUN_WITNESS_RULE_PACKS";
+/// A run of a model with rule-pack references as S2 (#1596) recorded it, before
+/// rule-pack resolution (written by `recordedRunParity.test.ts`).
+const S2_UNRESOLVED_RUN: &str = include_str!("../../../../fixtures/persistence/s2_unresolved_rule_pack_run.json");
 
 /// An invented 0.7.0 document of `PROJECT` (`name` makes distinct models).
 fn model(name: &str) -> Value {
@@ -91,7 +99,7 @@ fn transient(result: &str, manifest: &str) -> Value {
                                 "build_ref": { "object_type": "ExternalReference", "ref": "invented-solver@0.0.1" } },
             "settings_ref": { "object_type": "SolverSettings", "ref": format!("solver-settings:input-manifest:project-w12-invented-runs:{manifest_hash}:{manifest_hash}") },
             "unit_system_ref": { "object_type": "UnitSystem", "ref": format!("unit-system:{PROJECT}:{manifest_hash}") },
-            "load_basis_refs": [], "result_refs": result_refs,
+            "load_basis_refs": [], "result_refs": result_refs, "diagnostics": [],
             "rule_pack_refs": [], "library_refs": [],
             "analysis_status": ["HUMAN_REVIEW_REQUIRED", "MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE"],
             "hashes": [
@@ -240,7 +248,7 @@ fn v13_migrates_a_v12_store_with_states_and_is_safe_to_run_twice() {
     assert_eq!(evidence.store_schema_version, 13);
     assert_eq!(evidence.migrations_applied_on_open, vec!["store-v13-analysis-runs-tables"]);
     let listed = model_states::list_states(&connection, PROJECT).unwrap();
-    assert_eq!(listed, vec![ModelStateSummary { recorded_run_ids: vec![], ..state.clone() }]);
+    assert_eq!(listed, vec![ModelStateSummary { recorded_run_count: 0, ..state.clone() }]);
     drop(connection);
     let outcome = record(&path, request(&model("Invented project"), "Run 1"), T0).unwrap();
     // A re-run (as an interrupted, non-transactional migration would) changes nothing.
@@ -249,7 +257,7 @@ fn v13_migrates_a_v12_store_with_states_and_is_safe_to_run_twice() {
     assert_eq!(evidence.migrations_applied_on_open, vec!["store-v13-analysis-runs-tables"]);
     migrate_v13_analysis_runs(&connection).unwrap();
     assert_eq!(list_runs(&connection, PROJECT).unwrap(), vec![outcome.run.clone()]);
-    assert_eq!(model_states::list_states(&connection, PROJECT).unwrap()[0].recorded_run_ids, vec![outcome.run.recording_id.clone()]);
+    assert_eq!(model_states::list_states(&connection, PROJECT).unwrap()[0].recorded_run_count, 1);
     let error = connection.execute("UPDATE analysis_runs SET created_at = created_at", []).unwrap_err().to_string();
     assert!(error.contains("ANALYSIS-RUN-IMMUTABLE"), "the trigger survives the re-run: {error}");
     drop(connection);
@@ -272,7 +280,7 @@ fn a_run_is_recorded_against_the_state_of_its_model_listed_and_read() {
     let outcome = record(&path, submitted, T0).unwrap();
     assert_eq!(outcome.state_outcome, "existing");
     assert_eq!(outcome.state.state_id, state.state_id);
-    assert_eq!(outcome.state.recorded_run_ids, vec![outcome.run.recording_id.clone()]);
+    assert_eq!(outcome.state.recorded_run_count, 1);
     let run = &outcome.run;
     assert_eq!(run.created_at, "2026-10-27T11:30:45.123Z");
     assert_eq!(run.labels_updated_at, run.created_at);
@@ -322,7 +330,7 @@ fn a_run_of_an_unsaved_model_needs_a_post_solve_snapshot_written_with_it() {
     assert_eq!(outcome.state.state_id, "state:0000000000000000000000000000beef");
     assert_eq!(outcome.state.labels.state_name, "After solve");
     assert_eq!(outcome.state.model_hash, model_hash(&solved));
-    assert_eq!(outcome.state.recorded_run_ids, vec![outcome.run.recording_id.clone()]);
+    assert_eq!(outcome.state.recorded_run_count, 1);
     assert!(outcome.message.contains("against the new post-solve snapshot \"After solve\""), "{}", outcome.message);
     let opened = model_states::read_state_in_store(&path, PROJECT, &outcome.state.state_id).unwrap();
     assert_eq!(opened.model, solved, "the snapshot is the solved model, from the manifest");
@@ -449,16 +457,17 @@ fn a_label_edit_changes_only_the_labels_and_leaves_the_record_hash() {
 }
 
 #[test]
-fn a_state_with_a_recorded_run_is_not_deleted_and_its_blockers_are_named() {
+fn a_state_with_a_recorded_run_is_not_deleted_and_its_blockers_are_counted() {
     let path = store_with_project("delete");
     let solved = model("Invented project");
     let state = save_state(&path, &solved, "Basis", "000000000000000000000000000000e1", 1_000);
     let first = record(&path, request(&solved, "Run 1"), T0).unwrap();
     let second = record(&path, request(&solved, "Run 2"), T0).unwrap();
     let error = model_states::delete_state_in_store(&path, PROJECT, &state.state_id).unwrap_err();
+    // Runs are counted from their columns (W-12): the run list names each verified run.
     assert_eq!(error, format!(
-        "MODEL-STATE-DELETE-BLOCKED: state \"Basis\" ({}) is the state of recorded runs \"Run 1\" ({}), \"Run 2\" ({}); delete them first. Nothing was deleted.",
-        state.state_id, first.run.recording_id, second.run.recording_id
+        "MODEL-STATE-DELETE-BLOCKED: state \"Basis\" ({}) is the state of 2 recorded runs; delete them first. Nothing was deleted.",
+        state.state_id
     ));
     // The foreign key refuses it on its own.
     let connection = Connection::open(&path).unwrap();
@@ -756,7 +765,7 @@ fn rule_pack_and_library_refs_follow_the_manifest() {
     assert_eq!(rule_pack_refs(&manifest).unwrap(), vec![
         json!({ "object_type": "RulePack", "ref": "rule-pack:b@2" }),
         json!({ "object_type": "RulePack", "ref": "rule-pack:a@1" })
-    ], "the manifest's order (it is sorted when built)");
+    ], "the manifest's order (the model's reference order)");
     assert!(rule_pack_refs(&json!({})).unwrap_err().starts_with("ANALYSIS-RUN-MANIFEST-INVALID"));
     let payload = json!({
         "materials": [
@@ -786,7 +795,7 @@ fn library_refs_follow_the_shared_site_table() {
     let table: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/library_ref_sites.json")).unwrap();
     let document = &table["document"];
     // serde_json's maps keep keys sorted, so the walk visits them in key order.
-    let mut walked: Vec<String> = crate::model_document_save::library_ref_sites(document).into_iter().map(|(path, _)| path).collect();
+    let mut walked: Vec<String> = crate::export_disposition_screen::library_ref_sites(document).into_iter().map(|(path, _)| path).collect();
     let mut tabled: Vec<String> = table["sites"].as_array().unwrap().iter().map(|site| site["path"].as_str().unwrap().to_string()).collect();
     walked.sort();
     tabled.sort();
@@ -833,6 +842,7 @@ fn each_command_is_admitted_with_its_own_budget() {
         ("read_analysis_run", READ_ANALYSIS_RUN_MAX_ARGS_BYTES),
         ("delete_analysis_run", DELETE_ANALYSIS_RUN_MAX_ARGS_BYTES),
         ("edit_analysis_run_labels", EDIT_ANALYSIS_RUN_LABELS_MAX_ARGS_BYTES),
+        ("admit_analysis_run_comparison", ADMIT_ANALYSIS_RUN_COMPARISON_MAX_ARGS_BYTES),
     ] {
         let body = |length: usize| InvokeBody::Raw(format!("{{\"projectId\":\"{}\"}}", "p".repeat(length)).into_bytes());
         assert!(admit_body_within(&registry, &body(budget - 16), &headers(Some(INGRESS_ARGS_JSON_V1)), command, ArgsDecoding::Moved, budget).is_ok());
@@ -867,9 +877,10 @@ fn each_command_is_admitted_with_its_own_budget() {
 /// validates it against `analysis_run.v0.3` and Python's validator. With
 /// `OPENPIPESTRESS_WRITE_RECORDED_RUN_WITNESS=<path>` the test writes the witness
 /// there instead of comparing (the maintained writer).
-#[test]
-fn the_recorded_run_witness_is_what_the_record_path_emits_for_a_typescript_built_record() {
-    let input: Value = serde_json::from_str(TRANSIENT_INPUT).unwrap();
+/// Records `input_text` (a TypeScript-built transient record and its manifest) through this
+/// module's Record Run path and returns the witness text, with `description`.
+fn recorded_run_witness_text(input_text: &str, description: &str) -> String {
+    let input: Value = serde_json::from_str(input_text).unwrap();
     let manifest_text = input["input_manifest_canonical"].as_str().unwrap().to_string();
     let manifest: Value = serde_json::from_str(&manifest_text).unwrap();
     let solved = manifest["model_basis"]["model_payload"].clone();
@@ -899,7 +910,7 @@ fn the_recorded_run_witness_is_what_the_record_path_emits_for_a_typescript_built
     let read = read_run_in_store(&path, &project_id, &outcome.run.recording_id).unwrap();
     assert_eq!(read.result_json, SOURCE_RESULT, "the producer's bytes are stored as given");
     let witness = json!({
-        "description": "An analysis_run.v0.3 recorded revision emitted by the desktop store's Record Run path (apps/desktop/src-tauri/src/analysis_runs_tests.rs, test the_recorded_run_witness_is_what_the_record_path_emits_for_a_typescript_built_record) from fixtures/persistence/transient_run_input.json (a TypeScript-built transient record of fixtures/results/preview_physics_connected_sparse.json). Regenerate with OPENPIPESTRESS_WRITE_RECORDED_RUN_WITNESS=<path> on that test. apps/desktop/src/services/recordedRunParity.test.ts rebuilds it with the TypeScript builder; tests/test_recorded_run_record.py validates it against schemas/analysis_run.v0.3.schema.json and Python's validator.",
+        "description": description,
         "state_id": outcome.state.state_id,
         "state_model_hash": outcome.state.model_hash,
         "created_at": outcome.run.created_at,
@@ -907,12 +918,36 @@ fn the_recorded_run_witness_is_what_the_record_path_emits_for_a_typescript_built
         "run_record_hash": outcome.run.run_record_hash,
         "recorded_record": read.record
     });
-    let text = format!("{}\n", serde_json::to_string_pretty(&witness).unwrap());
-    if let Ok(target) = std::env::var(WITNESS_PATH_ENV) {
-        std::fs::write(target, &text).unwrap();
+    format!("{}\n", serde_json::to_string_pretty(&witness).unwrap())
+}
+
+/// Writes `text` to the path in `env` when set (the maintained writer); otherwise compares it
+/// with the committed witness.
+fn compare_or_write_witness(text: &str, committed: &str, env: &str) {
+    if let Ok(target) = std::env::var(env) {
+        std::fs::write(target, text).unwrap();
         return;
     }
-    assert_eq!(text, WITNESS, "the committed witness is stale; regenerate it with {WITNESS_PATH_ENV}");
+    assert_eq!(text, committed, "the committed witness is stale; regenerate it with {env}");
+}
+
+#[test]
+fn the_recorded_run_witness_is_what_the_record_path_emits_for_a_typescript_built_record() {
+    let text = recorded_run_witness_text(TRANSIENT_INPUT, "An analysis_run.v0.3 recorded revision emitted by the desktop store's Record Run path (apps/desktop/src-tauri/src/analysis_runs_tests.rs, test the_recorded_run_witness_is_what_the_record_path_emits_for_a_typescript_built_record) from fixtures/persistence/transient_run_input.json (a TypeScript-built transient record of fixtures/results/preview_physics_connected_sparse.json). Regenerate with OPENPIPESTRESS_WRITE_RECORDED_RUN_WITNESS=<path> on that test. apps/desktop/src/services/recordedRunParity.test.ts rebuilds it with the TypeScript builder; tests/test_recorded_run_record.py validates it against schemas/analysis_run.v0.3.schema.json and Python's validator.");
+    compare_or_write_witness(&text, WITNESS, WITNESS_PATH_ENV);
+}
+
+/// The recorded revision keeps the transient record's rule-pack reference diagnostics
+/// unchanged (they are under its record hash) and takes `rule_pack_refs` from the manifest.
+#[test]
+fn the_rule_pack_witness_keeps_the_transient_diagnostics_under_the_record_hash() {
+    let text = recorded_run_witness_text(TRANSIENT_INPUT_RULE_PACKS, "An analysis_run.v0.3 recorded revision emitted by the desktop store's Record Run path (apps/desktop/src-tauri/src/analysis_runs_tests.rs, test the_rule_pack_witness_keeps_the_transient_diagnostics_under_the_record_hash) from fixtures/persistence/transient_run_input_rule_packs.json (a TypeScript-built transient record of fixtures/results/preview_physics_connected_sparse.json whose model carries invented rule_pack_refs; the excluded references are rule-pack reference diagnostics). Regenerate with OPENPIPESTRESS_WRITE_RECORDED_RUN_WITNESS_RULE_PACKS=<path> on that test. apps/desktop/src/services/recordedRunParity.test.ts rebuilds it with the TypeScript builder; tests/test_recorded_run_record.py validates it against schemas/analysis_run.v0.3.schema.json and Python's validator.");
+    let input: Value = serde_json::from_str(TRANSIENT_INPUT_RULE_PACKS).unwrap();
+    let witness: Value = serde_json::from_str(&text).unwrap();
+    let recorded = &witness["recorded_record"]["analysis_run"];
+    assert_eq!(recorded["diagnostics"], input["run_record"]["analysis_run"]["diagnostics"]);
+    assert_eq!(recorded["rule_pack_refs"], json!([{ "object_type": "RulePack", "ref": "invented-pack%40held@1.0.0" }]));
+    compare_or_write_witness(&text, WITNESS_RULE_PACKS, WITNESS_RULE_PACKS_PATH_ENV);
 }
 
 // ---------------------------------------------------------------------------
@@ -1066,6 +1101,15 @@ const SMALL_POOL: u64 = 2 << 20;
 
 fn small_pool() -> crate::solve_jobs::SolveJobRegistry {
     pool_of(SMALL_POOL)
+}
+
+/// The 2 MiB pool plus SQLite's working set for one keyed column of `LARGE`
+/// bytes (W-12, repair r7): SQLite materializes such a column, so the 2 MiB
+/// pool alone refuses the command before SQLite reads it
+/// (`sqlite_allocations_for_an_oversized_id_are_admitted_before_sqlite_loads_it`).
+/// Under this pool the process-side peak is still checked against the column.
+fn working_set_pool() -> crate::solve_jobs::SolveJobRegistry {
+    pool_of(SMALL_POOL + stored_read::SQLITE_WORKING_SET_FACTOR * (LARGE as u64 + (64 << 10)))
 }
 
 fn pool_of(bytes: u64) -> crate::solve_jobs::SolveJobRegistry {
@@ -1239,7 +1283,8 @@ fn large_stored_labels_are_priced_before_they_are_loaded() {
     let memory = PoolReadMemory::unseeded(&small);
     let (outcome, measured) = crate::ingress::counting::measure(|| model_states::delete_state_in_store_with(&path, PROJECT, &state.state_id, &memory).map(|_| ()));
     let error = outcome.unwrap_err();
-    assert!(error.starts_with("MODEL-STATE-DELETE-BLOCKED: ") && error.len() < 1024 && error.contains("…"), "{error}");
+    // The state's runs are counted from their columns, not named (W-12): no name is loaded.
+    assert!(error.starts_with("MODEL-STATE-DELETE-BLOCKED: ") && error.len() < 1024 && error.contains("the state of 1 recorded run"), "{error}");
     assert!(measured.peak_priced <= memory.peak_reserved(), "peak {} within {}", measured.peak_priced, memory.peak_reserved());
     assert!(assert_within_reservation("read_analysis_run", |memory| read_run_in_store_with(&path, PROJECT, &id, memory)) as usize > LARGE);
     assert!(assert_within_reservation("list_analysis_runs", |memory| list_runs_in_store_with(&path, PROJECT, memory)) as usize > LARGE);
@@ -1317,8 +1362,13 @@ fn prescan_invalid_stored_json_is_refused_before_it_is_parsed() {
     let (path, _) = recorded_fixture("invalid-run-labels");
     tamper(&path, &format!("UPDATE analysis_run_labels SET tags_json = '{invalid}';"));
     let memory = PoolReadMemory::unseeded(&pool);
-    let (outcome, measured) = crate::ingress::counting::measure(|| list_runs_in_store_with(&path, PROJECT, &memory).map(|_| ()));
-    refused("run labels", &outcome.unwrap_err(), measured, memory.peak_reserved(), "ANALYSIS-RUN-INTEGRITY");
+    // The list shows the row as unreadable, by its refusal (W-12), the same refusal.
+    let (outcome, measured) = crate::ingress::counting::measure(|| {
+        list_runs_in_store_with(&path, PROJECT, &memory).map(|listed| unreadable_refusals_of_runs(listed.get()))
+    });
+    let refusals = outcome.unwrap();
+    assert_eq!(refusals.len(), 1);
+    refused("run labels", &refusals[0], measured, memory.peak_reserved(), "ANALYSIS-RUN-INTEGRITY");
     // A state's record and its snapshot.
     for (column, label) in [("record_json", "state record"), ("model_canonical", "state snapshot")] {
         let path = store_with_project(&format!("invalid-{column}"));
@@ -1892,7 +1942,21 @@ fn refusals_quote_stored_names_cut_to_a_small_bound() {
     let (path, _) = recorded_fixture("r4-refusals");
     let state_id: String = Connection::open(&path).unwrap().query_row("SELECT state_id FROM model_states", [], |row| row.get(0)).unwrap();
     let id = id_of(&path);
-    set_column(&path, "analysis_run_labels", "run_name", &"n".repeat(LARGE));
+    // A blocked delete naming a child state with a 3 MiB name (runs are counted, W-12).
+    let child_model_canonical = canonical_json(&model("Child project"));
+    let child = SaveModelStateRequest {
+        project_id: PROJECT.to_string(),
+        expected_base: BASE.to_string(),
+        model_hash: format!("sha256:{}", sha256_hex(&child_model_canonical)),
+        model_canonical: child_model_canonical,
+        state_kind: "design_snapshot".to_string(),
+        parent_state_id: Some(state_id.clone()),
+        labels: labels_from_value(json!({ "state_name": "Child" })).unwrap(),
+    };
+    let allocate = || Ok(("00000000000000000000000000002399".to_string(), 3_000));
+    let between_rows = |_: &Transaction<'_>| Ok(());
+    let child = save_state_in_store(&path, child, &StateWriteHooks { allocate: &allocate, between_rows: &between_rows }).unwrap().state;
+    Connection::open(&path).unwrap().execute("UPDATE model_state_labels SET state_name = ?1 WHERE state_id = ?2", params!["n".repeat(LARGE), child.state_id]).unwrap();
     assert_small_refusal("a blocked delete", "MODEL-STATE-DELETE-BLOCKED: ", |memory| {
         model_states::delete_state_in_store_with(&path, PROJECT, &state_id, memory).map(|_| ())
     });
@@ -1914,7 +1978,8 @@ fn refusals_quote_stored_names_cut_to_a_small_bound() {
         record(&path, request(&solved, &format!("Run {index}")), T0 + index).unwrap();
     }
     let error = model_states::delete_state_in_store(&path, PROJECT, &state.state_id).unwrap_err();
-    assert!(error.contains(" and 2 more") && error.matches("runrec:").count() == 10, "{error}");
+    // Runs are counted from their columns, never named from them (W-12).
+    assert!(error.contains("the state of 12 recorded runs") && error.matches("runrec:").count() == 0, "{error}");
     // The cut itself.
     assert_eq!(stored_read::shown(&"é".repeat(120)), "é".repeat(120));
     assert_eq!(stored_read::shown(&"é".repeat(121)), format!("{}…", "é".repeat(120)));
@@ -2074,11 +2139,49 @@ fn stored_decoding_and_sqlite_errors_are_described_not_quoted() {
     assert_eq!(stored_read::capped("e".repeat(5000)).chars().count(), stored_read::MAX_MESSAGE_CHARS + 1);
 }
 
+/// The refusals of a run list's unreadable entries (none of their fields is trusted).
+fn unreadable_refusals_of_runs(entries: &[ListedRun]) -> Vec<String> {
+    entries
+        .iter()
+        .filter_map(|entry| match entry {
+            ListedRun::Unreadable { unreadable } => Some(unreadable.refusal.clone()),
+            ListedRun::Readable(_) => None,
+        })
+        .collect()
+}
+
+fn unreadable_refusals_of_states(entries: &[model_states::ListedState]) -> Vec<String> {
+    entries
+        .iter()
+        .filter_map(|entry| match entry {
+            model_states::ListedState::Unreadable { unreadable } => Some(unreadable.refusal.clone()),
+            model_states::ListedState::Readable(_) => None,
+        })
+        .collect()
+}
+
+/// A list holding one row whose identity or time column holds `LARGE` bytes:
+/// the row is listed as unreadable (W-12), by the head of its id and its
+/// refusal, before it is loaded and within the reservations, under the 2 MiB
+/// pool. `list` gives the list's unreadable refusals and its readable count.
+fn assert_oversized_listed(what: &str, column: &str, list: impl FnOnce(&PoolReadMemory<'_>) -> Result<(Vec<String>, usize), String>) {
+    let small = working_set_pool();
+    let memory = PoolReadMemory::unseeded(&small);
+    let (outcome, measured) = crate::ingress::counting::measure(|| list(&memory));
+    let (refusals, readable) = outcome.unwrap();
+    assert_eq!((refusals.len(), readable), (1, 0), "{what}");
+    assert!(refusals[0].contains(&format!("its {column} is longer than")), "{what}: {}", stored_read::shown(&refusals[0]));
+    assert_small(what, &refusals[0]);
+    assert!(measured.peak_priced < (LARGE as u64) / 4, "{what}: listed before loading (peak {})", measured.peak_priced);
+    assert!(measured.peak_priced <= memory.peak_reserved().max(1 << 16), "{what}: peak {} within {}", measured.peak_priced, memory.peak_reserved());
+    assert_eq!(small.pool_status().reserved_bytes, 0);
+}
+
 /// A row whose identity or time column holds `LARGE` bytes is refused before
 /// it is loaded, by the head of its id, within the reservations, under the
 /// 2 MiB pool.
 fn assert_oversized_refused<T: std::fmt::Debug>(what: &str, column: &str, read: impl FnOnce(&PoolReadMemory<'_>) -> Result<T, String>) {
-    let small = small_pool();
+    let small = working_set_pool();
     let memory = PoolReadMemory::unseeded(&small);
     let (outcome, measured) = crate::ingress::counting::measure(|| read(&memory));
     let error = outcome.unwrap_err();
@@ -2105,7 +2208,12 @@ fn every_identity_and_time_column_is_bounded_before_it_is_loaded() {
         let path = store_with_project(&format!("r5-state-{column}"));
         let state = save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000002601", 1_000);
         tamper_with(&path, &format!("UPDATE {table} SET {set} = ?1"), &large);
-        assert_oversized_refused(&format!("the state list ({column})"), column, |memory| model_states::list_states_in_store_with(&path, PROJECT, memory));
+        assert_oversized_listed(&format!("the state list ({column})"), column, |memory| {
+            model_states::list_states_in_store_with(&path, PROJECT, memory).map(|listed| {
+                let entries = listed.get();
+                (unreadable_refusals_of_states(entries), entries.len() - unreadable_refusals_of_states(entries).len())
+            })
+        });
         if column != "state_id" {
             assert_oversized_refused(&format!("the state read ({column})"), column, |memory| {
                 model_states::read_state_in_store_with(&path, PROJECT, &state.state_id, memory)
@@ -2124,7 +2232,12 @@ fn every_identity_and_time_column_is_bounded_before_it_is_loaded() {
         let (path, _) = recorded_fixture(&format!("r5-run-{column}"));
         let id = id_of(&path);
         tamper_with(&path, &format!("UPDATE {table} SET {set} = ?1"), &large);
-        assert_oversized_refused(&format!("the run list ({column})"), column, |memory| list_runs_in_store_with(&path, PROJECT, memory));
+        assert_oversized_listed(&format!("the run list ({column})"), column, |memory| {
+            list_runs_in_store_with(&path, PROJECT, memory).map(|listed| {
+                let entries = listed.get();
+                (unreadable_refusals_of_runs(entries), entries.len() - unreadable_refusals_of_runs(entries).len())
+            })
+        });
         if column != "recording_id" {
             assert_oversized_refused(&format!("the run read ({column})"), column, |memory| read_run_in_store_with(&path, PROJECT, &id, memory));
         }
@@ -2243,9 +2356,9 @@ fn one_cap_names_at_most_ten_blockers_across_children_and_runs() {
         record(&path, request_against(&solved, &format!("Run {index}")), T0 + index as i64).unwrap();
     }
     let error = model_states::delete_state_in_store(&path, PROJECT, &parent.state_id).unwrap_err();
-    // The state itself, then ten blockers in all: six children and four runs.
-    assert_eq!(error.matches("\" (").count(), 11, "{error}");
-    assert!(error.contains("recorded runs ") && error.contains(" and 2 more"), "{error}");
+    // The state itself and its six verified children named; the runs counted (W-12).
+    assert_eq!(error.matches("\" (").count(), 7, "{error}");
+    assert!(error.contains("and the state of 6 recorded runs"), "{error}");
 }
 
 fn request_against(model: &Value, name: &str) -> RecordRunRequest {
@@ -2498,7 +2611,7 @@ fn transient_in(project: &str, result: &str, manifest: &str) -> Value {
                                 "build_ref": { "object_type": "ExternalReference", "ref": "invented-solver@0.0.1" } },
             "settings_ref": { "object_type": "SolverSettings", "ref": format!("solver-settings:input-manifest:{}:{manifest_hash}:{manifest_hash}", safe_token(project)) },
             "unit_system_ref": { "object_type": "UnitSystem", "ref": format!("unit-system:{project}:{manifest_hash}") },
-            "load_basis_refs": [], "result_refs": result_refs,
+            "load_basis_refs": [], "result_refs": result_refs, "diagnostics": [],
             "rule_pack_refs": [], "library_refs": [],
             "analysis_status": ["HUMAN_REVIEW_REQUIRED", "MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE"],
             "hashes": [
@@ -2624,4 +2737,1329 @@ fn the_history_commands_reach_long_project_ids_written_by_the_real_writers() {
         }
     }
     assert_eq!(pool.pool_status().reserved_bytes, 0);
+}
+
+// ---------------------------------------------------------------------------
+// Rule-pack reference diagnostics (FR-CMP-002; DEL-14-01 Design §3): the
+// record's diagnostics are the result's, then one per model reference the
+// manifest leaves out of active_rule_packs, each exactly its code's and
+// identity's, at Record Run and at read. All rule-pack data are invented.
+// ---------------------------------------------------------------------------
+
+#[test]
+fn rule_pack_identities_percent_encode_each_component() {
+    // The same vectors as `modelRulePackResolution.test.tsx` and `test_recorded_run_record.py`.
+    assert_eq!(rule_pack_identity("rule-pack:b", "2"), "rule-pack:b@2");
+    assert_eq!(rule_pack_identity("invented-pack@branch", "1.0.0"), "invented-pack%40branch@1.0.0");
+    assert_eq!(rule_pack_identity("invented-pack", "branch@1.0.0"), "invented-pack@branch%401.0.0");
+    assert_eq!(rule_pack_identity("pack%40x@y", "1%@2"), "pack%2540x%40y@1%25%402");
+    let manifest = json!({ "active_rule_packs": [{ "rule_pack_id": "invented-pack@branch", "version": "1.0.0", "checksum_sha256": "a", "source_notice": "n" }] });
+    assert_eq!(rule_pack_refs(&manifest).unwrap(), vec![json!({ "object_type": "RulePack", "ref": "invented-pack%40branch@1.0.0" })]);
+}
+
+/// The model's invented references: the first resolved (in the manifest's
+/// active_rule_packs), the two whose flattened identities would collide excluded.
+fn rule_pack_model() -> Value {
+    let mut solved = model("Invented project");
+    let reference = |id: &str, version: &str| json!({ "rule_pack_id": id, "name": "Invented", "rule_pack_version": version,
+        "checksum": { "algorithm": "sha256", "canonicalization": "JCS", "payload_scope": "rule_pack_payload", "payload_excludes": ["checksums"], "value": "a".repeat(64) },
+        "redistribution_status": "invented_non_engineering_example" });
+    solved["rule_pack_refs"] = json!([reference("rule-pack:invented", "1.0.0"), reference("invented-pack@branch", "1.0.0"), reference("invented-pack", "branch@1.0.0")]);
+    solved
+}
+
+fn exclusion_diagnostics() -> Value {
+    json!([
+        { "source_annotation": rule_pack_ref_diagnostic(RULE_PACK_REF_UNRESOLVED, &rule_pack_identity("invented-pack@branch", "1.0.0")) },
+        { "source_annotation": rule_pack_ref_diagnostic(RULE_PACK_REF_UNRESOLVED, &rule_pack_identity("invented-pack", "branch@1.0.0")) }
+    ])
+}
+
+fn rule_pack_request(solved: &Value, edit: Option<Mutation>) -> RecordRunRequest {
+    let mut submitted = request(solved, "Run");
+    submitted.run_record["analysis_run"]["diagnostics"] = exclusion_diagnostics();
+    if let Some(edit) = edit {
+        edit(&mut submitted.run_record);
+    }
+    reseal(&mut submitted.run_record);
+    submitted
+}
+
+const RULE_PACK_DIAGNOSTIC_EDITS: [(&str, Mutation); 5] = [
+    ("an exclusion dropped", |record| { record["analysis_run"]["diagnostics"].as_array_mut().unwrap().pop(); }),
+    ("its message changed", |record| record["analysis_run"]["diagnostics"][0]["source_annotation"]["message"] = json!("Rule pack was applied")),
+    ("its identity replaced", |record| record["analysis_run"]["diagnostics"][0]["source_annotation"]["affected_refs"] = json!(["invented-pack@other"])),
+    ("an extra exclusion", |record| {
+        let extra = json!({ "source_annotation": rule_pack_ref_diagnostic(RULE_PACK_REF_UNRESOLVED, "rule-pack:invented@1.0.0") });
+        record["analysis_run"]["diagnostics"].as_array_mut().unwrap().push(extra);
+    }),
+    ("the exclusions reordered", |record| record["analysis_run"]["diagnostics"].as_array_mut().unwrap().swap(0, 1)),
+];
+
+#[test]
+fn rule_pack_reference_diagnostics_are_recorded_and_read_unchanged_when_they_name_the_exclusions() {
+    let path = store_with_project("rule-pack-diagnostics");
+    let solved = rule_pack_model();
+    save_state(&path, &solved, "Basis", "00000000000000000000000000002001", 1_000);
+    let submitted = rule_pack_request(&solved, None);
+    let outcome = record(&path, submitted, T0).unwrap();
+    let read = read_run_in_store(&path, PROJECT, &outcome.run.recording_id).unwrap();
+    assert_eq!(read.record["analysis_run"]["diagnostics"], exclusion_diagnostics());
+    assert_eq!(read.record["analysis_run"]["rule_pack_refs"], json!([{ "object_type": "RulePack", "ref": "rule-pack:invented@1.0.0" }]));
+    // The two would share `invented-pack@branch@1.0.0` flattened; encoded they are distinct.
+    assert_eq!(read.record["analysis_run"]["diagnostics"][0]["source_annotation"]["affected_refs"], json!(["invented-pack%40branch@1.0.0"]));
+    assert_eq!(read.record["analysis_run"]["diagnostics"][1]["source_annotation"]["affected_refs"], json!(["invented-pack@branch%401.0.0"]));
+}
+
+#[test]
+fn rule_pack_reference_diagnostics_that_do_not_name_the_exclusions_are_refused_at_record_run_and_at_read() {
+    for (index, (name, edit)) in RULE_PACK_DIAGNOSTIC_EDITS.into_iter().enumerate() {
+        // At Record Run: nothing is written.
+        let path = store_with_project(&format!("rule-pack-submit-{index}"));
+        let solved = rule_pack_model();
+        save_state(&path, &solved, "Basis", "00000000000000000000000000002001", 1_000);
+        let error = record(&path, rule_pack_request(&solved, Some(edit)), T0).unwrap_err();
+        assert!(error.starts_with("ANALYSIS-RUN-MANIFEST-MISMATCH: the record's rule-pack reference diagnostics are not exactly those"), "{name}: {error}");
+        assert!(error.ends_with("nothing was recorded."), "{name}: {error}");
+        assert_eq!(row_count(&path, "analysis_runs"), 0, "{name}");
+        // At read: a coherently resealed stored record is refused.
+        let outcome = record(&path, rule_pack_request(&solved, None), T0).unwrap();
+        let mut stored = read_run_in_store(&path, PROJECT, &outcome.run.recording_id).unwrap().record;
+        edit(&mut stored);
+        reseal(&mut stored);
+        let recording_id = forge(&path, &stored);
+        let read = read_run_in_store(&path, PROJECT, &recording_id).unwrap_err();
+        assert!(read.starts_with(&format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}`")), "{name}, read: {read}");
+        assert!(read.contains("rule-pack reference diagnostics differ from the references its stored input manifest leaves out"), "{name}, read: {read}");
+    }
+}
+
+#[test]
+fn the_records_diagnostics_must_begin_with_the_results() {
+    let path = store_with_project("producer-diagnostics");
+    let solved = model("Invented project");
+    save_state(&path, &solved, "Basis", "00000000000000000000000000002002", 1_000);
+    // A result carrying one diagnostic; a record must list it first.
+    let diagnostic = json!({ "code": "INVENTED", "severity": "warning", "message": "Invented." });
+    let with_result = |listed: bool| {
+        let mut submitted = request(&solved, "Run");
+        submitted.result_json = result_text(1.25).replace("\"diagnostics\": []", &format!("\"diagnostics\": [{diagnostic}]"));
+        submitted.run_record = transient(&submitted.result_json, &submitted.input_manifest_canonical);
+        if listed {
+            submitted.run_record["analysis_run"]["diagnostics"] = json!([{ "source_annotation": diagnostic.clone() }]);
+            reseal(&mut submitted.run_record);
+        }
+        submitted
+    };
+    let error = record(&path, with_result(false), T0).unwrap_err();
+    assert!(error.starts_with("ANALYSIS-RUN-RESULT-MISMATCH: the record's diagnostics do not begin with the result's"), "{error}");
+    assert_eq!(row_count(&path, "analysis_runs"), 0);
+    let outcome = record(&path, with_result(true), T0).unwrap();
+    let mut stored = read_run_in_store(&path, PROJECT, &outcome.run.recording_id).unwrap().record;
+    stored["analysis_run"]["diagnostics"] = json!([]);
+    reseal(&mut stored);
+    let recording_id = forge(&path, &stored);
+    let read = read_run_in_store(&path, PROJECT, &recording_id).unwrap_err();
+    assert!(read.contains("the record's diagnostics do not begin with its stored result's"), "{read}");
+}
+
+#[test]
+fn a_repeated_exclusion_identity_is_refused_at_record_run_and_at_read() {
+    // A model naming one excluded (id, version) pair twice (the document validator refuses
+    // repeated authored ids; a direct submission or a forged store need not): its two
+    // identical exclusion diagnostics are refused, as the TypeScript and Python validators
+    // refuse a repeated identity.
+    let path = store_with_project("rule-pack-repeat");
+    let mut solved = rule_pack_model();
+    let repeated = solved["rule_pack_refs"][1].clone();
+    solved["rule_pack_refs"].as_array_mut().unwrap().push(repeated);
+    save_state(&path, &solved, "Basis", "00000000000000000000000000002003", 1_000);
+    let repeat = |record: &mut Value| {
+        let first = record["analysis_run"]["diagnostics"][0].clone();
+        record["analysis_run"]["diagnostics"].as_array_mut().unwrap().push(first);
+    };
+    let mut submitted = request(&solved, "Run");
+    submitted.run_record["analysis_run"]["diagnostics"] = exclusion_diagnostics();
+    repeat(&mut submitted.run_record);
+    reseal(&mut submitted.run_record);
+    let error = record(&path, submitted, T0).unwrap_err();
+    assert!(error.starts_with("ANALYSIS-RUN-MANIFEST-MISMATCH: the record's rule-pack reference diagnostics are not exactly those"), "{error}");
+    assert_eq!(row_count(&path, "analysis_runs"), 0);
+    // At read: a run recorded for a model without the repeat, its stored record and
+    // manifest model forged coherently to repeat the pair, is refused.
+    let path = store_with_project("rule-pack-repeat-read");
+    let plain = rule_pack_model();
+    save_state(&path, &plain, "Basis", "00000000000000000000000000002004", 1_000);
+    let outcome = record(&path, rule_pack_request(&plain, None), T0).unwrap();
+    let mut stored = read_run_in_store(&path, PROJECT, &outcome.run.recording_id).unwrap().record;
+    repeat(&mut stored);
+    reseal(&mut stored);
+    let recording_id = forge(&path, &stored);
+    let read = read_run_in_store(&path, PROJECT, &recording_id).unwrap_err();
+    assert!(read.starts_with(&format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}`")), "{read}");
+    assert!(read.contains("rule-pack reference diagnostics differ from the references its stored input manifest leaves out"), "{read}");
+}
+
+#[test]
+fn diagnostics_difference_refuses_a_repeat_even_when_the_model_repeats_the_pair() {
+    // The pure check, with the manifest's model naming the pair twice: the exact two
+    // diagnostics are refused (no identity twice), as are one and three.
+    let reference = json!({ "rule_pack_id": "invented-pack@branch", "rule_pack_version": "1.0.0" });
+    let manifest = json!({ "active_rule_packs": [], "model_basis": { "model_payload": { "rule_pack_refs": [reference.clone(), reference] } } });
+    let result = json!({ "diagnostics": [] });
+    let one = json!({ "source_annotation": rule_pack_ref_diagnostic(RULE_PACK_REF_UNRESOLVED, &rule_pack_identity("invented-pack@branch", "1.0.0")) });
+    for count in [1, 2, 3] {
+        let record = json!({ "analysis_run": { "diagnostics": vec![one.clone(); count] } });
+        assert_eq!(diagnostics_difference(&record, &result, &manifest).unwrap(), Some(DiagnosticsDifference::RulePacks), "{count}");
+    }
+    // And a record without a diagnostics list is refused.
+    assert_eq!(diagnostics_difference(&json!({ "analysis_run": {} }), &result, &json!({ "active_rule_packs": [] })).unwrap(), Some(DiagnosticsDifference::Producer));
+}
+
+#[test]
+fn a_model_without_references_excludes_nothing_whatever_the_manifest_holds() {
+    // As the TypeScript `manifestExcludedRulePacks` and Python's `manifest_excluded_rule_packs`.
+    assert_eq!(manifest_excluded_rule_packs(&json!({ "model_basis": { "model_payload": {} } })).unwrap(), Vec::<(String, String)>::new());
+    assert_eq!(manifest_excluded_rule_packs(&json!({ "model_basis": { "model_payload": { "rule_pack_refs": [] } } })).unwrap(), Vec::<(String, String)>::new());
+    let referenced = json!({ "model_basis": { "model_payload": { "rule_pack_refs": [{ "rule_pack_id": "x", "rule_pack_version": "1" }] } } });
+    assert!(manifest_excluded_rule_packs(&referenced).unwrap_err().starts_with("ANALYSIS-RUN-MANIFEST-INVALID: the input manifest has no active_rule_packs list"));
+    let unlisted = json!({ "active_rule_packs": [], "model_basis": { "model_payload": { "rule_pack_refs": null } } });
+    assert!(manifest_excluded_rule_packs(&unlisted).unwrap_err().contains("is not a list"));
+    let unversioned = json!({ "active_rule_packs": [], "model_basis": { "model_payload": { "rule_pack_refs": [{ "rule_pack_id": "x" }] } } });
+    assert!(manifest_excluded_rule_packs(&unversioned).unwrap_err().contains("has no id or version"));
+}
+
+// ---------------------------------------------------------------------------
+// W-12 (DEL-14-01 Design §2, §3): a run recorded before rule-pack resolution is
+// refused by name; the history lists show each unreadable row by its id and
+// refusal only, and the other rows as usual; an unreadable run, or an
+// unreadable state nothing depends on, may be deleted.
+// ---------------------------------------------------------------------------
+
+/// Writes an S2-era store row for the fixture's recorded revision, as S2's Record
+/// Run wrote it (its state saved first), and returns its recording id.
+fn insert_s2_run(path: &Path, fixture: &Value) -> String {
+    let manifest_text = fixture["input_manifest_canonical"].as_str().unwrap();
+    let manifest: Value = serde_json::from_str(manifest_text).unwrap();
+    let payload = &manifest["model_basis"]["model_payload"];
+    let project_id = payload["project"]["id"].as_str().unwrap();
+    let state_id = fixture["state_id"].as_str().unwrap();
+    let model_canonical = canonical_json(payload);
+    let request = SaveModelStateRequest {
+        project_id: project_id.to_string(),
+        expected_base: BASE.to_string(),
+        model_hash: format!("sha256:{}", sha256_hex(&model_canonical)),
+        model_canonical,
+        state_kind: "post_solve_snapshot".to_string(),
+        parent_state_id: None,
+        labels: labels_from_value(json!({ "state_name": "S2 snapshot" })).unwrap(),
+    };
+    let token = state_id.trim_start_matches("state:").to_string();
+    let allocate = move || Ok((token.clone(), 500));
+    let between_rows = |_: &Transaction<'_>| Ok(());
+    save_state_in_store(path, request, &StateWriteHooks { allocate: &allocate, between_rows: &between_rows }).unwrap();
+    let record = &fixture["recorded_record"];
+    let hash = run_record_hash(record).unwrap();
+    let recording_id = recording_id_of(&hash);
+    let result_hash = record["analysis_run"]["hashes"].as_array().unwrap().iter().find(|hash| hash["payload_scope"] == "received_result").unwrap()["value"].as_str().unwrap().to_string();
+    let connection = Connection::open(path).unwrap();
+    connection
+        .execute(
+            "INSERT INTO analysis_runs (project_id, recording_id, state_id, producer_run_id, created_at, run_record_json, run_record_hash, input_manifest_json, result_json, result_hash)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
+            params![project_id, recording_id, state_id, record["analysis_run"]["run_id"].as_str().unwrap(), fixture["created_at"].as_str().unwrap(),
+                    serde_json::to_string(record).unwrap(), hash, manifest_text, SOURCE_RESULT, result_hash],
+        )
+        .unwrap();
+    connection
+        .execute(
+            "INSERT INTO analysis_run_labels (project_id, recording_id, run_name, tags_json, notes_json, assumptions_json, updated_at) VALUES (?1, ?2, 'S2 run', '[]', '[]', '[]', ?3)",
+            params![project_id, recording_id, fixture["created_at"].as_str().unwrap()],
+        )
+        .unwrap();
+    recording_id
+}
+
+#[test]
+fn a_run_recorded_before_rule_pack_resolution_is_refused_by_name_and_the_list_keeps_the_projects_other_runs() {
+    let fixture: Value = serde_json::from_str(S2_UNRESOLVED_RUN).unwrap();
+    let manifest_text = fixture["input_manifest_canonical"].as_str().unwrap().to_string();
+    let manifest: Value = serde_json::from_str(&manifest_text).unwrap();
+    assert_eq!(manifest["active_rule_packs"], json!([]));
+    let payload = manifest["model_basis"]["model_payload"].clone();
+    let project_id = payload["project"]["id"].as_str().unwrap().to_string();
+    let path = scratch_store("s2-unresolved");
+    let (mut connection, _) = crate::open_project_store(&path).unwrap();
+    write_project(&mut connection, &project_id, &payload, BASE);
+    drop(connection);
+    // Record Run of S2's transient record: refused by name, nothing written.
+    let now = || Ok(T0);
+    let token = || Ok("000000000000000000000000000052b1".to_string());
+    let between_rows = |_: &Transaction<'_>, _: &str| Ok(());
+    let hooks = RunWriteHooks { now: &now, state_token: &token, between_rows: &between_rows };
+    let submitted = RecordRunRequest {
+        project_id: project_id.clone(),
+        expected_base: BASE.to_string(),
+        run_record: fixture["run_record"].clone(),
+        result_json: SOURCE_RESULT.to_string(),
+        input_manifest_canonical: manifest_text,
+        state_id: None,
+        new_state: Some(NewStateRequest { labels: labels_from_value(json!({ "state_name": "After solve" })).unwrap(), parent_state_id: None }),
+        run_labels: run_labels("S2 run"),
+    };
+    let error = record_run_in_store(&path, submitted, &hooks).unwrap_err();
+    assert_eq!(error, "ANALYSIS-RUN-RULE-PACKS-NOT-RESOLVED: recorded before rule-pack resolution; re-record this run; nothing was recorded.");
+    assert_eq!(row_count(&path, "analysis_runs"), 0);
+    // A stored S2-era row: refused by name at read.
+    let s2_id = insert_s2_run(&path, &fixture);
+    let read = read_run_in_store(&path, &project_id, &s2_id).unwrap_err();
+    assert_eq!(read, format!("ANALYSIS-RUN-RULE-PACKS-NOT-RESOLVED: recorded run `{s2_id}`: recorded before rule-pack resolution; re-record this run."));
+    // Another run of the project (the no-reference pair) records and reads.
+    let input: Value = serde_json::from_str(TRANSIENT_INPUT).unwrap();
+    let other_text = input["input_manifest_canonical"].as_str().unwrap().to_string();
+    let other = record_run_in_store(
+        &path,
+        RecordRunRequest {
+            project_id: project_id.clone(),
+            expected_base: BASE.to_string(),
+            run_record: input["run_record"].clone(),
+            result_json: SOURCE_RESULT.to_string(),
+            input_manifest_canonical: other_text,
+            state_id: None,
+            new_state: Some(NewStateRequest { labels: labels_from_value(json!({ "state_name": "Plain" })).unwrap(), parent_state_id: None }),
+            run_labels: run_labels("Plain run"),
+        },
+        &hooks,
+    )
+    .unwrap();
+    read_run_in_store(&path, &project_id, &other.run.recording_id).unwrap();
+    // The list: both runs, each its verified summary (the list reads no manifest;
+    // the S2-era run is refused, by name, when it is read).
+    let entries = list_run_entries(&Connection::open(&path).unwrap(), &project_id).unwrap();
+    let readable: Vec<&str> = entries.iter().filter_map(|entry| match entry { ListedRun::Readable(run) => Some(run.recording_id.as_str()), _ => None }).collect();
+    assert_eq!(readable.len(), 2);
+    assert!(readable.contains(&s2_id.as_str()) && readable.contains(&other.run.recording_id.as_str()));
+}
+
+/// The unreadable entries of a run list (the row's id, refusal and handle only).
+fn unreadable_runs(path: &Path, project_id: &str) -> Vec<stored_read::UnreadableRow> {
+    list_run_entries(&Connection::open(path).unwrap(), project_id)
+        .unwrap()
+        .into_iter()
+        .filter_map(|entry| match entry {
+            ListedRun::Unreadable { unreadable } => Some(unreadable),
+            ListedRun::Readable(_) => None,
+        })
+        .collect()
+}
+
+fn unreadable_states(path: &Path) -> Vec<stored_read::UnreadableRow> {
+    model_states::list_state_entries(&Connection::open(path).unwrap(), PROJECT)
+        .unwrap()
+        .into_iter()
+        .filter_map(|entry| match entry {
+            model_states::ListedState::Unreadable { unreadable } => Some(unreadable),
+            model_states::ListedState::Readable(_) => None,
+        })
+        .collect()
+}
+
+fn readable_states(path: &Path) -> Vec<ModelStateSummary> {
+    model_states::list_states(&Connection::open(path).unwrap(), PROJECT).unwrap_or_else(|_| {
+        model_states::list_state_entries(&Connection::open(path).unwrap(), PROJECT)
+            .unwrap()
+            .into_iter()
+            .filter_map(|entry| match entry {
+                model_states::ListedState::Readable(summary) => Some(summary),
+                model_states::ListedState::Unreadable { .. } => None,
+            })
+            .collect()
+    })
+}
+
+#[test]
+fn a_tampered_run_is_listed_as_unreadable_by_id_refusal_and_handle_only_and_may_be_deleted_by_its_handle() {
+    let (path, _) = recorded_fixture("listed-unreadable-run");
+    let tampered = id_of(&path);
+    let solved = model("Invented project");
+    let kept = record(&path, request(&solved, "Kept"), T0 + 5).unwrap().run.recording_id;
+    tamper(&path, &format!("UPDATE analysis_runs SET result_hash = 'sha256:tampered' WHERE recording_id = '{tampered}';"));
+    let entries = list_run_entries(&Connection::open(&path).unwrap(), PROJECT).unwrap();
+    assert_eq!(entries.len(), 2);
+    let text = serde_json::to_value(&entries).unwrap();
+    let unreadable: Vec<&Value> = text.as_array().unwrap().iter().filter(|entry| entry.get("unreadable").is_some()).collect();
+    assert_eq!(unreadable.len(), 1);
+    // Only the id, the named refusal, the delete handle and the reference count: no unverified field.
+    assert_eq!(unreadable[0].as_object().unwrap().len(), 1);
+    assert_eq!(unreadable[0]["unreadable"].as_object().unwrap().keys().collect::<Vec<_>>(), ["handle", "id", "references", "refusal"]);
+    assert_eq!(unreadable[0]["unreadable"]["id"], json!(tampered));
+    let refusal = unreadable[0]["unreadable"]["refusal"].as_str().unwrap();
+    assert!(refusal.starts_with(&format!("ANALYSIS-RUN-INTEGRITY: recorded run `{tampered}`: the row's result hash differs")), "{refusal}");
+    assert!(refusal.chars().count() <= stored_read::MAX_MESSAGE_CHARS + 1);
+    assert!(text.as_array().unwrap().iter().any(|entry| entry["recording_id"] == json!(kept)));
+    assert!(read_run_in_store(&path, PROJECT, &tampered).unwrap_err().starts_with("ANALYSIS-RUN-INTEGRITY"));
+    read_run_in_store(&path, PROJECT, &kept).unwrap();
+    // By its id it is not deleted (only a verified run is); by its handle it is, with its labels.
+    assert!(delete_run_in_store(&path, PROJECT, &tampered).unwrap_err().starts_with("ANALYSIS-RUN-INTEGRITY"));
+    let handle = unreadable[0]["unreadable"]["handle"].as_str().unwrap();
+    let receipt = delete_unreadable_run_in_store(&path, PROJECT, handle).unwrap();
+    assert!(receipt.deleted && receipt.message == format!("Deleted unreadable recorded run `{tampered}`; its record was not read."), "{}", receipt.message);
+    assert_eq!(row_count(&path, "analysis_runs"), 1);
+    assert_eq!(row_count(&path, "analysis_run_labels"), 1);
+    assert_eq!(list_runs(&Connection::open(&path).unwrap(), PROJECT).unwrap().len(), 1);
+    // The handle is stale now; another project's handle is not this one's.
+    assert!(delete_unreadable_run_in_store(&path, PROJECT, handle).unwrap_err().starts_with("ANALYSIS-RUN-NOT-FOUND"));
+    assert!(delete_unreadable_run_in_store(&path, PROJECT, "run-row:1:1:0000000000000000").unwrap_err().starts_with("ANALYSIS-RUN-NOT-FOUND"));
+}
+
+#[test]
+fn rows_whose_shown_ids_collide_are_each_deleted_by_their_own_handle_and_a_stale_or_wrong_handle_is_refused() {
+    // Codex: `x`×120 + "tail" and `x`×120 + "…" list identically; each handle deletes exactly its row.
+    let (path, _) = recorded_fixture("colliding-ids");
+    let solved = model("Invented project");
+    record(&path, request(&solved, "Second"), T0 + 5).unwrap();
+    let long = format!("{}tail", "x".repeat(120));
+    let short = format!("{}…", "x".repeat(120));
+    let connection = Connection::open(&path).unwrap();
+    let ids: Vec<String> = connection.prepare("SELECT recording_id FROM analysis_runs ORDER BY rowid").unwrap().query_map([], |row| row.get(0)).unwrap().collect::<Result<_, _>>().unwrap();
+    drop(connection);
+    tamper(&path, "");
+    let connection = Connection::open(&path).unwrap();
+    connection.execute_batch("PRAGMA foreign_keys = OFF;").unwrap();
+    for (from, to) in [(&ids[0], &long), (&ids[1], &short)] {
+        connection.execute("UPDATE analysis_runs SET recording_id = ?1 WHERE recording_id = ?2", params![to, from]).unwrap();
+        connection.execute("UPDATE analysis_run_labels SET recording_id = ?1 WHERE recording_id = ?2", params![to, from]).unwrap();
+    }
+    drop(connection);
+    let entries = unreadable_runs(&path, PROJECT);
+    assert_eq!(entries.len(), 2);
+    assert_eq!(entries[0].id, entries[1].id, "they list identically");
+    assert_ne!(entries[0].handle, entries[1].handle);
+    let remaining = |path: &Path| -> Vec<String> {
+        Connection::open(path).unwrap().prepare("SELECT recording_id FROM analysis_runs").unwrap().query_map([], |row| row.get(0)).unwrap().collect::<Result<_, _>>().unwrap()
+    };
+    let long_entry = entries.iter().find(|entry| entry.refusal.contains("tail") || entry.handle.contains(&format!(":{}:", long.len()))).unwrap().clone();
+    let short_entry = entries.iter().find(|entry| entry.handle != long_entry.handle).unwrap().clone();
+    delete_unreadable_run_in_store(&path, PROJECT, &long_entry.handle).unwrap();
+    assert_eq!(remaining(&path), vec![short.clone()], "the long row went, the short one stayed");
+    // A wrong digest on the short row's rowid, and the long row's stale handle, are refused.
+    let mut wrong = short_entry.handle.clone();
+    wrong.replace_range(wrong.len() - 16.., "ffffffffffffffff");
+    assert!(delete_unreadable_run_in_store(&path, PROJECT, &wrong).unwrap_err().starts_with("ANALYSIS-RUN-NOT-FOUND"));
+    assert!(delete_unreadable_run_in_store(&path, PROJECT, &long_entry.handle).unwrap_err().starts_with("ANALYSIS-RUN-NOT-FOUND"));
+    assert!(delete_unreadable_run_in_store(&path, "project:other", &short_entry.handle).unwrap_err().starts_with("ANALYSIS-RUN-NOT-FOUND"));
+    delete_unreadable_run_in_store(&path, PROJECT, &short_entry.handle).unwrap();
+    assert!(remaining(&path).is_empty());
+}
+
+#[test]
+fn a_tampered_state_is_listed_as_unreadable_and_is_deleted_by_its_handle_only_when_nothing_names_it() {
+    let path = store_with_project("listed-unreadable-state");
+    let solved = model("Invented project");
+    let basis = save_state(&path, &solved, "Basis", "00000000000000000000000000002701", 1_000);
+    let kept = save_state(&path, &model("Kept project"), "Kept", "00000000000000000000000000002702", 2_000);
+    let run = record(&path, request(&solved, "Run"), T0).unwrap().run.recording_id;
+    tamper(&path, &format!("UPDATE model_states SET created_at = '2026-01-01T00:00:00.000Z' WHERE state_id = '{}';", basis.state_id));
+    let entries = model_states::list_state_entries(&Connection::open(&path).unwrap(), PROJECT).unwrap();
+    let text = serde_json::to_value(&entries).unwrap();
+    let unreadable: Vec<&Value> = text.as_array().unwrap().iter().filter(|entry| entry.get("unreadable").is_some()).collect();
+    assert_eq!(unreadable.len(), 1);
+    assert_eq!(unreadable[0]["unreadable"].as_object().unwrap().keys().collect::<Vec<_>>(), ["handle", "id", "references", "refusal"]);
+    assert_eq!(unreadable[0]["unreadable"]["id"], json!(basis.state_id));
+    assert_eq!(unreadable[0]["unreadable"]["references"], json!(1), "its run names it");
+    assert!(unreadable[0]["unreadable"]["refusal"].as_str().unwrap().starts_with("MODEL-STATE-INTEGRITY"));
+    assert!(text.as_array().unwrap().iter().any(|entry| entry["state_id"] == json!(kept.state_id)));
+    assert!(model_states::read_state_in_store(&path, PROJECT, &basis.state_id).unwrap_err().starts_with("MODEL-STATE-INTEGRITY"));
+    let handle = unreadable[0]["unreadable"]["handle"].as_str().unwrap().to_string();
+    // Blocked while its run is recorded against it; the readable run itself is deleted
+    // (its state's readability does not matter), and then the state is.
+    let blocked = model_states::delete_unreadable_state_in_store(&path, PROJECT, &handle).unwrap_err();
+    assert_eq!(blocked, format!("MODEL-STATE-DELETE-BLOCKED: unreadable state `{}` is the state of 1 recorded run; delete it first. Nothing was deleted.", basis.state_id));
+    // The run under the unreadable state is listed as readable, and deleted by its id.
+    assert!(list_runs(&Connection::open(&path).unwrap(), PROJECT).unwrap().iter().any(|listed| listed.recording_id == run));
+    delete_run_in_store(&path, PROJECT, &run).unwrap();
+    assert_eq!(unreadable_states(&path)[0].references, 0);
+    let receipt = model_states::delete_unreadable_state_in_store(&path, PROJECT, &handle).unwrap();
+    assert!(receipt.deleted && receipt.message.starts_with("Deleted unreadable model state"), "{}", receipt.message);
+    assert_eq!(model_states::list_states(&Connection::open(&path).unwrap(), PROJECT).unwrap().len(), 1);
+}
+
+#[test]
+fn a_readable_state_presents_only_verified_children_and_counts_the_unreadable_rows_that_name_it() {
+    // Codex: a child whose parent_state_id is forged is unreadable, and is not the
+    // readable parent's child; it is counted, never named.
+    let path = store_with_project("forged-parent");
+    let parent = save_state(&path, &model("Invented project"), "Parent", "00000000000000000000000000002801", 1_000);
+    let child = save_state(&path, &model("Child project"), "Child", "00000000000000000000000000002802", 2_000);
+    tamper(&path, &format!("UPDATE model_states SET parent_state_id = '{}' WHERE state_id = '{}';", parent.state_id, child.state_id));
+    let listed = readable_states(&path);
+    let summary = listed.iter().find(|state| state.state_id == parent.state_id).unwrap();
+    assert!(summary.child_state_ids.is_empty(), "{:?}", summary.child_state_ids);
+    assert_eq!(summary.unreadable_references, 1);
+    assert_eq!(unreadable_states(&path).iter().map(|entry| entry.id.clone()).collect::<Vec<_>>(), vec![child.state_id.clone()]);
+    // The parent's delete names no unverified id and counts the unreadable row.
+    let blocked = model_states::delete_state_in_store(&path, PROJECT, &parent.state_id).unwrap_err();
+    assert_eq!(blocked, format!("MODEL-STATE-DELETE-BLOCKED: state \"Parent\" ({}) is the parent of 1 unreadable saved state row; delete it first. Nothing was deleted.", parent.state_id));
+    assert!(!blocked.contains(&child.state_id));
+}
+
+#[test]
+fn a_child_with_a_3_mib_id_does_not_make_its_parents_list_need_more_than_the_pool() {
+    // Codex: a 3 MiB child id under a readable parent made the list need 9.98 MB.
+    let path = store_with_project("huge-child-id");
+    let parent = save_state(&path, &model("Invented project"), "Parent", "00000000000000000000000000002901", 1_000);
+    let child = save_state(&path, &model("Child project"), "Child", "00000000000000000000000000002902", 2_000);
+    let large = "c".repeat(3 * 1024 * 1024);
+    tamper_with(&path, &format!("UPDATE model_states SET state_id = ?1, parent_state_id = '{}' WHERE state_id = '{}'", parent.state_id, child.state_id), &large);
+    let small = working_set_pool();
+    let memory = PoolReadMemory::unseeded(&small);
+    let (outcome, measured) = crate::ingress::counting::measure(|| {
+        model_states::list_states_in_store_with(&path, PROJECT, &memory).map(|listed| {
+            let entries = listed.get();
+            let parent_summary = entries.iter().find_map(|entry| match entry {
+                model_states::ListedState::Readable(summary) if summary.state_id == parent.state_id => Some((summary.child_state_ids.clone(), summary.unreadable_references)),
+                _ => None,
+            });
+            (parent_summary, unreadable_refusals_of_states(entries).len())
+        })
+    });
+    let (parent_summary, unreadable) = outcome.unwrap();
+    assert_eq!(parent_summary, Some((Vec::new(), 1)));
+    assert_eq!(unreadable, 1);
+    assert!(measured.peak_priced < (large.len() as u64) / 4, "the child id is never loaded (peak {})", measured.peak_priced);
+    assert_eq!(small.pool_status().reserved_bytes, 0);
+}
+
+#[test]
+fn a_row_with_a_value_of_the_wrong_type_or_not_utf_8_is_listed_as_unreadable_with_a_handle() {
+    // Codex: a run name set to X'FF' (a Blob) hid both runs behind STORE-SQL-ERROR.
+    let (path, _) = recorded_fixture("blob-label");
+    let first = id_of(&path);
+    let solved = model("Invented project");
+    let second = record(&path, request(&solved, "Second"), T0 + 5).unwrap().run.recording_id;
+    tamper(&path, &format!("UPDATE analysis_run_labels SET run_name = X'FF' WHERE recording_id = '{first}';"));
+    let entries = unreadable_runs(&path, PROJECT);
+    assert_eq!(entries.len(), 1);
+    assert!(entries[0].refusal.starts_with("ANALYSIS-RUN-INTEGRITY") && entries[0].refusal.contains("a stored column cannot be read"), "{}", entries[0].refusal);
+    assert!(entries[0].handle.starts_with("run-row:"));
+    assert!(list_run_entries(&Connection::open(&path).unwrap(), PROJECT).unwrap().iter().any(|entry| matches!(entry, ListedRun::Readable(run) if run.recording_id == second)));
+    assert!(read_run_in_store(&path, PROJECT, &first).unwrap_err().starts_with("ANALYSIS-RUN-INTEGRITY"));
+    delete_unreadable_run_in_store(&path, PROJECT, &entries[0].handle).unwrap();
+    assert!(unreadable_runs(&path, PROJECT).is_empty());
+    // An id that is not UTF-8.
+    let third = record(&path, request(&solved, "Third"), T0 + 9).unwrap().run.recording_id;
+    tamper(&path, "");
+    let connection = Connection::open(&path).unwrap();
+    connection.execute_batch("PRAGMA foreign_keys = OFF;").unwrap();
+    connection.execute("UPDATE analysis_runs SET recording_id = CAST(X'FFFE41' AS TEXT) WHERE recording_id = ?1", params![third]).unwrap();
+    drop(connection);
+    let entries = unreadable_runs(&path, PROJECT);
+    assert_eq!(entries.len(), 1, "{entries:?}");
+    assert!(entries[0].refusal.starts_with("ANALYSIS-RUN-INTEGRITY"), "{}", entries[0].refusal);
+    delete_unreadable_run_in_store(&path, PROJECT, &entries[0].handle).unwrap();
+    assert_eq!(list_runs(&Connection::open(&path).unwrap(), PROJECT).unwrap().len(), 1);
+    // A saved state's label of the wrong type.
+    let path = store_with_project("blob-state-label");
+    let a = save_state(&path, &model("Invented project"), "A", "00000000000000000000000000003001", 1_000);
+    let b = save_state(&path, &model("Other project"), "B", "00000000000000000000000000003002", 2_000);
+    tamper(&path, &format!("UPDATE model_state_labels SET state_name = X'FF' WHERE state_id = '{}';", a.state_id));
+    let unreadable = unreadable_states(&path);
+    assert_eq!(unreadable.len(), 1);
+    assert!(unreadable[0].handle.starts_with("state-row:"));
+    assert!(readable_states(&path).iter().any(|state| state.state_id == b.state_id));
+    model_states::delete_unreadable_state_in_store(&path, PROJECT, &unreadable[0].handle).unwrap();
+}
+
+#[test]
+fn the_named_refusal_comes_only_after_every_other_check_passes() {
+    // A corrupted S2-shaped run keeps its integrity refusal; the intact one is refused by name.
+    let fixture: Value = serde_json::from_str(S2_UNRESOLVED_RUN).unwrap();
+    let manifest_text = fixture["input_manifest_canonical"].as_str().unwrap().to_string();
+    let manifest: Value = serde_json::from_str(&manifest_text).unwrap();
+    let payload = manifest["model_basis"]["model_payload"].clone();
+    let project_id = payload["project"]["id"].as_str().unwrap().to_string();
+    let path = scratch_store("s2-precedence");
+    let (mut connection, _) = crate::open_project_store(&path).unwrap();
+    write_project(&mut connection, &project_id, &payload, BASE);
+    drop(connection);
+    let s2_id = insert_s2_run(&path, &fixture);
+    assert!(read_run_in_store(&path, &project_id, &s2_id).unwrap_err().starts_with("ANALYSIS-RUN-RULE-PACKS-NOT-RESOLVED"));
+    // At Record Run: a corrupt S2-shaped submission gets its own refusal first.
+    let now = || Ok(T0);
+    let token = || Ok("000000000000000000000000000052c1".to_string());
+    let between_rows = |_: &Transaction<'_>, _: &str| Ok(());
+    let hooks = RunWriteHooks { now: &now, state_token: &token, between_rows: &between_rows };
+    let mut corrupt = fixture["run_record"].clone();
+    corrupt["analysis_run"]["run_name"] = json!("edited without a reseal");
+    let submitted = |run_record: Value, state_id: Option<String>| RecordRunRequest {
+        project_id: project_id.clone(),
+        expected_base: BASE.to_string(),
+        run_record,
+        result_json: SOURCE_RESULT.to_string(),
+        input_manifest_canonical: manifest_text.clone(),
+        state_id,
+        new_state: Some(NewStateRequest { labels: labels_from_value(json!({ "state_name": "After solve" })).unwrap(), parent_state_id: None }),
+        run_labels: run_labels("S2 run"),
+    };
+    let error = record_run_in_store(&path, submitted(corrupt, None), &hooks).unwrap_err();
+    assert!(error.starts_with("ANALYSIS-RUN-NOT-TRANSIENT: the record's own checksum does not verify"), "{error}");
+    // Naming a state that is not the solved model's: that refusal, not the named one.
+    let other = model_states::list_state_entries(&Connection::open(&path).unwrap(), &project_id).unwrap();
+    assert_eq!(other.len(), 1);
+    let error = record_run_in_store(&path, submitted(fixture["run_record"].clone(), Some("state:absent".to_string())), &hooks).unwrap_err();
+    assert!(error.starts_with("ANALYSIS-RUN-STATE-NOT-FOUND"), "{error}");
+    // Intact: refused by name.
+    let error = record_run_in_store(&path, submitted(fixture["run_record"].clone(), None), &hooks).unwrap_err();
+    assert!(error.starts_with("ANALYSIS-RUN-RULE-PACKS-NOT-RESOLVED"), "{error}");
+    // Its linked state corrupted: the state's integrity refusal, not the named one.
+    tamper(&path, &format!("UPDATE model_states SET created_at = '2026-01-01T00:00:00.000Z' WHERE state_id = '{}';", fixture["state_id"].as_str().unwrap()));
+    let read = read_run_in_store(&path, &project_id, &s2_id).unwrap_err();
+    assert!(read.starts_with("MODEL-STATE-INTEGRITY"), "{read}");
+}
+
+// ---------------------------------------------------------------------------
+// Repair r6 (W-12): full-id handles and the delete's re-check, admission
+// before per-row collection, per-row classification of column fetches, and
+// state summaries that count runs without pricing their ids.
+// ---------------------------------------------------------------------------
+
+/// The rowid of the only row of `table`.
+fn only_rowid(path: &Path, table: &str) -> i64 {
+    Connection::open(path).unwrap().query_row(&format!("SELECT rowid FROM {table}"), [], |row| row.get(0)).unwrap()
+}
+
+/// Replaces the row `rowid` of `table` by a copy whose `id_column` is `id`,
+/// deleting the old row first and inserting the copy under the same rowid (as a
+/// reused rowid would be), its labels row in `labels_table` moved with it.
+fn replace_with_same_rowid(path: &Path, table: &str, labels_table: &str, id_column: &str, rowid: i64, id: &str) {
+    tamper(path, "");
+    let connection = Connection::open(path).unwrap();
+    connection.execute_batch("PRAGMA foreign_keys = OFF;").unwrap();
+    let columns: Vec<String> =
+        connection.prepare(&format!("PRAGMA table_info({table})")).unwrap().query_map([], |row| row.get(1)).unwrap().collect::<Result<_, _>>().unwrap();
+    let list = columns.join(", ");
+    let old: String = connection.query_row(&format!("SELECT {id_column} FROM {table} WHERE rowid = ?1"), params![rowid], |row| row.get(0)).unwrap();
+    connection
+        .execute_batch(&format!(
+            "CREATE TEMP TABLE replaced AS SELECT rowid AS old_rowid, {list} FROM {table} WHERE rowid = {rowid}; DELETE FROM {table} WHERE rowid = {rowid};"
+        ))
+        .unwrap();
+    connection.execute(&format!("UPDATE replaced SET {id_column} = ?1"), params![id]).unwrap();
+    connection.execute_batch(&format!("INSERT INTO {table} (rowid, {list}) SELECT old_rowid, {list} FROM replaced; DROP TABLE replaced;")).unwrap();
+    connection.execute(&format!("UPDATE {labels_table} SET {id_column} = ?1 WHERE {id_column} = ?2"), params![id, old]).unwrap();
+    assert_eq!(connection.query_row(&format!("SELECT {id_column} FROM {table} WHERE rowid = ?1"), params![rowid], |row| row.get::<_, String>(0)).unwrap(), id);
+}
+
+/// The handle digest of a whole id, as the store must compute it.
+fn full_id_digest(id: &[u8]) -> String {
+    use sha2::{Digest, Sha256};
+    Sha256::digest(id).iter().take(8).map(|byte| format!("{byte:02x}")).collect()
+}
+
+#[test]
+fn a_stale_handle_never_deletes_a_replacement_whose_id_shares_its_length_and_ends() {
+    // Codex r6: two ids of one length whose first and last 512 bytes agree, the
+    // second taking the first's rowid. A digest of the ends let the first's
+    // handle delete the second; the whole id's digest refuses it.
+    let first = format!("{}A{}", "e".repeat(600), "e".repeat(600));
+    let second = format!("{}B{}", "e".repeat(600), "e".repeat(600));
+    // A recorded run (unreadable: its result hash is tampered).
+    let (path, _) = recorded_fixture("stale-handle-run");
+    let id = id_of(&path);
+    tamper(&path, &format!("UPDATE analysis_runs SET result_hash = 'sha256:tampered' WHERE recording_id = '{id}';"));
+    let rowid = only_rowid(&path, "analysis_runs");
+    replace_with_same_rowid(&path, "analysis_runs", "analysis_run_labels", "recording_id", rowid, &first);
+    let listed = unreadable_runs(&path, PROJECT);
+    assert_eq!(listed.len(), 1);
+    let stale = listed[0].handle.clone();
+    assert_eq!(stale, format!("run-row:{rowid}:{}:{}", first.len(), full_id_digest(first.as_bytes())));
+    replace_with_same_rowid(&path, "analysis_runs", "analysis_run_labels", "recording_id", rowid, &second);
+    let current = unreadable_runs(&path, PROJECT);
+    assert_eq!(current.len(), 1);
+    assert_eq!(current[0].id, listed[0].id, "they list identically");
+    assert_eq!(current[0].handle, format!("run-row:{rowid}:{}:{}", second.len(), full_id_digest(second.as_bytes())));
+    assert_ne!(current[0].handle, stale, "the same rowid and length; the digest tells them apart");
+    assert!(delete_unreadable_run_in_store(&path, PROJECT, &stale).unwrap_err().starts_with("ANALYSIS-RUN-NOT-FOUND"));
+    assert_eq!(row_count(&path, "analysis_runs"), 1, "the replacement was not deleted");
+    delete_unreadable_run_in_store(&path, PROJECT, &current[0].handle).unwrap();
+    assert_eq!(row_count(&path, "analysis_runs"), 0);
+    // A saved state (unreadable: its created_at differs from its record's).
+    let path = store_with_project("stale-handle-state");
+    let state = save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000003101", 1_000);
+    tamper(&path, &format!("UPDATE model_states SET created_at = '2026-01-01T00:00:00.000Z' WHERE state_id = '{}';", state.state_id));
+    let rowid = only_rowid(&path, "model_states");
+    replace_with_same_rowid(&path, "model_states", "model_state_labels", "state_id", rowid, &first);
+    let listed = unreadable_states(&path);
+    assert_eq!(listed.len(), 1);
+    let stale = listed[0].handle.clone();
+    assert_eq!(stale, format!("state-row:{rowid}:{}:{}", first.len(), full_id_digest(first.as_bytes())));
+    replace_with_same_rowid(&path, "model_states", "model_state_labels", "state_id", rowid, &second);
+    let current = unreadable_states(&path);
+    assert_eq!(current[0].id, listed[0].id);
+    assert_ne!(current[0].handle, stale);
+    assert!(model_states::delete_unreadable_state_in_store(&path, PROJECT, &stale).unwrap_err().starts_with("MODEL-STATE-NOT-FOUND"));
+    assert_eq!(row_count(&path, "model_states"), 1, "the replacement was not deleted");
+    model_states::delete_unreadable_state_in_store(&path, PROJECT, &current[0].handle).unwrap();
+    assert_eq!(row_count(&path, "model_states"), 0);
+}
+
+#[test]
+fn a_handle_whose_row_reads_now_is_refused_and_nothing_is_deleted() {
+    // A run listed unreadable, then repaired and replaced by a readable row with
+    // the same id under the same rowid: its handle still matches, and the
+    // delete's re-check refuses it.
+    let (path, _) = recorded_fixture("changed-run");
+    let id = id_of(&path);
+    let hash: String = Connection::open(&path).unwrap().query_row("SELECT result_hash FROM analysis_runs", [], |row| row.get(0)).unwrap();
+    tamper(&path, &format!("UPDATE analysis_runs SET result_hash = 'sha256:tampered' WHERE recording_id = '{id}';"));
+    let handle = unreadable_runs(&path, PROJECT)[0].handle.clone();
+    tamper(&path, &format!("UPDATE analysis_runs SET result_hash = '{hash}' WHERE recording_id = '{id}';"));
+    replace_with_same_rowid(&path, "analysis_runs", "analysis_run_labels", "recording_id", only_rowid(&path, "analysis_runs"), &id);
+    let error = delete_unreadable_run_in_store(&path, PROJECT, &handle).unwrap_err();
+    assert_eq!(error, format!("ANALYSIS-RUN-ROW-CHANGED: recorded run `{id}` reads now: this row changed since it was listed; refresh. Nothing was deleted."));
+    assert_eq!(row_count(&path, "analysis_runs"), 1);
+    assert_eq!(row_count(&path, "analysis_run_labels"), 1);
+    read_run_in_store(&path, PROJECT, &id).unwrap();
+    // A replacement with the same id that is also unreadable may be deleted by
+    // the handle: it is the row the user asked to delete, as listed.
+    tamper(&path, &format!("UPDATE analysis_runs SET result_hash = 'sha256:tampered' WHERE recording_id = '{id}';"));
+    delete_unreadable_run_in_store(&path, PROJECT, &handle).unwrap();
+    assert_eq!(row_count(&path, "analysis_runs"), 0);
+    // A saved state likewise.
+    let path = store_with_project("changed-state");
+    let state = save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000003201", 1_000);
+    tamper(&path, &format!("UPDATE model_states SET created_at = '2026-01-01T00:00:00.000Z' WHERE state_id = '{}';", state.state_id));
+    let handle = unreadable_states(&path)[0].handle.clone();
+    tamper(&path, &format!("UPDATE model_states SET created_at = '{}' WHERE state_id = '{}';", state.created_at, state.state_id));
+    replace_with_same_rowid(&path, "model_states", "model_state_labels", "state_id", only_rowid(&path, "model_states"), &state.state_id);
+    let error = model_states::delete_unreadable_state_in_store(&path, PROJECT, &handle).unwrap_err();
+    assert_eq!(
+        error,
+        format!("MODEL-STATE-ROW-CHANGED: saved state `{}` reads now: this row changed since it was listed; refresh. Nothing was deleted.", state.state_id)
+    );
+    assert_eq!(row_count(&path, "model_states"), 1);
+    model_states::read_state_in_store(&path, PROJECT, &state.state_id).unwrap();
+}
+
+#[test]
+fn a_large_id_is_hashed_in_chunks_within_the_handles_reservation() {
+    // A 3 MiB + 1 byte recording id (oversized, so listed unreadable): its
+    // handle digests the whole id, read in 64 KiB chunks, never copied whole
+    // into Rust, by the list and by the delete alike (under the 2 MiB pool
+    // plus SQLite's working set for the id).
+    let (path, _) = recorded_fixture("chunked-handle");
+    let id = id_of(&path);
+    let large = format!("{}z", "r".repeat(LARGE));
+    tamper_with(&path, &format!("UPDATE analysis_runs SET recording_id = ?1 WHERE recording_id = '{id}'"), &large);
+    tamper_with(&path, &format!("UPDATE analysis_run_labels SET recording_id = ?1 WHERE recording_id = '{id}'"), &large);
+    let rowid = only_rowid(&path, "analysis_runs");
+    let small = working_set_pool();
+    let memory = PoolReadMemory::unseeded(&small);
+    let (outcome, measured) = crate::ingress::counting::measure(|| {
+        list_runs_in_store_with(&path, PROJECT, &memory).map(|listed| {
+            listed
+                .get()
+                .iter()
+                .filter_map(|entry| match entry {
+                    ListedRun::Unreadable { unreadable } => Some(unreadable.handle.clone()),
+                    ListedRun::Readable(_) => None,
+                })
+                .collect::<Vec<_>>()
+        })
+    });
+    let handles = outcome.unwrap();
+    assert_eq!(handles, vec![format!("run-row:{rowid}:{}:{}", large.len(), full_id_digest(large.as_bytes()))]);
+    assert!(measured.peak_priced < (LARGE as u64) / 4, "the id was never loaded whole (peak {})", measured.peak_priced);
+    assert_eq!(small.pool_status().reserved_bytes, 0);
+    let memory = PoolReadMemory::unseeded(&small);
+    let (deleted, measured) = crate::ingress::counting::measure(|| {
+        delete_unreadable_run_in_store_finishing(&path, PROJECT, &handles[0], &memory, |receipt| Ok(receipt.get().deleted))
+    });
+    assert!(deleted.unwrap());
+    assert!(measured.peak_priced < (LARGE as u64) / 4, "the delete hashed the id in chunks (peak {})", measured.peak_priced);
+    assert!(memory.peak_reserved() >= stored_read::handle_chunk_bytes(), "the chunk buffer was reserved");
+    assert_eq!(small.pool_status().reserved_bytes, 0);
+    assert_eq!(row_count(&path, "analysis_runs"), 0);
+}
+
+/// `count` run rows (or state rows) of `PROJECT` whose created_at is longer
+/// than its bound, each with small stored texts, inserted in one statement.
+fn insert_oversized_rows(path: &Path, table: &str, count: i64) {
+    tamper(path, "");
+    let connection = Connection::open(path).unwrap();
+    connection.execute_batch("PRAGMA foreign_keys = OFF;").unwrap();
+    let insert = match table {
+        "analysis_runs" => "INSERT INTO analysis_runs(project_id, recording_id, state_id, producer_run_id, created_at, run_record_json, run_record_hash,
+             input_manifest_json, result_json, result_hash)
+             SELECT ?1, 'oversized-run-' || i, 'state:none', 'producer', '2026-01-01T00:00:00.000Z-oversized-' || i, '{}', 'h-' || i, '{}', '{}', 'r-' || i FROM n",
+        "model_states" => "INSERT INTO model_states(project_id, state_id, state_kind, created_at, parent_state_id, model_canonical, model_hash, record_json, record_hash)
+             SELECT ?1, 'oversized-state-' || i, 'design_snapshot', '2026-01-01T00:00:00.000Z-oversized-' || i, NULL, '{}', 'm-' || i, '{}', 'r-' || i FROM n",
+        other => panic!("{other}"),
+    };
+    connection
+        .execute(&format!("WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i + 1 FROM n WHERE i < {count}) {insert}"), params![PROJECT])
+        .unwrap();
+}
+
+#[test]
+fn a_hundred_thousand_oversized_rows_are_counted_and_admitted_before_any_entry_is_collected() {
+    // Codex r6: the oversized rows were collected before any reservation.
+    const ROWS: i64 = 100_000;
+    for (table, what) in [("analysis_runs", "recorded-run"), ("model_states", "saved-state")] {
+        let (path, _) = recorded_fixture(&format!("many-oversized-{table}"));
+        insert_oversized_rows(&path, table, ROWS);
+        let small = small_pool();
+        let memory = Recording { inner: PoolReadMemory::unseeded(&small), seen: std::cell::RefCell::new(Vec::new()) };
+        let (outcome, measured) = crate::ingress::counting::measure(|| match table {
+            "analysis_runs" => list_runs_in_store_with(&path, PROJECT, &memory).map(|_| ()),
+            _ => model_states::list_states_in_store_with(&path, PROJECT, &memory).map(|_| ()),
+        });
+        let error = outcome.unwrap_err();
+        let admission = format!("the {ROWS} oversized {what} rows' list entries of project `{PROJECT}`");
+        assert!(error.starts_with(&format!("STORE-READ-MEMORY-UNAVAILABLE: reading {admission}")), "{table}: {error}");
+        let seen: Vec<String> = memory.seen.borrow().iter().map(|(what, _)| what.clone()).collect();
+        assert_eq!(seen.len(), 2, "{table}: {seen:?}");
+        assert!(seen[0].starts_with("SQLite's working set for the stored history"), "{table}: {seen:?}");
+        assert_eq!(seen[1], admission, "{table}: the entries' admission follows only SQLite's working set");
+        assert!(measured.peak_priced < 256 * 1024, "{table}: nothing per row was allocated before the admission (peak {})", measured.peak_priced);
+        assert_eq!(small.pool_status().reserved_bytes, 0);
+    }
+    // Admitted, the entries stay within their reservations through the response.
+    let (path, _) = recorded_fixture("some-oversized-runs");
+    insert_oversized_rows(&path, "analysis_runs", 1_000);
+    assert_within_reservation("list_analysis_runs", |memory| list_runs_in_store_with(&path, PROJECT, memory));
+    assert_eq!(unreadable_runs(&path, PROJECT).len(), 1_000);
+    let (path, _) = recorded_fixture("some-oversized-states");
+    insert_oversized_rows(&path, "model_states", 1_000);
+    assert_within_reservation("list_model_states", |memory| model_states::list_states_in_store_with(&path, PROJECT, memory));
+    assert_eq!(unreadable_states(&path).len(), 1_000);
+}
+
+#[test]
+fn a_stored_column_of_the_wrong_type_makes_only_its_row_unreadable_or_its_read_refused_by_name() {
+    // Codex r6: run_record_json or record_json set to X'FF' hid the whole list
+    // behind STORE-SQL-ERROR.
+    let (path, _) = recorded_fixture("blob-record");
+    let first = id_of(&path);
+    let solved = model("Invented project");
+    let second = record(&path, request(&solved, "Second"), T0 + 5).unwrap().run.recording_id;
+    tamper(&path, &format!("UPDATE analysis_runs SET run_record_json = X'FF' WHERE recording_id = '{first}';"));
+    let entries = unreadable_runs(&path, PROJECT);
+    assert_eq!(entries.len(), 1);
+    assert_eq!(entries[0].id, first);
+    assert!(
+        entries[0].refusal.starts_with(&format!("ANALYSIS-RUN-INTEGRITY: recorded run `{first}`: a stored column cannot be read")),
+        "{}",
+        entries[0].refusal
+    );
+    assert!(list_run_entries(&Connection::open(&path).unwrap(), PROJECT).unwrap().iter().any(|entry| matches!(entry, ListedRun::Readable(run) if run.recording_id == second)));
+    assert!(read_run_in_store(&path, PROJECT, &first).unwrap_err().starts_with(&format!("ANALYSIS-RUN-INTEGRITY: recorded run `{first}`: a stored column cannot be read")));
+    delete_unreadable_run_in_store(&path, PROJECT, &entries[0].handle).unwrap();
+    // A record that is an integer.
+    tamper(&path, &format!("UPDATE analysis_runs SET run_record_json = 42 WHERE recording_id = '{second}';"));
+    let entries = unreadable_runs(&path, PROJECT);
+    assert_eq!(entries.iter().map(|entry| entry.id.clone()).collect::<Vec<_>>(), vec![second.clone()]);
+    delete_unreadable_run_in_store(&path, PROJECT, &entries[0].handle).unwrap();
+    // A result of the wrong type: the run lists (the list loads no result) and its read is refused by name.
+    let third = record(&path, request(&solved, "Third"), T0 + 9).unwrap().run.recording_id;
+    tamper(&path, &format!("UPDATE analysis_runs SET result_json = X'FF' WHERE recording_id = '{third}';"));
+    assert_eq!(list_runs(&Connection::open(&path).unwrap(), PROJECT).unwrap().len(), 1);
+    let error = read_run_in_store(&path, PROJECT, &third).unwrap_err();
+    assert!(error.starts_with(&format!("ANALYSIS-RUN-INTEGRITY: recorded run `{third}`: a stored column cannot be read")), "{error}");
+    // A saved state's record of the wrong type: its row is unreadable, the other state lists.
+    let path = store_with_project("blob-state-record");
+    let a = save_state(&path, &model("Invented project"), "A", "00000000000000000000000000003301", 1_000);
+    let b = save_state(&path, &model("Other project"), "B", "00000000000000000000000000003302", 2_000);
+    tamper(&path, &format!("UPDATE model_states SET record_json = X'FF' WHERE state_id = '{}';", a.state_id));
+    let unreadable = unreadable_states(&path);
+    assert_eq!(unreadable.iter().map(|entry| entry.id.clone()).collect::<Vec<_>>(), vec![a.state_id.clone()]);
+    assert!(unreadable[0].refusal.contains("a stored column cannot be read"), "{}", unreadable[0].refusal);
+    assert!(readable_states(&path).iter().any(|state| state.state_id == b.state_id));
+    assert!(model_states::read_state_in_store(&path, PROJECT, &a.state_id).unwrap_err().starts_with("MODEL-STATE-INTEGRITY"));
+    model_states::delete_unreadable_state_in_store(&path, PROJECT, &unreadable[0].handle).unwrap();
+    // A snapshot of the wrong type: the state lists and its read is refused by name.
+    tamper(&path, &format!("UPDATE model_states SET model_canonical = X'FF' WHERE state_id = '{}';", b.state_id));
+    assert_eq!(readable_states(&path).len(), 1);
+    let error = model_states::read_state_in_store(&path, PROJECT, &b.state_id).unwrap_err();
+    assert!(error.starts_with(&format!("MODEL-STATE-INTEGRITY: saved state `{}`: a stored column cannot be read", b.state_id)), "{error}");
+}
+
+#[test]
+fn a_state_with_a_thousand_runs_of_4096_byte_ids_lists_and_reads_under_2_mib() {
+    // Codex r6: the state summary still priced the removed run-id lists.
+    let (path, _) = recorded_fixture("many-runs-one-state");
+    let state_id: String = Connection::open(&path).unwrap().query_row("SELECT state_id FROM analysis_runs", [], |row| row.get(0)).unwrap();
+    tamper(&path, "");
+    let connection = Connection::open(&path).unwrap();
+    connection.execute_batch("PRAGMA foreign_keys = OFF;").unwrap();
+    connection
+        .execute(
+            "WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i + 1 FROM n WHERE i < 1000)
+             INSERT INTO analysis_runs(project_id, recording_id, state_id, producer_run_id, created_at, run_record_json, run_record_hash,
+               input_manifest_json, result_json, result_hash)
+             SELECT ?1, printf('%04d', i) || substr(hex(zeroblob(2048)), 5), ?2, 'producer', '2026-01-01T00:00:00.000Z', '{}', 'h-' || i, '{}', '{}', 'r-' || i FROM n",
+            params![PROJECT, state_id],
+        )
+        .unwrap();
+    let longest: i64 = connection.query_row("SELECT MAX(octet_length(recording_id)) FROM analysis_runs", [], |row| row.get(0)).unwrap();
+    assert_eq!(longest, stored_read::MAX_ID_BYTES);
+    drop(connection);
+    let small = small_pool();
+    let memory = PoolReadMemory::unseeded(&small);
+    let listed = model_states::list_states_in_store_with(&path, PROJECT, &memory).unwrap();
+    let count = listed.get().iter().find_map(|entry| match entry {
+        model_states::ListedState::Readable(summary) if summary.state_id == state_id => Some(summary.recorded_run_count),
+        _ => None,
+    });
+    assert_eq!(count, Some(1_001));
+    drop(listed);
+    let read = model_states::read_state_in_store_with(&path, PROJECT, &state_id, &memory).unwrap();
+    assert_eq!(read.get().state.recorded_run_count, 1_001);
+    drop(read);
+    drop(memory);
+    assert_eq!(small.pool_status().reserved_bytes, 0);
+}
+
+/// Runs `body` alone in a child process of this test binary (SQLite's memory
+/// status is process-wide, so other tests' statements would move it): the
+/// parent re-runs the test `name` with `--exact --test-threads=1`.
+fn in_own_process(name: &str, body: impl FnOnce()) {
+    const CHILD: &str = "OPENPIPESTRESS_SQLITE_STATUS_CHILD";
+    if std::env::var_os(CHILD).is_some() {
+        body();
+        return;
+    }
+    let path = format!("{}::{name}", module_path!().split_once("::").map(|(_, rest)| rest).unwrap_or(module_path!()));
+    let output = std::process::Command::new(std::env::current_exe().unwrap())
+        .args([path.as_str(), "--exact", "--test-threads=1", "--nocapture"])
+        .env(CHILD, "1")
+        .output()
+        .unwrap();
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(output.status.success() && stdout.contains("1 passed"), "{stdout}\n{}", String::from_utf8_lossy(&output.stderr));
+}
+
+/// `f`'s result and SQLite's own allocation peak during it, above what SQLite
+/// held when it began (`sqlite3_status64(SQLITE_STATUS_MEMORY_USED)`).
+fn sqlite_peak_during<T>(f: impl FnOnce() -> T) -> (T, u64) {
+    let (mut current, mut high) = (0i64, 0i64);
+    // SAFETY: plain out-pointers to two live i64s; the status call takes no other state.
+    unsafe { rusqlite::ffi::sqlite3_status64(rusqlite::ffi::SQLITE_STATUS_MEMORY_USED, &mut current, &mut high, 1) };
+    let start = current;
+    let out = f();
+    // SAFETY: as above.
+    unsafe { rusqlite::ffi::sqlite3_status64(rusqlite::ffi::SQLITE_STATUS_MEMORY_USED, &mut current, &mut high, 0) };
+    (out, u64::try_from(high - start).unwrap_or(0))
+}
+
+/// The working set a store whose largest keyed row holds `bytes` reserves.
+fn sqlite_working_set(bytes: u64) -> u64 {
+    bytes.saturating_mul(stored_read::SQLITE_WORKING_SET_FACTOR)
+}
+
+#[test]
+fn sqlite_allocations_for_an_oversized_id_are_admitted_before_sqlite_loads_it() {
+    // Codex r7: an 8 MiB id was listed and deleted under a 2 MiB pool while
+    // SQLite's own peak grew by 17 MB (list) and 44.7 MB (delete).
+    in_own_process("sqlite_allocations_for_an_oversized_id_are_admitted_before_sqlite_loads_it", || {
+        const BIG: usize = 8 << 20;
+        let big = "q".repeat(BIG);
+        let large_pool = pool_of(512 << 20);
+        for kind in ["run", "state"] {
+            // A row whose 8 MiB id is also its labels row's key.
+            let path = match kind {
+                "run" => {
+                    let (path, _) = recorded_fixture("sqlite-big-run-id");
+                    let id = id_of(&path);
+                    tamper_with(&path, &format!("UPDATE analysis_runs SET recording_id = ?1 WHERE recording_id = '{id}'"), &big);
+                    tamper_with(&path, &format!("UPDATE analysis_run_labels SET recording_id = ?1 WHERE recording_id = '{id}'"), &big);
+                    path
+                }
+                _ => {
+                    let path = store_with_project("sqlite-big-state-id");
+                    let state = save_state(&path, &model("Invented project"), "Basis", "00000000000000000000000000004001", 1_000);
+                    tamper_with(&path, &format!("UPDATE model_states SET state_id = ?1 WHERE state_id = '{}'", state.state_id), &big);
+                    tamper_with(&path, &format!("UPDATE model_state_labels SET state_id = ?1 WHERE state_id = '{}'", state.state_id), &big);
+                    path
+                }
+            };
+            let row_bytes: i64 = Connection::open(&path)
+                .unwrap()
+                .query_row(
+                    if kind == "run" {
+                        "SELECT MAX(octet_length(project_id) + octet_length(recording_id) + octet_length(state_id) + octet_length(producer_run_id)
+                         + octet_length(created_at) + octet_length(run_record_hash) + octet_length(result_hash)) FROM analysis_runs"
+                    } else {
+                        "SELECT MAX(octet_length(project_id) + octet_length(state_id) + octet_length(state_kind) + octet_length(created_at)
+                         + COALESCE(octet_length(parent_state_id), 0) + octet_length(model_hash) + octet_length(record_hash)) FROM model_states"
+                    },
+                    [],
+                    |row| row.get(0),
+                )
+                .unwrap();
+            let working_set = sqlite_working_set(row_bytes as u64);
+            let list = |memory: &PoolReadMemory<'_>| match kind {
+                "run" => list_runs_in_store_with(&path, PROJECT, memory).map(|listed| listed.get().len()),
+                _ => model_states::list_states_in_store_with(&path, PROJECT, memory).map(|listed| listed.get().len()),
+            };
+            let refusal = "STORE-READ-MEMORY-UNAVAILABLE: reading SQLite's working set for the stored history";
+            // Under a 2 MiB pool: refused before SQLite loads the id.
+            let small = small_pool();
+            let memory = PoolReadMemory::unseeded(&small);
+            let (outcome, peak) = sqlite_peak_during(|| list(&memory));
+            assert!(outcome.as_ref().unwrap_err().starts_with(refusal), "{kind} list: {outcome:?}");
+            assert!(peak <= SQLITE_PAGE_CACHE_SLACK, "{kind} list: SQLite never loaded the id; its peak {peak} is within the page-cache residual");
+            // Under a large pool: listed, SQLite's peak within the working set.
+            let memory = PoolReadMemory::unseeded(&large_pool);
+            let (outcome, peak) = sqlite_peak_during(|| list(&memory));
+            assert_eq!(outcome.unwrap(), 1, "{kind} list");
+            println!("{kind} list: SQLite peak {peak} = {:.2} x the id; working set {working_set}", peak as f64 / BIG as f64);
+            assert!(peak <= working_set, "{kind} list: SQLite peak {peak} within the working set {working_set}");
+            let handle = match kind {
+                "run" => unreadable_runs(&path, PROJECT)[0].handle.clone(),
+                _ => unreadable_states(&path)[0].handle.clone(),
+            };
+            let delete = |memory: &PoolReadMemory<'_>| match kind {
+                "run" => delete_unreadable_run_in_store_finishing(&path, PROJECT, &handle, memory, |receipt| Ok(receipt.get().deleted)),
+                _ => model_states::delete_unreadable_state_in_store_finishing(&path, PROJECT, &handle, memory, |receipt| Ok(receipt.get().deleted)),
+            };
+            let memory = PoolReadMemory::unseeded(&small);
+            let (outcome, peak) = sqlite_peak_during(|| delete(&memory));
+            assert!(outcome.as_ref().unwrap_err().starts_with(refusal), "{kind} delete: {outcome:?}");
+            assert!(peak <= SQLITE_PAGE_CACHE_SLACK, "{kind} delete: SQLite never loaded the id; its peak {peak} is within the page-cache residual");
+            let table = if kind == "run" { "analysis_runs" } else { "model_states" };
+            assert_eq!(row_count(&path, table), 1, "{kind}: nothing was deleted");
+            let memory = PoolReadMemory::unseeded(&large_pool);
+            let (outcome, peak) = sqlite_peak_during(|| delete(&memory));
+            assert!(outcome.unwrap(), "{kind} delete");
+            println!("{kind} delete: SQLite peak {peak} = {:.2} x the id; working set {working_set}", peak as f64 / BIG as f64);
+            assert!(peak <= working_set, "{kind} delete: SQLite peak {peak} within the working set {working_set}");
+            assert_eq!(row_count(&path, table), 0);
+            assert_eq!(small.pool_status().reserved_bytes, 0);
+            assert_eq!(large_pool.pool_status().reserved_bytes, 0);
+        }
+        // Normal-size rows: listed and deleted under the 2 MiB pool, SQLite's
+        // peak (its page cache) within what the command reserved.
+        let (path, _) = recorded_fixture("sqlite-normal-rows");
+        let id = id_of(&path);
+        tamper(&path, &format!("UPDATE analysis_runs SET result_hash = 'sha256:tampered' WHERE recording_id = '{id}';"));
+        let small = small_pool();
+        let memory = PoolReadMemory::unseeded(&small);
+        let (outcome, peak) = sqlite_peak_during(|| list_runs_in_store_with(&path, PROJECT, &memory).map(|listed| listed.get().len()));
+        assert_eq!(outcome.unwrap(), 1);
+        assert!(peak <= memory.peak_reserved(), "normal list: SQLite peak {peak} within {}", memory.peak_reserved());
+        let memory = PoolReadMemory::unseeded(&small);
+        let (outcome, peak) = sqlite_peak_during(|| model_states::list_states_in_store_with(&path, PROJECT, &memory).map(|listed| listed.get().len()));
+        assert_eq!(outcome.unwrap(), 1);
+        assert!(peak <= memory.peak_reserved(), "normal state list: SQLite peak {peak} within {}", memory.peak_reserved());
+        let handle = unreadable_runs(&path, PROJECT)[0].handle.clone();
+        let memory = PoolReadMemory::unseeded(&small);
+        let (outcome, peak) = sqlite_peak_during(|| delete_unreadable_run_in_store_finishing(&path, PROJECT, &handle, &memory, |receipt| Ok(receipt.get().deleted)));
+        assert!(outcome.unwrap());
+        assert!(peak <= memory.peak_reserved(), "normal delete: SQLite peak {peak} within {}", memory.peak_reserved());
+        assert_eq!(small.pool_status().reserved_bytes, 0);
+    });
+}
+
+/// SQLite's page cache, which stays within the accepted residual estimate
+/// (DEL-14-01 Design §3; Codex r8 measured up to 2.48 MB of cache): an
+/// interval's SQLite peak may exceed what the read holds by at most this, and
+/// a command that never loads a large value peaks within it.
+const SQLITE_PAGE_CACHE_SLACK: u64 = 3 << 20;
+
+/// Runs `command` under `memory` and checks that in every interval between
+/// changes of its reservations SQLite's own peak stayed within what it held
+/// then (plus the page cache): nothing is loaded by SQLite after the lease that
+/// priced it was released. Returns the outcome and SQLite's overall peak, the
+/// largest of the intervals' (each reservation change resets SQLite's
+/// high-water mark, so no single reading spans the command).
+fn within_held_reservations<T>(memory: &PoolReadMemory<'_>, what: &str, command: impl FnOnce() -> T) -> (T, u64) {
+    stored_read::release_probe::sqlite_start();
+    let outcome = command();
+    let intervals = stored_read::release_probe::sqlite_take(memory.held());
+    for (index, (sqlite, held)) in intervals.iter().enumerate() {
+        assert!(*sqlite <= held + SQLITE_PAGE_CACHE_SLACK, "{what}: interval {index}: SQLite peaked at {sqlite} bytes while {held} were held ({intervals:?})");
+    }
+    let peak = intervals.iter().map(|(sqlite, _)| *sqlite).max().unwrap_or(0);
+    (outcome, peak)
+}
+
+#[test]
+fn the_interval_probe_reports_a_known_sqlite_allocation_in_any_interval() {
+    // Codex r9: the probe returned only the last interval's peak (0 for a 4 MiB allocation).
+    in_own_process("the_interval_probe_reports_a_known_sqlite_allocation_in_any_interval", || {
+        const KNOWN: u64 = 4 << 20;
+        let pool = pool_of(64 << 20);
+        let memory = PoolReadMemory::unseeded(&pool);
+        let (_, peak) = within_held_reservations(&memory, "the calibration", || {
+            let held = memory.reserve("the calibration's allocation", KNOWN).unwrap();
+            // SAFETY: a fresh SQLite allocation, freed once, never read or written.
+            unsafe {
+                let block = rusqlite::ffi::sqlite3_malloc64(KNOWN);
+                assert!(!block.is_null());
+                rusqlite::ffi::sqlite3_free(block);
+            }
+            drop(held);
+            // Later intervals allocate nothing.
+            drop(memory.reserve("a later interval", 1024).unwrap());
+        });
+        assert!(peak >= KNOWN, "the 4 MiB allocation is reported (peak {peak})");
+    });
+}
+
+#[test]
+fn a_project_save_time_that_is_not_an_integer_is_refused_by_name_without_sqlite_loading_it() {
+    // Codex r8: an 8 MiB text in updated_at_unix was materialized by the stale-project
+    // guard (10.97 MB in SQLite with 12,488 bytes reserved), then STORE-SQL-ERROR.
+    in_own_process("a_project_save_time_that_is_not_an_integer_is_refused_by_name_without_sqlite_loading_it", || {
+        const BIG: usize = 8 << 20;
+        let path = store_with_project("sqlite-text-save-time");
+        let solved = model("Invented project");
+        save_state(&path, &solved, "Basis", "00000000000000000000000000004201", 1_000);
+        tamper_with(&path, "UPDATE local_projects SET updated_at_unix = ?1", &"t".repeat(BIG));
+        let kind: String = Connection::open(&path).unwrap().query_row("SELECT typeof(updated_at_unix) FROM local_projects", [], |row| row.get(0)).unwrap();
+        assert_eq!(kind, "text");
+        let refusal = format!("PROJECT-BASE-MOVED: project `{PROJECT}` (\"Invented project\", its last save time cannot be read) changed after this session opened or saved it");
+        let small = small_pool();
+        // Save Model State with a stale base.
+        let model_canonical = canonical_json(&model("Other project"));
+        let save = SaveModelStateRequest {
+            project_id: PROJECT.to_string(),
+            expected_base: "sha256:older".to_string(),
+            model_hash: format!("sha256:{}", sha256_hex(&model_canonical)),
+            model_canonical,
+            state_kind: "design_snapshot".to_string(),
+            parent_state_id: None,
+            labels: labels_from_value(json!({ "state_name": "Other" })).unwrap(),
+        };
+        let allocate = || Ok(("00000000000000000000000000004202".to_string(), 2_000));
+        let between_rows = |_: &Transaction<'_>| Ok(());
+        let hooks = StateWriteHooks { allocate: &allocate, between_rows: &between_rows };
+        let memory = PoolReadMemory::unseeded(&small);
+        let (outcome, peak) = within_held_reservations(&memory, "Save Model State", || model_states::save_state_in_store_with(&path, save, &hooks, &memory).map(|_| ()));
+        let error = outcome.unwrap_err();
+        assert!(error.starts_with(&refusal), "{error}");
+        assert!(peak <= SQLITE_PAGE_CACHE_SLACK, "Save Model State: SQLite never loaded the time; its peak {peak} is within the page-cache residual");
+        drop(memory);
+        // Record Run with a stale base.
+        let mut stale = request(&solved, "Run");
+        stale.expected_base = "sha256:older".to_string();
+        let now = || Ok(T0);
+        let token = || Ok("0000000000000000000000000000e00d".to_string());
+        let run_rows = |_: &Transaction<'_>, _: &str| Ok(());
+        let run_hooks = RunWriteHooks { now: &now, state_token: &token, between_rows: &run_rows };
+        let memory = PoolReadMemory::unseeded(&small);
+        let (outcome, peak) = within_held_reservations(&memory, "Record Run", || record_run_in_store_with(&path, stale, &run_hooks, &memory).map(|_| ()));
+        let error = outcome.unwrap_err();
+        assert!(error.starts_with(&refusal), "{error}");
+        assert!(peak <= SQLITE_PAGE_CACHE_SLACK, "Record Run: SQLite never loaded the time; its peak {peak} is within the page-cache residual");
+        drop(memory);
+        assert_eq!(small.pool_status().reserved_bytes, 0);
+        assert_eq!(row_count(&path, "model_states"), 1);
+        assert_eq!(row_count(&path, "analysis_runs"), 0);
+    });
+}
+
+#[test]
+fn a_blocked_delete_names_its_children_from_their_verification_without_reloading_a_name() {
+    // Codex r8: a blocked parent delete reloaded each child's name after the child's
+    // lease was released (8.43 MB in SQLite for an 8 MiB name with 526,200 bytes held).
+    in_own_process("a_blocked_delete_names_its_children_from_their_verification_without_reloading_a_name", || {
+        const BIG: usize = 8 << 20;
+        let path = store_with_project("sqlite-blocker-name");
+        let parent = save_state(&path, &model("Invented project"), "Parent", "00000000000000000000000000004301", 1_000);
+        let child_model = model("Child project");
+        let model_canonical = canonical_json(&child_model);
+        let request = SaveModelStateRequest {
+            project_id: PROJECT.to_string(),
+            expected_base: BASE.to_string(),
+            model_hash: format!("sha256:{}", sha256_hex(&model_canonical)),
+            model_canonical,
+            state_kind: "design_snapshot".to_string(),
+            parent_state_id: Some(parent.state_id.clone()),
+            labels: labels_from_value(json!({ "state_name": "Child" })).unwrap(),
+        };
+        let allocate = || Ok(("00000000000000000000000000004302".to_string(), 2_000));
+        let between_rows = |_: &Transaction<'_>| Ok(());
+        let child = save_state_in_store(&path, request, &StateWriteHooks { allocate: &allocate, between_rows: &between_rows }).unwrap().state;
+        tamper_with(&path, &format!("UPDATE model_state_labels SET state_name = ?1 WHERE state_id = '{}'", child.state_id), &"n".repeat(BIG));
+        // A pool that admits the list (each child verified within its own lease).
+        let pool = pool_of(128 << 20);
+        let memory = PoolReadMemory::unseeded(&pool);
+        let listed = model_states::list_states_in_store_with(&path, PROJECT, &memory).unwrap();
+        let children = listed.get().iter().find_map(|entry| match entry {
+            model_states::ListedState::Readable(summary) if summary.state_id == parent.state_id => Some(summary.child_state_ids.clone()),
+            _ => None,
+        });
+        assert_eq!(children, Some(vec![child.state_id.clone()]));
+        drop(listed);
+        drop(memory);
+        let memory = PoolReadMemory::unseeded(&pool);
+        let (outcome, _) = within_held_reservations(&memory, "the blocked delete", || model_states::delete_state_in_store_with(&path, PROJECT, &parent.state_id, &memory).map(|_| ()));
+        let error = outcome.unwrap_err();
+        assert!(error.starts_with("MODEL-STATE-DELETE-BLOCKED: state \"Parent\""), "{}", stored_read::shown(&error));
+        assert!(error.contains(&format!("the parent of saved state \"{}…\" ({})", "n".repeat(120), child.state_id)), "{}", stored_read::shown(&error));
+        assert!(error.chars().count() <= stored_read::MAX_MESSAGE_CHARS + 1, "the message is capped");
+        drop(memory);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+        assert_eq!(row_count(&path, "model_states"), 2);
+    });
+}
+
+// ---------------------------------------------------------------------------
+// Run comparison admission (W-12 S3b; DEL-14-01 Design §4.2, Memory): the
+// combined stored size of the two runs' results and input manifests (with the
+// session's current run when it is one side) against the per-invocation
+// budget, in one read transaction that reserves SQLite's working set first;
+// same project only; a missing or unreadable run is refused; every lease is
+// released. All data are invented.
+// ---------------------------------------------------------------------------
+
+/// A store with two recorded runs of one state: the fixture's and a second
+/// recording of the same solve (its own `created_at`), with the stored lengths
+/// of each run's result and manifest.
+fn two_recorded_runs(label: &str) -> (PathBuf, [String; 2], u64) {
+    let (path, _) = recorded_fixture(label);
+    let first = id_of(&path);
+    let solved = model("Invented project");
+    let second = record(&path, request(&solved, "Run 2"), T0 + 5_000).unwrap().run.recording_id;
+    let per_run = (result_text(1.25).len() + manifest_text(&solved).len()) as u64;
+    (path, [first, second], per_run)
+}
+
+fn ids(values: &[&str]) -> Vec<String> {
+    values.iter().map(|value| value.to_string()).collect()
+}
+
+#[test]
+fn a_run_comparison_is_admitted_by_the_combined_stored_size_of_its_inputs() {
+    let (path, [first, second], per_run) = two_recorded_runs("compare-runs-admission");
+    let combined = 2 * per_run;
+    let both = ids(&[&first, &second]);
+    // Within the budget (at it exactly): admitted, with the stored lengths in the order named.
+    let admitted = admit_run_comparison_in_store_with(&path, PROJECT, &both, None, combined, &UnmeteredReadMemory).unwrap();
+    let lengths = RunComparisonInputBytes { result_bytes: result_text(1.25).len() as u64, manifest_bytes: manifest_text(&model("Invented project")).len() as u64 };
+    assert_eq!(admitted, AnalysisRunComparisonAdmission { runs: vec![lengths, lengths], current_run_bytes: 0, combined_bytes: combined, budget_bytes: combined });
+    // One byte over: refused by name, naming both runs, before either is read.
+    let refused = admit_run_comparison_in_store_with(&path, PROJECT, &both, None, combined - 1, &UnmeteredReadMemory).unwrap_err();
+    assert!(refused.starts_with(COMPARISON_RUNS_TOO_LARGE), "{refused}");
+    assert!(refused.contains(&first) && refused.contains(&second) && refused.contains(&format!("{combined} bytes together")), "{refused}");
+    // One recorded run and the session's current run: the current run's bytes count.
+    let with_current = admit_run_comparison_in_store_with(&path, PROJECT, &ids(&[&first]), Some(700), per_run + 700, &UnmeteredReadMemory).unwrap();
+    assert_eq!((with_current.runs.len(), with_current.current_run_bytes, with_current.combined_bytes), (1, 700, per_run + 700));
+    let refused = admit_run_comparison_in_store_with(&path, PROJECT, &ids(&[&first]), Some(701), per_run + 700, &UnmeteredReadMemory).unwrap_err();
+    assert!(refused.starts_with(COMPARISON_RUNS_TOO_LARGE) && refused.contains("and the session's current run"), "{refused}");
+    // Two sides exactly: two different recorded runs, or one and the current run.
+    for (named, current) in [(ids(&[]), Some(1)), (ids(&[&first]), None), (ids(&[&first, &first]), None), (both.clone(), Some(1)), (ids(&[&first, &second, &first]), None)] {
+        let error = admit_run_comparison_in_store_with(&path, PROJECT, &named, current, u64::MAX, &UnmeteredReadMemory).unwrap_err();
+        assert!(error.starts_with(COMPARISON_RUNS_ARGS), "{named:?} {current:?}: {error}");
+    }
+    // Same project only: a run of another project, or none, is not found.
+    let missing = admit_run_comparison_in_store_with(&path, PROJECT, &ids(&[&first, "runrec:00000000000000000000000000000000"]), None, u64::MAX, &UnmeteredReadMemory).unwrap_err();
+    assert!(missing.starts_with("ANALYSIS-RUN-NOT-FOUND"), "{missing}");
+    let other_project = admit_run_comparison_in_store_with(&path, "project:another-invented", &both, None, u64::MAX, &UnmeteredReadMemory).unwrap_err();
+    assert!(other_project.starts_with("ANALYSIS-RUN-NOT-FOUND"), "{other_project}");
+}
+
+#[test]
+fn a_run_comparison_refuses_an_unreadable_run_by_its_integrity_refusal() {
+    // A record that no longer verifies.
+    let (path, [first, second], _) = two_recorded_runs("compare-runs-unreadable");
+    tamper(&path, &format!("UPDATE analysis_runs SET run_record_json = replace(run_record_json, 'MECHANICS_SOLVED', 'MECHANICS_SOLVED_X') WHERE recording_id = '{second}';"));
+    let error = admit_run_comparison_in_store_with(&path, PROJECT, &ids(&[&first, &second]), None, u64::MAX, &UnmeteredReadMemory).unwrap_err();
+    assert!(error.starts_with(&format!("ANALYSIS-RUN-INTEGRITY: recorded run `{second}`")), "{error}");
+    // An identity column beyond its bound: refused before it is loaded.
+    let (path, [first, second], _) = two_recorded_runs("compare-runs-oversized");
+    tamper_with(&path, &format!("UPDATE analysis_runs SET created_at = ?1 WHERE recording_id = '{second}'"), &"z".repeat(LARGE));
+    assert_oversized_refused("the run comparison admission", "created_at", |memory| {
+        admit_run_comparison_in_store_with(&path, PROJECT, &ids(&[&first, &second]), None, u64::MAX, memory)
+    });
+    // A result stored with the wrong type is the read's refusal, never the admission's
+    // load: the admission reads its length only.
+    let (path, [first, second], _) = two_recorded_runs("compare-runs-blob");
+    tamper(&path, &format!("UPDATE analysis_runs SET result_json = CAST(result_json AS BLOB) WHERE recording_id = '{second}';"));
+    let admitted = admit_run_comparison_in_store_with(&path, PROJECT, &ids(&[&first, &second]), None, u64::MAX, &UnmeteredReadMemory).unwrap();
+    assert_eq!(admitted.runs.len(), 2);
+    let error = read_run_in_store(&path, PROJECT, &second).unwrap_err();
+    assert!(error.starts_with("ANALYSIS-RUN-INTEGRITY"), "{error}");
+}
+
+#[test]
+fn a_run_comparison_reserves_sqlites_working_set_before_it_reads_a_row() {
+    let (path, [first, second], _) = two_recorded_runs("compare-runs-working-set");
+    // Another project's run row whose producer run id (a keyed column) holds LARGE bytes:
+    // SQLite may materialize it on an index search path, so its working set is reserved first.
+    tamper_with(
+        &path,
+        "INSERT INTO analysis_runs(project_id, recording_id, state_id, producer_run_id, created_at, run_record_json, run_record_hash,
+             input_manifest_json, result_json, result_hash)
+         VALUES ('project:another-invented', 'runrec:other', 'state:other', ?1, '2026-01-01T00:00:00.000Z', '{}', 'h', '{}', '{}', 'r')",
+        &"q".repeat(LARGE),
+    );
+    let both = ids(&[&first, &second]);
+    // Under the 2 MiB pool: refused by name at the working set, its first reservation.
+    let small = small_pool();
+    let memory = Recording { inner: PoolReadMemory::unseeded(&small), seen: std::cell::RefCell::new(Vec::new()) };
+    let error = admit_run_comparison_in_store_with(&path, PROJECT, &both, None, u64::MAX, &memory).unwrap_err();
+    assert!(error.starts_with("STORE-READ-MEMORY-UNAVAILABLE: reading SQLite's working set for the stored history"), "{error}");
+    let seen: Vec<String> = memory.seen.borrow().iter().map(|(what, _)| what.clone()).collect();
+    assert_eq!(seen.len(), 1, "{seen:?}");
+    drop(memory);
+    assert_eq!(small.pool_status().reserved_bytes, 0);
+    // With room for the working set: admitted, the working set reserved before each run's reads.
+    let pool = working_set_pool();
+    let memory = Recording { inner: PoolReadMemory::unseeded(&pool), seen: std::cell::RefCell::new(Vec::new()) };
+    let admitted = admit_run_comparison_in_store_with(&path, PROJECT, &both, None, u64::MAX, &memory).unwrap();
+    assert_eq!(admitted.runs.len(), 2);
+    let seen: Vec<(String, u64)> = memory.seen.borrow().clone();
+    assert!(seen[0].0.starts_with("SQLite's working set for the stored history"), "{seen:?}");
+    assert!(seen[1..].iter().all(|(_, held)| *held >= stored_read::SQLITE_WORKING_SET_FACTOR * LARGE as u64), "the working set is held through every later reservation: {seen:?}");
+    drop(memory);
+    assert_eq!(pool.pool_status().reserved_bytes, 0);
+}
+
+#[test]
+fn the_run_comparison_command_answers_lengths_only_and_releases_every_lease() {
+    let (path, [first, second], per_run) = two_recorded_runs("compare-runs-command");
+    let combined = 2 * per_run;
+    let pool = registry(ScriptedHost::normal());
+    let arguments = json!({ "projectId": PROJECT, "recordingIds": [first, second] });
+    let (mut args, lease) = admit_json(&pool, "admit_analysis_run_comparison", ArgsDecoding::Moved, &arguments).unwrap();
+    {
+        let memory = PoolReadMemory::new(&pool, &lease);
+        let response = stored_read::respond_metered(
+            &memory,
+            "admit_analysis_run_comparison",
+            admit_analysis_run_comparison_args(&mut args, || Ok(path.clone()), combined, &memory),
+        )
+        .unwrap();
+        use tauri::ipc::IpcResponse;
+        let body: Value = match response.body().unwrap() {
+            tauri::ipc::InvokeResponseBody::Json(text) => serde_json::from_str(&text).unwrap(),
+            tauri::ipc::InvokeResponseBody::Raw(_) => panic!("raw response"),
+        };
+        let lengths = json!({ "result_bytes": result_text(1.25).len(), "manifest_bytes": manifest_text(&model("Invented project")).len() });
+        assert_eq!(body, json!({ "runs": [lengths, lengths], "current_run_bytes": 0, "combined_bytes": combined, "budget_bytes": combined }));
+        assert!(!body.to_string().contains("runrec:"), "no id is echoed");
+    }
+    drop(lease);
+    assert_eq!(pool.pool_status().reserved_bytes, 0);
+    // Refused (over the budget, a missing run, an unreadable one): every lease released too.
+    tamper(&path, &format!("UPDATE analysis_runs SET run_record_hash = 'tampered' WHERE recording_id = '{second}';"));
+    for (budget, arguments, code) in [
+        (combined - 1, json!({ "projectId": PROJECT, "recordingIds": [first, "runrec:missing"] }), "ANALYSIS-RUN-NOT-FOUND"),
+        (u64::MAX, json!({ "projectId": PROJECT, "recordingIds": [first, second] }), "ANALYSIS-RUN-INTEGRITY"),
+        (per_run, json!({ "projectId": PROJECT, "recordingIds": [first], "currentRunBytes": 1 }), COMPARISON_RUNS_TOO_LARGE),
+    ] {
+        let (mut args, lease) = admit_json(&pool, "admit_analysis_run_comparison", ArgsDecoding::Moved, &arguments).unwrap();
+        {
+            let memory = PoolReadMemory::new(&pool, &lease);
+            match admit_analysis_run_comparison_args(&mut args, || Ok(path.clone()), budget, &memory) {
+                Err(CommandError::Command(error)) => assert!(error.starts_with(code), "{code}: {error}"),
+                other => panic!("expected {code}, got {other:?}"),
+            }
+        }
+        drop(lease);
+        assert_eq!(pool.pool_status().reserved_bytes, 0, "{code}");
+    }
 }

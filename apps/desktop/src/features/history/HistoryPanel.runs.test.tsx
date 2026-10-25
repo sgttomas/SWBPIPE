@@ -16,7 +16,7 @@ const PROJECT = "project:invented-history";
 const STATE: ModelStateSummary = {
   project_id: PROJECT, state_id: "state:00000000000000000000000000000001", state_kind: "post_solve_snapshot", created_at: "2026-10-24T10:00:01.000Z",
   parent_state_id: null, model_hash: `sha256:${"a".repeat(64)}`, record_hash: "r", labels_updated_at: "2026-10-24T10:00:01.000Z", child_state_ids: [],
-  recorded_run_ids: ["runrec:00000000000000000000000000000001"], analysis_status: ["HUMAN_REVIEW_REQUIRED"], state_name: "After solve", tags: [], notes: [], assumptions: []
+  recorded_run_count: 1, analysis_status: ["HUMAN_REVIEW_REQUIRED"], state_name: "After solve", tags: [], notes: [], assumptions: []
 };
 const RUN: AnalysisRunSummary = {
   project_id: PROJECT, recording_id: "runrec:00000000000000000000000000000001", state_id: STATE.state_id, producer_run_id: "run:preview-linear-static-001",

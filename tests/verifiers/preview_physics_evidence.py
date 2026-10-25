@@ -280,7 +280,7 @@ def _validate(source: Mapping[str, Any]) -> None:
     _require(all(isinstance(row, Mapping) and _text(row.get("id")) for row in results) and all(isinstance(item, Mapping) and _text(item.get("id")) for item in diagnostics), "evidence identities")
     rows = {row["id"]: row for row in results}
     _require(len(rows) == len(results), "duplicate result ID")
-    from . import u4b
+    from . import global_end, u4b
     arcs = u4b.preview_arcs(results)
 
     # 2. Every row kind has a signature.
@@ -289,12 +289,16 @@ def _validate(source: Mapping[str, Any]) -> None:
         _require(row.get("metadata") is None or isinstance(row.get("metadata"), Mapping), "source row metadata")
         signature(row)
         u4b.row_semantics(row, False, row["entity_ref"] in arcs)
+        if row["kind"] in global_end.KINDS:
+            global_end.row_semantics(row, False)
         if row["kind"] in SUPPORT_KINDS:
             # A4 N6: every support-action row is global, whatever its basis_ref.
             _require((row.get("metadata") or {}).get("coordinate_system") == "global", "support action frame")
         basis = row.get("basis_ref")
         if basis is not None:
             _shape(basis, {"ref_type", "ref_id"}, "row basis reference")
+    # W-7: one global end row per member, end and component in every case.
+    global_end.coverage(results)
     # 3. Completeness (F-1): result-namespace references only.
     for item in diagnostics:
         # A1 a / A2 5: the key may be absent; when present it is an array of non-empty strings.

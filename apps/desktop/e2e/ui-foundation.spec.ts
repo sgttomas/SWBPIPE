@@ -878,20 +878,20 @@ for (const theme of APPEARANCE_THEMES) {
         const reference = page.getByRole("region", { name: "Bundled reference — not a solve for the current model", exact: true });
         await expect(reference).toBeVisible();
         await expect(reference).toContainText("Reference model: project:invented-demo-loop-01");
-        await expect(reference.getByTestId("result-filter-summary")).toHaveText("745 of 745 results match filter");
+        await expect(reference.getByTestId("result-filter-summary")).toHaveText("841 of 841 results match filter");
         // Preserve the five-node displacement oracle in the retained source, without
         // claiming those rows are a current-model deformation overlay.
         const referenceFilter = reference.getByTestId("result-filter-input");
         await referenceFilter.scrollIntoViewIfNeeded();
         await expectCenterUnobscured(referenceFilter);
         await referenceFilter.fill("displacement_magnitude");
-        await expect(reference.getByTestId("result-filter-summary")).toHaveText("10 of 745 results match filter");
+        await expect(reference.getByTestId("result-filter-summary")).toHaveText("10 of 841 results match filter");
         const referenceNodes = await reference.locator("tbody tr td:nth-child(2)").allTextContents();
         expect(new Set(referenceNodes).size).toBe(5);
         await activateWithKeyboard(page, reference.getByTestId("clear-result-filter"));
         await expect(page.getByTestId("comparison-summary")).toHaveCount(0);
         evidence.push({ phase: "bundled reference inspection", title: await reference.getAttribute("aria-label"),
-          retainedRows: 745, displacementNodeCount: new Set(referenceNodes).size,
+          retainedRows: 841, displacementNodeCount: new Set(referenceNodes).size,
           bounds: await reference.boundingBox(), freshInvocationPerformed: false });
         await openWorkspaceSection(page, "solve");
         await expect(page.getByTestId("rule-check-run")).toBeDisabled();
@@ -1426,7 +1426,11 @@ test("ordinary typed edit preserves view state and same-ID project replacement c
   await activateWithKeyboard(page, page.getByTestId("toolkit-edit.redo"));
   await expect(await revealTreeRow(page, "node", node.id)).toContainText("Edited while hidden");
 
+  // The redone edit is unsaved: Open Project asks first (W-12 S1), and Discard replaces it.
   await projectCommand(page, "open-local", true);
+  await expect(page.getByTestId("unsaved-changes-prompt")).toBeVisible();
+  await activateWithKeyboard(page, page.getByTestId("unsaved-changes-discard"));
+  await expect(page.getByTestId("unsaved-changes-prompt")).toHaveCount(0);
   await expect(page.getByTestId("command-selection-readout")).toContainText(`project: ${model.project.id}`);
   await expect(page.getByRole("button", { name: "Show All", exact: true })).toBeDisabled();
   await expect(page.getByTestId("viewport-measurement-readout")).toHaveCount(0);

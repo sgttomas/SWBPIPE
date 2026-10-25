@@ -494,8 +494,26 @@ fn atomic_save_bytes_as_with_io(
     })
 }
 
+/// Test isolation for the process-wide directory-sync guard. Every test whose
+/// save reaches the real parent-directory sync holds this lock for its save
+/// section, so a parallel test's sync cannot suppress its own and turn a
+/// correct save into `saved_durability_uncertain`. The timeout and overlap
+/// tests drive their own counter, not the shared guard, and need no lock.
+#[cfg(test)]
+pub(crate) mod test_support {
+    use std::sync::{Mutex, MutexGuard, PoisonError};
+
+    static ATOMIC_SAVE_TEST_LOCK: Mutex<()> = Mutex::new(());
+
+    /// Recovers from poisoning, so one failing save test does not fail the rest.
+    pub(crate) fn atomic_save_test_lock() -> MutexGuard<'static, ()> {
+        ATOMIC_SAVE_TEST_LOCK.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use super::test_support::atomic_save_test_lock;
     use super::*;
 
     #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -594,6 +612,7 @@ mod tests {
 
     #[test]
     fn writes_exact_bytes_and_leaves_no_temp() {
+        let _save_lock = atomic_save_test_lock();
         let root = sandbox("atomic-new");
         let destination = root.join("invented.opsproj");
         let outcome = atomic_save_bytes(&destination, b"invented package bytes").unwrap();
@@ -716,6 +735,7 @@ mod tests {
     #[cfg(target_os = "macos")]
     #[test]
     fn replacement_is_atomic_and_exact() {
+        let _save_lock = atomic_save_test_lock();
         let root = sandbox("atomic-replace");
         let destination = root.join("invented.opsproj");
         fs::write(&destination, b"old bytes").unwrap();
@@ -845,6 +865,7 @@ mod format_admission_tests {
 
     #[test]
     fn the_model_document_format_admits_json_only() {
+        let _save_lock = super::test_support::atomic_save_test_lock();
         let root = sandbox("model-json");
         let destination = root.join("invented-model.json");
         let outcome =

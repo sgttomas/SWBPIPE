@@ -276,23 +276,24 @@ fn current_inputs_table_and_schema_are_pinned() {
     // O4 (DEL-04-08 `o4-source-extension.md` §3.3): again for limitation [7] only;
     // connected: silent-zero diagnostic added; no number moved (two LOAD_STATE_SOURCE_EXCLUDED
     // warnings, DEL-04-07 Design pressure-contract.md "Load cases that apply nothing");
+    // W-7 global end rows added; no other number moved (connected +48 rows, pressure +24 rows).
     // W-15 (DEL-03-05): again for the pressure-2 identity limitation (identity bytes only).
     for (name, digest) in [
         (
             "connected-sparse",
-            "bd1f9c2151fe2e4f82495883c93eba13e9d8e243c101b2a2ec0bd89d469fea20",
+            "39ad0082a313e042eb0c26bab499bf1ed6b364d5ce0e97cc85d9e8e7cc05a332",
         ),
         (
             "connected-dense",
-            "d9328cecfc7abd67189c4348f39554e8a4b8777e0a78886fe1ef2dbdd6e5b8b6",
+            "f576755134a8f487255b194d2c27ac51717b4a77de4301e4db79791392e6de32",
         ),
         (
             "pressure-sparse",
-            "d7af490baa882d439a52d6b7d7fd71025eaf62bd2cc3d6192cdf320f23c5477e",
+            "41d7afc0da0df6d6bcca598dc75bbbf28da8c1af4b643a262abcffb6dccce373",
         ),
         (
             "pressure-dense",
-            "68bf29ba316b31095cd37f03029fccf8e59eb52d02b5f8a9380861dd2e257043",
+            "b2a25f63d524bd11ddd8195dc6077843f768416b6663a310ed24f33effc3be1a",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");
