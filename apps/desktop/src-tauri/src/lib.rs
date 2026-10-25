@@ -10084,3 +10084,77 @@ mod independent_round2_context {
         eprintln!("R2 genuine marker / other structured dispositions: {cases}");
     }
 }
+
+#[cfg(test)]
+mod independent_round3_review {
+    use super::*;
+    use report_package_save::{test_support::*, *};
+    use export_disposition_screen::{screen_document, malformed_dispositions, screen_value, malformed_values, SCREENED_MEMBERS};
+    use serde_json::json;
+
+    fn markers() -> Vec<Value> { vec![Value::Null,json!(false),json!(13),json!("wrong"),json!("open_pipe_stress_rule_pack"),json!(["open_pipe_stress_rule_pack"]),json!({"rule_pack_kind":"open_pipe_stress_rule_pack"})] }
+    fn wrap(mut value: Value, depth: usize) -> Value {
+        for n in 0..depth { value=match n%3 { 0=>json!({"":value}),1=>json!([{"a/b~c":value}]),_=>json!({"rule_pack_kind":"open_pipe_stress_rule_pack","annotation":value}) }; }
+        value
+    }
+    #[test]
+    fn markers_positions_and_depth_cannot_hide_blocking_or_malformed_values() {
+        let mut scalar_cases=0; let mut structured_cases=0;
+        for marker in markers() {for depth in 0..=8 {for (key,statuses) in SCREENED_MEMBERS {
+            for status in statuses {
+                let doc=wrap(json!({"rule_pack_kind":marker,key:status}),depth);
+                assert!(!screen_document(&doc).is_empty(),"{doc}");
+                assert!(!screen_value(&doc).is_empty(),"{doc}");
+                scalar_cases+=2;
+            }
+            for inner in [json!([]),json!({}),json!(["quarantined"]),json!({"value":"protected_suspected"})] {
+                let doc=wrap(json!({"rule_pack_kind":marker,key:inner}),depth);
+                assert!(!malformed_values(&doc).is_empty(),"{doc}"); structured_cases+=1;
+                if key!="classification" || depth>0 {
+                    assert!(!malformed_dispositions(&doc).is_empty(),"{doc}");structured_cases+=1;
+                }
+            }
+        }}}
+        eprintln!("R3 direct scalar checks={scalar_cases}; structured checks={structured_cases}");
+    }
+    #[test]
+    fn root_classification_screens_every_string_and_never_regrants_an_exemption() {
+        let mut blocked=0;let mut malformed=0;let mut clear=0;
+        for marker in markers() {for key in ["arbitrary","rule_pack_kind","privacy_class","review_status","classification","","a/b~c"] {
+            for status in ["protected_suspected","quarantined","rejected"] {
+                let doc=json!({"rule_pack_kind":marker,"classification":{key:status}});
+                let findings=screen_document(&doc);
+                assert_eq!(findings.len(),1,"{doc}: {findings:?}");blocked+=1;
+            }
+            for inner in [json!({}),json!([]),json!({"rule_pack_kind":"open_pipe_stress_rule_pack","classification":{"value":"clear"}}),json!([{"rule_pack_kind":"open_pipe_stress_rule_pack","classification":{"arbitrary":"rejected"}}])] {
+                let doc=json!({"rule_pack_kind":marker,"classification":{key:inner}});
+                assert!(!malformed_dispositions(&doc).is_empty(),"{doc}");malformed+=1;
+            }
+            for inner in [Value::Null,json!(true),json!(17),json!("private_only"),json!("unknown")] {
+                let doc=json!({"rule_pack_kind":"open_pipe_stress_rule_pack","classification":{key:inner}});
+                assert!(screen_document(&doc).is_empty(),"{doc}");
+                assert!(malformed_dispositions(&doc).is_empty(),"{doc}");clear+=1;
+            }
+        }}
+        eprintln!("R3 root-classification blocked={blocked}; malformed={malformed}; allowed scalars={clear}");
+    }
+    #[test]
+    fn report_admission_refuses_markers_at_root_and_below() {
+        let mut cases=0;
+        for marker in markers() {for depth in 0..=5 {for is_model in [false,true] {
+            for inner in [json!({}),json!([]),json!({"value":"protected_suspected"}),json!({"rule_pack_kind":"open_pipe_stress_rule_pack","classification":{"value":"clear"}})] {
+                let payload=wrap(json!({"rule_pack_kind":marker,"classification":inner}),depth);
+                for at_root in [false,true] {
+                    let mut m=model();
+                    if is_model { if at_root { for (k,v) in payload.as_object().into_iter().flatten() {m[k]=v.clone();} if payload.is_array(){m["review_probe"]=payload.clone();} } else {m["nodes"][0]["review_probe"]=payload.clone();} }
+                    let mut r=desktop_request(&m);
+                    if !is_model { if at_root {for (k,v) in payload.as_object().into_iter().flatten(){r[k]=v.clone();} if payload.is_array(){r["review_probe"]=payload.clone();}} else {r["report"]["report_sections"]["provenance_notes"][0]["review_probe"]=payload.clone();} }
+                    let result=admit_report_package(save_request(&r,&m),&software(),&mut no_store);
+                    match result {Err(e)=>{assert!(e.code==DISPOSITION_MALFORMED || e.code==PROTECTED_CONTENT_BLOCKED,"{}",e.code); assert!(e.diagnostics.iter().any(|d|d.path.ends_with("/classification")||d.path.contains("/classification/")));},Ok(_)=>panic!("admitted model={is_model} root={at_root} depth={depth} payload={payload}")}
+                    cases+=1;
+                }
+            }
+        }}}
+        eprintln!("R3 report admission refusals={cases}");
+    }
+}
