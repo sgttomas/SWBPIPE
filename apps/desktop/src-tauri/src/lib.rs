@@ -8277,6 +8277,45 @@ mod tests {
         assert!(!deleted_again);
     }
 
+    /// Rule-pack format 0.5.0 (DEL-06-01 Design `rule-pack-0.5.0.md` §2.1, §5
+    /// "Round trip"): a 0.5.0 pack read back from the store is the same document
+    /// in canonical form and its checksum verifies; a stored 0.4.0 pack stays
+    /// listed, reads back with the version refusal (its checksum still a
+    /// match), and can be deleted. The store schema is unchanged.
+    #[test]
+    fn local_rule_pack_store_keeps_0_5_0_packs_and_refuses_0_4_0_by_name() {
+        let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        apply_store_migrations(&connection).expect("store migrations apply");
+        let current = example_rule_pack_document();
+        upsert_rule_pack(&connection, "project:format", "invented_demo_rule_pack", &current).unwrap();
+        let loaded = load_rule_pack(&connection, "project:format", "invented_demo_rule_pack").unwrap().unwrap();
+        let canonical = open_pipe_stress_operation_applier::canonical_json;
+        assert_eq!(canonical(&loaded.document), canonical(&current));
+        let validation = rule_pack_validation_value(&loaded.document, false);
+        assert_eq!(validation["has_blocking_findings"], json!(false));
+        assert_eq!(validation["checksum"]["match_status"], json!("match"));
+
+        let mut legacy = example_rule_pack_document();
+        legacy["schema_version"] = json!("0.4.0");
+        legacy["metadata"]["schema_version"] = json!("0.4.0");
+        legacy["metadata"]["rule_pack_id"] = json!("invented_legacy_pack");
+        let legacy = restamp(legacy);
+        upsert_rule_pack(&connection, "project:format", "invented_legacy_pack", &legacy).unwrap();
+        let listed = list_rule_packs(&connection, Some("project:format")).unwrap();
+        assert_eq!(listed.len(), 2);
+        let loaded = load_rule_pack(&connection, "project:format", "invented_legacy_pack").unwrap().unwrap();
+        let validation = rule_pack_validation_value(&loaded.document, false);
+        assert_eq!(validation["has_blocking_findings"], json!(true));
+        assert_eq!(validation["checksum"]["match_status"], json!("match"));
+        assert!(validation["document_findings"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|finding| finding["code"] == "RULE_PACK_SCHEMA_VERSION_UNSUPPORTED"));
+        assert!(delete_rule_pack(&connection, "project:format", "invented_legacy_pack").unwrap());
+        assert_eq!(list_rule_packs(&connection, Some("project:format")).unwrap().len(), 1);
+    }
+
     // --- C3 <-> C4 library-reference wiring (TP-C3C4-LIBREF-001) -------------
 
     fn material_library_with_allowable() -> Value {
