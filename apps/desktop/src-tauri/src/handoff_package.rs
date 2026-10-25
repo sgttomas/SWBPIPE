@@ -343,12 +343,14 @@ pub(crate) fn screen_document(document: &Value) -> Vec<String> {
     found
 }
 
-/// The disposition members of a stored document that are present but are not
-/// strings (review round 6, note 4): `null`, booleans, numbers, arrays, and
-/// objects (except `classification`, which a rule pack holds as an object of
-/// its own disposition members, screened in turn). Returned as `<JSON
-/// pointer> <JSON value kind>`; the save refuses them as malformed rather than
-/// guess what they mean.
+/// The disposition members of a stored document whose value is an array or an
+/// object (review round 6 note 4, narrowed in round 6b by the owner's
+/// decision): either could hide a blocking value, so the save refuses them as
+/// malformed rather than guess. A rule pack's `classification` object is
+/// exempt, since its own members are screened in turn. `null`, booleans and
+/// numbers are not refused (the library import stores them); they count as
+/// no public disposition and, for privacy members, as private. Returned as
+/// `<JSON pointer> is <JSON value kind>`.
 pub(crate) fn malformed_dispositions(document: &Value) -> Vec<String> {
     fn kind(value: &Value) -> &'static str {
         match value {
@@ -366,7 +368,7 @@ pub(crate) fn malformed_dispositions(document: &Value) -> Vec<String> {
                 for (key, child) in object {
                     let at = format!("{pointer}/{}", pointer_token(key));
                     let screened = SCREENED_MEMBERS.iter().any(|(member, _)| member == key);
-                    if screened && !child.is_string() && !(key == "classification" && child.is_object()) {
+                    if screened && (child.is_array() || child.is_object()) && !(key == "classification" && child.is_object()) {
                         found.push(format!("{at} is {}", kind(child)));
                     }
                     walk(child, &at, found);
@@ -389,7 +391,7 @@ fn malformed_record(path: &str, record: &str, what: &str, found: &[String]) -> D
     diagnostic(
         DISPOSITION_MALFORMED,
         path,
-        format!("{record} ({what}) has disposition members that are not text ({}), so its disposition cannot be judged; nothing was saved. Correct the stored record first.", found.join(", ")),
+        format!("{record} ({what}) has disposition members that are lists or objects, not text ({}), so its disposition cannot be judged; nothing was saved. Correct the stored record first.", found.join(", ")),
     )
 }
 
@@ -407,9 +409,11 @@ fn members_at_any_depth<'a>(value: &'a Value, member: &str, out: &mut Vec<&'a st
         Value::Object(object) => {
             for (key, child) in object {
                 if key == member {
-                    if let Some(text) = child.as_str() {
-                        out.push(text);
-                    }
+                    // A present member that is not text (null, a boolean, a
+                    // number; arrays and objects are refused before) counts as
+                    // the empty string, which maps to no public disposition
+                    // (review round 6b).
+                    out.push(child.as_str().unwrap_or(""));
                 }
                 members_at_any_depth(child, member, out);
             }
@@ -432,9 +436,9 @@ fn covered_dispositions<'a>(covered: &[&'a Map<String, Value>]) -> (Vec<&'a str>
         let mut found = Vec::new();
         let mut reviews = Vec::new();
         for (key, child) in object.iter() {
-            match (key.as_str(), child.as_str()) {
-                ("redistribution_status", Some(status)) => found.push(status),
-                ("review_status", Some(status)) => reviews.push(status),
+            match key.as_str() {
+                "redistribution_status" => found.push(child.as_str().unwrap_or("")),
+                "review_status" => reviews.push(child.as_str().unwrap_or("")),
                 _ => {}
             }
             members_at_any_depth(child, "redistribution_status", &mut found);
@@ -3823,19 +3827,35 @@ fn review5_residual_swap_can_move_a_nonempty_substitute() {
     /// an array holding a blocking value, is refused as malformed by pointer.
     #[test]
     fn round6_nonstring_blocking_value_is_refused_as_malformed() {
-        for value in [json!(["protected_suspected"]), Value::Null, json!(false), json!(0), json!({ "status": "rejected" })] {
+        // Arrays and objects refuse (round 6b); null, booleans and numbers are
+        // saved, never as a public disposition.
+        for (value, refused) in [
+            (json!(["protected_suspected"]), true),
+            (json!({ "status": "rejected" }), true),
+            (Value::Null, false),
+            (json!(false), false),
+            (json!(0), false),
+        ] {
             let model = witness_model();
             let mut library = material_library();
             library["material_records"][0]["provenance"]["redistribution_status"] = value.clone();
+            library["material_records"][0]["redistribution_status"] = value.clone();
             let store = store("round6-nonstring-blocking", &model, true);
             crate::upsert_library(&Connection::open(&store.path).unwrap(), "project:slots", "material", "library:invented-materials", &library).unwrap();
             let state = save_state(&store, &model, "handoff_basis", "6e6e00006e6e00006e6e00006e6e0000").state;
             let result = prepare(&store, &model, &state.state_id);
-            assert!(
-                matches!(&result, Err(d) if d.iter().any(|d| d.code == DISPOSITION_MALFORMED && d.message.contains("/material_records/0/provenance/redistribution_status"))),
-                "{value}: {:?}",
-                codes(&result)
-            );
+            if refused {
+                assert!(
+                    matches!(&result, Err(d) if d.iter().any(|d| d.code == DISPOSITION_MALFORMED && d.message.contains("/material_records/0/provenance/redistribution_status"))),
+                    "{value}: {:?}",
+                    codes(&result)
+                );
+            } else {
+                let prepared = result.unwrap_or_else(|refusals| panic!("{value}: {refusals:?}"));
+                let reference = &prepared.library_refs[0];
+                assert_ne!(reference["redistribution_status"], json!("public_permissive"), "{value}");
+                assert_ne!(reference["privacy_classification"], json!("public_metadata"), "{value}");
+            }
         }
     }
 
@@ -3909,5 +3929,133 @@ fn review5_residual_swap_can_move_a_nonempty_substitute() {
         assert!(matches!(&out, HandoffSaveOutcome::Saved { warnings, .. } if warnings.iter().any(|w| w.code == publish::OLD_PACKAGE_LEFT)), "{out:?}");
         assert_eq!(fs::read(&edited).unwrap().first(), Some(&b'['), "the edited previous package was deleted");
         assert!(verify_handoff_package(&target).is_ok());
+    }
+
+    // ---- Independent review round 6b (Claude): strict-screen probes ----------
+
+    /// Characterization: which non-string disposition values the library
+    /// import stores, and which of those the handoff save now refuses.
+    #[test]
+    fn round6b_import_accepted_nonstring_dispositions_vs_handoff_refusal() {
+        let mut accepted_then_refused = Vec::new();
+        let mut cases = 0;
+        for (kind, document, wrapper, records) in [
+            ("material", include_str!("../../../../fixtures/material/invented_material_library_valid.json"), "material_library", "material_records"),
+            ("section", include_str!("../../../../fixtures/component/invented_section_library_valid.json"), "section_library", "section_records"),
+            ("component", include_str!("../../../../fixtures/component/invented_component_library_valid.json"), "component_library", "component_records"),
+            ("hanger", include_str!("../../../../fixtures/hanger/invented_hanger_library_valid.json"), "hanger_library", "hanger_records"),
+        ] {
+            for key in ["redistribution_status", "review_status", "privacy_class", "privacy_classification", "classification", "lifecycle_status"] {
+                for place in ["wrapper", "wrapper-provenance", "record", "record-provenance"] {
+                    let mut doc: Value = serde_json::from_str(document).unwrap();
+                    let target = match place {
+                        "wrapper" => doc.get_mut(wrapper),
+                        "wrapper-provenance" => doc.get_mut(wrapper).and_then(|w| w.get_mut("provenance")),
+                        "record" => doc.get_mut(records).and_then(|r| r.get_mut(0)),
+                        _ => doc.get_mut(records).and_then(|r| r.get_mut(0)).and_then(|r| r.get_mut("provenance")),
+                    };
+                    let Some(Value::Object(target)) = target else { continue };
+                    target.insert(key.to_string(), Value::Null);
+                    cases += 1;
+                    let model = witness_model();
+                    let store = store(&format!("round6b-{kind}-{key}-{place}"), &model, false);
+                    let Ok(saved) = crate::save_local_library_value(|| Ok(store.path.clone()), "project:slots".to_string(), kind.to_string(), doc) else { continue };
+                    if !saved.stored { continue }
+                    let row = crate::load_library(&Connection::open(&store.path).unwrap(), "project:slots", kind, &saved.library_id).unwrap().unwrap();
+                    if !malformed_dispositions(&row.document).is_empty() || !screen_document(&row.document).is_empty() { accepted_then_refused.push(format!("{kind}/{place}/{key}=null")); }
+                }
+            }
+        }
+        println!("ROUND6B_IMPORT_VS_HANDOFF {cases} cases; import stores but handoff refuses: {} {accepted_then_refused:?}", accepted_then_refused.len());
+        // Round 6b (owner's decision): what the import stores, the handoff screen admits.
+        assert!(cases > 0 && accepted_then_refused.is_empty(), "import-accepted libraries refused: {accepted_then_refused:?}");
+    }
+
+    /// Probe: the strict screen on stored rule packs, the `classification`
+    /// exemption included.
+    #[test]
+    fn round6b_rule_pack_malformed_and_classification_exemption() {
+        let mut wrong = Vec::new();
+        // Since round 6b only arrays and objects refuse as malformed; a null or
+        // boolean member is saved (here `saved`), never as public.
+        let cases: [(&str, fn(&mut Value), &str); 5] = [
+            ("lifecycle-null", |p| p["metadata"]["lifecycle_status"] = Value::Null, "saved"),
+            ("classification-array", |p| p["classification"] = json!(["protected_suspected"]), DISPOSITION_MALFORMED),
+            ("classification-privacy-null", |p| p["classification"]["privacy_class"] = Value::Null, "saved"),
+            ("classification-protected", |p| p["classification"]["redistribution_status"] = json!("protected_suspected"), model_document_save::PROTECTED_CONTENT_BLOCKED),
+            ("nested-classification-object", |p| p["metadata"]["x"] = json!({ "classification": { "review_status": false } }), "saved"),
+        ];
+        for (tag, edit, code) in cases {
+            let mut model = witness_model();
+            let mut pack: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
+            edit(&mut pack);
+            let Ok(hash) = open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(&pack).map(|c| c.value) else { wrong.push(format!("{tag}: checksum")); continue };
+            pack["checksums"]["rule_pack_checksum"]["value"] = json!(hash);
+            model["rule_pack_refs"][0]["checksum"]["value"] = json!(hash);
+            let store = store(&format!("round6b-pack-{tag}"), &model, true);
+            crate::upsert_rule_pack(&Connection::open(&store.path).unwrap(), "project:slots", "invented_demo_rule_pack", &pack).unwrap();
+            let state = save_state(&store, &model, "handoff_basis", "6b6b00006b6b00006b6b00006b6b0000").state;
+            let result = prepare(&store, &model, &state.state_id);
+            println!("ROUND6B_PACK {tag}: {:?}", codes(&result));
+            let as_expected = match &result {
+                Err(d) => d.iter().any(|d| d.code == code),
+                Ok(prepared) => {
+                    let reference = &prepared.rule_pack_refs[0];
+                    code == "saved"
+                        && reference["privacy_classification"] != json!("public_metadata")
+                        && (tag != "classification-privacy-null" || reference["privacy_classification"] == json!("private_rule_pack_data"))
+                        && (tag == "classification-privacy-null" || reference["review_classification"] == json!("TBD"))
+                }
+            };
+            if !as_expected { wrong.push(tag.to_string()); }
+        }
+        assert!(wrong.is_empty(), "rule-pack strict screen: {wrong:?}");
+    }
+
+    /// Pins the pre-swap re-read (R6-1): an edit of the previous package after
+    /// admission, before the swap, refuses `HANDOFF-DESTINATION-CHANGED`; the
+    /// edited package stays under its name and no staging folder is left.
+    #[test]
+    fn round6b_previous_package_edited_before_the_swap_refuses_and_stays() {
+        use std::io::Write as _;
+        let (store, first) = prepared_demo("round6b-preswap");
+        let target = store.root.join("target.swbhandoff");
+        assert!(matches!(write(&target, first), HandoffSaveOutcome::Saved { .. }));
+        let (_next_store, next) = prepared_demo("round6b-preswap-next");
+        let member = target.join(MANIFEST_MEMBER);
+        let member2 = member.clone();
+        let edit = move || -> io::Result<()> { fs::OpenOptions::new().write(true).open(&member2)?.write_all(b"[") };
+        let out = write_handoff_package(&target, next, CREATED_AT, &PublishHooks { before_commit: &edit, ..PRODUCTION_HOOKS });
+        assert!(matches!(&out, HandoffSaveOutcome::Refused { diagnostics } if diagnostics[0].code == publish::DESTINATION_CHANGED), "{out:?}");
+        assert_eq!(fs::read(&member).unwrap().first(), Some(&b'['));
+        assert!(staging_left(&store.root).is_empty(), "{:?}", staging_left(&store.root));
+    }
+
+    /// Pins the verifier's byte re-read (R6-2): a mapped write to the model
+    /// member after its read, while the manifest is read, fails verification.
+    #[test]
+    fn round6b_verifier_refuses_a_mapped_write_during_its_reads() {
+        use std::os::fd::AsRawFd;
+        let (store, first) = prepared_demo("round6b-verifier-mmap");
+        let target = store.root.join("target.swbhandoff");
+        assert!(matches!(write(&target, first), HandoffSaveOutcome::Saved { .. }));
+        let member = target.join(publish::MODEL_MEMBER);
+        let mapping: std::rc::Rc<std::cell::Cell<(usize, usize)>> = Default::default();
+        let mapping2 = mapping.clone();
+        publish::R4_BEFORE_OPEN.with(|hook| *hook.borrow_mut() = Some(Box::new(move || {
+            publish::R4_BEFORE_OPEN.with(|hook| *hook.borrow_mut() = Some(Box::new(move || {
+                let file = fs::OpenOptions::new().read(true).write(true).open(&member).unwrap();
+                let len = file.metadata().unwrap().len() as usize;
+                // SAFETY: a valid descriptor and length; unmapped below.
+                let ptr = unsafe { libc::mmap(std::ptr::null_mut(), len, libc::PROT_READ | libc::PROT_WRITE, libc::MAP_SHARED, file.as_raw_fd(), 0) };
+                assert_ne!(ptr, libc::MAP_FAILED);
+                unsafe { *(ptr as *mut u8) = b'[' };
+                mapping2.set((ptr as usize, len));
+            })));
+        })));
+        let verdict = verify_handoff_package(&target);
+        let (ptr, len) = mapping.get();
+        if ptr != 0 { unsafe { libc::munmap(ptr as *mut libc::c_void, len) }; }
+        assert!(verdict.is_err(), "verified bytes no longer on disk: {verdict:?}");
     }
 }

@@ -517,11 +517,6 @@ struct MemberRead {
 }
 
 impl MemberRead {
-    /// The file read is still, by its descriptor, unchanged since its first
-    /// `fstat` in its metadata: the same identity and size, still linked, and
-    /// the same change time. A `write` or `utimes` sets the change time; a
-    /// write through a shared mapping does not until it is synced, so content
-    /// is judged by [`Self::still_reads_as`], not by this alone.
     /// The file still holds exactly `expected`: [`Self::unchanged`] and its
     /// bytes, read again from offset 0 through the same descriptor, equal
     /// `expected` (review round 6: a write through a shared mapping changes
@@ -544,6 +539,11 @@ impl MemberRead {
         filled == expected.len() && &again[..filled] == expected && self.unchanged()
     }
 
+    /// The file is still, by its descriptor, the one read, in its metadata:
+    /// the same identity and size, still linked, and the same change time.
+    /// A `write` or `utimes` sets the change time, which no unprivileged
+    /// process can set back; a write through a shared mapping does not, until
+    /// it is synced, so content is judged by [`Self::still_reads_as`].
     fn unchanged(&self) -> bool {
         use std::os::unix::fs::MetadataExt;
         self.file.metadata().is_ok_and(|now| {
