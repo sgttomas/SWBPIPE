@@ -406,11 +406,14 @@ impl<'a> At<'a> {
         At::Record { collection, kind, index, id: id_of(record) }
     }
 
+    /// Named as `named` names a record, with its own sites: they are formed only for a finding.
     fn finding_name(&self) -> String {
         match *self {
-            At::Record { kind, index, id, .. } => named(kind, id, index),
+            At::Record { kind, id: Some(id), .. } => format!("{kind} `{id}`"),
+            At::Record { kind, index, id: None, .. } => format!("{kind} {index}"),
             At::Member { parent, key } => format!("the {key} of {}", parent.finding_name()),
-            At::Entry { parent, kind, index, id, .. } => format!("{} of {}", named(kind, id, index), parent.finding_name()),
+            At::Entry { parent, kind, id: Some(id), .. } => format!("{kind} `{id}` of {}", parent.finding_name()),
+            At::Entry { parent, kind, index, id: None, .. } => format!("{kind} {index} of {}", parent.finding_name()),
         }
     }
 
