@@ -14,14 +14,15 @@ import subprocess
 import pytest
 from core.analysis_runs import rust_reader
 from tests.test_headless_runner_contract import final_runner_request
-from tests.verifiers.pressure_2 import validate_exact_pressure_evidence
-from tests.verifiers.preview_physics_evidence import validate_preview_physics_evidence
+from tests.verifiers import component_body
+from tests.verifiers.pressure_2 import pressure_table, validate_exact_pressure_evidence
+from tests.verifiers.preview_physics_evidence import TABLE as PREVIEW_TABLE, validate_preview_physics_evidence
 
 PROV = "invented W-15 slice-d test input; not library, catalog or code data"
 BODY = "pipe:w15-body"
 ROUTES = {
-    "preview": ("preview_cases", "preview-physics", validate_preview_physics_evidence),
-    "exact": ("exact_cases", "pressure", validate_exact_pressure_evidence),
+    "preview": ("preview_cases", "preview-physics", validate_preview_physics_evidence, lambda: PREVIEW_TABLE),
+    "exact": ("exact_cases", "pressure", validate_exact_pressure_evidence, pressure_table),
 }
 
 
@@ -119,25 +120,68 @@ def body_list_on_every_extremum(route, source):
         extremum["component_body_pipe_ids"] = ["nonexistent"]
 
 
+def _row(source, entity, kind):
+    return next(row for row in source["results"] if row["entity_ref"] == entity and row["kind"] == kind)
+
+
+def body_list_on_a_body_stress_row(route, source):
+    row = _row(source, BODY, "element_local_axial_normal_stress")
+    assert "component_body" in row
+    row["component_body_pipe_ids"] = ["nonexistent"]
+
+
+def body_list_on_the_body_maximum_row(route, source):
+    row = _row(source, BODY, MAXIMUM)
+    assert "component_body" in row
+    row["component_body_pipe_ids"] = ["nonexistent"]
+
+
+def body_list_on_a_pipe_stress_row(route, source):
+    _row(source, "pipe:w15-pipe", "element_local_axial_normal_stress")["component_body_pipe_ids"] = ["nonexistent"]
+
+
+MAXIMUM = "pipe_elastic_normal_stress_maximum_v2"
+# (mutation, the Python verifier's refusal, the Rust reader's code): the closed-shape refusals of coverage and
+# extrema ("maximum coverage shape"/"extrema shape" on preview, "maximum coverage" per section basis and "extrema
+# shape" on exact), and the body list on a result row (round-2 scrutiny of #1604), which the source-bodies check
+# refuses by name.
+MUTATIONS = [
+    (record_on_coverage, "maximum coverage", "SHAPE"),
+    (body_list_on_every_extremum, "extrema shape", "SHAPE"),
+    (body_list_on_a_body_stress_row, "misplaced body list", "SOURCE_COMPONENT_BODY_MISPLACED"),
+    (body_list_on_the_body_maximum_row, "misplaced body list", "SOURCE_COMPONENT_BODY_MISPLACED"),
+    (body_list_on_a_pipe_stress_row, "misplaced body list", "SOURCE_COMPONENT_BODY_MISPLACED"),
+]
+ROW_MUTATIONS = {body_list_on_a_body_stress_row, body_list_on_the_body_maximum_row, body_list_on_a_pipe_stress_row}
+
+
 def test_w15_readers_admit_the_body_source(solved):
     route, source, wire = solved
-    _, reader, verify = ROUTES[route]
+    _, reader, verify, table = ROUTES[route]
     verify(deepcopy(source))
+    component_body.model_checks(deepcopy(source), wire, table())
     for bound in _models(route, wire):
         assert rust_reader.validate(reader, deepcopy(source), model=bound)["ok"] is True
+    assert rust_reader.dispatch(deepcopy(source), wire)["standing"]["eligible"] is True
 
 
-@pytest.mark.parametrize("mutate", [record_on_coverage, body_list_on_every_extremum], ids=lambda f: f.__name__)
-def test_w15_a_slice_d_member_on_the_other_object_is_a_shape_refusal(solved, mutate):
+@pytest.mark.parametrize("mutate,python,rust", MUTATIONS, ids=[m.__name__ for m, _, _ in MUTATIONS])
+def test_w15_a_slice_d_member_on_another_object_is_refused(solved, mutate, python, rust):
+    """Each slice-d member on an object it does not belong to is refused: by the Python verifier and, for a
+    result row, its model-bound check; by the Rust reader model-free and model-bound (the pressure reader takes the
+    model; the model-bound dispatch's standing is not eligible on either route)."""
     route, source, wire = solved
-    _, reader, verify = ROUTES[route]
+    _, reader, verify, table = ROUTES[route]
     mutated = deepcopy(source)
     mutate(route, mutated)
-    # The verifiers' closed-shape refusals: "maximum coverage shape" and "extrema shape" (preview), "maximum
-    # coverage" (exact, per section basis) and "extrema shape" (exact).
-    with pytest.raises(ValueError, match="maximum coverage|extrema shape"):
+    with pytest.raises(ValueError, match=python):
         verify(deepcopy(mutated))
+    if mutate in ROW_MUTATIONS:
+        with pytest.raises(ValueError, match=python):
+            component_body.model_checks(deepcopy(mutated), wire, table())
     for bound in _models(route, wire):
         with pytest.raises(rust_reader.ReaderRefusal) as refusal:
             rust_reader.validate(reader, deepcopy(mutated), model=bound)
-        assert "SHAPE" in refusal.value.code, (refusal.value.code, refusal.value.detail)
+        assert rust in refusal.value.code, (refusal.value.code, refusal.value.detail)
+    standing = rust_reader.dispatch(deepcopy(mutated), wire)["standing"]
+    assert standing["eligible"] is False and standing["token"] != "numerically_eligible", standing

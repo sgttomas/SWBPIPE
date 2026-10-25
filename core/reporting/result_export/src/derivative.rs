@@ -621,9 +621,11 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
             return Err("SOURCE_ANNOTATION_MISMATCH".into());
         }
         // W-15 slice d: a derivative quantity carries its source row's record
-        // verbatim; a review or disclosure target carries none.
+        // verbatim; a review or disclosure target carries none; no target
+        // carries the coverage-only body list.
         if (disposition == "exported_quantity" && !crate::component_body::derivative_agrees(target, row))
-            || (disposition != "exported_quantity" && target.get(crate::component_body::RECORD).is_some())
+            || (disposition != "exported_quantity"
+                && (target.get(crate::component_body::RECORD).is_some() || target.get(crate::component_body::COVERAGE_KEY).is_some()))
         {
             return Err("SOURCE_COMPONENT_BODY_MISMATCH".into());
         }

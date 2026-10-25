@@ -191,8 +191,9 @@ export async function validateResultDocument(doc:JsonObject,source:MechanicsResu
     requireEqual(target.object_ref,ref('preview_entity',row.entity_ref),'TARGET_OBJECT');
     const observed={present:Object.hasOwn(row,'dimension'),value:row.dimension??null},annRef=ref('source_annotation',`source-annotation:${i}`);
     requireEqual(ann,{annotation_id:annRef.ref_id,source_row_index:i,source_result_id:row.id,metadata:row.metadata??null,basis_ref:row.basis_ref??null,source_result_refs:row.source_result_refs??[],observed_carrier_dimension:observed,source_physical_semantic_dimension:math,derivative_target_dimension:dimension,source_origin_ref:originRef,...(row.component_body!==undefined?{component_body:row.component_body}:{})},'SOURCE_ANNOTATION');requireEqual(target.source_annotation_ref,annRef,'ANNOTATION_REF');
-    // W-15 slice d (Rust `derivative_agrees`): a quantity carries its row's record verbatim; no other target carries one.
-    if(disposition==='exported_quantity'?!equalJson(target.component_body,row.component_body):Object.hasOwn(target,'component_body'))throw new Error('SOURCE_COMPONENT_BODY_MISMATCH');
+    // W-15 slice d (Rust `derivative_agrees`): a quantity carries its row's record verbatim; no other target carries one;
+    // no target carries the coverage-only body list (the annotation is held whole above).
+    if(Object.hasOwn(target,'component_body_pipe_ids')||(disposition==='exported_quantity'?!equalJson(target.component_body,row.component_body):Object.hasOwn(target,'component_body')))throw new Error('SOURCE_COMPONENT_BODY_MISMATCH');
     const rowHash=await scopedChecksum(row,rowScope,origin.received_carrier_checksum.payload_ref),original=origin.authentic_producer_available?await scopedChecksum(row,'raw_source_row',origin.original_producer_checksum.payload_ref):null;
     requireEqual(a.received_carrier_row_checksum,rowHash,'SOURCE_ROW_HASH');requireEqual(a.original_producer_row_checksum,original,'SOURCE_ROW_HASH');
     requireEqual(disposition==='disclosed'?[target.source_value,target.source_unit]:[target.magnitude,target.unit],[row.value,row.unit],'SOURCE_TARGET_VALUE');

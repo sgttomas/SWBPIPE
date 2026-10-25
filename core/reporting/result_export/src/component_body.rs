@@ -116,7 +116,9 @@ fn coverage_entries(case: &Value) -> Vec<&Value> {
 /// entity is a listed body; a stress extremum carries it exactly when its
 /// member is a body. One body's records agree bit for bit (across cases,
 /// section bases, combinations and extrema), every listed body carries one,
-/// and two bodies never name one component.
+/// and two bodies never name one component. No result row carries the
+/// coverage-only body list (`MISPLACED`); extrema and coverage entries are
+/// held to their own member by the readers' closed shape checks.
 pub fn source_bodies<'a>(source: &'a Value, table: &Value) -> Result<BTreeMap<&'a str, &'a Value>, String> {
     let mut listed: Option<Vec<&str>> = None;
     for case in evidence_cases(source) {
@@ -145,6 +147,7 @@ pub fn source_bodies<'a>(source: &'a Value, table: &Value) -> Result<BTreeMap<&'
     let mut records: BTreeMap<&str, &Value> = BTreeMap::new();
     let rows = source["results"].as_array().map(Vec::as_slice).unwrap_or(&[]);
     for row in rows {
+        require(row.get(COVERAGE_KEY).is_none(), "MISPLACED")?;
         let entity = row["entity_ref"].as_str().unwrap_or_default();
         let kind = row["kind"].as_str().unwrap_or_default();
         let expected = listed.contains(entity) && is_stress_kind(table, kind);
@@ -260,10 +263,14 @@ pub fn derivative_record(row: &Value) -> Option<Value> {
     row.get(RECORD).cloned()
 }
 
-/// A derivative quantity's record agrees with its source row: both absent, or
-/// the row's record by value (the scale bit for bit, so a JSON form change such
-/// as JCS's `15` for `15.0` still binds).
+/// A derivative quantity's (or source annotation's) record agrees with its
+/// source row: both absent, or the row's record by value (the scale bit for
+/// bit, so a JSON form change such as JCS's `15` for `15.0` still binds). It
+/// never carries the coverage-only body list.
 pub fn derivative_agrees(quantity: &Value, row: &Value) -> bool {
+    if quantity.get(COVERAGE_KEY).is_some() {
+        return false;
+    }
     match (quantity.get(RECORD), row.get(RECORD)) {
         (None, None) => true,
         (Some(q), Some(r)) => record_shape(q) && record_shape(r) && same_record(q, r),

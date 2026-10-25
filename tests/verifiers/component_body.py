@@ -88,6 +88,9 @@ def source_bodies(source: Mapping[str, Any], table: Mapping[str, Any]) -> dict[s
     kinds = stress_kinds(table)
     records: dict[str, Mapping[str, Any]] = {}
     for row in source.get("results") or []:
+        # The coverage-only body list is not a result-row member (extrema and coverage entries are held to their own
+        # member by the verifiers' closed shape checks).
+        _require(COVERAGE_KEY not in row, "misplaced body list")
         entity = row.get("entity_ref")
         expected = entity in bodies and row.get("kind") in kinds
         if RECORD in row:

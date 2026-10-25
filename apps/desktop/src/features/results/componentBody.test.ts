@@ -68,5 +68,12 @@ describe("component-body identification (W-15 slice d)", () => {
     await expect(tampered(copy => { target(copy, body).component_body.stiffness_scale = 16; })).rejects.toThrow("SOURCE_COMPONENT_BODY_MISMATCH");
     await expect(tampered(copy => { target(copy, pipe).component_body = RECORD; })).rejects.toThrow("SOURCE_COMPONENT_BODY_MISMATCH");
     await expect(tampered(copy => { delete copy.result_envelope.source_annotations[body].component_body; })).rejects.toThrow("SOURCE_ANNOTATION");
+    // The coverage-only body list on a quantity row or a source annotation (round-2 scrutiny of #1604).
+    await expect(tampered(copy => { target(copy, body).component_body_pipe_ids = ["nonexistent"]; })).rejects.toThrow("SOURCE_COMPONENT_BODY_MISMATCH");
+    await expect(tampered(copy => { target(copy, pipe).component_body_pipe_ids = ["nonexistent"]; })).rejects.toThrow("SOURCE_COMPONENT_BODY_MISMATCH");
+    await expect(tampered(copy => { copy.result_envelope.source_annotations[body].component_body_pipe_ids = ["nonexistent"]; })).rejects.toThrow("SOURCE_ANNOTATION");
+    const other = accounting.findIndex(a => a.disposition !== "exported_quantity");
+    expect(other).toBeGreaterThanOrEqual(0);
+    await expect(tampered(copy => { target(copy, other).component_body_pipe_ids = ["nonexistent"]; })).rejects.toThrow("SOURCE_COMPONENT_BODY_MISMATCH");
   });
 });

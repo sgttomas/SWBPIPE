@@ -283,6 +283,25 @@ fn w15_the_derivative_export_preserves_and_validates_the_record() {
             .unwrap_or_else(|| panic!("{route:?}: a pipe quantity row"));
         plain["component_body"] = record(4.0);
         assert!(derivative::validate_document(&forged, &source).is_err(), "{route:?}: a forged record is refused");
+        // The coverage-only body list on a body quantity row, a plain quantity
+        // row, a review or disclosure target or a body row's source annotation
+        // (round-2 scrutiny of #1604) is
+        // refused by the slice-d check by name, before any hash binding.
+        let annotation = doc["result_envelope"]["source_annotations"].as_array().unwrap().iter()
+            .position(|a| a.get("component_body").is_some()).unwrap_or_else(|| panic!("{route:?}: an annotation carries the record"));
+        let plain_row = doc.pointer("/result_envelope/result_sets/0/values").unwrap().as_array().unwrap().iter()
+            .position(|v| v.get("component_body").is_none() && v["object_ref"]["ref_id"] == PIPE).unwrap();
+        let other = doc["result_envelope"]["row_accounting"].as_array().unwrap().iter()
+            .find(|a| a["disposition"] != "exported_quantity").map(|a| a["target_field_path"].as_str().unwrap().to_string())
+            .unwrap_or_else(|| panic!("{route:?}: a review or disclosure target"));
+        for (target, code) in [(first.clone(), "SOURCE_COMPONENT_BODY_MISMATCH"),
+            (format!("/result_envelope/result_sets/0/values/{plain_row}"), "SOURCE_COMPONENT_BODY_MISMATCH"),
+            (other, "SOURCE_COMPONENT_BODY_MISMATCH"),
+            (format!("/result_envelope/source_annotations/{annotation}"), "SOURCE_ANNOTATION_MISMATCH")] {
+            let mut listed = doc.clone();
+            listed.pointer_mut(&target).unwrap()["component_body_pipe_ids"] = json!(["nonexistent"]);
+            assert_eq!(derivative::validate_document(&listed, &source), Err(code.to_string()), "{route:?}: a body list at {target}");
+        }
     }
 }
 
@@ -363,6 +382,14 @@ fn w15_missing_forged_and_inconsistent_records_are_refused() {
                 }
             }
         });
+        // The coverage-only body list on a result row (round-2 scrutiny of #1604):
+        // on a body stress row, the body's maximum row and a pipe stress row.
+        for (label, entity, kind) in [("a body stress row", BODY, "element_local_axial_normal_stress"), ("the body's maximum row", BODY, MAXIMUM),
+            ("a pipe stress row", PIPE, "element_local_axial_normal_stress")] {
+            tamper(&format!("a body list on {label}"), "SOURCE_COMPONENT_BODY_MISPLACED", false, &|s| {
+                row_mut(s, |r| r["entity_ref"] == entity && r["kind"] == kind)["component_body_pipe_ids"] = json!(["nonexistent"]);
+            });
+        }
         tamper("headline on the body", "HEADLINE", false, &|s| {
             let body = s["results"].as_array().unwrap().iter().find(|r| r["entity_ref"] == BODY && r["kind"] == MAXIMUM).unwrap().clone();
             let key = if route == Route::Preview { "max_open_formula_stress".to_string() } else {
