@@ -290,6 +290,20 @@ the desktop component-creation, inspector and self-weight features):
   scope label `selected_pipe_mass_and_component_weight`; any other plan keeps
   `selected_pipe_mass_only`. The plan's `warnings` are omitted when empty, so
   a plan without one keeps its bytes.
+- **Nodal weight for every author.** Admitting `weight` at a node widens what
+  any user may author, not only what the generator emits. The reasons:
+  - PRD §12.5 lists component weight among the load types.
+  - The element-only rule came from the initial migration with no stated
+    rationale.
+  - No ScopeOfWork, acceptance criterion, ruling or DEC states it. DEL-05-01
+    CLM-006 described only the element loads then implemented, and now names
+    the nodal case.
+  - The model schema has no category-to-target constraint.
+
+  On PF and EX, a hand-written nodal `weight` force or moment solves bit for
+  bit like the same `occasional` load (independent scrutiny of #1608, round
+  1). It differs only in its category, so it is classified with weight in
+  every case and combination.
 - **Wrench.** One node-targeted `weight` force primitive along the gravity
   axis (value ±W), then one `weight` moment primitive (`rotation_x|y|z`,
   dimension moment) per nonzero component of r × F, in x, y, z order. Both
