@@ -1,10 +1,12 @@
 # Per-report user release of the user's own project data (W-18b)
 
 **Basis:** `origin/main` at `c7f52fd12a` (2026-10-25), merged into this branch
-at `ad79d9d72f`. Every file:line citation is at that tree. Revision 2: the
-design is reduced to the owner's scope R (§0), after Codex round 1 (three
-blocking, four should-fix) and round 2 (one blocking, three should-fix). §7
-says where each finding is resolved. Design before implementation; nothing
+at `ad79d9d72f`. Every file:line citation is at that tree; `main` has not
+moved since (re-checked at revision 3). Revision 2 reduced the design to the
+owner's scope R (§0), after Codex round 1 (three blocking, four should-fix) and
+round 2 (one blocking, three should-fix). Revision 3 answers round 3 (one
+blocking, three should-fix, one non-blocking, and A7's wording). §7 says where
+each finding is resolved. Design before implementation; nothing
 here is built. This design records the mechanism by which a user can state,
 for one report, that they release their own project data for sharing. It
 records no release, and it records, implies or derives no acceptance,
@@ -77,7 +79,7 @@ Standard claim fence applies (claims taxonomy per DEC-081).
   that a package names every active rule pack of the solve. It is sequencing
   within the ruled scope, not a narrowing of v0.1: the later slice, kept in
   v0.1 (§10), lifts it together with the library refusal. The dialog says
-  plainly which models cannot be shared yet, and why (§2.1).
+  plainly which models cannot be shared yet, and why (§2.2).
 
 §2.1 states scope R as an exact member contract. §10 lists what the later
 slice adds on the same mechanism.
@@ -92,9 +94,15 @@ your project data". No text uses "issued", "approved", "accepted",
 model this application solved in the current session, the result its own
 solver produced for that model, and the run record of that solve, as native
 admission binds and derives them (§2.5, §2.6). Under R the model carries no
-library or rule-pack reference (§2.7). The native host cannot judge who holds
-the rights to that model. That is the user's statement, which the record
-carries and does not prove (§2.9).
+detectable library or rule-pack reference (§2.7).
+
+**The reliance limit.** The detector finds the marks that library applies
+have written into a model (§2.7). It cannot find a library origin that a user
+has erased, and it does not show that any value is the user's own. For every
+value without a detectable library origin, the release relies on the user's
+own statement of their rights: the checkbox statement the record carries
+(§2.2, §2.3). The native host does not verify that statement, and the record
+does not prove it (§2.9).
 
 ## 1. Where things stand
 
@@ -164,6 +172,17 @@ carries and does not prove (§2.9).
   `fixtures/model_document/library_ref_sites.json` with the webview's
   `libraryRefSites` (`libraryImportService.ts:440`). The same walk visits every
   `rule_pack_refs[]` entry (`:231-296`).
+- **How the hanger selection marked the model before W-17** (Codex round 3,
+  blocking). From `46f3aed341` (2026-09-05) until `00af9112c0` (2026-10-23),
+  the hanger selection wrote neither mark. It stored a support's `provenance`
+  as the RFC 8785 JSON text of `{hanger_id, kind:
+  "user_imported_hanger_selection", library_id, library_kind: "hanger",
+  library_metadata, record_snapshot}` (`hangerSelection.ts:35-39,52` at
+  `00af9112c0^`). A model saved in that period still carries it. Its hanger
+  values reach genuine `spring_hanger_user_input_review` rows
+  (`core/product_physics/src/lib.rs:13429,13530`), and nothing current
+  detects their library origin. `core/library_import/README.md:45-51` still
+  describes that form as current.
 - **Rule packs in the package.** A package names the rule packs of its
   rule-check run, and admission requires them to equal the solve's
   `active_rule_packs` (`report_package_save.rs:572-588`;
@@ -221,7 +240,7 @@ Its members, in archive order after the manifest, are exactly these:
 
 | Member | Count | What it may contain | What is absent |
 |---|---|---|---|
-| `calculation_report.html`, `calculation_report.pdf` | one each | The rendering of the minimal native renderer input (§2.6): the title; the model summary (project name and id, units, model hash, input-manifest reference, display policy); the load cases (id, label, kind); the result rows (the five-field projection of the solve's rows); the solve's diagnostics; the analysis-status disclosures; the fixed technical-preview limitation; the run context (software, solver identity, mode and settings, run name); the record and the notice | Rule-pack references; user-rule outcomes; component and spring-hanger provenance entries; hanger load quantities; numerical-health rows; the local persistence reference (always `TBD`); a generation time and a run recording time (not recorded) |
+| `calculation_report.html`, `calculation_report.pdf` | one each | The rendering of the minimal native renderer input (§2.6): the title; the model summary (project name and id, units, model hash, input-manifest reference, display policy); the load cases (id, label, kind); the result rows (the five-field projection of every `results` row of the solve, its review rows included, such as a spring hanger's `spring_hanger_user_input_review` rows); the solve's diagnostics; the analysis-status disclosures; the fixed technical-preview limitation; the run context (software, solver identity, mode and settings, run name); the record and the notice | Rule-pack references; user-rule outcomes; component and spring-hanger provenance entries; dedicated per-object hanger quantity entries; numerical-health rows; the local persistence reference (always `TBD`); a generation time and a run recording time (not recorded) |
 | `audit_manifest.json` | one | Its id (the input-manifest reference); the model and input-manifest hash records; the solver identity; the unit-system reference; `rule_pack_refs: []`; `assets: []`; the boundary constants | Any rule-pack reference; any asset |
 | `result_export_<envelope>.json` | exactly one | The DEL-08-04 0.3.0 document that native admission derives from the bound model, the attested solve, the run record and the input manifest (§2.6) | A second result member |
 | State/comparison/handoff record set | none | — | The member itself: no state/run, comparison or handoff section |
@@ -236,7 +255,8 @@ validation inputs only. None is written to the package, and neither is any
 rule-pack payload or library record (W-18a design §2.2, "Not a member").
 
 **What R refuses.** The save is refused when:
-- the model carries a library reference or a rule-pack reference (§2.7);
+- the model carries a detectable library reference, in any form a library
+  apply has written, or a rule-pack reference (§2.7);
 - any object in the model or the request carries a non-project private class
   (§2.7);
 - the result was not produced by this session's solver for that model, or its
@@ -300,6 +320,9 @@ close it and discard the selection. Exact proposed wording:
 >   carries no rule-pack reference, user-rule outcome or run comparison.
 > - It needs a result solved in this session. A model with a library or
 >   rule-pack reference cannot be shared this way.
+> - The application checks this model only for library and rule-pack marks.
+>   It cannot tell where any other value came from, so your statement below
+>   covers every value in this report.
 > - Content marked protected, quarantined or rejected still stops the save.
 > - Nothing is remembered: your next report is local private unless you
 >   choose this again.
@@ -309,7 +332,8 @@ close it and discard the selection. Exact proposed wording:
 >
 > [Save Shareable Report Package…] [Cancel]
 
-When the webview's early check finds a library or rule-pack reference (§2.7),
+When the webview's early check finds a library or rule-pack reference, in any
+form §2.7 names,
 the dialog shows, in place of the checkbox: "This model uses a library record
 or a rule pack. Shareable packages do not yet carry library record values or
 rule-pack checks, so a shareable package cannot be saved for this model. Its
@@ -485,14 +509,29 @@ user-visible condition is the same; native admission now enforces it.
   the protocol text of `solve_worker.rs:10-25`.
 - **DEL-04-07 memory accounting:**
   - The worker's two passes allocate only transient pieces in its counted
-    heap. The largest is one string's escaped form, from `write_string`; no
-    canonical text is held.
+    heap; no canonical text is held. The pieces live at once are (Codex
+    round 3, non-blocking):
+    - one key vector per object on the current traversal path:
+      `canonical_json::sorted_keys` allocates a `Vec<&String>` of the
+      object's member count (8 bytes per member), and it stays alive while
+      that object's members, and every object nested in them, are written
+      (`core/serialization/canonical_json/src/lib.rs:339-398`). Their sum is
+      at most 8 bytes per object member of the value, before allocator
+      rounding of each vector. The recursion is at
+      most 128 deep, since the checked profile refuses deeper values first
+      (`:226-253`);
+    - the stable sort's scratch buffer for the object being sorted, freed
+      before its members are written;
+    - one string's escaped form, from `write_string` (`:335-337`), or one
+      number's text, each freed after it is put.
   - The worker's existing growth path covers that heap. The grant formula, the
-    result lease and the 2R custody are unchanged.
+    result lease and the 2R custody are unchanged. The allocation checks of §6
+    measure the peak on values built to maximize each piece.
   - The parent holds 64 bytes per frame and a fixed table of at most 32
     entries, under 8 KiB, inside its process reserve. There is no new lease.
-  - Admission's digests are streamed too, inside the command's existing
-    ingress lease.
+  - Admission's digests are streamed too, with the same transient pieces,
+    inside the command's existing ingress lease. Route 010's lease also
+    prices the parse of embedded provenance (§2.7).
   - The memory-budget design's worker paragraph
     (`DEL-04-07/Design/memory-budget-decision.md:37`) names the frame and the
     digest passes. The worker's process-reserve measurement
@@ -681,9 +720,15 @@ the bound basis and requires canonical equality. A new module,
   `solve_rule_check_status` equal to S's.
 
 The minimal input differs from the local-private input in what it leaves out:
-component and spring-hanger provenance entries, hanger load quantities and their
-provenance diagnostics, rule-pack references and user-rule outcomes. These
-return with the later slice (§10).
+component and spring-hanger provenance entries, dedicated per-object hanger
+quantity entries and their provenance diagnostics, rule-pack references and
+user-rule outcomes. These return with the later slice (§10).
+
+The solve's review rows are retained. `result_rows` is the projection of every
+`results` row of S, so a spring hanger's user-entered stiffness and loads
+appear, as the solver wrote them, in S's `spring_hanger_user_input_review` rows
+(`core/product_physics/src/lib.rs:13429,13530`), for an ordinary user-entered
+hanger as for any other. Only the dedicated per-object entries are left out.
 
 **Parity.** The webview builds the same request with
 `buildUserReleasedReportPackageRequest` (`reportPackageRequest.ts`) and a
@@ -704,40 +749,106 @@ Codex round 1 finding 1 (unconstrained annotations and opaque records) for R:
   equality.
 
 It closes finding 3 (a library quantity under a substituted source) too: R
-carries no per-object entries, and every library-referenced model is refused
-(§2.7).
+carries no per-object entries, and every model with a detected library origin
+is refused (§2.7).
 
 ### 2.7 The library and rule-pack refusals, and private classes
 
-**"Library-referenced" is determined from the bound model M alone.** M is
-library-referenced when it holds either of these:
-1. **a `library_ref` object at any depth.** The test is
+**"Library-referenced" is determined from the bound model M alone.** The
+detector recognizes each form in which a library apply has ever written a
+library origin into a model. The history of the two writers (`git log` of
+`hangerSelection.ts` and `libraryApply.ts`) shows three forms:
+
+| Form | Written by | Where in M | Rule |
+|---|---|---|---|
+| A `library_ref` object in `provenance_record` | every W-17 apply (material, section, component, hanger) from `00af9112c0`, 2026-10-23 (`libraryApply.ts:224`; `hangerSelection.ts:55,70-82`) | the applied entity's `provenance_record` | 1 |
+| The library provenance string `library:<kind>:<library id>#<record id>` | the same applies (`libraryApply.ts:81-83,399,445-446,511,702-708`; `hangerSelection.ts:41-42,54`) | the entity's `provenance`; component source-reference strings; a hanger support's `provenance` | 2 |
+| The legacy hanger selection evidence: the RFC 8785 JSON text of `{hanger_id, kind: "user_imported_hanger_selection", library_id, library_kind: "hanger", library_metadata, record_snapshot}`, held as a string | the hanger selection from `46f3aed341` (2026-09-05) until `00af9112c0` replaced it (`hangerSelection.ts:35-39,52` at `00af9112c0^`) | a hanger support's `provenance`, with no `library_ref` and no `library:` string | 3 |
+
+There is no other form. Before `00af9112c0` no material, section or component
+apply existed: `libraryApply.ts` arrived in that commit, and the model's
+`LibraryRef` with model 0.7.0 (`60ed7f6478`). The hanger selection is the only
+writer of `user_imported_hanger_selection` in the history. Committed model
+fixtures carry only the W-17 forms (`fixtures/model_document/desktop_emitted.json`,
+`library_ref_sites.json`).
+
+**The rules.** A *string* here is every JSON string value at any depth of M:
+an object member's value or an array element. Object keys are not tested. The
+substring tests are exact and case-sensitive, over the string's characters,
+with no trimming. M is library-referenced when any of these holds:
+1. **A `library_ref` object at any depth.** The test is
    `export_disposition_screen::library_ref_sites(M)` non-empty
    (`export_disposition_screen.rs:310-319`): the one walk, pinned to
    `fixtures/model_document/library_ref_sites.json`. A site whose identity is
-   blank counts too;
-2. **a string member that contains a library provenance reference**: the text
-   `library:` followed by `material`, `section`, `component` or `hanger` and
-   `:`. Every library apply writes this form (`libraryApply.ts:81-83,701-708`;
-   `hangerSelection.ts:41-42,54`), so a model whose `library_ref` was removed but
-   whose values still name their library is refused too.
+   blank counts too.
+2. **A string that holds a library provenance reference**: it contains one of
+   `library:material:`, `library:section:`, `library:component:` or
+   `library:hanger:`. A model whose `library_ref` was removed but whose values
+   still name their library is refused too.
+3. **A string that holds legacy hanger selection evidence**, in either of two
+   ways:
+   - (a) it contains `user_imported_hanger_selection`;
+   - (b) it is *embedded JSON*: after removing leading and trailing JSON
+     whitespace (space, tab, line feed, carriage return), it begins with `{`,
+     `ingress::prescan` (`src-tauri/src/ingress.rs:550`) accepts it as one
+     JSON value, and it parses (`serde_json::from_str::<Value>`) to an object.
+     It holds legacy evidence when that object has a member named
+     `library_kind`, `library_id`, `library_metadata` or `record_snapshot`, or
+     when rule 1, 2 or 3 (a) holds within the parsed value
+     (`library_ref_sites` over it, and the substring tests over its strings).
 
-The code is `REPORT-USER-RELEASE-LIBRARY-REFERENCED`, naming the first site's
-path and the library kind and id. The webview applies the same two rules
-(`libraryRefSites` and the string rule) as an early check, which disables the
-dialog's save (§2.2). Native admission decides. A value from which the user has
-removed every library mark is, to the host, the user's own entry; the release
-covers it under the user's statement, like any value they entered.
+   Parsing goes one level deep. Strings inside the parsed value are tested by
+   the substring rules, not parsed again: no apply wrote embedded JSON inside
+   embedded JSON. A candidate the prescan refuses for nesting deeper than 127
+   containers, for serde_json's reserved raw-value key
+   (`ingress.rs:1046-1056`), or as too large to price cannot be checked, and is
+   refused under rule 3. Every other prescan finding is one serde_json's parse
+   would refuse too. A string that does not begin with `{`, that the prescan
+   refuses with such a finding, or that parses to a non-object is text only,
+   and rules 2 and 3 (a) still apply to it.
 
-This resolves Codex round 2's blocker. The library-applied bend's raw
-flexibility factor and SIF reach result rows, contract evidence and diagnostics
-through genuine solver output (§1), and attestation reproduces them. Under R
-such a model never reaches the derivation.
+The code is `REPORT-USER-RELEASE-LIBRARY-REFERENCED`. It names the first site
+found, taking rule 1, then rule 2, then rule 3, each in document order. It
+gives the site's JSON pointer, the rule (`library_ref`, `provenance_string` or
+`legacy_hanger_selection`), and the library kind and id where the site states
+them. For rule 3 the kind is `hanger`.
+
+**Cost.** Rules 1, 2 and 3 (a) are linear passes over the parsed M. Rule 1's
+walk returns one path per `library_ref` site, as Record Run's use of it does
+today (`analysis_runs.rs:399`); rules 2 and 3 (a) allocate nothing. Admission
+refuses at the first site. For rule 3 (b), admission first prescans every
+candidate (a string that, trimmed as above, begins with `{`; `ingress::prescan`
+allocates nothing) and grows the
+command's ingress lease once, by the largest candidate's
+`text_parse_bytes(·, Moved)`. It then parses the candidates one at a time and
+drops each before the next, so at most one embedded value is held beside M.
+
+**The webview** applies the same three rules as an early check
+(`libraryRefSites`, the substring tests, and `JSON.parse` in a `try` for 3 (b)),
+which disables the dialog's save (§2.2). Native admission decides; it alone
+refuses the unchecked candidates, which `JSON.parse` may accept.
+
+**The reliance limit.** The rules find the marks that library applies wrote.
+They cannot find a library origin that a user has erased: a value whose every
+mark was removed, or a value typed in by hand from a library or another
+source, has no detectable library origin. The detector therefore never shows
+that a value is the user's own. For every value without a detectable library
+origin, the release relies on the user's own statement of their rights, the
+checkbox statement of §2.2 that the record carries (§2.3). The record states
+that statement; it does not prove it (§2.9).
+
+This resolves Codex round 2's blocker and round 3's. The library-applied
+bend's raw flexibility factor and SIF reach result rows, contract evidence and
+diagnostics through genuine solver output (§1), and so do a legacy library
+hanger's loads and stiffness, in `spring_hanger_user_input_review` rows
+(`core/product_physics/src/lib.rs:13429,13530`). Attestation reproduces them.
+Under R a model with a detected library origin never reaches the derivation.
 
 **Rule-pack-referenced.** M is rule-pack-referenced when the walk finds any
 `rule_pack_refs[]` entry (`export_disposition_screen.rs:231-296`), or when I
 records any active rule pack. The code is
-`REPORT-USER-RELEASE-RULE-PACK-REFERENCED`. This follows from R:
+`REPORT-USER-RELEASE-RULE-PACK-REFERENCED`. HELP_HUMAN settled this refusal
+on 2026-10-25 (§0). It follows from R:
 - R carries no rule-pack reference and no rule-check outcome;
 - the package's agreement rule requires the package to name every active pack
   of the solve (`report_package_save.rs:572-588`), which needs the rule-check
@@ -745,9 +856,10 @@ records any active rule pack. The code is
 - references the manifest leaves out become rule-pack diagnostics in the run
   record (`analysis_runs.rs:298-343`).
 
-The later slice carries rule-pack references at safe metadata (§10). This
-refusal is a consequence of R that the ruling does not name; §7 lists it as
-open.
+The later slice, which stays in v0.1, carries rule-pack references at safe
+metadata and lifts this refusal together with the library refusal (§10). Until
+then the dialog says plainly that such a model cannot be shared yet, and why
+(§2.2).
 
 **Private classes (defence).** Any object in M or the request whose own
 `privacy_classification` or `privacy_class` is a non-project private class is
@@ -1087,9 +1199,11 @@ selection, the report stays local-private exactly as today". It is held by
 form at: user_release", `reader.rs:236-240`), not by version name. No such
 reader has been released.
 
-**The absent handoff member is part of the record-selected form.** The owner
-approved R and V1 together, so this design reads V1 as covering R's member set.
-§7 lists this as a point for HELP_HUMAN to confirm.
+**The absent handoff member is part of the record-selected form.** HELP_HUMAN
+settled on 2026-10-25 that V1 covers R's package form (§0): the reader at this
+head accepts what the writer at this head emits, and that includes a
+user-released package with no state/comparison/handoff member. So R keeps no
+handoff record set, and the reader admits its absence only with the record.
 
 **Rendered reports.** No JSON schema file describes the renderer input; its
 contract is the Rust type (`report_renderer/src/lib.rs:184-194`) and the
@@ -1144,7 +1258,9 @@ banner of its own,
 > SHA-256 {model_document_sha256}, result document {result_envelope_id}
 > (SHA-256 {result_document_derivative_sha256}), released {released_at}.
 > The report carries this model's summary, load cases and solve results, and
-> no rule-pack reference, user-rule outcome or run comparison. This statement
+> no rule-pack reference, user-rule outcome or run comparison. The application
+> found no library or rule-pack mark in this model. It cannot verify who holds
+> the rights in the data, which rest on the user's statement. This statement
 > concerns rights in the data only; the analysis status and the Professional
 > Boundary notice below are unchanged.
 
@@ -1219,9 +1335,9 @@ therefore has targeted regression tests and an independent Codex review on its
 own head. Pytest runs under `t3_slot.sh` with `-n 4`, vitest with
 `--maxWorkers=3`, and cargo only through the T3 wrappers.
 
-**Round 1 and round 2 counterexamples, as named regressions.** Each is refused,
-or for the last one preserved, as stated. Each native case leaves the sandbox
-directory empty, with no picker request.
+**Round 1 to round 3 counterexamples, as named regressions.** Each is refused,
+or, where stated, admitted as a control or preserved. Each refused native case
+leaves the sandbox directory empty, with no picker request.
 - `user_release_library_applied_bend_refused` (round 2):
   - a model whose bend has `modifiers` and a `provenance_record.library_ref`
     from a component apply is refused natively with
@@ -1230,13 +1346,47 @@ directory empty, with no picker request.
   - the same model with the `library_ref` removed, but its
     `modifiers.source_reference` still `library:component:…#…`, is refused
     the same way;
-  - the same model with both marks removed is admitted, as the user's own
-    entries.
+  - the same model with both marks removed is admitted: no library origin is
+    detected, and the release relies on the user's statement (the reliance
+    limit, §2.7). The test pins that limit; it does not show the values are
+    the user's own.
 - `user_release_library_reference_sites_refused`: one case per site of
   `library_ref_sites.json`, including a blank-identity site, and a spring
   hanger applied from a library (its `library_ref` and its `provenance`
   string, `library:hanger:…`). Each is refused natively; in the webview the
   dialog's save is disabled with the same reason.
+- `user_release_legacy_hanger_selection_refused` (round 3, blocking): an
+  invented model whose support `provenance` is the legacy hanger selection
+  evidence exactly as the pre-W-17 writer built it (the RFC 8785 text of the
+  six members, from `hangerSelection.ts:35-39` at `00af9112c0^`), with no
+  `library_ref` and no `library:` string, and whose solve has genuine
+  `spring_hanger_user_input_review` rows. One case per recognition path, each
+  refused natively with `REPORT-USER-RELEASE-LIBRARY-REFERENCED` and the rule
+  `legacy_hanger_selection`, before attestation or derivation, and disabled in
+  the webview:
+  - the full legacy string (rules 3 (a) and 3 (b));
+  - the same string with `kind` removed, so only the embedded-JSON members
+    remain (3 (b)), once for each of `library_kind`, `library_id`,
+    `library_metadata` and `record_snapshot` kept alone;
+  - the same object with every one of those four members removed but `kind`
+    kept (3 (a));
+  - the full string with leading and trailing JSON whitespace;
+  - an embedded object holding only a nested `library_ref` (3 (b) through
+    rule 1), and one holding only a `library:hanger:…` string (rule 2);
+  - the legacy string held in an array element and at a nested object member,
+    not only at `supports[].provenance`;
+  - a candidate beginning with `{` that the prescan refuses for nesting deeper
+    than 127 containers, and one with the reserved raw-value key (unchecked,
+    refused under rule 3).
+
+  Controls, each admitted (the reliance limit, §2.7): a provenance string that
+  begins with `{` but is not JSON; an embedded JSON array; an embedded object
+  with none of the members and no mark; and a legacy object reduced to its
+  `hanger_id` alone. A legacy string embedded inside a string of an embedded
+  object is refused by 3 (a), since the substring test sees it at any depth.
+  The hanger form is the only legacy form (§2.7): the material, section and
+  component applies have always written rules 1 and 2's marks, which the two
+  cases above cover.
 - `user_release_rule_pack_reference_refused`: a model with one
   `rule_pack_refs[]` entry, with or without a rule-check run, and an input
   manifest with one active pack. Each is
@@ -1315,7 +1465,12 @@ directory empty, with no picker request.
   - a run record that fails each step-8 check;
   - an input manifest with a non-fixed setting or an external asset;
   - a request whose `user_rule_checks` or rule-pack reference is present;
-  - a request with a handoff record set.
+  - a request with a handoff record set;
+  - each case of `user_release_legacy_hanger_selection_refused`.
+- Rust, Tauri, rule 3 (b)'s lease: the ingress lease grows by the largest
+  candidate's priced parse before any embedded parse, and a counting-allocator
+  test over a model with several large embedded candidates shows at most one
+  embedded value held at a time, within that growth.
 - Rust, `report_package::user_release`: the derivation vectors pass. A
   mutation of each member of a derived request is refused, naming its pointer.
 - Parity: the derivation vectors in vitest and in Rust.
@@ -1329,7 +1484,16 @@ directory empty, with no picker request.
   - the table is bounded, evicts the oldest entry, is cleared by
     `dispose_all_results`, and is never written to disk;
   - the worker's counted peak with the digest passes stays within its grant
-    (counting allocator), and the process-reserve measurement still holds.
+    (counting allocator), and the process-reserve measurement still holds;
+  - allocation checks (counting allocator) of the streamed digest, in the
+    worker and at admission, each on an invented value built to maximize one
+    transient piece of §2.4: objects nested to the checked profile's depth
+    limit, each with many members,
+    so the key vectors on the open path are largest; one object with the most
+    members, for the sort scratch; and one long string of characters that
+    escape, for `write_string`. Each measured peak is at most the §2.4 sum of
+    live key vectors, one sort scratch and one escaped string, and within the
+    grant or lease that holds it.
 
 **Owner property 2: redaction applies to every other context.**
 - The existing corpus cases are not edited. A vitest and a pytest pin the
@@ -1421,12 +1585,13 @@ directory empty, with no picker request.
   - the decision order (§3.2);
   - the completeness of the derivation and its vectors;
   - the attestation's trust, transport and bounds;
-  - the library and rule-pack rules;
+  - the library and rule-pack rules, the legacy form's recognition and the
+    reliance limit;
   - the run-record checks;
   - the reader's equality-only checks and the content binding;
   - the naming rule (§0).
 
-## 7. Decisions, settled and open
+## 7. Decisions
 
 **Settled.**
 - **Scope (owner, 2026-10-25): R first** (§2.1). The later slice stays in v0.1
@@ -1437,13 +1602,22 @@ directory empty, with no picker request.
   third boundary note for released packages only (§5.3).
 - **O-C (HELP_HUMAN, as recommended):** the package only (§2.2).
 - **O-D (HELP_HUMAN, as recommended): refuse.** Under R the refusal covers every
-  library-referenced model (§2.7).
+  model with a detected library origin, in each form §2.7 names. For values
+  without one, the release relies on the user's statement (the reliance
+  limit, §2.7).
 - **O-E: moot under R.** R carries no rule-check identifier. The question
   returns with the later slice (§10).
 - **O-F (HELP_HUMAN, as recommended): exclude.** Under R that means no
   comparison section and no handoff record set, the persistence reference
   `TBD`, and assets `[]` (§2.1).
 - **O-G (owner, 2026-10-25): equality only,** stated in §2.9 and in A8.
+- **V1 covers R's package form (HELP_HUMAN, 2026-10-25, §0).** The reader at
+  this head accepts what the writer at this head emits, so the user-released
+  package has no state/comparison/handoff member and R keeps no handoff record
+  set (§2.1, §4).
+- **Rule-pack-referenced models are refused under R (HELP_HUMAN, 2026-10-25,
+  §0).** `REPORT-USER-RELEASE-RULE-PACK-REFERENCED` (§2.7) is sequencing within
+  the ruled scope. The later slice, which stays in v0.1, lifts it (§10).
 - **Wording grant.** Appendix A and the product texts of §2.2 and §5 go to
   Codex as exact text and then to HELP_HUMAN.
 
@@ -1456,7 +1630,8 @@ directory empty, with no picker request.
   - finding 5: the strip is not widened (§3.3);
   - finding 6: the notice (§5.1);
   - finding 7: A13.
-- Round 2's blocker: every library-referenced model is refused (§2.7). The
+- Round 2's blocker: every model with a detected library origin is refused
+  (§2.7). The
   should-fix items:
   - (a) the recorded-revision alternative is removed, since O-B stands as
     recommended. That alternative conflicted with the unchanged Current-export
@@ -1466,43 +1641,39 @@ directory empty, with no picker request.
     (§5.3);
   - (b) the derivation wording of A1 and A7, reduced to R;
   - (c) the library-value refusal appended to A7, as the refusal of every
-    library-referenced model;
+    model with a detected library origin;
   - (d) A9's forbidden cell, replaced as worded.
+- Round 3:
+  - the blocker: the legacy hanger selection evidence is recognized (§1, §2.7
+    rule 3), with its regressions (§6), and the reliance limit is stated in
+    §0, §2.7, the dialog (§2.2) and the notice (§5.1);
+  - the two HELP_HUMAN readings are settled consequences (§2.7, §4, and above);
+  - the hanger rows: "dedicated per-object hanger quantity entries" are left
+    out, and the solve's review rows are retained (§2.1, §2.6, §10);
+  - A5's derivation clause, replaced as worded;
+  - the digest passes' transient key vectors (§2.4) and their allocation
+    checks (§6);
+  - A7's library clause, replaced as worded, and its detector extended to the
+    legacy form.
 
-**Open, for HELP_HUMAN.**
-- **V1 and the absent handoff member.** The owner approved R ("no handoff
-  records") and V1 ("the optional record") together. This design reads V1 as
-  admitting R's record-selected form, including its absent handoff member
-  (§4).
-  - If HELP_HUMAN reads V1 as covering the record only, R keeps one handoff
-    record set holding only the two current state/run sections, as revision 1
-    had it. That adds a Rust mirror of the state/run section builder, about
-    +300 lines, and the producer's handoff checks stay live. Nothing else
-    changes.
-- **The rule-pack-reference refusal** (§2.7) narrows R beyond the ruling's
-  words.
-  - It follows from "no rule outcomes" and "no rule-check attestation" with
-    the existing agreement rule.
-  - Its consequence: a model with a rule-pack reference cannot be user-released
-    until the later slice.
-  - The alternative is to carry rule-pack identities from the manifest at safe
-    metadata already in R. That needs the pack's source notice from the store,
-    natively, and an exception to the agreement rule.
+**Open.** None. Every decision this design rests on is settled.
 
 ## 8. Slices and size
 
 | Slice | Content | Size | Persistence / data boundary |
 |---|---|---|---|
 | **(r1) Vocabulary and redaction** | The context, reason codes and route id in TypeScript, Python, the Rust mirror and the schema; the decision order of §3.2 (steps 10-13); the flag assertion; the local-first rule; the release projector (nearest-metadata labelling; unused until r3); corpus cases, the pinned-digest tests and `existing_contexts_preserve_raw_intent_named_members`. No route uses the context. | M (~650 lines with tests) | Data boundary (vocabulary only) |
-| **(r2a) Solve attestation** | The worker's streamed digests, the `ATST` frame, the registry table, clearing and bounds, the memory-budget text and its measurement, tests. No rule-check attestation. | S (~400) | Data boundary; DEL-04-07 memory accounting; no priced file |
-| **(r2b) Derivation and refusals** | `report_package::user_release`: Rust builders of the input manifest, the document base and origin, the minimal renderer input, and the audit and top-level members; the library, rule-pack and private-class rules; the run-record checks (Record Run's, factored); the derivation vectors and their vitest and Rust parity. | M (~900) | **Data boundary** (what may be shared) |
+| **(r2a) Solve attestation** | The worker's streamed digests, the `ATST` frame, the registry table, clearing and bounds, the memory-budget text with the digest passes' transient pieces (§2.4), its measurement and the allocation checks, tests. No rule-check attestation. | S (~450) | Data boundary; DEL-04-07 memory accounting; no priced file |
+| **(r2b) Derivation and refusals** | `report_package::user_release`: Rust builders of the input manifest, the document base and origin, the minimal renderer input, and the audit and top-level members; the library rules 1-3 of §2.7, including the legacy hanger form, its embedded-JSON parse and lease, in `src-tauri` beside `export_disposition_screen`; the rule-pack and private-class rules; the run-record checks (Record Run's, factored); the derivation vectors and their vitest and Rust parity; `user_release_legacy_hanger_selection_refused`. | M (~1.05k) | **Data boundary** (what may be shared) |
 | **(r2c) Record, renderer, producer, writer, reader, native** | `UserReleaseRecord`; context and blocking codes; notice and rows in HTML and PDF; producer items 8-9, the profile and the handoff rule; writer manifest, content binding, notes and member rule; reader checks, cardinality and refusal; native route-010 branch (§2.5 steps 1-10) with the run-record text; the render-command refusal; the Rust tests of §6. The desktop does not offer it yet. | M-L (~1.3k) | **Persistence** (manifest, member set and reader) and **data boundary** (native admission) |
-| **(r3) Desktop** | Dialog, panel button, menu item (webview and native menu), session wiring and modal guard, the route-010 builders, the early reference check, save-service evidence and the run-record text, receipt display, vitest, native smoke step. | M (~850) | Data boundary (webview evidence) and file output |
+| **(r3) Desktop** | Dialog, panel button, menu item (webview and native menu), session wiring and modal guard, the route-010 builders, the early reference check (the three rules of §2.7), the dialog's reliance line, save-service evidence and the run-record text, receipt display, vitest, native smoke step. | M (~900) | Data boundary (webview evidence) and file output |
 
 The order is (r1), then (r2a) and (r2b) in either order or together, then
 (r2c), then (r3). (r2c) needs (r2a) and (r2b) in its ancestry; (r3) offers the
 user release and needs (r2c). (r2c) and (r3) may land as one PR if review
-prefers. The total is about 4.1k lines, down from about 5.8k for revision 1's
+prefers. The total is about 4.35k lines (4.1k at revision 2; the legacy
+detector, its regressions and the allocation checks add about 250), down from
+about 5.8k for revision 1's
 full scope. The savings are:
 - the builder mirrors (no component, hanger or rule-pack entries, no handoff
   sections, no analysis-record rebuild);
@@ -1527,11 +1698,19 @@ exact text.
   - The `solve_worker.rs` protocol text (:10-25) names `ATST`; the
     `solve_jobs.rs` module text (:1-41) names the attestation table.
   - DEL-04-07 `Design/memory-budget-decision.md` :37, the worker paragraph,
-    names the frame and the digest passes; DEL-04-07 `deliverable.yaml`
+    names the frame, the digest passes and their transient pieces (the key
+    vectors on the open path, one sort scratch, one escaped string; §2.4);
+    DEL-04-07 `deliverable.yaml`
     checks; CI routing for the Tauri sources and tests.
 - **(r2b)**
-  - DEL-08-01 `deliverable.yaml` code paths (`user_release` module) and checks
-    (the derivation vectors); CI routing.
+  - DEL-08-01 `deliverable.yaml` code paths (`user_release` module and the
+    library rules) and checks (the derivation vectors, the legacy-form
+    regressions); CI routing.
+  - `core/library_import/README.md` :45-51 still describes the pre-W-17 hanger
+    provenance as what selection persists. It is changed to name the W-17 form
+    (`library_ref` and the `library:hanger:` string) as current, and the
+    legacy form as one that models saved before `00af9112c0` may still carry,
+    which route 010 refuses (§2.7).
 - **(r2c)**
   - DEL-02-05 `ScopeOfWork.md` :214, the reader (A8).
   - DEL-12-02 REXC-OI-007 :486, the native checks (A7), and CLM-030 :414 (A5;
@@ -1595,16 +1774,18 @@ constraints.
 - **Comparisons** (FR-REP-004), by native derivation from attested results (O-F's
   alternative), and the handoff record set's state/run sections.
 - **The report entries R leaves out:** component and spring-hanger provenance
-  entries and hanger load quantities.
+  entries and dedicated per-object hanger quantity entries. The solve's review
+  rows, hanger rows included, are already in R (§2.6).
 - **The record:** a new `scope.not_carried` value and `record_version` for each
   widening. The reader admits each version it writes.
 
 ## Appendix A. Wording-route drafts (old → new; not applied)
 
-Each Old is copied byte-exact from its file. At revision 2 each was re-checked
-with a Python `count == 1` against the merged tree (`ad79d9d72f`, main
-`c7f52fd12a`). Every Old still matches, at the line given. The four target
-files are unchanged since revision 1's basis `8cec2178c1`. Line numbers are
+Each Old is copied byte-exact from its file. At revision 3 each was re-checked
+with a Python `count == 1` against the branch tree (`dec7c67b7f`, which
+contains main `c7f52fd12a`; main had not moved). Every Old still matches, at
+the line given. The four target files are unchanged since revision 1's basis
+`8cec2178c1`. Line numbers are
 where the Old begins. In an Old or New, `\n` stands for a line break and `\"`
 for a quotation mark inside the quoted text. These drafts go to Codex as exact
 text, then to HELP_HUMAN under the wording grant. Nothing here is applied.
@@ -1616,10 +1797,11 @@ text, then to HELP_HUMAN under the wording grant. Nothing here is applied.
 Every decision these texts rest on is settled. Each New is written to be exactly
 true of scope R once its slice lands.
 
-**Changed since round 2:** A1, A4, A5, A7, A8, A9 and A11. **Unchanged:** A2,
-A3, A6, A10, A12 and A13.
+**Changed since round 3:** A5 (its derivation clause) and A7 (its library
+clause and detector). **Unchanged since round 3:** A1, A2, A3, A4, A6, A8, A9,
+A10, A11, A12 and A13.
 
-**A1. DEL-08-01 `ScopeOfWork.md` :81** (current-implementation paragraph, last sentence; slice r3; depends on: scope R, O-D, O-F, settled) — *changed since round 2*
+**A1. DEL-08-01 `ScopeOfWork.md` :81** (current-implementation paragraph, last sentence; slice r3; depends on: scope R, O-D, O-F, settled)
 - Old: "Every other identity is refused (exact routes with `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`; owner ruling 10A, 2026-10-21)."
 - New: "Every other identity is refused (exact routes with `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`; owner ruling 10A, 2026-10-21). Save Shareable Report Package… saves a reduced package for sharing after the user's per-report release of their own project data (route `DREP-PACKAGE-USER-RELEASE-010`, export context `user_released_report`; DEL-08-01 Design `report-user-release.md`): the release record in `report_context.user_release` and in the package manifest states the user's redistribution right and binds the model reference and document SHA-256, the run's input manifest and the result document, and the manifest copy also binds the hash of every other member; native admission requires every request member to equal its derivation from the bound model, its attested solve, the input manifest, the bound run, the host software identity and the user-release record; the package carries the rendered report, the audit manifest and one result member, and no user-rule outcome, rule-pack reference, run comparison or handoff record; a model that carries a library reference or a rule-pack reference is refused; and the rendered members carry the user-release notice in place of the local-private notice. Without that selection the package is local private as above, and the selection is not stored."
 
@@ -1631,29 +1813,29 @@ A3, A6, A10, A12 and A13.
 - Old: "| Export context vocabulary | `public_report`, `public_example`, `shared_model`, `downstream_tool`, `local_private` |"
 - New: "| Export context vocabulary | `public_report`, `public_example`, `shared_model`, `downstream_tool`, `local_private`, `user_released_report` |"
 
-**A4. DEL-12-02 `ScopeOfWork.md` :189** (CLM-012; a row added after REXC-REQ-015; slice r3; depends on: scope R, O-D, settled) — *changed since round 2*
+**A4. DEL-12-02 `ScopeOfWork.md` :189** (CLM-012; a row added after REXC-REQ-015; slice r3; depends on: scope R, O-D, settled)
 - Old: "> | REXC-REQ-015 | Any unresolved config schema, UI control, export format, public API transport, or physical project package/container choice shall remain `TBD` until resolved through an authorized implementation or architecture decision. | AB-00-04; AB-00-07; OPS-K-AGENT-1 | Review this deliverable for explicit TBD/open issue entries. |"
 - New: the Old line unchanged, followed by this line:
   "> | REXC-REQ-016 | A shareable report may include the user's own private project data only after the user's explicit release of that data for that one report, with the user's statement that they hold the redistribution right (`docs/IP_AND_DATA_BOUNDARY.md` §6). The export context is `user_released_report`; the release is recorded in the report and its package, bound to the model and result it covers, and stated in the report's notice; it is not stored for later reports; a model that carries a library or rule-pack reference is refused, and no user-rule outcome or run comparison is carried; protected, quarantined and rejected content still blocks; every other export context is unchanged. | OPS-K-PRIV-1; `docs/IP_AND_DATA_BOUNDARY.md` §6; owner, 2026-10-24 (W-18 option B); owner, 2026-10-25 (W-18b scope R) | Focused tests: the release flag cannot enable export in another context; redaction is unchanged in every other context; the record is visible in the report and the package; an unchanged record with a mismatched bound model, result or package identity, or with member content other than the content it binds, is refused; a model with a library or rule-pack reference is refused. |"
 
-**A5. DEL-12-02 `ScopeOfWork.md` :414** (CLM-030, last sentence; slice r2c; depends on: scope R, O-D, settled) — *changed since round 2*
+**A5. DEL-12-02 `ScopeOfWork.md` :414** (CLM-030, last sentence; slice r2c; depends on: scope R, O-D, settled) — *changed since round 3*
 - Note: CLM-030 states context policy, but its last clause ("the release is recorded in the report") is true only once the recording path exists, so A5 is applied in (r2c), not with the vocabulary in (r1).
 - Old: "`downstream_tool` may need values for technical continuity, but the adapter must\n> still preserve privacy, provenance, unit, and diagnostic checks."
-- New: "`downstream_tool` may need values for technical continuity, but the adapter must\n> still preserve privacy, provenance, unit, and diagnostic checks.\n> `user_released_report` carries the user's own project data in one report only\n> after the user's explicit release of it, with their statement of the\n> redistribution right, and only as values derived from the bound model, its\n> attested solve and its run; a model that carries a library or rule-pack\n> reference is refused, no user-rule outcome or run comparison is carried,\n> content not derived from them is refused, protected, quarantined and\n> rejected content still blocks, and the release is recorded in the report."
+- New: "`downstream_tool` may need values for technical continuity, but the adapter must\n> still preserve privacy, provenance, unit, and diagnostic checks.\n> `user_released_report` carries the user's own project data in one report only\n> after the user's explicit release of it, with their statement of the\n> redistribution right, and only as values derived from the bound model, its\n> attested solve and its run; a model that carries a library or rule-pack\n> reference is refused, no user-rule outcome or run comparison is carried,\n> content outside the permitted source-bound projection is refused, protected,\n> quarantined and rejected content still blocks, and the release is recorded\n> in the report."
 
 **A6. DEL-12-02 `ScopeOfWork.md` :481** (REXC-OI-002; slice r3; depends on: none)
 - Old: "Current desktop/local CLI wrappers own fixed route context and explicit local-private intent."
 - New: "Current desktop/local CLI wrappers own fixed route context and explicit local-private intent. The desktop's per-report user release (`DREP-PACKAGE-USER-RELEASE-010`, `user_released_report`) is selected in its own dialog for one save and is not stored."
 
-**A7. DEL-12-02 `ScopeOfWork.md` :486** (REXC-OI-007; slice r2c; depends on: scope R, O-D, O-F, settled) — *changed since round 2*
+**A7. DEL-12-02 `ScopeOfWork.md` :486** (REXC-OI-007; slice r2c; depends on: scope R, O-D, O-F, settled) — *changed since round 3*
 - Old: "before the save dialog; caller evidence alone admits nothing."
-- New: "before the save dialog; caller evidence alone admits nothing. On its user-release route (`DREP-PACKAGE-USER-RELEASE-010`) it admits the `user_released_report` context only with a release record whose bound model, input-manifest and result-document identities equal the texts and members it received, for a result this session's solver produced for that model, and only when every request member equals its own derivation from the bound model, its attested solve, the input manifest, the bound run, the host software identity and the user-release record; it refuses a record on the local-private route, a rule-pack reference, a user-rule outcome, a comparison section, a handoff record set and any request object with a non-project private class. It also refuses every model that carries a library reference (a `library_ref` object at any depth, or a string holding a library provenance reference), so no value the model records as taken from a library reaches result rows, annotations, diagnostics, witnesses or contract evidence."
+- New: "before the save dialog; caller evidence alone admits nothing. On its user-release route (`DREP-PACKAGE-USER-RELEASE-010`) it admits the `user_released_report` context only with a release record whose bound model, input-manifest and result-document identities equal the texts and members it received, for a result this session's solver produced for that model, and only when every request member equals its own derivation from the bound model, its attested solve, the input manifest, the bound run, the host software identity and the user-release record; it refuses a record on the local-private route, a rule-pack reference, a user-rule outcome, a comparison section, a handoff record set and any request object with a non-project private class. It also refuses every model that carries a library reference: a `library_ref` object at any depth; a string value that contains `library:material:`, `library:section:`, `library:component:` or `library:hanger:`; or a string value that holds the legacy hanger selection evidence, being one that contains `user_imported_hanger_selection`, or one that, trimmed of JSON whitespace, begins with `{` and parses as a JSON object that has a `library_kind`, `library_id`, `library_metadata` or `record_snapshot` member or within which a `library_ref` object or a string containing one of those five texts occurs. So no value with a detected library origin reaches result rows, annotations, diagnostics, witnesses or contract evidence. For a value without a detected library origin, the release relies on the user's statement of their redistribution right."
 
-**A8. DEL-02-05 `ScopeOfWork.md` :214** (reader; slice r2c; depends on: O-A, O-G, settled) — *changed since round 2*
+**A8. DEL-02-05 `ScopeOfWork.md` :214** (reader; slice r2c; depends on: O-A, O-G, settled)
 - Old: "for an unblocked package, the admitted identity plus equality of the audit-manifest id and model-hash value;"
 - New: "for an unblocked package, the admitted identity plus equality of the audit-manifest id and model-hash value; when the manifest records a user release, it checks the record's form, exactly one result member and no state/comparison/handoff member, the equality of its bound model reference and hash, input-manifest hash, result-document identity, report and package identities with the manifest, audit and result members, and the member hashes the record binds, and refuses a record in a blocked package or under another export profile (equality checks: they establish consistency between the record and the members, not authentic user consent or producer origin);"
 
-**A9. DEL-12-02 `ScopeOfWork.md` :470** (CLM-036, a row added after "Local private report"; slice r3; depends on: scope R, settled) — *changed since round 2*
+**A9. DEL-12-02 `ScopeOfWork.md` :470** (CLM-036, a row added after "Local private report"; slice r3; depends on: scope R, settled)
 - Old: "> | Local private report | Unredacted values only after explicit local-private export selection and warning/audit record | Silent unredacted export to a shareable/public location |"
 - New: the Old line unchanged, followed by this line:
   "> | User-released report | The user's own project values in one report after the explicit per-report release, derived natively from the bound model, its attested solve and its run, recorded in the report and stated in its notice; no user-rule outcome, rule-pack reference, library reference, run comparison or handoff record | An unchanged user-release record whose bound identities or member hashes do not match this report, a selection remembered for later reports, or content outside the permitted source-bound projection |"
@@ -1662,7 +1844,7 @@ A3, A6, A10, A12 and A13.
 - Old: "- **Reports are local-private only, and pressure-free only.**"
 - New: "- **Reports are pressure-free only. Shareable packages require your per-report statement of rights to share your own project data.**"
 
-**A11. User guide `docs/user_guide/index.md` :109** (a bullet added; slice r3; depends on: scope R, O-D, O-F, settled) — *changed since round 2*
+**A11. User guide `docs/user_guide/index.md` :109** (a bullet added; slice r3; depends on: scope R, O-D, O-F, settled)
 - Old: "  - Save Report Package… saves a local private package for a pressure-free\n    result after its own local-private selection; exact-route results are\n    refused with `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`."
 - New: the Old bullet unchanged, followed by:
   "\n  - Save Shareable Report Package… saves a reduced package for sharing after\n    you tick, in its dialog, \"I hold the right to share this project's data,\n    and I release it in this report for sharing.\" The release covers that one\n    report. Its documents carry a \"USER-RELEASED REPORT\" notice naming the\n    model and result it covers. The package carries the model summary, load\n    cases and results of this session's solve. It carries no rule-pack\n    reference, user-rule outcome or run comparison. It needs a result solved\n    in this session. A model with a library reference, such as a material,\n    section, component or hanger applied from a library, or with a rule-pack\n    reference, is refused. The selection applies only to this save."
