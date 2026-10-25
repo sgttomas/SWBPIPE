@@ -35,10 +35,10 @@ unchanged: no new slot renames or re-keys an entity.
   document, version 0.6.0.
 - **Rust decoding.** `PreviewModel` (`core/product_physics/src/lib.rs:209`,
   wire form `:249`) decodes it.
-  - The node, pipe, support, material and component records ignore unknown
-    keys. The top level, load cases, primitive loads and combinations did too
-    at this design's basis; they are closed since the silent-drop guard (§2,
-    "Strict solve inputs").
+  - The top level, load cases, primitive loads, combinations and the node,
+    pipe, section, support, material and component records ignored unknown
+    keys at this design's basis. All are closed since the silent-drop guard
+    and its nested-record closure (§2, "Strict solve inputs").
   - The load/reference-state group (`case_state/input.rs:1-77`) and the pressure
     contract (`pressure_runtime.rs:57,65,79`) are `deny_unknown_fields`.
   - Section `provenance` is a `serde_json::Value` (`lib.rs:402`), so it may be a
@@ -84,14 +84,21 @@ of the new members is read by the solve.
 **The solve decodes the whole document.** There is no projection to solve
 fields.
 - **Strict solve inputs.** `PreviewModelWire`, `PreviewLoadCase`,
-  `PreviewPrimitiveLoad` and `PreviewCombination` refuse unknown keys
-  (`deny_unknown_fields`). Every member a document may carry is declared on them,
-  including the desktop-only `data_boundary` and `diagnostics` on the root and
-  `kind`, `label` and `status` on load cases.
+  `PreviewPrimitiveLoad`, `PreviewCombination`, the node, pipe segment (with its
+  section), section, support, component and material records, and their member
+  records and quantities refuse unknown keys (`deny_unknown_fields`; DEL-04-07
+  `pressure-contract.md`, "Pressure-free input closure"). Every member a
+  document may carry is declared on them, including the desktop-only
+  `data_boundary` and `diagnostics` on the root, `kind`, `label` and `status` on
+  load cases and `label` on nodes, pipe segments, supports and materials.
 - **0.7.0 declares,** as accepted and unread:
   - top-level `lines`, `unresolved_assumptions`, `constraints`,
     `equipment_interfaces` and `rule_pack_refs`;
-  - `tags` and `notes` on load cases and combinations.
+  - `tags` and `notes` on load cases, combinations, nodes, pipe segments,
+    sections, supports, components and materials;
+  - `provenance_record` on sections, supports, components and materials, a
+    support's `boundary_association` and `properties`, and a component's
+    `completeness`.
 - **Test.** A 0.7.0 document carrying every new member solves end to end, with
   results equal to the same document without them.
 

@@ -121,28 +121,61 @@ unloaded model.
 
 ## Pressure-free input closure
 
-Authored input on the pressure-free route's model root, load cases, primitive
-loads and combinations is never dropped silently either (Agent 0, 2026-10-23,
-as above). Those records are closed, and the combination reader names every
-row it does not publish. The other model records are not yet closed (below).
+Authored input on the pressure-free route's model records is never dropped
+silently either (Agent 0, 2026-10-23, as above). Every model record is closed,
+and so is every material record of the request; the combination reader names
+every row it does not publish.
 
-- **Closed records:** the model root (`PreviewModelWire`), a load case with
-  its `modulus_basis_temperature` and `equivalent_static` inputs (seismic,
-  wind and its exposed spans), a primitive load with its target and
-  magnitude, a combination and a combination term deny unknown fields. The
-  value entry scans the actual request first, before any route, and refuses
-  an undeclared key with `UNKNOWN_MODEL_FIELD`, naming each key with its
-  record (by id) and path, at most eight named and the rest counted; nothing
-  is solved. Every typed reader refuses the same keys.
+- **Closed records:** these deny unknown fields:
+  - the model root (`PreviewModelWire`);
+  - a load case, with its `modulus_basis_temperature` and `equivalent_static`
+    inputs (seismic, wind and its exposed spans);
+  - a primitive load, with its target and magnitude;
+  - a combination and a combination term;
+  - a node, with its position;
+  - a pipe segment, with its section, the section's quantities and its
+    `y_reference`;
+  - a section of the library, with each property's quantity;
+  - a support, with its stiffness and value, its hanger (with the hanger's
+    stiffness and quantities) and its nonlinear input (with its quantities
+    and `normal_reaction_source`);
+  - a component, with its geometry (quantities and `center_of_gravity`), its
+    modifiers' quantities, its mechanics interface and the objective
+    connector's own members;
+  - a material of the model or of the request, with its quantities and its
+    temperature points and their quantities.
+
+  The value entry scans the actual request first, before any route, and
+  refuses an undeclared key with `UNKNOWN_MODEL_FIELD`. It names each key with
+  its record (by id, or by index without one) and path, for example
+  ``unknown field `mill_tolerence` in the section of pipe segment `pipe:P-110`
+  (model.pipe_segments[1].section)``. At most eight keys are named and the rest
+  counted; nothing is solved. Every typed reader refuses the same keys.
+  Quantities and vectors are closed where these records carry them; the
+  pressure, case-state and settings records keep their own readers. The
+  material record's members are declared on a closed record in place of the
+  former flattened `MaterialInput`; the wire is unchanged. Every committed
+  material record parses to the same value as before:
+  `material_records_parse_as_before` in `tests/silent_drop_guard_runtime.rs`
+  writes each record's parsed model and request value, compared across the two
+  wires. The objective connector stays an authored value read by key. Its own
+  members are checked against its record's key list; its member records are
+  the connector decoder's, on the exact route.
 - **Declared and ignored:** members a document may carry that the solve does
   not read are declared on the closed records and accepted unread: on the
   root `data_boundary`, `diagnostics` and model document 0.7.0's `lines`,
   `unresolved_assumptions`, `constraints`, `equipment_interfaces` and
   `rule_pack_refs`; on a load case `kind`, `label`, `status`, `tags` and
-  `notes`; on a combination `tags` and `notes`. `model_settings` is a typed
+  `notes`; on a combination `tags` and `notes`; on a node and a pipe segment
+  `label`, `tags` and `notes`; on a section `tags`, `notes` and
+  `provenance_record`; on a support `label`, `boundary_association`,
+  `properties`, `tags`, `notes` and `provenance_record`; on a component
+  `completeness`, `tags`, `notes` and `provenance_record`; on a material
+  `label`, `tags`, `notes` and `provenance_record`. `model_settings` is a typed
   member. Each closed record's accepted key set is exactly its record's key
   list in `schemas/model.schema.yaml` (0.7.0), bound by `model_fields.rs`'s
-  key test.
+  key tests, which also bind the scan's quantity and vector members to the
+  schema's.
 - **Combinations:** a `mechanics` term naming a load case twice, or a
   `range_envelope` naming an operand twice, is refused with the blocking
   `LOAD_COMBINATION_DUPLICATE_TERM`, once per repeated case at its second
@@ -153,18 +186,22 @@ row it does not publish. The other model records are not yet closed (below).
   whole, are withheld under one `LOAD_COMBINATION_ROW_WITHHELD` warning per
   combination, naming up to eight; a support's group publishes all its rows
   or none.
-- **Still open:** nodes, pipe segments and their sections, supports,
-  components and materials are not closed records. An unknown or misspelled
-  key there is still ignored without a finding; for example a pipe section's
-  `mill_tolerence` (for `mill_tolerance`) solves as if the member were absent.
-  This was so before this change too (independent review of #1573).
+- **Outside this closure:** the request's own members besides its materials,
+  and the project record. The records of the pressure contract, the
+  load/reference-state group (a material's `expansion_laws` among them) and
+  `model_settings` keep their own readers; the scan does not name their keys. The objective connector's member records (its
+  ends, stiffness, calibration and the rest) are read by key on the exact
+  route; an unknown key there is not checked.
 
 Evidence: `core/product_physics/tests/silent_drop_guard_runtime.rs` and
 `src/silent_drop_unit_tests.rs`, both solver modes; the annotated 0.7.0
 document (`tests/annotated_model_document_solve.rs`) solves byte-identically
-with and without its declared members. Priced change: DEL-04-08
+with and without its declared members, and the demo does with its nested
+records' declared members varied or removed. The desktop refuses a hand-edited
+nested key at solve with that reason. Priced changes: DEL-04-08
 [retained-pricing-rules.md](../../DEL-04-08/Design/retained-pricing-rules.md)
-§8.19.
+§8.19, and §8.22 for the nested records (measured, not registered; the tree is
+coefficient-identical to §8.20's).
 
 ## Imposed displacement on the pressure-free route
 
