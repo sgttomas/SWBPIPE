@@ -121,17 +121,20 @@ and is validated, by the case's region membership, as lying in none of its
 pressure regions. Each recovered operand value is recorded in the
 combination's evidence with its provenance, `pressure_free_operand_recovery`.
 
-Every other absence is a missing source. This covers:
+Every other absence of an ordinary row (not a support row) is a missing
+source. This covers:
 - a toroidal domain withheld (PP `u4b_rows.rs` ~313-339);
 - a recovery failure (PP `lib.rs` ~12719-12731, ~12835-12843);
-- a span replaced by a connector;
-- a withheld support group.
+- a span replaced by a connector.
 
-As on PF (`preview_physics.rs` ~936-979), the affected row is omitted under
-`LOAD_COMBINATION_SOURCE_RESULT_MISSING` alone, and the other rows publish.
-`LOAD_COMBINATION_ROW_WITHHELD` names the rows withheld for other reasons,
-naming each row or group and its reason, as #1573 preserves
-(`pressure-contract.md` ~151-155). Those reasons are:
+As on PF (`preview_physics.rs` ~936-979), the affected ordinary row is omitted
+under `LOAD_COMBINATION_SOURCE_RESULT_MISSING` alone, and the other rows
+publish.
+
+`LOAD_COMBINATION_ROW_WITHHELD` handles every other withheld row or group. As
+#1573 preserves (`pressure-contract.md` ~151-155), it is one bounded warning
+per combination, naming at most eight rows or groups with their reasons.
+Those reasons are:
 - a support group that does not publish whole, because an operand lacks one
   of its components or the whole group. As on PF, the group publishes whole or
   not at all (`preview_physics.rs` ~987-1049).
@@ -170,8 +173,11 @@ In precedence order:
      in the null space with K·q_ref = 0;
    - the factors fail the shared unit-sum rule. Under that rule, the exact
      dyadic sum Σf of the represented binary64 factors must satisfy
-     |Σf − 1| ≤ 64ε. The comparison is exact, with no Σ|f| scaling, and any
-     non-finite factor is refused.
+     |Σf − 1| ≤ 64ε. Here ε = `f64::EPSILON` = 2^−52, the constant PF uses
+     now, so 64ε = 2^−46, which is represented exactly. The comparison is
+     exact and inclusive. It is made on the exact accumulated difference
+     Σf − 1, before any rounding of the sum or the difference. There is no
+     Σ|f| scaling, and any non-finite factor is refused.
 
    **Why a unit sum.** A connector's action is K(q − q_ref) (PP `lib.rs`
    ~4516-4520; rod at `joint.rs` ~988). Summing cases sums their reference
@@ -343,9 +349,10 @@ axial compliances.
   carrying A's and B's loads together, in every range mode.
 - **Connectors and rods.**
   - Connectors with nonzero installed references. These pass: 1; 0.3 + 0.7;
-    [1.0, 2^−54], whose exact sum is not 1, but which is within 64ε; a sum
-    within 64ε of 1. These are withheld: 2, 0, 2^53 + (−2^53), and a sum
-    just outside 64ε. A non-finite factor is refused.
+    [1.0, 2^−54], whose exact sum is not 1, but which is within 64ε; the
+    inclusive boundaries [1, 2^−46] and [1, −2^−46]. These are withheld: 2, 0, 2^53 + (−2^53),
+    and values just outside the boundaries, [1, 2^−46, 2^−100] and
+    [1, −2^−46, −2^−100]. Rounding the sum first would hide that excess. A non-finite factor is refused.
   - A null-space q_ref.
   - Two distinct rods, whose rows are withheld by name.
 - **Arcs.** A non-default case with a pressurized realized arc.
