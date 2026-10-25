@@ -278,6 +278,11 @@ keys, including `angle` (§5); the rest still applies.
   - Undo restores the previous map.
   - Every code in the §2.7 table is reached by at least one test.
   - A legacy `C` temperature changes to `degC` with `before: "C"`.
+  - Through an atomic batch, a unit change applies, and a later failing
+    operation rolls it back with the document bytes unchanged.
+  - The change-kind exemption from the generic shape check reaches no other
+    path: a wrong operation kind, target type or field path is refused with
+    nothing applied.
 - **Through the apply command (src-tauri).** A force-key change applied through
   the apply command changes `project.units.force` and nothing else, and the
   same model solves to the same rows.
@@ -286,6 +291,11 @@ keys, including `angle` (§5); the rest still applies.
   with nodes, an offer otherwise); a refusal shown with nothing queued; a
   second queued change for one key refused; undo and redo through the
   checkpoint.
+- **Vitest, Project page without the map.** The property inspector's project
+  view renders a document with no `project.units`, or with keys missing, with
+  and without nodes. It shows the notices, offers the fix with
+  `before: not_present`, and leaves the document unchanged. A model change
+  during validation queues nothing and asks for a re-queue.
 - **Applier, angle.** A rotational imposed displacement is accepted on a new
   blank document.
 - **e2e.** Specs that click "New blank" gain the dialog's Create click.
