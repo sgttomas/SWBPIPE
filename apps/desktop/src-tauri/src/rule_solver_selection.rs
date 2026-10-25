@@ -15,7 +15,9 @@
 //!   row whose `basis_ref` equals the basis, whose `kind` and `entity_ref`
 //!   equal the selector's, and whose `metadata.location`, `metadata.component`,
 //!   section basis and tie rod equal the selector's optional members, an
-//!   absent member matching only a row without it. No row:
+//!   absent member matching only a row without it. A tie-rod row's rod is the
+//!   exact id its connector record holds ([`row_tie_rod`]), never decoded
+//!   from the row id. No row:
 //!   `RULE_SOLVER_RESULT_ROW_MISSING`; more than one:
 //!   `RULE_SOLVER_RESULT_ROW_AMBIGUOUS`. Neither binds; neither is a pass.
 //!   Rows without `basis_ref` are never selected.
@@ -81,6 +83,44 @@ fn is_tie_rod_row_id(id: &str, case: &str, tail: &str) -> bool {
         || id.strip_prefix(&format!("result:loadcase:{}:", stable_suffix(case))) == Some(tail)
 }
 
+/// The exact rod id a `connector_tie_rod_force_v1` row on `basis` belongs to:
+/// the one `tie_rods[].id` of the row's connector record
+/// (`contract_evidence.connector[]` whose `component_id` is the row's
+/// `entity_ref`) whose encoded row id the row carries, as the reader binds it
+/// (`connector_evidence.rs` `validate`). The row id encodes a rod id lossily
+/// (`stable_suffix` maps `:` to `-`), so the rod is taken from the record,
+/// never from the row id: `None` when the envelope has no record or more than
+/// one for the connector, or when no rod or more than one of the record
+/// encodes to the row's id. Such a row matches no `tie_rod` selector (§2.5).
+pub(crate) fn row_tie_rod<'a>(
+    envelope: &'a Value,
+    row: &Value,
+    basis: &BasisRef,
+) -> Option<&'a str> {
+    let entity = row.get("entity_ref").and_then(Value::as_str)?;
+    let id = row.get("id").and_then(Value::as_str)?;
+    let records: Vec<&'a Value> = envelope
+        .pointer("/contract_evidence/connector")
+        .and_then(Value::as_array)?
+        .iter()
+        .filter(|record| record.get("component_id").and_then(Value::as_str) == Some(entity))
+        .collect();
+    let [record] = records.as_slice() else {
+        return None;
+    };
+    let bound: Vec<&'a str> = record
+        .get("tie_rods")
+        .and_then(Value::as_array)?
+        .iter()
+        .filter_map(|rod| rod.get("id").and_then(Value::as_str))
+        .filter(|rod| is_tie_rod_row_id(id, &basis.ref_id, &tie_rod_row_tail(entity, rod)))
+        .collect();
+    match bound.as_slice() {
+        [rod] => Some(*rod),
+        _ => None,
+    }
+}
+
 // --- Section basis -----------------------------------------------------------
 
 /// A row's section basis, read from the `section_basis=` token of
@@ -117,8 +157,16 @@ fn metadata_str<'a>(row: &'a Value, key: &str) -> Option<&'a str> {
 
 /// Whether `row` is the selector's row on `basis` (design §2.5). Equality is
 /// exact string equality on every member; an absent optional member matches
-/// only a row without it.
-pub(crate) fn row_matches(selector: &SolverResultSelector, basis: &BasisRef, row: &Value) -> bool {
+/// only a row without it. `row_rod` is the rod the row's connector record
+/// binds it to ([`row_tie_rod`]); a selector's `tie_rod` must equal it
+/// exactly, so an alias that merely encodes to the same row id, or a rod the
+/// record no longer holds, matches nothing.
+pub(crate) fn row_matches(
+    selector: &SolverResultSelector,
+    basis: &BasisRef,
+    row: &Value,
+    row_rod: Option<&str>,
+) -> bool {
     if !basis.names_row(row) {
         return false;
     }
@@ -142,23 +190,21 @@ pub(crate) fn row_matches(selector: &SolverResultSelector, basis: &BasisRef, row
     match (&selector.tie_rod, kind == Some(TIE_ROD_KIND)) {
         (None, rod_row) => !rod_row,
         (Some(_), false) => false,
-        (Some(rod), true) => is_tie_rod_row_id(
-            row.get("id").and_then(Value::as_str).unwrap_or_default(),
-            &basis.ref_id,
-            &tie_rod_row_tail(&selector.entity_ref, rod),
-        ),
+        (Some(rod), true) => row_rod == Some(rod.as_str()),
     }
 }
 
-/// The envelope's basis-bearing rows indexed once by (basis, kind, entity).
+/// The envelope's basis-bearing rows indexed once by (basis, kind, entity),
+/// each tie-rod row with the rod its connector record binds it to.
 pub(crate) struct RowIndex<'a> {
-    rows: HashMap<(BasisRef, &'a str, &'a str), Vec<&'a Value>>,
+    rows: HashMap<(BasisRef, &'a str, &'a str), Vec<(&'a Value, Option<&'a str>)>>,
     solved: HashSet<BasisRef>,
 }
 
 impl<'a> RowIndex<'a> {
     pub(crate) fn new(envelope: &'a Value) -> Self {
-        let mut rows: HashMap<(BasisRef, &'a str, &'a str), Vec<&'a Value>> = HashMap::new();
+        let mut rows: HashMap<(BasisRef, &'a str, &'a str), Vec<(&'a Value, Option<&'a str>)>> =
+            HashMap::new();
         let mut solved = HashSet::new();
         for row in envelope
             .get("results")
@@ -176,7 +222,14 @@ impl<'a> RowIndex<'a> {
                 .get("entity_ref")
                 .and_then(Value::as_str)
                 .unwrap_or_default();
-            rows.entry((basis, kind, entity)).or_default().push(row);
+            let rod = if kind == TIE_ROD_KIND {
+                row_tie_rod(envelope, row, &basis)
+            } else {
+                None
+            };
+            rows.entry((basis, kind, entity))
+                .or_default()
+                .push((row, rod));
         }
         Self { rows, solved }
     }
@@ -200,8 +253,8 @@ impl<'a> RowIndex<'a> {
             ))
             .map(|rows| {
                 rows.iter()
-                    .copied()
-                    .filter(|row| row_matches(selector, basis, row))
+                    .filter(|(row, rod)| row_matches(selector, basis, row, *rod))
+                    .map(|(row, _)| *row)
                     .collect()
             })
             .unwrap_or_default()
@@ -405,8 +458,9 @@ pub(crate) fn resolve_rule_pack_solver_inputs(
 
 /// The selector that names `row` (test support): its kind, entity, location,
 /// component, section basis and, for a rod row, the rod of its connector's
-/// `tie_rods` record that the reader binds it to. `None` for a row without a
-/// basis, a malformed section-basis token, or a rod row no record rod binds.
+/// `tie_rods` record that the reader binds it to ([`row_tie_rod`]). `None`
+/// for a row without a basis, a malformed section-basis token, or a rod row
+/// no single record rod binds.
 #[cfg(test)]
 pub(crate) fn selector_for_row(envelope: &Value, row: &Value) -> Option<SolverResultSelector> {
     let basis = row.get("basis_ref").and_then(BasisRef::from_value)?;
@@ -418,24 +472,7 @@ pub(crate) fn selector_for_row(envelope: &Value, row: &Value) -> Option<SolverRe
         RowSectionBasis::Malformed => return None,
     };
     let tie_rod = if kind == TIE_ROD_KIND {
-        let id = row.get("id").and_then(Value::as_str)?;
-        let rod = envelope
-            .pointer("/contract_evidence/connector")
-            .and_then(Value::as_array)?
-            .iter()
-            .filter(|record| {
-                record.get("component_id").and_then(Value::as_str) == Some(entity.as_str())
-            })
-            .flat_map(|record| {
-                record
-                    .get("tie_rods")
-                    .and_then(Value::as_array)
-                    .into_iter()
-                    .flatten()
-            })
-            .filter_map(|rod| rod.get("id").and_then(Value::as_str))
-            .find(|rod| is_tie_rod_row_id(id, &basis.ref_id, &tie_rod_row_tail(&entity, rod)))?;
-        Some(rod.to_string())
+        Some(row_tie_rod(envelope, row, &basis)?.to_string())
     } else {
         None
     };

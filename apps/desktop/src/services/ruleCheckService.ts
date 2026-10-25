@@ -303,6 +303,9 @@ export type CheckBasisRequirement = {
   check_id: string;
   category_ref: string;
   bases: RequiredLoadCaseRequirement[];
+  /** The required inputs the check resolves (its `required_input_refs[].ref_id`),
+   * the inputs the runner binds for it on each of its bases. */
+  input_refs: string[];
 };
 
 export type RuleCheckBindingPlan = {
@@ -467,10 +470,28 @@ export function deriveRuleCheckBindingPlan(document: RulePackDocument): RuleChec
           return declared.length === 1 ? declared : [];
         })
       : [];
-    plan.checks.push({ check_id: checkId, category_ref: category, bases });
+    const inputRefs = asArray(item.required_input_refs).map((reference) => asString(asRecord(reference)?.ref_id)).filter((id) => id !== "");
+    plan.checks.push({ check_id: checkId, category_ref: category, bases, input_refs: inputRefs });
   }
 
   return plan;
+}
+
+/** The bases on which the run binds `inputId`: the bases of every check that
+ * resolves it (`required_input_refs`), in check order and then mapping order,
+ * each once. The runner reads an input's row only for those checks on those
+ * bases (rule_check_runner `run_one_check`), so a basis no such check has is
+ * never one the input must resolve on. Empty when no check uses the input. */
+export function solverInputBases(plan: RuleCheckBindingPlan, inputId: string): RequiredLoadCaseRequirement[] {
+  const bases: RequiredLoadCaseRequirement[] = [];
+  for (const check of plan.checks) {
+    if (!check.input_refs.includes(inputId)) continue;
+    for (const basis of check.bases) {
+      if (!basis.basis_ref || bases.some((seen) => seen.basis_ref && sameBasis(seen.basis_ref, basis.basis_ref!))) continue;
+      bases.push(basis);
+    }
+  }
+  return bases;
 }
 
 // --- Row selection (display only; mirrors the run command) ------------------
@@ -518,8 +539,31 @@ function sameBasis(left: RuleCheckBasisRef | null, right: RuleCheckBasisRef): bo
   return left !== null && left.ref_type === right.ref_type && left.ref_id === right.ref_id;
 }
 
-/** Whether `row` is the selector's row on `basis` (design §2.5). */
-export function solverSelectorMatchesRow(selector: SolverResultRef, basis: RuleCheckBasisRef, row: ResultRow): boolean {
+/** The solved result a selection reads: its rows and its connector evidence. */
+export type SolverSelectionSource = Pick<MechanicsResult, "results" | "contract_evidence">;
+
+/** The exact rod id a tie-rod row on `basis` belongs to (rule_solver_selection.rs
+ * `row_tie_rod`): the one `tie_rods[].id` of the row's one connector record whose
+ * encoded row id the row carries. The row id encodes a rod id lossily (`:` to
+ * `-`), so the rod comes from the record, never from the row id: undefined when
+ * the result has no record or several for the connector, or no rod or several
+ * of the record encode to the row's id. Such a row matches no `tie_rod` selector. */
+export function rowTieRod(source: Pick<MechanicsResult, "contract_evidence"> | null | undefined, row: ResultRow, basis: RuleCheckBasisRef): string | undefined {
+  if (!row.entity_ref || typeof row.id !== "string") return undefined;
+  const records = asArray((source?.contract_evidence as Record<string, unknown> | undefined)?.connector)
+    .map(asRecord)
+    .filter((record) => record?.component_id === row.entity_ref);
+  if (records.length !== 1) return undefined;
+  const bound = asArray(records[0]?.tie_rods)
+    .map((entry) => asRecord(entry)?.id)
+    .filter((id): id is string => typeof id === "string" && isTieRodRowId(row.id, basis.ref_id, tieRodRowTail(row.entity_ref, id)));
+  return bound.length === 1 ? bound[0] : undefined;
+}
+
+/** Whether `row` of `source` is the selector's row on `basis` (design §2.5). A
+ * selector's `tie_rod` must equal, exactly, the rod the row's connector record
+ * binds it to (`rowTieRod`). */
+export function solverSelectorMatchesRow(source: Pick<MechanicsResult, "contract_evidence"> | null | undefined, selector: SolverResultRef, basis: RuleCheckBasisRef, row: ResultRow): boolean {
   if (!sameBasis(readBasisRef(row.basis_ref), basis)) return false;
   if (row.kind !== selector.result_kind || row.entity_ref !== selector.entity_ref) return false;
   if (metadataString(row, "location") !== selector.location || metadataString(row, "component") !== selector.component) return false;
@@ -530,18 +574,18 @@ export function solverSelectorMatchesRow(selector: SolverResultRef, basis: RuleC
   if (!sectionMatches) return false;
   const rodRow = row.kind === TIE_ROD_KIND;
   if (selector.tie_rod === undefined) return !rodRow;
-  return rodRow && isTieRodRowId(row.id, basis.ref_id, tieRodRowTail(selector.entity_ref, selector.tie_rod));
+  return rodRow && rowTieRod(source, row, basis) === selector.tie_rod;
 }
 
-/** Every row the selector matches on `basis`, in envelope order. */
-export function selectSolverRows(rows: readonly ResultRow[] | null | undefined, selector: SolverResultRef, basis: RuleCheckBasisRef): ResultRow[] {
-  return (rows ?? []).filter((row) => solverSelectorMatchesRow(selector, basis, row));
+/** Every row of `source` the selector matches on `basis`, in envelope order. */
+export function selectSolverRows(source: SolverSelectionSource | null | undefined, selector: SolverResultRef, basis: RuleCheckBasisRef): ResultRow[] {
+  return (source?.results ?? []).filter((row) => solverSelectorMatchesRow(source, selector, basis, row));
 }
 
 /** The selector that names `row` within its basis (the authoring offer from a
  * current solved result), or undefined for a row without basis_ref, with a
- * malformed section-basis token, or a rod row whose rod the result's connector
- * evidence does not name. */
+ * malformed section-basis token, or a rod row no single rod of the result's
+ * connector evidence binds (`rowTieRod`). */
 export function solverSelectorForRow(source: Pick<MechanicsResult, "contract_evidence">, row: ResultRow): SolverResultRef | undefined {
   const basis = readBasisRef(row.basis_ref);
   if (!basis || !row.kind || !row.entity_ref) return undefined;
@@ -554,13 +598,7 @@ export function solverSelectorForRow(source: Pick<MechanicsResult, "contract_evi
   if (component !== undefined) selector.component = component;
   if (section.kind === "named") selector.section_basis = section.basis;
   if (row.kind === TIE_ROD_KIND) {
-    const connectors = asArray((source.contract_evidence as Record<string, unknown> | undefined)?.connector);
-    const rod = connectors
-      .map(asRecord)
-      .filter((record) => record?.component_id === row.entity_ref)
-      .flatMap((record) => asArray(record?.tie_rods))
-      .map((entry) => asString(asRecord(entry)?.id))
-      .find((id) => id && isTieRodRowId(row.id, basis.ref_id, tieRodRowTail(row.entity_ref, id)));
+    const rod = rowTieRod(source, row, basis);
     if (!rod) return undefined;
     selector.tie_rod = rod;
   }
@@ -590,21 +628,23 @@ export type SolverSelectorResolution =
   | { status: "no_result_rows" }
   | { status: "resolves" | "incomplete"; bases: SolverSelectorBasisResolution[] };
 
-/** Which row the selector names on each of the pack's required load cases in
- * the current solved result: one row (resolves), none (row_missing, or
- * basis_unsolved when the result publishes nothing on that basis) or several
- * (row_ambiguous). Only `resolves` on every basis reads `resolves`. */
+/** Which row the selector names on each of the given required load cases (an
+ * input's bases, `solverInputBases`) in the current solved result: one row
+ * (resolves), none (row_missing, or basis_unsolved when the result publishes
+ * nothing on that basis) or several (row_ambiguous). Only `resolves` on every
+ * basis, with at least one basis, reads `resolves`. */
 export function resolveSolverSelector(
-  resultRows: readonly ResultRow[] | null | undefined,
+  source: SolverSelectionSource | null | undefined,
   selector: SolverResultRef,
   requiredLoadCases: readonly RequiredLoadCaseRequirement[]
 ): SolverSelectorResolution {
+  const resultRows = source?.results;
   if (!resultRows || resultRows.length === 0) return { status: "no_result_rows" };
   const bases: SolverSelectorBasisResolution[] = [];
   for (const loadCase of requiredLoadCases) {
     const basis = loadCase.basis_ref;
     if (!basis) continue;
-    const rows = selectSolverRows(resultRows, selector, basis);
+    const rows = selectSolverRows(source, selector, basis);
     const solved = resultRows.some((row) => sameBasis(readBasisRef(row.basis_ref), basis));
     const status: SolverSelectorBasisStatus = rows.length === 1
       ? "resolves"
@@ -633,18 +673,16 @@ export function ruleBindingPrecheck(
   if (!source || !plan) return [];
   // An unreadable source has no bindable rows.
   try { sourceContract(source); } catch { return []; }
-  const bases: RuleCheckBasisRef[] = [];
-  for (const loadCase of plan.requiredLoadCases) {
-    if (loadCase.basis_ref && !bases.some((basis) => sameBasis(basis, loadCase.basis_ref!))) bases.push(loadCase.basis_ref);
-  }
   const findings: RuleBindingPrecheckFinding[] = [];
   for (const input of plan.solverInputs) {
     const selector = input.solver_result_ref;
     if (!selector) continue;
-    for (const basis of bases) {
+    // Only the bases of the checks that use the input: the run binds it nowhere else.
+    for (const { basis_ref: basis } of solverInputBases(plan, input.input_id)) {
+      if (!basis) continue;
       // Only a row the selector names alone is bound; a missing or ambiguous
       // selection is refused by the run command on its own terms.
-      const rows = selectSolverRows(source.results, selector, basis);
+      const rows = selectSolverRows(source, selector, basis);
       if (rows.length !== 1) continue;
       const row = rows[0];
       const reason = ruleBindingRefusal(source, row);

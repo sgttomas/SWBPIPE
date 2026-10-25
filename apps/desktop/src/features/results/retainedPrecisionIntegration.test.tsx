@@ -89,20 +89,27 @@ import { hasNativeMechanicsInvocation, pollPreviewMechanicsJob, runPreviewMechan
 import { ruleBindingPrecheck, runRuleChecks, selectSolverRows, solverSelectorForRow, type RuleCheckBasisRef, type RuleCheckBindingPlan } from "../../services/ruleCheckService";
 
 // A binding plan whose solver inputs select the given rows by their 0.5.0
-// selectors, on the rows' own bases (DEL-06-01 Design `rule-pack-0.5.0.md` §2.5).
+// selectors, each used by one check on its row's own basis (DEL-06-01 Design
+// `rule-pack-0.5.0.md` §2.4, §2.5): one category and required load case per
+// distinct basis.
 function selectorPlan(source: MechanicsResult, inputs: Array<[string, MechanicsResult["results"][number]]>): RuleCheckBindingPlan {
-  const bases = [...new Set(inputs.flatMap(([, row]) => (row.basis_ref ? [JSON.stringify(row.basis_ref)] : [])))].map((text) => JSON.parse(text) as RuleCheckBasisRef);
+  const keys = [...new Set(inputs.flatMap(([, row]) => (row.basis_ref ? [JSON.stringify(row.basis_ref)] : [])))];
+  const requiredLoadCases = keys.map((text, index) => ({ required_load_case_id: `rlc_${index}`, name: "", basis_ref: JSON.parse(text) as RuleCheckBasisRef }));
   return {
     solverInputs: inputs.map(([input_id, row]) => ({ input_id, name: input_id, dimension: "x", unit_ref: "x", solver_result_ref: solverSelectorForRow(source, row) })),
     valueInputs: [], valueSlots: [], libraryInputs: [],
-    requiredLoadCases: bases.map((basis_ref, index) => ({ required_load_case_id: `rlc_${index}`, name: "", basis_ref })),
-    stressCategories: [], checks: []
+    requiredLoadCases,
+    stressCategories: keys.map((_, index) => ({ category_id: `cat_${index}`, name: "" })),
+    checks: inputs.map(([input_id, row]) => {
+      const index = row.basis_ref ? keys.indexOf(JSON.stringify(row.basis_ref)) : -1;
+      return { check_id: `check:${input_id}`, category_ref: index >= 0 ? `cat_${index}` : "", bases: index >= 0 ? [requiredLoadCases[index]] : [], input_refs: [input_id] };
+    })
   };
 }
 // A row the precheck can reach: a basis-bearing row its own selector names alone.
 const selectsAlone = (source: MechanicsResult, row: MechanicsResult["results"][number]) => {
   const selector = solverSelectorForRow(source, row);
-  return Boolean(selector) && selectSolverRows(source.results, selector!, row.basis_ref as RuleCheckBasisRef).length === 1;
+  return Boolean(selector) && selectSolverRows(source, selector!, row.basis_ref as RuleCheckBasisRef).length === 1;
 };
 import { ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH, buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
@@ -779,11 +786,16 @@ describe("the declared differences, with TypeScript's expectations", () => {
         expect(got).toStrictEqual(rows.map(() => code === "none" ? null : code));
         if (expected.notice) {
           // The display-only precheck shows the declared notice on every row a
-          // 0.5.0 selector can bind (a basis-bearing row its selector names alone).
-          const bindable = rows.filter(row => selectsAlone(received, row));
-          expect(bindable.length).toBeGreaterThan(0);
-          const notices = ruleBindingPrecheck(received, selectorPlan(received, bindable.map(row => [row.id, row])));
-          expect(new Set(notices.map(f => f.result_id))).toStrictEqual(new Set(bindable.map(row => row.id)));
+          // 0.5.0 selector can bind. Only rows without a basis_ref are out of
+          // scope (design §2.5: never selected); every other row must have a
+          // selector that names it alone, so a selector regression fails here
+          // instead of shrinking the rows the notice is asserted on.
+          const eligible = rows.filter(row => row.basis_ref !== undefined && row.basis_ref !== null);
+          expect(eligible.length).toBeGreaterThan(0);
+          for (const row of eligible) expect([row.id, selectsAlone(received, row)]).toStrictEqual([row.id, true]);
+          const notices = ruleBindingPrecheck(received, selectorPlan(received, eligible.map(row => [row.id, row])));
+          expect(notices).toHaveLength(eligible.length);
+          expect(new Set(notices.map(f => f.result_id))).toStrictEqual(new Set(eligible.map(row => row.id)));
           expect(new Set(notices.map(f => f.notice))).toStrictEqual(new Set([NOTICES[expected.notice]]));
         }
       }

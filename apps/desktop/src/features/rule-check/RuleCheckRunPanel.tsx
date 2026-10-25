@@ -15,6 +15,7 @@ import {
   describeSolverSelector,
   loadDemoRuleCheckPack,
   resolveSolverSelector,
+  solverInputBases,
   runRuleChecks,
   ruleBindingPrecheck,
   ruleCheckOutcomeIdentity,
@@ -331,8 +332,10 @@ function renderSolverPreview(
         {preview.status === "no_result_rows"
           ? "Run a solve first so the selector can be checked against result rows."
           : preview.status === "resolves"
-            ? "The selector names one row of the current solve on every required load case."
-            : "On at least one required load case the selector names no row or more than one; the check is RULE_INPUTS_INCOMPLETE there. Edit the selector in the Rule-Pack Manager."}
+            ? "The selector names one row of the current solve on every load case of the checks that use this input."
+            : preview.bases.length === 0
+              ? "No check of this pack uses this input, so the run binds it on no load case."
+              : "On at least one load case of the checks that use this input the selector names no row or more than one; those checks are RULE_INPUTS_INCOMPLETE there. Edit the selector in the Rule-Pack Manager."}
       </small>
       {preview.status !== "no_result_rows"
         ? preview.bases.map((entry) => (
@@ -571,7 +574,8 @@ export function RuleCheckRunPanel({
     if (!selector || !plan) return;
     setSolverPreviews((current) => ({
       ...current,
-      [input.input_id]: resolveSolverSelector(resultRows, selector, plan.requiredLoadCases)
+      // The input's own bases (the checks that use it), as the run binds it.
+      [input.input_id]: resolveSolverSelector(result, selector, solverInputBases(plan, input.input_id))
     }));
   }
 
@@ -857,7 +861,7 @@ export function RuleCheckRunPanel({
                 </span>
                 <small data-testid={`rule-check-solver-selector-${input.input_id}`}>
                   {selector
-                    ? `Bound by the pack's selector (${describeSolverSelector(selector)}) on each required load case, from the current solved result at run time.`
+                    ? `Bound by the pack's selector (${describeSolverSelector(selector)}) on each load case of the checks that use it, from the current solved result at run time.`
                     : "This input has no usable solver_result_ref selector, so validation refuses the pack (RULE_SOLVER_RESULT_REF_MISSING). Author the selector in the Rule-Pack Manager."}
                 </small>
                 {selector ? (
@@ -869,7 +873,7 @@ export function RuleCheckRunPanel({
                       title={
                         inFlight
                           ? BUSY_REASON
-                          : "Show which row of the current solved result the selector names on each required load case. Read-only: this never changes the rule pack."
+                          : "Show which row of the current solved result the selector names on each load case of the checks that use this input. Read-only: this never changes the rule pack."
                       }
                       onClick={() => handlePreviewSolver(input)}
                     >

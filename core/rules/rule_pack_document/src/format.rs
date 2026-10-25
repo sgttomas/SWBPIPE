@@ -43,6 +43,15 @@ pub const RULE_PACK_MAPPING_INCOMPLETE: &str = "RULE_PACK_MAPPING_INCOMPLETE";
 /// A `solver_result` input without a usable `solver_result_ref` selector
 /// (design §2.5).
 pub const RULE_SOLVER_RESULT_REF_MISSING: &str = "RULE_SOLVER_RESULT_REF_MISSING";
+/// A required load case or stress category without its required `name` (a
+/// non-empty string), with a `description` that is not a string, or without
+/// a `provenance` object (design §2.3; `schemas/rule_pack.schema.yaml`
+/// `RequiredLoadCase`, `StressCategory`).
+pub const RULE_PACK_RECORD_INCOMPLETE: &str = "RULE_PACK_RECORD_INCOMPLETE";
+/// A required load case's or stress category's `provenance` object missing a
+/// required member, or carrying an empty or out-of-vocabulary value
+/// (`schemas/rule_pack.schema.yaml` `ProvenanceRecord`).
+pub const RULE_PACK_PROVENANCE_INCOMPLETE: &str = "RULE_PACK_PROVENANCE_INCOMPLETE";
 
 // --- Run-time finding codes, design §2.5 and §2.6 ---------------------------
 
@@ -70,6 +79,55 @@ pub const SECTION_BASES: [&str; 2] = ["nominal_section", "reduced_section"];
 pub const CATEGORY_REF_TYPE: &str = "stress_category";
 /// `Reference.ref_type` of a mapping's `required_load_case_refs` items.
 pub const REQUIRED_LOAD_CASE_REF_TYPE: &str = "required_load_case";
+
+/// `ProvenanceRecord` members that are non-empty free text.
+const PROVENANCE_TEXT: [&str; 5] = [
+    "source_name",
+    "source_location",
+    "source_license",
+    "contributor",
+    "contributor_certification",
+];
+/// `ProvenanceRecord` members with a closed vocabulary, and that vocabulary
+/// (`SourceType`, `RedistributionStatus`, the protected-content review values
+/// and `ReviewStatus` of the schema).
+const PROVENANCE_VOCABULARY: [(&str, &[&str]); 4] = [
+    (
+        "source_type",
+        &[
+            "invented_public_example",
+            "user_private_basis",
+            "public_permissive_source",
+            "licensed_private_source",
+            "protected_suspected",
+            "TBD",
+        ],
+    ),
+    (
+        "redistribution_status",
+        &[
+            "public_permissive",
+            "private_only",
+            "unknown",
+            "protected_suspected",
+            "invented_non_engineering_example",
+            "TBD",
+        ],
+    ),
+    (
+        "protected_content_review",
+        &[
+            "completed_no_protected_content",
+            "required_before_public_use",
+            "quarantined_protected_suspected",
+            "TBD",
+        ],
+    ),
+    (
+        "review_status",
+        &["pending", "accepted", "rejected", "quarantined", "TBD"],
+    ),
+];
 
 const SELECTOR_REQUIRED: [&str; 2] = ["result_kind", "entity_ref"];
 const SELECTOR_OPTIONAL: [&str; 4] = ["location", "component", "section_basis", "tie_rod"];
@@ -307,6 +365,67 @@ fn plan_category(
     Ok(bases)
 }
 
+/// The record-shape findings of a required load case or stress category
+/// (design §2.3): its `name`, optional `description` and `provenance`. Ids,
+/// `basis_ref` and references are checked by [`format_findings`] itself.
+fn record_findings(item: &Value, subject: &str, findings: &mut Vec<ValidationFinding>) {
+    if !item
+        .get("name")
+        .and_then(Value::as_str)
+        .is_some_and(|name| !name.is_empty())
+    {
+        findings.push(finding(
+            RULE_PACK_RECORD_INCOMPLETE,
+            format!("{subject}.name"),
+            "the record requires a non-empty name",
+        ));
+    }
+    if item
+        .get("description")
+        .is_some_and(|description| !description.is_string())
+    {
+        findings.push(finding(
+            RULE_PACK_RECORD_INCOMPLETE,
+            format!("{subject}.description"),
+            "the record's description must be a string when present",
+        ));
+    }
+    let Some(provenance) = item.get("provenance").and_then(Value::as_object) else {
+        findings.push(finding(
+            RULE_PACK_RECORD_INCOMPLETE,
+            format!("{subject}.provenance"),
+            "the record requires a provenance object",
+        ));
+        return;
+    };
+    for key in PROVENANCE_TEXT {
+        if !provenance
+            .get(key)
+            .and_then(Value::as_str)
+            .is_some_and(|text| !text.is_empty())
+        {
+            findings.push(finding(
+                RULE_PACK_PROVENANCE_INCOMPLETE,
+                format!("{subject}.provenance.{key}"),
+                format!("provenance requires a non-empty string '{key}'"),
+            ));
+        }
+    }
+    for (key, vocabulary) in PROVENANCE_VOCABULARY {
+        if !provenance
+            .get(key)
+            .and_then(Value::as_str)
+            .is_some_and(|value| vocabulary.contains(&value))
+        {
+            findings.push(finding(
+                RULE_PACK_PROVENANCE_INCOMPLETE,
+                format!("{subject}.provenance.{key}"),
+                format!("provenance requires '{key}', one of {vocabulary:?}"),
+            ));
+        }
+    }
+}
+
 fn finding(
     code: &str,
     subject: impl Into<String>,
@@ -366,11 +485,13 @@ pub fn format_findings(document: &Value) -> Vec<ValidationFinding> {
         }
     }
 
-    // Required load cases: unique ids, well-formed and unique basis_ref.
+    // Required load cases: name and provenance (§2.3), unique ids,
+    // well-formed and unique basis_ref.
     let mut load_case_ids: HashSet<&str> = HashSet::new();
     let mut basis_refs: HashSet<BasisRef> = HashSet::new();
     for (index, item) in items(document, "required_load_cases").iter().enumerate() {
         let subject = format!("required_load_cases[{index}]");
+        record_findings(item, &subject, &mut findings);
         match item_id(item, "required_load_case_id") {
             None => findings.push(finding(
                 RULE_PACK_REFERENCE_UNRESOLVED,
@@ -402,9 +523,10 @@ pub fn format_findings(document: &Value) -> Vec<ValidationFinding> {
         }
     }
 
-    // Stress categories: unique ids.
+    // Stress categories: unique ids; name and provenance (§2.3).
     let mut category_ids: HashSet<&str> = HashSet::new();
     for (index, item) in items(document, "stress_categories").iter().enumerate() {
+        record_findings(item, &format!("stress_categories[{index}]"), &mut findings);
         match item_id(item, "category_id") {
             None => findings.push(finding(
                 RULE_PACK_REFERENCE_UNRESOLVED,

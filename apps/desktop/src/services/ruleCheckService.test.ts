@@ -6,11 +6,13 @@ import {
   loadDemoRuleCheckPack,
   parseSolverResultRef,
   resolveSolverSelector,
+  rowTieRod,
   runRuleChecks,
   ruleBindingPrecheck,
   ruleCheckOutcomeIdentity,
   ruleCheckOutcomeTestId,
   selectSolverRows,
+  solverInputBases,
   solverSelectorForRow,
   RULE_CHECK_BACKEND_DIAGNOSTIC,
   N_RULE_CHECK_NOT_NUMERICALLY_ELIGIBLE,
@@ -166,8 +168,8 @@ describe("deriveRuleCheckBindingPlan", () => {
     expect(plan.stressCategories).toEqual([{ category_id: "cat_x", name: "Invented category X" }]);
     // Bases in the mapping's order; a check whose category has no mapping has none.
     expect(plan.checks).toEqual([
-      { check_id: "check_x", category_ref: "cat_x", bases: [caseB, caseA] },
-      { check_id: "check_orphan", category_ref: "cat_none", bases: [] }
+      { check_id: "check_x", category_ref: "cat_x", bases: [caseB, caseA], input_refs: [] },
+      { check_id: "check_orphan", category_ref: "cat_none", bases: [], input_refs: [] }
     ]);
   });
 
@@ -219,13 +221,13 @@ describe("solver-row selectors (display mirror of rule_solver_selection.rs)", ()
   const nominal: SolverResultRef = { result_kind: "stress", entity_ref: "pipe:demo", location: "end_i", component: "axial", section_basis: "nominal_section" };
 
   it("binds exactly the row of the basis, and an absent member matches only a row without it", () => {
-    expect(selectSolverRows(rows, nominal, caseA).map((r) => r.id)).toEqual(["r:a:i:nom"]);
-    expect(selectSolverRows(rows, nominal, caseB).map((r) => r.id)).toEqual(["r:b:i:nom"]);
+    expect(selectSolverRows({ results: rows }, nominal, caseA).map((r) => r.id)).toEqual(["r:a:i:nom"]);
+    expect(selectSolverRows({ results: rows }, nominal, caseB).map((r) => r.id)).toEqual(["r:b:i:nom"]);
     // Without section_basis the selector matches neither section twin.
-    expect(selectSolverRows(rows, { ...nominal, section_basis: undefined }, caseA)).toEqual([]);
+    expect(selectSolverRows({ results: rows }, { ...nominal, section_basis: undefined }, caseA)).toEqual([]);
     // A malformed section token matches nothing; a row without basis_ref is never selected.
-    expect(selectSolverRows(rows, { ...nominal, location: "end_k", section_basis: undefined }, caseA)).toEqual([]);
-    expect(selectSolverRows(rows, nominal, { ref_type: "load_case", ref_id: "load:none" })).toEqual([]);
+    expect(selectSolverRows({ results: rows }, { ...nominal, location: "end_k", section_basis: undefined }, caseA)).toEqual([]);
+    expect(selectSolverRows({ results: rows }, nominal, { ref_type: "load_case", ref_id: "load:none" })).toEqual([]);
   });
 
   it("resolves per required load case: one row, none, several, or an unsolved basis", () => {
@@ -234,24 +236,24 @@ describe("solver-row selectors (display mirror of rule_solver_selection.rs)", ()
       { required_load_case_id: "rlc_b", name: "B", basis_ref: caseB },
       { required_load_case_id: "rlc_c", name: "C", basis_ref: { ref_type: "combination", ref_id: "combo:C" } as RuleCheckBasisRef }
     ];
-    const resolved = resolveSolverSelector(rows, nominal, loadCases);
+    const resolved = resolveSolverSelector({ results: rows }, nominal, loadCases);
     expect(resolved.status).toBe("incomplete");
     if (resolved.status === "no_result_rows") throw new Error("unreachable");
     expect(resolved.bases.map((entry) => [entry.required_load_case_id, entry.status])).toEqual([
       ["rlc_a", "resolves"], ["rlc_b", "resolves"], ["rlc_c", "basis_unsolved"]
     ]);
-    const twins = resolveSolverSelector(rows, { result_kind: "stress", entity_ref: "pipe:demo", location: "end_j", component: "axial" }, loadCases.slice(0, 2));
+    const twins = resolveSolverSelector({ results: rows }, { result_kind: "stress", entity_ref: "pipe:demo", location: "end_j", component: "axial" }, loadCases.slice(0, 2));
     if (twins.status === "no_result_rows") throw new Error("unreachable");
     expect(twins.bases.map((entry) => entry.status)).toEqual(["row_ambiguous", "row_missing"]);
-    expect(resolveSolverSelector(rows, nominal, loadCases.slice(0, 2)).status).toBe("resolves");
-    expect(resolveSolverSelector([], nominal, loadCases).status).toBe("no_result_rows");
+    expect(resolveSolverSelector({ results: rows }, nominal, loadCases.slice(0, 2)).status).toBe("resolves");
+    expect(resolveSolverSelector({ results: [] }, nominal, loadCases).status).toBe("no_result_rows");
     expect(resolveSolverSelector(null, nominal, loadCases).status).toBe("no_result_rows");
   });
 
   it("offers the selector of a row, which selects that row alone within its basis", () => {
     const offered = solverSelectorForRow({}, rows[1])!;
     expect(offered).toEqual({ result_kind: "stress", entity_ref: "pipe:demo", location: "end_i", component: "axial", section_basis: "reduced_section" });
-    expect(selectSolverRows(rows, offered, caseA).map((r) => r.id)).toEqual(["r:a:i:red"]);
+    expect(selectSolverRows({ results: rows }, offered, caseA).map((r) => r.id)).toEqual(["r:a:i:red"]);
     expect(solverSelectorForRow({}, rows[5])).toBeUndefined();
     expect(solverSelectorForRow({}, rows[6])).toBeUndefined();
   });
@@ -269,8 +271,80 @@ describe("solver-row selectors (display mirror of rule_solver_selection.rs)", ()
     for (const { envelope, r } of rodRows) {
       const selector = solverSelectorForRow(envelope, r)!;
       expect(selector.tie_rod).toBeTruthy();
-      expect(selectSolverRows(envelope.results, selector, r.basis_ref as RuleCheckBasisRef).map((match) => match.id)).toEqual([r.id]);
+      expect(selectSolverRows(envelope, selector, r.basis_ref as RuleCheckBasisRef).map((match) => match.id)).toEqual([r.id]);
     }
+  });
+
+  // PR #1629 review r1 finding 1 (mirror of rule_solver_selection.rs
+  // a_tie_rod_selector_binds_only_the_exact_rod_id_of_the_record): a row id
+  // encodes its rod lossily (`:` to `-`), so a selector binds a rod row only
+  // when its tie_rod equals, exactly, the rod id the connector record holds.
+  it("binds a tie-rod selector only to the exact rod id of the connector record", () => {
+    const corpus = connectorCorpus as unknown as { cases: Array<{ envelope: MechanicsResult }> };
+    const envelope = corpus.cases.map((entry) => entry.envelope)
+      .find((candidate) => candidate.results.filter((r) => r.kind === "connector_tie_rod_force_v1").length === 2)!;
+    const caseU5A: RuleCheckBasisRef = { ref_type: "load_case", ref_id: "load:U5A" };
+    const rodRows = (source: MechanicsResult, tie_rod: string) =>
+      selectSolverRows(source, { result_kind: "connector_tie_rod_force_v1", entity_ref: "component:C-J", location: "tie_rod", component: "t_r", tie_rod }, caseU5A).map((r) => r.id);
+    const rods = (source: MechanicsResult) => (source.contract_evidence as unknown as { connector: Array<{ tie_rods: Array<{ id: string }> }> }).connector[0].tie_rods;
+    expect(rods(envelope).map((rod) => rod.id)).toEqual(["rod:yp", "rod:ym"]);
+    const yp = rodRows(envelope, "rod:yp"), ym = rodRows(envelope, "rod:ym");
+    expect(yp).toHaveLength(1);
+    expect(ym).toHaveLength(1);
+    expect(yp).not.toEqual(ym);
+    // Alias: rod-yp encodes to the same row id but is not a rod of the record.
+    expect(rodRows(envelope, "rod-yp")).toEqual([]);
+    // Renamed: the record's rod:yp is now rod-yp; the old name binds nothing.
+    const renamed = structuredClone(envelope);
+    rods(renamed)[0].id = "rod-yp";
+    expect(rodRows(renamed, "rod:yp")).toEqual([]);
+    expect(rodRows(renamed, "rod-yp")).toEqual(yp);
+    // Removed: the record holds no rod for that row; nothing binds it.
+    const removed = structuredClone(envelope);
+    rods(removed)[0].id = "rod:zz";
+    expect(rodRows(removed, "rod:yp")).toEqual([]);
+    expect(rodRows(removed, "rod:zz")).toEqual([]);
+    expect(rodRows(removed, "rod:ym")).toEqual(ym);
+    // Ambiguous record (two rods encode to the row id): neither binds it.
+    const doubled = structuredClone(envelope);
+    rods(doubled).push({ ...rods(doubled)[0], id: "rod-yp" });
+    expect(rodRows(doubled, "rod:yp")).toEqual([]);
+    expect(rodRows(doubled, "rod-yp")).toEqual([]);
+    expect(rowTieRod(doubled, doubled.results.find((r) => r.id === yp[0])!, caseU5A)).toBeUndefined();
+    // The authoring offer never names an alias.
+    expect(solverSelectorForRow(envelope, envelope.results.find((r) => r.id === yp[0])!)?.tie_rod).toBe("rod:yp");
+    expect(solverSelectorForRow(doubled, doubled.results.find((r) => r.id === yp[0])!)).toBeUndefined();
+  });
+
+  // PR #1629 review r1 finding 3: an input's bases are those of the checks
+  // that use it (required_input_refs), as the runner binds it.
+  it("plans each input's bases from the checks that use it", () => {
+    const ref = (ref_type: string, ref_id: string) => ({ ref_type, ref_id });
+    const plan = deriveRuleCheckBindingPlan({
+      required_inputs: ["x", "y", "z"].map((input_id) => ({ input_id, source_kind: "solver_result", solver_result_ref: nominal })),
+      required_load_cases: [
+        { required_load_case_id: "rlc_a", name: "A", basis_ref: caseA },
+        { required_load_case_id: "rlc_b", name: "B", basis_ref: caseB }
+      ],
+      stress_categories: [{ category_id: "cat_a" }, { category_id: "cat_b" }],
+      load_case_mappings: [
+        { mapping_id: "m_a", category_ref: ref("stress_category", "cat_a"), required_load_case_refs: [ref("required_load_case", "rlc_a")] },
+        { mapping_id: "m_b", category_ref: ref("stress_category", "cat_b"), required_load_case_refs: [ref("required_load_case", "rlc_b"), ref("required_load_case", "rlc_a")] }
+      ],
+      check_definitions: [
+        { check_id: "c_a", category_ref: ref("stress_category", "cat_a"), required_input_refs: [ref("required_input", "x"), ref("required_input", "y")] },
+        { check_id: "c_b", category_ref: ref("stress_category", "cat_b"), required_input_refs: [ref("required_input", "y")] }
+      ]
+    });
+    const ids = (inputId: string) => solverInputBases(plan, inputId).map((basis) => basis.required_load_case_id);
+    expect(ids("x")).toEqual(["rlc_a"]);
+    expect(ids("y")).toEqual(["rlc_a", "rlc_b"]);
+    expect(ids("z")).toEqual([]);
+    // Case B publishes no nominal row here: x (used only on case A) resolves; y is incomplete on B; z, used by no check, never resolves.
+    const onlyA = { results: rows.filter((r) => r.id !== "r:b:i:nom") };
+    expect(resolveSolverSelector(onlyA, nominal, solverInputBases(plan, "x")).status).toBe("resolves");
+    expect(resolveSolverSelector(onlyA, nominal, solverInputBases(plan, "y")).status).toBe("incomplete");
+    expect(resolveSolverSelector(onlyA, nominal, solverInputBases(plan, "z")).status).toBe("incomplete");
   });
 
   it("parses a selector as the validator does", () => {
@@ -402,7 +476,7 @@ describe("loadDemoRuleCheckPack", () => {
       { ref_type: "load_case", ref_id: "load:L-200" }
     ]);
     expect(plan.checks).toEqual([
-      { check_id: "demo_training_check", category_ref: "demo_category_a", bases: plan.requiredLoadCases }
+      { check_id: "demo_training_check", category_ref: "demo_category_a", bases: plan.requiredLoadCases, input_refs: ["demo_actual_quantity", "demo_limit_quantity"] }
     ]);
     expect(plan.valueInputs.map((input) => input.ref_id)).toContain("demo_limit_quantity");
     expect(plan.valueSlots.map((slot) => slot.slot_id)).toContain("demo_limit_slot");
@@ -471,7 +545,11 @@ describe("T0R rule-binding pre-check (mirror of rule_binding_refusal; display on
         source_kind: "solver_result",
         solver_result_ref: "result_kind" in entry ? entry : solverSelectorForRow(source, entry)
       })),
-      required_load_cases: bases.map((basis, index) => ({ required_load_case_id: `rlc_${index}`, name: `Case ${index}`, basis_ref: basis }))
+      required_load_cases: bases.map((basis, index) => ({ required_load_case_id: `rlc_${index}`, name: `Case ${index}`, basis_ref: basis })),
+      // One check uses every input on every basis, so the precheck reads each.
+      stress_categories: [{ category_id: "cat" }],
+      load_case_mappings: [{ mapping_id: "map", category_ref: { ref_type: "stress_category", ref_id: "cat" }, required_load_case_refs: bases.map((_, index) => ({ ref_type: "required_load_case", ref_id: `rlc_${index}` })) }],
+      check_definitions: [{ check_id: "check", category_ref: { ref_type: "stress_category", ref_id: "cat" }, required_input_refs: selected.map((_, index) => ({ ref_type: "required_input", ref_id: `input_${index}` })) }]
     };
   };
   it("refuses no binding to a composite's rows (B4/D1 (b): the source-blocks-1 summary refusal is gone)", () => {

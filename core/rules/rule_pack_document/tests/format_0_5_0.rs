@@ -9,8 +9,8 @@
 use open_pipe_stress_rule_pack_document::{
     compute_rule_pack_checksum, plan_check_bases, validate_rule_pack_document, BasisRef,
     RulePackDocumentValidation, RULE_PACK_DUPLICATE_ID, RULE_PACK_MAPPING_INCOMPLETE,
-    RULE_PACK_REFERENCE_UNRESOLVED, RULE_PACK_SCHEMA_VERSION, RULE_PACK_SCHEMA_VERSION_UNSUPPORTED,
-    RULE_SOLVER_RESULT_REF_MISSING,
+    RULE_PACK_PROVENANCE_INCOMPLETE, RULE_PACK_RECORD_INCOMPLETE, RULE_PACK_REFERENCE_UNRESOLVED,
+    RULE_PACK_SCHEMA_VERSION, RULE_PACK_SCHEMA_VERSION_UNSUPPORTED, RULE_SOLVER_RESULT_REF_MISSING,
 };
 use serde_json::{json, Value};
 
@@ -38,6 +38,11 @@ fn codes(outcome: &RulePackDocumentValidation) -> Vec<&str> {
         .iter()
         .map(|finding| finding.code.as_str())
         .collect()
+}
+
+/// The demo pack's record provenance (invented), for records a test adds.
+fn provenance() -> Value {
+    demo()["stress_categories"][0]["provenance"].clone()
 }
 
 fn category_ref(id: &str) -> Value {
@@ -184,7 +189,8 @@ fn each_static_finding_is_reached() {
             "category with no mapping",
             |p| {
                 p["stress_categories"].as_array_mut().unwrap().push(json!({
-                    "category_id": "demo_category_b", "name": "Invented category B"
+                    "category_id": "demo_category_b", "name": "Invented category B",
+                    "provenance": provenance()
                 }));
                 let mut check = p["check_definitions"][0].clone();
                 check["check_id"] = json!("demo_second_check");
@@ -284,13 +290,15 @@ fn a_required_load_case_no_check_reaches_is_refused() {
         .push(json!({
             "required_load_case_id": "demo_required_case_3",
             "name": "Invented required load case 3",
-            "basis_ref": {"ref_type": "combination", "ref_id": "combination:C-OPER-ALT"}
+            "basis_ref": {"ref_type": "combination", "ref_id": "combination:C-OPER-ALT"},
+            "provenance": provenance()
         }));
     pack["stress_categories"]
         .as_array_mut()
         .unwrap()
         .push(json!({
-            "category_id": "demo_category_unused", "name": "Invented category with no checks"
+            "category_id": "demo_category_unused", "name": "Invented category with no checks",
+            "provenance": provenance()
         }));
     pack["load_case_mappings"]
         .as_array_mut()
@@ -331,7 +339,8 @@ fn a_load_case_shared_by_two_categories_validates_and_plans_in_mapping_order() {
         .as_array_mut()
         .unwrap()
         .push(json!({
-            "category_id": "demo_category_b", "name": "Invented category B"
+            "category_id": "demo_category_b", "name": "Invented category B",
+            "provenance": provenance()
         }));
     pack["load_case_mappings"]
         .as_array_mut()
@@ -388,4 +397,132 @@ fn a_structural_defect_gives_the_check_no_basis_list() {
     pack["load_case_mappings"][0]["required_load_case_refs"][1] =
         load_case_ref("demo_required_case_1");
     assert!(plan_check_bases(&pack)[0].bases.is_err());
+}
+
+/// PR #1629 review r1 finding 2: the required members of the new records
+/// (design §2.3; `RequiredLoadCase`, `StressCategory`, `LoadCaseMapping` and
+/// `ProvenanceRecord` of the schema) are validated as blocking findings, so a
+/// pack missing one (with its checksum re-stamped) never validates. The
+/// desktop run command refuses such a pack with no outcome
+/// (`run_rule_checks_command_refuses_a_pack_whose_new_records_lack_required_members`).
+#[test]
+fn each_required_member_of_the_new_records_is_a_blocking_finding() {
+    // The demo pack with one member removed (a JSON pointer).
+    let removed = |pointer: &str| {
+        let mut pack = demo();
+        let (parent, member) = pointer.rsplit_once('/').unwrap();
+        pack.pointer_mut(parent)
+            .and_then(Value::as_object_mut)
+            .and_then(|object| object.remove(member))
+            .unwrap_or_else(|| panic!("{pointer} is in the demo pack"));
+        pack
+    };
+    let edited = |edit: fn(&mut Value)| {
+        let mut pack = demo();
+        edit(&mut pack);
+        pack
+    };
+    let mut cases: Vec<(String, Value, &str, String)> = Vec::new();
+    for (record, index) in [("required_load_cases", 1), ("stress_categories", 0)] {
+        for member in ["name", "provenance"] {
+            cases.push((
+                format!("{record}[{index}] without {member}"),
+                removed(&format!("/{record}/{index}/{member}")),
+                RULE_PACK_RECORD_INCOMPLETE,
+                format!("{record}[{index}].{member}"),
+            ));
+        }
+        for member in [
+            "source_name",
+            "source_type",
+            "source_location",
+            "source_license",
+            "contributor",
+            "contributor_certification",
+            "redistribution_status",
+            "protected_content_review",
+            "review_status",
+        ] {
+            cases.push((
+                format!("{record}[{index}] provenance without {member}"),
+                removed(&format!("/{record}/{index}/provenance/{member}")),
+                RULE_PACK_PROVENANCE_INCOMPLETE,
+                format!("{record}[{index}].provenance.{member}"),
+            ));
+        }
+    }
+    let mut push = |label: &str, pack: Value, code: &'static str, subject: &str| {
+        cases.push((label.to_string(), pack, code, subject.to_string()));
+    };
+    push(
+        "empty name",
+        edited(|p| p["stress_categories"][0]["name"] = json!("")),
+        RULE_PACK_RECORD_INCOMPLETE,
+        "stress_categories[0].name",
+    );
+    push(
+        "non-string name",
+        edited(|p| p["required_load_cases"][0]["name"] = json!(7)),
+        RULE_PACK_RECORD_INCOMPLETE,
+        "required_load_cases[0].name",
+    );
+    push(
+        "non-string description",
+        edited(|p| p["required_load_cases"][0]["description"] = json!(["text"])),
+        RULE_PACK_RECORD_INCOMPLETE,
+        "required_load_cases[0].description",
+    );
+    push(
+        "provenance not an object",
+        edited(|p| p["stress_categories"][0]["provenance"] = json!("invented")),
+        RULE_PACK_RECORD_INCOMPLETE,
+        "stress_categories[0].provenance",
+    );
+    push(
+        "empty provenance text",
+        edited(|p| p["stress_categories"][0]["provenance"]["contributor"] = json!("")),
+        RULE_PACK_PROVENANCE_INCOMPLETE,
+        "stress_categories[0].provenance.contributor",
+    );
+    push(
+        "provenance review status outside the vocabulary",
+        edited(|p| p["required_load_cases"][0]["provenance"]["review_status"] = json!("approved")),
+        RULE_PACK_PROVENANCE_INCOMPLETE,
+        "required_load_cases[0].provenance.review_status",
+    );
+    // The mapping's required members, reported by the existing codes.
+    push(
+        "mapping without mapping_id",
+        removed("/load_case_mappings/0/mapping_id"),
+        RULE_PACK_REFERENCE_UNRESOLVED,
+        "load_case_mappings[0]",
+    );
+    push(
+        "mapping without category_ref",
+        removed("/load_case_mappings/0/category_ref"),
+        RULE_PACK_REFERENCE_UNRESOLVED,
+        "load_case_mappings[0].category_ref",
+    );
+    push(
+        "mapping without required_load_case_refs",
+        removed("/load_case_mappings/0/required_load_case_refs"),
+        RULE_PACK_MAPPING_INCOMPLETE,
+        "load_case_mappings[0].required_load_case_refs",
+    );
+    assert_eq!(cases.len(), 2 * (2 + 9) + 9);
+    for (label, pack, code, subject) in cases {
+        let outcome = validate(&restamped(pack));
+        assert_eq!(outcome.checksum.match_status, "match", "{label}");
+        assert!(outcome.has_blocking_findings, "{label}");
+        assert!(
+            outcome
+                .document_findings
+                .iter()
+                .any(|finding| finding.code == code
+                    && finding.subject == subject
+                    && finding.blocking),
+            "{label}: expected {code} on {subject}, got {:?}",
+            outcome.document_findings
+        );
+    }
 }

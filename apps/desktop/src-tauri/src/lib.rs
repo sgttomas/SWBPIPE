@@ -8207,6 +8207,48 @@ mod tests {
         assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"));
     }
 
+    /// PR #1629 review r1 finding 2: the runnable demo pack reaches
+    /// USER_RULE_CHECKED; the same pack with a required member of a new record
+    /// removed (checksum re-stamped) is refused with no outcome, by its named
+    /// blocking finding (rule_pack_document `format_findings`).
+    #[test]
+    fn run_rule_checks_command_refuses_a_pack_whose_new_records_lack_required_members() {
+        for (pointer, code) in [
+            ("/required_load_cases/0/name", "RULE_PACK_RECORD_INCOMPLETE"),
+            ("/required_load_cases/0/provenance", "RULE_PACK_RECORD_INCOMPLETE"),
+            ("/stress_categories/0/name", "RULE_PACK_RECORD_INCOMPLETE"),
+            ("/stress_categories/0/provenance", "RULE_PACK_RECORD_INCOMPLETE"),
+            ("/stress_categories/0/provenance/source_license", "RULE_PACK_PROVENANCE_INCOMPLETE"),
+            ("/required_load_cases/1/provenance/review_status", "RULE_PACK_PROVENANCE_INCOMPLETE"),
+        ] {
+            let mut pack = runnable_demo_pack();
+            let (parent, member) = pointer.rsplit_once('/').unwrap();
+            pack.pointer_mut(parent)
+                .and_then(Value::as_object_mut)
+                .and_then(|object| object.remove(member))
+                .unwrap_or_else(|| panic!("{pointer} is in the demo pack"));
+            let outcome = run_rule_checks_core(
+                restamp(pack),
+                &demo_rule_model(),
+                demo_solved_envelope(50.0),
+                None,
+                Some(demo_supplied_values()),
+                None,
+            )
+            .expect("a refused pack returns a response");
+            assert_eq!(outcome["checks"], json!([]), "{pointer}");
+            assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"), "{pointer}");
+            let codes: Vec<&str> = outcome["rule_pack_validation"]["document_findings"]
+                .as_array()
+                .expect("findings")
+                .iter()
+                .filter_map(|finding| finding["code"].as_str())
+                .collect();
+            assert!(codes.contains(&code), "{pointer}: {outcome}");
+            assert!(!codes.contains(&"CHECKSUM_MISMATCH"), "{pointer}");
+        }
+    }
+
     #[test]
     fn run_rule_checks_command_emits_only_status_vocabulary() {
         let outcome = run_rule_checks_core(

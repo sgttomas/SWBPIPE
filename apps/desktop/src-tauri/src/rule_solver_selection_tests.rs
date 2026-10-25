@@ -179,6 +179,14 @@ fn tie_rod_matcher_agrees_with_the_reader_binding_on_the_corpus() {
                 })
                 .collect();
             assert_eq!(bound.len(), 1, "{}: {}", case["label"], row["id"]);
+            // The selector side resolves the same exact rod id from the record.
+            assert_eq!(
+                row_tie_rod(envelope, row, &load_case(case_id)),
+                Some(*bound[0]),
+                "{}: {}",
+                case["label"],
+                row["id"]
+            );
             checked += 1;
         }
         // A rod row renamed to a rod the record does not hold: the reader
@@ -252,6 +260,141 @@ fn two_tie_rods_of_one_connector_are_selected_separately() {
         "{ids:?}"
     );
     assert!(index.select(&selector(base), &basis).is_empty());
+}
+
+/// The corpus envelope with two rods (`rod:yp`, `rod:ym`) on `component:C-J`.
+fn two_rod_envelope() -> Value {
+    let corpus = read_json("fixtures/results/pressure_v3_connector_reader_corpus.json");
+    corpus["cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|case| case["envelope"].clone())
+        .find(|envelope| {
+            envelope["results"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .filter(|row| row["kind"] == TIE_ROD_KIND)
+                .count()
+                == 2
+        })
+        .expect("a corpus envelope with two rods on one connector")
+}
+
+/// The ids of the rows a `tie_rod` selector selects on `load:U5A`.
+fn rod_rows(envelope: &Value, rod: &str) -> Vec<String> {
+    let member = json!({"result_kind": TIE_ROD_KIND, "entity_ref": "component:C-J", "location": "tie_rod", "component": "t_r", "tie_rod": rod});
+    RowIndex::new(envelope)
+        .select(&selector(member), &load_case("load:U5A"))
+        .iter()
+        .map(|row| row["id"].as_str().unwrap().to_string())
+        .collect()
+}
+
+/// The `rod:yp` entry of the connector record's `tie_rods`.
+fn record_rod(envelope: &mut Value, index: usize) -> &mut Value {
+    &mut envelope["contract_evidence"]["connector"][0]["tie_rods"][index]
+}
+
+/// §2.5 (PR #1629 review r1 finding 1): a row id encodes its rod lossily
+/// (`:` becomes `-`), so a selector binds a rod row only when its `tie_rod`
+/// equals, exactly, the rod id the connector record holds for that row. An
+/// alias that encodes to the same row id, a rod the record no longer holds,
+/// and a row two record rods (or two records) could own all bind nothing.
+#[test]
+fn a_tie_rod_selector_binds_only_the_exact_rod_id_of_the_record() {
+    let envelope = two_rod_envelope();
+    assert_eq!(
+        envelope["contract_evidence"]["connector"]
+            .as_array()
+            .unwrap()
+            .len(),
+        1
+    );
+    assert_eq!(record_rod(&mut envelope.clone(), 0)["id"], "rod:yp");
+    let yp = rod_rows(&envelope, "rod:yp");
+    let ym = rod_rows(&envelope, "rod:ym");
+    assert_eq!(yp.len(), 1);
+    assert_eq!(ym.len(), 1);
+    assert_ne!(yp, ym);
+
+    // Alias: `rod-yp` is not a rod of the record although it encodes to the
+    // same row id as `rod:yp`.
+    assert!(rod_rows(&envelope, "rod-yp").is_empty());
+
+    // Renamed: the record's `rod:yp` is now `rod-yp` (same encoded row id).
+    // The old name binds nothing; the record's exact id binds the row.
+    let mut renamed = envelope.clone();
+    record_rod(&mut renamed, 0)["id"] = json!("rod-yp");
+    assert!(rod_rows(&renamed, "rod:yp").is_empty());
+    assert_eq!(rod_rows(&renamed, "rod-yp"), yp);
+    assert_eq!(rod_rows(&renamed, "rod:ym"), ym);
+
+    // Removed: the record no longer holds a rod for the `rod-yp` row; neither
+    // the old name nor the new rod's name binds that row.
+    let mut removed = envelope.clone();
+    record_rod(&mut removed, 0)["id"] = json!("rod:zz");
+    assert!(rod_rows(&removed, "rod:yp").is_empty());
+    assert!(rod_rows(&removed, "rod:zz").is_empty());
+    assert_eq!(rod_rows(&removed, "rod:ym"), ym);
+
+    // Ambiguous record: two of its rods encode to the row's id; the row
+    // belongs to neither, so no selector binds it (the reader refuses such a
+    // record as TIE_ROD_DUPLICATE).
+    let mut doubled = envelope.clone();
+    let mut alias = record_rod(&mut doubled, 0).clone();
+    alias["id"] = json!("rod-yp");
+    doubled["contract_evidence"]["connector"][0]["tie_rods"]
+        .as_array_mut()
+        .unwrap()
+        .push(alias);
+    assert!(rod_rows(&doubled, "rod:yp").is_empty());
+    assert!(rod_rows(&doubled, "rod-yp").is_empty());
+    assert_eq!(rod_rows(&doubled, "rod:ym"), ym);
+
+    // Two records for one connector: no rod row of it binds.
+    let mut twice = envelope.clone();
+    let record = twice["contract_evidence"]["connector"][0].clone();
+    twice["contract_evidence"]["connector"]
+        .as_array_mut()
+        .unwrap()
+        .push(record);
+    assert!(rod_rows(&twice, "rod:yp").is_empty());
+    assert!(rod_rows(&twice, "rod:ym").is_empty());
+
+    // Through the run resolution: the alias is RULE_SOLVER_RESULT_ROW_MISSING
+    // on its basis, never a binding.
+    let model = json!({"load_cases": [{"id": "load:U5A"}]});
+    for (rod, binds) in [("rod:yp", true), ("rod-yp", false)] {
+        let document = json!({
+            "required_load_cases": [{"required_load_case_id": "rlc", "basis_ref": {"ref_type": "load_case", "ref_id": "load:U5A"}}],
+            "required_inputs": [{"input_id": "actual", "source_kind": "solver_result", "solver_result_ref":
+                {"result_kind": TIE_ROD_KIND, "entity_ref": "component:C-J", "location": "tie_rod", "component": "t_r", "tie_rod": rod}}]
+        });
+        let resolution = resolve_rule_pack_solver_inputs(&document, &model, &envelope);
+        let reasons: Vec<&str> = resolution
+            .refused_solver_results
+            .iter()
+            .map(|r| r.reason.as_str())
+            .collect();
+        if binds {
+            // The row is matched: bound, or refused by the per-row gate only.
+            assert_eq!(
+                resolution.solver_results.len() + reasons.len(),
+                1,
+                "{rod}: {reasons:?}"
+            );
+            assert!(
+                !reasons.contains(&RULE_SOLVER_RESULT_ROW_MISSING)
+                    && !reasons.contains(&RULE_SOLVER_RESULT_ROW_AMBIGUOUS),
+                "{rod}: {reasons:?}"
+            );
+        } else {
+            assert!(resolution.solver_results.is_empty(), "{rod}");
+            assert_eq!(reasons, vec![RULE_SOLVER_RESULT_ROW_MISSING], "{rod}");
+        }
+    }
 }
 
 /// A dense pressure envelope: nominal and reduced section twins differ only by

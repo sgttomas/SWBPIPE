@@ -57,8 +57,13 @@ const resultStub = {
   ]
 } as unknown as MechanicsResult;
 
+const categoryRef = (ref_id: string) => ({ ref_type: "stress_category", ref_id });
+const loadCaseRef = (ref_id: string) => ({ ref_type: "required_load_case", ref_id });
+const inputRef = (ref_id: string) => ({ ref_type: "required_input", ref_id });
+
 // An invented 0.5.0 pack shape around one solver input: two required load
-// cases on the stub's basis and one it does not publish.
+// cases, on the stub's basis and on one it does not publish, both mapped to
+// the one category of the one check that uses the input.
 const selectorPack = (solverResultRef: Record<string, unknown>) => ({
   metadata: { rule_pack_id: "p" },
   required_inputs: [
@@ -73,7 +78,10 @@ const selectorPack = (solverResultRef: Record<string, unknown>) => ({
   required_load_cases: [
     { required_load_case_id: "rlc_1", name: "Invented case 1", basis_ref: { ref_type: "load_case", ref_id: "load:L-100" } },
     { required_load_case_id: "rlc_2", name: "Invented case 2", basis_ref: { ref_type: "load_case", ref_id: "load:L-200" } }
-  ]
+  ],
+  stress_categories: [{ category_id: "cat_a", name: "Invented category A" }],
+  load_case_mappings: [{ mapping_id: "map_a", category_ref: categoryRef("cat_a"), required_load_case_refs: [loadCaseRef("rlc_1"), loadCaseRef("rlc_2")] }],
+  check_definitions: [{ check_id: "check_a", category_ref: categoryRef("cat_a"), required_input_refs: [inputRef("actual")] }]
 });
 
 const unitCatalogStub = {
@@ -316,6 +324,50 @@ describe("RuleCheckRunPanel", () => {
     expect(first.textContent).toContain("Invented case 1: load_case load:L-100");
     expect(first.textContent).toContain("result:stress:demo: 50 demo_unit");
     expect(screen.getByTestId("rule-check-solver-basis-actual--load_case--load:L-200")).toHaveAttribute("data-status", "basis_unsolved");
+  });
+
+  // PR #1629 review r1 finding 3: an input is previewed only on the bases of
+  // the checks that use it, as the run binds it. `actual` is used only by a
+  // check whose category maps load:L-100; another category maps load:L-200,
+  // which this result does not publish, so it never makes `actual` incomplete.
+  it("previews an input only on the load cases of the checks that use it", async () => {
+    const pack = {
+      ...selectorPack({ result_kind: "stress", entity_ref: "pipe:demo", location: "end_i" }),
+      required_inputs: [
+        ...selectorPack({ result_kind: "stress", entity_ref: "pipe:demo", location: "end_i" }).required_inputs,
+        { input_id: "other", name: "Other stress", source_kind: "solver_result", quantity_intent: { dimension: "stress", unit_ref: "demo_unit" }, solver_result_ref: { result_kind: "stress", entity_ref: "pipe:demo", location: "end_i" } },
+        { input_id: "unused", name: "Unused stress", source_kind: "solver_result", quantity_intent: { dimension: "stress", unit_ref: "demo_unit" }, solver_result_ref: { result_kind: "stress", entity_ref: "pipe:demo", location: "end_i" } }
+      ],
+      stress_categories: [{ category_id: "cat_a", name: "Invented category A" }, { category_id: "cat_b", name: "Invented category B" }],
+      load_case_mappings: [
+        { mapping_id: "map_a", category_ref: categoryRef("cat_a"), required_load_case_refs: [loadCaseRef("rlc_1")] },
+        { mapping_id: "map_b", category_ref: categoryRef("cat_b"), required_load_case_refs: [loadCaseRef("rlc_2")] }
+      ],
+      check_definitions: [
+        { check_id: "check_a", category_ref: categoryRef("cat_a"), required_input_refs: [inputRef("actual")] },
+        { check_id: "check_b", category_ref: categoryRef("cat_b"), required_input_refs: [inputRef("other")] }
+      ]
+    };
+    render(<RuleCheckRunPanel model={modelStub} result={resultStub} />);
+    fireEvent.change(screen.getByTestId("rule-check-pack-json"), { target: { value: JSON.stringify(pack) } });
+
+    fireEvent.click(screen.getByTestId("rule-check-solver-preview-actual"));
+    expect(await screen.findByTestId("rule-check-solver-resolution-actual")).toHaveAttribute("data-status", "resolves");
+    expect(screen.getByTestId("rule-check-solver-basis-actual--load_case--load:L-100")).toHaveAttribute("data-status", "resolves");
+    expect(screen.queryByTestId("rule-check-solver-basis-actual--load_case--load:L-200")).toBeNull();
+
+    // The input of the check on load:L-200 is incomplete there, and only there.
+    fireEvent.click(screen.getByTestId("rule-check-solver-preview-other"));
+    expect(await screen.findByTestId("rule-check-solver-resolution-other")).toHaveAttribute("data-status", "incomplete");
+    expect(screen.getByTestId("rule-check-solver-basis-other--load_case--load:L-200")).toHaveAttribute("data-status", "basis_unsolved");
+    expect(screen.queryByTestId("rule-check-solver-basis-other--load_case--load:L-100")).toBeNull();
+
+    // An input no check uses is bound on no load case; it never reads as resolving.
+    fireEvent.click(screen.getByTestId("rule-check-solver-preview-unused"));
+    const unused = await screen.findByTestId("rule-check-solver-resolution-unused");
+    expect(unused).toHaveAttribute("data-status", "incomplete");
+    expect(unused.textContent).toContain("No check of this pack uses this input");
+    expect(document.querySelector('[data-testid^="rule-check-solver-basis-unused--"]')).toBeNull();
   });
 
   it("shows no T0R binding reason before invoking for a selector that names no row", () => {
