@@ -5566,16 +5566,27 @@ fn resolve_create_primitive_load(
             | "concentrated_moment"
             | "thermal"
             | "imposed_displacement"
-    ) {
+            | "weight"
+    ) || (category == "weight" && target_type != "node")
+    {
         checker.push(
             "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
             "blocking",
-            "Create-primitive-load payload category must be `concentrated_force`, `distributed_force`, `concentrated_moment`, `thermal`, or `imposed_displacement`.".to_string(),
+            "Create-primitive-load payload category must be `concentrated_force`, `distributed_force`, `concentrated_moment`, `thermal`, `imposed_displacement`, or a node-targeted `weight` force or moment.".to_string(),
             "Refresh the primitive-load creation intent from explicit user-entered primitive-load fields.",
             vec![target_ref.to_string()],
         );
         return None;
     }
+    // W-15 slice b: a node-targeted `weight` (a component's weight at its node)
+    // is checked as a concentrated force, or as a concentrated moment about a
+    // rotation axis, and stored under its authored category.
+    let authored_category = category;
+    let category = match (category, direction) {
+        ("weight", "rotation_x" | "rotation_y" | "rotation_z") => "concentrated_moment",
+        ("weight", _) => "concentrated_force",
+        (category, _) => category,
+    };
 
     let imposed_is_rotational =
         category == "imposed_displacement" && matches!(direction, "RX" | "RY" | "RZ");
@@ -5814,7 +5825,7 @@ fn resolve_create_primitive_load(
         target_ref.to_string(),
         serde_json::json!({
             "id": id,
-            "category": category,
+            "category": authored_category,
             "target": target,
             "direction": direction,
             "magnitude": { "value": magnitude_value.unwrap(), "unit": magnitude_unit },
@@ -11356,6 +11367,39 @@ mod tests {
         let blocked = apply_operation(&model, &non_empty, None);
         assert!(codes(&blocked).contains(&"OP-CREATE-LOAD-CASE-PAYLOAD-INVALID"));
         assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn node_targeted_weight_primitives_are_created_as_force_or_moment() {
+        // W-15 slice b: a component's weight is a node-targeted `weight`
+        // force, with `weight` moments about rotation axes.
+        let model = sample_model();
+        let create = |payload: Value, unit: &str, dimension: &str| {
+            let mut intent = modify_intent("Load", "load:L-1", "create_primitive_load", "primitive_loads", "not_present", &payload.to_string(), unit, dimension);
+            intent["operation_kind"] = json!("create");
+            apply_operation(&model, &intent, None)
+        };
+        let force = json!({"id": "load:W-F", "category": "weight", "target": {"type": "node", "node": "node:N-2"},
+            "direction": "global_y", "magnitude": {"value": -420.0, "unit": "N"}, "dimension": "force", "provenance": "user"});
+        let outcome = create(force.clone(), "N", "force");
+        assert!(outcome.diagnostics.is_empty(), "{:?}", outcome.diagnostics);
+        assert_eq!(outcome.applied_model.unwrap()["load_cases"][0]["primitive_loads"][1], force);
+        let moment = json!({"id": "load:W-M", "category": "weight", "target": {"type": "node", "node": "node:N-2"},
+            "direction": "rotation_z", "magnitude": {"value": -50.4, "unit": "N*m"}, "dimension": "moment", "provenance": "user"});
+        let outcome = create(moment.clone(), "N*m", "moment");
+        assert!(outcome.diagnostics.is_empty(), "{:?}", outcome.diagnostics);
+        assert_eq!(outcome.applied_model.unwrap()["load_cases"][0]["primitive_loads"][1], moment);
+        // A moment dimension along a translation, an element target and a
+        // missing node are refused.
+        let mut wrong = moment.clone();
+        wrong["direction"] = json!("global_y");
+        assert!(create(wrong, "N*m", "moment").applied_model.is_none());
+        let element = json!({"id": "load:W-E", "category": "weight", "target": {"type": "element", "pipe": "pipe:P-1"},
+            "direction": "global_y", "magnitude": {"value": -1.0, "unit": "N/m"}, "dimension": "force_per_length", "provenance": "user"});
+        assert!(codes(&create(element, "N/m", "force_per_length")).contains(&"OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID"));
+        let mut missing = force;
+        missing["target"]["node"] = json!("node:missing");
+        assert!(codes(&create(missing, "N", "force")).contains(&"OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND"));
     }
 
     #[test]

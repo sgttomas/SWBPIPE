@@ -110,9 +110,9 @@ fn component_weight_replaces_the_mapped_member_and_keeps_the_others() {
     let l = loads(&p);
     assert_eq!(l[0]["target"], json!({"type": "element", "pipe": "pipe:p1"}));
     assert_eq!((l[1]["category"].as_str(), l[1]["direction"].as_str(), l[1]["magnitude"]["value"].as_f64()),
-        (Some("concentrated_force"), Some("global_y"), Some(-500.0)));
+        (Some("weight"), Some("global_y"), Some(-500.0)));
     assert_eq!((l[2]["category"].as_str(), l[2]["direction"].as_str(), l[2]["magnitude"]["value"].as_f64()),
-        (Some("concentrated_moment"), Some("rotation_z"), Some(250.0)));
+        (Some("weight"), Some("rotation_z"), Some(250.0)));
     assert!(l[1..].iter().all(|l| l["target"] == json!({"type": "node", "node": "c"})));
     assert_eq!(p.source_evidence[0]["method"], GENERATED_METHOD);
     for e in &p.source_evidence[1..] {
@@ -218,7 +218,7 @@ fn identities_are_deterministic_and_length_prefixed() {
         plan(&m, &["pipe:p1", "body:v"]).changes.iter().map(|c| c.after.clone()).collect::<Vec<_>>());
     // A colliding existing primitive identity blocks.
     let mut collide = m.clone();
-    collide["load_cases"] = json!([{"id": "other", "primitive_loads": [{"id": force_id(), "category": "concentrated_force",
+    collide["load_cases"] = json!([{"id": "other", "primitive_loads": [{"id": force_id(), "category": "weight",
         "target": {"type": "node", "node": "c"}, "direction": "global_y", "magnitude": {"value": 1, "unit": "N"}, "dimension": "force"}]}]);
     let blocked = generate_self_weight_operations(&typed(&collide), &request(&["body:v"])).unwrap_err();
     assert!(blocked.iter().any(|d| d.message.contains("identity collision")), "{blocked:?}");
@@ -232,6 +232,10 @@ fn applied_component_weight_is_fresh_and_solves() {
         let out = run_linear_static_preview_value_with_mode(json!({"model": m, "materials": []}), mode).unwrap();
         assert_eq!(out.status.mechanics, "MECHANICS_SOLVED", "{:?}", out.diagnostics);
         assert!(!out.diagnostics.iter().any(|d| d.code.starts_with("SELF_WEIGHT")));
+        // The nodal weight primitives are weight, not a mapped preview
+        // category; only the member's distributed_force is mapped.
+        let mapped: Vec<_> = out.diagnostics.iter().filter(|d| d.code == "LOAD_CATEGORY_PREVIEW_MAPPED").collect();
+        assert!(mapped.iter().all(|d| d.affected_refs[0] == pipe_id("pipe:p1")), "{mapped:?}");
     }
 }
 

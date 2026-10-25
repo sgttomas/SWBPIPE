@@ -465,6 +465,10 @@ pub const COMPONENT_WEIGHT_METHOD: &str = "component_weight_at_center_of_gravity
 /// W-15 slice b: the warning naming a rigid-family component whose weight is
 /// not generated and the member whose pipe weight is generated in its place.
 pub const COMPONENT_WEIGHT_NOT_APPLIED: &str = "SELF_WEIGHT_COMPONENT_WEIGHT_NOT_APPLIED";
+/// W-15 slice b: the authored category of every component-weight primitive,
+/// a node-targeted `weight` force or moment (admitted at nodes by
+/// `primitive_loads` since this slice).
+pub const COMPONENT_WEIGHT_CATEGORY: &str = "weight";
 const AXES: [&str; 3] = ["x", "y", "z"];
 
 /// The deterministic identity of one wrench primitive: the generator's
@@ -650,10 +654,12 @@ fn component_primitive(
     let (force, moment) = wrench(body.weight, body.cog, index, acceleration);
     let mut force_vector = [0.0; 3];
     force_vector[index] = force;
+    // Both parts are `weight` primitives (a nodal force or moment), so the
+    // preview classifies them as weight, like the members' distributed loads.
     let (category, direction, unit, dimension) = if part == "force" {
-        ("concentrated_force", request.gravity.axis.clone(), "N", "force")
+        (COMPONENT_WEIGHT_CATEGORY, request.gravity.axis.clone(), "N", "force")
     } else {
-        ("concentrated_moment", format!("rotation_{axis}"), "N*m", "moment")
+        (COMPONENT_WEIGHT_CATEGORY, format!("rotation_{axis}"), "N*m", "moment")
     };
     let id = component_load_id(&request.case_id, &c.id, part, axis);
     let mut payload = json!({"id":id,"category":category,"target":{"type":"node","node":c.node},"direction":direction,
@@ -1160,9 +1166,9 @@ fn component_basis(
     let part = evidence["wrench_part"].as_str().ok_or_else(fail)?;
     let part_axis = evidence["wrench_axis"].as_str().and_then(|a| AXES.iter().position(|x| *x == a)).ok_or_else(fail)?;
     let (category, direction, unit, dimension, value) = match part {
-        "force" if part_axis == axis => ("concentrated_force", gravity.axis.clone(), "N", "force", force),
+        "force" if part_axis == axis => (COMPONENT_WEIGHT_CATEGORY, gravity.axis.clone(), "N", "force", force),
         "moment" if moment[part_axis] != 0.0 => {
-            ("concentrated_moment", format!("rotation_{}", AXES[part_axis]), "N*m", "moment", moment[part_axis])
+            (COMPONENT_WEIGHT_CATEGORY, format!("rotation_{}", AXES[part_axis]), "N*m", "moment", moment[part_axis])
         }
         _ => return Err(fail()),
     };

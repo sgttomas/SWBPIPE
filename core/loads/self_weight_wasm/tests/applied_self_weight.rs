@@ -320,7 +320,8 @@ fn component_weight_edits_require_refresh_and_refresh_in_place() {
     let loads = weighted["load_cases"][0]["primitive_loads"].as_array().unwrap().clone();
     // F = (0, -50, 0) at the tip, M = r x F = (0, 0, r_x f) = (0, 0, 25).
     assert_eq!(loads.len(), 2);
-    assert_eq!((loads[0]["category"].as_str(), loads[0]["magnitude"]["value"].as_f64()), (Some("concentrated_force"), Some(-50.0)));
+    assert_eq!((loads[0]["category"].as_str(), loads[0]["magnitude"]["value"].as_f64()), (Some("weight"), Some(-50.0)));
+    assert_eq!(loads[1]["category"], "weight");
     assert_eq!((loads[1]["direction"].as_str(), loads[1]["magnitude"]["value"].as_f64()), (Some("rotation_z"), Some(25.0)));
     let solved = solve(&reopen(&weighted));
     close("valve root force", root_fy(&solved), 50.0);

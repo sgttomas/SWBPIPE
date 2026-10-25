@@ -290,9 +290,16 @@ the desktop component-creation, inspector and self-weight features):
   scope label `selected_pipe_mass_and_component_weight`; any other plan keeps
   `selected_pipe_mass_only`. The plan's `warnings` are omitted when empty, so
   a plan without one keeps its bytes.
-- **Wrench.** One `concentrated_force` primitive along the gravity axis
-  (value ±W), then one `concentrated_moment` primitive (`rotation_x|y|z`) per
-  nonzero component of r × F, in x, y, z order. Each moment component is one
+- **Wrench.** One node-targeted `weight` force primitive along the gravity
+  axis (value ±W), then one `weight` moment primitive (`rotation_x|y|z`,
+  dimension moment) per nonzero component of r × F, in x, y, z order. Both
+  routes classify them as weight, so no `LOAD_CATEGORY_PREVIEW_MAPPED` is
+  stated for them. `core/loads/primitive_loads` admits `weight` at a node for
+  this: its element-only rule reflected only that weight had been a
+  distributed body force, and no lineage invariant or exact-route weight rule
+  depended on it. The nodal force/moment dimension check still applies. The
+  applier creates a node-targeted `weight` force or moment and refuses an
+  element-targeted one, which stays `distributed_force`. Each moment component is one
   product r_j·f, rounded once. A nonzero lever whose product is zero or not
   finite is the blocking `SELF_WEIGHT_RANGE_INVALID`, never a dropped
   moment. The identity is
@@ -317,8 +324,9 @@ the desktop component-creation, inspector and self-weight features):
 - **Staleness.** Editing the weight, centre of gravity, mapping, consumption,
   node or kind makes the component's primitives stale. An edit that keeps the
   primitive set refreshes in place: the wasm refresh plan, applied through the
-  applier's managed refresh. An edit that changes the set needs the case
-  generated again. Such edits are: a moment component appears or vanishes,
+  applier's managed refresh. An edit that changes the set has no in-place
+  replacement, so the refresh plan is refused and the case must be generated
+  again. Such edits are: a moment component appears or vanishes,
   the component starts or stops carrying the weight, or the mapping moves.
   The same holds for a member's distributed load once its component starts
   carrying the weight. A modified primitive is preserved only as an explicit
@@ -327,8 +335,11 @@ the desktop component-creation, inspector and self-weight features):
   vector of a length unit, every component finite. Its before value is
   `x, y, z unit` (`TBD` when absent), compared number by number and unit
   exactly. A weight edit requires a positive force, as creation does.
-  `mechanics_interface.solver_consumption` (`mechanics_geometry_only` or
-  `not_solver_consumed`) is editable on a rigid-family component only, and
+  `mechanics_interface.solver_consumption` is editable on a rigid-family
+  component only, and only to `mechanics_geometry_only` or
+  `not_solver_consumed`; creation accepts the same two modes. Other modes
+  (bend macro-element, objective connector) keep their own authoring routes.
+  `modifiers.source_reference` is editable, and
   `modifiers.source_reference` is editable. Valve, flange and reducer creation
   accepts an exact `modifiers` {finite positive dimensionless
   `stiffness_scaling_user_value`, nonblank `source_reference`} and an exact
@@ -347,7 +358,11 @@ the desktop component-creation, inspector and self-weight features):
   case, so slice b moves no demo or result fixture. PP `self_weight.rs` is a
   retained-pricing input (`tools/retained_pricing/base/b7a_formation_model.py`
   pins its hash). Its inspection's node arm gains an allocation-free prefix
-  check, so slice b joins the D3 re-pricing turn (§2.8). The retained route
+  check, so slice b joins the D3 re-pricing turn (§2.8). So does
+  `core/loads/primitive_loads/src/lib.rs`, pinned in
+  `tools/retained_pricing/base/b7a_domain_model.py`: a user-authored nodal
+  `weight` force or moment, formerly refused at load preparation, now
+  prepares on every route, the retained route included. The retained route
   still refuses every component.
 
 ## 4. Eccentric reducer offset (slice c)

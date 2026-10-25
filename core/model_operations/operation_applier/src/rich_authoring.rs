@@ -1107,9 +1107,9 @@ fn generated_self_weight(model: &Value, target: &str, before: &str, after: &str,
             // recomputes its value from the retained and current inputs.
             validate_component_record(&prior)?;
             let moment = match (new["category"].as_str(), new["dimension"].as_str()) {
-                (Some("concentrated_force"), Some("force")) => false,
-                (Some("concentrated_moment"), Some("moment")) => true,
-                _ => return Err(err("Generated component weight must remain a concentrated force or moment")),
+                (Some("weight"), Some("force")) => false,
+                (Some("weight"), Some("moment")) => true,
+                _ => return Err(err("Generated component weight must remain a nodal weight force or moment")),
             };
             if new.pointer("/target/type").and_then(Value::as_str) != Some("node") { return Err(err("Generated component weight target must be a node")); }
             let directions: &[&str] = if moment { &["rotation_x", "rotation_y", "rotation_z"] } else { &["global_x", "global_y", "global_z"] };

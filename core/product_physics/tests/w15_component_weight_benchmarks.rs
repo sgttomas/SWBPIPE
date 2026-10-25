@@ -234,7 +234,7 @@ fn check_primitives(plan: &SelfWeightOperationPlan, wrench: &Value, node: &str, 
         assert_eq!(load["id"], component_load_id(CASE, COMPONENT, part, axis), "{label}");
         assert_eq!(load["target"], json!({"type": "node", "node": node}), "{label}");
         assert_eq!(load["direction"], p["direction"], "{label}");
-        let (category, unit, dimension) = if part == "force" { ("concentrated_force", "N", "force") } else { ("concentrated_moment", "N*m", "moment") };
+        let (category, unit, dimension) = if part == "force" { ("weight", "N", "force") } else { ("weight", "N*m", "moment") };
         assert_eq!((load["category"].as_str(), load["magnitude"]["unit"].as_str(), load["dimension"].as_str()),
             (Some(category), Some(unit), Some(dimension)), "{label}");
         let observed = load["magnitude"]["value"].as_f64().unwrap();
@@ -290,6 +290,10 @@ fn solve(wire: &Value, route: Route, mode: PreviewSolverMode, label: &str, scale
     assert!(blocking.is_empty(), "{label}: {blocking:?}");
     assert_eq!(out.diagnostics.iter().any(|d| d.code == "RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED"), scaled, "{label}: scale applied");
     assert!(!out.diagnostics.iter().any(|d| d.code.starts_with("SELF_WEIGHT")), "{label}: generated loads are fresh");
+    // The component weight is classified as weight on both routes: no
+    // preview category mapping is stated for its primitives.
+    assert!(!out.diagnostics.iter().any(|d| d.code == "LOAD_CATEGORY_PREVIEW_MAPPED"), "{label}: {:?}",
+        out.diagnostics.iter().filter(|d| d.code == "LOAD_CATEGORY_PREVIEW_MAPPED").collect::<Vec<_>>());
     let reader = if route == Route::Preview { "preview-physics" } else { "pressure" };
     let verdict = reader_verdict::validate(reader, &serde_json::to_value(&out).unwrap(), Some(&wire["model"]), None);
     assert_eq!(verdict["ok"], true, "{label}: {verdict}");

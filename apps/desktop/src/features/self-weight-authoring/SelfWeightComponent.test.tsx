@@ -30,8 +30,8 @@ describe("component weight in the self-weight plan (W-15 slice b)", () => {
     const loads = generated.changes.slice(1).map((change) => JSON.parse(change.after));
     // F = (0, -420, 0) N at node:N-130; M = r x F = (0, 0, 0.12 * -420) N*m.
     expect(loads.map((load) => [load.category, load.target, load.direction, load.magnitude])).toEqual([
-      ["concentrated_force", { type: "node", node: "node:N-130" }, "global_y", { value: -420, unit: "N" }],
-      ["concentrated_moment", { type: "node", node: "node:N-130" }, "rotation_z", { value: 0.12 * -420, unit: "N*m" }]
+      ["weight", { type: "node", node: "node:N-130" }, "global_y", { value: -420, unit: "N" }],
+      ["weight", { type: "node", node: "node:N-130" }, "rotation_z", { value: 0.12 * -420, unit: "N*m" }]
     ]);
     for (const evidence of generated.source_evidence as Record<string, unknown>[]) {
       expect([evidence.component_id, evidence.omitted_pipe_id]).toEqual(["component:C-130", "pipe:P-130"]);
