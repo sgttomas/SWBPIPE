@@ -231,10 +231,12 @@ Rigid restraints cannot overlap a nonlinear DOF
   `nonlinear_support_final_relative_displacement`. It is an observation row,
   not a corrected or certified quantity:
   - **Value.** fl(U − g_s) in SI, then the declared unit conversion. U is the
-    support DOF's published absolute final displacement in SI: the
-    corrected-published value when a member bound exists (PP `lib.rs`
-    ~5563-5579, ~14264-14287), otherwise the selected loop value, including
-    a selected exact-gap projection.
+    support DOF's published absolute final displacement in SI. It is taken
+    from the actual `published_nodal_displacements` vector (PP `lib.rs`
+    ~5563-5579, ~14264-14287), including that helper's whole-vector fallback
+    to the selected loop values when any corrected component cannot be formed
+    finitely. A selected exact-gap projection is used where one exists. A
+    blocked or non-converged case publishes no row.
   - **What it does not claim.** It does not prove a strict sign. A strictly
     separated exact state may round to zero. Certified state claims stay with
     the state rows and the K-D5 evidence.
@@ -294,6 +296,11 @@ criterion is the K-D5 ball bound, or 1e-9 relative for gap projections.
     φ = c_f·α/(1 − c_f·γ), u_t = (f_t + φ − b·g_n)/d, with
     c_f = −dir·μ·β.
   - It checks this identity against a full direct-stiffness solve. An
+    independent unit Euler–Bernoulli L-frame with a free tip rotation gives
+    K_(n,t) = (1/103)·[[84, 18], [18, 48]] and γ = 3/8. The committed fixture
+    pins the lengths, the normalized section and material leaves, the loads,
+    the settlement, μ, and an admissible dir and β. Materializing it checks
+    that the branch is strictly sliding and that the denominator is nonzero. An
     influence system that carries g_n gives a different γ and violates Coulomb
     equilibrium, which kills that mutant. So does a Stage A that omits motion.
 
