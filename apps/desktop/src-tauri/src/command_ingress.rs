@@ -1333,7 +1333,8 @@ mod tests {
         Opt(Box<WireKind>),
         /// `deserialize_struct`: its name and its fields in declaration order.
         Struct(&'static str, Vec<(&'static str, WireKind)>),
-        /// Any other request (strings, booleans, numbers).
+        /// A request that builds no container: a string, a boolean, a
+        /// number or a char.
         Scalar(&'static str),
     }
 
@@ -1345,6 +1346,10 @@ mod tests {
         Opt,
         Struct(&'static str, &'static [&'static str]),
         Scalar(&'static str),
+        /// A request the probe does not follow (maps, tuples, enums,
+        /// newtypes, bytes, units, identifiers, ignored values). The wire
+        /// types make none of them, so one is drift: `kind_at` refuses it.
+        Unsupported(&'static str),
     }
 
     #[derive(Clone, Copy, Debug)]
@@ -1395,6 +1400,14 @@ mod tests {
         )*};
     }
 
+    macro_rules! probe_unsupported {
+        ($($method:ident)*) => {$(
+            fn $method<V: Visitor<'de>>(self, _visitor: V) -> Result<V::Value, ProbeError> {
+                self.leaf(Node::Unsupported(stringify!($method)))
+            }
+        )*};
+    }
+
     impl<'de> de::Deserializer<'de> for Probe<'_> {
         type Error = ProbeError;
 
@@ -1433,24 +1446,28 @@ mod tests {
         probe_scalars! {
             deserialize_bool deserialize_i8 deserialize_i16 deserialize_i32 deserialize_i64 deserialize_i128
             deserialize_u8 deserialize_u16 deserialize_u32 deserialize_u64 deserialize_u128 deserialize_f32
-            deserialize_f64 deserialize_char deserialize_str deserialize_string deserialize_bytes
-            deserialize_byte_buf deserialize_unit deserialize_map deserialize_identifier deserialize_ignored_any
+            deserialize_f64 deserialize_char deserialize_str deserialize_string
+        }
+
+        probe_unsupported! {
+            deserialize_bytes deserialize_byte_buf deserialize_unit deserialize_map deserialize_identifier
+            deserialize_ignored_any
         }
 
         fn deserialize_unit_struct<V: Visitor<'de>>(self, _name: &'static str, _visitor: V) -> Result<V::Value, ProbeError> {
-            self.leaf(Node::Scalar("unit_struct"))
+            self.leaf(Node::Unsupported("deserialize_unit_struct"))
         }
 
         fn deserialize_newtype_struct<V: Visitor<'de>>(self, _name: &'static str, _visitor: V) -> Result<V::Value, ProbeError> {
-            self.leaf(Node::Scalar("newtype_struct"))
+            self.leaf(Node::Unsupported("deserialize_newtype_struct"))
         }
 
         fn deserialize_tuple<V: Visitor<'de>>(self, _len: usize, _visitor: V) -> Result<V::Value, ProbeError> {
-            self.leaf(Node::Scalar("tuple"))
+            self.leaf(Node::Unsupported("deserialize_tuple"))
         }
 
         fn deserialize_tuple_struct<V: Visitor<'de>>(self, _name: &'static str, _len: usize, _visitor: V) -> Result<V::Value, ProbeError> {
-            self.leaf(Node::Scalar("tuple_struct"))
+            self.leaf(Node::Unsupported("deserialize_tuple_struct"))
         }
 
         fn deserialize_enum<V: Visitor<'de>>(
@@ -1459,7 +1476,7 @@ mod tests {
             _variants: &'static [&'static str],
             _visitor: V,
         ) -> Result<V::Value, ProbeError> {
-            self.leaf(Node::Scalar("enum"))
+            self.leaf(Node::Unsupported("deserialize_enum"))
         }
     }
 
@@ -1496,7 +1513,22 @@ mod tests {
         }
     }
 
-    /// The kind `T` requests at `path`, recursively.
+    /// A path as a field path: `audit_manifest.model_hash?`, `assets[]`.
+    fn path_name(path: &[Step]) -> String {
+        let mut name = String::new();
+        for step in path {
+            match step {
+                Step::Field(field) if name.is_empty() => name.push_str(field),
+                Step::Field(field) => name.push_str(&format!(".{field}")),
+                Step::Elem => name.push_str("[]"),
+                Step::Some => name.push('?'),
+            }
+        }
+        if name.is_empty() { "the request".into() } else { name }
+    }
+
+    /// The kind `T` requests at `path`, recursively. A request the probe
+    /// does not follow fails, naming the field path.
     fn kind_at<T: DeserializeOwned>(path: &mut Vec<Step>) -> WireKind {
         let found = std::cell::RefCell::new(None);
         let outcome = T::deserialize(Probe { path, found: &found });
@@ -1511,6 +1543,10 @@ mod tests {
         match node {
             Node::Any => WireKind::Any,
             Node::Scalar(method) => WireKind::Scalar(method),
+            Node::Unsupported(method) => panic!(
+                "{}: the wire type requests {method}, which the region probe does not follow; extend the probe and the region table",
+                path_name(path)
+            ),
             Node::Seq => WireKind::Seq(Box::new(inner(path, Step::Elem))),
             Node::Opt => WireKind::Opt(Box::new(inner(path, Step::Some))),
             Node::Struct(name, fields) => WireKind::Struct(name, fields.iter().map(|field| (*field, inner(path, Step::Field(field)))).collect()),
@@ -1582,7 +1618,8 @@ mod tests {
         let (a, o) = (array_price, object_price);
         let cases: Vec<(&str, String, (u64, u64, u64))> = vec![
             ("named fields", r#"{"report":{"a":[1,2]},"source_basis_refs":[["x","y"]]}"#.into(), (o(1) + a(2), a(1) + a(2), o(2))),
-            ("escaped field names", r#"{"report":[1],"source_basis_refs":[[1]],"audit_manifest":{"rule_pack_refs":[[2]]}}"#.into(), (a(1), 4 * a(1), o(3) + o(1))),
+            ("escaped field names", r#"{"\u0072eport":[1],"source\u005fbasis_refs":[[1]],"\u0061udit_manifest":{"rule_pack\u005Frefs":[[2]]}}"#.into(), (a(1), 4 * a(1), o(3) + o(1))),
+            ("escaped opaque vector names", r#"{"result\u005fdocuments":[{"a":[1]}],"\u0073ource_results":[[2]]}"#.into(), (o(1) + 2 * a(1), 2 * a(1), o(2))),
             ("near misses are neither", r#"{"reports":[1],"repor":[1],"Report":[1],"report ":[1]}"#.into(), (0, 0, o(4) + 4 * a(1))),
             (
                 "positional request and audit manifest",
@@ -1600,10 +1637,22 @@ mod tests {
             ("field names inside a struct of neither", r#"{"source_model_ref":{"report":[1]},"audit_manifest":{"solver_version":{"assets":[1]}}}"#.into(), (0, 0, o(2) + o(1) + a(1) + o(1) + o(1) + a(1))),
             ("opaque-shaped content in a typed element", r#"{"source_basis_refs":[{"ref_type":"a","x":{"y":[1]}}]}"#.into(), (0, a(1) + o(2) + o(1) + a(1), o(1))),
             ("a scalar request", "7".into(), (0, 0, 0)),
-            ("escaped key with a surrogate pair stays unmatched", r#"{"report😀":[1]}"#.into(), (0, 0, o(1) + a(1))),
+            ("escaped key with a surrogate pair stays unmatched", r#"{"report\ud83d\ude00":[1]}"#.into(), (0, 0, o(1) + a(1))),
         ];
         for (name, text, expected) in cases {
             assert_eq!(regions_of(&text), expected, "{name}: {text}");
+        }
+        // Escaped keys are attributed as their decoded, plain-key equivalents.
+        let escaped_and_plain = [
+            (r#"{"\u0072eport":[1],"source\u005fbasis_refs":[[1]],"\u0061udit_manifest":{"rule_pack\u005Frefs":[[2]]}}"#, r#"{"report":[1],"source_basis_refs":[[1]],"audit_manifest":{"rule_pack_refs":[[2]]}}"#),
+            (r#"{"result\u005fdocuments":[{"a":[1]}],"\u0073ource_results":[[2]]}"#, r#"{"result_documents":[{"a":[1]}],"source_results":[[2]]}"#),
+            (r#"{"report\ud83d\ude00":[1]}"#, r#"{"report😀":[1]}"#),
+            (r#"{"x\ud83d\ude00":"\uD83D\uDE00\n","\u0072eport":[1],"audit_manifest":["m",null,null,null,"SI",[],[[1]],null]}"#, "{\"x😀\":\"😀\\n\",\"report\":[1],\"audit_manifest\":[\"m\",null,null,null,\"SI\",[],[[1]],null]}"),
+            (r#"{"\u0072\u0065\u0070\u006f\u0072\u0074":{"a":[1]},"\u0061ssets":[[1]]}"#, r#"{"report":{"a":[1]},"assets":[[1]]}"#),
+        ];
+        for (escaped, plain) in escaped_and_plain {
+            assert_ne!(escaped, plain);
+            assert_eq!(regions_of(escaped), regions_of(plain), "{escaped} against {plain}");
         }
         // The desktop request: every container is in exactly one part.
         let desktop = canonical_json_text(&crate::report_package_save::test_support::desktop_request(&crate::report_package_save::test_support::model()));
@@ -1704,13 +1753,27 @@ mod tests {
         ];
         // Escaped field names and duplicate keys, written by hand.
         let refs = |n: usize| format!("[{}]", vec![r#"["load_case","LC1"]"#; n].join(","));
-        let escaped = format!(
+        let plain_names = format!(
             r#"{{"package_id":"pkg","export_profile_id":"profile","source_model_ref":["model","m"],"source_basis_refs":{},"report":{{"rows":[{}]}},"audit_manifest":{{"manifest_id":"m","model_hash":null,"input_manifest_hash":null,"solver_version":["s","v","b"],"unit_system_ref":"SI","rule_pack_refs":[{}],"assets":[],"professional_boundary":[true,false,false,false,false]}},"result_documents":[{{"a":[{}]}}],"source_results":[],"state_comparison_handoff_records":[],"rule_check_aggregate":null,"solve_rule_check_status":"s"}}"#,
             refs(5_000),
             vec!["[[1]]"; 3_000].join(","),
             vec![canonical_json(&minimal("RulePackAuditRefDto")); 3_000].join(","),
             vec!["[1]"; 3_000].join(","),
         );
+        // The same request with escapes in its field names, attributed as the
+        // plain-key text and measured below.
+        let mut escaped = plain_names.clone();
+        for (name, escaped_name) in [
+            (r#""report":"#, r#""\u0072eport":"#),
+            (r#""source_basis_refs":"#, r#""source\u005fbasis_refs":"#),
+            (r#""audit_manifest":"#, r#""\u0061udit_manifest":"#),
+            (r#""rule_pack_refs":"#, r#""rule\u005Fpack_refs":"#),
+            (r#""result_documents":"#, r#""result\u005fdocuments":"#),
+        ] {
+            assert_eq!(escaped.matches(name).count(), 1, "{name}");
+            escaped = escaped.replace(name, escaped_name);
+        }
+        assert_eq!(regions_of(&escaped), regions_of(&plain_names), "escaped field names against plain names");
         let duplicated = format!(
             r#"{{"source_basis_refs":{},"source_basis_refs":{},"report":[{}],"report":[{}],"result_documents":[],"result_documents":[[{}]]}}"#,
             refs(4_000),
