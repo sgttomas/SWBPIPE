@@ -187,15 +187,24 @@
       intent.click();
       await waitFor(`${label}: package intent recorded`, () => byTestId("report-package-private-intent")?.checked, 10000);
     }
-    await waitFor(`${label}: package save enabled`, () => byTestId("report-package-save") && !byTestId("report-package-save").disabled, 30000);
     await call("native_smoke_choose", { path });
-    await menu("file.save-report-package");
-    record.status = await waitFor(`${label}: package saved`, () => {
-      const now = text("report-package-save-status");
-      return now && !/Saving report package/.test(byTestId("report-package-save")?.textContent ?? "") ? now : null;
-    }, 300000);
+    // A save the native memory pool refused only for this Mac's momentary free
+    // memory (nothing ran, nothing was written) is asked again, as a person would.
+    record.memory_refusals = 0;
+    for (;;) {
+      await waitFor(`${label}: package save enabled`, () => byTestId("report-package-save") && !byTestId("report-package-save").disabled, 30000);
+      await menu("file.save-report-package");
+      await waitFor(`${label}: package save started`, () => /Saving report package/.test(byTestId("report-package-save")?.textContent ?? "") || null, 10000).catch(() => null);
+      record.status = await waitFor(`${label}: package saved`, () => {
+        const now = text("report-package-save-status");
+        return now && !/Saving report package/.test(byTestId("report-package-save")?.textContent ?? "") ? now : null;
+      }, 300000);
+      await log(`${label}: ${record.status}`);
+      if (!/RESOURCE_UNAVAILABLE: Not enough free memory/.test(record.status) || record.memory_refusals >= 20) break;
+      record.memory_refusals += 1;
+      await sleep(5000);
+    }
     record.redaction = text("report-package-redaction-summary");
-    await log(`${label}: ${record.status}`);
     if (!record.status.startsWith("outcome=saved")) {
       await call("native_smoke_clear_choices");
       return record;
