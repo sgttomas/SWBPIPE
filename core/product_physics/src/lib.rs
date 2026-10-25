@@ -57,6 +57,10 @@ mod b7b_admission_tests;
 mod tie_rod_tests;
 #[cfg(test)]
 mod corrected_displacement_tests;
+// W-11 (DEL-08-01 Design `exact-route-report-sections.md` §2.2): the exact-route
+// limitation coverage fixture and the recovery statements entering once.
+#[cfg(test)]
+mod exact_route_limitations_tests;
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 pub use open_pipe_stress_curved_bend::{arc_geometry, kink, ArcFrame, TANGENCY_TOLERANCE_RAD};
@@ -1184,28 +1188,52 @@ fn formulation_basis_for_model(model: &PreviewModel) -> FormulationBasis {
     formulation_basis_for_model_with_source(model, false)
 }
 fn formulation_basis_for_model_with_source(model: &PreviewModel, source_selected: bool) -> FormulationBasis {
-    let mut basis = if pressure_runtime::exact_contract(model) == Some(pressure_runtime::ExactContract::PressureV3) {
-        // T4-U3: a model with an objective connector states its law; a model
-        // without one keeps v3's text unchanged. The join's `source_selected`
+    if pressure_runtime::exact_contract(model) == Some(pressure_runtime::ExactContract::PressureV3) {
+        // T4-U3: a model with an objective connector states its law; T4-U2: a
+        // model with a realized bend states the bend's terms. A model without
+        // either keeps v3's text unchanged (SP-1). The join's `source_selected`
         // names the publication (pressure-source-1 or pressure-2).
-        let mut basis = exact_admission::pressure_v3_formulation_basis_with_source(
+        exact_formulation_basis(
             case_state::is_load_state(model),
             model.components.iter().any(|c| c.objective_connector.is_some()),
+            model.components.iter().any(is_curved_bend_macro_component),
             source_selected,
-        );
-        // T4-U2: a model with a realized bend states the bend's terms; a
-        // straight-only v3 model keeps its text unchanged (SP-1).
-        if model.components.iter().any(is_curved_bend_macro_component) {
-            basis.limitations.push(bend_pressure::BEND_LIMITATION.to_string());
-        }
-        basis
+        )
     } else {
-        preview_formulation_basis()
-    };
-    basis.limitations.extend([
-        "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).".to_string(),
-        "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector.".to_string(),
-    ]);
+        let mut basis = preview_formulation_basis();
+        basis.limitations.extend(CERTIFIED_RECOVERY_LIMITATIONS.map(str::to_string));
+        basis
+    }
+}
+
+/// K-D5's two route-independent certified-recovery statements, the last two
+/// limitations of every route's list. W-11 (DEL-08-01 Design
+/// `exact-route-report-sections.md` §2.2): one constant, appended once per
+/// route, by [`exact_formulation_basis`] on the exact route and by
+/// `formulation_basis_for_model_with_source` on the other.
+pub(crate) const CERTIFIED_RECOVERY_LIMITATIONS: [&str; 2] = [
+    "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+    "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector.",
+];
+
+/// The exact routes' published limitation list (W-11, DEL-08-01 Design
+/// `exact-route-report-sections.md` §1.3 and §2.2), the seam the producer
+/// and the report's coverage fixture share: v3's statements (the identity,
+/// the shared statements, the source paragraph, the load/reference-state
+/// statements and the connector law, `pressure_v3_formulation_basis_with_source`),
+/// then the realized-bend statement, then the certified-recovery statements,
+/// once. `selected` names the publication (pressure-source-1 or pressure-2).
+pub(crate) fn exact_formulation_basis(
+    load_state: bool,
+    connectors: bool,
+    realized_bends: bool,
+    selected: bool,
+) -> FormulationBasis {
+    let mut basis = exact_admission::pressure_v3_formulation_basis_with_source(load_state, connectors, selected);
+    if realized_bends {
+        basis.limitations.push(bend_pressure::BEND_LIMITATION.to_string());
+    }
+    basis.limitations.extend(CERTIFIED_RECOVERY_LIMITATIONS.map(str::to_string));
     basis
 }
 
