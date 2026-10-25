@@ -155,8 +155,18 @@ code_paths:
 - apps/desktop/src/services/previewService.ts
 - apps/desktop/src/features/comparison/ComparisonPanel.tsx
 - apps/desktop/src/features/workspace/resultsSessionState.ts
+- apps/desktop/src/features/comparison/runComparison.ts
+- apps/desktop/src/features/comparison/runComparisonSides.ts
+- apps/desktop/src/features/comparison/RunComparisonView.tsx
+- apps/desktop/src-tauri/src/analysis_runs.rs
+- fixtures/comparison/analysis_run_comparison_golden.json
 checks:
 - tests/test_analysis_run_comparison.py
 - tests/test_comparison_contracts.py
 - apps/desktop/src/App.test.tsx
 - apps/desktop/src/features/workspace/exactCurrentPanels.test.tsx
+- apps/desktop/src/features/comparison/runComparison.test.ts
+- apps/desktop/src/features/comparison/runComparisonParity.test.ts
+- apps/desktop/src/features/history/compareRuns.test.tsx
+- apps/desktop/src-tauri/src/analysis_runs_tests.rs
+- tests/test_analysis_run_comparison_parity.py

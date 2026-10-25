@@ -5122,6 +5122,7 @@ macro_rules! app_invoke_handler {
             analysis_runs::read_analysis_run,
             analysis_runs::edit_analysis_run_labels,
             analysis_runs::delete_analysis_run,
+            analysis_runs::admit_analysis_run_comparison,
             sync_native_shell_state,
             validate_rule_pack,
             compute_rule_pack_document_checksum,

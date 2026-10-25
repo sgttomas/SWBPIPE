@@ -80,7 +80,8 @@ describe("Compare… in the History panel", () => {
     renderPanel(history);
     const compare = screen.getByTestId("model-state-compare");
     expect(compare).toBeDisabled();
-    expect(compare).toHaveAttribute("title", "Select two saved states to compare.");
+    // Since S3b the one Compare… takes two saved states or two runs.
+    expect(compare).toHaveAttribute("title", "Select two saved states, or two runs, to compare.");
     select(SECOND);
     expect(compare).toBeDisabled();
     select(FIRST);

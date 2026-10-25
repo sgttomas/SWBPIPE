@@ -45,6 +45,7 @@ export const NATIVE_INGRESS_COMMANDS = [
   "read_analysis_run",
   "edit_analysis_run_labels",
   "delete_analysis_run",
+  "admit_analysis_run_comparison",
   "save_model_document_file",
   "save_handoff_package"
 ] as const;
