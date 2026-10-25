@@ -5,10 +5,11 @@
 //   node --test apps/desktop/native-smoke/app-binding.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, statSync, symlinkSync, unlinkSync, utimesSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, symlinkSync, unlinkSync, utimesSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { BINDING_FORMAT, bindingPathFor, fileIdentity, frontendInputs, planAppBuild, prepareSmokeApp } from "../scripts/appBinaryBinding.mjs";
+import { BINDING_FORMAT, bindingPathFor, fileIdentity, frontendInputs, launchCopiesDirectory, planAppBuild, prepareSmokeApp, privateLaunchCopy } from "../scripts/appBinaryBinding.mjs";
 import { STAMP_FORMAT } from "../scripts/engineSourceStamp.mjs";
 
 const BUILD = { command: ["cargo", "build", "--message-format=json-render-diagnostics", "--features", "native-smoke"], tauri_config: "{}" };
@@ -409,6 +410,45 @@ test("Codex r4: an app binary an ordinary cargo build changed after the binding 
     assert.deepEqual(step.calls, ["cargo clean app,lib", "cargo build"]);
     assert.deepEqual(app.identity, fileIdentity(app.binary));
     assert.deepEqual(w.record().binary, { path: app.binary, ...fileIdentity(app.binary) });
+  } finally {
+    w.cleanup();
+  }
+});
+
+test("Codex r6: the launch runs a private copy of the bound binary, checked by hash; a copy that is not the bound binary is refused and removed", () => {
+  const w = workspace();
+  try {
+    const app = w.prepare(false);
+    w.take();
+    // The bound executable, made runnable: it reports where it runs from.
+    writeFileSync(app.binary, "#!/bin/sh\necho \"running $0\"\n");
+    chmodSync(app.binary, 0o755);
+    const bound = fileIdentity(app.binary);
+    const copy = privateLaunchCopy({ desktopRoot: w.desktopRoot, binary: app.binary, identity: bound, token: "t1" });
+    assert.equal(copy.directory, path.join(launchCopiesDirectory(w.desktopRoot), "run-t1"));
+    assert.equal(copy.executable, path.join(copy.directory, "app"));
+    assert.deepEqual(copy.identity, bound);
+    assert.equal(statSync(copy.directory).mode & 0o777, 0o700);
+    // The copy runs on its own, and a later rebuild of the bound path does not change it.
+    assert.equal(execFileSync(copy.executable, { encoding: "utf8" }).trim(), `running ${copy.executable}`);
+    writeFileSync(app.binary, "#!/bin/sh\necho rebuilt\n");
+    assert.deepEqual(fileIdentity(copy.executable), bound);
+    // The directory is the run's alone: the same token is never reused.
+    assert.throws(() => privateLaunchCopy({ desktopRoot: w.desktopRoot, binary: app.binary, identity: fileIdentity(app.binary), token: "t1" }), /EEXIST/);
+    copy.remove();
+    assert.ok(!existsSync(copy.directory), "the copy is removed when the run ends");
+    // The binary replaced after the binding check: the copy's hash is not the bound one.
+    assert.throws(
+      () => privateLaunchCopy({ desktopRoot: w.desktopRoot, binary: app.binary, identity: bound, token: "t2" }),
+      new RegExp(`native smoke: the copy of .*src-tauri/target/debug/app has SHA-256 ${fileIdentity(app.binary).sha256}, not the bound binary's ${bound.sha256}; nothing is launched`)
+    );
+    assert.deepEqual(readdirSync(launchCopiesDirectory(w.desktopRoot)).filter((name) => name.startsWith("run-")), [], "a refused copy is removed");
+    // A link where the copies are kept is refused.
+    rmSync(launchCopiesDirectory(w.desktopRoot), { recursive: true, force: true });
+    mkdirSync(path.join(w.root, "elsewhere"));
+    symlinkSync(path.join(w.root, "elsewhere"), launchCopiesDirectory(w.desktopRoot));
+    assert.throws(() => privateLaunchCopy({ desktopRoot: w.desktopRoot, binary: app.binary, identity: fileIdentity(app.binary), token: "t3" }), /refusing to copy the app into .*target\/native-smoke: .*target\/native-smoke is a symbolic link; nothing is launched/);
+    assert.deepEqual(readdirSync(path.join(w.root, "elsewhere")), []);
   } finally {
     w.cleanup();
   }

@@ -46,8 +46,18 @@
 // missing or unreadable, or the frontend hash or the `dist/` digest differs; the
 // app alone when the engine stamps, app sources, build or binary differ. The log
 // names which applies.
+//
+// What is launched is a private copy of the bound executable
+// (`privateLaunchCopy`): under the build lock, after the binding check, it is
+// copied into `target/native-smoke/run-<lock token>/` under this app (created
+// exclusively, so no other run shares it), its SHA-256 must equal the bound
+// binary's, and the smoke launches the copy and removes it when the run ends. A
+// later cargo build replacing the executable in `src-tauri/target` cannot change
+// what a run launches. The app needs nothing beside its executable: `dist/` is
+// embedded, it links only system libraries, and its solve workers start the
+// copy again (`current_exe`).
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { chmodSync, constants, copyFileSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import {
   compileReadsFromDepInfo,
@@ -340,7 +350,7 @@ export function prepareSmokeApp({
     const before = appInputs({ projectRoot, tauriDir, compileReads: reads, readManifest });
     checkTarget();
     log(`native smoke: cleaning the app's own packages in ${path.relative(projectRoot, targetDirectory)} (${clean})`);
-    runCargo(["cargo", "clean", "--offline", ...before.packages.flatMap((name) => ["-p", name])], cargoDirectories);
+    runCargo(["cargo", "clean", "--offline", "--manifest-path", path.join(tauriDir, "Cargo.toml"), ...before.packages.flatMap((name) => ["-p", name])], cargoDirectories);
     const beforeDigests = digestInputs(projectRoot, before.all);
     const distBefore = treeDigest(distDirectory);
     checkTarget();
@@ -374,4 +384,35 @@ export function prepareSmokeApp({
     clean = "the last app build was not bound";
   }
   throw new Error(`native smoke: the app's inputs did not hold still across ${MAX_STABLE_APP_BUILD_ATTEMPTS} builds (${drift.join("; ")}); nothing is bound or launched`);
+}
+
+export const launchCopiesDirectory = (desktopRoot) => path.join(desktopRoot, "target", "native-smoke");
+
+// Copy the bound executable `binary` (whose identity is `identity`) into a new
+// private directory `run-<token>` and check the copy is the bound binary.
+// Returns { executable, identity, directory, remove }; throws a
+// "native smoke: ..." error, leaving no copy, when nothing may be launched.
+export function privateLaunchCopy({ desktopRoot, binary, identity, token }) {
+  const parent = launchCopiesDirectory(desktopRoot);
+  for (const step of [path.dirname(parent), parent]) {
+    if (lstatSync(step, { throwIfNoEntry: false })?.isSymbolicLink()) throw new Error(`native smoke: refusing to copy the app into ${parent}: ${step} is a symbolic link; nothing is launched`);
+  }
+  mkdirSync(parent, { recursive: true });
+  const directory = path.join(parent, `run-${token}`);
+  // Exclusive: an existing directory of that name is never reused.
+  mkdirSync(directory, { mode: 0o700 });
+  const remove = () => rmSync(directory, { recursive: true, force: true });
+  try {
+    const executable = path.join(directory, path.basename(binary));
+    copyFileSync(binary, executable, constants.COPYFILE_EXCL);
+    chmodSync(executable, 0o700);
+    const copied = fileIdentity(executable);
+    if (identity === null || !same(copied, identity)) {
+      throw new Error(`native smoke: the copy of ${binary} has SHA-256 ${copied?.sha256 ?? "none"}, not the bound binary's ${identity?.sha256 ?? "none"}; nothing is launched`);
+    }
+    return { executable, identity: copied, directory, remove };
+  } catch (error) {
+    remove();
+    throw error;
+  }
 }

@@ -8,9 +8,9 @@
 // frontend and the app with the `native-smoke` cargo feature (under
 // --skip-build, whatever a stale engine, dist/ copy, frontend or app source or
 // app binding requires) and binds the executable cargo reported
-// (`scripts/appBinaryBinding.mjs`), then runs that executable twice against a
-// throwaway HOME (so the project store and Downloads are isolated from the
-// user's own):
+// (`scripts/appBinaryBinding.mjs`), then runs a private copy of that executable
+// twice against a throwaway HOME (so the project store and Downloads are
+// isolated from the user's own):
 //
 //   1. open-solve-save: File > Save Model Document… on the bundled demo, re-open
 //      the saved file and save it again (W-6a); three named refusals; then for the milestone model and
@@ -37,7 +37,7 @@
 // build directories set to its own dedicated directory), and shared or linked
 // target directories. Out of scope, documented
 // limits: local cargo configuration or filesystem tricks deliberately
-// constructed to defeat the check (for example a wrapper or linker program whose
+// constructed to defeat the check (for example a linker program whose
 // contents change under the same name, or a file swapped between the check and
 // cargo's read). Some refusals (cargo configuration keys in any TOML spelling)
 // also stop such constructions where that was cheap; that does not bring them in
@@ -48,16 +48,23 @@
 // under the per-worktree build lock (`scripts/worktreeBuildLock.mjs`,
 // `apps/desktop/target/build.lock`), which `build:wasm` also takes (inherited
 // here through OPENPIPESTRESS_BUILD_LOCK_TOKEN), so two smokes, or a smoke and
-// a direct `npm run build:wasm`, in one worktree never interleave their builds;
-// it is released before the app is launched (the executable's identity is
-// checked again before each launch). A second taker waits, logging `waiting for
-// the build lock held by pid N`, at most OPENPIPESTRESS_BUILD_LOCK_WAIT_MS
-// (default 30 minutes), then refuses by name; a lock whose pid is not running,
-// or was reused (another start time), is broken with a log line, a live
-// holder's never. One order: the host slot first (`t3_slot.sh`, `t3_cargo.sh`
+// a direct `npm run build:wasm`, in one worktree never interleave their builds.
+// One build, or one smoke's build phase, per worktree at a time is the
+// supported use: a second is refused at once, not queued. The lock fails
+// closed and is never broken automatically: the refusal names the holder (pid,
+// purpose, start and acquired times), gives an informational liveness hint
+// from `ps`, and prints the commands that confirm no build is running in this
+// worktree and then remove the lock (`rm -f` of its path), so a crashed run
+// costs a minute. One order: the host slot first (`t3_slot.sh`, `t3_cargo.sh`
 // or `t3_exclusive.sh`, taken by the wrapper that launches this script), then
 // the worktree lock. While holding it, no command that would acquire a host
-// slot runs: such a command is refused by name.
+// slot runs: such a command, or an inherited compiler wrapper (RUSTC_WRAPPER,
+// RUSTC_WORKSPACE_WRAPPER, CARGO_BUILD_RUSTC_WRAPPER,
+// CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER) before any cargo, is refused by name.
+// Still under the lock, the bound executable is copied into a private per-run
+// directory (`target/native-smoke/run-<token>/`), the copy's SHA-256 checked
+// against the binding, and the lock released; each launch runs that copy, its
+// identity checked again first, and the copy is removed when the run ends.
 import { execFileSync, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -65,9 +72,9 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ENGINE_BUILDS } from "../scripts/build-wasm-engine.mjs";
-import { fileIdentity, prepareSmokeApp } from "../scripts/appBinaryBinding.mjs";
+import { fileIdentity, prepareSmokeApp, privateLaunchCopy } from "../scripts/appBinaryBinding.mjs";
 import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mjs";
-import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, refuseHostSlotCommand } from "../scripts/worktreeBuildLock.mjs";
+import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, refuseCompilerWrapperEnv, refuseHostSlotCommand } from "../scripts/worktreeBuildLock.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const desktop = path.resolve(here, "..");
@@ -101,14 +108,21 @@ function run(command, commandArgs, cwd, env = {}) {
 const skipBuild = args.has("--skip-build");
 let buildLock;
 try {
-  buildLock = acquireBuildLock({ purpose: "native smoke", log: (line) => console.log(`native smoke: ${line}`) });
+  buildLock = acquireBuildLock({ purpose: "native smoke" });
 } catch (error) {
   console.error(`native smoke: ${error.message}`);
   process.exit(2);
 }
 // `build:wasm` and the other builds below run under this lock.
 process.env[BUILD_LOCK_TOKEN_ENV] = buildLock.token;
-const stampContext = engineStampContext(desktop);
+let stampContext;
+try {
+  // Refuses an inherited compiler wrapper before any cargo runs.
+  stampContext = engineStampContext(desktop);
+} catch (error) {
+  console.error(`native smoke: ${error.message}`);
+  process.exit(2);
+}
 const engineStates = () =>
   ENGINE_BUILDS.map(({ crateDirectory, destination }) => ({
     name: path.basename(destination),
@@ -134,7 +148,7 @@ if (staleEngines.length > 0) {
 // The app embeds dist/ when cargo builds it. What is rebuilt, the binding record
 // and the executable launched: scripts/appBinaryBinding.mjs.
 const APP_BUILD = {
-  command: ["cargo", "build", "--locked", "--offline", "--message-format=json-render-diagnostics", "--features", "native-smoke,tauri/custom-protocol"],
+  command: ["cargo", "build", "--locked", "--offline", "--manifest-path", path.join(tauriDir, "Cargo.toml"), "--message-format=json-render-diagnostics", "--features", "native-smoke,tauri/custom-protocol"],
   tauri_config: SMOKE_TAURI_CONFIG
 };
 let app;
@@ -153,6 +167,7 @@ try {
     runFrontend: () => run("npm", ["run", "build"], desktop),
     runCargo: ([command, ...commandArgs], env) => {
       refuseHostSlotCommand(command, commandArgs);
+      refuseCompilerWrapperEnv({ ...process.env, ...env });
       console.log(`$ (${path.relative(project, tauriDir)}) ${command} ${commandArgs.join(" ")}`);
       return execFileSync(command, commandArgs, {
         cwd: tauriDir,
@@ -167,12 +182,21 @@ try {
   console.error(error.message.startsWith("native smoke:") ? error.message : `native smoke: app build failed: ${error.message}`);
   process.exit(2);
 }
-// Checked, built and bound: the builds are done, and the lock is released
-// before the launches.
+// Checked, built and bound. Still under the lock, the bound executable is
+// copied to this run's private directory and the copy checked against the
+// binding; the launches run the copy, and the lock is released before them.
+let launchCopy;
+try {
+  launchCopy = privateLaunchCopy({ desktopRoot: desktop, binary: app.binary, identity: app.identity, token: buildLock.token });
+} catch (error) {
+  console.error(error.message.startsWith("native smoke:") ? error.message : `native smoke: could not copy the app for launch: ${error.message}`);
+  process.exit(2);
+}
+process.on("exit", launchCopy.remove);
 buildLock.release();
 delete process.env[BUILD_LOCK_TOKEN_ENV];
-const binary = app.binary;
-console.log(`native smoke: launching ${binary} (${app.identity.sha256})`);
+const binary = launchCopy.executable;
+console.log(`native smoke: launching ${binary}, a private copy of ${app.binary} (${app.identity.sha256})`);
 
 // RFC 8785 JCS for JSON documents (finite numbers; ECMAScript number text).
 function canonical(value) {
@@ -250,7 +274,7 @@ function launch(phase, extra = {}) {
   };
   console.log(`\n== phase ${phase} (HOME=${home})`);
   if (JSON.stringify(fileIdentity(binary)) !== JSON.stringify(app.identity)) {
-    console.error(`native smoke: ${binary} changed since it was bound; not launched`);
+    console.error(`native smoke: ${binary}, the private copy of the bound app, changed since it was checked; not launched`);
     process.exit(2);
   }
   return new Promise((resolve) => {
