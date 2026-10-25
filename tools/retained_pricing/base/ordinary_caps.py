@@ -510,6 +510,11 @@ add("Ordinary scalar maximum (one helper at a time)", "Maximum",
 # ---------------- Old case staging (BOUND :77-78) -------------------------------------------
 add("Source row qualification", "OldCaseStaging",
     HashReq("(String,String)", R0) + B(2 * R0 * ID) + Xc("ResultItem", R0) + tx("row") * R0 + tx("row") * 2)
+# W-7 D3 (retained-pricing-rules.md §8.20, W7-QF): qualify_source_case_rows' references to the case's rows other than
+# its global end rows, push-grown, live through the qualification.
+import w7_owners_model as _w7_model
+if _snapshot and _w7_model.inspect(_snapshot):
+    add("Source row qualification: global end filter (W7-QF)", "OldCaseStaging", _w7_model.source_filter(R0))
 add("Existing ordinary/failed source case (FinalizedSourceBlockCase::ordinary)", "OldCaseStaging",
     Xc("RowTreatment", R0) + B(R0 * ID) + B(3 * ID + 64) + value_tree(16, 4, 40, 2048, 40 * 24)
     + s("Value") * (2 * R0) + X({"Node(String,Value)": 3 * R0}) + B(128 * R0) + tx("row") * R0

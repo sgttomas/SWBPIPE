@@ -35,7 +35,7 @@ INVALIDATION = ("The stage-1 lc-1 preparation-refusal credit is retired. Every a
 FG_FILE = "core/product_physics/src/formation_guard.rs"
 FG = FG_FILE + ":304:load_row_finding"
 DECIDE = FG_FILE + ":223:decide_row"
-SOLVE = "core/product_physics/src/lib.rs:4845:solve_prepared_load_case"   # model document 0.7.0 (§8.17; silent-zero guard: 4775; W-8: 4774; pre-0.4 unification: 4772; O4 S5: 4687; T4-S5 epoch: 4684; final source 588de796a4: 4507; PP: 4500; B7b: 4427; B7a: 4442)
+SOLVE = "core/product_physics/src/lib.rs:4850:solve_prepared_load_case"   # W-7 (§8.20; model document 0.7.0: 4845; silent-zero guard: 4775; W-8: 4774; pre-0.4 unification: 4772; O4 S5: 4687; T4-S5 epoch: 4684; final source 588de796a4: 4507; PP: 4500; B7b: 4427; B7a: 4442)
 ROW_LOOP = "for row in &rows"
 LOOP_RULE = {
     "fn": "formation_guard.rs:304:load_row_finding",

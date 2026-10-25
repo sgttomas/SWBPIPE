@@ -126,6 +126,9 @@ code_paths:
 - validation/references/t4_i6/**
 - validation/references/t4_i9/**
 - validation/references/t4_o13/**
+# W-7 (Design global-end-actions.md): the readers' checks of the global end rows; the producer is
+# product_physics lib.rs `append_element_global_end_results`.
+- core/reporting/result_export/src/global_end_evidence.rs
 checks:
 - core/solver/frame_kernel/src/lib.rs
 - core/solver/frame_kernel/src/structural/sparse/tests.rs
@@ -137,3 +140,5 @@ checks:
 - core/solver/frame_kernel/src/structural/absorption_tests.rs
 - core/solver/frame_kernel/src/structural/arc_maximum_tests.rs
 - core/solver/sparse_direct/src/lib.rs
+- core/product_physics/tests/global_end_actions_runtime.rs
+- tests/test_global_end_verifier.py

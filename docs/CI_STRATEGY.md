@@ -6,9 +6,20 @@ product jobs are explicitly skipped. Selection uses the complete PR diff;
 missing diff information conservatively selects coverage.
 
 On a relevant PR, desktop coverage is a production build and one Chromium
-project running the R2 smoke and save/reopen journey and the rotation-glyph
-browser evidence (DEL-07-05:1). The browser matrix runs only by explicit
-workflow dispatch.
+project (`chromium-desktop`) running core specs: the R2 smoke and save/reopen
+journey, the rotation-glyph browser evidence (DEL-07-05:1) and the result
+overlays. The selection adds a group of specs when the PR diff changes one of
+the group's paths. Open, New and Replace of an edited project add
+`ui-foundation`, `c3-viewport-visibility`, `gui-workflow-validation` and
+`linear-authoring`. Their paths are `apps/desktop/src/features/project-storage/`
+(the replace and unsaved-changes prompts and guard), `workspaceSession.ts` (the
+Open, New and Replace commands), `services/projectService.ts` (the project
+store they read and write), and the four specs themselves. A shared CI input, an
+unmatched project input or full coverage adds every group. The core specs,
+groups and paths are declared in `piping_browser_journeys` in
+`tools/hosted-ci-routing.json`. The product job runs the plan's spec list, and
+the plan's reasons name the path and group behind each added spec. The browser
+matrix runs only by explicit workflow dispatch.
 
 The `piping-desktop` selection adds the full desktop Vitest suite, run in two
 shards (`vitest --shard=1/2` and `2/2`) as jobs beside the product job, under
@@ -114,7 +125,7 @@ macOS release sweep remains available for release preparation.
 
 Successful numerical and core-browser results can be reused on PRs. The key
 covers every tracked file available in the sparse product checkout, the runner
-image/architecture, language runtime and selected numerical command set and the plan's classification, reasons and exact manifest identity. Selection is recomputed before execution or reuse. This
+image/architecture, language runtime and selected numerical command set and the plan's classification, reasons and exact manifest identity. The browser key also covers the selected Chromium project and spec list, so a pass without a group's specs is never reused for a run that selects them. Selection is recomputed before execution or reuse. This
 is intentionally conservative: source, fixture, test or workflow changes rerun;
 changes confined to excluded execution records can reuse a pass. Cache restore
 uses an exact key only, and records are saved only after successful execution.

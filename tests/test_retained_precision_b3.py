@@ -29,8 +29,8 @@ ROOT = Path(__file__).resolve().parents[1]
 # PP retained_facade_tests.rs `PINNED` pins the same bytes. W1's DEF-O meaning-hash move (DEL-04-08
 # w1-member-load-certification.md §6.4) re-sealed only the DEF-O-bound preparation, source-identity and receipt
 # hashes and replaced e3e0830d.../c24d4a1c....
-PINNED = {"sparse_interactive": "2527351c49f3c928882dbeda961c0a3e34cb26cbfe00457e7af6d71c6f0bb119",
-          "dense_scrutiny": "fd0c430ca4bfae895851c735207d3424d8d5c835a9d2bd5743cf012e577e1eba"}
+PINNED = {"sparse_interactive": "cf053309e8048ae013dc5388d1115399ff89cf493eb2e36772500a3c6985a6e5",
+          "dense_scrutiny": "f8078ee2c82ba370ab04591af49ed12c48fda5d88a54a75b0725fbdde317d884"}
 MODES = sorted(PINNED)
 LEGACY = {"version": "1.0.0", "mode": "legacy_pressure_v1"}
 INVOCATION = ("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")
@@ -659,8 +659,8 @@ B3B_PASSES = {
 # bytes) replaced 5ef83dd9.../57114af4... and ee20a337.../3b92b6ce.... T4-U6's regeneration on the D-5 producer
 # (reduced stress twins, per-basis headlines and evidence) replaced 45e14e68.../f6bb7e7f... and 0f490c22.../0317aed6....
 # O4 (W1-E): DEF-E's revision moved only the DEF-E-bound hashes; it replaced 3cfcde8d.../a5ac8236... and 2e69b43c.../0a357a3a....
-EXACT_PINNED = {"sparse_interactive": ("08f9c9f654b4f18871cc9b08a23655fb8517c91fbfc5d9a3f24932f8694ace82", "a6f0815b30fa042a51552fa8d1881fe1af39479fffbc0382a866248e2276f531"),
-                "dense_scrutiny": ("04ee8f329c19d19278b01be56365c3b76ee5fc8469bf8b9d488e4bd54b4aa535", "6aea076aaf67042cbd61bab4697a9da2d6fb873f331510643d0764a00cd6dafc")}
+EXACT_PINNED = {"sparse_interactive": ("8015669b3b5f32baf2b785076d8694752b2e95d258180a85a24126142205f332", "56fba7f1688a74b07498f98234d49b5f271995c28dc9f0aaa16ec8f9a9eb3636"),
+                "dense_scrutiny": ("60b1b8e88c15d61ccb178febe250fc929c3a4d0ed53533cfcfe56e8c78873b67", "56d062febe90df0370b9bb3d407c14199178a28e3b8e88558a58a7470247f528")}
 KINDS = ("synthetic", "producer")
 
 

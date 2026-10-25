@@ -7302,9 +7302,10 @@ mod tests {
     /// bytes unchanged. With `G10_DESKTOP_RESULT_OUT` set, writes the copies there.
     #[test]
     fn solves_hand_the_desktop_the_producers_exact_bytes() {
+        // W-7 global end rows added (12 element_global_end rows on the one member); no other byte moved.
         const PINS: [(&str, usize, &str); 2] = [
-            ("sparse_interactive", 80884, "d599dd9a3f6482743acc9076de157796ec41e3c86335884835b9c56f42cafae3"),
-            ("dense_scrutiny", 80908, "cd9812a90e8f85ad050456aa26621bf17cf7b0ca9c64c4d2e215292b115137a2"),
+            ("sparse_interactive", 86553, "a35f7a85780e66bd20f4060a0668098aef0f6f9d1bc2bb43166499cceaa3de99"),
+            ("dense_scrutiny", 86579, "ab62383de29f770a1c66e33a9a23131f7644dbee6a10ad00f9ae9775f8dbf20c"),
         ];
         let fixtures = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/product_preview");
         let model: Value = serde_json::from_str(include_str!(

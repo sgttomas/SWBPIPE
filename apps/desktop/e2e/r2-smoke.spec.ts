@@ -60,7 +60,8 @@ async function inspectBundledReference(page: Page): Promise<Locator> {
   const reference = page.getByTestId("historical-run-context");
   await expect(reference).toContainText("Bundled reference — not a solve for the current model");
   await expect(reference).toContainText("NO_CURRENT_MODEL_INVOCATION");
-  await expect(reference.getByTestId("result-filter-summary")).toContainText("745 of 745 results match filter");
+  // W-7: the demo publishes 12 global end rows per pipe and case (745 -> 841).
+  await expect(reference.getByTestId("result-filter-summary")).toContainText("841 of 841 results match filter");
   return reference;
 }
 
@@ -69,7 +70,7 @@ async function inspectBundledReference(page: Page): Promise<Locator> {
 test("recorded reference sources retain the original row, quantity, unit and diagnostic oracles", () => {
   // Per source: [semantics, rows, reaction rows, pipe-P-120 rows, summary quantities].
   for (const [source, semantics, rows, reactions, p120, headlines] of [
-    [referenceSource, referenceSemantics, 745, 102, 132, 2],
+    [referenceSource, referenceSemantics, 841, 102, 156, 2],
   ] as const) {
     expect(source.model_ref).toBe(demoModel.project.id);
     expect(source.results).toHaveLength(rows);
@@ -122,7 +123,7 @@ test("the pure recorded-source projection retains quantity unit oracles", async 
   }, { model: demoModel, result: referenceSource });
   expect(projection.summary.project_unit_declaration_count).toBe(6);
   expect(projection.summary.model_quantity_witness_count).toBe(40);
-  expect(projection.summary.result_quantity_witness_count).toBe(747);
+  expect(projection.summary.result_quantity_witness_count).toBe(843);
   expect(projection.conversion).toBe(false);
   expect(projection.registered).toBe(false);
   expect(projection.unchanged).toBe(true);
@@ -705,22 +706,22 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(page.getByTestId("result-unit-policy")).toContainText("MPa, N, N*m, mm, rad");
   // The reference's retained source units include its spring hanger row's N/m, as entered.
   await expect(page.getByTestId("result-unit-policy")).toContainText("mode_code, N/m");
-  await expect(page.getByTestId("result-unit-policy")).toContainText("745 rows");
+  await expect(page.getByTestId("result-unit-policy")).toContainText("841 rows");
   await expect(page.getByTestId("result-unit-policy")).toContainText("entered units preserved");
-  await expect(page.getByTestId("result-filter-summary")).toContainText("745 of 745 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("841 of 841 results match filter");
   await expect(page.getByTestId("result-family-count-reaction")).toContainText("102");
   await page.getByTestId("result-family-reaction").click();
-  await expect(page.getByTestId("result-filter-summary")).toContainText("102 of 745 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("102 of 841 results match filter");
   await expect(page.getByTestId("result-page-summary")).toContainText(
     "Showing 1 to 50 of 102 matching results; page 1 of 3"
   );
   await expect(page.getByTestId("result-row-result:support-action:10:load:L-100:13:support:S-120:Fz")).toBeVisible();
   await page.getByTestId("result-family-all").click();
-  await expect(page.getByTestId("result-filter-summary")).toContainText("745 of 745 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("841 of 841 results match filter");
   await page.getByTestId("result-filter-input").fill("pipe-P-120");
-  await expect(page.getByTestId("result-filter-summary")).toContainText("132 of 745 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("156 of 841 results match filter");
   await expect(page.getByTestId("result-page-summary")).toContainText(
-    "Showing 1 to 50 of 132 matching results; page 1 of 3"
+    "Showing 1 to 50 of 156 matching results; page 1 of 4"
   );
   await expectWorkspaceStatusClearOfTarget(page, "result-row-result:force:pipe-P-120:axial");
   const inspectorBeforeReferenceSelection = await page.getByTestId("property-inspector").textContent();
