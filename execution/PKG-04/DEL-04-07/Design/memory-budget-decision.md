@@ -48,8 +48,10 @@ The tests keep `report_package_vec_expansion_bounds_every_vector_type`, `report_
 
 | Request | Text | M | C_V | C_T | Lease | Whole-command peak | Ingress peak | Former lease |
 |---|---|---|---|---|---|---|---|---|
-| Demo | 7,329,553 | 72,447,680 | 62,682,624 | 4,608 | 266,868,272 (254.51 MiB) | 113,178,400 | 79,094,240 | 493,957,936 (471.07 MiB) |
+| Demo | 7,296,329 | 72,198,304 | 62,484,480 | 4,608 | 266,141,392 (253.81 MiB) | 113,073,056 | 78,986,176 | 492,431,696 (469.62 MiB) |
 | Witness | 806,368 | 8,192,400 | 7,089,280 | 2,560 | 31,032,912 (29.60 MiB) | 18,075,984 | 9,305,328 | 56,702,992 |
+
+The demo row is re-measured on W-15's bundled demo (DEL-03-05 rigid-component stiffness scaling): its dense result carries `component_body` on the body rows of valve C-130's member and the values of the scaled system, so the request text moved 7,329,553 → 7,296,329 B and the lease 266,868,272 → 266,141,392 B; the whole-command peak stays within it.
 
 Larger budgets. The ordinary route runs in the capped worker, so for that route, "qualified" means the worker's enforced cap. A per-invocation budget above 12 GiB, up to the pool, admits larger ordinary solves without a separate numerical qualification. The route, model family and predicates are unchanged, and the worker's grant, frame and lease arithmetic are checked up to u64 limits. A 96 GiB budget on an injected 1 TiB host runs a real worker solve with identical bytes. The default stays 12 GiB. No larger retained budget is offered. The retained route's D1 domain is fixed at 32 nodes, 32 members and three cases, whose required bytes (about 10 GB with R) already fit M = 12 GiB, so a larger M admits nothing new. A larger retained domain would need its own pricing and registration. The desktop does not use the retained route (B8).
 
