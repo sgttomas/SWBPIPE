@@ -1307,7 +1307,12 @@ store's `admit_analysis_run_comparison` (`analysis_runs.rs`).
   holds its solve with the input manifest the record names (`recordableRun`); a
   run restored from the saved project has none and is not offered, with the
   reason. The earlier-recorded run is the left side; the current run is always
-  the right.
+  the right. A comparison with the current run holds only for that slot (its
+  result, record and manifest objects): if an edit, another solve, a cleared
+  result or a project replacement changes the slot while the comparison is
+  prepared, it is refused (`COMPARISON-CURRENT-RUN-CHANGED`), and a shown one is
+  closed with the reason in the status (Codex r1 on #1617); a comparison of two
+  recorded runs is unaffected.
 - **Row identity.** `flattenRunResult` reads each row's `family` (a physical
   quantity's family, else null) and `dimension` (the signature's
   `source_physical_semantic_dimension`, the record's `source_dimension`) through

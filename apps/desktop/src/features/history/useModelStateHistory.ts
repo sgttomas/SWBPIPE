@@ -137,7 +137,23 @@ export type RunComparisonResult = {
   left: RunComparisonSide;
   right: RunComparisonSide;
   comparison: RunComparison;
+  /** The current-run slot a comparison with a current side was made from (its result,
+   * record and manifest); it is shown only while the session's slot is that one. */
+  currentRun?: CurrentRunIdentity | null;
 };
+
+/** The identity of a current-run slot: its result, record and manifest objects. */
+export type CurrentRunIdentity = Pick<CurrentRunSlot, "result" | "analysisRun" | "inputManifest">;
+
+/** The refusal of a comparison whose current run the session retired or replaced
+ * while the comparison was prepared. */
+export const COMPARISON_CURRENT_RUN_CHANGED = "COMPARISON-CURRENT-RUN-CHANGED";
+
+/** Whether `slot` is still the current run `identity` names (an edit, a replacement
+ * solve, a cleared slot or a project replacement makes it another). */
+export function sameCurrentRun(identity: CurrentRunIdentity, slot: CurrentRunSlot): boolean {
+  return identity.result === slot.result && identity.analysisRun === slot.analysisRun && identity.inputManifest === slot.inputManifest;
+}
 
 /** The stated reason when nothing selected can be compared. */
 export const SELECT_TWO_TO_COMPARE = "Select two saved states, or two runs, to compare.";
@@ -710,6 +726,18 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
 
   const currentRunReason = currentRunUnavailableReason(deps.runSlot, projectId);
 
+  // A shown comparison with a current side holds only while that run is the session's
+  // current run: when the slot changes (an edit, another solve, a cleared result, a
+  // project replacement) it is closed and the status says why. Recorded-only
+  // comparisons are unaffected.
+  const staleCurrentComparison = runComparison?.currentRun ? !sameCurrentRun(runComparison.currentRun, deps.runSlot) : false;
+  useEffect(() => {
+    if (!staleCurrentComparison) return;
+    setRunComparison(null);
+    setHistoryMessage("Run comparison closed: the current run it compared changed (an edit, another solve or a cleared result); compare again to see the current run.");
+    setHistoryOperation("compare_runs_current_changed");
+  }, [staleCurrentComparison]);
+
   /** Compare… of two runs (W-12 S3b): two recorded runs of the session's project, or
    * one and the session's current run. The store first admits the runs' combined
    * stored size, verifying each as its list does; each recorded run is then read
@@ -738,13 +766,21 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     const generation = depsRef.current.projectSessionGenerationRef.current;
     const sameSession = () => generation === depsRef.current.projectSessionGenerationRef.current;
     const slot = depsRef.current.runSlot;
+    const captured: CurrentRunIdentity = { result: slot.result, analysisRun: slot.analysisRun, inputManifest: slot.inputManifest };
+    // Fail closed: the current run the comparison was asked for must still be the
+    // session's current run when its side is built and when the result is published.
+    const requireCurrentRun = () => {
+      if (!sameCurrentRun(captured, depsRef.current.runSlot)) {
+        throw new RunComparisonRefusal(COMPARISON_CURRENT_RUN_CHANGED, "the current run changed (an edit, another solve or a cleared result) while the comparison was prepared, so nothing was compared; compare again.");
+      }
+    };
     try {
       const withCurrent = recordingIds.length === 1;
       // The store refuses by name, before either run is read, when the runs' stored
       // results and manifests (with the current run's) exceed the per-invocation budget.
       await admitAnalysisRunComparison(requestProjectId, recordingIds, withCurrent ? currentRunBytes(slot) : null);
       const side = async (id: string): Promise<RunComparisonSide> => {
-        if (id === CURRENT_RUN_ID) return currentRunSide(slot);
+        if (id === CURRENT_RUN_ID) { requireCurrentRun(); return currentRunSide(slot); }
         try {
           return await recordedRunSide(await readAnalysisRun(requestProjectId, id));
         } catch (error) {
@@ -756,7 +792,8 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       const right = await side(rightId);
       const comparison = compareRunInputs(left.input, right.input);
       if (!sameSession()) return false;
-      setRunComparison({ projectId: requestProjectId, left, right, comparison });
+      if (withCurrent) requireCurrentRun();
+      setRunComparison({ projectId: requestProjectId, left, right, comparison, currentRun: withCurrent ? captured : null });
       setStateComparison(null);
       const { compared, not_compared, unmatched_left, unmatched_right } = comparison.summary;
       setHistoryMessage(`Compared ${left.description} with ${right.description}: ${compared} row pair${compared === 1 ? "" : "s"} compared, ${not_compared} not compared, ${unmatched_left} only in the left run, ${unmatched_right} only in the right run. Neither run changes.`);
@@ -774,7 +811,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
 
   return {
     /** The last comparison of two runs (view-only), or null. */
-    runComparison: runComparison && runComparison.projectId === projectId ? runComparison : null,
+    runComparison: runComparison && runComparison.projectId === projectId && !staleCurrentComparison ? runComparison : null,
     compareRuns,
     closeRunComparison: () => setRunComparison(null),
     /** Why the session's current run cannot be compared, or null when it can. */

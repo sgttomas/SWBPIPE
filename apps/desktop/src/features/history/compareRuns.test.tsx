@@ -29,7 +29,7 @@ import { CURRENT_RUN_ID, currentRunBytes, type RunComparisonSide } from "../comp
 import { RunComparisonView } from "../comparison/RunComparisonView";
 import { COMPARISON_PAGE_ROWS } from "../comparison/StateComparisonView";
 import { HistoryPanel } from "./HistoryPanel";
-import { runCompareUnavailableReason, useModelStateHistory, type ModelStateHistoryDeps, type RunComparisonResult } from "./useModelStateHistory";
+import { COMPARISON_CURRENT_RUN_CHANGED, runCompareUnavailableReason, useModelStateHistory, type ModelStateHistoryDeps, type RunComparisonResult } from "./useModelStateHistory";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -183,6 +183,62 @@ describe("the session's Compare… of two runs", () => {
     expect([shown.left.kind, shown.right.kind]).toEqual(["recorded", "current"]);
     expect(shown.right.standing.eligible).toBe(true);
     expect(shown.comparison.summary.compared_nonzero).toBeGreaterThan(0);
+  });
+
+  it("refuses a comparison whose current run is retired while it is prepared: during the admission and during the reads", async () => {
+    const earlier = await recordedRead({ model: MODEL, source: SPARSE, mode: "sparse_interactive" }, EARLY, "Sparse");
+    const current = await transientOf({ model: MODEL, source: DENSE, mode: "dense_scrutiny" });
+    const live = (): CurrentRunSlot => ({ result: DENSE, analysisRun: current.record, inputManifest: current.manifest, restored: false });
+    for (const stage of ["admission", "read"] as const) {
+      const { result: hook, deps } = sessionHistory({ runSlot: live() });
+      const retire = () => { (deps as Json).runSlot = stage === "admission" ? EMPTY_SLOT : { ...live(), result: structuredClone(DENSE) }; };
+      await nativeStore([earlier], {
+        admission: () => { if (stage === "admission") retire(); return { runs: [], current_run_bytes: 0, combined_bytes: 10, budget_bytes: 12 * 1024 ** 3 }; },
+        read: () => { if (stage === "read") retire(); return undefined; }
+      });
+      await act(async () => { await hook.current.refreshStates(PROJECT); });
+      let compared = true;
+      await act(async () => { compared = await hook.current.compareRuns(CURRENT_RUN_ID, earlier.run.recording_id); });
+      expect(compared, stage).toBe(false);
+      expect(hook.current.runComparison, stage).toBeNull();
+      expect(hook.current.historyMessage, stage).toBe(`Not compared: ${COMPARISON_CURRENT_RUN_CHANGED}: the current run changed (an edit, another solve or a cleared result) while the comparison was prepared, so nothing was compared; compare again.`);
+      expect(deps.releaseProjectOperation, stage).toHaveBeenCalledTimes(1);
+      cleanup();
+      invokeMock.mockReset();
+    }
+  });
+
+  it("closes a shown comparison with the current run when the slot changes, and keeps a recorded-only one", async () => {
+    const earlier = await recordedRead({ model: MODEL, source: SPARSE, mode: "sparse_interactive" }, EARLY, "Sparse");
+    const later = await recordedRead({ model: MODEL, source: DENSE, mode: "dense_scrutiny" }, LATE, "Dense");
+    const current = await transientOf({ model: MODEL, source: DENSE, mode: "dense_scrutiny" });
+    const live: CurrentRunSlot = { result: DENSE, analysisRun: current.record, inputManifest: current.manifest, restored: false };
+    for (const change of ["cleared", "another solve", "edited model"] as const) {
+      await nativeStore([earlier, later]);
+      const { result: hook, deps, rerender } = sessionHistory({ runSlot: live });
+      await act(async () => { await hook.current.refreshStates(PROJECT); });
+      await act(async () => { await hook.current.compareRuns(CURRENT_RUN_ID, earlier.run.recording_id); });
+      expect(hook.current.runComparison?.right.kind, change).toBe("current");
+      // A comparison of two recorded runs is not affected by the slot.
+      const { result: recordedOnly, deps: recordedDeps, rerender: rerenderRecorded } = sessionHistory({ runSlot: live });
+      await act(async () => { await recordedOnly.current.refreshStates(PROJECT); });
+      await act(async () => { await recordedOnly.current.compareRuns(earlier.run.recording_id, later.run.recording_id); });
+      expect(recordedOnly.current.runComparison, change).not.toBeNull();
+      const next: CurrentRunSlot = change === "cleared" ? EMPTY_SLOT
+        : change === "another solve" ? { ...live, result: structuredClone(DENSE), analysisRun: structuredClone(current.record) }
+        : { ...live, inputManifest: structuredClone(current.manifest) };
+      (deps as Json).runSlot = next;
+      (recordedDeps as Json).runSlot = next;
+      rerender();
+      rerenderRecorded();
+      expect(hook.current.runComparison, change).toBeNull();
+      expect(hook.current.historyMessage, change).toBe("Run comparison closed: the current run it compared changed (an edit, another solve or a cleared result); compare again to see the current run.");
+      expect(hook.current.historyOperation, change).toBe("compare_runs_current_changed");
+      expect(recordedOnly.current.runComparison, change).not.toBeNull();
+      expect(recordedOnly.current.historyOperation, change).toBe("compare_runs");
+      cleanup();
+      invokeMock.mockReset();
+    }
   });
 
   it("is refused by name before either run is read when their stored inputs exceed the budget", async () => {
