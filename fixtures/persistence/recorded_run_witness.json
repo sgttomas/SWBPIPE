@@ -119,7 +119,7 @@
             "ref": "run:preview-linear-static-001"
           },
           "payload_scope": "analysis_run_record",
-          "value": "d25eeb45f8d86afdb7ef7d48f1d61ae0e263bc7027e9a65c336b45277f9582c7"
+          "value": "c5f5b039476f85cfff713062ab6b39852faffc74847b6067d447092b98e0ac4f"
         },
         {
           "algorithm": "sha256",
@@ -4667,8 +4667,8 @@
     "schema_version": "0.3.0",
     "scope_item": "SOW-072"
   },
-  "recording_id": "runrec:d25eeb45f8d86afdb7ef7d48f1d61ae0",
-  "run_record_hash": "d25eeb45f8d86afdb7ef7d48f1d61ae0e263bc7027e9a65c336b45277f9582c7",
+  "recording_id": "runrec:c5f5b039476f85cfff713062ab6b3985",
+  "run_record_hash": "c5f5b039476f85cfff713062ab6b39852faffc74847b6067d447092b98e0ac4f",
   "state_id": "state:0123456789abcdef0123456789abcdef",
   "state_model_hash": "sha256:0e0cb0c64c70fce59457225361e19da72cfdf9fe3c56178badec9bf9f0124b45"
 }
