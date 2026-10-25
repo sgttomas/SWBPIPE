@@ -148,6 +148,17 @@ SILENT_DROP_MOVED = {
     "must_pass": frozenset(),
 }
 SILENT_DROP_KEY = ("unknown_depth_witness", "diagnostics")
+# W-15 (DEL-03-05 Design rigid-component-stiffness-scaling.md; coordinator decision 1): the
+# pressure-2 identity limitation states the admitted rigid family, and the six exact bases inherit
+# it. Against SD_BASE they differ, with this clause restored to its old full stop, only by the
+# hashes binding it.
+W15_IDENTITY_CLAUSE = ("; valve, flange, rigid and specialty components are admitted as their mapped straight member with "
+                       "the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are "
+                       "those of that reference section (marked component_body), not a body stress, and reducers only when "
+                       "their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise).")
+W15_IDENTITY_MOVED = frozenset({"w1_member_route_e_baseline_sparse_interactive", "w1_member_route_e_baseline_dense_scrutiny",
+                                "o4_w1e_sparse_interactive", "o4_w1e_dense_scrutiny", "o4_w1e_mixed_sparse_interactive",
+                                "o4_w1e_unavailable_sparse_interactive"})
 
 # The minimal old -> new segments of §3.3's three whole strings (the rest of
 # each string is unchanged); the whole strings are pinned in
@@ -651,6 +662,21 @@ def test_o4_text_only_envelope_diff_w8_enumeration_refuses_other_moves():
         test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=json.dumps(document))
 
 
+def _w15_identity_restored(value):
+    """The value with W-15's identity clause restored to the full stop it replaced (numbers untouched)."""
+    if isinstance(value, Token):
+        return value
+    if isinstance(value, str):
+        return value.replace(W15_IDENTITY_CLAUSE, ".")
+    if isinstance(value, tuple):
+        return tuple(_w15_identity_restored(item) for item in value)
+    if isinstance(value, Obj):
+        return Obj([_w15_identity_restored(pair) for pair in value])
+    if isinstance(value, list):
+        return [_w15_identity_restored(item) for item in value]
+    return value
+
+
 def _silent_drop_restored(key, entry):
     """The entry with its request's `diagnostics` member renamed back to `unknown_depth_witness`,
     in that member's original (sorted, last) position; asserts the member moved exactly so."""
@@ -685,10 +711,12 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_sil
         assert [k for k, _ in after] == [k for k, _ in before], (member, "entries or order")
         known = dict(before)
         moved = {k for k, entry in after if classify(known[k], entry)}
-        assert moved == SILENT_DROP_MOVED[member], (member, sorted(moved ^ SILENT_DROP_MOVED[member]))
+        w15 = W15_IDENTITY_MOVED if member == "cases" else frozenset()
+        assert moved == SILENT_DROP_MOVED[member] | w15, (member, sorted(moved ^ (SILENT_DROP_MOVED[member] | w15)))
         for key, entry in after:
             if key in moved:
-                leaves = classify(known[key], _silent_drop_restored(key, entry))
+                restored = _w15_identity_restored(entry) if key in w15 else _silent_drop_restored(key, entry)
+                leaves = classify(known[key], restored)
                 assert leaves and all(kind == "hash" for kind, _ in leaves), (member, key, "beyond binding hashes", leaves)
     before, after = dict(load(base)), dict(load(now))
     assert list(before) == list(after)
