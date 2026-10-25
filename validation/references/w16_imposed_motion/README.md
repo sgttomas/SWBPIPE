@@ -158,3 +158,14 @@ motion cases.
 
 The criterion is unchanged (DEC-024/DEC-026). A nonzero row passes when
 |obs − exp| ≤ 1e-9·|exp|. A zero row passes when |obs| ≤ 1e-9·zero_scale.
+
+Observed on the W-16 slice a branch (both solver modes gave the same figures),
+the largest relative errors were:
+
+| Case | PF | EX | PF against EX |
+|---|---|---|---|
+| W16-MOTION | 4.2e-16 | 2.1e-16 | 5.1e-16 |
+| W16-THERMAL | 4.0e-16 | 2.2e-16 | 4.8e-16 |
+| W16-MOTION-THERMAL | 4.2e-16 | 2.1e-16 | 4.9e-16 |
+
+Every zero row was exactly zero on both routes.
