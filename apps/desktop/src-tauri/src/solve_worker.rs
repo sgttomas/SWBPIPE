@@ -1177,10 +1177,18 @@ pub(crate) mod tests {
                 Ok(format!("{{\"filled\":{}}}", chunks.len() as u64 * MIB))
             }
             // Makes `arg0` bytes resident outside the counted heap, releases
-            // them, then returns: only the lifetime maximum shows them.
+            // them, then returns: only the lifetime maximum shows them. With a
+            // directory (`transient_mmap:<bytes>:<dir>`) the excursion starts
+            // only once `excursion-go` exists there and `excursion-done` is
+            // created after the unmap, so a test can hold the supervisor (in a
+            // hook, after its poll has sampled) until the excursion is over.
             #[cfg(unix)]
             "transient_mmap" => {
                 let bytes = arg(0) as usize;
+                let gate = args.split_once(':').map(|(_, dir)| std::path::Path::new(dir));
+                if let Some(dir) = gate {
+                    await_release(dir, "excursion-go");
+                }
                 // SAFETY: an anonymous private mapping of `bytes`, touched page by page, then unmapped.
                 unsafe {
                     let map = libc::mmap(std::ptr::null_mut(), bytes, libc::PROT_READ | libc::PROT_WRITE, libc::MAP_PRIVATE | libc::MAP_ANON, -1, 0);
@@ -1189,6 +1197,9 @@ pub(crate) mod tests {
                         *(map as *mut u8).add(offset) = 1;
                     }
                     libc::munmap(map, bytes);
+                }
+                if let Some(dir) = gate {
+                    std::fs::write(dir.join("excursion-done"), b"").unwrap();
                 }
                 Ok("{}".to_string())
             }
@@ -1238,6 +1249,9 @@ pub(crate) mod tests {
         current: u64,
         observed: Vec<(u64, u64)>,
         events: Vec<Event>,
+        /// A `transient_mmap` gate directory: the first footprint observation
+        /// holds the supervisor until the worker's excursion is over.
+        excursion_gate: Option<std::path::PathBuf>,
     }
 
     impl SupervisorHooks for Hooks {
@@ -1257,6 +1271,17 @@ pub(crate) mod tests {
         fn footprint_observed(&mut self, footprint_bytes: u64) {
             self.observed.push((self.current, footprint_bytes));
             self.events.push(Event::Footprint { grant: self.current, footprint: footprint_bytes });
+            // This footprint was sampled before the gate opens, so before the
+            // excursion; until the worker has unmapped it the supervisor does
+            // not return here to sample again.
+            if let Some(dir) = self.excursion_gate.take() {
+                std::fs::write(dir.join("excursion-go"), b"").unwrap();
+                // A hang guard: on expiry the test's own assertions decide.
+                let deadline = Instant::now() + Duration::from_secs(60);
+                while dir.is_dir() && !dir.join("excursion-done").exists() && Instant::now() < deadline {
+                    std::thread::sleep(Duration::from_millis(2));
+                }
+            }
         }
     }
 
@@ -1288,6 +1313,18 @@ pub(crate) mod tests {
     /// Runs one worker to its end under a fresh grant; the grant is dropped
     /// after `supervise` returns (after the reap).
     fn run(pool: &Arc<MemoryPool>, launcher: &dyn WorkerLauncher, body: &[u8], max_grant: u64, reserve: u64) -> Run {
+        run_gated(pool, launcher, body, max_grant, reserve, None)
+    }
+
+    /// As [`run`], with a `transient_mmap` gate directory the hooks open.
+    fn run_gated(
+        pool: &Arc<MemoryPool>,
+        launcher: &dyn WorkerLauncher,
+        body: &[u8],
+        max_grant: u64,
+        reserve: u64,
+        excursion_gate: Option<std::path::PathBuf>,
+    ) -> Run {
         let start = initial_grant(reserve, crate::ingress::prescan(body).unwrap().lease_bytes().unwrap()).unwrap();
         let mut grant = pool.acquire(start, LeasePurpose::Worker).unwrap();
         let ingress = pool.acquire(crate::ingress::allocation_envelope(body.len() as u64).unwrap(), LeasePurpose::Ingress).unwrap();
@@ -1299,6 +1336,7 @@ pub(crate) mod tests {
             current: start,
             observed: Vec::new(),
             events: Vec::new(),
+            excursion_gate,
         };
         let terms = WorkerTerms { pool, launcher, mode: PreviewSolverMode::SparseInteractive, max_grant, reserve };
         let outcome = supervise(&terms, &mut grant, (body.to_vec(), ingress), &mut hooks);
@@ -1357,6 +1395,7 @@ pub(crate) mod tests {
             current: PROCESS_RESERVE_BYTES + MIB,
             observed: Vec::new(),
             events: Vec::new(),
+            excursion_gate: None,
         };
         let terms = WorkerTerms { pool, launcher: &*launcher, mode, max_grant: 12 * GIB, reserve: PROCESS_RESERVE_BYTES };
         match supervise(&terms, &mut grant, (BODY.to_vec(), ingress), &mut hooks) {
@@ -1671,27 +1710,45 @@ pub(crate) mod tests {
     /// At the result frame the lifetime-maximum footprint is checked before
     /// anything is released: above the grant it is recorded; above the budget
     /// the result is refused.
+    ///
+    /// The excursion is one no poll or growth exchange sees: the supervisor's
+    /// first poll is held in its hook, after sampling, until the worker has
+    /// mapped, touched and unmapped the memory. Ungated, a poll landing during
+    /// the touch refused the second run with a part-touched sample (hosted
+    /// macos-26-arm64: 28148992 bytes), and one landing before the unmap
+    /// refused it with no result check made.
     #[cfg(target_os = "macos")]
     #[test]
     fn the_lifetime_peak_footprint_is_checked_at_the_result() {
         let pool = pool();
         let reserve = 16 * MIB;
         let start = initial_grant(reserve, crate::ingress::prescan(BODY).unwrap().lease_bytes().unwrap()).unwrap();
-        let launcher = TestLauncher::scripted(format!("transient_mmap:{}", 32 * MIB));
-        let run = run(&pool, &*launcher, BODY, 12 * GIB, reserve);
+        let gated = |max_grant: u64| {
+            let gate = Gate::new("excursion");
+            let launcher = TestLauncher::scripted(format!("transient_mmap:{}:{}", 32 * MIB, gate.dir.display()));
+            run_gated(&pool, &*launcher, BODY, max_grant, reserve, Some(gate.dir.clone()))
+        };
+        // Every observation but the result's lifetime peak preceded or followed the excursion.
+        let unseen_until_the_result = |observed: &[(u64, u64)]| {
+            observed.len() >= 2 && observed[..observed.len() - 1].iter().all(|&(_, footprint)| footprint < 32 * MIB)
+        };
+        let run = gated(12 * GIB);
         assert!(matches!(run.outcome, WorkerOutcome::Completed { .. }), "{:?}", run.outcome);
         let (grant, peak) = *run.observed.last().unwrap();
         assert!(peak > 32 * MIB, "{peak}");
+        assert!(unseen_until_the_result(&run.observed), "{:?}", run.observed);
         if run.grants.is_empty() {
             assert!(grant == start && peak > grant, "recorded above the grant: {peak}");
         }
         drop(run);
         // The budget equals the starting grant: the peak exceeded it, so the result is refused.
-        let run = super::tests::run(&pool, &*launcher, BODY, start, reserve);
+        let run = gated(start);
         match run.outcome {
             WorkerOutcome::Refused(ResourceRefusal::WorkerFootprintExceeded { grant_bytes, footprint_bytes }) => {
                 assert_eq!(grant_bytes, start);
                 assert!(footprint_bytes > 32 * MIB, "{footprint_bytes}");
+                assert_eq!(run.observed.last(), Some(&(start, footprint_bytes)), "the refusal is the last observation");
+                assert!(unseen_until_the_result(&run.observed), "{:?}", run.observed);
             }
             other => panic!("{other:?}"),
         }
