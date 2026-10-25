@@ -37,7 +37,10 @@
 // put another build's artifact under this build's stamp.
 // The whole check, build, glue and publication runs under the worktree build
 // lock (`worktreeBuildLock.mjs`), so two builds in one worktree never
-// interleave; the host slot, when a wrapper takes one, is taken before it.
+// interleave: a second is refused at once, naming the holder and the steps
+// that remove a lock a crashed run left. The host slot, when a wrapper takes
+// one, is taken before it. An inherited compiler wrapper (RUSTC_WRAPPER and the
+// like) is refused by name before any cargo runs.
 
 import { execFileSync } from "node:child_process";
 import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, writeFileSync } from "node:fs";
@@ -58,7 +61,7 @@ import {
   refuseLinkedCargoTree,
   stampFromDigests
 } from "./engineSourceStamp.mjs";
-import { acquireBuildLock, refuseHostSlotCommand } from "./worktreeBuildLock.mjs";
+import { acquireBuildLock, refuseCompilerWrapperEnv, refuseHostSlotCommand } from "./worktreeBuildLock.mjs";
 
 const PINNED_WASM_BINDGEN_VERSION = "0.2.123";
 export const MAX_STABLE_BUILD_ATTEMPTS = 3;
@@ -86,6 +89,7 @@ function fail(lines) {
 function tryRun(command, args, { cwd, env = {} } = {}) {
   try {
     refuseHostSlotCommand(command, args);
+    if (command === "cargo") refuseCompilerWrapperEnv({ ...process.env, ...env });
   } catch (error) {
     fail([error.message]);
   }
@@ -107,7 +111,7 @@ function tryRun(command, args, { cwd, env = {} } = {}) {
 export function resolveWasmArtifact(crateDirectory = crateDir, crateName = "open_pipe_stress_operation_applier", env = {}) {
   const metadata = tryRun(
     "cargo",
-    ["metadata", "--format-version", "1", "--no-deps"],
+    ["metadata", "--format-version", "1", "--no-deps", "--manifest-path", path.join(crateDirectory, "Cargo.toml")],
     { cwd: crateDirectory, env }
   );
   if (!metadata.ok) {
@@ -174,9 +178,9 @@ const CARGO_BUILD_ARGS = [
 function main() {
   let lock;
   try {
-    lock = acquireBuildLock({ purpose: "build:wasm", log: (line) => console.log(`[build-wasm-engine] ${line}`) });
+    lock = acquireBuildLock({ purpose: "build:wasm" });
   } catch (error) {
-    fail([error.message]);
+    fail(error.message.split("\n"));
   }
   try {
     buildEngines();

@@ -4,7 +4,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, existsSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, buildLockPath, processStartTime, refuseHostSlotCommand } from './worktreeBuildLock.mjs';
+import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, buildLockPath, processStartTime, refuseCompilerWrapperEnv, refuseHostSlotCommand, shellQuote } from './worktreeBuildLock.mjs';
 
 const lockModule = new URL('./worktreeBuildLock.mjs', import.meta.url).href;
 
@@ -17,7 +17,7 @@ function tempRoot() {
 async function startHolder(root) {
   const child = spawn(process.execPath, ['--input-type=module', '-e', `
     import { acquireBuildLock } from ${JSON.stringify(lockModule)};
-    acquireBuildLock({ purpose: 'holder', root: ${JSON.stringify(root)}, waitMs: 1000 });
+    acquireBuildLock({ purpose: 'holder', root: ${JSON.stringify(root)} });
     console.log('held');
     setInterval(() => {}, 1000);
   `], { stdio: ['ignore', 'pipe', 'inherit'] });
@@ -32,66 +32,93 @@ function stop(child) {
   return new Promise((resolve) => { child.on('exit', resolve); child.kill('SIGKILL'); });
 }
 
-test('a second taker waits for a live holder, then refuses by name after the bound; the live holder is never broken', async () => {
+// The refusal's literal removal steps for a lock at `lockPath` held by `pid`.
+function removalSteps(root, lockPath, pid) {
+  const pattern = path.resolve(root, '..', '..').replace(/[\\^$.|?*+()[\]{}]/g, '\\$&');
+  return [`  TZ=UTC ps -p ${pid} -o pid,lstart,command`, `  pgrep -fl -- '${pattern}'`, `  rm -f '${lockPath}'`];
+}
+
+test('a held lock with a live holder is refused at once, by name, with the holder and the literal removal steps; nothing is broken', async () => {
   const t = tempRoot();
   const holder = await startHolder(t.root);
   try {
     const lockPath = buildLockPath(t.root);
     const before = readFileSync(lockPath, 'utf8');
-    const lines = [];
+    const recorded = JSON.parse(before);
     const start = Date.now();
-    assert.throws(
-      () => acquireBuildLock({ purpose: 'second', root: t.root, waitMs: 800, log: (line) => lines.push(line) }),
-      new RegExp(`refusing to build: the build lock .*build\\.lock is still held by pid ${holder.pid} \\(holder, started .+\\) after waiting 1 s`)
-    );
-    const waited = Date.now() - start;
-    assert.ok(waited >= 800 && waited < 10000, `waited ${waited} ms`);
-    assert.deepEqual(lines.map((line) => line.replace(/since [^)]+/, 'since T')), [`[build-lock] waiting for the build lock held by pid ${holder.pid} (holder, since T); up to 1 s`]);
+    let message = null;
+    try { acquireBuildLock({ purpose: 'second', root: t.root }); } catch (error) { message = error.message; }
+    assert.ok(Date.now() - start < 5000, 'refused without waiting');
+    assert.ok(message, 'the second taker is refused');
+    console.log(`held-lock refusal:\n${message}`);
+    const lines = message.split('\n');
+    assert.equal(lines[0], `refusing to build: the worktree build lock ${lockPath} is held by pid ${holder.pid} (holder), started ${recorded.started} (UTC, by ps), acquired ${recorded.acquired}; one build or smoke per worktree runs at a time, and a second is refused, not queued`);
+    assert.equal(lines[1], `  hint from ps (informational; the lock is never broken automatically): pid ${holder.pid} is running and started at the recorded time: the holder looks alive`);
+    const [ps, pgrep, rm] = removalSteps(t.root, lockPath, holder.pid);
+    assert.deepEqual([lines[3], lines[4], lines.at(-1)], [ps, pgrep, rm]);
     assert.equal(readFileSync(lockPath, 'utf8'), before, 'the live holder keeps its lock');
     assert.equal(holder.exitCode, null, 'the holder still runs');
+    // The recorded start time is ps's in UTC, whatever this process's TZ.
+    const local = spawnSync('/bin/ps', ['-o', 'lstart=', '-p', String(holder.pid)], { encoding: 'utf8', env: { ...process.env, TZ: 'UTC', LC_ALL: 'C' } }).stdout.trim();
+    assert.equal(recorded.started, local);
+    // The printed pgrep form runs, and finds the holder (its command line names this tree).
+    const found = spawnSync('/bin/sh', ['-c', pgrep.trim()], { encoding: 'utf8' }).stdout;
+    assert.match(found, new RegExp(`^${holder.pid} `, 'm'));
   } finally { await stop(holder); t.cleanup(); }
 });
 
-test('a lock whose pid is not running is broken with a log line', () => {
+test('a held lock whose pid is not running is still refused, not broken, and the lock file is untouched', () => {
   const t = tempRoot();
   try {
     const dead = spawnSync(process.execPath, ['-e', '']).pid;
     assert.equal(processStartTime(dead), null);
     const lockPath = buildLockPath(t.root);
     mkdirSync(path.dirname(lockPath), { recursive: true });
-    writeFileSync(lockPath, JSON.stringify({ pid: dead, started: 'Sat Oct 25 00:00:00 2026', purpose: 'dead', token: 'x', acquired: 'T' }));
-    const lines = [];
-    const lock = acquireBuildLock({ purpose: 'next', root: t.root, waitMs: 1000, log: (line) => lines.push(line) });
-    assert.deepEqual(lines, [`[build-lock] breaking the stale build lock ${lockPath} (pid ${dead} is not running)`]);
-    const record = JSON.parse(readFileSync(lockPath, 'utf8'));
-    assert.equal(record.pid, process.pid);
-    assert.equal(record.token, lock.token);
+    const text = JSON.stringify({ pid: dead, started: 'Sat Oct 25 00:00:00 2026', purpose: 'dead', token: 'x', acquired: 'T' });
+    writeFileSync(lockPath, text);
+    assert.throws(() => acquireBuildLock({ purpose: 'next', root: t.root }), (error) => {
+      const lines = error.message.split('\n');
+      assert.match(lines[0], new RegExp(`^refusing to build: the worktree build lock .*build\\.lock is held by pid ${dead} \\(dead\\), started Sat Oct 25 00:00:00 2026 \\(UTC, by ps\\), acquired T;`));
+      assert.equal(lines[1], `  hint from ps (informational; the lock is never broken automatically): pid ${dead} is not running; a build process it started may still be`);
+      assert.equal(lines.at(-1), `  rm -f '${lockPath}'`);
+      return true;
+    });
+    assert.equal(readFileSync(lockPath, 'utf8'), text, 'the lock file is untouched');
+    // A reused pid (running, another start time) and an unreadable record are refused too.
+    writeFileSync(lockPath, JSON.stringify({ pid: process.pid, started: 'Thu Jan  1 00:00:00 1970', purpose: 'earlier', token: 'x', acquired: 'T' }));
+    assert.throws(() => acquireBuildLock({ purpose: 'next', root: t.root }), new RegExp(`pid ${process.pid} is running but started .+ \\(UTC\\), not at the recorded time: the pid looks reused`));
+    writeFileSync(lockPath, 'not json');
+    assert.throws(() => acquireBuildLock({ purpose: 'next', root: t.root }), /is held by unreadable lock record;[\s\S]*the lock record is unreadable[\s\S]*pgrep -fl -- [\s\S]*rm -f '/);
+    assert.equal(readFileSync(lockPath, 'utf8'), 'not json');
+    // Removed by the printed step, the lock is taken.
+    rmSync(lockPath);
+    const lock = acquireBuildLock({ purpose: 'next', root: t.root });
+    assert.equal(JSON.parse(readFileSync(lockPath, 'utf8')).token, lock.token);
     lock.release();
     assert.ok(!existsSync(lockPath));
   } finally { t.cleanup(); }
 });
 
-test('a lock whose pid was reused (running, another start time) is broken with a log line', async () => {
-  const t = tempRoot();
-  const other = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore' });
-  try {
-    const lockPath = buildLockPath(t.root);
-    mkdirSync(path.dirname(lockPath), { recursive: true });
-    writeFileSync(lockPath, JSON.stringify({ pid: other.pid, started: 'Thu Jan  1 00:00:00 1970', purpose: 'earlier', token: 'x', acquired: 'T' }));
-    const lines = [];
-    const lock = acquireBuildLock({ purpose: 'next', root: t.root, waitMs: 1000, log: (line) => lines.push(line) });
-    assert.equal(lines.length, 1);
-    assert.match(lines[0], new RegExp(`breaking the stale build lock .* \\(pid ${other.pid} was reused: it started .+, the lock records Thu Jan  1 00:00:00 1970\\)`));
-    assert.equal(other.exitCode, null);
-    lock.release();
-  } finally { await stop(other); t.cleanup(); }
+test('the removal step quotes the lock path for zsh and bash', () => {
+  assert.equal(shellQuote("/tmp/it's here/build.lock"), `'/tmp/it'\\''s here/build.lock'`);
+  for (const shell of ['/bin/sh', '/bin/zsh', '/bin/bash'].filter((file) => existsSync(file))) {
+    const echoed = spawnSync(shell, ['-c', `printf %s ${shellQuote("/tmp/it's $HOME `x` here")}`], { encoding: 'utf8' }).stdout;
+    assert.equal(echoed, "/tmp/it's $HOME `x` here", shell);
+  }
+});
+
+test('each inherited compiler wrapper variable is refused by name; none set passes', () => {
+  assert.doesNotThrow(() => refuseCompilerWrapperEnv({ PATH: '/usr/bin', RUSTC: 'rustc', RUSTC_WRAPPER: '' }));
+  for (const name of ['RUSTC_WRAPPER', 'RUSTC_WORKSPACE_WRAPPER', 'CARGO_BUILD_RUSTC_WRAPPER', 'CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER']) {
+    assert.throws(() => refuseCompilerWrapperEnv({ [name]: '/opt/tools/t3_slot.sh' }), new RegExp(`^Error: refusing to run cargo: ${name} is set \\("/opt/tools/t3_slot\\.sh"\\);.* unset ${name} and run again$`), name);
+  }
 });
 
 test('a child inherits the lock only through the token the lock holds; holding it, a host-slot command is refused by name', () => {
   const t = tempRoot();
   try {
     assert.doesNotThrow(() => refuseHostSlotCommand('/opt/tools/t3_cargo.sh'), 'nothing is refused without the lock');
-    const lock = acquireBuildLock({ purpose: 'parent', root: t.root, waitMs: 1000, log: () => {} });
+    const lock = acquireBuildLock({ purpose: 'parent', root: t.root });
     for (const [command, args, name] of [
       ['/opt/tools/t3_slot.sh', ['cargo', 'build'], 't3_slot.sh'],
       ['bash', ['/opt/tools/t3_exclusive.sh', 'npm'], 't3_exclusive.sh']
@@ -106,10 +133,10 @@ test('a child inherits the lock only through the token the lock holds; holding i
     assert.doesNotThrow(() => refuseHostSlotCommand(process.execPath, ['--version']));
     lock.release();
     // Inheritance: only the token the lock file holds.
-    const parent = acquireBuildLock({ purpose: 'parent', root: t.root, waitMs: 1000, log: () => {} });
+    const parent = acquireBuildLock({ purpose: 'parent', root: t.root });
     const childScript = (token) => spawnSync(process.execPath, ['--input-type=module', '-e', `
       import { acquireBuildLock } from ${JSON.stringify(lockModule)};
-      try { const lock = acquireBuildLock({ purpose: 'child', root: ${JSON.stringify(t.root)}, waitMs: 300, log: () => {} }); console.log(lock.inherited ? 'inherited' : 'own'); lock.release(); }
+      try { const lock = acquireBuildLock({ purpose: 'child', root: ${JSON.stringify(t.root)} }); console.log(lock.inherited ? 'inherited' : 'own'); lock.release(); }
       catch (error) { console.log(error.message); }
     `], { encoding: 'utf8', env: { ...process.env, [BUILD_LOCK_TOKEN_ENV]: token } }).stdout.trim();
     assert.equal(childScript(parent.token), 'inherited');

@@ -281,7 +281,7 @@ test("Codex r2: a \"..\" after a symbolic link is refused even where kernel and 
   }
 });
 
-test("the compiler, wrapper and linker environment and the cargo configuration are part of the context", () => {
+test("the compiler and linker environment and the cargo configuration are part of the context; an inherited compiler wrapper is refused by name", () => {
   const p = project();
   try {
     const rustc = path.join(p.root, "fake-rustc");
@@ -293,10 +293,10 @@ test("the compiler, wrapper and linker environment and the cargo configuration a
     const stampWith = (extra) => p.stamp({ context: engineStampContext(p.root, { ...env, ...extra }) }).hash;
     const base = stampWith({});
     assert.equal(stampWith({ CARGO_TARGET_DIR: "/elsewhere" }), base);
+    for (const name of ["RUSTC_WRAPPER", "RUSTC_WORKSPACE_WRAPPER", "CARGO_BUILD_RUSTC_WRAPPER", "CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER"]) {
+      assert.throws(() => engineStampContext(p.root, { ...env, [name]: "sccache" }), new RegExp(`refusing to run cargo: ${name} is set \\("sccache"\\)`), name);
+    }
     for (const extra of [
-      { RUSTC_WRAPPER: "sccache" },
-      { RUSTC_WORKSPACE_WRAPPER: "clippy-driver" },
-      { CARGO_BUILD_RUSTC_WRAPPER: "sccache" },
       { CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_LINKER: "wasm-ld" },
       { CARGO_TARGET_AARCH64_APPLE_DARWIN_RUSTFLAGS: "-Ctarget-cpu=native" },
       { CARGO_ENCODED_RUSTFLAGS: "-Copt-level=1" },

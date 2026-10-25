@@ -362,7 +362,7 @@ async function until(condition, what, ms = 30000) {
   }
 }
 
-test('Codex r5: two builds in one worktree do not interleave; the second waits for the build lock and nothing is misbound', async () => {
+test('Codex r5/r6: two builds in one worktree do not interleave; the second is refused at once by name, the lock is not broken, and nothing is misbound', async () => {
   const p = fakeProject();
   const previousPath = process.env.PATH;
   try {
@@ -370,29 +370,48 @@ test('Codex r5: two builds in one worktree do not interleave; the second waits f
     const fixture = path.join(p.root, 'fixtures/read.json');
     const crate = path.join(p.root, 'core/model_operations/operation_applier');
     const outDir = path.join(p.root, 'apps/desktop/public/wasm-engine');
+    const lockPath = path.join(p.root, 'apps/desktop/target/build.lock');
     const pause = path.join(p.root, 'pause');
     mkdirSync(pause);
     // The first build compiles and stamps A, then pauses before its glue reads the artifact.
+    writeFileSync(fixture, '{"v":"A"}');
     const first = startBuild(p, { PAUSE_DIR: pause });
     await until(() => existsSync(path.join(pause, 'paused')), 'the first build to pause');
-    // The second build starts on B while the first is paused.
+    // A second build started on B while the first is paused is refused, naming the holder.
     writeFileSync(fixture, '{"v":"B"}');
-    const second = startBuild(p, { OPENPIPESTRESS_BUILD_LOCK_WAIT_MS: '60000' });
-    const waiting = `waiting for the build lock held by pid ${first.child.pid}`;
-    let secondCode = null;
-    second.done.then((code) => { secondCode = code; });
-    await until(() => second.output().includes(waiting) || secondCode !== null, 'the second build to wait or finish');
+    const held = readFileSync(lockPath, 'utf8');
+    const second = startBuild(p, {});
+    const secondCode = await second.done;
+    assert.equal(secondCode, 1, second.output());
+    assert.match(second.output(), new RegExp(`refusing to build: the worktree build lock ${lockPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} is held by pid ${first.child.pid} \\(build:wasm\\)`));
+    assert.ok(second.output().includes(`rm -f '${lockPath}'`), second.output());
+    assert.equal(readFileSync(lockPath, 'utf8'), held, 'the holder keeps its lock');
     writeFileSync(path.join(pause, 'go'), '');
-    const [firstCode] = await Promise.all([first.done, second.done]);
-    assert.equal(firstCode, 0, first.output());
-    assert.equal(secondCode, 0, second.output());
-    assert.ok(second.output().includes(waiting), second.output());
-    // The published bytes are the ones the published stamp describes.
+    assert.equal(await first.done, 0, first.output());
+    assert.ok(!existsSync(lockPath), 'the lock is released');
+    // The first published A under A's stamp, so the engine is stale for B; the next build builds B.
     const context = engineStampContext(process.cwd(), p.env);
+    assert.equal(readFileSync(path.join(outDir, 'engine.wasm'), 'utf8'), 'wasm:{"v":"A"}');
+    assert.equal(checkEngine({ projectRoot: p.root, crateDirectory: crate, outDir, context }).action, 'rebuild');
+    p.build();
     assert.equal(readFileSync(path.join(outDir, 'engine.wasm'), 'utf8'), 'wasm:{"v":"B"}');
     assert.equal(checkEngine({ projectRoot: p.root, crateDirectory: crate, outDir, context }).action, 'current');
-    assert.ok(!existsSync(path.join(p.root, 'apps/desktop/target/build.lock')), 'the lock is released');
   } finally { process.env.PATH = previousPath; p.cleanup(); }
+});
+
+test('Codex r6: an inherited compiler wrapper is refused by name before any cargo runs', () => {
+  const p = fakeProject();
+  try {
+    for (const name of ['RUSTC_WRAPPER', 'RUSTC_WORKSPACE_WRAPPER', 'CARGO_BUILD_RUSTC_WRAPPER', 'CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER']) {
+      const log = path.join(p.root, `${name}.log`);
+      let failure = null;
+      try { p.build({ [name]: '/opt/host/tools/t3_slot.sh', BUILD_LOG: log }); } catch (error) { failure = error; }
+      assert.ok(failure, name);
+      assert.match(failure.stderr, new RegExp(`refusing to run cargo: ${name} is set \\("/opt/host/tools/t3_slot\\.sh"\\)`), name);
+      assert.ok(!existsSync(log), `${name}: nothing was built`);
+      assert.ok(!existsSync(path.join(p.root, 'apps/desktop/target/build.lock')), 'the lock is released on exit');
+    }
+  } finally { p.cleanup(); }
 });
 
 test('a build holding the worktree lock refuses by name a cargo that would take a host slot', () => {

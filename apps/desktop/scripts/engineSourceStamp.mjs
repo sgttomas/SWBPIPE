@@ -23,8 +23,9 @@
 //     build can list them; a change that adds one edits a file already hashed.
 //
 // and a context: `rustc -vV` of the rustc cargo runs (RUSTC, else
-// CARGO_BUILD_RUSTC, else `rustc`), the compiler, wrapper, linker, rustflag and
-// profile environment (CONTEXT_ENV), and the bytes of the cargo configuration
+// CARGO_BUILD_RUSTC, else `rustc`), the compiler, linker, rustflag and profile
+// environment (CONTEXT_ENV; an inherited compiler wrapper, RUSTC_WRAPPER and
+// the like, is refused by name), and the bytes of the cargo configuration
 // files cargo would read. Those files' keys are decoded as TOML (bare, quoted
 // with any escape, literal, dotted, in table headers and inline tables) and a
 // file is refused by name when a key names a compiler or wrapper (`rustc`,
@@ -32,13 +33,13 @@
 // (`build.build-dir`, `build.target-dir`) or includes another file
 // (`include`), or when it cannot be tokenized with confidence. A
 // `[target.<triple>]` `linker`, `runner` or `rustflags` key is not refused: the
-// file's bytes are in the context. Not covered: the contents of a wrapper or
-// linker program (only its name) and files outside the project. The stamp sees an edit
+// file's bytes are in the context. Not covered: the contents of a linker or
+// runner program (only its name) and files outside the project. The stamp sees an edit
 // that keeps a file's modification time; `build-wasm-engine.mjs` then builds in
 // a clean target directory, so cargo's mtime-based freshness cannot keep the old
 // output. Build output (`target/`, `node_modules/`, `.git/`) is never an input.
 import { execFileSync } from "node:child_process";
-import { refuseHostSlotCommand } from "./worktreeBuildLock.mjs";
+import { refuseCompilerWrapperEnv, refuseHostSlotCommand } from "./worktreeBuildLock.mjs";
 import { createHash } from "node:crypto";
 import { existsSync, lstatSync, readdirSync, readFileSync, readlinkSync, realpathSync, statSync } from "node:fs";
 import os from "node:os";
@@ -48,13 +49,14 @@ export const STAMP_FORMAT = "openpipestress.engine-source-stamp.v2";
 export const STAMP_FILENAME = "source-stamp.json";
 const EXCLUDED_NAMES = new Set(["target", "node_modules", ".git", ".DS_Store"]);
 const SCRIPT_INPUTS = ["apps/desktop/scripts/build-wasm-engine.mjs", "apps/desktop/scripts/engineSourceStamp.mjs"];
-// The environment that selects or configures the compiler, wrappers and linker:
-// RUSTC, RUSTC_WRAPPER, RUSTC_WORKSPACE_WRAPPER, RUSTC_BOOTSTRAP, RUSTFLAGS,
-// CARGO_ENCODED_RUSTFLAGS, every CARGO_BUILD_* (rustc, rustc-wrapper,
-// rustflags, target, ...), every CARGO_TARGET_<triple>_* (linker, rustflags,
-// runner) and CARGO_HOST_*, CARGO_PROFILE_*, CARGO_UNSTABLE_* and
-// RUSTUP_TOOLCHAIN. CARGO_TARGET_DIR moves the output, not its bytes.
-const CONTEXT_ENV = /^(RUSTC|RUSTC_WRAPPER|RUSTC_WORKSPACE_WRAPPER|RUSTC_BOOTSTRAP|RUSTFLAGS|CARGO_ENCODED_RUSTFLAGS|RUSTUP_TOOLCHAIN|CARGO_BUILD_.+|CARGO_TARGET_.+|CARGO_HOST_.+|CARGO_PROFILE_.+|CARGO_UNSTABLE_.+)$/;
+// The environment that selects or configures the compiler and linker: RUSTC,
+// RUSTC_BOOTSTRAP, RUSTFLAGS, CARGO_ENCODED_RUSTFLAGS, every CARGO_BUILD_*
+// (rustc, rustflags, target, ...), every CARGO_TARGET_<triple>_* (linker,
+// rustflags, runner) and CARGO_HOST_*, CARGO_PROFILE_*, CARGO_UNSTABLE_* and
+// RUSTUP_TOOLCHAIN. The wrapper variables are refused before the context is
+// read (`refuseCompilerWrapperEnv`). CARGO_TARGET_DIR moves the output, not its
+// bytes.
+const CONTEXT_ENV = /^(RUSTC|RUSTC_BOOTSTRAP|RUSTFLAGS|CARGO_ENCODED_RUSTFLAGS|RUSTUP_TOOLCHAIN|CARGO_BUILD_.+|CARGO_TARGET_.+|CARGO_HOST_.+|CARGO_PROFILE_.+|CARGO_UNSTABLE_.+)$/;
 // The output locations: every cargo the smoke tooling runs has them set to its
 // dedicated directory (`dedicatedCargoEnv`), so they move nothing.
 const CONTEXT_ENV_IGNORED = new Set(["CARGO_TARGET_DIR", "CARGO_BUILD_TARGET_DIR", "CARGO_BUILD_BUILD_DIR"]);
@@ -176,6 +178,7 @@ export function hashInputs(projectRoot, relativePaths, context = []) {
 // One crate's manifest facts through `cargo metadata --no-deps` (no network, no lock change).
 export function readCrateManifest(manifestPath) {
   refuseHostSlotCommand("cargo");
+  refuseCompilerWrapperEnv();
   const stdout = execFileSync(
     "cargo",
     ["metadata", "--format-version", "1", "--no-deps", "--offline", "--manifest-path", manifestPath],
@@ -427,7 +430,7 @@ export function refusedCargoConfig(text) {
   }
   for (const key of paths) {
     const compiler = key.find((segment) => COMPILER_CONFIG_KEYS.has(segment));
-    if (compiler) return `sets ${compiler} (a compiler or wrapper key), which the stamp cannot identify; remove it and set RUSTC or RUSTC_WRAPPER instead`;
+    if (compiler) return `sets ${compiler} (a compiler or wrapper key), which the stamp cannot identify; remove it (set RUSTC to choose the compiler; compiler wrappers are refused)`;
     if (key[0] === "build" && OUTPUT_CONFIG_KEYS.has(key[1])) {
       return `sets build.${key[1]} (an output directory key), which could move cargo's build out of the smoke's dedicated directory; remove it`;
     }
@@ -480,6 +483,9 @@ export function refuseLinkedCargoTree(directory, container) {
 // The build context that changes the output without being a project file.
 export function engineStampContext(cargoCwd, env = process.env) {
   const context = [];
+  // An inherited compiler wrapper is refused, not identified: none of the
+  // tooling's cargo runs has one.
+  refuseCompilerWrapperEnv(env);
   // Cargo prefers RUSTC, then build.rustc (CARGO_BUILD_RUSTC or configuration).
   const rustcProgram = env.RUSTC || env.CARGO_BUILD_RUSTC || "rustc";
   refuseHostSlotCommand(rustcProgram, [], env);
