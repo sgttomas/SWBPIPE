@@ -14122,17 +14122,6 @@
       ]
     },
     {
-      "id": "diagnostic:component:component-C-130:rigid-scaling-applied",
-      "code": "RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED",
-      "severity": "info",
-      "message": "rigid/semi-rigid component component:C-130 applies its user-entered stiffness scale 15 to mapped member pipe:P-130 under DEC-045 mechanics_geometry_only: the member is solved with the scaled moduli s*E and s*G on its pipe section; its published stress rows are those of the mapped pipe section, a reference section under the body's forces, not a stress of the component body; linear and rotational stiffness values, where supplied, are recorded and not applied; no protected or default component value is supplied",
-      "source": "core/product_physics",
-      "affected_refs": [
-        "component:C-130",
-        "pipe:P-130"
-      ]
-    },
-    {
       "id": "diagnostic:constant-effort-support:support-CE-120:not-consumed",
       "code": "SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED",
       "severity": "warning",
@@ -14388,6 +14377,17 @@
       "severity": "warning",
       "message": "rule-check inputs and protected criteria are absent; no compliance result is produced",
       "source": "core/product_physics"
+    },
+    {
+      "id": "diagnostic:component:component-C-130:rigid-scaling-applied",
+      "code": "RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED",
+      "severity": "info",
+      "message": "rigid/semi-rigid component component:C-130 applies its user-entered stiffness scale 15 to mapped member pipe:P-130 under DEC-045 mechanics_geometry_only: the member is solved with the scaled moduli s*E and s*G on its pipe section; its published stress rows are those of the mapped pipe section, a reference section under the body's forces, not a stress of the component body; linear and rotational stiffness values, where supplied, are recorded and not applied; no protected or default component value is supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-130",
+        "pipe:P-130"
+      ]
     }
   ],
   "professional_boundary": {

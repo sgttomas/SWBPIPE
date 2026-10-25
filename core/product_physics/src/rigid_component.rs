@@ -15,10 +15,14 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 
 /// The DEC-045 consumption mode of a rigid-family component.
 pub(crate) const GEOMETRY_ONLY: &str = "mechanics_geometry_only";
-/// §2.5: from this scale, half of binary64's decimal digits, the precision
-/// warning is emitted. A conservative numerical heuristic, not an accuracy
-/// bound or an engineering limit.
-pub(crate) const PRECISION_WARNING_SCALE: f64 = 1.0e8;
+/// §2.5: from this scale the precision warning is emitted. It is the lowest
+/// decade at which the W-15 rigid-link benchmark
+/// (`validation/references/w15_rigid_scaling`, s = 1e3 to 1e8 by decade, both
+/// routes and solver modes, Timoshenko on EX) has a row outside the DEC-026
+/// 1e-9 criterion: at 1e4 every row is within 1e-15, at 1e5 the
+/// Euler-Bernoulli rows reach 3.8e-9. A numerical heuristic measured on one
+/// benchmark, not an accuracy bound or an engineering limit.
+pub(crate) const PRECISION_WARNING_SCALE: f64 = 1.0e5;
 
 pub(crate) const MAPPING_INVALID: &str = "RIGID_COMPONENT_MAPPING_INPUT_INVALID";
 pub(crate) const CONSUMPTION_UNDECLARED: &str = "RIGID_COMPONENT_CONSUMPTION_UNDECLARED";
@@ -207,9 +211,10 @@ pub(crate) fn applied_scales(model: &PreviewModel) -> HashMap<String, AppliedSca
         .collect()
 }
 
-/// The scaling diagnostics of one rigid-family component (§2.6): the info
-/// for an applied scale (and the precision warning from 1e8), or one warning
-/// naming the first unmet condition. `not_solver_consumed` and every other
+/// The input diagnostics of one rigid-family component (§2.6): one warning
+/// naming the first unmet condition, and nothing for an eligible component
+/// (its info and precision warning are those of the formed member,
+/// [`append_formed_diagnostics`]). `not_solver_consumed` and every other
 /// declared mode get none here (the unsupported-interface warning is the
 /// existing one). An absent declaration is named when the component carries a
 /// scale; without one, the first unmet input condition is named instead.
@@ -220,25 +225,7 @@ pub(crate) fn append_scaling_diagnostics(
 ) {
     let id = stable_suffix(&component.id);
     let unmet = match eligibility(component, pipes) {
-        Ok((pipe_ref, scale)) => {
-            diagnostics.push(diag(
-                &format!("diagnostic:component:{id}:rigid-scaling-applied"),
-                SCALING_APPLIED,
-                "info",
-                format!("rigid/semi-rigid component {} applies its user-entered stiffness scale {scale} to mapped member {pipe_ref} under DEC-045 mechanics_geometry_only: the member is solved with the scaled moduli s*E and s*G on its pipe section; its published stress rows are those of the mapped pipe section, a reference section under the body's forces, not a stress of the component body; linear and rotational stiffness values, where supplied, are recorded and not applied; no protected or default component value is supplied", component.id),
-                vec![component.id.clone(), pipe_ref.to_string()],
-            ));
-            if scale >= PRECISION_WARNING_SCALE {
-                diagnostics.push(diag(
-                    &format!("diagnostic:component:{id}:rigid-scale-precision"),
-                    SCALE_PRECISION,
-                    "warning",
-                    format!("rigid/semi-rigid component {} scales member {pipe_ref} by {scale}, at least 1e8: the scaled member's forces may carry reduced precision; this is a conservative numerical heuristic, not an accuracy bound or an engineering limit, and the pivot, formation and recovery screens remain the qualification", component.id),
-                    vec![component.id.clone(), pipe_ref.to_string()],
-                ));
-            }
-            return;
-        }
+        Ok(_) => return,
         Err(Unmet::NotRigidFamily | Unmet::ConsumptionNotGeometryOnly) => return,
         Err(Unmet::ConsumptionUndeclared) => {
             let has_scale = component
@@ -365,6 +352,40 @@ pub(crate) fn annotate_component_bodies(
                 Some(entry @ serde_json::Value::Object(_)) => entry["component_body_pipe_ids"] = serde_json::json!(ordered),
                 _ => {}
             }
+        }
+    }
+}
+
+/// The applied-scale diagnostics (§2.5, §2.6) of the members actually formed
+/// with a scale, in the model's component order: the info naming the member
+/// and the scale, and from [`PRECISION_WARNING_SCALE`] the precision warning.
+/// Called only for a published (solved) result, so a refused or blocked model
+/// never states that a scale was applied.
+pub(crate) fn append_formed_diagnostics(
+    model: &PreviewModel,
+    formed: &HashMap<String, crate::ScaledMember>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    for component in &model.components {
+        let Some((pipe_ref, member)) = formed.iter().find(|(_, m)| m.component_id == component.id) else {
+            continue;
+        };
+        let (id, scale) = (stable_suffix(&component.id), member.scale);
+        diagnostics.push(diag(
+            &format!("diagnostic:component:{id}:rigid-scaling-applied"),
+            SCALING_APPLIED,
+            "info",
+            format!("rigid/semi-rigid component {} applies its user-entered stiffness scale {scale} to mapped member {pipe_ref} under DEC-045 mechanics_geometry_only: the member is solved with the scaled moduli s*E and s*G on its pipe section; its published stress rows are those of the mapped pipe section, a reference section under the body's forces, not a stress of the component body; linear and rotational stiffness values, where supplied, are recorded and not applied; no protected or default component value is supplied", component.id),
+            vec![component.id.clone(), pipe_ref.to_string()],
+        ));
+        if scale >= PRECISION_WARNING_SCALE {
+            diagnostics.push(diag(
+                &format!("diagnostic:component:{id}:rigid-scale-precision"),
+                SCALE_PRECISION,
+                "warning",
+                format!("rigid/semi-rigid component {} scales member {pipe_ref} by {scale}, at least {PRECISION_WARNING_SCALE:e}: the scaled member's forces may carry reduced precision; this is a numerical heuristic measured on the W-15 rigid-link benchmark, not an accuracy bound or an engineering limit, and the pivot, formation and recovery screens remain the qualification", component.id),
+                vec![component.id.clone(), pipe_ref.to_string()],
+            ));
         }
     }
 }

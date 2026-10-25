@@ -447,31 +447,64 @@ fn w15_each_unmet_condition_is_named_and_leaves_the_member_unscaled() {
 }
 
 /// §2.6: the applied scale's info names the member and s, the reference
-/// section and the unapplied linear/rotational stiffness; from 1e8 the
-/// precision warning is added, with the numerical qualification unchanged.
+/// section and the unapplied linear/rotational stiffness, on the published
+/// result only; from PRECISION_WARNING_SCALE (1e5) the precision warning is added.
 #[test]
 fn w15_applied_scale_info_and_precision_warning() {
-    for (s, precision) in [(15.0, false), (9.99e7, false), (1.0e8, true), (1.0e10, true)] {
+    assert_eq!(rigid_component::PRECISION_WARNING_SCALE, 1.0e5);
+    for (s, precision) in [(15.0, false), (9.99e4, false), (1.0e5, true), (1.0e10, true)] {
         let mut component = valve(s);
         component["modifiers"]["linear_stiffness_user_value"] = json!(q(1.5e7, "N/m"));
         let request = line(&[NODE_A, NODE_C], vec![component], vec![force_x(NODE_B, 3000.0)]);
-        let diagnostics = validation_diagnostics(&request);
-        let applied = diagnostics.iter().find(|d| d.code == "RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED").expect("applied");
-        assert_eq!(applied.severity, "info");
-        assert_eq!(applied.affected_refs, vec![VALVE.to_string(), BODY.to_string()]);
-        assert!(applied.message.contains(&format!("scale {s} to mapped member {BODY}")), "{}", applied.message);
-        assert!(applied.message.contains("reference section") && applied.message.contains("not a stress of the component body"));
-        assert!(applied.message.contains("linear and rotational stiffness values, where supplied, are recorded and not applied"));
-        let warning = diagnostics.iter().find(|d| d.code == "RIGID_COMPONENT_SCALE_PRECISION");
-        assert_eq!(warning.is_some(), precision, "s = {s}");
-        if let Some(warning) = warning {
-            assert_eq!(warning.severity, "warning");
-            assert!(warning.message.contains("not an accuracy bound or an engineering limit"));
-        }
-        assert!(!diagnostics.iter().any(|d| d.code == "RIGID_COMPONENT_STIFFNESS_SCALING_REVIEWED"));
+        // An eligible component's input validation states nothing: the info and
+        // the warning belong to the formed member of a published result.
+        let input = validation_diagnostics(&request);
+        assert!(!input.iter().any(|d| d.code == "RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED" || d.code == "RIGID_COMPONENT_SCALE_PRECISION"));
         for mode in MODES {
             let envelope = solved(&request, mode);
-            assert_eq!(envelope.diagnostics.iter().any(|d| d.code == "RIGID_COMPONENT_SCALE_PRECISION"), precision);
+            let diagnostics = &envelope.diagnostics;
+            let applied: Vec<_> = diagnostics.iter().filter(|d| d.code == "RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED").collect();
+            assert_eq!(applied.len(), 1, "s = {s} {mode:?}");
+            let applied = applied[0];
+            assert_eq!(applied.severity, "info");
+            assert_eq!(applied.affected_refs, vec![VALVE.to_string(), BODY.to_string()]);
+            assert!(applied.message.contains(&format!("scale {s} to mapped member {BODY}")), "{}", applied.message);
+            assert!(applied.message.contains("reference section") && applied.message.contains("not a stress of the component body"));
+            assert!(applied.message.contains("linear and rotational stiffness values, where supplied, are recorded and not applied"));
+            let warning: Vec<_> = diagnostics.iter().filter(|d| d.code == "RIGID_COMPONENT_SCALE_PRECISION").collect();
+            assert_eq!(warning.len(), usize::from(precision), "s = {s} {mode:?}");
+            if let Some(warning) = warning.first() {
+                assert_eq!(warning.severity, "warning");
+                assert!(warning.message.contains("at least 1e5") && warning.message.contains("not an accuracy bound or an engineering limit"), "{}", warning.message);
+            }
+            assert!(!diagnostics.iter().any(|d| d.code == "RIGID_COMPONENT_STIFFNESS_SCALING_REVIEWED"));
+        }
+    }
+}
+
+/// §2.6: a refused or blocked model forms no scaled member, so it states no
+/// applied scale and no precision warning: a model refused at input
+/// validation (MODEL_INCOMPLETE), a mapping conflict, and a body whose scaled
+/// moduli leave binary64's normal range (refused at section formation).
+#[test]
+fn w15_a_refused_or_blocked_model_states_no_applied_scale() {
+    let mut incomplete = line(&[NODE_A, NODE_C], vec![valve(1.0e6)], vec![force_x(NODE_B, 3000.0)]);
+    incomplete["materials"] = json!([]);
+    let mut other = valve(4.0);
+    other["id"] = json!("component:W15-FLANGE");
+    other["kind"] = json!("flange");
+    let conflicted = line(&[NODE_A, NODE_C], vec![valve(1.0e6), other], vec![force_x(NODE_B, 3000.0)]);
+    let out_of_range = line(&[NODE_A, NODE_C], vec![valve(1.0e-320)], vec![force_x(NODE_B, 3000.0)]);
+    for (label, request, code) in [("incomplete", &incomplete, None), ("conflicted", &conflicted, Some("RIGID_COMPONENT_MAPPING_CONFLICT")),
+        ("out of range", &out_of_range, Some("PIPE_SECTION_INPUT_INVALID"))] {
+        for mode in MODES {
+            let envelope = run_linear_static_preview_with_mode(typed(request), mode);
+            assert_ne!(envelope.status.mechanics, "MECHANICS_SOLVED", "{label} {mode:?}");
+            if let Some(code) = code {
+                assert!(envelope.diagnostics.iter().any(|d| d.code == code && d.severity == "blocking"), "{label} {mode:?}: {:#?}", envelope.diagnostics);
+            }
+            assert!(!envelope.diagnostics.iter().any(|d| d.code == "RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED" || d.code == "RIGID_COMPONENT_SCALE_PRECISION"),
+                "{label} {mode:?}: {:#?}", envelope.diagnostics);
         }
     }
 }

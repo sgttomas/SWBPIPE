@@ -3189,6 +3189,10 @@ fn run_linear_static_preview_observed_inner(
         }
     } else { None };
     let source_formulation = composite_context.map(|_| formulation_basis_for_model_with_source(&model, true));
+    // W-15 (DEL-03-05 Design §2.5, §2.6): past the last blocked return, the
+    // applied-scale info and the precision warning name the members actually
+    // formed with a scale; a refused or blocked model states none.
+    rigid_component::append_formed_diagnostics(&model, &built.scaled_members, &mut diagnostics);
     let mut envelope = MechanicsEnvelope {
         contract_evidence: pressure_runtime::is_exact(&model).then(|| {
             let mut evidence = serde_json::json!({"pressure": pressure_evidence, "connector": joint::connector_evidence(&model, &built.connectors, &built.connector_records), "exact_cases": exact_cases});
