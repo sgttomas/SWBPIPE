@@ -3,7 +3,9 @@
 //
 //   node apps/desktop/native-smoke/run.mjs [--skip-build] [--keep]
 //
-// Builds the frontend and the app with the `native-smoke` cargo feature, then
+// Checks each WebAssembly engine's content stamp (`scripts/engineSourceStamp.mjs`)
+// and rebuilds a stale or unstamped engine, even under --skip-build; builds the
+// frontend and the app with the `native-smoke` cargo feature, then
 // runs the real app twice against a throwaway HOME (so the project store and
 // Downloads are isolated from the user's own):
 //
@@ -28,6 +30,8 @@ import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFile
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { ENGINE_BUILDS } from "../scripts/build-wasm-engine.mjs";
+import { STAMP_FILENAME, checkEngine, decideEngine, engineStampContext, readStampText } from "../scripts/engineSourceStamp.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const desktop = path.resolve(here, "..");
@@ -55,10 +59,59 @@ function run(command, commandArgs, cwd, env = {}) {
   execFileSync(command, commandArgs, { cwd, stdio: "inherit", env: { ...process.env, CARGO_NET_OFFLINE: "true", ...env } });
 }
 
-if (!args.has("--skip-build")) {
-  if (!existsSync(path.join(desktop, "public", "wasm-engine"))) run("npm", ["run", "build:wasm"], desktop);
+// A stale engine is never acceptable: each engine's stamp is recomputed from
+// its sources, with or without --skip-build, and `build:wasm` (which builds
+// every engine) runs when any is missing, unstamped or stale.
+const skipBuild = args.has("--skip-build");
+const stampContext = engineStampContext(desktop);
+const engineStates = () =>
+  ENGINE_BUILDS.map(({ crateDirectory, destination }) => ({
+    name: path.basename(destination),
+    ...checkEngine({ projectRoot: project, crateDirectory, outDir: destination, context: stampContext })
+  }));
+const enginesBefore = engineStates();
+const staleEngines = enginesBefore.filter((engine) => engine.action === "rebuild");
+console.log(`native smoke: checking engine stamps${skipBuild ? " (--skip-build given; a stale engine is rebuilt regardless)" : ""}`);
+if (staleEngines.length > 0) {
+  run("npm", ["run", "build:wasm"], desktop);
+  for (const engine of engineStates()) {
+    if (engine.action !== "current") {
+      console.error(`native smoke: engine ${engine.name} still does not match its sources after build:wasm (${engine.reason})`);
+      process.exit(2);
+    }
+    const before = enginesBefore.find((entry) => entry.name === engine.name);
+    const reason = before.action === "rebuild" ? before.reason : "was current; build:wasm builds every engine";
+    console.log(`engine rebuilt: ${engine.name} (${reason}; stamp ${engine.hash})`);
+  }
+} else {
+  for (const engine of enginesBefore) console.log(`engine current, stamp ${engine.hash} (${engine.name})`);
+}
+if (!skipBuild) {
   run("npm", ["run", "build"], desktop);
   run("cargo", ["build", "--locked", "--offline", "--features", "native-smoke,tauri/custom-protocol"], tauriDir, { TAURI_CONFIG: SMOKE_TAURI_CONFIG });
+} else {
+  // The app embeds dist/ when cargo builds it, so under --skip-build a rebuilt
+  // engine, or a dist/ copy whose stamp differs, means the frontend and app are
+  // rebuilt too.
+  const currentHashes = new Map(engineStates().map((engine) => [engine.name, engine.hash]));
+  const distStale = ENGINE_BUILDS.map(({ destination }) => {
+    const name = path.basename(destination);
+    const distDir = path.join(desktop, "dist", name);
+    const folderPresent = existsSync(distDir);
+    const decision = decideEngine({ folderPresent, stampText: folderPresent ? readStampText(distDir) : null, currentHash: currentHashes.get(name) });
+    return { name, ...decision };
+  }).filter((engine) => engine.action === "rebuild");
+  if (staleEngines.length > 0 || distStale.length > 0) {
+    const reasons = [
+      ...staleEngines.map((engine) => `${engine.name} rebuilt`),
+      ...distStale.map((engine) => `dist/${engine.name}/${STAMP_FILENAME}: ${engine.reason}`)
+    ];
+    console.log(`native smoke: --skip-build overridden (${reasons.join("; ")}); the app embeds dist/, so the frontend and app are rebuilt`);
+    run("npm", ["run", "build"], desktop);
+    run("cargo", ["build", "--locked", "--offline", "--features", "native-smoke,tauri/custom-protocol"], tauriDir, { TAURI_CONFIG: SMOKE_TAURI_CONFIG });
+  } else {
+    console.log("native smoke: --skip-build applies: engines and their dist/ copies are current; frontend and app builds skipped");
+  }
 }
 if (!existsSync(binary)) {
   console.error(`native smoke: ${binary} is missing; run without --skip-build`);

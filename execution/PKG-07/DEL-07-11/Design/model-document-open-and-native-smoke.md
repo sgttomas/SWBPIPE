@@ -352,6 +352,18 @@ details go to the driver log, the phase error and `summary.json`
 `native-smoke/driver.test.mjs` tests this behaviour with a fake window
 (`node --test`); no CI job runs it.
 
+The smoke never reuses a stale WebAssembly engine. After a successful build,
+`build:wasm` writes `source-stamp.json` into each engine folder: a SHA-256 over
+the engine crate's closure (normal and build path dependencies: manifests,
+build scripts, `src/`), its lock file, the build script, the compile reads
+cargo's dep-info lists (schemas and fixtures included or digested at build
+time) and `rustc -vV`. `run.mjs` recomputes each stamp and runs `build:wasm`
+when a folder or stamp is missing or the hash differs. It logs `engine rebuilt:
+<engine> (<reason>; stamp <hash>)` or `engine current, stamp <hash>`. This
+holds under `--skip-build` too, which then also rebuilds the frontend and app
+(they embed `dist/`) if an engine or its `dist/` copy was stale.
+`native-smoke/engine-stamp.test.mjs` tests the stamp and that decision.
+
 Run it on a Mac with a GUI session:
 
 ```sh

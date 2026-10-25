@@ -11,12 +11,24 @@
 // (operation-seam plan §3 T3; ADR-0001).
 // Glue is written to a temp directory and renamed into place so concurrent
 // readers never see a half-written artifact set (DEC-025 F-4 rider).
+// Each engine folder also receives `source-stamp.json`, the content stamp of
+// the sources it was built from (`engineSourceStamp.mjs`), written with the
+// glue so it exists only after a successful build; the native smoke recomputes
+// it and rebuilds a stale engine.
 
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, renameSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  STAMP_FILENAME,
+  compileReadsFromDepInfo,
+  computeEngineStamp,
+  engineStampContext,
+  hashInputs,
+  staticEngineInputs
+} from "./engineSourceStamp.mjs";
 
 const PINNED_WASM_BINDGEN_VERSION = "0.2.123";
 
@@ -28,6 +40,12 @@ const outDir = path.join(desktopRoot, "public", "wasm-engine");
 // Pre-TP-APP-R2-WASMPKG-001 emission location; removed on every build so a
 // stale copy can never be mistaken for the live artifact set.
 const legacyOutDir = path.join(desktopRoot, "src", "services", "wasmEngine", "__generated__");
+// The engines this script builds, in order; `native-smoke/run.mjs` checks the
+// same list's stamps.
+export const ENGINE_BUILDS = [
+  { crateDirectory: crateDir, crateName: "open_pipe_stress_operation_applier", destination: outDir },
+  { crateDirectory: path.join(projectRoot, "core", "loads", "self_weight_wasm"), crateName: "open_pipe_stress_self_weight_wasm", destination: path.join(desktopRoot, "public", "self-weight-engine") }
+];
 
 function fail(lines) {
   console.error(["", "[build-wasm-engine] FAILED:", ...lines.map((line) => `  ${line}`), ""].join("\n"));
@@ -129,13 +147,26 @@ if (bindgenVersion !== PINNED_WASM_BINDGEN_VERSION) {
   ]);
 }
 
-const builds = [
-  { crateDirectory: crateDir, crateName: "open_pipe_stress_operation_applier", destination: outDir },
-  { crateDirectory: path.join(projectRoot, "core", "loads", "self_weight_wasm"), crateName: "open_pipe_stress_self_weight_wasm", destination: path.join(desktopRoot, "public", "self-weight-engine") }
-];
-for (const { crateDirectory, crateName, destination } of builds) {
+// The stamp context (rustc identity, rustflags, cargo configuration); cargo
+// runs from this process's working directory.
+let stampContext;
+try {
+  stampContext = engineStampContext(process.cwd());
+} catch (error) {
+  fail(["Could not read the toolchain identity for the engine source stamp:", error.message]);
+}
+
+for (const { crateDirectory, crateName, destination } of ENGINE_BUILDS) {
 const crateManifest = path.join(crateDirectory, "Cargo.toml");
 const outDir = destination;
+// The sources' hash before the build, to refuse a stamp for sources that
+// changed while cargo ran.
+let staticBefore;
+try {
+  staticBefore = hashInputs(projectRoot, staticEngineInputs(projectRoot, crateDirectory), stampContext).hash;
+} catch (error) {
+  fail(["Could not list the engine's source inputs for its stamp:", error.message]);
+}
 // 4. Compile the engine to wasm32 with the wasm feature.
 console.log("[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release");
 const build = tryRun("cargo", [
@@ -160,6 +191,21 @@ try {
 }
 if (!existsSync(wasmArtifact)) {
   fail([`cargo build succeeded but the expected artifact is missing: ${wasmArtifact}`]);
+}
+// 4b. The content stamp: the static inputs plus the compile reads cargo's
+//     dep-info lists for this artifact (schemas, fixtures, `#[path]` modules,
+//     build-script `rerun-if-changed` files). No dep-info, no stamp.
+const depInfo = wasmArtifact.replace(/\.wasm$/, ".d");
+let stamp;
+try {
+  const targetDirectory = path.resolve(path.dirname(wasmArtifact), "..", "..");
+  const compileReads = compileReadsFromDepInfo(projectRoot, readFileSync(depInfo, "utf8"), [targetDirectory]);
+  if (hashInputs(projectRoot, staticEngineInputs(projectRoot, crateDirectory), stampContext).hash !== staticBefore) {
+    throw new Error("the engine's sources changed while cargo built it; run `npm run build:wasm` again");
+  }
+  stamp = { engine: path.basename(outDir), ...computeEngineStamp({ projectRoot, crateDirectory, compileReads, context: stampContext }) };
+} catch (error) {
+  fail([`Could not stamp the engine built from ${path.relative(projectRoot, crateDirectory)} (dep-info ${depInfo}):`, error.message]);
 }
 
 // 5. Generate the web-target JS glue into a sibling temp directory, then
@@ -194,6 +240,7 @@ if (!bindgen.ok) {
   rmSync(tmpDir, { recursive: true, force: true });
   fail(["`wasm-bindgen` glue generation failed:", bindgen.stderr]);
 }
+writeFileSync(path.join(tmpDir, STAMP_FILENAME), `${JSON.stringify(stamp, null, 2)}\n`);
 
 if (existsSync(outDir)) {
   renameSync(outDir, oldDir);
@@ -208,7 +255,7 @@ rmSync(oldDir, { recursive: true, force: true });
 
 console.log(
   `[build-wasm-engine] OK — wasm operation engine generated at ${path.relative(desktopRoot, outDir)} ` +
-    `(wasm-bindgen ${bindgenVersion}; artifacts are intentionally not committed)`
+    `(wasm-bindgen ${bindgenVersion}; stamp ${stamp.hash} over ${stamp.input_count} inputs; artifacts are intentionally not committed)`
 );
 }
 
