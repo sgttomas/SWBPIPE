@@ -28,16 +28,13 @@ prescribes p_s = g_s + σ·c, where σ = +1 for "closes in +", −1 for "closes
 in −", and c is the clearance. Stage 1 refuses this target
 (`imposed_motion.rs` ~144-149).
 
-**Size.** R-a touches four places: the loop input, `active_boundary`, the PP
-plumbing and one confirmation check. R-b adds:
-- a ground map;
-- the ground offset in about six comparisons;
-- three certificate thresholds;
-- an exact gap-clearance check;
-- admission checks;
-- a published relative-displacement row.
-
-R-b can land after R-a without changing it.
+**Size.** Functionally, R-a changes the affine base boundary. Its inventory
+also includes callers, about 43 test literals, verification text and pricing
+pins. R-b changes support-relative laws and publication, and has the larger
+contract surface: normalization, admission, exact-gap operands, certificate
+comparisons, publication precision, schemas and readers. R-b can land after
+R-a without changing it. R-a alone keeps every nonlinear ground fixed, keeps
+the R-b target refusal, and adds no relative row.
 
 ## 1. The nonlinear loop (NI)
 
@@ -48,7 +45,11 @@ R-b can land after R-a without changing it.
    - lies off `base_restrained_dofs`;
    - names an unknown support;
    - is a duplicate;
-   - is not finite.
+   - is not finite;
+   - is an R-b gap entry whose closing position c + σ·g_s is not finite and
+     exact in binary64 (zero TwoSum residual). This is the same invariant as
+     §3.2, enforced at the loop's public boundary so a direct caller cannot
+     bypass the product refusal.
 
    The product binds the whole input by equality (~890), so no new binding
    code is needed. About 43 test literals gain the new fields.
@@ -65,12 +66,24 @@ R-b can land after R-a without changing it.
    unchanged. The NS classifier (~581-676) is unchanged; it reads the trial
    displacement.
 
-   Rounding is safe. fl(a − b) has the exact sign of a − b and is zero only
-   when a = b, so unilateral states and slip signs are decided exactly. The
-   gap test fl(u − g_s) ≥ c is monotone, and differs from the exact test only
-   within half an ulp below c. The exact strict-gap proof decides whenever it
-   qualifies (~734-737). The qualification's reclassification uses the same
-   builder (~1034-1040, ~1076-1081).
+   **Signs.** For finite binary64 operands, with gradual underflow, a finite
+   fl(a − b) has the exact sign of a − b and is zero only when a = b.
+   Unilateral states and slip signs are therefore decided exactly. Overflow is
+   refused by name as a non-finite value.
+
+   **Gap comparisons are not exact.** For example, take u = nextDown(0.5),
+   g_s = −0.5 and c = 1. The exact u − g_s is 1 − 2^−54 < c, but
+   fl(u − g_s) = c, so the rounded classifier closes an exactly open gap.
+
+   **The exact strict-gap proof** decides whenever it qualifies (~734-737),
+   because it forms σ(u − g_s) − c exactly. It is available only for gap-only
+   qualified straight-frame bodies with supported sources and bounded exact
+   work (`structural_adapter.rs` ~2843-2869, ~2992-3045). In mixed, curved or
+   exhausted cases, a rounded comparison can change an inspection branch.
+   That branch is never certified: R1 keeps every gap case unqualified.
+
+   The qualification's reclassification uses the same builder (~1034-1040,
+   ~1076-1081).
 4. **Sliding friction.** The slip direction is taken on u_t − g_t
    (~1684-1687, ~1771-1779). `resolve_sliding_friction_states` (~1613-1650)
    reads the trial, so it becomes relative through item 3.
@@ -144,7 +157,14 @@ These are revision-2 changes to DEL-04-01 `kd5-nonlinear-active-set.md`.
   `ground_motion` and the final states, and compares it bit for bit with the
   loop's active prescribed values. Today only the qualification checks the
   boundary, and it reuses `active_boundary`, so a fault there would pass both.
-  Item 3 is unchanged.
+  The comparison covers complete canonical maps, including default zeros,
+  coverage, duplicates and bits, not only the supplied nonzero entries. It
+  closes the boundary-consistency obligation. It does not independently check
+  PP's primitive-to-map resolution, which the stage-1 refusals and route-parity
+  tests cover. Item 3 is unchanged.
+
+- **K-D5 §9's M04 equivalence statement** (~423) holds only at zero motion. It
+  is restated as such. Under R-b, B-1's spring twin makes M04 observable.
 - **R1 is unchanged.** A case carrying a gap never runs the confirmation,
   with or without motion (~127-134). It keeps
   `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`. No gap state is
@@ -167,12 +187,15 @@ alone, `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` keeps refusing R-b targets.
 
 ### 3.2 New for R-b
 
-These run before generic validation:
+The order is: dimensional checks first, then each operand normalized
+independently by the same path the solve uses (PP `lib.rs` ~9265, ~9704), then
+these checks on the canonical binary64 values:
 - `IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH`: the target DOF is not the
   record's `nonlinear.dof`.
-- `IMPOSED_DISPLACEMENT_GAP_CLOSURE_INEXACT`: c + σ·g_s is not exact in
-  binary64, as checked by TwoSum. A rounded closing position is never used
-  silently.
+- `IMPOSED_DISPLACEMENT_GAP_CLOSURE_INEXACT`: the normalized c + σ·g_s is not
+  finite, or has a nonzero TwoSum residual. A rounded closing position is never
+  used silently. Checking authored magnitudes would be wrong: 1 m + 1 in is
+  exact as authored numbers, but 1.0 + 0.0254 is inexact in SI binary64.
 - `IMPOSED_DISPLACEMENT_COINCIDENT_RESTRAINT`: extended to another nonlinear
   support acting on the same node DOF.
 - `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` is kept for a spring on the same
@@ -205,16 +228,34 @@ Rigid restraints cannot overlap a nonlinear DOF
 - **`nonlinear_support_final_displacement`.** Stays absolute in the global
   frame, with its kind and bytes unchanged.
 - **New row for R-b.** Each R-b support also publishes a new row,
-  `nonlinear_support_final_relative_displacement`, with the value
-  fl(u_d − g_s). The row appears only when g_s is authored, so no existing
-  output moves. Its signature is registered:
-  - in the preview-physics-2 table, with `combination_algebra`
-    `never_combined`;
-  - in its schema;
-  - in result export (`preview_physics_evidence.rs` ~575-585);
-  - in the Python mirror.
+  `nonlinear_support_final_relative_displacement`. It is an observation row,
+  not a corrected or certified quantity:
+  - **Value.** fl(U − g_s) in SI, then the declared unit conversion. U is the
+    support DOF's published absolute final displacement in SI: the
+    corrected-published value when a member bound exists (PP `lib.rs`
+    ~5563-5579, ~14264-14287), otherwise the selected loop value, including
+    a selected exact-gap projection.
+  - **What it does not claim.** It does not prove a strict sign. A strictly
+    separated exact state may round to zero. Certified state claims stay with
+    the state rows and the K-D5 evidence.
+  - **Signatures.** Translations in mm (length), rotations in rad (angle),
+    following the existing two families (`semantic_contract_v0_3_preview_physics_2.json`
+    ~611, ~851). Each carries support identity, component, location and the
+    global sign convention.
+  - **When it appears.** Only when g_s is authored, including an authored
+    zero, so no existing output moves.
+  - **Classification.** `never_combined`, and not eligible for governing
+    ratios.
+  - **Registration.** In both preview tables (the retained table inherits;
+    `semantic_contract_tables.py` ~279-295), with their counts, vocabulary and
+    hashes; in the schemas; in result export (`preview_physics_evidence.rs`
+    ~575-585); and in the Rust and Python attribution readers.
+  - **Standing.** A certificate failure keeps the loop value. A later recovery
+    demotion keeps the corrected value, because the bound already existed (PP
+    `lib.rs` ~14255-14274). Gap rows stay inspection evidence.
 
-  The K-D5 evidence line gains one clause for it.
+  The K-D5 evidence line gains one clause stating the row's observation
+  status.
 - **Standing.** `NUMERICAL_INTEGRITY_*` standing follows kd5 §3.1 and §2.4.
   Gap cases keep `RECOVERY_BASIS_UNQUALIFIED`.
 
@@ -234,10 +275,27 @@ criterion is the K-D5 ball bound, or 1e-9 relative for gap projections.
   - s = 2s*: Inactive, u_tip = s*;
   - s = s*: fails closed;
   - an anchor-rotation twin.
-- **A-2.** A friction normal source settles by s, so R_n = P + 3EI·s/L³. Cases
-  sit on either side of the stick/slide flip and at the flip.
-- **A-3.** A strongly coupled derived normal with a settling source. This
-  kills an influence system that carries g, and a Stage A that omits motion.
+- **A-2.** The cantilever of A-1, with a downward load P at the tip.
+  - The derived-normal source is a rigid tip UY restraint at signed upward
+    position s, which gives R_n = P + k_b·s with k_b = 3EI/L³. A downward
+    settlement d > 0 is s = −d, so R_n = P − k_b·d.
+  - A tip friction support acts on UX under an uncoupled tangential load T.
+    Sticking requires |T| < μ|R_n|.
+  - Cases: strictly sticking, strictly sliding, and the weak equality. The
+    weak case fails closed.
+- **A-3.** An invented planar L-frame. Member 1 runs along x from anchor A to
+  corner C, and member 2 along y from C to tip T.
+  - Friction acts on the tip UX, with its derived normal from a rigid tip UY
+    restraint whose ground settles by g_n. The frame couples UX to the source
+    reaction, so the influence γ is nonzero.
+  - The generator eliminates the reduced system exactly. With
+    K = [[a, b], [b, d]] on (n, t) and u_n = g_n:
+    α = (a − b²/d)·g_n + (b/d)·f_t − f_n, γ = b/d,
+    φ = c_f·α/(1 − c_f·γ), u_t = (f_t + φ − b·g_n)/d, with
+    c_f = −dir·μ·β.
+  - It checks this identity against a full direct-stiffness solve. An
+    influence system that carries g_n gives a different γ and violates Coulomb
+    equilibrium, which kills that mutant. So does a Stage A that omits motion.
 
 **R-b**
 - **B-1.** A tip lift-off support whose ground drops by d.
@@ -246,20 +304,37 @@ criterion is the K-D5 ball bound, or 1e-9 relative for gap projections.
     classifier on absolute u, or a threshold of 0, fails this case.
   - Spring twin (a separate record): R = P − (k + 3EI/L³)·d. This kills
     K-D5's mutant M04.
-  - Rotational twin.
+  - Rotational twin, using the condensed rotational tip stiffness, not k_b.
 - **B-2.** A gap closing in −, whose ground rises by h, with
   δ0 = PL³/(3EI) < c. It closes if and only if h ≥ c − δ0.
   - Closed: u = h − c and R = P + (3EI/L³)(h − c).
-  - Cases: open and closed. Standing is `RECOVERY_BASIS_UNQUALIFIED`, with
-    the exact gap decisions checked.
+  - Cases: open, closed, and the equality (R = 0, which the classifier admits
+    as Active). Also both closing senses and a negative effective clearance.
+    Standing is `RECOVERY_BASIS_UNQUALIFIED`, with the exact gap decisions
+    checked.
 - **B-3.** Friction under ground motion g_t, with g* = μ|P_y|L/(EA).
-  - Stick if and only if |g_t| < g*, with R_t = EA·g_t/L.
-  - Otherwise slide, with u_x = sign(g_t)·g*.
-  - Cases: g*/2, 2g* and g*. Twins with an explicit normal and with
-    P_x ≠ 0.
+  - Strictly sticking for |g_t| < g*, with u_x = g_t and R_t = EA·g_t/L.
+  - Strictly sliding for |g_t| > g*, with u_x = sign(g_t)·g*. The force
+    opposes the relative slip.
+  - At |g_t| = g*, the relative slip is zero and the reaction equals the
+    capacity. This is a weak sticking boundary, the classifier chooses
+    Sticking, and the certificate is not established.
+  - Twins with an explicit normal, and with P_x ≠ 0. With P_x ≠ 0 the sticking
+    interval is (P_x − μN)/k_x ≤ g_t ≤ (P_x + μN)/k_x, with k_x = EA/L. Both
+    signs of g_t are run, to kill an absolute-slip mutant.
 
-**Property.** Translating every ground by one dyadic t leaves states and
-reactions unchanged and shifts u by t.
+**Property.** Apply a compatible rigid translation by one representable dyadic
+t to the translational DOFs, moving every relevant ground (anchors and
+nonlinear grounds) with it. States and reactions are then unchanged and u
+shifts by t. Models with a fixed-ground parallel spring are excluded, because
+that spring's ground does not move under this scope.
+
+**Exact boundaries.** Each boundary case is an exact boundary of the system
+formed from the normalized binary64 leaves. A rounded analytical threshold is
+not used.
+
+**Further controls.** Negative motions, both support senses, authored zero
+motion, cancellation, and an overflow case refused as non-finite.
 
 **Negatives.** Every §3 refusal, including a mixed document refused whole. EX
 listed and unlisted primitives. A combination with a motion case. Each §2.4
@@ -300,10 +375,18 @@ neither seeing the other's findings, before any code.
 ## 7. Retained-memory pricing (D3)
 
 - **Call graph.** Both NI and NS are in the static call graph
-  (`tools/retained_pricing/base/callgraph_g5.py` ~343-352). They are reached
-  only through `append_nonlinear_support_loop_results`, which returns early
-  without nonlinear supports (D1.6). Their loop cores are priced at
-  multiplicity 0.
+  (`tools/retained_pricing/base/callgraph_g5.py` ~343-352). The loop cores are
+  reached only through `append_nonlinear_support_loop_results`, which returns
+  early without nonlinear supports (D1.6), so they are priced at multiplicity
+  0. NS constructors are also reached through `build_nonlinear_supports` (PP
+  `lib.rs` ~7785, ~8311).
+- **Validation runs on admitted calls.** Retained admission runs before
+  ordinary validation (PP `lib.rs` ~2578). Declined calls enter ordinary
+  dispatch, and admitted retained calls also reach the shared validator. New
+  validation branches and allocations are therefore priced, even though
+  motion-bearing models are outside D1.
+- **Static owners.** Both preview tables are positive static owners
+  (`b7a_domain_model.py` ~119). The new row's signatures grow them.
 - **Pins that move.**
   - `w1_reductions_model.py`: the PP `lib.rs` and `structural_adapter.rs`
     pins.
@@ -312,8 +395,9 @@ neither seeing the other's findings, before any code.
     regenerated.
   - `o10_rules.py`, if the confirmation gains reason text.
 - **New refusal texts.** Each needs a class.
-- **To confirm at pricing:** whether `validate` runs on retained invocations
-  before D1.7 declines.
+- **Inventory.** The pins above are a starting inventory, not a complete
+  registration. Shared validation, the semantic tables and the evidence-line
+  text get their actual classes and pins at pricing.
 - **Sequence.** Re-pricing and re-registration, with independent review,
   follow #1615's turn.
 
