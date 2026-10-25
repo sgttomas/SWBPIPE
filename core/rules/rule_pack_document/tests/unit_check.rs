@@ -57,6 +57,7 @@ fn formula(id: &str, input_refs: &[&str], ast: Value, output: Value) -> Value {
 fn check(id: &str, formula_id: &str, input_refs: &[&str], slot_refs: &[&str]) -> Value {
     json!({
         "check_id": id,
+        "category_ref": {"ref_id": "invented_category", "ref_type": "stress_category"},
         "required_input_refs": input_refs.iter().map(|id| reference(id)).collect::<Vec<_>>(),
         "value_slot_refs": slot_refs
             .iter()
@@ -68,11 +69,23 @@ fn check(id: &str, formula_id: &str, input_refs: &[&str], slot_refs: &[&str]) ->
 
 fn pack(inputs: Vec<Value>, slots: Vec<Value>, formulas: Vec<Value>, checks: Vec<Value>) -> Value {
     json!({
+        "schema_version": "0.5.0",
         "rule_pack_kind": "open_pipe_stress_rule_pack",
         "grammar_version": "1.0.0",
-        "metadata": {"rule_pack_id": "invented_unit_check_pack"},
+        "metadata": {"rule_pack_id": "invented_unit_check_pack", "schema_version": "0.5.0"},
         "required_inputs": inputs,
         "value_slots": slots,
+        "required_load_cases": [{
+            "required_load_case_id": "invented_case",
+            "name": "Invented case",
+            "basis_ref": {"ref_type": "load_case", "ref_id": "load:invented"}
+        }],
+        "stress_categories": [{"category_id": "invented_category", "name": "Invented category A"}],
+        "load_case_mappings": [{
+            "mapping_id": "invented_mapping",
+            "category_ref": {"ref_id": "invented_category", "ref_type": "stress_category"},
+            "required_load_case_refs": [{"ref_id": "invented_case", "ref_type": "required_load_case"}]
+        }],
         "formula_declarations": formulas,
         "check_definitions": checks
     })

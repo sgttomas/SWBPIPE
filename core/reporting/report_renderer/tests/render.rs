@@ -4,7 +4,8 @@ use open_pipe_stress_protected_content_linter as linter;
 use open_pipe_stress_report_renderer::{
     derived_print_view, escape_html, public_report_template, render_calculation_report, status_banner_text,
     RenderableReportInput, ReportContext, ReportExportContext, ReportSetting, ResultRow,
-    UserRuleCheckOutcome, UserRuleCheckRun, UserRuleCheckStatus,
+    UserRuleCheckBasisRef, UserRuleCheckOutcome, UserRuleCheckRun, UserRuleCheckStatus,
+    USER_RULE_CHECK_COUNT_SCOPE_NOTE,
 };
 use open_pipe_stress_report_sections as sections;
 
@@ -154,11 +155,13 @@ fn invented_rule_check_run() -> UserRuleCheckRun {
         checks: vec![
             UserRuleCheckOutcome {
                 check_id: "invented-check-a".to_string(),
+                basis_ref: None,
                 status: UserRuleCheckStatus::UserRuleChecked,
                 missing_inputs: vec![],
             },
             UserRuleCheckOutcome {
                 check_id: "invented-check-b".to_string(),
+                basis_ref: None,
                 status: UserRuleCheckStatus::RuleInputsIncomplete,
                 missing_inputs: vec!["invented_input_x".to_string(), "invented_input_y".to_string()],
             },
@@ -402,7 +405,7 @@ fn user_rule_check_headline_is_incomplete_while_any_check_is_blocked() {
     assert!(html.contains("Aggregate status: INCOMPLETE — 1 check(s) failed; 1 check(s) blocked · User-rule-check authority · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)"));
     assert!(!html.contains("Aggregate status: User-rule-check authority · User-rule failed"));
     // The failed check stays listed with its own status.
-    assert!(html.contains("<td>invented-check-a</td><td>User-rule-check authority · User-rule failed (USER_RULE_FAILED)</td>"));
+    assert!(html.contains("<td>invented-check-a</td><td>load case not recorded</td><td>User-rule-check authority · User-rule failed (USER_RULE_FAILED)</td>"));
 
     // A recorded failed rule-check analysis status is shown as incomplete in
     // the status banner, with the recorded status kept beside it.
@@ -448,10 +451,10 @@ fn user_rule_check_outcomes_render_identity_status_and_missing_inputs_only() {
         "Rule pack: invented-rule-pack · Grammar version: 1.0.0 · Aggregate status: INCOMPLETE — 0 check(s) failed; 1 check(s) blocked · User-rule-check authority · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)"
     ));
     assert!(html.contains(
-        "<td>invented-check-a</td><td>User-rule-check authority · User-rule checked (USER_RULE_CHECKED)</td><td>none</td>"
+        "<td>invented-check-a</td><td>load case not recorded</td><td>User-rule-check authority · User-rule checked (USER_RULE_CHECKED)</td><td>none</td>"
     ));
     assert!(html.contains(
-        "<td>invented-check-b</td><td>User-rule-check authority · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)</td><td>invented_input_x, invented_input_y</td>"
+        "<td>invented-check-b</td><td>load case not recorded</td><td>User-rule-check authority · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)</td><td>invented_input_x, invented_input_y</td>"
     ));
     // The fixture reference records no display name; it is disclosed as such.
     assert!(html.contains("<td>invented-rule-pack</td><td>not recorded</td><td>0.1.0</td>"));
@@ -571,11 +574,11 @@ fn demo_rule_pack_name_version_and_checksum_render() {
     let outcome = render_calculation_report(&input);
     assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
     assert!(outcome.html.contains(
-        "<td>invented_demo_rule_pack</td><td>Invented Demonstration Rule Pack</td><td>0.2.0</td>"
+        "<td>invented_demo_rule_pack</td><td>Invented Demonstration Rule Pack</td><td>0.3.0</td>"
     ));
     assert!(outcome
         .html
-        .contains("c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd"));
+        .contains("c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f"));
     let json = serde_json::to_value(&input.calculation_report.rule_pack_refs[0]).expect("serializes");
     assert_eq!(json["name"], "Invented Demonstration Rule Pack");
 }
@@ -824,5 +827,88 @@ fn exact_route_texts_pass_the_claims_check() {
         assert!(!folded.contains("acceptance"), "{text}");
         assert!(LITANY.iter().filter(|term| folded.contains(*term)).count() < 3, "{text}");
         assert!(text.chars().all(|ch| (' '..='~').contains(&ch) || ('\u{a0}'..='\u{ff}').contains(&ch)), "{text}");
+    }
+}
+
+// --- Rule-pack format 0.5.0: one outcome per check and load case (DEL-06-01
+// Design `rule-pack-0.5.0.md` §2.7, §6) -------------------------------------
+
+fn outcome_on(check_id: &str, ref_type: &str, ref_id: &str, status: UserRuleCheckStatus) -> UserRuleCheckOutcome {
+    UserRuleCheckOutcome {
+        check_id: check_id.to_string(),
+        basis_ref: Some(UserRuleCheckBasisRef { ref_type: ref_type.to_string(), ref_id: ref_id.to_string() }),
+        status,
+        missing_inputs: vec![],
+    }
+}
+
+#[test]
+fn one_check_on_two_load_cases_lists_both_named_with_the_count_scope_note() {
+    let mut input = fixture_input();
+    input.report_context = Some(invented_report_context(ReportExportContext::LocalPrivate));
+    let mut run = invented_rule_check_run();
+    run.aggregate_status = UserRuleCheckStatus::UserRuleFailed;
+    run.checks = vec![
+        outcome_on("invented-check-a", "load_case", "load:L-100", UserRuleCheckStatus::UserRuleChecked),
+        outcome_on("invented-check-a", "combination", "combo:C-1", UserRuleCheckStatus::UserRuleFailed),
+    ];
+    input.user_rule_checks = Some(run);
+    let outcome = render_calculation_report(&input);
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    let html = &outcome.html;
+    assert!(html.contains("<th>Check</th><th>Load case or combination</th><th>Status</th><th>Missing inputs</th>"), "{html}");
+    assert!(html.contains(
+        "<td>invented-check-a</td><td>load_case load:L-100</td><td>User-rule-check authority · User-rule checked (USER_RULE_CHECKED)</td><td>none</td>"
+    ));
+    assert!(html.contains(
+        "<td>invented-check-a</td><td>combination combo:C-1</td><td>User-rule-check authority · User-rule failed (USER_RULE_FAILED)</td><td>none</td>"
+    ));
+    // The headline is unchanged; the note says what its counts count, once.
+    assert!(html.contains("Aggregate status: User-rule-check authority · User-rule failed (USER_RULE_FAILED)"));
+    assert_eq!(html.matches(USER_RULE_CHECK_COUNT_SCOPE_NOTE).count(), 1);
+    assert_eq!(
+        USER_RULE_CHECK_COUNT_SCOPE_NOTE,
+        "Counts are per check and load case or combination; one check can contribute more than once."
+    );
+}
+
+#[test]
+fn an_outcome_recorded_without_basis_ref_renders_load_case_not_recorded() {
+    // A 2.0.0 renderer input written before the member existed still reads.
+    let mut value: serde_json::Value = serde_json::to_value(fixture_input()).unwrap();
+    value["report_context"] = serde_json::to_value(invented_report_context(ReportExportContext::LocalPrivate)).unwrap();
+    value["user_rule_checks"] = serde_json::json!({
+        "rule_pack_id": "invented-rule-pack",
+        "grammar_version": "1.0.0",
+        "aggregate_status": "USER_RULE_CHECKED",
+        "checks": [{"check_id": "invented-check-a", "status": "USER_RULE_CHECKED", "missing_inputs": []}]
+    });
+    let input: RenderableReportInput = serde_json::from_value(value).expect("an input without basis_ref reads");
+    assert_eq!(input.user_rule_checks.as_ref().unwrap().checks[0].basis_ref, None);
+    let outcome = render_calculation_report(&input);
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    assert!(outcome.html.contains(
+        "<td>invented-check-a</td><td>load case not recorded</td><td>User-rule-check authority · User-rule checked (USER_RULE_CHECKED)</td><td>none</td>"
+    ));
+    // An absent member is not written back.
+    let written = serde_json::to_value(&input).unwrap();
+    assert!(written["user_rule_checks"]["checks"][0].get("basis_ref").is_none());
+}
+
+#[test]
+fn an_empty_or_unknown_recorded_basis_blocks_export() {
+    for (ref_type, ref_id) in [("load_case", " "), ("load_case", ""), ("support", "load:L-100")] {
+        let mut input = fixture_input();
+        input.report_context = Some(invented_report_context(ReportExportContext::LocalPrivate));
+        let mut run = invented_rule_check_run();
+        run.checks = vec![outcome_on("invented-check-a", ref_type, ref_id, UserRuleCheckStatus::UserRuleChecked)];
+        run.aggregate_status = UserRuleCheckStatus::UserRuleChecked;
+        input.user_rule_checks = Some(run);
+        let outcome = render_calculation_report(&input);
+        assert!(outcome.export_blocked, "{ref_type} {ref_id:?}");
+        assert!(outcome
+            .blocking_reasons
+            .iter()
+            .any(|reason| reason == "report context: USER-RULE-CHECK-BASIS-REF-INVALID"), "{:?}", outcome.blocking_reasons);
     }
 }

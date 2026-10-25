@@ -311,6 +311,7 @@ fn rule_pack_name_and_registered_status_forms_reach_the_pdf() {
         aggregate_status: UserRuleCheckStatus::UserRuleChecked,
         checks: vec![UserRuleCheckOutcome {
             check_id: "chk-a".to_string(),
+            basis_ref: None,
             status: UserRuleCheckStatus::UserRuleChecked,
             missing_inputs: vec![],
         }],
@@ -345,11 +346,13 @@ fn a_recorded_rule_fail_with_a_blocked_check_is_bannered_incomplete() {
         checks: vec![
             UserRuleCheckOutcome {
                 check_id: "invented-check-failed".to_string(),
+                basis_ref: None,
                 status: UserRuleCheckStatus::UserRuleFailed,
                 missing_inputs: vec![],
             },
             UserRuleCheckOutcome {
                 check_id: "invented-check-blocked".to_string(),
+                basis_ref: None,
                 status: UserRuleCheckStatus::RuleInputsIncomplete,
                 missing_inputs: vec!["invented_input_x".to_string()],
             },
