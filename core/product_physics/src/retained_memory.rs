@@ -659,7 +659,8 @@ pub(super) enum FamilyFact {
     LoadDimension,
     /// B7a (b): an element load along anything but a global axis.
     LoadDirection,
-    /// B7a (b): an element load whose id has the deterministic self-weight form.
+    /// B7a (b): an element load whose id has the deterministic self-weight form; W-15 slice b: a
+    /// node load whose id is in the generated self-weight namespace.
     GeneratedLoadIdentity,
     ObjectProvenance,
 }
@@ -972,13 +973,18 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     // W1 also certifies full-span uniform member loads: an element-targeted
     // `distributed_force` in `force_per_length` along a global axis (the preview model's only
     // element form), on the Euler-Bernoulli leaf. Exact route E keeps its element-load
-    // decline; deterministic self-weight IDs stay outside (D1.10's premise).
+    // decline; deterministic self-weight IDs stay outside (D1.10's premise). W-15 slice b: a
+    // node-targeted load in the generated namespace claims component-weight lineage
+    // (`self_weight::inspect_applied_self_weight`), so it stays outside too.
     for case in &m.load_cases {
         for load in &case.primitive_loads {
             match &load.target {
                 crate::LoadTargetInput::Node { .. } => {
                     if !matches!(load.dimension.as_str(), "force" | "moment") {
                         return refuse(C::Loads, F::LoadDimension);
+                    }
+                    if load.id.starts_with("load:self-weight:") {
+                        return refuse(C::Loads, F::GeneratedLoadIdentity);
                     }
                 }
                 crate::LoadTargetInput::Element { pipe } => {
