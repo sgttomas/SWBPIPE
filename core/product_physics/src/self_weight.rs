@@ -764,6 +764,9 @@ fn retained_basis(
         material: String::new(),
         y_reference: None,
         provenance: None,
+        label: serde::de::IgnoredAny,
+        tags: serde::de::IgnoredAny,
+        notes: serde::de::IgnoredAny,
     };
     let mass = if method == LEGACY_METHOD {
         compute_pipe_mass_per_length(&pipe, case_id, &mut d)
@@ -1005,6 +1008,9 @@ fn old_dependencies_mass(evidence: &Value, case_id: &str) -> Option<f64> {
         material: String::new(),
         y_reference: None,
         provenance: None,
+        label: serde::de::IgnoredAny,
+        tags: serde::de::IgnoredAny,
+        notes: serde::de::IgnoredAny,
     };
     compute_pipe_mass_per_length(&pipe, case_id, &mut Vec::new())
 }

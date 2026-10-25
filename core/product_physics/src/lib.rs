@@ -237,15 +237,92 @@ pub struct PreviewModel {
     pub(crate) request_material_expansion_laws: Vec<usize>,
 }
 
-/// One material record as authored: the unchanged `MaterialInput` fields
-/// (typed, so duplicate keys and positions keep their serde errors) and the
-/// material-owned `expansion_laws` key.
-#[derive(Deserialize)]
+/// One material record as authored: the unchanged `MaterialInput` fields and
+/// the material-owned `expansion_laws` key. It is read only as a map, as its
+/// former flattened form was (a positional record is refused), through its
+/// closed record `MaterialRecordFields`.
 struct MaterialRecordWire<L> {
-    #[serde(flatten)]
     material: MaterialInput,
+    expansion_laws: Authored<L>,
+}
+
+/// Closed record (`model_fields`): `MaterialInput`'s fields, each declared as
+/// `MaterialInput` declares it apart from its closed quantities, and
+/// `expansion_laws`. Model document 0.7.0's `label`, `tags`, `notes` and
+/// `provenance_record` are declared document members the solve never reads
+/// (accepted and ignored).
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct MaterialRecordFields<L> {
+    #[serde(default)]
+    constitutive_basis: Option<String>,
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
+    poisson_ratio: Option<Quantity>,
+    id: String,
+    #[serde(deserialize_with = "model_fields::closed_quantity")]
+    elastic_modulus: Quantity,
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
+    shear_modulus: Option<Quantity>,
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
+    thermal_expansion_coefficient: Option<Quantity>,
+    #[serde(default)]
+    temperature_points: Vec<MaterialTemperaturePointInput>,
+    #[serde(default)]
+    provenance: Option<String>,
     #[serde(default)]
     expansion_laws: Authored<L>,
+    #[serde(default)]
+    #[allow(dead_code)]
+    label: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    tags: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    notes: serde::de::IgnoredAny,
+    #[serde(default)]
+    #[allow(dead_code)]
+    provenance_record: serde::de::IgnoredAny,
+}
+
+impl<'de, L: Deserialize<'de> + Default> Deserialize<'de> for MaterialRecordWire<L> {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        struct RecordVisitor<L>(std::marker::PhantomData<L>);
+        impl<'de, L: Deserialize<'de> + Default> serde::de::Visitor<'de> for RecordVisitor<L> {
+            type Value = MaterialRecordFields<L>;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                formatter.write_str("struct MaterialRecordWire")
+            }
+
+            fn visit_map<A: serde::de::MapAccess<'de>>(self, map: A) -> Result<Self::Value, A::Error> {
+                MaterialRecordFields::deserialize(serde::de::value::MapAccessDeserializer::new(map))
+            }
+        }
+        let MaterialRecordFields {
+            constitutive_basis,
+            poisson_ratio,
+            id,
+            elastic_modulus,
+            shear_modulus,
+            thermal_expansion_coefficient,
+            temperature_points,
+            provenance,
+            expansion_laws,
+            ..
+        } = deserializer.deserialize_map(RecordVisitor(std::marker::PhantomData))?;
+        let material = MaterialInput {
+            constitutive_basis,
+            poisson_ratio,
+            id,
+            elastic_modulus,
+            shear_modulus,
+            thermal_expansion_coefficient,
+            temperature_points,
+            provenance,
+        };
+        Ok(Self { material, expansion_laws })
+    }
 }
 
 /// Wire form of `PreviewModel`; identical fields and defaults, except that each
@@ -399,12 +476,23 @@ pub struct StatusEnvelope {
     pub professional_acceptance: String,
 }
 
+/// Closed record (`model_fields`). Model document 0.7.0's `label`, `tags` and
+/// `notes` are declared document members the solve never reads (accepted and
+/// ignored).
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PreviewNode {
     pub id: String,
+    #[serde(deserialize_with = "model_fields::closed_vec3")]
     pub position: Vec3,
     #[serde(default)]
     pub provenance: Option<String>,
+    #[serde(default)]
+    pub label: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub tags: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub notes: serde::de::IgnoredAny,
 }
 
 #[derive(Debug, Clone, Copy, Deserialize)]
@@ -414,31 +502,59 @@ pub struct Vec3 {
     pub z: f64,
 }
 
+/// Closed record (`model_fields`), including its section and `y_reference`.
+/// Model document 0.7.0's `label`, `tags` and `notes` are declared document
+/// members the solve never reads (accepted and ignored).
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PreviewPipe {
     pub id: String,
     pub from: String,
     pub to: String,
+    #[serde(deserialize_with = "model_fields::closed_pipe_section")]
     pub section: PipeSectionInput,
     #[serde(default)]
     pub section_ref: Option<String>,
     pub material: String,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_vec3")]
     pub y_reference: Option<Vec3>,
     #[serde(default)]
     pub provenance: Option<String>,
+    #[serde(default)]
+    pub label: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub tags: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub notes: serde::de::IgnoredAny,
 }
 
 /// Shared preview-section metadata. Only explicit pipe OD/wall are bindable.
+///
+/// Closed record (`model_fields`), including each property's quantity. Model
+/// document 0.7.0's `tags`, `notes` and `provenance_record` are declared
+/// document members the solve never reads (accepted and ignored).
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PreviewSection {
     pub id: String,
     pub name: String,
     pub section_type: String,
+    #[serde(deserialize_with = "model_fields::closed_quantity_map")]
     pub properties: BTreeMap<String, Quantity>,
     pub provenance: serde_json::Value,
+    #[serde(default)]
+    pub tags: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub notes: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub provenance_record: serde::de::IgnoredAny,
 }
 
+/// A pipe segment's section. A model's pipe segment reads it closed
+/// (`model_fields::closed_pipe_section`); this derive stays open for the
+/// self-weight evidence readers, which rebuild a section from generated
+/// provenance that carries other keys (`normalized_dependencies`'
+/// `section_ref`).
 #[derive(Debug, Clone, Deserialize)]
 pub struct PipeSectionInput {
     pub outside_diameter: Quantity,
@@ -481,9 +597,14 @@ pub struct VectorQuantity {
     pub unit: String,
 }
 
+/// Closed record (`model_fields`), including its geometry, modifiers,
+/// mechanics interface and the objective connector's own members. Model
+/// document 0.7.0's `completeness`, `tags`, `notes` and `provenance_record` are
+/// declared document members the solve never reads (accepted and ignored).
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PreviewComponent {
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_connector")]
     pub objective_connector: Option<serde_json::Value>,
     pub id: String,
     #[serde(default)]
@@ -498,15 +619,24 @@ pub struct PreviewComponent {
     pub mechanics_interface: Option<ComponentMechanicsInterfaceInput>,
     #[serde(default)]
     pub provenance: Option<String>,
+    #[serde(default)]
+    pub completeness: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub tags: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub notes: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub provenance_record: serde::de::IgnoredAny,
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ComponentGeometryInput {
     #[serde(default)]
     pub bend_pipe_ref: Option<String>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub bend_radius: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub bend_angle: Option<Quantity>,
     #[serde(default)]
     pub bend_plane_orientation: Option<String>,
@@ -516,15 +646,15 @@ pub struct ComponentGeometryInput {
     pub branch_header_pipe_ref: Option<String>,
     #[serde(default)]
     pub branch_branch_pipe_ref: Option<String>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub branch_run_size: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub branch_header_size: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub branch_connection_angle: Option<Quantity>,
     #[serde(default)]
     pub branch_connection_type: Option<String>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub branch_reinforcement_area: Option<Quantity>,
     #[serde(default)]
     pub branch_reinforcement_reference: Option<String>,
@@ -532,15 +662,15 @@ pub struct ComponentGeometryInput {
     pub branch_geometry_source_reference: Option<String>,
     #[serde(default)]
     pub rigid_pipe_ref: Option<String>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub rigid_body_length: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub end_a_size: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub end_b_size: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub weight: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_vector_quantity")]
     pub center_of_gravity: Option<VectorQuantity>,
     #[serde(default)]
     pub connection_end_a_reference: Option<String>,
@@ -552,9 +682,9 @@ pub struct ComponentGeometryInput {
     pub rigid_component_source_reference: Option<String>,
     #[serde(default)]
     pub expansion_joint_pipe_ref: Option<String>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub effective_area: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub movement_limit: Option<Quantity>,
     #[serde(default)]
     pub hardware_reference: Option<String>,
@@ -567,42 +697,44 @@ pub struct ComponentGeometryInput {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ComponentModifierInput {
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub sif_user_value: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub branch_header_sif_user_value: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub branch_branch_sif_user_value: Option<Quantity>,
     /// T4-U4b (model 0.6.0, DEL-04-07 Design u4b-u5b-implementation.md §2.6):
     /// the directional user SIF multiplying M_z of a realized arc's tangent
     /// frame. Both of the pair or neither, with `source_reference`.
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub sif_in_plane_user_value: Option<Quantity>,
     /// T4-U4b: the directional user SIF multiplying M_y of the tangent frame.
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub sif_out_of_plane_user_value: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub flexibility_factor_user_value: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub stiffness_scaling_user_value: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub linear_stiffness_user_value: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub rotational_stiffness_user_value: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub axial_stiffness_user_value: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub lateral_stiffness_user_value: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub angular_stiffness_user_value: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub torsional_stiffness_user_value: Option<Quantity>,
     #[serde(default)]
     pub source_reference: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ComponentMechanicsInterfaceInput {
     #[serde(default)]
     pub solver_consumption: Option<String>,
@@ -610,7 +742,12 @@ pub struct ComponentMechanicsInterfaceInput {
     pub rule_check_consumption: Option<String>,
 }
 
+/// Closed record (`model_fields`), including its stiffness, hanger and
+/// nonlinear inputs. Model document 0.7.0's `label`, `boundary_association`,
+/// `properties`, `tags`, `notes` and `provenance_record` are declared document
+/// members the solve never reads (accepted and ignored).
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PreviewSupport {
     pub id: String,
     pub node: String,
@@ -625,31 +762,46 @@ pub struct PreviewSupport {
     pub nonlinear: Option<NonlinearSupportInput>,
     #[serde(default)]
     pub provenance: Option<String>,
+    #[serde(default)]
+    pub label: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub boundary_association: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub properties: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub tags: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub notes: serde::de::IgnoredAny,
+    #[serde(default)]
+    pub provenance_record: serde::de::IgnoredAny,
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct SupportStiffnessInput {
     pub dof: String,
+    #[serde(deserialize_with = "model_fields::closed_quantity")]
     pub value: Quantity,
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct SpringHangerInput {
     #[serde(default)]
     pub hanger_type: Option<String>,
     #[serde(default)]
     pub stiffness: Option<SupportStiffnessInput>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub installed_load: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub cold_load: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub hot_load: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub constant_load: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub travel_range: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub movement_limit: Option<Quantity>,
     #[serde(default)]
     pub manufacturer_reference: Option<String>,
@@ -662,6 +814,7 @@ pub struct SpringHangerInput {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct NonlinearSupportInput {
     pub behavior: String,
     pub dof: String,
@@ -673,17 +826,18 @@ pub struct NonlinearSupportInput {
     pub contact_when: Option<String>,
     #[serde(default)]
     pub closes_when: Option<String>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub gap: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub friction_coefficient: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub normal_reaction: Option<Quantity>,
     #[serde(default)]
     pub normal_reaction_source: Option<FrictionNormalReactionSourceInput>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct FrictionNormalReactionSourceInput {
     pub support_ref: String,
     pub dof: String,
@@ -863,45 +1017,42 @@ pub enum LoadTargetInput {
     Element { pipe: String },
 }
 
-#[derive(Debug, Clone, Deserialize)]
+/// A material as the solve reads it, from its authored record
+/// (`MaterialRecordFields`, which declares each field's default).
+#[derive(Debug, Clone)]
 pub struct MaterialInput {
-    #[serde(default)]
     pub constitutive_basis: Option<String>,
-    #[serde(default)]
     pub poisson_ratio: Option<Quantity>,
     pub id: String,
     pub elastic_modulus: Quantity,
-    #[serde(default)]
     pub shear_modulus: Option<Quantity>,
-    #[serde(default)]
     pub thermal_expansion_coefficient: Option<Quantity>,
     /// User-entered temperature-indexed property points (DEC-068 item 1).
     /// A load case may name one point id as its exact modulus basis or supply
     /// a solve temperature for DEC-077 linear interpolation between adjacent
     /// points. All values remain user-entered; selected bases require explicit
     /// point G values, and extrapolation or base-G fallback is blocked.
-    #[serde(default)]
     pub temperature_points: Vec<MaterialTemperaturePointInput>,
-    #[serde(default)]
     pub provenance: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct MaterialTemperaturePointInput {
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub poisson_ratio: Option<Quantity>,
     /// Stable user-assigned basis id (e.g. a temperature-case label).
     pub id: String,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub temperature: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub elastic_modulus: Option<Quantity>,
     /// Optional explicit user-entered shear modulus at this temperature point
     /// (DEC-092). It is required when this point participates in an exact or
     /// interpolated selected basis; no base-material G is substituted.
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub shear_modulus: Option<Quantity>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_quantity")]
     pub thermal_expansion_coefficient: Option<Quantity>,
     #[serde(default)]
     pub provenance: Option<String>,
@@ -16594,6 +16745,12 @@ mod tests {
             hanger: None,
             nonlinear: None,
             provenance: Some("invented_example_user_input".to_string()),
+            label: serde::de::IgnoredAny,
+            boundary_association: serde::de::IgnoredAny,
+            properties: serde::de::IgnoredAny,
+            tags: serde::de::IgnoredAny,
+            notes: serde::de::IgnoredAny,
+            provenance_record: serde::de::IgnoredAny,
         }
     }
 
@@ -17061,6 +17218,9 @@ mod tests {
                 ("wall_thickness".into(), pipe.section.wall_thickness.clone()),
             ]),
             provenance: serde_json::json!({"source": "invented test"}),
+            tags: serde::de::IgnoredAny,
+            notes: serde::de::IgnoredAny,
+            provenance_record: serde::de::IgnoredAny,
         });
         input
     }
@@ -17581,6 +17741,12 @@ mod tests {
                 hanger: None,
                 nonlinear: None,
                 provenance: Some("invented_example".to_string()),
+                label: serde::de::IgnoredAny,
+                boundary_association: serde::de::IgnoredAny,
+                properties: serde::de::IgnoredAny,
+                tags: serde::de::IgnoredAny,
+                notes: serde::de::IgnoredAny,
+                provenance_record: serde::de::IgnoredAny,
             },
             PreviewSupport {
                 id: support_id.to_string(),
@@ -17593,6 +17759,12 @@ mod tests {
                 provenance: Some(
                     "invented_example_user_entered_nonlinear_support_no_catalog".to_string(),
                 ),
+                label: serde::de::IgnoredAny,
+                boundary_association: serde::de::IgnoredAny,
+                properties: serde::de::IgnoredAny,
+                tags: serde::de::IgnoredAny,
+                notes: serde::de::IgnoredAny,
+                provenance_record: serde::de::IgnoredAny,
             },
         ];
         request.model.components.clear();
@@ -17700,6 +17872,12 @@ mod tests {
                 normal_reaction_source: None,
             }),
             provenance: Some("invented_example_user_entered_nonlinear_gap_no_catalog".to_string()),
+            label: serde::de::IgnoredAny,
+            boundary_association: serde::de::IgnoredAny,
+            properties: serde::de::IgnoredAny,
+            tags: serde::de::IgnoredAny,
+            notes: serde::de::IgnoredAny,
+            provenance_record: serde::de::IgnoredAny,
         });
         request.model.supports.push(PreviewSupport {
             id: "support:NL-MIX-FRIC-110".to_string(),
@@ -17729,6 +17907,12 @@ mod tests {
             provenance: Some(
                 "invented_example_user_entered_nonlinear_friction_no_catalog".to_string(),
             ),
+            label: serde::de::IgnoredAny,
+            boundary_association: serde::de::IgnoredAny,
+            properties: serde::de::IgnoredAny,
+            tags: serde::de::IgnoredAny,
+            notes: serde::de::IgnoredAny,
+            provenance_record: serde::de::IgnoredAny,
         });
         request.model.load_cases[0]
             .primitive_loads
@@ -18183,6 +18367,12 @@ mod tests {
             hanger: None,
             nonlinear: None,
             provenance: Some("invented_example_normal_reaction_source".to_string()),
+            label: serde::de::IgnoredAny,
+            boundary_association: serde::de::IgnoredAny,
+            properties: serde::de::IgnoredAny,
+            tags: serde::de::IgnoredAny,
+            notes: serde::de::IgnoredAny,
+            provenance_record: serde::de::IgnoredAny,
         });
         request.model.load_cases[0]
             .primitive_loads

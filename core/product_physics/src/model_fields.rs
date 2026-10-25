@@ -3,7 +3,13 @@
 //! (with its target and magnitude), a combination or a combination term is
 //! refused by name before anything is solved, never
 //! silently dropped. A misspelled `primitive_loads` would otherwise empty a
-//! case, and a misspelled `combinations` would drop every combination.
+//! case, and a misspelled `combinations` would drop every combination. So is one
+//! on a node, a pipe segment (with its section and `y_reference`), a section of
+//! the library (with its property quantities), a support (with its stiffness,
+//! hanger and nonlinear inputs), a component (with its geometry, modifiers,
+//! mechanics interface and objective connector), a material of the model or the
+//! request (with its temperature points), and every quantity and vector they
+//! carry: a misspelled `mill_tolerance` would otherwise solve without it.
 //!
 //! The records deny unknown fields in their serde derives, so every typed
 //! reader refuses. The request boundary first scans the actual request so the
@@ -12,13 +18,18 @@
 //! and the typed parse cannot disagree.
 
 use crate::{
-    EquivalentStaticGenerationInput, PreviewCombination, PreviewCombinationTerm, PreviewLoadCase,
-    PreviewModel, PreviewPrimitiveLoad, Quantity, SeismicGenerationInput, WindExposedSpanInput,
+    ComponentGeometryInput, ComponentMechanicsInterfaceInput, ComponentModifierInput,
+    EquivalentStaticGenerationInput, FrictionNormalReactionSourceInput, MaterialRecordFields,
+    MaterialTemperaturePointInput, NonlinearSupportInput, PipeSectionInput, PreviewCombination,
+    PreviewCombinationTerm, PreviewComponent, PreviewLoadCase, PreviewModel, PreviewNode, PreviewPipe,
+    PreviewPrimitiveLoad, PreviewSection, PreviewSupport, Quantity, SeismicGenerationInput,
+    SpringHangerInput, SupportStiffnessInput, Vec3, VectorQuantity, WindExposedSpanInput,
     WindGenerationInput,
 };
-use serde::de::{self, DeserializeOwned, Visitor};
+use serde::de::{self, DeserializeOwned, IgnoredAny, Visitor};
 use serde::Deserialize;
 use serde_json::Value;
+use std::collections::BTreeMap;
 
 /// Request-boundary refusal code (an `Err` of the value entries).
 pub(crate) const UNKNOWN_MODEL_FIELD: &str = "UNKNOWN_MODEL_FIELD";
@@ -45,6 +56,146 @@ pub(crate) fn closed_quantity<'de, D: de::Deserializer<'de>>(
 ) -> Result<Quantity, D::Error> {
     let ClosedQuantity { value, unit } = ClosedQuantity::deserialize(deserializer)?;
     Ok(Quantity { value, unit })
+}
+
+/// An optional closed quantity that, when present, must be an object (as
+/// `deserialize_present_object` reads a pipe section's corrosion allowance).
+fn closed_present_quantity<'de, D: de::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<Option<Quantity>, D::Error> {
+    Ok(crate::deserialize_present_object::<D, ClosedQuantity>(deserializer)?
+        .map(|ClosedQuantity { value, unit }| Quantity { value, unit }))
+}
+
+/// A section's property quantities, each closed.
+pub(crate) fn closed_quantity_map<'de, D: de::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<BTreeMap<String, Quantity>, D::Error> {
+    Ok(BTreeMap::<String, ClosedQuantity>::deserialize(deserializer)?
+        .into_iter()
+        .map(|(name, ClosedQuantity { value, unit })| (name, Quantity { value, unit }))
+        .collect())
+}
+
+/// A position or direction in the global frame: exactly `x`, `y` and `z`.
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ClosedVec3 {
+    x: f64,
+    y: f64,
+    z: f64,
+}
+
+pub(crate) fn closed_vec3<'de, D: de::Deserializer<'de>>(deserializer: D) -> Result<Vec3, D::Error> {
+    let ClosedVec3 { x, y, z } = ClosedVec3::deserialize(deserializer)?;
+    Ok(Vec3 { x, y, z })
+}
+
+/// An optional closed vector: absence and a present null stay `None`.
+pub(crate) fn closed_optional_vec3<'de, D: de::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<Option<Vec3>, D::Error> {
+    Ok(Option::<ClosedVec3>::deserialize(deserializer)?.map(|ClosedVec3 { x, y, z }| Vec3 { x, y, z }))
+}
+
+/// A vector quantity: exactly `x`, `y`, `z` and `unit`.
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ClosedVectorQuantity {
+    x: f64,
+    y: f64,
+    z: f64,
+    unit: String,
+}
+
+pub(crate) fn closed_optional_vector_quantity<'de, D: de::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<Option<VectorQuantity>, D::Error> {
+    Ok(Option::<ClosedVectorQuantity>::deserialize(deserializer)?
+        .map(|ClosedVectorQuantity { x, y, z, unit }| VectorQuantity { x, y, z, unit }))
+}
+
+/// A pipe segment's section as the model authors it: `PipeSectionInput`'s
+/// fields with their defaults, closed, and its quantities closed.
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ClosedPipeSection {
+    #[serde(deserialize_with = "closed_quantity")]
+    outside_diameter: Quantity,
+    #[serde(deserialize_with = "closed_quantity")]
+    wall_thickness: Quantity,
+    #[serde(default, deserialize_with = "closed_optional_quantity")]
+    mill_tolerance: Option<Quantity>,
+    #[serde(default, deserialize_with = "closed_present_quantity")]
+    corrosion_allowance: Option<Quantity>,
+    #[serde(default, deserialize_with = "closed_optional_quantity")]
+    material_density: Option<Quantity>,
+    #[serde(default, deserialize_with = "closed_optional_quantity")]
+    contents_density: Option<Quantity>,
+    #[serde(default, deserialize_with = "closed_optional_quantity")]
+    insulation_thickness: Option<Quantity>,
+    #[serde(default, deserialize_with = "closed_optional_quantity")]
+    insulation_density: Option<Quantity>,
+}
+
+pub(crate) fn closed_pipe_section<'de, D: de::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<PipeSectionInput, D::Error> {
+    let ClosedPipeSection {
+        outside_diameter,
+        wall_thickness,
+        mill_tolerance,
+        corrosion_allowance,
+        material_density,
+        contents_density,
+        insulation_thickness,
+        insulation_density,
+    } = ClosedPipeSection::deserialize(deserializer)?;
+    Ok(PipeSectionInput {
+        outside_diameter,
+        wall_thickness,
+        mill_tolerance,
+        corrosion_allowance,
+        material_density,
+        contents_density,
+        insulation_thickness,
+        insulation_density,
+    })
+}
+
+/// The members of objective connector 1.0.0 (`ObjectiveConnector` in
+/// `schemas/model.schema.yaml`). The connector is read by key, so its own
+/// members are checked here; its member records are the connector decoder's.
+const OBJECTIVE_CONNECTOR_FIELDS: &[&str] = &[
+    "version",
+    "motion_basis",
+    "end_i",
+    "end_j",
+    "connector_axes_global",
+    "installed_reference_temperature",
+    "temperature_applicability",
+    "reference_state",
+    "q_ref",
+    "stiffness",
+    "topology",
+    "calibration",
+    "hardware",
+    "pressure_model",
+    "provenance",
+];
+
+/// A component's objective connector, kept as authored, with no undeclared
+/// member. A value that is not an object is left to the connector decoder.
+pub(crate) fn closed_connector<'de, D: de::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<Option<Value>, D::Error> {
+    let connector = Option::<Value>::deserialize(deserializer)?;
+    if let Some(Value::Object(members)) = &connector {
+        if let Some(key) = members.keys().find(|key| !OBJECTIVE_CONNECTOR_FIELDS.contains(&key.as_str())) {
+            return Err(de::Error::unknown_field(key, OBJECTIVE_CONNECTOR_FIELDS));
+        }
+    }
+    Ok(connector)
 }
 
 /// The field names a serde-derived struct accepts, read from its derive.
@@ -95,6 +246,23 @@ pub(crate) struct RecordFields {
     pub(crate) seismic: &'static [&'static str],
     pub(crate) wind: &'static [&'static str],
     pub(crate) exposed_span: &'static [&'static str],
+    pub(crate) node: &'static [&'static str],
+    pub(crate) vector: &'static [&'static str],
+    pub(crate) pipe: &'static [&'static str],
+    pub(crate) pipe_section: &'static [&'static str],
+    pub(crate) section: &'static [&'static str],
+    pub(crate) support: &'static [&'static str],
+    pub(crate) stiffness: &'static [&'static str],
+    pub(crate) hanger: &'static [&'static str],
+    pub(crate) nonlinear: &'static [&'static str],
+    pub(crate) reaction_source: &'static [&'static str],
+    pub(crate) component: &'static [&'static str],
+    pub(crate) geometry: &'static [&'static str],
+    pub(crate) vector_quantity: &'static [&'static str],
+    pub(crate) modifiers: &'static [&'static str],
+    pub(crate) mechanics_interface: &'static [&'static str],
+    pub(crate) material: &'static [&'static str],
+    pub(crate) temperature_point: &'static [&'static str],
 }
 
 pub(crate) fn record_fields() -> RecordFields {
@@ -109,8 +277,73 @@ pub(crate) fn record_fields() -> RecordFields {
         seismic: declared_fields::<SeismicGenerationInput>(),
         wind: declared_fields::<WindGenerationInput>(),
         exposed_span: declared_fields::<WindExposedSpanInput>(),
+        node: declared_fields::<PreviewNode>(),
+        vector: declared_fields::<ClosedVec3>(),
+        pipe: declared_fields::<PreviewPipe>(),
+        pipe_section: declared_fields::<ClosedPipeSection>(),
+        section: declared_fields::<PreviewSection>(),
+        support: declared_fields::<PreviewSupport>(),
+        stiffness: declared_fields::<SupportStiffnessInput>(),
+        hanger: declared_fields::<SpringHangerInput>(),
+        nonlinear: declared_fields::<NonlinearSupportInput>(),
+        reaction_source: declared_fields::<FrictionNormalReactionSourceInput>(),
+        component: declared_fields::<PreviewComponent>(),
+        geometry: declared_fields::<ComponentGeometryInput>(),
+        vector_quantity: declared_fields::<ClosedVectorQuantity>(),
+        modifiers: declared_fields::<ComponentModifierInput>(),
+        mechanics_interface: declared_fields::<ComponentMechanicsInterfaceInput>(),
+        material: declared_fields::<MaterialRecordFields<IgnoredAny>>(),
+        temperature_point: declared_fields::<MaterialTemperaturePointInput>(),
     }
 }
+
+/// The quantity members of the nested closed records, each a closed quantity.
+const PIPE_SECTION_QUANTITIES: [&str; 8] = [
+    "outside_diameter",
+    "wall_thickness",
+    "mill_tolerance",
+    "corrosion_allowance",
+    "material_density",
+    "contents_density",
+    "insulation_thickness",
+    "insulation_density",
+];
+const HANGER_QUANTITIES: [&str; 6] =
+    ["installed_load", "cold_load", "hot_load", "constant_load", "travel_range", "movement_limit"];
+const NONLINEAR_QUANTITIES: [&str; 3] = ["gap", "friction_coefficient", "normal_reaction"];
+const GEOMETRY_QUANTITIES: [&str; 12] = [
+    "bend_radius",
+    "bend_angle",
+    "branch_run_size",
+    "branch_header_size",
+    "branch_connection_angle",
+    "branch_reinforcement_area",
+    "rigid_body_length",
+    "end_a_size",
+    "end_b_size",
+    "weight",
+    "effective_area",
+    "movement_limit",
+];
+const MODIFIER_QUANTITIES: [&str; 13] = [
+    "sif_user_value",
+    "branch_header_sif_user_value",
+    "branch_branch_sif_user_value",
+    "sif_in_plane_user_value",
+    "sif_out_of_plane_user_value",
+    "flexibility_factor_user_value",
+    "stiffness_scaling_user_value",
+    "linear_stiffness_user_value",
+    "rotational_stiffness_user_value",
+    "axial_stiffness_user_value",
+    "lateral_stiffness_user_value",
+    "angular_stiffness_user_value",
+    "torsional_stiffness_user_value",
+];
+const MATERIAL_QUANTITIES: [&str; 4] =
+    ["poisson_ratio", "elastic_modulus", "shear_modulus", "thermal_expansion_coefficient"];
+const POINT_QUANTITIES: [&str; 5] =
+    ["poisson_ratio", "temperature", "elastic_modulus", "shear_modulus", "thermal_expansion_coefficient"];
 
 struct Finding {
     field: String,
@@ -156,11 +389,162 @@ fn named(kind: &str, id: Option<&str>, index: usize) -> String {
     }
 }
 
+/// Where a nested record sits. Its name and path are formed only for a finding
+/// (`check_at`), so the scan of a request without one forms neither.
+#[derive(Clone, Copy)]
+enum At<'a> {
+    /// `{collection}[{index}]`, named `{kind} `{id}``.
+    Record { collection: &'static str, kind: &'static str, index: usize, id: Option<&'a str> },
+    /// `{parent}.{key}`, named `the {key} of {parent}`.
+    Member { parent: &'a At<'a>, key: &'a str },
+    /// `{parent}.{key}[{index}]`, named `{kind} `{id}` of {parent}`.
+    Entry { parent: &'a At<'a>, key: &'static str, kind: &'static str, index: usize, id: Option<&'a str> },
+}
+
+impl<'a> At<'a> {
+    fn record(collection: &'static str, kind: &'static str, index: usize, record: &'a serde_json::Map<String, Value>) -> Self {
+        At::Record { collection, kind, index, id: id_of(record) }
+    }
+
+    fn name(&self) -> String {
+        match *self {
+            At::Record { kind, index, id, .. } => named(kind, id, index),
+            At::Member { parent, key } => format!("the {key} of {}", parent.name()),
+            At::Entry { parent, kind, index, id, .. } => format!("{} of {}", named(kind, id, index), parent.name()),
+        }
+    }
+
+    fn path(&self) -> String {
+        match *self {
+            At::Record { collection, index, .. } => format!("{collection}[{index}]"),
+            At::Member { parent, key } => format!("{}.{key}", parent.path()),
+            At::Entry { parent, key, index, .. } => format!("{}.{key}[{index}]", parent.path()),
+        }
+    }
+}
+
+/// `check` for a nested record, which is named and placed only for a finding.
+fn check_at(record: &serde_json::Map<String, Value>, accepted: &[&str], at: &At<'_>, findings: &mut Vec<Finding>) {
+    for key in record.keys() {
+        if !accepted.contains(&key.as_str()) {
+            findings.push(Finding { field: key.clone(), record: at.name(), path: at.path() });
+        }
+    }
+}
+
+/// The member record `key` of `record`, checked when it is an object, with
+/// where it sits.
+fn member<'a>(
+    record: &'a serde_json::Map<String, Value>,
+    key: &'a str,
+    accepted: &[&str],
+    parent: &'a At<'a>,
+    findings: &mut Vec<Finding>,
+) -> Option<(&'a serde_json::Map<String, Value>, At<'a>)> {
+    let object = record.get(key)?.as_object()?;
+    let at = At::Member { parent, key };
+    check_at(object, accepted, &at, findings);
+    Some((object, at))
+}
+
+/// The closed quantities `keys` of `record`.
+fn quantities(
+    record: &serde_json::Map<String, Value>,
+    keys: &[&'static str],
+    accepted: &[&str],
+    parent: &At<'_>,
+    findings: &mut Vec<Finding>,
+) {
+    for key in keys {
+        member(record, key, accepted, parent, findings);
+    }
+}
+
+/// A support stiffness record and its value.
+fn stiffness(record: &serde_json::Map<String, Value>, fields: &RecordFields, parent: &At<'_>, findings: &mut Vec<Finding>) {
+    if let Some((stiffness, at)) = member(record, "stiffness", fields.stiffness, parent, findings) {
+        member(stiffness, "value", fields.magnitude, &at, findings);
+    }
+}
+
+/// The model's nested closed records, and the request's materials.
+fn nested_records(
+    request: &serde_json::Map<String, Value>,
+    model: &serde_json::Map<String, Value>,
+    fields: &RecordFields,
+    findings: &mut Vec<Finding>,
+) {
+    for (i, node) in objects(model, "nodes") {
+        let at = At::record("model.nodes", "node", i, node);
+        check_at(node, fields.node, &at, findings);
+        member(node, "position", fields.vector, &at, findings);
+    }
+    for (i, pipe) in objects(model, "pipe_segments") {
+        let at = At::record("model.pipe_segments", "pipe segment", i, pipe);
+        check_at(pipe, fields.pipe, &at, findings);
+        member(pipe, "y_reference", fields.vector, &at, findings);
+        if let Some((section, at)) = member(pipe, "section", fields.pipe_section, &at, findings) {
+            quantities(section, &PIPE_SECTION_QUANTITIES, fields.magnitude, &at, findings);
+        }
+    }
+    for (i, section) in objects(model, "sections") {
+        let at = At::record("model.sections", "section", i, section);
+        check_at(section, fields.section, &at, findings);
+        if let Some(properties) = section.get("properties").and_then(Value::as_object) {
+            let at = At::Member { parent: &at, key: "properties" };
+            for (name, quantity) in properties {
+                if let Some(quantity) = quantity.as_object() {
+                    check_at(quantity, fields.magnitude, &At::Member { parent: &at, key: name }, findings);
+                }
+            }
+        }
+    }
+    for (i, support) in objects(model, "supports") {
+        let at = At::record("model.supports", "support", i, support);
+        check_at(support, fields.support, &at, findings);
+        stiffness(support, fields, &at, findings);
+        if let Some((hanger, at)) = member(support, "hanger", fields.hanger, &at, findings) {
+            stiffness(hanger, fields, &at, findings);
+            quantities(hanger, &HANGER_QUANTITIES, fields.magnitude, &at, findings);
+        }
+        if let Some((nonlinear, at)) = member(support, "nonlinear", fields.nonlinear, &at, findings) {
+            member(nonlinear, "normal_reaction_source", fields.reaction_source, &at, findings);
+            quantities(nonlinear, &NONLINEAR_QUANTITIES, fields.magnitude, &at, findings);
+        }
+    }
+    for (i, component) in objects(model, "components") {
+        let at = At::record("model.components", "component", i, component);
+        check_at(component, fields.component, &at, findings);
+        member(component, "objective_connector", OBJECTIVE_CONNECTOR_FIELDS, &at, findings);
+        if let Some((geometry, at)) = member(component, "geometry", fields.geometry, &at, findings) {
+            member(geometry, "center_of_gravity", fields.vector_quantity, &at, findings);
+            quantities(geometry, &GEOMETRY_QUANTITIES, fields.magnitude, &at, findings);
+        }
+        if let Some((modifiers, at)) = member(component, "modifiers", fields.modifiers, &at, findings) {
+            quantities(modifiers, &MODIFIER_QUANTITIES, fields.magnitude, &at, findings);
+        }
+        member(component, "mechanics_interface", fields.mechanics_interface, &at, findings);
+    }
+    for (owner, collection, kind) in [(model, "model.materials", "material"), (request, "materials", "request material")] {
+        for (i, material) in objects(owner, "materials") {
+            let at = At::record(collection, kind, i, material);
+            check_at(material, fields.material, &at, findings);
+            quantities(material, &MATERIAL_QUANTITIES, fields.magnitude, &at, findings);
+            for (k, point) in objects(material, "temperature_points") {
+                let at = At::Entry { parent: &at, key: "temperature_points", kind: "temperature point", index: k, id: id_of(point) };
+                check_at(point, fields.temperature_point, &at, findings);
+                quantities(point, &POINT_QUANTITIES, fields.magnitude, &at, findings);
+            }
+        }
+    }
+}
+
 /// The named refusal for undeclared keys on the closed records of the actual
 /// request's model, or `None`. Shapes other than unknown keys (a missing or
 /// mistyped member, a non-object record) are left to the typed parse.
 pub(crate) fn unknown_field_refusal(actual_request: &Value) -> Option<String> {
-    let model = actual_request.get("model")?.as_object()?;
+    let request = actual_request.as_object()?;
+    let model = request.get("model")?.as_object()?;
     let fields = record_fields();
     let mut findings = Vec::new();
     check(model, fields.model, || "the model".into(), "model", &mut findings);
@@ -208,6 +592,7 @@ pub(crate) fn unknown_field_refusal(actual_request: &Value) -> Option<String> {
             check(term, fields.term, || format!("term {j} of {combination_name}"), &format!("{combination_path}.terms[{j}]"), &mut findings);
         }
     }
+    nested_records(request, model, &fields, &mut findings);
     if findings.is_empty() {
         return None;
     }
@@ -261,6 +646,18 @@ mod tests {
         ["lines", "unresolved_assumptions", "constraints", "equipment_interfaces", "rule_pack_refs", "model_settings"];
     const ANNOTATIONS_0_7_0: [&str; 2] = ["tags", "notes"];
 
+    /// The nested records' members the solve never reads (declared and ignored).
+    fn declared_ignored(fields: &RecordFields) -> [(&'static str, &'static [&'static str], &'static [&'static str]); 6] {
+        [
+            ("node", fields.node, &["label", "tags", "notes"]),
+            ("pipe segment", fields.pipe, &["label", "tags", "notes"]),
+            ("section", fields.section, &["tags", "notes", "provenance_record"]),
+            ("support", fields.support, &["label", "boundary_association", "properties", "tags", "notes", "provenance_record"]),
+            ("component", fields.component, &["completeness", "tags", "notes", "provenance_record"]),
+            ("material", fields.material, &["label", "tags", "notes", "provenance_record"]),
+        ]
+    }
+
     #[test]
     fn the_key_lists_are_model_document_0_7_0s() {
         let schema = schema();
@@ -277,6 +674,104 @@ mod tests {
                 assert!(!declared.contains(&key), "{record} does not declare {key}");
             }
         }
+        for (record, declared, ignored) in declared_ignored(&fields) {
+            for key in ignored {
+                assert!(declared.contains(key), "{record} declares {key}");
+            }
+        }
+    }
+
+    /// The members of a schema record that are `$ref`s to `target`, or to
+    /// `target` or null (`anyOf`).
+    fn refs(record: &serde_json::Value, target: &str) -> BTreeSet<String> {
+        let target = serde_json::json!(format!("#/$defs/{target}"));
+        record["properties"]
+            .as_object()
+            .unwrap()
+            .iter()
+            .filter(|(_, member)| {
+                member["$ref"] == target
+                    || member["anyOf"].as_array().is_some_and(|arms| {
+                        arms.len() == 2 && arms.iter().any(|arm| arm["$ref"] == target) && arms.iter().any(|arm| arm["type"] == "null")
+                    })
+            })
+            .map(|(key, _)| key.clone())
+            .collect()
+    }
+
+    #[test]
+    fn nested_records_match_the_committed_schema_key_lists() {
+        let schema = schema();
+        let d = &schema["$defs"];
+        let fields = record_fields();
+        for (record, declared, name) in [
+            ("node", fields.node, "Node"),
+            ("pipe segment", fields.pipe, "PipeSegment"),
+            ("pipe section", fields.pipe_section, "PipeSection"),
+            ("section", fields.section, "Section"),
+            ("support", fields.support, "Support"),
+            ("support stiffness", fields.stiffness, "SupportStiffness"),
+            ("hanger", fields.hanger, "SpringHanger"),
+            ("nonlinear support", fields.nonlinear, "NonlinearSupport"),
+            ("component", fields.component, "Component"),
+            ("component geometry", fields.geometry, "ComponentGeometry"),
+            ("component modifiers", fields.modifiers, "ComponentModifiers"),
+            ("mechanics interface", fields.mechanics_interface, "ComponentMechanicsInterface"),
+            ("material", fields.material, "Material"),
+            ("temperature point", fields.temperature_point, "MaterialTemperaturePoint"),
+            ("vector", fields.vector, "Vector3"),
+            ("vector quantity", fields.vector_quantity, "VectorQuantity"),
+            ("objective connector", OBJECTIVE_CONNECTOR_FIELDS, "ObjectiveConnector"),
+        ] {
+            assert_eq!(set(declared), def(&schema, name), "{record}");
+        }
+        assert_eq!(
+            set(fields.reaction_source),
+            keys(&d["NonlinearSupport"]["properties"]["normal_reaction_source"], "normal reaction source"),
+            "normal reaction source"
+        );
+        // The closed pipe section accepts exactly `PipeSectionInput`'s fields.
+        assert_eq!(set(fields.pipe_section), set(declared_fields::<PipeSectionInput>()), "the closed and the evidence section agree");
+        // The scan checks every quantity and vector member of the records it walks.
+        for (record, scanned, name) in [
+            ("pipe section", &PIPE_SECTION_QUANTITIES[..], "PipeSection"),
+            ("hanger", &HANGER_QUANTITIES[..], "SpringHanger"),
+            ("nonlinear support", &NONLINEAR_QUANTITIES[..], "NonlinearSupport"),
+            ("component geometry", &GEOMETRY_QUANTITIES[..], "ComponentGeometry"),
+            ("component modifiers", &MODIFIER_QUANTITIES[..], "ComponentModifiers"),
+            ("material", &MATERIAL_QUANTITIES[..], "Material"),
+            ("temperature point", &POINT_QUANTITIES[..], "MaterialTemperaturePoint"),
+        ] {
+            assert_eq!(set(scanned), refs(&d[name], "Quantity"), "{record} quantities");
+        }
+        for name in ["Node", "PipeSegment", "Section", "Support", "SupportStiffness", "Component", "ComponentMechanicsInterface"] {
+            let quantities = refs(&d[name], "Quantity");
+            let expected: BTreeSet<String> = if name == "SupportStiffness" { set(&["value"]) } else { BTreeSet::new() };
+            assert_eq!(quantities, expected, "{name}'s quantities are the ones the scan walks");
+        }
+        assert_eq!(refs(&d["Node"], "Vector3"), set(&["position"]));
+        assert_eq!(refs(&d["PipeSegment"], "Vector3"), set(&["y_reference"]));
+        assert_eq!(refs(&d["ComponentGeometry"], "VectorQuantity"), set(&["center_of_gravity"]));
+        assert_eq!(refs(&d["SpringHanger"], "SupportStiffness"), set(&["stiffness"]));
+        assert_eq!(refs(&d["Support"], "SupportStiffness"), set(&["stiffness"]));
+        assert_eq!(d["Section"]["properties"]["properties"]["additionalProperties"]["$ref"], "#/$defs/Quantity");
+    }
+
+    #[test]
+    fn the_typed_connector_refuses_what_the_scan_names() {
+        let connector = |extra: Option<&str>| {
+            let mut members: serde_json::Map<String, Value> =
+                OBJECTIVE_CONNECTOR_FIELDS.iter().map(|key| (key.to_string(), Value::Null)).collect();
+            if let Some(extra) = extra {
+                members.insert(extra.into(), Value::Null);
+            }
+            serde_json::json!({"id": "c", "kind": "expansion_joint", "node": "n", "objective_connector": members})
+        };
+        assert!(serde_json::from_value::<PreviewComponent>(connector(None)).is_ok());
+        let error = serde_json::from_value::<PreviewComponent>(connector(Some("stifness"))).unwrap_err().to_string();
+        assert!(error.contains("unknown field `stifness`"), "{error}");
+        // A connector that is not an object is the connector decoder's to refuse.
+        assert!(serde_json::from_value::<PreviewComponent>(serde_json::json!({"id": "c", "kind": "k", "node": "n", "objective_connector": "text"})).is_ok());
     }
 
     #[test]

@@ -178,3 +178,168 @@ fn the_withheld_list_is_bounded() {
         assert!(named[0].message.contains(&format!("and {} more", bases.len() - 8)), "{}", named[0].message);
     }
 }
+
+/// Closed nested records (Agent 0, 2026-10-25): an undeclared key on a node, a
+/// pipe segment, a section, a support, a component, a material or one of their
+/// member records and quantities is named by the value entry's scan with its
+/// record and path, and every typed reader refuses the same key. A request
+/// carrying every family's records and declared members passes both.
+mod nested_records {
+    use crate::model_fields::unknown_field_refusal;
+    use crate::LinearStaticPreviewRequest;
+    use serde_json::{json, Value};
+
+    fn q(value: f64, unit: &str) -> Value {
+        json!({"value": value, "unit": unit})
+    }
+
+    /// One record of every closed family, each with its member records,
+    /// quantities and declared (solve-ignored) members.
+    fn request() -> Value {
+        let annotations = |extra: Value| {
+            let mut members = json!({"tags": ["t"], "notes": "n"});
+            members.as_object_mut().unwrap().extend(extra.as_object().unwrap().clone());
+            members
+        };
+        let mut node = json!({"id": "node:N", "position": {"x": 0.0, "y": 0.0, "z": 0.0}, "provenance": "p"});
+        let mut pipe = json!({"id": "pipe:P", "from": "node:N", "to": "node:M", "material": "material:M", "section_ref": "section:S",
+            "section": {"outside_diameter": q(0.1, "m"), "wall_thickness": q(0.01, "m"), "mill_tolerance": q(0.001, "m"),
+                "corrosion_allowance": q(0.0, "m"), "material_density": q(7850.0, "kg/m^3"), "contents_density": q(1000.0, "kg/m^3"),
+                "insulation_thickness": q(0.05, "m"), "insulation_density": q(100.0, "kg/m^3")},
+            "y_reference": {"x": 0.0, "y": 0.0, "z": 1.0}, "provenance": "p"});
+        let mut section = json!({"id": "section:S", "name": "s", "section_type": "pipe",
+            "properties": {"outside_diameter": q(0.1, "m"), "wall_thickness": q(0.01, "m")}, "provenance": {"source": "any"}});
+        let mut support = json!({"id": "support:S", "node": "node:N", "restraints": ["UX"], "family": "spring",
+            "stiffness": {"dof": "UY", "value": q(1.0e6, "N/m")},
+            "hanger": {"hanger_type": "variable_spring_hanger", "stiffness": {"dof": "UZ", "value": q(4.0e4, "N/m")},
+                "installed_load": q(1.0, "N"), "cold_load": q(1.0, "N"), "hot_load": q(1.0, "N"), "constant_load": q(1.0, "N"),
+                "travel_range": q(0.04, "m"), "movement_limit": q(0.05, "m"), "manufacturer_reference": "r", "source_reference": "r",
+                "load_side_review_reference": "r", "mechanics_consumption": "c"},
+            "nonlinear": {"behavior": "friction", "dof": "UZ", "initial_state": "sliding", "gap": q(0.0, "m"),
+                "friction_coefficient": q(0.3, "none"), "normal_reaction": q(1.0, "N"),
+                "normal_reaction_source": {"support_ref": "support:T", "dof": "UY"}},
+            "provenance": "p"});
+        let mut component = json!({"id": "component:C", "kind": "valve", "node": "node:N", "label": "c",
+            "objective_connector": {"version": "1.0.0", "motion_basis": "symmetric_midpoint_small_rotation_v1"},
+            "geometry": {"rigid_pipe_ref": "pipe:P", "rigid_body_length": q(0.7, "m"), "weight": q(420.0, "N"),
+                "center_of_gravity": {"x": 0.1, "y": 0.0, "z": 0.0, "unit": "m"}},
+            "modifiers": {"sif_user_value": q(1.1, "none"), "source_reference": "r"},
+            "mechanics_interface": {"solver_consumption": "mechanics_geometry_only", "rule_check_consumption": "r"},
+            "provenance": "p"});
+        let material = |id: &str| json!({"id": id, "elastic_modulus": q(2.0e11, "Pa"), "poisson_ratio": q(0.3, "1"),
+            "shear_modulus": q(7.7e10, "Pa"), "thermal_expansion_coefficient": q(1.2e-5, "1/degC"), "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "temperature_points": [{"id": "point:hot", "temperature": q(120.0, "degC"), "elastic_modulus": q(1.9e11, "Pa"),
+                "poisson_ratio": q(0.3, "1"), "shear_modulus": q(7.3e10, "Pa"), "thermal_expansion_coefficient": q(1.3e-5, "1/degC"), "provenance": "p"}],
+            "provenance": "p"});
+        let mut model_material = material("material:M");
+        for (record, extra) in [
+            (&mut node, json!({"label": "n"})),
+            (&mut pipe, json!({"label": "p"})),
+            (&mut section, json!({"provenance_record": {"source": "s"}})),
+            (&mut support, json!({"label": "s", "boundary_association": {"kind": "k"}, "properties": {"k": 1}, "provenance_record": {"source": "s"}})),
+            (&mut component, json!({"completeness": [], "provenance_record": {"source": "s"}})),
+            (&mut model_material, json!({"label": "m", "provenance_record": {"source": "s"}})),
+        ] {
+            record.as_object_mut().unwrap().extend(annotations(extra).as_object().unwrap().clone());
+        }
+        json!({"model": {"schema_version": "0.7.0", "document_kind": "model", "project": {"id": "project:P"},
+            "analysis_status": {"mechanics": "m", "rule_check": "r", "professional_acceptance": "a"},
+            "nodes": [node], "pipe_segments": [pipe], "sections": [section], "supports": [support], "components": [component],
+            "materials": [model_material]},
+            "materials": [material("material:R")]})
+    }
+
+    /// (pointer of the record, named record, path)
+    const RECORDS: [(&str, &str, &str); 28] = [
+        ("/model/nodes/0", "node `node:N`", "model.nodes[0]"),
+        ("/model/nodes/0/position", "the position of node `node:N`", "model.nodes[0].position"),
+        ("/model/pipe_segments/0", "pipe segment `pipe:P`", "model.pipe_segments[0]"),
+        ("/model/pipe_segments/0/y_reference", "the y_reference of pipe segment `pipe:P`", "model.pipe_segments[0].y_reference"),
+        ("/model/pipe_segments/0/section", "the section of pipe segment `pipe:P`", "model.pipe_segments[0].section"),
+        ("/model/pipe_segments/0/section/corrosion_allowance", "the corrosion_allowance of the section of pipe segment `pipe:P`", "model.pipe_segments[0].section.corrosion_allowance"),
+        ("/model/pipe_segments/0/section/insulation_density", "the insulation_density of the section of pipe segment `pipe:P`", "model.pipe_segments[0].section.insulation_density"),
+        ("/model/sections/0", "section `section:S`", "model.sections[0]"),
+        ("/model/sections/0/properties/wall_thickness", "the wall_thickness of the properties of section `section:S`", "model.sections[0].properties.wall_thickness"),
+        ("/model/supports/0", "support `support:S`", "model.supports[0]"),
+        ("/model/supports/0/stiffness", "the stiffness of support `support:S`", "model.supports[0].stiffness"),
+        ("/model/supports/0/stiffness/value", "the value of the stiffness of support `support:S`", "model.supports[0].stiffness.value"),
+        ("/model/supports/0/hanger", "the hanger of support `support:S`", "model.supports[0].hanger"),
+        ("/model/supports/0/hanger/stiffness/value", "the value of the stiffness of the hanger of support `support:S`", "model.supports[0].hanger.stiffness.value"),
+        ("/model/supports/0/hanger/movement_limit", "the movement_limit of the hanger of support `support:S`", "model.supports[0].hanger.movement_limit"),
+        ("/model/supports/0/nonlinear", "the nonlinear of support `support:S`", "model.supports[0].nonlinear"),
+        ("/model/supports/0/nonlinear/normal_reaction_source", "the normal_reaction_source of the nonlinear of support `support:S`", "model.supports[0].nonlinear.normal_reaction_source"),
+        ("/model/supports/0/nonlinear/gap", "the gap of the nonlinear of support `support:S`", "model.supports[0].nonlinear.gap"),
+        ("/model/components/0", "component `component:C`", "model.components[0]"),
+        ("/model/components/0/objective_connector", "the objective_connector of component `component:C`", "model.components[0].objective_connector"),
+        ("/model/components/0/geometry", "the geometry of component `component:C`", "model.components[0].geometry"),
+        ("/model/components/0/geometry/center_of_gravity", "the center_of_gravity of the geometry of component `component:C`", "model.components[0].geometry.center_of_gravity"),
+        ("/model/components/0/modifiers/sif_user_value", "the sif_user_value of the modifiers of component `component:C`", "model.components[0].modifiers.sif_user_value"),
+        ("/model/components/0/mechanics_interface", "the mechanics_interface of component `component:C`", "model.components[0].mechanics_interface"),
+        ("/model/materials/0", "material `material:M`", "model.materials[0]"),
+        ("/model/materials/0/temperature_points/0", "temperature point `point:hot` of material `material:M`", "model.materials[0].temperature_points[0]"),
+        ("/model/materials/0/temperature_points/0/temperature", "the temperature of temperature point `point:hot` of material `material:M`", "model.materials[0].temperature_points[0].temperature"),
+        ("/materials/0/shear_modulus", "the shear_modulus of request material `material:R`", "materials[0].shear_modulus"),
+    ];
+
+    fn typed(request: &Value) -> Result<LinearStaticPreviewRequest, String> {
+        serde_json::from_value(request.clone()).map_err(|error| error.to_string())
+    }
+
+    #[test]
+    fn every_family_and_its_declared_members_pass_the_scan_and_the_typed_parse() {
+        let request = request();
+        assert_eq!(unknown_field_refusal(&request), None);
+        let parsed = typed(&request).unwrap();
+        assert_eq!(parsed.model.sections[0].properties.len(), 2);
+        assert_eq!(parsed.model.pipe_segments[0].section.corrosion_allowance.as_ref().map(|q| q.value), Some(0.0));
+        assert_eq!(parsed.materials[0].temperature_points.len(), 1);
+    }
+
+    #[test]
+    fn an_unknown_key_on_a_nested_record_is_named_with_its_record_and_path() {
+        for (pointer, record, path) in RECORDS {
+            let mut request = request();
+            request.pointer_mut(pointer).unwrap_or_else(|| panic!("{pointer}")).as_object_mut().unwrap().insert("mill_tolerence".into(), json!(1));
+            let refusal = unknown_field_refusal(&request).unwrap_or_else(|| panic!("{pointer}: no refusal"));
+            let named = format!("unknown field `mill_tolerence` in {record} ({path})");
+            assert!(refusal.starts_with("UNKNOWN_MODEL_FIELD: request: ") && refusal.contains(&named), "{pointer}: expected `{named}` in {refusal}");
+            assert_eq!(refusal.matches("unknown field").count(), 1, "{pointer}: {refusal}");
+            let error = typed(&request).unwrap_err();
+            assert!(error.contains("unknown field `mill_tolerence`"), "{pointer}: the typed parse refuses the same key: {error}");
+        }
+    }
+
+    #[test]
+    fn a_material_record_is_read_only_as_a_map() {
+        // The closed record keeps the former flattened wire's map-only reading:
+        // a positional (array) material record stays refused at both levels.
+        for pointer in ["/model/materials/0", "/materials/0"] {
+            let mut request = request();
+            *request.pointer_mut(pointer).unwrap() = json!(["material:M", {"value": 2.0e11, "unit": "Pa"}]);
+            let error = typed(&request).unwrap_err();
+            assert!(error.contains("invalid type: sequence, expected struct MaterialRecordWire"), "{pointer}: {error}");
+        }
+    }
+
+    #[test]
+    fn a_nested_record_without_an_id_is_named_by_its_index() {
+        let mut request = request();
+        request["model"]["nodes"][0].as_object_mut().unwrap().remove("id");
+        request["model"]["nodes"][0]["lable"] = json!("n");
+        let refusal = unknown_field_refusal(&request).unwrap();
+        assert!(refusal.contains("unknown field `lable` in node 0 (model.nodes[0])"), "{refusal}");
+    }
+
+    #[test]
+    fn nested_findings_follow_the_closed_root_records_with_the_bounded_list() {
+        let mut request = request();
+        request["model"]["combination"] = json!([]);
+        for index in 0..11 {
+            request["model"]["pipe_segments"][0]["section"][format!("extra_{index:02}")] = json!(index);
+        }
+        let refusal = unknown_field_refusal(&request).unwrap();
+        assert!(refusal.starts_with("UNKNOWN_MODEL_FIELD: request: unknown field `combination` in the model (model); "), "{refusal}");
+        assert_eq!(refusal.matches("unknown field `extra_").count(), 7, "{refusal}");
+        assert!(refusal.contains("; and 4 more."), "{refusal}");
+    }
+}

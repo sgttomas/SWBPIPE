@@ -367,7 +367,7 @@ mod tests {
         }
     }
     fn sample() -> MaterialInput {
-        serde_json::from_value(json!({
+        serde_json::from_value::<crate::MaterialRecordWire<serde::de::IgnoredAny>>(json!({
             "id":"material:user", "constitutive_basis":"homogeneous_isotropic_E_nu_v1",
             "elastic_modulus":{"value":200,"unit":"GPa"}, "poisson_ratio":{"value":0.3,"unit":"1"},
             "shear_modulus":{"value":1,"unit":"Pa"}, "provenance":"invented explicit test data",
@@ -375,7 +375,7 @@ mod tests {
                 {"id":"point:cold","temperature":{"value":20,"unit":"degC"},"elastic_modulus":{"value":200,"unit":"GPa"},"poisson_ratio":{"value":0.3,"unit":"1"},"provenance":"invented cold input"},
                 {"id":"point:hot","temperature":{"value":120,"unit":"degC"},"elastic_modulus":{"value":100,"unit":"GPa"},"poisson_ratio":{"value":0.2,"unit":"1"},"provenance":"invented hot input"}
             ]
-        })).unwrap()
+        })).unwrap().material
     }
     fn base() -> MaterialSelection {
         MaterialSelection::ExplicitBaseProperties {

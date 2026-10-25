@@ -3224,7 +3224,7 @@ fn b3b_exact_material_check_refuses_each_defect() {
         if let Some(nu) = nu { m["poisson_ratio"] = serde_json::json!({"value":nu,"unit":"1"}); }
         if let Some(g) = g { m["shear_modulus"] = serde_json::json!({"value":g,"unit":"Pa"}); }
         if let Some(b) = basis { m["constitutive_basis"] = serde_json::json!(b); }
-        serde_json::from_value(m).unwrap()
+        serde_json::from_value::<crate::MaterialRecordWire<serde::de::IgnoredAny>>(m).unwrap().material
     };
     const B: Option<&str> = Some("homogeneous_isotropic_E_nu_v1");
     let g = |e: f64, nu: f64| e / (2.0 * (1.0 + nu));
