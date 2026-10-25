@@ -1145,6 +1145,111 @@ It runs `compare_model_states` on the same flattened lists, through an adapter:
 It requires equal summaries and per-row classifications on that shared
 projection.
 
+**As built (S3a, state comparison).** `apps/desktop/src/features/comparison/stateComparison.ts`
+(flattening and comparison), `StateComparisonView.tsx` beside it (the view), the
+History panel and `useModelStateHistory.ts` (Compare…), and the store's
+`admit_model_state_comparison` and `read_model_state_for_comparison`
+(`model_states.rs`).
+- **Member assignment (0.7.0, all 22 members).** The `model` entity holds
+  `schema_version`, `document_kind`, `project`, `pressure_contract`,
+  `data_boundary`, `analysis_status`, `diagnostics` and `model_settings` as
+  they are. The fourteen collections are families: `nodes`, `pipe_segments`,
+  `sections`, `materials`, `supports`, `components`, `load_cases`,
+  `combinations`, `reference_configurations`, `lines` and
+  `equipment_interfaces` keyed by `id`; `unresolved_assumptions` by
+  `assumption_id`; `constraints` by `constraint_id`; `rule_pack_refs` by
+  `rule_pack_id`, as the operation applier keys them (a version change is a
+  `changed` reference, not a removal and an addition). `tags`, `notes` and
+  `provenance_record` are not top-level members in 0.7.0: they are fields of
+  the records that carry them and are compared with them. A test reads
+  `schemas/model.schema.yaml` and fails when the schema gains a member that is
+  not assigned (the pytest checks the golden's assignment the same way).
+- **Primitive loads** are the `primitive_load` family, keyed by the pair
+  (load case id, load id) and shown `<load case id>/<load id>`; a load id may
+  repeat across load cases. The load case entity excludes `primitive_loads`.
+- **Order.** The `model` entity also holds `collection_order` (each present
+  collection's ids in document order) and `primitive_load_order` (each load
+  case that has `primitive_loads`, with its load ids in order). So a reorder,
+  a collection left out and an empty collection added are each a `changed`
+  model entity.
+- **Refusals, by name.** `COMPARISON-MEMBER-UNASSIGNED` (a member no family
+  holds), `COMPARISON-MEMBER-MALFORMED` (a collection that is not an array of
+  objects), `COMPARISON-ENTITY-ID-MISSING` (an entity without a stable id) and
+  `COMPARISON-DUPLICATE-ID` (a stable id repeated within one family on one
+  side; equal ids in different families are distinct).
+- **Field diff.** Each entity's fields (the record without its own id field,
+  or both key fields for a primitive load) are read as leaves: a scalar, a
+  quantity (`{value, unit}` or `{x, y, z, unit}`: a text unit and only numbers
+  besides), an empty object, or an array of scalars. Objects recurse by key,
+  and arrays holding objects or arrays by index. Leaves compare by their
+  key-sorted JSON, so equality is JCS equality. A change is `added`,
+  `removed`, `changed` or `unit_changed` (two quantities whose units differ),
+  with its path and both values. Nothing is converted or subtracted. A present
+  `null` and an absent member differ.
+- **Invariant.** Equal model hashes hold exactly when every row is
+  `unchanged`; vitest checks it with the session's model hash over identical,
+  member-order-only and reorder-only pairs, an empty collection added and
+  sixteen single mutations, and the golden records it per pair.
+- **Parity.** `fixtures/comparison/model_state_comparison_golden.json`, eight
+  invented pairs from `invented_every_slot_model.json`, is written by
+  `stateComparisonParity.test.ts` (`OPENPIPESTRESS_WRITE_STATE_COMPARISON_GOLDEN`)
+  and checked by `tests/test_model_state_comparison_parity.py`. The adapter
+  projects each entity's leaves to top-level `field:<path>` keys, so none meets
+  the reference's skipped ids. A path that holds a quantity on both sides of a
+  mapped pair, and on one side only nowhere, is declared in
+  `unit_bearing_fields`, each quantity given one declared dimension. Beyond
+  summaries and classifications, the pytest requires a `changed` row's field
+  paths to equal the desktop's, and an `unresolved` row to carry
+  `INCOMPATIBLE_UNIT`. The duplicate pair is refused by both. Outside the
+  shared projection: a present `null` against an absent member (the
+  reference's `.get` reads both as `None`) and a quantity with an empty unit.
+- **Reading two states (ordinary decisions).**
+  - **Same project only.** The History panel lists one project's states, and
+    the admission takes one project id, so a state of another project is
+    `MODEL-STATE-NOT-FOUND`. The reference engine does not expect
+    cross-project comparison.
+  - **Size admission: a small Rust command.** The list carries no snapshot
+    lengths, so `admit_model_state_comparison {projectId, leftStateId,
+    rightStateId}` (256 KiB of arguments, as the history commands) reserves
+    SQLite's working set, reads both snapshots' `octet_length` in one read
+    transaction, and refuses by name (`COMPARISON-STATES-TOO-LARGE`) when their
+    sum exceeds the per-invocation budget, before either is read. It returns
+    four numbers and echoes no id. It is a 1× cap on the stored input size, not
+    a bound on webview memory: it is a check, not a lease, and has no
+    multiplier. The webview's parse, flatten and render memory stays unpriced
+    under the documented residual ("command working memory and responses are
+    not separately bounded", DEL-04-07).
+  - **The comparison read (r1).** `read_model_state_for_comparison
+    {projectId, stateId}` (256 KiB of arguments) is `read_model_state` for a
+    comparison: the same metering and leases, SQLite working-set reservation,
+    hash and integrity checks, version refusal and refusals of unreadable or
+    tampered rows. It alone admits blocking document findings, so a
+    `MODEL_INCOMPLETE` state, kept as a comparison basis, is compared;
+    `read_model_state` (Open State) still refuses it, so it is never opened.
+  - **Exactness at the webview boundary (r1).** The webview decodes JSON
+    numbers as binary64, so a stored integer beyond 2^53 (9007199254740993)
+    arrives as another number, and two states the store holds apart would read
+    unchanged. Before comparing, each received snapshot's model hash is
+    recomputed in the webview (the session's wasm canonical hash) and must
+    equal the state's stored model hash; otherwise the comparison is refused
+    by name (`COMPARISON-STATE-NOT-EXACT`: the saved state holds values the
+    desktop cannot represent exactly). There is no exact-number comparison.
+    Open State already makes the same recomputation and refuses a mismatch as
+    `MODEL-STATE-INTEGRITY`.
+  - **Sides.** The earlier-saved state is the left side.
+  - **Unreadable rows** have no selection; their compare checkbox is
+    disabled with the reason. Compare… needs two selected readable states, goes
+    through the one-owner check and the busy refusal, and is disabled with the
+    stated reason when busy or when two are not selected.
+- **View.** Counts per classification, entities and unit-changed fields; a
+  table filterable by classification (differences only by default), family and
+  id, paged at 200 rows with Previous and Next and "Rows a–b of n", back to the
+  first page on any filter change (r1), so every row is reachable; each changed
+  entity's field paths with both
+  values as stored (a quantity with its own unit). View-only, with no export
+  (FR-CMP-010 is v0.2), and no wording of standing. The within-run
+  `ComparisonPanel.tsx` is unchanged (S3b).
+
 ### 4.2 Run comparison
 
 **Row identity** is the reference's

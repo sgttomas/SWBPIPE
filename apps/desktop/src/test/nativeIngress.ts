@@ -30,6 +30,8 @@ export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
   "read_model_state",
   "edit_model_state_labels",
   "delete_model_state",
+  "admit_model_state_comparison",
+  "read_model_state_for_comparison",
   "record_analysis_run",
   "list_analysis_runs",
   "read_analysis_run",

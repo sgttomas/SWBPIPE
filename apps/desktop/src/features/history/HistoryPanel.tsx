@@ -15,15 +15,18 @@ import { recordedRunBindingFindings } from "../results/HistoricalRunContext";
 import { RulePackRunReferences } from "../rule-packs/RulePackRunReferences";
 import { RULE_PACKS_NOT_RESOLVED, unreadableGuidance, type UnreadableRow } from "../../services/historyListEntries";
 import { useSessionHistory, useSessionModel, useSessionProject } from "../workspace/WorkspaceSessionContext";
-import { notOpenableReason } from "./useModelStateHistory";
+import { notOpenableReason, stateCompareUnavailableReason } from "./useModelStateHistory";
+import { StateComparisonView } from "../comparison/StateComparisonView";
 
 // The History panel (W-12 S1 and S2; DEL-14-01 Design
 // `desktop-states-runs-comparison.md` §2, §3, §4.3): the project's saved model
 // states with their labels, Save Model State…, Open State, label editing and
 // delete; and under each state its recorded analysis runs, with Record Run…,
-// their labels, a check against the stored state and delete. Compare… is S3. A
-// state is a snapshot for reopening and comparison and a recorded run is a
-// review and reproducibility record; nothing here approves, accepts or
+// their labels, a check against the stored state and delete; and Compare… of two
+// selected saved states (S3a, design §4.1, §4.3), whose result is shown below the
+// lists (view-only). Run comparison is S3b. A state is a snapshot for reopening
+// and comparison and a recorded run is a review and reproducibility record;
+// nothing here approves, accepts or
 // certifies a model or a run (F-PIP-2, F-PIP-3).
 
 const KIND_LABELS: Record<ModelStateKind, string> = {
@@ -41,6 +44,11 @@ let draftSequence = 0;
 
 /** The stated reason of a control disabled while a project operation owns the session. */
 const BUSY_REASON = "Another project operation or prompt is in progress.";
+
+/** Why an unreadable saved state is not offered for comparison. */
+const UNREADABLE_NOT_COMPARED = "This stored row cannot be read, so it cannot be compared.";
+/** Why a third saved state cannot be selected for comparison. */
+const TWO_SELECTED = "Two saved states are selected; clear one to choose another.";
 
 /** A disabled control's stated reason (the dead-control audit's accessible reason). */
 function reasonFor(busy: boolean, other: string | null = null): string | undefined {
@@ -275,6 +283,12 @@ function UnreadableRowItem({ kind, row }: { kind: "state" | "run"; row: Unreadab
   return (
     <li className="model-history-unreadable-row" data-testid={testId}>
       <strong>Unreadable {kind === "state" ? "saved state" : "recorded run"}</strong> <code>{row.id}</code>
+      {kind === "state" ? (
+        <label className="model-history-compare-select">
+          <input type="checkbox" data-testid={`${testId}-compare-select`} disabled checked={false} title={UNREADABLE_NOT_COMPARED} aria-describedby={`${testId}-not-compared`} onChange={() => {}} />
+          <span id={`${testId}-not-compared`} className="muted"> Not compared: {UNREADABLE_NOT_COMPARED}</span>
+        </label>
+      ) : null}
       <p className="model-history-meta" role="note" data-testid={`${testId}-refusal`}>{row.refusal}</p>
       <p className="model-history-meta" data-testid={`${testId}-guidance`}>{unreadableGuidance(row.refusal)}</p>
       {row.references ? (
@@ -339,7 +353,15 @@ function RecordRunForm({ onDone }: { onDone: () => void }) {
   );
 }
 
-function StateRow({ state, states, runs }: { state: ModelStateSummary; states: ModelStateSummary[]; runs: AnalysisRunSummary[] }) {
+function StateRow({ state, states, runs, selected, selectionFull, onToggleSelect }: {
+  state: ModelStateSummary;
+  states: ModelStateSummary[];
+  runs: AnalysisRunSummary[];
+  selected: boolean;
+  /** Two other states are already selected for comparison. */
+  selectionFull: boolean;
+  onToggleSelect: (stateId: string) => void;
+}) {
   const { openState, editLabels, deleteState, historyBusy, basisStateId } = useSessionHistory();
   const { projectBusy } = useSessionProject();
   const busy = historyBusy || projectBusy;
@@ -359,6 +381,17 @@ function StateRow({ state, states, runs }: { state: ModelStateSummary; states: M
         <strong data-testid={`${testId}-name`}>{state.state_name}</strong>
         <span className="muted"> · {KIND_LABELS[state.state_kind] ?? state.state_kind} · saved {state.created_at}</span>
         {basisStateId === state.state_id ? <span className="muted" data-testid={`${testId}-basis`}> · working model's basis</span> : null}
+        <label className="model-history-compare-select">
+          <input
+            type="checkbox"
+            data-testid={`${testId}-compare-select`}
+            checked={selected}
+            disabled={!selected && selectionFull}
+            title={!selected && selectionFull ? TWO_SELECTED : undefined}
+            onChange={() => onToggleSelect(state.state_id)}
+          />
+          <span> Select to compare</span>
+        </label>
       </div>
       <p className="muted model-history-meta">
         {state.state_id} · model {state.model_hash.slice(0, 19)}…
@@ -432,11 +465,17 @@ function StateRow({ state, states, runs }: { state: ModelStateSummary; states: M
 }
 
 export function HistoryPanel() {
-  const { states, runs, unreadable, historyMessage, historyBusy, refreshStates, recordRunUnavailableReason } = useSessionHistory();
+  const { states, runs, unreadable, historyMessage, historyBusy, refreshStates, recordRunUnavailableReason, compareStates, stateComparison, closeStateComparison } = useSessionHistory();
   const { model } = useSessionModel();
   const { projectBusy } = useSessionProject();
   const [saving, setSaving] = useState(false);
   const [recording, setRecording] = useState(false);
+  // The saved states selected for Compare… (at most two), by id.
+  const [selected, setSelected] = useState<string[]>([]);
+  const selectedListed = states ? selected.filter((id) => states.some((state) => state.state_id === id)) : [];
+  const compareUnavailable = stateCompareUnavailableReason(selectedListed, states);
+  const toggleSelect = (stateId: string) =>
+    setSelected((current) => current.includes(stateId) ? current.filter((id) => id !== stateId) : [...current.filter((id) => states?.some((state) => state.state_id === id)), stateId].slice(-2));
   // A readable run whose state is not a readable listed state has no row under a state.
   const orphanRuns = states ? (runs ?? []).filter((run) => !states.some((state) => state.state_id === run.state_id)) : [];
   const runsOf = (stateId: string) => (runs ?? []).filter((run) => run.state_id === stateId).sort((left, right) => left.created_at < right.created_at ? -1 : left.created_at > right.created_at ? 1 : 0);
@@ -459,6 +498,15 @@ export function HistoryPanel() {
         <button type="button" data-testid="record-run-open" disabled={recording || historyBusy || projectBusy || recordRunUnavailableReason !== null} title={reasonFor(historyBusy || projectBusy, recording ? "The Record Run form is open below." : recordRunUnavailableReason)} onClick={() => setRecording(true)}>
           Record Run…
         </button>
+        <button
+          type="button"
+          data-testid="model-state-compare"
+          disabled={historyBusy || projectBusy || compareUnavailable !== null}
+          title={reasonFor(historyBusy || projectBusy, compareUnavailable)}
+          onClick={() => { const [first, second] = selectedListed; void compareStates(first, second); }}
+        >
+          Compare…
+        </button>
         <button type="button" data-testid="model-history-refresh" disabled={historyBusy} title={reasonFor(historyBusy)} onClick={() => void refreshStates()}>
           Refresh
         </button>
@@ -470,7 +518,17 @@ export function HistoryPanel() {
       {states ? (
         states.length ? (
           <ul className="model-history-list" data-testid="model-history-list">
-            {states.map((state) => <StateRow key={`${state.state_id}:${state.labels_updated_at}`} state={state} states={states} runs={runsOf(state.state_id)} />)}
+            {states.map((state) => (
+              <StateRow
+                key={`${state.state_id}:${state.labels_updated_at}`}
+                state={state}
+                states={states}
+                runs={runsOf(state.state_id)}
+                selected={selectedListed.includes(state.state_id)}
+                selectionFull={selectedListed.length >= 2}
+                onToggleSelect={toggleSelect}
+              />
+            ))}
           </ul>
         ) : unreadable?.states.length ? null : (
           <p className="muted" data-testid="model-history-empty">No saved model states for this project yet.</p>
@@ -485,6 +543,7 @@ export function HistoryPanel() {
           </ul>
         </section>
       ) : null}
+      {stateComparison ? <StateComparisonView key={`${stateComparison.left.state_id}:${stateComparison.right.state_id}`} result={stateComparison} onClose={closeStateComparison} /> : null}
       {unreadable && (unreadable.states.length || unreadable.runs.length) ? (
         <section className="model-history-unreadable" aria-label="Unreadable history rows" data-testid="model-history-unreadable">
           <strong>Rows the store cannot read</strong>

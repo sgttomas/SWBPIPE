@@ -95,12 +95,13 @@ The biggest gaps:
    every report (ruling 10A). Save Report Package refuses every current result
    (`REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`). The report lacks materials,
    sections and library records. Affected: FR-REP-001..004.
-2. **No model states, run history or comparison between states or runs.** These
-   are in v0.1 by OD-1. Named immutable states are in the desktop (W-12 S1,
+2. **Desktop run comparison is still missing.** Model states, run history and
+   comparison are in v0.1 by OD-1. Named immutable states are in the desktop (W-12 S1,
    #1589): save, open, label and delete, kept only in the SQLite store. Runs are
    recorded against states (W-12 S2, #1596), with the model's rule packs
-   resolved at solve (#1602). Both comparisons exist
-   as schemas and headless Python engines only (W-12 S3). Affected:
+   resolved at solve (#1602). Two saved states are compared in the desktop
+   (W-12 S3a); run comparison exists as a schema and headless Python engine
+   only (W-12 S3b). Affected:
    FR-CMP-001..004, -006.
 3. **No rigid elements.** OD-2 chose DEC-045 stiffness scaling (W-15). It is
    validated but never applied, and EX refuses these components. Affected:
@@ -162,7 +163,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-GUI-004 (501) | Must | D | Create, modify, move, delete (refuses while any record names the pipe; `tests/pipe_delete_dependents.rs`); split, copy, rotate, mirror (`geometry_operations.rs`); reconnect (`operation_applier/src/pipe_reconnect.rs`, `tests/pipe_reconnect.rs`, `e2e/pipe-reconnect.spec.ts:52`; UI `GeometryToolsPanel.tsx:65-88`) | DEL-07-01, DEL-16-06 | Declared v0.1 limitation (DEL-16-06 SOW:79): reconnect refuses component-bearing and pressure-region pipes. All four demo pipes are refused. |
 | FR-GUI-005 (502) | Should | D | `workspaceSession.ts` (depth 25); `e2e/b3a-session-status.spec.ts` | DEL-00-05, DEL-07-11 | Session-only. |
 | FR-GUI-006 (503) | Must | D | `MissingDataBlockingPanel.tsx:24,148-181`; `App.test.tsx`; `e2e/gui-workflow-validation.spec.ts:110` | DEL-07-04 | Topology findings are warnings, not blocking. |
-| FR-GUI-007 (504) | Should | P | `ComparisonPanel.tsx`; `previewService.ts` (`single_run_load_basis_review`) | DEL-07-08, DEL-14-05 | Within one run only (W-12). |
+| FR-GUI-007 (504) | Should | P | `ComparisonPanel.tsx`; `previewService.ts` (`single_run_load_basis_review`); `StateComparisonView.tsx` | DEL-07-08, DEL-14-05 | A saved-state comparison view (W-12 S3a: table of changed entities and field paths) sits beside the within-run deltas. No graphical overlays (FR-CMP-009, v0.2). |
 | FR-AGENT-001 (568) | Should | D | `OfflineProposalIntakePanel.tsx` → `atomic_batch.rs:285-345` | DEL-16-01, DEL-16-06 | The live provider is O (D-22/DEC-041). |
 | FR-AGENT-002 (569) | Should | D | `atomic_batch.rs:8,112`; tests `:529,593,690,746,806` | DEL-16-02, DEL-16-06 | |
 | FR-AGENT-003 (570) | Should | D | Diff review and explicit Apply (`workspaceSession.ts:1345,1496`) | DEL-07-08, DEL-16-06 | No e2e for offline intake. |
@@ -232,10 +233,10 @@ MVP requirement (PRD §15.6).
 |---|---|---|---|---|---|
 | FR-CMP-001 (542) | Must | P | **Store:** desktop `src-tauri/src/model_states.rs` (store v12: `model_states`, `model_state_labels`, immutability triggers; save, list, read, label edit, delete), with its tests there. **UI:** `features/history/HistoryPanel.tsx`, `useModelStateHistory.ts`; `modelStateHistory.session.test.tsx`. **Record:** `model_state.schema.json` record with Python-pinned record hash; `tests/test_model_state_record_parity.py` | DEL-14-01, DEL-07-08 | Save, reopen, tag and delete named immutable states in the desktop (W-12 S1, #1589); SQLite-only, with history export open under OI-015. Compare is W-12 S3. The desktop crate's Rust store tests do not run in hosted CI. |
 | FR-CMP-002 (543) | Must | P | **Store:** desktop `src-tauri/src/analysis_runs.rs` (store v13, Record Run, list, read, label edit, delete) with `analysis_runs_tests.rs`. **UI:** `features/history/HistoryPanel.tsx`; `recordRun.session.test.tsx`. **Record:** `analysisRunCompatibility.ts` recorded form, `core/analysis_runs/compatibility.py`, `tests/test_recorded_run_record.py`. **Rule packs:** `services/modelRulePackResolution.ts`; `features/workspace/solveRulePacks.session.test.tsx`; fixtures `persistence/transient_run_input_rule_packs.json`, `recorded_run_witness_rule_packs.json` | DEL-14-02, DEL-07-08 | Record Run (W-12 S2, #1596) stores an immutable v0.3 revision tied to a saved state (`{ModelState, id}`), checked against the stored input manifest's model payload. The manifest binds the solver, settings, units and load cases, and many runs can be recorded per state. Library refs come from the shared `library_ref` walk. Rule-pack refs come from the manifest's `active_rule_packs`: at solve the session resolves the model's `rule_pack_refs` against the local rule-pack store (`modelRulePackResolution.ts`), in the model's order; an unresolved or changed reference is excluded and recorded as a run-record diagnostic (`MODEL-RULE-PACK-REF-UNRESOLVED`, `MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH`), kept by the recorded revision under its hash (#1602). Exports and the handoff do not yet carry those diagnostics (reports lane). |
-| FR-CMP-003 (544) | Must | P | `core/comparison/model_state/engine.py:64`; `tests/test_model_state_comparison.py` | DEL-14-03 | Headless only. |
+| FR-CMP-003 (544) | Must | D | `features/comparison/stateComparison.ts`, `StateComparisonView.tsx`; History panel Compare… (`features/history/`); tests `stateComparison.test.ts`, `compareStates.test.tsx`; parity with `core/comparison/model_state/engine.py` on `fixtures/comparison/model_state_comparison_golden.json` (`tests/test_model_state_comparison_parity.py`) | DEL-14-03, DEL-07-08 | The desktop compares two saved states of one project (W-12 S3a): added, removed, changed and unchanged entities by stable id per family, nested field paths, `unit_changed` without conversion, and a native size admission. View-only; comparison export is v0.2 (FR-CMP-010). |
 | FR-CMP-004 (545) | Must | P | `core/comparison/analysis_run/engine.py:165`; `tests/test_analysis_run_comparison.py` | DEL-14-04 | Headless only. |
 | FR-CMP-005, -007 (546, 548) | Should | P | `schemas/comparison_mapping.schema.json`; `model_state/engine.py:232` | DEL-14-05 | No editor. |
-| FR-CMP-006 (547) | Must | P | `analysis_run/engine.py:229` | DEL-14-03/04 | Desktop uses it within one run only. |
+| FR-CMP-006 (547) | Must | P | `analysis_run/engine.py:229`; `features/comparison/stateComparison.ts` | DEL-14-03/04 | States: automatic stable-id mapping per family in the desktop (W-12 S3a). Runs: within one run only until W-12 S3b. |
 | FR-CMP-008, -009, -010 (549-551) | Should | P | `schemas/comparison_tolerance.schema.json`; `ComparisonPanel.tsx:55-70` | DEL-14-05, DEL-08-06 | No profiles, overlays or CSV. |
 | FR-CMP-011 (552) | Could | P | `schemas/caepipe_external_run.schema.json` | DEL-14-05 | §15.6: not MVP. |
 | §21.3 human acceptance (1385) | — | D | `docs/claims_registry.md:6,184-186` | DEL-01-04 | No acceptance workflow, as required. |
@@ -258,11 +259,12 @@ the webview has no network policy.
 ### 2.7 Class counts, MVP (PRD §23) and milestones (§24)
 
 **Class counts.** The #1539 map at `7a780551f0` had 48 P, 28 D, 3 O and no R.
-This map has 41 P, 35 D, 8 O and no R:
-- **P → D (6):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
-  §10.1 step 1 (#1569), the R2 exit (W-4, #1582, after the basis), and §12.8
-  near-duplicate nodes (the desktop tolerance control, after the basis). The
-  first two and the last were updated in the map by their own changes.
+This map has 40 P, 36 D, 8 O and no R:
+- **P → D (7):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
+  §10.1 step 1 (#1569), the R2 exit (W-4, #1582, after the basis), §12.8
+  near-duplicate nodes (the desktop tolerance control, after the basis), and
+  FR-CMP-003 (W-12 S3a, #1605). The
+  first two and the last two were updated in the map by their own changes.
 - **D → P (2):** FR-SOL-002. Its acceptance criterion includes imposed
   displacements, which pass on EX only; the route rule now applies (Codex, §6).
   (FR-RULE-003 moved D → P by the owner's reading of 2026-10-23 and back to D
@@ -276,12 +278,11 @@ This map has 41 P, 35 D, 8 O and no R:
   FR-SOL-015 now includes the health indicator.
 
 **§23 MVP items:**
-- **In the desktop:** 22 of 28 items. Imposed displacement works on EX only;
+- **In the desktop:** 24 of 28 items. Imposed displacement works on EX only;
   combinations on PF only; the validation suite is headless.
 - **Not in the desktop:**
   - rigid elements (W-15);
-  - basic state comparison and basic run comparison (headless only; W-12);
-  - runs tied to states (partial; W-12);
+  - basic run comparison (headless only; W-12 S3b);
   - basic report generation (local-private PF render only; W-11 and the
     package);
   - canonical model package export (the model document, W-6a; the handoff
@@ -525,6 +526,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-13 S1b | Model document 0.7.0: the new member slots, one document validator, `model_settings.node_proximity_tolerance` (default 5 mm) | #1564; native smoke with no change beyond the five stale `expected.json` values (§3 rows 1–5) |
 | W-13 S2a | Authoring for the 0.7.0 slots: lines, assumptions and open issues, constraints, equipment interfaces, rule-pack references, tags, notes and provenance records; validator findings in the desktop | #1565 |
 | W-13 S2b, W-17 (part) | Applying library records to model entities: material (E/ν or E/G), section (propagated to bound pipes) and component records, with `provenance_record`/`library_ref` and the store's unresolved/changed-record warnings | #1566 |
+| W-12 S3a | Comparing two saved model states in the desktop: fail-closed flattening of every 0.7.0 member, stable-id classification, field paths, parity with the reference engine | #1605 |
 | W-12 S2 | Analysis runs recorded against saved model states (store v13, Record Run with a checked manifest and model binding, run labels, recorded-form validators in TS and Python), with stored-length read admission for states and runs | #1596 |
 | W-12 S1 | Named immutable model states in the desktop (store v12, Save/Open State, History panel with labels); one unsaved-changes guard for Open Project, New, Open Model Document and Open State | #1589 |
 | W-4 | From-blank native journey and the output gates as permanent native-smoke checks | #1582: 25 checks, all passing on its head; no `expected.json` change |
