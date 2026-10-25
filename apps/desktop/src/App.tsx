@@ -964,7 +964,7 @@ function AppSession() {
             >
               {activeSection === "rule-packs" || activatedExpensiveSections.has("rule-packs") ? (
               <DormantSection active={activeSection === "rule-packs"} sessionGeneration={projectSessionGeneration}>
-              <RulePackManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent}
+              <RulePackManagerPanel model={model} result={currentSolvedResult} onR3JourneyEvent={recordR3JourneyEvent}
                 queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
               </DormantSection>) : null}
             </section>

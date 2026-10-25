@@ -4,6 +4,8 @@
 //! input is bound. All packs and values are invented demonstration content;
 //! nothing here is a professional or code-compliance claim.
 
+mod common;
+
 use open_pipe_stress_expression_evaluator::AnalysisStatus;
 use open_pipe_stress_rule_check_runner::{
     run_rule_checks, run_rule_checks_with_bounds, CheckOutcome, RuleCheckRunInput,
@@ -59,6 +61,10 @@ fn check(id: &str, formula_id: &str, inputs: &[&str], slot: Option<&str>) -> Val
 /// stress, MPa), `temp` (solver result, temperature, degC) and `temp_limit`
 /// (user, temperature, degC), with five checks.
 fn pack() -> Value {
+    common::single_basis(pack_frame())
+}
+
+fn pack_frame() -> Value {
     json!({
         "grammar_version": "1.0.0",
         "metadata": { "rule_pack_id": "invented_interval_pack" },
@@ -100,6 +106,7 @@ fn pack() -> Value {
 fn solver(input_id: &str, value: f64, unit: &str) -> SolverResultBinding {
     SolverResultBinding {
         input_id: input_id.to_string(),
+        basis_ref: common::basis(),
         result_id: format!("result:invented:{input_id}"),
         value,
         unit: unit.to_string(),
@@ -118,6 +125,7 @@ fn supplied(ref_id: &str, value: f64, unit: &str, dimension: &str) -> SuppliedVa
 fn bound(input_id: &str, absolute_bound: f64) -> SolverResultBound {
     SolverResultBound {
         input_id: input_id.to_string(),
+        basis_ref: Some(common::basis()),
         absolute_bound,
     }
 }
@@ -135,6 +143,7 @@ fn input<'a>(
             solver("temp", temp, "degC"),
         ],
         refused_solver_results: Vec::new(),
+        unavailable_bases: Vec::new(),
         supplied_values: vec![
             supplied("limit", 100.0, "MPa", "stress"),
             supplied("temp_limit", 300.0, "degC", "temperature"),
@@ -145,12 +154,17 @@ fn input<'a>(
     }
 }
 
+/// The outcome of `check_id` on the pack's one basis: outcome identity is
+/// (check, basis) (rule-pack format 0.5.0, DEL-06-01 Design §2.7).
 fn outcome<'a>(result: &'a RuleCheckRunResult, check_id: &str) -> &'a CheckOutcome {
-    result
+    let basis = common::basis();
+    let found: Vec<&CheckOutcome> = result
         .checks
         .iter()
-        .find(|c| c.check_id == check_id)
-        .expect("check present")
+        .filter(|c| c.check_id == check_id && c.basis_ref.as_ref() == Some(&basis))
+        .collect();
+    assert_eq!(found.len(), 1, "one outcome of {check_id} on its basis");
+    found[0]
 }
 
 fn bytes(result: &RuleCheckRunResult) -> String {

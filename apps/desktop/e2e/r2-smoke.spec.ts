@@ -1194,6 +1194,10 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   const draft = JSON.parse(draftText);
   expect(draft.rule_pack_kind).toBe("open_pipe_stress_rule_pack");
   expect(draft.grammar_version).toBe("1.0.0");
+  // Rule-pack format 0.5.0: one category, required load case and mapping to fill.
+  expect(draft.schema_version).toBe("0.5.0");
+  expect(draft.stress_categories).toHaveLength(1);
+  await expect(page.getByTestId("rule-pack-load-case-categories-editor")).toBeVisible();
   expect(draft.classification.privacy_class).toBe("private_user_data");
   expect(draft.classification.redistribution_status).toBe("private_only");
   await expect(page.getByTestId("rule-pack-action-status")).toContainText("private_user_data");
@@ -1358,27 +1362,28 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
     }
   });
 
-  // TP-C4-SOLVERREFAUTHOR-001: an input that draws from a solved result authors
-  // a solver_result_ref (a single result_id) through a structured control — the
-  // in-pack, canonical form of the previously caller-supplied {input_id,
-  // result_id} solver binding (PRD §12.5), resolved at run time from the solved
-  // envelope's results[] by id (TP-C4-SOLVERREF-001). Add a fresh input and set
-  // source_kind to solver_result: the sub-form reveals and seeds a
-  // {result_id:"TBD"} placeholder (unfilled -> blocks, never a silent pass); the
-  // authored reference supersedes the run panel's per-input selector. Still
-  // form-only (D-02b); no raw JSON. Target the appended (last) input row.
+  // TP-C4-SOLVERREFAUTHOR-001, format 0.5.0: an input that draws from a solved
+  // result authors a solver_result_ref row selector through structured
+  // controls — the one binding route (the run panel's caller selector is
+  // retired), resolved at run time on each required load case. Add a fresh
+  // input and set source_kind to solver_result: the sub-form reveals and seeds
+  // a {result_kind:"TBD", entity_ref:"TBD"} placeholder (unfilled -> blocks,
+  // never a silent pass). Still form-only (D-02b); no raw JSON. Target the
+  // appended (last) input row.
   await page.getByTestId("rule-pack-input-add").click();
   await page.getByTestId("rule-pack-input-source-kind").last().selectOption("solver_result");
   await expect(page.getByTestId("rule-pack-input-solver-ref")).toBeVisible();
   await expect(page.getByTestId("rule-pack-input-solver-ref-note")).toContainText(
-    "supersedes the run panel"
+    "On each required load case of a check"
   );
-  await page.getByTestId("rule-pack-input-solver-result-id").fill("result:stress:demo");
+  await page.getByTestId("rule-pack-input-solver-result-kind").fill("element_local_axial_normal_stress");
+  await page.getByTestId("rule-pack-input-solver-entity-ref").fill("pipe:P-100");
+  await page.getByTestId("rule-pack-input-solver-location").fill("end_i");
   const solverRefText = await page.getByTestId("rule-pack-draft-json").inputValue();
   const solverRefInputs = JSON.parse(solverRefText).required_inputs;
   expect(solverRefInputs[solverRefInputs.length - 1]).toMatchObject({
     source_kind: "solver_result",
-    solver_result_ref: { result_id: "result:stress:demo" }
+    solver_result_ref: { result_kind: "element_local_axial_normal_stress", entity_ref: "pipe:P-100", location: "end_i" }
   });
 
   // Validate routes to the desktop-only seam: the status transitions away
@@ -1593,7 +1598,9 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
   await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("value_inputs=1");
   await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("value_slots=1");
   await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("solver_selectors=1");
-  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("solver_result_refs=0");
+  // Rule-pack format 0.5.0: the demo's one solver input binds through its own
+  // pack selector (no caller selector remains), and none lacks one.
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("solver_selectors_missing=0");
   await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("private_library_refs=0");
   await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText(
     "catalog=browser_manual_text_no_fallback"
@@ -1602,9 +1609,12 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
   const packText = await page.getByTestId("rule-check-pack-json").inputValue();
   expect(JSON.parse(packText).metadata.rule_pack_id).toBe("invented_demo_rule_pack");
 
-  // solver_result input -> result-row select; user value input + value slot ->
-  // entry fields.
-  await expect(page.getByTestId("rule-check-solver-select-demo_actual_quantity")).toBeVisible();
+  // solver_result input -> its authored pack selector (the per-input caller
+  // selector is retired); user value input + value slot -> entry fields.
+  await expect(page.getByTestId("rule-check-solver-selector-demo_actual_quantity")).toContainText(
+    "result_kind=invented_demo_quantity; entity_ref=pipe:P-100"
+  );
+  await expect(page.locator('[data-testid^="rule-check-solver-select-"]')).toHaveCount(0);
   await expect(page.getByTestId("rule-check-value-input-demo_limit_quantity")).toBeVisible();
   await expect(page.getByTestId("rule-check-slot-input-demo_limit_slot")).toBeVisible();
   await expect(page.getByTestId("rule-check-value-unit-demo_limit_quantity")).toHaveValue("demo_unit");
@@ -1664,11 +1674,12 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
     "LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY"
   );
 
-  // TP-C4-SOLVERREFPICKER-001: a solver_result input with an authored
-  // solver_result_ref gets a read-only preview against the current solved
-  // envelope. In this browser smoke path no solved rows are present yet, so the
-  // preview honestly reports no_result_rows instead of inventing a binding. The
-  // resolving solved-envelope case is pinned in the component tests.
+  // TP-C4-SOLVERREFPICKER-001, format 0.5.0: a solver_result input's authored
+  // row selector gets a read-only preview against the current solved envelope,
+  // per required load case. In this browser smoke path no solved rows are
+  // present yet, so the preview honestly reports no_result_rows instead of
+  // inventing a binding. The resolving solved-envelope case is pinned in the
+  // component tests.
   const solverRefPack = JSON.stringify({
     metadata: { rule_pack_id: "solver_ref_demo" },
     required_inputs: [
@@ -1677,13 +1688,16 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
         name: "Actual stress",
         source_kind: "solver_result",
         quantity_intent: { dimension: "stress", unit_ref: "kPa" },
-        solver_result_ref: { result_id: "result:stress:pipe-P-100:end-i:axial-normal" }
+        solver_result_ref: { result_kind: "element_local_axial_normal_stress", entity_ref: "pipe:P-100", location: "end_i" }
       }
+    ],
+    required_load_cases: [
+      { required_load_case_id: "rlc_1", name: "Invented case", basis_ref: { ref_type: "load_case", ref_id: "load:L-100" } }
     ]
   });
   await page.getByTestId("rule-check-pack-json").fill(solverRefPack);
   await expect(page.getByTestId("rule-check-solver-input-actual_stress")).toContainText(
-    "supersedes the run-panel selector"
+    "Bound by the pack's selector (result_kind=element_local_axial_normal_stress; entity_ref=pipe:P-100; location=end_i)"
   );
   await page.getByTestId("rule-check-solver-preview-actual_stress").click();
   await expect(page.getByTestId("rule-check-solver-resolution-actual_stress")).toHaveAttribute(
@@ -1738,7 +1752,13 @@ test("R3 guided flow routes private library, rule-pack, solve, binding, and bloc
 
   await page.getByTestId("rule-check-load-demo").click();
   await expect(page.getByTestId("rule-check-binding-plan")).toBeVisible();
-  await expect(page.getByTestId("rule-check-solver-select-demo_actual_quantity")).toBeDisabled();
+  // No solve yet: the demo's selector binds nothing (the retired caller
+  // selector used to be disabled here); its preview says so.
+  await page.getByTestId("rule-check-solver-preview-demo_actual_quantity").click();
+  await expect(page.getByTestId("rule-check-solver-resolution-demo_actual_quantity")).toHaveAttribute(
+    "data-status",
+    "no_result_rows"
+  );
 
   await page.getByTestId("rule-check-run").click();
   await expect(page.getByTestId("rule-check-run-status")).toContainText("RULE-CHECK-BACKEND-DESKTOP-ONLY");

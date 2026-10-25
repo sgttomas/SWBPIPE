@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FileText, ShieldAlert } from "lucide-react";
-import type { EditorOperationIntent, PreviewModel } from "../../types";
+import type { EditorOperationIntent, MechanicsResult, PreviewModel } from "../../types";
 import { RulePackModelReferences } from "../model-data/RulePackModelReferences";
 import {
   buildDraftRulePackDocument,
@@ -8,6 +8,8 @@ import {
   deleteLocalRulePack,
   listLocalRulePacks,
   openLocalRulePack,
+  RULE_PACK_SCHEMA_VERSION,
+  RULE_PACK_SCHEMA_VERSION_UNSUPPORTED,
   saveLocalRulePack,
   stampChecksumIntoDocument,
   validateRulePack,
@@ -20,7 +22,7 @@ import {
   type RulePackValidationFinding
 } from "../../services/rulePackService";
 import { ExpressionComposer, parseRulePackDocument } from "./ExpressionComposer";
-import { DeclarationsEditor } from "./DeclarationsEditor";
+import { DeclarationsEditor, LoadCaseCategoriesEditor } from "./DeclarationsEditor";
 import { CheckDefinitionsEditor } from "./CheckDefinitionsEditor";
 
 // Rule-Pack Manager (PRD §14.5 / §14.1 "Rule-pack manager"). Pack management
@@ -41,6 +43,14 @@ import { CheckDefinitionsEditor } from "./CheckDefinitionsEditor";
 // (diagnostics, classification, checksums, provenance, professional_boundary,
 // open_decisions). DEC-037 permits a labeled read-only one-way AST-to-text
 // preview, but no writable expression text syntax or parser is provided.
+//
+// Format 0.5.0 (W-17; DEL-06-01 Design `rule-pack-0.5.0.md` §3): a new draft
+// writes 0.5.0; the load-case/category editor authors required load cases
+// (chosen from the current model's load cases and combinations), stress
+// categories and their mappings; solver inputs author a row selector, offered
+// from the session's current solved result when there is one. A stored pack
+// in any other format opens with the refusal shown and offers delete only:
+// there is no migration.
 
 const NO_DRAFT_REASON = "No draft rule-pack document; create a new draft or open a stored pack first.";
 const NO_PROJECT_REASON = "Local rule packs are project-scoped; create or open a local project first.";
@@ -60,12 +70,15 @@ type RulePackR3JourneyEvent =
 
 export function RulePackManagerPanel({
   model,
+  result = null,
   onR3JourneyEvent,
   queuedIntents,
   onQueueIntent,
   operationBusy = false
 }: {
   model: PreviewModel | null;
+  /** The session's current solved result; its rows' selectors are offered to solver inputs. */
+  result?: MechanicsResult | null;
   onR3JourneyEvent?: (event: RulePackR3JourneyEvent) => void;
   /** W-13 §3.4: "Use with this model" / "Remove from model" queue structured operations. */
   queuedIntents?: EditorOperationIntent[];
@@ -81,6 +94,8 @@ export function RulePackManagerPanel({
   const [listRefreshed, setListRefreshed] = useState(false);
   const [validation, setValidation] = useState<RulePackDocumentValidation | null>(null);
   const [checksum, setChecksum] = useState<RulePackComputedChecksum | null>(null);
+  // The stored entry the current draft was opened from, while it is unedited.
+  const [openedEntry, setOpenedEntry] = useState<LocalRulePackIndexEntry | null>(null);
   // In-request busy guard: while a backend command is awaiting, the draft
   // editors (document textarea + structured composer) and every action are
   // disabled so an async response that calls setDraft (compute-checksum,
@@ -89,7 +104,17 @@ export function RulePackManagerPanel({
   const [inFlight, setInFlight] = useState(false);
 
   const projectId = model?.project.id ?? null;
-  const draftReason = !draft ? NO_DRAFT_REASON : inFlight ? BUSY_REASON : undefined;
+  // A stored pack in another format (design §2.1): shown with its refusal,
+  // delete only. There is no migration; the user re-authors it.
+  const refusedStoredPack =
+    openedEntry !== null && validation !== null && versionRefusal(validation) !== null ? openedEntry : null;
+  const draftReason = !draft
+    ? NO_DRAFT_REASON
+    : inFlight
+      ? BUSY_REASON
+      : refusedStoredPack
+        ? REFUSED_STORED_PACK_REASON
+        : undefined;
   const parsedDraft = draft ? parseRulePackDocument(draft.text) : null;
 
   // The stored-pack list is project-scoped. When the active project changes
@@ -134,6 +159,7 @@ export function RulePackManagerPanel({
     });
     setValidation(null);
     setChecksum(null);
+    setOpenedEntry(null);
     onR3JourneyEvent?.("rule_pack_draft_created");
     setActionStatus(
       "New private draft created in memory (privacy_class=private_user_data, " +
@@ -145,6 +171,7 @@ export function RulePackManagerPanel({
     setDraft(null);
     setValidation(null);
     setChecksum(null);
+    setOpenedEntry(null);
     setActionStatus("Draft discarded from session memory; the local store was not touched.");
   }
 
@@ -268,6 +295,7 @@ export function RulePackManagerPanel({
       });
       setValidation(route.envelope.validation);
       setChecksum(null);
+      setOpenedEntry(entry);
       setActionStatus(`${route.envelope.message} (rule_pack_id=${route.envelope.rule_pack_id}).`);
     } catch (error) {
       reportBackendError("open", error);
@@ -285,6 +313,18 @@ export function RulePackManagerPanel({
         return;
       }
       setActionStatus(route.receipt.message);
+      // A deleted pack's open draft goes with it.
+      if (
+        openedEntry &&
+        openedEntry.project_id === entry.project_id &&
+        openedEntry.rule_pack_id === entry.rule_pack_id &&
+        route.receipt.deleted
+      ) {
+        setDraft(null);
+        setValidation(null);
+        setChecksum(null);
+        setOpenedEntry(null);
+      }
       await handleRefreshList();
     } catch (error) {
       reportBackendError("delete", error);
@@ -308,6 +348,10 @@ export function RulePackManagerPanel({
 
   function handleCheckDefinitionsChange(nextDocument: Record<string, unknown>) {
     setDraft({ text: JSON.stringify(nextDocument, null, 2), origin: "check_definitions_edit" });
+  }
+
+  function handleLoadCaseCategoriesChange(nextDocument: Record<string, unknown>) {
+    setDraft({ text: JSON.stringify(nextDocument, null, 2), origin: "load_case_categories_edit" });
   }
 
   return (
@@ -400,14 +444,44 @@ export function RulePackManagerPanel({
         />
       ) : null}
 
-      {draft ? (
+      {refusedStoredPack && validation ? (
+        <div className="report-list" data-testid="rule-pack-version-refusal" role="status">
+          <strong>{RULE_PACK_SCHEMA_VERSION_UNSUPPORTED}</strong>
+          <small>
+            Stored pack {refusedStoredPack.rule_pack_id} is refused: {versionRefusal(validation)?.message} This
+            version reads rule-pack format {RULE_PACK_SCHEMA_VERSION} only. Its checks do not run;
+            re-author it as a new pack. The stored pack can only be deleted.
+          </small>
+          <div className="report-actions">
+            <button
+              type="button"
+              data-testid="rule-pack-refused-delete"
+              disabled={inFlight}
+              title={inFlight ? BUSY_REASON : undefined}
+              onClick={() => void handleDelete(refusedStoredPack)}
+            >
+              Delete stored pack
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {draft && refusedStoredPack ? null : draft ? (
         parsedDraft && parsedDraft.ok ? (
           <>
+            <LoadCaseCategoriesEditor
+              document={parsedDraft.document}
+              onChange={handleLoadCaseCategoriesChange}
+              disabled={inFlight}
+              disabledReason={inFlight ? BUSY_REASON : undefined}
+              model={model}
+            />
             <DeclarationsEditor
               document={parsedDraft.document}
               onChange={handleDeclarationsChange}
               disabled={inFlight}
               disabledReason={inFlight ? BUSY_REASON : undefined}
+              result={result}
             />
             <ExpressionComposer
               document={parsedDraft.document}
@@ -452,7 +526,7 @@ export function RulePackManagerPanel({
           rows={14}
           value={draft?.text ?? ""}
           placeholder="No draft document. Create a new draft or open a stored rule pack."
-          disabled={!draft || inFlight}
+          disabled={!draft || inFlight || refusedStoredPack !== null}
           title={draftReason}
           onChange={(event) =>
             setDraft((current) =>
@@ -464,7 +538,7 @@ export function RulePackManagerPanel({
           <button
             type="button"
             data-testid="rule-pack-validate"
-            disabled={!draft || inFlight}
+            disabled={!draft || inFlight || refusedStoredPack !== null}
             title={draftReason}
             onClick={() => void handleValidate()}
           >
@@ -473,7 +547,7 @@ export function RulePackManagerPanel({
           <button
             type="button"
             data-testid="rule-pack-compute-checksum"
-            disabled={!draft || inFlight}
+            disabled={!draft || inFlight || refusedStoredPack !== null}
             title={draftReason}
             onClick={() => void handleComputeChecksum()}
           >
@@ -482,7 +556,7 @@ export function RulePackManagerPanel({
           <button
             type="button"
             data-testid="rule-pack-save"
-            disabled={!draft || inFlight}
+            disabled={!draft || inFlight || refusedStoredPack !== null}
             title={draftReason}
             onClick={() => void handleSave()}
           >
@@ -613,6 +687,13 @@ function UnitCheckFindingRow({ finding }: { finding: RulePackUnitCheckFinding })
       <p>{finding.message}</p>
     </div>
   );
+}
+
+const REFUSED_STORED_PACK_REASON =
+  "This stored pack declares a rule-pack format this version does not read; it can only be deleted.";
+
+function versionRefusal(validation: RulePackDocumentValidation): RulePackValidationFinding | null {
+  return validation.document_findings.find((finding) => finding.code === RULE_PACK_SCHEMA_VERSION_UNSUPPORTED) ?? null;
 }
 
 function collectFindings(validation: RulePackDocumentValidation): RulePackValidationFinding[] {

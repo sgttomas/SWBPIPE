@@ -129,7 +129,7 @@ This Scope of Work defines `DEL-06-01` in service of project scope [SOW-016, SOW
 > | ID | Requirement | Evidence basis | Verification approach |
 > |---|---|---|---|
 > | REQ-06-01-001 | The schema shall use JSON Schema 2020-12 conventions for public schema/interchange artifacts. | ContextBudgetQA row DEL-06-01; AB-00-04 | Schema meta-validation in a later implementation pass. |
-> | REQ-06-01-002 | The schema shall include rule-pack identity, schema version, rule-pack version, lifecycle/status, and source-note metadata. | SOW-042; OPS-K-RULE-3 | Required-field schema validation. |
+> | REQ-06-01-002 | The schema shall include rule-pack identity, schema version, rule-pack version, lifecycle/status, and source-note metadata. One schema version is current; a document declaring any other version is refused by name, without migration. | SOW-042; OPS-K-RULE-3; DEL-06-01 Design rule-pack-0.5.0.md §2.1 | Required-field schema validation; refusal fixtures for other versions. |
 > | REQ-06-01-003 | The schema shall require provenance metadata for rule-pack values, allowable slots, formulas, and source bases. | OPS-K-IP-2; OPS-K-DATA-3; OPS-K-RULE-3 | Positive and negative provenance fixtures. |
 > | REQ-06-01-004 | The schema shall record public/private classification and redistribution status for each rule pack and public-example candidate. | SOW-042; OPS-K-RULE-3; OPS-K-PRIV-1 | Redistribution-status fixture validation. |
 > | REQ-06-01-005 | The schema shall include checksum metadata identifying algorithm, hash scope, hash value, and canonicalization basis for JSON payloads. | SOW-042; AB-00-04 | Canonical JSON/JCS-compatible hash fixture validation. |
@@ -140,6 +140,7 @@ This Scope of Work defines `DEL-06-01` in service of project scope [SOW-016, SOW
 > | REQ-06-01-010 | The schema shall emit or support structured diagnostics for rule-check blocking, provenance warning, unit mismatch, protected-content warning, evaluator error, and redistribution warning conditions. | AB-00-06; OPS-K-DATA-2; OPS-K-IP-3 | Diagnostic fixture validation. |
 > | REQ-06-01-011 | The schema shall require public examples to use invented non-code values and explicit non-engineering notices. | OPS-K-RULE-1; SOW-016 note | Public-example protected-content gate. |
 > | REQ-06-01-012 | The schema shall not treat agent-generated setup text as engineering authority, standards authority, legal conclusion, or professional approval. | OPS-K-AGENT-1; OPS-K-AGENT-4 | Review checklist. |
+> | REQ-06-01-013 | The schema shall support user-defined stress categories, required load cases that reference model load cases or combinations, and mappings that assign required load cases to each category. Each check names one category and has one outcome for each load case or combination mapped to it. A mapped load case or combination that is absent from the model, has no result rows, or lacks a row the check needs makes that outcome incomplete without evaluating the check on it; the check's other outcomes are reported independently. | PRD §17.2; FR-RULE-001; FR-RULE-003; owner ruling 2026-10-24 ("I approve your recommended option A."); DEL-06-01 Design rule-pack-0.5.0.md §2.2–§2.7 | Category, mapping, missing- and unsolved-basis, and per-basis evaluation fixtures. |
 >
 
 ### CLM-012 — Standards
