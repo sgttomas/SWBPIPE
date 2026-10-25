@@ -3,6 +3,7 @@
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_product_physics::{
     self_weight::{generate_self_weight_operations, inspect_applied_self_weight, AppliedSelfWeightState,
+        COMPONENT_WEIGHT_METHOD, COMPONENT_WEIGHT_SCOPE, PIPE_MASS_SCOPE,
         SelfWeightOperationDraft, SelfWeightOperationPlan, SelfWeightRequest},
     PreviewModel,
 };
@@ -160,7 +161,14 @@ fn refresh_plan(model: &Value, typed: &PreviewModel, request: &Value, hash: &str
     if !changed {
         return blocked(Some(hash), "SELF-WEIGHT-REFRESH-NOT-NEEDED", "No stale or modified generated load requires refresh in this case.", "Keep current generated loads and explicitly detached manual loads unchanged.");
     }
-    let plan = SelfWeightOperationPlan { source_model_hash: hash.into(), source_evidence: evidence.clone(), scope_label:"selected_pipe_mass_only".into(), warnings: vec![],
+    // W-15 slice b: a case holding component-weight primitives refreshes
+    // under the component-weight scope.
+    let component = current.iter().any(|load| load["provenance"].as_str()
+        .and_then(|text| serde_json::from_str::<Value>(text).ok())
+        .is_some_and(|record| record["method"] == COMPONENT_WEIGHT_METHOD
+            || record["original_generation_provenance"]["method"] == COMPONENT_WEIGHT_METHOD));
+    let scope = if component { COMPONENT_WEIGHT_SCOPE } else { PIPE_MASS_SCOPE };
+    let plan = SelfWeightOperationPlan { source_model_hash: hash.into(), source_evidence: evidence.clone(), scope_label:scope.into(), warnings: vec![],
         changes: vec![SelfWeightOperationDraft { object_type:"Load".into(), target_ref:case_id.into(), operation_kind:"modify".into(),
             change_kind:"update_load".into(), field_label:"Refresh generated self-weight".into(), field_path:"generated_self_weight".into(),
             before:canonical_json(&Value::Array(current.clone())), after:canonical_json(&Value::Array(updated)), unit:"none".into(), dimension:"dimensionless".into(),

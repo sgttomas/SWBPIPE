@@ -302,7 +302,10 @@ the desktop component-creation, inspector and self-weight features):
   element-targeted one, which stays `distributed_force`. Each moment component is one
   product r_j·f, rounded once. A nonzero lever whose product is zero or not
   finite is the blocking `SELF_WEIGHT_RANGE_INVALID`, never a dropped
-  moment. The identity is
+  moment. So is a nonzero entered centre-of-gravity component that normalizes
+  to zero in model length units. A selection error (such as a mapped member
+  that no longer exists) is returned before any component is read. The
+  identity is
   `load:self-weight:{len}:{case}:component:{len}:{component}:{force|moment}:{x|y|z}`.
   The literal `component` cannot be read as a length, so it never meets a
   member identity.
@@ -317,14 +320,19 @@ the desktop component-creation, inspector and self-weight features):
     consumption, weight and centre of gravity, in SI, so an equivalent unit is
     no change.
 
-  Inspection recomputes the wrench from the retained inputs; a self-authenticating
-  snapshot is invalid. A node-targeted load whose id is in the
+  Inspection normalizes the retained entered weight and centre of gravity
+  again and derives the historical wrench from them. The recorded SI values,
+  dependencies, whole wrench and payload must agree with it exactly. A record
+  that contradicts its own entered inputs, such as a self-authenticating
+  snapshot, is invalid. A node-targeted load whose id is in the
   `load:self-weight:` namespace, or whose method claims the family, is
   inspected as lineage.
 - **Staleness.** Editing the weight, centre of gravity, mapping, consumption,
   node or kind makes the component's primitives stale. An edit that keeps the
   primitive set refreshes in place: the wasm refresh plan, applied through the
-  applier's managed refresh. An edit that changes the set has no in-place
+  applier's managed refresh. Inspection compares the complete set of a
+  component's primitives in the case (a manual override holds its slot) with
+  the set the current inputs generate. An edit that changes the set has no in-place
   replacement, so the refresh plan is refused and the case must be generated
   again. Such edits are: a moment component appears or vanishes,
   the component starts or stops carrying the weight, or the mapping moves.
@@ -339,7 +347,6 @@ the desktop component-creation, inspector and self-weight features):
   component only, and only to `mechanics_geometry_only` or
   `not_solver_consumed`; creation accepts the same two modes. Other modes
   (bend macro-element, objective connector) keep their own authoring routes.
-  `modifiers.source_reference` is editable, and
   `modifiers.source_reference` is editable. Valve, flange and reducer creation
   accepts an exact `modifiers` {finite positive dimensionless
   `stiffness_scaling_user_value`, nonblank `source_reference`} and an exact

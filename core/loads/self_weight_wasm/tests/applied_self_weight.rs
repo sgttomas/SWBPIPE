@@ -163,6 +163,8 @@ fn density_edit_must_not_solve_with_stale_applied_self_weight() {
     let blocked = attempt_solve(&reopened);
     assert_eq!(blocked.status.mechanics, "MODEL_INCOMPLETE");
     assert!(blocked.diagnostics.iter().any(|d| d.code == "SELF_WEIGHT_INPUTS_STALE"), "{:?}", blocked.diagnostics);
+    let plan = generate_plan(&reopened, &json!({"mode":"refresh","case_id":"case:weight","source_model_hash":hash(&reopened),"manual_overrides":"block"}));
+    assert_eq!(plan["plan"]["scope_label"], "selected_pipe_mass_only");
     let refreshed = apply_refresh(&reopened, "block");
     assert_eq!(refreshed["load_cases"][0]["primitive_loads"].as_array().unwrap().len(), 2);
     assert_eq!(refreshed["load_cases"][0]["primitive_loads"][1], initial["load_cases"][0]["primitive_loads"][1]);
@@ -328,6 +330,8 @@ fn component_weight_edits_require_refresh_and_refresh_in_place() {
     let weight = edit(&weighted, "Component", "component:valve", "geometry.weight.value", "50", 80.0, "N", "force");
     let blocked = attempt_solve(&reopen(&weight));
     assert!(blocked.diagnostics.iter().any(|d| d.code == "SELF_WEIGHT_INPUTS_STALE"), "{:?}", blocked.diagnostics);
+    let plan = generate_plan(&weight, &json!({"mode":"refresh","case_id":"case:weight","source_model_hash":hash(&weight),"manual_overrides":"block"}));
+    assert_eq!(plan["plan"]["scope_label"], "selected_pipe_mass_and_component_weight");
     let refreshed = apply_refresh(&weight, "block");
     let l = &refreshed["load_cases"][0]["primitive_loads"];
     assert_eq!((l[0]["id"].clone(), l[1]["id"].clone()), (loads[0]["id"].clone(), loads[1]["id"].clone()));
@@ -344,4 +348,37 @@ fn component_weight_edits_require_refresh_and_refresh_in_place() {
     let refused = generate_plan(&aligned, &json!({"mode":"refresh","case_id":"case:weight","source_model_hash":hash(&aligned),"manual_overrides":"block"}));
     assert_eq!(refused["status"], "blocked");
     assert_eq!(refused["diagnostics"][0]["code"], "SELF-WEIGHT-REFRESH-UNAVAILABLE", "{refused}");
+}
+
+/// Review reproduction 1 through the planner and the applier: a force-only
+/// component case (r on the gravity line) whose centre of gravity then moves
+/// off it needs a new moment. The refresh planner refuses, and a managed
+/// refresh that renews only the force is refused by the applier.
+#[test]
+fn a_newly_required_moment_refuses_refresh_in_the_planner_and_the_applier() {
+    let mut source = component_model();
+    source["components"][0]["geometry"]["center_of_gravity"] = json!({"x":0.0,"y":0.125,"z":0.0,"unit":"m"});
+    let (_, batch) = generate(&source);
+    let weighted = apply_operation_batch(&source, &batch, Some(&claim(&source)))["applied_model"].clone();
+    assert_eq!(weighted["load_cases"][0]["primitive_loads"].as_array().unwrap().len(), 1);
+    let moved = vector_edit(&weighted, "0, 0.125, 0 m", r#"{"x":-0.75,"y":0.125,"z":0,"unit":"m"}"#);
+    assert!(attempt_solve(&reopen(&moved)).diagnostics.iter().any(|d| d.code == "SELF_WEIGHT_INPUTS_STALE"));
+    let refused = generate_plan(&moved, &json!({"mode":"refresh","case_id":"case:weight","source_model_hash":hash(&moved),"manual_overrides":"block"}));
+    assert_eq!(refused["status"], "blocked");
+    assert_eq!(refused["diagnostics"][0]["code"], "SELF-WEIGHT-REFRESH-UNAVAILABLE", "{refused}");
+    // Renew only the force from a fresh plan on the moved model.
+    let mut fresh = moved.clone();
+    fresh["load_cases"] = json!([]);
+    let request = json!({"case_id":"case:weight","label":"Invented self weight","pipe_refs":["pipe:beam"],"gravity":{"value":GRAVITY,"unit":"m/s^2","axis":"global_y"},"provenance":"explicit invented gravity","source_model_hash":hash(&fresh)});
+    let regenerated = generate_plan(&fresh, &request);
+    let force: Value = serde_json::from_str(regenerated["plan"]["changes"][1]["after"].as_str().unwrap()).unwrap();
+    let mut provenance: Value = serde_json::from_str(force["provenance"].as_str().unwrap()).unwrap();
+    provenance["source_model_hash"] = json!(hash(&moved));
+    let current = moved["load_cases"][0]["primitive_loads"].clone();
+    let mut updated = current.clone();
+    updated[0]["provenance"] = json!(provenance.to_string());
+    let draft = json!({"object_type":"Load","target_ref":"case:weight","operation_kind":"modify","change_kind":"update_load","field_label":"Refresh generated self-weight","field_path":"generated_self_weight","before":canonical_json(&current),"after":canonical_json(&updated),"unit":"none","dimension":"dimensionless","source_note":"force-only refresh"});
+    let out = apply_operation(&moved, &operation(&draft, "force-only"), Some(&claim(&moved)));
+    assert!(out.applied_model.is_none(), "a force-only refresh must not apply: {:?}", out.diagnostics);
+    assert!(out.diagnostics.iter().any(|d| d.message.contains("fresh or explicitly preserved")), "{:?}", out.diagnostics);
 }

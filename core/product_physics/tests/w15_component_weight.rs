@@ -288,11 +288,40 @@ fn a_center_of_gravity_edit_is_stale_and_a_changed_moment_set_needs_regeneration
     assert_eq!(moment.state, AppliedSelfWeightState::Stale);
     assert!(moment.replacement.is_none());
     assert!(moment.diagnostics[0].message.contains("generate this self-weight case again"));
-    // The force's value is unchanged, but it consumed the edited centre of
-    // gravity: it is stale too, with an in-place refresh.
+    // The force's value is unchanged, but its component's wrench set changed:
+    // it is stale with no in-place refresh either.
     let force = checked.iter().find(|s| s.primitive_index == 0).unwrap();
     assert_eq!(force.state, AppliedSelfWeightState::Stale);
-    assert_eq!(force.replacement.as_ref().unwrap()["magnitude"]["value"].as_f64(), Some(-500.0));
+    assert!(force.replacement.is_none());
+}
+
+/// Review reproduction 1: W = 600 N, gravity -Y, r = (0, 0.125, 0) m gives a
+/// force only; r_x = -0.75 m then requires M_z = r_x f = 450 N*m. The force
+/// must not refresh in place and leave the moment out.
+#[test]
+fn a_newly_required_moment_makes_every_primitive_stale_without_a_replacement() {
+    let mut m = model();
+    m["components"][0]["geometry"]["weight"] = json!({"value": 600, "unit": "N"});
+    m["components"][0]["geometry"]["center_of_gravity"] = json!({"x": 0, "y": 0.125, "z": 0, "unit": "m"});
+    let mut m = applied(&m, &["body:v"]);
+    assert_eq!(states(&m), vec![(force_id(), AppliedSelfWeightState::Fresh)]);
+    m["components"][0]["geometry"]["center_of_gravity"]["x"] = json!(-0.75);
+    let checked = inspect_applied_self_weight(&typed(&m), Some(HASH));
+    assert_eq!(checked.len(), 1);
+    assert_eq!(checked[0].state, AppliedSelfWeightState::Stale);
+    assert!(checked[0].replacement.is_none());
+    assert!(checked[0].diagnostics[0].message.contains("generate this self-weight case again"));
+    let blocked = run_linear_static_preview_value_with_mode(json!({"model": m, "materials": []}), PreviewSolverMode::SparseInteractive).unwrap();
+    assert!(blocked.diagnostics.iter().any(|d| d.code == "SELF_WEIGHT_INPUTS_STALE"));
+    // The regenerated case carries the moment, and its support moment is the
+    // corrected one: M_z(A) = -(M_z + L F_y) = -(450 + 2 * -600) = 750 N*m.
+    m["load_cases"] = json!([]);
+    let regenerated = applied(&m, &["body:v"]);
+    assert_eq!(ids(&plan(&m, &["body:v"])), vec![force_id(), moment_id("z")]);
+    let out = run_linear_static_preview_value_with_mode(json!({"model": regenerated, "materials": []}), PreviewSolverMode::SparseInteractive).unwrap();
+    let mz = out.results.iter().find(|r| r.kind == "support_reaction_component_v2" && r.entity_ref == "s"
+        && r.metadata.as_ref().is_some_and(|m| m.component == "Mz")).unwrap().value;
+    assert!((mz - 750.0).abs() <= 1e-9 * 750.0, "{mz}");
 }
 
 #[test]
@@ -323,6 +352,60 @@ fn mapping_and_consumption_edits_make_both_sides_stale() {
     assert!(pipe.replacement.is_none() && pipe.diagnostics[0].message.contains("component weight now replaces"));
 }
 
+/// Review reproduction 2: every record and load doubled consistently except
+/// the entered weight (600 N kept); then the component's weight is set to the
+/// forged value. Every forged record stays invalid, never stale or fresh.
+#[test]
+fn a_whole_case_forgery_keeping_the_entered_weight_is_invalid() {
+    let mut m = model();
+    m["components"][0]["geometry"]["weight"] = json!({"value": 600, "unit": "N"});
+    m["components"][0]["geometry"]["center_of_gravity"] = json!({"x": -0.75, "y": 0.125, "z": 0, "unit": "m"});
+    let mut m = applied(&m, &["body:v"]);
+    for load in m["load_cases"][0]["primitive_loads"].as_array_mut().unwrap() {
+        let mut e: Value = serde_json::from_str(load["provenance"].as_str().unwrap()).unwrap();
+        assert_eq!(e["weight_input"], json!({"value": 600.0, "unit": "N"}));
+        let doubled = load["magnitude"]["value"].as_f64().unwrap() * 2.0;
+        e["weight_N"] = json!(1200.0);
+        e["normalized_dependencies"]["weight"]["value"] = json!(1200.0);
+        for key in ["force_N", "moment_N_m"] {
+            let v: Vec<f64> = serde_json::from_value(e[key].clone()).unwrap();
+            e[key] = json!(v.iter().map(|c| c * 2.0).collect::<Vec<_>>());
+        }
+        e["generated_payload"]["magnitude"]["value"] = json!(doubled);
+        load["magnitude"]["value"] = json!(doubled);
+        load["provenance"] = json!(e.to_string());
+    }
+    assert!(states(&m).iter().all(|(_, s)| *s == AppliedSelfWeightState::Invalid), "{:?}", states(&m));
+    m["components"][0]["geometry"]["weight"]["value"] = json!(1200);
+    assert!(states(&m).iter().all(|(_, s)| *s == AppliedSelfWeightState::Invalid), "{:?}", states(&m));
+}
+
+/// Review reproduction 3: the mapped member is removed but the mapping kept,
+/// and that member is requested. The planner refuses; it never panics.
+#[test]
+fn a_missing_selected_mapped_member_is_refused() {
+    let mut m = model();
+    m["pipe_segments"].as_array_mut().unwrap().remove(1);
+    let refused = generate_self_weight_operations(&typed(&m), &request(&["body:v"])).unwrap_err();
+    assert!(refused.iter().any(|d| d.code == "SELF_WEIGHT_INPUT_INVALID" && d.message.contains("resolve exactly once")), "{refused:?}");
+}
+
+/// Review reproduction 4: W = 1e300 N with r_x the smallest positive binary64
+/// in mm. The conversion to m rounds r_x to zero, which would drop
+/// M_z = r_x f (about -4.94e-27 N*m in exact terms); the planner refuses.
+#[test]
+fn a_nonzero_centre_of_gravity_component_normalizing_to_zero_is_refused() {
+    let mut m = model();
+    m["components"][0]["geometry"]["weight"] = json!({"value": 1e300, "unit": "N"});
+    m["components"][0]["geometry"]["center_of_gravity"] = json!({"x": 5e-324, "y": 0, "z": 0, "unit": "mm"});
+    let refused = generate_self_weight_operations(&typed(&m), &request(&["body:v"])).unwrap_err();
+    assert!(refused.iter().any(|d| d.code == "SELF_WEIGHT_RANGE_INVALID" && d.affected_refs.contains(&VALVE.to_string())), "{refused:?}");
+    // In metres the same lever survives normalization and its moment is kept.
+    m["components"][0]["geometry"]["center_of_gravity"]["unit"] = json!("m");
+    let p = plan(&m, &["body:v"]);
+    assert_eq!(ids(&p), vec![force_id(), moment_id("z")]);
+}
+
 #[test]
 fn modified_component_loads_need_explicit_preservation() {
     let mut m = applied(&model(), &["body:v"]);
@@ -341,14 +424,25 @@ fn forged_or_unrecognized_component_lineage_is_invalid() {
     let m = applied(&model(), &["body:v"]);
     let load = &m["load_cases"][0]["primitive_loads"][0];
     let evidence: Value = serde_json::from_str(load["provenance"].as_str().unwrap()).unwrap();
-    // A snapshot that authenticates itself: weight, payload and dependencies doubled.
+    // A snapshot that authenticates itself: the SI weight, the dependency
+    // weight, the recorded wrench and the payload doubled, the entered weight
+    // kept. The record contradicts its own authored input.
     let mut forged = m.clone();
     let mut e = evidence.clone();
     e["weight_N"] = json!(1000.0);
+    e["normalized_dependencies"]["weight"]["value"] = json!(1000.0);
+    e["force_N"][1] = json!(-1000.0);
+    e["moment_N_m"][2] = json!(500.0);
     e["generated_payload"]["magnitude"]["value"] = json!(-1000.0);
     forged["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"] = json!(-1000.0);
     forged["load_cases"][0]["primitive_loads"][0]["provenance"] = json!(e.to_string());
     assert_eq!(state_of(&forged, &force_id()), AppliedSelfWeightState::Invalid);
+    // A recorded wrench that disagrees with its own inputs is invalid too.
+    let mut wrench = m.clone();
+    let mut e = evidence.clone();
+    e["moment_N_m"][2] = json!(999.0);
+    wrench["load_cases"][0]["primitive_loads"][0]["provenance"] = json!(e.to_string());
+    assert_eq!(state_of(&wrench, &force_id()), AppliedSelfWeightState::Invalid);
     // A node load in the generated namespace without lineage is not ignored.
     let mut bare = m.clone();
     bare["load_cases"][0]["primitive_loads"][0]["provenance"] = json!("human note");

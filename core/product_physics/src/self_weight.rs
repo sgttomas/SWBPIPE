@@ -15,7 +15,7 @@ use crate::rigid_component::{self, is_rigid_family, mapped_pipe_ref, GEOMETRY_ON
 use open_pipe_stress_units::Dimension;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -284,6 +284,12 @@ fn generate_operations(
     // component that meets every weight condition carries the component's
     // weight, not its own distributed self-weight; its section is then not a
     // mass input.
+    // A selection error (an unresolved member, a bad endpoint, ...) is
+    // returned before any component is read, so a mapping to a missing member
+    // is a refusal, never a lookup failure.
+    if !d.is_empty() {
+        return Err(d);
+    }
     let mut warnings = Vec::new();
     let bodies = component_weights(model, &selected, &request.gravity.axis, gravity.value, &mut d, &mut warnings);
     for body in bodies.values() {
@@ -571,22 +577,26 @@ fn component_weights<'a>(
         if consumption == Some("not_solver_consumed") {
             continue;
         }
-        let pipe = model.pipe_segments.iter().find(|p| p.id == pipe_ref).expect("selected member resolves once");
+        let Some(pipe) = model.pipe_segments.iter().find(|p| p.id == pipe_ref) else {
+            invalid(d, pipe_ref, "selected pipe must resolve exactly once");
+            continue;
+        };
         let geometry = component.geometry.as_ref();
-        let mut scratch = Vec::new();
-        let weight = geometry.and_then(|g| g.weight.clone()).and_then(|mut q| {
-            normalize_quantity(&mut q, Dimension::Force, "diagnostic:self-weight:component-weight", vec![], &mut scratch);
-            (scratch.is_empty() && q.value.is_finite() && q.value > 0.0).then_some(q.value)
-        });
-        let mut scratch = Vec::new();
-        let cog = geometry.and_then(|g| g.center_of_gravity.clone()).and_then(|mut v| {
-            if ![v.x, v.y, v.z].iter().all(|c| c.is_finite()) {
-                return None;
-            }
-            normalize_vector_quantity(&mut v, Dimension::Length, "diagnostic:self-weight:component-cog", vec![], &mut scratch);
-            let r = [v.x, v.y, v.z];
-            (scratch.is_empty() && r.iter().all(|c| c.is_finite())).then_some(r)
-        });
+        let weight = geometry.and_then(|g| g.weight.as_ref()).and_then(normalized_weight);
+        let (cog, cog_underflow) = match geometry.and_then(|g| g.center_of_gravity.as_ref()) {
+            Some(v) => match normalized_cog(v) {
+                Ok(r) => (r, false),
+                Err(underflow) => (None, underflow),
+            },
+            None => (None, false),
+        };
+        if cog_underflow {
+            // A nonzero entered component that normalizes to zero would
+            // silently erase its moments.
+            invalid(d, &component.id, "a nonzero centre-of-gravity component normalizes to zero in model length units");
+            d.last_mut().unwrap().code = "SELF_WEIGHT_RANGE_INVALID".into();
+            continue;
+        }
         let unmet = match (consumption, weight, cog) {
             (None, _, _) => Some("it declares no mechanics_interface.solver_consumption (no mode is assumed)".to_string()),
             (Some(mode), _, _) if mode != GEOMETRY_ONLY => Some(format!("its solver_consumption is {mode}, not {GEOMETRY_ONLY}")),
@@ -635,6 +645,35 @@ fn component_weights<'a>(
         bodies.insert(pipe_ref.to_string(), ComponentWeight { component, pipe: pipe_ref.to_string(), weight, cog, primitives });
     }
     bodies
+}
+
+/// The entered weight in newtons, when it is a finite positive force.
+fn normalized_weight(q: &Quantity) -> Option<f64> {
+    let mut q = q.clone();
+    let mut scratch = Vec::new();
+    normalize_quantity(&mut q, Dimension::Force, "diagnostic:self-weight:component-weight", vec![], &mut scratch);
+    (scratch.is_empty() && q.value.is_finite() && q.value > 0.0).then_some(q.value)
+}
+
+/// The entered centre of gravity in metres: `Ok(Some(r))` for a finite length
+/// vector, `Ok(None)` when it is not one, and `Err(true)` when a nonzero
+/// component normalizes to zero (a range failure, not a missing input).
+fn normalized_cog(v: &super::VectorQuantity) -> Result<Option<[f64; 3]>, bool> {
+    let entered = [v.x, v.y, v.z];
+    if !entered.iter().all(|c| c.is_finite()) {
+        return Ok(None);
+    }
+    let mut v = v.clone();
+    let mut scratch = Vec::new();
+    normalize_vector_quantity(&mut v, Dimension::Length, "diagnostic:self-weight:component-cog", vec![], &mut scratch);
+    let r = [v.x, v.y, v.z];
+    if !scratch.is_empty() || !r.iter().all(|c| c.is_finite()) {
+        return Ok(None);
+    }
+    if entered.iter().zip(&r).any(|(e, n)| *e != 0.0 && *n == 0.0) {
+        return Err(true);
+    }
+    Ok(Some(r))
 }
 
 /// One wrench primitive and its evidence row (decision 4): the method, the
@@ -1149,9 +1188,16 @@ fn component_basis(
     {
         return Err(fail());
     }
-    let weight = evidence["weight_N"].as_f64().filter(|w| w.is_finite() && *w > 0.0).ok_or_else(fail)?;
-    let cog: [f64; 3] = serde_json::from_value(evidence["center_of_gravity_m"].clone()).map_err(|_| fail())?;
-    if !cog.iter().all(|c| c.is_finite()) {
+    // The historical wrench follows from the retained authored quantities,
+    // normalized again here; the recorded SI values, dependencies and whole
+    // wrench must agree with it exactly, or the record is not lineage.
+    let weight_input: Quantity = serde_json::from_value(evidence["weight_input"].clone()).map_err(|_| fail())?;
+    let weight = normalized_weight(&weight_input).ok_or_else(fail)?;
+    let cog_input: super::VectorQuantity =
+        serde_json::from_value(evidence["center_of_gravity_input"].clone()).map_err(|_| fail())?;
+    let cog = normalized_cog(&cog_input).ok().flatten().ok_or_else(fail)?;
+    let recorded_cog: [f64; 3] = serde_json::from_value(evidence["center_of_gravity_m"].clone()).map_err(|_| fail())?;
+    if evidence["weight_N"].as_f64() != Some(weight) || recorded_cog != cog {
         return Err(fail());
     }
     let dependencies = &evidence["normalized_dependencies"];
@@ -1163,6 +1209,13 @@ fn component_basis(
         return Err(fail());
     }
     let (force, moment) = wrench(weight, cog, axis, acceleration.value);
+    let mut force_vector = [0.0; 3];
+    force_vector[axis] = force;
+    let recorded_force: [f64; 3] = serde_json::from_value(evidence["force_N"].clone()).map_err(|_| fail())?;
+    let recorded_moment: [f64; 3] = serde_json::from_value(evidence["moment_N_m"].clone()).map_err(|_| fail())?;
+    if recorded_force != force_vector || recorded_moment != moment {
+        return Err(fail());
+    }
     let part = evidence["wrench_part"].as_str().ok_or_else(fail)?;
     let part_axis = evidence["wrench_axis"].as_str().and_then(|a| AXES.iter().position(|x| *x == a)).ok_or_else(fail)?;
     let (category, direction, unit, dimension, value) = match part {
@@ -1318,6 +1371,34 @@ pub fn inspect_applied_self_weight(
                     scope_changed = true;
                     return Ok(());
                 };
+                // The complete wrench set: a component's primitives in this
+                // case (manual overrides of its primitives hold their slot)
+                // must be exactly those the current inputs generate. A moment
+                // that appears or vanishes leaves no in-place refresh.
+                if component {
+                    let wanted = &evidence["component_id"];
+                    let key = |e: &Value| (e["wrench_part"].as_str().unwrap_or_default().to_string(), e["wrench_axis"].as_str().unwrap_or_default().to_string());
+                    let existing: BTreeSet<_> = case
+                        .primitive_loads
+                        .iter()
+                        .filter_map(|l| serde_json::from_str::<Value>(l.provenance.as_deref()?).ok())
+                        .filter_map(|e| {
+                            let e = if e["method"] == MANUAL_OVERRIDE_METHOD { e["original_generation_provenance"].clone() } else { e };
+                            (e["method"] == COMPONENT_WEIGHT_METHOD && &e["component_id"] == wanted).then(|| key(&e))
+                        })
+                        .collect();
+                    let regenerated: BTreeSet<_> = generated
+                        .source_evidence
+                        .iter()
+                        .filter(|e| e["method"] == COMPONENT_WEIGHT_METHOD && &e["component_id"] == wanted)
+                        .map(key)
+                        .collect();
+                    if existing != regenerated {
+                        status.state = AppliedSelfWeightState::Stale;
+                        scope_changed = true;
+                        return Ok(());
+                    }
+                }
                 let current_evidence = &generated.source_evidence[row];
                 // A document moved across the exact contract changes the mass
                 // method (D-5) even where the consumed quantities agree.
