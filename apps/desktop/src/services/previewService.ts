@@ -677,10 +677,12 @@ export function buildPreviewComparison({
   rightBasisRef?: string;
 }): PreviewComparison {
   const run = analysisRun.analysis_run;
-  const resultIndex = new Map(result.results.map((item) => [item.id, item]));
   const leftResults = result.results.filter(
     (item) => item.basis_ref?.ref_id === leftBasisRef,
   );
+  // A right row pairs only with a source row of the left basis (Codex r1 on #1619):
+  // a combination's source refs name rows of each of its cases.
+  const resultIndex = new Map(leftResults.map((item) => [item.id, item]));
   const rightResults = result.results.filter(
     (item) => item.basis_ref?.ref_id === rightBasisRef,
   );

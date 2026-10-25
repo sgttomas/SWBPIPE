@@ -46,8 +46,17 @@ export const NO_LOAD_CASE_OR_COMBINATION_ROWS =
 export const NO_LOAD_CASE_ROWS = "No load case in this run has result rows, so there is nothing to compare within this run.";
 export const NO_COMBINATION_ROWS = "No combination in this run has result rows, so there is nothing to compare within this run.";
 
-function codePointCompare(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
+/** Unicode scalar-value (code-point) order. JavaScript's `<` compares UTF-16 code
+ * units, which puts a supplementary character (U+10000 and above, a surrogate pair
+ * from 0xD800) before U+E000..U+FFFF. */
+export function codePointCompare(left: string, right: string): number {
+  const a = left[Symbol.iterator](), b = right[Symbol.iterator]();
+  for (;;) {
+    const x = a.next(), y = b.next();
+    if (x.done || y.done) return x.done && y.done ? 0 : x.done ? -1 : 1;
+    const difference = x.value.codePointAt(0)! - y.value.codePointAt(0)!;
+    if (difference !== 0) return difference < 0 ? -1 : 1;
+  }
 }
 
 function orderedOptions(counts: Map<string, number>, listed: Array<{ id: string; label?: string }> | undefined): WithinRunBasisOption[] {

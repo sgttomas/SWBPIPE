@@ -14,6 +14,7 @@ import {
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 import { ComparisonPanel, type WithinRunControls } from "./ComparisonPanel";
 import {
+  codePointCompare,
   defaultWithinRunPair,
   heldPairForRun,
   NO_COMBINATION_ROWS,
@@ -85,6 +86,66 @@ describe("the options", () => {
     const unlisted = withinRunBasisOptions(source, null);
     expect(unlisted.loadCases.map((option) => option.ref_id)).toEqual(["load:A", "load:L-100", "load:L-200", "load:Z"]);
     expect(unlisted.loadCases.every((option) => option.label === null)).toBe(true);
+  });
+});
+
+it("orders unlisted bases by code point, not UTF-16 code unit", () => {
+  const supplementary = "load:\u{10000}", privateUse = "load:\u{E000}";
+  // UTF-16 order would put the surrogate pair (0xD800) first.
+  expect(supplementary < privateUse).toBe(true);
+  expect(codePointCompare(privateUse, supplementary)).toBe(-1);
+  expect(codePointCompare(supplementary, privateUse)).toBe(1);
+  expect(codePointCompare("load:a", "load:a")).toBe(0);
+  expect(codePointCompare("load:a", "load:ab")).toBe(-1);
+  const source = result();
+  const base = source.results[0];
+  source.results.push(
+    { ...base, id: "invented:supplementary", basis_ref: { ref_type: "load_case", ref_id: supplementary } },
+    { ...base, id: "invented:private-use", basis_ref: { ref_type: "load_case", ref_id: privateUse } }
+  );
+  expect(withinRunBasisOptions(source, model()).loadCases.map((option) => option.ref_id)).toEqual(["load:L-100", "load:L-200", privateUse, supplementary]);
+});
+
+describe("the left basis governs the pairing (Codex r1 on #1619)", () => {
+  it("compares a chosen L-200 against L-200's own rows, never L-100's", () => {
+    const source = result(), run = analysisRun("run:invented");
+    const comparison = buildPreviewComparison({ result: source, analysisRun: run, leftBasisRef: "load:L-200", rightBasisRef: RANGE });
+    const byId = new Map(source.results.map((row) => [row.id, row]));
+    expect(comparison.left.basis_ref.ref).toBe("load:L-200");
+    expect(comparison.result_deltas.length).toBeGreaterThan(0);
+    for (const delta of comparison.result_deltas) {
+      const left = byId.get(delta.left_result_id)!, right = byId.get(delta.right_result_id)!;
+      expect(left.basis_ref?.ref_id).toBe("load:L-200");
+      expect(right.source_result_refs).toContain(left.id);
+      expect(delta.raw_delta).toBe(right.value - left.value);
+    }
+    // The case Codex reproduced: the old lookup took the L-100 source row and gave 304.629047 N*m.
+    const endJ = comparison.result_deltas.find((delta) => delta.right_result_id === "result:combination:combination-U4B-RANGE-MAX:moment:pipe-P-100:bending-z:end-j")!;
+    expect(endJ.left_result_id).toBe("result:loadcase:load-L-200:moment:pipe-P-100:bending-z:end-j");
+    expect([endJ.left_value, endJ.right_value, endJ.raw_delta, endJ.unit]).toEqual([-304.6290472562317, -304.6290472562317, 0, "N*m"]);
+    const bendingZ = comparison.result_deltas.find((delta) => delta.right_result_id === "result:combination:combination-U4B-RANGE-MAX:moment:pipe-P-100:bending-z")!;
+    expect(bendingZ.left_result_id).toBe("result:loadcase:load-L-200:moment:pipe-P-100:bending-z");
+    expect(bendingZ.raw_delta).toBe(236.26369667435384 - 118.13184833717692);
+    // The L-100 side of the same row pairs with L-100's own row.
+    const fromL100 = buildPreviewComparison({ result: source, analysisRun: run, leftBasisRef: "load:L-100", rightBasisRef: RANGE });
+    const endJ100 = fromL100.result_deltas.find((delta) => delta.right_result_id === endJ.right_result_id)!;
+    expect(endJ100.left_result_id).toBe("result:moment:pipe-P-100:bending-z:end-j");
+    expect(endJ100.raw_delta).toBe(-304.6290472562317 - -609.2580945124633);
+  });
+
+  it("with no L-100 rows, the fixed pair gives 0 pairs and every C-OPER-ALT row target-only, never paired with another case", () => {
+    const source = result();
+    source.results = source.results.filter((row) => row.basis_ref?.ref_id !== "load:L-100");
+    for (const row of source.results) if (row.basis_ref?.ref_id === RANGE) row.basis_ref = { ...row.basis_ref, ref_id: DEFAULT_COMPARISON_RIGHT_BASIS_REF };
+    const rightRows = source.results.filter((row) => row.basis_ref?.ref_id === DEFAULT_COMPARISON_RIGHT_BASIS_REF);
+    expect(rightRows.some((row) => row.source_result_refs?.some((ref) => ref.includes("load-L-200")))).toBe(true);
+    const comparison = buildPreviewComparison({ result: source, analysisRun: analysisRun("run:invented") });
+    expect(comparison.left.basis_ref.ref).toBe(DEFAULT_COMPARISON_LEFT_BASIS_REF);
+    expect(comparison.left.result_count).toBe(0);
+    expect(comparison.summary.comparable_result_pairs).toBe(0);
+    expect(comparison.result_deltas).toEqual([]);
+    expect(comparison.summary.unmatched_right_results).toBe(rightRows.length);
+    expect(comparison.unit_policy_evidence.matched_result_units).toEqual([]);
   });
 });
 
