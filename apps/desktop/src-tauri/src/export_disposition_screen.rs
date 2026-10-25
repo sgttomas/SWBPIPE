@@ -11,7 +11,9 @@
 //!   stored library and record judged by the library import's own per-kind
 //!   rule ([`stored_item_blocking`], pinned by
 //!   `disposition_verdicts_match_the_library_import`);
-//! - the structural screen of W-6b ([`screen_document`],
+//! - the structural screen of W-6b ([`screen_value`], [`malformed_values`];
+//!   for a stored rule pack, whose own top-level `classification` object is
+//!   admitted and screened member by member, [`screen_document`] and
 //!   [`malformed_dispositions`]): every object at every depth judged by its
 //!   own [`SCREENED_MEMBERS`], and disposition members whose value is an array
 //!   or an object refused as malformed.
@@ -397,20 +399,21 @@ pub(crate) fn pointer_token(key: &str) -> String {
     key.replace('~', "~0").replace('/', "~1")
 }
 
-/// The rule-pack document's `rule_pack_kind` constant
-/// (`schemas/rule_pack.schema.yaml:29-32`).
-const RULE_PACK_KIND: &str = "open_pipe_stress_rule_pack";
-
-/// The one place a schema defines `classification` as an object: the
-/// rule-pack document's own `classification` (`schemas/rule_pack.schema.yaml`
-/// :13 required, :41 `$ref` `#/$defs/RulePackClassification`, defined :1214 as
-/// an object of `privacy_class`, `redistribution_status`,
-/// `public_repository_policy` and two booleans). It is recognised by its
-/// place, a member of an object whose `rule_pack_kind` is the rule-pack
-/// constant, never by the key alone (review round 1 of W-18a (b1)). Every
-/// other object-valued `classification`, at any depth, is malformed.
-fn admitted_classification(parent: &Map<String, Value>, key: &str, child: &Value) -> bool {
-    key == "classification" && child.is_object() && parent.get("rule_pack_kind").and_then(Value::as_str) == Some(RULE_PACK_KIND)
+/// Where an object-valued `classification` is admitted. A schema defines
+/// `classification` as an object in one place: a rule-pack document's own
+/// top-level member (`schemas/rule_pack.schema.yaml` :13 required, :41 `$ref`
+/// `#/$defs/RulePackClassification`, defined :1214 as an object of
+/// `privacy_class`, `redistribution_status`, `public_repository_policy` and two
+/// booleans). The exemption is granted by the caller, for the root of a
+/// document it knows to be a stored rule pack; nothing in a document grants it
+/// (no `rule_pack_kind` value does), and nothing nested is ever exempt
+/// (W-18a (b1) review rounds 1-2).
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum ClassificationExemption {
+    /// No object-valued `classification` anywhere (libraries, report packages).
+    None,
+    /// The document's own top-level `classification` object (a stored rule pack).
+    RulePackRoot,
 }
 
 /// The blocking values of the `classification` member, applied to every
@@ -419,107 +422,138 @@ fn classification_blocking() -> &'static [&'static str] {
     SCREENED_MEMBERS.iter().find(|(member, _)| *member == "classification").map(|(_, blocking)| *blocking).expect("classification is screened")
 }
 
-/// The structural screen of one document resolved from the store (review
-/// round 2, finding 2): every object at every depth (a wrapper, its records,
-/// array elements, every `provenance` and `provenance_record` beneath them) is
-/// judged by its own [`SCREENED_MEMBERS`]; nothing is inherited and no field
-/// hides another object's. Inside a rule pack's own `classification` object
-/// ([`admitted_classification`]) every string member is judged by the
-/// `classification` values whatever its key, as well as by its own member's.
-/// Returned as `<JSON pointer> <value>`, in document order; empty when
-/// nothing blocks. The whole document is screened before any of it is mapped
-/// into the manifest.
-pub(crate) fn screen_document(document: &Value) -> Vec<String> {
-    fn walk(value: &Value, pointer: &str, found: &mut Vec<String>) {
-        match value {
-            Value::Object(object) => {
-                for (key, child) in object {
-                    let at = format!("{pointer}/{}", pointer_token(key));
-                    if let (Some((_, blocking)), Some(status)) = (SCREENED_MEMBERS.iter().find(|(member, _)| member == key), child.as_str()) {
-                        if blocking.contains(&status) {
-                            found.push(format!("{at} {status}"));
-                        }
-                    }
-                    if let Some(members) = child.as_object().filter(|_| admitted_classification(object, key, child)) {
-                        for (member, inner) in members {
-                            let Some(status) = inner.as_str() else { continue };
-                            // A member with its own policy that already blocks is reported once, by the walk below.
-                            let own = SCREENED_MEMBERS.iter().find(|(screened, _)| screened == member).is_some_and(|(_, blocking)| blocking.contains(&status));
-                            if !own && classification_blocking().contains(&status) {
-                                found.push(format!("{at}/{} {status}", pointer_token(member)));
-                            }
-                        }
-                    }
-                    walk(child, &at, found);
-                }
-            }
-            Value::Array(items) => {
-                for (index, item) in items.iter().enumerate() {
-                    walk(item, &format!("{pointer}/{index}"), found);
-                }
-            }
-            _ => {}
-        }
-    }
-    let mut found = Vec::new();
-    walk(document, "", &mut found);
-    found
+/// The admitted classification object at `pointer`/`key`, if any: only the
+/// root's own `classification`, only under [`ClassificationExemption::RulePackRoot`].
+fn admitted<'a>(exemption: ClassificationExemption, pointer: &str, key: &str, child: &'a Value) -> Option<&'a Map<String, Value>> {
+    (exemption == ClassificationExemption::RulePackRoot && pointer.is_empty() && key == "classification").then(|| child.as_object()).flatten()
 }
 
-/// The disposition members of a stored document whose value is an array or an
-/// object (review round 6 note 4, narrowed in round 6b by the owner's
-/// decision): either could hide a blocking value, so the save refuses them as
-/// malformed rather than guess. A rule pack's own `classification` object
-/// ([`admitted_classification`]) is the one object admitted, and any array or
-/// object inside it is malformed; an object-valued `classification` anywhere
-/// else is malformed like any other. `null`, booleans and
-/// numbers are not refused (the library import stores them); they count as
-/// no public disposition and, for privacy members, as private. Returned as
-/// `<JSON pointer> is <JSON value kind>`.
-pub(crate) fn malformed_dispositions(document: &Value) -> Vec<String> {
-    fn kind(value: &Value) -> &'static str {
-        match value {
-            Value::Null => "null",
-            Value::Bool(_) => "a boolean",
-            Value::Number(_) => "a number",
-            Value::String(_) => "a string",
-            Value::Array(_) => "an array",
-            Value::Object(_) => "an object",
-        }
+fn kind(value: &Value) -> &'static str {
+    match value {
+        Value::Null => "null",
+        Value::Bool(_) => "a boolean",
+        Value::Number(_) => "a number",
+        Value::String(_) => "a string",
+        Value::Array(_) => "an array",
+        Value::Object(_) => "an object",
     }
-    fn walk(value: &Value, pointer: &str, found: &mut Vec<String>) {
-        match value {
-            Value::Object(object) => {
-                for (key, child) in object {
-                    let at = format!("{pointer}/{}", pointer_token(key));
-                    let screened = SCREENED_MEMBERS.iter().any(|(member, _)| member == key);
-                    let admitted = admitted_classification(object, key, child);
-                    if screened && (child.is_array() || child.is_object()) && !admitted {
-                        found.push(format!("{at} is {}", kind(child)));
+}
+
+/// `found` without repeats, in first-seen order.
+fn distinct(found: Vec<String>) -> Vec<String> {
+    let mut seen = std::collections::BTreeSet::new();
+    found.into_iter().filter(|item| seen.insert(item.clone())).collect()
+}
+
+fn blocking_walk(value: &Value, pointer: &str, exemption: ClassificationExemption, found: &mut Vec<String>) {
+    match value {
+        Value::Object(object) => {
+            for (key, child) in object {
+                let at = format!("{pointer}/{}", pointer_token(key));
+                if let (Some((_, blocking)), Some(status)) = (SCREENED_MEMBERS.iter().find(|(member, _)| member == key), child.as_str()) {
+                    if blocking.contains(&status) {
+                        found.push(format!("{at} {status}"));
                     }
-                    if let Some(members) = child.as_object().filter(|_| admitted) {
-                        for (member, inner) in members {
-                            // Screened members are reported by the walk below.
-                            let screened_member = SCREENED_MEMBERS.iter().any(|(screened, _)| screened == member);
-                            if !screened_member && (inner.is_array() || inner.is_object()) {
-                                found.push(format!("{at}/{} is {}", pointer_token(member), kind(inner)));
-                            }
+                }
+                if let Some(members) = admitted(exemption, pointer, key, child) {
+                    for (member, inner) in members {
+                        let Some(status) = inner.as_str() else { continue };
+                        // A member with its own policy that already blocks is reported once, by the walk below.
+                        let own = SCREENED_MEMBERS.iter().find(|(screened, _)| screened == member).is_some_and(|(_, blocking)| blocking.contains(&status));
+                        if !own && classification_blocking().contains(&status) {
+                            found.push(format!("{at}/{} {status}", pointer_token(member)));
                         }
                     }
-                    walk(child, &at, found);
                 }
+                // Below the root nothing is exempt.
+                blocking_walk(child, &at, ClassificationExemption::None, found);
             }
-            Value::Array(items) => {
-                for (index, item) in items.iter().enumerate() {
-                    walk(item, &format!("{pointer}/{index}"), found);
-                }
-            }
-            _ => {}
         }
+        Value::Array(items) => {
+            for (index, item) in items.iter().enumerate() {
+                blocking_walk(item, &format!("{pointer}/{index}"), ClassificationExemption::None, found);
+            }
+        }
+        _ => {}
     }
+}
+
+fn malformed_walk(value: &Value, pointer: &str, exemption: ClassificationExemption, found: &mut Vec<String>) {
+    match value {
+        Value::Object(object) => {
+            for (key, child) in object {
+                let at = format!("{pointer}/{}", pointer_token(key));
+                let screened = SCREENED_MEMBERS.iter().any(|(member, _)| member == key);
+                let admitted = admitted(exemption, pointer, key, child);
+                if screened && (child.is_array() || child.is_object()) && admitted.is_none() {
+                    found.push(format!("{at} is {}", kind(child)));
+                }
+                // Inside the admitted object no structure is exempt, whatever its key.
+                for (member, inner) in admitted.into_iter().flatten() {
+                    if inner.is_array() || inner.is_object() {
+                        found.push(format!("{at}/{} is {}", pointer_token(member), kind(inner)));
+                    }
+                }
+                malformed_walk(child, &at, ClassificationExemption::None, found);
+            }
+        }
+        Value::Array(items) => {
+            for (index, item) in items.iter().enumerate() {
+                malformed_walk(item, &format!("{pointer}/{index}"), ClassificationExemption::None, found);
+            }
+        }
+        _ => {}
+    }
+}
+
+/// The structural screen of one stored rule-pack document (review round 2,
+/// finding 2): every object at every depth (a wrapper, its records, array
+/// elements, every `provenance` and `provenance_record` beneath them) is
+/// judged by its own [`SCREENED_MEMBERS`]; nothing is inherited and no field
+/// hides another object's. In the document's own top-level `classification`
+/// object (the one the rule-pack schema defines) every string member is also
+/// judged by the `classification` values whatever its key. Returned as
+/// `<JSON pointer> <value>`, in document order; empty when nothing blocks.
+/// The whole document is screened before any of it is mapped into the
+/// manifest. [`screen_value`] is the same screen with no exemption.
+pub(crate) fn screen_document(document: &Value) -> Vec<String> {
     let mut found = Vec::new();
-    walk(document, "", &mut found);
-    found
+    blocking_walk(document, "", ClassificationExemption::RulePackRoot, &mut found);
+    distinct(found)
+}
+
+/// The disposition members of a stored rule-pack document whose value is an
+/// array or an object (review round 6 note 4, narrowed in round 6b by the
+/// owner's decision): either could hide a blocking value, so the save refuses
+/// them as malformed rather than guess. The document's own top-level
+/// `classification` object is the one object admitted, and any array or
+/// object inside it is malformed; an object-valued `classification` anywhere
+/// else is malformed like any other. `null`, booleans and numbers are not
+/// refused (the library import stores them); they count as no public
+/// disposition and, for privacy members, as private. Returned as
+/// `<JSON pointer> is <JSON value kind>`. [`malformed_values`] is the same
+/// check with no exemption.
+pub(crate) fn malformed_dispositions(document: &Value) -> Vec<String> {
+    let mut found = Vec::new();
+    malformed_walk(document, "", ClassificationExemption::RulePackRoot, &mut found);
+    distinct(found)
+}
+
+/// [`screen_document`] with no `classification` exemption: a stored library
+/// (W-6b) and a report package's request and model (W-18a (b1)).
+pub(crate) fn screen_value(value: &Value) -> Vec<String> {
+    let mut found = Vec::new();
+    blocking_walk(value, "", ClassificationExemption::None, &mut found);
+    distinct(found)
+}
+
+/// [`malformed_dispositions`] with no `classification` exemption: every
+/// array- or object-valued disposition member, `classification` included, at
+/// any depth.
+pub(crate) fn malformed_values(value: &Value) -> Vec<String> {
+    let mut found = Vec::new();
+    malformed_walk(value, "", ClassificationExemption::None, &mut found);
+    distinct(found)
 }
 
 #[cfg(test)]

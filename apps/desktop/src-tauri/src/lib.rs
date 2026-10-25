@@ -9857,3 +9857,230 @@ mod replace_confirmation_tests {
         fs::remove_dir_all(&root).unwrap();
     }
 }
+
+#[cfg(test)]
+mod independent_round1_review {
+    use super::*;
+    use report_package_save::{test_support::*, *};
+    use serde_json::json;
+
+    fn check(request: &Value, model: &Value) -> Result<AdmittedReportPackage, ReportPackageSaveCommandError> {
+        admit_report_package(save_request(request, model), &software(), &mut no_store)
+    }
+
+    #[test]
+    fn independent_blocked_disposition_matrix() {
+        let statuses = [
+            ("redistribution_status", vec!["protected_suspected", "rejected"]),
+            ("review_status", vec!["quarantined", "rejected"]),
+            ("privacy_class", vec!["protected_suspected", "quarantined", "rejected"]),
+            ("privacy_classification", vec!["protected_suspected", "quarantined", "rejected"]),
+            ("classification", vec!["protected_suspected", "quarantined", "rejected"]),
+            ("lifecycle_status", vec!["quarantined", "rejected"]),
+        ];
+        let sites = ["/report/report_sections/provenance_notes/0/review_probe", "/result_documents/0/result_envelope/review_probe", "/source_results/0/results/0/metadata", "/state_comparison_handoff_records/0/review_probe", "/audit_manifest/rule_pack_refs"];
+        let mut cases=0;
+        for (key, values) in statuses {
+            for value in values {
+                for site in sites {
+                    let m=model(); let mut r=desktop_request(&m);
+                    if site.ends_with("review_probe") { let (parent,key)=site.rsplit_once('/').unwrap(); r.pointer_mut(parent).unwrap()[key]=json!({}); }
+                    let target=r.pointer_mut(site).expect(site);
+                    *target=json!([{ "a/b~c": [{ "provenance": {key: value} }]}]);
+                    let err=check(&r,&m).unwrap_err();
+                    assert_eq!(err.code, PROTECTED_CONTENT_BLOCKED, "{site} {key} {value}");
+                    assert!(err.diagnostics.iter().any(|d|d.path.contains("a~1b~0c")));
+                    cases+=1;
+                }
+                let mut m=model(); m["nodes"][0]["review_probe"]=json!([{ "provenance": {key:value}}]);
+                let r=desktop_request(&m); assert_eq!(check(&r,&m).unwrap_err().code,PROTECTED_CONTENT_BLOCKED); cases+=1;
+            }
+        }
+        eprintln!("independent blocked cases: {cases}");
+    }
+
+    #[test]
+    fn independent_structured_dispositions_must_be_refused() {
+        let mut failures=Vec::new(); let mut cases=0;
+        for key in ["redistribution_status","review_status","privacy_class","privacy_classification","classification","lifecycle_status"] {
+            for value in [json!(["quarantined"]),json!({"value":"protected_suspected"})] {
+                for is_model in [false,true] {
+                    let mut m=model();
+                    if is_model {m["nodes"][0][key]=value.clone();}
+                    let mut r=desktop_request(&m);
+                    if !is_model {r["report"]["report_sections"]["provenance_notes"][0][key]=value.clone();}
+                    let result=check(&r,&m); cases+=1;
+                    match result {
+                        Err(err) if err.code==DISPOSITION_MALFORMED=>(),
+                        other=>failures.push(format!("model={is_model} {key} {value}: {}",match other {Ok(_)=>"ADMITTED".to_string(),Err(e)=>e.code})),
+                    }
+                }
+            }
+        }
+        eprintln!("structured cases: {cases}; failures: {failures:?}");
+        assert!(failures.is_empty(),"{}",failures.join("; "));
+    }
+
+    #[test]
+    fn independent_request_only_refs_all_carriers() {
+        let sites=["/report/report_sections/provenance_notes/0", "/result_documents/0/result_envelope", "/source_results/0/results/0", "/state_comparison_handoff_records/0", "/audit_manifest"];
+        for site in sites {
+            let m=model(); let mut r=desktop_request(&m);
+            r.pointer_mut(site).unwrap()["library_ref"]=json!({"library_kind":"material","library_id":" review-lib ","record_id":" review-record "});
+            for store_error in [false,true] {
+                let mut calls=0;
+                let mut lookup=|pid:&str,kind:&str,id:&str| {calls+=1; assert_eq!(pid,m["project"]["id"].as_str().unwrap());assert_eq!((kind,id),("material","review-lib"));
+                    if store_error {Err("review-store-error".to_string())} else {Ok(Some(json!({"material_records":[{"material_id":"review-record","review_status":"quarantined"}]})))} };
+                let e=admit_report_package(save_request(&r,&m),&software(),&mut lookup).unwrap_err();
+                assert_eq!(e.code,if store_error {LIBRARY_STORE_UNAVAILABLE}else{PROTECTED_CONTENT_BLOCKED});assert_eq!(calls,1);
+            }
+        }
+    }
+
+    #[test]
+    fn independent_order_binding_and_cancel() {
+        let mut m=model(); m["nodes"][0]["review_status"]=json!("quarantined");
+        let mut r=desktop_request(&m); r["report"]["report_context"]["software_name"]=json!("incorrect");
+        let mut args=save_request(&r,&m); args.screening.payload_sha256="sha256:unbound".to_string();
+        assert_eq!(admit_report_package(args,&software(),&mut no_store).unwrap_err().code,EVIDENCE_UNBOUND);
+        assert_eq!(check(&r,&m).unwrap_err().code,PROTECTED_CONTENT_BLOCKED);
+        let m=model(); let r=desktop_request(&m);
+        let admitted=check(&r,&m).unwrap(); let receipt=save_admitted_report_package(admitted,|_|None).unwrap();
+        assert_eq!((receipt.outcome.as_str(),receipt.byte_count),("cancelled",0));
+    }
+}
+
+#[cfg(test)]
+mod independent_round2_review {
+    use super::*;
+    use report_package_save::{test_support::*, *};
+    use export_disposition_screen::{screen_document,malformed_dispositions};
+    use serde_json::json;
+    fn check(payload: Value, is_model: bool, deep: bool) -> Result<AdmittedReportPackage,ReportPackageSaveCommandError> {
+        let mut m=model();
+        if is_model {m["nodes"][0]["review_probe"]=if deep {json!([{"a/b~c":[payload.clone()]}])}else{payload.clone()};}
+        let mut r=desktop_request(&m);
+        if !is_model {r["report"]["report_sections"]["provenance_notes"][0]["review_probe"]=if deep {json!([{"a/b~c":[payload]}])}else{payload};}
+        admit_report_package(save_request(&r,&m),&software(),&mut no_store)
+    }
+    #[test]
+    fn forged_pack_markers_cannot_hide_blocking_strings() {
+        let mut cases=0;
+        for key in ["redistribution_status","review_status","privacy_class","privacy_classification","classification","lifecycle_status","public_repository_policy","arbitrary"] {
+            for status in ["protected_suspected","quarantined","rejected"] {
+                for is_model in [false,true] {for deep in [false,true] {
+                    let payload=json!({"rule_pack_kind":"open_pipe_stress_rule_pack","classification":{key:status}});
+                    let result=check(payload,is_model,deep);
+                    // Round 2: the marker grants nothing here, so the classification object is malformed if no member blocks first.
+                    assert!(matches!(&result,Err(e) if e.code==PROTECTED_CONTENT_BLOCKED || e.code==DISPOSITION_MALFORMED),"{is_model} {deep} {key} {status}: {result:?}"); cases+=1;
+                }}
+            }
+        }
+        eprintln!("R2 forged-marker blocking-string cases: {cases}");
+    }
+    #[test]
+    fn structured_members_and_wrong_markers_refuse() {
+        let mut cases=0;
+        for key in ["redistribution_status","review_status","privacy_class","privacy_classification","classification","lifecycle_status"] {
+            for marker in [Value::Null,json!(true),json!("wrong")] {
+                for value in [json!({"value":"protected_suspected"}),json!(["quarantined"])] {
+                    for is_model in [false,true] {
+                        let p=json!({"rule_pack_kind":marker,key:value});
+                        assert!(matches!(check(p,is_model,true),Err(e) if e.code==DISPOSITION_MALFORMED));cases+=1;
+                    }
+                }
+            }
+        }
+        for key in ["redistribution_status","review_status","privacy_class","privacy_classification","classification","lifecycle_status","public_repository_policy","arbitrary"] {
+            for value in [json!({"value":"clear"}),json!(["clear"])] {
+                for is_model in [false,true] {
+                    let p=json!({"rule_pack_kind":"open_pipe_stress_rule_pack","classification":{key:value}});
+                    assert!(matches!(check(p,is_model,true),Err(e) if e.code==DISPOSITION_MALFORMED));cases+=1;
+                }
+            }
+        }
+        eprintln!("R2 structured / wrong-marker cases: {cases}");
+    }
+    #[test]
+    fn nested_classification_objects_must_be_refused_even_with_pack_markers() {
+        let mut failures=vec![];let mut cases=0;
+        for is_model in [false,true] {for deep in [false,true] {
+            let p=json!({"rule_pack_kind":"open_pipe_stress_rule_pack","classification":{"rule_pack_kind":"open_pipe_stress_rule_pack","classification":{"value":"clear"}}});
+            let result=check(p,is_model,deep);cases+=1;
+            match result {Err(e) if e.code==DISPOSITION_MALFORMED=>(),other=>failures.push(format!("model={is_model} deep={deep}: {}",match other {Ok(_)=>"ADMITTED".to_string(),Err(e)=>e.code}))}
+        }}
+        eprintln!("R2 nested-classification cases: {cases}; failures={failures:?}");assert!(failures.is_empty());
+    }
+    #[test]
+    fn classification_recursion_still_blocks_strings() {
+        let mut cases=0;
+        for depth in 1..=8 {for status in ["protected_suspected","quarantined","rejected"] {
+            let mut classification=json!({"arbitrary":status});
+            for _ in 0..depth {classification=json!({"rule_pack_kind":"open_pipe_stress_rule_pack","classification":classification});}
+            for is_model in [false,true] {
+                assert!(matches!(check(classification.clone(),is_model,true),Err(e) if e.code==PROTECTED_CONTENT_BLOCKED || e.code==DISPOSITION_MALFORMED));cases+=1;
+            }
+        }}
+        eprintln!("R2 recursive marker blocking cases: {cases}");
+    }
+    #[test]
+    fn committed_clear_library_and_rule_pack_fixtures_pass() {
+        // Rule packs with their root classification admitted; libraries with none.
+        let packs=[include_str!("../../../../fixtures/product_preview/invented_demo_rule_pack.json"),include_str!("../../../../examples/rule_packs/invented_demo.yaml")];
+        let libraries=[include_str!("../../../../fixtures/material/invented_material_library_valid.json"),include_str!("../../../../fixtures/component/invented_component_library_valid.json"),
+            include_str!("../../../../fixtures/component/invented_section_library_valid.json"),include_str!("../../../../fixtures/component/invented_section_component_library_valid.json"),
+            include_str!("../../../../fixtures/hanger/invented_hanger_library_valid.json")];
+        for text in packs {
+            let value:Value=serde_json::from_str(text).unwrap();
+            assert!(value["classification"].is_object());
+            assert!(malformed_dispositions(&value).is_empty(),"{:?}",malformed_dispositions(&value));
+            assert!(screen_document(&value).is_empty(),"{:?}",screen_document(&value));
+        }
+        for text in libraries {
+            let value:Value=serde_json::from_str(text).unwrap();
+            assert!(export_disposition_screen::malformed_values(&value).is_empty(),"{:?}",export_disposition_screen::malformed_values(&value));
+            assert!(export_disposition_screen::screen_value(&value).is_empty(),"{:?}",export_disposition_screen::screen_value(&value));
+        }
+        eprintln!("R2 committed clear library / rule-pack fixtures: {}",packs.len()+libraries.len());
+    }
+}
+
+#[cfg(test)]
+mod independent_round2_context {
+    use super::*;
+    use report_package_save::{test_support::*,*};
+    use serde_json::json;
+    /// Round 2 (the reviewer's context probe, now a regression): a forged
+    /// `rule_pack_kind` grants no exemption in a request provenance note or a
+    /// model node; the classification object is malformed.
+    #[test]
+    fn a_forged_rule_pack_marker_grants_nothing_in_request_or_model() {
+        for is_model in [false,true] {
+            let mut m=model();
+            if is_model {m["nodes"][0]["rule_pack_kind"]=json!("open_pipe_stress_rule_pack");m["nodes"][0]["classification"]=json!({"value":"clear"});}
+            let mut r=desktop_request(&m);
+            if !is_model {r["report"]["report_sections"]["provenance_notes"][0]["rule_pack_kind"]=json!("open_pipe_stress_rule_pack");r["report"]["report_sections"]["provenance_notes"][0]["classification"]=json!({"value":"clear"});}
+            let result=admit_report_package(save_request(&r,&m),&software(),&mut no_store);
+            let error=match result {Err(e)=>e,Ok(_)=>panic!("forged marker admitted in {}",if is_model {"model node"}else{"request provenance"})};
+            assert_eq!(error.code,DISPOSITION_MALFORMED);
+            assert!(error.diagnostics[0].path.ends_with("/classification"),"{}",error.diagnostics[0].path);
+        }
+    }
+    #[test]
+    fn genuine_marker_does_not_exempt_other_structured_dispositions() {
+        let mut cases=0;
+        for key in ["redistribution_status","review_status","privacy_class","privacy_classification","lifecycle_status"] {
+            for value in [json!({"value":"protected_suspected"}),json!(["quarantined"])] {
+                for is_model in [false,true] {
+                    let mut m=model();
+                    let v=json!({"rule_pack_kind":"open_pipe_stress_rule_pack",key:value});
+                    if is_model {m["nodes"][0]["review_probe"]=v.clone();}
+                    let mut r=desktop_request(&m);
+                    if !is_model {r["report"]["report_sections"]["provenance_notes"][0]["review_probe"]=v;}
+                    assert!(matches!(admit_report_package(save_request(&r,&m),&software(),&mut no_store),Err(e) if e.code==DISPOSITION_MALFORMED));cases+=1;
+                }
+            }
+        }
+        eprintln!("R2 genuine marker / other structured dispositions: {cases}");
+    }
+}

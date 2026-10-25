@@ -34,7 +34,8 @@
 use crate::command_ingress::Args;
 use crate::handoff_package_publish::{self as publish, PublishHooks, Published};
 use crate::export_disposition_screen::{
-    library_identity, malformed_dispositions, matching_library_records, own_or_provenance, screen_document, truthy_str, LibraryLookup,
+    library_identity, malformed_dispositions, malformed_values, matching_library_records, own_or_provenance, screen_document, screen_value, truthy_str,
+    LibraryLookup,
 };
 #[cfg(test)]
 use crate::export_disposition_screen::{pointer_token, SCREENED_MEMBERS};
@@ -832,8 +833,9 @@ fn library_refs(document: &Value, project_id: &str, lookup: &mut LibraryLookup<'
     let mut refusals = Vec::new();
     for ((kind, id), stored) in &stored_libraries {
         let Some(stored) = stored else { continue };
-        let found_blocking = screen_document(stored);
-        let found_malformed = malformed_dispositions(stored);
+        // A library has no exempt `classification` object (W-18a (b1) review r2).
+        let found_blocking = screen_value(stored);
+        let found_malformed = malformed_values(stored);
         let path = found.iter().find(|reference| &reference.kind == kind && &reference.id == id).map(|reference| reference.path.as_str()).unwrap_or("");
         if !found_blocking.is_empty() {
             refusals.push(blocked_record(path, &format!("{kind}:{id}"), "stored library", &found_blocking));
@@ -4056,5 +4058,22 @@ fn review5_residual_swap_can_move_a_nonempty_substitute() {
                 _ => panic!("{tag}: {:?}", codes(&result)),
             }
         }
+    }
+
+    #[test]
+    fn round2_nested_classification_in_real_rule_pack_must_be_malformed() {
+        let mut model=witness_model();
+        let mut pack: Value=serde_json::from_str(DEMO_RULE_PACK).unwrap();
+        pack["classification"]["rule_pack_kind"]=json!("open_pipe_stress_rule_pack");
+        pack["classification"]["classification"]=json!({"value":"clear"});
+        let hash=open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(&pack).unwrap().value;
+        pack["checksums"]["rule_pack_checksum"]["value"]=json!(hash);
+        model["rule_pack_refs"][0]["checksum"]["value"]=json!(hash);
+        let store=store("r2-nested-pack",&model,true);
+        crate::upsert_rule_pack(&Connection::open(&store.path).unwrap(),"project:slots","invented_demo_rule_pack",&pack).unwrap();
+        let state=save_state(&store,&model,"handoff_basis","b1b30000b1b30000b1b30000b1b30001").state;
+        let result=prepare(&store,&model,&state.state_id);
+        eprintln!("R2 real stored rule pack with nested classification: {:?}",codes(&result));
+        assert!(matches!(result,Err(d) if d.iter().any(|d| d.code==DISPOSITION_MALFORMED)));
     }
 }

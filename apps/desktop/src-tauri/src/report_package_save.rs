@@ -38,7 +38,7 @@ use crate::atomic_report_package_save::{self, AtomicSaveError};
 use crate::command_ingress::{Args, ArgsDecoding, ValueDecoder, REPORT_PACKAGE_VEC_EXPANSION};
 use crate::model_document_file::MAX_MODEL_DOCUMENT_BYTES;
 use crate::export_disposition_screen::{
-    malformed_dispositions, screen_dispositions_in, screen_document, DispositionDiagnostic as Diagnostic, LibraryLookup, PathStyle,
+    malformed_values, screen_dispositions_in, screen_value, DispositionDiagnostic as Diagnostic, LibraryLookup, PathStyle,
 };
 use crate::report_package_bridge::{self, ReportPackageRequest};
 use crate::solve_jobs::SolveJobError;
@@ -360,10 +360,13 @@ fn text_at<'a>(value: &'a Value, pointer: &str) -> Option<&'a str> {
 
 /// The disposition screens of §2.6 item 4 over both parsed values, each
 /// finding named by its JSON pointer under `/request` or `/model`:
-/// - the structural screen (W-6b's [`screen_document`] and
-///   [`malformed_dispositions`]): a blocking disposition member at any depth
-///   is `PROTECTED_CONTENT_BLOCKED`, an array or object disposition value is
-///   [`DISPOSITION_MALFORMED`] (it could hide a blocking value);
+/// - the structural screen (W-6b's, [`screen_value`] and [`malformed_values`],
+///   with no exemption: model documents carry rule-pack references only,
+///   `schemas/model.schema.yaml:117`, and the report projects safe references,
+///   `renderableReportInput.ts:416`): a blocking disposition member at any
+///   depth is `PROTECTED_CONTENT_BLOCKED`, and an array or object disposition
+///   value, `classification` included, is [`DISPOSITION_MALFORMED`] (it could
+///   hide a blocking value);
 /// - the store-resolved screen (W-6a's, [`screen_dispositions_in`]), with the
 ///   model project's store: a blocking record or stored library is
 ///   `PROTECTED_CONTENT_BLOCKED`, a store read error refuses, and an
@@ -372,7 +375,7 @@ fn screen_content(request: &Value, model: &Value, project_id: &str, lookup: &mut
     let roots = [("/request", request), ("/model", model)];
     let mut blocking = Vec::new();
     for (root, value) in roots {
-        for found in screen_document(value) {
+        for found in screen_value(value) {
             // `<pointer> <status>`; the blocking statuses contain no space.
             let (pointer, status) = found.rsplit_once(' ').expect("pointer and status");
             blocking.push(finding(
@@ -381,7 +384,7 @@ fn screen_content(request: &Value, model: &Value, project_id: &str, lookup: &mut
                 format!("The disposition `{status}` blocks the save; request human review of the record's disposition first."),
             ));
         }
-        for found in malformed_dispositions(value) {
+        for found in malformed_values(value) {
             let (pointer, kind) = [" is an array", " is an object"]
                 .iter()
                 .find_map(|suffix| found.strip_suffix(suffix).map(|pointer| (pointer, &suffix[4..])))
@@ -1044,25 +1047,24 @@ mod tests {
         assert_eq!(error.diagnostics[0].path, "/model/nodes/0/classification");
     }
 
-    /// An object shaped as a rule pack keeps its `classification` object, but
-    /// every string member in it is screened whatever its key, and a nested
-    /// list or object in it is malformed.
+    /// Round 2: the report package grants no `classification` exemption,
+    /// whatever marker an object carries; a rule-pack-shaped classification
+    /// object is malformed, clear or not.
     #[test]
-    fn a_rule_pack_classification_object_is_screened_member_by_member() {
+    fn a_rule_pack_shaped_classification_object_is_malformed_in_a_report_package() {
         let pack = |classification: Value| move |r: &mut Value| {
             r["report"]["report_sections"]["provenance_notes"][0]["invented_pack"] =
                 json!({"rule_pack_kind": "open_pipe_stress_rule_pack", "classification": classification});
         };
         let clear = json!({"privacy_class": "private", "redistribution_status": "private_only", "public_repository_policy": "quarantine_required",
             "protected_content_review_required": true, "private_values_allowed": true});
-        assert!(admit(edited(pack(clear.clone()))).is_ok());
         let mut blocking = clear.clone();
         blocking["public_repository_policy"] = json!("quarantined");
-        let (code, paths) = refusal(admit(edited(pack(blocking))));
-        assert_eq!((code.as_str(), paths[0].as_str()), (PROTECTED_CONTENT_BLOCKED, "/request/report/report_sections/provenance_notes/0/invented_pack/classification/public_repository_policy"));
-        let mut nested = clear;
+        let mut nested = clear.clone();
         nested["public_repository_policy"] = json!({"value": "quarantined"});
-        let (code, paths) = refusal(admit(edited(pack(nested))));
-        assert_eq!((code.as_str(), paths[0].as_str()), (DISPOSITION_MALFORMED, "/request/report/report_sections/provenance_notes/0/invented_pack/classification/public_repository_policy"));
+        for classification in [clear, blocking, nested] {
+            let (code, paths) = refusal(admit(edited(pack(classification))));
+            assert_eq!((code.as_str(), paths[0].as_str()), (DISPOSITION_MALFORMED, "/request/report/report_sections/provenance_notes/0/invented_pack/classification"));
+        }
     }
 }
