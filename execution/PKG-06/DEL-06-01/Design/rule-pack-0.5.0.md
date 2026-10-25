@@ -1,9 +1,9 @@
 # Rule-pack format 0.5.0: stress categories, load-case mappings and required load cases (W-17)
 
 **Basis:** `origin/main` at `146abe1389` (2026-10-25), with a code survey at
-that commit. Designed, with two Codex design reviews (§7). Slice A (format,
-validation, evaluation, run path, fixtures) is implemented; the desktop is
-slice B; the report change (§6) waits for the owner's W-18b ruling. Standard claim fence applies (claims taxonomy per DEC-081).
+that commit. Designed, with two Codex design reviews (§7), and implemented:
+slice A (format, validation, evaluation, run path, fixtures) and slice B
+(desktop, demo pack 0.3.0, the report's load case per outcome; §6a). Standard claim fence applies (claims taxonomy per DEC-081).
 
 **Requirement.** PRD §17.2 lists what a rule pack shall support, including
 "required load cases", "stress categories" and "load-case mappings". FR-RULE-001
@@ -185,8 +185,8 @@ labelled as such (FR-RULE-007; DEL-06-01 REQ-06-01-007, REQ-06-01-011).
    - **Count scope is shown.** Beside the unchanged headline, the run panel
      says: "Counts are per check and load case or combination; one check can
      contribute more than once." DEL-06-03 Design `pack-aggregate-incomplete.md`
-     says the same of its counts. The report's rule-check section gets the same
-     note with the report change (§6).
+     says the same of its counts. The report's rule-check section carries the
+     same note (§6).
    - **Consumers keyed by `check_id`** now see it repeated once per basis. The
      run panel shows each outcome with its category and load case. The report
      is §6.
@@ -306,18 +306,24 @@ In `features/rule-packs/` (DEL-07-03; `RulePackManagerPanel.tsx`,
 
 ## 6. Effects outside DEL-06
 
-- **Reports: deferred.** The intended change is for the report's projection
-  (`renderableReportInput.ts` `userRuleChecks`) to carry `basis_ref` on each
-  outcome, and for the renderer's rule-check section
-  (`core/reporting/report_renderer`, `UserRuleCheckOutcome`) to show it beside
-  the check id with the count-scope note. A new member changes the 2.0.0 report
-  package's bytes, and the owner is ruling (W-18b O-A) on how DEC-028's one
-  version treats a member added at a head. The change therefore lands in a
-  later slice, which the coordinator releases after that ruling.
-  - **Until then**, the report lists a check once per load case or combination
-    without naming it. Each outcome keeps its own status, so failures are still
-    listed and counted. The report package's rule-check binding (aggregate and
-    pack identity) is unaffected either way.
+- **Reports.** The report's projection (`renderableReportInput.ts`
+  `userRuleChecks`) carries each outcome's `basis_ref`. The renderer's
+  `UserRuleCheckOutcome` (`core/reporting/report_renderer`) gains an optional
+  `basis_ref`. The rule-check section shows it in a "Load case or combination"
+  column, with "load case not recorded" when absent, and shows the count-scope
+  note after the headline. An empty `basis_ref.ref_id` is refused
+  (`USER-RULE-CHECK-BASIS-REF-INVALID`).
+  - **Package version.** The member is added inside the 2.0.0 report package.
+    The owner ruled W-18b O-A as V1 (2026-10-25: "I approve your recommended
+    options for the three W-18b decisions."). Under that reading the report
+    package stays at 2.0.0, and DEC-028's "one version" admits a member added
+    at a head, which the reader at that same head accepts.
+  - The `report_package` reader needed no source change. A regression test
+    reads a 2.0.0 package with and without `basis_ref`. The package's
+    rule-check binding (aggregate and pack identity) is unchanged.
+  - The reports lane's W-11 design (`DEL-08-01 Design
+    exact-route-report-sections.md`) records this shape. This change edits
+    only the rule-check hunks of the shared files.
 - **Model document, analysis runs, handoff:** unchanged. They cite packs by id,
   version and checksum.
 - **Solver:** unchanged. No product_physics file is touched.
@@ -351,6 +357,41 @@ In `features/rule-packs/` (DEL-07-03; `RulePackManagerPanel.tsx`,
   `38e5b73d5b`.
 - **Selector uniqueness** covers 37 files, 55 envelopes and 20,856
   basis-bearing rows, the connector corpus included.
+
+## 6b. As built in slice B
+
+- **Manager.** `App.tsx` passes the current solved result to the Rule Pack
+  Manager, which offers its rows' selectors. New packs are drafted at `0.5.0`
+  (`rulePackService.ts`). The §2.9 findings and the version refusal are shown
+  by code, and a stored `0.4.0` pack offers delete
+  (`RulePackManagerPanel.format.test.tsx`).
+- **Run panel.**
+  - The caller selector is gone, and outcomes are keyed by (check, basis).
+  - A run refused by validation shows its finding codes.
+  - The policy line reads
+    `solver_selectors=N; solver_selectors_missing=M; required_load_cases=K`.
+  - In the TS outcome type, `category_ref` and `basis_ref` are optional; the
+    runner always sends both.
+- **Demo pack** `0.2.0` → `0.3.0`, checksum
+  `c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f`.
+  - Re-derived by their writers: the desktop and applier emission goldens, the
+    state-comparison golden, the handoff witness and the parity cases.
+  - Restamped with the function their tests check, because they have no
+    writer:
+    - `invented_every_slot_model` and `invented_annotated_model`;
+    - the rule-pack reference resolution vectors (the "version differs"
+      vector now edits to `0.4.0`);
+    - `examples/models/invented/fake_rule_pack_toy_model.json`.
+- **Replaced test assertions.** Each was replaced by the equivalent check of
+  the new behaviour:
+  - In `e2e/r2-smoke.spec.ts`, `solver_result_refs=0` became
+    `solver_selectors_missing=0`.
+  - The caller dropdown checks became the authored selector text, plus a check
+    that no caller control exists.
+  - The display-units picker checks went with the picker; the selector
+    preview's unit conversion is still checked.
+  - The retained-precision notice test covers every row a selector can bind,
+    since rows without a basis cannot be bound.
 
 ## 7. Review findings resolved
 

@@ -69,3 +69,13 @@ failed and one incomplete check therefore headlined `USER_RULE_FAILED`.
 - Desktop (`RuleCheckRunPanel.test.tsx`, "FR-RULE-003 pack headline"): failed
   and blocked; a failed aggregate with a blocked check, including the status
   line, the lifted aggregate and the held run; blocked only; all passed.
+
+## Counts under rule-pack format 0.5.0
+
+From format 0.5.0 (DEL-06-01 Design `rule-pack-0.5.0.md` §2.7), the run holds
+one outcome per check and load case or combination. The rule above applies
+unchanged over those outcomes, and n and m count outcomes. A check that fails on
+one load case and is incomplete on another counts once failed and once blocked.
+The headline text is unchanged. The run panel and the rendered report show
+beside it: "Counts are per check and load case or combination; one check can
+contribute more than once."
