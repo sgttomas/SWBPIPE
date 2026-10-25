@@ -21,10 +21,10 @@ from tests.verifiers import compatibility as v
 ROOT = Path(__file__).resolve().parents[1]
 SUCC = c.PREVIEW_PHYSICS_RETAINED_CONTRACT_ID
 PINNED = {
-    "sparse_interactive": ("2527351c49f3c928882dbeda961c0a3e34cb26cbfe00457e7af6d71c6f0bb119",
-                           "5d1faa58971f43063cfcd4277ee0f4dab5d6601bb83ec4330f616b767e829136", [25, 69, 3, 1, 15]),
-    "dense_scrutiny": ("fd0c430ca4bfae895851c735207d3424d8d5c835a9d2bd5743cf012e577e1eba",
-                       "42fba5d63668f917ed23b0e9b88e946a8b0ba7670ddb8580783ae0397e0d2ca5", [25, 69, 3, 1, 15]),
+    "sparse_interactive": ("cf053309e8048ae013dc5388d1115399ff89cf493eb2e36772500a3c6985a6e5",
+                           "bd64548d321575ab27d11b94c2e258b75665e31d7428639b476729164ce57bcc", [25, 69, 3, 1, 15 + 12]),
+    "dense_scrutiny": ("f8078ee2c82ba370ab04591af49ed12c48fda5d88a54a75b0725fbdde317d884",
+                       "d8b82e5a1e5449bcb06f2d0a76b0f5102d4778e9fef6f72859fffde256f61bec", [25, 69, 3, 1, 15 + 12]),
 }
 MODES = sorted(PINNED)
 NOTICE = "Retained-precision recovery is unavailable for this load case. Its published rows keep their ordinary values, standing and diagnostics."
@@ -544,7 +544,7 @@ def test_each_class_maps_to_its_refusal():
 @pytest.mark.parametrize("mode", MODES)
 def test_classification_summary_counts_validated_classes(mode):
     source, invocation = milestone(mode)
-    # T4-U4b: the member's 15 derived σ⁺, σ⁻ and τ_v,max rows are not covered.
+    # T4-U4b: the member's 15 derived σ⁺, σ⁻ and τ_v,max rows are not covered; W-7: so are its 12 global end rows.
     relative, absolute, input_derived, non_quantity, not_covered = PINNED[mode][2]
     case_id = invocation["request"]["model"]["load_cases"][0]["id"]
     expected = [{"case_id": case_id, "relative_verified": relative, "absolute_verified": absolute, "interval_bindable": 0,
@@ -586,8 +586,8 @@ def test_classification_summary_counts_validated_classes(mode):
 
 def test_d_u7_4_forms_python_side_standing_and_summary():
     """RV94 S-1: on both D-U7-4 forms Python, given the invocation and the requested refs, stands
-    numerically_eligible and its summary is Current (69 absolute and, since T4-U4b, 15 not-covered rows withheld:
-    84). TS's side (needs_recompute, the not-Current 112) is pinned in TS. With other requested refs Python reads needs_recompute and the
+    numerically_eligible and its summary is Current (69 absolute and, since T4-U4b, 15 not-covered rows withheld,
+    with W-7's 12 not-covered global end rows: 96). TS's side (needs_recompute, the not-Current 124) is pinned in TS. With other requested refs Python reads needs_recompute and the
     not-Current summary, so the summary never says Current when the standing does not."""
     cases, docs = shared_cases()
     entry = next(e for e in cases["declared_differences"] if e["id"] == "D-U7-4:ts_requires_live_native_capture")
@@ -597,7 +597,7 @@ def test_d_u7_4_forms_python_side_standing_and_summary():
             source, context, refs = apply_case(form, docs[fid])
             assert c.numerical_use_standing(source, refs, context) == "numerically_eligible", form["label"]
             summary = c.classification_summary(source, context, refs)
-            assert summary == expected_summary(source, current=True) and summary[0]["withheld"] == 69 + 15 and summary[0]["absolute_verified"] == 69 and summary[0]["not_covered"] == 15, form["label"]
+            assert summary == expected_summary(source, current=True) and summary[0]["withheld"] == 69 + 15 + 12 and summary[0]["absolute_verified"] == 69 and summary[0]["not_covered"] == 15 + 12, form["label"]
             other = [{"ref_type": "load_case", "ref_id": "other"}]
             assert c.numerical_use_standing(source, other, context) == "needs_recompute"
             assert c.classification_summary(source, context, other) == expected_summary(source) and summary != expected_summary(source)

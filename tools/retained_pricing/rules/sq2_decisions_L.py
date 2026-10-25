@@ -40,10 +40,14 @@ O10_TYPED_PATCHES = list(globals().get("O10_TYPED_PATCHES", [])) + W1_L5_PATCHES
 import re as _rl_re
 _RL_SRC = open(os.path.join(os.environ["SQ2_SNAP"], "core/product_physics/src/retained_product.rs"), encoding="utf-8").read()
 _RL = [int(v) for v in _rl_re.findall(r"^const FAILED_MEMBER_ROWS: usize = (\d+);$", _RL_SRC, _rl_re.M)]
-if len(_RL) != 1 or _RL[0] not in (51, 51 + 15):
-    raise SystemExit(f"U4B-RL: route L's per-member row count is not the reviewed 51 or 66: {_RL}")
+# W7-RL (W-7, DEL-04-01 Design global-end-actions.md; retained-pricing-rules.md §8.20): every straight member and realized
+# bend also publishes its twelve global end rows on every ordinary run (the failed manifest carries them as not-covered
+# placeholders after the maximum): 66 + 12 = 78 (FAILED_MEMBER_ROWS).
+if len(_RL) != 1 or _RL[0] not in (51, 51 + 15, 51 + 15 + 12):
+    raise SystemExit(f"U4B-RL: route L's per-member row count is not the reviewed 51, 66 or 78: {_RL}")
 if _RL[0] != 51:
-    _rpm, _why = _RL[0], "U4B-RL: route L's per-member rows, 51 + 15 derived (FAILED_MEMBER_ROWS)"
+    _rpm, _why = _RL[0], ("U4B-RL: route L's per-member rows, 51 + 15 derived (FAILED_MEMBER_ROWS)" if _RL[0] == 66 else
+                          "U4B-RL/W7-RL: route L's per-member rows, 51 + 15 derived + 12 global end (FAILED_MEMBER_ROWS)")
     O10_TYPED_PATCHES = list(O10_TYPED_PATCHES) + [
         ("g3lib.py", "P=7 * n + 51 * m + 8 * g + 3, R0=7 * n + 51 * m + g + 3,",
          f"P=7 * n + {_rpm} * m + 8 * g + 3, R0=7 * n + {_rpm} * m + g + 3,", _why),

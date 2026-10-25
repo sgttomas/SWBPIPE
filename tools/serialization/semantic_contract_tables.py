@@ -32,6 +32,12 @@ derived from it is regenerated here, never edited by hand:
           recognized. After a partial or repeated edit of a pinned file, restore the
           consumers to HEAD and run repin once, after every pinned file is final.
 
+  apply-w7  the W-7 global end-action signatures on pressure-2 and preview-physics-2 (before
+          the U4b rows), their basis vocabulary, the preview combination policies' linear
+          state kinds and the result schemas' closed basis enums;
+          then apply-u4b and derive carry them to the inheriting tables. Idempotent;
+          `--check` reports a difference instead of writing.
+
 Typical sequence after editing pressure-2 (or merging another edit of it):
 
   python3 tools/serialization/semantic_contract_tables.py apply-u4b
@@ -143,7 +149,8 @@ SIGNED = {
     "pipe_toroidal_radial_surface_stress_v1", "support_reaction_component_v2", "constant_effort_support_applied_load",
     "connector_generalized_translation_v1", "connector_generalized_rotation_v1", "connector_generalized_force_v1",
     "connector_generalized_moment_v1", "connector_endpoint_force_v1", "connector_endpoint_moment_v1",
-    "connector_pressure_force_v1", "connector_effective_axial_force_v1", "connector_tie_rod_force_v1"}
+    "connector_pressure_force_v1", "connector_effective_axial_force_v1", "connector_tie_rod_force_v1",
+    "element_global_end_force_v1", "element_global_end_moment_v1"}
 RECOMPUTED = {"displacement_magnitude", "support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2"}
 
 # §2.5 and §2.8: the limitation texts.
@@ -258,8 +265,10 @@ def u4b_tables(files: dict) -> None:
     hashes = {}
     for name, exact in (("pressure_2", True), ("preview_physics_2", False)):
         table = json.loads(files[TABLE % name], object_pairs_hook=collections.OrderedDict)
-        rows = [r for r in table["rows"] if r["kind"] not in U4B_KINDS]
-        rows = marked(rows + u4b_rows(exact, highest(rows) + 1))
+        # W-7's rows follow the U4b rows and keep their numbers (apply-w7).
+        w7 = [r for r in table["rows"] if r["kind"] in W7_KINDS]
+        rows = [r for r in table["rows"] if r["kind"] not in U4B_KINDS and r["kind"] not in W7_KINDS]
+        rows = marked(rows + u4b_rows(exact, highest(rows) + 1) + w7)
         table["rows"] = rows
         table["source_signature_count"] = len(rows)
         table["source_kind_count"] = len({r["kind"] for r in rows})
@@ -310,6 +319,88 @@ def u4b_tables(files: dict) -> None:
         at = next(i for i, text in enumerate(limitations) if text.startswith(SOURCE_DISCLOSURE_AFTER))
         limitations.insert(at + 1, SOURCE_DISCLOSURE)
     files[TABLE % "pressure_source_1"] = table_text(table)
+
+
+# ---------------------------------------------------------------- apply-w7
+# W-7 (DEL-04-01 Design global-end-actions.md): member end actions in global coordinates. Six
+# signatures (Fx, Fy, Fz in N; Mx, My, Mz in N*m) on the two ordinary tables whose producers
+# publish member rows (pressure-2, preview-physics-2), appended and numbered after each table's
+# highest id (apply-u4b keeps them after its rows and numbers U4b without them). The
+# inheriting tables take them through apply-u4b (preview-physics-retained-1) and derive
+# (physics-retained-1). pressure-source-1 does not: a source-recovery publication omits the
+# rows (`global_end_rows_published`). Signed linear; the combination policies of
+# preview-physics-2 and preview-physics-retained-1 list both kinds among their linear state kinds. Idempotent; `--check` reports a difference.
+
+W7_FORCE = "element_global_end_force_v1"
+W7_MOMENT = "element_global_end_moment_v1"
+W7_KINDS = (W7_FORCE, W7_MOMENT)
+W7_BASIS = "rotated_from_published_element_local_end_actions_v1"
+W7_WALL_BASIS = W7_BASIS + ";axial_is_pipe_wall_action"
+
+
+def w7_rows(first: int) -> list:
+    out = []
+    for kind, unit, family, names in ((W7_FORCE, "N", "force", ("Fx", "Fy", "Fz")),
+                                      (W7_MOMENT, "N*m", "moment", ("Mx", "My", "Mz"))):
+        for name in names:
+            out.append(collections.OrderedDict([
+                ("signature_id", "supported-source-%03d" % (first + len(out))), ("kind", kind), ("unit", unit),
+                ("component", name), ("source_physical_semantic_dimension", family), ("derivative_target_dimension", family),
+                ("category", "physical_quantity"), ("family", family), ("canonical_disposition", "exported_quantity"),
+                ("legacy_declared_dimension", None),
+                ("legacy_run_creation_admission", "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED"),
+                ("governing_ratio_eligible", False), ("combination_algebra", algebra(kind))]))
+    return out
+
+
+def w7_tables(files: dict) -> None:
+    for name, bases in (("pressure_2", [W7_BASIS, W7_WALL_BASIS]), ("preview_physics_2", [W7_BASIS])):
+        table = json.loads(files[TABLE % name], object_pairs_hook=collections.OrderedDict)
+        rows = [r for r in table["rows"] if r["kind"] not in W7_KINDS]
+        rows = rows + w7_rows(highest(rows) + 1)
+        table["rows"] = rows
+        table["source_signature_count"] = len(rows)
+        table["source_kind_count"] = len({r["kind"] for r in rows})
+        extend(table["canonical_metadata_vocabulary"]["basis"]["enum"], bases)
+        policy = table.get("combination_policy")
+        if policy is not None:
+            extend(policy["linear_state_kinds"], W7_KINDS)
+        files[TABLE % name] = table_text(table)
+    # preview-physics-retained-1 states its own combination policy: the same linear state kinds.
+    table = json.loads(files[TABLE % "preview_physics_retained_1"], object_pairs_hook=collections.OrderedDict)
+    extend(table["combination_policy"]["linear_state_kinds"], W7_KINDS)
+    files[TABLE % "preview_physics_retained_1"] = table_text(table)
+
+
+def w7_schemas(files: dict) -> None:
+    """The closed metadata basis enums of the result schemas: both W-7 bases where the exact
+    vocabulary is closed (PressureResultMetadata, ResultMetadata), the plain basis on the
+    preview branch (PreviewPhysicsResultMetadata)."""
+    for path, edits in (("schemas/results_pressure_2.v0.3.schema.json", (("PressureResultMetadata", [W7_BASIS, W7_WALL_BASIS]),)),
+                        ("schemas/results.v0.3.schema.yaml", (("ResultMetadata", [W7_BASIS, W7_WALL_BASIS]),
+                                                              ("PreviewPhysicsResultMetadata", [W7_BASIS])))):
+        schema = json.loads(files[path], object_pairs_hook=collections.OrderedDict)
+        for name, bases in edits:
+            extend(schema["$defs"][name]["properties"]["basis"]["enum"], bases)
+        files[path] = schema_text(schema, files[path])
+
+
+W7_PATHS = [TABLE % n for n in ("pressure_2", "preview_physics_2", "preview_physics_retained_1")] + [
+    "schemas/results_pressure_2.v0.3.schema.json", "schemas/results.v0.3.schema.yaml"]
+
+
+def apply_w7(check: bool) -> int:
+    current = {p: (PROJECT / p).read_text(encoding="utf-8") for p in W7_PATHS}
+    files = dict(current)
+    w7_tables(files)
+    w7_schemas(files)
+    stale = [p for p in W7_PATHS if files[p] != current[p]]
+    for path in W7_PATHS:
+        state = "unchanged" if path not in stale else ("differs" if check else "written")
+        if path in stale and not check:
+            (PROJECT / path).write_text(files[path], encoding="utf-8")
+        print(f"{path}: {state}; sha256 {hashlib.sha256(files[path].encode('utf-8')).hexdigest()}")
+    return 1 if check and stale else 0
 
 
 # ---------------------------------------------------------------- schemas
@@ -613,6 +704,8 @@ def main(argv: list[str]) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     apply_parser = sub.add_parser("apply-u4b")
     apply_parser.add_argument("--check", action="store_true")
+    w7_parser = sub.add_parser("apply-w7")
+    w7_parser.add_argument("--check", action="store_true")
     derive_parser = sub.add_parser("derive")
     derive_parser.add_argument("--check", action="store_true")
     repin_parser = sub.add_parser("repin", description=(
@@ -625,6 +718,8 @@ def main(argv: list[str]) -> int:
     args = parser.parse_args(argv)
     if args.command == "apply-u4b":
         return apply_u4b(args.check)
+    if args.command == "apply-w7":
+        return apply_w7(args.check)
     if args.command == "derive":
         return derive(args.check)
     return repin(args.from_rev, args.dry_run)

@@ -34,7 +34,7 @@ CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PROFILE = "product_preview_retained_w1a_v2"
 DEFINITION_ID = "RP-PREPARED-ORDINARY-DUAL-v1"
 DEFINITION_HASH = "64ec69b842d6278323aa2ab2e140e999db52eb28e4a9965a567a90b04e228b41"
-TABLE_HASH = "4da08f964605a5080b38c0ea9793731b33720070db001a4c7f1c4f9fbcaeb76f"
+TABLE_HASH = "d95e6acfe79f0e08d84fe7a6a71acbd18b38ff70809614227640ee0a0c16ff60"
 # B2-C (CONTRACT §8 row 4, REVISION_02 §0): DEF-C's id and H, the preview table's second formation definition.
 COMBINATION_DEFINITION_ID = "RP-PREPARED-COMBINATION-DUAL-v1"
 COMBINATION_DEFINITION_HASH = "a9219849d4dfecfc4e9529c6b648eb21cdf2e9872f2d681cc0c26cdfd2bdf6f1"
@@ -52,7 +52,7 @@ EXACT_DEFINITION_ID = "RP-PREPARED-EXACT-DUAL-v1"
 # T4-U6: DEF-E states zero mill tolerance and lists the reduced-basis rows and both headlines; the table follows the
 # inherited pressure-2 table's per-basis rows.
 EXACT_DEFINITION_HASH = "bd3c7de76f4ba2d1f7a72894c173e9c449e27f318359de648f912a192f7cb031"
-EXACT_TABLE_HASH = "ff7f3159d69fca32acfdea00f6b07a7c90a168f77fd264e45c997b053daf3de7"
+EXACT_TABLE_HASH = "92a364559e116f4e4a903ff114e1a530916b9761486bd2441aeb9c3711f290bb"
 RECEIPT_POLICY = "M03-INTEGRITY-MP-v2"
 FACADE_POLICY = "RP-FACADE-SI-v2"
 RECEIPT_BINDINGS = {"canonicalization": "openpipestress_jcs_ijson_v1", "method": METHOD, "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
@@ -1491,8 +1491,11 @@ REQUESTED_MODE_SIGN = ("mode_code 1=sparse_interactive, 2=dense_scrutiny; the ca
 NONQUANTITY_KINDS = {"linear_solver_mode_basis", REQUESTED_MODE_KIND, "modulus_basis_record", "combination_modulus_basis_record"}
 # C3:178-181: hull projection covers quantity rows except observed ancillary rows, support norms and maxima.
 # T4-U4b §4.1: the not-covered derived kinds are never hull-projected (no projection outcome).
+# W-7 (DEL-04-01 Design global-end-actions.md, GLOBAL_END_ROWS_NOT_COVERED): the global end-action rows are not-covered
+# rows, each the rotation of its member's successor end rows; never hull-projected.
+GLOBAL_END_KINDS = frozenset({"element_global_end_force_v1", "element_global_end_moment_v1"})
 HULL_EXCLUDED = NONQUANTITY_KINDS | {"support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2", "pipe_elastic_normal_stress_maximum_v2",
-                                     "element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum"}
+                                     "element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum"} | GLOBAL_END_KINDS
 NONQUANTITY = {"linear_solver_mode_basis", REQUESTED_MODE_KIND, "modulus_basis_record", "combination_modulus_basis_record"}
 INPUT_KINDS = {"pipe_lame_hoop_stress_v2", "pipe_lame_radial_stress_v2", "pipe_section_pressure_hoop_stress", "pipe_section_pressure_longitudinal_stress", "constant_effort_support_applied_load", "component_user_stress_multiplier_review", "constant_effort_user_input_review", "spring_hanger_user_input_review"}
 FORCE = {"element_local_axial_force", "element_local_shear_force_y", "element_local_shear_force_z", "pipe_wall_axial_force_v2", "pipe_effective_axial_force_v2", "reaction_resultant", "support_reaction_force_magnitude_v2"}
@@ -1533,6 +1536,7 @@ def _row_kind(row):
     if k in STRESS and u in ("Pa", "MPa"): return "stress"
     # T4-U4b §4.1 (REQ-001 "every other row kind"): the derived kinds are explicitly not covered.
     if k in DERIVED_KINDS: return "not_covered"
+    if k in GLOBAL_END_KINDS: return "not_covered"
     return "not_covered"
 
 
