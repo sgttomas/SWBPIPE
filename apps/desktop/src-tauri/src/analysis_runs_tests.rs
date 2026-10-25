@@ -3707,7 +3707,7 @@ fn sqlite_allocations_for_an_oversized_id_are_admitted_before_sqlite_loads_it() 
             let memory = PoolReadMemory::unseeded(&small);
             let (outcome, peak) = sqlite_peak_during(|| list(&memory));
             assert!(outcome.as_ref().unwrap_err().starts_with(refusal), "{kind} list: {outcome:?}");
-            assert!(peak < (BIG as u64) / 4, "{kind} list: SQLite never loaded the id (peak {peak})");
+            assert!(peak <= SQLITE_PAGE_CACHE_SLACK, "{kind} list: SQLite never loaded the id; its peak {peak} is within the page-cache residual");
             // Under a large pool: listed, SQLite's peak within the working set.
             let memory = PoolReadMemory::unseeded(&large_pool);
             let (outcome, peak) = sqlite_peak_during(|| list(&memory));
@@ -3725,7 +3725,7 @@ fn sqlite_allocations_for_an_oversized_id_are_admitted_before_sqlite_loads_it() 
             let memory = PoolReadMemory::unseeded(&small);
             let (outcome, peak) = sqlite_peak_during(|| delete(&memory));
             assert!(outcome.as_ref().unwrap_err().starts_with(refusal), "{kind} delete: {outcome:?}");
-            assert!(peak < (BIG as u64) / 4, "{kind} delete: SQLite never loaded the id (peak {peak})");
+            assert!(peak <= SQLITE_PAGE_CACHE_SLACK, "{kind} delete: SQLite never loaded the id; its peak {peak} is within the page-cache residual");
             let table = if kind == "run" { "analysis_runs" } else { "model_states" };
             assert_eq!(row_count(&path, table), 1, "{kind}: nothing was deleted");
             let memory = PoolReadMemory::unseeded(&large_pool);
@@ -3762,21 +3762,48 @@ fn sqlite_allocations_for_an_oversized_id_are_admitted_before_sqlite_loads_it() 
 
 /// SQLite's page cache, which stays within the accepted residual estimate
 /// (DEL-14-01 Design §3; Codex r8 measured up to 2.48 MB of cache): an
-/// interval's SQLite peak may exceed what the read holds by at most this.
+/// interval's SQLite peak may exceed what the read holds by at most this, and
+/// a command that never loads a large value peaks within it.
 const SQLITE_PAGE_CACHE_SLACK: u64 = 3 << 20;
 
 /// Runs `command` under `memory` and checks that in every interval between
 /// changes of its reservations SQLite's own peak stayed within what it held
 /// then (plus the page cache): nothing is loaded by SQLite after the lease that
-/// priced it was released. Returns the outcome and SQLite's overall peak.
+/// priced it was released. Returns the outcome and SQLite's overall peak, the
+/// largest of the intervals' (each reservation change resets SQLite's
+/// high-water mark, so no single reading spans the command).
 fn within_held_reservations<T>(memory: &PoolReadMemory<'_>, what: &str, command: impl FnOnce() -> T) -> (T, u64) {
     stored_read::release_probe::sqlite_start();
-    let (outcome, peak) = sqlite_peak_during(command);
+    let outcome = command();
     let intervals = stored_read::release_probe::sqlite_take(memory.held());
     for (index, (sqlite, held)) in intervals.iter().enumerate() {
         assert!(*sqlite <= held + SQLITE_PAGE_CACHE_SLACK, "{what}: interval {index}: SQLite peaked at {sqlite} bytes while {held} were held ({intervals:?})");
     }
+    let peak = intervals.iter().map(|(sqlite, _)| *sqlite).max().unwrap_or(0);
     (outcome, peak)
+}
+
+#[test]
+fn the_interval_probe_reports_a_known_sqlite_allocation_in_any_interval() {
+    // Codex r9: the probe returned only the last interval's peak (0 for a 4 MiB allocation).
+    in_own_process("the_interval_probe_reports_a_known_sqlite_allocation_in_any_interval", || {
+        const KNOWN: u64 = 4 << 20;
+        let pool = pool_of(64 << 20);
+        let memory = PoolReadMemory::unseeded(&pool);
+        let (_, peak) = within_held_reservations(&memory, "the calibration", || {
+            let held = memory.reserve("the calibration's allocation", KNOWN).unwrap();
+            // SAFETY: a fresh SQLite allocation, freed once, never read or written.
+            unsafe {
+                let block = rusqlite::ffi::sqlite3_malloc64(KNOWN);
+                assert!(!block.is_null());
+                rusqlite::ffi::sqlite3_free(block);
+            }
+            drop(held);
+            // Later intervals allocate nothing.
+            drop(memory.reserve("a later interval", 1024).unwrap());
+        });
+        assert!(peak >= KNOWN, "the 4 MiB allocation is reported (peak {peak})");
+    });
 }
 
 #[test]
@@ -3811,7 +3838,7 @@ fn a_project_save_time_that_is_not_an_integer_is_refused_by_name_without_sqlite_
         let (outcome, peak) = within_held_reservations(&memory, "Save Model State", || model_states::save_state_in_store_with(&path, save, &hooks, &memory).map(|_| ()));
         let error = outcome.unwrap_err();
         assert!(error.starts_with(&refusal), "{error}");
-        assert!(peak < (BIG as u64) / 4, "Save Model State: SQLite never loaded the time (peak {peak})");
+        assert!(peak <= SQLITE_PAGE_CACHE_SLACK, "Save Model State: SQLite never loaded the time; its peak {peak} is within the page-cache residual");
         drop(memory);
         // Record Run with a stale base.
         let mut stale = request(&solved, "Run");
@@ -3824,7 +3851,7 @@ fn a_project_save_time_that_is_not_an_integer_is_refused_by_name_without_sqlite_
         let (outcome, peak) = within_held_reservations(&memory, "Record Run", || record_run_in_store_with(&path, stale, &run_hooks, &memory).map(|_| ()));
         let error = outcome.unwrap_err();
         assert!(error.starts_with(&refusal), "{error}");
-        assert!(peak < (BIG as u64) / 4, "Record Run: SQLite never loaded the time (peak {peak})");
+        assert!(peak <= SQLITE_PAGE_CACHE_SLACK, "Record Run: SQLite never loaded the time; its peak {peak} is within the page-cache residual");
         drop(memory);
         assert_eq!(small.pool_status().reserved_bytes, 0);
         assert_eq!(row_count(&path, "model_states"), 1);
