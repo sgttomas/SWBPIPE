@@ -173,7 +173,9 @@ keys, including `angle` (§5); the rest still applies.
        sent that way is refused by the batch.
      - A `project.units` that is not an object is
        `OP-PROJECT-UNIT-DOCUMENT-INVALID`; an absent map is created holding
-       the one key.
+       the one key. The desktop never presents a document without the map
+       (§3, "The map is required at open"), so this applies only to callers
+       of the applier outside the desktop.
      - The `stress` key takes the catalog's pressure-dimension entries (`Pa`,
        `MPa`, `psi`), as the desktop's dimension match does.
 8. **What a change after creation affects.** The edit changes one string in
@@ -250,6 +252,36 @@ keys, including `angle` (§5); the rest still applies.
       Queue button.
     - A key holding a legacy alias (`C`) is shown as stored, with a note that
       a new choice must be a catalog symbol.
+- **The map is required at open.** Model document 0.7.0's schema allows
+  `project.units` to be absent (`Project` requires only `id`), but the desktop
+  refuses such a document by name, `MODEL-FILE-SHAPE` at `project.units`, on
+  every path into a session:
+  - Open Model Document (`modelDocumentShape.ts`);
+  - Open local project, in the browser preview and natively
+    (`projectService.ts`);
+  - Open saved state (`useModelStateHistory.ts`).
+  The bundled demo and the blank builders always carry all seven keys. Undo,
+  redo, applied operations and Save as new project start from a session
+  model. Missing individual keys remain allowed.
+- **Entity editors with a missing key** refuse by name; nothing is assumed
+  (`features/project-units/missingProjectUnit.ts`).
+  - **Fields with their own unit selector:** the unit starts unselected, and
+    Add, Review and Apply are disabled. The notice reads: "Missing project
+    unit: <key>. This field has no default unit, and nothing is assumed.
+    Choose its unit here, or set <key> in Project units on the Project page."
+    A unit the user picks there lifts the refusal and is kept.
+  - **Centre of gravity**, which has no selector, reads: "Missing project unit:
+    <key>. This field takes its unit from project.units.<key>, and nothing is
+    assumed. Set <key> in Project units on the Project page before editing
+    it."
+  - **Node positions without `length`** show the hard lock above, and picking a
+    unit does not lift it.
+  - **The table** refuses to queue such a cell: "Not queued: <column> of <id>
+    has no unit." followed by the field's notice.
+  - The former defaults `m`, `rad`, `N` and `Pa` are removed from the property
+    inspector, the component draft, the viewport and the table.
+  - The load fields' fixed defaults `K` and `m/s^2` do not come from
+    `project.units` and are unchanged here.
 - **The display selector is unchanged** and keeps its note.
 
 ## 4. Tests
@@ -296,6 +328,13 @@ keys, including `angle` (§5); the rest still applies.
   and without nodes. It shows the notices, offers the fix with
   `before: not_present`, and leaves the document unchanged. A model change
   during validation queues nothing and asks for a re-queue.
+- **Vitest, entity editors and open paths.** A node, pipe, component and load
+  each open on a document with every key, unchanged, and with each relevant
+  key missing: no throw, the named refusal, no assumed unit and nothing queued
+  (`model-tree/missingProjectUnitEditors.test.tsx`). A document without the
+  map is refused by name when opened as a model document
+  (`modelDocumentOpen.test.tsx`), as a local project in each runtime, and as a
+  saved state (`compareStates.test.tsx`).
 - **Applier, angle.** A rotational imposed displacement is accepted on a new
   blank document.
 - **e2e.** Specs that click "New blank" gain the dialog's Create click.
