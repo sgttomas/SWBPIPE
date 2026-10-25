@@ -35,6 +35,28 @@ def test_repin_never_edits_frozen_or_historical_trees():
                         "tools/retained_pricing/base/text_args.g4.json"]
 
 
+def test_repin_routes_the_desktop_run_carriers_to_their_writers():
+    tool = _tool()
+    carriers = [
+        "fixtures/persistence/recorded_run_witness.json",
+        "fixtures/persistence/recorded_run_witness_rule_packs.json",
+        "fixtures/persistence/s2_unresolved_rule_pack_run.json",
+        "fixtures/persistence/transient_run_input.json",
+        "fixtures/persistence/transient_run_input_rule_packs.json",
+    ]
+    others = ["fixtures/persistence/invented_persisted_preview_project.json",
+              "fixtures/persistence/model_state_record_witness.json"]
+    editable, found, excluded = tool.classify(carriers + others)
+    assert found == carriers and editable == others and excluded == []
+    for carrier in carriers:
+        writers = [w for prefix, w in tool.CARRIER_WRITERS.items() if carrier.startswith(prefix)]
+        assert writers == [tool.PERSISTENCE_RUN_WRITERS], carrier
+        assert carrier in writers[0], carrier
+    # The witnesses are emitted from the TypeScript-built inputs, so those writers come first.
+    order = tool.PERSISTENCE_RUN_WRITERS
+    assert order.index("recordedRunParity") < order.index("analysis_runs_tests")
+
+
 def test_repin_dry_run_at_head_lists_nothing(capsys):
     assert _tool().repin(["HEAD"], dry_run=True) == 0
     assert "0 file edit(s) listed, none written" in capsys.readouterr().out
