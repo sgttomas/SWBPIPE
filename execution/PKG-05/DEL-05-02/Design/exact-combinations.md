@@ -171,8 +171,11 @@ In precedence order:
    factor-magnitude tolerance would pass. The accumulator cannot overflow to
    inf.
 
-   **Pre-existing PF issue.** PF's constant-effort gate has the same tolerance
-   weakness. That gap is reported separately and is not changed here.
+   **The shared check.** The exact dyadic unit-sum check is one shared helper
+   in `load_case_algebra`. The numerical lane adds it when it fixes PF's
+   constant-effort gate, which had the same tolerance weakness (Agent 0,
+   2026-10-25). This gate calls that helper and builds no second
+   implementation. Implementing this slice waits for the helper to land.
 
 `NONLINEAR_COMBINATION_REQUIRES_SOLVE` and
 `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` cannot arise on EX, which refuses
