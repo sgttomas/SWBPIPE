@@ -302,8 +302,11 @@ the desktop component-creation, inspector and self-weight features):
 
   On PF and EX, a hand-written nodal `weight` force or moment solves bit for
   bit like the same `occasional` load (independent scrutiny of #1608, round
-  1). It differs only in its category, so it is classified with weight in
-  every case and combination.
+  1). It differs only in its category, so its primitive category stays
+  weight in every case and in every admitted combination (PF combinations; EX
+  still refuses combinations by name). The primitive category does not
+  classify the load for any design code; rule-pack stress categories and
+  load-case mappings remain unimplemented.
 - **Wrench.** One node-targeted `weight` force primitive along the gravity
   axis (value ±W), then one `weight` moment primitive (`rotation_x|y|z`,
   dimension moment) per nonzero component of r × F, in x, y, z order. Both
