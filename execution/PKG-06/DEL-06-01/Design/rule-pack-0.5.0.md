@@ -101,7 +101,7 @@ labelled as such (FR-RULE-007; DEL-06-01 REQ-06-01-007, REQ-06-01-011).
    to its category (its **bases**), in the mapping's order.
 5. **Solver inputs select a row within a basis.** In 0.5.0
    `solver_result_ref` is `{result_kind, entity_ref, location?, component?,
-   section_basis?}` and `result_id` is removed.
+   section_basis?, tie_rod?}` and `result_id` is removed.
    - For each basis, the input binds the one envelope row whose `basis_ref`
      equals the basis, whose `kind` and `entity_ref` equal the selector's, and
      whose `metadata.location`, `metadata.component` and section basis equal
@@ -110,10 +110,28 @@ labelled as such (FR-RULE-007; DEL-06-01 REQ-06-01-007, REQ-06-01-011).
      of `metadata.basis` (`nominal_section` or `reduced_section`); the runner
      reads it with one parser shared with the producer's convention, and a
      `metadata.basis` with a malformed token matches nothing.
+   - `tie_rod` names one rod of a connector's `tie_rods` record. A
+     `connector_tie_rod_force_v1` row carries its rod only in its id, so the
+     match uses the result reader's existing binding of a rod row id to its
+     rod (`core/reporting/result_export/src/connector_evidence.rs`
+     `tie_rod_row_tail`, `is_tie_rod_row_id`), shared rather than copied. Two
+     rods of one connector otherwise publish rows that the other members
+     cannot separate (`fixtures/results/pressure_v3_connector_reader_corpus.json`,
+     `load:U5A`, `component:C-J`, rods `yp` and `ym`).
+   - **Eligibility gates are unchanged.** Every matched row passes the same
+     gates a bound row passes today, before its value is used: the run's
+     mechanics qualification (`qualify_rule_mechanics_with_context`) and the
+     per-row refusal (`semantic_contract::rule_binding_refusal`, which refuses
+     retained rows classified `AbsoluteVerified` or `NotCovered`). A refusal is
+     recorded for that input on that basis, with its reason, and that basis is
+     incomplete.
    - Rows without `basis_ref` are never selected.
-   - A regression test asserts that, in the committed result fixtures of both
-     routes, every row that has a `basis_ref` is selected by exactly one
-     selector within its basis.
+   - A regression test asserts that, in every committed result and witness
+     envelope (`fixtures/results/`, `validation/witness/`), every row that has
+     a `basis_ref` is selected by exactly one selector within its basis,
+     including the connector reader corpus. The review of this design found
+     one collision group in 22,630 basis-bearing rows (the tie rods above) and
+     none once `tie_rod` is a member.
    - No row: the input is unsupplied for that basis
      (`RULE_SOLVER_RESULT_ROW_MISSING`). More than one row:
      `RULE_SOLVER_RESULT_ROW_AMBIGUOUS`, also unsupplied. Neither is a pass.
@@ -138,30 +156,46 @@ labelled as such (FR-RULE-007; DEL-06-01 REQ-06-01-007, REQ-06-01-011).
    - Either makes every check whose category maps that load case
      `RULE_INPUTS_INCOMPLETE` for that basis, with the finding naming it. A
      check is never evaluated on a basis it cannot bind.
-7. **Outcomes: one per check, with its bases.** The run result keeps one
-   `CheckOutcome` per check, so the pack aggregate (FR-RULE-003; DEL-06-03
-   Design `pack-aggregate-incomplete.md`) and the report's per-check projection
-   (`renderableReportInput.ts` `userRuleChecks`) are unchanged in shape.
-   - The outcome adds `category_ref` and `basis_outcomes`: for each basis, its
-     `basis_ref`, status, computed and limit values, bound inputs and findings.
-   - The check's status is the worst of its bases by the existing rank
-     (incomplete above failed above checked). A check is checked only if every
-     basis is checked.
-   - The check's `computed_value` and `limit_value` are those of the first
-     basis, in mapping order, that has the check's status.
-   - The check's `bound_inputs` list each input once: supplied only if supplied
-     in every basis; a missing input is listed once however many bases lack it.
-   - `schemas/rule_check_run_result.schema.json` gains the two members.
+7. **Outcomes: one per check and basis.** The run result holds one
+   `CheckOutcome` for each check on each of its bases, in check order and then
+   mapping order.
+   - Each outcome keeps today's members (`check_id`, status, computed and limit
+     values, relation, bound inputs, findings, diagnostic codes), all for that
+     basis alone, and adds `category_ref` and `basis_ref`. Nothing is merged
+     across bases, so no value, input or finding is shown for a basis it did
+     not come from.
+   - The pack aggregate is unchanged in rule (FR-RULE-003; DEL-06-03 Design
+     `pack-aggregate-incomplete.md`): it ranks incomplete above failed above
+     checked over all outcomes. Its counts now count outcomes, so a check that
+     fails on one load case and is incomplete on another is counted once
+     failed and once blocked, and its failure stays visible under the
+     INCOMPLETE headline. The headline text is unchanged; "check(s)" there
+     counts checks on their load cases.
+   - A check with no solver inputs is evaluated on each of its bases like any
+     other; its outcomes differ only by basis.
+   - `schemas/rule_check_run_result.schema.json` gains `category_ref` and
+     `basis_ref` on `CheckOutcome`.
+   - **Consumers keyed by `check_id`** now see it repeated once per basis. The
+     run panel shows each outcome with its category and load case. The
+     report's projection (`renderableReportInput.ts` `userRuleChecks`) carries
+     `basis_ref` on each check, and the renderer's rule-check section
+     (`core/reporting/report_renderer`, `UserRuleCheckOutcome`) shows it beside
+     the check id. This is the only report change; the report package's
+     rule-check binding (aggregate and pack identity) is unaffected.
 8. **Units are unchanged.** Each basis converts its bound values to the
    declared units exactly as a single evaluation does today (B2/B3
    normalization in `rule_check_runner`).
    - **Interval mode.** A verified bound (`SolverResultBound`) names its input
-     and its basis; a bound without a basis is refused. Only tests use bounds
-     today.
+     and its basis and applies to that basis only; a bound without a basis is
+     refused. Only tests use bounds today.
+   - **Cost.** Rows are indexed once per run by basis, kind and entity. The
+     number of evaluations is the sum over checks of their mapped bases, which
+     the pack's own size bounds; v0.1 sets no separate work limit.
 9. **Static validation of the new members** (blocking findings, each named):
    - unknown references (a mapping's category or load case, a check's
      category): `RULE_PACK_REFERENCE_UNRESOLVED`;
-   - duplicate ids or duplicate `basis_ref`: `RULE_PACK_DUPLICATE_ID`;
+   - duplicate ids, a duplicate `basis_ref`, or the same required load case
+     twice in one mapping: `RULE_PACK_DUPLICATE_ID`;
    - a category with no mapping or more than one, or a required load case in no
      mapping: `RULE_PACK_MAPPING_INCOMPLETE`.
    Whether a named load case exists in a model is a run-time question (§2.6),
@@ -229,7 +263,16 @@ In `features/rule-packs/` (DEL-07-03; `RulePackManagerPanel.tsx`,
   - one basis missing (`RULE_REQUIRED_LOAD_CASE_MISSING`) or unsolved makes
     the check incomplete while its other bases are still reported;
   - an ambiguous selector and a missing row are incomplete, never pass;
-  - the pack aggregate follows FR-RULE-003 over the per-check statuses;
+  - the pack aggregate follows FR-RULE-003 over the outcomes, and a check that
+    fails on one basis and is incomplete on another shows both in the panel
+    and the report;
+  - a subtraction and a range-envelope combination as bases;
+  - a check with no solver inputs, a load case shared by two categories, and a
+    duplicate reference within one mapping (refused statically);
+  - a bound applied to one basis does not affect another;
+  - a retained row that `rule_binding_refusal` refuses is refused on its basis
+    and never bound;
+  - two tie rods of one connector are selected separately;
   - a single-basis pack gives the same computed value and status as the same
     check bound by row id before the change.
 - **Desktop.** Manager editors and validation; the run panel shows each check's
@@ -245,10 +288,26 @@ In `features/rule-packs/` (DEL-07-03; `RulePackManagerPanel.tsx`,
 
 ## 6. Effects outside DEL-06
 
-- **Reports** (`report_renderer`, `renderableReportInput.ts`, report package
-  bindings): no change in this item. They project one status per check, which
-  remains correct. Showing each check's bases in the report is a reports-lane
-  follow-up.
+- **Reports:** the rule-check section shows each outcome's load case (§2.7).
+  `renderableReportInput.ts` and the renderer's rule-check section change by
+  that one member; the report package's rule-check binding does not. The
+  reports lane is told of the change through the coordinator.
 - **Model document, analysis runs, handoff:** unchanged. They cite packs by id,
   version and checksum.
 - **Solver:** unchanged. No product_physics file is touched.
+
+## 7. Review findings resolved
+
+The Codex design review of `b1d55e38ea` found these; the design above resolves
+them:
+1. **Tie rods could not be selected separately (blocking).** `tie_rod` joins
+   the selector, through the reader's existing rod-row binding; the uniqueness
+   regression covers the connector corpus (§2.5).
+2. **A rolled-up check status hid a known failure (blocking).** One outcome per
+   check per basis replaces the roll-up, so the existing aggregate counts the
+   failure and the report shows it with its load case (§2.7, §6).
+3. **Representative values and merged inputs were underspecified.** With
+   per-basis outcomes nothing is merged (§2.7).
+4. **Binding refusals had to be kept explicitly.** Every matched row passes the
+   existing qualification and `rule_binding_refusal` gates, per input and basis
+   (§2.5), with tests (§5).
