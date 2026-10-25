@@ -64,7 +64,8 @@ every route. Standard claim fence applies (claims taxonomy per DEC-081).
    (§1.3).
 2. **The fixture writer.** Writing the coverage fixture through
    `pressure_v3_formulation_basis_with_source` would miss those three strings.
-   §2.2 adds a composing seam that the producer itself uses.
+   §2.2 generates the fixture from the public producer itself, on invented
+   models.
 3. **The renderer input.** `RenderableReportInput` is
    `report_renderer::RenderableReportInput`
    (`core/reporting/report_renderer/src/lib.rs:154-163`), not
@@ -275,32 +276,38 @@ exact-route string contains "acceptance". The only non-ASCII character in the
 
 ### 2.2 The coverage fixture and its writer
 
-- **Seam.** `core/product_physics/src/lib.rs` gains
-  `pub(crate) const CERTIFIED_RECOVERY_LIMITATIONS: [&str; 2]`, the two
-  statements of `lib.rs:1206-1207`, moved there rather than copied, and
-  `pub(crate) fn exact_formulation_basis(load_state: bool, connectors: bool,
-  realized_bends: bool, selected: bool) -> FormulationBasis`. The seam composes
-  §1.3 items 1-6 and then appends `CERTIFIED_RECOVERY_LIMITATIONS` (item 7).
-  `formulation_basis_for_model_with_source` returns the seam's basis unchanged
-  on the exact arm. On the other arm it appends the same constant to
-  `preview_formulation_basis()`. The shared `extend` (`lib.rs:1205-1208`) is
-  removed. **The recovery statements therefore enter each route's list exactly
-  once, from one constant**, and the fixture writer sees exactly what the
-  producer publishes. This refactor is behaviour-preserving; the existing
-  corpus-currency tests and `source_receipt/pressure_source_context_tests.rs:174-230`
-  pin it.
-- **Writer.** A test in `core/product_physics/src/exact_route_limitations_tests.rs`,
-  `exact_route_limitations_fixture_is_current`, enumerates the whole domain of
-  the seam: `selected` ∈ {false (`pressure-2`), true (`pressure-source-1`)} ×
-  `load_state` × `connectors` × `realized_bends`, 16 lists. It writes, in this
-  order, `fixtures/reports/exact_route_limitations.json`:
+- **Producer, not a seam.** No product source changes: `lib.rs` and
+  `exact_admission.rs`, whose bytes retained pricing pins, are unchanged. The
+  fixture is generated from the public producer the desktop and the runner use
+  (`run_linear_static_preview_value_with_mode`), on invented models, so it holds
+  exactly what the producer publishes.
+- **Writer.** An integration test, `core/product_physics/tests/exact_route_limitations.rs`
+  `exact_route_limitations_fixture_is_current`, runs one invented model for each
+  shape the producer emits, 10 lists: `pressure-2` × `load_state` ×
+  `connectors` × `realized_bends` (8), and `pressure-source-1` with neither a
+  connector nor a bend, without and with the load/reference-state group (2).
+  The models are committed invented requests, or copies of them patched inline
+  with an added connector tail. Each envelope must state its intended shape:
+  its identity, its load/reference-state evidence, its connector records and
+  its curved-bend count. The test writes, in this order,
+  `fixtures/reports/exact_route_limitations.json`:
   `{schema_version: "1.0.0", generator: "<test path>::exact_route_limitations_fixture_is_current",
   lists: [{semantic_contract_id, load_reference_states, objective_connectors,
-  realized_bends, reachable, limitations}], strings: [<the 19 distinct strings,
-  sorted by code point>]}`.
-  `reachable` is false for the six `pressure-source-1` lists with a connector or
-  a bend: the source family admits no components, so the producer never selects
-  such a model. The table covers them anyway; they add no string.
+  realized_bends, limitations}], strings: [<the 19 distinct strings, sorted by
+  code point>]}`. The 10 lists carry all 19 strings.
+- **Six shapes are never emitted.** The producer does not emit
+  `pressure-source-1` for a model with a connector or a realized bend. Source
+  recovery declines each by name (`source_recovery.rs:807-814`, with the
+  component-family refusal at `:874-880` behind them), and the case publishes on
+  the ordinary `pressure-2` route (`lib.rs:3198-3214`). The fixture therefore
+  has no such list (revision 5 listed 16, six of them unreachable). The guard
+  `pressure_source_1_is_never_emitted_with_a_connector_or_a_realized_bend` (same
+  file) adds a connector, a bend or both to the retained-source control, without
+  and with the load/reference-state group. Each of the six asks for source
+  recovery. The test asserts the named decline, a `pressure-2` envelope with
+  that shape's fixture list, no `pressure-source-1` string, and, on a load-state
+  case, the not-joined diagnostic. If the producer ever emits such a list, the
+  guard fails, and the fixture and the table must grow.
 - **Stale fails.** The test compares its output with the committed bytes and
   fails on any difference. `OPENPIPESTRESS_WRITE_EXACT_ROUTE_LIMITATIONS=<path>`
   writes the file instead, as the recorded-run witness does
@@ -308,11 +315,11 @@ exact-route string contains "acceptance". The only non-ASCII character in the
 - **Against real envelopes.** The same test checks that every published list in
   the committed exact corpora (§1.3) equals one fixture list.
 - **Recovery once.** The same file has `certified_recovery_statements_enter_once`.
-  For each of the 16 seam lists, each committed exact corpus list and a
-  preview-physics-2 envelope, it checks that each recovery statement occurs
-  exactly once and that the pair is last. For an exact model of each reachable
-  shape, it checks that `formulation_basis_for_model_with_source` equals the
-  seam's basis, so the pair is never appended a second time.
+  The recovery pair is the last two statements of a produced list. For each of
+  the 10 produced lists, each committed exact corpus list, a committed
+  preview-physics-2 envelope and the producer's run of a pressure-free model, it
+  checks that each recovery statement occurs exactly once and that the pair is
+  last. The public `preview_formulation_basis()` carries neither statement.
 - **Table test.** `features/report/exactReportLimitations.test.ts` reads the
   fixture and checks that the table's digests are exactly the digests of
   `strings` (no missing and no extra entry), and that each statement equals its
@@ -1370,7 +1377,7 @@ committed exact corpora below the gate.
 
 | Slice | Content | Size | Persistence / data boundary |
 |---|---|---|---|
-| **(a) Rust producers, renderer and the statement table** | The `exact_formulation_basis` seam with the recovery statements appended once, the fixture writer and the committed fixture (§2.2). `exactReportLimitations.ts` and its test, which writes `exact_report_statements.json`, and the Rust table that embeds it (§3.5); the TypeScript module is imported by nothing until (b). The renderer's `exact_route` (with the admission-binding check and the composed standing line, §3.2), its exact-limitation check, and `library_references`, in `assemble_report_sections`, so HTML and PDF both emit them. Render and emit tests, including byte-identity when absent. In `report_package`: the row suffix in `expected_report_result_rows`, the dormant item 9 and the public `exact_sections` projection (§3.5), the runner-profile refusal in the producer and the reader (§3.5), the `AdmittedSet` type, the crate-private admitted-set variants on their forwarding graph, and the graph scan with its negative test (§5.5), and both parity vector files. Hosted-CI routing | L (~1.9k lines with tests, plus the generated fixtures and vectors; revision 4: ~1.8k) | None. Numerical meaning untouched. Package and report bytes unchanged for every current input |
+| **(a) Rust producers, renderer and the statement table** | The fixture writer on the public producer, its guard and the committed fixture (§2.2); no product source changes. `exactReportLimitations.ts` and its test, which writes `exact_report_statements.json`, and the Rust table that embeds it (§3.5); the TypeScript module is imported by nothing until (b). The renderer's `exact_route` (with the admission-binding check and the composed standing line, §3.2), its exact-limitation check, and `library_references`, in `assemble_report_sections`, so HTML and PDF both emit them. Render and emit tests, including byte-identity when absent. In `report_package`: the row suffix in `expected_report_result_rows`, the dormant item 9 and the public `exact_sections` projection (§3.5), the runner-profile refusal in the producer and the reader (§3.5), the `AdmittedSet` type, the crate-private admitted-set variants on their forwarding graph, and the graph scan with its negative test (§5.5), and both parity vector files. Hosted-CI routing | L (~1.9k lines with tests, plus the generated fixtures and vectors; revision 4: ~1.8k) | None. Numerical meaning untouched. Package and report bytes unchanged for every current input |
 | **(b) Desktop exact sections and admission, behind the gate** | `exactReportAdmission.ts` (§3.1); the exact path of `buildRenderableReportInput` (admission, limitations, profile reference, binding, load/reference line, headlines); the row suffix in `reportResultRows`; `RenderedReportPanel.tsx:171` at surface level, the panel's admission and its pre-IPC re-check; the request builder's split, its pre-IPC re-check and `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS`; the native render's step 0 (`report_render_exact.rs`, `RENDER_ADMITTED_EXACT_CONTRACTS` empty, `REPORT-RENDER-ROUTE-NOT-ADMITTED`) with its witness set and graph scan (§3.6, §5.5); the native source binding (§3.6): the job's custody digests and `custody_binding`, `deliveredIntakeText`, the resubmitted texts, their priced parses, the native standing, the save's source and model equalities and the render's re-derivation; the `rendered-report` disclosure template; still-refused tests, including the production native render's refusal of a genuine exact result; the witness and substitute requests, the in-crate witness and production-refusal tests (§5.5) and the direct-native substitution tests (§7). The DEL-04-07 memory-budget updates (§8). Texts A.1 G2 and G5 | L (~2.4k, plus the witness requests; revision 4: ~2.2k) | None before opening. The webview cells refuse exact results, and the native render (step 0) and the package's Rust boundary (item 0) refuse every input that names an exact identity, so no production path reaches an exact output. The job registry keeps 65 bytes of digest metadata per job, released with custody. The admission and the native binding are an output gate with new priced parses, so they get targeted regression checks and independent scrutiny |
 | **(c) FR-REP-003 on every route** | Material, section, component and support records under one provenance predicate; library references and finding diagnostics; callers pass the findings; the schema check of representative records (§7); regenerated witnesses and witness requests; the memory-budget figures re-measured. Texts A.1 G1, G3 and G4 | M (~0.8k, plus regenerated witnesses) | **Data boundary**: new private content in the open pressure-free report and package |
 
@@ -1383,10 +1390,11 @@ native render's admitted set, a few lines).
 ## 7. Verification
 
 **Slice (a).**
-- Rust unit (`core/product_physics/src/exact_route_limitations_tests.rs`):
+- Rust integration (`core/product_physics/tests/exact_route_limitations.rs`):
   - the fixture is current;
   - every committed exact corpus list equals a fixture list;
   - the recovery statements enter once (§2.2);
+  - no `pressure-source-1` list with a connector or a realized bend is emitted (§2.2);
   - the existing `pressure_source_context_tests.rs` and corpus-currency tests
     pass unchanged.
 - vitest `features/report/exactReportLimitations.test.ts`:

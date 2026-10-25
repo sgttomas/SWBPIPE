@@ -1,7 +1,7 @@
 // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §2.2, §2.3 and §7,
 // slice (a)): the exact-route statement table against the producer's coverage
-// fixture (`fixtures/reports/exact_route_limitations.json`, written by
-// `core/product_physics/src/exact_route_limitations_tests.rs`), its digest
+// fixture (`fixtures/reports/exact_route_limitations.json`, written from the
+// public producer by `core/product_physics/tests/exact_route_limitations.rs`), its digest
 // keying, its verbatim statements and the source-paragraph omission, its fail-
 // closed refusal and the claims check. It writes the table's Rust form,
 // `fixtures/reports/exact_report_statements.json`, and fails when that file is
@@ -42,7 +42,6 @@ type CoverageList = {
   load_reference_states: boolean;
   objective_connectors: boolean;
   realized_bends: boolean;
-  reachable: boolean;
   limitations: string[];
 };
 type Coverage = { schema_version: string; generator: string; lists: CoverageList[]; strings: string[] };
@@ -89,7 +88,10 @@ function strings(value: unknown, out: string[] = []): string[] {
 describe("exact-route statement table (W-11 slice (a))", () => {
   it("covers exactly the coverage fixture's strings, keyed by the SHA-256 of their UTF-8 bytes", async () => {
     expect(coverage.schema_version).toBe("1.0.0");
-    expect(coverage.lists).toHaveLength(16);
+    // The ten shapes the producer emits: the six pressure-source-1 shapes with
+    // a connector or a realized bend are never emitted, because source recovery
+    // refuses both (§2.2).
+    expect(coverage.lists).toHaveLength(10);
     expect(coverage.strings).toHaveLength(19);
     const fixtureDigests = await Promise.all(coverage.strings.map(producerStringSha256));
     const tableDigests = EXACT_REPORT_STATEMENTS.map((item) => item.producer_sha256);
