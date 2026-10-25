@@ -1,7 +1,7 @@
 # Rule-pack format 0.5.0: stress categories, load-case mappings and required load cases (W-17)
 
 **Basis:** `origin/main` at `146abe1389` (2026-10-25), with a code survey at
-that commit. Designed, not yet implemented. Standard claim fence applies (claims taxonomy per DEC-081).
+that commit. Designed, with two Codex design reviews (§7); not yet implemented. Standard claim fence applies (claims taxonomy per DEC-081).
 
 **Requirement.** PRD §17.2 lists what a rule pack shall support, including
 "required load cases", "stress categories" and "load-case mappings". FR-RULE-001
@@ -175,6 +175,15 @@ labelled as such (FR-RULE-007; DEL-06-01 REQ-06-01-007, REQ-06-01-011).
      other; its outcomes differ only by basis.
    - `schemas/rule_check_run_result.schema.json` gains `category_ref` and
      `basis_ref` on `CheckOutcome`.
+   - **Outcome identity** is the serialized tuple (`check_id`,
+     `basis_ref.ref_type`, `basis_ref.ref_id`). Outcome keys, test ids and
+     lookups use that identity (today the run panel keys and test-ids outcomes
+     by `check_id`, `RuleCheckRunPanel.tsx`, and a runner test helper returns
+     the first matching check id, `tests/interval_bounds_run.rs`).
+   - **Count scope is shown.** Beside the unchanged headline, the run panel and
+     the report's rule-check section say: "Counts are per check and load case
+     or combination; one check can contribute more than once." DEL-06-03
+     Design `pack-aggregate-incomplete.md` says the same of its counts.
    - **Consumers keyed by `check_id`** now see it repeated once per basis. The
      run panel shows each outcome with its category and load case. The
      report's projection (`renderableReportInput.ts` `userRuleChecks`) carries
@@ -197,7 +206,12 @@ labelled as such (FR-RULE-007; DEL-06-01 REQ-06-01-007, REQ-06-01-011).
    - duplicate ids, a duplicate `basis_ref`, or the same required load case
      twice in one mapping: `RULE_PACK_DUPLICATE_ID`;
    - a category with no mapping or more than one, or a required load case in no
-     mapping: `RULE_PACK_MAPPING_INCOMPLETE`.
+     mapping: `RULE_PACK_MAPPING_INCOMPLETE`;
+   - every required load case must be reachable from at least one check
+     through that check's category mapping; otherwise validation reports
+     `RULE_PACK_MAPPING_INCOMPLETE`. Without this, a required load case mapped
+     only to a category with no checks would produce no outcome, and a missing
+     load case could escape the aggregate.
    Whether a named load case exists in a model is a run-time question (§2.6),
    not a static one, because a pack is validated without a model.
 10. **Checksum.** The new members sit inside the JCS-canonical payload hashed by
@@ -273,6 +287,11 @@ In `features/rule-packs/` (DEL-07-03; `RulePackManagerPanel.tsx`,
   - a retained row that `rule_binding_refusal` refuses is refused on its basis
     and never bound;
   - two tie rods of one connector are selected separately;
+  - a required load case mapped only to a category with no checks is refused
+    statically (`RULE_PACK_MAPPING_INCOMPLETE`);
+  - outcome identity: repeated check ids are told apart by basis, stable
+    across a rerun and a reordering of the envelope's rows; one check failing
+    on three bases shows three failed with the count-scope note;
   - a single-basis pack gives the same computed value and status as the same
     check bound by row id before the change.
 - **Desktop.** Manager editors and validation; the run panel shows each check's
@@ -311,3 +330,30 @@ them:
 4. **Binding refusals had to be kept explicitly.** Every matched row passes the
    existing qualification and `rule_binding_refusal` gates, per input and basis
    (§2.5), with tests (§5).
+
+Round 2 (`8d5b6495da`) confirmed those and found:
+5. **A required load case could escape the aggregate (blocking).** Every
+   required load case must now be reachable from a check (§2.9).
+6. **Outcome identity** is the (check, basis) tuple everywhere (§2.7).
+7. **Count scope** is stated beside the headline (§2.7).
+
+Both rounds reviewed the ScopeOfWork wording in §8 and approved it as written.
+
+## 8. ScopeOfWork wording (pending confirmation)
+
+Proposed for DEL-06-01 `ScopeOfWork.md` CLM-011, under the owner's wording
+grant (LOOP_INIT, 2026-10-23). Codex reviewed the exact text in both design
+rounds and approved it. It is applied only after the coordinator confirms.
+- REQ-06-01-002, replaced. Old: "The schema shall include rule-pack identity,
+  schema version, rule-pack version, lifecycle/status, and source-note
+  metadata." New: the same sentence, then "One schema version is current; a
+  document declaring any other version is refused by name, without
+  migration."
+- REQ-06-01-013, added: "The schema shall support user-defined stress
+  categories, required load cases that reference model load cases or
+  combinations, and mappings that assign required load cases to each category.
+  Each check names one category and has one outcome for each load case or
+  combination mapped to it. A mapped load case or combination that is absent
+  from the model, has no result rows, or lacks a row the check needs makes that
+  outcome incomplete without evaluating the check on it; the check's other
+  outcomes are reported independently."
