@@ -1187,6 +1187,25 @@ All 80 native evaluations (eight phases, both modes, the merged tree and four po
 
 **Retained corpus.** The producer writers regenerate, in the registered build, the retained successor fixtures (milestone, L = 0, W-C2, combination, exact, the four O4 W1-E documents and the failed-ordinary cxf and n06 sets), the derivative goldens and the shared corpus's 51 producer-solved and hook-produced bases (`retained_precision_cases.json`, rebased by row id; the 18 synthetic reader controls are unchanged, and `synthetic-bases --check` reports no difference). Each gains its members' twelve global end rows per case, classified not covered and listed first among each case's not-covered ids: the milestone's not-covered rows 15 → 27 and its proof's row capacity 113 → 125, the exact successor's 30 → 42 and 128 → 140. With them move only the figures the receipt counts over the published rows (the adapter counters, the proof's prepared capacity bytes at 8, 32 and 64 B per row, its visits, and the later rows' projection positions) and the hashes binding them; no earlier row's value, class, selection, status or verdict moves. `test_o4_text_only_envelope_diff`'s W-7 corpus check binds this against main `2653f87392`.
 
+### 8.21 Unit factor-sum gate actual-source D3 (measured; registration pending)
+
+The pressure-free constant-effort gate's unit factor-sum rule (option C, Agent 0, 2026-10-25; [pressure-contract.md](../../DEL-04-07/Design/pressure-contract.md), "Constant-effort combinations: the unit factor-sum rule") is priced at `c029a95132`. The comparison basis is main `b7cbcf411d`, whose committed tool prices with exit 0. That tree's tightest native evaluation reproduces §8.20's merged dense W3, +2,382,205,107 B. Against it the priced source moves in four files:
+- PP `preview_physics.rs`: `gate_reason` replaces its two binary64 folds (`sum`, `abs_sum`) with one call of `open_pipe_stress_load_case_algebra::factor_sum_within_unit_tolerance(combination.terms.iter().map(|t| t.factor))`. An `Err` withholds under the same code. The test module adds one test;
+- LA `factor_sum.rs` (new): the helper, `accumulate`, and `FactorSumError` with its `Display`;
+- RE `retained_precision.rs` and `semantic_contract.rs`: the preview tables' digests (constants), after the tables restate the gate's condition.
+
+| Rule | Argument |
+|---|---|
+| **UF-EX** (zero, by premise; no rule) | The helper's working set is three `ExactAccumulator`s: the sum and its two bound probes, `clone`d. Each is two `[u64; 68]` magnitudes (1,088 B), held on the stack. `new`, `add`, `add_shifted`, `add_word`, `compare` and `signum` (frame-kernel `exact_sum.rs`) work in place on those arrays and allocate nothing. The factor loop iterates the borrowed terms and allocates nothing. So no heap owner is added, and the run finds no new loop header or argument. The stack frame grows by about 3.3 KB in `gate_reason`'s callee. The AC-004 stack-headroom witnesses were not re-run. |
+| **UF-TX** (positive, existing TEXT inventory) | `FactorSumError`'s `Display` writes are reached through the call graph's by-name `fmt` edge. They are priced at their two sites: 53 B and 37 B, requested 106 + 74 = 180 B in TAV_W and TAV_X. On the product path the gate maps any `Err` to a withheld gate (`unwrap_or(false)`) and never formats it. The charge is a conservative overcount, kept rather than zeroed. |
+| **UF-ST** (positive, statics) | Both preview tables' `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` condition grows by 111 B, and the resident table statics carry it three times, so STATICS rises by +333 B (528,855 → 529,188). |
+
+Pins: preview_physics.rs (`d742331f…` → `9825bfc8…`) in `b7a_domain_model.py` and `w1_reductions_model.py`. RE retained_precision.rs (`ca7450e8…` → `38e1aa0d…`) is pinned in `b7a_domain_model.py` and `w1_member_load_model.py`. RE semantic_contract.rs (`3675cbb7…` → `1e77163a…`) is pinned in `b7a_domain_model.py`. No key is re-keyed. The line map prunes the same 32 rules as main. The edge rule naming `gate_reason`'s former `sum` call is now unused and stays.
+
+The run completes on all four points with exit 0. It has no unmapped header or unclassified argument, and both o10 checks are at zero. `compare` against main's tree gives `a_le_b` false and `a_ge_b` true: 1,578 coefficients are equal and 8 rise, none falls. The 8 are STATICS +333 B, TAV_W and TAV_X +180 B each, their `success__` forms, and the two TAV text atoms. Every phase in both modes, at every point, rises by 513 B, and D is unchanged. At native atoms (this build's law-test atoms, with route L's same-build `Node(String,BTreeMap)` = 648 B) all 80 evaluations fit at the unchanged policy. The tightest is still merged dense W3, at +2,382,204,585 B, which is 522 B below main's: E + R +513 B and reserve +9 B.
+
+**Reviewed inputs.** The contract tables restate the condition, which moves reviewed inputs #4 (preview-physics-retained-1, `d95e6acf…` → `c6e3ce0f…`) and #5 (preview-physics-2, `f455a61a…` → `5e328534…`), counted from 0. The law tests' record carries the new bytes. `REGISTERED_PROFILES`' `reviewed_inputs` keeps the registered bytes until this change's D3 registration, which also generates the block and moves the phase pins by +513 B.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -1265,3 +1284,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "Absolute node-proximity tolerance actual-source D3", "§8.18" (W8-BF, NP-MS, NP-PT) | §8.18 |
 | "Silent-drop guard actual-source D3", "§8.19" (SD-*) | §8.19 |
 | "Member end actions in global coordinates actual-source D3", "§8.20" (W7-*) | §8.20 |
+| "Unit factor-sum gate actual-source D3", "§8.21" (UF-*) | §8.21 |
