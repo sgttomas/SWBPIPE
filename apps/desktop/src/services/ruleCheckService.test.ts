@@ -2,14 +2,22 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../test/nativeMechanicsReplay";
 import { loadBundledMechanicsReference, loadPreviewModel, runPreviewMechanics } from "./previewService";
 import {
-  classifySolverResultReference,
   deriveRuleCheckBindingPlan,
   loadDemoRuleCheckPack,
+  parseSolverResultRef,
+  resolveSolverSelector,
   runRuleChecks,
   ruleBindingPrecheck,
+  ruleCheckOutcomeIdentity,
+  ruleCheckOutcomeTestId,
+  selectSolverRows,
+  solverSelectorForRow,
   RULE_CHECK_BACKEND_DIAGNOSTIC,
-  N_RULE_CHECK_NOT_NUMERICALLY_ELIGIBLE
+  N_RULE_CHECK_NOT_NUMERICALLY_ELIGIBLE,
+  type RuleCheckBasisRef,
+  type SolverResultRef
 } from "./ruleCheckService";
+import connectorCorpus from "../../../../fixtures/results/pressure_v3_connector_reader_corpus.json";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { createSolveJobTransport } from "../test/nativeMechanicsReplay";
@@ -68,7 +76,7 @@ describe("deriveRuleCheckBindingPlan", () => {
           name: "Actual",
           source_kind: "solver_result",
           quantity_intent: { dimension: "stress", unit_ref: "demo_unit" },
-          solver_result_ref: { result_id: "result:stress:demo" }
+          solver_result_ref: { result_kind: "stress", entity_ref: "pipe:demo", location: "end_i" }
         },
         {
           input_id: "limit",
@@ -95,6 +103,25 @@ describe("deriveRuleCheckBindingPlan", () => {
           slot_kind: "ratio_limit",
           quantity_intent: { dimension: "dimensionless", unit_ref: "ratio" }
         }
+      ],
+      required_load_cases: [
+        { required_load_case_id: "rlc_a", name: "Invented case A", basis_ref: { ref_type: "load_case", ref_id: "load:A" } },
+        { required_load_case_id: "rlc_b", name: "Invented case B", basis_ref: { ref_type: "combination", ref_id: "combo:B" } }
+      ],
+      stress_categories: [{ category_id: "cat_x", name: "Invented category X" }],
+      load_case_mappings: [
+        {
+          mapping_id: "map_x",
+          category_ref: { ref_id: "cat_x", ref_type: "stress_category" },
+          required_load_case_refs: [
+            { ref_id: "rlc_b", ref_type: "required_load_case" },
+            { ref_id: "rlc_a", ref_type: "required_load_case" }
+          ]
+        }
+      ],
+      check_definitions: [
+        { check_id: "check_x", category_ref: { ref_id: "cat_x", ref_type: "stress_category" } },
+        { check_id: "check_orphan", category_ref: { ref_id: "cat_none", ref_type: "stress_category" } }
       ]
     };
 
@@ -106,7 +133,7 @@ describe("deriveRuleCheckBindingPlan", () => {
         name: "Actual",
         dimension: "stress",
         unit_ref: "demo_unit",
-        solver_result_ref: { result_id: "result:stress:demo" }
+        solver_result_ref: { result_kind: "stress", entity_ref: "pipe:demo", location: "end_i" }
       }
     ]);
     expect(plan.valueInputs).toEqual([
@@ -133,6 +160,24 @@ describe("deriveRuleCheckBindingPlan", () => {
     expect(plan.valueSlots).toEqual([
       { slot_id: "ratio_limit", slot_kind: "ratio_limit", dimension: "dimensionless", unit_ref: "ratio" }
     ]);
+    const caseA = { required_load_case_id: "rlc_a", name: "Invented case A", basis_ref: { ref_type: "load_case", ref_id: "load:A" } };
+    const caseB = { required_load_case_id: "rlc_b", name: "Invented case B", basis_ref: { ref_type: "combination", ref_id: "combo:B" } };
+    expect(plan.requiredLoadCases).toEqual([caseA, caseB]);
+    expect(plan.stressCategories).toEqual([{ category_id: "cat_x", name: "Invented category X" }]);
+    // Bases in the mapping's order; a check whose category has no mapping has none.
+    expect(plan.checks).toEqual([
+      { check_id: "check_x", category_ref: "cat_x", bases: [caseB, caseA] },
+      { check_id: "check_orphan", category_ref: "cat_none", bases: [] }
+    ]);
+  });
+
+  it("reads a 0.4.0 result_id reference as no selector (validation refuses it by name)", () => {
+    const plan = deriveRuleCheckBindingPlan({
+      required_inputs: [
+        { input_id: "legacy", source_kind: "solver_result", solver_result_ref: { result_id: "result:stress:demo" } }
+      ]
+    });
+    expect(plan.solverInputs[0].solver_result_ref).toBeUndefined();
   });
 
   it("returns an empty plan for a document with no inputs or slots", () => {
@@ -157,22 +202,95 @@ describe("deriveRuleCheckBindingPlan", () => {
   });
 });
 
-describe("classifySolverResultReference", () => {
+describe("solver-row selectors (display mirror of rule_solver_selection.rs)", () => {
+  const caseA: RuleCheckBasisRef = { ref_type: "load_case", ref_id: "load:A" };
+  const caseB: RuleCheckBasisRef = { ref_type: "load_case", ref_id: "load:B" };
+  const row = (id: string, basis: RuleCheckBasisRef | null, metadata: Record<string, string>, kind = "stress", entity = "pipe:demo") =>
+    ({ id, kind, value: 1, unit: "Pa", entity_ref: entity, ...(basis ? { basis_ref: basis } : {}), metadata }) as unknown as MechanicsResult["results"][number];
   const rows = [
-    { id: "result:stress:demo", kind: "stress", value: 50, unit: "demo_unit", entity_ref: "pipe:demo" }
-  ] as never;
+    row("r:a:i:nom", caseA, { location: "end_i", component: "axial", basis: "recovered; section_basis=nominal_section" }),
+    row("r:a:i:red", caseA, { location: "end_i", component: "axial", basis: "recovered; section_basis=reduced_section" }),
+    row("r:b:i:nom", caseB, { location: "end_i", component: "axial", basis: "recovered; section_basis=nominal_section" }),
+    row("r:a:j", caseA, { location: "end_j", component: "axial", basis: "recovered" }),
+    row("r:a:j:twin", caseA, { location: "end_j", component: "axial", basis: "recovered" }),
+    row("r:echo", null, { location: "end_i", component: "axial", basis: "recovered; section_basis=nominal_section" }),
+    row("r:a:bad", caseA, { location: "end_k", component: "axial", basis: "recovered; section_basis=gross_section" })
+  ];
+  const nominal: SolverResultRef = { result_kind: "stress", entity_ref: "pipe:demo", location: "end_i", component: "axial", section_basis: "nominal_section" };
 
-  it("resolves when the authored result id is present", () => {
-    expect(classifySolverResultReference(rows, "result:stress:demo")).toBe("resolves");
+  it("binds exactly the row of the basis, and an absent member matches only a row without it", () => {
+    expect(selectSolverRows(rows, nominal, caseA).map((r) => r.id)).toEqual(["r:a:i:nom"]);
+    expect(selectSolverRows(rows, nominal, caseB).map((r) => r.id)).toEqual(["r:b:i:nom"]);
+    // Without section_basis the selector matches neither section twin.
+    expect(selectSolverRows(rows, { ...nominal, section_basis: undefined }, caseA)).toEqual([]);
+    // A malformed section token matches nothing; a row without basis_ref is never selected.
+    expect(selectSolverRows(rows, { ...nominal, location: "end_k", section_basis: undefined }, caseA)).toEqual([]);
+    expect(selectSolverRows(rows, nominal, { ref_type: "load_case", ref_id: "load:none" })).toEqual([]);
   });
 
-  it("reports result_missing when result rows exist but the id is absent", () => {
-    expect(classifySolverResultReference(rows, "result:absent")).toBe("result_missing");
+  it("resolves per required load case: one row, none, several, or an unsolved basis", () => {
+    const loadCases = [
+      { required_load_case_id: "rlc_a", name: "A", basis_ref: caseA },
+      { required_load_case_id: "rlc_b", name: "B", basis_ref: caseB },
+      { required_load_case_id: "rlc_c", name: "C", basis_ref: { ref_type: "combination", ref_id: "combo:C" } as RuleCheckBasisRef }
+    ];
+    const resolved = resolveSolverSelector(rows, nominal, loadCases);
+    expect(resolved.status).toBe("incomplete");
+    if (resolved.status === "no_result_rows") throw new Error("unreachable");
+    expect(resolved.bases.map((entry) => [entry.required_load_case_id, entry.status])).toEqual([
+      ["rlc_a", "resolves"], ["rlc_b", "resolves"], ["rlc_c", "basis_unsolved"]
+    ]);
+    const twins = resolveSolverSelector(rows, { result_kind: "stress", entity_ref: "pipe:demo", location: "end_j", component: "axial" }, loadCases.slice(0, 2));
+    if (twins.status === "no_result_rows") throw new Error("unreachable");
+    expect(twins.bases.map((entry) => entry.status)).toEqual(["row_ambiguous", "row_missing"]);
+    expect(resolveSolverSelector(rows, nominal, loadCases.slice(0, 2)).status).toBe("resolves");
+    expect(resolveSolverSelector([], nominal, loadCases).status).toBe("no_result_rows");
+    expect(resolveSolverSelector(null, nominal, loadCases).status).toBe("no_result_rows");
   });
 
-  it("reports no_result_rows when no solved result rows are available", () => {
-    expect(classifySolverResultReference([], "result:stress:demo")).toBe("no_result_rows");
-    expect(classifySolverResultReference(null, "result:stress:demo")).toBe("no_result_rows");
+  it("offers the selector of a row, which selects that row alone within its basis", () => {
+    const offered = solverSelectorForRow({}, rows[1])!;
+    expect(offered).toEqual({ result_kind: "stress", entity_ref: "pipe:demo", location: "end_i", component: "axial", section_basis: "reduced_section" });
+    expect(selectSolverRows(rows, offered, caseA).map((r) => r.id)).toEqual(["r:a:i:red"]);
+    expect(solverSelectorForRow({}, rows[5])).toBeUndefined();
+    expect(solverSelectorForRow({}, rows[6])).toBeUndefined();
+  });
+
+  it("separates the two tie rods of one connector on the reader corpus", () => {
+    const corpus = connectorCorpus as unknown as Record<string, unknown>;
+    const envelopes = Object.values(corpus).flatMap(function collect(value: unknown): MechanicsResult[] {
+      if (Array.isArray(value)) return value.flatMap(collect);
+      if (typeof value !== "object" || value === null) return [];
+      const record = value as Record<string, unknown>;
+      return Array.isArray(record.results) && record.contract_evidence ? [record as unknown as MechanicsResult] : Object.values(record).flatMap(collect);
+    });
+    const rodRows = envelopes.flatMap((envelope) => envelope.results.filter((r) => r.kind === "connector_tie_rod_force_v1").map((r) => ({ envelope, r })));
+    expect(rodRows.length).toBeGreaterThan(1);
+    for (const { envelope, r } of rodRows) {
+      const selector = solverSelectorForRow(envelope, r)!;
+      expect(selector.tie_rod).toBeTruthy();
+      expect(selectSolverRows(envelope.results, selector, r.basis_ref as RuleCheckBasisRef).map((match) => match.id)).toEqual([r.id]);
+    }
+  });
+
+  it("parses a selector as the validator does", () => {
+    expect(parseSolverResultRef({ result_kind: "k", entity_ref: "e", tie_rod: "rod:1" })).toEqual({ result_kind: "k", entity_ref: "e", tie_rod: "rod:1" });
+    expect(parseSolverResultRef({ result_id: "r" })).toBeUndefined();
+    expect(parseSolverResultRef({ result_kind: "k", entity_ref: "" })).toBeUndefined();
+    expect(parseSolverResultRef({ result_kind: "k", entity_ref: "e", location: "" })).toBeUndefined();
+    expect(parseSolverResultRef({ result_kind: "k", entity_ref: "e", section_basis: "gross_section" })).toBeUndefined();
+    expect(parseSolverResultRef({ result_kind: "k", entity_ref: "e", result_id: "r" })).toBeUndefined();
+  });
+});
+
+describe("rule-check outcome identity (design §2.7)", () => {
+  it("tells repeated check ids apart by basis", () => {
+    const one = { check_id: "c", basis_ref: { ref_type: "load_case" as const, ref_id: "load:A" } };
+    const two = { check_id: "c", basis_ref: { ref_type: "combination" as const, ref_id: "load:A" } };
+    expect(ruleCheckOutcomeIdentity(one)).toBe(JSON.stringify(["c", "load_case", "load:A"]));
+    expect(ruleCheckOutcomeIdentity(one)).not.toBe(ruleCheckOutcomeIdentity(two));
+    expect(ruleCheckOutcomeTestId(one)).toBe("rule-check-outcome-c--load_case--load:A");
+    expect(ruleCheckOutcomeTestId({ check_id: "c", basis_ref: null })).toBe("rule-check-outcome-c--no-basis");
   });
 });
 
@@ -202,7 +320,6 @@ describe("runRuleChecks", () => {
     const route = await runRuleChecks({
       rulePackDocument: { metadata: { rule_pack_id: "x" } },
       model: pair.model,
-      solverResultBindings: [],
       suppliedValueBindings: []
     });
 
@@ -249,7 +366,6 @@ describe("runRuleChecks", () => {
       rulePackDocument: { metadata: { rule_pack_id: "x" } },
       model: pair.model,
       solvedEnvelope,
-      solverResultBindings: [{ input_id: "actual", result_id: "result:stress:demo" }],
       suppliedValueBindings: [{ ref_id: "limit", value: 100, unit: "demo_unit", dimension: "stress" }],
       projectId: "project:lib"
     });
@@ -260,7 +376,9 @@ describe("runRuleChecks", () => {
     expect(typed).toHaveProperty("model", pair.model);
     expect(typed.solvedEnvelope).toStrictEqual(JSON.parse(JSON.stringify(solvedEnvelope)));
     expect(invokeMock).toHaveBeenCalledTimes(1);
-    expect(typed.solverResultBindings).toEqual([{ input_id: "actual", result_id: "result:stress:demo" }]);
+    // Solver inputs bind only through the pack's own selector (format 0.5.0):
+    // no caller-supplied solver binding is ever sent.
+    expect(typed).not.toHaveProperty("solverResultBindings");
     expect(typed.suppliedValueBindings).toEqual([
       { ref_id: "limit", value: 100, unit: "demo_unit", dimension: "stress" }
     ]);
@@ -275,7 +393,17 @@ describe("loadDemoRuleCheckPack", () => {
     expect(metadata.rule_pack_id).toBe("invented_demo_rule_pack");
     expect(demo.grammar_version).toBe("1.0.0");
     const plan = deriveRuleCheckBindingPlan(demo);
+    expect(demo.schema_version).toBe("0.5.0");
     expect(plan.solverInputs.map((input) => input.input_id)).toContain("demo_actual_quantity");
+    // The demo's selector names an invented kind no producer publishes (design §4).
+    expect(plan.solverInputs[0].solver_result_ref).toEqual({ result_kind: "invented_demo_quantity", entity_ref: "pipe:P-100" });
+    expect(plan.requiredLoadCases.map((entry) => entry.basis_ref)).toEqual([
+      { ref_type: "load_case", ref_id: "load:L-100" },
+      { ref_type: "load_case", ref_id: "load:L-200" }
+    ]);
+    expect(plan.checks).toEqual([
+      { check_id: "demo_training_check", category_ref: "demo_category_a", bases: plan.requiredLoadCases }
+    ]);
     expect(plan.valueInputs.map((input) => input.ref_id)).toContain("demo_limit_quantity");
     expect(plan.valueSlots.map((slot) => slot.slot_id)).toContain("demo_limit_slot");
   });
@@ -333,25 +461,33 @@ describe("rule source provenance boundary in unit transport replay", () => {
 
 
 describe("T0R rule-binding pre-check (mirror of rule_binding_refusal; display only)", () => {
-  const solverPack = (resultId?: string): RulePackDocument => ({
-    required_inputs: [
-      { input_id: "authored", name: "Authored", source_kind: "solver_result", ...(resultId ? { solver_result_ref: { result_id: resultId } } : {}) },
-      { input_id: "manual", name: "Manual", source_kind: "solver_result" }
-    ]
-  });
+  // A pack whose solver inputs select the given rows, on the rows' own bases.
+  const solverPack = (source: MechanicsResult, selected: Array<MechanicsResult["results"][number] | SolverResultRef>): RulePackDocument => {
+    const bases = [...new Set(source.results.flatMap((r) => (r.basis_ref ? [JSON.stringify(r.basis_ref)] : [])))].map((text) => JSON.parse(text));
+    return {
+      required_inputs: selected.map((entry, index) => ({
+        input_id: `input_${index}`,
+        name: `Input ${index}`,
+        source_kind: "solver_result",
+        solver_result_ref: "result_kind" in entry ? entry : solverSelectorForRow(source, entry)
+      })),
+      required_load_cases: bases.map((basis, index) => ({ required_load_case_id: `rlc_${index}`, name: `Case ${index}`, basis_ref: basis }))
+    };
+  };
   it("refuses no binding to a composite's rows (B4/D1 (b): the source-blocks-1 summary refusal is gone)", () => {
     const source = structuredClone(pressureSourceMixed) as unknown as MechanicsResult;
     const maximum = source.results.find((r) => r.kind === "pipe_elastic_normal_stress_maximum_v2")!;
     const force = source.results.find((r) => r.kind === "element_local_axial_force")!;
-    expect(ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack(maximum.id)), [{ input_id: "manual", result_id: force.id }])).toEqual([]);
+    expect(ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack(source, [maximum, force])))).toEqual([]);
   });
   it("gives a preview-physics-2 binding to a retired id no special finding (B3: a missing result); the new rows bind", () => {
     const source = structuredClone(previewInvented) as unknown as MechanicsResult;
-    const findings = ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack("result:reaction:support-S-100")), [{ input_id: "manual", result_id: "result:stress:pipe-P-120" }]);
+    // A selector naming a kind the source does not publish selects no row, so no finding.
+    const findings = ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack(source, [{ result_kind: "retired_reaction_kind", entity_ref: "support:S-100" }])));
     expect(findings).toEqual([]);
     const maximum = source.results.find((r) => r.kind === "pipe_elastic_normal_stress_maximum_v2")!;
     const intensified = source.results.find((r) => r.kind === "component_equal_factor_intensified_bending_stress_v1")!;
-    expect(ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack(maximum.id)), [{ input_id: "manual", result_id: intensified.id }])).toEqual([]);
+    expect(ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack(source, [maximum, intensified])))).toEqual([]);
   });
   it("refuses a stored precision-1 statement before invoking the rule backend (B1)", async () => {
     const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });

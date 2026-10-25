@@ -7,7 +7,7 @@ import { isFreshSemanticResult, ruleBindingRefusal, retainedRowClassLabel, N_RP_
 import { retainedPrecisionInvocation } from "../features/results/retainedPrecisionStanding";
 import { invokeWithIngress } from "./nativeIngress";
 import type { MechanicsResult, PreviewModel } from "../types";
-import type { RulePackDocument } from "./rulePackService";
+import type { RulePackDocument, RulePackDocumentValidation } from "./rulePackService";
 import { disposeDeliveredMechanicsResult, hasNativeMechanicsInvocation, runPreviewMechanics } from "./previewService";
 
 // Rule-check runner seam (Phase C4, TP-C4-CHECKGUI-001). Running a rule pack's
@@ -52,8 +52,26 @@ export type RuleCheckRunFinding = {
   message: string;
 };
 
+// A model load case or combination (rule-pack format 0.5.0; DEL-06-01 Design
+// `rule-pack-0.5.0.md` §2.3): as a pack's required load case names it, as an
+// envelope row's basis_ref carries it and as each outcome reports it.
+export type RuleCheckBasisRef = {
+  ref_type: "load_case" | "combination";
+  ref_id: string;
+};
+
+// One outcome per check and basis (design §2.7): `category_ref` is the check's
+// stress category id; `basis_ref` the load case or combination this outcome was
+// evaluated on (null only for a check the pack gives no basis, which validation
+// blocks before any run). Outcome identity is (check_id, basis_ref.ref_type,
+// basis_ref.ref_id): a check_id repeats once per basis. The run command always
+// sends both; they are optional in this type only so outcome literals typed
+// before format 0.5.0 (the report's own test inputs; the report change is
+// deferred, design §6) still compile. A missing basis reads as none.
 export type RuleCheckOutcome = {
   check_id: string;
+  category_ref?: string;
+  basis_ref?: RuleCheckBasisRef | null;
   status: RuleCheckStatus;
   computed_value?: RuleCheckComputedQuantity;
   limit_value?: RuleCheckComputedQuantity;
@@ -71,15 +89,23 @@ export type RuleCheckRunResult = {
   aggregate_status: RuleCheckStatus;
   checks: RuleCheckOutcome[];
   professional_boundary_notice: string;
+  // Present only when the run was refused because the pack's validation has
+  // blocking findings (checks is then empty); the findings name the refusal,
+  // for example RULE_PACK_SCHEMA_VERSION_UNSUPPORTED for a 0.4.0 pack.
+  rule_pack_validation?: Omit<RulePackDocumentValidation, "unit_check">;
 };
 
-// Caller-supplied binding selectors (the schema carries no selector tying a
-// solver_result required input to a solved result row, so the binding is
-// caller-supplied per the rule_check_runner contract).
-export type SolverResultSelector = {
-  input_id: string;
-  result_id: string;
-};
+/** The serialized outcome identity (design §2.7): (check_id, basis_ref.ref_type,
+ * basis_ref.ref_id). Keys and lookups use it, never check_id alone. */
+export function ruleCheckOutcomeIdentity(outcome: Pick<RuleCheckOutcome, "check_id" | "basis_ref">): string {
+  return JSON.stringify([outcome.check_id, outcome.basis_ref?.ref_type ?? null, outcome.basis_ref?.ref_id ?? null]);
+}
+
+/** The outcome's test id, built from the same identity. */
+export function ruleCheckOutcomeTestId(outcome: Pick<RuleCheckOutcome, "check_id" | "basis_ref">): string {
+  const basis = outcome.basis_ref ? `${outcome.basis_ref.ref_type}--${outcome.basis_ref.ref_id}` : "no-basis";
+  return `rule-check-outcome-${outcome.check_id}--${basis}`;
+}
 
 export type SuppliedValueBinding = {
   ref_id: string;
@@ -117,15 +143,17 @@ export async function runRuleChecks(args: {
   rulePackDocument: RulePackDocument;
   model?: PreviewModel | null;
   solvedEnvelope?: MechanicsResult | null;
-  solverResultBindings?: SolverResultSelector[];
   suppliedValueBindings?: SuppliedValueBinding[];
   projectId?: string | null;
 }): Promise<RuleCheckRunRoute> {
   if (!isTauriRuntime()) return unavailable();
   // Supply the model even with a solved envelope so the backend can verify
-  // complete requested-case coverage without inferring requests from results. Empty binding arrays are
-  // omitted so the backend treats those inputs as unsupplied (never a silent
-  // pass). `projectId` scopes the private-library lookup for
+  // complete requested-case coverage without inferring requests from results, and
+  // so it can check the pack's required load cases against the model. Empty
+  // binding arrays are omitted so the backend treats those inputs as unsupplied
+  // (never a silent pass). Solver inputs bind only through each pack's own
+  // solver_result_ref selector (format 0.5.0, design §2.5): no caller-supplied
+  // solver binding is sent. `projectId` scopes the private-library lookup for
   // `private_library_value` inputs (resolved backend-side from the local store).
   if (!args.model) throw new Error("RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE: supply the actual current model.");
   // Without a supplied envelope this run solves for itself through the native
@@ -169,9 +197,6 @@ async function checkSolvedSource(
   if (sourceContract(source) === "pressure_source") invokeArgs.sourceBlockInvocation = retainedSourceRecoveryInvocation(source, model);
   const disclosure = exactRoute ? loadReferenceDisclosure(source, "rule-check") : null;
   if (model) invokeArgs.model = model;
-  if (args.solverResultBindings && args.solverResultBindings.length > 0) {
-    invokeArgs.solverResultBindings = args.solverResultBindings;
-  }
   if (args.suppliedValueBindings && args.suppliedValueBindings.length > 0) {
     invokeArgs.suppliedValueBindings = args.suppliedValueBindings;
   }
@@ -183,9 +208,11 @@ async function checkSolvedSource(
 // Load the bundled invented demonstration rule pack — invented non-engineering
 // example content (DEL-06-05). Byte-parallel to the backend example fixture
 // examples/rule_packs/invented_demo.yaml (the run_rule_checks command tests'
-// `invented_demo_rule_pack`); it is a valid, runnable pack that yields a clean
-// USER_RULE_CHECKED / USER_RULE_FAILED demonstration. It is NOT an engineering
-// design basis and is not suitable for professional reliance.
+// `invented_demo_rule_pack`). In format 0.5.0 it demonstrates the refusal path:
+// its solver input's selector names an invented kind no producer publishes and
+// its limit slot stays unsupplied, so every run is RULE_INPUTS_INCOMPLETE naming
+// both inputs missing (DEL-06-01 Design `rule-pack-0.5.0.md` §4). It is NOT an
+// engineering design basis and is not suitable for professional reliance.
 export async function loadDemoRuleCheckPack(): Promise<RulePackDocument> {
   return (await import("../../../../fixtures/product_preview/invented_demo_rule_pack.json"))
     .default as RulePackDocument;
@@ -198,6 +225,8 @@ export type SolverInputRequirement = {
   name: string;
   dimension: string;
   unit_ref: string;
+  // The pack's row selector; absent (or unusable) when the pack carries none,
+  // which validation refuses as RULE_SOLVER_RESULT_REF_MISSING.
   solver_result_ref?: SolverResultRef;
 };
 
@@ -226,11 +255,19 @@ export type LibraryValueRef = {
   slot_id: string;
 };
 
-// Reference from a solver_result input to a row in the current solved result
-// envelope. Authored references are canonical: the run-panel selector is only
-// used for older packs without this member.
+// The row selector of a solver_result input (rule-pack format 0.5.0; DEL-06-01
+// Design `rule-pack-0.5.0.md` §2.5). On each basis of a check the input binds
+// the one envelope row whose basis_ref is the basis and whose kind, entity_ref,
+// metadata.location, metadata.component, section basis and tie rod equal these
+// members; an absent optional member matches only a row without it. It is the
+// one binding route: the run command refuses caller-supplied selectors.
 export type SolverResultRef = {
-  result_id: string;
+  result_kind: string;
+  entity_ref: string;
+  location?: string;
+  component?: string;
+  section_basis?: string;
+  tie_rod?: string;
 };
 
 export type LibraryInputRequirement = {
@@ -239,17 +276,43 @@ export type LibraryInputRequirement = {
   library_value_ref?: LibraryValueRef;
 };
 
+// A required load case of the pack (design §2.3): the model load case or
+// combination its checks are evaluated on. `basis_ref` is null when the pack's
+// item is malformed (validation refuses it).
+export type RequiredLoadCaseRequirement = {
+  required_load_case_id: string;
+  name: string;
+  basis_ref: RuleCheckBasisRef | null;
+};
+
+// A user-defined stress category (design §2.3): the user's own name.
+export type StressCategoryRequirement = {
+  category_id: string;
+  name: string;
+};
+
 // What a pack needs the user to bind before a check can produce pass/fail.
-// `solverInputs` bind to a solved result row; `valueInputs` and `valueSlots`
-// take a user-entered value + unit (dimension comes from the pack). Inputs
-// sourced from a private library are surfaced separately: their resolution is
-// deferred to the C3 rule-pack <-> library reference slice, so they are
-// treated as unsupplied (never a silent pass).
+// `solverInputs` bind to a solved result row through the pack's selector, on
+// each of the pack's required load cases; `valueInputs` and `valueSlots` take a
+// user-entered value + unit (dimension comes from the pack). Inputs sourced
+// from a private library are surfaced separately and resolved backend-side.
+// A check's category and bases (design §2.4): the required load cases its
+// category's one mapping lists, in the mapping's order. `bases` is empty when
+// the pack does not give the check a basis list (validation refuses it).
+export type CheckBasisRequirement = {
+  check_id: string;
+  category_ref: string;
+  bases: RequiredLoadCaseRequirement[];
+};
+
 export type RuleCheckBindingPlan = {
   solverInputs: SolverInputRequirement[];
   valueInputs: ValueInputRequirement[];
   valueSlots: ValueSlotRequirement[];
   libraryInputs: LibraryInputRequirement[];
+  requiredLoadCases: RequiredLoadCaseRequirement[];
+  stressCategories: StressCategoryRequirement[];
+  checks: CheckBasisRequirement[];
 };
 
 function asArray(value: unknown): unknown[] {
@@ -258,6 +321,10 @@ function asArray(value: unknown): unknown[] {
 
 function asString(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value : fallback;
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return typeof value === "object" && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
 }
 
 function quantityIntent(item: Record<string, unknown>): { dimension: string; unit_ref: string } {
@@ -280,13 +347,44 @@ function readLibraryValueRef(item: Record<string, unknown>): LibraryValueRef | u
   return { library_kind: libraryKind, library_id: libraryId, record_id: recordId, slot_id: slotId };
 }
 
-function readSolverResultRef(item: Record<string, unknown>): SolverResultRef | undefined {
-  const ref = item.solver_result_ref;
-  if (typeof ref !== "object" || ref === null) return undefined;
-  const record = ref as Record<string, unknown>;
-  const resultId = asString(record.result_id);
-  if (!resultId) return undefined;
-  return { result_id: resultId };
+const SELECTOR_OPTIONAL = ["location", "component", "section_basis", "tie_rod"] as const;
+const SELECTOR_MEMBERS: readonly string[] = ["result_kind", "entity_ref", ...SELECTOR_OPTIONAL];
+/** The section-basis tokens a selector may name (rule_pack_document SECTION_BASES). */
+export const SOLVER_SELECTOR_SECTION_BASES = ["nominal_section", "reduced_section"] as const;
+
+/** Read a 0.5.0 selector as the validator does (rule_pack_document
+ * `parse_solver_result_ref`): undefined when it is not an object, a required
+ * member is absent or empty, an optional member is present but not a non-empty
+ * string, the section basis is outside the two tokens, or it carries any other
+ * member (the 0.4.0 result_id among them). */
+export function parseSolverResultRef(value: unknown): SolverResultRef | undefined {
+  const record = asRecord(value);
+  if (!record) return undefined;
+  if (Object.keys(record).some((key) => !SELECTOR_MEMBERS.includes(key))) return undefined;
+  const resultKind = asString(record.result_kind);
+  const entityRef = asString(record.entity_ref);
+  if (!resultKind || !entityRef) return undefined;
+  const selector: SolverResultRef = { result_kind: resultKind, entity_ref: entityRef };
+  for (const key of SELECTOR_OPTIONAL) {
+    if (!(key in record)) continue;
+    const member = record[key];
+    if (typeof member !== "string" || member.length === 0) return undefined;
+    selector[key] = member;
+  }
+  if (selector.section_basis !== undefined && !(SOLVER_SELECTOR_SECTION_BASES as readonly string[]).includes(selector.section_basis)) {
+    return undefined;
+  }
+  return selector;
+}
+
+/** A well-formed basis reference (rule_pack_document `BasisRef::from_value`). */
+export function readBasisRef(value: unknown): RuleCheckBasisRef | null {
+  const record = asRecord(value);
+  if (!record) return null;
+  const refType = record.ref_type;
+  const refId = record.ref_id;
+  if ((refType !== "load_case" && refType !== "combination") || typeof refId !== "string" || refId.trim() === "") return null;
+  return { ref_type: refType, ref_id: refId };
 }
 
 export function deriveRuleCheckBindingPlan(document: RulePackDocument): RuleCheckBindingPlan {
@@ -294,7 +392,10 @@ export function deriveRuleCheckBindingPlan(document: RulePackDocument): RuleChec
     solverInputs: [],
     valueInputs: [],
     valueSlots: [],
-    libraryInputs: []
+    libraryInputs: [],
+    requiredLoadCases: [],
+    stressCategories: [],
+    checks: []
   };
 
   for (const raw of asArray(document.required_inputs)) {
@@ -310,7 +411,7 @@ export function deriveRuleCheckBindingPlan(document: RulePackDocument): RuleChec
         name,
         dimension,
         unit_ref,
-        solver_result_ref: readSolverResultRef(item)
+        solver_result_ref: parseSolverResultRef(item.solver_result_ref)
       });
     } else if (sourceKind === "private_library_value") {
       plan.libraryInputs.push({ input_id: inputId, name, library_value_ref: readLibraryValueRef(item) });
@@ -332,47 +433,226 @@ export function deriveRuleCheckBindingPlan(document: RulePackDocument): RuleChec
     });
   }
 
+  for (const raw of asArray(document.required_load_cases)) {
+    const item = asRecord(raw);
+    const id = asString(item?.required_load_case_id);
+    if (!item || !id) continue;
+    plan.requiredLoadCases.push({ required_load_case_id: id, name: asString(item.name), basis_ref: readBasisRef(item.basis_ref) });
+  }
+
+  for (const raw of asArray(document.stress_categories)) {
+    const item = asRecord(raw);
+    const id = asString(item?.category_id);
+    if (!item || !id) continue;
+    plan.stressCategories.push({ category_id: id, name: asString(item.name) });
+  }
+
+  // Each check's bases, as rule_pack_document `plan_check_bases` plans them:
+  // the category's one mapping, its required load cases in order.
+  const refId = (value: unknown, refType: string) => {
+    const reference = asRecord(value);
+    return reference?.ref_type === refType ? asString(reference.ref_id) : "";
+  };
+  const mappings = asArray(document.load_case_mappings).map(asRecord).filter((item): item is Record<string, unknown> => item !== null);
+  for (const raw of asArray(document.check_definitions)) {
+    const item = asRecord(raw);
+    const checkId = asString(item?.check_id);
+    if (!item || !checkId) continue;
+    const category = refId(item.category_ref, "stress_category");
+    const categoryMappings = category ? mappings.filter((mapping) => refId(mapping.category_ref, "stress_category") === category) : [];
+    const bases = categoryMappings.length === 1
+      ? asArray(categoryMappings[0].required_load_case_refs).flatMap((reference) => {
+          const id = refId(reference, "required_load_case");
+          const declared = plan.requiredLoadCases.filter((loadCase) => loadCase.required_load_case_id === id);
+          return declared.length === 1 ? declared : [];
+        })
+      : [];
+    plan.checks.push({ check_id: checkId, category_ref: category, bases });
+  }
+
   return plan;
 }
 
-export type SolverResultReferenceResolution = "resolves" | "result_missing" | "no_result_rows";
+// --- Row selection (display only; mirrors the run command) ------------------
+// The desktop run command (`src-tauri/src/rule_solver_selection.rs`
+// `row_matches`) decides which row an input binds; these functions repeat its
+// rule so the panels can show, before a run, which row each selector names on
+// each basis. Nothing here binds a value or passes a check.
 
-export function classifySolverResultReference(
-  resultRows: MechanicsResult["results"] | null | undefined,
-  resultId: string
-): SolverResultReferenceResolution {
-  if (!resultRows || resultRows.length === 0) return "no_result_rows";
-  return resultRows.some((row) => row.id === resultId) ? "resolves" : "result_missing";
+type ResultRow = MechanicsResult["results"][number];
+
+const SECTION_BASIS_TOKEN_SEPARATOR = "; section_basis=";
+/** connector_evidence.rs TIE_ROD_KIND / joint.rs TIE_ROD_FORCE_KIND. */
+export const TIE_ROD_KIND = "connector_tie_rod_force_v1";
+
+type RowSectionBasis = { kind: "absent" } | { kind: "named"; basis: string } | { kind: "malformed" };
+
+// result_export::section_basis::split_token, as rule_solver_selection.rs reads it.
+function rowSectionBasis(row: ResultRow): RowSectionBasis {
+  const token = (row.metadata as Record<string, unknown> | undefined)?.basis;
+  if (typeof token !== "string" || !token.includes("section_basis=")) return { kind: "absent" };
+  const at = token.lastIndexOf(SECTION_BASIS_TOKEN_SEPARATOR);
+  if (at < 0) return { kind: "malformed" };
+  const recovery = token.slice(0, at);
+  const basis = token.slice(at + SECTION_BASIS_TOKEN_SEPARATOR.length);
+  if (!(SOLVER_SELECTOR_SECTION_BASES as readonly string[]).includes(basis) || recovery === "" || recovery.includes(SECTION_BASIS_TOKEN_SEPARATOR)) {
+    return { kind: "malformed" };
+  }
+  return { kind: "named", basis };
+}
+
+function metadataString(row: ResultRow, key: string): string | undefined {
+  const value = (row.metadata as Record<string, unknown> | undefined)?.[key];
+  return typeof value === "string" ? value : undefined;
+}
+
+// The rod-row id convention (connector_evidence.rs tie_rod_row_tail and
+// is_tie_rod_row_id, restated in rule_solver_selection.rs).
+const stableSuffix = (id: string) => id.split(":").join("-");
+const tieRodRowTail = (component: string, rod: string) =>
+  `connector:${stableSuffix(component)}:tie-rod-force:tie_rod:${stableSuffix(rod)}:t_r`;
+const isTieRodRowId = (id: string, caseId: string, tail: string) =>
+  id === `result:${tail}` || id === `result:loadcase:${stableSuffix(caseId)}:${tail}`;
+
+function sameBasis(left: RuleCheckBasisRef | null, right: RuleCheckBasisRef): boolean {
+  return left !== null && left.ref_type === right.ref_type && left.ref_id === right.ref_id;
+}
+
+/** Whether `row` is the selector's row on `basis` (design §2.5). */
+export function solverSelectorMatchesRow(selector: SolverResultRef, basis: RuleCheckBasisRef, row: ResultRow): boolean {
+  if (!sameBasis(readBasisRef(row.basis_ref), basis)) return false;
+  if (row.kind !== selector.result_kind || row.entity_ref !== selector.entity_ref) return false;
+  if (metadataString(row, "location") !== selector.location || metadataString(row, "component") !== selector.component) return false;
+  const section = rowSectionBasis(row);
+  const sectionMatches = section.kind === "malformed"
+    ? false
+    : section.kind === "absent" ? selector.section_basis === undefined : selector.section_basis === section.basis;
+  if (!sectionMatches) return false;
+  const rodRow = row.kind === TIE_ROD_KIND;
+  if (selector.tie_rod === undefined) return !rodRow;
+  return rodRow && isTieRodRowId(row.id, basis.ref_id, tieRodRowTail(selector.entity_ref, selector.tie_rod));
+}
+
+/** Every row the selector matches on `basis`, in envelope order. */
+export function selectSolverRows(rows: readonly ResultRow[] | null | undefined, selector: SolverResultRef, basis: RuleCheckBasisRef): ResultRow[] {
+  return (rows ?? []).filter((row) => solverSelectorMatchesRow(selector, basis, row));
+}
+
+/** The selector that names `row` within its basis (the authoring offer from a
+ * current solved result), or undefined for a row without basis_ref, with a
+ * malformed section-basis token, or a rod row whose rod the result's connector
+ * evidence does not name. */
+export function solverSelectorForRow(source: Pick<MechanicsResult, "contract_evidence">, row: ResultRow): SolverResultRef | undefined {
+  const basis = readBasisRef(row.basis_ref);
+  if (!basis || !row.kind || !row.entity_ref) return undefined;
+  const section = rowSectionBasis(row);
+  if (section.kind === "malformed") return undefined;
+  const selector: SolverResultRef = { result_kind: row.kind, entity_ref: row.entity_ref };
+  const location = metadataString(row, "location");
+  const component = metadataString(row, "component");
+  if (location !== undefined) selector.location = location;
+  if (component !== undefined) selector.component = component;
+  if (section.kind === "named") selector.section_basis = section.basis;
+  if (row.kind === TIE_ROD_KIND) {
+    const connectors = asArray((source.contract_evidence as Record<string, unknown> | undefined)?.connector);
+    const rod = connectors
+      .map(asRecord)
+      .filter((record) => record?.component_id === row.entity_ref)
+      .flatMap((record) => asArray(record?.tie_rods))
+      .map((entry) => asString(asRecord(entry)?.id))
+      .find((id) => id && isTieRodRowId(row.id, basis.ref_id, tieRodRowTail(row.entity_ref, id)));
+    if (!rod) return undefined;
+    selector.tie_rod = rod;
+  }
+  return selector;
+}
+
+/** A one-line reading of a selector: its members in schema order. */
+export function describeSolverSelector(selector: SolverResultRef): string {
+  return [
+    `result_kind=${selector.result_kind}`,
+    `entity_ref=${selector.entity_ref}`,
+    ...SELECTOR_OPTIONAL.flatMap((key) => (selector[key] !== undefined ? [`${key}=${selector[key]}`] : []))
+  ].join("; ");
+}
+
+export type SolverSelectorBasisStatus = "resolves" | "row_missing" | "row_ambiguous" | "basis_unsolved";
+
+export type SolverSelectorBasisResolution = {
+  required_load_case_id: string;
+  name: string;
+  basis_ref: RuleCheckBasisRef;
+  status: SolverSelectorBasisStatus;
+  rows: ResultRow[];
+};
+
+export type SolverSelectorResolution =
+  | { status: "no_result_rows" }
+  | { status: "resolves" | "incomplete"; bases: SolverSelectorBasisResolution[] };
+
+/** Which row the selector names on each of the pack's required load cases in
+ * the current solved result: one row (resolves), none (row_missing, or
+ * basis_unsolved when the result publishes nothing on that basis) or several
+ * (row_ambiguous). Only `resolves` on every basis reads `resolves`. */
+export function resolveSolverSelector(
+  resultRows: readonly ResultRow[] | null | undefined,
+  selector: SolverResultRef,
+  requiredLoadCases: readonly RequiredLoadCaseRequirement[]
+): SolverSelectorResolution {
+  if (!resultRows || resultRows.length === 0) return { status: "no_result_rows" };
+  const bases: SolverSelectorBasisResolution[] = [];
+  for (const loadCase of requiredLoadCases) {
+    const basis = loadCase.basis_ref;
+    if (!basis) continue;
+    const rows = selectSolverRows(resultRows, selector, basis);
+    const solved = resultRows.some((row) => sameBasis(readBasisRef(row.basis_ref), basis));
+    const status: SolverSelectorBasisStatus = rows.length === 1
+      ? "resolves"
+      : rows.length > 1 ? "row_ambiguous" : solved ? "row_missing" : "basis_unsolved";
+    bases.push({ required_load_case_id: loadCase.required_load_case_id, name: loadCase.name, basis_ref: basis, status, rows });
+  }
+  return { status: bases.length > 0 && bases.every((entry) => entry.status === "resolves") ? "resolves" : "incomplete", bases };
 }
 
 // --- Binding pre-check (T0R, mirrors result_export::semantic_contract::rule_binding_refusal) ---
 // Display only: the backend enforces the refusal and reports RULE_INPUTS_INCOMPLETE
-// with the reason. The UI shows the reason before invoking; nothing here passes a check.
-export type RuleBindingPrecheckFinding = { input_id: string; result_id: string; reason: string; notice: string };
+// with the reason, on that input and basis. The UI shows the reason before
+// invoking; nothing here passes a check.
+export type RuleBindingPrecheckFinding = {
+  input_id: string;
+  basis_ref: RuleCheckBasisRef;
+  result_id: string;
+  reason: string;
+  notice: string;
+};
 
 export function ruleBindingPrecheck(
   source: MechanicsResult | null | undefined,
-  plan: RuleCheckBindingPlan | null | undefined,
-  solverResultBindings: SolverResultSelector[] = []
+  plan: RuleCheckBindingPlan | null | undefined
 ): RuleBindingPrecheckFinding[] {
   if (!source || !plan) return [];
-  const bindings: SolverResultSelector[] = [
-    ...plan.solverInputs.flatMap((input) => input.solver_result_ref ? [{ input_id: input.input_id, result_id: input.solver_result_ref.result_id }] : []),
-    ...solverResultBindings.filter((b) => !plan.solverInputs.some((input) => input.input_id === b.input_id && input.solver_result_ref))
-  ];
-  // An unreadable source has no bindable rows (B3: a binding to a retired id is a
-  // missing result, refused as any other).
+  // An unreadable source has no bindable rows.
   try { sourceContract(source); } catch { return []; }
+  const bases: RuleCheckBasisRef[] = [];
+  for (const loadCase of plan.requiredLoadCases) {
+    if (loadCase.basis_ref && !bases.some((basis) => sameBasis(basis, loadCase.basis_ref!))) bases.push(loadCase.basis_ref);
+  }
   const findings: RuleBindingPrecheckFinding[] = [];
-  for (const binding of bindings) {
-    if (!binding.result_id) continue;
-    const row = source.results.find((candidate) => candidate.id === binding.result_id);
-    if (row) {
+  for (const input of plan.solverInputs) {
+    const selector = input.solver_result_ref;
+    if (!selector) continue;
+    for (const basis of bases) {
+      // Only a row the selector names alone is bound; a missing or ambiguous
+      // selection is refused by the run command on its own terms.
+      const rows = selectSolverRows(source.results, selector, basis);
+      if (rows.length !== 1) continue;
+      const row = rows[0];
       const reason = ruleBindingRefusal(source, row);
+      if (!reason) continue;
       // U6d: a successor refusal (the only kind since B4/D1 (b)) shows its class notice
       // (D2 4.9.9). Without a validated class (unregistered or refused) the row has no class label.
       const notice = retainedRowClassLabel(row, source) ?? N_RP_UNVALIDATED;
-      if (reason) findings.push({ ...binding, reason, notice });
+      findings.push({ input_id: input.input_id, basis_ref: basis, result_id: row.id, reason, notice });
     }
   }
   return findings;

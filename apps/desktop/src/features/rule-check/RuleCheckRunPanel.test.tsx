@@ -45,9 +45,36 @@ const resultStub = {
   run_id: "run:c4-test",
   status: { mechanics: "MECHANICS_SOLVED", rule_check: "RULE_INPUTS_INCOMPLETE", professional_acceptance: "NOT_PROVIDED" },
   results: [
-    { id: "result:stress:demo", kind: "stress", value: 50, unit: "demo_unit", entity_ref: "pipe:demo" }
+    {
+      id: "result:stress:demo",
+      kind: "stress",
+      value: 50,
+      unit: "demo_unit",
+      entity_ref: "pipe:demo",
+      basis_ref: { ref_type: "load_case", ref_id: "load:L-100" },
+      metadata: { location: "end_i" }
+    }
   ]
 } as unknown as MechanicsResult;
+
+// An invented 0.5.0 pack shape around one solver input: two required load
+// cases on the stub's basis and one it does not publish.
+const selectorPack = (solverResultRef: Record<string, unknown>) => ({
+  metadata: { rule_pack_id: "p" },
+  required_inputs: [
+    {
+      input_id: "actual",
+      name: "Actual stress",
+      source_kind: "solver_result",
+      quantity_intent: { dimension: "stress", unit_ref: "demo_unit" },
+      solver_result_ref: solverResultRef
+    }
+  ],
+  required_load_cases: [
+    { required_load_case_id: "rlc_1", name: "Invented case 1", basis_ref: { ref_type: "load_case", ref_id: "load:L-100" } },
+    { required_load_case_id: "rlc_2", name: "Invented case 2", basis_ref: { ref_type: "load_case", ref_id: "load:L-200" } }
+  ]
+});
 
 const unitCatalogStub = {
   schema_version: "1.0.0",
@@ -169,8 +196,12 @@ describe("RuleCheckRunPanel", () => {
         "stored manual text"
       )
     );
-    // solver_result input -> result-row select; user value input + value slot -> entry fields.
-    expect(screen.getByTestId("rule-check-solver-select-demo_actual_quantity")).toBeInTheDocument();
+    // solver_result input -> its pack selector (no caller selector, format 0.5.0);
+    // user value input + value slot -> entry fields.
+    expect(screen.getByTestId("rule-check-solver-selector-demo_actual_quantity").textContent).toContain(
+      "result_kind=invented_demo_quantity; entity_ref=pipe:P-100"
+    );
+    expect(document.querySelector('[data-testid^="rule-check-solver-select-"]')).toBeNull();
     expect(screen.getByTestId("rule-check-value-input-demo_limit_quantity")).toBeInTheDocument();
     expect(screen.getByTestId("rule-check-slot-input-demo_limit_slot")).toBeInTheDocument();
     expect(screen.getByTestId("rule-check-value-unit-demo_limit_quantity")).toHaveValue("demo_unit");
@@ -184,14 +215,16 @@ describe("RuleCheckRunPanel", () => {
     expect(policy.textContent).toContain("value_inputs=1");
     expect(policy.textContent).toContain("value_slots=1");
     expect(policy.textContent).toContain("solver_selectors=1");
-    expect(policy.textContent).toContain("solver_result_refs=0");
+    expect(policy.textContent).toContain("solver_selectors_missing=0");
+    expect(policy.textContent).toContain("required_load_cases=2");
     expect(policy.textContent).toContain("private_library_refs=0");
     expect(policy.textContent).toContain("catalog=browser_manual_text_no_fallback");
     expect(policy.textContent).toContain("conversion=false");
-    // The solved result row is offered as a binding option.
-    expect(
-      screen.getByTestId("rule-check-solver-select-demo_actual_quantity").textContent
-    ).toContain("result:stress:demo");
+    // The check's category and bases are shown.
+    expect(screen.getByTestId("rule-check-plan-check-demo_training_check").textContent).toBe(
+      "demo_training_check: category Invented category A (demo_category_a); evaluated on " +
+        "Invented required load case 1 (load_case load:L-100), Invented required load case 2 (load_case load:L-200)"
+    );
     expect(screen.getByTestId("rule-check-run")).toHaveProperty("disabled", false);
   });
 
@@ -263,69 +296,77 @@ describe("RuleCheckRunPanel", () => {
     expect(screen.getByTestId("rule-check-unit-binding-policy").textContent).toContain("conversion=false");
   });
 
-  it("surfaces an authored solver_result_ref as canonical and previews a resolving result row", async () => {
+  it("shows the pack's selector and previews the row it names on each required load case", async () => {
     render(<RuleCheckRunPanel model={modelStub} result={resultStub} />);
-    const pack = {
-      metadata: { rule_pack_id: "p" },
-      required_inputs: [
-        {
-          input_id: "actual",
-          name: "Actual stress",
-          source_kind: "solver_result",
-          quantity_intent: { dimension: "stress", unit_ref: "demo_unit" },
-          solver_result_ref: { result_id: "result:stress:demo" }
-        }
-      ]
-    };
     fireEvent.change(screen.getByTestId("rule-check-pack-json"), {
-      target: { value: JSON.stringify(pack) }
+      target: { value: JSON.stringify(selectorPack({ result_kind: "stress", entity_ref: "pipe:demo", location: "end_i" })) }
     });
 
     const row = screen.getByTestId("rule-check-solver-input-actual");
-    expect(row.textContent).toContain("result:stress:demo");
-    expect(row.textContent).toContain("supersedes the run-panel selector");
-    expect(screen.queryByTestId("rule-check-solver-select-actual")).not.toBeInTheDocument();
+    expect(row.textContent).toContain("result_kind=stress; entity_ref=pipe:demo; location=end_i");
+    expect(document.querySelector('[data-testid^="rule-check-solver-select-"]')).toBeNull();
 
     fireEvent.click(screen.getByTestId("rule-check-solver-preview-actual"));
     const resolution = await screen.findByTestId("rule-check-solver-resolution-actual");
-    expect(resolution).toHaveAttribute("data-status", "resolves");
-    expect(resolution.textContent).toContain("current solve at run time");
-    const browse = screen.getByTestId("rule-check-solver-browse-actual");
-    expect(browse.textContent).toContain("result:stress:demo (referenced)");
-    expect(browse.textContent).toContain("stress: 50 demo_unit");
+    // load:L-100 binds the stub row; load:L-200 publishes nothing in this result.
+    expect(resolution).toHaveAttribute("data-status", "incomplete");
+    expect(resolution.textContent).toContain("RULE_INPUTS_INCOMPLETE");
+    const first = screen.getByTestId("rule-check-solver-basis-actual--load_case--load:L-100");
+    expect(first).toHaveAttribute("data-status", "resolves");
+    expect(first.textContent).toContain("Invented case 1: load_case load:L-100");
+    expect(first.textContent).toContain("result:stress:demo: 50 demo_unit");
+    expect(screen.getByTestId("rule-check-solver-basis-actual--load_case--load:L-200")).toHaveAttribute("data-status", "basis_unsolved");
   });
 
-  it("shows no T0R binding reason before invoking on a retired (missing) id", () => {
-    const pack = (resultId: string) => JSON.stringify({ metadata: { rule_pack_id: "p" }, required_inputs: [{ input_id: "actual", name: "Actual", source_kind: "solver_result", quantity_intent: { dimension: "stress", unit_ref: "MPa" }, solver_result_ref: { result_id: resultId } }] });
+  it("shows no T0R binding reason before invoking for a selector that names no row", () => {
+    const pack = JSON.stringify({
+      ...selectorPack({ result_kind: "retired_stress_kind", entity_ref: "pipe:P-120" }),
+      required_inputs: [{ input_id: "actual", name: "Actual", source_kind: "solver_result", quantity_intent: { dimension: "stress", unit_ref: "MPa" }, solver_result_ref: { result_kind: "retired_stress_kind", entity_ref: "pipe:P-120" } }]
+    });
     render(<RuleCheckRunPanel model={modelStub} result={structuredClone(previewInvented) as unknown as MechanicsResult} />);
-    fireEvent.change(screen.getByTestId("rule-check-pack-json"), { target: { value: pack("result:stress:pipe-P-120") } });
-    expect(screen.queryByTestId("rule-check-binding-precheck")?.textContent ?? "").not.toContain("RULE_BINDS_RETIRED_RESULT");
+    fireEvent.change(screen.getByTestId("rule-check-pack-json"), { target: { value: pack } });
+    expect(screen.queryByTestId("rule-check-binding-precheck")).toBeNull();
     expect(invokeMock).not.toHaveBeenCalled();
   });
 
-  it("reports a missing authored solver_result_ref without inventing a fallback binding", async () => {
-    render(<RuleCheckRunPanel model={modelStub} result={resultStub} />);
-    const pack = {
-      metadata: { rule_pack_id: "p" },
-      required_inputs: [
-        {
-          input_id: "actual",
-          name: "Actual stress",
-          source_kind: "solver_result",
-          quantity_intent: { dimension: "stress", unit_ref: "demo_unit" },
-          solver_result_ref: { result_id: "result:absent" }
-        }
-      ]
-    };
+  it("reports a selector that names no row, or several, without inventing a fallback binding", async () => {
+    const twins = {
+      ...resultStub,
+      results: [...resultStub.results, { ...resultStub.results[0], id: "result:stress:demo:twin" }]
+    } as MechanicsResult;
+    render(<RuleCheckRunPanel model={modelStub} result={twins} />);
     fireEvent.change(screen.getByTestId("rule-check-pack-json"), {
-      target: { value: JSON.stringify(pack) }
+      target: { value: JSON.stringify(selectorPack({ result_kind: "stress", entity_ref: "pipe:demo", location: "end_i" })) }
     });
-
     fireEvent.click(screen.getByTestId("rule-check-solver-preview-actual"));
-    const resolution = await screen.findByTestId("rule-check-solver-resolution-actual");
-    expect(resolution).toHaveAttribute("data-status", "result_missing");
-    expect(resolution.textContent).toContain("RULE_INPUTS_INCOMPLETE");
-    expect(screen.queryByTestId("rule-check-solver-select-actual")).not.toBeInTheDocument();
+    expect(await screen.findByTestId("rule-check-solver-basis-actual--load_case--load:L-100")).toHaveAttribute("data-status", "row_ambiguous");
+
+    fireEvent.change(screen.getByTestId("rule-check-pack-json"), {
+      target: { value: JSON.stringify(selectorPack({ result_kind: "stress", entity_ref: "pipe:demo" })) }
+    });
+    fireEvent.click(screen.getByTestId("rule-check-solver-preview-actual"));
+    expect(await screen.findByTestId("rule-check-solver-basis-actual--load_case--load:L-100")).toHaveAttribute("data-status", "row_missing");
+    expect(document.querySelector('[data-testid^="rule-check-solver-select-"]')).toBeNull();
+  });
+
+  it("names an input without a selector as refused by validation", () => {
+    render(<RuleCheckRunPanel model={modelStub} result={resultStub} />);
+    fireEvent.change(screen.getByTestId("rule-check-pack-json"), {
+      target: { value: JSON.stringify(selectorPack({ result_id: "result:stress:demo" })) }
+    });
+    expect(screen.getByTestId("rule-check-solver-selector-actual").textContent).toContain("RULE_SOLVER_RESULT_REF_MISSING");
+    expect(screen.queryByTestId("rule-check-solver-preview-actual")).toBeNull();
+    expect(screen.getByTestId("rule-check-unit-binding-policy").textContent).toContain("solver_selectors=0; solver_selectors_missing=1");
+  });
+
+  it("previews no_result_rows before a solve", async () => {
+    render(<RuleCheckRunPanel model={modelStub} result={null} />);
+    fireEvent.change(screen.getByTestId("rule-check-pack-json"), {
+      target: { value: JSON.stringify(selectorPack({ result_kind: "stress", entity_ref: "pipe:demo" })) }
+    });
+    fireEvent.click(screen.getByTestId("rule-check-solver-preview-actual"));
+    expect(await screen.findByTestId("rule-check-solver-resolution-actual")).toHaveAttribute("data-status", "no_result_rows");
+    expect(screen.getByTestId("rule-check-solver-browse-actual").textContent).toContain("Run a solve first");
   });
 
   it("reports the desktop-only backend seam when run in browser preview", async () => {
@@ -345,6 +386,8 @@ describe("RuleCheckRunPanel", () => {
   describe("FR-RULE-003 pack headline", () => {
     const check = (check_id: string, status: string) => ({
       check_id,
+      category_ref: "demo_category_a",
+      basis_ref: { ref_type: "load_case", ref_id: "load:L-100" },
       status,
       computed_value: null,
       limit_value: null,
@@ -384,7 +427,7 @@ describe("RuleCheckRunPanel", () => {
       expect(headline.textContent).not.toContain("(fail)");
       expect(headline).toHaveAttribute("data-status", "RULE_INPUTS_INCOMPLETE");
       // The failed check stays listed with its own status.
-      expect(screen.getByTestId("rule-check-outcome-check_failed").textContent).toContain("USER_RULE_FAILED");
+      expect(screen.getByTestId("rule-check-outcome-check_failed--load_case--load:L-100").textContent).toContain("USER_RULE_FAILED");
       expect(screen.getByTestId("rule-check-run-status")).toHaveTextContent("(1 failed; 1 blocked; 1 checked;");
     });
 
@@ -406,6 +449,36 @@ describe("RuleCheckRunPanel", () => {
       expect(headline.textContent).toContain("INCOMPLETE — 0 check(s) failed; 1 check(s) blocked");
     });
 
+    it("counts one check failing on three bases as three failed, with the count-scope note and each basis shown", async () => {
+      const on = (ref_type: string, ref_id: string, status: string) => ({ ...check("demo_training_check", status), basis_ref: { ref_type, ref_id } });
+      const headline = await runWith("USER_RULE_FAILED", [
+        on("load_case", "load:L-100", "USER_RULE_FAILED"),
+        on("load_case", "load:L-200", "USER_RULE_FAILED"),
+        on("combination", "combo:C-1", "USER_RULE_FAILED")
+      ]);
+      // The headline text is unchanged; its counts count outcomes.
+      expect(headline.textContent).toContain("USER_RULE_FAILED (fail)");
+      expect(screen.getByTestId("rule-check-run-status")).toHaveTextContent("Ran 3 check(s); aggregate=USER_RULE_FAILED (3 failed; 0 blocked; 0 checked;");
+      expect(screen.getByTestId("rule-check-count-scope-note").textContent).toBe(
+        "Counts are per check and load case or combination; one check can contribute more than once."
+      );
+      const outcomes = screen.getByTestId("rule-check-outcomes").querySelectorAll("article");
+      expect([...outcomes].map((article) => article.getAttribute("data-testid"))).toEqual([
+        "rule-check-outcome-demo_training_check--load_case--load:L-100",
+        "rule-check-outcome-demo_training_check--load_case--load:L-200",
+        "rule-check-outcome-demo_training_check--combination--combo:C-1"
+      ]);
+      expect([...outcomes].map((article) => article.getAttribute("data-status"))).toEqual(["USER_RULE_FAILED", "USER_RULE_FAILED", "USER_RULE_FAILED"]);
+      // Each outcome shows its category and load case or combination (the demo
+      // pack names load:L-100 and load:L-200; combo:C-1 is not one of its cases).
+      expect(screen.getByTestId("rule-check-outcome-demo_training_check--load_case--load:L-100-basis").textContent).toMatch(
+        /^category=Invented category A \(demo_category_a\); load case or combination=Invented required load case 1: load_case load:L-100/
+      );
+      expect(screen.getByTestId("rule-check-outcome-demo_training_check--combination--combo:C-1-basis").textContent).toContain(
+        "load case or combination=combination combo:C-1"
+      );
+    });
+
     it("shows pass only when every check was evaluated and passed", async () => {
       const headline = await runWith("USER_RULE_CHECKED", [check("check_a", "USER_RULE_CHECKED"), check("check_b", "USER_RULE_CHECKED")]);
       expect(headline.textContent).toContain("USER_RULE_CHECKED (pass)");
@@ -424,6 +497,8 @@ describe("RuleCheckRunPanel", () => {
       checks: [
         {
           check_id: "demo_training_check",
+          category_ref: "demo_category_a",
+          basis_ref: { ref_type: "load_case", ref_id: "load:L-100" },
           status: "USER_RULE_FAILED",
           computed_value: { value: 1.5, dimension: "dimensionless", unit_ref: "ratio" },
           limit_value: { value: 1, dimension: "dimensionless", unit_ref: "ratio" },
@@ -453,7 +528,7 @@ describe("RuleCheckRunPanel", () => {
       "data-status",
       "USER_RULE_FAILED"
     );
-    const outcome = screen.getByTestId("rule-check-outcome-demo_training_check");
+    const outcome = screen.getByTestId("rule-check-outcome-demo_training_check--load_case--load:L-100");
     expect(outcome.textContent).toContain("USER_RULE_FAILED");
     expect(outcome.textContent).toContain("computed=1.5 ratio");
     // The acceptability relation the backend reported is surfaced (the runner now
@@ -470,6 +545,93 @@ describe("RuleCheckRunPanel", () => {
     // The rule backend receives the natively invoked source and its model, not a re-solve.
     expect(ruleRunCalls()).toHaveLength(1);
     expect(ruleRunCalls()[0][1]).toMatchObject({ solvedEnvelope: native.result, model: native.model });
+    // One binding route: the pack's own selector; no caller selector is sent.
+    expect(ruleRunCalls()[0][1]).not.toHaveProperty("solverResultBindings");
+  });
+
+  it("keeps each outcome's identity across a rerun that reorders the outcomes", async () => {
+    const native = await nativeSolvedBasis();
+    const outcome = (ref_id: string, status: string, value: number) => ({
+      check_id: "demo_training_check",
+      category_ref: "demo_category_a",
+      basis_ref: { ref_type: "load_case", ref_id },
+      status,
+      computed_value: { value, dimension: "dimensionless", unit_ref: "ratio" },
+      limit_value: { value: 1, dimension: "dimensionless", unit_ref: "ratio" },
+      acceptability_relation: "less_than_or_equal",
+      bound_inputs: [],
+      completeness_findings: [],
+      evaluator_findings: [],
+      diagnostic_codes: []
+    });
+    const run = (checks: unknown[]) => ({
+      document_kind: "openpipestress.rule_check.run",
+      rule_pack_id: "invented_demo_rule_pack",
+      grammar_version: "1.0.0",
+      aggregate_status: "USER_RULE_FAILED",
+      checks,
+      professional_boundary_notice: "notice"
+    });
+    const first = outcome("load:L-100", "USER_RULE_FAILED", 1.5);
+    const second = outcome("load:L-200", "USER_RULE_CHECKED", 0.5);
+    mockCatalogAndRuleRun(run([first, second]));
+    render(<RuleCheckRunPanel model={native.model} result={native.result} />);
+    fireEvent.click(screen.getByTestId("rule-check-load-demo"));
+    await screen.findByTestId("rule-check-binding-plan");
+    fireEvent.click(screen.getByTestId("rule-check-run"));
+    await screen.findByTestId("rule-check-run-result");
+    const read = () =>
+      Object.fromEntries(
+        [...screen.getByTestId("rule-check-outcomes").querySelectorAll("article")].map((article) => [
+          article.getAttribute("data-outcome-identity"),
+          [article.getAttribute("data-testid"), article.getAttribute("data-status"), article.textContent?.match(/computed=([0-9.]+)/)?.[1]]
+        ])
+      );
+    const before = read();
+    expect(Object.keys(before)).toEqual([
+      JSON.stringify(["demo_training_check", "load_case", "load:L-100"]),
+      JSON.stringify(["demo_training_check", "load_case", "load:L-200"])
+    ]);
+
+    mockCatalogAndRuleRun(run([second, first]));
+    fireEvent.click(screen.getByTestId("rule-check-run"));
+    await waitFor(() => expect(ruleRunCalls()).toHaveLength(2));
+    await screen.findByTestId("rule-check-run-result");
+    await waitFor(() =>
+      expect(screen.getByTestId("rule-check-outcomes").querySelector("article")?.getAttribute("data-testid")).toBe(
+        "rule-check-outcome-demo_training_check--load_case--load:L-200"
+      )
+    );
+    // The same identities carry the same status and value, whatever the order.
+    expect(read()).toEqual(before);
+    expect(screen.getByTestId("rule-check-outcome-demo_training_check--load_case--load:L-100")).toHaveAttribute("data-status", "USER_RULE_FAILED");
+    expect(screen.getByTestId("rule-check-outcome-demo_training_check--load_case--load:L-200")).toHaveAttribute("data-status", "USER_RULE_CHECKED");
+  });
+
+  it("names a run refused by validation, for example a 0.4.0 pack, by its code", async () => {
+    const native = await nativeSolvedBasis();
+    mockCatalogAndRuleRun({
+      document_kind: "openpipestress.rule_check.run",
+      rule_pack_id: "p",
+      grammar_version: "1.0.0",
+      aggregate_status: "RULE_INPUTS_INCOMPLETE",
+      checks: [],
+      rule_pack_validation: {
+        document_findings: [
+          { code: "RULE_PACK_SCHEMA_VERSION_UNSUPPORTED", subject: "schema_version", message: "rule-pack format '0.4.0' is not supported", blocking: true }
+        ],
+        lifecycle_findings: []
+      },
+      professional_boundary_notice: "notice"
+    });
+    render(<RuleCheckRunPanel model={native.model} result={native.result} />);
+    fireEvent.change(screen.getByTestId("rule-check-pack-json"), {
+      target: { value: JSON.stringify({ schema_version: "0.4.0", metadata: { rule_pack_id: "p", schema_version: "0.4.0" } }) }
+    });
+    fireEvent.click(screen.getByTestId("rule-check-run"));
+    const refusal = await screen.findByTestId("rule-check-run-refusal");
+    expect(refusal.textContent).toContain("RULE_PACK_SCHEMA_VERSION_UNSUPPORTED (schema_version)");
+    expect(screen.getByTestId("rule-check-aggregate-status")).toHaveAttribute("data-status", "RULE_INPUTS_INCOMPLETE");
   });
 
   it("refuses a desktop run over a result without a native invocation and never reaches the rule backend", async () => {
@@ -503,7 +665,7 @@ describe("RuleCheckRunPanel", () => {
     expect(ruleRunCalls()).toHaveLength(0);
   });
 
-  it("omits caller-supplied solver bindings when a solver_result_ref is authored in the pack", async () => {
+  it("sends no caller-supplied solver binding for a pack with a selector", async () => {
     const native = await nativeSolvedBasis();
     invokeMock.mockResolvedValue({
       document_kind: "openpipestress.rule_check.run",
@@ -522,7 +684,7 @@ describe("RuleCheckRunPanel", () => {
           name: "Actual stress",
           source_kind: "solver_result",
           quantity_intent: { dimension: "stress", unit_ref: "demo_unit" },
-          solver_result_ref: { result_id: native.stressRowId }
+          solver_result_ref: { result_kind: "element_local_axial_normal_stress", entity_ref: "pipe:P-100", location: "end_i" }
         }
       ]
     };
@@ -553,6 +715,8 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
     checks: [
       {
         check_id: "demo_training_check",
+        category_ref: "demo_category_a",
+        basis_ref: { ref_type: "load_case", ref_id: "load:L-100" },
         status: "USER_RULE_FAILED",
         acceptability_relation: "less_than_or_equal",
         bound_inputs: [],
@@ -613,15 +777,13 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
     />);
     fireEvent.click(screen.getByTestId("rule-check-load-demo"));
     await screen.findByTestId("rule-check-binding-plan");
-    fireEvent.change(screen.getByTestId("rule-check-solver-select-demo_actual_quantity"), {
-      target: { value: native.stressRowId }
-    });
     fireEvent.change(screen.getByTestId("rule-check-value-input-demo_limit_quantity"), {
       target: { value: "73" }
     });
     fireEvent.click(screen.getByTestId("rule-check-run"));
     await screen.findByTestId("rule-check-run-result");
-    expect(ruleRunCalls()[0][1]).toMatchObject({ solverResultBindings: [{ input_id: "demo_actual_quantity", result_id: native.stressRowId }] });
+    expect(ruleRunCalls()[0][1]).toMatchObject({ suppliedValueBindings: [{ ref_id: "demo_limit_quantity", value: 73 }] });
+    expect(ruleRunCalls()[0][1]).not.toHaveProperty("solverResultBindings");
     onAggregateChange.mockClear();
 
     const nextResult = { ...native.result };
@@ -637,7 +799,6 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
       "No rule-check run for the current model and solved-result basis."
     );
     expect((screen.getByTestId("rule-check-pack-json") as HTMLTextAreaElement).value).toContain("invented_demo_rule_pack");
-    expect(screen.getByTestId("rule-check-solver-select-demo_actual_quantity")).toHaveValue(native.stressRowId);
     expect(screen.getByTestId("rule-check-value-input-demo_limit_quantity")).toHaveValue(73);
     expect(onAggregateChange).toHaveBeenCalledTimes(1);
     expect(onAggregateChange).toHaveBeenCalledWith(null);
