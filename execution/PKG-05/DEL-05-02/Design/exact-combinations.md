@@ -161,15 +161,20 @@ In precedence order:
    - the model has a connector or tie rod whose raw installed reference is
      nonzero (q_ref, or the rod's reference extension), including a reference
      in the null space with K·q_ref = 0;
-   - the exact dyadic sum of the represented binary64 factors, formed with the
-     `load_case_algebra` exact accumulator, is not exactly 1.
+   - the factors fail the shared unit-sum rule. Under that rule, the exact
+     dyadic sum Σf of the represented binary64 factors must satisfy
+     |Σf − 1| ≤ 64ε. The comparison is exact, with no Σ|f| scaling, and any
+     non-finite factor is refused.
 
-   A connector's action is K(q − q_ref) (PP `lib.rs` ~4516-4520; rod at
-   `joint.rs` ~988). Summing cases sums their reference loads. Only an exact
-   unit sum leaves the combination as the state of the original system. No
-   tolerance is used: factors 2^53 and −2^53 sum to zero, which a
-   factor-magnitude tolerance would pass. The accumulator cannot overflow to
-   inf.
+   **Why a unit sum.** A connector's action is K(q − q_ref) (PP `lib.rs`
+   ~4516-4520; rod at `joint.rs` ~988). Summing cases sums their reference
+   loads, so only a unit factor sum leaves the combination as the state of the
+   original system. The rule bounds the reference-law defect at
+   |Σf − 1|·|K·q_ref| ≤ 64ε·|K·q_ref|.
+
+   **Why this form of tolerance.** Exact equality to 1 would refuse 0.3 + 0.7,
+   whose represented sum is 1 − 5.55e−17. A tolerance scaled by Σ|f| would pass
+   2^53 + (−2^53) = 0. The exact accumulator cannot overflow to inf.
 
    **The shared check.** The exact dyadic unit-sum check is one shared helper
    in `load_case_algebra`. The numerical lane adds it when it fixes PF's
@@ -330,8 +335,9 @@ axial compliances.
 - **Range envelopes** over primitive cases A, B and a third primitive case C
   carrying A's and B's loads together, in every range mode.
 - **Connectors and rods.**
-  - Connectors with nonzero installed references at exact factor sums 1, 2
-    and 0, and at 2^53 + (−2^53). The gate withholds every sum except exact 1.
+  - Connectors with nonzero installed references. These pass: 1; 0.3 + 0.7;
+    a sum within 64ε of 1. These are withheld: 2, 0, 2^53 + (−2^53), and a sum
+    just outside 64ε. A non-finite factor is refused.
   - A null-space q_ref.
   - Two distinct rods, whose rows are withheld by name.
 - **Arcs.** A non-default case with a pressurized realized arc.
