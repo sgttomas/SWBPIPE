@@ -1426,7 +1426,11 @@ test("ordinary typed edit preserves view state and same-ID project replacement c
   await activateWithKeyboard(page, page.getByTestId("toolkit-edit.redo"));
   await expect(await revealTreeRow(page, "node", node.id)).toContainText("Edited while hidden");
 
+  // The redone edit is unsaved: Open Project asks first (W-12 S1), and Discard replaces it.
   await projectCommand(page, "open-local", true);
+  await expect(page.getByTestId("unsaved-changes-prompt")).toBeVisible();
+  await activateWithKeyboard(page, page.getByTestId("unsaved-changes-discard"));
+  await expect(page.getByTestId("unsaved-changes-prompt")).toHaveCount(0);
   await expect(page.getByTestId("command-selection-readout")).toContainText(`project: ${model.project.id}`);
   await expect(page.getByRole("button", { name: "Show All", exact: true })).toBeDisabled();
   await expect(page.getByTestId("viewport-measurement-readout")).toHaveCount(0);
