@@ -324,6 +324,9 @@ code_paths:
 - apps/desktop/src-tauri/src/native_smoke.rs
 - apps/desktop/native-smoke/driver.js
 - apps/desktop/native-smoke/run.mjs
+- apps/desktop/src/features/report/exactReportLimitations.ts
+- fixtures/reports/exact_route_limitations.json
+- fixtures/reports/exact_report_statements.json
 checks:
 - core/reporting/report_package/tests/container.rs
 - core/reporting/report_package/tests/reader.rs
@@ -338,3 +341,9 @@ checks:
 - apps/desktop/src/services/reportPackageSaveService.test.ts
 - apps/desktop/src/features/workspace/reportPackageSave.session.test.tsx
 - apps/desktop/native-smoke/run.mjs
+- apps/desktop/src/features/report/exactReportLimitations.test.ts
+- core/product_physics/src/exact_route_limitations_tests.rs
+- core/reporting/report_package/src/admitted_tests.rs
+- core/reporting/report_package/tests/exact_sections_parity.rs
+- core/reporting/report_package/tests/report_rows_parity.rs
+- core/reporting/report_package/tests/current_result_package.rs
