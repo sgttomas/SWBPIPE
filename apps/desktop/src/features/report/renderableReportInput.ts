@@ -457,8 +457,14 @@ function userRuleChecks(run: SessionRuleCheckRun) {
     rule_pack_id: run.result.rule_pack_id,
     grammar_version: run.result.grammar_version,
     aggregate_status: status(run.result.aggregate_status),
+    // One outcome per check and load case or combination (rule-pack format
+    // 0.5.0; DEL-06-01 Design `rule-pack-0.5.0.md` §2.7, §6): each carries
+    // the basis it was evaluated on. An outcome without one (a check the pack
+    // gives no basis) omits the member, and the report shows "load case not
+    // recorded".
     checks: run.result.checks.map((check) => ({
       check_id: check.check_id,
+      ...(check.basis_ref ? { basis_ref: { ref_type: check.basis_ref.ref_type, ref_id: check.basis_ref.ref_id } } : {}),
       status: status(check.status),
       missing_inputs: Array.from(
         new Set(check.bound_inputs.filter((input) => !input.supplied).map((input) => input.input_id))
