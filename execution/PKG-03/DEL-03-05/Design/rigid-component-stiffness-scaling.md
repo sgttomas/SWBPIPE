@@ -303,14 +303,22 @@ d makes that meaning travel with the result, and ships with slice a (§2.4).
 These are the decisions; the consumer lists come from round-2 scrutiny (Codex).
 
 - **Applies to.** Only results with an applied scale. A result without one keeps
-  its shape byte for byte, so no golden without a scaled component moves.
+  its shape byte for byte, so slice d itself moves no golden without a scaled
+  component. The exact-identity re-pins are separate and required: §2.7's
+  corrected admission and "Admitted families" text changes the pressure-2
+  identity limitation every exact-route result restates, so the exact bases
+  and their binding hashes are re-pinned for that text (the retained corpus's
+  six exact bases among them, each at that one identity field), not for any
+  slice-d member.
 - **Row record.** `component_body`: {`component_ref`, `stiffness_scale`,
   `section_role: "reference_pipe_section"`}. It is an optional, closed member
   on every stress row, stress extremum and maximum row of a scaled member, on
   both routes, every section basis and combination rows. Model-bound readers
   derive the expected set from the model's eligibility predicate. They refuse
   a missing, forged or inconsistent record, and refuse disagreement between
-  basis twins.
+  basis twins. Each slice-d member is permitted on its own object only: the
+  record on a row or extremum, `component_body_pipe_ids` on a coverage entry.
+  Either one on the other object is a closed-shape refusal.
 - **Maximum.** Per-member maxima and extrema stay. The case maximum and the
   headline range over non-body members. The coverage entry carries
   `component_body_pipe_ids` when nonempty. Completeness is unchanged. A case

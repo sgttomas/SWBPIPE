@@ -150,12 +150,31 @@ SILENT_DROP_MOVED = {
 SILENT_DROP_KEY = ("unknown_depth_witness", "diagnostics")
 # W-15 (DEL-03-05 Design rigid-component-stiffness-scaling.md; coordinator decision 1): the
 # pressure-2 identity limitation states the admitted rigid family, and the six exact bases inherit
-# it. Against SD_BASE they differ, with this clause restored to its old full stop, only by the
-# hashes binding it.
+# it. Against SD_BASE each differs at one identity field, W15_IDENTITY_PATH, from exactly
+# W15_IDENTITY_OLD to exactly W15_IDENTITY_NEW (the clause in place of the full stop after the
+# connector sentence), and otherwise only by the hashes binding it: every other string is unchanged.
+W15_IDENTITY_PATH = ("source", "formulation_basis", "limitations", 0)
 W15_IDENTITY_CLAUSE = ("; valve, flange, rigid and specialty components are admitted as their mapped straight member with "
                        "the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are "
                        "those of that reference section (marked component_body), not a body stress, and reducers only when "
                        "their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise).")
+W15_IDENTITY_OLD = (
+    "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement "
+    "homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: "
+    "euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose "
+    "nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; "
+    "realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored "
+    "as objective connectors, are admitted only as the bend and connector limitations state. Section bases: "
+    "stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the "
+    "reduced bore; every stress row is published on the nominal section and on the reduced section (wall "
+    "minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum "
+    "and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, "
+    "while the axial membrane stress divides the one wall force by that basis's area. Every other component, "
+    "support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) "
+    "until a later contract revision admits it."
+)
+W15_IDENTITY_NEW = W15_IDENTITY_OLD.replace("connector limitations state. ", "connector limitations state" + W15_IDENTITY_CLAUSE + " ")
+assert W15_IDENTITY_OLD.count("connector limitations state. ") == 1 and W15_IDENTITY_NEW != W15_IDENTITY_OLD
 W15_IDENTITY_MOVED = frozenset({"w1_member_route_e_baseline_sparse_interactive", "w1_member_route_e_baseline_dense_scrutiny",
                                 "o4_w1e_sparse_interactive", "o4_w1e_dense_scrutiny", "o4_w1e_mixed_sparse_interactive",
                                 "o4_w1e_unavailable_sparse_interactive"})
@@ -662,19 +681,29 @@ def test_o4_text_only_envelope_diff_w8_enumeration_refuses_other_moves():
         test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=json.dumps(document))
 
 
-def _w15_identity_restored(value):
-    """The value with W-15's identity clause restored to the full stop it replaced (numbers untouched)."""
-    if isinstance(value, Token):
-        return value
-    if isinstance(value, str):
-        return value.replace(W15_IDENTITY_CLAUSE, ".")
-    if isinstance(value, tuple):
-        return tuple(_w15_identity_restored(item) for item in value)
-    if isinstance(value, Obj):
-        return Obj([_w15_identity_restored(pair) for pair in value])
-    if isinstance(value, list):
-        return [_w15_identity_restored(item) for item in value]
+def _at(value, path):
+    for step in path:
+        value = dict(value)[step] if isinstance(step, str) else value[step]
     return value
+
+
+def _with(value, path, leaf):
+    """`value` with the leaf at `path` replaced (every other member, token and container kept)."""
+    if not path:
+        return leaf
+    step, rest = path[0], path[1:]
+    if isinstance(value, Obj):
+        assert step in [k for k, _ in value], step
+        return Obj([(k, _with(v, rest, leaf) if k == step else v) for k, v in value])
+    return [_with(v, rest, leaf) if i == step else v for i, v in enumerate(value)]
+
+
+def _w15_identity_restored(key, base, entry):
+    """The entry with its one W-15 identity field put back to the old text; asserts the field held exactly
+    the old text at SD_BASE and holds exactly the new text now."""
+    assert _at(base, W15_IDENTITY_PATH) == W15_IDENTITY_OLD, (key, "identity field at SD_BASE")
+    assert _at(entry, W15_IDENTITY_PATH) == W15_IDENTITY_NEW, (key, "identity field")
+    return _with(entry, W15_IDENTITY_PATH, W15_IDENTITY_OLD)
 
 
 def _silent_drop_restored(key, entry):
@@ -715,7 +744,7 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_sil
         assert moved == SILENT_DROP_MOVED[member] | w15, (member, sorted(moved ^ (SILENT_DROP_MOVED[member] | w15)))
         for key, entry in after:
             if key in moved:
-                restored = _w15_identity_restored(entry) if key in w15 else _silent_drop_restored(key, entry)
+                restored = _w15_identity_restored(key, known[key], entry) if key in w15 else _silent_drop_restored(key, entry)
                 leaves = classify(known[key], restored)
                 assert leaves and all(kind == "hash" for kind, _ in leaves), (member, key, "beyond binding hashes", leaves)
     before, after = dict(load(base)), dict(load(now))
@@ -740,6 +769,29 @@ def test_o4_text_only_envelope_diff_silent_drop_enumeration_refuses_other_moves(
     model = next(e for e in document["cases"] if e.get("id") == "w_cb1_dense_scrutiny")["invocation"]["request"]["model"]
     model["notes"] = model.pop("diagnostics")
     with pytest.raises(AssertionError, match="w_cb1_dense_scrutiny"):
+        test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_silent_drop_carrier(current=json.dumps(document))
+
+
+def test_o4_text_only_envelope_diff_w15_identity_exception_is_its_one_field():
+    """W-15's identity exception admits the clause only where it belongs: the clause planted in another
+    limitation of a W-15 base, or moved within the identity field, fails the enumeration (scrutiny of #1604)."""
+    from tests.retained_precision_corpus import _STORAGE as storage
+    committed = json.loads((PROJECT / RETAINED_CORPUS).read_text())
+    ident = "w1_member_route_e_baseline_sparse_interactive"
+
+    def limitations(document):
+        return next(e for e in document["cases"] if e.get("id") == ident)["source"]["formulation_basis"]["limitations"]
+
+    document = storage.expand(committed)
+    assert limitations(document)[0] == W15_IDENTITY_NEW and len(limitations(document)) > 1
+    # In place of a full stop, as in the identity field: the old exception restored such a clause anywhere.
+    assert ". " in limitations(document)[1]
+    limitations(document)[1] = limitations(document)[1].replace(". ", W15_IDENTITY_CLAUSE + " ", 1)
+    with pytest.raises(AssertionError, match=ident):
+        test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_silent_drop_carrier(current=json.dumps(document))
+    document = storage.expand(committed)
+    limitations(document)[0] = W15_IDENTITY_OLD[:-1] + W15_IDENTITY_CLAUSE
+    with pytest.raises(AssertionError, match=ident):
         test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_silent_drop_carrier(current=json.dumps(document))
 
 
