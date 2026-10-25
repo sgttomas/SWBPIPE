@@ -260,7 +260,7 @@ the webview has no network policy.
 This map has 37 P, 39 D (including one bounded and one at repository level), 8 O and no R:
 - **P → D (10):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
   §10.1 step 1 (#1569), the R2 exit (W-4, #1582, after the basis), §12.8
-  near-duplicate nodes (the desktop tolerance control, after the basis), and
+  near-duplicate nodes (the desktop tolerance control, after the basis),
   FR-CMP-003 (W-12 S3a, #1605), FR-CMP-004 and -006 (W-12 S3b), and FR-SOL-007
   (W-7, #1581).
 - **D → P (1):** FR-SOL-002. Its acceptance criterion includes imposed
