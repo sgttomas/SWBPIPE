@@ -57,6 +57,15 @@ bytes at the merge base `SD_BASE`: with that one request key restored, they diff
 binding hashes (the invocation hash, the receipt and the successor-bytes digests), and every
 other entry and member is unchanged.
 
+W-16 slice a (DEL-04-03 Design `pf-imposed-displacement.md` §4) shortens the preview
+route's LIMITATIONS[1] (its clause on support displacement is dropped) and regenerates the
+retained corpus: every base whose envelope stated the old sentence states the new one, with
+the hashes binding it (the receipt, the ordinary publication and the corpus's fixture,
+producer-record and successor-bytes digests); the exact-route bases are unchanged. The
+silent-drop enumeration therefore reads the corpus as main had it at `W16_BASE`, and
+`..._retained_corpus_moves_since_main_are_the_w16_limitation` binds the committed corpus to
+those bytes.
+
 The silent-zero guard (DEL-04-07 Design `pressure-contract.md`, "Load cases that apply
 nothing") regenerated the connected load/reference-state raws and their AnalysisRun
 carriers with two added `LOAD_STATE_SOURCE_EXCLUDED` warnings: silent-zero diagnostic
@@ -148,6 +157,13 @@ SILENT_DROP_MOVED = {
     "must_pass": frozenset(),
 }
 SILENT_DROP_KEY = ("unknown_depth_witness", "diagnostics")
+# W-16 slice a: main at the merge base of its regeneration, and the preview LIMITATIONS[1]
+# sentence, old and new.
+W16_BASE = "58478bd3431e7fac883194f8599abb9089ef0c87"
+W16_LIMITATION = (
+    "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
+    "Nonzero pressure is refused on this route.",
+)
 
 # The minimal old -> new segments of §3.3's three whole strings (the rest of
 # each string is unchanged); the whole strings are pinned in
@@ -678,7 +694,9 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_sil
         ["git", "show", f"{SD_BASE}:projects/chirality-piping/{RETAINED_CORPUS}"],
         cwd=REPOSITORY, check=True, capture_output=True, text=True,
     ).stdout
-    now = (PROJECT / RETAINED_CORPUS).read_text() if current is None else current
+    # The corpus as the silent-drop guard left it (W-16 slice a regenerated it since; its own check
+    # below binds the committed corpus to these bytes).
+    now = _w16_base_corpus() if current is None else current
     for member in ("cases", "mutations", "must_pass"):
         before = _entries(base, member, _pair_id)
         after = _entries(now, member, _pair_id)
@@ -701,7 +719,7 @@ def test_o4_text_only_envelope_diff_silent_drop_enumeration_refuses_other_moves(
     """A value planted in a silent-drop base or in an entry it did not move, or the carrier left under
     another key, fails the silent-drop enumeration."""
     from tests.retained_precision_corpus import _STORAGE as storage
-    committed = json.loads((PROJECT / RETAINED_CORPUS).read_text())
+    committed = json.loads(_w16_base_corpus())
     for ident in ("w_cb1_sparse_interactive", "w_cb2_sparse_interactive"):
         document = storage.expand(committed)
         entry = next(e for e in document["cases"] if e.get("id") == ident)
@@ -713,6 +731,70 @@ def test_o4_text_only_envelope_diff_silent_drop_enumeration_refuses_other_moves(
     model["notes"] = model.pop("diagnostics")
     with pytest.raises(AssertionError, match="w_cb1_dense_scrutiny"):
         test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_silent_drop_carrier(current=json.dumps(document))
+
+
+def _w16_base_corpus() -> str:
+    return subprocess.run(
+        ["git", "show", f"{W16_BASE}:projects/chirality-piping/{RETAINED_CORPUS}"],
+        cwd=REPOSITORY, check=True, capture_output=True, text=True,
+    ).stdout
+
+
+def _w16_restated(value):
+    """`value` with every string equal to the old LIMITATIONS[1] sentence replaced by the new one."""
+    old, new = W16_LIMITATION
+    if isinstance(value, Obj):
+        return Obj([(k, _w16_restated(v)) for k, v in value])
+    if isinstance(value, list):
+        return [_w16_restated(v) for v in value]
+    if isinstance(value, str) and not isinstance(value, Token) and value == old:
+        return new
+    return value
+
+
+def _states_w16_old(value) -> bool:
+    if isinstance(value, list):
+        return any(_states_w16_old(v[1] if isinstance(value, Obj) else v) for v in value)
+    return isinstance(value, str) and value == W16_LIMITATION[0]
+
+
+def test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_w16_limitation(current=None):
+    """W-16 slice a: the committed retained corpus against main's bytes at `W16_BASE`. The same entries
+    in the same order; an entry moves exactly where its base stated the old LIMITATIONS[1] sentence,
+    and with that sentence restated it differs only by binding hashes (no number, status, class, work
+    counter or other text); every other entry and member is unchanged."""
+    base = _w16_base_corpus()
+    now = (PROJECT / RETAINED_CORPUS).read_text() if current is None else current
+    for member in ("cases", "mutations", "must_pass"):
+        before = _entries(base, member, _pair_id)
+        after = _entries(now, member, _pair_id)
+        assert [k for k, _ in after] == [k for k, _ in before], (member, "entries or order")
+        known = dict(before)
+        moved = {k for k, entry in after if classify(known[k], entry)}
+        stating = {k for k, entry in before if _states_w16_old(entry)}
+        assert moved == stating, (member, sorted(moved ^ stating))
+        for key, entry in after:
+            if key in moved:
+                leaves = classify(_w16_restated(known[key]), entry)
+                assert all(kind == "hash" for kind, _ in leaves), (member, key, "beyond the sentence and binding hashes", leaves)
+    before, after = dict(load(base)), dict(load(now))
+    assert list(before) == list(after)
+    for member in before:
+        if member not in ("cases", "mutations", "must_pass"):
+            assert not classify(before[member], after[member]), member
+
+
+def test_o4_text_only_envelope_diff_w16_limitation_enumeration_refuses_other_moves():
+    """A value planted in a moved preview base or in an unmoved exact-route base fails the W-16
+    enumeration."""
+    from tests.retained_precision_corpus import _STORAGE as storage
+    committed = json.loads((PROJECT / RETAINED_CORPUS).read_text())
+    for ident in ("w_cb2_sparse_interactive", "o4_w1e_sparse_interactive"):
+        document = storage.expand(committed)
+        entry = next(e for e in document["cases"] if e.get("id") == ident)
+        assert _plant(entry["source"]), ident
+        with pytest.raises(AssertionError, match=ident):
+            test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_w16_limitation(current=json.dumps(document))
 
 
 def test_o4_text_only_envelope_diff_corner1_enumeration_refuses_a_moved_route_e_base():
