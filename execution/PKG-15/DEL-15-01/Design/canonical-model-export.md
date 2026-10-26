@@ -164,7 +164,10 @@ on either route. It needs no solve and no result.
     each reference's classification over the library. Both saves serialize
     their outcome while the leases are held, its length leased first; if that
     is refused they send a short outcome naming the refusal, the number of
-    diagnostics and the first;
+    diagnostics and the first. A response names at most the first 64
+    diagnostics or warnings, in order, with paths and messages cut at 2 KiB,
+    then one `SAVE-DIAGNOSTICS-NOT-SHOWN` counting the rest, so it is at most
+    1,636,642 bytes (the desktop's status line shows the first eight);
   - the screening evidence carries the payload's sha256, and Rust refuses
     `MODEL-DOC-SAVE-EVIDENCE-UNBOUND` unless it equals the admitted text's.
 - **F-PIP-1.** No network and no telemetry. The default path is the user's
@@ -343,7 +346,7 @@ The vocabulary is not extended here.
     leases (counting allocator); SQLite's peak within the connection's lease
     for 30,000 library rows; a larger key written between reads priced before
     the next search; a 100,000-diagnostic refusal serialized within what is
-    held; the pool's refusal, bounded decode errors, and the leases released
+    held and sent naming its first 64 diagnostics; the pool's refusal, bounded decode errors, and the leases released
     on every path.
 - **Rust, W-6b:**
   - basis-state reuse and creation, written transactionally;
