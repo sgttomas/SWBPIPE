@@ -50,8 +50,8 @@ describe("invokeWithIngress", () => {
     const failure = await pending;
     expect(failure).toBeInstanceOf(ResourceUnavailableError);
     expect((failure as ResourceUnavailableError).refusal).toEqual({ kind: "headroom_insufficient", required_bytes: 3 * GiB, available_bytes: GiB });
-    expect((failure as Error).message).toBe("RESOURCE_UNAVAILABLE: Not enough free memory on this Mac right now: needs 3 GiB, 1 GiB available.");
-    expect(nativeFailureText(failure)).toBe("Refused by the native memory pool: Not enough free memory on this Mac right now: needs 3 GiB, 1 GiB available.");
+    expect((failure as Error).message).toBe("RESOURCE_UNAVAILABLE: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 3 GiB, 1 GiB available.");
+    expect(nativeFailureText(failure)).toBe("Refused by the native memory pool: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 3 GiB, 1 GiB available.");
   });
 
   const headroomRefusal = (required: number, available: number) => ({

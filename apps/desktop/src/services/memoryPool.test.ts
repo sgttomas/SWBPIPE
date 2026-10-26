@@ -4,7 +4,8 @@ import {
   describeSolveWorkerFailure,
   parsePoolStatus,
   parseResourceRefusal,
-  parseSolveResourceGrant
+  parseSolveResourceGrant,
+  resourceRefusalCode
 } from "./memoryPool";
 
 // Strict readers and plain-language sentences for the worker-capped ordinary
@@ -53,7 +54,7 @@ describe("worker refusals", () => {
     expect(describeResourceRefusal({
       kind: "worker_growth_refused", granted_bytes: 3 * GiB, requested_bytes: 5 * GiB,
       cause: { kind: "headroom_insufficient", required_bytes: 2 * GiB, available_bytes: 512 * 1024 ** 2 }
-    })).toBe("The solve needed more memory (5 GiB) than could be reserved while it ran: Not enough free memory on this Mac right now: needs 2 GiB, 512 MiB available.");
+    })).toBe("The solve needed more memory (5 GiB) than could be reserved while it ran: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 2 GiB, 512 MiB available.");
     expect(describeResourceRefusal({ kind: "worker_footprint_exceeded", grant_bytes: 3 * GiB, footprint_bytes: 12.25 * GiB }))
       .toBe("The solve's measured memory footprint (12.25 GiB) does not fit the per-invocation budget, so the solve was ended (its reservation was 3 GiB).");
     expect(describeResourceRefusal({ kind: "budget_exceeds_pool", budget_bytes: 12 * GiB, pool_bytes: 8 * GiB }))
@@ -176,9 +177,21 @@ describe("budgets above the default", () => {
 
   it("states capacity, headroom and intake refusals without naming a solve, since edits and saves meet them too", () => {
     expect(describeResourceRefusal({ kind: "capacity_unknown" })).toBe("This Mac's physical memory could not be read, so no new memory reservation is admitted.");
-    expect(describeResourceRefusal({ kind: "headroom_unknown" })).toBe("Free memory on this Mac could not be read right now, so no new memory reservation is admitted.");
-    expect(describeResourceRefusal({ kind: "headroom_stale", age_ms: 2500 })).toBe("The free-memory reading is out of date (2.5 s old), so no new memory reservation is admitted until it refreshes.");
+    expect(describeResourceRefusal({ kind: "headroom_unknown" })).toBe("Available memory on this Mac (free plus reclaimable file cache and purgeable memory) could not be read right now, so no new memory reservation is admitted.");
+    expect(describeResourceRefusal({ kind: "headroom_stale", age_ms: 2500 })).toBe("The available-memory reading is out of date (2.5 s old), so no new memory reservation is admitted until it refreshes.");
     expect(describeResourceRefusal({ kind: "ingress_exceeds_budget", required_bytes: 13 * GiB, budget_bytes: 12 * GiB })).toBe("Receiving the request needs 13 GiB, more than the per-invocation budget of 12 GiB.");
     expect(describeResourceRefusal({ kind: "ingress_invalid", reason: "the body is not valid JSON" })).toBe("The request could not be received: the body is not valid JSON.");
+  });
+});
+
+describe("the exact refusal code", () => {
+  it("names the code and every field unrounded, a growth refusal's cause the same way", () => {
+    expect(resourceRefusalCode({ kind: "headroom_insufficient", required_bytes: 68165632, available_bytes: 52641792 }))
+      .toBe("headroom_insufficient (required_bytes=68165632, available_bytes=52641792)");
+    expect(resourceRefusalCode({ kind: "worker_growth_refused", granted_bytes: 68157440, requested_bytes: 72598008,
+      cause: { kind: "headroom_insufficient", required_bytes: 67108864, available_bytes: 0 } }))
+      .toBe("worker_growth_refused (granted_bytes=68157440, requested_bytes=72598008); cause headroom_insufficient (required_bytes=67108864, available_bytes=0)");
+    expect(resourceRefusalCode({ kind: "pressure_elevated", level: "warning" })).toBe("pressure_elevated (level=warning)");
+    expect(resourceRefusalCode({ kind: "headroom_unknown" })).toBe("headroom_unknown");
   });
 });

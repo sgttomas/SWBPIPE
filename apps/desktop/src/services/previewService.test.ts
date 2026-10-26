@@ -582,7 +582,7 @@ describe("native mechanics failure boundary", () => {
     expect(failure).toBeInstanceOf(ResourceUnavailableError);
     expect((failure as ResourceUnavailableError).refusal).toEqual({ kind: "headroom_insufficient", required_bytes: 3 * 2 ** 30, available_bytes: 2 * 2 ** 30 });
     expect((failure as ResourceUnavailableError).pool?.pool_bytes).toBe(12 * 2 ** 30);
-    expect((failure as Error).message).toBe("RESOURCE_UNAVAILABLE: Not enough free memory on this Mac right now: needs 3 GiB, 2 GiB available.");
+    expect((failure as Error).message).toBe("RESOURCE_UNAVAILABLE: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 3 GiB, 2 GiB available.");
     invokeMock.mockRejectedValue({ code: "INVALID_REQUEST", message: "solver mode header missing" });
     await expect(runPreviewMechanics(nativeMechanicsReplayPair().model)).rejects.toThrow("INVALID_REQUEST: solver mode header missing");
   });
