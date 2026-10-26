@@ -1778,6 +1778,19 @@ These are existing gaps. Each is separate from W-11 and from the others.
   The Rust struct accepts both. This predates W-11. W-11's entries use
   `report_metadata` and omit `quantity` (§4.1), and slice (c)'s schema check
   (§7) fails on any new divergence.
+- **Error text that echoes request values (Codex review round 4 of #1639).**
+  Two refusal paths format request content into their messages. Both predate
+  W-11, and both are outside the provenance routes that slice (c) made
+  value-free.
+  - `report_package/src/wire.rs:205` and its neighbouring audit-token
+    converters interpolate the value supplied: a hash algorithm of `C:/x.pdf`
+    returns that path through the native save and the headless stdout.
+  - `src-tauri/src/export_disposition_screen.rs:452` builds diagnostic
+    pointers from arbitrary keys. A key `C:/x.pdf` under `report` returns
+    `/request/report/C:~1x.pdf/review_status`.
+
+  The fix would use fixed field names, error kinds and positional placeholders.
+  It is a remaining item under the owner's finishing ruling of 2026-10-26.
 
 ## Appendix A. Wording-route drafts
 
