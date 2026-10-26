@@ -398,8 +398,19 @@ pub(crate) fn check_request_in(
         require(hash["payload_scope"] == "result_row", format!("handoff row hash scope {id}"))?;
         check_hash(&hash, &object_ref("Result", id), row_digest, &[DERIVATIVE_LABEL], &format!("handoff row hash {id}"))?;
     }
+    // An exact-route document names its load bases `load_case`, as the
+    // derivative maps the record's `LoadCase` (DEL-04-07 Design
+    // `desktop-exact-outputs.md` §4.2, §6.2); the handoff run section keeps the
+    // record's object type. W-11 (DEL-08-01 Design
+    // `exact-route-report-sections.md` §5.3): compare under that one mapping,
+    // for exact identities only. Dormant while item 0 refuses them.
+    let exact_document = document_form::producer_contract_id(document).is_some_and(exact_sections::is_exact_identity);
     let handoff_loads = unique_refs(
-        array(run_record, "/load_basis_refs").iter().filter_map(|item| Some((item["object_type"].as_str()?, item["ref"].as_str()?))),
+        array(run_record, "/load_basis_refs").iter().filter_map(|item| {
+            let object_type = item["object_type"].as_str()?;
+            let object_type = if exact_document && object_type == "LoadCase" { "load_case" } else { object_type };
+            Some((object_type, item["ref"].as_str()?))
+        }),
         "handoff load basis",
     )?;
     require(

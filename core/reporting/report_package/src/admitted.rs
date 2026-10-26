@@ -37,7 +37,6 @@ pub(crate) const PRODUCTION: AdmittedSet = AdmittedSet(&ADMITTED_SEMANTIC_CONTRA
 /// The three identities the in-crate witness admits (test build only).
 #[cfg(test)]
 use open_pipe_stress_result_export::semantic_contract::{PRESSURE_ID, PRESSURE_SOURCE_ID, PREVIEW_PHYSICS_ID};
-// Used by the in-crate witness module (slice (b) of the design).
-#[allow(dead_code)]
+// Used by the in-crate witness module (`exact_package_witness_tests.rs`).
 #[cfg(test)]
 pub(crate) const EXACT_WITNESS_ADMITTED: AdmittedSet = AdmittedSet(&[PREVIEW_PHYSICS_ID, PRESSURE_ID, PRESSURE_SOURCE_ID]);

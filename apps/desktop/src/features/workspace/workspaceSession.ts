@@ -107,7 +107,7 @@ import type {
 } from "../../types";
 import { defaultSelection } from "../model-workspace/modelView";
 import { intentKey } from "../operations/OperationApplyPanel";
-import { buildReportPackageRequest } from "../report/reportPackageRequest";
+import { buildReportPackageRequest, reportPackageExactSubmission } from "../report/reportPackageRequest";
 import { controlReportPackageRequest } from "../report/reportRedactionProjector";
 import { buildBundledReferenceContext, buildHistoricalRunContext } from "../results/HistoricalRunContext";
 import type { HistoricalRunContext } from "../results/HistoricalRunContext";
@@ -2989,14 +2989,22 @@ export function useWorkspaceSession() {
         });
         return;
       }
-      const prepared = await prepareReportPackageSave(controlled, basis.model, request, basis.inputManifest.manifest);
+      // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.1, §3.6): a request
+      // from an exact source carries the texts the native save binds, and its admission
+      // is re-checked immediately before each send (null for a pressure-free request).
+      const exactSubmission = reportPackageExactSubmission(request);
+      const prepared = await prepareReportPackageSave(controlled, basis.model, request, basis.inputManifest.manifest, exactSubmission);
       if (!isCurrent()) return;
       if (prepared.route !== "ready") {
         setReportPackageRoute(prepared);
         return;
       }
+      const exactStillCurrent = () => {
+        if (exactSubmission === null) return true;
+        try { reportPackageExactSubmission(request); return true; } catch { return false; }
+      };
       // The last guard runs inside the invocation, immediately before each send.
-      const saved = await invokeReportPackageSave(prepared, isCurrent);
+      const saved = await invokeReportPackageSave(prepared, () => isCurrent() && exactStillCurrent());
       if (!isCurrent()) return;
       setReportPackageRoute(saved);
     } catch (error) {

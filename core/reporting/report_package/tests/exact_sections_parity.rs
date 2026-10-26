@@ -11,6 +11,7 @@
 
 use open_pipe_stress_audit_manifest as audit;
 use open_pipe_stress_report_package::bindings::{DESKTOP_PROFILE, RUNNER_PROFILE};
+use open_pipe_stress_report_package::document_form::ADMITTED_SEMANTIC_CONTRACTS;
 use open_pipe_stress_report_package::exact_sections::{
     check_exact_sections, check_runner_profile, expected_exact_limitations, expected_exact_route_core,
     expected_exact_route_section, EXACT_HEADLINE_UNREADABLE, EXACT_LIMITATION_UNREGISTERED, EXACT_RUNNER_PROFILE,
@@ -207,8 +208,9 @@ fn vectors_document() -> Value {
         .collect();
     json!({
         "schema_version": "1.0.0",
-        "description": "Shared parity vectors for the exact-route report sections (DEL-08-01 Design exact-route-report-sections.md sections 2.4 and 3.2-3.5): each vector names a committed source (path, JSON pointer, edits applied in order) and the expected exact_route_core, exact_route (with the invented binding_inputs as the document's, the audit's and the custody values) and exact limitation entries (without the effect and provenance they share with the technical-preview entry). report_package::exact_sections is checked against them by core/reporting/report_package/tests/exact_sections_parity.rs; the desktop builder is checked against them in slice (b). Edits: set, remove, append and replace_text at a JSON pointer. Invented bindings only.",
+        "description": "Shared parity vectors for the exact-route report sections (DEL-08-01 Design exact-route-report-sections.md sections 2.4 and 3.2-3.5): each vector names a committed source (path, JSON pointer, edits applied in order) and the expected exact_route_core, exact_route (with the invented binding_inputs as the document's, the audit's and the custody values) and exact limitation entries (without the effect and provenance they share with the technical-preview entry). report_package::exact_sections is checked against them by core/reporting/report_package/tests/exact_sections_parity.rs; the desktop builder is checked against them in slice (b). Edits: set, remove, append and replace_text at a JSON pointer. admitted_semantic_contracts is document_form::ADMITTED_SEMANTIC_CONTRACTS, which the desktop's REPORT_PACKAGE_ADMITTED_CONTRACT_IDS must equal. Invented bindings only.",
         "generator": GENERATOR,
+        "admitted_semantic_contracts": ADMITTED_SEMANTIC_CONTRACTS,
         "binding_inputs": binding_inputs,
         "vectors": vectors,
         "refusals": refusals

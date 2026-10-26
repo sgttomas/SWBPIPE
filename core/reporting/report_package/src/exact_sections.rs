@@ -352,16 +352,25 @@ pub fn check_exact_sections(
 
     let run = &expected.admission.run_ref;
     let entries = expected_exact_limitations(source, run)?;
+    check_exact_limitation_entries(&entries, run, limitations).map_err(|detail| mismatch(format!("limitations: {detail}")))
+}
+
+/// The report's limitation entries against the expected exact entries (§2.4):
+/// the technical-preview entry of `run` first, then exactly the expected
+/// entries, each sharing the technical-preview entry's effect and provenance
+/// and carrying no other member. `Err` names the first difference. Item 9
+/// uses it, and so does the desktop's native render re-derivation (§3.6).
+pub fn check_exact_limitation_entries(entries: &[ExpectedLimitation], run: &str, limitations: &[Value]) -> Result<(), String> {
     let Some((preview, rest)) = limitations.split_first() else {
-        return Err(mismatch("limitations: the technical-preview entry is missing"));
+        return Err("the technical-preview entry is missing".to_string());
     };
     if preview["limitation_id"].as_str() != Some(format!("limitation:{run}:technical-preview").as_str()) {
-        return Err(mismatch("limitations: the technical-preview entry is not first"));
+        return Err("the technical-preview entry is not first".to_string());
     }
     if rest.len() != entries.len() {
-        return Err(mismatch("limitations: the exact limitation entries are not the source's"));
+        return Err("the exact limitation entries are not the source's".to_string());
     }
-    for (item, entry) in rest.iter().zip(&entries) {
+    for (item, entry) in rest.iter().zip(entries) {
         let equal = item["limitation_id"].as_str() == Some(entry.limitation_id.as_str())
             && item["source"] == entry.source
             && item["affected_scope"] == entry.affected_scope
@@ -370,7 +379,7 @@ pub fn check_exact_sections(
             && item["provenance"] == preview["provenance"]
             && item.as_object().is_some_and(|object| object.len() == 6);
         if !equal {
-            return Err(mismatch(format!("limitations: {}", entry.limitation_id)));
+            return Err(entry.limitation_id.clone());
         }
     }
     Ok(())

@@ -9,12 +9,30 @@
 //
 // Only a Current pressure-free (preview-physics-2) result is admitted. The
 // exact routes stay refused by the output policy's `report-package` cell
-// (`PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`; owner ruling 10A, 2026-10-21), and
-// the producer's Rust boundary admits only preview-physics-2.
+// (`PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`; owner ruling 10A, 2026-10-21), by the
+// identity check against `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS`, and by the
+// producer's Rust boundary, which admits only preview-physics-2.
+//
+// W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.1, §3.5, §5.5):
+// `buildReportPackageRequest` is the cell check followed by the assembly with the
+// production admitted set. Behind them, an exact source is assembled from its Export
+// Result JSON admission (whose document is the result member, so the package and the
+// report name one admission), and `reportPackageExactSubmission` re-checks it
+// immediately before IPC and yields the texts the native save binds. Tests reach the
+// assembly below the gate through `assembleReportPackageRequestBelowOutputGate`; the
+// Rust boundary still refuses whatever it produces.
 // Standard claim fence applies (claims taxonomy per DEC-081).
 import { refuseSurfaceOutput, surfaceRouteRefusal } from "../results/outputPolicy";
 import { PREVIEW_PHYSICS_CONTRACT_ID } from "../results/numericalResultQuality";
-import { buildCurrentResultExport } from "../result-export/resultExportAdapter";
+import { buildCurrentResultExport, type JsonObject as ResultDocument } from "../result-export/resultExportAdapter";
+import {
+  admitExactReportSource,
+  exactSourceSubmission,
+  type ExactReportAdmission,
+  type ExactReportAdmissionInputs,
+  type ExactSourceSubmission
+} from "./exactReportAdmission";
+import { isExactReportSource } from "./exactReportSections";
 import type { PreviewComparisonUnavailable } from "../comparison/withinRunComparison";
 import type {
   AnalysisRunEnvelope,
@@ -33,6 +51,10 @@ import { buildStateComparisonHandoffSections } from "./stateComparisonHandoffSec
 export const REPORT_PACKAGE_DESKTOP_PROFILE = "desktop_local_private_report_package_1";
 /** The result document's identity is not the package's admitted one (preview-physics-2). */
 export const REPORT_PACKAGE_ROUTE_NOT_ADMITTED = "REPORT-PACKAGE-ROUTE-NOT-ADMITTED";
+/** The semantic contracts the package admits: Rust's `ADMITTED_SEMANTIC_CONTRACTS`
+ * (`report_package/src/document_form.rs`), kept equal by the exact-section parity vectors.
+ * Exact identities are added only when the owner opens exact-route packages (§5.1). */
+export const REPORT_PACKAGE_ADMITTED_CONTRACT_IDS: readonly string[] = Object.freeze([PREVIEW_PHYSICS_CONTRACT_ID]);
 /** The rule-check aggregate, the rule-check run and the analysis record do not name one rule check. */
 export const REPORT_PACKAGE_RULE_CHECK_BINDING_MISMATCH = "REPORT-PACKAGE-RULE-CHECK-BINDING-MISMATCH";
 /** A rule-pack checksum whose declared pair has no audit basis the package can name (§2.4). */
@@ -156,16 +178,37 @@ function auditRulePackRef(pack: JsonRecord) {
   };
 }
 
-/** Builds the version 2.0.0 request (§2.1 admission, §2.3, §2.4, §2.5). Refusals
- * throw with their own codes; nothing here grants export authority (the route
- * control and the native admission decide). */
+/** Requests assembled from an exact source, with the admission each was built from
+ * and its inputs (module-private: only the assembly records one). */
+const exactRequests = new WeakMap<object, { admission: ExactReportAdmission; inputs: ExactReportAdmissionInputs }>();
+
+/** Builds the version 2.0.0 request (§2.1 admission, §2.3, §2.4, §2.5): the
+ * `report-package` cell, then the assembly with the production admitted set. Refusals
+ * throw with their own codes; nothing here grants export authority (the route control
+ * and the native admission decide). */
 export async function buildReportPackageRequest(input: ReportPackageRequestInput) {
-  const { model, result, analysisRun, inputManifest, projectSummary, comparison, comparisonUnavailable = null, ruleCheckAggregate, ruleCheckRun } = input;
+  const { model, result } = input;
   const unavailable = reportPackageUnavailableReason(result);
   if (unavailable) throw new Error(unavailable);
   // The result-export builder gates on its own cell, which admits the exact routes,
   // so the package's own cell is applied first.
   refuseSurfaceOutput(result, model, "report-package");
+  return assembleReportPackageRequest(input, REPORT_PACKAGE_ADMITTED_CONTRACT_IDS);
+}
+
+/** The pre-IPC re-check of a request assembled from an exact source (§3.1, §3.6):
+ * synchronous, immediately before `save_report_package`; returns the texts the native
+ * save re-reads, or null for a request from a pressure-free source. Throws once the
+ * admission no longer holds (`REPORT-EXACT-ADMISSION-STALE`). */
+export function reportPackageExactSubmission(request: object): ExactSourceSubmission | null {
+  const exact = exactRequests.get(request);
+  return exact ? exactSourceSubmission(exact.admission, exact.inputs) : null;
+}
+
+/** The assembly after the cell (§5.5): `admittedContractIds` is the identity check's
+ * set, `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS` in production. */
+async function assembleReportPackageRequest(input: ReportPackageRequestInput, admittedContractIds: readonly string[]) {
+  const { model, result, analysisRun, inputManifest, projectSummary, comparison, comparisonUnavailable = null, ruleCheckAggregate, ruleCheckRun } = input;
 
   // Rule-check threading (§2.5): aggregate present exactly when the run is, and the
   // run's aggregate is the session's.
@@ -176,11 +219,16 @@ export async function buildReportPackageRequest(input: ReportPackageRequestInput
     throw ruleCheckMismatch("the rule-check run's aggregate is not the session's aggregate.");
   }
 
-  const document = await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
+  // An exact source takes the Export Result JSON admission; its document is the result
+  // member. A pressure-free source keeps the result-export builder's document.
+  const exactInputs = isExactReportSource(result) ? { model, result, analysisRun, inputManifest } : null;
+  const admission = exactInputs ? await admitExactReportSource(exactInputs) : null;
+  const document: ResultDocument = admission ? admission.document : await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
   const envelope = document.result_envelope as JsonRecord;
-  if (envelope?.producer?.semantic_contract_id !== PREVIEW_PHYSICS_CONTRACT_ID) {
+  const identity = envelope?.producer?.semantic_contract_id;
+  if (typeof identity !== "string" || !admittedContractIds.includes(identity)) {
     throw new Error(
-      `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: the report package admits only ${PREVIEW_PHYSICS_CONTRACT_ID} results; this document is ${String(envelope?.producer?.semantic_contract_id ?? "unidentified")}.`
+      `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: the report package admits only ${admittedContractIds.join(", ")} results; this document is ${String(identity ?? "unidentified")}.`
     );
   }
   const run = analysisRun.analysis_run;
@@ -201,7 +249,8 @@ export async function buildReportPackageRequest(input: ReportPackageRequestInput
     projectSummary,
     inputManifest,
     ruleCheckRun,
-    renderContext: { exportContext: "local_private", generatedAt: null }
+    renderContext: { exportContext: "local_private", generatedAt: null },
+    exactAdmission: admission
   });
   if (JSON.stringify(report.result_rows) !== JSON.stringify(reportResultRows(result))) {
     throw new Error(`${REPORT_PACKAGE_REPORT_ROWS_MISMATCH}: the report's result rows are not the source rows' projection.`);
@@ -218,7 +267,7 @@ export async function buildReportPackageRequest(input: ReportPackageRequestInput
   const loadBasisRefs = (envelope.load_basis_refs as Array<{ ref_type: string; ref_id: string }>).map((item) => reference(item.ref_type, item.ref_id));
   const manifestRef = inputManifest.manifest_ref.ref;
 
-  return {
+  const request = {
     package_id: `desktop-report-${safeId(result.run_id)}`,
     export_profile_id: REPORT_PACKAGE_DESKTOP_PROFILE,
     source_model_ref: reference("model", model.project.id),
@@ -256,4 +305,14 @@ export async function buildReportPackageRequest(input: ReportPackageRequestInput
     rule_check_aggregate: ruleCheckAggregate,
     solve_rule_check_status: result.status.rule_check
   };
+  if (admission && exactInputs) {
+    exactRequests.set(request, { admission, inputs: exactInputs });
+    // After the last await: the admission still holds.
+    exactSourceSubmission(admission, exactInputs);
+  }
+  return request;
 }
+
+/** Test-only name of the assembly, which production reaches only after the
+ * `report-package` cell (never for an exact result before opening). */
+export const assembleReportPackageRequestBelowOutputGate = assembleReportPackageRequest;
