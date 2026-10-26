@@ -95,8 +95,8 @@ PREVIEW = "openpipestress.result_semantics/0.3.0/preview-physics-2"
 # left preview-physics-2's reserved successors (36064ef3... and f675693b... before), the preview successor inherits
 # the new preview hash, the exact successor (D4 (a)) inherits pressure-2's, and pressure-source-1 is the current
 # PRESSURE-SOURCE-1 table (4a1873e7... before).
-SUCC_SHA = "6d06b97de0cd0c421b3a62f8b97703d6d098a12ced2bb067b52667775f4bc0e8"
-PREVIEW_SHA = "1045373c26fc7bd9383e1c08fe6c2d0bb2f372b4fcdc4b5558585154a6a5fc96"
+SUCC_SHA = "7d59a8e7fa7b3b997d3809bd90b7efbdda6c91ad46c0fbe31420f11dc4350520"
+PREVIEW_SHA = "5a6630d9157ad1f4232c558d0cd57414677add8d1c95cc0a5d19a2579fb3a05b"
 PROFILE = "product_preview_retained_w1a_v2"
 CODES = ["retained_precision_absolute_verified", "retained_precision_not_covered"]
 # B3b (B3-D §7): the exact successor `<physics-retained>`, whose carrier branches follow

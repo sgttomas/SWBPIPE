@@ -125,7 +125,7 @@ pub const RETIRED_PREVIEW_PHYSICS_1_ID: &str = "openpipestress.result_semantics/
 pub const SOURCE_PREVIEW_PHYSICS_1_RETIRED: &str = "SOURCE_PREVIEW_PHYSICS_1_RETIRED";
 pub const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
 pub const PREVIEW_PHYSICS_SHA256: &str =
-    "1045373c26fc7bd9383e1c08fe6c2d0bb2f372b4fcdc4b5558585154a6a5fc96";
+    "5a6630d9157ad1f4232c558d0cd57414677add8d1c95cc0a5d19a2579fb3a05b";
 /// U6a (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its raw and
 /// transport statements are checked only by the accepted reader
 /// (`crate::retained_precision`), never by this module's ordinary branches, and
@@ -133,7 +133,7 @@ pub const PREVIEW_PHYSICS_SHA256: &str =
 pub const PREVIEW_PHYSICS_RETAINED_ID: &str = crate::retained_precision::CONTRACT_ID;
 pub const PREVIEW_PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::PROFILE;
 pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
-    "6d06b97de0cd0c421b3a62f8b97703d6d098a12ced2bb067b52667775f4bc0e8";
+    "7d59a8e7fa7b3b997d3809bd90b7efbdda6c91ad46c0fbe31420f11dc4350520";
 /// B3b (B3-D §6.1): the exact successor `<physics-retained>`, whose base is
 /// pressure-2 since B7b D4 (a). Like the preview successor, its raw and transport statements are
 /// checked only by the accepted reader (`crate::retained_precision`, its exact
