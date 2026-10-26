@@ -24,10 +24,11 @@
 // is settled before the command returns: after its leader exits the group gets
 // a bounded wait, then SIGTERM, then SIGKILL, and is forgotten once seen empty,
 // so no later signal can reach a reused group id; a group that cannot be
-// confirmed empty stops the run with the lock kept. A signal arriving during
-// synchronous work (`ps`, `rustc -vV`, `cargo metadata`) is handled when the
-// event loop next runs: at the next command, or at `exitAfterSignals`, which
-// the tooling exits through. The process exiting otherwise (uncaught) with a
+// confirmed empty stops the run with the lock kept. Once a stop signal is being
+// handled, its handler alone escalates. A signal arriving during synchronous
+// work (`ps`, `rustc -vV`, `cargo metadata`, the work after a command returns)
+// is delivered in the event loop's next poll phase, which the tooling waits for
+// (`afterPendingSignals`) before it exits or stops listening. The process exiting otherwise (uncaught) with a
 // group not yet empty sends that group SIGKILL and keeps the lock. SIGKILL of
 // the holder, or a power loss, cannot be handled: the lock stays, and recovery
 // is the removal steps the refusal prints.
@@ -188,8 +189,11 @@ function signalLiveGroup(pgid, signal) {
   }
 }
 
-// Write `text` to standard error synchronously, retrying (bounded) while the
-// pipe is full, so that exiting at once cannot drop it.
+// Write `text` to standard error synchronously, retrying while the pipe is
+// full, so that exiting at once cannot drop it. Best effort, bounded at 2 s: a
+// reader that does not drain standard error within 2 s gets only the head of
+// the text (its first line says the lock is kept), or nothing; the lock is kept
+// either way.
 function writeErrorSync(text) {
   const bytes = Buffer.from(`${text}\n`);
   const deadline = Date.now() + 2000;
@@ -231,12 +235,22 @@ function unlisten() {
   for (const signal of STOP_SIGNALS) process.off(signal, onStopSignal);
 }
 
-// Holding nothing now, stop listening once the event loop has run: a signal
-// received during synchronous work and not yet delivered still reaches
-// onStopSignal, which honours it.
+// Resolves once the event loop has passed through a poll phase that began
+// after this call: libuv delivers signals in the poll phase, so a signal
+// received during synchronous work before this call has reached its handler.
+// A timer fires in a timers phase of a later loop iteration, and the immediate
+// set there runs in that iteration's check phase, after its poll phase.
+export async function afterPendingSignals() {
+  await new Promise((resolve) => setTimeout(resolve, 1));
+  await new Promise((resolve) => setImmediate(resolve));
+}
+
+// Holding nothing now, stop listening once a pending signal has been delivered:
+// a signal received during synchronous work still reaches onStopSignal, which
+// honours it.
 function forget() {
   held = null;
-  setImmediate(() => {
+  afterPendingSignals().then(() => {
     if (held === null) unlisten();
   });
 }
@@ -246,7 +260,8 @@ function keepHeld(lock, reason) {
   forget();
   kept = true;
   writeErrorSync([
-    `${reason}; the worktree build lock ${lock.path} is kept, since a build process may survive. Once they have exited, confirm that nothing is building in this worktree:`,
+    `the worktree build lock ${lock.path} is kept: ${reason}`,
+    "A build process may survive. Once they have exited, confirm that nothing is building in this worktree:",
     ...removalSteps(lock.path, lock.record, lock.root)
   ].join("\n"));
 }
@@ -298,19 +313,22 @@ function onStopSignal(signal) {
 }
 
 // Exit with `code` once a signal already received has been handled: a signal
-// that arrived during synchronous work is delivered when the event loop next
-// runs, and its handler then decides the exit (128 + the signal number).
+// that arrived during synchronous work is delivered first (afterPendingSignals),
+// and its handler then decides the exit (128 + the signal number).
 export async function exitAfterSignals(code) {
-  await new Promise((resolve) => setImmediate(resolve));
+  await afterPendingSignals();
   if (stopping === null) process.exit(code);
   return new Promise(() => {});
 }
 
 // After a command's leader has exited, settle its group before going on: a
 // bounded wait for it to empty, then SIGTERM, then SIGKILL, each with the same
-// wait. True once it is seen empty (and forgotten).
+// wait. True once it is seen empty (and forgotten). Once a stop signal is being
+// handled, the stop handler owns the escalation: settlement sends nothing and
+// gives up (false; the caller then waits on the handler).
 async function settleGroup(pgid, waitMs) {
   for (const signal of [null, "SIGTERM", "SIGKILL"]) {
+    if (stopping !== null) return false;
     if (signal !== null) signalLiveGroup(pgid, signal);
     if (await groupsEmptied([pgid], waitMs)) return true;
   }

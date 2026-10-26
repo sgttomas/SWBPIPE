@@ -324,8 +324,24 @@
     const pool = await Promise.resolve().then(() => call("get_memory_pool_status")).then((value) => value, (error) => ({ error: String(error?.message ?? error) }));
     return composeSolveDiagnostics(shown, solveJobRecord(), pool);
   }
-  // A solve that failed, was refused or did not finish in time is reported with
-  // its job's diagnostics, in the error and in the driver's log.
+  const proofText = () => byTestId("status-pill-solve-proof")?.querySelector("code")?.textContent ?? null;
+  // The terminal job states other than completed (the solve job states of
+  // `solveJobAudit.ts`: not_started, queued, running, cancelling, completed,
+  // failed, cancelled, refused). Such a job will not complete, so the wait ends
+  // at once with its error.
+  const UNSOLVED_STATE = /\bstate=(failed|cancelled|refused)(?:;|$)/;
+  // The probe a solve wait polls: the job completed with a new proof of
+  // `projectId` (not `priorProof`); a job that ended any other way throws.
+  function solveDone(label, projectId, priorProof, hard) {
+    return () => {
+      const summary = text("solve-job-summary") ?? "";
+      if (UNSOLVED_STATE.test(summary)) throw Object.assign(new Error(`${label}: ${summary}; ${text("solve-job-error") ?? ""}`), { hard });
+      const proof = proofText();
+      return summary.includes("state=completed") && proof && proof !== priorProof && proof.includes(`project=${projectId}`);
+    };
+  }
+  // A solve that failed, was refused or cancelled, or did not finish in time,
+  // is reported with its job's diagnostics, in the error and in the driver's log.
   async function waitForSolve(label, probe, timeoutMs) {
     try {
       return await waitFor(label, probe, timeoutMs);
@@ -340,15 +356,10 @@
     await showSection("solve");
     click(mode === "dense_scrutiny" ? "solver-mode-dense" : "solver-mode-sparse");
     await waitFor(`${mode} selected`, () => byTestId(mode === "dense_scrutiny" ? "solver-mode-dense" : "solver-mode-sparse")?.getAttribute("aria-pressed") === "true");
-    const priorProof = byTestId("status-pill-solve-proof")?.querySelector("code")?.textContent ?? null;
+    const priorProof = proofText();
     await log(`${label}: run`);
     await menu("analyze.run");
-    await waitForSolve(`${label} solve completed`, () => {
-      const summary = text("solve-job-summary") ?? "";
-      if (/state=(failed|cancelled)/.test(summary)) throw new Error(`${label}: ${summary}; ${text("solve-job-error") ?? ""}`);
-      const proof = byTestId("status-pill-solve-proof")?.querySelector("code")?.textContent ?? null;
-      return summary.includes("state=completed") && proof && proof !== priorProof && proof.includes(`project=${projectId}`);
-    }, 300000);
+    await waitForSolve(`${label} solve completed`, solveDone(label, projectId, priorProof), 300000);
     return observe(label, projectId, probe);
   }
 
@@ -566,7 +577,6 @@
   const typedTreeRow = (type, id) => byTestId(`tree-row-${encodeURIComponent(type)}-${encodeURIComponent(id)}`);
   const CODE_PATTERN = /\b[A-Z][A-Z0-9]*(?:[-_][A-Z0-9]+)+\b/g;
   const codesIn = (element) => [...new Set((element?.textContent ?? "").match(CODE_PATTERN) ?? [])];
-  const proofText = () => byTestId("status-pill-solve-proof")?.querySelector("code")?.textContent ?? null;
 
   // One solve from the current session in the default (sparse) mode, read from the window.
   async function solveCurrent(label, projectId, probe) {
@@ -575,12 +585,7 @@
     await waitFor("sparse selected", () => byTestId("solver-mode-sparse")?.getAttribute("aria-pressed") === "true");
     const prior = proofText();
     await menu("analyze.run");
-    await waitForSolve(`${label} solve`, () => {
-      const summary = text("solve-job-summary") ?? "";
-      if (/state=(failed|cancelled)/.test(summary)) throw Object.assign(new Error(`${label}: ${summary}; ${text("solve-job-error") ?? ""}`), { hard: true });
-      const proof = proofText();
-      return summary.includes("state=completed") && proof && proof !== prior && proof.includes(`project=${projectId}`);
-    }, 300000);
+    await waitForSolve(`${label} solve`, solveDone(label, projectId, prior, true), 300000);
     const observation = await observe(label, projectId, probe);
     if (probe) {
       // The probe row is the displacement magnitude; its signed components are separate rows.
@@ -798,7 +803,7 @@
   // Under the driver's node test only: hand over the helpers instead of running.
   const testHooks = globalThis.__SWBPIPE_NATIVE_SMOKE_DRIVER_TEST__;
   if (testHooks) {
-    Object.assign(testHooks, { waitFor, waitForSolve, solveJobDiagnostics, composeSolveDiagnostics });
+    Object.assign(testHooks, { waitFor, waitForSolve, solveDone, solveJobDiagnostics, composeSolveDiagnostics });
     return;
   }
 

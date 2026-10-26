@@ -116,3 +116,31 @@ test("a refused worker growth reports the pool's verdict as its cause", () => {
   assert.equal(fields.reason.required_bytes, 300);
   assert.match(text, /required_bytes=300; headroom_bytes=null; pressure=critical/);
 });
+
+test("a solve job that ended refused, failed or cancelled fails the wait at once, with its refusal and reason code", async () => {
+  // As the smoke saw it: the native memory pool refused the solve worker's growth.
+  const growth = { kind: "worker_growth_refused", granted_bytes: 0, requested_bytes: 67108864, cause: { kind: "headroom_insufficient", required_bytes: 67108864, available_bytes: 0 } };
+  const refused = {
+    "solve-job-summary": "state=refused; events=2; result_rows=0; cancellation_requested=false",
+    "solve-job-resource-refusal": "Refused by the native memory pool: Not enough free memory on this Mac right now: needs 64 MiB, 0 MiB available. No result was published."
+  };
+  for (const [shown, state] of [[refused, "refused"], [FAILED, "failed"], [{ "solve-job-summary": "state=cancelled; events=2; result_rows=0; cancellation_requested=true" }, "cancelled"]]) {
+    const { hooks } = load({ shown, record: { resource: { queue_reason: null, refusal: state === "refused" ? growth : null } }, pool: POOL });
+    const started = Date.now();
+    // The timeout here is the test's bound: a wait that only times out fails the test.
+    await assert.rejects(hooks.waitForSolve("demo/dense_scrutiny solve completed", hooks.solveDone("demo/dense_scrutiny", "project-1", null), 3000), (error) => {
+      assert.doesNotMatch(error.message, /timed out/, state);
+      assert.match(error.message, new RegExp(`^demo/dense_scrutiny: state=${state}; `), state);
+      if (state === "refused") {
+        assert.match(error.message, /refusal="Refused by the native memory pool: Not enough free memory on this Mac right now: needs 64 MiB, 0 MiB available\. No result was published\."/);
+        assert.match(error.message, /reason code=worker_growth_refused\/headroom_insufficient \(job refusal\); required_bytes=67108864; headroom_bytes=0/);
+        assert.equal(error.solve_job.reason.code, "worker_growth_refused/headroom_insufficient");
+      }
+      return true;
+    });
+    assert.ok(Date.now() - started < 1000, `${state}: failed at once`);
+  }
+  // A job still cancelling has not ended: the wait goes on.
+  const { hooks } = load({ shown: { "solve-job-summary": "state=cancelling; events=2; result_rows=0; cancellation_requested=true" } });
+  assert.equal(hooks.solveDone("x", "project-1", null)(), false);
+});

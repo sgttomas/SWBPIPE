@@ -339,8 +339,9 @@ later check fails for want of its observation.
 
 A step the window reports as failed stops the driver at once with that
 report, rather than waiting out its timeout. One example is a solve whose job
-state is `failed` or `cancelled`. A solve that fails or does not finish in time
-is reported with:
+reaches a terminal state other than `completed`: `refused`, `failed` or
+`cancelled` (a job still `cancelling` has not ended). A solve that is refused,
+fails, is cancelled or does not finish in time is reported with:
 - its job's summary, and any queue reason, resource refusal or error the Solve
   panel shows;
 - the typed reason (code, required bytes, headroom bytes, pressure);
@@ -453,17 +454,25 @@ removal steps. On SIGINT, SIGTERM or SIGHUP the holder sends that signal to
 each of its groups and waits up to 5 s for every group to be empty, sends
 SIGKILL to any group that is not and waits up to 2 s more, and only when every
 group is gone releases its lock; it then exits 128 + the signal number (130,
-143, 129), the smoke removing its private app copy as it exits. A group still
+143, 129), the smoke removing its private app copy as it exits. Once it is
+handling a stop signal the handler alone escalates: a command's own settlement
+sends nothing more, so a descendant still cleaning up keeps the full 5 s. A group still
 not empty after SIGKILL (on macOS a group left with only an unreaped zombie
 counts) keeps the lock and the copy, and the holder prints the same
-confirmation and removal steps as the refusal, written synchronously so that
-exiting at once cannot drop them. A signal that arrives during synchronous
-work (the probes `ps`, `rustc -vV` and `cargo metadata`, or the checks between
-commands) is delivered when the event loop next runs: at the next command, or
-at the exit, since the build and the smoke exit through `exitAfterSignals`,
-which first lets a pending signal's handler run, and after the release, whose
-handlers stay installed until the event loop has run once. Such a signal then
-exits 128 + the signal number. An ordinary or nonzero exit releases the lock.
+confirmation and removal steps as the refusal. That text is written
+synchronously, its first line saying the lock is kept, and retried while the
+pipe is full for at most 2 s: delivery is best effort, and a reader that does
+not drain standard error within 2 s gets only the head of the text, or
+nothing, while the lock is kept regardless. A signal that arrives during
+synchronous work (the probes `ps`, `rustc -vV` and `cargo metadata`, or the
+work after a command returns) is delivered in the event loop's next poll
+phase. The tooling waits for one before deciding an exit or removing its
+handlers (`afterPendingSignals`: a timer, which fires in a later loop
+iteration, then an immediate, which runs after that iteration's poll phase).
+`exitAfterSignals`, which the build and the smoke exit through, waits so before
+it exits; a release keeps the handlers until then; and a successful
+`build:wasm` waits so after its release. A signal received before that wait is
+then honoured: it exits 128 + the signal number. An ordinary or nonzero exit releases the lock.
 An uncaught error releases it too; were a group still running at that point,
 it is sent SIGKILL and the lock is kept. A signal pending at an uncaught error
 is not honoured: the exit status is the error's. Limits: SIGKILL of the

@@ -256,7 +256,7 @@ test('a build process group that cannot be confirmed empty after SIGKILL keeps t
     assert.deepEqual(await runner.done, { code: 143, signal: null }, runner.output());
     assert.equal(readFileSync(lockPath, 'utf8'), before, 'the lock is kept');
     const output = runner.output();
-    assert.match(output, new RegExp(`SIGTERM: process group \\d+ of this build did not empty after SIGTERM and SIGKILL; the worktree build lock ${lockPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} is kept`));
+    assert.match(output, new RegExp(`^the worktree build lock ${lockPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} is kept: SIGTERM: process group \\d+ of this build did not empty after SIGTERM and SIGKILL$`, 'm'));
     const [ps, pgrep, rm] = removalSteps(t.root, lockPath, runner.child.pid);
     for (const line of [ps, pgrep, rm]) assert.ok(output.includes(line), line);
   } finally {
@@ -410,11 +410,57 @@ test('Codex r8: the kept-lock recovery message survives a full standard-error pi
     const output = runner.output();
     const lockPath = buildLockPath(t.root);
     assert.ok(existsSync(lockPath), 'the lock is kept');
-    assert.match(output, /did not empty after SIGTERM and SIGKILL; the worktree build lock .* is kept/);
+    // Written synchronously, it may land inside the queued filler.
+    assert.match(output, /the worktree build lock .* is kept: SIGTERM: process group \d+ of this build did not empty after SIGTERM and SIGKILL$/m);
     assert.ok(output.includes(`  rm -f '${lockPath}'`), 'the removal step arrived');
   } finally {
     startReading();
     reap(runner, [pids[0], pids[2]].filter(Boolean));
     t.cleanup();
+  }
+});
+
+test('Codex r9: once a stop signal is being handled, a command whose leader exits at once does not cut its descendants\' grace short', async () => {
+  const t = tempRoot();
+  const ready = path.join(t.root, 'ready');
+  const marker = path.join(t.root, 'cleaned-up');
+  // The descendant cleans up for 1.5 s on SIGTERM; a second SIGTERM makes it quit at once, uncleaned.
+  const descendant = `const fs = require('node:fs'); let terms = 0; process.on('SIGTERM', () => { terms += 1; if (terms > 1) process.exit(9); setTimeout(() => { fs.writeFileSync(${JSON.stringify(marker)}, ''); process.exit(0); }, 1500); }); fs.writeFileSync(${JSON.stringify(`${ready}.tmp`)}, process.argv[1] + ' ' + process.pid); fs.renameSync(${JSON.stringify(`${ready}.tmp`)}, ${JSON.stringify(ready)}); setInterval(() => {}, 1000);`;
+  const leader = `require('node:child_process').spawn(process.execPath, ['-e', ${JSON.stringify(descendant)}, String(process.pid)], { stdio: 'ignore' }); setInterval(() => {}, 1000);`;
+  // A grace of 2.5 s, longer than the cleanup; settlement's own wait is 0.5 s.
+  const runner = startRunner(t.root, process.execPath, ['-e', leader], { stopGraceMs: 2500, killWaitMs: 500 });
+  let pids = [];
+  try {
+    pids = await readyPids(ready, runner);
+    const start = Date.now();
+    runner.child.kill('SIGTERM');
+    assert.deepEqual(await runner.done, { code: 143, signal: null }, runner.output());
+    assert.ok(existsSync(marker), 'the descendant finished its cleanup inside the grace');
+    assert.ok(Date.now() - start >= 1400, 'the holder waited for it');
+    assert.ok(!alive(pids[0]) && !alive(pids[1]), 'both are gone');
+    assert.ok(!existsSync(buildLockPath(t.root)), 'the lock is released');
+  } finally { reap(runner, pids); t.cleanup(); }
+});
+
+test('Codex r9: a signal received during synchronous work after a command returns is honoured at release and exit', async () => {
+  for (const ending of ['lock.release(); await exitAfterSignals(0);', 'lock.release();']) {
+    for (let round = 0; round < 3; round += 1) {
+      const t = tempRoot();
+      const ready = path.join(t.root, 'ready');
+      // The work after `await runUnderLock` resumes from the command's exit.
+      const runner = startScript(t.root, `
+        const lock = acquireBuildLock({ purpose: 'continuation', root });
+        await runUnderLock(process.execPath, ['-e', ''], { stdio: 'ignore' });
+        writeFileSync(${JSON.stringify(ready)}, '');
+        execFileSync('/bin/sleep', ['0.3']);
+        ${ending}
+      `);
+      try {
+        await untilFile(ready, runner);
+        runner.child.kill('SIGTERM');
+        assert.deepEqual(await runner.done, { code: 143, signal: null }, `${ending} (round ${round})\n${runner.output()}`);
+        assert.ok(!existsSync(buildLockPath(t.root)), 'the lock is released');
+      } finally { reap(runner, []); t.cleanup(); }
+    }
   }
 });

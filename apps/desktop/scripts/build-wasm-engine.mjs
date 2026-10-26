@@ -62,7 +62,7 @@ import {
   refuseLinkedCargoTree,
   stampFromDigests
 } from "./engineSourceStamp.mjs";
-import { acquireBuildLock, exitAfterSignals, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "./worktreeBuildLock.mjs";
+import { acquireBuildLock, afterPendingSignals, exitAfterSignals, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "./worktreeBuildLock.mjs";
 
 const PINNED_WASM_BINDGEN_VERSION = "0.2.123";
 export const MAX_STABLE_BUILD_ATTEMPTS = 3;
@@ -183,6 +183,8 @@ async function main() {
     } finally {
       lock.release();
     }
+    // Success: a signal received meanwhile still decides the exit.
+    await afterPendingSignals();
   } catch (error) {
     if (!(error instanceof BuildFailed)) throw error;
     await exitAfterSignals(1);
