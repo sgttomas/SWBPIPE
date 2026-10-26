@@ -335,6 +335,7 @@ code_paths:
 - apps/desktop/src/features/results/loadReferenceDisclosure.tsx
 - apps/desktop/src-tauri/src/exact_source_binding.rs
 - fixtures/reports/invented/exact_report_package_requests/
+- fixtures/reports/invented/exact_report_witness_inputs/
 checks:
 - core/reporting/report_package/tests/container.rs
 - core/reporting/report_package/tests/reader.rs
