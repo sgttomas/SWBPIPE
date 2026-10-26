@@ -149,6 +149,12 @@ on either route. It needs no solve and no result.
     library or record the store does not hold saves with a
     `MODEL-LIBRARY-REF-UNRESOLVED` warning; the entity's own record is still
     screened;
+  - each library is read within the command's memory, which starts from its
+    ingress lease: measured, then its load and its prescan-bounded parse leased
+    before they are made, and held until the command returns (DEL-04-07
+    memory-budget decision). A read the pool refuses refuses the save
+    `STORE-READ-MEMORY-UNAVAILABLE` before anything is chosen or written. W-6b
+    reads its libraries the same way;
   - the screening evidence carries the payload's sha256, and Rust refuses
     `MODEL-DOC-SAVE-EVIDENCE-UNBOUND` unless it equals the admitted text's.
 - **F-PIP-1.** No network and no telemetry. The default path is the user's
@@ -322,11 +328,14 @@ The vocabulary is not extended here.
   - the hash-mismatch refusal, the shape, validator and version refusals, the
     size cap, and cancel;
   - the extension-neutral writer, with the report writer's `.opsproj` checks
-    unchanged.
+    unchanged;
+  - the library read within its leases (counting allocator), the pool's
+    refusal, bounded decode errors, and the leases released on every path.
 - **Rust, W-6b:**
   - basis-state reuse and creation, written transactionally;
   - the disposition refusals;
-  - the tamper witnesses.
+  - the tamper witnesses;
+  - the library reads as for W-6a.
 - **pytest:**
   - one fully populated invented witness manifest validates against
     `handoff_package.schema.json`;
