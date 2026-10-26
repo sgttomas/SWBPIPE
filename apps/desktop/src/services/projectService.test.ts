@@ -249,3 +249,37 @@ describe("projectService model-document version evidence (DEL-02-05 CLM-003, bro
       .rejects.toThrow(/^PROJECT-BASE-MOVED: .* changed after the replace prompt showed it/);
   });
 });
+
+// W-17: model document 0.7.0's schema leaves `project.units` optional, but the
+// desktop's open check requires the map (`MODEL-FILE-SHAPE` at `project.units`).
+// A stored project without it is refused by name at open, in the browser
+// preview and through the native store; a missing key alone still opens.
+describe("openLocalProject refuses a document without project.units", () => {
+  const REFUSAL = "Model document refused: MODEL-FILE-SHAPE at project.units: project.units is missing (object required).";
+  function withoutUnits(id: string): PreviewModel {
+    const model = { ...sampleModel(MODEL_SCHEMA_VERSION), project: { ...sampleModel(MODEL_SCHEMA_VERSION).project, id } };
+    delete (model.project as { units?: unknown }).units;
+    return model;
+  }
+
+  it("browser preview: a stored snapshot without the map is refused at open; one missing keys opens", async () => {
+    const model = withoutUnits("project:invented-no-units");
+    await createLocalProject(model);
+    await expect(openLocalProject(model.project.id)).rejects.toThrow(REFUSAL);
+    const partial = { ...sampleModel(MODEL_SCHEMA_VERSION), project: { ...sampleModel(MODEL_SCHEMA_VERSION).project, id: "project:invented-length-only" } };
+    await createLocalProject(partial);
+    expect((await openLocalProject(partial.project.id))?.model.project.units).toEqual({ length: "m" });
+  });
+
+  it("native store: an envelope whose model lacks the map is refused at open", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const model = withoutUnits("project:invented-native-no-units");
+    invokeMock.mockImplementation(async (command: string) => {
+      if (command !== "open_local_project") throw new Error(`unexpected ${command}`);
+      return { summary: { project_id: model.project.id }, model, editor_intents: [], proposal: null, selected_review_target: null, mechanics_result: null, analysis_run: null, model_hash: null, project_envelope_hash: null };
+    });
+    await expect(openLocalProject(model.project.id)).rejects.toThrow(REFUSAL);
+    invokeMock.mockImplementation(async () => ({ summary: { project_id: "project:doc-migration-test" }, model: sampleModel(MODEL_SCHEMA_VERSION), editor_intents: [] }));
+    expect((await openLocalProject("project:doc-migration-test"))?.model.project.units).toEqual({ length: "m" });
+  });
+});

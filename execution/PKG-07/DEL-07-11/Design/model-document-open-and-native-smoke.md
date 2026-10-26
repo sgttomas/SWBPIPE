@@ -158,6 +158,30 @@ export use their existing routes unchanged.
     first.
   - **New Blank.** A New Blank whose time-stamped id is already stored takes a
     suffixed id, since a new blank has no identity of its own to keep.
+    - **When the blank becomes the session.** Create closes the units dialog
+      at once. The blank becomes the session only when its native create and
+      the hashes of its response return (`createBlankProjectFrom` in
+      `workspaceSession.ts`). Until then the previous project stays on screen
+      and stays editable.
+    - **What supersedes it (W-17, #1640).** Only a change to the model or
+      project on screen supersedes the pending blank: a commit through
+      `commitModel` (an applied operation, or undo/redo with history) or
+      another project operation. The create checks its own model-commit
+      epoch for this, not the request epoch. Selecting an entity or typing
+      into an unapplied form advances the request epoch but not the
+      model-commit epoch, so the blank still installs. Before #1640 either
+      one cancelled it silently.
+    - **A superseded blank is named (Agent 0, #1640).** The edit wins and is
+      never overwritten. The blank is stored but not opened. The status line
+      gives its name and id and the way back:
+      `NEW-BLANK-SUPERSEDED: the new blank project "<name>" (<id>) was created
+      but not opened, because the model changed while it was being created.
+      This session keeps the changed model. The blank is stored locally: open
+      it from List Local Projects.` The last project operation is recorded as
+      `create_blank_superseded`. The stored blank is not deleted, and the
+      desktop has no command to delete a stored project. A blank superseded
+      by another project operation gets no message: that operation owns the
+      status line.
   - **No normalization.** Save never rewrites a model document; B7a removed the
     0.1.0 → 0.2.0 normalization and its migration ledger records. The store's
     `model_migration_ledger_json` column (store v9) is no longer read or
@@ -307,7 +331,16 @@ refusal named in the product:
   exported.
 - **A model authored from blank.**
   - **Authoring.** New Blank Project must open the units dialog (SI, US
-    customary, custom); the default SI is accepted. The driver then authors
+    customary, custom); the default SI is accepted. The blank becomes the
+    session only when its native create returns (see New Blank above), and
+    until then the tree shows the previous project. In run 2 of the #1634
+    smoke at `4847f14b13` the driver read that row as the blank's id and
+    authored at once. Its typing into the node form, or its first applied
+    edit, superseded the pending create; the authoring and the solve then ran
+    on the previous project. Since #1640 only an applied edit supersedes it.
+    So before authoring, the driver waits for the create's own status line
+    and for a tree whose only project is a new id; that id is the blank's. A
+    `Blank create failed` line stops it at once. The driver then authors
     through the GUI a node, a material, a pipe to a new node, a fixed support,
     a load case and a 350 N tip force. It uses the viewport commands, the
     toolkit, the target pickers and Review changes, and applies each queued
@@ -350,8 +383,8 @@ fails, is cancelled or does not finish in time is reported with:
 A memory refusal or queue wait is then told apart from a slow solve. The
 details go to the driver log, the phase error and `summary.json`
 (`solve_job_diagnostics`). Timeouts and expected values are unchanged.
-`native-smoke/driver.test.mjs` tests this behaviour with a fake window
-(`node --test`); no CI job runs it.
+`native-smoke/driver.test.mjs` tests this behaviour, and the New Blank wait
+above, with a fake window (`node --test`); no CI job runs it.
 
 The smoke checks each WebAssembly engine against a content stamp before it
 runs. `build:wasm` writes `source-stamp.json` into each engine folder: a

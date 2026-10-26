@@ -481,7 +481,8 @@ function isDiagnostic(value: unknown): value is ModelFileDiagnostic {
   return isPlainObject(value) && typeof value.code === "string" && typeof value.path === "string" && typeof value.message === "string";
 }
 
-function readOutcome(value: unknown): ModelDocumentSaveOutcome {
+/** The native save's outcome, checked field by field (also the recovery export's, `storedDocumentExport.ts`). */
+export function readOutcome(value: unknown): ModelDocumentSaveOutcome {
   if (isPlainObject(value)) {
     if (value.outcome === "cancelled") return { outcome: "cancelled" };
     if (value.outcome === "refused" && Array.isArray(value.diagnostics) && value.diagnostics.every(isDiagnostic)) {

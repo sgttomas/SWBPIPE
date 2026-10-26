@@ -161,6 +161,21 @@ export function modelDocumentShapeDiagnostics(document: unknown): ModelFileDiagn
   return found;
 }
 
+/** The shape check's `project.units` findings alone (W-17): the map itself is
+ * required at every entry into the session (File > Open Model Document, an
+ * opened local project, an opened saved state); a missing key is not a finding,
+ * and the Project page offers to set it. */
+export function projectUnitsShapeDiagnostics(document: unknown): ModelFileDiagnostic[] {
+  return modelDocumentShapeDiagnostics(document).filter((item) => item.path === "project.units" || item.path.startsWith("project.units."));
+}
+
+/** One refusal text naming each `project.units` finding, or null when there is none. */
+export function projectUnitsShapeRefusal(document: unknown): string | null {
+  const found = projectUnitsShapeDiagnostics(document);
+  if (found.length === 0) return null;
+  return `Model document refused: ${found.map((item) => `${item.code} at ${item.path}: ${item.message}`).join(" | ")}`;
+}
+
 export function isDesktopModelDocument(document: unknown): document is PreviewModel {
   return modelDocumentShapeDiagnostics(document).length === 0;
 }

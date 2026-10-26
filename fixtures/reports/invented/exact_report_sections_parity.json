@@ -1,4 +1,7 @@
 {
+  "admitted_semantic_contracts": [
+    "openpipestress.result_semantics/0.3.0/preview-physics-2"
+  ],
   "binding_inputs": {
     "audit_input_manifest_ref": "invented-input-manifest",
     "audit_input_manifest_sha256": "a88aeb03e852bc5487dc0f030d51b56a274f0aea388ecf45b6f1417b640eee76",
@@ -7,7 +10,7 @@
     "native_job_id": "invented-solve-job-1",
     "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3"
   },
-  "description": "Shared parity vectors for the exact-route report sections (DEL-08-01 Design exact-route-report-sections.md sections 2.4 and 3.2-3.5): each vector names a committed source (path, JSON pointer, edits applied in order) and the expected exact_route_core, exact_route (with the invented binding_inputs as the document's, the audit's and the custody values) and exact limitation entries (without the effect and provenance they share with the technical-preview entry). report_package::exact_sections is checked against them by core/reporting/report_package/tests/exact_sections_parity.rs; the desktop builder is checked against them in slice (b). Edits: set, remove, append and replace_text at a JSON pointer. Invented bindings only.",
+  "description": "Shared parity vectors for the exact-route report sections (DEL-08-01 Design exact-route-report-sections.md sections 2.4 and 3.2-3.5): each vector names a committed source (path, JSON pointer, edits applied in order) and the expected exact_route_core, exact_route (with the invented binding_inputs as the document's, the audit's and the custody values) and exact limitation entries (without the effect and provenance they share with the technical-preview entry). report_package::exact_sections is checked against them by core/reporting/report_package/tests/exact_sections_parity.rs; the desktop builder is checked against them in slice (b). Edits: set, remove, append and replace_text at a JSON pointer. admitted_semantic_contracts is document_form::ADMITTED_SEMANTIC_CONTRACTS, which the desktop's REPORT_PACKAGE_ADMITTED_CONTRACT_IDS must equal. Invented bindings only.",
   "generator": "core/reporting/report_package/tests/exact_sections_parity.rs::exact_sections_parity_vectors_are_current",
   "refusals": [
     {

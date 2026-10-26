@@ -12,6 +12,7 @@ import { EngineeringTable, useTableBodyHeight, type TableApplyResult } from "../
 import { buildGridOperationIntent, materialTableColumns, sectionTableColumns, nodeTableColumns, type GridColumn, type GridRow } from "../workspace/table/modelTableAdapter";
 import { quantityCellKey, useQuantitySortProjection } from "../workspace/table/quantitySortProjection";
 import { capturedCellIsCurrent, type CapturedCell, type TableRow } from "../workspace/table/tableState";
+import { isProjectUnitKey, missingProjectUnitText, projectUnitMissing } from "../project-units/missingProjectUnit";
 
 type Props = {
   model: PreviewModel;
@@ -832,6 +833,11 @@ function EntityGrid({
 
   function handleQueueChangedCells() {
     if (!onQueueIntent || changedCells.length === 0) return;
+    const unitRefusal = missingProjectUnitCellRefusal(model, changedCells);
+    if (unitRefusal) {
+      setQueuedMessage(unitRefusal);
+      return;
+    }
     changedCells.forEach(({ column, row, value }, index) => {
       onQueueIntent(
         buildGridOperationIntent({
@@ -1269,7 +1275,8 @@ function row(id: string, label: string, type: EntityRef["type"], raw: unknown, k
 }
 
 function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColumn[] {
-  const lengthUnit = model.project.units.length ?? "m";
+  // W-17 §3: an absent key gives no unit (""), never a substitute; queuing such a cell is refused by name.
+  const lengthUnit = model.project.units.length ?? "";
   if (entityType === "nodes") {
     return [
       scalarGridColumn("label", "Label", "label", "Node", "node label only"),
@@ -1365,7 +1372,7 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
         "geometry.bend_angle.value",
         "Component",
         "angle",
-        model.project.units.angle ?? "rad"
+        model.project.units.angle ?? ""
       ),
       scalarGridColumn(
         "bend-pipe",
@@ -1425,7 +1432,7 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
         "geometry.weight.value",
         "Component",
         "force",
-        model.project.units.force ?? "N"
+        model.project.units.force ?? ""
       ),
       scalarGridColumn(
         "stiffness-scale",
@@ -1583,7 +1590,7 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
         "equivalent_static.wind.pressure.value",
         "Load",
         "pressure",
-        model.project.units.pressure ?? "Pa",
+        model.project.units.pressure ?? "",
         "update_load"
       ),
       scalarGridColumn(
@@ -1680,6 +1687,16 @@ function readonlyGridColumn(
 function gridCellReadonly(column: GridColumn, row: GridRow): boolean {
   // Structured provenance must never be flattened into a user-entered string.
   return Boolean(column.readonly || (column.fieldPath === "provenance" && ((row.type === "section" && typeof (row.raw as { provenance?: unknown }).provenance !== "string") || ((row.type === "node" || row.type === "material") && typeof (row.raw as { provenance?: unknown }).provenance !== "string"))));
+}
+
+/** W-17 §3: a changed quantity cell whose unit would come from a missing project key
+ * is refused by name, and nothing is queued; grid cells have no unit selector. */
+function missingProjectUnitCellRefusal(model: PreviewModel, cells: Array<{ row: GridRow; column: GridColumn }>): string | null {
+  for (const { row, column } of cells) {
+    if (!column.quantity || column.unit(row).trim() !== "" || !isProjectUnitKey(column.dimension) || !projectUnitMissing(model, column.dimension)) continue;
+    return `Not queued: ${column.label} of ${row.id} has no unit. ${missingProjectUnitText(model, column.dimension, column.objectType === "Node" ? "positions" : "required")}`;
+  }
+  return null;
 }
 
 function changedGridCells({

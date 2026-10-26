@@ -494,7 +494,7 @@ function StateRow({ state, states, runs, selected, selectionFull, onToggleSelect
 export function HistoryPanel() {
   const {
     states, runs, unreadable, historyMessage, historyBusy, refreshStates, recordRunUnavailableReason, compareStates, stateComparison, closeStateComparison,
-    compareRuns, runComparison, closeRunComparison, currentRunUnavailableReason, refusedRuns
+    compareRuns, runComparison, closeRunComparison, currentRunUnavailableReason, refusedRuns, refusedStateExport, exportRefusedState
   } = useSessionHistory();
   const { model } = useSessionModel();
   const { projectBusy } = useSessionProject();
@@ -563,6 +563,14 @@ export function HistoryPanel() {
       {saving ? <SaveStateForm onDone={() => setSaving(false)} /> : null}
       {recording ? <RecordRunForm onDone={() => setRecording(false)} /> : null}
       <p className="muted" role="status" data-testid="model-history-message">{historyMessage}</p>
+      {refusedStateExport ? (
+        <div className="report-actions" data-testid="model-history-refused-state-export">
+          <button type="button" data-testid="model-history-export-stored-state" disabled={historyBusy || projectBusy} title={reasonFor(historyBusy || projectBusy, null)} onClick={() => exportRefusedState()}>
+            Save the stored document to a file…
+          </button>
+          <span className="muted">Saves {refusedStateExport.description} exactly as stored, without opening it; add project.units to the file, then open it with Open Model Document….</span>
+        </div>
+      ) : null}
       <div className="model-history-current-run" data-testid="current-run-entry">
         <strong>Current run</strong> <span className="muted">· {CURRENT_RUN_DESCRIPTION}</span>
         <RunCompareSelect

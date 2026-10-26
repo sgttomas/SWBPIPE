@@ -149,6 +149,7 @@ code_paths:
 - apps/desktop/src/services/projectService.ts
 - apps/desktop/src/services/nativeMenu.ts
 checks:
+- apps/desktop/src/App.projectHandlers.test.tsx
 - apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
 - apps/desktop/src/features/model-file/modelDocumentSave.test.tsx
 - apps/desktop/src/features/project-storage/replaceProjectPrompt.test.tsx

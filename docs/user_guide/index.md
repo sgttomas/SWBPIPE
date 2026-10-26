@@ -310,6 +310,12 @@ In the desktop app the workflow is:
    pressure, stress, temperature, angle) from the unit catalog. Values are
    stored in the units entered, and the length unit is fixed once the project
    has nodes. The display units can be switched.
+   After Create, the new blank opens once it has been stored, usually at
+   once. If you change the model on screen before then (an applied edit,
+   undo or redo), your change is kept and the blank is not opened. The status
+   line then shows `NEW-BLANK-SUPERSEDED` with the blank's name and id. The
+   blank is stored: open it from List Local Projects. Selecting or typing
+   into a form does not stop the blank from opening.
 3. In the Model stage, create the centerline: place nodes and pipes in the
    viewport, then add bends, expansion joints and other components.
 4. Assign materials and sections, and add supports and restraints.

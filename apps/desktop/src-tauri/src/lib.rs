@@ -1,5 +1,6 @@
 mod atomic_report_package_save;
 mod command_ingress;
+mod exact_source_binding;
 mod export_disposition_screen;
 mod handoff_package;
 mod handoff_package_publish;
@@ -13,6 +14,7 @@ mod model_document_version;
 mod model_states;
 mod analysis_runs;
 mod stored_read;
+mod stored_model_document_export;
 #[cfg(feature = "native-smoke")]
 mod native_smoke;
 mod native_result_download;
@@ -72,7 +74,15 @@ async fn save_report_package(
     // `report-package-current-results.md` §2.6 items 1-3). The lease is held
     // through admission, the save dialog and the write.
     let growth = report_package_save::validate_report_package_save_evidence(&request.screening, request.local_first.as_ref())
-        .and_then(|()| report_package_save::parse_lease_bytes(&request.request_text, &request.model_text, &request.input_manifest_text));
+        .and_then(|()| {
+            report_package_save::parse_lease_bytes_with_exact(
+                &request.request_text,
+                &request.model_text,
+                &request.input_manifest_text,
+                request.exact_result_text.as_deref(),
+                request.exact_intake_text.as_deref(),
+            )
+        });
     let growth = match growth {
         Ok(growth) => growth,
         Err(error) => return respond::<report_package_save::ReportPackageSaveReceipt, _>(Err(CommandError::Command(error))),
@@ -89,7 +99,9 @@ async fn save_report_package_decoded(
     let software = report_package_save::ExpectedSoftware { name: info.name.clone(), version: info.version.to_string() };
     tauri::async_runtime::spawn_blocking(move || {
         let mut lookup = library_store_lookup(&app);
-        save_report_package_with_picker(request, &software, &mut lookup, |file_name| choose_report_package_save_path(&app, file_name))
+        let registry = app.state::<SolveJobRegistry>().inner().clone();
+        let custody = |job: &str| registry.custody_binding(job);
+        save_report_package_with_picker(request, &software, &mut lookup, &custody, |file_name| choose_report_package_save_path(&app, file_name))
     })
     .await
     .unwrap_or_else(|_| {
@@ -114,16 +126,19 @@ fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<R
 }
 
 /// The save after argument decoding: the native admission
-/// (`report_package_save::admit_report_package`), then the save dialog and the
-/// atomic write. `choose` is the save dialog (a counting seam in tests).
+/// (`report_package_save::admit_report_package_in`, with the registry's
+/// custody lookup for an exact-route request's native source binding, W-11),
+/// then the save dialog and the atomic write. `choose` is the save dialog (a
+/// counting seam in tests).
 fn save_report_package_with_picker(
     request: report_package_save::ReportPackageSaveRequest,
     software: &report_package_save::ExpectedSoftware,
     lookup: &mut model_document_save::LibraryLookup<'_>,
+    custody: &report_package_save::CustodyLookup<'_>,
     choose: impl FnOnce(&str) -> Option<Result<PathBuf, String>>,
 ) -> Result<report_package_save::ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
-    let admitted = report_package_save::admit_report_package(request, software, lookup)?;
-    report_package_save::save_admitted_report_package(admitted, choose)
+    let admitted = report_package_save::admit_report_package_in(request, software, lookup, custody)?;
+    report_package_save::save_admitted_report_package_in(admitted, custody, choose)
 }
 
 /// The local library store as the native saves read it (W-6a, W-18): opened
@@ -1539,20 +1554,34 @@ fn get_unit_catalog() -> UnitCatalogResponse {
 /// `x-swbpipe-ingress: args-json-v1`, body = the UTF-8 JSON object of the
 /// camelCase arguments. Each command's arguments are decoded by its `*_args`
 /// function; the response is serialized while the lease is held.
+///
+/// W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.6):
+/// the render runs on a blocking worker thread, as the save does, because an
+/// exact input's native source binding parses and re-derives under the held
+/// lease; every other input renders there unchanged.
 #[tauri::command]
-fn render_calculation_report(
+async fn render_calculation_report(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
-    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "render_calculation_report", ArgsDecoding::Moved)?;
-    respond(render_calculation_report_args(&mut args))
+    let (mut args, mut lease) = command_ingress::admit(&registry, &invoke, "render_calculation_report", ArgsDecoding::Moved)?;
+    let registry = registry.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let outcome = render_calculation_report_args(&mut args, &registry, &mut lease);
+        // The response is serialized while the lease is still held.
+        let response = respond(outcome);
+        drop(lease);
+        response
+    })
+    .await
+    .unwrap_or_else(|_| Err(CommandError::Command("RENDER-WORKER-FAILED: the render's worker did not complete.".to_string())))
 }
 
 /// The render's production root (W-11, DEL-08-01 Design
 /// `exact-route-report-sections.md` §3.6 step 0, §5.5): the production
 /// admitted set, which admits no exact-route identity before opening.
-fn render_calculation_report_args(args: &mut Args) -> Result<Value, CommandError> {
-    report_render_exact::render_calculation_report_args_in(args, report_render_exact::PRODUCTION)
+fn render_calculation_report_args(args: &mut Args, registry: &SolveJobRegistry, lease: &mut memory_pool::Lease) -> Result<Value, CommandError> {
+    report_render_exact::render_calculation_report_args_in(args, registry, lease, report_render_exact::PRODUCTION)
 }
 
 fn render_calculation_report_value(input: Value) -> Result<Value, String> {
@@ -1648,6 +1677,70 @@ async fn save_model_document_decoded(
     tauri::async_runtime::spawn_blocking(move || model_document_save::write_admitted_model_document(&destination, admitted))
         .await
         .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The save's write worker did not complete; the destination may be unchanged."))
+}
+
+/// Recovery export (W-17, DEL-02-02 Design §3): a stored project's document
+/// (`state_id` absent) or a saved state's, which the desktop refuses at open,
+/// written to a file the user chooses exactly as the store holds it
+/// (`stored_model_document_export`). It needs the explicit local-private
+/// intent; the store is opened read-only and not migrated; the read is
+/// admitted by the memory pool as the saved-state reader's is, and capped at
+/// the model-document file size; the text must hold each object member once,
+/// and its dispositions are screened. Then the Save Model Document chooser is
+/// shown and its atomic writer writes, the text's reservation held throughout.
+/// Nothing is adopted. The outcome's `model_hash` is the SHA-256 of the bytes
+/// written (for a saved state, its model hash). The arguments
+/// `{projectId, stateId, explicitLocalPrivateIntent}` are an `args-json-v1`
+/// raw body within the history commands' budget (`admit_within`,
+/// `INGRESS-ARGS-TOO-LARGE`); the ingress lease is held, and counted in the
+/// read's accounting, until the worker has built the response from the
+/// outcome serialized within that accounting.
+#[tauri::command]
+async fn save_stored_model_document_file(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<NoCommandError>> {
+    use stored_model_document_export as export;
+    let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, export::COMMAND, ArgsDecoding::Moved, export::MAX_ARGS_BYTES)?;
+    let request = export::stored_export_args(&mut args)?;
+    drop(args);
+    Ok(save_stored_model_document_decoded(app, request, lease).await)
+}
+
+/// The export's worker: it holds the ingress lease, and builds the response
+/// from the outcome's text serialized within the read's memory while every
+/// reservation is still held (`stored_model_document_export::serialize_outcome`),
+/// so nothing is serialized unreserved after the lease is released.
+async fn save_stored_model_document_decoded(
+    app: AppHandle,
+    request: stored_model_document_export::StoredExportRequest,
+    lease: memory_pool::Lease,
+) -> tauri::ipc::Response {
+    use model_document_save::{ModelDocumentSaveOutcome as Outcome, WORKER_FAILED};
+    // The chooser blocks this worker, not the main thread.
+    tauri::async_runtime::spawn_blocking(move || {
+        // The store's path, without `app_store_path`'s directory creation and
+        // legacy carry-forward: the export creates and writes nothing there.
+        let store = || app.path().app_local_data_dir().map(|directory| directory.join(PROJECT_STORE_FILE)).map_err(|error| error.to_string());
+        let registry = app.state::<SolveJobRegistry>();
+        let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
+        let response = stored_model_document_export::export_stored_model_document_request(
+            &request,
+            store,
+            &registry,
+            &lease,
+            |suggested| choose_model_document_save_path(&app, suggested, directory),
+            |_, text| tauri::ipc::Response::new(text),
+        );
+        drop(lease);
+        response
+    })
+    .await
+    .unwrap_or_else(|_| {
+        let failed = Outcome::refused_one(WORKER_FAILED, "The export's worker did not complete; the destination may be unchanged.");
+        tauri::ipc::Response::new(serde_json::to_string(&failed).unwrap_or_default())
+    })
 }
 
 fn choose_model_document_save_path(
@@ -1896,9 +1989,10 @@ fn poll_preview_mechanics_job(
 
 /// The producer's exact result bytes as a raw response (an `ArrayBuffer` in
 /// the webview). The job's result lease grows to 2R first; the webview must
-/// call `dispose_preview_mechanics_result` once it has dropped its copy.
+/// call `dispose_preview_mechanics_result` once it has dropped its copy. Async
+/// so that the growth's re-sampling (up to 2 s) never runs on the main thread.
 #[tauri::command]
-fn take_preview_mechanics_job_result(
+async fn take_preview_mechanics_job_result(
     state: tauri::State<'_, SolveJobRegistry>,
     job_id: String,
 ) -> Result<tauri::ipc::Response, SolveJobError> {
@@ -4956,6 +5050,7 @@ macro_rules! app_invoke_handler {
             load_design_knowledge,
             open_model_document_file,
             save_model_document_file,
+            save_stored_model_document_file,
             save_handoff_package,
             start_preview_mechanics_job,
             poll_preview_mechanics_job,
@@ -9458,8 +9553,10 @@ mod tests {
         #[test]
         fn report_rendering_and_sample_proposal_commands_decode_raw_bodies() {
             let broken = json!({"report_title": "broken"});
-            let (mut args, _lease) = admit("render_calculation_report", json!({"input": broken}));
-            let error = command_error(render_calculation_report_args(&mut args).unwrap_err());
+            let registry = registry(ScriptedHost::normal());
+            let (mut args, mut lease) =
+                admit_json(&registry, "render_calculation_report", ArgsDecoding::Moved, &json!({"input": broken})).unwrap();
+            let error = command_error(render_calculation_report_args(&mut args, &registry, &mut lease).unwrap_err());
             assert_eq!(Err(error), render_calculation_report_value(broken));
 
             let result = json!({"result_kind": "invented", "nodes": []});
@@ -9598,7 +9695,7 @@ mod tests {
             let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
             let root = sandbox("command-path");
             let mut picks = 0usize;
-            let receipt = save_report_package_with_picker(decoded, &software(), &mut no_store, |_| {
+            let receipt = save_report_package_with_picker(decoded, &software(), &mut no_store, &report_package_save::no_custody, |_| {
                 picks += 1;
                 Some(Ok(root.join("admitted.opsproj")))
             })
@@ -9624,7 +9721,7 @@ mod tests {
             let decoded = report_package_save::save_report_package_args(&mut args).unwrap();
             let root = sandbox("forged");
             let mut picks = 0usize;
-            let error = match save_report_package_with_picker(decoded, &software(), &mut no_store, |_| {
+            let error = match save_report_package_with_picker(decoded, &software(), &mut no_store, &report_package_save::no_custody, |_| {
                 picks += 1;
                 Some(Ok(root.join("forged.opsproj")))
             }) {
@@ -9711,7 +9808,7 @@ mod tests {
                     let growth = report_package_save::parse_lease_bytes(&request.request_text, &request.model_text, &request.input_manifest_text).unwrap();
                     lease.grow_to(lease.bytes() + growth).unwrap();
                     let mut picks = 0usize;
-                    let receipt = save_report_package_with_picker(request, &software(), &mut no_store, |_| {
+                    let receipt = save_report_package_with_picker(request, &software(), &mut no_store, &report_package_save::no_custody, |_| {
                         picks += 1;
                         None
                     })

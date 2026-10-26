@@ -35,6 +35,13 @@ export type RenderedReportOutcome = {
   derived_print_html: string;
 };
 
+/** W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.6): the texts an exact
+ * render resubmits beside its input: the bytes the solve job delivered, the model text it
+ * was sent and the admission's input manifest text. The native host binds them to the
+ * digests it recorded for the job. A pressure-free render carries none. The native render
+ * refuses every exact identity at its step 0 until the owner opens exact-route reports. */
+export type ExactRenderSubmission = { exactResultText: string; exactIntakeText: string; inputManifestText: string };
+
 export type RenderReportRoute =
   | { route: "tauri_renderer"; outcome: RenderedReportOutcome }
   | { route: "unavailable_browser_preview"; diagnostic: string }
@@ -46,7 +53,7 @@ function isTauriRuntime(): boolean {
 
 export async function renderCalculationReport(
   input: unknown,
-  options: { stillCurrent?: () => boolean } = {}
+  options: { stillCurrent?: () => boolean; exactSubmission?: ExactRenderSubmission | null } = {}
 ): Promise<RenderReportRoute> {
   if (!isControlledReportInput(input)) {
     return {
@@ -88,7 +95,7 @@ export async function renderCalculationReport(
   try {
     const outcome = await invokeWithIngress<RenderedReportOutcome>(
       "render_calculation_report",
-      { input: input.payload },
+      options.exactSubmission ? { input: input.payload, ...options.exactSubmission } : { input: input.payload },
       { stillCurrent: options.stillCurrent }
     );
     return { route: "tauri_renderer", outcome };

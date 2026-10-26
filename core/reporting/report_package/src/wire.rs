@@ -203,7 +203,7 @@ fn audit_privacy(value: &str) -> Result<audit::PrivacyClass, String> {
     }
 }
 
-fn audit_manifest(
+pub(crate) fn audit_manifest(
     value: AuditManifestDto,
     linked_solver: &LinkedSolverIdentity<'_>,
 ) -> Result<audit::AuditManifest, String> {
