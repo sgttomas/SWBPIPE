@@ -72,6 +72,20 @@ Headlines and maxima stay primitive-case only.
 basis. Combination stress metadata keeps the section-basis suffixes; PF's
 generic metadata replacement is not used for these rows.
 
+As built (PP `exact_combinations.rs` `combined_row`): a combined stress row (a
+row whose metadata basis carries a section-basis suffix) keeps its operand
+rows' whole `metadata.basis`, the recovery token included, so it keeps its
+pressure-2 signature, whose `source_basis` names that token. Every other row
+takes the expression's metadata basis, as on PF. Every combined row takes the
+expression's sign convention; a subtraction takes `SUBTRACTION_SIGN` (§5). A
+combined row's id is `result:combination:` followed by the length-prefixed
+identity (`<byte length>:<part>` per part) of the combination id, kind, unit,
+entity, location, component, frame and section basis. Combined values are the
+exact sum of exact products of the represented factors and operand values,
+rounded once, with +0.0 for a zero; a combined magnitude
+(`displacement_magnitude`, support force and moment magnitudes) is the norm of
+the combined components, except in a range envelope, which selects it.
+
 ## 3. Pairing operands
 
 Rows are paired by a typed structural key built from the rows' structured
@@ -149,6 +163,18 @@ evidence (PP `lib.rs` ~4526). This slice withholds tie-rod rows from EX
 combinations by name, under `LOAD_COMBINATION_ROW_WITHHELD`. Joining the rod
 identity from validated evidence is a later extension.
 
+As built: the key's section basis is the suffix of `metadata.basis` after
+`; section_basis=`; `displacement_magnitude`, which has no metadata, is keyed
+by its node. The withheld reasons are the strings "tie-rod row", "row missing
+key fields", "dimensionless row", "load-case algebra refused" and "source
+support row missing in an operand case". Support groups publish in the order
+in which their `Fx` rows first appear across the operands, so a reader derives
+the order from the operand rows without the model. A recovery source is the
+operand's `element_local_axial_force` row at the key's station (the end-tangent
+frame rows on a realized arc); a member qualifies when its section is
+published in that case's `pipe_sections` evidence and it is in none of the
+case's pressure regions.
+
 ## 4. Gates (mechanics basis only)
 
 The gates apply to `mechanics` combinations only, as on PF (~799-819).
@@ -194,6 +220,23 @@ In precedence order:
    constant-effort gate, which had the same tolerance weakness (Agent 0,
    2026-10-25). This gate calls that helper and builds no second
    implementation. Implementing this slice waits for the helper to land.
+
+As built:
+- **Gate 2** compares, per member published in any operand, one statement of
+  its resolved stiffness: the case's `pipe_materials` entry (E, ν, G, material
+  id, constitutive basis and selection kind), the case's material basis, the
+  load/reference-state member's property selection (kind, selection
+  temperature, interpolation fraction, selected E and ν) and the whole
+  `pipe_sections` entry (both section bases and the shear data). The
+  temperature compared is the property-selection temperature, not the
+  operating temperature: an operating temperature that selects the same
+  properties changes only the thermal load, a right-hand-side contribution to
+  the same K. W-15's stiffness scale is a model fact, the same in every case,
+  so it cannot differ between operands and is not compared separately.
+- **Gate 3** calls `load_case_algebra::factor_sum_within_unit_tolerance`
+  (#1625). A factor of 2^53 is refused by the checked JSON value entry
+  (`CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT`), so the cancelling 2^53 case reaches
+  the gate only through the typed entry; the tests use that entry.
 
 `NONLINEAR_COMBINATION_REQUIRES_SOLVE` and
 `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` cannot arise on EX, which refuses
@@ -243,6 +286,42 @@ has no combination, so existing bytes hold) has one record per combination:
 
 The raw reference token for a combination row stays `combination` (PP
 `preview_physics.rs` ~843).
+
+As built, each record has the closed keys `combination_id`, `basis`,
+`expression` (`terms` of `{load_case_id, factor}`; `{minuend_id,
+subtrahend_id}`; or `{operand_ids, mode}`), `operands` (`load_case_id`,
+`modulus_basis_ref`, `modulus_basis_temperature` and `numerical_quality`, the
+case's own quality record, filled after the case assessment), `gate`
+(`{withheld, reason}`), `rows` (`result_id` and `sources`, each
+`{load_case_id, result_id}` or `{load_case_id, recovery_index}`),
+`recoveries` (the witnesses: case, pipe, kind, component, location, section
+basis, method, source row, sign `none`/`unchanged`/`negated`, area, rounding
+and value), `missing_sources` (`{source_result_id, missing_load_case_ids}`),
+`withheld` (`{name, reason}`), `standing` (`derived_from_case_results`) and
+`source_recovery` (the §7 exclusion). Diagnostics, with ids under
+`diagnostic:exact-combination:`: the gate code; one
+`LOAD_COMBINATION_SOURCE_RESULT_MISSING` per missing source row; one bounded
+`LOAD_COMBINATION_ROW_WITHHELD`; `EXACT_COMBINATION_DERIVED_FROM_CASE_RESULTS`
+(information) per published combination; `COMBINATION_STRESS_MAXIMUM_UNAVAILABLE`
+and the intensified-stress notice as on PF; and once per document
+`EXACT_COMBINATION_SOURCE_RECOVERY_EXCLUDED`, naming every combination.
+
+The Rust reader is RE `exact_combination_evidence.rs`: `physics_evidence.rs`
+runs the direct pass on the document without the records and combination
+rows, then this pass re-derives every record, row, witness, gate, withheld
+name and diagnostic with its own exact products and compares them bit for
+bit; `reader_verdict.rs` binds the records to a supplied model's combinations.
+Because the direct pass reads the document without its combination rows and
+records, the family readers listed above (`load_reference.rs`,
+`connector_evidence.rs`, `section_basis.rs`, `u4b_evidence.rs`,
+`global_end_evidence.rs`) are unchanged; a combination row or record that
+reaches one of them is refused there as before. The Python mirror is
+`tests/verifiers/exact_combinations.py`, called the same way from
+`tests/verifiers/pressure_2.py` and `reader_verdict.py`.
+`qualification_exact_pressure.py`'s input binding admits combination rows only
+for the bound input's combinations, whose records must match them exactly.
+The `stress_neutral_export` and `analysis_run` schemas change in their pins
+only: they reference the pressure evidence definition.
 
 **Schemas:**
 - `results_pressure_2.v0.3.schema.json`: `PressureContractEvidence`
@@ -311,6 +390,16 @@ Surfaces:
 - No acceptance criterion changes. DEL-05-02 AC-001 and DEL-04-08's retained
   and source exclusions stay.
 
+As built, the identity sentence's last clause is changed once for slices b and
+c together, in both variants (pressure-2 and pressure-source-1): "Every other
+component, support, combination or equivalent-static family is refused by
+name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision
+admits it." becomes "Every other component or support family is refused by
+name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision
+admits it." Every carrier quoting it was regenerated by its writer; the
+report statement table (S1, S2) and DEL-08-01's and DEL-05-03's quotes take
+the new text and digests.
+
 **Still refused:** the retained exact route keeps refusing combinations (~916);
 `equivalent_static` on EX is slice c.
 
@@ -369,6 +458,17 @@ axial compliances.
   standing and rows through the readers.
 - **Byte identity.** Every EX document without a combination is unchanged,
   except for the identity sentence and its pins.
+
+As built: the references are in `validation/references/w16_exact_combinations/`
+(a two-member line with three primitive cases and nine combinations, ten
+factor sets and 61 cross-checks; its README states the method and criterion).
+PP `tests/w16_exact_combinations.rs` runs every case above in both solver
+modes, against the references or, where there is no closed form, against the
+exact combination of the published operand rows; it also writes the shared
+reader corpus `fixtures/results/pressure_v3_combination_reader_corpus.json`
+(`W16B_WRITE_CORPUS`), which the Rust reader
+(`tests/exact_combination_contract.rs`), the Python mirror
+(`tests/test_exact_combination_verifier.py`) and the base reader corpora read.
 
 ## 9. Retained-memory pricing (D3)
 

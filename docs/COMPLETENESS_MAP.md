@@ -119,7 +119,8 @@ The biggest gaps:
    model entities with their provenance (#1566). Affected:
    FR-MOD-001/002/004/005/006.
 6. **Mechanics gaps on one route.**
-   - Combinations are refused on EX (FR-SOL-009).
+   - Combinations were refused on EX (FR-SOL-009); W-16 slice b evaluates
+     them there, and the retained exact route still refuses them.
    - Imposed displacement is refused on PF (FR-SOL-006); the owner ruled to
      build it there in two stages.
 ## 2. Outcome table
@@ -177,7 +178,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-SOL-006 (515) | Must | P | EX applies `boundary_motion` (`exact_admission.rs:106`). PF maps a support-targeted `imposed_displacement` primitive into the same prescribed reduction in both modes (PP `imposed_motion.rs`; DEL-04-03 Design `pf-imposed-displacement.md`). Nozzle movement against `validation/references/w16_imposed_motion` with PF/EX parity (`tests/w16_imposed_motion.rs`); W9-C on both routes. EX refuses the primitive by name (`EXACT_IMPOSED_DISPLACEMENT_PRIMITIVE_UNSUPPORTED`) | DEL-04-03, DEL-04-07, DEL-05-01, DEL-05-05 | Owner (OD-6 row 2): two stages (`DEL-04-07 Design/pressure-contract.md`, "Imposed displacement on the pressure-free route"). Stage 1 is built (W-16 slice a). Stage 2 is open: PF refuses motion in a model with nonlinear supports (`IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS`). |
 | FR-SOL-007 (516) | Must | D | Straight pipes and realized bends publish twelve global end rows per member and case (`element_global_end_force_v1`, `element_global_end_moment_v1`) beside their `element_local` rows on PF and EX, each F = Rᵀ f from the published local end rows (PP `lib.rs:12350` `append_element_global_end_results`, called at `:6551`); the readers check them (`result_export/src/global_end_evidence.rs`); tests `core/product_physics/tests/global_end_actions_runtime.rs` (both routes and modes: rotation, nodal balance, bend ends, EX wall axial, PF combinations, readers) and `tests/test_global_end_verifier.py`. Connectors publish global end actions (`:4511`) | DEL-04-01 | Design `global-end-actions.md` (REQ-004, the transform). Source-recovery publications omit the rows by the named rule `global_end_rows_published`. The dormant retained route carries them as named not-covered rows, re-registered in DEL-04-08 §8.20. |
 | FR-SOL-008 (517) | Must | D | `core/loads/stress_recovery`; `tests/t4_u6_section_bases.rs:270` | DEL-05-03 | Pressure stresses exist where pressure exists (EX). |
-| FR-SOL-009 (518) | Must | P | `core/loads/load_case_algebra`; `preview_physics_runtime.rs:597,682,709` | DEL-05-02 | EX refuses every combination (`pressure_runtime.rs:337-343`; `exact_admission.rs:229`). |
+| FR-SOL-009 (518) | Must | D | `core/loads/load_case_algebra`; `preview_physics_runtime.rs:597,682,709`; on EX, PP `exact_combinations.rs` (W-16 slice b) against independent references (`tests/w16_exact_combinations.rs`, `validation/references/w16_exact_combinations/`), read by RE `exact_combination_evidence.rs`, the Python mirror and the desktop's wasm reader over the shared corpus | DEL-05-02 | Both routes. On EX a mechanics combination is withheld by name across mixed modulus bases or resolved stiffness, or when an installed connector or tie-rod reference meets factors outside the unit factor-sum rule; its rows are derived from case results, never numerically eligible, and a document with a combination attempts no retained-source recovery (DEL-05-02 Design `exact-combinations.md`). The retained exact route still refuses combinations. |
 | FR-SOL-010 (519) | Should | D | `core/solver/curved_bend`; DEC-070 | DEL-03-03, DEL-04-07 | |
 | FR-SOL-011 (520) | Should | P | SIF → intensified measure (`preview_physics.rs:321-347`); `BRANCH_TOPOLOGY_INVALID` (W-8) | DEL-03-04 | Branch flexibility is not assembled (PP `lib.rs:12861`). EX refuses tees (`exact_admission.rs:205`). |
 | FR-SOL-012 (521) | Should | P | As FR-SOL-004: rigid and semi-rigid behaviour by the user's scale, with user dimensions and source notes; component weight at the centre of gravity as a nodal weight force plus r × F moments, replacing the mapped member's distributed self-weight (`self_weight.rs`; W-15 slice b, #1608; R10 convention, owner 2026-10-24) | DEL-03-05 | The eccentric reducer offset remains (slice c). |
@@ -185,7 +186,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-SOL-014 (523) | Should | P | `core/solver/nonlinear_supports`; `references/kd5_nonlinear`; the native demo converges | DEL-04-04, DEL-04-07, DEL-09-03 | PF only. Rotational gap and friction refused (`validation.rs:88,100`). |
 | FR-SOL-015 (524) | Must | D | `NUMERICAL_INTEGRITY_*` (PP `lib.rs:1198-1230`); health indicator `operation_applier/src/numerical_health.rs`, `ResultsPanel.tsx:97-130`, status bar and Solve panel, with tests (#1544). Observed natively on both routes (§5) | DEL-04-06, DEL-05-04, DEL-07-05 | |
 | §12.3 reducers (no row before) | — | P | No eccentric offset vector in `core/product_physics/src` | DEL-03-05 | Part of W-15. |
-| §12.5 load types (no row before) | — | P | Wind, seismic and hydrotest categories (PP `lib.rs:14333-14335`); DEC-068 seismic and wind generation on PF and, since W-16 slice c, on EX documents without the load/reference-state group, against independent references on both routes (`tests/w16_exact_equivalent_static.rs`, `validation/references/w16_exact_equivalent_static/`) | DEL-05-01 | EX generates seismic loads on its D-5 mass basis (PF keeps its own; DEL-05-01 Design `exact-equivalent-static.md`) and refuses by name generation on load/reference-state documents, partial-span wind on Timoshenko and wind on connector-replaced spans. Combinations of generated cases on EX follow W-16 slice b. Imposed rotations and nozzle movement are built on PF (support-targeted primitives, stage 1, no nonlinear supports) and on EX (`boundary_motion`); see FR-SOL-006. |
+| §12.5 load types (no row before) | — | P | Wind, seismic and hydrotest categories (PP `lib.rs:14333-14335`); DEC-068 seismic and wind generation on PF and, since W-16 slice c, on EX documents without the load/reference-state group, against independent references on both routes (`tests/w16_exact_equivalent_static.rs`, `validation/references/w16_exact_equivalent_static/`) | DEL-05-01 | EX generates seismic loads on its D-5 mass basis (PF keeps its own; DEL-05-01 Design `exact-equivalent-static.md`) and refuses by name generation on load/reference-state documents, partial-span wind on Timoshenko and wind on connector-replaced spans. Combinations of generated cases on EX combine like any other case (W-16 slice b). Imposed rotations and nozzle movement are built on PF (support-targeted primitives, stage 1, no nonlinear supports) and on EX (`boundary_motion`); see FR-SOL-006. |
 | §12.8 near-duplicate nodes (775) | — | D | W-8 with #1574: `NODE_COINCIDENT`, `NODE_NEAR_DUPLICATE` within an absolute tolerance, 5 mm unless `model_settings.node_proximity_tolerance` sets another (`topology.rs:148,281`; read through `PreviewModel::node_proximity_tolerance_m`); a malformed value is refused by name (`validation.rs` `validate_model_settings`); tests `topology_checks_runtime.rs:143,182,193`. The desktop's Project page sets and resets it (`ModelSettingsSection.tsx`; applier `set_model_setting`/`clear_model_setting`, `model_settings_authoring.rs`); through-solve tests `operation_applier/tests/model_settings_authoring.rs`, src-tauri `a_tolerance_set_through_the_apply_command_changes_which_nodes_warn` | DEL-04-06, DEL-02-01 | REQ-04-06-012 (owner) is met on both routes, and a desktop user can see the effective value ("5 mm (default)") and change it. |
 | §12.8 verified bounds (783) | — | O | Owner, 2026-10-23: "no verified bounds in v0.1; the retained-precision method stays dormant and owner-held." (`DEL-04-08 Design/b7-plan.md:34`; SOW:336, AX-004) | DEL-04-08 | Dormant code is in `product_physics/src/retained_*.rs`. |
 | §22.2 benchmarks (1403) | — | P | 14 of 14: tip force, tip moment, fixed-fixed thermal, simply supported under weight (W9-B, both routes), inclined member, L-frame (W9-A, both routes), U-loop, torsion, anchor displacement (W9-C, both routes), spring, gap, friction, branch, rigid link (W-15, both routes, #1604) | DEL-09-01..03 | |
@@ -254,13 +255,13 @@ the webview has no network policy.
 ### 2.7 Class counts, MVP (PRD §23) and milestones (§24)
 
 **Class counts.** The #1539 map at `7a780551f0` had 48 P, 28 D, 3 O and no R.
-This map has 35 P, 41 D (including one bounded and one at repository level), 8 O and no R:
-- **P → D (11):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
+This map has 34 P, 42 D (including one bounded and one at repository level), 8 O and no R:
+- **P → D (12):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
   §10.1 step 1 (#1569), the R2 exit (W-4, #1582, after the basis), §12.8
   near-duplicate nodes (the desktop tolerance control, after the basis),
   FR-CMP-002 (W-12 S2, #1596, with its rule-pack references from #1602),
-  FR-CMP-003 (W-12 S3a, #1605), FR-CMP-004 and -006 (W-12 S3b, #1617), and
-  FR-SOL-007 (W-7, #1581).
+  FR-CMP-003 (W-12 S3a, #1605), FR-CMP-004 and -006 (W-12 S3b, #1617),
+  FR-SOL-007 (W-7, #1581) and FR-SOL-009 (W-16 slice b).
 - **D → P → D (1):** FR-SOL-002 moved D → P only because imposed displacements
   passed on EX alone (below). PRD :511's criterion, benchmarks for imposed
   displacements among them, now passes on both routes: W9-C runs on PF as a
@@ -280,7 +281,8 @@ This map has 35 P, 41 D (including one bounded and one at repository level), 8 O
 
 **§23 MVP items:**
 - **In the desktop:** 25 of 28 items. Imposed displacement works on EX only;
-  combinations on PF only; the validation suite is headless.
+  the validation suite is headless. Combinations work on both routes (W-16
+  slice b).
 - **Not in the desktop:**
   - rigid elements (W-15);
   - basic report generation (local-private PF render only; W-11 and the
@@ -548,7 +550,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-6 | Canonical model export (save model document to file, independent of a solve; FR-HAND-001); schema-conformant handoff manifest with rule refs and hashes (FR-HAND-002) | M | desktop + schema | heavy | W-13 (0.7.0) | No |
 | W-11 | Exact-route reports: DEL-08-01 limitation sections (ruling 10A), then open; with it, the report's materials, sections and library records (FR-REP-003) | M–L | docs + desktop | heavy | W-3 (done) | Slice (a) (statement table, renderer sections, dormant package checks, native step 0) merged in #1632; slice (b) (desktop exact sections, Export Result JSON admission and the native source binding) built behind the gate, not opened; slice (c) (FR-REP-003 on every route: material, section, component and support records, library references and findings, and the renderer's disposition refusal) built. Opening returns to the owner |
 | W-15 c | Eccentric reducer offset with the 0.8.0 model document (§12.3) | S–M | numerical + schema | heavy, scrutiny | #1604, #1608; the 0.8.0 coordination after slice a's D3 turn | No |
-| W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | — | No |
+| W-16 | Combinations on EX (FR-SOL-009, slice b, built); imposed displacement on PF, stage 1 linear (slice a, #1615), then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5, slice c) | M | numerical | heavy, scrutiny | — | No |
 | W-18 (new) | Report package for current results (FR-REP-001; formerly `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private). Slice (a), the Rust 2.0.0 producer, reader and runner witness, is on main (#1597); slice (b1), native admission and disposition screening of the save (`report_package_save.rs`, shared `export_disposition_screen.rs`), replaces its native hold; slice (b2), the desktop opening (`reportPackageRequest.ts`, the split save service, the solve/rule-check rule-pack agreement and a native smoke step), saves a local private package for a Current pressure-free result, and exact routes stay refused (DEL-08-01 Design `report-package-current-results.md` §6) | M | desktop + Rust | heavy | W-3 | Shareable path decided (owner, 2026-10-24, option B: a per-report user release, W-18b, after (a)–(b2)) |
 | W-14 | Design-knowledge entry and constraint validation | — | — | — | — | Deferred to v0.2 (OD-3) |
 

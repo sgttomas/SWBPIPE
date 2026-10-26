@@ -51,8 +51,10 @@ DEPENDENCIES = {
     # after the published rows' own coverage (was 8b61f340...); then W-15 slice d (DEL-03-05 Design §5): the
     # component-body records, bodies out of the maxima and headlines, merged with W-7 (was ad8edd63... on W-7 and
     # 420e60e4... on W-15); then W-16 slice c (DEL-05-01 exact-equivalent-static.md §2): the generated-primitive
-    # evidence binding (was 0b296b0e...).
-    MODULE: 'ef200d25c7133dfbc69c16f500f5484639b6692e4d9123e3bbb00920fbccfe74',
+    # evidence binding (was 0b296b0e...); then W-16 slice b (DEL-05-02 exact-combinations.md §6): the direct pass
+    # reads the document without its combination rows and records, then the combination pass re-derives them
+    # (was ef200d25...).
+    MODULE: 'c82a0f11e77162692306e8ff275218596d343e2777a2bad0c4192b790861fbee',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }

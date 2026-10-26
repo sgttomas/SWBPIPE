@@ -727,8 +727,17 @@ def structural_checks(mechanics: dict, prepared: dict, mode: str, standing: dict
         wanted = sorted(prepared['request_cases'])
         exact = sorted(case.get('load_case_id') for case in evidence['exact_cases'])
         require(exact == wanted, 'raw load cases differ from the bound input (substitution)')
-        foreign = sorted({row['basis_ref']['ref_id'] for row in mechanics['results'] if 'basis_ref' in row} - set(wanted))
+        # W-16 slice b (DEL-05-02 exact-combinations.md §6): a combination row names a combination of the
+        # bound input; the document's combination records are exactly the input's combinations.
+        foreign = sorted({row['basis_ref']['ref_id'] for row in mechanics['results']
+                          if 'basis_ref' in row and row['basis_ref'].get('ref_type') != 'combination'} - set(wanted))
         require(not foreign, 'raw rows carry load cases outside the bound input')
+        combinations = sorted(c.get('id') for c in request['solve']['preview_model']['model'].get('combinations') or [])
+        combined = {row['basis_ref']['ref_id'] for row in mechanics['results']
+                    if 'basis_ref' in row and row['basis_ref'].get('ref_type') == 'combination'}
+        require(combined <= set(combinations), 'raw rows carry combinations outside the bound input')
+        records = sorted(r.get('combination_id') for r in evidence.get('exact_combinations') or [])
+        require(records == combinations, 'raw combination records differ from the bound input')
         details.update(model_ref=mechanics['model_ref'], request_id=request['request']['request_id'], load_cases=wanted)
 
     def contract(details):
