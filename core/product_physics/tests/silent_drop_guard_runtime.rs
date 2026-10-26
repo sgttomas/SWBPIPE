@@ -5,16 +5,24 @@
 //! - Closed model records: an unknown key on the model root, a load case (its
 //!   equivalent_static inputs and solve temperature), a primitive load (its
 //!   target and magnitude), a combination or a combination term refuses by name
-//!   (`UNKNOWN_MODEL_FIELD`) before anything is solved.
+//!   (`UNKNOWN_MODEL_FIELD`) before anything is solved. So does one on a node, a
+//!   pipe segment (its section and `y_reference`), a section, a support (its
+//!   stiffness, hanger and nonlinear inputs), a component (its geometry,
+//!   modifiers, mechanics interface and objective connector), a model or request
+//!   material (its temperature points), or any quantity or vector they carry.
 //! - A `mechanics` combination naming one load case twice blocks by name
 //!   (`LOAD_COMBINATION_DUPLICATE_TERM`) instead of losing every combined row.
 //! - Controls: well-formed documents (including the declared, solve-ignored
 //!   `data_boundary`, `diagnostics` and load-case `kind`/`label`/`status`, and
 //!   model document 0.7.0's root `lines`, `unresolved_assumptions`,
-//!   `constraints`, `equipment_interfaces` and `rule_pack_refs` and load-case and
-//!   combination `tags`/`notes`) publish; a combination that publishes keeps its rows and diagnostics.
+//!   `constraints`, `equipment_interfaces` and `rule_pack_refs`, the load-case,
+//!   combination and nested records' `tags`/`notes`, and the nested records'
+//!   other declared members) publish, byte-identically whatever their values or
+//!   presence; a combination that publishes keeps its rows and diagnostics.
 //!   Setting `SILENT_DROP_GUARD_DUMP=<dir>` writes the control envelopes' exact
 //!   bytes there, for a byte comparison against another tree.
+//! - A record that is not an object (a positional array, null or a scalar)
+//!   refuses by its path (`MODEL_RECORD_NOT_OBJECT`) before anything is solved.
 use open_pipe_stress_product_physics::{
     run_linear_static_preview_value_with_mode, LinearStaticPreviewRequest, MechanicsEnvelope,
     PreviewSolverMode,
@@ -179,6 +187,214 @@ fn an_unknown_key_on_a_closed_record_refuses_by_field_and_record() {
     }
 }
 
+fn nested_probes() -> Vec<Probe> {
+    vec![
+        ("misspelled node label", |m| m["nodes"][2]["lable"] = json!("Elbow"), "lable", "node `node:N-120`", "model.nodes[2]"),
+        ("unknown key on a node position", |m| m["nodes"][1]["position"]["w"] = json!(0.0), "w", "the position of node `node:N-110`", "model.nodes[1].position"),
+        ("unknown key on a pipe segment", |m| m["pipe_segments"][0]["sectionref"] = json!("section:S"), "sectionref", "pipe segment `pipe:P-100`", "model.pipe_segments[0]"),
+        (
+            "misspelled mill_tolerance solves without it",
+            |m| m["pipe_segments"][1]["section"]["mill_tolerence"] = json!({"value": 0.001, "unit": "m"}),
+            "mill_tolerence",
+            "the section of pipe segment `pipe:P-110`",
+            "model.pipe_segments[1].section",
+        ),
+        (
+            "unknown key on a section quantity",
+            |m| m["pipe_segments"][0]["section"]["wall_thickness"]["tolerance"] = json!(0.125),
+            "tolerance",
+            "the wall_thickness of the section of pipe segment `pipe:P-100`",
+            "model.pipe_segments[0].section.wall_thickness",
+        ),
+        ("unknown key on a y_reference", |m| m["pipe_segments"][3]["y_reference"]["unit"] = json!("m"), "unit", "the y_reference of pipe segment `pipe:P-130`", "model.pipe_segments[3].y_reference"),
+        (
+            "unknown key on a section of the library",
+            |m| m["sections"] = json!([{"id": "section:S", "name": "s", "section_type": "pipe", "properties": {}, "provenance": "p", "lable": "s"}]),
+            "lable",
+            "section `section:S`",
+            "model.sections[0]",
+        ),
+        (
+            "unknown key on a section property",
+            |m| m["sections"] = json!([{"id": "section:S", "name": "s", "section_type": "pipe", "properties": {"outside_diameter": {"value": 0.168, "unit": "m", "grade": "x"}}, "provenance": "p"}]),
+            "grade",
+            "the outside_diameter of the properties of section `section:S`",
+            "model.sections[0].properties.outside_diameter",
+        ),
+        ("misspelled restraints", |m| m["supports"][0]["restraint"] = json!(["UX"]), "restraint", "support `support:S-100`", "model.supports[0]"),
+        (
+            "unknown key on a support stiffness",
+            |m| m["supports"][1]["stiffness"] = json!({"dof": "UY", "value": {"value": 1.0e6, "unit": "N/m"}, "direction": "UY"}),
+            "direction",
+            "the stiffness of support `support:S-120`",
+            "model.supports[1].stiffness",
+        ),
+        ("misspelled hanger load", |m| m["supports"][5]["hanger"]["hot_lode"] = json!({"value": 390.0, "unit": "N"}), "hot_lode", "the hanger of support `support:SH-140`", "model.supports[5].hanger"),
+        (
+            "unknown key on a hanger stiffness",
+            |m| m["supports"][5]["hanger"]["stiffness"]["direction"] = json!("UZ"),
+            "direction",
+            "the stiffness of the hanger of support `support:SH-140`",
+            "model.supports[5].hanger.stiffness",
+        ),
+        (
+            "unknown key on a hanger stiffness value",
+            |m| m["supports"][5]["hanger"]["stiffness"]["value"]["scale"] = json!(2.0),
+            "scale",
+            "the value of the stiffness of the hanger of support `support:SH-140`",
+            "model.supports[5].hanger.stiffness.value",
+        ),
+        (
+            "unknown key on a hanger quantity",
+            |m| m["supports"][6]["hanger"]["constant_load"]["basis"] = json!("cold"),
+            "basis",
+            "the constant_load of the hanger of support `support:CE-120`",
+            "model.supports[6].hanger.constant_load",
+        ),
+        ("misspelled nonlinear gap", |m| m["supports"][3]["nonlinear"]["gap_size"] = json!({"value": 0.0, "unit": "m"}), "gap_size", "the nonlinear of support `support:NL-140`", "model.supports[3].nonlinear"),
+        (
+            "unknown key on a normal reaction source",
+            |m| m["supports"][4]["nonlinear"]["normal_reaction_source"]["direction"] = json!("UY"),
+            "direction",
+            "the normal_reaction_source of the nonlinear of support `support:NL-130-FRIC`",
+            "model.supports[4].nonlinear.normal_reaction_source",
+        ),
+        (
+            "unknown key on a friction coefficient",
+            |m| m["supports"][4]["nonlinear"]["friction_coefficient"]["static"] = json!(true),
+            "static",
+            "the friction_coefficient of the nonlinear of support `support:NL-130-FRIC`",
+            "model.supports[4].nonlinear.friction_coefficient",
+        ),
+        ("misspelled component kind", |m| m["components"][0]["kindd"] = json!("bend"), "kindd", "component `component:C-110`", "model.components[0]"),
+        ("misspelled bend radius", |m| m["components"][0]["geometry"]["bend_raduis"] = json!({"value": 0.45, "unit": "m"}), "bend_raduis", "the geometry of component `component:C-110`", "model.components[0].geometry"),
+        (
+            "unknown key on a bend radius",
+            |m| m["components"][0]["geometry"]["bend_radius"]["basis"] = json!("long"),
+            "basis",
+            "the bend_radius of the geometry of component `component:C-110`",
+            "model.components[0].geometry.bend_radius",
+        ),
+        (
+            "unknown key on a center of gravity",
+            |m| m["components"][1]["geometry"]["center_of_gravity"]["w"] = json!(0.0),
+            "w",
+            "the center_of_gravity of the geometry of component `component:C-130`",
+            "model.components[1].geometry.center_of_gravity",
+        ),
+        ("misspelled user SIF", |m| m["components"][0]["modifiers"]["sif_user_valu"] = json!({"value": 1.3, "unit": "none"}), "sif_user_valu", "the modifiers of component `component:C-110`", "model.components[0].modifiers"),
+        (
+            "unknown key on a modifier quantity",
+            |m| m["components"][1]["modifiers"]["linear_stiffness_user_value"]["axis"] = json!("x"),
+            "axis",
+            "the linear_stiffness_user_value of the modifiers of component `component:C-130`",
+            "model.components[1].modifiers.linear_stiffness_user_value",
+        ),
+        (
+            "unknown key on a mechanics interface",
+            |m| m["components"][0]["mechanics_interface"]["solver"] = json!("x"),
+            "solver",
+            "the mechanics_interface of component `component:C-110`",
+            "model.components[0].mechanics_interface",
+        ),
+        (
+            "unknown key on an objective connector",
+            |m| m["components"][2]["objective_connector"] = json!({"version": "1.0.0", "stifness": {}}),
+            "stifness",
+            "the objective_connector of component `component:C-140`",
+            "model.components[2].objective_connector",
+        ),
+        ("misspelled elastic modulus", |m| m["materials"][0]["elastic_modulos"] = json!({"value": 1.9e11, "unit": "Pa"}), "elastic_modulos", "material `material:invented-carbon-steel`", "model.materials[0]"),
+        (
+            "unknown key on a material quantity",
+            |m| m["materials"][0]["elastic_modulus"]["temperature"] = json!(20.0),
+            "temperature",
+            "the elastic_modulus of material `material:invented-carbon-steel`",
+            "model.materials[0].elastic_modulus",
+        ),
+        (
+            "misspelled temperature point temperature",
+            |m| m["materials"][0]["temperature_points"] = json!([{"id": "point:hot", "tempreature": {"value": 120.0, "unit": "degC"}}]),
+            "tempreature",
+            "temperature point `point:hot` of material `material:invented-carbon-steel`",
+            "model.materials[0].temperature_points[0]",
+        ),
+        (
+            "unknown key on a temperature point quantity",
+            |m| m["materials"][0]["temperature_points"] = json!([{"id": "point:hot", "elastic_modulus": {"value": 1.9e11, "unit": "Pa", "at": "hot"}}]),
+            "at",
+            "the elastic_modulus of temperature point `point:hot` of material `material:invented-carbon-steel`",
+            "model.materials[0].temperature_points[0].elastic_modulus",
+        ),
+        (
+            "unknown key on an optional section quantity",
+            |m| m["pipe_segments"][2]["section"]["insulation_density"] = json!({"value": 100.0, "unit": "kg/m^3", "vaule": 1.0}),
+            "vaule",
+            "the insulation_density of the section of pipe segment `pipe:P-120`",
+            "model.pipe_segments[2].section.insulation_density",
+        ),
+    ]
+}
+
+#[test]
+fn an_unknown_key_on_a_nested_record_refuses_by_field_record_and_path() {
+    let base = demo();
+    for (what, edit, field, record, path) in nested_probes() {
+        let mut model = base.clone();
+        edit(&mut model);
+        for mode in MODES {
+            let error = refusal(&model, mode, what);
+            let named = format!("unknown field `{field}` in {record} ({path})");
+            assert!(error.starts_with("UNKNOWN_MODEL_FIELD: request: "), "{what}/{mode:?}: {error}");
+            assert!(error.contains(&named), "{what}/{mode:?}: expected `{named}` in {error}");
+            assert_eq!(error.matches("unknown field").count(), 1, "{what}/{mode:?}: {error}");
+        }
+        let typed = serde_json::from_value::<LinearStaticPreviewRequest>(request(&model)).unwrap_err().to_string();
+        assert!(typed.contains(&format!("unknown field `{field}`")), "{what}: {typed}");
+    }
+}
+
+#[test]
+fn an_unknown_key_on_a_request_material_refuses_by_field_record_and_path() {
+    let material = json!({"id": "material:R", "elastic_modulus": {"value": 2.0e11, "unit": "Pa"}, "poison_ratio": {"value": 0.3, "unit": "1"}});
+    let request = json!({"model": demo(), "materials": [material]});
+    for mode in MODES {
+        let error = run_linear_static_preview_value_with_mode(request.clone(), mode).map(drop).unwrap_err();
+        assert!(error.contains("unknown field `poison_ratio` in request material `material:R` (materials[0])"), "{mode:?}: {error}");
+    }
+    let typed = serde_json::from_value::<LinearStaticPreviewRequest>(request).unwrap_err().to_string();
+    assert!(typed.contains("unknown field `poison_ratio`"), "{typed}");
+}
+
+/// The desktop's hand-edit refusal (`apps/desktop/src/features/workspace/solveJobResource.session.test.tsx`,
+/// `HAND_EDIT_REFUSAL`): that session's model with one misspelled section key is refused with exactly this text.
+#[test]
+fn the_desktop_hand_edit_is_refused_with_this_text() {
+    const HAND_EDIT_REFUSAL: &str = "UNKNOWN_MODEL_FIELD: request: unknown field `mill_tolerence` in the section of pipe segment `pipe:P-110` (model.pipe_segments[1].section). The model document does not define these keys, so they would be ignored; nothing is solved. Correct or remove each key.";
+    let mut model: Value = serde_json::from_str(include_str!("fixtures/preview_physics_invented_model.json")).unwrap();
+    model["pipe_segments"][1]["section"]["mill_tolerence"] = json!({"value": 0.0005, "unit": "m"});
+    for mode in MODES {
+        assert_eq!(refusal(&model, mode, "the desktop's hand edit"), HAND_EDIT_REFUSAL, "{mode:?}");
+    }
+}
+
+#[test]
+fn a_positional_record_is_refused_by_its_path() {
+    let mut model = demo();
+    model["nodes"][2] = json!(["node:N-120", {"x": 0, "y": 0, "z": 0, "extra": 1}, null, null, null, null]);
+    for mode in MODES {
+        let error = refusal(&model, mode, "a positional node");
+        assert!(error.starts_with("MODEL_RECORD_NOT_OBJECT: request: model.nodes[2] is an array (a positional record). "), "{mode:?}: {error}");
+    }
+    // A positional record that serde would read: refused by the scan all the same.
+    let mut short = demo();
+    short["nodes"][2] = json!(["node:N-120", {"x": 0, "y": 0, "z": 0}, null]);
+    assert!(serde_json::from_value::<LinearStaticPreviewRequest>(request(&short)).is_ok(), "serde reads the positional form");
+    for mode in MODES {
+        assert!(refusal(&short, mode, "a readable positional node").starts_with("MODEL_RECORD_NOT_OBJECT: "), "{mode:?}");
+    }
+}
+
 #[test]
 fn every_unknown_key_is_named_with_a_bounded_list() {
     let mut model = linear();
@@ -283,9 +499,37 @@ fn well_formed_documents_with_declared_ignored_members_publish() {
         combination["tags"] = json!(["varied"]);
         combination["notes"] = json!("varied");
     }
+    // The nested records' declared members, varied and removed.
+    let mut stripped = linear();
+    for (collection, members) in NESTED_DECLARED {
+        for (model, value) in [(&mut varied, Some(json!({"varied": [1, "two"]}))), (&mut stripped, None)] {
+            for record in model[collection].as_array_mut().unwrap() {
+                let record = record.as_object_mut().unwrap();
+                for member in members {
+                    match &value {
+                        Some(value) => drop(record.insert(member.to_string(), value.clone())),
+                        None => drop(record.remove(*member)),
+                    }
+                }
+            }
+        }
+    }
+    assert!(linear()["nodes"][0].get("label").is_some() && stripped["nodes"][0].get("label").is_none());
     for mode in MODES {
         let base = serde_json::to_vec(&solve(&linear(), mode).unwrap()).unwrap();
         let other = serde_json::to_vec(&solve(&varied, mode).unwrap()).unwrap();
+        let without = serde_json::to_vec(&solve(&stripped, mode).unwrap()).unwrap();
         assert_eq!(base, other, "{mode:?}");
+        assert_eq!(base, without, "{mode:?}");
     }
 }
+
+/// The nested records' declared members the solve never reads (model document
+/// 0.7.0), by collection of the demo.
+const NESTED_DECLARED: [(&str, &[&str]); 5] = [
+    ("nodes", &["label", "tags", "notes"]),
+    ("pipe_segments", &["label", "tags", "notes"]),
+    ("supports", &["label", "boundary_association", "properties", "tags", "notes", "provenance_record"]),
+    ("components", &["completeness", "tags", "notes", "provenance_record"]),
+    ("materials", &["label", "tags", "notes", "provenance_record"]),
+];
