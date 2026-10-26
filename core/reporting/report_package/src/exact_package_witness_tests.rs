@@ -125,13 +125,67 @@ fn each_witness_shape_assembles_and_reads_back_through_the_production_roots() {
         assert!(pdf.bytes.starts_with(b"%PDF-") && pdf.byte_length > 0, "{name}");
         let html = outcome.members.iter().find(|member| member.file_name.ends_with(".html")).unwrap();
         let html = String::from_utf8(html.bytes.clone()).unwrap();
-        assert!(html.contains("Exact-Route Result") && html.contains("Numerical standing: integrity checked"), "{name}");
+        assert!(html.contains("Exact-Route Result"), "{name}");
+        assert_standing(name, &html, &pdf_text(&pdf.bytes));
         assert!(html.contains("Stress Headlines by Section Basis") && html.contains("[nominal section]"), "{name}");
         if name.contains("load_reference") {
             assert!(html.contains("Their published limitations are listed under Limitations."), "{name}");
         }
         assert!(!html.contains("professional acceptance is produced"), "{name}: the omitted sentence");
     }
+}
+
+/// The standing line's lead on the one witness whose Diagnostics carry an
+/// integrity warning (pressure-source-1, synthetic n05: `NUMERICAL_INTEGRITY_SENSITIVE`).
+const SENSITIVE_LEAD: &str = "Numerical standing: integrity warning present in the Diagnostics: NUMERICAL_INTEGRITY_SENSITIVE (see the Diagnostics table under Warnings, Assumptions, And Provenance); integrity checked (the Rust reader";
+
+/// W-11 opening, observation 4 (owner, 2026-10-26: "#1648 I approve option A.";
+/// DEL-08-01 Design `exact-route-report-sections.md` §3.2, §6.3): in the HTML
+/// and the PDF member, the standing line of the witness with an integrity
+/// warning names it and points to it, and never reads only "integrity
+/// checked"; the others keep the line without a lead.
+fn assert_standing(name: &str, html: &str, pdf: &str) {
+    if name == "pressure_source_1" {
+        assert!(html.contains(&SENSITIVE_LEAD.replace('\'', "&#39;")), "{name}");
+        assert!(pdf.contains(SENSITIVE_LEAD), "{name}: the PDF member");
+        for text in [html, pdf] {
+            assert!(!text.contains("Numerical standing: integrity checked"), "{name}: never only \"integrity checked\" beside an integrity warning");
+        }
+    } else {
+        assert!(html.contains("Numerical standing: integrity checked (the Rust reader&#39;s standing"), "{name}");
+        assert!(pdf.contains("Numerical standing: integrity checked (the Rust reader's standing"), "{name}: the PDF member");
+        assert!(!html.contains("integrity warning") && !pdf.contains("integrity warning"), "{name}");
+    }
+}
+
+/// The text a PDF member shows: each text-showing string of its uncompressed
+/// content streams (`pdf_emitter`), unescaped, joined by single spaces, so a
+/// line the emitter wrapped at word boundaries reads as one.
+fn pdf_text(bytes: &[u8]) -> String {
+    let mut shown = Vec::new();
+    let mut rest = bytes;
+    while let Some(start) = rest.windows(4).position(|window| window == b" Tm ") {
+        rest = &rest[start + 4..];
+        assert_eq!(rest.first(), Some(&b'('));
+        let mut text = Vec::new();
+        let mut index = 1;
+        loop {
+            match rest[index] {
+                b'\\' if matches!(rest[index + 1], b'(' | b')' | b'\\') => {
+                    text.push(rest[index + 1]);
+                    index += 2;
+                }
+                b')' => break,
+                byte => {
+                    text.push(byte);
+                    index += 1;
+                }
+            }
+        }
+        shown.push(text.iter().map(|&byte| byte as char).collect::<String>());
+        rest = &rest[index..];
+    }
+    shown.join(" ")
 }
 
 /// The container input of `request` for `assemble_report_package_container`.

@@ -43,6 +43,14 @@ every route. Standard claim fence applies (claims taxonomy per DEC-081).
   reports of each exact-route shape). §6.3 records the opening as built. The
   report JSON packet, the handoff preview and the other fifteen surfaces stay
   refused (§5.4).
+- **Ruling on the §5.5 evidence (owner, 2026-10-26, through HELP_HUMAN):**
+  "#1648 I approve option A. For FR-REP-003 I approve option D." Option A
+  approves the opening of #1648 with observation 4 of the evidence (§6.3) fixed
+  in #1648 before it merges: on an exact report, the standing line does not read
+  only "integrity checked" while the Diagnostics carry an integrity warning; it
+  names the warning and points to it (§3.2). Observations 1-3 stay deferred to
+  the next slice. The FR-REP-003 decision (option D) is recorded as given; this
+  design's text does not apply it.
 - **FR-REP-001 (Must)**, PRD §19.2: inputs, versions, states, runs,
   assumptions, warnings, results and rule-pack references. **FR-REP-002:**
   mechanics, user-rule checks and human review kept distinct.
@@ -634,6 +642,40 @@ Export Result JSON admitted in this session: received result sha256
 {received_result_sha256}, model sha256 {model_sha256}, input manifest
 {input_manifest_ref} sha256 {input_manifest_sha256})". "integrity checked" is
 the session's label (`LoadReferenceStatesBlock.tsx:16`).
+
+**Integrity warnings (owner, 2026-10-26, option A; §0).** The line never reads
+only "integrity checked" while the report's Diagnostics carry an integrity
+warning. An *integrity warning* is an entry of `report_sections.diagnostics`
+(the Diagnostics table) whose code begins `NUMERICAL_INTEGRITY_` and which is
+not `NUMERICAL_INTEGRITY_CHECKS_PASSED` at severity `info`. The source is the
+producer's per-load-case integrity diagnostic
+(`diagnostic:numerical-integrity:<case>`, `core/product_physics/src/lib.rs`
+`append_integrity_report`, `append_integrity_failure`, the recovery-basis and
+range-scaling paths, and `formation_guard::demote`): it publishes
+`NUMERICAL_INTEGRITY_CHECKS_PASSED` at `info`, `NUMERICAL_INTEGRITY_SENSITIVE`
+and `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED` at `warning`, and the
+failure codes (`…_UNRESOLVED`, `…_ASSEMBLY_UNRESOLVED`, `…_FAILED`,
+`…_PHYSICAL_MECHANISM`, `…_NEGATIVE_ENERGY`) at `blocking`; the desktop
+carries each result diagnostic's code and severity into the report
+(`renderableReportInput.ts` `diagnosticsForSections`). A passed code out of its
+`info` severity counts as a warning, so the rule fails toward stating one. When
+the binding holds and there are warnings, the renderer
+(`report_renderer` `exact_integrity_warning_codes`,
+`exact_integrity_warning_lead`) writes before the line above: "integrity
+warning present in the Diagnostics: {code} (see the Diagnostics table under
+Warnings, Assumptions, And Provenance); ", or, for several, "integrity warnings
+present in the Diagnostics: {code}, {code} (…); ", each code once in the
+Diagnostics table's order. On the pressure-source-1 witness (synthetic n05) the
+line therefore reads "Numerical standing: integrity warning present in the
+Diagnostics: NUMERICAL_INTEGRITY_SENSITIVE (see the Diagnostics table under
+Warnings, Assumptions, And Provenance); integrity checked (the Rust reader's
+standing …)". Without an integrity warning the line is unchanged byte for byte.
+The lead names diagnostics the report already shows and states no
+numerical-health state; it is part of the block's meta paragraph, not a result
+row, so the exact report still carries no numerical-health line and the native
+re-derivation of the rows (§3.6, §6.1) is unchanged. A binding that does not
+hold still writes only "not stated (…)". The HTML and the PDF carry the same
+line (one section model, `assemble_report_sections`).
 
 Each consumer checks the binding as far as its inputs reach:
 - the desktop recorded it at admission and re-checked it live before IPC
@@ -1602,8 +1644,10 @@ differences, each fail-closed:
   45,915,728 when the test runs alone, 40,620,336 in the crate's full test
   run (the render's 6,642,400 within 12,099,728); DEL-04-07
   `memory-budget-decision.md` records them.
-- **Deferred readability items (observations on the §5.5 evidence, not
-  changed).** Each was checked against a pressure-free report of today (the
+- **Readability items (observations on the §5.5 evidence).** Under the
+  owner's ruling on the evidence (§0, option A), item 4's standing line is
+  fixed in #1648 (below); items 1-3 and item 4's headline labelling are not
+  changed and are deferred to the next slice. Each was checked against a pressure-free report of today (the
   committed pressure-free result `fixtures/results/preview_physics_connected_sparse.json`
   and the headless runner's pressure-free package of
   `del1005_export_results_success_input.json`); Codex review round 1 of #1648
@@ -1640,6 +1684,35 @@ differences, each fail-closed:
      headlines explicitly as normal-stress maxima, and distinguish the
      retained-source eligibility from the ordinary solve's health next to
      them.
+     **Fixed (standing line; owner, 2026-10-26, option A):** beside an
+     integrity warning in the Diagnostics the standing line now names it and
+     points to it (§3.2): "Numerical standing: integrity warning present in
+     the Diagnostics: NUMERICAL_INTEGRITY_SENSITIVE (see the Diagnostics table
+     under Warnings, Assumptions, And Provenance); integrity checked (the Rust
+     reader's standing …)". The four pressure-2 witnesses carry only
+     `NUMERICAL_INTEGRITY_CHECKS_PASSED` at `info`, so their lines, HTML and
+     PDF are byte-identical to the evidence. The fix is in the shared renderer,
+     so the native render's HTML and print view and the package's HTML and
+     PDF members carry it alike. Regressions:
+     `report_renderer/tests/render.rs`
+     `the_pressure_source_1_standing_line_states_its_integrity_warning_and_points_to_it`
+     (the committed witness's report; the HTML line exactly, never only
+     "integrity checked", the Diagnostics row it points to, no
+     numerical-health row, and the section model the PDF emits) and
+     `every_integrity_warning_is_named_and_a_passed_check_alone_keeps_the_line`
+     (each warning code and severity, several codes once each in table order,
+     a passed code at `info` or another code keeping the line byte for byte,
+     a binding mismatch still "not stated (…)", no standing line without
+     `exact_route`); `report_package` `exact_package_witness_tests.rs`
+     `each_witness_shape_assembles_and_reads_back_through_the_production_roots`
+     (per shape, the HTML member and the PDF member's shown text); and
+     `report_render_exact_tests.rs`
+     `every_witness_shape_binds_natively_renders_and_saves_through_the_production_roots`
+     (per shape, the native render's HTML and print view and the saved
+     package's HTML member). The lead depends on the Diagnostics the report
+     carries; the native host does not re-derive the report's diagnostics from
+     the delivered result (§3.6 re-derives the rows and the exact sections),
+     as before this fix.
 - **Remaining item (Codex review round 3 of #1648, not changed).** A direct
   call of the low-level `pdf_emitter` library can emit a relabelled exact
   report under `public_report`; its production callers (the package assembly
@@ -1683,7 +1756,8 @@ differences, each fail-closed:
 - Rust integration (`core/reporting/report_renderer/tests/render.rs`,
   `core/reporting/pdf_emitter/tests/emit.rs`):
   - the exact block and Library Records render in HTML and PDF;
-  - the standing line is composed from the binding;
+  - the standing line is composed from the binding, and names and points to
+    any integrity warning in the Diagnostics (§3.2, §6.3 item 4);
   - each binding field that disagrees with the report's records refuses with
     `REPORT-EXACT-ADMISSION-BINDING-MISMATCH`;
   - an exact limitation statement outside the table, or exact limitation

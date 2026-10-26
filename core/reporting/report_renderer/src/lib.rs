@@ -1363,7 +1363,9 @@ pub fn exact_admission_mismatches(input: &RenderableReportInput, route: &ExactRo
 }
 
 /// The standing line composed from a binding that holds (§3.2). "integrity
-/// checked" is the session's label (`LoadReferenceStatesBlock.tsx`).
+/// checked" is the session's label (`LoadReferenceStatesBlock.tsx`). When the
+/// Diagnostics carry an integrity warning, the rendered line is preceded by
+/// [`exact_integrity_warning_lead`].
 pub fn exact_standing_line(binding: &ExactAdmissionBinding) -> String {
     format!(
         "integrity checked (the Rust reader's standing for the result Export Result JSON admitted in this session: \
@@ -1372,12 +1374,55 @@ received result sha256 {}, model sha256 {}, input manifest {} sha256 {})",
     )
 }
 
+/// The code family of the producer's per-load-case numerical-integrity
+/// diagnostic, `diagnostic:numerical-integrity:<case>` (`core/product_physics`:
+/// `append_integrity_report`, `append_integrity_failure`, `formation_guard::demote`).
+pub const INTEGRITY_CODE_PREFIX: &str = "NUMERICAL_INTEGRITY_";
+/// The one integrity code the producer publishes at `info`: the case's
+/// integrity checks passed. Every other integrity code is `warning`
+/// (`NUMERICAL_INTEGRITY_SENSITIVE`, `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`)
+/// or `blocking` (the failures).
+pub const INTEGRITY_CHECKS_PASSED: &str = "NUMERICAL_INTEGRITY_CHECKS_PASSED";
+/// Where the standing line points a reader for an integrity warning: the
+/// Diagnostics table of the "Warnings, Assumptions, And Provenance" section.
+pub const EXACT_INTEGRITY_WARNING_POINTER: &str = "see the Diagnostics table under Warnings, Assumptions, And Provenance";
+
+/// The integrity warnings among the report's Diagnostics (§3.2): each entry
+/// of `report_sections.diagnostics` whose code is of the integrity family and
+/// which is not `NUMERICAL_INTEGRITY_CHECKS_PASSED` at `info`. Codes in the
+/// Diagnostics table's order, each once.
+pub fn exact_integrity_warning_codes(input: &RenderableReportInput) -> Vec<String> {
+    let mut codes: Vec<String> = Vec::new();
+    for diagnostic in sections::sorted_diagnostics(&input.report_sections) {
+        let passed = diagnostic.code == INTEGRITY_CHECKS_PASSED && diagnostic.severity == sections::Severity::Info;
+        if diagnostic.code.starts_with(INTEGRITY_CODE_PREFIX) && !passed && !codes.contains(&diagnostic.code) {
+            codes.push(diagnostic.code.clone());
+        }
+    }
+    codes
+}
+
+/// The standing line's lead when the Diagnostics carry integrity warnings
+/// (§3.2): it names the codes and points to the Diagnostics table, so the line
+/// never reads only "integrity checked" beside an integrity warning. `None`
+/// without one.
+pub fn exact_integrity_warning_lead(codes: &[String]) -> Option<String> {
+    match codes.len() {
+        0 => None,
+        1 => Some(format!("integrity warning present in the Diagnostics: {} ({EXACT_INTEGRITY_WARNING_POINTER}); ", codes[0])),
+        _ => Some(format!("integrity warnings present in the Diagnostics: {} ({EXACT_INTEGRITY_WARNING_POINTER}); ", codes.join(", "))),
+    }
+}
+
 /// The exact-route block at the start of the Results section (§3.2). A
 /// binding that does not hold states no standing; the report is blocked.
 fn exact_route_blocks(input: &RenderableReportInput, route: &ExactRouteSection) -> Vec<SectionBlock> {
     let mismatches = exact_admission_mismatches(input, route);
     let standing = match mismatches.first() {
-        None => exact_standing_line(&route.admission),
+        None => {
+            let lead = exact_integrity_warning_lead(&exact_integrity_warning_codes(input)).unwrap_or_default();
+            format!("{lead}{}", exact_standing_line(&route.admission))
+        }
         Some(field) => format!("not stated ({EXACT_ADMISSION_BINDING_MISMATCH}: {field})"),
     };
     let mut blocks = vec![

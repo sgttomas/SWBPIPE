@@ -812,6 +812,11 @@ mod direct_native {
         ("pressure_source_1", SOURCE_1),
     ];
     const ROWS_MISMATCH: &str = "REPORT-PACKAGE-REPORT-ROWS-MISMATCH";
+    /// The standing line's start, HTML-escaped: without an integrity warning,
+    /// and on pressure-source-1 (synthetic n05), whose Diagnostics carry
+    /// `NUMERICAL_INTEGRITY_SENSITIVE` (§3.2).
+    const PLAIN_STANDING: &str = "Numerical standing: integrity checked (the Rust reader&#39;s standing for the result";
+    const SENSITIVE_STANDING: &str = "Numerical standing: integrity warning present in the Diagnostics: NUMERICAL_INTEGRITY_SENSITIVE (see the Diagnostics table under Warnings, Assumptions, And Provenance); integrity checked (the Rust reader&#39;s standing for the result";
 
     fn project(path: &str) -> std::path::PathBuf {
         Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..").join(path)
@@ -962,10 +967,18 @@ mod direct_native {
             let rendered = production_render_on(&live, &genuine_render_args(&w, &live.job)).unwrap_or_else(|error| panic!("{name}: {error:?}"));
             assert_eq!(rendered["export_blocked"], json!(false), "{name}: {}", rendered["blocking_reasons"]);
             let html = rendered["html"].as_str().unwrap();
-            assert!(html.contains(EXACT_ROUTE_SUBHEADING) && html.contains("Numerical standing: integrity checked"), "{name}");
+            // Observation 4 (owner, 2026-10-26, option A; §3.2): beside an
+            // integrity warning the standing line names it and points to it.
+            let standing = if name == "pressure_source_1" { SENSITIVE_STANDING } else { PLAIN_STANDING };
+            assert!(html.contains(EXACT_ROUTE_SUBHEADING) && html.contains(standing), "{name}");
+            if name == "pressure_source_1" {
+                assert!(!html.contains("Numerical standing: integrity checked"), "{name}: never only \"integrity checked\" beside an integrity warning");
+            }
             assert!(!html.contains("numerical-health:"), "{name}: an exact report carries no numerical-health line");
-            assert!(rendered["derived_print_html"].as_str().is_some_and(|print| print.contains(EXACT_ROUTE_SUBHEADING)), "{name}");
-            save_admitted(&live, save_args(&bound(&w.request, &live.job), &w, &w.model, Some(&w.result), Some(&w.intake)), name);
+            assert!(rendered["derived_print_html"].as_str().is_some_and(|print| print.contains(EXACT_ROUTE_SUBHEADING) && print.contains(standing)), "{name}");
+            let admitted = save_admitted(&live, save_args(&bound(&w.request, &live.job), &w, &w.model, Some(&w.result), Some(&w.intake)), name);
+            let member = admitted.package.members.iter().find(|member| member.role == open_pipe_stress_report_package::ROLE_REPORT_HTML).unwrap();
+            assert!(String::from_utf8(member.bytes.clone()).unwrap().contains(standing), "{name}: the package's HTML member");
         }
     }
 

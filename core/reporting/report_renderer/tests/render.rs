@@ -725,6 +725,109 @@ fn each_binding_field_that_disagrees_with_the_report_refuses() {
     }
 }
 
+// W-11 opening, observation 4 (owner, 2026-10-26: "#1648 I approve option A.";
+// DEL-08-01 Design `exact-route-report-sections.md` §3.2, §6.3): beside an
+// integrity warning in the Diagnostics, the standing line names it and points
+// to it, and never reads only "integrity checked".
+
+const PRESSURE_SOURCE_1_WITNESS: &str =
+    include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_source_1.json");
+const POINTER: &str = "see the Diagnostics table under Warnings, Assumptions, And Provenance";
+
+/// The witness request's report: the render input of the committed
+/// pressure-source-1 (synthetic n05) witness.
+fn pressure_source_1_report() -> RenderableReportInput {
+    let witness: serde_json::Value = serde_json::from_str(PRESSURE_SOURCE_1_WITNESS).unwrap();
+    serde_json::from_value(witness["request"]["report"].clone()).expect("the witness report reads")
+}
+
+/// The text after "Numerical standing: " in the exact block, HTML-escaped as rendered.
+fn rendered_standing(html: &str) -> &str {
+    let start = html.find("Numerical standing: ").expect("a standing line") + "Numerical standing: ".len();
+    &html[start..start + html[start..].find("</p>").unwrap()]
+}
+
+#[test]
+fn the_pressure_source_1_standing_line_states_its_integrity_warning_and_points_to_it() {
+    let input = pressure_source_1_report();
+    assert_eq!(open_pipe_stress_report_renderer::exact_integrity_warning_codes(&input), vec!["NUMERICAL_INTEGRITY_SENSITIVE".to_string()]);
+    let outcome = render_calculation_report(&input);
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    let html = &outcome.html;
+    let binding = &input.exact_route.as_ref().unwrap().admission;
+    let expected = format!("integrity warning present in the Diagnostics: NUMERICAL_INTEGRITY_SENSITIVE ({POINTER}); {}", exact_standing_line(binding));
+    assert_eq!(rendered_standing(html), escape_html(&expected));
+    assert!(!html.contains("Numerical standing: integrity checked"), "never only \"integrity checked\" beside an integrity warning");
+    // The pointer's target: the Diagnostics table carries the warning.
+    let diagnostics = html.find("<h2>Warnings, Assumptions, And Provenance</h2>\n<h3>Diagnostics</h3>").expect("the Diagnostics table");
+    assert!(html[diagnostics..].contains("<tr><td>NUMERICAL_INTEGRITY_SENSITIVE</td><td>warning</td>"));
+    // Not a numerical-health line (§6.1): no such row, and the line is the block's meta paragraph.
+    assert!(!html.contains("numerical-health:"));
+    // The PDF emits the same section model: its Results block carries the same line.
+    let results = open_pipe_stress_report_renderer::assemble_report_sections(&input).into_iter().find(|section| section.key == "results").unwrap();
+    let standing_text = format!("Numerical standing: {expected}");
+    assert!(results.blocks.iter().any(|block| matches!(block, open_pipe_stress_report_renderer::SectionBlock::Paragraph { text, meta: true } if text.ends_with(&standing_text))));
+}
+
+#[test]
+fn every_integrity_warning_is_named_and_a_passed_check_alone_keeps_the_line() {
+    let witness = pressure_source_1_report();
+    let sensitive = witness.report_sections.diagnostics.iter().find(|item| item.code == "NUMERICAL_INTEGRITY_SENSITIVE").unwrap().clone();
+    let with = |entries: &[(&str, sections::Severity)]| {
+        let mut input = exact_input();
+        for (code, severity) in entries {
+            let mut diagnostic = sensitive.clone();
+            diagnostic.code = code.to_string();
+            diagnostic.severity = *severity;
+            input.report_sections.diagnostics.push(diagnostic);
+        }
+        input
+    };
+    let plain = exact_standing_line(&exact_input().exact_route.unwrap().admission);
+    // No integrity warning: the line is byte-identical to the line without diagnostics.
+    for entries in [&[][..], &[("NUMERICAL_INTEGRITY_CHECKS_PASSED", sections::Severity::Info)][..], &[("LOAD_CATEGORY_PREVIEW_MAPPED", sections::Severity::Warning)][..]] {
+        let outcome = render_calculation_report(&with(entries));
+        assert_eq!(rendered_standing(&outcome.html), escape_html(&plain), "{entries:?}");
+    }
+    // Each integrity warning, whatever its severity, and a passed code out of its `info` severity.
+    for (code, severity) in [
+        ("NUMERICAL_INTEGRITY_SENSITIVE", sections::Severity::Warning),
+        ("NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED", sections::Severity::Warning),
+        ("NUMERICAL_INTEGRITY_UNRESOLVED", sections::Severity::Blocking),
+        ("NUMERICAL_INTEGRITY_FAILED", sections::Severity::Blocking),
+        ("NUMERICAL_INTEGRITY_SENSITIVE", sections::Severity::Info),
+        ("NUMERICAL_INTEGRITY_CHECKS_PASSED", sections::Severity::Warning),
+    ] {
+        let outcome = render_calculation_report(&with(&[(code, severity)]));
+        assert_eq!(
+            rendered_standing(&outcome.html),
+            format!("integrity warning present in the Diagnostics: {code} ({POINTER}); {}", escape_html(&plain)),
+            "{code} {severity:?}"
+        );
+    }
+    // Several: each code once, in the Diagnostics table's order (blocking first).
+    let outcome = render_calculation_report(&with(&[
+        ("NUMERICAL_INTEGRITY_SENSITIVE", sections::Severity::Warning),
+        ("NUMERICAL_INTEGRITY_CHECKS_PASSED", sections::Severity::Info),
+        ("NUMERICAL_INTEGRITY_SENSITIVE", sections::Severity::Warning),
+        ("NUMERICAL_INTEGRITY_FAILED", sections::Severity::Blocking),
+    ]));
+    assert_eq!(
+        rendered_standing(&outcome.html),
+        format!("integrity warnings present in the Diagnostics: NUMERICAL_INTEGRITY_FAILED, NUMERICAL_INTEGRITY_SENSITIVE ({POINTER}); {}", escape_html(&plain))
+    );
+    // A binding that does not hold states no standing, warning or not (unchanged).
+    let mut mismatched = with(&[("NUMERICAL_INTEGRITY_SENSITIVE", sections::Severity::Warning)]);
+    mismatched.exact_route.as_mut().unwrap().admission.run_ref = "invented-other-run".into();
+    let outcome = render_calculation_report(&mismatched);
+    assert!(has_reason(&outcome, &format!("exact route: {EXACT_ADMISSION_BINDING_MISMATCH}: run_ref")));
+    assert_eq!(rendered_standing(&outcome.html), format!("not stated ({EXACT_ADMISSION_BINDING_MISMATCH}: run_ref)"));
+    // A report without exact_route has no standing line, warning or not.
+    let mut pressure_free = with(&[("NUMERICAL_INTEGRITY_SENSITIVE", sections::Severity::Warning)]);
+    pressure_free.exact_route = None;
+    assert!(!render_calculation_report(&pressure_free).html.contains("Numerical standing"));
+}
+
 #[test]
 fn exact_limitation_entries_outside_the_table_or_without_exact_route_refuse() {
     let coverage: serde_json::Value = serde_json::from_str(COVERAGE).unwrap();
@@ -811,6 +914,8 @@ fn exact_route_texts_pass_the_claims_check() {
     let binding = &input.exact_route.as_ref().unwrap().admission;
     let mut texts = vec![
         exact_standing_line(binding),
+        open_pipe_stress_report_renderer::exact_integrity_warning_lead(&["NUMERICAL_INTEGRITY_SENSITIVE".to_string()]).unwrap(),
+        open_pipe_stress_report_renderer::exact_integrity_warning_lead(&["NUMERICAL_INTEGRITY_FAILED".to_string(), "NUMERICAL_INTEGRITY_SENSITIVE".to_string()]).unwrap(),
         format!("not stated ({EXACT_ADMISSION_BINDING_MISMATCH}: model_sha256)"),
         EXACT_ROUTE_SUBHEADING.to_string(),
         EXACT_HEADLINES_SUBHEADING.to_string(),
