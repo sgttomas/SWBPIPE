@@ -185,4 +185,5 @@ checks:
 - apps/desktop/src/features/rule-packs/RulePackManagerPanel.test.tsx
 - apps/desktop/src/features/rule-packs/RulePackManagerPanel.format.test.tsx
 - apps/desktop/src-tauri/src/rule_solver_selection_tests.rs
+- apps/desktop/src-tauri/src/rule_check_object_form_tests.rs
 - apps/desktop/e2e/r2-smoke.spec.ts

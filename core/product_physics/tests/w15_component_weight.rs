@@ -380,6 +380,26 @@ fn a_whole_case_forgery_keeping_the_entered_weight_is_invalid() {
     assert!(states(&m).iter().all(|(_, s)| *s == AppliedSelfWeightState::Invalid), "{:?}", states(&m));
 }
 
+/// The recorded authored quantities are closed, as on the component: an
+/// undeclared member in either is invalid lineage, never fresh (#1630).
+#[test]
+fn an_undeclared_member_in_the_recorded_weight_or_centre_of_gravity_is_invalid() {
+    let edits: [fn(&mut Value); 3] = [
+        |e| e["weight_input"]["extra"] = json!(1),
+        |e| e["center_of_gravity_input"]["note"] = json!("x"),
+        |e| e["center_of_gravity_input"]["w"] = json!(0),
+    ];
+    for edit in edits {
+        let mut m = applied(&model(), &["body:v"]);
+        assert!(states(&m).iter().all(|(_, s)| *s == AppliedSelfWeightState::Fresh));
+        let load = &mut m["load_cases"][0]["primitive_loads"][0];
+        let mut e: Value = serde_json::from_str(load["provenance"].as_str().unwrap()).unwrap();
+        edit(&mut e);
+        load["provenance"] = json!(e.to_string());
+        assert_eq!(state_of(&m, &force_id()), AppliedSelfWeightState::Invalid, "{e}");
+    }
+}
+
 /// Review reproduction 3: the mapped member is removed but the mapping kept,
 /// and that member is requested. The planner refuses; it never panics.
 #[test]
