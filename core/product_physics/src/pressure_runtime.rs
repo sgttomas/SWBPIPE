@@ -374,6 +374,13 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
                 exact_admission::admission(contract, ExactFamily::EquivalentStatic)
             {
                 problem(diagnostics, code, &[&case.id, "equivalent_static"], message);
+            } else if super::case_state::carries_fields(model) {
+                // W-16 slice c (§3): a load/reference-state document (the
+                // document-level detector, an authored null group included)
+                // refuses every authored case's generation, listed in the
+                // group or not, before the effective cases are selected.
+                problem(diagnostics, exact_admission::EQUIVALENT_STATIC_LOAD_STATE,
+                    &[&case.id, "equivalent_static"], exact_admission::EQUIVALENT_STATIC_LOAD_STATE_TEXT);
             }
         }
         for load in &case.primitive_loads {

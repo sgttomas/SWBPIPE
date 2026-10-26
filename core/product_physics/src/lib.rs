@@ -6881,6 +6881,11 @@ fn solve_prepared_load_case(
         if !directional_measures.is_empty() {
             evidence["intensified_measures"] = serde_json::json!(directional_measures);
         }
+        // W-16 slice c (§2): a generating case names its mass method and its
+        // generated primitives; other cases omit the record.
+        if load_case.equivalent_static.is_some() {
+            evidence["equivalent_static"] = exact_equivalent_static_record(load_case, &loads);
+        }
         // T4-U3 (S21): no replaced span in any per-pipe evidence list.
         joint::exclude_replaced_spans(&mut evidence, &replaced_span_ids_of(built));
         evidence
@@ -10319,6 +10324,79 @@ fn compute_pipe_mass_per_length(
     Some(mass_per_length)
 }
 
+/// W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md` §2): one
+/// pipe's seismic generation mass on its route's basis. The preview route
+/// (PF) keeps `compute_pipe_mass_per_length` (the single wall t - c_m for
+/// metal and bore). The exact route (EX) first runs the same input checks,
+/// with the same equivalent-static codes, then takes the D-5 mass of exact
+/// self-weight (`self_weight::EXACT_MASS_METHOD`: metal on the nominal wall,
+/// contents on the pressure bore, insulation over OD to OD + 2 t_ins).
+fn generation_mass_per_length(
+    pipe: &PreviewPipe,
+    load_case_id: &str,
+    exact: bool,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> Option<f64> {
+    let preview = compute_pipe_mass_per_length(pipe, load_case_id, diagnostics)?;
+    if !exact {
+        return Some(preview);
+    }
+    match self_weight::exact_generation_mass_per_length(pipe) {
+        Ok(mass) => Some(mass),
+        Err(message) => {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:equivalent-static:{}:{}:exact-mass",
+                    stable_suffix(load_case_id),
+                    stable_suffix(&pipe.id)
+                ),
+                "EQUIVALENT_STATIC_INPUT_INVALID",
+                "blocking",
+                format!("equivalent-static mass distribution on the exact route's section bases is unavailable: {message}"),
+                vec![pipe.id.clone(), load_case_id.to_string()],
+            ));
+            None
+        }
+    }
+}
+
+/// W-16 slice c (§2): whether `load_id` names a load the case's
+/// equivalent-static generation produced: the case has generation inputs,
+/// the id carries the generator's `<case>:generated:<kind>:` prefix, and no
+/// authored primitive of the case has that id. An authored id that merely
+/// resembles the prefix is authored; an exact collision between an authored
+/// and a generated id is refused by the generator
+/// (`EQUIVALENT_STATIC_GENERATED_ID_COLLISION`), so the test is exact.
+pub(crate) fn is_generated_equivalent_static_load(
+    load_case: &PreviewLoadCase,
+    load_id: &str,
+    kind: Option<&str>,
+) -> bool {
+    load_case.equivalent_static.is_some()
+        && match kind {
+            Some(kind) => load_id.starts_with(&format!("{}:generated:{kind}:", load_case.id)),
+            None => load_id.starts_with(&format!("{}:generated:", load_case.id)),
+        }
+        && !load_case.primitive_loads.iter().any(|load| load.id == load_id)
+}
+
+/// W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md` §2): the
+/// closed `equivalent_static` record of an exact case with generation: the
+/// route's mass method and the ids of the generated primitives, in the
+/// generator's order. The ordinary companion binding re-forms it from the
+/// captured model (`source_receipt::composite`).
+pub(crate) fn exact_equivalent_static_record(
+    load_case: &PreviewLoadCase,
+    loads: &[PrimitiveLoad],
+) -> serde_json::Value {
+    let generated = loads
+        .iter()
+        .filter(|load| is_generated_equivalent_static_load(load_case, &load.load_id, None))
+        .map(|load| load.load_id.as_str())
+        .collect::<Vec<_>>();
+    serde_json::json!({"mass_method": self_weight::EXACT_MASS_METHOD, "generated_load_ids": generated})
+}
+
 fn equivalent_static_diag_id(load_case_id: &str, suffix: &str) -> String {
     format!(
         "diagnostic:equivalent-static:{}:{suffix}",
@@ -10341,6 +10419,15 @@ fn append_equivalent_static_generated_loads(
         return;
     };
     let case_id = load_case.id.as_str();
+    // W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md`): the exact
+    // route generates on its own mass basis, never on a connector-replaced
+    // span, and never as a Timoshenko partial-span load. Off the exact route
+    // these are false and empty, and generation is unchanged.
+    let exact = pressure_runtime::is_exact(model);
+    let replaced = joint::replaced_span_ids(model);
+    let timoshenko = pressure_runtime::selects_timoshenko(model);
+    let arcs = curved_bend_realized_pipe_ids(model);
+    let generated_from = loads.len();
     if equivalent_static.seismic.is_none() && equivalent_static.wind.is_none() {
         diagnostics.push(diag(
             &equivalent_static_diag_id(case_id, "inputs"),
@@ -10393,7 +10480,13 @@ fn append_equivalent_static_generated_loads(
         let mut masses = Vec::new();
         let mut mass_blocked = false;
         for (pipe_index, pipe) in model.pipe_segments.iter().enumerate() {
-            match compute_pipe_mass_per_length(pipe, case_id, diagnostics) {
+            // §3: a connector-replaced span carries no load; it is skipped
+            // before its mass is evaluated, and the surviving pipes keep
+            // their original element index.
+            if replaced.contains(pipe.id.as_str()) {
+                continue;
+            }
+            match generation_mass_per_length(pipe, case_id, exact, diagnostics) {
                 Some(mass_per_length) => masses.push(ElementMassPerLength {
                     element_index: pipe_index,
                     mass_per_length,
@@ -10528,6 +10621,11 @@ fn append_equivalent_static_generated_loads(
                 refs_blocked = true;
                 continue;
             };
+            if replaced.contains(pipe_ref.as_str()) {
+                wind_span_replaced(case_id, pipe_ref, "exposed_pipe_refs", diagnostics);
+                refs_blocked = true;
+                continue;
+            }
             if !whole_span_pipe_indices.insert(pipe_index) {
                 diagnostics.push(diag(
                     &equivalent_static_diag_id(case_id, "wind:duplicate-whole-span"),
@@ -10572,6 +10670,11 @@ fn append_equivalent_static_generated_loads(
                 refs_blocked = true;
                 continue;
             };
+            if replaced.contains(pipe_ref.as_str()) {
+                wind_span_replaced(case_id, pipe_ref, "exposed_spans", diagnostics);
+                refs_blocked = true;
+                continue;
+            }
             if whole_span_pipe_indices.contains(&pipe_index) {
                 diagnostics.push(diag(
                     &equivalent_static_diag_id(
@@ -10607,6 +10710,26 @@ fn append_equivalent_static_generated_loads(
                     continue;
                 }
             };
+            // §3: after ordinary fraction validation, a proper fraction of a
+            // straight span under the Timoshenko member is refused by name
+            // (exactly [0, 1] is full span; arcs keep their own refusal).
+            if timoshenko
+                && !arcs.contains(pipe_ref.as_str())
+                && !(extent.start_fraction == 0.0 && extent.end_fraction == 1.0)
+            {
+                diagnostics.push(diag(
+                    &equivalent_static_diag_id(
+                        case_id,
+                        &format!("wind:exposed-span-{index}:timoshenko-partial-span"),
+                    ),
+                    exact_admission::EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO,
+                    "blocking",
+                    exact_admission::EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO_TEXT,
+                    vec![case_id.to_string(), pipe_ref.clone(), "exposed_spans".to_string()],
+                ));
+                refs_blocked = true;
+                continue;
+            }
             extents_by_pipe.entry(pipe_index).or_default().push(extent);
             let section = &model.pipe_segments[pipe_index].section;
             let insulation = section
@@ -10670,6 +10793,48 @@ fn append_equivalent_static_generated_loads(
             loads.extend(generated);
         }
     }
+    refuse_generated_id_collisions(load_case, &loads[generated_from..], diagnostics);
+}
+
+/// W-16 slice c (§2): a generated load whose id equals an authored
+/// primitive's id in the same case is refused on every route. The two would
+/// share one source identity, so the certified producer could not tell the
+/// generated intensity from the authored one.
+fn refuse_generated_id_collisions(
+    load_case: &PreviewLoadCase,
+    generated: &[PrimitiveLoad],
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    for load in generated {
+        if load_case.primitive_loads.iter().any(|authored| authored.id == load.load_id) {
+            diagnostics.push(diag(
+                &equivalent_static_diag_id(
+                    &load_case.id,
+                    &format!("collision:{}", stable_suffix(&load.load_id)),
+                ),
+                "EQUIVALENT_STATIC_GENERATED_ID_COLLISION",
+                "blocking",
+                format!(
+                    "authored primitive load {} has the id of a load the case's equivalent_static generation produces; rename the authored load (generated ids are <case>:generated:<kind>:...)",
+                    load.load_id
+                ),
+                vec![load_case.id.clone(), load.load_id.clone()],
+            ));
+        }
+    }
+}
+
+/// W-16 slice c (§3): a wind marking of a connector-replaced span (which
+/// carries no load) is refused by name; the load is never moved to the
+/// connector's nodes.
+fn wind_span_replaced(case_id: &str, pipe_ref: &str, field: &str, diagnostics: &mut Vec<Diagnostic>) {
+    diagnostics.push(diag(
+        &equivalent_static_diag_id(case_id, &format!("wind:{field}:{}:replaced", stable_suffix(pipe_ref))),
+        "EQUIVALENT_STATIC_WIND_SPAN_REPLACED",
+        "blocking",
+        "wind equivalent-static marking names a pipe that an objective connector replaces; the replaced span carries no load, and the load is neither moved to the connector's end nodes nor dropped",
+        vec![case_id.to_string(), pipe_ref.to_string(), field.to_string()],
+    ));
 }
 
 /// Resolve the material set a load case solves with under a named modulus

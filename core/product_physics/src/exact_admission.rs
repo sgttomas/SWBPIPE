@@ -115,7 +115,7 @@ pub(crate) fn pressure_v3_formulation_basis_with_source(
             "One resolved case per load case supplies each member's selected E/nu with derived G, actual/selected/installation temperatures and explicit expansion definition; each case is solved independently.".to_string(),
             "Thermal and fit reference strain compose as lambda_fit*lambda_thermal-1 and enter once as an axial eigenstrain; uniform member temperature only, no gradients, finite strain, inelasticity or fit-up joints.".to_string(),
             "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided.".to_string(),
-            "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided.".to_string(),
+            "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided. Generated equivalent-static (seismic or wind) loads have no ledger class and are refused by name (EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED).".to_string(),
             "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented.".to_string(),
         ]);
     }
@@ -124,6 +124,21 @@ pub(crate) fn pressure_v3_formulation_basis_with_source(
     }
     FormulationBasis { profile_id: PRESSURE_PROFILE_ID.to_string(), limitations }
 }
+
+/// W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md` §3): a case's
+/// `equivalent_static` on a load/reference-state document. Generated loads
+/// have no ledger class there, so they are refused for every authored case,
+/// listed in the group or not, before the effective cases are selected.
+pub(crate) const EQUIVALENT_STATIC_LOAD_STATE: &str = "EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED";
+/// The static text of [`EQUIVALENT_STATIC_LOAD_STATE`].
+pub(crate) const EQUIVALENT_STATIC_LOAD_STATE_TEXT: &str = "equivalent_static generation is not provided on a load/reference-state document: a case's applied loads there are exactly its declared source ledger, and generated seismic or wind loads have no ledger class; the exact route refuses the generation rather than apply loads outside the ledger";
+/// W-16 slice c (§3): a wind marking of a proper fraction of a straight span
+/// on a document selecting `timoshenko_annulus_energy_v1`. Neither formation
+/// path bounds a Timoshenko partial-span uniform load, so it is refused.
+pub(crate) const EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO: &str =
+    "EXACT_EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO_UNSUPPORTED";
+/// The static text of [`EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO`].
+pub(crate) const EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO_TEXT: &str = "a wind marking of part of a straight span is not provided under shear_model timoshenko_annulus_energy_v1: no formation of a partial-span uniform load on a Timoshenko member is available; mark the whole span (exactly [0, 1] or exposed_pipe_refs), model the exposed part as its own pipe, or select euler_bernoulli";
 
 /// Every object family the exact route can meet besides its straight base.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -257,8 +272,9 @@ pub(crate) enum Admission {
     Refused { code: &'static str, message: &'static str },
 }
 
-/// The current admission table: the objective connector, the realized bend
-/// and the rigid family are admitted with their integrated mechanics.
+/// The current admission table: the objective connector, the realized bend,
+/// the rigid family and equivalent-static generation are admitted with their
+/// integrated mechanics.
 pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admission {
     match (contract, family) {
         // W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.7):
@@ -277,6 +293,11 @@ pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admissi
         // T4-U2: a realized curved bend on v3, with its member-owned pressure
         // term, chain topology and arc recovery (`bend_pressure`).
         (ExactContract::PressureV3, ExactFamily::RealizedBend) => Admission::Admitted,
+        // W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md`): a
+        // case's DEC-068 seismic or wind generation on a plain v3 document,
+        // on the route's D-5 mass basis; load/reference-state documents,
+        // Timoshenko partial spans and replaced spans keep named refusals.
+        (ExactContract::PressureV3, ExactFamily::EquivalentStatic) => Admission::Admitted,
         (ExactContract::PressureV3, _) => Admission::Refused {
             code: FAMILY_NOT_ADMITTED,
             message: family.v3_refusal(),
@@ -378,13 +399,13 @@ mod tests {
     ];
 
     #[test]
-    fn only_the_connector_the_realized_bend_and_the_rigid_family_are_admitted_and_each_v3_refusal_names_its_family() {
+    fn only_the_connector_the_realized_bend_the_rigid_family_and_equivalent_static_are_admitted_and_each_v3_refusal_names_its_family() {
         for family in ALL {
             match admission(ExactContract::PressureV3, family) {
                 Admission::Admitted
                     if matches!(family, ExactFamily::ObjectiveConnector | ExactFamily::RealizedBend
                         | ExactFamily::Valve | ExactFamily::Flange | ExactFamily::Reducer
-                        | ExactFamily::RigidComponent) => {}
+                        | ExactFamily::RigidComponent | ExactFamily::EquivalentStatic) => {}
                 // T4-U2 (D-2): a chord bend is never admitted; its text asks
                 // the user to realize the bend.
                 Admission::Refused { code, message } if family == ExactFamily::GeometryOnlyBend => {

@@ -304,6 +304,22 @@ def _member(value: Any, allowed: set[str]) -> bool:
 # Physics evidence (straight, arcs, connectors), contract 3.0.0/exact_pressure_v3
 # --------------------------------------------------------------------------
 
+
+# W-16 slice c (§2): the exact route's D-5 mass method (PP self_weight::EXACT_MASS_METHOD).
+EXACT_MASS_METHOD = "source_od_nominal_wall_pressure_bore_areas/v1"
+
+
+def equivalent_static_record(case_id: str, record: Any) -> None:
+    """Rust `physics_evidence::equivalent_static_record`: closed, the exact mass method, and at least one
+    generated primitive id, each once, each in the case's ``<case>:generated:`` namespace."""
+    _require(isinstance(record, Mapping) and set(record) == {"mass_method", "generated_load_ids"}, "equivalent_static shape")
+    _require(record["mass_method"] == EXACT_MASS_METHOD, "equivalent_static mass method")
+    ids = record["generated_load_ids"]
+    _require(isinstance(ids, list) and bool(ids), "equivalent_static shape")
+    prefix = f"{case_id}:generated:"
+    _require(all(isinstance(i, str) and i.startswith(prefix) for i in ids) and len(set(ids)) == len(ids), "equivalent_static load ids")
+
+
 def _require(condition: bool, detail: str) -> None:
     if not condition:
         raise ValueError(f"SOURCE_PHYSICS_EVIDENCE_INVALID: {detail}")
@@ -478,7 +494,11 @@ def _physics(source: Mapping[str, Any]) -> None:
         # T4-U4b (§2.6): intensified_measures only when non-empty.
         directional = "intensified_measures" in case
         _require(not directional or (isinstance(case["intensified_measures"], list) and case["intensified_measures"]), "case shape")
-        _shape(case, {"load_case_id", "profile_mode", "material_basis", "pipe_materials", "pipe_sections", "pipe_stress_extrema", "stress_maximum_coverage", "pressure_rhs_assembly"} | ({"intensified_measures"} if directional else set()), "case shape")
+        # W-16 slice c (DEL-05-01 Design exact-equivalent-static.md §2): a generating case's closed record.
+        generation = "equivalent_static" in case
+        if generation:
+            equivalent_static_record(cid, case["equivalent_static"])
+        _shape(case, {"load_case_id", "profile_mode", "material_basis", "pipe_materials", "pipe_sections", "pipe_stress_extrema", "stress_maximum_coverage", "pressure_rhs_assembly"} | ({"intensified_measures"} if directional else set()) | ({"equivalent_static"} if generation else set()), "case shape")
         _require(case["profile_mode"] == PRESSURE_V3[1] and _text(case["material_basis"]), "case profile/material basis")
         materials[cid] = _indexed(case["pipe_materials"], "pipe_id", "case materials")
         geometries[cid] = _indexed(case["pipe_sections"], "pipe_id", "case sections")

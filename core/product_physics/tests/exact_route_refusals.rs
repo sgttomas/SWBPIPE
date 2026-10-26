@@ -31,6 +31,7 @@ const MODES: [PreviewSolverMode; 2] = [
 const SOURCE: &str = "core/product_physics/src/pressure_runtime.rs";
 const FAMILY: &str = "EXACT_PRESSURE_FAMILY_NOT_ADMITTED";
 const NEGATIVE: &str = "PRESSURE_REGION_PRESSURE_NEGATIVE";
+const LOAD_STATE_EQUIVALENT_STATIC: &str = "EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED";
 const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
 const PROVENANCE: &str = "invented_u0_control";
 
@@ -260,8 +261,8 @@ fn a1_objective_connector_outside_the_exact_route_is_a_version_mismatch() {
 }
 
 /// The seam's refusals keep the route's emission order (component, support,
-/// combination, then the per-case equivalent_static code), now under the
-/// current contract's family code; with the load/reference-state group, the
+/// combination, then the per-case equivalent_static code: since W-16 slice c,
+/// the load/reference-state refusal), under the current contract's codes; with the load/reference-state group, the
 /// support's family code precedes the load-state code that `validate_document`
 /// adds for the undeclared support, in the same batch.
 #[test]
@@ -287,19 +288,23 @@ fn a1_precedence_follows_emission_order() {
                 < position(&envelope, FAMILY, &["support:gap"])
         );
 
-        // Combination before the per-case equivalent_static code.
+        // Combination before the per-case equivalent_static code. W-16 slice
+        // c admits generation at the seam; the per-case code is now the
+        // load/reference-state refusal, which only Y0 (with the group) takes.
         let mut document = with_equivalent_static(base);
         document["model"]["combinations"] = json!([combination(base)]);
         let envelope = run_all(&document);
         assert_blocked(&envelope, base);
-        assert!(
-            position(&envelope, FAMILY, &["combination:sum"])
-                < position(
-                    &envelope,
-                    FAMILY,
-                    &[base.equivalent_static_case(), "equivalent_static"],
-                )
-        );
+        let case_refs = [base.equivalent_static_case(), "equivalent_static"];
+        assert!(!envelope["diagnostics"].as_array().unwrap().iter()
+            .any(|d| d["code"] == FAMILY && d["affected_refs"] == json!(case_refs)));
+        match base {
+            Base::X0 => assert!(!has_code(&envelope, LOAD_STATE_EQUIVALENT_STATIC)),
+            Base::Y0 => assert!(
+                position(&envelope, FAMILY, &["combination:sum"])
+                    < position(&envelope, LOAD_STATE_EQUIVALENT_STATIC, &case_refs)
+            ),
+        }
     }
 
     let envelope = run_all(&with_support(Base::Y0, gap(Base::Y0), false));

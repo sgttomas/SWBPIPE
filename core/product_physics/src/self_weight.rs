@@ -837,6 +837,16 @@ fn stable_mass_per_length(pipe: &super::PreviewPipe, exact: bool, d: &mut Vec<Di
     }
 }
 
+/// W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md` §2): the
+/// exact route's seismic generation mass, the same D-5 function exact
+/// self-weight uses (`EXACT_MASS_METHOD`). A refusal returns its first
+/// message; the generator reports it under its own equivalent-static code.
+pub(crate) fn exact_generation_mass_per_length(pipe: &super::PreviewPipe) -> Result<f64, String> {
+    let mut d = Vec::new();
+    stable_mass_per_length(pipe, true, &mut d)
+        .ok_or_else(|| d.first().map_or_else(String::new, |finding| finding.message.clone()))
+}
+
 pub const STABLE_MASS_METHOD: &str = "source_od_effective_wall_areas/v1";
 /// T4-U6 (DEL-05-03 Design §1, "D-5 mass"): the mass method of an
 /// exact-contract section, metal on the nominal wall and contents on the

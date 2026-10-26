@@ -255,6 +255,14 @@ pub fn validate_transport_metadata_in(source: &Value, contract: SourceContract) 
             proof["load_reference_state"] = state.clone();
         }
         require(record["physical_evidence_sha256"] == domain_hash(contract.case_domain(), &proof)?, "PHYSICAL_CASE_HASH")?;
+        // W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md` §2): an
+        // ordinary companion may carry its generation record (closed by the
+        // schema, checked like pressure-2's); a selected case never does,
+        // since source recovery declines equivalent-static producers.
+        if let Some(generation) = exact.get("equivalent_static") {
+            require(record["selected_method"] != EXACT, "SOURCE_EQUIVALENT_STATIC")?;
+            crate::physics_evidence::equivalent_static_record(cid, generation)?;
+        }
         if record["selected_method"] == EXACT {
             require(pressure.is_empty(), "SOURCE_PRESSURE_INVENTORY")?;
             let plan = &record["source"];

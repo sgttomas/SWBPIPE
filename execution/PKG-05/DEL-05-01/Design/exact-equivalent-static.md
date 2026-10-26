@@ -58,11 +58,32 @@ authored zero. It keeps `None` on PF. Tests check:
 - that an authored load id resembling the generated prefix is not mistaken
   for a generated one (the producer dispatches by prefix, ~233-259).
 
+As built, the producer dispatches through `is_generated_equivalent_static_load`
+(PP `lib.rs`): a load is generated when its case has `equivalent_static`, its
+id carries `<case>:generated:<kind>:`, and no authored primitive of the case
+has that id. An exact collision between an authored id and a generated id is
+refused on both routes, `EQUIVALENT_STATIC_GENERATED_ID_COLLISION`, so the test
+is exact. The S11-G operand-bound flag in `add_uniform_element_loads` keeps its
+prefix test; for a lookalike it only widens the bound.
+
 **Evidence.** For a case with generated loads, `exact_cases[]` gains a closed,
 optional `equivalent_static` record. It holds the mass method
 (`EXACT_MASS_METHOD`) and the ids of the generated primitives. Cases without
 generation omit it, so existing bytes hold. The pressure-2 schema and the
 readers bind it.
+
+As built, the record is `{"mass_method": "source_od_nominal_wall_pressure_bore_areas/v1",
+"generated_load_ids": [...]}`, the ids in generation order
+(`exact_equivalent_static_record`, PP `lib.rs`). It is present exactly when the
+case authors `equivalent_static`; wind-only cases carry the same mass method.
+The pressure-2 schema defines it as `PressureExactEquivalentStatic`; the source
+schema carries the same closed shape as `pressure_source_equivalent_static`, so
+its one-resource shape check needs no external reference. The Rust reader
+(`result_export` `physics_evidence::equivalent_static_record`) and its Python
+mirrors (`tests/verifiers/pressure_2.py`, `physics_evidence.py`,
+`physics_source.py`) require the closed keys, the exact mass method, and at
+least one id, each once and each in `<case>:generated:`. A selected
+retained-source case may not carry the record (`SOURCE_EQUIVALENT_STATIC`).
 
 A source-recovery envelope can also carry the record. Another case in the
 document may select source recovery, and the whole envelope then becomes
@@ -78,9 +99,16 @@ also covered by:
 
 Generated cases stay excluded from selected retained-source recovery
 (`source_recovery.rs` ~903). A mixed regression checks a selected nodal
-source case together with a passing generated ordinary case.
+source case together with a passing generated ordinary case. As built, the
+companion binding re-forms the record from the captured model's own
+generation (`source_receipt/composite.rs`). A Sensitive generated case would
+itself attempt recovery, be declined and withhold the join, as any declined
+case does, so the regression's generated case passes its checks.
 
-The shared mass calculation keeps the equivalent-static diagnostic codes.
+The shared mass calculation keeps the equivalent-static diagnostic codes. As
+built, EX first runs PF's input checks with their codes, then takes the D-5
+mass (`self_weight::exact_generation_mass_per_length`); a failure there is
+reported as `EQUIVALENT_STATIC_INPUT_INVALID` with its message.
 
 ## 3. Which documents
 
@@ -104,7 +132,8 @@ on PF. On arcs, any explicit extent stays blocked, including [0, 1]
   presence and exclusion rules.
 
 Loads are never moved implicitly to connector nodes. Regressions cover both
-paths.
+paths. As built, both rules are in the shared generator, through
+`joint::replaced_span_ids` (empty off the exact route).
 
 **Timoshenko and partial-span wind.** On an EX document selecting
 `timoshenko_annulus_energy_v1`, a wind marking of a proper fraction of a
@@ -120,7 +149,10 @@ formation returns `CannotBound` (`core/solver/straight_pipe/src/lib.rs`
 (`structural/formation_check.rs` ~2225-2235). The refusal keeps that path
 unreachable, as DEL-05-03 states (~161), and every case keeps its formation
 checks. Full-span wind on Timoshenko is admitted. Euler–Bernoulli admits both
-full and partial spans.
+full and partial spans. As built, the refusal is emitted by the generator after
+`LoadExtent::new` accepts the fractions. A realized arc is not a straight span:
+any extent on it keeps the arc's own refusal (`LOAD_INPUT_INVALID`) under
+either shear model.
 
 **Load/reference-state documents** refuse a case's `equivalent_static` by name,
 with `EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED`. The document-level
@@ -134,6 +166,8 @@ states that a case's loads are "exactly the case's declared source ledger" and
 that "per-case mass selection [is] not provided" (PP `exact_admission.rs`
 ~107). Generated loads have no ledger class, so admitting them there needs its
 own design. The refusal is checked before the effective cases are selected.
+As built, it is emitted with the profile checks (PP `pressure_runtime.rs`
+`validate_profile`), through `case_state::carries_fields`.
 
 **The retained sub-route** keeps refusing `equivalent_static` on every branch
 (`retained_memory.rs` ~942-944). **Source recovery** keeps declining

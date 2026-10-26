@@ -444,9 +444,7 @@ fn each_family_not_yet_admitted_is_refused_by_name_on_v3() {
         combination["model"]["combinations"] = json!([{"id":"combination:sum","basis":"mechanics",
             "terms":[{"load_case":first,"factor":1.0},{"load_case":second,"factor":1.0}],"provenance":PROVENANCE}]);
         cases.push((combination, vec!["combination:sum".into()], "load combination"));
-        let mut equivalent = base.current();
-        case_mut(&mut equivalent, second)["equivalent_static"] = json!({"provenance":PROVENANCE});
-        cases.push((equivalent, vec![second.into(), "equivalent_static".into()], "equivalent-static generation"));
+        // W-16 slice c admits equivalent-static generation (see the test below).
         for (document, refs, name) in cases {
             let refs = refs.iter().map(String::as_str).collect::<Vec<_>>();
             for envelope in run_all(&document) {
@@ -459,6 +457,40 @@ fn each_family_not_yet_admitted_is_refused_by_name_on_v3() {
                     assert!(message.contains("realize this bend"), "{message}");
                 } else {
                     assert!(message.contains("is not yet admitted under 3.0.0/exact_pressure_v3"), "{message}");
+                }
+            }
+        }
+    }
+}
+
+/// W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md`): the seam
+/// admits a case's `equivalent_static`, so the family refusal never names it.
+/// On the plain document a wind generation solves and publishes its record;
+/// on the load/reference-state document the route refuses generation by name,
+/// before the effective cases are selected.
+#[test]
+fn equivalent_static_is_admitted_at_the_seam_and_refused_on_load_state_documents() {
+    const LOAD_STATE: &str = "EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED";
+    for base in [Base::X0, Base::Y0] {
+        let [_, second] = base.cases();
+        let mut equivalent = base.current();
+        case_mut(&mut equivalent, second)["equivalent_static"] = json!({"wind": {"pressure": {"value": 800.0, "unit": "Pa"},
+            "shape_factor": {"value": 0.7, "unit": "1"}, "direction": "global_z", "exposed_pipe_refs": [base.region_pipe()]},
+            "provenance": PROVENANCE});
+        for envelope in run_all(&equivalent) {
+            assert!(!has_code(&envelope, FAMILY), "{:#?}", envelope["diagnostics"]);
+            match base {
+                Base::X0 => {
+                    assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{:#?}", envelope["diagnostics"]);
+                    assert!(!has_code(&envelope, LOAD_STATE));
+                    let case = envelope["contract_evidence"]["exact_cases"].as_array().unwrap().iter()
+                        .find(|c| c["load_case_id"] == second).unwrap();
+                    assert_eq!(case["equivalent_static"]["generated_load_ids"].as_array().unwrap().len(), 1);
+                }
+                Base::Y0 => {
+                    assert_v3_blocked(&envelope, base);
+                    let message = finding(&envelope, LOAD_STATE, &[second, "equivalent_static"])["message"].as_str().unwrap().to_string();
+                    assert!(message.contains("declared source ledger"), "{message}");
                 }
             }
         }
