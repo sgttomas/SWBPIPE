@@ -21,6 +21,11 @@ import type {
  * only by its project handlers.
  */
 export function useProjectSessionState() {
+  // The project-command generation. Every command that can publish the project
+  // status line advances it when it starts (the five project writes and opens,
+  // List, Save Model Document, the recovery export, both Save Handoff stages)
+  // or when it publishes an unsaved-edits refusal, so a response from an older
+  // request can tell that a newer command has started.
   const projectRequest = useRef(0);
   const projectOperationOwner = useRef<symbol | null>(null);
   const [storageCapability, setStorageCapability] = useState<LocalStorageCapability | null>(null);

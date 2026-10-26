@@ -808,15 +808,25 @@ describe("project handlers: a landed write records snapshot verification even wh
   });
 });
 
-// W-17 (Codex, review of #1640). Save Handoff lists the project's model states
-// before it asks anything. A listing that fails after the session moved on is
-// dropped, as its success is: it cannot replace a newer status line.
-describe("Save Handoff: a stale state-list failure is dropped", () => {
-  async function pendingStateList() {
+// W-17 (Codex, reviews of #1640 and #1643). Save Handoff lists the project's
+// model states before it asks anything. A listing the session outlived is
+// dropped, success or failure: it cannot replace a newer status line or open
+// its dialog over a newer command. A newer command is one that changed the
+// model, or any project command started since (projectRequest), even one that
+// left the model as it was.
+describe("Save Handoff: a stale state-list response is dropped", () => {
+  async function pendingStateList(options: { editFirst?: boolean } = {}) {
     const model = await loadPreviewModel();
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
     const envelope = await openProjectWithRecordedMismatch(model);
+    const unitless = inventedOpenEnvelope(model);
+    delete (unitless.model.project as { units?: unknown }).units;
+    if (options.editFirst) {
+      invokeMock.mockImplementation((command: string) => Promise.reject(new Error(`Unexpected command ${command}`)));
+      await applyGridEditWhilePending();
+      await flushPendingWork();
+    }
     const pendingList = deferred<unknown>();
     const pendingCreate = deferred<LocalProjectEnvelope>();
     let createRequest: Record<string, unknown> | undefined;
@@ -826,6 +836,8 @@ describe("Save Handoff: a stale state-list failure is dropped", () => {
         createRequest = args;
         return pendingCreate.promise;
       }
+      if (command === "open_local_project") return Promise.resolve(unitless);
+      if (command === "list_local_projects") return Promise.resolve([]);
       return Promise.reject(new Error(`Unexpected command ${command}`));
     });
     act(() => nativeMenuCommand("file.save-handoff"));
@@ -870,6 +882,65 @@ describe("Save Handoff: a stale state-list failure is dropped", () => {
     expect(projectMessage()).toHaveTextContent("Invented current state-list failure");
     expect(lastProjectOperation()).toBe("save_handoff_failed");
     expect(screen.queryByTestId("handoff-save-dialog")).not.toBeInTheDocument();
+  });
+
+  async function rejectList(pendingList: ReturnType<typeof deferred<unknown>>, message: string) {
+    await act(async () => {
+      pendingList.reject(new Error(message));
+      await pendingList.promise.catch(() => undefined);
+    });
+    await flushPendingWork();
+  }
+
+  // Codex #1643 round 1: the open is refused and adopts nothing, so the model,
+  // its hash and the busy state are as they were when the listing started.
+  it("keeps the refused open's recovery message when the earlier listing rejects after the recovery prompt is cancelled", async () => {
+    const { pendingList } = await pendingStateList();
+    act(() => nativeMenuCommand("file.open-local"));
+    const dialog = await screen.findByTestId("model-document-save-dialog");
+    fireEvent.click(within(dialog).getByTestId("model-document-save-cancel"));
+    await waitFor(() => expect(screen.queryByTestId("model-document-save-dialog")).not.toBeInTheDocument());
+    const refused = "Open failed: Error: Model document refused: MODEL-FILE-SHAPE at project.units";
+    expect(projectMessage()).toHaveTextContent(refused);
+    await rejectList(pendingList, "Invented stale state-list failure");
+    expect(projectMessage()).toHaveTextContent(refused);
+    expect(projectMessage()).not.toHaveTextContent("Save handoff failed");
+    expect(lastProjectOperation()).toBe("open_failed");
+  });
+
+  it("keeps a completed List Local Projects result when the earlier listing rejects", async () => {
+    const { pendingList } = await pendingStateList();
+    act(() => nativeMenuCommand("file.list-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Listed 0 local project snapshots from the local store index."));
+    await rejectList(pendingList, "Invented stale state-list failure");
+    expect(projectMessage()).toHaveTextContent("Listed 0 local project snapshots from the local store index.");
+    expect(lastProjectOperation()).toBe("list");
+  });
+
+  it("opens no Save Handoff dialog over a completed List Local Projects when the earlier listing resolves", async () => {
+    const { pendingList } = await pendingStateList();
+    act(() => nativeMenuCommand("file.list-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Listed 0 local project snapshots from the local store index."));
+    await act(async () => {
+      pendingList.resolve([]);
+      await pendingList.promise;
+    });
+    await flushPendingWork();
+    expect(screen.queryByTestId("handoff-save-dialog")).not.toBeInTheDocument();
+    expect(projectMessage()).toHaveTextContent("Listed 0 local project snapshots from the local store index.");
+    expect(lastProjectOperation()).toBe("list");
+  });
+
+  // An unsaved-edits refusal publishes without starting an operation: it advances
+  // the project-command generation itself.
+  it("keeps an unsaved-edits refusal when the earlier listing rejects", async () => {
+    const { pendingList } = await pendingStateList({ editFirst: true });
+    act(() => nativeMenuCommand("file.open-local"));
+    fireEvent.click(await screen.findByTestId("unsaved-changes-cancel"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Not opened: the working model and its unsaved edits were kept."));
+    await rejectList(pendingList, "Invented stale state-list failure");
+    expect(projectMessage()).toHaveTextContent("Not opened: the working model and its unsaved edits were kept.");
+    expect(lastProjectOperation()).toBe("open_kept_edits");
   });
 });
 

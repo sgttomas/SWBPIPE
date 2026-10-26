@@ -227,12 +227,20 @@ does not embed it.
 - Otherwise the user confirms a new state, kind `handoff_basis`, default name
   "Handoff <date>". It is written through W-12's state store.
 - **A listing the session outlived is dropped.** The basis is found by
-  listing the project's saved states before the dialog opens. If the session
-  moves on while they are listed (another model or model hash, or another
-  project operation or prompt owns the session), the listing's outcome is
-  dropped, whether it succeeded or failed. No dialog opens, and the status
-  line and last project operation are left to the newer action (W-17, Codex
-  review of #1640; `requestSaveHandoff` in `workspaceSession.ts`).
+  listing the project's saved states before the dialog opens. The listing's
+  outcome, whether it succeeded or failed, is dropped when any of these holds
+  as it returns:
+  - a newer project command has started: New Local Project, New Blank or the
+    blank load/reference model, Open Local Project, Open Model Document…,
+    Save Local Project, List Local Projects, Save Model Document…, the
+    stored-document recovery export, another Save Handoff (request or save),
+    or an unsaved-edits refusal of an open or a blank;
+  - the session's model or its model hash is not the one listed for;
+  - a project operation or project prompt owns the session.
+
+  A dropped listing opens no dialog and leaves the status line and the last
+  project operation as they are (W-17, Codex reviews of #1640 and #1643;
+  `requestSaveHandoff` in `workspaceSession.ts`).
 - **Order.** The state is committed first, and then the package is published.
   A filesystem rename cannot join a database transaction. If publication
   fails, the state remains; it is harmless and reusable.
