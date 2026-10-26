@@ -23,7 +23,7 @@ SOURCE_FILES = {
     # removes normalized_dependencies' section_ref before rebuilding the closed section (DEPENDENCY_SECTION_REF), and one
     # evidence test; slice b's component-weight generator and lineage spans are main's bytes. No formed-load or finding
     # owner changes.
-    "core/product_physics/src/self_weight.rs": "be437b877937837478e2977620cf13ba7fcfe4b10d7e8a5f388521679b4ec278",
+    "core/product_physics/src/self_weight.rs": "1d3670f04a1664e5a0c88d521ba0763669f17906e426d7e8360b042eecada78b",
     "core/product_physics/src/source_receipt/source.rs": "384140db918da65d5e76dd601cd0a2068ae2a098379b41c6907069cf99ced419",
     # T4-U8: retained::assemble's Timoshenko refusal; W1 adds one retained_api
     # export line for member-source types. Existing formation owners stay.
@@ -200,8 +200,9 @@ def decisions(snapshot, resolved):
     # above it); formation_check.rs +13 from check_at on (PP's frame-member binding before it).
     # W-15 slice b (§8.22): 869 -> 1281 (the component-weight generator above it; same text). Nested-record closure
     # (§8.NR, measured): 1281 -> 1286 (DEPENDENCY_SECTION_REF's two lines and the first evidence-reader literal's three
-    # members above it), same text.
-    audit.append((resolved("core/product_physics/src/self_weight.rs:1286"), {
+    # members above it), same text; 1286 -> 1289 (component_basis's closed weight and centre-of-gravity reads above
+    # it, three more lines), same text.
+    audit.append((resolved("core/product_physics/src/self_weight.rs:1289"), {
         "case.id": {"bytes": 128, "source": "IN128"},
         "pipe": {"bytes": 128, "source": "IN128"},
         "case.id.len()": {"bytes": 20, "source": "NUM"},

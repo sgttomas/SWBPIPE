@@ -1196,10 +1196,13 @@ fn component_basis(
     // The historical wrench follows from the retained authored quantities,
     // normalized again here; the recorded SI values, dependencies and whole
     // wrench must agree with it exactly, or the record is not lineage.
-    let weight_input: Quantity = serde_json::from_value(evidence["weight_input"].clone()).map_err(|_| fail())?;
+    // Both are closed quantities, as on the component they were read from: an
+    // undeclared member is not lineage.
+    let weight_input = super::model_fields::closed_quantity(evidence["weight_input"].clone()).map_err(|_| fail())?;
     let weight = normalized_weight(&weight_input).ok_or_else(fail)?;
-    let cog_input: super::VectorQuantity =
-        serde_json::from_value(evidence["center_of_gravity_input"].clone()).map_err(|_| fail())?;
+    let cog_input = super::model_fields::closed_optional_vector_quantity(evidence["center_of_gravity_input"].clone())
+        .map_err(|_| fail())?
+        .ok_or_else(fail)?;
     let cog = normalized_cog(&cog_input).ok().flatten().ok_or_else(fail)?;
     let recorded_cog: [f64; 3] = serde_json::from_value(evidence["center_of_gravity_m"].clone()).map_err(|_| fail())?;
     if evidence["weight_N"].as_f64() != Some(weight) || recorded_cog != cog {
