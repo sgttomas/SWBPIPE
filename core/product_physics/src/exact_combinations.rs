@@ -898,4 +898,48 @@ mod tests {
         assert!(installed_reference(&json!([{"q_ref": [0.0, 0.0, 1e-300, 0.0, 0.0, 0.0]}])));
         assert!(installed_reference(&json!([{"q_ref": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "tie_rods": [{"reference_extension_m": 0.0}, {"reference_extension_m": -1e-4}]}])));
     }
+
+    fn row(kind: &str, entity: &str, location: &str, component: &str, value: f64) -> ResultItem {
+        ResultItem { component_body: None, id: format!("result:{kind}:{entity}:{location}"), kind: kind.into(), value, unit: "N".into(),
+            entity_ref: entity.into(), basis_ref: Some(ResultBasisRef { ref_type: "load_case".into(), ref_id: "case:b".into() }),
+            source_result_refs: Vec::new(),
+            metadata: Some(ResultMetadata { component: component.into(), coordinate_system: "element_local".into(), location: location.into(),
+                basis: "recovered_from_local_element_stiffness".into(), sign_convention: "s".into() }) }
+    }
+
+    /// §3: a pressure-family operand value is recovered only for a member the
+    /// case publishes outside every one of its regions, from its own axial
+    /// force row; every other absence is a missing source.
+    #[test]
+    fn recovery_requires_a_published_member_outside_every_region_and_its_force_row() {
+        let section = json!({"nominal_section": {"As_m2": 0.5}, "reduced_section": {"As_m2": 0.25}});
+        let published = [row(AXIAL_FORCE, "pipe:p", "end_i", "axial_force", -8.0), row(AXIAL_FORCE, "pipe:p", "midspan", "axial_force", 8.0)];
+        let rows = case_rows(&published, "case:b");
+        let facts = |sections: bool, region: bool| CaseFacts {
+            sections: if sections { HashMap::from([("pipe:p", &section)]) } else { HashMap::new() },
+            materials: HashMap::new(), material_basis: &Value::Null,
+            region_members: if region { HashSet::from(["pipe:p"]) } else { HashSet::new() },
+            states: HashMap::new(),
+        };
+        let key = |kind: &str, component: &str, location: &str, frame: &str, section: &str| Key {
+            kind: kind.into(), unit: if section.is_empty() { "N".into() } else { "Pa".into() }, entity: "pipe:p".into(),
+            location: location.into(), component: component.into(), frame: frame.into(), section: section.into() };
+        let wall = key(WALL_FORCE, "wall_axial_force", "end_i", "element_local", "");
+        let (value, witness) = recover(&wall, "case:b", &rows, &facts(true, false)).unwrap();
+        assert_eq!((value, witness["sign"].as_str()), (8.0, Some("negated")));
+        let membrane = key(MEMBRANE, "axial_membrane_stress", "midspan", "pipe_section", "reduced_section");
+        let (value, witness) = recover(&membrane, "case:b", &rows, &facts(true, false)).unwrap();
+        assert_eq!((value, witness["area_m2"].as_f64(), witness["rounding"].as_str()), (32.0, Some(0.25), Some("one_binary64_division")));
+        let lame = key("pipe_lame_hoop_stress_v2", "lame_inner_hoop_stress", "midspan", "pipe_section", "nominal_section");
+        assert_eq!(recover(&lame, "case:b", &rows, &facts(true, false)).unwrap().0.to_bits(), 0);
+        // A member in a region of the case, a member the case does not publish,
+        // a station without its force row, and a kind outside the pressure family.
+        assert!(recover(&wall, "case:b", &rows, &facts(true, true)).is_none());
+        assert!(recover(&wall, "case:b", &rows, &facts(false, false)).is_none());
+        assert!(recover(&key(WALL_FORCE, "wall_axial_force", "quarter_1", "element_local", ""), "case:b", &rows, &facts(true, false)).is_none());
+        assert!(recover(&key("element_local_axial_normal_stress", "axial_normal_stress", "midspan", "element_local", "nominal_section"), "case:b", &rows, &facts(true, false)).is_none());
+        // Mismatched bases never pair: the section basis is part of the key.
+        assert_ne!(key(MEMBRANE, "c", "midspan", "f", "nominal_section"), key(MEMBRANE, "c", "midspan", "f", "reduced_section"));
+    }
+
 }

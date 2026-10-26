@@ -776,3 +776,82 @@ fn combinations_leave_the_numerical_standing_unchanged() {
         assert_eq!(a["token"], b["token"], "{a} {b}");
     }
 }
+
+// ------------------------------------------------------------------ the shared reader corpus
+const CORPUS_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../fixtures/results/pressure_v3_combination_reader_corpus.json");
+
+/// The shared combination reader corpus (RE native and wasm readers, the
+/// Python verifier): one envelope per combination family, with its model.
+/// Regenerate with `W16B_WRITE_CORPUS=1`; otherwise the committed bytes must
+/// be current.
+#[test]
+fn shared_combination_reader_corpus_is_current() {
+    let line = line(json!([
+        mechanics("comb:K1", &[("case:A", 1.0), ("case:B", 1.3)]),
+        {"id": "comb:S1", "basis": "result_state_subtraction", "minuend_id": "case:C", "subtrahend_id": "case:A", "provenance": PROV},
+        {"id": "comb:E-max_abs", "basis": "range_envelope", "operand_ids": ["case:C", "case:A", "case:B"], "mode": "max_abs", "provenance": PROV},
+    ]));
+    let connector = connector_model(0.001, &[("comb:unit", vec![0.3, 0.7]), ("comb:two", vec![1.0, 1.0]), ("comb:boundary", vec![1.0, 2f64.powi(-46)])]);
+    let rods = {
+        let oracle = t4_u5b::oracle();
+        let mut wire = t4_u5b::request("MO-F", &oracle["cases"]["MO-F"]);
+        let model = &mut wire["model"];
+        let mut second = model["load_cases"][0].clone();
+        second["id"] = json!("case:second");
+        for load in second["primitive_loads"].as_array_mut().unwrap() {
+            load["id"] = json!(format!("{}:second", load["id"].as_str().unwrap()));
+        }
+        model["load_cases"].as_array_mut().unwrap().push(second);
+        let first = model["load_cases"][0]["id"].as_str().unwrap().to_string();
+        model["combinations"] = json!([mechanics("comb:rods", &[(&first, 1.0), ("case:second", 0.5)])]);
+        wire
+    };
+    let mut load_state: Value = serde_json::from_str(LOAD_STATE_CONNECTED).unwrap();
+    load_state["model"]["combinations"] = json!([
+        mechanics("comb:cold+hot", &[("case:cold", 1.0), ("case:hot", 1.0)]),
+        {"id": "comb:hot-cold", "basis": "result_state_subtraction", "minuend_id": "case:hot", "subtrahend_id": "case:cold", "provenance": PROV},
+    ]);
+    let mut cases = Vec::new();
+    for (label, wire, mode) in [
+        ("W16B line: mechanics, subtraction and envelope", line, PreviewSolverMode::SparseInteractive),
+        ("W16B connector with an installed reference: admitted and gated sums", connector, PreviewSolverMode::SparseInteractive),
+        ("W16B MO-F: two tie rods withheld by name", rods, PreviewSolverMode::DenseScrutiny),
+        ("W16B load state: mixed stiffness gated, subtraction published", load_state, PreviewSolverMode::SparseInteractive),
+    ] {
+        let envelope = solved(&wire, mode, label);
+        cases.push(json!({"label": label, "solver_mode": mode.as_str(), "model": wire["model"], "envelope": envelope}));
+    }
+    let corpus = json!({
+        "corpus": "W-16 slice b pressure-2 combination reader corpus",
+        "generator": "core/product_physics/tests/w16_exact_combinations.rs::shared_combination_reader_corpus_is_current",
+        "cases": cases,
+    });
+    let bytes = serde_json::to_string_pretty(&corpus).unwrap() + "\n";
+    if std::env::var_os("W16B_WRITE_CORPUS").is_some() {
+        std::fs::write(CORPUS_PATH, &bytes).unwrap();
+        return;
+    }
+    let committed = std::fs::read_to_string(CORPUS_PATH).expect("the committed corpus");
+    assert!(committed == bytes, "the shared pressure-2 combination reader corpus is stale; regenerate it with W16B_WRITE_CORPUS=1");
+}
+
+/// §3: ids rich in delimiters (and in multi-byte characters) pair by their
+/// structured fields; the combined ids are length-prefixed by bytes and distinct.
+#[test]
+fn delimiter_rich_ids_pair_by_structured_fields() {
+    let text = line(json!([mechanics("comb:é+1:2", &[("case:A:α", 1.0), ("case:B:1:1", 1.3)])])).to_string()
+        .replace("\"case:A\"", "\"case:A:α\"").replace("\"case:B\"", "\"case:B:1:1\"").replace("pipe:m1", "pipe:m:1").replace("pipe:m2", "pipe:m1:");
+    let wire: Value = serde_json::from_str(&text).unwrap();
+    for mode in MODES {
+        let out = solved(&wire, mode, "delimiter-rich ids");
+        let combined = combination_rows(&out, "comb:é+1:2");
+        assert!(!combined.is_empty());
+        let ids: std::collections::HashSet<&str> = combined.iter().map(|r| r["id"].as_str().unwrap()).collect();
+        assert_eq!(ids.len(), combined.len());
+        assert!(combined.iter().all(|r| r["id"].as_str().unwrap().starts_with("result:combination:11:comb:é+1:2")), "byte length of the id");
+        // Both members' wall forces combined, each from its own operand rows.
+        for member in ["pipe:m:1", "pipe:m1:"] {
+            assert!(combined.iter().any(|r| r["kind"] == "pipe_wall_axial_force_v2" && r["entity_ref"] == member), "{member}");
+        }
+    }
+}
