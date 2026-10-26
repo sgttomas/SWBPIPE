@@ -46,6 +46,7 @@ import type { CurrentSessionInputManifestEvidence } from "../../services/inputMa
 import { buildRenderableReportInput, type SessionRuleCheckRun } from "./renderableReportInput";
 import { reportResultRows } from "./reportResultRows";
 import { buildStateComparisonHandoffSections } from "./stateComparisonHandoffSections";
+import { currentLibraryRefFindings } from "../library/libraryRefFindings";
 
 /** The desktop's export profile (`report_package::bindings::DESKTOP_PROFILE`). */
 export const REPORT_PACKAGE_DESKTOP_PROFILE = "desktop_local_private_report_package_1";
@@ -250,7 +251,8 @@ async function assembleReportPackageRequest(input: ReportPackageRequestInput, ad
     inputManifest,
     ruleCheckRun,
     renderContext: { exportContext: "local_private", generatedAt: null },
-    exactAdmission: admission
+    exactAdmission: admission,
+    libraryRefFindings: currentLibraryRefFindings(model)
   });
   if (JSON.stringify(report.result_rows) !== JSON.stringify(reportResultRows(result))) {
     throw new Error(`${REPORT_PACKAGE_REPORT_ROWS_MISMATCH}: the report's result rows are not the source rows' projection.`);

@@ -1291,6 +1291,52 @@ mod tests {
         assert_eq!(paths, vec!["/model/materials/0/provenance_record/review_status".to_string(), "/model/materials/0/provenance_record".to_string()]);
     }
 
+    /// W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md`
+    /// §4.3, §6.2): the report's FR-REP-003 records, values and library
+    /// references are screened in the request as every object is. A
+    /// `quarantined`, `rejected` or `protected_suspected` record refuses the
+    /// save; a `private_only` one is admitted.
+    #[test]
+    fn fr_rep_003_records_with_a_blocking_disposition_refuse_the_save() {
+        let record = |member: &str, status: &str| {
+            let mut record = json!({
+                "source_name": "Invented material datasheet", "source_location": "invented-datasheet-shelf", "source_license": "invented-license",
+                "contributor": "invented contributor", "contributor_certification": "invented certification",
+                "redistribution_status": "private_only", "review_status": "pending", "privacy_classification": "private_project_data"
+            });
+            record[member] = json!(status);
+            record
+        };
+        let with_records = |record: Value| {
+            move |r: &mut Value| {
+                let sections = &mut r["report"]["report_sections"];
+                sections["provenance_notes"].as_array_mut().unwrap().push(record.clone());
+                sections["user_supplied_values"].as_array_mut().unwrap().push(json!({
+                    "value_id": "material-provenance:material:invented-steel", "value_category": "report_metadata",
+                    "source": {"ref_type": "material", "ref_id": "material:invented-steel"}, "provenance": record.clone(),
+                    "privacy_classification": "private_project_data", "required_for": ["reporting", "human_review"],
+                    "review_status": record["review_status"].clone(), "missing_data_finding": false
+                }));
+            }
+        };
+        assert!(admit(edited(with_records(record("review_status", "pending")))).is_ok());
+        for (member, status) in [("review_status", "quarantined"), ("review_status", "rejected"), ("redistribution_status", "protected_suspected")] {
+            let (code, paths) = refusal(admit(edited(with_records(record(member, status)))));
+            assert_eq!(code, PROTECTED_CONTENT_BLOCKED, "{member} {status}");
+            assert!(paths.iter().any(|path| path.starts_with("/request/report/report_sections/provenance_notes/") && path.ends_with(member)), "{paths:?}");
+            assert!(paths.iter().any(|path| path.starts_with("/request/report/report_sections/user_supplied_values/") && path.ends_with(&format!("provenance/{member}"))), "{paths:?}");
+        }
+        // A library reference's record.
+        for (member, status) in [("review_status", "quarantined"), ("privacy_classification", "protected_suspected")] {
+            let library = json!([{
+                "reference_id": "library-ref:1", "library_kind": "material", "library_id": "invented-material-library",
+                "library_version": "not recorded", "record_id": "not recorded", "entity_refs": ["material:invented-steel"], "provenance": record(member, status)
+            }]);
+            let (code, paths) = refusal(admit(edited(move |r: &mut Value| r["report"]["library_references"] = library.clone())));
+            assert_eq!((code.as_str(), paths[0].as_str()), (PROTECTED_CONTENT_BLOCKED, format!("/request/report/library_references/0/provenance/{member}").as_str()));
+        }
+    }
+
     /// The structural screen: what W-6a's record screen does not judge
     /// (§2.6 item 4) is refused in either value, every object at every depth.
     #[test]

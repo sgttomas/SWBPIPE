@@ -5,7 +5,7 @@
 // native UI qualification witness. Every rule pack and rule-check outcome here is invented.
 import { describe, expect, it, afterEach, vi } from "vitest";
 import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
@@ -396,20 +396,26 @@ describe("the report input the package carries", () => {
     const { model, result, analysisRun } = await syntheticPreviewSession(modelWithMissingProvenance);
     const projected = await buildRenderableReportInput({ model, result, analysisRun, projectSummary: null, renderContext: { exportContext: "local_private", generatedAt: null } });
     const sections = projected.report_sections;
-    const presentId = componentProvenanceProjection.present_component.value.value_id;
-    const missingId = componentProvenanceProjection.missing_component.value.value_id;
-    expect({
+    const projection = {
       schema_version: "1.0.0",
       present_component: {
-        value: sections.user_supplied_values.find((value) => value.value_id === presentId),
-        provenance_note: sections.provenance_notes.find((note) => note.source_name === componentProvenanceProjection.present_component.provenance_note.source_name)
+        value: sections.user_supplied_values.find((value) => value.value_id === "component-provenance:component:C-110"),
+        provenance_note: sections.provenance_notes.find((note) => note.source_name === "Invented elbow marker component provenance")
       },
       missing_component: {
-        value: sections.user_supplied_values.find((value) => value.value_id === missingId),
-        provenance_note: sections.provenance_notes.find((note) => note.source_name === componentProvenanceProjection.missing_component.provenance_note.source_name),
+        value: sections.user_supplied_values.find((value) => value.value_id === "component-provenance:component:C-140"),
+        provenance_note: sections.provenance_notes.find((note) => note.source_name === "Invented tie-in marker component provenance"),
         diagnostic: sections.diagnostics.find((diagnostic) => diagnostic.code === "COMPONENT_PROVENANCE_MISSING" && diagnostic.affected_object.ref_id === "component:C-140")
       }
-    }).toEqual(componentProvenanceProjection);
+    };
+    // The shared projection the Rust consumer reads (`report_package/src/wire.rs`). Written
+    // only with OPENPIPESTRESS_WRITE_COMPONENT_PROVENANCE_PROJECTION=<dir>; otherwise stale fails.
+    const outDir = process.env.OPENPIPESTRESS_WRITE_COMPONENT_PROVENANCE_PROJECTION;
+    if (outDir) {
+      mkdirSync(outDir, { recursive: true });
+      writeFileSync(resolve(outDir, "component_provenance_cross_layer_projection.json"), `${JSON.stringify(projection, null, 2)}\n`);
+    }
+    expect(projection).toEqual(componentProvenanceProjection);
   });
 
   it("preserves the hanger input oracles", async () => {

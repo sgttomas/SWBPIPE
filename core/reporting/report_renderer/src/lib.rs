@@ -1440,6 +1440,71 @@ pub fn exact_route_blocking_reasons(
     reasons
 }
 
+/// The code of a report provenance record whose disposition blocks export
+/// (W-11 slice (c), DEL-08-01 Design `exact-route-report-sections.md` §4.3,
+/// §6.2).
+pub const REPORT_PROVENANCE_DISPOSITION_BLOCKED: &str = "REPORT_PROVENANCE_DISPOSITION_BLOCKED";
+
+/// The report's provenance records whose disposition blocks export (W-11
+/// slice (c), §4.3, §6.2), as `report provenance:
+/// REPORT_PROVENANCE_DISPOSITION_BLOCKED (<where> <member> <value>)`. The
+/// blocking values are the library import's and the package save's
+/// (`export_disposition_screen.rs` `SCREENED_MEMBERS`): `review_status`
+/// `quarantined` or `rejected` on every report-section provenance record and
+/// user-supplied value, and on each library reference's record also
+/// `redistribution_status` or `privacy_classification` `protected_suspected`
+/// (report-section records with `protected_suspected` are already refused by
+/// the section validation, `REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED`). The
+/// webview's route projection makes these records opaque leaves, so the
+/// renderer judges them itself, for every emission (HTML, print view, PDF and
+/// the package's members). Reasons name positions and statuses only.
+pub fn provenance_disposition_blocking_reasons(input: &RenderableReportInput) -> Vec<String> {
+    fn review_blocks(status: sections::ReviewStatus) -> Option<&'static str> {
+        match status {
+            sections::ReviewStatus::Quarantined => Some("quarantined"),
+            sections::ReviewStatus::Rejected => Some("rejected"),
+            _ => None,
+        }
+    }
+    let mut reasons = Vec::new();
+    let mut push = |place: String, member: &str, value: &str| {
+        reasons.push(format!("report provenance: {REPORT_PROVENANCE_DISPOSITION_BLOCKED} ({place} {member} {value})"));
+    };
+    let report_sections = &input.report_sections;
+    // Places are composed only for a blocking record, so a clean input allocates nothing here.
+    let mut judge = |collection: &str, suffix: &str, records: &mut dyn Iterator<Item = &sections::Provenance>| {
+        for (index, record) in records.enumerate() {
+            if let Some(value) = review_blocks(record.review_status) {
+                push(format!("{collection}[{index}]{suffix}"), "review_status", value);
+            }
+        }
+    };
+    judge("diagnostics", ".provenance", &mut report_sections.diagnostics.iter().map(|item| &item.provenance));
+    judge("provenance_notes", "", &mut report_sections.provenance_notes.iter());
+    judge("user_supplied_values", ".provenance", &mut report_sections.user_supplied_values.iter().map(|item| &item.provenance));
+    judge("assumptions", ".provenance", &mut report_sections.assumptions.iter().map(|item| &item.provenance));
+    judge("limitations", ".provenance", &mut report_sections.limitations.iter().map(|item| &item.provenance));
+    for (index, value) in report_sections.user_supplied_values.iter().enumerate() {
+        if let Some(status) = review_blocks(value.review_status) {
+            push(format!("user_supplied_values[{index}]"), "review_status", status);
+        }
+    }
+    for (index, reference) in input.library_references.iter().flatten().enumerate() {
+        let place = || format!("library_references[{index}].provenance");
+        let record = &reference.provenance;
+        if let Some(value) = review_blocks(record.review_status) {
+            push(place(), "review_status", value);
+        }
+        if record.redistribution_status == sections::RedistributionStatus::ProtectedSuspected {
+            push(place(), "redistribution_status", "protected_suspected");
+        }
+        if record.privacy_classification == sections::PrivacyClassification::ProtectedSuspected {
+            push(place(), "privacy_classification", "protected_suspected");
+        }
+    }
+    reasons
+}
+
 /// Renderer-level consistency checks of the report context and rule-check
 /// blocks. Each returned code blocks export.
 fn report_context_blocking_codes(input: &RenderableReportInput) -> Vec<&'static str> {
@@ -1521,6 +1586,7 @@ pub fn render_calculation_report(input: &RenderableReportInput) -> RenderOutcome
             blocking_reasons.push(format!("section validation: {}", diagnostic.code));
         }
     }
+    blocking_reasons.extend(provenance_disposition_blocking_reasons(input));
     for code in report_context_blocking_codes(input) {
         blocking_reasons.push(format!("report context: {code}"));
     }

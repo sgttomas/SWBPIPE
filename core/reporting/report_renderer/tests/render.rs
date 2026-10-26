@@ -914,3 +914,188 @@ fn an_empty_or_unknown_recorded_basis_blocks_export() {
             .any(|reason| reason == "report context: USER-RULE-CHECK-BASIS-REF-INVALID"), "{:?}", outcome.blocking_reasons);
     }
 }
+
+// ---------------------------------------------------------------------------
+// W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §4.3,
+// §6.2): FR-REP-003 records by disposition. The renderer refuses a record the
+// library import and the package save block (`quarantined`, `rejected`; and
+// `protected_suspected` through the section validation, or on a library
+// reference's record through the renderer's own check), and an `unknown`
+// redistribution status through the existing section validation. Each
+// refusal holds in every export context; a `private_only` record renders.
+// ---------------------------------------------------------------------------
+
+use open_pipe_stress_report_renderer::{provenance_disposition_blocking_reasons, LibraryReference, REPORT_PROVENANCE_DISPOSITION_BLOCKED};
+
+fn private_record(review: sections::ReviewStatus, redistribution: sections::RedistributionStatus) -> sections::Provenance {
+    sections::Provenance {
+        source_name: "Invented material datasheet".to_string(),
+        source_location: "invented-datasheet-shelf".to_string(),
+        source_license: "invented-license".to_string(),
+        contributor: "invented contributor".to_string(),
+        contributor_certification: "invented certification".to_string(),
+        redistribution_status: redistribution,
+        review_status: review,
+        privacy_classification: sections::PrivacyClassification::PrivateProjectData,
+    }
+}
+
+/// The fixture input with one material record (note and value) and one
+/// library reference, under `context`.
+fn with_material_record(record: sections::Provenance, context: ReportExportContext) -> RenderableReportInput {
+    let mut input = fixture_input();
+    input.report_context = Some(invented_report_context(context));
+    let value_review = record.review_status;
+    input.report_sections.provenance_notes.push(record.clone());
+    input.report_sections.user_supplied_values.push(sections::UserSuppliedValue {
+        value_id: "material-provenance:material:invented-steel".to_string(),
+        value_category: "report_metadata".to_string(),
+        source: sections::Reference::new("material", "material:invented-steel"),
+        quantity: None,
+        provenance: record,
+        privacy_classification: sections::PrivacyClassification::PrivateProjectData,
+        required_for: vec![sections::RequiredFor::Reporting, sections::RequiredFor::HumanReview],
+        review_status: value_review,
+        missing_data_finding: false,
+    });
+    input
+}
+
+fn disposition_reasons(outcome: &open_pipe_stress_report_renderer::RenderOutcome) -> Vec<&str> {
+    outcome
+        .blocking_reasons
+        .iter()
+        .map(String::as_str)
+        .filter(|reason| reason.starts_with("report provenance: "))
+        .collect()
+}
+
+#[test]
+fn fr_rep_003_records_render_or_refuse_by_disposition_in_every_context() {
+    use sections::RedistributionStatus as R;
+    use sections::ReviewStatus as V;
+    for context in [ReportExportContext::LocalPrivate, ReportExportContext::PublicReport] {
+        for review in [V::Pending, V::Accepted] {
+            let outcome = render_calculation_report(&with_material_record(private_record(review, R::PrivateOnly), context));
+            assert!(!outcome.export_blocked, "{review:?}: {:?}", outcome.blocking_reasons);
+            assert!(outcome.html.contains("material-provenance:material:invented-steel"));
+            assert!(outcome.html.contains("Invented material datasheet"));
+        }
+        for (review, status) in [(V::Quarantined, "quarantined"), (V::Rejected, "rejected")] {
+            let input = with_material_record(private_record(review, R::PrivateOnly), context);
+            let outcome = render_calculation_report(&input);
+            assert!(outcome.export_blocked, "{status}");
+            let at = |place: &str| format!("report provenance: {REPORT_PROVENANCE_DISPOSITION_BLOCKED} ({place} review_status {status})");
+            assert_eq!(
+                disposition_reasons(&outcome),
+                [at("provenance_notes[2]"), at("user_supplied_values[1].provenance"), at("user_supplied_values[1]")],
+                "{status}"
+            );
+            assert_eq!(provenance_disposition_blocking_reasons(&input).len(), 3);
+            // The value's own status blocks even where its record does not.
+            let mut value_only = fixture_input();
+            value_only.report_sections.user_supplied_values[0].review_status = review;
+            assert_eq!(
+                provenance_disposition_blocking_reasons(&value_only),
+                [format!("report provenance: {REPORT_PROVENANCE_DISPOSITION_BLOCKED} (user_supplied_values[0] review_status {status})")]
+            );
+        }
+        // protected_suspected and unknown: the existing section validation refuses.
+        for (redistribution, code) in [
+            (R::ProtectedSuspected, "section validation: REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED"),
+            (R::Unknown, "section validation: REPORT_SECTION_PROVENANCE_UNRESOLVED"),
+        ] {
+            let outcome = render_calculation_report(&with_material_record(private_record(V::Pending, redistribution), context));
+            assert!(outcome.export_blocked, "{code}");
+            assert!(has_reason(&outcome, code), "{:?}", outcome.blocking_reasons);
+        }
+    }
+}
+
+#[test]
+fn a_library_reference_record_with_a_blocking_disposition_refuses() {
+    let library = |provenance: sections::Provenance| LibraryReference {
+        reference_id: "library-ref:1".to_string(),
+        library_kind: "material".to_string(),
+        library_id: "invented-material-library".to_string(),
+        library_version: "not recorded".to_string(),
+        record_id: "not recorded".to_string(),
+        entity_refs: vec!["material:invented-steel".to_string()],
+        provenance,
+    };
+    let mut clean = fixture_input();
+    clean.library_references = Some(vec![library(private_record(sections::ReviewStatus::Pending, sections::RedistributionStatus::PrivateOnly))]);
+    assert!(provenance_disposition_blocking_reasons(&clean).is_empty());
+    assert!(!render_calculation_report(&clean).export_blocked);
+    let cases: [(fn(&mut sections::Provenance), &str); 4] = [
+        (|p| p.review_status = sections::ReviewStatus::Quarantined, "review_status quarantined"),
+        (|p| p.review_status = sections::ReviewStatus::Rejected, "review_status rejected"),
+        (|p| p.redistribution_status = sections::RedistributionStatus::ProtectedSuspected, "redistribution_status protected_suspected"),
+        (|p| p.privacy_classification = sections::PrivacyClassification::ProtectedSuspected, "privacy_classification protected_suspected"),
+    ];
+    for (edit, detail) in cases {
+        let mut input = clean.clone();
+        edit(&mut input.library_references.as_mut().unwrap()[0].provenance);
+        let outcome = render_calculation_report(&input);
+        assert!(outcome.export_blocked, "{detail}");
+        assert_eq!(
+            disposition_reasons(&outcome),
+            [format!("report provenance: {REPORT_PROVENANCE_DISPOSITION_BLOCKED} (library_references[0].provenance {detail})")]
+        );
+    }
+}
+
+#[test]
+fn inputs_without_a_blocking_disposition_have_no_provenance_reason() {
+    // The existing invented inputs (accepted, invented public records) and the
+    // exact input (session-style records) carry none.
+    assert!(provenance_disposition_blocking_reasons(&fixture_input()).is_empty());
+    assert!(provenance_disposition_blocking_reasons(&exact_input()).is_empty());
+}
+
+/// The desktop builder's representative records (`renderedReport.test.tsx`
+/// writes them; `tests/test_report_sections_provenance_records.py` validates
+/// them against the schema).
+const PROVENANCE_RECORDS: &str =
+    include_str!("../../../../fixtures/reports/invented/report_sections_provenance_records.json");
+
+#[test]
+fn the_desktop_records_validate_and_refuse_only_their_blocking_dispositions() {
+    let fixture: serde_json::Value = serde_json::from_str(PROVENANCE_RECORDS).unwrap();
+    let records: sections::ReportSections = serde_json::from_value(fixture["report_sections"].clone()).expect("the desktop records deserialize");
+    // A copied accepted review never makes a missing-data value accepted.
+    let validation = sections::validate_report_sections(&records);
+    assert!(
+        validation.diagnostics.iter().all(|item| item.code != "REPORT_SECTION_MISSING_VALUE_MARKED_ACCEPTED"),
+        "{:?}",
+        validation.diagnostics
+    );
+    assert!(!validation.has_blocking_diagnostics(), "{:?}", validation.diagnostics);
+    let mut input = fixture_input();
+    input.report_context = Some(invented_report_context(ReportExportContext::LocalPrivate));
+    input.report_sections = records;
+    let outcome = render_calculation_report(&input);
+    assert!(outcome.export_blocked);
+    let blocked = |place: &str, status: &str| format!("report provenance: {REPORT_PROVENANCE_DISPOSITION_BLOCKED} ({place} review_status {status})");
+    assert_eq!(
+        disposition_reasons(&outcome),
+        [
+            blocked("provenance_notes[2]", "quarantined"),
+            blocked("provenance_notes[7]", "rejected"),
+            blocked("user_supplied_values[1].provenance", "quarantined"),
+            blocked("user_supplied_values[6].provenance", "rejected"),
+            blocked("user_supplied_values[1]", "quarantined"),
+            blocked("user_supplied_values[6]", "rejected"),
+        ]
+    );
+    assert!(outcome.blocking_reasons.iter().all(|reason| reason.starts_with("report provenance: ")), "{:?}", outcome.blocking_reasons);
+    // Without the two blocking records the same report renders.
+    let mut clean = input.clone();
+    clean.report_sections.provenance_notes.retain(|note| !matches!(note.review_status, sections::ReviewStatus::Quarantined | sections::ReviewStatus::Rejected));
+    clean.report_sections.user_supplied_values.retain(|value| !matches!(value.review_status, sections::ReviewStatus::Quarantined | sections::ReviewStatus::Rejected));
+    let rendered = render_calculation_report(&clean);
+    assert!(!rendered.export_blocked, "{:?}", rendered.blocking_reasons);
+    for text in ["material-provenance:material:accepted", "Invented accepted datasheet", "material provenance missing", "MATERIAL_PROVENANCE_MISSING"] {
+        assert!(rendered.html.contains(text), "{text}");
+    }
+}

@@ -429,3 +429,24 @@ fn exact_block_and_library_records_emit_in_the_pdf() {
     assert!(blocked.blocking_reasons.iter().any(|reason| reason == "exact route: REPORT-EXACT-ADMISSION-BINDING-MISMATCH: run_ref"));
     assert!(pdf_contains(&blocked.pdf_bytes, "EXPORT BLOCKED"));
 }
+
+// W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §4.3,
+// §6.2): a report provenance record the renderer refuses blocks the PDF too.
+#[test]
+fn a_quarantined_or_rejected_provenance_record_blocks_the_pdf() {
+    for (status, value) in [(sections::ReviewStatus::Quarantined, "quarantined"), (sections::ReviewStatus::Rejected, "rejected")] {
+        let mut input = fixture_input();
+        let mut record = invented_section_provenance();
+        record.source_name = "Invented blocked material record".to_string();
+        record.redistribution_status = sections::RedistributionStatus::PrivateOnly;
+        record.privacy_classification = sections::PrivacyClassification::PrivateProjectData;
+        record.review_status = status;
+        input.report_sections.provenance_notes.push(record);
+        let index = input.report_sections.provenance_notes.len() - 1;
+        let pdf = emit_calculation_report_pdf(&input);
+        assert!(pdf.export_blocked, "{value}");
+        let reason = format!("report provenance: REPORT_PROVENANCE_DISPOSITION_BLOCKED (provenance_notes[{index}] review_status {value})");
+        assert!(pdf.blocking_reasons.contains(&reason), "{:?}", pdf.blocking_reasons);
+        assert!(pdf_contains(&pdf.pdf_bytes, "EXPORT BLOCKED"));
+    }
+}
