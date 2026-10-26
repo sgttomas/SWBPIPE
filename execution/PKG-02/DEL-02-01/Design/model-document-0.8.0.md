@@ -80,8 +80,9 @@ read it:**
 - `core/product_physics/src/pressure_runtime.rs` :227 ("model document 0.7.0
   accepts only 3.0.0/exact_pressure_v3 …") and :250 ("direct mechanics solves
   support exactly model version 0.7.0") take the constant.
-- `tools/validation/qualification_physics_structure.py` :30
-  `MODEL_VERSION = '0.7.0'` follows the current version.
+- `tools/validation/qualification_physics_structure.py` :30 and
+  `tests/verifiers/physics_source.py` :51 (`MODEL_VERSION = '0.7.0'`) follow
+  the current version.
 - `core/product_physics/src/retained_wire.rs` :43 `EXACT_DEFINITION_SHA256`
   changes with DEF-E (§7). It is bound by `retained_wire_tests.rs` :845, which
   is re-pinned to the regenerated definition.
@@ -184,15 +185,38 @@ that embeds a 0.7.0 model, still reads, while its saved state does not open.
 
 | | (a) Gate by model version | (b) Keep readable as historical results |
 |---|---|---|
-| Behaviour | A recorded-run read, run comparison and the ordinary model-bound readers refuse a 0.7.0 manifest model by name, as states do. | A recorded run and an exported ordinary result stay readable and comparable. Their stored hashes and bindings are still verified, and the UI and any comparison disclose the run's model version ("recorded at model document 0.7.0"). Its saved state still refuses to open. |
+| Behaviour | A recorded-run read, run comparison and the ordinary model-bound readers refuse a 0.7.0 manifest model by name, as states do. | Existing read and compare behaviour is preserved, but only for results that are otherwise eligible: ordinary preview-physics and pressure-2 results whose stored hashes and bindings verify. See the access path and limits below. Its saved state still refuses to open. |
 | Consistency | Uniform with the one-version rule: no 0.7.0 model is read anywhere. | Runs are historical records of what was solved. A state is an editable model, and it alone is gated. |
 | Engineering meaning | No result is read across versions. | 0.8.0 is purely additive: one optional member, absent from every 0.7.0 document. A 0.7.0 run's results therefore mean what they meant. A later non-additive version would need this question asked again. |
 | User effect | Run history and comparisons from before the update become unavailable until re-solved and re-recorded. | History stays visible. A user can compare an old run with a new one. |
 | Build cost | A new gate in `analysis_runs.rs` (desktop; not priced). A gate in the ordinary readers `u4b_evidence.rs` and `reader_verdict.rs`, which are priced `result_export` files, so it joins the D3 turn. Refusal texts and tests. | Disclosure text in the run views and comparison. No reader change, so no D3 effect. |
-| Tests | Old runs with intact hashes are refused by name, at read and at comparison. | Old runs with intact hashes read and compare, with their version disclosed. A tampered hash still refuses. |
+| Tests | Old runs with intact hashes are refused by name, at read and at comparison. | Old ordinary runs with intact hashes read and compare. A tampered hash still refuses. |
 
-The test for either option is a store holding a 0.7.0 state and a recorded run
-with intact hashes and bindings, written after the ruling.
+**Option (b): access path and limits.**
+- **Access.** Run history loads by the active project's id
+  (`apps/desktop/src/features/history/useModelStateHistory.ts` :231). A 0.7.0
+  project cannot be opened (§3.1). To reach its runs, the user first
+  re-authors a current 0.8.0 project with the same project identity, by
+  changing `schema_version` alone (§3.2). Only then are the old runs listed.
+- **Limits.** Comparison keeps its existing eligibility gate
+  (`apps/desktop/src/features/comparison/runComparison.ts` ~294).
+  Retained-precision and source results keep their existing limits; their
+  readers refuse a non-current model (§3.1). (b) changes no gate. It
+  describes what the current code would continue to do.
+- **Disclosure.** Whether the UI should name the run's model version is part
+  of the owner's choice. This design adds no text for it until ruled.
+
+**Test plan, either option.** Written after the ruling, through the desktop
+entry path, not only the Rust read:
+- a store holding a 0.7.0 state and an ordinary recorded run with intact
+  hashes and bindings;
+- under (b), the project re-authored to 0.8.0 with the same identity: the
+  history lists the run, the run opens, and it compares with a new 0.8.0 run
+  under the existing eligibility gate;
+- under (a), the same steps refused by name at the run read and at
+  comparison;
+- in both, a tampered hash refused, and a retained or source result refused
+  as today.
 
 ### 3.4 Handoff packages (correction)
 

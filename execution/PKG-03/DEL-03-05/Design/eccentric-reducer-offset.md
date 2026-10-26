@@ -54,7 +54,7 @@ In a centerline model each node already sits on its own pipe's centerline.
 | Frame | the model's global X/Y/Z axes, the frame of node positions |
 | Origin and sign | R-c1 (§10), owner. Recommended option A: from the centerline at the component's `node` to the centerline at the mapped body member's other end. The convention is isolated in one place (§3.6). |
 | Kind | `reducer` only; on any other kind it is refused by name (§3.4) |
-| Absence | Absent means no declared offset. No offset check runs, and the reducer solves as its nodes place it. |
+| Absence | Absent means no declaration: no offset check runs, and the reducer solves as its nodes place it. An absent offset does not declare a concentric reducer (§3.2), and an undeclared reducer is never run evidence for a neighbour (§3.3). |
 | Zero vector | Declares a concentric reducer, and is checked (§3.2). |
 | Default | none. The product never writes the member and never supplies a value (CLM-004). |
 | Units | normalized to metres with the other component geometry (PP `lib.rs` `normalize_model_units`, beside `center_of_gravity`, ~9559) |
@@ -111,56 +111,97 @@ normalization, so nodes, offset and tolerance are all in metres. It sits
 immediately after `normalize_model_units` and its blocking return (PP `lib.rs`
 ~2805), before formation.
 
-**Applicability.** The check applies to each `reducer` that carries
-`eccentric_offset`, unless the reducer's `solver_consumption` is
-`not_solver_consumed`. That mode is honoured: the member is not read and no
-offset diagnostic is stated. Ordinary structural and unit validation still
-applies (§9, P6).
+**The three states of the slot.**
+- *Absent*: no declaration. Nothing is checked, and the reducer solves as its
+  nodes place it. An absent offset is **not** a declaration of concentricity.
+- *Explicit zero*: declares a concentric reducer, and is checked.
+- *Nonzero*: declares an eccentric reducer, and is checked.
 
-**Early return.** A first pass over the components returns before any index or
-map is built when no component is applicable (§8).
+**First pass.** An allocation-free scan over the components looks for any
+component, of any kind, whose `geometry.eccentric_offset` is present.
+- If there is none, the check returns before any index, map or text is built
+  (§8).
+- Otherwise every non-reducer carrying the slot is refused (`not_reducer`)
+  before any reducer-specific processing, whatever its consumption mode.
+
+**Applicability.** The reducer processing then covers each `reducer` that
+carries the slot, unless its `solver_consumption` is `not_solver_consumed`.
+That mode is honoured: the offset is not read and no offset diagnostic is
+stated. Ordinary structural and unit validation still applies (§9, P6).
 
 1. **Ends.** The ends come from the convention function (§3.6): the origin
-   end N and the far end F of the mapped member `geometry.rigid_pipe_ref`.
-   The member must exist and end at the component's node (W-15's mapping
-   rule). Then D = x_F − x_N.
-2. **Run direction** (§3.3). This gives t, oriented so that D·t > 0, or a
-   named refusal.
-3. **Requirements**, in this order:
+   end N and the far end F of the mapped member `geometry.rigid_pipe_ref`. The
+   member must exist and end at the component's node (W-15's mapping rule).
+   Then D = x_F − x_N.
+2. **Run axis** (§3.3). This gives an undirected axis chosen independently of
+   which end is N, then oriented by D so that D·t > 0, with its direction
+   uncertainty β_run. Or it gives a named refusal.
+3. **Requirements**, in this order. The tolerance constants are in §3.3.
    - **Axial length.** D·t > 0, so the body has length along the run.
-   - **Transversality.** |e·t| ≤ ρ·‖e‖ with ρ = 1e-3, so the declared
-     offset lies within 0.057° of the plane transverse to the run. A zero e
-     passes. This is a numerical agreement rule on the declared vector
-     itself, independent of the placement tolerance. Without it, a collinear
-     e = (5, 0, 0) mm on concentric geometry would pass the placement test
-     with a residual of exactly 5 mm (§9, P2).
+   - **Precision** (nonzero e only). The declared offset must be resolvable:
+     a_e = ρ_base·‖e‖ + (√3/2)·q + ‖e‖·sin β_run must be < ‖e‖. When
+     a_e ≥ ‖e‖ the transversality test cannot distinguish any direction of
+     e, so the offset is refused, with a precision code (§3.4). The user
+     declares a zero offset or corrects the geometry.
+   - **Transversality** (nonzero e only). |e·t| ≤ a_e. This is a numerical
+     agreement rule on the declared vector, independent of the placement
+     tolerance. Without it, a collinear e = (5, 0, 0) mm on concentric
+     geometry would pass placement with a residual of exactly 5 mm.
    - **Placement.** ‖D⊥ − e‖ ≤ τ, where D⊥ = D − (D·t)·t and τ is the model's
      node-proximity tolerance (`PreviewModel::node_proximity_tolerance_m`:
      5 mm unless `model_settings.node_proximity_tolerance` sets another).
+     Placement stays separate from the rounding allowance.
 4. **Arithmetic.** Every quantity is formed in binary64 from the normalized
-   values. The comparisons are `≤` on the Euclidean norm and on |e·t|.
+   values. Every comparison is `≤`, except the precision test's strict `<`.
 
-The actual geometry governs. A declared offset that passes is a statement
-about the reducer, verified to within τ. The lever arm, the stiffness and every
-result come from the nodes, and the solve is bit-identical to the same model
+The actual geometry governs. A declared offset that passes is a statement about
+the reducer, verified within these bounds. The lever arm, the stiffness and
+every result come from the nodes. The solve is bit-identical to the same model
 without the offset member (§12).
 
-### 3.3 The run direction (refusal boundary)
+### 3.3 The run axis, its uncertainty and the refusal boundary
 
-§1 defines the end centerlines as parallel, so the run direction must be
-supported at the ends and must agree where both ends support it.
+§1 defines the end centerlines as parallel. The run axis must therefore be
+supported at the ends, and must agree where both ends support it.
+
+**Tolerance constants** (HELP_HUMAN, 2026-10-26, under the owner's delegation;
+§9, P2 and P3):
+- ρ_base = 1e-3 and θ_base = 1e-3 rad.
+- q = 1 mm is the declared coordinate-rounding allowance. It is a fixed
+  constant of the product (`COORDINATE_ROUNDING_ALLOWANCE_M`), not a user
+  setting. It reflects the common practice of entering coordinates, and the
+  offset's components, rounded to the millimetre. Each entered coordinate is
+  taken to lie within q/2 of its true value, so a point lies within (√3/2)·q
+  of its true position, and the separation of two points within √3·q.
 
 **Evidence at an end.** At each end X ∈ {N, F}, consider every member other
 than the body that ends at X. Each is classified:
 
-| Adjoining member | Class | Direction it gives |
-|---|---|---|
-| straight pipe mapped by no component | run | its axis |
-| straight body of a rigid-family component with no nonzero offset (valve, flange, rigid, specialty, concentric reducer) | run | its axis |
-| curved member realized by a DEC-070 bend macro-element | run | the arc's end tangent at X, from the realized arc geometry (PP `lib.rs` ~8715, chord, radius and `y_reference`) |
-| body of another reducer carrying a nonzero offset | unsupported | none: its chord is slanted, not a run |
-| member mapped by a bend component and not realized as an arc | unsupported | none: a chord is not a tangent |
-| span replaced by an objective connector | unsupported | none |
+| Adjoining member | Class | Direction d (undirected) | Uncertainty β |
+|---|---|---|---|
+| a straight pipe mapped by no component as a body, bend, expansion-joint member or connector span (a branch component's header or branch pipe is such a pipe) | run | its axis | asin(√3·q/L), L its length |
+| the straight body of a valve, flange, rigid or specialty component | run | its axis | asin(√3·q/L) |
+| a member realized as an arc by a DEC-070 bend macro-element | run | the arc's tangent at X: chord ĉ and in-plane normal n̂ (`y_reference` less its chord component), half-angle φ/2 = asin(c/(2R)), tangent cos(φ/2)·ĉ ± sin(φ/2)·n̂ (+ at the arc's `from` node, − at its `to` node; the arc bows toward +n̂, PP `lib.rs` ~8715) | see below |
+| the body of any other reducer: absent, zero or nonzero offset | unsupported | none. An undeclared reducer's chord may be slanted. A declared one is judged by its own check, which cannot be the evidence for this one. Eccentric reducers in series therefore stay refused in this slice (§3.8). | — |
+| a member mapped by a bend component and not realized as an arc | unsupported | none: a chord is not a tangent | — |
+| a member mapped by an expansion joint, or a span replaced by an objective connector | unsupported | none | — |
+| any run-class member whose β is not defined (√3·q ≥ L or c, or a total β ≥ π/2) | unsupported (`unresolvable_run_evidence`) | none: too short to give a direction | — |
+
+**Realized arc uncertainty.**
+β_arc = β_c·(1 + sin(φ/2)·|y·ĉ|/‖y⊥‖) + √3·q/√(4R² − c²), where:
+- β_c = asin(√3·q/c) is the chord's direction uncertainty;
+- the factor in brackets carries it into the in-plane normal, formed from the
+  user's `y_reference` y and its chord-normal part y⊥;
+- the last term is the half-angle's change for a chord-length error up to
+  √3·q (d(φ/2)/dc = 1/√(4R² − c²)).
+
+The user's radius and `y_reference` are entered values and are taken as exact.
+
+**Short spans give wide uncertainty.** A 1 m span has β = 1.732e-3 rad. A
+100 mm span has 1.732e-2 rad. Below √3 mm a span gives no direction. A wide β
+widens both the agreement bound and the transversality allowance. The
+precision test (§3.2) refuses an offset that the resulting allowance cannot
+resolve.
 
 **The end's status:**
 - *none*: no adjoining member, a terminal end;
@@ -168,29 +209,35 @@ than the body that ends at X. Each is classified:
 - *ambiguous*: more than one adjoining member, such as a tee or branch;
 - *unsupported*: exactly one adjoining member, of class unsupported.
 
-**Decision:**
+**Decision.** Ambiguous and unsupported are checked first, at N then F.
 
 | N | F | Outcome |
 |---|---|---|
-| direction | direction | Directions must agree: ‖t_N × t_F‖ ≤ ρ (ρ = 1e-3 rad, §9, P3). Then t = t_N. Otherwise refuse with reason `run_directions_disagree`. |
-| direction | none | t = t_N |
-| none | direction | t = t_F |
-| none | none | refuse, `standalone_body` |
 | ambiguous (either end) | any | refuse, `ambiguous_run`, naming the end and its candidates |
-| unsupported (either end) | any | refuse, `unsupported_run_evidence`, naming the end and member |
+| unsupported (either end) | any | refuse, `unsupported_run_evidence` (or `unresolvable_run_evidence`), naming the end and member |
+| none | none | refuse, `standalone_body` |
+| direction | direction | Agreement: θ = atan2(‖d_N × d_F‖, |d_N·d_F|), the angle after aligning signs, must satisfy θ ≤ θ_base + β_N + β_F. Otherwise refuse, `run_directions_disagree`. Consensus u = normalize(d_N + σ·d_F) with σ = sign(d_N·d_F) (+1 when 0); β_run = max(β_N, β_F). |
+| direction | none, or none | direction | u = the one direction; β_run = its β |
 
-Ambiguous and unsupported are checked before none and direction. A
-neighbouring concentric body counts as run evidence, so flange–reducer–flange
-is accepted. Two eccentric reducers in series are refused. So is a reducer
-between two members mapped by bend components that are not realized as arcs,
-since neither end gives a tangent.
+**Orientation and naming independence.** t = u, negated if u·D < 0.
+- The consensus is symmetric in N and F up to sign.
+- Swapping the ends' names negates D and t exactly. Under the other
+  convention it also negates e.
+- So |e·t|, ‖D⊥ − e‖, a_e and every outcome are bit-identical under a
+  sign-only convention change. §12's convention tests assert this.
+
+Accepted configurations include flange–reducer–flange and an arc at one end
+with a pipe at the other. Two reducers in series are refused (unsupported).
+So is a reducer between two members mapped by bend components that are not
+realized as arcs, since neither end gives a tangent.
 
 ### 3.4 Diagnostics
 
 | Code | Severity | When |
 |---|---|---|
-| `RIGID_COMPONENT_ECCENTRIC_OFFSET_INVALID` (new) | blocking | A present offset cannot be checked. The message names the component and the first reason, in this order: `not_reducer`; `not_finite` (a component of e after conversion); `mapping_invalid`; `ambiguous_run`; `unsupported_run_evidence`; `standalone_body`; `run_directions_disagree`; `no_axial_length` (D·t ≤ 0). |
-| `RIGID_COMPONENT_ECCENTRIC_OFFSET_NOT_TRANSVERSE` (new) | blocking | |e·t| > ρ·‖e‖. The message names e, t, the axial share |e·t|/‖e‖ and ρ. |
+| `RIGID_COMPONENT_ECCENTRIC_OFFSET_INVALID` (new) | blocking | A present offset cannot be checked. The message names the component and the first reason, in this order: `not_reducer`; `not_finite` (a component of e after conversion); `mapping_invalid`; `ambiguous_run`; `unsupported_run_evidence`; `unresolvable_run_evidence`; `standalone_body`; `run_directions_disagree` (stating θ and its bound); `no_axial_length` (D·t ≤ 0). |
+| `RIGID_COMPONENT_ECCENTRIC_OFFSET_BELOW_PRECISION` (new) | blocking | a nonzero e with a_e ≥ ‖e‖. The message names ‖e‖, a_e, q and β_run, and says to declare zero or correct the geometry. |
+| `RIGID_COMPONENT_ECCENTRIC_OFFSET_NOT_TRANSVERSE` (new) | blocking | |e·t| > a_e. The message names e, t, |e·t| and a_e. |
 | `RIGID_COMPONENT_ECCENTRIC_OFFSET_MISMATCH` (new) | blocking | ‖D⊥ − e‖ > τ. The message names N, F, e and D⊥ in metres, the residual and τ. |
 | `RIGID_COMPONENT_ECCENTRIC_OFFSET_REALIZED` (new) | info | On a published result only, like slice a's applied-scale info (PP `rigid_component.rs` `append_formed_diagnostics`). See below. |
 
@@ -251,7 +298,11 @@ These are recorded as remaining items:
 - vector authoring of the offset in the component library schema
   (`schemas/component.schema.yaml` `ComponentFieldKind`). Library apply still
   accounts for an entered offset (§4);
-- reducer SIF or other local modifiers.
+- reducer SIF or other local modifiers;
+- reducers in series. A later rule could traverse an unbranched chain of
+  bodies to independent outer run evidence at each end, then check each
+  reducer of the chain against it (Codex r2). This slice refuses any
+  neighbouring reducer body as unsupported (§3.3).
 
 ## 4. Authoring, adoption, reporting
 
@@ -460,9 +511,10 @@ z = (5/13, 0, 12/13). The load is Fy = Q = 1 000 N at C.
   M_z = (2.12 − x)·Q;
 - the reactions at N0 are Fy = −1 000 N, Mx = −50 N·m and
   Mz = −2 120 N·m, independent of s;
-- on the body, the transmitted force (0, Q, 0) is pure local-y shear, and the
-  moment vector resolves into torsion and bending about the body's local
-  axes, varying linearly along the chord;
+- on the body (local axes as above), the transmitted force (0, Q, 0) is
+  pure local-y shear Q. The moment resolves into torsion −5000/13 N·m
+  (constant) and bending about local z, falling from 13690/13 N·m at A to
+  12000/13 N·m at B. Codex r2 confirmed these values;
 - P2 carries bending only.
 
 The motions (u_y, θx, θz at C, at s = 1 and 1e3, EB and Timoshenko) come from
@@ -519,9 +571,9 @@ They include `retained_wire.rs` and `pressure_runtime.rs` for review.
 
 **What is expected to move:**
 - **The check is designed for zero incremental allocation when nothing
-  applies.** The first pass is an allocation-free scan for an applicable
-  reducer (kind, offset present, mode not `not_solver_consumed`), and it
-  returns before any pipe map, adjacency index or diagnostic text is built.
+  applies.** The first pass is an allocation-free scan for any
+  component carrying `eccentric_offset`. It returns before any pipe map,
+  adjacency index or diagnostic text is built.
   D1 admits no component (P2), so every priced point takes that return.
 - **TEXT sites.** The refusal and info texts are ordinary-route TEXT sites,
   priced like W-15's (§8.21).
@@ -544,8 +596,8 @@ independent scrutiny.
 | # | Matter | Resolution |
 |---|---|---|
 | P1 | Body realization | Approved as Codex says. The chord member between the two centerlines (§3.1). It is equivalent to a rigid link mechanically and kinematically only with zero body eigenstrain and equivalent loading. Thermal growth stays αΔT·D, offset growth included, at every scale. Load resultants (chord self-weight over ‖D‖) differ unless matched. |
-| P2 | Tolerance and transversality | Revised. The actual node geometry governs the lever arm and the solve. The declared offset is checked against it within τ (the 5 mm node-proximity tolerance, user-settable), and transversality is enforced separately by |e·t| ≤ 1e-3·‖e‖ (§3.2). Every M = P·e claim means P·‖D⊥‖. Regressions: 47 mm declared against 50 mm geometry passes placement, and the solve is that of the 50 mm geometry. The collinear e = (5, 0, 0) mm on concentric geometry is refused by `..._NOT_TRANSVERSE` (§12). ρ = 1e-3 accepts declared values entered to about four significant figures on inclined runs, and refuses any axial share above 0.1 %. |
-| P3 | Run direction | Revised (§3.3). Pipe-run evidence is kept apart from other component-body chords, and a neighbouring eccentric body's chord is not a run. Realized bend tangents are used where they apply. Where both ends give a direction, the two must agree within 1e-3 rad. Ambiguous or unsupported topology is refused by name: a tee or branch, a standalone body, unrealized bend members, connector spans, and two eccentric reducers in series. |
+| P2 | Tolerance, transversality and precision | Revised, then decided. The actual node geometry governs the lever arm and the solve, and every M = P·e claim means P·‖D⊥‖. Placement: the declared offset is checked within τ (the 5 mm node-proximity tolerance, user-settable), separately from any rounding allowance. Transversality: |e·t| ≤ ρ_base·‖e‖ + (√3/2)·q + ‖e‖·sin β_run, with ρ_base = 1e-3 and q = 1 mm, a fixed declared coordinate-rounding allowance, not a user setting, reflecting millimetre-rounded entry (§3.2, §3.3). A nonzero offset whose allowance reaches its magnitude is refused by `..._BELOW_PRECISION`. **Why:** with ρ alone, a 30° run entered as (866, 500, 0) mm with offset (−25, 43, 0) mm has axial share 0.003015789 and would be wrongly refused; under the rule it is accepted. Regressions: that case; 47 mm declared against 50 mm geometry (passes, and the 50 mm geometry governs); the collinear e = (5, 0, 0) mm, still refused by `..._NOT_TRANSVERSE`; one case just outside the transversality bound and one just inside the precision bound (§12). |
+| P3 | Run axis | Revised, then decided (§3.3). Run evidence comes from ordinary pipes, the bodies of valves, flanges, rigid and specialty components, and realized-arc tangents, each with a direction uncertainty β: asin(√3·q/L) for a straight member; the defined β_arc for an arc. Any other reducer's body (absent, zero or nonzero offset), an unrealized bend member, an expansion-joint member, a connector span and an unresolvably short member are unsupported. Both ends' directions must agree: θ ≤ θ_base + β_N + β_F, with θ_base = 1e-3 rad, after aligning signs. The axis is the sign-aligned normalized consensus, independent of endpoint naming, oriented by D. Ambiguous or unsupported topology is refused by name. **Why:** with θ_base alone, two parallel 100 mm spans rounded to (87, 50) and (86, 50) mm are 0.005008974 rad apart and would be wrongly refused; under the rule they are accepted. Regressions: that case; one case just outside the agreement bound; Codex's two-reducer chain; and the convention-invariance case (§12). |
 | P4 | Body length against geometry | Approved: not checked for any rigid-family kind. The demo valve's body length is 0.72 m on a 2.2 m member. |
 | P5 | Self-weight of the chord body | Approved: it acts over ‖D‖, and slice b's component weight replaces it when entered. |
 | P6 | `not_solver_consumed` | Approved: honoured, the offset not read and no offset diagnostic. Ordinary structural and unit validation still applies. |
@@ -614,34 +666,47 @@ any value moves, it is reported to the owner and not edited.
 - **Accepted:**
   - the §7.1 geometry;
   - e entered in mm and in m, with bit-identical results;
-  - a zero e on collinear nodes;
+  - an explicit zero e on collinear nodes;
   - **declared 47 mm against 50 mm geometry:** placement residual 3 mm ≤ τ.
-    The results are bit-identical to the same model without the offset
-    member and to the W15C-P rows, and the info states declared 47 mm and
-    realized 50 mm.
+    The results are bit-identical to the same model without the offset member
+    and to the W15C-P rows, and the info states declared 47 mm and realized
+    50 mm.
+  - **the 30° run:** P1 entered as (866, 500, 0) mm, e = (−25, 43, 0) mm, all
+    coordinates mm-rounded; axial share 0.003015789 (P2 decision);
+  - **the 100 mm spans:** P1 (87, 50) mm and P2 (86, 50) mm, θ = 0.005008974
+    rad (P3 decision);
+  - just inside each bound: transversality, angle agreement and precision.
 - **`..._NOT_TRANSVERSE`:**
   - the collinear e = (5, 0, 0) mm on concentric geometry, whose placement
     residual of exactly 5 mm alone would pass;
-  - an axial share just above 1e-3, with the share just below it accepted.
+  - an axial component just above a_e (1 m runs along X, e = (1.01, −50, 0)
+    mm), with (1.00, −50, 0) mm accepted.
+- **`..._BELOW_PRECISION`:** e = (0, −0.8, 0) mm with 1 m runs
+  (a_e = 0.867 mm), with (0, −0.9, 0) mm accepted on matching geometry.
 - **`..._MISMATCH`:**
   - sign flipped (residual 0.1 m);
   - wrong transverse axis (0.0707 m);
   - magnitude 40 mm (10 mm);
   - the 47 mm case with τ set to 1 mm through `model_settings`.
 - **`..._INVALID`,** one test per reason in §3.4's order:
-  - an offset on a valve;
+  - an offset on a valve. This includes a model with no reducer at all, which
+    the first pass must not skip;
   - a non-finite converted value;
   - a mapping that is absent, unknown or not ending at the node;
   - a tee at N;
-  - a neighbouring eccentric reducer at N;
-  - an unrealized bend member at N;
-  - a connector span at N;
+  - a neighbouring reducer at N, in three cases: absent, zero and nonzero
+    offset;
+  - **Codex's chain:** an X pipe, then two successive reducer chords
+    (0.12, −0.05, 0), the first undeclared and the second with e = 0. This
+    must not pass;
+  - an unrealized bend member at N, and a connector span at N;
+  - a run member shorter than √3·q;
   - a standalone body;
-  - run directions at N and F 2e-3 rad apart (refused), with 0.5e-3 rad
-    accepted;
+  - run directions just outside θ_base + β_N + β_F (1 m runs:
+    4.47e-3 rad refused, 4.46e-3 rad accepted);
   - D·t ≤ 0.
 - **Run evidence:**
-  - a realized arc at N supplies its end tangent;
+  - a realized arc at N supplies its tangent, with β_arc;
   - a concentric flange body at both ends is accepted;
   - a terminal end uses the other end's direction.
 - **Other behaviour:**
@@ -651,11 +716,16 @@ any value moves, it is reported to the owner and not edited.
   - the info appears only on a published result;
   - an unscaled eccentric reducer solves as chord pipe, and its info states
     the reference-section meaning;
-  - the early return builds no index when no reducer applies (a unit test on
-    the first pass).
+  - the first pass builds no index when no component carries the slot (a unit
+    test on the scan).
 
-**Convention** (`tests/w15c_offset_convention.rs` and one vitest): W15C-R and
--O accepted, and their other-option signs refused.
+**Convention** (`tests/w15c_offset_convention.rs` and one vitest; the only
+convention-dependent tests):
+- W15C-R and -O are accepted, and their other-option signs refused.
+- **Codex's invariance case:** the downstream axis rotated −0.0005 rad and
+  e = (0.04, −50) mm, checked as option A with the component at A and as
+  option B with the member reversed. The outcome and |e·t|, a_e and
+  ‖D⊥ − e‖ are bit-identical.
 
 **Exact route** (`tests/exact_admission_seam.rs`): an eccentric reducer outside
 every region is admitted; inside a region it is refused.
