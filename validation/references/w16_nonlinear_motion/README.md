@@ -23,7 +23,7 @@ TASK. They have not yet been independently refuted.
 |---|---|
 | `generators/w16_nl_reference.py` | the generator: writes the requests, solves every support state in exact rational arithmetic, evaluates each benchmark's closed form, and writes `references.json` and `SHA256SUMS` |
 | `requests/*.json` | the invented product request documents (model schema 0.7.0) |
-| `references.json` | per request and load case: the strictly and weakly qualifying states, with exact published rows; the closed-form cross-checks; A-3's reduced closed form and mutants |
+| `references.json` | per request and load case: the strictly and weakly qualifying states, with exact published rows (and each moved ground's exact relative displacement); the closed-form cross-checks; A-3's reduced closed form and mutants |
 | `SHA256SUMS` | hashes of every file above (`shasum -a 256 -c SHA256SUMS` in this directory) |
 
 Run `python3 -I generators/w16_nl_reference.py` to rebuild every output in
@@ -79,6 +79,21 @@ nonlinear support's signed slot, and every nodal displacement.
 s* = 5PL³/(48EI) = 2^-10 m; P follows exactly. A-2 uses d = 2^-12 m, P =
 2·(3EI/L³)·d and μ = 1/2.
 
+**R-b (a nonlinear support's own ground moves by g_s; its state is measured on δ_s = u_d − g_s).**
+
+| Request | Model | Cases | Closed form checked |
+|---|---|---|---|
+| `b1` | 4 m cantilever, tip load P, tip lift-off on UZ whose ground drops by d | d = d*/2 (Active), 2d* (Inactive), d* (weak) | R = P − 3EI·d/L³ = P/2; u = −d*, separation d − d*; the absolute-u classifier would engage |
+| `b1_spring` | `b1` with a separate spring record k = 3EI/L³ at the tip UZ (its ground fixed) | Active, Inactive | R = P − (k + 3EI/L³)·d; K-D5's M04 is observable |
+| `b1_rot` | tip rotational lift-off on RY (UZ free), tip load F, ground rotation g | Active, Inactive | the condensed rotational tip stiffness EI/L; R = −(EI/L)(θ* − g) |
+| `b2`, `b2_positive` | tip gap (closing in −, or mirrored in +), clearance c = 2δ0, ground moved toward it by h | open, closed, the equality h = c − δ0, and h = c (a cancelling closing position) | closed: u = h − c in the gap's sense, R = P + k_b(h − c) |
+| `b2_negative_clearance` | c = δ0/2 and h = 2δ0, so c + σ·g_s < 0 | closed | u = h − c, R = P + k_b(h − c) |
+| `b3`, `b3_explicit`, `b3_px` | 4 m bar, tip friction on UX (derived normal from a tip UY guide under P_y, or an explicit N), ground moving by g_t; `b3_px` adds P_x = μN/2 | sticking and sliding with both signs of g_t, and the weak boundary | sticking: u_x = g_t, R_t = k_x·g_t − P_x; sliding: u_x = (P_x ± μN)/k_x, the force opposing the relative slip, which opposes u_x itself |
+| `b1_translated`, `b2_translated`, `b3_translated` | the property: every anchor and nonlinear ground on the axis moved by one more t = 2^-8 m (Z, Z, X) | as their base | states and reactions unchanged; u shifted by t |
+
+δ0 = d* = PL³/(3EI) = 2^-10 m and g* = μ|P_y|L/(EA) = 2^-12 m (μ = 1/2);
+each P follows exactly.
+
 **A-3's reduced closed form.** With K = [[a, b], [b, d]] the condensed
 stiffness on (n, t) = (tip UY, tip UX) and u_n = g_n:
 α = (a − b²/d)·g_n + (b/d)·f_t − f_n, γ = b/d, c_f = −dir·μ·β,
@@ -103,7 +118,16 @@ confirmation ("stick capacity not established"). At A-1's exact boundary the
 loop alternates between the two weak states and does not converge, so the
 case is withheld before any confirmation.
 
+Gap cases (R1) are never confirmed: the exact strict-gap decisions select
+the state and the standing stays `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`;
+their displacements and slot reactions are compared at 1e-9 relative. B-1's
+weak case fails closed in the confirmation on either weak state, by solver
+mode; B-3's is the weak sticking boundary ("stick capacity not established").
+Each moved ground's `nonlinear_support_final_relative_displacement` row must
+equal fl(U − g_s), with U the published displacement, and lie within 1e-9
+relative of the exact δ_s (exactly 0 where the support is at its ground).
+
 Observed on the W-16 stage 2 branch (both solver modes gave the same
 figures): every certified group within B; the largest relative error of a
 nonlinear slot row was 1.6e-16 (A-3) and of a nodal displacement 3.3e-16
-(A-3).
+(A-3) on R-a, and 0 and 1.7e-16 on R-b; the gap projections matched to 0.

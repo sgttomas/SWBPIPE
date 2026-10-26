@@ -672,15 +672,261 @@ def a2_translated_request():
     return request
 
 
-def translated_check(model, base_model, case_id, exact_states, base_states):
-    ty = [6 * k + 1 for k in range(len(model.nodes))]
+def translated(request, name, axis):
+    """The property (§5): every rigid restraint and nonlinear ground acting on U<axis> moves by
+    one more t = 2^-8 m, so the whole model translates rigidly in that axis."""
+    dof = "U" + axis
+    m = request["model"]
+    m["project"]["id"] = f"project:w16nl-{name}"
+    m["project"]["description"] += f" Translated rigidly by t in {axis} (the property)."
+    for c in m["load_cases"]:
+        loads = c["primitive_loads"]
+        for s in m["supports"]:
+            nl = s.get("nonlinear")
+            if nl is not None:
+                acts = nl["dof"] == dof
+            else:
+                acts = s.get("family") != "spring" and dof in s["restraints"]
+            if not acts:
+                continue
+            existing = [l for l in loads if l["category"] == "imposed_displacement"
+                        and l["target"]["support"] == s["id"] and l["target"]["dof"] == dof]
+            if existing:
+                existing[0]["magnitude"]["value"] = as_float(F(existing[0]["magnitude"]["value"]) + T_PROP)
+            else:
+                loads.append(motion(f"{c['id']}-T{axis}-{s['id'].split(':')[-1]}", s["id"], dof, as_float(T_PROP)))
+    return request
+
+
+def translated_check(model, name, axis, case_id, exact_states, base_states):
+    shifted = [6 * k + axis for k in range(len(model.nodes))]
     base = {(k, tuple(sorted(s.items()))): (u, r) for k, s, u, r in base_states}
     moved = {(k, tuple(sorted(s.items()))): (u, r) for k, s, u, r in exact_states}
     same = set(base) == set(moved) and all(
         moved[key][1] == base[key][1]
-        and all(moved[key][0][i] == base[key][0][i] + (T_PROP if i in ty else 0) for i in range(model.n))
+        and all(moved[key][0][i] == base[key][0][i] + (T_PROP if i in shifted else 0) for i in range(model.n))
         for key in base)
-    check(f"A-2 translated {case_id}: states and reactions unchanged, u shifted by t in Y", same)
+    check(f"{name} {case_id}: states and reactions unchanged, u shifted by t in {'XYZ'[axis]}", same)
+
+
+# ----------------------------------------------------------------------------- R-b
+# B-1: a tip lift-off support whose ground drops by d; d* = P L^3/(3EI) = P/k_b.
+D_STAR = F(1, 2 ** 10)
+P_B1 = KB4 * D_STAR
+
+
+def cantilever_nodes():
+    return [node("node:A", 0.0, 0.0, 0.0), node("node:T", 4.0, 0.0, 0.0)], [pipe("pipe:AT", "node:A", "node:T", (0, 0, 1))]
+
+
+def b1_request():
+    P = as_float(P_B1)
+    nodes, pipes = cantilever_nodes()
+    supports = [anchor("support:ANCHOR", "node:A"),
+                nonlinear("support:LIFT", "node:T", {"behavior": "lift_off", "dof": "UZ", "initial_state": "active",
+                                                      "contact_when": "positive_reaction"})]
+    cases = []
+    for cid, d in (("load:ACTIVE", D_STAR / 2), ("load:LIFTED", 2 * D_STAR), ("load:BOUNDARY", D_STAR)):
+        cases.append(case(cid, [force(cid + "-P", "node:T", "z", -P), motion(cid + "-G", "support:LIFT", "UZ", as_float(-d))]))
+    return document("b1", "W-16 stage 2 B-1 (R-b): a tip lift-off support whose ground drops.", nodes, pipes, supports, cases)
+
+
+def b1_closed_form(model, case_id, exact_states):
+    d = {"load:ACTIVE": D_STAR / 2, "load:LIFTED": 2 * D_STAR, "load:BOUNDARY": D_STAR}[case_id]
+    tip = 6 * model.nodes.index("node:T") + 2
+    states = {(k, s["support:LIFT"]): (u, r) for k, s, u, r in exact_states}
+    if d < D_STAR:
+        u, r = states[("strict", "active")]
+        check(f"B-1 {case_id}: R = P - 3EI d/L^3 = P/2 and u = -d", r[tip] == P_B1 - KB4 * d == P_B1 / 2 and u[tip] == -d)
+    elif d > D_STAR:
+        u, r = states[("strict", "inactive")]
+        check(f"B-1 {case_id}: u = -d*, separation d - d* = d*", u[tip] == -D_STAR and u[tip] - (-d) == d - D_STAR == D_STAR)
+        # A classifier on the absolute u (u < 0: contact) would close it: the mutant is visible.
+        check(f"B-1 {case_id}: the absolute-u classifier would wrongly engage (u < 0)", u[tip] < 0)
+    else:
+        check(f"B-1 {case_id}: at d = d* both states are weak", set(states) == {("weak", "active"), ("weak", "inactive")})
+
+
+def b1_spring_request():
+    """B-1's spring twin: a separate spring record k = k_b at the tip UZ; R = P - (k + k_b) d. Kills K-D5's M04."""
+    P = as_float(P_B1)
+    nodes, pipes = cantilever_nodes()
+    supports = [anchor("support:ANCHOR", "node:A"),
+                nonlinear("support:LIFT", "node:T", {"behavior": "lift_off", "dof": "UZ", "initial_state": "active",
+                                                      "contact_when": "positive_reaction"}),
+                spring("support:K", "node:T", "UZ", as_float(KB4))]
+    star = D_STAR / 2  # P/(k + k_b)
+    cases = []
+    for cid, d in (("load:ACTIVE", star / 2), ("load:LIFTED", 2 * star)):
+        cases.append(case(cid, [force(cid + "-P", "node:T", "z", -P), motion(cid + "-G", "support:LIFT", "UZ", as_float(-d))]))
+    return document("b1_spring", "W-16 stage 2 B-1 (R-b) spring twin: a fixed-ground parallel spring.", nodes, pipes, supports, cases)
+
+
+def b1_spring_closed_form(model, case_id, exact_states):
+    star = D_STAR / 2
+    d = {"load:ACTIVE": star / 2, "load:LIFTED": 2 * star}[case_id]
+    tip = 6 * model.nodes.index("node:T") + 2
+    states = {(k, s["support:LIFT"]): (u, r) for k, s, u, r in exact_states}
+    if d < star:
+        u, r = states[("strict", "active")]
+        # The contact force is the nonlinear slot, (K u - f) at the DOF with the
+        # spring in K: the spring's ground stays fixed, so its force is -k u = k d.
+        check(f"B-1 spring {case_id}: R = P - (k + 3EI/L^3) d, and u = -d", r[tip] == P_B1 - 2 * KB4 * d and u[tip] == -d)
+        # K-D5's M04 (the spring at d excluded from the contact force) would publish P - k_b d instead.
+        check(f"B-1 spring {case_id}: M04 is observable (k d != 0)", r[tip] != P_B1 - KB4 * d)
+    else:
+        u, r = states[("strict", "inactive")]
+        check(f"B-1 spring {case_id}: u = -P/(k + k_b)", u[tip] == -star)
+
+
+# The rotational twin: a tip lift-off on RY (pushing -RY) with the tip UZ free;
+# a tip load -F; the condensed rotational tip stiffness k_theta = EI/L.
+THETA_STAR = F(1, 2 ** 10)  # the free tip rotation F L^2/(2EI)
+F_B1R = 2 * E * I * THETA_STAR / 16
+
+
+def b1_rot_request():
+    nodes, pipes = cantilever_nodes()
+    supports = [anchor("support:ANCHOR", "node:A"),
+                nonlinear("support:LIFT", "node:T", {"behavior": "lift_off", "dof": "RY", "initial_state": "active",
+                                                      "contact_when": "negative_reaction"})]
+    cases = []
+    for cid, g in (("load:ACTIVE", THETA_STAR / 2), ("load:LIFTED", 2 * THETA_STAR)):
+        cases.append(case(cid, [force(cid + "-F", "node:T", "z", as_float(-F_B1R)), motion(cid + "-G", "support:LIFT", "RY", as_float(g))]))
+    return document("b1_rot", "W-16 stage 2 B-1 (R-b) rotational twin: a tip rotational lift-off whose ground rotates.",
+                    nodes, pipes, supports, cases)
+
+
+def b1_rot_closed_form(model, case_id, exact_states):
+    g = {"load:ACTIVE": THETA_STAR / 2, "load:LIFTED": 2 * THETA_STAR}[case_id]
+    tip = 6 * model.nodes.index("node:T")
+    (k_theta,), = condensed(model, [tip + 4], set(model.rigid["support:ANCHOR"]))
+    check(f"B-1 rotational {case_id}: the condensed rotational tip stiffness is EI/L", k_theta == E * I / 4)
+    states = {(k, s["support:LIFT"]): (u, r) for k, s, u, r in exact_states}
+    if g < THETA_STAR:
+        u, r = states[("strict", "active")]
+        check(f"B-1 rotational {case_id}: R = -k_theta (theta* - g) and theta = g", r[tip + 4] == -k_theta * (THETA_STAR - g) and u[tip + 4] == g)
+    else:
+        u, r = states[("strict", "inactive")]
+        check(f"B-1 rotational {case_id}: theta = theta* (free), separation g - theta*", u[tip + 4] == THETA_STAR)
+
+
+# B-2: a gap closing in -, whose ground rises by h; delta0 = P L^3/(3EI) < c.
+DELTA0 = F(1, 2 ** 10)
+P_B2 = KB4 * DELTA0
+C_B2 = 2 * DELTA0
+
+
+def b2_request(sense="negative"):
+    """Both closing senses: in -, the load is -P and the ground rises by h; in +, mirrored."""
+    s = -1 if sense == "negative" else 1
+    nodes, pipes = cantilever_nodes()
+    supports = [anchor("support:ANCHOR", "node:A"),
+                nonlinear("support:GAP", "node:T", {"behavior": "gap", "dof": "UZ", "initial_state": "inactive",
+                                                     "closes_when": f"{sense}_displacement", "gap": qv(as_float(C_B2), "m")})]
+    cases = []
+    for cid, h in (("load:OPEN", DELTA0 / 2), ("load:CLOSED", 3 * DELTA0), ("load:EQUAL", C_B2 - DELTA0), ("load:CANCEL", C_B2)):
+        cases.append(case(cid, [force(cid + "-P", "node:T", "z", as_float(s * P_B2)), motion(cid + "-G", "support:GAP", "UZ", as_float(-s * h))]))
+    name = "b2" if sense == "negative" else "b2_positive"
+    return document(name, f"W-16 stage 2 B-2 (R-b): a gap closing in {'-' if s < 0 else '+'} whose ground moves toward it.",
+                    nodes, pipes, supports, cases)
+
+
+def b2_closed_form(model, case_id, exact_states, s=-1):
+    h = {"load:OPEN": DELTA0 / 2, "load:CLOSED": 3 * DELTA0, "load:EQUAL": C_B2 - DELTA0, "load:CANCEL": C_B2}[case_id]
+    tip = 6 * model.nodes.index("node:T") + 2
+    states = {(k, st["support:GAP"]): (u, r) for k, st, u, r in exact_states}
+    label = "B-2" if s < 0 else "B-2 (+)"
+    if h < C_B2 - DELTA0:
+        u, r = states[("strict", "inactive")]
+        check(f"{label} {case_id}: open, u = the free tip deflection", u[tip] == s * DELTA0)
+    elif h > C_B2 - DELTA0:
+        u, r = states[("strict", "active")]
+        check(f"{label} {case_id}: closed at u = sigma*(c + sigma*g_s), R = P + k_b (h - c)",
+              u[tip] == -s * (h - C_B2) and -s * r[tip] == P_B2 + KB4 * (h - C_B2))
+    else:
+        check(f"{label} {case_id}: at h = c - delta0 both states are weak (R = 0, closing)", set(states) == {("weak", "active"), ("weak", "inactive")})
+
+
+def b2_negative_clearance_request():
+    """The effective clearance c + sigma g_s < 0: the ground has risen past the clearance."""
+    nodes, pipes = cantilever_nodes()
+    c = DELTA0 / 2
+    supports = [anchor("support:ANCHOR", "node:A"),
+                nonlinear("support:GAP", "node:T", {"behavior": "gap", "dof": "UZ", "initial_state": "inactive",
+                                                     "closes_when": "negative_displacement", "gap": qv(as_float(c), "m")})]
+    cases = [case("load:CLOSED", [force("load:CLOSED-P", "node:T", "z", as_float(-P_B2)), motion("load:CLOSED-G", "support:GAP", "UZ", as_float(2 * DELTA0))])]
+    return document("b2_negative_clearance", "W-16 stage 2 B-2 (R-b): a negative effective clearance.", nodes, pipes, supports, cases)
+
+
+def b2_negative_clearance_closed_form(model, case_id, exact_states):
+    c, h = DELTA0 / 2, 2 * DELTA0
+    tip = 6 * model.nodes.index("node:T") + 2
+    states = {(k, st["support:GAP"]): (u, r) for k, st, u, r in exact_states}
+    u, r = states[("strict", "active")]
+    check("B-2 negative clearance: c - h < 0, closed at u = h - c, R = P + k_b (h - c)", c - h < 0 and u[tip] == h - c and r[tip] == P_B2 + KB4 * (h - c))
+
+
+# B-3: friction under ground motion g_t; g* = mu |P_y| L/(EA).
+G_STAR = F(1, 2 ** 12)
+MU_B3 = F(1, 2)
+KX = E * A / 4
+N_B3 = KX * G_STAR / MU_B3  # the normal |P_y|
+
+
+def b3_request(normal="derived", px=F(0)):
+    nodes, pipes = cantilever_nodes()
+    spec = {"behavior": "friction", "dof": "UX", "initial_state": "sticking", "friction_coefficient": qv(float(MU_B3), "none")}
+    supports = [anchor("support:ANCHOR", "node:A")]
+    if normal == "derived":
+        supports.append(anchor("support:N", "node:T", ("UY",), family="guide"))
+        spec["normal_reaction_source"] = {"support_ref": "support:N", "dof": "UY"}
+    else:
+        spec["normal_reaction"] = qv(as_float(N_B3), "N")
+    supports.append(nonlinear("support:NL-F", "node:T", spec))
+    lo, hi = (px - MU_B3 * N_B3) / KX, (px + MU_B3 * N_B3) / KX
+    picks = {"load:STICK": (lo + hi) / 2 + (hi - lo) / 4, "load:STICK-NEG": (lo + hi) / 2 - (hi - lo) / 4,
+             "load:SLIDE": hi + (hi - lo), "load:SLIDE-NEG": lo - (hi - lo), "load:BOUNDARY": hi}
+    cases = []
+    for cid, g in picks.items():
+        loads = []
+        if normal == "derived":
+            loads.append(force(cid + "-PY", "node:T", "y", as_float(-N_B3)))
+        if px:
+            loads.append(force(cid + "-PX", "node:T", "x", as_float(px)))
+        loads.append(motion(cid + "-G", "support:NL-F", "UX", as_float(g)))
+        cases.append(case(cid, loads))
+    name = {("derived", 0): "b3", ("explicit", 0): "b3_explicit"}.get((normal, px), "b3_px")
+    return document(name, f"W-16 stage 2 B-3 (R-b): friction under ground motion ({normal} normal, P_x = {float(px)} N).",
+                    nodes, pipes, supports, cases), picks
+
+
+PX_B3 = MU_B3 * N_B3 / 2
+
+
+def b3_closed_form_for(px, label="B-3"):
+    def closed(model, case_id, exact_states):
+        lo, hi = (px - MU_B3 * N_B3) / KX, (px + MU_B3 * N_B3) / KX
+        tip = 6 * model.nodes.index("node:T")
+        picks = {"load:STICK": (lo + hi) / 2 + (hi - lo) / 4, "load:STICK-NEG": (lo + hi) / 2 - (hi - lo) / 4,
+                 "load:SLIDE": hi + (hi - lo), "load:SLIDE-NEG": lo - (hi - lo), "load:BOUNDARY": hi}
+        g = picks[case_id]
+        states = {(k, st["support:NL-F"]): (u, r) for k, st, u, r in exact_states}
+        if lo < g < hi:
+            u, r = states[("strict", "sticking")]
+            check(f"{label} (P_x={float(px)}) {case_id}: sticking, u_x = g_t, R_t = k_x g_t - P_x", u[tip] == g and r[tip] == KX * g - px)
+        elif g > hi or g < lo:
+            u, r = states[("strict", "sliding")]
+            sign = 1 if g > hi else -1
+            check(f"{label} (P_x={float(px)}) {case_id}: sliding, u_x = (P_x + sign(g) mu N)/k_x; the force opposes the relative slip",
+                  u[tip] == (px + sign * MU_B3 * N_B3) / KX and r[tip] * (u[tip] - g) < 0)
+            # An absolute-slip classifier reads sign(u_x), which differs from sign(u_x - g_t) here.
+            check(f"{label} (P_x={float(px)}) {case_id}: the relative slip u_x - g_t opposes u_x itself, so an absolute-slip classifier fails",
+                  (u[tip] - g) * u[tip] < 0)
+        else:
+            check(f"{label} (P_x={float(px)}) {case_id}: at the boundary sticking is weak (|R_t| = mu N, zero slip)",
+                  ("weak", "sticking") in states and not any(k == "strict" for k, _ in states))
+    return closed
 
 
 REQUESTS = [
@@ -688,7 +934,22 @@ REQUESTS = [
     ("a2", "R-a", a2_request, a2_closed_form),
     ("a3", "R-a", a3_request, a3_closed_form),
     ("a2_translated", "R-a", a2_translated_request, None),
+    ("b1", "R-b", b1_request, b1_closed_form),
+    ("b1_spring", "R-b", b1_spring_request, b1_spring_closed_form),
+    ("b1_rot", "R-b", b1_rot_request, b1_rot_closed_form),
+    ("b1_translated", "R-b", lambda: translated(b1_request(), "b1_translated", "Z"), None),
+    ("b2", "R-b", b2_request, b2_closed_form),
+    ("b2_positive", "R-b", lambda: b2_request("positive"), lambda m, c, e: b2_closed_form(m, c, e, s=1)),
+    ("b2_negative_clearance", "R-b", b2_negative_clearance_request, b2_negative_clearance_closed_form),
+    ("b2_translated", "R-b", lambda: translated(b2_request(), "b2_translated", "Z"), None),
+    ("b3", "R-b", lambda: b3_request()[0], b3_closed_form_for(F(0))),
+    ("b3_explicit", "R-b", lambda: b3_request("explicit")[0], b3_closed_form_for(F(0), "B-3 explicit normal")),
+    ("b3_px", "R-b", lambda: b3_request("derived", PX_B3)[0], b3_closed_form_for(PX_B3)),
+    ("b3_translated", "R-b", lambda: translated(b3_request()[0], "b3_translated", "X"), None),
 ]
+
+# The base of each translated request (the property).
+TRANSLATED = {"a2_translated": ("a2", 1), "b1_translated": ("b1", 2), "b2_translated": ("b2", 2), "b3_translated": ("b3", 0)}
 
 
 def encode(obj):
@@ -713,8 +974,9 @@ def build():
             kept[(name, c["id"])] = exact_states
             if closed:
                 closed(model, c["id"], exact_states)
-            if name == "a2_translated":
-                translated_check(model, None, c["id"], exact_states, kept[("a2", c["id"])])
+            if name in TRANSLATED:
+                base, axis = TRANSLATED[name]
+                translated_check(model, name, axis, c["id"], exact_states, kept[(base, c["id"])])
         oracles[name] = {"part": part, "request": f"requests/{name}.json", "request_sha256": hashlib.sha256(data).hexdigest(),
                          "cases": cases}
     references = {

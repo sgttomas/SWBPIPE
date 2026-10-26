@@ -2,7 +2,7 @@
 
 Revision 1. Revision 0 (9c150de821) is the governing design for the T4 unit that the owner's steer names "nonlinear K-D5" ("T4: K-D5 option (d), then U2/O-13, nonlinear K-D5 and U4/U5/U6/U8."); it replaced the sketch in [kd5-member-relative-bound.md](kd5-member-relative-bound.md) §5. Revision 1 applies HELP_HUMAN's rulings R1–R5 of 2026-10-12 and the T4 manager's rulings of the same day (see "The rulings"), folds in the independent design review of revision 0 (findings B1, I1–I5 and M1–M6), and fixes the implementation's choices: one shared confirmation factor, the influence solve as an unjudged K-D5 evaluation, the Stage-A ball published as a binary64 midpoint with a widened radius, k = 1 only, and the order of the named reasons. The 1e-9 criterion, the 2^-34·S* floor, the 2^-988 guard, the notice and the maximum declarations are unchanged. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
-Revision 2 carries imposed motion on the pressure-free route into this unit (W-16 stage 2; DEL-04-03 Design [pf-nonlinear-imposed-motion.md](../../DEL-04-03/Design/pf-nonlinear-imposed-motion.md) §2). R-a, built: rigid anchors and restraints carry the case's motion as base prescribed values g_B (§0 M1, §1.1, §1.2, §1.4, §1.6), and §2.4 item 2 gains the intended-map check. Every nonlinear support's ground stays fixed.
+Revision 2 carries imposed motion on the pressure-free route into this unit (W-16 stage 2; DEL-04-03 Design [pf-nonlinear-imposed-motion.md](../../DEL-04-03/Design/pf-nonlinear-imposed-motion.md) §2). R-a: rigid anchors and restraints carry the case's motion as base prescribed values g_B (§0 M1, §1.1, §1.2, §1.4, §1.6), and §2.4 item 2 gains the intended-map check. R-b: a primitive on a nonlinear support's own DOF moves that support's ground by g_s; its state is measured on δ_s = u_d − g_s, an active or sticking state prescribes p_s, and §2.2's strict conditions shift by g_s (§1.1, §1.2, §2.2, §2.3, §9 M04). Both are built.
 
 "Certified" has the meaning of kd5 §1: certified against this unit's intended system, under A1 (kd5 §2). It is a technical term of this Design and of K-D5; product text does not use it (§3.3).
 
@@ -58,7 +58,7 @@ Revision 2 carries imposed motion on the pressure-free route into this unit (W-1
   - The reported reaction vector is `reported_reactions`: fl(K·u − f − φ⁰) + φ⁰ (lib.rs:1505, 1731–1741). At a sliding DOF it is φ⁰ plus the binary64 residual of that free row.
   - K includes ground springs. Connectors are refused on this route. Realized arcs enter as `from_macro_element` slots, which are re-formable.
   - The loop's force is the ledger's `AssembledForce`, checked bit for bit (`solve_active_set_frame_with_mode_and_springs_assembled`).
-- **Prescribed values (review M1; revision 2, W-16 stage 2).** The loop prescribes each base-restrained DOF at its case value g_b, which is 0 unless a pressure-free case authors a support-targeted primitive on a rigid restraint (R-a; DEL-04-03 Design `pf-nonlinear-imposed-motion.md`). Every nonlinear support's ground stays fixed: a primitive on a nonlinear support's own DOF is refused (`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`) until R-b. The load-state route is exact-route only, where nonlinear supports are refused. The confirmation checks the published u against the state's prescribed map, and that map against the case's motion, bit for bit (§2.4).
+- **Prescribed values (review M1; revision 2, W-16 stage 2, DEL-04-03 Design `pf-nonlinear-imposed-motion.md`).** The loop prescribes each base-restrained DOF at its case value g_b, which is 0 unless a pressure-free case authors a support-targeted primitive on a rigid restraint (R-a). A primitive on a nonlinear support's own DOF moves that support's ground by g_s (R-b): its state is measured on u_d − g_s and an active or sticking state prescribes g_s (g_s ± c for a gap). The confirmation checks the published u against the state's prescribed map, and that map against the case's motion, bit for bit (§2.4). The load-state route is exact-route only, where nonlinear supports are refused.
 - **Convergence and qualification.** The governed residual is the state-change count. A converged result passes `product_selected_state_is_qualified`: zero changes and contact branches admissible; the classifier reproduces the non-friction final states from the final iterate; M03 original-equation equilibrium passes. Each iteration's solve is `AssemblyEvidence::solve_binary64`, with no formation check. A case that does not converge, or fails qualification, publishes `SOLVER_SYSTEM_BLOCKED` (or the integrity failure) and never reaches the confirmation (PP `append_nonlinear_support_loop_results`, and the `selected-state-unavailable` return in `solve_load_case_observed`).
 - **Gap scrutiny.** Every gap-bearing converged case publishes `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED` (both branches). The NGR02 containment tests pin it.
 - **Publication today.** A converged non-gap case publishes `append_integrity_report` from the last iteration's `StructuralReport` and its product-equilibrium report (PP `solve_load_case_observed`, the nonlinear branch). kd5 §5's sentence then demotes a would-be `CHECKS_PASSED` to Sensitive. Member rows are binary64 recoveries from the loop's u. Support rows come from the loop's reported reactions. Combinations of a nonlinear model are withheld.
@@ -69,12 +69,13 @@ Revision 2 carries imposed motion on the pressure-free route into this unit (W-1
 
 - S is the set of nonlinear supports, s at DOF d_s, σ_s its final state (`final_states`).
 - B is the base prescribed set: the linear restraints, with values g_B, each 0 unless the case authors motion of that rigid restraint (§0, M1; revision 2).
-- A = {s : σ_s ∈ {Active, Sticking}}, each with prescribed value p_s: 0 for one-way, lift-off and sticking friction (±g for gaps, not run under R1). Every support's ground is fixed under R-a.
+- Each support s has a ground offset g_s, 0 unless the case moves it (revision 2, R-b), and δ_s = u_{d_s} − g_s.
+- A = {s : σ_s ∈ {Active, Sticking}}, each with prescribed value p_s: g_s for one-way, lift-off and sticking friction (g_s + σc for a gap closing in σ with clearance c, not run under R1).
 - L = {s friction : σ_s = Sliding, μ_s > 0} is the sliding set, split into L_e (explicit normal) and L_d (derived normal). k = |L_d|. A sliding support with μ = 0 carries no force and is not in L (review I3).
 - I = {s : σ_s = Inactive}.
 - C = B ∪ {d_s : s ∈ A}, with values u_C = (g_B, p_A). F is the free set.
 - K_int and f_int are K-D5's p = 128 re-formations (kd5 §1). No connectors exist on this route.
-- dir_s, for s ∈ L, is the sign opposite the loop's final applied force at d_s; the closure checks it against the sign of the loop's final u_t (§1.6). For a μ = 0 sliding support, dir_s is the sign of the loop's final u_t.
+- dir_s, for s ∈ L, is the sign opposite the loop's final applied force at d_s; the closure checks it against the sign of the loop's final δ_t = u_t − g_t (§1.6). For a μ = 0 sliding support, dir_s is the sign of δ_t. For finite binary64 operands fl(u − g) has the exact sign of u − g.
 
 ### 1.2 Per support kind
 
@@ -82,10 +83,10 @@ Revision 2 carries imposed motion on the pressure-free route into this unit (W-1
 |---|---|---|---|
 | Linear restraint | prescribed g_b (0 unless the case moves it; revision 2) | none | input (u_C) |
 | Ground spring | stiffness (`FormationSource::springs`) | none | stiffness primitive |
-| One-way or lift-off (translational or rotational), Active | prescribed, u_d = 0 | none | input |
+| One-way or lift-off (translational or rotational), Active | prescribed, u_d = g_s | none | input |
 | One-way or lift-off, Inactive | free | none | none |
 | Gap | not run (R1) | — | — |
-| Friction, Sticking | prescribed, u_t = 0 | none | input |
+| Friction, Sticking | prescribed, u_t = g_t | none | input |
 | Friction, Inactive | free | none | none |
 | Friction, Sliding, μ = 0 | free | none | none |
 | Friction, Sliding, μ > 0, explicit normal | free | φ_s = −dir_s·μ_s·\|N_s\| at d_s | **formed**: `SlidingFrictionExplicit` |
@@ -164,18 +165,19 @@ All balls come from Stage B's `MemberBoundInputs` (w, w₂, exponents, Λσ) and
 | Support, state | Condition |
 |---|---|
 | One-way or lift-off, sense +, Active | lower(r_d) > 0 |
-| One-way or lift-off, sense +, Inactive | lower(u_d) > 0 |
+| One-way or lift-off, sense +, Inactive | lower(u_d) > g_s |
 | One-way or lift-off, sense −, Active | upper(r_d) < 0 |
-| One-way or lift-off, sense −, Inactive | upper(u_d) < 0 |
-| Gap (kept for G2; not run under R1) | closes in +: Active upper(r_d) < 0, Inactive upper(u_d) < g; closes in −: Active lower(r_d) > 0, Inactive lower(u_d) > −g |
+| One-way or lift-off, sense −, Inactive | upper(u_d) < g_s |
+| Gap (kept for G2; not run under R1) | closes in +: Active upper(r_d) < 0, Inactive upper(u_d) < g_s + c; closes in −: Active lower(r_d) > 0, Inactive lower(u_d) > g_s − c |
 | Friction, explicit N, Inactive | N ≤ 0 (an input decision) |
 | Friction, explicit N, Sticking | N > 0 and μ·N > \|m_t\| + ρ_t |
-| Friction, explicit N, Sliding, μ > 0 | N > 0 and the slip sign: dir = +1 needs lower(u_t) > 0; dir = −1 needs upper(u_t) < 0 |
-| Friction, Sliding, μ = 0 | the normal row as for μ > 0 (explicit: N > 0; derived: 0 ∉ R_n ball) and the slip sign; no β |
+| Friction, explicit N, Sliding, μ > 0 | N > 0 and the slip sign: dir = +1 needs lower(u_t) > g_t; dir = −1 needs upper(u_t) < g_t |
+| Friction, Sliding, μ = 0 | the normal row as for μ > 0 (explicit: N > 0; derived: 0 ∉ R_n ball) and the slip sign, with dir = sign δ_t; no β |
 | Friction, derived, Inactive | not established (needs R_n = 0 exactly): fail closed |
 | Friction, derived, Sticking | 0 ∉ R_n ball and μ·(\|m_n\| − ρ_n) > \|m_t\| + ρ_t |
 | Friction, derived, Sliding, μ > 0 | 0 ∉ R_n ball, sign = β from Stage A, and the slip sign |
 
+- **Revision 2 (R-b).** The ground g_s is 0 unless the case moves it. g_s is an exact binary64 threshold, so each shifted comparison stays exact; every reaction, friction-normal and stick-margin condition is unchanged.
 - Every sign and the stick inequality are decided exactly, not in binary64: the ball's midpoint (a double-binary64 value) and radius enter an exact rational sum, and the sign of μ·(|m_n| − ρ_n) − (|m_t| + ρ_t) (derived) or μ·N − (|m_t| + ρ_t) (explicit) is the sign of that exact sum. The comparison is strict. A rounded-to-nearest comparison is a killed mutant (§9).
 - With μ = 0, sticking fails by construction.
 - **Weakly active supports (R3).** A support at zero reaction and zero separation, or exactly at stick capacity, has a ball touching the boundary and fails closed. No tolerance is added.
@@ -186,9 +188,9 @@ All balls come from Stage B's `MemberBoundInputs` (w, w₂, exponents, Λσ) and
 **Claim (under A1).** Let u* be the exact solution of §1.3's intended system for the published state. If every condition of §2.2 holds and K-D5 passes on every evaluation of the confirmation attempt, then:
 
 1. every active unilateral support bears on the pipe with its admissible sign, strictly;
-2. every inactive unilateral support is strictly separated;
+2. every inactive unilateral support is strictly separated from its ground (δ_s on its side of 0, revision 2);
 3. every sticking friction support carries |R_t| < μN, strictly;
-4. every sliding friction support with μ > 0 slips with sign dir, strictly, against a force of magnitude μN exactly; a μ = 0 sliding support slips with a nonzero displacement.
+4. every sliding friction support with μ > 0 slips relative to its ground (δ_t) with sign dir, strictly, against a force of magnitude μN exactly; a μ = 0 sliding support slips with a nonzero δ_t.
 
 So u* with the state satisfies the intended contact and Coulomb conditions with strict complementarity. For every non-friction support the classifier, applied to u*, returns the published state. For friction supports the raw classifier returns Sticking at the boundary |r_t| = μN; sliding is the state that `resolve_sliding_friction_states` keeps when the applied force and the reported reaction oppose u_t ≠ 0 (review M4). Conditions 3 and 4 are the strict forms of those two rules at u*, so the loop's own friction resolution, applied at u*, keeps the published friction states.
 
@@ -422,7 +424,7 @@ Measured on the implementing head with an instrumented scratch copy of the code 
 | M01 midpoint-only (radius dropped) | NI `stick_capacity_is_decided_exactly_with_both_radii`, `unilateral_signs_need_the_whole_ball_strictly_on_their_side`, `sliding_needs_the_slip_sign_and_the_coupling_branch` |
 | M02 `≥` for `>` | NI `unilateral_signs_need_the_whole_ball_strictly_on_their_side` |
 | M03 reaction sign convention reversed | PP `kd5_eight_committed_nonlinear_case_modes_pass_with_the_confirmation`, `kd5_nonlinear_references_bind_and_match_in_both_modes` |
-| M04 spring at d excluded from the contact force | **equivalent**: a contact is evaluated only at an Active (prescribed) DOF, where the spring's term k·u_d multiplies the prescribed u_d = 0 exactly, and an inactive support is decided from its displacement ball. No test can kill it; revision 1's claim that U-1's twin would was wrong. |
+| M04 spring at d excluded from the contact force | **equivalent at zero motion only**: a contact is evaluated only at an Active (prescribed) DOF, where the spring's term k·u_d multiplies the prescribed u_d = 0 exactly, and an inactive support is decided from its displacement ball. Revision 1's claim that U-1's twin would kill it was wrong. Revision 2: when the support's ground moves, u_d = g_s ≠ 0, so the term is k·g_s and the mutant is observable; W-16 stage 2's B-1 spring twin (R = P − (k + 3EI/L³)·d) kills it. |
 | M05 derived N signed, M07 without ρ_n, M08 without ρ_t, M09 rounded stick comparison | NI `stick_capacity_is_decided_exactly_with_both_radii` |
 | M06 β not checked, M10 slip sign not checked | NI `sliding_needs_the_slip_sign_and_the_coupling_branch` |
 | M11 φ⁰ published (Stage A skipped) | PP references (F-2) |

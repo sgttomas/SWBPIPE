@@ -10,20 +10,25 @@
 //! The motion is never also applied as a force, and no load/reference-state
 //! case is fabricated. A case with no motion primitive keeps the `None` path.
 //!
-//! Stage 2, R-a (DEL-04-03 Design `pf-nonlinear-imposed-motion.md`): in a
+//! Stage 2 (DEL-04-03 Design `pf-nonlinear-imposed-motion.md`). R-a: in a
 //! model with nonlinear supports the same map reaches the nonlinear active-set
-//! loop as base prescribed values on the rigid anchors and restraints; every
-//! nonlinear support's ground stays fixed. A primitive on a nonlinear support,
-//! including the rigid restraints of a mixed nonlinear record, stays refused
-//! (`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`).
+//! loop as base prescribed values on the rigid anchors and restraints. R-b: a
+//! primitive on a nonlinear support's own DOF moves that support's ground by
+//! g_s (`case_ground_motion`); its state is measured on u_d - g_s. Still
+//! refused, and open: the base of a linear spring, a spring or constant-effort
+//! device on the nonlinear record itself, and the rigid restraints of a mixed
+//! nonlinear record (`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`).
 //!
 //! The exact route refuses every support-targeted primitive by name; its form
 //! is `analysis_state.support_states[].boundary_motion`.
 use crate::{
     diag, dof_index, exact_source_identity, has_blocking, is_constant_effort_support,
-    is_variable_spring_hanger, parse_dof, pressure_runtime, Diagnostic, LoadTargetInput,
-    PreviewLoadCase, PreviewModel, PreviewPrimitiveLoad, PreviewSupport, DOF_PER_NODE,
+    is_variable_spring_hanger, normalize_quantity, parse_dof, parse_gap_direction, pressure_runtime,
+    Diagnostic, LoadTargetInput, PreviewLoadCase, PreviewModel, PreviewPrimitiveLoad, PreviewSupport,
+    DOF_PER_NODE,
 };
+use open_pipe_stress_nonlinear_integration::exact_gap_closing_position;
+use open_pipe_stress_nonlinear_supports::GapDirection;
 use open_pipe_stress_linear_supports::FrameDof;
 use open_pipe_stress_units::{unit_by_symbol, Dimension};
 use std::collections::{BTreeMap, HashMap};
@@ -38,6 +43,8 @@ pub(crate) const DOF_MISMATCH: &str = "IMPOSED_DISPLACEMENT_DOF_MISMATCH";
 pub(crate) const DOF_DUPLICATE: &str = "IMPOSED_DISPLACEMENT_DOF_DUPLICATE";
 pub(crate) const COINCIDENT_RESTRAINT: &str = "IMPOSED_DISPLACEMENT_COINCIDENT_RESTRAINT";
 pub(crate) const DIMENSION_INVALID: &str = "IMPOSED_DISPLACEMENT_DIMENSION_INVALID";
+pub(crate) const NONLINEAR_DOF_MISMATCH: &str = "IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH";
+pub(crate) const GAP_CLOSURE_INEXACT: &str = "IMPOSED_DISPLACEMENT_GAP_CLOSURE_INEXACT";
 pub(crate) const TARGET_INVALID: &str = "IMPOSED_DISPLACEMENT_TARGET_INVALID";
 
 pub(crate) fn is_support_target(load: &PreviewPrimitiveLoad) -> bool {
@@ -50,6 +57,44 @@ pub(crate) fn is_support_target(load: &PreviewPrimitiveLoad) -> bool {
 fn is_rigid(support: &PreviewSupport) -> bool {
     let spring = support.family.as_deref() == Some("spring") || is_variable_spring_hanger(support);
     !spring && support.nonlinear.is_none() && !is_constant_effort_support(support)
+}
+
+/// R-b: a nonlinear record that is not also a spring, a variable spring
+/// hanger or a constant-effort device; a primitive on its own DOF moves its
+/// ground.
+fn moves_ground(support: &PreviewSupport) -> bool {
+    let spring = support.family.as_deref() == Some("spring") || is_variable_spring_hanger(support);
+    support.nonlinear.is_some() && !spring && !is_constant_effort_support(support)
+}
+
+/// The nonlinear DOF a record acts on, when its token parses.
+fn nonlinear_dof(support: &PreviewSupport) -> Option<FrameDof> {
+    support.nonlinear.as_ref().and_then(|nonlinear| parse_dof(&nonlinear.dof).ok())
+}
+
+/// R-b, §3.2: a gap's closing position from the operands normalized
+/// independently by the solve's own path (clearance as a length, the motion as
+/// a displacement); `None` when either cannot be normalized, which generic
+/// validation refuses. `Some(false)` when c + sigma*g_s is not finite and exact
+/// in binary64.
+fn gap_closure_exact(support: &PreviewSupport, load: &PreviewPrimitiveLoad) -> Option<bool> {
+    let nonlinear = support.nonlinear.as_ref()?;
+    if nonlinear.behavior != "gap" {
+        return None;
+    }
+    let sigma = match parse_gap_direction(nonlinear.closes_when.as_deref()?).ok()? {
+        GapDirection::PositiveDisplacement => 1.0,
+        GapDirection::NegativeDisplacement => -1.0,
+    };
+    let mut scratch = Vec::new();
+    let mut clearance = nonlinear.gap.clone()?;
+    normalize_quantity(&mut clearance, Dimension::Length, "", Vec::new(), &mut scratch);
+    let mut ground = load.magnitude.clone();
+    normalize_quantity(&mut ground, Dimension::Displacement, "", Vec::new(), &mut scratch);
+    if !scratch.is_empty() || !clearance.value.is_finite() || !ground.value.is_finite() {
+        return None;
+    }
+    Some(exact_gap_closing_position(clearance.value, sigma, ground.value).is_some())
 }
 
 fn restrains(support: &PreviewSupport, dof: FrameDof) -> usize {
@@ -144,9 +189,13 @@ fn validate_pressure_free(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic
                     continue;
                 }
             };
+            if support.nonlinear.is_some() {
+                validate_ground_motion(model, case, load, support, dof, &mut prescribed, diagnostics);
+                continue;
+            }
             if !is_rigid(support) {
                 refuse(diagnostics, case, load, SUPPORT_NOT_RIGID,
-                    format!("load {} in {} imposes a displacement on support {support_id}, which is a spring, a variable spring hanger, a nonlinear device or a constant-effort device; an imposed displacement applies only to a rigid restraint", load.id, case.id),
+                    format!("load {} in {} imposes a displacement on support {support_id}, which is a spring, a variable spring hanger or a constant-effort device; an imposed displacement applies only to a rigid restraint or to a nonlinear support's own DOF", load.id, case.id),
                     Some(support_id));
                 continue;
             }
@@ -157,13 +206,7 @@ fn validate_pressure_free(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic
                 continue;
             }
             let name = dof.as_str().to_ascii_uppercase();
-            let (dimension_token, dimension) = expected_dimension(dof);
-            let unit = unit_by_symbol(&load.magnitude.unit, dimension);
-            if load.dimension != dimension_token || unit.is_err() || !load.magnitude.value.is_finite() {
-                refuse(diagnostics, case, load, DIMENSION_INVALID,
-                    format!("load {} in {} imposes {name}: a translation needs dimension displacement with a length unit and a rotation needs dimension rotation with an angle unit, and the magnitude must be finite (got dimension {}, unit {}, value {})",
-                        load.id, case.id, load.dimension, load.magnitude.unit, load.magnitude.value),
-                    Some(support_id));
+            if !dimension_valid(case, load, dof, support_id, diagnostics) {
                 continue;
             }
             let holders = model
@@ -187,6 +230,108 @@ fn validate_pressure_free(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic
     }
 }
 
+/// The named dimension check: a translation needs dimension displacement with
+/// a length unit, a rotation dimension rotation with an angle unit, and the
+/// magnitude must be finite. Refuses and returns false otherwise.
+fn dimension_valid(
+    case: &PreviewLoadCase,
+    load: &PreviewPrimitiveLoad,
+    dof: FrameDof,
+    support_id: &str,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> bool {
+    let name = dof.as_str().to_ascii_uppercase();
+    let (dimension_token, dimension) = expected_dimension(dof);
+    let unit = unit_by_symbol(&load.magnitude.unit, dimension);
+    if load.dimension != dimension_token || unit.is_err() || !load.magnitude.value.is_finite() {
+        refuse(diagnostics, case, load, DIMENSION_INVALID,
+            format!("load {} in {} imposes {name}: a translation needs dimension displacement with a length unit and a rotation needs dimension rotation with an angle unit, and the magnitude must be finite (got dimension {}, unit {}, value {})",
+                load.id, case.id, load.dimension, load.magnitude.unit, load.magnitude.value),
+            Some(support_id));
+        return false;
+    }
+    true
+}
+
+/// R-b (§3.2): a primitive on a nonlinear record. Dimensional checks first,
+/// then, on the canonical binary64 operands: the record's own DOF, a spring or
+/// constant-effort device on the record, the rigid restraints of a mixed
+/// record (open), the exact gap closing position, another nonlinear support on
+/// the same node DOF, and the duplicate.
+fn validate_ground_motion<'m>(
+    model: &'m PreviewModel,
+    case: &PreviewLoadCase,
+    load: &'m PreviewPrimitiveLoad,
+    support: &'m PreviewSupport,
+    dof: FrameDof,
+    prescribed: &mut HashMap<(&'m str, usize), &'m str>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let support_id = support.id.as_str();
+    let name = dof.as_str().to_ascii_uppercase();
+    if !dimension_valid(case, load, dof, support_id, diagnostics) {
+        return;
+    }
+    let own = nonlinear_dof(support);
+    if own != Some(dof) {
+        if restrains(support, dof) > 0 {
+            refuse(diagnostics, case, load, SUPPORT_NOT_RIGID,
+                format!("load {} in {} imposes {name} on a rigid restraint of nonlinear record {support_id}; the rigid restraints of a mixed nonlinear record do not move (open), only the nonlinear support's own DOF does", load.id, case.id),
+                Some(support_id));
+        } else {
+            refuse(diagnostics, case, load, NONLINEAR_DOF_MISMATCH,
+                format!("load {} in {} imposes {name} on nonlinear support {support_id}, which acts on {}; a moving ground applies only to the nonlinear support's own DOF", load.id, case.id,
+                    support.nonlinear.as_ref().map_or("", |nonlinear| nonlinear.dof.as_str())),
+                Some(support_id));
+        }
+        return;
+    }
+    if !moves_ground(support) {
+        refuse(diagnostics, case, load, SUPPORT_NOT_RIGID,
+            format!("load {} in {} imposes {name} on nonlinear record {support_id}, which also carries a spring, a variable spring hanger or a constant-effort device; moving its ground would also move that device's base, so the request is refused", load.id, case.id),
+            Some(support_id));
+        return;
+    }
+    if gap_closure_exact(support, load) == Some(false) {
+        refuse(diagnostics, case, load, GAP_CLOSURE_INEXACT,
+            format!("load {} in {} moves the ground of gap {support_id}; its closing position c + sigma*g_s, formed from the normalized clearance and motion, is not finite and exact in binary64, and a rounded closing position is never used", load.id, case.id),
+            Some(support_id));
+        return;
+    }
+    let shared = model
+        .supports
+        .iter()
+        .any(|other| other.id != support.id && other.node == support.node && nonlinear_dof(other) == Some(dof));
+    if shared {
+        refuse(diagnostics, case, load, COINCIDENT_RESTRAINT,
+            format!("load {} in {} moves the ground of nonlinear support {support_id} in {name}, but another nonlinear support also acts on {name} at node {}; a moving ground must belong to exactly one support", load.id, case.id, support.node),
+            Some(support_id));
+        return;
+    }
+    if let Some(first) = prescribed.insert((support.node.as_str(), dof_index(dof)), load.id.as_str()) {
+        refuse(diagnostics, case, load, DOF_DUPLICATE,
+            format!("loads {first} and {} in {} both prescribe {name} at node {}; one global DOF takes one prescribed value, even when the values are equal", load.id, case.id, support.node),
+            Some(support_id));
+    }
+}
+
+/// R-b: the case's ground offsets g_s (m or rad), by nonlinear support id, from
+/// its validated primitives on nonlinear records; empty when there are none.
+/// Called after unit normalization.
+pub(crate) fn case_ground_motion(model: &PreviewModel, case: &PreviewLoadCase) -> Vec<(String, f64)> {
+    case.primitive_loads
+        .iter()
+        .filter_map(|load| {
+            let LoadTargetInput::Support { support, .. } = &load.target else { return None };
+            model
+                .supports
+                .iter()
+                .find(|record| &record.id == support && record.nonlinear.is_some())
+                .map(|record| (record.id.clone(), load.magnitude.value))
+        })
+        .collect()
+}
+
 /// The case's prescribed map, global DOF to its normalized value (m or rad),
 /// from its validated motion primitives; `None` when the case has none, which
 /// keeps the existing path. Called after unit normalization. An insertion that
@@ -208,6 +353,11 @@ pub(crate) fn case_prescribed(
     let mut any = false;
     for load in &case.primitive_loads {
         let LoadTargetInput::Support { support, dof } = &load.target else { continue };
+        // R-b: a primitive on a nonlinear record moves that support's ground
+        // (`case_ground_motion`); it is not a rigid boundary value.
+        if model.supports.iter().any(|record| &record.id == support && record.nonlinear.is_some()) {
+            continue;
+        }
         any = true;
         let global = model
             .supports

@@ -1,15 +1,16 @@
 # Imposed displacement with nonlinear supports (stage 2)
 
-**Status.** R-a is built (§9). In a model with nonlinear supports, the
-pressure-free route carries a stage-1 primitive on a rigid anchor or restraint
-into the nonlinear active-set loop and its K-D5 confirmation as a base
-prescribed value; every nonlinear support's ground stays fixed.
-`IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` is retired. R-b is a design,
-not current behaviour: until it lands, motion targeted at a nonlinear support
-is refused (`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`). Where this document
-describes R-b, "is", "becomes" and "publishes" describe the design.
+**Status.** Stage 2 is built, R-a and R-b (§9). In a model with nonlinear
+supports, the pressure-free route carries a stage-1 primitive on a rigid
+anchor or restraint into the nonlinear active-set loop and its K-D5
+confirmation as a base prescribed value (R-a), and a primitive on a nonlinear
+support's own DOF moves that support's ground (R-b): its state is measured on
+u_d − g_s, an active or sticking state prescribes the moved ground, and the
+support publishes a relative-displacement observation row.
+`IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` is retired.
 
-**Open items**, outside this design:
+**Open items**, outside this design, still refused by name
+(`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`):
 - motion of a linear spring's base, which keeps its refusal (§3.3);
 - motion of the rigid restraints on mixed nonlinear records (§3.3).
 
@@ -450,7 +451,7 @@ In DEL-04-07 `Design/pressure-contract.md`, the stage-2 bullet becomes:
 > with dual numerical review and its own benchmarks; R-b may land as a later
 > slice.
 
-## 9. Implementation (R-a)
+## 9. Implementation
 
 - **Code.** NI `NonlinearFrameSolveInput::base_prescribed`, checked by
   `validate_input` (on the base set, once, finite) and taken by
@@ -477,3 +478,44 @@ In DEL-04-07 `Design/pressure-contract.md`, the stage-2 bullet becomes:
 - **A-3's mutants.** The generator records φ for an influence system that
   carries g_n and for a Stage A that omits the motion; the published φ lies
   within its bound of the exact value and outside it for both.
+
+**R-b.**
+
+- **Code.** NI `NonlinearFrameSolveInput::ground_motion`, checked by
+  `validate_input` (a known support, once, finite; a gap's closing position
+  c + σ·g_s finite and exact by TwoSum, `exact_gap_closing_position`);
+  `active_boundary` and `prescribed_displacement_for_state` prescribe g_s
+  (σ·(c + σ·g_s) for an active gap); `build_trial_states` and the slip
+  direction take fl(u − g_s) when a ground entry exists; `scrutinize_gaps`
+  passes c + σ·g_s to the exact gap proof. A support without a ground entry
+  keeps its fixed-ground values bit for bit (a closing-in-− gap still
+  prescribes −c, so a zero clearance keeps −0). NI `confirmation.rs`: the
+  intended map carries p_s; §2.2's inactive unilateral and slip conditions
+  compare with g_s; the manifest and μ = 0 directions are the sign of
+  fl(u − g_t). Friction in state Active prescribes its ground as sticking
+  does (the loop never reaches it; the confirmation refuses it).
+- **PP.** `imposed_motion.rs`: the R-b checks (§3.2) after the dimensional
+  check, on the operands normalized by the solve's own path;
+  `case_ground_motion` feeds the loop, and `case_prescribed` no longer sees
+  nonlinear targets. A DOF of a mixed record that is one of its rigid
+  restraints keeps `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` (open, §3.3);
+  any other DOF is `IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH`.
+- **Publication (a reading).** `nonlinear_support_final_relative_displacement`
+  rows are appended after the published displacements are formed, one per
+  ground entry. The K-D5 evidence clause is appended only to a case that
+  publishes such a row, so no existing output moves.
+- **Contract.** `semantic_contract_tables.py apply-w16` adds the two
+  signatures (supported-source-080, mm; -081, rad) after the W-7 rows of
+  preview-physics-2; apply-u4b carries them to preview-physics-retained-1; the
+  table digests are repinned by the tool. The Rust and Python readers and the
+  desktop's legacy dimension map list the kind.
+- **References.** B-1 (with its spring and rotational twins), B-2 (both
+  senses, the equality, a cancelling and a negative effective clearance),
+  B-3 (both signs, an explicit normal, P_x ≠ 0) and the property on B-1, B-2
+  and B-3 (every anchor and nonlinear ground on the axis moved by
+  t = 2^-8 m). Unlike A-1's, B-1's exact boundary converges, on either weak
+  state by solver mode, and fails closed in the confirmation ("separation not
+  established" or "contact force sign not established"). B-3's boundary is the
+  weak sticking boundary ("stick capacity not established"). Every B-2 case
+  takes the exact strict-gap decisions and stays
+  `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`; the equality is Active.

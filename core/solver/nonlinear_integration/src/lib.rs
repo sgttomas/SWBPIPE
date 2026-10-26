@@ -251,6 +251,13 @@ pub struct NonlinearFrameSolveInput {
     /// an absent DOF is prescribed at +0. Each entry must lie on
     /// `base_restrained_dofs`, appear once and be finite.
     pub base_prescribed: Vec<(usize, f64)>,
+    /// W-16 stage 2, R-b (§1): the case's ground offset g_s of nonlinear
+    /// supports, by support id, sparse; an absent support's ground is fixed
+    /// at 0. A support's state is measured on u_d - g_s, and an active or
+    /// sticking state prescribes g_s (g_s + sigma*c for an active gap). Each
+    /// entry must name a known support once and be finite; a gap's closing
+    /// position c + sigma*g_s must be finite and exact in binary64.
+    pub ground_motion: Vec<(String, f64)>,
     pub nonlinear_supports: Vec<NonlinearSupport>,
     pub initial_states: Vec<SupportStateRecord>,
     pub friction_normal_reactions: Vec<FrictionNormalReaction>,
@@ -631,6 +638,7 @@ pub fn solve_active_set_frame_with_mode_and_springs(
             input.node_count,
             &input.base_restrained_dofs,
             &input.base_prescribed,
+            &input.ground_motion,
             &input.nonlinear_supports,
             &current_states,
         )?;
@@ -676,6 +684,7 @@ pub fn solve_active_set_frame_with_mode_and_springs(
                     input.node_count,
                     &input.base_restrained_dofs,
                     &input.base_prescribed,
+                    &input.ground_motion,
                     &input.nonlinear_supports,
                     &all_active,
                 )?;
@@ -718,6 +727,7 @@ pub fn solve_active_set_frame_with_mode_and_springs(
         );
         let trial_states = build_trial_states(
             &input.nonlinear_supports,
+            &input.ground_motion,
             &sliding_solve.linearized.displacements,
             &sliding_solve.reactions,
             &friction_normals,
@@ -1034,6 +1044,7 @@ fn product_final_state_conditions(
         input.node_count,
         &input.base_restrained_dofs,
         &input.base_prescribed,
+        &input.ground_motion,
         &input.nonlinear_supports,
         &solve.final_states,
     )?;
@@ -1041,6 +1052,7 @@ fn product_final_state_conditions(
     let derived = derived_friction_normal_map(input)?;
     let trials = build_trial_states(
         &input.nonlinear_supports,
+        &input.ground_motion,
         &solve.displacements,
         &solve.reactions,
         &normals,
@@ -1232,6 +1244,29 @@ fn validate_input(input: &NonlinearFrameSolveInput) -> Result<(), NonlinearInteg
                     support.support_id, support.node_index, input.node_count
                 ),
             });
+        }
+    }
+    let mut grounds = HashSet::new();
+    for (support_id, value) in &input.ground_motion {
+        let Some(support) = input.nonlinear_supports.iter().find(|s| &s.support_id == support_id) else {
+            return Err(NonlinearIntegrationError::InvalidInput {
+                detail: format!("ground motion names unknown nonlinear support {support_id}"),
+            });
+        };
+        if !grounds.insert(support_id.as_str()) {
+            return Err(NonlinearIntegrationError::InvalidInput {
+                detail: format!("ground motion of nonlinear support {support_id} is repeated"),
+            });
+        }
+        validate_finite("ground motion", *value)?;
+        if let (NonlinearSupportBehavior::Gap { closes_when }, Some(clearance)) = (support.behavior, support.gap) {
+            if exact_gap_closing_position(clearance, gap_sense(closes_when), *value).is_none() {
+                return Err(NonlinearIntegrationError::InvalidInput {
+                    detail: format!(
+                        "gap {support_id}: the closing position c + sigma*g_s is not finite and exact in binary64"
+                    ),
+                });
+            }
         }
     }
     for element in &input.curved_bend_elements {
@@ -1703,10 +1738,12 @@ fn sliding_friction_candidates(
             continue;
         };
         let global_dof = node_dof_index(support.node_index, support.dof);
-        let direction = sliding_direction(
-            previous.displacements[global_dof],
-            previous.reactions[global_dof],
-        );
+        // W-16 stage 2 (R-b): the slip direction is taken on u_t - g_t.
+        let slip = match ground_offset(&input.ground_motion, &support.support_id) {
+            Some(ground) => previous.displacements[global_dof] - ground,
+            None => previous.displacements[global_dof],
+        };
+        let direction = sliding_direction(slip, previous.reactions[global_dof]);
         if direction == 0.0 {
             continue;
         }
@@ -1907,6 +1944,7 @@ fn active_boundary(
     node_count: usize,
     base_restrained_dofs: &[usize],
     base_prescribed: &[(usize, f64)],
+    ground_motion: &[(String, f64)],
     supports: &[NonlinearSupport],
     states: &[SupportStateRecord],
 ) -> Result<BoundaryState, NonlinearIntegrationError> {
@@ -1932,7 +1970,8 @@ fn active_boundary(
                 ),
             }
         })?;
-        if let Some(displacement) = prescribed_displacement_for_state(support, *state)? {
+        let ground = ground_offset(ground_motion, &support.support_id);
+        if let Some(displacement) = prescribed_displacement_for_state(support, *state, ground)? {
             let global_dof = node_dof_index(support.node_index, support.dof);
             if global_dof >= node_count * DOF_PER_NODE {
                 return Err(NonlinearIntegrationError::InvalidInput {
@@ -1966,10 +2005,14 @@ fn active_boundary(
 fn prescribed_displacement_for_state(
     support: &NonlinearSupport,
     state: ActiveSetState,
+    ground: Option<f64>,
 ) -> Result<Option<f64>, NonlinearIntegrationError> {
+    // W-16 stage 2 (R-b): an active or sticking state prescribes the moved
+    // ground g_s (g_s + sigma*c for an active gap); a support without a
+    // ground entry keeps the fixed-ground values bit for bit.
     match state {
         ActiveSetState::Inactive | ActiveSetState::Sliding => Ok(None),
-        ActiveSetState::Sticking => Ok(Some(0.0)),
+        ActiveSetState::Sticking => Ok(Some(ground.unwrap_or(0.0))),
         ActiveSetState::Active => match support.behavior {
             NonlinearSupportBehavior::Gap { closes_when } => {
                 let gap = support
@@ -1978,16 +2021,59 @@ fn prescribed_displacement_for_state(
                         support_id: support.support_id.clone(),
                     })?;
                 validate_nonnegative_finite("gap", gap)?;
-                Ok(Some(match closes_when {
-                    GapDirection::PositiveDisplacement => gap,
-                    GapDirection::NegativeDisplacement => -gap,
-                }))
+                let Some(ground) = ground else {
+                    return Ok(Some(match closes_when {
+                        GapDirection::PositiveDisplacement => gap,
+                        GapDirection::NegativeDisplacement => -gap,
+                    }));
+                };
+                let sigma = gap_sense(closes_when);
+                let closing = exact_gap_closing_position(gap, sigma, ground).ok_or_else(|| {
+                    NonlinearIntegrationError::InvalidInput {
+                        detail: format!(
+                            "gap {}: the closing position c + sigma*g_s is not finite and exact in binary64",
+                            support.support_id
+                        ),
+                    }
+                })?;
+                Ok(Some(sigma * closing))
             }
             NonlinearSupportBehavior::OneWay { .. }
             | NonlinearSupportBehavior::LiftOff { .. }
-            | NonlinearSupportBehavior::Friction => Ok(Some(0.0)),
+            | NonlinearSupportBehavior::Friction => Ok(Some(ground.unwrap_or(0.0))),
         },
     }
+}
+
+/// +1 for a gap closing in +, -1 for one closing in -.
+pub(crate) fn gap_sense(closes_when: GapDirection) -> f64 {
+    match closes_when {
+        GapDirection::PositiveDisplacement => 1.0,
+        GapDirection::NegativeDisplacement => -1.0,
+    }
+}
+
+/// W-16 stage 2 (R-b, §1 item 1 and §3.2): a gap's closing position
+/// c + sigma*g_s, when it is finite and exact in binary64 (a zero TwoSum
+/// residual); `None` otherwise. sigma*g_s is exact; a rounded closing position
+/// is never used.
+pub fn exact_gap_closing_position(clearance: f64, sigma: f64, ground: f64) -> Option<f64> {
+    let shifted = sigma * ground;
+    let sum = clearance + shifted;
+    if !sum.is_finite() || !clearance.is_finite() || !shifted.is_finite() {
+        return None;
+    }
+    let virtual_shifted = sum - clearance;
+    let residual = (clearance - (sum - virtual_shifted)) + (shifted - virtual_shifted);
+    (residual == 0.0).then_some(sum)
+}
+
+/// The support's ground offset g_s, when the case moves it.
+pub(crate) fn ground_offset(ground_motion: &[(String, f64)], support_id: &str) -> Option<f64> {
+    ground_motion
+        .iter()
+        .find(|(id, _)| id == support_id)
+        .map(|&(_, value)| value)
 }
 
 #[cfg(test)]
@@ -2382,6 +2468,7 @@ fn is_translation_dof_index(global_dof: usize) -> bool {
 
 fn build_trial_states(
     supports: &[NonlinearSupport],
+    ground_motion: &[(String, f64)],
     displacements: &[f64],
     reactions: &[f64],
     friction_normals: &HashMap<&str, f64>,
@@ -2390,9 +2477,16 @@ fn build_trial_states(
     let mut trial_states = Vec::with_capacity(supports.len());
     for support in supports {
         let global_dof = node_dof_index(support.node_index, support.dof);
+        // W-16 stage 2 (R-b): the trial is measured on fl(u_d - g_s) only when
+        // the case moves the support's ground, so the no-motion path is
+        // unchanged. A finite difference has the exact sign of u_d - g_s.
+        let displacement = match ground_offset(ground_motion, &support.support_id) {
+            Some(ground) => displacements[global_dof] - ground,
+            None => displacements[global_dof],
+        };
         let mut trial = TrialSupportState::new(
             support.support_id.clone(),
-            displacements[global_dof],
+            displacement,
             reactions[global_dof],
         )?;
         if matches!(support.behavior, NonlinearSupportBehavior::Friction) {
@@ -3163,6 +3257,8 @@ mod tests {
         NonlinearFrameSolveInput {
 
             base_prescribed: Vec::new(),
+
+            ground_motion: Vec::new(),
             node_count: 2,
             elements: vec![element],
             connectors: Vec::new(),
@@ -3239,6 +3335,8 @@ mod tests {
         NonlinearFrameSolveInput {
 
             base_prescribed: Vec::new(),
+
+            ground_motion: Vec::new(),
             node_count: 2,
             elements: Vec::new(),
             connectors: Vec::new(),
@@ -3707,6 +3805,8 @@ mod tests {
         NonlinearFrameSolveInput {
 
             base_prescribed: Vec::new(),
+
+            ground_motion: Vec::new(),
             node_count: 2,
             elements: Vec::new(),
             connectors: Vec::new(),
@@ -3760,6 +3860,7 @@ mod tests {
         force[node_dof_index(1, FrameDof::Uy)] = -load_sign;
         NonlinearFrameSolveInput {
             base_prescribed: Vec::new(),
+            ground_motion: Vec::new(),
             node_count: 2,
             elements: Vec::new(),
             connectors: Vec::new(),
@@ -3897,6 +3998,7 @@ mod tests {
                     input.node_count,
                     &input.base_restrained_dofs,
                     &input.base_prescribed,
+                    &input.ground_motion,
                     &input.nonlinear_supports,
                     &previous.active_set.states,
                 )
@@ -4190,6 +4292,7 @@ mod tests {
                     input.node_count,
                     &input.base_restrained_dofs,
                     &input.base_prescribed,
+                    &input.ground_motion,
                     &input.nonlinear_supports,
                     &states,
                 )
@@ -4233,6 +4336,7 @@ mod tests {
 
                 let trial_states = build_trial_states(
                     &input.nonlinear_supports,
+                    &input.ground_motion,
                     &current.linearized.displacements,
                     &current.reactions,
                     &explicit,
@@ -5039,6 +5143,7 @@ mod tests {
                 input.node_count,
                 &input.base_restrained_dofs,
                 &input.base_prescribed,
+                &input.ground_motion,
                 &input.nonlinear_supports,
                 &input.initial_states,
             )
@@ -5488,6 +5593,7 @@ mod tests {
         let base_restrained_dofs: Vec<usize> = (0..DOF_PER_NODE).collect();
         let input = NonlinearFrameSolveInput {
             base_prescribed: Vec::new(),
+            ground_motion: Vec::new(),
             node_count: 2,
             elements: Vec::new(),
             connectors: Vec::new(),

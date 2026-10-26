@@ -19,8 +19,8 @@ fn ball(m: f64, r: f64) -> CertifiedRow {
 
 #[test]
 fn unilateral_signs_need_the_whole_ball_strictly_on_their_side() {
-    let positive = |active, m, r| support_reason(&SupportEvidence::Unilateral { positive: true, active, ball: ball(m, r) });
-    let negative = |active, m, r| support_reason(&SupportEvidence::Unilateral { positive: false, active, ball: ball(m, r) });
+    let positive = |active, m, r| support_reason(&SupportEvidence::Unilateral { positive: true, active, ball: ball(m, r), ground: 0.0 });
+    let negative = |active, m, r| support_reason(&SupportEvidence::Unilateral { positive: false, active, ball: ball(m, r), ground: 0.0 });
     assert_eq!(positive(true, 1.0, 0.5), None);
     // Midpoint of the right sign, radius straddling 0: the loop's binary64
     // value alone would pass (kills the midpoint-only and trial-value mutants).
@@ -47,6 +47,7 @@ fn stick_capacity_is_decided_exactly_with_both_radii() {
             state: ActiveSetState::Sticking,
             tangential: ball(m, r),
             direction: 0.0,
+            ground: 0.0,
         })
     };
     assert_eq!(explicit(0.5, 100.0, 49.9, 0.05), None);
@@ -66,6 +67,7 @@ fn stick_capacity_is_decided_exactly_with_both_radii() {
             tangential: ball(m, r),
             direction: 0.0,
             beta: None,
+            ground: 0.0,
         })
     };
     // mu*(|m_n| - rho_n) = 49.5 against |m_t| + rho_t: 49.45 sticks; 49.55
@@ -88,6 +90,7 @@ fn sliding_needs_the_slip_sign_and_the_coupling_branch() {
             tangential: ball(m, r),
             direction,
             beta,
+            ground: 0.0,
         })
     };
     assert_eq!(derived(ball(-100.0, 1.0), Some(-1.0), 1.0, 1e-3, 1e-4), None);
@@ -105,16 +108,17 @@ fn sliding_needs_the_slip_sign_and_the_coupling_branch() {
             state: ActiveSetState::Sliding,
             tangential: ball(m, r),
             direction,
+            ground: 0.0,
         })
     };
     assert_eq!(explicit(70.0, 1.0, 1e-3, 1e-4), None);
     assert_eq!(explicit(70.0, 1.0, -1e-3, 1e-4), Some("slip direction not established"));
     assert_eq!(explicit(0.0, 1.0, 1e-3, 1e-4), Some("friction normal not established"));
-    let inactive = |n| support_reason(&SupportEvidence::ExplicitFriction { coefficient: 0.3, normal: n, state: ActiveSetState::Inactive, tangential: ball(0.0, 0.0), direction: 0.0 });
+    let inactive = |n| support_reason(&SupportEvidence::ExplicitFriction { coefficient: 0.3, normal: n, state: ActiveSetState::Inactive, tangential: ball(0.0, 0.0), direction: 0.0, ground: 0.0 });
     assert_eq!(inactive(0.0), None);
     assert_eq!(inactive(-5.0), None);
     assert_eq!(inactive(5.0), Some("friction normal not established"));
-    let derived_inactive = support_reason(&SupportEvidence::DerivedFriction { coefficient: 0.5, state: ActiveSetState::Inactive, normal: ball(0.0, 0.0), tangential: ball(0.0, 0.0), direction: 0.0, beta: None });
+    let derived_inactive = support_reason(&SupportEvidence::DerivedFriction { coefficient: 0.5, state: ActiveSetState::Inactive, normal: ball(0.0, 0.0), tangential: ball(0.0, 0.0), direction: 0.0, beta: None, ground: 0.0 });
     assert_eq!(derived_inactive, Some("friction normal not established"));
 }
 
@@ -212,6 +216,7 @@ fn cantilever(
     (
         NonlinearFrameSolveInput {
             base_prescribed: Vec::new(),
+            ground_motion: Vec::new(),
             node_count: 2,
             elements: vec![element],
             connectors: Vec::new(),
@@ -465,7 +470,7 @@ fn base_prescribed_entries_are_validated_at_the_loop_boundary() {
         assert!(error.to_string().contains(detail), "{entries:?}: {error}");
     }
     let (input, _) = moved_prop(vec![(2, 1.0e-4)]);
-    let boundary = crate::active_boundary(input.node_count, &input.base_restrained_dofs, &input.base_prescribed, &input.nonlinear_supports, &input.initial_states).unwrap();
+    let boundary = crate::active_boundary(input.node_count, &input.base_restrained_dofs, &input.base_prescribed, &input.ground_motion, &input.nonlinear_supports, &input.initial_states).unwrap();
     // Every base DOF takes its case value, or +0 when the case prescribes none.
     let expected: [(usize, f64); 7] = [(0, 0.0), (1, 0.0), (2, 1.0e-4), (3, 0.0), (4, 0.0), (5, 0.0), (8, 0.0)];
     assert_eq!(boundary.dofs, expected.iter().map(|p| p.0).collect::<Vec<_>>());
@@ -516,4 +521,149 @@ fn the_intended_map_binds_the_loops_boundary_bit_for_bit() {
     assert!(intended_prescribed_map(&off, &solve.final_states).is_none());
     assert!(intended_prescribed_map(&input, &[]).is_none());
     assert!(prescribed_map_mismatch(None, &actual));
+}
+
+// ------------------------------------------------ W-16 stage 2, R-b
+// (DEL-04-03 Design pf-nonlinear-imposed-motion.md §1-§2): a primitive on a
+// nonlinear support's own DOF moves its ground by g_s.
+
+/// The 2 m cantilever with a tip lift-off on UZ (pushing up), a 100 N
+/// downward tip load, and the lift-off's ground moved by `ground` (when given).
+fn moved_ground(ground: Option<f64>) -> (NonlinearFrameSolveInput, AssembledForce) {
+    let (mut input, force) = cantilever(
+        vec![NonlinearSupport::lift_off("LIFT", 1, FrameDof::Uz, open_pipe_stress_nonlinear_supports::ActivationSense::PositiveReaction)],
+        vec![SupportStateRecord::new("LIFT", ActiveSetState::Active)],
+        Vec::new(),
+        Vec::new(),
+        &[],
+        &[(8, -100.0)],
+    );
+    input.ground_motion = ground.map(|g| vec![("LIFT".to_string(), g)]).unwrap_or_default();
+    (input, force)
+}
+
+#[test]
+fn exact_gap_closing_positions_are_exact_or_refused() {
+    let tiny = 2.0_f64.powi(-10);
+    assert_eq!(crate::exact_gap_closing_position(2.0 * tiny, -1.0, tiny), Some(tiny));
+    // Cancellation is exact: the closing position is zero.
+    assert_eq!(crate::exact_gap_closing_position(tiny, -1.0, tiny), Some(0.0));
+    // A negative effective clearance is admitted.
+    assert_eq!(crate::exact_gap_closing_position(tiny, -1.0, 4.0 * tiny), Some(-3.0 * tiny));
+    // 1 m + 1 in is exact as authored numbers, but 1.0 + 0.0254 is not in binary64.
+    assert_eq!(crate::exact_gap_closing_position(1.0, 1.0, 0.0254), None);
+    // Overflow is refused as a non-finite closing position.
+    assert_eq!(crate::exact_gap_closing_position(f64::MAX, 1.0, f64::MAX), None);
+    assert_eq!(crate::exact_gap_closing_position(f64::MAX, -1.0, -f64::MAX), None);
+}
+
+#[test]
+fn ground_motion_entries_are_validated_at_the_loop_boundary() {
+    let gap = |c: f64| {
+        let (mut input, force) = cantilever(
+            vec![NonlinearSupport::gap("GAP", 1, FrameDof::Uz, c, GapDirection::PositiveDisplacement).unwrap()],
+            vec![SupportStateRecord::new("GAP", ActiveSetState::Inactive)],
+            Vec::new(),
+            Vec::new(),
+            &[],
+            &[(8, 100.0)],
+        );
+        input.ground_motion = vec![("GAP".to_string(), 0.0254)];
+        (input, force)
+    };
+    let unknown = {
+        let (mut input, force) = moved_ground(None);
+        input.ground_motion = vec![("NONE".to_string(), 1.0e-4)];
+        (input, force)
+    };
+    let repeated = {
+        let (mut input, force) = moved_ground(None);
+        input.ground_motion = vec![("LIFT".to_string(), 1.0e-4), ("LIFT".to_string(), 1.0e-4)];
+        (input, force)
+    };
+    for ((input, force), detail) in [
+        (unknown, "unknown nonlinear support"),
+        (repeated, "is repeated"),
+        (moved_ground(Some(f64::NAN)), "ground motion must be finite"),
+        (gap(1.0), "closing position c + sigma*g_s is not finite and exact"),
+    ] {
+        let error = solve_active_set_frame_with_mode_and_springs_assembled(&input, &force, LinearSolveMode::DenseScrutiny, &[]).unwrap_err();
+        assert!(error.to_string().contains(detail), "{detail}: {error}");
+    }
+    // The exact operand of a dyadic clearance and motion is admitted.
+    let (exact, force) = gap(0.0254);
+    let mut exact = exact;
+    exact.ground_motion = vec![("GAP".to_string(), 0.0254)];
+    assert!(solve_active_set_frame_with_mode_and_springs_assembled(&exact, &force, LinearSolveMode::DenseScrutiny, &[]).is_ok());
+}
+
+#[test]
+fn a_moved_ground_is_measured_relative_and_prescribed_when_active() {
+    // k = 3EI/L^3 at the tip; free tip deflection d* = P/k.
+    let k = 3.0 * 2.0e11 * 1.15e-5 / 8.0;
+    let star = 100.0 / k;
+    for mode in MODES {
+        for (drop, active) in [(0.5 * star, true), (2.0 * star, false)] {
+            let (input, force) = moved_ground(Some(-drop));
+            let solve = solve_active_set_frame_with_mode_and_springs_assembled(&input, &force, mode, &[]).unwrap();
+            assert!(solve.converged, "{drop} {mode:?}");
+            assert_eq!(solve.final_states[0].state == ActiveSetState::Active, active, "{drop} {mode:?}");
+            if active {
+                // An active lift-off prescribes its moved ground.
+                assert_eq!(solve.displacements[8].to_bits(), (-drop).to_bits());
+                let expected = 100.0 - k * drop;
+                assert!((solve.reactions[8] - expected).abs() <= 1e-9 * expected);
+            } else {
+                // Inactive: u = -d*, below the absolute zero but above the moved ground.
+                assert!(solve.displacements[8] < 0.0 && solve.displacements[8] > -drop);
+                assert!((solve.displacements[8] + star).abs() <= 1e-9 * star);
+            }
+            let Confirmation::Established(state) = confirm(&input, &force, mode, None) else { panic!("{drop} {mode:?}") };
+            if !active {
+                assert_eq!(state.supports["LIFT"].row.published.to_bits(), 0.0_f64.to_bits());
+            }
+        }
+    }
+}
+
+#[test]
+fn the_intended_map_carries_the_moved_ground() {
+    let k = 3.0 * 2.0e11 * 1.15e-5 / 8.0;
+    let drop = 0.5 * 100.0 / k;
+    let (input, force) = moved_ground(Some(-drop));
+    let solve = solve_active_set_frame_with_mode_and_springs_assembled(&input, &force, LinearSolveMode::DenseScrutiny, &[]).unwrap();
+    let last = solve.iterations.last().unwrap();
+    let actual = last.active_restrained_dofs.iter().copied().zip(last.active_prescribed_displacements.iter().copied()).collect::<Vec<_>>();
+    let intended = intended_prescribed_map(&input, &solve.final_states).unwrap();
+    assert!(intended.contains(&(8, -drop)));
+    assert!(!prescribed_map_mismatch(Some(&intended), &actual));
+    let mut shifted = input.clone();
+    shifted.ground_motion = vec![("LIFT".to_string(), (-drop).next_up())];
+    assert!(prescribed_map_mismatch(intended_prescribed_map(&shifted, &solve.final_states).as_deref(), &actual));
+    let mut fixed = input.clone();
+    fixed.ground_motion = Vec::new();
+    assert!(prescribed_map_mismatch(intended_prescribed_map(&fixed, &solve.final_states).as_deref(), &actual));
+    let mut unknown = input.clone();
+    unknown.ground_motion = vec![("NONE".to_string(), 0.0)];
+    assert!(intended_prescribed_map(&unknown, &solve.final_states).is_none());
+}
+
+/// §2.2, revision 2: the inactive unilateral and the slip conditions compare
+/// the displacement ball with the ground g_s, exactly.
+#[test]
+fn shifted_conditions_compare_with_the_ground_exactly() {
+    let separated = |ground: f64| support_reason(&SupportEvidence::Unilateral { positive: true, active: false, ball: ball(1.0, 0.25), ground });
+    assert_eq!(separated(0.0), None);
+    assert_eq!(separated(0.5), None);
+    // The ball's lower end touches the ground: weakly separated, not established.
+    assert_eq!(separated(0.75), Some("separation not established"));
+    assert_eq!(separated(0.9), Some("separation not established"));
+    // An active support is decided on its reaction against 0, whatever its ground.
+    assert_eq!(support_reason(&SupportEvidence::Unilateral { positive: true, active: true, ball: ball(1.0, 0.25), ground: 5.0 }), None);
+    let slip = |direction: f64, ground: f64| support_reason(&SupportEvidence::ExplicitFriction {
+        coefficient: 0.5, normal: 10.0, state: ActiveSetState::Sliding, tangential: ball(1.0, 0.25), direction, ground });
+    assert_eq!(slip(1.0, 0.5), None);
+    assert_eq!(slip(1.0, 0.75), Some("slip direction not established"));
+    assert_eq!(slip(-1.0, 1.5), None);
+    assert_eq!(slip(-1.0, 1.25), Some("slip direction not established"));
 }

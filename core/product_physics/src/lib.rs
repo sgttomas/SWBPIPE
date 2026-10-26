@@ -5074,6 +5074,11 @@ fn solve_prepared_load_case(
         Some(_) => None,
         None => imposed_motion::case_prescribed(model, load_case, restrained_dofs, diagnostics),
     };
+    // W-16 stage 2 (R-b): the case's moved nonlinear grounds, by support id.
+    let ground_motion = match load_state {
+        Some(_) => Vec::new(),
+        None => imposed_motion::case_ground_motion(model, load_case),
+    };
     if has_blocking(&diagnostics[before..]) {
         return Ok(LoadCaseSolve {
             load_state_evidence: None,
@@ -5485,6 +5490,7 @@ fn solve_prepared_load_case(
         built,
         restrained_dofs,
         pf_motion.as_ref(),
+        &ground_motion,
         &force,
         load_case,
         solver_mode,
@@ -5645,6 +5651,19 @@ fn solve_prepared_load_case(
     // published (corrected) value as the nodal row.
     if member_bound.is_some() {
         restate_nonlinear_support_displacements(&mut results, &built.nonlinear_supports, &published_displacements);
+    }
+    // W-16 stage 2 (R-b, DEL-04-03 Design pf-nonlinear-imposed-motion.md §4):
+    // each support whose ground the case moves (an authored zero included)
+    // publishes fl(U - g_s), U its DOF's actual published displacement. An
+    // observation row, never certified; its clause follows the K-D5 line.
+    if let Some(solve) = &selected_nonlinear {
+        let appended = append_nonlinear_relative_displacements(&mut results, built, &ground_motion, &published_displacements, solve, solver_mode);
+        if appended && confirmed.is_some() {
+            let integrity_id = integrity_diagnostic_id(&load_case.id);
+            if let Some(record) = diagnostics.iter_mut().find(|d| d.id == integrity_id) {
+                record.message = format!("{} {NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE}", record.message);
+            }
+        }
     }
     let mut max_displacement = None;
     for node in &model.nodes {
@@ -7031,6 +7050,8 @@ fn append_nonlinear_support_loop_results(
     // W-16 stage 2 (R-a): the pressure-free case's prescribed map (global
     // DOF to m or rad), `None` when the case authors no motion.
     base_motion: Option<&BTreeMap<usize, f64>>,
+    // W-16 stage 2 (R-b): the case's ground offsets g_s, by support id.
+    ground_motion: &[(String, f64)],
     force: &AssembledForce,
     load_case: &PreviewLoadCase,
     solver_mode: PreviewSolverMode,
@@ -7085,6 +7106,9 @@ fn append_nonlinear_support_loop_results(
         base_prescribed: base_motion
             .map(|motion| motion.iter().map(|(&dof, &value)| (dof, value)).collect())
             .unwrap_or_default(),
+        // W-16 stage 2 (R-b): each moved nonlinear ground; a support's state
+        // is measured on u_d - g_s.
+        ground_motion: ground_motion.to_vec(),
         nonlinear_supports: built.nonlinear_supports.clone(),
         initial_states: built.nonlinear_initial_states.clone(),
         friction_normal_reactions: built.nonlinear_friction_normal_reactions.clone(),
@@ -14551,6 +14575,57 @@ fn published_nodal_displacements(displacements: &[f64], member_bound: Option<&Me
         })
         .filter(|corrected| corrected.iter().all(|v| v.is_finite()))
         .unwrap_or_else(|| displacements.to_vec())
+}
+
+/// W-16 stage 2 (R-b, §4): the clause the K-D5 evidence line gains when a
+/// case publishes a relative-displacement row.
+const NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE: &str = "Each support relative-displacement row is the published nodal displacement less the support's moved ground, formed in binary64: an observation, not an established state; a strictly separated support may show zero.";
+
+/// W-16 stage 2 (R-b, §4): one `nonlinear_support_final_relative_displacement`
+/// row per support whose ground the case moves: fl(U - g_s) in SI, then the
+/// declared unit conversion (mm or rad), with U the support DOF's actual
+/// published absolute displacement (the corrected value, the helper's
+/// whole-vector fallback, or a selected exact-gap projection). Returns whether
+/// a row was appended.
+fn append_nonlinear_relative_displacements(
+    results: &mut Vec<ResultItem>,
+    built: &BuiltModel,
+    ground_motion: &[(String, f64)],
+    published: &[f64],
+    solve: &NonlinearFrameSolveResult,
+    solver_mode: PreviewSolverMode,
+) -> bool {
+    let mut appended = false;
+    for (support_id, ground) in ground_motion {
+        let Some(support) = built.nonlinear_supports.iter().find(|s| &s.support_id == support_id) else {
+            continue;
+        };
+        let Some(state) = solve.final_states.iter().find(|s| &s.support_id == support_id) else {
+            continue;
+        };
+        let global = support.node_index * DOF_PER_NODE + dof_index(support.dof);
+        let (scale, unit) = if support.dof.is_translational() { (1000.0, "mm") } else { (1.0, "rad") };
+        let dof = support.dof.as_str();
+        append_nonlinear_scalar_result(
+            results,
+            &format!("result:nonlinear-support:{}:{dof}-relative-displacement", stable_suffix(support_id)),
+            "nonlinear_support_final_relative_displacement",
+            (published[global] - ground) * scale,
+            unit,
+            support_id,
+            "nonlinear_support_final_relative_displacement",
+            dof,
+            &format!(
+                "{}_active_set_loop; policy_ref={}; final_state={}; published_displacement_less_moved_ground; observation_not_established",
+                solver_mode.as_str(),
+                solve.policy_ref,
+                state.state.as_str()
+            ),
+            "positive value follows the global frame DOF sign convention; the published displacement less the support's moved ground",
+        );
+        appended = true;
+    }
+    appended
 }
 
 /// T4-U5b item 6: each nonlinear support's final-displacement row restates

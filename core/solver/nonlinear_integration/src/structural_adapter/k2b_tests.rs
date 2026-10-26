@@ -1495,6 +1495,7 @@ fn k2b_nonlinear_loop_reaches_no_force_scaled_entry() {
         assert_eq!(outcome.solution.force_scale.exponent(), 734);
         let input = NonlinearFrameSolveInput {
             base_prescribed: Vec::new(),
+            ground_motion: Vec::new(),
             node_count: 2,
             elements: model.frames.clone(),
             connectors: Vec::new(),

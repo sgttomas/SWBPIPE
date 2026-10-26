@@ -586,6 +586,7 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
                 kind,
                 "nonlinear_support_final_reaction"
                     | "nonlinear_support_final_displacement"
+                    | "nonlinear_support_final_relative_displacement"
                     | "nonlinear_support_active_set_state_code"
             ) {
                 require(

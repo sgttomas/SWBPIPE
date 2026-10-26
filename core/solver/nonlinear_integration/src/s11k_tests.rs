@@ -28,6 +28,7 @@ fn adjacent_input() -> NonlinearFrameSolveInput {
     force[12] = 12.5;
     NonlinearFrameSolveInput {
         base_prescribed: Vec::new(),
+        ground_motion: Vec::new(),
         node_count: 3,
         elements,
         connectors: Vec::new(),
@@ -873,6 +874,7 @@ fn option_c_active_set_loop_first_closed_gap_iteration_is_binary64() {
     for g in [0.05, 0.20] {
         let input = NonlinearFrameSolveInput {
             base_prescribed: Vec::new(),
+            ground_motion: Vec::new(),
             node_count: 3,
             elements: elements.clone(),
             connectors: Vec::new(),
@@ -1321,6 +1323,7 @@ fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
 fn kd5_loop_input(built: &crate::structural_adapter::kd5_tests::Built) -> NonlinearFrameSolveInput {
     NonlinearFrameSolveInput {
         base_prescribed: Vec::new(),
+        ground_motion: Vec::new(),
         node_count: 2,
         elements: built.frames.clone(),
         connectors: Vec::new(),
@@ -1415,6 +1418,7 @@ fn kd5_friction_probe_input(g: f64) -> NonlinearFrameSolveInput {
     force[6] = 50.0;
     NonlinearFrameSolveInput {
         base_prescribed: Vec::new(),
+        ground_motion: Vec::new(),
         node_count: 3,
         elements: probe_p_elements(),
         connectors: Vec::new(),

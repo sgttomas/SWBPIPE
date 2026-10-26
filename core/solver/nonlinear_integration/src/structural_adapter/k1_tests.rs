@@ -936,6 +936,7 @@ fn krev01_on_sparse_geometry_witnesses_are_unchanged() {
 fn loop_input(case: &Case) -> NonlinearFrameSolveInput {
     NonlinearFrameSolveInput {
         base_prescribed: Vec::new(),
+        ground_motion: Vec::new(),
         node_count: 2,
         elements: case.frames.clone(),
         connectors: Vec::new(),

@@ -447,9 +447,9 @@ fn a_non_rigid_target_is_refused() {
         "hanger": {"hanger_type": "variable_spring_hanger", "stiffness": {"dof": "UZ", "value": qv(1.0e5, "N/m")}, "installed_load": qv(100.0, "N")}, "provenance": PROV});
     let constant = json!({"id": "support:s", "node": "node:c", "family": "constant_effort_support", "restraints": ["UZ"],
         "hanger": {"hanger_type": "constant_effort_support", "constant_load": qv(375.0, "N"), "travel_range": qv(0.05, "m"), "source_reference": "w16 invented"}, "provenance": PROV});
-    let nonlinear = json!({"id": "support:s", "node": "node:c", "family": "nonlinear", "restraints": ["UZ"],
-        "nonlinear": {"behavior": "gap", "closes_when": "positive_displacement", "dof": "UZ", "gap": qv(0.0004, "m"), "initial_state": "inactive"}, "provenance": PROV});
-    for (name, support) in [("spring", spring), ("variable spring hanger", hanger), ("constant effort", constant), ("nonlinear", nonlinear)] {
+    // A nonlinear support's own DOF moves its ground (stage 2, R-b;
+    // `w16_nonlinear_motion_tests`); its refusals are tested there.
+    for (name, support) in [("spring", spring), ("variable spring hanger", hanger), ("constant effort", constant)] {
         let wire = with_supports(one_case(vec![motion_load("m", "support:s", "UZ", 0.001, "m")]), vec![support]);
         refused(&wire, "IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID", name);
     }
@@ -508,8 +508,7 @@ fn a_coincident_rigid_restraint_is_refused_before_the_repeated_dof_refusal() {
 /// of a rigid anchor in a model with nonlinear supports solves; the retired
 /// `IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` is gone. An authored zero
 /// motion is the no-motion path, row for row. The gap case keeps its recovery
-/// basis branch (R1). Motion of the nonlinear support itself stays refused
-/// until R-b (`a_non_rigid_target_is_refused`).
+/// basis branch (R1).
 #[test]
 fn rigid_motion_in_a_model_with_nonlinear_supports_solves() {
     let gap = json!({"id": "support:gap", "node": "node:c", "family": "nonlinear", "restraints": [],

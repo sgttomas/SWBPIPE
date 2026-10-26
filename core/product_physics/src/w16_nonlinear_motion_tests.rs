@@ -38,12 +38,19 @@ pub(super) enum Expect {
     /// The confirmation fails closed with this named §2.4 reason (a weak
     /// boundary the loop converges on).
     NotEstablished(&'static str),
+    /// As `NotEstablished`, with either reason: at a weak unilateral boundary
+    /// the loop converges on either weak state, by solver mode.
+    NotEstablishedAny(&'static [&'static str]),
     /// A weak unilateral boundary at which the loop's binary64 classifier
     /// alternates between the two weak states: the loop does not converge and
     /// the case is withheld before any confirmation (fails closed).
     LoopNotConverged,
+    /// A gap case (R1): never confirmed; the exact strict-gap decisions select
+    /// the state, and the standing stays `RECOVERY_BASIS_UNQUALIFIED`.
+    /// Displacements and the slot reaction within 1e-9 relative.
+    Gap,
 }
-use Expect::{LoopNotConverged, NotEstablished, Passed};
+use Expect::{Gap, LoopNotConverged, NotEstablished, NotEstablishedAny, Passed};
 
 const STICK_WEAK: &str = "support support:NL-F: stick capacity not established";
 
@@ -231,21 +238,77 @@ pub(super) fn run_case(
         assert_eq!(publications[0].published[index].to_bits(), lo.to_bits(), "{at}: {key} publishes g exactly");
         assert_eq!(publications[0].solve[index].to_bits(), lo.to_bits(), "{at}: {key} is the loop's g");
     }
-    if let NotEstablished(reason) = expect {
+    // R-b (§4): one relative-displacement row per moved ground, an authored
+    // zero included, fl(U - g_s) from the actual published displacement U and
+    // then the row's unit; none for a case that moves no ground.
+    let strict = exact["strict_states"].as_array().unwrap();
+    let grounds = exact["ground_motion"].as_object().unwrap();
+    let relative = output.results.iter().filter(|r| r.kind == "nonlinear_support_final_relative_displacement").collect::<Vec<_>>();
+    assert_eq!(relative.len(), grounds.len(), "{at}");
+    for (support, pair) in grounds {
+        let (g, hi) = bound_pair(pair);
+        assert_eq!(g, hi, "{at}: a ground offset is binary64");
+        let row = relative.iter().find(|r| &r.entity_ref == support).unwrap_or_else(|| panic!("{at}: {support}"));
+        let record = model.supports.iter().find(|s| &s.id == support).unwrap();
+        let k = ["UX", "UY", "UZ", "RX", "RY", "RZ"].iter().position(|d| *d == record.nonlinear.as_ref().unwrap().dof).unwrap();
+        let index = model.nodes.iter().position(|n| n.id == record.node).unwrap() * DOF_PER_NODE + k;
+        let scale = if k < 3 { 1000.0 } else { 1.0 };
+        assert_eq!(row.unit, if k < 3 { "mm" } else { "rad" }, "{at}");
+        assert_eq!(row.value.to_bits(), ((publications[0].published[index] - g) * scale).to_bits(), "{at}: {support} is fl(U - g_s)");
+        if let Some(state) = strict.first() {
+            let (lo, hi) = bound_pair(&state["signed"][support]["relative_displacement"]);
+            let expected = if lo == hi { lo } else { 0.5 * lo + 0.5 * hi };
+            let observed = row.value / scale;
+            if expected == 0.0 {
+                assert_eq!(observed.to_bits(), 0.0_f64.to_bits(), "{at}: {support} at its ground");
+            } else {
+                assert!((observed - expected).abs() <= 1e-9 * expected.abs(), "{at}: {support} {observed:e} exact {expected:e}");
+            }
+        }
+    }
+    if let Gap = expect {
+        assert_eq!(integrity.code, "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED", "{at}: {}", integrity.message);
+        assert!(integrity.message.contains("selected represented-exact-ratio"), "{at}: the exact strict-gap decisions select the state: {}", integrity.message);
+        assert!(!integrity.message.contains(NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE), "{at}");
+        assert!(records.is_empty(), "{at}: a gap case publishes no certified rows");
+        // The exact state, or Active at the weak equality (the classifier admits R = 0).
+        let state = strict.first();
+        assert!(state.is_some() || !exact["weak_states"].as_array().unwrap().is_empty(), "{at}");
+        let code = row(&output, "nonlinear_support_active_set_state_code", "support:GAP").value;
+        let expected = state.map_or("active", |s| s["states"]["support:GAP"].as_str().unwrap());
+        assert_eq!(code, if expected == "active" { 1.0 } else { 0.0 }, "{at}");
+        if let Some(state) = state {
+            let reaction = row(&output, "nonlinear_support_final_reaction", "support:GAP").value;
+            let (lo, hi) = bound_pair(&state["signed"]["support:GAP"]["value"]);
+            let exact_reaction = 0.5 * lo + 0.5 * hi;
+            assert!((reaction - exact_reaction).abs() <= 1e-9 * exact_reaction.abs().max(1.0), "{at}: {reaction:e} exact {exact_reaction:e}");
+            let worst = displacements_match(&output, &state["displacements"], &at);
+            println!("W16-NL {at}: gap, exact decisions; displacement max relative error {worst:.3e}");
+        }
+        return (output, records);
+    }
+    let reasons = match expect {
+        NotEstablished(reason) => Some(vec![reason]),
+        NotEstablishedAny(reasons) => Some(reasons.to_vec()),
+        _ => None,
+    };
+    if let Some(reasons) = reasons {
         assert_eq!(integrity.code, "NUMERICAL_INTEGRITY_SENSITIVE", "{at}: {}", integrity.message);
         assert!(
-            integrity.message.contains(&format!("the converged support state is not established at 128-bit precision ({reason}); member rows are binary64 recoveries")),
+            reasons.iter().any(|reason| integrity.message.contains(&format!("the converged support state is not established at 128-bit precision ({reason}); member rows are binary64 recoveries"))),
             "{at}: {}",
             integrity.message
         );
         assert!(records.is_empty(), "{at}: a fail-closed case publishes no certified rows");
+        assert!(!integrity.message.contains(NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE), "{at}");
         assert!(exact["strict_states"].as_array().unwrap().is_empty(), "{at}: no state qualifies strictly");
         assert!(!exact["weak_states"].as_array().unwrap().is_empty(), "{at}: the boundary is exact");
         return (output, records);
     }
     assert_eq!(integrity.code, "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{at}: {}", integrity.message);
     assert!(integrity.message.contains(NONLINEAR_CONFIRMED_EVIDENCE_LINE), "{at}");
-    let strict = exact["strict_states"].as_array().unwrap();
+    // The relative rows' observation clause follows the K-D5 line exactly when they exist.
+    assert_eq!(integrity.message.contains(NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE), !grounds.is_empty(), "{at}");
     assert_eq!(strict.len(), 1, "{at}: the reference has one strict state");
     assert!(exact["weak_states"].as_array().unwrap().is_empty(), "{at}");
     let state = &strict[0];
@@ -396,13 +459,10 @@ fn refused_whole(wire: &serde_json::Value, code: &str, at: &str) {
     }
 }
 
-/// R-a keeps the R-b target refusal (motion of the nonlinear support's own
-/// ground), the mixed nonlinear record's rigid restraints (open, §3.3) and the
-/// linear spring's base (open, §3.3).
+/// The open items stay refused (§3.3): the mixed nonlinear record's rigid
+/// restraints and the linear spring's base.
 #[test]
-fn r_a_keeps_the_non_rigid_target_refusals() {
-    let prop = a1_with(|m| m["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(motion_on("support:PROP", "UZ", 1.0e-4)));
-    refused_whole(&prop, "IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID", "the prop's own ground");
+fn the_open_items_stay_refused() {
     let mixed = a1_with(|m| {
         let prop = m["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "support:PROP").unwrap();
         prop["restraints"] = serde_json::json!(["UY"]);
@@ -445,5 +505,179 @@ fn a_mixed_document_is_refused_whole_and_combinations_stay_withheld() {
         assert_eq!(gates.len(), 1);
         assert_eq!(gates[0]["withheld"], true, "{mode:?}: {gates:?}");
         assert_eq!(gates[0]["reason"], "NONLINEAR_COMBINATION_REQUIRES_SOLVE", "{mode:?}: {gates:?}");
+    }
+}
+
+// ------------------------------------------------ R-b (§5): a nonlinear support's own ground moves
+
+const LIFT_STICK: &str = "support support:NL-F: stick capacity not established";
+
+macro_rules! request {
+    ($name:literal, $expected:expr) => {
+        Request {
+            name: $name,
+            text: include_str!(concat!("../../../validation/references/w16_nonlinear_motion/requests/", $name, ".json")),
+            expected: $expected,
+        }
+    };
+}
+
+const LIFT_WEAK: &[&str] = &["support support:LIFT: separation not established", "support support:LIFT: contact force sign not established"];
+// d = d*: zero reaction and zero separation; the loop converges on either weak
+// state (by solver mode) and the confirmation fails closed (R3).
+const B1: &[(&str, Expect)] = &[("load:ACTIVE", Passed), ("load:LIFTED", Passed), ("load:BOUNDARY", NotEstablishedAny(LIFT_WEAK))];
+const B2: &[(&str, Expect)] = &[("load:OPEN", Gap), ("load:CLOSED", Gap), ("load:EQUAL", Gap), ("load:CANCEL", Gap)];
+const B3: &[(&str, Expect)] = &[
+    ("load:STICK", Passed),
+    ("load:STICK-NEG", Passed),
+    ("load:SLIDE", Passed),
+    ("load:SLIDE-NEG", Passed),
+    // |g_t| = g*: zero relative slip at capacity; the classifier chooses
+    // Sticking, and the certificate is not established.
+    ("load:BOUNDARY", NotEstablished(LIFT_STICK)),
+];
+
+pub(super) const R_B: [Request; 12] = [
+    request!("b1", B1),
+    request!("b1_spring", &[("load:ACTIVE", Passed), ("load:LIFTED", Passed)]),
+    request!("b1_rot", &[("load:ACTIVE", Passed), ("load:LIFTED", Passed)]),
+    request!("b1_translated", B1),
+    request!("b2", B2),
+    request!("b2_positive", B2),
+    request!("b2_negative_clearance", &[("load:CLOSED", Gap)]),
+    request!("b2_translated", B2),
+    request!("b3", B3),
+    request!("b3_explicit", B3),
+    request!("b3_px", B3),
+    request!("b3_translated", B3),
+];
+
+/// §5 R-b: B-1 (with its spring and rotational twins), B-2 (both senses, the
+/// equality, cancellation and a negative effective clearance), B-3 (both
+/// signs, the weak sticking boundary, an explicit normal and P_x != 0) and the
+/// property (B-1, B-2 and B-3 translated rigidly with every relevant ground),
+/// both modes.
+#[test]
+fn r_b_references_bind_and_match_in_both_modes() {
+    for request in &R_B {
+        let (wire, oracle) = bound_request(request);
+        assert_eq!(oracle["part"], "R-b");
+        leaves_match(&wire);
+        assert_eq!(oracle["cases"].as_object().unwrap().len(), request.expected.len(), "{}", request.name);
+        for &(case, expect) in request.expected {
+            for mode in MODES {
+                run_case(request, &wire, &oracle, case, expect, mode);
+            }
+        }
+    }
+}
+
+/// §3.2: the R-b refusals, each withholding the whole document.
+#[test]
+fn r_b_refusals_are_named() {
+    // A DOF other than the record's nonlinear DOF.
+    let other = a1_with(|m| m["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(motion_on("support:PROP", "UY", 1.0e-4)));
+    refused_whole(&other, "IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH", "another DOF of the prop");
+    // A spring on the nonlinear record itself: moving its ground would move the spring's.
+    let sprung = a1_with(|m| {
+        let prop = m["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "support:PROP").unwrap();
+        prop["family"] = serde_json::json!("spring");
+        prop["restraints"] = serde_json::json!(["UY"]);
+        prop["stiffness"] = serde_json::json!({"dof": "UY", "value": {"value": 1.0e6, "unit": "N/m"}});
+        m["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(motion_on("support:PROP", "UZ", 1.0e-4));
+    });
+    refused_whole(&sprung, "IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID", "a spring on the nonlinear record");
+    // Another nonlinear support acting on the same node DOF.
+    let shared = a1_with(|m| {
+        m["supports"].as_array_mut().unwrap().push(serde_json::json!({"id": "support:PROP2", "node": "node:T", "family": "nonlinear",
+            "restraints": [], "nonlinear": {"behavior": "one_way", "dof": "UZ", "initial_state": "active", "active_when": "positive_reaction"},
+            "provenance": "w16 invented"}));
+        m["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(motion_on("support:PROP", "UZ", 1.0e-4));
+    });
+    refused_whole(&shared, "IMPOSED_DISPLACEMENT_COINCIDENT_RESTRAINT", "two nonlinear supports on one DOF");
+    // The gap closing position: 1 m + 1 in is exact as authored, but 1.0 + 0.0254
+    // is not in binary64; an overflowing closing position is not finite.
+    let (b2, _) = bound_request(&R_B[4]);
+    let gap_case = |clearance: f64, unit: &str, motion: f64, motion_unit: &str| {
+        let mut wire = single_case(&b2, "load:OPEN");
+        let m = &mut wire["model"];
+        let gap = m["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "support:GAP").unwrap();
+        gap["nonlinear"]["gap"] = serde_json::json!({"value": clearance, "unit": unit});
+        let load = m["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().iter_mut().find(|l| l["category"] == "imposed_displacement").unwrap();
+        load["magnitude"] = serde_json::json!({"value": motion, "unit": motion_unit});
+        wire
+    };
+    refused_whole(&gap_case(1.0, "m", -1.0, "in"), "IMPOSED_DISPLACEMENT_GAP_CLOSURE_INEXACT", "1 m + 1 in");
+    // Overflow, through the typed entry (an integral binary64 of 2^53 or more is
+    // refused at the JSON entry): c + sigma*g_s = 1.5e308 + 1.5e308 is not finite.
+    let mut request: LinearStaticPreviewRequest = serde_json::from_value(gap_case(1.0, "m", -1.0, "m")).unwrap();
+    request.model.supports.iter_mut().find(|s| s.id == "support:GAP").unwrap().nonlinear.as_mut().unwrap().gap.as_mut().unwrap().value = 1.5e308;
+    request.model.load_cases[0].primitive_loads.iter_mut().find(|l| l.category == "imposed_displacement").unwrap().magnitude.value = -1.5e308;
+    let output = run_linear_static_preview(request);
+    assert!(output.diagnostics.iter().any(|d| d.code == "IMPOSED_DISPLACEMENT_GAP_CLOSURE_INEXACT" && d.severity == "blocking"), "{:?}", output.diagnostics);
+    assert!(output.results.is_empty());
+}
+
+/// An authored zero ground motion keeps every row and diagnostic of the
+/// no-motion path, and adds only its relative-displacement row (U - 0) and,
+/// on a Passed case, the observation clause (the kd5 U-1 prop).
+#[test]
+fn an_authored_zero_ground_motion_adds_only_its_relative_row() {
+    let request: serde_json::Value =
+        serde_json::from_str(include_str!("../../../validation/references/kd5_nonlinear/u1_request.json")).unwrap();
+    let mut plain = request.clone();
+    plain["model"]["schema_version"] = serde_json::json!(crate::MODEL_SCHEMA_VERSION);
+    let mut zero = plain.clone();
+    for case in zero["model"]["load_cases"].as_array_mut().unwrap() {
+        let id = case["id"].as_str().unwrap().to_string();
+        case["primitive_loads"].as_array_mut().unwrap().push(serde_json::json!({
+            "id": format!("{id}-zero"), "category": "imposed_displacement",
+            "target": {"type": "support", "support": "support:NL-U", "dof": "UZ"}, "direction": "UZ",
+            "magnitude": {"value": 0.0, "unit": "m"}, "dimension": "displacement", "provenance": "w16 invented"}));
+    }
+    for mode in MODES {
+        let a = run_linear_static_preview_value_with_mode(plain.clone(), mode).unwrap();
+        let b = run_linear_static_preview_value_with_mode(zero.clone(), mode).unwrap();
+        assert_eq!(a.status.mechanics, b.status.mechanics);
+        let (relative, rest): (Vec<_>, Vec<_>) = b.results.iter().cloned().partition(|r| r.kind == "nonlinear_support_final_relative_displacement");
+        assert_eq!(serde_json::to_value(&rest).unwrap(), serde_json::to_value(&a.results).unwrap(), "{mode:?}");
+        assert_eq!(relative.len(), 3, "{mode:?}: one per case");
+        for row in &relative {
+            let displacement = b.results.iter().find(|r| r.kind == "nonlinear_support_final_displacement" && r.basis_ref == row.basis_ref).unwrap();
+            assert_eq!(row.value.to_bits(), displacement.value.to_bits(), "{mode:?}: U - 0 = U");
+        }
+        for (x, y) in a.diagnostics.iter().zip(&b.diagnostics) {
+            if x.message != y.message {
+                assert_eq!(y.message, format!("{} {NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE}", x.message), "{mode:?}");
+            } else {
+                assert_eq!(serde_json::to_value(x).unwrap(), serde_json::to_value(y).unwrap());
+            }
+        }
+        assert_eq!(a.diagnostics.len(), b.diagnostics.len());
+    }
+}
+
+
+/// §4 registration: the actual Rust reader (`semantic_contract::for_source`)
+/// admits each R-b output with its relative-displacement rows, and refuses one
+/// whose relative row names an unlisted support.
+#[test]
+fn the_rust_reader_admits_the_relative_rows() {
+    use open_pipe_stress_result_export::semantic_contract::for_source;
+    for (index, case) in [(0, "load:ACTIVE"), (2, "load:LIFTED"), (4, "load:CLOSED"), (8, "load:SLIDE")] {
+        let (wire, _) = bound_request(&R_B[index]);
+        for mode in MODES {
+            let source = serde_json::to_value(run_linear_static_preview_value_with_mode(single_case(&wire, case), mode).unwrap()).unwrap();
+            let rows = source["results"].as_array().unwrap();
+            assert_eq!(rows.iter().filter(|r| r["kind"] == "nonlinear_support_final_relative_displacement").count(), 1);
+            assert!(for_source(&source).is_ok(), "{} {case} {mode:?}: {:?}", R_B[index].name, for_source(&source));
+            let mut unlisted = source.clone();
+            for row in unlisted["results"].as_array_mut().unwrap() {
+                if row["kind"] == "nonlinear_support_final_relative_displacement" {
+                    row["entity_ref"] = serde_json::json!("support:UNLISTED");
+                }
+            }
+            assert!(for_source(&unlisted).is_err(), "{} {case} {mode:?}", R_B[index].name);
+        }
     }
 }

@@ -250,13 +250,19 @@ declines it at D1.7. `IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL` is
 retired. Evidence: `core/product_physics/tests/w16_imposed_motion.rs` (the
 nozzle movement against `validation/references/w16_imposed_motion/`, parity
 with EX) and W9-C on both routes (`tests/w9_solver_benchmarks.rs`).
-Stage 2's R-a is built: in a model with nonlinear supports, a stage-1
-primitive on a rigid anchor or restraint is a base prescribed value of the
-nonlinear loop and its K-D5 confirmation, which also checks the loop's
-prescribed map against the case's motion bit for bit;
-`IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` is retired. R-b is designed,
-not built: a primitive on a nonlinear support is refused
-(`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`), as are, open, the base of a linear
-spring and the rigid restraints of a mixed nonlinear record. Evidence:
+Stage 2 is built. In a model with nonlinear supports, a stage-1 primitive on a
+rigid anchor or restraint is a base prescribed value of the nonlinear loop and
+its K-D5 confirmation (R-a), and a primitive on a nonlinear support's own DOF
+moves that support's ground (R-b): its state is measured on u_d − g_s, an
+active or sticking state prescribes the moved ground, and the support publishes
+a `nonlinear_support_final_relative_displacement` observation row. The
+confirmation checks the loop's prescribed map against the case's motion bit
+for bit. `IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` is retired; the R-b
+refusals are `IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH`,
+`IMPOSED_DISPLACEMENT_GAP_CLOSURE_INEXACT` and the extended
+`IMPOSED_DISPLACEMENT_COINCIDENT_RESTRAINT`. Still refused and open
+(`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`): the base of a linear spring and
+the rigid restraints of a mixed nonlinear record. Evidence:
 `core/product_physics/src/w16_nonlinear_motion_tests.rs` against
-`validation/references/w16_nonlinear_motion/` (A-1 to A-3, both modes).
+`validation/references/w16_nonlinear_motion/` (A-1 to A-3, B-1 to B-3 and the
+rigid-translation property, both modes).
