@@ -397,7 +397,7 @@ are refused, and the report package is saved locally for a pressure-free result 
 intended report content. The rendered report now carries rule-pack
 references, user-rule check outcomes, software and solver versions, the
 generation time and the analysis settings a verified run manifest binds;
-materials, sections and libraries are not yet in it.
+it also records the provenance of materials, sections, components and supports and lists the library records the model references, with the library store's findings on them.
 
 Reports are structured review artifacts. A report should include or reference:
 
