@@ -228,8 +228,8 @@ with and without its declared members, and the demo does with its nested
 records' declared members varied or removed. The desktop refuses a hand-edited
 nested key at solve with that reason. Priced changes: DEL-04-08
 [retained-pricing-rules.md](../../DEL-04-08/Design/retained-pricing-rules.md)
-§8.19, and §8.NR (provisional) for the nested records (measured, not registered;
-the tree is coefficient-identical to §8.21's).
+§8.19, and §8.25 for the nested records (the tree is coefficient-identical to
+§8.24's).
 
 ## Constant-effort combinations: the unit factor-sum rule
 

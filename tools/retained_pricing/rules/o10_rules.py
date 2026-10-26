@@ -2402,7 +2402,7 @@ _SD_V = PP_ + "validation.rs"
 if fnkey("unknown_field_refusal", _SD_MF):
     _SD_SCAN = _fn_text("unknown_field_refusal", _SD_MF)
     _SD_CHECK = _fn_text("check", _SD_MF)
-    # SD-NR (the nested records, §8.NR): present where the scan walks them.
+    # SD-NR (the nested records, §8.25): present where the scan walks them.
     _SD_NESTED = fnkey("nested_records", _SD_MF) is not None
     _SD_DISPATCH = _fn_text("run_linear_static_preview_value_dispatch", _LIB)
     _sd_call = ("    if let Some(refusal) = model_fields::unknown_field_refusal(&actual_request) {\n"
@@ -2410,7 +2410,7 @@ if fnkey("unknown_field_refusal", _SD_MF):
     _sd_push = "findings.push(Finding { field: key.clone(), record: name(), path: path.to_string() });"
     _sd_tail = "    if findings.is_empty() {\n        return None;\n    }\n"
     if _SD_NESTED:
-        # SD-NR (§8.NR): a scan keeps at most NAMED_LIMIT findings (`Findings::keep_finding`, the one Vec push), each
+        # SD-NR (§8.25): a scan keeps at most NAMED_LIMIT findings (`Findings::keep_finding`, the one Vec push), each
         # formed by its closure only while kept; the refusals are formed by `listed_refusal`.
         _sd_push = "findings.keep_finding(|| Finding { field: key.clone(), record: name(), path: path.to_string() });"
         _sd_tail = "    if findings.kept.is_empty() {\n        return None;\n    }\n"
