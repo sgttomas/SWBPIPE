@@ -1,7 +1,7 @@
 """Exact route-E retirement preimages and ordinary mapper kind controls."""
 from copy import deepcopy
 from pathlib import Path
-import ast
+import re
 import runpy
 import shutil
 
@@ -126,18 +126,45 @@ def test_no_module_namespace_is_a_decision_table(monkeypatch):
     assert namespaces == []
 
 
-def test_no_model_state_is_bound_as_a_decision_table():
-    """The same for a model's inspected snapshot state (its sites are the snapshot's, not the basis's): in every
-    decisions file, no upper-case name binds a module namespace (`run_path`) or a model's `inspect(...)` result."""
-    found = []
-    for path in sorted((PRICING / "rules").glob("*.py")):
-        for node in ast.walk(ast.parse(path.read_text())):
-            if not (isinstance(node, ast.Assign) and isinstance(node.value, ast.Call)):
-                continue
-            func = node.value.func
-            binds_state = "run_path" in ast.unparse(func) or (
-                isinstance(func, ast.Subscript) and isinstance(func.slice, ast.Constant) and func.slice.value == "inspect")
-            names = [t.id for t in node.targets if isinstance(t, ast.Name) and t.id.isupper()]
-            if binds_state and names:
-                found.append((path.name, node.lineno, names))
-    assert found == []
+# Mapper.map_key's key spelling (lib/linemap_lib.py), checked against its source below.
+LINE_KEY = r"((?:core/[a-z_/]+/src/)?(?:[a-z_0-9]+/)*[a-z_0-9]+\.rs):(\d+)(?::([A-Za-z_][A-Za-z_0-9]*))?"
+
+
+def consumed_tables():
+    """Every upper-case name a driver in lib/ reads from the decisions, plus the O10_ families sq2_rules folds in."""
+    names = set()
+    for path in (PRICING / "lib").glob("*.py"):
+        names |= set(re.findall(r'"([A-Z][A-Z0-9_]*)"', path.read_text()))
+    return names | {"O10_" + f for f in ("EDGE_ZERO", "SITE_FROM", "SITE_ZERO", "ID_AUDIT", "ARGS_FIRST")}
+
+
+def stray_line_keys(d, consumed):
+    """Upper-case bindings no driver reads that still hold a carriable line key (not Resolved): the carry would map
+    them as if written at the basis, though they are snapshot state (a model's inspect result, a namespace)."""
+    def keys(v, seen):
+        if id(v) in seen or type(v).__name__ == "Resolved":
+            return []
+        seen.add(id(v))
+        if isinstance(v, str):
+            return [v] if re.fullmatch(LINE_KEY, v) else []
+        if isinstance(v, dict):
+            return [k for kk, x in v.items() for k in keys(kk, seen) + keys(x, seen)]
+        if isinstance(v, (list, tuple, set, frozenset)):
+            return [k for x in v for k in keys(x, seen)]
+        return []
+    return {k: found for k in d if k.isupper() and k != "KEYMAP_ALLOW" and k not in consumed
+            for found in [keys(d[k], set())] if found}
+
+
+@pytest.mark.parametrize("route", ["L", "E"])
+def test_no_model_state_is_bound_as_a_decision_table(monkeypatch, route):
+    """The same for any snapshot state, whatever form binds it (assignment, dict(...), unpacking, a helper's return):
+    in the evaluated decisions, no upper-case binding that no driver reads holds a carriable line key."""
+    assert LINE_KEY in (PRICING / "lib/linemap_lib.py").read_text()
+    monkeypatch.setenv("SQ2_SNAP", str(SOURCE))
+    d = runpy.run_path(str(PRICING / f"rules/sq2_decisions_{route}.py"))
+    consumed = consumed_tables()
+    assert stray_line_keys(d, consumed) == {}
+    # Control: C8's inspected state bound upper-case through dict(...) is found (round 4's escaping form).
+    state = dict(d["_c8_model"]["inspect"](str(SOURCE))) if route == "E" else {"site": "core/product_physics/src/lib.rs:1"}
+    assert list(stray_line_keys({"C8_MEMBER_STATE": state}, consumed)) == ["C8_MEMBER_STATE"]
