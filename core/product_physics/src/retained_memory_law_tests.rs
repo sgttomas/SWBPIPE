@@ -1834,6 +1834,11 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
+/// Unit factor-sum gate at 4bece3ff12 (retained-pricing-rules.md §8.24): from W-15's record below
+/// (W-15 slice b, §8.22, moved no phase), the restated preview-table condition in its three
+/// resident copies (UF-ST, +333 B of STATICS) and `FactorSumError`'s Display texts (UF-TX,
+/// +180 B of TAV_W and TAV_X) raise every phase by +513 B in both modes; D, D_env and the native
+/// atoms are unchanged, and W3 is still the maximum.
 /// W-15 rigid-component scaling and reference-section identification at c7318c32f9
 /// (retained-pricing-rules.md §8.21): from W-7's record below, D1 holds no component body (P2) and
 /// D_env is unchanged; the readers' component-body refusal text (W15-ID), the longer pressure-2
@@ -1881,8 +1886,8 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 /// second ordinary span. The build identity, atoms and native values are unchanged; reviewed-input
 /// registration is separate below.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_557_144_094, 6_899_138_655, 8_852_901_785, 8_644_558_818, 7_721_040_811, 8_605_400_360, 7_337_068_472, 7_009_458_426],
-    [6_616_275_438, 6_958_269_999, 8_912_033_129, 8_703_690_162, 7_780_172_155, 8_664_531_704, 7_396_199_816, 7_068_589_770],
+    [6_557_144_607, 6_899_139_168, 8_852_902_298, 8_644_559_331, 7_721_041_324, 8_605_400_873, 7_337_068_985, 7_009_458_939],
+    [6_616_275_951, 6_958_270_512, 8_912_033_642, 8_703_690_675, 7_780_172_668, 8_664_532_217, 7_396_200_329, 7_068_590_283],
 ];
 
 #[test]
