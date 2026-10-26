@@ -27,10 +27,17 @@
 //! plus the request's ingress bound, rounded up to 1 MiB, and grows on demand
 //! by atomic pool admissions with a fresh headroom verdict, never above the
 //! budget; the child's allocator is capped at grant - reserve
-//! ([`crate::worker_alloc`]). Each growth tries the doubling step, then (if
-//! refused) the minimal need, each an atomic admission; only a refused
-//! minimal need ends the job (`worker_growth_refused`, whose
-//! `requested_bytes` is that minimal need).
+//! ([`crate::worker_alloc`]). Each attempt of a growth step tries the
+//! doubling step, then (if refused) the minimal need, under one pool lock.
+//! When the minimal need is refused only with `headroom_insufficient`, the
+//! step re-samples within the window the intake and result leases use
+//! ([`Lease::grow_resampling`]; owner, 2026-10-26) and is admitted at the
+//! first attempt that passes the unchanged rule. A minimal need still refused
+//! ends the job (`worker_growth_refused`, whose `granted_bytes` is the lease
+//! before the step and `requested_bytes` that minimal need): at once for any
+//! other refusal, otherwise once the window has elapsed. Cancellation and
+//! session reset (a kill, then a wake of the pool's waiters) end a waiting
+//! step at the next attempt.
 //!
 //! The measured physical footprint (the larger of the child's report and the
 //! parent's own reading) is a need as well, so memory the count does not see
@@ -44,10 +51,35 @@
 //! therefore run ahead of the grant the child knows; the child's heap cap
 //! follows only its own grant.
 //!
+//! While an exchange step waits, the child is blocked in its allocator on the
+//! reply. A poll step's child is running: if the step's first attempt is
+//! refused only with `headroom_insufficient`, the child is stopped (SIGSTOP)
+//! for the wait and continued (SIGCONT) once admitted (Agent 0, 2026-10-26,
+//! option (a)). Between attempts the footprint is measured again (the child
+//! may have grown before the stop took effect) and each attempt's targets
+//! follow the largest footprint measured, so an admitted step covers what the
+//! stopped child holds; above the budget the job ends
+//! `worker_footprint_exceeded`. A refused step kills the stopped child; so do
+//! cancellation and session reset (SIGKILL ends a stopped process). A frame
+//! the child wrote before it was stopped is read only if the step is
+//! admitted. The worker runs in its own process group of this session, so
+//! signals to the app's group (a terminal's Ctrl-C) no longer reach it.
+//! Instead it ends itself when the app dies: before reading its request it
+//! checks that the pid the parent passed ([`PARENT_PID_ENV`]) is still its
+//! parent and starts a watchdog thread (a raw pthread with a 64 KiB stack,
+//! allocating nothing) that `_exit`s once the parent exits, woken at once by
+//! a kqueue `NOTE_EXIT` registration on macOS, else by comparing `getppid()`
+//! every 100 ms. A stopped worker's watchdog is stopped too; for that case
+//! the worker keeps SIGHUP's default action, so the orphaned group's SIGHUP
+//! and SIGCONT from the kernel end it.
+//! Stopped time counts against no timeout or staleness check of the job (each
+//! attempt takes a fresh host sample); only the window bounds the stop.
+//!
 //! Residual: the footprint is sampled, not continuous. Memory outside the
 //! counted heap can exceed the lease (or the budget) for at most one poll
-//! interval (100 ms) plus the time to measure and kill; the counted heap
-//! itself never exceeds its cap. The result is also not polled while its
+//! interval (100 ms) plus the time to measure and kill, and an excess found
+//! by a poll stays unreserved, frozen with the child stopped, for at most the
+//! re-sampling window; the counted heap itself never exceeds its cap. The result is also not polled while its
 //! bytes are read (the worker has finished computing). At the result frame
 //! the parent reads the worker's lifetime-maximum footprint, which covers
 //! every moment, records it as the job's `worker_peak_footprint_bytes` and
@@ -57,7 +89,8 @@
 //! acquired while the grant is still held, the bytes are read into an
 //! exact-capacity buffer, the child must exit 0, and only after the child is
 //! reaped is the grant released. A kill (cancellation, session reset, refusal
-//! or protocol violation) targets the child only while it is unreaped.
+//! or protocol violation), a stop or a continue targets the child only while
+//! it is unreaped.
 
 use crate::memory_pool::{Lease, LeasePurpose, MemoryPool, ResampleStop, ResidencyProbe, ResourceRefusal};
 use crate::worker_alloc::{
@@ -148,11 +181,24 @@ fn decode_request(bytes: &[u8; REQUEST_BYTES]) -> Option<Request> {
 pub fn run_solve_worker() -> i32 {
     #[cfg(unix)]
     {
+        // SIGHUP keeps its default action (terminate) even if the app was
+        // started with it ignored (an ignored disposition survives exec): the
+        // orphaned-group SIGHUP must end a worker whose app died while it was
+        // stopped. Nothing in the worker handles or ignores SIGHUP.
+        // SAFETY: setting a default disposition has no preconditions.
+        unsafe {
+            libc::signal(libc::SIGHUP, libc::SIG_DFL);
+        }
+        let parent = spawning_parent();
         let (in_fd, out_fd) = channel_fds();
         let Some((control_in, control_out)) = take_channel(in_fd, out_fd) else {
             return WORKER_PROTOCOL_EXIT;
         };
         close_inherited_fds(&[control_in, control_out]);
+        // Before the allocator counts anything; the watchdog allocates nothing.
+        if !start_parent_watchdog(parent) {
+            return WORKER_PROTOCOL_EXIT;
+        }
         crate::worker_alloc::enable(control_in, control_out);
         let mut header = [0u8; REQUEST_BYTES];
         if !crate::worker_alloc::read_request(&mut header) {
@@ -214,6 +260,134 @@ fn send_error(message: &str) -> bool {
     }
     let body = &message.as_bytes()[..end];
     crate::worker_alloc::send_frame(TAG_ERROR, body.len() as u64, 0, body)
+}
+
+/// The environment variable in which the parent passes its pid to the worker.
+pub(crate) const PARENT_PID_ENV: &str = "SWBPIPE_SOLVE_WORKER_PARENT_PID";
+
+/// The pid of the process that spawned this worker: the one it passed
+/// ([`PARENT_PID_ENV`]), or the current parent if none was passed. A worker
+/// whose spawner is no longer its parent (it died before this check) exits.
+#[cfg(unix)]
+fn spawning_parent() -> libc::pid_t {
+    // SAFETY: getppid has no preconditions.
+    let current = unsafe { libc::getppid() };
+    let passed = std::env::var(PARENT_PID_ENV).ok().and_then(|pid| pid.parse::<libc::pid_t>().ok());
+    if passed.is_some_and(|passed| passed != current) {
+        // SAFETY: _exit ends the process at once; nothing needs unwinding yet.
+        unsafe { libc::_exit(WORKER_PROTOCOL_EXIT) }
+    }
+    current
+}
+
+/// The parent the watchdog watches.
+#[cfg(unix)]
+static WATCHED_PARENT: std::sync::atomic::AtomicI32 = std::sync::atomic::AtomicI32::new(0);
+/// The watchdog's kqueue (-1 when it polls instead).
+#[cfg(unix)]
+pub(crate) static WATCHDOG_KQUEUE: std::sync::atomic::AtomicI32 = std::sync::atomic::AtomicI32::new(-1);
+/// The watchdog thread's stack (its touched pages count in the footprint).
+#[cfg(unix)]
+const WATCHDOG_STACK_BYTES: usize = 64 * 1024;
+/// How often the fallback watchdog compares the parent pid.
+#[cfg(unix)]
+const WATCHDOG_POLL_MICROS: libc::useconds_t = 100_000;
+
+/// Starts the parent-death watchdog: one raw thread (no Rust allocation,
+/// nothing counted) that `_exit`s the worker once `parent` has exited, so a
+/// running worker never outlives the app that started it. On macOS it waits
+/// on a kqueue `EVFILT_PROC`/`NOTE_EXIT` registration for the parent (woken
+/// at once); where that is unavailable it compares `getppid()` with `parent`
+/// every 100 ms. A parent already gone at registration ends the worker here.
+/// A stopped worker's threads are stopped too: the orphaned-group SIGHUP
+/// covers that case. False if no thread could be started.
+#[cfg(unix)]
+fn start_parent_watchdog(parent: libc::pid_t) -> bool {
+    use std::sync::atomic::Ordering::SeqCst;
+    WATCHED_PARENT.store(parent, SeqCst);
+    #[cfg(target_os = "macos")]
+    // SAFETY: plain kqueue/kevent calls on a kqueue this process owns; the
+    // changelist is one initialized kevent and no events are read here.
+    unsafe {
+        let kq = libc::kqueue();
+        if kq >= 0 {
+            libc::fcntl(kq, libc::F_SETFD, libc::FD_CLOEXEC);
+            let change = libc::kevent {
+                ident: parent as libc::uintptr_t,
+                filter: libc::EVFILT_PROC,
+                flags: libc::EV_ADD | libc::EV_ONESHOT,
+                fflags: libc::NOTE_EXIT,
+                data: 0,
+                udata: std::ptr::null_mut(),
+            };
+            if libc::kevent(kq, &change, 1, std::ptr::null_mut(), 0, std::ptr::null()) == 0 {
+                WATCHDOG_KQUEUE.store(kq, SeqCst);
+            } else {
+                let gone = std::io::Error::last_os_error().raw_os_error() == Some(libc::ESRCH);
+                libc::close(kq);
+                if gone {
+                    libc::_exit(WORKER_PROTOCOL_EXIT);
+                }
+            }
+        }
+    }
+    // Registered after the parent may already have died: check once more.
+    // SAFETY: getppid has no preconditions.
+    if unsafe { libc::getppid() } != parent {
+        // SAFETY: as above.
+        unsafe { libc::_exit(WORKER_PROTOCOL_EXIT) }
+    }
+    // SAFETY: an initialized attribute object, a valid entry point that never
+    // returns, and an out-parameter for the thread.
+    unsafe {
+        let mut attr = std::mem::MaybeUninit::<libc::pthread_attr_t>::uninit();
+        if libc::pthread_attr_init(attr.as_mut_ptr()) != 0 {
+            return false;
+        }
+        libc::pthread_attr_setstacksize(attr.as_mut_ptr(), WATCHDOG_STACK_BYTES.max(libc::PTHREAD_STACK_MIN));
+        let mut thread = std::mem::MaybeUninit::<libc::pthread_t>::uninit();
+        let started = libc::pthread_create(thread.as_mut_ptr(), attr.as_ptr(), parent_watchdog, std::ptr::null_mut()) == 0;
+        libc::pthread_attr_destroy(attr.as_mut_ptr());
+        if started {
+            libc::pthread_detach(thread.assume_init());
+        }
+        started
+    }
+}
+
+/// The watchdog thread: allocation-free, it ends the process with `_exit`
+/// (no unwinding, no destructors) once the parent has exited.
+#[cfg(unix)]
+extern "C" fn parent_watchdog(_: *mut libc::c_void) -> *mut libc::c_void {
+    use std::sync::atomic::Ordering::SeqCst;
+    let parent = WATCHED_PARENT.load(SeqCst);
+    #[cfg(target_os = "macos")]
+    {
+        let kq = WATCHDOG_KQUEUE.load(SeqCst);
+        if kq >= 0 {
+            loop {
+                // SAFETY: a zeroed kevent is a valid out-parameter for one event.
+                let mut event: libc::kevent = unsafe { std::mem::zeroed() };
+                let n = unsafe { libc::kevent(kq, std::ptr::null(), 0, &mut event, 1, std::ptr::null()) };
+                if n > 0 {
+                    // SAFETY: _exit has no preconditions.
+                    unsafe { libc::_exit(WORKER_PROTOCOL_EXIT) }
+                }
+                if n < 0 && std::io::Error::last_os_error().raw_os_error() != Some(libc::EINTR) {
+                    break;
+                }
+            }
+        }
+    }
+    loop {
+        // SAFETY: getppid and usleep have no preconditions.
+        unsafe {
+            if libc::getppid() != parent {
+                libc::_exit(WORKER_PROTOCOL_EXIT);
+            }
+            libc::usleep(WATCHDOG_POLL_MICROS);
+        }
+    }
 }
 
 /// The control channel's fds as inherited: stdin and stdout (a test worker
@@ -334,10 +508,13 @@ pub(crate) struct WorkerControl {
 struct ControlState {
     reaped: bool,
     killed: bool,
+    /// SIGSTOP was sent for a poll step's wait and no SIGCONT since.
+    stopped: bool,
 }
 
 impl WorkerControl {
     /// SIGKILL, only while the worker is unreaped (its pid cannot be reused).
+    /// A stopped worker is killed too: SIGKILL ends a stopped process.
     pub(crate) fn kill(&self) {
         let mut state = self.state.lock().unwrap_or_else(PoisonError::into_inner);
         if !state.reaped {
@@ -352,6 +529,36 @@ impl WorkerControl {
 
     fn killed(&self) -> bool {
         self.state.lock().unwrap_or_else(PoisonError::into_inner).killed
+    }
+
+    /// SIGSTOP for a poll step's re-sampling wait, only while the worker is
+    /// unreaped and not killed (a kill wins: it is never undone). Returns
+    /// whether the worker was stopped.
+    fn stop(&self) -> bool {
+        let mut state = self.state.lock().unwrap_or_else(PoisonError::into_inner);
+        if state.reaped || state.killed {
+            return false;
+        }
+        #[cfg(unix)]
+        // SAFETY: as for `kill`, the pid is our unreaped child.
+        {
+            state.stopped = unsafe { libc::kill(self.pid, libc::SIGSTOP) } == 0;
+        }
+        state.stopped
+    }
+
+    /// SIGCONT after [`Self::stop`], only while the worker is unreaped and
+    /// not killed (a killed worker is ending; continuing it changes nothing).
+    fn resume(&self) {
+        let mut state = self.state.lock().unwrap_or_else(PoisonError::into_inner);
+        if state.stopped && !state.reaped && !state.killed {
+            #[cfg(unix)]
+            // SAFETY: as for `kill`, the pid is our unreaped child.
+            unsafe {
+                libc::kill(self.pid, libc::SIGCONT);
+            }
+        }
+        state.stopped = false;
     }
 }
 
@@ -394,6 +601,13 @@ impl WorkerProcess {
     fn spawn(launcher: &dyn WorkerLauncher) -> std::io::Result<Self> {
         let mut command = launcher.command()?;
         command.stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::null());
+        // Its own process group in this session: if this process dies while
+        // the worker is stopped (a poll step's wait), the group is orphaned
+        // and the kernel sends it SIGHUP and SIGCONT, which end it.
+        #[cfg(unix)]
+        std::os::unix::process::CommandExt::process_group(&mut command, 0);
+        // The worker's parent-death watchdog watches this pid.
+        command.env(PARENT_PID_ENV, std::process::id().to_string());
         let mut child = {
             let _serial = SPAWN_LOCK.lock().unwrap_or_else(PoisonError::into_inner);
             command.spawn()?
@@ -541,18 +755,58 @@ pub(crate) fn exchange_growth(requested: u64, needed: u64, footprint: u64, reser
     (requested.max(footprint_need), needed.max(footprint_need))
 }
 
-/// Grows the worker's lease to `preferred` (the doubling step) or, if that is
-/// refused, to `minimal` (the need); each try is one atomic admission with a
-/// fresh headroom verdict. Returns the new lease bytes, or the refusal of the
-/// minimal need.
-fn grow_grant(grant: &mut Lease, preferred: u64, minimal: u64) -> Result<u64, ResourceRefusal> {
+/// One growth step: grows the worker's lease to `preferred` (the doubling
+/// step) or, if that is refused, to `minimal` (the need), both tried under one
+/// pool lock with a fresh headroom verdict per attempt. While the minimal need
+/// is refused only with `headroom_insufficient`, the step re-samples within
+/// the pool's window ([`Lease::grow_resampling`]); `waiting`, if given, runs
+/// once before the first wait ([`Lease::grow_resampling_with`]) and `stop`
+/// between attempts. Returns the new lease bytes, the refusal of the minimal
+/// need that stands, or the stop.
+fn grow_grant(
+    grant: &mut Lease,
+    preferred: u64,
+    minimal: u64,
+    waiting: Option<&mut dyn FnMut()>,
+    stop: &mut dyn FnMut() -> bool,
+) -> Result<u64, ResampleStop> {
     if minimal <= grant.bytes() {
         return Ok(grant.bytes());
     }
-    if preferred > minimal && grant.grow_to(preferred).is_ok() {
-        return Ok(preferred);
+    let both = [preferred, minimal];
+    let targets = if preferred > minimal { &both[..] } else { &both[1..] };
+    match waiting {
+        None => grant.grow_resampling(targets, stop),
+        Some(waiting) => grant.grow_resampling_with(&mut || targets.to_vec(), waiting, stop),
     }
-    grant.grow_to(minimal).map(|()| minimal)
+}
+
+/// Test seam: a test registers an action for a worker's pid, run once just
+/// before a poll step stops that worker (to make the child grow between the
+/// poll's measurement and the stop). A no-op outside tests.
+#[cfg(test)]
+pub(crate) static BEFORE_STOP: Mutex<Vec<(i32, Box<dyn FnOnce() + Send>)>> = Mutex::new(Vec::new());
+
+fn before_stop(_pid: i32) {
+    #[cfg(test)]
+    {
+        let action = {
+            let mut actions = BEFORE_STOP.lock().unwrap_or_else(PoisonError::into_inner);
+            actions.iter().position(|(pid, _)| *pid == _pid).map(|i| actions.remove(i).1)
+        };
+        if let Some(action) = action {
+            action();
+        }
+    }
+}
+
+/// The step's targets in preference order: the doubling step, if above the need, then the need.
+fn step_targets((preferred, minimal): (u64, u64)) -> Vec<u64> {
+    if preferred > minimal {
+        vec![preferred, minimal]
+    } else {
+        vec![minimal]
+    }
 }
 
 #[cfg(unix)]
@@ -647,16 +901,77 @@ pub(crate) fn supervise(
                 break;
             }
             if footprint > current {
-                let (preferred, minimal) = poll_growth(current, footprint, terms.reserve, terms.max_grant);
-                match grow_grant(grant, preferred, minimal) {
-                    Ok(bytes) if bytes != current => hooks.grant_changed(bytes),
-                    Ok(_) => {}
-                    Err(cause) => {
+                // The child is running: if the first attempt is refused only
+                // with `headroom_insufficient`, it is stopped for the
+                // re-sampling wait and continued once admitted. Its footprint
+                // is measured again between attempts (it may have grown
+                // before the stop took effect) and every attempt's targets
+                // follow the largest footprint measured, so an admitted step
+                // covers what the stopped child holds. A frame it wrote
+                // before the stop is read after the step resolves.
+                let mut stopped = false;
+                let mut exceeded = None;
+                let observed = std::cell::Cell::new(footprint);
+                let need = std::cell::Cell::new(poll_growth(current, footprint, terms.reserve, terms.max_grant).1);
+                let grown = grant.grow_resampling_with(
+                    &mut || {
+                        let targets = poll_growth(current, observed.get(), terms.reserve, terms.max_grant);
+                        need.set(targets.1);
+                        step_targets(targets)
+                    },
+                    &mut || {
+                        before_stop(control.pid);
+                        stopped = control.stop();
+                    },
+                    &mut || {
+                        if control.killed() || hooks.cancelled() {
+                            return true;
+                        }
+                        let now = measured_footprint(control.pid);
+                        if now > observed.get() {
+                            observed.set(now);
+                            hooks.footprint_observed(now);
+                        }
+                        if now > terms.max_grant {
+                            exceeded = Some(now);
+                            return true;
+                        }
+                        false
+                    },
+                );
+                // The need a refusal reports follows the last footprint measured,
+                // also one measured after the last attempt (a step whose deadline
+                // passed during the wait returns without another attempt).
+                let minimal = need.get().max(poll_growth(current, observed.get(), terms.reserve, terms.max_grant).1);
+                match grown {
+                    Ok(bytes) => {
+                        if stopped {
+                            control.resume();
+                        }
+                        if bytes != current {
+                            hooks.grant_changed(bytes);
+                        }
+                    }
+                    // A stopped child is killed (SIGKILL ends it) and reaped below.
+                    Err(ResampleStop::Refused(cause)) => {
                         verdict = end(WorkerOutcome::Refused(ResourceRefusal::WorkerGrowthRefused {
                             granted_bytes: current,
                             requested_bytes: minimal,
                             cause: Box::new(cause),
                         }));
+                        break;
+                    }
+                    Err(ResampleStop::Cancelled) => {
+                        match exceeded {
+                            Some(footprint_bytes) => {
+                                verdict = end(WorkerOutcome::Refused(ResourceRefusal::WorkerFootprintExceeded {
+                                    grant_bytes: current,
+                                    footprint_bytes,
+                                }));
+                            }
+                            // Cancellation or session reset: as for a kill while running.
+                            None => control.kill(),
+                        }
                         break;
                     }
                 }
@@ -684,7 +999,9 @@ pub(crate) fn supervise(
                 } else {
                     // The footprint is a need too: the lease also covers it plus the reserve.
                     let (preferred, minimal) = exchange_growth(requested, needed, footprint, terms.reserve, terms.max_grant);
-                    match grow_grant(grant, preferred, minimal) {
+                    // The child is blocked in its allocator until it reads the
+                    // reply, so it allocates nothing while the step re-samples.
+                    match grow_grant(grant, preferred, minimal, None, &mut || control.killed() || hooks.cancelled()) {
                         Ok(bytes) => {
                             if bytes != current {
                                 hooks.grant_changed(bytes);
@@ -694,13 +1011,18 @@ pub(crate) fn supervise(
                             child_grant = if bytes >= preferred { requested } else { needed };
                             encode_frame(TAG_GRANTED, child_grant, 0, 0)
                         }
-                        Err(cause) => {
+                        Err(ResampleStop::Refused(cause)) => {
                             refusal = Some(ResourceRefusal::WorkerGrowthRefused {
                                 granted_bytes: current,
                                 requested_bytes: minimal,
                                 cause: Box::new(cause),
                             });
                             encode_frame(TAG_DENIED, 0, 0, 0)
+                        }
+                        // Cancellation or session reset during the wait: as for a kill while running.
+                        Err(ResampleStop::Cancelled) => {
+                            control.kill();
+                            break;
                         }
                     }
                 };
@@ -1120,12 +1442,42 @@ pub(crate) mod tests {
                 await_release(std::path::Path::new(args.splitn(4, ':').nth(3).unwrap()), "hold-released");
                 Ok(mapped.to_string())
             }
+            // Announces itself (`started-<pid>` in the directory `arg1`), waits
+            // for `go` there, makes `arg0` bytes resident outside the counted
+            // heap (one touched mapping), then holds them until
+            // `hold-released` exists and returns the bytes mapped: only a
+            // poll sees them, never a growth exchange.
+            #[cfg(unix)]
+            "map_go" => {
+                let dir = std::path::Path::new(args.splitn(2, ':').nth(1).unwrap());
+                std::fs::write(dir.join(format!("started-{}", std::process::id())), b"").unwrap();
+                await_release(dir, "go");
+                let mapped = map_uncounted(arg(0) as usize, arg(0) as usize, 0);
+                await_release(dir, "hold-released");
+                Ok(mapped.to_string())
+            }
+            // As `map_go`, then, once `more` exists, makes `arg1` more bytes
+            // resident (announcing `mapped-more`) and holds both until
+            // `hold-released`; returns the total mapped.
+            #[cfg(unix)]
+            "map_go_more" => {
+                let dir = std::path::Path::new(args.splitn(3, ':').nth(2).unwrap());
+                std::fs::write(dir.join(format!("started-{}", std::process::id())), b"").unwrap();
+                await_release(dir, "go");
+                let first = map_uncounted(arg(0) as usize, arg(0) as usize, 0);
+                await_release(dir, "more");
+                let more = map_uncounted(arg(1) as usize, arg(1) as usize, 0);
+                std::fs::write(dir.join("mapped-more"), b"").unwrap();
+                await_release(dir, "hold-released");
+                Ok((first + more).to_string())
+            }
             // The fds open in the worker.
             #[cfg(unix)]
             "fds" => {
                 // SAFETY: F_GETFD only probes whether the fd is open.
                 let open: Vec<i32> = (0..1024).filter(|fd| unsafe { libc::fcntl(*fd, libc::F_GETFD) } != -1).collect();
-                Ok(format!("{open:?}"))
+                let watchdog = WATCHDOG_KQUEUE.load(std::sync::atomic::Ordering::SeqCst);
+                Ok(format!("{{\"open\":{open:?},\"watchdog\":{watchdog}}}"))
             }
             "oversized_error" => {
                 crate::worker_alloc::send_frame(TAG_ERROR, MAX_ERROR_FRAME_BYTES + 1, 0, &[]);
@@ -1266,10 +1618,15 @@ pub(crate) mod tests {
         /// A `transient_mmap` gate directory: the first footprint observation
         /// holds the supervisor until the worker's excursion is over.
         excursion_gate: Option<std::path::PathBuf>,
+        /// The attached worker's control, for a test thread (cancellation).
+        shared: SharedControl,
     }
+
+    type SharedControl = Arc<Mutex<Option<Arc<WorkerControl>>>>;
 
     impl SupervisorHooks for Hooks {
         fn attach(&mut self, control: Arc<WorkerControl>) -> bool {
+            *self.shared.lock().unwrap() = Some(Arc::clone(&control));
             self.attached = Some(control);
             self.attached_at = Some(Instant::now());
             !self.cancelled()
@@ -1341,18 +1698,34 @@ pub(crate) mod tests {
         reserve: u64,
         excursion_gate: Option<std::path::PathBuf>,
     ) -> Run {
+        run_hooked(pool, launcher, body, max_grant, reserve, excursion_gate, Default::default(), Default::default())
+    }
+
+    /// As [`run_gated`], with the cancellation flag and control slot shared with the caller.
+    #[allow(clippy::too_many_arguments)]
+    fn run_hooked(
+        pool: &Arc<MemoryPool>,
+        launcher: &dyn WorkerLauncher,
+        body: &[u8],
+        max_grant: u64,
+        reserve: u64,
+        excursion_gate: Option<std::path::PathBuf>,
+        cancelled: Arc<std::sync::atomic::AtomicBool>,
+        shared: SharedControl,
+    ) -> Run {
         let start = initial_grant(reserve, crate::ingress::prescan(body).unwrap().lease_bytes().unwrap()).unwrap();
         let mut grant = pool.acquire(start, LeasePurpose::Worker).unwrap();
         let ingress = pool.acquire(crate::ingress::allocation_envelope(body.len() as u64).unwrap(), LeasePurpose::Ingress).unwrap();
         let mut hooks = Hooks {
             attached: None,
             attached_at: None,
-            cancelled: Default::default(),
+            cancelled,
             grants: Default::default(),
             current: start,
             observed: Vec::new(),
             events: Vec::new(),
             excursion_gate,
+            shared,
         };
         let terms = WorkerTerms { pool, launcher, mode: PreviewSolverMode::SparseInteractive, max_grant, reserve };
         let outcome = supervise(&terms, &mut grant, (body.to_vec(), ingress), &mut hooks);
@@ -1412,6 +1785,7 @@ pub(crate) mod tests {
             observed: Vec::new(),
             events: Vec::new(),
             excursion_gate: None,
+            shared: Default::default(),
         };
         let terms = WorkerTerms { pool, launcher: &*launcher, mode, max_grant: 12 * GIB, reserve: PROCESS_RESERVE_BYTES };
         match supervise(&terms, &mut grant, (BODY.to_vec(), ingress), &mut hooks) {
@@ -1713,14 +2087,21 @@ pub(crate) mod tests {
     }
 
     /// Review N1: a worker closes every fd it inherited except stdio and its
-    /// control pair before reading the request.
+    /// control pair before reading the request. The only other fd it holds is
+    /// the one it opens itself afterwards: its parent-death watchdog's kqueue
+    /// (macOS).
     #[test]
     fn a_worker_holds_no_inherited_fds() {
         let pool = pool();
         let launcher = Arc::new(TestLauncher { inherited_fd: Some(9), ..(*TestLauncher::scripted("fds")).clone() });
         let run = run(&pool, &*launcher, BODY, 12 * GIB, PROCESS_RESERVE_BYTES);
         let WorkerOutcome::Completed { result, .. } = &run.outcome else { panic!("{:?}", run.outcome) };
-        let open: Vec<i32> = serde_json::from_slice(result).unwrap();
+        let report: serde_json::Value = serde_json::from_slice(result).unwrap();
+        let watchdog = report["watchdog"].as_i64().unwrap() as i32;
+        let mut open: Vec<i32> = serde_json::from_value(report["open"].clone()).unwrap();
+        #[cfg(target_os = "macos")]
+        assert!(open.contains(&watchdog), "the watchdog's kqueue: {report}");
+        open.retain(|&fd| fd != watchdog);
         assert_eq!(open.len(), 5, "stdio and the control pair only: {open:?}");
         assert!(open.starts_with(&[0, 1, 2]) && !open.contains(&9), "{open:?}");
     }
@@ -1958,9 +2339,9 @@ pub(crate) mod tests {
             assert_eq!(pool.settings(), (u64::MAX, budget));
             let start = initial_grant(reserve, 4096).unwrap();
             let mut grant = pool.acquire(start, LeasePurpose::Worker).unwrap();
-            assert_eq!(grow_grant(&mut grant, budget, budget / 2), Ok(budget));
+            assert_eq!(grow_grant(&mut grant, budget, budget / 2, None, &mut || false), Ok(budget));
             assert_eq!((grant.bytes(), pool.reserved(LeasePurpose::Worker)), (budget, budget));
-            assert_eq!(grow_grant(&mut grant, budget, budget - 1), Ok(budget), "a need within the lease is no growth");
+            assert_eq!(grow_grant(&mut grant, budget, budget - 1, None, &mut || false), Ok(budget), "a need within the lease is no growth");
             let extra = pool.acquire(u64::MAX - budget, LeasePurpose::Result).unwrap();
             assert_eq!(pool.reserved_total(), u64::MAX);
             assert!(matches!(pool.acquire(1, LeasePurpose::Result).unwrap_err(), ResourceRefusal::PoolExhausted { .. }));
@@ -1991,5 +2372,503 @@ pub(crate) mod tests {
         }
         assert_eq!(resident_envelope(u64::MAX), u64::MAX, "saturates");
         assert_eq!(allocation_envelope(u64::MAX), None);
+    }
+
+    // --- growth steps that re-sample (owner, 2026-10-26; Agent 0, option (a)) ---
+
+    use crate::memory_pool::{HostMemory, HostSample, JobCounts};
+    use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering::SeqCst};
+
+    /// A scripted host that counts the samples it reports with zero headroom,
+    /// so a test acts once a growth step has been refused and has re-sampled,
+    /// not after a fixed sleep.
+    struct DipHost {
+        script: Arc<ScriptedHost>,
+        dry_samples: AtomicUsize,
+    }
+
+    impl DipHost {
+        fn new() -> Arc<Self> {
+            Arc::new(Self { script: ScriptedHost::normal(), dry_samples: AtomicUsize::new(0) })
+        }
+        fn dry(&self) {
+            self.script.set(|s| s.headroom_bytes = Some(0));
+        }
+        fn refill(&self) {
+            self.script.set(|s| s.headroom_bytes = Some(64 * GIB));
+        }
+        fn dry_samples(&self) -> usize {
+            self.dry_samples.load(SeqCst)
+        }
+    }
+
+    impl HostMemory for DipHost {
+        fn sample(&self) -> HostSample {
+            let sample = self.script.sample();
+            if sample.headroom_bytes == Some(0) {
+                self.dry_samples.fetch_add(1, SeqCst);
+            }
+            sample
+        }
+    }
+
+    /// A pool on `host` whose growth steps re-sample every 5 ms for `window`.
+    fn dip_pool(host: &Arc<DipHost>, window: Duration) -> Arc<MemoryPool> {
+        MemoryPool::with_timing(host.clone(), Duration::from_millis(5), window, Duration::from_millis(5))
+    }
+
+    fn start_grant(reserve: u64) -> u64 {
+        initial_grant(reserve, crate::ingress::prescan(BODY).unwrap().lease_bytes().unwrap()).unwrap()
+    }
+
+    fn wait_for<T>(what: &str, mut ready: impl FnMut() -> Option<T>) -> T {
+        let deadline = Instant::now() + Duration::from_secs(60);
+        loop {
+            if let Some(value) = ready() {
+                return value;
+            }
+            assert!(Instant::now() < deadline, "{what}: not within 60 s");
+            std::thread::sleep(Duration::from_millis(2));
+        }
+    }
+
+    /// A worker job supervised on another thread. Dropped unjoined (a failing
+    /// test), it cancels and kills the worker and joins, so no worker,
+    /// stopped or not, outlives the test.
+    struct Background {
+        handle: Option<std::thread::JoinHandle<Run>>,
+        control: SharedControl,
+        cancelled: Arc<AtomicBool>,
+    }
+
+    fn run_in_background(pool: &Arc<MemoryPool>, launcher: Arc<TestLauncher>, reserve: u64) -> Background {
+        let (control, cancelled) = (SharedControl::default(), Arc::<AtomicBool>::default());
+        let (pool, shared, flag) = (pool.clone(), control.clone(), cancelled.clone());
+        let handle = std::thread::spawn(move || run_hooked(&pool, &*launcher, BODY, 12 * GIB, reserve, None, flag, shared));
+        Background { handle: Some(handle), control, cancelled }
+    }
+
+    impl Background {
+        fn control(&self) -> Arc<WorkerControl> {
+            wait_for("the worker attached", || self.control.lock().unwrap().clone())
+        }
+        fn join(mut self) -> Run {
+            self.handle.take().unwrap().join().unwrap()
+        }
+    }
+
+    impl Drop for Background {
+        fn drop(&mut self) {
+            if let Some(handle) = self.handle.take() {
+                self.cancelled.store(true, SeqCst);
+                if let Some(control) = self.control.lock().unwrap_or_else(PoisonError::into_inner).clone() {
+                    control.kill();
+                }
+                let _ = handle.join();
+            }
+        }
+    }
+
+    /// The BSD process status (`SSTOP`, `SZOMB`, ...) of `pid`, if it exists.
+    #[cfg(target_os = "macos")]
+    fn process_status(pid: i32) -> Option<u32> {
+        let mut info = std::mem::MaybeUninit::<libc::proc_bsdinfo>::zeroed();
+        let size = std::mem::size_of::<libc::proc_bsdinfo>() as libc::c_int;
+        // SAFETY: `info` is a writable proc_bsdinfo of `size` bytes, the struct PROC_PIDTBSDINFO fills.
+        let filled = unsafe { libc::proc_pidinfo(pid, libc::PROC_PIDTBSDINFO, 0, info.as_mut_ptr().cast(), size) };
+        // SAFETY: filled on success.
+        (filled == size).then(|| unsafe { info.assume_init() }.pbi_status)
+    }
+
+    #[cfg(target_os = "macos")]
+    fn is_stopped(pid: i32) -> bool {
+        process_status(pid) == Some(libc::SSTOP)
+    }
+
+    /// Owner ruling 2026-10-26: a growth exchange refused only with
+    /// `headroom_insufficient` re-samples while the child waits, blocked, for
+    /// its reply, and is admitted at the first fresh sample that passes.
+    #[test]
+    fn an_exchange_growth_step_waits_out_a_headroom_dip_and_is_admitted() {
+        let host = DipHost::new();
+        let pool = dip_pool(&host, Duration::from_secs(30));
+        let gate = Gate::new("exchange-dip");
+        let reserve = PROCESS_RESERVE_BYTES;
+        let start = start_grant(reserve);
+        let launcher = TestLauncher::scripted(format!("alloc_gate:0:{}:{}", 8 * MIB, gate.dir.display()));
+        let background = run_in_background(&pool, launcher, reserve);
+        wait_for("the worker started", || (gate.started_count() > 0).then_some(()));
+        host.dry();
+        std::fs::write(gate.dir.join("release-alloc"), b"").unwrap();
+        // Refused and re-sampled: the step is waiting, and has admitted nothing.
+        wait_for("the step re-sampled", || (host.dry_samples() >= 2).then_some(()));
+        assert_eq!(pool.reserved(LeasePurpose::Worker), start);
+        host.refill();
+        let run = background.join();
+        assert!(matches!(&run.outcome, WorkerOutcome::Completed { result, .. } if result == br#"{"held":0,"second":8388608}"#), "{:?}", run.outcome);
+        assert!(!run.grants.is_empty() && run.grants[0] > start + 8 * MIB, "{:?}", run.grants);
+        assert_eq!(pool.status(JobCounts::default()).last_refusal, None, "a passing re-sample leaves no refusal");
+        let pid = run.pid;
+        drop(run);
+        assert_eq!(pool.reserved_total(), 0, "the result lease was the last reservation");
+        assert_reaped(pid);
+    }
+
+    /// A growth exchange still refused with `headroom_insufficient` when the
+    /// window has elapsed ends the job `worker_growth_refused`, with the
+    /// lease before the step and the minimal need, as a single-sample refusal did.
+    #[test]
+    fn an_exchange_growth_step_refused_for_the_whole_window_ends_worker_growth_refused() {
+        let host = DipHost::new();
+        let window = Duration::from_millis(300);
+        let pool = dip_pool(&host, window);
+        let gate = Gate::new("exchange-refused");
+        let reserve = PROCESS_RESERVE_BYTES;
+        let start = start_grant(reserve);
+        let launcher = TestLauncher::scripted(format!("alloc_gate:0:{}:{}", 8 * MIB, gate.dir.display()));
+        let background = run_in_background(&pool, launcher, reserve);
+        wait_for("the worker started", || (gate.started_count() > 0).then_some(()));
+        host.dry();
+        let released = Instant::now();
+        std::fs::write(gate.dir.join("release-alloc"), b"").unwrap();
+        let run = background.join();
+        let waited = released.elapsed();
+        match run.outcome {
+            WorkerOutcome::Refused(ResourceRefusal::WorkerGrowthRefused { granted_bytes, requested_bytes, cause }) => {
+                assert_eq!(granted_bytes, start);
+                assert!(requested_bytes > reserve + 8 * MIB && requested_bytes < 2 * start, "the minimal need: {requested_bytes}");
+                assert!(matches!(*cause, ResourceRefusal::HeadroomInsufficient { available_bytes: 0, .. }), "{cause:?}");
+                assert_eq!(pool.status(JobCounts::default()).last_refusal, Some(*cause), "the refusal that stands is recorded");
+            }
+            other => panic!("{other:?}"),
+        }
+        assert!(waited >= window, "re-sampled for the whole window: {waited:?}");
+        assert!(host.dry_samples() >= 2);
+        assert!(run.grants.is_empty(), "{:?}", run.grants);
+        assert_eq!(pool.reserved_total(), 0);
+        assert_reaped(run.pid);
+    }
+
+    /// Agent 0, option (a): a poll that finds the footprint above the lease,
+    /// with the first attempt refused only with `headroom_insufficient`, stops
+    /// the running child for the re-sampling wait and continues it once a
+    /// fresh sample admits the step; the child then finishes its work.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_poll_growth_step_stops_the_child_waits_out_a_dip_and_continues_it() {
+        let host = DipHost::new();
+        let pool = dip_pool(&host, Duration::from_secs(30));
+        let gate = Gate::new("poll-dip");
+        let reserve = PROCESS_RESERVE_BYTES;
+        let start = start_grant(reserve);
+        let mapped = 96 * MIB;
+        let launcher = TestLauncher::scripted(format!("map_go:{mapped}:{}", gate.dir.display()));
+        let background = run_in_background(&pool, launcher, reserve);
+        let pid = wait_for("the worker started", || gate.pids().first().copied());
+        host.dry();
+        std::fs::write(gate.dir.join("go"), b"").unwrap();
+        wait_for("the child stopped for the step", || (is_stopped(pid) && host.dry_samples() >= 2).then_some(()));
+        std::thread::sleep(Duration::from_millis(100));
+        assert!(is_stopped(pid), "stopped for the whole wait: {:?}", process_status(pid));
+        assert_eq!(pool.reserved(LeasePurpose::Worker), start, "nothing admitted during the dip");
+        // Released while stopped: the child can act on it only once continued.
+        std::fs::write(gate.dir.join("hold-released"), b"").unwrap();
+        std::thread::sleep(Duration::from_millis(50));
+        assert!(is_stopped(pid));
+        host.refill();
+        let run = background.join();
+        assert_eq!(run.pid, Some(pid));
+        let expected = mapped.to_string();
+        assert!(matches!(&run.outcome, WorkerOutcome::Completed { result, .. } if result == expected.as_bytes()), "continued and completed: {:?}", run.outcome);
+        let first_grant = run.events.iter().position(|e| matches!(e, Event::Grant(_))).expect("the step was admitted");
+        assert!(
+            run.events[..first_grant].iter().any(|e| matches!(e, Event::Footprint { grant, footprint } if footprint > grant)),
+            "a poll found the footprint above the lease first: {:?}",
+            run.events
+        );
+        assert!(*run.grants.last().unwrap() >= mapped, "the lease covers the mapping: {:?}", run.grants);
+        assert_eq!(pool.status(JobCounts::default()).last_refusal, None, "a passing re-sample leaves no refusal");
+        let pid = run.pid;
+        drop(run);
+        assert_eq!(pool.reserved_total(), 0, "the result lease was the last reservation");
+        assert_reaped(pid);
+    }
+
+    /// Review round 1 (P2): the child grows between the poll's measurement and
+    /// the stop. The step's targets follow the footprint measured while it is
+    /// stopped, so the admitted grant covers everything the child holds.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_poll_growth_step_covers_what_the_child_grew_before_the_stop() {
+        let host = DipHost::new();
+        let pool = dip_pool(&host, Duration::from_secs(30));
+        let gate = Gate::new("poll-more");
+        let reserve = PROCESS_RESERVE_BYTES;
+        let (first, more) = (96 * MIB, 192 * MIB);
+        let launcher = TestLauncher::scripted(format!("map_go_more:{first}:{more}:{}", gate.dir.display()));
+        let background = run_in_background(&pool, launcher, reserve);
+        let pid = wait_for("the worker started", || gate.pids().first().copied());
+        let dir = gate.dir.clone();
+        BEFORE_STOP.lock().unwrap().push((
+            pid,
+            Box::new(move || {
+                std::fs::write(dir.join("more"), b"").unwrap();
+                wait_for("the child mapped more", || dir.join("mapped-more").exists().then_some(()));
+            }),
+        ));
+        host.dry();
+        std::fs::write(gate.dir.join("go"), b"").unwrap();
+        wait_for("the child stopped for the step", || (is_stopped(pid) && host.dry_samples() >= 2).then_some(()));
+        std::fs::write(gate.dir.join("hold-released"), b"").unwrap();
+        host.refill();
+        let run = background.join();
+        BEFORE_STOP.lock().unwrap().retain(|(p, _)| *p != pid);
+        let expected = (first + more).to_string();
+        assert!(matches!(&run.outcome, WorkerOutcome::Completed { result, .. } if result == expected.as_bytes()), "{:?}", run.outcome);
+        let admitted = run.events.iter().find_map(|e| match e {
+            Event::Grant(bytes) => Some(*bytes),
+            _ => None,
+        });
+        assert!(admitted.expect("the step was admitted") >= first + more + reserve, "the first admitted grant covers the stopped footprint: {:?}", run.events);
+        drop(run);
+        assert_eq!(pool.reserved_total(), 0);
+    }
+
+    /// Review round 2 (P3): the child grows before the stop and the window
+    /// passes during the wait, so the step ends without another attempt; the
+    /// refusal still reports the need of the footprint measured last.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_poll_step_refused_at_the_deadline_reports_the_last_measured_need() {
+        let host = DipHost::new();
+        let pool = dip_pool(&host, Duration::from_millis(300));
+        let gate = Gate::new("poll-more-late");
+        let reserve = PROCESS_RESERVE_BYTES;
+        let (first, more) = (96 * MIB, 192 * MIB);
+        let launcher = TestLauncher::scripted(format!("map_go_more:{first}:{more}:{}", gate.dir.display()));
+        let background = run_in_background(&pool, launcher, reserve);
+        let pid = wait_for("the worker started", || gate.pids().first().copied());
+        let dir = gate.dir.clone();
+        BEFORE_STOP.lock().unwrap().push((
+            pid,
+            Box::new(move || {
+                std::fs::write(dir.join("more"), b"").unwrap();
+                wait_for("the child mapped more", || dir.join("mapped-more").exists().then_some(()));
+                // Past the window: the next check of the deadline ends the step.
+                std::thread::sleep(Duration::from_millis(400));
+            }),
+        ));
+        host.dry();
+        std::fs::write(gate.dir.join("go"), b"").unwrap();
+        let run = background.join();
+        BEFORE_STOP.lock().unwrap().retain(|(p, _)| *p != pid);
+        match run.outcome {
+            WorkerOutcome::Refused(ResourceRefusal::WorkerGrowthRefused { requested_bytes, .. }) => {
+                assert!(requested_bytes >= first + more + reserve, "the last measured need: {requested_bytes}");
+            }
+            ref other => panic!("{other:?}"),
+        }
+        let pid = run.pid;
+        drop(run);
+        assert_eq!(pool.reserved_total(), 0);
+        assert_reaped(pid);
+    }
+
+    /// A poll step still refused when the window has elapsed ends the job as
+    /// a single-sample refusal did: `worker_growth_refused`, the child (stopped
+    /// for the wait) killed and reaped.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_poll_growth_step_refused_for_the_whole_window_kills_the_stopped_child() {
+        let host = DipHost::new();
+        let window = Duration::from_secs(1);
+        let pool = dip_pool(&host, window);
+        let gate = Gate::new("poll-refused");
+        let reserve = PROCESS_RESERVE_BYTES;
+        let start = start_grant(reserve);
+        let mapped = 96 * MIB;
+        let launcher = TestLauncher::scripted(format!("map_go:{mapped}:{}", gate.dir.display()));
+        let background = run_in_background(&pool, launcher, reserve);
+        let pid = wait_for("the worker started", || gate.pids().first().copied());
+        host.dry();
+        let go = Instant::now();
+        std::fs::write(gate.dir.join("go"), b"").unwrap();
+        wait_for("the child stopped for the step", || is_stopped(pid).then_some(()));
+        let run = background.join();
+        let waited = go.elapsed();
+        match run.outcome {
+            WorkerOutcome::Refused(ResourceRefusal::WorkerGrowthRefused { granted_bytes, requested_bytes, cause }) => {
+                assert_eq!(granted_bytes, start);
+                // The minimal need: the polled footprint (above the lease) plus the reserve.
+                assert!(requested_bytes > start + reserve && requested_bytes <= mapped + 2 * reserve, "{requested_bytes}");
+                assert!(matches!(*cause, ResourceRefusal::HeadroomInsufficient { available_bytes: 0, .. }), "{cause:?}");
+                assert_eq!(pool.status(JobCounts::default()).last_refusal, Some(*cause));
+            }
+            other => panic!("{other:?}"),
+        }
+        assert!(waited >= window, "re-sampled for the whole window: {waited:?}");
+        assert!(run.grants.is_empty(), "{:?}", run.grants);
+        assert_eq!(pool.reserved_total(), 0);
+        assert_reaped(run.pid);
+    }
+
+    /// Cancellation (and session reset, which requests it the same way)
+    /// during a stopped wait: the stopped child is killed and reaped, the wait
+    /// ends at once rather than at the window, the job ends cancelled
+    /// (`Terminated`) and the lease is released after the reap.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn cancellation_during_a_stopped_wait_kills_and_reaps_the_child() {
+        let host = DipHost::new();
+        let pool = dip_pool(&host, Duration::from_secs(30));
+        let gate = Gate::new("poll-cancel");
+        let launcher = TestLauncher::scripted(format!("map_go:{}:{}", 96 * MIB, gate.dir.display()));
+        let background = run_in_background(&pool, launcher, PROCESS_RESERVE_BYTES);
+        let pid = wait_for("the worker started", || gate.pids().first().copied());
+        let control = background.control();
+        host.dry();
+        std::fs::write(gate.dir.join("go"), b"").unwrap();
+        wait_for("the child stopped for the step", || (is_stopped(pid) && host.dry_samples() >= 2).then_some(()));
+        // As `SolveJobRegistry::cancel` does: request, kill, wake the waiters.
+        let cancelled = Instant::now();
+        background.cancelled.store(true, SeqCst);
+        control.kill();
+        pool.wake_waiters();
+        let run = background.join();
+        assert!(cancelled.elapsed() < Duration::from_secs(5), "the wait ended promptly: {:?}", cancelled.elapsed());
+        assert!(matches!(run.outcome, WorkerOutcome::Terminated), "{:?}", run.outcome);
+        assert_reaped(Some(pid));
+        assert!(run.grants.is_empty());
+        assert_eq!(pool.status(JobCounts::default()).last_refusal, None, "a cancelled step records no refusal");
+        assert_eq!(pool.reserved_total(), 0, "released after the reap");
+        // Reaped: no stop or continue signals it any more.
+        assert!(!control.stop());
+        control.resume();
+    }
+
+    pub(crate) const PARENT_ENV: &str = "SWBPIPE_TEST_WORKER_PARENT";
+    /// Set to `1`, the intermediate parent stops its worker before reporting it.
+    const PARENT_STOPS_ENV: &str = "SWBPIPE_TEST_WORKER_PARENT_STOPS";
+    const PARENT_ENTRY: &str = "solve_worker::tests::stopped_worker_parent_entry";
+
+    /// The parent-death tests' intermediate parent, inert unless started as
+    /// one. With SIGHUP ignored, as `nohup` leaves it and as a worker would
+    /// inherit it through exec, it spawns a sleeping worker (a workload that
+    /// never touches its channel) through the product's spawn path, stops it
+    /// as a poll step does if asked to ([`PARENT_STOPS_ENV`]), reports its pid
+    /// and holds it unreaped until killed (at most 60 s).
+    #[test]
+    fn stopped_worker_parent_entry() {
+        let Some(dir) = std::env::var_os(PARENT_ENV).map(std::path::PathBuf::from) else { return };
+        // SAFETY: setting a disposition has no preconditions.
+        unsafe {
+            libc::signal(libc::SIGHUP, libc::SIG_IGN);
+        }
+        let launcher = TestLauncher::scripted("sleep");
+        let mut process = WorkerProcess::spawn(&*launcher).unwrap();
+        let request = Request {
+            mode: PreviewSolverMode::SparseInteractive,
+            initial_grant: PROCESS_RESERVE_BYTES + MIB,
+            max_grant: 12 * GIB,
+            reserve: PROCESS_RESERVE_BYTES,
+            raw_len: BODY.len() as u64,
+        };
+        let stdin = process.stdin.as_mut().unwrap();
+        stdin.write_all(&encode_request(&request)).and_then(|()| stdin.write_all(BODY)).and_then(|()| stdin.flush()).unwrap();
+        std::thread::sleep(Duration::from_millis(200));
+        if std::env::var_os(PARENT_STOPS_ENV).is_some_and(|v| v == "1") {
+            assert!(process.control.stop());
+        }
+        std::fs::write(dir.join("staging"), process.control.pid.to_string()).unwrap();
+        std::fs::rename(dir.join("staging"), dir.join("worker-pid")).unwrap();
+        std::thread::sleep(Duration::from_secs(60));
+        std::process::exit(0);
+    }
+
+    /// Kills the intermediate and, if it still exists, the worker.
+    #[cfg(target_os = "macos")]
+    struct OrphanGuard {
+        parent: std::process::Child,
+        worker: Option<i32>,
+    }
+
+    #[cfg(target_os = "macos")]
+    impl Drop for OrphanGuard {
+        fn drop(&mut self) {
+            let _ = self.parent.kill();
+            let _ = self.parent.wait();
+            if let Some(worker) = self.worker.filter(|&worker| process_status(worker).is_some()) {
+                // SAFETY: the test's own worker, seen alive just now.
+                unsafe {
+                    libc::kill(worker, libc::SIGKILL);
+                }
+            }
+        }
+    }
+
+    /// Spawns the intermediate parent with a worker, stopped or running, and
+    /// kills the intermediate; the worker must be gone within `limit`.
+    #[cfg(target_os = "macos")]
+    fn worker_ends_when_its_parent_dies(stopped: bool, limit: Duration) {
+        let gate = Gate::new("orphan");
+        let parent = {
+            let _serial = SPAWN_LOCK.lock().unwrap_or_else(PoisonError::into_inner);
+            Command::new(std::env::current_exe().unwrap())
+                .args([PARENT_ENTRY, "--exact", "--test-threads=1", "--quiet"])
+                .env(PARENT_ENV, &gate.dir)
+                .env(PARENT_STOPS_ENV, if stopped { "1" } else { "0" })
+                .stdin(Stdio::null())
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .spawn()
+                .unwrap()
+        };
+        let mut guard = OrphanGuard { parent, worker: None };
+        let pid_file = gate.dir.join("worker-pid");
+        let worker: i32 = wait_for("the intermediate reported its worker", || {
+            if let Ok(Some(status)) = guard.parent.try_wait() {
+                panic!("the intermediate exited first: {status}");
+            }
+            std::fs::read_to_string(&pid_file).ok()?.parse().ok()
+        });
+        guard.worker = Some(worker);
+        if stopped {
+            wait_for("the worker stopped", || is_stopped(worker).then_some(()));
+        } else {
+            let status = process_status(worker);
+            assert!(status.is_some_and(|status| status != libc::SSTOP && status != libc::SZOMB), "a running worker: {status:?}");
+        }
+        // SAFETY: getpgid only reads.
+        let (worker_group, parent_group) = unsafe { (libc::getpgid(worker), libc::getpgid(guard.parent.id() as i32)) };
+        assert_eq!(worker_group, worker, "the worker leads its own process group");
+        assert_ne!(worker_group, parent_group);
+        guard.parent.kill().unwrap();
+        guard.parent.wait().unwrap();
+        let died = Instant::now();
+        while let Some(status) = process_status(worker).filter(|&status| status != libc::SZOMB) {
+            assert!(died.elapsed() < limit, "worker {worker} remains {:?} after its parent died (status {status})", died.elapsed());
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        guard.worker = None;
+    }
+
+    /// Agent 0's parent-death condition: the worker runs in its own process
+    /// group, so when its parent dies while it is stopped, the group is
+    /// orphaned and the kernel sends it SIGHUP and SIGCONT, which end it, even
+    /// though the parent had SIGHUP ignored (the worker restores the default).
+    /// (Once continued, the watchdog would end it too.)
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_stopped_worker_ends_when_its_parent_dies() {
+        worker_ends_when_its_parent_dies(true, Duration::from_secs(5));
+    }
+
+    /// The manager's watchdog decision: a running worker, in a workload that
+    /// never touches its channel and outside the app's process group, ends
+    /// when its parent dies (kqueue `NOTE_EXIT` on the parent), within 2 s.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_running_worker_ends_when_its_parent_dies() {
+        worker_ends_when_its_parent_dies(false, Duration::from_secs(2));
     }
 }

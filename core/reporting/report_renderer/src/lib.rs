@@ -27,6 +27,8 @@ use open_pipe_stress_report_sections as sections;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
+pub mod exact_statements;
+
 /// Fixed render order: mirrors the required-section contract of
 /// `report_generator` (`REQUIRED_SECTION_KINDS`); rendering never reorders
 /// based on input ordering.
@@ -177,9 +179,71 @@ pub struct UserRuleCheckRun {
     pub checks: Vec<UserRuleCheckOutcome>,
 }
 
+/// The admission binding of an exact-route report (W-11, DEL-08-01 Design
+/// `exact-route-report-sections.md` §3.1-§3.2), field for field: what Export
+/// Result JSON admitted in the session. The renderer checks it against the
+/// report's own records and composes the standing line from it; the input
+/// carries no standing text.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ExactAdmissionBinding {
+    pub semantic_contract_id: String,
+    pub run_ref: String,
+    pub result_envelope_id: String,
+    pub received_result_sha256: String,
+    pub model_sha256: String,
+    pub input_manifest_ref: String,
+    pub input_manifest_sha256: String,
+    pub derivative_sha256: String,
+    pub native_job_id: String,
+    pub received_bytes_sha256: String,
+}
+
+/// One section basis's stress headline (§3.3): `basis` is `nominal_section`
+/// or `reduced_section`; a withheld headline carries the withheld text and no
+/// references.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ReportHeadline {
+    pub basis: String,
+    pub label: String,
+    pub value_display: String,
+    pub location_ref: Option<String>,
+    pub source_ref: Option<String>,
+}
+
+/// The exact-route result block (§3.2): the result's producer identity, its
+/// admission binding, the load/reference line where present and the
+/// headlines, nominal then reduced.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ExactRouteSection {
+    pub semantic_contract_id: String,
+    pub admission: ExactAdmissionBinding,
+    pub load_reference_states: Option<String>,
+    pub headlines: Vec<ReportHeadline>,
+}
+
+/// One library record the model references (W-11 §4.2): safe metadata only,
+/// no library payload or record snapshot.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct LibraryReference {
+    pub reference_id: String,
+    pub library_kind: String,
+    pub library_id: String,
+    pub library_version: String,
+    pub record_id: String,
+    pub entity_refs: Vec<String>,
+    pub provenance: sections::Provenance,
+}
+
 /// Complete renderer input document. `report_context` and `user_rule_checks`
 /// are absent only when the producer recorded no such context (rendered as
-/// "not recorded") or no rule-check run exists.
+/// "not recorded") or no rule-check run exists. `exact_route` and
+/// `library_references` (W-11) are absent on the pressure-free route and
+/// without library references; absent, they emit nothing and serialize to
+/// nothing, so such an input renders byte-identically.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RenderableReportInput {
     pub report_title: String,
@@ -190,6 +254,10 @@ pub struct RenderableReportInput {
     pub report_context: Option<ReportContext>,
     #[serde(default)]
     pub user_rule_checks: Option<UserRuleCheckRun>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exact_route: Option<ExactRouteSection>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub library_references: Option<Vec<LibraryReference>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -739,6 +807,9 @@ pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<AssembledS
             }
             "results" => {
                 let mut blocks = Vec::new();
+                if let Some(route) = &input.exact_route {
+                    blocks.extend(exact_route_blocks(input, route));
+                }
                 if input.result_rows.is_empty() {
                     blocks.push(paragraph("No result rows supplied for this rendering."));
                 } else {
@@ -833,9 +904,7 @@ pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<AssembledS
                         ]
                     })
                     .collect();
-                (
-                    "Warnings, Assumptions, And Provenance",
-                    vec![
+                let mut blocks = vec![
                         subheading("Diagnostics"),
                         table(
                             &["Code", "Severity", "Message", "Remediation"],
@@ -859,8 +928,26 @@ pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<AssembledS
                         ),
                         subheading("Provenance Notes"),
                         table(&["Source", "Location", "License", "Contributor"], note_rows),
-                    ],
-                )
+                    ];
+                if let Some(references) = input.library_references.as_ref().filter(|list| !list.is_empty()) {
+                    blocks.push(subheading("Library Records"));
+                    blocks.push(table(
+                        &["Library kind", "Library", "Version", "Record", "Referenced by"],
+                        references
+                            .iter()
+                            .map(|reference| {
+                                vec![
+                                    reference.library_kind.clone(),
+                                    reference.library_id.clone(),
+                                    reference.library_version.clone(),
+                                    reference.record_id.clone(),
+                                    reference.entity_refs.join(", "),
+                                ]
+                            })
+                            .collect(),
+                    ));
+                }
+                ("Warnings, Assumptions, And Provenance", blocks)
             }
             "audit_manifest" => {
                 let envelope_rows = calc
@@ -1177,6 +1264,182 @@ sharing or publication.",
     }
 }
 
+// ---------------------------------------------------------------------------
+// W-11: the exact-route result block, its admission binding and its limitation
+// entries (DEL-08-01 Design `exact-route-report-sections.md` §3.2-§3.5).
+// ---------------------------------------------------------------------------
+
+/// The admission binding disagrees with the report's own records, or a field
+/// is not of its form.
+pub const EXACT_ADMISSION_BINDING_MISMATCH: &str = "REPORT-EXACT-ADMISSION-BINDING-MISMATCH";
+/// An exact limitation entry whose statement is not a table statement, or
+/// that appears without `exact_route`.
+pub const EXACT_LIMITATION_UNREGISTERED: &str = "REPORT-EXACT-LIMITATION-UNREGISTERED";
+/// The headlines are not one per section basis, nominal then reduced.
+pub const EXACT_HEADLINE_UNREADABLE: &str = "REPORT-EXACT-HEADLINE-UNREADABLE";
+/// The two section bases, in headline order.
+pub const EXACT_SECTION_BASES: [&str; 2] = ["nominal_section", "reduced_section"];
+pub const EXACT_ROUTE_SUBHEADING: &str = "Exact-Route Result";
+pub const EXACT_HEADLINES_SUBHEADING: &str = "Stress Headlines by Section Basis";
+pub const EXACT_HEADLINES_HEADER: [&str; 4] = ["Section basis", "Stress maximum", "Location", "Source"];
+/// The session's sentence (`ResultsPanel.tsx`), after the headline table.
+pub const EXACT_HEADLINES_PARAGRAPH: &str = "Each section basis has its own maximum; no governing basis is chosen.";
+/// A withheld headline's absent location or source.
+pub const NOT_AVAILABLE: &str = "not available";
+/// The profile-reference limitation entry's id suffix (§2.4).
+pub const EXACT_PROFILE_REFERENCE_SUFFIX: &str = "profile-reference";
+
+fn is_lower_hex_64(text: &str) -> bool {
+    text.len() == 64 && text.bytes().all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+}
+
+/// The binding fields that disagree with the report's own records or are not
+/// of their form, in a fixed order (§3.2). Empty when the binding holds.
+pub fn exact_admission_mismatches(input: &RenderableReportInput, route: &ExactRouteSection) -> Vec<&'static str> {
+    let binding = &route.admission;
+    let calc = &input.calculation_report;
+    let summary = &calc.model_input_summary;
+    let mut fields = Vec::new();
+    if route.semantic_contract_id != binding.semantic_contract_id {
+        fields.push("semantic_contract_id");
+    }
+    if binding.run_ref != input.report_sections.run_ref.ref_id {
+        fields.push("run_ref");
+    }
+    // The received-result entry of the audit references, whose reference is
+    // the binding's result envelope.
+    let received = calc
+        .audit_manifest_refs
+        .iter()
+        .find(|entry| entry.reference.ref_type == "result_envelope" && entry.reference.ref_id == binding.result_envelope_id);
+    match received {
+        None => fields.push("result_envelope_id"),
+        Some(entry) if entry.checksum.value != binding.received_result_sha256 => fields.push("received_result_sha256"),
+        Some(_) => {}
+    }
+    if binding.model_sha256 != summary.model_hash.value {
+        fields.push("model_sha256");
+    }
+    if binding.input_manifest_ref != summary.input_manifest_ref.ref_id {
+        fields.push("input_manifest_ref");
+    }
+    for (field, digest) in [
+        ("received_result_sha256", &binding.received_result_sha256),
+        ("model_sha256", &binding.model_sha256),
+        ("input_manifest_sha256", &binding.input_manifest_sha256),
+        ("derivative_sha256", &binding.derivative_sha256),
+        ("received_bytes_sha256", &binding.received_bytes_sha256),
+    ] {
+        if !is_lower_hex_64(digest) && !fields.contains(&field) {
+            fields.push(field);
+        }
+    }
+    for (field, id) in [
+        ("semantic_contract_id", &binding.semantic_contract_id),
+        ("run_ref", &binding.run_ref),
+        ("result_envelope_id", &binding.result_envelope_id),
+        ("input_manifest_ref", &binding.input_manifest_ref),
+        ("native_job_id", &binding.native_job_id),
+    ] {
+        if id.trim().is_empty() && !fields.contains(&field) {
+            fields.push(field);
+        }
+    }
+    fields
+}
+
+/// The standing line composed from a binding that holds (§3.2). "integrity
+/// checked" is the session's label (`LoadReferenceStatesBlock.tsx`).
+pub fn exact_standing_line(binding: &ExactAdmissionBinding) -> String {
+    format!(
+        "integrity checked (the Rust reader's standing for the result Export Result JSON admitted in this session: \
+received result sha256 {}, model sha256 {}, input manifest {} sha256 {})",
+        binding.received_result_sha256, binding.model_sha256, binding.input_manifest_ref, binding.input_manifest_sha256
+    )
+}
+
+/// The exact-route block at the start of the Results section (§3.2). A
+/// binding that does not hold states no standing; the report is blocked.
+fn exact_route_blocks(input: &RenderableReportInput, route: &ExactRouteSection) -> Vec<SectionBlock> {
+    let mismatches = exact_admission_mismatches(input, route);
+    let standing = match mismatches.first() {
+        None => exact_standing_line(&route.admission),
+        Some(field) => format!("not stated ({EXACT_ADMISSION_BINDING_MISMATCH}: {field})"),
+    };
+    let mut blocks = vec![
+        subheading(EXACT_ROUTE_SUBHEADING),
+        meta_paragraph(&format!("Semantic contract: {} · Numerical standing: {standing}", route.semantic_contract_id)),
+    ];
+    if let Some(line) = &route.load_reference_states {
+        blocks.push(paragraph(line));
+    }
+    blocks.push(subheading(EXACT_HEADLINES_SUBHEADING));
+    blocks.push(table(
+        &EXACT_HEADLINES_HEADER,
+        route
+            .headlines
+            .iter()
+            .map(|headline| {
+                vec![
+                    headline.label.clone(),
+                    headline.value_display.clone(),
+                    headline.location_ref.clone().unwrap_or_else(|| NOT_AVAILABLE.to_string()),
+                    headline.source_ref.clone().unwrap_or_else(|| NOT_AVAILABLE.to_string()),
+                ]
+            })
+            .collect(),
+    ));
+    blocks.push(paragraph(EXACT_HEADLINES_PARAGRAPH));
+    blocks
+}
+
+/// The renderer's exact-route refusals (§3.2, §3.5), as
+/// [`render_calculation_report`] applies them with the embedded table
+/// ([`exact_statements::exact_statement_table`]). Each returned reason blocks
+/// export. `table` is a statement table, or its refusal when malformed, in
+/// which case every exact limitation statement refuses.
+pub fn exact_route_blocking_reasons(
+    input: &RenderableReportInput,
+    table: Result<&exact_statements::ExactStatementTable, &str>,
+) -> Vec<String> {
+    let mut reasons = Vec::new();
+    if let Some(route) = &input.exact_route {
+        for field in exact_admission_mismatches(input, route) {
+            reasons.push(format!("exact route: {EXACT_ADMISSION_BINDING_MISMATCH}: {field}"));
+        }
+        let bases: Vec<&str> = route.headlines.iter().map(|headline| headline.basis.as_str()).collect();
+        if bases != EXACT_SECTION_BASES {
+            reasons.push(format!(
+                "exact route: {EXACT_HEADLINE_UNREADABLE}: the headlines are not one per section basis, nominal then reduced"
+            ));
+        }
+    }
+    let prefix = format!("limitation:{}:exact:", input.report_sections.run_ref.ref_id);
+    for limitation in &input.report_sections.limitations {
+        let id = limitation.limitation_id.as_str();
+        if !(id.starts_with("limitation:") && id.contains(":exact:")) {
+            continue;
+        }
+        let refuse = |detail: &str| format!("exact limitations: {EXACT_LIMITATION_UNREGISTERED}: {id}: {detail}");
+        if input.exact_route.is_none() {
+            reasons.push(refuse("an exact-route limitation entry without an exact_route section"));
+            continue;
+        }
+        match id.strip_prefix(prefix.as_str()) {
+            Some(EXACT_PROFILE_REFERENCE_SUFFIX) => {}
+            Some(n) if !n.is_empty() && n.bytes().all(|byte| byte.is_ascii_digit()) && !n.starts_with('0') => {
+                match table {
+                    Ok(table) if table.is_statement(&limitation.statement) => {}
+                    Ok(_) => reasons.push(refuse("the statement is not a reviewed exact-route statement")),
+                    Err(detail) => reasons.push(refuse(detail)),
+                }
+            }
+            _ => reasons.push(refuse("the entry id is not an exact-route limitation id of this report's run")),
+        }
+    }
+    reasons
+}
+
 /// Renderer-level consistency checks of the report context and rule-check
 /// blocks. Each returned code blocks export.
 fn report_context_blocking_codes(input: &RenderableReportInput) -> Vec<&'static str> {
@@ -1260,6 +1523,9 @@ pub fn render_calculation_report(input: &RenderableReportInput) -> RenderOutcome
     }
     for code in report_context_blocking_codes(input) {
         blocking_reasons.push(format!("report context: {code}"));
+    }
+    for reason in exact_route_blocking_reasons(input, exact_statements::exact_statement_table()) {
+        blocking_reasons.push(reason);
     }
     for finding in &pre_render_run.findings {
         if finding.is_blocking() {

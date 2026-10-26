@@ -91,7 +91,8 @@
     },
     {
       "paths": [
-        "core/reporting/report_package/tests/common/package_basis.rs"
+        "core/reporting/report_package/tests/common/package_basis.rs",
+        "core/reporting/report_package/src/forwarding_graph_scan.rs"
       ],
       "checks": [
         "desktop-rust-test"

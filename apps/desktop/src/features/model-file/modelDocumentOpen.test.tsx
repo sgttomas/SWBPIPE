@@ -104,6 +104,20 @@ describe("desktop model document shape", () => {
     expect(modelFileRefusalMessage("m.json", refusal.diagnostics)).toBe("Open model document refused (m.json): MODEL-FILE-NOT-JSON: bad");
   });
 
+  // W-17: model document 0.7.0's schema leaves `project.units` optional; the desktop
+  // requires the map at open and refuses its absence by name. A missing key opens.
+  it("refuses a document without project.units by name, and opens one missing a key", () => {
+    const opened = { outcome: "opened" as const, file_name: "m.json", byte_count: 2, schema_status: "current" };
+    const withoutMap = openedDocument() as unknown as { project: Record<string, unknown> };
+    delete withoutMap.project.units;
+    expect(checkNativeOutcome({ ...opened, document: withoutMap })).toEqual({ outcome: "refused", file_name: "m.json", diagnostics: [
+      { code: MODEL_FILE_SHAPE, path: "project.units", message: "project.units is missing (object required)." }
+    ] });
+    const withoutAngle = openedDocument();
+    delete (withoutAngle.project.units as Record<string, string>).angle;
+    expect(checkNativeOutcome({ ...opened, document: withoutAngle }).outcome).toBe("opened");
+  });
+
   // W-13 §5.3: the webview runs the applier's Rust document validator through the
   // wasm engine (no TypeScript re-implementation) before adopting a document.
   it("opens a document carrying every model-data slot unchanged, with no warnings", () => {

@@ -31,11 +31,11 @@ export function describeResourceRefusal(refusal: ResourceRefusal): string {
     case "capacity_unknown":
       return "This Mac's physical memory could not be read, so no new memory reservation is admitted.";
     case "headroom_unknown":
-      return "Free memory on this Mac could not be read right now, so no new memory reservation is admitted.";
+      return "Available memory on this Mac (free plus reclaimable file cache and purgeable memory) could not be read right now, so no new memory reservation is admitted.";
     case "headroom_stale":
-      return `The free-memory reading is out of date (${formatAge(refusal.age_ms)} old), so no new memory reservation is admitted until it refreshes.`;
+      return `The available-memory reading is out of date (${formatAge(refusal.age_ms)} old), so no new memory reservation is admitted until it refreshes.`;
     case "headroom_insufficient":
-      return `Not enough free memory on this Mac right now: needs ${formatBytes(refusal.required_bytes)}, ${formatBytes(refusal.available_bytes)} available.`;
+      return `Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs ${formatBytes(refusal.required_bytes)}, ${formatBytes(refusal.available_bytes)} available.`;
     case "pressure_unknown":
       return "macOS did not report a memory-pressure state, so no new solve is admitted.";
     case "pressure_elevated":
@@ -67,6 +67,15 @@ export function describeResourceRefusal(refusal: ResourceRefusal): string {
     case "worker_limit_reached":
       return `${refusal.running} solve ${refusal.running === 1 ? "worker is" : "workers are"} already running (limit ${refusal.limit}); this solve waits until one finishes.`;
   }
+}
+
+/** The typed refusal exactly as the native host reported it: its code and each
+ * of its fields (bytes unrounded), then a growth refusal's cause the same way.
+ * For example `headroom_insufficient (required_bytes=68165632, available_bytes=52641792)`. */
+export function resourceRefusalCode(refusal: ResourceRefusal): string {
+  const fields = Object.entries(refusal).filter(([key]) => key !== "kind" && key !== "cause").map(([key, value]) => `${key}=${String(value)}`);
+  const code = fields.length > 0 ? `${refusal.kind} (${fields.join(", ")})` : refusal.kind;
+  return refusal.kind === "worker_growth_refused" ? `${code}; cause ${resourceRefusalCode(refusal.cause)}` : code;
 }
 
 /** Plain-language reading of a solve that failed because its worker process

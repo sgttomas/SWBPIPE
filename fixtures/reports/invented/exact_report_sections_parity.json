@@ -1,0 +1,2413 @@
+{
+  "admitted_semantic_contracts": [
+    "openpipestress.result_semantics/0.3.0/preview-physics-2"
+  ],
+  "binding_inputs": {
+    "audit_input_manifest_ref": "invented-input-manifest",
+    "audit_input_manifest_sha256": "a88aeb03e852bc5487dc0f030d51b56a274f0aea388ecf45b6f1417b640eee76",
+    "document_derivative_sha256": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+    "document_model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "native_job_id": "invented-solve-job-1",
+    "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3"
+  },
+  "description": "Shared parity vectors for the exact-route report sections (DEL-08-01 Design exact-route-report-sections.md sections 2.4 and 3.2-3.5): each vector names a committed source (path, JSON pointer, edits applied in order) and the expected exact_route_core, exact_route (with the invented binding_inputs as the document's, the audit's and the custody values) and exact limitation entries (without the effect and provenance they share with the technical-preview entry). report_package::exact_sections is checked against them by core/reporting/report_package/tests/exact_sections_parity.rs; the desktop builder is checked against them in slice (b). Edits: set, remove, append and replace_text at a JSON pointer. admitted_semantic_contracts is document_form::ADMITTED_SEMANTIC_CONTRACTS, which the desktop's REPORT_PACKAGE_ADMITTED_CONTRACT_IDS must equal. Invented bindings only.",
+  "generator": "core/reporting/report_package/tests/exact_sections_parity.rs::exact_sections_parity_vectors_are_current",
+  "refusals": [
+    {
+      "code": "REPORT-EXACT-LIMITATION-UNREGISTERED",
+      "name": "an_invented_unknown_limitation",
+      "source": {
+        "edits": [
+          {
+            "op": "append",
+            "pointer": "/formulation_basis/limitations",
+            "value": "An invented limitation the producer never published."
+          }
+        ],
+        "path": "fixtures/results/pressure_v3_straight_reader_corpus.json",
+        "pointer": "/cases/0/envelope"
+      }
+    },
+    {
+      "code": "REPORT-EXACT-LIMITATION-UNREGISTERED",
+      "name": "s9_with_one_word_changed",
+      "source": {
+        "edits": [
+          {
+            "from": "ordinary structural recovery",
+            "op": "replace_text",
+            "pointer": "/formulation_basis/limitations/7",
+            "to": "ordinary structural response"
+          }
+        ],
+        "path": "fixtures/results/pressure_v3_straight_reader_corpus.json",
+        "pointer": "/cases/0/envelope"
+      }
+    },
+    {
+      "code": "REPORT-EXACT-LIMITATION-UNREGISTERED",
+      "name": "s9_without_its_last_sentence",
+      "source": {
+        "edits": [
+          {
+            "from": " No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+            "op": "replace_text",
+            "pointer": "/formulation_basis/limitations/7",
+            "to": ""
+          }
+        ],
+        "path": "fixtures/results/pressure_v3_straight_reader_corpus.json",
+        "pointer": "/cases/0/envelope"
+      }
+    },
+    {
+      "code": "REPORT-EXACT-HEADLINE-UNREADABLE",
+      "name": "a_missing_headline_key",
+      "source": {
+        "edits": [
+          {
+            "op": "remove",
+            "pointer": "/summary/max_open_formula_stress_nominal_section"
+          }
+        ],
+        "path": "fixtures/results/pressure_v3_straight_reader_corpus.json",
+        "pointer": "/cases/0/envelope"
+      }
+    },
+    {
+      "code": "REPORT-EXACT-HEADLINE-UNREADABLE",
+      "name": "a_malformed_headline",
+      "source": {
+        "edits": [
+          {
+            "op": "set",
+            "pointer": "/summary/max_open_formula_stress_reduced_section/value",
+            "value": "41"
+          }
+        ],
+        "path": "fixtures/results/pressure_v3_straight_reader_corpus.json",
+        "pointer": "/cases/0/envelope"
+      }
+    },
+    {
+      "code": "REPORT-PACKAGE-EXACT-SECTIONS-MISMATCH",
+      "name": "a_pressure_free_source",
+      "source": {
+        "edits": [],
+        "path": "fixtures/results/preview_physics_connected_sparse.json",
+        "pointer": ""
+      }
+    }
+  ],
+  "schema_version": "1.0.0",
+  "vectors": [
+    {
+      "expected": {
+        "exact_route": {
+          "admission": {
+            "derivative_sha256": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "input_manifest_ref": "invented-input-manifest",
+            "input_manifest_sha256": "a88aeb03e852bc5487dc0f030d51b56a274f0aea388ecf45b6f1417b640eee76",
+            "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "native_job_id": "invented-solve-job-1",
+            "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+            "received_result_sha256": "03e2fc1f52595063867c68fd3f54fc47bc431dbb7085599f5bc2a66de1de08d1",
+            "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+            "run_ref": "run:preview-linear-static-001",
+            "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+          },
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "pipe:fixture-span",
+              "source_ref": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span:nominal_section",
+              "value_display": "41354908.75465696 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": "pipe:fixture-span",
+              "source_ref": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span:reduced_section",
+              "value_display": "41354908.75465696 Pa"
+            }
+          ],
+          "load_reference_states": null,
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+        },
+        "exact_route_core": {
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "pipe:fixture-span",
+              "source_ref": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span:nominal_section",
+              "value_display": "41354908.75465696 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": "pipe:fixture-span",
+              "source_ref": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span:reduced_section",
+              "value_display": "41354908.75465696 Pa"
+            }
+          ],
+          "load_reference_states": null,
+          "received_result_sha256": "03e2fc1f52595063867c68fd3f54fc47bc431dbb7085599f5bc2a66de1de08d1",
+          "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+          "run_ref": "run:preview-linear-static-001",
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+        },
+        "limitations": [
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:1",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:2",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:3",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:4",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:5",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:6",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:7",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:8",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:9",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets)."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:10",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:profile-reference",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d) are bound by reference and are not restated in this report."
+          }
+        ]
+      },
+      "name": "pressure_2_straight",
+      "source": {
+        "edits": [],
+        "path": "fixtures/results/pressure_v3_straight_reader_corpus.json",
+        "pointer": "/cases/0/envelope"
+      }
+    },
+    {
+      "expected": {
+        "exact_route": {
+          "admission": {
+            "derivative_sha256": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "input_manifest_ref": "invented-input-manifest",
+            "input_manifest_sha256": "a88aeb03e852bc5487dc0f030d51b56a274f0aea388ecf45b6f1417b640eee76",
+            "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "native_job_id": "invented-solve-job-1",
+            "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+            "received_result_sha256": "622d4c4f577f10412f366a24c21eef9847c28ba4f05de6458451acac0b407a78",
+            "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+            "run_ref": "run:preview-linear-static-001",
+            "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+          },
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "pipe:first",
+              "source_ref": "result:elastic-maximum:17:case:hot-pressure:10:pipe:first:nominal_section",
+              "value_display": "228884210.5263158 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": "pipe:first",
+              "source_ref": "result:elastic-maximum:17:case:hot-pressure:10:pipe:first:reduced_section",
+              "value_display": "228884210.5263158 Pa"
+            }
+          ],
+          "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases case:cold-pressure, case:hot-pressure; history independent_equilibrium). Their published limitations are listed under Limitations.",
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+        },
+        "exact_route_core": {
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "pipe:first",
+              "source_ref": "result:elastic-maximum:17:case:hot-pressure:10:pipe:first:nominal_section",
+              "value_display": "228884210.5263158 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": "pipe:first",
+              "source_ref": "result:elastic-maximum:17:case:hot-pressure:10:pipe:first:reduced_section",
+              "value_display": "228884210.5263158 Pa"
+            }
+          ],
+          "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases case:cold-pressure, case:hot-pressure; history independent_equilibrium). Their published limitations are listed under Limitations.",
+          "received_result_sha256": "622d4c4f577f10412f366a24c21eef9847c28ba4f05de6458451acac0b407a78",
+          "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+          "run_ref": "run:preview-linear-static-001",
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+        },
+        "limitations": [
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:1",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:2",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:3",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:4",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:5",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:6",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:7",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:8",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:9",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "One resolved case per load case supplies each member's selected E/nu with derived G, actual/selected/installation temperatures and explicit expansion definition; each case is solved independently."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:10",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Thermal and fit reference strain compose as lambda_fit*lambda_thermal-1 and enter once as an axial eigenstrain; uniform member temperature only, no gradients, finite strain, inelasticity or fit-up joints."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:11",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:12",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:13",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:14",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets)."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:15",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:profile-reference",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d) are bound by reference and are not restated in this report."
+          }
+        ]
+      },
+      "name": "pressure_2_load_reference_states",
+      "source": {
+        "edits": [],
+        "path": "fixtures/results/pressure_v3_straight_reader_corpus.json",
+        "pointer": "/cases/2/envelope"
+      }
+    },
+    {
+      "expected": {
+        "exact_route": {
+          "admission": {
+            "derivative_sha256": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "input_manifest_ref": "invented-input-manifest",
+            "input_manifest_sha256": "a88aeb03e852bc5487dc0f030d51b56a274f0aea388ecf45b6f1417b640eee76",
+            "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "native_job_id": "invented-solve-job-1",
+            "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+            "received_result_sha256": "95ad8ccf85aa9cf3c3b32e48855cbb1845422e63457071c5cd4a8b63c1d97aef",
+            "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+            "run_ref": "run:preview-linear-static-001",
+            "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+          },
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "pipe:S1",
+              "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:nominal_section",
+              "value_display": "55241960.76929271 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": "pipe:S1",
+              "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:reduced_section",
+              "value_display": "62444385.00754263 Pa"
+            }
+          ],
+          "load_reference_states": null,
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+        },
+        "exact_route_core": {
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "pipe:S1",
+              "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:nominal_section",
+              "value_display": "55241960.76929271 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": "pipe:S1",
+              "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:reduced_section",
+              "value_display": "62444385.00754263 Pa"
+            }
+          ],
+          "load_reference_states": null,
+          "received_result_sha256": "95ad8ccf85aa9cf3c3b32e48855cbb1845422e63457071c5cd4a8b63c1d97aef",
+          "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+          "run_ref": "run:preview-linear-static-001",
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+        },
+        "limitations": [
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:1",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:2",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:3",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:4",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:5",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:6",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:7",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:8",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:9",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Realized curved bends (curved_bend_macro_element with the user's bend radius and flexibility factor k, one k for both bending planes) are admitted under pressure: each owns the term K_b*u_free(eps_p) - c_b, with eps_p = (1-2nu)pAi/(E As) (the straight Lame mean Poisson term on the arc) and c_b its own end caps along the end tangents; on an arc N_w = N_el + pAi and S = N_el, and shear and moments are elastic. A region changes direction only at realized bends: a bend-end direction change up to alpha_tan = 1e-3 rad is carried exactly by the remainder pAi(t_in - t_out); a larger change (a mitre) and a straight-straight kink are refused. Geometry-only (chord) bends carry no pressure and are refused. On arcs the hoop is the toroidal membrane cut average (bore_load_transferred_toroidal_membrane_v1) and the radial values are -p at the bore and 0 outside, the transverse shear is the straight-annulus Saint-Venant field driven by the tangent-frame shears (local_straight_annulus_on_arc), and the normal-stress maximum is bounded along the arc; ovalization, hoop bending from moments, bending boundary layers, tangent-end effects and the curvature correction of the shear field are not represented; the excluded effects above apply to every bend result."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:10",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets)."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:11",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:profile-reference",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d) are bound by reference and are not restated in this report."
+          }
+        ]
+      },
+      "name": "pressure_2_realized_bend",
+      "source": {
+        "edits": [],
+        "path": "fixtures/results/pressure_v3_arc_reader_corpus.json",
+        "pointer": "/cases/0/envelope"
+      }
+    },
+    {
+      "expected": {
+        "exact_route": {
+          "admission": {
+            "derivative_sha256": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "input_manifest_ref": "invented-input-manifest",
+            "input_manifest_sha256": "a88aeb03e852bc5487dc0f030d51b56a274f0aea388ecf45b6f1417b640eee76",
+            "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "native_job_id": "invented-solve-job-1",
+            "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+            "received_result_sha256": "271de1787add0e1eb761ec2b6d4a9272a66cc6254a6a2934e0525cbe716bcc35",
+            "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+            "run_ref": "run:preview-linear-static-001",
+            "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+          },
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "pipe:S1",
+              "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:nominal_section",
+              "value_display": "55241960.76929271 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": "pipe:S1",
+              "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:reduced_section",
+              "value_display": "62444385.00754263 Pa"
+            }
+          ],
+          "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases case:u2; history independent_equilibrium). Their published limitations are listed under Limitations.",
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+        },
+        "exact_route_core": {
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "pipe:S1",
+              "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:nominal_section",
+              "value_display": "55241960.76929271 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": "pipe:S1",
+              "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:reduced_section",
+              "value_display": "62444385.00754263 Pa"
+            }
+          ],
+          "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases case:u2; history independent_equilibrium). Their published limitations are listed under Limitations.",
+          "received_result_sha256": "271de1787add0e1eb761ec2b6d4a9272a66cc6254a6a2934e0525cbe716bcc35",
+          "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+          "run_ref": "run:preview-linear-static-001",
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+        },
+        "limitations": [
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:1",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:2",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:3",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:4",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:5",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:6",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:7",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:8",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:9",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "One resolved case per load case supplies each member's selected E/nu with derived G, actual/selected/installation temperatures and explicit expansion definition; each case is solved independently."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:10",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Thermal and fit reference strain compose as lambda_fit*lambda_thermal-1 and enter once as an axial eigenstrain; uniform member temperature only, no gradients, finite strain, inelasticity or fit-up joints."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:11",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:12",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:13",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:14",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Realized curved bends (curved_bend_macro_element with the user's bend radius and flexibility factor k, one k for both bending planes) are admitted under pressure: each owns the term K_b*u_free(eps_p) - c_b, with eps_p = (1-2nu)pAi/(E As) (the straight Lame mean Poisson term on the arc) and c_b its own end caps along the end tangents; on an arc N_w = N_el + pAi and S = N_el, and shear and moments are elastic. A region changes direction only at realized bends: a bend-end direction change up to alpha_tan = 1e-3 rad is carried exactly by the remainder pAi(t_in - t_out); a larger change (a mitre) and a straight-straight kink are refused. Geometry-only (chord) bends carry no pressure and are refused. On arcs the hoop is the toroidal membrane cut average (bore_load_transferred_toroidal_membrane_v1) and the radial values are -p at the bore and 0 outside, the transverse shear is the straight-annulus Saint-Venant field driven by the tangent-frame shears (local_straight_annulus_on_arc), and the normal-stress maximum is bounded along the arc; ovalization, hoop bending from moments, bending boundary layers, tangent-end effects and the curvature correction of the shear field are not represented; the excluded effects above apply to every bend result."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:15",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets)."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:16",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:profile-reference",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d) are bound by reference and are not restated in this report."
+          }
+        ]
+      },
+      "name": "pressure_2_realized_bend_load_reference_states",
+      "source": {
+        "edits": [],
+        "path": "fixtures/results/pressure_v3_arc_reader_corpus.json",
+        "pointer": "/cases/1/envelope"
+      }
+    },
+    {
+      "expected": {
+        "exact_route": {
+          "admission": {
+            "derivative_sha256": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "input_manifest_ref": "invented-input-manifest",
+            "input_manifest_sha256": "a88aeb03e852bc5487dc0f030d51b56a274f0aea388ecf45b6f1417b640eee76",
+            "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "native_job_id": "invented-solve-job-1",
+            "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+            "received_result_sha256": "6c53b6e3a34c8e0a5781b5f6099116d02e1942201f729add3c8a0bb6757a90fe",
+            "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+            "run_ref": "run:preview-linear-static-001",
+            "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+          },
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "pipe:S1",
+              "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:nominal_section",
+              "value_display": "34084189.59861994 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": "pipe:S1",
+              "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:reduced_section",
+              "value_display": "38336716.02953078 Pa"
+            }
+          ],
+          "load_reference_states": null,
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+        },
+        "exact_route_core": {
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "pipe:S1",
+              "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:nominal_section",
+              "value_display": "34084189.59861994 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": "pipe:S1",
+              "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:reduced_section",
+              "value_display": "38336716.02953078 Pa"
+            }
+          ],
+          "load_reference_states": null,
+          "received_result_sha256": "6c53b6e3a34c8e0a5781b5f6099116d02e1942201f729add3c8a0bb6757a90fe",
+          "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+          "run_ref": "run:preview-linear-static-001",
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+        },
+        "limitations": [
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:1",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:2",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:3",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:4",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:5",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:6",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:7",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:8",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:9",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Objective connectors (expansion joints, objective_connector 1.0.0): symmetric-midpoint, small-displacement, small-rotation linear elastic law with the authored 6x6 work matrix, frame, offsets and installed reference q_ref, replacing exactly one straight span (replaces_span); untied hardware or explicit bilateral linear elastic tie rods (explicit_axial_rods_v1) between the connector's end nodes with rigid offsets, each with its own stiffness and reference extension. A pressurized joint (constant_effective_area_reference_v1) is a coaxial edge of one equal-bore pressure region between straight members, with zero attachment offsets, and carries the dead pressure load p(Ae - Ai) at its attachments, Ae being the authored effective area; unequal bore or pressure, offset faces and joints at region terminals or beside realized arcs are refused. Ideal inextensible rods, collective constraints, tension-only or gapped rods, nuts and stops are refused. No finite rotation, follower or geometric stiffness, pressure stiffening, squirm or stability, temperature law or stop is modelled; the replaced span carries no load, member result or self-weight. Connector actions are published as generalized and end-node elastic actions, with each tie-rod force, the joint pressure force pAe and the effective axial force S = g_x + sum T_r (n_r.Q_x) - Pe published separately; they are outside the straight-member recovery coverage."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:10",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Realized curved bends (curved_bend_macro_element with the user's bend radius and flexibility factor k, one k for both bending planes) are admitted under pressure: each owns the term K_b*u_free(eps_p) - c_b, with eps_p = (1-2nu)pAi/(E As) (the straight Lame mean Poisson term on the arc) and c_b its own end caps along the end tangents; on an arc N_w = N_el + pAi and S = N_el, and shear and moments are elastic. A region changes direction only at realized bends: a bend-end direction change up to alpha_tan = 1e-3 rad is carried exactly by the remainder pAi(t_in - t_out); a larger change (a mitre) and a straight-straight kink are refused. Geometry-only (chord) bends carry no pressure and are refused. On arcs the hoop is the toroidal membrane cut average (bore_load_transferred_toroidal_membrane_v1) and the radial values are -p at the bore and 0 outside, the transverse shear is the straight-annulus Saint-Venant field driven by the tangent-frame shears (local_straight_annulus_on_arc), and the normal-stress maximum is bounded along the arc; ovalization, hoop bending from moments, bending boundary layers, tangent-end effects and the curvature correction of the shear field are not represented; the excluded effects above apply to every bend result."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:11",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets)."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:12",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:profile-reference",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d) are bound by reference and are not restated in this report."
+          }
+        ]
+      },
+      "name": "pressure_2_realized_bend_connector",
+      "source": {
+        "edits": [],
+        "path": "fixtures/results/pressure_v3_arc_reader_corpus.json",
+        "pointer": "/cases/3/envelope"
+      }
+    },
+    {
+      "expected": {
+        "exact_route": {
+          "admission": {
+            "derivative_sha256": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "input_manifest_ref": "invented-input-manifest",
+            "input_manifest_sha256": "a88aeb03e852bc5487dc0f030d51b56a274f0aea388ecf45b6f1417b640eee76",
+            "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "native_job_id": "invented-solve-job-1",
+            "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+            "received_result_sha256": "2949be102714c438e3e63a93a06bdf0bcb7b396697f1c75247132280f17581c1",
+            "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+            "run_ref": "run:preview-linear-static-001",
+            "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+          },
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "pipe:P-110",
+              "source_ref": "result:elastic-maximum:10:load:L-100:10:pipe:P-110:nominal_section",
+              "value_display": "5627483.882909764 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": "pipe:P-110",
+              "source_ref": "result:elastic-maximum:10:load:L-100:10:pipe:P-110:reduced_section",
+              "value_display": "5627483.882909764 Pa"
+            }
+          ],
+          "load_reference_states": null,
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+        },
+        "exact_route_core": {
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "pipe:P-110",
+              "source_ref": "result:elastic-maximum:10:load:L-100:10:pipe:P-110:nominal_section",
+              "value_display": "5627483.882909764 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": "pipe:P-110",
+              "source_ref": "result:elastic-maximum:10:load:L-100:10:pipe:P-110:reduced_section",
+              "value_display": "5627483.882909764 Pa"
+            }
+          ],
+          "load_reference_states": null,
+          "received_result_sha256": "2949be102714c438e3e63a93a06bdf0bcb7b396697f1c75247132280f17581c1",
+          "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+          "run_ref": "run:preview-linear-static-001",
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+        },
+        "limitations": [
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:1",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:2",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:3",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:4",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:5",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:6",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:7",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:8",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:9",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Objective connectors (expansion joints, objective_connector 1.0.0): symmetric-midpoint, small-displacement, small-rotation linear elastic law with the authored 6x6 work matrix, frame, offsets and installed reference q_ref, replacing exactly one straight span (replaces_span); untied hardware or explicit bilateral linear elastic tie rods (explicit_axial_rods_v1) between the connector's end nodes with rigid offsets, each with its own stiffness and reference extension. A pressurized joint (constant_effective_area_reference_v1) is a coaxial edge of one equal-bore pressure region between straight members, with zero attachment offsets, and carries the dead pressure load p(Ae - Ai) at its attachments, Ae being the authored effective area; unequal bore or pressure, offset faces and joints at region terminals or beside realized arcs are refused. Ideal inextensible rods, collective constraints, tension-only or gapped rods, nuts and stops are refused. No finite rotation, follower or geometric stiffness, pressure stiffening, squirm or stability, temperature law or stop is modelled; the replaced span carries no load, member result or self-weight. Connector actions are published as generalized and end-node elastic actions, with each tie-rod force, the joint pressure force pAe and the effective axial force S = g_x + sum T_r (n_r.Q_x) - Pe published separately; they are outside the straight-member recovery coverage."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:10",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets)."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:11",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:profile-reference",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d) are bound by reference and are not restated in this report."
+          }
+        ]
+      },
+      "name": "pressure_2_connector",
+      "source": {
+        "edits": [],
+        "path": "fixtures/results/pressure_v3_connector_reader_corpus.json",
+        "pointer": "/cases/0/envelope"
+      }
+    },
+    {
+      "expected": {
+        "exact_route": {
+          "admission": {
+            "derivative_sha256": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "input_manifest_ref": "invented-input-manifest",
+            "input_manifest_sha256": "a88aeb03e852bc5487dc0f030d51b56a274f0aea388ecf45b6f1417b640eee76",
+            "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "native_job_id": "invented-solve-job-1",
+            "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+            "received_result_sha256": "7def2b8851554738e8cbe105f917d5ab07d08df478f3ebf7f2ce5996766ef1de",
+            "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+            "run_ref": "run:preview-linear-static-001",
+            "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+          },
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "pipe:P-110",
+              "source_ref": "result:elastic-maximum:10:load:L-100:10:pipe:P-110:nominal_section",
+              "value_display": "5627483.882909764 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": "pipe:P-110",
+              "source_ref": "result:elastic-maximum:10:load:L-100:10:pipe:P-110:reduced_section",
+              "value_display": "5627483.882909764 Pa"
+            }
+          ],
+          "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases load:L-100, load:L-200, load:L-300; history independent_equilibrium). Their published limitations are listed under Limitations.",
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+        },
+        "exact_route_core": {
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "pipe:P-110",
+              "source_ref": "result:elastic-maximum:10:load:L-100:10:pipe:P-110:nominal_section",
+              "value_display": "5627483.882909764 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": "pipe:P-110",
+              "source_ref": "result:elastic-maximum:10:load:L-100:10:pipe:P-110:reduced_section",
+              "value_display": "5627483.882909764 Pa"
+            }
+          ],
+          "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases load:L-100, load:L-200, load:L-300; history independent_equilibrium). Their published limitations are listed under Limitations.",
+          "received_result_sha256": "7def2b8851554738e8cbe105f917d5ab07d08df478f3ebf7f2ce5996766ef1de",
+          "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+          "run_ref": "run:preview-linear-static-001",
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+        },
+        "limitations": [
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:1",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:2",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:3",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:4",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:5",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:6",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:7",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:8",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:9",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "One resolved case per load case supplies each member's selected E/nu with derived G, actual/selected/installation temperatures and explicit expansion definition; each case is solved independently."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:10",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Thermal and fit reference strain compose as lambda_fit*lambda_thermal-1 and enter once as an axial eigenstrain; uniform member temperature only, no gradients, finite strain, inelasticity or fit-up joints."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:11",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:12",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:13",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:14",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Objective connectors (expansion joints, objective_connector 1.0.0): symmetric-midpoint, small-displacement, small-rotation linear elastic law with the authored 6x6 work matrix, frame, offsets and installed reference q_ref, replacing exactly one straight span (replaces_span); untied hardware or explicit bilateral linear elastic tie rods (explicit_axial_rods_v1) between the connector's end nodes with rigid offsets, each with its own stiffness and reference extension. A pressurized joint (constant_effective_area_reference_v1) is a coaxial edge of one equal-bore pressure region between straight members, with zero attachment offsets, and carries the dead pressure load p(Ae - Ai) at its attachments, Ae being the authored effective area; unequal bore or pressure, offset faces and joints at region terminals or beside realized arcs are refused. Ideal inextensible rods, collective constraints, tension-only or gapped rods, nuts and stops are refused. No finite rotation, follower or geometric stiffness, pressure stiffening, squirm or stability, temperature law or stop is modelled; the replaced span carries no load, member result or self-weight. Connector actions are published as generalized and end-node elastic actions, with each tie-rod force, the joint pressure force pAe and the effective axial force S = g_x + sum T_r (n_r.Q_x) - Pe published separately; they are outside the straight-member recovery coverage."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:15",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets)."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:16",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:profile-reference",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d) are bound by reference and are not restated in this report."
+          }
+        ]
+      },
+      "name": "pressure_2_connector_load_reference_states",
+      "source": {
+        "edits": [],
+        "path": "fixtures/results/pressure_v3_connector_reader_corpus.json",
+        "pointer": "/cases/1/envelope"
+      }
+    },
+    {
+      "expected": {
+        "exact_route": {
+          "admission": {
+            "derivative_sha256": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "input_manifest_ref": "invented-input-manifest",
+            "input_manifest_sha256": "a88aeb03e852bc5487dc0f030d51b56a274f0aea388ecf45b6f1417b640eee76",
+            "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "native_job_id": "invented-solve-job-1",
+            "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+            "received_result_sha256": "e644786b59d59a1a960e5c1c6558c74cf8922ef7e95a810c036c8618c6e0d016",
+            "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+            "run_ref": "run:preview-linear-static-001",
+            "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-source-1"
+          },
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "independent-member",
+              "source_ref": "result:elastic-maximum:4:case:18:independent-member:nominal_section",
+              "value_display": "0 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": "independent-member",
+              "source_ref": "result:elastic-maximum:4:case:18:independent-member:reduced_section",
+              "value_display": "0 Pa"
+            }
+          ],
+          "load_reference_states": null,
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-source-1"
+        },
+        "exact_route_core": {
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "independent-member",
+              "source_ref": "result:elastic-maximum:4:case:18:independent-member:nominal_section",
+              "value_display": "0 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": "independent-member",
+              "source_ref": "result:elastic-maximum:4:case:18:independent-member:reduced_section",
+              "value_display": "0 Pa"
+            }
+          ],
+          "load_reference_states": null,
+          "received_result_sha256": "e644786b59d59a1a960e5c1c6558c74cf8922ef7e95a810c036c8618c6e0d016",
+          "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+          "run_ref": "run:preview-linear-static-001",
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-source-1"
+        },
+        "limitations": [
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:1",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "3.0.0/exact_pressure_v3 under pressure-source-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; an expansion joint authored as an objective connector is admitted only as the connector limitation states. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. The selected retained-source response uses the contract's shear model and publishes its stress rows on both section bases. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:2",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:3",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:4",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:5",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:6",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:7",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:8",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Every member section declares its corrosion allowance and the contract declares its shear model. This pressure-source-1 envelope carries a selected retained-source response. The source family is straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. Other cases keep their ordinary recovery and standing."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:9",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets)."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:10",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:profile-reference",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-source-1 (sha256 b5a4b0e585b9ec440d36144860baaf101b628498cfdab9a1de9248c2ed5069e7) are bound by reference and are not restated in this report."
+          }
+        ]
+      },
+      "name": "pressure_source_1",
+      "source": {
+        "edits": [],
+        "path": "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json",
+        "pointer": ""
+      }
+    },
+    {
+      "expected": {
+        "exact_route": {
+          "admission": {
+            "derivative_sha256": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "input_manifest_ref": "invented-input-manifest",
+            "input_manifest_sha256": "a88aeb03e852bc5487dc0f030d51b56a274f0aea388ecf45b6f1417b640eee76",
+            "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "native_job_id": "invented-solve-job-1",
+            "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+            "received_result_sha256": "f30f78306f595261835e85194de60968ee3216b547aa3c07b352af3b44ffe134",
+            "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+            "run_ref": "run:preview-linear-static-001",
+            "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-source-1"
+          },
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "independent-member",
+              "source_ref": "result:elastic-maximum:4:case:18:independent-member:nominal_section",
+              "value_display": "26.713693785790383 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": "independent-member",
+              "source_ref": "result:elastic-maximum:4:case:18:independent-member:reduced_section",
+              "value_display": "26.713693785790383 Pa"
+            }
+          ],
+          "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:companion; load cases case; history independent_equilibrium). Their published limitations are listed under Limitations.",
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-source-1"
+        },
+        "exact_route_core": {
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "independent-member",
+              "source_ref": "result:elastic-maximum:4:case:18:independent-member:nominal_section",
+              "value_display": "26.713693785790383 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": "independent-member",
+              "source_ref": "result:elastic-maximum:4:case:18:independent-member:reduced_section",
+              "value_display": "26.713693785790383 Pa"
+            }
+          ],
+          "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:companion; load cases case; history independent_equilibrium). Their published limitations are listed under Limitations.",
+          "received_result_sha256": "f30f78306f595261835e85194de60968ee3216b547aa3c07b352af3b44ffe134",
+          "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+          "run_ref": "run:preview-linear-static-001",
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-source-1"
+        },
+        "limitations": [
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:1",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "3.0.0/exact_pressure_v3 under pressure-source-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; an expansion joint authored as an objective connector is admitted only as the connector limitation states. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. The selected retained-source response uses the contract's shear model and publishes its stress rows on both section bases. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:2",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:3",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:4",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:5",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:6",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:7",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:8",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Every member section declares its corrosion allowance and the contract declares its shear model. This pressure-source-1 envelope carries a selected retained-source response. The source family is straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. Other cases keep their ordinary recovery and standing."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:9",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "One resolved case per load case supplies each member's selected E/nu with derived G, actual/selected/installation temperatures and explicit expansion definition; each case is solved independently."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:10",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Thermal and fit reference strain compose as lambda_fit*lambda_thermal-1 and enter once as an axial eigenstrain; uniform member temperature only, no gradients, finite strain, inelasticity or fit-up joints."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:11",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:12",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:13",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:14",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets)."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:15",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:profile-reference",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-source-1 (sha256 b5a4b0e585b9ec440d36144860baaf101b628498cfdab9a1de9248c2ed5069e7) are bound by reference and are not restated in this report."
+          }
+        ]
+      },
+      "name": "pressure_source_1_load_reference_states",
+      "source": {
+        "edits": [],
+        "path": "fixtures/product_preview/pressure_source/load_reference_source/fields-sparse_interactive.raw.json",
+        "pointer": ""
+      }
+    },
+    {
+      "expected": {
+        "exact_route": {
+          "admission": {
+            "derivative_sha256": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "input_manifest_ref": "invented-input-manifest",
+            "input_manifest_sha256": "a88aeb03e852bc5487dc0f030d51b56a274f0aea388ecf45b6f1417b640eee76",
+            "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "native_job_id": "invented-solve-job-1",
+            "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+            "received_result_sha256": "e270ae31033891a47abd2cc38ed94eb4d0e5132d4ef916de5601d99fb37fab10",
+            "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+            "run_ref": "run:preview-linear-static-001",
+            "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+          },
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "pipe:fixture-span",
+              "source_ref": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span:nominal_section",
+              "value_display": "41354908.75465696 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": null,
+              "source_ref": null,
+              "value_display": "withheld: a stress maximum on this basis is not available for every member in every load case"
+            }
+          ],
+          "load_reference_states": null,
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+        },
+        "exact_route_core": {
+          "headlines": [
+            {
+              "basis": "nominal_section",
+              "label": "Nominal section (nominal wall)",
+              "location_ref": "pipe:fixture-span",
+              "source_ref": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span:nominal_section",
+              "value_display": "41354908.75465696 Pa"
+            },
+            {
+              "basis": "reduced_section",
+              "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
+              "location_ref": null,
+              "source_ref": null,
+              "value_display": "withheld: a stress maximum on this basis is not available for every member in every load case"
+            }
+          ],
+          "load_reference_states": null,
+          "received_result_sha256": "e270ae31033891a47abd2cc38ed94eb4d0e5132d4ef916de5601d99fb37fab10",
+          "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+          "run_ref": "run:preview-linear-static-001",
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
+        },
+        "limitations": [
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:1",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:2",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:3",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:4",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:5",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:6",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:7",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:8",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:9",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets)."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:10",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
+          },
+          {
+            "affected_scope": {
+              "ref_id": "run:preview-linear-static-001",
+              "ref_type": "analysis_run"
+            },
+            "limitation_id": "limitation:run:preview-linear-static-001:exact:profile-reference",
+            "source": {
+              "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
+              "ref_type": "semantic_contract"
+            },
+            "statement": "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d) are bound by reference and are not restated in this report."
+          }
+        ]
+      },
+      "name": "pressure_2_straight_reduced_headline_withheld",
+      "source": {
+        "edits": [
+          {
+            "op": "set",
+            "pointer": "/summary/max_open_formula_stress_reduced_section",
+            "value": null
+          }
+        ],
+        "path": "fixtures/results/pressure_v3_straight_reader_corpus.json",
+        "pointer": "/cases/0/envelope"
+      }
+    }
+  ]
+}
