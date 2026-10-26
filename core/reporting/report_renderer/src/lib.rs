@@ -131,11 +131,41 @@ pub enum UserRuleCheckStatus {
 /// allowable values are deliberately not part of the report contract
 /// (rule packs are user/private design-basis artifacts; only safe metadata
 /// and required-input status are reported).
+///
+/// Since rule-pack format 0.5.0 a check has one outcome per load case or
+/// combination its stress category maps (DEL-06-01 Design `rule-pack-0.5.0.md`
+/// §2.7, §6), so a check id repeats once per basis and `basis_ref` names the
+/// one this outcome was evaluated on. It is optional so that a 2.0.0 report
+/// package written before this member existed still reads and renders (shown
+/// as "load case not recorded"); the desktop always writes it.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct UserRuleCheckOutcome {
     pub check_id: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub basis_ref: Option<UserRuleCheckBasisRef>,
     pub status: UserRuleCheckStatus,
     pub missing_inputs: Vec<String>,
+}
+
+/// The model load case or combination a user-rule outcome was evaluated on
+/// (`ref_type` `load_case` or `combination`; `ref_id` the model's id).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct UserRuleCheckBasisRef {
+    pub ref_type: String,
+    pub ref_id: String,
+}
+
+/// Shown once beside the rule-check headline (design §2.7): the counts count
+/// outcomes, one per check and load case or combination.
+pub const USER_RULE_CHECK_COUNT_SCOPE_NOTE: &str =
+    "Counts are per check and load case or combination; one check can contribute more than once.";
+
+/// The load case or combination cell of one outcome.
+fn user_rule_check_basis_display(check: &UserRuleCheckOutcome) -> String {
+    match &check.basis_ref {
+        Some(basis) => format!("{} {}", basis.ref_type, basis.ref_id),
+        None => "load case not recorded".to_string(),
+    }
 }
 
 /// The user-rule check run recorded in the session for this report's result.
@@ -903,12 +933,14 @@ cannot appear inside the bytes it binds.",
                             run.grammar_version,
                             user_rule_check_aggregate_headline(run)
                         )));
+                        blocks.push(meta_paragraph(USER_RULE_CHECK_COUNT_SCOPE_NOTE));
                         let check_rows = run
                             .checks
                             .iter()
                             .map(|check| {
                                 vec![
                                     check.check_id.clone(),
+                                    user_rule_check_basis_display(check),
                                     user_rule_check_status_display(&check.status),
                                     if check.missing_inputs.is_empty() {
                                         "none".to_string()
@@ -918,7 +950,10 @@ cannot appear inside the bytes it binds.",
                                 ]
                             })
                             .collect();
-                        blocks.push(table(&["Check", "Status", "Missing inputs"], check_rows));
+                        blocks.push(table(
+                            &["Check", "Load case or combination", "Status", "Missing inputs"],
+                            check_rows,
+                        ));
                     }
                 }
                 ("Rule Pack References", blocks)
@@ -1163,6 +1198,15 @@ fn report_context_blocking_codes(input: &RenderableReportInput) -> Vec<&'static 
         }
         if run.checks.iter().any(|check| check.check_id.trim().is_empty()) {
             codes.push("USER-RULE-CHECK-ID-MISSING");
+        }
+        // A recorded basis names a load case or combination by a non-empty id.
+        if run.checks.iter().any(|check| {
+            check.basis_ref.as_ref().is_some_and(|basis| {
+                basis.ref_id.trim().is_empty()
+                    || !matches!(basis.ref_type.as_str(), "load_case" | "combination")
+            })
+        }) {
+            codes.push("USER-RULE-CHECK-BASIS-REF-INVALID");
         }
     }
     codes

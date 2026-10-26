@@ -68,6 +68,54 @@ function outcomeFor(intent: EditorOperationIntent, overrides: Partial<OperationO
 }
 
 describe("PropertyInspector views", () => {
+  it("edits a valve's centre of gravity as an explicit vector in global X/Y/Z from its node (W-15)", async () => {
+    const model = inventedModel();
+    model.components = [{ id: "component:V", label: "Valve", kind: "valve", node: "node:B", provenance: "invented valve",
+      geometry: { rigid_pipe_ref: "pipe:AB", weight: { value: 420, unit: "N" }, center_of_gravity: { x: 120, y: 20, z: 0, unit: "mm" } } }];
+    const { queue } = mount({ type: "component", id: "component:V" }, { onApplyIntent: vi.fn(async () => true) }, model);
+    await catalogSettled();
+    startTask();
+    changeFormControl(byId("editor-intent-field"), { target: { value: "geometry.center_of_gravity" } });
+    expect(byId("inspector-text-value")).toHaveTextContent("120, 20, 0 mm");
+    expect(byId("inspector-vector-convention")).toHaveTextContent("global X/Y/Z from the component's node");
+    expect(byId("editor-intent-value")).toHaveValue("120, 20, 0");
+    expect(byId("queue-editor-intent")).toBeDisabled();
+    type("editor-intent-value", "-150, 35.5, -10");
+    expect(byId("apply-editor-intent-inline")).toBeEnabled();
+    fireEvent.click(byId("queue-editor-intent"));
+    expect(lastIntent(queue).change).toMatchObject({
+      field_path: "geometry.center_of_gravity", before: "120, 20, 0 mm",
+      after: JSON.stringify({ x: -150, y: 35.5, z: -10, unit: "mm" }), unit: "mm", dimension: "length"
+    });
+    // Fewer than three components stay as entered; the operation service refuses them.
+    type("editor-intent-value", "1, 2");
+    expect(byId("apply-editor-intent-inline")).toBeDisabled();
+    // The scale's source and the consumption mode are editable beside the weight.
+    for (const [path, label] of [["modifiers.source_reference", "Stiffness scale source"], ["mechanics_interface.solver_consumption", "Solver consumption"], ["geometry.weight.value", "Weight"]]) {
+      changeFormControl(byId("editor-intent-field"), { target: { value: path } });
+      expect(screen.getByRole("heading", { name: `Edit ${label.toLowerCase()}` })).toBeInTheDocument();
+    }
+    type("editor-intent-value", "mechanics_geometry_only");
+    changeFormControl(byId("editor-intent-field"), { target: { value: "mechanics_interface.solver_consumption" } });
+    type("editor-intent-value", "mechanics_geometry_only");
+    fireEvent.click(byId("queue-editor-intent"));
+    expect(lastIntent(queue).change).toMatchObject({ field_path: "mechanics_interface.solver_consumption", before: "TBD", after: "mechanics_geometry_only" });
+  });
+
+  it("authors an absent centre of gravity from three entered components and a unit", async () => {
+    const model = inventedModel();
+    model.components = [{ id: "component:V", label: "Valve", kind: "valve", node: "node:B", provenance: "invented valve", geometry: { rigid_pipe_ref: "pipe:AB" } }];
+    const { queue } = mount({ type: "component", id: "component:V" }, {}, model);
+    await catalogSettled();
+    startTask();
+    changeFormControl(byId("editor-intent-field"), { target: { value: "geometry.center_of_gravity" } });
+    expect(byId("editor-intent-value")).toHaveValue("");
+    expect(byId("queue-editor-intent")).toBeDisabled();
+    type("editor-intent-value", "0 0 250");
+    fireEvent.click(byId("queue-editor-intent"));
+    expect(lastIntent(queue).change).toMatchObject({ before: "TBD", after: JSON.stringify({ x: 0, y: 0, z: 250, unit: "mm" }), unit: "mm" });
+  });
+
   it("names the typed target and switches between Properties and Task", () => {
     mount({ type: "node", id: "node:A" });
     expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("Node A — node: node:A");
