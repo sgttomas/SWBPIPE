@@ -3247,6 +3247,7 @@ mod retention_tests {
         let mut force = vec![0.0; 18];
         force[12] = 12.5;
         NonlinearFrameSolveInput {
+            base_prescribed: Vec::new(),
             node_count: 3,
             elements,
             connectors: Vec::new(),

@@ -504,17 +504,31 @@ fn a_coincident_rigid_restraint_is_refused_before_the_repeated_dof_refusal() {
     refused(&plain, "SUPPORT_INPUT_INVALID", "repeated rigid DOF without motion");
 }
 
+/// Stage 2, R-a (DEL-04-03 Design `pf-nonlinear-imposed-motion.md`): motion
+/// of a rigid anchor in a model with nonlinear supports solves; the retired
+/// `IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` is gone. An authored zero
+/// motion is the no-motion path, row for row. The gap case keeps its recovery
+/// basis branch (R1). Motion of the nonlinear support itself stays refused
+/// until R-b (`a_non_rigid_target_is_refused`).
 #[test]
-fn motion_with_nonlinear_supports_is_refused_even_when_zero() {
+fn rigid_motion_in_a_model_with_nonlinear_supports_solves() {
     let gap = json!({"id": "support:gap", "node": "node:c", "family": "nonlinear", "restraints": [],
         "nonlinear": {"behavior": "gap", "closes_when": "positive_displacement", "dof": "UZ", "gap": qv(0.0004, "m"), "initial_state": "inactive"}, "provenance": PROV});
-    let wire = with_supports(one_case(vec![motion_load("m", "support:d", "UX", 0.0, "m"), force_load("f", "node:c", "global_z", 100.0)]), vec![gap.clone()]);
-    let d = refused(&wire, "IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS", "zero motion with a gap");
-    assert_eq!(d[0]["affected_refs"], json!([CASE]));
-    // The same model without the motion primitive solves.
-    let plain = with_supports(one_case(vec![force_load("f", "node:c", "global_z", 100.0)]), vec![gap]);
-    let out = run(&plain, PreviewSolverMode::SparseInteractive);
-    assert_eq!(out["status"]["mechanics"], "MECHANICS_SOLVED", "{:?}", blocking(&out));
+    let zero = with_supports(one_case(vec![motion_load("m", "support:d", "UX", 0.0, "m"), force_load("f", "node:c", "global_z", 100.0)]), vec![gap.clone()]);
+    let plain = with_supports(one_case(vec![force_load("f", "node:c", "global_z", 100.0)]), vec![gap.clone()]);
+    let moved = with_supports(one_case(vec![motion_load("m", "support:d", "UX", 0.001, "m"), force_load("f", "node:c", "global_z", 100.0)]), vec![gap]);
+    for mode in MODES {
+        let (a, b) = (run(&plain, mode), run(&zero, mode));
+        assert_eq!(a["status"]["mechanics"], "MECHANICS_SOLVED", "{:?}", blocking(&a));
+        assert_eq!(a["results"], b["results"], "{mode:?}: an authored zero motion keeps every row");
+        assert_eq!(a["diagnostics"], b["diagnostics"], "{mode:?}");
+        let out = run(&moved, mode);
+        assert_eq!(out["status"]["mechanics"], "MECHANICS_SOLVED", "{:?}", blocking(&out));
+        assert!(!codes(&out).iter().any(|c| c == "IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS"));
+        assert!(codes(&out).contains(&"NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED".to_string()), "{:?}", codes(&out));
+        let ux = rows(&out).iter().find(|r| r["id"] == "result:disp:node-d:ux").unwrap_or_else(|| panic!("{:?}", rows(&out).iter().map(|r| r["id"].clone()).collect::<Vec<_>>()));
+        assert_eq!(ux["value"].as_f64().unwrap(), 0.001 * 1000.0, "{mode:?}: the moved anchor publishes g");
+    }
 }
 
 #[test]

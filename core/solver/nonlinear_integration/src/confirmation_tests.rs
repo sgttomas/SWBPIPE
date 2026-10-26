@@ -211,6 +211,7 @@ fn cantilever(
     base_restrained.extend_from_slice(base);
     (
         NonlinearFrameSolveInput {
+            base_prescribed: Vec::new(),
             node_count: 2,
             elements: vec![element],
             connectors: Vec::new(),
@@ -388,4 +389,131 @@ fn evaluations_take_the_loops_displacement_and_only_the_influence_is_unjudged() 
     assert_eq!(code.matches("context.evaluate_at(&unit, &zero, false)").count(), 1);
     assert_eq!(code.matches("evaluate_at(").count(), 3);
     assert!(!code.contains("gate.displacements"));
+}
+
+// ------------------------------------------------ W-16 stage 2, R-a
+// (DEL-04-03 Design pf-nonlinear-imposed-motion.md §1, §2.4): rigid anchors
+// and restraints carry the case's motion as base prescribed values.
+
+/// The 2 m cantilever with a tip one-way prop on UZ (pushing up), a 100 N
+/// downward tip load, and the anchor's UZ (global DOF 2) prescribed.
+fn moved_prop(base_prescribed: Vec<(usize, f64)>) -> (NonlinearFrameSolveInput, AssembledForce) {
+    let (mut input, force) = cantilever(
+        vec![NonlinearSupport::one_way("PROP", 1, FrameDof::Uz, open_pipe_stress_nonlinear_supports::ActivationSense::PositiveReaction)],
+        vec![SupportStateRecord::new("PROP", ActiveSetState::Active)],
+        Vec::new(),
+        Vec::new(),
+        &[],
+        &[(8, -100.0)],
+    );
+    input.base_prescribed = base_prescribed;
+    (input, force)
+}
+
+#[test]
+fn base_prescribed_values_move_the_anchor_and_the_state_follows() {
+    // k = 3EI/L^3 at the tip; the prop lifts off beyond s* = P/k.
+    let k = 3.0 * 2.0e11 * 1.15e-5 / 8.0;
+    for mode in MODES {
+        for (rise, active) in [(5.0e-5, true), (2.0e-4, false)] {
+            let (input, force) = moved_prop(vec![(2, rise)]);
+            let solve = solve_active_set_frame_with_mode_and_springs_assembled(&input, &force, mode, &[]).unwrap();
+            assert!(solve.converged, "{rise} {mode:?}");
+            let last = solve.iterations.last().unwrap();
+            let at = last.active_restrained_dofs.iter().position(|&d| d == 2).unwrap();
+            assert_eq!(last.active_prescribed_displacements[at].to_bits(), rise.to_bits());
+            assert_eq!(solve.displacements[2].to_bits(), rise.to_bits(), "the moved anchor carries g exactly");
+            let state = solve.final_states[0].state;
+            assert_eq!(state == ActiveSetState::Active, active, "{rise} {mode:?}");
+            if active {
+                let expected = 100.0 - k * rise;
+                assert!((solve.reactions[8] - expected).abs() <= 1e-9 * expected, "{} {expected}", solve.reactions[8]);
+            } else {
+                let expected = rise - 100.0 / k;
+                assert!((solve.displacements[8] - expected).abs() <= 1e-9 * expected, "{} {expected}", solve.displacements[8]);
+            }
+            let Confirmation::Established(_) = confirm(&input, &force, mode, None) else { panic!("{rise} {mode:?}") };
+        }
+    }
+}
+
+#[test]
+fn an_authored_zero_base_value_is_the_no_motion_path() {
+    for mode in MODES {
+        let (plain, force) = moved_prop(Vec::new());
+        let (zero, _) = moved_prop(vec![(2, 0.0)]);
+        let a = solve_active_set_frame_with_mode_and_springs_assembled(&plain, &force, mode, &[]).unwrap();
+        let b = solve_active_set_frame_with_mode_and_springs_assembled(&zero, &force, mode, &[]).unwrap();
+        let bits = |v: &[f64]| v.iter().map(|x| x.to_bits()).collect::<Vec<_>>();
+        assert_eq!(bits(&a.displacements), bits(&b.displacements));
+        assert_eq!(bits(&a.reactions), bits(&b.reactions));
+        assert_eq!(a.iterations, b.iterations);
+        assert_eq!(a.final_states, b.final_states);
+    }
+}
+
+#[test]
+fn base_prescribed_entries_are_validated_at_the_loop_boundary() {
+    for (entries, detail) in [
+        (vec![(8, 1.0e-4)], "is not a base restrained DOF"),
+        (vec![(2, 1.0e-4), (2, 1.0e-4)], "is repeated"),
+        (vec![(2, f64::NAN)], "base prescribed displacement"),
+        (vec![(2, f64::INFINITY)], "base prescribed displacement"),
+    ] {
+        let (input, force) = moved_prop(entries.clone());
+        let error = solve_active_set_frame_with_mode_and_springs_assembled(&input, &force, LinearSolveMode::DenseScrutiny, &[]).unwrap_err();
+        assert!(error.to_string().contains(detail), "{entries:?}: {error}");
+    }
+    let (input, _) = moved_prop(vec![(2, 1.0e-4)]);
+    let boundary = crate::active_boundary(input.node_count, &input.base_restrained_dofs, &input.base_prescribed, &input.nonlinear_supports, &input.initial_states).unwrap();
+    // Every base DOF takes its case value, or +0 when the case prescribes none.
+    let expected: [(usize, f64); 7] = [(0, 0.0), (1, 0.0), (2, 1.0e-4), (3, 0.0), (4, 0.0), (5, 0.0), (8, 0.0)];
+    assert_eq!(boundary.dofs, expected.iter().map(|p| p.0).collect::<Vec<_>>());
+    assert_eq!(
+        boundary.displacements.iter().map(|v| v.to_bits()).collect::<Vec<_>>(),
+        expected.iter().map(|p| p.1.to_bits()).collect::<Vec<_>>()
+    );
+}
+
+/// §2.4 item 2, revision 2: the intended map, formed independently of the
+/// loop's boundary, against the loop's active prescribed map: complete
+/// canonical maps (default zeros, coverage, duplicates and bits).
+#[test]
+fn the_intended_map_binds_the_loops_boundary_bit_for_bit() {
+    let rise = 5.0e-5;
+    let (input, force) = moved_prop(vec![(2, rise)]);
+    let solve = solve_active_set_frame_with_mode_and_springs_assembled(&input, &force, LinearSolveMode::DenseScrutiny, &[]).unwrap();
+    let last = solve.iterations.last().unwrap();
+    let actual = last.active_restrained_dofs.iter().copied().zip(last.active_prescribed_displacements.iter().copied()).collect::<Vec<_>>();
+    let intended = intended_prescribed_map(&input, &solve.final_states).unwrap();
+    assert!(!prescribed_map_mismatch(Some(&intended), &actual));
+    // A base value off by one unit in the last place.
+    let mut shifted = input.clone();
+    shifted.base_prescribed = vec![(2, rise.next_up())];
+    assert!(prescribed_map_mismatch(intended_prescribed_map(&shifted, &solve.final_states).as_deref(), &actual));
+    // A default zero carried as -0.0, a missing default zero, a duplicated
+    // entry, an extra entry, and a DOF out of order.
+    let mut negative = actual.clone();
+    negative[0].1 = -0.0;
+    let mut missing = actual.clone();
+    missing.remove(0);
+    let mut duplicated = actual.clone();
+    duplicated.insert(1, actual[0]);
+    let mut extra = actual.clone();
+    extra.push((11, 0.0));
+    let mut swapped = actual.clone();
+    swapped.swap(0, 1);
+    for mutated in [negative, missing, duplicated, extra, swapped] {
+        assert!(prescribed_map_mismatch(Some(&intended), &mutated), "{mutated:?}");
+    }
+    // An intended map that cannot be formed is a mismatch: a repeated base
+    // value, a base value off the base set, or a missing state.
+    let mut repeated = input.clone();
+    repeated.base_prescribed = vec![(2, rise), (2, rise)];
+    let mut off = input.clone();
+    off.base_prescribed = vec![(8, rise)];
+    assert!(intended_prescribed_map(&repeated, &solve.final_states).is_none());
+    assert!(intended_prescribed_map(&off, &solve.final_states).is_none());
+    assert!(intended_prescribed_map(&input, &[]).is_none());
+    assert!(prescribed_map_mismatch(None, &actual));
 }

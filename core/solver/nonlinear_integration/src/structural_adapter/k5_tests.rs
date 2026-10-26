@@ -584,6 +584,7 @@ fn k5_nonlinear_loop_keeps_todays_geometry() {
     for mode in MODES {
         assert!(is_mechanism(&selected(&m, mode, 0, &m.macros)[0]));
         let input = NonlinearFrameSolveInput {
+            base_prescribed: Vec::new(),
             node_count: m.node_count,
             elements: m.frames.clone(),
             connectors: Vec::new(),
@@ -1468,6 +1469,7 @@ fn k5_semidefinite_connectors_are_unqualified_and_the_hinge_is_not_passed() {
 fn k5_nonlinear_loop_refuses_connectors() {
     let m = connected_line(PD, 0.0);
     let input = NonlinearFrameSolveInput {
+        base_prescribed: Vec::new(),
         node_count: m.node_count,
         elements: m.frames.clone(),
         connectors: m.connectors.clone(),

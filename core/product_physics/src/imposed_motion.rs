@@ -10,6 +10,13 @@
 //! The motion is never also applied as a force, and no load/reference-state
 //! case is fabricated. A case with no motion primitive keeps the `None` path.
 //!
+//! Stage 2, R-a (DEL-04-03 Design `pf-nonlinear-imposed-motion.md`): in a
+//! model with nonlinear supports the same map reaches the nonlinear active-set
+//! loop as base prescribed values on the rigid anchors and restraints; every
+//! nonlinear support's ground stays fixed. A primitive on a nonlinear support,
+//! including the rigid restraints of a mixed nonlinear record, stays refused
+//! (`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`).
+//!
 //! The exact route refuses every support-targeted primitive by name; its form
 //! is `analysis_state.support_states[].boundary_motion`.
 use crate::{
@@ -30,7 +37,6 @@ pub(crate) const DOF_UNRESTRAINED: &str = "IMPOSED_DISPLACEMENT_DOF_UNRESTRAINED
 pub(crate) const DOF_MISMATCH: &str = "IMPOSED_DISPLACEMENT_DOF_MISMATCH";
 pub(crate) const DOF_DUPLICATE: &str = "IMPOSED_DISPLACEMENT_DOF_DUPLICATE";
 pub(crate) const COINCIDENT_RESTRAINT: &str = "IMPOSED_DISPLACEMENT_COINCIDENT_RESTRAINT";
-pub(crate) const WITH_NONLINEAR_SUPPORTS: &str = "IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS";
 pub(crate) const DIMENSION_INVALID: &str = "IMPOSED_DISPLACEMENT_DIMENSION_INVALID";
 pub(crate) const TARGET_INVALID: &str = "IMPOSED_DISPLACEMENT_TARGET_INVALID";
 
@@ -106,9 +112,7 @@ pub(crate) fn validate(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
 }
 
 fn validate_pressure_free(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
-    let nonlinear = model.supports.iter().any(|support| support.nonlinear.is_some());
     for case in &model.load_cases {
-        let mut motion = false;
         let mut prescribed: HashMap<(&str, usize), &str> = HashMap::new();
         for load in &case.primitive_loads {
             let LoadTargetInput::Support { support: support_id, dof } = &load.target else {
@@ -125,7 +129,6 @@ fn validate_pressure_free(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic
                     Some(support_id));
                 continue;
             }
-            motion = true;
             let Some(support) = model.supports.iter().find(|support| &support.id == support_id) else {
                 refuse(diagnostics, case, load, SUPPORT_UNKNOWN,
                     format!("load {} in {} imposes a displacement on support {support_id}, which is not in the model", load.id, case.id),
@@ -180,18 +183,6 @@ fn validate_pressure_free(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic
                     format!("loads {first} and {} in {} both prescribe {name} at node {}; one global DOF takes one prescribed value, even when the values are equal", load.id, case.id, support.node),
                     Some(support_id));
             }
-        }
-        if motion && nonlinear {
-            diagnostics.push(diag(
-                &format!(
-                    "diagnostic:imposed-displacement:{}",
-                    exact_source_identity(&[&case.id, WITH_NONLINEAR_SUPPORTS])
-                ),
-                WITH_NONLINEAR_SUPPORTS,
-                "blocking",
-                format!("load case {} imposes a support displacement in a model with nonlinear supports; the nonlinear active-set solve does not yet measure gap closure and lift-off relative to imposed motion (stage 2), so the request is refused", case.id),
-                vec![case.id.clone()],
-            ));
         }
     }
 }

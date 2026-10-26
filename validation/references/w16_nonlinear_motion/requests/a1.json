@@ -1,0 +1,373 @@
+{
+ "materials": [],
+ "model": {
+  "analysis_status": {
+   "mechanics": "ready_for_preview_diagnostics",
+   "professional_acceptance": "not_provided",
+   "rule_check": "not_performed_user_rule_inputs_missing"
+  },
+  "combinations": [],
+  "components": [],
+  "document_kind": "openpipestress.product_preview.model",
+  "load_cases": [
+   {
+    "id": "load:ACTIVE",
+    "primitive_loads": [
+     {
+      "category": "concentrated_force",
+      "dimension": "force",
+      "direction": "global_z",
+      "id": "load:ACTIVE-P",
+      "magnitude": {
+       "unit": "N",
+       "value": -808.6253305030623
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "node": "node:M",
+       "type": "node"
+      }
+     },
+     {
+      "category": "imposed_displacement",
+      "dimension": "displacement",
+      "direction": "UZ",
+      "id": "load:ACTIVE-S",
+      "magnitude": {
+       "unit": "m",
+       "value": 0.00048828125
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "UZ",
+       "support": "support:ANCHOR",
+       "type": "support"
+      }
+     }
+    ],
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   },
+   {
+    "id": "load:LIFTED",
+    "primitive_loads": [
+     {
+      "category": "concentrated_force",
+      "dimension": "force",
+      "direction": "global_z",
+      "id": "load:LIFTED-P",
+      "magnitude": {
+       "unit": "N",
+       "value": -808.6253305030623
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "node": "node:M",
+       "type": "node"
+      }
+     },
+     {
+      "category": "imposed_displacement",
+      "dimension": "displacement",
+      "direction": "UZ",
+      "id": "load:LIFTED-S",
+      "magnitude": {
+       "unit": "m",
+       "value": 0.001953125
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "UZ",
+       "support": "support:ANCHOR",
+       "type": "support"
+      }
+     }
+    ],
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   },
+   {
+    "id": "load:BOUNDARY",
+    "primitive_loads": [
+     {
+      "category": "concentrated_force",
+      "dimension": "force",
+      "direction": "global_z",
+      "id": "load:BOUNDARY-P",
+      "magnitude": {
+       "unit": "N",
+       "value": -808.6253305030623
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "node": "node:M",
+       "type": "node"
+      }
+     },
+     {
+      "category": "imposed_displacement",
+      "dimension": "displacement",
+      "direction": "UZ",
+      "id": "load:BOUNDARY-S",
+      "magnitude": {
+       "unit": "m",
+       "value": 0.0009765625
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "UZ",
+       "support": "support:ANCHOR",
+       "type": "support"
+      }
+     }
+    ],
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   },
+   {
+    "id": "load:ROT-ACTIVE",
+    "primitive_loads": [
+     {
+      "category": "concentrated_force",
+      "dimension": "force",
+      "direction": "global_z",
+      "id": "load:ROT-ACTIVE-P",
+      "magnitude": {
+       "unit": "N",
+       "value": -808.6253305030623
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "node": "node:M",
+       "type": "node"
+      }
+     },
+     {
+      "category": "imposed_displacement",
+      "dimension": "rotation",
+      "direction": "RY",
+      "id": "load:ROT-ACTIVE-T",
+      "magnitude": {
+       "unit": "rad",
+       "value": -0.0001220703125
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "RY",
+       "support": "support:ANCHOR",
+       "type": "support"
+      }
+     }
+    ],
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   },
+   {
+    "id": "load:ROT-LIFTED",
+    "primitive_loads": [
+     {
+      "category": "concentrated_force",
+      "dimension": "force",
+      "direction": "global_z",
+      "id": "load:ROT-LIFTED-P",
+      "magnitude": {
+       "unit": "N",
+       "value": -808.6253305030623
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "node": "node:M",
+       "type": "node"
+      }
+     },
+     {
+      "category": "imposed_displacement",
+      "dimension": "rotation",
+      "direction": "RY",
+      "id": "load:ROT-LIFTED-T",
+      "magnitude": {
+       "unit": "rad",
+       "value": -0.00048828125
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "RY",
+       "support": "support:ANCHOR",
+       "type": "support"
+      }
+     }
+    ],
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   },
+   {
+    "id": "load:ROT-BOUNDARY",
+    "primitive_loads": [
+     {
+      "category": "concentrated_force",
+      "dimension": "force",
+      "direction": "global_z",
+      "id": "load:ROT-BOUNDARY-P",
+      "magnitude": {
+       "unit": "N",
+       "value": -808.6253305030623
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "node": "node:M",
+       "type": "node"
+      }
+     },
+     {
+      "category": "imposed_displacement",
+      "dimension": "rotation",
+      "direction": "RY",
+      "id": "load:ROT-BOUNDARY-T",
+      "magnitude": {
+       "unit": "rad",
+       "value": -0.000244140625
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "RY",
+       "support": "support:ANCHOR",
+       "type": "support"
+      }
+     }
+    ],
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   }
+  ],
+  "materials": [
+   {
+    "elastic_modulus": {
+     "unit": "Pa",
+     "value": 171798691840.0
+    },
+    "id": "material:w16nl",
+    "provenance": "invented_w16_nonlinear_motion_reference",
+    "shear_modulus": {
+     "unit": "Pa",
+     "value": 68719476736.0
+    },
+    "thermal_expansion_coefficient": {
+     "unit": "1/degC",
+     "value": 1.2e-05
+    }
+   }
+  ],
+  "nodes": [
+   {
+    "id": "node:A",
+    "position": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   },
+   {
+    "id": "node:M",
+    "position": {
+     "x": 2.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   },
+   {
+    "id": "node:T",
+    "position": {
+     "x": 4.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   }
+  ],
+  "pipe_segments": [
+   {
+    "from": "node:A",
+    "id": "pipe:AM",
+    "material": "material:w16nl",
+    "provenance": "invented_w16_nonlinear_motion_reference",
+    "section": {
+     "outside_diameter": {
+      "unit": "m",
+      "value": 0.206
+     },
+     "wall_thickness": {
+      "unit": "m",
+      "value": 0.011
+     }
+    },
+    "to": "node:M",
+    "y_reference": {
+     "x": 0,
+     "y": 0,
+     "z": 1
+    }
+   },
+   {
+    "from": "node:M",
+    "id": "pipe:MT",
+    "material": "material:w16nl",
+    "provenance": "invented_w16_nonlinear_motion_reference",
+    "section": {
+     "outside_diameter": {
+      "unit": "m",
+      "value": 0.206
+     },
+     "wall_thickness": {
+      "unit": "m",
+      "value": 0.011
+     }
+    },
+    "to": "node:T",
+    "y_reference": {
+     "x": 0,
+     "y": 0,
+     "z": 1
+    }
+   }
+  ],
+  "project": {
+   "description": "W-16 stage 2 A-1 (R-a): a moving anchor under a one-way tip prop.",
+   "id": "project:w16nl-a1",
+   "name": "W-16 stage 2 a1",
+   "units": {
+    "angle": "rad",
+    "force": "N",
+    "length": "m",
+    "pressure": "Pa",
+    "stress": "Pa",
+    "temperature": "degC"
+   }
+  },
+  "schema_version": "0.7.0",
+  "supports": [
+   {
+    "family": "anchor",
+    "id": "support:ANCHOR",
+    "node": "node:A",
+    "provenance": "invented_w16_nonlinear_motion_reference",
+    "restraints": [
+     "UX",
+     "UY",
+     "UZ",
+     "RX",
+     "RY",
+     "RZ"
+    ]
+   },
+   {
+    "family": "nonlinear",
+    "id": "support:PROP",
+    "node": "node:T",
+    "nonlinear": {
+     "active_when": "positive_reaction",
+     "behavior": "one_way",
+     "dof": "UZ",
+     "initial_state": "active"
+    },
+    "provenance": "invented_w16_nonlinear_motion_reference",
+    "restraints": []
+   }
+  ]
+ }
+}

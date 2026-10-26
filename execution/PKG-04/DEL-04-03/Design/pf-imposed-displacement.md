@@ -102,7 +102,7 @@ withholds the whole document's results: the blocked envelope has `results: []`
 | `IMPOSED_DISPLACEMENT_DOF_MISMATCH` | `target.dof` and `direction` disagree, or a DOF token is invalid |
 | `IMPOSED_DISPLACEMENT_DOF_DUPLICATE` | two primitives in one case prescribe one global DOF, even with equal values. No map insertion may overwrite another. |
 | `IMPOSED_DISPLACEMENT_COINCIDENT_RESTRAINT` | another rigid restraint holds the same global node DOF |
-| `IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` | the model has a nonlinear support and the case authors any motion primitive, including a zero one (stage 2) |
+| `IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` | retired by stage 2's R-a (`pf-nonlinear-imposed-motion.md`); it refused any motion primitive, including a zero one, in a model with a nonlinear support |
 | `IMPOSED_DISPLACEMENT_DIMENSION_INVALID` | the dimension does not match the DOF, the unit is incompatible, or the magnitude is not finite. This named check runs ahead of the generic unit checks (`validation.rs` ~909), so a test of an incompatible unit asserts this code. |
 | `IMPOSED_DISPLACEMENT_TARGET_INVALID` | a support target with any other category, or `imposed_displacement` on a node or element target |
 

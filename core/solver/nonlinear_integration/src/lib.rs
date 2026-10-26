@@ -246,6 +246,11 @@ pub struct NonlinearFrameSolveInput {
     pub curved_bend_elements: Vec<CurvedBendStiffnessElement>,
     pub force: DenseVector,
     pub base_restrained_dofs: Vec<usize>,
+    /// W-16 stage 2, R-a (DEL-04-03 Design `pf-nonlinear-imposed-motion.md`
+    /// §1): the case's prescribed value g_b of base-restrained DOFs, sparse;
+    /// an absent DOF is prescribed at +0. Each entry must lie on
+    /// `base_restrained_dofs`, appear once and be finite.
+    pub base_prescribed: Vec<(usize, f64)>,
     pub nonlinear_supports: Vec<NonlinearSupport>,
     pub initial_states: Vec<SupportStateRecord>,
     pub friction_normal_reactions: Vec<FrictionNormalReaction>,
@@ -625,6 +630,7 @@ pub fn solve_active_set_frame_with_mode_and_springs(
         let mut boundary = active_boundary(
             input.node_count,
             &input.base_restrained_dofs,
+            &input.base_prescribed,
             &input.nonlinear_supports,
             &current_states,
         )?;
@@ -669,6 +675,7 @@ pub fn solve_active_set_frame_with_mode_and_springs(
                 boundary = active_boundary(
                     input.node_count,
                     &input.base_restrained_dofs,
+                    &input.base_prescribed,
                     &input.nonlinear_supports,
                     &all_active,
                 )?;
@@ -1026,6 +1033,7 @@ fn product_final_state_conditions(
     let boundary = active_boundary(
         input.node_count,
         &input.base_restrained_dofs,
+        &input.base_prescribed,
         &input.nonlinear_supports,
         &solve.final_states,
     )?;
@@ -1195,6 +1203,20 @@ fn validate_input(input: &NonlinearFrameSolveInput) -> Result<(), NonlinearInteg
                 ),
             });
         }
+    }
+    let mut prescribed_dofs = HashSet::new();
+    for &(dof, value) in &input.base_prescribed {
+        if !input.base_restrained_dofs.contains(&dof) {
+            return Err(NonlinearIntegrationError::InvalidInput {
+                detail: format!("base prescribed DOF {dof} is not a base restrained DOF"),
+            });
+        }
+        if !prescribed_dofs.insert(dof) {
+            return Err(NonlinearIntegrationError::InvalidInput {
+                detail: format!("base prescribed DOF {dof} is repeated"),
+            });
+        }
+        validate_finite("base prescribed displacement", value)?;
     }
     let mut support_ids = HashSet::new();
     for support in &input.nonlinear_supports {
@@ -1884,13 +1906,17 @@ fn derived_friction_normal_map(
 fn active_boundary(
     node_count: usize,
     base_restrained_dofs: &[usize],
+    base_prescribed: &[(usize, f64)],
     supports: &[NonlinearSupport],
     states: &[SupportStateRecord],
 ) -> Result<BoundaryState, NonlinearIntegrationError> {
+    // W-16 stage 2 (R-a): a base DOF takes its case value g_b, or +0 when the
+    // case prescribes none.
+    let base_values = base_prescribed.iter().copied().collect::<HashMap<_, _>>();
     let mut boundary_pairs = base_restrained_dofs
         .iter()
         .copied()
-        .map(|dof| (dof, 0.0))
+        .map(|dof| (dof, base_values.get(&dof).copied().unwrap_or(0.0)))
         .collect::<Vec<_>>();
     let state_map = states
         .iter()
@@ -3135,6 +3161,8 @@ mod tests {
         force[node_dof_index(1, FrameDof::Ux)] = 10.0;
 
         NonlinearFrameSolveInput {
+
+            base_prescribed: Vec::new(),
             node_count: 2,
             elements: vec![element],
             connectors: Vec::new(),
@@ -3209,6 +3237,8 @@ mod tests {
         };
 
         NonlinearFrameSolveInput {
+
+            base_prescribed: Vec::new(),
             node_count: 2,
             elements: Vec::new(),
             connectors: Vec::new(),
@@ -3675,6 +3705,8 @@ mod tests {
         };
 
         NonlinearFrameSolveInput {
+
+            base_prescribed: Vec::new(),
             node_count: 2,
             elements: Vec::new(),
             connectors: Vec::new(),
@@ -3727,6 +3759,7 @@ mod tests {
         force[node_dof_index(1, FrameDof::Ux)] = load_sign;
         force[node_dof_index(1, FrameDof::Uy)] = -load_sign;
         NonlinearFrameSolveInput {
+            base_prescribed: Vec::new(),
             node_count: 2,
             elements: Vec::new(),
             connectors: Vec::new(),
@@ -3863,6 +3896,7 @@ mod tests {
                 let boundary = active_boundary(
                     input.node_count,
                     &input.base_restrained_dofs,
+                    &input.base_prescribed,
                     &input.nonlinear_supports,
                     &previous.active_set.states,
                 )
@@ -4155,6 +4189,7 @@ mod tests {
                 let boundary = active_boundary(
                     input.node_count,
                     &input.base_restrained_dofs,
+                    &input.base_prescribed,
                     &input.nonlinear_supports,
                     &states,
                 )
@@ -5003,6 +5038,7 @@ mod tests {
             let boundary = active_boundary(
                 input.node_count,
                 &input.base_restrained_dofs,
+                &input.base_prescribed,
                 &input.nonlinear_supports,
                 &input.initial_states,
             )
@@ -5451,6 +5487,7 @@ mod tests {
         force[node_dof_index(1, FrameDof::Uy)] = 2.0;
         let base_restrained_dofs: Vec<usize> = (0..DOF_PER_NODE).collect();
         let input = NonlinearFrameSolveInput {
+            base_prescribed: Vec::new(),
             node_count: 2,
             elements: Vec::new(),
             connectors: Vec::new(),

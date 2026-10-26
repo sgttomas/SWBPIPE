@@ -1789,6 +1789,8 @@ fn assembled_axial_input(
     force[node_dof_index(1, FrameDof::Ux)] = 10.0;
 
     NonlinearFrameSolveInput {
+
+        base_prescribed: Vec::new(),
         node_count: 2,
         elements: vec![element],
         connectors: Vec::new(),
@@ -1829,6 +1831,8 @@ fn assembled_xy_tip_input(
     force[node_dof_index(1, FrameDof::Uy)] = 1.0;
 
     NonlinearFrameSolveInput {
+
+        base_prescribed: Vec::new(),
         node_count: 2,
         elements: vec![element],
         connectors: Vec::new(),
@@ -1870,6 +1874,8 @@ fn assembled_two_span_xy_input(
     force[node_dof_index(2, FrameDof::Uy)] = 1.0;
 
     NonlinearFrameSolveInput {
+
+        base_prescribed: Vec::new(),
         node_count: 3,
         elements: vec![element_i_mid, element_mid_j],
         connectors: Vec::new(),
@@ -1914,6 +1920,8 @@ fn assembled_xyz_tip_input(
     force[node_dof_index(1, FrameDof::Uz)] = 6.0;
 
     NonlinearFrameSolveInput {
+
+        base_prescribed: Vec::new(),
         node_count: 2,
         elements: vec![element],
         connectors: Vec::new(),
@@ -1954,6 +1962,8 @@ fn assembled_xyz_rz_tip_input(
     force[node_dof_index(1, FrameDof::Rz)] = 1.8;
 
     NonlinearFrameSolveInput {
+
+        base_prescribed: Vec::new(),
         node_count: 2,
         elements: vec![element],
         connectors: Vec::new(),
@@ -1991,6 +2001,8 @@ fn assembled_ux_rz_tip_input(
     force[node_dof_index(1, FrameDof::Rz)] = 2.0;
 
     NonlinearFrameSolveInput {
+
+        base_prescribed: Vec::new(),
         node_count: 2,
         elements: vec![element],
         connectors: Vec::new(),
@@ -2029,6 +2041,8 @@ fn assembled_uy_rz_tip_input(
     force[node_dof_index(1, FrameDof::Uy)] = 1.0;
 
     NonlinearFrameSolveInput {
+
+        base_prescribed: Vec::new(),
         node_count: 2,
         elements: vec![element],
         connectors: Vec::new(),

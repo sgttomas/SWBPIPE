@@ -134,6 +134,13 @@ code_paths:
 - core/solver/linear_supports/**
 - tools/validation/validate_dependencies_schema.py
 - core/product_physics/src/imposed_motion.rs
+# W-16 stage 2 (Design pf-nonlinear-imposed-motion.md): the motion's boundary
+# in the nonlinear loop and the K-D5 intended-map check.
+- core/solver/nonlinear_integration/src/lib.rs
+- core/solver/nonlinear_integration/src/confirmation.rs
 checks:
 - core/solver/linear_supports/src/lib.rs
 - core/product_physics/tests/w16_imposed_motion.rs
+- core/product_physics/src/w16_nonlinear_motion_tests.rs
+- core/solver/nonlinear_integration/src/confirmation_tests.rs
+- validation/references/w16_nonlinear_motion/generators/w16_nl_reference.py

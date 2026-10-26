@@ -1,11 +1,13 @@
 # Imposed displacement with nonlinear supports (stage 2)
 
-**Status: a design, not current behaviour.** Until the stage-2 implementation
-lands, the pressure-free route refuses any imposed motion in a model with
-nonlinear supports by name (`IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS`),
-and refuses motion targeted at a nonlinear support
-(`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`). Throughout this document, "is",
-"becomes" and "publishes" describe the designed stage 2.
+**Status.** R-a is built (§9). In a model with nonlinear supports, the
+pressure-free route carries a stage-1 primitive on a rigid anchor or restraint
+into the nonlinear active-set loop and its K-D5 confirmation as a base
+prescribed value; every nonlinear support's ground stays fixed.
+`IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` is retired. R-b is a design,
+not current behaviour: until it lands, motion targeted at a nonlinear support
+is refused (`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`). Where this document
+describes R-b, "is", "becomes" and "publishes" describe the design.
 
 **Open items**, outside this design:
 - motion of a linear spring's base, which keeps its refusal (§3.3);
@@ -286,7 +288,10 @@ criterion is the K-D5 ball bound, or 1e-9 relative for gap projections.
   occurs at s* = 5PL³/(48EI). Cases:
   - s = s*/2: Active, R = 5P/32;
   - s = 2s*: Inactive, u_tip = s*;
-  - s = s*: fails closed;
+  - s = s*: fails closed. At this exact boundary the loop's binary64
+    classifier alternates between the two weak states and does not converge,
+    so the case is withheld before the confirmation
+    (`NONLINEAR_SUPPORT_NONCONVERGENCE`, `SOLVER_SYSTEM_BLOCKED`; §9);
   - an anchor-rotation twin.
 - **A-2.** The cantilever of A-1, with a downward load P at the tip.
   - The derived-normal source is a rigid tip UY restraint at signed upward
@@ -295,7 +300,7 @@ criterion is the K-D5 ball bound, or 1e-9 relative for gap projections.
   - A tip friction support acts on UX under an uncoupled tangential load T.
     Sticking requires |T| < μ|R_n|.
   - Cases: strictly sticking, strictly sliding, and the weak equality. The
-    weak case fails closed.
+    weak case fails closed ("stick capacity not established").
 - **A-3.** An invented planar L-frame. Member 1 runs along x from anchor A to
   corner C, and member 2 along y from C to tip T.
   - Friction acts on the tip UX, with its derived normal from a rigid tip UY
@@ -444,3 +449,31 @@ In DEL-04-07 `Design/pressure-contract.md`, the stage-2 bullet becomes:
 > base stay refused. Design: DEL-04-03 `Design/pf-nonlinear-imposed-motion.md`,
 > with dual numerical review and its own benchmarks; R-b may land as a later
 > slice.
+
+## 9. Implementation (R-a)
+
+- **Code.** NI `NonlinearFrameSolveInput::base_prescribed`, checked by
+  `validate_input` (on the base set, once, finite) and taken by
+  `active_boundary`. NI `confirmation.rs`: `intended_prescribed_map` and
+  `prescribed_map_mismatch` (§2.4 item 2). PP
+  `append_nonlinear_support_loop_results` receives the case's PF map; PP
+  `imposed_motion.rs` no longer refuses motion in a nonlinear model.
+- **References.** `validation/references/w16_nonlinear_motion/` (README,
+  generator, requests, `references.json`, `SHA256SUMS`). The invented
+  material E = 5·2^35 Pa and the section OD 0.206 m, wall 0.011 m make every
+  boundary case an exact boundary of the system formed from the normalized
+  binary64 leaves. The PP consumer is
+  `core/product_physics/src/w16_nonlinear_motion_tests.rs`; NI's are in
+  `confirmation_tests.rs`.
+- **The A-1 boundary (a reading, not a change).** "Fails closed" is met by
+  the loop: at s = s* the classifier alternates between Active and Inactive
+  on rounding noise, the loop reaches its iteration cap, and the case is
+  withheld before any confirmation. Nothing is certified or published. A-2's
+  weak boundary converges and fails closed in the confirmation.
+- **The property under R-a.** Only directions on which no nonlinear support
+  acts can move with R-a alone: A-2 translated by t = 2^-8 m in Y keeps its
+  states and reactions exactly, and its displacements shift by t. The full
+  property, moving nonlinear grounds, needs R-b.
+- **A-3's mutants.** The generator records φ for an influence system that
+  carries g_n and for a Stage A that omits the motion; the published φ lies
+  within its bound of the exact value and outside it for both.

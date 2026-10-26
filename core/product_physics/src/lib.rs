@@ -57,6 +57,8 @@ mod b7b_admission_tests;
 mod tie_rod_tests;
 #[cfg(test)]
 mod corrected_displacement_tests;
+#[cfg(test)]
+mod w16_nonlinear_motion_tests;
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 pub use open_pipe_stress_curved_bend::{arc_geometry, kink, ArcFrame, TANGENCY_TOLERANCE_RAD};
@@ -5482,6 +5484,7 @@ fn solve_prepared_load_case(
         model,
         built,
         restrained_dofs,
+        pf_motion.as_ref(),
         &force,
         load_case,
         solver_mode,
@@ -7025,6 +7028,9 @@ fn append_nonlinear_support_loop_results(
     model: &PreviewModel,
     built: &BuiltModel,
     restrained_dofs: &[usize],
+    // W-16 stage 2 (R-a): the pressure-free case's prescribed map (global
+    // DOF to m or rad), `None` when the case authors no motion.
+    base_motion: Option<&BTreeMap<usize, f64>>,
     force: &AssembledForce,
     load_case: &PreviewLoadCase,
     solver_mode: PreviewSolverMode,
@@ -7073,6 +7079,12 @@ fn append_nonlinear_support_loop_results(
         // typed entry below checks this copy against it bit for bit.
         force: force.values().to_vec(),
         base_restrained_dofs: restrained_dofs.to_vec(),
+        // W-16 stage 2 (R-a): rigid anchors and restraints carry the case's
+        // motion as base prescribed values; every nonlinear support's ground
+        // stays fixed. The motion is never also a force.
+        base_prescribed: base_motion
+            .map(|motion| motion.iter().map(|(&dof, &value)| (dof, value)).collect())
+            .unwrap_or_default(),
         nonlinear_supports: built.nonlinear_supports.clone(),
         initial_states: built.nonlinear_initial_states.clone(),
         friction_normal_reactions: built.nonlinear_friction_normal_reactions.clone(),

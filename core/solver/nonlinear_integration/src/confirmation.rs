@@ -150,6 +150,14 @@ pub(crate) fn confirm_with_applied(
     if prescribed_row_mismatch(u, &prescribed) {
         return not_established("prescribed row mismatch");
     }
+    // §2.4 item 2, revision 2 (W-16 stage 2): that map against the case's
+    // motion, built here independently of the loop's boundary, bit for bit.
+    if prescribed_map_mismatch(
+        intended_prescribed_map(input, &solve.final_states).as_deref(),
+        &prescribed,
+    ) {
+        return not_established("prescribed row mismatch");
+    }
     let free = (0..n)
         .filter(|dof| !last.active_restrained_dofs.contains(dof))
         .collect::<Vec<_>>();
@@ -361,6 +369,82 @@ pub(crate) fn prescribed_row_mismatch(u: &[f64], prescribed: &[(usize, f64)]) ->
     prescribed
         .iter()
         .any(|&(dof, value)| dof >= u.len() || u[dof].to_bits() != value.to_bits())
+}
+
+/// §2.4 item 2, revision 2: the intended prescribed map of the case's motion
+/// and the converged state, formed without the loop's boundary code: every
+/// base-restrained DOF at its case value g_b (+0 when the case prescribes
+/// none), and every Active or Sticking support's DOF at its prescribed value
+/// (+0, or ±c for an active gap; a support's ground is fixed under R-a). The
+/// map is sorted by DOF. `None` when it cannot be formed: a state missing or
+/// repeated, a base value off the base set or repeated, an active gap without
+/// its clearance, or a DOF prescribed twice.
+pub(crate) fn intended_prescribed_map(
+    input: &NonlinearFrameSolveInput,
+    final_states: &[open_pipe_stress_nonlinear_supports::SupportStateRecord],
+) -> Option<Vec<(usize, f64)>> {
+    let mut map = Vec::with_capacity(input.base_restrained_dofs.len());
+    for &dof in &input.base_restrained_dofs {
+        let mut values = input.base_prescribed.iter().filter(|(d, _)| *d == dof);
+        let value = match (values.next(), values.next()) {
+            (None, _) => 0.0,
+            (Some(&(_, value)), None) => value,
+            (Some(_), Some(_)) => return None,
+        };
+        map.push((dof, value));
+    }
+    if input
+        .base_prescribed
+        .iter()
+        .any(|(dof, _)| !input.base_restrained_dofs.contains(dof))
+    {
+        return None;
+    }
+    for support in &input.nonlinear_supports {
+        let mut states = final_states.iter().filter(|s| s.support_id == support.support_id);
+        let state = match (states.next(), states.next()) {
+            (Some(record), None) => record.state,
+            _ => return None,
+        };
+        let value = match (state, support.behavior) {
+            (ActiveSetState::Inactive | ActiveSetState::Sliding, _) => continue,
+            (ActiveSetState::Active, NonlinearSupportBehavior::Gap { closes_when }) => {
+                let gap = support.gap?;
+                match closes_when {
+                    open_pipe_stress_nonlinear_supports::GapDirection::PositiveDisplacement => gap,
+                    open_pipe_stress_nonlinear_supports::GapDirection::NegativeDisplacement => -gap,
+                }
+            }
+            (ActiveSetState::Active | ActiveSetState::Sticking, _) => 0.0,
+        };
+        map.push((support_dof(support), value));
+    }
+    if final_states.len() != input.nonlinear_supports.len() {
+        return None;
+    }
+    map.sort_by_key(|&(dof, _)| dof);
+    if map.windows(2).any(|pair| pair[0].0 == pair[1].0) {
+        return None;
+    }
+    Some(map)
+}
+
+/// §2.4 item 2, revision 2: the complete intended map against the loop's
+/// active prescribed map, entry for entry: the same DOFs in the same order
+/// and the same bits (a -0.0 against a +0.0 is a mismatch). An intended map
+/// that cannot be formed is a mismatch.
+pub(crate) fn prescribed_map_mismatch(
+    intended: Option<&[(usize, f64)]>,
+    actual: &[(usize, f64)],
+) -> bool {
+    let Some(intended) = intended else {
+        return true;
+    };
+    intended.len() != actual.len()
+        || intended
+            .iter()
+            .zip(actual)
+            .any(|(a, b)| a.0 != b.0 || a.1.to_bits() != b.1.to_bits())
 }
 
 fn sign_or_zero(value: f64) -> f64 {
