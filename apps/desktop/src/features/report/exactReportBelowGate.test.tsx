@@ -27,6 +27,7 @@ const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import type { MechanicsResult, PreviewModel } from "../../types";
 import { createSolveJobTransport, solveBytes } from "../../test/nativeMechanicsReplay";
+import { copiedMembersHint, parseLossless, plainOf, writeLossless } from "../../test/losslessJson";
 import {
   buildAnalysisRunPreview,
   deliveredMechanicsResultJob,
@@ -459,8 +460,24 @@ describe("still refused: no exact-route result reaches a report output", () => {
 const WITNESS_DIR = "fixtures/reports/invented/exact_report_package_requests";
 const GENERATOR = "apps/desktop/src/features/report/exactReportBelowGate.test.tsx";
 
+/** The witness file's text. It is written as `JSON.stringify` writes it, except that the
+ * producer output it embeds keeps its original numbers (`writeLossless`): the source
+ * result is written number for number from the delivered bytes, and each member of the
+ * result document's envelope that copies the source's same-named member (its
+ * `source_block_recovery` receipt among them) from the source's own text. The Rust
+ * corpus checks (`result_export/tests/hash_corpus.rs`) compare embedded receipts as
+ * `serde_json::Value`s, in which `0` and `0.0` differ. The staleness check uses this
+ * same writer. */
 function witnessFile(item: Shape, session: Session, request: Json, extra: Record<string, unknown> = {}) {
-  return `${JSON.stringify({
+  const raw = parseLossless(session.rawText);
+  expect(plainOf(raw)).toEqual(request.source_results[0]);
+  const hint = {
+    request: {
+      source_results: [raw],
+      result_documents: [{ result_envelope: copiedMembersHint(request.result_documents[0].result_envelope, raw) }]
+    }
+  };
+  return `${writeLossless({
     schema_version: "1.0.0",
     generator: GENERATOR,
     description: "W-11 slice (b) witness request (DEL-08-01 Design exact-route-report-sections.md section 5.5): the version 2.0.0 report-package request the desktop assembles below the output gate for an exact-route result, with the model, the run's input manifest and the texts the native host binds (the intake model text; the delivered result bytes are the committed raw file). Every production entry point refuses it (REPORT-PACKAGE-ROUTE-NOT-ADMITTED; the native save first at its custody binding). Job ids are invented; unit transport replay of committed producer bytes, not a native UI qualification witness.",
@@ -473,7 +490,7 @@ function witnessFile(item: Shape, session: Session, request: Json, extra: Record
     input_manifest: session.inputManifest.manifest,
     request,
     ...extra
-  })}\n`;
+  }, hint)}\n`;
 }
 
 /** The substitute (§5.5, §7): the pressure-2 straight source with one row value
@@ -538,7 +555,16 @@ describe("the witness requests (§5.5)", () => {
       // buildReportPackageRequest refuses the same input at its cell.
       await expect(buildReportPackageRequest(packageInput(session))).rejects.toThrow(/^PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE: /);
       if (item.name === "pressure_2_straight") straight = request;
-      files.push([`${item.name}.json`, witnessFile(item, session, request)]);
+      const content = witnessFile(item, session, request);
+      // The embedded producer output is the delivered bytes', number for number: the
+      // source, and the receipt the document copies from it.
+      const exactText = (tree: unknown) => writeLossless(plainOf(tree), tree);
+      const written = parseLossless(content) as Json, delivered = parseLossless(session.rawText) as Json;
+      expect(exactText(written.request.source_results[0])).toBe(exactText(delivered));
+      for (const key of ["source_block_recovery", "retained_precision"]) {
+        if (Object.hasOwn(delivered, key)) expect(exactText(written.request.result_documents[0].result_envelope[key])).toBe(exactText(delivered[key]));
+      }
+      files.push([`${item.name}.json`, content]);
     }
     const substitute = await substituteRequest(straight);
     expect(await canonicalSha256Hex(substitute.request.source_results[0])).not.toBe(await canonicalSha256Hex(straight.source_results[0]));
