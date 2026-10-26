@@ -638,7 +638,7 @@ pub(crate) fn judge_offset(x_n: V3, x_f: V3, axis: (V3, f64), offset: V3, tolera
     let OffsetMeasure { axial_length, offset_axial, allowance, residual, .. } = measure;
     let e_norm = v_norm(offset);
     if !(axial_length > 0.0) {
-        return OffsetOutcome::Invalid("no_axial_length", format!("the body has no length along the run axis (D·t = {axial_length:e} m)"));
+        return OffsetOutcome::Invalid("no_axial_length", no_axial_length_detail(axial_length));
     }
     let zero = offset.iter().all(|v| *v == 0.0);
     if !zero {
@@ -653,6 +653,10 @@ pub(crate) fn judge_offset(x_n: V3, x_f: V3, axis: (V3, f64), offset: V3, tolera
         return OffsetOutcome::Mismatch(measure);
     }
     OffsetOutcome::Realized(measure)
+}
+
+fn no_axial_length_detail(axial_length: f64) -> String {
+    format!("the body has no length along the run axis (D·t = {axial_length:e} m)")
 }
 
 /// The measured quantities for one (direction, β) against the body D = x_f − x_n:
@@ -681,7 +685,10 @@ fn offset_measure(x_n: V3, x_f: V3, axis: (V3, f64), offset: V3) -> OffsetMeasur
 /// the sign of D's first nonzero component, compared component by component.
 /// Every key is unchanged when the ends' names are swapped (D, t, D⊥ and, under
 /// the other convention, e negate exactly), so the outcome does not depend on
-/// which end is N. Keys that compare equal throughout give identical outcomes.
+/// which end is N. Signed zeros are the one exception IEEE negation leaves (a
+/// D·t of −0 at one naming is +0 at the other), so on this path every key and
+/// every reported quantity is canonicalised to +0 (x + 0.0). Keys that compare
+/// equal throughout then give literally identical outcomes.
 pub(crate) fn judge_run(x_n: V3, x_f: V3, axis: RunAxis, offset: V3, tolerance: f64) -> OffsetOutcome {
     match axis {
         RunAxis::One(u, beta) => judge_offset(x_n, x_f, (u, beta), offset, tolerance),
@@ -700,12 +707,36 @@ pub(crate) fn judge_run(x_n: V3, x_f: V3, axis: RunAxis, offset: V3, tolerance: 
                 };
                 let refused = if rank > 0.0 { 1.0 } else { 0.0 };
                 let (t, p) = (v_scale(sign, m.axis), v_scale(sign, m.transverse));
-                ([refused, m.residual, rank, m.offset_axial, m.axial_length, m.allowance, t[0], t[1], t[2], p[0], p[1], p[2]], outcome)
+                let k = [refused, m.residual, rank, m.offset_axial, m.axial_length, m.allowance, t[0], t[1], t[2], p[0], p[1], p[2]].map(|v| v + 0.0);
+                (k, canonical_outcome(outcome, &m))
             };
             let ((k_n, o_n), (k_f, o_f)) = (key(end_n), key(end_f));
             let later = k_n.iter().zip(&k_f).map(|(a, b)| b.total_cmp(a)).find(|o| o.is_ne());
             if later == Some(std::cmp::Ordering::Greater) { o_f } else { o_n }
         }
+    }
+}
+
+/// The tie path's outcome with every signed zero in its measure, and in the
+/// `no_axial_length` detail, made +0 (J3 naming invariance).
+fn canonical_outcome(outcome: OffsetOutcome, measure: &OffsetMeasure) -> OffsetOutcome {
+    let z = |v: f64| v + 0.0;
+    let m = OffsetMeasure {
+        axis: measure.axis.map(z),
+        axial_length: z(measure.axial_length),
+        transverse: measure.transverse.map(z),
+        offset_axial: z(measure.offset_axial),
+        allowance: z(measure.allowance),
+        residual: z(measure.residual),
+        beta_run: z(measure.beta_run),
+    };
+    match outcome {
+        OffsetOutcome::Realized(_) => OffsetOutcome::Realized(m),
+        OffsetOutcome::BelowPrecision(_) => OffsetOutcome::BelowPrecision(m),
+        OffsetOutcome::NotTransverse(_) => OffsetOutcome::NotTransverse(m),
+        OffsetOutcome::Mismatch(_) => OffsetOutcome::Mismatch(m),
+        OffsetOutcome::Invalid("no_axial_length", _) => OffsetOutcome::Invalid("no_axial_length", no_axial_length_detail(m.axial_length)),
+        invalid @ OffsetOutcome::Invalid(..) => invalid,
     }
 }
 

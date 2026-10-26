@@ -275,8 +275,11 @@ earlier refusal in the check's order (no axial length, below precision, not
 transverse, mismatch); then the larger |e·t|, D·t and allowance; and last the
 axis t and D⊥, each multiplied by the sign of D's first nonzero component,
 compared component by component. Every key is unchanged when the ends' names
-are swapped, and keys equal throughout give identical outcomes
-(`judge_run`, `rigid_component.rs`).
+are swapped. IEEE negation leaves one exception, signed zeros (a D·t of −0
+under one naming is +0 under the other; Codex numerical scrutiny r4), so on
+the tie path every key and every reported quantity is canonicalised to +0.
+Keys equal throughout then give literally identical outcomes (`judge_run`,
+`rigid_component.rs`).
 
 **Orientation and naming independence.** t = u, negated if u·D < 0.
 - The choice is symmetric in N and F up to sign: the smaller-β rule does not
@@ -816,6 +819,10 @@ any value moves, it is reported to the owner and not edited.
     - **precedence:** a tie of two accepted judgments reports the larger
       residual, and one acceptance with one refusal refuses, identically under
       either naming (`j3_tie_precedence_is_refusal_then_larger_residual`).
+    - **signed zeros (Codex r4):** tied ends (−0, −1, −0) with D = (0.75, 0,
+      0) refuse `no_axial_length` with the identical outcome under either
+      naming (`j3_a_tie_reports_signed_zeros_identically_under_either_naming`);
+      without the canonicalisation the two namings report D·t = −0e0 and 0e0.
 - **Other behaviour:**
   - `not_solver_consumed` with a contradictory offset gives no offset
     diagnostic and the same solve;

@@ -348,14 +348,21 @@ fn j2_weak_bend_case_is_realized() {
     assert!(m.residual < 1e-12, "residual {}", m.residual);
 }
 
-/// The outcome with its measure, for exact comparison.
-fn measure_bits(o: &OffsetOutcome) -> (String, Vec<u64>) {
+/// The outcome with its measure, for exact comparison; the vectors are taken
+/// times `sign` (−1 for the swapped naming, which negates them), and a zero
+/// compares as +0 (the tie path canonicalises signed zeros).
+fn measure_bits_signed(o: &OffsetOutcome, sign: f64) -> (String, Vec<u64>) {
     let m = match o {
         OffsetOutcome::Realized(m) | OffsetOutcome::BelowPrecision(m) | OffsetOutcome::NotTransverse(m) | OffsetOutcome::Mismatch(m) => m,
         OffsetOutcome::Invalid(..) => return (outcome_name(o), vec![]),
     };
-    let all = [m.axial_length, m.offset_axial, m.allowance, m.residual, m.beta_run, m.axis[0], m.axis[1], m.axis[2], m.transverse[0], m.transverse[1], m.transverse[2]];
-    (outcome_name(o), all.iter().map(|v| v.to_bits()).collect())
+    let (a, t) = (m.axis.map(|v| sign * v), m.transverse.map(|v| sign * v));
+    let all = [m.axial_length, m.offset_axial, m.allowance, m.residual, m.beta_run, a[0], a[1], a[2], t[0], t[1], t[2]];
+    (outcome_name(o), all.iter().map(|v| (v + 0.0).to_bits()).collect())
+}
+
+fn measure_bits(o: &OffsetOutcome) -> (String, Vec<u64>) {
+    measure_bits_signed(o, 1.0)
 }
 
 /// The old J2 tie rule, kept here only to show what J3 changes: the sign-aligned
@@ -387,12 +394,8 @@ fn j3_a_tie_is_judged_at_each_end_like_its_neighbours() {
     for (o, swapped) in [(&below, &below_swapped), (&tie, &tie_swapped), (&above, &above_swapped)] {
         let OffsetOutcome::Mismatch(m) = o else { panic!("{o:?}") };
         assert!((m.residual - 5.859196e-3).abs() < 1e-9, "residual {}", m.residual);
-        let (name, mut bits) = measure_bits(swapped);
         // The swapped naming negates the axis and transverse vectors exactly.
-        for b in bits.iter_mut().skip(5) {
-            *b ^= 1u64 << 63;
-        }
-        assert_eq!((name, bits), measure_bits(o), "N/F naming");
+        assert_eq!(measure_bits_signed(swapped, -1.0), measure_bits(o), "N/F naming");
     }
     // F's β one ulp above N's: N governs with its unchanged evidence, as one of the tie's judgments.
     assert_eq!(measure_bits(&tie), measure_bits(&above));
@@ -449,4 +452,23 @@ fn j3_tie_precedence_is_refusal_then_larger_residual() {
     let e = mm([0.0, -45.1, 0.0]);
     assert_eq!(outcome_name(&judge_offset(x_n, x_f, ([1.0, 0.0, 0.0], 1e-3), e, TAU)), "realized");
     assert_eq!(outcome_name(&swapped(&n, &f, e)), "mismatch");
+}
+
+/// J3 regression (Codex numerical scrutiny r4, P3): signed zeros. Two tied ends
+/// with direction (−0, −1, −0) and D = (0.75, 0, 0) both refuse
+/// `no_axial_length`; D·t is −0 at one naming and +0 at the other. The tie path
+/// canonicalises signed zeros, so the outcome is literally identical under an
+/// N/F swap.
+#[test]
+fn j3_a_tie_reports_signed_zeros_identically_under_either_naming() {
+    let end = EndStatus::Direction { direction: [-0.0, -1.0, -0.0], beta: 1e-3 };
+    let (x_n, x_f) = ([0.0; 3], [0.75, 0.0, 0.0]);
+    let named = check(x_n, x_f, &end, &end.clone(), [0.0; 3]);
+    let swapped = check(x_f, x_n, &end.clone(), &end, [-0.0; 3]);
+    assert_eq!(named, swapped);
+    let OffsetOutcome::Invalid("no_axial_length", detail) = &named else { panic!("{named:?}") };
+    assert!(detail.contains("D·t = 0e0 m"), "{detail}");
+    // Without canonicalisation the two namings report −0 and +0.
+    let raw = |a, b| judge_offset(a, b, ([-0.0, -1.0, -0.0], 1e-3), [0.0; 3], TAU);
+    assert_ne!(raw(x_n, x_f), raw(x_f, x_n));
 }
