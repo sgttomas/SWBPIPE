@@ -13,7 +13,6 @@ open_pipe_stress_report_generator = { path = "../report_generator", features = [
 open_pipe_stress_report_sections = { path = "../report_sections", features = ["serde"] }
 open_pipe_stress_protected_content_linter = { path = "../protected_content_linter" }
 serde = { version = "1", features = ["derive"] }
-sha2 = "0.10"
-
-[dev-dependencies]
+# W-11: the embedded exact-route statement table (`src/exact_statements.rs`).
 serde_json = "1"
+sha2 = "0.10"

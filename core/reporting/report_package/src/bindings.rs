@@ -11,7 +11,9 @@
 //!
 //! Standard claim fence applies (claims taxonomy per DEC-081).
 
+use crate::admitted::{self, AdmittedSet};
 use crate::document_form;
+use crate::exact_sections;
 use crate::wire::{LinkedSolverIdentity, ReportPackageRequest};
 use open_pipe_stress_audit_manifest as audit;
 use open_pipe_stress_canonical_json::canonical_number;
@@ -94,6 +96,30 @@ fn status_set(items: &[Value]) -> BTreeSet<String> {
     items.iter().filter_map(Value::as_str).map(str::to_string).collect()
 }
 
+/// The section-basis label suffix of a row (W-11, DEL-08-01 Design
+/// `exact-route-report-sections.md` §3.4): `metadata.basis` split on ";", each
+/// token trimmed. Exactly one `section_basis=nominal_section` token adds
+/// " [nominal section]", exactly one `section_basis=reduced_section` adds
+/// " [reduced section]", and no `section_basis=` token adds nothing. Any other
+/// value, or more than one such token, refuses. No preview-physics-2 row
+/// carries the token, so its rows are unchanged.
+fn section_basis_suffix(id: &str, metadata: &Value) -> Result<&'static str, String> {
+    let Some(basis) = metadata.get("basis").and_then(Value::as_str) else {
+        return Ok("");
+    };
+    let tokens: Vec<&str> = basis
+        .split(';')
+        .map(str::trim)
+        .filter_map(|token| token.strip_prefix("section_basis="))
+        .collect();
+    match tokens.as_slice() {
+        [] => Ok(""),
+        ["nominal_section"] => Ok(" [nominal section]"),
+        ["reduced_section"] => Ok(" [reduced section]"),
+        _ => Err(format!("{REPORT_ROWS_MISMATCH}: source row {id} has an unreadable section basis")),
+    }
+}
+
 /// The report-row contract (§2.3 item 6): one row per source row, in order,
 /// with the desktop's five-field projection
 /// (`apps/desktop/src/features/report/reportResultRows.ts`). The value text is
@@ -118,7 +144,7 @@ pub fn expected_report_result_rows(source: &Value) -> Result<Vec<Value>, String>
             let label = match row.get("metadata") {
                 None | Some(Value::Null) => kind.to_string(),
                 Some(metadata) => match metadata["component"].as_str() {
-                    Some(component) => format!("{kind} ({component})"),
+                    Some(component) => format!("{kind} ({component}){}", section_basis_suffix(id, metadata)?),
                     None => return Err(format!("{REPORT_ROWS_MISMATCH}: source row {id} metadata has no component")),
                 },
             };
@@ -175,12 +201,24 @@ fn redistribution_token(status: audit::RedistributionStatus) -> &'static str {
     }
 }
 
-/// Items 0-8 of §2.3, in order. `audit_manifest` is the request's audit
-/// manifest after the wire's own conversion.
+/// Items 0-8 of §2.3, in order, and the dormant item 9 (W-11, DEL-08-01 Design
+/// `exact-route-report-sections.md` §3.5). `audit_manifest` is the request's
+/// audit manifest after the wire's own conversion.
 pub fn check_request(
     request: &ReportPackageRequest,
     audit_manifest: &audit::AuditManifest,
     linked: &LinkedSolverIdentity<'_>,
+) -> Result<(), String> {
+    check_request_in(request, audit_manifest, linked, admitted::PRODUCTION)
+}
+
+/// [`check_request`] against `admitted` (W-11 §5.5), forwarded to its item-0
+/// check.
+pub(crate) fn check_request_in(
+    request: &ReportPackageRequest,
+    audit_manifest: &audit::AuditManifest,
+    linked: &LinkedSolverIdentity<'_>,
+    admitted: AdmittedSet,
 ) -> Result<(), String> {
     require(request.result_documents.len() == 1, "exactly one result document is required")?;
     require(
@@ -191,7 +229,10 @@ pub fn check_request(
     let source = &request.source_results[0];
     // Items 0-3: route preflight, the complete 0.3.0 form, header dispatch and
     // the self-hash (shared with the reader).
-    document_form::check_route_admitted(document)?;
+    document_form::check_route_admitted_in(document, admitted)?;
+    // W-11 §3.5: only the desktop builds exact sections, so the runner profile
+    // does not package an exact identity, whatever the report carries.
+    exact_sections::check_runner_profile(&request.export_profile_id, document)?;
     document_form::validate_result_export_form(document)?;
     let header_table = document_form::check_transported_header(document)?;
     document_form::check_self_hash(document)?;
@@ -492,5 +533,9 @@ pub fn check_request(
     if report["report_context"]["export_context"] != "local_private" {
         return Err(format!("{REPORT_CONTEXT_NOT_LOCAL_PRIVATE}: the report package renders under local_private only"));
     }
-    Ok(())
+
+    // Item 9 (W-11 §3.5): an exact identity's sections are those of the source,
+    // the document and the audit; no other identity carries them. Dormant
+    // while item 0 refuses exact identities.
+    exact_sections::check_exact_sections(source, document, audit_manifest, report)
 }
