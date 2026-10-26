@@ -1,5 +1,6 @@
 mod atomic_report_package_save;
 mod command_ingress;
+mod exact_source_binding;
 mod export_disposition_screen;
 mod handoff_package;
 mod handoff_package_publish;
@@ -72,7 +73,15 @@ async fn save_report_package(
     // `report-package-current-results.md` §2.6 items 1-3). The lease is held
     // through admission, the save dialog and the write.
     let growth = report_package_save::validate_report_package_save_evidence(&request.screening, request.local_first.as_ref())
-        .and_then(|()| report_package_save::parse_lease_bytes(&request.request_text, &request.model_text, &request.input_manifest_text));
+        .and_then(|()| {
+            report_package_save::parse_lease_bytes_with_exact(
+                &request.request_text,
+                &request.model_text,
+                &request.input_manifest_text,
+                request.exact_result_text.as_deref(),
+                request.exact_intake_text.as_deref(),
+            )
+        });
     let growth = match growth {
         Ok(growth) => growth,
         Err(error) => return respond::<report_package_save::ReportPackageSaveReceipt, _>(Err(CommandError::Command(error))),
@@ -89,7 +98,9 @@ async fn save_report_package_decoded(
     let software = report_package_save::ExpectedSoftware { name: info.name.clone(), version: info.version.to_string() };
     tauri::async_runtime::spawn_blocking(move || {
         let mut lookup = library_store_lookup(&app);
-        save_report_package_with_picker(request, &software, &mut lookup, |file_name| choose_report_package_save_path(&app, file_name))
+        let registry = app.state::<SolveJobRegistry>().inner().clone();
+        let custody = |job: &str| registry.custody_binding(job);
+        save_report_package_with_picker(request, &software, &mut lookup, &custody, |file_name| choose_report_package_save_path(&app, file_name))
     })
     .await
     .unwrap_or_else(|_| {
@@ -114,16 +125,19 @@ fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<R
 }
 
 /// The save after argument decoding: the native admission
-/// (`report_package_save::admit_report_package`), then the save dialog and the
-/// atomic write. `choose` is the save dialog (a counting seam in tests).
+/// (`report_package_save::admit_report_package_in`, with the registry's
+/// custody lookup for an exact-route request's native source binding, W-11),
+/// then the save dialog and the atomic write. `choose` is the save dialog (a
+/// counting seam in tests).
 fn save_report_package_with_picker(
     request: report_package_save::ReportPackageSaveRequest,
     software: &report_package_save::ExpectedSoftware,
     lookup: &mut model_document_save::LibraryLookup<'_>,
+    custody: &report_package_save::CustodyLookup<'_>,
     choose: impl FnOnce(&str) -> Option<Result<PathBuf, String>>,
 ) -> Result<report_package_save::ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
-    let admitted = report_package_save::admit_report_package(request, software, lookup)?;
-    report_package_save::save_admitted_report_package(admitted, choose)
+    let admitted = report_package_save::admit_report_package_in(request, software, lookup, custody)?;
+    report_package_save::save_admitted_report_package_in(admitted, custody, choose)
 }
 
 /// The local library store as the native saves read it (W-6a, W-18): opened
@@ -1539,20 +1553,34 @@ fn get_unit_catalog() -> UnitCatalogResponse {
 /// `x-swbpipe-ingress: args-json-v1`, body = the UTF-8 JSON object of the
 /// camelCase arguments. Each command's arguments are decoded by its `*_args`
 /// function; the response is serialized while the lease is held.
+///
+/// W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.6):
+/// the render runs on a blocking worker thread, as the save does, because an
+/// exact input's native source binding parses and re-derives under the held
+/// lease; every other input renders there unchanged.
 #[tauri::command]
-fn render_calculation_report(
+async fn render_calculation_report(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
-    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "render_calculation_report", ArgsDecoding::Moved)?;
-    respond(render_calculation_report_args(&mut args))
+    let (mut args, mut lease) = command_ingress::admit(&registry, &invoke, "render_calculation_report", ArgsDecoding::Moved)?;
+    let registry = registry.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let outcome = render_calculation_report_args(&mut args, &registry, &mut lease);
+        // The response is serialized while the lease is still held.
+        let response = respond(outcome);
+        drop(lease);
+        response
+    })
+    .await
+    .unwrap_or_else(|_| Err(CommandError::Command("RENDER-WORKER-FAILED: the render's worker did not complete.".to_string())))
 }
 
 /// The render's production root (W-11, DEL-08-01 Design
 /// `exact-route-report-sections.md` §3.6 step 0, §5.5): the production
 /// admitted set, which admits no exact-route identity before opening.
-fn render_calculation_report_args(args: &mut Args) -> Result<Value, CommandError> {
-    report_render_exact::render_calculation_report_args_in(args, report_render_exact::PRODUCTION)
+fn render_calculation_report_args(args: &mut Args, registry: &SolveJobRegistry, lease: &mut memory_pool::Lease) -> Result<Value, CommandError> {
+    report_render_exact::render_calculation_report_args_in(args, registry, lease, report_render_exact::PRODUCTION)
 }
 
 fn render_calculation_report_value(input: Value) -> Result<Value, String> {
@@ -9458,8 +9486,10 @@ mod tests {
         #[test]
         fn report_rendering_and_sample_proposal_commands_decode_raw_bodies() {
             let broken = json!({"report_title": "broken"});
-            let (mut args, _lease) = admit("render_calculation_report", json!({"input": broken}));
-            let error = command_error(render_calculation_report_args(&mut args).unwrap_err());
+            let registry = registry(ScriptedHost::normal());
+            let (mut args, mut lease) =
+                admit_json(&registry, "render_calculation_report", ArgsDecoding::Moved, &json!({"input": broken})).unwrap();
+            let error = command_error(render_calculation_report_args(&mut args, &registry, &mut lease).unwrap_err());
             assert_eq!(Err(error), render_calculation_report_value(broken));
 
             let result = json!({"result_kind": "invented", "nodes": []});
@@ -9598,7 +9628,7 @@ mod tests {
             let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
             let root = sandbox("command-path");
             let mut picks = 0usize;
-            let receipt = save_report_package_with_picker(decoded, &software(), &mut no_store, |_| {
+            let receipt = save_report_package_with_picker(decoded, &software(), &mut no_store, &report_package_save::no_custody, |_| {
                 picks += 1;
                 Some(Ok(root.join("admitted.opsproj")))
             })
@@ -9624,7 +9654,7 @@ mod tests {
             let decoded = report_package_save::save_report_package_args(&mut args).unwrap();
             let root = sandbox("forged");
             let mut picks = 0usize;
-            let error = match save_report_package_with_picker(decoded, &software(), &mut no_store, |_| {
+            let error = match save_report_package_with_picker(decoded, &software(), &mut no_store, &report_package_save::no_custody, |_| {
                 picks += 1;
                 Some(Ok(root.join("forged.opsproj")))
             }) {
@@ -9711,7 +9741,7 @@ mod tests {
                     let growth = report_package_save::parse_lease_bytes(&request.request_text, &request.model_text, &request.input_manifest_text).unwrap();
                     lease.grow_to(lease.bytes() + growth).unwrap();
                     let mut picks = 0usize;
-                    let receipt = save_report_package_with_picker(request, &software(), &mut no_store, |_| {
+                    let receipt = save_report_package_with_picker(request, &software(), &mut no_store, &report_package_save::no_custody, |_| {
                         picks += 1;
                         None
                     })

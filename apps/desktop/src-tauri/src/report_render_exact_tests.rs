@@ -173,8 +173,8 @@ fn with_exact_route(mut input: Value) -> Value {
 /// the response serialized under the held lease (its JSON text).
 fn command_body(args: &Value) -> Result<String, CommandError> {
     let registry = registry(ScriptedHost::normal());
-    let (mut args, _lease) = admit_json(&registry, "render_calculation_report", ArgsDecoding::Moved, args).unwrap();
-    respond(crate::render_calculation_report_args(&mut args)).map(response_text)
+    let (mut args, mut lease) = admit_json(&registry, "render_calculation_report", ArgsDecoding::Moved, args).unwrap();
+    respond(crate::render_calculation_report_args(&mut args, &registry, &mut lease)).map(response_text)
 }
 
 fn response_text(response: tauri::ipc::Response) -> String {
@@ -194,29 +194,37 @@ fn refusal_text(outcome: Result<impl std::fmt::Debug, CommandError>) -> String {
 
 fn witness_render(input: &Value) -> Result<Value, CommandError> {
     let registry = registry(ScriptedHost::normal());
-    let (mut args, _lease) =
+    let (mut args, mut lease) =
         admit_json(&registry, "render_calculation_report", ArgsDecoding::Moved, &json!({"input": input})).unwrap();
-    render_calculation_report_args_in(&mut args, EXACT_RENDER_WITNESS_ADMITTED)
+    render_calculation_report_args_in(&mut args, &registry, &mut lease, EXACT_RENDER_WITNESS_ADMITTED)
 }
 
 /// Codex review round 1 (blocking): a coherent invented exact input, which
 /// the renderer itself renders unblocked with "integrity checked", is refused
-/// by the production native command at step 0, with no HTML.
+/// by the production native command at step 0, with no HTML. Since slice (b)
+/// the witness set's exact path binds the source natively first, so this
+/// invented input, whose job is not in custody, refuses there
+/// (`REPORT-EXACT-CUSTODY-RELEASED`); the genuine live-job input renders under
+/// the witness set (`exact_render_direct_native_tests`).
 #[test]
 fn production_native_render_refuses_a_coherent_exact_input() {
     let exact = with_exact_route(pressure_free_input());
-    // Coherent: below the gate, the exact render path renders it unblocked,
-    // with the exact block and the composed standing line.
-    let rendered = witness_render(&exact).expect("the witness set admits pressure-2");
+    // Coherent: the renderer itself renders it unblocked, with the exact block
+    // and the composed standing line.
+    let rendered = crate::render_calculation_report_value(exact.clone()).expect("the renderer renders it");
     assert_eq!(rendered["export_blocked"], json!(false), "{}", rendered["blocking_reasons"]);
     let html = rendered["html"].as_str().unwrap();
     assert!(html.contains(EXACT_ROUTE_SUBHEADING) && html.contains("Numerical standing: integrity checked"));
+    // Below the gate, the witness set reaches the native source binding, which
+    // refuses an invented job.
+    let refused = refusal_text(witness_render(&exact));
+    assert!(refused.starts_with("REPORT-EXACT-CUSTODY-RELEASED: "), "{refused}");
 
     // The production root, through the ingress decode.
     let registry = registry(ScriptedHost::normal());
-    let (mut args, _lease) =
+    let (mut args, mut lease) =
         admit_json(&registry, "render_calculation_report", ArgsDecoding::Moved, &json!({"input": exact})).unwrap();
-    assert_eq!(refusal_text(crate::render_calculation_report_args(&mut args)), PRODUCTION_REFUSAL);
+    assert_eq!(refusal_text(crate::render_calculation_report_args(&mut args, &registry, &mut lease)), PRODUCTION_REFUSAL);
     // The command body on the raw args body: the refusal is the response;
     // no HTML is produced.
     let refused = command_body(&json!({"input": exact}));
@@ -239,9 +247,9 @@ fn step_zero_precedes_the_render_input_decode() {
 /// must agree, and the command produces no HTML.
 fn production_refusal(input: &Value) -> String {
     let registry = registry(ScriptedHost::normal());
-    let (mut args, _lease) =
+    let (mut args, mut lease) =
         admit_json(&registry, "render_calculation_report", ArgsDecoding::Moved, &json!({"input": input})).unwrap();
-    let root = refusal_text(crate::render_calculation_report_args(&mut args));
+    let root = refusal_text(crate::render_calculation_report_args(&mut args, &registry, &mut lease));
     assert_eq!(refusal_text(command_body(&json!({"input": input}))), root);
     root
 }
@@ -348,9 +356,9 @@ fn free_text_equal_to_an_exact_identity_renders_as_before() {
         assert!(before.contains(id) && !before.contains(EXACT_ROUTE_SUBHEADING), "{id}");
         assert_eq!(command_body(&json!({"input": input})).expect("free text is not route evidence"), before, "{id}");
         let registry = registry(ScriptedHost::normal());
-        let (mut args, _lease) =
+        let (mut args, mut lease) =
             admit_json(&registry, "render_calculation_report", ArgsDecoding::Moved, &json!({"input": input})).unwrap();
-        assert_eq!(serde_json::to_string(&crate::render_calculation_report_args(&mut args).unwrap()).unwrap(), before);
+        assert_eq!(serde_json::to_string(&crate::render_calculation_report_args(&mut args, &registry, &mut lease).unwrap()).unwrap(), before);
         let (outcome, measured) = measure(|| check_render_route_admitted(&input, PRODUCTION));
         assert!(outcome.is_ok(), "{id}: {outcome:?}");
         assert_eq!(measured.allocations, 0, "{measured:?}");
@@ -570,5 +578,489 @@ fn the_render_scanner_finds_each_break_of_the_graph() {
     for (case, files, expected) in cases {
         let findings = scan(&GRAPH, &files);
         assert!(findings.iter().any(|finding| finding.contains(expected)), "{case}: {findings:#?}");
+    }
+}
+
+// ---------------------------------------------------------------------------
+// W-11 slice (b): the native source binding (DEL-08-01 Design
+// `exact-route-report-sections.md` §3.6, §5.5, §7 "Direct-native
+// substitution", "The production native render refuses a genuine exact
+// result" and "Pricing"). A test registry job is admitted from a witness's
+// intake model text, delivers the committed producer bytes through the gated
+// test launcher and is taken into custody. The witness requests are the ones
+// the desktop's vitest assembles below the output gate
+// (`fixtures/reports/invented/exact_report_package_requests/`); their
+// `native_job_id` is set to the live job's. Every id is invented.
+// ---------------------------------------------------------------------------
+
+mod direct_native {
+    use super::*;
+    use crate::command_ingress::{admit_body, test_support::headers, text_parse_bytes, INGRESS_ARGS_JSON_V1, REPORT_PACKAGE_WORKING_MEMORY_FACTOR};
+    use crate::exact_source_binding::{CUSTODY_RELEASED, SECTIONS_MISMATCH, SOURCE_NOT_DELIVERED, STANDING_NOT_ELIGIBLE};
+    use crate::memory_pool::test_host::ScriptedHost;
+    use crate::report_package_save::test_support::{no_store, save_request_with, software};
+    use crate::report_package_save::{
+        admit_report_package_in, parse_lease_bytes, parse_lease_bytes_with_exact, save_admitted_report_package_in,
+        ReportPackageSaveRequest, MAX_MODEL_TEXT_BYTES, TOO_LARGE,
+    };
+    use crate::report_render_exact::exact_render_growth_bytes;
+    use crate::solve_jobs::test_support::delivered_in_custody;
+    use crate::solve_jobs::SolveJobRegistry;
+    use open_pipe_stress_operation_applier::{canonical_json, sha256_hex};
+    use open_pipe_stress_result_export::derivative::digest;
+    use std::sync::Arc;
+    use tauri::ipc::InvokeBody;
+
+    const STRAIGHT: &str = include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_straight.json");
+    const SUBSTITUTE: &str =
+        include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_straight_substitute.json");
+    const SOURCE_1: &str = include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_source_1.json");
+    const ROUTE_NOT_ADMITTED: &str = "REPORT-PACKAGE-ROUTE-NOT-ADMITTED";
+
+    fn project(path: &str) -> std::path::PathBuf {
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..").join(path)
+    }
+
+    /// One witness: its request, model, input manifest, the intake text the
+    /// job was sent, the delivered bytes (the committed raw file) and the mode.
+    struct Witness {
+        request: Value,
+        model: Value,
+        manifest: Value,
+        intake: String,
+        result: String,
+        mode: String,
+    }
+
+    fn witness(text: &str) -> Witness {
+        let file: Value = serde_json::from_str(text).unwrap();
+        Witness {
+            request: file["request"].clone(),
+            model: file["model"].clone(),
+            manifest: file["input_manifest"].clone(),
+            intake: file["exact_intake_text"].as_str().unwrap().to_string(),
+            result: std::fs::read_to_string(project(file["raw_path"].as_str().unwrap())).unwrap(),
+            mode: file["solver_mode"].as_str().unwrap().to_string(),
+        }
+    }
+
+    /// A live custody job for `w` on `host`.
+    struct Live {
+        registry: SolveJobRegistry,
+        _gate: Arc<crate::solve_worker::test_support::Gate>,
+        job: String,
+    }
+
+    fn live_on(host: Arc<ScriptedHost>, intake: &str, mode: &str, result: &str) -> Live {
+        let (registry, gate, job) = delivered_in_custody(host, intake.as_bytes(), Some(mode), result);
+        Live { registry, _gate: gate, job }
+    }
+
+    fn live(w: &Witness) -> Live {
+        live_on(ScriptedHost::normal(), &w.intake, &w.mode, &w.result)
+    }
+
+    /// `request` bound to the live job (its `native_job_id`).
+    fn bound(request: &Value, job: &str) -> Value {
+        let mut request = request.clone();
+        request["report"]["exact_route"]["admission"]["native_job_id"] = json!(job);
+        request
+    }
+
+    fn save_args(request: &Value, w: &Witness, model: &Value, result: Option<&str>, intake: Option<&str>) -> ReportPackageSaveRequest {
+        let mut args = save_request_with(request, model, &w.manifest);
+        args.exact_result_text = result.map(str::to_string);
+        args.exact_intake_text = intake.map(str::to_string);
+        args
+    }
+
+    fn save_code(live: &Live, args: ReportPackageSaveRequest) -> (String, String) {
+        let custody = |job: &str| live.registry.custody_binding(job);
+        match admit_report_package_in(args, &software(), &mut no_store, &custody) {
+            Ok(_) => panic!("admitted"),
+            Err(error) => (error.code, error.message),
+        }
+    }
+
+    fn render_args(input: &Value, result: Option<&str>, intake: Option<&str>, manifest: Option<&str>) -> Value {
+        let mut args = json!({"input": input});
+        for (key, text) in [("exactResultText", result), ("exactIntakeText", intake), ("inputManifestText", manifest)] {
+            if let Some(text) = text {
+                args[key] = json!(text);
+            }
+        }
+        args
+    }
+
+    fn witness_render_on(live: &Live, args: &Value) -> Result<Value, CommandError> {
+        let (mut decoded, mut lease) = admit_json(&live.registry, "render_calculation_report", ArgsDecoding::Moved, args).unwrap();
+        render_calculation_report_args_in(&mut decoded, &live.registry, &mut lease, EXACT_RENDER_WITNESS_ADMITTED)
+    }
+
+    fn production_render_on(live: &Live, args: &Value) -> Result<Value, CommandError> {
+        let (mut decoded, mut lease) = admit_json(&live.registry, "render_calculation_report", ArgsDecoding::Moved, args).unwrap();
+        crate::render_calculation_report_args(&mut decoded, &live.registry, &mut lease)
+    }
+
+    fn genuine_render_args(w: &Witness, job: &str) -> Value {
+        let request = bound(&w.request, job);
+        render_args(&request["report"], Some(&w.result), Some(&w.intake), Some(&canonical_json(&w.manifest)))
+    }
+
+    #[test]
+    fn the_genuine_request_passes_the_native_binding_and_refuses_at_item_0() {
+        let w = witness(STRAIGHT);
+        let live = live(&w);
+        let request = bound(&w.request, &live.job);
+        let (code, message) = save_code(&live, save_args(&request, &w, &w.model, Some(&w.result), Some(&w.intake)));
+        assert_eq!(code, ROUTE_NOT_ADMITTED, "{message}");
+        // Without the texts, the binding refuses first.
+        let (code, _) = save_code(&live, save_args(&request, &w, &w.model, None, Some(&w.intake)));
+        assert_eq!(code, SOURCE_NOT_DELIVERED);
+        // The committed request's invented job is not in custody.
+        let (code, _) = save_code(&live, save_args(&w.request, &w, &w.model, Some(&w.result), Some(&w.intake)));
+        assert_eq!(code, CUSTODY_RELEASED);
+        // A pressure-free request carrying exact texts refuses.
+        let pressure_free = crate::report_package_save::test_support::desktop_request(&crate::report_package_save::test_support::model());
+        let mut args = crate::report_package_save::test_support::save_request(&pressure_free, &crate::report_package_save::test_support::model());
+        args.exact_result_text = Some(w.result.clone());
+        let (code, message) = save_code(&live, args);
+        assert_eq!((code.as_str(), message.contains("exact_route")), (SECTIONS_MISMATCH, true), "{message}");
+    }
+
+    #[test]
+    fn the_genuine_render_input_renders_under_the_witness_set() {
+        let w = witness(STRAIGHT);
+        let live = live(&w);
+        let rendered = witness_render_on(&live, &genuine_render_args(&w, &live.job)).expect("the genuine input renders");
+        assert_eq!(rendered["export_blocked"], json!(false), "{}", rendered["blocking_reasons"]);
+        let html = rendered["html"].as_str().unwrap();
+        assert!(html.contains(EXACT_ROUTE_SUBHEADING) && html.contains("Numerical standing: integrity checked"));
+        assert!(html.contains(EXACT_HEADLINES_SUBHEADING) && html.contains("[reduced section]"));
+        assert!(live.registry.custody_binding(&live.job).is_some(), "the render keeps no bytes and releases no custody");
+    }
+
+    #[test]
+    fn a_same_run_substitute_refuses_at_the_native_binding() {
+        let w = witness(STRAIGHT);
+        let substitute = witness(SUBSTITUTE);
+        let live = live(&w);
+        let request = bound(&substitute.request, &live.job);
+        // 1. With the genuine result text: step 5 (the binding's result digest).
+        let (code, message) = save_code(&live, save_args(&request, &w, &w.model, Some(&w.result), Some(&w.intake)));
+        assert_eq!(code, SOURCE_NOT_DELIVERED, "{message}");
+        assert!(message.contains(": result:"), "{message}");
+        let refused = refusal_text(witness_render_on(&live, &render_args(&request["report"], Some(&w.result), Some(&w.intake), Some(&canonical_json(&w.manifest)))));
+        assert!(refused.starts_with(&format!("{SOURCE_NOT_DELIVERED}: result:")), "{refused}");
+        // The variant keeping the genuine exact_route binding: the save's source
+        // equality, and the render's re-derivation.
+        let genuine = bound(&w.request, &live.job);
+        let mut variant = request.clone();
+        variant["report"]["exact_route"] = genuine["report"]["exact_route"].clone();
+        let (code, message) = save_code(&live, save_args(&variant, &w, &w.model, Some(&w.result), Some(&w.intake)));
+        assert_eq!(code, SOURCE_NOT_DELIVERED, "{message}");
+        assert!(message.contains("/request/source_results/0"), "{message}");
+        let refused = refusal_text(witness_render_on(&live, &render_args(&variant["report"], Some(&w.result), Some(&w.intake), Some(&canonical_json(&w.manifest)))));
+        assert_eq!(refused, format!("{SECTIONS_MISMATCH}: result_rows"));
+        // 2. With its own text: step 2.
+        let own = serde_json::to_string(&substitute.request["source_results"][0]).unwrap();
+        let (code, message) = save_code(&live, save_args(&request, &w, &w.model, Some(&own), Some(&w.intake)));
+        assert_eq!(code, SOURCE_NOT_DELIVERED);
+        assert!(message.contains(": result:"), "{message}");
+        let refused = refusal_text(witness_render_on(&live, &render_args(&request["report"], Some(&own), Some(&w.intake), Some(&canonical_json(&w.manifest)))));
+        assert!(refused.starts_with(&format!("{SOURCE_NOT_DELIVERED}: result:")), "{refused}");
+    }
+
+    /// The witness model with one node moved (invented edit). The straight
+    /// witness's model has no spring, so no support stiffness to change.
+    fn substituted_model(model: &Value) -> Value {
+        let mut model = model.clone();
+        let x = model["nodes"][0]["position"]["x"].as_f64().expect("a node position");
+        model["nodes"][0]["position"]["x"] = json!(x + 0.001);
+        model
+    }
+
+    #[test]
+    fn a_substituted_model_refuses_at_the_native_binding() {
+        let w = witness(STRAIGHT);
+        let live = live(&w);
+        let model = substituted_model(&w.model);
+        let mut request = bound(&w.request, &live.job);
+        // The model hashes rebound to the substituted model.
+        let model_sha256 = digest(&model).unwrap();
+        request["report"]["exact_route"]["admission"]["model_sha256"] = json!(model_sha256);
+        request["report"]["calculation_report"]["model_input_summary"]["model_hash"]["value"] = json!(model_sha256);
+        request["audit_manifest"]["model_hash"]["value"] = json!(model_sha256);
+        // 3. With the genuine intake text: step 5 (model).
+        let (code, message) = save_code(&live, save_args(&request, &w, &model, Some(&w.result), Some(&w.intake)));
+        assert_eq!(code, SOURCE_NOT_DELIVERED, "{message}");
+        assert!(message.contains(": model:"), "{message}");
+        let refused = refusal_text(witness_render_on(&live, &render_args(&request["report"], Some(&w.result), Some(&w.intake), Some(&canonical_json(&w.manifest)))));
+        assert!(refused.starts_with(&format!("{SOURCE_NOT_DELIVERED}: model:")), "{refused}");
+        // With its own text as the intake text: step 2.
+        let own = serde_json::to_string(&model).unwrap();
+        let (code, message) = save_code(&live, save_args(&request, &w, &model, Some(&w.result), Some(&own)));
+        assert_eq!(code, SOURCE_NOT_DELIVERED);
+        assert!(message.contains(": model:"), "{message}");
+        let refused = refusal_text(witness_render_on(&live, &render_args(&request["report"], Some(&w.result), Some(&own), Some(&canonical_json(&w.manifest)))));
+        assert!(refused.starts_with(&format!("{SOURCE_NOT_DELIVERED}: model:")), "{refused}");
+    }
+
+    #[test]
+    fn the_genuine_input_refuses_once_custody_is_released() {
+        let w = witness(STRAIGHT);
+        for dispose_all in [false, true] {
+            let live = live(&w);
+            if dispose_all {
+                live.registry.dispose_all_results();
+            } else {
+                live.registry.dispose_result(&live.job).unwrap();
+            }
+            let request = bound(&w.request, &live.job);
+            let (code, _) = save_code(&live, save_args(&request, &w, &w.model, Some(&w.result), Some(&w.intake)));
+            assert_eq!(code, CUSTODY_RELEASED);
+            let refused = refusal_text(witness_render_on(&live, &genuine_render_args(&w, &live.job)));
+            assert!(refused.starts_with(&format!("{CUSTODY_RELEASED}: ")), "{refused}");
+        }
+    }
+
+    #[test]
+    fn a_delivered_pressure_source_1_result_with_load_reference_states_is_not_eligible() {
+        let w = witness(SOURCE_1);
+        let lr_raw = std::fs::read_to_string(project("fixtures/product_preview/pressure_source/load_reference_source/n05-sparse_interactive.raw.json")).unwrap();
+        let lr_request: Value = serde_json::from_str(&std::fs::read_to_string(project("fixtures/product_preview/pressure_source/load_reference_source/n05.request.json")).unwrap()).unwrap();
+        let intake = serde_json::to_string(&lr_request["model"]).unwrap();
+        let live = live_on(ScriptedHost::normal(), &intake, "sparse_interactive", &lr_raw);
+        let mut request = bound(&w.request, &live.job);
+        request["report"]["exact_route"]["admission"]["received_bytes_sha256"] = json!(sha256_hex(&lr_raw));
+        let (code, message) = save_code(&live, save_args(&request, &w, &w.model, Some(&lr_raw), Some(&intake)));
+        assert_eq!(code, STANDING_NOT_ELIGIBLE, "{message}");
+        let refused = refusal_text(witness_render_on(&live, &render_args(&request["report"], Some(&lr_raw), Some(&intake), Some(&canonical_json(&w.manifest)))));
+        assert_eq!(refused, format!("{STANDING_NOT_ELIGIBLE}: the native reading of the delivered result is not numerically eligible."));
+        // The genuine pressure-source-1 witness without load/reference states is eligible:
+        // its request passes the binding and refuses at item 0.
+        let genuine = live_on(ScriptedHost::normal(), &w.intake, &w.mode, &w.result);
+        let (code, message) = save_code(&genuine, save_args(&bound(&w.request, &genuine.job), &w, &w.model, Some(&w.result), Some(&w.intake)));
+        assert_eq!(code, ROUTE_NOT_ADMITTED, "{message}");
+    }
+
+    #[test]
+    fn the_render_re_derives_its_rows_limitations_and_headlines_from_the_delivered_result() {
+        let w = witness(STRAIGHT);
+        let live = live(&w);
+        let manifest = canonical_json(&w.manifest);
+        let genuine = bound(&w.request, &live.job)["report"].clone();
+        let edits: Vec<(&str, Box<dyn Fn(&mut Value)>, String)> = vec![
+            ("a row", Box::new(|input: &mut Value| input["result_rows"][0]["quantity_display"] = json!("1 Pa")), format!("{SECTIONS_MISMATCH}: result_rows")),
+            (
+                "an exact limitation statement",
+                Box::new(|input: &mut Value| {
+                    let statement = input["report_sections"]["limitations"][2]["statement"].as_str().unwrap().replace("Pressure", "Pressure loading");
+                    input["report_sections"]["limitations"][2]["statement"] = json!(statement);
+                }),
+                String::new(),
+            ),
+            ("a headline", Box::new(|input: &mut Value| input["exact_route"]["headlines"][0]["value_display"] = json!("1 Pa")), format!("{SECTIONS_MISMATCH}: headlines")),
+        ];
+        for (label, edit, expected) in edits {
+            let mut input = genuine.clone();
+            edit(&mut input);
+            let refused = refusal_text(witness_render_on(&live, &render_args(&input, Some(&w.result), Some(&w.intake), Some(&manifest))));
+            if expected.is_empty() {
+                assert!(refused.starts_with(&format!("{SECTIONS_MISMATCH}: limitations: limitation:")), "{label}: {refused}");
+            } else {
+                assert_eq!(refused, expected, "{label}");
+            }
+        }
+        // `model_sha256` changed: step 5 refuses it before the re-derivation
+        // (§3.6 step 5; see the return's note on §7's code for this case).
+        let mut input = genuine.clone();
+        input["exact_route"]["admission"]["model_sha256"] = json!("0".repeat(64));
+        let refused = refusal_text(witness_render_on(&live, &render_args(&input, Some(&w.result), Some(&w.intake), Some(&manifest))));
+        assert!(refused.starts_with(&format!("{SOURCE_NOT_DELIVERED}: model:")), "{refused}");
+        // Another input manifest: its digest is not the binding's.
+        let mut other = w.manifest.clone();
+        other["invented_extra"] = json!(true);
+        let refused = refusal_text(witness_render_on(&live, &render_args(&genuine, Some(&w.result), Some(&w.intake), Some(&canonical_json(&other)))));
+        assert_eq!(refused, format!("{SECTIONS_MISMATCH}: admission.input_manifest_sha256"));
+        // The texts without exact_route (a pressure-free input).
+        let refused = refusal_text(witness_render_on(&live, &render_args(&pressure_free_input(), Some(&w.result), Some(&w.intake), Some(&manifest))));
+        assert_eq!(refused, format!("{SECTIONS_MISMATCH}: exact_route"));
+        let refused = refusal_text(production_render_on(&live, &render_args(&pressure_free_input(), Some(&w.result), None, None)));
+        assert_eq!(refused, format!("{SECTIONS_MISMATCH}: exact_route"));
+    }
+
+    #[test]
+    fn the_save_refuses_when_custody_ends_during_its_dialog_and_writes_nothing() {
+        use crate::report_package_save::test_support::{desktop_request, model, sandbox, save_request};
+        let w = witness(STRAIGHT);
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+        for release in [false, true] {
+            let live = live(&w);
+            let digests = live.registry.custody_binding(&live.job).unwrap();
+            // A pressure-free admitted package carrying an exact custody record:
+            // the post-dialog re-check is the only exact step on this path.
+            let mut admitted = crate::report_package_save::admit_report_package(save_request(&desktop_request(&model()), &model()), &software(), &mut no_store).unwrap();
+            admitted.exact_custody = Some((live.job.clone(), digests));
+            let root = sandbox(if release { "custody-ends" } else { "custody-held" });
+            let target = root.join("exact.opsproj");
+            let custody = |job: &str| live.registry.custody_binding(job);
+            let outcome = save_admitted_report_package_in(admitted, &custody, |_| {
+                if release {
+                    live.registry.dispose_result(&live.job).unwrap();
+                }
+                Some(Ok(target.clone()))
+            });
+            if release {
+                let error = outcome.expect_err("custody ended during the dialog");
+                assert_eq!(error.code, CUSTODY_RELEASED);
+                assert!(!target.exists(), "nothing is written");
+            } else {
+                assert_eq!(outcome.unwrap().outcome, "saved");
+                assert!(target.exists());
+            }
+            std::fs::remove_dir_all(&root).unwrap();
+        }
+    }
+
+    /// The regression check for the revision-4 gate finding: the production
+    /// native render refuses a genuine exact input from a live job, with its
+    /// genuine texts, at step 0, before any parse, lease growth or custody use.
+    #[test]
+    fn the_production_native_render_refuses_a_genuine_exact_result() {
+        let w = witness(STRAIGHT);
+        let live = live(&w);
+        let args = genuine_render_args(&w, &live.job);
+        let before = live.registry.custody_binding(&live.job);
+        let (mut decoded, mut lease) = admit_json(&live.registry, "render_calculation_report", ArgsDecoding::Moved, &args).unwrap();
+        let admitted_bytes = lease.bytes();
+        let (outcome, measured) = measure(|| crate::render_calculation_report_args(&mut decoded, &live.registry, &mut lease));
+        assert_eq!(refusal_text(outcome), PRODUCTION_REFUSAL);
+        assert_eq!(lease.bytes(), admitted_bytes, "the lease does not grow");
+        assert!(measured.peak_requested < (w.result.len() as u64) / 4, "neither text is parsed: {measured:?}");
+        assert_eq!(live.registry.custody_binding(&live.job), before, "custody is unchanged");
+        drop(lease);
+        // From the raw body, as the command does.
+        let body = InvokeBody::Raw(serde_json::to_vec(&args).unwrap());
+        let (mut decoded, mut lease) =
+            admit_body(&live.registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1)), "render_calculation_report", ArgsDecoding::Moved).unwrap();
+        assert_eq!(refusal_text(crate::render_calculation_report_args(&mut decoded, &live.registry, &mut lease)), PRODUCTION_REFUSAL);
+        // An exact_route naming another identity refuses likewise; under the
+        // witness set, preview-physics-2 and an invented identity still refuse.
+        for (id, witness_refuses) in [
+            (PRESSURE_SOURCE_ID, false),
+            (open_pipe_stress_result_export::semantic_contract::PREVIEW_PHYSICS_ID, true),
+            ("openpipestress.result_semantics/0.3.0/invented-1", true),
+        ] {
+            let mut args = args.clone();
+            args["input"]["exact_route"]["semantic_contract_id"] = json!(id);
+            let refused = refusal_text(production_render_on(&live, &args));
+            assert!(refused.starts_with(RENDER_ROUTE_NOT_ADMITTED), "{id}: {refused}");
+            if witness_refuses {
+                let refused = refusal_text(witness_render_on(&live, &args));
+                assert!(refused.starts_with(RENDER_ROUTE_NOT_ADMITTED), "{id}: {refused}");
+            }
+        }
+        // `RENDER_ADMITTED_EXACT_CONTRACTS` is empty.
+        assert!(crate::report_render_exact::RENDER_ADMITTED_EXACT_CONTRACTS.is_empty());
+    }
+
+    #[test]
+    fn the_exact_texts_are_priced_before_any_parse() {
+        let w = witness(STRAIGHT);
+        let request = canonical_json(&bound(&w.request, "job"));
+        let model = canonical_json(&w.model);
+        let manifest = canonical_json(&w.manifest);
+        let base = parse_lease_bytes(&request, &model, &manifest).unwrap();
+        let price = |text: &str| text_parse_bytes(text, ArgsDecoding::Moved).unwrap();
+        assert_eq!(
+            parse_lease_bytes_with_exact(&request, &model, &manifest, Some(&w.result), Some(&w.intake)).unwrap(),
+            base + price(&w.result) + price(&w.intake)
+        );
+        assert_eq!(parse_lease_bytes_with_exact(&request, &model, &manifest, None, None).unwrap(), base);
+        let m_r = crate::ingress::prescan(w.result.as_bytes()).unwrap().materialization_bytes;
+        assert_eq!(
+            exact_render_growth_bytes(&w.result, &w.intake, &manifest).unwrap(),
+            price(&w.result) + price(&w.intake) + price(&manifest) + REPORT_PACKAGE_WORKING_MEMORY_FACTOR * m_r
+        );
+        // Oversize texts refuse with the save's TOO_LARGE before any parse.
+        let over = " ".repeat(MAX_MODEL_TEXT_BYTES as usize + 1);
+        assert_eq!(parse_lease_bytes_with_exact(&request, &model, &manifest, None, Some(&over)).unwrap_err().code, TOO_LARGE);
+        let live = live(&w);
+        let mut args = genuine_render_args(&w, &live.job);
+        args["exactIntakeText"] = json!(over);
+        let refused = refusal_text(witness_render_on(&live, &args));
+        assert!(refused.starts_with(TOO_LARGE), "{}", &refused[..refused.len().min(120)]);
+    }
+
+    #[test]
+    fn a_refused_growth_refuses_with_its_resource_refusal_and_parses_nothing() {
+        let w = witness(STRAIGHT);
+        let host = ScriptedHost::normal();
+        let live = live_on(host.clone(), &w.intake, &w.mode, &w.result);
+        let (mut decoded, mut lease) = admit_json(&live.registry, "render_calculation_report", ArgsDecoding::Moved, &genuine_render_args(&w, &live.job)).unwrap();
+        host.set(|s| s.headroom_bytes = Some(0));
+        let admitted_bytes = lease.bytes();
+        let (outcome, measured) = measure(|| render_calculation_report_args_in(&mut decoded, &live.registry, &mut lease, EXACT_RENDER_WITNESS_ADMITTED));
+        match outcome {
+            Err(CommandError::Ingress(crate::solve_jobs::SolveJobError::ResourceUnavailable { .. })) => {}
+            other => panic!("not a resource refusal: {other:?}"),
+        }
+        assert_eq!(lease.bytes(), admitted_bytes);
+        assert!(measured.peak_requested < (w.result.len() as u64) / 4, "nothing is parsed: {measured:?}");
+    }
+
+    /// The whole-command counting-allocator check of the genuine exact render
+    /// (from the raw body through the ingress admission and the witness path)
+    /// and of the genuine exact save (to its item-0 refusal): each priced peak
+    /// is within its lease, less the buffered body's envelope, which is
+    /// allocated before the command runs. W M_r and the save's W M are measured
+    /// provisions for these witness inputs, not proven bounds (§3.6).
+    #[test]
+    fn the_genuine_exact_render_and_save_stay_within_their_leases() {
+        let w = witness(STRAIGHT);
+        let live = live(&w);
+        let raw = serde_json::to_vec(&genuine_render_args(&w, &live.job)).unwrap();
+        let envelope = crate::ingress::allocation_envelope(raw.len() as u64).unwrap();
+        let body = InvokeBody::Raw(raw);
+        let headers = headers(Some(INGRESS_ARGS_JSON_V1));
+        let ((response, lease_bytes), measured) = measure(|| {
+            let (mut decoded, mut lease) = admit_body(&live.registry, &body, &headers, "render_calculation_report", ArgsDecoding::Moved).unwrap();
+            let response = respond(render_calculation_report_args_in(&mut decoded, &live.registry, &mut lease, EXACT_RENDER_WITNESS_ADMITTED)).map(response_text);
+            drop(decoded);
+            (response, lease.bytes())
+        });
+        let response = response.expect("the genuine input renders");
+        assert!(response.contains("\"export_blocked\":false"));
+        assert!(measured.peak_priced <= lease_bytes - envelope, "render: priced peak {} exceeds its lease {}", measured.peak_priced, lease_bytes - envelope);
+        eprintln!("exact render: text {} priced peak {} lease {}", w.result.len(), measured.peak_priced, lease_bytes - envelope);
+
+        let args = save_args(&bound(&w.request, &live.job), &w, &w.model, Some(&w.result), Some(&w.intake));
+        let mut raw_body = crate::report_package_save::test_support::args_body(&args);
+        raw_body["exactResultText"] = json!(w.result);
+        raw_body["exactIntakeText"] = json!(w.intake);
+        let raw = serde_json::to_vec(&raw_body).unwrap();
+        let envelope = crate::ingress::allocation_envelope(raw.len() as u64).unwrap();
+        let body = InvokeBody::Raw(raw);
+        let custody = |job: &str| live.registry.custody_binding(job);
+        let ((code, lease_bytes), measured) = measure(|| {
+            let (mut decoded, mut lease) = admit_body(&live.registry, &body, &headers, "save_report_package", ArgsDecoding::Moved).unwrap();
+            let request = crate::report_package_save::save_report_package_args(&mut decoded).unwrap();
+            drop(decoded);
+            let growth = parse_lease_bytes_with_exact(
+                &request.request_text,
+                &request.model_text,
+                &request.input_manifest_text,
+                request.exact_result_text.as_deref(),
+                request.exact_intake_text.as_deref(),
+            )
+            .unwrap();
+            lease.grow_to(lease.bytes() + growth).unwrap();
+            let code = admit_report_package_in(request, &software(), &mut no_store, &custody).map(drop).unwrap_err().code;
+            (code, lease.bytes())
+        });
+        assert_eq!(code, ROUTE_NOT_ADMITTED);
+        assert!(measured.peak_priced <= lease_bytes - envelope, "save: priced peak {} exceeds its lease {}", measured.peak_priced, lease_bytes - envelope);
+        eprintln!("exact save: priced peak {} lease {}", measured.peak_priced, lease_bytes - envelope);
     }
 }

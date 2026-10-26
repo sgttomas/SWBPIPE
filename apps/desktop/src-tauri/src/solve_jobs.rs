@@ -34,6 +34,16 @@
 //!    and neither publishes a result. It never releases a live job's owners
 //!    itself; the supervisor drops them after reaping its worker.
 //!
+//! Custody digests (W-11, DEL-08-01 Design `exact-route-report-sections.md`
+//! §3.6): each job records the SHA-256 of the raw model body it admitted, hashed
+//! in place before the body is copied, and of its result bytes, hashed in place
+//! in the supervisor thread before publication, with the admitted solver mode.
+//! This is 65 bytes of digest metadata per job; no result or model bytes are
+//! retained for it and no lease changes. [`SolveJobRegistry::custody_binding`]
+//! returns them only while the result is delivered and its custody lease is
+//! held; disposal and pruning release them with custody. The native render and
+//! save of an exact-route report bind resubmitted texts to them.
+//!
 //! Locks: the registry lock may be held while taking the pool lock (lease
 //! drop/grow) or a worker's control lock (kill); the pool never calls back
 //! into the registry under its lock, and the supervisor never takes the
@@ -50,6 +60,7 @@ use crate::solve_worker::{
 };
 use open_pipe_stress_product_physics::PreviewSolverMode;
 use serde::Serialize;
+use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
@@ -209,6 +220,20 @@ impl SolveJobError {
     }
 }
 
+/// A job's custody digests (§3.6): the SHA-256 of the raw model body `start`
+/// admitted, of the result bytes the job published, and the admitted mode.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct CustodyDigests {
+    pub intake_sha256: [u8; 32],
+    pub result_sha256: [u8; 32],
+    pub solver_mode: PreviewSolverMode,
+}
+
+/// The SHA-256 of `bytes`, hashed in place: no allocation.
+pub(crate) fn sha256_in_place(bytes: &[u8]) -> [u8; 32] {
+    Sha256::digest(bytes).into()
+}
+
 #[derive(Debug)]
 struct SolveJobRecord {
     number: u64,
@@ -230,6 +255,10 @@ struct SolveJobRecord {
     resource: JobResource,
     /// Kill access to the job's worker process while it may be unreaped.
     worker: Option<Arc<WorkerControl>>,
+    /// The SHA-256 of the admitted raw model body and the admitted mode.
+    intake: ([u8; 32], PreviewSolverMode),
+    /// Set at publication; released with the result and its custody lease.
+    custody_digests: Option<CustodyDigests>,
 }
 
 #[derive(Debug, Default)]
@@ -455,6 +484,8 @@ impl SolveJobRegistry {
                 ));
             }
         }
+        // Hashed in place, before the body is copied for the worker (§3.6).
+        let intake_sha256 = sha256_in_place(body);
         // The reservation precedes this process's copy of the raw bytes.
         let ingress_bytes = ingress::allocation_envelope(bound.raw_len).unwrap_or(u64::MAX);
         // No job exists yet, so nothing can cancel this wait.
@@ -506,6 +537,8 @@ impl SolveJobRegistry {
                     delivered: false,
                     resource: resource.clone(),
                     worker: None,
+                    intake: (intake_sha256, mode),
+                    custody_digests: None,
                 },
             );
             (job_id, token)
@@ -633,7 +666,11 @@ impl SolveJobRegistry {
                 });
             }
             Ok(WorkerOutcome::Completed { result, lease }) => match String::from_utf8(result) {
-                Ok(result) => self.publish(&job_id, result, lease),
+                Ok(result) => {
+                    // Hashed in place, before publication takes the registry lock (§3.6).
+                    let result_sha256 = sha256_in_place(result.as_bytes());
+                    self.publish(&job_id, result, lease, result_sha256)
+                }
                 Err(_) => {
                     drop(lease);
                     self.finish(&job_id, |record| {
@@ -665,7 +702,7 @@ impl SolveJobRegistry {
 
     /// Retains a finished result under its result lease, unless the job was
     /// cancelled or retention is full (both drop it).
-    fn publish(&self, job_id: &str, result: String, lease: Lease) {
+    fn publish(&self, job_id: &str, result: String, lease: Lease, result_sha256: [u8; 32]) {
         let mut table = self.table();
         let retained = table.counts().retained;
         let Some(record) = table.records.get_mut(job_id) else { return };
@@ -696,7 +733,22 @@ impl SolveJobRegistry {
         record.result_bytes = Some(result.len() as u64);
         record.result = Some(result);
         record.result_lease = Some(lease);
+        let (intake_sha256, solver_mode) = record.intake;
+        record.custody_digests = Some(CustodyDigests { intake_sha256, result_sha256, solver_mode });
         table.prune();
+    }
+
+    /// The job's custody digests (§3.6), a copy, only while its result is
+    /// delivered and its custody lease is held: none for an unknown job, an
+    /// untaken (retained) result, or after disposal or pruning.
+    pub(crate) fn custody_binding(&self, job_id: &str) -> Option<CustodyDigests> {
+        let table = self.table();
+        let record = table.records.get(job_id)?;
+        if record.delivered && record.result.is_none() && record.result_lease.is_some() {
+            record.custody_digests
+        } else {
+            None
+        }
     }
 
     /// The job's state; never returns or clones the result.
@@ -758,6 +810,8 @@ impl SolveJobRegistry {
         let record = table.records.get_mut(job_id).ok_or_else(|| SolveJobError::invalid(format!("unknown solve job: {job_id}")))?;
         let result = record.result.take();
         let lease = record.result_lease.take();
+        // The digests are released with custody.
+        record.custody_digests = None;
         let released_bytes = lease.as_ref().map_or(0, Lease::bytes);
         let receipt = SolveResultDisposal {
             job_id: job_id.to_string(),
@@ -800,6 +854,7 @@ impl SolveJobRegistry {
             }
             let result = record.result.take();
             let lease = record.result_lease.take();
+            record.custody_digests = None;
             if result.is_some() || lease.is_some() {
                 released.push((result, lease));
             }
@@ -884,6 +939,28 @@ pub(crate) mod test_support {
 
     pub(crate) fn wait_terminal(registry: &SolveJobRegistry, job_id: &str) -> SolveJobStatusReport {
         wait_for(registry, job_id, |s| !matches!(s.state, "queued" | "running"))
+    }
+
+    /// W-11 (§3.6): a gated registry job admitted from `intake` under `mode`,
+    /// released with `result` and taken into custody, as a delivered result is.
+    /// Returns the registry, its gate (kept alive by the caller) and the job id.
+    pub(crate) fn delivered_in_custody(
+        host: Arc<ScriptedHost>,
+        intake: &[u8],
+        mode: Option<&str>,
+        result: &str,
+    ) -> (SolveJobRegistry, Arc<crate::solve_worker::test_support::Gate>, String) {
+        let gate = crate::solve_worker::test_support::Gate::new("custody");
+        let pool = MemoryPool::with_wait_tick(host, Duration::from_millis(5));
+        pool.set_max_running_workers(16);
+        let registry = SolveJobRegistry::with_hooks(pool, gate.launcher(), Arc::new(thread_spawn));
+        let receipt = registry.start(intake, mode).unwrap_or_else(|e| panic!("{e:?}"));
+        gate.wait_started(1);
+        gate.release(result);
+        let status = wait_terminal(&registry, &receipt.job_id);
+        assert_eq!(status.state, "completed", "{status:?}");
+        assert_eq!(registry.take_result(&receipt.job_id).unwrap(), result.as_bytes());
+        (registry, gate, receipt.job_id)
     }
 
     /// Runs one job through the real ordinary solve in a worker and returns
@@ -988,6 +1065,112 @@ mod tests {
 
     fn pool_exhausted(status: &SolveJobStatusReport) -> bool {
         matches!(status.queue_reason, Some(ResourceRefusal::PoolExhausted { .. }))
+    }
+
+    /// W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.6, §7 slice
+    /// (b)): the custody digests are the SHA-256 of the admitted body and of the
+    /// delivered bytes with the admitted mode, available only while the result
+    /// is delivered and in custody.
+    #[test]
+    fn custody_digests_bind_the_admitted_body_the_delivered_bytes_and_the_mode() {
+        const RESULT: &str = "{\"result\":\"delivered bytes\"}";
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated(&host);
+        let receipt = registry.start(MODEL, Some("dense_scrutiny")).unwrap();
+        gate.wait_started(1);
+        assert_eq!(registry.custody_binding(&receipt.job_id), None, "running: no binding");
+        gate.release(RESULT);
+        assert_eq!(wait_terminal(&registry, &receipt.job_id).state, "completed");
+        assert_eq!(registry.custody_binding(&receipt.job_id), None, "a retained, untaken result has no binding");
+        registry.take_result(&receipt.job_id).unwrap();
+        let expected = CustodyDigests {
+            intake_sha256: Sha256::digest(MODEL).into(),
+            result_sha256: Sha256::digest(RESULT.as_bytes()).into(),
+            solver_mode: PreviewSolverMode::DenseScrutiny,
+        };
+        assert_eq!(registry.custody_binding(&receipt.job_id), Some(expected));
+        // The default mode is recorded as admitted.
+        let second = registry.start(MODEL, None).unwrap();
+        gate.wait_started(2);
+        gate.release(RESULT);
+        assert_eq!(wait_terminal(&registry, &second.job_id).state, "completed");
+        registry.take_result(&second.job_id).unwrap();
+        assert_eq!(registry.custody_binding(&second.job_id).map(|d| d.solver_mode), Some(PreviewSolverMode::default()));
+        // Released with custody: one job by `dispose_result`, the other by `dispose_all_results`.
+        registry.dispose_result(&receipt.job_id).unwrap();
+        assert_eq!(registry.custody_binding(&receipt.job_id), None);
+        assert!(registry.table().records[&receipt.job_id].custody_digests.is_none());
+        assert!(registry.custody_binding(&second.job_id).is_some());
+        registry.dispose_all_results();
+        assert_eq!(registry.custody_binding(&second.job_id), None);
+        assert!(registry.table().records[&second.job_id].custody_digests.is_none());
+        assert_eq!(registry.custody_binding("backend-solve-job-unknown"), None);
+        // A disposed untaken result never had a binding.
+        let third = registry.start(MODEL, None).unwrap();
+        gate.wait_started(3);
+        gate.release(RESULT);
+        assert_eq!(wait_terminal(&registry, &third.job_id).state, "completed");
+        registry.dispose_result(&third.job_id).unwrap();
+        assert_eq!(registry.custody_binding(&third.job_id), None);
+        assert_eq!(registry.pool().reserved_total(), 0);
+    }
+
+    /// Pruning removes a released record and its digests with it; a record in
+    /// custody is never pruned and keeps its binding.
+    #[test]
+    fn pruning_removes_released_digests_and_keeps_custody() {
+        struct EchoTwice(std::sync::atomic::AtomicUsize);
+        impl WorkerLauncher for EchoTwice {
+            fn command(&self) -> std::io::Result<std::process::Command> {
+                if self.0.fetch_add(1, Ordering::SeqCst) >= 2 {
+                    return Err(std::io::Error::other("fast failure for a registry-logic test"));
+                }
+                TestLauncher::scripted("echo").command()
+            }
+        }
+        let host = ScriptedHost::normal();
+        let registry = registry(&host, Arc::new(EchoTwice(Default::default())));
+        let released = registry.start(MODEL, None).unwrap();
+        let kept = registry.start(MODEL, None).unwrap();
+        for job in [&released, &kept] {
+            assert_eq!(wait_terminal(&registry, &job.job_id).state, "completed");
+            registry.take_result(&job.job_id).unwrap();
+        }
+        // The echo workload returns the body: both digests are the body's.
+        let body: [u8; 32] = Sha256::digest(MODEL).into();
+        assert_eq!(registry.custody_binding(&kept.job_id).map(|d| (d.intake_sha256, d.result_sha256)), Some((body, body)));
+        registry.dispose_result(&released.job_id).unwrap();
+        for _ in 0..(MAX_TERMINAL_RECORDS + 10) {
+            let receipt = registry.start(MODEL, None).unwrap();
+            assert_eq!(wait_terminal(&registry, &receipt.job_id).state, "failed");
+        }
+        assert!(registry.status(&released.job_id).is_err(), "the released record was pruned");
+        assert_eq!(registry.custody_binding(&released.job_id), None);
+        assert!(registry.custody_binding(&kept.job_id).is_some(), "a record in custody is never pruned");
+        registry.dispose_result(&kept.job_id).unwrap();
+    }
+
+    /// The two hashes allocate nothing (counting allocator), and taking a
+    /// result hashes nothing: its digests were recorded at publication.
+    #[test]
+    fn custody_hashes_allocate_nothing_and_take_hashes_nothing() {
+        let large = vec![b'x'; 1 << 20];
+        let (digest, measured) = crate::ingress::counting::measure(|| sha256_in_place(&large));
+        assert_eq!(digest, <[u8; 32]>::from(Sha256::digest(&large)));
+        assert_eq!(measured.allocations, 0, "{measured:?}");
+        // `take_result` moves the bytes and grows the lease; the binding equals
+        // what publication recorded, before and after the take.
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated(&host);
+        let receipt = registry.start(MODEL, None).unwrap();
+        gate.wait_started(1);
+        gate.release("{\"r\":1}");
+        assert_eq!(wait_terminal(&registry, &receipt.job_id).state, "completed");
+        let published = registry.table().records[&receipt.job_id].custody_digests;
+        assert!(published.is_some(), "recorded at publication");
+        registry.take_result(&receipt.job_id).unwrap();
+        assert_eq!(registry.custody_binding(&receipt.job_id), published);
+        registry.dispose_result(&receipt.job_id).unwrap();
     }
 
     /// Owner test: the bundled demo through a real worker in both modes gives

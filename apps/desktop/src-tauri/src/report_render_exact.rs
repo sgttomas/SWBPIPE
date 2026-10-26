@@ -18,12 +18,26 @@
 //! `EXACT_RENDER_WITNESS_ADMITTED` exists only in this crate's test build, for
 //! `report_render_exact_tests.rs`. The set reaches step 0 only along the graph
 //! that `report_render_exact_tests::render_admitted_set_forwarding_graph_is_closed`
-//! verifies. Slice (a) adds no custody binding, resubmitted source or
-//! re-derivation: an input step 0 admits (only the witness set admits any)
-//! goes straight to the renderer. Standard claim fence applies (claims
-//! taxonomy per DEC-081).
+//! verifies.
+//!
+//! Behind step 0 (slice (b), §3.6), an input with `exact_route` that step 0
+//! admits (before opening, only the witness set admits any) is bound to the
+//! source natively before it is rendered: the named job's custody, the
+//! resubmitted result, intake and input-manifest texts against the digests
+//! the host recorded, a priced parse under the command's lease, the native
+//! reader's eligible standing, and the re-derivation of the rows, the exact
+//! limitation entries and the `exact_route` section from the delivered result
+//! with the report package's own functions (`exact_source_binding.rs`). An
+//! input that carries the texts without `exact_route` refuses. Standard claim
+//! fence applies (claims taxonomy per DEC-081).
 
-use crate::command_ingress::{Args, CommandError};
+use crate::command_ingress::{text_parse_bytes, Args, ArgsDecoding, CommandError, REPORT_PACKAGE_WORKING_MEMORY_FACTOR};
+use crate::exact_source_binding::{self as binding, sections_mismatch, ExactRefusal};
+use crate::memory_pool::Lease;
+use crate::report_package_save::{MAX_INPUT_MANIFEST_TEXT_BYTES, MAX_MODEL_TEXT_BYTES, MAX_REQUEST_TEXT_BYTES, TOO_LARGE};
+use crate::solve_jobs::SolveJobRegistry;
+use open_pipe_stress_report_package::bindings::expected_report_result_rows;
+use open_pipe_stress_report_package::exact_sections::{check_exact_limitation_entries, expected_exact_limitations, expected_exact_route_core};
 use open_pipe_stress_result_export::semantic_contract::{PHYSICS_RETAINED_ID, PRESSURE_ID, PRESSURE_SOURCE_ID};
 use serde_json::Value;
 use std::fmt::Write as _;
@@ -57,12 +71,180 @@ pub(crate) const PRODUCTION: RenderAdmittedSet = RenderAdmittedSet(&RENDER_ADMIT
 #[cfg(test)]
 pub(crate) const EXACT_RENDER_WITNESS_ADMITTED: RenderAdmittedSet = RenderAdmittedSet(&[PRESSURE_ID, PRESSURE_SOURCE_ID]);
 
-/// The render command's path after ingress: step 0 against `admitted`, then
-/// the renderer.
-pub(crate) fn render_calculation_report_args_in(args: &mut Args, admitted: RenderAdmittedSet) -> Result<Value, CommandError> {
+/// The render command's path after ingress: step 0 against `admitted`, then,
+/// for an input with `exact_route`, the native source binding (§3.6) under
+/// the command's `lease`, then the renderer.
+pub(crate) fn render_calculation_report_args_in(
+    args: &mut Args,
+    registry: &SolveJobRegistry,
+    lease: &mut Lease,
+    admitted: RenderAdmittedSet,
+) -> Result<Value, CommandError> {
     let input = args.value("input")?;
     check_render_route_admitted(&input, admitted).map_err(CommandError::Command)?;
+    let texts = ExactRenderTexts {
+        result: args.decode("exactResultText")?,
+        intake: args.decode("exactIntakeText")?,
+        input_manifest: args.decode("inputManifestText")?,
+    };
+    let exact = input.get("exact_route").is_some_and(|route| !route.is_null());
+    if exact {
+        bind_exact_render_input(&input, &texts, registry, lease)?;
+    } else if texts.any() {
+        return Err(CommandError::Command(sections_mismatch("exact_route").message));
+    }
+    drop(texts);
     crate::render_calculation_report_value(input).map_err(CommandError::Command)
+}
+
+/// The texts an exact render resubmits (§3.6); none for any other input.
+pub(crate) struct ExactRenderTexts {
+    pub result: Option<String>,
+    pub intake: Option<String>,
+    pub input_manifest: Option<String>,
+}
+
+impl ExactRenderTexts {
+    fn any(&self) -> bool {
+        self.result.is_some() || self.intake.is_some() || self.input_manifest.is_some()
+    }
+}
+
+fn refused(refusal: ExactRefusal) -> CommandError {
+    CommandError::Command(refusal.message)
+}
+
+/// The render's lease growth before its parse (§3.6, "Pricing"): the three
+/// texts' priced parses ([`text_parse_bytes`]) plus W M_r, the render's
+/// working-memory provision, with M_r the result text's materialization bound
+/// and W [`REPORT_PACKAGE_WORKING_MEMORY_FACTOR`]. A measured provision for
+/// the witness inputs, not a proven bound.
+pub(crate) fn exact_render_growth_bytes(result: &str, intake: &str, input_manifest: &str) -> Result<u64, String> {
+    let priced = |what: &str, text: &str| {
+        text_parse_bytes(text, ArgsDecoding::Moved)
+            .map_err(|invalid| format!("{}: {what}: the text is not JSON ({} at byte {}).", binding::SOURCE_NOT_DELIVERED, invalid.reason, invalid.offset))
+    };
+    let working = crate::ingress::prescan(result.as_bytes())
+        .map_err(|invalid| format!("{}: result: the text is not JSON ({} at byte {}).", binding::SOURCE_NOT_DELIVERED, invalid.reason, invalid.offset))?
+        .materialization_bytes
+        .saturating_mul(REPORT_PACKAGE_WORKING_MEMORY_FACTOR);
+    Ok(priced("result", result)?
+        .saturating_add(priced("model", intake)?)
+        .saturating_add(priced("input_manifest", input_manifest)?)
+        .saturating_add(working))
+}
+
+/// The size caps of the save, before any parse (§3.6).
+fn check_render_text_sizes(texts: &ExactRenderTexts) -> Result<(), String> {
+    for (what, text, cap) in [
+        ("result", texts.result.as_deref(), MAX_REQUEST_TEXT_BYTES),
+        ("model", texts.intake.as_deref(), MAX_MODEL_TEXT_BYTES),
+        ("input_manifest", texts.input_manifest.as_deref(), MAX_INPUT_MANIFEST_TEXT_BYTES),
+    ] {
+        let bytes = text.map_or(0, str::len) as u64;
+        if bytes > cap {
+            return Err(format!("{TOO_LARGE}: /{what}: The {what} text is {bytes} bytes; at most {cap} are admitted."));
+        }
+    }
+    Ok(())
+}
+
+/// The native source binding of an exact render (§3.6): steps 1-5, then the
+/// input manifest and the re-derivation of the rows, the exact limitation
+/// entries and the `exact_route` section from the delivered result. Refuses
+/// with the first difference; the renderer's own checks (§3.2, §3.5) follow.
+fn bind_exact_render_input(
+    input: &Value,
+    texts: &ExactRenderTexts,
+    registry: &SolveJobRegistry,
+    lease: &mut Lease,
+) -> Result<(), CommandError> {
+    let route = &input["exact_route"];
+    let admission = &route["admission"];
+    // Step 1: custody.
+    let digests = binding::check_custody(admission, &|job| registry.custody_binding(job)).map_err(refused)?;
+    // The caps, then step 2: the delivered bytes, hashed in place.
+    check_render_text_sizes(texts).map_err(CommandError::Command)?;
+    binding::check_delivered_texts(admission, &digests, texts.result.as_deref(), texts.intake.as_deref()).map_err(refused)?;
+    let (result, intake) = (texts.result.as_deref().unwrap_or(""), texts.intake.as_deref().unwrap_or(""));
+    let manifest_text = texts.input_manifest.as_deref().ok_or_else(|| refused(sections_mismatch("input_manifest")))?;
+    // Step 3: the lease grows by the priced parse and W M_r before any parse.
+    let growth = exact_render_growth_bytes(result, intake, manifest_text).map_err(CommandError::Command)?;
+    lease.grow_to(lease.bytes().saturating_add(growth)).map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))?;
+    // Steps 3-5: parse, the native standing, the result and model digests.
+    let bound = binding::read_delivered_source(admission, &digests, result, intake).map_err(refused)?;
+    // The input manifest, parsed as the save parses its own: its SHA-256 is the
+    // binding's, and its model is the bound model.
+    let manifest = crate::report_package_save::parse_canonical("input_manifest", manifest_text)
+        .map_err(|_| refused(sections_mismatch("admission.input_manifest_sha256")))?;
+    let manifest_sha256 = crate::solve_jobs::sha256_in_place(manifest_text.as_bytes());
+    if !binding::hex_equals(&manifest_sha256, admission["input_manifest_sha256"].as_str().unwrap_or("")) {
+        return Err(refused(sections_mismatch("admission.input_manifest_sha256")));
+    }
+    crate::report_package_save::check_manifest_model(&manifest, &bound.model, &bound.model_sha256)
+        .map_err(|_| refused(sections_mismatch("input_manifest.model_basis")))?;
+    drop(manifest);
+    rederive(input, &bound.source, &bound.model_sha256, &digests).map_err(|section| refused(sections_mismatch(&section)))
+}
+
+/// The re-derivation (§3.6) with the functions the package's item 9 uses: the
+/// result rows (followed only by the panel's numerical-health lines, which
+/// carry no source value), the exact limitation entries with the profile
+/// reference, and the `exact_route` section. `input_manifest_ref` and
+/// `derivative_sha256` are checked for form here and against the report's own
+/// records by the renderer (§3.2). `Err` names the section.
+fn rederive(input: &Value, source: &Value, model_sha256: &str, digests: &crate::solve_jobs::CustodyDigests) -> Result<(), String> {
+    let rows = expected_report_result_rows(source).map_err(|_| "result_rows".to_string())?;
+    let found = input["result_rows"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+    let tail_is_health = found.get(rows.len()..).is_some_and(|tail| {
+        tail.iter().all(|row| {
+            row["row_id"].as_str().is_some_and(|id| id.starts_with("numerical-health:")) && row["quantity_display"] == ""
+        })
+    });
+    if found.len() < rows.len() || found[..rows.len()] != rows[..] || !tail_is_health {
+        return Err("result_rows".to_string());
+    }
+    let core = expected_exact_route_core(source).map_err(|_| "exact_route".to_string())?;
+    let route = &input["exact_route"];
+    let admission = &route["admission"];
+    let text = |value: &Value| value.as_str().unwrap_or("").to_string();
+    for (section, found, expected) in [
+        ("semantic_contract_id", text(&route["semantic_contract_id"]), core.semantic_contract_id.clone()),
+        ("admission.semantic_contract_id", text(&admission["semantic_contract_id"]), core.semantic_contract_id.clone()),
+        ("admission.run_ref", text(&admission["run_ref"]), core.run_ref.clone()),
+        ("admission.result_envelope_id", text(&admission["result_envelope_id"]), core.result_envelope_id.clone()),
+        ("admission.received_result_sha256", text(&admission["received_result_sha256"]), core.received_result_sha256.clone()),
+        ("admission.model_sha256", text(&admission["model_sha256"]), model_sha256.to_string()),
+    ] {
+        if found != expected {
+            return Err(section.to_string());
+        }
+    }
+    if !binding::hex_equals(&digests.result_sha256, admission["received_bytes_sha256"].as_str().unwrap_or("")) {
+        return Err("admission.received_bytes_sha256".to_string());
+    }
+    if text(&admission["input_manifest_ref"]).trim().is_empty() {
+        return Err("admission.input_manifest_ref".to_string());
+    }
+    let derivative = text(&admission["derivative_sha256"]);
+    if derivative.len() != 64 || !derivative.bytes().all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte)) {
+        return Err("admission.derivative_sha256".to_string());
+    }
+    let load_reference = match &route["load_reference_states"] {
+        Value::Null => None,
+        Value::String(line) => Some(line.clone()),
+        _ => return Err("load_reference_states".to_string()),
+    };
+    if load_reference != core.load_reference_states {
+        return Err("load_reference_states".to_string());
+    }
+    let headlines = serde_json::to_value(&core.headlines).map_err(|_| "headlines".to_string())?;
+    if route["headlines"] != headlines {
+        return Err("headlines".to_string());
+    }
+    let entries = expected_exact_limitations(source, &core.run_ref).map_err(|_| "limitations".to_string())?;
+    let limitations = input.pointer("/report_sections/limitations").and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]);
+    check_exact_limitation_entries(&entries, &core.run_ref, limitations).map_err(|detail| format!("limitations: {detail}"))
 }
 
 /// Step 0 (§3.6). It reads only structured markers at the input's defined
