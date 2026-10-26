@@ -129,10 +129,10 @@ function workspace() {
   return { root, write, read, desktopRoot, tauriDir, cargo, runCargo, prepare, take, setEngine, record, cleanup: () => rmSync(root, { recursive: true, force: true }) };
 }
 
-test("the binding record names the engines, frontend, dist/, app sources, build and the binary cargo reported", () => {
+test("the binding record names the engines, frontend, dist/, app sources, build and the binary cargo reported", async () => {
   const w = workspace();
   try {
-    const app = w.prepare(false);
+    const app = await w.prepare(false);
     const exe = path.join(w.tauriDir, "target/debug/app");
     assert.deepEqual(app, { binary: exe, identity: fileIdentity(exe) });
     const { calls, logs } = w.take();
@@ -153,7 +153,7 @@ test("the binding record names the engines, frontend, dist/, app sources, build 
     assert.deepEqual(record.build, BUILD);
     assert.deepEqual(record.binary, { path: exe, ...fileIdentity(exe) });
     // Then --skip-build changes nothing and launches the bound binary.
-    assert.deepEqual(w.prepare(true), app);
+    assert.deepEqual(await w.prepare(true), app);
     const skipped = w.take();
     assert.deepEqual(skipped.calls, []);
     assert.match(skipped.logs.join("\n"), /--skip-build applies/);
@@ -184,56 +184,56 @@ test("the frontend inputs: src/, the app's config files, public/ other than engi
   }
 });
 
-test("Codex r2: an old executable at the fixed path is never bound or launched when cargo built elsewhere or reported nothing", () => {
+test("Codex r2: an old executable at the fixed path is never bound or launched when cargo built elsewhere or reported nothing", async () => {
   const w = workspace();
   try {
     // The executable an earlier build left at the fixed path.
     w.write("apps/desktop/src-tauri/target/debug/app", "old binary\n");
     w.cargo.mode = "elsewhere";
-    assert.throws(() => w.prepare(false), /cargo reported the app executable at .*\/elsewhere\/debug\/app, outside .*src-tauri\/target; nothing is bound or launched/);
+    await assert.rejects(() => w.prepare(false), /cargo reported the app executable at .*\/elsewhere\/debug\/app, outside .*src-tauri\/target; nothing is bound or launched/);
     assert.equal(w.record(), null);
     w.cargo.mode = "silent";
-    assert.throws(() => w.prepare(false), /cargo reported no compiler-artifact executable for app .*; nothing is bound or launched/);
+    await assert.rejects(() => w.prepare(false), /cargo reported no compiler-artifact executable for app .*; nothing is bound or launched/);
     assert.equal(w.record(), null);
     // Under --skip-build too: no record, so cargo builds and its report decides.
-    assert.throws(() => w.prepare(true), /cargo reported no compiler-artifact executable/);
+    await assert.rejects(() => w.prepare(true), /cargo reported no compiler-artifact executable/);
     assert.equal(w.record(), null);
   } finally {
     w.cleanup();
   }
 });
 
-test("Codex r2: dist/ changing while cargo builds the app aborts the run: no binding, nothing launched", () => {
+test("Codex r2: dist/ changing while cargo builds the app aborts the run: no binding, nothing launched", async () => {
   const w = workspace();
   try {
     w.cargo.mode = "touch-dist";
-    assert.throws(() => w.prepare(false), /dist\/ changed while cargo built the app, so what the binary embeds is unknown; nothing is bound or launched/);
+    await assert.rejects(() => w.prepare(false), /dist\/ changed while cargo built the app, so what the binary embeds is unknown; nothing is bound or launched/);
     assert.equal(w.record(), null);
   } finally {
     w.cleanup();
   }
 });
 
-test("Codex r2: under --skip-build a frontend .ts edit rebuilds frontend and app; an app .rs edit, even one keeping its time, rebuilds the app clean", () => {
+test("Codex r2: under --skip-build a frontend .ts edit rebuilds frontend and app; an app .rs edit, even one keeping its time, rebuilds the app clean", async () => {
   const w = workspace();
   try {
-    w.prepare(false);
+    await w.prepare(false);
     w.take();
     const binary = () => w.read("apps/desktop/src-tauri/target/debug/app");
 
     w.write("apps/desktop/src/x.ts", "export const x = 2;\n");
-    w.prepare(true);
+    await w.prepare(true);
     let step = w.take();
     assert.deepEqual(step.calls, ["frontend", "cargo clean app,lib", "cargo build"]);
     assert.match(step.logs[0], /--skip-build overridden \(the frontend sources differ from those dist\/ was built from\); the app embeds dist\/, so the frontend and app are rebuilt/);
 
     // A fixture the frontend imports from outside src/ is a frontend input too.
     w.write("fixtures/data.json", "{\"d\":2}\n");
-    w.prepare(true);
+    await w.prepare(true);
     assert.deepEqual(w.take().calls, ["frontend", "cargo clean app,lib", "cargo build"]);
 
     w.write("apps/desktop/src-tauri/src/main.rs", "fn main() { two() }\n");
-    w.prepare(true);
+    await w.prepare(true);
     step = w.take();
     assert.deepEqual(step.calls, ["cargo clean app,lib", "cargo build"]);
     assert.match(step.logs[0], /--skip-build overridden for the app \(the app's Rust sources differ from those the binary was built from\); cargo builds it from the current dist\//);
@@ -244,37 +244,37 @@ test("Codex r2: under --skip-build a frontend .ts edit rebuilds frontend and app
     const old = statSync(main);
     writeFileSync(main, "fn main() { three() }\n");
     utimesSync(main, old.atime, old.mtime);
-    w.prepare(true);
+    await w.prepare(true);
     assert.deepEqual(w.take().calls, ["cargo clean app,lib", "cargo build"]);
     assert.match(binary(), /three\(\)/);
 
     // A compile read only the dep-info names, and the toolchain context.
     w.write("fixtures/schema.json", "{\"s\":2}\n");
-    w.prepare(true);
+    await w.prepare(true);
     assert.deepEqual(w.take().calls, ["cargo clean app,lib", "cargo build"]);
-    w.prepare(true, { context: [["rustc -vV", "rustc 1.0.1 (fake)"]] });
+    await w.prepare(true, { context: [["rustc -vV", "rustc 1.0.1 (fake)"]] });
     assert.deepEqual(w.take().calls, ["cargo clean app,lib", "cargo build"]);
-    w.prepare(true, { context: [["rustc -vV", "rustc 1.0.1 (fake)"]] });
+    await w.prepare(true, { context: [["rustc -vV", "rustc 1.0.1 (fake)"]] });
     assert.deepEqual(w.take().calls, []);
   } finally {
     w.cleanup();
   }
 });
 
-test("Codex r1: engines and dist/ rebuilt, cargo failed: a retry with --skip-build rebuilds frontend and app", () => {
+test("Codex r1: engines and dist/ rebuilt, cargo failed: a retry with --skip-build rebuilds frontend and app", async () => {
   const w = workspace();
   try {
-    w.prepare(false);
+    await w.prepare(false);
     w.take();
     // build:wasm rebuilt the engine (stamp b) and the frontend build ran, then cargo failed.
     w.setEngine("b");
     w.cargo.mode = "fail";
-    assert.throws(() => w.prepare(false), /cargo build failed/);
+    await assert.rejects(() => w.prepare(false), /cargo build failed/);
     // The record is removed before cargo runs, so the failure leaves none.
     assert.equal(w.record(), null);
     w.cargo.mode = "ok";
     w.take();
-    w.prepare(true);
+    await w.prepare(true);
     const retry = w.take();
     // The clean before the failed build removed the last dep-info, so, with no
     // record either, the retry's first build reveals a compile read and a second
@@ -287,43 +287,43 @@ test("Codex r1: engines and dist/ rebuilt, cargo failed: a retry with --skip-bui
   }
 });
 
-test("a replaced or missing binary, other engine stamps or another build command rebuild the app; a stale dist/ copy the frontend too", () => {
+test("a replaced or missing binary, other engine stamps or another build command rebuild the app; a stale dist/ copy the frontend too", async () => {
   const w = workspace();
   try {
-    w.prepare(false);
+    await w.prepare(false);
     w.take();
     const exe = path.join(w.tauriDir, "target/debug/app");
     writeFileSync(exe, "replaced\n");
-    w.prepare(true);
+    await w.prepare(true);
     let step = w.take();
     assert.deepEqual(step.calls, ["cargo clean app,lib", "cargo build"]);
     assert.match(step.logs[0], /the app binary changed since its binding was written/);
     rmSync(exe);
-    w.prepare(true);
+    await w.prepare(true);
     assert.match(w.take().logs[0], /app binary missing/);
-    w.prepare(true, { build: { ...BUILD, tauri_config: "{\"x\":1}" } });
+    await w.prepare(true, { build: { ...BUILD, tauri_config: "{\"x\":1}" } });
     assert.match(w.take().logs[0], /the app build command differs/);
-    w.prepare(true);
+    await w.prepare(true);
     assert.match(w.take().logs[0], /the app build command differs/);
     // The engine's dist/ copy no longer matches the engine stamp.
     w.setEngine("c");
-    w.prepare(true);
+    await w.prepare(true);
     step = w.take();
     assert.deepEqual(step.calls, ["frontend", "cargo clean app,lib", "cargo build"]);
     assert.match(step.logs[0], /dist\/wasm-engine: inputs changed since stamp/);
     // An unreadable record rebuilds both.
     writeFileSync(bindingPathFor(w.desktopRoot), "{ nope");
-    w.prepare(true);
+    await w.prepare(true);
     assert.match(w.take().logs[0], /app binding record unreadable/);
   } finally {
     w.cleanup();
   }
 });
 
-test("the frontend inputs moving while it builds abort the run", () => {
+test("the frontend inputs moving while it builds abort the run", async () => {
   const w = workspace();
   try {
-    assert.throws(
+    await assert.rejects(
       () => w.prepare(false, { runFrontend: () => w.write("apps/desktop/src/x.ts", "export const x = 9;\n") }),
       /the frontend inputs moved while it built \(inputs changed during the build: apps\/desktop\/src\/x\.ts\); nothing is bound or launched/
     );
@@ -339,12 +339,12 @@ test("without --skip-build both are built; a rebuilt engine rebuilds frontend an
   assert.match(rebuilt.log, /wasm-engine rebuilt/);
 });
 
-test("Codex r3: an inherited CARGO_BUILD_BUILD_DIR or CARGO_TARGET_DIR neither moves the app's build nor lets cargo clean another tree", () => {
+test("Codex r3: an inherited CARGO_BUILD_BUILD_DIR or CARGO_TARGET_DIR neither moves the app's build nor lets cargo clean another tree", async () => {
   const w = workspace();
   try {
     w.write("other-worktree/build/debug/deps/app-intermediate", "other worktree\n");
     w.cargo.inherited = { CARGO_BUILD_BUILD_DIR: path.join(w.root, "other-worktree/build"), CARGO_TARGET_DIR: path.join(w.root, "other-worktree/target") };
-    w.prepare(false);
+    await w.prepare(false);
     assert.deepEqual(w.take().calls, ["frontend", "cargo clean app,lib", "cargo build", "cargo clean app,lib", "cargo build"]);
     assert.equal(w.read("other-worktree/build/debug/deps/app-intermediate"), "other worktree\n");
     assert.ok(!existsSync(path.join(w.root, "other-worktree/target")));
@@ -358,7 +358,7 @@ test("Codex r3: an inherited CARGO_BUILD_BUILD_DIR or CARGO_TARGET_DIR neither m
   }
 });
 
-test("Codex r3: with target/debug, or target/debug/deps, a link to another worktree's output, cargo neither cleans nor builds there", () => {
+test("Codex r3: with target/debug, or target/debug/deps, a link to another worktree's output, cargo neither cleans nor builds there", async () => {
   const w = workspace();
   try {
     const target = path.join(w.tauriDir, "target");
@@ -366,31 +366,31 @@ test("Codex r3: with target/debug, or target/debug/deps, a link to another workt
     w.write("other-worktree/target/debug/deps/app-intermediate", "other worktree's intermediate\n");
     mkdirSync(target);
     symlinkSync(path.join(w.root, "other-worktree/target/debug"), path.join(target, "debug"));
-    const refused = (where) => {
-      assert.throws(() => w.prepare(false), new RegExp(`native smoke: refusing to let cargo build or clean in .*src-tauri/target: .*src-tauri/target/${where} is a symbolic link`));
+    const refused = async (where) => {
+      await assert.rejects(() => w.prepare(false), new RegExp(`native smoke: refusing to let cargo build or clean in .*src-tauri/target: .*src-tauri/target/${where} is a symbolic link`));
       assert.ok(!w.take().calls.some((call) => call.startsWith("cargo")), "no cargo ran");
       assert.equal(w.record(), null);
       assert.equal(w.read("other-worktree/target/debug/app"), "other worktree's binary\n");
       assert.equal(w.read("other-worktree/target/debug/deps/app-intermediate"), "other worktree's intermediate\n");
     };
-    refused("debug");
+    await refused("debug");
     unlinkSync(path.join(target, "debug"));
     mkdirSync(path.join(target, "debug"));
     symlinkSync(path.join(w.root, "other-worktree/target/debug/deps"), path.join(target, "debug/deps"));
-    refused("debug/deps");
+    await refused("debug/deps");
   } finally {
     w.cleanup();
   }
 });
 
-test("Codex r4: an app binary an ordinary cargo build changed after the binding is never rebound to the restored sources", () => {
+test("Codex r4: an app binary an ordinary cargo build changed after the binding is never rebound to the restored sources", async () => {
   const w = workspace();
   try {
     const main = path.join(w.tauriDir, "src/main.rs");
     const target = path.join(w.tauriDir, "target");
     const binary = () => w.read("apps/desktop/src-tauri/target/debug/app");
     // Revision A bound.
-    w.prepare(false);
+    await w.prepare(false);
     w.take();
     assert.match(binary(), /^binary fn main\(\) \{\}\n/);
     const a = statSync(main);
@@ -402,7 +402,7 @@ test("Codex r4: an app binary an ordinary cargo build changed after the binding 
     writeFileSync(main, "fn main() {}\n");
     utimesSync(main, a.atime, a.mtime);
     w.take();
-    const app = w.prepare(true);
+    const app = await w.prepare(true);
     const step = w.take();
     assert.match(step.logs[0], /the app binary changed since its binding was written/);
     // The executable bound and launched is A's.
@@ -415,10 +415,10 @@ test("Codex r4: an app binary an ordinary cargo build changed after the binding 
   }
 });
 
-test("Codex r6: the launch runs a private copy of the bound binary, checked by hash; a copy that is not the bound binary is refused and removed", () => {
+test("Codex r6: the launch runs a private copy of the bound binary, checked by hash; a copy that is not the bound binary is refused and removed", async () => {
   const w = workspace();
   try {
-    const app = w.prepare(false);
+    const app = await w.prepare(false);
     w.take();
     // The bound executable, made runnable: it reports where it runs from.
     writeFileSync(app.binary, "#!/bin/sh\necho \"running $0\"\n");

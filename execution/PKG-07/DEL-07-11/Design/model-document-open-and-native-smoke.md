@@ -407,12 +407,13 @@ differs, also under `--skip-build`. It logs `engine rebuilt: <engine>
 One per-worktree build lock, `apps/desktop/target/build.lock`
 (`scripts/worktreeBuildLock.mjs`), is held for the whole engine check, build,
 glue and publication of `build:wasm` (a direct `npm run build:wasm` takes it)
-and by `run.mjs` from its engine check through the app build and binding,
-released before the launches; `build:wasm` under the smoke inherits it through
-the token the lock records. So two builds or smokes in one worktree never
-interleave, and the `.tmp-`/`.old-` cleanup never removes another active run's
-directories. One build, or one smoke's build phase, per worktree at a time is
-the supported use; a second is refused, not queued. The lock is created
+and by `run.mjs` from its engine check through the app build, binding and
+both app launches: the smoke releases it only after its last launch ends, on
+every exit path; `build:wasm` under the smoke inherits it through the token
+the lock records. So two builds or smokes in one worktree never interleave, and
+the `.tmp-`/`.old-` cleanup never removes another active run's directories.
+One build or smoke per worktree at a time is the supported use; a second is
+refused, not queued. The lock is created
 atomically (a complete record hard-linked into place) with the holder's pid,
 the start time `ps` reports for it (in UTC and the C locale), its purpose, a
 token and when it was acquired. It fails closed: no lock is ever broken
@@ -432,6 +433,28 @@ launches the build or smoke), then the worktree lock; code holding the
 worktree lock never acquires a host slot, and a command that resolves to one of
 those wrappers, or to a script naming them, is refused by name, as is an
 inherited compiler wrapper.
+
+Interruption. While it holds its own lock, the holder runs every build
+command, and the smoke each app launch, through `runUnderLock`: asynchronously
+and as the leader of its own process group (`detached`), so cargo's rustc,
+build-script and wasm-bindgen descendants, or caffeinate and the app, are in
+that group. A command under an inherited lock (`build:wasm` under the smoke)
+stays in its parent's group, which the holder signals. On SIGINT, SIGTERM or
+SIGHUP the holder sends that signal to each of its groups and waits up to 5 s
+for every group to be empty, sends SIGKILL to any group that is not and waits
+up to 2 s more, and only when every group is gone releases its lock; it then
+exits 128 + the signal number (130, 143, 129), the smoke removing its private
+app copy as it exits. A group still not empty after SIGKILL (on macOS a group left with
+only an unreaped zombie counts) keeps the lock and the copy, and the holder
+prints the same confirmation and removal steps as the refusal. A signal that
+arrives during one of the short synchronous probes (`ps`, `rustc -vV`,
+`cargo metadata`) is handled when the probe returns. An ordinary exit, nonzero
+exit or uncaught error releases the lock; were a group still running at that
+point, it is sent SIGKILL and the lock is kept. Limits: SIGKILL of the holder,
+or a power loss, cannot be handled. They leave the lock, any surviving build
+process, and for the smoke its private app copy; recovery is the printed steps
+below. A descendant that leaves its process group is not followed; the printed
+`pgrep` step is what finds it.
 
 The app embeds `dist/` when cargo builds it. `run.mjs` builds it with
 the target and build directories set to `src-tauri/target` and
@@ -456,12 +479,18 @@ since an ordinary cargo build after the binding (of other sources, later
 restored with their old times) leaves artifacts cargo would take as fresh. `dist/` changing while cargo builds, or
 the frontend inputs changing while Vite builds, stops the run by name with no
 binding and no launch; a changed or newly revealed Rust input means another
-build, up to three. Still under the lock, the bound executable is copied into a
+build, up to three. Under the lock, the bound executable is copied into a
 private per-run directory, `apps/desktop/target/native-smoke/run-<token>/`
-(created exclusively), the copy's SHA-256 must equal the bound binary's, and
-the lock is released; each launch runs the copy, its identity checked again
-first, and the copy is removed when the run ends. A build after the release
-cannot change what the run launches. The app needs nothing beside its
+(created exclusively, about 115 MB), and the copy's SHA-256 must equal the
+bound binary's; each launch runs the copy, its identity checked again first,
+and the copy is removed when the run ends, normally or by SIGINT, SIGTERM or
+SIGHUP. No other build in the worktree runs while the smoke launches, and none
+could change what it launches. A hard-killed run (SIGKILL, power loss) leaves
+that directory, an accepted cost. The refusal the next run prints names it by
+the lock's token, after the lock's removal step: once the lock is removed and
+nothing runs from that directory (the printed `pgrep` shows no process from
+it), `rm -rf '<that directory>'` removes it. Recovery removes only that named,
+inactive directory, never every `run-*`. The app needs nothing beside its
 executable: `dist/` is embedded, it links only system libraries, and its solve
 workers start the same copy (`current_exe`). Under `--skip-build` the frontend and app are rebuilt when an engine was
 rebuilt, a `dist/` engine copy's stamp differs, the record is missing or

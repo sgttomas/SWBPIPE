@@ -248,11 +248,12 @@ export function planAppBuild({ skipBuild, staleEngines = [], distStale = [], bin
   return { frontend: false, app: false, log: "native smoke: --skip-build applies: engines, their dist/ copies, the frontend and app sources and the app binary's binding are current; frontend and app builds skipped" };
 }
 
-// Build what the smoke needs and bind the app binary. Returns the executable to
-// launch and its identity; throws a "native smoke: ..." error when nothing may
-// be launched. `runFrontend()` runs the frontend build; `runCargo(command, env)`
-// runs a cargo command in `tauriDir` and returns its standard output.
-export function prepareSmokeApp({
+// Build what the smoke needs and bind the app binary. Resolves to the executable
+// to launch and its identity; rejects with a "native smoke: ..." error when
+// nothing may be launched. `runFrontend()` runs the frontend build;
+// `runCargo(command, env)` runs a cargo command in `tauriDir` and returns (or
+// resolves to) its standard output.
+export async function prepareSmokeApp({
   projectRoot,
   desktopRoot,
   tauriDir,
@@ -314,7 +315,7 @@ export function prepareSmokeApp({
   if (plan.frontend) {
     const beforeInputs = frontendInputs(projectRoot, desktopRoot, engineFolders);
     const beforeDigests = digestInputs(projectRoot, beforeInputs);
-    runFrontend();
+    await runFrontend();
     const afterInputs = frontendInputs(projectRoot, desktopRoot, engineFolders);
     const afterDigests = digestInputs(projectRoot, afterInputs);
     const drift = inputDrift({ beforeStatic: beforeInputs, beforeDigests, after: { staticInputs: afterInputs, recorded: [], all: afterInputs }, afterDigests });
@@ -350,11 +351,11 @@ export function prepareSmokeApp({
     const before = appInputs({ projectRoot, tauriDir, compileReads: reads, readManifest });
     checkTarget();
     log(`native smoke: cleaning the app's own packages in ${path.relative(projectRoot, targetDirectory)} (${clean})`);
-    runCargo(["cargo", "clean", "--offline", "--manifest-path", path.join(tauriDir, "Cargo.toml"), ...before.packages.flatMap((name) => ["-p", name])], cargoDirectories);
+    await runCargo(["cargo", "clean", "--offline", "--manifest-path", path.join(tauriDir, "Cargo.toml"), ...before.packages.flatMap((name) => ["-p", name])], cargoDirectories);
     const beforeDigests = digestInputs(projectRoot, before.all);
     const distBefore = treeDigest(distDirectory);
     checkTarget();
-    const binary = appExecutableFromCargoMessages(runCargo(build.command, env), path.join(tauriDir, "Cargo.toml"), binName);
+    const binary = appExecutableFromCargoMessages(await runCargo(build.command, env), path.join(tauriDir, "Cargo.toml"), binName);
     if (path.relative(targetDirectory, binary).startsWith("..") || path.isAbsolute(path.relative(targetDirectory, binary))) {
       throw new Error(`native smoke: cargo reported the app executable at ${binary}, outside ${targetDirectory}; nothing is bound or launched`);
     }

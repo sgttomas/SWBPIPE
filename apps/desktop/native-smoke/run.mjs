@@ -44,28 +44,38 @@
 // scope. DEL-07-11 Design `model-document-open-and-native-smoke.md` lists the
 // remaining limits.
 //
-// Build lock and lock order. The engine and app check, build and binding run
-// under the per-worktree build lock (`scripts/worktreeBuildLock.mjs`,
+// Build lock and lock order. The whole smoke, from the engine and app check,
+// build and binding through the end of its last app launch, runs under the
+// per-worktree build lock (`scripts/worktreeBuildLock.mjs`,
 // `apps/desktop/target/build.lock`), which `build:wasm` also takes (inherited
 // here through OPENPIPESTRESS_BUILD_LOCK_TOKEN), so two smokes, or a smoke and
-// a direct `npm run build:wasm`, in one worktree never interleave their builds.
-// One build, or one smoke's build phase, per worktree at a time is the
-// supported use: a second is refused at once, not queued. The lock fails
-// closed and is never broken automatically: the refusal names the holder (pid,
-// purpose, start and acquired times), gives an informational liveness hint
-// from `ps`, and prints the commands that confirm no build is running in this
-// worktree and then remove the lock (`rm -f` of its path), so a crashed run
-// costs a minute. One order: the host slot first (`t3_slot.sh`, `t3_cargo.sh`
-// or `t3_exclusive.sh`, taken by the wrapper that launches this script), then
-// the worktree lock. While holding it, no command that would acquire a host
-// slot runs: such a command, or an inherited compiler wrapper (RUSTC_WRAPPER,
-// RUSTC_WORKSPACE_WRAPPER, CARGO_BUILD_RUSTC_WRAPPER,
-// CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER) before any cargo, is refused by name.
-// Still under the lock, the bound executable is copied into a private per-run
-// directory (`target/native-smoke/run-<token>/`), the copy's SHA-256 checked
-// against the binding, and the lock released; each launch runs that copy, its
-// identity checked again first, and the copy is removed when the run ends.
-import { execFileSync, spawn } from "node:child_process";
+// a direct `npm run build:wasm`, in one worktree never interleave. One build or
+// smoke per worktree at a time is the supported use: a second is refused at
+// once, not queued. The smoke releases the lock only after its last launch
+// ends, on every exit path. The lock fails closed and is never broken
+// automatically: the refusal names the holder (pid, purpose, start and acquired
+// times), gives an informational liveness hint from `ps`, and prints the
+// commands that confirm no build is running in this worktree and then remove
+// the lock (`rm -f` of its path), so a crashed run costs a minute. One order:
+// the host slot first (`t3_slot.sh`, `t3_cargo.sh` or `t3_exclusive.sh`, taken
+// by the wrapper that launches this script), then the worktree lock. While
+// holding it, no command that would acquire a host slot runs: such a command,
+// or an inherited compiler wrapper (RUSTC_WRAPPER, RUSTC_WORKSPACE_WRAPPER,
+// CARGO_BUILD_RUSTC_WRAPPER, CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER) before any
+// cargo, is refused by name. Every build and launch runs through
+// `runUnderLock`, in its own process group: on SIGINT, SIGTERM or SIGHUP the
+// smoke stops and reaps it (SIGKILL after a bounded wait), releases the lock,
+// and exits 128 + the signal number, removing its private app copy as it
+// exits; a process that cannot be confirmed gone keeps the lock and the copy,
+// and the removal steps are printed.
+// Under the lock, the bound executable is copied into a private per-run
+// directory (`target/native-smoke/run-<token>/`, about 115 MB) and the copy's
+// SHA-256 checked against the binding; each launch runs that copy, its identity
+// checked again first, and the copy is removed when the run ends, normally or
+// by signal. SIGKILL of the smoke, or a power loss, leaves the lock and that
+// directory; the refusal the next run prints names both, and recovery removes
+// that one directory, once the lock is removed and nothing runs from it, never
+// every `run-*`.
 import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
@@ -74,7 +84,7 @@ import { fileURLToPath } from "node:url";
 import { ENGINE_BUILDS } from "../scripts/build-wasm-engine.mjs";
 import { fileIdentity, prepareSmokeApp, privateLaunchCopy } from "../scripts/appBinaryBinding.mjs";
 import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mjs";
-import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, refuseCompilerWrapperEnv, refuseHostSlotCommand } from "../scripts/worktreeBuildLock.mjs";
+import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const desktop = path.resolve(here, "..");
@@ -96,10 +106,15 @@ if (process.platform !== "darwin") {
   process.exit(2);
 }
 
-function run(command, commandArgs, cwd, env = {}) {
+// A failed command, as execFileSync named one.
+const commandFailed = (command, commandArgs, result) =>
+  new Error(`Command failed: ${command} ${commandArgs.join(" ")}${result.error ? ` (${result.error.message})` : ""}`);
+
+async function run(command, commandArgs, cwd, env = {}) {
   refuseHostSlotCommand(command, commandArgs);
   console.log(`$ (${path.relative(project, cwd) || "."}) ${command} ${commandArgs.join(" ")}`);
-  execFileSync(command, commandArgs, { cwd, stdio: "inherit", env: { ...process.env, CARGO_NET_OFFLINE: "true", ...env } });
+  const result = await runUnderLock(command, commandArgs, { cwd, stdio: ["ignore", "inherit", "inherit"], env: { ...process.env, CARGO_NET_OFFLINE: "true", ...env } });
+  if (result.error !== null || result.status !== 0) throw commandFailed(command, commandArgs, result);
 }
 
 // A stale engine is never acceptable: each engine's stamp is recomputed from
@@ -132,7 +147,7 @@ const enginesBefore = engineStates();
 const staleEngines = enginesBefore.filter((engine) => engine.action === "rebuild");
 console.log(`native smoke: checking engine stamps${skipBuild ? " (--skip-build given; a stale engine is rebuilt regardless)" : ""}`);
 if (staleEngines.length > 0) {
-  run("npm", ["run", "build:wasm"], desktop);
+  await run("npm", ["run", "build:wasm"], desktop);
   for (const engine of engineStates()) {
     if (engine.action !== "current") {
       console.error(`native smoke: engine ${engine.name} still does not match its sources after build:wasm (${engine.reason})`);
@@ -153,7 +168,7 @@ const APP_BUILD = {
 };
 let app;
 try {
-  app = prepareSmokeApp({
+  app = await prepareSmokeApp({
     projectRoot: project,
     desktopRoot: desktop,
     tauriDir,
@@ -165,26 +180,26 @@ try {
     build: APP_BUILD,
     context: engineStampContext(tauriDir),
     runFrontend: () => run("npm", ["run", "build"], desktop),
-    runCargo: ([command, ...commandArgs], env) => {
+    runCargo: async ([command, ...commandArgs], env) => {
       refuseHostSlotCommand(command, commandArgs);
       refuseCompilerWrapperEnv({ ...process.env, ...env });
       console.log(`$ (${path.relative(project, tauriDir)}) ${command} ${commandArgs.join(" ")}`);
-      return execFileSync(command, commandArgs, {
+      const result = await runUnderLock(command, commandArgs, {
         cwd: tauriDir,
-        encoding: "utf8",
-        maxBuffer: 1 << 30,
         stdio: ["ignore", "pipe", "inherit"],
         env: { ...process.env, CARGO_NET_OFFLINE: "true", ...env }
       });
+      if (result.error !== null || result.status !== 0) throw commandFailed(command, commandArgs, result);
+      return result.stdout;
     }
   });
 } catch (error) {
   console.error(error.message.startsWith("native smoke:") ? error.message : `native smoke: app build failed: ${error.message}`);
   process.exit(2);
 }
-// Checked, built and bound. Still under the lock, the bound executable is
-// copied to this run's private directory and the copy checked against the
-// binding; the launches run the copy, and the lock is released before them.
+// Checked, built and bound. The bound executable is copied to this run's
+// private directory and the copy checked against the binding; the launches run
+// the copy, still under the lock, which is released after the last one ends.
 let launchCopy;
 try {
   launchCopy = privateLaunchCopy({ desktopRoot: desktop, binary: app.binary, identity: app.identity, token: buildLock.token });
@@ -192,8 +207,9 @@ try {
   console.error(error.message.startsWith("native smoke:") ? error.message : `native smoke: could not copy the app for launch: ${error.message}`);
   process.exit(2);
 }
-process.on("exit", launchCopy.remove);
-buildLock.release();
+// Removed on every exit, unless the lock was kept because a process may still run from it.
+process.on("exit", () => { if (!buildLock.kept()) launchCopy.remove(); });
+// No build runs from here; the launches still hold the lock.
 delete process.env[BUILD_LOCK_TOKEN_ENV];
 const binary = launchCopy.executable;
 console.log(`native smoke: launching ${binary}, a private copy of ${app.binary} (${app.identity.sha256})`);
@@ -277,33 +293,24 @@ function launch(phase, extra = {}) {
     console.error(`native smoke: ${binary}, the private copy of the bound app, changed since it was checked; not launched`);
     process.exit(2);
   }
-  return new Promise((resolve) => {
-    // caffeinate keeps the display and system awake for the app's lifetime.
-    const child = spawn("/usr/bin/caffeinate", ["-di", binary], {
-      cwd: root,
-      env: {
-        ...process.env,
-        HOME: home,
-        SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "driver.js"),
-        SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan),
-        SWBPIPE_NATIVE_SMOKE_REPORT: report
-      },
-      stdio: ["ignore", "inherit", "inherit"],
-      detached: true
-    });
-    // On timeout or interruption, kill the whole group: caffeinate and the app under it.
-    const killGroup = () => { try { process.kill(-child.pid, "SIGKILL"); } catch { /* already gone */ } };
-    const interrupted = () => { killGroup(); process.exit(130); };
-    process.once("SIGINT", interrupted);
-    process.once("SIGTERM", interrupted);
-    const timer = setTimeout(() => { console.error(`phase ${phase}: timed out`); killGroup(); }, PHASE_TIMEOUT_MS);
-    child.on("exit", (code, signal) => {
-      clearTimeout(timer);
-      process.off("SIGINT", interrupted);
-      process.off("SIGTERM", interrupted);
-      const parsed = existsSync(report) ? JSON.parse(readFileSync(report, "utf8")) : { ok: false, error: `no report (exit ${code ?? signal})` };
-      resolve(parsed);
-    });
+  // caffeinate keeps the display and system awake for the app's lifetime. It
+  // runs under the lock in its own process group: on timeout the whole group,
+  // caffeinate and the app under it, is killed; on interruption the lock's
+  // handler stops and reaps it before the lock is released.
+  return runUnderLock("/usr/bin/caffeinate", ["-di", binary], {
+    cwd: root,
+    env: {
+      ...process.env,
+      HOME: home,
+      SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "driver.js"),
+      SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan),
+      SWBPIPE_NATIVE_SMOKE_REPORT: report
+    },
+    stdio: ["ignore", "inherit", "inherit"],
+    timeoutMs: PHASE_TIMEOUT_MS
+  }).then(({ status, signal, timedOut }) => {
+    if (timedOut) console.error(`phase ${phase}: timed out`);
+    return existsSync(report) ? JSON.parse(readFileSync(report, "utf8")) : { ok: false, error: `no report (exit ${status ?? signal})` };
   });
 }
 
@@ -674,4 +681,7 @@ const failed = checks.filter((item) => !item.ok);
 writeFileSync(path.join(root, "summary.json"), JSON.stringify({ checks, first, second }, null, 2));
 console.log(`\nnative smoke: ${checks.length - failed.length}/${checks.length} checks passed; evidence in ${root}`);
 if (!args.has("--keep") && failed.length === 0) rmSync(root, { recursive: true, force: true });
+// The last launch has ended: release the lock (kept if a process of it may
+// still run); the private copy is removed as the process exits.
+buildLock.release();
 process.exit(failed.length === 0 ? 0 : 1);

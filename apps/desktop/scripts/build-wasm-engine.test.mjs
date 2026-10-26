@@ -63,7 +63,7 @@ function fakeProject() {
   return { root, target, env, build, cleanup: () => rmSync(root,{recursive:true,force:true}) };
 }
 
-test('dual artifact build resolves Cargo target paths and preserves old selfweight on failed generation', () => {
+test('dual artifact build resolves Cargo target paths and preserves old selfweight on failed generation', async () => {
   const root = realpathSync(mkdtempSync(path.join(tmpdir(), 'piping-wasm-build-')));
   const previousPath = process.env.PATH;
   try {
@@ -79,8 +79,8 @@ test('dual artifact build resolves Cargo target paths and preserves old selfweig
     for (const name of ['cargo','rustup','rustc','wasm-bindgen']) writeFileSync(path.join(bin,name),fake,{mode:0o755});
     writeFileSync(path.join(bin,'package.json'),'{"type":"module"}');
     process.env.PATH = `${bin}:${previousPath}`;
-    assert.equal(resolveWasmArtifact(root),path.join(target,'wasm32-unknown-unknown/release/open_pipe_stress_operation_applier.wasm'));
-    assert.equal(resolveWasmArtifact(root, 'x', { CARGO_TARGET_DIR: path.join(root, 'elsewhere') }), path.join(root, 'elsewhere/wasm32-unknown-unknown/release/x.wasm'));
+    assert.equal(await resolveWasmArtifact(root),path.join(target,'wasm32-unknown-unknown/release/open_pipe_stress_operation_applier.wasm'));
+    assert.equal(await resolveWasmArtifact(root, 'x', { CARGO_TARGET_DIR: path.join(root, 'elsewhere') }), path.join(root, 'elsewhere/wasm32-unknown-unknown/release/x.wasm'));
     execFileSync(process.execPath,[path.join(scripts,'build-wasm-engine.mjs')]);
     // Each engine built in its own target directory under the app, not cargo's default.
     for (const name of ['wasm-engine','self-weight-engine']) assert.ok(existsSync(path.join(root,'apps/desktop/target/wasm-engines',name,'wasm32-unknown-unknown/release')), name);

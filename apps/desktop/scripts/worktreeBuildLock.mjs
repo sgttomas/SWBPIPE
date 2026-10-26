@@ -11,6 +11,21 @@
 // so the lock always holds a complete record. Released by its holder (only while
 // it still holds its own token) and when the process exits.
 //
+// Interruption. The holder runs its build commands (and the smoke its app
+// launches) through `runUnderLock`, asynchronously, each as the leader of its
+// own process group, so cargo's rustc, build-script and wasm-bindgen
+// descendants are in that group. On SIGINT, SIGTERM or SIGHUP the holder sends
+// the signal to every such group, waits (bounded) until each group is empty,
+// sends SIGKILL to any group that is not and waits again, and only when every
+// group is gone releases its lock; it then exits 128 + the signal number. A
+// group still not empty after SIGKILL keeps the lock, and the holder prints the
+// removal steps. A signal arriving during one of the short synchronous probes
+// (`ps`, `rustc -vV`, `cargo metadata`) is handled when the probe returns. The
+// process exiting otherwise (an ordinary exit, nonzero or uncaught) with a
+// group not yet empty sends that group SIGKILL and keeps the lock. SIGKILL of
+// the holder, or a power loss, cannot be handled: the lock stays, and recovery
+// is the removal steps the refusal prints.
+//
 // The lock fails closed: it is never broken automatically. A taker that finds
 // it held refuses at once, by name, with the holder's pid, purpose, recorded
 // start and acquired times, a liveness hint from `ps` (informational only:
@@ -20,7 +35,10 @@
 // command line names this project's directory: rustc, wasm-bindgen and build
 // scripts carry it in their paths, and every cargo the tooling runs names a
 // manifest in it) and then remove the lock (`rm -f` of its path). A crashed run
-// costs those three commands.
+// costs those three commands. When the holder was a native smoke whose private
+// app copy (`target/native-smoke/run-<token>`, about 115 MB) is still there,
+// the refusal also names that one directory and its `rm -rf`, to run once the
+// lock is removed and nothing runs from it; never a blanket `run-*` delete.
 //
 // A child the holder runs (the smoke running `build:wasm`) inherits the lock
 // through OPENPIPESTRESS_BUILD_LOCK_TOKEN, which must name the token the lock
@@ -35,9 +53,10 @@
 // (RUSTC_WRAPPER and the like), which cargo would run unseen for every
 // compile; the tooling never sets one.
 
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { closeSync, existsSync, linkSync, lstatSync, mkdirSync, openSync, readFileSync, readSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { constants as osConstants } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -50,6 +69,21 @@ export const buildLockPath = (root = desktopRoot) => path.join(root, "target", "
 
 // The lock this process holds or inherited, if any.
 let held = null;
+// Whether this process last kept its lock because a build process may survive.
+let kept = false;
+// The signal being handled, once the holder is stopping.
+let stopping = null;
+// The process groups of the commands this process started holding its own lock,
+// until each is seen empty.
+const groups = new Set();
+
+export const STOP_SIGNALS = ["SIGINT", "SIGTERM", "SIGHUP"];
+// How long the holder waits for its build process groups to empty after
+// forwarding a stop signal, and after SIGKILL.
+const STOP_GRACE_MS = 5000;
+const KILL_WAIT_MS = 2000;
+const POLL_MS = 25;
+const TOKEN_FORM = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 // The start time `ps` reports for `pid`, in UTC and the C locale (so the same
 // process always gives the same text), or null when it is not running.
@@ -75,24 +109,35 @@ export function livenessHint(record) {
   return `pid ${record.pid} is running but started ${started} (UTC), not at the recorded time: the pid looks reused`;
 }
 
+// The steps that confirm nothing is building in this worktree and then remove
+// the lock at `lockPath` (and the private app copy a native smoke holding it left).
+function removalSteps(lockPath, record, root) {
+  const projectRoot = path.resolve(root, "..", "..");
+  const readable = record && Number.isInteger(record.pid) && record.pid > 0;
+  // The smoke's private launch copy, `target/native-smoke/run-<token>` (appBinaryBinding.mjs).
+  const runDirectory = typeof record?.token === "string" && TOKEN_FORM.test(record.token) ? path.join(root, "target", "native-smoke", `run-${record.token}`) : null;
+  return [
+    ...(readable ? [`  TZ=UTC ps -p ${record.pid} -o pid,lstart,command`] : []),
+    `  pgrep -fl -- ${shellQuote(regexLiteral(projectRoot))}`,
+    `(${readable ? "ps prints only its header, or a process that is not the holder; " : ""}pgrep prints no cargo, rustc, wasm-bindgen, wasm-opt, build-script, tauri or app process), then remove the lock:`,
+    `  rm -f ${shellQuote(lockPath)}`,
+    ...(runDirectory && existsSync(runDirectory)
+      ? [`The native smoke that held the lock left its private app copy. With the lock removed and nothing running from it (pgrep above prints no process from it), remove that directory, and no other run-* directory:`, `  rm -rf ${shellQuote(runDirectory)}`]
+      : [])
+  ];
+}
+
 // The refusal for a held lock: the holder, the hint and the exact removal steps.
 export function heldLockMessage(lockPath, record, root = desktopRoot) {
-  const projectRoot = path.resolve(root, "..", "..");
   const readable = record && Number.isInteger(record.pid) && record.pid > 0;
   const holder = readable
     ? `pid ${record.pid} (${record.purpose}), started ${record.started} (UTC, by ps), acquired ${record.acquired}`
     : "unreadable lock record";
-  const confirm = [
-    ...(readable ? [`  TZ=UTC ps -p ${record.pid} -o pid,lstart,command`] : []),
-    `  pgrep -fl -- ${shellQuote(regexLiteral(projectRoot))}`
-  ];
   return [
     `refusing to build: the worktree build lock ${lockPath} is held by ${holder}; one build or smoke per worktree runs at a time, and a second is refused, not queued`,
     `  hint from ps (informational; the lock is never broken automatically): ${livenessHint(record)}`,
     "If that build is still running, let it finish and run again. If a crashed run left the lock, confirm that nothing is building in this worktree:",
-    ...confirm,
-    `(${readable ? "ps prints only its header, or a process that is not the holder; " : ""}pgrep prints no cargo, rustc, wasm-bindgen, wasm-opt, build-script, tauri or app process), then remove the lock:`,
-    `  rm -f ${shellQuote(lockPath)}`
+    ...removalSteps(lockPath, record, root)
   ].join("\n");
 }
 
@@ -112,11 +157,68 @@ function readLock(lockPath) {
   }
 }
 
+// Whether any process is in group `pgid`. EPERM counts as alive: a member this
+// user may not signal, or (macOS) a group left with only an unreaped zombie.
+function groupAlive(pgid) {
+  try {
+    process.kill(-pgid, 0);
+    return true;
+  } catch (error) {
+    return error.code !== "ESRCH";
+  }
+}
+
+function signalGroup(pgid, signal) {
+  try {
+    process.kill(-pgid, signal);
+  } catch {
+    // Gone, or not ours to signal: groupAlive decides.
+  }
+}
+
+const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Wait up to `ms` for the groups `pgids` to be empty, forgetting each one seen
+// empty; true when all are.
+async function groupsEmptied(pgids, ms) {
+  const deadline = Date.now() + ms;
+  for (;;) {
+    for (const pgid of pgids) if (!groupAlive(pgid)) groups.delete(pgid);
+    if (pgids.every((pgid) => !groups.has(pgid))) return true;
+    if (Date.now() >= deadline) return false;
+    await pause(POLL_MS);
+  }
+}
+
+function forget() {
+  process.off("exit", releaseHeld);
+  for (const signal of STOP_SIGNALS) process.off(signal, onStopSignal);
+  held = null;
+}
+
+// Keep the lock: a build process may survive. Prints the removal steps.
+function keepHeld(lock, reason) {
+  forget();
+  kept = true;
+  console.error([
+    `${reason}; the worktree build lock ${lock.path} is kept, since a build process may survive. Once they have exited, confirm that nothing is building in this worktree:`,
+    ...removalSteps(lock.path, lock.record, lock.root)
+  ].join("\n"));
+}
+
 function releaseHeld() {
   if (held === null) return;
   const lock = held;
-  held = null;
-  process.off("exit", releaseHeld);
+  if (!lock.inherited) {
+    for (const pgid of groups) if (!groupAlive(pgid)) groups.delete(pgid);
+    const alive = [...groups];
+    if (alive.length > 0) {
+      for (const pgid of alive) signalGroup(pgid, "SIGKILL");
+      keepHeld(lock, `process group ${alive.join(", ")} of this build was still running at release and was sent SIGKILL`);
+      return;
+    }
+  }
+  forget();
   if (lock.inherited) return;
   try {
     if (readLock(lock.path)?.record?.token === lock.token) rmSync(lock.path, { force: true });
@@ -125,9 +227,71 @@ function releaseHeld() {
   }
 }
 
+// SIGINT, SIGTERM or SIGHUP while holding the lock: stop and reap the build
+// process groups, release only when every one is gone, and exit 128 + signo.
+function onStopSignal(signal) {
+  if (stopping !== null || held === null) return;
+  stopping = signal;
+  const lock = held;
+  const pgids = [...groups];
+  for (const pgid of pgids) signalGroup(pgid, signal);
+  (async () => {
+    let gone = await groupsEmptied(pgids, lock.stopGraceMs);
+    if (!gone) {
+      for (const pgid of pgids.filter((id) => groups.has(id))) signalGroup(pgid, "SIGKILL");
+      gone = await groupsEmptied(pgids, lock.killWaitMs);
+    }
+    if (gone) releaseHeld();
+    else keepHeld(lock, `${signal}: process group ${pgids.filter((id) => groups.has(id)).join(", ")} of this build did not empty after ${signal} and SIGKILL`);
+    process.exit(128 + osConstants.signals[signal]);
+  })();
+}
+
+// Run `command` under the lock, asynchronously, so a stop signal is handled
+// while it runs. Holding the lock itself, the command leads its own process
+// group, which the stop handler signals whole and waits to see empty; under an
+// inherited lock (or none) it stays in this process's group, which the holder
+// above signals. `timeoutMs` sends SIGKILL to the command (its group) once
+// passed. Resolves with { status, signal, stdout, stderr, error, timedOut } once
+// the command has closed and, holding the lock, its group is empty or a bounded
+// wait passed (a group still not empty keeps the lock at release). Never
+// settles once a stop signal is being handled: the handler ends the process.
+export function runUnderLock(command, args = [], { cwd, env = process.env, stdio = ["ignore", "pipe", "pipe"], timeoutMs } = {}) {
+  if (stopping !== null) return new Promise(() => {});
+  const own = held !== null && !held.inherited;
+  const killWaitMs = held?.killWaitMs ?? KILL_WAIT_MS;
+  return new Promise((resolve) => {
+    const child = spawn(command, args, { cwd, env, stdio, detached: own });
+    const pgid = own && child.pid ? child.pid : null;
+    if (pgid !== null) groups.add(pgid);
+    const out = [];
+    const err = [];
+    child.stdout?.on("data", (chunk) => out.push(chunk));
+    child.stderr?.on("data", (chunk) => err.push(chunk));
+    let error = null;
+    let timedOut = false;
+    child.on("error", (failure) => { error = failure; });
+    const timer = timeoutMs
+      ? setTimeout(() => {
+          timedOut = true;
+          if (pgid !== null) signalGroup(pgid, "SIGKILL");
+          else child.kill("SIGKILL");
+        }, timeoutMs)
+      : null;
+    child.on("close", async (status, signal) => {
+      if (timer) clearTimeout(timer);
+      if (pgid !== null) await groupsEmptied([pgid], killWaitMs);
+      if (stopping !== null) return;
+      resolve({ status: error ? null : status, signal, stdout: Buffer.concat(out).toString("utf8"), stderr: Buffer.concat(err).toString("utf8"), error, timedOut });
+    });
+  });
+}
+
 // Take the worktree build lock for `purpose`, or refuse at once when it is held.
-// Returns { token, inherited, release }.
-export function acquireBuildLock({ purpose, root = desktopRoot, env = process.env }) {
+// Returns { token, inherited, release, kept }; `kept()` is true once the lock
+// was kept because a build process may survive. `stopGraceMs` and `killWaitMs`
+// bound the waits after a stop signal and after SIGKILL.
+export function acquireBuildLock({ purpose, root = desktopRoot, env = process.env, stopGraceMs = STOP_GRACE_MS, killWaitMs = KILL_WAIT_MS }) {
   if (held !== null) throw new Error(`refusing to build: this process already holds the build lock ${held.path}`);
   const lockPath = buildLockPath(root);
   const inheritedToken = env[BUILD_LOCK_TOKEN_ENV];
@@ -136,7 +300,8 @@ export function acquireBuildLock({ purpose, root = desktopRoot, env = process.en
       throw new Error(`refusing to build: ${BUILD_LOCK_TOKEN_ENV} names a build lock that ${lockPath} does not hold`);
     }
     held = { path: lockPath, token: inheritedToken, inherited: true };
-    return { token: inheritedToken, inherited: true, release: releaseHeld };
+    kept = false;
+    return { token: inheritedToken, inherited: true, release: releaseHeld, kept: () => kept };
   }
   const targetRoot = path.dirname(lockPath);
   for (const step of [path.dirname(targetRoot), targetRoot]) {
@@ -164,9 +329,12 @@ export function acquireBuildLock({ purpose, root = desktopRoot, env = process.en
   } finally {
     rmSync(pending, { force: true });
   }
-  held = { path: lockPath, token, inherited: false };
+  held = { path: lockPath, token, inherited: false, record, root, stopGraceMs, killWaitMs };
+  kept = false;
+  stopping = null;
   process.on("exit", releaseHeld);
-  return { token, inherited: false, release: releaseHeld };
+  for (const signal of STOP_SIGNALS) process.on(signal, onStopSignal);
+  return { token, inherited: false, release: releaseHeld, kept: () => kept };
 }
 
 // Refuse, by name, an inherited compiler wrapper before any cargo runs. Cargo

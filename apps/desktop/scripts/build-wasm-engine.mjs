@@ -40,9 +40,10 @@
 // interleave: a second is refused at once, naming the holder and the steps
 // that remove a lock a crashed run left. The host slot, when a wrapper takes
 // one, is taken before it. An inherited compiler wrapper (RUSTC_WRAPPER and the
-// like) is refused by name before any cargo runs.
+// like) is refused by name before any cargo runs. Every command runs through
+// `runUnderLock`, in its own process group: on SIGINT, SIGTERM or SIGHUP the
+// build stops and reaps it before the lock is released.
 
-import { execFileSync } from "node:child_process";
 import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -61,7 +62,7 @@ import {
   refuseLinkedCargoTree,
   stampFromDigests
 } from "./engineSourceStamp.mjs";
-import { acquireBuildLock, refuseCompilerWrapperEnv, refuseHostSlotCommand } from "./worktreeBuildLock.mjs";
+import { acquireBuildLock, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "./worktreeBuildLock.mjs";
 
 const PINNED_WASM_BINDGEN_VERSION = "0.2.123";
 export const MAX_STABLE_BUILD_ATTEMPTS = 3;
@@ -86,30 +87,20 @@ function fail(lines) {
   process.exit(1);
 }
 
-function tryRun(command, args, { cwd, env = {} } = {}) {
+async function tryRun(command, args, { cwd, env = {} } = {}) {
   try {
     refuseHostSlotCommand(command, args);
     if (command === "cargo") refuseCompilerWrapperEnv({ ...process.env, ...env });
   } catch (error) {
     fail([error.message]);
   }
-  try {
-    return {
-      ok: true,
-      stdout: execFileSync(command, args, {
-        cwd,
-        encoding: "utf8",
-        env: { ...process.env, CARGO_NET_OFFLINE: "true", ...env },
-        stdio: ["ignore", "pipe", "pipe"]
-      })
-    };
-  } catch (error) {
-    return { ok: false, stderr: error?.stderr?.toString?.() ?? String(error) };
-  }
+  const result = await runUnderLock(command, args, { cwd, env: { ...process.env, CARGO_NET_OFFLINE: "true", ...env } });
+  if (result.error === null && result.status === 0) return { ok: true, stdout: result.stdout };
+  return { ok: false, stderr: result.error ? String(result.error) : result.stderr };
 }
 
-export function resolveWasmArtifact(crateDirectory = crateDir, crateName = "open_pipe_stress_operation_applier", env = {}) {
-  const metadata = tryRun(
+export async function resolveWasmArtifact(crateDirectory = crateDir, crateName = "open_pipe_stress_operation_applier", env = {}) {
+  const metadata = await tryRun(
     "cargo",
     ["metadata", "--format-version", "1", "--no-deps", "--manifest-path", path.join(crateDirectory, "Cargo.toml")],
     { cwd: crateDirectory, env }
@@ -175,7 +166,7 @@ const CARGO_BUILD_ARGS = [
   "--release"
 ];
 
-function main() {
+async function main() {
   let lock;
   try {
     lock = acquireBuildLock({ purpose: "build:wasm" });
@@ -183,16 +174,16 @@ function main() {
     fail(error.message.split("\n"));
   }
   try {
-    buildEngines();
+    await buildEngines();
   } finally {
     lock.release();
   }
 }
 
-function buildEngines() {
+async function buildEngines() {
 
 // 1. cargo present.
-if (!tryRun("cargo", ["--version"]).ok) {
+if (!(await tryRun("cargo", ["--version"])).ok) {
   fail([
     "`cargo` was not found on PATH.",
     "Install the Rust toolchain (https://rustup.rs) before building the wasm engine."
@@ -200,7 +191,7 @@ if (!tryRun("cargo", ["--version"]).ok) {
 }
 
 // 2. wasm32 target installed.
-const targetProbe = tryRun("rustup", ["target", "list", "--installed"]);
+const targetProbe = await tryRun("rustup", ["target", "list", "--installed"]);
 if (!targetProbe.ok) {
   fail([
     "`rustup` was not found on PATH, so the wasm32 target cannot be verified.",
@@ -217,12 +208,12 @@ if (!targetProbe.stdout.split("\n").map((line) => line.trim()).includes("wasm32-
 // 3. wasm-bindgen CLI present at the pinned version (must match the crate's
 //    pinned wasm-bindgen dependency exactly).
 let wasmBindgen = "wasm-bindgen";
-let bindgenProbe = tryRun(wasmBindgen, ["--version"]);
+let bindgenProbe = await tryRun(wasmBindgen, ["--version"]);
 if (!bindgenProbe.ok) {
   const cargoBinFallback = path.join(os.homedir(), ".cargo", "bin", "wasm-bindgen");
   if (existsSync(cargoBinFallback)) {
     wasmBindgen = cargoBinFallback;
-    bindgenProbe = tryRun(wasmBindgen, ["--version"]);
+    bindgenProbe = await tryRun(wasmBindgen, ["--version"]);
   }
 }
 if (!bindgenProbe.ok) {
@@ -295,12 +286,12 @@ for (let attempt = 1; attempt <= MAX_STABLE_BUILD_ATTEMPTS && stamp === null; at
   } catch (error) {
     fail([error.message]);
   }
-  const build = tryRun("cargo", [...CARGO_BUILD_ARGS, "--manifest-path", crateManifest], { env: cargoEnv });
+  const build = await tryRun("cargo", [...CARGO_BUILD_ARGS, "--manifest-path", crateManifest], { env: cargoEnv });
   if (!build.ok) {
     fail(["`cargo build` for the wasm32 engine failed:", build.stderr]);
   }
   try {
-    wasmArtifact = resolveWasmArtifact(crateDirectory, crateName, cargoEnv);
+    wasmArtifact = await resolveWasmArtifact(crateDirectory, crateName, cargoEnv);
   } catch (error) {
     fail(["Could not resolve Cargo's wasm artifact directory:", error.message]);
   }
@@ -361,7 +352,7 @@ const tmpDir = `${outDir}.tmp-${process.pid}`;
 const oldDir = `${outDir}.old-${process.pid}`;
 
 console.log(`[build-wasm-engine] wasm-bindgen --target web --out-dir ${path.relative(desktopRoot, tmpDir)}`);
-const bindgen = tryRun(wasmBindgen, ["--target", "web", "--out-dir", tmpDir, wasmArtifact]);
+const bindgen = await tryRun(wasmBindgen, ["--target", "web", "--out-dir", tmpDir, wasmArtifact]);
 if (!bindgen.ok) {
   rmSync(tmpDir, { recursive: true, force: true });
   fail(["`wasm-bindgen` glue generation failed:", bindgen.stderr]);
@@ -390,5 +381,5 @@ console.log(
 
 const invokedPath = process.argv[1] ? path.resolve(process.argv[1]) : null;
 if (invokedPath === fileURLToPath(import.meta.url)) {
-  main();
+  await main();
 }

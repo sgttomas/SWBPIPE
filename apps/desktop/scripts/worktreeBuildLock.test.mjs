@@ -146,3 +146,147 @@ test('a child inherits the lock only through the token the lock holds; holding i
     assert.ok(!existsSync(buildLockPath(t.root)));
   } finally { t.cleanup(); }
 });
+
+// A separate process that takes the lock (with short stop waits), runs
+// `command args` under it and then runs `after` (JavaScript, with `result`).
+function startRunner(root, command, args, { options = {}, after = '', stopGraceMs = 400, killWaitMs = 1000 } = {}) {
+  const child = spawn(process.execPath, ['--input-type=module', '-e', `
+    import { acquireBuildLock, runUnderLock } from ${JSON.stringify(lockModule)};
+    acquireBuildLock({ purpose: 'runner', root: ${JSON.stringify(root)}, stopGraceMs: ${stopGraceMs}, killWaitMs: ${killWaitMs} });
+    const result = await runUnderLock(${JSON.stringify(command)}, ${JSON.stringify(args)}, { stdio: ['ignore', 'pipe', 'inherit'], ...${JSON.stringify(options)} });
+    ${after}
+  `], { stdio: ['ignore', 'pipe', 'pipe'] });
+  let output = '';
+  child.stdout.on('data', (chunk) => { output += chunk; });
+  child.stderr.on('data', (chunk) => { output += chunk; });
+  const done = new Promise((resolve) => child.on('exit', (code, signal) => resolve({ code, signal })));
+  return { child, done, output: () => output };
+}
+
+const alive = (pid) => { try { process.kill(pid, 0); return true; } catch (error) { return error.code !== 'ESRCH'; } };
+
+// After a test, whatever it failed on: no stand-in survives to hold the runner's pipes open.
+function reap(runner, pids) {
+  for (const pid of [runner.child.pid, ...pids]) try { process.kill(pid, 'SIGKILL'); } catch { /* gone */ }
+  runner.child.stdout.destroy();
+  runner.child.stderr.destroy();
+}
+
+// The pids a stand-in build wrote to `file` once it is ready, within a bounded wait.
+async function readyPids(file, runner) {
+  for (const start = Date.now(); Date.now() - start < 10000; await new Promise((resolve) => setTimeout(resolve, 20))) {
+    if (existsSync(file)) return readFileSync(file, 'utf8').trim().split(' ').map(Number);
+    if (runner.child.exitCode !== null) break;
+  }
+  throw new Error(`the stand-in build never got ready:\n${runner.output()}`);
+}
+
+// A stand-in cargo that starts a stand-in rustc, both ignoring SIGINT and
+// SIGTERM when `stubborn`; the rustc writes both pids to `ready` once both are set up.
+function standInCargo(ready, stubborn) {
+  const ignore = stubborn ? "process.on('SIGINT', () => {}); process.on('SIGTERM', () => {});" : '';
+  const rustc = `${ignore} const fs = require('node:fs'); fs.writeFileSync(${JSON.stringify(`${ready}.tmp`)}, process.argv[1] + ' ' + process.pid); fs.renameSync(${JSON.stringify(`${ready}.tmp`)}, ${JSON.stringify(ready)}); setInterval(() => {}, 1000);`;
+  return ['-e', `${ignore} require('node:child_process').spawn(process.execPath, ['-e', ${JSON.stringify(rustc)}, String(process.pid)], { stdio: 'ignore' }); setInterval(() => {}, 1000);`];
+}
+
+for (const [signal, status] of [['SIGINT', 130], ['SIGTERM', 143], ['SIGHUP', 129]]) {
+  test(`${signal} to a holder running a build: its child and grandchild are stopped and reaped, then the lock is released; exit ${status}`, async () => {
+    const t = tempRoot();
+    const runner = startRunner(t.root, process.execPath, standInCargo(path.join(t.root, 'ready'), false));
+    let pids = [];
+    try {
+      pids = await readyPids(path.join(t.root, 'ready'), runner);
+      const [cargo, rustc] = pids;
+      assert.ok(existsSync(buildLockPath(t.root)), 'the lock is held while the build runs');
+      runner.child.kill(signal);
+      const start = Date.now();
+      assert.deepEqual(await runner.done, { code: status, signal: null }, runner.output());
+      assert.ok(Date.now() - start < 5000, 'stopped promptly');
+      assert.ok(!alive(cargo) && !alive(rustc), 'the child and grandchild are gone');
+      assert.ok(!existsSync(buildLockPath(t.root)), 'the lock is released');
+    } finally { reap(runner, pids); t.cleanup(); }
+  });
+}
+
+test('a build ignoring SIGTERM is sent SIGKILL after the bounded wait and reaped; then the lock is released', async () => {
+  const t = tempRoot();
+  const runner = startRunner(t.root, process.execPath, standInCargo(path.join(t.root, 'ready'), true), { stopGraceMs: 400 });
+  let pids = [];
+  try {
+    pids = await readyPids(path.join(t.root, 'ready'), runner);
+    const [cargo, rustc] = pids;
+    const start = Date.now();
+    runner.child.kill('SIGTERM');
+    assert.deepEqual(await runner.done, { code: 143, signal: null }, runner.output());
+    assert.ok(Date.now() - start >= 400, 'escalated only after the grace');
+    assert.ok(!alive(cargo) && !alive(rustc), 'the child and grandchild are gone');
+    assert.ok(!existsSync(buildLockPath(t.root)), 'the lock is released');
+    assert.doesNotMatch(runner.output(), /is kept/);
+  } finally { reap(runner, pids); t.cleanup(); }
+});
+
+test('a build process group that cannot be confirmed empty after SIGKILL keeps the lock, and the removal steps are printed', { skip: !existsSync('/usr/bin/perl') && 'needs /usr/bin/perl' }, async () => {
+  const t = tempRoot();
+  const ready = path.join(t.root, 'ready');
+  // The build's group keeps a member that SIGKILL cannot remove: a zombie whose
+  // parent left the group and never reaps it.
+  const script = 'my $p = fork(); if ($p == 0) { my $z = fork(); if ($z == 0) { exit 0 } setpgrp(0, 0); open(my $f, ">", "$ARGV[0].tmp"); print $f "$$ $z " . getppid(); close $f; rename("$ARGV[0].tmp", $ARGV[0]); sleep 30; exit 0 } sleep 30';
+  const runner = startRunner(t.root, '/usr/bin/perl', ['-e', script, ready], { stopGraceMs: 200, killWaitMs: 300 });
+  let pids = [];
+  try {
+    pids = await readyPids(ready, runner);
+    const lockPath = buildLockPath(t.root);
+    const before = readFileSync(lockPath, 'utf8');
+    runner.child.kill('SIGTERM');
+    assert.deepEqual(await runner.done, { code: 143, signal: null }, runner.output());
+    assert.equal(readFileSync(lockPath, 'utf8'), before, 'the lock is kept');
+    const output = runner.output();
+    assert.match(output, new RegExp(`SIGTERM: process group \\d+ of this build did not empty after SIGTERM and SIGKILL; the worktree build lock ${lockPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} is kept`));
+    const [ps, pgrep, rm] = removalSteps(t.root, lockPath, runner.child.pid);
+    for (const line of [ps, pgrep, rm]) assert.ok(output.includes(line), line);
+  } finally {
+    // The zombie's parent (launchd then reaps the zombie) and the group's leader.
+    reap(runner, [pids[0], pids[2]].filter(Boolean));
+    t.cleanup();
+  }
+});
+
+test('an ordinary success, a nonzero exit, a thrown error and a timed-out command all release the lock', async () => {
+  for (const [args, after, options, code, check] of [
+    [['-e', ''], "console.log(JSON.stringify(result));", {}, 0, (result) => result.status === 0 && !result.timedOut],
+    [['-e', 'process.exit(3)'], 'process.exit(result.status);', {}, 3, null],
+    [['-e', ''], "throw new Error('boom');", {}, 1, null],
+    [['-e', 'console.log(process.pid); setInterval(() => {}, 1000)'], "console.log(JSON.stringify(result));", { timeoutMs: 300 }, 0, (result) => result.timedOut && result.signal === 'SIGKILL' && !alive(Number(result.stdout))]
+  ]) {
+    const t = tempRoot();
+    try {
+      const runner = startRunner(t.root, process.execPath, args, { after, options });
+      assert.equal((await runner.done).code, code, runner.output());
+      if (check) assert.ok(check(JSON.parse(runner.output().trim().split('\n').at(-1))), runner.output());
+      assert.ok(!existsSync(buildLockPath(t.root)), `${after}: the lock is released`);
+    } finally { t.cleanup(); }
+  }
+});
+
+test("the refusal names a native smoke's private app copy, by its token, for removal after the lock; no other directory", () => {
+  const t = tempRoot();
+  try {
+    const lockPath = buildLockPath(t.root);
+    const token = '0b5e6a1c-3d2f-4e8a-9b7c-1a2b3c4d5e6f';
+    const runDirectory = path.join(t.root, 'target', 'native-smoke', `run-${token}`);
+    mkdirSync(runDirectory, { recursive: true });
+    mkdirSync(path.join(t.root, 'target', 'native-smoke', 'run-other'));
+    const dead = spawnSync(process.execPath, ['-e', '']).pid;
+    writeFileSync(lockPath, JSON.stringify({ pid: dead, started: 'T', purpose: 'native smoke', token, acquired: 'T' }));
+    assert.throws(() => acquireBuildLock({ purpose: 'next', root: t.root }), (error) => {
+      const lines = error.message.split('\n');
+      assert.equal(lines.at(-3), `  rm -f '${lockPath}'`);
+      assert.match(lines.at(-2), /^The native smoke that held the lock left its private app copy\. With the lock removed and nothing running from it .*, remove that directory, and no other run-\* directory:$/);
+      assert.equal(lines.at(-1), `  rm -rf '${runDirectory}'`);
+      return true;
+    });
+    // A token that is not the lock's own form never names a directory.
+    writeFileSync(lockPath, JSON.stringify({ pid: dead, started: 'T', purpose: 'native smoke', token: '../other', acquired: 'T' }));
+    assert.throws(() => acquireBuildLock({ purpose: 'next', root: t.root }), (error) => !error.message.includes('rm -rf') && error.message.split('\n').at(-1) === `  rm -f '${lockPath}'`);
+  } finally { t.cleanup(); }
+});
