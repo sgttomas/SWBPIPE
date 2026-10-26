@@ -1837,6 +1837,11 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
+/// Unit factor-sum gate at 0f0f28106e (retained-pricing-rules.md §8.24): from W-16 slice a's record
+/// below, the restated preview-table condition in its three resident copies (UF-ST, +333 B of
+/// STATICS) and `FactorSumError`'s Display texts (UF-TX, +180 B of TAV_W and TAV_X) raise every
+/// phase by +513 B in both modes; D, D_env and the native atoms are unchanged, and W3 is still the
+/// maximum.
 /// W-16 slice a imposed displacement on the pressure-free route at 6d4e0c1506
 /// (retained-pricing-rules.md §8.23): from W-15's record below (unchanged by W-15 slice b), D1.7
 /// refuses every support target, so the tree adds case_prescribed's node index (W16-NI), validate's
@@ -1894,8 +1899,8 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 /// second ordinary span. The build identity, atoms and native values are unchanged; reviewed-input
 /// registration is separate below.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_559_651_523, 6_901_646_084, 8_855_784_798, 8_643_950_759, 7_721_998_192, 8_607_263_473, 7_338_669_169, 7_011_966_131],
-    [6_618_782_867, 6_960_777_428, 8_914_916_142, 8_703_082_103, 7_781_129_536, 8_666_394_817, 7_397_800_513, 7_071_097_475],
+    [6_559_652_036, 6_901_646_597, 8_855_785_311, 8_643_951_272, 7_721_998_705, 8_607_263_986, 7_338_669_682, 7_011_966_644],
+    [6_618_783_380, 6_960_777_941, 8_914_916_655, 8_703_082_616, 7_781_130_049, 8_666_395_330, 7_397_801_026, 7_071_097_988],
 ];
 
 #[test]
