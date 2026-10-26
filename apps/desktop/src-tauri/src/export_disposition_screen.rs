@@ -127,9 +127,9 @@ fn unreadable_names(found: u8) -> String {
 /// library object or record of `library_kind`, at the objects its verdict
 /// ([`stored_item_blocking`]) judges: the item itself, or, for a hanger
 /// library, every object in it that carries a `provenance` or a disposition
-/// member. (A stored disposition member that is an array or an object is the
-/// structural screen's [`malformed_values`] finding where a caller runs it:
-/// the handoff names it by its pointer in the stored library.)
+/// member: [`StoredMembers::Structural`]'s stored check. (Its caller's
+/// structural screen, [`malformed_values`], names a stored disposition member
+/// that is an array or an object by its pointer in the stored library.)
 fn stored_item_unreadable(library_kind: &str, item: &Map<String, Value>) -> u8 {
     const POSITIONAL_PROVENANCE: u8 = 1 << 2;
     if library_kind != "hanger" {
@@ -144,6 +144,61 @@ fn stored_item_unreadable(library_kind: &str, item: &Map<String, Value>) -> u8 {
                 || (!path.ends_with(".provenance") && ["redistribution_status", "review_status", "privacy_class"].iter().any(|key| object.contains_key(*key)))
         })
         .fold(0, |found, (_, object)| found | (unreadable_members(object) & POSITIONAL_PROVENANCE))
+}
+
+/// How the store-resolved screen treats a stored disposition member it cannot
+/// read (W-17 object form, #1651 Codex r1).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(crate) enum StoredMembers {
+    /// Refuse it by name ([`DISPOSITION_RECORD_MALFORMED`]): a
+    /// `redistribution_status` or `review_status` (the members the verdict
+    /// reads) holding an array or an object, or a `provenance` written as an
+    /// array, at any depth of the referenced stored library object or record.
+    /// Save Model Document, the stored-model recovery export and the report
+    /// package's model, whose callers screen no stored library structurally.
+    #[default]
+    Refuse,
+    /// Leave such members to the caller's own structural screen of the whole
+    /// stored library ([`malformed_values`]; Save Handoff's
+    /// `HANDOFF-DISPOSITION-MALFORMED`, named by its pointer in the library).
+    /// A positional `provenance` the verdict judges is still refused here.
+    Structural,
+}
+
+/// The stored members [`stored_item_malformed`] names, by bit.
+const STORED_MEMBERS: [&str; 3] = ["redistribution_status", "review_status", "provenance"];
+
+/// [`StoredMembers::Refuse`]'s finding over a stored library object or
+/// record, at any depth, as a bit per [`STORED_MEMBERS`] entry.
+/// Allocation-free; the depth is the parsed document's, which the JSON
+/// parser bounds. Other disposition members (`classification` and the
+/// privacy members) are not read by the verdict and follow it
+/// (`model_document_save` `b1r1_classification_objects_follow_the_import_verdict`).
+fn stored_item_malformed(item: &Map<String, Value>) -> u8 {
+    let mut found = 0u8;
+    for (key, value) in item {
+        let bit = match (key.as_str(), value) {
+            ("redistribution_status", Value::Array(_) | Value::Object(_)) => 1,
+            ("review_status", Value::Array(_) | Value::Object(_)) => 1 << 1,
+            ("provenance", Value::Array(_)) => 1 << 2,
+            _ => 0,
+        };
+        found |= bit | stored_value_malformed(value);
+    }
+    found
+}
+
+fn stored_value_malformed(value: &Value) -> u8 {
+    match value {
+        Value::Object(object) => stored_item_malformed(object),
+        Value::Array(items) => items.iter().fold(0, |found, item| found | stored_value_malformed(item)),
+        _ => 0,
+    }
+}
+
+/// The [`STORED_MEMBERS`] named by `found`, joined.
+fn stored_malformed_names(found: u8) -> String {
+    STORED_MEMBERS.iter().enumerate().filter(|(bit, _)| found & (1 << bit) != 0).map(|(_, name)| *name).collect::<Vec<_>>().join(", ")
 }
 
 /// A JSON value's kind, as a refusal names it.
@@ -285,6 +340,7 @@ struct DispositionScreen {
     /// `library_ref`s by `(kind, id)`: each reference's path and record id.
     library_refs: BTreeMap<(String, String), Vec<(String, Option<String>)>>,
     style: PathStyle,
+    stored_members: StoredMembers,
 }
 
 impl DispositionScreen {
@@ -294,26 +350,29 @@ impl DispositionScreen {
     fn screen(&mut self, item: &Map<String, Value>, path: &str, record: &str, what: &str) {
         let unreadable = unreadable_members(item);
         if unreadable != 0 {
-            return self.unreadable(unreadable, path, record, what);
+            return self.unreadable(&unreadable_names(unreadable), path, record, what);
         }
         let found = blocking_dispositions(item);
         self.block(found, path, record, what);
     }
 
     fn screen_stored(&mut self, library_kind: &str, item: &Map<String, Value>, path: &str, record: &str, what: &str) {
-        let unreadable = stored_item_unreadable(library_kind, item);
-        if unreadable != 0 {
-            return self.unreadable(unreadable, path, record, what);
+        let unreadable = match self.stored_members {
+            StoredMembers::Refuse => stored_malformed_names(stored_item_malformed(item)),
+            StoredMembers::Structural => unreadable_names(stored_item_unreadable(library_kind, item)),
+        };
+        if !unreadable.is_empty() {
+            return self.unreadable(&unreadable, path, record, what);
         }
         let found = stored_item_blocking(library_kind, item);
         self.block(found, path, record, what);
     }
 
-    fn unreadable(&mut self, found: u8, path: &str, record: &str, what: &str) {
+    fn unreadable(&mut self, members: &str, path: &str, record: &str, what: &str) {
         self.blocking.push(diagnostic(
             DISPOSITION_RECORD_MALFORMED,
             path,
-            format!("{record} ({what}: {}) holds an array or an object where its disposition is read, so the disposition cannot be judged; correct the record first.", unreadable_names(found)),
+            format!("{record} ({what}: {members}) holds an array or an object where its disposition is read, so the disposition cannot be judged; correct the record first."),
         ));
     }
 
@@ -454,7 +513,20 @@ pub(crate) fn screen_dispositions_in<V: std::borrow::Borrow<Value>>(
     store_unavailable: &str,
     lookup: &mut dyn FnMut(&str, &str, &str) -> Result<Option<V>, String>,
 ) -> Result<Vec<DispositionDiagnostic>, Vec<DispositionDiagnostic>> {
-    let mut screen = DispositionScreen { style, ..DispositionScreen::default() };
+    screen_dispositions_with(value, root, style, project_id, store_unavailable, StoredMembers::Refuse, lookup)
+}
+
+/// [`screen_dispositions_in`] with the caller's [`StoredMembers`] policy.
+pub(crate) fn screen_dispositions_with<V: std::borrow::Borrow<Value>>(
+    value: &Value,
+    root: &str,
+    style: PathStyle,
+    project_id: &str,
+    store_unavailable: &str,
+    stored_members: StoredMembers,
+    lookup: &mut dyn FnMut(&str, &str, &str) -> Result<Option<V>, String>,
+) -> Result<Vec<DispositionDiagnostic>, Vec<DispositionDiagnostic>> {
+    let mut screen = DispositionScreen { style, stored_members, ..DispositionScreen::default() };
     screen.walk(value, root);
     let project_id = project_id.trim().to_string();
     let mut warnings = Vec::new();

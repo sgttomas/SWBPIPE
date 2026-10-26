@@ -1301,7 +1301,16 @@ pub(crate) fn prepare_handoff_screened(
         cache.insert(key, found.clone());
         Ok(found)
     };
-    let admitted = model_document_save::admit_model_document_text_screened(canonical_text, claimed_model_hash, evidence_payload_sha256, before_screening, &mut cached)?;
+    // Each stored library is screened whole and structurally below
+    // (`library_refs`: `HANDOFF-DISPOSITION-MALFORMED` by its pointer).
+    let admitted = model_document_save::admit_model_document_text_screened_with(
+        canonical_text,
+        claimed_model_hash,
+        evidence_payload_sha256,
+        before_screening,
+        model_document_save::StoredMembers::Structural,
+        &mut cached,
+    )?;
     let document: Value = serde_json::from_str(&admitted.text).expect("the admitted text is JSON");
     let model_hex = sha256_hex(&admitted.text);
     let project_id = document.pointer("/project/id").and_then(Value::as_str).unwrap_or("").to_string();

@@ -1873,7 +1873,8 @@ mod tests {
                     _ => json!({ "id": format!("m{index}"), "library_ref": { "library_kind": if index % 8 == 3 { "hanger" } else { "material" }, "library_id": if index % 8 == 3 { "lib0" } else { "lib1" }, "record_id": "r0" } }),
                 }).collect::<Vec<_>>(),
                 "rule_pack_refs": (0..30).map(|index| if index % 2 == 0 { json!(["pack", "rejected"]) } else { json!(null) }).collect::<Vec<_>>(),
-                "nested": { "rule_pack_refs": { "rule_pack_id": "p" }, "library_ref": "text", "provenance_record": 1 }
+                "nested": { "rule_pack_refs": { "rule_pack_id": "p" }, "library_ref": "text", "provenance_record": 1 },
+                "components": [{ "id": "c", "library_ref": { "library_kind": "component", "library_id": "lib2", "record_id": "r0" } }]
             }
         }))
         .unwrap();
@@ -1884,8 +1885,18 @@ mod tests {
         })).collect::<Vec<_>>();
         let malformed_hanger = serde_json::to_string(&json!({ "hanger_library": { "library_id": "lib0", "provenance": [], deep.clone(): malformed_hanger_records.clone() }, "hanger_records": malformed_hanger_records })).unwrap();
         let malformed_material = serde_json::to_string(&json!({ "material_library": ["lib1", "rejected"], "material_records": (0..20).map(|_| json!({ "material_id": "r0", "provenance": ["s", "rejected"] })).collect::<Vec<_>>() })).unwrap();
+        // #1651 Codex r1: unreadable members at every depth of a stored record.
+        let malformed_component = serde_json::to_string(&json!({
+            "component_library": { "library_id": "lib2" },
+            "component_records": (0..20).map(|index| json!({
+                "component_id": "r0",
+                "review_status": if index % 2 == 0 { json!(["quarantined"]) } else { json!("accepted") },
+                "fields": [{ "provenance": { "redistribution_status": { "status": "rejected" } }, "classification": ["x"], "privacy_class": {} }, { deep.clone(): [[{ "lifecycle_status": ["rejected"] }]] }]
+            })).collect::<Vec<_>>()
+        }))
+        .unwrap();
         let shapes: Vec<(&str, String, Vec<(&str, &str, String)>)> = vec![
-            ("malformed", malformed_model, vec![("hanger", "lib0", malformed_hanger), ("material", "lib1", malformed_material)]),
+            ("malformed", malformed_model, vec![("hanger", "lib0", malformed_hanger), ("material", "lib1", malformed_material), ("component", "lib2", malformed_component)]),
             ("hanger", hanger_model, vec![("hanger", HANGERS, hanger_library)]),
             ("unresolved", unresolved_shape(), vec![]),
             ("nested arrays", nested_tail_shape("arrays"), vec![]),
@@ -1919,8 +1930,9 @@ mod tests {
                 assert!(refused.iter().all(|item| item.code == crate::export_disposition_screen::DISPOSITION_RECORD_MALFORMED), "{refused:?}");
                 // The model's 30 materials and 30 references and its 3 nested
                 // sites; the hanger library and its record; the material
-                // library and its 20 matching records.
-                assert_eq!(refused.len(), (10 + 10 + 10) + 30 + 3 + (1 + 1) + (1 + 20), "every malformed site and stored item, once");
+                // library and its 20 matching records; the component
+                // library's 20 matching records.
+                assert_eq!(refused.len(), (10 + 10 + 10) + 30 + 3 + (1 + 1) + (1 + 20) + 20, "every malformed site and stored item, once");
             }
             assert!(measured.peak_priced <= bound, "{name}: the screener's peak {} exceeds its reserved bound {bound}", measured.peak_priced);
             drop(screened);
@@ -2384,5 +2396,119 @@ mod tests {
         let refused = export(&store, Some(&saved.state.state_id), &registry(ScriptedHost::normal()), &destination, &shown);
         assert_eq!(refused_codes(&refused), vec![(DISPOSITION_RECORD_MALFORMED, "materials[0].provenance_record")], "{refused:?}");
         assert_refused_nothing_written(&refused, DISPOSITION_RECORD_MALFORMED, &destination, &shown);
+    }
+
+    // --- #1651 Codex r1: stored disposition members the verdict cannot read ---
+
+    /// A store whose project row and saved state both hold `model`, with one
+    /// stored library.
+    fn store_with_library_both_rows(scratch: &Scratch, model: &str, kind: &str, id: &str, library: &str) -> PathBuf {
+        let store = current_store(scratch, model, model);
+        Connection::open(&store)
+            .unwrap()
+            .execute(
+                "INSERT INTO local_libraries(project_id, library_kind, library_id, document_json, created_at_unix, updated_at_unix) VALUES (?1, ?2, ?3, ?4, 1, 1)",
+                params![PROJECT, kind, id, library],
+            )
+            .unwrap();
+        store
+    }
+
+    /// The ordinary private-library writer (`save_local_library_value`)
+    /// stores a record whose `review_status` or `redistribution_status` is an
+    /// array or an object (the import accepts it as `PRIVATE_LOCAL_ONLY`: it
+    /// states no disposition). Recovering a project or state that references
+    /// it is refused by name; on `20bde6a3a3` both were written.
+    #[test]
+    fn a_library_the_ordinary_writer_stores_with_an_unreadable_disposition_refuses_recovery() {
+        for member in ["review_status", "redistribution_status"] {
+            let blocking = if member == "review_status" { "quarantined" } else { "protected_suspected" };
+            for value in [json!([blocking]), json!({ "status": "rejected" })] {
+                let mut library = library_read_probe::representative_material_library();
+                library["material_library"]["library_id"] = json!(LIBRARY);
+                library["material_records"][0]["provenance"][member] = value.clone();
+                library["material_records"][0][member] = value.clone();
+                let text = with_material(json!({ "id": "m", "library_ref": { "library_kind": "material", "library_id": LIBRARY, "record_id": "steel" } }));
+                let scratch = Scratch::new("ordinary-writer");
+                let store = current_store(&scratch, &text, &text);
+                let saved = crate::save_local_library_value(|| Ok(store.clone()), PROJECT.into(), "material".into(), library).unwrap();
+                assert!(saved.stored, "{member}={value}: the writer stores it");
+                assert_eq!(saved.validation["outcome"], "PRIVATE_LOCAL_ONLY");
+                for state_id in [None, Some(STATE)] {
+                    let destination = scratch.0.join("recovered.json");
+                    let shown = Cell::new(false);
+                    let refused = export(&store, state_id, &registry(ScriptedHost::normal()), &destination, &shown);
+                    assert_eq!(refused_codes(&refused), vec![(DISPOSITION_RECORD_MALFORMED, "materials[0].library_ref")], "{member}={value} ({state_id:?})");
+                    assert_refused_nothing_written(&refused, DISPOSITION_RECORD_MALFORMED, &destination, &shown);
+                }
+            }
+        }
+    }
+
+    /// Every library kind, with the unreadable member on the library object,
+    /// on a record's provenance or nested deeper in the record, as an array
+    /// or an object: recovery of the project and of the state is refused by
+    /// name (Codex r1's matrix).
+    #[test]
+    fn a_stored_unreadable_disposition_refuses_recovery_for_every_kind_and_depth() {
+        for kind in ["material", "section", "component", "hanger"] {
+            let (records, id_key) = crate::library_records_key(kind).unwrap();
+            for site in ["header", "record", "nested"] {
+                for value in [json!(["quarantined"]), json!({ "status": "rejected" })] {
+                    let mut record = json!({ id_key: "r" });
+                    let mut header = json!({ "library_id": LIBRARY });
+                    match site {
+                        "header" => header["review_status"] = value.clone(),
+                        "record" => record["provenance"] = json!({ "review_status": value }),
+                        _ => record["nested"] = json!({ "provenance": { "review_status": value } }),
+                    }
+                    let library = json!({ format!("{kind}_library"): header, records: [record] });
+                    let model = json!({ "project": { "id": PROJECT }, "materials": [{ "library_ref": { "library_kind": kind, "library_id": LIBRARY, "record_id": "r" } }] });
+                    let scratch = Scratch::new("stored-matrix");
+                    let store = store_with_library_both_rows(&scratch, &serde_json::to_string(&model).unwrap(), kind, LIBRARY, &serde_json::to_string(&library).unwrap());
+                    for state_id in [None, Some(STATE)] {
+                        let refused = export(&store, state_id, &registry(ScriptedHost::normal()), &scratch.0.join("out.json"), &Cell::new(false));
+                        assert_eq!(refused_codes(&refused), vec![(DISPOSITION_RECORD_MALFORMED, "materials[0].library_ref")], "{kind}/{site}/{value} ({state_id:?})");
+                    }
+                }
+            }
+        }
+    }
+
+    /// Save Model Document's admission refuses the same stored shape (on
+    /// `20bde6a3a3` it admitted it); Save Handoff keeps its own structural
+    /// refusal by pointer (`handoff_package`
+    /// `round6_nonstring_blocking_value_is_refused_as_malformed`).
+    #[test]
+    fn save_model_document_refuses_an_unreadable_stored_disposition() {
+        let mut model: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/invented_every_slot_model.json")).unwrap();
+        model["materials"][0]["provenance_record"]["library_ref"] = json!({ "library_kind": "material", "library_id": LIBRARY, "record_id": "steel" });
+        let text = open_pipe_stress_operation_applier::canonical_json(&model);
+        let hash = format!("sha256:{}", sha256_hex(&text));
+        let mut library = library_read_probe::representative_material_library();
+        let clean = crate::model_document_save::admit_model_document_text(text.clone(), &hash, &hash, &mut |_: &str, kind: &str, id: &str| Ok((kind == "material" && id == LIBRARY).then(|| library.clone())));
+        assert!(clean.is_ok(), "the control saves: {:?}", clean.err());
+        library["material_records"][0]["review_status"] = json!(["quarantined"]);
+        library["material_records"][0]["provenance"]["review_status"] = json!(["quarantined"]);
+        let refused = crate::model_document_save::admit_model_document_text(text, &hash, &hash, &mut |_: &str, kind: &str, id: &str| Ok((kind == "material" && id == LIBRARY).then(|| library.clone()))).unwrap_err();
+        let codes: Vec<(&str, &str)> = refused.iter().map(|item| (item.code.as_str(), item.path.as_str())).collect();
+        assert_eq!(codes, vec![(DISPOSITION_RECORD_MALFORMED, "materials[0].provenance_record.library_ref")]);
+    }
+
+    /// A whole stored record in positional form is not identifiable by its
+    /// id: the reference is unresolved (`MODEL-LIBRARY-REF-UNRESOLVED`, a
+    /// warning), as an absent record is, and recovery writes the document.
+    #[test]
+    fn a_whole_positional_stored_record_is_an_unresolved_reference() {
+        let library = json!({ "material_library": {}, "material_records": [["steel", "quarantined"]] });
+        let text = with_material(json!({ "id": "m", "library_ref": { "library_kind": "material", "library_id": LIBRARY, "record_id": "steel" } }));
+        let scratch = Scratch::new("positional-whole-record");
+        let store = store_with_library_both_rows(&scratch, &text, "material", LIBRARY, &serde_json::to_string(&library).unwrap());
+        match export(&store, None, &registry(ScriptedHost::normal()), &scratch.0.join("out.json"), &Cell::new(false)) {
+            ModelDocumentSaveOutcome::Saved { warnings, .. } => {
+                assert_eq!(warnings.iter().map(|item| item.code.as_str()).collect::<Vec<_>>(), vec![crate::MODEL_LIBRARY_REF_UNRESOLVED]);
+            }
+            other => panic!("not saved: {other:?}"),
+        }
     }
 }

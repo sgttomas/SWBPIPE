@@ -314,7 +314,9 @@ keys, including `angle` (§5); the rest still applies.
     `provenance_record` was an array (the positional form
     `["private_only", "quarantined", "Invented source"]`), text or null, or
     whose `rule_pack_refs[]` entry or `library_ref` was positional, was written
-    out, and so was a record with an array-valued disposition. The rows reach
+    out, and so was a record with an array-valued disposition. So was a
+    reference to a stored library record whose disposition was an array or an
+    object, which the ordinary library writer stores (#1651 Codex r1). The rows reach
     the store three ways. Save State keeps a snapshot with blocking slot
     findings as `MODEL_INCOMPLETE` (W-12 §2), so a session request carrying
     such a record is stored. Project saves before `a4e5e1103e` (2026-10-23)
@@ -429,10 +431,20 @@ keys, including `angle` (§5); the rest still applies.
   Object form (§3): a screened record that is not an object, positional or
   otherwise, or one with an array-valued disposition, is refused
   `MODEL-DISPOSITION-RECORD-MALFORMED` on a raw project row and a raw state
-  row. So are a positional `library_ref` and a positional stored record or
-  library object it names, and a positional record in a state that Save State
-  kept. A positional node or units map still recovers. Each refusal test
-  failed on `e2f9677175` with the document written
+  row. The same refusal applies to:
+  - a positional `library_ref`;
+  - a stored library it names whose library object is positional;
+  - a stored library object or matching record holding a positional
+    `provenance`, or an array- or object-valued `review_status` or
+    `redistribution_status` at any depth. The ordinary library writer stores
+    such members.
+  - a positional record in a state that Save State kept.
+
+  A whole stored record in positional form cannot be matched by its id, so its
+  reference is `MODEL-LIBRARY-REF-UNRESOLVED`, a warning, and the document is
+  written, as for an absent record. A positional node or units map still
+  recovers. Each refusal test failed with the document written, on
+  `e2f9677175` or, for the stored members, on `20bde6a3a3`
   (`stored_model_document_export.rs`).
 - **Applier, angle.** A rotational imposed displacement is accepted on a new
   blank document.
