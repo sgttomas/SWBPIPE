@@ -85,6 +85,12 @@ export type ReportPackageSaveArgs = {
   inputManifestCanonicalText: string;
   screening: ReportPackageSaveScreening;
   localFirstEvidence: LocalFirstRouteEvidence;
+  /** W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.6): for a request from an
+   * exact source only, the bytes its solve job delivered and the model text it was sent,
+   * which the native save binds to the digests it recorded for that job. Absent for a
+   * pressure-free request. The Rust boundary refuses exact identities until opening. */
+  exactResultText?: string;
+  exactIntakeText?: string;
 };
 
 /** A prepared save: the native arguments, or the route that ends the save here. */
@@ -129,7 +135,8 @@ export async function prepareReportPackageSave(
   controlled: unknown,
   model: unknown,
   request: unknown,
-  inputManifest: unknown
+  inputManifest: unknown,
+  exactSubmission: { exactResultText: string; exactIntakeText: string } | null = null
 ): Promise<PreparedReportPackageSave> {
   if (!isControlledPackageRequest(controlled)) {
     return {
@@ -186,7 +193,8 @@ export async function prepareReportPackageSave(
         finding_count: controlled.summary.finding_count,
         payload_sha256: requestSha256
       },
-      localFirstEvidence: controlled.summary.local_first!
+      localFirstEvidence: controlled.summary.local_first!,
+      ...(exactSubmission ? { exactResultText: exactSubmission.exactResultText, exactIntakeText: exactSubmission.exactIntakeText } : {})
     }
   };
 }

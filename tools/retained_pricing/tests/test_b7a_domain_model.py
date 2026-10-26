@@ -200,21 +200,21 @@ def test_new_uniform_identifier_classes_are_site_specific_input_bounds():
     # T4-U6/U8: the same sites on the priced source's unchanged lines (B7b's 10632.. + 359; certified_loads + 3;
     # the final source 588de796a4: lib.rs + 5 more; T4-S5 epoch 4: lib.rs + 314 more; pre-0.4 unification: + 103; W-8: + 2; silent-zero guard: + 1; model document 0.7.0: + 7; W-7: + 37; W-15: + 103, unchanged text).
     sites = {
-        "lib.rs:11734": {"load_case_id"},
-        "lib.rs:11748": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:11755": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:11760": {"load.load_id"},
-        "lib.rs:11761": {"bend.pipe_id"},
-        "lib.rs:11762": {"bend.component_id"},
-        "lib.rs:11763": {"load_case_id"},
-        "lib.rs:11822": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:11829": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:11834": {"load.load_id"},
-        "lib.rs:11835": {"bend.pipe_id"},
-        "lib.rs:11836": {"bend.component_id"},
-        "lib.rs:11837": {"load_case_id"},
-        "lib.rs:11876": {"stable_suffix(&load.load_id)"},
-        "lib.rs:11883": {"load.load_id", "load_case_id"},
+        "lib.rs:11773": {"load_case_id"},
+        "lib.rs:11787": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:11794": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:11799": {"load.load_id"},
+        "lib.rs:11800": {"bend.pipe_id"},
+        "lib.rs:11801": {"bend.component_id"},
+        "lib.rs:11802": {"load_case_id"},
+        "lib.rs:11861": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:11868": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:11873": {"load.load_id"},
+        "lib.rs:11874": {"bend.pipe_id"},
+        "lib.rs:11875": {"bend.component_id"},
+        "lib.rs:11876": {"load_case_id"},
+        "lib.rs:11915": {"stable_suffix(&load.load_id)"},
+        "lib.rs:11922": {"load.load_id", "load_case_id"},
         "certified_loads.rs:236": {"case_id"},
         "certified_loads.rs:259": {"case_id"},
     }
@@ -290,9 +290,10 @@ def test_closed_reader_inventory_preimage_refuses_drift(change):
 def test_failed_envelope_formulation_text_is_read_from_the_current_literals(tmp_path, monkeypatch):
     """T4-S6 (Codex correction, §8.8): the failed Preview manifest's formulation allowance is the larger of its two
     forms' literal bytes (3,138 B over 9 limitations at T4-S6), not the B7a basis's 2,035 B; a lengthened literal
-    raises it and a changed structure stops."""
+    raises it and a changed structure stops. W-16 slice a (§8.23): PF's LIMITATIONS[1] drops "and so is a support
+    displacement imposed outside a load-state model", 69 B shorter, so the allowance is 3,069 B."""
     monkeypatch.syspath_prepend(str(PRICING / "base"))
-    assert MODEL["formulation_content"](SOURCE) == (9, 3138)
+    assert MODEL["formulation_content"](SOURCE) == (9, 3069)
     pp, lib = "core/product_physics/src/preview_physics.rs", "core/product_physics/src/lib.rs"
     for file in (pp, lib):
         (tmp_path / file).parent.mkdir(parents=True, exist_ok=True)
@@ -301,10 +302,10 @@ def test_failed_envelope_formulation_text_is_read_from_the_current_literals(tmp_
     old = '"Signed support actions for rigid restraints'
     assert text.count(old) == 1
     (tmp_path / pp).write_text(text.replace(old, '"Signed support actions for all rigid restraints'))
-    assert MODEL["formulation_content"](tmp_path) == (9, 3142)
+    assert MODEL["formulation_content"](tmp_path) == (9, 3073)
     (tmp_path / pp).write_text(text.replace("pub(crate) const LIMITATIONS: [&str; 7] = [", "pub(crate) const LIMITATIONS: [&str; 7]=["))
     with pytest.raises(ValueError):
         MODEL["formulation_content"](tmp_path)
     atoms = {"s(MechanicsEnvelope)": 4096, "s(String)": 24}
     assert (MODEL["failed_envelope_copy"](3, 128, SOURCE).ev(atoms)
-            - MODEL["failed_envelope_copy"](3, 128).ev(atoms)) == 3 * (3138 - 2035)
+            - MODEL["failed_envelope_copy"](3, 128).ev(atoms)) == 3 * (3069 - 2035)

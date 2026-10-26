@@ -6,6 +6,7 @@
 //! with the producer (`bindings`). Standard claim fence applies (claims
 //! taxonomy per DEC-081).
 
+use crate::admitted::{self, AdmittedSet};
 use crate::schema_eval::{Catalog, RESULTS_V03};
 use open_pipe_stress_result_export::derivative::{checksum, guard_json, reference};
 use open_pipe_stress_result_export::semantic_contract::{for_export_metadata, PREVIEW_PHYSICS_ID, RESULT_EXPORT_VERSION};
@@ -43,8 +44,16 @@ pub fn producer_contract_id(document: &Value) -> Option<&str> {
 /// Item 0, the route preflight: an id outside the admitted set, an unknown id
 /// or a missing one is refused by the route code, before any form check.
 pub fn check_route_admitted(document: &Value) -> Result<(), String> {
+    check_route_admitted_in(document, admitted::PRODUCTION)
+}
+
+/// Item 0 against `admitted` (W-11, DEL-08-01 Design
+/// `exact-route-report-sections.md` §5.5): crate-private, reached only along
+/// the admitted-set forwarding graph; every public root passes the production
+/// set.
+pub(crate) fn check_route_admitted_in(document: &Value, admitted: AdmittedSet) -> Result<(), String> {
     match producer_contract_id(document) {
-        Some(id) if ADMITTED_SEMANTIC_CONTRACTS.contains(&id) => Ok(()),
+        Some(id) if admitted.contains(id) => Ok(()),
         Some(id) => Err(format!("{ROUTE_NOT_ADMITTED}: the report package admits only preview-physics-2; found {id}")),
         None => Err(format!("{ROUTE_NOT_ADMITTED}: the result member names no producer semantic contract")),
     }

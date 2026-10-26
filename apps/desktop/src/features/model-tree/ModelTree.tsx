@@ -12,6 +12,15 @@ import { EngineeringTable, useTableBodyHeight, type TableApplyResult } from "../
 import { buildGridOperationIntent, materialTableColumns, sectionTableColumns, nodeTableColumns, type GridColumn, type GridRow } from "../workspace/table/modelTableAdapter";
 import { quantityCellKey, useQuantitySortProjection } from "../workspace/table/quantitySortProjection";
 import { capturedCellIsCurrent, type CapturedCell, type TableRow } from "../workspace/table/tableState";
+import { isProjectUnitKey, missingProjectUnitText, projectUnitMissing, unavailableDefaultUnitCellText } from "../project-units/missingProjectUnit";
+import {
+  fieldComposedDefault,
+  linearStiffnessFieldDefault,
+  projectTemperatureDefault,
+  rotationalStiffnessFieldDefault,
+  type FieldUnitDefault
+} from "../project-units/projectUnitSelection";
+import { loadUnitCatalog, type UnitCatalogRoute } from "../../services/unitCatalogService";
 
 type Props = {
   model: PreviewModel;
@@ -745,6 +754,18 @@ function EntityGrid({
   projectSessionGeneration: number;
 }) {
   const [queuedMessage, setQueuedMessage] = useState("");
+  // W-17 §7.3, §7.6: composed column defaults are checked against the DEC-018 catalog,
+  // as in the property inspector; until it loads (or in the browser preview) they stay unchecked.
+  const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
+  useEffect(() => {
+    let active = true;
+    loadUnitCatalog()
+      .then((route) => { if (active) setUnitCatalogRoute(route); })
+      .catch((error) => {
+        if (active) setUnitCatalogRoute({ route: "unavailable_browser_preview", diagnostic: `UNIT-CATALOG-LOAD-FAILED: ${String(error)}` });
+      });
+    return () => { active = false; };
+  }, []);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [materialReviewOpen, setMaterialReviewOpen] = useState(false);
   const [sectionReviewOpen, setSectionReviewOpen] = useState(false);
@@ -797,7 +818,7 @@ function EntityGrid({
     return onApplyCellIntent(intent);
   }
   const rows = useMemo(() => gridRows(model, entityType), [model, entityType]);
-  const columns = useMemo(() => gridColumns(model, entityType), [model, entityType]);
+  const columns = useMemo(() => gridColumns(model, entityType, unitCatalogRoute), [model, entityType, unitCatalogRoute]);
   const visibleRows = useMemo(() => {
     const query = filterText.trim().toLowerCase();
     return query ? rows.filter((row) => row.searchText.includes(query)) : rows;
@@ -832,6 +853,11 @@ function EntityGrid({
 
   function handleQueueChangedCells() {
     if (!onQueueIntent || changedCells.length === 0) return;
+    const unitRefusal = missingProjectUnitCellRefusal(model, changedCells);
+    if (unitRefusal) {
+      setQueuedMessage(unitRefusal);
+      return;
+    }
     changedCells.forEach(({ column, row, value }, index) => {
       onQueueIntent(
         buildGridOperationIntent({
@@ -1268,8 +1294,10 @@ function row(id: string, label: string, type: EntityRef["type"], raw: unknown, k
   return { id, label, type, raw, searchText: keywords.join(" ").toLowerCase() };
 }
 
-function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColumn[] {
-  const lengthUnit = model.project.units.length ?? "m";
+function gridColumns(model: PreviewModel, entityType: GridEntityType, route: UnitCatalogRoute | null = null): GridColumn[] {
+  const units = (model.project.units as PreviewModel["project"]["units"] | undefined) ?? {};
+  // W-17 §3: an absent key gives no unit (""), never a substitute; queuing such a cell is refused by name.
+  const lengthUnit = model.project.units.length ?? "";
   if (entityType === "nodes") {
     return [
       scalarGridColumn("label", "Label", "label", "Node", "node label only"),
@@ -1365,7 +1393,7 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
         "geometry.bend_angle.value",
         "Component",
         "angle",
-        model.project.units.angle ?? "rad"
+        model.project.units.angle ?? ""
       ),
       scalarGridColumn(
         "bend-pipe",
@@ -1425,7 +1453,7 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
         "geometry.weight.value",
         "Component",
         "force",
-        model.project.units.force ?? "N"
+        model.project.units.force ?? ""
       ),
       scalarGridColumn(
         "stiffness-scale",
@@ -1434,21 +1462,21 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
         "Component",
         "user-entered rigid stiffness scaling; no catalog default"
       ),
-      quantityGridColumn(
+      composedGridColumn(
         "linear-stiffness",
         "Linear stiffness",
         "modifiers.linear_stiffness_user_value.value",
         "Component",
         "linear_stiffness",
-        "N/m"
+        linearStiffnessFieldDefault(route, units)
       ),
-      quantityGridColumn(
+      composedGridColumn(
         "rot-stiffness",
         "Rot. stiffness",
         "modifiers.rotational_stiffness_user_value.value",
         "Component",
         "rotational_stiffness",
-        "N*m/rad"
+        rotationalStiffnessFieldDefault(route, units)
       ),
       scalarGridColumn(
         "ej-pipe",
@@ -1457,13 +1485,13 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
         "Component",
         "expansion-joint frame member mapping"
       ),
-      quantityGridColumn(
+      composedGridColumn(
         "ej-effective-area",
         "EJ eff. area",
         "geometry.effective_area.value",
         "Component",
         "area",
-        "m^2"
+        fieldComposedDefault(route, "area", units)
       ),
       quantityGridColumn(
         "ej-movement-limit",
@@ -1487,37 +1515,37 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
         "Component",
         "user-entered manufacturer provenance reference"
       ),
-      quantityGridColumn(
+      composedGridColumn(
         "ej-axial-stiffness",
         "EJ axial k",
         "modifiers.axial_stiffness_user_value.value",
         "Component",
         "linear_stiffness",
-        "N/m"
+        linearStiffnessFieldDefault(route, units)
       ),
-      quantityGridColumn(
+      composedGridColumn(
         "ej-lateral-stiffness",
         "EJ lateral k",
         "modifiers.lateral_stiffness_user_value.value",
         "Component",
         "linear_stiffness",
-        "N/m"
+        linearStiffnessFieldDefault(route, units)
       ),
-      quantityGridColumn(
+      composedGridColumn(
         "ej-angular-stiffness",
         "EJ angular k",
         "modifiers.angular_stiffness_user_value.value",
         "Component",
         "rotational_stiffness",
-        "N*m/rad"
+        rotationalStiffnessFieldDefault(route, units)
       ),
-      quantityGridColumn(
+      composedGridColumn(
         "ej-torsional-stiffness",
         "EJ torsion k",
         "modifiers.torsional_stiffness_user_value.value",
         "Component",
         "rotational_stiffness",
-        "N*m/rad"
+        rotationalStiffnessFieldDefault(route, units)
       ),
       scalarGridColumn("provenance", "Provenance", "provenance", "Component", "public/private source note")
     ];
@@ -1535,22 +1563,22 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
         "user-assigned temperature-point basis id; exact selection",
         "update_load"
       ),
-      quantityGridColumn(
+      composedGridColumn(
         "modulus-basis-temperature",
         "Solve temperature",
         "modulus_basis_temperature.value",
         "Load",
         "temperature",
-        "K",
+        { symbol: projectTemperatureDefault(units), notice: null, missingKey: "temperature" },
         "update_load"
       ),
-      quantityGridColumn(
+      composedGridColumn(
         "seismic-gravity",
         "Seismic gravity",
         "equivalent_static.seismic.gravity_acceleration.value",
         "Load",
         "acceleration",
-        "m/s^2",
+        fieldComposedDefault(route, "acceleration", units),
         "update_load"
       ),
       scalarGridColumn(
@@ -1583,7 +1611,7 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
         "equivalent_static.wind.pressure.value",
         "Load",
         "pressure",
-        model.project.units.pressure ?? "Pa",
+        model.project.units.pressure ?? "",
         "update_load"
       ),
       scalarGridColumn(
@@ -1665,6 +1693,24 @@ function quantityGridColumn(
   };
 }
 
+/** A quantity column whose default unit comes from project keys (W-17 §7.2, §7.3,
+ * §7.6): a stored unit is kept; an empty cell takes the default, or has no unit and
+ * names why (`emptyUnit`). */
+function composedGridColumn(
+  key: string,
+  label: string,
+  fieldPath: string,
+  objectType: EditorOperationObjectType,
+  dimension: string,
+  choice: FieldUnitDefault,
+  changeKind: GridColumn["changeKind"] = "set_field"
+): GridColumn {
+  return {
+    ...quantityGridColumn(key, label, fieldPath, objectType, dimension, choice.symbol, changeKind),
+    emptyUnit: { missingKey: choice.missingKey, notice: choice.notice }
+  };
+}
+
 function readonlyGridColumn(
   key: string,
   label: string,
@@ -1680,6 +1726,25 @@ function readonlyGridColumn(
 function gridCellReadonly(column: GridColumn, row: GridRow): boolean {
   // Structured provenance must never be flattened into a user-entered string.
   return Boolean(column.readonly || (column.fieldPath === "provenance" && ((row.type === "section" && typeof (row.raw as { provenance?: unknown }).provenance !== "string") || ((row.type === "node" || row.type === "material") && typeof (row.raw as { provenance?: unknown }).provenance !== "string"))));
+}
+
+/** W-17 §3: a changed quantity cell whose unit would come from a missing project key
+ * is refused by name, and nothing is queued; grid cells have no unit selector. */
+function missingProjectUnitCellRefusal(model: PreviewModel, cells: Array<{ row: GridRow; column: GridColumn }>): string | null {
+  for (const { row, column } of cells) {
+    // W-17 §7.2, §7.3, §7.6: a column with a composed or key default; the grid has no
+    // unit selector, so the refusal sends the user to the property inspector.
+    if (column.quantity && column.emptyUnit && column.unit(row).trim() === "") {
+      const { missingKey, notice } = column.emptyUnit;
+      const reason = missingKey && isProjectUnitKey(missingKey)
+        ? missingProjectUnitText(model, missingKey, "inspector")
+        : unavailableDefaultUnitCellText(notice ?? "no default unit is available");
+      return `Not queued: ${column.label} of ${row.id} has no unit. ${reason}`;
+    }
+    if (!column.quantity || column.unit(row).trim() !== "" || !isProjectUnitKey(column.dimension) || !projectUnitMissing(model, column.dimension)) continue;
+    return `Not queued: ${column.label} of ${row.id} has no unit. ${missingProjectUnitText(model, column.dimension, column.objectType === "Node" ? "positions" : "required")}`;
+  }
+  return null;
 }
 
 function changedGridCells({

@@ -48,9 +48,9 @@ BOUNDS = {3389:46,3412:37,3418:140,3443:143,3470:158,3489:162,
           3523:188,3524:338,3558:169,3573:163,3594:173,3599:322}
 ERROR_SITES = {2803:149,3366:1049,3631:1046}
 ROWS_ERROR_LINE = 2803          # the one error site owned by bind_rows_subject (inside its row loop)
-# Nested-record closure D3 (§8.NR, provisional; measured): -> 14492/14493/14913/14914 (+106: the closed nested wire
-# records precede them), unchanged text.
-HELPER_FNS = (PP + "lib.rs:14492:qualified_load_case_result_id", PP + "lib.rs:14913:stable_suffix")
+# Nested-record closure D3 (§8.25): -> 14531/14532/14952/14953 (+106: the closed nested wire records precede them),
+# unchanged text.
+HELPER_FNS = (PP + "lib.rs:14531:qualified_load_case_result_id", PP + "lib.rs:14952:stable_suffix")
 ERROR_OWNER = PP+'retained_product.rs:2553:bind_rows_subject'
 ERROR_WHY = "B7a metadata first error: immediate propagation out of whole bind_rows_subject; full owner M/content/capacity and independent errors/detail copies retained"
 SOURCE_WHY = ("B7a row-source ownership: audited success or terminal Range fallback "
@@ -267,7 +267,7 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1238:audit_load_fidelity',
              'core/solver/frame_kernel/src/structural/sparse.rs:1891:audit_sparse_load_fidelity': ['core/solver/frame_kernel/src/structural/sparse.rs:1218:load_fidelity'],
              'core/product_physics/src/retained_product.rs:2553:bind_rows_subject': ['core/product_physics/src/retained_product.rs:2537:bind_combination_rows_scoped',
                                                                                      'core/product_physics/src/retained_product.rs:2546:bind_rows_view',
-                                                                                     'core/product_physics/src/retained_product.rs:7392:freeze_combination']},
+                                                                                     'core/product_physics/src/retained_product.rs:7394:freeze_combination']},
  'site_stacks': [['core/product_physics/src/retained_product.rs:2553:bind_rows_subject',
                   'core/product_physics/src/retained_product.rs:3319:validate_final_metadata',
                   [['for observed in view.rows()']]],
@@ -301,7 +301,7 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1238:audit_load_fidelity',
                  ['core/product_physics/src/retained_product.rs:2546:bind_rows_view',
                   'core/product_physics/src/retained_product.rs:2553:bind_rows_subject',
                   [[]]],
-                 ['core/product_physics/src/retained_product.rs:7392:freeze_combination',
+                 ['core/product_physics/src/retained_product.rs:7394:freeze_combination',
                   'core/product_physics/src/retained_product.rs:2553:bind_rows_subject',
                   [[], []]]],
  'source_loop': {'re': '^iter:terms\\.iter\\(\\)\\.map$',
@@ -334,19 +334,22 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1238:audit_load_fidelity',
 # retained_product.rs rows and validate_final_metadata +16 to +85 (the global end binding and completion), unchanged text.
 # W-15 D3 (§8.21): -> 14386/14387/14807/14808 (+111: W-15's ResultItem record, BuiltModel's scaled members and the
 # formation changes precede them); retained_product.rs's rows only name `component_body: None` in place, unchanged keys.
+# W-16 slice a D3 (§8.23): -> 14425/14426/14846/14847 (+39: LoadTargetInput's support arm, the imposed-motion
+# validation, the case solve's prescribed map and the primitive filter precede them); freeze_combination 7392 -> 7394
+# (the captured-target match's support arm), unchanged text.
  # B7b snapshot lib.rs lines (B7a: 13239/13238 and 13614/13613; unchanged text).
  'helper_rows': [{'file': 'core/product_physics/src/lib.rs',
-                  'line': 14493,
+                  'line': 14532,
                   'kind': 'format',
                   'template': 'result:loadcase:{}:{}',
                   'literal_bytes': 17,
                   'placeholders': [{'spec': '', 'arg': 'stable_suffix(load_case_id)'},
                                    {'spec': '', 'arg': 'result_tail(base_id)'}],
-                  'fn': 'core/product_physics/src/lib.rs:14492:qualified_load_case_result_id'},
+                  'fn': 'core/product_physics/src/lib.rs:14531:qualified_load_case_result_id'},
                  {'file': 'core/product_physics/src/lib.rs',
-                  'line': 14914,
+                  'line': 14953,
                   'kind': 'replace',
-                  'fn': 'core/product_physics/src/lib.rs:14913:stable_suffix',
+                  'fn': 'core/product_physics/src/lib.rs:14952:stable_suffix',
                   'receiver': 'id',
                   'literal_bytes': None,
                   'arg': '\' \', " "'}],
@@ -358,11 +361,11 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1238:audit_load_fidelity',
                                                                       'super::result_tail(&expected)': {'bytes': 1024,
                                                                                                         'source': 'RES'}},
                 'core/product_physics/src/retained_product.rs:3546': None,
-                'core/product_physics/src/lib.rs:14493': {'result_tail(base_id)': {'bytes': 600,
+                'core/product_physics/src/lib.rs:14532': {'result_tail(base_id)': {'bytes': 600,
                                                                                    'source': 'COMP'},
                                                           'stable_suffix(load_case_id)': {'bytes': 128,
                                                                                           'source': 'IN128'}},
-                'core/product_physics/src/lib.rs:14914': {'id': {'bytes': 128, 'source': 'IN128'}},
+                'core/product_physics/src/lib.rs:14953': {'id': {'bytes': 128, 'source': 'IN128'}},
                 'core/product_physics/src/retained_product.rs:2803': {'r.kind': {'bytes': 128,
                                                                                  'source': 'STATIC'}},
                 'core/product_physics/src/retained_product.rs:3366': {'row.id': {'bytes': 1024,

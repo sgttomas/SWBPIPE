@@ -13107,7 +13107,7 @@ describe("existing toolkit v2", () => {
     fireEvent.click(screen.getByTestId("apply-intent-editor-intent-1"));
     // A headroom refusal is re-sent for up to HEADROOM_RESEND_WINDOW_MS before it stands.
     await waitFor(() => expect(screen.getByTestId("operation-apply-message")).toHaveTextContent(
-      "Operation apply failed to run: Refused by the native memory pool: Not enough free memory on this Mac right now: needs 3 GiB, 1 GiB available."
+      "Operation apply failed to run: Refused by the native memory pool: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 3 GiB, 1 GiB available."
     ), { timeout: HEADROOM_RESEND_WINDOW_MS + 3000 });
     expect(invokeMock.mock.calls.filter(([command]) => command === "apply_model_operation").length).toBeGreaterThan(1);
     expect(reviewControl("operation-apply-summary")).toHaveTextContent("0 applied");

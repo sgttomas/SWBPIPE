@@ -133,5 +133,7 @@ needs:
 code_paths:
 - core/solver/linear_supports/**
 - tools/validation/validate_dependencies_schema.py
+- core/product_physics/src/imposed_motion.rs
 checks:
 - core/solver/linear_supports/src/lib.rs
+- core/product_physics/tests/w16_imposed_motion.rs

@@ -126,7 +126,12 @@ def test_the_names_paths_and_withheld_texts_are_audited(monkeypatch):
     assert named == 8 * 1052 + 7 * 2 + len(", and  more") + 20
     # SD-RK: the two replaced basis keys resolve by name to the same sites.
     assert f"{PREVIEW}:{line_of(PREVIEW, 'rows.push(combination_row(combination, &expression, sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, sources.iter()')}" in audit
-    assert "core/product_physics/src/preview_physics.rs:990" not in audit and "core/product_physics/src/preview_physics.rs:1022" not in audit
+    # No basis key of the two sites survives un-re-keyed. The test reads the raw basis keys (plain
+    # strings, not `Resolved`), since a by-name key can land on a line that spells a basis key: at
+    # the unit factor-sum gate (§8.24) the support row push resolves to :1022 itself.
+    stale = {"core/product_physics/src/preview_physics.rs:990", "core/product_physics/src/preview_physics.rs:1022"}
+    raw = [str(k) for k, _ in list(d["ID_AUDIT"]) + list(d["O10_ID_AUDIT"]) if type(k).__name__ != "Resolved"]
+    assert not stale & set(raw)
 
 
 def test_the_owners_are_present_and_positive():

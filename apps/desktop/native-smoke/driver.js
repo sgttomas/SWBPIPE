@@ -6,7 +6,8 @@
 // dispatch a menu click uses, buttons are clicked, and every observation is read
 // from what the window shows. The only substitution is the model-document,
 // handoff and report-package choosers (open and save): the driver names the file
-// it returns. It records what it saw; `run.mjs` judges.
+// it returns. It records what it saw; `run.mjs` judges. What the smoke's build
+// binding guards against, and what it does not: the header of `run.mjs`.
 (() => {
   const ipc = window.__TAURI_INTERNALS__;
   const call = (command, args) => ipc.invoke(command, args ?? {});
@@ -15,11 +16,12 @@
   const byTestId = (id) => document.querySelector(`[data-testid="${CSS.escape(id)}"]`);
   const text = (id) => byTestId(id)?.textContent?.trim() ?? null;
 
+  // A probe that throws ends the wait at once with its own error: a failure the
+  // window names is reported as itself, not as a timeout.
   async function waitFor(label, probe, timeoutMs = 120000) {
     const started = Date.now();
     for (;;) {
-      let value;
-      try { value = probe(); } catch { value = null; }
+      const value = probe();
       if (value) return value;
       if (Date.now() - started > timeoutMs) throw new Error(`timed out after ${timeoutMs} ms waiting for ${label}`);
       await sleep(100);
@@ -188,7 +190,7 @@
       await waitFor(`${label}: package intent recorded`, () => byTestId("report-package-private-intent")?.checked, 10000);
     }
     await call("native_smoke_choose", { path });
-    // A save the native memory pool refused only for this Mac's momentary free
+    // A save the native memory pool refused only for this Mac's momentary available
     // memory (nothing ran, nothing was written) is asked again, as a person would.
     record.memory_refusals = 0;
     for (;;) {
@@ -200,7 +202,7 @@
         return now && !/Saving report package/.test(byTestId("report-package-save")?.textContent ?? "") ? now : null;
       }, 300000);
       await log(`${label}: ${record.status}`);
-      if (!/RESOURCE_UNAVAILABLE: Not enough free memory/.test(record.status) || record.memory_refusals >= 20) break;
+      if (!/RESOURCE_UNAVAILABLE: Not enough available memory/.test(record.status) || record.memory_refusals >= 20) break;
       record.memory_refusals += 1;
       await sleep(5000);
     }
@@ -246,19 +248,118 @@
     return observation;
   }
 
+  // What the window and the native memory pool say about the current solve job,
+  // so a memory refusal or a queue wait is told apart from a slow solve. Read
+  // only: the Solve panel's own lines, the typed queue reason and refusal in the
+  // solve job JSON the panel offers, and `get_memory_pool_status` (the Memory
+  // pool panel's own read). It never throws.
+  function composeSolveDiagnostics(shown, jobResource, pool) {
+    const [source, reason] = jobResource?.refusal ? ["job refusal", jobResource.refusal]
+      : jobResource?.queue_reason ? ["job queue reason", jobResource.queue_reason]
+      : pool?.last_refusal ? ["memory pool's last refusal", pool.last_refusal] : [null, null];
+    // A refused worker growth carries the pool's own verdict as its cause.
+    const leaf = reason?.kind === "worker_growth_refused" && reason.cause ? reason.cause : reason;
+    const fields = {
+      shown,
+      job_record: jobResource ? "read" : "not readable",
+      reason: reason ? {
+        source,
+        code: leaf === reason ? reason.kind : `${reason.kind}/${leaf.kind}`,
+        required_bytes: reason.required_bytes ?? reason.requested_bytes ?? leaf.required_bytes ?? leaf.requested_bytes ?? null,
+        headroom_bytes: leaf.available_bytes ?? null,
+        pressure: leaf.level ?? null,
+        typed: reason
+      } : null,
+      memory_pool: !pool || pool.error ? { error: pool?.error ?? "not read" } : {
+        headroom_bytes: pool.headroom?.available_bytes ?? null,
+        pressure: pool.headroom?.pressure ?? null,
+        sample_age_ms: pool.headroom?.sample_age_ms ?? null,
+        queued_jobs: pool.queued_jobs ?? null,
+        running_jobs: pool.running_jobs ?? null,
+        running_workers: pool.running_workers ?? null,
+        reserved_bytes: pool.reserved_bytes ?? null,
+        pool_bytes: pool.pool_bytes ?? null,
+        invocation_budget_bytes: pool.invocation_budget_bytes ?? null,
+        last_refusal: pool.last_refusal ?? null
+      }
+    };
+    const q = JSON.stringify;
+    const r = fields.reason;
+    const m = fields.memory_pool;
+    const text = [
+      `solve job: summary=${q(shown.summary)}`,
+      `progress=${q(shown.progress)}`,
+      `queue_reason=${q(shown.queue_reason)}`,
+      `refusal=${q(shown.refusal)}`,
+      `worker_failure=${q(shown.worker_failure)}`,
+      `error=${q(shown.error)}`,
+      `memory=${q(shown.resource)}`,
+      `job record ${fields.job_record}`,
+      r ? `reason code=${r.code} (${r.source}); required_bytes=${r.required_bytes}; headroom_bytes=${r.headroom_bytes}${r.pressure ? `; pressure=${r.pressure}` : ""}` : "reason: none reported",
+      m.error ? `memory pool status: ${m.error}`
+        : `memory pool now: headroom_bytes=${m.headroom_bytes}; pressure=${m.pressure}; sample_age_ms=${m.sample_age_ms}; queued_jobs=${m.queued_jobs}; running_jobs=${m.running_jobs}; running_workers=${m.running_workers}; reserved_bytes=${m.reserved_bytes}; pool_bytes=${m.pool_bytes}; invocation_budget_bytes=${m.invocation_budget_bytes}; last_refusal=${q(m.last_refusal)}`
+    ].join("; ");
+    return { fields, text };
+  }
+  function solveJobRecord() {
+    try {
+      const href = byTestId("solve-job-export-link")?.getAttribute("href") ?? "";
+      if (!href.startsWith("data:")) return null;
+      const record = JSON.parse(decodeURIComponent(href.slice(href.indexOf(",") + 1)));
+      return record?.resource ?? null;
+    } catch {
+      return null;
+    }
+  }
+  async function solveJobDiagnostics() {
+    const shown = {
+      summary: text("solve-job-summary"),
+      progress: text("solve-job-progress"),
+      queue_reason: text("solve-job-queue-reason"),
+      refusal: text("solve-job-resource-refusal"),
+      worker_failure: text("solve-job-worker-failure"),
+      error: text("solve-job-error"),
+      resource: text("solve-job-resource")
+    };
+    const pool = await Promise.resolve().then(() => call("get_memory_pool_status")).then((value) => value, (error) => ({ error: String(error?.message ?? error) }));
+    return composeSolveDiagnostics(shown, solveJobRecord(), pool);
+  }
+  const proofText = () => byTestId("status-pill-solve-proof")?.querySelector("code")?.textContent ?? null;
+  // The terminal job states other than completed (the solve job states of
+  // `solveJobAudit.ts`: not_started, queued, running, cancelling, completed,
+  // failed, cancelled, refused). Such a job will not complete, so the wait ends
+  // at once with its error.
+  const UNSOLVED_STATE = /\bstate=(failed|cancelled|refused)(?:;|$)/;
+  // The probe a solve wait polls: the job completed with a new proof of
+  // `projectId` (not `priorProof`); a job that ended any other way throws.
+  function solveDone(label, projectId, priorProof, hard) {
+    return () => {
+      const summary = text("solve-job-summary") ?? "";
+      if (UNSOLVED_STATE.test(summary)) throw Object.assign(new Error(`${label}: ${summary}; ${text("solve-job-error") ?? ""}`), { hard });
+      const proof = proofText();
+      return summary.includes("state=completed") && proof && proof !== priorProof && proof.includes(`project=${projectId}`);
+    };
+  }
+  // A solve that failed, was refused or cancelled, or did not finish in time,
+  // is reported with its job's diagnostics, in the error and in the driver's log.
+  async function waitForSolve(label, probe, timeoutMs) {
+    try {
+      return await waitFor(label, probe, timeoutMs);
+    } catch (error) {
+      const diagnostics = await solveJobDiagnostics();
+      await log(`${label}: ${diagnostics.text}`);
+      throw Object.assign(new Error(`${error?.message ?? error}; ${diagnostics.text}`, { cause: error }), { hard: error?.hard, solve_job: diagnostics.fields });
+    }
+  }
+
   async function solve(mode, label, projectId, probe) {
     await showSection("solve");
     click(mode === "dense_scrutiny" ? "solver-mode-dense" : "solver-mode-sparse");
     await waitFor(`${mode} selected`, () => byTestId(mode === "dense_scrutiny" ? "solver-mode-dense" : "solver-mode-sparse")?.getAttribute("aria-pressed") === "true");
-    const priorProof = byTestId("status-pill-solve-proof")?.querySelector("code")?.textContent ?? null;
+    const priorProof = proofText();
     await log(`${label}: run`);
     await menu("analyze.run");
-    await waitFor(`${label} solve completed`, () => {
-      const summary = text("solve-job-summary") ?? "";
-      if (/state=(failed|cancelled)/.test(summary)) throw new Error(`${label}: ${summary}; ${text("solve-job-error") ?? ""}`);
-      const proof = byTestId("status-pill-solve-proof")?.querySelector("code")?.textContent ?? null;
-      return summary.includes("state=completed") && proof && proof !== priorProof && proof.includes(`project=${projectId}`);
-    }, 300000);
+    await waitForSolve(`${label} solve completed`, solveDone(label, projectId, priorProof), 300000);
     return observe(label, projectId, probe);
   }
 
@@ -474,9 +575,32 @@
     await sleep(300);
   }
   const typedTreeRow = (type, id) => byTestId(`tree-row-${encodeURIComponent(type)}-${encodeURIComponent(id)}`);
+  // The project ids the model tree shows.
+  const projectRowIds = () => [...document.querySelectorAll('[data-testid^="tree-row-project-"]')]
+    .map((row) => decodeURIComponent(row.getAttribute("data-testid").slice("tree-row-project-".length)));
+  // The probe for New Blank Project having taken effect. Create closes the units
+  // dialog at once, but the blank becomes the session only when its native create
+  // and hashes return; until then the tree still shows the previous project, and
+  // an edit made meanwhile lands in that project and supersedes the create
+  // (workspaceSession.ts createBlankProjectFrom). So the wait is for the create's
+  // own status line and a tree whose project is no longer `previousId`.
+  function blankInstalled(previousId) {
+    return () => {
+      const now = message();
+      if (now.startsWith("Blank create failed")) throw Object.assign(new Error(now), { hard: true });
+      if (!now.startsWith("Created blank local model document")) return null;
+      const ids = [...new Set(projectRowIds())];
+      return ids.length === 1 && ids[0] !== previousId ? ids[0] : null;
+    };
+  }
+  // After Create: the blank's project id, once it is the session.
+  function awaitBlankProject(previousId, timeoutMs = 120000) {
+    return waitFor(`blank project in the tree in place of ${previousId}`, blankInstalled(previousId), timeoutMs).catch((error) => {
+      throw Object.assign(new Error(`${error.message}; message="${message()}"; tree projects=${JSON.stringify(projectRowIds())}`), { hard: error.hard });
+    });
+  }
   const CODE_PATTERN = /\b[A-Z][A-Z0-9]*(?:[-_][A-Z0-9]+)+\b/g;
   const codesIn = (element) => [...new Set((element?.textContent ?? "").match(CODE_PATTERN) ?? [])];
-  const proofText = () => byTestId("status-pill-solve-proof")?.querySelector("code")?.textContent ?? null;
 
   // One solve from the current session in the default (sparse) mode, read from the window.
   async function solveCurrent(label, projectId, probe) {
@@ -485,12 +609,7 @@
     await waitFor("sparse selected", () => byTestId("solver-mode-sparse")?.getAttribute("aria-pressed") === "true");
     const prior = proofText();
     await menu("analyze.run");
-    await waitFor(`${label} solve`, () => {
-      const summary = text("solve-job-summary") ?? "";
-      if (/state=(failed|cancelled)/.test(summary)) throw Object.assign(new Error(`${label}: ${summary}; ${text("solve-job-error") ?? ""}`), { hard: true });
-      const proof = proofText();
-      return summary.includes("state=completed") && proof && proof !== prior && proof.includes(`project=${projectId}`);
-    }, 300000);
+    await waitForSolve(`${label} solve`, solveDone(label, projectId, prior, true), 300000);
     const observation = await observe(label, projectId, probe);
     if (probe) {
       // The probe row is the displacement magnitude; its signed components are separate rows.
@@ -584,14 +703,16 @@
     const step = async (name, fn) => { await log(`blank: ${name}`); const value = await fn(); steps.push(name); return value; };
     await closeSection();
     await step("units dialog", async () => {
+      const previousId = projectRowIds()[0] ?? null;
+      report.blank.previous_project_id = previousId;
       await menu("file.new-blank");
       await waitFor("units dialog", () => byTestId("project-units-dialog"), 20000);
       const preset = byTestId("project-units-preset");
       report.blank.unit_presets = preset ? [...preset.querySelectorAll("option")].map((option) => option.value) : [];
       click("project-units-create");
       await waitFor("units dialog closed", () => !byTestId("project-units-dialog"), 20000);
-      const row = await waitFor("blank project in the tree", () => document.querySelector('[data-testid^="tree-row-project-"]'), 20000);
-      report.blank.project_id = decodeURIComponent(row.getAttribute("data-testid").slice("tree-row-project-".length));
+      // Nothing is authored before the blank is the session (see blankInstalled).
+      report.blank.project_id = await awaitBlankProject(previousId);
     });
     await step("node", async () => {
       click("command-node");
@@ -705,6 +826,13 @@
     if (plan.handoff) await handoffRoundTrip(plan, report, previousId);
   }
 
+  // Under the driver's node test only: hand over the helpers instead of running.
+  const testHooks = globalThis.__SWBPIPE_NATIVE_SMOKE_DRIVER_TEST__;
+  if (testHooks) {
+    Object.assign(testHooks, { waitFor, waitForSolve, solveDone, solveJobDiagnostics, composeSolveDiagnostics, awaitBlankProject });
+    return;
+  }
+
   (async () => {
     const report = { phase: null, ok: false, refusals: [], opened: [], observations: [], exports: [], saved: [], prompts: [], user_agent: navigator.userAgent, location: String(window.location) };
     try {
@@ -718,6 +846,7 @@
       report.ok = true;
     } catch (error) {
       report.error = `${error?.message ?? error}${error?.stack ? `\n${error.stack}` : ""}`;
+      if (error?.solve_job) report.solve_job_diagnostics = error.solve_job;
       await log(`FAILED: ${report.error}`);
     }
     await call("native_smoke_finish", { report });

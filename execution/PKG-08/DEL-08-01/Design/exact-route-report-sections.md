@@ -48,6 +48,15 @@ every route. Standard claim fence applies (claims taxonomy per DEC-081).
   data contracts, not prose. The PRD §19.3 notice is the report's composite
   anchor (§3) and is unchanged.
 - **DEC-028:** one package version; the reader refuses others by name.
+- **Ruling on #1639 (owner, 2026-10-26):** "C1 b, C2 a". C1 (b): in a
+  local-private report only, a provenance record whose redistribution, review
+  or privacy status is `unknown` or `TBD` renders with a non-blocking warning
+  in the warnings section that names the record and the unresolved field and
+  says the source's status is not recorded; in every other context (a public
+  report, an absent context, and any later shared context such as W-18b's
+  user-released report) it stays report-blocking. C2 (a): text the user
+  authored in a record, a path typed in `source_location` included, stays as
+  written in local-private outputs; no other context carries these records.
 
 ## 1. Where things stand
 
@@ -64,7 +73,8 @@ every route. Standard claim fence applies (claims taxonomy per DEC-081).
    (§1.3).
 2. **The fixture writer.** Writing the coverage fixture through
    `pressure_v3_formulation_basis_with_source` would miss those three strings.
-   §2.2 adds a composing seam that the producer itself uses.
+   §2.2 generates the fixture from the public producer itself, on invented
+   models.
 3. **The renderer input.** `RenderableReportInput` is
    `report_renderer::RenderableReportInput`
    (`core/reporting/report_renderer/src/lib.rs:154-163`), not
@@ -275,32 +285,38 @@ exact-route string contains "acceptance". The only non-ASCII character in the
 
 ### 2.2 The coverage fixture and its writer
 
-- **Seam.** `core/product_physics/src/lib.rs` gains
-  `pub(crate) const CERTIFIED_RECOVERY_LIMITATIONS: [&str; 2]`, the two
-  statements of `lib.rs:1206-1207`, moved there rather than copied, and
-  `pub(crate) fn exact_formulation_basis(load_state: bool, connectors: bool,
-  realized_bends: bool, selected: bool) -> FormulationBasis`. The seam composes
-  §1.3 items 1-6 and then appends `CERTIFIED_RECOVERY_LIMITATIONS` (item 7).
-  `formulation_basis_for_model_with_source` returns the seam's basis unchanged
-  on the exact arm. On the other arm it appends the same constant to
-  `preview_formulation_basis()`. The shared `extend` (`lib.rs:1205-1208`) is
-  removed. **The recovery statements therefore enter each route's list exactly
-  once, from one constant**, and the fixture writer sees exactly what the
-  producer publishes. This refactor is behaviour-preserving; the existing
-  corpus-currency tests and `source_receipt/pressure_source_context_tests.rs:174-230`
-  pin it.
-- **Writer.** A test in `core/product_physics/src/exact_route_limitations_tests.rs`,
-  `exact_route_limitations_fixture_is_current`, enumerates the whole domain of
-  the seam: `selected` ∈ {false (`pressure-2`), true (`pressure-source-1`)} ×
-  `load_state` × `connectors` × `realized_bends`, 16 lists. It writes, in this
-  order, `fixtures/reports/exact_route_limitations.json`:
+- **Producer, not a seam.** No product source changes: `lib.rs` and
+  `exact_admission.rs`, whose bytes retained pricing pins, are unchanged. The
+  fixture is generated from the public producer the desktop and the runner use
+  (`run_linear_static_preview_value_with_mode`), on invented models, so it holds
+  exactly what the producer publishes.
+- **Writer.** An integration test, `core/product_physics/tests/exact_route_limitations.rs`
+  `exact_route_limitations_fixture_is_current`, runs one invented model for each
+  shape the producer emits, 10 lists: `pressure-2` × `load_state` ×
+  `connectors` × `realized_bends` (8), and `pressure-source-1` with neither a
+  connector nor a bend, without and with the load/reference-state group (2).
+  The models are committed invented requests, or copies of them patched inline
+  with an added connector tail. Each envelope must state its intended shape:
+  its identity, its load/reference-state evidence, its connector records and
+  its curved-bend count. The test writes, in this order,
+  `fixtures/reports/exact_route_limitations.json`:
   `{schema_version: "1.0.0", generator: "<test path>::exact_route_limitations_fixture_is_current",
   lists: [{semantic_contract_id, load_reference_states, objective_connectors,
-  realized_bends, reachable, limitations}], strings: [<the 19 distinct strings,
-  sorted by code point>]}`.
-  `reachable` is false for the six `pressure-source-1` lists with a connector or
-  a bend: the source family admits no components, so the producer never selects
-  such a model. The table covers them anyway; they add no string.
+  realized_bends, limitations}], strings: [<the 19 distinct strings, sorted by
+  code point>]}`. The 10 lists carry all 19 strings.
+- **Six shapes are never emitted.** The producer does not emit
+  `pressure-source-1` for a model with a connector or a realized bend. Source
+  recovery declines each by name (`source_recovery.rs:807-814`, with the
+  component-family refusal at `:874-880` behind them), and the case publishes on
+  the ordinary `pressure-2` route (`lib.rs:3198-3214`). The fixture therefore
+  has no such list (revision 5 listed 16, six of them unreachable). The guard
+  `pressure_source_1_is_never_emitted_with_a_connector_or_a_realized_bend` (same
+  file) adds a connector, a bend or both to the retained-source control, without
+  and with the load/reference-state group. Each of the six asks for source
+  recovery. The test asserts the named decline, a `pressure-2` envelope with
+  that shape's fixture list, no `pressure-source-1` string, and, on a load-state
+  case, the not-joined diagnostic. If the producer ever emits such a list, the
+  guard fails, and the fixture and the table must grow.
 - **Stale fails.** The test compares its output with the committed bytes and
   fails on any difference. `OPENPIPESTRESS_WRITE_EXACT_ROUTE_LIMITATIONS=<path>`
   writes the file instead, as the recorded-run witness does
@@ -308,11 +324,11 @@ exact-route string contains "acceptance". The only non-ASCII character in the
 - **Against real envelopes.** The same test checks that every published list in
   the committed exact corpora (§1.3) equals one fixture list.
 - **Recovery once.** The same file has `certified_recovery_statements_enter_once`.
-  For each of the 16 seam lists, each committed exact corpus list and a
-  preview-physics-2 envelope, it checks that each recovery statement occurs
-  exactly once and that the pair is last. For an exact model of each reachable
-  shape, it checks that `formulation_basis_for_model_with_source` equals the
-  seam's basis, so the pair is never appended a second time.
+  The recovery pair is the last two statements of a produced list. For each of
+  the 10 produced lists, each committed exact corpus list, a committed
+  preview-physics-2 envelope and the producer's run of a pressure-free model, it
+  checks that each recovery statement occurs exactly once and that the pair is
+  last. The public `preview_formulation_basis()` carries neither statement.
 - **Table test.** `features/report/exactReportLimitations.test.ts` reads the
   fixture and checks that the table's digests are exactly the digests of
   `strings` (no missing and no extra entry), and that each statement equals its
@@ -330,9 +346,9 @@ exact-route string contains "acceptance". The only non-ASCII character in the
 Each row is one producer string with its exact report statement. "Verbatim"
 means the statement is the producer string byte for byte.
 
-**S1. Identity, pressure-2** (`exact_admission.rs:85`; first entry of every pressure-2 list). Producer SHA-256 `5312cff975d5c51c429d3a8cdae60f1da31b8a6a54df2909d08d7894403a8eac`. Statement, verbatim:
+**S1. Identity, pressure-2** (`exact_admission.rs:85`; first entry of every pressure-2 list). Producer SHA-256 `bb333a816c02a45e582042aea6110478e337e799e939dc8e756e551e7f9904bd`. Statement, verbatim:
 
-> 3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.
+> 3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.
 
 **S2. Identity, pressure-source-1** (`exact_admission.rs:83`; first entry of every pressure-source-1 list). Producer SHA-256 `e582703b4491dcce94dd3e25391cab2658d837d67f97ba32cc5a78b9fcbea2c0`. Statement, verbatim:
 
@@ -487,9 +503,9 @@ means the statement is the producer string byte for byte.
 
   A missing or unrecorded admission refuses with
   `REPORT-EXACT-ADMISSION-REQUIRED: an exact-route report is built only from a
-  result that Export Result JSON admits.` This covers a copy, a JSON round trip,
-  an object built by hand and an admission made for other objects. A recorded
-  admission whose conditions no longer hold refuses with
+  result that Export Result JSON admits.` This covers a copy, a JSON round trip
+  and an object built by hand. A recorded admission offered for other objects,
+  or whose conditions no longer hold, refuses with
   `REPORT-EXACT-ADMISSION-STALE: the result Export Result JSON admitted is no
   longer this session's live result.` The builder checks at its start and again
   after its last await, as `buildCurrentResultExport` does (`:293`). Its callers
@@ -508,9 +524,11 @@ means the statement is the producer string byte for byte.
   job or text check then fails at the next check point, and nothing reaches
   IPC.
 - **The native render refuses exact identities before opening (§3.6 step
-  0).** `render_calculation_report` refuses every input whose `exact_route`
-  names an identity outside the render's admitted set, which is empty until
-  opening, with `REPORT-RENDER-ROUTE-NOT-ADMITTED`. The package's Rust
+  0).** `render_calculation_report` refuses every exact-route input (one that
+  carries `exact_route`, an exact identity in an identity field or exact
+  limitation entries; free text is not a marker) unless its `exact_route` names an identity in the render's
+  admitted set, which is empty until opening, with
+  `REPORT-RENDER-ROUTE-NOT-ADMITTED`. The package's Rust
   boundary does the same at item 0. Before opening, no production path
   therefore renders or packages an exact-route report, even with every webview
   check bypassed. §3.6 states what the native render can and cannot see.
@@ -619,9 +637,11 @@ Each consumer checks the binding as far as its inputs reach:
 - in a package, the bindings re-derive it from the source and its document
   (§3.5).
 
-A pressure-free report has no `exact_route` and no standing line. The
-numerical-health lines the builder already adds on the generic route
-(`renderableReportInput.ts:672-678`, which includes pressure-2) are unchanged.
+A pressure-free report has no `exact_route` and no standing line. On a
+pressure-free report, the numerical-health lines the builder already adds on the
+generic route (`renderableReportInput.ts:672-678`) are unchanged. An exact
+report carries no numerical-health line, whatever the panel supplies (§5.2,
+§6.1).
 
 **Load/reference line.** `loadReferenceDisclosure.tsx` gains the surface
 `"rendered-report"` with the tail "Their published limitations are listed under
@@ -852,24 +872,51 @@ package enforces this natively at its Rust identity boundary (item 0,
 - `apps/desktop/src-tauri/src/report_render_exact.rs` (new) holds
   `RENDER_ADMITTED_EXACT_CONTRACTS: [&str; 0] = []`, the exact identities
   whose `exact_route` the native render admits. It also holds
-  `render_calculation_report_args_in`, the render's exact path (§5.5).
+  `render_calculation_report_args_in`, the render's exact path (§5.5), and
+  the step itself, `check_render_route_admitted`. The step lands in slice
+  (a), with the renderer's `exact_route` (§6).
 - The step runs first for every render input, before step 1, any parse of
-  the texts, any custody query and any lease growth. It reads the args body
-  that `command_ingress::admit` already priced, and allocates nothing before
-  it decides.
-- An input whose `exact_route.semantic_contract_id` is outside the admitted
-  set refuses with `REPORT-RENDER-ROUTE-NOT-ADMITTED: the rendered report
-  admits no exact-route identity; found <identity>.` Opening adds
-  `PRESSURE_ID` and `PRESSURE_SOURCE_ID`, and the message then names that set
-  (§5.1).
+  the texts, any custody query, any lease growth and the renderer's decode of
+  the input. It reads, in place, the `input` argument that
+  `command_ingress::admit` already priced and decoded, and allocates nothing
+  before it decides.
+- It recognizes an exact-route input only by structured markers at defined
+  paths of the input, and never reads free text: labels, notes, statements,
+  descriptions, provenance strings and other user-supplied values are not
+  route evidence. The desktop copies a load-case label verbatim, so a
+  pressure-free report whose label equals an exact identity renders as it
+  does today (Codex review round 2 of #1632). The markers are:
+  - a non-null `exact_route`;
+  - an exact identity (`PRESSURE_ID`, `PRESSURE_SOURCE_ID` or
+    `PHYSICS_RETAINED_ID`) at an identity field:
+    `exact_route.semantic_contract_id`,
+    `exact_route.admission.semantic_contract_id`, or the `ref_id` of a
+    `report_sections.limitations[].source` whose `ref_type` is
+    `semantic_contract` (§2.4);
+  - an exact limitation entry: a `report_sections.limitations[].limitation_id`
+    of the form `limitation:…:exact:…`, the renderer's predicate (§3.5).
+
+  Such an input passes only when its `exact_route.semantic_contract_id` is in
+  the admitted set and every exact identity at its identity fields is too.
+  Otherwise it refuses with
+  `REPORT-RENDER-ROUTE-NOT-ADMITTED: the rendered report admits no exact-route
+  identity; found <identity>.` The found text is the identity, or names an
+  `exact_route` without one, or the first exact limitation entry of an input
+  without `exact_route`. Opening adds `PRESSURE_ID` and `PRESSURE_SOURCE_ID`,
+  and the message then names that set (§5.1).
 - Before opening, a genuine exact render input from a live job, with its
   genuine texts, therefore refuses here. The rest of this section runs on a
   render only under the desktop crate's test-only witness set (§5.5).
-- The render input names its source identity only in `exact_route` (§1.2).
+- An input with no marker has no `exact_route`, so the renderer emits no
+  exact block, standing line or headlines for it (§3.2), and it has no exact
+  limitation entry. Its copied text is ordinary report text. This is the
+  route-blind render below.
+- The render input names its source identity only in `exact_route` and in
+  its exact limitation entries' sources (§1.2, §2.4).
   An input that carries the exact texts without `exact_route` refuses with
   `REPORT-EXACT-SECTIONS-MISMATCH: exact_route` (below). One that carries
-  exact limitation entries without it refuses in the renderer (§3.5). Both
-  refusals hold in every build.
+  exact limitation entries without it refuses at step 0, and the renderer's
+  own check stands behind it (§3.5). These refusals hold in every build.
 
 **What the host checks.** The checks apply to a render input with
 `exact_route` that passes step 0, and to a save whose result document has an
@@ -983,15 +1030,18 @@ residual.
   every exact identity at step 0, as the package's Rust boundary does at item
   0. The policy cells (§1.2) are the webview's gates. Before opening, no
   production path reaches an exact output. The webview refuses at the cells.
-  The two native boundaries refuse every input that names an exact identity,
-  even when a webview check is bypassed. At opening, the cells, the two native
+  The two native boundaries refuse every input that carries an exact
+  identity in an identity field or another exact-route marker, even when a
+  webview check is bypassed. At opening, the cells, the two native
   admitted sets and the TypeScript identity list change together (§5.1).
   Steps 1-5 and the commands' own checks then bind what an admitted exact
   input claims.
 - **A route-blind input.** The native render cannot recognize an input that
-  names no source identity and carries no exact section: no `exact_route`, no
-  exact texts and no exact limitation entries. Such an input has no exact
-  sections, standing line or headlines, so it is not an exact-route report.
+  carries no step 0 marker and no exact section: no `exact_route`, no exact
+  identity in an identity field, no exact texts and no exact limitation
+  entries. Its free text may equal an exact identity or copy an exact
+  statement. Such an input has no exact sections, standing line or
+  headlines, so it is not an exact-route report.
   The render renders it as it renders any input today (§1.2). This is the
   route-blind render that exists today, and W-11 does not widen it. A native
   check would need every render, pressure-free included, to resubmit its
@@ -1125,12 +1175,21 @@ shows `review_status`. The other fields drive the screener (§4.3).
 
 ### 4.3 Disposition
 
-The redaction screener blocks a record with `protected_suspected`,
-`quarantined` or `rejected` in every context
-(`redaction-controls/redactionExportControls.ts:439-444`), as for every report.
-`private_only` and `unknown` records render in a local-private report. A
-concrete path in a `source_location` is redacted (`:438`), which the lossless
-route then refuses; that is the existing rule.
+A record with `protected_suspected`, `quarantined` or `rejected` is refused in
+every context, as the package save refuses the model that carries it. A
+structured source (a `provenance_record`, or an object- or array-valued note)
+keeps the blocking dispositions it holds at any depth, and a malformed
+disposition member refuses the build. Private records (`private_only` and every
+other non-public class) render only in a local-private report. A record whose
+redistribution, review or privacy status is `unknown` or `TBD` renders in a
+local-private report with a non-blocking warning naming the record and the
+field, and blocks in every other context (ruling "C1 b", §0). No redaction
+applies to authored record text: the webview screener's concrete-path rule
+(`redaction-controls/redactionExportControls.ts:438`) judges key names only
+(`CONCRETE_PATH_DETAIL_KEYS`) and never reads a `source_location` value, so
+source text the user authored, a typed path included, stays as written in the
+local-private report and package and reaches no other output (ruling "C2 a",
+§0): a render refused for its provenance records returns no document body. §6.2 states where each rule is enforced.
 
 ### 4.4 What changes on the open pressure-free route
 
@@ -1170,9 +1229,8 @@ and a build from before opening refuses an exact member by name
 In the renderer's fixed order (`report_renderer/src/lib.rs:33-42`):
 - model input summary and load cases, unchanged;
 - results: the exact-route block (identity, standing line, load/reference line
-  where present, both headlines), then the rows with their basis suffixes, then
-  the numerical-health lines on pressure-2 (generic route) when the panel
-  supplies them;
+  where present, both headlines), then the rows with their basis suffixes;
+  an exact report carries no numerical-health line (§6.1);
 - warnings, assumptions and provenance: the result diagnostics, provenance and
   library-finding warnings, the FR-REP-003 values and notes, Library Records;
 - audit manifest, and rule-pack references with user-rule outcomes, unchanged;
@@ -1281,12 +1339,19 @@ committed exact corpora below the gate.
      struct and in `PRODUCTION`'s definition;
   4. `EXACT_WITNESS_ADMITTED` occurs only in its `#[cfg(test)]` definition and
      in the witness module;
-  5. no variant is declared `pub fn`.
+  5. no variant is declared `pub fn`;
+  6. a variant's name occurs in non-test source only in its definition and in
+     direct calls (`name(`). An alias, a function value, a `use` of it or a
+     re-export is a finding, so the set cannot leave the graph through a name
+     the scan does not follow.
 
-  The same module has a negative test of the scanner on invented sources. A
-  sixth caller, a root passing `admitted`, an internal edge passing
-  `PRODUCTION`, and a witness-set use outside the witness module each produce
-  a finding.
+  The rule is `report_package/src/forwarding_graph_scan.rs`, a `#[cfg(test)]`
+  module that the desktop render's scan includes by path. The same module has
+  a negative test of the scanner on invented sources. A sixth caller, a root
+  passing `admitted`, an internal edge passing `PRODUCTION`, a witness-set use
+  outside the witness module, an alias of a variant in another function (with
+  every edge intact), a variant passed as a function value and a re-export
+  each produce a finding.
 - **The witness.** `report_package/src/exact_package_witness_tests.rs` is a
   `#[cfg(test)]` module. It must be in the crate, because `#[cfg(test)]` items
   are visible neither to `tests/` integration tests nor to dependents. It
@@ -1315,15 +1380,17 @@ committed exact corpora below the gate.
   |---|---|---|
   | `render_calculation_report_args` (`lib.rs`; production root) | `render_calculation_report` (the command, `lib.rs:1540`) | none |
   | `report_render_exact::render_calculation_report_args_in` | `render_calculation_report_args` | `report_render_exact::PRODUCTION` |
+  | `report_render_exact::check_render_route_admitted` (step 0) | `report_render_exact::render_calculation_report_args_in` | `admitted` |
   | `render_calculation_report_value` (`lib.rs:1553`, private) | `report_render_exact::render_calculation_report_args_in`, after step 0 and, for an exact input, steps 1-5 and the re-derivation | none |
 
-  `render_calculation_report_args_in` takes `admitted: RenderAdmittedSet` as
-  its last parameter and runs step 0 against it first.
+  `render_calculation_report_args_in` and `check_render_route_admitted` take
+  `admitted: RenderAdmittedSet` as their last parameter, and the first runs
+  step 0 against it first.
   `render_admitted_set_forwarding_graph_is_closed`, in
   `src-tauri/src/report_render_exact_tests.rs`, applies the same scan rule to
   the desktop crate's `src/**/*.rs`. That rule handles the crate's scattered
-  `#[cfg(test)]` functions (`lib.rs:154,1848,2243,5172`). It asserts the three
-  rows above and the analogues of assertions 2-5. `EXACT_RENDER_WITNESS_ADMITTED`
+  `#[cfg(test)]` functions (`lib.rs:154,1848,2243,5172`). It asserts the four
+  rows above and the analogues of assertions 2-6. `EXACT_RENDER_WITNESS_ADMITTED`
   may occur only in its definition and in `report_render_exact_tests.rs`. The
   direct-native render tests (§7) call `render_calculation_report_args_in`
   with `EXACT_RENDER_WITNESS_ADMITTED`. The desktop's package save calls only
@@ -1342,7 +1409,8 @@ committed exact corpora below the gate.
   texts it refuses at item 0 (§7, slice (b)). The production native render,
   `render_calculation_report_args`, refuses a genuine exact render input from
   a live test job with its genuine texts at step 0, with
-  `REPORT-RENDER-ROUTE-NOT-ADMITTED` (§7, slice (b)).
+  `REPORT-RENDER-ROUTE-NOT-ADMITTED` (§7, slice (b)). Slice (a) already pins
+  its refusal of a coherent invented exact input (§7).
 - **Witness requests.** `buildReportPackageRequest` becomes the cell check
   followed by `assembleReportPackageRequest(input, admittedContractIds)`.
   Production passes `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS`. The assembly step
@@ -1357,10 +1425,12 @@ committed exact corpora below the gate.
   (§7). The same vitest checks that `buildReportPackageRequest` refuses each
   witness input.
   - **The substitute.** The same vitest also writes
-    `pressure_2_straight_substitute.json`. It is built by the same builders
-    from a copy of the pressure-2 straight source with one row value changed,
-    so that every hash in the document, report and handoff records is
-    rebound. It keeps the genuine request's `native_job_id` and
+    `pressure_2_straight_substitute.overlay.json`, leaf replacements over the
+    pressure-2 straight witness request that the tests apply (`leafOverlay`),
+    and checks that the overlay reproduces exactly the substitute rebuilt by
+    the same builders from a copy of the pressure-2 straight source with one
+    row value changed, so that every hash in the document, report and handoff
+    records is rebound. It keeps the genuine request's `native_job_id` and
     `received_bytes_sha256` (§7).
 - **No rule-check run.** The witness inputs carry no rule-check run
   (`userRuleChecks` absent and no aggregate), so no W-11 fixture holds
@@ -1370,8 +1440,8 @@ committed exact corpora below the gate.
 
 | Slice | Content | Size | Persistence / data boundary |
 |---|---|---|---|
-| **(a) Rust producers, renderer and the statement table** | The `exact_formulation_basis` seam with the recovery statements appended once, the fixture writer and the committed fixture (§2.2). `exactReportLimitations.ts` and its test, which writes `exact_report_statements.json`, and the Rust table that embeds it (§3.5); the TypeScript module is imported by nothing until (b). The renderer's `exact_route` (with the admission-binding check and the composed standing line, §3.2), its exact-limitation check, and `library_references`, in `assemble_report_sections`, so HTML and PDF both emit them. Render and emit tests, including byte-identity when absent. In `report_package`: the row suffix in `expected_report_result_rows`, the dormant item 9 and the public `exact_sections` projection (§3.5), the runner-profile refusal in the producer and the reader (§3.5), the `AdmittedSet` type, the crate-private admitted-set variants on their forwarding graph, and the graph scan with its negative test (§5.5), and both parity vector files. Hosted-CI routing | L (~1.9k lines with tests, plus the generated fixtures and vectors; revision 4: ~1.8k) | None. Numerical meaning untouched. Package and report bytes unchanged for every current input |
-| **(b) Desktop exact sections and admission, behind the gate** | `exactReportAdmission.ts` (§3.1); the exact path of `buildRenderableReportInput` (admission, limitations, profile reference, binding, load/reference line, headlines); the row suffix in `reportResultRows`; `RenderedReportPanel.tsx:171` at surface level, the panel's admission and its pre-IPC re-check; the request builder's split, its pre-IPC re-check and `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS`; the native render's step 0 (`report_render_exact.rs`, `RENDER_ADMITTED_EXACT_CONTRACTS` empty, `REPORT-RENDER-ROUTE-NOT-ADMITTED`) with its witness set and graph scan (§3.6, §5.5); the native source binding (§3.6): the job's custody digests and `custody_binding`, `deliveredIntakeText`, the resubmitted texts, their priced parses, the native standing, the save's source and model equalities and the render's re-derivation; the `rendered-report` disclosure template; still-refused tests, including the production native render's refusal of a genuine exact result; the witness and substitute requests, the in-crate witness and production-refusal tests (§5.5) and the direct-native substitution tests (§7). The DEL-04-07 memory-budget updates (§8). Texts A.1 G2 and G5 | L (~2.4k, plus the witness requests; revision 4: ~2.2k) | None before opening. The webview cells refuse exact results, and the native render (step 0) and the package's Rust boundary (item 0) refuse every input that names an exact identity, so no production path reaches an exact output. The job registry keeps 65 bytes of digest metadata per job, released with custody. The admission and the native binding are an output gate with new priced parses, so they get targeted regression checks and independent scrutiny |
+| **(a) Rust producers, renderer and the statement table** | The fixture writer on the public producer, its guard and the committed fixture (§2.2); no product source changes. `exactReportLimitations.ts` and its test, which writes `exact_report_statements.json`, and the Rust table that embeds it (§3.5); the TypeScript module is imported by nothing until (b). The renderer's `exact_route` (with the admission-binding check and the composed standing line, §3.2), its exact-limitation check, and `library_references`, in `assemble_report_sections`, so HTML and PDF both emit them. Render and emit tests, including byte-identity when absent. In `report_package`: the row suffix in `expected_report_result_rows`, the dormant item 9 and the public `exact_sections` projection (§3.5), the runner-profile refusal in the producer and the reader (§3.5), the `AdmittedSet` type, the crate-private admitted-set variants on their forwarding graph, and the graph scan with its negative test (§5.5), and both parity vector files. The native render's step 0 (`report_render_exact.rs`, `RENDER_ADMITTED_EXACT_CONTRACTS` empty, `REPORT-RENDER-ROUTE-NOT-ADMITTED`) with its witness set and graph scan (§3.6, §5.5), moved here from (b) because the renderer's `exact_route` makes exact reports reachable through the unchanged native render command (Codex review round 1 of #1632). Hosted-CI routing | L (~1.9k lines with tests, plus the generated fixtures and vectors; revision 4: ~1.8k) | None. Numerical meaning untouched. Package and report bytes unchanged for every current input. The native render refuses every exact-route input at step 0 |
+| **(b) Desktop exact sections and admission, behind the gate** | `exactReportAdmission.ts` (§3.1); the exact path of `buildRenderableReportInput` (admission, limitations, profile reference, binding, load/reference line, headlines); the row suffix in `reportResultRows`; `RenderedReportPanel.tsx:171` at surface level, the panel's admission and its pre-IPC re-check; the request builder's split, its pre-IPC re-check and `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS`; the native source binding (§3.6): the job's custody digests and `custody_binding`, `deliveredIntakeText`, the resubmitted texts, their priced parses, the native standing, the save's source and model equalities and the render's re-derivation; the `rendered-report` disclosure template; still-refused tests, including the production native render's refusal of a genuine exact result; the witness and substitute requests, the in-crate witness and production-refusal tests (§5.5) and the direct-native substitution tests (§7). The DEL-04-07 memory-budget updates (§8). Texts A.1 G2 and G5 | L (~2.4k, plus the witness requests; revision 4: ~2.2k) | None before opening. The webview cells refuse exact results, and the native render (step 0) and the package's Rust boundary (item 0) refuse every input that carries an exact identity in an identity field, so no production path reaches an exact output. The job registry keeps 65 bytes of digest metadata per job, released with custody. The admission and the native binding are an output gate with new priced parses, so they get targeted regression checks and independent scrutiny |
 | **(c) FR-REP-003 on every route** | Material, section, component and support records under one provenance predicate; library references and finding diagnostics; callers pass the findings; the schema check of representative records (§7); regenerated witnesses and witness requests; the memory-budget figures re-measured. Texts A.1 G1, G3 and G4 | M (~0.8k, plus regenerated witnesses) | **Data boundary**: new private content in the open pressure-free report and package |
 
 (a) comes first, because Rust drops unknown report fields (§1.1 item 3) and
@@ -1380,13 +1450,43 @@ share a PR. Opening (§5.1) is an owner act after them. It is about 0.3k lines
 with its tests, the native-smoke driver and the texts (revision 5 adds the
 native render's admitted set, a few lines).
 
+### 6.1 Slice (b) as built
+
+Slice (b) follows §3.1-§3.6 and §5.5 with these differences, each fail-closed:
+- **Handoff load bases.** The exact document names its load bases `load_case` (DEL-04-07 Design `desktop-exact-outputs.md` §4.2), while the handoff run section keeps the record's `LoadCase`. Item 8's "handoff load basis equals the document's" (`bindings.rs`) would refuse every coherent exact package, so it compares under that one mapping for exact identities only. Pressure-free packages are unchanged; item 0 still refuses exact identities first.
+- **Save order.** The save cannot know a request is exact before it parses it, so steps 1-5 run after the evidence, size and screening-payload checks and the request parse, and before every content check (model, input manifest, screen, context, rule packs, producer). A pressure-free request that carries exact texts refuses with `REPORT-EXACT-SECTIONS-MISMATCH: exact_route`, as the render does.
+- **No numerical-health line in an exact report** (Codex review round 1 of #1637). The panel's numerical-health lines are derived in the webview from the reader's findings and the session's verdict hold; the native render cannot re-derive them from the delivered result without that logic. The builder therefore adds none to an exact report, whatever the panel supplies, and the render's re-derivation requires the rows to equal `expected_report_result_rows` exactly, so a fabricated line refuses (`REPORT-EXACT-SECTIONS-MISMATCH: result_rows`). The package carries none either: item 6 already requires its rows to equal the source's projection. A native re-derivation of these lines is a separate item; pressure-free reports keep them.
+- **Admission snapshot** (same review). `admitExactReportSource` takes the four inputs' checked text before its first await and re-checks it, with the live invocation, standing, custody and received bytes, after its last await, before it returns the admission; an edit made after Export Result JSON admitted the inputs makes the admission stale.
+- **`model_sha256` mutated in a render input** refuses at step 5 (`REPORT-EXACT-SOURCE-NOT-DELIVERED: model`), as §3.6 orders it; §7 states this.
+- **Same-run substitution in the builder.** A recorded admission offered for other objects refuses as stale; an unrecorded admission refuses as required (§3.1, §7).
+- **Render thread.** The render command runs every input on a blocking worker thread, so that an exact input's binding is off the main thread; a pressure-free input renders byte-identically there.
+- **Witness shapes.** The five witness requests are pressure-2 straight (the straight corpus's input), pressure-2 with load/reference states, pressure-2 with an objective connector (T4-U5b AS-F, the connector corpus's pressurized tied joint and its smallest connector input), pressure-2 with a realized bend (U2-L-ANCH-PTW-K2 0.3.0, the arc corpus's input) and pressure-source-1. The connector and bend corpora commit no request model a desktop session can solve, so `core/product_physics/tests/exact_route_limitations.rs` (`exact_report_witness_inputs_are_current`, test code only) writes their re-authored requests and the bytes the desktop's solve worker writes for them (`fixtures/reports/invented/exact_report_witness_inputs/`, stale fails). Each shape is assembled by the desktop below the gate, bound natively with a live job, rendered (HTML and print view) under the render's witness set, and assembled (HTML and PDF members) and read back under the package's. The witness requests embed the producer output number for number: the vitest writes them with a number-preserving writer (`apps/desktop/src/test/losslessJson.ts`) that takes the source result, and each document member copied from it (its `source_block_recovery` receipt among them), from the delivered bytes, so the corpus-wide receipt check (`result_export/tests/hash_corpus.rs`) holds, and its staleness check uses the same writer. The substitute is committed as leaf replacements over the straight witness's request (`pressure_2_straight_substitute.overlay.json`); it changes one nodal rotation row, which no section-basis pair or magnitude row repeats, so its standing stays eligible.
+- **Shared projection.** The TypeScript projection is `features/report/exactReportSections.ts` (the headline labels move there and `ResultsPanel.tsx` imports them); item 9's limitation comparison is the public `exact_sections::check_exact_limitation_entries`, which the native render reuses. The parity vectors also carry `admitted_semantic_contracts`, which `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS` must equal.
+
+### 6.2 Slice (c) as built
+
+Slice (c) follows §4 with these differences, each fail-closed:
+- **The render route's disposition blocks are the renderer's.** The webview screener's rule (`redactionExportControls.ts:438-444`) never sees a report record's statuses on DREP-IPC-003: the route projection (`controlRouteExport`, `projectRouteValue`) turns every record into opaque leaves classified by path, so a `quarantined`, `rejected` or `protected_suspected` record passes the local-private control (`renderedReport.test.tsx`, "carries each record's disposition verbatim"). Before this slice no report record carried a status other than `pending`. The renderer therefore refuses export (`report_renderer` `provenance_disposition_blocking_reasons`; the blocking values are the package save's `SCREENED_MEMBERS`) for: a report-section record, a user-supplied value or an assumption whose own `review_status` is `quarantined` or `rejected` (`REPORT_PROVENANCE_DISPOSITION_BLOCKED`); and a library reference's record with those statuses or failing the section validation's own provenance rules, incomplete or `protected_suspected`, and outside local-private also `unknown` or `TBD` (`report_sections::validate_provenance_record`, judged in the report's context as below). A report-section record with `protected_suspected` was already refused by the section validation (`REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED`). Each reason names the record by its collection position and the member only (`user_supplied_values[3]`, `assumptions[0]`, `library_references[2].provenance`), and says to review that record's disposition in the model. Ids, labels and source text are user-authored (the model schema admits any non-blank identity), so none enters a reason (Codex review round 3 of #1639); the panel resolves a position to its entity locally from the input it sent, as display text only (`provenanceReasonEntities.ts`). The refusal covers the HTML, its print view, the PDF and the package's rendered members, in every export context; a refused render shows no preview, save or print. The package save also refuses these records first, in its structural screen of the request and the model (`report_package_save.rs`).
+- **Structured sources are screened before they are flattened** (Codex review round 1 of #1639). An object-valued section note is written into the record's `source_location` as RFC 8785 text, and a mapped `provenance_record` copies only its seven text fields, so a disposition inside either would otherwise be lost while the package save, which screens the model at every depth, refuses it. The builder screens each `provenance_record` and each non-string note at every depth with the package save's `SCREENED_MEMBERS` (`renderableReportInput.ts` `screenDispositions`, `withSourceDispositions`): a `quarantined` or `rejected` value anywhere becomes the record's `review_status`, `protected_suspected` anywhere its `redistribution_status`, so the renderer refuses it; a disposition member whose value is an array or object refuses the build with `REPORT-PROVENANCE-DISPOSITION-MALFORMED`, naming the entity and member, as the package save refuses it as malformed. A top-level `redistribution_status` of `rejected` is copied, and the renderer's input refuses it (`RENDER-INPUT-INVALID`) as the package's report decode does.
+- **Private records render only under `local_private`** (same review). A direct call of the native render command bypasses the webview's context control, so the renderer refuses any report record whose privacy class or redistribution status is not public when the report's export context is absent or not `local_private` (`REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE`; `report_render_exact_tests.rs` `the_native_render_refuses_private_records_outside_local_private`). Invented public fixtures still render without a context.
+- **A provenance refusal is metadata-only** (Codex review round 2 of #1639). A render refused for its provenance records, that is with any `REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE` or `REPORT_PROVENANCE_DISPOSITION_BLOCKED` reason, a library reference's section-rule refusal, or a report-section record refused as `REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED`, returns before anything is assembled: `content_withheld` true, `html` empty (its SHA-256 is the empty document's), no lint findings, each section diagnostic with its code and severity and a fixed withheld message, and the blocking reasons (codes, positions and members; no id, label or record text), which are all the package manifest and the headless runner's output carry of it (`authored_ids_never_enter_a_withheld_outcome`, `a_refused_package_carries_no_authored_id`, `the_native_render_response_names_no_authored_id`, headless `refused_package_ids.rs`). The PDF emitter emits no bytes for it (`pdf_from_render`), the full package assembly therefore carries empty members (and refuses as blocked), and the native command derives no print view (`render_calculation_report_value`). A rendered outcome serializes without the member, so every other outcome is unchanged. Other blocked renders (report validation, report context, exact-route, lint) keep their diagnostic document as before. One existing behaviour changes: a report-section record with `protected_suspected`, blocked before this slice with its document returned, is now refused metadata-only, because its content is suspected protected. The panel already shows no preview, save or print for any blocked render; it now receives no body either (`report_renderer` `a_typed_path_stays_local`, `pdf_emitter` `the_desktop_builder_records_block_the_pdf_by_disposition_and_context`, `report_render_exact_tests.rs` `the_native_render_refuses_private_records_outside_local_private`).
+- **A renderer input that does not decode** is refused with its JSON path and the error kind only, `RENDER-INPUT-INVALID: <kind> at <path>` (`report_renderer` `decode_renderable_report_input`, used by the native render), never with the offending value or key: a typed path given as a disposition value is not echoed (Codex review round 3 of #1639, `an_undecodable_input_names_its_path_and_kind_not_its_value`). The decode moves each top-level member out and decodes it as the whole decode did, so the input is never copied; before that it decodes the provenance-bearing elements by reference one at a time, holding at most one element's copy, to place an error down to a disposition member (the measured render peaks are unchanged). A valid input decodes exactly as before (`the_value_free_decode_equals_the_whole_decode`). The message text changes for every undecodable input; only its `RENDER-INPUT-INVALID` prefix was pinned. The package path is treated the same: the report's decode (`REPORT-PACKAGE-REPORT-DTO-INVALID: <kind> at report.<path>`, through the same decode), the request's typed decode in the native save and the headless runner (`<kind> at <member>`, `wire::decode_report_package_request` and `report_package_save::typed_request`), the exact-route section's decode in the package bindings (kind only), and the runner's CLI input decode (kind, line and column for a data error); each reads a positional (array) form as serde does.
+- **Unresolved records warn in local-private only** (ruling "C1 b", §0). The section validation takes the report's context (`report_sections::ProvenanceContext`, `validate_report_sections_in`; the renderer derives it from `report_context.export_context`, `provenance_context`). Under `local_private` a record whose redistribution status is `unknown` or `TBD`, or whose review or privacy status is `TBD`, gives a non-blocking `REPORT_SECTION_PROVENANCE_UNRESOLVED` warning, class `PROVENANCE_WARNING`, which the renderer appends to the warnings section's Diagnostics table (`unresolved_provenance_warnings`): it names the record (`user_supplied_value <value id>`, `provenance <source name>` or the library reference and its owners) and each unresolved field, and says the source's status is not recorded. In every other context, a public report, an absent context and any later shared context, the same record stays report-blocking; `validate_report_sections` without a context is that strict form, so no caller gets the relaxation without the local-private context. The package renders its members under `local_private` (its bindings refuse any other context), so a local-private package shows the same warning. Which records are unresolved: a structured `provenance_record` (on a material, section, component or support) that records no redistribution status maps to `unknown` (§4.1), whatever the entity kind; a legacy `provenance` note without a record keeps the `private_only` fallback. Both the record editor's "Not recorded" choice (`ModelDataAnnotations.tsx:154,161`) and a library apply over values whose previous provenance is missing (`libraryApply.ts:202-212`, which records `unknown`) produce such a record. `quarantined`, `rejected` and `protected_suspected` still block in every context.
+- **Concrete paths.** The screener's concrete-path rule (`:438`) judges key names only (`CONCRETE_PATH_DETAIL_KEYS`); it never reads a `source_location` value. Source text the user authored in a record or note, a path included, therefore stays as written in a local-private report and package, as the component note's text already does and as the model document save writes it (ruling "C2 a", §0). No value-level path rule is added. No other output carries the records: the webview's public render is blocked before IPC, the report packet carries none, and the native render refuses private record content outside `local_private` with a metadata-only outcome (no document, print view or PDF bytes) (`a_typed_path_stays_local`, `the_native_render_refuses_private_records_outside_local_private`, `renderedReport.test.tsx` "keeps a typed source_location path as written locally").
+- **The predicate on an object-valued note.** A section whose `provenance` is an object has provenance only when the object has a member; `{}` is "section provenance missing" and a missing-data finding.
+- **Absent members.** Every mapped record member is copied trimmed and only when non-empty after trimming. A library reference's absent or empty kind or library id is "not recorded", like its version and record id.
+- **No support diagnostic.** §4.1 names component, material and section diagnostics only; a support record without provenance carries its missing-data flag and no diagnostic.
+- **Witnesses.** The five exact-route witness requests (`fixtures/reports/invented/exact_report_package_requests/`) each gain their model's material record and value, and with them the report-sections checksum; nothing else in them changes, and the substitute overlay is unchanged. `del1005_export_results_success_input.json` does not change: the Rust test basis (`report_package/tests/common/package_basis.rs`) builds its report with invented provenance and no desktop records, so §1.7's regeneration is a no-op. The shared component projection (`component_provenance_cross_layer_projection.json`) changes the missing component's diagnostic message, written by its vitest's new write mode (`OPENPIPESTRESS_WRITE_COMPONENT_PROVENANCE_PROJECTION`).
+- **Citations moved.** The component record and predicate are `renderableReportInput.ts` `componentProvenanceRecord` and `hasProvenance`, `libraryRefSites` is `libraryImportService.ts:440-457`, and the renderer's provenance tables are in `assemble_report_sections` (`report_renderer/src/lib.rs:846-950`).
+
 ## 7. Verification
 
 **Slice (a).**
-- Rust unit (`core/product_physics/src/exact_route_limitations_tests.rs`):
+- Rust integration (`core/product_physics/tests/exact_route_limitations.rs`):
   - the fixture is current;
   - every committed exact corpus list equals a fixture list;
   - the recovery statements enter once (§2.2);
+  - no `pressure-source-1` list with a connector or a realized bend is emitted (§2.2);
   - the existing `pressure_source_context_tests.rs` and corpus-currency tests
     pass unchanged.
 - vitest `features/report/exactReportLimitations.test.ts`:
@@ -1429,6 +1529,30 @@ native render's admitted set, a few lines).
 - Rust unit (`report_package/src/admitted_tests.rs`):
   `admitted_set_forwarding_graph_is_closed` and the scanner's negative test
   (§5.5).
+- Rust unit (`src-tauri/src/report_render_exact_tests.rs`), step 0 (§3.6):
+  - the production native render refuses a coherent invented exact input, which
+    the witness set renders unblocked with "integrity checked", with
+    `REPORT-RENDER-ROUTE-NOT-ADMITTED` and no HTML, through
+    `render_calculation_report_args` and from the raw body through
+    `command_ingress::admit` as the command does;
+  - the refusal precedes the renderer's decode of the input;
+  - each structured marker refuses, through the production root and the raw
+    body: an `exact_route` without an identity or not an object, an exact
+    identity at `exact_route.semantic_contract_id`,
+    `exact_route.admission.semantic_contract_id` or a `semantic_contract`
+    limitation source, and exact limitation entries without `exact_route`;
+  - free text is not a marker: a pressure-free input whose load-case label
+    and other free-text fields equal each exact identity renders
+    byte-identically to the unchanged renderer call;
+  - an input that avoids every marker (the coherent exact input without
+    `exact_route`, its limitation ids and sources renamed) renders with no
+    exact block, standing line or headlines, and exact limitation entries
+    without `exact_route` block export in the renderer itself;
+  - a pressure-free input renders byte-identically to the unchanged renderer
+    call, with `exact_route` absent or null, and the admitting decision
+    allocates nothing;
+  - `render_admitted_set_forwarding_graph_is_closed` and the scanner's negative
+    test on invented desktop sources (§5.5).
 
 **Slice (b).**
 - vitest `features/report/exactReportAdmission.test.ts`:
@@ -1489,8 +1613,13 @@ native render's admitted set, a few lines).
     `REPORT-PACKAGE-ROUTE-NOT-ADMITTED`;
   - the genuine render input renders under `EXACT_RENDER_WITNESS_ADMITTED`;
   - the genuine texts with the render input's rows, one exact limitation
-    statement, one headline or `model_sha256` changed refuse with
-    `REPORT-EXACT-SECTIONS-MISMATCH: <section>`;
+    statement or one headline changed refuse with
+    `REPORT-EXACT-SECTIONS-MISMATCH: <section>`; with `model_sha256` changed
+    they refuse at step 5 with `REPORT-EXACT-SOURCE-NOT-DELIVERED: model`;
+  - a fabricated row appended to the genuine input (a numerical-health id with
+    a stress statement and invented references) refuses with
+    `REPORT-EXACT-SECTIONS-MISMATCH: result_rows`; in a save it refuses at
+    item 0, and at item 6 under the witness set;
   - the texts without `exact_route` refuse likewise;
   - the save refuses when custody ends during its dialog, and writes nothing.
 - **The production native render refuses a genuine exact result**
@@ -1505,8 +1634,6 @@ native render's admitted set, a few lines).
   invented identity refuses likewise. Under the witness set, the last two
   still refuse at step 0. A pressure-free input without `exact_route` renders
   byte-identically under either set.
-- `render_admitted_set_forwarding_graph_is_closed` (same file, §5.5) and the
-  scanner's negative test on invented desktop sources.
 - **Pricing** (same files):
   - `parse_lease_bytes` with the two texts is the former sum plus their
     `text_parse_bytes`;
@@ -1651,16 +1778,30 @@ These are existing gaps. Each is separate from W-11 and from the others.
   The Rust struct accepts both. This predates W-11. W-11's entries use
   `report_metadata` and omit `quantity` (§4.1), and slice (c)'s schema check
   (§7) fails on any new divergence.
+- **Error text that echoes request values (Codex review round 4 of #1639).**
+  Two refusal paths format request content into their messages. Both predate
+  W-11, and both are outside the provenance routes that slice (c) made
+  value-free.
+  - `report_package/src/wire.rs:205` and its neighbouring audit-token
+    converters interpolate the value supplied: a hash algorithm of `C:/x.pdf`
+    returns that path through the native save and the headless stdout.
+  - `src-tauri/src/export_disposition_screen.rs:452` builds diagnostic
+    pointers from arbitrary keys. A key `C:/x.pdf` under `report` returns
+    `/request/report/C:~1x.pdf/review_status`.
+
+  The fix would use fixed field names, error kinds and positional placeholders.
+  It is a remaining item under the owner's finishing ruling of 2026-10-26.
 
 ## Appendix A. Wording-route drafts
 
 Each Old text below occurs exactly once in its file at the basis head (Python
 `count == 1`), starting on the line given. They go through HELP_HUMAN and the
-owner's wording route before they are applied.
+owner's wording route before they are applied. The A.1 texts are applied, each
+in the slice and PR marked on it; the A.2 texts are not.
 
-### A.1 Texts the implementation changes behind the gate (not applied)
+### A.1 Texts the implementation changes behind the gate (applied)
 
-**G1. DEL-08-01 ScopeOfWork :81** (current-implementation paragraph; provenance clause; slice (c); `execution/PKG-08/DEL-08-01/ScopeOfWork.md`)
+**G1. DEL-08-01 ScopeOfWork :81** (current-implementation paragraph; provenance clause; slice (c); `execution/PKG-08/DEL-08-01/ScopeOfWork.md`; applied in slice (c), #1639)
 
 Old:
 
@@ -1674,7 +1815,7 @@ New:
 the result coordinate system, or states "not recorded"; it also records the provenance of materials, sections, components and supports and the model's library references, with the library store's findings on them (FR-REP-003);
 ```
 
-**G2. DEL-08-01 ScopeOfWork :81** (current-implementation paragraph; rendered-report clause; slice (b); `execution/PKG-08/DEL-08-01/ScopeOfWork.md`)
+**G2. DEL-08-01 ScopeOfWork :81** (current-implementation paragraph; rendered-report clause; slice (b); `execution/PKG-08/DEL-08-01/ScopeOfWork.md`; applied in slice (b), #1637)
 
 Old:
 
@@ -1688,7 +1829,7 @@ New:
 exact-route results are refused for the rendered report by its output-policy cell (`surfaceOutputRefusal` on `rendered-report`) and, natively, by the render's identity check (`REPORT-RENDER-ROUTE-NOT-ADMITTED`; owner ruling 10A, 2026-10-21), and their sections (DEL-08-01 Design `exact-route-report-sections.md`) are built behind those refusals;
 ```
 
-**G3. DEL-08-03 ScopeOfWork :99** (current-implementation paragraph; slice (c); `execution/PKG-08/DEL-08-03/ScopeOfWork.md`)
+**G3. DEL-08-03 ScopeOfWork :99** (current-implementation paragraph; slice (c); `execution/PKG-08/DEL-08-03/ScopeOfWork.md`; applied in slice (c), #1639)
 
 Old:
 
@@ -1702,7 +1843,7 @@ New:
 supplies the result diagnostics, a session provenance record classified `private_project_data` / `private_only`, the component and spring-hanger records, a record for each material and section and for each support that carries a `provenance_record` (from that record where present, else from the entity's `provenance` note; a component's record is likewise taken from its `provenance_record` where present), and the model's library references, with the library store's `MODEL-LIBRARY-REF-UNRESOLVED` and `MODEL-LIBRARY-REF-VERSION-CHANGED` findings as provenance warnings;
 ```
 
-**G4. User guide `docs/user_guide/index.md` :400** (§10, last sentence of the first paragraph; slice (c); `docs/user_guide/index.md`)
+**G4. User guide `docs/user_guide/index.md` :400** (§10, last sentence of the first paragraph; slice (c); `docs/user_guide/index.md`; applied in slice (c), #1639)
 
 Old:
 
@@ -1716,7 +1857,7 @@ New:
 it also records the provenance of materials, sections, components and supports and lists the library records the model references, with the library store's findings on them.
 ```
 
-**G5. DEL-04-07 Design `desktop-exact-outputs.md` §4.5 :209** (second sub-bullet of the first bullet; slice (b); `execution/PKG-04/DEL-04-07/Design/desktop-exact-outputs.md`)
+**G5. DEL-04-07 Design `desktop-exact-outputs.md` §4.5 :209** (second sub-bullet of the first bullet; slice (b); `execution/PKG-04/DEL-04-07/Design/desktop-exact-outputs.md`; applied in slice (b), #1637)
 
 Old:
 
@@ -1727,7 +1868,7 @@ Old:
 New:
 
 ```text
-  - The renderable report builds the exact identity's limitation sections, stress headlines and standing line behind this refusal (DEL-08-01 Design `exact-route-report-sections.md`). Until the owner opens them, none of them reaches an output: the `rendered-report` and `report-package` cells refuse an exact result, and the native render and the package's Rust boundary refuse every input that names an exact identity (`REPORT-RENDER-ROUTE-NOT-ADMITTED`, `REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).
+  - The renderable report builds the exact identity's limitation sections, stress headlines and standing line behind this refusal (DEL-08-01 Design `exact-route-report-sections.md`). Until the owner opens them, none of them reaches an output: the `rendered-report` and `report-package` cells refuse an exact result, and the native render and the package's Rust boundary refuse every input that carries an exact identity in an identity field (`REPORT-RENDER-ROUTE-NOT-ADMITTED`, `REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).
 ```
 
 
@@ -1936,7 +2077,7 @@ Old:
 
 - **Report JSON and rendered report** (`report`, `rendered-report`). Their builders are generic.
   - `selectedResultRefs` picks the single `max_open_formula_stress` headline (`features/report/ReportPanel.tsx:279-298`), but an exact result carries one headline per section basis.
-  - The renderable report builds the exact identity's limitation sections, stress headlines and standing line behind this refusal (DEL-08-01 Design `exact-route-report-sections.md`). Until the owner opens them, none of them reaches an output: the `rendered-report` and `report-package` cells refuse an exact result, and the native render and the package's Rust boundary refuse every input that names an exact identity (`REPORT-RENDER-ROUTE-NOT-ADMITTED`, `REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).
+  - The renderable report builds the exact identity's limitation sections, stress headlines and standing line behind this refusal (DEL-08-01 Design `exact-route-report-sections.md`). Until the owner opens them, none of them reaches an output: the `rendered-report` and `report-package` cells refuse an exact result, and the native render and the package's Rust boundary refuse every input that carries an exact identity in an identity field (`REPORT-RENDER-ROUTE-NOT-ADMITTED`, `REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).
 
   Opening them needs DEL-08-01's own design of those sections and of the PRD §19.3 notice's place. They keep refusing with the reworded text (§5.3).
 - **Report package.** Since W-18 (DEL-08-01 Design `report-package-current-results.md`) it saves a Current preview-physics-2 result. It refuses the exact identities by policy and Rust identity, not by the fresh-result code: the policy entry `report-package: refused` gives their routes' refusal (`PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`, through `reportPackageUnavailableReason` in `reportPackageRequest.ts`), and the package's Rust boundary admits only preview-physics-2 (`REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).

@@ -1026,3 +1026,24 @@ fn round3_rendered_rule_pack_checksum_must_name_the_pack_type() {
     assert!(open_pipe_stress_report_generator::validate_report(&report).is_blocked(),
         "a model_payload checksum was rendered as a rule-pack checksum");
 }
+
+/// W-11 (DEL-08-01 Design `exact-route-report-sections.md` §6, slice (a)):
+/// package bytes are unchanged for every current input. The base commit's
+/// container and package-identity hashes, captured on main without W-11
+/// (`aed4de9fbd`; equal to the `3a104e1e71` capture), of the committed runner
+/// witness and its desktop-profile basis. W-16 slice a re-pinned all four: the
+/// DEL-10-05 witness basis and its preview result carry PF's LIMITATIONS[1], which
+/// drops its 69-byte support-displacement clause, with the hashes binding it (was
+/// 351f041b…/91575116… and aa96dee4…/8fbfe6bb…); the report crates are unchanged.
+#[test]
+fn current_requests_assemble_the_same_bytes_as_before_the_exact_sections() {
+    for (request, container, identity) in [
+        (runner(), "b1f0eaaea6c1987366e2dfa9066125e2ba14ecee2611be945b56a995388957df", "12618f502ae0e541495347f9c7014c7eaee0b570c020a76c912b9e3fce39f8c4"),
+        (desktop(), "0c939ae9d07add6678a265d1aeb538b6fa284677744164c3c399de7fe0908292", "99e34b89f6fce79545cf36aaf9516abcd2a54f42d57633c3de28979f1d79519a"),
+    ] {
+        let outcome = unblocked(&request);
+        assert_eq!(outcome.container_sha256_hex, container);
+        assert_eq!(outcome.package_identity_sha256_hex, identity);
+        assert!(request["report"].get("exact_route").is_none() && request["report"].get("library_references").is_none());
+    }
+}

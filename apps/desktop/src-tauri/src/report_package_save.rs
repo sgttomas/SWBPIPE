@@ -42,8 +42,20 @@
 //! 5. converts the request to its typed form and runs the shared producer
 //!    (`report_package::wire`, §2.3), refusing a blocked package.
 //!
-//! Admission is a pure function of its arguments and the library lookup, so
-//! its tests need no window. The command (`lib.rs` `save_report_package`)
+//! W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.6): a
+//! request whose result document has an exact identity, or whose report
+//! carries `exact_route`, is bound to its source natively right after the
+//! request text is parsed and before the other content checks: the named
+//! job's custody, the resubmitted result and intake texts against the digests
+//! the host recorded for that job, the native reader's eligible standing, the
+//! admission's digests, then the request's source and the model text against
+//! the delivered result and the solved model (`exact_source_binding.rs`).
+//! Custody is checked again after the save dialog and before the write.
+//! Before opening, such a request then refuses at the shared producer's
+//! item 0 (`REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).
+//!
+//! Admission is a pure function of its arguments, the library lookup and the
+//! custody lookup, so its tests need no window. The command (`lib.rs` `save_report_package`)
 //! prices the parse of the three texts in its ingress lease before admission.
 //! The input manifest is a validation input only: it is not screened, because
 //! no package member carries it, and it is never saved.
@@ -56,8 +68,9 @@ use crate::model_document_file::MAX_MODEL_DOCUMENT_BYTES;
 use crate::export_disposition_screen::{
     malformed_values, screen_dispositions_in, screen_value, DispositionDiagnostic as Diagnostic, LibraryLookup, PathStyle,
 };
+use crate::exact_source_binding::{self as exact_binding, ExactRefusal};
 use crate::report_package_bridge::{self, ReportPackageRequest};
-use crate::solve_jobs::SolveJobError;
+use crate::solve_jobs::{CustodyDigests, SolveJobError};
 use open_pipe_stress_operation_applier::{canonical_json, sha256_hex};
 use open_pipe_stress_report_package::bindings::{DESKTOP_PROFILE, REPORT_CONTEXT_NOT_LOCAL_PRIVATE};
 use open_pipe_stress_report_package::ReportPackageContainerOutcome;
@@ -148,6 +161,20 @@ pub struct ReportPackageSaveRequest {
     pub input_manifest_text: String,
     pub screening: ReportPackageSaveScreening,
     pub local_first: Option<ReportPackageLocalFirstEvidence>,
+    /// W-11 (§3.6): for an exact-route request only, the bytes its solve job
+    /// delivered and the model text the job was sent.
+    pub exact_result_text: Option<String>,
+    pub exact_intake_text: Option<String>,
+}
+
+/// The custody lookup of the native source binding: the registry's
+/// `custody_binding`.
+pub type CustodyLookup<'a> = dyn Fn(&str) -> Option<CustodyDigests> + 'a;
+
+/// A custody lookup that names no job: every exact-route request refuses at
+/// its custody binding.
+pub fn no_custody(_: &str) -> Option<CustodyDigests> {
+    None
 }
 
 /// Decodes the command's raw-body arguments (strings and structs of scalars,
@@ -159,6 +186,8 @@ pub(crate) fn save_report_package_args(args: &mut Args) -> Result<ReportPackageS
         input_manifest_text: args.decode("inputManifestCanonicalText")?,
         screening: args.decode("screening")?,
         local_first: args.decode("localFirstEvidence")?,
+        exact_result_text: args.decode("exactResultText")?,
+        exact_intake_text: args.decode("exactIntakeText")?,
     })
 }
 
@@ -342,6 +371,42 @@ pub fn check_text_sizes(request_text: &str, model_text: &str, input_manifest_tex
     Ok(())
 }
 
+/// The size caps of an exact-route request's resubmitted texts (§3.6): the
+/// result text's is the request text's, since the source is a member of the
+/// request; the intake text's is the model text's.
+pub fn check_exact_text_sizes(exact_result_text: Option<&str>, exact_intake_text: Option<&str>) -> Result<(), ReportPackageSaveCommandError> {
+    for (what, text, cap) in [("exact_result", exact_result_text, MAX_REQUEST_TEXT_BYTES), ("exact_intake", exact_intake_text, MAX_MODEL_TEXT_BYTES)] {
+        let bytes = text.map_or(0, str::len) as u64;
+        if bytes > cap {
+            return Err(refuse(TOO_LARGE, &format!("/{what}"), format!("The {what} text is {bytes} bytes; at most {cap} are admitted.")));
+        }
+    }
+    Ok(())
+}
+
+/// [`parse_lease_bytes`] plus the priced parse of an exact-route request's two
+/// resubmitted texts, each M plus its re-serialization
+/// ([`crate::command_ingress::text_parse_bytes`]; §3.6, "Pricing"). The
+/// native standing, the digests and the comparisons run under the held lease
+/// as the command's working memory, within the existing W M provision.
+pub fn parse_lease_bytes_with_exact(
+    request_text: &str,
+    model_text: &str,
+    input_manifest_text: &str,
+    exact_result_text: Option<&str>,
+    exact_intake_text: Option<&str>,
+) -> Result<u64, ReportPackageSaveCommandError> {
+    let base = parse_lease_bytes(request_text, model_text, input_manifest_text)?;
+    check_exact_text_sizes(exact_result_text, exact_intake_text)?;
+    let priced = |what: &str, text: Option<&str>| match text {
+        None => Ok(0),
+        Some(text) => text_parse_bytes(text, ArgsDecoding::Moved).map_err(|invalid| {
+            refuse(NOT_CANONICAL, &format!("/{what}"), format!("The {what} text is not JSON ({} at byte {}).", invalid.reason, invalid.offset))
+        }),
+    };
+    Ok(base.saturating_add(priced("exact_result", exact_result_text)?).saturating_add(priced("exact_intake", exact_intake_text)?))
+}
+
 /// The ingress lease growth for parsing the three texts (§2.6 item 1, "a
 /// priced parse of the text"): the request is parsed, then typed-decoded and
 /// assembled, priced by its regions with the command's working memory
@@ -377,9 +442,49 @@ pub(crate) fn parse_canonical(what: &str, text: &str) -> Result<Value, ReportPac
 /// The typed request, decoded from the moved `Value` by [`ValueDecoder`] (no
 /// size hints, strings moved, bounded error text): the conversion
 /// [`parse_lease_bytes`] prices.
+///
+/// Each member is moved out and decoded by [`ValueDecoder`] on its own, as the
+/// whole decode decodes it, so a refusal names the member and the error kind
+/// only, never the offending value or key (W-11 slice (c), Codex review round
+/// 3 of #1639). An unknown top-level member is ignored, as there.
 pub(crate) fn typed_request(request: Value) -> Result<ReportPackageRequest, ReportPackageSaveCommandError> {
-    ReportPackageRequest::deserialize(ValueDecoder(request))
-        .map_err(|error| refuse(REQUEST_INVALID, "/request", format!("The request is not a version 2.0.0 report-package request: {error}.")))
+    let invalid = |detail: String| {
+        refuse(REQUEST_INVALID, "/request", format!("The request is not a version 2.0.0 report-package request: {detail}."))
+    };
+    // A positional request (a JSON array) is read by field order, as serde
+    // reads it.
+    let members = open_pipe_stress_report_package::wire::REQUEST_MEMBERS;
+    let mut fields = match request {
+        Value::Object(fields) => fields,
+        Value::Array(items) => open_pipe_stress_report_renderer::positional_members(items, members, members.len())
+            .map_err(|kind| invalid(format!("{kind} at the request")))?,
+        _ => return Err(invalid("invalid type at the request".to_string())),
+    };
+    fn member<T: serde::de::DeserializeOwned>(fields: &mut serde_json::Map<String, Value>, key: &str, optional: bool) -> Result<T, String> {
+        let decoded = match fields.remove(key) {
+            None if !optional => return Err(format!("missing field at {key}")),
+            None => T::deserialize(ValueDecoder(Value::Null)),
+            Some(value) => T::deserialize(ValueDecoder(value)),
+        };
+        decoded.map_err(|error| format!("{} at {key}", open_pipe_stress_report_package::serde_error_kind(&error.to_string())))
+    }
+    // Every member, exhaustively (a new member is a compile error here).
+    (|| -> Result<ReportPackageRequest, String> {
+        Ok(ReportPackageRequest {
+            package_id: member(&mut fields, "package_id", false)?,
+            export_profile_id: member(&mut fields, "export_profile_id", false)?,
+            source_model_ref: member(&mut fields, "source_model_ref", false)?,
+            source_basis_refs: member(&mut fields, "source_basis_refs", false)?,
+            report: member(&mut fields, "report", false)?,
+            audit_manifest: member(&mut fields, "audit_manifest", false)?,
+            result_documents: member(&mut fields, "result_documents", false)?,
+            source_results: member(&mut fields, "source_results", false)?,
+            state_comparison_handoff_records: member(&mut fields, "state_comparison_handoff_records", false)?,
+            rule_check_aggregate: member(&mut fields, "rule_check_aggregate", true)?,
+            solve_rule_check_status: member(&mut fields, "solve_rule_check_status", false)?,
+        })
+    })()
+    .map_err(invalid)
 }
 
 /// A request admitted for the save dialog: the assembled package and the
@@ -390,6 +495,9 @@ pub struct AdmittedReportPackage {
     pub screening: ReportPackageSaveScreening,
     pub local_first: ReportPackageLocalFirstEvidence,
     pub warnings: Vec<Diagnostic>,
+    /// W-11 (§3.6): an exact-route request's job and the digests its binding
+    /// checked, re-checked after the save dialog and before the write.
+    pub exact_custody: Option<(String, CustodyDigests)>,
 }
 
 fn text_at<'a>(value: &'a Value, pointer: &str) -> Option<&'a str> {
@@ -499,7 +607,7 @@ fn check_context(request: &Value, model: &Value, software: &ExpectedSoftware) ->
 /// audit model hash). Its canonical form is part of the input-manifest text's,
 /// so it is no larger than the re-serialization [`parse_lease_bytes`] prices,
 /// which is freed by now, as is the input-manifest text.
-fn check_manifest_model(input_manifest: &Value, model: &Value, model_hex: &str) -> Result<(), ReportPackageSaveCommandError> {
+pub(crate) fn check_manifest_model(input_manifest: &Value, model: &Value, model_hex: &str) -> Result<(), ReportPackageSaveCommandError> {
     let project_id = text_at(model, "/project/id");
     if project_id.is_none() || text_at(input_manifest, "/model_basis/model_ref") != project_id {
         return Err(refuse(
@@ -587,16 +695,75 @@ fn check_rule_packs_agree(request: &Value, solve: &BTreeSet<RulePackIdentity>) -
     Ok(())
 }
 
-/// The admission of §2.6 items 2-6, before any file is chosen.
+fn exact_refused(refusal: ExactRefusal, path: &str) -> ReportPackageSaveCommandError {
+    let message = refusal.message.strip_prefix(&format!("{}: ", refusal.code)).unwrap_or(&refusal.message).to_string();
+    refuse(refusal.code, path, message)
+}
+
+/// Whether the parsed request is an exact-route request (§3.6): its result
+/// document has an exact identity or its report carries `exact_route`.
+fn exact_request(request: &Value) -> bool {
+    let identity = text_at(request, "/result_documents/0/result_envelope/producer/semantic_contract_id");
+    identity.is_some_and(open_pipe_stress_report_package::exact_sections::is_exact_identity)
+        || request.pointer("/report/exact_route").is_some_and(|route| !route.is_null())
+}
+
+/// The native source binding of an exact-route save (§3.6): steps 1-5, then
+/// the request's source and the model text against the delivered result and
+/// the solved model. Returns the job and the digests it checked.
+fn bind_exact_save_source(
+    request: &Value,
+    model_text: &str,
+    exact_result_text: Option<&str>,
+    exact_intake_text: Option<&str>,
+    custody: &CustodyLookup<'_>,
+) -> Result<(String, CustodyDigests), ReportPackageSaveCommandError> {
+    const ADMISSION: &str = "/request/report/exact_route/admission";
+    let admission = request.pointer("/report/exact_route/admission").cloned().unwrap_or(Value::Null);
+    let digests = exact_binding::check_custody(&admission, custody).map_err(|refusal| exact_refused(refusal, &format!("{ADMISSION}/native_job_id")))?;
+    exact_binding::check_delivered_texts(&admission, &digests, exact_result_text, exact_intake_text)
+        .map_err(|refusal| exact_refused(refusal, ADMISSION))?;
+    let bound = exact_binding::read_delivered_source(&admission, &digests, exact_result_text.unwrap_or(""), exact_intake_text.unwrap_or(""))
+        .map_err(|refusal| exact_refused(refusal, ADMISSION))?;
+    // The save's own equalities: the request's source is the delivered result,
+    // and the (canonical) model text is the solved model.
+    let source = request.pointer("/source_results/0").unwrap_or(&Value::Null);
+    let source_sha256 = open_pipe_stress_result_export::derivative::digest(source).ok();
+    let delivered_sha256 = open_pipe_stress_result_export::derivative::digest(&bound.source).ok();
+    if source_sha256.is_none() || source_sha256 != delivered_sha256 {
+        return Err(exact_refused(exact_binding::not_delivered("result"), "/request/source_results/0"));
+    }
+    if sha256_hex(model_text) != bound.model_sha256 {
+        return Err(exact_refused(exact_binding::not_delivered("model"), "/model"));
+    }
+    let job = admission["native_job_id"].as_str().unwrap_or_default().to_string();
+    Ok((job, digests))
+}
+
+/// The admission of §2.6 items 2-6, before any file is chosen, with no
+/// custody: every exact-route request refuses at its custody binding (§3.6).
 pub fn admit_report_package(
     request: ReportPackageSaveRequest,
     software: &ExpectedSoftware,
     lookup: &mut LibraryLookup<'_>,
 ) -> Result<AdmittedReportPackage, ReportPackageSaveCommandError> {
-    let ReportPackageSaveRequest { request_text, model_text, input_manifest_text, screening, local_first } = request;
+    admit_report_package_in(request, software, lookup, &no_custody)
+}
+
+/// The admission of §2.6 items 2-6 with the registry's custody lookup (the
+/// command's), before any file is chosen.
+pub fn admit_report_package_in(
+    request: ReportPackageSaveRequest,
+    software: &ExpectedSoftware,
+    lookup: &mut LibraryLookup<'_>,
+    custody: &CustodyLookup<'_>,
+) -> Result<AdmittedReportPackage, ReportPackageSaveCommandError> {
+    let ReportPackageSaveRequest { request_text, model_text, input_manifest_text, screening, local_first, exact_result_text, exact_intake_text } =
+        request;
     validate_report_package_save_evidence(&screening, local_first.as_ref())?;
     let local_first = local_first.expect("validated local-first evidence");
     check_text_sizes(&request_text, &model_text, &input_manifest_text)?;
+    check_exact_text_sizes(exact_result_text.as_deref(), exact_intake_text.as_deref())?;
 
     // Canonical binding: the evidence names exactly this request text.
     let request_hex = sha256_hex(&request_text);
@@ -609,6 +776,17 @@ pub fn admit_report_package(
     }
     let request_value = parse_canonical("request", &request_text)?;
     drop(request_text);
+    // W-11 (§3.6): the native source binding of an exact-route request, before
+    // the other content checks; a pressure-free request carries no texts.
+    let exact_custody = if exact_request(&request_value) {
+        Some(bind_exact_save_source(&request_value, &model_text, exact_result_text.as_deref(), exact_intake_text.as_deref(), custody)?)
+    } else if exact_result_text.is_some() || exact_intake_text.is_some() {
+        return Err(exact_refused(exact_binding::sections_mismatch("exact_route"), "/request/report/exact_route"));
+    } else {
+        None
+    };
+    drop(exact_result_text);
+    drop(exact_intake_text);
     let model_value = parse_canonical("model", &model_text)?;
     let model_hex = sha256_hex(&model_text);
     drop(model_text);
@@ -658,12 +836,12 @@ pub fn admit_report_package(
     if package.export_blocked {
         return Err(ReportPackageSaveCommandError::bridge(format!("{PRODUCER_BLOCKED}: {}", package.blocking_reasons.join(" | "))));
     }
-    Ok(AdmittedReportPackage { package, screening, local_first, warnings })
+    Ok(AdmittedReportPackage { package, screening, local_first, warnings, exact_custody })
 }
 
 impl AdmittedReportPackage {
     fn receipt(self, outcome: &str, stage: &str, code: String, written: Option<atomic_report_package_save::AtomicSaveOutcome>) -> ReportPackageSaveReceipt {
-        let Self { package, screening, local_first, warnings } = self;
+        let Self { package, screening, local_first, warnings, exact_custody: _ } = self;
         let byte_count = if written.is_some() { package.container_bytes.len() } else { 0 };
         let (replaced_existing, durability, selected_basename, path_containment, limitation) = match written {
             Some(save) => (save.replaced_existing, save.durability, save.selected_basename, save.path_containment, save.limitation),
@@ -717,14 +895,30 @@ impl AdmittedReportPackage {
 
 /// The save dialog and the atomic write of an admitted package; `choose` is the
 /// dialog (a counting seam in tests): `None` is a cancel, `Some(Err)` an
-/// unusable path.
+/// unusable path. No custody: an exact-route package refuses before the write.
 pub fn save_admitted_report_package(
     admitted: AdmittedReportPackage,
+    choose: impl FnOnce(&str) -> Option<Result<PathBuf, String>>,
+) -> Result<ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
+    save_admitted_report_package_in(admitted, &no_custody, choose)
+}
+
+/// [`save_admitted_report_package`] with the registry's custody lookup: an
+/// exact-route package's custody is checked again after the dialog returns
+/// and before the write, against the digests its binding checked (§3.6).
+pub fn save_admitted_report_package_in(
+    admitted: AdmittedReportPackage,
+    custody: &CustodyLookup<'_>,
     choose: impl FnOnce(&str) -> Option<Result<PathBuf, String>>,
 ) -> Result<ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
     let Some(selected) = choose(&admitted.package.container_file_name) else {
         return Ok(admitted.receipt("cancelled", "picker", "REPORT-PACKAGE-SAVE-CANCELLED".to_string(), None));
     };
+    if let Some((job, digests)) = &admitted.exact_custody {
+        if custody(job) != Some(*digests) {
+            return Err(exact_refused(exact_binding::custody_released(), "/request/report/exact_route/admission/native_job_id"));
+        }
+    }
     let destination = selected.map_err(|error| ReportPackageSaveCommandError::bridge(format!("{PICKER_PATH_INVALID}: {error}")))?;
     let save = atomic_report_package_save::atomic_save_bytes(&destination, &admitted.package.container_bytes)?;
     let code = if save.durability == "durable" { "REPORT-PACKAGE-SAVED" } else { "REPORT-PACKAGE-SAVED-DURABILITY-UNCERTAIN" };
@@ -896,6 +1090,8 @@ pub(crate) mod test_support {
             input_manifest_text: canonical_json(manifest),
             screening: screening(payload),
             local_first: Some(local_first()),
+            exact_result_text: None,
+            exact_intake_text: None,
         }
     }
 
@@ -1135,6 +1331,52 @@ mod tests {
         assert_eq!(paths, vec!["/model/materials/0/provenance_record/review_status".to_string(), "/model/materials/0/provenance_record".to_string()]);
     }
 
+    /// W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md`
+    /// §4.3, §6.2): the report's FR-REP-003 records, values and library
+    /// references are screened in the request as every object is. A
+    /// `quarantined`, `rejected` or `protected_suspected` record refuses the
+    /// save; a `private_only` one is admitted.
+    #[test]
+    fn fr_rep_003_records_with_a_blocking_disposition_refuse_the_save() {
+        let record = |member: &str, status: &str| {
+            let mut record = json!({
+                "source_name": "Invented material datasheet", "source_location": "invented-datasheet-shelf", "source_license": "invented-license",
+                "contributor": "invented contributor", "contributor_certification": "invented certification",
+                "redistribution_status": "private_only", "review_status": "pending", "privacy_classification": "private_project_data"
+            });
+            record[member] = json!(status);
+            record
+        };
+        let with_records = |record: Value| {
+            move |r: &mut Value| {
+                let sections = &mut r["report"]["report_sections"];
+                sections["provenance_notes"].as_array_mut().unwrap().push(record.clone());
+                sections["user_supplied_values"].as_array_mut().unwrap().push(json!({
+                    "value_id": "material-provenance:material:invented-steel", "value_category": "report_metadata",
+                    "source": {"ref_type": "material", "ref_id": "material:invented-steel"}, "provenance": record.clone(),
+                    "privacy_classification": "private_project_data", "required_for": ["reporting", "human_review"],
+                    "review_status": record["review_status"].clone(), "missing_data_finding": false
+                }));
+            }
+        };
+        assert!(admit(edited(with_records(record("review_status", "pending")))).is_ok());
+        for (member, status) in [("review_status", "quarantined"), ("review_status", "rejected"), ("redistribution_status", "protected_suspected")] {
+            let (code, paths) = refusal(admit(edited(with_records(record(member, status)))));
+            assert_eq!(code, PROTECTED_CONTENT_BLOCKED, "{member} {status}");
+            assert!(paths.iter().any(|path| path.starts_with("/request/report/report_sections/provenance_notes/") && path.ends_with(member)), "{paths:?}");
+            assert!(paths.iter().any(|path| path.starts_with("/request/report/report_sections/user_supplied_values/") && path.ends_with(&format!("provenance/{member}"))), "{paths:?}");
+        }
+        // A library reference's record.
+        for (member, status) in [("review_status", "quarantined"), ("privacy_classification", "protected_suspected")] {
+            let library = json!([{
+                "reference_id": "library-ref:1", "library_kind": "material", "library_id": "invented-material-library",
+                "library_version": "not recorded", "record_id": "not recorded", "entity_refs": ["material:invented-steel"], "provenance": record(member, status)
+            }]);
+            let (code, paths) = refusal(admit(edited(move |r: &mut Value| r["report"]["library_references"] = library.clone())));
+            assert_eq!((code.as_str(), paths[0].as_str()), (PROTECTED_CONTENT_BLOCKED, format!("/request/report/library_references/0/provenance/{member}").as_str()));
+        }
+    }
+
     /// The structural screen: what W-6a's record screen does not judge
     /// (§2.6 item 4) is refused in either value, every object at every depth.
     #[test]
@@ -1270,6 +1512,16 @@ mod tests {
         assert_eq!(error.code, "REPORT-PACKAGE-REPORT-ROWS-MISMATCH");
         let error = admit(edited(|r| r["source_basis_refs"] = json!("not a list"))).unwrap_err();
         assert_eq!(error.code, REQUEST_INVALID);
+        // Codex review round 3 of #1639: the refusal names the member and the
+        // kind, never the offending value, in the typed request and in the
+        // report (an echoed value can be a private path).
+        let typed = "/Users/invented-user/private-datasheets/steel-a.pdf";
+        let error = admit(edited(|r| r["source_basis_refs"] = json!(typed))).unwrap_err();
+        assert_eq!(error.code, REQUEST_INVALID);
+        assert!(error.message.ends_with("The request is not a version 2.0.0 report-package request: invalid type at source_basis_refs."), "{}", error.message);
+        let error = admit(edited(|r| r["report"]["report_sections"]["provenance_notes"][0]["review_status"] = json!(typed))).unwrap_err();
+        let text = format!("{} {} {:?}", error.code, error.message, error.diagnostics);
+        assert!(!text.contains(typed), "{text}");
     }
 
     const PACK_A: &str = "invented-pack-a";

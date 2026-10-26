@@ -1,5 +1,6 @@
 mod atomic_report_package_save;
 mod command_ingress;
+mod exact_source_binding;
 mod export_disposition_screen;
 mod handoff_package;
 mod handoff_package_publish;
@@ -13,11 +14,15 @@ mod model_document_version;
 mod model_states;
 mod analysis_runs;
 mod stored_read;
+mod stored_model_document_export;
 #[cfg(feature = "native-smoke")]
 mod native_smoke;
 mod native_result_download;
 mod report_package_bridge;
 mod report_package_save;
+mod report_render_exact;
+#[cfg(test)]
+mod report_render_exact_tests;
 mod rule_solver_selection;
 mod solve_jobs;
 mod solve_worker;
@@ -69,7 +74,15 @@ async fn save_report_package(
     // `report-package-current-results.md` §2.6 items 1-3). The lease is held
     // through admission, the save dialog and the write.
     let growth = report_package_save::validate_report_package_save_evidence(&request.screening, request.local_first.as_ref())
-        .and_then(|()| report_package_save::parse_lease_bytes(&request.request_text, &request.model_text, &request.input_manifest_text));
+        .and_then(|()| {
+            report_package_save::parse_lease_bytes_with_exact(
+                &request.request_text,
+                &request.model_text,
+                &request.input_manifest_text,
+                request.exact_result_text.as_deref(),
+                request.exact_intake_text.as_deref(),
+            )
+        });
     let growth = match growth {
         Ok(growth) => growth,
         Err(error) => return respond::<report_package_save::ReportPackageSaveReceipt, _>(Err(CommandError::Command(error))),
@@ -86,7 +99,9 @@ async fn save_report_package_decoded(
     let software = report_package_save::ExpectedSoftware { name: info.name.clone(), version: info.version.to_string() };
     tauri::async_runtime::spawn_blocking(move || {
         let mut lookup = library_store_lookup(&app);
-        save_report_package_with_picker(request, &software, &mut lookup, |file_name| choose_report_package_save_path(&app, file_name))
+        let registry = app.state::<SolveJobRegistry>().inner().clone();
+        let custody = |job: &str| registry.custody_binding(job);
+        save_report_package_with_picker(request, &software, &mut lookup, &custody, |file_name| choose_report_package_save_path(&app, file_name))
     })
     .await
     .unwrap_or_else(|_| {
@@ -111,21 +126,26 @@ fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<R
 }
 
 /// The save after argument decoding: the native admission
-/// (`report_package_save::admit_report_package`), then the save dialog and the
-/// atomic write. `choose` is the save dialog (a counting seam in tests).
+/// (`report_package_save::admit_report_package_in`, with the registry's
+/// custody lookup for an exact-route request's native source binding, W-11),
+/// then the save dialog and the atomic write. `choose` is the save dialog (a
+/// counting seam in tests).
 fn save_report_package_with_picker(
     request: report_package_save::ReportPackageSaveRequest,
     software: &report_package_save::ExpectedSoftware,
     lookup: &mut model_document_save::LibraryLookup<'_>,
+    custody: &report_package_save::CustodyLookup<'_>,
     choose: impl FnOnce(&str) -> Option<Result<PathBuf, String>>,
 ) -> Result<report_package_save::ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
-    let admitted = report_package_save::admit_report_package(request, software, lookup)?;
-    report_package_save::save_admitted_report_package(admitted, choose)
+    let admitted = report_package_save::admit_report_package_in(request, software, lookup, custody)?;
+    report_package_save::save_admitted_report_package_in(admitted, custody, choose)
 }
 
-/// The local library store as the native saves read it (W-6a, W-18): opened
+/// The local library store as Save Report Package reads it (W-18): opened
 /// only when a library is first referenced, as `open_local_library` opens it,
 /// with the identities trimmed as it normalizes them. A read error is an `Err`.
+/// Save Model Document and Save Handoff read it within their memory instead
+/// (`stored_model_document_export::StoreLibraryReads`).
 fn library_store_lookup(app: &AppHandle) -> impl FnMut(&str, &str, &str) -> Result<Option<Value>, String> + '_ {
     let mut connection: Option<Connection> = None;
     move |project_id: &str, library_kind: &str, library_id: &str| {
@@ -1536,29 +1556,52 @@ fn get_unit_catalog() -> UnitCatalogResponse {
 /// `x-swbpipe-ingress: args-json-v1`, body = the UTF-8 JSON object of the
 /// camelCase arguments. Each command's arguments are decoded by its `*_args`
 /// function; the response is serialized while the lease is held.
+///
+/// W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.6):
+/// the render runs on a blocking worker thread, as the save does, because an
+/// exact input's native source binding parses and re-derives under the held
+/// lease; every other input renders there unchanged.
 #[tauri::command]
-fn render_calculation_report(
+async fn render_calculation_report(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
-    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "render_calculation_report", ArgsDecoding::Moved)?;
-    respond(render_calculation_report_args(&mut args))
+    let (mut args, mut lease) = command_ingress::admit(&registry, &invoke, "render_calculation_report", ArgsDecoding::Moved)?;
+    let registry = registry.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let outcome = render_calculation_report_args(&mut args, &registry, &mut lease);
+        // The response is serialized while the lease is still held.
+        let response = respond(outcome);
+        drop(lease);
+        response
+    })
+    .await
+    .unwrap_or_else(|_| Err(CommandError::Command("RENDER-WORKER-FAILED: the render's worker did not complete.".to_string())))
 }
 
-fn render_calculation_report_args(args: &mut Args) -> Result<Value, CommandError> {
-    let input = args.value("input")?;
-    render_calculation_report_value(input).map_err(CommandError::Command)
+/// The render's production root (W-11, DEL-08-01 Design
+/// `exact-route-report-sections.md` §3.6 step 0, §5.5): the production
+/// admitted set, which admits no exact-route identity before opening.
+fn render_calculation_report_args(args: &mut Args, registry: &SolveJobRegistry, lease: &mut memory_pool::Lease) -> Result<Value, CommandError> {
+    report_render_exact::render_calculation_report_args_in(args, registry, lease, report_render_exact::PRODUCTION)
 }
 
 fn render_calculation_report_value(input: Value) -> Result<Value, String> {
     // DEC-021 (A7): deterministic hash-bound HTML rendering with the
     // three-point protected-content gates evaluated in the renderer crate.
     // The derived print view is non-hash-bound and names the canonical hash.
-    let renderable: open_pipe_stress_report_renderer::RenderableReportInput =
-        serde_json::from_value(input).map_err(|error| format!("RENDER-INPUT-INVALID: {error}"))?;
+    // The decode refusal names the JSON path and the error kind, never the
+    // offending value (W-11 slice (c), Codex review round 3 of #1639).
+    let renderable = open_pipe_stress_report_renderer::decode_renderable_report_input(input)?;
     let outcome = open_pipe_stress_report_renderer::render_calculation_report(&renderable);
-    let derived_print_html =
-        open_pipe_stress_report_renderer::derived_print_view(&outcome.html, &outcome.sha256_hex);
+    // W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §6.2):
+    // a render refused for its provenance records is metadata-only, so no
+    // print view is derived from it either.
+    let derived_print_html = if outcome.content_withheld {
+        String::new()
+    } else {
+        open_pipe_stress_report_renderer::derived_print_view(&outcome.html, &outcome.sha256_hex)
+    };
     let mut payload = serde_json::to_value(&outcome).map_err(|error| error.to_string())?;
     payload["derived_print_html"] = Value::String(derived_print_html);
     Ok(payload)
@@ -1597,52 +1640,122 @@ async fn open_model_document_file(app: AppHandle) -> Result<model_document_file:
 /// document checks) before the chooser is shown, then written by the atomic
 /// writer as `.json`. Cancel is an outcome, not an error. Async so the blocking
 /// chooser stays off the main thread (as `save_report_package`); the ingress
-/// lease is held through admission, the chooser and the write.
+/// lease is held until the command returns, and each referenced library's read
+/// is metered against the pool with it (`StoreLibraryReads`).
 #[tauri::command]
 async fn save_model_document_file(
     app: AppHandle,
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<NoCommandError>> {
-    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "save_model_document_file", ArgsDecoding::Moved)?;
+    let (mut args, lease) = command_ingress::admit(&registry, &invoke, "save_model_document_file", ArgsDecoding::Moved)?;
     let request = model_document_save::save_model_document_args(&mut args)?;
     drop(args);
-    respond(Ok(save_model_document_decoded(app, request).await))
+    // The command keeps the lease until it returns; the worker shares it.
+    let lease = std::sync::Arc::new(lease);
+    Ok(save_model_document_decoded(app, request, std::sync::Arc::clone(&lease)).await)
 }
 
 async fn save_model_document_decoded(
     app: AppHandle,
     request: model_document_save::ModelDocumentSaveRequest,
-) -> model_document_save::ModelDocumentSaveOutcome {
-    use model_document_save::{ModelDocumentSaveOutcome as Outcome, PICKER_PATH_INVALID, WORKER_FAILED};
+    lease: std::sync::Arc<memory_pool::Lease>,
+) -> tauri::ipc::Response {
+    use model_document_save::{ModelDocumentSaveOutcome as Outcome, WORKER_FAILED};
+    // A short outcome of fixed texts, within the ingress lease's error allowance.
+    let short = |outcome: Outcome| tauri::ipc::Response::new(serde_json::to_string(&outcome).unwrap_or_default());
     if let Err(diagnostic) =
         model_document_save::validate_model_document_save_evidence(&request.screening, &request.local_first)
     {
-        return Outcome::refused(vec![diagnostic]);
+        return short(Outcome::refused(vec![diagnostic]));
     }
     let model_document_save::ModelDocumentSaveRequest { canonical_text, claimed_model_hash, screening, .. } = request;
-    let store_app = app.clone();
-    let admitted = match tauri::async_runtime::spawn_blocking(move || {
+    // The admission, the chooser and the write run on one blocking worker,
+    // which holds the library reads' reservations throughout; the chooser
+    // blocks this worker, not the main thread.
+    tauri::async_runtime::spawn_blocking(move || {
+        let registry = app.state::<SolveJobRegistry>();
+        let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
         // The local library store, opened only if the document references a
         // library. A read error refuses.
-        let mut lookup = library_store_lookup(&store_app);
-        model_document_save::admit_model_document_text(canonical_text, &claimed_model_hash, &screening.payload_sha256, &mut lookup)
+        let open_store = || open_project_store(&app_store_path(&app)?).map(|(connection, _)| connection);
+        model_document_save::save_model_document_admitted(
+            canonical_text,
+            &claimed_model_hash,
+            &screening.payload_sha256,
+            open_store,
+            &registry,
+            &lease,
+            |suggested| choose_model_document_save_path(&app, suggested, directory),
+            |_, text| tauri::ipc::Response::new(text),
+        )
     })
     .await
-    {
-        Ok(Ok(admitted)) => admitted,
-        Ok(Err(diagnostics)) => return Outcome::refused(diagnostics),
-        Err(_) => return Outcome::refused_one(WORKER_FAILED, "The save's admission worker did not complete."),
-    };
-    let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
-    let destination = match choose_model_document_save_path(&app, &admitted.suggested_file_name, directory) {
-        Ok(Some(destination)) => destination,
-        Ok(None) => return Outcome::Cancelled,
-        Err(message) => return Outcome::refused_one(PICKER_PATH_INVALID, message),
-    };
-    tauri::async_runtime::spawn_blocking(move || model_document_save::write_admitted_model_document(&destination, admitted))
-        .await
-        .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The save's write worker did not complete; the destination may be unchanged."))
+    .unwrap_or_else(|_| short(Outcome::refused_one(WORKER_FAILED, "The save's worker did not complete; the destination may be unchanged.")))
+}
+
+/// Recovery export (W-17, DEL-02-02 Design §3): a stored project's document
+/// (`state_id` absent) or a saved state's, which the desktop refuses at open,
+/// written to a file the user chooses exactly as the store holds it
+/// (`stored_model_document_export`). It needs the explicit local-private
+/// intent; the store is opened read-only and not migrated; the read is
+/// admitted by the memory pool as the saved-state reader's is, and capped at
+/// the model-document file size; the text must hold each object member once,
+/// and its dispositions are screened. Then the Save Model Document chooser is
+/// shown and its atomic writer writes, the text's reservation held throughout.
+/// Nothing is adopted. The outcome's `model_hash` is the SHA-256 of the bytes
+/// written (for a saved state, its model hash). The arguments
+/// `{projectId, stateId, explicitLocalPrivateIntent}` are an `args-json-v1`
+/// raw body within the history commands' budget (`admit_within`,
+/// `INGRESS-ARGS-TOO-LARGE`); the ingress lease is held, and counted in the
+/// read's accounting, until the worker has built the response from the
+/// outcome serialized within that accounting.
+#[tauri::command]
+async fn save_stored_model_document_file(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<NoCommandError>> {
+    use stored_model_document_export as export;
+    let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, export::COMMAND, ArgsDecoding::Moved, export::MAX_ARGS_BYTES)?;
+    let request = export::stored_export_args(&mut args)?;
+    drop(args);
+    Ok(save_stored_model_document_decoded(app, request, lease).await)
+}
+
+/// The export's worker: it holds the ingress lease, and builds the response
+/// from the outcome's text serialized within the read's memory while every
+/// reservation is still held (`stored_model_document_export::serialize_outcome`),
+/// so nothing is serialized unreserved after the lease is released.
+async fn save_stored_model_document_decoded(
+    app: AppHandle,
+    request: stored_model_document_export::StoredExportRequest,
+    lease: memory_pool::Lease,
+) -> tauri::ipc::Response {
+    use model_document_save::{ModelDocumentSaveOutcome as Outcome, WORKER_FAILED};
+    // The chooser blocks this worker, not the main thread.
+    tauri::async_runtime::spawn_blocking(move || {
+        // The store's path, without `app_store_path`'s directory creation and
+        // legacy carry-forward: the export creates and writes nothing there.
+        let store = || app.path().app_local_data_dir().map(|directory| directory.join(PROJECT_STORE_FILE)).map_err(|error| error.to_string());
+        let registry = app.state::<SolveJobRegistry>();
+        let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
+        let response = stored_model_document_export::export_stored_model_document_request(
+            &request,
+            store,
+            &registry,
+            &lease,
+            |suggested| choose_model_document_save_path(&app, suggested, directory),
+            |_, text| tauri::ipc::Response::new(text),
+        );
+        drop(lease);
+        response
+    })
+    .await
+    .unwrap_or_else(|_| {
+        let failed = Outcome::refused_one(WORKER_FAILED, "The export's worker did not complete; the destination may be unchanged.");
+        tauri::ipc::Response::new(serde_json::to_string(&failed).unwrap_or_default())
+    })
 }
 
 fn choose_model_document_save_path(
@@ -1685,10 +1798,11 @@ async fn save_handoff_package(
     let (mut args, lease) = command_ingress::admit(&registry, &invoke, "save_handoff_package", ArgsDecoding::Moved)?;
     let request = handoff_package::save_handoff_package_args(&mut args)?;
     drop(args);
-    // The lease is held until the command returns; each store read is metered
-    // against the pool with it (W-12 S2's `PoolReadMemory`).
+    // The lease is held until the command returns; the saved states and the
+    // referenced libraries are read within the pool with it (W-12 S2's
+    // `PoolReadMemory`). The worker shares it.
     let lease = std::sync::Arc::new(lease);
-    respond(Ok(save_handoff_package_decoded(app, request, lease).await))
+    Ok(save_handoff_package_decoded(app, request, std::sync::Arc::clone(&lease)).await)
 }
 
 /// The stored rule-pack document with `rule_pack_id` under the model's project
@@ -1703,83 +1817,34 @@ async fn save_handoff_package_decoded(
     app: AppHandle,
     request: handoff_package::HandoffSaveRequest,
     lease: std::sync::Arc<memory_pool::Lease>,
-) -> handoff_package::HandoffSaveOutcome {
-    use handoff_package::{HandoffSaveOutcome as Outcome, PICKER_PATH_INVALID, WORKER_FAILED};
+) -> tauri::ipc::Response {
+    use handoff_package::{HandoffSaveOutcome as Outcome, WORKER_FAILED};
+    // A short outcome of fixed texts, within the ingress lease's error allowance.
+    let short = |outcome: Outcome| tauri::ipc::Response::new(serde_json::to_string(&outcome).unwrap_or_default());
     if let Err(diagnostic) = handoff_package::validate_handoff_evidence(&request.screening, &request.local_first) {
-        return Outcome::Refused { diagnostics: vec![diagnostic] };
+        return short(Outcome::Refused { diagnostics: vec![diagnostic] });
     }
-    let handoff_package::HandoffSaveRequest { canonical_text, claimed_model_hash, screening, basis_state_id, package_label, .. } = request;
-    let store_app = app.clone();
-    let store_lease = std::sync::Arc::clone(&lease);
-    let prepared = match tauri::async_runtime::spawn_blocking(move || {
-        let registry = store_app.state::<SolveJobRegistry>();
-        let memory = stored_read::PoolReadMemory::new(&registry, &store_lease);
-        // One store connection, opened on first use, as the model-document save opens it.
-        let connection: std::cell::RefCell<Option<Connection>> = std::cell::RefCell::new(None);
-        let with_store = |read: &mut dyn FnMut(&Connection) -> Result<(), String>| -> Result<(), String> {
-            let mut held = connection.borrow_mut();
-            if held.is_none() {
-                *held = Some(open_project_store(&app_store_path(&store_app)?)?.0);
-            }
-            read(held.as_ref().expect("opened above"))
-        };
-        let mut states = |project_id: &str, state_id: &str| {
-            handoff_package::stored_state(&app_store_path(&store_app)?, project_id, state_id, &memory)
-        };
-        let mut libraries = |project_id: &str, library_kind: &str, library_id: &str| -> Result<Option<Value>, String> {
-            let mut found = None;
-            with_store(&mut |connection| {
-                found = load_library(connection, project_id.trim(), library_kind.trim(), library_id.trim())?.map(|row| row.document);
-                Ok(())
-            })?;
-            Ok(found)
-        };
-        let mut rule_packs = |project_id: &str, rule_pack_id: &str| -> Result<Vec<Value>, String> {
-            let mut found = Vec::new();
-            with_store(&mut |connection| {
-                found = stored_rule_packs_with_id(connection, project_id, rule_pack_id)?;
-                Ok(())
-            })?;
-            Ok(found)
-        };
-        handoff_package::prepare_handoff(
-            canonical_text,
-            &claimed_model_hash,
-            &screening.payload_sha256,
-            &basis_state_id,
-            &package_label,
-            &mut states,
-            &mut libraries,
-            &mut rule_packs,
+    // The admission, the chooser, the basis state's re-read and the
+    // publication run on one blocking worker, which holds the store reads'
+    // reservations throughout; the chooser blocks this worker, not the main
+    // thread.
+    tauri::async_runtime::spawn_blocking(move || {
+        let registry = app.state::<SolveJobRegistry>();
+        let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
+        let store = || app_store_path(&app);
+        handoff_package::save_handoff_admitted(
+            request,
+            &store,
+            &registry,
+            &lease,
+            |suggested| choose_handoff_package_path(&app, suggested, directory),
+            handoff_package::local_iso_now,
+            &handoff_package_publish::PRODUCTION_HOOKS,
+            |_, text| tauri::ipc::Response::new(text),
         )
     })
     .await
-    {
-        Ok(Ok(prepared)) => prepared,
-        Ok(Err(diagnostics)) => return Outcome::Refused { diagnostics },
-        Err(_) => return Outcome::refused_one(WORKER_FAILED, "The handoff's admission worker did not complete."),
-    };
-    let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
-    let destination = match choose_handoff_package_path(&app, &prepared.suggested_package_name, directory) {
-        Ok(Some(destination)) => destination,
-        Ok(None) => return Outcome::Cancelled,
-        Err(message) => return Outcome::refused_one(PICKER_PATH_INVALID, message),
-    };
-    let write_app = app.clone();
-    tauri::async_runtime::spawn_blocking(move || {
-        // The basis state is read again immediately before publication.
-        let registry = write_app.state::<SolveJobRegistry>();
-        let memory = stored_read::PoolReadMemory::new(&registry, &lease);
-        let mut states = |project_id: &str, state_id: &str| {
-            handoff_package::stored_state(&app_store_path(&write_app)?, project_id, state_id, &memory)
-        };
-        if let Err(diagnostics) = handoff_package::confirm_basis_state(&prepared, &mut states) {
-            return Outcome::Refused { diagnostics };
-        }
-        handoff_package::write_handoff_package(&destination, prepared, &handoff_package::local_iso_now(), &handoff_package_publish::PRODUCTION_HOOKS)
-    })
-    .await
-    .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The handoff's write worker did not complete; the destination may be unchanged."))
+    .unwrap_or_else(|_| short(Outcome::refused_one(WORKER_FAILED, "The handoff's worker did not complete; the destination may be unchanged.")))
 }
 
 fn choose_handoff_package_path(app: &AppHandle, suggested_name: &str, directory: Option<PathBuf>) -> Result<Option<PathBuf>, String> {
@@ -1891,9 +1956,10 @@ fn poll_preview_mechanics_job(
 
 /// The producer's exact result bytes as a raw response (an `ArrayBuffer` in
 /// the webview). The job's result lease grows to 2R first; the webview must
-/// call `dispose_preview_mechanics_result` once it has dropped its copy.
+/// call `dispose_preview_mechanics_result` once it has dropped its copy. Async
+/// so that the growth's re-sampling (up to 2 s) never runs on the main thread.
 #[tauri::command]
-fn take_preview_mechanics_job_result(
+async fn take_preview_mechanics_job_result(
     state: tauri::State<'_, SolveJobRegistry>,
     job_id: String,
 ) -> Result<tauri::ipc::Response, SolveJobError> {
@@ -4951,6 +5017,7 @@ macro_rules! app_invoke_handler {
             load_design_knowledge,
             open_model_document_file,
             save_model_document_file,
+            save_stored_model_document_file,
             save_handoff_package,
             start_preview_mechanics_job,
             poll_preview_mechanics_job,
@@ -7183,8 +7250,8 @@ mod tests {
     fn solves_hand_the_desktop_the_producers_exact_bytes() {
         // W-7 global end rows added (12 element_global_end rows on the one member); no other byte moved.
         const PINS: [(&str, usize, &str); 2] = [
-            ("sparse_interactive", 86553, "a35f7a85780e66bd20f4060a0668098aef0f6f9d1bc2bb43166499cceaa3de99"),
-            ("dense_scrutiny", 86579, "ab62383de29f770a1c66e33a9a23131f7644dbee6a10ad00f9ae9775f8dbf20c"),
+            ("sparse_interactive", 86484, "ac3bde77f91d0a9d595b08799cae5907c8fbef78c6c4c94761514ff6967b2e0d"),
+            ("dense_scrutiny", 86510, "6da64fa02c206a88e670c75ff6b74364263c94e1ac8722a963f603ddf01ac7db"),
         ];
         let fixtures = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/product_preview");
         let model: Value = serde_json::from_str(include_str!(
@@ -9453,8 +9520,10 @@ mod tests {
         #[test]
         fn report_rendering_and_sample_proposal_commands_decode_raw_bodies() {
             let broken = json!({"report_title": "broken"});
-            let (mut args, _lease) = admit("render_calculation_report", json!({"input": broken}));
-            let error = command_error(render_calculation_report_args(&mut args).unwrap_err());
+            let registry = registry(ScriptedHost::normal());
+            let (mut args, mut lease) =
+                admit_json(&registry, "render_calculation_report", ArgsDecoding::Moved, &json!({"input": broken})).unwrap();
+            let error = command_error(render_calculation_report_args(&mut args, &registry, &mut lease).unwrap_err());
             assert_eq!(Err(error), render_calculation_report_value(broken));
 
             let result = json!({"result_kind": "invented", "nodes": []});
@@ -9593,7 +9662,7 @@ mod tests {
             let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
             let root = sandbox("command-path");
             let mut picks = 0usize;
-            let receipt = save_report_package_with_picker(decoded, &software(), &mut no_store, |_| {
+            let receipt = save_report_package_with_picker(decoded, &software(), &mut no_store, &report_package_save::no_custody, |_| {
                 picks += 1;
                 Some(Ok(root.join("admitted.opsproj")))
             })
@@ -9619,7 +9688,7 @@ mod tests {
             let decoded = report_package_save::save_report_package_args(&mut args).unwrap();
             let root = sandbox("forged");
             let mut picks = 0usize;
-            let error = match save_report_package_with_picker(decoded, &software(), &mut no_store, |_| {
+            let error = match save_report_package_with_picker(decoded, &software(), &mut no_store, &report_package_save::no_custody, |_| {
                 picks += 1;
                 Some(Ok(root.join("forged.opsproj")))
             }) {
@@ -9706,7 +9775,7 @@ mod tests {
                     let growth = report_package_save::parse_lease_bytes(&request.request_text, &request.model_text, &request.input_manifest_text).unwrap();
                     lease.grow_to(lease.bytes() + growth).unwrap();
                     let mut picks = 0usize;
-                    let receipt = save_report_package_with_picker(request, &software(), &mut no_store, |_| {
+                    let receipt = save_report_package_with_picker(request, &software(), &mut no_store, &report_package_save::no_custody, |_| {
                         picks += 1;
                         None
                     })

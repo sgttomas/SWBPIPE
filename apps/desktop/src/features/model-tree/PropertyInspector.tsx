@@ -29,7 +29,17 @@ import {
   type UnitCatalogRoute
 } from "../../services/unitCatalogService";
 import { entityLabel, selectedProperties, selectedPropertyRows } from "../model-workspace/modelView";
-import { composedDefault, declaredOrComposedDefault } from "../project-units/projectUnitSelection";
+import {
+  composedDefault,
+  declaredOrComposedDefault,
+  fieldComposedDefault,
+  linearStiffnessFieldDefault,
+  projectTemperatureDefault,
+  rotationalStiffnessFieldDefault,
+  type FieldUnitDefault
+} from "../project-units/projectUnitSelection";
+import { componentDraftMissingUnitNotices, isProjectUnitKey, missingProjectUnitText, projectUnitMissing, type MissingProjectUnitMode } from "../project-units/missingProjectUnit";
+import type { ProjectUnitKey } from "../../services/projectService";
 import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selectionState";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
@@ -79,23 +89,28 @@ export function PropertyInspector({
   const [propertiesTarget, setPropertiesTarget] = useState<EntityRef>(() => ({ ...selection }));
   const [draftTarget, setDraftTarget] = useState<EntityRef>(() => ({ ...selection }));
   const properties = selectedProperties(model, propertiesTarget);
-  const editableFields = useMemo(() => editorFieldOptions(model, draftTarget), [draftTarget, model]);
+  const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
+  const editableFields = useMemo(() => editorFieldOptions(model, draftTarget, unitCatalogRoute), [draftTarget, model, unitCatalogRoute]);
   const [selectedFieldPath, setSelectedFieldPath] = useState(editableFields[0]?.fieldPath ?? "");
   const [proposedValue, setProposedValue] = useState(fieldEntryValue(editableFields[0]));
-  const [proposedUnit, setProposedUnit] = useState(editableFields[0]?.unit ?? "");
+  // W-17 slice (c) §7.3: a unit the user picks is kept; until then the field's own
+  // (inherited) default is used, recomputed whenever the field is, so a catalog that
+  // arrives late, or a project-unit change, replaces an inherited default but never a
+  // chosen unit. A stored unit is the field's default and is kept.
+  const [chosenUnit, setChosenUnit] = useState<string | null>(null);
+  const chooseProposedUnit = (unit: string) => setChosenUnit(unit);
   const [rationale, setRationale] = useState("user_entered_preview_change");
   const [sectionDraft, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
   const [materialDraftState, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
   const [supportDraftState, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
   const [componentDraft, setComponentDraft] = useState(() =>
-    componentDraftFor(model, selection, queuedIntents)
+    defaultComponentDraft(model, selection, queuedIntents)
   );
   const aggregateRefs = selectionState?.orderedKeys.flatMap((key) => {
     const ref = entityRefFromKey(key);
     return ref ? [ref] : [];
   }) ?? [selection];
   const multiSelection = aggregateRefs.length > 1;
-  const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   // Default-sourced composed units follow the current project's rule on every render
   // (W-17 §2.4), so a replaced project, a project-unit change or a catalog that arrives
   // later never leaves an inherited unit in place. Explicit choices are kept.
@@ -142,19 +157,22 @@ export function PropertyInspector({
   const componentAngleUnitOptions = unitOptions(
     unitCatalogRoute,
     "angle",
-    componentDraft.angleUnit || storedProjectUnits(model).angle || "rad"
+    componentDraft.angleUnit || storedProjectUnits(model).angle || "TBD"
   );
   const componentForceUnitOptions = unitOptions(
     unitCatalogRoute,
     "force",
     componentDraft.forceUnit || storedProjectUnits(model).force || "TBD"
   );
+  // W-17 §3: a draft unit left unselected because its project key is absent names the key.
+  const componentUnitNotices = componentDraftMissingUnitNotices(model, componentDraft);
   const nodeTargetOptions = useMemo(() => model.nodes.map((node) => ({ value: node.id, label: node.label || node.id })), [model.nodes]);
   const connectedPipeTargetOptions = useMemo(() => model.pipe_segments
     .filter((pipe) => pipe.from === componentDraft.node || pipe.to === componentDraft.node)
     .map((pipe) => ({ value: pipe.id, label: pipe.label || pipe.id, keywords: [pipe.from, pipe.to] })),
   [componentDraft.node, model.pipe_segments]);
   const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
+  const proposedUnit = chosenUnit ?? selectedField?.unit ?? "";
   const selectedFieldLabel = selectedField ? propertyLabel(selectedField) : "Property";
   const requiredFlags = requiredFlagsForSelection(model, propertiesTarget, properties);
   const selectedFieldUnitOptions = selectedField
@@ -204,19 +222,20 @@ export function PropertyInspector({
     ((proposedValue.trim() || "TBD") !== (selectedField.initialValue || selectedField.before) ||
       (selectedField.unitEditable && (proposedUnit.trim() || selectedField.unit) !== selectedField.unit))
   );
-  const currentIntentComplete = Boolean(operationIntent && fieldChanged && operationIntentIsComplete(operationIntent));
+  const unitRefusal = missingProjectUnitRefusal(model, selectedField, proposedUnit);
+  const currentIntentComplete = Boolean(operationIntent && fieldChanged && !unitRefusal && operationIntentIsComplete(operationIntent));
 
   useLayoutEffect(() => {
     taskGenerationRef.current += 1;
     const nextTarget = { ...selection };
-    const firstField = editorFieldOptions(model, nextTarget)[0];
+    const firstField = editorFieldOptions(model, nextTarget, unitCatalogRoute)[0];
     setDraftTarget(nextTarget);
     setSelectedFieldPath(firstField?.fieldPath ?? "");
     setProposedValue(fieldEntryValue(firstField));
-    setProposedUnit(firstField?.unit ?? "");
+    setChosenUnit(null);
     setRationale("user_entered_preview_change");
     setSupportDraft(defaultSupportDraft(model, selection, queuedIntents, unitCatalogRoute));
-    setComponentDraft(componentDraftFor(model, selection, queuedIntents));
+    setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
     setMaterialDraft(defaultMaterialDraft(model, queuedIntents, unitCatalogRoute));
     setSectionDraft(defaultSectionDraft(model, queuedIntents));
     setInspectorView("properties");
@@ -232,11 +251,11 @@ export function PropertyInspector({
     if (taskRequest.view === "task") {
       taskGenerationRef.current += 1;
       const nextTarget = { ...taskRequest.target };
-      const firstField = editorFieldOptions(model, nextTarget)[0];
+      const firstField = editorFieldOptions(model, nextTarget, unitCatalogRoute)[0];
       setDraftTarget(nextTarget);
       setSelectedFieldPath(firstField?.fieldPath ?? "");
       setProposedValue(fieldEntryValue(firstField));
-      setProposedUnit(firstField?.unit ?? "");
+      setChosenUnit(null);
       setRationale("user_entered_preview_change");
       setTaskActive(true);
     } else if (!multiSelection) {
@@ -287,17 +306,17 @@ export function PropertyInspector({
     const nextField = editableFields.find((field) => field.fieldPath === fieldPath);
     setSelectedFieldPath(fieldPath);
     setProposedValue(fieldEntryValue(nextField));
-    setProposedUnit(nextField?.unit ?? "");
+    setChosenUnit(null);
   }
 
   function beginPropertyTaskFromSelection() {
     taskGenerationRef.current += 1;
     const nextTarget = { ...selection };
-    const firstField = editorFieldOptions(model, nextTarget)[0];
+    const firstField = editorFieldOptions(model, nextTarget, unitCatalogRoute)[0];
     setDraftTarget(nextTarget);
     setSelectedFieldPath(firstField?.fieldPath ?? "");
     setProposedValue(fieldEntryValue(firstField));
-    setProposedUnit(firstField?.unit ?? "");
+    setChosenUnit(null);
     setRationale("user_entered_preview_change");
     setInspectorView("task");
     setTaskActive(true);
@@ -305,21 +324,21 @@ export function PropertyInspector({
 
   function cancelPropertyTask() {
     taskGenerationRef.current += 1;
-    const firstField = editorFieldOptions(model, draftTarget)[0];
+    const firstField = editorFieldOptions(model, draftTarget, unitCatalogRoute)[0];
     setSelectedFieldPath(firstField?.fieldPath ?? "");
     setProposedValue(fieldEntryValue(firstField));
-    setProposedUnit(firstField?.unit ?? "");
+    setChosenUnit(null);
     setRationale("user_entered_preview_change");
     setTaskActive(false);
   }
 
   function handleQueueIntent() {
-    if (multiSelection || !operationIntent || !fieldChanged) return;
+    if (multiSelection || !operationIntent || !fieldChanged || unitRefusal) return;
     onQueueIntent(deepFreezeIntent(structuredClone(operationIntent)));
   }
 
   async function handleApplyCurrentIntent() {
-    if (multiSelection || !operationIntent || !onApplyIntent) return;
+    if (multiSelection || !operationIntent || !onApplyIntent || unitRefusal) return;
     const taskGeneration = taskGenerationRef.current;
     try {
       if (await onApplyIntent(operationIntent) && taskGenerationRef.current === taskGeneration) setTaskActive(false);
@@ -339,7 +358,7 @@ export function PropertyInspector({
     if (multiSelection || !componentCreateIntent) return;
     onQueueIntent(componentCreateIntent);
     setComponentDraft(
-      componentDraftFor(model, propertiesTarget, [...queuedIntents, componentCreateIntent], componentDraft.kind)
+      defaultComponentDraft(model, propertiesTarget, [...queuedIntents, componentCreateIntent], componentDraft.kind)
     );
   }
 
@@ -496,14 +515,14 @@ export function PropertyInspector({
                     aria-label="Proposed editor unit" data-testid="editor-intent-unit" list="mass-unit-options" placeholder="Enter a unit"
                     value={proposedUnit} onChange={(event) => {
                       taskGenerationRef.current += 1;
-                      setProposedUnit(event.target.value);
+                      chooseProposedUnit(event.target.value);
                     }}
                   /> : <CompactSelect
                     aria-label="Proposed editor unit"
                     data-testid="editor-intent-unit"
                     onValueChange={(value) => {
                       taskGenerationRef.current += 1;
-                      setProposedUnit(value);
+                      chooseProposedUnit(value);
                     }}
                     value={proposedUnit || selectedField.unit}
                     options={selectedFieldUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
@@ -511,10 +530,11 @@ export function PropertyInspector({
                   <datalist id="mass-unit-options">{selectedFieldUnitOptions.filter((option) => option.symbol && option.symbol !== "TBD").map((option) => <option key={option.symbol} value={option.symbol}>{option.label}</option>)}</datalist>
                 </label>
               ) : null}
+              {unitRefusal ? <p role={unitRefusal.hardLock ? "alert" : "status"} data-testid="editor-intent-missing-project-unit" data-key={selectedField?.missingProjectUnit?.key}>{unitRefusal.text}</p> : null}
               <footer className="task-action-footer" aria-label="Task actions" data-testid="task-action-footer">
                 <button
                   data-testid="queue-editor-intent"
-                  disabled={multiSelection || !fieldChanged}
+                  disabled={multiSelection || !fieldChanged || Boolean(unitRefusal)}
                   onClick={handleQueueIntent}
                   title="Add this change to the review queue"
                   type="button"
@@ -525,8 +545,8 @@ export function PropertyInspector({
                 <button data-testid="cancel-editor-intent" onClick={cancelPropertyTask} type="button">Cancel</button>
                 <button
                   data-testid="validate-editor-intent-inline"
-                  disabled={multiSelection || !fieldChanged || operationBusy || !onValidateIntent}
-                  onClick={() => operationIntent && onValidateIntent?.(operationIntent)}
+                  disabled={multiSelection || !fieldChanged || Boolean(unitRefusal) || operationBusy || !onValidateIntent}
+                  onClick={() => operationIntent && !unitRefusal && onValidateIntent?.(operationIntent)}
                   title="Validate without applying"
                   type="button"
                 >
@@ -967,6 +987,9 @@ export function PropertyInspector({
               value={componentDraft.provenance}
             />
           </label>
+          {componentUnitNotices.map(({ key, text }) => (
+            <p key={key} role="status" data-testid={`create-component-missing-project-unit-${key}`}>{text}</p>
+          ))}
           <button
             data-testid="queue-create-component-intent"
             disabled={multiSelection || !componentCreateIntent}
@@ -1099,6 +1122,10 @@ type EditableField = {
   /** The entry form of the current value where it differs from `before`
    * (a vector's three components without its unit). */
   initialValue?: string;
+  /** W-17 §3: the field's default unit is this project key's, which the document lacks. */
+  missingProjectUnit?: { key: ProjectUnitKey; mode: MissingProjectUnitMode };
+  /** W-17 §7.3, §7.6: why a composed default gives no unit (not a catalog unit, or an invalid key). */
+  unitNotice?: string;
 };
 
 /** The value a field's entry starts from. */
@@ -1598,7 +1625,8 @@ function unitCatalogStatus(route: UnitCatalogRoute | null): string {
   return `${route.catalog.decision_basis}; ${route.catalog.entry_count} entries; ${route.catalog.storage_convention}`;
 }
 
-function editorFieldOptions(model: PreviewModel, selection: EntityRef): EditableField[] {
+function editorFieldOptions(model: PreviewModel, selection: EntityRef, route: UnitCatalogRoute | null = null): EditableField[] {
+  const units = storedProjectUnits(model);
   const material = selection.type === "material" ? model.materials?.find((item) => item.id === selection.id) : undefined;
   if (material) {
     return [
@@ -1649,36 +1677,36 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
   if (node) {
     return [
       scalarField("Label", "label", node.label, "Node", "dimensionless", "none", "node label only"),
-      quantityField(
+      projectUnitDefault(quantityField(
         "X position",
         "position.x",
         node.position.x,
         "Node",
         "length",
-        model.project.units.length ?? "m",
+        units.length ?? "",
         "set_field",
         true
-      ),
-      quantityField(
+      ), "length", "positions"),
+      projectUnitDefault(quantityField(
         "Y position",
         "position.y",
         node.position.y,
         "Node",
         "length",
-        model.project.units.length ?? "m",
+        units.length ?? "",
         "set_field",
         true
-      ),
-      quantityField(
+      ), "length", "positions"),
+      projectUnitDefault(quantityField(
         "Z position",
         "position.z",
         node.position.z,
         "Node",
         "length",
-        model.project.units.length ?? "m",
+        units.length ?? "",
         "set_field",
         true
-      ),
+      ), "length", "positions"),
       scalarField(
         "Provenance",
         "provenance",
@@ -1715,26 +1743,26 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         "set_field",
         true
       ),
-      quantityField(
+      projectUnitDefault(quantityField(
         "Mill tolerance",
         "section.mill_tolerance.value",
         pipe.section.mill_tolerance?.value ?? "TBD",
         "Element",
         "length",
-        pipe.section.mill_tolerance?.unit ?? pipe.section.wall_thickness?.unit ?? model.project.units.length ?? "m",
+        pipe.section.mill_tolerance?.unit ?? pipe.section.wall_thickness?.unit ?? units.length ?? "",
         "set_field",
         true
-      ),
-      quantityField(
+      ), "length", "choose"),
+      projectUnitDefault(quantityField(
         "Corrosion allowance (explicit zero or greater)",
         "section.corrosion_allowance.value",
         pipe.section.corrosion_allowance?.value ?? "TBD",
         "Element",
         "length",
-        pipe.section.corrosion_allowance?.unit ?? pipe.section.wall_thickness?.unit ?? model.project.units.length ?? "m",
+        pipe.section.corrosion_allowance?.unit ?? pipe.section.wall_thickness?.unit ?? units.length ?? "",
         "set_field",
         true
-      ),
+      ), "length", "choose"),
       ...([
         ["material_density", "Material density (positive)", "density"],
         ["contents_density", "Contents density (zero or greater)", "density"],
@@ -1819,26 +1847,26 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
       fields.splice(
         2,
         0,
-        quantityField(
+        projectUnitDefault(quantityField(
           "Bend radius",
           "geometry.bend_radius.value",
           component.geometry?.bend_radius?.value ?? "TBD",
           "Component",
           "length",
-          component.geometry?.bend_radius?.unit ?? model.project.units.length ?? "m",
+          component.geometry?.bend_radius?.unit ?? units.length ?? "",
           "set_field",
           true
-        ),
-        quantityField(
+        ), "length", "choose"),
+        projectUnitDefault(quantityField(
           "Bend angle",
           "geometry.bend_angle.value",
           component.geometry?.bend_angle?.value ?? "TBD",
           "Component",
           "angle",
-          component.geometry?.bend_angle?.unit ?? model.project.units.angle ?? "rad",
+          component.geometry?.bend_angle?.unit ?? units.angle ?? "",
           "set_field",
           true
-        ),
+        ), "angle", "choose"),
         scalarField(
           "Bend pipe",
           "geometry.bend_pipe_ref",
@@ -1890,36 +1918,36 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
           "none",
           "user-entered branch pipe reference"
         ),
-        quantityField(
+        projectUnitDefault(quantityField(
           "Branch run size",
           "geometry.branch_run_size.value",
           component.geometry?.branch_run_size?.value ?? "TBD",
           "Component",
           "length",
-          component.geometry?.branch_run_size?.unit ?? model.project.units.length ?? "m",
+          component.geometry?.branch_run_size?.unit ?? units.length ?? "",
           "set_field",
           true
-        ),
-        quantityField(
+        ), "length", "choose"),
+        projectUnitDefault(quantityField(
           "Branch header size",
           "geometry.branch_header_size.value",
           component.geometry?.branch_header_size?.value ?? "TBD",
           "Component",
           "length",
-          component.geometry?.branch_header_size?.unit ?? model.project.units.length ?? "m",
+          component.geometry?.branch_header_size?.unit ?? units.length ?? "",
           "set_field",
           true
-        ),
-        quantityField(
+        ), "length", "choose"),
+        projectUnitDefault(quantityField(
           "Branch angle",
           "geometry.branch_connection_angle.value",
           component.geometry?.branch_connection_angle?.value ?? "TBD",
           "Component",
           "angle",
-          component.geometry?.branch_connection_angle?.unit ?? model.project.units.angle ?? "rad",
+          component.geometry?.branch_connection_angle?.unit ?? units.angle ?? "",
           "set_field",
           true
-        ),
+        ), "angle", "choose"),
         scalarField(
           "Connection type",
           "geometry.branch_connection_type",
@@ -1971,52 +1999,52 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
           "none",
           "generic frame member mapping"
         ),
-        quantityField(
+        projectUnitDefault(quantityField(
           "Rigid body length",
           "geometry.rigid_body_length.value",
           component.geometry?.rigid_body_length?.value ?? "TBD",
           "Component",
           "length",
-          component.geometry?.rigid_body_length?.unit ?? model.project.units.length ?? "m",
+          component.geometry?.rigid_body_length?.unit ?? units.length ?? "",
           "set_field",
           true
-        ),
-        quantityField(
+        ), "length", "choose"),
+        projectUnitDefault(quantityField(
           "End A size",
           "geometry.end_a_size.value",
           component.geometry?.end_a_size?.value ?? "TBD",
           "Component",
           "length",
-          component.geometry?.end_a_size?.unit ?? model.project.units.length ?? "m",
+          component.geometry?.end_a_size?.unit ?? units.length ?? "",
           "set_field",
           true
-        ),
-        quantityField(
+        ), "length", "choose"),
+        projectUnitDefault(quantityField(
           "End B size",
           "geometry.end_b_size.value",
           component.geometry?.end_b_size?.value ?? "TBD",
           "Component",
           "length",
-          component.geometry?.end_b_size?.unit ?? model.project.units.length ?? "m",
+          component.geometry?.end_b_size?.unit ?? units.length ?? "",
           "set_field",
           true
-        ),
-        quantityField(
+        ), "length", "choose"),
+        projectUnitDefault(quantityField(
           "Weight",
           "geometry.weight.value",
           component.geometry?.weight?.value ?? "TBD",
           "Component",
           "force",
-          component.geometry?.weight?.unit ?? model.project.units.force ?? "N",
+          component.geometry?.weight?.unit ?? units.force ?? "",
           "set_field",
           true
-        ),
-        vectorField(
+        ), "force", "choose"),
+        projectUnitDefault(vectorField(
           "Center of gravity",
           "geometry.center_of_gravity",
           component.geometry?.center_of_gravity,
-          model.project.units.length ?? "m"
-        ),
+          units.length ?? ""
+        ), "length", "required"),
         scalarField(
           "Stiffness behavior",
           "geometry.stiffness_behavior_reference",
@@ -2053,26 +2081,26 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
           "none",
           "user-entered token (mechanics_geometry_only | not_solver_consumed); mechanics_geometry_only applies the stiffness scale and the component weight"
         ),
-        quantityField(
+        composedUnitDefault(quantityField(
           "Linear stiffness",
           "modifiers.linear_stiffness_user_value.value",
           component.modifiers?.linear_stiffness_user_value?.value ?? "TBD",
           "Component",
           "linear_stiffness",
-          component.modifiers?.linear_stiffness_user_value?.unit ?? "N/m",
+          component.modifiers?.linear_stiffness_user_value?.unit ?? "",
           "set_field",
           true
-        ),
-        quantityField(
+        ), linearStiffnessFieldDefault(route, units)),
+        composedUnitDefault(quantityField(
           "Rotational stiffness",
           "modifiers.rotational_stiffness_user_value.value",
           component.modifiers?.rotational_stiffness_user_value?.value ?? "TBD",
           "Component",
           "rotational_stiffness",
-          component.modifiers?.rotational_stiffness_user_value?.unit ?? "N*m/rad",
+          component.modifiers?.rotational_stiffness_user_value?.unit ?? "",
           "set_field",
           true
-        )
+        ), rotationalStiffnessFieldDefault(route, units))
       );
     }
     if (isExpansionJointComponent(component)) {
@@ -2088,26 +2116,26 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
           "none",
           "expansion-joint frame member mapping"
         ),
-        quantityField(
+        composedUnitDefault(quantityField(
           "Effective pressure area",
           "geometry.effective_area.value",
           component.geometry?.effective_area?.value ?? "TBD",
           "Component",
           "area",
-          component.geometry?.effective_area?.unit ?? "m^2",
+          component.geometry?.effective_area?.unit ?? "",
           "set_field",
           true
-        ),
-        quantityField(
+        ), fieldComposedDefault(route, "area", units)),
+        projectUnitDefault(quantityField(
           "Movement limit",
           "geometry.movement_limit.value",
           component.geometry?.movement_limit?.value ?? "TBD",
           "Component",
           "length",
-          component.geometry?.movement_limit?.unit ?? model.project.units.length ?? "m",
+          component.geometry?.movement_limit?.unit ?? units.length ?? "",
           "set_field",
           true
-        ),
+        ), "length", "choose"),
         scalarField(
           "Hardware reference",
           "geometry.hardware_reference",
@@ -2135,46 +2163,46 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
           "none",
           "load-side pressure thrust handling reference"
         ),
-        quantityField(
+        composedUnitDefault(quantityField(
           "Axial stiffness",
           "modifiers.axial_stiffness_user_value.value",
           component.modifiers?.axial_stiffness_user_value?.value ?? "TBD",
           "Component",
           "linear_stiffness",
-          component.modifiers?.axial_stiffness_user_value?.unit ?? "N/m",
+          component.modifiers?.axial_stiffness_user_value?.unit ?? "",
           "set_field",
           true
-        ),
-        quantityField(
+        ), linearStiffnessFieldDefault(route, units)),
+        composedUnitDefault(quantityField(
           "Lateral stiffness",
           "modifiers.lateral_stiffness_user_value.value",
           component.modifiers?.lateral_stiffness_user_value?.value ?? "TBD",
           "Component",
           "linear_stiffness",
-          component.modifiers?.lateral_stiffness_user_value?.unit ?? "N/m",
+          component.modifiers?.lateral_stiffness_user_value?.unit ?? "",
           "set_field",
           true
-        ),
-        quantityField(
+        ), linearStiffnessFieldDefault(route, units)),
+        composedUnitDefault(quantityField(
           "Angular stiffness",
           "modifiers.angular_stiffness_user_value.value",
           component.modifiers?.angular_stiffness_user_value?.value ?? "TBD",
           "Component",
           "rotational_stiffness",
-          component.modifiers?.angular_stiffness_user_value?.unit ?? "N*m/rad",
+          component.modifiers?.angular_stiffness_user_value?.unit ?? "",
           "set_field",
           true
-        ),
-        quantityField(
+        ), rotationalStiffnessFieldDefault(route, units)),
+        composedUnitDefault(quantityField(
           "Torsional stiffness",
           "modifiers.torsional_stiffness_user_value.value",
           component.modifiers?.torsional_stiffness_user_value?.value ?? "TBD",
           "Component",
           "rotational_stiffness",
-          component.modifiers?.torsional_stiffness_user_value?.unit ?? "N*m/rad",
+          component.modifiers?.torsional_stiffness_user_value?.unit ?? "",
           "set_field",
           true
-        )
+        ), rotationalStiffnessFieldDefault(route, units))
       );
     }
     return fields;
@@ -2216,26 +2244,26 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         "user-assigned temperature-point basis id; exact selection; mutually exclusive with solve temperature",
         "update_load"
       ),
-      quantityField(
+      projectUnitDefault(quantityField(
         "Modulus basis solve temperature",
         "modulus_basis_temperature.value",
         loadCase.modulus_basis_temperature?.value ?? "TBD",
         "Load",
         "temperature",
-        loadCase.modulus_basis_temperature?.unit ?? "K",
+        loadCase.modulus_basis_temperature?.unit ?? projectTemperatureDefault(units),
         "update_load",
         true
-      ),
-      quantityField(
+      ), "temperature", "choose"),
+      composedUnitDefault(quantityField(
         "Seismic gravity acceleration",
         "equivalent_static.seismic.gravity_acceleration.value",
         loadCase.equivalent_static?.seismic?.gravity_acceleration?.value ?? "TBD",
         "Load",
         "acceleration",
-        loadCase.equivalent_static?.seismic?.gravity_acceleration?.unit ?? "m/s^2",
+        loadCase.equivalent_static?.seismic?.gravity_acceleration?.unit ?? "",
         "update_load",
         true
-      ),
+      ), fieldComposedDefault(route, "acceleration", units)),
       scalarField(
         "Seismic g-factor X",
         "equivalent_static.seismic.g_factor_x.value",
@@ -2266,16 +2294,16 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         "user-entered per-axis g-factor; no code coefficient or default",
         "update_load"
       ),
-      quantityField(
+      projectUnitDefault(quantityField(
         "Wind pressure",
         "equivalent_static.wind.pressure.value",
         loadCase.equivalent_static?.wind?.pressure?.value ?? "TBD",
         "Load",
         "pressure",
-        loadCase.equivalent_static?.wind?.pressure?.unit ?? model.project.units.pressure ?? "Pa",
+        loadCase.equivalent_static?.wind?.pressure?.unit ?? units.pressure ?? "",
         "update_load",
         true
-      ),
+      ), "pressure", "choose"),
       scalarField(
         "Wind shape factor",
         "equivalent_static.wind.shape_factor.value",
@@ -2458,6 +2486,34 @@ function quantityField(
     unitEditable,
     valueKind: "quantity"
   };
+}
+
+/** A field whose default unit is a project key's: with the key absent the field has
+ * no unit ("", unselected) and names the key; nothing is assumed (W-17 §3). */
+function projectUnitDefault(field: EditableField, key: ProjectUnitKey, mode: MissingProjectUnitMode): EditableField {
+  return field.unit === "" ? { ...field, missingProjectUnit: { key, mode } } : field;
+}
+
+/** A field whose default unit is composed from project keys (W-17 §7.3, §7.6): a
+ * stored unit is kept; otherwise the composed default, or no unit ("") with the
+ * absent key named or the notice given. The field has its own unit selector, so a
+ * unit picked there lifts the refusal. */
+function composedUnitDefault(field: EditableField, choice: FieldUnitDefault): EditableField {
+  if (field.unit !== "") return field;
+  if (choice.symbol) return { ...field, unit: choice.symbol };
+  if (choice.missingKey && isProjectUnitKey(choice.missingKey)) return { ...field, missingProjectUnit: { key: choice.missingKey, mode: "choose" } };
+  return choice.notice ? { ...field, unitNotice: choice.notice } : field;
+}
+
+/** The refusal for the selected field, or null when it may be edited: a field naming a
+ * missing key is refused until the key is set, except that a field with its own unit
+ * selector (`choose`) may take a unit the user picks there. */
+function missingProjectUnitRefusal(model: PreviewModel, field: EditableField | undefined, proposedUnit: string): { text: string; hardLock: boolean } | null {
+  if (field?.unitNotice && field.unit === "" && proposedUnit.trim() === "") return { text: `${field.unitNotice}.`, hardLock: false };
+  const missing = field?.missingProjectUnit;
+  if (!missing || !projectUnitMissing(model, missing.key)) return null;
+  if (missing.mode === "choose" && proposedUnit.trim() !== "") return null;
+  return { text: missingProjectUnitText(model, missing.key, missing.mode), hardLock: missing.mode === "positions" };
 }
 
 function isBendComponent(component: PreviewComponent): boolean {
@@ -3179,20 +3235,12 @@ function isSupportDraftValid(model: PreviewModel, draft: SupportDraft): boolean 
   );
 }
 
-// An opened document may lack `project.units` or some of its keys (W-17 §3):
-// each then reads as absent, shown as missing ("TBD" or unselected) and offered
-// on the Project page, never written or defaulted here.
+// An opened document may lack some `project.units` keys (W-17 §3): each then
+// reads as absent, shown as missing ("TBD" or unselected) and offered on the
+// Project page, never written or defaulted here. A document without the map is
+// refused at open (MODEL-FILE-SHAPE); an absent map still reads as empty here.
 function storedProjectUnits(model: PreviewModel): Readonly<Partial<Record<string, string>>> {
   return (model.project.units as PreviewModel["project"]["units"] | undefined) ?? {};
-}
-
-// The component draft reads `project.units` as present; it gets a read-only view
-// in which an absent map is empty, so it does not throw. Its length and force
-// units then start as missing ("TBD"); its angle unit still falls back
-// to `rad` inside `defaultComponentDraft` (a separate, open item).
-function componentDraftFor(...[model, ...rest]: Parameters<typeof defaultComponentDraft>): ComponentDraft {
-  const view = model.project.units === undefined ? { ...model, project: { ...model.project, units: {} } } : model;
-  return defaultComponentDraft(view, ...rest);
 }
 
 function lengthUnit(model: PreviewModel): string {

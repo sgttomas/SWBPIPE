@@ -70,7 +70,11 @@ BODY_PINS = {
     # Pre-0.4 failure unification D3 (§8.14): the screen and withheld decline on both exact routes, the support-norm
     # cause String and the route-neutral cause records (PU-TX). The second maximum and the payload keys are unchanged.
     # W-7 D3 (retained-pricing-rules.md §8.20): solve_prepared_load_case appends the member's global end rows or one blocking diagnostic (W7-GE); the second composite maximum it prices is unchanged.
-    (LIB, "solve_prepared_load_case"): "27d888b1c13a98aed6bb498baa7dcdf91933abf264f8b40509102fc2039e4676",
+    # W-16 slice a D3 (retained-pricing-rules.md §8.23): a pressure-free case (no load state) forms its support-targeted
+    # primitives' prescribed map (imposed_motion::case_prescribed, W16-NI) and returns an empty LoadCaseSolve on a
+    # blocking finding there (none on D1: D1.7 refuses the support target, W16-NS); the prescribed values read that
+    # map when present. The second composite maximum and its payload keys are unchanged.
+    (LIB, "solve_prepared_load_case"): "e711a993d202da97d7d255b440fa4ea4c74e0dface00ab240c750eeda3e7af34",
     (SRC, "distinct_reduced_section"): "179e447476ae2a7cf8b01d1e5da22bddd66b9057403453ffc79f9e57747fd100",
     (SRC, "stress_operands"): "de7a26eb0574635be8c808bc42070cdb132f8f8b67fee83542bd79f667cb6050",
     (SRC, "commitment"): "279ce112036664d7802e2952d87a67abe6dd7fe04879a4d498fd2544fe86753d",

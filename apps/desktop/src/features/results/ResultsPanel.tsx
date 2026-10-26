@@ -16,6 +16,7 @@ import type { EntityRef } from "../../types";
 import { numericalResultStanding } from "./resultStanding";
 import { badgeOf, locationText, numericalHealthView, readNumericalHealth, rowHealthState, type NumericalHealthBadge, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { DETAIL_SECTION_LABEL, LOCATED_CAUSES_LABEL, NUMERICAL_HEALTH_STATE_TEXT, SHOW_SOLVER_DIAGNOSTIC } from "./numericalHealthText";
+import { SECTION_BASIS_HEADLINES, WITHHELD_SECTION_BASIS_HEADLINE } from "../report/exactReportSections";
 
 const RESULT_PAGE_SIZE_OPTIONS = [50, 100, 200] as const;
 const DEFAULT_RESULT_PAGE_SIZE = RESULT_PAGE_SIZE_OPTIONS[0];
@@ -225,10 +226,6 @@ export function ResultsPanel({
   );
 }
 
-const SECTION_BASIS_HEADLINES = [
-  { key: "max_open_formula_stress_nominal_section", basis: "nominal_section", label: "Nominal section (nominal wall)" },
-  { key: "max_open_formula_stress_reduced_section", basis: "reduced_section", label: "Reduced section (wall minus mill tolerance and corrosion allowance)" }
-] as const;
 
 /** T4-U6 (D-5): an exact-contract result's stress headline on each section basis,
  * labelled by its basis. Shown only when the result carries the per-basis keys
@@ -248,7 +245,7 @@ function SectionBasisHeadlines({ result }: { result: MechanicsResult }) {
               <dt>{headline.label}</dt>
               <dd>
                 {quantity === null
-                  ? "withheld: a stress maximum on this basis is not available for every member in every load case"
+                  ? WITHHELD_SECTION_BASIS_HEADLINE
                   : quantity && typeof quantity.value === "number" && typeof quantity.unit === "string"
                     ? <><QuantityReadout quantity={{ value: quantity.value, unit: quantity.unit, dimension_id: "stress" }} /> at {quantity.location_ref} ({quantity.result_ref})</>
                     : "not readable"}

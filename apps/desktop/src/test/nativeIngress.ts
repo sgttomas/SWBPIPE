@@ -39,6 +39,7 @@ export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
   "delete_analysis_run",
   "admit_analysis_run_comparison",
   "save_model_document_file",
+  "save_stored_model_document_file",
   "save_handoff_package"
 ]);
 
