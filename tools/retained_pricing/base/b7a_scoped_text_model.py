@@ -33,16 +33,19 @@ RE = 'core/reporting/result_export/src/'
 # W-15 D3 (§8.21): with unchanged text, the unit message moves +103 and the three tail lines +111 (W-15's ResultItem
 # record and ComponentBody, BuiltModel's scaled members, the formed diagnostics, the eligibility scales and the thermal
 # frame reads precede them).
+# W-16 slice a D3 (§8.23): with unchanged text, the unit message and the three tail lines move +35 and +39
+# (LoadTargetInput's support arm, the imposed-motion validation, the case solve's prescribed map and, for the tail,
+# the primitive filter precede them).
 LN = {
     'problem': 159,       # pressure_runtime.rs fn problem (160) [148]
     'diag': 165,          # `let mut finding = diag(` (166) [154]
     'format': 166,        # `&format!(` (167) [155]
     'join': 168,          # `stable_suffix(&refs.join(":"))` (169) [157]
     'to_string': 173,     # `refs.iter().map(|value| value.to_string()).collect(),` (174) [162]
-    'unit_message': 10034, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 14808,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 14757,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 14807,   # lib.rs fn stable_suffix (13613) [13618]
+    'unit_message': 10069, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 14847,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 14796,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 14846,   # lib.rs fn stable_suffix (13613) [13618]
     'require': 125,       # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf) [78]
 }
 PR = PP + 'pressure_runtime.rs:'

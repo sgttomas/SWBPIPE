@@ -58,7 +58,7 @@ const ARC_STRESS_KINDS: [&str; 6] = [
 
 pub(crate) const LIMITATIONS: [&str; 7] = [
     "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
-    "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
+    "Nonzero pressure is refused on this route.",
     "On every member the section normal-stress extremes are N/A ± hypot(My,Mz)/Z at each station and the transverse shear maximum is the straight-annulus Saint-Venant value, with ν = E/(2G) − 1 assuming an isotropic material. On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No equivalent stress or code stress.",
     "On arcs: signed tangent-frame resultants, nominal stress components and section extremes; endpoint force rows are node-on-element actions in the tangent frame at their end. The normal-stress maximum is bounded along the arc and enters the stress headline. The transverse shear uses the straight-annulus field without curvature correction.",
     "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",
@@ -805,9 +805,14 @@ fn gate_reason(
     if rendered.nonlinear {
         return Some("NONLINEAR_COMBINATION_REQUIRES_SOLVE");
     }
-    let sum: f64 = combination.terms.iter().map(|t| t.factor).sum();
-    let abs_sum: f64 = combination.terms.iter().map(|t| t.factor.abs()).sum();
-    if rendered.consuming_constant_effort && (sum - 1.0).abs() > 64.0 * f64::EPSILON * abs_sum.max(1.0) {
+    // The unit factor-sum rule (option C): the exact sum of the binary64 factors, admitted
+    // iff |sum - 1| <= 64*epsilon, compared exactly, with no sum(|f|) scaling. A non-finite
+    // factor (already refused by validation's LOAD_COMBINATION_FACTOR_INVALID) or an
+    // accumulator error does not establish a unit sum, so it withholds under this code.
+    if rendered.consuming_constant_effort
+        && !open_pipe_stress_load_case_algebra::factor_sum_within_unit_tolerance(combination.terms.iter().map(|t| t.factor))
+            .unwrap_or(false)
+    {
         return Some("CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE");
     }
     let mut scratch = Vec::new();
@@ -1088,61 +1093,6 @@ pub(crate) fn append_combination_results(
     gates
 }
 
-/// SF-E: a pre-0.4 request whose primitive load targets a support is refused
-/// with a targeted diagnostic. Nothing is solved from the cleaned clone.
-pub(crate) fn imposed_displacement_refusal(
-    actual_request: &serde_json::Value,
-) -> Option<Result<MechanicsEnvelope, String>> {
-    let model = actual_request.get("model")?;
-    if crate::carries_load_reference_state(model)
-        || actual_request.get("materials").and_then(serde_json::Value::as_array)
-            .is_some_and(|materials| materials.iter().any(|material|
-                material.as_object().is_some_and(|record| record.contains_key("expansion_laws")))) {
-        return None;
-    }
-    let mut offending = Vec::new();
-    for case in model.get("load_cases")?.as_array()? {
-        let case_id = case.get("id").and_then(|v| v.as_str()).unwrap_or("");
-        for load in case.get("primitive_loads").and_then(|v| v.as_array()).into_iter().flatten() {
-            if load.pointer("/target/type").and_then(|v| v.as_str()) == Some("support") {
-                offending.push((
-                    case_id.to_string(),
-                    load.get("id").and_then(|v| v.as_str()).unwrap_or("").to_string(),
-                    load.pointer("/target/support").and_then(|v| v.as_str()).unwrap_or("").to_string(),
-                ));
-            }
-        }
-    }
-    if offending.is_empty() {
-        return None;
-    }
-    let mut clone = actual_request.clone();
-    if let Some(cases) = clone.pointer_mut("/model/load_cases").and_then(|v| v.as_array_mut()) {
-        for case in cases {
-            if let Some(loads) = case.get_mut("primitive_loads").and_then(|v| v.as_array_mut()) {
-                loads.retain(|load| load.pointer("/target/type").and_then(|v| v.as_str()) != Some("support"));
-            }
-        }
-    }
-    let request: LinearStaticPreviewRequest = match serde_json::from_value(clone) {
-        Ok(request) => request,
-        Err(_) => return None,
-    };
-    let diagnostics = offending
-        .into_iter()
-        .map(|(case_id, load_id, support_id)| {
-            diag(
-                &format!("diagnostic:preview-physics:imposed-displacement:{}", identity(&[&case_id, &load_id])),
-                "IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL",
-                "blocking",
-                format!("load {load_id} in {case_id} imposes a displacement on support {support_id}; this model version has no load-state boundary motion, so the request is refused and nothing is solved (author it in a load-state model)"),
-                vec![load_id, case_id, support_id],
-            )
-        })
-        .collect();
-    Some(Ok(blocked_envelope(request.model, diagnostics)))
-}
-
 #[cfg(test)]
 #[path = "silent_drop_unit_tests.rs"]
 mod silent_drop_unit_tests;
@@ -1216,5 +1166,43 @@ mod tests {
         let linear: Vec<&str> = table["combination_policy"]["linear_state_kinds"].as_array().unwrap().iter().map(|v| v.as_str().unwrap()).collect();
         assert_eq!(linear, LINEAR_STATE_KINDS.to_vec());
         assert!(table["rows"].as_array().unwrap().iter().any(|r| r["kind"] == INTENSIFIED_KIND));
+    }
+
+    /// The gate's own refusal of a factor sum it cannot evaluate. Validation refuses a
+    /// non-finite factor first (LOAD_COMBINATION_FACTOR_INVALID); the gate still withholds
+    /// by name rather than reading a NaN or infinite fold as a unit sum (main's
+    /// `(sum - 1).abs() > bound` was false for NaN and for inf against an inf bound).
+    #[test]
+    fn constant_effort_gate_withholds_a_factor_sum_it_cannot_evaluate() {
+        let model: PreviewModel = serde_json::from_value(serde_json::json!({
+            "schema_version":"0.7.0","document_kind":"openpipestress.product_preview.model",
+            "project":{"id":"project:t","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","stress":"Pa","temperature":"degC"}},
+            "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
+            "nodes":[],"pipe_segments":[],"supports":[],"components":[],"materials":[],
+            "load_cases":[{"id":"case:W1","primitive_loads":[],"provenance":"t"},{"id":"case:W2","primitive_loads":[],"provenance":"t"}],
+            "combinations":[]
+        }))
+        .unwrap();
+        let combination = |factors: [f64; 2]| {
+            let mut c: PreviewCombination = serde_json::from_value(serde_json::json!({"id":"comb:c","basis":"mechanics",
+                "terms":[{"load_case":"case:W1","factor":0.5},{"load_case":"case:W2","factor":0.5}],"provenance":"t"}))
+            .unwrap();
+            c.terms[0].factor = factors[0];
+            c.terms[1].factor = factors[1];
+            c
+        };
+        let rendered = |consuming_constant_effort| Rendered { preview_cases: Vec::new(), nonlinear: false, consuming_constant_effort };
+        let ce = Some("CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE");
+        for factors in [[f64::NAN, 1.0], [f64::INFINITY, -f64::INFINITY], [0.5, f64::NEG_INFINITY]] {
+            assert_eq!(gate_reason(&rendered(true), &model, &combination(factors)), ce, "{factors:?}");
+        }
+        for factors in [[2f64.powi(53), -2f64.powi(53)], [f64::MAX, f64::MAX]] {
+            assert_eq!(gate_reason(&rendered(true), &model, &combination(factors)), ce, "{factors:?}");
+            // Without a consuming constant-effort support the factor sum is not a gate.
+            assert_eq!(gate_reason(&rendered(false), &model, &combination(factors)), None, "{factors:?}");
+        }
+        for factors in [[0.5, 0.5], [0.3, 0.7], [1.2, -0.2], [1.0 / 3.0, 2.0 / 3.0]] {
+            assert_eq!(gate_reason(&rendered(true), &model, &combination(factors)), None, "{factors:?}");
+        }
     }
 }

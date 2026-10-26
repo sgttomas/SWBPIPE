@@ -27,7 +27,9 @@ PINS = {
         # W-15 D3 (§8.21): `component_body: None` on its row constructors, a body's maxima kept out of the headline,
         # the unscaled pair's PF nu and `built` passed to the thermal loads (append_curved_bend_macro_element_results:
         # `component_body: None` only); carriers, staging and prepared-pressure calls unchanged.
-        "solve_prepared_load_case": "f7799193d0c21230e75ce77afd83a51afb3c477a256c9ba3debb5dc4940f1a6b",
+        # W-16 slice a D3 (§8.23): the pressure-free case's prescribed map (imposed_motion::case_prescribed) and its
+        # blocking early return; carriers, staging and prepared-pressure calls unchanged.
+        "solve_prepared_load_case": "2544b007297f0f6f91a6ae73ce8d379f22fff252e248c6134da966beedf9aba5",
         "append_curved_bend_macro_element_results": "9e9b5010a84aa73268d72fabcf99c5cb2012f6f35ef5a15adb41bb30bf045a4e",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the
@@ -41,9 +43,11 @@ PINS = {
     # load-state refusals that empty the carriers' children are unchanged.
     # W-15 slice b (§8.22, W15B-NS): family_clauses refuses a node load in the generated self-weight namespace;
     # it only narrows admission. The component, region and load-state refusals are unchanged.
+    # W-16 slice a (§8.23, W16-NS): family_clauses refuses a support-targeted primitive (F::LoadTarget); it only
+    # narrows admission. The component, region and load-state refusals are unchanged.
     "core/product_physics/src/retained_memory.rs": {
         "namespace_branch": "b1f8f02df1f10552a69c357ebc329fa801243addc94d595403ab9313f79cf805",
-        "family_clauses": "fe83ef92579e72375027a0111e21714f9de2c203cc96bd70c400ec148d550833",
+        "family_clauses": "2e23cc04f4e6e12a08e9c8dc2fedaad5bd7efee9cbd1d175492c00f24a7afbcc",
     },
 }
 # B7b: the production prefix deletes v2's declaration, refusal and negative-pressure

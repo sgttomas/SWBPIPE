@@ -64,12 +64,11 @@ pub(crate) const RENDER_ROUTE_NOT_ADMITTED: &str = "REPORT-RENDER-ROUTE-NOT-ADMI
 /// say, so no body or print view exists for it.
 pub(crate) const RENDER_EXACT_CONTEXT_NOT_LOCAL_PRIVATE: &str = "REPORT-RENDER-EXACT-CONTEXT-NOT-LOCAL-PRIVATE";
 
-/// A render input, or a member the native checks read, in positional (JSON
-/// array) form (Codex review round 2 of #1648). The renderer's decode reads a
-/// struct written as an array by field order, while step 0, the context check
-/// and the source binding read members by key, so a positional form could
-/// carry an exact section past them. The command refuses it before step 0;
-/// the webview always sends objects.
+/// A render input with a struct, at any depth, in positional (JSON array)
+/// form (found in Codex review rounds 2 and 3 of #1648). The renderer's
+/// decode reads it by field order, while step 0, the exact context check and
+/// the source binding read members by key; the command refuses it before any
+/// of them. The webview always sends objects.
 pub(crate) const RENDER_INPUT_POSITIONAL: &str = "REPORT-RENDER-INPUT-POSITIONAL";
 
 /// The exact identities step 0 admits.
@@ -113,11 +112,11 @@ pub(crate) fn render_calculation_report_args_in(
     crate::render_calculation_report_value(input).map_err(CommandError::Command)
 }
 
-/// Object form (Codex review rounds 2 and 3 of #1648): no struct, at any
-/// depth, is in positional (JSON array) form. The renderer's decode reads a
-/// positional struct by field order, while step 0, the context check and the
-/// source binding read members by key, so the command refuses one before
-/// any of them, with the fixed path only. The check is the shared
+/// Object form: no struct, at any depth, is in positional (JSON array) form.
+/// The renderer's decode reads a positional struct by field order, while
+/// step 0, the exact context check and the source binding read members by
+/// key, so the command refuses one before any of them, naming the fixed path
+/// only (no body or print view, the lease not grown). The check is the shared
 /// `report_renderer::object_form` comparison of the decoded input with its
 /// JSON: collections and tuples are arrays on both sides and pass. An input
 /// that does not decode passes here and is refused by the render's decode.

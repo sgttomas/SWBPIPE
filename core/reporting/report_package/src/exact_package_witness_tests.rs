@@ -276,7 +276,8 @@ fn as_array(value: &Value) -> Value {
 /// context, exact section and the document's identity by key from untyped
 /// members. A positional request decodes to the same members and assembles
 /// the same package; a positional report, report context, exact section or
-/// result document refuses, with no package.
+/// result document refuses, with no package (the report's structs by the
+/// shared object-form check, round 3).
 #[test]
 fn positional_members_refuse_and_a_positional_request_assembles_the_same_package() {
     for (name, text) in WITNESSES {
@@ -286,9 +287,10 @@ fn positional_members_refuse_and_a_positional_request_assembles_the_same_package
         let decoded = decode_report_package_request(top).expect("the positional request decodes");
         let outcome = assemble_wire_request(decoded, &identity(&solver)).unwrap_or_else(|error| panic!("{name}: {error}"));
         assert_eq!(outcome.package_identity_sha256_hex, witness_package(&request).package_identity_sha256_hex, "{name}");
-        // Each refuses at the first binding that reads the member by key (the
-        // report's model binding, item 8's context, item 9's exact section,
-        // item 0's identity), never assembling a package.
+        // Each refuses, never assembling a package: a positional report
+        // struct at the producer's object-form check after item 0
+        // (`REPORT-PACKAGE-REQUEST-POSITIONAL`), and a positional result
+        // document at item 0's identity, which reads it by key.
         let edits: [(&str, fn(&mut Value)); 4] = [
             ("positional report", |r| r["report"] = as_array(&r["report"])),
             ("positional report_context", |r| r["report"]["report_context"] = as_array(&r["report"]["report_context"])),

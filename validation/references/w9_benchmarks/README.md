@@ -179,11 +179,12 @@ components are exactly zero.
 |---|---|---|
 | W9-A | PF; EX (`3.0.0/exact_pressure_v3`, load/reference-state group, `pressure_regions: []`) | PF: element `thermal` primitive loads of 100 degC with material α 1.2e-5 /degC. EX: `constant_alpha_interval` element states, 1.2e-5 /K × 100 K |
 | W9-B | PF; EX (same group) | generated self-weight primitives. EX lists them in `analysis_state.load_sources` (an unlisted stored primitive is excluded by design) |
-| W9-C | EX only | `support_states[].boundary_motion` UY −0.01 m on `support:d`, `absolute_reference_displacement` |
+| W9-C | PF; EX (same group) | PF: a support-targeted `imposed_displacement` primitive load, UY −0.01 m on `support:d` (W-16 slice a, stage 1). EX: `support_states[].boundary_motion` UY −0.01 m on `support:d`, `absolute_reference_displacement` |
 
-PF has no support-motion input outside a load/reference-state model, so W9-C
-runs on EX only. EX accepted the sharp straight–straight junction and refused
-nothing.
+W9-C runs on both routes against the same frozen rows. Its force-method
+compatibility F·R = d does not depend on the route, and its out-of-plane
+problem is unloaded, so the routes' different shear moduli do not enter. Both
+routes accepted the sharp straight–straight junction and refused nothing.
 
 The criterion is unchanged (DEC-024/DEC-026). A nonzero row passes when
 |obs − exp| ≤ 1e-9·|exp|. A zero row passes when |obs| ≤ 1e-9·zero_scale. Both
@@ -198,6 +199,9 @@ both modes:
 | W9-A | 8.7e-16 | 4.7e-16 |
 | W9-B | 7.1e-16 | 3.0e-16 |
 | W9-C | — | 4.8e-16 |
+
+At that revision W9-C ran on EX only. With W-16 slice a, W9-C on PF showed
+8.1e-16 in both modes.
 
 The largest zero row was 1.8e-39 of its scale. These are observations at that
 revision, not part of the reference.

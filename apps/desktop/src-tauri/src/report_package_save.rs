@@ -103,8 +103,8 @@ pub const PRODUCER_BLOCKED: &str = "REPORT-PACKAGE-PRODUCER-BLOCKED";
 pub const PICKER_PATH_INVALID: &str = "REPORT-PACKAGE-PICKER-PATH-INVALID";
 pub const WORKER_FAILED: &str = "REPORT-PACKAGE-SAVE-WORKER-FAILED";
 pub const DISPOSITION_MALFORMED: &str = "REPORT-PACKAGE-SAVE-DISPOSITION-MALFORMED";
-/// A request, or a member its native checks read by key, in positional (JSON
-/// array) form (Codex review round 2 of #1648).
+/// A request with a struct, at any depth, in positional (JSON array) form
+/// (found in Codex review rounds 2 and 3 of #1648).
 pub const REQUEST_POSITIONAL: &str = "REPORT-PACKAGE-SAVE-REQUEST-POSITIONAL";
 /// The webview screener's code for a blocked disposition (`redactionExportControls.ts`).
 pub use crate::export_disposition_screen::PROTECTED_CONTENT_BLOCKED;
@@ -704,15 +704,14 @@ fn exact_refused(refusal: ExactRefusal, path: &str) -> ReportPackageSaveCommandE
     refuse(refusal.code, path, message)
 }
 
-/// Object form (Codex review rounds 2 and 3 of #1648): no struct in the
-/// request, at any depth, is in positional (JSON array) form. The shared
-/// decode reads a positional struct by field order, while the save's exact
-/// detection, source binding, disposition screen and context checks read
-/// members by key, so the save refuses one before any of them, naming the
-/// fixed path only (`wire::request_positional_struct_path`, the shared
-/// comparison of each decoded typed member and the report with its JSON).
-/// The ingress pricing of a positional text is unchanged; only its admission
-/// refuses.
+/// Object form: no struct in the request, at any depth, is in positional
+/// (JSON array) form. The shared decode reads a positional struct by field
+/// order, while the save's exact detection, source binding, disposition
+/// screen and context checks read members by key, so the save refuses one
+/// before any of them, naming the fixed path only
+/// (`wire::request_positional_struct_path`: a positional request, and each
+/// decoded typed member and the report compared with its JSON). The ingress
+/// pricing of a positional text is unchanged; only its admission refuses.
 fn check_request_object_form(request: &Value) -> Result<(), ReportPackageSaveCommandError> {
     match open_pipe_stress_report_package::wire::request_positional_struct_path(request) {
         Some(path) => Err(refuse(REQUEST_POSITIONAL, "/request", format!("The request writes a struct in positional (array) form at {path}."))),

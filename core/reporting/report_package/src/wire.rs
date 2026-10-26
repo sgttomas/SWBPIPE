@@ -34,16 +34,16 @@ pub struct ReportPackageRequest {
     pub solve_rule_check_status: String,
 }
 
-/// A struct in positional (JSON array) form in the report (Codex review
-/// round 3 of #1648).
+/// A struct in positional (JSON array) form in the report (found in Codex
+/// review round 3 of #1648).
 pub const REQUEST_POSITIONAL: &str = "REPORT-PACKAGE-REQUEST-POSITIONAL";
 
 /// The request's members in declaration order (its positional form).
 pub const REQUEST_MEMBERS: &[&str] = &["package_id", "export_profile_id", "source_model_ref", "source_basis_refs", "report", "audit_manifest", "result_documents", "source_results", "state_comparison_handoff_records", "rule_check_aggregate", "solve_rule_check_status"];
 
 /// The path of the first struct the request writes in positional (JSON
-/// array) form, at any depth, or `None` (W-11, Codex review round 3 of #1648;
-/// `open_pipe_stress_report_renderer::object_form`). The shared decode reads
+/// array) form, at any depth, or `None` (`open_pipe_stress_report_renderer::object_form`;
+/// found in Codex review round 3 of #1648). The shared decode reads
 /// a positional struct by field order, while the native save's policy checks
 /// read members by key, so the save refuses a positional struct before any of
 /// them. A positional request is `the request`. The typed members
@@ -375,7 +375,7 @@ pub(crate) fn assemble_wire_request_in(
     }
     // The report is untyped here and decoded only by the renderer, which reads
     // a positional struct by field order while the bindings read keys: a
-    // positional struct anywhere in it refuses (Codex review round 3 of #1648).
+    // positional struct anywhere in it refuses.
     if let Some(path) = open_pipe_stress_report_renderer::object_form::report_positional_struct_path(&request.report) {
         return Err(format!("{REQUEST_POSITIONAL}: the report writes a struct in positional (array) form at report.{path}"));
     }

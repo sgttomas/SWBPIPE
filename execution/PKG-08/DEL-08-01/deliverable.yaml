@@ -343,6 +343,8 @@ code_paths:
 # headless runner's kept refusal.
 - apps/desktop/src/features/results/outputPolicy.ts
 - core/runner/headless/src/bin/openpipestress-runner.rs
+# Object form: the shared positional-struct check of the native render, the save and the shared producer.
+- core/reporting/report_renderer/src/object_form.rs
 checks:
 - core/reporting/report_package/tests/container.rs
 - core/reporting/report_package/tests/reader.rs
@@ -373,3 +375,6 @@ checks:
 - tests/test_report_sections_provenance_records.py
 - apps/desktop/src/features/results/outputPolicy.test.ts
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
+- apps/desktop/src-tauri/src/object_form_tests.rs
+- core/reporting/report_renderer/tests/object_form.rs
+- core/runner/headless/tests/object_form_cli.rs

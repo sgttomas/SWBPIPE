@@ -605,42 +605,6 @@ fn a_non_exact_input_renders_as_before() {
     assert_eq!(measured.allocations, 0, "{measured:?}");
 }
 
-/// DEL-04-07 pricing of the object-form check (Codex review round 3 of
-/// #1648): the whole render command on the committed pressure-free witness
-/// report, from the raw body through the ingress admission, the object-form
-/// comparison (a by-reference decode of the input), step 0 and the render,
-/// has a counting-allocator peak within the ingress lease, less the buffered
-/// body's envelope. The comparison adds no lease growth; it is priced within
-/// the ingress lease (a measured provision for this input, not a proven
-/// bound).
-#[test]
-fn a_pressure_free_render_with_its_object_form_check_stays_within_its_lease() {
-    use crate::command_ingress::{admit_body, test_support::headers, INGRESS_ARGS_JSON_V1};
-    use tauri::ipc::InvokeBody;
-    let witness: Value = serde_json::from_str(include_str!("../../../../validation/witness/inputs/del1005_export_results_success_input.json")).unwrap();
-    let raw = serde_json::to_vec(&json!({"input": witness["export_results"]["report"]})).unwrap();
-    let envelope = crate::ingress::allocation_envelope(raw.len() as u64).unwrap();
-    let body = InvokeBody::Raw(raw);
-    let registry = registry(ScriptedHost::normal());
-    let ((response, lease_bytes), measured) = measure(|| {
-        let (mut decoded, mut lease) = admit_body(&registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1)), "render_calculation_report", ArgsDecoding::Moved).unwrap();
-        let response = respond(crate::render_calculation_report_args(&mut decoded, &registry, &mut lease)).map(response_text);
-        drop(decoded);
-        (response, lease.bytes())
-    });
-    let response = response.expect("the pressure-free report renders");
-    assert!(response.contains("\"html\""));
-    assert!(measured.peak_priced <= lease_bytes - envelope, "render: priced peak {} exceeds its lease {}", measured.peak_priced, lease_bytes - envelope);
-    eprintln!("pressure-free render: body {} priced peak {} lease {}", body_len(&body), measured.peak_priced, lease_bytes - envelope);
-}
-
-fn body_len(body: &tauri::ipc::InvokeBody) -> usize {
-    match body {
-        tauri::ipc::InvokeBody::Raw(bytes) => bytes.len(),
-        _ => 0,
-    }
-}
-
 const ROWS: [Row; 4] = [
     ("render_calculation_report_args", "lib.rs", &[("lib.rs", "render_calculation_report", Arg::None)]),
     (
@@ -1418,8 +1382,8 @@ mod direct_native {
 
     /// The legitimate-arrays control (Codex review round 3 of #1648): every
     /// witness shape's genuine render input and save request, all of whose
-    /// arrays are collections, passes the object-form comparison, and the
-    /// committed pressure-free witness report does too.
+    /// arrays are collections, passes the object-form comparison (the
+    /// pressure-free control is `object_form_tests.rs`).
     #[test]
     fn genuine_inputs_with_every_array_field_pass_the_object_form_check() {
         use open_pipe_stress_report_renderer::object_form::report_positional_struct_path;
@@ -1429,9 +1393,6 @@ mod direct_native {
             assert_eq!(open_pipe_stress_report_package::wire::request_positional_struct_path(&w.request), None, "{name}");
             assert_eq!(crate::report_render_exact::check_object_form(&w.request["report"]), Ok(()), "{name}");
         }
-        let witness: Value = serde_json::from_str(include_str!("../../../../validation/witness/inputs/del1005_export_results_success_input.json")).unwrap();
-        assert_eq!(report_positional_struct_path(&witness["export_results"]["report"]), None);
-        assert_eq!(open_pipe_stress_report_package::wire::request_positional_struct_path(&witness["export_results"]), None);
     }
 
     /// Codex r1 finding 2: with genuine custody and texts, a fabricated row
@@ -1741,8 +1702,9 @@ mod direct_native {
         }
         assert_eq!(lease.bytes(), admitted_bytes);
         // Neither text is parsed: the peak is the object-form check's
-        // by-reference decode of the input (within the ingress lease, Codex
-        // review round 3 of #1648) plus less than a quarter of the result text.
+        // by-reference decode of the input (priced within the ingress lease;
+        // DEL-08-01 Design `report-package-current-results.md` §2.6) plus less
+        // than a quarter of the result text.
         let args = genuine_render_args(&w, &live.job);
         let (_, check) = measure(|| crate::report_render_exact::check_object_form(&args["input"]));
         assert!(measured.peak_requested < check.peak_requested + (w.result.len() as u64) / 4, "nothing is parsed: {measured:?}, check {check:?}");

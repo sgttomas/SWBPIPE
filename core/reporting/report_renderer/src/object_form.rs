@@ -1,5 +1,5 @@
-//! Object form (W-11, DEL-08-01 Design `exact-route-report-sections.md` §6.3;
-//! Codex review rounds 2 and 3 of #1648). serde reads a struct written as a
+//! Object form (DEL-08-01 Design `report-package-current-results.md` §2.6;
+//! found in Codex review rounds 2 and 3 of #1648). serde reads a struct written as a
 //! JSON array by field order (its positional form), while the native policy
 //! checks (export context, exact detection, disposition screen, source
 //! binding) read members by key. A struct in positional form therefore reaches
