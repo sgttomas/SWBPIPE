@@ -34,6 +34,15 @@ every route. Standard claim fence applies (claims taxonomy per DEC-081).
   (completeness map, W-11 row :541). **This design builds the sections behind
   the existing refusals. It opens nothing.** §5 states what opening would
   change.
+- **Opening ruling (owner, 2026-10-26, through HELP_HUMAN):** "My two
+  decisions are to approve your recommendations in both cases. Proceed
+  accordingly." The approved recommendation opens both surfaces, the rendered
+  report and the report package, for `pressure-2` and `pressure-source-1`,
+  exactly as §5.1 lists them, once slices (b) and (c) are merged and the
+  owner has seen the evidence of §5.5 (the rendered local-private example
+  reports of each exact-route shape). §6.3 records the opening as built. The
+  report JSON packet, the handoff preview and the other fifteen surfaces stay
+  refused (§5.4).
 - **FR-REP-001 (Must)**, PRD §19.2: inputs, versions, states, runs,
   assumptions, warnings, results and rule-pack references. **FR-REP-002:**
   mechanics, user-rule checks and human review kept distinct.
@@ -1479,6 +1488,41 @@ Slice (c) follows §4 with these differences, each fail-closed:
 - **Witnesses.** The five exact-route witness requests (`fixtures/reports/invented/exact_report_package_requests/`) each gain their model's material record and value, and with them the report-sections checksum; nothing else in them changes, and the substitute overlay is unchanged. `del1005_export_results_success_input.json` does not change: the Rust test basis (`report_package/tests/common/package_basis.rs`) builds its report with invented provenance and no desktop records, so §1.7's regeneration is a no-op. The shared component projection (`component_provenance_cross_layer_projection.json`) changes the missing component's diagnostic message, written by its vitest's new write mode (`OPENPIPESTRESS_WRITE_COMPONENT_PROVENANCE_PROJECTION`).
 - **Citations moved.** The component record and predicate are `renderableReportInput.ts` `componentProvenanceRecord` and `hasProvenance`, `libraryRefSites` is `libraryImportService.ts:440-457`, and the renderer's provenance tables are in `assemble_report_sections` (`report_renderer/src/lib.rs:846-950`).
 
+### 6.3 Opening as built (§5.1)
+
+The opening follows §5.1 items 1-9 under the ruling of §0, with these
+differences, each fail-closed:
+- **The headless runner stays refused** (§5.4: `headless-runner` is one of
+  the fifteen refused surfaces). Before opening, its package path refused
+  exact identities only through the shared producer's item 0, which now admits
+  them under the desktop profile. The runner's `export-results` therefore
+  refuses a result document with an exact identity under any export profile,
+  before its other bindings, with the code it gave before opening
+  (`REPORT-PACKAGE-ROUTE-NOT-ADMITTED: the headless runner packages no
+  exact-route result; …`; `openpipestress-runner.rs`,
+  `del1005_package_witness.rs` `the_runner_package_path_refuses_the_exact_witness_requests`).
+  The shared root still refuses them under the runner profile
+  (`REPORT-PACKAGE-EXACT-RUNNER-PROFILE`).
+- **No test-only set remains.** `EXACT_WITNESS_ADMITTED` and
+  `EXACT_RENDER_WITNESS_ADMITTED` are removed, and the scans' assertion 4 now
+  checks that no set other than `PRODUCTION` is constructed or declared in any
+  source, test code included (the scans' own invented sources excepted). The
+  in-crate witness module stays in the crate and calls the public roots only;
+  the test-only names `assembleExactReportBelowOutputGate` and
+  `assembleReportPackageRequestBelowOutputGate` are removed (their callers use
+  `assembleRenderedReport` and `buildReportPackageRequest`). The witness test
+  file keeps its name, which the committed witness requests record as their
+  generator; only the requests' `description` changed.
+- **Route refusals that stay pinned** use an identity outside the admitted set:
+  physics-retained-1 at the render's step 0, the package's item 0 (producer and
+  reader, the reader's with the committed exact-successor derivative document,
+  which is well formed) and the desktop identity check.
+- **Texts.** The same rewording of item 2 also applies to the pressure
+  authoring panel's mode line (`PressureAuthoringPanel.tsx`), which repeated
+  the refusal's list of admitting surfaces. Appendix A.2 adds O15 for the
+  user guide's limitations list, which would otherwise say reports are only for
+  pressure-free results.
+
 ## 7. Verification
 
 **Slice (a).**
@@ -1872,11 +1916,15 @@ New:
 ```
 
 
-### A.2 Texts only opening would change (for the opening decision; not applied)
+### A.2 Texts only opening would change (applied at opening)
 
 O4 is stated against the text as it reads after A.1 G2, and O13 against the
 text as it reads after A.1 G5. Their Olds were checked for one occurrence in
 those texts (revision 5 re-checked both: `count == 1` after G2 and after G5).
+At opening (after slices (b) and (c), #1637 and #1639), every Old O1-O14 was
+checked again (`count == 1` in its file), none had drifted, and each New was
+applied as drafted, with the placeholder replaced by the owner's words of §0.
+O15 was added at opening.
 
 **The placeholders stay placeholders.** "[the owner's opening decision, quoted
 with its date]" (O1, O4, O13) holds the place of the owner's actual words and
@@ -2105,4 +2153,20 @@ New:
 
 ```text
 eligible exact-route results can be rendered and packaged, and the report JSON packet still refuses them
+```
+
+**O15. User guide `docs/user_guide/index.md` :482** (§14, the app's refusals and gaps; added at opening; `docs/user_guide/index.md`)
+
+Old:
+
+```text
+[Current Desktop App](#current-desktop-app-010): reports only as local private
+  documents and only for pressure-free results,
+```
+
+New:
+
+```text
+[Current Desktop App](#current-desktop-app-010): reports only as local private
+  documents, and the report JSON packet only for pressure-free results,
 ```

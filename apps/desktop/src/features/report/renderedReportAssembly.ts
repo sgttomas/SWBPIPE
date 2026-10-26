@@ -1,15 +1,13 @@
-/** The rendered report panel's build step (DEC-021 A7; W-11 slice (b), DEL-08-01 Design
+/** The rendered report panel's build step (DEC-021 A7; W-11, DEL-08-01 Design
  * `exact-route-report-sections.md` §3.1, §3.6). The panel calls it only after its
  * output-policy cell admits the result (`surfaceOutputRefusal` on `rendered-report`),
- * which refuses every exact-route result until the owner opens it (ruling 10A). For an
- * exact source it first takes the Export Result JSON admission (`admitExactReportSource`),
- * builds the input with it, and returns the pre-IPC re-check that yields the texts the
- * native render re-reads: the delivered result bytes, the intake model text and the
- * admission's input manifest text. A pressure-free source takes no admission, so its
- * path is unchanged. Tests reach the exact path below the gate through the test-only
- * name `assembleExactReportBelowOutputGate`; the native render still refuses every
- * exact identity at its step 0. Standard claim fence applies (claims taxonomy per
- * DEC-081). */
+ * which admits pressure-2 and pressure-source-1 since the owner opened exact-route
+ * reports (§5.1; owner, 2026-10-26). For an exact source it first takes the Export
+ * Result JSON admission (`admitExactReportSource`), builds the input with it, and
+ * returns the pre-IPC re-check that yields the texts the native render re-reads: the
+ * delivered result bytes, the intake model text and the admission's input manifest
+ * text. A pressure-free source takes no admission, so its path is unchanged. Standard
+ * claim fence applies (claims taxonomy per DEC-081). */
 import type { AnalysisRunEnvelope, LocalProjectSummary, MechanicsResult, PreviewModel } from "../../types";
 import { canonicalJsonString } from "../../services/hashService";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
@@ -78,7 +76,3 @@ export async function assembleRenderedReport(inputs: RenderedReportAssemblyInput
   }
   return { input, controlled, admission, exactSubmission };
 }
-
-/** Test-only name of the panel's build step for an exact source, which production
- * reaches only after the panel's cell admits the result (never before opening). */
-export const assembleExactReportBelowOutputGate = assembleRenderedReport;

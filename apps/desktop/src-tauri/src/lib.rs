@@ -1579,7 +1579,8 @@ async fn render_calculation_report(
 
 /// The render's production root (W-11, DEL-08-01 Design
 /// `exact-route-report-sections.md` §3.6 step 0, §5.5): the production
-/// admitted set, which admits no exact-route identity before opening.
+/// admitted set, which admits pressure-2 and pressure-source-1 since the owner
+/// opened exact-route report outputs (§5.1; 2026-10-26).
 fn render_calculation_report_args(args: &mut Args, registry: &SolveJobRegistry, lease: &mut memory_pool::Lease) -> Result<Value, CommandError> {
     report_render_exact::render_calculation_report_args_in(args, registry, lease, report_render_exact::PRODUCTION)
 }

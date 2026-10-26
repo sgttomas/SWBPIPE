@@ -1,36 +1,38 @@
-//! The exact-route package witness (W-11 slice (b), DEL-08-01 Design
-//! `exact-route-report-sections.md` §5.5 and §7): a `#[cfg(test)]` module of
-//! this crate, because the widened set `EXACT_WITNESS_ADMITTED` exists only in
-//! the crate's own test build.
+//! The exact-route package witness (W-11, DEL-08-01 Design
+//! `exact-route-report-sections.md` §5.5 and §7). Since the owner opened
+//! exact-route packages (§5.1; owner, 2026-10-26: "My two decisions are to
+//! approve your recommendations in both cases. Proceed accordingly."), the
+//! production set admits pressure-2 and pressure-source-1, so this module uses
+//! the public production roots only; the test-only widened set is removed.
 //!
-//! - Each witness request (written by the desktop's vitest below the output
-//!   gate, `fixtures/reports/invented/exact_report_package_requests/`)
-//!   assembles through `assemble_wire_request_in` and reads back through
-//!   `read_report_package_container_in`, both under the witness set: the set
-//!   reaches every item-0 check on both paths through the forwarding graph.
-//! - Every production entry point refuses each witness request and the witness
-//!   package bytes with `REPORT-PACKAGE-ROUTE-NOT-ADMITTED`.
+//! - Each witness request (written by the desktop's vitest,
+//!   `fixtures/reports/invented/exact_report_package_requests/`) assembles
+//!   through `assemble_wire_request` and reads back through
+//!   `read_report_package_container`: the production set reaches every item-0
+//!   check on both paths through the forwarding graph.
+//! - Every other production entry point admits each witness request:
+//!   `bindings::check_request` and `assemble_report_package_container`.
+//! - Every production entry point still refuses an identity outside the
+//!   admitted set (physics-retained-1) with `REPORT-PACKAGE-ROUTE-NOT-ADMITTED`.
 //! - The runner profile is refused in the producer and the reader
 //!   (`REPORT-PACKAGE-EXACT-RUNNER-PROFILE`), with and without `exact_route`.
 //! - The same-run substitute passes items 0-9: the shared checks alone cannot
 //!   see a coherent substitute; the desktop's native source binding refuses it
 //!   (`report_package_save.rs`, `report_render_exact_tests.rs`).
 //!
-//! Before the owner opens exact-route packages, no production path assembles
-//! or reads an exact member. Standard claim fence applies (claims taxonomy per
-//! DEC-081).
+//! Standard claim fence applies (claims taxonomy per DEC-081).
 
-use crate::admitted::EXACT_WITNESS_ADMITTED;
 use crate::bindings::{check_request, RUNNER_PROFILE};
 use crate::exact_sections::EXACT_RUNNER_PROFILE;
-use crate::reader::{read_report_package_container, read_report_package_container_in};
-use crate::wire::{assemble_wire_request, assemble_wire_request_in, audit_manifest, LinkedSolverIdentity, ReportPackageRequest};
+use crate::reader::read_report_package_container;
+use crate::wire::{assemble_wire_request, audit_manifest, LinkedSolverIdentity, ReportPackageRequest};
 use crate::{
     assemble_report_package_container, build_deterministic_zip, sha256_hex, PackageRef, ReportPackageContainerInput,
     ReportPackageContainerOutcome, ROLE_PACKAGE_MANIFEST, ROLE_RESULT_EXPORT,
 };
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_report_renderer::RenderableReportInput;
+use open_pipe_stress_result_export::semantic_contract::PHYSICS_RETAINED_ID;
 use serde_json::{json, Value};
 
 const ROUTE_NOT_ADMITTED: &str = "REPORT-PACKAGE-ROUTE-NOT-ADMITTED";
@@ -88,20 +90,20 @@ fn identity((name, version, build): &(String, String, String)) -> LinkedSolverId
 
 fn witness_package(request: &Value) -> ReportPackageContainerOutcome {
     let solver = linked(request);
-    let outcome = assemble_wire_request_in(typed(request), &identity(&solver), EXACT_WITNESS_ADMITTED)
-        .unwrap_or_else(|error| panic!("the witness set assembles the request: {error}"));
+    let outcome = assemble_wire_request(typed(request), &identity(&solver))
+        .unwrap_or_else(|error| panic!("the production set assembles the request: {error}"));
     assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
     outcome
 }
 
 #[test]
-fn each_witness_shape_assembles_and_reads_back_under_the_witness_set() {
+fn each_witness_shape_assembles_and_reads_back_through_the_production_roots() {
     for (name, text) in WITNESSES {
         let request = request_of(text);
         let identity_id = request["result_documents"][0]["result_envelope"]["producer"]["semantic_contract_id"].clone();
         let outcome = witness_package(&request);
-        let read = read_report_package_container_in(&outcome.container_bytes, EXACT_WITNESS_ADMITTED)
-            .unwrap_or_else(|refusal| panic!("{name}: the witness set reads the package back: {refusal:?}"));
+        let read = read_report_package_container(&outcome.container_bytes)
+            .unwrap_or_else(|refusal| panic!("{name}: the production reader reads the package back: {refusal:?}"));
         assert!(!read.export_blocked, "{name}");
         assert_eq!(read.package_identity_sha256_hex, outcome.package_identity_sha256_hex, "{name}");
         assert_eq!(read.members.len(), outcome.members.len(), "{name}");
@@ -132,38 +134,65 @@ fn each_witness_shape_assembles_and_reads_back_under_the_witness_set() {
     }
 }
 
+/// The container input of `request` for `assemble_report_package_container`.
+fn container_outcome(request: &Value) -> ReportPackageContainerOutcome {
+    let solver = linked(request);
+    let typed_request = typed(request);
+    let audit = audit_manifest(typed_request.audit_manifest.clone(), &identity(&solver)).unwrap();
+    let report: RenderableReportInput = serde_json::from_value(request["report"].clone()).unwrap();
+    let refs = |value: &Value| PackageRef { ref_type: value["ref_type"].as_str().unwrap().into(), ref_id: value["ref_id"].as_str().unwrap().into() };
+    let input = ReportPackageContainerInput {
+        package_id: request["package_id"].as_str().unwrap().into(),
+        export_profile_id: request["export_profile_id"].as_str().unwrap().into(),
+        source_model_ref: refs(&request["source_model_ref"]),
+        source_basis_refs: request["source_basis_refs"].as_array().unwrap().iter().map(refs).collect(),
+        report: &report,
+        audit_manifest: &audit,
+        result_documents: &typed_request.result_documents,
+        state_comparison_handoff_records: &typed_request.state_comparison_handoff_records,
+    };
+    assemble_report_package_container(&input)
+}
+
+/// W-11 opening (§5.1 item 8): every production entry point admits each
+/// witness request; the container assembly yields the same package identity
+/// as the wire assembly.
 #[test]
-fn every_production_entry_point_refuses_each_witness() {
+fn every_production_entry_point_admits_each_witness() {
     for (name, text) in WITNESSES {
         let request = request_of(text);
+        let solver = linked(&request);
+        let wire = witness_package(&request);
+        let typed_request = typed(&request);
+        let audit = audit_manifest(typed_request.audit_manifest.clone(), &identity(&solver)).unwrap();
+        check_request(&typed_request, &audit, &identity(&solver)).unwrap_or_else(|error| panic!("{name}: {error}"));
+        let outcome = container_outcome(&request);
+        assert!(!outcome.export_blocked, "{name}: {:?}", outcome.blocking_reasons);
+        assert_eq!(outcome.package_identity_sha256_hex, wire.package_identity_sha256_hex, "{name}");
+        read_report_package_container(&wire.container_bytes).unwrap_or_else(|refusal| panic!("{name}: {refusal:?}"));
+    }
+}
+
+/// An identity outside the admitted set (physics-retained-1) is still refused
+/// by name at item 0 by every production producer entry point.
+#[test]
+fn every_production_entry_point_refuses_an_unadmitted_identity() {
+    for (name, text) in WITNESSES {
+        let mut request = request_of(text);
+        request["result_documents"][0]["result_envelope"]["producer"]["semantic_contract_id"] = json!(PHYSICS_RETAINED_ID);
         let solver = linked(&request);
         let refused = |outcome: Result<String, String>| {
             let error = outcome.expect_err("refused");
             assert!(error.starts_with(ROUTE_NOT_ADMITTED), "{name}: {error}");
+            assert!(error.ends_with(&format!("found {PHYSICS_RETAINED_ID}")), "{name}: {error}");
         };
         refused(assemble_wire_request(typed(&request), &identity(&solver)).map(|_| String::new()));
         let typed_request = typed(&request);
         let audit = audit_manifest(typed_request.audit_manifest.clone(), &identity(&solver)).unwrap();
         refused(check_request(&typed_request, &audit, &identity(&solver)).map(|()| String::new()));
-        let report: RenderableReportInput = serde_json::from_value(request["report"].clone()).unwrap();
-        let refs = |value: &Value| PackageRef { ref_type: value["ref_type"].as_str().unwrap().into(), ref_id: value["ref_id"].as_str().unwrap().into() };
-        let input = ReportPackageContainerInput {
-            package_id: request["package_id"].as_str().unwrap().into(),
-            export_profile_id: request["export_profile_id"].as_str().unwrap().into(),
-            source_model_ref: refs(&request["source_model_ref"]),
-            source_basis_refs: request["source_basis_refs"].as_array().unwrap().iter().map(refs).collect(),
-            report: &report,
-            audit_manifest: &audit,
-            result_documents: &typed_request.result_documents,
-            state_comparison_handoff_records: &typed_request.state_comparison_handoff_records,
-        };
-        let outcome = assemble_report_package_container(&input);
+        let outcome = container_outcome(&request);
         assert!(outcome.export_blocked, "{name}");
         assert!(outcome.blocking_reasons.iter().any(|reason| reason.contains(ROUTE_NOT_ADMITTED)), "{name}: {:?}", outcome.blocking_reasons);
-        // The witness package's bytes, read by the production reader.
-        let bytes = witness_package(&request).container_bytes;
-        let refusal = read_report_package_container(&bytes).expect_err("the production reader refuses");
-        assert!(format!("{refusal:?}").contains(ROUTE_NOT_ADMITTED), "{name}: {refusal:?}");
     }
 }
 
@@ -183,7 +212,7 @@ fn the_runner_profile_is_refused_in_the_producer_and_the_reader() {
         let request = request_of(text);
         let solver = linked(&request);
         for keep in [false, true] {
-            let error = assemble_wire_request_in(typed(&runner_profile(&request, keep)), &identity(&solver), EXACT_WITNESS_ADMITTED)
+            let error = assemble_wire_request(typed(&runner_profile(&request, keep)), &identity(&solver))
                 .expect_err("the runner profile packages no exact identity");
             assert!(error.starts_with(EXACT_RUNNER_PROFILE), "{name} (exact_route kept: {keep}): {error}");
         }
@@ -198,14 +227,14 @@ fn the_runner_profile_is_refused_in_the_producer_and_the_reader() {
         manifest.sha256_hex = sha256_hex(&manifest.bytes);
         manifest.byte_length = manifest.bytes.len();
         let bytes = build_deterministic_zip(&members);
-        let refusal = read_report_package_container_in(&bytes, EXACT_WITNESS_ADMITTED).expect_err("the reader refuses");
+        let refusal = read_report_package_container(&bytes).expect_err("the reader refuses");
         assert!(format!("{refusal:?}").contains(EXACT_RUNNER_PROFILE), "{name}: {refusal:?}");
     }
 }
 
 /// §3.5: the shared checks alone cannot see a coherent same-run substitute.
-/// It passes items 0-9 under the witness set; the native source binding of
-/// the desktop's save is what refuses it.
+/// It passes items 0-9; the native source binding of the desktop's save is
+/// what refuses it.
 #[test]
 fn the_same_run_substitute_passes_items_0_to_9() {
     let genuine = request_of(WITNESSES[0].1);
@@ -220,8 +249,7 @@ fn the_same_run_substitute_passes_items_0_to_9() {
 }
 
 /// Codex r1 finding 2: a row the source does not derive, such as a fabricated
-/// numerical-health line, refuses at item 6 under the witness set; the
-/// production entry points refuse at item 0 before it.
+/// numerical-health line, refuses at item 6 through the production roots.
 #[test]
 fn a_fabricated_report_row_refuses_at_item_6() {
     for (name, text) in WITNESSES {
@@ -234,9 +262,7 @@ fn a_fabricated_report_row_refuses_at_item_6() {
             "source_ref": "diagnostic:invented"
         }));
         let solver = linked(&request);
-        let error = assemble_wire_request_in(typed(&request), &identity(&solver), EXACT_WITNESS_ADMITTED).map(drop).expect_err("refused");
-        assert!(error.starts_with("REPORT-PACKAGE-REPORT-ROWS-MISMATCH"), "{name}: {error}");
         let error = assemble_wire_request(typed(&request), &identity(&solver)).map(drop).expect_err("refused");
-        assert!(error.starts_with(ROUTE_NOT_ADMITTED), "{name}: {error}");
+        assert!(error.starts_with("REPORT-PACKAGE-REPORT-ROWS-MISMATCH"), "{name}: {error}");
     }
 }

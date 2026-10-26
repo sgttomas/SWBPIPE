@@ -172,9 +172,7 @@ fn the_desktop_basis_carries_the_received_current_origin() {
 
 #[test]
 fn non_admitted_identities_are_refused_by_the_preflight_before_any_form_error() {
-    let ids: [Option<&str>; 6] = [
-        Some(PRESSURE_ID),
-        Some(PRESSURE_SOURCE_ID),
+    let ids: [Option<&str>; 4] = [
         Some(PREVIEW_PHYSICS_RETAINED_ID),
         Some(PHYSICS_RETAINED_ID),
         Some("openpipestress.result_semantics/0.3.0/invented-unknown"),
@@ -196,6 +194,27 @@ fn non_admitted_identities_are_refused_by_the_preflight_before_any_form_error() 
                 document["result_envelope"].as_object_mut().unwrap().remove("result_sets");
             });
             refused(&edited, ROUTE_NOT_ADMITTED, &format!("{id:?}"));
+        }
+    }
+}
+
+/// W-11 opening (DEL-08-01 Design `exact-route-report-sections.md` §5.1;
+/// owner, 2026-10-26): item 0 admits pressure-2 and pressure-source-1, so the
+/// same edited document passes the route preflight and refuses at a later
+/// check (its form defect, or the runner profile's exact-identity refusal),
+/// never with the route code.
+#[test]
+fn exact_identities_pass_the_route_preflight() {
+    for request in [runner(), desktop()] {
+        for id in [PRESSURE_ID, PRESSURE_SOURCE_ID] {
+            let edited = with_document(&request, |document| {
+                at(document, "/result_envelope/producer").as_object_mut().unwrap().insert("semantic_contract_id".into(), json!(id));
+                document["result_envelope"].as_object_mut().unwrap().remove("result_sets");
+            });
+            match assemble(&edited) {
+                Ok(outcome) => panic!("{id}: assembled (blocked: {})", outcome.export_blocked),
+                Err(error) => assert!(!error.starts_with(ROUTE_NOT_ADMITTED), "{id}: {error}"),
+            }
         }
     }
 }

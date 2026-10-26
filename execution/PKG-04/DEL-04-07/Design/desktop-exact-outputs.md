@@ -202,14 +202,11 @@ Two panels make up this surface. Both receive the Current result. The run also h
 
 ### 4.5 Reports, the report package and the other surfaces
 
-**These stay refused in this unit** (ruling 10A, §8).
+**These stayed refused in this unit** (ruling 10A, §8). The rendered report and the report package were opened later under DEL-08-01 Design `exact-route-report-sections.md` (owner, 2026-10-26: "My two decisions are to approve your recommendations in both cases. Proceed accordingly."); the report JSON packet and the other fifteen surfaces still refuse.
 
-- **Report JSON and rendered report** (`report`, `rendered-report`). Their builders are generic.
-  - `selectedResultRefs` picks the single `max_open_formula_stress` headline (`features/report/ReportPanel.tsx:279-298`), but an exact result carries one headline per section basis.
-  - The renderable report builds the exact identity's limitation sections, stress headlines and standing line behind this refusal (DEL-08-01 Design `exact-route-report-sections.md`). Until the owner opens them, none of them reaches an output: the `rendered-report` and `report-package` cells refuse an exact result, and the native render and the package's Rust boundary refuse every input that carries an exact identity in an identity field (`REPORT-RENDER-ROUTE-NOT-ADMITTED`, `REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).
-
-  Opening them needs DEL-08-01's own design of those sections and of the PRD §19.3 notice's place. They keep refusing with the reworded text (§5.3).
-- **Report package.** Since W-18 (DEL-08-01 Design `report-package-current-results.md`) it saves a Current preview-physics-2 result. It refuses the exact identities by policy and Rust identity, not by the fresh-result code: the policy entry `report-package: refused` gives their routes' refusal (`PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`, through `reportPackageUnavailableReason` in `reportPackageRequest.ts`), and the package's Rust boundary admits only preview-physics-2 (`REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).
+- **Report JSON** (`report`) stays refused with `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`; its builder still selects one headline and fixed demo references.
+- **Rendered report** (`rendered-report`) admits an exact-route result only when Export Result JSON admits it, with the sections of DEL-08-01 Design `exact-route-report-sections.md`. Its native render admits the pressure-2 and pressure-source-1 identities and binds each exact input to the result and model its solve job delivered and received. The PRD §19.3 notice keeps its existing place.
+- **Report package** (`report-package`) saves a Current preview-physics-2 result or an eligible pressure-2 or pressure-source-1 result. Its TypeScript and Rust identity checks admit those three identities; its exact sections are checked against the source as DEL-08-01 Design `exact-route-report-sections.md` specifies.
 - **The other fifteen surfaces** keep refusing: PCF, CAEPIPE MBF and external, export-adapter SDK, adapter framework, external prover, missing-data, design workspace, report lint, solve job, headless runner, local FEA, native package, handoff and export review. Each is an interop or handoff format with its own owner and its own design. This is the same scope the retained routes keep.
 
 ## 5. Policy and text changes

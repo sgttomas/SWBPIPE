@@ -1,6 +1,8 @@
 {
   "admitted_semantic_contracts": [
-    "openpipestress.result_semantics/0.3.0/preview-physics-2"
+    "openpipestress.result_semantics/0.3.0/preview-physics-2",
+    "openpipestress.result_semantics/0.3.0/pressure-2",
+    "openpipestress.result_semantics/0.3.0/pressure-source-1"
   ],
   "binding_inputs": {
     "audit_input_manifest_ref": "invented-input-manifest",

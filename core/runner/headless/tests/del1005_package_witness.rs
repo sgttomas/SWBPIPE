@@ -217,15 +217,9 @@ fn del1005_package_witness_basis_is_current_and_succeeds_end_to_end() {
     write_or_assert(ANALYSIS_RECORD, &pretty(&record));
 }
 
-/// W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §5.5):
-/// the runner's package path, the shared producer's public root with the
-/// linked identity, refuses every exact-route witness request the desktop
-/// assembles below the output gate at item 0, under the desktop profile it
-/// was built for and under the runner profile (item 0 precedes the
-/// runner-profile refusal). Before the owner opens exact-route packages, no
-/// production path assembles an exact member.
-#[test]
-fn the_runner_package_path_refuses_the_exact_witness_requests() {
+/// The exact-route witness requests the desktop's vitest writes, and the
+/// same-run substitute.
+fn exact_witness_requests() -> Vec<(String, Value)> {
     let dir = "fixtures/reports/invented/exact_report_package_requests";
     let overlay = read(&format!("{dir}/pressure_2_straight_substitute.overlay.json"));
     let substitute = apply_overlay(read(&format!("{dir}/pressure_2_straight.json"))["request"].clone(), &overlay["replacements"]);
@@ -234,13 +228,62 @@ fn the_runner_package_path_refuses_the_exact_witness_requests() {
         .map(|name| (name.to_string(), read(&format!("{dir}/{name}.json"))["request"].clone()))
         .collect();
     requests.push(("pressure_2_straight_substitute".to_string(), substitute));
-    for (name, witness) in requests {
+    requests
+}
+
+/// W-11 (DEL-08-01 Design `exact-route-report-sections.md` §5.1, §5.4): since
+/// the owner opened the desktop's exact-route report package (2026-10-26), the
+/// shared producer's public root admits pressure-2 and pressure-source-1 under
+/// the desktop profile (the desktop's save calls it after its native source
+/// binding), and still refuses them under the runner profile
+/// (`REPORT-PACKAGE-EXACT-RUNNER-PROFILE`).
+#[test]
+fn the_shared_root_refuses_the_exact_witness_requests_under_the_runner_profile() {
+    for (name, witness) in exact_witness_requests() {
+        let solver = &witness["audit_manifest"]["solver_version"];
+        let text = |key: &str| solver[key].as_str().unwrap().to_string();
+        let (solver_name, solver_version, solver_build_ref) = (text("solver_name"), text("solver_version"), text("solver_build_ref"));
+        let identity = LinkedSolverIdentity { solver_name: &solver_name, solver_version: &solver_version, solver_build_ref: &solver_build_ref };
+        let mut request = witness.clone();
+        request["export_profile_id"] = json!("runner_local_private_report_package_1");
+        let request: ReportPackageRequest = serde_json::from_value(request).unwrap();
+        let error = assemble_wire_request(request, &identity).map(drop).expect_err("refused");
+        assert!(error.starts_with("REPORT-PACKAGE-EXACT-RUNNER-PROFILE"), "{name}: {error}");
+    }
+}
+
+/// W-11 §5.4: the headless runner stays refused for exact-route results. Its
+/// `export-results` command, given the committed runner witness input with
+/// each exact witness request as its payload, under the desktop and the
+/// runner profile, refuses with `REPORT-PACKAGE-ROUTE-NOT-ADMITTED` and
+/// writes no package.
+#[test]
+fn the_runner_package_path_refuses_the_exact_witness_requests() {
+    use std::io::Write;
+    use std::process::{Command, Stdio};
+    let base = read(SUCCESS_INPUT);
+    for (name, witness) in exact_witness_requests() {
         for profile in ["desktop_local_private_report_package_1", "runner_local_private_report_package_1"] {
-            let mut request = witness.clone();
-            request["export_profile_id"] = json!(profile);
-            let request: ReportPackageRequest = serde_json::from_value(request).unwrap();
-            let error = assemble_wire_request(request, &linked()).map(drop).expect_err("refused");
-            assert!(error.starts_with("REPORT-PACKAGE-ROUTE-NOT-ADMITTED"), "{name} {profile}: {error}");
+            let mut input = base.clone();
+            input["export_results"] = witness.clone();
+            input["export_results"]["export_profile_id"] = json!(profile);
+            let mut child = Command::new(env!("CARGO_BIN_EXE_openpipestress-runner"))
+                .args(["export-results", "--explicit-local-private-intent"])
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped())
+                .spawn()
+                .unwrap();
+            child.stdin.take().unwrap().write_all(input.to_string().as_bytes()).unwrap();
+            let out = child.wait_with_output().unwrap();
+            let stdout = String::from_utf8(out.stdout).unwrap();
+            assert_ne!(out.status.code(), Some(0), "{name} {profile}: {stdout}");
+            let output: Value = serde_json::from_str(&stdout).unwrap_or_else(|error| panic!("{name} {profile}: {error}"));
+            assert!(output.get("report_package").map_or(true, Value::is_null), "{name} {profile}: {stdout}");
+            assert!(
+                stdout.contains("REPORT-PACKAGE-ROUTE-NOT-ADMITTED: the headless runner packages no exact-route result"),
+                "{name} {profile}: {stdout}"
+            );
         }
     }
 }

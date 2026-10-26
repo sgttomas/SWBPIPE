@@ -172,8 +172,9 @@
     report.handoff = { opened, first, second };
   }
 
-  // W-18 (b2). File > Save Report Package… on the session's Current pressure-free
-  // result, after its own local-private selection, answering the save chooser with
+  // W-18 (b2). File > Save Report Package… on the session's Current result (the
+  // demo's pressure-free one, and since W-11 the exact route's), after its own
+  // local-private selection, answering the save chooser with
   // `path`; then the saved file is re-read with the product's reader. A save refused
   // before its chooser drops the queued path, so it cannot answer a later chooser.
   async function saveReportPackage(path, label) {
@@ -639,13 +640,16 @@
     return observation;
   }
 
-  // EX (pressure-2) output gates: the report is refused by name; the export panels say what they offer.
+  // EX (pressure-2) output gates: the rendered report and the report package admit the
+  // eligible exact result (W-11, DEL-08-01 Design exact-route-report-sections.md §5.1;
+  // owner, 2026-10-26), and the driver renders it under the local-private selection and
+  // saves and re-reads its package; the export panels say what they offer.
   async function exactRouteGates(plan, report) {
     const shown = await openModelDocument(plan.exact.path);
     await waitFor("exact model in the model tree", () => treeRow(plan.exact.project_id));
     const solved = await solveCurrent("exact", plan.exact.project_id, null);
     await showSection("report");
-    // The rendered-report panel's own output gate: its refusal replaces the render control.
+    // The rendered-report panel's own output gate: it adds no refusal since W-11.
     const renderedPanel = byTestId("rendered-report-panel");
     const gates = {
       opened: shown,
@@ -653,10 +657,13 @@
       rendered_report_panel: Boolean(renderedPanel),
       render_control_present: Boolean(renderedPanel?.querySelector('[data-testid="rendered-report-render"]')),
       render_refusal: renderedPanel?.querySelector('[data-testid="rendered-report-load-reference-output-unavailable"]')?.textContent?.trim() ?? null,
-      // W-18 (b2): the report package keeps refusing the exact route (ruling 10A).
       report_package_refusal: text("report-package-source-unavailable"),
       report_package_controls: Boolean(byTestId("report-package-controls"))
     };
+    // W-11 §5.1 item 6: the exact report rendered under the local-private selection, and
+    // its package saved and re-read with the product's reader.
+    gates.report_render = await renderLocalPrivateReport("exact/report");
+    if (plan.exact.report_package) gates.report_package = await saveReportPackage(plan.exact.report_package.path, "exact/report-package");
     await showSection("exports");
     // The result packet is assembled asynchronously (8.5 s observed on a loaded Mac).
     gates.result_export_link = Boolean(await waitFor("exact result export link", () => byTestId("result-export-link"), 40000).catch(() => null));
@@ -666,7 +673,7 @@
     gates.mbf_download_controls = Boolean(mbfPanel?.querySelector('[data-testid="caepipe-mbf-export-link"], [data-testid="caepipe-mbf-text-link"]'));
     gates.export_codes = codesIn(byTestId("workspace-section-exports"));
     gates.rule_checks = await runRuleChecks("exact/rule-checks");
-    await log(`exact gates: ${JSON.stringify({ ...gates, solve: undefined, rule_checks: undefined })}`);
+    await log(`exact gates: ${JSON.stringify({ ...gates, solve: undefined, rule_checks: undefined, report_render: undefined, report_package: undefined })}`);
     report.exact = gates;
   }
 
