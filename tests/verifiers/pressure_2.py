@@ -58,7 +58,7 @@ from pathlib import Path
 import struct
 from typing import Any
 
-from . import component_body, global_end, section_basis as sb, u4b
+from . import component_body, exact_combinations, global_end, section_basis as sb, u4b
 
 PROJECT = Path(__file__).resolve().parents[2]
 
@@ -194,7 +194,20 @@ def verify_source(source: Mapping[str, Any], *, raw: bool = True) -> None:
 def validate_pressure_evidence(source: Mapping[str, Any]) -> None:
     """Raw pressure-2 evidence. An envelope that carries ``load_reference_states``
     takes the load/reference-state pre-pass first; any other takes the physics
-    checks directly."""
+    checks directly. W-16 slice b: a document with a load combination takes those
+    checks on its view without the combination rows and record, then the
+    combination pass (``exact_combinations``) on the whole document."""
+    if isinstance(source, Mapping) and exact_combinations.present(source):
+        _validate_direct_pressure_evidence(exact_combinations.direct_view(source))
+        try:
+            exact_combinations.validate(source, pressure_table())
+        except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
+            raise ValueError("SOURCE_PHYSICS_COMBINATION_MALFORMED") from error
+        return
+    _validate_direct_pressure_evidence(source)
+
+
+def _validate_direct_pressure_evidence(source: Mapping[str, Any]) -> None:
     evidence = source.get("contract_evidence") if isinstance(source, Mapping) else None
     if isinstance(evidence, Mapping) and "load_reference_states" in evidence:
         _load_state_evidence(source)
