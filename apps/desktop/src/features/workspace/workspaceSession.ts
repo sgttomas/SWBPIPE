@@ -707,7 +707,14 @@ export function useWorkspaceSession() {
   }, [result]);
   useEffect(() => () => { void disposeDeliveredMechanicsResult(heldResultRef.current); }, []);
 
+  // Advanced by every commit of the session's model (applied operations, undo/redo,
+  // opens and creates), and by nothing else. A pending New Blank checks it rather
+  // than the request epoch, which selection and draft invalidation also advance:
+  // only a change to the model or project on screen supersedes the blank.
+  const modelCommitEpochRef = useRef(0);
+
   function commitModel(nextModel: PreviewModel, directDraftToken: string | null = null) {
+    modelCommitEpochRef.current += 1;
     referencePersistence.current = null;
     modelHashOwner.current = null;
     viewportViewCommandRef.current?.({ type: "retire-box-gesture" });
@@ -1880,6 +1887,11 @@ export function useWorkspaceSession() {
   }
 
   const SAVE_AS_NEW_SUPERSEDED = "Not saved: the session changed while the replace prompt was open; nothing was written.";
+  /** A New Blank whose create landed after the model on screen changed is stored but
+   * not opened; the session keeps the changed model and the stored blank is kept. */
+  const NEW_BLANK_SUPERSEDED = "NEW-BLANK-SUPERSEDED";
+  const newBlankSupersededMessage = (stored: PreviewModel["project"]) =>
+    `${NEW_BLANK_SUPERSEDED}: the new blank project "${stored.name}" (${stored.id}) was created but not opened, because the model changed while it was being created. This session keeps the changed model. The blank is stored locally: open it from List Local Projects.`;
 
   async function handleCreateProject() {
     return createProject(null);
@@ -2067,6 +2079,7 @@ export function useWorkspaceSession() {
       verb: "create it"
     }).then((guarded) => {
       if (guarded !== "proceed") {
+        ++projectRequest.current;
         setProjectMessage(unsavedChangesRefusal(guarded, "Not created"));
         setProjectOperation("create_blank_kept_edits");
         return;
@@ -2091,8 +2104,16 @@ export function useWorkspaceSession() {
     const owner = acquireProjectOperation();
     if (!owner) return;
     const request = ++projectRequest.current;
-    let epoch = requestEpochRef.current;
-    const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
+    let modelEpoch = modelCommitEpochRef.current;
+    const stillCurrent = () => request === projectRequest.current && modelEpoch === modelCommitEpochRef.current;
+    // A landed create superseded by a model change (not by another project
+    // operation, which owns the status line) is named, never dropped silently.
+    // `stored` is the project the create wrote (after any PROJECT-ID-EXISTS suffix).
+    const superseded = (stored: PreviewModel["project"]) => {
+      if (request !== projectRequest.current) return;
+      setProjectMessage(newBlankSupersededMessage(stored));
+      setProjectOperation("create_blank_superseded");
+    };
     try {
       let blankModel = buildBlankModel();
       const blankId = blankModel.project.id;
@@ -2120,7 +2141,7 @@ export function useWorkspaceSession() {
           blankModel = { ...blankModel, project: { ...blankModel.project, id: `${blankId}-${attempt}` } };
         }
       }
-      if (!stillCurrent()) return;
+      if (!stillCurrent()) { superseded(blankModel.project); return; }
       const returnedHash = await computeModelHash(created.model);
       const returnedEnvelopeHash = await computeProjectEnvelopeHash({
         model: created.model, editor_intents: created.editor_intents,
@@ -2128,7 +2149,7 @@ export function useWorkspaceSession() {
         mechanics_result: created.mechanics_result, analysis_run: created.analysis_run,
         model_hash: created.model_hash
       });
-      if (!stillCurrent()) return;
+      if (!stillCurrent()) { superseded(blankModel.project); return; }
       const verifiedBlankResponse = Boolean(blankModelHash && returnedHash &&
         created.model.project.id === blankModel.project.id &&
         created.summary.project_id === blankModel.project.id &&
@@ -2165,7 +2186,7 @@ export function useWorkspaceSession() {
       recordStoredBase(created);
       if (verifiedBlankResponse) setSavedModelBasis({ generation: projectSessionGenerationRef.current, revision: uiModelRevisionRef.current, hash: returnedHash!.value, source: "create" });
       setSelection(defaultSelection(created.model));
-      epoch = requestEpochRef.current;
+      modelEpoch = modelCommitEpochRef.current;
       setUndoStack([]);
       setRedoStack([]);
       setAppliedOperations([]);
@@ -2210,6 +2231,7 @@ export function useWorkspaceSession() {
         verb: "open it"
       });
       if (guarded !== "proceed") {
+        ++projectRequest.current;
         setProjectMessage(unsavedChangesRefusal(guarded, "Not opened"));
         setProjectOperation("open_kept_edits");
         return;
@@ -2338,6 +2360,7 @@ export function useWorkspaceSession() {
     if (replacingNeedsConfirmation()) {
       const guarded = await confirmReplacingEdits({ action: "Opening a model document", verb: "open it" });
       if (guarded !== "proceed") {
+        ++projectRequest.current;
         setProjectMessage(unsavedChangesRefusal(guarded, "Not opened"));
         setProjectOperation("open_model_kept_edits");
         return;
@@ -2469,6 +2492,7 @@ export function useWorkspaceSession() {
   async function handleStoredDocumentExport(target: StoredDocumentExportTarget, explicitLocalPrivateIntent: boolean, report: (message: string, operation: string) => void) {
     const owner = acquireProjectOperation();
     if (!owner) return;
+    ++projectRequest.current;
     try {
       const outcome = await saveStoredModelDocumentFile(target, explicitLocalPrivateIntent);
       report(storedDocumentExportMessage(target, outcome), outcome.outcome === "saved" ? "export_stored_document"
@@ -2488,6 +2512,7 @@ export function useWorkspaceSession() {
     if (!saveModel) return;
     const owner = acquireProjectOperation();
     if (!owner) return;
+    ++projectRequest.current;
     try {
       const libraries = await resolveLibraryDispositions(saveModel);
       const prepared = await prepareModelDocumentSave({ model: saveModel, modelHash: saveHash, explicitLocalPrivateIntent, libraries });
@@ -2516,6 +2541,8 @@ export function useWorkspaceSession() {
   async function requestSaveHandoff() {
     const { model: saveModel, modelHash: saveHash } = modelDocumentSaveBasisRef.current;
     if (!saveModel || projectSessionBusy()) return;
+    // This request's project-command generation; nothing below advances it.
+    const request = ++projectRequest.current;
     const refuse = (code: string, message: string) => {
       setProjectMessage(handoffSaveRefusalMessage([{ code, path: "", message }]));
       setProjectOperation("save_handoff_refused");
@@ -2524,18 +2551,27 @@ export function useWorkspaceSession() {
     if (!saveHash) return refuse(MODEL_DOC_SAVE_HASH_PENDING, "The session's model hash is not computed yet; try again once it is shown.");
     // Captured before the workspace turns inert, which drops its focus.
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    // The session moved on while the states were listed (a newer project
+    // command started, the model or its hash changed, or an operation or prompt
+    // owns the session): the listing's outcome, success or failure, is dropped,
+    // so it cannot overwrite a newer status line or open a dialog over it.
+    const saveHashValue = saveHash.value;
+    const sessionMovedOn = () => projectRequest.current !== request
+      || modelDocumentSaveBasisRef.current.model !== saveModel
+      || modelDocumentSaveBasisRef.current.modelHash?.value !== saveHashValue || projectSessionBusy();
     let basis: HandoffBasis;
     try {
       // The basis is chosen among the readable saved states; a row the store
       // cannot read (W-12) is never a basis.
-      basis = handoffBasis((await listModelStates(saveModel.project.id)).states, saveModel.project.id, saveHash.value);
+      basis = handoffBasis((await listModelStates(saveModel.project.id)).states, saveModel.project.id, saveHashValue);
     } catch (error) {
+      if (sessionMovedOn()) return;
       setProjectMessage(handoffSaveFailureMessage(error));
       setProjectOperation("save_handoff_failed");
       return;
     }
-    // The session moved on while the states were listed: nothing is asked.
-    if (modelDocumentSaveBasisRef.current.model !== saveModel || modelDocumentSaveBasisRef.current.modelHash?.value !== saveHash.value || projectSessionBusy()) return;
+    // Nothing is asked of a session that moved on.
+    if (sessionMovedOn()) return;
     const close = () => { handoffSaveDialogOpenRef.current = false; setHandoffSaveRequest(null); };
     handoffSaveDialogOpenRef.current = true;
     setHandoffSaveRequest({
@@ -2556,6 +2592,7 @@ export function useWorkspaceSession() {
    * state left by a refused or cancelled publication stays and is reused.
    * Changes only the status line (and, for a new state, the History list). */
   async function handleSaveHandoff(choice: HandoffSaveChoice, basis: HandoffBasis, dialogModel: PreviewModel) {
+    ++projectRequest.current;
     let saveModel = modelDocumentSaveBasisRef.current.model;
     let saveHash = modelDocumentSaveBasisRef.current.modelHash;
     const refuse = (message: string, operation = "save_handoff_refused") => {
@@ -2784,6 +2821,7 @@ export function useWorkspaceSession() {
   async function handleListProjects() {
     const owner = acquireProjectOperation();
     if (!owner) return;
+    ++projectRequest.current;
     try {
       const listed = await listLocalProjects();
       setProjectIndex(listed);

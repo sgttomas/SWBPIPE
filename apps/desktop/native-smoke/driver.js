@@ -576,6 +576,30 @@
     await sleep(300);
   }
   const typedTreeRow = (type, id) => byTestId(`tree-row-${encodeURIComponent(type)}-${encodeURIComponent(id)}`);
+  // The project ids the model tree shows.
+  const projectRowIds = () => [...document.querySelectorAll('[data-testid^="tree-row-project-"]')]
+    .map((row) => decodeURIComponent(row.getAttribute("data-testid").slice("tree-row-project-".length)));
+  // The probe for New Blank Project having taken effect. Create closes the units
+  // dialog at once, but the blank becomes the session only when its native create
+  // and hashes return; until then the tree still shows the previous project, and
+  // an edit made meanwhile lands in that project and supersedes the create
+  // (workspaceSession.ts createBlankProjectFrom). So the wait is for the create's
+  // own status line and a tree whose project is no longer `previousId`.
+  function blankInstalled(previousId) {
+    return () => {
+      const now = message();
+      if (now.startsWith("Blank create failed")) throw Object.assign(new Error(now), { hard: true });
+      if (!now.startsWith("Created blank local model document")) return null;
+      const ids = [...new Set(projectRowIds())];
+      return ids.length === 1 && ids[0] !== previousId ? ids[0] : null;
+    };
+  }
+  // After Create: the blank's project id, once it is the session.
+  function awaitBlankProject(previousId, timeoutMs = 120000) {
+    return waitFor(`blank project in the tree in place of ${previousId}`, blankInstalled(previousId), timeoutMs).catch((error) => {
+      throw Object.assign(new Error(`${error.message}; message="${message()}"; tree projects=${JSON.stringify(projectRowIds())}`), { hard: error.hard });
+    });
+  }
   const CODE_PATTERN = /\b[A-Z][A-Z0-9]*(?:[-_][A-Z0-9]+)+\b/g;
   const codesIn = (element) => [...new Set((element?.textContent ?? "").match(CODE_PATTERN) ?? [])];
 
@@ -686,14 +710,16 @@
     const step = async (name, fn) => { await log(`blank: ${name}`); const value = await fn(); steps.push(name); return value; };
     await closeSection();
     await step("units dialog", async () => {
+      const previousId = projectRowIds()[0] ?? null;
+      report.blank.previous_project_id = previousId;
       await menu("file.new-blank");
       await waitFor("units dialog", () => byTestId("project-units-dialog"), 20000);
       const preset = byTestId("project-units-preset");
       report.blank.unit_presets = preset ? [...preset.querySelectorAll("option")].map((option) => option.value) : [];
       click("project-units-create");
       await waitFor("units dialog closed", () => !byTestId("project-units-dialog"), 20000);
-      const row = await waitFor("blank project in the tree", () => document.querySelector('[data-testid^="tree-row-project-"]'), 20000);
-      report.blank.project_id = decodeURIComponent(row.getAttribute("data-testid").slice("tree-row-project-".length));
+      // Nothing is authored before the blank is the session (see blankInstalled).
+      report.blank.project_id = await awaitBlankProject(previousId);
     });
     await step("node", async () => {
       click("command-node");
@@ -810,7 +836,7 @@
   // Under the driver's node test only: hand over the helpers instead of running.
   const testHooks = globalThis.__SWBPIPE_NATIVE_SMOKE_DRIVER_TEST__;
   if (testHooks) {
-    Object.assign(testHooks, { waitFor, waitForSolve, solveDone, solveJobDiagnostics, composeSolveDiagnostics });
+    Object.assign(testHooks, { waitFor, waitForSolve, solveDone, solveJobDiagnostics, composeSolveDiagnostics, awaitBlankProject });
     return;
   }
 

@@ -10,9 +10,16 @@ import vm from "node:vm";
 
 const source = readFileSync(new URL("./driver.js", import.meta.url), "utf8");
 
-function load({ shown = {}, record = null, pool = null, poolError = null } = {}) {
+function load({ shown = {}, record = null, pool = null, poolError = null, projectRows = [] } = {}) {
   const logs = [];
   const elements = new Map(Object.entries(shown).map(([id, value]) => [id, { textContent: value, getAttribute: () => null }]));
+  // The model tree's project rows, `tree-row-project-<encoded id>`, in order; the
+  // caller may replace the array's contents to change what the window shows.
+  const rowElements = () => projectRows.map((id) => {
+    const testId = `tree-row-project-${encodeURIComponent(id)}`;
+    return { textContent: id, getAttribute: (name) => (name === "data-testid" ? testId : null) };
+  });
+  const byPrefix = (selector) => /^\[data-testid\^="(.*)"\]$/.exec(selector)?.[1];
   if (record) {
     const href = `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(record, null, 2))}`;
     elements.set("solve-job-export-link", { textContent: "Solve job JSON", getAttribute: (name) => (name === "href" ? href : null) });
@@ -27,14 +34,24 @@ function load({ shown = {}, record = null, pool = null, poolError = null } = {})
     __SWBPIPE_NATIVE_SMOKE_DRIVER_TEST__: hooks,
     __TAURI_INTERNALS__: { invoke },
     CSS: { escape: (value) => value },
-    document: { querySelector: (selector) => elements.get(/^\[data-testid="(.*)"\]$/.exec(selector)?.[1]) ?? null },
+    document: {
+      querySelector: (selector) => {
+        const prefix = byPrefix(selector);
+        if (prefix !== undefined) return rowElements().find((row) => row.getAttribute("data-testid").startsWith(prefix)) ?? null;
+        return elements.get(/^\[data-testid="(.*)"\]$/.exec(selector)?.[1]) ?? null;
+      },
+      querySelectorAll: (selector) => {
+        const prefix = byPrefix(selector);
+        return prefix === undefined ? [] : rowElements().filter((row) => row.getAttribute("data-testid").startsWith(prefix));
+      }
+    },
     setTimeout,
     Date,
     Promise
   };
   context.window = context;
   vm.runInNewContext(source, context);
-  return { hooks, logs };
+  return { hooks, logs, elements };
 }
 
 // A refusal as the product shows it (SolvePanel, memoryPool.ts) and records it.
@@ -143,4 +160,35 @@ test("a solve job that ended refused, failed or cancelled fails the wait at once
   // A job still cancelling has not ended: the wait goes on.
   const { hooks } = load({ shown: { "solve-job-summary": "state=cancelling; events=2; result_rows=0; cancellation_requested=true" } });
   assert.equal(hooks.solveDone("x", "project-1", null)(), false);
+});
+
+// Run 2 of the #1634 smoke at 4847f14b13: Create closed the units dialog while the
+// blank's native create was still in flight, so the tree still showed the project
+// opened before it. The driver read that row as the blank's id and authored at
+// once; the first edit landed in the previous project and superseded the create.
+test("after New Blank's Create, the blank's id is read only once the blank has replaced the previous project", async () => {
+  const previous = "project:exact-pressure-connected-fixture";
+  const blank = "project:blank-local-20261025t215818z";
+  const projectRows = [previous];
+  const { hooks, elements } = load({ shown: { "local-project-message": "Opened model document exact_pressure_authoring_model.json (6826 bytes; schema_version 0.7.0, current)." }, projectRows });
+  const status = elements.get("local-project-message");
+  const waited = hooks.awaitBlankProject(previous, 5000);
+  // The create is still in flight: the tree shows the previous project.
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  // The create's status line can be seen before the tree's next paint.
+  status.textContent = "Created blank local model document without fixture entities or external file copies.";
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  projectRows.splice(0, projectRows.length, blank);
+  assert.equal(await waited, blank);
+});
+
+test("a blank create that failed ends the wait at once with its message; one that never lands times out naming the tree", async () => {
+  const previous = "project:exact-pressure-connected-fixture";
+  const { hooks } = load({ shown: { "local-project-message": "Blank create failed: Error: PROJECT-STORE-UNAVAILABLE" }, projectRows: [previous] });
+  const started = Date.now();
+  await assert.rejects(hooks.awaitBlankProject(previous, 3000), { message: /^Blank create failed: Error: PROJECT-STORE-UNAVAILABLE; message="Blank create failed/ });
+  assert.ok(Date.now() - started < 1000);
+  const superseded = load({ shown: { "local-project-message": "Opened model document exact_pressure_authoring_model.json." }, projectRows: [previous] });
+  await assert.rejects(superseded.hooks.awaitBlankProject(previous, 150),
+    { message: `timed out after 150 ms waiting for blank project in the tree in place of ${previous}; message="Opened model document exact_pressure_authoring_model.json."; tree projects=["${previous}"]` });
 });

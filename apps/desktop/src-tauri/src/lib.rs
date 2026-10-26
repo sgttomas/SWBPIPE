@@ -141,9 +141,11 @@ fn save_report_package_with_picker(
     report_package_save::save_admitted_report_package_in(admitted, custody, choose)
 }
 
-/// The local library store as the native saves read it (W-6a, W-18): opened
+/// The local library store as Save Report Package reads it (W-18): opened
 /// only when a library is first referenced, as `open_local_library` opens it,
 /// with the identities trimmed as it normalizes them. A read error is an `Err`.
+/// Save Model Document and Save Handoff read it within their memory instead
+/// (`stored_model_document_export::StoreLibraryReads`).
 fn library_store_lookup(app: &AppHandle) -> impl FnMut(&str, &str, &str) -> Result<Option<Value>, String> + '_ {
     let mut connection: Option<Connection> = None;
     move |project_id: &str, library_kind: &str, library_id: &str| {
@@ -1639,52 +1641,58 @@ async fn open_model_document_file(app: AppHandle) -> Result<model_document_file:
 /// document checks) before the chooser is shown, then written by the atomic
 /// writer as `.json`. Cancel is an outcome, not an error. Async so the blocking
 /// chooser stays off the main thread (as `save_report_package`); the ingress
-/// lease is held through admission, the chooser and the write.
+/// lease is held until the command returns, and each referenced library's read
+/// is metered against the pool with it (`StoreLibraryReads`).
 #[tauri::command]
 async fn save_model_document_file(
     app: AppHandle,
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<NoCommandError>> {
-    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "save_model_document_file", ArgsDecoding::Moved)?;
+    let (mut args, lease) = command_ingress::admit(&registry, &invoke, "save_model_document_file", ArgsDecoding::Moved)?;
     let request = model_document_save::save_model_document_args(&mut args)?;
     drop(args);
-    respond(Ok(save_model_document_decoded(app, request).await))
+    // The command keeps the lease until it returns; the worker shares it.
+    let lease = std::sync::Arc::new(lease);
+    Ok(save_model_document_decoded(app, request, std::sync::Arc::clone(&lease)).await)
 }
 
 async fn save_model_document_decoded(
     app: AppHandle,
     request: model_document_save::ModelDocumentSaveRequest,
-) -> model_document_save::ModelDocumentSaveOutcome {
-    use model_document_save::{ModelDocumentSaveOutcome as Outcome, PICKER_PATH_INVALID, WORKER_FAILED};
+    lease: std::sync::Arc<memory_pool::Lease>,
+) -> tauri::ipc::Response {
+    use model_document_save::{ModelDocumentSaveOutcome as Outcome, WORKER_FAILED};
+    // A short outcome of fixed texts, within the ingress lease's error allowance.
+    let short = |outcome: Outcome| tauri::ipc::Response::new(serde_json::to_string(&outcome).unwrap_or_default());
     if let Err(diagnostic) =
         model_document_save::validate_model_document_save_evidence(&request.screening, &request.local_first)
     {
-        return Outcome::refused(vec![diagnostic]);
+        return short(Outcome::refused(vec![diagnostic]));
     }
     let model_document_save::ModelDocumentSaveRequest { canonical_text, claimed_model_hash, screening, .. } = request;
-    let store_app = app.clone();
-    let admitted = match tauri::async_runtime::spawn_blocking(move || {
+    // The admission, the chooser and the write run on one blocking worker,
+    // which holds the library reads' reservations throughout; the chooser
+    // blocks this worker, not the main thread.
+    tauri::async_runtime::spawn_blocking(move || {
+        let registry = app.state::<SolveJobRegistry>();
+        let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
         // The local library store, opened only if the document references a
         // library. A read error refuses.
-        let mut lookup = library_store_lookup(&store_app);
-        model_document_save::admit_model_document_text(canonical_text, &claimed_model_hash, &screening.payload_sha256, &mut lookup)
+        let open_store = || open_project_store(&app_store_path(&app)?).map(|(connection, _)| connection);
+        model_document_save::save_model_document_admitted(
+            canonical_text,
+            &claimed_model_hash,
+            &screening.payload_sha256,
+            open_store,
+            &registry,
+            &lease,
+            |suggested| choose_model_document_save_path(&app, suggested, directory),
+            |_, text| tauri::ipc::Response::new(text),
+        )
     })
     .await
-    {
-        Ok(Ok(admitted)) => admitted,
-        Ok(Err(diagnostics)) => return Outcome::refused(diagnostics),
-        Err(_) => return Outcome::refused_one(WORKER_FAILED, "The save's admission worker did not complete."),
-    };
-    let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
-    let destination = match choose_model_document_save_path(&app, &admitted.suggested_file_name, directory) {
-        Ok(Some(destination)) => destination,
-        Ok(None) => return Outcome::Cancelled,
-        Err(message) => return Outcome::refused_one(PICKER_PATH_INVALID, message),
-    };
-    tauri::async_runtime::spawn_blocking(move || model_document_save::write_admitted_model_document(&destination, admitted))
-        .await
-        .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The save's write worker did not complete; the destination may be unchanged."))
+    .unwrap_or_else(|_| short(Outcome::refused_one(WORKER_FAILED, "The save's worker did not complete; the destination may be unchanged.")))
 }
 
 /// Recovery export (W-17, DEL-02-02 Design §3): a stored project's document
@@ -1791,10 +1799,11 @@ async fn save_handoff_package(
     let (mut args, lease) = command_ingress::admit(&registry, &invoke, "save_handoff_package", ArgsDecoding::Moved)?;
     let request = handoff_package::save_handoff_package_args(&mut args)?;
     drop(args);
-    // The lease is held until the command returns; each store read is metered
-    // against the pool with it (W-12 S2's `PoolReadMemory`).
+    // The lease is held until the command returns; the saved states and the
+    // referenced libraries are read within the pool with it (W-12 S2's
+    // `PoolReadMemory`). The worker shares it.
     let lease = std::sync::Arc::new(lease);
-    respond(Ok(save_handoff_package_decoded(app, request, lease).await))
+    Ok(save_handoff_package_decoded(app, request, std::sync::Arc::clone(&lease)).await)
 }
 
 /// The stored rule-pack document with `rule_pack_id` under the model's project
@@ -1809,83 +1818,34 @@ async fn save_handoff_package_decoded(
     app: AppHandle,
     request: handoff_package::HandoffSaveRequest,
     lease: std::sync::Arc<memory_pool::Lease>,
-) -> handoff_package::HandoffSaveOutcome {
-    use handoff_package::{HandoffSaveOutcome as Outcome, PICKER_PATH_INVALID, WORKER_FAILED};
+) -> tauri::ipc::Response {
+    use handoff_package::{HandoffSaveOutcome as Outcome, WORKER_FAILED};
+    // A short outcome of fixed texts, within the ingress lease's error allowance.
+    let short = |outcome: Outcome| tauri::ipc::Response::new(serde_json::to_string(&outcome).unwrap_or_default());
     if let Err(diagnostic) = handoff_package::validate_handoff_evidence(&request.screening, &request.local_first) {
-        return Outcome::Refused { diagnostics: vec![diagnostic] };
+        return short(Outcome::Refused { diagnostics: vec![diagnostic] });
     }
-    let handoff_package::HandoffSaveRequest { canonical_text, claimed_model_hash, screening, basis_state_id, package_label, .. } = request;
-    let store_app = app.clone();
-    let store_lease = std::sync::Arc::clone(&lease);
-    let prepared = match tauri::async_runtime::spawn_blocking(move || {
-        let registry = store_app.state::<SolveJobRegistry>();
-        let memory = stored_read::PoolReadMemory::new(&registry, &store_lease);
-        // One store connection, opened on first use, as the model-document save opens it.
-        let connection: std::cell::RefCell<Option<Connection>> = std::cell::RefCell::new(None);
-        let with_store = |read: &mut dyn FnMut(&Connection) -> Result<(), String>| -> Result<(), String> {
-            let mut held = connection.borrow_mut();
-            if held.is_none() {
-                *held = Some(open_project_store(&app_store_path(&store_app)?)?.0);
-            }
-            read(held.as_ref().expect("opened above"))
-        };
-        let mut states = |project_id: &str, state_id: &str| {
-            handoff_package::stored_state(&app_store_path(&store_app)?, project_id, state_id, &memory)
-        };
-        let mut libraries = |project_id: &str, library_kind: &str, library_id: &str| -> Result<Option<Value>, String> {
-            let mut found = None;
-            with_store(&mut |connection| {
-                found = load_library(connection, project_id.trim(), library_kind.trim(), library_id.trim())?.map(|row| row.document);
-                Ok(())
-            })?;
-            Ok(found)
-        };
-        let mut rule_packs = |project_id: &str, rule_pack_id: &str| -> Result<Vec<Value>, String> {
-            let mut found = Vec::new();
-            with_store(&mut |connection| {
-                found = stored_rule_packs_with_id(connection, project_id, rule_pack_id)?;
-                Ok(())
-            })?;
-            Ok(found)
-        };
-        handoff_package::prepare_handoff(
-            canonical_text,
-            &claimed_model_hash,
-            &screening.payload_sha256,
-            &basis_state_id,
-            &package_label,
-            &mut states,
-            &mut libraries,
-            &mut rule_packs,
+    // The admission, the chooser, the basis state's re-read and the
+    // publication run on one blocking worker, which holds the store reads'
+    // reservations throughout; the chooser blocks this worker, not the main
+    // thread.
+    tauri::async_runtime::spawn_blocking(move || {
+        let registry = app.state::<SolveJobRegistry>();
+        let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
+        let store = || app_store_path(&app);
+        handoff_package::save_handoff_admitted(
+            request,
+            &store,
+            &registry,
+            &lease,
+            |suggested| choose_handoff_package_path(&app, suggested, directory),
+            handoff_package::local_iso_now,
+            &handoff_package_publish::PRODUCTION_HOOKS,
+            |_, text| tauri::ipc::Response::new(text),
         )
     })
     .await
-    {
-        Ok(Ok(prepared)) => prepared,
-        Ok(Err(diagnostics)) => return Outcome::Refused { diagnostics },
-        Err(_) => return Outcome::refused_one(WORKER_FAILED, "The handoff's admission worker did not complete."),
-    };
-    let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
-    let destination = match choose_handoff_package_path(&app, &prepared.suggested_package_name, directory) {
-        Ok(Some(destination)) => destination,
-        Ok(None) => return Outcome::Cancelled,
-        Err(message) => return Outcome::refused_one(PICKER_PATH_INVALID, message),
-    };
-    let write_app = app.clone();
-    tauri::async_runtime::spawn_blocking(move || {
-        // The basis state is read again immediately before publication.
-        let registry = write_app.state::<SolveJobRegistry>();
-        let memory = stored_read::PoolReadMemory::new(&registry, &lease);
-        let mut states = |project_id: &str, state_id: &str| {
-            handoff_package::stored_state(&app_store_path(&write_app)?, project_id, state_id, &memory)
-        };
-        if let Err(diagnostics) = handoff_package::confirm_basis_state(&prepared, &mut states) {
-            return Outcome::Refused { diagnostics };
-        }
-        handoff_package::write_handoff_package(&destination, prepared, &handoff_package::local_iso_now(), &handoff_package_publish::PRODUCTION_HOOKS)
-    })
-    .await
-    .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The handoff's write worker did not complete; the destination may be unchanged."))
+    .unwrap_or_else(|_| short(Outcome::refused_one(WORKER_FAILED, "The handoff's worker did not complete; the destination may be unchanged.")))
 }
 
 fn choose_handoff_package_path(app: &AppHandle, suggested_name: &str, directory: Option<PathBuf>) -> Result<Option<PathBuf>, String> {
