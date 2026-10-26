@@ -4,7 +4,8 @@ import { LoadReferenceStatesBlock } from "./LoadReferenceStatesBlock";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel, SolveJobAuditState } from "../../types";
 import type { PreviewSolverMode } from "../../services/previewService";
 import { hasRecordedUnsolvedModelStatus, professionalStatusToken, ruleCheckStatusToken, solverDisplayWithToken, statusDisplayWithToken } from "../workspace/statusLabels";
-import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes } from "../../services/memoryPool";
+import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes, resourceRefusalCode } from "../../services/memoryPool";
+import { describeSolveRefusalRetry, solveRefusalPoint } from "../workspace/solveJobAudit";
 import { MemoryPoolPanel } from "./MemoryPoolPanel";
 import type { NumericalHealthView } from "../results/numericalHealth";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
@@ -41,6 +42,7 @@ export function SolvePanel({
   const diagnostics = [...(model.diagnostics ?? []), ...(result?.diagnostics ?? [])];
   const readinessItems = readinessSummary({ model, result, diagnostics, solveJob });
   const packet = buildSolveJobPacket({ model, result, analysisRun, solveJob, running, solverMode });
+  const refusalPoint = solveRefusalPoint(solveJob);
   return (
     <section className="panel solve-panel" aria-label="Solve execution" data-testid="solve-panel">
       <div className="panel-title">Execution</div>
@@ -80,9 +82,15 @@ export function SolvePanel({
           Refused by the native memory pool: {describeResourceRefusal(solveJob.resource.refusal)} No result was published.
         </p>
       ) : null}
+      {refusalPoint && solveJob.resource.refusal ? (
+        <p className="memory-pool-message warning" data-testid="solve-job-refusal-retry">
+          {describeSolveRefusalRetry(solveJob.resource.refusal, refusalPoint)} Refusal code: <code>{resourceRefusalCode(solveJob.resource.refusal)}</code>
+        </p>
+      ) : null}
       {solveJob.resource.queue_reason && (solveJob.state === "queued" || solveJob.state === "cancelling") ? (
         <p role="status" className="memory-pool-message info" data-testid="solve-job-queue-reason">
-          Waiting in the queue: {describeResourceRefusal(solveJob.resource.queue_reason)}
+          Waiting in the queue: {describeResourceRefusal(solveJob.resource.queue_reason)} The queue retries by itself and starts
+          the solve once the pool admits it; Cancel preview stops the wait.
         </p>
       ) : null}
       <div className="report-list solve-job-list" data-testid="solve-job-audit">

@@ -206,7 +206,7 @@ Two panels make up this surface. Both receive the Current result. The run also h
 
 - **Report JSON and rendered report** (`report`, `rendered-report`). Their builders are generic.
   - `selectedResultRefs` picks the single `max_open_formula_stress` headline (`features/report/ReportPanel.tsx:279-298`), but an exact result carries one headline per section basis.
-  - The renderable report's only limitation is a fixed technical-preview statement (`features/report/renderableReportInput.ts:343-357`). It carries none of the exact identity's published limitations, such as the D-3 exclusions.
+  - The renderable report builds the exact identity's limitation sections, stress headlines and standing line behind this refusal (DEL-08-01 Design `exact-route-report-sections.md`). Until the owner opens them, none of them reaches an output: the `rendered-report` and `report-package` cells refuse an exact result, and the native render and the package's Rust boundary refuse every input that carries an exact identity in an identity field (`REPORT-RENDER-ROUTE-NOT-ADMITTED`, `REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).
 
   Opening them needs DEL-08-01's own design of those sections and of the PRD §19.3 notice's place. They keep refusing with the reworded text (§5.3).
 - **Report package.** Since W-18 (DEL-08-01 Design `report-package-current-results.md`) it saves a Current preview-physics-2 result. It refuses the exact identities by policy and Rust identity, not by the fresh-result code: the policy entry `report-package: refused` gives their routes' refusal (`PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`, through `reportPackageUnavailableReason` in `reportPackageRequest.ts`), and the package's Rust boundary admits only preview-physics-2 (`REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).

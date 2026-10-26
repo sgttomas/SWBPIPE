@@ -439,6 +439,25 @@ export function deliveredMechanicsResultJob(result: MechanicsResult | null | und
   return delivered && !delivered.disposed ? delivered.jobId : null;
 }
 
+/** Query only (W-11, DEL-08-01 Design `exact-route-report-sections.md` §3.6): the model
+ * text `startPreviewMechanicsJob` sent for the job that delivered this held result,
+ * re-serialized with `checkedJsonText` from the result's native registration. Null
+ * without a valid registration (a copy, an unregistered or edited result) and once the
+ * result is no longer held (disposed). The native host checks its SHA-256 against the
+ * digest it recorded when it admitted the job's body. */
+export function deliveredIntakeText(result: MechanicsResult | null | undefined): string | null {
+  if (!result || deliveredMechanicsResultJob(result) === null) return null;
+  const registered = nativeSourceInvocations.get(result);
+  if (!registered) return null;
+  try {
+    const capture = registered.capture;
+    if (capture.invalidated
+      || nativeContentFingerprint(capture.invocation) !== capture.fingerprint
+      || nativeContentFingerprint(result) !== registered.sourceFingerprint) return null;
+    return checkedJsonText(capture.invocation.request.model);
+  } catch { return null; }
+}
+
 /** A completed job whose result the app will not take (its run was superseded,
  * or its take was refused and the session does not retry): retire its capture
  * and release the retained result natively, without copying it to the app. */

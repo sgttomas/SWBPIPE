@@ -17,6 +17,8 @@ import desktopAppConfig from "../../../src-tauri/tauri.conf.json";
 import type { NumericalHealthView } from "../results/numericalHealth";
 import { reportLineText } from "../results/numericalHealthText";
 import { reportResultRows } from "./reportResultRows";
+import { checkExactReportAdmission, REPORT_EXACT_ADMISSION_BINDING_MISMATCH, type ExactReportAdmission } from "./exactReportAdmission";
+import { exactLimitationEntries, exactRouteCore, isExactReportSource } from "./exactReportSections";
 
 // DEC-021 (A7): assemble the renderer input document from session state.
 // The frontend composes only references, disclosures, and display rows — the
@@ -481,7 +483,8 @@ export async function buildRenderableReportInput({
   renderContext,
   inputManifest = null,
   ruleCheckRun = null,
-  numericalHealth = null
+  numericalHealth = null,
+  exactAdmission = null
 }: {
   model: PreviewModel;
   result: MechanicsResult;
@@ -495,8 +498,21 @@ export async function buildRenderableReportInput({
    * route only. Absent, the input is unchanged (the report package passes none). No
    * figure is exported. */
   numericalHealth?: NumericalHealthView | null;
+  /** W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.1): the recorded Export
+   * Result JSON admission of an exact-route source (`admitExactReportSource`), required
+   * for an exact source and refused for any other. A pressure-free source takes none, so
+   * its input is unchanged. */
+  exactAdmission?: ExactReportAdmission | null;
 }) {
+  const exact = isExactReportSource(result);
+  if (!exact && exactAdmission !== null) {
+    throw new Error(`${REPORT_EXACT_ADMISSION_BINDING_MISMATCH}: semantic_contract_id`);
+  }
   const run = analysisRun.analysis_run;
+  // The exact path's admission is checked at the start and again after the last await
+  // (`checkExactReportAdmission`): retirement, an edit or a substitute refuses.
+  const exactInputs = exact ? { model, result, analysisRun, inputManifest: inputManifest as CurrentSessionInputManifestEvidence } : null;
+  if (exactInputs) checkExactReportAdmission(exactAdmission, exactInputs);
   const provenance = sessionProvenance(model);
   const modelHashValue = await canonicalSha256Hex(model);
   const runRecordHash = run.hashes.find((item) => item.payload_scope === "analysis_run_record");
@@ -575,6 +591,17 @@ export async function buildRenderableReportInput({
     })),
     professional_boundary: PROFESSIONAL_BOUNDARY
   };
+
+  // W-11 (§2.4): an exact source's limitation entries, one per published producer
+  // string with the closed table's statement, then the profile reference, after the
+  // technical-preview entry (which stays first), sharing its effect and provenance.
+  if (exactInputs) {
+    const semanticContract = run.reproducibility.semantic_contract;
+    if (!semanticContract) throw new Error(`${REPORT_EXACT_ADMISSION_BINDING_MISMATCH}: semantic_contract_id`);
+    const [preview] = reportSections.limitations;
+    const entries = await exactLimitationEntries(result, result.run_id, { id: semanticContract.id, sha256: semanticContract.sha256 });
+    reportSections.limitations.push(...entries.map((entry) => ({ ...entry, effect: preview.effect, provenance: preview.provenance })) as never[]);
+  }
 
   const sectionsChecksumValue = await canonicalSha256Hex(reportSections);
 
@@ -671,18 +698,40 @@ export async function buildRenderableReportInput({
     }))
   };
 
+  const reportContext = await buildReportContext(result, analysisRun, renderContext, inputManifest);
+  // W-11 (§3.2-§3.3): the exact-route result block: the identity, the admission binding
+  // (the renderer composes the standing line from it), the load/reference line and the
+  // headlines, nominal then reduced.
+  const exactRoute = exactInputs
+    ? await (async () => {
+        const core = await exactRouteCore(result);
+        return {
+          semantic_contract_id: core.semantic_contract_id,
+          admission: { ...exactAdmission!.binding },
+          load_reference_states: core.load_reference_states,
+          headlines: core.headlines
+        };
+      })()
+    : null;
+  // After the last await: the admission still holds for these live objects.
+  if (exactInputs) checkExactReportAdmission(exactAdmission, exactInputs);
+
   return {
     report_title: `${model.project.name} — Calculation Report`,
     calculation_report: calculationReport,
     report_sections: reportSections,
-    result_rows: reportResultRows(result).concat((numericalHealth?.route === "generic" ? numericalHealth.cases : []).map((item) => ({
+    // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §6.1): an exact-route
+    // report carries no numerical-health line until the native render can re-derive it
+    // from the delivered result; its rows are exactly the source rows' projection.
+    result_rows: reportResultRows(result).concat((numericalHealth?.route === "generic" && !exactInputs ? numericalHealth.cases : []).map((item) => ({
       row_id: `numerical-health:${item.caseId}`,
       label: reportLineText(item.state),
       case_ref: `load_case:${item.caseId}`,
       quantity_display: "",
       source_ref: item.integrityDiagnosticId ?? "numerical_quality"
     }))),
-    report_context: await buildReportContext(result, analysisRun, renderContext, inputManifest),
-    user_rule_checks: ruleCheckRun ? userRuleChecks(ruleCheckRun) : null
+    report_context: reportContext,
+    user_rule_checks: ruleCheckRun ? userRuleChecks(ruleCheckRun) : null,
+    ...(exactRoute ? { exact_route: exactRoute } : {})
   };
 }

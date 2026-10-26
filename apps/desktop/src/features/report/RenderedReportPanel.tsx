@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
-import { loadReferenceOutputRefusal } from "../results/loadReferenceOutputAvailability";
+import { surfaceOutputRefusal } from "../results/outputPolicy";
 import { FileCheck, Printer } from "lucide-react";
 import type {
   AnalysisRunEnvelope,
@@ -13,15 +13,12 @@ import {
   type RenderReportRoute
 } from "../../services/reportRenderService";
 import {
-  buildRenderableReportInput,
   buildUnitDisplaySummary,
   type ReportExportContext,
   type SessionRuleCheckRun
 } from "./renderableReportInput";
-import {
-  controlLocalPrivateRenderedHtml,
-  controlReportRendererInput
-} from "./reportRedactionProjector";
+import { controlLocalPrivateRenderedHtml } from "./reportRedactionProjector";
+import { assembleRenderedReport } from "./renderedReportAssembly";
 import type { NumericalHealthView } from "../results/numericalHealth";
 import type { ControlledRouteExport } from "../redaction-controls/redactionExportControls";
 import type { ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
@@ -42,6 +39,13 @@ import type { CurrentSessionInputManifestEvidence } from "../../services/inputMa
 // rendered document records its local-private status. A render is shown only
 // while the selection that produced it is still current; clearing the
 // selection discards it.
+//
+// W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.1): the panel's
+// check is the surface's own (`surfaceOutputRefusal` on `rendered-report`), which refuses
+// exactly as the route-level check did while the cell refuses an exact result (ruling
+// 10A). Behind it, an exact source is built with its Export Result JSON admission, which
+// is re-checked immediately before IPC, and the render resubmits the texts the native
+// host binds (`renderedReportAssembly.ts`).
 
 const LOCAL_PRIVATE_REPORT_WARNING =
   "Local private report: this rendering contains private project values for your own local review. It is not for sharing or publication.";
@@ -168,7 +172,7 @@ export function RenderedReportPanel({
     : null;
 
   async function onRender() {
-    if (!result || !analysisRun || loadReferenceOutputRefusal(result)) return;
+    if (!result || !analysisRun || surfaceOutputRefusal(result, model, "rendered-report")) return;
     const generation = ++renderGeneration.current;
     const intent = localPrivateIntent;
     const context: ReportExportContext = intent ? "local_private" : "public_report";
@@ -179,22 +183,33 @@ export function RenderedReportPanel({
     setRenderState(null);
     setRedactionState(null);
     try {
-      const input = await buildRenderableReportInput({
+      const assembly = await assembleRenderedReport({
         model,
         result,
         analysisRun,
         projectSummary,
         inputManifest,
         ruleCheckRun: sessionRuleCheckRun,
-        renderContext: { exportContext: context, generatedAt: new Date().toISOString() },
-        numericalHealth
+        numericalHealth,
+        context,
+        intent,
+        generatedAt: new Date().toISOString()
       });
       if (!isCurrent()) return;
-      const controlled = controlReportRendererInput(input, intent);
+      const { controlled, exactSubmission } = assembly;
       setRedactionState({ context, controlled });
       if (controlled.blocked || controlled.payload === null) return;
       if (!isCurrent()) return;
-      const next = await renderCalculationReport(controlled, { stillCurrent: isCurrent });
+      // An exact source: the admission's live re-check, immediately before IPC (and
+      // before each re-send); a retired, replaced or edited source sends nothing.
+      const submission = exactSubmission ? exactSubmission() : null;
+      const stillCurrent = exactSubmission
+        ? () => {
+            if (!isCurrent()) return false;
+            try { exactSubmission(); return true; } catch { return false; }
+          }
+        : isCurrent;
+      const next = await renderCalculationReport(controlled, { stillCurrent, exactSubmission: submission });
       if (!isCurrent()) return;
       setRenderState({ context, route: next });
     } catch (error) {

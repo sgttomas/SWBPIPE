@@ -24,6 +24,8 @@ use std::sync::OnceLock;
 
 #[path = "common/current_model.rs"]
 mod current_model;
+#[path = "common/t4_u5b.rs"]
+mod t4_u5b;
 
 const FIXTURE: &str = include_str!("../../../fixtures/reports/exact_route_limitations.json");
 const WRITE_ENV: &str = "OPENPIPESTRESS_WRITE_EXACT_ROUTE_LIMITATIONS";
@@ -534,4 +536,57 @@ fn pressure_source_1_is_never_emitted_with_a_connector_or_a_realized_bend() {
         }
     }
     assert_eq!(guarded, 6);
+}
+
+/// W-11 slice (b) witness inputs (DEL-08-01 Design
+/// `exact-route-report-sections.md` §5.5): the two `pressure-2` shapes whose
+/// corpora commit no request model a desktop session can solve, the objective
+/// connector (T4-U5b AS-F, the connector corpus's pressurized tied joint, the
+/// smallest of its connector inputs) and the realized bend (U2-L-ANCH-PTW-K2
+/// 0.3.0, the arc corpus's input), each as its re-authored request (`{model,
+/// materials: []}`, the desktop worker's native request) and the bytes the
+/// desktop's solve worker writes for it (`serde_json::to_string` of the public
+/// producer's envelope, `lib.rs` `run_preview_mechanics_worker` form). The
+/// desktop's vitest solves them under the native-capture test seams and
+/// assembles their witness requests below the output gate. Stale fails;
+/// `OPENPIPESTRESS_WRITE_EXACT_REPORT_WITNESS_INPUTS=<dir>` writes them.
+const WITNESS_INPUTS_ENV: &str = "OPENPIPESTRESS_WRITE_EXACT_REPORT_WITNESS_INPUTS";
+const WITNESS_INPUTS: [(&str, &str, &str); 2] = [
+    (
+        "pressure_2_connector",
+        include_str!("../../../fixtures/reports/invented/exact_report_witness_inputs/pressure_2_connector.request.json"),
+        include_str!("../../../fixtures/reports/invented/exact_report_witness_inputs/pressure_2_connector-sparse_interactive.raw.json"),
+    ),
+    (
+        "pressure_2_realized_bend",
+        include_str!("../../../fixtures/reports/invented/exact_report_witness_inputs/pressure_2_realized_bend.request.json"),
+        include_str!("../../../fixtures/reports/invented/exact_report_witness_inputs/pressure_2_realized_bend-sparse_interactive.raw.json"),
+    ),
+];
+
+#[test]
+fn exact_report_witness_inputs_are_current() {
+    let requests = [
+        ("pressure_2_connector", t4_u5b::request("AS-F", &t4_u5b::oracle()["cases"]["AS-F"]), (PRESSURE_2.to_string(), false, true, false)),
+        ("pressure_2_realized_bend", i7("U2-L-ANCH-PTW-K2", "0.3.0"), (PRESSURE_2.to_string(), false, false, true)),
+    ];
+    let target = std::env::var(WITNESS_INPUTS_ENV).ok();
+    for ((name, request, shape), (committed_name, committed_request, committed_raw)) in requests.into_iter().zip(WITNESS_INPUTS) {
+        assert_eq!(name, committed_name);
+        let request = json!({"model": request["model"].clone(), "materials": []});
+        let envelope = run_linear_static_preview_value_with_mode(request.clone(), PreviewSolverMode::SparseInteractive)
+            .unwrap_or_else(|error| panic!("{name}: the producer refused: {error}"));
+        let raw = serde_json::to_string(&envelope).unwrap();
+        let value: Value = serde_json::from_str(&raw).unwrap();
+        assert_eq!(published_shape(&value), shape, "{name}: the envelope states its intended shape");
+        assert_eq!(value["status"]["mechanics"], "MECHANICS_SOLVED", "{name}");
+        let request_text = format!("{}\n", serde_json::to_string_pretty(&request).unwrap());
+        if let Some(dir) = &target {
+            std::fs::write(format!("{dir}/{name}.request.json"), &request_text).unwrap();
+            std::fs::write(format!("{dir}/{name}-sparse_interactive.raw.json"), &raw).unwrap();
+            continue;
+        }
+        assert!(request_text == committed_request, "{name}: the committed request is stale; regenerate with {WITNESS_INPUTS_ENV}=<dir>");
+        assert!(raw == committed_raw, "{name}: the committed raw bytes are stale; regenerate with {WITNESS_INPUTS_ENV}=<dir>");
+    }
 }

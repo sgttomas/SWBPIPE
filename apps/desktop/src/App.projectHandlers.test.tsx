@@ -685,7 +685,8 @@ describe("project handlers: a landed write records snapshot verification even wh
 
   // Correction C2. A blank create writes a new project id, never the open
   // project's stored bytes, so its dropped response leaves the open project's
-  // open-time record valid and in place.
+  // open-time record valid and in place. The supersession is named with the
+  // stored blank and its recovery route (W-17 #1640, Agent 0); nothing is deleted.
   it("keeps both recorded mismatches when a model edit drops a pending blank create's response", async () => {
     const model = await loadPreviewModel();
     render(<App />);
@@ -719,8 +720,15 @@ describe("project handlers: a landed write records snapshot verification even wh
       await pendingCreate.promise;
     });
     await flushPendingWork();
-    // The blank create's response was dropped: its message never publishes.
-    expect(projectMessage()).toHaveTextContent(envelope.summary.message);
+    // The blank create's response was dropped: it is not opened, and the status
+    // line names the stored blank and how to reach it. Only the create reached
+    // the store, so the stored blank is kept.
+    const storedBlank = (createRequest!.model as PreviewModel).project;
+    expect(projectMessage()).toHaveTextContent(
+      `NEW-BLANK-SUPERSEDED: the new blank project "${storedBlank.name}" (${storedBlank.id}) was created but not opened, because the model changed while it was being created. This session keeps the changed model. The blank is stored locally: open it from List Local Projects.`);
+    const commands = invokeMock.mock.calls.map(([command]) => String(command));
+    const afterCreate = commands.slice(commands.indexOf("create_local_project") + 1);
+    expect(afterCreate.filter((command) => /create|save|delete|remove|replace/.test(command))).toEqual([]);
     expect(modelHashLine()).toHaveTextContent("integrity=mismatch_review_required");
     expect(envelopeHashLine()).toHaveTextContent("integrity=mismatch_review_required");
     expect(workspace).toHaveAttribute("data-stage", "loads");
@@ -736,6 +744,203 @@ describe("project handlers: a landed write records snapshot verification even wh
     expect(reviewValue("node:N-100-y")).toBe("0.5");
     fireEvent.click(screen.getByTestId("layout-mode-tree"));
     expect(screen.getByTestId(`tree-row-project-${encodeURIComponent(envelope.model.project.id)}`)).toBeInTheDocument();
+  });
+
+  // W-17 #1640. Only a change to the model or project on screen supersedes a
+  // pending blank: selecting an entity or typing into an unapplied form does not.
+  async function pendingBlankCreate() {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const envelope = await openProjectWithRecordedMismatch(model);
+    const pendingCreate = deferred<LocalProjectEnvelope>();
+    let createRequest: Record<string, unknown> | undefined;
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+      if (command === "create_local_project") {
+        createRequest = args;
+        return pendingCreate.promise;
+      }
+      return Promise.reject(new Error(`Unexpected command ${command}`));
+    });
+    act(() => nativeMenuCommand("file.new-blank"));
+    confirmProjectUnits();
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("create_local_project", expect.any(Object)));
+    const land = async () => {
+      const blank = createRequest!.model as PreviewModel;
+      await act(async () => {
+        pendingCreate.resolve(savedEnvelopeFor(blank, createRequest!, "Created invented blank."));
+        await pendingCreate.promise;
+      });
+      await flushPendingWork();
+      return blank;
+    };
+    return { envelope, land };
+  }
+
+  function expectBlankInstalled(blank: PreviewModel, previousId: string) {
+    expect(projectMessage()).toHaveTextContent("Created blank local model document without fixture entities or external file copies.");
+    fireEvent.click(screen.getByTestId("layout-mode-tree"));
+    const row = screen.getByTestId(`tree-row-project-${encodeURIComponent(blank.project.id)}`);
+    // A clean install selects the new project.
+    expect(row).toHaveAttribute("aria-selected", "true");
+    expect(screen.queryByTestId(`tree-row-project-${encodeURIComponent(previousId)}`)).not.toBeInTheDocument();
+    expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent(blank.project.name);
+  }
+
+  it("installs a pending blank when an existing node is selected before the create returns", async () => {
+    const { envelope, land } = await pendingBlankCreate();
+    fireEvent.click(screen.getByTestId("layout-mode-tree"));
+    fireEvent.click(screen.getByTestId(`tree-row-node-${encodeURIComponent("node:N-100")}`));
+    expect(screen.getByTestId(`tree-row-node-${encodeURIComponent("node:N-100")}`)).toHaveAttribute("aria-selected", "true");
+    const blank = await land();
+    expectBlankInstalled(blank, envelope.model.project.id);
+  });
+
+  it("installs a pending blank when a node id is typed into an unapplied form before the create returns", async () => {
+    const { envelope, land } = await pendingBlankCreate();
+    fireEvent.click(screen.getByTestId("command-node"));
+    fireEvent.change(screen.getByTestId("viewport-create-node-id"), { target: { value: "node:W4-A" } });
+    expect(screen.getByTestId("viewport-create-node-id")).toHaveValue("node:W4-A");
+    const blank = await land();
+    expectBlankInstalled(blank, envelope.model.project.id);
+    // The typed draft was never applied: the blank holds no node.
+    expect(screen.queryByTestId(`tree-row-node-${encodeURIComponent("node:W4-A")}`)).not.toBeInTheDocument();
+  });
+});
+
+// W-17 (Codex, reviews of #1640 and #1643). Save Handoff lists the project's
+// model states before it asks anything. A listing the session outlived is
+// dropped, success or failure: it cannot replace a newer status line or open
+// its dialog over a newer command. A newer command is one that changed the
+// model, or any project command started since (projectRequest), even one that
+// left the model as it was.
+describe("Save Handoff: a stale state-list response is dropped", () => {
+  async function pendingStateList(options: { editFirst?: boolean } = {}) {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const envelope = await openProjectWithRecordedMismatch(model);
+    const unitless = inventedOpenEnvelope(model);
+    delete (unitless.model.project as { units?: unknown }).units;
+    if (options.editFirst) {
+      invokeMock.mockImplementation((command: string) => Promise.reject(new Error(`Unexpected command ${command}`)));
+      await applyGridEditWhilePending();
+      await flushPendingWork();
+    }
+    const pendingList = deferred<unknown>();
+    const pendingCreate = deferred<LocalProjectEnvelope>();
+    let createRequest: Record<string, unknown> | undefined;
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+      if (command === "list_model_states") return pendingList.promise;
+      if (command === "create_local_project") {
+        createRequest = args;
+        return pendingCreate.promise;
+      }
+      if (command === "open_local_project") return Promise.resolve(unitless);
+      if (command === "list_local_projects") return Promise.resolve([]);
+      return Promise.reject(new Error(`Unexpected command ${command}`));
+    });
+    act(() => nativeMenuCommand("file.save-handoff"));
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("list_model_states", { projectId: envelope.model.project.id }));
+    return { pendingList, pendingCreate, createRequest: () => createRequest };
+  }
+
+  it("keeps NEW-BLANK-SUPERSEDED when the earlier listing rejects after New Blank and an edit", async () => {
+    const { pendingList, pendingCreate, createRequest } = await pendingStateList();
+    act(() => nativeMenuCommand("file.new-blank"));
+    confirmProjectUnits();
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("create_local_project", expect.any(Object)));
+    await applyGridEditWhilePending();
+    const blank = createRequest()!.model as PreviewModel;
+    await act(async () => {
+      pendingCreate.resolve(savedEnvelopeFor(blank, createRequest()!, "Created blank after the model was edited."));
+      await pendingCreate.promise;
+    });
+    await flushPendingWork();
+    const supersededMessage = `NEW-BLANK-SUPERSEDED: the new blank project "${blank.project.name}" (${blank.project.id}) was created but not opened`;
+    expect(projectMessage()).toHaveTextContent(supersededMessage);
+    expect(lastProjectOperation()).toBe("create_blank_superseded");
+    await act(async () => {
+      pendingList.reject(new Error("Invented stale state-list failure"));
+      await pendingList.promise.catch(() => undefined);
+    });
+    await flushPendingWork();
+    expect(projectMessage()).toHaveTextContent(supersededMessage);
+    expect(projectMessage()).not.toHaveTextContent("Save handoff failed");
+    expect(lastProjectOperation()).toBe("create_blank_superseded");
+    expect(screen.queryByTestId("handoff-save-dialog")).not.toBeInTheDocument();
+  });
+
+  it("still names a current listing's failure", async () => {
+    const { pendingList } = await pendingStateList();
+    await act(async () => {
+      pendingList.reject(new Error("Invented current state-list failure"));
+      await pendingList.promise.catch(() => undefined);
+    });
+    await flushPendingWork();
+    expect(projectMessage()).toHaveTextContent("Save handoff failed:");
+    expect(projectMessage()).toHaveTextContent("Invented current state-list failure");
+    expect(lastProjectOperation()).toBe("save_handoff_failed");
+    expect(screen.queryByTestId("handoff-save-dialog")).not.toBeInTheDocument();
+  });
+
+  async function rejectList(pendingList: ReturnType<typeof deferred<unknown>>, message: string) {
+    await act(async () => {
+      pendingList.reject(new Error(message));
+      await pendingList.promise.catch(() => undefined);
+    });
+    await flushPendingWork();
+  }
+
+  // Codex #1643 round 1: the open is refused and adopts nothing, so the model,
+  // its hash and the busy state are as they were when the listing started.
+  it("keeps the refused open's recovery message when the earlier listing rejects after the recovery prompt is cancelled", async () => {
+    const { pendingList } = await pendingStateList();
+    act(() => nativeMenuCommand("file.open-local"));
+    const dialog = await screen.findByTestId("model-document-save-dialog");
+    fireEvent.click(within(dialog).getByTestId("model-document-save-cancel"));
+    await waitFor(() => expect(screen.queryByTestId("model-document-save-dialog")).not.toBeInTheDocument());
+    const refused = "Open failed: Error: Model document refused: MODEL-FILE-SHAPE at project.units";
+    expect(projectMessage()).toHaveTextContent(refused);
+    await rejectList(pendingList, "Invented stale state-list failure");
+    expect(projectMessage()).toHaveTextContent(refused);
+    expect(projectMessage()).not.toHaveTextContent("Save handoff failed");
+    expect(lastProjectOperation()).toBe("open_failed");
+  });
+
+  it("keeps a completed List Local Projects result when the earlier listing rejects", async () => {
+    const { pendingList } = await pendingStateList();
+    act(() => nativeMenuCommand("file.list-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Listed 0 local project snapshots from the local store index."));
+    await rejectList(pendingList, "Invented stale state-list failure");
+    expect(projectMessage()).toHaveTextContent("Listed 0 local project snapshots from the local store index.");
+    expect(lastProjectOperation()).toBe("list");
+  });
+
+  it("opens no Save Handoff dialog over a completed List Local Projects when the earlier listing resolves", async () => {
+    const { pendingList } = await pendingStateList();
+    act(() => nativeMenuCommand("file.list-local"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Listed 0 local project snapshots from the local store index."));
+    await act(async () => {
+      pendingList.resolve([]);
+      await pendingList.promise;
+    });
+    await flushPendingWork();
+    expect(screen.queryByTestId("handoff-save-dialog")).not.toBeInTheDocument();
+    expect(projectMessage()).toHaveTextContent("Listed 0 local project snapshots from the local store index.");
+    expect(lastProjectOperation()).toBe("list");
+  });
+
+  // An unsaved-edits refusal publishes without starting an operation: it advances
+  // the project-command generation itself.
+  it("keeps an unsaved-edits refusal when the earlier listing rejects", async () => {
+    const { pendingList } = await pendingStateList({ editFirst: true });
+    act(() => nativeMenuCommand("file.open-local"));
+    fireEvent.click(await screen.findByTestId("unsaved-changes-cancel"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Not opened: the working model and its unsaved edits were kept."));
+    await rejectList(pendingList, "Invented stale state-list failure");
+    expect(projectMessage()).toHaveTextContent("Not opened: the working model and its unsaved edits were kept.");
+    expect(lastProjectOperation()).toBe("open_kept_edits");
   });
 });
 

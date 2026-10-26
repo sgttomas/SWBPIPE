@@ -494,9 +494,9 @@ means the statement is the producer string byte for byte.
 
   A missing or unrecorded admission refuses with
   `REPORT-EXACT-ADMISSION-REQUIRED: an exact-route report is built only from a
-  result that Export Result JSON admits.` This covers a copy, a JSON round trip,
-  an object built by hand and an admission made for other objects. A recorded
-  admission whose conditions no longer hold refuses with
+  result that Export Result JSON admits.` This covers a copy, a JSON round trip
+  and an object built by hand. A recorded admission offered for other objects,
+  or whose conditions no longer hold, refuses with
   `REPORT-EXACT-ADMISSION-STALE: the result Export Result JSON admitted is no
   longer this session's live result.` The builder checks at its start and again
   after its last await, as `buildCurrentResultExport` does (`:293`). Its callers
@@ -628,9 +628,11 @@ Each consumer checks the binding as far as its inputs reach:
 - in a package, the bindings re-derive it from the source and its document
   (§3.5).
 
-A pressure-free report has no `exact_route` and no standing line. The
-numerical-health lines the builder already adds on the generic route
-(`renderableReportInput.ts:672-678`, which includes pressure-2) are unchanged.
+A pressure-free report has no `exact_route` and no standing line. On a
+pressure-free report, the numerical-health lines the builder already adds on the
+generic route (`renderableReportInput.ts:672-678`) are unchanged. An exact
+report carries no numerical-health line, whatever the panel supplies (§5.2,
+§6.1).
 
 **Load/reference line.** `loadReferenceDisclosure.tsx` gains the surface
 `"rendered-report"` with the tail "Their published limitations are listed under
@@ -1209,9 +1211,8 @@ and a build from before opening refuses an exact member by name
 In the renderer's fixed order (`report_renderer/src/lib.rs:33-42`):
 - model input summary and load cases, unchanged;
 - results: the exact-route block (identity, standing line, load/reference line
-  where present, both headlines), then the rows with their basis suffixes, then
-  the numerical-health lines on pressure-2 (generic route) when the panel
-  supplies them;
+  where present, both headlines), then the rows with their basis suffixes;
+  an exact report carries no numerical-health line (§6.1);
 - warnings, assumptions and provenance: the result diagnostics, provenance and
   library-finding warnings, the FR-REP-003 values and notes, Library Records;
 - audit manifest, and rule-pack references with user-rule outcomes, unchanged;
@@ -1406,10 +1407,12 @@ committed exact corpora below the gate.
   (§7). The same vitest checks that `buildReportPackageRequest` refuses each
   witness input.
   - **The substitute.** The same vitest also writes
-    `pressure_2_straight_substitute.json`. It is built by the same builders
-    from a copy of the pressure-2 straight source with one row value changed,
-    so that every hash in the document, report and handoff records is
-    rebound. It keeps the genuine request's `native_job_id` and
+    `pressure_2_straight_substitute.overlay.json`, leaf replacements over the
+    pressure-2 straight witness request that the tests apply (`leafOverlay`),
+    and checks that the overlay reproduces exactly the substitute rebuilt by
+    the same builders from a copy of the pressure-2 straight source with one
+    row value changed, so that every hash in the document, report and handoff
+    records is rebound. It keeps the genuine request's `native_job_id` and
     `received_bytes_sha256` (§7).
 - **No rule-check run.** The witness inputs carry no rule-check run
   (`userRuleChecks` absent and no aggregate), so no W-11 fixture holds
@@ -1428,6 +1431,19 @@ item 9 reads the statement table. (b) and (c) follow in either order and may
 share a PR. Opening (§5.1) is an owner act after them. It is about 0.3k lines
 with its tests, the native-smoke driver and the texts (revision 5 adds the
 native render's admitted set, a few lines).
+
+### 6.1 Slice (b) as built
+
+Slice (b) follows §3.1-§3.6 and §5.5 with these differences, each fail-closed:
+- **Handoff load bases.** The exact document names its load bases `load_case` (DEL-04-07 Design `desktop-exact-outputs.md` §4.2), while the handoff run section keeps the record's `LoadCase`. Item 8's "handoff load basis equals the document's" (`bindings.rs`) would refuse every coherent exact package, so it compares under that one mapping for exact identities only. Pressure-free packages are unchanged; item 0 still refuses exact identities first.
+- **Save order.** The save cannot know a request is exact before it parses it, so steps 1-5 run after the evidence, size and screening-payload checks and the request parse, and before every content check (model, input manifest, screen, context, rule packs, producer). A pressure-free request that carries exact texts refuses with `REPORT-EXACT-SECTIONS-MISMATCH: exact_route`, as the render does.
+- **No numerical-health line in an exact report** (Codex review round 1 of #1637). The panel's numerical-health lines are derived in the webview from the reader's findings and the session's verdict hold; the native render cannot re-derive them from the delivered result without that logic. The builder therefore adds none to an exact report, whatever the panel supplies, and the render's re-derivation requires the rows to equal `expected_report_result_rows` exactly, so a fabricated line refuses (`REPORT-EXACT-SECTIONS-MISMATCH: result_rows`). The package carries none either: item 6 already requires its rows to equal the source's projection. A native re-derivation of these lines is a separate item; pressure-free reports keep them.
+- **Admission snapshot** (same review). `admitExactReportSource` takes the four inputs' checked text before its first await and re-checks it, with the live invocation, standing, custody and received bytes, after its last await, before it returns the admission; an edit made after Export Result JSON admitted the inputs makes the admission stale.
+- **`model_sha256` mutated in a render input** refuses at step 5 (`REPORT-EXACT-SOURCE-NOT-DELIVERED: model`), as §3.6 orders it; §7 states this.
+- **Same-run substitution in the builder.** A recorded admission offered for other objects refuses as stale; an unrecorded admission refuses as required (§3.1, §7).
+- **Render thread.** The render command runs every input on a blocking worker thread, so that an exact input's binding is off the main thread; a pressure-free input renders byte-identically there.
+- **Witness shapes.** The five witness requests are pressure-2 straight (the straight corpus's input), pressure-2 with load/reference states, pressure-2 with an objective connector (T4-U5b AS-F, the connector corpus's pressurized tied joint and its smallest connector input), pressure-2 with a realized bend (U2-L-ANCH-PTW-K2 0.3.0, the arc corpus's input) and pressure-source-1. The connector and bend corpora commit no request model a desktop session can solve, so `core/product_physics/tests/exact_route_limitations.rs` (`exact_report_witness_inputs_are_current`, test code only) writes their re-authored requests and the bytes the desktop's solve worker writes for them (`fixtures/reports/invented/exact_report_witness_inputs/`, stale fails). Each shape is assembled by the desktop below the gate, bound natively with a live job, rendered (HTML and print view) under the render's witness set, and assembled (HTML and PDF members) and read back under the package's. The witness requests embed the producer output number for number: the vitest writes them with a number-preserving writer (`apps/desktop/src/test/losslessJson.ts`) that takes the source result, and each document member copied from it (its `source_block_recovery` receipt among them), from the delivered bytes, so the corpus-wide receipt check (`result_export/tests/hash_corpus.rs`) holds, and its staleness check uses the same writer. The substitute is committed as leaf replacements over the straight witness's request (`pressure_2_straight_substitute.overlay.json`); it changes one nodal rotation row, which no section-basis pair or magnitude row repeats, so its standing stays eligible.
+- **Shared projection.** The TypeScript projection is `features/report/exactReportSections.ts` (the headline labels move there and `ResultsPanel.tsx` imports them); item 9's limitation comparison is the public `exact_sections::check_exact_limitation_entries`, which the native render reuses. The parity vectors also carry `admitted_semantic_contracts`, which `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS` must equal.
 
 ## 7. Verification
 
@@ -1563,8 +1579,13 @@ native render's admitted set, a few lines).
     `REPORT-PACKAGE-ROUTE-NOT-ADMITTED`;
   - the genuine render input renders under `EXACT_RENDER_WITNESS_ADMITTED`;
   - the genuine texts with the render input's rows, one exact limitation
-    statement, one headline or `model_sha256` changed refuse with
-    `REPORT-EXACT-SECTIONS-MISMATCH: <section>`;
+    statement or one headline changed refuse with
+    `REPORT-EXACT-SECTIONS-MISMATCH: <section>`; with `model_sha256` changed
+    they refuse at step 5 with `REPORT-EXACT-SOURCE-NOT-DELIVERED: model`;
+  - a fabricated row appended to the genuine input (a numerical-health id with
+    a stress statement and invented references) refuses with
+    `REPORT-EXACT-SECTIONS-MISMATCH: result_rows`; in a save it refuses at
+    item 0, and at item 6 under the witness set;
   - the texts without `exact_route` refuse likewise;
   - the save refuses when custody ends during its dialog, and writes nothing.
 - **The production native render refuses a genuine exact result**
