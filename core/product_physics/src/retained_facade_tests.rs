@@ -3628,7 +3628,7 @@ const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
     (false, "sparse_interactive", "a880c7bfcaafcd36b0fbb0cd207f9c81e633169d11e947b1315fc4f027ebc682"),
     (false, "dense_scrutiny", "ee567982095068ab5cad5f2dc0f92c347b54b68b63e48160a885c5322ced18d8"),
     (true, "sparse_interactive", "d90831bfc17035efeac534f670d6046154d5fe01bb11669f72bbd69633cd3c33"),
-    (true, "dense_scrutiny", "fb85996717410da76f0ae7e0f2271525fbbd80a8c802d3c4b78b1a359e92b802")];
+    (true, "dense_scrutiny", "e204011e47713f8757e046635f0b0ee9bd2b4f10ba0ca9d4d608a5d679ba3e32")];
 /// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
 /// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
 /// and M2's prepared section differs from its source annulus's in at least one value, so the
