@@ -13,6 +13,7 @@ const BELOW: &str = "RIGID_COMPONENT_ECCENTRIC_OFFSET_BELOW_PRECISION";
 const NOT_TRANSVERSE: &str = "RIGID_COMPONENT_ECCENTRIC_OFFSET_NOT_TRANSVERSE";
 const MISMATCH: &str = "RIGID_COMPONENT_ECCENTRIC_OFFSET_MISMATCH";
 const REALIZED: &str = "RIGID_COMPONENT_ECCENTRIC_OFFSET_REALIZED";
+const AXIS_ALLOWANCE_USED: &str = "RIGID_COMPONENT_ECCENTRIC_OFFSET_AXIS_ALLOWANCE_USED";
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 enum Route {
@@ -509,10 +510,14 @@ fn a_weak_bend_does_not_tilt_the_axis_full_solve() {
 /// geometry): two 125 mm runs with opposite 0.9765625 mm lateral differences
 /// (an exact tie of β), a 750 mm body and a 15.625 mm Z offset. The old
 /// consensus axis realized the offset at the tie, while moving the downstream
-/// outer node's X by one ulp either way selected one end and refused a 5.859196
-/// mm placement residual. Under J3 the tie judges each end and refuses like both
-/// neighbours, on both routes, and placing the reducer at the other end (the
-/// ends' names swapped, the offset negated) gives the same refusal and residual.
+/// outer node's X by one ulp either way selected one end with a 5.859196 mm
+/// placement residual. Under J3 the tie judges each end like both neighbours,
+/// on both routes, and placing the reducer at the other end (the ends' names
+/// swapped, the offset negated) gives the same outcome and residual. Under rule
+/// B (§3.3) the 5.859196 mm residual lies within each end's placement allowance
+/// τ + ‖D‖·sin β (β of a 125 mm run, about 10.4 mm of axis allowance), so all
+/// of them are accepted with the axis-allowance warning; under the τ-only rule
+/// all of them were refused as `..._MISMATCH`.
 #[test]
 fn a_tie_is_judged_at_each_end_like_its_neighbours() {
     let model = |gx: f64, at_far_end: bool| Model {
@@ -528,22 +533,108 @@ fn a_tie_is_judged_at_each_end_like_its_neighbours() {
         load_node: "node:g",
         tolerance_mm: None,
     };
-    let residual = |out: &MechanicsEnvelope| -> Vec<String> {
-        codes(out, "RIGID_COMPONENT_ECCENTRIC_OFFSET").into_iter()
-            .map(|(c, m)| format!("{c} {}", m.split("residual ").nth(1).and_then(|r| r.split(' ').next()).unwrap_or("-"))).collect()
-    };
     for route in [Route::Preview, Route::Exact] {
         let mut outcomes = Vec::new();
         for delta in [-1i64, 0, 1] {
             let gx = f64::from_bits((0.875f64.to_bits() as i64 + delta) as u64);
             let (named, swapped) = (solve(&model(gx, false), route), solve(&model(gx, true), route));
-            assert_ne!(named.status.mechanics, "MECHANICS_SOLVED", "{route:?} {delta}");
-            let found = residual(&named);
-            assert_eq!(found.len(), 1, "{route:?} {delta}: {found:?}");
-            assert!(found[0].starts_with(MISMATCH) && found[0].contains("5.8591"), "{route:?} {delta}: {found:?}");
-            assert_eq!(found, residual(&swapped), "{route:?} {delta}: the ends' names swapped");
+            assert_eq!(named.status.mechanics, "MECHANICS_SOLVED", "{route:?} {delta}");
+            let found = residuals(&named);
+            assert_eq!(found.len(), 2, "{route:?} {delta}: {found:?}");
+            assert_eq!(found[0], format!("{REALIZED} -"), "{route:?} {delta}");
+            assert!(found[1].starts_with(AXIS_ALLOWANCE_USED) && found[1].contains("5.8591"), "{route:?} {delta}: {found:?}");
+            assert_eq!(found, residuals(&swapped), "{route:?} {delta}: the ends' names swapped");
             outcomes.push(found);
         }
         assert!(outcomes[1] == outcomes[0] || outcomes[1] == outcomes[2], "{route:?}: the tie matches a neighbour: {outcomes:?}");
     }
+}
+
+/// Each offset diagnostic's code with the residual its message states ("-" when none).
+fn residuals(out: &MechanicsEnvelope) -> Vec<String> {
+    codes(out, "RIGID_COMPONENT_ECCENTRIC_OFFSET").into_iter()
+        .map(|(c, m)| format!("{c} {}", m.split("residual ").nth(1).and_then(|r| r.split(' ').next()).unwrap_or("-"))).collect()
+}
+
+/// Rule B through the solve on both routes: solved, the realized info and the
+/// axis-allowance warning naming the residual, and results bit-identical to the
+/// same model without the declared offset (the node geometry governs).
+fn assert_accepted_with_warning(m: &Model, residual_needle: &str) {
+    let mut bare = Model { components: m.components.clone(), nodes: m.nodes.clone(), members: m.members.clone(), ..*m };
+    bare.components[0]["geometry"].as_object_mut().unwrap().remove("eccentric_offset");
+    for route in [Route::Preview, Route::Exact] {
+        let out = solve(m, route);
+        let blocking: Vec<String> = out.diagnostics.iter().filter(|d| d.severity == "blocking").map(|d| format!("{}: {}", d.code, d.message)).collect();
+        assert_eq!(out.status.mechanics, "MECHANICS_SOLVED", "{route:?}: {blocking:?}");
+        assert_eq!(offset_codes(&out), vec![REALIZED.to_string(), AXIS_ALLOWANCE_USED.to_string()], "{route:?}");
+        let warning = out.diagnostics.iter().find(|d| d.code == AXIS_ALLOWANCE_USED).unwrap();
+        assert_eq!(warning.severity, "warning", "{route:?}");
+        for needle in [residual_needle, "node-proximity tolerance 5e-3 m", "run-axis allowance", "declares eccentric offset", "realize a transverse separation", "the node geometry was used for the solve"] {
+            assert!(warning.message.contains(needle), "{route:?}: {needle:?} in {}", warning.message);
+        }
+        let values = |out: &MechanicsEnvelope| out.results.iter().map(|r| (r.id.clone(), r.value.to_bits())).collect::<Vec<_>>();
+        assert_eq!(values(&out), values(&solve(&bare, route)), "{route:?}: the node geometry governs");
+    }
+}
+
+/// A straight run P0 → P, the reducer at P with body P → F, and a run F → G,
+/// all in metres; the offset `e` in mm.
+fn three_members(nodes: [[f64; 3]; 4], e: [f64; 3]) -> Model {
+    Model {
+        length_unit: "m",
+        nodes: vec![("node:p0", nodes[0]), ("node:p", nodes[1]), ("node:f", nodes[2]), ("node:g", nodes[3])],
+        members: vec![("pipe:up", "node:p0", "node:p"), ("body:p-f", "node:p", "node:f"), ("pipe:down", "node:f", "node:g")],
+        components: vec![reducer("component:r", "node:p", "body:p-f", Some(e), "mechanics_geometry_only")],
+        load_node: "node:g",
+        tolerance_mm: None,
+    }
+}
+
+/// Rule B regressions (§9; invented geometry, not engineering data): two
+/// ordinary eccentric reducers between 0.1 m members, entered to the mm, with
+/// the offset equal to the radius difference, both exactly consistent before
+/// rounding. Under the τ-only rule both were refused (`..._MISMATCH`, residuals
+/// 5.319608879485803 and 5.015477503296432 mm); under rule B both are accepted
+/// with the axis-allowance warning.
+#[test]
+fn rounded_compact_reducers_are_accepted_with_the_axis_allowance_warning() {
+    // 400 → 300 mm, 0.4 m body, 30° in plan, 10° slope.
+    assert_accepted_with_warning(&three_members(
+        [[2.318, 3.973, 1.674], [2.403, 4.023, 1.692], [2.737, 4.215, 1.81], [2.822, 4.265, 1.828]], [-8.0, -4.0, 49.0]), "residual 5.3196");
+    // 600 → 400 mm, 0.6 m body, 45° in plan.
+    assert_accepted_with_warning(&three_members(
+        [[5.018, 2.801, 1.961], [5.088, 2.871, 1.961], [5.442, 3.366, 1.961], [5.512, 3.437, 1.961]], [-71.0, 71.0, 0.0]), "residual 5.0154");
+}
+
+/// Rule B at the high end of the band (Codex numerical scrutiny r4): 0.1 m runs
+/// and a 0.6 m body at 45° in plan with a 2° slope, whose true body differs
+/// from the declared 50 mm offset by 21.7 mm before mm rounding. The residual
+/// on the entered nodes lies within the axis allowance, so it is accepted with
+/// the warning: rule B gives no certified bound on true placement.
+#[test]
+fn the_high_end_of_the_axis_allowance_band_is_accepted_with_the_warning() {
+    let (a, z) = (45f64.to_radians(), 2f64.to_radians());
+    let t = [a.cos() * z.cos(), a.sin() * z.cos(), z.sin()];
+    let up = [-a.cos() * z.sin(), -a.sin() * z.sin(), z.cos()];
+    let p = [2.0752538118573574, -4.970333308486562, -4.0085098971414315];
+    let dev = [-0.013510279544283096, 0.013985911754709911, -0.009631023778643315];
+    let far: [f64; 3] = std::array::from_fn(|i| p[i] + 0.6 * t[i] + 0.05 * up[i] + dev[i]);
+    let rd = |v: [f64; 3]| v.map(|v| (v * 1000.0).round() / 1000.0);
+    let nodes = [rd(std::array::from_fn(|i| p[i] - 0.1 * t[i])), rd(p), rd(far), rd(std::array::from_fn(|i| far[i] + 0.1 * t[i]))];
+    assert_accepted_with_warning(&three_members(nodes, up.map(|v| (v * 50.0).round())), "residual ");
+}
+
+/// Rule B's boundary from both sides: 0.1 m runs on X (β = asin(√3 mm / 0.1 m))
+/// and a 0.6 m body with a declared (0, 0, 50) mm offset against a realized
+/// (0, dy, 50) mm. The placement allowance is τ + ‖D‖·sin β ≈ 15.4317 mm: dy =
+/// 15.4 mm is accepted with the warning, 15.5 mm is refused as `..._MISMATCH`
+/// naming τ, the axis allowance and the residual. A residual below τ is
+/// accepted with no warning, as before (also every `assert_accepted` case).
+#[test]
+fn the_axis_allowance_bound_from_both_sides() {
+    let at = |dy: f64| three_members([[-0.1, 0.0, 0.0], [0.0, 0.0, 0.0], [0.6, dy, 0.05], [0.7, dy, 0.05]], [0.0, 0.0, 50.0]);
+    assert_accepted_with_warning(&at(0.0154), "residual 1.54");
+    assert_refused(&at(0.0155), MISMATCH, "exceeds its placement allowance 1.543");
+    assert_refused(&at(0.0155), MISMATCH, "node-proximity tolerance 5e-3 m plus the run-axis allowance 1.043");
+    assert_accepted(&at(0.0049), &["component:r"]);
 }

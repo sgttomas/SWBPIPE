@@ -357,7 +357,7 @@ fn measure_bits_signed(o: &OffsetOutcome, sign: f64) -> (String, Vec<u64>) {
         OffsetOutcome::Invalid(..) => return (outcome_name(o), vec![]),
     };
     let (a, t) = (m.axis.map(|v| sign * v), m.transverse.map(|v| sign * v));
-    let all = [m.axial_length, m.offset_axial, m.allowance, m.residual, m.beta_run, a[0], a[1], a[2], t[0], t[1], t[2]];
+    let all = [m.axial_length, m.offset_axial, m.allowance, m.residual, m.beta_run, m.axis_allowance, a[0], a[1], a[2], t[0], t[1], t[2]];
     (outcome_name(o), all.iter().map(|v| (v + 0.0).to_bits()).collect())
 }
 
@@ -377,10 +377,12 @@ fn consensus(n: &EndStatus, f: &EndStatus) -> ([f64; 3], f64) {
 /// 125 mm runs with opposite 0.9765625 mm lateral differences (equal β), a
 /// 750 mm body and a 15.625 mm Z offset. The old consensus axis was X and
 /// realized the offset exactly; either 1-ulp neighbour of the tie selects one
-/// end and refuses a 5.859196 mm placement residual. Under J3 the tie judges
-/// each end and refuses like both neighbours, its measure bit-identical to the
-/// neighbour whose governing end has unchanged evidence, and the ends' names
-/// swapped give the identical outcome.
+/// end with a 5.859196 mm placement residual. Under J3 the tie judges each end
+/// like both neighbours, its measure bit-identical to the neighbour whose
+/// governing end has unchanged evidence, and the ends' names swapped give the
+/// identical outcome. Under rule B (§3.3) that residual is within τ plus the
+/// axis allowance ‖D‖·sin β (about 10.4 mm here), so all three are realized
+/// in the warning band; under the τ-only rule all three were `Mismatch`.
 #[test]
 fn j3_a_tie_is_judged_at_each_end_like_its_neighbours() {
     let (x_n, x_f, e) = ([0.0, 0.0, 0.0], [0.75, 0.0, 0.015625], [0.0, 0.0, 0.015625]);
@@ -392,8 +394,9 @@ fn j3_a_tie_is_judged_at_each_end_like_its_neighbours() {
     };
     let ((below, below_swapped, _), (tie, tie_swapped, f_tie), (above, above_swapped, _)) = (at(-1), at(0), at(1));
     for (o, swapped) in [(&below, &below_swapped), (&tie, &tie_swapped), (&above, &above_swapped)] {
-        let OffsetOutcome::Mismatch(m) = o else { panic!("{o:?}") };
+        let OffsetOutcome::Realized(m) = o else { panic!("{o:?}") };
         assert!((m.residual - 5.859196e-3).abs() < 1e-9, "residual {}", m.residual);
+        assert!(m.residual > TAU && m.residual <= TAU + m.axis_allowance, "the warning band: {m:?}");
         // The swapped naming negates the axis and transverse vectors exactly.
         assert_eq!(measure_bits_signed(swapped, -1.0), measure_bits(o), "N/F naming");
     }
@@ -448,8 +451,13 @@ fn j3_tie_precedence_is_refusal_then_larger_residual() {
     let OffsetOutcome::Realized(m_f) = judge_offset(x_n, x_f, ([2.0e-3f64.cos(), 2.0e-3f64.sin(), 0.0], 1e-3), e, TAU) else { panic!() };
     assert!(m_f.residual > 0.0);
     assert_eq!(m.residual.to_bits(), m_f.residual.to_bits(), "the tilted end's larger residual");
-    // One end accepts and the other refuses: the tie refuses.
+    // One end accepts and the other refuses: the tie refuses. Under rule B
+    // (Codex numerical scrutiny r4's targeted case) the axis end accepts at
+    // 4.9 mm and the tilted end refuses at 5.140781 mm, above its own τ +
+    // ‖D‖·sin β = 5.13 mm.
     let e = mm([0.0, -45.1, 0.0]);
+    let OffsetOutcome::Mismatch(m_f) = judge_offset(x_n, x_f, ([2.0e-3f64.cos(), 2.0e-3f64.sin(), 0.0], 1e-3), e, TAU) else { panic!() };
+    assert!((m_f.residual - 5.140781e-3).abs() < 1e-9 && m_f.residual > TAU + m_f.axis_allowance, "{m_f:?}");
     assert_eq!(outcome_name(&judge_offset(x_n, x_f, ([1.0, 0.0, 0.0], 1e-3), e, TAU)), "realized");
     assert_eq!(outcome_name(&swapped(&n, &f, e)), "mismatch");
 }
@@ -471,4 +479,22 @@ fn j3_a_tie_reports_signed_zeros_identically_under_either_naming() {
     // Without canonicalisation the two namings report −0 and +0.
     let raw = |a, b| judge_offset(a, b, ([-0.0, -1.0, -0.0], 1e-3), [0.0; 3], TAU);
     assert_ne!(raw(x_n, x_f), raw(x_f, x_n));
+}
+
+/// Rule B (§3.3): the placement accepts a residual up to τ + ‖D‖·sin β_run and
+/// refuses beyond it; on X with 0.1 m runs and a 0.6 m body the allowance is
+/// about 15.4317 mm. The measure records the axis allowance.
+#[test]
+fn rule_b_placement_bound_from_both_sides() {
+    let (n0, a) = ([-0.1, 0.0, 0.0], [0.0, 0.0, 0.0]);
+    let at = |dy: f64| {
+        let (b, c) = ([0.6, dy, 0.05], [0.7, dy, 0.05]);
+        check(a, b, &run(n0, a), &run(b, c), mm([0.0, 0.0, 50.0]))
+    };
+    let OffsetOutcome::Realized(inside) = at(0.0154) else { panic!("{:?}", at(0.0154)) };
+    let expected = len([0.6, 0.0154, 0.05]) * straight_beta(0.1).unwrap().sin();
+    assert!((inside.axis_allowance - expected).abs() < 1e-15, "{inside:?}");
+    assert!(inside.residual > TAU && inside.residual <= TAU + inside.axis_allowance);
+    let OffsetOutcome::Mismatch(beyond) = at(0.0155) else { panic!("{:?}", at(0.0155)) };
+    assert!(beyond.residual > TAU + beyond.axis_allowance, "{beyond:?}");
 }

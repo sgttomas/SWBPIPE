@@ -46,8 +46,10 @@ In a centerline model each node already sits on its own pipe's centerline.
 - **The declared offset e** records the reducer's eccentricity as a property of
   the component. The solve checks it against D⊥ (§3.2) and never uses it in
   place of the node geometry. Every "M = P·e" statement in this design
-  means P·‖D⊥‖ of the actual geometry; e agrees with D⊥ within the placement
-  tolerance.
+  means P·‖D⊥‖ of the actual geometry; e agrees with the entered D⊥ within
+  the placement allowance (§3.2). That allowance bounds the residual on the
+  entered nodes only; it gives no certified bound on the true placement (§9,
+  rule B).
 
 ## 2. The authored member
 
@@ -151,15 +153,23 @@ stated. Ordinary structural and unit validation still applies (§9, P6).
      agreement rule on the declared vector, independent of the placement
      tolerance. Without it, a collinear e = (5, 0, 0) mm on concentric
      geometry would pass placement with a residual of exactly 5 mm.
-   - **Placement.** ‖D⊥ − e‖ ≤ τ, where D⊥ = D − (D·t)·t and τ is the model's
-     node-proximity tolerance (`PreviewModel::node_proximity_tolerance_m`:
-     5 mm unless `model_settings.node_proximity_tolerance` sets another).
-     Placement stays separate from the rounding allowance.
+   - **Placement** (rule B, §9). ‖D⊥ − e‖ ≤ τ + ‖D‖·sin β_run, where
+     D⊥ = D − (D·t)·t, τ is the model's node-proximity tolerance
+     (`PreviewModel::node_proximity_tolerance_m`: 5 mm unless
+     `model_settings.node_proximity_tolerance` sets another; τ remains the
+     user's control), and ‖D‖·sin β_run is the run-axis allowance: the body
+     length times the sine of the governing axis's own uncertainty, carried as
+     the transversality allowance carries ‖e‖·sin β_run. On a tie each end uses
+     its own β (J3). A residual within τ is accepted as before. A residual
+     above τ but within the allowance is accepted with the named warning
+     `..._AXIS_ALLOWANCE_USED` (§3.4). Beyond it, `..._MISMATCH`. The check
+     bounds the residual on the entered nodes, not the true placement: no
+     certified bound on true placement is claimed (§9, rule B).
 4. **Arithmetic.** Every quantity is formed in binary64 from the normalized
    values. Every comparison is `≤`, except the precision test's strict `<`.
 
 The actual geometry governs. A declared offset that passes is a statement about
-the reducer, verified within these bounds. The lever arm, the stiffness and
+the reducer, checked against the entered nodes within these allowances. The lever arm, the stiffness and
 every result come from the nodes. The solve is bit-identical to the same model
 without the offset member (§12).
 
@@ -249,7 +259,8 @@ cutoff is about 167.68° at D = 100 mm and 174.97° at D = 600 mm.
 
 **Short spans give wide uncertainty.** A 1 m span has β = 1.732e-3 rad. A
 100 mm span has 1.732e-2 rad. Below √3 mm a span gives no direction. A wide β
-widens both the agreement bound and the transversality allowance. The
+widens the agreement bound, the transversality allowance and the placement's
+run-axis allowance ‖D‖·sin β_run (§3.2, rule B). The
 precision test (§3.2) refuses an offset that the resulting allowance cannot
 resolve.
 
@@ -266,7 +277,7 @@ resolve.
 | ambiguous (either end) | any | refuse, `ambiguous_run`, naming the end and its candidates |
 | unsupported (either end) | any | refuse, `unsupported_run_evidence` (or `unresolvable_run_evidence`), naming the end and member |
 | none | none | refuse, `standalone_body` |
-| direction | direction | Agreement: θ = atan2(‖d_N × d_F‖, |d_N·d_F|), the angle after aligning signs, must satisfy θ ≤ θ_base + β_N + β_F. Otherwise refuse, `run_directions_disagree`. Then the better-resolved end governs (J2, §9): u = the direction with the smaller β, and β_run = that β. On an exact tie β_N = β_F no consensus is formed (J3, §9): the offset is judged against each end's own (d, β), refused if either judgment refuses, and the reported judgment follows the tie precedence below. |
+| direction | direction | Agreement: θ = atan2(‖d_N × d_F‖, |d_N·d_F|), the angle after aligning signs, must satisfy θ ≤ θ_base + β_N + β_F. Otherwise refuse, `run_directions_disagree`. Then the better-resolved end governs (J2, §9): u = the direction with the smaller β, and β_run = that β. On an exact tie β_N = β_F no consensus is formed (J3, §9): the offset is judged against each end's own (d, β), with that β in each end's own transversality and placement allowances, refused if either judgment refuses, and the reported judgment follows the tie precedence below. |
 | direction | none, or none | direction | u = the one direction; β_run = its β |
 
 **Tie precedence (J3).** Of the two judgments at a tie, the reported one is:
@@ -302,8 +313,9 @@ realized as arcs, since neither end gives a tangent.
 | `RIGID_COMPONENT_ECCENTRIC_OFFSET_INVALID` (new) | blocking | A present offset cannot be checked. The message names the component and the first reason, in this order: `not_reducer`; `not_finite` (a component of e after conversion); `mapping_invalid`; `ambiguous_run`; `unsupported_run_evidence`; `unresolvable_run_evidence`; `standalone_body`; `run_directions_disagree` (stating θ and its bound); `no_axial_length` (D·t ≤ 0). |
 | `RIGID_COMPONENT_ECCENTRIC_OFFSET_BELOW_PRECISION` (new) | blocking | a nonzero e with a_e ≥ ‖e‖. The message names ‖e‖, a_e, q and β_run, and says to declare zero or correct the geometry. |
 | `RIGID_COMPONENT_ECCENTRIC_OFFSET_NOT_TRANSVERSE` (new) | blocking | |e·t| > a_e. The message names e, t, |e·t| and a_e. |
-| `RIGID_COMPONENT_ECCENTRIC_OFFSET_MISMATCH` (new) | blocking | ‖D⊥ − e‖ > τ. The message names N, F, e and D⊥ in metres, the residual and τ. |
+| `RIGID_COMPONENT_ECCENTRIC_OFFSET_MISMATCH` (new) | blocking | ‖D⊥ − e‖ > τ + ‖D‖·sin β_run (rule B). The message names e and D⊥ in metres, the residual, the placement allowance, τ, the run-axis allowance and β_run. |
 | `RIGID_COMPONENT_ECCENTRIC_OFFSET_REALIZED` (new) | info | On a published result only, like slice a's applied-scale info (PP `rigid_component.rs` `append_formed_diagnostics`). See below. |
+| `RIGID_COMPONENT_ECCENTRIC_OFFSET_AXIS_ALLOWANCE_USED` (new, rule B) | warning | τ < ‖D⊥ − e‖ ≤ τ + ‖D‖·sin β_run, on a published result only, beside the `..._REALIZED` info (`append_eccentric_offset_realized`). The message names the declared offset, the realized offset D⊥ from the node geometry, the residual, τ, the run-axis allowance and β_run, and says that the node geometry was used for the solve. |
 
 The `..._REALIZED` info states:
 - the offset as entered, and D⊥ as realized;
@@ -361,6 +373,10 @@ These are recorded as remaining items:
   (`schemas/component.schema.yaml` `ComponentFieldKind`). Library apply still
   accounts for an entered offset (§4);
 - reducer SIF or other local modifiers;
+- a certified bound on true placement. Rule B (§9) bounds the residual on the
+  entered nodes; within the coordinate-rounding region the true placement can
+  exceed τ and still pass (with the `..._AXIS_ALLOWANCE_USED` warning above τ).
+  Sampled maxima are in §9; no certified bound is claimed;
 - reducers in series. A later rule could traverse an unbranched chain of
   bodies to independent outer run evidence at each end, then check each
   reducer of the chain against it (Codex r2). This slice refuses any
@@ -658,13 +674,13 @@ independent scrutiny.
 | # | Matter | Resolution |
 |---|---|---|
 | P1 | Body realization | Approved as Codex says. The chord member between the two centerlines (§3.1). It is equivalent to a rigid link mechanically and kinematically only with zero body eigenstrain and equivalent loading. Thermal growth stays αΔT·D, offset growth included, at every scale. Load resultants (chord self-weight over ‖D‖) differ unless matched. |
-| P2 | Tolerance, transversality and precision | Revised, then decided. The actual node geometry governs the lever arm and the solve, and every M = P·e claim means P·‖D⊥‖. Placement: the declared offset is checked within τ (the 5 mm node-proximity tolerance, user-settable), separately from any rounding allowance. Transversality: |e·t| ≤ ρ_base·‖e‖ + (√3/2)·q + ‖e‖·sin β_run, with ρ_base = 1e-3 and q = 1 mm, a fixed declared coordinate-rounding allowance, not a user setting, reflecting millimetre-rounded entry (§3.2, §3.3). A nonzero offset whose allowance reaches its magnitude is refused by `..._BELOW_PRECISION`. **Why:** with ρ alone, a 30° run entered as (866, 500, 0) mm with offset (−25, 43, 0) mm has axial share 0.003015789 and would be wrongly refused; under the rule it is accepted. Regressions: that case; 47 mm declared against 50 mm geometry (passes, and the 50 mm geometry governs); the collinear e = (5, 0, 0) mm, still refused by `..._NOT_TRANSVERSE`; one case just outside the transversality bound and one just inside the precision bound (§12). |
+| P2 | Tolerance, transversality and precision | Revised, then decided. The actual node geometry governs the lever arm and the solve, and every M = P·e claim means P·‖D⊥‖. Placement: the declared offset was checked within τ (the 5 mm node-proximity tolerance, user-settable), separately from any rounding allowance; rule B (below) superseded this with τ + ‖D‖·sin β_run. Transversality: |e·t| ≤ ρ_base·‖e‖ + (√3/2)·q + ‖e‖·sin β_run, with ρ_base = 1e-3 and q = 1 mm, a fixed declared coordinate-rounding allowance, not a user setting, reflecting millimetre-rounded entry (§3.2, §3.3). A nonzero offset whose allowance reaches its magnitude is refused by `..._BELOW_PRECISION`. **Why:** with ρ alone, a 30° run entered as (866, 500, 0) mm with offset (−25, 43, 0) mm has axial share 0.003015789 and would be wrongly refused; under the rule it is accepted. Regressions: that case; 47 mm declared against 50 mm geometry (passes, and the 50 mm geometry governs); the collinear e = (5, 0, 0) mm, still refused by `..._NOT_TRANSVERSE`; one case just outside the transversality bound and one just inside the precision bound (§12). |
 | P3 | Run axis | Revised, then decided (§3.3). Run evidence comes from ordinary pipes, the bodies of valves, flanges, rigid and specialty components, and realized-arc tangents, each with a direction uncertainty β: asin(√3·q/L) for a straight member; the defined β_arc for an arc. Any other reducer's body (absent, zero or nonzero offset), an unrealized bend member, an expansion-joint member, a connector span and an unresolvably short member are unsupported. Both ends' directions must agree: θ ≤ θ_base + β_N + β_F, with θ_base = 1e-3 rad, after aligning signs. The axis is the better-resolved end's direction (J2); on an exact tie each end's own direction is judged separately (J3). The outcome is independent of endpoint naming, and the axis is oriented by D. Ambiguous or unsupported topology is refused by name. **Why:** with θ_base alone, two parallel 100 mm spans rounded to (87, 50) and (86, 50) mm are 0.005008974 rad apart and would be wrongly refused; under the rule they are accepted. Regressions: that case; one case just outside the agreement bound; Codex's two-reducer chain; and the convention-invariance case (§12). **Realized arcs (Codex numerical scrutiny r1):** β_arc is a finite bound over the whole rounding region, and a bend whose bound is undefined (a reachable semicircle, an ill-conditioned plane) is refused by name (§3.3). |
 | P4 | Body length against geometry | Approved: not checked for any rigid-family kind. The demo valve's body length is 0.72 m on a 2.2 m member. |
 | P5 | Self-weight of the chord body | Approved: it acts over ‖D‖, and slice b's component weight replaces it when entered. |
 | P6 | `not_solver_consumed` | Approved: honoured, the offset not read and no offset diagnostic. Ordinary structural and unit validation still applies. |
 | P7 | Offset on a non-reducer | Approved: blocking `..._INVALID` (`not_reducer`). |
-| P8 | Present zero vector | Approved: checked as concentric under the revised rules. Transversality passes trivially, and placement requires ‖D⊥‖ ≤ τ. |
+| P8 | Present zero vector | Approved: checked as concentric under the revised rules. Transversality passes trivially, and placement requires ‖D⊥‖ ≤ τ + ‖D‖·sin β_run (rule B), with the warning above τ. |
 | P9 | D·t ≤ 0 | Approved: blocking `..._INVALID` (`no_axial_length`). |
 | P10 | Thermal growth of the offset | Approved: αΔT·D, offset included. |
 | P11 | Stress rows of an eccentric reducer | Approved, with disclosure. Rows are the reference pipe section's along the chord. Scaled rows carry `component_body`. The reference-section meaning is disclosed in the info, the UI and the report text in both the scaled and unscaled cases (§3.4, §4). |
@@ -672,6 +688,7 @@ independent scrutiny.
 | J1 | The bound's limit for ordinary bends | Decided (Agent 0, HELP_HUMAN, 2026-10-26, under the owner's delegation): keep. Refuse at the bound's limits, with no extra margin. Codex's numbers (numerical scrutiny r2): every 90° and 45° elbow at R = 1.5D, D = 100–600 mm, mm-rounded, with a global-Y reference, resolves (β_arc 0.0049–0.0296 rad at 90°, 0.0069–0.0412 rad at 45°). A single 180° return is refused; two 90° arcs work. The near-return cutoff is about 167.68° at D = 100 mm and 174.97° at D = 600 mm. The refusal is a conservative certificate boundary: the probes' true-geometry controls are refused rather than resolved (§3.3). |
 | J2 (was P13) | How far weak run evidence may steer the axis | Decided (Agent 0, 2026-10-26, approving the recommendation). After the status and agreement checks, the end direction with the smaller β is the axis and its β is β_run. J2 kept the consensus for an exact tie; J3 replaced it. Endpoint and sign symmetry are kept, and no constant is added (§3.3). **Why:** with an equal-weight consensus, a resolved but weak bend can tilt the axis by up to half its β. **Regression** (Codex numerical scrutiny r2), on PF and EX: entered chord (−18.19787406218549, 13.058496225274045, 3.349962055095552) m, true chord the entered plus (0.001, 0.001, 0.001) m, R = 11.36337291391957 m, y_reference (−0.8035474210765018, 0.5765244818323195, 0.1480914039682203), e = (0.00819795250341938, −0.005298081948721869, −0.002173454029030151) m, D = 0.04·t + e, and a 1 m straight run along t, the true chord's far-end tangent. On `4291a7ace8` it gave `..._MISMATCH` (8.086 mm residual; bend β 0.4158, run β 0.0017). Now the run governs and the offset is realized (residual about 2.2e-15 m). Through the solve, the model then stops for a separate reason: the arc's `y_reference` lies within 1.9e-4 of its chord, and the frame kernel refuses its local axes (`PIPE_ELEMENT_INPUT_INVALID`, the same with `eccentric_offset` removed). **Full-solve regression** (Codex numerical scrutiny r3; invented geometry), on PF and EX, sparse and dense: a 0.15 m radius arc with `y_reference` (0, 1, 0), entered chord (0.298, 0, 0) m against a true chord (0.299, 0, 0) m (bend β ≈ 0.08628); a reducer of 100 mm OD / 5 mm wall to 80 mm OD / 4 mm wall with body 0.4·t + e along the true tangent t and e = (0, 0, 10) mm; and a 1 m straight run along t (β ≈ 0.001732). It solves with the offset realized; the equal-weight consensus gave `..._MISMATCH` (6.772065 mm residual). There are two regressions because the first geometry exercises the offset check at a weak bend (β ≈ 0.4158) but cannot reach a solve, and the second reaches a solve with an ordinary arc frame (§12). |
 | J3 | The exact tie β_N = β_F | Decided (Agent 0, 2026-10-26, under the owner's delegation), verbatim: "option B. On an exact tie, judge each end with its own (direction, β), refuse if either refuses, and report the larger residual. Reasons: It's safe-side. A placement the stronger evidence refuses is never accepted on weaker evidence; A would allow that. It's symmetric. The decision at the tie matches one of its 1-ulp neighbours, so it adds no new discontinuity beyond the unavoidable switch of governing end." The sign-aligned consensus is removed. The precedence that makes the reported judgment independent of endpoint naming is in §3.3. **Why** (Codex numerical scrutiny r3): (a) two 125 mm runs with opposite 0.9765625 mm lateral differences, a 750 mm body and a 15.625 mm Z offset: the consensus realized the offset exactly at the tie, while either 1-ulp neighbour of the downstream outer node's X selected one end and refused a 5.859196 mm placement residual on PF and EX. (b) Two 2 mm chords, each a common true chord ±(1, 1, 1) mm with β = 60°, admit the true axis, but their consensus lay 90° from it while β_run = 60° was returned. **Regressions:** (a) at the check and through the solve on both routes, with both neighbours and the swapped naming; (b) at the check; the precedence (§12). |
+| Rule B | The placement under coordinate rounding | Decided (Agent 0, 2026-10-26, under the owner's engineering-judgment delegation), verbatim: "Placement rule, decided under the owner's engineering-judgment delegation: B ... Reasons: Node geometry governs the solve, so the check guards consistency between the declared offset and the geometry. It does not move the solve. Refusing realistic compact flange–reducer–flange layouts, entered to the mm, blocks real use. Carrying the axis uncertainty in the same way as the transverse allowance is the normative treatment of input rounding. Condition: no silent over-acceptance. When a placement passes only because of the axis allowance (τ < residual ≤ τ + ‖D‖·sin β_run), emit a named warning. It gives the declared offset, the realized offset, the residual and τ, and says that the geometry was used. Below τ, behaviour is as today." **Rule:** placement passes when ‖D⊥ − e‖ ≤ τ + ‖D‖·sin β_run, with D the body vector and β_run the governing axis's own β (each end's own on a tie, J3). Below τ nothing changes. Every acceptance above τ carries `..._AXIS_ALLOWANCE_USED` (warning), which states the declared offset, the realized offset, the residual, τ and the run-axis allowance, and that the node geometry was used for the solve. τ remains the user's control (`model_settings.node_proximity_tolerance`). Node geometry governs the solve: the check never moves the lever arm, the stiffness or any result. **What the rule bounds:** the residual between the declared offset and D⊥ formed from the entered nodes. **What it does not bound:** the true placement. Within the 1 mm rounding region the true residual can exceed τ and still pass, and no certified bound on true placement is claimed. Codex's sampled maxima of the true residual accepted (numerical scrutiny r4; current rule / rule B, mm, with a 0.6 m body), as sampled, not certified: 0.1 m run 11.6/21.7; 0.15 m 10.1/16.4; 1 m 7.0/7.9; 3 m 6.3/6.9; 6 m 6.3/6.5. **Why:** under τ alone, mm-rounded entry of exactly consistent ordinary reducers was refused where the governing run is short against the body (L_body/L_run above about 1.9–2.5; worst entered residual about c·q·(1 + L_body/L_run), c from √2 to √3 with the run's orientation): 181 of about 2.3 million ordinary-size samples (bodies up to 1.0 × the large OD), all between 0.1–0.15 m members, e.g. 400→300 with a 0.4 m body at 30° in plan and 10° slope (5.3196 mm) and 600→400 with a 0.6 m body at 45° in plan (5.0155 mm); Codex's own sweep gave 593 of 1.55 million. Rule B accepts every one. The bundled demo model has no reducer. **Regressions** (§12): both ordinary cases on PF and EX; the 0.1 m run, 0.6 m body case at the high end of the band; the bound from both sides; the J3 tie under B; a tie with one end accepting and one refusing. |
 
 ## 10. R-c1 ruled, and the ScopeOfWork drafts
 
@@ -751,7 +768,32 @@ any value moves, it is reported to the owner and not edited.
     mm), with (1.00, −50, 0) mm accepted.
 - **`..._BELOW_PRECISION`:** e = (0, −0.8, 0) mm with 1 m runs
   (a_e = 0.867 mm), with (0, −0.9, 0) mm accepted on matching geometry.
-- **`..._MISMATCH`:**
+- **Rule B** (§9; each fails under the τ-only placement):
+  - **ordinary compact reducers,** on PF and EX
+    (`rounded_compact_reducers_are_accepted_with_the_axis_allowance_warning`):
+    400→300 with a 0.4 m body between 0.1 m runs at 30° in plan and 10°
+    slope (residual 5.3196 mm) and 600→400 with a 0.6 m body at 45° in plan
+    (5.0155 mm), mm-rounded; accepted with the realized info and the warning,
+    results bit-identical to the same model without the offset. Under τ alone
+    both were `..._MISMATCH`;
+  - **the high end of the band** (Codex r4: 0.1 m runs, 0.6 m body, 45° in
+    plan, 2° slope, true deviation 21.7 mm; entered residual 15.37 mm):
+    accepted with the warning
+    (`the_high_end_of_the_axis_allowance_band_is_accepted_with_the_warning`);
+  - **the bound from both sides** (0.1 m runs on X, 0.6 m body, allowance
+    about 15.4317 mm): 15.4 mm accepted with the warning, 15.5 mm refused as
+    `..._MISMATCH` naming the placement allowance, τ and the run-axis
+    allowance, and 4.9 mm accepted with no warning
+    (`the_axis_allowance_bound_from_both_sides`; unit
+    `rule_b_placement_bound_from_both_sides`). Every `assert_accepted` case
+    asserts the realized info alone, so a residual within τ carries no warning;
+  - **the J3 tie under B:** the 5.859196 mm tie and both neighbours are now
+    realized with the warning, under either naming (moved expectation; see
+    J3 below);
+  - **one end accepting, one refusing** (Codex r4): 4.9 mm at the axis end,
+    5.140781 mm at the tilted end, above its own τ + ‖D‖·sin β = 5.13 mm; the
+    tie refuses (`j3_tie_precedence_is_refusal_then_larger_residual`).
+- **`..._MISMATCH`** (each still beyond τ + ‖D‖·sin β_run):
   - sign flipped (residual 0.1 m);
   - wrong transverse axis (0.0707 m);
   - magnitude 40 mm (10 mm);
@@ -805,13 +847,15 @@ any value moves, it is reported to the owner and not edited.
     (b) fail, and the precedence case reports the smaller residual:
     - **(a) the tie and its neighbours:** at the check
       (`j3_a_tie_is_judged_at_each_end_like_its_neighbours`) the tie and both
-      1-ulp neighbours refuse with `..._MISMATCH`, residual 5.859196 mm; the
-      tie's measure is bit-identical to the neighbour whose governing end has
-      unchanged evidence, and the swapped naming gives bit-identical measures.
-      Through the solve on PF and EX (`a_tie_is_judged_at_each_end_like_its_neighbours`)
-      the tie, both neighbours and each with the reducer at the other end refuse
-      with the same code and residual. The consensus realized the tie with
-      residual 0;
+      1-ulp neighbours have residual 5.859196 mm, which under rule B is in the
+      warning band (realized; under τ alone all three were `..._MISMATCH`);
+      the tie's measure is bit-identical to the neighbour whose governing end
+      has unchanged evidence, and the swapped naming gives bit-identical
+      measures. Through the solve on PF and EX
+      (`a_tie_is_judged_at_each_end_like_its_neighbours`) the tie, both
+      neighbours and each with the reducer at the other end solve with the
+      realized info and the warning stating the same residual. The consensus
+      realized the tie with residual 0;
     - **(b) each end's own uncertainty:** both ends keep their own direction
       and β = 60°, and the true axis lies within each
       (`j3_a_tie_keeps_each_ends_own_uncertainty`); the consensus lay 90° from
@@ -888,9 +932,11 @@ Option A is implemented behind §3.6's single function and text constant.
   - PP `rigid_component.rs`: constants and refusal codes; `eccentric_offset_ends`
     (the R-c1 function); run evidence (`straight_beta`, `arc_evidence`, the
     end status); `decide_axis` (one governing axis, or both ends on a tie);
-    `judge_offset`; `judge_run` (the J3 tie judgment and precedence);
+    `judge_offset` (rule B's placement allowance in the measure);
+    `judge_run` (the J3 tie judgment and precedence);
     `append_eccentric_offset_refusals`, whose first pass scans every component
-    and refuses non-reducers first; `append_eccentric_offset_realized`.
+    and refuses non-reducers first; `append_eccentric_offset_realized` (the
+    info, and rule B's warning above τ).
   - PP `lib.rs`: the wire field `ComponentGeometryInput::eccentric_offset`,
     its normalization, the call after `normalize_model_units`, and the info
     past the last blocked return.

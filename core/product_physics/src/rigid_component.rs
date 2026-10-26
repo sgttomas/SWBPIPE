@@ -406,6 +406,7 @@ pub(crate) const ECCENTRIC_BELOW_PRECISION: &str = "RIGID_COMPONENT_ECCENTRIC_OF
 pub(crate) const ECCENTRIC_NOT_TRANSVERSE: &str = "RIGID_COMPONENT_ECCENTRIC_OFFSET_NOT_TRANSVERSE";
 pub(crate) const ECCENTRIC_MISMATCH: &str = "RIGID_COMPONENT_ECCENTRIC_OFFSET_MISMATCH";
 pub(crate) const ECCENTRIC_REALIZED: &str = "RIGID_COMPONENT_ECCENTRIC_OFFSET_REALIZED";
+pub(crate) const ECCENTRIC_AXIS_ALLOWANCE_USED: &str = "RIGID_COMPONENT_ECCENTRIC_OFFSET_AXIS_ALLOWANCE_USED";
 
 /// §3.3 (HELP_HUMAN, 2026-10-26, under the owner's delegation): the declared
 /// coordinate-rounding allowance q. A fixed constant of the product, not a
@@ -618,6 +619,9 @@ pub(crate) struct OffsetMeasure {
     pub allowance: f64,
     pub residual: f64,
     pub beta_run: f64,
+    /// The placement's run-axis allowance ‖D‖·sin β_run (rule B, §3.3): the
+    /// residual is accepted up to τ plus this.
+    pub axis_allowance: f64,
 }
 
 /// The outcome of one reducer's check.
@@ -649,7 +653,11 @@ pub(crate) fn judge_offset(x_n: V3, x_f: V3, axis: (V3, f64), offset: V3, tolera
             return OffsetOutcome::NotTransverse(measure);
         }
     }
-    if !(residual <= tolerance) {
+    // Rule B (HELP_HUMAN, 2026-10-26, under the owner's delegation): the
+    // placement carries the run axis's own uncertainty, as the transversality
+    // allowance does. A residual above τ but within τ + ‖D‖·sin β_run is
+    // realized with the `..._AXIS_ALLOWANCE_USED` warning.
+    if !(residual <= tolerance + measure.axis_allowance) {
         return OffsetOutcome::Mismatch(measure);
     }
     OffsetOutcome::Realized(measure)
@@ -671,7 +679,8 @@ fn offset_measure(x_n: V3, x_f: V3, axis: (V3, f64), offset: V3) -> OffsetMeasur
     let offset_axial = v_dot(offset, t).abs();
     let allowance = TRANSVERSE_RATIO_BASE * e_norm + 0.5 * 3f64.sqrt() * COORDINATE_ROUNDING_ALLOWANCE_M + e_norm * beta_run.sin();
     let residual = v_norm(v_sub(transverse, offset));
-    OffsetMeasure { axis: t, axial_length, transverse, offset_axial, allowance, residual, beta_run }
+    let axis_allowance = v_norm(d) * beta_run.sin();
+    OffsetMeasure { axis: t, axial_length, transverse, offset_axial, allowance, residual, beta_run, axis_allowance }
 }
 
 /// The offset judged against the decided run axis (§3.3). On an exact tie
@@ -729,6 +738,7 @@ fn canonical_outcome(outcome: OffsetOutcome, measure: &OffsetMeasure) -> OffsetO
         allowance: z(measure.allowance),
         residual: z(measure.residual),
         beta_run: z(measure.beta_run),
+        axis_allowance: z(measure.axis_allowance),
     };
     match outcome {
         OffsetOutcome::Realized(_) => OffsetOutcome::Realized(m),
@@ -908,7 +918,7 @@ pub(crate) fn append_eccentric_offset_refusals(model: &PreviewModel, tolerance: 
             OffsetOutcome::NotTransverse(m) => ("eccentric-offset-not-transverse", ECCENTRIC_NOT_TRANSVERSE,
                 format!("reducer {} eccentric offset has an axial component {:e} m along the run axis {}, above its allowance {:e} m; an eccentric offset is transverse to the run", component.id, m.offset_axial, vec_text(m.axis), m.allowance)),
             OffsetOutcome::Mismatch(m) => ("eccentric-offset-mismatch", ECCENTRIC_MISMATCH,
-                format!("reducer {} declares eccentric offset {} but its end nodes are separated transversely by {}: residual {:e} m exceeds the node-proximity tolerance {tolerance:e} m; the node geometry governs, so correct the nodes or the declared offset", component.id, vec_text(offset_v3(component)), vec_text(m.transverse), m.residual)),
+                format!("reducer {} declares eccentric offset {} but its end nodes are separated transversely by {}: residual {:e} m exceeds its placement allowance {:e} m, the node-proximity tolerance {tolerance:e} m plus the run-axis allowance {:e} m (body length times the sine of the run-axis uncertainty {:e} rad); the node geometry governs, so correct the nodes or the declared offset", component.id, vec_text(offset_v3(component)), vec_text(m.transverse), m.residual, tolerance + m.axis_allowance, m.axis_allowance, m.beta_run)),
         };
         diagnostics.push(diag(&format!("diagnostic:component:{id}:{suffix}"), code, "blocking", message, refs));
     }
@@ -939,5 +949,15 @@ pub(crate) fn append_eccentric_offset_realized(model: &PreviewModel, tolerance: 
             format!("reducer {} declares eccentric offset {} and its end nodes realize a transverse separation {}, which governs the solve; the eccentricity is carried by the body member between the two centerlines (length {length:e} m, inclined {inclination:e} rad to the run axis); no rigid offset link is added; the member's stress rows are those of the mapped pipe section along the chord, a reference section, whether or not a stiffness scale is applied", component.id, vec_text(offset_v3(component)), vec_text(m.transverse)),
             vec![component.id.clone()],
         ));
+        // Rule B's warning band (§3.3): accepted only within the run-axis allowance.
+        if !(m.residual <= tolerance) {
+            diagnostics.push(diag(
+                &format!("diagnostic:component:{}:eccentric-offset-axis-allowance-used", stable_suffix(&component.id)),
+                ECCENTRIC_AXIS_ALLOWANCE_USED,
+                "warning",
+                format!("reducer {} declares eccentric offset {} and its end nodes realize a transverse separation {}: residual {:e} m exceeds the node-proximity tolerance {tolerance:e} m and is accepted only within the run-axis allowance {:e} m (body length times the sine of the run-axis uncertainty {:e} rad from the coordinate-rounding allowance); the node geometry was used for the solve, not the declared offset", component.id, vec_text(offset_v3(component)), vec_text(m.transverse), m.residual, m.axis_allowance, m.beta_run),
+                vec![component.id.clone()],
+            ));
+        }
     }
 }
