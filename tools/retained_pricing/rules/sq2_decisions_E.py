@@ -159,8 +159,8 @@ if U6_D5:
     # (a source-recovery publication); route E's ordinary pressure-2 envelope carries them on every run, twelve per
     # member and case, so route E's P_final and R0 take 102 + 12 = 114 rows per member. Guard: the rule and the producer
     # call are read at the snapshot (w7_owners_model).
-    _W7 = runpy.run_path(os.path.join(os.path.dirname(H), "base", "w7_owners_model.py"))
-    if _W7["inspect"](os.environ["SQ2_SNAP"]):
+    _w7 = runpy.run_path(os.path.join(os.path.dirname(H), "base", "w7_owners_model.py"))
+    if _w7["inspect"](os.environ["SQ2_SNAP"]):
         _lib = open(os.path.join(os.environ["SQ2_SNAP"], "core/product_physics/src/lib.rs"), encoding="utf-8").read()
         if (_lib.count("fn global_end_rows_published(source_selected: bool) -> bool {\n    !source_selected\n}") != 1
                 or _lib.count("if global_end_rows_published(selected_source.is_some()) && !has_blocking(diagnostics) {") != 1):
@@ -229,8 +229,8 @@ ID_AUDIT = ID_AUDIT + [
     (PM_ + "146", {"id": IN}), (PM_ + "205", {"a.unit": IN}), (PM_ + "212", {"p0.id": IN, "p1.id": IN}), (PM_ + "248", {"material.id": IN}),
 ]
 # C8: source-bound IN128 metadata survives; only owned syntax allocates.
-_C8_MODEL = runpy.run_path(os.path.join(H, "..", "base", "member_comparison_model.py"))
-C8_MEMBER_STATE = _C8_MODEL["inspect"](os.environ["SQ2_SNAP"])
+_c8_model = runpy.run_path(os.path.join(H, "..", "base", "member_comparison_model.py"))
+C8_MEMBER_STATE = _c8_model["inspect"](os.environ["SQ2_SNAP"])
 C8_INPUT_METADATA = [(Resolved(C8_MEMBER_STATE["site"]), {"member.member_id": IN})]
 if not C8_MEMBER_STATE["borrowed"]:
     ID_AUDIT = ID_AUDIT + C8_INPUT_METADATA

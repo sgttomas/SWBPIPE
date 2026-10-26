@@ -114,3 +114,12 @@ def test_unknown_deleted_key_still_refuses(monkeypatch):
     mapper.unmapped = []
     bad = OPS["carry_decision_keys"](d, mapper)
     assert len(bad) == 1 and bad[0][1:] == ("unknown.rs:1:owner", "deleted")
+
+
+def test_no_module_namespace_is_a_decision_table(monkeypatch):
+    """Every upper-case name the decisions bind is carried as a decision table (rule_ops.carry_decision_keys). A module
+    namespace held under one, such as the owner choices' (whose PREIMAGES keys are written at the snapshot), would
+    have its snapshot keys carried as if written at the basis."""
+    d = decisions(monkeypatch)
+    namespaces = [k for k, v in d.items() if k.isupper() and isinstance(v, dict) and "__file__" in v]
+    assert namespaces == []

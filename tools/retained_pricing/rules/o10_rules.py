@@ -1461,8 +1461,10 @@ if _D5:
     # The case solve's stress-finding id (lib.rs `let id = format!(`): 18 literal bytes, the IN128 pipe suffix, the
     # historic STATIC 600 location class, two separators and finding.code's Debug (<= 64, its argument rule).
     _DIAG_ID = 18 + 128 + 600 + 2 + 64
-    _OC = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "b7a_owner_choices.py"))
-    _EXPECTED = max(_OC["BOUNDS"].values())
+    # Only the owner choices' BOUNDS are read. Their module namespace is not kept: an upper-case name here is a decision
+    # table, and the decision-key carry would map its snapshot keys (PREIMAGES) as if they were written at the basis.
+    _EXPECTED = max(__import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base",
+                                                               "b7a_owner_choices.py"))["BOUNDS"].values())
     _ea = _text_of(PP_ + "exact_admission.rs")
     def _j4b(start, count):
         i = _ea.index(start); j = _ea.index("\n    };", i)
@@ -1583,16 +1585,16 @@ if _D5:
 U6_RB_PATCHES, W1_L5_PATCHES, W1_L5_SITE_FROM = [], [], []
 _AGG = fnkey("run_linear_static_preview_observed_inner", _LIB)
 if _AGG:
-    _W1_MODEL = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.dirname(
+    _w1_model = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.dirname(
         _os.path.abspath(__file__))), "base", "w1_reductions_model.py"))
-    _W1_REDUCED = _W1_MODEL["inspect"](_SNAP)
+    _W1_REDUCED = _w1_model["inspect"](_SNAP)
     _agg = _fn_text("run_linear_static_preview_observed_inner", _LIB)
     _RB_GUARDED = ("            if preview.is_some() {\n                rows_by_base_id\n                    .entry(base_id)\n"
                    "                    .or_default()\n                    .insert(load_case_id.clone(), result.clone());\n            }\n")
     _RB_CALL = ("        Some(rendered) => preview_physics::append_combination_results(&model, rendered, &rows_by_base_id, "
                 "&mut results, &mut diagnostics),\n")
     if _W1_REDUCED:
-        _W1_MODEL["guard"](_agg)
+        _w1_model["guard"](_agg)
     elif _RB_GUARDED not in _agg or _RB_CALL not in _agg:
         raise SystemExit("U6-RB: the RF guarded rows_by_base_id/call changed; re-review")
     if (_agg.count("rows_by_base_id") != 3

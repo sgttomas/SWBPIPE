@@ -147,7 +147,10 @@ MODE_SOURCE = {
            "3f1e9c513fcafda1d2efd9232791644a3a863697d6d5c41d985bf87a72859af7",
            # W-16 slice a D3 (§8.23): the same _X emitter, with retained_w1 carried to lib.rs:3752 (its only difference
            # from 3f1e9c51…).
-           "59bffb88632df3012358721e4ca240a5f509d79b750bf00f12e5883843ff2276"},
+           "59bffb88632df3012358721e4ca240a5f509d79b750bf00f12e5883843ff2276",
+           # Nested-record closure D3 (§8.25): the same _X emitter, with retained_w1 carried to lib.rs:3858 (its only
+           # difference from 59bffb88…).
+           "8e2d83e55c6ea57935ecc58fe87619d240b079de80b5f9daf13deda07252cc1c"},
 }
 
 
