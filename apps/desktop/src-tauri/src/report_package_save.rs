@@ -102,6 +102,9 @@ pub const PRODUCER_BLOCKED: &str = "REPORT-PACKAGE-PRODUCER-BLOCKED";
 pub const PICKER_PATH_INVALID: &str = "REPORT-PACKAGE-PICKER-PATH-INVALID";
 pub const WORKER_FAILED: &str = "REPORT-PACKAGE-SAVE-WORKER-FAILED";
 pub const DISPOSITION_MALFORMED: &str = "REPORT-PACKAGE-SAVE-DISPOSITION-MALFORMED";
+/// A request with a struct, at any depth, in positional (JSON array) form
+/// (found in Codex review rounds 2 and 3 of #1648).
+pub const REQUEST_POSITIONAL: &str = "REPORT-PACKAGE-SAVE-REQUEST-POSITIONAL";
 /// The webview screener's code for a blocked disposition (`redactionExportControls.ts`).
 pub use crate::export_disposition_screen::PROTECTED_CONTENT_BLOCKED;
 
@@ -700,6 +703,21 @@ fn exact_refused(refusal: ExactRefusal, path: &str) -> ReportPackageSaveCommandE
     refuse(refusal.code, path, message)
 }
 
+/// Object form: no struct in the request, at any depth, is in positional
+/// (JSON array) form. The shared decode reads a positional struct by field
+/// order, while the save's exact detection, source binding, disposition
+/// screen and context checks read members by key, so the save refuses one
+/// before any of them, naming the fixed path only
+/// (`wire::request_positional_struct_path`: a positional request, and each
+/// decoded typed member and the report compared with its JSON). The ingress
+/// pricing of a positional text is unchanged; only its admission refuses.
+fn check_request_object_form(request: &Value) -> Result<(), ReportPackageSaveCommandError> {
+    match open_pipe_stress_report_package::wire::request_positional_struct_path(request) {
+        Some(path) => Err(refuse(REQUEST_POSITIONAL, "/request", format!("The request writes a struct in positional (array) form at {path}."))),
+        None => Ok(()),
+    }
+}
+
 /// Whether the parsed request is an exact-route request (§3.6): its result
 /// document has an exact identity or its report carries `exact_route`.
 fn exact_request(request: &Value) -> bool {
@@ -776,6 +794,7 @@ pub fn admit_report_package_in(
     }
     let request_value = parse_canonical("request", &request_text)?;
     drop(request_text);
+    check_request_object_form(&request_value)?;
     // W-11 (§3.6): the native source binding of an exact-route request, before
     // the other content checks; a pressure-free request carries no texts.
     let exact_custody = if exact_request(&request_value) {
