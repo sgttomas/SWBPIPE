@@ -403,7 +403,8 @@ pub(crate) fn check_request_in(
     // `desktop-exact-outputs.md` §4.2, §6.2); the handoff run section keeps the
     // record's object type. W-11 (DEL-08-01 Design
     // `exact-route-report-sections.md` §5.3): compare under that one mapping,
-    // for exact identities only. Dormant while item 0 refuses them.
+    // for exact identities only. Active since the owner opened exact-route
+    // packages (§5.1; 2026-10-26), when item 0 began admitting them.
     let exact_document = document_form::producer_contract_id(document).is_some_and(exact_sections::is_exact_identity);
     let handoff_loads = unique_refs(
         array(run_record, "/load_basis_refs").iter().filter_map(|item| {
@@ -546,7 +547,7 @@ pub(crate) fn check_request_in(
     }
 
     // Item 9 (W-11 §3.5): an exact identity's sections are those of the source,
-    // the document and the audit; no other identity carries them. Dormant
-    // while item 0 refuses exact identities.
+    // the document and the audit; no other identity carries them. Active since
+    // the owner opened exact-route packages (§5.1; 2026-10-26).
     exact_sections::check_exact_sections(source, document, audit_manifest, report)
 }

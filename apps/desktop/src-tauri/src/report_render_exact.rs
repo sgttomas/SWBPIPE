@@ -58,6 +58,12 @@ pub(crate) const EXACT_IDENTITIES: [&str; 3] = [PRESSURE_ID, PRESSURE_SOURCE_ID,
 
 pub(crate) const RENDER_ROUTE_NOT_ADMITTED: &str = "REPORT-RENDER-ROUTE-NOT-ADMITTED";
 
+/// An exact-route render whose `report_context.export_context` is not
+/// `local_private` (Codex review round 1 of #1648): refused natively before
+/// the source binding and the render, whatever the input's provenance flags
+/// say, so no body or print view exists for it.
+pub(crate) const RENDER_EXACT_CONTEXT_NOT_LOCAL_PRIVATE: &str = "REPORT-RENDER-EXACT-CONTEXT-NOT-LOCAL-PRIVATE";
+
 /// The exact identities step 0 admits.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct RenderAdmittedSet(&'static [&'static str]);
@@ -89,12 +95,28 @@ pub(crate) fn render_calculation_report_args_in(
     };
     let exact = input.get("exact_route").is_some_and(|route| !route.is_null());
     if exact {
+        check_exact_render_context(&input).map_err(CommandError::Command)?;
         bind_exact_render_input(&input, &texts, registry, lease)?;
     } else if texts.any() {
         return Err(CommandError::Command(sections_mismatch("exact_route").message));
     }
     drop(texts);
     crate::render_calculation_report_value(input).map_err(CommandError::Command)
+}
+
+/// An exact-route report renders only as a local private document (owner
+/// ruling of 2026-10-26, §5.1; DEL-08-01 Design `exact-route-report-sections.md`
+/// §6.3): its `report_context.export_context` must be `local_private`. The
+/// check reads that one field, never the provenance classifications, which
+/// the caller supplies; the refusal names no value from the input.
+pub(crate) fn check_exact_render_context(input: &Value) -> Result<(), String> {
+    match input.get("report_context").and_then(|context| context.get("export_context")) {
+        Some(Value::String(context)) if context == "local_private" => Ok(()),
+        found => Err(format!(
+            "{RENDER_EXACT_CONTEXT_NOT_LOCAL_PRIVATE}: an exact-route report renders only under the local_private export context; the input names {}.",
+            if found.is_none_or(Value::is_null) { "no export context" } else { "another export context" }
+        )),
+    }
 }
 
 /// The texts an exact render resubmits (§3.6); none for any other input.

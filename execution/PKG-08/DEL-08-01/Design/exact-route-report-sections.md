@@ -1521,38 +1521,72 @@ differences, each fail-closed:
   physics-retained-1 at the render's step 0, the package's item 0 (producer and
   reader, the reader's with the committed exact-successor derivative document,
   which is well formed) and the desktop identity check.
+- **An exact render is local private natively** (Codex review round 1 of
+  #1648, blocking). With genuine custody and texts, a render input whose
+  provenance flags were relabelled public rendered unblocked under
+  `public_report` or with no context, because the renderer's private-record
+  refusal trusts those flags. The native render therefore requires
+  `report_context.export_context == "local_private"` for every input with
+  `exact_route`, after step 0 and before the source binding, and otherwise
+  refuses the command (`REPORT-RENDER-EXACT-CONTEXT-NOT-LOCAL-PRIVATE`; no
+  body and no print view, the lease not grown; the message names no input
+  value) (`report_render_exact.rs` `check_exact_render_context`). The native
+  save (`report_package_save.rs` `check_context`) and the shared producer
+  (bindings item 8) already refuse any context but `local_private`
+  (`REPORT-PACKAGE-REPORT-CONTEXT-NOT-LOCAL-PRIVATE`, no package), and the
+  headless runner refuses exact identities outright. The regression
+  (`report_render_exact_tests.rs`
+  `an_exact_render_or_save_outside_local_private_refuses_whatever_its_provenance_flags`)
+  covers pressure-2 and pressure-source-1 with relabelled provenance under
+  `public_report`, another context, no export context and no report
+  context, through the decoded args and the raw body, and the save and the
+  shared producer.
 - **The exact save's memory check** now runs through the shared producer's
   assembly of the admitted package: priced peak 45,915,856 bytes within its
   110,845,552-byte lease (the render's is unchanged, 6,642,400 within
   12,099,728); DEL-04-07 `memory-budget-decision.md` records both.
-- **Readability of the evidence reports (observations, not changed).** Each
-  was checked against a pressure-free report of today (the committed
-  pressure-free result `fixtures/results/preview_physics_connected_sparse.json`
+- **Deferred readability items (observations on the §5.5 evidence, not
+  changed).** Each was checked against a pressure-free report of today (the
+  committed pressure-free result `fixtures/results/preview_physics_connected_sparse.json`
   and the headless runner's pressure-free package of
-  `del1005_export_results_success_input.json`):
-  - the Diagnostics table prints the numerical-integrity evidence as a raw
-    debug dump (`StructuralReport { … PivotEvidence { … } }`), most of each
-    PDF's length. **Pre-existing:** the pressure-free result's
-    `NUMERICAL_INTEGRITY_CHECKS_PASSED` message carries the same dump, and the
-    renderer carries result diagnostics on both routes;
-  - limitation ids and scopes name the run `run:preview-linear-static-001`.
-    **Pre-existing:** the product producer names every desktop run so
-    (`product_physics/src/lib.rs:3278`), and the pressure-free report's
-    technical-preview entry carries it; the exact entries
-    (`…:exact:<n>`) add more ids with the same run name;
-  - values are printed with every digit. **Pre-existing** for result rows
-    (`reportResultRows.ts:48`, `${value} ${unit}`, e.g. 28.462881029847143 MPa
-    on the pressure-free route). **New** on exact reports: the stress
-    headlines, which quote the producer's summary maxima in Pa (e.g.
-    41354908.75465696 Pa); a pressure-free rendered report has no headline;
-  - the pressure-source-1 example (synthetic n05) shows 0 Pa for both
-    headlines, and its standing line says "integrity checked" while
-    Diagnostics carries `NUMERICAL_INTEGRITY_SENSITIVE`. **New:** the standing
-    line and the headlines exist only on exact reports, and the
-    numerical-health line, which on a pressure-free report states the
-    ordinary solve's numerical-health state, is omitted from exact reports
-    (§6.1); the 0 Pa values are
-    the synthetic fixture's.
+  `del1005_export_results_success_input.json`); Codex review round 1 of #1648
+  classified them as readability, not correctness, and suggested the
+  improvement given for each:
+  1. the Diagnostics table prints the numerical-integrity evidence as a raw
+     debug dump (`StructuralReport { … PivotEvidence { … } }`), most of each
+     PDF's length. **Pre-existing:** the pressure-free result's
+     `NUMERICAL_INTEGRITY_CHECKS_PASSED` message carries the same dump, and the
+     renderer carries result diagnostics on both routes. *Improvement:* a
+     readable summary with the detail accessible;
+  2. limitation ids and scopes name the run `run:preview-linear-static-001`.
+     **Pre-existing:** the product producer names every desktop run so
+     (`product_physics/src/lib.rs:3278`), and the pressure-free report's
+     technical-preview entry carries it; the exact entries (`…:exact:<n>`) add
+     more ids with the same run name. *Improvement:* the producer's run
+     naming;
+  3. values are printed with every digit. **Pre-existing** for result rows
+     (`reportResultRows.ts:48`, `${value} ${unit}`, e.g. 28.462881029847143 MPa
+     on the pressure-free route). **New** on exact reports: the stress
+     headlines, which quote the producer's summary maxima in Pa (e.g.
+     41354908.75465696 Pa); a pressure-free rendered report has no headline.
+     *Improvement:* a reviewed display-rounding and unit policy;
+  4. the pressure-source-1 example (synthetic n05) shows 0 Pa for both
+     headlines, and its standing line says "integrity checked" while
+     Diagnostics carries `NUMERICAL_INTEGRITY_SENSITIVE`. **New:** the standing
+     line and the headlines exist only on exact reports, and the
+     numerical-health line, which on a pressure-free report states the
+     ordinary solve's numerical-health state, is omitted from exact reports
+     (§6.1). Codex found it numerically correct: n05 is pure torsion (1e-8 N·m
+     about RX), so the normal-stress maxima are zero while the torsional shear
+     is not, and the warning describes the ordinary attempt while the
+     retained-source response is the qualified one. *Improvement:* label the
+     headlines explicitly as normal-stress maxima, and distinguish the
+     retained-source eligibility from the ordinary solve's health next to
+     them.
+- **Remaining FR-REP-003 item (Codex review round 1 of #1648, not changed).**
+  `supportSubjects` (`renderableReportInput.ts:381`) gives a record only for a
+  support that carries a `provenance_record`, so a support that carries only a
+  legacy `provenance` note has no record in the report.
 - **Texts.** The same rewording of item 2 also applies to the pressure
   authoring panel's mode line (`PressureAuthoringPanel.tsx`), which repeated
   the refusal's list of admitting surfaces. Appendix A.2 adds O15 for the

@@ -113,6 +113,17 @@ fn pressure_free_input() -> Value {
     })
 }
 
+/// An invented report context under `export_context` (as the provenance
+/// refusal test builds it).
+fn report_context(export_context: &str) -> Value {
+    json!({
+        "export_context": export_context, "generated_at": null, "software_name": "Invented", "software_version": null,
+        "build_release_identifier": null, "solver_name": null, "solver_version": null, "solver_build_ref": null,
+        "analysis_run_name": null, "analysis_run_recorded_at": null, "solver_mode": null, "solver_settings_ref": null,
+        "solver_settings": [], "model_coordinate_system": null, "result_coordinate_systems": []
+    })
+}
+
 /// `base`'s coherent exact-route form, as the renderer's own unblocked exact
 /// test builds it (`report_renderer/tests/common/exact_input.rs`): the
 /// `exact_route` block with its admission binding bound to the report's own
@@ -368,8 +379,9 @@ fn an_undecodable_input_names_its_path_and_kind_not_its_value() {
 /// Codex review round 1 (blocking), after opening: a coherent invented exact
 /// input, which the renderer itself renders unblocked with "integrity
 /// checked", passes step 0 in production and is bound to its source natively
-/// first; its invented job is not in custody, so the production command
-/// refuses it there (`REPORT-EXACT-CUSTODY-RELEASED`) with no HTML. The
+/// first; without a report context it refuses before that, and under
+/// local_private its invented job is not in custody, so the production
+/// command refuses it there (`REPORT-EXACT-CUSTODY-RELEASED`) with no HTML. The
 /// genuine live-job input renders (`direct_native`). The same input relabelled
 /// physics-retained-1 still refuses at step 0.
 #[test]
@@ -382,8 +394,15 @@ fn production_native_render_binds_a_coherent_exact_input_before_rendering() {
     let html = rendered["html"].as_str().unwrap();
     assert!(html.contains(EXACT_ROUTE_SUBHEADING) && html.contains("Numerical standing: integrity checked"));
     assert_eq!(check_render_route_admitted(&exact, PRODUCTION), Ok(()));
-    // The production root, through the ingress decode, and the command body on
-    // the raw args body: the native source binding refuses the invented job.
+    // Without a report context, the exact render refuses before its binding
+    // (Codex review round 1 of #1648).
+    let refused = refusal_text(command_body(&json!({"input": exact})));
+    assert!(refused.starts_with("REPORT-RENDER-EXACT-CONTEXT-NOT-LOCAL-PRIVATE: "), "{refused}");
+    // Under local_private, the production root (through the ingress decode)
+    // and the command body on the raw args body: the native source binding
+    // refuses the invented job.
+    let mut exact = exact;
+    exact["report_context"] = report_context("local_private");
     let registry = registry(ScriptedHost::normal());
     let (mut args, mut lease) =
         admit_json(&registry, "render_calculation_report", ArgsDecoding::Moved, &json!({"input": exact})).unwrap();
@@ -973,6 +992,113 @@ mod direct_native {
             let member = |role: &str| admitted.package.members.iter().find(|member| member.role == role).unwrap_or_else(|| panic!("{name}: {role}")).bytes.clone();
             std::fs::write(dir.join(format!("{name}.pdf")), member(open_pipe_stress_report_package::ROLE_REPORT_PDF)).unwrap();
             std::fs::write(dir.join(format!("{name}.package.html")), member(open_pipe_stress_report_package::ROLE_REPORT_HTML)).unwrap();
+        }
+    }
+
+    /// `value` with every privacy classification relabelled `public_metadata`
+    /// and every redistribution status `invented_non_engineering_example`, at
+    /// every depth (Codex review round 1 of #1648).
+    fn relabelled(value: &mut Value) {
+        match value {
+            Value::Object(map) => {
+                for (key, item) in map.iter_mut() {
+                    match key.as_str() {
+                        "privacy_classification" if item.is_string() => *item = json!("public_metadata"),
+                        "redistribution_status" if item.is_string() => *item = json!("invented_non_engineering_example"),
+                        _ => relabelled(item),
+                    }
+                }
+            }
+            Value::Array(items) => items.iter_mut().for_each(relabelled),
+            _ => {}
+        }
+    }
+
+    /// `report` under `context`: `None` removes the export context, `Some`
+    /// sets it.
+    fn with_context(report: &mut Value, context: Option<&str>) {
+        let report_context = report["report_context"].as_object_mut().expect("a report context");
+        match context {
+            Some(context) => {
+                report_context.insert("export_context".into(), json!(context));
+            }
+            None => {
+                report_context.remove("export_context");
+            }
+        }
+    }
+
+    /// Codex review round 1 of #1648 (blocking): an exact-route render or save
+    /// is local private only, natively, whatever the input's provenance flags
+    /// say. With a live job and its genuine texts, pressure-2 and
+    /// pressure-source-1 inputs whose provenance is relabelled public refuse
+    /// under `public_report`, another context, without an export context and
+    /// without a report context: the render before its binding (no body, no
+    /// print view; the lease does not grow and custody is unchanged), from the
+    /// decoded args and from the raw body; the save, the shared producer
+    /// (no package bytes) by their context checks.
+    #[test]
+    fn an_exact_render_or_save_outside_local_private_refuses_whatever_its_provenance_flags() {
+        for (name, text) in [("pressure_2_straight", STRAIGHT), ("pressure_source_1", SOURCE_1)] {
+            let w = witness(text);
+            let live = live(&w);
+            let genuine = genuine_render_args(&w, &live.job);
+            assert_eq!(genuine["input"]["report_context"]["export_context"], json!("local_private"), "{name}");
+            let mut contexts: Vec<(String, Value)> = Vec::new();
+            for context in [Some("public_report"), Some("downstream_tool"), None] {
+                let mut args = genuine.clone();
+                relabelled(&mut args["input"]);
+                with_context(&mut args["input"], context);
+                contexts.push((format!("{context:?}"), args));
+            }
+            let mut no_context = genuine.clone();
+            relabelled(&mut no_context["input"]);
+            no_context["input"].as_object_mut().unwrap().remove("report_context");
+            contexts.push(("no report_context".to_string(), no_context));
+            for (label, args) in &contexts {
+                let before = live.registry.custody_binding(&live.job);
+                let (mut decoded, mut lease) = admit_json(&live.registry, "render_calculation_report", ArgsDecoding::Moved, args).unwrap();
+                let admitted_bytes = lease.bytes();
+                let outcome = crate::render_calculation_report_args(&mut decoded, &live.registry, &mut lease);
+                let refused = refusal_text(outcome);
+                assert!(refused.starts_with("REPORT-RENDER-EXACT-CONTEXT-NOT-LOCAL-PRIVATE: "), "{name} {label}: {refused}");
+                assert!(!refused.contains("public_report") && !refused.contains("downstream_tool"), "{name} {label}: {refused}");
+                assert_eq!(lease.bytes(), admitted_bytes, "{name} {label}: the lease does not grow");
+                assert_eq!(live.registry.custody_binding(&live.job), before, "{name} {label}");
+                drop(lease);
+                let body = InvokeBody::Raw(serde_json::to_vec(args).unwrap());
+                let (mut decoded, mut lease) =
+                    admit_body(&live.registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1)), "render_calculation_report", ArgsDecoding::Moved).unwrap();
+                let response = respond(crate::render_calculation_report_args(&mut decoded, &live.registry, &mut lease));
+                assert!(response.is_err(), "{name} {label}: no response body");
+                drop(lease);
+            }
+            // The save and the shared producer: relabelled provenance under
+            // another context, or none, refuses with no package.
+            for context in [Some("public_report"), None] {
+                let mut request = bound(&w.request, &live.job);
+                relabelled(&mut request["report"]);
+                with_context(&mut request["report"], context);
+                let (code, message) = save_code(&live, save_args(&request, &w, &w.model, Some(&w.result), Some(&w.intake)));
+                assert_eq!(code, open_pipe_stress_report_package::bindings::REPORT_CONTEXT_NOT_LOCAL_PRIVATE, "{name} {context:?}: {message}");
+                if context.is_some() {
+                    let solver = &request["audit_manifest"]["solver_version"];
+                    let text = |key: &str| solver[key].as_str().unwrap().to_string();
+                    let (solver_name, solver_version, solver_build_ref) = (text("solver_name"), text("solver_version"), text("solver_build_ref"));
+                    let identity = open_pipe_stress_report_package::wire::LinkedSolverIdentity {
+                        solver_name: &solver_name,
+                        solver_version: &solver_version,
+                        solver_build_ref: &solver_build_ref,
+                    };
+                    let typed: open_pipe_stress_report_package::wire::ReportPackageRequest = serde_json::from_value(request.clone()).unwrap();
+                    let error = open_pipe_stress_report_package::wire::assemble_wire_request(typed, &identity).map(drop).expect_err("refused");
+                    assert!(error.starts_with(open_pipe_stress_report_package::bindings::REPORT_CONTEXT_NOT_LOCAL_PRIVATE), "{name}: {error}");
+                }
+            }
+            // Control: the genuine local-private input still renders.
+            let rendered = production_render_on(&live, &genuine).unwrap_or_else(|error| panic!("{name}: {error:?}"));
+            assert_eq!(rendered["export_blocked"], json!(false), "{name}");
+            assert!(rendered["html"].as_str().unwrap().contains("LOCAL PRIVATE REPORT"), "{name}");
         }
     }
 
