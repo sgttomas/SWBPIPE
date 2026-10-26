@@ -1595,7 +1595,10 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     // the largest format within 40 lines (text_budget message_size), and the rigid-scale refusal's 786 B message (zero
     // on D1, W15-NZ) now lies in the window of the exact-section shear-factor diagnostic (407 B before): +379 B for
     // each of its 224 envelope instances, on W-7's 270,557,552.
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 270_642_448, "current text closure at C_eq = 3, maximum over routes");
+    // W-16 slice a at 6d4e0c1506 (§8.23): +3,762,176 B, route L(3,0)'s envelope (now the maximum over routes) gains the
+    // node/element imposed_displacement refusal for each of its 384 primitive loads (W16-ID) and loses the 128 deleted
+    // pre-parse refusals (its D_env 25,470 -> 25,726), on W-15's 270,642,448.
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 274_404_624, "current text closure at C_eq = 3, maximum over routes");
     // W-7 (§8.20): 3 · 2,979 = 8,937 rows exceed the former 8,192 slots; their push capacity is 16,384.
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_979, 16_384), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
@@ -1605,7 +1608,7 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     assert_eq!(caps.complete[17], c * (3 * 32 + 1) * text_atoms::ERR, "C·(3m + 1)·Text(err)");
     // Current generated TEXT atoms; their backing and visit counts stay positive.
     assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, text_atoms::D_ENV, push_capacity(text_atoms::D_ENV)),
-        (6_139_118, 2_330, 16_384, 28_902, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
+        (6_139_118, 2_330, 16_384, 28_774, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
     assert_eq!(caps.complete[17], 3 * (3 * 32 + 1) * 16_384, "C·(3m + 1)·Text(err) at C = 3");
     let complete_facts: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
     let at: [PhaseObservation; COMPLETE_FACTS] = observed(&complete_facts, &caps.complete).try_into().unwrap();
@@ -1834,6 +1837,16 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
+/// W-16 slice a imposed displacement on the pressure-free route at 6d4e0c1506
+/// (retained-pricing-rules.md §8.23): from W-15's record below (unchanged by W-15 slice b), D1.7
+/// refuses every support target, so the tree adds case_prescribed's node index (W16-NI), validate's
+/// findings vector (W16-VF) and, on route L, the node/element `imposed_displacement` refusal's texts
+/// (W16-ID: L(3,0)'s Text(diag_env) +3,762,176 B), and loses the deleted pre-parse refusal (route E's
+/// D and D_env -128); LoadTargetInput's support arm raises s(PrimitiveLoadInput) by 16 B
+/// (+6,144 B per primitive-load copy). The phases move by +2,507,429 (W1, W2), +2,883,013 (W3),
+/// -608,059 (W4), +957,381 (W5), +1,863,113 (X1), +1,600,697 (X2) and +2,507,705 B (X3) in both
+/// modes; of W3's, +2,876,869 B is the tree and +6,144 B the native layouts (main's tree evaluated
+/// at this build's atoms). W3 is still the maximum.
 /// W-15 rigid-component scaling and reference-section identification at c7318c32f9
 /// (retained-pricing-rules.md §8.21): from W-7's record below, D1 holds no component body (P2) and
 /// D_env is unchanged; the readers' component-body refusal text (W15-ID), the longer pressure-2
@@ -1881,8 +1894,8 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 /// second ordinary span. The build identity, atoms and native values are unchanged; reviewed-input
 /// registration is separate below.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_557_144_094, 6_899_138_655, 8_852_901_785, 8_644_558_818, 7_721_040_811, 8_605_400_360, 7_337_068_472, 7_009_458_426],
-    [6_616_275_438, 6_958_269_999, 8_912_033_129, 8_703_690_162, 7_780_172_155, 8_664_531_704, 7_396_199_816, 7_068_589_770],
+    [6_559_651_523, 6_901_646_084, 8_855_784_798, 8_643_950_759, 7_721_998_192, 8_607_263_473, 7_338_669_169, 7_011_966_131],
+    [6_618_782_867, 6_960_777_428, 8_914_916_142, 8_703_082_103, 7_781_129_536, 8_666_394_817, 7_397_800_513, 7_071_097_475],
 ];
 
 #[test]
@@ -2001,7 +2014,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 28_902, "current canonical D_env at C_eq = 3 (W-7, §8.20: +96, the global end diagnostic per member and case; the node-proximity tolerance's refusal, §8.18: +1; silent-zero guard on W-8, §8.15: +3, one warning per case; W-8's 34e96d6b17: the three topology warnings on 28,799 from T4-U4b/U5b's b4c9f35f8e)");
+    assert_eq!(caps.complete[3], 28_774, "current canonical D_env at C_eq = 3 (W-16 slice a, §8.23: -128, route E's deleted pre-parse imposed-displacement refusal; W-7, §8.20: +96, the global end diagnostic per member and case; the node-proximity tolerance's refusal, §8.18: +1; silent-zero guard on W-8, §8.15: +3, one warning per case; W-8's 34e96d6b17: the three topology warnings on 28,799 from T4-U4b/U5b's b4c9f35f8e)");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();
