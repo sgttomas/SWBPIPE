@@ -25,7 +25,7 @@
 use crate::bindings::{check_request, RUNNER_PROFILE};
 use crate::exact_sections::EXACT_RUNNER_PROFILE;
 use crate::reader::read_report_package_container;
-use crate::wire::{assemble_wire_request, audit_manifest, LinkedSolverIdentity, ReportPackageRequest};
+use crate::wire::{assemble_wire_request, audit_manifest, decode_report_package_request, LinkedSolverIdentity, ReportPackageRequest, REQUEST_MEMBERS};
 use crate::{
     assemble_report_package_container, build_deterministic_zip, sha256_hex, PackageRef, ReportPackageContainerInput,
     ReportPackageContainerOutcome, ROLE_PACKAGE_MANIFEST, ROLE_RESULT_EXPORT,
@@ -264,5 +264,42 @@ fn a_fabricated_report_row_refuses_at_item_6() {
         let solver = linked(&request);
         let error = assemble_wire_request(typed(&request), &identity(&solver)).map(drop).expect_err("refused");
         assert!(error.starts_with("REPORT-PACKAGE-REPORT-ROWS-MISMATCH"), "{name}: {error}");
+    }
+}
+
+/// The object's member values as a JSON array.
+fn as_array(value: &Value) -> Value {
+    Value::Array(value.as_object().expect("an object").values().cloned().collect())
+}
+
+/// Codex review round 2 of #1648: the shared producer reads the report's
+/// context, exact section and the document's identity by key from untyped
+/// members. A positional request decodes to the same members and assembles
+/// the same package; a positional report, report context, exact section or
+/// result document refuses, with no package.
+#[test]
+fn positional_members_refuse_and_a_positional_request_assembles_the_same_package() {
+    for (name, text) in WITNESSES {
+        let request = request_of(text);
+        let solver = linked(&request);
+        let top = Value::Array(REQUEST_MEMBERS.iter().map(|member| request.get(*member).cloned().unwrap_or(Value::Null)).collect());
+        let decoded = decode_report_package_request(top).expect("the positional request decodes");
+        let outcome = assemble_wire_request(decoded, &identity(&solver)).unwrap_or_else(|error| panic!("{name}: {error}"));
+        assert_eq!(outcome.package_identity_sha256_hex, witness_package(&request).package_identity_sha256_hex, "{name}");
+        // Each refuses at the first binding that reads the member by key (the
+        // report's model binding, item 8's context, item 9's exact section,
+        // item 0's identity), never assembling a package.
+        let edits: [(&str, fn(&mut Value)); 4] = [
+            ("positional report", |r| r["report"] = as_array(&r["report"])),
+            ("positional report_context", |r| r["report"]["report_context"] = as_array(&r["report"]["report_context"])),
+            ("positional exact_route", |r| r["report"]["exact_route"] = as_array(&r["report"]["exact_route"])),
+            ("positional result document", |r| r["result_documents"][0] = as_array(&r["result_documents"][0])),
+        ];
+        for (label, edit) in edits {
+            let mut variant = request.clone();
+            edit(&mut variant);
+            let error = assemble_wire_request(typed(&variant), &identity(&solver)).map(drop).expect_err("refused");
+            assert!(error.starts_with("REPORT-PACKAGE-"), "{name} {label}: {error}");
+        }
     }
 }

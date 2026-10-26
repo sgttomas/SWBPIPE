@@ -280,10 +280,42 @@ fn the_runner_package_path_refuses_the_exact_witness_requests() {
             assert_ne!(out.status.code(), Some(0), "{name} {profile}: {stdout}");
             let output: Value = serde_json::from_str(&stdout).unwrap_or_else(|error| panic!("{name} {profile}: {error}"));
             assert!(output.get("report_package").map_or(true, Value::is_null), "{name} {profile}: {stdout}");
+            assert!(output.pointer("/payload/report_package").map_or(true, Value::is_null), "{name} {profile}: {stdout}");
             assert!(
                 stdout.contains("REPORT-PACKAGE-ROUTE-NOT-ADMITTED: the headless runner packages no exact-route result"),
                 "{name} {profile}: {stdout}"
             );
         }
+    }
+    // Codex review round 2 of #1648: a positional result document, envelope or
+    // producer hides the exact identity from the runner's key read; the shared
+    // producer's item 0 then refuses it (no identity), and a positional report
+    // refuses at its first keyed binding. No package either way.
+    let as_array = |value: &Value| Value::Array(value.as_object().unwrap().values().cloned().collect());
+    let witness = read("fixtures/reports/invented/exact_report_package_requests/pressure_2_straight.json")["request"].clone();
+    for (label, pointer) in [
+        ("positional result document", "/result_documents/0"),
+        ("positional result envelope", "/result_documents/0/result_envelope"),
+        ("positional producer", "/result_documents/0/result_envelope/producer"),
+        ("positional report", "/report"),
+    ] {
+        let mut request = witness.clone();
+        let member = request.pointer_mut(pointer).unwrap();
+        *member = as_array(member);
+        let mut input = base.clone();
+        input["export_results"] = request;
+        let mut child = Command::new(env!("CARGO_BIN_EXE_openpipestress-runner"))
+            .args(["export-results", "--explicit-local-private-intent"])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+        child.stdin.take().unwrap().write_all(input.to_string().as_bytes()).unwrap();
+        let out = child.wait_with_output().unwrap();
+        let stdout = String::from_utf8(out.stdout).unwrap();
+        assert_ne!(out.status.code(), Some(0), "{label}: {stdout}");
+        let output: Value = serde_json::from_str(&stdout).unwrap_or_else(|error| panic!("{label}: {error}"));
+        assert!(output.pointer("/payload/report_package").map_or(true, Value::is_null), "{label}: {stdout}");
     }
 }

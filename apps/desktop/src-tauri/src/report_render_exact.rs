@@ -64,6 +64,14 @@ pub(crate) const RENDER_ROUTE_NOT_ADMITTED: &str = "REPORT-RENDER-ROUTE-NOT-ADMI
 /// say, so no body or print view exists for it.
 pub(crate) const RENDER_EXACT_CONTEXT_NOT_LOCAL_PRIVATE: &str = "REPORT-RENDER-EXACT-CONTEXT-NOT-LOCAL-PRIVATE";
 
+/// A render input, or a member the native checks read, in positional (JSON
+/// array) form (Codex review round 2 of #1648). The renderer's decode reads a
+/// struct written as an array by field order, while step 0, the context check
+/// and the source binding read members by key, so a positional form could
+/// carry an exact section past them. The command refuses it before step 0;
+/// the webview always sends objects.
+pub(crate) const RENDER_INPUT_POSITIONAL: &str = "REPORT-RENDER-INPUT-POSITIONAL";
+
 /// The exact identities step 0 admits.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct RenderAdmittedSet(&'static [&'static str]);
@@ -87,6 +95,7 @@ pub(crate) fn render_calculation_report_args_in(
     admitted: RenderAdmittedSet,
 ) -> Result<Value, CommandError> {
     let input = args.value("input")?;
+    check_object_form(&input).map_err(CommandError::Command)?;
     check_render_route_admitted(&input, admitted).map_err(CommandError::Command)?;
     let texts = ExactRenderTexts {
         result: args.decode("exactResultText")?,
@@ -102,6 +111,53 @@ pub(crate) fn render_calculation_report_args_in(
     }
     drop(texts);
     crate::render_calculation_report_value(input).map_err(CommandError::Command)
+}
+
+/// Object form (Codex review round 2 of #1648): the input is a JSON object,
+/// and so is every struct member the native checks or the renderer's exact
+/// sections read, where present and not null: `calculation_report`,
+/// `report_sections`, `report_context`, `user_rule_checks`, `exact_route` and
+/// its `admission`, and each element of `result_rows`,
+/// `report_sections.limitations` (with its `source` and `affected_scope`),
+/// `exact_route.headlines` and `library_references`. A positional (array)
+/// form anywhere there refuses, naming the fixed path only; an admitted
+/// input's walk reads the value in place and allocates nothing.
+pub(crate) fn check_object_form(input: &Value) -> Result<(), String> {
+    fn object(value: Option<&Value>, path: &str) -> Result<(), String> {
+        match value {
+            None | Some(Value::Null) | Some(Value::Object(_)) => Ok(()),
+            Some(_) => Err(format!("{RENDER_INPUT_POSITIONAL}: the render input's {path} is not a JSON object.")),
+        }
+    }
+    fn elements(value: Option<&Value>, path: &str, each: &dyn Fn(&Value) -> Result<(), String>) -> Result<(), String> {
+        match value {
+            Some(Value::Array(items)) => items.iter().try_for_each(|item| {
+                object(Some(item), path)?;
+                each(item)
+            }),
+            _ => Ok(()),
+        }
+    }
+    if !input.is_object() {
+        return Err(format!("{RENDER_INPUT_POSITIONAL}: the render input is not a JSON object."));
+    }
+    for member in ["calculation_report", "report_sections", "report_context", "user_rule_checks", "exact_route"] {
+        object(input.get(member), member)?;
+    }
+    let none = |_: &Value| Ok(());
+    elements(input.get("result_rows"), "result_rows element", &none)?;
+    elements(input.get("library_references"), "library_references element", &none)?;
+    if let Some(sections) = input.get("report_sections") {
+        elements(sections.get("limitations"), "report_sections.limitations element", &|limitation| {
+            object(limitation.get("source"), "report_sections.limitations element's source")?;
+            object(limitation.get("affected_scope"), "report_sections.limitations element's affected_scope")
+        })?;
+    }
+    if let Some(route) = input.get("exact_route") {
+        object(route.get("admission"), "exact_route.admission")?;
+        elements(route.get("headlines"), "exact_route.headlines element", &none)?;
+    }
+    Ok(())
 }
 
 /// An exact-route report renders only as a local private document (owner

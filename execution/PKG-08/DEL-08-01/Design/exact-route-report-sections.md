@@ -1541,6 +1541,39 @@ differences, each fail-closed:
   `public_report`, another context, no export context and no report
   context, through the decoded args and the raw body, and the save and the
   shared producer.
+- **Native inputs are object form** (Codex review round 2 of #1648,
+  blocking). The renderer's value-free decode, like serde's, reads a struct
+  written as a JSON array by field order, while step 0, the context check and
+  the source binding read members by key; a positional render input therefore
+  carried an exact section past all three (both identities, relabelled public
+  provenance, public_report, no context or local_private, no source texts).
+  The native render now refuses, before step 0, an input that is not a JSON
+  object or whose `calculation_report`, `report_sections`, `report_context`,
+  `user_rule_checks`, `exact_route` or `exact_route.admission`, or any element
+  of `result_rows`, `report_sections.limitations` (with its `source` and
+  `affected_scope`), `exact_route.headlines` or `library_references`, is not
+  one (`REPORT-RENDER-INPUT-POSITIONAL`, naming the fixed path only; no body
+  or print view, the lease not grown) (`report_render_exact.rs`
+  `check_object_form`). Refusing rather than normalizing keeps one
+  representation for every gate without decoding an unbound input before step
+  0; the webview always sends objects. The native save likewise refuses,
+  after its canonical parse and before its exact detection, binding and
+  context checks, a request that is not an object or whose `report`, report
+  `report_context`, `exact_route`, `admission`, `report_sections`,
+  `calculation_report`, result documents with their `result_envelope` and
+  `producer`, or source results are not objects
+  (`REPORT-PACKAGE-SAVE-REQUEST-POSITIONAL`; `report_package_save.rs`
+  `check_request_object_form`); ingress pricing of a positional text is
+  unchanged. The shared producer and the headless runner read the untyped
+  members by key and already fail closed: a positional request decodes to the
+  same members and assembles the same package, and a positional report,
+  report context, exact section or result document refuses at the first keyed
+  binding (model binding, solver identity, item 9, item 0), with no package;
+  the reader validates every result member against the 0.3.0 schema, which
+  admits objects only. Regressions: `a_positional_render_input_refuses_before_any_check`,
+  `a_positional_save_request_refuses_before_any_check` (decoded args and raw
+  body), `positional_members_refuse_and_a_positional_request_assembles_the_same_package`,
+  and the headless binary test's positional variants.
 - **The exact save's memory check** now runs through the shared producer's
   assembly of the admitted package: priced peak 45,915,856 bytes within its
   110,845,552-byte lease (the render's is unchanged, 6,642,400 within

@@ -489,10 +489,14 @@ fn every_structured_marker_refuses_in_production() {
     for entry in ids_only["report_sections"]["limitations"].as_array_mut().unwrap() {
         entry["source"] = json!({"ref_type": "report_renderer", "ref_id": "invented-render"});
     }
+    // Not an object: step 0 refuses it as naming no identity, and the
+    // production command's object-form check refuses it first (Codex review
+    // round 2 of #1648).
+    assert_eq!(check_render_route_admitted(&text_route, PRODUCTION).unwrap_err(), no_identity_text);
+    assert_eq!(production_refusal(&text_route), "REPORT-RENDER-INPUT-POSITIONAL: the render input's exact_route is not a JSON object.");
     let cases = [
         ("an exact_route that names no identity", &no_identity, no_identity_text.clone()),
-        ("an empty exact_route", &empty_route, no_identity_text.clone()),
-        ("an exact_route that is not an object", &text_route, no_identity_text),
+        ("an empty exact_route", &empty_route, no_identity_text),
         ("an exact_route naming physics-retained-1", &retained_route, found(PHYSICS_RETAINED_ID)),
         ("an admission naming physics-retained-1", &retained_admission, found(PHYSICS_RETAINED_ID)),
         ("a limitation source naming physics-retained-1", &retained_source, found(PHYSICS_RETAINED_ID)),
@@ -1099,6 +1103,139 @@ mod direct_native {
             let rendered = production_render_on(&live, &genuine).unwrap_or_else(|error| panic!("{name}: {error:?}"));
             assert_eq!(rendered["export_blocked"], json!(false), "{name}");
             assert!(rendered["html"].as_str().unwrap().contains("LOCAL PRIVATE REPORT"), "{name}");
+        }
+    }
+
+    /// The renderer input's members in declaration order (its positional form,
+    /// as the renderer's decode reads a JSON array).
+    const RENDER_MEMBERS: [&str; 8] =
+        ["report_title", "calculation_report", "report_sections", "result_rows", "report_context", "user_rule_checks", "exact_route", "library_references"];
+
+    fn positional(input: &Value) -> Value {
+        Value::Array(RENDER_MEMBERS.iter().map(|member| input.get(*member).cloned().unwrap_or(Value::Null)).collect())
+    }
+
+    /// The object's member values as a JSON array (any order: the native
+    /// check refuses an array before any decode reads it).
+    fn as_array(value: &Value) -> Value {
+        Value::Array(value.as_object().expect("an object").values().cloned().collect())
+    }
+
+    /// Codex review round 2 of #1648 (blocking): a positional render input
+    /// carried an exact section past step 0, the context check and the source
+    /// binding, which read members by key, while the renderer's decode reads
+    /// a JSON array by field order. For pressure-2 and pressure-source-1, with
+    /// relabelled public provenance and without the source texts, the
+    /// positional input (under public_report, without a context and under
+    /// local_private) and an object input with a positional report_context,
+    /// exact_route, admission, limitation entry or result row each refuse
+    /// with `REPORT-RENDER-INPUT-POSITIONAL` before any check, from the
+    /// decoded args and the raw body: no body or print view, the lease not
+    /// grown, custody unchanged. The genuine object-form input still renders.
+    #[test]
+    fn a_positional_render_input_refuses_before_any_check() {
+        for (name, text) in [("pressure_2_straight", STRAIGHT), ("pressure_source_1", SOURCE_1)] {
+            let w = witness(text);
+            let live = live(&w);
+            let genuine = genuine_render_args(&w, &live.job);
+            let mut base = genuine["input"].clone();
+            relabelled(&mut base);
+            let mut cases: Vec<(&str, Value)> = Vec::new();
+            for (label, context) in [("positional, public_report", Some("public_report")), ("positional, no report context", None), ("positional, local_private", Some("local_private"))] {
+                let mut input = base.clone();
+                match context {
+                    Some(context) => with_context(&mut input, Some(context)),
+                    None => {
+                        input.as_object_mut().unwrap().remove("report_context");
+                    }
+                }
+                let positional = positional(&input);
+                // The renderer's own decode accepts the positional form, so
+                // the native check is what refuses it.
+                assert!(open_pipe_stress_report_renderer::decode_renderable_report_input(positional.clone()).is_ok(), "{name} {label}");
+                cases.push((label, positional));
+            }
+            let nested: [(&str, fn(&mut Value)); 5] = [
+                ("positional report_context", |input| input["report_context"] = as_array(&input["report_context"])),
+                ("positional exact_route", |input| input["exact_route"] = as_array(&input["exact_route"])),
+                ("positional admission", |input| input["exact_route"]["admission"] = as_array(&input["exact_route"]["admission"])),
+                ("positional limitation entry", |input| input["report_sections"]["limitations"][1] = as_array(&input["report_sections"]["limitations"][1])),
+                ("positional result row", |input| input["result_rows"][0] = as_array(&input["result_rows"][0])),
+            ];
+            for (label, edit) in nested {
+                let mut input = base.clone();
+                edit(&mut input);
+                cases.push((label, input));
+            }
+            for (label, input) in cases {
+                // Without the source texts, as Codex submitted it.
+                let args = json!({"input": input});
+                let before = live.registry.custody_binding(&live.job);
+                let (mut decoded, mut lease) = admit_json(&live.registry, "render_calculation_report", ArgsDecoding::Moved, &args).unwrap();
+                let admitted_bytes = lease.bytes();
+                let refused = refusal_text(crate::render_calculation_report_args(&mut decoded, &live.registry, &mut lease));
+                assert!(refused.starts_with("REPORT-RENDER-INPUT-POSITIONAL: "), "{name} {label}: {refused}");
+                assert_eq!(lease.bytes(), admitted_bytes, "{name} {label}");
+                assert_eq!(live.registry.custody_binding(&live.job), before, "{name} {label}");
+                drop(lease);
+                let body = InvokeBody::Raw(serde_json::to_vec(&args).unwrap());
+                let (mut decoded, mut lease) =
+                    admit_body(&live.registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1)), "render_calculation_report", ArgsDecoding::Moved).unwrap();
+                let refused = refusal_text(crate::render_calculation_report_args(&mut decoded, &live.registry, &mut lease));
+                assert!(refused.starts_with("REPORT-RENDER-INPUT-POSITIONAL: "), "{name} {label} (raw body): {refused}");
+                drop(lease);
+            }
+            let rendered = production_render_on(&live, &genuine).unwrap_or_else(|error| panic!("{name}: {error:?}"));
+            assert_eq!(rendered["export_blocked"], json!(false), "{name}");
+        }
+    }
+
+    /// Codex review round 2 of #1648: the native save refuses a positional
+    /// request, or a positional member its checks read by key, before its
+    /// exact detection, binding and context checks, from the decoded args and
+    /// the raw body, with no package; for pressure-2 and pressure-source-1,
+    /// with genuine custody and texts and relabelled public provenance.
+    #[test]
+    fn a_positional_save_request_refuses_before_any_check() {
+        use crate::report_package_save::REQUEST_POSITIONAL;
+        for (name, text) in [("pressure_2_straight", STRAIGHT), ("pressure_source_1", SOURCE_1)] {
+            let w = witness(text);
+            let live = live(&w);
+            let mut request = bound(&w.request, &live.job);
+            relabelled(&mut request["report"]);
+            let members = open_pipe_stress_report_package::wire::REQUEST_MEMBERS;
+            let top = Value::Array(members.iter().map(|member| request.get(*member).cloned().unwrap_or(Value::Null)).collect());
+            assert!(open_pipe_stress_report_package::wire::decode_report_package_request(top.clone()).is_ok(), "{name}: the shared decode accepts it");
+            let edits: [(&str, fn(&mut Value)); 6] = [
+                ("positional report", |r| r["report"] = as_array(&r["report"])),
+                ("positional report_context", |r| r["report"]["report_context"] = as_array(&r["report"]["report_context"])),
+                ("positional exact_route", |r| r["report"]["exact_route"] = as_array(&r["report"]["exact_route"])),
+                ("positional result document", |r| r["result_documents"][0] = as_array(&r["result_documents"][0])),
+                ("positional result envelope", |r| r["result_documents"][0]["result_envelope"] = as_array(&r["result_documents"][0]["result_envelope"])),
+                ("positional producer", |r| r["result_documents"][0]["result_envelope"]["producer"] = as_array(&r["result_documents"][0]["result_envelope"]["producer"])),
+            ];
+            let mut cases = vec![("positional request", top)];
+            for (label, edit) in edits {
+                let mut variant = request.clone();
+                edit(&mut variant);
+                cases.push((label, variant));
+            }
+            for (label, variant) in cases {
+                let (code, message) = save_code(&live, save_args(&variant, &w, &w.model, Some(&w.result), Some(&w.intake)));
+                assert_eq!(code, REQUEST_POSITIONAL, "{name} {label}: {message}");
+                // The raw body, as the command admits it.
+                let args = save_args(&variant, &w, &w.model, Some(&w.result), Some(&w.intake));
+                let mut raw = crate::report_package_save::test_support::args_body(&args);
+                raw["exactResultText"] = json!(w.result);
+                raw["exactIntakeText"] = json!(w.intake);
+                let body = InvokeBody::Raw(serde_json::to_vec(&raw).unwrap());
+                let (mut decoded, _lease) =
+                    admit_body(&live.registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1)), "save_report_package", ArgsDecoding::Moved).unwrap();
+                let parsed = crate::report_package_save::save_report_package_args(&mut decoded).unwrap();
+                let custody = |job: &str| live.registry.custody_binding(job);
+                let error = admit_report_package_in(parsed, &software(), &mut no_store, &custody).map(drop).expect_err("refused");
+                assert_eq!(error.code, REQUEST_POSITIONAL, "{name} {label} (raw body)");
+            }
         }
     }
 

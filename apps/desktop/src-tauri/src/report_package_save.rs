@@ -103,6 +103,9 @@ pub const PRODUCER_BLOCKED: &str = "REPORT-PACKAGE-PRODUCER-BLOCKED";
 pub const PICKER_PATH_INVALID: &str = "REPORT-PACKAGE-PICKER-PATH-INVALID";
 pub const WORKER_FAILED: &str = "REPORT-PACKAGE-SAVE-WORKER-FAILED";
 pub const DISPOSITION_MALFORMED: &str = "REPORT-PACKAGE-SAVE-DISPOSITION-MALFORMED";
+/// A request, or a member its native checks read by key, in positional (JSON
+/// array) form (Codex review round 2 of #1648).
+pub const REQUEST_POSITIONAL: &str = "REPORT-PACKAGE-SAVE-REQUEST-POSITIONAL";
 /// The webview screener's code for a blocked disposition (`redactionExportControls.ts`).
 pub use crate::export_disposition_screen::PROTECTED_CONTENT_BLOCKED;
 
@@ -701,6 +704,48 @@ fn exact_refused(refusal: ExactRefusal, path: &str) -> ReportPackageSaveCommandE
     refuse(refusal.code, path, message)
 }
 
+/// Object form (Codex review round 2 of #1648): the shared decode reads a
+/// struct written as a JSON array by field order, while the save's exact
+/// detection, source binding and context checks read members by key. So the
+/// request, its `report`, the report's `report_context`, `exact_route` (and
+/// its `admission`) and `report_sections`, each result document with its
+/// `result_envelope` and `producer`, and each source result must be JSON
+/// objects where present and not null; a positional form refuses before any
+/// of those checks, naming the fixed path only. The ingress pricing of a
+/// positional text is unchanged; only its admission refuses.
+fn check_request_object_form(request: &Value) -> Result<(), ReportPackageSaveCommandError> {
+    let positional = |path: &str| refuse(REQUEST_POSITIONAL, path, "The request member is not a JSON object.");
+    let object = |value: Option<&Value>, path: &str| match value {
+        None | Some(Value::Null) | Some(Value::Object(_)) => Ok(()),
+        Some(_) => Err(positional(path)),
+    };
+    if !request.is_object() {
+        return Err(positional("/request"));
+    }
+    object(request.get("report"), "/request/report")?;
+    if let Some(report) = request.get("report") {
+        for member in ["report_context", "exact_route", "report_sections", "calculation_report"] {
+            object(report.get(member), &format!("/request/report/{member}"))?;
+        }
+        if let Some(route) = report.get("exact_route") {
+            object(route.get("admission"), "/request/report/exact_route/admission")?;
+        }
+    }
+    for (member, nested) in [("result_documents", true), ("source_results", false)] {
+        if let Some(Value::Array(items)) = request.get(member) {
+            for (index, item) in items.iter().enumerate() {
+                object(Some(item), &format!("/request/{member}/{index}"))?;
+                if nested {
+                    let envelope = item.get("result_envelope");
+                    object(envelope, &format!("/request/{member}/{index}/result_envelope"))?;
+                    object(envelope.and_then(|envelope| envelope.get("producer")), &format!("/request/{member}/{index}/result_envelope/producer"))?;
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
 /// Whether the parsed request is an exact-route request (§3.6): its result
 /// document has an exact identity or its report carries `exact_route`.
 fn exact_request(request: &Value) -> bool {
@@ -777,6 +822,7 @@ pub fn admit_report_package_in(
     }
     let request_value = parse_canonical("request", &request_text)?;
     drop(request_text);
+    check_request_object_form(&request_value)?;
     // W-11 (§3.6): the native source binding of an exact-route request, before
     // the other content checks; a pressure-free request carries no texts.
     let exact_custody = if exact_request(&request_value) {
