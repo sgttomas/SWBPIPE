@@ -402,10 +402,11 @@ Slice c is designed in [`eccentric-reducer-offset.md`](eccentric-reducer-offset.
 with its model document version in DEL-02-01 Design
 [`model-document-0.8.0.md`](../../../PKG-02/DEL-02-01/Design/model-document-0.8.0.md).
 That design replaces the outline this section held. It keeps the field
-`geometry.eccentric_offset` and checks it against the node geometry. It takes
-the run axis from the adjoining straight member rather than from the body
-length (its §9, P3), leaves the body length unchecked, and defers the desktop
-placement helper.
+`geometry.eccentric_offset` and checks it against the node geometry, which
+governs. The check has two parts: a placement tolerance, and a separate
+transversality rule. The run direction comes from run evidence at both ends,
+not from the body length (its §3.2, §3.3, §9). The body length stays
+unchecked, and node placement stays manual.
 
 ## 5. Identifying reference-section results (slice d)
 

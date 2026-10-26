@@ -1,27 +1,38 @@
 # Model document 0.8.0: the eccentric reducer offset (W-15 slice c)
 
-**Basis:** main `2d4b1bb4bb` (2026-10-26). Design pass, not built. It follows
-the 0.6.0 → 0.7.0 precedent: [`model-document-0.7.0.md`](model-document-0.7.0.md)
-§2, built in W-13 S1b, #1564. The member it adds and its solve meaning are
-DEL-03-05 Design [`eccentric-reducer-offset.md`](../../../PKG-03/DEL-03-05/Design/eccentric-reducer-offset.md).
-Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+**Basis:** main `2d4b1bb4bb` (2026-10-26).
 
-Paths are relative to `projects/chirality-piping/`.
+**Status:** revision 2 of a design pass, PR #1649. It resolves Codex's design
+review r1 and applies Agent 0's rulings of 2026-10-26. Not built.
 
-## 0. Rulings this design applies
+**Lineage:** it follows the 0.6.0 → 0.7.0 precedent of
+[`model-document-0.7.0.md`](model-document-0.7.0.md) §2 (W-13 S1b, #1564). The
+member it adds and its solve meaning are in DEL-03-05 Design
+[`eccentric-reducer-offset.md`](../../../PKG-03/DEL-03-05/Design/eccentric-reducer-offset.md).
 
+Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Paths are
+relative to `projects/chirality-piping/`.
+
+## 0. Rulings this design applies, and the owner's open questions
+
+**Rulings applied:**
 - **OD-2** (owner, 2026-10-23, "I approve OD-1 through OD-5 as you
   recommended"): DEC-045 rigid and semi-rigid components, including W-15
   slice c's eccentric reducer offset (PRD §12.3).
-- **OD-4** (same ruling): the desktop's model document is canonical, and
-  `schemas/model.schema.yaml` describes it. New slots arrive in a new document
-  version under the one-version rule (`docs/COMPLETENESS_MAP.md` §4.2, OD-4
-  consequence).
+- **OD-4** (same ruling): the desktop's model document is canonical, and new
+  slots arrive in a new document version under the one-version rule
+  (`docs/COMPLETENESS_MAP.md` §4.2).
 - **One current version per format** (owner, 2026-10-10: "nothing needs to be
-  preserved for backwards compatibility … one current version per format"):
-  0.8.0 becomes the only version the product reads and writes. 0.7.0 is
-  refused by name with the re-author diagnostic, like 0.1.0–0.6.0. Nothing is
-  migrated.
+  preserved for backwards compatibility … one current version per format").
+- **Agent 0, 2026-10-26:**
+  - The offset is built first and the 0.8.0 ripple last, after #1625, #1630
+    and #1615.
+  - There is one D3 turn.
+  - The stored-data consequence and the recorded-run behaviour go to the
+    owner (§3.2, §3.3).
+  - This design neither adds nor removes a gate on recorded runs.
+
+**Open owner questions:** Q-1 and Q-2 (§3.2, §3.3).
 
 ## 1. Version 0.8.0
 
@@ -30,222 +41,337 @@ Paths are relative to `projects/chirality-piping/`.
 - A 0.7.0 document whose version string alone is changed is a valid 0.8.0
   document with the same meaning.
 - The solve reads the member only on a `reducer`, and only to check it against
-  the node geometry (DEL-03-05 Design §3.2). No other member is added, renamed
-  or re-keyed, so FR-MOD-003 holds.
+  the node geometry, which governs (DEL-03-05 Design §3.2).
+- No member is renamed or re-keyed (FR-MOD-003).
 
-**Why a version (P12 in DEL-03-05 Design §9).** The component geometry record
-is closed in the schema (`additionalProperties: false`, ~355).
-- On main the Rust component record is open: unknown keys are ignored, so a
-  0.7.0 build would silently drop the member.
-- #1630 (draft, in the D3 queue) closes the nested input records, including
-  component geometry. A 0.7.0 build would then refuse the member by name, as
+**Why a version** (P12 in DEL-03-05 Design §9: HELP_HUMAN, 2026-10-26, under
+the owner's delegation). The schema's component geometry record is closed.
+- On main the Rust record is open: a 0.7.0 build would silently drop the
+  member.
+- With #1630 the record is closed: a 0.7.0 build would refuse the member as
   `UNKNOWN_MODEL_FIELD`.
 
-In either case a document carrying the member is not a 0.7.0 document. The
-version names the format, as at 0.7.0, so the member arrives at 0.8.0. Adding
-it to 0.7.0 in place was considered and rejected: two different closed formats
-would share one version string.
+Either way, a document carrying the member is not a 0.7.0 document. The version
+names the format.
 
 ## 2. Code
 
-- **Constants.**
-  - `MODEL_SCHEMA_VERSION = "0.8.0"` (`core/product_physics/src/model_format.rs`
-    :13; desktop `apps/desktop/src/services/modelSchemaVersion.ts`:6).
-  - `RETIRED_MODEL_SCHEMA_VERSIONS` gains `"0.7.0"` (Rust `[&str; 7]`; TS list).
-  - The module documentation names 0.8.0 as current.
-- **Shared consumers.** These follow the constant, as in 0.7.0 §2:
-  - the desktop Rust evaluator (`src-tauri/src/model_document_version.rs`);
-  - the TypeScript evaluator (`projectService.ts`);
-  - the applier's version checks;
-  - the readers that accept only the current version. Their literal gates
-    become the current version: `result_export/src/physics_source.rs` :32,
-    :838, :1360 (`ACTUAL_MODEL_SCHEMA`), and `retained_precision.rs` :4866,
-    :4954 with their unit tests. Where the crate cannot read the constant,
-    the literal is edited by token. The Python twins follow
-    (`tests/verifiers/retained_precision.py`, `tests/verifiers/compatibility.py`,
-    `tools/validation/qualification_gate.py`).
-- **Guard.** `tests/test_model_version_literals.py` already fails on a literal
-  model version outside the constant definitions and the retired lists. The
-  ripple is complete when it passes.
-- **Tests that use 0.8.0 as a non-current version** move to a version that
-  stays non-current:
-  - `src-tauri/src/model_document_save.rs` :620 refuses `0.8.0`; it becomes
-    `0.9.0`;
-  - `src-tauri/src/model_document_version.rs` :171 lists `0.7.1`, `0.8.0`
-    and `1.0.0` as newer. They become `0.8.1`, `0.9.0` and `1.0.0`, because
-    `0.7.1` would now be an older, unsupported version. `" 0.7.0"` in the
-    unsupported-version test (:181) still has a leading space and stays
-    non-semver.
-  - The other "newer" probes at `0.7.1` must move above 0.8.0, for example
-    to `0.8.1`:
-    - `src-tauri/src/lib.rs` :7806;
-    - `projectService.test.ts` :72 and :107 (the target column at :72 becomes
-      `0.8.0`);
-    - `loadReferenceRoundTrip.test.ts` :50.
-  - `model_format.rs` :81 asserts only that `0.7.1` is not retired. That
-    stays true, so the test is unchanged; `0.8.1` may be added beside it.
-  - The `0.9.0` probes are already newer and stay as they are:
-    `projectService.test.ts` :214, and the analysis-run schema tests, which
-    are a different format.
-- **The packaged self-test model** (`src-tauri/src/lib.rs`, run from
-  `main.rs`) moves to 0.8.0.
-- **Texts that name the version** take the constant. The blank project name
-  and the diagnostics listed in 0.7.0 §2 "Texts and emitted data" already do.
-- **The wire.** `ComponentGeometryInput` gains
-  `eccentric_offset: Option<VectorQuantity>`
-  (`core/product_physics/src/lib.rs` ~507). If #1630 has landed,
-  `model_fields.rs` declares the key on component geometry, and its
-  `$defs`-bound key test gains it in the `VectorQuantity` set (#1630 :807).
+**Constants:**
+- `MODEL_SCHEMA_VERSION = "0.8.0"`, in `core/product_physics/src/model_format.rs`
+  :13 and the desktop `apps/desktop/src/services/modelSchemaVersion.ts` :6.
+- `RETIRED_MODEL_SCHEMA_VERSIONS` gains `"0.7.0"` (the Rust `[&str; 7]` and
+  the TS list).
 
-## 3. A 0.7.0 document is refused by name
+**Consumers that follow the constant, or are edited by token where they cannot
+read it:**
+- the desktop Rust evaluator (`model_document_version.rs`);
+- the TS evaluator (`projectService.ts`);
+- the applier's version checks.
 
-The code is `MODEL_SCHEMA_VERSION_RETIRED`. The message is built by
+**Readers that accept only the current version:**
+- `result_export/src/physics_source.rs` :32, :838 and :1360
+  (`ACTUAL_MODEL_SCHEMA`);
+- `result_export/src/retained_precision.rs` :4866 and :4954, with its unit
+  tests;
+- their Python twins: `tests/verifiers/retained_precision.py`,
+  `tests/verifiers/compatibility.py` and `tools/validation/qualification_gate.py`.
+
+**Production literals not covered by the current guard** (Codex r1):
+- `core/product_physics/src/pressure_runtime.rs` :227 ("model document 0.7.0
+  accepts only 3.0.0/exact_pressure_v3 …") and :250 ("direct mechanics solves
+  support exactly model version 0.7.0") take the constant.
+- `tools/validation/qualification_physics_structure.py` :30
+  `MODEL_VERSION = '0.7.0'` follows the current version.
+- `core/product_physics/src/retained_wire.rs` :43 `EXACT_DEFINITION_SHA256`
+  changes with DEF-E (§7). It is bound by `retained_wire_tests.rs` :845, which
+  is re-pinned to the regenerated definition.
+
+**Audit beyond the named consumers.** At ripple time every file under the
+project that contains `0.7.0` is listed and classified (§5): writer,
+production text, test literal, current artifact, or historical exception. The
+audit is part of the review evidence. Version-dependent text that does not
+contain the token is found the same way, by searching for
+`MODEL_SCHEMA_VERSION` and "current model". Examples are the `retained_memory.rs`
+branch comments and `exact_admission.rs` :3.
+
+**Tests that probe non-current versions** move so that they stay non-current:
+- **`model_document_save.rs` :620** refuses `0.8.0`. It becomes `0.9.0`.
+- **`model_document_version.rs` :171** lists `0.7.1`, `0.8.0` and `1.0.0` as
+  newer. They become `0.8.1`, `0.9.0` and `1.0.0`. `" 0.7.0"` (:181) stays
+  non-semver.
+- **The other `0.7.1` "newer" probes** become `0.8.1`:
+  - `src-tauri/src/lib.rs` :7806;
+  - `projectService.test.ts` :72 and :107 (:72's target column becomes
+    `0.8.0`);
+  - `loadReferenceRoundTrip.test.ts` :50.
+- **Unchanged:** `model_format.rs` :81 asserts only that `0.7.1` is not
+  retired, which stays true. The `0.9.0` probes in `projectService.test.ts`
+  :214 and the analysis-run tests (a different format) are already newer.
+
+**Elsewhere:**
+- The packaged self-test model (`src-tauri/src/lib.rs`, run from `main.rs`)
+  moves to 0.8.0.
+- **The wire.** `ComponentGeometryInput` gains `eccentric_offset:
+  Option<VectorQuantity>` (`core/product_physics/src/lib.rs` ~507).
+  - With #1630 the field takes
+    `#[serde(default, deserialize_with = "model_fields::closed_optional_vector_quantity")]`,
+    exactly as `center_of_gravity` does (#1630 `lib.rs` :624).
+  - `model_fields.rs` declares the key on component geometry. The nested
+    scan gains
+    `nested_member(geometry, "eccentric_offset", fields.vector_quantity, &at, findings)`
+    beside `center_of_gravity` (#1630 :528).
+  - The `$defs`-bound key test's `VectorQuantity` set gains it (#1630 :807).
+  - The scan's key-loop bound rises 31 → 32.
+  - The tests are in DEL-03-05 Design §12, "Closed record".
+
+## 3. A 0.7.0 document, and the stored work that holds one
+
+### 3.1 Refused by name
+
+The code is `MODEL_SCHEMA_VERSION_RETIRED`. Its message comes from
 `retired_model_schema_message`:
 
 > model document 0.7.0 is retired; re-author it as model document 0.8.0 (a pressure-free model omits pressure_contract). Nothing is migrated.
 
+These surfaces call the version evaluator today, so they refuse a 0.7.0
+document after the bump:
+
 | Surface | What a 0.7.0 document gets |
 |---|---|
-| Solve (both routes, headless runner, wasm) | the blocking `MODEL_SCHEMA_VERSION_RETIRED` with the message above. Nothing is solved. |
+| Solve (both routes, headless runner, wasm) | the blocking refusal above; nothing is solved |
 | Desktop File › Open (`model_document_file.rs` :141) | `MODEL-FILE-SCHEMA-REFUSED`: "schema_version `0.7.0` refused (retired_schema): MODEL_SCHEMA_VERSION_RETIRED: …" |
-| Local project store open (`open_project_in_store`, `lib.rs` ~2500) | "Model document refused for editing: status=retired_schema; source_schema_version=0.7.0; target_schema_version=0.8.0; MODEL_SCHEMA_VERSION_RETIRED: …". The stored row is not rewritten. |
-| Create and save (`check_model_document_for_persist`) | refused by the same text. A 0.7.0 document is never written. |
-| Browser-preview store (`projectService.ts`) | the TS evaluator's `retired_schema` refusal, with the same message |
-| Saved model states (W-12, `model_states.rs` :2088, :2473) | saving a 0.7.0 snapshot is refused. Opening or comparing a stored 0.7.0 state (`StateReadPurpose::Open` and `Compare`) is refused by `refuse_version`'s text. Rows are never rewritten. |
-| Recorded runs | a run whose state holds 0.7.0 cannot be compared, through its state read. The run row is kept as stored. |
-| Saved result exports and report packages | the model-bound readers refuse an embedded 0.7.0 model (`ACTUAL_MODEL_SCHEMA` and its twins). They are never re-read as current. |
-| Handoff packages (`.swbhandoff`) | The desktop only writes them; it has no open path. A package saved earlier keeps its 0.7.0 model. The Python verifiers treat it as retired. |
+| Local project store open (`lib.rs` ~2500) | "Model document refused for editing: status=retired_schema; source_schema_version=0.7.0; target_schema_version=0.8.0; …". The row is not rewritten. |
+| Create and save (`check_model_document_for_persist`) | refused by the same text |
+| Browser-preview store (`projectService.ts`) | the TS evaluator's `retired_schema` refusal |
+| Saved model states (W-12, `model_states.rs` :2088, :2473) | Saving a 0.7.0 snapshot is refused. Opening or comparing a stored 0.7.0 state (`StateReadPurpose::Open` and `Compare`) is refused by `refuse_version`'s text. Rows are never rewritten. |
+| Retained and source readers (`physics_source.rs`, `retained_precision.rs` and their twins) | refused: they accept only the current version |
 
-**The user's stored work (consequence for Agent 0 to relay).** This is the
-first version step since W-12's saved states and recorded runs (#1589,
-#1596). Under the one-version rule, every saved project, state and run that
-holds a 0.7.0 model is refused on open after the update, and nothing migrates
-it. A 0.7.0 document whose `schema_version` alone is changed to 0.8.0 is valid
-with the same meaning (§1). Making that change is the user's re-authoring act,
-not a product migration. The user guide and release notes say so.
+### 3.2 Q-1 (owner): the user's stored work
+
+This is the first version step since W-12's saved states and recorded runs
+(#1589, #1596). Under the one-version rule:
+- every saved project and saved state that holds a 0.7.0 model is refused on
+  open or compare after the update (§3.1);
+- nothing migrates it;
+- a 0.7.0 document whose `schema_version` alone is changed to 0.8.0 is valid
+  with the same meaning (§1), and changing that string is the user's
+  re-authoring act, not a product migration;
+- the user guide and the release notes say so.
+
+The owner may accept this as the rule's consequence, or direct otherwise. This
+design assumes the rule as written.
+
+### 3.3 Q-2 (owner): recorded runs and ordinary model-bound readers
+
+Codex r1 found that some reads that hold a model are **not** version-gated
+today:
+- **Recorded runs.** `analysis_runs.rs` `read_run_in_store_with` (:1785)
+  reads the stored result and manifest, then a state *summary*
+  (`model_states::find_summary_with`, ~:1880). It checks the manifest's model
+  payload hash against that summary. It never calls
+  `read_state_for_in_store_with` and never evaluates the manifest model's
+  version. The desktop's recorded-run side of a comparison (`recordedRunSide`)
+  uses this read.
+- **Ordinary model-bound result readers.** The preview-physics and pressure-2
+  model-bound checks (`result_export/src/u4b_evidence.rs` :478 and :508,
+  `reader_verdict.rs` :138 `physics_model_checks`) bind the result to the
+  captured model's members. They have no general model-version gate.
+
+So after the bump a recorded run, or an exported preview or pressure-2 result
+that embeds a 0.7.0 model, still reads, while its saved state does not open.
+
+**The options:**
+
+| | (a) Gate by model version | (b) Keep readable as historical results |
+|---|---|---|
+| Behaviour | A recorded-run read, run comparison and the ordinary model-bound readers refuse a 0.7.0 manifest model by name, as states do. | A recorded run and an exported ordinary result stay readable and comparable. Their stored hashes and bindings are still verified, and the UI and any comparison disclose the run's model version ("recorded at model document 0.7.0"). Its saved state still refuses to open. |
+| Consistency | Uniform with the one-version rule: no 0.7.0 model is read anywhere. | Runs are historical records of what was solved. A state is an editable model, and it alone is gated. |
+| Engineering meaning | No result is read across versions. | 0.8.0 is purely additive: one optional member, absent from every 0.7.0 document. A 0.7.0 run's results therefore mean what they meant. A later non-additive version would need this question asked again. |
+| User effect | Run history and comparisons from before the update become unavailable until re-solved and re-recorded. | History stays visible. A user can compare an old run with a new one. |
+| Build cost | A new gate in `analysis_runs.rs` (desktop; not priced). A gate in the ordinary readers `u4b_evidence.rs` and `reader_verdict.rs`, which are priced `result_export` files, so it joins the D3 turn. Refusal texts and tests. | Disclosure text in the run views and comparison. No reader change, so no D3 effect. |
+| Tests | Old runs with intact hashes are refused by name, at read and at comparison. | Old runs with intact hashes read and compare, with their version disclosed. A tampered hash still refuses. |
+
+The test for either option is a store holding a 0.7.0 state and a recorded run
+with intact hashes and bindings, written after the ruling.
+
+### 3.4 Handoff packages (correction)
+
+The desktop writes `.swbhandoff` packages and has no open path.
+`tests/verifiers/handoff_package.py` `verify_handoff_package` (:330) checks a
+package's internal consistency and hashes. It does not check the embedded
+model's version. Two acts are distinct:
+- **Verifying an old package's bytes.** This stays possible: a 0.7.0
+  package's integrity still verifies.
+- **Admitting its model as current.** This does not happen: any solve, open or
+  store path refuses the embedded 0.7.0 model by name (§3.1).
+
+This design changes neither. Q-2's answer may extend to the handoff verifier
+if the owner wants version disclosure there.
 
 ## 4. The schema
 
 `schemas/model.schema.yaml`:
-- `schema_version` `enum: ["0.8.0"]`, and its description names 0.1.0–0.7.0
-  as retired;
-- component geometry gains `"eccentric_offset": {"$ref": "#/$defs/VectorQuantity"}`,
-  with a description stating the R-c1 convention and that it is a reducer slot.
-  The schema stays structural: the kind restriction and the geometry check are
-  the solve's (DEL-03-05 Design §3.2, §3.4).
+- `schema_version` becomes `enum: ["0.8.0"]`, and the description names
+  0.1.0–0.7.0 as retired.
+- Component geometry gains
+  `"eccentric_offset": {"$ref": "#/$defs/VectorQuantity"}`, described as a
+  reducer slot that states the R-c1 convention.
+- The schema stays structural. The kind restriction and the geometry check
+  belong to the solve.
 
-`$defs/DesktopDocument` is unchanged: the member is optional. The
-conformance pytest (`tests/test_model_document_schema.py`) validates a
-committed document carrying it.
+`$defs/DesktopDocument` is unchanged.
 
-## 5. Regenerated artifacts
+## 5. Regenerated artifacts and the completeness guards
 
-**The standard** is 0.7.0 §2's, with precedent `f468da4651`:
-- the version token plus every binding digest that follows from it, written by
-  the maintained writers, with no hand edits;
-- no physical value, status or reader outcome moves;
-- each regeneration is checked by comparing old and new numerical leaves
-  separately from the expected hash and byte changes.
+**The standard** (0.7.0 §2; precedent `f468da4651`):
+- The version token, plus every binding digest that follows from it, is
+  written by the maintained writers. No hand edits.
+- No physical value, status or reader outcome moves.
+- Old and new numerical leaves are compared, separately from the expected
+  hash and byte changes.
 
-**The scope** is every committed current document and everything that binds
-one. At the basis that is 276 files carrying a 0.7.0 `schema_version`, and
-about 430 files carrying the token anywhere, the same families as #1564's 553
-files:
-- the bundled demo, the product-preview fixtures and their generation records
-  (`demo_fixture_generation.json`, `preview_physics_fixture_generation.json`);
-- the ui-foundation fixtures and their manifest;
-- `core/runner/headless/tests/t4_u5b_requests`;
-- the applier contract corpus;
-- the qualification packages and MANIFEST;
-- the reader corpora;
-- result envelopes (`model_hash`);
-- persistence binding hashes and test literals;
-- the desktop emission golden and the applier golden.
+**Intentional new content is kept apart.** The desktop emission golden and the
+applier golden gain one reducer with `eccentric_offset` (DEL-03-05 Design §6).
+That content is reviewed as an addition. The unchanged-leaf comparison covers
+every other leaf.
 
-**Frozen references.** SHA-bound requests under `validation/**` keep their
-bytes. The shared re-author helpers (`tests/common/current_model.rs`, its lib
-twin, `qualification_physics.reauthor_model`) gain 0.7.0 among the versions
-they re-author by token. `twins.py` and the t4_u5b builder follow the current
+**Positive identification of what is swept.** The guards are positive lists,
+not inference from version alone.
+- **Current artifact families.** Each family is named with its writer:
+  - the bundled demo and product-preview fixtures, with their generation
+    records;
+  - the ui-foundation fixtures and manifest;
+  - `t4_u5b_requests`;
+  - the applier contract corpus;
+  - the qualification packages and MANIFEST;
+  - the reader corpora;
+  - result envelopes;
+  - persistence fixtures;
+  - the emission goldens;
+  - the retained successors (§7);
+  - #1648's `fixtures/reports/invented/exact_report_package_requests/*`,
+    if #1648 lands before the sweep, and the other lanes' new fixtures that
+    have landed (§6).
+
+  For each family, the review evidence records that its writer ran and that
+  every output carries `schema_version` `0.8.0`, checked directly on the
+  writer's output.
+- **Historical and refusal exceptions.** The 0.7.0 documents that are meant
+  to stay at 0.7.0 are listed explicitly, each with its reason:
+  - SHA-bound frozen requests under `validation/**`, re-authored in memory by
+    the shared helpers;
+  - any 0.7.0 refusal control added by this ripple.
+- **`tests/test_model_document_schema.py`.**
+  - Adding 0.7.0 to its `RETIRED_VERSIONS` would silently classify an
+    unswept, non-frozen 0.7.0 document as a `retired` refusal control
+    (:217).
+  - The ripple therefore adds a rule: a non-frozen document at 0.7.0 is
+    classified `retired` only when it is on an explicit 0.7.0 exception
+    list. Any other is `unclassified`, and the test fails on it.
+  - The 0.1.0–0.6.0 classification is unchanged.
+- **`tests/test_model_version_literals.py`.**
+  - It scans desktop and applier production code only (:104).
+  - The ripple extends its scan to the production sources of
+    `core/product_physics/src` and `core/reporting/result_export/src`, and
+    to the Python verifiers and validation tools that state a model version.
+  - Explicit exceptions are allowed: the retired lists, and comments that
+    record history.
+
+**What the guards establish.** Every named family was regenerated at 0.8.0.
+Every remaining 0.7.0 document is a listed exception. No unlisted literal
+remains in the scanned production code. They do not establish that no other
+version-dependent text exists anywhere. The audit (§2) is the evidence for
+that, and is reviewed.
+
+**Frozen references.** SHA-bound requests keep their bytes. The re-author
+helpers (`tests/common/current_model.rs`, its lib twin and
+`qualification_physics.reauthor_model`) gain 0.7.0 among the versions they
+re-author by token. `twins.py` and the t4_u5b builder follow the current
 version.
 
-**The version token keeps its length** ("0.7.0" → "0.8.0"). No protected-byte
-count or length literal moves; only hashes do. This differs from a sentence
-edit such as #1615's.
+**The version token keeps its length** ("0.7.0" → "0.8.0"), so no
+protected-byte count or length literal moves; only hashes do.
 
 ## 6. Fixtures added by other lanes
 
-Every document committed at 0.7.0 before the ripple runs is swept by it. Open
-PRs add such documents, including #1615's W-16 tests and references and
-#1648's exact report-package requests. The ripple is therefore regenerated on
-the latest main immediately before its D3 turn (§11), and
-`tests/test_model_version_literals.py` together with the conformance pytest
-find any document left behind.
+The ripple runs last, on the latest main, after #1625, #1630 and #1615 (Agent
+0, 2026-10-26). It sweeps whatever those PRs committed at 0.7.0, such as
+#1615's W-16 tests and references. It also sweeps #1648's report requests if
+#1648 has landed by then. **Agent 0 is told before any of #1648's files are
+touched**, whether #1648 has landed or not.
 
 ## 7. The D3 chain
 
-This repeats the four steps of 0.7.0 §2 "Retained and source successors".
+This repeats 0.7.0 §2's four steps.
 
-**1. Price.** These pinned files move:
+**1. Price.** These pinned or priced files move:
 - `model_format.rs`;
-- `lib.rs` (the wire field);
+- `lib.rs` (the wire field and closed deserializer);
+- `pressure_runtime.rs` (the :227 and :250 texts);
+- `retained_wire.rs` (`EXACT_DEFINITION_SHA256`, which follows DEF-E);
 - `physics_source.rs`, `retained_precision.rs` and `semantic_contract.rs`
   (the version tokens);
 - `exact_admission.rs` (a comment);
-- `rigid_component.rs` (DEL-03-05 Design §8);
-- `model_fields.rs`, if #1630 has landed.
+- `rigid_component.rs` and `model_fields.rs` (DEL-03-05 Design §8);
+- under Q-2 (a) only, `u4b_evidence.rs` and `reader_verdict.rs`.
 
-**2. Register.** The reviewed inputs are edited by token only, 0.7.0 → 0.8.0,
-with no other wording change:
+`retained_wire.rs` and `pressure_runtime.rs` are named in the D3 review.
+
+**2. Register.** The reviewed inputs are edited by token only, 0.7.0 → 0.8.0:
 - DEF-E `scope.model_format`;
-- `supported_profile_limitations[0]` of the pressure-source-1 table;
+- the pressure-source-1 `supported_profile_limitations[0]`;
 - the pressure-2 sentence "Admitted families under current model 0.7.0 and
-  3.0.0/exact_pressure_v3: …" (`semantic_contract_v0_3_pressure_2.json`). The
-  table is regenerated with `semantic_contract_tables.py` `derive` and
-  `repin`.
+  3.0.0/exact_pressure_v3: …", regenerated with `semantic_contract_tables.py`
+  `derive` and `repin`.
 
-The physics-retained-1 `accuracy_classification.scope` sentence is TBD-002 and
-stays untouched. `retained_memory.rs`'s registration is rebound to the new
-digests.
+TBD-002's sentence stays untouched. `retained_memory.rs`'s registration is
+rebound to the new digests.
 
-**3. Regenerate the successors publicly** on the registered build, with the
-maintained writers:
-- the `fixtures/results/retained_precision_*successor*` files;
+**3. Regenerate the successors publicly** on the registered build:
+- `retained_precision_*successor*`;
 - `retained_precision_cases.json`;
 - the two `failed_ordinary` fixtures.
 
-**4. Update the synthetic-bases writer.** It hard-codes the version step
+**4. Update the synthetic-bases writer**
 (`tools/fixtures/retained_precision_synthetic_bases.py`).
 
-The re-pricing is expected `identical_but_basis` for the token, as in S1b
-(§8.17). The offset's own pricing is DEL-03-05 Design §8. Both are registered
-in one turn, then the AC-004 stack witnesses run under an exclusive lane
-granted by Agent 0, and the registration gets independent review.
+**Then:**
+- `compare` against main's registered tree, on the final merged source. The
+  expected outcome is `identical_but_basis` for the token, but it is a
+  hypothesis to verify, not an assumption.
+- The offset's pricing is DEL-03-05 Design §8, and both are registered in the
+  same turn.
+- The AC-004 stack witnesses run under an exclusive lane granted by Agent 0.
+- The registration gets independent review.
 
 ## 8. Authoring
 
-The applier field rule, creation and inspector are DEL-03-05 Design §4. The
-document validator gains no rule. The emission goldens gain one reducer
-carrying the member, so the conformance pytest exercises it in both profiles.
+The applier, adoption checks, library apply, inspector and report are covered
+in DEL-03-05 Design §4. The document validator gains no rule: it does not
+validate component geometry.
 
 ## 9. `apps/desktop/native-smoke/expected.json`
 
-No value is expected to move. The file pins no version or hash. `run.mjs`
-hashes the files it opens. The newer-version case writes `9.0.0`, which is
-still newer than 0.8.0. The refusal codes are unchanged. The demo moves by
-token only, so its rows (837) and standing do not change, and neither do the
-milestone probe and rows. A native smoke run on the build head confirms this
-and reports the counts. Any value that moves is reported to the owner and not
-edited.
+No value is expected to move:
+- the file pins no version or hash;
+- `run.mjs` hashes the files it opens;
+- the newer-version case writes `9.0.0`;
+- the refusal codes are unchanged;
+- the demo moves by token only (rows 837 and standing unchanged), and the
+  milestone is unchanged.
+
+A native smoke run on the build head confirms this and reports the counts. Any
+value that moves is reported to the owner and not edited.
 
 ## 10. Version-token text (old → new)
 
-These change only to describe the version that follows from an owner decision
-already made (OD-2's W-15 slice c and the one-version rule). They are
-therefore HELP_HUMAN's under the owner's grant of 2026-10-19, with the exact
-old and new text in the PR and an independent review. Line numbers are at the
-basis. Each edit replaces only the quoted text.
+These change only to describe the version that follows from owner decisions
+already made (OD-2's W-15 slice c and the one-version rule). That makes them
+HELP_HUMAN's under the owner's grant of 2026-10-19, with the exact text in the
+PR and an independent review. Line numbers are at the basis. Each edit
+replaces only the quoted text.
 
-1. **DEL-02-05 ScopeOfWork:**
+1. **DEL-02-05 ScopeOfWork**
    - **Line 33.**
      - **Old:** `` `0.7.0`, defined by DEL-02-01 Design `model-document-0.7.0.md` under the owner's OD-4 ruling (2026-10-23), ``
      - **New:** `` `0.8.0`, defined by DEL-02-01 Design `model-document-0.7.0.md` and `model-document-0.8.0.md` under the owner's OD-4 ruling (2026-10-23) and W-15 slice c (OD-2), ``
@@ -255,38 +381,38 @@ basis. Each edit replaces only the quoted text.
    - **Line 35.**
      - **Old:** `` `current` for `0.7.0`; ``
      - **New:** `` `current` for `0.8.0`; ``
-   - **Line 37.**
+   - **Line 37**, two edits.
      - **Old:** `` Current code: `0.7.0` is the one current version ``
      - **New:** `` Current code: `0.8.0` is the one current version ``
      - **Old:** `` Current implementation (W-13 S1b, #1564): `RETIRED_MODEL_SCHEMA_VERSIONS` in `model_format.rs` names `0.1.0`, `0.2.0`, `0.3.0`, `0.4.0`, `0.5.0` and `0.6.0`, and the `model_document_version.rs` tests refuse all six by name. ``
      - **New:** `` Current implementation (W-15 slice c, #<PR>): `RETIRED_MODEL_SCHEMA_VERSIONS` in `model_format.rs` names `0.1.0`, `0.2.0`, `0.3.0`, `0.4.0`, `0.5.0`, `0.6.0` and `0.7.0`, and the `model_document_version.rs` tests refuse all seven by name. ``
-   - **Line 38** is a dated approval record. It stays unchanged.
+   - **Line 38** is a dated approval record and stays unchanged.
    - **Line 179.**
      - **Old:** `` and only `0.7.0` reports `current` ``
      - **New:** `` and only `0.8.0` reports `current` ``
-2. **DEL-04-08 ScopeOfWork:**
+   - Q-1 or Q-2 may add a sentence on stored work or recorded runs. That
+     sentence would be the owner's text, quoted.
+2. **DEL-04-08 ScopeOfWork**
    - **Lines 108 and 122.**
      - **Old:** `current model 0.7.0`
      - **New:** `current model 0.8.0`
-   - **Line 262** (TBD-002 status).
+   - **Line 262.**
      - **Old:** `DEF-E and the code admit current model 0.7.0 with`
      - **New:** `DEF-E and the code admit current model 0.8.0 with`
      - TBD-002's held sentence is unchanged.
-   - #1648 edits other lines of this file (216, AC-006). The edits do not
-     overlap.
-3. **DEL-03-01 ScopeOfWork line 145** (REQ-03-01-007).
+   - #1648 edits other lines of this file, so Agent 0 is told before the edit
+     (§6).
+3. **DEL-03-01 ScopeOfWork line 145**
    - **Old:** `` is `0.7.0` and `0.1.0`–`0.6.0` are refused by name ``
    - **New:** `` is `0.8.0` and `0.1.0`–`0.7.0` are refused by name ``
-4. **DEL-02-01 ScopeOfWork line 93** (current implementation; reconciliation
-   wording under the owner's grant of 2026-10-23, after independent review).
+4. **DEL-02-01 ScopeOfWork line 93** (current-implementation wording, under
+   the owner's grant of 2026-10-23, after independent review)
    - **Old:** `` Current implementation (S1a and S1b, 2026-10-23; Design `Design/model-document-0.7.0.md` §2-§4): `schemas/model.schema.yaml` describes the desktop's model document, `document_kind` `openpipestress.product_preview.model` at version `0.7.0` (owner OD-4, 2026-10-23: the desktop's model document is canonical; 0.6.0 and older are refused by name). ``
    - **New:** `` Current implementation (S1a and S1b, 2026-10-23, and W-15 slice c; Design `Design/model-document-0.7.0.md` §2-§4 and `Design/model-document-0.8.0.md`): `schemas/model.schema.yaml` describes the desktop's model document, `document_kind` `openpipestress.product_preview.model` at version `0.8.0` (owner OD-4, 2026-10-23: the desktop's model document is canonical; 0.7.0 and older are refused by name). 0.8.0 adds the reducer's optional `geometry.eccentric_offset` (DEL-03-05 Design `eccentric-reducer-offset.md`). ``
-   - The paragraph's next sentence, "0.7.0 adds optional slots …", stays as
-     history of what 0.7.0 added.
 5. **Reconciliation pointers** (not commitments):
-   - the `deliverable.yaml` conditions naming 0.7.0: DEL-02-05:128,
-     DEL-04-07:7, DEL-10-05:48 and DEL-12-01:98;
-   - DEL-04-08 Design `b7-plan.md` "Current model format";
+   - the `deliverable.yaml` conditions DEL-02-05:128, DEL-04-07:7,
+     DEL-10-05:48 and DEL-12-01:98;
+   - `b7-plan.md` "Current model format";
    - `RELEASE_NOTES_v0.1.0_DRAFT.md`;
    - `docs/user_guide`.
 
@@ -294,53 +420,43 @@ No acceptance criterion changes in substance.
 
 ## 11. Coordination and sequencing
 
-- **No other lane plans 0.8.0 members.**
-  - The open solver-lane PRs, #1615 (W-16 a) and #1618 (the W-16 stage 2
-    design), and the reports lane's #1648 add no model-document member and
-    change no model version. Their diffs against main carry no `0.8.0` and no
-    `MODEL_SCHEMA_VERSION` change.
-  - The map's "0.8.0 coordination after slice a's D3 turn" refers to this
-    unit.
-  - Any unit that needs a member before this ripple lands joins 0.8.0 through
-    Agent 0 rather than making 0.9.0. W-13 S1b did the same for "the
-    rigid-element unit's fields".
-- **#1630** closes the component record. Whichever lands second adds
-  `eccentric_offset` to `model_fields.rs`'s declared set and the key-loop bound
-  (§2).
-- **Order.**
-  1. Build the offset itself (DEL-03-05 Design §3, §4, §7) on the current
-     main, with code constants at 0.8.0 and focused tests.
-  2. Regenerate the version ripple (§5–§7) last, by the maintained writers, on
-     the latest main. This happens after the D3 queue ahead of it (#1625,
-     #1630, #1615) has landed and immediately before this unit's D3 turn.
-  3. Run one registration for both.
+**No other lane plans 0.8.0 members.** #1615, #1618 and #1648 add no
+model-document member and change no model version. The map's "0.8.0
+coordination" refers to this unit. Any unit that needs a member before this
+ripple lands joins 0.8.0 through Agent 0.
 
-  The ripple touches nearly every file the in-flight lanes regenerate:
-  successors, generation records, persistence fixtures, report requests and
-  routing digests. Doing it last means writers regenerate those files once,
-  instead of resolving them by hand in merges.
+**Order** (Agent 0, 2026-10-26):
+1. Build the offset on current main, with constants at 0.8.0 and focused
+   tests.
+2. The ripple, last, on the latest main after #1625, #1630 and #1615.
+3. One D3 turn and registration for both.
 
 ## 12. Checks
 
-- **Conformance.** The schema conformance pytest covers every committed
-  document at 0.8.0, a document carrying `eccentric_offset` in both profiles,
-  and retired-version documents excluded by rule.
-- **Refusal on every surface** (§3), one test each:
-  - the solve, the headless runner and wasm;
-  - native File › Open;
-  - store open;
-  - create and save;
-  - the browser-preview store;
-  - state save, open and compare;
-  - the model-bound result readers.
-  `model_document_version.rs` and `model_format.rs` refuse all seven retired
-  versions by name.
-- **Literal guard.** `tests/test_model_version_literals.py` passes.
-- **Leaf comparison** of every regenerated artifact: 0 numeric, boolean or
-  status differences, with the moved tokens and digests counted.
-- **D3.** `price.py run`, `compare` against main's registered tree,
-  `generate --check`, and the AC-004 witnesses under the exclusive lane.
-- **Suites.** The affected Rust crates, `piping-pytest` (under `t3_slot.sh`,
-  `-n 4` at most), `desktop-test`, and the native smoke compared with main.
-  The hosted `harness` runs on the exact head.
-- **Review.** Independent review of the regeneration and the registration.
+- **Conformance.** Every current document validates at 0.8.0. A document
+  carrying `eccentric_offset` validates in both profiles. The explicit 0.7.0
+  exception list is enforced, and an unlisted 0.7.0 document fails (§5).
+- **Writers.** Each family's writer output is checked directly for 0.8.0.
+- **Refusal on every §3.1 surface**, one test each. `model_document_version.rs`
+  and `model_format.rs` refuse all seven retired versions by name.
+- **Q-2.** The tests of the chosen option: old runs and ordinary results with
+  intact hashes, refused or readable with their version disclosed. A tampered
+  hash refuses in both options.
+- **Handoff.** An old package's integrity verifies, and its embedded model is
+  refused by the solve and the open paths.
+- **Literals.** The extended literal guard passes, and the audit list is
+  reviewed.
+- **Leaf comparison.** 0 numeric, boolean or status differences outside the
+  intentional golden additions, which are reviewed separately.
+- **D3.**
+  - `price.py run` and `compare` on the final source;
+  - `generate --check`;
+  - the `retained_wire_tests.rs` :845 pin;
+  - the AC-004 witnesses under the exclusive lane.
+- **Suites.**
+  - the affected Rust crates;
+  - `piping-pytest` under `t3_slot.sh`, `-n 4` at most;
+  - `desktop-test`;
+  - the native smoke compared with main;
+  - the hosted `harness` on the exact head.
+- **Independent review** of the regeneration and the registration.
