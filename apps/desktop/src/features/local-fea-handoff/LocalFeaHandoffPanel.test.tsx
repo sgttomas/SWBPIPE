@@ -22,7 +22,8 @@ function inventedModel(): PreviewModel {
       id: "project:rider-test",
       name: "Invented rider model",
       description: "Invented panel fixture",
-      units: { length: "m", force: "N", angle: "rad", pressure: "Pa", temperature: "degC" }
+      // W-17 slice (c) §7.4: the handoff writes stress_unit from the key when no stress row is referenced.
+      units: { length: "m", force: "N", angle: "rad", pressure: "Pa", stress: "Pa", temperature: "degC" }
     },
     analysis_status: { mechanics: "ready", rule_check: "not_performed", professional_acceptance: "not_provided" },
     materials: [],
@@ -254,5 +255,93 @@ describe("Local FEA received-result hash binding", () => {
     future.schema_version = "0.4.0";
     const unsupported = buildLocalFeaHandoffPacket({ ...session, analysisRun: future });
     expect(unsupported.handoff_package.source_refs.result_hash.value).toBe("TBD_analysis_record_version_unsupported");
+  });
+});
+
+// W-17 slice (c), DEL-02-02 Design §7.7 (Agent 0's B-c): the manifest's stress_unit and
+// force_unit are declared from the result rows they label, the governing row first (the
+// summary maximum, for stress); only rows in the declared unit are referenced, and a
+// candidate in another unit is named in a non-blocking diagnostic. Where no governing
+// row decides and the rows disagree, the handoff is refused by name.
+describe("Local FEA manifest result units agree with every referenced row", () => {
+  const OMITTED = "LOCAL-FEA-RESULT-ROW-UNIT-OMITTED";
+  const TORSION = "result:stress:pipe-P-120:end-j:torsional-shear";
+  const GOVERNING = { max_open_formula_stress: { value: 12.5e6, unit: "Pa", location_ref: "pipe:P-1", result_ref: "result:stress:pipe-P-1" } };
+  const rows = (governingUnit: string, torsionUnit: string): MechanicsResult["results"] => [
+    { id: "result:stress:pipe-P-1", kind: "open_formula_stress", value: governingUnit === "Pa" ? 12.5e6 : 12.5, unit: governingUnit, entity_ref: "pipe:P-1" },
+    { id: TORSION, kind: "element_local_torsional_shear_stress", value: torsionUnit === "Pa" ? 4.5e5 : 0.45, unit: torsionUnit, entity_ref: "pipe:P-1" },
+    { id: "result:force:pipe-P-120:axial", kind: "element_local_axial_force", value: 25, unit: "N", entity_ref: "pipe:P-1" }
+  ] as MechanicsResult["results"];
+  function withUnits(units: Record<string, string>): PreviewModel {
+    const model = inventedModel();
+    model.project.units = units as PreviewModel["project"]["units"];
+    return model;
+  }
+  const SI = { length: "m", force: "N", moment: "N*m", pressure: "Pa", stress: "Pa", temperature: "degC", angle: "rad" };
+  const US = { length: "in", force: "lbf", moment: "lbf*in", pressure: "psi", stress: "psi", temperature: "degF", angle: "deg" };
+
+  function expectLabelsAgree(packet: ReturnType<typeof buildLocalFeaHandoffPacket>, result: MechanicsResult) {
+    const manifest = packet.handoff_package.units_manifest;
+    const referenced = result.results.filter((row) => packet.handoff_package.entity_ids.result_ids.includes(row.id));
+    for (const row of referenced) {
+      if (row.id.includes(":stress:")) expect(row.unit, row.id).toBe(manifest.stress_unit);
+      if (row.id.includes(":force:")) expect(row.unit, row.id).toBe(manifest.force_unit);
+    }
+    return referenced;
+  }
+
+  it.each([["SI", SI], ["US", US]] as const)("%s keys: declared from the rows, and every referenced stress and force row carries the declared unit", (_label, units) => {
+    const result = inventedResult(GOVERNING, rows("MPa", "MPa"));
+    const packet = buildLocalFeaHandoffPacket({ model: withUnits(units), result, analysisRun: inventedAnalysisRun() });
+    expect(packet.handoff_package.units_manifest.stress_unit).toBe("MPa");
+    expect(packet.handoff_package.units_manifest.force_unit).toBe("N");
+    expect(expectLabelsAgree(packet, result).map((row) => row.id)).toContain(TORSION);
+    expect(packet.handoff_package.units_manifest.coordinate_unit).toBe(units.length);
+  });
+
+  it("a stress row in another unit than the governing maximum is not referenced, and a non-blocking diagnostic names it", () => {
+    const result = inventedResult(GOVERNING, rows("Pa", "MPa"));
+    const packet = buildLocalFeaHandoffPacket({ model: withUnits(SI), result, analysisRun: inventedAnalysisRun() });
+    expect(packet.handoff_package.units_manifest.stress_unit).toBe("Pa");
+    expectLabelsAgree(packet, result);
+    expect(packet.handoff_package.entity_ids.result_ids).not.toContain(TORSION);
+    const omitted = packet.handoff_package.diagnostics.filter((item: { code: string }) => item.code === OMITTED);
+    expect(omitted).toHaveLength(1);
+    expect(omitted[0].severity).toBe("warning");
+    expect(omitted[0].message).toBe(
+      `Result row ${TORSION} (MPa) is not referenced: this handoff declares stress_unit Pa, from the governing stress result, and references only stress rows in that unit; nothing is converted.`
+    );
+    render(<LocalFeaHandoffPanel model={withUnits(SI)} result={result} analysisRun={inventedAnalysisRun()} />);
+    expect(screen.getByTestId("local-fea-export-link")).toBeInTheDocument();
+  });
+
+  it("with no governing row, stress rows in two units refuse the handoff by name, with no download", () => {
+    // The displacement maximum names a stress row here, so two stress rows are candidates and none governs.
+    const result = inventedResult(
+      { max_displacement: { value: 1, unit: "mm", location_ref: "node:N-2", result_ref: "result:stress:pipe-P-1" } },
+      rows("Pa", "MPa")
+    );
+    render(<LocalFeaHandoffPanel model={withUnits(SI)} result={result} analysisRun={inventedAnalysisRun()} />);
+    expect(screen.getByTestId("local-fea-result-unit-refusal")).toHaveTextContent(
+      "Local FEA handoff refused. LOCAL-FEA-RESULT-UNIT-INCONSISTENT: the referenced stress results carry different units (MPa, Pa) and none governs; no single stress_unit can be declared, and nothing is converted."
+    );
+    expect(screen.queryByTestId("local-fea-export-link")).toBeNull();
+    expect(() => buildLocalFeaHandoffPacket({ model: withUnits(SI), result, analysisRun: inventedAnalysisRun() })).toThrow("LOCAL-FEA-RESULT-UNIT-INCONSISTENT");
+  });
+
+  it("the bundled demo declares Pa from its governing maximum, references no MPa stress row, and names the omitted one", async () => {
+    const session = await referenceAnalysis();
+    const packet = buildLocalFeaHandoffPacket(session);
+    const governing = session.result.summary.max_open_formula_stress!;
+    expect(governing.unit).toBe("Pa");
+    expect(packet.handoff_package.units_manifest.stress_unit).toBe("Pa");
+    expect(packet.handoff_package.units_manifest.force_unit).toBe("N");
+    expect(expectLabelsAgree(packet, session.result).map((row) => row.id)).toContain(governing.result_ref);
+    expect(packet.handoff_package.entity_ids.result_ids).not.toContain(TORSION);
+    const omitted = packet.handoff_package.diagnostics.filter((item: { code: string }) => item.code === OMITTED);
+    expect(omitted.map((item: { message: string }) => item.message)).toEqual([
+      `Result row ${TORSION} (MPa) is not referenced: this handoff declares stress_unit Pa, from the governing stress result, and references only stress rows in that unit; nothing is converted.`
+    ]);
+    expect(packet.handoff_package.unit_preservation_witnesses).toHaveLength(3);
   });
 });

@@ -172,7 +172,8 @@ describe("TP-PMM-GUIEMIT-001 user-entered schema slot entry", () => {
 
     const solveTemperature = byPath["modulus_basis_temperature.value"];
     expect(solveTemperature.change.dimension).toBe("temperature");
-    expect(JSON.parse(solveTemperature.change.after)).toEqual({ value: 400, unit: "K" });
+    // W-17 slice (c) §7.2: the default is project.units.temperature (degC in the demo), no longer K.
+    expect(JSON.parse(solveTemperature.change.after)).toEqual({ value: 400, unit: "degC" });
 
     const gravity = byPath["equivalent_static.seismic.gravity_acceleration.value"];
     expect(gravity.change.dimension).toBe("acceleration");

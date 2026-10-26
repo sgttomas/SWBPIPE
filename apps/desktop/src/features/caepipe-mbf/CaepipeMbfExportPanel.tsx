@@ -3,6 +3,8 @@ import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
 import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
+import { EXPORT_LENGTH_TARGET_UNIT, lengthToMillimeters, outOfRangeNodeCoordinates } from "../exportLengthConversion";
+import { missingExportProjectUnits, projectUnitRefusalText, storedExportProjectUnit, type ExportProjectUnitUse } from "../project-units/exportProjectUnits";
 
 type CaePipeMbfReference = {
   object_type: string;
@@ -19,12 +21,12 @@ type CaePipeMbfConversionWitness = {
     dimension: "length";
   };
   target_quantity: {
-    value: number;
+    value: number | null;
     unit: "mm";
     target_field: string;
   };
-  conversion_factor_to_target: number;
-  conversion_status: "converted_to_target_unit" | "source_unit_matches_target_unit";
+  conversion_factor_to_target: number | null;
+  conversion_status: "converted_to_target_unit" | "source_unit_matches_target_unit" | "refused_no_routine_exact_conversion" | "refused_out_of_range";
   decision_basis_refs: CaePipeMbfReference[];
   provenance: ReturnType<typeof previewProvenance>;
 };
@@ -34,7 +36,20 @@ type CaePipeMbfLossCategory = "exported" | "omitted" | "approximated" | "delegat
 const CAEPIPE_MBF_EXPORT_VERSION = "0.1.0";
 const HASH_STATUS_TBD = "TBD_browser_preview_does_not_emit_canonical_package_hash";
 const SCHEMA_VALIDATION_STATUS = "desktop_preview_shape_aligned_not_runtime_json_schema_validated";
-const CAEPIPE_MBF_TARGET_LENGTH_UNIT = "mm";
+const CAEPIPE_MBF_TARGET_LENGTH_UNIT = EXPORT_LENGTH_TARGET_UNIT;
+/** A length with no routine exact conversion to millimetres (DEL-02-02 Design §7, C2). */
+export const MBF_LENGTH_UNIT_UNSUPPORTED = "MBF-LENGTH-UNIT-UNSUPPORTED";
+/** A length that is not finite, or not finite once converted to millimetres (DEL-02-02 Design §7.5). */
+export const MBF_LENGTH_OUT_OF_RANGE = "MBF-LENGTH-OUT-OF-RANGE";
+const LENGTH_REFUSAL_CODES: ReadonlySet<string> = new Set([MBF_LENGTH_UNIT_UNSUPPORTED, MBF_LENGTH_OUT_OF_RANGE]);
+/** A project unit the export writes is missing (DEL-02-02 Design §7.4). It takes
+ * precedence over MBF-LENGTH-UNIT-UNSUPPORTED for a missing length key. */
+export const MBF_PROJECT_UNIT_MISSING = "MBF-PROJECT-UNIT-MISSING";
+const MBF_PROJECT_UNIT_USES: readonly ExportProjectUnitUse[] = [
+  { key: "length", writes: "the node coordinates' source unit" },
+  { key: "force", writes: "the UNIT record's force unit" },
+  { key: "temperature", writes: "the UNIT record's temperature unit" }
+];
 const TARGET_VERSION_TBD = "TBD-17-01-001";
 const RECORD_SUBSET_TBD = "TBD-17-01-002";
 const DIRECT_STABLE_ID_TBD = "TBD-17-01-003";
@@ -63,6 +78,9 @@ export function CaepipeMbfExportPanel({
     "manifest_and_validation_report_package_hash_carrier_fields"
   );
   const packet = withCanonicalPackageHash(basePacket, packageHash);
+  // §7.4: a missing project unit is refused first; then §7.5's length refusals.
+  const projectUnitRefusal = projectUnitRefusalText(".mbf", MBF_PROJECT_UNIT_MISSING, packet.diagnostics);
+  const lengthRefusal = projectUnitRefusal ? null : lengthUnitRefusalText(packet.diagnostics);
 
   return (
     <section className="panel caepipe-mbf-panel" aria-label="Model batch file (.mbf) export" data-testid="caepipe-mbf-panel">
@@ -72,6 +90,12 @@ export function CaepipeMbfExportPanel({
       </div>
       <div className="report-actions">
         <LoadReferenceOutputGate result={result} testIdPrefix="caepipe-mbf">
+        {projectUnitRefusal ? (
+          <p className="muted" role="status" data-testid="caepipe-mbf-project-unit-refusal">{projectUnitRefusal}</p>
+        ) : lengthRefusal ? (
+          <p className="muted" role="status" data-testid="caepipe-mbf-length-unit-refused">{lengthRefusal}</p>
+        ) : (
+        <>
         <ControlledExportLink
           className="report-export-link"
           data-testid="caepipe-mbf-export-link"
@@ -90,9 +114,11 @@ export function CaepipeMbfExportPanel({
           <Download size={14} aria-hidden="true" />
           MBF text
         </ControlledExportLink>
+        </>
+        )}
         </LoadReferenceOutputGate>
         <span data-testid="caepipe-mbf-summary">
-          available; nodes={packet.model_payload.nodes.length}; pipes={packet.model_payload.elements.length};
+          {projectUnitRefusal || lengthRefusal ? "refused" : "available"}; nodes={packet.model_payload.nodes.length}; pipes={packet.model_payload.elements.length};
           supports={packet.model_payload.supports.length}; validation={packet.validation_report.validation_status};
           losses={packet.loss_report.length}
         </span>
@@ -142,6 +168,14 @@ export function CaepipeMbfExportPanel({
   );
 }
 
+/** The export's refusal for lengths with no routine exact conversion, or null. Withholds
+ * both links, as the text names the units. */
+function lengthUnitRefusalText(diagnostics: Array<{ code: string; message: string }>): string | null {
+  const refused = diagnostics.filter((item) => LENGTH_REFUSAL_CODES.has(item.code));
+  if (refused.length === 0) return null;
+  return `.mbf export refused. ${refused.map((item) => `${item.code}: ${item.message}`).join(" ")}`;
+}
+
 function CaePipeMbfLine({ label, value, testId }: { label: string; value: string; testId: string }) {
   return (
     <div className="report-line" data-testid={testId}>
@@ -151,7 +185,7 @@ function CaePipeMbfLine({ label, value, testId }: { label: string; value: string
   );
 }
 
-function buildCaePipeMbfExportPacket({
+export function buildCaePipeMbfExportPacket({
   model,
   result,
   analysisRun
@@ -328,7 +362,7 @@ function caepipeMbfExportProfile() {
 
 function caepipeMbfPayload(model: PreviewModel) {
   const nodeTargetById = new Map<string, string>();
-  const sourceLengthUnit = model.project.units.length ?? "m";
+  const sourceLengthUnit = projectLengthUnit(model);
   const nodes = model.nodes
     .slice()
     .sort((left, right) => left.id.localeCompare(right.id))
@@ -338,9 +372,9 @@ function caepipeMbfPayload(model: PreviewModel) {
       return {
         node_id: node.id,
         target_id: nodeTargetId,
-        x: convertLengthToMillimeters(node.position.x, sourceLengthUnit).value,
-        y: convertLengthToMillimeters(node.position.y, sourceLengthUnit).value,
-        z: convertLengthToMillimeters(node.position.z, sourceLengthUnit).value
+        x: millimetersOrNull(node.position.x, sourceLengthUnit),
+        y: millimetersOrNull(node.position.y, sourceLengthUnit),
+        z: millimetersOrNull(node.position.z, sourceLengthUnit)
       };
     });
 
@@ -379,8 +413,9 @@ function caepipeMbfPayload(model: PreviewModel) {
     payload_kind: "caepipe_mbf_smoke_subset_payload",
     units: {
       length: CAEPIPE_MBF_TARGET_LENGTH_UNIT,
-      force: model.project.units.force ?? "N",
-      temperature: model.project.units.temperature ?? "C"
+      // §7.4: as stored; a missing key is "" and refuses the export, never a substitute.
+      force: storedExportProjectUnit(model, "force"),
+      temperature: storedExportProjectUnit(model, "temperature")
     },
     nodes,
     elements,
@@ -402,7 +437,7 @@ function caepipeMbfConversionWitnesses(model: PreviewModel): CaePipeMbfConversio
           sourceRef: reference("Node", node.id),
           fieldPath: `nodes.${node.id}.position.${axis}`,
           sourceValue: node.position[axis],
-          sourceUnit: model.project.units.length ?? "m",
+          sourceUnit: projectLengthUnit(model),
           targetField: `model_payload.nodes.${node.id}.${axis}`
         })
       )
@@ -424,7 +459,8 @@ function conversionWitness({
   sourceUnit: string;
   targetField: string;
 }): CaePipeMbfConversionWitness {
-  const conversion = convertLengthToMillimeters(sourceValue, sourceUnit);
+  const conversion = lengthToMillimeters(sourceValue, sourceUnit);
+  const converted = conversion.status === "converted" ? conversion : null;
   return {
     witness_id: witnessId,
     source_ref: sourceRef,
@@ -435,12 +471,16 @@ function conversionWitness({
       dimension: "length"
     },
     target_quantity: {
-      value: conversion.value,
+      value: converted ? converted.value : null,
       unit: CAEPIPE_MBF_TARGET_LENGTH_UNIT,
       target_field: targetField
     },
-    conversion_factor_to_target: conversion.factor,
-    conversion_status: conversion.factor === 1 ? "source_unit_matches_target_unit" : "converted_to_target_unit",
+    conversion_factor_to_target: converted ? converted.factor : null,
+    conversion_status: !converted
+      ? conversion.status === "out_of_range" ? "refused_out_of_range" : "refused_no_routine_exact_conversion"
+      : converted.sourceMatchesTarget
+        ? "source_unit_matches_target_unit"
+        : "converted_to_target_unit",
     decision_basis_refs: [reference("Decision", "DEC-018"), reference("Deliverable", "DEL-02-02")],
     provenance: previewProvenance()
   };
@@ -587,21 +627,40 @@ function caepipeMbfDiagnostics({
   mbfText: string;
 }) {
   const diagnostics = [];
+  const missingUnits = missingExportProjectUnits(model, MBF_PROJECT_UNIT_USES, "exporting .mbf text");
+  for (const missing of missingUnits) {
+    diagnostics.push(diagnostic(MBF_PROJECT_UNIT_MISSING, "blocking", "UNIT_WARNING", missing.text, missing.remediation, reference("Project", model.project.id)));
+  }
+  const lengthKeyMissing = missingUnits.some((missing) => missing.key === "length");
   if (payload.nodes.length === 0 || payload.elements.length === 0) {
     diagnostics.push(diagnostic("MBF-SMOKE-SUBSET-MISSING", "blocking", "EXPORT_BLOCKING", "The .mbf smoke subset requires at least one node and one pipe element.", "Provide invented node and pipe element records or record an explicit omitted/unsupported loss.", reference("ExportProfile", exportProfile.profile_id)));
   }
   if (!isAscii(mbfText)) {
     diagnostics.push(diagnostic("MBF-TEXT-NON-ASCII", "blocking", "EXPORT_BLOCKING", "Rendered MBF text contains non-ASCII characters.", "Use ASCII-safe invented labels for MBF text output.", reference("ExportProfile", exportProfile.profile_id)));
   }
-  if (!isSupportedMillimeterConversionUnit(model.project.units.length ?? "m")) {
+  // A missing length key is MBF-PROJECT-UNIT-MISSING above, which takes precedence.
+  const coordinates = model.nodes.length > 0 && !lengthKeyMissing ? lengthToMillimeters(0, projectLengthUnit(model)) : null;
+  if (coordinates?.status === "refused") {
     diagnostics.push(
       diagnostic(
-        "MBF-NODE-COORDINATE-UNIT-TBD",
+        MBF_LENGTH_UNIT_UNSUPPORTED,
         "blocking",
         "UNIT_WARNING",
-        `Preview model length unit ${model.project.units.length} is not mapped to the .mbf millimeter node-coordinate policy.`,
-        "Select an explicit coordinate conversion policy before exporting .mbf text.",
+        `Node coordinates are stored in project length unit ${coordinates.unitLabel}, which has no routine exact conversion to millimetres.`,
+        "Store node positions in m, mm, in or ft, which convert to millimetres exactly, before exporting .mbf text.",
         reference("Project", model.project.id)
+      )
+    );
+  }
+  for (const coordinate of outOfRangeNodeCoordinates(model.nodes, projectLengthUnit(model))) {
+    diagnostics.push(
+      diagnostic(
+        MBF_LENGTH_OUT_OF_RANGE,
+        "blocking",
+        "UNIT_WARNING",
+        coordinate.text,
+        "Correct the stored node position to a finite length before exporting .mbf text.",
+        reference("Node", coordinate.nodeId)
       )
     );
   }
@@ -745,19 +804,19 @@ function safeMbfField(value: string): string {
   return value.replace(/[,\n\r]/g, "_").replace(/[^\x20-\x7E]/g, "_");
 }
 
-function convertLengthToMillimeters(value: number, unit: string): { value: number; factor: number } {
-  const factor = unit === "m" ? 1000 : 1;
-  return {
-    value: Number((value * factor).toFixed(6)),
-    factor
-  };
+/** Node positions are stored in `project.units.length`; nothing is assumed when it is absent. */
+function projectLengthUnit(model: PreviewModel): string {
+  return model.project.units.length ?? "";
 }
 
-function isSupportedMillimeterConversionUnit(unit: string): boolean {
-  return ["m", CAEPIPE_MBF_TARGET_LENGTH_UNIT].includes(unit);
+/** Millimetres, or null where the length is refused (no routine conversion, or out of range). */
+function millimetersOrNull(value: number, unit: string): number | null {
+  const conversion = lengthToMillimeters(value, unit);
+  return conversion.status === "converted" ? conversion.value : null;
 }
 
-function formatNumber(value: number): string {
+function formatNumber(value: number | null): string {
+  if (value === null) return "TBD_LENGTH_REFUSED";
   if (Number.isInteger(value)) return String(value);
   return value.toFixed(6).replace(/0+$/g, "").replace(/\.$/, "");
 }
