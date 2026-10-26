@@ -439,12 +439,8 @@ fn each_family_not_yet_admitted_is_refused_by_name_on_v3() {
             declare_support_state(&mut document, &id);
             cases.push((document, vec![id], name));
         }
-        let [first, second] = base.cases();
-        let mut combination = base.current();
-        combination["model"]["combinations"] = json!([{"id":"combination:sum","basis":"mechanics",
-            "terms":[{"load_case":first,"factor":1.0},{"load_case":second,"factor":1.0}],"provenance":PROVENANCE}]);
-        cases.push((combination, vec!["combination:sum".into()], "load combination"));
-        // W-16 slice c admits equivalent-static generation (see the test below).
+        // W-16 slice b admits load combinations (see the test below); W-16 slice c
+        // admits equivalent-static generation (see the test after it).
         for (document, refs, name) in cases {
             let refs = refs.iter().map(String::as_str).collect::<Vec<_>>();
             for envelope in run_all(&document) {
@@ -459,6 +455,26 @@ fn each_family_not_yet_admitted_is_refused_by_name_on_v3() {
                     assert!(message.contains("is not yet admitted under 3.0.0/exact_pressure_v3"), "{message}");
                 }
             }
+        }
+    }
+}
+
+/// W-16 slice b (DEL-05-02 Design `exact-combinations.md`): the seam admits a
+/// model-authored combination, so the family refusal never names it. On both
+/// bases the document solves and states the combination's evidence record.
+#[test]
+fn a_load_combination_is_admitted_at_the_seam() {
+    for base in [Base::X0, Base::Y0] {
+        let [first, second] = base.cases();
+        let mut document = base.current();
+        document["model"]["combinations"] = json!([{"id":"combination:sum","basis":"mechanics",
+            "terms":[{"load_case":first,"factor":1.0},{"load_case":second,"factor":1.0}],"provenance":PROVENANCE}]);
+        for envelope in run_all(&document) {
+            assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED");
+            assert!(!has_code(&envelope, FAMILY), "{:#?}", envelope["diagnostics"]);
+            let records = envelope["contract_evidence"]["exact_combinations"].as_array().unwrap();
+            assert_eq!(records.len(), 1);
+            assert_eq!(records[0]["combination_id"], "combination:sum");
         }
     }
 }

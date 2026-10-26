@@ -259,6 +259,17 @@ W16C_MOVED = frozenset(
      "fixtures/results/pressure_v3_straight_reader_corpus.json",
      *(f"fixtures/results/pressure_load_state_{name}_{short}.{kind}.json"
        for name in ("connected", "pressure") for short in ("dense", "sparse") for kind in ("document", "stress_neutral"))))
+# W-16 slice b (DEL-05-02 Design exact-combinations.md §7): the pressure-2 identity limitation no longer
+# names combinations or equivalent-static generation among the refused families. Every pressure-2 envelope and
+# the carriers holding its formulation basis restate it at that one field, exactly W16B_IDENTITY_FROM ->
+# W16B_IDENTITY_NEW; everything else they differ by is the hashes binding it.
+W16B_IDENTITY_TAIL_OLD = ("Every other component, support, combination or equivalent-static family is refused by name "
+                          "(EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.")
+W16B_IDENTITY_TAIL_NEW = ("Every other component or support family is refused by name "
+                          "(EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.")
+W16B_IDENTITY_FROM = W15_IDENTITY_NEW
+W16B_IDENTITY_NEW = W16B_IDENTITY_FROM.replace(W16B_IDENTITY_TAIL_OLD, W16B_IDENTITY_TAIL_NEW)
+assert W16B_IDENTITY_FROM.count(W16B_IDENTITY_TAIL_OLD) == 1 and W16B_IDENTITY_FROM.endswith(W16B_IDENTITY_TAIL_OLD)
 # W-16 slice a: main at the merge base of its regeneration (W-7's corpus check and its refusal
 # tests read the corpus there; the W-16 check binds the committed corpus to it), and the preview
 # LIMITATIONS[1] sentence, old and new.
@@ -806,6 +817,20 @@ def _w15_identity_old(value, restored, path=()):
     if value == W15_IDENTITY_NEW and path[-3:] == ("formulation_basis", "limitations", 0):
         restored.append(path)
         return W15_IDENTITY_OLD
+    return value
+
+
+def _w16b_identity_old(value, restored, path=()):
+    """`value` with every W-16 slice b identity field put back to W-15's text (counted in `restored`). A field is a
+    formulation basis's first limitation holding exactly W16B_IDENTITY_NEW; the new text anywhere else is left in
+    place, so it fails the classification that follows."""
+    if isinstance(value, Obj):
+        return Obj((k, _w16b_identity_old(v, restored, path + (k,))) for k, v in value)
+    if isinstance(value, list):
+        return [_w16b_identity_old(v, restored, path + (i,)) for i, v in enumerate(value)]
+    if value == W16B_IDENTITY_NEW and path[-3:] == ("formulation_basis", "limitations", 0):
+        restored.append(path)
+        return W16B_IDENTITY_FROM
     return value
 
 
@@ -1428,6 +1453,10 @@ def test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current=
         derived = name in W7_DERIVED
         # W-15 (DEL-03-05) on W-7: the exact envelopes and their carriers also restate the pressure-2 identity, at
         # each formulation basis's first limitation, exactly old -> new.
+        # W-16 slice b: and again at the same field (combinations and equivalent-static leave the refused list).
+        w16b = []
+        after = _w16b_identity_old(after, w16b)
+        assert bool(w16b) != name.endswith(".analysis_run.json"), (name, "the W-16 slice b identity field")
         w15 = []
         after = _w15_identity_old(after, w15)
         # An AnalysisRun record binds its document by digest and carries no formulation basis.
@@ -1480,6 +1509,19 @@ def test_o4_text_only_envelope_diff_w16c_limitation_exception_is_its_one_sentenc
     history = "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented."
     assert text.count(json.dumps(history)) == 1
     mutant = text.replace(json.dumps(history), json.dumps(history + added))
+    with pytest.raises(AssertionError, match=re.escape(name)):
+        test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={name: mutant})
+
+
+def test_o4_text_only_envelope_diff_w16b_identity_exception_is_its_one_field():
+    """W-16 slice b's exception admits the restated identity only at a formulation basis's first limitation: the
+    new identity planted as another limitation of a moved carrier fails at that file."""
+    name = next(n for n in W7_ENVELOPES if n.endswith(".raw.json"))
+    text = (PROJECT / name).read_text()
+    assert json.dumps(W16B_IDENTITY_NEW) in text and W16B_IDENTITY_TAIL_OLD not in text
+    history = "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented."
+    assert text.count(json.dumps(history)) == 1
+    mutant = text.replace(json.dumps(history), json.dumps(W16B_IDENTITY_NEW))
     with pytest.raises(AssertionError, match=re.escape(name)):
         test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={name: mutant})
 

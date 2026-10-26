@@ -75,25 +75,27 @@ const CLASSES: [(&str, [usize; 5]); 2] = [
 /// O4 (W1-E): re-pinned with the exact goldens after DEF-E's revision (only DEF-E-bound hashes moved).
 /// O4 limitation re-pin (§3.3, §4.9): the base limitation [7] and the hashes binding it moved.
 /// W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation and the hashes binding it.
+/// W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation and the hashes binding it.
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "53df81b7f576e714816bccfc54d96baca3814a0e919b9823e5aa9bf29b97826c",
-        "0c7b14b6b08c689eee3be11ac164b0ec9296fd759c91595955eee7056dbc6ff4",
+        "268144bef456b04a1a84b177558cb98e6dfa4ef78a0e5f5b4aa9c09a2daf9cc6",
+        "c00297d82811b5b262002ce04b415629615c7a061f5548919e22543c91f1807f",
     ),
     (
         "dense_scrutiny",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "1a3f9eed3731e123264dcca1e7f46645434cc9b66b95656de837cce3f7a431ea",
-        "d9a6e8073a6207abd426c6d88f3cdae21c41a660a61230178921cfcd3260d872",
+        "9bc4351e7ee3eaa9dafc9567bec9200b9b8cb6826078e73ae2beb5a2a986e2d9",
+        "44fe0350a5f00b7547ebf78c83a1e58b53ba0ac4db5710edbba89853d35a6aba",
     ),
 ];
 /// The committed exact goldens' file sha256.
 const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
     // W-15 (DEL-03-05) on W-7: the exact successors restate the pressure-2 identity limitation.
-    ("sparse_interactive", "9c4756e9289a5062a0e2e8474ddae5047297588ac7575799293b5b8b92400f07"),
-    ("dense_scrutiny", "579878c8e800ef2e4d17dd11c8ed3ec76c7c646caf786e4dab5f027d6144faef"),
+    // W-16 slice b (DEL-05-02): and again (was 9c4756e9.../579878c8...).
+    ("sparse_interactive", "8efaaf26b5742e6181e1683e835bd42aba69c9f82f54db276d4f18e98e0a66c1"),
+    ("dense_scrutiny", "7b2759b18c02fb10117e6cfe90b789ee41bc096a7a9a889e014b9f06bfe03692"),
 ];
 /// The m3x successors' validated class counts (relative, absolute, input-derived,
 /// non-quantity, not-covered). T4-U6 (D-5 §2.5): each of the member's 21

@@ -261,22 +261,22 @@ fn a1_objective_connector_outside_the_exact_route_is_a_version_mismatch() {
 }
 
 /// The seam's refusals keep the route's emission order (component, support,
-/// combination, then the per-case equivalent_static code: since W-16 slice c,
-/// the load/reference-state refusal), under the current contract's codes; with the load/reference-state group, the
+/// then the per-case equivalent_static code: since W-16 slice c, the
+/// load/reference-state refusal; since W-16 slice b a combination is admitted
+/// and never named), under the current contract's codes; with the load/reference-state group, the
 /// support's family code precedes the load-state code that `validate_document`
 /// adds for the undeclared support, in the same batch.
 #[test]
 fn a1_precedence_follows_emission_order() {
     for base in [Base::X0, Base::Y0] {
-        // Component before combination.
+        // A component is refused; W-16 slice b admits the combination beside it.
         let mut document = with_tee(base);
         document["model"]["combinations"] = json!([combination(base)]);
         let envelope = run_all(&document);
         assert_blocked(&envelope, base);
-        assert!(
-            position(&envelope, FAMILY, &["component:tee"])
-                < position(&envelope, FAMILY, &["combination:sum"])
-        );
+        position(&envelope, FAMILY, &["component:tee"]);
+        assert!(!envelope["diagnostics"].as_array().unwrap().iter()
+            .any(|d| d["code"] == FAMILY && d["affected_refs"] == json!(["combination:sum"])));
 
         // Component before support.
         let mut document = with_support(base, gap(base), true);
@@ -288,22 +288,20 @@ fn a1_precedence_follows_emission_order() {
                 < position(&envelope, FAMILY, &["support:gap"])
         );
 
-        // Combination before the per-case equivalent_static code. W-16 slice
-        // c admits generation at the seam; the per-case code is now the
-        // load/reference-state refusal, which only Y0 (with the group) takes.
-        let mut document = with_equivalent_static(base);
-        document["model"]["combinations"] = json!([combination(base)]);
-        let envelope = run_all(&document);
-        assert_blocked(&envelope, base);
-        let case_refs = [base.equivalent_static_case(), "equivalent_static"];
-        assert!(!envelope["diagnostics"].as_array().unwrap().iter()
-            .any(|d| d["code"] == FAMILY && d["affected_refs"] == json!(case_refs)));
-        match base {
-            Base::X0 => assert!(!has_code(&envelope, LOAD_STATE_EQUIVALENT_STATIC)),
-            Base::Y0 => assert!(
-                position(&envelope, FAMILY, &["combination:sum"])
-                    < position(&envelope, LOAD_STATE_EQUIVALENT_STATIC, &case_refs)
-            ),
+        // A combination beside the per-case equivalent_static code. W-16 slice
+        // c admits generation at the seam and slice b the combination; the
+        // per-case code is now the load/reference-state refusal, which only Y0
+        // (with the group) takes. On X0 nothing refuses at the seam any more
+        // (the incomplete generation input is reported past it), so only Y0
+        // is a seam case here.
+        if matches!(base, Base::Y0) {
+            let mut document = with_equivalent_static(base);
+            document["model"]["combinations"] = json!([combination(base)]);
+            let envelope = run_all(&document);
+            let case_refs = [base.equivalent_static_case(), "equivalent_static"];
+            assert_blocked(&envelope, base);
+            assert!(!has_code(&envelope, FAMILY));
+            position(&envelope, LOAD_STATE_EQUIVALENT_STATIC, &case_refs);
         }
     }
 

@@ -661,8 +661,10 @@ B3B_PASSES = {
 # O4 (W1-E): DEF-E's revision moved only the DEF-E-bound hashes; it replaced 3cfcde8d.../a5ac8236... and 2e69b43c.../0a357a3a....
 # W-15 (DEL-03-05) on W-7: the restated pressure-2 identity limitation replaced 8015669b.../56fba7f1... and
 # 60b1b8e8.../56d062fe....
-EXACT_PINNED = {"sparse_interactive": ("53df81b7f576e714816bccfc54d96baca3814a0e919b9823e5aa9bf29b97826c", "0c7b14b6b08c689eee3be11ac164b0ec9296fd759c91595955eee7056dbc6ff4"),
-                "dense_scrutiny": ("1a3f9eed3731e123264dcca1e7f46645434cc9b66b95656de837cce3f7a431ea", "d9a6e8073a6207abd426c6d88f3cdae21c41a660a61230178921cfcd3260d872")}
+# W-16 slice b (DEL-05-02): the restated pressure-2 identity limitation replaced 53df81b7.../0c7b14b6... and
+# 1a3f9eed.../d9a6e807....
+EXACT_PINNED = {"sparse_interactive": ("268144bef456b04a1a84b177558cb98e6dfa4ef78a0e5f5b4aa9c09a2daf9cc6", "c00297d82811b5b262002ce04b415629615c7a061f5548919e22543c91f1807f"),
+                "dense_scrutiny": ("9bc4351e7ee3eaa9dafc9567bec9200b9b8cb6826078e73ae2beb5a2a986e2d9", "44fe0350a5f00b7547ebf78c83a1e58b53ba0ac4db5710edbba89853d35a6aba")}
 KINDS = ("synthetic", "producer")
 
 

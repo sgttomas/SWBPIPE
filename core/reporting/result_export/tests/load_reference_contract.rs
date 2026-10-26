@@ -280,22 +280,24 @@ fn current_inputs_table_and_schema_are_pinned() {
     // W-15 (DEL-03-05): again for the pressure-2 identity limitation (identity bytes only).
     // W-16 slice c (DEL-05-01 exact-equivalent-static.md §4): again for the applied-loads limitation
     // (its generated equivalent-static refusal sentence only).
+    // W-16 slice b (DEL-05-02 exact-combinations.md §7): again for the pressure-2 identity
+    // limitation (identity bytes only).
     for (name, digest) in [
         (
             "connected-sparse",
-            "3cb90d4c96548501867d16c02bbd00fee1b789ae16e871bae8d00adddb96a1c1",
+            "ab8fd5d28c967c89aae6a451f6f8f8e6459249e82a38cf0fb696ca36dd9ad9e7",
         ),
         (
             "connected-dense",
-            "f5a7cafc3a979de965161e6c00950bb66cc1a6adddf43d7928a071431a274576",
+            "f421cd4ce3a09bede06bbd5e0efa4b8e3197219940e1d1de4cb75dd0a3516daf",
         ),
         (
             "pressure-sparse",
-            "eec9a1808994f7f3fd92c433cee4ba972d5e707b9bc3fc604d32062da7f200dd",
+            "3e70d65fa846411decbb2c534cb6e1a4e9e3a8a31f37bf391873cdeafd5137bb",
         ),
         (
             "pressure-dense",
-            "8fd9abc53e39825dccc3b4f0dcb8474de518911ca238a04dc89eea5f5adaf329",
+            "279c845930411a0d024c083213b692f22a7d9aa61ca66df6d63cd42bd8639c2a",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");
