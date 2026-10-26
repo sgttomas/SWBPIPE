@@ -142,6 +142,9 @@ code_paths:
 - apps/desktop/src-tauri/src/model_document_save.rs
 - apps/desktop/src-tauri/src/native_smoke.rs
 - apps/desktop/native-smoke/**
+- apps/desktop/scripts/engineSourceStamp.mjs
+- apps/desktop/scripts/appBinaryBinding.mjs
+- apps/desktop/scripts/worktreeBuildLock.mjs
 - apps/desktop/e2e/r2-smoke.spec.ts
 - apps/desktop/src/services/projectService.ts
 - apps/desktop/src/services/nativeMenu.ts
@@ -157,3 +160,8 @@ checks:
 - apps/desktop/src/services/projectService.test.ts
 - apps/desktop/e2e/b3a-session-status.spec.ts
 - apps/desktop/e2e/b3b-project-persistence.spec.ts
+- apps/desktop/native-smoke/driver.test.mjs
+- apps/desktop/native-smoke/engine-stamp.test.mjs
+- apps/desktop/native-smoke/app-binding.test.mjs
+- apps/desktop/scripts/build-wasm-engine.test.mjs
+- apps/desktop/scripts/worktreeBuildLock.test.mjs
