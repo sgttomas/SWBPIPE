@@ -19,6 +19,10 @@
       "statement": "Every member section declares its corrosion allowance and the contract declares its shear model. This pressure-source-1 envelope carries a selected retained-source response. The source family is straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. Other cases keep their ordinary recovery and standing."
     },
     {
+      "producer_sha256": "5d6b888ac33f7b120a90396e60ba289c22abc801678bc307aac2f8afaf3051a9",
+      "statement": "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided. Generated equivalent-static (seismic or wind) loads have no ledger class and are refused by name (EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED)."
+    },
+    {
       "producer_sha256": "62df2a3b0908cfbe3d067ff0e523fce53713a4f4b31474d41af684113fa7cd05",
       "statement": "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided."
     },
@@ -41,10 +45,6 @@
     {
       "producer_sha256": "c7d91ccf111fc974b8574f9de46442623780eee98c725dea3efcf68900e03204",
       "statement": "One resolved case per load case supplies each member's selected E/nu with derived G, actual/selected/installation temperatures and explicit expansion definition; each case is solved independently."
-    },
-    {
-      "producer_sha256": "d15de32c2e645c34fbdec18dea8fde381461f1a85aa72d5d6d74b3ada936aff5",
-      "statement": "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided."
     },
     {
       "producer_sha256": "d47820118782fbf0e16a105f01fa8cdc1506ee99cc3ec7e251c5e936598ee5fc",

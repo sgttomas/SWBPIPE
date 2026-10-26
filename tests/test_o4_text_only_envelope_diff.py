@@ -238,6 +238,27 @@ assert W15_IDENTITY_OLD.count("connector limitations state. ") == 1 and W15_IDEN
 W15_IDENTITY_MOVED = frozenset({"w1_member_route_e_baseline_sparse_interactive", "w1_member_route_e_baseline_dense_scrutiny",
                                 "o4_w1e_sparse_interactive", "o4_w1e_dense_scrutiny", "o4_w1e_mixed_sparse_interactive",
                                 "o4_w1e_unavailable_sparse_interactive"})
+# W-16 slice c (DEL-05-01 Design exact-equivalent-static.md §4): the load/reference-state limitation on applied
+# loads gains the refusal of generated equivalent-static loads. Every load/reference-state envelope and the
+# carriers holding its formulation basis restate it, at that one limitation, exactly old -> new; everything else
+# they differ by is the hashes binding it. The files W-7 regenerated that state it are W16C_MOVED.
+W16C_LIMITATION_OLD = (
+    "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced "
+    "stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not "
+    "provided."
+)
+W16C_LIMITATION_NEW = (W16C_LIMITATION_OLD + " Generated equivalent-static (seismic or wind) loads have no ledger class "
+                       "and are refused by name (EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED).")
+W16C_MOVED = frozenset(
+    ("core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-dense_scrutiny.raw.json",
+     "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json",
+     *(f"fixtures/product_preview/pressure/load_reference/{name}-{mode}.raw.json"
+       for name in ("connected", "pressure") for mode in ("dense_scrutiny", "sparse_interactive")),
+     "fixtures/results/pressure_v3_arc_reader_corpus.json",
+     "fixtures/results/pressure_v3_connector_reader_corpus.json",
+     "fixtures/results/pressure_v3_straight_reader_corpus.json",
+     *(f"fixtures/results/pressure_load_state_{name}_{short}.{kind}.json"
+       for name in ("connected", "pressure") for short in ("dense", "sparse") for kind in ("document", "stress_neutral"))))
 # W-16 slice a: main at the merge base of its regeneration (W-7's corpus check and its refusal
 # tests read the corpus there; the W-16 check binds the committed corpus to it), and the preview
 # LIMITATIONS[1] sentence, old and new.
@@ -785,6 +806,20 @@ def _w15_identity_old(value, restored, path=()):
     if value == W15_IDENTITY_NEW and path[-3:] == ("formulation_basis", "limitations", 0):
         restored.append(path)
         return W15_IDENTITY_OLD
+    return value
+
+
+def _w16c_limitation_old(value, restored, path=()):
+    """`value` with every W-16 slice c limitation put back to the old text (counted in `restored`). A field is a
+    formulation basis's limitation holding exactly W16C_LIMITATION_NEW; the new sentence anywhere else is left in
+    place, so it fails the classification that follows."""
+    if isinstance(value, Obj):
+        return Obj((k, _w16c_limitation_old(v, restored, path + (k,))) for k, v in value)
+    if isinstance(value, list):
+        return [_w16c_limitation_old(v, restored, path + (i,)) for i, v in enumerate(value)]
+    if value == W16C_LIMITATION_NEW and len(path) >= 3 and path[-3:-1] == ("formulation_basis", "limitations"):
+        restored.append(path)
+        return W16C_LIMITATION_OLD
     return value
 
 
@@ -1397,6 +1432,11 @@ def test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current=
         after = _w15_identity_old(after, w15)
         # An AnalysisRun record binds its document by digest and carries no formulation basis.
         assert bool(w15) != name.endswith(".analysis_run.json"), (name, "the W-15 identity field")
+        # W-16 slice c: the load/reference-state envelopes and their carriers restate the applied-loads
+        # limitation, exactly old -> new.
+        w16c = []
+        after = _w16c_limitation_old(after, w16c)
+        assert bool(w16c) == (name in W16C_MOVED), (name, "the W-16 slice c limitation", w16c[:2])
         removed_before, removed = [], []
         before = _without_w7(before, removed_before, derived)
         after = _without_w7(after, removed, derived)
@@ -1428,6 +1468,20 @@ def test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current=
         else:
             assert public["outcome"] == "refused_blocking", (W7_J7, dict(b)["id"])
         assert {(kind, path) for kind, path in found} <= allowed, (W7_J7, dict(b)["id"], found)
+
+
+def test_o4_text_only_envelope_diff_w16c_limitation_exception_is_its_one_sentence():
+    """W-16 slice c's exception admits the restated sentence only as a whole formulation-basis limitation: the
+    added sentence planted in another limitation of a moved carrier fails at that file."""
+    name = next(n for n in W7_ENVELOPES if n in W16C_MOVED and n.endswith(".raw.json"))
+    text = (PROJECT / name).read_text()
+    assert W16C_LIMITATION_NEW in text
+    added = W16C_LIMITATION_NEW[len(W16C_LIMITATION_OLD):]
+    history = "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented."
+    assert text.count(json.dumps(history)) == 1
+    mutant = text.replace(json.dumps(history), json.dumps(history + added))
+    with pytest.raises(AssertionError, match=re.escape(name)):
+        test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={name: mutant})
 
 
 def test_o4_text_only_envelope_diff_w7_enumeration_refuses_other_moves():

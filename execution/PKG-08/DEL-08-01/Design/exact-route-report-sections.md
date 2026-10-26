@@ -398,9 +398,9 @@ means the statement is the producer string byte for byte.
 
 > Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided.
 
-**S14. Load/reference states 4, applied loads** (`exact_admission.rs:107`; load-state models). Producer SHA-256 `d15de32c2e645c34fbdec18dea8fde381461f1a85aa72d5d6d74b3ada936aff5`. Statement, verbatim:
+**S14. Load/reference states 4, applied loads** (`exact_admission.rs:107`; load-state models). Producer SHA-256 `5d6b888ac33f7b120a90396e60ba289c22abc801678bc307aac2f8afaf3051a9`. Statement, verbatim:
 
-> Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided.
+> Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided. Generated equivalent-static (seismic or wind) loads have no ledger class and are refused by name (EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED).
 
 **S15. Load/reference states 5, history** (`exact_admission.rs:108`; load-state models). Producer SHA-256 `d67bef81dd0df58e72fe799467f916ff5c1d28c3fabadb64450d799fedc0bfa4`. Statement, verbatim:
 

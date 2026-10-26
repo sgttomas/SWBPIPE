@@ -45,11 +45,12 @@ FROZEN = {
     # connected: silent-zero diagnostic added; no number moved (two LOAD_STATE_SOURCE_EXCLUDED warnings).
     # W-7 global end rows added; no other number moved (connected +48 rows, pressure +24 rows).
     # W-15 (DEL-03-05): regenerated for the pressure-2 identity limitation (identity bytes only).
-    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "39ad0082a313e042eb0c26bab499bf1ed6b364d5ce0e97cc85d9e8e7cc05a332",
-    "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "f576755134a8f487255b194d2c27ac51717b4a77de4301e4db79791392e6de32",
+    # W-16 slice c (DEL-05-01): regenerated for the applied-loads limitation's equivalent-static refusal sentence only.
+    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "3cb90d4c96548501867d16c02bbd00fee1b789ae16e871bae8d00adddb96a1c1",
+    "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "f5a7cafc3a979de965161e6c00950bb66cc1a6adddf43d7928a071431a274576",
     "fixtures/product_preview/pressure/load_reference/pressure.request.json": "a187c0949ce6fad0f357f9439daf95b63886be582f95ebee4181d327da882eca",
-    "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "41d7afc0da0df6d6bcca598dc75bbbf28da8c1af4b643a262abcffb6dccce373",
-    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "b2a25f63d524bd11ddd8195dc6077843f768416b6663a310ed24f33effc3be1a",
+    "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "eec9a1808994f7f3fd92c433cee4ba972d5e707b9bc3fc604d32062da7f200dd",
+    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "8fd9abc53e39825dccc3b4f0dcb8474de518911ca238a04dc89eea5f5adaf329",
     "fixtures/results/semantic_contract_v0_3_pressure_2.json": PRESSURE_CONTRACT_SHA256,
     "schemas/load_reference_state.schema.json": TRANSPORT_SCHEMA_SHA256,
 }

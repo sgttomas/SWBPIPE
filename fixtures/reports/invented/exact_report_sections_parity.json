@@ -310,7 +310,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "622d4c4f577f10412f366a24c21eef9847c28ba4f05de6458451acac0b407a78",
+            "received_result_sha256": "a57fb4c4b9485fcc88820b4d7c3fce045b08dbb545361e8ea99fc00b1a99a660",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -352,7 +352,7 @@
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases case:cold-pressure, case:hot-pressure; history independent_equilibrium). Their published limitations are listed under Limitations.",
-          "received_result_sha256": "622d4c4f577f10412f366a24c21eef9847c28ba4f05de6458451acac0b407a78",
+          "received_result_sha256": "a57fb4c4b9485fcc88820b4d7c3fce045b08dbb545361e8ea99fc00b1a99a660",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -500,7 +500,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided."
+            "statement": "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided. Generated equivalent-static (seismic or wind) loads have no ledger class and are refused by name (EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED)."
           },
           {
             "affected_scope": {
@@ -780,7 +780,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "271de1787add0e1eb761ec2b6d4a9272a66cc6254a6a2934e0525cbe716bcc35",
+            "received_result_sha256": "8ebc81f026b80032ef9eb768626d4fca5b05cd2aad56b9563874871276621d06",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -822,7 +822,7 @@
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases case:u2; history independent_equilibrium). Their published limitations are listed under Limitations.",
-          "received_result_sha256": "271de1787add0e1eb761ec2b6d4a9272a66cc6254a6a2934e0525cbe716bcc35",
+          "received_result_sha256": "8ebc81f026b80032ef9eb768626d4fca5b05cd2aad56b9563874871276621d06",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -970,7 +970,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided."
+            "statement": "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided. Generated equivalent-static (seismic or wind) loads have no ledger class and are refused by name (EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED)."
           },
           {
             "affected_scope": {
@@ -1485,7 +1485,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "7def2b8851554738e8cbe105f917d5ab07d08df478f3ebf7f2ce5996766ef1de",
+            "received_result_sha256": "db97bca3037c4baa6b05af0f524cd39e9970ba7e571c43cc7b5a0be668f5cc48",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -1527,7 +1527,7 @@
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases load:L-100, load:L-200, load:L-300; history independent_equilibrium). Their published limitations are listed under Limitations.",
-          "received_result_sha256": "7def2b8851554738e8cbe105f917d5ab07d08df478f3ebf7f2ce5996766ef1de",
+          "received_result_sha256": "db97bca3037c4baa6b05af0f524cd39e9970ba7e571c43cc7b5a0be668f5cc48",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -1675,7 +1675,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-2",
               "ref_type": "semantic_contract"
             },
-            "statement": "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided."
+            "statement": "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided. Generated equivalent-static (seismic or wind) loads have no ledger class and are refused by name (EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED)."
           },
           {
             "affected_scope": {
@@ -1955,7 +1955,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "f30f78306f595261835e85194de60968ee3216b547aa3c07b352af3b44ffe134",
+            "received_result_sha256": "64607fdc7b1ac03ced5285879b5c2c810c495fc014a4524013e48ecde5bd81cc",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-source-1"
@@ -1997,7 +1997,7 @@
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:companion; load cases case; history independent_equilibrium). Their published limitations are listed under Limitations.",
-          "received_result_sha256": "f30f78306f595261835e85194de60968ee3216b547aa3c07b352af3b44ffe134",
+          "received_result_sha256": "64607fdc7b1ac03ced5285879b5c2c810c495fc014a4524013e48ecde5bd81cc",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-source-1"
@@ -2145,7 +2145,7 @@
               "ref_id": "openpipestress.result_semantics/0.3.0/pressure-source-1",
               "ref_type": "semantic_contract"
             },
-            "statement": "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided."
+            "statement": "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided. Generated equivalent-static (seismic or wind) loads have no ledger class and are refused by name (EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED)."
           },
           {
             "affected_scope": {
