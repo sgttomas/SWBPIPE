@@ -45,6 +45,13 @@ degraded output. The governing Design text records each resolution and its
 reason. A resolution that changes numerical meaning still takes targeted
 regression checks and independent scrutiny. The reservations above still apply.
 
+The current phase drives toward finishing (owner, 2026-10-26: "we are nearing a
+level of maturity where there needs to be a concerted drive towards goals and
+finishing things to a practical level. Continuous improvement goes after.").
+Carry each unit to a usable, verified result. Record improvements found along
+the way as remaining items, and take them up after the unit unless they
+correct a wrong output or block the goal.
+
 Agent 0 checks that the implementation and its declarations agree before
 integration.
 
