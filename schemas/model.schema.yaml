@@ -450,6 +450,10 @@
         },
         "expansion_joint_source_reference": {
           "type": "string"
+        },
+        "eccentric_offset": {
+          "description": "A reducer's declared eccentric offset (model document 0.8.0; owner ruling R-c1 A): a vector in the global X/Y/Z axes, from the centreline at the component's node to the centreline at its body's other end, in a model length unit. The node geometry governs; the solve checks the declared offset against it and never places nodes from it. Read only on a reducer.",
+          "$ref": "#/$defs/VectorQuantity"
         }
       }
     },

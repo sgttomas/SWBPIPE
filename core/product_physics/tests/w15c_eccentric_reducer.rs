@@ -352,6 +352,25 @@ fn an_absent_offset_is_not_checked() {
     }
 }
 
+/// The offset is a closed vector quantity under #1630's nested-record closure:
+/// an unknown key inside it is refused by field, record and path before any
+/// solve, on both routes and in both modes, and the typed wire refuses it too.
+#[test]
+fn an_unknown_key_in_the_offset_is_refused_by_name_and_path() {
+    for route in [Route::Preview, Route::Exact] {
+        let mut wire = request(&cantilever(-0.05, Some([0.0, -50.0, 0.0])), route);
+        wire["model"]["components"][0]["geometry"]["eccentric_offset"]["w"] = json!(0.0);
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let error = run_linear_static_preview_value_with_mode(wire.clone(), mode).map(drop).unwrap_err();
+            assert!(error.starts_with("UNKNOWN_MODEL_FIELD: request: "), "{route:?}/{mode:?}: {error}");
+            let named = "unknown field `w` in the eccentric_offset of the geometry of component `component:r` (model.components[0].geometry.eccentric_offset)";
+            assert!(error.contains(named), "{route:?}/{mode:?}: {error}");
+        }
+        let typed = serde_json::from_value::<open_pipe_stress_product_physics::LinearStaticPreviewRequest>(wire).unwrap_err().to_string();
+        assert!(typed.contains("unknown field `w`"), "{route:?}: {typed}");
+    }
+}
+
 // ------------------------------------------------------------------ Codex numerical scrutiny r1 (P2)
 fn v_unit(v: [f64; 3]) -> [f64; 3] {
     let n = (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).sqrt();

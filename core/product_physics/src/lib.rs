@@ -653,7 +653,7 @@ pub struct ComponentGeometryInput {
     /// under the R-c1 convention (`rigid_component::eccentric_offset_ends`).
     /// The solve checks it against the node geometry, which governs; it never
     /// places, moves or re-forms anything.
-    #[serde(default)]
+    #[serde(default, deserialize_with = "model_fields::closed_optional_vector_quantity")]
     pub eccentric_offset: Option<VectorQuantity>,
 }
 

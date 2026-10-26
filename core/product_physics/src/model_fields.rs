@@ -527,6 +527,7 @@ fn nested_records(
         nested_member(component, "objective_connector", OBJECTIVE_CONNECTOR_FIELDS, &at, findings);
         if let Some((geometry, at)) = nested_member(component, "geometry", fields.geometry, &at, findings) {
             nested_member(geometry, "center_of_gravity", fields.vector_quantity, &at, findings);
+            nested_member(geometry, "eccentric_offset", fields.vector_quantity, &at, findings);
             nested_quantities(geometry, &GEOMETRY_QUANTITIES, fields.magnitude, &at, findings);
         }
         if let Some((modifiers, at)) = nested_member(component, "modifiers", fields.modifiers, &at, findings) {
@@ -805,7 +806,7 @@ mod tests {
         }
         assert_eq!(refs(&d["Node"], "Vector3"), set(&["position"]));
         assert_eq!(refs(&d["PipeSegment"], "Vector3"), set(&["y_reference"]));
-        assert_eq!(refs(&d["ComponentGeometry"], "VectorQuantity"), set(&["center_of_gravity"]));
+        assert_eq!(refs(&d["ComponentGeometry"], "VectorQuantity"), set(&["center_of_gravity", "eccentric_offset"]));
         assert_eq!(refs(&d["SpringHanger"], "SupportStiffness"), set(&["stiffness"]));
         assert_eq!(refs(&d["Support"], "SupportStiffness"), set(&["stiffness"]));
         assert_eq!(d["Section"]["properties"]["properties"]["additionalProperties"]["$ref"], "#/$defs/Quantity");
