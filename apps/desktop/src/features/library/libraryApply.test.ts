@@ -518,7 +518,11 @@ describe("refusal messages name the cause and how to proceed", () => {
       ["unit unresolved (α)", insert([E(), NU(), property("thermal_expansion_coefficient", 1.2e-5, "unit.per_C")], "e_nu")],
       ["retained quarantined (section)", () => buildSectionApply({ model: quarantinedSection, document: sectionLibrary([dimension("outside_diameter", 0.2)]), recordId: "sec.invented.pipe", targetId: "section:shared", replace: "none" })],
       ["hanger quantity", () => hangerLibraryProvenance({ library_id: "h", name: "H", privacy_class: "private_user_supplied", provenance: PRIVATE },
-        { hanger_id: "h1", name: "H1", provenance: PRIVATE }, [{ magnitude: 1, unit: "N", dimension: "force", provenance: { ...PRIVATE, review_status: "quarantined" } }])]
+        { hanger_id: "h1", name: "H1", provenance: PRIVATE }, [{ magnitude: 1, unit: "N", dimension: "force", provenance: { ...PRIVATE, review_status: "quarantined" } }])],
+      ["unreadable record disposition", insert([E(), NU()], "e_nu", { review_status: ["quarantined"] })],
+      ["unreadable library disposition", insert([E(), NU()], "e_nu", {}, { provenance: ["Invented", "private_only"] })],
+      ["unreadable hanger disposition", () => hangerLibraryProvenance({ library_id: "h", name: "H", privacy_class: "private_user_supplied", provenance: PRIVATE },
+        { hanger_id: "h1", name: "H1", provenance: { ...PRIVATE, review_status: { status: "rejected" } } }, [])]
     ];
   }
 
@@ -536,7 +540,7 @@ describe("refusal messages name the cause and how to proceed", () => {
     expect(actual).toEqual(pinned);
     for (const [label, message] of Object.entries(actual)) {
       // A cause, then at least one sentence telling the user what to do.
-      expect(message, label).toMatch(/^LIBRARY-APPLY-[A-Z-]+: .+\. (Choose|Fix|Correct|Use|Select|Enter|Refresh|Check|Apply|Keep|Have|Review)/);
+      expect(message, label).toMatch(/^(LIBRARY-APPLY-[A-Z-]+|MODEL-DISPOSITION-RECORD-MALFORMED): .+\. (Choose|Fix|Correct|Use|Select|Enter|Refresh|Check|Apply|Keep|Have|Review|Open)/);
     }
   });
 });

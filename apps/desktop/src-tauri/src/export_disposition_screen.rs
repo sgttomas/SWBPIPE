@@ -35,8 +35,11 @@ pub const LIBRARY_REF_UNRESOLVED: &str = crate::MODEL_LIBRARY_REF_UNRESOLVED;
 /// "Disposition screening"): a `provenance_record`, `rule_pack_refs[]` entry
 /// or `library_ref` that is not an object (a positional, array-form record
 /// among them), `rule_pack_refs` that is not a list, or a disposition member
-/// the verdict reads that is an array or an object.
-pub const DISPOSITION_RECORD_MALFORMED: &str = "MODEL-DISPOSITION-RECORD-MALFORMED";
+/// the verdict reads that is an array or an object. The library import refuses
+/// to store such a library with the same code, and library apply refuses to
+/// apply such a record (`libraryApply.ts`); this screen still covers a library
+/// stored before that rule or written to the store by other means.
+pub const DISPOSITION_RECORD_MALFORMED: &str = open_pipe_stress_library_import_document::DISPOSITION_RECORD_MALFORMED;
 
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct DispositionDiagnostic {
@@ -362,7 +365,7 @@ impl DispositionScreen {
             StoredMembers::Structural => unreadable_names(stored_item_unreadable(library_kind, item)),
         };
         if !unreadable.is_empty() {
-            return self.unreadable(&unreadable, path, record, what);
+            return self.unreadable_stored(&unreadable, path, record, what);
         }
         let found = stored_item_blocking(library_kind, item);
         self.block(found, path, record, what);
@@ -373,6 +376,20 @@ impl DispositionScreen {
             DISPOSITION_RECORD_MALFORMED,
             path,
             format!("{record} ({what}: {members}) holds an array or an object where its disposition is read, so the disposition cannot be judged; correct the record first."),
+        ));
+    }
+
+    /// [`Self::unreadable`] for a stored library or record (`kind:id`, or
+    /// `kind:id#record`): the message says how the user repairs the store.
+    fn unreadable_stored(&mut self, members: &str, path: &str, record: &str, what: &str) {
+        self.blocking.push(diagnostic(
+            DISPOSITION_RECORD_MALFORMED,
+            path,
+            format!(
+                "{record} ({what}: {members}) holds an array or an object where its disposition is read, so the disposition cannot be judged. \
+                 Open the library in the Library Manager, write each redistribution_status and review_status as text and each provenance as an object, \
+                 and save it to the local store again (or delete the library, or remove the reference), then retry."
+            ),
         ));
     }
 

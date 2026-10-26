@@ -306,6 +306,26 @@ and §6 authoring.
        Each level carries its own provenance
        (`schemas/material.schema.yaml:490-504`; the import walks nested
        values, `library_import_document/src/lib.rs:425-432`).
+       - **An unreadable disposition refuses the apply by name.** Before any
+         verdict, the apply is refused (`MODEL-DISPOSITION-RECORD-MALFORMED`)
+         when the library metadata or the selected record holds, at any depth,
+         a `redistribution_status` or `review_status` that is an array or an
+         object, or a `provenance` written as an array; library metadata that
+         is present but not an object is refused the same way. This is the
+         native export screen's rule (`export_disposition_screen.rs`
+         `StoredMembers::Refuse`): every export of a model referencing such a
+         record refuses, so the apply never writes one (before this rule such
+         a record applied as `pending`, or `accepted` from its provenance).
+         An object-valued `classification`, the privacy members and scalars
+         that are not text are not refused; they follow the verdict as the
+         screen's do. The message names the library and the record, the
+         members, and the repair: open the library in the Library Manager,
+         write the statuses as text and each provenance as an object and save
+         it again, or choose a different library. The hanger path applies the
+         same rule (`hangerLibraryProvenance`). The import refuses to store
+         such a library (DEL-03-02), so this guards a library stored before
+         that rule or written to the store by other means; opening one shows
+         the import's finding and offers no apply.
        - **Rejected and protected sources are never used.** A library or
          record with redistribution or review `rejected` refuses the apply. A
          slot or value with `rejected`, `protected_suspected` or `quarantined`
@@ -410,7 +430,12 @@ and §6 authoring.
     it proceeds, and the diff shows each removal;
   - a value-level `rejected` slot is excluded, and a record-level `rejected`
     refuses the apply;
-  - `TBD` normalizes to `unknown` and `pending`.
+  - `TBD` normalizes to `unknown` and `pending`;
+  - an unreadable disposition (array or object `review_status` or
+    `redistribution_status`, own or in a provenance, on the library metadata
+    or the record or nested in it; an array `provenance`) refuses by name,
+    for the section and hanger paths; a clean record and object-valued
+    `classification` members apply (`libraryApply.disposition.test.ts`).
 - **Vitest, components:**
   - an absent or stale `modifiers.source_reference` is replaced by the library
     reference;
