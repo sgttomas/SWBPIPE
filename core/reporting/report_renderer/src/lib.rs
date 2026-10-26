@@ -1518,10 +1518,12 @@ fn record_is_public(privacy: sections::PrivacyClassification, redistribution: se
 ///   library import's and the package save's blocking values,
 ///   `export_disposition_screen.rs` `SCREENED_MEMBERS`) on any report-section
 ///   provenance record, on a user-supplied value or an assumption itself, or on
-///   a library reference's record. A user-supplied value is named by its
-///   `value_id` (`<kind>-provenance:<entity id>`), a library reference by its
-///   owners, so the reason names the entity and field to correct;
-/// - `library references: <code> (library_references[i] ...)`: a library
+///   a library reference's record. Every record is named by its collection
+///   position and the field only (`user_supplied_values[3]`,
+///   `assumptions[0]`, `library_references[2].provenance`): ids, labels and
+///   source text are user-authored and never enter a reason (Codex review
+///   round 3 of #1639); the panel resolves a position to its entity locally;
+/// - `library references: <code> (library_references[i].provenance; ...)`: a library
 ///   reference's record judged by the section validation's own provenance
 ///   rules ([`sections::validate_provenance_record`]: incomplete,
 ///   `protected_suspected`, `unknown` or `TBD`), as every report-section
@@ -1563,29 +1565,28 @@ pub fn provenance_disposition_blocking_reasons(input: &RenderableReportInput) ->
     judge(&mut reasons, "limitations", ".provenance", &mut report_sections.limitations.iter().map(|item| &item.provenance));
     for (index, value) in report_sections.user_supplied_values.iter().enumerate() {
         if let Some(status) = review_blocks(value.provenance.review_status) {
-            push(&mut reasons, format!("user_supplied_values[{index}] {} provenance", value.value_id), "review_status", status);
+            push(&mut reasons, format!("user_supplied_values[{index}].provenance"), "review_status", status);
         }
         if let Some(status) = review_blocks(value.review_status) {
-            push(&mut reasons, format!("user_supplied_values[{index}] {}", value.value_id), "review_status", status);
+            push(&mut reasons, format!("user_supplied_values[{index}]"), "review_status", status);
         }
     }
     for (index, assumption) in report_sections.assumptions.iter().enumerate() {
         if let Some(status) = review_blocks(assumption.review_status) {
-            push(&mut reasons, format!("assumptions[{index}] {}", assumption.assumption_id), "review_status", status);
+            push(&mut reasons, format!("assumptions[{index}]"), "review_status", status);
         }
     }
     for (index, reference) in input.library_references.iter().flatten().enumerate() {
         let record = &reference.provenance;
         if let Some(value) = review_blocks(record.review_status) {
-            push(&mut reasons, format!("library_references[{index}] (referenced by {}) provenance", reference.entity_refs.join(", ")), "review_status", value);
+            push(&mut reasons, format!("library_references[{index}].provenance"), "review_status", value);
         }
-        let affected = sections::Reference::new("library_reference", &reference.reference_id);
+        let affected = sections::Reference::new("library_reference", format!("library_references[{index}]"));
         for diagnostic in sections::validate_provenance_record(record, affected, provenance_context(input)) {
             if diagnostic.severity == sections::Severity::Blocking {
                 reasons.push(format!(
-                    "library references: {} (library_references[{index}] referenced by {}; {DISPOSITION_REMEDIATION})",
-                    diagnostic.code,
-                    reference.entity_refs.join(", ")
+                    "library references: {} (library_references[{index}].provenance; {DISPOSITION_REMEDIATION})",
+                    diagnostic.code
                 ));
             }
         }
@@ -1660,6 +1661,110 @@ fn report_context_blocking_codes(input: &RenderableReportInput) -> Vec<&'static 
         }
     }
     codes
+}
+
+/// The code of a renderer input that does not decode.
+pub const RENDER_INPUT_INVALID: &str = "RENDER-INPUT-INVALID";
+
+/// Decode a renderer input, refusing an invalid one with its JSON path and
+/// the error kind only (`RENDER-INPUT-INVALID: <kind> at <path>`), never the
+/// offending value or key, which may be user-authored text (Codex review
+/// round 3 of #1639).
+///
+/// Memory: each top-level member is moved out and decoded on its own, as the
+/// whole decode moves it, so the input is never copied. Before that, each
+/// element of the provenance-bearing collections (the report sections'
+/// diagnostics, notes, values, assumptions and limitations, and the library
+/// references) is decoded by reference one at a time, which holds at most one
+/// element's copy, to place an error down to a disposition member.
+pub fn decode_renderable_report_input(value: serde_json::Value) -> Result<RenderableReportInput, String> {
+    use serde::de::DeserializeOwned;
+    use serde::Deserialize;
+    use serde_json::Value;
+    fn kind(error: &serde_json::Error) -> &'static str {
+        let message = error.to_string();
+        [
+            "unknown variant",
+            "unknown field",
+            "missing field",
+            "invalid type",
+            "invalid value",
+            "invalid length",
+            "duplicate field",
+        ]
+        .into_iter()
+        .find(|kind| message.starts_with(kind))
+        .unwrap_or("invalid input")
+    }
+    fn refusal(kind: &str, path: &str) -> String {
+        format!("{RENDER_INPUT_INVALID}: {kind} at {path}")
+    }
+    fn by_ref<'a, T: Deserialize<'a>>(value: &'a Value) -> Result<(), serde_json::Error> {
+        T::deserialize(value).map(drop)
+    }
+    /// The failing disposition member of a provenance-bearing element.
+    fn member(object: &Value, path: String) -> String {
+        let Some(map) = object.as_object() else { return path };
+        let checks: [(&str, fn(&Value) -> bool); 4] = [
+            ("provenance", |v| by_ref::<sections::Provenance>(v).is_err()),
+            ("redistribution_status", |v| by_ref::<sections::RedistributionStatus>(v).is_err()),
+            ("review_status", |v| by_ref::<sections::ReviewStatus>(v).is_err()),
+            ("privacy_classification", |v| by_ref::<sections::PrivacyClassification>(v).is_err()),
+        ];
+        for (key, check) in checks {
+            if let Some(child) = map.get(key) {
+                if check(child) {
+                    let at = format!("{path}.{key}");
+                    return if key == "provenance" { member(child, at) } else { at };
+                }
+            }
+        }
+        path
+    }
+    fn elements<T: for<'a> Deserialize<'a>>(list: Option<&Value>, path: &str) -> Result<(), String> {
+        let Some(items) = list.and_then(Value::as_array) else { return Ok(()) };
+        for (index, item) in items.iter().enumerate() {
+            if let Err(error) = by_ref::<T>(item) {
+                return Err(refusal(kind(&error), &member(item, format!("{path}[{index}]"))));
+            }
+        }
+        Ok(())
+    }
+    let Value::Object(mut root) = value else {
+        return Err(refusal("invalid type", "the input"));
+    };
+    if let Some(Value::Object(report_sections)) = root.get("report_sections") {
+        elements::<sections::Diagnostic>(report_sections.get("diagnostics"), "report_sections.diagnostics")?;
+        elements::<sections::Provenance>(report_sections.get("provenance_notes"), "report_sections.provenance_notes")?;
+        elements::<sections::UserSuppliedValue>(report_sections.get("user_supplied_values"), "report_sections.user_supplied_values")?;
+        elements::<sections::Assumption>(report_sections.get("assumptions"), "report_sections.assumptions")?;
+        elements::<sections::Limitation>(report_sections.get("limitations"), "report_sections.limitations")?;
+    }
+    if let Some(list @ Value::Array(_)) = root.get("library_references") {
+        elements::<LibraryReference>(Some(list), "library_references")?;
+    }
+    fn required<T: DeserializeOwned>(root: &mut serde_json::Map<String, Value>, key: &str) -> Result<T, String> {
+        let Some(value) = root.remove(key) else { return Err(refusal("missing field", key)) };
+        serde_json::from_value(value).map_err(|error| refusal(kind(&error), key))
+    }
+    fn optional<T: DeserializeOwned>(root: &mut serde_json::Map<String, Value>, key: &str) -> Result<Option<T>, String> {
+        match root.remove(key) {
+            None => Ok(None),
+            Some(value) => serde_json::from_value(value).map_err(|error| refusal(kind(&error), key)),
+        }
+    }
+    // Every member, exhaustively (a new member is a compile error here); an
+    // unknown top-level member is ignored, as the whole decode ignores it.
+    Ok(RenderableReportInput {
+        report_title: required(&mut root, "report_title")?,
+        calculation_report: required(&mut root, "calculation_report")?,
+        report_sections: required(&mut root, "report_sections")?,
+        result_rows: required(&mut root, "result_rows")?,
+        report_context: optional(&mut root, "report_context")?,
+        user_rule_checks: optional(&mut root, "user_rule_checks")?,
+        exact_route: optional(&mut root, "exact_route")?,
+        library_references: optional(&mut root, "library_references")?,
+    })
 }
 
 /// Render the calculation report to a deterministic single-file HTML

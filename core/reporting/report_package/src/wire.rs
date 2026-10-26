@@ -495,6 +495,58 @@ mod tests {
         }
     }
 
+    /// Codex review round 3 of #1639: a package refused for its provenance
+    /// records carries no authored id (value ids, an assumption id, library
+    /// owners) in its blocking reasons, its ZIP manifest or any member.
+    #[test]
+    fn a_refused_package_carries_no_authored_id() {
+        let texts = ["/Users/invented-user/private-datasheets/steel-a.pdf", "C:/x.pdf", "Invented Private Client Project"];
+        let mut source = request_with_component_provenance_projection();
+        let record = serde_json::json!({
+            "source_name": "Invented material datasheet", "source_location": "invented-datasheet-shelf", "source_license": "invented-license",
+            "contributor": "invented contributor", "contributor_certification": "invented certification",
+            "redistribution_status": "private_only", "review_status": "quarantined", "privacy_classification": "private_project_data"
+        });
+        let sections = &mut source["report"]["report_sections"];
+        for (kind, id) in [("material", texts[0]), ("section", texts[1]), ("component", texts[2]), ("support", texts[0])] {
+            sections["user_supplied_values"].as_array_mut().unwrap().push(serde_json::json!({
+                "value_id": format!("{kind}-provenance:{kind}:{id}"), "value_category": "report_metadata",
+                "source": {"ref_type": kind, "ref_id": format!("{kind}:{id}")}, "provenance": record.clone(),
+                "privacy_classification": "private_project_data", "required_for": ["reporting"],
+                "review_status": "quarantined", "missing_data_finding": false
+            }));
+        }
+        let mut provenance = record.clone();
+        provenance["review_status"] = serde_json::json!("accepted");
+        provenance["redistribution_status"] = serde_json::json!("invented_non_engineering_example");
+        provenance["privacy_classification"] = serde_json::json!("invented_public_example");
+        sections["assumptions"] = serde_json::json!([{
+            "assumption_id": format!("assumption:{} {}", texts[2], texts[1]), "owner": "invented owner",
+            "source": {"ref_type": "model", "ref_id": "invented"}, "affected_scope": {"ref_type": "model", "ref_id": "invented"},
+            "statement": "Invented assumption.", "review_status": "quarantined", "expiration_or_re_review_trigger": null,
+            "effect": {"mechanics_solve_qualified": true, "user_rule_check_qualified": false, "report_completeness": "qualified", "human_review_required": true},
+            "provenance": provenance
+        }]);
+        source["report"]["library_references"] = serde_json::json!([{
+            "reference_id": format!("library-ref:{}", texts[1]), "library_kind": "material", "library_id": texts[2],
+            "library_version": "not recorded", "record_id": texts[0], "entity_refs": [format!("material:{}", texts[0])], "provenance": record
+        }]);
+        let request: ReportPackageRequest = serde_json::from_value(source).unwrap();
+        let outcome = assemble_wire_request(request, &linked_product_solver()).expect("assembles, blocked");
+        assert!(outcome.export_blocked);
+        let manifest = &outcome.members[0];
+        assert_eq!(manifest.role, package::ROLE_PACKAGE_MANIFEST);
+        let reasons = outcome.blocking_reasons.join("\n");
+        for private in texts {
+            assert!(!reasons.contains(private), "{private} in {reasons}");
+            for member in &outcome.members {
+                assert!(!member.bytes.windows(private.len()).any(|window| window == private.as_bytes()), "{private} in {}", member.file_name);
+            }
+            assert!(!outcome.container_bytes.windows(private.len()).any(|window| window == private.as_bytes()), "{private} in the container");
+        }
+        assert!(outcome.blocking_reasons.iter().any(|reason| reason.contains("(assumptions[0] review_status quarantined;")));
+    }
+
     #[test]
     fn malformed_component_provenance_fails_closed_at_rust_consumer_validation() {
         let mut source = request_with_component_provenance_projection();

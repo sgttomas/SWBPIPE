@@ -1759,6 +1759,30 @@ describe("FR-REP-003 disposition and context boundary (W-11 slice (c), §4.3, §
     expect(document.body.innerHTML).not.toContain(path);
   });
 
+  // Codex review round 3 of #1639: the native refusal names records by position only; the
+  // panel resolves the position to its entity locally from the input it sent.
+  it("resolves a refused record's position to its entity in the panel only", async () => {
+    const { provenanceReasonEntity } = await import("./provenanceReasonEntities");
+    const model = recordModel();
+    const input = await buildFor(model);
+    const reason = (place: string) => `report provenance: REPORT_PROVENANCE_DISPOSITION_BLOCKED (${place} review_status quarantined; review that record's disposition in the model before reporting)`;
+    expect(provenanceReasonEntity(reason("user_supplied_values[2]"), input)).toBe("material-provenance:material:with-record");
+    expect(provenanceReasonEntity(reason("user_supplied_values[2].provenance"), input)).toBe("material-provenance:material:with-record");
+    expect(provenanceReasonEntity(reason("library_references[0].provenance"), input)).toBe("library invented-material-library, referenced by material:with-record, support:with-record");
+    expect(provenanceReasonEntity(reason("provenance_notes[3]"), input)).toBe("Invented steel datasheet");
+    expect(provenanceReasonEntity(reason("user_supplied_values[99]"), input)).toBeNull();
+    expect(provenanceReasonEntity("section validation: REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED", input)).toBeNull();
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue({ ...unblockedOutcome(), html: "", derived_print_html: "", export_blocked: true, content_withheld: true, blocking_reasons: [reason("user_supplied_values[2]")] });
+    renderPanel({ model });
+    fireEvent.click(screen.getByTestId("rendered-report-local-private-intent"));
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-blocking-reasons")).toBeInTheDocument());
+    expect(screen.getByTestId("rendered-report-blocking-reasons")).toHaveTextContent(`${reason("user_supplied_values[2]")} (material-provenance:material:with-record)`);
+    expect(screen.queryByTestId("rendered-report-preview")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("rendered-report-save-local-private")).not.toBeInTheDocument();
+  });
+
   it("keeps the report packet free of the new records", () => {
     vi.spyOn(reportRedactionProjector, "controlReportDomAndJson").mockImplementation((payload) => ({
       payload, decisions: [], findings: [], blocked: false,

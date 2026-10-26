@@ -1588,8 +1588,9 @@ fn render_calculation_report_value(input: Value) -> Result<Value, String> {
     // DEC-021 (A7): deterministic hash-bound HTML rendering with the
     // three-point protected-content gates evaluated in the renderer crate.
     // The derived print view is non-hash-bound and names the canonical hash.
-    let renderable: open_pipe_stress_report_renderer::RenderableReportInput =
-        serde_json::from_value(input).map_err(|error| format!("RENDER-INPUT-INVALID: {error}"))?;
+    // The decode refusal names the JSON path and the error kind, never the
+    // offending value (W-11 slice (c), Codex review round 3 of #1639).
+    let renderable = open_pipe_stress_report_renderer::decode_renderable_report_input(input)?;
     let outcome = open_pipe_stress_report_renderer::render_calculation_report(&renderable);
     // W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §6.2):
     // a render refused for its provenance records is metadata-only, so no

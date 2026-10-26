@@ -1016,7 +1016,7 @@ fn fr_rep_003_records_render_only_locally_and_refuse_blocking_dispositions_in_ev
             let reasons = disposition_reasons(&outcome);
             assert_eq!(
                 reasons[..3],
-                [blocked("provenance_notes[2]", status), blocked(&format!("user_supplied_values[1] {VALUE_ID} provenance"), status), blocked(&format!("user_supplied_values[1] {VALUE_ID}"), status)],
+                [blocked("provenance_notes[2]", status), blocked("user_supplied_values[1].provenance", status), blocked("user_supplied_values[1]", status)],
                 "{status}"
             );
             assert_eq!(reasons.len(), if context == local { 3 } else { 4 });
@@ -1025,7 +1025,7 @@ fn fr_rep_003_records_render_only_locally_and_refuse_blocking_dispositions_in_ev
             value_only.report_sections.user_supplied_values[0].review_status = review;
             assert_eq!(
                 provenance_disposition_blocking_reasons(&value_only),
-                [blocked("user_supplied_values[0] component-provenance:component:C-110", status)]
+                [blocked("user_supplied_values[0]", status)]
             );
         }
         // protected_suspected: the section validation refuses in every context.
@@ -1101,7 +1101,7 @@ fn an_assumption_with_a_blocking_review_refuses() {
         });
         let outcome = render_calculation_report(&input);
         assert!(outcome.export_blocked, "{status}");
-        assert_eq!(disposition_reasons(&outcome), [blocked("assumptions[0] assumption:invented-1", status)]);
+        assert_eq!(disposition_reasons(&outcome), [blocked("assumptions[0]", status)]);
     }
 }
 
@@ -1121,14 +1121,14 @@ fn a_library_reference_record_is_judged_by_the_section_rules_and_the_disposition
     clean.library_references = Some(vec![library(private_record(sections::ReviewStatus::Pending, sections::RedistributionStatus::PrivateOnly))]);
     assert!(provenance_disposition_blocking_reasons(&clean).is_empty());
     assert!(!render_calculation_report(&clean).export_blocked);
-    let section_rule = |code: &str| format!("library references: {code} (library_references[0] referenced by material:invented-steel; {REMEDIATION})");
+    let section_rule = |code: &str| format!("library references: {code} (library_references[0].provenance; {REMEDIATION})");
     let cases: [(fn(&mut sections::Provenance), String); 6] = [
-        (|p| p.review_status = sections::ReviewStatus::Quarantined, blocked("library_references[0] (referenced by material:invented-steel) provenance", "quarantined")),
-        (|p| p.review_status = sections::ReviewStatus::Rejected, blocked("library_references[0] (referenced by material:invented-steel) provenance", "rejected")),
+        (|p| p.review_status = sections::ReviewStatus::Quarantined, blocked("library_references[0].provenance", "quarantined")),
+        (|p| p.review_status = sections::ReviewStatus::Rejected, blocked("library_references[0].provenance", "rejected")),
         (|p| p.redistribution_status = sections::RedistributionStatus::ProtectedSuspected, section_rule("REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED")),
         (|p| p.privacy_classification = sections::PrivacyClassification::ProtectedSuspected, section_rule("REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED")),
         (|p| p.source_name = " ".to_string(), section_rule("REPORT_SECTION_PROVENANCE_INCOMPLETE")),
-        (|p| p.review_status = sections::ReviewStatus::Rejected, blocked("library_references[0] (referenced by material:invented-steel) provenance", "rejected")),
+        (|p| p.review_status = sections::ReviewStatus::Rejected, blocked("library_references[0].provenance", "rejected")),
     ];
     for (edit, reason) in cases {
         let mut input = clean.clone();
@@ -1202,7 +1202,6 @@ fn the_desktop_records_validate_and_refuse_only_their_blocking_dispositions() {
     input.report_sections = records;
     let outcome = render_calculation_report(&input);
     assert!(outcome.export_blocked);
-    let value = |index: usize, id: &str| format!("user_supplied_values[{index}] {id}");
     assert_eq!(
         disposition_reasons(&outcome),
         [
@@ -1210,14 +1209,14 @@ fn the_desktop_records_validate_and_refuse_only_their_blocking_dispositions() {
             blocked("provenance_notes[7]", "rejected"),
             blocked("provenance_notes[9]", "rejected"),
             blocked("provenance_notes[10]", "quarantined"),
-            blocked(&format!("{} provenance", value(1, "component-provenance:component:C-999")), "quarantined"),
-            blocked(&value(1, "component-provenance:component:C-999"), "quarantined"),
-            blocked(&format!("{} provenance", value(6, "section-provenance:section:rejected")), "rejected"),
-            blocked(&value(6, "section-provenance:section:rejected"), "rejected"),
-            blocked(&format!("{} provenance", value(8, "section-provenance:section:nested-rejected")), "rejected"),
-            blocked(&value(8, "section-provenance:section:nested-rejected"), "rejected"),
-            blocked(&format!("{} provenance", value(9, "section-provenance:section:note-quarantined")), "quarantined"),
-            blocked(&value(9, "section-provenance:section:note-quarantined"), "quarantined"),
+            blocked("user_supplied_values[1].provenance", "quarantined"),
+            blocked("user_supplied_values[1]", "quarantined"),
+            blocked("user_supplied_values[6].provenance", "rejected"),
+            blocked("user_supplied_values[6]", "rejected"),
+            blocked("user_supplied_values[8].provenance", "rejected"),
+            blocked("user_supplied_values[8]", "rejected"),
+            blocked("user_supplied_values[9].provenance", "quarantined"),
+            blocked("user_supplied_values[9]", "quarantined"),
         ]
     );
     assert!(outcome.blocking_reasons.iter().any(|reason| reason == "section validation: REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED"));
@@ -1277,4 +1276,116 @@ fn a_typed_path_stays_local() {
             assert!(text.contains("report provenance: "));
         }
     }
+}
+
+/// Authored text that ids may carry (Codex review round 3 of #1639): a long
+/// path, a short path and private text.
+pub const PRIVATE_ID_TEXTS: [&str; 3] = ["/Users/invented-user/private-datasheets/steel-a.pdf", "C:/x.pdf", "Invented Private Client Project"];
+
+/// The fixture input with a quarantined record for each entity kind, whose
+/// value ids carry the private texts, a quarantined assumption and a
+/// quarantined library reference whose ids carry them too, under `context`.
+fn with_private_ids(context: Option<ReportExportContext>) -> RenderableReportInput {
+    let [long, short, text] = PRIVATE_ID_TEXTS;
+    let mut input = fixture_input();
+    input.report_context = context.map(invented_report_context);
+    let quarantined = private_record(sections::ReviewStatus::Quarantined, sections::RedistributionStatus::PrivateOnly);
+    for (kind, id) in [("material", long.to_string()), ("section", short.to_string()), ("component", text.to_string()), ("support", format!("{long}#{short}"))] {
+        input.report_sections.user_supplied_values.push(sections::UserSuppliedValue {
+            value_id: format!("{kind}-provenance:{kind}:{id}"),
+            value_category: "report_metadata".to_string(),
+            source: sections::Reference::new(kind, format!("{kind}:{id}")),
+            quantity: None,
+            provenance: quarantined.clone(),
+            privacy_classification: sections::PrivacyClassification::PrivateProjectData,
+            required_for: vec![sections::RequiredFor::Reporting],
+            review_status: sections::ReviewStatus::Quarantined,
+            missing_data_finding: false,
+        });
+    }
+    input.report_sections.assumptions.push(sections::Assumption {
+        assumption_id: format!("assumption:{text} {short}"),
+        owner: text.to_string(),
+        source: sections::Reference::new("model", long),
+        affected_scope: sections::Reference::new("model", short),
+        statement: text.to_string(),
+        review_status: sections::ReviewStatus::Quarantined,
+        expiration_or_re_review_trigger: None,
+        effect: sections::ReportEffect {
+            mechanics_solve_qualified: true,
+            user_rule_check_qualified: false,
+            report_completeness: sections::ReportCompleteness::Qualified,
+            human_review_required: true,
+        },
+        provenance: invented_section_provenance(),
+    });
+    input.library_references = Some(vec![LibraryReference {
+        reference_id: format!("library-ref:{short}"),
+        library_kind: "material".to_string(),
+        library_id: text.to_string(),
+        library_version: "not recorded".to_string(),
+        record_id: long.to_string(),
+        entity_refs: vec![format!("material:{long}"), format!("support:{text}")],
+        provenance: quarantined,
+    }]);
+    input
+}
+
+#[test]
+fn authored_ids_never_enter_a_withheld_outcome() {
+    for context in [Some(ReportExportContext::PublicReport), None, Some(ReportExportContext::LocalPrivate)] {
+        let input = with_private_ids(context);
+        let outcome = render_calculation_report(&input);
+        assert!(outcome.export_blocked && outcome.content_withheld, "{context:?}");
+        let text = serde_json::to_string(&outcome).unwrap();
+        for private in PRIVATE_ID_TEXTS {
+            assert!(!text.contains(private), "{context:?}: {private} in {text}");
+        }
+        // Positions and fields name every refusal.
+        for reason in [
+            blocked("user_supplied_values[1]", "quarantined"),
+            blocked("user_supplied_values[4]", "quarantined"),
+            blocked("assumptions[0]", "quarantined"),
+            blocked("library_references[0].provenance", "quarantined"),
+        ] {
+            assert!(outcome.blocking_reasons.contains(&reason), "{context:?}: {reason} not in {:?}", outcome.blocking_reasons);
+        }
+    }
+}
+
+/// Codex review round 3 of #1639: the value-free decode is the whole decode
+/// for every valid input, and refuses an invalid one by path and kind only.
+#[test]
+fn the_value_free_decode_equals_the_whole_decode() {
+    use open_pipe_stress_report_renderer::decode_renderable_report_input;
+    let mut nulls = serde_json::to_value(fixture_input()).unwrap();
+    nulls["report_context"] = serde_json::Value::Null;
+    nulls["exact_route"] = serde_json::Value::Null;
+    nulls["unknown_top_level_member"] = serde_json::json!({"ignored": true});
+    for value in [
+        serde_json::to_value(fixture_input()).unwrap(),
+        serde_json::to_value(exact_input()).unwrap(),
+        serde_json::to_value(with_private_ids(Some(ReportExportContext::LocalPrivate))).unwrap(),
+        nulls,
+    ] {
+        let whole: RenderableReportInput = serde_json::from_value(value.clone()).unwrap();
+        assert_eq!(decode_renderable_report_input(value).unwrap(), whole);
+    }
+    let [long, short, _] = PRIVATE_ID_TEXTS;
+    let mut bad = serde_json::to_value(fixture_input()).unwrap();
+    bad["report_sections"]["user_supplied_values"][0]["provenance"]["redistribution_status"] = serde_json::json!(long);
+    assert_eq!(
+        decode_renderable_report_input(bad).unwrap_err(),
+        "RENDER-INPUT-INVALID: unknown variant at report_sections.user_supplied_values[0].provenance.redistribution_status"
+    );
+    let mut bad = serde_json::to_value(with_private_ids(None)).unwrap();
+    bad["library_references"][0]["provenance"]["privacy_classification"] = serde_json::json!(short);
+    assert_eq!(
+        decode_renderable_report_input(bad).unwrap_err(),
+        "RENDER-INPUT-INVALID: unknown variant at library_references[0].provenance.privacy_classification"
+    );
+    let mut bad = serde_json::to_value(fixture_input()).unwrap();
+    bad.as_object_mut().unwrap().remove("result_rows");
+    assert_eq!(decode_renderable_report_input(bad).unwrap_err(), "RENDER-INPUT-INVALID: missing field at result_rows");
+    assert_eq!(decode_renderable_report_input(serde_json::json!(long)).unwrap_err(), "RENDER-INPUT-INVALID: invalid type at the input");
 }

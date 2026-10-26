@@ -18,6 +18,7 @@ import {
   type SessionRuleCheckRun
 } from "./renderableReportInput";
 import { controlLocalPrivateRenderedHtml } from "./reportRedactionProjector";
+import { provenanceReasonEntity } from "./provenanceReasonEntities";
 import { assembleRenderedReport } from "./renderedReportAssembly";
 import type { NumericalHealthView } from "../results/numericalHealth";
 import type { ControlledRouteExport } from "../redaction-controls/redactionExportControls";
@@ -364,9 +365,11 @@ export function RenderedReportPanel({
           </div>
           {outcome.export_blocked ? (
             <ul data-testid="rendered-report-blocking-reasons">
-              {outcome.blocking_reasons.map((reason) => (
-                <li key={reason}>{reason}</li>
-              ))}
+              {outcome.blocking_reasons.map((reason) => {
+                // A refused record is named by position; resolve it locally from the sent input.
+                const entity = provenanceReasonEntity(reason, redaction?.payload ?? null);
+                return <li key={reason}>{reason}{entity ? ` (${entity})` : ""}</li>;
+              })}
             </ul>
           ) : previewHtml !== null && printHtml !== null ? (
             <div className="report-actions">

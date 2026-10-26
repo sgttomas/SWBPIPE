@@ -282,6 +282,92 @@ fn the_native_render_refuses_private_records_outside_local_private() {
     assert!(local.get("content_withheld").is_none());
 }
 
+/// Codex review round 3 of #1639: a refusal for provenance records names
+/// records by position only. Authored ids (value ids for each entity kind, an
+/// assumption id, library owners) carrying a long path, a short path and
+/// private text reach no field of the native response, under public_report,
+/// without a context and for a quarantined record under local_private.
+#[test]
+fn the_native_render_response_names_no_authored_id() {
+    let texts = ["/Users/invented-user/private-datasheets/steel-a.pdf", "C:/x.pdf", "Invented Private Client Project"];
+    let record = json!({
+        "source_name": "Invented material datasheet", "source_location": "invented-datasheet-shelf", "source_license": "invented-license",
+        "contributor": "invented contributor", "contributor_certification": "invented certification",
+        "redistribution_status": "private_only", "review_status": "quarantined", "privacy_classification": "private_project_data"
+    });
+    for export_context in [Some("public_report"), None, Some("local_private")] {
+        let mut input = pressure_free_input();
+        let sections = &mut input["report_sections"];
+        for (kind, id) in [("material", texts[0]), ("section", texts[1]), ("component", texts[2]), ("support", texts[0])] {
+            sections["user_supplied_values"].as_array_mut().unwrap().push(json!({
+                "value_id": format!("{kind}-provenance:{kind}:{id}"), "value_category": "report_metadata",
+                "source": {"ref_type": kind, "ref_id": format!("{kind}:{id}")}, "provenance": record.clone(),
+                "privacy_classification": "private_project_data", "required_for": ["reporting"],
+                "review_status": "quarantined", "missing_data_finding": false
+            }));
+        }
+        sections["assumptions"] = json!([{
+            "assumption_id": format!("assumption:{} {}", texts[2], texts[1]), "owner": "invented owner",
+            "source": {"ref_type": "model", "ref_id": "invented"}, "affected_scope": {"ref_type": "model", "ref_id": "invented"},
+            "statement": "Invented assumption.", "review_status": "quarantined", "expiration_or_re_review_trigger": null,
+            "effect": {"mechanics_solve_qualified": true, "user_rule_check_qualified": false, "report_completeness": "qualified", "human_review_required": true},
+            "provenance": sections["provenance_notes"][0].clone()
+        }]);
+        input["library_references"] = json!([{
+            "reference_id": format!("library-ref:{}", texts[1]), "library_kind": "material", "library_id": texts[2],
+            "library_version": "not recorded", "record_id": texts[0], "entity_refs": [format!("material:{}", texts[0])], "provenance": record.clone()
+        }]);
+        if let Some(export_context) = export_context {
+            input["report_context"] = json!({
+                "export_context": export_context, "generated_at": null, "software_name": "Invented", "software_version": null,
+                "build_release_identifier": null, "solver_name": null, "solver_version": null, "solver_build_ref": null,
+                "analysis_run_name": null, "analysis_run_recorded_at": null, "solver_mode": null, "solver_settings_ref": null,
+                "solver_settings": [], "model_coordinate_system": null, "result_coordinate_systems": []
+            });
+        }
+        let text = command_body(&json!({"input": input})).expect("the render answers");
+        let response: Value = serde_json::from_str(&text).unwrap();
+        assert_eq!((response["export_blocked"].clone(), response["content_withheld"].clone()), (json!(true), json!(true)), "{export_context:?}");
+        for private in texts {
+            assert!(!text.contains(private), "{export_context:?}: {private} in {text}");
+        }
+        assert!(text.contains("(assumptions[0] review_status quarantined;"), "{text}");
+    }
+}
+
+/// Codex review round 3 of #1639 (non-blocking): an input that does not
+/// decode is refused with its JSON path and the error kind only. A typed path
+/// supplied as an invalid disposition value (review, redistribution, privacy)
+/// is not echoed.
+#[test]
+fn an_undecodable_input_names_its_path_and_kind_not_its_value() {
+    let typed = "/Users/invented-user/private-datasheets/steel-a.pdf";
+    for (member, path) in [
+        ("review_status", "report_sections.provenance_notes[0].review_status"),
+        ("redistribution_status", "report_sections.provenance_notes[0].redistribution_status"),
+        ("privacy_classification", "report_sections.provenance_notes[0].privacy_classification"),
+    ] {
+        let mut input = pressure_free_input();
+        input["report_sections"]["provenance_notes"][0][member] = json!(typed);
+        let message = refusal_text(command_body(&json!({"input": input})));
+        assert_eq!(message, format!("RENDER-INPUT-INVALID: unknown variant at {path}"), "{member}");
+    }
+    let mut input = pressure_free_input();
+    input["report_sections"]["user_supplied_values"] = json!([{
+        "value_id": "material-provenance:material:a", "value_category": "report_metadata",
+        "source": {"ref_type": "material", "ref_id": "material:a"},
+        "provenance": {"source_name": "a", "source_location": "b", "source_license": "c", "contributor": "d", "contributor_certification": "e",
+            "redistribution_status": "private_only", "review_status": typed, "privacy_classification": "private_project_data"},
+        "privacy_classification": "private_project_data", "required_for": ["reporting"], "review_status": "pending", "missing_data_finding": false
+    }]);
+    let message = refusal_text(command_body(&json!({"input": input})));
+    assert_eq!(message, "RENDER-INPUT-INVALID: unknown variant at report_sections.user_supplied_values[0].provenance.review_status");
+    let mut input = pressure_free_input();
+    input["result_rows"][0]["label"] = json!(7);
+    assert_eq!(refusal_text(command_body(&json!({"input": input}))), "RENDER-INPUT-INVALID: invalid type at result_rows");
+    assert!(!refusal_text(command_body(&json!({"input": {"report_title": typed}}))).contains(typed));
+}
+
 /// Codex review round 1 (blocking): a coherent invented exact input, which
 /// the renderer itself renders unblocked with "integrity checked", is refused
 /// by the production native command at step 0, with no HTML. Since slice (b)

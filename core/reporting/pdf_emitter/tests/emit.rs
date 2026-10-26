@@ -477,7 +477,7 @@ fn the_desktop_builder_records_block_the_pdf_by_disposition_and_context() {
     for needle in [
         "(provenance_notes[9] review_status rejected;",
         "(provenance_notes[10] review_status quarantined;",
-        "(user_supplied_values[8] section-provenance:section:nested-rejected review_status rejected;",
+        "(user_supplied_values[8] review_status rejected;",
     ] {
         assert!(pdf.blocking_reasons.iter().any(|reason| reason.contains(needle)), "{needle}: {:?}", pdf.blocking_reasons);
     }
@@ -511,5 +511,48 @@ fn the_desktop_builder_records_block_the_pdf_by_disposition_and_context() {
         }
         let package = open_pipe_stress_pdf_emitter::assemble_full_report_package(&public);
         assert!(package.export_blocked && package.render.html.is_empty() && package.pdf.pdf_bytes.is_empty());
+    }
+}
+
+/// Codex review round 3 of #1639: authored ids (paths, private text) enter
+/// neither the withheld PDF outcome nor the full package assembly, in any
+/// context. The input is the renderer test's private-id input, built here.
+#[test]
+fn authored_ids_never_enter_a_withheld_pdf_or_package_outcome() {
+    let texts = ["/Users/invented-user/private-datasheets/steel-a.pdf", "C:/x.pdf", "Invented Private Client Project"];
+    let mut record = invented_section_provenance();
+    record.redistribution_status = sections::RedistributionStatus::PrivateOnly;
+    record.privacy_classification = sections::PrivacyClassification::PrivateProjectData;
+    record.review_status = sections::ReviewStatus::Quarantined;
+    for local in [false, true] {
+        let mut input = fixture_input();
+        if local {
+            input.report_context = Some(serde_json::from_value(serde_json::json!({
+                "export_context": "local_private", "generated_at": null, "software_name": "Invented", "software_version": null,
+                "build_release_identifier": null, "solver_name": null, "solver_version": null, "solver_build_ref": null,
+                "analysis_run_name": null, "analysis_run_recorded_at": null, "solver_mode": null, "solver_settings_ref": null,
+                "solver_settings": [], "model_coordinate_system": null, "result_coordinate_systems": []
+            })).unwrap());
+        }
+        for (kind, id) in [("material", texts[0]), ("section", texts[1]), ("component", texts[2])] {
+            input.report_sections.user_supplied_values.push(sections::UserSuppliedValue {
+                value_id: format!("{kind}-provenance:{kind}:{id}"),
+                value_category: "report_metadata".to_string(),
+                source: sections::Reference::new(kind, format!("{kind}:{id}")),
+                quantity: None,
+                provenance: record.clone(),
+                privacy_classification: sections::PrivacyClassification::PrivateProjectData,
+                required_for: vec![sections::RequiredFor::Reporting],
+                review_status: sections::ReviewStatus::Quarantined,
+                missing_data_finding: false,
+            });
+        }
+        let pdf = emit_calculation_report_pdf(&input);
+        let package = assemble_full_report_package(&input);
+        assert!(pdf.export_blocked && pdf.pdf_bytes.is_empty() && package.export_blocked);
+        let text = format!("{} {}", serde_json::to_string(&pdf).unwrap(), serde_json::to_string(&package).unwrap());
+        for private in texts {
+            assert!(!text.contains(private), "local={local}: {private}");
+        }
     }
 }
