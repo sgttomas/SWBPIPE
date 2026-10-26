@@ -721,8 +721,37 @@ impl SolveJobRegistry {
 
     /// Hands the producer's exact bytes over (moved, not cloned) after growing
     /// the result lease to 2R for the handoff copy; on refusal the result stays.
+    /// The growth R is admitted as its own lease outside the job table's lock,
+    /// re-sampling while it is refused only with `headroom_insufficient`
+    /// (`memory_pool.rs`, Re-sampling), then the record is checked again and the
+    /// growth folded into its lease; a record that changed meanwhile (taken,
+    /// disposed, reset or custody full) releases the growth.
     pub(crate) fn take_result(&self, job_id: &str) -> Result<Vec<u8>, SolveJobError> {
+        let growth = {
+            let table = self.table();
+            let lease = self.takeable_locked(&table, job_id)?;
+            lease.bytes()
+        };
+        let extra = match self.pool.acquire_resampling(growth, LeasePurpose::Custody, &|| false) {
+            Ok(extra) => extra,
+            Err(ResampleStop::Refused(refusal)) => return Err(self.unavailable(refusal)),
+            Err(ResampleStop::Cancelled) => unreachable!("the take is never cancelled"),
+        };
         let mut table = self.table();
+        if self.takeable_locked(&table, job_id)?.bytes() != growth {
+            return Err(SolveJobError::invalid(format!("PREVIEW-SOLVE-RESULT-UNAVAILABLE: {job_id} changed while its take was admitted")));
+        }
+        let record = table.records.get_mut(job_id).expect("checked above");
+        let lease = record.result_lease.as_mut().expect("a retained result holds its lease");
+        lease.set_purpose(LeasePurpose::Custody);
+        lease.absorb(extra);
+        record.delivered = true;
+        let result = record.result.take().expect("checked above");
+        Ok(result.into_bytes())
+    }
+
+    /// The retained result's lease, if `job_id` can be taken now.
+    fn takeable_locked<'t>(&self, table: &'t SolveJobTable, job_id: &str) -> Result<&'t Lease, SolveJobError> {
         let custody = table.counts().custody;
         let record = table.records.get(job_id).ok_or_else(|| SolveJobError::invalid(format!("unknown solve job: {job_id}")))?;
         if record.result.is_none() {
@@ -735,20 +764,11 @@ impl SolveJobRegistry {
         }
         if custody >= MAX_WEBVIEW_CUSTODY_RESULTS {
             return Err(self.unavailable_locked(
-                &table,
+                table,
                 ResourceRefusal::CustodyFull { delivered: custody, limit: MAX_WEBVIEW_CUSTODY_RESULTS },
             ));
         }
-        let record = table.records.get_mut(job_id).expect("checked above");
-        let lease = record.result_lease.as_mut().expect("a retained result holds its lease");
-        let grown = lease.bytes().saturating_mul(2);
-        if let Err(refusal) = lease.grow_to(grown) {
-            return Err(self.unavailable_locked(&table, refusal));
-        }
-        lease.set_purpose(LeasePurpose::Custody);
-        record.delivered = true;
-        let result = record.result.take().expect("checked above");
-        Ok(result.into_bytes())
+        Ok(record.result_lease.as_ref().expect("a retained result holds its lease"))
     }
 
     /// The webview's acknowledgement that it dropped its copy, or disposal of
@@ -938,11 +958,11 @@ mod tests {
         crate::solve_worker::initial_grant(PROCESS_RESERVE_BYTES, ingress::prescan(MODEL).unwrap().lease_bytes().unwrap()).unwrap()
     }
 
-    /// End to end through the registry: a solve's intake lease and its result
-    /// lease each wait out a free-queue dip shorter than the re-sampling window
-    /// and the job completes.
+    /// End to end through the registry: a solve's intake lease, its result
+    /// lease and the custody grow at take each wait out a headroom dip shorter
+    /// than the re-sampling window; the job completes and its result is taken.
     #[test]
-    fn intake_and_result_leases_wait_out_a_headroom_dip() {
+    fn intake_result_and_take_leases_wait_out_a_headroom_dip() {
         let host = ScriptedHost::normal();
         let gate = Gate::new("dip");
         let pool = MemoryPool::with_timing(host.clone(), Duration::from_millis(5), Duration::from_secs(20), Duration::from_millis(5));
@@ -967,6 +987,13 @@ mod tests {
         assert_eq!(status.state, "completed", "{status:?}");
         assert!(status.result_available);
         assert_eq!(status.resource_refusal, None);
+        let result = registry.pool().reserved(LeasePurpose::Result);
+        let refill = refill_after(100);
+        let bytes = registry.take_result(&receipt.job_id).expect("take admitted once the dip passes");
+        refill.join().unwrap();
+        assert_eq!(bytes, b"{\"r\":1}");
+        assert_eq!((registry.pool().reserved(LeasePurpose::Result), registry.pool().reserved(LeasePurpose::Custody)), (0, 2 * result));
+        assert_eq!(registry.pool().status(JobCounts::default()).last_refusal, None, "a passing re-sample leaves no refusal");
     }
 
     /// A pool (and budget) admitting one starting grant at a time.
