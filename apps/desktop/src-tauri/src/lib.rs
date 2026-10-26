@@ -1656,45 +1656,44 @@ async fn save_model_document_decoded(
 /// and its dispositions are screened. Then the Save Model Document chooser is
 /// shown and its atomic writer writes, the text's reservation held throughout.
 /// Nothing is adopted. The outcome's `model_hash` is the SHA-256 of the bytes
-/// written (for a saved state, its model hash).
+/// written (for a saved state, its model hash). The arguments
+/// `{projectId, stateId, explicitLocalPrivateIntent}` are an `args-json-v1`
+/// raw body within the history commands' budget (`admit_within`,
+/// `INGRESS-ARGS-TOO-LARGE`); the ingress lease is held, and counted in the
+/// read's accounting, until the worker returns.
 #[tauri::command]
 async fn save_stored_model_document_file(
     app: AppHandle,
-    project_id: String,
-    state_id: Option<String>,
-    explicit_local_private_intent: bool,
-) -> Result<model_document_save::ModelDocumentSaveOutcome, String> {
-    use model_document_save::{ModelDocumentSaveOutcome as Outcome, WORKER_FAILED};
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<NoCommandError>> {
     use stored_model_document_export as export;
-    if !explicit_local_private_intent {
-        return Ok(Outcome::refused_one(
-            export::INTENT_REQUIRED,
-            "Saving the stored document needs the explicit choice to save it, including private project data, to a file.",
-        ));
-    }
-    // The chooser blocks this worker, not the main thread; the reservations
-    // the read takes are held by it through the write.
-    Ok(tauri::async_runtime::spawn_blocking(move || {
-        let named = export::stored_document_name(&project_id, state_id.as_deref());
+    let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, export::COMMAND, ArgsDecoding::Moved, export::MAX_ARGS_BYTES)?;
+    let request = export::stored_export_args(&mut args)?;
+    drop(args);
+    respond(Ok(save_stored_model_document_decoded(app, request, lease).await))
+}
+
+async fn save_stored_model_document_decoded(
+    app: AppHandle,
+    request: stored_model_document_export::StoredExportRequest,
+    lease: memory_pool::Lease,
+) -> model_document_save::ModelDocumentSaveOutcome {
+    use model_document_save::{ModelDocumentSaveOutcome as Outcome, WORKER_FAILED};
+    // The chooser blocks this worker, not the main thread; the ingress lease
+    // and the reservations the read takes are held by it through the write.
+    tauri::async_runtime::spawn_blocking(move || {
         // The store's path, without `app_store_path`'s directory creation and
         // legacy carry-forward: the export creates and writes nothing there.
-        let store = match app.path().app_local_data_dir() {
-            Ok(directory) => directory.join(PROJECT_STORE_FILE),
-            Err(error) => {
-                return Outcome::refused_one(
-                    export::STORE_UNAVAILABLE,
-                    format!("The local project store could not be located for {named} ({error}); nothing was written."),
-                )
-            }
-        };
+        let store = || app.path().app_local_data_dir().map(|directory| directory.join(PROJECT_STORE_FILE)).map_err(|error| error.to_string());
         let registry = app.state::<SolveJobRegistry>();
         let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
-        export::export_stored_model_document(&store, &project_id, state_id.as_deref(), &registry, |suggested| {
+        stored_model_document_export::export_stored_model_document_request(&request, store, &registry, &lease, |suggested| {
             choose_model_document_save_path(&app, suggested, directory)
         })
     })
     .await
-    .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The export's worker did not complete; the destination may be unchanged.")))
+    .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The export's worker did not complete; the destination may be unchanged."))
 }
 
 fn choose_model_document_save_path(

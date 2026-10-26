@@ -8,9 +8,15 @@ import { act, cleanup, fireEvent, render, renderHook, screen, waitFor, within } 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
+// Every call as it reaches the native host, before the ingress decoding.
+const wireMock = vi.hoisted(() => vi.fn());
+vi.mock("@tauri-apps/api/core", async () => {
+  const decoding = (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock);
+  return { invoke: (...call: unknown[]) => { wireMock(...call); return decoding(...call); } };
+});
 
 import demoModel from "../../../../../fixtures/product_preview/invented_demo_model.json";
+import { INGRESS_FORMAT, INGRESS_HEADER, ingressArgs } from "../../test/nativeIngress";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
 import { ModelDocumentSaveDialog } from "./ModelDocumentSaveDialog";
 import { MODEL_DOC_SAVE_DESKTOP_ONLY, MODEL_DOC_SAVE_INTENT_REQUIRED } from "./modelDocumentSave";
@@ -27,6 +33,7 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
   invokeMock.mockReset();
+  wireMock.mockReset();
   delete (window as Json).__TAURI_INTERNALS__;
 });
 
@@ -53,6 +60,22 @@ describe("saveStoredModelDocumentFile", () => {
     expect(storedDocumentExportMessage(TARGET, outcome)).toBe(
       `Saved the stored project \`${PROJECT}\` to invented-no-units.json exactly as stored (12 bytes; SHA-256 sha256:${"b".repeat(64)}). It was not opened. Add project.units to the file, then open it with Open Model Document….`
     );
+  });
+
+  // Codex r3 P2: the native command takes its arguments as the `args-json-v1`
+  // raw body the history commands take, bounded before it is decoded; typed
+  // (JSON) arguments are refused there.
+  it("sends the arguments as the args-json-v1 raw body with the ingress header", async () => {
+    (window as Json).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue({ outcome: "cancelled" });
+    expect(await saveStoredModelDocumentFile(TARGET, true)).toEqual({ outcome: "cancelled" });
+    expect(wireMock).toHaveBeenCalledOnce();
+    const call = wireMock.mock.calls[0];
+    expect(call[0]).toBe("save_stored_model_document_file");
+    expect(Object.prototype.toString.call(call[1])).toBe("[object Uint8Array]");
+    expect(call[2]).toEqual({ headers: { [INGRESS_HEADER]: INGRESS_FORMAT } });
+    expect(new TextDecoder().decode(call[1] as Uint8Array)).toBe(JSON.stringify({ projectId: PROJECT, stateId: null, explicitLocalPrivateIntent: true }));
+    expect(ingressArgs(call)).toEqual({ projectId: PROJECT, stateId: null, explicitLocalPrivateIntent: true });
   });
 });
 

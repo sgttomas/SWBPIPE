@@ -12,9 +12,10 @@
 // migrated), reads the row within the memory pool's admission and the model
 // document file cap, refuses a text with a duplicate object member, screens its
 // dispositions as Save Model Document does, shows the Save Model Document
-// chooser and writes the bytes unchanged.
-import { invoke } from "@tauri-apps/api/core";
-import { nativeFailureText } from "../../services/nativeIngress";
+// chooser and writes the bytes unchanged. The arguments go as the
+// `args-json-v1` raw body the history commands take (`invokeWithIngress`), so
+// the native host bounds them before it decodes them.
+import { invokeWithIngress, nativeFailureText } from "../../services/nativeIngress";
 import { isTauriRuntime } from "../../services/nativeMenu";
 import {
   MODEL_DOC_SAVE_DESKTOP_ONLY,
@@ -51,7 +52,7 @@ export async function saveStoredModelDocumentFile(
   if (!isTauriRuntime()) {
     return { outcome: "refused", diagnostics: [{ code: MODEL_DOC_SAVE_DESKTOP_ONLY, path: "", message: "Saving a stored document to a file needs the desktop app." }] };
   }
-  return readOutcome(await invoke<unknown>("save_stored_model_document_file", {
+  return readOutcome(await invokeWithIngress<unknown>("save_stored_model_document_file", {
     projectId: target.projectId,
     stateId: target.stateId,
     explicitLocalPrivateIntent: true

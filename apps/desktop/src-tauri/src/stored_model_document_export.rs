@@ -15,14 +15,25 @@
 //! - The store is opened read-only (`SQLITE_OPEN_READ_ONLY`, as the legacy
 //!   store's carry-forward opens it) and is never migrated: a store at another
 //!   schema version than this build's is refused (`MODEL-DOC-EXPORT-STORE-NOT-CURRENT`).
+//! - The arguments (`{projectId, stateId, explicitLocalPrivateIntent}`) arrive
+//!   as an `args-json-v1` raw body admitted as the history commands' are
+//!   (`command_ingress::admit_within`, [`MAX_ARGS_BYTES`]): a longer body is
+//!   refused `INGRESS-ARGS-TOO-LARGE` before it is scanned or decoded, and a
+//!   JSON (typed) body is refused. The ingress lease starts the read's
+//!   per-invocation accounting (`PoolReadMemory::new`), and the command's own
+//!   memory (`stored_read::READ_OVERHEAD_BYTES`) is reserved with it.
 //! - The read is metered as the saved-state reader's is (`stored_read`, W-12):
 //!   in one read transaction, SQLite's working set is reserved, the row's
 //!   length is measured without loading it, a row above the model-document
 //!   file cap is refused (`MODEL-DOC-SAVE-TOO-LARGE`, the save's refusal: Open
 //!   Model Document refuses such a file), and its load, its parse and the
-//!   strict parse are each reserved before they are made. A reservation the
-//!   memory pool refuses is `STORE-READ-MEMORY-UNAVAILABLE`. The text's
-//!   reservation is held through the chooser and the write.
+//!   strict parse are each reserved before they are made. Each library the
+//!   screening resolves is read in the same transaction under its own
+//!   reservations ([`LibraryReads`]): SQLite's working set for the library
+//!   keys, then the document's measured load and its parse, held through the
+//!   screening. A reservation the memory pool refuses is
+//!   `STORE-READ-MEMORY-UNAVAILABLE`. The text's reservation is held through
+//!   the chooser and the write.
 //! - The open checks (version, document validator, desktop shape) are not
 //!   applied: the document is refused at open for one of them, and the export
 //!   exists to recover it.
@@ -38,7 +49,9 @@
 //!   ones (`lib.rs` `choose_model_document_save_path`,
 //!   `model_document_save::write_admitted_model_document`).
 
+use crate::command_ingress::Args;
 use crate::export_disposition_screen::diagnostic;
+use crate::memory_pool::Lease;
 use crate::model_document_file::MAX_MODEL_DOCUMENT_BYTES;
 use crate::model_document_save::{
     screen_model_document_dispositions, suggested_model_document_file_name, write_admitted_model_document,
@@ -58,6 +71,32 @@ pub const STORE_UNAVAILABLE: &str = "MODEL-DOC-EXPORT-STORE-UNAVAILABLE";
 pub const STORE_NOT_CURRENT: &str = "MODEL-DOC-EXPORT-STORE-NOT-CURRENT";
 pub const NOT_JSON: &str = "MODEL-DOC-EXPORT-NOT-JSON";
 pub const DUPLICATE_MEMBER: &str = "MODEL-DOC-EXPORT-DUPLICATE-MEMBER";
+
+/// The command's name at ingress.
+pub(crate) const COMMAND: &str = "save_stored_model_document_file";
+/// The command's ingress budget (raw argument bytes): the history commands'
+/// (`model_states::HISTORY_COMMAND_MAX_ARGS_BYTES`), since it names a stored
+/// project and state by the same ids they do. A longer body is refused
+/// `INGRESS-ARGS-TOO-LARGE` before any lease or decoding.
+pub(crate) const MAX_ARGS_BYTES: usize = crate::model_states::HISTORY_COMMAND_MAX_ARGS_BYTES;
+
+/// The command's decoded arguments.
+#[derive(Debug)]
+pub(crate) struct StoredExportRequest {
+    pub(crate) project_id: String,
+    pub(crate) state_id: Option<String>,
+    pub(crate) explicit_local_private_intent: bool,
+}
+
+/// `{projectId, stateId?, explicitLocalPrivateIntent}`, moved out of the
+/// admitted arguments.
+pub(crate) fn stored_export_args(args: &mut Args) -> Result<StoredExportRequest, SolveJobError> {
+    Ok(StoredExportRequest {
+        project_id: args.decode("projectId")?,
+        state_id: args.decode("stateId")?,
+        explicit_local_private_intent: args.decode("explicitLocalPrivateIntent")?,
+    })
+}
 
 type Refusal = Vec<ModelDocumentSaveDiagnostic>;
 
@@ -148,6 +187,68 @@ fn refuse_duplicate_members(memory: &dyn ReadMemory, what: &str, named: &str, te
     }
 }
 
+/// The largest stored keyed row of `local_libraries`, in bytes, measured
+/// without SQLite loading a value (`octet_length` reads the record header and
+/// `NOT INDEXED` scans the table's own b-tree), as
+/// `stored_read::admit_sqlite_working_set` measures the history tables, which
+/// do not include the libraries.
+const LIBRARY_KEYED_ROW_SQL: &str = "SELECT COALESCE(MAX(COALESCE(octet_length(project_id), 0) + COALESCE(octet_length(library_kind), 0) + COALESCE(octet_length(library_id), 0)), 0) FROM local_libraries NOT INDEXED";
+const LIBRARY_LENGTH_SQL: &str = "SELECT octet_length(document_json) FROM local_libraries WHERE project_id = ?1 AND library_kind = ?2 AND library_id = ?3";
+const LIBRARY_TEXT_SQL: &str = "SELECT document_json FROM local_libraries WHERE project_id = ?1 AND library_kind = ?2 AND library_id = ?3";
+
+/// The screening's library lookup (Save Model Document's `load_library`
+/// query), metered within the export's memory, in its read transaction
+/// (Codex r3 P1): before the first lookup, SQLite's working set for the
+/// library keys (`stored_read::SQLITE_WORKING_SET_FACTOR` times the largest
+/// keyed row, which an index seek may materialize); for each library found,
+/// its `document_json` measured, then its load and its parse each reserved
+/// before they are made. The reservations are held until the screening ends
+/// (this value is dropped). A refusal of the pool is kept in `refused`, so the
+/// export refuses by its name rather than as the screening's store failure.
+struct LibraryReads<'a> {
+    connection: &'a Connection,
+    memory: &'a dyn ReadMemory,
+    keyed: Option<ReadReservation>,
+    held: Vec<ReadReservation>,
+    refused: Option<String>,
+}
+
+impl<'a> LibraryReads<'a> {
+    fn new(connection: &'a Connection, memory: &'a dyn ReadMemory) -> Self {
+        Self { connection, memory, keyed: None, held: Vec::new(), refused: None }
+    }
+
+    fn read(&mut self, project_id: &str, library_kind: &str, library_id: &str) -> Result<Option<Value>, String> {
+        let read = self.read_metered(project_id.trim(), library_kind.trim(), library_id.trim());
+        if let Err(error) = &read {
+            if error.starts_with(MEMORY_UNAVAILABLE) && self.refused.is_none() {
+                self.refused = Some(error.clone());
+            }
+        }
+        read
+    }
+
+    fn read_metered(&mut self, project_id: &str, library_kind: &str, library_id: &str) -> Result<Option<Value>, String> {
+        let sql_error = |error: rusqlite::Error| stored_read::sql_error(&error);
+        if self.keyed.is_none() {
+            let largest: i64 = self.connection.query_row(LIBRARY_KEYED_ROW_SQL, [], |row| row.get(0)).map_err(sql_error)?;
+            let what = format!("SQLite's working set for the stored libraries (their largest keyed row holds {largest} bytes)");
+            self.keyed = Some(stored_read::reserve_sqlite_value(self.memory, &what, largest)?);
+        }
+        let key = params![project_id, library_kind, library_id];
+        let length: Option<Option<i64>> = self.connection.query_row(LIBRARY_LENGTH_SQL, key, |row| row.get(0)).optional().map_err(sql_error)?;
+        let Some(length) = length else { return Ok(None) };
+        let length = u64::try_from(length.unwrap_or(0)).unwrap_or(0);
+        let what = format!("the stored {} library `{}` ({length} bytes)", stored_read::shown(library_kind), stored_read::shown(library_id));
+        self.held.push(self.memory.reserve(&what, stored_read::loaded_text_bytes(length))?);
+        let Some(text) = self.connection.query_row(LIBRARY_TEXT_SQL, key, |row| row.get::<_, String>(0)).optional().map_err(sql_error)? else {
+            return Ok(None);
+        };
+        self.held.push(self.memory.reserve(&what, stored_read::parse_bytes(&text)?)?);
+        serde_json::from_str(&text).map(Some).map_err(|error| stored_read::json_error(&error))
+    }
+}
+
 /// Reads the stored text of a project's document (`state_id` absent) or of one
 /// of its saved states from the store at `store`, opened read-only, and admits
 /// it for writing unchanged, within `memory`. Returns the admitted document and
@@ -186,45 +287,75 @@ pub(crate) fn admit_stored_model_document(
     let document: Value = serde_json::from_str(&text).map_err(|error| not_json(stored_read::json_error(&error)))?;
     refuse_duplicate_members(memory, &what, &named, &text, &document)?;
     // Libraries the document references are read from the same read-only
-    // transaction (Save Model Document's lookup, `load_library`).
-    let mut lookup = |project_id: &str, library_kind: &str, library_id: &str| {
-        crate::load_library(&transaction, project_id.trim(), library_kind.trim(), library_id.trim()).map(|row| row.map(|row| row.document))
-    };
-    let warnings = screen_model_document_dispositions(&document, &mut lookup)?;
+    // transaction, each within the export's memory, and their reservations
+    // are held through the screening.
+    let mut libraries = LibraryReads::new(&transaction, memory);
+    let screened = screen_model_document_dispositions(&document, &mut |project_id: &str, library_kind: &str, library_id: &str| {
+        libraries.read(project_id, library_kind, library_id)
+    });
+    if let Some(error) = libraries.refused.take() {
+        return Err(read_refusal(&named, error));
+    }
+    let warnings = screened?;
+    drop(libraries);
     let suggested_file_name = suggested_model_document_file_name(&document);
     drop(document);
     drop(parsing);
     Ok((AdmittedModelDocument { text, suggested_file_name, warnings }, load))
 }
 
+/// The command after its ingress (`lib.rs` `save_stored_model_document_file`):
+/// the explicit intent, the store's path (`store`, located only after the
+/// intent), then [`export_stored_model_document`] under the command's ingress
+/// lease `ingress`.
+pub(crate) fn export_stored_model_document_request(
+    request: &StoredExportRequest,
+    store: impl FnOnce() -> Result<PathBuf, String>,
+    registry: &SolveJobRegistry,
+    ingress: &Lease,
+    choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>,
+) -> ModelDocumentSaveOutcome {
+    if !request.explicit_local_private_intent {
+        return ModelDocumentSaveOutcome::refused_one(
+            INTENT_REQUIRED,
+            "Saving the stored document needs the explicit choice to save it, including private project data, to a file.",
+        );
+    }
+    let state_id = request.state_id.as_deref();
+    let store = match store() {
+        Ok(store) => store,
+        Err(error) => {
+            let named = stored_document_name(&request.project_id, state_id);
+            return ModelDocumentSaveOutcome::refused_one(
+                STORE_UNAVAILABLE,
+                format!("The local project store could not be located for {named} ({}); nothing was written.", stored_read::capped(error)),
+            );
+        }
+    };
+    export_stored_model_document(&store, &request.project_id, state_id, registry, ingress, choose)
+}
+
 /// The recovery export: the store's read, the chooser (`choose`, given the
 /// suggested file name) and the write, under one memory admission. The
-/// command's own memory (connection, statements, ids) is an interactive lease
-/// of `stored_read::READ_OVERHEAD_BYTES`; every other reservation is counted
-/// with it against the per-invocation budget (`PoolReadMemory`). Nothing is
-/// chosen or written after a refusal.
+/// accounting starts from the command's ingress lease (`ingress`, which holds
+/// its arguments); the command's own memory (connection, statements, ids) is
+/// reserved with it as `stored_read::READ_OVERHEAD_BYTES`, and every other
+/// reservation is counted with both against the per-invocation budget
+/// (`PoolReadMemory`). Nothing is chosen or written after a refusal.
 pub(crate) fn export_stored_model_document(
     store: &Path,
     project_id: &str,
     state_id: Option<&str>,
     registry: &SolveJobRegistry,
+    ingress: &Lease,
     choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>,
 ) -> ModelDocumentSaveOutcome {
     let named = stored_document_name(project_id, state_id);
-    let lease = match registry.acquire_interactive_ingress(stored_read::READ_OVERHEAD_BYTES) {
-        Ok(lease) => lease,
-        Err(error) => {
-            let detail = match error {
-                SolveJobError::ResourceUnavailable { refusal, .. } => serde_json::to_string(&refusal).unwrap_or_else(|_| "refused".to_string()),
-                SolveJobError::InvalidRequest { message } => message,
-            };
-            return ModelDocumentSaveOutcome::refused_one(
-                MEMORY_UNAVAILABLE,
-                format!("{MEMORY_UNAVAILABLE}: reading the stored document of {named} needs {} bytes of the memory pool, which refused them ({detail}); nothing was read or written.", stored_read::READ_OVERHEAD_BYTES),
-            );
-        }
+    let memory = PoolReadMemory::new(registry, ingress);
+    let _overhead = match memory.reserve(&format!("the stored document of {named} (the command's own memory)"), stored_read::READ_OVERHEAD_BYTES) {
+        Ok(reservation) => reservation,
+        Err(error) => return ModelDocumentSaveOutcome::refused_one(MEMORY_UNAVAILABLE, format!("{error} Nothing was read or written.")),
     };
-    let memory = PoolReadMemory::new(registry, &lease);
     let (admitted, _text) = match admit_stored_model_document(store, project_id, state_id, &memory) {
         Ok(admitted) => admitted,
         Err(diagnostics) => return ModelDocumentSaveOutcome::refused(diagnostics),
@@ -240,13 +371,15 @@ pub(crate) fn export_stored_model_document(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::command_ingress::test_support::registry;
+    use crate::command_ingress::test_support::{headers, registry};
+    use crate::command_ingress::{admit_body_within, ArgsDecoding, INGRESS_ARGS_JSON_V1};
     use crate::memory_pool::test_host::ScriptedHost;
     use crate::model_document_save::PROTECTED_CONTENT_BLOCKED;
     use open_pipe_stress_operation_applier::sha256_hex;
     use serde_json::json;
     use std::cell::Cell;
     use std::fs;
+    use tauri::ipc::InvokeBody;
 
     const PROJECT: &str = "project:invented-no-units";
     const STATE: &str = "state:invented-1";
@@ -307,9 +440,32 @@ mod tests {
         path
     }
 
+    /// The command's `args-json-v1` body for a row.
+    fn envelope(project_id: &str, state_id: Option<&str>) -> InvokeBody {
+        InvokeBody::Raw(serde_json::to_vec(&json!({ "projectId": project_id, "stateId": state_id, "explicitLocalPrivateIntent": true })).unwrap())
+    }
+
+    /// The command's ingress (`lib.rs` `save_stored_model_document_file`):
+    /// `admit_within`'s rules at the command's budget, then its arguments.
+    fn admitted(pool: &SolveJobRegistry, body: &InvokeBody) -> Result<(StoredExportRequest, Lease), SolveJobError> {
+        let (mut args, lease) = admit_body_within(pool, body, &headers(Some(INGRESS_ARGS_JSON_V1)), COMMAND, ArgsDecoding::Moved, MAX_ARGS_BYTES)?;
+        Ok((stored_export_args(&mut args)?, lease))
+    }
+
+    /// The command, from its body to its outcome, with the store at `store`.
+    fn command(
+        store: &Path,
+        body: &InvokeBody,
+        pool: &SolveJobRegistry,
+        choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>,
+    ) -> ModelDocumentSaveOutcome {
+        let (request, lease) = admitted(pool, body).expect("the envelope is admitted");
+        export_stored_model_document_request(&request, || Ok(store.to_path_buf()), pool, &lease, choose)
+    }
+
     /// The export with a chooser that records whether it was shown.
     fn export(store: &Path, state_id: Option<&str>, pool: &SolveJobRegistry, destination: &Path, shown: &Cell<bool>) -> ModelDocumentSaveOutcome {
-        export_stored_model_document(store, PROJECT, state_id, pool, |_| {
+        command(store, &envelope(PROJECT, state_id), pool, |_| {
             shown.set(true);
             Ok(Some(destination.to_path_buf()))
         })
@@ -337,7 +493,7 @@ mod tests {
         for (state_id, stored, name) in [(None, unitless_text(), "invented-no-units.json"), (Some(STATE), STATE_TEXT.to_string(), "invented-no-units.json")] {
             let destination = scratch.0.join(format!("recovered-{}.json", state_id.is_some()));
             let suggested = Cell::new(String::new());
-            let outcome = export_stored_model_document(&store, PROJECT, state_id, &pool, |offered| {
+            let outcome = command(&store, &envelope(PROJECT, state_id), &pool, |offered| {
                 suggested.set(offered.to_string());
                 Ok(Some(destination.clone()))
             });
@@ -354,12 +510,12 @@ mod tests {
         assert_eq!(pool.pool_status().reserved_bytes, 0, "every reservation is released");
         assert_eq!(fs::read(&store).unwrap(), before, "the store file is unchanged");
         let shown = Cell::new(false);
-        let missing = export_stored_model_document(&store, "project:other", None, &pool, |_| {
+        let missing = command(&store, &envelope("project:other", None), &pool, |_| {
             shown.set(true);
             Ok(None)
         });
         assert_eq!(refused_codes(&missing), vec![(NOT_FOUND, "")]);
-        let missing = export_stored_model_document(&store, PROJECT, Some("state:other"), &pool, |_| Ok(None));
+        let missing = command(&store, &envelope(PROJECT, Some("state:other")), &pool, |_| Ok(None));
         assert_eq!(refused_codes(&missing), vec![(NOT_FOUND, "")]);
         assert!(!shown.get());
     }
@@ -484,5 +640,167 @@ mod tests {
         let refused = export(&store, None, &pool, &destination, &shown);
         assert_refused_nothing_written(&refused, STORE_UNAVAILABLE, &destination, &shown);
         assert!(!store.exists());
+    }
+
+    const LIBRARY: &str = "library:invented-large";
+
+    /// A small document without `project.units` that references one stored
+    /// material library, and a store holding it with `library` as the
+    /// library's `document_json`.
+    fn library_store(scratch: &Scratch, library: &str) -> (PathBuf, String) {
+        let model = format!(
+            "{{\"project\":{{\"id\":\"{PROJECT}\"}},\"materials\":[{{\"id\":\"m\",\"library_ref\":{{\"library_kind\":\"material\",\"library_id\":\"{LIBRARY}\"}}}}]}}"
+        );
+        let store = current_store(scratch, &model, STATE_TEXT);
+        Connection::open(&store)
+            .unwrap()
+            .execute(
+                "INSERT INTO local_libraries(project_id, library_kind, library_id, document_json, created_at_unix, updated_at_unix) VALUES (?1, 'material', ?2, ?3, 1, 1)",
+                params![PROJECT, LIBRARY, library],
+            )
+            .unwrap();
+        (store, model)
+    }
+
+    /// A stored material library of about `pad` bytes, with `review_status`.
+    fn library_text(pad: usize, review_status: &str) -> String {
+        serde_json::to_string(&json!({ "material_library": { "library_id": LIBRARY, "review_status": review_status, "pad": "x".repeat(pad) } })).unwrap()
+    }
+
+    /// Codex r3 P1: the screening's lookup of a referenced library loaded and
+    /// parsed its `document_json` unmetered (a 112-byte model referencing a
+    /// 4 MiB library exported under a 1 MiB pool). Its load and parse are
+    /// reserved before they are made, with the read's other reservations, and
+    /// a refusal is named and writes nothing.
+    #[test]
+    fn a_referenced_library_the_memory_pool_refuses_is_refused_by_name_and_writes_nothing() {
+        let scratch = Scratch::new("library-memory");
+        let library = library_text(4 << 20, "accepted");
+        let (store, model) = library_store(&scratch, &library);
+        assert!(model.len() < 160, "the model itself is small ({} bytes)", model.len());
+        let destination = scratch.0.join("recovered.json");
+        // The pool admits the model's read but not the library's.
+        let small = registry(ScriptedHost::normal());
+        small.configure_pool(1 << 20, 1 << 20, false).unwrap();
+        // The library alone fits the per-invocation budget, but not with the
+        // command's own memory and the model's read held with it.
+        let library_cost = stored_read::loaded_text_bytes(library.len() as u64) + stored_read::parse_bytes(&library).unwrap();
+        let remaining = registry(ScriptedHost::normal());
+        let budget = library_cost + stored_read::READ_OVERHEAD_BYTES / 2;
+        remaining.configure_pool(budget * 2, budget, false).unwrap();
+        for pool in [&small, &remaining] {
+            let shown = Cell::new(false);
+            let refused = export(&store, None, pool, &destination, &shown);
+            assert_refused_nothing_written(&refused, MEMORY_UNAVAILABLE, &destination, &shown);
+            let ModelDocumentSaveOutcome::Refused { diagnostics } = &refused else { unreachable!() };
+            assert!(diagnostics[0].message.contains(&format!("the stored material library `{LIBRARY}`")), "{refused:?}");
+            assert_eq!(pool.pool_status().reserved_bytes, 0, "a refusal releases every reservation");
+        }
+        // Under an ordinary pool the same library is read, screened and the
+        // model written unchanged; every reservation is released afterwards.
+        let pool = registry(ScriptedHost::normal());
+        let shown = Cell::new(false);
+        match export(&store, None, &pool, &destination, &shown) {
+            ModelDocumentSaveOutcome::Saved { byte_count, warnings, .. } => {
+                assert_eq!(byte_count, model.len() as u64);
+                assert!(warnings.is_empty(), "the library resolved: {warnings:?}");
+            }
+            other => panic!("not saved: {other:?}"),
+        }
+        assert_eq!(fs::read(&destination).unwrap(), model.as_bytes());
+        assert_eq!(pool.pool_status().reserved_bytes, 0, "every reservation is released");
+        // The metered lookup still feeds the screening: a quarantined library blocks.
+        let scratch = Scratch::new("library-blocked");
+        let (store, _) = library_store(&scratch, &library_text(16, "quarantined"));
+        let destination = scratch.0.join("recovered.json");
+        let shown = Cell::new(false);
+        let refused = export(&store, None, &pool, &destination, &shown);
+        assert_refused_nothing_written(&refused, PROTECTED_CONTENT_BLOCKED, &destination, &shown);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+    }
+
+    /// Codex r3 P2: the command took typed Tauri arguments, decoded unbounded
+    /// before any lease. It takes an `args-json-v1` body within the history
+    /// commands' budget: a longer body is refused before it is scanned or
+    /// decoded (no lease is taken), a JSON body or a missing header is
+    /// refused, and a well-formed envelope exports.
+    #[test]
+    fn the_arguments_are_an_args_json_v1_body_within_the_history_budget() {
+        let scratch = Scratch::new("ingress");
+        let store = current_store(&scratch, &unitless_text(), STATE_TEXT);
+        let pool = registry(ScriptedHost::normal());
+        assert_eq!(MAX_ARGS_BYTES, crate::model_states::HISTORY_COMMAND_MAX_ARGS_BYTES);
+        let padded = |pad: usize| InvokeBody::Raw(format!("{{\"projectId\":\"{}\",\"explicitLocalPrivateIntent\":true}}", "p".repeat(pad)).into_bytes());
+        let fixed = "{\"projectId\":\"\",\"explicitLocalPrivateIntent\":true}".len();
+        let InvokeBody::Raw(at) = padded(MAX_ARGS_BYTES - fixed) else { unreachable!() };
+        assert_eq!(at.len(), MAX_ARGS_BYTES);
+        assert!(admitted(&pool, &InvokeBody::Raw(at)).is_ok(), "a body at the budget is admitted");
+        match admitted(&pool, &padded(MAX_ARGS_BYTES - fixed + 1)) {
+            Err(SolveJobError::InvalidRequest { message }) => assert_eq!(
+                message,
+                format!("INGRESS-ARGS-TOO-LARGE: `{COMMAND}` takes at most {MAX_ARGS_BYTES} bytes of arguments; {} were sent.", MAX_ARGS_BYTES + 1)
+            ),
+            other => panic!("not refused: {other:?}"),
+        }
+        assert_eq!(pool.pool_status().reserved_bytes, 0, "no lease is held after a refusal");
+        // The typed form (a JSON body, which Tauri has already decoded) and a
+        // body without the header are refused.
+        let typed = InvokeBody::Json(json!({ "projectId": PROJECT, "stateId": null, "explicitLocalPrivateIntent": true }));
+        assert!(matches!(admitted(&pool, &typed), Err(SolveJobError::InvalidRequest { message }) if message.starts_with("INGRESS-RAW-BODY-REQUIRED")));
+        let unheaded = admit_body_within(&pool, &envelope(PROJECT, None), &headers(None), COMMAND, ArgsDecoding::Moved, MAX_ARGS_BYTES);
+        assert!(matches!(unheaded, Err(SolveJobError::InvalidRequest { message }) if message.starts_with("INGRESS-HEADER-REQUIRED")));
+        // An argument of the wrong type is refused by name.
+        let wrong = InvokeBody::Raw(b"{\"projectId\":\"p\",\"explicitLocalPrivateIntent\":\"yes\"}".to_vec());
+        assert!(matches!(admitted(&pool, &wrong), Err(SolveJobError::InvalidRequest { message }) if message.contains("`explicitLocalPrivateIntent`")));
+        // Without the intent nothing is located, read or written.
+        let refusing = InvokeBody::Raw(serde_json::to_vec(&json!({ "projectId": PROJECT, "explicitLocalPrivateIntent": false })).unwrap());
+        let (request, lease) = admitted(&pool, &refusing).unwrap();
+        let located = Cell::new(false);
+        let outcome = export_stored_model_document_request(&request, || { located.set(true); Ok(store.clone()) }, &pool, &lease, |_| panic!("no chooser"));
+        assert_eq!(refused_codes(&outcome), vec![(INTENT_REQUIRED, "")]);
+        assert!(!located.get());
+        drop(lease);
+        // A well-formed envelope exports, for a project and for a saved state.
+        for state_id in [None, Some(STATE)] {
+            let destination = scratch.0.join(format!("recovered-{}.json", state_id.is_some()));
+            let shown = Cell::new(false);
+            assert!(matches!(export(&store, state_id, &pool, &destination, &shown), ModelDocumentSaveOutcome::Saved { .. }));
+            assert!(destination.exists());
+        }
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+    }
+
+    /// Codex r3 P2: the ingress lease is counted with the read's reservations
+    /// against the per-invocation budget. With a budget below the lease and the
+    /// command's own memory together (and a pool large enough for both), the
+    /// export is refused by name before it reads; counted without the lease it
+    /// would fit.
+    #[test]
+    fn the_ingress_lease_is_counted_in_the_per_invocation_budget() {
+        let scratch = Scratch::new("ingress-lease");
+        let store = current_store(&scratch, &unitless_text(), STATE_TEXT);
+        let body = InvokeBody::Raw(
+            serde_json::to_vec(&json!({ "projectId": PROJECT, "explicitLocalPrivateIntent": true, "pad": "x".repeat(200 * 1024) })).unwrap(),
+        );
+        let lease_bytes = {
+            let probe = registry(ScriptedHost::normal());
+            let (_, lease) = admitted(&probe, &body).unwrap();
+            lease.bytes()
+        };
+        assert!(lease_bytes > 200 * 1024, "the padded body's lease ({lease_bytes} bytes) is large");
+        let pool = registry(ScriptedHost::normal());
+        let budget = lease_bytes + stored_read::READ_OVERHEAD_BYTES - 1;
+        pool.configure_pool(16 << 20, budget, false).unwrap();
+        let destination = scratch.0.join("recovered.json");
+        let shown = Cell::new(false);
+        let refused = command(&store, &body, &pool, |_| {
+            shown.set(true);
+            Ok(Some(destination.clone()))
+        });
+        assert_refused_nothing_written(&refused, MEMORY_UNAVAILABLE, &destination, &shown);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+        // The same read without the padded arguments fits that budget.
+        let shown = Cell::new(false);
+        assert!(matches!(export(&store, None, &pool, &destination, &shown), ModelDocumentSaveOutcome::Saved { .. }));
     }
 }

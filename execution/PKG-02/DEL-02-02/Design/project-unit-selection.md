@@ -272,11 +272,20 @@ keys, including `angle` (§5); the rest still applies.
     dispositions as the save does, and uses the save's chooser and writer.
     Nothing is adopted. The store is opened read-only and never migrated: a
     store at another schema version is refused
-    (`MODEL-DOC-EXPORT-STORE-NOT-CURRENT`). The read is admitted by the memory
-    pool as the saved-state reader's is (`stored_read`), and the reservation
-    of the text is held through the write (`STORE-READ-MEMORY-UNAVAILABLE`). A
-    row above the model-document file cap is refused from its measured length
-    before it is loaded (`MODEL-DOC-SAVE-TOO-LARGE`). A text that holds an
+    (`MODEL-DOC-EXPORT-STORE-NOT-CURRENT`). The command takes its arguments
+    (the row's ids and the intent) as the `args-json-v1` raw body the history
+    commands take, within their 256 KiB budget: a longer body is refused
+    before it is decoded (`INGRESS-ARGS-TOO-LARGE`), and typed (JSON)
+    arguments are refused. The read is admitted by the memory pool as the
+    saved-state reader's is (`stored_read`), counted together with the
+    ingress lease against the per-invocation budget, and the reservation of
+    the text is held through the write (`STORE-READ-MEMORY-UNAVAILABLE`). Each
+    library the screening resolves is read in the same transaction under its
+    own reservations (SQLite's working set for the library keys, then the
+    measured load and the parse of its document), held through the
+    screening; a library the pool does not admit refuses the export by the
+    same name. A row above the model-document file cap is refused from its
+    measured length before it is loaded (`MODEL-DOC-SAVE-TOO-LARGE`). A text that holds an
     object member twice is refused before screening
     (`MODEL-DOC-EXPORT-DUPLICATE-MEMBER`), so the document screened is the
     document written. The user adds the map and opens the file with Open
@@ -361,10 +370,15 @@ keys, including `angle` (§5); the rest still applies.
   intent, sends only the row's identity and adopts nothing
   (`model-file/storedDocumentExport.test.tsx`, `compareStates.test.tsx`). The
   written file holds the stored bytes and the store file is unchanged; a
-  blocked disposition, a duplicate member, a refused memory admission, a row
-  above the cap and a store at another schema version each refuse by name,
-  show no chooser and write nothing, and the store is left unchanged
-  (`src-tauri/src/stored_model_document_export.rs`).
+  blocked disposition, a duplicate member, a refused memory admission (of the
+  row, or of a referenced library larger than the pool or than what remains
+  of the budget), a row above the cap and a store at another schema version
+  each refuse by name, show no chooser and write nothing, and the store is
+  left unchanged; every reservation is released afterwards. An argument body
+  above the budget, a JSON body and a body without the header are refused at
+  ingress; the ingress lease counts against the budget; a well-formed
+  envelope exports (`src-tauri/src/stored_model_document_export.rs`). The
+  webview sends the `args-json-v1` body (`storedDocumentExport.test.tsx`).
 - **Applier, angle.** A rotational imposed displacement is accepted on a new
   blank document.
 - **e2e.** Specs that click "New blank" gain the dialog's Create click.
