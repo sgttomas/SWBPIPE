@@ -1541,38 +1541,61 @@ differences, each fail-closed:
   `public_report`, another context, no export context and no report
   context, through the decoded args and the raw body, and the save and the
   shared producer.
-- **Native inputs are object form** (Codex review round 2 of #1648,
-  blocking). The renderer's value-free decode, like serde's, reads a struct
-  written as a JSON array by field order, while step 0, the context check and
-  the source binding read members by key; a positional render input therefore
-  carried an exact section past all three (both identities, relabelled public
-  provenance, public_report, no context or local_private, no source texts).
-  The native render now refuses, before step 0, an input that is not a JSON
-  object or whose `calculation_report`, `report_sections`, `report_context`,
-  `user_rule_checks`, `exact_route` or `exact_route.admission`, or any element
-  of `result_rows`, `report_sections.limitations` (with its `source` and
-  `affected_scope`), `exact_route.headlines` or `library_references`, is not
-  one (`REPORT-RENDER-INPUT-POSITIONAL`, naming the fixed path only; no body
-  or print view, the lease not grown) (`report_render_exact.rs`
-  `check_object_form`). Refusing rather than normalizing keeps one
-  representation for every gate without decoding an unbound input before step
-  0; the webview always sends objects. The native save likewise refuses,
-  after its canonical parse and before its exact detection, binding and
-  context checks, a request that is not an object or whose `report`, report
-  `report_context`, `exact_route`, `admission`, `report_sections`,
-  `calculation_report`, result documents with their `result_envelope` and
-  `producer`, or source results are not objects
-  (`REPORT-PACKAGE-SAVE-REQUEST-POSITIONAL`; `report_package_save.rs`
-  `check_request_object_form`); ingress pricing of a positional text is
-  unchanged. The shared producer and the headless runner read the untyped
-  members by key and already fail closed: a positional request decodes to the
-  same members and assembles the same package, and a positional report,
-  report context, exact section or result document refuses at the first keyed
-  binding (model binding, solver identity, item 9, item 0), with no package;
-  the reader validates every result member against the 0.3.0 schema, which
-  admits objects only. Regressions: `a_positional_render_input_refuses_before_any_check`,
-  `a_positional_save_request_refuses_before_any_check` (decoded args and raw
-  body), `positional_members_refuse_and_a_positional_request_assembles_the_same_package`,
+- **Native inputs are object form at every depth** (Codex review rounds 2
+  and 3 of #1648, blocking). serde, and the renderer's value-free decode, read
+  a struct written as a JSON array by field order (its positional form),
+  while step 0, the context check, the exact detection, the save's
+  disposition screen and the source binding read members by key. Round 2
+  found a positional render input carrying an exact section past all of them;
+  round 3 found a positional provenance record (for example
+  `calculation_report.provenance` with `review_status` `quarantined`) hiding
+  its disposition from the save's screen while the renderer read it, so an
+  unblocked package was produced. A path list of members cannot close this,
+  so one shared check does: `report_renderer::object_form`
+  `positional_struct_path` decodes the input with the typed decoder (by
+  reference), serializes the decoded value through a comparing serializer and
+  walks the original JSON beside it, and wherever the decoded value serializes
+  a struct, struct variant or map and the original holds an array, it reports
+  that struct's fixed path (field names, variant names and indexes; a map
+  entry is `<key>`, so no input text is echoed). Collections and tuples are
+  sequences on both sides and pass. It was chosen over deriving the struct set
+  from the schema or the types because it follows the decoder exactly,
+  including every nested and defaulted struct, with no list to keep in step,
+  and it builds no serialized copy. Its users, each before any keyed policy
+  check:
+  - the native render, before step 0 (`report_render_exact.rs`
+    `check_object_form`, `REPORT-RENDER-INPUT-POSITIONAL`; no body or print
+    view, the lease not grown);
+  - the native save, after its canonical parse and before its exact
+    detection, binding, screen and context checks (`report_package_save.rs`
+    `check_request_object_form`, `REPORT-PACKAGE-SAVE-REQUEST-POSITIONAL`), via
+    `wire::request_positional_struct_path`: a positional request, and the
+    typed members (`source_model_ref`, `source_basis_refs`, `audit_manifest`)
+    and the report, each compared with its JSON. The untyped members (result
+    documents, source results, handoff records) have no struct decoder and are
+    read by key everywhere, and the reader validates result members against
+    the 0.3.0 schema, which admits objects only;
+  - the shared producer, after item 0 and before the audit conversion
+    (`wire::assemble_wire_request_in`, `REPORT-PACKAGE-REQUEST-POSITIONAL`), so
+    the headless runner's package path refuses a positional report struct
+    too.
+
+  An input that does not decode passes the check and is refused by the decode
+  (the renderer's, or the producer's), so no output is produced from it.
+  Pricing (DEL-04-07): the check's by-reference decode is a copy of the
+  input's data, held only during the check, and is priced within the existing
+  leases: the render's ingress lease (whole-command peaks: the pressure-free
+  witness report 1,178,128 bytes within 1,362,384; the genuine exact render
+  6,081,360 within 12,099,728) and the save's parse lease with its W M
+  provision (the genuine exact save 40,620,336 within 110,845,552), each less
+  the buffered body's envelope; counting-allocator figures for these inputs,
+  not proven bounds. Regressions: `a_positional_provenance_record_refuses_the_render_and_the_save_at_every_depth`
+  (quarantined, rejected and protected-suspected records at ten depths, both
+  identities, render and save, decoded args and raw body), `a_positional_render_input_refuses_before_any_check`,
+  `a_positional_save_request_refuses_before_any_check`, the legitimate-arrays
+  control `genuine_inputs_with_every_array_field_pass_the_object_form_check`,
+  `report_renderer/tests/object_form.rs`, the producer's
+  `positional_members_refuse_and_a_positional_request_assembles_the_same_package`
   and the headless binary test's positional variants.
 - **The exact save's memory check** now runs through the shared producer's
   assembly of the admitted package: priced peak 45,915,856 bytes within its
@@ -1616,6 +1639,10 @@ differences, each fail-closed:
      headlines explicitly as normal-stress maxima, and distinguish the
      retained-source eligibility from the ordinary solve's health next to
      them.
+- **Remaining item (Codex review round 3 of #1648, not changed).** A direct
+  call of the low-level `pdf_emitter` library can emit a relabelled exact
+  report under `public_report`; its production callers (the package assembly
+  and the native commands) enforce the local-private context boundary.
 - **Remaining FR-REP-003 item (Codex review round 1 of #1648, not changed).**
   `supportSubjects` (`renderableReportInput.ts:381`) gives a record only for a
   support that carries a `provenance_record`, so a support that carries only a

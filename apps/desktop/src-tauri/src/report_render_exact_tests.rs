@@ -489,14 +489,10 @@ fn every_structured_marker_refuses_in_production() {
     for entry in ids_only["report_sections"]["limitations"].as_array_mut().unwrap() {
         entry["source"] = json!({"ref_type": "report_renderer", "ref_id": "invented-render"});
     }
-    // Not an object: step 0 refuses it as naming no identity, and the
-    // production command's object-form check refuses it first (Codex review
-    // round 2 of #1648).
-    assert_eq!(check_render_route_admitted(&text_route, PRODUCTION).unwrap_err(), no_identity_text);
-    assert_eq!(production_refusal(&text_route), "REPORT-RENDER-INPUT-POSITIONAL: the render input's exact_route is not a JSON object.");
     let cases = [
         ("an exact_route that names no identity", &no_identity, no_identity_text.clone()),
-        ("an empty exact_route", &empty_route, no_identity_text),
+        ("an empty exact_route", &empty_route, no_identity_text.clone()),
+        ("an exact_route that is not an object", &text_route, no_identity_text),
         ("an exact_route naming physics-retained-1", &retained_route, found(PHYSICS_RETAINED_ID)),
         ("an admission naming physics-retained-1", &retained_admission, found(PHYSICS_RETAINED_ID)),
         ("a limitation source naming physics-retained-1", &retained_source, found(PHYSICS_RETAINED_ID)),
@@ -607,6 +603,42 @@ fn a_non_exact_input_renders_as_before() {
     let (outcome, measured) = measure(|| check_render_route_admitted(&input, PRODUCTION));
     assert!(outcome.is_ok());
     assert_eq!(measured.allocations, 0, "{measured:?}");
+}
+
+/// DEL-04-07 pricing of the object-form check (Codex review round 3 of
+/// #1648): the whole render command on the committed pressure-free witness
+/// report, from the raw body through the ingress admission, the object-form
+/// comparison (a by-reference decode of the input), step 0 and the render,
+/// has a counting-allocator peak within the ingress lease, less the buffered
+/// body's envelope. The comparison adds no lease growth; it is priced within
+/// the ingress lease (a measured provision for this input, not a proven
+/// bound).
+#[test]
+fn a_pressure_free_render_with_its_object_form_check_stays_within_its_lease() {
+    use crate::command_ingress::{admit_body, test_support::headers, INGRESS_ARGS_JSON_V1};
+    use tauri::ipc::InvokeBody;
+    let witness: Value = serde_json::from_str(include_str!("../../../../validation/witness/inputs/del1005_export_results_success_input.json")).unwrap();
+    let raw = serde_json::to_vec(&json!({"input": witness["export_results"]["report"]})).unwrap();
+    let envelope = crate::ingress::allocation_envelope(raw.len() as u64).unwrap();
+    let body = InvokeBody::Raw(raw);
+    let registry = registry(ScriptedHost::normal());
+    let ((response, lease_bytes), measured) = measure(|| {
+        let (mut decoded, mut lease) = admit_body(&registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1)), "render_calculation_report", ArgsDecoding::Moved).unwrap();
+        let response = respond(crate::render_calculation_report_args(&mut decoded, &registry, &mut lease)).map(response_text);
+        drop(decoded);
+        (response, lease.bytes())
+    });
+    let response = response.expect("the pressure-free report renders");
+    assert!(response.contains("\"html\""));
+    assert!(measured.peak_priced <= lease_bytes - envelope, "render: priced peak {} exceeds its lease {}", measured.peak_priced, lease_bytes - envelope);
+    eprintln!("pressure-free render: body {} priced peak {} lease {}", body_len(&body), measured.peak_priced, lease_bytes - envelope);
+}
+
+fn body_len(body: &tauri::ipc::InvokeBody) -> usize {
+    match body {
+        tauri::ipc::InvokeBody::Raw(bytes) => bytes.len(),
+        _ => 0,
+    }
 }
 
 const ROWS: [Row; 4] = [
@@ -1115,10 +1147,56 @@ mod direct_native {
         Value::Array(RENDER_MEMBERS.iter().map(|member| input.get(*member).cloned().unwrap_or(Value::Null)).collect())
     }
 
-    /// The object's member values as a JSON array (any order: the native
-    /// check refuses an array before any decode reads it).
+    /// The object's member values as a JSON array (map order; a struct in
+    /// this form generally does not decode, so other checks refuse it).
     fn as_array(value: &Value) -> Value {
         Value::Array(value.as_object().expect("an object").values().cloned().collect())
+    }
+
+    /// The object as its struct's positional form: `names` in declaration
+    /// order, an absent member as null.
+    fn ordered(value: &Value, names: &[&str]) -> Value {
+        Value::Array(names.iter().map(|name| value.get(*name).cloned().unwrap_or(Value::Null)).collect())
+    }
+
+    const CONTEXT_MEMBERS: [&str; 15] = [
+        "export_context", "generated_at", "software_name", "software_version", "build_release_identifier", "solver_name", "solver_version",
+        "solver_build_ref", "analysis_run_name", "analysis_run_recorded_at", "solver_mode", "solver_settings_ref", "solver_settings",
+        "model_coordinate_system", "result_coordinate_systems",
+    ];
+    const ROUTE_MEMBERS: [&str; 4] = ["semantic_contract_id", "admission", "load_reference_states", "headlines"];
+    const ADMISSION_MEMBERS: [&str; 10] = [
+        "semantic_contract_id", "run_ref", "result_envelope_id", "received_result_sha256", "model_sha256", "input_manifest_ref",
+        "input_manifest_sha256", "derivative_sha256", "native_job_id", "received_bytes_sha256",
+    ];
+    const LIMITATION_MEMBERS: [&str; 6] = ["limitation_id", "source", "affected_scope", "statement", "effect", "provenance"];
+    const ROW_MEMBERS: [&str; 5] = ["row_id", "label", "case_ref", "quantity_display", "source_ref"];
+    const PROVENANCE_MEMBERS: [&str; 8] = [
+        "source_name", "source_location", "source_license", "contributor", "contributor_certification", "redistribution_status",
+        "review_status", "privacy_classification",
+    ];
+
+    /// The provenance-record paths of a witness report (Codex review round 3
+    /// of #1648): the calculation report's, its model summary's, a load
+    /// case's, a result-export reference's, an audit reference's, a report
+    /// section reference's, and the report sections' notes, diagnostics,
+    /// user-supplied values and limitations; those present in `report`.
+    fn provenance_paths(report: &Value) -> Vec<&'static str> {
+        [
+            "/calculation_report/provenance",
+            "/calculation_report/model_input_summary/provenance",
+            "/calculation_report/load_case_summary/0/provenance",
+            "/calculation_report/result_export_refs/0/provenance",
+            "/calculation_report/audit_manifest_refs/0/provenance",
+            "/calculation_report/report_section_refs/0/provenance",
+            "/report_sections/provenance_notes/0",
+            "/report_sections/diagnostics/0/provenance",
+            "/report_sections/user_supplied_values/0/provenance",
+            "/report_sections/limitations/1/provenance",
+        ]
+        .into_iter()
+        .filter(|pointer| report.pointer(pointer).is_some_and(Value::is_object))
+        .collect()
     }
 
     /// Codex review round 2 of #1648 (blocking): a positional render input
@@ -1156,15 +1234,16 @@ mod direct_native {
                 cases.push((label, positional));
             }
             let nested: [(&str, fn(&mut Value)); 5] = [
-                ("positional report_context", |input| input["report_context"] = as_array(&input["report_context"])),
-                ("positional exact_route", |input| input["exact_route"] = as_array(&input["exact_route"])),
-                ("positional admission", |input| input["exact_route"]["admission"] = as_array(&input["exact_route"]["admission"])),
-                ("positional limitation entry", |input| input["report_sections"]["limitations"][1] = as_array(&input["report_sections"]["limitations"][1])),
-                ("positional result row", |input| input["result_rows"][0] = as_array(&input["result_rows"][0])),
+                ("positional report_context", |input| input["report_context"] = ordered(&input["report_context"], &CONTEXT_MEMBERS)),
+                ("positional exact_route", |input| input["exact_route"] = ordered(&input["exact_route"], &ROUTE_MEMBERS)),
+                ("positional admission", |input| input["exact_route"]["admission"] = ordered(&input["exact_route"]["admission"], &ADMISSION_MEMBERS)),
+                ("positional limitation entry", |input| input["report_sections"]["limitations"][1] = ordered(&input["report_sections"]["limitations"][1], &LIMITATION_MEMBERS)),
+                ("positional result row", |input| input["result_rows"][0] = ordered(&input["result_rows"][0], &ROW_MEMBERS)),
             ];
             for (label, edit) in nested {
                 let mut input = base.clone();
                 edit(&mut input);
+                assert!(open_pipe_stress_report_renderer::decode_renderable_report_input(input.clone()).is_ok(), "{name} {label}: decodes");
                 cases.push((label, input));
             }
             for (label, input) in cases {
@@ -1190,11 +1269,13 @@ mod direct_native {
         }
     }
 
-    /// Codex review round 2 of #1648: the native save refuses a positional
-    /// request, or a positional member its checks read by key, before its
-    /// exact detection, binding and context checks, from the decoded args and
-    /// the raw body, with no package; for pressure-2 and pressure-source-1,
-    /// with genuine custody and texts and relabelled public provenance.
+    /// Codex review rounds 2 and 3 of #1648: the native save refuses a
+    /// positional request, or a positional struct in a typed member or the
+    /// report, before its exact detection, binding, screen and context
+    /// checks, from the decoded args and the raw body, with no package; a
+    /// positional untyped member is refused by the keyed checks; for
+    /// pressure-2 and pressure-source-1, with genuine custody and texts and
+    /// relabelled public provenance.
     #[test]
     fn a_positional_save_request_refuses_before_any_check() {
         use crate::report_package_save::REQUEST_POSITIONAL;
@@ -1206,19 +1287,30 @@ mod direct_native {
             let members = open_pipe_stress_report_package::wire::REQUEST_MEMBERS;
             let top = Value::Array(members.iter().map(|member| request.get(*member).cloned().unwrap_or(Value::Null)).collect());
             assert!(open_pipe_stress_report_package::wire::decode_report_package_request(top.clone()).is_ok(), "{name}: the shared decode accepts it");
-            let edits: [(&str, fn(&mut Value)); 6] = [
-                ("positional report", |r| r["report"] = as_array(&r["report"])),
-                ("positional report_context", |r| r["report"]["report_context"] = as_array(&r["report"]["report_context"])),
-                ("positional exact_route", |r| r["report"]["exact_route"] = as_array(&r["report"]["exact_route"])),
-                ("positional result document", |r| r["result_documents"][0] = as_array(&r["result_documents"][0])),
-                ("positional result envelope", |r| r["result_documents"][0]["result_envelope"] = as_array(&r["result_documents"][0]["result_envelope"])),
-                ("positional producer", |r| r["result_documents"][0]["result_envelope"]["producer"] = as_array(&r["result_documents"][0]["result_envelope"]["producer"])),
+            let edits: [(&str, fn(&mut Value)); 4] = [
+                ("positional report", |r| r["report"] = ordered(&r["report"], &RENDER_MEMBERS)),
+                ("positional report_context", |r| r["report"]["report_context"] = ordered(&r["report"]["report_context"], &CONTEXT_MEMBERS)),
+                ("positional exact_route", |r| r["report"]["exact_route"] = ordered(&r["report"]["exact_route"], &ROUTE_MEMBERS)),
+                ("positional source_model_ref", |r| r["source_model_ref"] = ordered(&r["source_model_ref"], &["ref_type", "ref_id"])),
             ];
             let mut cases = vec![("positional request", top)];
             for (label, edit) in edits {
                 let mut variant = request.clone();
                 edit(&mut variant);
                 cases.push((label, variant));
+            }
+            // The untyped members have no struct decoder; a positional result
+            // document, envelope or producer is refused by the keyed checks.
+            for (label, pointer) in [
+                ("positional result document", "/result_documents/0"),
+                ("positional result envelope", "/result_documents/0/result_envelope"),
+                ("positional producer", "/result_documents/0/result_envelope/producer"),
+            ] {
+                let mut variant = request.clone();
+                let member = variant.pointer_mut(pointer).unwrap();
+                *member = as_array(member);
+                let (code, message) = save_code(&live, save_args(&variant, &w, &w.model, Some(&w.result), Some(&w.intake)));
+                assert_ne!(code, REQUEST_POSITIONAL, "{name} {label}: {message}");
             }
             for (label, variant) in cases {
                 let (code, message) = save_code(&live, save_args(&variant, &w, &w.model, Some(&w.result), Some(&w.intake)));
@@ -1237,6 +1329,109 @@ mod direct_native {
                 assert_eq!(error.code, REQUEST_POSITIONAL, "{name} {label} (raw body)");
             }
         }
+    }
+
+    /// The render's production refusal of `args`, from the decoded args and
+    /// from the raw body; both must agree.
+    fn render_refusal_both(live: &Live, args: &Value) -> String {
+        let (mut decoded, mut lease) = admit_json(&live.registry, "render_calculation_report", ArgsDecoding::Moved, args).unwrap();
+        let first = refusal_text(crate::render_calculation_report_args(&mut decoded, &live.registry, &mut lease));
+        drop(lease);
+        let body = InvokeBody::Raw(serde_json::to_vec(args).unwrap());
+        let (mut decoded, mut lease) =
+            admit_body(&live.registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1)), "render_calculation_report", ArgsDecoding::Moved).unwrap();
+        let second = refusal_text(crate::render_calculation_report_args(&mut decoded, &live.registry, &mut lease));
+        assert_eq!(first, second);
+        first
+    }
+
+    /// The save's refusal code of `request`, from the decoded args and from
+    /// the raw body; both must agree.
+    fn save_refusal_both(live: &Live, w: &Witness, request: &Value) -> (String, String) {
+        let (code, message) = save_code(live, save_args(request, w, &w.model, Some(&w.result), Some(&w.intake)));
+        let args = save_args(request, w, &w.model, Some(&w.result), Some(&w.intake));
+        let mut raw = crate::report_package_save::test_support::args_body(&args);
+        raw["exactResultText"] = json!(w.result);
+        raw["exactIntakeText"] = json!(w.intake);
+        let body = InvokeBody::Raw(serde_json::to_vec(&raw).unwrap());
+        let (mut decoded, _lease) =
+            admit_body(&live.registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1)), "save_report_package", ArgsDecoding::Moved).unwrap();
+        let parsed = crate::report_package_save::save_report_package_args(&mut decoded).unwrap();
+        let custody = |job: &str| live.registry.custody_binding(job);
+        let error = admit_report_package_in(parsed, &software(), &mut no_store, &custody).map(drop).expect_err("refused");
+        assert_eq!(error.code, code, "raw body: {}", error.message);
+        (code, message)
+    }
+
+    /// Codex review round 3 of #1648 (blocking): a provenance record in
+    /// positional form hid its disposition from the save's keyed screen while
+    /// the renderer's decode read it, so a quarantined, rejected or
+    /// protected-suspected record reached an unblocked package. For pressure-2
+    /// and pressure-source-1, with genuine custody and texts, each such record
+    /// at every provenance depth of the witness report (the calculation
+    /// report's, its model summary's, a load case's, a result-export
+    /// reference's, an audit and a section reference's, and the report
+    /// sections' notes, diagnostics, user-supplied values and limitations),
+    /// written positionally, refuses the render and the save before any keyed
+    /// check (`REPORT-RENDER-INPUT-POSITIONAL`,
+    /// `REPORT-PACKAGE-SAVE-REQUEST-POSITIONAL`), from the decoded args and the
+    /// raw body. In object form the save refuses the same record by its screen.
+    #[test]
+    fn a_positional_provenance_record_refuses_the_render_and_the_save_at_every_depth() {
+        use crate::report_package_save::REQUEST_POSITIONAL;
+        for (name, text) in [("pressure_2_straight", STRAIGHT), ("pressure_source_1", SOURCE_1)] {
+            let w = witness(text);
+            let live = live(&w);
+            let genuine_args = genuine_render_args(&w, &live.job);
+            let genuine_request = bound(&w.request, &live.job);
+            let paths = provenance_paths(&genuine_request["report"]);
+            assert!(paths.len() >= 6, "{name}: {paths:?}");
+            for (member, disposition) in [("review_status", "quarantined"), ("review_status", "rejected"), ("redistribution_status", "protected_suspected")] {
+                for pointer in &paths {
+                    let label = format!("{name} {pointer} {member}={disposition}");
+                    let positional = |report: &mut Value| {
+                        let record = report.pointer_mut(pointer).unwrap();
+                        record[member] = json!(disposition);
+                        *record = ordered(record, &PROVENANCE_MEMBERS);
+                    };
+                    // The render.
+                    let mut args = genuine_args.clone();
+                    positional(&mut args["input"]);
+                    assert!(open_pipe_stress_report_renderer::decode_renderable_report_input(args["input"].clone()).is_ok(), "{label}: decodes");
+                    let refused = render_refusal_both(&live, &args);
+                    assert!(refused.starts_with("REPORT-RENDER-INPUT-POSITIONAL: "), "{label}: {refused}");
+                    assert!(!refused.contains(disposition), "{label}: {refused}");
+                    // The save.
+                    let mut request = genuine_request.clone();
+                    positional(&mut request["report"]);
+                    let (code, message) = save_refusal_both(&live, &w, &request);
+                    assert_eq!(code, REQUEST_POSITIONAL, "{label}: {message}");
+                    // Object form: the save's screen refuses the record.
+                    let mut object = genuine_request.clone();
+                    object["report"].pointer_mut(pointer).unwrap()[member] = json!(disposition);
+                    let (code, message) = save_code(&live, save_args(&object, &w, &w.model, Some(&w.result), Some(&w.intake)));
+                    assert_ne!(code, REQUEST_POSITIONAL, "{label}: {message}");
+                }
+            }
+        }
+    }
+
+    /// The legitimate-arrays control (Codex review round 3 of #1648): every
+    /// witness shape's genuine render input and save request, all of whose
+    /// arrays are collections, passes the object-form comparison, and the
+    /// committed pressure-free witness report does too.
+    #[test]
+    fn genuine_inputs_with_every_array_field_pass_the_object_form_check() {
+        use open_pipe_stress_report_renderer::object_form::report_positional_struct_path;
+        for (name, text) in SHAPES {
+            let w = witness(text);
+            assert_eq!(report_positional_struct_path(&w.request["report"]), None, "{name}");
+            assert_eq!(open_pipe_stress_report_package::wire::request_positional_struct_path(&w.request), None, "{name}");
+            assert_eq!(crate::report_render_exact::check_object_form(&w.request["report"]), Ok(()), "{name}");
+        }
+        let witness: Value = serde_json::from_str(include_str!("../../../../validation/witness/inputs/del1005_export_results_success_input.json")).unwrap();
+        assert_eq!(report_positional_struct_path(&witness["export_results"]["report"]), None);
+        assert_eq!(open_pipe_stress_report_package::wire::request_positional_struct_path(&witness["export_results"]), None);
     }
 
     /// Codex r1 finding 2: with genuine custody and texts, a fabricated row
@@ -1545,7 +1740,12 @@ mod direct_native {
             other => panic!("not a resource refusal: {other:?}"),
         }
         assert_eq!(lease.bytes(), admitted_bytes);
-        assert!(measured.peak_requested < (w.result.len() as u64) / 4, "nothing is parsed: {measured:?}");
+        // Neither text is parsed: the peak is the object-form check's
+        // by-reference decode of the input (within the ingress lease, Codex
+        // review round 3 of #1648) plus less than a quarter of the result text.
+        let args = genuine_render_args(&w, &live.job);
+        let (_, check) = measure(|| crate::report_render_exact::check_object_form(&args["input"]));
+        assert!(measured.peak_requested < check.peak_requested + (w.result.len() as u64) / 4, "nothing is parsed: {measured:?}, check {check:?}");
     }
 
     /// The whole-command counting-allocator check of the genuine exact render

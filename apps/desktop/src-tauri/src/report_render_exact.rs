@@ -113,51 +113,19 @@ pub(crate) fn render_calculation_report_args_in(
     crate::render_calculation_report_value(input).map_err(CommandError::Command)
 }
 
-/// Object form (Codex review round 2 of #1648): the input is a JSON object,
-/// and so is every struct member the native checks or the renderer's exact
-/// sections read, where present and not null: `calculation_report`,
-/// `report_sections`, `report_context`, `user_rule_checks`, `exact_route` and
-/// its `admission`, and each element of `result_rows`,
-/// `report_sections.limitations` (with its `source` and `affected_scope`),
-/// `exact_route.headlines` and `library_references`. A positional (array)
-/// form anywhere there refuses, naming the fixed path only; an admitted
-/// input's walk reads the value in place and allocates nothing.
+/// Object form (Codex review rounds 2 and 3 of #1648): no struct, at any
+/// depth, is in positional (JSON array) form. The renderer's decode reads a
+/// positional struct by field order, while step 0, the context check and the
+/// source binding read members by key, so the command refuses one before
+/// any of them, with the fixed path only. The check is the shared
+/// `report_renderer::object_form` comparison of the decoded input with its
+/// JSON: collections and tuples are arrays on both sides and pass. An input
+/// that does not decode passes here and is refused by the render's decode.
 pub(crate) fn check_object_form(input: &Value) -> Result<(), String> {
-    fn object(value: Option<&Value>, path: &str) -> Result<(), String> {
-        match value {
-            None | Some(Value::Null) | Some(Value::Object(_)) => Ok(()),
-            Some(_) => Err(format!("{RENDER_INPUT_POSITIONAL}: the render input's {path} is not a JSON object.")),
-        }
+    match open_pipe_stress_report_renderer::object_form::report_positional_struct_path(input) {
+        Some(path) => Err(format!("{RENDER_INPUT_POSITIONAL}: the render input writes a struct in positional (array) form at {path}.")),
+        None => Ok(()),
     }
-    fn elements(value: Option<&Value>, path: &str, each: &dyn Fn(&Value) -> Result<(), String>) -> Result<(), String> {
-        match value {
-            Some(Value::Array(items)) => items.iter().try_for_each(|item| {
-                object(Some(item), path)?;
-                each(item)
-            }),
-            _ => Ok(()),
-        }
-    }
-    if !input.is_object() {
-        return Err(format!("{RENDER_INPUT_POSITIONAL}: the render input is not a JSON object."));
-    }
-    for member in ["calculation_report", "report_sections", "report_context", "user_rule_checks", "exact_route"] {
-        object(input.get(member), member)?;
-    }
-    let none = |_: &Value| Ok(());
-    elements(input.get("result_rows"), "result_rows element", &none)?;
-    elements(input.get("library_references"), "library_references element", &none)?;
-    if let Some(sections) = input.get("report_sections") {
-        elements(sections.get("limitations"), "report_sections.limitations element", &|limitation| {
-            object(limitation.get("source"), "report_sections.limitations element's source")?;
-            object(limitation.get("affected_scope"), "report_sections.limitations element's affected_scope")
-        })?;
-    }
-    if let Some(route) = input.get("exact_route") {
-        object(route.get("admission"), "exact_route.admission")?;
-        elements(route.get("headlines"), "exact_route.headlines element", &none)?;
-    }
-    Ok(())
 }
 
 /// An exact-route report renders only as a local private document (owner

@@ -704,46 +704,20 @@ fn exact_refused(refusal: ExactRefusal, path: &str) -> ReportPackageSaveCommandE
     refuse(refusal.code, path, message)
 }
 
-/// Object form (Codex review round 2 of #1648): the shared decode reads a
-/// struct written as a JSON array by field order, while the save's exact
-/// detection, source binding and context checks read members by key. So the
-/// request, its `report`, the report's `report_context`, `exact_route` (and
-/// its `admission`) and `report_sections`, each result document with its
-/// `result_envelope` and `producer`, and each source result must be JSON
-/// objects where present and not null; a positional form refuses before any
-/// of those checks, naming the fixed path only. The ingress pricing of a
-/// positional text is unchanged; only its admission refuses.
+/// Object form (Codex review rounds 2 and 3 of #1648): no struct in the
+/// request, at any depth, is in positional (JSON array) form. The shared
+/// decode reads a positional struct by field order, while the save's exact
+/// detection, source binding, disposition screen and context checks read
+/// members by key, so the save refuses one before any of them, naming the
+/// fixed path only (`wire::request_positional_struct_path`, the shared
+/// comparison of each decoded typed member and the report with its JSON).
+/// The ingress pricing of a positional text is unchanged; only its admission
+/// refuses.
 fn check_request_object_form(request: &Value) -> Result<(), ReportPackageSaveCommandError> {
-    let positional = |path: &str| refuse(REQUEST_POSITIONAL, path, "The request member is not a JSON object.");
-    let object = |value: Option<&Value>, path: &str| match value {
-        None | Some(Value::Null) | Some(Value::Object(_)) => Ok(()),
-        Some(_) => Err(positional(path)),
-    };
-    if !request.is_object() {
-        return Err(positional("/request"));
+    match open_pipe_stress_report_package::wire::request_positional_struct_path(request) {
+        Some(path) => Err(refuse(REQUEST_POSITIONAL, "/request", format!("The request writes a struct in positional (array) form at {path}."))),
+        None => Ok(()),
     }
-    object(request.get("report"), "/request/report")?;
-    if let Some(report) = request.get("report") {
-        for member in ["report_context", "exact_route", "report_sections", "calculation_report"] {
-            object(report.get(member), &format!("/request/report/{member}"))?;
-        }
-        if let Some(route) = report.get("exact_route") {
-            object(route.get("admission"), "/request/report/exact_route/admission")?;
-        }
-    }
-    for (member, nested) in [("result_documents", true), ("source_results", false)] {
-        if let Some(Value::Array(items)) = request.get(member) {
-            for (index, item) in items.iter().enumerate() {
-                object(Some(item), &format!("/request/{member}/{index}"))?;
-                if nested {
-                    let envelope = item.get("result_envelope");
-                    object(envelope, &format!("/request/{member}/{index}/result_envelope"))?;
-                    object(envelope.and_then(|envelope| envelope.get("producer")), &format!("/request/{member}/{index}/result_envelope/producer"))?;
-                }
-            }
-        }
-    }
-    Ok(())
 }
 
 /// Whether the parsed request is an exact-route request (§3.6): its result
