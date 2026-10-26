@@ -62,7 +62,7 @@ import {
   refuseLinkedCargoTree,
   stampFromDigests
 } from "./engineSourceStamp.mjs";
-import { acquireBuildLock, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "./worktreeBuildLock.mjs";
+import { acquireBuildLock, exitAfterSignals, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "./worktreeBuildLock.mjs";
 
 const PINNED_WASM_BINDGEN_VERSION = "0.2.123";
 export const MAX_STABLE_BUILD_ATTEMPTS = 3;
@@ -82,9 +82,13 @@ export const ENGINE_BUILDS = [
   { crateDirectory: path.join(projectRoot, "core", "loads", "self_weight_wasm"), crateName: "open_pipe_stress_self_weight_wasm", destination: path.join(desktopRoot, "public", "self-weight-engine") }
 ];
 
+// A failure already reported: main() exits 1 once the lock is released and a
+// signal that arrived meanwhile has been handled.
+class BuildFailed extends Error {}
+
 function fail(lines) {
   console.error(["", "[build-wasm-engine] FAILED:", ...lines.map((line) => `  ${line}`), ""].join("\n"));
-  process.exit(1);
+  throw new BuildFailed(lines.join("\n"));
 }
 
 async function tryRun(command, args, { cwd, env = {} } = {}) {
@@ -167,16 +171,21 @@ const CARGO_BUILD_ARGS = [
 ];
 
 async function main() {
-  let lock;
   try {
-    lock = acquireBuildLock({ purpose: "build:wasm" });
+    let lock;
+    try {
+      lock = acquireBuildLock({ purpose: "build:wasm" });
+    } catch (error) {
+      fail(error.message.split("\n"));
+    }
+    try {
+      await buildEngines();
+    } finally {
+      lock.release();
+    }
   } catch (error) {
-    fail(error.message.split("\n"));
-  }
-  try {
-    await buildEngines();
-  } finally {
-    lock.release();
+    if (!(error instanceof BuildFailed)) throw error;
+    await exitAfterSignals(1);
   }
 }
 
@@ -293,6 +302,7 @@ for (let attempt = 1; attempt <= MAX_STABLE_BUILD_ATTEMPTS && stamp === null; at
   try {
     wasmArtifact = await resolveWasmArtifact(crateDirectory, crateName, cargoEnv);
   } catch (error) {
+    if (error instanceof BuildFailed) throw error;
     fail(["Could not resolve Cargo's wasm artifact directory:", error.message]);
   }
   if (wasmArtifact !== path.join(targetDirectory, "wasm32-unknown-unknown", "release", `${crateName}.wasm`)) {

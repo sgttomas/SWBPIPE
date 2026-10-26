@@ -434,24 +434,40 @@ worktree lock never acquires a host slot, and a command that resolves to one of
 those wrappers, or to a script naming them, is refused by name, as is an
 inherited compiler wrapper.
 
-Interruption. While it holds its own lock, the holder runs every build
-command, and the smoke each app launch, through `runUnderLock`: asynchronously
-and as the leader of its own process group (`detached`), so cargo's rustc,
-build-script and wasm-bindgen descendants, or caffeinate and the app, are in
-that group. A command under an inherited lock (`build:wasm` under the smoke)
-stays in its parent's group, which the holder signals. On SIGINT, SIGTERM or
-SIGHUP the holder sends that signal to each of its groups and waits up to 5 s
-for every group to be empty, sends SIGKILL to any group that is not and waits
-up to 2 s more, and only when every group is gone releases its lock; it then
-exits 128 + the signal number (130, 143, 129), the smoke removing its private
-app copy as it exits. A group still not empty after SIGKILL (on macOS a group left with
-only an unreaped zombie counts) keeps the lock and the copy, and the holder
-prints the same confirmation and removal steps as the refusal. A signal that
-arrives during one of the short synchronous probes (`ps`, `rustc -vV`,
-`cargo metadata`) is handled when the probe returns. An ordinary exit, nonzero
-exit or uncaught error releases the lock; were a group still running at that
-point, it is sent SIGKILL and the lock is kept. Limits: SIGKILL of the holder,
-or a power loss, cannot be handled. They leave the lock, any surviving build
+Interruption. The holder installs its exit and stop-signal handlers before
+it publishes the lock, so from the moment the lock exists an exit or a stop
+signal releases it; an acquisition that fails stops listening without losing
+a signal already received. While it holds its own lock, the holder runs every
+build command, and the smoke each app launch, through `runUnderLock`:
+asynchronously and as the leader of its own process group (`detached`), so
+cargo's rustc, build-script and wasm-bindgen descendants, or caffeinate and the
+app, are in that group. A command under an inherited lock (`build:wasm` under
+the smoke) stays in its parent's group, which the holder signals. Each
+command's group is settled before the command returns and the next one starts:
+once its leader exits, the group gets up to 2 s to empty, then SIGTERM and up
+to 2 s, then SIGKILL and up to 2 s. A group seen empty is forgotten at once,
+and only a group still tracked and seen alive just before is ever signalled,
+so no signal reaches a group id the system has since reused. A group that
+cannot be confirmed empty stops the run (exit 1), keeping the lock with the
+removal steps. On SIGINT, SIGTERM or SIGHUP the holder sends that signal to
+each of its groups and waits up to 5 s for every group to be empty, sends
+SIGKILL to any group that is not and waits up to 2 s more, and only when every
+group is gone releases its lock; it then exits 128 + the signal number (130,
+143, 129), the smoke removing its private app copy as it exits. A group still
+not empty after SIGKILL (on macOS a group left with only an unreaped zombie
+counts) keeps the lock and the copy, and the holder prints the same
+confirmation and removal steps as the refusal, written synchronously so that
+exiting at once cannot drop them. A signal that arrives during synchronous
+work (the probes `ps`, `rustc -vV` and `cargo metadata`, or the checks between
+commands) is delivered when the event loop next runs: at the next command, or
+at the exit, since the build and the smoke exit through `exitAfterSignals`,
+which first lets a pending signal's handler run, and after the release, whose
+handlers stay installed until the event loop has run once. Such a signal then
+exits 128 + the signal number. An ordinary or nonzero exit releases the lock.
+An uncaught error releases it too; were a group still running at that point,
+it is sent SIGKILL and the lock is kept. A signal pending at an uncaught error
+is not honoured: the exit status is the error's. Limits: SIGKILL of the
+holder, or a power loss, cannot be handled. They leave the lock, any surviving build
 process, and for the smoke its private app copy; recovery is the printed steps
 below. A descendant that leaves its process group is not followed; the printed
 `pgrep` step is what finds it.

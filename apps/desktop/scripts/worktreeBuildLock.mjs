@@ -14,14 +14,20 @@
 // Interruption. The holder runs its build commands (and the smoke its app
 // launches) through `runUnderLock`, asynchronously, each as the leader of its
 // own process group, so cargo's rustc, build-script and wasm-bindgen
-// descendants are in that group. On SIGINT, SIGTERM or SIGHUP the holder sends
-// the signal to every such group, waits (bounded) until each group is empty,
-// sends SIGKILL to any group that is not and waits again, and only when every
-// group is gone releases its lock; it then exits 128 + the signal number. A
-// group still not empty after SIGKILL keeps the lock, and the holder prints the
-// removal steps. A signal arriving during one of the short synchronous probes
-// (`ps`, `rustc -vV`, `cargo metadata`) is handled when the probe returns. The
-// process exiting otherwise (an ordinary exit, nonzero or uncaught) with a
+// descendants are in that group. The stop handlers are installed before the
+// lock is published. On SIGINT, SIGTERM or SIGHUP the holder sends the signal
+// to every such group, waits (bounded) until each group is empty, sends SIGKILL
+// to any group that is not and waits again, and only when every group is gone
+// releases its lock; it then exits 128 + the signal number. A group still not
+// empty after SIGKILL keeps the lock, and the holder prints the removal steps
+// (written synchronously, so exiting cannot drop them). Each command's group
+// is settled before the command returns: after its leader exits the group gets
+// a bounded wait, then SIGTERM, then SIGKILL, and is forgotten once seen empty,
+// so no later signal can reach a reused group id; a group that cannot be
+// confirmed empty stops the run with the lock kept. A signal arriving during
+// synchronous work (`ps`, `rustc -vV`, `cargo metadata`) is handled when the
+// event loop next runs: at the next command, or at `exitAfterSignals`, which
+// the tooling exits through. The process exiting otherwise (uncaught) with a
 // group not yet empty sends that group SIGKILL and keeps the lock. SIGKILL of
 // the holder, or a power loss, cannot be handled: the lock stays, and recovery
 // is the removal steps the refusal prints.
@@ -55,7 +61,7 @@
 
 import { execFileSync, spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { closeSync, existsSync, linkSync, lstatSync, mkdirSync, openSync, readFileSync, readSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { closeSync, existsSync, linkSync, lstatSync, mkdirSync, openSync, readFileSync, readSync, realpathSync, rmSync, statSync, writeFileSync, writeSync } from "node:fs";
 import { constants as osConstants } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -71,8 +77,10 @@ export const buildLockPath = (root = desktopRoot) => path.join(root, "target", "
 let held = null;
 // Whether this process last kept its lock because a build process may survive.
 let kept = false;
-// The signal being handled, once the holder is stopping.
+// The signal being handled (or "unconfirmed"), once the holder is stopping.
 let stopping = null;
+// Whether the exit and stop-signal handlers are installed.
+let listening = false;
 // The process groups of the commands this process started holding its own lock,
 // until each is seen empty.
 const groups = new Set();
@@ -168,11 +176,30 @@ function groupAlive(pgid) {
   }
 }
 
-function signalGroup(pgid, signal) {
+// Signal group `pgid` only while it is one of ours (tracked) and seen alive
+// just before: a group forgotten once empty is never signalled, whatever later
+// reuses its id.
+function signalLiveGroup(pgid, signal) {
+  if (!groups.has(pgid) || !groupAlive(pgid)) return;
   try {
     process.kill(-pgid, signal);
   } catch {
-    // Gone, or not ours to signal: groupAlive decides.
+    // Gone meanwhile: groupAlive decides.
+  }
+}
+
+// Write `text` to standard error synchronously, retrying (bounded) while the
+// pipe is full, so that exiting at once cannot drop it.
+function writeErrorSync(text) {
+  const bytes = Buffer.from(`${text}\n`);
+  const deadline = Date.now() + 2000;
+  for (let offset = 0; offset < bytes.length; ) {
+    try {
+      offset += writeSync(2, bytes, offset);
+    } catch (error) {
+      if (error.code !== "EAGAIN" || Date.now() > deadline) return;
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 5);
+    }
   }
 }
 
@@ -190,17 +217,35 @@ async function groupsEmptied(pgids, ms) {
   }
 }
 
-function forget() {
+function listen() {
+  if (listening) return;
+  listening = true;
+  process.on("exit", releaseHeld);
+  for (const signal of STOP_SIGNALS) process.on(signal, onStopSignal);
+}
+
+function unlisten() {
+  if (!listening) return;
+  listening = false;
   process.off("exit", releaseHeld);
   for (const signal of STOP_SIGNALS) process.off(signal, onStopSignal);
+}
+
+// Holding nothing now, stop listening once the event loop has run: a signal
+// received during synchronous work and not yet delivered still reaches
+// onStopSignal, which honours it.
+function forget() {
   held = null;
+  setImmediate(() => {
+    if (held === null) unlisten();
+  });
 }
 
 // Keep the lock: a build process may survive. Prints the removal steps.
 function keepHeld(lock, reason) {
   forget();
   kept = true;
-  console.error([
+  writeErrorSync([
     `${reason}; the worktree build lock ${lock.path} is kept, since a build process may survive. Once they have exited, confirm that nothing is building in this worktree:`,
     ...removalSteps(lock.path, lock.record, lock.root)
   ].join("\n"));
@@ -213,7 +258,7 @@ function releaseHeld() {
     for (const pgid of groups) if (!groupAlive(pgid)) groups.delete(pgid);
     const alive = [...groups];
     if (alive.length > 0) {
-      for (const pgid of alive) signalGroup(pgid, "SIGKILL");
+      for (const pgid of alive) signalLiveGroup(pgid, "SIGKILL");
       keepHeld(lock, `process group ${alive.join(", ")} of this build was still running at release and was sent SIGKILL`);
       return;
     }
@@ -230,15 +275,20 @@ function releaseHeld() {
 // SIGINT, SIGTERM or SIGHUP while holding the lock: stop and reap the build
 // process groups, release only when every one is gone, and exit 128 + signo.
 function onStopSignal(signal) {
-  if (stopping !== null || held === null) return;
+  if (stopping !== null) return;
   stopping = signal;
+  // Released (or kept) already, and no command runs: honour the signal.
+  if (held === null) {
+    unlisten();
+    process.exit(128 + osConstants.signals[signal]);
+  }
   const lock = held;
   const pgids = [...groups];
-  for (const pgid of pgids) signalGroup(pgid, signal);
+  for (const pgid of pgids) signalLiveGroup(pgid, signal);
   (async () => {
     let gone = await groupsEmptied(pgids, lock.stopGraceMs);
     if (!gone) {
-      for (const pgid of pgids.filter((id) => groups.has(id))) signalGroup(pgid, "SIGKILL");
+      for (const pgid of pgids) signalLiveGroup(pgid, "SIGKILL");
       gone = await groupsEmptied(pgids, lock.killWaitMs);
     }
     if (gone) releaseHeld();
@@ -247,15 +297,36 @@ function onStopSignal(signal) {
   })();
 }
 
+// Exit with `code` once a signal already received has been handled: a signal
+// that arrived during synchronous work is delivered when the event loop next
+// runs, and its handler then decides the exit (128 + the signal number).
+export async function exitAfterSignals(code) {
+  await new Promise((resolve) => setImmediate(resolve));
+  if (stopping === null) process.exit(code);
+  return new Promise(() => {});
+}
+
+// After a command's leader has exited, settle its group before going on: a
+// bounded wait for it to empty, then SIGTERM, then SIGKILL, each with the same
+// wait. True once it is seen empty (and forgotten).
+async function settleGroup(pgid, waitMs) {
+  for (const signal of [null, "SIGTERM", "SIGKILL"]) {
+    if (signal !== null) signalLiveGroup(pgid, signal);
+    if (await groupsEmptied([pgid], waitMs)) return true;
+  }
+  return false;
+}
+
 // Run `command` under the lock, asynchronously, so a stop signal is handled
 // while it runs. Holding the lock itself, the command leads its own process
 // group, which the stop handler signals whole and waits to see empty; under an
 // inherited lock (or none) it stays in this process's group, which the holder
 // above signals. `timeoutMs` sends SIGKILL to the command (its group) once
 // passed. Resolves with { status, signal, stdout, stderr, error, timedOut } once
-// the command has closed and, holding the lock, its group is empty or a bounded
-// wait passed (a group still not empty keeps the lock at release). Never
-// settles once a stop signal is being handled: the handler ends the process.
+// the command has closed and, holding the lock, its group is settled. A group
+// that cannot be confirmed empty keeps the lock, prints the removal steps and
+// ends the process (exit 1). Never settles once a stop signal is being handled:
+// the handler ends the process.
 export function runUnderLock(command, args = [], { cwd, env = process.env, stdio = ["ignore", "pipe", "pipe"], timeoutMs } = {}) {
   if (stopping !== null) return new Promise(() => {});
   const own = held !== null && !held.inherited;
@@ -274,13 +345,17 @@ export function runUnderLock(command, args = [], { cwd, env = process.env, stdio
     const timer = timeoutMs
       ? setTimeout(() => {
           timedOut = true;
-          if (pgid !== null) signalGroup(pgid, "SIGKILL");
+          if (pgid !== null) signalLiveGroup(pgid, "SIGKILL");
           else child.kill("SIGKILL");
         }, timeoutMs)
       : null;
     child.on("close", async (status, signal) => {
       if (timer) clearTimeout(timer);
-      if (pgid !== null) await groupsEmptied([pgid], killWaitMs);
+      if (pgid !== null && !(await settleGroup(pgid, killWaitMs)) && stopping === null && held !== null) {
+        stopping = "unconfirmed";
+        keepHeld(held, `process group ${pgid} of ${command} did not empty after ${command} exited, SIGTERM and SIGKILL`);
+        process.exit(1);
+      }
       if (stopping !== null) return;
       resolve({ status: error ? null : status, signal, stdout: Buffer.concat(out).toString("utf8"), stderr: Buffer.concat(err).toString("utf8"), error, timedOut });
     });
@@ -290,8 +365,9 @@ export function runUnderLock(command, args = [], { cwd, env = process.env, stdio
 // Take the worktree build lock for `purpose`, or refuse at once when it is held.
 // Returns { token, inherited, release, kept }; `kept()` is true once the lock
 // was kept because a build process may survive. `stopGraceMs` and `killWaitMs`
-// bound the waits after a stop signal and after SIGKILL.
-export function acquireBuildLock({ purpose, root = desktopRoot, env = process.env, stopGraceMs = STOP_GRACE_MS, killWaitMs = KILL_WAIT_MS }) {
+// bound the waits after a stop signal and after SIGKILL. `onPublished` (tests)
+// runs as soon as the lock is published, before this returns.
+export function acquireBuildLock({ purpose, root = desktopRoot, env = process.env, stopGraceMs = STOP_GRACE_MS, killWaitMs = KILL_WAIT_MS, onPublished = null }) {
   if (held !== null) throw new Error(`refusing to build: this process already holds the build lock ${held.path}`);
   const lockPath = buildLockPath(root);
   const inheritedToken = env[BUILD_LOCK_TOKEN_ENV];
@@ -312,28 +388,36 @@ export function acquireBuildLock({ purpose, root = desktopRoot, env = process.en
   const record = { pid: process.pid, started: processStartTime(process.pid), purpose, token, acquired: new Date().toISOString() };
   if (record.started === null) throw new Error(`refusing to take the build lock ${lockPath}: ps does not report this process's start time`);
   const pending = `${lockPath}.${process.pid}.${token}.tmp`;
-  writeFileSync(pending, `${JSON.stringify(record)}\n`, { flag: "wx" });
-  try {
-    for (;;) {
-      try {
-        linkSync(pending, lockPath);
-        break;
-      } catch (error) {
-        if (error.code !== "EEXIST") throw error;
-      }
-      const current = readLock(lockPath);
-      // Released between the link and the read: try once more.
-      if (current === null) continue;
-      throw new Error(heldLockMessage(lockPath, current.record, root));
-    }
-  } finally {
-    rmSync(pending, { force: true });
-  }
-  held = { path: lockPath, token, inherited: false, record, root, stopGraceMs, killWaitMs };
+  // Cleanup and signal protection first: from the moment the lock is published
+  // an exit or a stop signal releases it.
   kept = false;
   stopping = null;
-  process.on("exit", releaseHeld);
-  for (const signal of STOP_SIGNALS) process.on(signal, onStopSignal);
+  listen();
+  try {
+    writeFileSync(pending, `${JSON.stringify(record)}\n`, { flag: "wx" });
+    try {
+      for (;;) {
+        try {
+          linkSync(pending, lockPath);
+          held = { path: lockPath, token, inherited: false, record, root, stopGraceMs, killWaitMs };
+          break;
+        } catch (error) {
+          if (error.code !== "EEXIST") throw error;
+        }
+        const current = readLock(lockPath);
+        // Released between the link and the read: try once more.
+        if (current === null) continue;
+        throw new Error(heldLockMessage(lockPath, current.record, root));
+      }
+    } finally {
+      rmSync(pending, { force: true });
+    }
+  } catch (error) {
+    // Not taken: nothing to release; stop listening (a signal received meanwhile is still honoured).
+    if (held === null) forget();
+    throw error;
+  }
+  onPublished?.();
   return { token, inherited: false, release: releaseHeld, kept: () => kept };
 }
 

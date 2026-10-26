@@ -84,7 +84,7 @@ import { fileURLToPath } from "node:url";
 import { ENGINE_BUILDS } from "../scripts/build-wasm-engine.mjs";
 import { fileIdentity, prepareSmokeApp, privateLaunchCopy } from "../scripts/appBinaryBinding.mjs";
 import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mjs";
-import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
+import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const desktop = path.resolve(here, "..");
@@ -136,7 +136,7 @@ try {
   stampContext = engineStampContext(desktop);
 } catch (error) {
   console.error(`native smoke: ${error.message}`);
-  process.exit(2);
+  await exitAfterSignals(2);
 }
 const engineStates = () =>
   ENGINE_BUILDS.map(({ crateDirectory, destination }) => ({
@@ -151,7 +151,7 @@ if (staleEngines.length > 0) {
   for (const engine of engineStates()) {
     if (engine.action !== "current") {
       console.error(`native smoke: engine ${engine.name} still does not match its sources after build:wasm (${engine.reason})`);
-      process.exit(2);
+      await exitAfterSignals(2);
     }
     const before = enginesBefore.find((entry) => entry.name === engine.name);
     if (before.action === "rebuild") console.log(`engine rebuilt: ${engine.name} (${before.reason}; stamp ${engine.hash})`);
@@ -195,7 +195,7 @@ try {
   });
 } catch (error) {
   console.error(error.message.startsWith("native smoke:") ? error.message : `native smoke: app build failed: ${error.message}`);
-  process.exit(2);
+  await exitAfterSignals(2);
 }
 // Checked, built and bound. The bound executable is copied to this run's
 // private directory and the copy checked against the binding; the launches run
@@ -205,7 +205,7 @@ try {
   launchCopy = privateLaunchCopy({ desktopRoot: desktop, binary: app.binary, identity: app.identity, token: buildLock.token });
 } catch (error) {
   console.error(error.message.startsWith("native smoke:") ? error.message : `native smoke: could not copy the app for launch: ${error.message}`);
-  process.exit(2);
+  await exitAfterSignals(2);
 }
 // Removed on every exit, unless the lock was kept because a process may still run from it.
 process.on("exit", () => { if (!buildLock.kept()) launchCopy.remove(); });
@@ -291,7 +291,7 @@ function launch(phase, extra = {}) {
   console.log(`\n== phase ${phase} (HOME=${home})`);
   if (JSON.stringify(fileIdentity(binary)) !== JSON.stringify(app.identity)) {
     console.error(`native smoke: ${binary}, the private copy of the bound app, changed since it was checked; not launched`);
-    process.exit(2);
+    return exitAfterSignals(2);
   }
   // caffeinate keeps the display and system awake for the app's lifetime. It
   // runs under the lock in its own process group: on timeout the whole group,
@@ -684,4 +684,4 @@ if (!args.has("--keep") && failed.length === 0) rmSync(root, { recursive: true, 
 // The last launch has ended: release the lock (kept if a process of it may
 // still run); the private copy is removed as the process exits.
 buildLock.release();
-process.exit(failed.length === 0 ? 0 : 1);
+await exitAfterSignals(failed.length === 0 ? 0 : 1);

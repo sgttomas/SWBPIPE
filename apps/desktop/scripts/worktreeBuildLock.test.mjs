@@ -147,20 +147,34 @@ test('a child inherits the lock only through the token the lock holds; holding i
   } finally { t.cleanup(); }
 });
 
-// A separate process that takes the lock (with short stop waits), runs
-// `command args` under it and then runs `after` (JavaScript, with `result`).
-function startRunner(root, command, args, { options = {}, after = '', stopGraceMs = 400, killWaitMs = 1000 } = {}) {
+// A separate process running `body` (module JavaScript, with the lock module's
+// exports and `root` in scope); its standard error is read only once `readAfter`
+// resolves, when given.
+function startScript(root, body, { readAfter = null } = {}) {
   const child = spawn(process.execPath, ['--input-type=module', '-e', `
-    import { acquireBuildLock, runUnderLock } from ${JSON.stringify(lockModule)};
-    acquireBuildLock({ purpose: 'runner', root: ${JSON.stringify(root)}, stopGraceMs: ${stopGraceMs}, killWaitMs: ${killWaitMs} });
-    const result = await runUnderLock(${JSON.stringify(command)}, ${JSON.stringify(args)}, { stdio: ['ignore', 'pipe', 'inherit'], ...${JSON.stringify(options)} });
-    ${after}
+    import { acquireBuildLock, exitAfterSignals, runUnderLock } from ${JSON.stringify(lockModule)};
+    import { execFileSync, spawn } from 'node:child_process';
+    import { openSync, writeFileSync, writeSync } from 'node:fs';
+    const root = ${JSON.stringify(root)};
+    ${body}
   `], { stdio: ['ignore', 'pipe', 'pipe'] });
   let output = '';
   child.stdout.on('data', (chunk) => { output += chunk; });
-  child.stderr.on('data', (chunk) => { output += chunk; });
-  const done = new Promise((resolve) => child.on('exit', (code, signal) => resolve({ code, signal })));
+  const readError = () => child.stderr.on('data', (chunk) => { output += chunk; });
+  if (readAfter) readAfter.then(readError); else readError();
+  const closed = new Promise((resolve) => child.on('close', resolve));
+  const done = new Promise((resolve) => child.on('exit', (code, signal) => closed.then(() => resolve({ code, signal }))));
   return { child, done, output: () => output };
+}
+
+// A separate process that takes the lock (with short stop waits), runs
+// `command args` under it and then runs `after` (JavaScript, with `result`).
+function startRunner(root, command, args, { options = {}, after = '', stopGraceMs = 400, killWaitMs = 1000 } = {}) {
+  return startScript(root, `
+    acquireBuildLock({ purpose: 'runner', root, stopGraceMs: ${stopGraceMs}, killWaitMs: ${killWaitMs} });
+    const result = await runUnderLock(${JSON.stringify(command)}, ${JSON.stringify(args)}, { stdio: ['ignore', 'pipe', 'inherit'], ...${JSON.stringify(options)} });
+    ${after}
+  `);
 }
 
 const alive = (pid) => { try { process.kill(pid, 0); return true; } catch (error) { return error.code !== 'ESRCH'; } };
@@ -231,7 +245,8 @@ test('a build process group that cannot be confirmed empty after SIGKILL keeps t
   // The build's group keeps a member that SIGKILL cannot remove: a zombie whose
   // parent left the group and never reaps it.
   const script = 'my $p = fork(); if ($p == 0) { my $z = fork(); if ($z == 0) { exit 0 } setpgrp(0, 0); open(my $f, ">", "$ARGV[0].tmp"); print $f "$$ $z " . getppid(); close $f; rename("$ARGV[0].tmp", $ARGV[0]); sleep 30; exit 0 } sleep 30';
-  const runner = startRunner(t.root, '/usr/bin/perl', ['-e', script, ready], { stopGraceMs: 200, killWaitMs: 300 });
+  // Its stand-ins hold none of the runner's pipes, which the test reads to their end.
+  const runner = startRunner(t.root, '/usr/bin/perl', ['-e', script, ready], { options: { stdio: 'ignore' }, stopGraceMs: 200, killWaitMs: 300 });
   let pids = [];
   try {
     pids = await readyPids(ready, runner);
@@ -289,4 +304,117 @@ test("the refusal names a native smoke's private app copy, by its token, for rem
     writeFileSync(lockPath, JSON.stringify({ pid: dead, started: 'T', purpose: 'native smoke', token: '../other', acquired: 'T' }));
     assert.throws(() => acquireBuildLock({ purpose: 'next', root: t.root }), (error) => !error.message.includes('rm -rf') && error.message.split('\n').at(-1) === `  rm -f '${lockPath}'`);
   } finally { t.cleanup(); }
+});
+
+// Wait (bounded) for `file` to exist.
+async function untilFile(file, runner) {
+  for (const start = Date.now(); Date.now() - start < 10000; await new Promise((resolve) => setTimeout(resolve, 20))) {
+    if (existsSync(file)) return;
+    if (runner.child.exitCode !== null) break;
+  }
+  throw new Error(`${file} never appeared:\n${runner.output()}`);
+}
+
+test('Codex r8: a stop signal between publishing the lock and returning from acquireBuildLock releases the lock (exit 143)', async () => {
+  const t = tempRoot();
+  const ready = path.join(t.root, 'ready');
+  // The hook holds the process right after the lock is published.
+  const runner = startScript(t.root, `
+    acquireBuildLock({ purpose: 'publish', root, onPublished: () => { writeFileSync(${JSON.stringify(ready)}, ''); Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 500); } });
+    setTimeout(() => {}, 5000);
+  `);
+  try {
+    await untilFile(ready, runner);
+    assert.ok(existsSync(buildLockPath(t.root)), 'published');
+    runner.child.kill('SIGTERM');
+    assert.deepEqual(await runner.done, { code: 143, signal: null }, runner.output());
+    assert.ok(!existsSync(buildLockPath(t.root)), 'the lock is released');
+  } finally { reap(runner, []); t.cleanup(); }
+});
+
+test('Codex r8: a command whose group outlives it is settled before the next command; its group id is never signalled after it is seen empty', async () => {
+  const t = tempRoot();
+  const log = path.join(t.root, 'kills.log');
+  const ready = path.join(t.root, 'ready');
+  // The first command exits at once, leaving a member of its group for 800 ms.
+  const first = "const c = require('node:child_process').spawn(process.execPath, ['-e', 'setTimeout(() => {}, 800)'], { stdio: 'ignore' }); c.unref(); console.log(process.pid + ' ' + c.pid);";
+  const second = `require('node:fs').writeFileSync(${JSON.stringify(ready)}, String(process.pid)); setInterval(() => {}, 1000);`;
+  // Every signal sent to a process group is logged.
+  const runner = startScript(t.root, `
+    const log = openSync(${JSON.stringify(log)}, 'a');
+    const kill = process.kill.bind(process);
+    process.kill = (pid, signal) => { if (pid < 0) writeSync(log, 'kill ' + (-pid) + ' ' + (signal ?? 0) + '\\n'); return kill(pid, signal); };
+    acquireBuildLock({ purpose: 'groups', root, stopGraceMs: 300, killWaitMs: 200 });
+    const one = await runUnderLock(process.execPath, ['-e', ${JSON.stringify(first)}], { stdio: ['ignore', 'pipe', 'ignore'] });
+    writeSync(log, 'settled ' + one.stdout.trim() + '\\n');
+    await runUnderLock(process.execPath, ['-e', ${JSON.stringify(second)}], { stdio: 'ignore' });
+  `);
+  let pids = [];
+  try {
+    await untilFile(ready, runner);
+    const lines = readFileSync(log, 'utf8').trim().split('\n');
+    const settled = lines.findIndex((line) => line.startsWith('settled '));
+    pids = [...lines[settled].split(' ').slice(1).map(Number), Number(readFileSync(ready, 'utf8'))];
+    const [leader, member] = pids;
+    // Whether the leftover member was gone before the second command ran, leaving the group id free for reuse.
+    const settledFirst = !alive(member);
+    for (const start = Date.now(); alive(member) && Date.now() - start < 2000; ) await new Promise((resolve) => setTimeout(resolve, 20));
+    runner.child.kill('SIGTERM');
+    assert.deepEqual(await runner.done, { code: 143, signal: null }, runner.output());
+    const after = readFileSync(log, 'utf8').trim().split('\n').slice(settled + 1);
+    assert.ok(after.some((line) => line.startsWith('kill ') && !line.startsWith(`kill ${leader} `)), `the second group was signalled: ${after}`);
+    assert.deepEqual(after.filter((line) => line.startsWith(`kill ${leader} `)), [], 'nothing is sent to the first group id once it was seen empty');
+    assert.ok(settledFirst, 'the first group was emptied before the second command');
+    assert.ok(!existsSync(buildLockPath(t.root)), 'the lock is released');
+  } finally { reap(runner, pids.slice(1)); t.cleanup(); }
+});
+
+test('Codex r8: a signal received during synchronous work is not lost to an immediate exit or to the release', async () => {
+  for (const ending of ['lock.release(); await exitAfterSignals(0);', 'lock.release();']) {
+    const t = tempRoot();
+    const ready = path.join(t.root, 'ready');
+    const runner = startScript(t.root, `
+      const lock = acquireBuildLock({ purpose: 'sync', root });
+      writeFileSync(${JSON.stringify(ready)}, '');
+      execFileSync('/bin/sleep', ['0.5']);
+      ${ending}
+    `);
+    try {
+      await untilFile(ready, runner);
+      runner.child.kill('SIGTERM');
+      assert.deepEqual(await runner.done, { code: 143, signal: null }, `${ending}\n${runner.output()}`);
+      assert.ok(!existsSync(buildLockPath(t.root)), 'the lock is released');
+    } finally { reap(runner, []); t.cleanup(); }
+  }
+});
+
+test('Codex r8: the kept-lock recovery message survives a full standard-error pipe at exit', { skip: !existsSync('/usr/bin/perl') && 'needs /usr/bin/perl' }, async () => {
+  const t = tempRoot();
+  const ready = path.join(t.root, 'ready');
+  const script = 'my $p = fork(); if ($p == 0) { my $z = fork(); if ($z == 0) { exit 0 } setpgrp(0, 0); open(my $f, ">", "$ARGV[0].tmp"); print $f "$$ $z " . getppid(); close $f; rename("$ARGV[0].tmp", $ARGV[0]); sleep 30; exit 0 } sleep 30';
+  // Standard error is not read until a second after the signal, and the
+  // runner has queued a megabyte for it first.
+  let startReading;
+  const reading = new Promise((resolve) => { startReading = resolve; });
+  const runner = startScript(t.root, `
+    acquireBuildLock({ purpose: 'pipe', root, stopGraceMs: 200, killWaitMs: 300 });
+    process.stderr.write('x'.repeat(1 << 20) + '\\n');
+    await runUnderLock('/usr/bin/perl', ['-e', ${JSON.stringify(script)}, ${JSON.stringify(ready)}], { stdio: 'ignore' });
+  `, { readAfter: reading });
+  let pids = [];
+  try {
+    pids = await readyPids(ready, runner);
+    runner.child.kill('SIGTERM');
+    setTimeout(startReading, 1000);
+    assert.deepEqual(await runner.done, { code: 143, signal: null });
+    const output = runner.output();
+    const lockPath = buildLockPath(t.root);
+    assert.ok(existsSync(lockPath), 'the lock is kept');
+    assert.match(output, /did not empty after SIGTERM and SIGKILL; the worktree build lock .* is kept/);
+    assert.ok(output.includes(`  rm -f '${lockPath}'`), 'the removal step arrived');
+  } finally {
+    startReading();
+    reap(runner, [pids[0], pids[2]].filter(Boolean));
+    t.cleanup();
+  }
 });
