@@ -1429,6 +1429,18 @@ share a PR. Opening (§5.1) is an owner act after them. It is about 0.3k lines
 with its tests, the native-smoke driver and the texts (revision 5 adds the
 native render's admitted set, a few lines).
 
+### 6.1 Slice (b) as built
+
+Slice (b) follows §3.1-§3.6 and §5.5 with these differences, each fail-closed:
+- **Handoff load bases.** The exact document names its load bases `load_case` (DEL-04-07 Design `desktop-exact-outputs.md` §4.2), while the handoff run section keeps the record's `LoadCase`. Item 8's "handoff load basis equals the document's" (`bindings.rs`) would refuse every coherent exact package, so it compares under that one mapping for exact identities only. Pressure-free packages are unchanged; item 0 still refuses exact identities first.
+- **Save order.** The save cannot know a request is exact before it parses it, so steps 1-5 run after the evidence, size and screening-payload checks and the request parse, and before every content check (model, input manifest, screen, context, rule packs, producer). A pressure-free request that carries exact texts refuses with `REPORT-EXACT-SECTIONS-MISMATCH: exact_route`, as the render does.
+- **Render rows.** The panel adds numerical-health lines after the rows on the generic route, pressure-2 included (§3.2, §5.2). The render's re-derivation therefore requires the rows to start with `expected_report_result_rows` and allows only numerical-health lines (`numerical-health:` id, empty quantity) after them; those lines carry no source value.
+- **`model_sha256` mutated in a render input** refuses at step 5 (`REPORT-EXACT-SOURCE-NOT-DELIVERED: model`), as §3.6 orders it, before the re-derivation that §7 names.
+- **Same-run substitution in the builder.** A recorded admission offered for other objects refuses as stale (§7), not as required; an unrecorded admission refuses as required.
+- **Render thread.** The render command runs every input on a blocking worker thread, so that an exact input's binding is off the main thread; a pressure-free input renders byte-identically there.
+- **Witness shapes.** The committed witness requests are pressure-2 straight (the straight corpus's input), pressure-2 with load/reference states and pressure-source-1, plus the substitute: desktop sessions need a request model with its producer bytes, and the connector and bend corpora have none committed. The connector and bend shapes are covered by the projection vectors (`exact_report_sections_parity.json`) on both sides. The substitute changes one nodal rotation row, which no section-basis pair or magnitude row repeats, so its standing stays eligible.
+- **Shared projection.** The TypeScript projection is `features/report/exactReportSections.ts` (the headline labels move there and `ResultsPanel.tsx` imports them); item 9's limitation comparison is the public `exact_sections::check_exact_limitation_entries`, which the native render reuses. The parity vectors also carry `admitted_semantic_contracts`, which `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS` must equal.
+
 ## 7. Verification
 
 **Slice (a).**

@@ -313,6 +313,9 @@ code_paths:
 - apps/desktop/src-tauri/src/ingress.rs
 - apps/desktop/src-tauri/src/command_ingress.rs
 - apps/desktop/src/test-support/demoReportPackageRequest.ts
+# W-11 slice (b): the solve job's custody digests and the exact-route source binding's priced parses.
+- apps/desktop/src-tauri/src/solve_jobs.rs
+- apps/desktop/src-tauri/src/exact_source_binding.rs
 checks:
 - core/product_physics/tests/exact_admission_seam.rs
 - core/product_physics/tests/silent_zero_guard_runtime.rs
@@ -332,3 +335,5 @@ checks:
 - apps/desktop/src-tauri/src/command_ingress.rs
 - apps/desktop/src-tauri/src/lib.rs
 - apps/desktop/src/test-support/demoReportPackageRequest.test.ts
+- apps/desktop/src-tauri/src/solve_jobs.rs
+- apps/desktop/src-tauri/src/report_render_exact_tests.rs

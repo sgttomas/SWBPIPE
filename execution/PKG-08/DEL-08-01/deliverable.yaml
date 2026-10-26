@@ -328,6 +328,13 @@ code_paths:
 - fixtures/reports/exact_route_limitations.json
 - fixtures/reports/exact_report_statements.json
 - apps/desktop/src-tauri/src/report_render_exact.rs
+# W-11 slice (b): the desktop exact sections, their admission and the native source binding.
+- apps/desktop/src/features/report/exactReportAdmission.ts
+- apps/desktop/src/features/report/exactReportSections.ts
+- apps/desktop/src/features/report/renderedReportAssembly.ts
+- apps/desktop/src/features/results/loadReferenceDisclosure.tsx
+- apps/desktop/src-tauri/src/exact_source_binding.rs
+- fixtures/reports/invented/exact_report_package_requests/
 checks:
 - core/reporting/report_package/tests/container.rs
 - core/reporting/report_package/tests/reader.rs
@@ -350,3 +357,8 @@ checks:
 - core/reporting/report_package/tests/exact_sections_parity.rs
 - core/reporting/report_package/tests/report_rows_parity.rs
 - core/reporting/report_package/tests/current_result_package.rs
+- apps/desktop/src/features/report/exactReportBelowGate.test.tsx
+- apps/desktop/src/features/report/reportResultRows.parity.test.ts
+- apps/desktop/src/services/previewService.test.ts
+- core/reporting/report_package/src/exact_package_witness_tests.rs
+- core/runner/headless/tests/del1005_package_witness.rs
