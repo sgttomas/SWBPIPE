@@ -464,10 +464,25 @@ fields get their units under the project-unit design: whether `project.units`
 covers those dimensions, and what a missing one refuses by name. Find the
 export panels' fallbacks and bring them under the same rule."
 
-The rule is §3's: a default unit comes from `project.units`, directly or by a
-catalog-checked composition (§2.4). A missing key is refused by name, and no
-other unit takes its place. Items marked **Open** wait for Agent 0 before they
-are built. The rest is settled.
+**Rulings.**
+- The owner, 2026-10-26: "units conversions that are routinely done in
+  engineering applications are permissible as a solution."
+- Agent 0 chose, on the options first presented in this section:
+  - **A:** revised (ii);
+  - **B:** the declared stress unit must agree with the referenced results;
+  - **C:** C2, exact conversion, in #1646;
+  - **D:** in this slice.
+- A Codex review of the first version of this section (`66c21f1092`) is folded
+  in below.
+
+**The rule** is §3's.
+- A default unit for a project-derived quantity comes from `project.units`,
+  either directly or by a catalog-checked composition (§2.4).
+- A missing key is refused by name, and no other unit takes its place.
+  "Missing" means absent, empty or whitespace-only.
+- A unit that is already stored stays as stored. Changing a key later moves only
+  the starting unit of a new entry: stored quantities, queued or captured
+  operations, and undo/replay keep their units (§2.5, §2.8).
 
 ### 7.1 Inventory
 
@@ -483,7 +498,7 @@ literal unit defaults:
 | `CaepipeMbfExportPanel.tsx:331,405,596` | length `?? "m"` | 7.4 |
 | `CaepipeMbfExportPanel.tsx:382-383` | force `?? "N"`, temperature `?? "C"` | 7.4 |
 | `PcfExportPanel.tsx:416` (witness), `:356` and `:530` (payload and diagnostic, no fallback) | length `?? "m"` | 7.4 |
-| `LocalFeaHandoffPanel.tsx:540-546` | `?? "m"`, `?? "N"`, `?? "MPa"`, `?? "degC"` | 7.4 |
+| `LocalFeaHandoffPanel.tsx:540-546` | `?? "m"`, `?? "N"`, `?? "MPa"`, `?? "degC"` | 7.4, 7.7 |
 | `convertLengthToMillimeters` in `CaepipeMbfExportPanel.tsx` and `PcfExportPanel.tsx` | factor 1 for every unit except `m` | 7.5 |
 | Component modifier fields: `PropertyInspector.tsx:2074,2156,2166` (`N/m`), `:2084,2176,2186` (`N*m/rad`), `:2109` (`m^2`); the grid's `ModelTree.tsx:1450,1458,1473,1503,1511,1519,1527` | literal | 7.6 |
 
@@ -500,281 +515,269 @@ The survey also found these literal units, which are outside this rule:
 - The review geometry's metre target, which already blocks any length other
   than `m` without a substitute (`ReviewGeometryPanel.tsx:678-690`).
 
-### 7.2 Temperature: settled
+### 7.2 Temperature (settled)
 
-- **The key exists.** `project.units.temperature` is one of the seven keys
-  (`schemas/model.schema.yaml` `ProjectUnits`; §2.2). Model document 0.7.0
+- **The key.** `project.units.temperature` is one of the seven keys
+  (`schemas/model.schema.yaml` `ProjectUnits`; §2.2), so model document 0.7.0
   needs no change.
-- **Inspector.** "Modulus basis solve temperature" defaults to the key when
-  the quantity is absent. The key is read as the thermal primitive load reads it
-  (`primitiveLoadVocabulary.ts` `projectTemperatureUnit`), so a legacy `C`
-  becomes `degC` and a new field never takes the alias. The two readers share one
-  helper.
-  - The field has its own unit selector, and the applier needs no key for it
-    (`operation_applier/src/lib.rs:815-821`, an `OptionalQuantity` with an
-    explicit unit). With the key missing, it is
-    `projectUnitDefault(..., "temperature", "choose")`: the unit starts
-    unselected with the `choose` notice, and a unit picked there lifts the
-    refusal.
-- **Grid.** The "Solve temperature" column's fallback becomes the same reading,
-  or `""`. Its dimension `temperature` is a project key, so the existing
-  `missingProjectUnitCellRefusal` refuses an empty cell by name with the
-  `required` text. A cell whose quantity already carries a unit keeps it
-  (`quantityUnitValue`).
-- **Numerical meaning.** None changes.
+- **One shared reader.** The project temperature default is read by one helper
+  in `projectUnitSelection.ts`, `projectTemperatureDefault`. It returns:
+  - the stored symbol, with a legacy `C` given as `degC`;
+  - or `""` (no unit) when the key is absent, empty or whitespace-only.
+  The thermal primitive load maps `""` to its own `"TBD"`. The editors keep
+  `""`.
+- **Inspector.** "Modulus basis solve temperature" defaults to that reading
+  when the quantity is absent.
+  - The field has its own unit selector, and the applier needs no project key
+    for it (`operation_applier/src/lib.rs:815-821`, an `OptionalQuantity` with
+    an explicit unit).
+  - A missing key gives `projectUnitDefault(..., "temperature", "choose")`. The
+    unit starts unselected, and the `choose` notice is shown. A unit picked in
+    the selector lifts the refusal.
+- **Grid.** The "Solve temperature" column uses the same reading.
+  - The grid has no unit selector. An empty cell is refused ("Not queued:
+    Solve temperature of <id> has no unit."), and the refusal sends the user to
+    the inspector: "Missing project unit: temperature. This cell has no default
+    unit, and nothing is assumed. Choose its unit in the property inspector, or
+    set temperature in Project units on the Project page."
+  - A cell whose quantity already carries a unit keeps it.
+- **Numerical meaning** is unchanged.
   - The solver normalizes the entered quantity into kelvin
     (`core/product_physics/src/lib.rs`, the `normalize_quantity` loop over
-    `modulus_basis_temperature`; `retained_precision.rs` `unit_value`).
+    `modulus_basis_temperature`).
   - Stored values and results do not move.
-  - What changes is the unit a new entry starts with. In a `degC` project,
-    typing 400 now proposes 400 degC, not 400 K. The selector shows the unit
-    before Review.
+  - Only a new entry's starting unit changes. In a `degC` project, typing 400 now
+    proposes 400 degC, not 400 K, and the selector shows the unit before Review.
 
-### 7.3 Acceleration: Open choice A
+### 7.3 Acceleration (Agent 0: revised (ii); catalog entries pending)
 
-**What exists today:**
-- `project.units` has no acceleration key.
-- The schema's open map admits an `acceleration` entry
-  (`additionalProperties: string`), but it is not one of the seven known keys.
-  `set_project_unit` refuses it (`OP-PROJECT-UNIT-UNKNOWN-KEY`), and the
-  dialog does not write it.
-- The catalog has one acceleration unit, `m/s^2` (`core/units/src/lib.rs`
-  `MeterPerSecondSquared`), and one time unit, `s`.
-- The applier takes the field as an explicit-unit `OptionalQuantity`
-  (`lib.rs:828-833`).
-- The solver normalizes it to `m/s^2` before seismic generation
-  (`product_physics/src/lib.rs`, the `gravity_acceleration` normalization).
-  So no option below changes a stored value or a result.
+**The settled design:**
+- `project.units` has no acceleration key, and none is added; option (i) stays
+  reserved.
+- The seismic gravity default is the composition `acceleration:
+  <length>/s^2` (§2.4 `COMPOSITIONS`), checked against the catalog, for every
+  project length unit.
+- The solver normalizes the entered quantity to `m/s^2` before seismic
+  generation (`product_physics/src/lib.rs`, the `gravity_acceleration`
+  normalization), so no default changes a stored value or a result.
 
-**Options:**
-- **(i) Add an `acceleration` key.** Reserved: it changes what a model document
-  carries, and 0.8.0 is planned in the solver lane.
-  - It extends the known keys, presets, dialog, `set_project_unit`'s key list
-    and the schema description.
-  - With one catalog unit, both presets would write `m/s^2`.
-- **(ii) Derive from `length` (recommended).** Add the composition
-  `acceleration: <length>/s^2` to §2.4's `COMPOSITIONS` and `COMPOSED_DEFAULTS`,
-  checked against the catalog like the others.
-  - **Results by length key:**
+**The catalog requirement.** Today the catalog has one acceleration unit,
+`m/s^2` (`core/units/src/lib.rs` `MeterPerSecondSquared`).
+- Revised (ii) needs `mm/s^2`, `in/s^2` and `ft/s^2` as derived entries with
+  exact factors to `m/s^2`: 0.001, 0.0254 and 0.3048.
+- They are `core/units` additions. No schema enumerates catalog symbols, so
+  they change no model-document format or schema version.
+- They are numerical code with a CI routing digest, so they are held for Agent
+  0 and Codex numerical scrutiny before they are built.
+- The desktop needs no further change when they land. The composition simply
+  finds them in the catalog.
 
-    | Length key | Default | Field |
-    |---|---|---|
-    | `m` | `m/s^2` | as today |
-    | `mm` | none | unselected, notice "`mm/s^2` is not a catalog unit; choose one" |
-    | `in` | none | unselected, notice "`in/s^2` is not a catalog unit; choose one" |
-    | `ft` | none | unselected, notice "`ft/s^2` is not a catalog unit; choose one" |
-    | missing | none | `choose` refusal naming `length` |
+**Until the entries land:**
 
-  - **Lifting the refusal:** in each unselected case the user picks `m/s^2`,
-    and that lifts the refusal.
-  - **Creation dialog:** its composed-defaults notice, shown for a Custom
-    selection, gains a row, marked when the composition is not a catalog unit.
-  - **Grid:** an empty cell is refused by name. The refusal names the
-    composition's notice or the missing `length`, because `acceleration` is
-    not a key.
-  - **Cost and benefit:** no schema or applier change, and no new principle.
-    The default follows a later catalog addition (`in/s^2`, `ft/s^2`) without
-    another design change. Adding those units is a `core/units` change and
-    lies outside this item.
-- **(iii) Always explicit.** No default. The unit starts unselected everywhere,
-  and the only choice is `m/s^2`.
-  - The self-weight plan's gravity unit already works this way
-    (`SelfWeightPlanPanel.tsx:38`).
-  - It is the simplest form, but every metre project picks the unit by hand.
-- **(iv) Default to a dimension's only accepted catalog unit.** `m/s^2` would
-  stay the default in every project. No assumption is made today, because no
-  alternative exists. When the catalog gains a second unit, the default
-  disappears.
-  - This is a new rule, independent of `project.units`.
+| Length key | Default | Field |
+|---|---|---|
+| `m` | `m/s^2` | as today |
+| `mm`, `in`, `ft` | none | unselected, notice "`<length>/s^2` is not a catalog unit; choose one" |
+| absent | none | `choose` refusal naming `length` |
+| empty or whitespace-only | none | "project.units.length is empty; choose one" |
 
-Recommendation: (ii). It applies §2.4 unchanged and keeps today's default for
-metre projects. Elsewhere it states why the field starts unselected.
+- A unit picked in the inspector lifts the refusal.
+- In the grid, an empty cell is refused by name. The refusal names the missing
+  `length` or the unavailable composed symbol, and sends the user to the
+  inspector.
+- Where no catalog is loaded (the browser preview), the composition is kept
+  unchecked, as in §2.4. The applier's unit validation still applies.
+- The creation dialog's composed-defaults list does not gain the acceleration
+  row until the entries land. §4's "every composed default is a catalog unit"
+  for both presets would otherwise fail on the US preset.
 
-### 7.4 Export panels: settled, with Open choice B
+### 7.4 Export panels' missing project keys (settled; built after #1646 merges)
 
-- **Inputs come from `project.units`.** A panel takes every unit it writes from
-  `project.units`. If any key it reads is missing (`projectUnitMissing`), the
-  export is refused by name:
-  - the download controls are not rendered, and a status line with test id
-    `<prefix>-project-unit-refusal` takes their place;
+These refusals cover units the exports take from `project.units`. Other units
+in the same files are not affected:
+- the target units (`mm`, `MM`) come from the target profile;
+- the local FEA result-unit declarations are covered by §7.7.
+
+- **The refusal.** If a key that a panel reads is missing (`projectUnitMissing`),
+  the export is refused by name:
+  - the download controls are not rendered;
+  - a status line with test id `<prefix>-project-unit-refusal` takes their
+    place;
   - no packet is built with a substitute.
-  - The load-reference output gate keeps precedence. Its refusal shows first,
-    and the unit refusal sits inside it.
-- **Refusal text.** `<CODE>: Missing project unit: <key>. This export writes
-  <what> from project.units.<key>, and nothing is assumed. Set <key> in Project
-  units on the Project page.` Missing `length` with nodes gives `<CODE>:`
-  followed by §3's hard-lock text (`missingProjectUnitText(model, "length",
-  "positions")`).
-- **One helper.** The key check and text live in one helper beside
-  `missingProjectUnit.ts`. Each panel passes its code and its required keys.
+  The load-reference output gate keeps precedence: its refusal is shown first,
+  and the unit refusal sits inside it.
+- **Text:** "`<CODE>`: Missing project unit: `<key>`. This export writes
+  `<what>` from project.units.`<key>`, and nothing is assumed. Set `<key>` in
+  Project units on the Project page."
+  - Missing `length` with nodes present gives `<CODE>:` followed by §3's
+    hard-lock text (`missingProjectUnitText(model, "length", "positions")`).
+- **One helper.** The key check and the text are one helper beside
+  `missingProjectUnit.ts`.
 
-| Export | What the file needs | Keys read | Missing key refuses as | In #1639's files |
-|---|---|---|---|---|
-| CAEPIPE MBF (`CaepipeMbfExportPanel.tsx`) | Node coordinates converted to `mm` from the length key; a `UNIT` record of target length `mm`, then force and temperature symbols as stored (a legacy `C` is written as stored) | `length`, `force`, `temperature` | `MBF-PROJECT-UNIT-MISSING` | no |
-| PCF (`PcfExportPanel.tsx`) | Node coordinates converted to `MM` from the length key; witnesses name the same source unit as the payload (today the witness says `m` while the payload uses the raw key) | `length` | `PCF-PROJECT-UNIT-MISSING` | no |
-| Local FEA handoff (`LocalFeaHandoffPanel.tsx`) | `units_manifest`, whose seven members the schema requires non-empty (`local_fea_handoff.schema.yaml` `UnitsManifest`) | `length`, `force`, `stress`, `temperature` | `LOCAL-FEA-PROJECT-UNIT-MISSING` | no |
+| Export | Project-derived source units | Missing key refuses as |
+|---|---|---|
+| CAEPIPE MBF (`CaepipeMbfExportPanel.tsx`) | node-coordinate source unit (`length`); the `UNIT` record's force and temperature symbols, written as stored | `MBF-PROJECT-UNIT-MISSING` |
+| PCF (`PcfExportPanel.tsx`) | node-coordinate source unit (`length`), the same in the payload and the witnesses | `PCF-PROJECT-UNIT-MISSING` |
+| Local FEA handoff (`LocalFeaHandoffPanel.tsx`) | `coordinate_unit` (`length`), `temperature_unit`, and `force_unit` and `stress_unit` where §7.7 takes them from the key | `LOCAL-FEA-PROJECT-UNIT-MISSING` |
 
-Each of the four fallbacks is removed. The MBF diagnostic at `:596` reads the
-key itself, so a missing length is refused rather than treated as metres.
+- **The fallbacks.** The `??` fallbacks are removed. The MBF and PCF edits wait
+  until #1646 merges, because it rewrites the same files' length conversion.
+- **Shared with #1639.** None of these files is in #1639.
 
-- **Open choice B: what the local FEA manifest declares.**
-  - Its other three members are literals: `moment_unit: "N*m"`,
-    `displacement_unit: "mm"`, `rotation_unit: "rad"`. They equal the solver's
-    result-row units: result rows carry `mm`, `N`, `N*m`, `MPa` and `rad`.
-  - `force_unit` and `stress_unit` come from the project keys. In an SI-preset
-    project (`stress: Pa`) the manifest therefore says `Pa`, while the stress
-    rows it references are in `MPa`.
-  - **Options:**
-    - (B1) Take `force_unit` and `stress_unit` from the project keys, as today,
-      with the fallbacks removed and the three literals unchanged. This item
-      does not change the manifest's meaning.
-    - (B2) Declare model units (`coordinate_unit`, `temperature_unit`) from
-      the keys, and result units (`force`, `moment`, `displacement`,
-      `rotation`, `stress`) from the referenced result rows. This changes
-      `force_unit` and `stress_unit` wherever the keys differ from the
-      solver's units. It is a DEL-10-03 contract question.
-  - **Recommendation:** B1 in this slice, and B2 raised with DEL-10-03.
+### 7.5 Export length conversion
 
-### 7.5 The hidden conversion fallback: Open choice C
+Agent 0 chose C2, exact conversion, built separately in #1646. Its §7.5
+replaces this subsection when main is merged into this branch. The first
+version of this section had an option C1 (refuse); it is withdrawn.
 
-**The defect.** Both panels' `convertLengthToMillimeters` multiply by 1000 for
-`m` and by 1 for every other unit. The text output is wrong in these cases:
-- **Coordinates.** With a project length of `in` or `ft`, the MBF and PCF text
-  carries unconverted coordinates labelled `mm`/`MM`. Each package records a
-  blocking diagnostic (`MBF-NODE-COORDINATE-UNIT-TBD`,
-  `PCF-COORDINATE-UNIT-TBD`), but the download links are still offered.
-- **PCF section dimensions.** OD and wall thickness are converted from their
-  own entered units. One entered in `in` is written unconverted as `MM`, and
-  its witness says `source_unit_matches_target_unit`. No diagnostic is raised.
-  The US preset makes this reachable on every such project.
+### 7.6 Component modifier defaults (settled; Agent 0: in this slice)
 
-**Options:**
-- **(C1) Refuse (recommended for this slice).**
-  - The helper returns no value for any unit other than `m` and `mm`.
-  - A coordinate or section length it cannot convert refuses the export the way
-    §7.4 does: the existing codes for coordinates, and a new
-    `PCF-SECTION-UNIT-TBD` for a section dimension, naming the element and
-    unit.
-  - Output for `m` and `mm` is unchanged.
-- **(C2) Convert `in`, `ft` and `cm` exactly through the unit engine.** This
-  changes numerical export meaning, so it needs targeted regression checks and
-  independent scrutiny (Root `AGENTS.md`). It belongs in a later item.
-- **(C3) Leave it.** The text stays wrong for non-metric projects.
+The component modifiers' fixed defaults become §2.4 compositions with the §3
+refusal pattern. The affected fields are:
+- linear, axial and lateral stiffness (`N/m`);
+- rotational, angular and torsional stiffness (`N*m/rad`);
+- the expansion joint's effective area (`m^2`).
+They appear in the inspector and in the component grid.
 
-C1 changes no output for a project in `m` or `mm`. Because it affects what an
-export contains, independent scrutiny of the implementation is still warranted.
-
-### 7.6 Component modifier literals: Open choice D
-
-The component modifiers' linear stiffness (`N/m`), rotational stiffness
-(`N*m/rad`) and effective area (`m^2`) are the same kind of fixed default.
-Agent 0's unit does not name them.
-
-**Proposal, the §2.4 compositions:**
-- **Linear stiffness:** `declaredOrComposedDefault(linear_stiffness)`, as the
-  support draft already uses.
-- **Rotational stiffness:** `<moment>/<angle>`, with the moment read as
-  declared or composed.
+- **Linear stiffness:** `declaredOrComposedDefault(linear_stiffness)`. This is
+  the support draft's default: a declared `linear_stiffness` key, otherwise
+  `<force>/<length>`.
+- **Rotational stiffness:** `<moment>/<angle>`. The moment is read as declared
+  or composed (§2.4).
 - **Area:** `<length>^2`.
+- **Missing parts and unavailable symbols.**
+  - A missing part names its key. In the inspector the refusal is `choose`; in
+    the grid the refusal points to the inspector.
+  - A composed symbol the catalog lacks gives the §2.4 notice.
+  - A stored unit is kept.
+- **Effect by project:**
+  - The SI preset and the bundled demo (no `moment` key) keep `N/m`, `N*m/rad`
+    and `m^2`.
+  - The US preset gives `lbf/in` and `in^2`. Rotational stiffness starts
+    unselected, because `lbf*in/deg` is not a catalog unit.
+  - Adding rotational-stiffness entries such as `lbf*in/deg` would be the same
+    kind of `core/units` addition as §7.3's. They are not requested here and
+    are recorded as an improvement.
 
-**Effect:**
-- The SI preset and the bundled demo, which has no `moment` key, keep `N/m`,
-  `N*m/rad` and `m^2`.
-- The US preset gives `lbf/in` and `in^2`. Rotational stiffness starts
-  unselected, because `lbf*in/deg` is not a catalog unit.
+### 7.7 Local FEA manifest result units (Agent 0's B)
 
-Options: build D in this slice, or as the next slice. Recommendation: in this
-slice. The mechanism and the tests are the same, and the code is in the same
-two files.
+**The problem.**
+- The handoff refers to results; it does not carry their values. Its witnesses
+  record each referenced transfer row's value and unit as preserved
+  (`export_unit_policy: preserve_source_result_unit_and_dimension`,
+  `conversion_performed: false`). The package defines those terms and their
+  schema.
+- Today `force_unit` and `stress_unit` come from the project keys, while the
+  rows they label carry the solver's units. Product-preview rows are in `N` and
+  `MPa`; exact-route rows are in `Pa`.
+- So an SI-preset project (`stress: Pa`) declares `Pa` beside `MPa` stress rows,
+  and a US-preset project declares `psi` and `lbf`.
 
-### 7.7 Ownership, overlap and sequencing
+**The proposal: declare the results' unit, rather than convert.**
+- Converting would add converted values the package does not carry and would
+  contradict the witness policy.
+- The rule, for `stress_unit` and `force_unit`:
+  - **Rows of the family are referenced, all in one unit.** That unit is
+    declared. A family is the rows `resultDimension` classes as stress or
+    force among `selectedResultRefs`.
+  - **They differ.** The handoff is refused:
+    `LOCAL-FEA-RESULT-UNIT-INCONSISTENT: the referenced <family> results carry
+    different units (<u1>, <u2>); no single <family>_unit can be declared.`
+    The download is withheld, and no packet is built.
+  - **No row of the family is referenced.** The member labels no result. It
+    keeps today's source, the project key, which §7.4 refuses by name when it is
+    missing. Today `selectedResultRefs` selects a force row only where the
+    model has `pipe:P-120`, so in most models `force_unit` is the project key.
+- **Out of scope.** `moment_unit`, `displacement_unit` and `rotation_unit` stay
+  as they are: `N*m`, `mm` and `rad`.
+  - On the routes the panel is open to, they equal the referenced rows' units.
+  - Rotation rows are never selected.
+  - Taking every member from the rows (B2) is a recorded improvement.
+- **DEL-10-03 ownership.** The proposal leaves DEL-10-03's own commitments
+  alone. `selectedResultRefs`, the transfer lists, the witnesses, their policy
+  and every referenced value are unchanged. It reads the `unit` of rows the
+  package already references, and changes the source of two manifest labels
+  that Agent 0's ruling covers.
+- **Regression.** In a model whose project stress key differs from the stress
+  rows' unit (SI `Pa`, US `psi`), `stress_unit` equals the unit of every
+  referenced stress row; before the change it was the project key.
+  - The same applies to `force_unit` with `lbf` against `N`.
+  - Mixed units refuse by name.
+  - With no stress row referenced, the declared unit is the key.
 
-- **ScopeOfWork.** No commitment or acceptance criterion changes under the
-  recommended options. The edits carry out existing commitments:
+### 7.8 Ownership, overlap and sequencing
+
+- **ScopeOfWork.** No commitment or acceptance criterion changes; the edits
+  carry out existing text:
   - DEL-02-02: U-006, U-013 and "No silent defaults".
-  - DEL-17-07: "Missing or ambiguous units | Diagnostic or blocking loss entry;
-    no silent default for unit-bearing physical values"; "Units | Require
-    explicit unit policy. Do not use dimensionless or missing unit metadata as
-    fallback."
-  - DEL-10-03: "Units or dimensional basis are missing | Emit `SOLVE_BLOCKING`
-    or export-blocking diagnostics where applicable; do not silently default."
+  - DEL-17-07: "no silent default for unit-bearing physical values" and "Do
+    not use ... missing unit metadata as fallback".
+  - DEL-10-03: "do not silently default".
   - DEL-17-04: AC "blocking diagnostics for incomplete packages".
-
   On implementation, the DEL-02-02 Design pointer adds slice (c). That pointer
-  is a description, not a commitment. Option (i) is reserved for its
-  model-document consequence. It would change no ScopeOfWork text.
+  is a description, not a commitment.
 - **Native smoke.** No `apps/desktop/native-smoke/expected.json` value moves:
   - its fixtures carry `length`, `force`, `stress` and `temperature`;
   - the exact route's MBF check reads the load-reference refusal, which keeps
     precedence;
-  - no expectation reads a solve temperature, gravity or export unit.
-- **Open PR #1639.** None of the code files is in its file list.
-  `docs/COMPLETENESS_MAP.md` and `docs/user_guide/index.md` are. Any
-  reconciliation edit to them at implementation is sequenced through Agent 0.
+  - no expectation reads a solve temperature, gravity, modifier or export unit.
+- **Shared files.**
+  - #1646 owns the MBF and PCF length conversion and this file's §7.5.
+  - The completeness-map edits go to #1642.
+  - `docs/user_guide/index.md` waits for #1639.
 - **Files:**
-  - `PropertyInspector.tsx`, `ModelTree.tsx`
-  - `project-units/projectUnitSelection.ts`, `missingProjectUnit.ts`
-  - `load-cases/primitiveLoadVocabulary.ts` (the shared temperature reader)
-  - the three export panels
-  - tests
+  - `PropertyInspector.tsx`, `ModelTree.tsx` and `modelTableAdapter.ts`;
+  - `project-units/projectUnitSelection.ts` and `missingProjectUnit.ts`;
+  - `load-cases/primitiveLoadVocabulary.ts`;
+  - the three export panels (§7.4, §7.7);
+  - tests.
+  No applier, schema or solver file changes. The `core/units` entries in §7.3
+  are held as described there.
 
-  No applier, schema, `core/units` or solver file changes.
+### 7.9 Tests
 
-### 7.8 Tests
-
-- **Vitest, inspector (load case).**
-  - In the demo (`temperature: degC`), the solve temperature starts at `degC`.
-    Queueing 400 emits `{value: 400, unit: "degC"}`. The expectation in
-    `schemaSlotEmission.test.tsx:175` changes from `K`, the reason being
-    §7.2.
-  - A legacy `C` key starts at `degC`.
-  - A missing key starts unselected with the `choose` notice, and nothing is
-    queued. Picking `K` lifts the refusal and queues `K`.
+- **Inspector, load case.**
+  - In the demo (`temperature: degC`), the solve temperature starts at `degC`,
+    and queueing 400 emits `{value: 400, unit: "degC"}`. This changes
+    `schemaSlotEmission.test.tsx`'s and the e2e "DEC-077 solve temperature"
+    expectation from `K`, for the reason in §7.2. The tests that store `K`
+    explicitly are kept.
+  - A legacy `C` starts at `degC`.
+  - A key that is absent, empty or whitespace-only starts unselected with the
+    `choose` notice, and nothing is queued. Picking `K` lifts the refusal and
+    queues `K`.
   - A stored quantity keeps its own unit.
-- **Vitest, acceleration (option ii).**
-  - With length `m`, the default is `m/s^2`; `schemaSlotEmission.test.tsx:179`
-    is unchanged.
-  - With `mm`, `in` or `ft`, the field starts unselected with the named notice,
-    and picking `m/s^2` lifts it.
-  - With `length` missing, the `choose` refusal names `length`.
-  - With the catalog not loaded, the composition stays unchecked.
-  - `composedDefaultsFor` lists the acceleration composition for both presets'
-    maps. The US map's entry is marked as not in the catalog. The dialog test
-    for a Custom selection follows.
-- **Vitest, grid.**
-  - The "Solve temperature" column takes the key. An empty cell with the key
-    missing is refused with "Not queued: Solve temperature of <id> has no
-    unit.", and nothing is queued.
-  - A gravity cell is refused by name in each unselected case.
-  - Stored units are shown as stored.
-- **Vitest, export panels.** For each panel:
-  - Each required key missing in turn: the named code and text are shown, no
-    `*-export-link` or `*-text-link` is rendered, and no builder output
-    carries a substitute symbol.
-  - Missing `length` with nodes shows the hard-lock text.
-  - With every key present, the demo's packets are unchanged:
-    - the MBF `UNIT` record is `mm`, `N`, `degC`;
-    - the PCF witness count stays 23 (`App.test.tsx`);
-    - the local FEA manifest is `m`, `N`, `MPa`, `degC`.
-  - A legacy `C` is written as stored in the MBF `UNIT` record.
-  - On the exact route with a key missing, the load-reference refusal is shown
-    and the unit refusal is not.
-  - `LocalFeaHandoffPanel.test.tsx`'s model has no `stress` key; today it gets
-    the `MPa` fallback. It gains the key, and a separate case asserts the
-    refusal.
-- **Vitest, option C1.**
-  - `convertLengthToMillimeters` gives no value for anything except `m`
-    (×1000) and `mm` (×1).
-  - Length `in` withholds both panels' links under the existing codes.
-  - A PCF section OD in `in` refuses with `PCF-SECTION-UNIT-TBD`.
-  - Output for `m` and `mm` is unchanged.
-- **Vitest, option D (if built).**
+- **A project-key change.** After `temperature` changes from `degC` to `degF`:
+  - a stored `K` quantity still reads `K`;
+  - an operation captured before the change still carries `degC`;
+  - a new entry starts at `degF`.
+- **Acceleration.**
+  - `m` gives `m/s^2`.
+  - `mm`, `in` and `ft` start unselected with the notice naming the symbol.
+    Picking `m/s^2` lifts the refusal.
+  - An absent `length` gives a `choose` refusal naming `length`. An empty or
+    whitespace-only key gives the empty-key notice.
+  - With the catalog not loaded, the composition is unchecked.
+  - The fixture test records `mm/s^2`, `in/s^2` and `ft/s^2` as absent from
+    the core catalog. That expectation moves when the entries land.
+- **Component modifiers.**
   - The SI preset and the demo keep `N/m`, `N*m/rad` and `m^2`.
-  - The US preset gives `lbf/in` and `in^2`, and rotational stiffness starts
+  - The US preset gives `lbf/in` and `in^2`. Rotational stiffness starts
     unselected with the notice.
-  - Missing parts are refused by name in the inspector and in the grid.
-- **e2e.** In `r2-smoke.spec.ts`, "DEC-077 solve temperature queues an
-  explicit unit-bearing operation" expects the `degC` default and
-  `{"value":400,"unit":"degC"}` (the demo's key). The reason is §7.2.
-- **Unchanged.** No Rust, applier, solver or validation-reference test changes,
-  and no native-smoke expectation changes.
+  - A missing part is named in the inspector and in the grid.
+  - A stored unit is kept.
+- **Grid.** An empty solve-temperature, gravity or modifier cell is refused by
+  name, the refusal points to the inspector, and nothing is queued.
+- **Local FEA (§7.7).**
+  - With an SI or US project key against `MPa` or `N` rows, the manifest
+    declares the rows' unit.
+  - Mixed units refuse by name, with no link.
+  - With no stress row referenced, the declared unit is the key.
+  - The demo's manifest is unchanged (`MPa`, `N`).
+- **Export panels (§7.4, after #1646).**
+  - Each required key missing (absent, empty or whitespace-only) shows the
+    code and text, with no links.
+  - Missing `length` with nodes shows the hard-lock text.
+  - The demo's packets are unchanged.
+  - On the exact route, the gate's refusal keeps precedence.
+- **Unchanged.** No Rust, applier, solver or native-smoke expectation changes.
