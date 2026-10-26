@@ -394,7 +394,11 @@ impl ScreeningBound {
         ])
     }
 
+    /// `stack` is the path strings live on entry (this value's own included):
+    /// it is recorded here for every value, an array item, a scalar or an
+    /// empty container as much as an object member (Codex r5 P1).
     fn walk(&mut self, value: &Value, path: u64, stack: u64) {
+        self.walk_peak = self.walk_peak.max(stack);
         match value {
             Value::Array(items) => {
                 for (index, item) in items.iter().enumerate() {
@@ -1223,6 +1227,23 @@ mod tests {
         serde_json::to_string(&json!({ "project": { "id": PROJECT }, "k".repeat(32 * 1024): vec![reference; 150] })).unwrap()
     }
 
+    /// Codex r5 shape: a 32 KiB key, then 120 nested containers around `null`
+    /// (arrays, objects, or alternating), so the screener's walk holds 120
+    /// paths of 32 KiB at once at the deepest value, which is not an object
+    /// member when the tail ends in arrays.
+    fn nested_tail_shape(kind: &str) -> String {
+        let mut tail = Value::Null;
+        for level in 0..120 {
+            let array = match kind {
+                "arrays" => true,
+                "objects" => false,
+                _ => level % 2 == 0,
+            };
+            tail = if array { json!([tail]) } else { json!({ "a": tail }) };
+        }
+        serde_json::to_string(&json!({ "project": { "id": PROJECT }, "k".repeat(32 * 1024): tail })).unwrap()
+    }
+
     fn store_with_library(scratch: &Scratch, model: &str, kind: &str, id: &str, library: &str) -> PathBuf {
         let store = current_store(scratch, model, STATE_TEXT);
         Connection::open(&store)
@@ -1288,6 +1309,26 @@ mod tests {
             other => panic!("not saved: {other:?}"),
         }
         assert_eq!(normal.pool_status().reserved_bytes, 0);
+
+        // Codex r5: a 32 KiB key, then 120 nested containers around `null`
+        // (a ~33 KB model; Codex measured an 8 MB screening peak for the
+        // arrays). Refused under a 2 MiB pool, before the chooser.
+        for kind in ["arrays", "objects", "mixed"] {
+            let scratch = Scratch::new(&format!("screening-nested-{kind}"));
+            let model = nested_tail_shape(kind);
+            assert!(model.len() < 34 * 1024, "{kind}: {} bytes", model.len());
+            let store = current_store(&scratch, &model, STATE_TEXT);
+            let destination = scratch.0.join("recovered.json");
+            let small = pool_of(2 << 20);
+            let shown = Cell::new(false);
+            let refused = export(&store, None, &small, &destination, &shown);
+            assert_refused_nothing_written(&refused, MEMORY_UNAVAILABLE, &destination, &shown);
+            assert!(refusal_message(&refused).contains("the screening of the stored document"), "{kind}: {refused:?}");
+            assert_eq!(small.pool_status().reserved_bytes, 0);
+            assert!(matches!(export(&store, None, &normal, &destination, &shown), ModelDocumentSaveOutcome::Saved { .. }), "{kind}");
+            assert_eq!(fs::read(&destination).unwrap(), model.as_bytes());
+            assert_eq!(normal.pool_status().reserved_bytes, 0);
+        }
     }
 
     /// The bound reserved for the screening covers what the shared screener
@@ -1325,6 +1366,9 @@ mod tests {
         let shapes: Vec<(&str, String, Vec<(&str, &str, String)>)> = vec![
             ("hanger", hanger_model, vec![("hanger", HANGERS, hanger_library)]),
             ("unresolved", unresolved_shape(), vec![]),
+            ("nested arrays", nested_tail_shape("arrays"), vec![]),
+            ("nested objects", nested_tail_shape("objects"), vec![]),
+            ("nested mixed", nested_tail_shape("mixed"), vec![]),
             ("busy", busy_model, vec![("hanger", "lib0", busy_hanger), ("material", "lib1", busy_material)]),
         ];
         for (name, model, libraries) in shapes {
@@ -1347,7 +1391,7 @@ mod tests {
                 Ok(warnings) => warnings.len(),
                 Err(blocking) => blocking.len(),
             };
-            assert!(found > 0 || name == "hanger", "{name}: the screening finds something");
+            assert!(found > 0 || name == "hanger" || name.starts_with("nested"), "{name}: the screening finds something");
             assert!(measured.peak_priced <= bound, "{name}: the screener's peak {} exceeds its reserved bound {bound}", measured.peak_priced);
             drop(screened);
         }
