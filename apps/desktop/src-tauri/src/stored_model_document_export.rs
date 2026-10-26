@@ -376,8 +376,10 @@ impl<'a> LibraryReads<'a> {
 ///   ([`ScreeningBound`] of the model, reserved by [`Self::screen_model`]
 ///   before the screening starts, and [`library_screening_bytes`] for each
 ///   library before it is returned to the screener);
-/// - for the handoff ([`Self::with_reference_metadata`]), the reference
-///   metadata built from each library: its canonical text, hashed once
+/// - for the handoff ([`Self::with_reference_metadata`]), its structural
+///   screens of each library, priced from their allocation-free count
+///   ([`structural_screening_bytes`]), and the reference metadata built from
+///   each library: its canonical text, hashed once
 ///   (`stored_read::grown_text_bytes` of its exact `jcs_length`); its
 ///   classification is folded over the library as it is walked, collecting
 ///   nothing from it (`handoff_package::library_refs`). The handoff shares each
@@ -481,6 +483,10 @@ impl<'a> StoreLibraryReads<'a> {
         if self.reference_metadata {
             let canonical = stored_read::grown_text_bytes(stored_read::jcs_length(&document));
             self.held.push(self.memory.reserve(&format!("the canonical text of {what} (its reference digest)"), canonical)?);
+            let structural = crate::export_disposition_screen::structural_bound(&document);
+            let unscreened = ScreeningBound::default();
+            let structural = structural_screening_bytes(&structural, self.references.as_ref().unwrap_or(&unscreened));
+            self.held.push(self.memory.reserve(&format!("the structural screening of {what}"), structural)?);
         }
         Ok(Some(document))
     }
@@ -571,6 +577,28 @@ pub(crate) mod library_read_probe {
         reviewed_public(&mut library);
         library["material_library"]["library_id"] = json!("library:invented-materials");
         library["material_records"][0]["material_id"] = json!("steel");
+        library
+    }
+
+    /// #1641 Codex r2 P2-a's shape: [`representative_material_library`] with
+    /// `depth` nested objects under its wrapper, each under a key of
+    /// `key_length` bytes, holding no disposition member (invented, public).
+    pub(crate) fn nested_long_key_library(depth: usize, key_length: usize) -> serde_json::Value {
+        let mut library = representative_material_library();
+        let mut tail = serde_json::json!({ "note": "invented" });
+        for level in 0..depth {
+            tail = serde_json::json!({ format!("{level:03}{}", "k".repeat(key_length)): tail });
+        }
+        library["material_library"]["invented_notes"] = tail;
+        library
+    }
+
+    /// #1641 Codex r2 P2-b's shape: [`representative_material_library`]'s
+    /// wrapper with `records` records `steel`, each `rejected`, so W-6a's
+    /// screening refuses with one diagnostic per record.
+    pub(crate) fn rejected_records_library(records: usize) -> serde_json::Value {
+        let mut library = representative_material_library();
+        library["material_records"] = serde_json::Value::Array(vec![serde_json::json!({ "material_id": "steel", "review_status": "rejected" }); records]);
         library
     }
 
@@ -854,6 +882,30 @@ fn library_screening_bytes(library_kind: &str, library: &Value, parse: u64, refe
     ])
 }
 
+/// What the handoff's structural screens of one stored library build
+/// (`handoff_package::library_refs`: `screen_value` and `malformed_values`,
+/// #1641 Codex r2 P2-a), from their allocation-free count
+/// (`export_disposition_screen::structural_bound`): the walks' one pointer
+/// buffer at its longest (growing, one walk at a time); for each walk, every
+/// finding built at its exact length, their vector, the repeats' check (a
+/// flag and a borrowed key per finding) and the deduplicated vector; and the
+/// refusal quoting them, held to the end: the joined findings, the message
+/// built around them and its diagnostic, at the model's longest reference
+/// path, quoting its longest identity.
+fn structural_screening_bytes(bound: &crate::export_disposition_screen::StructuralBound, references: &ScreeningBound) -> u64 {
+    let walk = |found: crate::export_disposition_screen::FindingCount| {
+        let joined = found.text_bytes.saturating_add(found.count.saturating_mul(2));
+        stored_read::total(&[
+            found.text_bytes.saturating_mul(2).saturating_add(found.count.saturating_mul(16)),
+            found.count.saturating_mul(slot_bytes(STRING_SIZE).saturating_mul(2).saturating_add(slot_bytes(16)).saturating_add(slot_bytes(1))),
+            stored_read::exact_text_bytes(joined),
+            diagnostic_bytes(references.path_max, stored_read::total(&[joined, references.identity_max, MESSAGE_FIXED_BYTES])),
+            VECTOR_BASE_BYTES.saturating_mul(2),
+        ])
+    };
+    stored_read::total(&[stored_read::text_copy_bytes(bound.pointer_max), walk(bound.blocking), walk(bound.malformed)])
+}
+
 /// Reads the stored text of a project's document (`state_id` absent) or of one
 /// of its saved states from the store at `store`, opened read-only, and admits
 /// it for writing unchanged, within `memory`. The reservations the admitted
@@ -956,21 +1008,62 @@ pub(crate) fn export_stored_model_document_request<R>(
 /// durability and the member names.
 const SAVED_FIELDS_BYTES: u64 = 4096;
 
+/// An outcome a command serializes within its memory ([`serialize_outcome`]),
+/// with the short form it sends when its whole response is refused.
+pub(crate) trait SentOutcome: serde::Serialize + Sized {
+    /// The bounded outcome sent instead when the pool refuses the whole
+    /// response (`refusal`): a refusal's first diagnostic and count, or a
+    /// Saved outcome without its warnings, `noun` naming the command (`export`,
+    /// `save`). Quoted texts are capped.
+    fn shortened(self, refusal: String, noun: &str) -> Self;
+}
+
+impl SentOutcome for ModelDocumentSaveOutcome {
+    fn shortened(self, refusal: String, noun: &str) -> Self {
+        match self {
+            ModelDocumentSaveOutcome::Saved { file_name, byte_count, model_hash, replaced_existing, durability, warnings } => ModelDocumentSaveOutcome::Saved {
+                file_name,
+                byte_count,
+                model_hash,
+                replaced_existing,
+                durability,
+                warnings: vec![diagnostic(
+                    MEMORY_UNAVAILABLE,
+                    "",
+                    format!("{} The file was saved; its {} warnings are not shown.", stored_read::capped(refusal), warnings.len()),
+                )],
+            },
+            ModelDocumentSaveOutcome::Refused { diagnostics } => ModelDocumentSaveOutcome::refused_one(MEMORY_UNAVAILABLE, shortened_refusal(refusal, noun, &diagnostics)),
+            ModelDocumentSaveOutcome::Cancelled => ModelDocumentSaveOutcome::Cancelled,
+        }
+    }
+}
+
+/// A refusal whose diagnostics are not shown, named by the response's refusal,
+/// their count and the first of them (capped).
+pub(crate) fn shortened_refusal(refusal: String, noun: &str, diagnostics: &[ModelDocumentSaveDiagnostic]) -> String {
+    let first = diagnostics.first().map_or(String::new(), |item| format!(" The first is {}: {}", item.code, stored_read::capped(item.message.clone())));
+    format!("{} The {noun} was refused with {} diagnostics, which are not shown.{first}", stored_read::capped(refusal), diagnostics.len())
+}
+
 /// The outcome's text (Codex r4 P2), serialized within `memory` while the
 /// outcome's reservations are held: its exact length is counted first, and a
 /// buffer of that capacity is written under `reserved` (a bound reserved
 /// earlier) when it fits, else under a new reservation. If the pool refuses
-/// it, a short outcome naming the refusal is sent instead (bounded: quoted
-/// texts are capped): a refusal's first diagnostic and count, or a Saved
-/// outcome without its warnings. Returns the outcome sent, its text and the
-/// buffer's reservation, which the caller holds until the response exists.
-fn serialize_outcome(
+/// it, the outcome's short form is sent instead ([`SentOutcome::shortened`]).
+/// `what` names the response ("the response to {what}"), and `noun` the
+/// command in the short form. Returns the outcome
+/// sent, its text and the buffer's reservation, which the caller holds until
+/// the response exists. Shared by the recovery export and by Save Model
+/// Document and Save Handoff (#1641 Codex r2 P2-b).
+pub(crate) fn serialize_outcome<O: SentOutcome>(
     memory: &dyn ReadMemory,
-    named: &str,
-    outcome: ModelDocumentSaveOutcome,
+    what: &str,
+    noun: &str,
+    outcome: O,
     reserved: Option<(ReadReservation, u64)>,
-) -> (ModelDocumentSaveOutcome, String, Option<ReadReservation>) {
-    let write = |outcome: &ModelDocumentSaveOutcome, capacity: u64| -> Option<String> {
+) -> (O, String, Option<ReadReservation>) {
+    let write = |outcome: &O, capacity: u64| -> Option<String> {
         let mut buffer = Vec::with_capacity(usize::try_from(capacity).ok()?);
         serde_json::to_writer(&mut buffer, outcome).ok()?;
         String::from_utf8(buffer).ok()
@@ -978,38 +1071,16 @@ fn serialize_outcome(
     let length = stored_read::serialized_length(&outcome).unwrap_or(u64::MAX);
     let buffer = match reserved {
         Some((reservation, bound)) if length <= bound => Ok(reservation),
-        _ => memory.reserve(&format!("the response to the export of {named}"), stored_read::exact_text_bytes(length)),
+        _ => memory.reserve(&format!("the response to {what}"), stored_read::exact_text_bytes(length)),
     };
     let refusal = match buffer {
         Ok(buffer) => match write(&outcome, length) {
             Some(text) => return (outcome, text, Some(buffer)),
-            None => format!("{MEMORY_UNAVAILABLE}: the response to the export of {named} could not be serialized."),
+            None => format!("{MEMORY_UNAVAILABLE}: the response to {what} could not be serialized."),
         },
         Err(error) => error,
     };
-    let sent = match &outcome {
-        ModelDocumentSaveOutcome::Saved { file_name, byte_count, model_hash, replaced_existing, durability, warnings } => ModelDocumentSaveOutcome::Saved {
-            file_name: file_name.clone(),
-            byte_count: *byte_count,
-            model_hash: model_hash.clone(),
-            replaced_existing: *replaced_existing,
-            durability: durability.clone(),
-            warnings: vec![diagnostic(
-                MEMORY_UNAVAILABLE,
-                "",
-                format!("{} The file was saved; its {} warnings are not shown.", stored_read::capped(refusal), warnings.len()),
-            )],
-        },
-        ModelDocumentSaveOutcome::Refused { diagnostics } => {
-            let first = diagnostics.first().map_or(String::new(), |item| format!(" The first is {}: {}", item.code, stored_read::capped(item.message.clone())));
-            ModelDocumentSaveOutcome::refused_one(
-                MEMORY_UNAVAILABLE,
-                format!("{} The export was refused with {} diagnostics, which are not shown.{first}", stored_read::capped(refusal), diagnostics.len()),
-            )
-        }
-        ModelDocumentSaveOutcome::Cancelled => ModelDocumentSaveOutcome::Cancelled,
-    };
-    drop(outcome);
+    let sent = outcome.shortened(refusal, noun);
     let text = serde_json::to_string(&sent).unwrap_or_default();
     (sent, text, None)
 }
@@ -1048,7 +1119,7 @@ pub(crate) fn export_stored_model_document<R>(
     };
     let mut held = Vec::new();
     let (outcome, reserved) = export_outcome(store, project_id, state_id, &memory, &named, &mut held, choose);
-    let (sent, text, buffer) = serialize_outcome(&memory, &named, outcome, reserved);
+    let (sent, text, buffer) = serialize_outcome(&memory, &format!("the export of {named}"), "export", outcome, reserved);
     let response = respond(&sent, text);
     drop(sent);
     drop(buffer);

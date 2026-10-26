@@ -1618,19 +1618,21 @@ async fn save_model_document_file(
     drop(args);
     // The command keeps the lease until it returns; the worker shares it.
     let lease = std::sync::Arc::new(lease);
-    respond(Ok(save_model_document_decoded(app, request, std::sync::Arc::clone(&lease)).await))
+    Ok(save_model_document_decoded(app, request, std::sync::Arc::clone(&lease)).await)
 }
 
 async fn save_model_document_decoded(
     app: AppHandle,
     request: model_document_save::ModelDocumentSaveRequest,
     lease: std::sync::Arc<memory_pool::Lease>,
-) -> model_document_save::ModelDocumentSaveOutcome {
+) -> tauri::ipc::Response {
     use model_document_save::{ModelDocumentSaveOutcome as Outcome, WORKER_FAILED};
+    // A short outcome of fixed texts, within the ingress lease's error allowance.
+    let short = |outcome: Outcome| tauri::ipc::Response::new(serde_json::to_string(&outcome).unwrap_or_default());
     if let Err(diagnostic) =
         model_document_save::validate_model_document_save_evidence(&request.screening, &request.local_first)
     {
-        return Outcome::refused(vec![diagnostic]);
+        return short(Outcome::refused(vec![diagnostic]));
     }
     let model_document_save::ModelDocumentSaveRequest { canonical_text, claimed_model_hash, screening, .. } = request;
     // The admission, the chooser and the write run on one blocking worker,
@@ -1650,10 +1652,11 @@ async fn save_model_document_decoded(
             &registry,
             &lease,
             |suggested| choose_model_document_save_path(&app, suggested, directory),
+            |_, text| tauri::ipc::Response::new(text),
         )
     })
     .await
-    .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The save's worker did not complete; the destination may be unchanged."))
+    .unwrap_or_else(|_| short(Outcome::refused_one(WORKER_FAILED, "The save's worker did not complete; the destination may be unchanged.")))
 }
 
 /// Recovery export (W-17, DEL-02-02 Design §3): a stored project's document
@@ -1764,7 +1767,7 @@ async fn save_handoff_package(
     // referenced libraries are read within the pool with it (W-12 S2's
     // `PoolReadMemory`). The worker shares it.
     let lease = std::sync::Arc::new(lease);
-    respond(Ok(save_handoff_package_decoded(app, request, std::sync::Arc::clone(&lease)).await))
+    Ok(save_handoff_package_decoded(app, request, std::sync::Arc::clone(&lease)).await)
 }
 
 /// The stored rule-pack document with `rule_pack_id` under the model's project
@@ -1779,10 +1782,12 @@ async fn save_handoff_package_decoded(
     app: AppHandle,
     request: handoff_package::HandoffSaveRequest,
     lease: std::sync::Arc<memory_pool::Lease>,
-) -> handoff_package::HandoffSaveOutcome {
+) -> tauri::ipc::Response {
     use handoff_package::{HandoffSaveOutcome as Outcome, WORKER_FAILED};
+    // A short outcome of fixed texts, within the ingress lease's error allowance.
+    let short = |outcome: Outcome| tauri::ipc::Response::new(serde_json::to_string(&outcome).unwrap_or_default());
     if let Err(diagnostic) = handoff_package::validate_handoff_evidence(&request.screening, &request.local_first) {
-        return Outcome::Refused { diagnostics: vec![diagnostic] };
+        return short(Outcome::Refused { diagnostics: vec![diagnostic] });
     }
     // The admission, the chooser, the basis state's re-read and the
     // publication run on one blocking worker, which holds the store reads'
@@ -1800,10 +1805,11 @@ async fn save_handoff_package_decoded(
             |suggested| choose_handoff_package_path(&app, suggested, directory),
             handoff_package::local_iso_now,
             &handoff_package_publish::PRODUCTION_HOOKS,
+            |_, text| tauri::ipc::Response::new(text),
         )
     })
     .await
-    .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The handoff's worker did not complete; the destination may be unchanged."))
+    .unwrap_or_else(|_| short(Outcome::refused_one(WORKER_FAILED, "The handoff's worker did not complete; the destination may be unchanged.")))
 }
 
 fn choose_handoff_package_path(app: &AppHandle, suggested_name: &str, directory: Option<PathBuf>) -> Result<Option<PathBuf>, String> {

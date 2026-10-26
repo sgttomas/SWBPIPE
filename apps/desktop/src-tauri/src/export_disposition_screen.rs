@@ -428,8 +428,8 @@ fn classification_blocking() -> &'static [&'static str] {
 
 /// The admitted classification object at `pointer`/`key`, if any: only the
 /// root's own `classification`, only under [`ClassificationExemption::RulePackRoot`].
-fn admitted<'a>(exemption: ClassificationExemption, pointer: &str, key: &str, child: &'a Value) -> Option<&'a Map<String, Value>> {
-    (exemption == ClassificationExemption::RulePackRoot && pointer.is_empty() && key == "classification").then(|| child.as_object()).flatten()
+fn admitted<'a>(exemption: ClassificationExemption, at_root: bool, key: &str, child: &'a Value) -> Option<&'a Map<String, Value>> {
+    (exemption == ClassificationExemption::RulePackRoot && at_root && key == "classification").then(|| child.as_object()).flatten()
 }
 
 fn kind(value: &Value) -> &'static str {
@@ -443,71 +443,229 @@ fn kind(value: &Value) -> &'static str {
     }
 }
 
-/// `found` without repeats, in first-seen order.
+/// `found` without repeats, in first-seen order. The repeats are found by
+/// borrowing, so no finding is copied.
 fn distinct(found: Vec<String>) -> Vec<String> {
-    let mut seen = std::collections::BTreeSet::new();
-    found.into_iter().filter(|item| seen.insert(item.clone())).collect()
+    let keep: Vec<bool> = {
+        let mut seen = std::collections::BTreeSet::new();
+        found.iter().map(|item| seen.insert(item.as_str())).collect()
+    };
+    found.into_iter().zip(keep).filter_map(|(item, keep)| keep.then_some(item)).collect()
 }
 
-fn blocking_walk(value: &Value, pointer: &str, exemption: ClassificationExemption, found: &mut Vec<String>) {
+/// The JSON pointer of the value a structural walk is at, kept as it descends
+/// (#1641 Codex r2 P2-a): one buffer, pushed and truncated, so no path is
+/// retained per level; or only its length, to bound a walk without
+/// allocating ([`structural_bound`]).
+trait WalkPointer {
+    fn len(&self) -> usize;
+    fn push_key(&mut self, key: &str);
+    fn push_index(&mut self, index: usize);
+    fn truncate(&mut self, len: usize);
+}
+
+impl WalkPointer for String {
+    fn len(&self) -> usize {
+        str::len(self)
+    }
+
+    fn push_key(&mut self, key: &str) {
+        self.push('/');
+        push_pointer_token(self, key);
+    }
+
+    fn push_index(&mut self, index: usize) {
+        use std::fmt::Write;
+        let _ = write!(self, "/{index}");
+    }
+
+    fn truncate(&mut self, len: usize) {
+        String::truncate(self, len);
+    }
+}
+
+/// A pointer's length only, and the longest it reached.
+#[derive(Default)]
+struct PointerLength {
+    len: usize,
+    max: usize,
+}
+
+impl WalkPointer for PointerLength {
+    fn len(&self) -> usize {
+        self.len
+    }
+
+    fn push_key(&mut self, key: &str) {
+        self.len += 1 + pointer_token_len(key);
+        self.max = self.max.max(self.len);
+    }
+
+    fn push_index(&mut self, index: usize) {
+        self.len += 1 + index.checked_ilog10().map_or(1, |digits| digits as usize + 1);
+        self.max = self.max.max(self.len);
+    }
+
+    fn truncate(&mut self, len: usize) {
+        self.len = len;
+    }
+}
+
+/// `key` as one RFC 6901 reference token, appended ([`pointer_token`]'s text).
+fn push_pointer_token(out: &mut String, key: &str) {
+    for character in key.chars() {
+        match character {
+            '~' => out.push_str("~0"),
+            '/' => out.push_str("~1"),
+            other => out.push(other),
+        }
+    }
+}
+
+/// The length of [`pointer_token`]`(key)`.
+fn pointer_token_len(key: &str) -> usize {
+    key.len() + key.bytes().filter(|byte| matches!(byte, b'~' | b'/')).count()
+}
+
+/// Where a structural walk's findings go: each is the pointer, then `/` and
+/// the token of `member` when there is one, then `middle` and `tail` (the
+/// texts the walks always built: `<at> <status>`, `<at>/<member> <status>`,
+/// `<at> is <kind>`, `<at>/<member> is <kind>`).
+trait WalkFindings<P: WalkPointer> {
+    fn add(&mut self, pointer: &P, member: Option<&str>, middle: &str, tail: &str);
+}
+
+/// The findings' texts, each built at its exact length.
+struct FindingTexts(Vec<String>);
+
+impl WalkFindings<String> for FindingTexts {
+    fn add(&mut self, pointer: &String, member: Option<&str>, middle: &str, tail: &str) {
+        let length = pointer.len() + member.map_or(0, |member| 1 + pointer_token_len(member)) + middle.len() + tail.len();
+        let mut text = String::with_capacity(length);
+        text.push_str(pointer);
+        if let Some(member) = member {
+            text.push('/');
+            push_pointer_token(&mut text, member);
+        }
+        text.push_str(middle);
+        text.push_str(tail);
+        self.0.push(text);
+    }
+}
+
+/// How many findings a walk makes and their texts' total length.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct FindingCount {
+    pub(crate) count: u64,
+    pub(crate) text_bytes: u64,
+}
+
+impl WalkFindings<PointerLength> for FindingCount {
+    fn add(&mut self, pointer: &PointerLength, member: Option<&str>, middle: &str, tail: &str) {
+        let length = pointer.len + member.map_or(0, |member| 1 + pointer_token_len(member)) + middle.len() + tail.len();
+        self.count += 1;
+        self.text_bytes += length as u64;
+    }
+}
+
+fn blocking_walk<P: WalkPointer, F: WalkFindings<P>>(value: &Value, pointer: &mut P, exemption: ClassificationExemption, found: &mut F) {
     match value {
         Value::Object(object) => {
             for (key, child) in object {
-                let at = format!("{pointer}/{}", pointer_token(key));
+                let at_root = pointer.len() == 0;
+                let parent = pointer.len();
+                pointer.push_key(key);
                 if let (Some((_, blocking)), Some(status)) = (SCREENED_MEMBERS.iter().find(|(member, _)| member == key), child.as_str()) {
                     if blocking.contains(&status) {
-                        found.push(format!("{at} {status}"));
+                        found.add(pointer, None, " ", status);
                     }
                 }
-                if let Some(members) = admitted(exemption, pointer, key, child) {
+                if let Some(members) = admitted(exemption, at_root, key, child) {
                     for (member, inner) in members {
                         let Some(status) = inner.as_str() else { continue };
                         // A member with its own policy that already blocks is reported once, by the walk below.
                         let own = SCREENED_MEMBERS.iter().find(|(screened, _)| screened == member).is_some_and(|(_, blocking)| blocking.contains(&status));
                         if !own && classification_blocking().contains(&status) {
-                            found.push(format!("{at}/{} {status}", pointer_token(member)));
+                            found.add(pointer, Some(member), " ", status);
                         }
                     }
                 }
                 // Below the root nothing is exempt.
-                blocking_walk(child, &at, ClassificationExemption::None, found);
+                blocking_walk(child, pointer, ClassificationExemption::None, found);
+                pointer.truncate(parent);
             }
         }
         Value::Array(items) => {
             for (index, item) in items.iter().enumerate() {
-                blocking_walk(item, &format!("{pointer}/{index}"), ClassificationExemption::None, found);
+                let parent = pointer.len();
+                pointer.push_index(index);
+                blocking_walk(item, pointer, ClassificationExemption::None, found);
+                pointer.truncate(parent);
             }
         }
         _ => {}
     }
 }
 
-fn malformed_walk(value: &Value, pointer: &str, exemption: ClassificationExemption, found: &mut Vec<String>) {
+fn malformed_walk<P: WalkPointer, F: WalkFindings<P>>(value: &Value, pointer: &mut P, exemption: ClassificationExemption, found: &mut F) {
     match value {
         Value::Object(object) => {
             for (key, child) in object {
-                let at = format!("{pointer}/{}", pointer_token(key));
+                let at_root = pointer.len() == 0;
+                let parent = pointer.len();
+                pointer.push_key(key);
                 let screened = SCREENED_MEMBERS.iter().any(|(member, _)| member == key);
-                let admitted = admitted(exemption, pointer, key, child);
+                let admitted = admitted(exemption, at_root, key, child);
                 if screened && (child.is_array() || child.is_object()) && admitted.is_none() {
-                    found.push(format!("{at} is {}", kind(child)));
+                    found.add(pointer, None, " is ", kind(child));
                 }
                 // Inside the admitted object no structure is exempt, whatever its key.
                 for (member, inner) in admitted.into_iter().flatten() {
                     if inner.is_array() || inner.is_object() {
-                        found.push(format!("{at}/{} is {}", pointer_token(member), kind(inner)));
+                        found.add(pointer, Some(member), " is ", kind(inner));
                     }
                 }
-                malformed_walk(child, &at, ClassificationExemption::None, found);
+                malformed_walk(child, pointer, ClassificationExemption::None, found);
+                pointer.truncate(parent);
             }
         }
         Value::Array(items) => {
             for (index, item) in items.iter().enumerate() {
-                malformed_walk(item, &format!("{pointer}/{index}"), ClassificationExemption::None, found);
+                let parent = pointer.len();
+                pointer.push_index(index);
+                malformed_walk(item, pointer, ClassificationExemption::None, found);
+                pointer.truncate(parent);
             }
         }
         _ => {}
     }
+}
+
+/// What [`screen_value`] and [`malformed_values`] build over `value`, counted
+/// without allocating: the longest pointer their shared buffer holds, and
+/// each walk's findings (before repeats are dropped).
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct StructuralBound {
+    pub(crate) pointer_max: u64,
+    pub(crate) blocking: FindingCount,
+    pub(crate) malformed: FindingCount,
+}
+
+pub(crate) fn structural_bound(value: &Value) -> StructuralBound {
+    let mut pointer = PointerLength::default();
+    let mut blocking = FindingCount::default();
+    blocking_walk(value, &mut pointer, ClassificationExemption::None, &mut blocking);
+    let mut malformed = FindingCount::default();
+    malformed_walk(value, &mut pointer, ClassificationExemption::None, &mut malformed);
+    StructuralBound { pointer_max: pointer.max as u64, blocking, malformed }
+}
+
+fn collect_walk(value: &Value, exemption: ClassificationExemption, walk: fn(&Value, &mut String, ClassificationExemption, &mut FindingTexts)) -> Vec<String> {
+    let mut pointer = String::new();
+    let mut found = FindingTexts(Vec::new());
+    walk(value, &mut pointer, exemption, &mut found);
+    drop(pointer);
+    distinct(found.0)
 }
 
 /// The structural screen of one stored rule-pack document (review round 2,
@@ -521,9 +679,7 @@ fn malformed_walk(value: &Value, pointer: &str, exemption: ClassificationExempti
 /// The whole document is screened before any of it is mapped into the
 /// manifest. [`screen_value`] is the same screen with no exemption.
 pub(crate) fn screen_document(document: &Value) -> Vec<String> {
-    let mut found = Vec::new();
-    blocking_walk(document, "", ClassificationExemption::RulePackRoot, &mut found);
-    distinct(found)
+    collect_walk(document, ClassificationExemption::RulePackRoot, blocking_walk)
 }
 
 /// The disposition members of a stored rule-pack document whose value is an
@@ -538,26 +694,20 @@ pub(crate) fn screen_document(document: &Value) -> Vec<String> {
 /// `<JSON pointer> is <JSON value kind>`. [`malformed_values`] is the same
 /// check with no exemption.
 pub(crate) fn malformed_dispositions(document: &Value) -> Vec<String> {
-    let mut found = Vec::new();
-    malformed_walk(document, "", ClassificationExemption::RulePackRoot, &mut found);
-    distinct(found)
+    collect_walk(document, ClassificationExemption::RulePackRoot, malformed_walk)
 }
 
 /// [`screen_document`] with no `classification` exemption: a stored library
 /// (W-6b) and a report package's request and model (W-18a (b1)).
 pub(crate) fn screen_value(value: &Value) -> Vec<String> {
-    let mut found = Vec::new();
-    blocking_walk(value, "", ClassificationExemption::None, &mut found);
-    distinct(found)
+    collect_walk(value, ClassificationExemption::None, blocking_walk)
 }
 
 /// [`malformed_dispositions`] with no `classification` exemption: every
 /// array- or object-valued disposition member, `classification` included, at
 /// any depth.
 pub(crate) fn malformed_values(value: &Value) -> Vec<String> {
-    let mut found = Vec::new();
-    malformed_walk(value, "", ClassificationExemption::None, &mut found);
-    distinct(found)
+    collect_walk(value, ClassificationExemption::None, malformed_walk)
 }
 
 #[cfg(test)]
@@ -593,6 +743,163 @@ mod tests {
             .collect();
         expected.sort_by(by_path);
         assert_eq!(walked, expected);
+    }
+
+    // --- #1641 Codex r2 P2-a: the structural walks' paths -------------------
+
+    /// The walks before #1641 r2 (each level kept its own path), the oracle.
+    mod former {
+        use super::super::*;
+
+        fn distinct(found: Vec<String>) -> Vec<String> {
+            let mut seen = std::collections::BTreeSet::new();
+            found.into_iter().filter(|item| seen.insert(item.clone())).collect()
+        }
+
+        fn admitted<'a>(exemption: ClassificationExemption, pointer: &str, key: &str, child: &'a Value) -> Option<&'a Map<String, Value>> {
+            (exemption == ClassificationExemption::RulePackRoot && pointer.is_empty() && key == "classification").then(|| child.as_object()).flatten()
+        }
+
+        pub(super) fn blocking_walk(value: &Value, pointer: &str, exemption: ClassificationExemption, found: &mut Vec<String>) {
+            match value {
+                Value::Object(object) => {
+                    for (key, child) in object {
+                        let at = format!("{pointer}/{}", pointer_token(key));
+                        if let (Some((_, blocking)), Some(status)) = (SCREENED_MEMBERS.iter().find(|(member, _)| member == key), child.as_str()) {
+                            if blocking.contains(&status) {
+                                found.push(format!("{at} {status}"));
+                            }
+                        }
+                        if let Some(members) = admitted(exemption, pointer, key, child) {
+                            for (member, inner) in members {
+                                let Some(status) = inner.as_str() else { continue };
+                                let own = SCREENED_MEMBERS.iter().find(|(screened, _)| screened == member).is_some_and(|(_, blocking)| blocking.contains(&status));
+                                if !own && classification_blocking().contains(&status) {
+                                    found.push(format!("{at}/{} {status}", pointer_token(member)));
+                                }
+                            }
+                        }
+                        blocking_walk(child, &at, ClassificationExemption::None, found);
+                    }
+                }
+                Value::Array(items) => {
+                    for (index, item) in items.iter().enumerate() {
+                        blocking_walk(item, &format!("{pointer}/{index}"), ClassificationExemption::None, found);
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        pub(super) fn malformed_walk(value: &Value, pointer: &str, exemption: ClassificationExemption, found: &mut Vec<String>) {
+            match value {
+                Value::Object(object) => {
+                    for (key, child) in object {
+                        let at = format!("{pointer}/{}", pointer_token(key));
+                        let screened = SCREENED_MEMBERS.iter().any(|(member, _)| member == key);
+                        let admitted = admitted(exemption, pointer, key, child);
+                        if screened && (child.is_array() || child.is_object()) && admitted.is_none() {
+                            found.push(format!("{at} is {}", kind(child)));
+                        }
+                        for (member, inner) in admitted.into_iter().flatten() {
+                            if inner.is_array() || inner.is_object() {
+                                found.push(format!("{at}/{} is {}", pointer_token(member), kind(inner)));
+                            }
+                        }
+                        malformed_walk(child, &at, ClassificationExemption::None, found);
+                    }
+                }
+                Value::Array(items) => {
+                    for (index, item) in items.iter().enumerate() {
+                        malformed_walk(item, &format!("{pointer}/{index}"), ClassificationExemption::None, found);
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        pub(super) fn all(value: &Value, exemption: ClassificationExemption) -> (Vec<String>, Vec<String>) {
+            let (mut blocking, mut malformed) = (Vec::new(), Vec::new());
+            blocking_walk(value, "", exemption, &mut blocking);
+            malformed_walk(value, "", exemption, &mut malformed);
+            (blocking, malformed)
+        }
+
+        pub(super) fn distinct_all(value: &Value, exemption: ClassificationExemption) -> (Vec<String>, Vec<String>) {
+            let (blocking, malformed) = all(value, exemption);
+            (distinct(blocking), distinct(malformed))
+        }
+    }
+
+    /// Every committed JSON fixture that holds libraries, rule packs, models
+    /// or handoff manifests (under 2 MB each).
+    fn committed_documents() -> Vec<(String, Value)> {
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures");
+        let mut found = Vec::new();
+        let mut stack: Vec<std::path::PathBuf> = ["material", "hanger", "component", "model_document", "handoff", "product_preview", "redaction_export_controls"].iter().map(|dir| root.join(dir)).collect();
+        while let Some(path) = stack.pop() {
+            if path.is_dir() {
+                stack.extend(std::fs::read_dir(&path).unwrap().map(|entry| entry.unwrap().path()));
+            } else if path.extension().is_some_and(|extension| extension == "json") && std::fs::metadata(&path).unwrap().len() < 2 << 20 {
+                if let Ok(value) = serde_json::from_str::<Value>(&std::fs::read_to_string(&path).unwrap()) {
+                    found.push((path.display().to_string(), value));
+                }
+            }
+        }
+        found.sort_by(|left, right| left.0.cmp(&right.0));
+        found
+    }
+
+    /// Nested and long-key documents with findings at depth: blocking and
+    /// malformed members, an admitted and a nested `classification`, keys
+    /// holding `~` and `/`, arrays of objects.
+    fn generated_documents() -> Vec<(String, Value)> {
+        let mut documents = Vec::new();
+        for (depth, key_length) in [(1, 1), (5, 3), (40, 64), (100, 32 * 1024)] {
+            let mut tail = json!({
+                "review_status": "quarantined",
+                "redistribution_status": ["rejected"],
+                "privacy_class": { "nested": "protected_suspected" },
+                "classification": { "privacy_class": "quarantined", "other": "rejected", "deep": { "x": 1 } },
+                "items": [{ "lifecycle_status": "rejected" }, { "review_status": "accepted" }, [{ "privacy_classification": "protected_suspected" }]]
+            });
+            for level in 0..depth {
+                let key = format!("{}{}", if level % 3 == 0 { "~a/" } else { "k" }, "x".repeat(key_length));
+                tail = if level % 4 == 1 { json!([tail, { "review_status": "rejected" }]) } else { json!({ key: tail, "review_status": if level % 2 == 0 { "rejected" } else { "accepted" } }) };
+            }
+            documents.push((format!("nested depth {depth}, keys {key_length}"), json!({ "classification": { "privacy_class": "rejected", "a/b": "quarantined", "list": [] }, "body": tail })));
+        }
+        documents
+    }
+
+    /// The walks keep one pointer buffer now; their findings, texts and order
+    /// are the former walks' on every committed fixture and on nested and
+    /// long-key documents, with and without the rule-pack exemption, and the
+    /// allocation-free bound counts exactly the findings they build.
+    #[test]
+    fn the_structural_walks_find_what_the_former_walks_found() {
+        let mut compared = 0;
+        let mut with_findings = 0;
+        for (name, document) in committed_documents().into_iter().chain(generated_documents()) {
+            for exemption in [ClassificationExemption::None, ClassificationExemption::RulePackRoot] {
+                let (blocking, malformed) = former::distinct_all(&document, exemption);
+                let (now_blocking, now_malformed) = match exemption {
+                    ClassificationExemption::None => (screen_value(&document), malformed_values(&document)),
+                    ClassificationExemption::RulePackRoot => (screen_document(&document), malformed_dispositions(&document)),
+                };
+                assert_eq!(now_blocking, blocking, "{name}: blocking findings");
+                assert_eq!(now_malformed, malformed, "{name}: malformed findings");
+                with_findings += usize::from(!blocking.is_empty() || !malformed.is_empty());
+                compared += 1;
+            }
+            let (blocking, malformed) = former::all(&document, ClassificationExemption::None);
+            let bound = structural_bound(&document);
+            let count = |found: &[String]| FindingCount { count: found.len() as u64, text_bytes: found.iter().map(|item| item.len() as u64).sum() };
+            assert_eq!(bound.blocking, count(&blocking), "{name}: the blocking bound");
+            assert_eq!(bound.malformed, count(&malformed), "{name}: the malformed bound");
+        }
+        eprintln!("STRUCTURAL_DIFFERENTIAL compared={compared} with_findings={with_findings}");
+        assert!(compared > 60 && with_findings >= 8, "compared {compared}, {with_findings} with findings");
     }
 
 }

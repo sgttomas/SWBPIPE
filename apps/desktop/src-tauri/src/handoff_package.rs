@@ -1706,9 +1706,13 @@ pub fn write_handoff_package(destination: &Path, prepared: PreparedHandoff, crea
 /// between the screening and the references, never copied. A library read or
 /// reservation the memory pool refuses refuses the save by the pool's name
 /// (`STORE-READ-MEMORY-UNAVAILABLE`) before any folder is chosen. The
-/// reservations are held through the chooser and the publication.
+/// reservations are held through the chooser and the publication, and the
+/// outcome is serialized within the same memory while they are held
+/// (`stored_model_document_export::serialize_outcome`; a Saved response's
+/// bound is reserved before the chooser); `respond` receives it and its text
+/// before any reservation is released.
 #[allow(clippy::too_many_arguments)]
-pub(crate) fn save_handoff_admitted(
+pub(crate) fn save_handoff_admitted<R>(
     request: HandoffSaveRequest,
     store: &dyn Fn() -> Result<std::path::PathBuf, String>,
     registry: &crate::solve_jobs::SolveJobRegistry,
@@ -1716,55 +1720,119 @@ pub(crate) fn save_handoff_admitted(
     choose: impl FnOnce(&str) -> Result<Option<std::path::PathBuf>, String>,
     created_at: impl FnOnce() -> String,
     hooks: &PublishHooks<'_>,
-) -> HandoffSaveOutcome {
-    use crate::stored_model_document_export::StoreLibraryReads;
-    use rusqlite::Connection;
-    let HandoffSaveRequest { canonical_text, claimed_model_hash, screening, basis_state_id, package_label, .. } = request;
+    respond: impl FnOnce(&HandoffSaveOutcome, String) -> R,
+) -> R {
+    use crate::stored_model_document_export::{serialize_outcome, StoreLibraryReads};
     let memory = crate::stored_read::PoolReadMemory::new(registry, ingress);
     let open = || crate::open_project_store(&store()?).map(|(connection, _)| connection);
-    let mut states = |project_id: &str, state_id: &str| stored_state(&store()?, project_id, state_id, &memory);
-    let libraries = std::cell::RefCell::new(StoreLibraryReads::new(&memory, open).with_reference_metadata());
+    let mut libraries = StoreLibraryReads::new(&memory, open).with_reference_metadata();
+    let (outcome, reserved) = handoff_outcome(request, store, &memory, &mut libraries, choose, created_at, hooks);
+    // The outcome is serialized while every reservation its diagnostics live
+    // under is held (#1641 Codex r2 P2-b), and the response built from it.
+    let (sent, text, buffer) = serialize_outcome(&memory, "Save Handoff", "handoff", outcome, reserved);
+    let response = respond(&sent, text);
+    drop(sent);
+    drop(buffer);
+    drop(libraries);
+    #[cfg(test)]
+    crate::stored_model_document_export::library_read_probe::record_save_peak(memory.peak_reserved());
+    response
+}
+
+/// What a Saved outcome adds to its warnings' JSON and the basis state id: its
+/// tag, the package name (at most 255 bytes, each escaped to at most six), the
+/// two hashes and the durability, and the publication's own warnings (a
+/// leftover staging folder each); a longer response is reserved anew.
+const SAVED_FIELDS_BYTES: u64 = 8192;
+
+/// [`save_handoff_admitted`]'s outcome, and the Saved response's bound
+/// reserved before the chooser (with its bytes), when the handoff was prepared.
+fn handoff_outcome(
+    request: HandoffSaveRequest,
+    store: &dyn Fn() -> Result<std::path::PathBuf, String>,
+    memory: &crate::stored_read::PoolReadMemory<'_>,
+    libraries: &mut crate::stored_model_document_export::StoreLibraryReads<'_>,
+    choose: impl FnOnce(&str) -> Result<Option<std::path::PathBuf>, String>,
+    created_at: impl FnOnce() -> String,
+    hooks: &PublishHooks<'_>,
+) -> (HandoffSaveOutcome, Option<(crate::stored_read::ReadReservation, u64)>) {
+    use crate::stored_read::ReadMemory;
+    use rusqlite::Connection;
+    let HandoffSaveRequest { canonical_text, claimed_model_hash, screening, basis_state_id, package_label, .. } = request;
+    let mut states = |project_id: &str, state_id: &str| stored_state(&store()?, project_id, state_id, memory);
     // The rule packs' store connection, opened on first use.
     let mut packs: Option<Connection> = None;
     let mut rule_packs = |project_id: &str, rule_pack_id: &str| -> Result<Vec<Value>, String> {
         if packs.is_none() {
-            packs = Some(open()?);
+            packs = Some(crate::open_project_store(&store()?)?.0);
         }
         crate::stored_rule_packs_with_id(packs.as_ref().expect("opened above"), project_id, rule_pack_id)
     };
+    let reads = std::cell::RefCell::new(libraries);
     let prepared = prepare_handoff_screened(
         canonical_text,
         &claimed_model_hash,
         &screening.payload_sha256,
         &basis_state_id,
         &package_label,
-        &mut |document: &Value| libraries.borrow_mut().screen_model(document),
+        &mut |document: &Value| reads.borrow_mut().screen_model(document),
         &mut states,
-        &mut |project_id: &str, library_kind: &str, library_id: &str| libraries.borrow_mut().read(project_id, library_kind, library_id),
+        &mut |project_id: &str, library_kind: &str, library_id: &str| reads.borrow_mut().read(project_id, library_kind, library_id),
         &mut rule_packs,
     );
-    let mut libraries = libraries.into_inner();
+    let libraries = reads.into_inner();
     if let Some(diagnostics) = libraries.refusal() {
-        return HandoffSaveOutcome::Refused { diagnostics };
+        return (HandoffSaveOutcome::Refused { diagnostics }, None);
     }
     let prepared = match prepared {
         Ok(prepared) => prepared,
-        Err(diagnostics) => return HandoffSaveOutcome::Refused { diagnostics },
+        Err(diagnostics) => return (HandoffSaveOutcome::Refused { diagnostics }, None),
     };
+    let bound = crate::stored_read::total(&[
+        crate::stored_read::serialized_length(&prepared.save_warnings).unwrap_or(u64::MAX),
+        crate::stored_read::serialized_length(prepared.basis.state_id.as_str()).unwrap_or(u64::MAX),
+        SAVED_FIELDS_BYTES,
+    ]);
+    let response = match memory.reserve("the response to Save Handoff", crate::stored_read::exact_text_bytes(bound)) {
+        Ok(response) => response,
+        Err(error) => return (HandoffSaveOutcome::refused_one(crate::stored_read::STORE_READ_MEMORY_UNAVAILABLE, format!("{error} Nothing was written.")), None),
+    };
+    let reserved = Some((response, bound));
     let destination = match choose(&prepared.suggested_package_name) {
         Ok(Some(destination)) => destination,
-        Ok(None) => return HandoffSaveOutcome::Cancelled,
-        Err(message) => return HandoffSaveOutcome::refused_one(PICKER_PATH_INVALID, message),
+        Ok(None) => return (HandoffSaveOutcome::Cancelled, reserved),
+        Err(message) => return (HandoffSaveOutcome::refused_one(PICKER_PATH_INVALID, message), reserved),
     };
     // The basis state is read again immediately before publication.
     if let Err(diagnostics) = confirm_basis_state(&prepared, &mut states) {
-        return HandoffSaveOutcome::Refused { diagnostics };
+        return (HandoffSaveOutcome::Refused { diagnostics }, reserved);
     }
-    let outcome = write_handoff_package(&destination, prepared, &created_at(), hooks);
-    drop(libraries);
-    #[cfg(test)]
-    crate::stored_model_document_export::library_read_probe::record_save_peak(memory.peak_reserved());
-    outcome
+    (write_handoff_package(&destination, prepared, &created_at(), hooks), reserved)
+}
+
+impl crate::stored_model_document_export::SentOutcome for HandoffSaveOutcome {
+    fn shortened(self, refusal: String, noun: &str) -> Self {
+        use crate::stored_read::{capped, STORE_READ_MEMORY_UNAVAILABLE};
+        match self {
+            HandoffSaveOutcome::Saved { package_name, model_hash, export_hash, basis_state_id, replaced_existing, durability, warnings } => HandoffSaveOutcome::Saved {
+                package_name,
+                model_hash,
+                export_hash,
+                basis_state_id,
+                replaced_existing,
+                durability,
+                warnings: vec![diagnostic(
+                    STORE_READ_MEMORY_UNAVAILABLE,
+                    "",
+                    format!("{} The package was saved; its {} warnings are not shown.", capped(refusal), warnings.len()),
+                )],
+            },
+            HandoffSaveOutcome::Refused { diagnostics } => {
+                HandoffSaveOutcome::refused_one(STORE_READ_MEMORY_UNAVAILABLE, crate::stored_model_document_export::shortened_refusal(refusal, noun, &diagnostics))
+            }
+            HandoffSaveOutcome::Cancelled => HandoffSaveOutcome::Cancelled,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -1986,6 +2054,10 @@ mod tests {
             },
             || CREATED_AT.to_string(),
             &PRODUCTION_HOOKS,
+            |outcome, text| {
+                assert_eq!(serde_json::to_string(outcome).unwrap(), text, "the response is the outcome sent");
+                outcome.clone()
+            },
         )
     }
 
@@ -2066,6 +2138,59 @@ mod tests {
         let before = before.join("large.swbhandoff");
         assert!(matches!(write_handoff_package(&before, prepare_unmetered(&store, &model, &state_id).unwrap(), CREATED_AT, &PRODUCTION_HOOKS), HandoffSaveOutcome::Saved { .. }));
         assert_eq!(package_bytes(&destination), package_bytes(&before));
+    }
+
+    /// #1641 Codex r2 P2-a: the handoff's structural screens of a stored
+    /// library kept a growing path per level (a public library 100 levels deep
+    /// under 32 KiB keys peaked at 500 MB against 47 MB reserved). The walks
+    /// keep one pointer buffer, their findings are priced from an
+    /// allocation-free count, and the whole handoff's measured peak is within
+    /// the most its memory held.
+    #[test]
+    fn a_deeply_nested_library_is_screened_within_the_handoffs_reservations() {
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+        let library = crate::stored_model_document_export::library_read_probe::nested_long_key_library(100, 32 * 1024);
+        let text = serde_json::to_string(&library).unwrap();
+        let (store, model, state_id) = library_store("nested-library", Some(&text));
+        let pool = registry(ScriptedHost::normal());
+        let (request, lease) = admitted_request(&pool, &model, &state_id);
+        let destination = store.root.join("nested.swbhandoff");
+        crate::stored_model_document_export::library_read_probe::take_save_peaks();
+        let (outcome, measured) = crate::ingress::counting::measure(|| save_at(&store, &pool, request, &lease, &destination, &std::cell::Cell::new(None)));
+        assert!(matches!(outcome, HandoffSaveOutcome::Saved { .. }), "{outcome:?}");
+        let reserved = *crate::stored_model_document_export::library_read_probe::take_save_peaks().last().unwrap();
+        eprintln!("SAVE_HANDOFF_NESTED library_bytes={} reserved_peak={reserved} measured_peak={}", text.len(), measured.peak_priced);
+        assert!(measured.peak_priced <= reserved, "the handoff's measured peak {} exceeds its reservations {reserved}", measured.peak_priced);
+    }
+
+    /// #1641 Codex r2 P2-b: a refusal's diagnostics outlived the library
+    /// reservations and were serialized unreserved (100,000 matching rejected
+    /// records: 77.6 MB live with 62 KB reserved, a 26.4 MB response). The
+    /// outcome is now serialized within the save's memory while every
+    /// reservation is held: when the response is built, the live bytes are
+    /// within what is held, and the whole peak is within the most held.
+    #[test]
+    fn a_refusal_with_100000_diagnostics_is_serialized_within_the_handoffs_reservations() {
+        let library = crate::stored_model_document_export::library_read_probe::rejected_records_library(100_000);
+        let text = serde_json::to_string(&library).unwrap();
+        let (store, model, state_id) = library_store("rejected-records", Some(&text));
+        let pool = registry(ScriptedHost::normal());
+        let (request, lease) = admitted_request(&pool, &model, &state_id);
+        let path = || Ok(store.path.clone());
+        crate::stored_model_document_export::library_read_probe::take_save_peaks();
+        let ((outcome, live, held, length), measured) = crate::ingress::counting::measure(|| {
+            save_handoff_admitted(request, &path, &pool, &lease, |_| panic!("no chooser after a refusal"), || CREATED_AT.to_string(), &PRODUCTION_HOOKS, |outcome, text| {
+                (outcome.clone(), crate::ingress::counting::live_priced(), pool.pool_status().reserved_bytes, text.len())
+            })
+        });
+        let reserved = *crate::stored_model_document_export::library_read_probe::take_save_peaks().last().unwrap();
+        let HandoffSaveOutcome::Refused { diagnostics } = &outcome else { panic!("not refused") };
+        eprintln!("SAVE_HANDOFF_REJECTED diagnostics={} response_bytes={length} live_at_response={live} held_at_response={held} reserved_peak={reserved} measured_peak={}", diagnostics.len(), measured.peak_priced);
+        assert!(diagnostics.len() >= 100_000 && diagnostics[0].code == model_document_save::PROTECTED_CONTENT_BLOCKED, "{:?}", &diagnostics[..1]);
+        assert!(u64::try_from(live).unwrap() <= held, "{live} bytes live when the response is built, {held} held");
+        assert!(measured.peak_priced <= reserved, "the measured peak {} exceeds the most held {reserved}", measured.peak_priced);
+        drop(lease);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
     }
 
     /// A library read the memory pool refuses ends the save by the pool's name
@@ -2151,7 +2276,7 @@ mod tests {
         for chosen in [Ok(None), Err("invented chooser failure".to_string())] {
             let (request, lease) = admitted_request(&pool, &model, &state_id);
             let path = || Ok(store.path.clone());
-            let outcome = save_handoff_admitted(request, &path, &pool, &lease, |_| chosen, || CREATED_AT.to_string(), &PRODUCTION_HOOKS);
+            let outcome = save_handoff_admitted(request, &path, &pool, &lease, |_| chosen, || CREATED_AT.to_string(), &PRODUCTION_HOOKS, |outcome, _| outcome.clone());
             assert!(matches!(&outcome, HandoffSaveOutcome::Cancelled) || matches!(&outcome, HandoffSaveOutcome::Refused { diagnostics } if diagnostics[0].code == PICKER_PATH_INVALID), "{outcome:?}");
             assert_eq!(pool.pool_status().reserved_bytes, lease.bytes());
             drop(lease);
