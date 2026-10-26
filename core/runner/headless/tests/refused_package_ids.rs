@@ -57,3 +57,35 @@ fn a_refused_export_names_no_authored_id() {
         assert!(!stderr.contains(private), "{private} in stderr: {stderr}");
     }
 }
+
+/// The runner's payload refusals never echo a request value: a typed path
+/// given as an invalid disposition value in the report, or as a typed request
+/// member, is refused by path and kind only.
+#[test]
+fn a_payload_refusal_echoes_no_value() {
+    let typed = TEXTS[0];
+    let cases: [(fn(&mut Value, &str), &str); 2] = [
+        (
+            |input, typed| input["export_results"]["report"]["report_sections"]["provenance_notes"][0]["review_status"] = json!(typed),
+            "REPORT-PACKAGE-REPORT-DTO-INVALID: unknown variant at report.report_sections.provenance_notes[0].review_status",
+        ),
+        (|input, typed| input["export_results"]["source_model_ref"] = json!(typed), "REPORT-PACKAGE-WIRE-INCOMPLETE: invalid type at source_model_ref"),
+    ];
+    for (edit, expected) in cases {
+        let mut input = witness();
+        edit(&mut input, typed);
+        let mut child = Command::new(env!("CARGO_BIN_EXE_openpipestress-runner"))
+            .args(["export-results", "--explicit-local-private-intent"])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+        child.stdin.take().unwrap().write_all(input.to_string().as_bytes()).unwrap();
+        let out = child.wait_with_output().unwrap();
+        let stdout = String::from_utf8(out.stdout).unwrap();
+        assert_ne!(out.status.code(), Some(0));
+        assert!(stdout.contains(expected), "{expected}: {stdout}");
+        assert!(!stdout.contains(typed) && !String::from_utf8_lossy(&out.stderr).contains(typed), "{stdout}");
+    }
+}

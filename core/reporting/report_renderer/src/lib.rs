@@ -1678,27 +1678,55 @@ pub const RENDER_INPUT_INVALID: &str = "RENDER-INPUT-INVALID";
 /// references) is decoded by reference one at a time, which holds at most one
 /// element's copy, to place an error down to a disposition member.
 pub fn decode_renderable_report_input(value: serde_json::Value) -> Result<RenderableReportInput, String> {
+    decode_renderable_report_input_as(value, RENDER_INPUT_INVALID, "")
+}
+
+/// The kind of a serde decode error, from its message's fixed prefix; the
+/// rest of the message, which can quote the offending value or key, is never
+/// used. Shared by every value-free decode refusal of the report and package
+/// paths.
+pub fn serde_error_kind(message: &str) -> &'static str {
+    [
+        "unknown variant",
+        "unknown field",
+        "missing field",
+        "invalid type",
+        "invalid value",
+        "invalid length",
+        "duplicate field",
+    ]
+    .into_iter()
+    .find(|kind| message.starts_with(kind))
+    .unwrap_or("invalid input")
+}
+
+/// A struct written positionally (a JSON array, which serde decodes field by
+/// field in declaration order) as its members by name, so a value-free decode
+/// treats both forms alike: `names` in declaration order, of which the first
+/// `required` have no default. More elements than names, or fewer than
+/// `required`, is an `invalid length`, as the whole decode refuses it.
+pub fn positional_members(items: Vec<serde_json::Value>, names: &[&str], required: usize) -> Result<serde_json::Map<String, serde_json::Value>, &'static str> {
+    if items.len() > names.len() || items.len() < required {
+        return Err("invalid length");
+    }
+    Ok(names.iter().map(|name| name.to_string()).zip(items).collect())
+}
+
+/// [`decode_renderable_report_input`] refusing with `code` and with every
+/// path under `root` (`report` for the report-package request's `report`
+/// member; empty for the renderer's own input).
+pub fn decode_renderable_report_input_as(value: serde_json::Value, code: &str, root: &str) -> Result<RenderableReportInput, String> {
     use serde::de::DeserializeOwned;
     use serde::Deserialize;
     use serde_json::Value;
     fn kind(error: &serde_json::Error) -> &'static str {
-        let message = error.to_string();
-        [
-            "unknown variant",
-            "unknown field",
-            "missing field",
-            "invalid type",
-            "invalid value",
-            "invalid length",
-            "duplicate field",
-        ]
-        .into_iter()
-        .find(|kind| message.starts_with(kind))
-        .unwrap_or("invalid input")
+        serde_error_kind(&error.to_string())
     }
-    fn refusal(kind: &str, path: &str) -> String {
-        format!("{RENDER_INPUT_INVALID}: {kind} at {path}")
-    }
+    let refusal = |kind: &str, path: &str| match (root.is_empty(), path) {
+        (true, path) => format!("{code}: {kind} at {path}"),
+        (false, "the input") => format!("{code}: {kind} at {root}"),
+        (false, path) => format!("{code}: {kind} at {root}.{path}"),
+    };
     fn by_ref<'a, T: Deserialize<'a>>(value: &'a Value) -> Result<(), serde_json::Error> {
         T::deserialize(value).map(drop)
     }
@@ -1721,49 +1749,59 @@ pub fn decode_renderable_report_input(value: serde_json::Value) -> Result<Render
         }
         path
     }
-    fn elements<T: for<'a> Deserialize<'a>>(list: Option<&Value>, path: &str) -> Result<(), String> {
+    fn elements<T: for<'a> Deserialize<'a>>(list: Option<&Value>, path: &str) -> Result<(), (&'static str, String)> {
         let Some(items) = list.and_then(Value::as_array) else { return Ok(()) };
         for (index, item) in items.iter().enumerate() {
             if let Err(error) = by_ref::<T>(item) {
-                return Err(refusal(kind(&error), &member(item, format!("{path}[{index}]"))));
+                return Err((kind(&error), member(item, format!("{path}[{index}]"))));
             }
         }
         Ok(())
     }
-    let Value::Object(mut root) = value else {
-        return Err(refusal("invalid type", "the input"));
+    let located = |result: Result<(), (&'static str, String)>| result.map_err(|(kind, path)| refusal(kind, &path));
+    // `fields` is the input object; `root` stays the path root of every refusal.
+    let mut fields = match value {
+        Value::Object(fields) => fields,
+        Value::Array(items) => positional_members(
+            items,
+            &["report_title", "calculation_report", "report_sections", "result_rows", "report_context", "user_rule_checks", "exact_route", "library_references"],
+            4,
+        )
+        .map_err(|kind| refusal(kind, "the input"))?,
+        _ => return Err(refusal("invalid type", "the input")),
     };
-    if let Some(Value::Object(report_sections)) = root.get("report_sections") {
-        elements::<sections::Diagnostic>(report_sections.get("diagnostics"), "report_sections.diagnostics")?;
-        elements::<sections::Provenance>(report_sections.get("provenance_notes"), "report_sections.provenance_notes")?;
-        elements::<sections::UserSuppliedValue>(report_sections.get("user_supplied_values"), "report_sections.user_supplied_values")?;
-        elements::<sections::Assumption>(report_sections.get("assumptions"), "report_sections.assumptions")?;
-        elements::<sections::Limitation>(report_sections.get("limitations"), "report_sections.limitations")?;
+    if let Some(Value::Object(report_sections)) = fields.get("report_sections") {
+        located(elements::<sections::Diagnostic>(report_sections.get("diagnostics"), "report_sections.diagnostics"))?;
+        located(elements::<sections::Provenance>(report_sections.get("provenance_notes"), "report_sections.provenance_notes"))?;
+        located(elements::<sections::UserSuppliedValue>(report_sections.get("user_supplied_values"), "report_sections.user_supplied_values"))?;
+        located(elements::<sections::Assumption>(report_sections.get("assumptions"), "report_sections.assumptions"))?;
+        located(elements::<sections::Limitation>(report_sections.get("limitations"), "report_sections.limitations"))?;
     }
-    if let Some(list @ Value::Array(_)) = root.get("library_references") {
-        elements::<LibraryReference>(Some(list), "library_references")?;
+    if let Some(list @ Value::Array(_)) = fields.get("library_references") {
+        located(elements::<LibraryReference>(Some(list), "library_references"))?;
     }
-    fn required<T: DeserializeOwned>(root: &mut serde_json::Map<String, Value>, key: &str) -> Result<T, String> {
-        let Some(value) = root.remove(key) else { return Err(refusal("missing field", key)) };
-        serde_json::from_value(value).map_err(|error| refusal(kind(&error), key))
+    fn required<T: DeserializeOwned>(root: &mut serde_json::Map<String, Value>, key: &str) -> Result<T, (&'static str, String)> {
+        let Some(value) = root.remove(key) else { return Err(("missing field", key.to_string())) };
+        serde_json::from_value(value).map_err(|error| (kind(&error), key.to_string()))
     }
-    fn optional<T: DeserializeOwned>(root: &mut serde_json::Map<String, Value>, key: &str) -> Result<Option<T>, String> {
+    fn optional<T: DeserializeOwned>(root: &mut serde_json::Map<String, Value>, key: &str) -> Result<Option<T>, (&'static str, String)> {
         match root.remove(key) {
             None => Ok(None),
-            Some(value) => serde_json::from_value(value).map_err(|error| refusal(kind(&error), key)),
+            Some(value) => serde_json::from_value(value).map_err(|error| (kind(&error), key.to_string())),
         }
     }
+    let at = |error: (&'static str, String)| refusal(error.0, &error.1);
     // Every member, exhaustively (a new member is a compile error here); an
     // unknown top-level member is ignored, as the whole decode ignores it.
     Ok(RenderableReportInput {
-        report_title: required(&mut root, "report_title")?,
-        calculation_report: required(&mut root, "calculation_report")?,
-        report_sections: required(&mut root, "report_sections")?,
-        result_rows: required(&mut root, "result_rows")?,
-        report_context: optional(&mut root, "report_context")?,
-        user_rule_checks: optional(&mut root, "user_rule_checks")?,
-        exact_route: optional(&mut root, "exact_route")?,
-        library_references: optional(&mut root, "library_references")?,
+        report_title: required(&mut fields, "report_title").map_err(at)?,
+        calculation_report: required(&mut fields, "calculation_report").map_err(at)?,
+        report_sections: required(&mut fields, "report_sections").map_err(at)?,
+        result_rows: required(&mut fields, "result_rows").map_err(at)?,
+        report_context: optional(&mut fields, "report_context").map_err(at)?,
+        user_rule_checks: optional(&mut fields, "user_rule_checks").map_err(at)?,
+        exact_route: optional(&mut fields, "exact_route").map_err(at)?,
+        library_references: optional(&mut fields, "library_references").map_err(at)?,
     })
 }
 

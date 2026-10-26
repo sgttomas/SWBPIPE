@@ -1371,6 +1371,15 @@ fn the_value_free_decode_equals_the_whole_decode() {
         let whole: RenderableReportInput = serde_json::from_value(value.clone()).unwrap();
         assert_eq!(decode_renderable_report_input(value).unwrap(), whole);
     }
+    // The positional (array) form decodes as the whole decode reads it.
+    let object = serde_json::to_value(fixture_input()).unwrap();
+    let positional = serde_json::json!([object["report_title"], object["calculation_report"], object["report_sections"], object["result_rows"]]);
+    let whole: RenderableReportInput = serde_json::from_value(positional.clone()).unwrap();
+    assert_eq!(decode_renderable_report_input(positional.clone()).unwrap(), whole);
+    let mut short_form = positional.clone();
+    short_form.as_array_mut().unwrap().pop();
+    assert!(serde_json::from_value::<RenderableReportInput>(short_form.clone()).is_err());
+    assert_eq!(decode_renderable_report_input(short_form).unwrap_err(), "RENDER-INPUT-INVALID: invalid length at the input");
     let [long, short, _] = PRIVATE_ID_TEXTS;
     let mut bad = serde_json::to_value(fixture_input()).unwrap();
     bad["report_sections"]["user_supplied_values"][0]["provenance"]["redistribution_status"] = serde_json::json!(long);

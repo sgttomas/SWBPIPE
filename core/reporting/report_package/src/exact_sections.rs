@@ -338,7 +338,10 @@ pub fn check_exact_sections(
     }
     let carried = carried.ok_or_else(|| mismatch("exact_route: an exact-route result requires the report's exact_route"))?;
     let found: ExactRouteSection =
-        serde_json::from_value(carried.clone()).map_err(|error| mismatch(format!("exact_route: {error}")))?;
+        serde_json::from_value(carried.clone()).map_err(|error| {
+            // The error kind only, never the offending value (Codex review round 3 of #1639).
+            mismatch(format!("exact_route: {} in the report's exact_route", open_pipe_stress_report_renderer::serde_error_kind(&error.to_string())))
+        })?;
     let expected = expected_exact_route_section(
         source,
         document,

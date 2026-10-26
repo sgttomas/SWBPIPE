@@ -442,9 +442,49 @@ pub(crate) fn parse_canonical(what: &str, text: &str) -> Result<Value, ReportPac
 /// The typed request, decoded from the moved `Value` by [`ValueDecoder`] (no
 /// size hints, strings moved, bounded error text): the conversion
 /// [`parse_lease_bytes`] prices.
+///
+/// Each member is moved out and decoded by [`ValueDecoder`] on its own, as the
+/// whole decode decodes it, so a refusal names the member and the error kind
+/// only, never the offending value or key (W-11 slice (c), Codex review round
+/// 3 of #1639). An unknown top-level member is ignored, as there.
 pub(crate) fn typed_request(request: Value) -> Result<ReportPackageRequest, ReportPackageSaveCommandError> {
-    ReportPackageRequest::deserialize(ValueDecoder(request))
-        .map_err(|error| refuse(REQUEST_INVALID, "/request", format!("The request is not a version 2.0.0 report-package request: {error}.")))
+    let invalid = |detail: String| {
+        refuse(REQUEST_INVALID, "/request", format!("The request is not a version 2.0.0 report-package request: {detail}."))
+    };
+    // A positional request (a JSON array) is read by field order, as serde
+    // reads it.
+    let members = open_pipe_stress_report_package::wire::REQUEST_MEMBERS;
+    let mut fields = match request {
+        Value::Object(fields) => fields,
+        Value::Array(items) => open_pipe_stress_report_renderer::positional_members(items, members, members.len())
+            .map_err(|kind| invalid(format!("{kind} at the request")))?,
+        _ => return Err(invalid("invalid type at the request".to_string())),
+    };
+    fn member<T: serde::de::DeserializeOwned>(fields: &mut serde_json::Map<String, Value>, key: &str, optional: bool) -> Result<T, String> {
+        let decoded = match fields.remove(key) {
+            None if !optional => return Err(format!("missing field at {key}")),
+            None => T::deserialize(ValueDecoder(Value::Null)),
+            Some(value) => T::deserialize(ValueDecoder(value)),
+        };
+        decoded.map_err(|error| format!("{} at {key}", open_pipe_stress_report_package::serde_error_kind(&error.to_string())))
+    }
+    // Every member, exhaustively (a new member is a compile error here).
+    (|| -> Result<ReportPackageRequest, String> {
+        Ok(ReportPackageRequest {
+            package_id: member(&mut fields, "package_id", false)?,
+            export_profile_id: member(&mut fields, "export_profile_id", false)?,
+            source_model_ref: member(&mut fields, "source_model_ref", false)?,
+            source_basis_refs: member(&mut fields, "source_basis_refs", false)?,
+            report: member(&mut fields, "report", false)?,
+            audit_manifest: member(&mut fields, "audit_manifest", false)?,
+            result_documents: member(&mut fields, "result_documents", false)?,
+            source_results: member(&mut fields, "source_results", false)?,
+            state_comparison_handoff_records: member(&mut fields, "state_comparison_handoff_records", false)?,
+            rule_check_aggregate: member(&mut fields, "rule_check_aggregate", true)?,
+            solve_rule_check_status: member(&mut fields, "solve_rule_check_status", false)?,
+        })
+    })()
+    .map_err(invalid)
 }
 
 /// A request admitted for the save dialog: the assembled package and the
@@ -1472,6 +1512,16 @@ mod tests {
         assert_eq!(error.code, "REPORT-PACKAGE-REPORT-ROWS-MISMATCH");
         let error = admit(edited(|r| r["source_basis_refs"] = json!("not a list"))).unwrap_err();
         assert_eq!(error.code, REQUEST_INVALID);
+        // Codex review round 3 of #1639: the refusal names the member and the
+        // kind, never the offending value, in the typed request and in the
+        // report (an echoed value can be a private path).
+        let typed = "/Users/invented-user/private-datasheets/steel-a.pdf";
+        let error = admit(edited(|r| r["source_basis_refs"] = json!(typed))).unwrap_err();
+        assert_eq!(error.code, REQUEST_INVALID);
+        assert!(error.message.ends_with("The request is not a version 2.0.0 report-package request: invalid type at source_basis_refs."), "{}", error.message);
+        let error = admit(edited(|r| r["report"]["report_sections"]["provenance_notes"][0]["review_status"] = json!(typed))).unwrap_err();
+        let text = format!("{} {} {:?}", error.code, error.message, error.diagnostics);
+        assert!(!text.contains(typed), "{text}");
     }
 
     const PACK_A: &str = "invented-pack-a";
