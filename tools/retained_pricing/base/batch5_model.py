@@ -39,9 +39,11 @@ PINS = {
     # O4 S5 (§8.9, O4-AD): the T4-U6/U8 narrowings are removed: namespace_branch admits either shear model through
     # contract_is and family_clauses drops the branch-E section-allowance refusal. The component, region and
     # load-state refusals that empty the carriers' children are unchanged.
+    # W-15 slice b (§8.22, W15B-NS): family_clauses refuses a node load in the generated self-weight namespace;
+    # it only narrows admission. The component, region and load-state refusals are unchanged.
     "core/product_physics/src/retained_memory.rs": {
         "namespace_branch": "b1f8f02df1f10552a69c357ebc329fa801243addc94d595403ab9313f79cf805",
-        "family_clauses": "e234ac88ff7a894707225c05d6c361c85492263749177d15984c654247ac2603",
+        "family_clauses": "fe83ef92579e72375027a0111e21714f9de2c203cc96bd70c400ec148d550833",
     },
 }
 # B7b: the production prefix deletes v2's declaration, refusal and negative-pressure

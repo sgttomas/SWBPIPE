@@ -37,7 +37,19 @@ export type SelfWeightOperationPlan = {
   changes: SelfWeightOperationDraft[];
   source_evidence: unknown[];
   scope_label: string;
+  /** W-15: a selected member whose rigid-family component fails a weight
+   * condition keeps its pipe weight, and the generator says so here. */
+  warnings?: {
+    id: string;
+    code: string;
+    severity: "warning";
+    message: string;
+    affected_refs?: string[];
+  }[];
 };
+/** The plan scopes the desktop queues: the selected pipes' own mass, and (W-15)
+ * the same with a component's weight in place of its mapped member's. */
+export const SELF_WEIGHT_SCOPES = ["selected_pipe_mass_only", "selected_pipe_mass_and_component_weight"] as const;
 export type SelfWeightPlanOutcome = {
   document_kind: "openpipestress.desktop.self_weight_plan_outcome";
   status: "ready" | "blocked";

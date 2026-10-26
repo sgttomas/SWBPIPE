@@ -2923,3 +2923,35 @@ if fnkey("applied_scales", _W15_RC) or fnkey("source_bodies", _W15_CB):
          {"scale": _W15_F64}),
         (site("fail", _W15_CB, 'format!("SOURCE_COMPONENT_BODY_{code}")', full=True), {"code": ST}),
     ]
+
+# ---- W-15 slice b: a rigid component's weight and centre of gravity as nodal weight loads (DEL-03-05 Design
+# `rigid-component-stiffness-scaling.md` §3; retained-pricing-rules.md §8.22). The generator's new functions are reached
+# on the solve graph only from inspect_applied_self_weight's lineage check, after its `continue`.
+_W15B_SW = PP_ + "self_weight.rs"
+if fnkey("generation_basis", _W15B_SW):
+    _W15B_INSPECT = _fn_text("inspect_applied_self_weight", _W15B_SW)
+    _W15B_FAMILY = _fn_text("family_clauses", PP_ + "retained_memory.rs")
+    # W15B-NS (guard): D1.10 refuses an object provenance, so `method` is None and `recognized` and
+    # `claimed_method_family` are false; D1.7 refuses an element load of the deterministic form and, since slice b, a
+    # node load whose id starts with `load:self-weight:`, the node arm's whole test; so `looks_generated` is false and
+    # every admitted load takes the `continue` before the closure that calls generation_basis.
+    _w15b_ns = (
+        _W15B_INSPECT.count('super::LoadTargetInput::Node { .. } => load.id.starts_with("load:self-weight:"),') == 1,
+        _W15B_INSPECT.count("if !recognized && !looks_generated {\n                continue;\n            }") == 1,
+        _W15B_INSPECT.count("let looks_generated = claimed_method_family || deterministic_identity;") == 1,
+        _W15B_INSPECT.count("generation_basis(") == 2,
+        _text_of(_W15B_SW).count("generation_basis(") == 3,
+        _W15B_FAMILY.count('if load.id.starts_with("load:self-weight:") {\n                        return refuse(C::Loads, F::GeneratedLoadIdentity);') == 1,
+        _W15B_FAMILY.count("if self_weight_form(&load.id, &case.id, pipe) {\n                        return refuse(C::Loads, F::GeneratedLoadIdentity);") == 1,
+    )
+    if not all(_w15b_ns):
+        raise SystemExit(f"W15B-NS: the generated-namespace premise or its D1 refusal changed; re-review: {_w15b_ns}")
+    O10_EDGE_ZERO += [(fnkey("inspect_applied_self_weight", _W15B_SW), fnkey("generation_basis", _W15B_SW),
+                       O10 + "W15B-NS: D1.10 (no object provenance) and D1.7 (no deterministic element form, and no node "
+                       "load in the generated self-weight namespace) make `looks_generated` false, so every admitted load "
+                       "continues before the lineage closure; generation_basis and its component-weight callees "
+                       "(component_basis, normalized_weight, normalized_cog, component_load_id) are reached only there or "
+                       "from the zeroed generate_operations")]
+    # The component branch's wrench-set keys (two `to_string`s per evidence row) run only inside the same closure.
+    O10_SITE_ZERO += [(site("inspect_applied_self_weight", _W15B_SW, 'let key = |e: &Value| (e["wrench_part"].as_str().unwrap_or_default().to_string(),'),
+                       O10 + "W15B-NS: inside the lineage closure, after the `continue` every admitted load takes")]

@@ -102,8 +102,8 @@ The biggest gaps:
 3. **Rigid components: stiffness only.** OD-2 chose DEC-045 stiffness scaling.
    W-15 slices a and d (#1604) apply it on both routes, admit valve, flange,
    rigid and specialty components on EX, and identify body stress rows as
-   reference-section results. Component weight and centre of gravity as loads
-   (slice b) and the eccentric reducer offset (slice c) remain. Affected:
+   reference-section results. Slice b (#1608) applies component weight at
+   the centre of gravity. The eccentric reducer offset (slice c) remains. Affected:
    FR-SOL-004/012.
 4. **Canonical model export.** File › Save Model Document… saves the canonical
    model document (W-6a, #1588). File › Save Handoff… writes a verified handoff
@@ -180,7 +180,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-SOL-009 (518) | Must | P | `core/loads/load_case_algebra`; `preview_physics_runtime.rs:597,682,709` | DEL-05-02 | EX refuses every combination (`pressure_runtime.rs:337-343`; `exact_admission.rs:229`). |
 | FR-SOL-010 (519) | Should | D | `core/solver/curved_bend`; DEC-070 | DEL-03-03, DEL-04-07 | |
 | FR-SOL-011 (520) | Should | P | SIF → intensified measure (`preview_physics.rs:321-347`); `BRANCH_TOPOLOGY_INVALID` (W-8) | DEL-03-04 | Branch flexibility is not assembled (PP `lib.rs:12861`). EX refuses tees (`exact_admission.rs:205`). |
-| FR-SOL-012 (521) | Should | P | As FR-SOL-004: rigid and semi-rigid behaviour by the user's scale, with user dimensions and source notes | DEL-03-05 | Component weight and centre of gravity are not yet applied as loads (W-15 slice b; the owner ruled the CoG convention on 2026-10-24). |
+| FR-SOL-012 (521) | Should | P | As FR-SOL-004: rigid and semi-rigid behaviour by the user's scale, with user dimensions and source notes; component weight at the centre of gravity as a nodal weight force plus r × F moments, replacing the mapped member's distributed self-weight (`self_weight.rs`; W-15 slice b, #1608; R10 convention, owner 2026-10-24) | DEL-03-05 | The eccentric reducer offset remains (slice c). |
 | FR-SOL-013 (522) | Should | D | `frame_kernel/src/connector.rs`, `tie_rod.rs`, `joint.rs:727`; `tests/connector_pp_paths.rs` | DEL-03-06 | EX only. `movement_limit` is normalized, not enforced (PP `lib.rs:9378`). |
 | FR-SOL-014 (523) | Should | P | `core/solver/nonlinear_supports`; `references/kd5_nonlinear`; the native demo converges | DEL-04-04, DEL-04-07, DEL-09-03 | PF only. Rotational gap and friction refused (`validation.rs:88,100`). |
 | FR-SOL-015 (524) | Must | D | `NUMERICAL_INTEGRITY_*` (PP `lib.rs:1198-1230`); health indicator `operation_applier/src/numerical_health.rs`, `ResultsPanel.tsx:97-130`, status bar and Solve panel, with tests (#1544). Observed natively on both routes (§5) | DEL-04-06, DEL-05-04, DEL-07-05 | |
@@ -534,6 +534,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | — | DBM concordance review | #1567 |
 | — | Strict inputs, nested records: nodes, pipe segments and their sections, the section library, supports, components and the model's and request's materials closed, with their member records and quantities; each undeclared key named with its record and path (at most eight kept, the rest counted); a record that is not an object refused by its path; the material wire's outcomes unchanged but an unknown key's; self-weight evidence mass inputs closed | #1630 |
 | W-15 a+d | DEC-045 stiffness scaling on both routes, EX admission, reference-section identification, rigid-link benchmark | #1604 |
+| W-15 b | Component weight and centre of gravity as nodal weight loads; nodal `weight` admitted for every author | #1608 (stacked on #1604) |
 
 **Remaining:**
 
@@ -542,7 +543,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-2 (rest) | Fresh R6 reproduction bundle at the validation basis, with the current procedure | S | run | heavy | the validation basis | Acceptance of the reproduction is the owner's |
 | W-6 | Canonical model export (save model document to file, independent of a solve; FR-HAND-001); schema-conformant handoff manifest with rule refs and hashes (FR-HAND-002) | M | desktop + schema | heavy | W-13 (0.7.0) | No |
 | W-11 | Exact-route reports: DEL-08-01 limitation sections (ruling 10A), then open; with it, the report's materials, sections and library records (FR-REP-003) | M–L | docs + desktop | heavy | W-3 (done) | Opening returns to the owner |
-| W-15 b, c | Component weight and centre of gravity as nodal loads (slice b; CoG convention ruled 2026-10-24); eccentric reducer offset with the 0.8.0 model document (slice c, §12.3) | M | numerical | heavy, scrutiny | #1604; slice c after the 0.8.0 coordination | No (OD-2, R10 decided) |
+| W-15 c | Eccentric reducer offset with the 0.8.0 model document (§12.3) | S–M | numerical + schema | heavy, scrutiny | #1604, #1608; the 0.8.0 coordination after slice a's D3 turn | No |
 | W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | — | No |
 | W-18 (new) | Report package for current results (FR-REP-001; formerly `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private). Slice (a), the Rust 2.0.0 producer, reader and runner witness, is on main (#1597); slice (b1), native admission and disposition screening of the save (`report_package_save.rs`, shared `export_disposition_screen.rs`), replaces its native hold; slice (b2), the desktop opening (`reportPackageRequest.ts`, the split save service, the solve/rule-check rule-pack agreement and a native smoke step), saves a local private package for a Current pressure-free result, and exact routes stay refused (DEL-08-01 Design `report-package-current-results.md` §6) | M | desktop + Rust | heavy | W-3 | Shareable path decided (owner, 2026-10-24, option B: a per-report user release, W-18b, after (a)–(b2)) |
 | W-14 | Design-knowledge entry and constraint validation | — | — | — | — | Deferred to v0.2 (OD-3) |
@@ -554,7 +555,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 - **Before the owner's hands-on use:** W-6 and W-18 (a model the owner can
   export and a report package). W-3, W-5 and the W-13 slices (#1564–#1566) are
   done.
-- **Before validation:** W-15 (a+d #1604; b, c), W-16 and W-11.
+- **Before validation:** W-15 (a+d #1604, b #1608, c), W-16 and W-11.
   The R6 reproduction bundle (W-2) is then made at the validation
   basis.
 

@@ -18,11 +18,12 @@ SOURCE_FILES = {
     # PP (D-5 mass): an exact-contract section's generated self-weight uses EXACT_MASS_METHOD (metal on the nominal
     # wall, contents on the pressure bore, the allowance among its inputs); the added refusals are static `invalid`
     # messages and retained_basis checks one more input key. The formed-load and finding owners are unchanged.
-    # Nested-record closure (§8.NR, measured): the two evidence-reader PreviewPipe literals name the pipe's three
-    # declared-and-ignored zero-size members (+3 lines each), old_dependencies_mass removes normalized_dependencies'
-    # section_ref before rebuilding the closed section (DEPENDENCY_SECTION_REF), and one evidence test; no formed-load or
-    # finding owner changes.
-    "core/product_physics/src/self_weight.rs": "ec087f37a47f19de37691bd9fcfca21d02ac5456bc28cddc81a83ef7fc5a5ef6",
+    # Nested-record closure (§8.NR, measured), on W-15 slice b's d28d66b4 (§8.22): the two evidence-reader PreviewPipe
+    # literals name the pipe's three declared-and-ignored zero-size members (+3 lines each), old_dependencies_mass
+    # removes normalized_dependencies' section_ref before rebuilding the closed section (DEPENDENCY_SECTION_REF), and one
+    # evidence test; slice b's component-weight generator and lineage spans are main's bytes. No formed-load or finding
+    # owner changes.
+    "core/product_physics/src/self_weight.rs": "be437b877937837478e2977620cf13ba7fcfe4b10d7e8a5f388521679b4ec278",
     "core/product_physics/src/source_receipt/source.rs": "384140db918da65d5e76dd601cd0a2068ae2a098379b41c6907069cf99ced419",
     # T4-U8: retained::assemble's Timoshenko refusal; W1 adds one retained_api
     # export line for member-source types. Existing formation owners stay.
@@ -196,10 +197,11 @@ def decisions(snapshot, resolved):
     audit[0][1]["dof_label(row.dof)"] = {"bytes": 600, "source": "COMP"}
     audit[1][1]["case_id"] = {"bytes": 128, "source": "IN128"}
     # T4-U6/U8 snapshot keys (PP head 20c6126a16; same text): self_weight.rs 814 -> 869 (the D-5 exact mass branch
-    # above it); formation_check.rs +13 from check_at on (PP's frame-member binding before it). Nested-record closure
-    # (§8.NR, measured): self_weight.rs 869 -> 874 (the first evidence-reader literal's three members and the
-    # dependency key's two lines), same text.
-    audit.append((resolved("core/product_physics/src/self_weight.rs:874"), {
+    # above it); formation_check.rs +13 from check_at on (PP's frame-member binding before it).
+    # W-15 slice b (§8.22): 869 -> 1281 (the component-weight generator above it; same text). Nested-record closure
+    # (§8.NR, measured): 1281 -> 1286 (DEPENDENCY_SECTION_REF's two lines and the first evidence-reader literal's three
+    # members above it), same text.
+    audit.append((resolved("core/product_physics/src/self_weight.rs:1286"), {
         "case.id": {"bytes": 128, "source": "IN128"},
         "pipe": {"bytes": 128, "source": "IN128"},
         "case.id.len()": {"bytes": 20, "source": "NUM"},
@@ -282,6 +284,8 @@ def prepare(snapshot, inherited, output):
     # Preserve the 17 later self-weight function zeros. Their actual warrant
     # is the guarded nonobject provenance + deterministic identity refusal,
     # followed by continue825; Element identity formatting itself is positive.
+    # W-15 slice b (§8.22, W15B-NS): the node arm now tests the generated
+    # namespace prefix, and D1.7 refuses a node load with that prefix too.
     old_why = None
     for row in loops["fn_zero"]:
         if row["fn"].startswith("self_weight.rs:"):
@@ -289,7 +293,7 @@ def prepare(snapshot, inherited, output):
                 old_why = row["why"]
             if row["why"] != old_why or "false for a Node target" not in old_why:
                 raise ValueError("B7a self-weight downstream zero preimage changed")
-            row["why"] = "B7a: guarded provenance forbids objects; self_weight_form refuses the generated Element identity; inspect_applied_self_weight continues at825 before this owner. Formatting that identity is positively priced. Was: " + old_why
+            row["why"] = "B7a: guarded provenance forbids objects; self_weight_form refuses the generated Element identity and W15B-NS a node load in the generated namespace; inspect_applied_self_weight continues at825 before this owner. Formatting that identity is positively priced. Was: " + old_why
     if sum(row["fn"].startswith("self_weight.rs:") for row in loops["fn_zero"]) != 17:
         raise ValueError("B7a self-weight downstream function inventory changed")
     for key, expected in COPY_PREIMAGES.items():

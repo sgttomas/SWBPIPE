@@ -2513,10 +2513,16 @@ fn prepare_support_load(
     });
 }
 
+/// Weight is admitted at a node as well as along an element (DEL-03-05 W-15
+/// slice b): a rigid component's weight is a nodal force at its node with the
+/// moments of its centre-of-gravity offset. The earlier element-only rule
+/// reflected only that weight had been a distributed body force; nodal
+/// contributions keep the force/moment dimension check below.
 fn category_allows_node_target(category: PrimitiveLoadCategory) -> bool {
     matches!(
         category,
-        PrimitiveLoadCategory::Wind
+        PrimitiveLoadCategory::Weight
+            | PrimitiveLoadCategory::Wind
             | PrimitiveLoadCategory::Seismic
             | PrimitiveLoadCategory::Occasional
     )
@@ -4342,6 +4348,32 @@ mod tests {
     }
 
     #[test]
+    fn weight_prepares_nodal_force_and_moment_contributions() {
+        // DEL-03-05 W-15 slice b: a component weight is a nodal force with the
+        // moments of its centre-of-gravity offset; the dimension still matches
+        // the direction.
+        let loads = vec![
+            PrimitiveLoad::nodal_force("weight-force", PrimitiveLoadCategory::Weight, 1, LoadDirection::GlobalY, q(-420.0, LoadDimension::Force)),
+            PrimitiveLoad::nodal_force("weight-moment", PrimitiveLoadCategory::Weight, 1, LoadDirection::Dof(FrameDof::Rz), q(-50.4, LoadDimension::Moment)),
+        ];
+        let prepared = prepare_loads(2, 1, &loads);
+        assert!(!prepared.is_blocked(), "{:?}", prepared.findings);
+        assert_eq!(prepared.nodal_loads.len(), 2);
+        assert_eq!(prepared.nodal_loads[0].global_dof, DOF_PER_NODE + UY);
+        assert_eq!(prepared.nodal_loads[0].value, -420.0);
+        assert_eq!(prepared.nodal_loads[1].global_dof, DOF_PER_NODE + FrameDof::Rz.local_index());
+        assert_eq!(prepared.nodal_loads[1].value, -50.4);
+        let mismatched = vec![
+            PrimitiveLoad::nodal_force("weight-moment-as-force", PrimitiveLoadCategory::Weight, 0, LoadDirection::Dof(FrameDof::Rx), q(1.0, LoadDimension::Force)),
+            PrimitiveLoad::nodal_force("weight-per-length", PrimitiveLoadCategory::Weight, 0, LoadDirection::GlobalY, q(1.0, LoadDimension::ForcePerLength)),
+        ];
+        let refused = prepare_loads(1, 1, &mismatched);
+        assert!(refused.is_blocked());
+        assert!(refused.findings.iter().all(|f| f.code == FindingCode::InvalidLoadDimension), "{:?}", refused.findings);
+        assert!(refused.nodal_loads.is_empty());
+    }
+
+    #[test]
     fn pressure_and_thermal_do_not_prepare_nodal_user_loads() {
         let loads = vec![
             PrimitiveLoad::nodal_force(
@@ -4545,9 +4577,10 @@ mod tests {
     #[test]
     fn invalid_targets_and_dimensions_are_findings() {
         let loads = vec![
+            // Hydrotest stays element-only (weight is nodal since W-15 slice b).
             PrimitiveLoad::nodal_force(
-                "weight-node",
-                PrimitiveLoadCategory::Weight,
+                "hydrotest-node",
+                PrimitiveLoadCategory::Hydrotest,
                 0,
                 LoadDirection::GlobalZ,
                 q(-1.0, LoadDimension::Force),
