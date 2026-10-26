@@ -1009,7 +1009,7 @@ with no list of paths to keep in step, and it builds no serialized copy.
   report's data held only during the check, priced within the existing
   leases: on the pressure-free witness the whole render command peaks at
   1,181,440 bytes within its 1,367,168-byte ingress lease and the whole save
-  admission at 11,762,688 bytes within its 29,998,576-byte lease (the parse
+  admission at 17,058,080 bytes within its 29,998,576-byte lease (the parse
   lease with its W M provision), each less the buffered body's envelope; the
   check alone peaks at 180,848 bytes. Counting-allocator figures for this
   input, not proven bounds (`object_form_tests.rs`
