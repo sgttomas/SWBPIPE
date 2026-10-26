@@ -381,7 +381,8 @@ def _recover(key: tuple, case: str, by_key: dict, facts: Mapping[str, Any]) -> t
     value = float(source["value"])
     if kind == END_ACTION:
         return value, witness(source, "unchanged", None, value)
-    n, sign = (-value, "negated") if location == "end_i" else (value, "unchanged")
+    # 0 - N, as the producer negates: a negated zero is +0.0.
+    n, sign = (0.0 - value, "negated") if location == "end_i" else (value, "unchanged")
     if kind == MEMBRANE:
         leaf = facts["sections"][pipe].get(section) if isinstance(facts["sections"][pipe], Mapping) else None
         area = leaf.get("As_m2") if isinstance(leaf, Mapping) else None

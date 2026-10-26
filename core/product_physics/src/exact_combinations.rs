@@ -421,7 +421,9 @@ fn recover(key: &Key, case: &str, rows: &CaseRows<'_>, facts: &CaseFacts<'_>) ->
         }
         WALL_FORCE | EFFECTIVE_FORCE | MEMBRANE => {
             let source = axial(&key.location)?;
-            let (n, sign) = if key.location == "end_i" { (-source.value, "negated") } else { (source.value, "unchanged") };
+            // A negated zero is +0.0 (0 - N), so a witness never holds a -0.0
+            // that a value-preserving re-serialization would rewrite.
+            let (n, sign) = if key.location == "end_i" { (0.0 - source.value, "negated") } else { (source.value, "unchanged") };
             if key.kind == MEMBRANE {
                 let area = facts.sections.get(pipe)?.get(key.section.as_str())?["As_m2"].as_f64()?;
                 let value = n / area;

@@ -819,6 +819,14 @@ fn shared_combination_reader_corpus_is_current() {
         ("W16B load state: mixed stiffness gated, subtraction published", load_state, PreviewSolverMode::SparseInteractive),
     ] {
         let envelope = solved(&wire, mode, label);
+        // No witness value is -0.0 (a negated zero is +0.0), so a value-preserving
+        // re-serialization (JCS, JSON.stringify) reads the same record.
+        for record in envelope["contract_evidence"]["exact_combinations"].as_array().unwrap() {
+            for witness in record["recoveries"].as_array().unwrap() {
+                let value = witness["value"].as_f64().unwrap();
+                assert!(!(value == 0.0 && value.is_sign_negative()), "{label}: {witness}");
+            }
+        }
         cases.push(json!({"label": label, "solver_mode": mode.as_str(), "model": wire["model"], "envelope": envelope}));
     }
     let corpus = json!({

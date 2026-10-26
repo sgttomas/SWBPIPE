@@ -171,7 +171,9 @@ support row missing in an operand case". Support groups publish in the order
 in which their `Fx` rows first appear across the operands, so a reader derives
 the order from the operand rows without the model. A recovery source is the
 operand's `element_local_axial_force` row at the key's station (the end-tangent
-frame rows on a realized arc); a member qualifies when its section is
+frame rows on a realized arc), negated at `end_i` as 0 − N, so a negated zero
+is +0.0 and no witness holds a −0.0 that a value-preserving re-serialization
+would rewrite; a member qualifies when its section is
 published in that case's `pipe_sections` evidence and it is in none of the
 case's pressure regions.
 

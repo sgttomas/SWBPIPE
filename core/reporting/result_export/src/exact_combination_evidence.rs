@@ -644,7 +644,8 @@ fn recover(key: &Key, case: &str, rows: &CaseRows<'_>, facts: &CaseFacts<'_>) ->
         }
         WALL_FORCE | EFFECTIVE_FORCE | MEMBRANE => {
             let (row, value) = axial(&key.location)?;
-            let (n, sign) = if key.location == "end_i" { (-value, "negated") } else { (value, "unchanged") };
+            // The producer negates as 0 - N: a negated zero is +0.0.
+            let (n, sign) = if key.location == "end_i" { (0.0 - value, "negated") } else { (value, "unchanged") };
             if key.kind == MEMBRANE {
                 let area = facts.sections.get(pipe)?.get(key.section.as_str())?["As_m2"].as_f64()?;
                 let value = n / area;
@@ -1099,7 +1100,11 @@ mod tests {
         assert_eq!(exact(&[(1.3, 5.0), (-1.3, 5.0)]).map(f64::to_bits), Some(0));
         // fl(0.3 * 7) against the exact product.
         assert_eq!(exact(&[(0.3, 7.0)]), Some(0.3 * 7.0));
-        assert_eq!(exact(&[(0.1, 3.0), (0.2, 3.0)]), Some(0.9000000000000001));
+        // The exact sum 0.1·3 + 0.2·3 of the represented values is
+        // 0.90000000000000004996..., nearest 0.9 (Fraction arithmetic agrees);
+        // evaluating in binary64 step by step gives 0.9000000000000001.
+        assert_eq!(exact(&[(0.1, 3.0), (0.2, 3.0)]), Some(0.9));
+        assert_ne!(0.1 * 3.0 + 0.2 * 3.0, 0.9);
         // The smallest normal and the largest subnormal.
         assert_eq!(exact(&[(f64::MIN_POSITIVE, 1.0), (-tiny, 1.0)]), Some(f64::MIN_POSITIVE - tiny));
     }

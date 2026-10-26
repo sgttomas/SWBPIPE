@@ -2131,7 +2131,7 @@
                   "section_basis": null,
                   "sign": "negated",
                   "source_result_id": "result:force:pipe-m2:axial",
-                  "value": -0.0
+                  "value": 0.0
                 },
                 {
                   "area_m2": null,
@@ -2145,7 +2145,7 @@
                   "section_basis": null,
                   "sign": "negated",
                   "source_result_id": "result:force:pipe-m2:axial",
-                  "value": -0.0
+                  "value": 0.0
                 },
                 {
                   "area_m2": 0.005969026041820607,
@@ -2159,7 +2159,7 @@
                   "section_basis": "nominal_section",
                   "sign": "negated",
                   "source_result_id": "result:force:pipe-m2:axial",
-                  "value": -0.0
+                  "value": 0.0
                 },
                 {
                   "area_m2": 0.004098011267067036,
@@ -2173,7 +2173,7 @@
                   "section_basis": "reduced_section",
                   "sign": "negated",
                   "source_result_id": "result:force:pipe-m2:axial",
-                  "value": -0.0
+                  "value": 0.0
                 },
                 {
                   "area_m2": null,
@@ -6834,7 +6834,7 @@
                   "section_basis": null,
                   "sign": "negated",
                   "source_result_id": "result:force:pipe-m2:axial",
-                  "value": -0.0
+                  "value": 0.0
                 },
                 {
                   "area_m2": null,
@@ -6848,7 +6848,7 @@
                   "section_basis": null,
                   "sign": "negated",
                   "source_result_id": "result:force:pipe-m2:axial",
-                  "value": -0.0
+                  "value": 0.0
                 },
                 {
                   "area_m2": 0.005969026041820607,
@@ -6862,7 +6862,7 @@
                   "section_basis": "nominal_section",
                   "sign": "negated",
                   "source_result_id": "result:force:pipe-m2:axial",
-                  "value": -0.0
+                  "value": 0.0
                 },
                 {
                   "area_m2": 0.004098011267067036,
@@ -6876,7 +6876,7 @@
                   "section_basis": "reduced_section",
                   "sign": "negated",
                   "source_result_id": "result:force:pipe-m2:axial",
-                  "value": -0.0
+                  "value": 0.0
                 },
                 {
                   "area_m2": null,
@@ -12547,7 +12547,7 @@
                   "section_basis": null,
                   "sign": "negated",
                   "source_result_id": "result:force:pipe-m2:axial",
-                  "value": -0.0
+                  "value": 0.0
                 },
                 {
                   "area_m2": null,
@@ -12561,7 +12561,7 @@
                   "section_basis": null,
                   "sign": "negated",
                   "source_result_id": "result:force:pipe-m2:axial",
-                  "value": -0.0
+                  "value": 0.0
                 },
                 {
                   "area_m2": 0.005969026041820607,
@@ -12575,7 +12575,7 @@
                   "section_basis": "nominal_section",
                   "sign": "negated",
                   "source_result_id": "result:force:pipe-m2:axial",
-                  "value": -0.0
+                  "value": 0.0
                 },
                 {
                   "area_m2": 0.004098011267067036,
@@ -12589,7 +12589,7 @@
                   "section_basis": "reduced_section",
                   "sign": "negated",
                   "source_result_id": "result:force:pipe-m2:axial",
-                  "value": -0.0
+                  "value": 0.0
                 },
                 {
                   "area_m2": null,
