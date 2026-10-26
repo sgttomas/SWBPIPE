@@ -13,7 +13,7 @@ use crate as package;
 use crate::admitted::{self, AdmittedSet};
 use open_pipe_stress_audit_manifest as audit;
 use open_pipe_stress_report_renderer::RenderableReportInput;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 #[derive(Debug, Deserialize)]
@@ -34,8 +34,45 @@ pub struct ReportPackageRequest {
     pub solve_rule_check_status: String,
 }
 
+/// A struct in positional (JSON array) form in the report (found in Codex
+/// review round 3 of #1648).
+pub const REQUEST_POSITIONAL: &str = "REPORT-PACKAGE-REQUEST-POSITIONAL";
+
 /// The request's members in declaration order (its positional form).
 pub const REQUEST_MEMBERS: &[&str] = &["package_id", "export_profile_id", "source_model_ref", "source_basis_refs", "report", "audit_manifest", "result_documents", "source_results", "state_comparison_handoff_records", "rule_check_aggregate", "solve_rule_check_status"];
+
+/// The path of the first struct the request writes in positional (JSON
+/// array) form, at any depth, or `None` (`open_pipe_stress_report_renderer::object_form`;
+/// found in Codex review round 3 of #1648). The shared decode reads
+/// a positional struct by field order, while the native save's policy checks
+/// read members by key, so the save refuses a positional struct before any of
+/// them. A positional request is `the request`. The typed members
+/// (`source_model_ref`, `source_basis_refs`, `audit_manifest`) and the report
+/// (as the renderer's input) are each decoded by reference and compared with
+/// their JSON; the untyped members (result documents, source results,
+/// handoff records) have no struct decoder and are read by key everywhere,
+/// so they need no comparison. A member that does not decode yields nothing
+/// here: the decode refuses it later.
+pub fn request_positional_struct_path(request: &Value) -> Option<String> {
+    use open_pipe_stress_report_renderer::object_form::{positional_struct_path, report_positional_struct_path};
+    fn typed<T: Serialize + for<'de> Deserialize<'de>>(value: Option<&Value>, member: &str) -> Option<String> {
+        let value = value?;
+        let decoded = T::deserialize(value).ok()?;
+        positional_struct_path(&decoded, value).map(|path| under(member, &path))
+    }
+    fn under(member: &str, path: &str) -> String {
+        if path == "the input" { member.to_string() } else if path.starts_with('[') { format!("{member}{path}") } else { format!("{member}.{path}") }
+    }
+    let fields = match request {
+        Value::Array(_) => return Some("the request".to_string()),
+        Value::Object(fields) => fields,
+        _ => return None,
+    };
+    typed::<ReferenceDto>(fields.get("source_model_ref"), "source_model_ref")
+        .or_else(|| typed::<Vec<ReferenceDto>>(fields.get("source_basis_refs"), "source_basis_refs"))
+        .or_else(|| typed::<AuditManifestDto>(fields.get("audit_manifest"), "audit_manifest"))
+        .or_else(|| fields.get("report").and_then(report_positional_struct_path).map(|path| under("report", &path)))
+}
 
 /// Decode a request, refusing an invalid one as `<kind> at <member>` only:
 /// the error kind and the top-level member, never the offending value or key
@@ -77,13 +114,13 @@ pub fn decode_report_package_request(value: Value) -> Result<ReportPackageReques
     })
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReferenceDto {
     pub ref_type: String,
     pub ref_id: String,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HashRecordDto {
     pub algorithm: String,
     pub canonicalization: String,
@@ -92,14 +129,14 @@ pub struct HashRecordDto {
     pub value: String,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SolverVersionDto {
     pub solver_name: String,
     pub solver_version: String,
     pub solver_build_ref: String,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProfessionalBoundaryDto {
     pub human_review_required: bool,
     pub software_makes_compliance_claim: bool,
@@ -110,7 +147,7 @@ pub struct ProfessionalBoundaryDto {
     pub software_makes_authentication_claim: bool,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RulePackAuditRefDto {
     pub rule_pack_id: String,
     pub rule_pack_version: String,
@@ -120,7 +157,7 @@ pub struct RulePackAuditRefDto {
     pub private_payload_redacted: bool,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AssetManifestEntryDto {
     pub asset_id: String,
     pub payload_kind: String,
@@ -129,7 +166,7 @@ pub struct AssetManifestEntryDto {
     pub provenance: String,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuditManifestDto {
     pub manifest_id: String,
     pub model_hash: Option<HashRecordDto>,
@@ -335,6 +372,12 @@ pub(crate) fn assemble_wire_request_in(
     // audit conversion (DEL-08-01 Design §2.3).
     for document in &request.result_documents {
         crate::document_form::check_route_admitted_in(document, admitted)?;
+    }
+    // The report is untyped here and decoded only by the renderer, which reads
+    // a positional struct by field order while the bindings read keys: a
+    // positional struct anywhere in it refuses.
+    if let Some(path) = open_pipe_stress_report_renderer::object_form::report_positional_struct_path(&request.report) {
+        return Err(format!("{REQUEST_POSITIONAL}: the report writes a struct in positional (array) form at report.{path}"));
     }
     let audit_manifest = audit_manifest(request.audit_manifest.clone(), linked_solver)?;
     crate::bindings::check_request_in(&request, &audit_manifest, linked_solver, admitted)?;

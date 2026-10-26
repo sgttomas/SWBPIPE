@@ -23,10 +23,14 @@ mod report_package_save;
 mod report_render_exact;
 #[cfg(test)]
 mod report_render_exact_tests;
+#[cfg(test)]
+mod object_form_tests;
 mod rule_solver_selection;
 mod solve_jobs;
 mod solve_worker;
 mod worker_alloc;
+#[cfg(test)]
+mod rule_check_object_form_tests;
 
 pub use solve_worker::{run_solve_worker, WORKER_FLAG as SOLVE_WORKER_FLAG};
 

@@ -45,13 +45,15 @@ afterEach(() => {
 });
 
 let sessionSequence = 0;
-async function session(hook: Hook = () => undefined, { tauri = true }: { tauri?: boolean } = {}) {
+type Answer = Parameters<typeof createSolveJobTransport>[0];
+const replayFixture: Answer = (request) => {
+  if (!isDeepStrictEqual({ model: request.model, mode: request.mode }, { model: modelFixture, mode: "sparse_interactive" })) throw new Error("REPLAY_REQUEST_MISMATCH");
+  return solveBytes(sourceFixture);
+};
+async function session(hook: Hook = () => undefined, { tauri = true, answer = replayFixture }: { tauri?: boolean; answer?: Answer } = {}) {
   const storage = await getLocalStorageCapability();
   const knowledge = await loadDesignKnowledge();
-  const transport = createSolveJobTransport((request) => {
-    if (!isDeepStrictEqual({ model: request.model, mode: request.mode }, { model: modelFixture, mode: "sparse_interactive" })) throw new Error("REPLAY_REQUEST_MISMATCH");
-    return solveBytes(sourceFixture);
-  }, { jobIdPrefix: `unit-memory-session:${++sessionSequence}` });
+  const transport = createSolveJobTransport(answer, { jobIdPrefix: `unit-memory-session:${++sessionSequence}` });
   invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
     if (command === "get_local_storage_capability") return storage;
     if (command === "load_design_knowledge") return knowledge;
@@ -230,6 +232,44 @@ it.each([
   expect(within(view.container).getByTestId("solve-job-worker-failure")).toHaveTextContent(sentence);
   expect(within(view.container).queryByTestId("solve-job-resource-refusal")).toBeNull();
   expect(within(view.container).getByTestId("readiness-mechanics")).not.toHaveTextContent("refused by the native memory pool");
+});
+
+// A hand-edited model document with a misspelled nested key (Agent 0, 2026-10-25: nested records
+// closed). The value entry refuses it before anything is solved; this text is the native refusal
+// for exactly this edit, pinned against the live value entry by product_physics'
+// `tests/silent_drop_guard_runtime.rs` (`the_desktop_hand_edit_is_refused_with_this_text`).
+const HAND_EDIT_REFUSAL = "UNKNOWN_MODEL_FIELD: request: unknown field `mill_tolerence` in the section of pipe segment `pipe:P-110` "
+  + "(model.pipe_segments[1].section). The model document does not define these keys, so they would be ignored; nothing is solved. "
+  + "Correct or remove each key.";
+
+it("refuses a hand-edited nested unknown key at solve with a reason naming the record and path, and publishes nothing", async () => {
+  const edited = structuredClone(modelFixture) as typeof modelFixture & { pipe_segments: Array<{ section: Record<string, unknown> }> };
+  edited.pipe_segments[1].section.mill_tolerence = { value: 0.0005, unit: "m" };
+  const sent: unknown[] = [];
+  const { result } = await session((command, _args, _options, forward) => {
+    if (command === "open_model_document_file") return Promise.resolve({ outcome: "opened", file_name: "hand-edited.json", document: structuredClone(edited) });
+    // The native job ends as the value entry's refusal ends it: failed, with its reason, no result.
+    return command === "poll_preview_mechanics_job"
+      ? forward().then((answer) => ({ ...(answer as object), state: "failed", result_available: false, result_bytes: null, error_message: HAND_EDIT_REFUSAL }))
+      : undefined;
+  }, { answer: (request) => { sent.push(request.model); return solveBytes(sourceFixture); } });
+  await act(async () => { await result.current.project.handleOpenModelDocument(); });
+  // The desktop adopts the document unchanged: its own checks do not drop or refuse the key.
+  expect(result.current.model.model).toEqual(edited);
+  await act(async () => { await result.current.results.handleRun(); });
+  // The misspelled key reaches the solve as authored.
+  expect(sent).toEqual([edited]);
+  const job = result.current.results.solveJob;
+  expect(job.state).toBe("failed");
+  expect(job.resource.refusal).toBeNull();
+  expect(result.current.results.result).toBeNull();
+  expect(commands()).not.toContain("take_preview_mechanics_job_result");
+  const view = renderSolvePanel(result.current);
+  const reason = within(view.container).getByTestId("solve-job-error");
+  expect(reason).toHaveTextContent("unknown field `mill_tolerence` in the section of pipe segment `pipe:P-110` (model.pipe_segments[1].section)");
+  expect(reason).toHaveTextContent("nothing is solved. Correct or remove each key.");
+  expect(within(view.container).queryByTestId("solve-job-worker-failure")).toBeNull();
+  expect(within(view.container).queryByTestId("solve-job-resource-refusal")).toBeNull();
 });
 
 it("records a refused start with the pool status the native side reported", async () => {

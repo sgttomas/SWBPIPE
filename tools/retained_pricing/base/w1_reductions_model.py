@@ -65,8 +65,10 @@ RF_PINS = {
 # Unit factor-sum gate D3 (§8.24): preview_physics.rs's gate_reason calls factor_sum_within_unit_tolerance in place
 # of its two folds; the L5 callee's inputs and the L5 guard, shadow, insert and call texts are unchanged; no reduction's
 # owner or lifetime changes.
+# Nested-record closure D3 (§8.25): lib.rs's closed nested wire records and material wire change no reduction's owner or
+# lifetime; the L5 guard, shadow, insert and call texts are unchanged.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "8b437bcccaa2a31cc8c5ebd2544c0e9c27bea064e54a8ccc5355f80ce0618768",
+    "core/product_physics/src/lib.rs": "06e98114c960d95f0d7dc59b749e274c7bca5fc206343e4c7460604a4213e761",
     "core/product_physics/src/retained_wire.rs": "1c58db53d9a590d4316aea0fdc855396002935faed3d91a31e7f5434d93d8d40",
     "core/product_physics/src/certified_publication.rs": "8dd1a0ed3c32df695639b2adda57e2d501b6becc8fafec78c5256061148ba19c",
     "core/product_physics/src/certified_loads.rs": "56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f",

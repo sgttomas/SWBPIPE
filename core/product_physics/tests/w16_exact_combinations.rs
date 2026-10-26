@@ -839,7 +839,9 @@ fn shared_combination_reader_corpus_is_current() {
         std::fs::write(CORPUS_PATH, &bytes).unwrap();
         return;
     }
-    let committed = std::fs::read_to_string(CORPUS_PATH).expect("the committed corpus");
+    // The committed corpus is read at compile time, so the numerical CI's read
+    // index binds it to this test (no runtime read).
+    let committed = include_str!("../../../fixtures/results/pressure_v3_combination_reader_corpus.json");
     assert!(committed == bytes, "the shared pressure-2 combination reader corpus is stale; regenerate it with W16B_WRITE_CORPUS=1");
 }
 

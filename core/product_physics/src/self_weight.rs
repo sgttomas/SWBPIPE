@@ -897,6 +897,8 @@ fn dependency_projection(s: &super::PipeSectionInput, reference: &Option<String>
     }
     projection
 }
+/// The member `normalized_dependencies` carries beside the section's own.
+const DEPENDENCY_SECTION_REF: &str = "section_ref";
 /// The keys of a generated record's `mass_inputs` (and of a section rebuilt
 /// from them): the preview method's, plus the corrosion allowance under
 /// `EXACT_MASS_METHOD`.
@@ -1079,6 +1081,9 @@ fn retained_basis(
         material: String::new(),
         y_reference: None,
         provenance: None,
+        label: serde::de::IgnoredAny,
+        tags: serde::de::IgnoredAny,
+        notes: serde::de::IgnoredAny,
     };
     let mass = if method == LEGACY_METHOD {
         compute_pipe_mass_per_length(&pipe, case_id, &mut d)
@@ -1204,10 +1209,13 @@ fn component_basis(
     // The historical wrench follows from the retained authored quantities,
     // normalized again here; the recorded SI values, dependencies and whole
     // wrench must agree with it exactly, or the record is not lineage.
-    let weight_input: Quantity = serde_json::from_value(evidence["weight_input"].clone()).map_err(|_| fail())?;
+    // Both are closed quantities, as on the component they were read from: an
+    // undeclared member is not lineage.
+    let weight_input = super::model_fields::closed_quantity(evidence["weight_input"].clone()).map_err(|_| fail())?;
     let weight = normalized_weight(&weight_input).ok_or_else(fail)?;
-    let cog_input: super::VectorQuantity =
-        serde_json::from_value(evidence["center_of_gravity_input"].clone()).map_err(|_| fail())?;
+    let cog_input = super::model_fields::closed_optional_vector_quantity(evidence["center_of_gravity_input"].clone())
+        .map_err(|_| fail())?
+        .ok_or_else(fail)?;
     let cog = normalized_cog(&cog_input).ok().flatten().ok_or_else(fail)?;
     let recorded_cog: [f64; 3] = serde_json::from_value(evidence["center_of_gravity_m"].clone()).map_err(|_| fail())?;
     if evidence["weight_N"].as_f64() != Some(weight) || recorded_cog != cog {
@@ -1474,7 +1482,9 @@ pub fn inspect_applied_self_weight(
 // Reconstructing legacy mass through the same helper avoids using a second
 // physics formula. A mismatch is an explicit-reconciliation requirement.
 fn old_dependencies_mass(evidence: &Value, case_id: &str) -> Option<f64> {
-    let (_, dependencies, _) = retained_basis(evidence, case_id).ok()?;
+    let (_, mut dependencies, _) = retained_basis(evidence, case_id).ok()?;
+    // The projection's one member beside the section's own (the closed section refuses any other).
+    dependencies.as_object_mut()?.remove(DEPENDENCY_SECTION_REF);
     let section = serde_json::from_value(dependencies).ok()?;
     let pipe = super::PreviewPipe {
         id: String::new(),
@@ -1485,6 +1495,9 @@ fn old_dependencies_mass(evidence: &Value, case_id: &str) -> Option<f64> {
         material: String::new(),
         y_reference: None,
         provenance: None,
+        label: serde::de::IgnoredAny,
+        tags: serde::de::IgnoredAny,
+        notes: serde::de::IgnoredAny,
     };
     compute_pipe_mass_per_length(&pipe, case_id, &mut Vec::new())
 }
@@ -1830,6 +1843,26 @@ mod tests {
         )
         .unwrap();
         assert_eq!(evidence["legacy_generation_provenance"], original);
+    }
+    #[test]
+    fn evidence_mass_inputs_with_an_undeclared_member_is_invalid_not_fresh() {
+        // The generated record's mass inputs rebuild a closed section: a member it
+        // does not declare (a misspelled input, or an extra key in a quantity) is
+        // not ignored.
+        let edits: [fn(&mut Value); 3] = [
+            |e| e["mass_inputs"]["mill_tolerence"] = json!({"value": 0.001, "unit": "m"}),
+            |e| e["mass_inputs"]["outside_diameter"]["extra"] = json!(1),
+            |e| e["mass_inputs"]["section_ref"] = json!("section:S"),
+        ];
+        for edit in edits {
+            let (mut model, _) = applied();
+            assert_eq!(state(&model), AppliedSelfWeightState::Fresh);
+            let load = &mut model.load_cases[0].primitive_loads[0];
+            let mut evidence: Value = serde_json::from_str(load.provenance.as_ref().unwrap()).unwrap();
+            edit(&mut evidence);
+            load.provenance = Some(evidence.to_string());
+            assert_eq!(state(&model), AppliedSelfWeightState::Invalid, "{evidence}");
+        }
     }
     #[test]
     fn stable_method_tag_is_mandatory_and_not_inferred() {

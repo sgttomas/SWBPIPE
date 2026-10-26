@@ -213,6 +213,7 @@ code_paths:
 - apps/desktop/src/features/project-units/**
 - apps/desktop/src/services/projectService.ts
 - core/model_operations/operation_applier/src/project_units_authoring.rs
+- apps/desktop/src-tauri/src/stored_model_document_export.rs
 checks:
 - core/units/src/lib.rs
 - apps/desktop/src/services/displayQuantityPrecision.test.ts
@@ -228,3 +229,4 @@ checks:
 - apps/desktop/src/features/model-tree/missingProjectUnitEditors.test.tsx
 - apps/desktop/src/features/model-tree/sliceCUnitDefaults.test.tsx
 - apps/desktop/src/features/exportProjectUnitRefusal.test.tsx
+- apps/desktop/src-tauri/src/stored_model_document_export.rs

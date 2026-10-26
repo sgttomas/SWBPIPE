@@ -539,6 +539,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | # | Unit | PR or branch |
 |---|---|---|
 | — | DBM concordance review | #1567 |
+| — | Strict inputs, nested records: nodes, pipe segments and their sections, the section library, supports, components and the model's and request's materials closed, with their member records and quantities; each undeclared key named with its record and path (at most eight kept, the rest counted); a record that is not an object refused by its path; the material wire's outcomes unchanged but an unknown key's; self-weight evidence mass inputs closed | #1630 |
 | W-15 a+d | DEC-045 stiffness scaling on both routes, EX admission, reference-section identification, rigid-link benchmark | #1604 |
 | W-15 b | Component weight and centre of gravity as nodal weight loads; nodal `weight` admitted for every author | #1608 (stacked on #1604) |
 
