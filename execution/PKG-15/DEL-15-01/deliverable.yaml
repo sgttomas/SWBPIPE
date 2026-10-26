@@ -225,3 +225,4 @@ checks:
 - tests/test_handoff_package_witness.py
 - tests/verifiers/handoff_package.py
 - apps/desktop/src/services/rulePackRefResolutionParity.test.ts
+- apps/desktop/src-tauri/src/stored_model_document_export.rs
