@@ -5,8 +5,8 @@
 //! (a sign-only convention change gives bit-identical measures). Every input is
 //! invented.
 use crate::rigid_component::{
-    arc_evidence, decide_axis, judge_offset, straight_beta, EndStatus, Evidence, OffsetOutcome, AXIS_ANGLE_BASE_RAD,
-    COORDINATE_ROUNDING_ALLOWANCE_M, TRANSVERSE_RATIO_BASE,
+    arc_evidence, decide_axis, judge_offset, judge_run, straight_beta, EndStatus, Evidence, OffsetOutcome, RunAxis,
+    AXIS_ANGLE_BASE_RAD, COORDINATE_ROUNDING_ALLOWANCE_M, TRANSVERSE_RATIO_BASE,
 };
 
 const MM: f64 = 1.0e-3;
@@ -44,7 +44,7 @@ fn outcome_name(o: &OffsetOutcome) -> String {
 /// Decide and judge for ends (N, F) with their statuses.
 fn check(x_n: [f64; 3], x_f: [f64; 3], n: &EndStatus, f: &EndStatus, e: [f64; 3]) -> OffsetOutcome {
     match decide_axis(n, f) {
-        Ok(axis) => judge_offset(x_n, x_f, axis, e, TAU),
+        Ok(axis) => judge_run(x_n, x_f, axis, e, TAU),
         Err((reason, detail)) => OffsetOutcome::Invalid(reason, detail),
     }
 }
@@ -67,9 +67,13 @@ fn the_thirty_degree_run_with_rounded_entry_is_accepted() {
     let (n0, a, b, c) = (mm([0.0, 0.0, 0.0]), mm([866.0, 500.0, 0.0]), mm([945.0, 603.0, 0.0]), mm([1811.0, 1103.0, 0.0]));
     let e = mm([-25.0, 43.0, 0.0]);
     let (sn, sf) = (run(n0, a), run(b, c));
-    let (axis, _) = decide_axis(&sn, &sf).unwrap();
+    // Both runs are (866, 500) mm: an exact tie of β, each end judged (J3).
+    let Ok(RunAxis::Tied((axis, _), (other, _))) = decide_axis(&sn, &sf) else { panic!("a tie") };
+    for direction in [axis, other] {
+        let share = (e[0] * direction[0] + e[1] * direction[1]).abs() / len(e);
+        assert!((share - 0.003015789).abs() < 1e-8, "axial share {share}");
+    }
     let share = (e[0] * axis[0] + e[1] * axis[1]).abs() / len(e);
-    assert!((share - 0.003015789).abs() < 1e-8, "axial share {share}");
     assert!(share > TRANSVERSE_RATIO_BASE, "the base ratio alone refuses it");
     let outcome = check(a, b, &sn, &sf, e);
     assert_eq!(outcome_name(&outcome), "realized", "{outcome:?}");
@@ -162,9 +166,9 @@ fn a_sign_only_convention_change_does_not_change_acceptance() {
         assert_eq!(outcome_name(&named_a), outcome_name(&named_b), "theta {theta}");
         assert_eq!(bits(&named_a), bits(&named_b), "theta {theta}: bit-identical measures");
     }
-    // The near-bound case: the component end's own direction would accept it
-    // (e·t_N = 0.95 mm), the far end's would refuse it (1.15 mm); the consensus
-    // refuses it under either naming.
+    // The near-bound case, an exact tie of two 1 m runs: the component end's own
+    // direction accepts it (e·t_N = 0.95 mm), the far end's refuses it (1.15 mm),
+    // so the tie refuses it under either naming (J3).
     let (sn, sf, a, b) = rotated(-4.0e-3);
     assert_eq!(outcome_name(&check(a, b, &sn, &sf, mm([0.95, -50.0, 0.0]))), "not_transverse");
 }
@@ -180,7 +184,7 @@ fn ambiguity_and_unsupported_evidence_are_refused_before_directions() {
     assert_eq!(decide_axis(&reducer, &tee).unwrap_err().0, "ambiguous_run");
     assert_eq!(decide_axis(&short, &ok).unwrap_err().0, "unresolvable_run_evidence");
     assert_eq!(decide_axis(&EndStatus::None, &EndStatus::None).unwrap_err().0, "standalone_body");
-    assert_eq!(decide_axis(&EndStatus::None, &ok).unwrap().0, [1.0, 0.0, 0.0]);
+    assert_eq!(decide_axis(&EndStatus::None, &ok).unwrap(), RunAxis::One([1.0, 0.0, 0.0], 1e-3));
 }
 
 /// A realized arc's tangent at its ends and β_arc (§3.3): a quarter circle of
@@ -316,11 +320,11 @@ fn a_total_tangent_uncertainty_of_pi_over_two_or_more_is_named_as_such() {
 fn the_better_resolved_end_governs_the_axis() {
     let strong = EndStatus::Direction { direction: [1.0, 0.0, 0.0], beta: 1e-3 };
     let weak = EndStatus::Direction { direction: unit([1.0, 0.02, 0.0]), beta: 0.4 };
-    assert_eq!(decide_axis(&strong, &weak).unwrap(), ([1.0, 0.0, 0.0], 1e-3));
-    assert_eq!(decide_axis(&weak, &strong).unwrap(), ([1.0, 0.0, 0.0], 1e-3));
-    // An exact tie keeps the sign-aligned consensus.
-    let tie = EndStatus::Direction { direction: [-1.0, 0.0, 0.0], beta: 1e-3 };
-    assert_eq!(decide_axis(&strong, &tie).unwrap().1, 1e-3);
+    assert_eq!(decide_axis(&strong, &weak).unwrap(), RunAxis::One([1.0, 0.0, 0.0], 1e-3));
+    assert_eq!(decide_axis(&weak, &strong).unwrap(), RunAxis::One([1.0, 0.0, 0.0], 1e-3));
+    // An exact tie forms no consensus: both ends' own (direction, β) are kept (J3).
+    let tie = EndStatus::Direction { direction: unit([-1.0, 0.001, 0.0]), beta: 1e-3 };
+    assert_eq!(decide_axis(&strong, &tie).unwrap(), RunAxis::Tied(([1.0, 0.0, 0.0], 1e-3), (unit([-1.0, 0.001, 0.0]), 1e-3)));
 }
 
 /// J2 regression at the check (Codex numerical scrutiny r2): the realized arc's
@@ -342,4 +346,107 @@ fn j2_weak_bend_case_is_realized() {
     let f_status = run(f, g);
     let OffsetOutcome::Realized(m) = check(entered, f, &n, &f_status, e) else { panic!("{:?}", check(entered, f, &n, &f_status, e)) };
     assert!(m.residual < 1e-12, "residual {}", m.residual);
+}
+
+/// The outcome with its measure, for exact comparison.
+fn measure_bits(o: &OffsetOutcome) -> (String, Vec<u64>) {
+    let m = match o {
+        OffsetOutcome::Realized(m) | OffsetOutcome::BelowPrecision(m) | OffsetOutcome::NotTransverse(m) | OffsetOutcome::Mismatch(m) => m,
+        OffsetOutcome::Invalid(..) => return (outcome_name(o), vec![]),
+    };
+    let all = [m.axial_length, m.offset_axial, m.allowance, m.residual, m.beta_run, m.axis[0], m.axis[1], m.axis[2], m.transverse[0], m.transverse[1], m.transverse[2]];
+    (outcome_name(o), all.iter().map(|v| v.to_bits()).collect())
+}
+
+/// The old J2 tie rule, kept here only to show what J3 changes: the sign-aligned
+/// consensus of the two ends with β_run = β_N.
+fn consensus(n: &EndStatus, f: &EndStatus) -> ([f64; 3], f64) {
+    let (EndStatus::Direction { direction: dn, beta: bn }, EndStatus::Direction { direction: df, .. }) = (n, f) else { unreachable!() };
+    let sigma = if dn[0] * df[0] + dn[1] * df[1] + dn[2] * df[2] >= 0.0 { 1.0 } else { -1.0 };
+    (unit([dn[0] + sigma * df[0], dn[1] + sigma * df[1], dn[2] + sigma * df[2]]), *bn)
+}
+
+/// J3 regression (Codex numerical scrutiny r3, the tie discontinuity): two
+/// 125 mm runs with opposite 0.9765625 mm lateral differences (equal β), a
+/// 750 mm body and a 15.625 mm Z offset. The old consensus axis was X and
+/// realized the offset exactly; either 1-ulp neighbour of the tie selects one
+/// end and refuses a 5.859196 mm placement residual. Under J3 the tie judges
+/// each end and refuses like both neighbours, its measure bit-identical to the
+/// neighbour whose governing end has unchanged evidence, and the ends' names
+/// swapped give the identical outcome.
+#[test]
+fn j3_a_tie_is_judged_at_each_end_like_its_neighbours() {
+    let (x_n, x_f, e) = ([0.0, 0.0, 0.0], [0.75, 0.0, 0.015625], [0.0, 0.0, 0.015625]);
+    let beta = straight_beta(len([0.125, 0.0009765625, 0.0])).unwrap();
+    let n = EndStatus::Direction { direction: unit([0.125, 0.0009765625, 0.0]), beta };
+    let at = |delta: i64| {
+        let f = EndStatus::Direction { direction: unit([0.125, -0.0009765625, 0.0]), beta: f64::from_bits((beta.to_bits() as i64 + delta) as u64) };
+        (check(x_n, x_f, &n, &f, e), check(x_f, x_n, &f, &n, [-e[0], -e[1], -e[2]]), f)
+    };
+    let ((below, below_swapped, _), (tie, tie_swapped, f_tie), (above, above_swapped, _)) = (at(-1), at(0), at(1));
+    for (o, swapped) in [(&below, &below_swapped), (&tie, &tie_swapped), (&above, &above_swapped)] {
+        let OffsetOutcome::Mismatch(m) = o else { panic!("{o:?}") };
+        assert!((m.residual - 5.859196e-3).abs() < 1e-9, "residual {}", m.residual);
+        let (name, mut bits) = measure_bits(swapped);
+        // The swapped naming negates the axis and transverse vectors exactly.
+        for b in bits.iter_mut().skip(5) {
+            *b ^= 1u64 << 63;
+        }
+        assert_eq!((name, bits), measure_bits(o), "N/F naming");
+    }
+    // F's β one ulp above N's: N governs with its unchanged evidence, as one of the tie's judgments.
+    assert_eq!(measure_bits(&tie), measure_bits(&above));
+    assert_eq!(outcome_name(&tie), outcome_name(&below));
+    // The old consensus realized the tie exactly: the discontinuity J3 removes.
+    let OffsetOutcome::Realized(old) = judge_offset(x_n, x_f, consensus(&n, &f_tie), e, TAU) else { panic!("the consensus realized it") };
+    assert_eq!(old.residual, 0.0);
+}
+
+/// J3 regression (Codex numerical scrutiny r3, an invalid consensus β_run): two
+/// 2 mm chords, each the common true chord ±(1, 1, 1) mm and each with β = 60°,
+/// admit the true axis within their own β, but their sign-aligned consensus lay
+/// 90° from it while β_run = 60° was returned. Under J3 each end keeps its own
+/// (direction, β), and the true axis lies within each.
+#[test]
+fn j3_a_tie_keeps_each_ends_own_uncertainty() {
+    let truth = unit([1.0, -1.0, 0.0]);
+    let chord = [truth[0] * MM, truth[1] * MM, 0.0];
+    let n = run([0.0; 3], [chord[0] + MM, chord[1] + MM, MM]);
+    let f = run([0.0; 3], [chord[0] - MM, chord[1] - MM, -MM]);
+    let angle = |a: [f64; 3]| {
+        let cross = [a[1] * truth[2] - a[2] * truth[1], a[2] * truth[0] - a[0] * truth[2], a[0] * truth[1] - a[1] * truth[0]];
+        len(cross).atan2((a[0] * truth[0] + a[1] * truth[1] + a[2] * truth[2]).abs())
+    };
+    let Ok(RunAxis::Tied(end_n, end_f)) = decide_axis(&n, &f) else { panic!("a tie") };
+    for (direction, beta) in [end_n, end_f] {
+        assert!((beta - std::f64::consts::FRAC_PI_3).abs() < 1e-12, "beta {beta}");
+        assert!(angle(direction) <= beta + 1e-12, "the true axis is {} rad from an end, beyond its β {beta}", angle(direction));
+    }
+    let (old_axis, old_beta) = consensus(&n, &f);
+    assert!(angle(old_axis) > old_beta + 0.1, "the old consensus lay {} rad from the true axis with β_run {old_beta}", angle(old_axis));
+}
+
+/// J3 precedence: a refusal before an acceptance, then the larger residual; the
+/// outcome is the same under either naming of the ends.
+#[test]
+fn j3_tie_precedence_is_refusal_then_larger_residual() {
+    let (x_n, x_f) = ([0.0, 0.0, 0.0], [0.12, -0.05, 0.0]);
+    let tilt = |theta: f64| EndStatus::Direction { direction: [theta.cos(), theta.sin(), 0.0], beta: 1e-3 };
+    let swapped = |n: &EndStatus, f: &EndStatus, e: [f64; 3]| {
+        let (a, b) = (check(x_n, x_f, n, f, e), check(x_f, x_n, f, n, [-e[0], -e[1], -e[2]]));
+        assert_eq!(outcome_name(&a), outcome_name(&b));
+        assert_eq!(bits(&a), bits(&b), "bit-identical measures under either naming");
+        a
+    };
+    // Both realize; the larger residual is reported.
+    let (n, f) = (tilt(0.0), tilt(2.0e-3));
+    let e = mm([0.0, -50.0, 0.0]);
+    let OffsetOutcome::Realized(m) = swapped(&n, &f, e) else { panic!() };
+    let OffsetOutcome::Realized(m_f) = judge_offset(x_n, x_f, ([2.0e-3f64.cos(), 2.0e-3f64.sin(), 0.0], 1e-3), e, TAU) else { panic!() };
+    assert!(m_f.residual > 0.0);
+    assert_eq!(m.residual.to_bits(), m_f.residual.to_bits(), "the tilted end's larger residual");
+    // One end accepts and the other refuses: the tie refuses.
+    let e = mm([0.0, -45.1, 0.0]);
+    assert_eq!(outcome_name(&judge_offset(x_n, x_f, ([1.0, 0.0, 0.0], 1e-3), e, TAU)), "realized");
+    assert_eq!(outcome_name(&swapped(&n, &f, e)), "mismatch");
 }

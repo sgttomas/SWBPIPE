@@ -555,9 +555,18 @@ pub(crate) fn arc_evidence(from: V3, to: V3, at_from: bool, radius: f64, y_refer
     Evidence::Run { direction, beta }
 }
 
-/// The two ends' statuses decided into a run axis (§3.3): the undirected
-/// consensus u and β_run, or the refusal reason and its detail.
-pub(crate) fn decide_axis(n: &EndStatus, f: &EndStatus) -> Result<(V3, f64), (&'static str, String)> {
+/// The run axis decided from the two ends (§3.3): one governing undirected
+/// direction u with its β_run, or, on an exact tie of β after the agreement
+/// check, both ends' own (direction, β), each judged separately (J3).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub(crate) enum RunAxis {
+    One(V3, f64),
+    Tied((V3, f64), (V3, f64)),
+}
+
+/// The two ends' statuses decided into a run axis (§3.3), or the refusal reason
+/// and its detail.
+pub(crate) fn decide_axis(n: &EndStatus, f: &EndStatus) -> Result<RunAxis, (&'static str, String)> {
     for (end, status) in [("N", n), ("F", f)] {
         if let EndStatus::Ambiguous(candidates) = status {
             return Err(("ambiguous_run", format!("end {end} adjoins more than one member ({})", candidates.join(", "))));
@@ -582,20 +591,19 @@ pub(crate) fn decide_axis(n: &EndStatus, f: &EndStatus) -> Result<(V3, f64), (&'
                 return Err(("run_directions_disagree", format!("the run directions at the two ends are {theta:e} rad apart, more than the bound {bound:e} rad")));
             }
             // J2 (HELP_HUMAN, 2026-10-26, under the owner's delegation): the
-            // better-resolved end governs, so weak evidence cannot tilt the axis;
-            // the sign-aligned consensus is used only on an exact tie. Both
-            // choices are symmetric in the two ends.
+            // better-resolved end governs, so weak evidence cannot tilt the axis.
+            // J3 (same): on an exact tie no consensus is formed; each end's own
+            // (direction, β) is judged (`judge_run`). Both are symmetric in the
+            // two ends.
             if bn < bf {
-                return Ok((*dn, *bn));
+                return Ok(RunAxis::One(*dn, *bn));
             }
             if bf < bn {
-                return Ok((*df, *bf));
+                return Ok(RunAxis::One(*df, *bf));
             }
-            let sigma = if along >= 0.0 { 1.0 } else { -1.0 };
-            let sum = v_add(*dn, v_scale(sigma, *df));
-            Ok((v_scale(1.0 / v_norm(sum), sum), *bn))
+            Ok(RunAxis::Tied((*dn, *bn), (*df, *bf)))
         }
-        (EndStatus::Direction { direction, beta }, EndStatus::None) | (EndStatus::None, EndStatus::Direction { direction, beta }) => Ok((*direction, *beta)),
+        (EndStatus::Direction { direction, beta }, EndStatus::None) | (EndStatus::None, EndStatus::Direction { direction, beta }) => Ok(RunAxis::One(*direction, *beta)),
         _ => Err(("standalone_body", "neither end adjoins a member that gives a run direction".to_string())),
     }
 }
@@ -626,16 +634,9 @@ pub(crate) enum OffsetOutcome {
 /// swapping N and F together with negating e (a sign-only convention change)
 /// gives bit-identical measures.
 pub(crate) fn judge_offset(x_n: V3, x_f: V3, axis: (V3, f64), offset: V3, tolerance: f64) -> OffsetOutcome {
-    let d = v_sub(x_f, x_n);
-    let (u, beta_run) = axis;
-    let t = if v_dot(u, d) < 0.0 { v_neg(u) } else { u };
-    let axial_length = v_dot(d, t);
-    let transverse = v_sub(d, v_scale(axial_length, t));
+    let measure = offset_measure(x_n, x_f, axis, offset);
+    let OffsetMeasure { axial_length, offset_axial, allowance, residual, .. } = measure;
     let e_norm = v_norm(offset);
-    let offset_axial = v_dot(offset, t).abs();
-    let allowance = TRANSVERSE_RATIO_BASE * e_norm + 0.5 * 3f64.sqrt() * COORDINATE_ROUNDING_ALLOWANCE_M + e_norm * beta_run.sin();
-    let residual = v_norm(v_sub(transverse, offset));
-    let measure = OffsetMeasure { axis: t, axial_length, transverse, offset_axial, allowance, residual, beta_run };
     if !(axial_length > 0.0) {
         return OffsetOutcome::Invalid("no_axial_length", format!("the body has no length along the run axis (D·t = {axial_length:e} m)"));
     }
@@ -652,6 +653,60 @@ pub(crate) fn judge_offset(x_n: V3, x_f: V3, axis: (V3, f64), offset: V3, tolera
         return OffsetOutcome::Mismatch(measure);
     }
     OffsetOutcome::Realized(measure)
+}
+
+/// The measured quantities for one (direction, β) against the body D = x_f − x_n:
+/// the axis t oriented by D, and the offset's quantities along and across it.
+fn offset_measure(x_n: V3, x_f: V3, axis: (V3, f64), offset: V3) -> OffsetMeasure {
+    let d = v_sub(x_f, x_n);
+    let (u, beta_run) = axis;
+    let t = if v_dot(u, d) < 0.0 { v_neg(u) } else { u };
+    let axial_length = v_dot(d, t);
+    let transverse = v_sub(d, v_scale(axial_length, t));
+    let e_norm = v_norm(offset);
+    let offset_axial = v_dot(offset, t).abs();
+    let allowance = TRANSVERSE_RATIO_BASE * e_norm + 0.5 * 3f64.sqrt() * COORDINATE_ROUNDING_ALLOWANCE_M + e_norm * beta_run.sin();
+    let residual = v_norm(v_sub(transverse, offset));
+    OffsetMeasure { axis: t, axial_length, transverse, offset_axial, allowance, residual, beta_run }
+}
+
+/// The offset judged against the decided run axis (§3.3). On an exact tie
+/// (J3, HELP_HUMAN, 2026-10-26, under the owner's delegation) each end's own
+/// (direction, β) is judged by `judge_offset`; the reducer is refused if either
+/// judgment refuses, and the reported judgment is chosen by this precedence:
+/// a refusal before an acceptance; then the larger residual ‖D⊥ − e‖; then the
+/// earlier refusal in `judge_offset`'s order (no axial length, below precision,
+/// not transverse, mismatch); then the larger axial offset share, axial length
+/// and allowance; and last the axis and transverse vectors each multiplied by
+/// the sign of D's first nonzero component, compared component by component.
+/// Every key is unchanged when the ends' names are swapped (D, t, D⊥ and, under
+/// the other convention, e negate exactly), so the outcome does not depend on
+/// which end is N. Keys that compare equal throughout give identical outcomes.
+pub(crate) fn judge_run(x_n: V3, x_f: V3, axis: RunAxis, offset: V3, tolerance: f64) -> OffsetOutcome {
+    match axis {
+        RunAxis::One(u, beta) => judge_offset(x_n, x_f, (u, beta), offset, tolerance),
+        RunAxis::Tied(end_n, end_f) => {
+            let d = v_sub(x_f, x_n);
+            let sign = d.iter().find(|v| **v != 0.0).map_or(1.0, |v| v.signum());
+            let key = |axis: (V3, f64)| {
+                let m = offset_measure(x_n, x_f, axis, offset);
+                let outcome = judge_offset(x_n, x_f, axis, offset, tolerance);
+                let rank = match outcome {
+                    OffsetOutcome::Realized(_) => 0.0,
+                    OffsetOutcome::Mismatch(_) => 1.0,
+                    OffsetOutcome::NotTransverse(_) => 2.0,
+                    OffsetOutcome::BelowPrecision(_) => 3.0,
+                    OffsetOutcome::Invalid(..) => 4.0,
+                };
+                let refused = if rank > 0.0 { 1.0 } else { 0.0 };
+                let (t, p) = (v_scale(sign, m.axis), v_scale(sign, m.transverse));
+                ([refused, m.residual, rank, m.offset_axial, m.axial_length, m.allowance, t[0], t[1], t[2], p[0], p[1], p[2]], outcome)
+            };
+            let ((k_n, o_n), (k_f, o_f)) = (key(end_n), key(end_f));
+            let later = k_n.iter().zip(&k_f).map(|(a, b)| b.total_cmp(a)).find(|o| o.is_ne());
+            if later == Some(std::cmp::Ordering::Greater) { o_f } else { o_n }
+        }
+    }
 }
 
 /// How a member is mapped, for run evidence (§3.3).
@@ -781,7 +836,7 @@ fn judge_all<'a>(model: &'a PreviewModel, tolerance: f64) -> Vec<(&'a PreviewCom
                 None => OffsetOutcome::Invalid("mapping_invalid", "the offset needs a mapped body member that exists and ends at the component's node".to_string()),
                 Some((member, n, f, x_n, x_f)) => match decide_axis(&topology.end_status(member, n), &topology.end_status(member, f)) {
                     Err((reason, detail)) => OffsetOutcome::Invalid(reason, detail),
-                    Ok(axis) => judge_offset(x_n, x_f, axis, e, tolerance),
+                    Ok(axis) => judge_run(x_n, x_f, axis, e, tolerance),
                 },
             }
         };

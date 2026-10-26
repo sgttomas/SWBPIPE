@@ -504,3 +504,46 @@ fn a_weak_bend_does_not_tilt_the_axis_full_solve() {
         }
     }
 }
+
+/// J3 regression through the solve (Codex numerical scrutiny r3; invented
+/// geometry): two 125 mm runs with opposite 0.9765625 mm lateral differences
+/// (an exact tie of β), a 750 mm body and a 15.625 mm Z offset. The old
+/// consensus axis realized the offset at the tie, while moving the downstream
+/// outer node's X by one ulp either way selected one end and refused a 5.859196
+/// mm placement residual. Under J3 the tie judges each end and refuses like both
+/// neighbours, on both routes, and placing the reducer at the other end (the
+/// ends' names swapped, the offset negated) gives the same refusal and residual.
+#[test]
+fn a_tie_is_judged_at_each_end_like_its_neighbours() {
+    let model = |gx: f64, at_far_end: bool| Model {
+        length_unit: "m",
+        nodes: vec![("node:n0", [-0.125, -0.00048828125, 0.0]), ("node:n", [0.0, 0.00048828125, 0.0]),
+            ("node:f", [0.75, 0.00048828125, 0.015625]), ("node:g", [gx, -0.00048828125, 0.015625])],
+        members: vec![("pipe:up", "node:n0", "node:n"), ("body:n-f", "node:n", "node:f"), ("pipe:down", "node:f", "node:g")],
+        components: vec![if at_far_end {
+            reducer("component:r", "node:f", "body:n-f", Some([0.0, 0.0, -15.625]), "mechanics_geometry_only")
+        } else {
+            reducer("component:r", "node:n", "body:n-f", Some([0.0, 0.0, 15.625]), "mechanics_geometry_only")
+        }],
+        load_node: "node:g",
+        tolerance_mm: None,
+    };
+    let residual = |out: &MechanicsEnvelope| -> Vec<String> {
+        codes(out, "RIGID_COMPONENT_ECCENTRIC_OFFSET").into_iter()
+            .map(|(c, m)| format!("{c} {}", m.split("residual ").nth(1).and_then(|r| r.split(' ').next()).unwrap_or("-"))).collect()
+    };
+    for route in [Route::Preview, Route::Exact] {
+        let mut outcomes = Vec::new();
+        for delta in [-1i64, 0, 1] {
+            let gx = f64::from_bits((0.875f64.to_bits() as i64 + delta) as u64);
+            let (named, swapped) = (solve(&model(gx, false), route), solve(&model(gx, true), route));
+            assert_ne!(named.status.mechanics, "MECHANICS_SOLVED", "{route:?} {delta}");
+            let found = residual(&named);
+            assert_eq!(found.len(), 1, "{route:?} {delta}: {found:?}");
+            assert!(found[0].starts_with(MISMATCH) && found[0].contains("5.8591"), "{route:?} {delta}: {found:?}");
+            assert_eq!(found, residual(&swapped), "{route:?} {delta}: the ends' names swapped");
+            outcomes.push(found);
+        }
+        assert!(outcomes[1] == outcomes[0] || outcomes[1] == outcomes[2], "{route:?}: the tie matches a neighbour: {outcomes:?}");
+    }
+}
