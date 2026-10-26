@@ -3,7 +3,7 @@ import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
 import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
-import { EXPORT_LENGTH_TARGET_UNIT, lengthToMillimeters } from "../exportLengthConversion";
+import { EXPORT_LENGTH_TARGET_UNIT, lengthToMillimeters, outOfRangeNodeCoordinates } from "../exportLengthConversion";
 
 type CaePipeMbfReference = {
   object_type: string;
@@ -25,7 +25,7 @@ type CaePipeMbfConversionWitness = {
     target_field: string;
   };
   conversion_factor_to_target: number | null;
-  conversion_status: "converted_to_target_unit" | "source_unit_matches_target_unit" | "refused_no_routine_exact_conversion";
+  conversion_status: "converted_to_target_unit" | "source_unit_matches_target_unit" | "refused_no_routine_exact_conversion" | "refused_out_of_range";
   decision_basis_refs: CaePipeMbfReference[];
   provenance: ReturnType<typeof previewProvenance>;
 };
@@ -38,6 +38,9 @@ const SCHEMA_VALIDATION_STATUS = "desktop_preview_shape_aligned_not_runtime_json
 const CAEPIPE_MBF_TARGET_LENGTH_UNIT = EXPORT_LENGTH_TARGET_UNIT;
 /** A length with no routine exact conversion to millimetres (DEL-02-02 Design §7, C2). */
 export const MBF_LENGTH_UNIT_UNSUPPORTED = "MBF-LENGTH-UNIT-UNSUPPORTED";
+/** A length that is not finite, or not finite once converted to millimetres (DEL-02-02 Design §7.5). */
+export const MBF_LENGTH_OUT_OF_RANGE = "MBF-LENGTH-OUT-OF-RANGE";
+const LENGTH_REFUSAL_CODES: ReadonlySet<string> = new Set([MBF_LENGTH_UNIT_UNSUPPORTED, MBF_LENGTH_OUT_OF_RANGE]);
 const TARGET_VERSION_TBD = "TBD-17-01-001";
 const RECORD_SUBSET_TBD = "TBD-17-01-002";
 const DIRECT_STABLE_ID_TBD = "TBD-17-01-003";
@@ -155,9 +158,9 @@ export function CaepipeMbfExportPanel({
 /** The export's refusal for lengths with no routine exact conversion, or null. Withholds
  * both links, as the text names the units. */
 function lengthUnitRefusalText(diagnostics: Array<{ code: string; message: string }>): string | null {
-  const refused = diagnostics.filter((item) => item.code === MBF_LENGTH_UNIT_UNSUPPORTED);
+  const refused = diagnostics.filter((item) => LENGTH_REFUSAL_CODES.has(item.code));
   if (refused.length === 0) return null;
-  return `${MBF_LENGTH_UNIT_UNSUPPORTED}: .mbf export refused. ${refused.map((item) => item.message).join(" ")}`;
+  return `.mbf export refused. ${refused.map((item) => `${item.code}: ${item.message}`).join(" ")}`;
 }
 
 function CaePipeMbfLine({ label, value, testId }: { label: string; value: string; testId: string }) {
@@ -460,7 +463,7 @@ function conversionWitness({
     },
     conversion_factor_to_target: converted ? converted.factor : null,
     conversion_status: !converted
-      ? "refused_no_routine_exact_conversion"
+      ? conversion.status === "out_of_range" ? "refused_out_of_range" : "refused_no_routine_exact_conversion"
       : converted.sourceMatchesTarget
         ? "source_unit_matches_target_unit"
         : "converted_to_target_unit",
@@ -629,6 +632,18 @@ function caepipeMbfDiagnostics({
       )
     );
   }
+  for (const coordinate of outOfRangeNodeCoordinates(model.nodes, projectLengthUnit(model))) {
+    diagnostics.push(
+      diagnostic(
+        MBF_LENGTH_OUT_OF_RANGE,
+        "blocking",
+        "UNIT_WARNING",
+        coordinate.text,
+        "Correct the stored node position to a finite length before exporting .mbf text.",
+        reference("Node", coordinate.nodeId)
+      )
+    );
+  }
   if (stableIdMap.length === 0) {
     diagnostics.push(diagnostic("MBF-STABLE-ID-SIDECAR-MISSING", "blocking", "TARGET_MAPPING_WARNING", "The .mbf package has no sidecar stable ID map entries.", "Use sidecar mapping while direct MBF stable-ID carrying remains TBD-17-01-003.", reference("ExportProfile", exportProfile.profile_id)));
   }
@@ -774,14 +789,14 @@ function projectLengthUnit(model: PreviewModel): string {
   return model.project.units.length ?? "";
 }
 
-/** Millimetres, or null where the unit has no routine exact conversion (refused). */
+/** Millimetres, or null where the length is refused (no routine conversion, or out of range). */
 function millimetersOrNull(value: number, unit: string): number | null {
   const conversion = lengthToMillimeters(value, unit);
   return conversion.status === "converted" ? conversion.value : null;
 }
 
 function formatNumber(value: number | null): string {
-  if (value === null) return "TBD_UNIT_UNSUPPORTED";
+  if (value === null) return "TBD_LENGTH_REFUSED";
   if (Number.isInteger(value)) return String(value);
   return value.toFixed(6).replace(/0+$/g, "").replace(/\.$/, "");
 }

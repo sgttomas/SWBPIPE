@@ -507,13 +507,31 @@ structural public paths), so the false conversion evidence was downloadable.
     (`caepipe-mbf-length-unit-refused`, `pcf-export-length-unit-refused`), and
     the summary reads `refused`. The load-reference output gate keeps
     precedence: the length refusal sits inside it.
-  - The refused quantity's payload value and witness target are `null`, with a
-    `null` factor and `refused_no_routine_exact_conversion`. Nothing records a
-    conversion that did not happen.
+  - What a refused quantity carries:
+    - Its witness target and factor are `null`, with
+      `refused_no_routine_exact_conversion`.
+    - A refused node coordinate is `null` in the payload and
+      `TBD_LENGTH_REFUSED` in the text.
+    - A refused PCF OD or wall is the placeholder string
+      `TBD_OD_UNIT_UNSUPPORTED` or `TBD_WALL_UNIT_UNSUPPORTED`.
+    - Nothing records a conversion that did not happen.
   - These replace the earlier `MBF-NODE-COORDINATE-UNIT-TBD` and
     `PCF-COORDINATE-UNIT-TBD`, which blocked `in` and `ft` but still offered
     the links. The missing-key refusal designed for the export panels, when
     built, takes precedence for a missing length key.
+- **Out of range: refused by name.** A source value that is not finite (`NaN`,
+  `Infinity`, `-Infinity`) is refused, and so is one whose converted value is
+  not finite, such as 1e308 in overflowing after × 25.4. The helper checks the
+  source and the product with `Number.isFinite`.
+  - The export records a blocking `MBF-LENGTH-OUT-OF-RANGE` or
+    `PCF-LENGTH-OUT-OF-RANGE` diagnostic. There is one per node coordinate
+    concerned, read from the actual coordinates, and one per PCF section
+    quantity. Each names the node and axis, or the segment and field, with the
+    value and unit.
+  - The links are withheld and the status line shows the refusal, as above.
+  - The witness is `null` and `refused_out_of_range`. The payload is `null` for
+    a coordinate, and `TBD_OD_OUT_OF_RANGE` or `TBD_WALL_OUT_OF_RANGE` for a
+    PCF section quantity.
 - **Unchanged.** Output for `m` and `mm` is byte-identical.
 - **Scope.** No other export converts lengths to millimetres. The local FEA
   handoff preserves source units (`conversion=false`), and its unit manifest is
@@ -521,5 +539,6 @@ structural public paths), so the false conversion evidence was downloadable.
 - **Checks.** `exportLengthConversion.test.tsx` checks the conversions against
   hand-computed millimetres for coordinates in `in` and `ft` and for OD and wall
   in `in` and `ft` under a project length of `m`. It also checks the witness
-  factors through the real export controls, and the refusals with their links
-  withheld.
+  factors through the real export controls, and both refusals with their links
+  withheld: unsupported units, and out-of-range values (1e308 in, `NaN`,
+  `Infinity` and `-Infinity` coordinates, and PCF OD and wall).

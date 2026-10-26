@@ -284,3 +284,94 @@ describe("a length with no routine exact conversion is refused by name", () => {
     expect(within(panel).getByTestId("caepipe-mbf-length-unit-refused")).toHaveTextContent(named);
   });
 });
+
+describe("a length that is not finite, or not finite once converted, is refused as out of range", () => {
+  // 1e308 in x 25.4 overflows binary64 to Infinity; NaN and +/-Infinity are not finite sources.
+  const SOURCES = [
+    { label: "1e308 in (overflow after the factor)", value: 1e308, named: "1e+308" },
+    { label: "NaN", value: Number.NaN, named: "NaN" },
+    { label: "+Infinity", value: Number.POSITIVE_INFINITY, named: "Infinity" },
+    { label: "-Infinity", value: Number.NEGATIVE_INFINITY, named: "-Infinity" }
+  ];
+
+  it("the helper refuses each", () => {
+    for (const { value } of SOURCES) {
+      expect(lengthToMillimeters(value, "in")).toEqual({ status: "out_of_range", unitLabel: '"in"' });
+    }
+    // A large value whose product stays finite still converts: 1e305 m x 1000 is finite.
+    const large = lengthToMillimeters(1e305, "m");
+    expect(large.status).toBe("converted");
+    expect(large.status === "converted" && Number.isFinite(large.value)).toBe(true);
+  });
+
+  it.each(SOURCES)("node coordinate $label: both exports refuse by name with links withheld", ({ value, named }) => {
+    const positions = structuredClone(INCH_POSITIONS);
+    positions["node:N-110"].x = value;
+    const input = model({ length: "in", positions });
+
+    const pcfPacket = pcf(input);
+    const pcfRefusals = pcfPacket.diagnostics.filter((item) => item.code === "PCF-LENGTH-OUT-OF-RANGE");
+    expect(pcfRefusals).toHaveLength(1);
+    expect(pcfRefusals[0].severity).toBe("blocking");
+    expect(pcfRefusals[0].affected_object).toEqual({ object_type: "Node", ref: "node:N-110" });
+    expect(pcfRefusals[0].message).toContain(`Node node:N-110 position x (${named} "in")`);
+    const pcfNode = pcfPacket.pcf_payload.nodes.find((node) => node.node_id === "node:N-110");
+    expect(pcfNode?.x).toBeNull();
+    expect(pcfNode?.y).toBe(0);
+    const pcfWitness = witness(pcfPacket, "pcf-conversion:node-n-110:position:x");
+    expect(pcfWitness.target_quantity.value).toBeNull();
+    expect(pcfWitness.conversion_factor_to_target).toBeNull();
+    expect(pcfWitness.conversion_status).toBe("refused_out_of_range");
+
+    const mbfPacket = mbf(input);
+    const mbfRefusals = mbfPacket.diagnostics.filter((item) => item.code === "MBF-LENGTH-OUT-OF-RANGE");
+    expect(mbfRefusals).toHaveLength(1);
+    expect(mbfRefusals[0].message).toContain(`Node node:N-110 position x (${named} "in")`);
+    expect(mbfPacket.validation_report.validation_status).toBe("blocked");
+    expect(mbfPacket.model_payload.nodes[1].x).toBeNull();
+    expect(mbfPacket.mbf_text).toContain("NODE,N002,TBD_LENGTH_REFUSED,0,0\n");
+    const mbfWitness = witness(mbfPacket, "caepipe-mbf-conversion:node-n-110:position:x");
+    expect(mbfWitness.target_quantity.value).toBeNull();
+    expect(mbfWitness.conversion_factor_to_target).toBeNull();
+    expect(mbfWitness.conversion_status).toBe("refused_out_of_range");
+
+    render(
+      <>
+        <PcfExportPanel model={input} result={null} analysisRun={null} />
+        <CaepipeMbfExportPanel model={input} result={null} analysisRun={null} />
+      </>
+    );
+    const pcfPanel = screen.getByTestId("pcf-export-panel");
+    expect(within(pcfPanel).queryByTestId("pcf-export-link")).toBeNull();
+    expect(within(pcfPanel).queryByTestId("pcf-text-link")).toBeNull();
+    expect(within(pcfPanel).getByTestId("pcf-export-length-unit-refused")).toHaveTextContent(`PCF-LENGTH-OUT-OF-RANGE: Node node:N-110 position x (${named} "in")`);
+    const mbfPanel = screen.getByTestId("caepipe-mbf-panel");
+    expect(within(mbfPanel).queryByTestId("caepipe-mbf-export-link")).toBeNull();
+    expect(within(mbfPanel).queryByTestId("caepipe-mbf-text-link")).toBeNull();
+    expect(within(mbfPanel).getByTestId("caepipe-mbf-length-unit-refused")).toHaveTextContent(`MBF-LENGTH-OUT-OF-RANGE: Node node:N-110 position x (${named} "in")`);
+    expect(within(mbfPanel).getByTestId("caepipe-mbf-summary")).toHaveTextContent(/^refused;/);
+  });
+
+  it.each([
+    { field: "outside_diameter" as const, quantity: { value: 1e308, unit: "ft" }, named: '1e+308 "ft"', placeholder: "TBD_OD_OUT_OF_RANGE" },
+    { field: "wall_thickness" as const, quantity: { value: 1e308, unit: "in" }, named: '1e+308 "in"', placeholder: "TBD_WALL_OUT_OF_RANGE" },
+    { field: "wall_thickness" as const, quantity: { value: Number.NaN, unit: "in" }, named: 'NaN "in"', placeholder: "TBD_WALL_OUT_OF_RANGE" }
+  ])("PCF $field $named with metre coordinates is refused, links withheld", ({ field, quantity, named, placeholder }) => {
+    const input = model({ length: "m", section: (id) => (id === "pipe:P-120" ? { ...SIX_INCH_PIPE(), [field]: quantity } : null) });
+    const packet = pcf(input);
+    const refusals = packet.diagnostics.filter((item) => item.code === "PCF-LENGTH-OUT-OF-RANGE");
+    expect(refusals).toHaveLength(1);
+    expect(refusals[0].message).toContain(`Pipe segment pipe:P-120 ${field} (${named})`);
+    const segment = packet.pcf_payload.pipe_segments.find((item) => item.element_id === "pipe:P-120");
+    expect(segment?.[field]).toBe(placeholder);
+    const refusedWitness = witness(packet, `pcf-conversion:pipe-p-120:${field}`);
+    expect(refusedWitness.target_quantity.value).toBeNull();
+    expect(refusedWitness.conversion_factor_to_target).toBeNull();
+    expect(refusedWitness.conversion_status).toBe("refused_out_of_range");
+    render(<PcfExportPanel model={input} result={null} analysisRun={null} />);
+    const panel = screen.getByTestId("pcf-export-panel");
+    expect(within(panel).queryByTestId("pcf-export-link")).toBeNull();
+    expect(within(panel).queryByTestId("pcf-text-link")).toBeNull();
+    expect(within(panel).getByTestId("pcf-export-length-unit-refused")).toHaveTextContent("PCF-LENGTH-OUT-OF-RANGE");
+  });
+});
