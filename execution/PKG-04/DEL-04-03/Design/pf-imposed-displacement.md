@@ -256,5 +256,14 @@ This table is not exhaustive. At the D3 turn, also check the applicable
 `primitive_loads` already prepares support motion (~953-965, ~2473-2513), so it
 needs no change. Re-pricing must consider any enlarged target/primitive layout,
 even though D1 refuses support primitives. Excluding the variant does not show
-that admitted variants' memory is unchanged. Re-pricing and re-registration,
-with independent review, queue behind the solver lane's W-15 turn.
+that admitted variants' memory is unchanged.
+
+D3 prices this in DEL-04-08 `Design/retained-pricing-rules.md` §8.23:
+`case_prescribed`'s node index and `validate`'s findings vector are priced
+positively on D1 (W16-NI, W16-VF), as is the node/element
+`imposed_displacement` refusal D1.7's dimension-only node arm admits (W16-ID);
+everything behind a support target is zero on D1 by its premise (W16-NS). The
+enlarged target raises the primitive load's layout by 16 B. P_FINAL is
+unchanged, and all 80 evaluations fit M, the tightest at +2,361,180,063 B
+(merged dense W3). Independent review of the D3 and the AC-004 stack-headroom
+witnesses are separate steps.
