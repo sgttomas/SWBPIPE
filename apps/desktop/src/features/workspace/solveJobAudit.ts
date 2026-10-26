@@ -9,7 +9,7 @@ import type {
   BackendSolveJobStatus,
   SolveJobStartReceipt
 } from "../../services/previewService";
-import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes, ResourceUnavailableError } from "../../services/memoryPool";
+import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes, resourceRefusalCode, ResourceUnavailableError } from "../../services/memoryPool";
 import type {
   AnalysisRunEnvelope,
   MechanicsResult,
@@ -235,9 +235,101 @@ export function progressSolveJob(current: SolveJobAuditState, status: BackendSol
   };
 }
 
-/** A job the native memory ledger refused: a terminal `refused` poll, or a
- * refused take of a completed job's result. The typed refusal is recorded as is. */
-export function refusedSolveJob(current: SolveJobAuditState, refusal: ResourceRefusal, pool: PoolStatus | null = null): SolveJobAuditState {
+/** Where in the native solve path a memory refusal stood (DEL-04-07
+ * memory-budget decision, "Refusals are typed"). It is read from the record's
+ * existing fields: the refused event's id, whether a backend job existed, and
+ * the refusal's kind. */
+export type SolveRefusalPoint =
+  /** The start command: intake, queue or early retention admission; no job ran. */
+  | "before_start"
+  /** The worker while it ran: its growth, cap or footprint (`worker_*`). */
+  | "worker"
+  /** The finished result's lease, taken while the worker's grant is still held. */
+  | "result_handoff"
+  /** Retention of the finished result (`retention_full`). */
+  | "publication"
+  /** The take of a completed job's result into the app. */
+  | "take"
+  /** A native command of the session's own solve steps (an interactive admission). */
+  | "session_step";
+
+/** The refused event of a refusal at a native job's terminal state or at its start. */
+const REFUSED_EVENT = "solve-preview-resource-refused";
+/** The refused event of a refused take of a completed job's result. */
+const REFUSED_AT_TAKE_EVENT = "solve-preview-resource-refused-at-take";
+/** The refused event of a refused native command in the session's solve steps. */
+const REFUSED_AT_SESSION_STEP_EVENT = "solve-preview-resource-refused-at-session-step";
+
+/** Where the refusal recorded on a `refused` job stood; null for any other job. */
+export function solveRefusalPoint(job: SolveJobAuditState): SolveRefusalPoint | null {
+  const refusal = job.resource.refusal;
+  if (job.state !== "refused" || !refusal) return null;
+  const event = [...job.events].reverse().find((item) => item.state === "refused")?.event_id;
+  return refusalPoint(event === REFUSED_AT_TAKE_EVENT ? "take" : event === REFUSED_AT_SESSION_STEP_EVENT ? "session_step" : "job", job.backend_job_id, refusal);
+}
+
+function refusalPoint(at: "job" | "take" | "session_step", backendJobId: string | null, refusal: ResourceRefusal): SolveRefusalPoint {
+  if (at !== "job") return at;
+  if (backendJobId === null) return "before_start";
+  // A running job's own refusals are typed `worker_*`; at publication only the
+  // retention bound refuses; any other refusal of a job is its result lease.
+  if (refusal.kind.startsWith("worker_")) return "worker";
+  if (refusal.kind === "retention_full") return "publication";
+  return "result_handoff";
+}
+
+/** What happened at the refusal point and the retry path the design allows,
+ * in plain language. It never promises that a retry will be admitted. */
+export function describeSolveRefusalRetry(refusal: ResourceRefusal, point: SolveRefusalPoint): string {
+  const resampled = refusal.kind === "headroom_insufficient" ? " Free memory was re-sampled for up to 2 s before this refusal stood." : "";
+  const where = {
+    before_start: `Refused before the solve started; no job ran.${resampled}`,
+    worker: `Refused while the solve ran: its worker process was stopped, with no fallback to another solver mode or route.${refusal.kind === "worker_growth_refused" ? " Worker growth is not re-sampled." : ""}`,
+    result_handoff: `Refused at the result hand-off after the solve finished; the finished result was dropped.${resampled}`,
+    publication: "Refused at publication after the solve finished; the finished result was dropped.",
+    take: "Refused when the finished result was handed to the app; the take is not re-sampled, and the session does not retry a refused take, so it released the result.",
+    session_step: "Refused at a native command of this solve's session steps; the session does not retry it."
+  }[point];
+  return `${where} ${solveRetryPath(refusal)}`;
+}
+
+/** The user's retry path for a refused solve: running it again, which is
+ * admitted only if the pool, headroom and limits allow it then. */
+function solveRetryPath(refusal: ResourceRefusal): string {
+  switch (refusal.kind) {
+    case "pressure_elevated":
+      return "You can run the solve again once macOS memory pressure is back to normal.";
+    case "queue_full":
+      return "You can run the solve again once a queued solve has started.";
+    case "retention_full":
+      return "You can run the solve again once a waiting result has been collected or released.";
+    case "custody_full":
+      return "You can run the solve again once a held result has been released.";
+    case "ingress_exceeds_budget":
+    case "worker_cap_exceeded":
+    case "worker_footprint_exceeded":
+      return "This solve needed more than the per-invocation budget allows; a larger budget, up to the pool, can be set under Memory pool before running the solve again.";
+    case "ingress_invalid":
+      return "The request itself could not be received; running it again unchanged is refused the same way.";
+    case "worker_growth_refused":
+      return solveRetryPath(refusal.cause);
+    default:
+      return "You can run the solve again when more memory is free.";
+  }
+}
+
+/** A job the native memory ledger refused: a terminal `refused` poll, a
+ * refused start (`before_start`), a refused take of a completed job's result
+ * (`take`), or a refused native command of the session's solve steps
+ * (`session_step`). The typed refusal is recorded as is; the event names the
+ * refusal point, the exact code and the retry path. */
+export function refusedSolveJob(
+  current: SolveJobAuditState,
+  refusal: ResourceRefusal,
+  pool: PoolStatus | null = null,
+  at: "job" | "take" | "session_step" = "job"
+): SolveJobAuditState {
+  const point = refusalPoint(at, current.backend_job_id, refusal);
   return {
     ...current,
     state: "refused",
@@ -245,9 +337,9 @@ export function refusedSolveJob(current: SolveJobAuditState, refusal: ResourceRe
     events: [
       ...current.events,
       {
-        event_id: "solve-preview-resource-refused",
+        event_id: at === "take" ? REFUSED_AT_TAKE_EVENT : at === "session_step" ? REFUSED_AT_SESSION_STEP_EVENT : REFUSED_EVENT,
         state: "refused",
-        message: `Refused by the native memory pool (${refusal.kind}): ${describeResourceRefusal(refusal)} No result was published.`,
+        message: `Refused by the native memory pool (${refusal.kind}): ${describeResourceRefusal(refusal)} No result was published. ${describeSolveRefusalRetry(refusal, point)} Refusal code: ${resourceRefusalCode(refusal)}.`,
         result_available: false,
         diagnostic_count: 0,
         result_row_count: 0,
@@ -256,6 +348,11 @@ export function refusedSolveJob(current: SolveJobAuditState, refusal: ResourceRe
     ],
     error_message: null
   };
+}
+
+/** A completed job whose result take the native memory ledger refused. */
+export function refusedAtTakeSolveJob(current: SolveJobAuditState, error: ResourceUnavailableError): SolveJobAuditState {
+  return refusedSolveJob(current, error.refusal, error.pool, "take");
 }
 
 /** A start the native memory ledger refused before any job existed. */
@@ -460,7 +557,9 @@ function restoredSolveJob(result: MechanicsResult, analysisRun: AnalysisRunEnvel
 
 export function failSolveJob(current: SolveJobAuditState, error: unknown): SolveJobAuditState {
   // A typed resource refusal is recorded as a refusal, never as a generic failure.
-  if (error instanceof ResourceUnavailableError) return refusedSolveJob(current, error.refusal, error.pool);
+  // The take and the start record their own refusals; one reaching here came
+  // from a native command of the session's solve steps.
+  if (error instanceof ResourceUnavailableError) return refusedSolveJob(current, error.refusal, error.pool, "session_step");
   // A crashed or protocol-breaking solve worker is a failure, never a refusal.
   const worker = describeSolveWorkerFailure(String(error));
   return {

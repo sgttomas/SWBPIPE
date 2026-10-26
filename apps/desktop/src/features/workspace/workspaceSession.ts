@@ -172,6 +172,7 @@ import {
   modelChangedSolveJob,
   pendingBackendStartCancellationSolveJob,
   progressSolveJob,
+  refusedAtTakeSolveJob,
   refusedBeforeBackendStartSolveJob,
   refusedSolveJob,
   recordBackendCancellationFailure,
@@ -997,9 +998,20 @@ export function useWorkspaceSession() {
         }
         if (terminal.state !== "completed") throw terminalJobError(terminal);
         // The poll carries no result: take the producer's bytes. A refused take
-        // (for example custody_full) is recorded as a typed refusal; the session
-        // does not retry a failed take, so `finally` releases the retained result.
-        output = await takePreviewMechanicsJobResult(startReceipt.job_id);
+        // (custody_full, or headroom for the handoff copy) is recorded as a typed
+        // refusal at the take; the session does not retry a failed take, so
+        // `finally` releases the retained result.
+        try {
+          output = await takePreviewMechanicsJobResult(startReceipt.job_id);
+        } catch (error) {
+          if (!(error instanceof ResourceUnavailableError)) throw error;
+          if (solveRunGate.current.isCurrent(runGeneration)) {
+            setSolveJob((current) =>
+              current.job_id === startedJob?.job_id ? refusedAtTakeSolveJob(current, error) : current
+            );
+          }
+          return;
+        }
         deliveredOutput = output;
         unsettledJob = null;
       } else {

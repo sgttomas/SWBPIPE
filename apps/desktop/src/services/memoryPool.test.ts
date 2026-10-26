@@ -4,7 +4,8 @@ import {
   describeSolveWorkerFailure,
   parsePoolStatus,
   parseResourceRefusal,
-  parseSolveResourceGrant
+  parseSolveResourceGrant,
+  resourceRefusalCode
 } from "./memoryPool";
 
 // Strict readers and plain-language sentences for the worker-capped ordinary
@@ -180,5 +181,17 @@ describe("budgets above the default", () => {
     expect(describeResourceRefusal({ kind: "headroom_stale", age_ms: 2500 })).toBe("The free-memory reading is out of date (2.5 s old), so no new memory reservation is admitted until it refreshes.");
     expect(describeResourceRefusal({ kind: "ingress_exceeds_budget", required_bytes: 13 * GiB, budget_bytes: 12 * GiB })).toBe("Receiving the request needs 13 GiB, more than the per-invocation budget of 12 GiB.");
     expect(describeResourceRefusal({ kind: "ingress_invalid", reason: "the body is not valid JSON" })).toBe("The request could not be received: the body is not valid JSON.");
+  });
+});
+
+describe("the exact refusal code", () => {
+  it("names the code and every field unrounded, a growth refusal's cause the same way", () => {
+    expect(resourceRefusalCode({ kind: "headroom_insufficient", required_bytes: 68165632, available_bytes: 52641792 }))
+      .toBe("headroom_insufficient (required_bytes=68165632, available_bytes=52641792)");
+    expect(resourceRefusalCode({ kind: "worker_growth_refused", granted_bytes: 68157440, requested_bytes: 72598008,
+      cause: { kind: "headroom_insufficient", required_bytes: 67108864, available_bytes: 0 } }))
+      .toBe("worker_growth_refused (granted_bytes=68157440, requested_bytes=72598008); cause headroom_insufficient (required_bytes=67108864, available_bytes=0)");
+    expect(resourceRefusalCode({ kind: "pressure_elevated", level: "warning" })).toBe("pressure_elevated (level=warning)");
+    expect(resourceRefusalCode({ kind: "headroom_unknown" })).toBe("headroom_unknown");
   });
 });

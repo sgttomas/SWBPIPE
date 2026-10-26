@@ -99,6 +99,10 @@ it("shows the native queue reason while the job waits, then records the grant in
   expect(waiting.resource).toMatchObject({ source: "native_job_receipt", invocation_budget_bytes: 12 * GiB, pool_bytes: 12 * GiB, route_pricing: "ordinary_worker_capped", worker_grant_bytes: null, worker_peak_grant_bytes: null });
   const view = renderSolvePanel(result.current);
   expect(within(view.container).getByTestId("solve-job-queue-reason")).toHaveTextContent("Waiting in the queue: Not enough free memory on this Mac right now: needs 12 GiB, 7 GiB available.");
+  // A queue wait is not a refusal of the job: the queue's own retry is named, and no refusal is shown.
+  expect(within(view.container).getByTestId("solve-job-queue-reason")).toHaveTextContent("The queue retries by itself and starts the solve once the pool admits it; Cancel preview stops the wait.");
+  expect(within(view.container).queryByTestId("solve-job-resource-refusal")).toBeNull();
+  expect(within(view.container).queryByTestId("solve-job-refusal-retry")).toBeNull();
   expect(within(view.container).getByTestId("solve-job-summary")).toHaveTextContent("state=queued");
   view.unmount();
   await act(async () => { release(); await running; });
@@ -258,6 +262,80 @@ it("records a refused take (custody_full) as a typed refusal and releases the re
   expect(transport.custody()).toEqual([]);
   await waitFor(() => expect(commands().filter((command) => command === "dispose_preview_mechanics_result")).toHaveLength(1));
   expect(transport.disposed()).toHaveLength(1);
+});
+
+const MiB = 1024 ** 2;
+// The smoke's headroom figures (DEL-04-07 memory-budget decision): a 65 MiB grant plus an 8 KiB intake lease against 50.2 MiB free.
+const SMOKE_HEADROOM = { kind: "headroom_insufficient", required_bytes: 68165632, available_bytes: 52641792 } as const;
+const SMOKE_HEADROOM_CODE = "headroom_insufficient (required_bytes=68165632, available_bytes=52641792)";
+const SMOKE_HEADROOM_SENTENCE = "Not enough free memory on this Mac right now: needs 65.01 MiB, 50.2 MiB available.";
+
+it("records a take refused for headroom as refused at the take, with its code and exact bytes, no rows and no run record, and releases the retained result", async () => {
+  const { result, transport } = await session((command) => command === "take_preview_mechanics_job_result"
+    ? Promise.reject({ code: "RESOURCE_UNAVAILABLE", refusal: SMOKE_HEADROOM, pool: null })
+    : undefined);
+  await act(async () => { await result.current.results.handleRun(); });
+  const job = result.current.results.solveJob;
+  expect(job.state).toBe("refused");
+  expect(job.error_message).toBeNull();
+  expect(job.resource.refusal).toEqual(SMOKE_HEADROOM);
+  expect(job.events.map((event) => event.event_id)).toEqual(["solve-preview-queued", "solve-preview-resource-refused-at-take"]);
+  expect(job.events.some((event) => event.state === "completed" || event.result_row_count > 0)).toBe(false);
+  expect(result.current.results.result).toBeNull();
+  expect(result.current.results.analysisRun).toBeNull();
+  expect(result.current.results.currentSolvedResult).toBeNull();
+  // The session does not retry a refused take: it was asked once, and the retained result is released unread.
+  expect(commands().filter((command) => command === "take_preview_mechanics_job_result")).toHaveLength(1);
+  await waitFor(() => expect(transport.disposed()).toHaveLength(1));
+  expect(transport.custody()).toEqual([]);
+  const view = renderSolvePanel(result.current);
+  expect(within(view.container).getByTestId("solve-job-summary")).toHaveTextContent("state=refused; events=2; result_rows=0");
+  expect(within(view.container).getByTestId("solve-job-resource-refusal")).toHaveTextContent(`Refused by the native memory pool: ${SMOKE_HEADROOM_SENTENCE} No result was published.`);
+  expect(within(view.container).getByTestId("solve-job-refusal-retry")).toHaveTextContent(
+    `Refused when the finished result was handed to the app; the take is not re-sampled, and the session does not retry a refused take, so it released the result. You can run the solve again when more memory is free. Refusal code: ${SMOKE_HEADROOM_CODE}`);
+  expect(within(view.container).getByTestId("solve-job-resource").querySelector("strong")).toHaveTextContent("refusal=headroom_insufficient");
+  expect(within(view.container).getByTestId("readiness-mechanics")).toHaveTextContent("refused by the native memory pool");
+  expect(within(view.container).getByTestId("solve-job-binding")).toHaveTextContent("not generated; result rows=0; hashes=0");
+});
+
+it("records a solve refused at the result hand-off (its result lease) as refused there, with its code and exact bytes, and takes nothing", async () => {
+  const { result } = await session((command, _args, _options, forward) => command === "poll_preview_mechanics_job"
+    ? forward().then((answer) => ({ ...(answer as object), state: "refused", result_available: false, result_bytes: null, resource_refusal: SMOKE_HEADROOM }))
+    : undefined);
+  await act(async () => { await result.current.results.handleRun(); });
+  const job = result.current.results.solveJob;
+  expect(job.state).toBe("refused");
+  expect(job.resource.refusal).toEqual(SMOKE_HEADROOM);
+  expect(job.events.at(-1)).toMatchObject({ event_id: "solve-preview-resource-refused", state: "refused", result_row_count: 0 });
+  expect(result.current.results.result).toBeNull();
+  expect(result.current.results.analysisRun).toBeNull();
+  expect(commands()).not.toContain("take_preview_mechanics_job_result");
+  const view = renderSolvePanel(result.current);
+  expect(within(view.container).getByTestId("solve-job-summary")).toHaveTextContent("state=refused; events=2; result_rows=0");
+  expect(within(view.container).getByTestId("solve-job-resource-refusal")).toHaveTextContent(`Refused by the native memory pool: ${SMOKE_HEADROOM_SENTENCE} No result was published.`);
+  expect(within(view.container).getByTestId("solve-job-refusal-retry")).toHaveTextContent(
+    `Refused at the result hand-off after the solve finished; the finished result was dropped. Free memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is free. Refusal code: ${SMOKE_HEADROOM_CODE}`);
+});
+
+it("shows a worker growth refusal as before, now with its exact code and retry path (the smoke's figures)", async () => {
+  const refusal = { kind: "worker_growth_refused", granted_bytes: 68157440, requested_bytes: 72598008,
+    cause: { kind: "headroom_insufficient", required_bytes: 67108864, available_bytes: 0 } };
+  const { result } = await session((command, _args, _options, forward) => command === "poll_preview_mechanics_job"
+    ? forward().then((answer) => ({ ...(answer as object), state: "refused", result_available: false, result_bytes: null, resource_refusal: refusal,
+      resource: { ...(answer as { resource: object }).resource, worker_grant_bytes: null, worker_peak_grant_bytes: 65 * MiB } }))
+    : undefined);
+  await act(async () => { await result.current.results.handleRun(); });
+  expect(result.current.results.solveJob.state).toBe("refused");
+  expect(result.current.results.solveJob.resource.refusal).toEqual(refusal);
+  expect(commands()).not.toContain("take_preview_mechanics_job_result");
+  const view = renderSolvePanel(result.current);
+  expect(within(view.container).getByTestId("solve-job-summary")).toHaveTextContent("state=refused; events=2; result_rows=0");
+  // The panel's refusal text is unchanged.
+  expect(within(view.container).getByTestId("solve-job-resource-refusal").textContent).toBe(
+    "Refused by the native memory pool: The solve needed more memory (69.23 MiB) than could be reserved while it ran: Not enough free memory on this Mac right now: needs 64 MiB, 0 MiB available. No result was published.");
+  expect(within(view.container).getByTestId("solve-job-resource").querySelector("strong")).toHaveTextContent("refusal=worker_growth_refused");
+  expect(within(view.container).getByTestId("solve-job-refusal-retry")).toHaveTextContent(
+    "Refused while the solve ran: its worker process was stopped, with no fallback to another solver mode or route. Worker growth is not re-sampled. You can run the solve again when more memory is free. Refusal code: worker_growth_refused (granted_bytes=68157440, requested_bytes=72598008); cause headroom_insufficient (required_bytes=67108864, available_bytes=0)");
 });
 
 it("releases a delivered result when a new solve replaces it, when reference inspection clears it, and when the session ends", async () => {

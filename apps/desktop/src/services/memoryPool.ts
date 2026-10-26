@@ -69,6 +69,15 @@ export function describeResourceRefusal(refusal: ResourceRefusal): string {
   }
 }
 
+/** The typed refusal exactly as the native host reported it: its code and each
+ * of its fields (bytes unrounded), then a growth refusal's cause the same way.
+ * For example `headroom_insufficient (required_bytes=68165632, available_bytes=52641792)`. */
+export function resourceRefusalCode(refusal: ResourceRefusal): string {
+  const fields = Object.entries(refusal).filter(([key]) => key !== "kind" && key !== "cause").map(([key, value]) => `${key}=${String(value)}`);
+  const code = fields.length > 0 ? `${refusal.kind} (${fields.join(", ")})` : refusal.kind;
+  return refusal.kind === "worker_growth_refused" ? `${code}; cause ${resourceRefusalCode(refusal.cause)}` : code;
+}
+
 /** Plain-language reading of a solve that failed because its worker process
  * crashed or broke the worker protocol (native `error_message` prefixed
  * `SOLVE_WORKER_EXITED:` or `SOLVE_WORKER_PROTOCOL:`); null for any other
