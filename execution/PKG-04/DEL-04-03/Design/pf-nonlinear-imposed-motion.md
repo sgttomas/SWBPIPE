@@ -420,11 +420,11 @@ neither seeing the other's findings, before any code.
 - **Basis.** Stage 2 re-prices on W-16a's registration (DEL-04-08
   `retained-pricing-rules.md` §8.23). There, W16-NS zeroes the support-target
   paths behind D1.7's refusal of every support-targeted primitive, and W16-NI
-  prices the per-case node-index table. Stage-2 motion paths stay behind that
-  refusal, so W16-NS's guarded zeros carry them. If stage 2 changes the
-  admission instead, W16-NS's guards and their mutation tests
-  (`tests/test_w16_imposed_motion.py`) stop the run, and the paths are priced
-  positively.
+  prices the per-case node-index table. Stage-2 work inside those guarded
+  branches is carried by W16-NS's zeros. Work outside them, such as the shared
+  validation above, is priced positively. If stage 2 changes the admission,
+  W16-NS's guards and their mutation tests (`tests/test_w16_imposed_motion.py`)
+  stop the run.
 - **Sequence.** Re-pricing and re-registration, with independent review, come
   in the solver lane's next D3 turn after #1625 and #1630 (W-16b/c, then
   stage 2).
