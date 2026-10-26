@@ -657,7 +657,7 @@ independent scrutiny.
 | P11 | Stress rows of an eccentric reducer | Approved, with disclosure. Rows are the reference pipe section's along the chord. Scaled rows carry `component_body`. The reference-section meaning is disclosed in the info, the UI and the report text in both the scaled and unscaled cases (§3.4, §4). |
 | P12 | Version bump while #1630 closes the record | Approved: 0.8.0 (DEL-02-01 Design `model-document-0.8.0.md` §1). |
 | J1 | The bound's limit for ordinary bends | Decided (Agent 0, HELP_HUMAN, 2026-10-26, under the owner's delegation): keep. Refuse at the bound's limits, with no extra margin. Codex's numbers (numerical scrutiny r2): every 90° and 45° elbow at R = 1.5D, D = 100–600 mm, mm-rounded, with a global-Y reference, resolves (β_arc 0.0049–0.0296 rad at 90°, 0.0069–0.0412 rad at 45°). A single 180° return is refused; two 90° arcs work. The near-return cutoff is about 167.68° at D = 100 mm and 174.97° at D = 600 mm. The refusal is a conservative certificate boundary: the probes' true-geometry controls are refused rather than resolved (§3.3). |
-| J2 (was P13) | How far weak run evidence may steer the axis | Decided (Agent 0, 2026-10-26, approving the recommendation). After the status and agreement checks, the end direction with the smaller β is the axis and its β is β_run; the consensus is used only on an exact tie. Endpoint and sign symmetry are kept, and no constant is added (§3.3). **Why:** with an equal-weight consensus, a resolved but weak bend can tilt the axis by up to half its β. **Regression** (Codex numerical scrutiny r2), on PF and EX: entered chord (−18.19787406218549, 13.058496225274045, 3.349962055095552) m, true chord the entered plus (0.001, 0.001, 0.001) m, R = 11.36337291391957 m, y_reference (−0.8035474210765018, 0.5765244818323195, 0.1480914039682203), e = (0.00819795250341938, −0.005298081948721869, −0.002173454029030151) m, D = 0.04·t + e, and a 1 m straight run along t, the true chord's far-end tangent. On `4291a7ace8` it gave `..._MISMATCH` (8.086 mm residual; bend β 0.4158, run β 0.0017). Now the run governs and the offset is realized (residual about 2.2e-15 m). Through the solve, the model then stops for a separate reason: the arc's `y_reference` lies within 1.9e-4 of its chord, and the frame kernel refuses its local axes (`PIPE_ELEMENT_INPUT_INVALID`). |
+| J2 (was P13) | How far weak run evidence may steer the axis | Decided (Agent 0, 2026-10-26, approving the recommendation). After the status and agreement checks, the end direction with the smaller β is the axis and its β is β_run; the consensus is used only on an exact tie. Endpoint and sign symmetry are kept, and no constant is added (§3.3). **Why:** with an equal-weight consensus, a resolved but weak bend can tilt the axis by up to half its β. **Regression** (Codex numerical scrutiny r2), on PF and EX: entered chord (−18.19787406218549, 13.058496225274045, 3.349962055095552) m, true chord the entered plus (0.001, 0.001, 0.001) m, R = 11.36337291391957 m, y_reference (−0.8035474210765018, 0.5765244818323195, 0.1480914039682203), e = (0.00819795250341938, −0.005298081948721869, −0.002173454029030151) m, D = 0.04·t + e, and a 1 m straight run along t, the true chord's far-end tangent. On `4291a7ace8` it gave `..._MISMATCH` (8.086 mm residual; bend β 0.4158, run β 0.0017). Now the run governs and the offset is realized (residual about 2.2e-15 m). Through the solve, the model then stops for a separate reason: the arc's `y_reference` lies within 1.9e-4 of its chord, and the frame kernel refuses its local axes (`PIPE_ELEMENT_INPUT_INVALID`, the same with `eccentric_offset` removed). **Full-solve regression** (Codex numerical scrutiny r3; invented geometry), on PF and EX, sparse and dense: a 0.15 m radius arc with `y_reference` (0, 1, 0), entered chord (0.298, 0, 0) m against a true chord (0.299, 0, 0) m (bend β ≈ 0.08628); a reducer of 100 mm OD / 5 mm wall to 80 mm OD / 4 mm wall with body 0.4·t + e along the true tangent t and e = (0, 0, 10) mm; and a 1 m straight run along t (β ≈ 0.001732). It solves with the offset realized; the equal-weight consensus gave `..._MISMATCH` (6.772065 mm residual). There are two regressions because the first geometry exercises the offset check at a weak bend (β ≈ 0.4158) but cannot reach a solve, and the second reaches a solve with an ordinary arc frame (§12). |
 
 ## 10. R-c1 ruled, and the ScopeOfWork drafts
 
@@ -772,11 +772,21 @@ any value moves, it is reported to the owner and not edited.
   - a terminal end uses the other end's direction;
   - **total uncertainty (P3, r2):** Codex's bend with every part defined but
     β_arc = 1.674 is refused with the `TOTAL_UNCERTAINTY` explanation;
-  - **J2:** the weak-bend case (§9) is realized at the check (unit test
-    `j2_weak_bend_case_is_realized`, residual < 1e-12 m) and, through the
-    solve on both routes, no offset refusal is stated
-    (`a_weak_bend_does_not_tilt_the_axis`); on `4291a7ace8` it fails with
-    `..._MISMATCH`, residual 8.086 mm.
+  - **J2,** in two regressions (§9). The r2 weak-bend case reaches the
+    offset check but not a solve: its arc's `y_reference` lies within 1.9e-4
+    of the chord, and the frame kernel refuses the arc's local axes, which is
+    a check separate from and independent of W-15c. A second, ordinary arc
+    geometry (r3) carries J2 through the full solve.
+    - **Offset check only:** the r2 case is realized at the check (unit test
+      `j2_weak_bend_case_is_realized`, residual < 1e-12 m). Through the solve
+      on both routes no offset refusal is stated, and
+      `PIPE_ELEMENT_INPUT_INVALID` is the only blocking code
+      (`a_weak_bend_does_not_tilt_the_axis_offset_check_only`). With the
+      equal-weight consensus it fails with `..._MISMATCH`, residual 8.086 mm.
+    - **Full solve:** the r3 case solves with the realized-offset info and no
+      blocking code on PF and EX, sparse and dense
+      (`a_weak_bend_does_not_tilt_the_axis_full_solve`). With the equal-weight
+      consensus it fails with `..._MISMATCH`, residual 6.772065 mm.
 - **Other behaviour:**
   - `not_solver_consumed` with a contradictory offset gives no offset
     diagnostic and the same solve;

@@ -430,18 +430,21 @@ fn codex_probe_two_a_near_semicircular_bend_is_refused_by_name() {
     }
 }
 
-/// J2 regression (Codex numerical scrutiny r2): a resolved but weak realized bend
-/// (β ≈ 0.4158) at one end and a 1 m run (β ≈ 0.0017) at the other. With the
-/// equal-weight consensus the weak bend tilted the axis, and the placement check
-/// refused a consistent offset (`..._MISMATCH`, 8.086 mm residual). The
-/// better-resolved end now governs, and the check accepts the offset on both
-/// routes. The model then stops at formation for a reason outside this check:
-/// the arc's `y_reference` lies within 1.9e-4 of its chord, so the frame kernel
-/// refuses the member's local axes (`PIPE_ELEMENT_INPUT_INVALID`). The check's
-/// own residual (about 2.2e-15 m) is asserted in the unit test
+/// J2 regression, offset check only (Codex numerical scrutiny r2): a resolved but
+/// weak realized bend (β ≈ 0.4158) at one end and a 1 m run (β ≈ 0.0017) at the
+/// other. With the equal-weight consensus the weak bend tilted the axis, and the
+/// placement check refused a consistent offset (`..._MISMATCH`, 8.086 mm
+/// residual). The better-resolved end now governs, and the check accepts the
+/// offset on both routes. This geometry cannot show a full solve: the arc's
+/// `y_reference` lies within 1.9e-4 of its chord, so the frame kernel refuses the
+/// member's local axes (`PIPE_ELEMENT_INPUT_INVALID`). That is a separate check,
+/// independent of W-15c (the same refusal with `eccentric_offset` removed), so
+/// it is asserted here as the only blocking code. The full solve is
+/// `a_weak_bend_does_not_tilt_the_axis_full_solve`; the check's own residual
+/// (about 2.2e-15 m) is asserted in the unit test
 /// `w15c_eccentric_offset_tests::j2_weak_bend_case_is_realized`.
 #[test]
-fn a_weak_bend_does_not_tilt_the_axis() {
+fn a_weak_bend_does_not_tilt_the_axis_offset_check_only() {
     let entered = [-18.19787406218549, 13.058496225274045, 3.349962055095552];
     let true_chord = [entered[0] + 0.001, entered[1] + 0.001, entered[2] + 0.001];
     let y = [-0.8035474210765018, 0.5765244818323195, 0.1480914039682203];
@@ -453,5 +456,51 @@ fn a_weak_bend_does_not_tilt_the_axis() {
         assert!(offset_codes(&out).is_empty(), "{route:?}: the offset check refuses nothing: {:?}", codes(&out, "RIGID_COMPONENT_ECCENTRIC"));
         let blocking: Vec<&str> = out.diagnostics.iter().filter(|d| d.severity == "blocking").map(|d| d.code.as_str()).collect();
         assert_eq!(blocking, vec!["PIPE_ELEMENT_INPUT_INVALID"], "{route:?}: only the arc frame's own refusal remains");
+    }
+}
+
+/// J2 regression through the full solve (Codex numerical scrutiny r3; invented
+/// geometry, not engineering data). A 0.15 m radius arc P0 → P1 with
+/// `y_reference` (0, 1, 0), entered chord (0.298, 0, 0) m against a true chord
+/// (0.299, 0, 0) m, so its far-end tangent has β ≈ 0.08628. The reducer at P1
+/// (100 mm OD / 5 mm wall upstream, 80 mm OD / 4 mm wall downstream) has body
+/// P1 → F = 0.4·t + e along the true tangent t, declared offset e = (0, 0, 10)
+/// mm, and a 1 m straight run F → G along t (β ≈ 0.001732). The run governs,
+/// the offset is realized and the model solves on both routes and both solver
+/// modes. The equal-weight consensus refused it (`..._MISMATCH`, residual
+/// 6.772065 mm).
+#[test]
+fn a_weak_bend_does_not_tilt_the_axis_full_solve() {
+    let m = Model {
+        length_unit: "m",
+        nodes: vec![("node:p0", [0.0, 0.0, 0.0]), ("node:p1", [0.298, 0.0, 0.0]),
+            ("node:f", [0.3306326353347209, -0.3986666666666667, 0.01]), ("node:g", [0.41221422367152327, -1.3953333333333333, 0.01])],
+        members: vec![("pipe:arc", "node:p0", "node:p1"), ("body:p1-f", "node:p1", "node:f"), ("pipe:f-g", "node:f", "node:g")],
+        components: vec![
+            reducer("component:r", "node:p1", "body:p1-f", Some([0.0, 0.0, 10.0]), "mechanics_geometry_only"),
+            json!({"id": "component:bend", "kind": "bend", "node": "node:p0",
+                "geometry": {"bend_pipe_ref": "pipe:arc", "bend_radius": qv(0.15, "m"), "bend_geometry_source_reference": "invented"},
+                "modifiers": {"flexibility_factor_user_value": qv(1.0, "none"), "source_reference": "invented"},
+                "mechanics_interface": {"solver_consumption": "curved_bend_macro_element"}, "provenance": PROV}),
+        ],
+        load_node: "node:g",
+        tolerance_mm: None,
+    };
+    for route in [Route::Preview, Route::Exact] {
+        let mut wire = request(&m, route);
+        wire["model"]["pipe_segments"][0]["y_reference"] = json!({"x": 0.0, "y": 1.0, "z": 0.0});
+        for (i, (od, wall)) in [(0.1, 0.005), (0.08, 0.004), (0.08, 0.004)].into_iter().enumerate() {
+            wire["model"]["pipe_segments"][i]["section"]["outside_diameter"] = qv(od, "m");
+            wire["model"]["pipe_segments"][i]["section"]["wall_thickness"] = qv(wall, "m");
+        }
+        wire["model"]["components"][0]["geometry"]["rigid_body_length"] = qv(0.4, "m");
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let out = run_linear_static_preview_value_with_mode(wire.clone(), mode).unwrap();
+            let blocking: Vec<String> = out.diagnostics.iter().filter(|d| d.severity == "blocking").map(|d| format!("{}: {}", d.code, d.message)).collect();
+            assert!(blocking.is_empty(), "{route:?} {mode:?}: no blocking code: {blocking:?}");
+            assert_eq!(out.status.mechanics, "MECHANICS_SOLVED", "{route:?} {mode:?}");
+            assert_eq!(offset_codes(&out), vec![REALIZED.to_string()], "{route:?} {mode:?}");
+            assert!(out.diagnostics.iter().any(|d| d.code == REALIZED && d.affected_refs == vec!["component:r".to_string()]), "{route:?} {mode:?}");
+        }
     }
 }
