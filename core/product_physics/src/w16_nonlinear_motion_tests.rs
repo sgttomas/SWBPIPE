@@ -512,16 +512,6 @@ fn a_mixed_document_is_refused_whole_and_combinations_stay_withheld() {
 
 const LIFT_STICK: &str = "support support:NL-F: stick capacity not established";
 
-macro_rules! request {
-    ($name:literal, $expected:expr) => {
-        Request {
-            name: $name,
-            text: include_str!(concat!("../../../validation/references/w16_nonlinear_motion/requests/", $name, ".json")),
-            expected: $expected,
-        }
-    };
-}
-
 const LIFT_WEAK: &[&str] = &["support support:LIFT: separation not established", "support support:LIFT: contact force sign not established"];
 // d = d*: zero reaction and zero separation; the loop converges on either weak
 // state (by solver mode) and the confirmation fails closed (R3).
@@ -538,18 +528,66 @@ const B3: &[(&str, Expect)] = &[
 ];
 
 pub(super) const R_B: [Request; 12] = [
-    request!("b1", B1),
-    request!("b1_spring", &[("load:ACTIVE", Passed), ("load:LIFTED", Passed)]),
-    request!("b1_rot", &[("load:ACTIVE", Passed), ("load:LIFTED", Passed)]),
-    request!("b1_translated", B1),
-    request!("b2", B2),
-    request!("b2_positive", B2),
-    request!("b2_negative_clearance", &[("load:CLOSED", Gap)]),
-    request!("b2_translated", B2),
-    request!("b3", B3),
-    request!("b3_explicit", B3),
-    request!("b3_px", B3),
-    request!("b3_translated", B3),
+    Request {
+        name: "b1",
+        text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/b1.json"),
+        expected: B1,
+    },
+    Request {
+        name: "b1_spring",
+        text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/b1_spring.json"),
+        expected: &[("load:ACTIVE", Passed), ("load:LIFTED", Passed)],
+    },
+    Request {
+        name: "b1_rot",
+        text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/b1_rot.json"),
+        expected: &[("load:ACTIVE", Passed), ("load:LIFTED", Passed)],
+    },
+    Request {
+        name: "b1_translated",
+        text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/b1_translated.json"),
+        expected: B1,
+    },
+    Request {
+        name: "b2",
+        text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/b2.json"),
+        expected: B2,
+    },
+    Request {
+        name: "b2_positive",
+        text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/b2_positive.json"),
+        expected: B2,
+    },
+    Request {
+        name: "b2_negative_clearance",
+        text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/b2_negative_clearance.json"),
+        expected: &[("load:CLOSED", Gap)],
+    },
+    Request {
+        name: "b2_translated",
+        text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/b2_translated.json"),
+        expected: B2,
+    },
+    Request {
+        name: "b3",
+        text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/b3.json"),
+        expected: B3,
+    },
+    Request {
+        name: "b3_explicit",
+        text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/b3_explicit.json"),
+        expected: B3,
+    },
+    Request {
+        name: "b3_px",
+        text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/b3_px.json"),
+        expected: B3,
+    },
+    Request {
+        name: "b3_translated",
+        text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/b3_translated.json"),
+        expected: B3,
+    },
 ];
 
 /// §5 R-b: B-1 (with its spring and rotational twins), B-2 (both senses, the
