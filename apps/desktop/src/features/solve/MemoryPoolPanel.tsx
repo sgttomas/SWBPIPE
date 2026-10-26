@@ -19,7 +19,7 @@ type Outcome = { tone: "applied" | "refused" | "error"; text: string };
 /**
  * The native memory pool beside the solve controls (DEL-04-07 memory-budget
  * decision): the per-invocation budget, the aggregate pool, reservations
- * (including running solve workers' grants), queued work, free memory and the
+ * (including running solve workers' grants), queued work, available memory and the
  * last refusal, with controls for a pool size
  * and a per-invocation budget. The native host owns every verdict; this panel
  * shows the figures it reports and never fabricates one.
@@ -179,7 +179,7 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
             value={`${status.queued_jobs} queued; ${status.running_jobs} running; ${status.retained_results} results awaiting collection; ${status.webview_custody_results} held by the app`}
           />
           <PoolLine
-            label="Free memory"
+            label="Available memory (free and reclaimable cache)"
             testId="memory-pool-headroom"
             value={`${status.headroom.available_bytes === null ? "not reported" : `${formatBytes(status.headroom.available_bytes)} available`}; pressure ${status.headroom.pressure}${status.headroom.sample_age_ms === null ? "" : `; read ${status.headroom.sample_age_ms} ms ago`}`}
           />
@@ -198,7 +198,7 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
         <p role="status" data-testid="memory-pool-reading">Reading memory pool status…</p>
       )}
       <p className="memory-pool-note" data-testid="memory-pool-boundary">
-        Figures are what this Mac reports when read; other applications can change free memory at any time. The budget caps
+        Figures are what this Mac reports when read; other applications can change available memory at any time. The budget caps
         what each solve worker may reserve and the pool caps what all work may reserve; these limits are not an assurance that a
         solve will run or finish. A 16 GiB Mac is the base design target; no statement is made for arbitrary competing workloads.
       </p>
