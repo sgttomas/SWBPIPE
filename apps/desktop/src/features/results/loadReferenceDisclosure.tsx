@@ -5,17 +5,21 @@
  * without duplicates; it computes and converts nothing and changes no standing, row or
  * byte. A panel shows it only where it admits the result (Rust's eligible standing).
  * Under `docs/claims_registry.md` §4 each line is a deliverable-specific scope statement
- * in ordinary prose, not a boundary statement. UI text only: never written into a
- * document, package, record or run result. */
+ * in ordinary prose, not a boundary statement. UI text, except one line: the
+ * `rendered-report` surface's line is written into the rendered report's exact-route
+ * result block (W-11, DEL-08-01 Design `exact-route-report-sections.md` §3.2), which
+ * every report surface still refuses for an exact result until the owner opens it. No
+ * other line is written into a document, package, record or run result. */
 import { sourceContract } from "./resultReader";
 import type { MechanicsResult } from "../../types";
 
-export type LoadReferenceDisclosureSurface = "result-export" | "stress-neutral" | "rule-check";
+export type LoadReferenceDisclosureSurface = "result-export" | "stress-neutral" | "rule-check" | "rendered-report";
 
 const TAILS: Readonly<Record<LoadReferenceDisclosureSurface, string>> = Object.freeze({
   "result-export": "The export carries them in contract_evidence.load_reference_states, with the producer's limitations.",
   "stress-neutral": "The package carries them in contract_evidence.load_reference_states, with the producer's limitations.",
   "rule-check": "Rules bind the published rows of these load cases, which are solved with these states' resolved contributions.",
+  "rendered-report": "Their published limitations are listed under Limitations.",
 });
 
 /** `{configurations}`, `{cases}` and `{histories}` are the published identifiers, comma-separated. */
@@ -23,11 +27,14 @@ export const N_LOAD_REFERENCE_INCLUDED = "This result includes resolved load/ref
 export const N_LOAD_REFERENCE_EXPORT = `${N_LOAD_REFERENCE_INCLUDED} ${TAILS["result-export"]}`;
 export const N_LOAD_REFERENCE_PACKAGE = `${N_LOAD_REFERENCE_INCLUDED} ${TAILS["stress-neutral"]}`;
 export const N_LOAD_REFERENCE_RULE_CHECK = `${N_LOAD_REFERENCE_INCLUDED} ${TAILS["rule-check"]}`;
+/** The rendered report's line (W-11 §3.2); the report package's Rust producer composes the same text. */
+export const N_LOAD_REFERENCE_RENDERED_REPORT = `${N_LOAD_REFERENCE_INCLUDED} ${TAILS["rendered-report"]}`;
 
 const TEMPLATES: Readonly<Record<LoadReferenceDisclosureSurface, string>> = Object.freeze({
   "result-export": N_LOAD_REFERENCE_EXPORT,
   "stress-neutral": N_LOAD_REFERENCE_PACKAGE,
   "rule-check": N_LOAD_REFERENCE_RULE_CHECK,
+  "rendered-report": N_LOAD_REFERENCE_RENDERED_REPORT,
 });
 
 function distinct(values: unknown[]): string[] {

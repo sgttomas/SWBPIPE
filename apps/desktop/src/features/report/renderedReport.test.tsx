@@ -1284,12 +1284,19 @@ describe("numerical health report line", () => {
     expect(JSON.stringify(withHealth)).not.toMatch(/roughly|decimal digits|rcond/);
   });
 
-  it("adds no line for a pressure-source result", async () => {
+  // W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.1): an exact-route
+  // source is built only with its Export Result JSON admission, so the builder refuses this
+  // unadmitted pressure-source result whether or not the line is supplied (it formerly
+  // built a generic input). The exact path's rows are pinned below the gate in
+  // `exactRenderedReport.test.tsx`.
+  it("refuses an unadmitted pressure-source result, with or without the line", async () => {
     const result = pressureSource();
     const health = healthOf(result, true);
     expect(health?.route).toBe("pressure_source");
     const base = { model: inventedModel(), result, analysisRun: inventedRun(), projectSummary: null, renderContext: PUBLIC_CONTEXT };
-    expect(await buildRenderableReportInput({ ...base, numericalHealth: health })).toEqual(await buildRenderableReportInput(base));
+    for (const input of [{ ...base, numericalHealth: health }, base]) {
+      await expect(buildRenderableReportInput(input)).rejects.toThrow(/^REPORT-EXACT-ADMISSION-REQUIRED: /);
+    }
   });
 
   it("emits the line in the renderer input the panel sends", async () => {
