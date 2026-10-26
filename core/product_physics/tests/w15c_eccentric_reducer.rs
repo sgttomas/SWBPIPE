@@ -350,3 +350,82 @@ fn an_absent_offset_is_not_checked() {
         assert!(offset_codes(&out).is_empty(), "{route:?}");
     }
 }
+
+// ------------------------------------------------------------------ Codex numerical scrutiny r1 (P2)
+fn v_unit(v: [f64; 3]) -> [f64; 3] {
+    let n = (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).sqrt();
+    [v[0] / n, v[1] / n, v[2] / n]
+}
+
+/// The arc's tangent at its `to` node for chord `c` (from the origin), radius r and
+/// plane reference y: cos h·ĉ − sin h·n̂ (the arc bows toward +n̂).
+fn to_tangent(c: [f64; 3], r: f64, y: [f64; 3]) -> [f64; 3] {
+    let len = (c[0] * c[0] + c[1] * c[1] + c[2] * c[2]).sqrt();
+    let u = v_unit(c);
+    let a = y[0] * u[0] + y[1] * u[1] + y[2] * u[2];
+    let n = v_unit([y[0] - a * u[0], y[1] - a * u[1], y[2] - a * u[2]]);
+    let h = (len / (2.0 * r)).asin();
+    [h.cos() * u[0] - h.sin() * n[0], h.cos() * u[1] - h.sin() * n[1], h.cos() * u[2] - h.sin() * n[2]]
+}
+
+/// Codex's probe: a realized arc from the anchored origin to the entered chord end
+/// P1, the reducer at P1 with body D = 0.04·t + e along the *true* tangent t (from
+/// the true chord), and a 1 m downstream run along t. Every entered coordinate is
+/// within 0.5 mm of the true geometry, so the run directions agree within rounding.
+fn probe_request(entered: [f64; 3], true_chord: [f64; 3], r: f64, y: [f64; 3], e_mm: [f64; 3], route: Route) -> Value {
+    let t = to_tangent(true_chord, r, y);
+    let f = [entered[0] + 0.04 * t[0] + e_mm[0] * 1e-3, entered[1] + 0.04 * t[1] + e_mm[1] * 1e-3, entered[2] + 0.04 * t[2] + e_mm[2] * 1e-3];
+    let g = [f[0] + t[0], f[1] + t[1], f[2] + t[2]];
+    let m = Model {
+        length_unit: "m",
+        nodes: vec![("node:p0", [0.0, 0.0, 0.0]), ("node:p1", entered), ("node:f", f), ("node:g", g)],
+        members: vec![("pipe:arc", "node:p0", "node:p1"), ("body:p1-f", "node:p1", "node:f"), ("pipe:f-g", "node:f", "node:g")],
+        components: vec![
+            reducer("component:r", "node:p1", "body:p1-f", Some(e_mm), "mechanics_geometry_only"),
+            json!({"id": "component:bend", "kind": "bend", "node": "node:p0",
+                "geometry": {"bend_pipe_ref": "pipe:arc", "bend_radius": qv(r, "m"), "bend_geometry_source_reference": "invented"},
+                "modifiers": {"flexibility_factor_user_value": qv(1.0, "none"), "source_reference": "invented"},
+                "mechanics_interface": {"solver_consumption": "curved_bend_macro_element"}, "provenance": PROV}),
+        ],
+        load_node: "node:g",
+        tolerance_mm: None,
+    };
+    let mut wire = request(&m, route);
+    wire["model"]["pipe_segments"][0]["y_reference"] = json!({"x": y[0], "y": y[1], "z": y[2]});
+    for i in [1, 2] {
+        // Straight members: any reference not parallel to the member.
+        let axis = v_unit(if i == 1 { [f[0] - entered[0], f[1] - entered[1], f[2] - entered[2]] } else { t });
+        let reference = if axis[2].abs() < 0.9 { [0.0, 0.0, 1.0] } else { [1.0, 0.0, 0.0] };
+        wire["model"]["pipe_segments"][i]["y_reference"] = json!({"x": reference[0], "y": reference[1], "z": reference[2]});
+    }
+    wire
+}
+
+/// The probe outcome: never a false `run_directions_disagree`. A bend whose
+/// rounding leaves its tangent unresolved is refused by name; otherwise it solves.
+fn assert_probe(wire: Value, route: Route, reason: &str) {
+    let out = run_linear_static_preview_value_with_mode(wire, PreviewSolverMode::SparseInteractive).unwrap();
+    let found = codes(&out, "RIGID_COMPONENT_ECCENTRIC_OFFSET");
+    assert!(!found.iter().any(|(_, m)| m.contains("run_directions_disagree")), "{route:?}: a false disagreement: {found:?}");
+    assert!(found.iter().any(|(c, m)| c == INVALID && m.contains("reason unresolvable_run_evidence") && m.contains(reason)),
+        "{route:?}: expected the named unresolved bend ({reason}), got {found:?}");
+}
+
+#[test]
+fn codex_probe_one_a_nearly_parallel_plane_reference_is_refused_by_name() {
+    let r = 1.0 / (2.0 * 0.1f64.sin());
+    let y = [1.0, 0.00075, 0.00075];
+    for route in [Route::Preview, Route::Exact] {
+        assert_probe(probe_request([1.0, 0.0, 0.0], [1.0, 0.001, 0.001], r, y, [0.0, -7.0, 7.0], route), route, "plane reference is too nearly parallel");
+    }
+}
+
+#[test]
+fn codex_probe_two_a_near_semicircular_bend_is_refused_by_name() {
+    let d = v_unit([1.0, 1.0, 1.0]);
+    let entered = 0.2 - 3f64.sqrt() * 0.001;
+    for route in [Route::Preview, Route::Exact] {
+        assert_probe(probe_request([d[0] * entered, d[1] * entered, d[2] * entered], [d[0] * 0.19999, d[1] * 0.19999, d[2] * 0.19999], 0.1,
+            [0.0, 0.0, 1.0], [7.0, -7.0, 0.0], route), route, "admits a semicircular arc");
+    }
+}

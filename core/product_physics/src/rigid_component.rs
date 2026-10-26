@@ -446,10 +446,10 @@ pub(crate) fn eccentric_offset(component: &PreviewComponent) -> Option<&crate::V
     component.geometry.as_ref().and_then(|geometry| geometry.eccentric_offset.as_ref())
 }
 
-/// R-c1, option A (§3.6; the one place the convention lives): the origin end N
-/// is the component's node and the far end F is the mapped member's other end.
-/// Option B would return the member's (`from`, `to`). `None` when the member
-/// does not end at the component's node.
+/// R-c1 (§3.6; the one place the convention lives), owner ruling of 2026-10-26,
+/// "R-c1 A, 0.8.0 a2": the origin end N is the component's node and the far end
+/// F is the mapped member's other end, whichever way the member runs. `None`
+/// when the member does not end at the component's node.
 pub(crate) fn eccentric_offset_ends<'a>(component: &'a PreviewComponent, member: &'a PreviewPipe) -> Option<(&'a str, &'a str)> {
     if member.from == component.node {
         Some((member.from.as_str(), member.to.as_str()))
@@ -468,8 +468,10 @@ pub(crate) enum Evidence {
     /// Not run evidence: another reducer's body, an unrealized bend member, an
     /// expansion-joint member or a connector span.
     Unsupported(&'static str),
-    /// Run-class, but too short (or too curved) to give a direction.
-    Unresolvable,
+    /// Run-class, but no direction can be resolved within the coordinate-rounding
+    /// allowance; the reason names why (a short span, a reachable semicircle, an
+    /// ill-conditioned bend plane).
+    Unresolvable(&'static str),
 }
 
 /// An end's status (§3.3).
@@ -479,7 +481,7 @@ pub(crate) enum EndStatus {
     Direction { direction: V3, beta: f64 },
     Ambiguous(Vec<String>),
     Unsupported { member: String, reason: &'static str },
-    Unresolvable { member: String },
+    Unresolvable { member: String, reason: &'static str },
 }
 
 /// β of a straight member of length L: asin(√3·q/L), or `None` when √3·q ≥ L.
@@ -488,34 +490,66 @@ pub(crate) fn straight_beta(length: f64) -> Option<f64> {
     (length.is_finite() && ratio < 1.0).then(|| ratio.asin())
 }
 
-/// The tangent of a realized arc at `at` and its uncertainty β_arc (§3.3):
-/// chord ĉ, in-plane normal n̂ from the `y_reference` less its chord part,
-/// half-angle φ/2 = asin(c/(2R)); the tangent is cos(φ/2)·ĉ + sin(φ/2)·n̂ at
-/// the arc's `from` node and cos(φ/2)·ĉ − sin(φ/2)·n̂ at its `to` node (the arc
-/// bows toward +n̂). β_arc = β_c·(1 + sin(φ/2)·|y·ĉ|/‖y⊥‖) + √3·q/√(4R² − c²).
+/// The named reasons a run-class member gives no direction (§3.3).
+pub(crate) const SHORT_SPAN: &str = "a member shorter than the resolvable length sqrt(3)*q";
+pub(crate) const NEAR_SEMICIRCLE: &str = "a bend whose coordinate rounding admits a semicircular arc (c + sqrt(3)*q >= 2R), where its end tangent is unresolved";
+pub(crate) const ILL_CONDITIONED_PLANE: &str = "a bend whose plane reference is too nearly parallel to its chord for the coordinate rounding to resolve the bend plane";
+
+/// The tangent of a realized arc at `at` and its finite uncertainty bound β_arc
+/// (§3.3, revised after Codex numerical scrutiny r1). The tangent is
+/// cos h·ĉ + s·sin h·n̂ with chord ĉ, in-plane normal n̂ (the `y_reference` less its
+/// chord part), half-angle h = asin(c/(2R)), s = +1 at the arc's `from` node and
+/// −1 at its `to` node (the arc bows toward +n̂).
+///
+/// Each endpoint lies within (√3/2)·q of its true position, so the true chord
+/// differs from the entered one by at most ε = √3·q. Over that whole region:
+/// - chord direction: angle ≤ α_c = asin(ε/c), so ‖ĉ′ − ĉ‖ ≤ d_c = 2·sin(α_c/2);
+/// - chord length within c ± ε: the half-angle changes by at most
+///   Δh = max(asin((c + ε)/(2R)) − h, h − asin(max(0, c − ε)/(2R))), defined
+///   only while c + ε < 2R (otherwise a semicircle is admissible: refused);
+/// - plane normal: with u = y/‖y‖ and sin φ = ‖u⊥‖, ‖u⊥′ − u⊥‖ ≤
+///   d_n = d_c + (1 − cos α_c) + sin φ·sin α_c, so the normal turns by at most
+///   α_n = asin(d_n / sin φ), defined only while d_n < sin φ (otherwise the bend
+///   plane is unresolved: refused);
+/// - the frame (ĉ, n̂) → (ĉ′, n̂′) at a fixed half-angle moves the tangent by at
+///   most 2·asin(√(sin²(α_c/2) + sin²(α_n/2))).
+///
+/// β_arc = Δh + 2·asin(√(sin²(α_c/2) + sin²(α_n/2))), and it must be < π/2.
 pub(crate) fn arc_evidence(from: V3, to: V3, at_from: bool, radius: f64, y_reference: V3) -> Evidence {
     let chord = v_sub(to, from);
     let c = v_norm(chord);
-    let q3 = 3f64.sqrt() * COORDINATE_ROUNDING_ALLOWANCE_M;
-    if !(c.is_finite() && c > 0.0 && radius.is_finite() && 2.0 * radius > c && q3 < c) {
-        return Evidence::Unresolvable;
+    let eps = 3f64.sqrt() * COORDINATE_ROUNDING_ALLOWANCE_M;
+    if !(c.is_finite() && c > 0.0 && radius.is_finite() && radius > 0.0 && 2.0 * radius > c) {
+        return Evidence::Unresolvable(NEAR_SEMICIRCLE);
+    }
+    if !(eps < c) {
+        return Evidence::Unresolvable(SHORT_SPAN);
+    }
+    if !(c + eps < 2.0 * radius) {
+        return Evidence::Unresolvable(NEAR_SEMICIRCLE);
     }
     let chat = v_scale(1.0 / c, chord);
+    let y_norm = v_norm(y_reference);
     let axial = v_dot(y_reference, chat);
     let y_perp = v_sub(y_reference, v_scale(axial, chat));
     let y_perp_norm = v_norm(y_perp);
-    if !(y_perp_norm.is_finite() && y_perp_norm > 0.0) {
-        return Evidence::Unresolvable;
+    let sin_phi = y_perp_norm / y_norm;
+    let alpha_c = (eps / c).asin();
+    let d_c = 2.0 * (0.5 * alpha_c).sin();
+    let d_n = d_c + (1.0 - alpha_c.cos()) + sin_phi * alpha_c.sin();
+    if !(sin_phi.is_finite() && d_n < sin_phi) {
+        return Evidence::Unresolvable(ILL_CONDITIONED_PLANE);
     }
     let nhat = v_scale(1.0 / y_perp_norm, y_perp);
     let half = (c / (2.0 * radius)).asin();
-    let (cos, sin) = (half.cos(), half.sin());
     let side = if at_from { 1.0 } else { -1.0 };
-    let direction = v_add(v_scale(cos, chat), v_scale(side * sin, nhat));
-    let beta_c = (q3 / c).asin();
-    let beta = beta_c * (1.0 + sin * axial.abs() / y_perp_norm) + q3 / (4.0 * radius * radius - c * c).sqrt();
+    let direction = v_add(v_scale(half.cos(), chat), v_scale(side * half.sin(), nhat));
+    let delta_h = (((c + eps) / (2.0 * radius)).asin() - half).max(half - ((c - eps).max(0.0) / (2.0 * radius)).asin());
+    let alpha_n = (d_n / sin_phi).asin();
+    let frame = 2.0 * ((0.5 * alpha_c).sin().powi(2) + (0.5 * alpha_n).sin().powi(2)).sqrt().min(1.0).asin();
+    let beta = delta_h + frame;
     if !(beta.is_finite() && beta < std::f64::consts::FRAC_PI_2) {
-        return Evidence::Unresolvable;
+        return Evidence::Unresolvable(ILL_CONDITIONED_PLANE);
     }
     Evidence::Run { direction, beta }
 }
@@ -534,8 +568,8 @@ pub(crate) fn decide_axis(n: &EndStatus, f: &EndStatus) -> Result<(V3, f64), (&'
         }
     }
     for (end, status) in [("N", n), ("F", f)] {
-        if let EndStatus::Unresolvable { member } = status {
-            return Err(("unresolvable_run_evidence", format!("end {end} adjoins {member}, too short to resolve a run direction within the coordinate-rounding allowance")));
+        if let EndStatus::Unresolvable { member, reason } = status {
+            return Err(("unresolvable_run_evidence", format!("end {end} adjoins {member}, {reason}, so no run direction is resolved within the coordinate-rounding allowance")));
         }
     }
     match (n, f) {
@@ -671,7 +705,7 @@ impl<'a> Topology<'a> {
             return Evidence::Unsupported("a span replaced by an objective connector");
         }
         let (Some(&from), Some(&to)) = (self.positions.get(member.from.as_str()), self.positions.get(member.to.as_str())) else {
-            return Evidence::Unresolvable;
+            return Evidence::Unresolvable("a member whose end nodes are not both present");
         };
         match self.mapping.get(member.id.as_str()) {
             Some(Mapping::ReducerBody) => Evidence::Unsupported("the body of another reducer"),
@@ -688,7 +722,7 @@ impl<'a> Topology<'a> {
                 let length = v_norm(chord);
                 match straight_beta(length) {
                     Some(beta) if length > 0.0 => Evidence::Run { direction: v_scale(1.0 / length, chord), beta },
-                    _ => Evidence::Unresolvable,
+                    _ => Evidence::Unresolvable(SHORT_SPAN),
                 }
             }
         }
@@ -705,7 +739,7 @@ impl<'a> Topology<'a> {
             [member] => match self.evidence(member, at) {
                 Evidence::Run { direction, beta } => EndStatus::Direction { direction, beta },
                 Evidence::Unsupported(reason) => EndStatus::Unsupported { member: member.id.clone(), reason },
-                Evidence::Unresolvable => EndStatus::Unresolvable { member: member.id.clone() },
+                Evidence::Unresolvable(reason) => EndStatus::Unresolvable { member: member.id.clone(), reason },
             },
             many => EndStatus::Ambiguous(many.iter().map(|pipe| pipe.id.clone()).collect()),
         }

@@ -13,7 +13,7 @@ member it adds and its solve meaning are in DEL-03-05 Design
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Paths are
 relative to `projects/chirality-piping/`.
 
-## 0. Rulings this design applies, and the owner's open questions
+## 0. Rulings this design applies
 
 **Rulings applied:**
 - **OD-2** (owner, 2026-10-23, "I approve OD-1 through OD-5 as you
@@ -24,15 +24,21 @@ relative to `projects/chirality-piping/`.
   (`docs/COMPLETENESS_MAP.md` §4.2).
 - **One current version per format** (owner, 2026-10-10: "nothing needs to be
   preserved for backwards compatibility … one current version per format").
+- **Owner, 2026-10-26, verbatim: "R-c1 A, 0.8.0 a2".**
+  - R-c1 A fixes the offset convention (DEL-03-05 Design
+    `eccentric-reducer-offset.md` §10).
+  - 0.8.0 a2 governs the stored work (§3.2), as Agent 0 relayed it:
+    - 0.7.0 project opens and saved states are refused by name;
+    - recorded runs keep their existing read and compare behaviour, their
+      own format version is unchanged, and no run gate is added;
+    - the design, the user guide and the refusal message state the practical
+      limit: history loads by the active project's id, so old runs are
+      reachable only through a current project with the same identity, and
+      comparison keeps its eligibility gate.
 - **Agent 0, 2026-10-26:**
-  - The offset is built first and the 0.8.0 ripple last, after #1625, #1630
-    and #1615.
+  - The offset is built first and the 0.8.0 ripple last, after #1625 and
+    #1630.
   - There is one D3 turn.
-  - The stored-data consequence and the recorded-run behaviour go to the
-    owner (§3.2, §3.3).
-  - This design neither adds nor removes a gate on recorded runs.
-
-**Open owner questions:** Q-1 and Q-2 (§3.2, §3.3).
 
 ## 1. Version 0.8.0
 
@@ -147,76 +153,66 @@ document after the bump:
 | Saved model states (W-12, `model_states.rs` :2088, :2473) | Saving a 0.7.0 snapshot is refused. Opening or comparing a stored 0.7.0 state (`StateReadPurpose::Open` and `Compare`) is refused by `refuse_version`'s text. Rows are never rewritten. |
 | Retained and source readers (`physics_source.rs`, `retained_precision.rs` and their twins) | refused: they accept only the current version |
 
-### 3.2 Q-1 (owner): the user's stored work
+### 3.2 Stored work under the owner's ruling "0.8.0 a2"
 
 This is the first version step since W-12's saved states and recorded runs
-(#1589, #1596). Under the one-version rule:
-- every saved project and saved state that holds a 0.7.0 model is refused on
-  open or compare after the update (§3.1);
-- nothing migrates it;
-- a 0.7.0 document whose `schema_version` alone is changed to 0.8.0 is valid
-  with the same meaning (§1), and changing that string is the user's
-  re-authoring act, not a product migration;
-- the user guide and the release notes say so.
+(#1589, #1596).
+- **Projects and saved states.** A saved project, or a saved model state,
+  that holds a 0.7.0 model is refused by name on open, save and compare
+  (§3.1). Nothing migrates it, and stored rows are never rewritten.
+- **Re-authoring.** A 0.7.0 document whose `schema_version` alone is changed
+  to 0.8.0 is valid with the same meaning (§1). Making that change is the
+  user's re-authoring act, not a product migration.
+- **Recorded runs** keep their existing read and compare behaviour. Their own
+  format version is unchanged, and no run gate is added. As found in Codex
+  r1:
+  - the run read (`analysis_runs.rs` `read_run_in_store_with`, :1785) checks
+    the stored result, the manifest and the state summary's model hash, not
+    the manifest model's version;
+  - the ordinary preview-physics and pressure-2 model-bound readers
+    (`u4b_evidence.rs` :478, :508; `reader_verdict.rs` :138) have no general
+    model-version gate.
 
-The owner may accept this as the rule's consequence, or direct otherwise. This
-design assumes the rule as written.
+  Both stay as they are. 0.8.0 is purely additive (one optional member,
+  absent from every 0.7.0 document), so a 0.7.0 run's results mean what they
+  meant.
+- **The practical limit.**
+  - Run history loads by the active project's id
+    (`apps/desktop/src/features/history/useModelStateHistory.ts` :231). A
+    0.7.0 project cannot be opened, so its runs are reachable only through a
+    current (0.8.0) project with the same project id.
+  - Comparison keeps its eligibility gate
+    (`apps/desktop/src/features/comparison/runComparison.ts` ~294).
+  - Retained-precision and source results keep their existing limits: their
+    readers refuse a non-current model (§3.1).
 
-### 3.3 Q-2 (owner): recorded runs and ordinary model-bound readers
+### 3.3 The refusal message and the user-guide text (implemented with the ripple)
 
-Codex r1 found that some reads that hold a model are **not** version-gated
-today:
-- **Recorded runs.** `analysis_runs.rs` `read_run_in_store_with` (:1785)
-  reads the stored result and manifest, then a state *summary*
-  (`model_states::find_summary_with`, ~:1880). It checks the manifest's model
-  payload hash against that summary. It never calls
-  `read_state_for_in_store_with` and never evaluates the manifest model's
-  version. The desktop's recorded-run side of a comparison (`recordedRunSide`)
-  uses this read.
-- **Ordinary model-bound result readers.** The preview-physics and pressure-2
-  model-bound checks (`result_export/src/u4b_evidence.rs` :478 and :508,
-  `reader_verdict.rs` :138 `physics_model_checks`) bind the result to the
-  captured model's members. They have no general model-version gate.
+**Every surface** keeps the core message, with version tokens from the
+constants (`retired_model_schema_message`):
 
-So after the bump a recorded run, or an exported preview or pressure-2 result
-that embeds a 0.7.0 model, still reads, while its saved state does not open.
+> model document 0.7.0 is retired; re-author it as model document 0.8.0 (a pressure-free model omits pressure_contract). Nothing is migrated.
 
-**The options:**
+**The desktop's project-store open and saved-state open and compare refusals**
+(`refuse_model_document`, `model_states.rs` `refuse_version`, and the
+browser-preview store) append the practical limit:
 
-| | (a) Gate by model version | (b) Keep readable as historical results |
-|---|---|---|
-| Behaviour | A recorded-run read, run comparison and the ordinary model-bound readers refuse a 0.7.0 manifest model by name, as states do. | Existing read and compare behaviour is preserved, but only for results that are otherwise eligible: ordinary preview-physics and pressure-2 results whose stored hashes and bindings verify. See the access path and limits below. Its saved state still refuses to open. |
-| Consistency | Uniform with the one-version rule: no 0.7.0 model is read anywhere. | Runs are historical records of what was solved. A state is an editable model, and it alone is gated. |
-| Engineering meaning | No result is read across versions. | 0.8.0 is purely additive: one optional member, absent from every 0.7.0 document. A 0.7.0 run's results therefore mean what they meant. A later non-additive version would need this question asked again. |
-| User effect | Run history and comparisons from before the update become unavailable until re-solved and re-recorded. | History stays visible. A user can compare an old run with a new one. |
-| Build cost | A new gate in `analysis_runs.rs` (desktop; not priced). A gate in the ordinary readers `u4b_evidence.rs` and `reader_verdict.rs`, which are priced `result_export` files, so it joins the D3 turn. Refusal texts and tests. | Disclosure text in the run views and comparison. No reader change, so no D3 effect. |
-| Tests | Old runs with intact hashes are refused by name, at read and at comparison. | Old ordinary runs with intact hashes read and compare. A tampered hash still refuses. |
+> Recorded runs keep their own format and stay readable: run history is listed for the active project's id, so this project's runs are reached through a current project with the same project id, and run comparison keeps its eligibility rules.
 
-**Option (b): access path and limits.**
-- **Access.** Run history loads by the active project's id
-  (`apps/desktop/src/features/history/useModelStateHistory.ts` :231). A 0.7.0
-  project cannot be opened (§3.1). To reach its runs, the user first
-  re-authors a current 0.8.0 project with the same project identity, by
-  changing `schema_version` alone (§3.2). Only then are the old runs listed.
-- **Limits.** Comparison keeps its existing eligibility gate
-  (`apps/desktop/src/features/comparison/runComparison.ts` ~294).
-  Retained-precision and source results keep their existing limits; their
-  readers refuse a non-current model (§3.1). (b) changes no gate. It
-  describes what the current code would continue to do.
-- **Disclosure.** Whether the UI should name the run's model version is part
-  of the owner's choice. This design adds no text for it until ruled.
+**The user guide** (`docs/user_guide`, the section on opening projects) gains:
 
-**Test plan, either option.** Written after the ruling, through the desktop
-entry path, not only the Rust read:
-- a store holding a 0.7.0 state and an ordinary recorded run with intact
-  hashes and bindings;
-- under (b), the project re-authored to 0.8.0 with the same identity: the
-  history lists the run, the run opens, and it compares with a new 0.8.0 run
-  under the existing eligibility gate;
-- under (a), the same steps refused by name at the run read and at
-  comparison;
-- in both, a tampered hash refused, and a retained or source result refused
-  as today.
+> **Projects saved before model document 0.8.0.** Model document 0.8.0 adds a reducer's optional eccentric offset. The desktop opens only the current model-document version, so a project or saved model state stored at 0.7.0 is refused by name when you open it, and nothing is migrated. A 0.7.0 document whose `schema_version` alone is changed to 0.8.0 has the same meaning in 0.8.0; making that change is your re-authoring step. Recorded runs keep their own format and are not refused. Run history is listed for the active project's id, so the runs of an older project are reached only through a current (0.8.0) project with the same project id. Comparing an older run with a newer one keeps the usual eligibility rules.
+
+**Test plan** (with the ripple, through the desktop entry path, not only the
+Rust read):
+- a store holding a 0.7.0 project, a 0.7.0 state and an ordinary recorded run
+  with intact hashes and bindings;
+- the project and the state are refused by name, with the appended text;
+- the project re-authored to 0.8.0 with the same identity lists the run, the
+  run opens, and it compares with a new 0.8.0 run under the existing
+  eligibility gate;
+- a tampered hash is refused, and a retained or source result is refused as
+  today.
 
 ### 3.4 Handoff packages (correction)
 
@@ -229,8 +225,7 @@ model's version. Two acts are distinct:
 - **Admitting its model as current.** This does not happen: any solve, open or
   store path refuses the embedded 0.7.0 model by name (§3.1).
 
-This design changes neither. Q-2's answer may extend to the handoff verifier
-if the owner wants version disclosure there.
+This design changes neither.
 
 ## 4. The schema
 
@@ -318,10 +313,10 @@ protected-byte count or length literal moves; only hashes do.
 
 ## 6. Fixtures added by other lanes
 
-The ripple runs last, on the latest main, after #1625, #1630 and #1615 (Agent
-0, 2026-10-26). It sweeps whatever those PRs committed at 0.7.0, such as
-#1615's W-16 tests and references. It also sweeps #1648's report requests if
-#1648 has landed by then. **Agent 0 is told before any of #1648's files are
+The ripple runs last, on the latest main, after #1625 and #1630 (Agent 0,
+2026-10-26). It sweeps whatever has landed at 0.7.0 by then, including any
+other lane's new tests and references (for example #1615's, if it has
+landed) and #1648's report requests. **Agent 0 is told before any of #1648's files are
 touched**, whether #1648 has landed or not.
 
 ## 7. The D3 chain
@@ -337,7 +332,6 @@ This repeats 0.7.0 §2's four steps.
   (the version tokens);
 - `exact_admission.rs` (a comment);
 - `rigid_component.rs` and `model_fields.rs` (DEL-03-05 Design §8);
-- under Q-2 (a) only, `u4b_evidence.rs` and `reader_verdict.rs`.
 
 `retained_wire.rs` and `pressure_runtime.rs` are named in the D3 review.
 
@@ -414,8 +408,9 @@ replaces only the quoted text.
    - **Line 179.**
      - **Old:** `` and only `0.7.0` reports `current` ``
      - **New:** `` and only `0.8.0` reports `current` ``
-   - Q-1 or Q-2 may add a sentence on stored work or recorded runs. That
-     sentence would be the owner's text, quoted.
+   - **Insert after line 35** (the ruling's effect on stored work; through
+     Codex, then Agent 0 under the wording grant):
+     `> - Owner ruling, 2026-10-26: "R-c1 A, 0.8.0 a2". A project or saved model state holding a retired model-document version is refused by name on open; recorded runs keep their own format and their existing read and compare behaviour, with no run gate. Run history is listed for the active project's id, so a retired project's runs are reached through a current project with the same identity, and comparison keeps its eligibility gate (DEL-02-01 Design `model-document-0.8.0.md` §3).`
 2. **DEL-04-08 ScopeOfWork**
    - **Lines 108 and 122.**
      - **Old:** `current model 0.7.0`
@@ -452,7 +447,7 @@ ripple lands joins 0.8.0 through Agent 0.
 **Order** (Agent 0, 2026-10-26):
 1. Build the offset on current main, with constants at 0.8.0 and focused
    tests.
-2. The ripple, last, on the latest main after #1625, #1630 and #1615.
+2. The ripple, last, on the latest main after #1625 and #1630.
 3. One D3 turn and registration for both.
 
 ## 12. Checks
@@ -463,9 +458,9 @@ ripple lands joins 0.8.0 through Agent 0.
 - **Writers.** Each family's writer output is checked directly for 0.8.0.
 - **Refusal on every §3.1 surface**, one test each. `model_document_version.rs`
   and `model_format.rs` refuse all seven retired versions by name.
-- **Q-2.** The tests of the chosen option: old runs and ordinary results with
-  intact hashes, refused or readable with their version disclosed. A tampered
-  hash refuses in both options.
+- **Ruling a2.** §3.3's test plan: projects and states refused with the
+  appended text; old ordinary runs with intact hashes listed under a re-authored
+  project, read and compared under the existing gate; a tampered hash refused.
 - **Handoff.** An old package's integrity verifies, and its embedded model is
   refused by the solve and the open paths.
 - **Literals.** The extended literal guard passes, and the audit list is

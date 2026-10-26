@@ -1,10 +1,11 @@
 //! W-15 slice c, R-c1 convention tests (DEL-03-05 Design `eccentric-reducer-offset.md`
-//! §3.6, §7.5, §12). These are the only convention-dependent tests: the
-//! implemented convention is option A (the offset is measured from the
-//! component's node to the body's other end). A ruling for option B changes
-//! `rigid_component::eccentric_offset_ends`, the desktop's
-//! `ECCENTRIC_OFFSET_CONVENTION` text and the expected signs here, and nothing
-//! else. Inputs are invented; the expectations are the frozen W15C references.
+//! §3.6, §7.5, §12). These are the only convention-dependent tests. The convention
+//! is the owner's ruling of 2026-10-26, "R-c1 A, 0.8.0 a2": the offset is measured
+//! from the centerline at the component's node to the centerline at the body's
+//! other end, in global X/Y/Z. It lives only in
+//! `rigid_component::eccentric_offset_ends` and the desktop's
+//! `ECCENTRIC_OFFSET_CONVENTION`. Inputs are invented; the expectations are the
+//! frozen W15C references.
 #[path = "common/w15c_bench.rs"]
 mod common_w15c;
 use common_w15c::*;

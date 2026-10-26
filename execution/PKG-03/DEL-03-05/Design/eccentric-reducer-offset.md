@@ -9,14 +9,18 @@ replaces the outline formerly in `rigid-component-stiffness-scaling.md` §4. The
 model document part, version 0.8.0, is DEL-02-01 Design
 [`model-document-0.8.0.md`](../../../PKG-02/DEL-02-01/Design/model-document-0.8.0.md).
 
-**Status.** This is revision 2 of the design pass at main `2d4b1bb4bb`
-(2026-10-26), PR #1649. It resolves Codex's design review r1 and applies Agent
-0's rulings of 2026-10-26. Nothing here is built.
-- **Owner's choices:**
-  - R-c1, the offset convention (§10);
-  - the stored-data and recorded-run questions of 0.8.0 (DEL-02-01 Design
+**Status.** Design at main `2d4b1bb4bb` (2026-10-26), PR #1649, revised after
+Codex's design reviews and numerical scrutiny r1, with Agent 0's rulings of
+2026-10-26.
+- **Owner's ruling** (2026-10-26, verbatim): "R-c1 A, 0.8.0 a2".
+  - R-c1 A fixes the offset convention (§2, §3.6, §10).
+  - 0.8.0 a2 governs stored work and recorded runs (DEL-02-01 Design
     `model-document-0.8.0.md` §3).
-- **Agent 0's resolutions:** the engineering-judgment points are recorded in §9.
+- **Agent 0's resolutions:** the engineering-judgment points are recorded in
+  §9.
+- **Build status:** the convention-neutral parts and the option-A convention
+  are built (§12a). The schema member and the 0.8.0 ripple come last, after
+  #1625 and #1630.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081): the
 benchmark is a candidate reference, and no output here is engineering approval.
@@ -52,7 +56,7 @@ In a centerline model each node already sits on its own pipe's centerline.
 | Name | `geometry.eccentric_offset`, on the component's `geometry` record |
 | Shape | the existing `VectorQuantity`, `{x, y, z, unit}`. Each component is a finite number. `unit` is a length unit of the units catalog. |
 | Frame | the model's global X/Y/Z axes, the frame of node positions |
-| Origin and sign | R-c1 (§10), owner. Recommended option A: from the centerline at the component's `node` to the centerline at the mapped body member's other end. The convention is isolated in one place (§3.6). |
+| Origin and sign | R-c1, ruled A by the owner (2026-10-26, "R-c1 A, 0.8.0 a2"; §10): from the centerline at the component's `node` to the centerline at the mapped body member's other end. The convention is isolated in one place (§3.6). |
 | Kind | `reducer` only; on any other kind it is refused by name (§3.4) |
 | Absence | Absent means no declaration: no offset check runs, and the reducer solves as its nodes place it. An absent offset does not declare a concentric reducer (§3.2), and an undeclared reducer is never run evidence for a neighbour (§3.3). |
 | Zero vector | Declares a concentric reducer, and is checked (§3.2). |
@@ -187,15 +191,42 @@ than the body that ends at X. Each is classified:
 | a member mapped by an expansion joint, or a span replaced by an objective connector | unsupported | none | — |
 | any run-class member whose β is not defined (√3·q ≥ L or c, or a total β ≥ π/2) | unsupported (`unresolvable_run_evidence`) | none: too short to give a direction | — |
 
-**Realized arc uncertainty.**
-β_arc = β_c·(1 + sin(φ/2)·|y·ĉ|/‖y⊥‖) + √3·q/√(4R² − c²), where:
-- β_c = asin(√3·q/c) is the chord's direction uncertainty;
-- the factor in brackets carries it into the in-plane normal, formed from the
-  user's `y_reference` y and its chord-normal part y⊥;
-- the last term is the half-angle's change for a chord-length error up to
-  √3·q (d(φ/2)/dc = 1/√(4R² − c²)).
+**Realized arc uncertainty: a finite bound** (revised after Codex numerical
+scrutiny r1, P2). The tangent is cos h·ĉ ± sin h·n̂, with:
+- chord ĉ;
+- in-plane normal n̂ (the `y_reference` y less its chord part);
+- half-angle h = asin(c/(2R)).
 
-The user's radius and `y_reference` are entered values and are taken as exact.
+Each endpoint lies within (√3/2)·q of its true position, so the true chord
+differs from the entered one by at most ε = √3·q. The bound holds over that
+whole region, not to first order:
+
+| Part | Finite bound | Defined while |
+|---|---|---|
+| chord direction | α_c = asin(ε/c); ‖ĉ′ − ĉ‖ ≤ d_c = 2·sin(α_c/2) | ε < c (else `SHORT_SPAN`) |
+| half-angle, chord length in c ± ε | Δh = max(asin((c + ε)/(2R)) − h, h − asin(max(0, c − ε)/(2R))), since asin is increasing | c + ε < 2R (else a semicircle is admissible: `NEAR_SEMICIRCLE`) |
+| plane normal | with u = y/‖y‖ and sin φ = ‖u⊥‖: ‖u⊥′ − u⊥‖ ≤ ‖ĉ′ − ĉ‖ + \|u·(ĉ′ − ĉ)\| ≤ d_n = d_c + (1 − cos α_c) + sin φ·sin α_c; the normal turns by at most α_n = asin(d_n / sin φ) | d_n < sin φ (else the plane is unresolved: `ILL_CONDITIONED_PLANE`) |
+| frame (ĉ, n̂) → (ĉ′, n̂′) at a fixed half-angle | ‖Δt‖/2 ≤ cos h′·sin(α_c/2) + sin h′·sin(α_n/2) ≤ √(sin²(α_c/2) + sin²(α_n/2)), so the angle is at most 2·asin of that | — |
+
+β_arc = Δh + 2·asin(√(sin²(α_c/2) + sin²(α_n/2))), required < π/2. This
+follows from the triangle inequality: change the half-angle in the entered
+frame, then change the frame.
+
+A bend whose bound is undefined is unresolved run evidence, refused by
+`..._INVALID` with reason `unresolvable_run_evidence`. The message names the
+member and why. The user's radius and `y_reference` are entered values, taken
+as exact.
+
+**Coverage, with margin.**
+- **Codex's probe 1** (plane reference nearly parallel to the chord):
+  d_n / sin φ = 1.636. The plane is unresolved, and the bend is refused by
+  name instead of the false `run_directions_disagree`.
+- **Probe 2** (near semicircle): c + ε − 2R = 0. It is refused by name.
+- **Admissible variants of both probes, the quarter circle and an oblique
+  bend:** every corner of the ±q/2 box on both endpoints and 20,000 interior
+  samples stay within β_arc. The worst sampled change is 0.08, 0.09, 0.83,
+  0.75, 0.38 and 0.39 of β_arc respectively
+  (`w15c_eccentric_offset_tests.rs`, `the_arc_bound_covers_the_finite_rounding_region`).
 
 **Short spans give wide uncertainty.** A 1 m span has β = 1.732e-3 rad. A
 100 mm span has 1.732e-2 rad. Below √3 mm a span gives no direction. A wide β
@@ -268,16 +299,14 @@ The `..._REALIZED` info states:
 
 The convention lives in exactly one place per language:
 - **Rust:** `rigid_component::eccentric_offset_ends(component, member) -> (N, F)`
-  is the only reader of the origin rule. Option A gives N = the component's
-  node and F = the member's other end. Option B gives N = the member's `from`
-  and F its `to`.
+  is the only reader of the origin rule. The ruled option A gives N = the
+  component's node and F = the member's other end. (Option B, not ruled,
+  would have given N = the member's `from` and F its `to`.)
 - **TypeScript:** `ECCENTRIC_OFFSET_CONVENTION` (one module) holds the text the
   inspector, creation form and report show.
 
 The convention's tests are separate (`tests/w15c_offset_convention.rs` and one
-vitest), and §7.5 holds the convention-dependent benchmark rows. A B ruling
-changes the function body, the text constant and those tests' expected signs,
-and nothing else.
+vitest), and §7.5 holds the convention-dependent benchmark rows.
 
 ### 3.7 The exact route and the retained route
 
@@ -365,7 +394,7 @@ the one-current-version rule. DEL-02-01 Design
 covers:
 - the ripple;
 - the refusals;
-- the owner questions on stored data and recorded runs;
+- stored work and recorded runs under the owner's ruling "0.8.0 a2";
 - #1630's closed record;
 - the D3 chain;
 - the guards;
@@ -555,7 +584,7 @@ Each run also asserts the `..._REALIZED` info, and the scaled body's
 ## 8. D3 (retained-memory pricing)
 
 Re-pricing and re-registration are needed. They run in one D3 turn with the
-0.8.0 ripple, after #1625, #1630 and #1615 (Agent 0, 2026-10-26).
+0.8.0 ripple, after #1625 and #1630 (Agent 0, 2026-10-26).
 
 **Priced files touched by the offset:**
 - PP `lib.rs`: the wire field on `ComponentGeometryInput` (~507) with #1630's
@@ -597,7 +626,7 @@ independent scrutiny.
 |---|---|---|
 | P1 | Body realization | Approved as Codex says. The chord member between the two centerlines (§3.1). It is equivalent to a rigid link mechanically and kinematically only with zero body eigenstrain and equivalent loading. Thermal growth stays αΔT·D, offset growth included, at every scale. Load resultants (chord self-weight over ‖D‖) differ unless matched. |
 | P2 | Tolerance, transversality and precision | Revised, then decided. The actual node geometry governs the lever arm and the solve, and every M = P·e claim means P·‖D⊥‖. Placement: the declared offset is checked within τ (the 5 mm node-proximity tolerance, user-settable), separately from any rounding allowance. Transversality: |e·t| ≤ ρ_base·‖e‖ + (√3/2)·q + ‖e‖·sin β_run, with ρ_base = 1e-3 and q = 1 mm, a fixed declared coordinate-rounding allowance, not a user setting, reflecting millimetre-rounded entry (§3.2, §3.3). A nonzero offset whose allowance reaches its magnitude is refused by `..._BELOW_PRECISION`. **Why:** with ρ alone, a 30° run entered as (866, 500, 0) mm with offset (−25, 43, 0) mm has axial share 0.003015789 and would be wrongly refused; under the rule it is accepted. Regressions: that case; 47 mm declared against 50 mm geometry (passes, and the 50 mm geometry governs); the collinear e = (5, 0, 0) mm, still refused by `..._NOT_TRANSVERSE`; one case just outside the transversality bound and one just inside the precision bound (§12). |
-| P3 | Run axis | Revised, then decided (§3.3). Run evidence comes from ordinary pipes, the bodies of valves, flanges, rigid and specialty components, and realized-arc tangents, each with a direction uncertainty β: asin(√3·q/L) for a straight member; the defined β_arc for an arc. Any other reducer's body (absent, zero or nonzero offset), an unrealized bend member, an expansion-joint member, a connector span and an unresolvably short member are unsupported. Both ends' directions must agree: θ ≤ θ_base + β_N + β_F, with θ_base = 1e-3 rad, after aligning signs. The axis is the sign-aligned normalized consensus, independent of endpoint naming, oriented by D. Ambiguous or unsupported topology is refused by name. **Why:** with θ_base alone, two parallel 100 mm spans rounded to (87, 50) and (86, 50) mm are 0.005008974 rad apart and would be wrongly refused; under the rule they are accepted. Regressions: that case; one case just outside the agreement bound; Codex's two-reducer chain; and the convention-invariance case (§12). |
+| P3 | Run axis | Revised, then decided (§3.3). Run evidence comes from ordinary pipes, the bodies of valves, flanges, rigid and specialty components, and realized-arc tangents, each with a direction uncertainty β: asin(√3·q/L) for a straight member; the defined β_arc for an arc. Any other reducer's body (absent, zero or nonzero offset), an unrealized bend member, an expansion-joint member, a connector span and an unresolvably short member are unsupported. Both ends' directions must agree: θ ≤ θ_base + β_N + β_F, with θ_base = 1e-3 rad, after aligning signs. The axis is the sign-aligned normalized consensus, independent of endpoint naming, oriented by D. Ambiguous or unsupported topology is refused by name. **Why:** with θ_base alone, two parallel 100 mm spans rounded to (87, 50) and (86, 50) mm are 0.005008974 rad apart and would be wrongly refused; under the rule they are accepted. Regressions: that case; one case just outside the agreement bound; Codex's two-reducer chain; and the convention-invariance case (§12). **Realized arcs (Codex numerical scrutiny r1):** β_arc is a finite bound over the whole rounding region, and a bend whose bound is undefined (a reachable semicircle, an ill-conditioned plane) is refused by name (§3.3). |
 | P4 | Body length against geometry | Approved: not checked for any rigid-family kind. The demo valve's body length is 0.72 m on a 2.2 m member. |
 | P5 | Self-weight of the chord body | Approved: it acts over ‖D‖, and slice b's component weight replaces it when entered. |
 | P6 | `not_solver_consumed` | Approved: honoured, the offset not read and no offset diagnostic. Ordinary structural and unit validation still applies. |
@@ -607,40 +636,44 @@ independent scrutiny.
 | P10 | Thermal growth of the offset | Approved: αΔT·D, offset included. |
 | P11 | Stress rows of an eccentric reducer | Approved, with disclosure. Rows are the reference pipe section's along the chord. Scaled rows carry `component_body`. The reference-section meaning is disclosed in the info, the UI and the report text in both the scaled and unscaled cases (§3.4, §4). |
 | P12 | Version bump while #1630 closes the record | Approved: 0.8.0 (DEL-02-01 Design `model-document-0.8.0.md` §1). |
+| P13 (open, for Agent 0) | How far weak run evidence may steer the axis | **Recommended:** where both ends give a direction, take the direction with the smaller β, using the consensus only on an exact tie. It stays independent of endpoint naming, adds no constant, and bounds the axis error by the smaller β. **Why:** with an equal-weight consensus, a resolved but weak bend (β_arc up to about 0.4 rad, as in probe 1's admissible variant) can tilt the axis by up to half its β. For a body with D·t = 0.04 m, that moves D⊥ by about 8 mm against the 5 mm placement check. **Alternative:** a cap on any single evidence's β (for example 0.05 rad), refusing weaker evidence by name. Neither is built pending the decision; either is a few lines in `decide_axis` plus tests. |
 
-## 10. Reserved for the owner, and ScopeOfWork drafts
+## 10. R-c1 ruled, and the ScopeOfWork drafts
 
-**R-c1: the offset's coordinate convention.** Agent 0 sends this to the owner
-with recommendation A (2026-10-26). DEL-03-05 ScopeOfWork line 312 reserves
-"coordinate conventions other than the centre-of-gravity convention ruled
-under R10" to human/project authority, and AC-001 preserves "unresolved
-coordinate ... decisions". The options:
-- **A (recommended):** global X/Y/Z, from the centerline at the component's
-  node to the centerline at the body's other end, in model length units. It
-  mirrors R10, and reversing the member does not flip e.
-- **B:** global X/Y/Z, from the mapped member's `from` end to its `to` end.
-  Reversing the member flips e.
+**R-c1: owner, 2026-10-26, verbatim: "R-c1 A, 0.8.0 a2".** The eccentric offset
+is a vector in the model's global X/Y/Z axes, from the centerline at the
+component's node to the centerline at the body's other end, in model length
+units. It mirrors R10, and reversing the member does not flip e.
+- It is implemented in `rigid_component::eccentric_offset_ends` and
+  `eccentricOffsetConvention.ts` (§3.6).
+- The convention tests stay labelled as such (`w15c_offset_convention.rs`;
+  the convention case of `reportEccentricOffset.test.ts`).
 
-**Consequence.** The build needs the ruling. Under B, the changes are confined
-to §3.6's function and text, §7.5's rows and the convention tests.
+**ScopeOfWork drafts (DEL-03-05).** These are not applied here. They go through
+Codex, then to Agent 0 under the wording grant. Line numbers are at the basis.
+Old text is quoted exactly; insertions name their anchor line.
 
-**ScopeOfWork drafts (DEL-03-05)**, applied after the ruling, with it quoted:
-1. **CLM-003 slot table.** Insert after line 58 (the "Center of gravity
-   input" row):
-   - **New:** `> | Eccentric offset input | PRD §12.3; R12 | `eccentric_offset` on a reducer is a vector in the model's global X/Y/Z axes, from the centerline at the component's node to the centerline at its body's other end, in model length units (owner ruling R12, <date>: "<quote>"). The solve checks it against the node geometry, which governs, and does not place nodes (Design `eccentric-reducer-offset.md`). |`
-2. **CLM-010 requirements.** Insert after line 144 (R10):
-   - **New:** `> | R12 | Define the eccentric reducer offset's coordinate convention and reference frame before offset values are accepted for mechanics use. | PRD §12.3; SOW-009; OPS-K-UNIT-1 | Owner ruling, <date>: "<quote>". The convention is global X/Y/Z axes, from the centerline at the component's node to the centerline at its body's other end, in model length units (Design `eccentric-reducer-offset.md` §2, §3.6). Tests check accepted and refused offsets, the convention rows and an independent eccentric-step benchmark on both routes. |`
-   - Under option B the convention clause in both rows reads "from the mapped member's `from` end to its `to` end".
-3. **Line 312.**
-   - **Old:** `Human/project authority must still decide coordinate conventions other than the centre-of-gravity convention ruled under R10, accepted source catalogs,`
-   - **New:** `Human/project authority must still decide coordinate conventions other than the centre-of-gravity convention ruled under R10 and the eccentric reducer offset convention ruled under R12, accepted source catalogs,`
-4. **Line 64**, reconciliation once built:
+1. **Line 56** (CLM-003, "Geometry slots").
+   - **Old:** ``> | Geometry slots | `ComponentFieldKind`; fixture field definitions; strict fixture tests | `rigid_body_length`, `end_a_size`, `end_b_size`, `connection_end_a_reference`, and `connection_end_b_reference` are schema/fixture-recognized slots. Public fixture values remain schema-shape-only. |``
+   - **New:** ``> | Geometry slots | `ComponentFieldKind`; fixture field definitions; strict fixture tests; model document 0.8.0 | `rigid_body_length`, `end_a_size`, `end_b_size`, `connection_end_a_reference`, and `connection_end_b_reference` are schema/fixture-recognized slots; a reducer's `eccentric_offset` is a model-document slot (R12). Public fixture values remain schema-shape-only. |``
+2. **Insert after line 58** (CLM-003, after the "Center of gravity input" row).
+   - **New:** ``> | Eccentric offset input | PRD §12.3; R12 | `eccentric_offset` on a reducer is a vector in the model's global X/Y/Z axes, from the centerline at the component's node to the centerline at its body's other end, in model length units (owner ruling of 2026-10-26: "R-c1 A, 0.8.0 a2"). The node geometry governs: the solve checks the declared offset against it and never places nodes (Design `eccentric-reducer-offset.md`). |``
+3. **Line 64** (CLM-003).
    - **Old:** `solver consumption beyond W-15 slices a, b and d,`
    - **New:** `solver consumption beyond W-15 slices a, b, c and d,`
-   - Line 49's "Current implementation" paragraph gains one sentence; that is
-     the manager's reconciliation text.
+4. **Insert after line 144** (CLM-010, after R10).
+   - **New:** ``> | R12 | Define the eccentric reducer offset's coordinate convention and reference frame before offset values are accepted for mechanics use. | PRD §12.3; SOW-009; OPS-K-UNIT-1 | Owner ruling, 2026-10-26: "R-c1 A, 0.8.0 a2". The convention is global X/Y/Z axes, from the centerline at the component's node to the centerline at its body's other end, in model length units (Design `eccentric-reducer-offset.md` §2, §3.6). Tests check accepted and refused offsets, the convention rows and an independent eccentric-step benchmark on both routes. |``
+5. **Line 312** (CLM-024).
+   - **Old:** `Human/project authority must still decide coordinate conventions other than the centre-of-gravity convention ruled under R10, accepted source catalogs,`
+   - **New:** `Human/project authority must still decide coordinate conventions other than the centre-of-gravity convention ruled under R10 and the eccentric reducer offset convention ruled under R12, accepted source catalogs,`
+6. **Line 49** (CLM-003, "Current implementation"), applied with the ripple
+   when the slot is in the format.
+   - **Old (opening):** `> Current implementation (W-15 slices a, b and d, PRs #1604 and #1608; Design `
+   - **New (opening):** `> Current implementation (W-15 slices a, b, c and d, PRs #1604, #1608 and #1649; Design `
+   - **Appended at the paragraph's end:** `Slice c checks a reducer's declared `eccentric_offset` (R12) against the node geometry, which governs: the run axis comes from run evidence at both ends within the coordinate-rounding allowance, and a mismatch, an offset that is not transverse or not resolvable, or unresolved run evidence is refused by name (`core/product_physics/src/rigid_component.rs`; Design `eccentric-reducer-offset.md`).`
 
-No acceptance criterion changes. AC-001 holds as written.
+No acceptance criterion changes. AC-001 holds as written: a ruled convention is
+recorded, not invented.
 
 ## 11. `apps/desktop/native-smoke/expected.json`
 
@@ -707,6 +740,13 @@ any value moves, it is reported to the owner and not edited.
   - D·t ≤ 0.
 - **Run evidence:**
   - a realized arc at N supplies its tangent, with β_arc;
+  - **the finite arc bound:** every corner and 20,000 samples of the rounding
+    region stay within β_arc on six bends, including admissible variants of
+    both probes;
+  - **Codex's probe 1** (plane reference nearly parallel) and **probe 2**
+    (near semicircle), each through the solve on both routes: refused by name
+    as unresolved run evidence, never `run_directions_disagree`. Both gave the
+    false disagreement on `c90a6d61ff`;
   - a concentric flange body at both ends is accepted;
   - a terminal end uses the other end's direction.
 - **Other behaviour:**

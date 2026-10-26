@@ -174,7 +174,7 @@ fn ambiguity_and_unsupported_evidence_are_refused_before_directions() {
     let ok = EndStatus::Direction { direction: [1.0, 0.0, 0.0], beta: 1e-3 };
     let tee = EndStatus::Ambiguous(vec!["pipe:x".into(), "pipe:y".into()]);
     let reducer = EndStatus::Unsupported { member: "body:r1".into(), reason: "the body of another reducer" };
-    let short = EndStatus::Unresolvable { member: "pipe:short".into() };
+    let short = EndStatus::Unresolvable { member: "pipe:short".into(), reason: crate::rigid_component::SHORT_SPAN };
     assert_eq!(decide_axis(&tee, &ok).unwrap_err().0, "ambiguous_run");
     assert_eq!(decide_axis(&ok, &reducer).unwrap_err().0, "unsupported_run_evidence");
     assert_eq!(decide_axis(&reducer, &tee).unwrap_err().0, "ambiguous_run");
@@ -189,17 +189,100 @@ fn ambiguity_and_unsupported_evidence_are_refused_before_directions() {
 fn a_realized_arc_gives_its_end_tangents() {
     let r = 1.0f64;
     let (from, to) = ([0.0, 0.0, 0.0], [r * 2f64.sqrt(), 0.0, 0.0]);
-    // chord √2 m, half-angle 45°, plane normal +Y: tangent (cos 45°, ±sin 45°, 0).
     let Evidence::Run { direction: t_from, beta } = arc_evidence(from, to, true, r, [0.0, 1.0, 0.0]) else { panic!() };
     let Evidence::Run { direction: t_to, .. } = arc_evidence(from, to, false, r, [0.0, 1.0, 0.0]) else { panic!() };
     let h = 0.5f64.sqrt();
     assert!((t_from[0] - h).abs() < 1e-15 && (t_from[1] - h).abs() < 1e-15, "{t_from:?}");
     assert!((t_to[0] - h).abs() < 1e-15 && (t_to[1] + h).abs() < 1e-15, "{t_to:?}");
-    let q3 = 3f64.sqrt() * 1e-3;
-    let expected = (q3 / 2f64.sqrt()).asin() + q3 / (4.0 * r * r - 2.0).sqrt();
-    assert!((beta - expected).abs() < 1e-15, "beta {beta} expected {expected}");
+    // The finite bound, as derived independently (Python, exact formula): 0.003964782536.
+    assert!((beta - 0.003964782536).abs() < 1e-11, "beta {beta}");
     // A radius that cannot span the chord gives no direction.
-    assert_eq!(arc_evidence(from, to, true, 0.7, [0.0, 1.0, 0.0]), Evidence::Unresolvable);
+    assert!(matches!(arc_evidence(from, to, true, 0.7, [0.0, 1.0, 0.0]), Evidence::Unresolvable(_)));
+}
+
+/// An independent arc tangent (the end at `to`), for the soundness sweep.
+fn arc_tangent_at_to(from: [f64; 3], to: [f64; 3], r: f64, y: [f64; 3]) -> Option<[f64; 3]> {
+    let ch = [to[0] - from[0], to[1] - from[1], to[2] - from[2]];
+    let c = len(ch);
+    if !(c < 2.0 * r) {
+        return None;
+    }
+    let u = unit(ch);
+    let a = y[0] * u[0] + y[1] * u[1] + y[2] * u[2];
+    let n = unit([y[0] - a * u[0], y[1] - a * u[1], y[2] - a * u[2]]);
+    let h = (c / (2.0 * r)).asin();
+    Some([h.cos() * u[0] - h.sin() * n[0], h.cos() * u[1] - h.sin() * n[1], h.cos() * u[2] - h.sin() * n[2]])
+}
+
+/// Codex numerical scrutiny r1 (P2): β_arc bounds the tangent change over the whole
+/// finite coordinate-error region, not only to first order. Every corner of the
+/// ±q/2 box on both endpoints and 20,000 deterministic interior samples stay within
+/// β_arc, on regular, near-degenerate-plane and near-semicircular admissible bends.
+#[test]
+fn the_arc_bound_covers_the_finite_rounding_region() {
+    let d = unit([1.0, 1.0, 1.0]);
+    let eps = 3f64.sqrt() * 1e-3;
+    let r1 = 1.0 / (2.0 * 0.1f64.sin());
+    let cases: [([f64; 3], f64, [f64; 3]); 6] = [
+        ([2f64.sqrt(), 0.0, 0.0], 1.0, [0.0, 1.0, 0.0]),
+        ([1.0, 0.0, 0.0], r1, [1.0, 0.003, 0.003]),
+        ([1.0, 0.0, 0.0], r1, [1.0, 0.01, 0.01]),
+        ([d[0] * (0.2 - eps - 1e-4), d[1] * (0.2 - eps - 1e-4), d[2] * (0.2 - eps - 1e-4)], 0.1, [0.0, 0.0, 1.0]),
+        ([d[0] * (0.2 - eps - 1e-3), d[1] * (0.2 - eps - 1e-3), d[2] * (0.2 - eps - 1e-3)], 0.1, [0.0, 0.0, 1.0]),
+        ([0.5, 0.2, 0.1], 0.4, [0.3, 1.0, 0.2]),
+    ];
+    let mut seed: u64 = 0x5eed_0015_c0ff_ee01;
+    let mut next = || {
+        seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        ((seed >> 11) as f64 / (1u64 << 53) as f64 - 0.5) * 1e-3
+    };
+    for (to, r, y) in cases {
+        let from = [0.0, 0.0, 0.0];
+        let Evidence::Run { beta, .. } = arc_evidence(from, to, false, r, y) else { panic!("{to:?} {r} {y:?} unresolved") };
+        let entered = arc_tangent_at_to(from, to, r, y).unwrap();
+        let mut worst = 0.0f64;
+        let mut check = |s: [f64; 6]| {
+            let (a, b) = ([s[0], s[1], s[2]], [to[0] + s[3], to[1] + s[4], to[2] + s[5]]);
+            if let Some(t) = arc_tangent_at_to(a, b, r, y) {
+                let dot = (t[0] * entered[0] + t[1] * entered[1] + t[2] * entered[2]).abs().min(1.0);
+                worst = worst.max(dot.acos());
+            }
+        };
+        for corner in 0..64u32 {
+            let s: [f64; 6] = std::array::from_fn(|k| if corner >> k & 1 == 1 { 0.5e-3 } else { -0.5e-3 });
+            check(s);
+        }
+        for _ in 0..20_000 {
+            let s: [f64; 6] = std::array::from_fn(|_| next());
+            check(s);
+        }
+        assert!(worst <= beta, "{to:?} {r} {y:?}: sampled {worst} exceeds beta {beta}");
+        println!("arc bound {to:?} r {r} y {y:?}: beta {beta:.6e} worst sampled {worst:.6e} ratio {:.3}", worst / beta);
+    }
+}
+
+/// Codex numerical scrutiny r1, probe 1: a plane reference nearly parallel to the
+/// chord. Rounding admits a 0.2014 rad tangent change, more than the old β_arc
+/// (0.1649) and its agreement bound; the plane is unresolved, refused by name.
+#[test]
+fn a_nearly_parallel_plane_reference_is_refused_by_name() {
+    let r = 1.0 / (2.0 * 0.1f64.sin());
+    let e = arc_evidence([0.0; 3], [1.0, 0.0, 0.0], false, r, [1.0, 0.00075, 0.00075]);
+    assert_eq!(e, Evidence::Unresolvable(crate::rigid_component::ILL_CONDITIONED_PLANE), "{e:?}");
+}
+
+/// Codex numerical scrutiny r1, probe 2: a near-semicircular bend. Rounding admits a
+/// true chord of 0.19999 m and a 0.1217 rad tangent change, more than the old β_arc
+/// (0.0808); the reachable semicircle is refused by name, or the bound covers it.
+#[test]
+fn a_near_semicircular_bend_is_refused_or_covered() {
+    let d = unit([1.0, 1.0, 1.0]);
+    let c = 0.2 - 3f64.sqrt() * 0.001;
+    match arc_evidence([0.0; 3], [d[0] * c, d[1] * c, d[2] * c], false, 0.1, [0.0, 0.0, 1.0]) {
+        Evidence::Unresolvable(reason) => assert_eq!(reason, crate::rigid_component::NEAR_SEMICIRCLE),
+        Evidence::Run { beta, .. } => assert!(beta >= 0.121702525, "beta {beta} must cover the probe's 0.1217 rad"),
+        other => panic!("{other:?}"),
+    }
 }
 
 #[test]
