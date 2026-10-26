@@ -1616,6 +1616,75 @@ pub fn write_handoff_package(destination: &Path, prepared: PreparedHandoff, crea
     }
 }
 
+/// The save after its ingress and its route-evidence check (`lib.rs`
+/// `save_handoff_package_decoded`), on one blocking worker, within the
+/// command's memory (`PoolReadMemory`, started from the ingress lease
+/// `ingress`): [`prepare_handoff`] with the saved states read by
+/// [`stored_state`], each referenced library read from the local store by
+/// `stored_model_document_export::StoreLibraryReads` (measured, its load and
+/// its prescan-bounded parse each reserved before they are made) and the rule
+/// packs by the solve's resolution; then the chooser (`choose`, given the
+/// suggested package name), the basis state read again, and publication at
+/// `created_at()` through `hooks`. The store is the one at `store`. A library
+/// read the memory pool refuses refuses the save by the pool's name
+/// (`STORE-READ-MEMORY-UNAVAILABLE`) before any folder is chosen. The library
+/// reservations are held through the chooser and the publication.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn save_handoff_admitted(
+    request: HandoffSaveRequest,
+    store: &dyn Fn() -> Result<std::path::PathBuf, String>,
+    registry: &crate::solve_jobs::SolveJobRegistry,
+    ingress: &crate::memory_pool::Lease,
+    choose: impl FnOnce(&str) -> Result<Option<std::path::PathBuf>, String>,
+    created_at: impl FnOnce() -> String,
+    hooks: &PublishHooks<'_>,
+) -> HandoffSaveOutcome {
+    use crate::stored_model_document_export::StoreLibraryReads;
+    use rusqlite::Connection;
+    let HandoffSaveRequest { canonical_text, claimed_model_hash, screening, basis_state_id, package_label, .. } = request;
+    let memory = crate::stored_read::PoolReadMemory::new(registry, ingress);
+    let open = || crate::open_project_store(&store()?).map(|(connection, _)| connection);
+    let mut states = |project_id: &str, state_id: &str| stored_state(&store()?, project_id, state_id, &memory);
+    let mut libraries = StoreLibraryReads::new(&memory, open);
+    // The rule packs' store connection, opened on first use.
+    let mut packs: Option<Connection> = None;
+    let mut rule_packs = |project_id: &str, rule_pack_id: &str| -> Result<Vec<Value>, String> {
+        if packs.is_none() {
+            packs = Some(open()?);
+        }
+        crate::stored_rule_packs_with_id(packs.as_ref().expect("opened above"), project_id, rule_pack_id)
+    };
+    let prepared = prepare_handoff(
+        canonical_text,
+        &claimed_model_hash,
+        &screening.payload_sha256,
+        &basis_state_id,
+        &package_label,
+        &mut states,
+        &mut |project_id: &str, library_kind: &str, library_id: &str| libraries.read(project_id, library_kind, library_id),
+        &mut rule_packs,
+    );
+    if let Some(diagnostics) = libraries.refusal() {
+        return HandoffSaveOutcome::Refused { diagnostics };
+    }
+    let prepared = match prepared {
+        Ok(prepared) => prepared,
+        Err(diagnostics) => return HandoffSaveOutcome::Refused { diagnostics },
+    };
+    let destination = match choose(&prepared.suggested_package_name) {
+        Ok(Some(destination)) => destination,
+        Ok(None) => return HandoffSaveOutcome::Cancelled,
+        Err(message) => return HandoffSaveOutcome::refused_one(PICKER_PATH_INVALID, message),
+    };
+    // The basis state is read again immediately before publication.
+    if let Err(diagnostics) = confirm_basis_state(&prepared, &mut states) {
+        return HandoffSaveOutcome::Refused { diagnostics };
+    }
+    let outcome = write_handoff_package(&destination, prepared, &created_at(), hooks);
+    drop(libraries);
+    outcome
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1624,6 +1693,7 @@ mod tests {
     use crate::handoff_package_publish::{verify_handoff_package, MANIFEST_MEMBER, MODEL_DIRECTORY, MODEL_FILE, PRODUCTION_HOOKS};
     use crate::memory_pool::test_host::ScriptedHost;
     use crate::model_states::{labels_from_value, save_state_in_store, SaveModelStateRequest, StateWriteHooks};
+    use crate::stored_model_document_export::{library_read_probe::representative_material_library, StoreLibraryReads};
     use rusqlite::{Connection, Transaction};
     use std::fs;
     use std::io;
@@ -1729,13 +1799,30 @@ mod tests {
         save_state_in_store(&store.path, request, &StateWriteHooks { allocate: &allocate, between_rows: &between_rows }).unwrap()
     }
 
-    /// `prepare_handoff` with the store's lookups, as the command wires them.
+    /// `prepare_handoff` with the store's lookups, as the command wires them:
+    /// the libraries through the command's metered lookup (`StoreLibraryReads`)
+    /// under an ordinary pool.
     fn prepare(store: &Store, model: &Value, state_id: &str) -> Result<PreparedHandoff, Vec<Diagnostic>> {
         let connection = Connection::open(&store.path).unwrap();
         let text = canonical_json(model);
         let hash = hash_of(&text);
+        let pool = registry(ScriptedHost::normal());
+        let memory = crate::stored_read::PoolReadMemory::unseeded(&pool);
+        let mut reads = StoreLibraryReads::new(&memory, || Connection::open(&store.path).map_err(|error| error.to_string()));
         let mut states = |project: &str, state: &str| stored_state(&store.path, project, state, &crate::stored_read::UnmeteredReadMemory);
-        let mut libraries = |project: &str, kind: &str, id: &str| crate::load_library(&connection, project, kind, id).map(|row| row.map(|row| row.document));
+        let mut libraries = |project: &str, kind: &str, id: &str| reads.read(project, kind, id);
+        let mut packs = |project: &str, id: &str| crate::stored_rule_packs_with_id(&connection, project, id);
+        prepare_handoff(text, &hash, &hash, state_id, "Invented handoff", &mut states, &mut libraries, &mut packs)
+    }
+
+    /// [`prepare`] with the library lookup the command used before its reads
+    /// were metered (`lib.rs` `load_library`), for the byte-identity check.
+    fn prepare_unmetered(store: &Store, model: &Value, state_id: &str) -> Result<PreparedHandoff, Vec<Diagnostic>> {
+        let connection = Connection::open(&store.path).unwrap();
+        let text = canonical_json(model);
+        let hash = hash_of(&text);
+        let mut states = |project: &str, state: &str| stored_state(&store.path, project, state, &crate::stored_read::UnmeteredReadMemory);
+        let mut libraries = |project: &str, kind: &str, id: &str| crate::load_library(&connection, project.trim(), kind.trim(), id.trim()).map(|row| row.map(|row| row.document));
         let mut packs = |project: &str, id: &str| crate::stored_rule_packs_with_id(&connection, project, id);
         prepare_handoff(text, &hash, &hash, state_id, "Invented handoff", &mut states, &mut libraries, &mut packs)
     }
@@ -1754,6 +1841,200 @@ mod tests {
 
     fn write(destination: &Path, prepared: PreparedHandoff) -> HandoffSaveOutcome {
         write_handoff_package(destination, prepared, CREATED_AT, &PRODUCTION_HOOKS)
+    }
+
+    // --- The library reads' memory (DEL-04-07) ------------------------------
+
+    /// The witness model's store holding the representative library (a
+    /// committed library fixture) as `document_json`, and a basis state.
+    fn library_store(label: &str, library: Option<&str>) -> (Store, Value, String) {
+        let model = witness_model();
+        let store = store(label, &model, true);
+        let connection = Connection::open(&store.path).unwrap();
+        match library {
+            None => {
+                crate::upsert_library(&connection, "project:slots", "material", "library:invented-materials", &representative_material_library()).unwrap();
+            }
+            Some(text) => {
+                connection
+                    .execute(
+                        "UPDATE local_libraries SET document_json = ?1 WHERE project_id = 'project:slots' AND library_kind = 'material' AND library_id = 'library:invented-materials'",
+                        [text],
+                    )
+                    .unwrap();
+            }
+        }
+        let state = save_state(&store, &model, "handoff_basis", "0123456789abcdef0123456789abcdef").state;
+        (store, model, state.state_id)
+    }
+
+    /// The stored text of the store's library.
+    fn stored_library_text(store: &Store) -> String {
+        Connection::open(&store.path)
+            .unwrap()
+            .query_row("SELECT document_json FROM local_libraries WHERE library_id = 'library:invented-materials'", [], |row| row.get(0))
+            .unwrap()
+    }
+
+    /// The command's ingress for `model` and `state_id`, then its arguments.
+    fn admitted_request(pool: &crate::solve_jobs::SolveJobRegistry, model: &Value, state_id: &str) -> (HandoffSaveRequest, crate::memory_pool::Lease) {
+        let text = canonical_json(model);
+        let body = json!({
+            "canonicalText": text, "claimedModelHash": hash_of(&text),
+            "screening": serde_json::to_value(screening(&hash_of(&text))).unwrap(),
+            "localFirstEvidence": serde_json::to_value(local_first()).unwrap(),
+            "basisStateId": state_id, "packageLabel": "Invented handoff"
+        });
+        let (mut args, lease) = admit_json(pool, "save_handoff_package", ArgsDecoding::Moved, &body).unwrap();
+        (save_handoff_package_args(&mut args).unwrap(), lease)
+    }
+
+    /// The command after its ingress, at `destination`; `shown` records whether
+    /// the chooser was shown, with the pool's reserved bytes then.
+    fn save_at(store: &Store, pool: &crate::solve_jobs::SolveJobRegistry, request: HandoffSaveRequest, lease: &crate::memory_pool::Lease, destination: &Path, shown: &std::cell::Cell<Option<u64>>) -> HandoffSaveOutcome {
+        let path = || Ok(store.path.clone());
+        save_handoff_admitted(
+            request,
+            &path,
+            pool,
+            lease,
+            |_| {
+                shown.set(Some(pool.pool_status().reserved_bytes));
+                Ok(Some(destination.to_path_buf()))
+            },
+            || CREATED_AT.to_string(),
+            &PRODUCTION_HOOKS,
+        )
+    }
+
+    /// The counting-allocator check: Save Handoff reads the representative
+    /// library within its reservations (the measured peak of each read, priced
+    /// as the ingress prescan prices allocations, is within what that read
+    /// reserved), holds them with the ingress lease through the chooser and
+    /// the publication, and releases every one when it returns. The package
+    /// written is byte-identical to the one the unmetered lookup produced.
+    #[test]
+    fn save_handoff_reads_libraries_within_their_reservations_and_writes_the_same_bytes() {
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+        let (store, model, state_id) = library_store("library-lease", None);
+        let library_bytes = stored_library_text(&store).len() as u64;
+        let pool = registry(ScriptedHost::normal());
+        let (request, lease) = admitted_request(&pool, &model, &state_id);
+        fs::create_dir_all(store.root.join("metered")).unwrap();
+        fs::create_dir_all(store.root.join("unmetered")).unwrap();
+        let destination = store.root.join("metered").join("invented.swbhandoff");
+        let shown = std::cell::Cell::new(None);
+        crate::stored_model_document_export::library_read_probe::start();
+        let outcome = save_at(&store, &pool, request, &lease, &destination, &shown);
+        let reads = crate::stored_model_document_export::library_read_probe::take();
+        assert!(matches!(outcome, HandoffSaveOutcome::Saved { .. }), "{outcome:?}");
+        assert_eq!(reads.len(), 1, "one read of the one referenced library: {reads:?}");
+        let (reserved, peak) = reads[0];
+        let load_and_parse = crate::stored_read::loaded_text_bytes(library_bytes) + crate::stored_read::parse_bytes(&stored_library_text(&store)).unwrap();
+        eprintln!("SAVE_HANDOFF_LIBRARY_READ library_bytes={library_bytes} reserved={reserved} load_and_parse={load_and_parse} measured_peak={peak}");
+        assert!(reserved >= load_and_parse + crate::stored_read::READ_OVERHEAD_BYTES);
+        assert!(peak <= reserved, "the read's measured peak {peak} exceeds its reservations {reserved}");
+        let held = shown.get().expect("the chooser was shown");
+        assert!(held >= lease.bytes() + reserved, "the library reservations ({reserved}) are held with the lease ({}) through the chooser: {held}", lease.bytes());
+        assert_eq!(pool.pool_status().reserved_bytes, lease.bytes(), "the save releases its reservations when it returns");
+        drop(lease);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+        // The same save through the unmetered lookup writes the same bytes.
+        let before = store.root.join("unmetered").join("invented.swbhandoff");
+        let prepared = prepare_unmetered(&store, &model, &state_id).unwrap();
+        assert!(matches!(write_handoff_package(&before, prepared, CREATED_AT, &PRODUCTION_HOOKS), HandoffSaveOutcome::Saved { .. }));
+        assert_eq!(package_bytes(&destination), package_bytes(&before), "the metered save writes the bytes the unmetered lookup wrote");
+    }
+
+    /// A library read the memory pool refuses ends the save by the pool's name
+    /// before its load or its parse (no headroom; a per-invocation budget one
+    /// byte short of the parse), with nothing chosen or written and every
+    /// reservation released.
+    #[test]
+    fn a_library_read_the_pool_refuses_refuses_the_handoff_and_writes_nothing() {
+        let (store, model, state_id) = library_store("library-refused", None);
+        let text = stored_library_text(&store);
+        // No headroom once the arguments are admitted: the store is not opened.
+        let host = ScriptedHost::normal();
+        let pool = registry(host.clone());
+        let (request, lease) = admitted_request(&pool, &model, &state_id);
+        host.set(|script| script.headroom_bytes = Some(0));
+        let destination = store.root.join("refused.swbhandoff");
+        let shown = std::cell::Cell::new(None);
+        let outcome = save_at(&store, &pool, request, &lease, &destination, &shown);
+        let HandoffSaveOutcome::Refused { diagnostics } = &outcome else { panic!("not refused: {outcome:?}") };
+        assert_eq!(diagnostics.len(), 1);
+        assert_eq!(diagnostics[0].code, crate::stored_read::STORE_READ_MEMORY_UNAVAILABLE);
+        assert!(diagnostics[0].message.contains("headroom_insufficient"), "{}", diagnostics[0].message);
+        assert!(shown.get().is_none() && !destination.exists(), "nothing is chosen or written");
+        assert_eq!(pool.pool_status().reserved_bytes, lease.bytes());
+        drop(lease);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+        // A budget that admits the lease, the store, the keys and the load,
+        // but not the parse: refused naming the library, before it is parsed.
+        let probe = registry(ScriptedHost::normal());
+        let (request, lease) = admitted_request(&probe, &model, &state_id);
+        let shown = std::cell::Cell::new(None);
+        crate::stored_model_document_export::library_read_probe::start();
+        assert!(matches!(save_at(&store, &probe, request, &lease, &store.root.join("probe.swbhandoff"), &shown), HandoffSaveOutcome::Saved { .. }));
+        let reserved = crate::stored_model_document_export::library_read_probe::take()[0].0;
+        let parse = crate::stored_read::parse_bytes(&text).unwrap();
+        let budget = lease.bytes() + reserved - 1;
+        drop(lease);
+        let small = registry(ScriptedHost::normal());
+        small.configure_pool(budget.max(64 << 20), budget, false).unwrap();
+        let (request, lease) = admitted_request(&small, &model, &state_id);
+        let shown = std::cell::Cell::new(None);
+        crate::stored_model_document_export::library_read_probe::start();
+        let outcome = save_at(&store, &small, request, &lease, &destination, &shown);
+        let reads = crate::stored_model_document_export::library_read_probe::take();
+        let HandoffSaveOutcome::Refused { diagnostics } = &outcome else { panic!("not refused: {outcome:?}") };
+        assert_eq!(diagnostics[0].code, crate::stored_read::STORE_READ_MEMORY_UNAVAILABLE);
+        assert!(diagnostics[0].message.contains("the stored material library `library:invented-materials`"), "{}", diagnostics[0].message);
+        assert!(diagnostics[0].message.contains(&format!("{parse}")) || diagnostics[0].message.contains("per-invocation budget"), "{}", diagnostics[0].message);
+        assert_eq!(reads.len(), 1);
+        assert!(reads[0].1 < parse, "refused before the parse: its measured peak {} is below the parse bound {parse}", reads[0].1);
+        assert!(shown.get().is_none() && !destination.exists());
+        assert_eq!(small.pool_status().reserved_bytes, lease.bytes());
+        drop(lease);
+        assert_eq!(small.pool_status().reserved_bytes, 0);
+    }
+
+    /// A stored library that is not JSON refuses the handoff with the store
+    /// failure's code, and the refusal quotes the read's bounded description
+    /// (the prescan's reason and offset, or serde's category and position),
+    /// never the stored text. Cancel and a chooser error release the
+    /// reservations too.
+    #[test]
+    fn library_decode_errors_are_bounded_and_every_path_releases_its_reservations() {
+        let pad = "x".repeat(256 * 1024);
+        for (label, text) in [("unterminated", format!("{{\"material_library\":\"{pad}")), ("out-of-range", format!("{{\"pad\":\"{pad}\",\"n\":1e400}}"))] {
+            let (store, model, state_id) = library_store(&format!("library-decode-{label}"), Some(&text));
+            let pool = registry(ScriptedHost::normal());
+            let (request, lease) = admitted_request(&pool, &model, &state_id);
+            let destination = store.root.join("decode.swbhandoff");
+            let shown = std::cell::Cell::new(None);
+            let outcome = save_at(&store, &pool, request, &lease, &destination, &shown);
+            let HandoffSaveOutcome::Refused { diagnostics } = &outcome else { panic!("{label}: not refused: {outcome:?}") };
+            assert_eq!(diagnostics[0].code, model_document_save::LIBRARY_STORE_UNAVAILABLE, "{label}");
+            let message = &diagnostics[0].message;
+            assert!(message.len() < 1024 && !message.contains("xxxx"), "{label}: {message}");
+            assert!(shown.get().is_none() && !destination.exists());
+            assert_eq!(pool.pool_status().reserved_bytes, lease.bytes(), "{label}");
+            drop(lease);
+            assert_eq!(pool.pool_status().reserved_bytes, 0, "{label}");
+        }
+        let (store, model, state_id) = library_store("library-cancel", None);
+        let pool = registry(ScriptedHost::normal());
+        for chosen in [Ok(None), Err("invented chooser failure".to_string())] {
+            let (request, lease) = admitted_request(&pool, &model, &state_id);
+            let path = || Ok(store.path.clone());
+            let outcome = save_handoff_admitted(request, &path, &pool, &lease, |_| chosen, || CREATED_AT.to_string(), &PRODUCTION_HOOKS);
+            assert!(matches!(&outcome, HandoffSaveOutcome::Cancelled) || matches!(&outcome, HandoffSaveOutcome::Refused { diagnostics } if diagnostics[0].code == PICKER_PATH_INVALID), "{outcome:?}");
+            assert_eq!(pool.pool_status().reserved_bytes, lease.bytes());
+            drop(lease);
+            assert_eq!(pool.pool_status().reserved_bytes, 0);
+        }
     }
 
     // --- Basis state -------------------------------------------------------
