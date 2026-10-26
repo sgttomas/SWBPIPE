@@ -137,6 +137,8 @@ pub(crate) fn open_store_read_only(path: &Path, named: &str) -> Result<Connectio
     let connection = Connection::open_with_flags(path, OpenFlags::SQLITE_OPEN_READ_ONLY | OpenFlags::SQLITE_OPEN_NO_MUTEX)
         .map_err(|error| unavailable(error.to_string()))?;
     connection.busy_timeout(std::time::Duration::from_secs(5)).map_err(|error| unavailable(error.to_string()))?;
+    // The libraries' key measurement scans `local_libraries` on this connection.
+    bound_library_read_cache(&connection).map_err(unavailable)?;
     let version = crate::store_user_version(&connection).map_err(unavailable)?;
     crate::refuse_newer_store(version).map_err(|message| refusal(STORE_NOT_CURRENT, message))?;
     if version < crate::STORE_SCHEMA_TARGET_VERSION {
@@ -203,18 +205,52 @@ const LIBRARY_KEYED_ROW_SQL: &str = "SELECT COALESCE(MAX(COALESCE(octet_length(p
 const LIBRARY_LENGTH_SQL: &str = "SELECT octet_length(document_json) FROM local_libraries WHERE project_id = ?1 AND library_kind = ?2 AND library_id = ?3";
 const LIBRARY_TEXT_SQL: &str = "SELECT document_json FROM local_libraries WHERE project_id = ?1 AND library_kind = ?2 AND library_id = ?3";
 
-/// One stored library read within `memory` (Codex r3 P1): before the first
-/// read of a command (`keyed` empty), SQLite's working set for the library keys
-/// (`stored_read::SQLITE_WORKING_SET_FACTOR` times the largest keyed row, which
-/// an index seek may materialize); then the library's `document_json` measured
-/// without loading it, its load reserved (`stored_read::loaded_text_bytes`)
-/// before it is loaded, and its `Value` materialization, bounded by the ingress
-/// prescan (`stored_read::parse_bytes`), reserved before it is parsed. The
+/// SQLite's working set for the library keys, as priced so far in one
+/// command: the largest keyed row it was priced for, and its reservations.
+#[derive(Default)]
+pub(crate) struct KeyedWorkingSet {
+    priced: i64,
+    held: Vec<ReadReservation>,
+}
+
+impl KeyedWorkingSet {
+    /// Re-measures the largest keyed row in the caller's transaction and grows
+    /// the reservation to it before any index search: a key another connection
+    /// wrote after an earlier read's transaction is priced before a search can
+    /// materialize it (#1641 Codex r1 P1).
+    fn admit(&mut self, connection: &Connection, memory: &dyn ReadMemory) -> Result<(), String> {
+        let largest: i64 = connection.query_row(LIBRARY_KEYED_ROW_SQL, [], |row| row.get(0)).map_err(|error| stored_read::sql_error(&error))?;
+        if self.held.is_empty() || largest > self.priced {
+            let what = format!("SQLite's working set for the stored libraries (their largest keyed row holds {largest} bytes)");
+            self.held.push(stored_read::reserve_sqlite_value(memory, &what, largest.saturating_sub(self.priced))?);
+            self.priced = largest;
+        }
+        Ok(())
+    }
+
+    fn into_held(self) -> Vec<ReadReservation> {
+        self.held
+    }
+
+    #[cfg(test)]
+    fn reserved_bytes(&self) -> u64 {
+        self.held.iter().map(ReadReservation::bytes).sum()
+    }
+}
+
+/// One stored library read within `memory` (Codex r3 P1): SQLite's working
+/// set for the library keys (`stored_read::SQLITE_WORKING_SET_FACTOR` times
+/// the largest keyed row, which an index seek may materialize), re-measured in
+/// this read's transaction and grown before the search ([`KeyedWorkingSet`]);
+/// then the library's `document_json` measured without loading it, its load
+/// reserved (`stored_read::loaded_text_bytes`) before it is loaded, and its
+/// `Value` materialization, bounded by the ingress prescan
+/// (`stored_read::parse_bytes`), reserved before it is parsed. The
 /// reservations are pushed to `held`. Errors are bounded: a SQLite error as
 /// `stored_read::sql_error` describes it, a text the prescan refuses by its
 /// reason and offset, a serde error by `stored_read::json_error`, never the
 /// stored text. A reservation the pool refuses is
-/// `STORE-READ-MEMORY-UNAVAILABLE`. The measurement and the load are made on
+/// `STORE-READ-MEMORY-UNAVAILABLE`. Every measurement and the load are made on
 /// `connection` in the caller's read transaction, so the row measured is the
 /// row loaded. Shared by the recovery export's screening ([`LibraryReads`])
 /// and by Save Model Document's and Save Handoff's lookups
@@ -222,18 +258,14 @@ const LIBRARY_TEXT_SQL: &str = "SELECT document_json FROM local_libraries WHERE 
 pub(crate) fn read_stored_library(
     connection: &Connection,
     memory: &dyn ReadMemory,
-    keyed: &mut Option<ReadReservation>,
+    keyed: &mut KeyedWorkingSet,
     held: &mut Vec<ReadReservation>,
     project_id: &str,
     library_kind: &str,
     library_id: &str,
 ) -> Result<Option<StoredLibrary>, String> {
     let sql_error = |error: rusqlite::Error| stored_read::sql_error(&error);
-    if keyed.is_none() {
-        let largest: i64 = connection.query_row(LIBRARY_KEYED_ROW_SQL, [], |row| row.get(0)).map_err(sql_error)?;
-        let what = format!("SQLite's working set for the stored libraries (their largest keyed row holds {largest} bytes)");
-        *keyed = Some(stored_read::reserve_sqlite_value(memory, &what, largest)?);
-    }
+    keyed.admit(connection, memory)?;
     let key = params![project_id, library_kind, library_id];
     let length: Option<Option<i64>> = connection.query_row(LIBRARY_LENGTH_SQL, key, |row| row.get(0)).optional().map_err(sql_error)?;
     let Some(length) = length else { return Ok(None) };
@@ -249,6 +281,29 @@ pub(crate) fn read_stored_library(
     drop(text);
     Ok(Some(StoredLibrary { document, parse, what }))
 }
+
+/// The page cache, in KiB, of a connection that reads stored libraries
+/// (`PRAGMA cache_size = -LIBRARY_READ_CACHE_KIB`): it bounds what SQLite caches
+/// while the key measurement scans `local_libraries` and while a library's
+/// overflow pages are read (#1641 Codex r1 P2). The default (2 MiB) grew
+/// with the table. `sqlite3_soft_heap_limit64` and `sqlite3_hard_heap_limit64`
+/// are ruled out: they are process-wide, not per connection.
+pub(crate) const LIBRARY_READ_CACHE_KIB: i64 = 256;
+
+/// Bounds the page cache of a connection that reads stored libraries.
+pub(crate) fn bound_library_read_cache(connection: &Connection) -> Result<(), String> {
+    connection.execute_batch(&format!("PRAGMA cache_size = -{LIBRARY_READ_CACHE_KIB};")).map_err(|error| stored_read::sql_error(&error))
+}
+
+/// What Save Model Document's and Save Handoff's library store connection
+/// holds besides its priced reads, reserved before it is opened: SQLite's
+/// bounded page cache ([`LIBRARY_READ_CACHE_KIB`], with its page headers),
+/// the connection's lookaside, the parsed store schema, the open's migration
+/// check and one prepared statement at a time, and the command's own Rust
+/// memory for them (`stored_read::READ_OVERHEAD_BYTES`). The SQLite part was
+/// measured against a store with 30,000 library rows
+/// (`the_library_store_connection_is_bounded_whatever_the_table_size`).
+pub(crate) const LIBRARY_STORE_BYTES: u64 = stored_read::READ_OVERHEAD_BYTES + (1 << 20);
 
 /// A stored library read by [`read_stored_library`]: the document, its
 /// prescan's materialization bound, and what the reservations name it.
@@ -271,14 +326,14 @@ struct LibraryReads<'a> {
     /// The model's longest `library_ref` path and identity, which bound the
     /// diagnostics a library's screening can add ([`library_screening_bytes`]).
     references: &'a ScreeningBound,
-    keyed: Option<ReadReservation>,
+    keyed: KeyedWorkingSet,
     held: Vec<ReadReservation>,
     refused: Option<String>,
 }
 
 impl<'a> LibraryReads<'a> {
     fn new(connection: &'a Connection, memory: &'a dyn ReadMemory, references: &'a ScreeningBound) -> Self {
-        Self { connection, memory, references, keyed: None, held: Vec::new(), refused: None }
+        Self { connection, memory, references, keyed: KeyedWorkingSet::default(), held: Vec::new(), refused: None }
     }
 
     fn read(&mut self, project_id: &str, library_kind: &str, library_id: &str) -> Result<Option<Value>, String> {
@@ -307,31 +362,79 @@ impl<'a> LibraryReads<'a> {
 
 /// Save Model Document's and Save Handoff's library lookup (DEL-04-07
 /// memory-budget decision, model-sized interactive commands): the local
-/// library store opened by `open`
-/// only when a library is first referenced, with the command's own memory for
-/// the connection and its statements (`stored_read::READ_OVERHEAD_BYTES`)
-/// reserved before it is opened; then each library read by
+/// library store opened by `open` only when a library is first referenced,
+/// with [`LIBRARY_STORE_BYTES`] reserved before it is opened and its page cache
+/// bounded ([`bound_library_read_cache`]); then each library read by
 /// [`read_stored_library`] in its own read transaction, the identities trimmed
 /// as `open_local_library` trims them. `memory` starts from the command's
 /// ingress lease (`PoolReadMemory::new`), so every reservation is counted with
-/// it against the per-invocation budget. The reservations are held until this
-/// value is dropped, which the saves do after the write, so they last until
-/// the command returns. A refusal of the pool is kept, and the save refuses by
-/// its name ([`StoreLibraryReads::refusal`]) rather than as the screening's
-/// store failure, as the recovery export does.
+/// it against the per-invocation budget.
+///
+/// What the command builds from the libraries is reserved here too, before it
+/// is built:
+/// - the screening's allocations, as the recovery export bounds them
+///   ([`ScreeningBound`] of the model, reserved by [`Self::screen_model`]
+///   before the screening starts, and [`library_screening_bytes`] for each
+///   library before it is returned to the screener);
+/// - for the handoff ([`Self::with_reference_metadata`]), the reference
+///   metadata built from each library: its canonical text, hashed once
+///   (`stored_read::grown_text_bytes` of its exact `jcs_length`); its
+///   classification is folded over the library as it is walked, collecting
+///   nothing from it (`handoff_package::library_refs`). The handoff shares each
+///   parsed library between its screening and its references (`Rc`) and
+///   copies none.
+///
+/// The reservations are held until this value is dropped, which the saves do
+/// after the write, so they last until the command returns. A refusal of the
+/// pool is kept, and the save refuses by its name
+/// ([`StoreLibraryReads::refusal`]) rather than as the screening's store
+/// failure, as the recovery export does.
 pub(crate) struct StoreLibraryReads<'a> {
     memory: &'a dyn ReadMemory,
     open: Box<dyn FnMut() -> Result<Connection, String> + 'a>,
     connection: Option<Connection>,
     overhead: Option<ReadReservation>,
-    keyed: Option<ReadReservation>,
+    keyed: KeyedWorkingSet,
     held: Vec<ReadReservation>,
+    references: Option<ScreeningBound>,
+    reference_metadata: bool,
     refused: Option<String>,
 }
 
 impl<'a> StoreLibraryReads<'a> {
     pub(crate) fn new(memory: &'a dyn ReadMemory, open: impl FnMut() -> Result<Connection, String> + 'a) -> Self {
-        Self { memory, open: Box::new(open), connection: None, overhead: None, keyed: None, held: Vec::new(), refused: None }
+        Self {
+            memory,
+            open: Box::new(open),
+            connection: None,
+            overhead: None,
+            keyed: KeyedWorkingSet::default(),
+            held: Vec::new(),
+            references: None,
+            reference_metadata: false,
+            refused: None,
+        }
+    }
+
+    /// Also reserves, for each library, the handoff's reference metadata.
+    pub(crate) fn with_reference_metadata(mut self) -> Self {
+        self.reference_metadata = true;
+        self
+    }
+
+    /// Reserves the screener's allocations over the admitted `document`
+    /// before its screening starts, and keeps its bound for the libraries'.
+    pub(crate) fn screen_model(&mut self, document: &Value) -> Result<(), Refusal> {
+        let references = ScreeningBound::of(document);
+        match self.memory.reserve("the screening of the model document", references.bytes()) {
+            Ok(reservation) => self.held.push(reservation),
+            Err(error) => {
+                self.refused.get_or_insert(error);
+                return Err(self.refusal().unwrap_or_default());
+            }
+        }
+        self.references = Some(references);
+        Ok(())
     }
 
     /// The screener's and the handoff's `LibraryLookup`.
@@ -359,21 +462,33 @@ impl<'a> StoreLibraryReads<'a> {
     fn read_metered(&mut self, project_id: &str, library_kind: &str, library_id: &str) -> Result<Option<Value>, String> {
         if self.connection.is_none() {
             if self.overhead.is_none() {
-                self.overhead = Some(self.memory.reserve("the local library store (the command's own memory)", stored_read::READ_OVERHEAD_BYTES)?);
+                self.overhead = Some(self.memory.reserve("the local library store (its connection and the command's own memory)", LIBRARY_STORE_BYTES)?);
             }
-            self.connection = Some((self.open)().map_err(stored_read::capped)?);
+            let connection = (self.open)().map_err(stored_read::capped)?;
+            bound_library_read_cache(&connection)?;
+            self.connection = Some(connection);
         }
         let connection = self.connection.as_mut().expect("opened above");
-        // One read transaction per library: the row measured is the row loaded.
+        // One read transaction per library: the rows measured are the rows loaded.
         let transaction = stored_read::read_transaction(connection)?;
         let read = read_stored_library(&transaction, self.memory, &mut self.keyed, &mut self.held, project_id, library_kind, library_id)?;
         drop(transaction);
-        Ok(read.map(|library| library.document))
+        let Some(StoredLibrary { document, parse, what }) = read else { return Ok(None) };
+        if let Some(references) = &self.references {
+            let screening = library_screening_bytes(library_kind, &document, parse, references);
+            self.held.push(self.memory.reserve(&format!("the screening of {what}"), screening)?);
+        }
+        if self.reference_metadata {
+            let canonical = stored_read::grown_text_bytes(stored_read::jcs_length(&document));
+            self.held.push(self.memory.reserve(&format!("the canonical text of {what} (its reference digest)"), canonical)?);
+        }
+        Ok(Some(document))
     }
 
-    /// The save's refusal when the memory pool refused a library read, by the
-    /// pool's name (`STORE-READ-MEMORY-UNAVAILABLE`); the message quotes the
-    /// pool's typed refusal and is bounded (ids are cut as messages quote them).
+    /// The save's refusal when the memory pool refused a library read or the
+    /// screening's reservation, by the pool's name
+    /// (`STORE-READ-MEMORY-UNAVAILABLE`); the message quotes the pool's typed
+    /// refusal and is bounded (ids are cut as messages quote them).
     pub(crate) fn refusal(&mut self) -> Option<Refusal> {
         self.refused.take().map(|error| refusal(MEMORY_UNAVAILABLE, format!("{error} Nothing was written.")))
     }
@@ -381,7 +496,7 @@ impl<'a> StoreLibraryReads<'a> {
     /// The bytes this lookup holds reserved now (tests).
     #[cfg(test)]
     pub(crate) fn reserved_bytes(&self) -> u64 {
-        self.overhead.iter().chain(self.keyed.iter()).chain(self.held.iter()).map(ReadReservation::bytes).sum()
+        self.overhead.iter().chain(self.held.iter()).map(ReadReservation::bytes).sum::<u64>() + self.keyed.reserved_bytes()
     }
 }
 
@@ -406,6 +521,20 @@ pub(crate) mod library_read_probe {
 
     pub(super) fn active() -> bool {
         READS.with(|reads| reads.borrow().is_some())
+    }
+
+    thread_local! {
+        static SAVE_PEAKS: RefCell<Vec<u64>> = const { RefCell::new(Vec::new()) };
+    }
+
+    /// The most a save's memory held at once, including its ingress lease
+    /// (`PoolReadMemory::peak_reserved`), recorded by the saves as they return.
+    pub(crate) fn record_save_peak(peak_reserved: u64) {
+        SAVE_PEAKS.with(|peaks| peaks.borrow_mut().push(peak_reserved));
+    }
+
+    pub(crate) fn take_save_peaks() -> Vec<u64> {
+        SAVE_PEAKS.with(|peaks| std::mem::take(&mut *peaks.borrow_mut()))
     }
 
     pub(super) fn record(reserved: u64, peak_priced: u64) {
@@ -442,6 +571,21 @@ pub(crate) mod library_read_probe {
         reviewed_public(&mut library);
         library["material_library"]["library_id"] = json!("library:invented-materials");
         library["material_records"][0]["material_id"] = json!("steel");
+        library
+    }
+
+    /// [`representative_material_library`] with `records` records: its record
+    /// repeated under new ids (`steel` first), about 3 KB each.
+    pub(crate) fn large_material_library(records: usize) -> serde_json::Value {
+        let mut library = representative_material_library();
+        let record = library["material_records"][0].clone();
+        let mut all = vec![record.clone()];
+        for index in 1..records {
+            let mut copy = record.clone();
+            copy["material_id"] = serde_json::json!(format!("mat.invented.r{index:05}"));
+            all.push(copy);
+        }
+        library["material_records"] = serde_json::Value::Array(all);
         library
     }
 }
@@ -761,7 +905,7 @@ pub(crate) fn admit_stored_model_document(
     });
     let refused = libraries.refused.take();
     held.append(&mut libraries.held);
-    held.extend(libraries.keyed.take());
+    held.append(&mut std::mem::take(&mut libraries.keyed).into_held());
     if let Some(error) = refused {
         return Err(read_refusal(&named, error));
     }
@@ -1564,7 +1708,7 @@ mod tests {
             }
             let (screened, measured) = crate::ingress::counting::measure(|| {
                 screen_model_document_dispositions(&document, &mut |_: &str, kind: &str, id: &str| {
-                    Ok(libraries.iter().find(|(k, i, _)| *k == kind.trim() && *i == id.trim()).map(|(_, _, text)| serde_json::from_str(text).unwrap()))
+                    Ok(libraries.iter().find(|(k, i, _)| *k == kind.trim() && *i == id.trim()).map(|(_, _, text)| serde_json::from_str::<Value>(text).unwrap()))
                 })
             });
             let found = match &screened {
@@ -1623,5 +1767,159 @@ mod tests {
         let message = refusal_message(&refused);
         assert!(message.contains("the response to the export of"), "{message}");
         assert!(message.contains(&format!("refused with 150 diagnostics, which are not shown. The first is {PROTECTED_CONTENT_BLOCKED}")), "{message}");
+    }
+
+    // -----------------------------------------------------------------------
+    // #1641 Codex r1: the save-side lookup's key pricing and SQLite's memory.
+    // -----------------------------------------------------------------------
+
+    /// A store opened as the saves open it (`open_project_store`), holding
+    /// `rows` small libraries of project `PROJECT` besides `lib0` and `lib1`.
+    fn save_store(scratch: &Scratch, rows: usize) -> PathBuf {
+        let store = scratch.0.join(crate::PROJECT_STORE_FILE);
+        let (mut connection, _) = crate::open_project_store(&store).unwrap();
+        let transaction = connection.transaction().unwrap();
+        {
+            let mut insert = transaction
+                .prepare("INSERT INTO local_libraries(project_id, library_kind, library_id, document_json, created_at_unix, updated_at_unix) VALUES (?1, 'material', ?2, ?3, 1, 1)")
+                .unwrap();
+            for index in 0..rows {
+                let id = format!("library:invented-row-{index:06}");
+                insert.execute(params![PROJECT, id, library_text(160, "accepted")]).unwrap();
+            }
+            for id in ["lib0", "lib1"] {
+                insert.execute(params![PROJECT, id, library_text(1024, "accepted")]).unwrap();
+            }
+        }
+        transaction.commit().unwrap();
+        store
+    }
+
+    fn save_reads<'a>(memory: &'a dyn ReadMemory, store: &'a Path) -> StoreLibraryReads<'a> {
+        StoreLibraryReads::new(memory, move || crate::open_project_store(store).map(|(connection, _)| connection))
+    }
+
+    /// #1641 Codex r1 P1: the save-side lookup priced the largest library key
+    /// once, but reads each library in its own transaction, so a larger key
+    /// another connection wrote after the first read was searched under the
+    /// old price (an 8 MiB key read under a 1 MiB budget). Each read now
+    /// re-measures in its transaction and grows the price first: the second
+    /// read is refused by name and loads nothing.
+    #[test]
+    fn a_larger_key_written_between_reads_is_priced_before_the_next_search() {
+        let scratch = Scratch::new("key-between-reads");
+        let store = save_store(&scratch, 0);
+        let pool = registry(ScriptedHost::normal());
+        pool.configure_pool(16 << 20, 4 << 20, false).unwrap();
+        let memory = PoolReadMemory::unseeded(&pool);
+        let mut reads = save_reads(&memory, &store);
+        assert!(reads.read(PROJECT, "material", "lib0").unwrap().is_some(), "the first read fits the budget");
+        let before = reads.reserved_bytes();
+        // Another connection writes an 8 MiB key.
+        Connection::open(&store)
+            .unwrap()
+            .execute(
+                "INSERT INTO local_libraries(project_id, library_kind, library_id, document_json, created_at_unix, updated_at_unix) VALUES (?1, 'material', ?2, '{}', 1, 1)",
+                params![PROJECT, "k".repeat(8 << 20)],
+            )
+            .unwrap();
+        let refused = reads.read(PROJECT, "material", "lib1").unwrap_err();
+        assert!(refused.starts_with(MEMORY_UNAVAILABLE), "{refused}");
+        assert!(refused.contains("SQLite's working set for the stored libraries (their largest keyed row holds 8388"), "{refused}");
+        assert_eq!(reads.reserved_bytes(), before, "nothing more is reserved or loaded");
+        let diagnostics = reads.refusal().expect("the refusal is kept by name");
+        assert_eq!(diagnostics[0].code, MEMORY_UNAVAILABLE);
+        drop(reads);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+        // Under an ordinary pool the larger key is priced and the read proceeds.
+        let pool = registry(ScriptedHost::normal());
+        let memory = PoolReadMemory::unseeded(&pool);
+        let mut reads = save_reads(&memory, &store);
+        assert!(reads.read(PROJECT, "material", "lib0").unwrap().is_some());
+        assert!(reads.reserved_bytes() >= (8 << 20) * stored_read::SQLITE_WORKING_SET_FACTOR);
+    }
+
+    /// Runs the named test of this module alone in a child process: SQLite's
+    /// memory status is process-wide (as `analysis_runs_tests` `in_own_process`).
+    fn in_own_process(name: &str, body: impl FnOnce()) {
+        const CHILD: &str = "OPENPIPESTRESS_SQLITE_STATUS_CHILD";
+        if std::env::var_os(CHILD).is_some() {
+            body();
+            return;
+        }
+        let path = format!("stored_model_document_export::tests::{name}");
+        let output = std::process::Command::new(std::env::current_exe().unwrap())
+            .args([path.as_str(), "--exact", "--test-threads=1", "--nocapture"])
+            .env(CHILD, "1")
+            .output()
+            .unwrap();
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        eprintln!("{stdout}{}", String::from_utf8_lossy(&output.stderr));
+        assert!(output.status.success() && stdout.contains("1 passed"), "{stdout}\n{}", String::from_utf8_lossy(&output.stderr));
+    }
+
+    /// SQLite's own allocation peak during `f`, above what it held when `f`
+    /// began (`sqlite3_status64(SQLITE_STATUS_MEMORY_USED)`, its high-water mark
+    /// reset first).
+    fn sqlite_peak_during<T>(f: impl FnOnce() -> T) -> (T, u64) {
+        let (mut current, mut high) = (0i64, 0i64);
+        // SAFETY: plain out-pointers to two live i64s; the status call takes no other state.
+        unsafe { rusqlite::ffi::sqlite3_status64(rusqlite::ffi::SQLITE_STATUS_MEMORY_USED, &mut current, &mut high, 1) };
+        let start = current;
+        let out = f();
+        // SAFETY: as above.
+        unsafe { rusqlite::ffi::sqlite3_status64(rusqlite::ffi::SQLITE_STATUS_MEMORY_USED, &mut current, &mut high, 0) };
+        (out, u64::try_from(high - start).unwrap_or(0))
+    }
+
+    /// #1641 Codex r1 P2: with 30,000 ordinary library rows, the save-side
+    /// lookup's open and key scan peaked at 2.55 MB of SQLite memory while
+    /// 512 KiB was held. Its connection's page cache is now bounded
+    /// (`LIBRARY_READ_CACHE_KIB`), and SQLite's whole peak over the open, the
+    /// scans and two library reads stays within what the lookup reserved less
+    /// the Rust share of each load (one `String` envelope) and the command's
+    /// own Rust memory. The recovery export's connection has the same bound;
+    /// its SQLite peak over the same store stays within its own memory.
+    #[test]
+    fn the_library_store_connection_is_bounded_whatever_the_table_size() {
+        in_own_process("the_library_store_connection_is_bounded_whatever_the_table_size", || {
+            let scratch = Scratch::new("thirty-thousand-rows");
+            let store = save_store(&scratch, 30_000);
+            let pool = registry(ScriptedHost::normal());
+            let memory = PoolReadMemory::unseeded(&pool);
+            let library = library_text(1024, "accepted");
+            let (share, peak) = sqlite_peak_during(|| {
+                let mut reads = save_reads(&memory, &store);
+                for id in ["lib0", "lib1"] {
+                    assert!(reads.read(PROJECT, "material", id).unwrap().is_some());
+                }
+                let reserved = reads.reserved_bytes();
+                // Less the Rust side: the command's own memory, each loaded `String` and each parse.
+                let rust = stored_read::READ_OVERHEAD_BYTES + 2 * (stored_read::exact_text_bytes(library.len() as u64) + stored_read::parse_bytes(&library).unwrap());
+                eprintln!("SAVE_LOOKUP_SQLITE rows=30000 reserved={reserved} rust_share={rust}");
+                reserved - rust
+            });
+            eprintln!("SAVE_LOOKUP_SQLITE peak={peak} sqlite_share={share}");
+            assert!(peak <= share, "SQLite peaked at {peak} bytes over the lookup; its share of the reservations is {share}");
+            // The recovery export over the same store, referencing both libraries.
+            let model = format!(
+                "{{\"project\":{{\"id\":\"{PROJECT}\"}},\"materials\":[{{\"library_ref\":{{\"library_kind\":\"material\",\"library_id\":\"lib0\"}}}},{{\"library_ref\":{{\"library_kind\":\"material\",\"library_id\":\"lib1\"}}}}]}}"
+            );
+            Connection::open(&store)
+                .unwrap()
+                .execute("INSERT INTO local_projects(project_id, project_name, model_json, created_at_unix, updated_at_unix) VALUES (?1, 'Invented', ?2, 1, 1)", params![PROJECT, model])
+                .unwrap();
+            let destination = scratch.0.join("recovered.json");
+            let export_pool = registry(ScriptedHost::normal());
+            let (request, lease) = admitted(&export_pool, &envelope(PROJECT, None)).unwrap();
+            let (held, peak) = sqlite_peak_during(|| {
+                export_stored_model_document_request(&request, || Ok(store.clone()), &export_pool, &lease, |_| Ok(Some(destination.clone())), |outcome, _| {
+                    assert!(matches!(outcome, ModelDocumentSaveOutcome::Saved { .. }), "{outcome:?}");
+                    export_pool.pool_status().reserved_bytes
+                })
+            });
+            eprintln!("EXPORT_SQLITE rows=30000 held={held} peak={peak}");
+            assert!(peak <= held, "the export's SQLite peak {peak} exceeds what it held ({held})");
+        });
     }
 }

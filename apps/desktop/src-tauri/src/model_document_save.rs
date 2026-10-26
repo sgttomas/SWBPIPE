@@ -214,9 +214,9 @@ pub struct AdmittedModelDocument {
 
 /// Native disposition screening of the exact admitted document (review repair
 /// 1b/1c), by the shared store-resolved screen (`export_disposition_screen`).
-pub fn screen_model_document_dispositions(
+pub fn screen_model_document_dispositions<V: std::borrow::Borrow<Value>>(
     document: &Value,
-    lookup: &mut LibraryLookup<'_>,
+    lookup: &mut dyn FnMut(&str, &str, &str) -> Result<Option<V>, String>,
 ) -> Result<Vec<ModelDocumentSaveDiagnostic>, Vec<ModelDocumentSaveDiagnostic>> {
     let project_id = document.pointer("/project/id").and_then(Value::as_str).unwrap_or("");
     screen_dispositions_in(document, "", PathStyle::Dotted, project_id, LIBRARY_STORE_UNAVAILABLE, lookup)
@@ -228,12 +228,27 @@ fn claimed_hex(claimed: &str) -> Option<&str> {
         .filter(|hex| hex.len() == 64 && hex.bytes().all(|byte| matches!(byte, b'0'..=b'9' | b'a'..=b'f')))
 }
 
-/// The admission of §2 over the webview's canonical text, before any file is chosen.
-pub fn admit_model_document_text(
+/// The admission of §2 over the webview's canonical text, before any file is
+/// chosen, with no reservation before the screening (tests).
+#[cfg(test)]
+pub fn admit_model_document_text<V: std::borrow::Borrow<Value>>(
     canonical_text: String,
     claimed_model_hash: &str,
     evidence_payload_sha256: &str,
-    lookup: &mut LibraryLookup<'_>,
+    lookup: &mut dyn FnMut(&str, &str, &str) -> Result<Option<V>, String>,
+) -> Result<AdmittedModelDocument, Vec<ModelDocumentSaveDiagnostic>> {
+    admit_model_document_text_screened(canonical_text, claimed_model_hash, evidence_payload_sha256, &mut |_| Ok(()), lookup)
+}
+
+/// [`admit_model_document_text`], with `before_screening` given the checked
+/// document before the screening starts (the saves reserve the screening's
+/// memory there).
+pub fn admit_model_document_text_screened<V: std::borrow::Borrow<Value>>(
+    canonical_text: String,
+    claimed_model_hash: &str,
+    evidence_payload_sha256: &str,
+    before_screening: &mut dyn FnMut(&Value) -> Result<(), Vec<ModelDocumentSaveDiagnostic>>,
+    lookup: &mut dyn FnMut(&str, &str, &str) -> Result<Option<V>, String>,
 ) -> Result<AdmittedModelDocument, Vec<ModelDocumentSaveDiagnostic>> {
     let byte_count = canonical_text.len() as u64;
     if byte_count > MAX_MODEL_DOCUMENT_BYTES {
@@ -292,6 +307,7 @@ pub fn admit_model_document_text(
     if !shape.is_empty() {
         return Err(shape.into_iter().map(|item| diagnostic(MODEL_FILE_SHAPE, &item.path, item.message)).collect());
     }
+    before_screening(&document)?;
     let warnings = screen_model_document_dispositions(&document, lookup)?;
     drop(document);
     Ok(AdmittedModelDocument { text: canonical_text, suggested_file_name, warnings })
@@ -352,9 +368,11 @@ pub fn write_admitted_model_document(destination: &Path, admitted: AdmittedModel
 /// (`StoreLibraryReads`: started from the ingress lease `ingress`, so every
 /// library reservation is counted with it against the per-invocation budget);
 /// then the chooser (`choose`, given the suggested file name) and the atomic
-/// write. A library read the memory pool refuses refuses the save by the
+/// write. The screening's allocations are reserved before it builds them, as
+/// the recovery export reserves them (`StoreLibraryReads::screen_model`). A
+/// library read or screening the memory pool refuses refuses the save by the
 /// pool's name (`STORE-READ-MEMORY-UNAVAILABLE`) before any file is chosen.
-/// The library reservations are held through the chooser and the write.
+/// The reservations are held through the chooser and the write.
 pub(crate) fn save_model_document_admitted(
     canonical_text: String,
     claimed_model_hash: &str,
@@ -365,10 +383,15 @@ pub(crate) fn save_model_document_admitted(
     choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>,
 ) -> ModelDocumentSaveOutcome {
     let memory = PoolReadMemory::new(registry, ingress);
-    let mut libraries = StoreLibraryReads::new(&memory, open_store);
-    let admitted = admit_model_document_text(canonical_text, claimed_model_hash, evidence_payload_sha256, &mut |project_id: &str, library_kind: &str, library_id: &str| {
-        libraries.read(project_id, library_kind, library_id)
-    });
+    let libraries = std::cell::RefCell::new(StoreLibraryReads::new(&memory, open_store));
+    let admitted = admit_model_document_text_screened(
+        canonical_text,
+        claimed_model_hash,
+        evidence_payload_sha256,
+        &mut |document: &Value| libraries.borrow_mut().screen_model(document),
+        &mut |project_id: &str, library_kind: &str, library_id: &str| libraries.borrow_mut().read(project_id, library_kind, library_id),
+    );
+    let mut libraries = libraries.into_inner();
     if let Some(refusal) = libraries.refusal() {
         return ModelDocumentSaveOutcome::refused(refusal);
     }
@@ -383,6 +406,8 @@ pub(crate) fn save_model_document_admitted(
     };
     let outcome = write_admitted_model_document(&destination, admitted);
     drop(libraries);
+    #[cfg(test)]
+    crate::stored_model_document_export::library_read_probe::record_save_peak(memory.peak_reserved());
     outcome
 }
 
@@ -1018,6 +1043,30 @@ mod tests {
         assert_eq!(fs::read(&destination).unwrap(), fs::read(&before).unwrap());
         assert_eq!(fs::read(&destination).unwrap(), text.as_bytes());
         assert!(matches!(&outcome, ModelDocumentSaveOutcome::Saved { warnings, model_hash: hash, byte_count: count, .. } if *warnings == before_warnings && *hash == model_hash && *count == byte_count));
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    /// #1641 Codex r1 P2: the whole save's measured peak (the admission, the
+    /// screening, the library read and the write, priced as the ingress prescan
+    /// prices allocations) is within the most its memory held at once, the
+    /// ingress lease included, for a large library: 1,024 records, about 3 MB.
+    #[test]
+    fn the_whole_save_is_within_its_reservations_for_a_large_library() {
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+        let library = serde_json::to_string(&crate::stored_model_document_export::library_read_probe::large_material_library(1024)).unwrap();
+        let (root, store) = library_store("large-library", &library);
+        let pool = registry(ScriptedHost::normal());
+        let (request, lease) = admitted_request(&pool);
+        let destination = root.join("large.json");
+        crate::stored_model_document_export::library_read_probe::take_save_peaks();
+        let (outcome, measured) = crate::ingress::counting::measure(|| save_at(&store, &pool, request, &lease, Ok(Some(destination.clone())), &std::cell::Cell::new(None)));
+        assert!(matches!(outcome, ModelDocumentSaveOutcome::Saved { .. }), "{outcome:?}");
+        let reserved = *crate::stored_model_document_export::library_read_probe::take_save_peaks().last().expect("the save recorded its peak");
+        eprintln!("SAVE_MODEL_DOCUMENT_LARGE library_bytes={} lease={} reserved_peak={reserved} measured_peak={}", library.len(), lease.bytes(), measured.peak_priced);
+        assert!(library.len() > 3_000_000);
+        assert!(measured.peak_priced <= reserved, "the save's measured peak {} exceeds its reservations {reserved}", measured.peak_priced);
+        drop(lease);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
         fs::remove_dir_all(root).unwrap();
     }
 

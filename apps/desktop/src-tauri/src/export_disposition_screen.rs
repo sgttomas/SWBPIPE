@@ -322,13 +322,16 @@ pub(crate) fn library_ref_sites(document: &Value) -> Vec<(String, &Map<String, V
 /// (b1): the report package's request and model): paths start at `root` in
 /// `style`, every `library_ref` is resolved in `project_id`'s store (trimmed),
 /// and a store read error refuses with the caller's `store_unavailable` code.
-pub(crate) fn screen_dispositions_in(
+///
+/// The lookup returns each library owned or shared (`V`, for example an
+/// `Rc<Value>` a caller also keeps); the screen only borrows it.
+pub(crate) fn screen_dispositions_in<V: std::borrow::Borrow<Value>>(
     value: &Value,
     root: &str,
     style: PathStyle,
     project_id: &str,
     store_unavailable: &str,
-    lookup: &mut LibraryLookup<'_>,
+    lookup: &mut dyn FnMut(&str, &str, &str) -> Result<Option<V>, String>,
 ) -> Result<Vec<DispositionDiagnostic>, Vec<DispositionDiagnostic>> {
     let mut screen = DispositionScreen { style, ..DispositionScreen::default() };
     screen.walk(value, root);
@@ -352,6 +355,7 @@ pub(crate) fn screen_dispositions_in(
             }
             continue;
         };
+        let stored: &Value = stored.borrow();
         if let Some(library) = stored.get(format!("{kind}_library")).and_then(Value::as_object) {
             screen.screen_stored(&kind, library, &references[0].0, &named, "stored library");
         }
@@ -363,7 +367,7 @@ pub(crate) fn screen_dispositions_in(
             }
             screened.push(record_id.clone());
             // Every record with this id is screened (`matching_library_records`).
-            let matching = matching_library_records(&kind, &stored, record_id);
+            let matching = matching_library_records(&kind, stored, record_id);
             for record in &matching {
                 screen.screen_stored(&kind, record, path, &format!("{named}#{record_id}"), "stored library record");
             }

@@ -50,6 +50,7 @@ use serde::Serialize;
 use serde_json::{json, Map, Value};
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
+use std::rc::Rc;
 
 /// The governed local-first route of this save.
 pub const HANDOFF_PACKAGE_ROUTE_ID: &str = "DOTH-HANDOFF-PACKAGE-008";
@@ -146,6 +147,9 @@ pub type StateLookup<'a> = dyn FnMut(&str, &str) -> Result<Option<ModelStateSumm
 /// (at most one), as the solve's rule-pack resolution opens it (#1602).
 pub type RulePackLookup<'a> = dyn FnMut(&str, &str) -> Result<Vec<Value>, String> + 'a;
 
+/// A library lookup whose documents the caller shares (the handoff's cache).
+pub(crate) type SharedLibraryLookup<'a> = dyn FnMut(&str, &str, &str) -> Result<Option<Rc<Value>>, String> + 'a;
+
 // ---------------------------------------------------------------------------
 // Vocabulary helpers.
 // ---------------------------------------------------------------------------
@@ -224,29 +228,37 @@ fn lifecycle_review_classification(lifecycle_status: Option<&str>) -> &'static s
 /// private, so nothing a covered object marks private, protected, redacted,
 /// unknown or malformed is labelled public.
 fn reference_privacy(redistribution: &str, privacy_values: &[&str], private: &'static str) -> &'static str {
-    // Explicit allow-lists from the schemas' `privacy_class` and
-    // `privacy_classification` enums (review round 4, note 3); every other
-    // value, malformed ones included, is private.
-    const PUBLIC: [&str; 5] = ["public", "public_metadata", "public_permissive", "public_permissive_reviewed", "public_schema_only"];
-    const INVENTED_EXAMPLE: [&str; 2] = ["invented_public_example", "public_invented_example"];
-    fn rank(value: &str) -> u8 {
-        if PUBLIC.contains(&value) {
-            0
-        } else if INVENTED_EXAMPLE.contains(&value) {
-            1
-        } else {
-            2
-        }
-    }
+    reference_privacy_ranked(redistribution, privacy_values.iter().map(|value| privacy_rank(value)).fold(0, u8::max), private)
+}
+
+/// [`reference_privacy`] from the highest [`privacy_rank`] of the privacy values.
+fn reference_privacy_ranked(redistribution: &str, privacy_rank: u8, private: &'static str) -> &'static str {
     let allowed = match redistribution {
         "public_permissive" => 0,
         "invented_non_engineering_example" => 1,
         _ => 2,
     };
-    match privacy_values.iter().map(|value| rank(value)).fold(allowed, u8::max) {
+    match allowed.max(privacy_rank) {
         0 => "public_metadata",
         1 => "invented_public_example",
         _ => private,
+    }
+}
+
+/// A privacy value's rank in [`reference_privacy`]: 0 public, 1 invented
+/// example, 2 private.
+fn privacy_rank(value: &str) -> u8 {
+    // Explicit allow-lists from the schemas' `privacy_class` and
+    // `privacy_classification` enums (review round 4, note 3); every other
+    // value, malformed ones included, is private.
+    const PUBLIC: [&str; 5] = ["public", "public_metadata", "public_permissive", "public_permissive_reviewed", "public_schema_only"];
+    const INVENTED_EXAMPLE: [&str; 2] = ["invented_public_example", "public_invented_example"];
+    if PUBLIC.contains(&value) {
+        0
+    } else if INVENTED_EXAMPLE.contains(&value) {
+        1
+    } else {
+        2
     }
 }
 
@@ -255,16 +267,21 @@ fn reference_privacy(redistribution: &str, privacy_values: &[&str], private: &'s
 /// an array, an object) is recorded as the empty string, which no allow-list
 /// holds, so it counts as private (review round 5, should-fix 3).
 fn privacy_values<'a>(value: &'a Value, out: &mut Vec<&'a str>) {
+    visit_privacy_values(value, &mut |found| out.push(found));
+}
+
+/// [`privacy_values`], each given to `visit` in the same order, collecting nothing.
+fn visit_privacy_values<'a>(value: &'a Value, visit: &mut dyn FnMut(&'a str)) {
     match value {
         Value::Object(object) => {
             for (key, child) in object {
                 if key == "privacy_class" || key == "privacy_classification" {
-                    out.push(child.as_str().unwrap_or(""));
+                    visit(child.as_str().unwrap_or(""));
                 }
-                privacy_values(child, out);
+                visit_privacy_values(child, visit);
             }
         }
-        Value::Array(items) => items.iter().for_each(|item| privacy_values(item, out)),
+        Value::Array(items) => items.iter().for_each(|item| visit_privacy_values(item, visit)),
         _ => {}
     }
 }
@@ -315,7 +332,7 @@ fn blocked_record(path: &str, record: &str, what: &str, found: &[String]) -> Dia
 }
 
 /// Every string `member` at any depth of `value`.
-fn members_at_any_depth<'a>(value: &'a Value, member: &str, out: &mut Vec<&'a str>) {
+fn members_at_any_depth<'a>(value: &'a Value, member: &str, visit: &mut dyn FnMut(&'a str)) {
     match value {
         Value::Object(object) => {
             for (key, child) in object {
@@ -324,41 +341,70 @@ fn members_at_any_depth<'a>(value: &'a Value, member: &str, out: &mut Vec<&'a st
                     // number; arrays and objects are refused before) counts as
                     // the empty string, which maps to no public disposition
                     // (review round 6b).
-                    out.push(child.as_str().unwrap_or(""));
+                    visit(child.as_str().unwrap_or(""));
                 }
-                members_at_any_depth(child, member, out);
+                members_at_any_depth(child, member, visit);
             }
         }
-        Value::Array(items) => items.iter().for_each(|item| members_at_any_depth(item, member, out)),
+        Value::Array(items) => items.iter().for_each(|item| members_at_any_depth(item, member, visit)),
         _ => {}
     }
 }
 
-/// The dispositions of the objects a reference covers (review round 2,
-/// finding 4): each covered object's own (or else its provenance's) and every
-/// one at any depth beneath it, so a record is never classified by its
-/// wrapper's. Returned as (redistribution dispositions, review classifications).
-fn covered_dispositions<'a>(covered: &[&'a Map<String, Value>]) -> (Vec<&'a str>, Vec<&'static str>) {
-    let mut redistribution = Vec::new();
-    let mut review = Vec::new();
-    for object in covered {
-        redistribution.push(handoff_redistribution(own_or_provenance(object, "redistribution_status")));
-        review.push(review_classification(own_or_provenance(object, "review_status")));
-        let mut found = Vec::new();
-        let mut reviews = Vec::new();
-        for (key, child) in object.iter() {
-            match key.as_str() {
-                "redistribution_status" => found.push(child.as_str().unwrap_or("")),
-                "review_status" => reviews.push(child.as_str().unwrap_or("")),
-                _ => {}
-            }
-            members_at_any_depth(child, "redistribution_status", &mut found);
-            members_at_any_depth(child, "review_status", &mut reviews);
+/// One object a reference covers: its dispositions, and the highest
+/// [`privacy_rank`] of every privacy value it states at any depth.
+fn covered_object<'a>(object: &'a Map<String, Value>, redistribution: &mut LeastOf<'a>, review: &mut LeastOf<'a>, privacy: &mut u8) {
+    covered_dispositions(object, redistribution, review);
+    for (key, child) in object.iter() {
+        if key == "privacy_class" || key == "privacy_classification" {
+            *privacy = (*privacy).max(privacy_rank(child.as_str().unwrap_or("")));
         }
-        redistribution.extend(found.into_iter().map(|status| handoff_redistribution(Some(status))));
-        review.extend(reviews.into_iter().map(|status| review_classification(Some(status))));
+        visit_privacy_values(child, &mut |value| *privacy = (*privacy).max(privacy_rank(value)));
     }
-    (redistribution, review)
+}
+
+/// The least permissive redistribution and least settled review of a
+/// sequence, as [`least_permissive`] and [`least_reviewed`] choose them (the
+/// last of the highest rank), folded as the values arrive so nothing is
+/// collected.
+struct LeastOf<'a> {
+    order: &'static [&'static str],
+    found: Option<(usize, &'a str)>,
+}
+
+impl<'a> LeastOf<'a> {
+    fn new(order: &'static [&'static str]) -> Self {
+        Self { order, found: None }
+    }
+
+    fn add(&mut self, value: &'a str) {
+        let ranked = rank(self.order, value);
+        if self.found.is_none_or(|(best, _)| ranked >= best) {
+            self.found = Some((ranked, value));
+        }
+    }
+
+    fn least(&self) -> &'a str {
+        self.found.map_or("TBD", |(_, value)| value)
+    }
+}
+
+/// The dispositions of one object a reference covers (review round 2,
+/// finding 4): its own (or else its provenance's) and every one at any depth
+/// beneath it, so a record is never classified by its wrapper's, given to
+/// `redistribution` and `review` as they are found.
+fn covered_dispositions<'a>(object: &'a Map<String, Value>, redistribution: &mut LeastOf<'a>, review: &mut LeastOf<'a>) {
+    redistribution.add(handoff_redistribution(own_or_provenance(object, "redistribution_status")));
+    review.add(review_classification(own_or_provenance(object, "review_status")));
+    for (key, child) in object.iter() {
+        match key.as_str() {
+            "redistribution_status" => redistribution.add(handoff_redistribution(Some(child.as_str().unwrap_or("")))),
+            "review_status" => review.add(review_classification(Some(child.as_str().unwrap_or("")))),
+            _ => {}
+        }
+        members_at_any_depth(child, "redistribution_status", &mut |status| redistribution.add(handoff_redistribution(Some(status))));
+        members_at_any_depth(child, "review_status", &mut |status| review.add(review_classification(Some(status))));
+    }
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -809,14 +855,17 @@ fn collect_library_refs(value: &Value, path: &str, out: &mut Vec<LibraryReferenc
 /// (kind, id, recorded version), resolved against the local store with W-6a's
 /// identity and record-matching rules. A recorded version that differs from a
 /// matching stored record is `MODEL-LIBRARY-REF-VERSION-CHANGED` (W-13 §3.5).
-fn library_refs(document: &Value, project_id: &str, lookup: &mut LibraryLookup<'_>) -> Result<(Vec<Value>, Vec<Diagnostic>), Vec<Diagnostic>> {
+///
+/// Each stored library is shared with the screening's cache (`Rc`), never
+/// copied: the references borrow it.
+fn library_refs(document: &Value, project_id: &str, lookup: &mut SharedLibraryLookup<'_>) -> Result<(Vec<Value>, Vec<Diagnostic>), Vec<Diagnostic>> {
     let mut found = Vec::new();
     collect_library_refs(document, "", &mut found);
     let mut distinct: BTreeMap<(String, String, Option<String>), &LibraryReference> = BTreeMap::new();
     for reference in &found {
         distinct.entry((reference.kind.clone(), reference.id.clone(), reference.version.clone())).or_insert(reference);
     }
-    let mut stored_libraries: BTreeMap<(String, String), Option<Value>> = BTreeMap::new();
+    let mut stored_libraries: BTreeMap<(String, String), Option<Rc<Value>>> = BTreeMap::new();
     for reference in &found {
         let key = (reference.kind.clone(), reference.id.clone());
         if stored_libraries.contains_key(&key) {
@@ -868,47 +917,53 @@ fn library_refs(document: &Value, project_id: &str, lookup: &mut LibraryLookup<'
     }
     let mut refs = Vec::new();
     for ((kind, id, version), _) in distinct {
-        let stored = stored_libraries.get(&(kind.clone(), id.clone())).cloned().flatten();
-        let library = stored.as_ref().and_then(|stored| stored.get(format!("{kind}_library"))).and_then(Value::as_object);
+        let stored: Option<&Value> = stored_libraries.get(&(kind.clone(), id.clone())).and_then(Option::as_deref);
+        let library = stored.and_then(|stored| stored.get(format!("{kind}_library"))).and_then(Value::as_object);
         let provenance_source = library.and_then(|library| library.get("provenance")).and_then(Value::as_object);
         let metadata = json!({
             "library_kind": kind,
             "library_id": id,
             "library_version": version,
-            "document_sha256": stored.as_ref().map(|stored| sha256_hex(&canonical_json(stored)))
+            "document_sha256": stored.map(|stored| sha256_hex(&canonical_json(stored)))
         });
         // The objects the reference covers: the library wrapper and the
         // records its references name (every record, for a reference that
         // names none). Its classification is the least permissive of theirs.
-        let mut covered: Vec<&Map<String, Value>> = library.into_iter().collect();
-        if let Some(stored) = &stored {
-            for reference in found.iter().filter(|reference| reference.kind == kind && reference.id == id && reference.version == version) {
-                match &reference.record_id {
-                    Some(record_id) => covered.extend(matching_library_records(&kind, stored, record_id)),
-                    None => covered.extend(
-                        crate::library_records_key(&kind)
-                            .and_then(|(records_key, _)| stored.get(records_key))
-                            .and_then(Value::as_array)
-                            .into_iter()
-                            .flatten()
-                            .filter_map(Value::as_object),
-                    ),
+        // Each object is visited once however many references name it (the
+        // verdicts depend on neither order nor repetition: each rank is one
+        // value), and nothing is collected from the library, so what this
+        // builds is bounded by the model's distinct record ids.
+        let mut record_ids: BTreeSet<&str> = BTreeSet::new();
+        let mut every_record = false;
+        for reference in found.iter().filter(|reference| reference.kind == kind && reference.id == id && reference.version == version) {
+            match &reference.record_id {
+                Some(record_id) => {
+                    record_ids.insert(record_id.as_str());
+                }
+                None => every_record = true,
+            }
+        }
+        let mut redistributions = LeastOf::new(&REDISTRIBUTION_ORDER);
+        let mut reviews = LeastOf::new(&REVIEW_ORDER);
+        let mut privacy_ranks = 0u8;
+        let mut cover = |object| covered_object(object, &mut redistributions, &mut reviews, &mut privacy_ranks);
+        if let Some(library) = library {
+            cover(library);
+        }
+        if let Some(stored) = stored {
+            if every_record {
+                let records = crate::library_records_key(&kind).and_then(|(records_key, _)| stored.get(records_key)).and_then(Value::as_array);
+                records.into_iter().flatten().filter_map(Value::as_object).for_each(&mut cover);
+            } else {
+                for record_id in &record_ids {
+                    matching_library_records(&kind, stored, record_id).into_iter().for_each(&mut cover);
                 }
             }
         }
-        let (redistributions, reviews) = covered_dispositions(&covered);
-        let redistribution = least_permissive(redistributions);
-        let review = least_reviewed(reviews);
-        let mut privacies = Vec::new();
-        for object in &covered {
-            for (key, child) in object.iter() {
-                if key == "privacy_class" || key == "privacy_classification" {
-                    privacies.push(child.as_str().unwrap_or(""));
-                }
-                privacy_values(child, &mut privacies);
-            }
-        }
-        let privacy = reference_privacy(redistribution, &privacies, "private_library_data");
+        drop(cover);
+        let redistribution = redistributions.least();
+        let review = reviews.least();
+        let privacy = reference_privacy_ranked(redistribution, privacy_ranks, "private_library_data");
         let notice = match library {
             Some(library) => text(Some(library), "source_notice").or_else(|| text(provenance_source, "source_name")).unwrap_or("TBD").to_string(),
             None => "not held by the local library store".to_string(),
@@ -1077,10 +1132,10 @@ fn rule_pack_refs(document: &Value, project_id: &str, lookup: &mut RulePackLooku
             reviews.push(lifecycle_review_classification(text(pack_metadata, "lifecycle_status")));
             reviews.push(review_classification(text(pack_provenance, "review_status")));
             let mut found = Vec::new();
-            members_at_any_depth(pack, "redistribution_status", &mut found);
+            members_at_any_depth(pack, "redistribution_status", &mut |status| found.push(status));
             dispositions.extend(found.into_iter().map(|status| handoff_redistribution(Some(status))));
             let mut found = Vec::new();
-            members_at_any_depth(pack, "review_status", &mut found);
+            members_at_any_depth(pack, "review_status", &mut |status| found.push(status));
             reviews.extend(found.into_iter().map(|status| review_classification(Some(status))));
         }
         let redistribution = least_permissive(dispositions);
@@ -1202,7 +1257,9 @@ pub fn suggested_package_name(document: &Value) -> String {
     format!("{stem}.{}", publish::PACKAGE_EXTENSION)
 }
 
-/// The admission and every store-derived manifest part (see the module docs).
+/// The admission and every store-derived manifest part (see the module docs),
+/// with no reservation before the screening (tests).
+#[cfg(test)]
 #[allow(clippy::too_many_arguments)]
 pub fn prepare_handoff(
     canonical_text: String,
@@ -1214,19 +1271,37 @@ pub fn prepare_handoff(
     libraries: &mut LibraryLookup<'_>,
     rule_packs: &mut RulePackLookup<'_>,
 ) -> Result<PreparedHandoff, Vec<Diagnostic>> {
+    prepare_handoff_screened(canonical_text, claimed_model_hash, evidence_payload_sha256, basis_state_id, package_label, &mut |_| Ok(()), states, libraries, rule_packs)
+}
+
+/// [`prepare_handoff`], with `before_screening` given the admitted document
+/// before its screening starts (`model_document_save::admit_model_document_text_screened`).
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn prepare_handoff_screened(
+    canonical_text: String,
+    claimed_model_hash: &str,
+    evidence_payload_sha256: &str,
+    basis_state_id: &str,
+    package_label: &str,
+    before_screening: &mut dyn FnMut(&Value) -> Result<(), Vec<Diagnostic>>,
+    states: &mut StateLookup<'_>,
+    libraries: &mut LibraryLookup<'_>,
+    rule_packs: &mut RulePackLookup<'_>,
+) -> Result<PreparedHandoff, Vec<Diagnostic>> {
     let package_label = admit_label(package_label)?;
-    // One store read per library for both the screening and the references.
-    let mut cache: BTreeMap<(String, String, String), Option<Value>> = BTreeMap::new();
-    let mut cached = |project: &str, kind: &str, id: &str| -> Result<Option<Value>, String> {
+    // One store read per library for both the screening and the references,
+    // shared (never copied) between them.
+    let mut cache: BTreeMap<(String, String, String), Option<Rc<Value>>> = BTreeMap::new();
+    let mut cached = |project: &str, kind: &str, id: &str| -> Result<Option<Rc<Value>>, String> {
         let key = (project.to_string(), kind.to_string(), id.to_string());
         if let Some(found) = cache.get(&key) {
             return Ok(found.clone());
         }
-        let found = libraries(project, kind, id)?;
+        let found = libraries(project, kind, id)?.map(Rc::new);
         cache.insert(key, found.clone());
         Ok(found)
     };
-    let admitted = model_document_save::admit_model_document_text(canonical_text, claimed_model_hash, evidence_payload_sha256, &mut cached)?;
+    let admitted = model_document_save::admit_model_document_text_screened(canonical_text, claimed_model_hash, evidence_payload_sha256, before_screening, &mut cached)?;
     let document: Value = serde_json::from_str(&admitted.text).expect("the admitted text is JSON");
     let model_hex = sha256_hex(&admitted.text);
     let project_id = document.pointer("/project/id").and_then(Value::as_str).unwrap_or("").to_string();
@@ -1625,9 +1700,12 @@ pub fn write_handoff_package(destination: &Path, prepared: PreparedHandoff, crea
 /// its prescan-bounded parse each reserved before they are made) and the rule
 /// packs by the solve's resolution; then the chooser (`choose`, given the
 /// suggested package name), the basis state read again, and publication at
-/// `created_at()` through `hooks`. The store is the one at `store`. A library
-/// read the memory pool refuses refuses the save by the pool's name
-/// (`STORE-READ-MEMORY-UNAVAILABLE`) before any folder is chosen. The library
+/// `created_at()` through `hooks`. The store is the one at `store`. The
+/// screening's allocations and each library's reference metadata are reserved
+/// before they are built (`StoreLibraryReads`); the parsed libraries are shared
+/// between the screening and the references, never copied. A library read or
+/// reservation the memory pool refuses refuses the save by the pool's name
+/// (`STORE-READ-MEMORY-UNAVAILABLE`) before any folder is chosen. The
 /// reservations are held through the chooser and the publication.
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn save_handoff_admitted(
@@ -1645,7 +1723,7 @@ pub(crate) fn save_handoff_admitted(
     let memory = crate::stored_read::PoolReadMemory::new(registry, ingress);
     let open = || crate::open_project_store(&store()?).map(|(connection, _)| connection);
     let mut states = |project_id: &str, state_id: &str| stored_state(&store()?, project_id, state_id, &memory);
-    let mut libraries = StoreLibraryReads::new(&memory, open);
+    let libraries = std::cell::RefCell::new(StoreLibraryReads::new(&memory, open).with_reference_metadata());
     // The rule packs' store connection, opened on first use.
     let mut packs: Option<Connection> = None;
     let mut rule_packs = |project_id: &str, rule_pack_id: &str| -> Result<Vec<Value>, String> {
@@ -1654,16 +1732,18 @@ pub(crate) fn save_handoff_admitted(
         }
         crate::stored_rule_packs_with_id(packs.as_ref().expect("opened above"), project_id, rule_pack_id)
     };
-    let prepared = prepare_handoff(
+    let prepared = prepare_handoff_screened(
         canonical_text,
         &claimed_model_hash,
         &screening.payload_sha256,
         &basis_state_id,
         &package_label,
+        &mut |document: &Value| libraries.borrow_mut().screen_model(document),
         &mut states,
-        &mut |project_id: &str, library_kind: &str, library_id: &str| libraries.read(project_id, library_kind, library_id),
+        &mut |project_id: &str, library_kind: &str, library_id: &str| libraries.borrow_mut().read(project_id, library_kind, library_id),
         &mut rule_packs,
     );
+    let mut libraries = libraries.into_inner();
     if let Some(diagnostics) = libraries.refusal() {
         return HandoffSaveOutcome::Refused { diagnostics };
     }
@@ -1682,6 +1762,8 @@ pub(crate) fn save_handoff_admitted(
     }
     let outcome = write_handoff_package(&destination, prepared, &created_at(), hooks);
     drop(libraries);
+    #[cfg(test)]
+    crate::stored_model_document_export::library_read_probe::record_save_peak(memory.peak_reserved());
     outcome
 }
 
@@ -1944,6 +2026,46 @@ mod tests {
         let prepared = prepare_unmetered(&store, &model, &state_id).unwrap();
         assert!(matches!(write_handoff_package(&before, prepared, CREATED_AT, &PRODUCTION_HOOKS), HandoffSaveOutcome::Saved { .. }));
         assert_eq!(package_bytes(&destination), package_bytes(&before), "the metered save writes the bytes the unmetered lookup wrote");
+    }
+
+    /// #1641 Codex r1 P2: the handoff copied each library twice more (its
+    /// cache and its references), unreserved (a 3.2 MB library peaked at 65.8 MB
+    /// against 44.3 MB reserved). The parsed library is now shared, and the
+    /// whole save's measured peak (admission, screening, references, metadata,
+    /// the basis state's reads and the publication) is within the most its
+    /// memory held at once, the ingress lease included, for a library of
+    /// 1,024 records (about 3 MB) whose every record the model references.
+    #[test]
+    fn the_whole_handoff_is_within_its_reservations_for_a_large_library() {
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+        let library = crate::stored_model_document_export::library_read_probe::large_material_library(1024);
+        let text = serde_json::to_string(&library).unwrap();
+        let (store, mut model, _) = library_store("large-library", Some(&text));
+        // Two references: the record `steel`, and the whole library (no record id).
+        let mut whole = model["materials"][0].clone();
+        whole["id"] = json!("material:invented-whole-library");
+        whole["provenance_record"]["library_ref"].as_object_mut().unwrap().remove("record_id");
+        model["materials"].as_array_mut().unwrap().push(whole);
+        let state_id = save_state(&store, &model, "handoff_basis", "fedcba9876543210fedcba9876543210").state.state_id;
+        let pool = registry(ScriptedHost::normal());
+        let (request, lease) = admitted_request(&pool, &model, &state_id);
+        let destination = store.root.join("large.swbhandoff");
+        let shown = std::cell::Cell::new(None);
+        crate::stored_model_document_export::library_read_probe::take_save_peaks();
+        let (outcome, measured) = crate::ingress::counting::measure(|| save_at(&store, &pool, request, &lease, &destination, &shown));
+        assert!(matches!(outcome, HandoffSaveOutcome::Saved { .. }), "{outcome:?}");
+        let reserved = *crate::stored_model_document_export::library_read_probe::take_save_peaks().last().expect("the save recorded its peak");
+        eprintln!("SAVE_HANDOFF_LARGE library_bytes={} lease={} reserved_peak={reserved} measured_peak={}", text.len(), lease.bytes(), measured.peak_priced);
+        assert!(text.len() > 3_000_000);
+        assert!(measured.peak_priced <= reserved, "the handoff's measured peak {} exceeds its reservations {reserved}", measured.peak_priced);
+        drop(lease);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+        // The same package as the unmetered lookup's.
+        let before = store.root.join("unmetered");
+        fs::create_dir_all(&before).unwrap();
+        let before = before.join("large.swbhandoff");
+        assert!(matches!(write_handoff_package(&before, prepare_unmetered(&store, &model, &state_id).unwrap(), CREATED_AT, &PRODUCTION_HOOKS), HandoffSaveOutcome::Saved { .. }));
+        assert_eq!(package_bytes(&destination), package_bytes(&before));
     }
 
     /// A library read the memory pool refuses ends the save by the pool's name
@@ -3539,7 +3661,7 @@ fn round4_every_library_kind_propagates_nested_private_values() {
                 fn public(v:&mut Value) { match v { Value::Object(m)=>for (k,v) in m {if k=="redistribution_status"{*v=json!("public_permissive")}else{public(v)}},Value::Array(a)=>for v in a{public(v)},_=>{}} }
                 public(&mut lib);
                 lib[format!("{kind}_library")]["extra_privacy"]=json!({"array":[[{key:private}]]});
-                let mut lookup=|_:&str,_:&str,_:&str|Ok(Some(lib.clone()));
+                let mut lookup=|_:&str,_:&str,_:&str|Ok(Some(Rc::new(lib.clone())));
                 let (refs,_)=library_refs(&model,"project:slots",&mut lookup).unwrap();
                 assert_eq!(refs.len(),1,"{kind}");
                 assert_eq!(refs[0]["privacy_classification"],json!("private_library_data"),"{kind}:{key}:{private}");
@@ -3899,7 +4021,7 @@ fn round5_nonstring_privacy_classifications_are_not_public() {
         let saved = crate::save_local_library_value(|| Ok(store.path.clone()), "project:slots".to_string(), "material".to_string(), lib.clone()).unwrap();
         assert!(saved.stored, "normal private import refused {value}: {}", saved.message);
         let row = crate::load_library(&Connection::open(&store.path).unwrap(), "project:slots", "material", &saved.library_id).unwrap().unwrap();
-        let mut lookup = |_: &str, _: &str, _: &str| Ok(Some(row.document.clone()));
+        let mut lookup = |_: &str, _: &str, _: &str| Ok(Some(Rc::new(row.document.clone())));
         // Since review round 6 (note 4) the save refuses such a document as
         // malformed; the classifier itself still counts the value as private.
         match library_refs(&model, "project:slots", &mut lookup) {
