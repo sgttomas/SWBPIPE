@@ -685,7 +685,8 @@ describe("project handlers: a landed write records snapshot verification even wh
 
   // Correction C2. A blank create writes a new project id, never the open
   // project's stored bytes, so its dropped response leaves the open project's
-  // open-time record valid and in place.
+  // open-time record valid and in place. The supersession is named with the
+  // stored blank and its recovery route (W-17 #1640, Agent 0); nothing is deleted.
   it("keeps both recorded mismatches when a model edit drops a pending blank create's response", async () => {
     const model = await loadPreviewModel();
     render(<App />);
@@ -719,8 +720,15 @@ describe("project handlers: a landed write records snapshot verification even wh
       await pendingCreate.promise;
     });
     await flushPendingWork();
-    // The blank create's response was dropped: its message never publishes.
-    expect(projectMessage()).toHaveTextContent(envelope.summary.message);
+    // The blank create's response was dropped: it is not opened, and the status
+    // line names the stored blank and how to reach it. Only the create reached
+    // the store, so the stored blank is kept.
+    const storedBlank = (createRequest!.model as PreviewModel).project;
+    expect(projectMessage()).toHaveTextContent(
+      `NEW-BLANK-SUPERSEDED: the new blank project "${storedBlank.name}" (${storedBlank.id}) was created but not opened, because the model changed while it was being created. This session keeps the changed model. The blank is stored locally: open it from List Local Projects.`);
+    const commands = invokeMock.mock.calls.map(([command]) => String(command));
+    const afterCreate = commands.slice(commands.indexOf("create_local_project") + 1);
+    expect(afterCreate.filter((command) => /create|save|delete|remove|replace/.test(command))).toEqual([]);
     expect(modelHashLine()).toHaveTextContent("integrity=mismatch_review_required");
     expect(envelopeHashLine()).toHaveTextContent("integrity=mismatch_review_required");
     expect(workspace).toHaveAttribute("data-stage", "loads");
@@ -736,6 +744,67 @@ describe("project handlers: a landed write records snapshot verification even wh
     expect(reviewValue("node:N-100-y")).toBe("0.5");
     fireEvent.click(screen.getByTestId("layout-mode-tree"));
     expect(screen.getByTestId(`tree-row-project-${encodeURIComponent(envelope.model.project.id)}`)).toBeInTheDocument();
+  });
+
+  // W-17 #1640. Only a change to the model or project on screen supersedes a
+  // pending blank: selecting an entity or typing into an unapplied form does not.
+  async function pendingBlankCreate() {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const envelope = await openProjectWithRecordedMismatch(model);
+    const pendingCreate = deferred<LocalProjectEnvelope>();
+    let createRequest: Record<string, unknown> | undefined;
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+      if (command === "create_local_project") {
+        createRequest = args;
+        return pendingCreate.promise;
+      }
+      return Promise.reject(new Error(`Unexpected command ${command}`));
+    });
+    act(() => nativeMenuCommand("file.new-blank"));
+    confirmProjectUnits();
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("create_local_project", expect.any(Object)));
+    const land = async () => {
+      const blank = createRequest!.model as PreviewModel;
+      await act(async () => {
+        pendingCreate.resolve(savedEnvelopeFor(blank, createRequest!, "Created invented blank."));
+        await pendingCreate.promise;
+      });
+      await flushPendingWork();
+      return blank;
+    };
+    return { envelope, land };
+  }
+
+  function expectBlankInstalled(blank: PreviewModel, previousId: string) {
+    expect(projectMessage()).toHaveTextContent("Created blank local model document without fixture entities or external file copies.");
+    fireEvent.click(screen.getByTestId("layout-mode-tree"));
+    const row = screen.getByTestId(`tree-row-project-${encodeURIComponent(blank.project.id)}`);
+    // A clean install selects the new project.
+    expect(row).toHaveAttribute("aria-selected", "true");
+    expect(screen.queryByTestId(`tree-row-project-${encodeURIComponent(previousId)}`)).not.toBeInTheDocument();
+    expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent(blank.project.name);
+  }
+
+  it("installs a pending blank when an existing node is selected before the create returns", async () => {
+    const { envelope, land } = await pendingBlankCreate();
+    fireEvent.click(screen.getByTestId("layout-mode-tree"));
+    fireEvent.click(screen.getByTestId(`tree-row-node-${encodeURIComponent("node:N-100")}`));
+    expect(screen.getByTestId(`tree-row-node-${encodeURIComponent("node:N-100")}`)).toHaveAttribute("aria-selected", "true");
+    const blank = await land();
+    expectBlankInstalled(blank, envelope.model.project.id);
+  });
+
+  it("installs a pending blank when a node id is typed into an unapplied form before the create returns", async () => {
+    const { envelope, land } = await pendingBlankCreate();
+    fireEvent.click(screen.getByTestId("command-node"));
+    fireEvent.change(screen.getByTestId("viewport-create-node-id"), { target: { value: "node:W4-A" } });
+    expect(screen.getByTestId("viewport-create-node-id")).toHaveValue("node:W4-A");
+    const blank = await land();
+    expectBlankInstalled(blank, envelope.model.project.id);
+    // The typed draft was never applied: the blank holds no node.
+    expect(screen.queryByTestId(`tree-row-node-${encodeURIComponent("node:W4-A")}`)).not.toBeInTheDocument();
   });
 });
 

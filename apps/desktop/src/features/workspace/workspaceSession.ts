@@ -707,7 +707,14 @@ export function useWorkspaceSession() {
   }, [result]);
   useEffect(() => () => { void disposeDeliveredMechanicsResult(heldResultRef.current); }, []);
 
+  // Advanced by every commit of the session's model (applied operations, undo/redo,
+  // opens and creates), and by nothing else. A pending New Blank checks it rather
+  // than the request epoch, which selection and draft invalidation also advance:
+  // only a change to the model or project on screen supersedes the blank.
+  const modelCommitEpochRef = useRef(0);
+
   function commitModel(nextModel: PreviewModel, directDraftToken: string | null = null) {
+    modelCommitEpochRef.current += 1;
     referencePersistence.current = null;
     modelHashOwner.current = null;
     viewportViewCommandRef.current?.({ type: "retire-box-gesture" });
@@ -1880,6 +1887,11 @@ export function useWorkspaceSession() {
   }
 
   const SAVE_AS_NEW_SUPERSEDED = "Not saved: the session changed while the replace prompt was open; nothing was written.";
+  /** A New Blank whose create landed after the model on screen changed is stored but
+   * not opened; the session keeps the changed model and the stored blank is kept. */
+  const NEW_BLANK_SUPERSEDED = "NEW-BLANK-SUPERSEDED";
+  const newBlankSupersededMessage = (stored: PreviewModel["project"]) =>
+    `${NEW_BLANK_SUPERSEDED}: the new blank project "${stored.name}" (${stored.id}) was created but not opened, because the model changed while it was being created. This session keeps the changed model. The blank is stored locally: open it from List Local Projects.`;
 
   async function handleCreateProject() {
     return createProject(null);
@@ -2091,8 +2103,16 @@ export function useWorkspaceSession() {
     const owner = acquireProjectOperation();
     if (!owner) return;
     const request = ++projectRequest.current;
-    let epoch = requestEpochRef.current;
-    const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
+    let modelEpoch = modelCommitEpochRef.current;
+    const stillCurrent = () => request === projectRequest.current && modelEpoch === modelCommitEpochRef.current;
+    // A landed create superseded by a model change (not by another project
+    // operation, which owns the status line) is named, never dropped silently.
+    // `stored` is the project the create wrote (after any PROJECT-ID-EXISTS suffix).
+    const superseded = (stored: PreviewModel["project"]) => {
+      if (request !== projectRequest.current) return;
+      setProjectMessage(newBlankSupersededMessage(stored));
+      setProjectOperation("create_blank_superseded");
+    };
     try {
       let blankModel = buildBlankModel();
       const blankId = blankModel.project.id;
@@ -2120,7 +2140,7 @@ export function useWorkspaceSession() {
           blankModel = { ...blankModel, project: { ...blankModel.project, id: `${blankId}-${attempt}` } };
         }
       }
-      if (!stillCurrent()) return;
+      if (!stillCurrent()) { superseded(blankModel.project); return; }
       const returnedHash = await computeModelHash(created.model);
       const returnedEnvelopeHash = await computeProjectEnvelopeHash({
         model: created.model, editor_intents: created.editor_intents,
@@ -2128,7 +2148,7 @@ export function useWorkspaceSession() {
         mechanics_result: created.mechanics_result, analysis_run: created.analysis_run,
         model_hash: created.model_hash
       });
-      if (!stillCurrent()) return;
+      if (!stillCurrent()) { superseded(blankModel.project); return; }
       const verifiedBlankResponse = Boolean(blankModelHash && returnedHash &&
         created.model.project.id === blankModel.project.id &&
         created.summary.project_id === blankModel.project.id &&
@@ -2165,7 +2185,7 @@ export function useWorkspaceSession() {
       recordStoredBase(created);
       if (verifiedBlankResponse) setSavedModelBasis({ generation: projectSessionGenerationRef.current, revision: uiModelRevisionRef.current, hash: returnedHash!.value, source: "create" });
       setSelection(defaultSelection(created.model));
-      epoch = requestEpochRef.current;
+      modelEpoch = modelCommitEpochRef.current;
       setUndoStack([]);
       setRedoStack([]);
       setAppliedOperations([]);
