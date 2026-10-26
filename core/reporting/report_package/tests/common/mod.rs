@@ -93,6 +93,8 @@ pub fn fixture_report_input() -> RenderableReportInput {
         }],
         report_context: None,
         user_rule_checks: None,
+        exact_route: None,
+        library_references: None,
     }
 }
 
