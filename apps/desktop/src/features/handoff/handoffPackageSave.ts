@@ -22,6 +22,7 @@ import { invokeWithIngress, nativeFailureText } from "../../services/nativeIngre
 import { isTauriRuntime } from "../../services/nativeMenu";
 import type { ModelStateSummary } from "../../services/modelStateService";
 import type { ModelDocumentSaveArgs, ModelFileDiagnostic } from "../model-file/modelDocumentSave";
+import { listedItems } from "../model-file/diagnosticList";
 
 export const HANDOFF_PACKAGE_ROUTE_ID = "DOTH-HANDOFF-PACKAGE-008";
 export const HANDOFF_SAVE_INTENT_LABEL =
@@ -124,9 +125,7 @@ export async function saveHandoffPackage(args: HandoffSaveArgs): Promise<Handoff
 }
 
 function listed(diagnostics: ReadonlyArray<ModelFileDiagnostic>, limit: number, withMessage: boolean): string {
-  const shown = diagnostics.slice(0, limit).map((item) => `${item.code}${item.path ? ` at ${item.path}` : ""}${withMessage ? `: ${item.message}` : ""}`);
-  const more = diagnostics.length > shown.length ? ` (+${diagnostics.length - shown.length} more)` : "";
-  return `${shown.join(" | ")}${more}`;
+  return listedItems(diagnostics, limit, withMessage);
 }
 
 export function handoffSaveRefusalMessage(diagnostics: ReadonlyArray<ModelFileDiagnostic>): string {

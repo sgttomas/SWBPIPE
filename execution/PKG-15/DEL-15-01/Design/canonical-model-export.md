@@ -167,7 +167,10 @@ on either route. It needs no solve and no result.
     diagnostics and the first. A response names at most the first 64
     diagnostics or warnings, in order, with paths and messages cut at 2 KiB,
     then one `SAVE-DIAGNOSTICS-NOT-SHOWN` counting the rest, so it is at most
-    1,636,642 bytes (the desktop's status line shows the first eight);
+    1,636,642 bytes. (The short outcome's one message quotes each text at up
+    to 1,024 characters, so it can pass 2 KiB, within the same bound.) The
+    desktop's status line shows the first eight and counts the remainder,
+    including those the summary counts;
   - the screening evidence carries the payload's sha256, and Rust refuses
     `MODEL-DOC-SAVE-EVIDENCE-UNBOUND` unless it equals the admitted text's.
 - **F-PIP-1.** No network and no telemetry. The default path is the user's
