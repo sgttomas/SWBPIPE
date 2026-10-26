@@ -47,10 +47,11 @@ const corpus = readRetainedPrecisionCorpus();
 const MODES = ["sparse_interactive", "dense_scrutiny"] as const;
 
 /** Current B7a goldens from the maintained I76 recipe and its fixed base/origin stand-ins. W-7: the
- * member's 12 global end rows (113 -> 125) move the received carrier checksum in the origin. */
+ * member's 12 global end rows (113 -> 125) move the received carrier checksum in the origin; W-16 slice a's
+ * shorter preview LIMITATIONS[1] moves it again. */
 const GOLDEN: Record<PreviewSolverMode, { path: string; sha256: string; base: string; origin: string; rows: number; nonQuantity: number }> = {
-  sparse_interactive: { path: "fixtures/results/retained_precision_successor_derivative_sparse_interactive.json", sha256: "79d492da2ed150568f705c5ed6ad11e609dabfad1783a4101066bacf2dca4bb5", base: "989d81cc1067e6ebe73eb15e0bd83cc851d2d66784a28af5296d47afc6d582ec", origin: "dbe821b672e9dde827d1ae8e890ca62d7b4050678fc19a859b0c87388c48cd0d", rows: 125, nonQuantity: 1 },
-  dense_scrutiny: { path: "fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json", sha256: "c456915ab647ce0eb50c386db0fffe4318e3cee7c653404718cb9efd5e0ac6dd", base: "2e95fac829e079a7415d6dec0b9d57d890103f8cfe2a79bd1bc2a7721a28344b", origin: "be3d99d3f728a73a33f5066421931c9a7da66535c35b4e021e62c0da33e48c2e", rows: 125, nonQuantity: 1 },
+  sparse_interactive: { path: "fixtures/results/retained_precision_successor_derivative_sparse_interactive.json", sha256: "ee497bffc6fab092da57ac43010ad579f7eaf40232b570acfc7a57f6efa54a39", base: "989d81cc1067e6ebe73eb15e0bd83cc851d2d66784a28af5296d47afc6d582ec", origin: "613a2c77bb2491c926bad3d75ca4ff4d90ff65f3e5d29f8c897d65450f87b332", rows: 125, nonQuantity: 1 },
+  dense_scrutiny: { path: "fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json", sha256: "4d362dd6a3b64b96516f277b3a931cc5a3332ce977dbf93d5a64b8f89f5ea792", base: "2e95fac829e079a7415d6dec0b9d57d890103f8cfe2a79bd1bc2a7721a28344b", origin: "e0ab967e47b45cd13896fec34804058fd620ec3520dcfe019a05b647552a9fa5", rows: 125, nonQuantity: 1 },
 };
 /** I76's fixed stand-ins (its CHECKPOINT_1 section 2): test values, not a qualified manifest or build. */
 const MANIFEST_REF = "test:t6s-golden-reference-only-manifest";

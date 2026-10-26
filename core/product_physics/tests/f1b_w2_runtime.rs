@@ -1234,8 +1234,9 @@ fn f1b_w2_nonlinear_formation_range_invocation_is_mains_blocked_envelope() {
                 // recovers caa8d5be..., exactly. The item-6 repair then states the
                 // sentence's true gate (the formation check's member bound; was
                 // fc935fbf...), then its SI rounding and unit conversion (was
-                // c9c78c41...).
-                "6d6cd4217c53c543deb43023c8f8be1f0e9970f1af378e0dbe3472eeb5e0310c",
+                // c9c78c41...). W-16 slice a: LIMITATIONS[1] drops its clause on
+                // support displacement (was 6d6cd421...).
+                "80fac2621a81ea0e3934df38250dfad9eed733a16001e1a6581453a7c6f6a9f9",
                 "{ctx}"
             );
         }

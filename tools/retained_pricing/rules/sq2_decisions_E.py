@@ -86,6 +86,17 @@ if B7B_EXACT_BASE:
                               "B7b-LR (route E): " + LOAD_STATE_OFF + "; the producer adds contract_evidence.load_reference_states only "
                               "under is_load_state and RS project() copies contract_evidence, so the successor has none and "
                               "validate_pressure_evidence takes its physics arm (validate_physics_evidence_in(.., false, PressureV3))")]
+# W16-NS (route E; retained-pricing-rules.md §8.23): imposed_motion::validate takes its pressure-free branch only when
+# pressure_runtime::is_exact is false; route E is the exact branch (EXACT), so validate_pressure_free never runs there.
+_W16_IM = "core/product_physics/src/imposed_motion.rs"
+if os.path.exists(os.path.join(os.environ["SQ2_SNAP"], _W16_IM)):
+    _w16_validate = open(os.path.join(os.environ["SQ2_SNAP"], _W16_IM), encoding="utf-8").read()
+    if _w16_validate.count("    if pressure_runtime::is_exact(model) {\n") != 1 or _w16_validate.count(
+            "    } else {\n        validate_pressure_free(model, &mut found);\n    }\n") != 1:
+        raise SystemExit("W16-NS (route E): imposed_motion::validate's exact/pressure-free branch changed; re-review")
+    EDGE_ZERO = EDGE_ZERO + [(rs("validate", f=_W16_IM), rs("validate_pressure_free", f=_W16_IM),
+                              "W16-NS (route E): " + EXACT + "; imposed_motion::validate takes the pressure-free branch only "
+                              "when is_exact is false")]
 FN_ZERO = [
     ("source_receipt.rs:152:captured_load_state_case", "the load-state replay; " + LOAD_STATE_OFF),
     ("source_receipt.rs:197:check_load_state_input", "the load-state replay; " + LOAD_STATE_OFF),
@@ -148,8 +159,8 @@ if U6_D5:
     # (a source-recovery publication); route E's ordinary pressure-2 envelope carries them on every run, twelve per
     # member and case, so route E's P_final and R0 take 102 + 12 = 114 rows per member. Guard: the rule and the producer
     # call are read at the snapshot (w7_owners_model).
-    _W7 = runpy.run_path(os.path.join(os.path.dirname(H), "base", "w7_owners_model.py"))
-    if _W7["inspect"](os.environ["SQ2_SNAP"]):
+    _w7 = runpy.run_path(os.path.join(os.path.dirname(H), "base", "w7_owners_model.py"))
+    if _w7["inspect"](os.environ["SQ2_SNAP"]):
         _lib = open(os.path.join(os.environ["SQ2_SNAP"], "core/product_physics/src/lib.rs"), encoding="utf-8").read()
         if (_lib.count("fn global_end_rows_published(source_selected: bool) -> bool {\n    !source_selected\n}") != 1
                 or _lib.count("if global_end_rows_published(selected_source.is_some()) && !has_blocking(diagnostics) {") != 1):
@@ -218,10 +229,10 @@ ID_AUDIT = ID_AUDIT + [
     (PM_ + "146", {"id": IN}), (PM_ + "205", {"a.unit": IN}), (PM_ + "212", {"p0.id": IN, "p1.id": IN}), (PM_ + "248", {"material.id": IN}),
 ]
 # C8: source-bound IN128 metadata survives; only owned syntax allocates.
-_C8_MODEL = runpy.run_path(os.path.join(H, "..", "base", "member_comparison_model.py"))
-C8_MEMBER_STATE = _C8_MODEL["inspect"](os.environ["SQ2_SNAP"])
-C8_INPUT_METADATA = [(Resolved(C8_MEMBER_STATE["site"]), {"member.member_id": IN})]
-if not C8_MEMBER_STATE["borrowed"]:
+_c8_model = runpy.run_path(os.path.join(H, "..", "base", "member_comparison_model.py"))
+_c8_member_state = _c8_model["inspect"](os.environ["SQ2_SNAP"])
+C8_INPUT_METADATA = [(Resolved(_c8_member_state["site"]), {"member.member_id": IN})]
+if not _c8_member_state["borrowed"]:
     ID_AUDIT = ID_AUDIT + C8_INPUT_METADATA
 
 ID_AUDIT_WHY_E = ("SQ2 G5 route E (RR I95 ruling 5: the 32 newly reached identifier placeholders of b3s_open_items.out.json, at c3cf970ad3 lines): "

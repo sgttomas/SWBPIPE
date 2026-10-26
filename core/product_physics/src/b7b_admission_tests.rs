@@ -361,10 +361,8 @@ fn b7b_early_raw_group_selector_keeps_request_material_authored_presence() {
             "dimension": "length", "magnitude": {"value": 0.0, "unit": "m"},
             "target": {"type": "support", "support": "support:b7b"}
         }]);
-        assert!(preview_physics::imposed_displacement_refusal(&request).is_none(),
-            "request-owned group presence reaches the shared parser before semantic validation");
-        // The closed target DTO still refuses this malformed support primitive;
-        // group selection never manufactures an accepted target variant.
+        // The closed target DTO refuses this malformed support primitive (it has no
+        // `dof`); group selection never manufactures an accepted target variant.
         assert_decode_refused(request);
     }
 }

@@ -55,7 +55,8 @@ pub use crate::export_disposition_screen::DispositionDiagnostic as ModelDocument
 pub use crate::export_disposition_screen::{LibraryLookup, PROTECTED_CONTENT_BLOCKED};
 #[cfg(test)]
 pub use crate::export_disposition_screen::LIBRARY_REF_UNRESOLVED;
-use crate::export_disposition_screen::{diagnostic, screen_dispositions_in, PathStyle};
+use crate::export_disposition_screen::{diagnostic, screen_dispositions_with, PathStyle};
+pub(crate) use crate::export_disposition_screen::StoredMembers;
 use open_pipe_stress_operation_applier::{canonical_json, sha256_hex};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -214,12 +215,24 @@ pub struct AdmittedModelDocument {
 
 /// Native disposition screening of the exact admitted document (review repair
 /// 1b/1c), by the shared store-resolved screen (`export_disposition_screen`).
+/// A stored disposition member the verdict cannot read is refused by name
+/// ([`StoredMembers::Refuse`]); Save Handoff, which screens each stored
+/// library structurally itself, uses [`screen_model_document_dispositions_with`].
 pub fn screen_model_document_dispositions<V: std::borrow::Borrow<Value>>(
     document: &Value,
     lookup: &mut dyn FnMut(&str, &str, &str) -> Result<Option<V>, String>,
 ) -> Result<Vec<ModelDocumentSaveDiagnostic>, Vec<ModelDocumentSaveDiagnostic>> {
+    screen_model_document_dispositions_with(document, StoredMembers::Refuse, lookup)
+}
+
+/// [`screen_model_document_dispositions`] with the caller's [`StoredMembers`] policy.
+pub(crate) fn screen_model_document_dispositions_with<V: std::borrow::Borrow<Value>>(
+    document: &Value,
+    stored_members: StoredMembers,
+    lookup: &mut dyn FnMut(&str, &str, &str) -> Result<Option<V>, String>,
+) -> Result<Vec<ModelDocumentSaveDiagnostic>, Vec<ModelDocumentSaveDiagnostic>> {
     let project_id = document.pointer("/project/id").and_then(Value::as_str).unwrap_or("");
-    screen_dispositions_in(document, "", PathStyle::Dotted, project_id, LIBRARY_STORE_UNAVAILABLE, lookup)
+    screen_dispositions_with(document, "", PathStyle::Dotted, project_id, LIBRARY_STORE_UNAVAILABLE, stored_members, lookup)
 }
 
 fn claimed_hex(claimed: &str) -> Option<&str> {
@@ -248,6 +261,19 @@ pub fn admit_model_document_text_screened<V: std::borrow::Borrow<Value>>(
     claimed_model_hash: &str,
     evidence_payload_sha256: &str,
     before_screening: &mut dyn FnMut(&Value) -> Result<(), Vec<ModelDocumentSaveDiagnostic>>,
+    lookup: &mut dyn FnMut(&str, &str, &str) -> Result<Option<V>, String>,
+) -> Result<AdmittedModelDocument, Vec<ModelDocumentSaveDiagnostic>> {
+    admit_model_document_text_screened_with(canonical_text, claimed_model_hash, evidence_payload_sha256, before_screening, StoredMembers::Refuse, lookup)
+}
+
+/// [`admit_model_document_text_screened`] with the caller's [`StoredMembers`]
+/// policy (Save Handoff: [`StoredMembers::Structural`]).
+pub(crate) fn admit_model_document_text_screened_with<V: std::borrow::Borrow<Value>>(
+    canonical_text: String,
+    claimed_model_hash: &str,
+    evidence_payload_sha256: &str,
+    before_screening: &mut dyn FnMut(&Value) -> Result<(), Vec<ModelDocumentSaveDiagnostic>>,
+    stored_members: StoredMembers,
     lookup: &mut dyn FnMut(&str, &str, &str) -> Result<Option<V>, String>,
 ) -> Result<AdmittedModelDocument, Vec<ModelDocumentSaveDiagnostic>> {
     let byte_count = canonical_text.len() as u64;
@@ -308,7 +334,7 @@ pub fn admit_model_document_text_screened<V: std::borrow::Borrow<Value>>(
         return Err(shape.into_iter().map(|item| diagnostic(MODEL_FILE_SHAPE, &item.path, item.message)).collect());
     }
     before_screening(&document)?;
-    let warnings = screen_model_document_dispositions(&document, lookup)?;
+    let warnings = screen_model_document_dispositions_with(&document, stored_members, lookup)?;
     drop(document);
     Ok(AdmittedModelDocument { text: canonical_text, suggested_file_name, warnings })
 }

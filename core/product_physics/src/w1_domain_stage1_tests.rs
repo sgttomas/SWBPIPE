@@ -951,15 +951,18 @@ fn work_masked_sha256(source:&Value)->String {
 /// each member's twelve not-covered global end rows per case to all eight documents, with the figures
 /// they move (the proof's row capacity, prepared capacity bytes and visits, the adapter counters, the
 /// later rows' projection positions) and the hashes binding them; no pre-W-7 row, class or status moved.
+/// All eight then take W-16 slice a's shorter preview-physics `LIMITATIONS[1]` (the clause on support
+/// displacement dropped; DEL-04-03 Design `pf-imposed-displacement.md` §4) and the ordinary
+/// publication hash binding it; no number moved.
 const PRE_REPAIR_WORK_MASKED:[(&str,&str);8]=[
-    ("w1_member_load_sparse_interactive","9fe8f34a1a092973bdb482f2ba68ce13faca88908eed5256d7f6942c9d8ed67f"),
-    ("w1_member_load_dense_scrutiny","e3a876d7443f5d537bb8484c4ec7b884095837f2fdb36ed446c3bb21130789ad"),
-    ("w1_member_values_failure_sparse_interactive","dbb52d431f2aa98515cb0c3e946c5bd00167fb0cd9a9ed5b4371a79b59fffc51"),
-    ("w1_member_values_failure_dense_scrutiny","e8e0a0ad17ea8195c4455b68a9397765d20d2ac50848aedfdfb6a538d5d15d6e"),
-    ("w1_member_multi_sparse_interactive","ac429de965114d1bcac0e2c89fa75ddb1f72795df17d315b7c56e12992d0ed44"),
-    ("w1_member_multi_dense_scrutiny","616d2aa5e448e6d0309a1d4c76ccda8095ad4140a7a74199a27ea377425db442"),
-    ("w1_member_combination_sparse_interactive","d049d9643d2fbd33b30b84dc3d52cc09d3445e26e9d04cd5fdce6aaeaace35a3"),
-    ("w1_member_combination_dense_scrutiny","e53469fbb12ce5d6ecf51177169fbbd69c56c2fb6a6e87977cddda2e6d43c67b"),
+    ("w1_member_load_sparse_interactive","6270a4c388800f29c78e0ab34237af7564cb179c6af92da86feac73a25c0a366"),
+    ("w1_member_load_dense_scrutiny","5eb3ba4c64ba8b1fb31a33ab011bed5ff971c50a2497fc25064b63b1faecc06b"),
+    ("w1_member_values_failure_sparse_interactive","ccaba08587e5ed87865ec2e23b02758989b3fab96a29868afbc3b3c7e9e4fb17"),
+    ("w1_member_values_failure_dense_scrutiny","c662c18ee20d39ced276a0d1b17d7524d3602ed6760d07ea74878994e867bacb"),
+    ("w1_member_multi_sparse_interactive","4394f8b0d983e142afefe0ab2a43e1acdfbd4202e034a10b948c2b3dbec22307"),
+    ("w1_member_multi_dense_scrutiny","bf02ddf278d92eac9488a18047a23a3aa1f2d10c55190e09ae4d2da4ee1235fa"),
+    ("w1_member_combination_sparse_interactive","f01e2015466dd590776e5a2cedd12faa279784a5d9fe5598085eabd07933a763"),
+    ("w1_member_combination_dense_scrutiny","4bf8b91fec59d05d2143f250833d925f3ef7cae4971fa6c059b315ad7d54f155"),
 ];
 /// W1 coverage repair §1.4 and §5: the committed loaded members on the D = 0.2 m
 /// interval-hull section that converged before the repair (axial loads, so the bending

@@ -66,9 +66,10 @@ component's branch stress factors are still applied to the named pipes".
   its topology text only, so it appears in every envelope that validation
   reaches, including those refused at or after validation. A request refused
   before validation carries no validation diagnostics, and so no topology
-  finding: on the preview route, a support with an imposed displacement is
-  refused first (`IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL`,
-  `preview_physics.rs`), a shortcut older than these checks.
+  finding: the named imposed-displacement refusals (`IMPOSED_DISPLACEMENT_*`
+  and, on the exact route, `EXACT_IMPOSED_DISPLACEMENT_PRIMITIVE_UNSUPPORTED`;
+  `imposed_motion.rs`, W-16 slice a) run ahead of validation and withhold the
+  document without it.
   `validation::state_applied_branch_factors` adds the statement once, where
   `run_linear_static_preview_observed_inner` assembles the solved preview
   envelope, after the non-finite check, which is the last refusal on the

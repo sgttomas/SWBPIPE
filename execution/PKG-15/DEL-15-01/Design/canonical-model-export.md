@@ -149,6 +149,70 @@ on either route. It needs no solve and no result.
     library or record the store does not hold saves with a
     `MODEL-LIBRARY-REF-UNRESOLVED` warning; the entity's own record is still
     screened;
+  - a screened record the verdict cannot read is refused by name,
+    `MODEL-DISPOSITION-RECORD-MALFORMED` (W-17 object form, after #1650's
+    finding that a record written as a JSON array, its positional form, passed
+    keyed screens). Until `e2f9677175` the walk skipped such a record. The
+    refusal covers, in the model document: a `provenance_record`,
+    `rule_pack_refs[]` entry or `library_ref` that is not an object; a
+    `rule_pack_refs` that is not a list; and a record whose own or provenance
+    `redistribution_status` or `review_status` is an array or an object, or
+    whose `provenance` is an array. In a referenced stored library, it covers
+    a library object that is not an object, and, in the library object or a
+    matching record, a positional `provenance` the verdict judges. The callers
+    choose how other stored members are treated (`StoredMembers`, #1651 Codex
+    r1):
+    - Save Model Document, the stored-model recovery export (DEL-02-02
+      `project-unit-selection.md` §3) and the report package's model use
+      `Refuse`. A `redistribution_status` or `review_status` that is an array
+      or an object, or a `provenance` that is an array, anywhere in the
+      library object or a matching record is refused by name. The ordinary
+      private-library writer (`save_local_library_value`) stores such
+      members as `PRIVATE_LOCAL_ONLY`, so this is reachable without a hand
+      edit.
+    - Save Handoff uses `Structural`. The shared screen still refuses, as
+      `MODEL-DISPOSITION-RECORD-MALFORMED`, a positional `provenance` that
+      its verdict judges: on the library object or a matching record, or on
+      any judged hanger object. Handoff's own structural screen covers the
+      rest of each whole stored library, at any depth and in every record. It
+      refuses an array- or object-valued disposition member, or a
+      `provenance` written as an array, as `HANDOFF-DISPOSITION-MALFORMED`,
+      named by its pointer in the library (`malformed_values`). A nested
+      `provenance` carrying a blocking disposition in object form is already
+      refused there as `PROTECTED_CONTENT_BLOCKED`. The positional rule was
+      added after #1651 Codex r2: a positional `provenance` nested below a
+      record, for example `material_records[0].deep.provenance`, or one in a
+      record the model does not reference, was admitted on `d28869c09f`.
+      The rule also applies where else `malformed_values` runs: the report
+      package's request and model, and stored rule packs. Precedence: when
+      the shared screen refuses a judged record (the library object, a
+      matching record or a judged hanger object) for a readable blocking
+      status, Handoff stops with `PROTECTED_CONTENT_BLOCKED` alone. A
+      blocking status that only the structural screen finds is reported
+      together with that screen's malformed findings, so both codes appear
+      (#1651 Codex r3). Regression: `handoff_package.rs`
+      `r2_a_positional_provenance_anywhere_in_a_stored_library_is_refused`.
+
+    Other stored disposition members, such as an object-valued
+    `classification`, are not read by the verdict and follow it
+    (`b1r1_classification_objects_follow_the_import_verdict`). A whole stored
+    record in positional form has no readable id; like an absent record, its
+    reference is `MODEL-LIBRARY-REF-UNRESOLVED`, a warning. Each record or
+    stored item gets one diagnostic, this or its verdict's, and the stored
+    check allocates nothing. So the screening's memory bound changes only for
+    the new model sites (`stored_model_document_export.rs` `ScreeningBound`).
+    For Save Model Document and Save Handoff, the document validator already
+    refuses the model-document shapes first. It does not read stored
+    libraries, so the stored shapes are refused here (Save Model Document) or
+    by the structural screen (Save Handoff). Regressions, all in
+    `stored_model_document_export.rs`:
+    `a_screened_record_that_is_not_an_object_is_refused_by_name`,
+    `a_positional_library_ref_is_refused_by_name`,
+    `a_library_the_ordinary_writer_stores_with_an_unreadable_disposition_refuses_recovery`,
+    `a_stored_unreadable_disposition_refuses_recovery_for_every_kind_and_depth`,
+    `save_model_document_refuses_an_unreadable_stored_disposition`,
+    `a_whole_positional_stored_record_is_an_unresolved_reference`, and the
+    malformed shape of `the_screening_bound_covers_the_screeners_measured_peak`;
   - each library is read within the command's memory, which starts from its
     ingress lease. The read is measured, and its keys' working set, its load
     and its prescan-bounded parse are each leased before they are made, on a

@@ -121,28 +121,89 @@ unloaded model.
 
 ## Pressure-free input closure
 
-Authored input on the pressure-free route's model root, load cases, primitive
-loads and combinations is never dropped silently either (Agent 0, 2026-10-23,
-as above). Those records are closed, and the combination reader names every
-row it does not publish. The other model records are not yet closed (below).
+Authored input on the pressure-free route's model records is never dropped
+silently either (Agent 0, 2026-10-23, as above). Every model record is closed,
+and so is every material record of the request; the combination reader names
+every row it does not publish.
 
-- **Closed records:** the model root (`PreviewModelWire`), a load case with
-  its `modulus_basis_temperature` and `equivalent_static` inputs (seismic,
-  wind and its exposed spans), a primitive load with its target and
-  magnitude, a combination and a combination term deny unknown fields. The
-  value entry scans the actual request first, before any route, and refuses
-  an undeclared key with `UNKNOWN_MODEL_FIELD`, naming each key with its
-  record (by id) and path, at most eight named and the rest counted; nothing
-  is solved. Every typed reader refuses the same keys.
+- **Closed records:** these deny unknown fields:
+  - the model root (`PreviewModelWire`);
+  - a load case, with its `modulus_basis_temperature` and `equivalent_static`
+    inputs (seismic, wind and its exposed spans);
+  - a primitive load, with its target and magnitude;
+  - a combination and a combination term;
+  - a node, with its position;
+  - a pipe segment, with its section, the section's quantities and its
+    `y_reference`;
+  - a section of the library, with each property's quantity;
+  - a support, with its stiffness and value, its hanger (with the hanger's
+    stiffness and quantities) and its nonlinear input (with its quantities
+    and `normal_reaction_source`);
+  - a component, with its geometry (quantities and `center_of_gravity`), its
+    modifiers' quantities, its mechanics interface and the objective
+    connector's own members;
+  - a material of the model or of the request, with its quantities and its
+    temperature points and their quantities.
+
+  The value entry scans the actual request first, before any route, and
+  refuses an undeclared key with `UNKNOWN_MODEL_FIELD`. It names each key with
+  its record (by id, or by index without one) and path, for example
+  ``unknown field `mill_tolerence` in the section of pipe segment `pipe:P-110`
+  (model.pipe_segments[1].section)``. The scan keeps at most eight findings,
+  forming each only while it is kept, and counts the rest (`; and N more`);
+  nothing is solved. Every typed reader refuses the same keys. Quantities and
+  vectors are closed where these records carry them; the pressure, case-state
+  and settings records keep their own readers. The objective connector stays
+  an authored value read by key. Its own members are checked against its
+  record's key list; its member records are the connector decoder's, on the
+  exact route.
+- **Records that are not objects:** serde's derives also read a record written
+  as an array of its members in order, whose keys cannot be checked. Before
+  the key scan, the value entry refuses any element of a model record
+  collection (load cases, combinations, nodes, pipe segments, sections,
+  supports, components, materials) or of the request's materials that is not
+  an object, with `MODEL_RECORD_NOT_OBJECT` and its path, for example
+  `model.nodes[0] is an array (a positional record)`, at most eight named and
+  the rest counted. Main read and solved a positional node of two or three
+  members (id, position, provenance) and refused a longer one, a null or a
+  scalar in the typed parse. Only those readable positional forms, which are
+  outside the schema, change outcome.
+  Records inside these (loads, terms, temperature points, member records) are
+  left to their typed readers.
+- **Material records:** the material record keeps its flattened wire, so every
+  outcome but an unknown key's is unchanged. A duplicate `label`, `tags`,
+  `notes` or `provenance_record` is accepted as before. An annotation value the
+  wire refused, such as `"notes": 1e400`, is still refused. A duplicate known
+  key is still refused at its position. The record's other keys are collected,
+  and any but the four annotations is refused as an unknown field, in the text
+  reader and the value entry alike. `mod material_wire` in
+  `src/silent_drop_unit_tests.rs` keeps a copy of main's wire and compares
+  outcomes from the text at model and request level. It runs regression cases
+  (duplicate annotations, an overflowing annotation, a duplicate known key,
+  field order, null against absent, positional forms) and, with
+  `MATERIAL_WIRE_CORPUS` set, every committed material record: 807 records in
+  332 files, 694 read the same and 113 are refused by both, with no record
+  refused for an unknown key only.
+- **Self-weight evidence:** a generated self-weight record's `mass_inputs`
+  rebuild a closed pipe section, and its `normalized_dependencies` declare one
+  member beside the section's own, `section_ref`, removed before the section is
+  read. A member either does not declare, such as a misspelled input or an
+  extra key in a quantity, makes the evidence Invalid rather than Fresh.
 - **Declared and ignored:** members a document may carry that the solve does
   not read are declared on the closed records and accepted unread: on the
   root `data_boundary`, `diagnostics` and model document 0.7.0's `lines`,
   `unresolved_assumptions`, `constraints`, `equipment_interfaces` and
   `rule_pack_refs`; on a load case `kind`, `label`, `status`, `tags` and
-  `notes`; on a combination `tags` and `notes`. `model_settings` is a typed
+  `notes`; on a combination `tags` and `notes`; on a node and a pipe segment
+  `label`, `tags` and `notes`; on a section `tags`, `notes` and
+  `provenance_record`; on a support `label`, `boundary_association`,
+  `properties`, `tags`, `notes` and `provenance_record`; on a component
+  `completeness`, `tags`, `notes` and `provenance_record`; on a material
+  `label`, `tags`, `notes` and `provenance_record`. `model_settings` is a typed
   member. Each closed record's accepted key set is exactly its record's key
   list in `schemas/model.schema.yaml` (0.7.0), bound by `model_fields.rs`'s
-  key test.
+  key tests, which also bind the scan's quantity and vector members to the
+  schema's.
 - **Combinations:** a `mechanics` term naming a load case twice, or a
   `range_envelope` naming an operand twice, is refused with the blocking
   `LOAD_COMBINATION_DUPLICATE_TERM`, once per repeated case at its second
@@ -153,18 +214,68 @@ row it does not publish. The other model records are not yet closed (below).
   whole, are withheld under one `LOAD_COMBINATION_ROW_WITHHELD` warning per
   combination, naming up to eight; a support's group publishes all its rows
   or none.
-- **Still open:** nodes, pipe segments and their sections, supports,
-  components and materials are not closed records. An unknown or misspelled
-  key there is still ignored without a finding; for example a pipe section's
-  `mill_tolerence` (for `mill_tolerance`) solves as if the member were absent.
-  This was so before this change too (independent review of #1573).
+- **Outside this closure:** the request's own members besides its materials,
+  and the project record. The records of the pressure contract, the
+  load/reference-state group (a material's `expansion_laws` among them) and
+  `model_settings` keep their own readers; the scan does not name their keys. The objective connector's member records (its
+  ends, stiffness, calibration and the rest) are read by key on the exact
+  route; an unknown key there is not checked.
 
 Evidence: `core/product_physics/tests/silent_drop_guard_runtime.rs` and
 `src/silent_drop_unit_tests.rs`, both solver modes; the annotated 0.7.0
 document (`tests/annotated_model_document_solve.rs`) solves byte-identically
-with and without its declared members. Priced change: DEL-04-08
+with and without its declared members, and the demo does with its nested
+records' declared members varied or removed. The desktop refuses a hand-edited
+nested key at solve with that reason. Priced changes: DEL-04-08
 [retained-pricing-rules.md](../../DEL-04-08/Design/retained-pricing-rules.md)
-§8.19.
+§8.19, and §8.25 for the nested records (the tree is coefficient-identical to
+§8.24's).
+
+## Constant-effort combinations: the unit factor-sum rule
+
+A `mechanics` combination superposes its case states. A consuming
+constant-effort support's fixed load is in every case state, so the combined
+state counts it Σf times. The combined state is a state of the original system
+only when Σf = 1. Where the model has such a support,
+`CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` withholds every mechanics
+combination whose factors do not satisfy the unit factor-sum rule (option C,
+Agent 0, 2026-10-25):
+
+- **Rule:** Σf is the exact dyadic sum of the binary64 factors. The combination
+  is admitted iff |Σf − 1| ≤ 64ε = 2⁻⁴⁶ (about 1.42e-14), compared exactly. There
+  is no Σ|f| scaling. A non-finite factor is refused by name: validation's blocking
+  `LOAD_COMBINATION_FACTOR_INVALID` refuses it first, and the gate also withholds
+  it under the same reason code. An accumulator error is withheld the same way.
+- **Why:** the rule it replaces admitted |fl(Σf) − 1| ≤ 64ε·max(1, fl(Σ|f|)), and
+  the hole was the relative scaling, not the tolerance. 2⁵² and −2⁵² sum exactly
+  to 0, but the bound scaled to 128, so the combination was published with the
+  constant effort counted zero times. A fold that overflowed to infinity was also
+  admitted, because inf > inf is false. With an exact sum and an absolute bound:
+  - 2⁵³/−2⁵³ gives |0 − 1| = 1 and is refused, and an exact sum cannot overflow;
+  - 0.3 + 0.7, 1.2 − 0.2 and fl(1/3) + fl(2/3) each sum exactly to 1 − 2⁻⁵⁴ and
+    are admitted, as before;
+  - no decimal formatting is involved, so there is no Rust/TS formatting-parity
+    risk;
+  - what it admits scales the fixed loads by at most 1 ± 1.4e-14, below solve
+    precision.
+- **Rejected:** (A) exact Σf = 1, which withholds 0.3 + 0.7 and 1.2 − 0.2. (B) an
+  exact rational sum of each factor's shortest round-trip decimal = 1, which
+  refuses fl(1/3) + fl(2/3) (its decimals sum to 0.9999999999999999) and needs a
+  formatting step.
+- **Where:** the one implementation is DEL-05-02's
+  `open_pipe_stress_load_case_algebra::factor_sum_within_unit_tolerance`, so other
+  gates that need Σf = 1 can reuse it. `preview_physics.rs` `gate_reason` calls
+  it. The test-only Python verifier mirrors it with exact rationals
+  (`tests/verifiers/preview_physics_evidence.py`). The preview contract tables'
+  `combination_policy` states the same condition.
+
+Evidence: the helper's tests (both bounds closed; 1 ± (2⁻⁴⁶ + 2⁻¹⁰⁷⁴) refused),
+`src/preview_physics.rs` `constant_effort_gate_withholds_a_factor_sum_it_cannot_evaluate`,
+and `tests/preview_physics_runtime.rs`
+`constant_effort_gate_uses_the_exact_unit_factor_sum`, which covers both solver
+modes. Factors of magnitude 2⁵³ or more are integral, so the value entry refuses
+them (`CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT`), and only the typed entry reaches the
+gate with them.
 
 ## Imposed displacement on the pressure-free route
 
@@ -180,8 +291,29 @@ only route" statement is made.
   The desktop `imposed_displacement` primitive solves where supported and is
   refused with a named, readable reason elsewhere. Priced change: D3
   re-registration with independent review.
-- **Stage 2:** the nonlinear active-set loop measures gap closure and
-  lift-off relative to the imposed motion. Design first, with dual numerical
-  review and its own benchmarks.
-Until stage 1 lands, the pressure-free route refuses a support-targeted
-primitive by name (`IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL`).
+- **Stage 2 (designed, not implemented):** until its implementation lands, the
+  pressure-free route refuses imposed motion in a model with nonlinear supports
+  by name (`IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS`). The design covers
+  imposed motion in a model with nonlinear supports, in two separable parts. (R-a) Rigid anchors and restraints carry stage-1 primitives
+  as nonzero base prescribed values in the nonlinear active-set loop and its
+  K-D5 confirmation; every nonlinear support's ground stays fixed. (R-b) A
+  primitive on a nonlinear support's own DOF moves that support's ground: gap
+  closure, lift-off and friction slip are measured on the displacement
+  relative to the moved ground, and an active or sticking state prescribes the
+  moved ground (plus or minus the clearance for a gap). Linear springs with a
+  moving base stay refused. Design: DEL-04-03
+  `Design/pf-nonlinear-imposed-motion.md`, with dual numerical review and its
+  own benchmarks; R-b may land as a later slice.
+Stage 1 is built (W-16 slice a; DEL-04-03 Design `pf-imposed-displacement.md`).
+On the pressure-free route a support-targeted `imposed_displacement` primitive
+is one prescribed value on its rigid support's global DOF, solved by the
+shared partitioned reduction in both solver modes; a case without one keeps
+its unchanged path. Each misuse is refused by name before generic validation
+(`IMPOSED_DISPLACEMENT_*`; `IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` until
+stage 2), and any refusal withholds the whole document. The exact route keeps
+`boundary_motion` as its form and refuses a support-targeted primitive by name
+(`EXACT_IMPOSED_DISPLACEMENT_PRIMITIVE_UNSUPPORTED`); the retained sub-route
+declines it at D1.7. `IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL` is
+retired. Evidence: `core/product_physics/tests/w16_imposed_motion.rs` (the
+nozzle movement against `validation/references/w16_imposed_motion/`, parity
+with EX) and W9-C on both routes (`tests/w9_solver_benchmarks.rs`).

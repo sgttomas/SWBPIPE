@@ -1461,8 +1461,10 @@ if _D5:
     # The case solve's stress-finding id (lib.rs `let id = format!(`): 18 literal bytes, the IN128 pipe suffix, the
     # historic STATIC 600 location class, two separators and finding.code's Debug (<= 64, its argument rule).
     _DIAG_ID = 18 + 128 + 600 + 2 + 64
-    _OC = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "b7a_owner_choices.py"))
-    _EXPECTED = max(_OC["BOUNDS"].values())
+    # Only the owner choices' BOUNDS are read. Their module namespace is not kept: an upper-case name here is a decision
+    # table, and the decision-key carry would map its snapshot keys (PREIMAGES) as if they were written at the basis.
+    _EXPECTED = max(__import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base",
+                                                               "b7a_owner_choices.py"))["BOUNDS"].values())
     _ea = _text_of(PP_ + "exact_admission.rs")
     def _j4b(start, count):
         i = _ea.index(start); j = _ea.index("\n    };", i)
@@ -1583,16 +1585,16 @@ if _D5:
 U6_RB_PATCHES, W1_L5_PATCHES, W1_L5_SITE_FROM = [], [], []
 _AGG = fnkey("run_linear_static_preview_observed_inner", _LIB)
 if _AGG:
-    _W1_MODEL = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.dirname(
+    _w1_model = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.dirname(
         _os.path.abspath(__file__))), "base", "w1_reductions_model.py"))
-    _W1_REDUCED = _W1_MODEL["inspect"](_SNAP)
+    _w1_reduced = _w1_model["inspect"](_SNAP)
     _agg = _fn_text("run_linear_static_preview_observed_inner", _LIB)
     _RB_GUARDED = ("            if preview.is_some() {\n                rows_by_base_id\n                    .entry(base_id)\n"
                    "                    .or_default()\n                    .insert(load_case_id.clone(), result.clone());\n            }\n")
     _RB_CALL = ("        Some(rendered) => preview_physics::append_combination_results(&model, rendered, &rows_by_base_id, "
                 "&mut results, &mut diagnostics),\n")
-    if _W1_REDUCED:
-        _W1_MODEL["guard"](_agg)
+    if _w1_reduced:
+        _w1_model["guard"](_agg)
     elif _RB_GUARDED not in _agg or _RB_CALL not in _agg:
         raise SystemExit("U6-RB: the RF guarded rows_by_base_id/call changed; re-review")
     if (_agg.count("rows_by_base_id") != 3
@@ -1606,7 +1608,7 @@ if _AGG:
     U6_RB_PATCHES = [("ordinary_caps.py", _AGG_ROW,
         _NO_INDEX + '   # U6-RB/W1-L5: route E has no preview/index; push-capacity results (U6-RB-V)\n',
         "U6-RB: route E has no preview, so no row index clone or map; keep push-capacity results")]
-    if _W1_REDUCED:
+    if _w1_reduced:
         # The full preview_physics.rs pin includes append_combination_results:
         # base_ids and case_rows are its only pre-loop construction; results,
         # diagnostics and gates are changed only in its combinations loop.
@@ -2400,11 +2402,26 @@ _SD_V = PP_ + "validation.rs"
 if fnkey("unknown_field_refusal", _SD_MF):
     _SD_SCAN = _fn_text("unknown_field_refusal", _SD_MF)
     _SD_CHECK = _fn_text("check", _SD_MF)
+    # SD-NR (the nested records, §8.25): present where the scan walks them.
+    _SD_NESTED = fnkey("nested_records", _SD_MF) is not None
     _SD_DISPATCH = _fn_text("run_linear_static_preview_value_dispatch", _LIB)
     _sd_call = ("    if let Some(refusal) = model_fields::unknown_field_refusal(&actual_request) {\n"
                 "        return Err(refusal);\n    }\n")
     _sd_push = "findings.push(Finding { field: key.clone(), record: name(), path: path.to_string() });"
     _sd_tail = "    if findings.is_empty() {\n        return None;\n    }\n"
+    if _SD_NESTED:
+        # SD-NR (§8.25): a scan keeps at most NAMED_LIMIT findings (`Findings::keep_finding`, the one Vec push), each
+        # formed by its closure only while kept; the refusals are formed by `listed_refusal`.
+        _sd_push = "findings.keep_finding(|| Finding { field: key.clone(), record: name(), path: path.to_string() });"
+        _sd_tail = "    if findings.kept.is_empty() {\n        return None;\n    }\n"
+    _sd_nested_push = "findings.keep_finding(|| Finding { field: key.clone(), record: at.finding_name(), path: at.finding_path() });"
+    _sd_nested_call = "    nested_records(request, model, &fields, &mut findings);\n" + _sd_tail
+    _sd_kept_push = "self.kept.push(finding());"
+    _sd_non_object_push = 'findings.keep_finding(|| NonObject { path: format!("{prefix}{collection}[{i}]"), is: value_kind(record) });'
+    _sd_non_object_return = ("    non_object_records(request, model, &mut non_objects);\n    if !non_objects.kept.is_empty() {\n"
+                             "        return Some(listed_refusal(MODEL_RECORD_NOT_OBJECT, &non_objects,")
+    _sd_refusals = ('return Some(listed_refusal(MODEL_RECORD_NOT_OBJECT, &non_objects, |f| format!("{} is {}", f.path, f.is),',
+                    'Some(listed_refusal(UNKNOWN_MODEL_FIELD, &findings, |f| format!("unknown field `{}` in {} ({})", f.field, f.record, f.path),')
     # SD-NF (guard): the scan is the value entry's first statement and refuses on any finding, before the captured
     # invocation is parsed and before admission (retained_memory::admit); it has one caller and is the scan's only
     # entry; `check` is the only place a finding is pushed, and every refusal text follows the one early return.
@@ -2418,22 +2435,46 @@ if fnkey("unknown_field_refusal", _SD_MF):
         _re.sub(r"//[^\n]*", "", _production(_SD_MF)).count("unknown_field_refusal(") == 1,
         _SD_CHECK.count(_sd_push) == 1, _production(_SD_MF).count(".push(") == 1,
         _SD_SCAN.count(_sd_tail) == 1, _SD_SCAN.count("findings.push(") == 0,
-    )
+    ) + ((
+        # SD-NR (bounded findings): the one push is `keep_finding`'s; every finding is kept through it, by its closure
+        # in check, check_nested and non_object_records; the non-object pass runs first and its refusal returns at once;
+        # both refusals are formed only by `listed_refusal`, called only in those two returns.
+        _fn_text("keep_finding", _SD_MF).count(_sd_kept_push) == 1,
+        _production(_SD_MF).count(".keep_finding(") == 3, _fn_text("non_object_records", _SD_MF).count(_sd_non_object_push) == 1,
+        _SD_SCAN.count(_sd_non_object_return) == 1, -1 < _SD_SCAN.find(_sd_non_object_return) < _SD_SCAN.find("let fields = record_fields();"),
+        all(_SD_SCAN.count(_t) == 1 for _t in _sd_refusals), _production(_SD_MF).count("listed_refusal(") == 2,
+        _production(_SD_MF).count("non_object_records(") == 2,
+        # SD-NR: `check_nested` is the nested records' only finding push, and the only place a finding's name and path
+        # are formed (each method's one outside call; its other calls are its own recursion); the walk is called once,
+        # last before the scan's one early return.
+        _fn_text("check_nested", _SD_MF).count(_sd_nested_push) == 1,
+        _SD_SCAN.count(_sd_nested_call) == 1, _production(_SD_MF).count("nested_records(") == 2,
+        _production(_SD_MF).count(".finding_name()") == 4, _fn_text("finding_name", _SD_MF).count(".finding_name()") == 3,
+        _production(_SD_MF).count(".finding_path()") == 3, _fn_text("finding_path", _SD_MF).count(".finding_path()") == 2,
+    ) if _SD_NESTED else ())
     if not all(_sd_nf):
         raise SystemExit(f"SD-NF: the closed-record scan's place or refusal path changed; re-review its zero: {_sd_nf}")
     _SD_NF = (O10 + "SD-NF: multiplicity 0 on a permitted call: the scan runs first in the value entry and returns "
               "Err on any finding before the invocation is captured or admitted, so an admitted request has no finding")
-    O10_SITE_ZERO += [(site("check", _SD_MF, _sd_push), _SD_NF + " (the one finding push)")] + [
+    O10_SITE_ZERO += [(site("check", _SD_MF, _sd_push), _SD_NF + " (the one finding push)")] + ([
+        (site("check_nested", _SD_MF, _sd_nested_push), _SD_NF + " (SD-NR: the nested records' finding)"),
+        (site("non_object_records", _SD_MF, _sd_non_object_push), _SD_NF + " (SD-NR: a non-object record's finding)")] + [
+        (site("unknown_field_refusal", _SD_MF, _t), _SD_NF + " (SD-NR: a refusal's finding text, in its return)") for _t in _sd_refusals]
+        if _SD_NESTED else [
         (site("unknown_field_refusal", _SD_MF, _t), _SD_NF + " (the refusal text, after the one early return)")
         for _t in ('.map(|f| format!("unknown field `{}` in {} ({})", f.field, f.record, f.path))', '.join("; ");',
                    'named_findings.push_str(&format!("; and {} more", findings.len() - NAMED_LIMIT));',
-                   "    Some(format!(")]
+                   "    Some(format!(")])
+    if _SD_NESTED:
+        # SD-NR (EDGE_ZERO): `listed_refusal` is called only in the scan's two refusing returns (SD-NF guard above).
+        O10_EDGE_ZERO += [(fnkey("unknown_field_refusal", _SD_MF), fnkey("listed_refusal", _SD_MF),
+                           _SD_NF + " (SD-NR: listed_refusal forms a refusal, called only in the scan's two refusing returns)")]
     # SD-L1 (loops): the scan walks the raw request's closed records. On D1 the authored load cases are `cases`, a
     # case's primitive loads <= l, the combinations <= z and a combination's terms <= 3 (D1.4, D1.9), each visited once;
     # `check`'s key loop visits one closed record's keys, which on a permitted call are all declared (SD-NF), so <= the
     # largest closed record's declared members (the model root, counted here from PreviewModelWire's fields).
-    def _sd_fields(struct):
-        body = _re.search(r"\n(?:pub )?struct " + struct + r" \{\n(.*?)\n\}\n", _text_of(_LIB), _re.S)
+    def _sd_fields(struct, f=_LIB):
+        body = _re.search(r"\n(?:pub(?:\(crate\))? )?struct " + struct + r"(?:<[A-Z]>)? \{\n(.*?)\n\}\n", _text_of(f), _re.S)
         if not body:
             raise SystemExit(f"SD-L1: struct {struct} not found")
         return len(_re.findall(r"^    (?:pub )?[a-z_]+: ", body.group(1), _re.M))
@@ -2443,6 +2484,22 @@ if fnkey("unknown_field_refusal", _SD_MF):
     _SD_KEYS = _sd_fields("PreviewModelWire")
     if max(_sd_fields(r) for r in _SD_RECORDS) != _SD_KEYS:
         raise SystemExit("SD-L1: the model root is no longer the largest closed record; re-review the key-loop bound")
+    if _SD_NESTED:
+        # SD-NR: every closed record a scan checks, counted at the snapshot from its struct (lib.rs, model_fields.rs) or,
+        # for the objective connector, its key list; the largest bounds the key loop (both functions).
+        _SD_NR_RECORDS = ("PreviewNode", "PreviewPipe", "PreviewSection", "PreviewSupport", "SupportStiffnessInput",
+                          "SpringHangerInput", "NonlinearSupportInput", "FrictionNormalReactionSourceInput", "PreviewComponent",
+                          "ComponentGeometryInput", "ComponentModifierInput", "ComponentMechanicsInterfaceInput",
+                          "PipeSectionInput", "MaterialTemperaturePointInput")
+        _SD_NR_LOCAL = ("ClosedQuantity", "ClosedVec3", "ClosedVectorQuantity")
+        _sd_lists = [_re.search(r"const " + _n + r": &\[&str\] = &\[\n(.*?)\n\];", _text_of(_SD_MF), _re.S)
+                     for _n in ("OBJECTIVE_CONNECTOR_FIELDS", "MATERIAL_FIELDS")]
+        if not all(_sd_lists):
+            raise SystemExit("SD-NR: the objective connector's or the material's key list changed; re-review the key-loop bound")
+        _SD_KEYS = max([_SD_KEYS] + [_sd_fields(r) for r in _SD_NR_RECORDS] + [_sd_fields(r, _SD_MF) for r in _SD_NR_LOCAL]
+                       + [len(_literals(_l.group(1))) for _l in _sd_lists])
+        if _SD_KEYS != _sd_fields("ComponentGeometryInput"):
+            raise SystemExit("SD-NR: the component geometry is no longer the largest closed record; re-review the key-loop bound")
     _SD_F = ["model_fields.rs:unknown_field_refusal"]
     O10_LOOPS_LAST += [
         ('for (i, case) in objects(model, " ")', "cases", O10 + "SD-L1: the authored load cases, once each", _SD_F),
@@ -2450,9 +2507,50 @@ if fnkey("unknown_field_refusal", _SD_MF):
         ('for (i, combination) in objects(model, " ")', "z", O10 + "SD-L1: the model combinations (<= z)", _SD_F),
         ('for (j, term) in objects(combination, " ")', "3", O10 + "SD-L1: one combination's terms (<= 3, D1.4)", _SD_F),
         ("for key in record.keys()", str(_SD_KEYS),
-         O10 + f"SD-L1: one closed record's keys, all declared on a permitted call (SD-NF): <= {_SD_KEYS}, the model "
-         "root's declared members", ["model_fields.rs:check"]),
+         O10 + f"SD-L1: one closed record's keys, all declared on a permitted call (SD-NF): <= {_SD_KEYS}, the largest "
+         "closed record's declared members" + (" (SD-NR: the component geometry; the model root's before the nested records)"
+                                              if _SD_NESTED else " (the model root)"),
+         ["model_fields.rs:check"] + (["model_fields.rs:check_nested"] if _SD_NESTED else [])),
     ]
+    if _SD_NESTED:
+        # SD-NR (loops, placed first: the exact headers would otherwise meet the base chain's broad `material` and
+        # `point in` rules): the nested walk visits each authored record of the model's collections once (D1.9: n nodes,
+        # m pipe segments and g supports; S-4: no section; P2: no component), the model's and the request's materials
+        # (<= 4 each, mats in all) with each material's temperature points (<= pts), and one record's static list of
+        # quantity members (the longest list, counted at the snapshot).
+        _SD_NR_F = ["model_fields.rs:nested_records"]
+        _sd_lists = [int(n) for n in _re.findall(r"^const [A-Z_]+_QUANTITIES: \[&str; (\d+)\] =", _text_of(_SD_MF), _re.M)]
+        if len(_sd_lists) != 7:
+            raise SystemExit(f"SD-NR: the quantity member lists changed; re-review their loop bound: {_sd_lists}")
+        O10_LOOPS_FIRST += [
+            ('for (i, node) in objects(model, " ")', "n", O10 + "SD-NR: the model's nodes (<= n, D1.9), once each", _SD_NR_F),
+            ('for (i, pipe) in objects(model, " ")', "m", O10 + "SD-NR: the model's pipe segments (<= m, D1.9), once each", _SD_NR_F),
+            ('for (i, section) in objects(model, " ")', "0", O10 + "SD-NR: the section library is empty on D1 (S-4)", _SD_NR_F),
+            ("for (name, quantity) in properties", "0", O10 + "SD-NR: a section's properties (no section on D1, S-4)", _SD_NR_F),
+            ('for (i, support) in objects(model, " ")', "g", O10 + "SD-NR: the model's supports (<= g, D1.9), once each", _SD_NR_F),
+            ('for (i, component) in objects(model, " ")', "0", O10 + "SD-NR: the components are empty on D1 (P2)", _SD_NR_F),
+            ('for (owner, collection, kind) in [(model, " ", " "), (request, " ", " ")]', "2",
+             O10 + "SD-NR: the model's and the request's material collections", _SD_NR_F),
+            ('for (i, material) in objects(owner, " ")', "4", O10 + "SD-NR: one collection's materials (<= 4, D1.9; mats = 8 in all)", _SD_NR_F),
+            ('for (k, point) in objects(material, " ")', "pts", O10 + "SD-NR: one material's temperature points (<= pts, D1.9)", _SD_NR_F),
+            ("for key in keys", str(max(_sd_lists)), O10 + f"SD-NR: one record's static quantity member list (<= {max(_sd_lists)}, "
+             "the longest)", ["model_fields.rs:nested_quantities"]),
+        ]
+        # SD-NR (non-object records): the pass visits the model's record collections and the request's materials once
+        # each; a collection holds at most n records on D1 (n = m = g = 32 nodes, pipe segments, supports; at most 3
+        # cases, 2 combinations, 4 materials of each, no section or component).
+        _sd_coll = _re.search(r"^const RECORD_COLLECTIONS: \[&str; (\d+)\] =", _text_of(_SD_MF), _re.M)
+        if not _sd_coll or _re.findall(r'"(\w+)"', _text_of(_SD_MF)[_sd_coll.end():].split(";", 1)[0]) != [
+                "load_cases", "combinations", "nodes", "pipe_segments", "sections", "supports", "components", "materials"]:
+            raise SystemExit("SD-NR: the record collections changed; re-review the non-object pass")
+        _SD_NO_F = ["model_fields.rs:non_object_records"]
+        O10_LOOPS_FIRST += [
+            ('for (owner, prefix, collections) in [(model, " ", &RECORD_COLLECTIONS[..]), (request, " ", request_collections)]', "2",
+             O10 + "SD-NR: the model's and the request's collections", _SD_NO_F),
+            ("for collection in collections", _sd_coll.group(1), O10 + "SD-NR: one owner's record collections (<= the model's list)", _SD_NO_F),
+            ("for (i, record) in owner.get(*collection).and_then(Value::as_array).into_iter().flatten().enumerate()", "n",
+             O10 + "SD-NR: one collection's records (<= n = m = g = 32 on D1, D1.9; the others fewer)", _SD_NO_F),
+        ]
     # SD-ID (ID_AUDIT, LEX_SITE_SIZE): the scan's composed names and paths, at their sites. A record name is
     # `{kind} `{id}`` (kind a static literal of <= 14 B, id the record's raw id, D1 raw text <= 128 B) or `{kind} {index}`
     # (a usize); a path is a static prefix with usize indices. The per-record closures (the finding's record name) are
@@ -2461,6 +2559,16 @@ if fnkey("unknown_field_refusal", _SD_MF):
     if sorted(set(_SD_KINDS)) != ["combination", "load case", "primitive load"] or len(_SD_KINDS) != 3:
         raise SystemExit(f"SD-ID: the scan's record kinds changed; re-review the name bounds: {_SD_KINDS}")
     _SD_KIND = max(len(k) for k in _SD_KINDS)                                              # 14
+    if _SD_NESTED:
+        # SD-NR: the nested records' kinds, each a static literal of the walk (`At::in_collection`'s and the temperature
+        # point's); the frame names a record with its own sites (finding_name), so `named`'s kind class above is unchanged.
+        _SD_NR_TEXT = _fn_text("nested_records", _SD_MF)
+        _SD_NR_KINDS = (_re.findall(r'At::in_collection\("[a-z_.]+", "([a-z ]+)", ', _SD_NR_TEXT)
+                        + _re.findall(r'\(\w+, "[a-z_.]+", "([a-z ]+)"\)', _SD_NR_TEXT) + _re.findall(r'kind: "([a-z ]+)"', _SD_NR_TEXT))
+        if sorted(_SD_NR_KINDS) != ["component", "material", "node", "pipe segment", "request material", "section", "support",
+                                    "temperature point"]:
+            raise SystemExit(f"SD-NR: the nested records' kinds changed; re-review the name bounds: {_SD_NR_KINDS}")
+        _SD_NR_KIND = max(len(k) for k in _SD_NR_KINDS)                                     # 17
     _SD_INT = 20
     _sd_named = lambda kind: max(len(kind) + 3 + 128, len(kind) + 1 + _SD_INT)
     _SD_CASE_NAME = _sd_named("load case")                                                 # 140
@@ -2476,7 +2584,8 @@ if fnkey("unknown_field_refusal", _SD_MF):
         'let combination_path = format!("model.combinations[{i}]");',
         'let load_name = format!("{} in {case_name}", named("primitive load", id_of(load), j));',
         'let case_name = named("load case", id_of(case), i);', 'let combination_name = named("combination", id_of(combination), i);'}
-    if not all(_SD_SCAN.count(t) == 1 for t in _sd_texts) or _fn_text("named", _SD_MF).count("format!(") != 2:
+    # `named`'s own body (SD-NR's `impl At` follows it, inside the extent the tool gives a top-level fn).
+    if not all(_SD_SCAN.count(t) == 1 for t in _sd_texts) or _fn_text("named", _SD_MF).split("\n}\n", 1)[0].count("format!(") != 2:
         raise SystemExit("SD-ID: the scan's names or paths changed; re-review their bounds")
     _sd_c = lambda b, why: {"bytes": b, "source": O10 + "SD-ID: " + why}
     _SD_A = {"case_name": _sd_c(_SD_CASE_NAME, "a load case's name"), "load_name": _sd_c(_SD_LOAD_NAME, "a primitive load's name"),
@@ -2516,25 +2625,101 @@ if fnkey("unknown_field_refusal", _SD_MF):
                      len("term  of ") + _SD_INT + _SD_COMB_NAME)                           # 306
     _SD_PATH = max(_SD_LOAD_PATH + len(".magnitude"), _SD_GEN_PATH + len(".wind.exposed_spans[]") + _SD_INT,
                    _SD_COMB_PATH + len(".terms[]") + _SD_INT, _SD_CASE_PATH + len(".modulus_basis_temperature"))
+    if _SD_NESTED:
+        # SD-NR (ID_AUDIT; multiplicity 0): a nested record's name and path, formed only for a finding. A record is
+        # `{kind} `{id}`` or `{kind} {index}` (kind <= 17 B, id IN128) and its path `{collection}[{index}]` (a static
+        # collection path of <= 20 B); a member record adds `the {key} of ` and `.{key}` (key a static member name or a
+        # section property's name, IN128); an array entry adds `{kind} `{id}` of ` and `.{key}[{index}]` (key static).
+        # The walk is at most three members deep below its record (a support's hanger, its stiffness and value), or one
+        # entry and one member (a temperature point's quantity).
+        _SD_NR_COLL = max(len(c) for c in _re.findall(r'At::in_collection\("([a-z_.]+)", ', _SD_NR_TEXT)
+                          + _re.findall(r'\(\w+, "([a-z_.]+)", "[a-z ]+"\)', _SD_NR_TEXT))
+        _sd_entry_keys = _re.findall(r'At::Entry \{ parent: &at, key: "([a-z_]+)"', _SD_NR_TEXT)
+        if _sd_entry_keys != ["temperature_points"] or _SD_NR_COLL > 20:
+            raise SystemExit(f"SD-NR: the nested records' paths changed; re-review the path bounds: {_sd_entry_keys}, {_SD_NR_COLL}")
+        _SD_NR_RECORD_NAME = _sd_named("x" * _SD_NR_KIND)                                  # 148
+        _SD_NR_MEMBER = len("the  of ") + 128
+        _SD_NR_ENTRY = _sd_named("x" * _SD_NR_KIND) + len(" of ")
+        _SD_NR_NAME = max(3 * _SD_NR_MEMBER + _SD_NR_RECORD_NAME, _SD_NR_MEMBER + _SD_NR_ENTRY + _SD_NR_RECORD_NAME)
+        _SD_NR_RECORD_PATH = _SD_NR_COLL + len("[]") + _SD_INT
+        _SD_NR_PATH = max(_SD_NR_RECORD_PATH + 3 * (len(".") + 128),
+                          _SD_NR_RECORD_PATH + len(".temperature_points[]") + _SD_INT + len(".") + 128)
+        _SD_RECORD, _SD_PATH = max(_SD_RECORD, _SD_NR_NAME), max(_SD_PATH, _SD_NR_PATH)
+        _sd_name_c = _sd_c(_SD_NR_NAME, "SD-NR: a nested record's name (the frame's own recursion)")
+        _sd_path_c = _sd_c(_SD_NR_PATH, "SD-NR: a nested record's path (the frame's own recursion)")
+        _sd_key_c = _sd_c(128, "SD-NR: a static member name or a section property's name (D1 raw text <= 128 B)")
+        _sd_kind_c = _sd_c(_SD_NR_KIND, "SD-NR: a static record kind")
+        O10_ID_AUDIT += [(site(_fn, _SD_MF, _t, full=True), _a) for _fn, _t, _a in (
+            ("finding_name", 'format!("{kind} `{id}`")', {"kind": _sd_kind_c, "id": IN}),
+            ("finding_name", 'format!("{kind} {index}")', {"kind": _sd_kind_c, "index": _sd_c(_SD_INT, "a usize index")}),
+            ("finding_name", 'format!("the {key} of {}", parent.finding_name())', {"key": _sd_key_c, "parent.finding_name()": _sd_name_c}),
+            ("finding_name", 'format!("{kind} `{id}` of {}", parent.finding_name())',
+             {"kind": _sd_kind_c, "id": IN, "parent.finding_name()": _sd_name_c}),
+            ("finding_name", 'format!("{kind} {index} of {}", parent.finding_name())',
+             {"kind": _sd_kind_c, "index": _sd_c(_SD_INT, "a usize index"), "parent.finding_name()": _sd_name_c}),
+            ("finding_path", 'format!("{collection}[{index}]")',
+             {"collection": _sd_c(_SD_NR_COLL, "SD-NR: a static collection path"), "index": _sd_c(_SD_INT, "a usize index")}),
+            ("finding_path", 'format!("{}.{key}", parent.finding_path())', {"key": _sd_key_c, "parent.finding_path()": _sd_path_c}),
+            ("finding_path", 'format!("{}.{key}[{index}]", parent.finding_path())',
+             {"key": _sd_c(len("temperature_points"), "SD-NR: the static entry key"), "index": _sd_c(_SD_INT, "a usize index"),
+              "parent.finding_path()": _sd_path_c}))]
+        # SD-NR (EDGE_ZERO): the frame's name and path are formed only in check_nested's one finding push (SD-NF guard),
+        # so its two calls carry the push's multiplicity 0; the methods' own calls are their bounded recursion (below).
+        O10_EDGE_ZERO += [(fnkey("check_nested", _SD_MF), fnkey(_m, _SD_MF), _SD_NF + f" (SD-NR: `{_m}` is called only in "
+                           "check_nested's finding push)") for _m in ("finding_name", "finding_path")]
+        O10_RECURSION_REVIEWED = list(globals().get("O10_RECURSION_REVIEWED", [])) + [(fnkey(_m, _SD_MF),
+            f"SD-NR: {_m} recurses once per enclosing record of a nested record (at most four frames: a record and three "
+            "members) and is reached only from check_nested's finding push, multiplicity 0 on a permitted call (SD-NF)")
+            for _m in ("finding_name", "finding_path")]
     _SD_ONE = len("unknown field `` in  ()") + 128 + _SD_RECORD + _SD_PATH
     if _re.search(r"^const NAMED_LIMIT: usize = 8;$", _text_of(_SD_MF), _re.M) is None:
         raise SystemExit("SD-ID: NAMED_LIMIT changed; re-review the refusal text's bound")
     _SD_LIST = 8 * _SD_ONE + 7 * len("; ") + len("; and  more") + _SD_INT
-    O10_ID_AUDIT += [
-        (site("unknown_field_refusal", _SD_MF, ".map(|f| format!(", full=True),
-         {"f.field": IN, "f.record": _sd_c(_SD_RECORD, "the longest record name"), "f.path": _sd_c(_SD_PATH, "the longest path")}),
-        (site("unknown_field_refusal", _SD_MF, "{UNKNOWN_MODEL_FIELD}: request: {named_findings}", full=True, row="format!("),
-         {"named_findings": _sd_c(_SD_LIST, "<= 8 findings joined by '; ' and the `and N more` suffix")}),
-    ]
+    if _SD_NESTED:
+        # SD-NR: the refusals' finding texts at their returns, and listed_refusal's (multiplicity 0; bounded regardless).
+        # A non-object finding is `{path} is {kind}`: a static collection path with a usize index and a static kind.
+        _SD_NO_COLL = max(_literals(_text_of(_SD_MF).split("const RECORD_COLLECTIONS", 1)[1].split(";", 1)[1].split("];", 1)[0]))
+        _SD_NO_PATH = len("model.") + _SD_NO_COLL + len("[]") + _SD_INT
+        _SD_NO_KIND = max(_literals(_fn_text("value_kind", _SD_MF)))
+        _SD_NO_ONE = len(" is ") + _SD_NO_PATH + _SD_NO_KIND
+        _SD_LIST = max(_SD_LIST, 8 * _SD_NO_ONE + 7 * len("; ") + len("; and  more") + _SD_INT)
+        _sd_codes = max(len("UNKNOWN_MODEL_FIELD"), len("MODEL_RECORD_NOT_OBJECT"))
+        _sd_remedy = max(len(_r.encode()) for _r in _re.findall(r'"((?:[^"\\]|\\.)*)"', _SD_SCAN.split("\n}\n", 1)[0])
+                         if _r.endswith(("Correct or remove each key.", "Write each record as an object.")))
+        O10_ID_AUDIT += [
+            (site("unknown_field_refusal", _SD_MF, _sd_refusals[1], full=True),
+             {"f.field": IN, "f.record": _sd_c(_SD_RECORD, "the longest record name"), "f.path": _sd_c(_SD_PATH, "the longest path")}),
+            (site("unknown_field_refusal", _SD_MF, _sd_refusals[0], full=True),
+             {"f.path": _sd_c(_SD_NO_PATH, "SD-NR: a collection path"), "f.is": _sd_c(_SD_NO_KIND, "SD-NR: a static kind")}),
+            (site("non_object_records", _SD_MF, _sd_non_object_push, full=True),
+             {"prefix": _sd_c(len("model."), "SD-NR: a static prefix"), "collection": _sd_c(_SD_NO_COLL, "SD-NR: a static collection"),
+              "i": _sd_c(_SD_INT, "a usize index")}),
+            (site("listed_refusal", _SD_MF, 'listed.push_str(&format!("; and {} more", findings.more));', full=True),
+             {"findings.more": _sd_c(_SD_INT, "a usize count")}),
+            (site("listed_refusal", _SD_MF, 'format!("{code}: request: {listed}. {remedy}")', full=True),
+             {"code": _sd_c(_sd_codes, "SD-NR: a static code"), "listed": _sd_c(_SD_LIST, "<= 8 findings joined by '; ' and the `and N more` suffix"),
+              "remedy": _sd_c(_sd_remedy, "SD-NR: a static remedy")}),
+        ]
+    else:
+        O10_ID_AUDIT += [
+            (site("unknown_field_refusal", _SD_MF, ".map(|f| format!(", full=True),
+             {"f.field": IN, "f.record": _sd_c(_SD_RECORD, "the longest record name"), "f.path": _sd_c(_SD_PATH, "the longest path")}),
+            (site("unknown_field_refusal", _SD_MF, "{UNKNOWN_MODEL_FIELD}: request: {named_findings}", full=True, row="format!("),
+             {"named_findings": _sd_c(_SD_LIST, "<= 8 findings joined by '; ' and the `and N more` suffix")}),
+        ]
     LEX_SITE_SIZE += [
-        (site("unknown_field_refusal", _SD_MF, '.join("; ");'), {"class": 8 * _SD_ONE + 7 * len("; "), "why": O10 + "SD-ID: <= 8 findings joined (multiplicity 0)"}),
+        (site("listed_refusal" if _SD_NESTED else "unknown_field_refusal", _SD_MF, '.join("; ");'),
+         {"class": 8 * max(_SD_ONE, _SD_NO_ONE if _SD_NESTED else 0) + 7 * len("; "), "why": O10 + "SD-ID: <= 8 findings joined (multiplicity 0)"}),
         (site("check", _SD_MF, _sd_push), {"class": max(128, _SD_PATH), "why": O10 + "SD-ID: a request key or a path (multiplicity 0)"}),
-    ]
-    # SD-EV (EDGE_ZERO): `findings.push(..)` in check is Vec::push; by name the call graph also reaches
-    # load_ledger::LoadLedger::push, which check never calls.
+    ] + ([(site("check_nested", _SD_MF, _sd_nested_push), {"class": max(128, _SD_RECORD, _SD_PATH),
+                                                            "why": O10 + "SD-NR: a request key, a nested record's name or path (multiplicity 0)"}),
+          (site("non_object_records", _SD_MF, _sd_non_object_push), {"class": _SD_NO_PATH, "why": O10 + "SD-NR: a collection path (multiplicity 0)"})]
+         if _SD_NESTED else [])
+    # SD-EV (EDGE_ZERO): the finding push is Vec::push (in check, or since SD-NR in keep_finding); by name the call graph
+    # also reaches load_ledger::LoadLedger::push, which it never calls.
     if fnkey("push", FK_ + "load_ledger.rs"):
-        O10_EDGE_ZERO += [(fnkey("check", _SD_MF), fnkey("push", FK_ + "load_ledger.rs"),
-                           O10 + "SD-EV: `findings.push(..)` is Vec::push on a Vec<Finding>, not LoadLedger::push")]
+        O10_EDGE_ZERO += [(fnkey("keep_finding" if _SD_NESTED else "check", _SD_MF), fnkey("push", FK_ + "load_ledger.rs"),
+                           O10 + "SD-EV: the finding push is Vec::push on the kept findings, not LoadLedger::push")]
 # SD-WT (ID_AUDIT, LEX_SITE_SIZE): append_combination_results names each withheld combination row: a base id with a
 # static reason, or a support group `support-action:{len}:{support id} ({reason})` with one of the group's two static
 # reasons; one LOAD_COMBINATION_ROW_WITHHELD warning per combination names <= NAMED (8) of them joined by ", " with an
@@ -2772,3 +2957,125 @@ if fnkey("generation_basis", _W15B_SW):
     # The component branch's wrench-set keys (two `to_string`s per evidence row) run only inside the same closure.
     O10_SITE_ZERO += [(site("inspect_applied_self_weight", _W15B_SW, 'let key = |e: &Value| (e["wrench_part"].as_str().unwrap_or_default().to_string(),'),
                        O10 + "W15B-NS: inside the lineage closure, after the `continue` every admitted load takes")]
+
+# ---- W-16 slice a: imposed displacement on the pressure-free route, stage 1 (DEL-04-03 Design
+# `pf-imposed-displacement.md`; retained-pricing-rules.md §8.23). imposed_motion.rs is new: what it reaches on D1 is
+# priced here and in w16_owners_model (W16-NI, W16-VF); what lies behind a support target is zero by D1.7 (W16-NS).
+_W16_IM = PP_ + "imposed_motion.rs"
+if fnkey("case_prescribed", _W16_IM):
+    _W16_VAL = _fn_text("validate", _W16_IM)
+    _W16_PF = _fn_text("validate_pressure_free", _W16_IM)
+    _W16_CP = _fn_text("case_prescribed", _W16_IM)
+    _W16_FAMILY = _fn_text("family_clauses", PP_ + "retained_memory.rs")
+    _W16_SOLVE = _fn_text("solve_prepared_load_case", _LIB)
+    _w16_pf_else = ("let LoadTargetInput::Support { support: support_id, dof } = &load.target else {\n"
+                    "                if load.category == CATEGORY {\n"
+                    "                    refuse(diagnostics, case, load, TARGET_INVALID,")
+    _w16_solve = ("    let before = diagnostics.len();\n    let pf_motion = match load_state {\n        Some(_) => None,\n"
+                  "        None => imposed_motion::case_prescribed(model, load_case, restrained_dofs, diagnostics),\n    };\n"
+                  "    if has_blocking(&diagnostics[before..]) {\n")
+    # W16-NS (guard): D1.7 refuses every support-targeted primitive on both routes (family_clauses' exhaustive match over
+    # every case's primitive loads), so an admitted request has none. Every imposed_motion site behind a support target is
+    # then unreached: validate's exact-branch loop (it iterates only support targets), validate_pressure_free's body
+    # after its let-else (its only reachable call is the node/element `imposed_displacement` refusal, TARGET_INVALID,
+    # then `continue`), the motion-only nonlinear push (`motion` is set only after the let-else; D1.6 also refuses
+    # nonlinear supports), case_prescribed's loop body after its let-else (so its map stays empty, `any` false, and
+    # nothing is pushed), and the case solve's early return, guarded by a blocking diagnostic pushed after `before`.
+    _w16_ns = (
+        _W16_FAMILY.count("for case in &m.load_cases {\n        for load in &case.primitive_loads {\n            match &load.target {") == 1,
+        _W16_FAMILY.count("crate::LoadTargetInput::Support { .. } => {\n                    return refuse(C::Loads, F::LoadTarget);") == 1,
+        _fn_text("is_support_target", _W16_IM).count("matches!(load.target, LoadTargetInput::Support { .. })") == 1,
+        _W16_VAL.count("for load in case.primitive_loads.iter().filter(|load| is_support_target(load)) {") == 1,
+        _W16_VAL.count("refuse(") == 1,
+        _W16_VAL.count("} else {\n        validate_pressure_free(model, &mut found);\n    }") == 1,
+        _W16_PF.count(_w16_pf_else) == 1,
+        _W16_PF.split(_w16_pf_else, 1)[0].count("refuse(") == 0 and _W16_PF.split(_w16_pf_else, 1)[0].count("diag(") == 0,
+        _W16_PF.split(_w16_pf_else, 1)[1].split("continue;", 1)[0].count("refuse(") == 0,
+        _W16_PF.count("motion = true;") == 1 and _W16_PF.index("motion = true;") > _W16_PF.index(_w16_pf_else),
+        _W16_PF.count("if motion && nonlinear {") == 1,
+        _W16_CP.count("let LoadTargetInput::Support { support, dof } = &load.target else { continue };") == 1,
+        _W16_CP.count("refuse(") == 1 and _W16_CP.count(".insert(") == 1 and _W16_CP.count("any = true;") == 1,
+        _W16_CP.index("any = true;") > _W16_CP.index("&load.target else { continue };"),
+        _W16_SOLVE.count(_w16_solve) == 1,
+        _text_of(_LIB).count("imposed_motion::case_prescribed(") == 1,
+        _text_of(_LIB).count("imposed_motion::validate(&model, &mut diagnostics)") == 1,
+        _re.sub(r"//[^\n]*", "", _production(_W16_IM)).count("refuse(") == 12,
+    )
+    if not all(_w16_ns):
+        raise SystemExit(f"W16-NS: the support-target premise or its D1.7 refusal changed; re-review its zeros: {_w16_ns}")
+    _W16_NS = (O10 + "W16-NS: D1.7 refuses every support-targeted primitive (family_clauses, F::LoadTarget), so no admitted "
+               "load reaches imposed_motion's support-target branch")
+    _W16_EVF = O10 + "W16-NS: by-name edge reached only from the support-target branch; "
+    O10_EDGE_ZERO += [
+        (fnkey("validate", _W16_IM), fnkey("refuse", _W16_IM), _W16_NS + " (validate's exact-branch loop iterates only support targets)"),
+        (fnkey("validate", _W16_IM), fnkey("support", PP_ + "certified_publication.rs"),
+         _W16_EVF + "the binding `support` of the exact-branch refusal, not certified_publication's fn support"),
+        (fnkey("case_prescribed", _W16_IM), fnkey("refuse", _W16_IM), _W16_NS + " (case_prescribed's body after its let-else)"),
+        (fnkey("case_prescribed", _W16_IM), fnkey("parse_dof", _LIB), _W16_NS + " (case_prescribed's body after its let-else)"),
+        (fnkey("case_prescribed", _W16_IM), fnkey("dof_index", _LIB), _W16_NS + " (case_prescribed's body after its let-else)"),
+        (fnkey("case_prescribed", _W16_IM), fnkey("support", PP_ + "certified_publication.rs"),
+         _W16_EVF + "the binding `support`, not certified_publication's fn support"),
+        (fnkey("case_prescribed", _W16_IM), fnkey("find", FK_ + "structural/sparse.rs"), _W16_EVF + "Iterator::find over the supports"),
+    ] + [(fnkey("case_prescribed", _W16_IM), fnkey("get", _f), _W16_EVF + "HashMap::get of the node index")
+         for _f in (PP_ + "retained_memory.rs", FK_ + "load_ledger.rs", FK_ + "structural/sparse.rs", "core/solver/sparse_direct/src/lib.rs")] + [
+        (fnkey("validate_pressure_free", _W16_IM), fnkey(_n, _f), _W16_NS + f" ({_n}: the support-target branch or the motion-only push)")
+        for _n, _f in (("is_rigid", _W16_IM), ("restrains", _W16_IM), ("expected_dimension", _W16_IM), ("parse_dof", _LIB),
+                       ("dof_index", _LIB), ("diag", _LIB), ("exact_source_identity", _LIB),
+                       ("unit_by_symbol", "core/units/src/lib.rs"))] + [
+        (fnkey("validate_pressure_free", _W16_IM), fnkey(_n, _f), _W16_EVF + _why)
+        for _n, _f, _why in (("sum", PP_ + "retained_wire.rs", "Iterator::sum of the coincident restraints"),
+                             ("support_id", PP_ + "source_receipt/rows.rs", "the binding `support_id`, not rows.rs' fn support_id"),
+                             ("find", FK_ + "structural/sparse.rs", "Iterator::find over the supports"))]
+    # W16-NS: validate_pressure_free calls refuse at most once per primitive load on D1 (the node/element refusal, then
+    # `continue`); its eight support-branch calls are unreached. Per call of validate_pressure_free: cases*l.
+    EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey("validate_pressure_free", _W16_IM), fnkey("refuse", _W16_IM), "cases*l",
+        O10 + "W16-NS: on D1 only the node/element `imposed_displacement` refusal (TARGET_INVALID) calls refuse, at most once "
+        "per primitive load (it continues after it); the support-branch calls are unreached (D1.7)")]
+    _w16_lines = lambda fn, texts: [site(fn, _W16_IM, _t) for _t in texts]
+    O10_SITE_ZERO += [(_k, _W16_NS + " (validate's exact-branch refusal text)") for _k in _w16_lines("validate", (
+                          "the exact route takes support and anchor motion only as",))] + [
+                      (_k, _W16_NS + " (validate_pressure_free's support-target branch)") for _k in _w16_lines("validate_pressure_free", (
+                          "targets support {support_id} with category {}", "which is not in the model",
+                          "names target DOF {dof} and direction {}", "which is a spring, a variable spring hanger",
+                          "which does not restrain that DOF", "a translation needs dimension displacement",
+                          "but another rigid restraint also holds {name}", "both prescribe {name} at node {}",
+                          "imposes a support displacement in a model with nonlinear supports",
+                          "vec![case.id.clone()],"))] + [
+                      (site("validate_pressure_free", _W16_IM, "exact_source_identity(&[&case.id, WITH_NONLINEAR_SUPPORTS])",
+                            row="&format!("), _W16_NS + " (the motion-only nonlinear push's id; D1.6 also refuses nonlinear supports)"),
+                      (site("validate_pressure_free", _W16_IM, "exact_source_identity(&[&case.id, WITH_NONLINEAR_SUPPORTS])",
+                            row="diagnostics.push(diag("), _W16_NS + " (the motion-only nonlinear push: no count in D; D1.6 also refuses nonlinear supports)"),
+                      (site("case_prescribed", _W16_IM, "does not address one prepared rigid boundary DOF"),
+                       _W16_NS + " (case_prescribed's body after its let-else)"),
+                      (site_after("solve_prepared_load_case", _LIB, "if has_blocking(&diagnostics[before..]) {", "load_case_id: load_case.id.clone(),"),
+                       _W16_NS + " (the case solve's early return: case_prescribed pushes nothing on D1)")]
+    # W16-ID: the reachable refusal's texts. refuse's refs clone the load and case ids (IN128); its id is
+    # `diagnostic:imposed-displacement:` + exact_source_identity over (case id, load id, code): `{len}:{part}` per part,
+    # each id <= 4 + 128 B and the code <= 3 + the longest code constant passed to refuse (read at the snapshot).
+    _W16_CODES = _re.findall(r'pub\(crate\) const [A-Z_]+: &str = "([A-Z_]+)";', _production(_W16_IM))
+    if len(_W16_CODES) != 10:
+        raise SystemExit(f"W16-ID: imposed_motion's code constants changed; re-review the id bound: {_W16_CODES}")
+    _W16_CODE = max(len(_c) for _c in _W16_CODES)
+    _W16_IDENT = {"bytes": 2 * (len("128:") + 128) + len(str(_W16_CODE)) + 1 + _W16_CODE,
+                  "source": O10 + f"W16-ID: exact_source_identity over two IN128 ids and a code of <= {_W16_CODE} B"}
+    O10_ID_AUDIT += [
+        (site("refuse", _W16_IM, "let mut refs = vec![load.id.clone(), case.id.clone()];", full=True), {"load.id": IN, "case.id": IN}),
+        (site("refuse", _W16_IM, "exact_source_identity(&[&case.id, &load.id, code])", full=True, row="&format!("),
+         {"exact_source_identity(&[&case.id,&load.id,code])": _W16_IDENT}),
+        (site("validate_pressure_free", _W16_IM, "is an imposed_displacement on a node or element target", full=True),
+         {"load.id": IN, "case.id": IN}),
+    ]
+    # The zeroed sites' expressions keep their classes (the chain classifies a site before its zero applies): a case id
+    # and a load id are IN128, a DOF token upper-cased is <= 2 B, and the nonlinear push's id is exact_source_identity
+    # over one IN128 id and its code.
+    _W16_DOF = {"bytes": 2, "source": O10 + "W16-ID: a frame DOF token (UX..RZ) upper-cased"}
+    O10_ID_AUDIT += [
+        (site("validate_pressure_free", _W16_IM, "which does not restrain that DOF", full=True),
+         {"dof.as_str().to_ascii_uppercase()": _W16_DOF}),
+        (site("validate_pressure_free", _W16_IM, "both prescribe {name} at node {}", full=True), {"first": IN}),
+        (site("validate_pressure_free", _W16_IM, "exact_source_identity(&[&case.id, WITH_NONLINEAR_SUPPORTS])", full=True, row="&format!("),
+         {"exact_source_identity(&[&case.id,WITH_NONLINEAR_SUPPORTS])": {"bytes": len("128:") + 128 + len(str(_W16_CODE)) + 1 + _W16_CODE,
+          "source": O10 + "W16-ID: exact_source_identity over one IN128 id and a code"}}),
+        (site_after("solve_prepared_load_case", _LIB, "if has_blocking(&diagnostics[before..]) {", "load_case_id: load_case.id.clone(),"),
+         {"load_case.id": IN}),
+    ]

@@ -1368,7 +1368,7 @@
   },
   "metadata_policy": "preserve_source_producer_numerical_quality_formulation_basis_contract_evidence",
   "reserved_inactive_successors": [],
-  "inherited_semantic_contract_sha256": "f455a61ab9d80a16b24a03c5acbcce6425342d8cc2c839eb4742b2b9bb38a869",
+  "inherited_semantic_contract_sha256": "5a6630d9157ad1f4232c558d0cd57414677add8d1c95cc0a5d19a2579fb3a05b",
   "source_basis_signature_policy": "where_declared_require_exact_metadata_basis_first_match_in_table_order",
   "formulation_profile_id": "product_preview_retained_w1a_v2",
   "contract_evidence_policy": "closed_preview_case_extrema_coverage_attribution_intensification_and_combination_gate_binding_v1",
@@ -1381,7 +1381,7 @@
       },
       {
         "code": "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE",
-        "condition": "the model has a consuming constant-effort support and |sum(factors) - 1| > 64*epsilon*max(1, sum(|factors|))"
+        "condition": "the model has a consuming constant-effort support and a factor is not finite or |sum(factors) - 1| > 64*epsilon, with sum(factors) the exact sum of the binary64 factors, compared exactly and not scaled by sum(|factors|)"
       },
       {
         "code": "COMBINATION_MODULUS_BASIS_MIXED",
@@ -1427,7 +1427,7 @@
   },
   "supported_profile_limitations": [
     "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
-    "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
+    "Nonzero pressure is refused on this route.",
     "On every member the section normal-stress extremes are N/A \u00b1 hypot(My,Mz)/Z at each station and the transverse shear maximum is the straight-annulus Saint-Venant value, with \u03bd = E/(2G) \u2212 1 assuming an isotropic material. On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No equivalent stress or code stress.",
     "On arcs: signed tangent-frame resultants, nominal stress components and section extremes; endpoint force rows are node-on-element actions in the tangent frame at their end. The normal-stress maximum is bounded along the arc and enters the stress headline. The transverse shear uses the straight-annulus field without curvature correction.",
     "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",

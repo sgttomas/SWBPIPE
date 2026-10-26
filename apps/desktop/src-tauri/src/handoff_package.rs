@@ -1301,7 +1301,16 @@ pub(crate) fn prepare_handoff_screened(
         cache.insert(key, found.clone());
         Ok(found)
     };
-    let admitted = model_document_save::admit_model_document_text_screened(canonical_text, claimed_model_hash, evidence_payload_sha256, before_screening, &mut cached)?;
+    // Each stored library is screened whole and structurally below
+    // (`library_refs`: `HANDOFF-DISPOSITION-MALFORMED` by its pointer).
+    let admitted = model_document_save::admit_model_document_text_screened_with(
+        canonical_text,
+        claimed_model_hash,
+        evidence_payload_sha256,
+        before_screening,
+        model_document_save::StoredMembers::Structural,
+        &mut cached,
+    )?;
     let document: Value = serde_json::from_str(&admitted.text).expect("the admitted text is JSON");
     let model_hex = sha256_hex(&admitted.text);
     let project_id = document.pointer("/project/id").and_then(Value::as_str).unwrap_or("").to_string();
@@ -4453,6 +4462,72 @@ fn review5_residual_swap_can_move_a_nonempty_substitute() {
                 assert_ne!(reference["privacy_classification"], json!("public_metadata"), "{value}");
             }
         }
+    }
+
+    /// #1651 Codex r2: a `provenance` nested in a stored record, at any depth
+    /// and in any record of the library, is refused in its object form when
+    /// it carries a blocking disposition (the structural screen judges every
+    /// object of the whole library). Its positional (array) form is refused
+    /// too, by name, wherever it sits; on `d28869c09f` the nested and
+    /// non-matching-record forms were admitted. A readable blocking status
+    /// elsewhere still takes precedence (`PROTECTED_CONTENT_BLOCKED` only).
+    #[test]
+    fn r2_a_positional_provenance_anywhere_in_a_stored_library_is_refused() {
+        let quarantined = json!({ "redistribution_status": "private_only", "review_status": "quarantined" });
+        let positional = json!(["private_only", "quarantined"]);
+        let extra = |library: &mut Value| {
+            let mut other = library["material_records"][0].clone();
+            other["material_id"] = json!("other");
+            library["material_records"].as_array_mut().unwrap().push(other);
+        };
+        type Place = fn(&mut Value, Value);
+        let places: [(&str, Place); 3] = [
+            ("record", |library, value| library["material_records"][0]["provenance"] = value),
+            ("nested", |library, value| library["material_records"][0]["deep"] = json!({ "provenance": value })),
+            ("other record", |library, value| library["material_records"][1]["deep"] = json!({ "provenance": value })),
+        ];
+        for (site, place) in places {
+            for (form, value, expected) in [
+                ("object", quarantined.clone(), model_document_save::PROTECTED_CONTENT_BLOCKED),
+                // On the matching record itself the shared verdict judges the
+                // provenance first and names it; elsewhere the structural
+                // screen of the whole library names it by its pointer.
+                ("positional", positional.clone(), if site == "record" { crate::export_disposition_screen::DISPOSITION_RECORD_MALFORMED } else { DISPOSITION_MALFORMED }),
+            ] {
+                let model = witness_model();
+                let mut library = material_library();
+                extra(&mut library);
+                place(&mut library, value);
+                // The handoff's structural screening is priced from this
+                // allocation-free count (`structural_screening_bytes`), which
+                // follows the same walk, so the new finding is priced.
+                let built = malformed_values(&library);
+                let counted = crate::export_disposition_screen::structural_bound(&library).malformed;
+                assert_eq!(counted.count, built.len() as u64, "{site}/{form}");
+                assert_eq!(counted.text_bytes, built.iter().map(|text| text.len() as u64).sum::<u64>(), "{site}/{form}");
+                assert_eq!(built.is_empty(), form == "object", "{site}/{form}: {built:?}");
+                let store = store("r2-positional-provenance", &model, true);
+                crate::upsert_library(&Connection::open(&store.path).unwrap(), "project:slots", "material", "library:invented-materials", &library).unwrap();
+                let state = save_state(&store, &model, "handoff_basis", "6e6e00006e6e00006e6e00006e6e0000").state;
+                let result = prepare(&store, &model, &state.state_id);
+                assert!(matches!(&result, Err(d) if d.iter().all(|d| d.code == expected)), "{site}/{form}: {:?}", codes(&result));
+                if form == "positional" && site != "record" {
+                    let Err(refusals) = &result else { unreachable!() };
+                    let pointer = if site == "nested" { "/material_records/0/deep/provenance" } else { "/material_records/1/deep/provenance" };
+                    assert!(refusals.iter().any(|d| d.message.contains(pointer)), "{site}: {refusals:?}");
+                }
+            }
+        }
+        // Precedence, unchanged: a readable `rejected` beside an unreadable member.
+        let model = witness_model();
+        let mut library = material_library();
+        library["material_records"][0]["review_status"] = json!(["quarantined"]);
+        library["material_records"][0]["provenance"]["redistribution_status"] = json!("rejected");
+        let store = store("r2-precedence", &model, true);
+        crate::upsert_library(&Connection::open(&store.path).unwrap(), "project:slots", "material", "library:invented-materials", &library).unwrap();
+        let state = save_state(&store, &model, "handoff_basis", "6e6e00006e6e00006e6e00006e6e0000").state;
+        let result = prepare(&store, &model, &state.state_id);
+        assert!(matches!(&result, Err(d) if d.iter().all(|d| d.code == model_document_save::PROTECTED_CONTENT_BLOCKED)), "{:?}", codes(&result));
     }
 
     /// Probe (f): checksum subject binding. Each forged subject, resealed so

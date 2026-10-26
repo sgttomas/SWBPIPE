@@ -18,7 +18,14 @@ SOURCE_FILES = {
     # PP (D-5 mass): an exact-contract section's generated self-weight uses EXACT_MASS_METHOD (metal on the nominal
     # wall, contents on the pressure bore, the allowance among its inputs); the added refusals are static `invalid`
     # messages and retained_basis checks one more input key. The formed-load and finding owners are unchanged.
-    "core/product_physics/src/self_weight.rs": "d28d66b4f5f43f332f5b23e0aa31873ba9c1ba441c1c2dd076f8ef6af08a2323",
+    # W-16 slice a (§8.23): primitive_payload and inspect_applied_self_weight gain the support arm (a payload for a
+    # support target, none on D1; `false` for the generated identity). The formed-load and finding owners are unchanged.
+    # Nested-record closure (§8.25): the two evidence-reader PreviewPipe literals name the pipe's three
+    # declared-and-ignored zero-size members (+3 lines each), old_dependencies_mass removes normalized_dependencies'
+    # section_ref before rebuilding the closed section (DEPENDENCY_SECTION_REF), component_basis reads the recorded
+    # weight and centre of gravity as closed quantities, and the tests add evidence tests. No formed-load or finding
+    # owner changes.
+    "core/product_physics/src/self_weight.rs": "e543bf48200f0453a11026f1167d124050ffc21b275c977fc98e52698f85f775",
     "core/product_physics/src/source_receipt/source.rs": "384140db918da65d5e76dd601cd0a2068ae2a098379b41c6907069cf99ced419",
     # T4-U8: retained::assemble's Timoshenko refusal; W1 adds one retained_api
     # export line for member-source types. Existing formation owners stay.
@@ -193,8 +200,11 @@ def decisions(snapshot, resolved):
     audit[1][1]["case_id"] = {"bytes": 128, "source": "IN128"}
     # T4-U6/U8 snapshot keys (PP head 20c6126a16; same text): self_weight.rs 814 -> 869 (the D-5 exact mass branch
     # above it); formation_check.rs +13 from check_at on (PP's frame-member binding before it).
-    # W-15 slice b (§8.22): 869 -> 1281 (the component-weight generator above it; same text).
-    audit.append((resolved("core/product_physics/src/self_weight.rs:1281"), {
+    # W-15 slice b (§8.22): 869 -> 1281 (the component-weight generator above it; same text). W-16 slice a (§8.23):
+    # 1281 -> 1284 (primitive_payload's support arm above it; same text).
+    # Nested-record closure (§8.25): 1284 -> 1292 (DEPENDENCY_SECTION_REF's two lines, the first evidence-reader
+    # literal's three members and component_basis's three closed reads above it), same text.
+    audit.append((resolved("core/product_physics/src/self_weight.rs:1292"), {
         "case.id": {"bytes": 128, "source": "IN128"},
         "pipe": {"bytes": 128, "source": "IN128"},
         "case.id.len()": {"bytes": 20, "source": "NUM"},

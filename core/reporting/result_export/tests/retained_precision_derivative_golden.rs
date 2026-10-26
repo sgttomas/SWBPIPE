@@ -48,20 +48,20 @@ const PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         SPARSE,
-        "cf053309e8048ae013dc5388d1115399ff89cf493eb2e36772500a3c6985a6e5",
-        "bd64548d321575ab27d11b94c2e258b75665e31d7428639b476729164ce57bcc",
+        "139cfdb7d960aa1c5a061ee21cbf48fa55b96f896dc40120b6576a9f8061781c",
+        "a3a2fc6748be7deb006681b493cc858b065b000f3f3427a8dc3ce0f75d7750d8",
     ),
     (
         "dense_scrutiny",
         DENSE,
-        "f8078ee2c82ba370ab04591af49ed12c48fda5d88a54a75b0725fbdde317d884",
-        "d8b82e5a1e5449bcb06f2d0a76b0f5102d4778e9fef6f72859fffde256f61bec",
+        "7ce9946465092d416474faf1f455cb9466edd8fb84d3b8a3640a433b27d29d31",
+        "fcb064918059448e3e2a671821a2924f69c4d1da3fabbad105cab9f483297168",
     ),
 ];
 /// The committed goldens' file sha256 (= the documents' canonical digests).
 const GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "79d492da2ed150568f705c5ed6ad11e609dabfad1783a4101066bacf2dca4bb5"),
-    ("dense_scrutiny", "c456915ab647ce0eb50c386db0fffe4318e3cee7c653404718cb9efd5e0ac6dd"),
+    ("sparse_interactive", "ee497bffc6fab092da57ac43010ad579f7eaf40232b570acfc7a57f6efa54a39"),
+    ("dense_scrutiny", "4d362dd6a3b64b96516f277b3a931cc5a3332ce977dbf93d5a64b8f89f5ea792"),
 ];
 /// The milestone's validated class counts (as retained_precision_carriers.rs
 /// `CLASSES`): relative, absolute, input-derived, non-quantity and not-covered (T4-U4b: the member's 15

@@ -30,6 +30,13 @@ use std::collections::BTreeMap;
 pub const PROTECTED_CONTENT_BLOCKED: &str = "PROTECTED_CONTENT_BLOCKED";
 /// The store check's code (`check_model_library_refs`, W-13 §3.5).
 pub const LIBRARY_REF_UNRESOLVED: &str = crate::MODEL_LIBRARY_REF_UNRESOLVED;
+/// The store-resolved screen's code for a screened record its verdict cannot
+/// read (W-17 object form; DEL-15-01 Design `canonical-model-export.md`,
+/// "Disposition screening"): a `provenance_record`, `rule_pack_refs[]` entry
+/// or `library_ref` that is not an object (a positional, array-form record
+/// among them), `rule_pack_refs` that is not a list, or a disposition member
+/// the verdict reads that is an array or an object.
+pub const DISPOSITION_RECORD_MALFORMED: &str = "MODEL-DISPOSITION-RECORD-MALFORMED";
 
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct DispositionDiagnostic {
@@ -75,6 +82,135 @@ fn blocking_dispositions(item: &Map<String, Value>) -> Vec<String> {
         found.push(format!("review_status {status}"));
     }
     found
+}
+
+/// The members [`blocking_dispositions`] reads, as [`unreadable_members`]
+/// names them: the item's own two disposition members, its `provenance`, and
+/// that provenance's two.
+const VERDICT_MEMBERS: [&str; 5] = ["redistribution_status", "review_status", "provenance", "provenance.redistribution_status", "provenance.review_status"];
+
+/// The members [`blocking_dispositions`] reads from `item` that hold a value
+/// it cannot read, as a bit per [`VERDICT_MEMBERS`] entry (W-17 object form):
+/// a disposition member that is an array or an object (the structural
+/// screen's [`malformed_values`] rule), or a `provenance` written as an array
+/// (its positional form). The verdict would skip each of them, so a blocking
+/// value could sit there unseen. Scalars other than text are not refused:
+/// they state no disposition (as the structural screen treats them).
+fn unreadable_members(item: &Map<String, Value>) -> u8 {
+    let container = |value: Option<&Value>| matches!(value, Some(Value::Array(_) | Value::Object(_)));
+    let mut found = 0u8;
+    for (bit, key) in [(0, "redistribution_status"), (1, "review_status")] {
+        if container(item.get(key)) {
+            found |= 1 << bit;
+        }
+    }
+    match item.get("provenance") {
+        Some(Value::Array(_)) => found |= 1 << 2,
+        Some(Value::Object(provenance)) => {
+            for (bit, key) in [(3, "redistribution_status"), (4, "review_status")] {
+                if container(provenance.get(key)) {
+                    found |= 1 << bit;
+                }
+            }
+        }
+        _ => {}
+    }
+    found
+}
+
+/// The [`VERDICT_MEMBERS`] named by `found`, joined.
+fn unreadable_names(found: u8) -> String {
+    VERDICT_MEMBERS.iter().enumerate().filter(|(bit, _)| found & (1 << bit) != 0).map(|(_, name)| *name).collect::<Vec<_>>().join(", ")
+}
+
+/// The positional `provenance` of [`unreadable_members`] over a stored
+/// library object or record of `library_kind`, at the objects its verdict
+/// ([`stored_item_blocking`]) judges: the item itself, or, for a hanger
+/// library, every object in it that carries a `provenance` or a disposition
+/// member: [`StoredMembers::Structural`]'s stored check. (Its caller's
+/// structural screen, [`malformed_values`], names a stored disposition member
+/// that is an array or an object by its pointer in the stored library.)
+fn stored_item_unreadable(library_kind: &str, item: &Map<String, Value>) -> u8 {
+    const POSITIONAL_PROVENANCE: u8 = 1 << 2;
+    if library_kind != "hanger" {
+        return unreadable_members(item) & POSITIONAL_PROVENANCE;
+    }
+    let mut objects = Vec::new();
+    collect_objects(item, "$", &mut objects);
+    objects
+        .iter()
+        .filter(|(path, object)| {
+            object.contains_key("provenance")
+                || (!path.ends_with(".provenance") && ["redistribution_status", "review_status", "privacy_class"].iter().any(|key| object.contains_key(*key)))
+        })
+        .fold(0, |found, (_, object)| found | (unreadable_members(object) & POSITIONAL_PROVENANCE))
+}
+
+/// How the store-resolved screen treats a stored disposition member it cannot
+/// read (W-17 object form, #1651 Codex r1).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(crate) enum StoredMembers {
+    /// Refuse it by name ([`DISPOSITION_RECORD_MALFORMED`]): a
+    /// `redistribution_status` or `review_status` (the members the verdict
+    /// reads) holding an array or an object, or a `provenance` written as an
+    /// array, at any depth of the referenced stored library object or record.
+    /// Save Model Document, the stored-model recovery export and the report
+    /// package's model, whose callers screen no stored library structurally.
+    #[default]
+    Refuse,
+    /// Leave such members to the caller's own structural screen of the whole
+    /// stored library ([`malformed_values`]; Save Handoff's
+    /// `HANDOFF-DISPOSITION-MALFORMED`, named by its pointer in the library).
+    /// A positional `provenance` the verdict judges is still refused here.
+    Structural,
+}
+
+/// The stored members [`stored_item_malformed`] names, by bit.
+const STORED_MEMBERS: [&str; 3] = ["redistribution_status", "review_status", "provenance"];
+
+/// [`StoredMembers::Refuse`]'s finding over a stored library object or
+/// record, at any depth, as a bit per [`STORED_MEMBERS`] entry.
+/// Allocation-free; the depth is the parsed document's, which the JSON
+/// parser bounds. Other disposition members (`classification` and the
+/// privacy members) are not read by the verdict and follow it
+/// (`model_document_save` `b1r1_classification_objects_follow_the_import_verdict`).
+fn stored_item_malformed(item: &Map<String, Value>) -> u8 {
+    let mut found = 0u8;
+    for (key, value) in item {
+        let bit = match (key.as_str(), value) {
+            ("redistribution_status", Value::Array(_) | Value::Object(_)) => 1,
+            ("review_status", Value::Array(_) | Value::Object(_)) => 1 << 1,
+            ("provenance", Value::Array(_)) => 1 << 2,
+            _ => 0,
+        };
+        found |= bit | stored_value_malformed(value);
+    }
+    found
+}
+
+fn stored_value_malformed(value: &Value) -> u8 {
+    match value {
+        Value::Object(object) => stored_item_malformed(object),
+        Value::Array(items) => items.iter().fold(0, |found, item| found | stored_value_malformed(item)),
+        _ => 0,
+    }
+}
+
+/// The [`STORED_MEMBERS`] named by `found`, joined.
+fn stored_malformed_names(found: u8) -> String {
+    STORED_MEMBERS.iter().enumerate().filter(|(bit, _)| found & (1 << bit) != 0).map(|(_, name)| *name).collect::<Vec<_>>().join(", ")
+}
+
+/// A JSON value's kind, as a refusal names it.
+fn value_kind(value: &Value) -> &'static str {
+    match value {
+        Value::Null => "null",
+        Value::Bool(_) => "a boolean",
+        Value::Number(_) => "a number",
+        Value::String(_) => "text",
+        Value::Array(_) => "an array",
+        Value::Object(_) => "an object",
+    }
 }
 
 /// The library import's disposition verdict for one stored library object or
@@ -204,17 +340,50 @@ struct DispositionScreen {
     /// `library_ref`s by `(kind, id)`: each reference's path and record id.
     library_refs: BTreeMap<(String, String), Vec<(String, Option<String>)>>,
     style: PathStyle,
+    stored_members: StoredMembers,
 }
 
 impl DispositionScreen {
+    /// A record whose verdict members are unreadable is refused by name
+    /// ([`DISPOSITION_RECORD_MALFORMED`]) instead of judged: one diagnostic
+    /// per record either way.
     fn screen(&mut self, item: &Map<String, Value>, path: &str, record: &str, what: &str) {
+        let unreadable = unreadable_members(item);
+        if unreadable != 0 {
+            return self.unreadable(&unreadable_names(unreadable), path, record, what);
+        }
         let found = blocking_dispositions(item);
         self.block(found, path, record, what);
     }
 
     fn screen_stored(&mut self, library_kind: &str, item: &Map<String, Value>, path: &str, record: &str, what: &str) {
+        let unreadable = match self.stored_members {
+            StoredMembers::Refuse => stored_malformed_names(stored_item_malformed(item)),
+            StoredMembers::Structural => unreadable_names(stored_item_unreadable(library_kind, item)),
+        };
+        if !unreadable.is_empty() {
+            return self.unreadable(&unreadable, path, record, what);
+        }
         let found = stored_item_blocking(library_kind, item);
         self.block(found, path, record, what);
+    }
+
+    fn unreadable(&mut self, members: &str, path: &str, record: &str, what: &str) {
+        self.blocking.push(diagnostic(
+            DISPOSITION_RECORD_MALFORMED,
+            path,
+            format!("{record} ({what}: {members}) holds an array or an object where its disposition is read, so the disposition cannot be judged; correct the record first."),
+        ));
+    }
+
+    /// A screened record that is not an object (`member` names it): refused
+    /// by name, never skipped.
+    fn not_an_object(&mut self, path: &str, member: &str, kind: &str) {
+        self.blocking.push(diagnostic(
+            DISPOSITION_RECORD_MALFORMED,
+            path,
+            format!("`{member}` is {kind}, not an object (a record written as an array is in positional form), so its disposition cannot be judged; correct the record first."),
+        ));
     }
 
     fn block(&mut self, found: Vec<String>, path: &str, record: &str, what: &str) {
@@ -229,12 +398,13 @@ impl DispositionScreen {
 
     /// Every `provenance_record` (at any depth, including inside another),
     /// every `rule_pack_refs[]` entry and every `library_ref`: the one walk
-    /// ([`walk_document`]).
+    /// ([`walk_document`]). Each that is not an object is refused by name.
     fn walk(&mut self, value: &Value, path: &str) {
         let style = self.style;
         walk_document(value, path, style, &mut |site, at| match site {
             DocumentSite::Provenance { record, name } => self.screen(record, at, &name, "provenance_record"),
             DocumentSite::RulePackRef { entry, name } => self.screen(entry, at, &name, "rule_pack_ref"),
+            DocumentSite::NotAnObject { member, value } => self.not_an_object(at, member, value_kind(value)),
             DocumentSite::LibraryRef(reference) => {
                 if let Some((kind, id, record_id)) = library_ref_identity(reference) {
                     self.library_refs.entry((kind.to_string(), id.to_string())).or_default().push((at.to_string(), record_id.map(str::to_string)));
@@ -253,6 +423,10 @@ enum DocumentSite<'a> {
     RulePackRef { entry: &'a Map<String, Value>, name: String },
     /// A `library_ref` object, at any depth and under any owner.
     LibraryRef(&'a Map<String, Value>),
+    /// A `provenance_record`, `rule_pack_refs` or `rule_pack_refs[]` entry,
+    /// or `library_ref` that is not an object (`rule_pack_refs`: not a list),
+    /// a positional record among them (W-17 object form).
+    NotAnObject { member: &'static str, value: &'a Value },
 }
 
 /// The one walk of a model document (the native save's screen, and the
@@ -276,16 +450,22 @@ fn walk_document<'a>(value: &'a Value, path: &str, style: PathStyle, visit: &mut
                         let name = owner.map(str::to_string).unwrap_or_else(|| if path.is_empty() { "$".to_string() } else { path.to_string() });
                         visit(DocumentSite::Provenance { record, name }, &at);
                     }
+                    ("provenance_record", other) => visit(DocumentSite::NotAnObject { member: "provenance_record", value: other }, &at),
                     ("rule_pack_refs", Value::Array(refs)) => {
                         for (index, entry) in refs.iter().enumerate() {
-                            if let Some(entry) = entry.as_object() {
-                                let entry_at = style.index(&at, index);
-                                let name = entry.get("rule_pack_id").and_then(Value::as_str).filter(|id| !id.is_empty()).unwrap_or(&entry_at).to_string();
-                                visit(DocumentSite::RulePackRef { entry, name }, &entry_at);
+                            let entry_at = style.index(&at, index);
+                            match entry.as_object() {
+                                Some(entry) => {
+                                    let name = entry.get("rule_pack_id").and_then(Value::as_str).filter(|id| !id.is_empty()).unwrap_or(&entry_at).to_string();
+                                    visit(DocumentSite::RulePackRef { entry, name }, &entry_at);
+                                }
+                                None => visit(DocumentSite::NotAnObject { member: "rule_pack_refs[]", value: entry }, &entry_at),
                             }
                         }
                     }
+                    ("rule_pack_refs", other) => visit(DocumentSite::NotAnObject { member: "rule_pack_refs", value: other }, &at),
                     ("library_ref", Value::Object(reference)) => visit(DocumentSite::LibraryRef(reference), &at),
+                    ("library_ref", other) => visit(DocumentSite::NotAnObject { member: "library_ref", value: other }, &at),
                     _ => {}
                 }
                 walk_document(child, &at, style, visit);
@@ -333,7 +513,20 @@ pub(crate) fn screen_dispositions_in<V: std::borrow::Borrow<Value>>(
     store_unavailable: &str,
     lookup: &mut dyn FnMut(&str, &str, &str) -> Result<Option<V>, String>,
 ) -> Result<Vec<DispositionDiagnostic>, Vec<DispositionDiagnostic>> {
-    let mut screen = DispositionScreen { style, ..DispositionScreen::default() };
+    screen_dispositions_with(value, root, style, project_id, store_unavailable, StoredMembers::Refuse, lookup)
+}
+
+/// [`screen_dispositions_in`] with the caller's [`StoredMembers`] policy.
+pub(crate) fn screen_dispositions_with<V: std::borrow::Borrow<Value>>(
+    value: &Value,
+    root: &str,
+    style: PathStyle,
+    project_id: &str,
+    store_unavailable: &str,
+    stored_members: StoredMembers,
+    lookup: &mut dyn FnMut(&str, &str, &str) -> Result<Option<V>, String>,
+) -> Result<Vec<DispositionDiagnostic>, Vec<DispositionDiagnostic>> {
+    let mut screen = DispositionScreen { style, stored_members, ..DispositionScreen::default() };
     screen.walk(value, root);
     let project_id = project_id.trim().to_string();
     let mut warnings = Vec::new();
@@ -356,8 +549,11 @@ pub(crate) fn screen_dispositions_in<V: std::borrow::Borrow<Value>>(
             continue;
         };
         let stored: &Value = stored.borrow();
-        if let Some(library) = stored.get(format!("{kind}_library")).and_then(Value::as_object) {
-            screen.screen_stored(&kind, library, &references[0].0, &named, "stored library");
+        let library_member = format!("{kind}_library");
+        match stored.get(&library_member) {
+            Some(Value::Object(library)) => screen.screen_stored(&kind, library, &references[0].0, &named, "stored library"),
+            Some(other) => screen.not_an_object(&references[0].0, &format!("{named} {library_member}"), value_kind(other)),
+            None => {}
         }
         let mut screened = Vec::new();
         for (path, record_id) in &references {
@@ -619,6 +815,11 @@ fn malformed_walk<P: WalkPointer, F: WalkFindings<P>>(value: &Value, pointer: &m
                 if screened && (child.is_array() || child.is_object()) && admitted.is_none() {
                     found.add(pointer, None, " is ", kind(child));
                 }
+                // A `provenance` in positional (array) form hides the members
+                // this screen judges (W-17 object form, #1651 Codex r2).
+                if key == "provenance" && child.is_array() {
+                    found.add(pointer, None, " is ", kind(child));
+                }
                 // Inside the admitted object no structure is exempt, whatever its key.
                 for (member, inner) in admitted.into_iter().flatten() {
                     if inner.is_array() || inner.is_object() {
@@ -690,8 +891,10 @@ pub(crate) fn screen_document(document: &Value) -> Vec<String> {
 /// object inside it is malformed; an object-valued `classification` anywhere
 /// else is malformed like any other. `null`, booleans and numbers are not
 /// refused (the library import stores them); they count as no public
-/// disposition and, for privacy members, as private. Returned as
-/// `<JSON pointer> is <JSON value kind>`. [`malformed_values`] is the same
+/// disposition and, for privacy members, as private. A `provenance` written
+/// as an array (its positional form) is malformed too, at any depth: it hides
+/// the members the structural screen judges (W-17, #1651 Codex r2). Returned
+/// as `<JSON pointer> is <JSON value kind>`. [`malformed_values`] is the same
 /// check with no exemption.
 pub(crate) fn malformed_dispositions(document: &Value) -> Vec<String> {
     collect_walk(document, ClassificationExemption::RulePackRoot, malformed_walk)
@@ -704,8 +907,8 @@ pub(crate) fn screen_value(value: &Value) -> Vec<String> {
 }
 
 /// [`malformed_dispositions`] with no `classification` exemption: every
-/// array- or object-valued disposition member, `classification` included, at
-/// any depth.
+/// array- or object-valued disposition member, `classification` included, and
+/// every array-valued `provenance`, at any depth.
 pub(crate) fn malformed_values(value: &Value) -> Vec<String> {
     collect_walk(value, ClassificationExemption::None, malformed_walk)
 }
@@ -799,6 +1002,9 @@ mod tests {
                         let screened = SCREENED_MEMBERS.iter().any(|(member, _)| member == key);
                         let admitted = admitted(exemption, pointer, key, child);
                         if screened && (child.is_array() || child.is_object()) && admitted.is_none() {
+                            found.push(format!("{at} is {}", kind(child)));
+                        }
+                        if key == "provenance" && child.is_array() {
                             found.push(format!("{at} is {}", kind(child)));
                         }
                         for (member, inner) in admitted.into_iter().flatten() {

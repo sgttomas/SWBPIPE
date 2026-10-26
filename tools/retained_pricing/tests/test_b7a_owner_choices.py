@@ -64,11 +64,11 @@ def test_complete_choice_once_and_all_auxiliaries_positive(actual):
 # T4-U6/U8: the same sites at the priced source's lines, unchanged text (B7b: structural.rs 1124; retained_product.rs
 # 3057, 3071, 3073, 3185, 3194, 3217, 3005, 3227; lib.rs helpers 13244/13619; 433fc1f1e4: 13587/13966; addbdc030e:
 # 13623/14002; T4-U6/U8 final: 3208, 3222, 3224, 3336, 3345, 3375, 13630, 14009, 3156, 3385; T4-S5 epoch 4 below).
-@pytest.mark.parametrize("line",[MODEL["SOURCE_LINE"],3418,3432,3434,3546,3555,3621,14387,14808,3366,3631])   # O4 S5: retained_product.rs +167; pre-0.4 unification: lib.rs +103; W-8: +2; silent-zero guard: +1; model document 0.7.0: +7; W-7: retained_product.rs +16/+29, lib.rs +156; W-15: lib.rs +111
+@pytest.mark.parametrize("line",[MODEL["SOURCE_LINE"],3418,3432,3434,3546,3555,3621,14532,14953,3366,3631])   # O4 S5: retained_product.rs +167; pre-0.4 unification: lib.rs +103; W-8: +2; silent-zero guard: +1; model document 0.7.0: +7; W-7: retained_product.rs +16/+29, lib.rs +156; W-15: lib.rs +111; W-16 slice a: lib.rs +39; nested-record closure: lib.rs +106
 def test_complete_group_source_error_and_auxiliary_alias_refusal(family,line):
     args=inputs();table=args[0]
-    file=MODEL["FK"]+"structural.rs" if line==MODEL["SOURCE_LINE"] else MODEL["PP"]+("lib.rs" if line in (14387,14808) else "retained_product.rs")
-    kind={MODEL["SOURCE_LINE"]:"clone_text",3546:"to_string",14808:"replace"}.get(line,"format")
+    file=MODEL["FK"]+"structural.rs" if line==MODEL["SOURCE_LINE"] else MODEL["PP"]+("lib.rs" if line in (14532,14953) else "retained_product.rs")
+    kind={MODEL["SOURCE_LINE"]:"clone_text",3546:"to_string",14953:"replace"}.get(line,"format")
     table.setdefault(family,{})[file+":"+str(line)+":"+kind]={"bytes":0}
     with pytest.raises(ValueError):MODEL["state"](SOURCE,*args)
 

@@ -8,11 +8,15 @@
 //! pinned here to the hash recorded in its SHA256SUMS. Nothing here derives an
 //! expectation from product code. Model inputs are invented.
 //!
-//! Routes. W9-A and W9-B run on the default preview route (PF) and on the
-//! exact route (`3.0.0/exact_pressure_v3`, Euler-Bernoulli, load/reference-state
-//! group, `pressure_regions: []`). W9-C runs only on the exact route: an imposed
-//! support motion exists only as `analysis_state.support_states[].boundary_motion`.
-//! W9-B's load is the product's own self-weight generation applied as drafted.
+//! Routes. Every case runs on the default preview route (PF) and on the exact
+//! route (`3.0.0/exact_pressure_v3`, Euler-Bernoulli, load/reference-state
+//! group, `pressure_regions: []`). W9-C's settlement is a support-targeted
+//! `imposed_displacement` primitive on PF (W-16 slice a, stage 1) and
+//! `analysis_state.support_states[].boundary_motion` on EX; its frozen rows
+//! serve both routes unchanged (the force-method compatibility F·R = d does not
+//! depend on the route, and the unloaded out-of-plane problem makes the PF/EX
+//! shear-modulus difference irrelevant). W9-B's load is the product's own
+//! self-weight generation applied as drafted.
 //!
 //! Criterion (DEC-024/DEC-026, unchanged): |obs - exp| <= 1e-9 |exp|; an
 //! exactly zero expectation uses 1e-9 times the case's frozen zero scale of
@@ -242,8 +246,12 @@ fn request(reference: &Value, route: Route, density: Option<f64>, loads: Vec<Val
     let status = json!({"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"});
     match route {
         Route::Preview => {
-            assert!(motion.is_none(), "the preview route has no support-motion input");
             let mut primitive = loads;
+            if let Some((sup, dof, value)) = motion {
+                primitive.push(json!({"id": format!("motion:{sup}:{dof}"), "category": "imposed_displacement",
+                    "target": {"type": "support", "support": sup, "dof": dof}, "direction": dof, "magnitude": qv(value, "m"),
+                    "dimension": "displacement", "provenance": PROV}));
+            }
             if let Some((alpha, dt)) = thermal {
                 assert_eq!(alpha, 1.2e-5, "the PF material carries alpha");
                 for (id, ..) in &f.pipes {
@@ -409,12 +417,21 @@ fn w9_b_simple_beam_self_weight_exact_route() {
 }
 
 // ------------------------------------------------------------------ W9-C
-#[test]
-fn w9_c_l_frame_anchor_settlement_exact_route() {
-    run_case("W9-C-LFRAME-ANCHOR-SETTLEMENT", Route::Exact, |r| {
+fn settlement_case(route: Route) {
+    run_case("W9-C-LFRAME-ANCHOR-SETTLEMENT", route, |r| {
         let m = &r["inputs"]["support_motion"];
         assert_eq!((input_f64(&m["UX_m"]), input_f64(&m["RZ_rad"])), (0.0, 0.0));
-        request(r, Route::Exact, None, vec![], None, Some((m["support"].as_str().unwrap(), "UY", input_f64(&m["UY_m"]))))
+        request(r, route, None, vec![], None, Some((m["support"].as_str().unwrap(), "UY", input_f64(&m["UY_m"]))))
     });
+}
+
+#[test]
+fn w9_c_l_frame_anchor_settlement_preview_route() {
+    settlement_case(Route::Preview);
+}
+
+#[test]
+fn w9_c_l_frame_anchor_settlement_exact_route() {
+    settlement_case(Route::Exact);
 }
 

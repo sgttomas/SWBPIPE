@@ -1177,7 +1177,12 @@ mod direct_native {
         let (outcome, measured) = measure(|| crate::render_calculation_report_args(&mut decoded, &live.registry, &mut lease));
         assert_eq!(refusal_text(outcome), PRODUCTION_REFUSAL);
         assert_eq!(lease.bytes(), admitted_bytes, "the lease does not grow");
-        assert!(measured.peak_requested < (w.result.len() as u64) / 4, "neither text is parsed: {measured:?}");
+        // Neither text is parsed: the peak is the object-form check's
+        // by-reference decode of the input (priced within the ingress lease;
+        // DEL-08-01 Design `report-package-current-results.md` §2.6) plus less
+        // than a quarter of the result text.
+        let (_, check) = measure(|| crate::report_render_exact::check_object_form(&args["input"]));
+        assert!(measured.peak_requested < check.peak_requested + (w.result.len() as u64) / 4, "neither text is parsed: {measured:?}, check {check:?}");
         assert_eq!(live.registry.custody_binding(&live.job), before, "custody is unchanged");
         drop(lease);
         // From the raw body, as the command does.
@@ -1247,7 +1252,11 @@ mod direct_native {
             other => panic!("not a resource refusal: {other:?}"),
         }
         assert_eq!(lease.bytes(), admitted_bytes);
-        assert!(measured.peak_requested < (w.result.len() as u64) / 4, "nothing is parsed: {measured:?}");
+        // Neither text is parsed (the object-form check's decode of the input
+        // aside, as above).
+        let args = genuine_render_args(&w, &live.job);
+        let (_, check) = measure(|| crate::report_render_exact::check_object_form(&args["input"]));
+        assert!(measured.peak_requested < check.peak_requested + (w.result.len() as u64) / 4, "nothing is parsed: {measured:?}, check {check:?}");
     }
 
     /// The whole-command counting-allocator check of the genuine exact render

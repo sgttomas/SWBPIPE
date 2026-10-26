@@ -339,6 +339,8 @@ code_paths:
 # W-11 slice (c): FR-REP-003 records on every route and their schema check.
 - fixtures/reports/invented/report_sections_provenance_records.json
 - fixtures/reports/invented/component_provenance_cross_layer_projection.json
+# Object form: the shared positional-struct check of the native render, the save and the shared producer.
+- core/reporting/report_renderer/src/object_form.rs
 checks:
 - core/reporting/report_package/tests/container.rs
 - core/reporting/report_package/tests/reader.rs
@@ -367,3 +369,6 @@ checks:
 - core/reporting/report_package/src/exact_package_witness_tests.rs
 - core/runner/headless/tests/del1005_package_witness.rs
 - tests/test_report_sections_provenance_records.py
+- apps/desktop/src-tauri/src/object_form_tests.rs
+- core/reporting/report_renderer/tests/object_form.rs
+- core/runner/headless/tests/object_form_cli.rs

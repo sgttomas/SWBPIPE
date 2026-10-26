@@ -548,6 +548,13 @@ if _snapshot and _sd_model.inspect(_snapshot):
         add("Combination withheld names and group rows (SD-WH)", "AggregationSuffix", _sd_model.withheld_names(PA, g))
     add("Validation duplicate-term set (SD-HS)", "BuildScratch", _sd_model.seen_terms())
     add("Closed-record scan probe error (SD-PB)", "BuildScratch", _sd_model.probe_error())
+# W-16 slice a D3 (retained-pricing-rules.md §8.23): case_prescribed's node index, once per case solved without a load
+# state, one case at a time (W16-NI), and validate's findings vector, <= one per primitive load (W16-VF), each priced
+# positively where its reviewed source exists (w16_owners_model binds imposed_motion.rs and the statements).
+import w16_owners_model as _w16_model
+if _snapshot and _w16_model.inspect(_snapshot):
+    add("Imposed-motion case node index (W16-NI)", "CasePrefix", _w16_model.node_index(n))
+    add("Imposed-motion validation findings backing (W16-VF)", "BuildScratch", _w16_model.validation_findings(LL))
 # Closed formed guard construction pays the native row headers, both source
 # lists, maps, fired backing/moving storage and six independently cloned items.
 if _wide:

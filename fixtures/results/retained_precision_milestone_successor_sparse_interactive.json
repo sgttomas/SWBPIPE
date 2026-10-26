@@ -308,7 +308,7 @@
     "formulation_basis": {
       "limitations": [
         "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
-        "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
+        "Nonzero pressure is refused on this route.",
         "On every member the section normal-stress extremes are N/A ± hypot(My,Mz)/Z at each station and the transverse shear maximum is the straight-annulus Saint-Venant value, with ν = E/(2G) − 1 assuming an isotropic material. On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No equivalent stress or code stress.",
         "On arcs: signed tangent-frame resultants, nominal stress components and section extremes; endpoint force rows are node-on-element actions in the tangent frame at their end. The normal-stress maximum is bounded along the arc and enters the stress headline. The transverse shear uses the straight-annulus field without curvature correction.",
         "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",
@@ -4981,7 +4981,7 @@
           }
         ],
         "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
-        "publication_sha256": "a981b615d3394648a80a1f7a04c2125a3fd6266f72a2b4ac6f84a9d0179b662b",
+        "publication_sha256": "b5801b74727e70ae27ad8452bce007841a4e7a3c67e91c20357fbac600fa4a3b",
         "receipt_version": 1,
         "sources": [
           {
@@ -5961,7 +5961,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "bd64548d321575ab27d11b94c2e258b75665e31d7428639b476729164ce57bcc"
+      "receipt_sha256": "a3a2fc6748be7deb006681b493cc858b065b000f3f3427a8dc3ce0f75d7750d8"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",

@@ -11,7 +11,8 @@ caller's authentic source, model, input and build binding.
 """
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
+from fractions import Fraction
 import json
 import math
 from pathlib import Path
@@ -100,6 +101,39 @@ def _finite_tree(value: Any) -> None:
     elif isinstance(value, list):
         for item in value:
             _finite_tree(item)
+
+
+# The unit factor-sum rule's absolute bound: 64*epsilon, exactly 2^-46.
+UNIT_FACTOR_SUM_BOUND = Fraction(1, 2**46)
+
+
+class FactorSumError(ValueError):
+    """A factor sum that is not evaluated: the factor at ``index`` is not a finite binary64 number."""
+
+    def __init__(self, index: int):
+        super().__init__(f"combination factor {index} is not finite")
+        self.index = index
+
+
+def factor_sum_within_unit_tolerance(factors: Iterable[float]) -> bool:
+    """Mirror of ``open_pipe_stress_load_case_algebra::factor_sum_within_unit_tolerance``,
+    the constant-effort gate's unit factor-sum rule (option C).
+
+    The sum is the exact rational sum of the binary64 factors (``Fraction(float)`` is
+    exact), admitted iff ``|sum - 1| <= 64*epsilon = 2^-46``, compared exactly; there is
+    no ``sum(|f|)`` scaling and an empty list (sum 0) is not admitted. A non-finite
+    factor raises ``FactorSumError`` naming its index. Standard library only.
+    """
+    total = Fraction(0)
+    for index, factor in enumerate(factors):
+        try:
+            value = float(factor) if isinstance(factor, (int, float)) and not isinstance(factor, bool) else math.nan
+        except OverflowError:  # an int beyond binary64 range has no binary64 value
+            value = math.nan
+        if not math.isfinite(value):
+            raise FactorSumError(index)
+        total += Fraction(value)
+    return abs(total - 1) <= UNIT_FACTOR_SUM_BOUND
 
 
 def _length_prefixed(*parts: str) -> str:
