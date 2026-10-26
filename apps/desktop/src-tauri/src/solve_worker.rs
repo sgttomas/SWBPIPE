@@ -60,9 +60,16 @@
 //! `worker_footprint_exceeded`. A refused step kills the stopped child; so do
 //! cancellation and session reset (SIGKILL ends a stopped process). A frame
 //! the child wrote before it was stopped is read only if the step is
-//! admitted. The worker runs in its own process group of this session and
-//! keeps SIGHUP's default action, so if this process dies while the worker is
-//! stopped, the group is orphaned and the kernel's SIGHUP and SIGCONT end it.
+//! admitted. The worker runs in its own process group of this session, so
+//! signals to the app's group (a terminal's Ctrl-C) no longer reach it.
+//! Instead it ends itself when the app dies: before reading its request it
+//! checks that the pid the parent passed ([`PARENT_PID_ENV`]) is still its
+//! parent and starts a watchdog thread (a raw pthread with a 64 KiB stack,
+//! allocating nothing) that `_exit`s once the parent exits, woken at once by
+//! a kqueue `NOTE_EXIT` registration on macOS, else by comparing `getppid()`
+//! every 100 ms. A stopped worker's watchdog is stopped too; for that case
+//! the worker keeps SIGHUP's default action, so the orphaned group's SIGHUP
+//! and SIGCONT from the kernel end it.
 //! Stopped time counts against no timeout or staleness check of the job (each
 //! attempt takes a fresh host sample); only the window bounds the stop.
 //!
@@ -180,11 +187,16 @@ pub fn run_solve_worker() -> i32 {
         unsafe {
             libc::signal(libc::SIGHUP, libc::SIG_DFL);
         }
+        let parent = spawning_parent();
         let (in_fd, out_fd) = channel_fds();
         let Some((control_in, control_out)) = take_channel(in_fd, out_fd) else {
             return WORKER_PROTOCOL_EXIT;
         };
         close_inherited_fds(&[control_in, control_out]);
+        // Before the allocator counts anything; the watchdog allocates nothing.
+        if !start_parent_watchdog(parent) {
+            return WORKER_PROTOCOL_EXIT;
+        }
         crate::worker_alloc::enable(control_in, control_out);
         let mut header = [0u8; REQUEST_BYTES];
         if !crate::worker_alloc::read_request(&mut header) {
@@ -246,6 +258,134 @@ fn send_error(message: &str) -> bool {
     }
     let body = &message.as_bytes()[..end];
     crate::worker_alloc::send_frame(TAG_ERROR, body.len() as u64, 0, body)
+}
+
+/// The environment variable in which the parent passes its pid to the worker.
+pub(crate) const PARENT_PID_ENV: &str = "SWBPIPE_SOLVE_WORKER_PARENT_PID";
+
+/// The pid of the process that spawned this worker: the one it passed
+/// ([`PARENT_PID_ENV`]), or the current parent if none was passed. A worker
+/// whose spawner is no longer its parent (it died before this check) exits.
+#[cfg(unix)]
+fn spawning_parent() -> libc::pid_t {
+    // SAFETY: getppid has no preconditions.
+    let current = unsafe { libc::getppid() };
+    let passed = std::env::var(PARENT_PID_ENV).ok().and_then(|pid| pid.parse::<libc::pid_t>().ok());
+    if passed.is_some_and(|passed| passed != current) {
+        // SAFETY: _exit ends the process at once; nothing needs unwinding yet.
+        unsafe { libc::_exit(WORKER_PROTOCOL_EXIT) }
+    }
+    current
+}
+
+/// The parent the watchdog watches.
+#[cfg(unix)]
+static WATCHED_PARENT: std::sync::atomic::AtomicI32 = std::sync::atomic::AtomicI32::new(0);
+/// The watchdog's kqueue (-1 when it polls instead).
+#[cfg(unix)]
+pub(crate) static WATCHDOG_KQUEUE: std::sync::atomic::AtomicI32 = std::sync::atomic::AtomicI32::new(-1);
+/// The watchdog thread's stack (its touched pages count in the footprint).
+#[cfg(unix)]
+const WATCHDOG_STACK_BYTES: usize = 64 * 1024;
+/// How often the fallback watchdog compares the parent pid.
+#[cfg(unix)]
+const WATCHDOG_POLL_MICROS: libc::useconds_t = 100_000;
+
+/// Starts the parent-death watchdog: one raw thread (no Rust allocation,
+/// nothing counted) that `_exit`s the worker once `parent` has exited, so a
+/// running worker never outlives the app that started it. On macOS it waits
+/// on a kqueue `EVFILT_PROC`/`NOTE_EXIT` registration for the parent (woken
+/// at once); where that is unavailable it compares `getppid()` with `parent`
+/// every 100 ms. A parent already gone at registration ends the worker here.
+/// A stopped worker's threads are stopped too: the orphaned-group SIGHUP
+/// covers that case. False if no thread could be started.
+#[cfg(unix)]
+fn start_parent_watchdog(parent: libc::pid_t) -> bool {
+    use std::sync::atomic::Ordering::SeqCst;
+    WATCHED_PARENT.store(parent, SeqCst);
+    #[cfg(target_os = "macos")]
+    // SAFETY: plain kqueue/kevent calls on a kqueue this process owns; the
+    // changelist is one initialized kevent and no events are read here.
+    unsafe {
+        let kq = libc::kqueue();
+        if kq >= 0 {
+            libc::fcntl(kq, libc::F_SETFD, libc::FD_CLOEXEC);
+            let change = libc::kevent {
+                ident: parent as libc::uintptr_t,
+                filter: libc::EVFILT_PROC,
+                flags: libc::EV_ADD | libc::EV_ONESHOT,
+                fflags: libc::NOTE_EXIT,
+                data: 0,
+                udata: std::ptr::null_mut(),
+            };
+            if libc::kevent(kq, &change, 1, std::ptr::null_mut(), 0, std::ptr::null()) == 0 {
+                WATCHDOG_KQUEUE.store(kq, SeqCst);
+            } else {
+                let gone = std::io::Error::last_os_error().raw_os_error() == Some(libc::ESRCH);
+                libc::close(kq);
+                if gone {
+                    libc::_exit(WORKER_PROTOCOL_EXIT);
+                }
+            }
+        }
+    }
+    // Registered after the parent may already have died: check once more.
+    // SAFETY: getppid has no preconditions.
+    if unsafe { libc::getppid() } != parent {
+        // SAFETY: as above.
+        unsafe { libc::_exit(WORKER_PROTOCOL_EXIT) }
+    }
+    // SAFETY: an initialized attribute object, a valid entry point that never
+    // returns, and an out-parameter for the thread.
+    unsafe {
+        let mut attr = std::mem::MaybeUninit::<libc::pthread_attr_t>::uninit();
+        if libc::pthread_attr_init(attr.as_mut_ptr()) != 0 {
+            return false;
+        }
+        libc::pthread_attr_setstacksize(attr.as_mut_ptr(), WATCHDOG_STACK_BYTES.max(libc::PTHREAD_STACK_MIN));
+        let mut thread = std::mem::MaybeUninit::<libc::pthread_t>::uninit();
+        let started = libc::pthread_create(thread.as_mut_ptr(), attr.as_ptr(), parent_watchdog, std::ptr::null_mut()) == 0;
+        libc::pthread_attr_destroy(attr.as_mut_ptr());
+        if started {
+            libc::pthread_detach(thread.assume_init());
+        }
+        started
+    }
+}
+
+/// The watchdog thread: allocation-free, it ends the process with `_exit`
+/// (no unwinding, no destructors) once the parent has exited.
+#[cfg(unix)]
+extern "C" fn parent_watchdog(_: *mut libc::c_void) -> *mut libc::c_void {
+    use std::sync::atomic::Ordering::SeqCst;
+    let parent = WATCHED_PARENT.load(SeqCst);
+    #[cfg(target_os = "macos")]
+    {
+        let kq = WATCHDOG_KQUEUE.load(SeqCst);
+        if kq >= 0 {
+            loop {
+                // SAFETY: a zeroed kevent is a valid out-parameter for one event.
+                let mut event: libc::kevent = unsafe { std::mem::zeroed() };
+                let n = unsafe { libc::kevent(kq, std::ptr::null(), 0, &mut event, 1, std::ptr::null()) };
+                if n > 0 {
+                    // SAFETY: _exit has no preconditions.
+                    unsafe { libc::_exit(WORKER_PROTOCOL_EXIT) }
+                }
+                if n < 0 && std::io::Error::last_os_error().raw_os_error() != Some(libc::EINTR) {
+                    break;
+                }
+            }
+        }
+    }
+    loop {
+        // SAFETY: getppid and usleep have no preconditions.
+        unsafe {
+            if libc::getppid() != parent {
+                libc::_exit(WORKER_PROTOCOL_EXIT);
+            }
+            libc::usleep(WATCHDOG_POLL_MICROS);
+        }
+    }
 }
 
 /// The control channel's fds as inherited: stdin and stdout (a test worker
@@ -464,6 +604,8 @@ impl WorkerProcess {
         // and the kernel sends it SIGHUP and SIGCONT, which end it.
         #[cfg(unix)]
         std::os::unix::process::CommandExt::process_group(&mut command, 0);
+        // The worker's parent-death watchdog watches this pid.
+        command.env(PARENT_PID_ENV, std::process::id().to_string());
         let mut child = {
             let _serial = SPAWN_LOCK.lock().unwrap_or_else(PoisonError::into_inner);
             command.spawn()?
@@ -1271,7 +1413,8 @@ pub(crate) mod tests {
             "fds" => {
                 // SAFETY: F_GETFD only probes whether the fd is open.
                 let open: Vec<i32> = (0..1024).filter(|fd| unsafe { libc::fcntl(*fd, libc::F_GETFD) } != -1).collect();
-                Ok(format!("{open:?}"))
+                let watchdog = WATCHDOG_KQUEUE.load(std::sync::atomic::Ordering::SeqCst);
+                Ok(format!("{{\"open\":{open:?},\"watchdog\":{watchdog}}}"))
             }
             "oversized_error" => {
                 crate::worker_alloc::send_frame(TAG_ERROR, MAX_ERROR_FRAME_BYTES + 1, 0, &[]);
@@ -1881,14 +2024,21 @@ pub(crate) mod tests {
     }
 
     /// Review N1: a worker closes every fd it inherited except stdio and its
-    /// control pair before reading the request.
+    /// control pair before reading the request. The only other fd it holds is
+    /// the one it opens itself afterwards: its parent-death watchdog's kqueue
+    /// (macOS).
     #[test]
     fn a_worker_holds_no_inherited_fds() {
         let pool = pool();
         let launcher = Arc::new(TestLauncher { inherited_fd: Some(9), ..(*TestLauncher::scripted("fds")).clone() });
         let run = run(&pool, &*launcher, BODY, 12 * GIB, PROCESS_RESERVE_BYTES);
         let WorkerOutcome::Completed { result, .. } = &run.outcome else { panic!("{:?}", run.outcome) };
-        let open: Vec<i32> = serde_json::from_slice(result).unwrap();
+        let report: serde_json::Value = serde_json::from_slice(result).unwrap();
+        let watchdog = report["watchdog"].as_i64().unwrap() as i32;
+        let mut open: Vec<i32> = serde_json::from_value(report["open"].clone()).unwrap();
+        #[cfg(target_os = "macos")]
+        assert!(open.contains(&watchdog), "the watchdog's kqueue: {report}");
+        open.retain(|&fd| fd != watchdog);
         assert_eq!(open.len(), 5, "stdio and the control pair only: {open:?}");
         assert!(open.starts_with(&[0, 1, 2]) && !open.contains(&9), "{open:?}");
     }
@@ -2454,13 +2604,16 @@ pub(crate) mod tests {
     }
 
     pub(crate) const PARENT_ENV: &str = "SWBPIPE_TEST_WORKER_PARENT";
+    /// Set to `1`, the intermediate parent stops its worker before reporting it.
+    const PARENT_STOPS_ENV: &str = "SWBPIPE_TEST_WORKER_PARENT_STOPS";
     const PARENT_ENTRY: &str = "solve_worker::tests::stopped_worker_parent_entry";
 
-    /// The parent-death test's intermediate parent, inert unless started as
+    /// The parent-death tests' intermediate parent, inert unless started as
     /// one. With SIGHUP ignored, as `nohup` leaves it and as a worker would
-    /// inherit it through exec, it spawns a sleeping worker through the
-    /// product's spawn path, stops it as a poll step does, reports its pid and
-    /// holds it unreaped until killed (at most 60 s).
+    /// inherit it through exec, it spawns a sleeping worker (a workload that
+    /// never touches its channel) through the product's spawn path, stops it
+    /// as a poll step does if asked to ([`PARENT_STOPS_ENV`]), reports its pid
+    /// and holds it unreaped until killed (at most 60 s).
     #[test]
     fn stopped_worker_parent_entry() {
         let Some(dir) = std::env::var_os(PARENT_ENV).map(std::path::PathBuf::from) else { return };
@@ -2480,7 +2633,9 @@ pub(crate) mod tests {
         let stdin = process.stdin.as_mut().unwrap();
         stdin.write_all(&encode_request(&request)).and_then(|()| stdin.write_all(BODY)).and_then(|()| stdin.flush()).unwrap();
         std::thread::sleep(Duration::from_millis(200));
-        assert!(process.control.stop());
+        if std::env::var_os(PARENT_STOPS_ENV).is_some_and(|v| v == "1") {
+            assert!(process.control.stop());
+        }
         std::fs::write(dir.join("staging"), process.control.pid.to_string()).unwrap();
         std::fs::rename(dir.join("staging"), dir.join("worker-pid")).unwrap();
         std::thread::sleep(Duration::from_secs(60));
@@ -2508,19 +2663,17 @@ pub(crate) mod tests {
         }
     }
 
-    /// Agent 0's parent-death condition: the worker runs in its own process
-    /// group, so when its parent dies while it is stopped, the group is
-    /// orphaned and the kernel sends it SIGHUP and SIGCONT, which end it, even
-    /// though the parent had SIGHUP ignored (the worker restores the default).
+    /// Spawns the intermediate parent with a worker, stopped or running, and
+    /// kills the intermediate; the worker must be gone within `limit`.
     #[cfg(target_os = "macos")]
-    #[test]
-    fn a_stopped_worker_ends_when_its_parent_dies() {
+    fn worker_ends_when_its_parent_dies(stopped: bool, limit: Duration) {
         let gate = Gate::new("orphan");
         let parent = {
             let _serial = SPAWN_LOCK.lock().unwrap_or_else(PoisonError::into_inner);
             Command::new(std::env::current_exe().unwrap())
                 .args([PARENT_ENTRY, "--exact", "--test-threads=1", "--quiet"])
                 .env(PARENT_ENV, &gate.dir)
+                .env(PARENT_STOPS_ENV, if stopped { "1" } else { "0" })
                 .stdin(Stdio::null())
                 .stdout(Stdio::null())
                 .stderr(Stdio::null())
@@ -2536,7 +2689,12 @@ pub(crate) mod tests {
             std::fs::read_to_string(&pid_file).ok()?.parse().ok()
         });
         guard.worker = Some(worker);
-        wait_for("the worker stopped", || is_stopped(worker).then_some(()));
+        if stopped {
+            wait_for("the worker stopped", || is_stopped(worker).then_some(()));
+        } else {
+            let status = process_status(worker);
+            assert!(status.is_some_and(|status| status != libc::SSTOP && status != libc::SZOMB), "a running worker: {status:?}");
+        }
         // SAFETY: getpgid only reads.
         let (worker_group, parent_group) = unsafe { (libc::getpgid(worker), libc::getpgid(guard.parent.id() as i32)) };
         assert_eq!(worker_group, worker, "the worker leads its own process group");
@@ -2545,9 +2703,29 @@ pub(crate) mod tests {
         guard.parent.wait().unwrap();
         let died = Instant::now();
         while let Some(status) = process_status(worker).filter(|&status| status != libc::SZOMB) {
-            assert!(died.elapsed() < Duration::from_secs(5), "the orphaned stopped worker {worker} remains (status {status})");
+            assert!(died.elapsed() < limit, "worker {worker} remains {:?} after its parent died (status {status})", died.elapsed());
             std::thread::sleep(Duration::from_millis(10));
         }
         guard.worker = None;
+    }
+
+    /// Agent 0's parent-death condition: the worker runs in its own process
+    /// group, so when its parent dies while it is stopped, the group is
+    /// orphaned and the kernel sends it SIGHUP and SIGCONT, which end it, even
+    /// though the parent had SIGHUP ignored (the worker restores the default).
+    /// (Once continued, the watchdog would end it too.)
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_stopped_worker_ends_when_its_parent_dies() {
+        worker_ends_when_its_parent_dies(true, Duration::from_secs(5));
+    }
+
+    /// The manager's watchdog decision: a running worker, in a workload that
+    /// never touches its channel and outside the app's process group, ends
+    /// when its parent dies (kqueue `NOTE_EXIT` on the parent), within 2 s.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_running_worker_ends_when_its_parent_dies() {
+        worker_ends_when_its_parent_dies(false, Duration::from_secs(2));
     }
 }
