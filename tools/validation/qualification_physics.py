@@ -50,8 +50,9 @@ DEPENDENCIES = {
     # then W-7 (DEL-04-01 global-end-actions.md): the reader checks the global end-action rows (was 520e7189...),
     # after the published rows' own coverage (was 8b61f340...); then W-15 slice d (DEL-03-05 Design §5): the
     # component-body records, bodies out of the maxima and headlines, merged with W-7 (was ad8edd63... on W-7 and
-    # 420e60e4... on W-15).
-    MODULE: '0b296b0ebe97d5455fbaae36eb380ad8bc4fd06363e516dd519e6a4c45d3575d',
+    # 420e60e4... on W-15); then W-16 slice c (DEL-05-01 exact-equivalent-static.md §2): the generated-primitive
+    # evidence binding (was 0b296b0e...).
+    MODULE: 'ef200d25c7133dfbc69c16f500f5484639b6692e4d9123e3bbb00920fbccfe74',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }
