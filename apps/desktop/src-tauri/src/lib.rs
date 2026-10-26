@@ -1665,7 +1665,8 @@ async fn save_model_document_decoded(
 /// `{projectId, stateId, explicitLocalPrivateIntent}` are an `args-json-v1`
 /// raw body within the history commands' budget (`admit_within`,
 /// `INGRESS-ARGS-TOO-LARGE`); the ingress lease is held, and counted in the
-/// read's accounting, until the worker returns.
+/// read's accounting, until the worker has built the response from the
+/// outcome serialized within that accounting.
 #[tauri::command]
 async fn save_stored_model_document_file(
     app: AppHandle,
@@ -1676,29 +1677,42 @@ async fn save_stored_model_document_file(
     let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, export::COMMAND, ArgsDecoding::Moved, export::MAX_ARGS_BYTES)?;
     let request = export::stored_export_args(&mut args)?;
     drop(args);
-    respond(Ok(save_stored_model_document_decoded(app, request, lease).await))
+    Ok(save_stored_model_document_decoded(app, request, lease).await)
 }
 
+/// The export's worker: it holds the ingress lease, and builds the response
+/// from the outcome's text serialized within the read's memory while every
+/// reservation is still held (`stored_model_document_export::serialize_outcome`),
+/// so nothing is serialized unreserved after the lease is released.
 async fn save_stored_model_document_decoded(
     app: AppHandle,
     request: stored_model_document_export::StoredExportRequest,
     lease: memory_pool::Lease,
-) -> model_document_save::ModelDocumentSaveOutcome {
+) -> tauri::ipc::Response {
     use model_document_save::{ModelDocumentSaveOutcome as Outcome, WORKER_FAILED};
-    // The chooser blocks this worker, not the main thread; the ingress lease
-    // and the reservations the read takes are held by it through the write.
+    // The chooser blocks this worker, not the main thread.
     tauri::async_runtime::spawn_blocking(move || {
         // The store's path, without `app_store_path`'s directory creation and
         // legacy carry-forward: the export creates and writes nothing there.
         let store = || app.path().app_local_data_dir().map(|directory| directory.join(PROJECT_STORE_FILE)).map_err(|error| error.to_string());
         let registry = app.state::<SolveJobRegistry>();
         let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
-        stored_model_document_export::export_stored_model_document_request(&request, store, &registry, &lease, |suggested| {
-            choose_model_document_save_path(&app, suggested, directory)
-        })
+        let response = stored_model_document_export::export_stored_model_document_request(
+            &request,
+            store,
+            &registry,
+            &lease,
+            |suggested| choose_model_document_save_path(&app, suggested, directory),
+            |_, text| tauri::ipc::Response::new(text),
+        );
+        drop(lease);
+        response
     })
     .await
-    .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The export's worker did not complete; the destination may be unchanged."))
+    .unwrap_or_else(|_| {
+        let failed = Outcome::refused_one(WORKER_FAILED, "The export's worker did not complete; the destination may be unchanged.");
+        tauri::ipc::Response::new(serde_json::to_string(&failed).unwrap_or_default())
+    })
 }
 
 fn choose_model_document_save_path(

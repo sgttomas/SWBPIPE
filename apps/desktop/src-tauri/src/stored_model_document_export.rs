@@ -34,6 +34,13 @@
 //!   screening. A reservation the memory pool refuses is
 //!   `STORE-READ-MEMORY-UNAVAILABLE`. The text's reservation is held through
 //!   the chooser and the write.
+//! - The shared screener's own allocations (copied paths, recorded
+//!   references, diagnostics, a hanger library's collected objects) are
+//!   bounded from the parsed model and each parsed library and reserved
+//!   before it builds them ([`ScreeningBound`], [`library_screening_bytes`]).
+//! - The outcome is serialized within the same accounting while every
+//!   reservation and the ingress lease are held ([`serialize_outcome`]); a
+//!   Saved response's bound is reserved before the chooser.
 //! - The open checks (version, document validator, desktop shape) are not
 //!   applied: the document is refused at open for one of them, and the export
 //!   exists to recover it.
@@ -208,14 +215,17 @@ const LIBRARY_TEXT_SQL: &str = "SELECT document_json FROM local_libraries WHERE 
 struct LibraryReads<'a> {
     connection: &'a Connection,
     memory: &'a dyn ReadMemory,
+    /// The model's longest `library_ref` path and identity, which bound the
+    /// diagnostics a library's screening can add ([`library_screening_bytes`]).
+    references: &'a ScreeningBound,
     keyed: Option<ReadReservation>,
     held: Vec<ReadReservation>,
     refused: Option<String>,
 }
 
 impl<'a> LibraryReads<'a> {
-    fn new(connection: &'a Connection, memory: &'a dyn ReadMemory) -> Self {
-        Self { connection, memory, keyed: None, held: Vec::new(), refused: None }
+    fn new(connection: &'a Connection, memory: &'a dyn ReadMemory, references: &'a ScreeningBound) -> Self {
+        Self { connection, memory, references, keyed: None, held: Vec::new(), refused: None }
     }
 
     fn read(&mut self, project_id: &str, library_kind: &str, library_id: &str) -> Result<Option<Value>, String> {
@@ -244,22 +254,291 @@ impl<'a> LibraryReads<'a> {
         let Some(text) = self.connection.query_row(LIBRARY_TEXT_SQL, key, |row| row.get::<_, String>(0)).optional().map_err(sql_error)? else {
             return Ok(None);
         };
-        self.held.push(self.memory.reserve(&what, stored_read::parse_bytes(&text)?)?);
-        serde_json::from_str(&text).map(Some).map_err(|error| stored_read::json_error(&error))
+        let parse = stored_read::parse_bytes(&text)?;
+        self.held.push(self.memory.reserve(&what, parse)?);
+        let library: Value = serde_json::from_str(&text).map_err(|error| stored_read::json_error(&error))?;
+        drop(text);
+        // What the screener builds from this library (Codex r4 P1), reserved
+        // before it is returned to the screener.
+        let screening = library_screening_bytes(library_kind, &library, parse, self.references);
+        self.held.push(self.memory.reserve(&format!("the screening of {what}"), screening)?);
+        Ok(Some(library))
     }
+}
+
+// ---------------------------------------------------------------------------
+// The screening's memory (Codex r4 P1). The shared disposition screener
+// (`export_disposition_screen::screen_dispositions_in`, also Save Model
+// Document's, the handoff's and the report package's) is not metered: it copies
+// a path for every site it records, builds a diagnostic for every finding and
+// unresolved reference, and, for a hanger library, a path for every object in
+// it. Its allocations are bounded here from the parsed model and each parsed
+// library, by allocation-free walks that follow the screener's own walks
+// (`walk_document`, `collect_objects`), and the bound is reserved before the
+// screener builds anything: the model's before the screening starts, each
+// library's in its lookup, before the screener receives it. Every bound is
+// held until the outcome is serialized, since the diagnostics are the
+// response. The screening itself is unchanged and complete. The
+// counting-allocator tests check the bound against the screener's measured
+// peak for the shapes Codex reported.
+// ---------------------------------------------------------------------------
+
+/// One string of `length` bytes the screener builds: a `format!` grows to at
+/// most twice its length (`to_string` is exact), priced by its envelope.
+fn string_bytes(length: u64) -> u64 {
+    stored_read::exact_text_bytes(length.saturating_mul(2).saturating_add(16))
+}
+
+/// One element of `size` bytes in a growing vector: twice its share of the
+/// doubled capacity, so the old buffer of a reallocation is covered too. Linear,
+/// so the shares add across vectors.
+fn slot_bytes(size: u64) -> u64 {
+    size.saturating_mul(8)
+}
+
+/// A growing vector's first capacity (four elements), for the largest element
+/// the screener keeps (a diagnostic).
+const VECTOR_BASE_BYTES: u64 = 16 * DIAGNOSTIC_SIZE;
+/// A diagnostic: three `String`s.
+const DIAGNOSTIC_SIZE: u64 = 72;
+/// A recorded reference: its path and record id (`(String, Option<String>)`).
+const REFERENCE_SIZE: u64 = 48;
+/// A hanger object collected with its path (`(String, &Map)`).
+const COLLECTED_SIZE: u64 = 32;
+/// A string in a vector (`String`).
+const STRING_SIZE: u64 = 24;
+/// One `BTreeMap` node per distinct reference key, and its key's transients.
+const KEY_NODE_BYTES: u64 = 2048;
+/// A diagnostic's fixed text (the screener's longest is under 100 bytes).
+const MESSAGE_FIXED_BYTES: u64 = 256;
+/// One finding (`member value`, the longest `provenance redistribution_status
+/// protected_suspected` at 52 bytes).
+const FINDING_BYTES: u64 = 64;
+/// The joined findings of one diagnostic: at most the eight distinct findings
+/// a hanger's deduplicated list can hold.
+const FINDINGS_JOIN_BYTES: u64 = 512;
+/// What a site's diagnostic names it by (`provenance_record`, `stored library
+/// record`, …).
+const SITE_WHAT_BYTES: u64 = 32;
+/// A library lookup's refusal, quoted once in the store-failure diagnostic.
+const STORE_ERROR_BYTES: u64 = 8192;
+
+fn decimal_digits(index: usize) -> u64 {
+    index.checked_ilog10().map_or(1, |digits| u64::from(digits) + 1)
+}
+
+fn usize_bytes(length: usize) -> u64 {
+    u64::try_from(length).unwrap_or(u64::MAX)
+}
+
+/// A diagnostic at a path of `path` bytes whose message quotes `quoted` bytes.
+fn diagnostic_bytes(path: u64, quoted: u64) -> u64 {
+    stored_read::total(&[
+        string_bytes(40),
+        string_bytes(path),
+        string_bytes(quoted.saturating_add(MESSAGE_FIXED_BYTES)),
+        slot_bytes(DIAGNOSTIC_SIZE),
+    ])
+}
+
+/// One screening of a record (`blocking_dispositions` or a hanger's
+/// `stored_item_blocking`): `count` findings in their vector, sorted (its
+/// scratch), and their join.
+fn findings_bytes(count: u64) -> u64 {
+    stored_read::total(&[
+        count.saturating_mul(string_bytes(FINDING_BYTES).saturating_add(slot_bytes(STRING_SIZE).saturating_mul(2))),
+        string_bytes(FINDINGS_JOIN_BYTES),
+        VECTOR_BASE_BYTES,
+    ])
+}
+
+/// A text member of a `library_ref` as the screener reads it
+/// (`library_ref_identity`: a non-empty string, trimmed, non-empty).
+fn identity_member(reference: &serde_json::Map<String, Value>, key: &str) -> Option<u64> {
+    reference.get(key).and_then(Value::as_str).filter(|text| !text.is_empty()).map(str::trim).filter(|text| !text.is_empty()).map(|text| usize_bytes(text.len()))
+}
+
+/// The bound of the screener's allocations over the model document: what it
+/// keeps to the end (diagnostics, recorded references, keys) and its largest
+/// live working set (the walk's path stack, one site's findings, one library
+/// step's names), with the longest `library_ref` path and identity, which bound
+/// what each library's screening adds.
+#[derive(Debug, Default)]
+struct ScreeningBound {
+    retained: u64,
+    walk_peak: u64,
+    library_step: u64,
+    project_id: u64,
+    path_max: u64,
+    identity_max: u64,
+}
+
+impl ScreeningBound {
+    /// Follows `walk_document` (dotted paths from the root `""`).
+    fn of(document: &Value) -> Self {
+        let mut bound = Self::default();
+        bound.project_id = document.pointer("/project/id").and_then(Value::as_str).map_or(0, |id| usize_bytes(id.trim().len()));
+        bound.walk(document, 0, 0);
+        bound
+    }
+
+    fn bytes(&self) -> u64 {
+        stored_read::total(&[
+            self.retained,
+            self.walk_peak,
+            self.library_step,
+            string_bytes(self.project_id),
+            VECTOR_BASE_BYTES.saturating_mul(4),
+            // A library lookup's refusal, quoted once (the screening then stops).
+            diagnostic_bytes(self.path_max, self.identity_max.saturating_add(STORE_ERROR_BYTES)),
+        ])
+    }
+
+    fn walk(&mut self, value: &Value, path: u64, stack: u64) {
+        match value {
+            Value::Array(items) => {
+                for (index, item) in items.iter().enumerate() {
+                    let at = path.saturating_add(2).saturating_add(decimal_digits(index));
+                    self.walk(item, at, stack.saturating_add(string_bytes(at)));
+                }
+            }
+            Value::Object(object) => {
+                let owner = object.get("id").and_then(Value::as_str).filter(|id| !id.is_empty()).map(|id| usize_bytes(id.len()));
+                for (key, child) in object {
+                    let at = if path == 0 { usize_bytes(key.len()) } else { path.saturating_add(1).saturating_add(usize_bytes(key.len())) };
+                    let stack = stack.saturating_add(string_bytes(at));
+                    self.walk_peak = self.walk_peak.max(stack);
+                    match (key.as_str(), child) {
+                        ("provenance_record", Value::Object(_)) => {
+                            let name = owner.unwrap_or(if path == 0 { 1 } else { path });
+                            self.site(stack.saturating_add(string_bytes(name)), at, name);
+                        }
+                        ("rule_pack_refs", Value::Array(entries)) => {
+                            for (index, entry) in entries.iter().enumerate() {
+                                if let Some(entry) = entry.as_object() {
+                                    let entry_at = at.saturating_add(2).saturating_add(decimal_digits(index));
+                                    let name = entry.get("rule_pack_id").and_then(Value::as_str).filter(|id| !id.is_empty()).map_or(entry_at, |id| usize_bytes(id.len()));
+                                    self.site(stack.saturating_add(string_bytes(entry_at)).saturating_add(string_bytes(name)), entry_at, name);
+                                }
+                            }
+                        }
+                        ("library_ref", Value::Object(reference)) => self.library_ref(reference, at),
+                        _ => {}
+                    }
+                    self.walk(child, at, stack);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    /// A provenance record or rule-pack reference: its findings while it is
+    /// screened, and its diagnostic if it blocks.
+    fn site(&mut self, live: u64, at: u64, name: u64) {
+        self.walk_peak = self.walk_peak.max(live.saturating_add(findings_bytes(2)));
+        self.retained = self.retained.saturating_add(diagnostic_bytes(at, name.saturating_add(SITE_WHAT_BYTES).saturating_add(FINDINGS_JOIN_BYTES)));
+    }
+
+    /// A `library_ref` with an identity: its key, its recorded path and record
+    /// id, and, in the library step, its unresolved-reference warning, its
+    /// screened record id and the names built for it.
+    fn library_ref(&mut self, reference: &serde_json::Map<String, Value>, at: u64) {
+        let (Some(kind), Some(id)) = (identity_member(reference, "library_kind"), identity_member(reference, "library_id")) else { return };
+        let record = identity_member(reference, "record_id").unwrap_or(0);
+        let identity = kind.saturating_add(id).saturating_add(record);
+        self.retained = stored_read::total(&[
+            self.retained,
+            string_bytes(kind),
+            string_bytes(id),
+            string_bytes(at),
+            string_bytes(record),
+            slot_bytes(REFERENCE_SIZE),
+            KEY_NODE_BYTES,
+            diagnostic_bytes(at, identity),
+            string_bytes(record),
+            slot_bytes(STRING_SIZE),
+        ]);
+        let step = stored_read::total(&[string_bytes(kind.saturating_add(id).saturating_add(1)), string_bytes(kind.saturating_add(8)), string_bytes(identity.saturating_add(2)), VECTOR_BASE_BYTES]);
+        self.library_step = self.library_step.max(step);
+        self.path_max = self.path_max.max(at);
+        self.identity_max = self.identity_max.max(identity);
+    }
+}
+
+/// A hanger library's objects as `collect_objects` collects them (paths from
+/// `$`), over the whole stored document: every object the screener collects,
+/// from the library object or from a record, is in it, at a path no longer.
+#[derive(Debug, Default)]
+struct Collected {
+    objects: u64,
+    retained: u64,
+    peak: u64,
+}
+
+impl Collected {
+    fn object(&mut self, object: &serde_json::Map<String, Value>, path: u64, stack: u64) {
+        self.objects = self.objects.saturating_add(1);
+        self.retained = self.retained.saturating_add(string_bytes(path)).saturating_add(slot_bytes(COLLECTED_SIZE));
+        for (key, value) in object {
+            let at = path.saturating_add(1).saturating_add(usize_bytes(key.len()));
+            self.value(value, at, stack.saturating_add(string_bytes(at)));
+        }
+    }
+
+    fn value(&mut self, value: &Value, path: u64, stack: u64) {
+        self.peak = self.peak.max(stack);
+        match value {
+            Value::Object(object) => self.object(object, path, stack),
+            Value::Array(items) => {
+                for (index, item) in items.iter().enumerate() {
+                    let at = path.saturating_add(2).saturating_add(decimal_digits(index));
+                    self.value(item, at, stack.saturating_add(string_bytes(at)));
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+/// What screening one stored library can add to the model's bound: one record
+/// screening at a time (a hanger's collected objects and their findings, and a
+/// copy of a conflicting provenance, at most the library's parse `parse`), the
+/// matching records' list, and a diagnostic for the library and for each
+/// record, at the model's longest reference path, quoting its longest identity.
+fn library_screening_bytes(library_kind: &str, library: &Value, parse: u64, references: &ScreeningBound) -> u64 {
+    let records = crate::library_records_key(library_kind)
+        .and_then(|(records_key, _)| library.get(records_key))
+        .and_then(Value::as_array)
+        .map_or(0, |records| usize_bytes(records.len()));
+    let step = match (library_kind, library.as_object()) {
+        ("hanger", Some(object)) => {
+            let mut collected = Collected::default();
+            collected.object(object, 1, 0);
+            stored_read::total(&[collected.retained, collected.peak, findings_bytes(collected.objects.saturating_mul(4)), parse])
+        }
+        _ => findings_bytes(2),
+    };
+    let quoted = references.identity_max.saturating_add(SITE_WHAT_BYTES).saturating_add(FINDINGS_JOIN_BYTES).saturating_add(2);
+    stored_read::total(&[
+        step,
+        VECTOR_BASE_BYTES.saturating_add(slot_bytes(8).saturating_mul(records)),
+        records.saturating_add(1).saturating_mul(diagnostic_bytes(references.path_max, quoted)),
+    ])
 }
 
 /// Reads the stored text of a project's document (`state_id` absent) or of one
 /// of its saved states from the store at `store`, opened read-only, and admits
-/// it for writing unchanged, within `memory`. Returns the admitted document and
-/// the reservation its text lives under; the caller holds that through the
-/// write.
+/// it for writing unchanged, within `memory`. The reservations the admitted
+/// document and its screening's diagnostics live under (the text's load, the
+/// screening bounds) are pushed to `held`, which the caller holds until the
+/// outcome is serialized; a refusal's diagnostics live under them too.
 pub(crate) fn admit_stored_model_document(
     store: &Path,
     project_id: &str,
     state_id: Option<&str>,
     memory: &dyn ReadMemory,
-) -> Result<(AdmittedModelDocument, ReadReservation), Refusal> {
+    held: &mut Vec<ReadReservation>,
+) -> Result<AdmittedModelDocument, Refusal> {
     let named = stored_document_name(project_id, state_id);
     let what = format!("the stored document of {named}");
     let unavailable = |error: String| read_refusal(&named, error);
@@ -277,7 +556,7 @@ pub(crate) fn admit_stored_model_document(
             format!("The stored document of {named} is {length} bytes; a model document may be at most {MAX_MODEL_DOCUMENT_BYTES} bytes, so it would not re-open. Nothing was read or written."),
         ));
     }
-    let load = memory.reserve(&what, stored_read::loaded_text_bytes(length)).map_err(unavailable)?;
+    held.push(memory.reserve(&what, stored_read::loaded_text_bytes(length)).map_err(unavailable)?);
     let text: String = query_stored(&transaction, &stored_text_sql(state_id, ""), project_id, state_id)
         .map_err(|error| unavailable(stored_read::sql_error(&error)))?
         .ok_or_else(|| refusal(NOT_FOUND, format!("The local project store holds no {named}; nothing was written.")))?;
@@ -286,86 +565,197 @@ pub(crate) fn admit_stored_model_document(
     let parsing = memory.reserve(&what, parse).map_err(unavailable)?;
     let document: Value = serde_json::from_str(&text).map_err(|error| not_json(stored_read::json_error(&error)))?;
     refuse_duplicate_members(memory, &what, &named, &text, &document)?;
+    // The screener's allocations over the model, reserved before it runs
+    // (Codex r4 P1).
+    let references = ScreeningBound::of(&document);
+    held.push(memory.reserve(&format!("the screening of {what}"), references.bytes()).map_err(unavailable)?);
     // Libraries the document references are read from the same read-only
-    // transaction, each within the export's memory, and their reservations
-    // are held through the screening.
-    let mut libraries = LibraryReads::new(&transaction, memory);
+    // transaction, each within the export's memory with its screening's bound.
+    let mut libraries = LibraryReads::new(&transaction, memory, &references);
     let screened = screen_model_document_dispositions(&document, &mut |project_id: &str, library_kind: &str, library_id: &str| {
         libraries.read(project_id, library_kind, library_id)
     });
-    if let Some(error) = libraries.refused.take() {
+    let refused = libraries.refused.take();
+    held.append(&mut libraries.held);
+    held.extend(libraries.keyed.take());
+    if let Some(error) = refused {
         return Err(read_refusal(&named, error));
     }
     let warnings = screened?;
-    drop(libraries);
     let suggested_file_name = suggested_model_document_file_name(&document);
     drop(document);
     drop(parsing);
-    Ok((AdmittedModelDocument { text, suggested_file_name, warnings }, load))
+    Ok(AdmittedModelDocument { text, suggested_file_name, warnings })
 }
 
 /// The command after its ingress (`lib.rs` `save_stored_model_document_file`):
 /// the explicit intent, the store's path (`store`, located only after the
 /// intent), then [`export_stored_model_document`] under the command's ingress
-/// lease `ingress`.
-pub(crate) fn export_stored_model_document_request(
+/// lease `ingress`. `respond` receives the outcome sent and its serialized
+/// text while every reservation is still held (the command builds its
+/// response there).
+pub(crate) fn export_stored_model_document_request<R>(
     request: &StoredExportRequest,
     store: impl FnOnce() -> Result<PathBuf, String>,
     registry: &SolveJobRegistry,
     ingress: &Lease,
     choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>,
-) -> ModelDocumentSaveOutcome {
-    if !request.explicit_local_private_intent {
-        return ModelDocumentSaveOutcome::refused_one(
-            INTENT_REQUIRED,
-            "Saving the stored document needs the explicit choice to save it, including private project data, to a file.",
-        );
-    }
+    respond: impl FnOnce(&ModelDocumentSaveOutcome, String) -> R,
+) -> R {
     let state_id = request.state_id.as_deref();
-    let store = match store() {
-        Ok(store) => store,
-        Err(error) => {
-            let named = stored_document_name(&request.project_id, state_id);
-            return ModelDocumentSaveOutcome::refused_one(
-                STORE_UNAVAILABLE,
-                format!("The local project store could not be located for {named} ({}); nothing was written.", stored_read::capped(error)),
-            );
+    let outcome = if !request.explicit_local_private_intent {
+        ModelDocumentSaveOutcome::refused_one(INTENT_REQUIRED, "Saving the stored document needs the explicit choice to save it, including private project data, to a file.")
+    } else {
+        match store() {
+            Ok(store) => return export_stored_model_document(&store, &request.project_id, state_id, registry, ingress, choose, respond),
+            Err(error) => {
+                let named = stored_document_name(&request.project_id, state_id);
+                ModelDocumentSaveOutcome::refused_one(
+                    STORE_UNAVAILABLE,
+                    format!("The local project store could not be located for {named} ({}); nothing was written.", stored_read::capped(error)),
+                )
+            }
         }
     };
-    export_stored_model_document(&store, &request.project_id, state_id, registry, ingress, choose)
+    // These refusals quote nothing unbounded (ids are cut and the error is
+    // capped as messages quote them): within the ingress lease's error allowance.
+    let text = serde_json::to_string(&outcome).unwrap_or_default();
+    respond(&outcome, text)
+}
+
+/// What a Saved outcome adds to its warnings' JSON: its tag, the file name (at
+/// most 255 bytes, each escaped to at most six), the byte count, the hash, the
+/// durability and the member names.
+const SAVED_FIELDS_BYTES: u64 = 4096;
+
+/// The outcome's text (Codex r4 P2), serialized within `memory` while the
+/// outcome's reservations are held: its exact length is counted first, and a
+/// buffer of that capacity is written under `reserved` (a bound reserved
+/// earlier) when it fits, else under a new reservation. If the pool refuses
+/// it, a short outcome naming the refusal is sent instead (bounded: quoted
+/// texts are capped): a refusal's first diagnostic and count, or a Saved
+/// outcome without its warnings. Returns the outcome sent, its text and the
+/// buffer's reservation, which the caller holds until the response exists.
+fn serialize_outcome(
+    memory: &dyn ReadMemory,
+    named: &str,
+    outcome: ModelDocumentSaveOutcome,
+    reserved: Option<(ReadReservation, u64)>,
+) -> (ModelDocumentSaveOutcome, String, Option<ReadReservation>) {
+    let write = |outcome: &ModelDocumentSaveOutcome, capacity: u64| -> Option<String> {
+        let mut buffer = Vec::with_capacity(usize::try_from(capacity).ok()?);
+        serde_json::to_writer(&mut buffer, outcome).ok()?;
+        String::from_utf8(buffer).ok()
+    };
+    let length = stored_read::serialized_length(&outcome).unwrap_or(u64::MAX);
+    let buffer = match reserved {
+        Some((reservation, bound)) if length <= bound => Ok(reservation),
+        _ => memory.reserve(&format!("the response to the export of {named}"), stored_read::exact_text_bytes(length)),
+    };
+    let refusal = match buffer {
+        Ok(buffer) => match write(&outcome, length) {
+            Some(text) => return (outcome, text, Some(buffer)),
+            None => format!("{MEMORY_UNAVAILABLE}: the response to the export of {named} could not be serialized."),
+        },
+        Err(error) => error,
+    };
+    let sent = match &outcome {
+        ModelDocumentSaveOutcome::Saved { file_name, byte_count, model_hash, replaced_existing, durability, warnings } => ModelDocumentSaveOutcome::Saved {
+            file_name: file_name.clone(),
+            byte_count: *byte_count,
+            model_hash: model_hash.clone(),
+            replaced_existing: *replaced_existing,
+            durability: durability.clone(),
+            warnings: vec![diagnostic(
+                MEMORY_UNAVAILABLE,
+                "",
+                format!("{} The file was saved; its {} warnings are not shown.", stored_read::capped(refusal), warnings.len()),
+            )],
+        },
+        ModelDocumentSaveOutcome::Refused { diagnostics } => {
+            let first = diagnostics.first().map_or(String::new(), |item| format!(" The first is {}: {}", item.code, stored_read::capped(item.message.clone())));
+            ModelDocumentSaveOutcome::refused_one(
+                MEMORY_UNAVAILABLE,
+                format!("{} The export was refused with {} diagnostics, which are not shown.{first}", stored_read::capped(refusal), diagnostics.len()),
+            )
+        }
+        ModelDocumentSaveOutcome::Cancelled => ModelDocumentSaveOutcome::Cancelled,
+    };
+    drop(outcome);
+    let text = serde_json::to_string(&sent).unwrap_or_default();
+    (sent, text, None)
 }
 
 /// The recovery export: the store's read, the chooser (`choose`, given the
-/// suggested file name) and the write, under one memory admission. The
-/// accounting starts from the command's ingress lease (`ingress`, which holds
-/// its arguments); the command's own memory (connection, statements, ids) is
-/// reserved with it as `stored_read::READ_OVERHEAD_BYTES`, and every other
-/// reservation is counted with both against the per-invocation budget
-/// (`PoolReadMemory`). Nothing is chosen or written after a refusal.
-pub(crate) fn export_stored_model_document(
+/// suggested file name), the write and the response, under one memory
+/// admission. The accounting starts from the command's ingress lease
+/// (`ingress`, which holds its arguments); the command's own memory
+/// (connection, statements, ids) is reserved with it as
+/// `stored_read::READ_OVERHEAD_BYTES`, and every other reservation is counted
+/// with both against the per-invocation budget (`PoolReadMemory`). The Saved
+/// response's bound is reserved before the chooser is shown, so no response
+/// is refused after a file was written. Nothing is chosen or written after a
+/// refusal. `respond` receives the outcome sent and its text while every
+/// reservation is still held.
+pub(crate) fn export_stored_model_document<R>(
     store: &Path,
     project_id: &str,
     state_id: Option<&str>,
     registry: &SolveJobRegistry,
     ingress: &Lease,
     choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>,
-) -> ModelDocumentSaveOutcome {
+    respond: impl FnOnce(&ModelDocumentSaveOutcome, String) -> R,
+) -> R {
     let named = stored_document_name(project_id, state_id);
     let memory = PoolReadMemory::new(registry, ingress);
-    let _overhead = match memory.reserve(&format!("the stored document of {named} (the command's own memory)"), stored_read::READ_OVERHEAD_BYTES) {
+    let overhead = match memory.reserve(&format!("the stored document of {named} (the command's own memory)"), stored_read::READ_OVERHEAD_BYTES) {
         Ok(reservation) => reservation,
-        Err(error) => return ModelDocumentSaveOutcome::refused_one(MEMORY_UNAVAILABLE, format!("{error} Nothing was read or written.")),
+        Err(error) => {
+            // Bounded (the ids are cut as messages quote them): within the
+            // ingress lease's error allowance.
+            let outcome = ModelDocumentSaveOutcome::refused_one(MEMORY_UNAVAILABLE, format!("{error} Nothing was read or written."));
+            let text = serde_json::to_string(&outcome).unwrap_or_default();
+            return respond(&outcome, text);
+        }
     };
-    let (admitted, _text) = match admit_stored_model_document(store, project_id, state_id, &memory) {
+    let mut held = Vec::new();
+    let (outcome, reserved) = export_outcome(store, project_id, state_id, &memory, &named, &mut held, choose);
+    let (sent, text, buffer) = serialize_outcome(&memory, &named, outcome, reserved);
+    let response = respond(&sent, text);
+    drop(sent);
+    drop(buffer);
+    drop(held);
+    drop(overhead);
+    response
+}
+
+/// The export's outcome, and the Saved response's bound reserved before the
+/// chooser (with its bytes), when the read was admitted.
+fn export_outcome(
+    store: &Path,
+    project_id: &str,
+    state_id: Option<&str>,
+    memory: &dyn ReadMemory,
+    named: &str,
+    held: &mut Vec<ReadReservation>,
+    choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>,
+) -> (ModelDocumentSaveOutcome, Option<(ReadReservation, u64)>) {
+    let admitted = match admit_stored_model_document(store, project_id, state_id, memory, held) {
         Ok(admitted) => admitted,
-        Err(diagnostics) => return ModelDocumentSaveOutcome::refused(diagnostics),
+        Err(diagnostics) => return (ModelDocumentSaveOutcome::refused(diagnostics), None),
     };
+    let bound = stored_read::serialized_length(&admitted.warnings).unwrap_or(u64::MAX).saturating_add(SAVED_FIELDS_BYTES);
+    let response = match memory.reserve(&format!("the response to the export of {named}"), stored_read::exact_text_bytes(bound)) {
+        Ok(response) => response,
+        Err(error) => return (ModelDocumentSaveOutcome::refused_one(MEMORY_UNAVAILABLE, format!("{error} Nothing was written.")), None),
+    };
+    let reserved = Some((response, bound));
     let destination = match choose(&admitted.suggested_file_name) {
         Ok(Some(destination)) => destination,
-        Ok(None) => return ModelDocumentSaveOutcome::Cancelled,
-        Err(message) => return ModelDocumentSaveOutcome::refused_one(PICKER_PATH_INVALID, message),
+        Ok(None) => return (ModelDocumentSaveOutcome::Cancelled, reserved),
+        Err(message) => return (ModelDocumentSaveOutcome::refused_one(PICKER_PATH_INVALID, message), reserved),
     };
-    write_admitted_model_document(&destination, admitted)
+    (write_admitted_model_document(&destination, admitted), reserved)
 }
 
 #[cfg(test)]
@@ -460,7 +850,10 @@ mod tests {
         choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>,
     ) -> ModelDocumentSaveOutcome {
         let (request, lease) = admitted(pool, body).expect("the envelope is admitted");
-        export_stored_model_document_request(&request, || Ok(store.to_path_buf()), pool, &lease, choose)
+        export_stored_model_document_request(&request, || Ok(store.to_path_buf()), pool, &lease, choose, |outcome, text| {
+            assert_eq!(serde_json::to_string(outcome).unwrap(), text, "the response is the outcome sent");
+            outcome.clone()
+        })
     }
 
     /// The export with a chooser that records whether it was shown.
@@ -756,7 +1149,7 @@ mod tests {
         let refusing = InvokeBody::Raw(serde_json::to_vec(&json!({ "projectId": PROJECT, "explicitLocalPrivateIntent": false })).unwrap());
         let (request, lease) = admitted(&pool, &refusing).unwrap();
         let located = Cell::new(false);
-        let outcome = export_stored_model_document_request(&request, || { located.set(true); Ok(store.clone()) }, &pool, &lease, |_| panic!("no chooser"));
+        let outcome = export_stored_model_document_request(&request, || { located.set(true); Ok(store.clone()) }, &pool, &lease, |_| panic!("no chooser"), |outcome, _| outcome.clone());
         assert_eq!(refused_codes(&outcome), vec![(INTENT_REQUIRED, "")]);
         assert!(!located.get());
         drop(lease);
@@ -802,5 +1195,209 @@ mod tests {
         // The same read without the padded arguments fits that budget.
         let shown = Cell::new(false);
         assert!(matches!(export(&store, None, &pool, &destination, &shown), ModelDocumentSaveOutcome::Saved { .. }));
+    }
+
+    // -----------------------------------------------------------------------
+    // Codex r4: the screener's allocations and the response.
+    // -----------------------------------------------------------------------
+
+    const HANGERS: &str = "library:invented-hangers";
+
+    /// Codex r4 shape 1: a ~150-byte model referencing a ~33 KB hanger library
+    /// whose 160 objects sit under one 32 KiB key, so the screener collects 160
+    /// paths of 32 KiB (`collect_objects`).
+    fn hanger_shape() -> (String, String) {
+        let model = format!(
+            "{{\"project\":{{\"id\":\"{PROJECT}\"}},\"hangers\":[{{\"id\":\"h\",\"library_ref\":{{\"library_kind\":\"hanger\",\"library_id\":\"{HANGERS}\"}}}}]}}"
+        );
+        let objects = vec![json!({ "k": 1 }); 160];
+        let library = serde_json::to_string(&json!({ "hanger_library": { "library_id": HANGERS, "k".repeat(32 * 1024): objects } })).unwrap();
+        (model, library)
+    }
+
+    /// Codex r4 shape 2: a ~42 KB model whose 150 unresolved `library_ref`s sit
+    /// under one 32 KiB key, so each recorded reference and each warning copies
+    /// a 32 KiB path, and the warnings make a ~5 MB response.
+    fn unresolved_shape() -> String {
+        let reference = json!({ "library_ref": { "library_kind": "material", "library_id": "library:invented-missing" } });
+        serde_json::to_string(&json!({ "project": { "id": PROJECT }, "k".repeat(32 * 1024): vec![reference; 150] })).unwrap()
+    }
+
+    fn store_with_library(scratch: &Scratch, model: &str, kind: &str, id: &str, library: &str) -> PathBuf {
+        let store = current_store(scratch, model, STATE_TEXT);
+        Connection::open(&store)
+            .unwrap()
+            .execute(
+                "INSERT INTO local_libraries(project_id, library_kind, library_id, document_json, created_at_unix, updated_at_unix) VALUES (?1, ?2, ?3, ?4, 1, 1)",
+                params![PROJECT, kind, id, library],
+            )
+            .unwrap();
+        store
+    }
+
+    fn pool_of(budget: u64) -> SolveJobRegistry {
+        let pool = registry(ScriptedHost::normal());
+        pool.configure_pool(budget, budget, false).unwrap();
+        pool
+    }
+
+    fn refusal_message(outcome: &ModelDocumentSaveOutcome) -> String {
+        match outcome {
+            ModelDocumentSaveOutcome::Refused { diagnostics } => diagnostics[0].message.clone(),
+            other => panic!("not refused: {other:?}"),
+        }
+    }
+
+    /// Codex r4 P1: the screener's copied paths, collections and diagnostics
+    /// are admitted before it builds them. Both reported shapes are refused by
+    /// name under a pool below their peak (4 MiB and 8 MiB; Codex measured 5.07
+    /// MB and 10.18 MB), write nothing and release every reservation; under an
+    /// ordinary pool they export, the second with all its warnings.
+    #[test]
+    fn screening_allocations_are_admitted_before_the_screener_builds_them() {
+        let scratch = Scratch::new("screening-hanger");
+        let (model, library) = hanger_shape();
+        let store = store_with_library(&scratch, &model, "hanger", HANGERS, &library);
+        let destination = scratch.0.join("recovered.json");
+        let small = pool_of(4 << 20);
+        let shown = Cell::new(false);
+        let refused = export(&store, None, &small, &destination, &shown);
+        assert_refused_nothing_written(&refused, MEMORY_UNAVAILABLE, &destination, &shown);
+        assert!(refusal_message(&refused).contains("the screening of the stored hanger library"), "{refused:?}");
+        assert_eq!(small.pool_status().reserved_bytes, 0);
+        let normal = registry(ScriptedHost::normal());
+        assert!(matches!(export(&store, None, &normal, &destination, &shown), ModelDocumentSaveOutcome::Saved { .. }));
+        assert_eq!(fs::read(&destination).unwrap(), model.as_bytes());
+        assert_eq!(normal.pool_status().reserved_bytes, 0);
+
+        let scratch = Scratch::new("screening-unresolved");
+        let model = unresolved_shape();
+        let store = current_store(&scratch, &model, STATE_TEXT);
+        let destination = scratch.0.join("recovered.json");
+        let small = pool_of(8 << 20);
+        let shown = Cell::new(false);
+        let refused = export(&store, None, &small, &destination, &shown);
+        assert_refused_nothing_written(&refused, MEMORY_UNAVAILABLE, &destination, &shown);
+        assert!(refusal_message(&refused).contains("the screening of the stored document"), "{refused:?}");
+        assert_eq!(small.pool_status().reserved_bytes, 0);
+        match export(&store, None, &normal, &destination, &shown) {
+            ModelDocumentSaveOutcome::Saved { warnings, .. } => {
+                assert_eq!(warnings.len(), 150);
+                assert!(warnings.iter().all(|warning| warning.code == crate::MODEL_LIBRARY_REF_UNRESOLVED));
+            }
+            other => panic!("not saved: {other:?}"),
+        }
+        assert_eq!(normal.pool_status().reserved_bytes, 0);
+    }
+
+    /// The bound reserved for the screening covers what the shared screener
+    /// allocates, measured by the counting allocator (requested sizes priced by
+    /// their envelope), for Codex's two shapes and for the screener's other
+    /// paths: blocking provenance and rule-pack sites, hanger objects with
+    /// conflicting provenance, matched and unmatched record ids, and a
+    /// non-hanger library.
+    #[test]
+    fn the_screening_bound_covers_the_screeners_measured_peak() {
+        let (hanger_model, hanger_library) = hanger_shape();
+        let blocked = |status: &str| json!({ "review_status": status, "redistribution_status": "rejected" });
+        let deep = "d".repeat(4096);
+        let busy_model = serde_json::to_string(&json!({
+            "project": { "id": PROJECT },
+            deep.clone(): {
+                "materials": (0..40).map(|index| json!({
+                    "id": format!("m{index}"),
+                    "provenance_record": blocked("quarantined"),
+                    "library_ref": { "library_kind": if index % 2 == 0 { "hanger" } else { "material" }, "library_id": format!("lib{}", index % 3), "record_id": format!(" r{} ", index % 5) }
+                })).collect::<Vec<_>>(),
+                "rule_pack_refs": (0..30).map(|index| json!({ "rule_pack_id": if index % 2 == 0 { format!("pack{index}") } else { String::new() }, "lifecycle_status": "rejected", "review_status": "rejected" })).collect::<Vec<_>>()
+            }
+        }))
+        .unwrap();
+        let hanger_records = (0..20).map(|index| json!({
+            "hanger_id": format!("r{}", index % 4),
+            "review_status": "accepted",
+            "provenance": { "review_status": "quarantined", "redistribution_status": "protected_suspected", "note": "n".repeat(512) },
+            "parts": [{ "provenance": blocked("rejected") }, { "privacy_class": "x" }]
+        })).collect::<Vec<_>>();
+        let busy_hanger = serde_json::to_string(&json!({ "hanger_library": { "library_id": "lib0", "review_status": "quarantined", deep.clone(): hanger_records.clone() }, "hanger_records": hanger_records })).unwrap();
+        let material_records = (0..20).map(|index| json!({ "material_id": format!("r{}", index % 3), "review_status": "rejected" })).collect::<Vec<_>>();
+        let busy_material = serde_json::to_string(&json!({ "material_library": { "library_id": "lib1", "redistribution_status": "rejected" }, "material_records": material_records })).unwrap();
+        let shapes: Vec<(&str, String, Vec<(&str, &str, String)>)> = vec![
+            ("hanger", hanger_model, vec![("hanger", HANGERS, hanger_library)]),
+            ("unresolved", unresolved_shape(), vec![]),
+            ("busy", busy_model, vec![("hanger", "lib0", busy_hanger), ("material", "lib1", busy_material)]),
+        ];
+        for (name, model, libraries) in shapes {
+            let document: Value = serde_json::from_str(&model).unwrap();
+            let references = ScreeningBound::of(&document);
+            let mut bound = references.bytes();
+            for (kind, id, text) in &libraries {
+                let parse = stored_read::parse_bytes(text).unwrap();
+                let library: Value = serde_json::from_str(text).unwrap();
+                // The lookup's own parse (reserved by its read) and the screening.
+                bound += parse + library_screening_bytes(kind, &library, parse, &references);
+                let _ = id;
+            }
+            let (screened, measured) = crate::ingress::counting::measure(|| {
+                screen_model_document_dispositions(&document, &mut |_: &str, kind: &str, id: &str| {
+                    Ok(libraries.iter().find(|(k, i, _)| *k == kind.trim() && *i == id.trim()).map(|(_, _, text)| serde_json::from_str(text).unwrap()))
+                })
+            });
+            let found = match &screened {
+                Ok(warnings) => warnings.len(),
+                Err(blocking) => blocking.len(),
+            };
+            assert!(found > 0 || name == "hanger", "{name}: the screening finds something");
+            assert!(measured.peak_priced <= bound, "{name}: the screener's peak {} exceeds its reserved bound {bound}", measured.peak_priced);
+            drop(screened);
+        }
+    }
+
+    /// The smallest per-invocation budget under which `export` (on a fresh
+    /// pool of that size) sends an outcome `sent` accepts.
+    fn smallest_budget(store: &Path, destination: &Path, sent: impl Fn(&ModelDocumentSaveOutcome) -> bool) -> u64 {
+        let (mut refused, mut admitted) = (1u64 << 20, 1u64 << 30);
+        assert!(sent(&export(store, None, &pool_of(admitted), destination, &Cell::new(false))));
+        while admitted - refused > 1 {
+            let budget = refused + (admitted - refused) / 2;
+            let _ = fs::remove_file(destination);
+            if sent(&export(store, None, &pool_of(budget), destination, &Cell::new(false))) { admitted = budget } else { refused = budget }
+        }
+        let _ = fs::remove_file(destination);
+        admitted
+    }
+
+    /// Codex r4 P2: the response was serialized after every reservation was
+    /// released. Its exact length is reserved with the outcome's reservations
+    /// held, and a Saved response's bound before the chooser: one byte below
+    /// the smallest budget that sends the whole response, the export is
+    /// refused by naming the response, before the chooser, writing nothing; a
+    /// refusal whose diagnostics do not fit is sent as one named refusal that
+    /// quotes the first of them.
+    #[test]
+    fn the_response_is_reserved_before_it_is_serialized() {
+        let scratch = Scratch::new("response-saved");
+        let model = unresolved_shape();
+        let store = current_store(&scratch, &model, STATE_TEXT);
+        let destination = scratch.0.join("recovered.json");
+        let budget = smallest_budget(&store, &destination, |outcome| matches!(outcome, ModelDocumentSaveOutcome::Saved { warnings, .. } if warnings.len() == 150));
+        let shown = Cell::new(false);
+        let refused = export(&store, None, &pool_of(budget - 1), &destination, &shown);
+        assert_refused_nothing_written(&refused, MEMORY_UNAVAILABLE, &destination, &shown);
+        assert!(refusal_message(&refused).contains("the response to the export of"), "{refused:?}");
+
+        let scratch = Scratch::new("response-refused");
+        let blocked = json!({ "id": "m", "provenance_record": { "review_status": "quarantined" } });
+        let model = serde_json::to_string(&json!({ "project": { "id": PROJECT }, "k".repeat(32 * 1024): vec![blocked; 150] })).unwrap();
+        let store = current_store(&scratch, &model, STATE_TEXT);
+        let destination = scratch.0.join("recovered.json");
+        let whole = |outcome: &ModelDocumentSaveOutcome| matches!(outcome, ModelDocumentSaveOutcome::Refused { diagnostics } if diagnostics.len() == 150);
+        let budget = smallest_budget(&store, &destination, whole);
+        let shown = Cell::new(false);
+        let refused = export(&store, None, &pool_of(budget - 1), &destination, &shown);
+        assert_refused_nothing_written(&refused, MEMORY_UNAVAILABLE, &destination, &shown);
+        let message = refusal_message(&refused);
+        assert!(message.contains("the response to the export of"), "{message}");
+        assert!(message.contains(&format!("refused with 150 diagnostics, which are not shown. The first is {PROTECTED_CONTENT_BLOCKED}")), "{message}");
     }
 }

@@ -284,8 +284,21 @@ keys, including `angle` (§5); the rest still applies.
     own reservations (SQLite's working set for the library keys, then the
     measured load and the parse of its document), held through the
     screening; a library the pool does not admit refuses the export by the
-    same name. A row above the model-document file cap is refused from its
-    measured length before it is loaded (`MODEL-DOC-SAVE-TOO-LARGE`). A text that holds an
+    same name. The shared disposition screener is not itself metered, so
+    what it builds (a copied path for every site it records, a diagnostic for
+    every finding and unresolved reference, and a path for every object of a
+    hanger library) is bounded from the parsed model and each parsed library
+    and reserved before it runs: the model's bound before the screening, each
+    library's in its lookup. The screening itself is unchanged: every member
+    is screened and a blocking disposition still blocks. The outcome is
+    serialized within the same accounting while every reservation (the
+    lease, the screening bounds, the text) is still held: its exact length is
+    reserved, and a Saved response's bound is reserved before the chooser, so
+    no response is refused after a file is written. A refusal whose
+    diagnostics do not fit is sent as one named refusal that gives their
+    count and quotes the first. A row above the model-document file cap is
+    refused from its measured length before it is loaded
+    (`MODEL-DOC-SAVE-TOO-LARGE`). A text that holds an
     object member twice is refused before screening
     (`MODEL-DOC-EXPORT-DUPLICATE-MEMBER`), so the document screened is the
     document written. The user adds the map and opens the file with Open
@@ -297,10 +310,13 @@ keys, including `angle` (§5); the rest still applies.
     unit: <key>. This field has no default unit, and nothing is assumed.
     Choose its unit here, or set <key> in Project units on the Project page."
     A unit the user picks there lifts the refusal and is kept.
-  - **Centre of gravity**, which has no selector, reads: "Missing project unit:
-    <key>. This field takes its unit from project.units.<key>, and nothing is
-    assumed. Set <key> in Project units on the Project page before editing
-    it."
+  - **Centre of gravity** is the exception. Its vector field has its own
+    editable unit selector, but with its default key missing the field keeps
+    the `required` refusal: picking a unit there does not lift it, unlike the
+    rule just above. It reads: "Missing project unit: <key>. This field takes
+    its unit from project.units.<key>, and nothing is assumed. Set <key> in
+    Project units on the Project page before editing it." A centre of gravity
+    that already carries its own unit is not refused.
   - **Node positions without `length`** show the hard lock above, and picking a
     unit does not lift it.
   - **The table** refuses to queue such a cell: "Not queued: <column> of <id>
@@ -377,7 +393,13 @@ keys, including `angle` (§5); the rest still applies.
   left unchanged; every reservation is released afterwards. An argument body
   above the budget, a JSON body and a body without the header are refused at
   ingress; the ingress lease counts against the budget; a well-formed
-  envelope exports (`src-tauri/src/stored_model_document_export.rs`). The
+  envelope exports. The screening's allocations are refused by name under a
+  pool below their peak (a hanger library with a 32 KiB key over 160 objects,
+  and 150 unresolved references under a 32 KiB key) and export under an
+  ordinary pool; the counting allocator checks the screening's bound against
+  the screener's measured peak. One byte below the smallest budget that sends
+  the whole response, the export is refused by naming the response, with no
+  chooser and nothing written (`src-tauri/src/stored_model_document_export.rs`). The
   webview sends the `args-json-v1` body (`storedDocumentExport.test.tsx`).
 - **Applier, angle.** A rotational imposed displacement is accepted on a new
   blank document.
