@@ -1,13 +1,16 @@
 # Per-report user release of the user's own project data (W-18b)
 
 **Basis:** `origin/main` at `c7f52fd12a` (2026-10-25), merged into this branch
-at `ad79d9d72f`. Every file:line citation is at that tree; `main` has not
-moved since (re-checked at revision 3). Revision 2 reduced the design to the
-owner's scope R (§0), after Codex round 1 (three blocking, four should-fix) and
-round 2 (one blocking, three should-fix). Revision 3 answers round 3 (one
-blocking, three should-fix, one non-blocking, and A7's wording). §7 says where
-each finding is resolved. Design before implementation; nothing
-here is built. This design records the mechanism by which a user can state,
+at `ad79d9d72f`. Every file:line citation is at that tree. At revision 3,
+`main` at `3027cf2f35` (W-15 slice b, #1608) was merged at `b2bc7e8a27`. Of
+the files cited here it changes only `docs/COMPLETENESS_MAP.md`, whose W-18
+row moved from :546 to :547 (§9), and `tools/hosted-ci-routing.json`, cited
+without a line; every other citation holds at both trees. Revision 2 reduced
+the design to the owner's scope R (§0), after Codex round 1 (three blocking,
+four should-fix) and round 2 (one blocking, three should-fix). Revision 3
+answers round 3 (one blocking, three should-fix, one non-blocking, and A7's
+wording). §7 says where each finding is resolved. Design before
+implementation; nothing here is built. This design records the mechanism by which a user can state,
 for one report, that they release their own project data for sharing. It
 records no release, and it records, implies or derives no acceptance,
 issuance, approval, compliance or lifecycle standing (F-PIP-3,
@@ -515,7 +518,7 @@ user-visible condition is the same; native admission now enforces it.
       `canonical_json::sorted_keys` allocates a `Vec<&String>` of the
       object's member count (8 bytes per member), and it stays alive while
       that object's members, and every object nested in them, are written
-      (`core/serialization/canonical_json/src/lib.rs:339-398`). Their sum is
+      (`core/serialization/canonical_json/src/lib.rs:339-394`). Their sum is
       at most 8 bytes per object member of the value, before allocator
       rounding of each vector. The recursion is at
       most 128 deep, since the checked profile refuses deeper values first
@@ -800,10 +803,10 @@ with no trimming. M is library-referenced when any of these holds:
    Parsing goes one level deep. Strings inside the parsed value are tested by
    the substring rules, not parsed again: no apply wrote embedded JSON inside
    embedded JSON. A candidate the prescan refuses for nesting deeper than 127
-   containers, for serde_json's reserved raw-value key
-   (`ingress.rs:1046-1056`), or as too large to price cannot be checked, and is
-   refused under rule 3. Every other prescan finding is one serde_json's parse
-   would refuse too. A string that does not begin with `{`, that the prescan
+   containers (`ingress.rs:29,605-606`), for serde_json's reserved raw-value
+   key (`:653`; both pinned by the test at `:1046-1056`), or as too large to
+   price (`:355-360`) cannot be checked, and is refused under rule 3. Every
+   other prescan finding is one serde_json's parse would refuse too. A string that does not begin with `{`, that the prescan
    refuses with such a finding, or that parses to a non-object is text only,
    and rules 2 and 3 (a) still apply to it.
 
@@ -1311,9 +1314,9 @@ exactly.
 ### 5.4 Claims-language check
 
 Every proposed text in §2.2, §5.1, §5.2, §5.3 and Appendix A was run through
-GEN-13 (`tools/validation/validate_claims_language.py`) at revision 2, both as
-product source (`apps/desktop/src/…`) and as a project document. Result: no
-finding.
+GEN-13 (`tools/validation/validate_claims_language.py`) at revision 3, both as
+product source (`apps/desktop/src/…`) and as a project document, through the
+tool's own line and retired-text scans. Result: no finding.
 - No line carries three litany terms (`:44-56`). The highest count is one:
   "professional", in "Professional Boundary notice" and in note 2, which is
   unchanged text.
@@ -1647,7 +1650,8 @@ leaves the sandbox directory empty, with no picker request.
   - the blocker: the legacy hanger selection evidence is recognized (§1, §2.7
     rule 3), with its regressions (§6), and the reliance limit is stated in
     §0, §2.7, the dialog (§2.2) and the notice (§5.1);
-  - the two HELP_HUMAN readings are settled consequences (§2.7, §4, and above);
+  - the two HELP_HUMAN readings are recorded as settled in §0 and stated so in
+    §2.7, §4 and the settled list above; neither is open;
   - the hanger rows: "dedicated per-object hanger quantity entries" are left
     out, and the solve's review rows are retained (§2.1, §2.6, §10);
   - A5's derivation clause, replaced as worded;
@@ -1732,7 +1736,7 @@ exact text.
     - Its table row (:148) stays true: the package is still saved locally.
   - `docs/COMPLETENESS_MAP.md` records W-18b (R) and the later slice: gap 1
     (:94-100), FR-REP-001 (:205), the not-ready list (:461-464) and the W-18
-    row (:546).
+    row (:547).
   - `apps/desktop/native-smoke/run.mjs`, the user-released step (§6).
   - DEL-08-01 `deliverable.yaml` code paths (`UserReleaseDialog.tsx`) and
     checks.
@@ -1782,12 +1786,12 @@ constraints.
 ## Appendix A. Wording-route drafts (old → new; not applied)
 
 Each Old is copied byte-exact from its file. At revision 3 each was re-checked
-with a Python `count == 1` against the branch tree (`dec7c67b7f`, which
-contains main `c7f52fd12a`; main had not moved). Every Old still matches, at
-the line given. The four target files are unchanged since revision 1's basis
-`8cec2178c1`. Line numbers are
-where the Old begins. In an Old or New, `\n` stands for a line break and `\"`
-for a quotation mark inside the quoted text. These drafts go to Codex as exact
+with a Python `count == 1` against the branch tree after main `3027cf2f35` was
+merged (`b2bc7e8a27`). Every Old still matches once, at the line given, and
+none needed updating: the four target files are unchanged since revision 1's
+basis `8cec2178c1`. Line numbers are where the Old begins. In an Old or New,
+`\n` stands for a line break and `\"` for a quotation mark inside the quoted
+text. These drafts go to Codex as exact
 text, then to HELP_HUMAN under the wording grant. Nothing here is applied.
 
 **Depends on** names what a New needs before it is applied:
@@ -1829,7 +1833,7 @@ A10, A11, A12 and A13.
 
 **A7. DEL-12-02 `ScopeOfWork.md` :486** (REXC-OI-007; slice r2c; depends on: scope R, O-D, O-F, settled) — *changed since round 3*
 - Old: "before the save dialog; caller evidence alone admits nothing."
-- New: "before the save dialog; caller evidence alone admits nothing. On its user-release route (`DREP-PACKAGE-USER-RELEASE-010`) it admits the `user_released_report` context only with a release record whose bound model, input-manifest and result-document identities equal the texts and members it received, for a result this session's solver produced for that model, and only when every request member equals its own derivation from the bound model, its attested solve, the input manifest, the bound run, the host software identity and the user-release record; it refuses a record on the local-private route, a rule-pack reference, a user-rule outcome, a comparison section, a handoff record set and any request object with a non-project private class. It also refuses every model that carries a library reference: a `library_ref` object at any depth; a string value that contains `library:material:`, `library:section:`, `library:component:` or `library:hanger:`; or a string value that holds the legacy hanger selection evidence, being one that contains `user_imported_hanger_selection`, or one that, trimmed of JSON whitespace, begins with `{` and parses as a JSON object that has a `library_kind`, `library_id`, `library_metadata` or `record_snapshot` member or within which a `library_ref` object or a string containing one of those five texts occurs. So no value with a detected library origin reaches result rows, annotations, diagnostics, witnesses or contract evidence. For a value without a detected library origin, the release relies on the user's statement of their redistribution right."
+- New: "before the save dialog; caller evidence alone admits nothing. On its user-release route (`DREP-PACKAGE-USER-RELEASE-010`) it admits the `user_released_report` context only with a release record whose bound model, input-manifest and result-document identities equal the texts and members it received, for a result this session's solver produced for that model, and only when every request member equals its own derivation from the bound model, its attested solve, the input manifest, the bound run, the host software identity and the user-release record; it refuses a record on the local-private route, a rule-pack reference, a user-rule outcome, a comparison section, a handoff record set and any request object with a non-project private class. It also refuses every model that carries a library reference, so no value with a detected library origin reaches result rows, annotations, diagnostics, witnesses or contract evidence. A library reference is a `library_ref` object at any depth; a string value that contains `library:material:`, `library:section:`, `library:component:` or `library:hanger:`; or a string value that holds the legacy hanger selection evidence, being one that contains `user_imported_hanger_selection`, or one that, trimmed of JSON whitespace, begins with `{` and parses as a JSON object that has a `library_kind`, `library_id`, `library_metadata` or `record_snapshot` member or within which a `library_ref` object or a string containing one of those five texts occurs; a string so beginning that admission cannot check is refused too. For a value without a detected library origin, the release relies on the user's statement of their redistribution right."
 
 **A8. DEL-02-05 `ScopeOfWork.md` :214** (reader; slice r2c; depends on: O-A, O-G, settled)
 - Old: "for an unblocked package, the admitted identity plus equality of the audit-manifest id and model-hash value;"
