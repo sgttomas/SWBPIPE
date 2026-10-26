@@ -34,6 +34,7 @@ import {
   disposeAllPreviewMechanicsResults,
   resetSessionResultCustodyForTests,
   cancelPreviewMechanicsJob,
+  deliveredIntakeText,
   deliveredMechanicsResultJob,
   discardPreviewMechanicsJobResult,
   disposeDeliveredMechanicsResult,
@@ -1051,4 +1052,33 @@ it.each(["sparse_interactive", "dense_scrutiny"] as const)("preview-physics-2 re
   expect(hasNativeMechanicsInvocation(tampered, pair.model, mode)).toBe(false);
   // R2: the Rust reader's code (TS: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: dangling result reference).
   expect(numericalResultStanding(tampered, pair.model).findings.join(" ")).toContain("SOURCE_PREVIEW_PHYSICS_DANGLING_RESULT_REF");
+});
+
+// W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.6, §7): the model
+// text the job was sent, re-serialized from the result's native registration, for the
+// native host to bind to the digest it recorded. Unit transport replay; NOT a native UI
+// qualification witness.
+describe("deliveredIntakeText", () => {
+  it("equals the body startPreviewMechanicsJob sent, and is null for a copy, an unregistered result and a disposed one", async () => {
+    const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const sent: string[] = [];
+    const transport = createSolveJobTransport((request) => { sent.push(request.text); return pair.bytes; }, { jobIdPrefix: "unit-delivered-intake" });
+    const invokeSpy = vi.fn(transport.invoke);
+    invokeMock.mockImplementation(invokeSpy);
+    const result = await runPreviewMechanics(pair.model, "sparse_interactive");
+    expect(sent).toHaveLength(1);
+    const startCall = invokeSpy.mock.calls.find(([command]) => command === "start_preview_mechanics_job")!;
+    expect(new TextDecoder().decode(startCall[1] as Uint8Array)).toBe(sent[0]);
+    expect(deliveredIntakeText(result)).toBe(sent[0]);
+    expect(deliveredIntakeText(result)).toBe(checkedJsonText(pair.model));
+    // A copy and an unregistered result.
+    expect(deliveredIntakeText(structuredClone(result))).toBeNull();
+    expect(deliveredIntakeText(JSON.parse(pair.bytes) as MechanicsResult)).toBeNull();
+    expect(deliveredIntakeText(null)).toBeNull();
+    // Disposed: no longer held.
+    await disposeDeliveredMechanicsResult(result);
+    expect(deliveredMechanicsResultJob(result)).toBeNull();
+    expect(deliveredIntakeText(result)).toBeNull();
+  });
 });
