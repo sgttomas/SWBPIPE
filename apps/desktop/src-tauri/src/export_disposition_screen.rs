@@ -815,6 +815,11 @@ fn malformed_walk<P: WalkPointer, F: WalkFindings<P>>(value: &Value, pointer: &m
                 if screened && (child.is_array() || child.is_object()) && admitted.is_none() {
                     found.add(pointer, None, " is ", kind(child));
                 }
+                // A `provenance` in positional (array) form hides the members
+                // this screen judges (W-17 object form, #1651 Codex r2).
+                if key == "provenance" && child.is_array() {
+                    found.add(pointer, None, " is ", kind(child));
+                }
                 // Inside the admitted object no structure is exempt, whatever its key.
                 for (member, inner) in admitted.into_iter().flatten() {
                     if inner.is_array() || inner.is_object() {
@@ -886,8 +891,10 @@ pub(crate) fn screen_document(document: &Value) -> Vec<String> {
 /// object inside it is malformed; an object-valued `classification` anywhere
 /// else is malformed like any other. `null`, booleans and numbers are not
 /// refused (the library import stores them); they count as no public
-/// disposition and, for privacy members, as private. Returned as
-/// `<JSON pointer> is <JSON value kind>`. [`malformed_values`] is the same
+/// disposition and, for privacy members, as private. A `provenance` written
+/// as an array (its positional form) is malformed too, at any depth: it hides
+/// the members the structural screen judges (W-17, #1651 Codex r2). Returned
+/// as `<JSON pointer> is <JSON value kind>`. [`malformed_values`] is the same
 /// check with no exemption.
 pub(crate) fn malformed_dispositions(document: &Value) -> Vec<String> {
     collect_walk(document, ClassificationExemption::RulePackRoot, malformed_walk)
@@ -900,8 +907,8 @@ pub(crate) fn screen_value(value: &Value) -> Vec<String> {
 }
 
 /// [`malformed_dispositions`] with no `classification` exemption: every
-/// array- or object-valued disposition member, `classification` included, at
-/// any depth.
+/// array- or object-valued disposition member, `classification` included, and
+/// every array-valued `provenance`, at any depth.
 pub(crate) fn malformed_values(value: &Value) -> Vec<String> {
     collect_walk(value, ClassificationExemption::None, malformed_walk)
 }
@@ -995,6 +1002,9 @@ mod tests {
                         let screened = SCREENED_MEMBERS.iter().any(|(member, _)| member == key);
                         let admitted = admitted(exemption, pointer, key, child);
                         if screened && (child.is_array() || child.is_object()) && admitted.is_none() {
+                            found.push(format!("{at} is {}", kind(child)));
+                        }
+                        if key == "provenance" && child.is_array() {
                             found.push(format!("{at} is {}", kind(child)));
                         }
                         for (member, inner) in admitted.into_iter().flatten() {

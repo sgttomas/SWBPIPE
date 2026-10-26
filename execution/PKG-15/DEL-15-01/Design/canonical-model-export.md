@@ -170,9 +170,24 @@ on either route. It needs no solve and no result.
       private-library writer (`save_local_library_value`) stores such
       members as `PRIVATE_LOCAL_ONLY`, so this is reachable without a hand
       edit.
-    - Save Handoff uses `Structural`. Its own structural screen of each whole
-      stored library refuses those members as `HANDOFF-DISPOSITION-MALFORMED`,
-      named by their pointer in the library.
+    - Save Handoff uses `Structural`. The shared screen still refuses, as
+      `MODEL-DISPOSITION-RECORD-MALFORMED`, a positional `provenance` that
+      its verdict judges: on the library object or a matching record, or on
+      any judged hanger object. Handoff's own structural screen covers the
+      rest of each whole stored library, at any depth and in every record. It
+      refuses an array- or object-valued disposition member, or a
+      `provenance` written as an array, as `HANDOFF-DISPOSITION-MALFORMED`,
+      named by its pointer in the library (`malformed_values`). A nested
+      `provenance` carrying a blocking disposition in object form is already
+      refused there as `PROTECTED_CONTENT_BLOCKED`. The positional rule was
+      added after #1651 Codex r2: a positional `provenance` nested below a
+      record, for example `material_records[0].deep.provenance`, or one in a
+      record the model does not reference, was admitted on `d28869c09f`.
+      The rule also applies where else `malformed_values` runs: the report
+      package's request and model, and stored rule packs. A readable
+      blocking status elsewhere in the library still takes precedence
+      (`PROTECTED_CONTENT_BLOCKED`). Regression: `handoff_package.rs`
+      `r2_a_positional_provenance_anywhere_in_a_stored_library_is_refused`.
 
     Other stored disposition members, such as an object-valued
     `classification`, are not read by the verdict and follow it
