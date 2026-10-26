@@ -28,6 +28,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 pub mod exact_statements;
+pub mod object_form;
 
 /// Fixed render order: mirrors the required-section contract of
 /// `report_generator` (`REQUIRED_SECTION_KINDS`); rendering never reorders

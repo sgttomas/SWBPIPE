@@ -1047,3 +1047,30 @@ fn current_requests_assemble_the_same_bytes_as_before_the_exact_sections() {
         assert!(request["report"].get("exact_route").is_none() && request["report"].get("library_references").is_none());
     }
 }
+
+/// Object form (DEL-08-01 Design `report-package-current-results.md` §2.6;
+/// found in Codex review round 3 of #1648): the shared producer refuses a
+/// report struct in positional (array) form at any depth, after item 0 and
+/// before any keyed binding, so the headless runner's package path cannot
+/// carry a disposition the renderer would read past a keyed screen; the
+/// genuine runner and desktop requests, every array of which is a
+/// collection, still assemble.
+#[test]
+fn a_positional_report_struct_refuses_the_shared_producer() {
+    use open_pipe_stress_report_package::wire::REQUEST_POSITIONAL;
+    const PROVENANCE: [&str; 8] = [
+        "source_name", "source_location", "source_license", "contributor", "contributor_certification", "redistribution_status",
+        "review_status", "privacy_classification",
+    ];
+    for request in [runner(), desktop()] {
+        unblocked(&request);
+        for pointer in ["/calculation_report/model_input_summary/provenance", "/calculation_report/load_case_summary/0/provenance", "/report_sections/provenance_notes/0"] {
+            let mut edited = request.clone();
+            let record = edited["report"].pointer_mut(pointer).unwrap();
+            record["review_status"] = json!("quarantined");
+            *record = Value::Array(PROVENANCE.iter().map(|name| record[*name].clone()).collect());
+            let error = refused(&edited, REQUEST_POSITIONAL, pointer);
+            assert!(!error.contains("quarantined"), "{error}");
+        }
+    }
+}
