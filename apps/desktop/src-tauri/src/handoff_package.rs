@@ -1811,10 +1811,25 @@ fn handoff_outcome(
 }
 
 impl crate::stored_model_document_export::SentOutcome for HandoffSaveOutcome {
-    fn shortened(self, refusal: String, noun: &str) -> Self {
+    fn bounded(self) -> (Self, usize) {
+        use crate::stored_model_document_export::bounded_diagnostics;
+        match self {
+            HandoffSaveOutcome::Saved { package_name, model_hash, export_hash, basis_state_id, replaced_existing, durability, warnings } => {
+                let listed = warnings.len();
+                (HandoffSaveOutcome::Saved { package_name, model_hash, export_hash, basis_state_id, replaced_existing, durability, warnings: bounded_diagnostics(warnings) }, listed)
+            }
+            HandoffSaveOutcome::Refused { diagnostics } => {
+                let listed = diagnostics.len();
+                (HandoffSaveOutcome::Refused { diagnostics: bounded_diagnostics(diagnostics) }, listed)
+            }
+            HandoffSaveOutcome::Cancelled => (HandoffSaveOutcome::Cancelled, 0),
+        }
+    }
+
+    fn shortened(self, refusal: String, noun: &str, listed: usize) -> Self {
         use crate::stored_read::{capped, STORE_READ_MEMORY_UNAVAILABLE};
         match self {
-            HandoffSaveOutcome::Saved { package_name, model_hash, export_hash, basis_state_id, replaced_existing, durability, warnings } => HandoffSaveOutcome::Saved {
+            HandoffSaveOutcome::Saved { package_name, model_hash, export_hash, basis_state_id, replaced_existing, durability, .. } => HandoffSaveOutcome::Saved {
                 package_name,
                 model_hash,
                 export_hash,
@@ -1824,11 +1839,11 @@ impl crate::stored_model_document_export::SentOutcome for HandoffSaveOutcome {
                 warnings: vec![diagnostic(
                     STORE_READ_MEMORY_UNAVAILABLE,
                     "",
-                    format!("{} The package was saved; its {} warnings are not shown.", capped(refusal), warnings.len()),
+                    format!("{} The package was saved; its {listed} warnings are not shown.", capped(refusal)),
                 )],
             },
             HandoffSaveOutcome::Refused { diagnostics } => {
-                HandoffSaveOutcome::refused_one(STORE_READ_MEMORY_UNAVAILABLE, crate::stored_model_document_export::shortened_refusal(refusal, noun, &diagnostics))
+                HandoffSaveOutcome::refused_one(STORE_READ_MEMORY_UNAVAILABLE, crate::stored_model_document_export::shortened_refusal(refusal, noun, listed, &diagnostics))
             }
             HandoffSaveOutcome::Cancelled => HandoffSaveOutcome::Cancelled,
         }
@@ -2186,9 +2201,18 @@ mod tests {
         let reserved = *crate::stored_model_document_export::library_read_probe::take_save_peaks().last().unwrap();
         let HandoffSaveOutcome::Refused { diagnostics } = &outcome else { panic!("not refused") };
         eprintln!("SAVE_HANDOFF_REJECTED diagnostics={} response_bytes={length} live_at_response={live} held_at_response={held} reserved_peak={reserved} measured_peak={}", diagnostics.len(), measured.peak_priced);
-        assert!(diagnostics.len() >= 100_000 && diagnostics[0].code == model_document_save::PROTECTED_CONTENT_BLOCKED, "{:?}", &diagnostics[..1]);
         assert!(u64::try_from(live).unwrap() <= held, "{live} bytes live when the response is built, {held} held");
         assert!(measured.peak_priced <= reserved, "the measured peak {} exceeds the most held {reserved}", measured.peak_priced);
+        // #1641 Codex r3: the response, which outlives the reservations, is
+        // bounded: the first 64 of the unbounded list, then their count.
+        use crate::stored_model_document_export::{DIAGNOSTICS_NOT_SHOWN, MAX_NAMED_DIAGNOSTICS, MAX_RESPONSE_BYTES};
+        assert!(length as u64 <= MAX_RESPONSE_BYTES, "a {length}-byte response");
+        let Err(unbounded) = prepare_unmetered(&store, &model, &state_id) else { panic!("prepared") };
+        assert_eq!(unbounded.len(), 100_000);
+        assert_eq!(diagnostics.len(), MAX_NAMED_DIAGNOSTICS + 1);
+        assert_eq!(&diagnostics[..MAX_NAMED_DIAGNOSTICS], &unbounded[..MAX_NAMED_DIAGNOSTICS], "the named diagnostics are the unbounded list's first");
+        assert_eq!(diagnostics[MAX_NAMED_DIAGNOSTICS].code, DIAGNOSTICS_NOT_SHOWN);
+        assert!(diagnostics[MAX_NAMED_DIAGNOSTICS].message.starts_with("99936 more of the 100000 diagnostics"), "{}", diagnostics[MAX_NAMED_DIAGNOSTICS].message);
         drop(lease);
         assert_eq!(pool.pool_status().reserved_bytes, 0);
     }

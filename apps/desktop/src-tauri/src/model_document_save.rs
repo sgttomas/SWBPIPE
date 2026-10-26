@@ -1144,9 +1144,22 @@ mod tests {
         let reserved = *take_save_peaks().last().unwrap();
         let ModelDocumentSaveOutcome::Refused { diagnostics } = &outcome else { panic!("not refused") };
         eprintln!("SAVE_MODEL_DOCUMENT_REJECTED diagnostics={} response_bytes={length} live_at_response={live} held_at_response={held} reserved_peak={reserved} measured_peak={}", diagnostics.len(), measured.peak_priced);
-        assert!(diagnostics.len() >= 100_000 && diagnostics[0].code == PROTECTED_CONTENT_BLOCKED, "{:?}", &diagnostics[..1]);
         assert!(u64::try_from(live).unwrap() <= held, "{live} bytes live when the response is built, {held} held");
         assert!(measured.peak_priced <= reserved, "the measured peak {} exceeds the most held {reserved}", measured.peak_priced);
+        // #1641 Codex r3: the response, which outlives the reservations, is
+        // bounded: the first 64 of the unbounded list, then their count.
+        use crate::stored_model_document_export::{DIAGNOSTICS_NOT_SHOWN, MAX_NAMED_DIAGNOSTICS, MAX_RESPONSE_BYTES};
+        assert!(length as u64 <= MAX_RESPONSE_BYTES, "a {length}-byte response");
+        let connection = rusqlite::Connection::open(&store).unwrap();
+        let mut unmetered = |project: &str, kind: &str, id: &str| crate::load_library(&connection, project.trim(), kind.trim(), id.trim()).map(|row| row.map(|row| row.document));
+        let text = canonical_of(EVERY_SLOT);
+        let hash = hash_of(&text);
+        let unbounded = admit_model_document_text(text, &hash, &hash, &mut unmetered).unwrap_err();
+        assert_eq!(unbounded.len(), 100_000);
+        assert_eq!(diagnostics.len(), MAX_NAMED_DIAGNOSTICS + 1);
+        assert_eq!(&diagnostics[..MAX_NAMED_DIAGNOSTICS], &unbounded[..MAX_NAMED_DIAGNOSTICS], "the named diagnostics are the unbounded list's first");
+        assert_eq!(diagnostics[MAX_NAMED_DIAGNOSTICS].code, DIAGNOSTICS_NOT_SHOWN);
+        assert!(diagnostics[MAX_NAMED_DIAGNOSTICS].message.starts_with("99936 more of the 100000 diagnostics"), "{}", diagnostics[MAX_NAMED_DIAGNOSTICS].message);
         drop(lease);
         assert_eq!(pool.pool_status().reserved_bytes, 0);
         fs::remove_dir_all(root).unwrap();

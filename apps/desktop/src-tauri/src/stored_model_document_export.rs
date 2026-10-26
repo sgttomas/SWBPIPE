@@ -1011,17 +1011,92 @@ const SAVED_FIELDS_BYTES: u64 = 4096;
 /// An outcome a command serializes within its memory ([`serialize_outcome`]),
 /// with the short form it sends when its whole response is refused.
 pub(crate) trait SentOutcome: serde::Serialize + Sized {
+    /// The outcome with its diagnostics (a refusal's) or warnings (a Saved
+    /// outcome's) bounded by [`bounded_diagnostics`], and how many it listed.
+    fn bounded(self) -> (Self, usize);
+
     /// The bounded outcome sent instead when the pool refuses the whole
     /// response (`refusal`): a refusal's first diagnostic and count, or a
     /// Saved outcome without its warnings, `noun` naming the command (`export`,
-    /// `save`). Quoted texts are capped.
-    fn shortened(self, refusal: String, noun: &str) -> Self;
+    /// `save`), `listed` the diagnostics or warnings the outcome listed. Quoted
+    /// texts are capped.
+    fn shortened(self, refusal: String, noun: &str, listed: usize) -> Self;
+}
+
+/// The most diagnostics (or warnings) a response of Save Model Document, Save
+/// Handoff or the recovery export names (#1641 Codex r3): the desktop shows at
+/// most eight; the rest are counted by one final diagnostic.
+pub(crate) const MAX_NAMED_DIAGNOSTICS: usize = 64;
+/// The most bytes of a named diagnostic's path or message; a longer one is cut
+/// on a character boundary and ends `…`.
+pub(crate) const MAX_DIAGNOSTIC_TEXT_BYTES: usize = 2048;
+/// The final diagnostic that counts those not named.
+pub(crate) const DIAGNOSTICS_NOT_SHOWN: &str = "SAVE-DIAGNOSTICS-NOT-SHOWN";
+/// One named diagnostic's JSON at its longest: `{"code":"","path":"","message":""}`
+/// (34 bytes), a code under 64 bytes, and a path and a message of
+/// [`MAX_DIAGNOSTIC_TEXT_BYTES`] each escaped to at most six bytes per byte.
+const DIAGNOSTIC_JSON_BYTES: u64 = 34 + 64 + 2 * 6 * MAX_DIAGNOSTIC_TEXT_BYTES as u64;
+/// The longest response of these commands, in bytes (1,636,642): 65
+/// diagnostics of [`DIAGNOSTIC_JSON_BYTES`], their commas, and 32 KiB for the outcome's
+/// other members (a file or package name of at most 255 bytes, a basis state
+/// id of at most `stored_read::MAX_ID_BYTES`, each escaped, the hashes and
+/// the durability). A longer response is never sent: its short form is
+/// ([`serialize_outcome`]). The transport's copy of it (Wry's `NSData` on
+/// macOS) is at most as long again.
+pub(crate) const MAX_RESPONSE_BYTES: u64 = (MAX_NAMED_DIAGNOSTICS as u64 + 1) * DIAGNOSTIC_JSON_BYTES + MAX_NAMED_DIAGNOSTICS as u64 + 32 * 1024;
+
+/// `text` cut to at most `max` bytes on a character boundary, ending `…`.
+fn cut_text(text: String, max: usize) -> String {
+    if text.len() <= max {
+        return text;
+    }
+    let mut cut = max - '…'.len_utf8();
+    while !text.is_char_boundary(cut) {
+        cut -= 1;
+    }
+    format!("{}…", &text[..cut])
+}
+
+/// `diagnostics` as a response names them: the first
+/// [`MAX_NAMED_DIAGNOSTICS`], in order, each path and message cut to
+/// [`MAX_DIAGNOSTIC_TEXT_BYTES`], then, when more were listed, one
+/// [`DIAGNOSTICS_NOT_SHOWN`] diagnostic counting them.
+pub(crate) fn bounded_diagnostics(diagnostics: Vec<ModelDocumentSaveDiagnostic>) -> Vec<ModelDocumentSaveDiagnostic> {
+    let listed = diagnostics.len();
+    let mut named: Vec<ModelDocumentSaveDiagnostic> = diagnostics
+        .into_iter()
+        .take(MAX_NAMED_DIAGNOSTICS)
+        .map(|item| ModelDocumentSaveDiagnostic {
+            code: item.code,
+            path: cut_text(item.path, MAX_DIAGNOSTIC_TEXT_BYTES),
+            message: cut_text(item.message, MAX_DIAGNOSTIC_TEXT_BYTES),
+        })
+        .collect();
+    if listed > MAX_NAMED_DIAGNOSTICS {
+        let more = listed - MAX_NAMED_DIAGNOSTICS;
+        named.push(diagnostic(DIAGNOSTICS_NOT_SHOWN, "", format!("{more} more of the {listed} diagnostics were not shown; the first {MAX_NAMED_DIAGNOSTICS} are.")));
+    }
+    named
 }
 
 impl SentOutcome for ModelDocumentSaveOutcome {
-    fn shortened(self, refusal: String, noun: &str) -> Self {
+    fn bounded(self) -> (Self, usize) {
         match self {
-            ModelDocumentSaveOutcome::Saved { file_name, byte_count, model_hash, replaced_existing, durability, warnings } => ModelDocumentSaveOutcome::Saved {
+            ModelDocumentSaveOutcome::Saved { file_name, byte_count, model_hash, replaced_existing, durability, warnings } => {
+                let listed = warnings.len();
+                (ModelDocumentSaveOutcome::Saved { file_name, byte_count, model_hash, replaced_existing, durability, warnings: bounded_diagnostics(warnings) }, listed)
+            }
+            ModelDocumentSaveOutcome::Refused { diagnostics } => {
+                let listed = diagnostics.len();
+                (ModelDocumentSaveOutcome::Refused { diagnostics: bounded_diagnostics(diagnostics) }, listed)
+            }
+            ModelDocumentSaveOutcome::Cancelled => (ModelDocumentSaveOutcome::Cancelled, 0),
+        }
+    }
+
+    fn shortened(self, refusal: String, noun: &str, listed: usize) -> Self {
+        match self {
+            ModelDocumentSaveOutcome::Saved { file_name, byte_count, model_hash, replaced_existing, durability, .. } => ModelDocumentSaveOutcome::Saved {
                 file_name,
                 byte_count,
                 model_hash,
@@ -1030,20 +1105,20 @@ impl SentOutcome for ModelDocumentSaveOutcome {
                 warnings: vec![diagnostic(
                     MEMORY_UNAVAILABLE,
                     "",
-                    format!("{} The file was saved; its {} warnings are not shown.", stored_read::capped(refusal), warnings.len()),
+                    format!("{} The file was saved; its {listed} warnings are not shown.", stored_read::capped(refusal)),
                 )],
             },
-            ModelDocumentSaveOutcome::Refused { diagnostics } => ModelDocumentSaveOutcome::refused_one(MEMORY_UNAVAILABLE, shortened_refusal(refusal, noun, &diagnostics)),
+            ModelDocumentSaveOutcome::Refused { diagnostics } => ModelDocumentSaveOutcome::refused_one(MEMORY_UNAVAILABLE, shortened_refusal(refusal, noun, listed, &diagnostics)),
             ModelDocumentSaveOutcome::Cancelled => ModelDocumentSaveOutcome::Cancelled,
         }
     }
 }
 
 /// A refusal whose diagnostics are not shown, named by the response's refusal,
-/// their count and the first of them (capped).
-pub(crate) fn shortened_refusal(refusal: String, noun: &str, diagnostics: &[ModelDocumentSaveDiagnostic]) -> String {
+/// their count (`listed`) and the first of them (capped).
+pub(crate) fn shortened_refusal(refusal: String, noun: &str, listed: usize, diagnostics: &[ModelDocumentSaveDiagnostic]) -> String {
     let first = diagnostics.first().map_or(String::new(), |item| format!(" The first is {}: {}", item.code, stored_read::capped(item.message.clone())));
-    format!("{} The {noun} was refused with {} diagnostics, which are not shown.{first}", stored_read::capped(refusal), diagnostics.len())
+    format!("{} The {noun} was refused with {listed} diagnostics, which are not shown.{first}", stored_read::capped(refusal))
 }
 
 /// The outcome's text (Codex r4 P2), serialized within `memory` while the
@@ -1051,6 +1126,9 @@ pub(crate) fn shortened_refusal(refusal: String, noun: &str, diagnostics: &[Mode
 /// buffer of that capacity is written under `reserved` (a bound reserved
 /// earlier) when it fits, else under a new reservation. If the pool refuses
 /// it, the outcome's short form is sent instead ([`SentOutcome::shortened`]).
+/// The outcome is first bounded ([`SentOutcome::bounded`]), so what outlives
+/// the reservations, the response and its transport copy, is at most
+/// [`MAX_RESPONSE_BYTES`] each.
 /// `what` names the response ("the response to {what}"), and `noun` the
 /// command in the short form. Returns the outcome
 /// sent, its text and the buffer's reservation, which the caller holds until
@@ -1068,7 +1146,15 @@ pub(crate) fn serialize_outcome<O: SentOutcome>(
         serde_json::to_writer(&mut buffer, outcome).ok()?;
         String::from_utf8(buffer).ok()
     };
+    // At most MAX_RESPONSE_BYTES outlives the reservations (#1641 Codex r3).
+    let (outcome, listed) = outcome.bounded();
     let length = stored_read::serialized_length(&outcome).unwrap_or(u64::MAX);
+    if length > MAX_RESPONSE_BYTES {
+        let refusal = format!("{MEMORY_UNAVAILABLE}: the response to {what} would be {length} bytes, above the {MAX_RESPONSE_BYTES} a response may hold.");
+        let sent = outcome.shortened(refusal, noun, listed);
+        let text = serde_json::to_string(&sent).unwrap_or_default();
+        return (sent, text, None);
+    }
     let buffer = match reserved {
         Some((reservation, bound)) if length <= bound => Ok(reservation),
         _ => memory.reserve(&format!("the response to {what}"), stored_read::exact_text_bytes(length)),
@@ -1080,7 +1166,7 @@ pub(crate) fn serialize_outcome<O: SentOutcome>(
         },
         Err(error) => error,
     };
-    let sent = outcome.shortened(refusal, noun);
+    let sent = outcome.shortened(refusal, noun, listed);
     let text = serde_json::to_string(&sent).unwrap_or_default();
     (sent, text, None)
 }
@@ -1698,8 +1784,10 @@ mod tests {
         assert_eq!(small.pool_status().reserved_bytes, 0);
         match export(&store, None, &normal, &destination, &shown) {
             ModelDocumentSaveOutcome::Saved { warnings, .. } => {
-                assert_eq!(warnings.len(), 150);
-                assert!(warnings.iter().all(|warning| warning.code == crate::MODEL_LIBRARY_REF_UNRESOLVED));
+                // The response names the first 64 of the 150 warnings and counts the rest (#1641 Codex r3).
+                assert_eq!(warnings.len(), MAX_NAMED_DIAGNOSTICS + 1);
+                assert!(warnings[..MAX_NAMED_DIAGNOSTICS].iter().all(|warning| warning.code == crate::MODEL_LIBRARY_REF_UNRESOLVED));
+                assert!(warnings[MAX_NAMED_DIAGNOSTICS].message.starts_with("86 more of the 150"), "{:?}", warnings[MAX_NAMED_DIAGNOSTICS]);
             }
             other => panic!("not saved: {other:?}"),
         }
@@ -1819,7 +1907,7 @@ mod tests {
         let model = unresolved_shape();
         let store = current_store(&scratch, &model, STATE_TEXT);
         let destination = scratch.0.join("recovered.json");
-        let budget = smallest_budget(&store, &destination, |outcome| matches!(outcome, ModelDocumentSaveOutcome::Saved { warnings, .. } if warnings.len() == 150));
+        let budget = smallest_budget(&store, &destination, |outcome| matches!(outcome, ModelDocumentSaveOutcome::Saved { warnings, .. } if warnings.len() == MAX_NAMED_DIAGNOSTICS + 1 && warnings[MAX_NAMED_DIAGNOSTICS].message.starts_with("86 more of the 150")));
         let shown = Cell::new(false);
         let refused = export(&store, None, &pool_of(budget - 1), &destination, &shown);
         assert_refused_nothing_written(&refused, MEMORY_UNAVAILABLE, &destination, &shown);
@@ -1830,12 +1918,25 @@ mod tests {
         let model = serde_json::to_string(&json!({ "project": { "id": PROJECT }, "k".repeat(32 * 1024): vec![blocked; 150] })).unwrap();
         let store = current_store(&scratch, &model, STATE_TEXT);
         let destination = scratch.0.join("recovered.json");
-        let whole = |outcome: &ModelDocumentSaveOutcome| matches!(outcome, ModelDocumentSaveOutcome::Refused { diagnostics } if diagnostics.len() == 150);
+        let whole = |outcome: &ModelDocumentSaveOutcome| matches!(outcome, ModelDocumentSaveOutcome::Refused { diagnostics } if diagnostics.len() == MAX_NAMED_DIAGNOSTICS + 1 && diagnostics[MAX_NAMED_DIAGNOSTICS].message.starts_with("86 more of the 150"));
         let budget = smallest_budget(&store, &destination, whole);
         let shown = Cell::new(false);
         let refused = export(&store, None, &pool_of(budget - 1), &destination, &shown);
         assert_refused_nothing_written(&refused, MEMORY_UNAVAILABLE, &destination, &shown);
-        let message = refusal_message(&refused);
+        // The bounded response (#1641 Codex r3) is no longer the largest
+        // reservation of this export; its own refusal is checked directly: a
+        // refusal whose response the pool refuses is sent as one named
+        // refusal counting every diagnostic it listed and quoting the first.
+        let ModelDocumentSaveOutcome::Refused { diagnostics } = export(&store, None, &registry(ScriptedHost::normal()), &destination, &Cell::new(false)) else { panic!("not refused") };
+        assert_eq!(diagnostics.len(), MAX_NAMED_DIAGNOSTICS + 1);
+        let listed = ModelDocumentSaveOutcome::Refused { diagnostics: vec![diagnostics[0].clone(); 150] };
+        let tiny = pool_of(1 << 20);
+        let memory = PoolReadMemory::unseeded(&tiny);
+        let _held = memory.reserve("everything but a byte", (1 << 20) - 1).unwrap();
+        let (sent, text, buffer) = serialize_outcome(&memory, "the export of a test", "export", listed, None);
+        assert!(buffer.is_none());
+        assert_eq!(serde_json::to_string(&sent).unwrap(), text);
+        let message = refusal_message(&sent);
         assert!(message.contains("the response to the export of"), "{message}");
         assert!(message.contains(&format!("refused with 150 diagnostics, which are not shown. The first is {PROTECTED_CONTENT_BLOCKED}")), "{message}");
     }
@@ -1992,5 +2093,61 @@ mod tests {
             eprintln!("EXPORT_SQLITE rows=30000 held={held} peak={peak}");
             assert!(peak <= held, "the export's SQLite peak {peak} exceeds what it held ({held})");
         });
+    }
+
+    // -----------------------------------------------------------------------
+    // #1641 Codex r3: the response that outlives the reservations is bounded.
+    // -----------------------------------------------------------------------
+
+    /// Named diagnostics: the first 64 in order, paths and messages cut on a
+    /// character boundary at 2 KiB, then one counting the rest; the longest
+    /// such response (control characters escaped six bytes each) is within
+    /// `MAX_RESPONSE_BYTES`, and a short list is unchanged.
+    #[test]
+    fn named_diagnostics_are_bounded_and_short_lists_are_unchanged() {
+        assert_eq!(MAX_RESPONSE_BYTES, 1_636_642);
+        let short: Vec<ModelDocumentSaveDiagnostic> = (0..64).map(|index| diagnostic("CODE", &format!("p{index}"), format!("m{index}"))).collect();
+        assert_eq!(bounded_diagnostics(short.clone()), short);
+        let worst = "\u{1}".repeat(10_000) + "é";
+        let long: Vec<ModelDocumentSaveDiagnostic> = (0..1000).map(|_| diagnostic(&"C".repeat(63), &worst, worst.clone())).collect();
+        let bounded = bounded_diagnostics(long);
+        assert_eq!(bounded.len(), 65);
+        assert!(bounded[..64].iter().all(|item| item.path.len() <= MAX_DIAGNOSTIC_TEXT_BYTES && item.path.ends_with('…') && item.message.len() <= MAX_DIAGNOSTIC_TEXT_BYTES));
+        assert_eq!(bounded[64].code, DIAGNOSTICS_NOT_SHOWN);
+        let multibyte = cut_text("é".repeat(2000), MAX_DIAGNOSTIC_TEXT_BYTES);
+        assert!(multibyte.len() <= MAX_DIAGNOSTIC_TEXT_BYTES && multibyte.ends_with('…'));
+        let refused = ModelDocumentSaveOutcome::Refused { diagnostics: bounded };
+        let length = serde_json::to_string(&refused).unwrap().len() as u64;
+        eprintln!("WORST_NAMED_RESPONSE bytes={length} max={MAX_RESPONSE_BYTES}");
+        assert!(length <= MAX_RESPONSE_BYTES - 32 * 1024, "{length}");
+    }
+
+    /// #1641 Codex r3: the recovery export's response was unbounded too (a
+    /// library of 100,000 matching rejected records refused it with 100,000
+    /// diagnostics). It names the first 64, in order, then their count.
+    #[test]
+    fn the_exports_response_names_at_most_64_diagnostics() {
+        let scratch = Scratch::new("export-rejected-records");
+        let model = format!(
+            "{{\"project\":{{\"id\":\"{PROJECT}\"}},\"materials\":[{{\"id\":\"m\",\"library_ref\":{{\"library_kind\":\"material\",\"library_id\":\"{LIBRARY}\",\"record_id\":\"steel\"}}}}]}}"
+        );
+        let library = serde_json::to_string(&library_read_probe::rejected_records_library(100_000)).unwrap();
+        let store = store_with_library(&scratch, &model, "material", LIBRARY, &library);
+        let destination = scratch.0.join("recovered.json");
+        let shown = Cell::new(false);
+        let pool = registry(ScriptedHost::normal());
+        let (request, lease) = admitted(&pool, &envelope(PROJECT, None)).unwrap();
+        let (outcome, length) = export_stored_model_document_request(&request, || Ok(store.clone()), &pool, &lease, |_| { shown.set(true); Ok(Some(destination.clone())) }, |outcome, text| (outcome.clone(), text.len() as u64));
+        eprintln!("EXPORT_REJECTED response_bytes={length}");
+        assert!(length <= MAX_RESPONSE_BYTES, "a {length}-byte response");
+        assert_refused_nothing_written(&outcome, PROTECTED_CONTENT_BLOCKED, &destination, &shown);
+        let ModelDocumentSaveOutcome::Refused { diagnostics } = &outcome else { unreachable!() };
+        let document: Value = serde_json::from_str(&model).unwrap();
+        let stored: Value = serde_json::from_str(&library).unwrap();
+        let unbounded = screen_model_document_dispositions(&document, &mut |_: &str, _: &str, _: &str| Ok(Some(stored.clone()))).unwrap_err();
+        assert_eq!(unbounded.len(), 100_000);
+        assert_eq!(diagnostics.len(), MAX_NAMED_DIAGNOSTICS + 1);
+        assert_eq!(&diagnostics[..MAX_NAMED_DIAGNOSTICS], &unbounded[..MAX_NAMED_DIAGNOSTICS]);
+        assert_eq!(diagnostics[MAX_NAMED_DIAGNOSTICS].code, DIAGNOSTICS_NOT_SHOWN);
     }
 }
