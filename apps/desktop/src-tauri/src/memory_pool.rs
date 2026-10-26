@@ -64,8 +64,12 @@
 //! once the window has elapsed, stands. Interactive admissions refuse at
 //! once (most interactive commands run on the main thread); the desktop
 //! re-sends a command refused at admission with `headroom_insufficient`
-//! within the same window (`nativeIngress.ts`). Worker growth and the custody
-//! grow at take do not re-sample.
+//! within the same window (`nativeIngress.ts`). A worker's growth step
+//! ([`Lease::grow_resampling`]: each attempt tries the doubling and then the
+//! minimal need) and the custody grow at take (a separately admitted
+//! [`MemoryPool::acquire_resampling`] lease, folded in by [`Lease::absorb`])
+//! re-sample in the same way within the same window. Which headroom a sample
+//! counts is the host reader's (`host_memory.rs`).
 
 use serde::Serialize;
 use std::collections::BTreeMap;
@@ -768,17 +772,76 @@ impl Lease {
             return Ok(());
         }
         let delta = new_bytes - self.bytes;
-        let mut state = self.pool.lock();
-        if let Err(refusal) = self.pool.admit_bytes_locked(&mut state, delta, self.class) {
+        let pool = Arc::clone(&self.pool);
+        let mut state = pool.lock();
+        if let Err(refusal) = pool.admit_bytes_locked(&mut state, delta, self.class) {
             state.last_refusal = Some(refusal.clone());
             return Err(refusal);
         }
-        state.reserved[self.purpose as usize] += delta;
+        self.record_growth_locked(&mut state, new_bytes);
+        Ok(())
+    }
+
+    /// [`Self::grow_to`] to the first of `targets` (in preference order, each
+    /// above the current bytes) that the unchanged atomic verdict admits,
+    /// re-sampling while the last target's refusal is `headroom_insufficient`
+    /// (see the module docs): every attempt tries every target under one pool
+    /// lock. `stop` is called between attempts, outside the pool lock; `true`
+    /// ends the wait with [`ResampleStop::Cancelled`] and grows nothing.
+    /// Returns the admitted target. Only a refusal that stands is recorded.
+    pub(crate) fn grow_resampling(&mut self, targets: &[u64], stop: &mut dyn FnMut() -> bool) -> Result<u64, ResampleStop> {
+        debug_assert!(!targets.is_empty() && targets.iter().all(|&target| target > self.bytes));
+        let pool = Arc::clone(&self.pool);
+        let deadline = Instant::now().checked_add(pool.resample_window);
+        let mut state = pool.lock();
+        loop {
+            let mut refusal = None;
+            for &target in targets {
+                match pool.admit_bytes_locked(&mut state, target - self.bytes, self.class) {
+                    Ok(()) => {
+                        self.record_growth_locked(&mut state, target);
+                        return Ok(target);
+                    }
+                    Err(refused) => refusal = Some(refused),
+                }
+            }
+            let refusal = refusal.expect("at least one target");
+            let remaining = deadline.map_or(Duration::ZERO, |deadline| deadline.saturating_duration_since(Instant::now()));
+            if !matches!(refusal, ResourceRefusal::HeadroomInsufficient { .. }) || remaining.is_zero() {
+                state.last_refusal = Some(refusal.clone());
+                return Err(ResampleStop::Refused(refusal));
+            }
+            drop(pool.changed.wait_timeout(state, pool.resample_tick.min(remaining)).unwrap_or_else(PoisonError::into_inner));
+            if stop() {
+                return Err(ResampleStop::Cancelled);
+            }
+            state = pool.lock();
+            if deadline.is_none_or(|deadline| Instant::now() >= deadline) {
+                state.last_refusal = Some(refusal.clone());
+                return Err(ResampleStop::Refused(refusal));
+            }
+        }
+    }
+
+    fn record_growth_locked(&mut self, state: &mut PoolState, new_bytes: u64) {
+        state.reserved[self.purpose as usize] += new_bytes - self.bytes;
         if let Some(entry) = self.worker_id.and_then(|id| state.workers.get_mut(&id)) {
             entry.bytes = new_bytes;
         }
         self.bytes = new_bytes;
-        Ok(())
+    }
+
+    /// Folds `other` (admitted from the same pool) into this lease: its bytes
+    /// move to this lease's purpose without being released or admitted again.
+    /// Neither may be a worker lease.
+    pub(crate) fn absorb(&mut self, mut other: Lease) {
+        assert!(Arc::ptr_eq(&self.pool, &other.pool), "a lease absorbs only a lease of its own pool");
+        debug_assert!(self.worker_id.is_none() && other.worker_id.is_none());
+        let mut state = self.pool.lock();
+        state.reserved[other.purpose as usize] -= other.bytes;
+        state.reserved[self.purpose as usize] += other.bytes;
+        self.bytes += other.bytes;
+        other.bytes = 0;
     }
 
     /// Attaches (or, with `None`, detaches) the residency probe of the worker
@@ -1846,5 +1909,124 @@ mod tests {
         assert_eq!(status["reserved_by_purpose"], serde_json::json!({"ingress":0,"result":0,"custody":0,"worker":0}));
         assert_eq!(status["running_workers"], 0);
         assert_eq!(status["webview_custody_results"], 2);
+    }
+
+    /// Two held leases of 1 GiB (no residency credit) on a host whose headroom
+    /// is then scripted; a growth by `delta` needs delta + every reservation.
+    fn held_leases(host: &Arc<ObservedHost>, pool: &Arc<MemoryPool>) -> (Lease, Lease) {
+        host.set(|s| s.headroom_bytes = Some(100 * GIB));
+        let a = pool.acquire(GIB, LeasePurpose::Ingress).unwrap();
+        let b = pool.acquire(GIB, LeasePurpose::Result).unwrap();
+        host.set(|s| s.headroom_bytes = Some(0));
+        (a, b)
+    }
+
+    #[test]
+    fn a_growth_step_re_samples_and_takes_the_first_target_a_fresh_sample_admits() {
+        let host = ObservedHost::with(Some(128 * GIB), Some(0), PressureLevel::Normal);
+        let pool = timed_pool(&host, Duration::from_secs(10), Duration::from_millis(10));
+        let (mut a, _b) = held_leases(&host, &pool);
+        // From 100 ms on, the headroom covers growing `a` by 1 GiB (1 + 2 GiB
+        // required) but not by 3 GiB (3 + 2): the minimal target is admitted.
+        let _samples = host.observe(Some((Duration::from_millis(100), 3 * GIB)));
+        let started = Instant::now();
+        let grown = a.grow_resampling(&[4 * GIB, 2 * GIB], &mut || false).expect("admitted after the dip");
+        assert!(started.elapsed() >= Duration::from_millis(100), "{:?}", started.elapsed());
+        assert_eq!((grown, a.bytes()), (2 * GIB, 2 * GIB));
+        assert_eq!(pool.reserved(LeasePurpose::Ingress), 2 * GIB);
+        assert_eq!(pool.status(JobCounts::default()).last_refusal, None, "a passing re-sample leaves no refusal");
+        // With room for both, the preferred target comes first (the refill ends).
+        let _samples = host.observe(None);
+        host.set(|s| s.headroom_bytes = Some(100 * GIB));
+        assert_eq!(a.grow_resampling(&[4 * GIB, 3 * GIB], &mut || false).unwrap(), 4 * GIB);
+        drop(a);
+        assert_eq!(pool.reserved(LeasePurpose::Ingress), 0);
+    }
+
+    #[test]
+    fn a_growth_step_refused_for_the_whole_window_stands_and_grows_nothing() {
+        let host = ObservedHost::with(Some(128 * GIB), Some(0), PressureLevel::Normal);
+        let pool = timed_pool(&host, Duration::from_millis(150), Duration::from_millis(10));
+        let (mut a, _b) = held_leases(&host, &pool);
+        let started = Instant::now();
+        let refusal = refused(a.grow_resampling(&[4 * GIB, 2 * GIB], &mut || false).unwrap_err());
+        let waited = started.elapsed();
+        assert!(waited >= Duration::from_millis(150) && waited < Duration::from_secs(10), "{waited:?}");
+        assert_eq!(refusal, ResourceRefusal::HeadroomInsufficient { required_bytes: 3 * GIB, available_bytes: 0 }, "the minimal target's refusal");
+        assert_eq!(pool.status(JobCounts::default()).last_refusal, Some(refusal));
+        assert_eq!((a.bytes(), pool.reserved_total()), (GIB, 2 * GIB));
+    }
+
+    #[test]
+    fn a_growth_step_refused_otherwise_stands_at_once_and_stop_ends_the_wait() {
+        let host = ObservedHost::with(Some(128 * GIB), Some(0), PressureLevel::Normal);
+        let pool = timed_pool(&host, Duration::from_secs(60), Duration::from_millis(10));
+        let (mut a, _b) = held_leases(&host, &pool);
+        host.set(|s| {
+            s.headroom_bytes = Some(100 * GIB);
+            s.pressure = PressureLevel::Warning;
+        });
+        let started = Instant::now();
+        let refusal = refused(a.grow_resampling(&[2 * GIB], &mut || panic!("no wait")).unwrap_err());
+        assert!(started.elapsed() < Duration::from_secs(5));
+        assert!(!matches!(refusal, ResourceRefusal::HeadroomInsufficient { .. }), "{refusal:?}");
+        host.set(|s| {
+            s.headroom_bytes = Some(0);
+            s.pressure = PressureLevel::Normal;
+        });
+        let mut calls = 0;
+        let stopped = a.grow_resampling(&[2 * GIB], &mut || {
+            calls += 1;
+            calls == 3
+        });
+        assert!(matches!(stopped, Err(ResampleStop::Cancelled)), "{stopped:?}");
+        assert_eq!((calls, a.bytes(), pool.reserved_total()), (3, GIB, 2 * GIB));
+    }
+
+    /// Concurrent growth waiters: when the headroom covers one step, exactly
+    /// one is admitted, and the other's next verdict counts it.
+    #[test]
+    fn concurrent_growth_waiters_never_over_admit() {
+        for _ in 0..5 {
+            let host = ObservedHost::with(Some(128 * GIB), Some(0), PressureLevel::Normal);
+            let pool = timed_pool(&host, Duration::from_millis(400), Duration::from_millis(5));
+            let (a, b) = held_leases(&host, &pool);
+            // 3 GiB admits one 1 GiB step (1 + 2 required), never the second (1 + 3).
+            let _samples = host.observe(Some((Duration::from_millis(50), 3 * GIB)));
+            let grow = |mut lease: Lease| {
+                std::thread::spawn(move || {
+                    let target = lease.bytes() + GIB;
+                    let outcome = lease.grow_resampling(&[target], &mut || false).map_err(refused);
+                    (outcome, lease)
+                })
+            };
+            let (ha, hb) = (grow(a), grow(b));
+            let (ra, la) = ha.join().unwrap();
+            let (rb, lb) = hb.join().unwrap();
+            assert_eq!(usize::from(ra.is_ok()) + usize::from(rb.is_ok()), 1, "{ra:?} {rb:?}");
+            let refusal = ra.err().or(rb.err()).unwrap();
+            assert_eq!(refusal, ResourceRefusal::HeadroomInsufficient { required_bytes: 4 * GIB, available_bytes: 3 * GIB });
+            assert_eq!(la.bytes() + lb.bytes(), 3 * GIB);
+            assert_eq!(pool.reserved_total(), 3 * GIB);
+            drop((la, lb));
+            assert_eq!(pool.reserved_total(), 0);
+        }
+    }
+
+    #[test]
+    fn absorb_moves_reserved_bytes_without_releasing_or_admitting_them() {
+        let host = ScriptedHost::normal();
+        let pool = pool(&host);
+        let mut result = pool.acquire(GIB, LeasePurpose::Result).unwrap();
+        result.set_purpose(LeasePurpose::Custody);
+        let extra = pool.acquire(GIB, LeasePurpose::Custody).unwrap();
+        assert_eq!(pool.reserved(LeasePurpose::Custody), 2 * GIB);
+        host.set(|s| s.headroom_bytes = None);
+        result.absorb(extra);
+        assert_eq!((result.bytes(), pool.reserved(LeasePurpose::Custody), pool.reserved_total()), (2 * GIB, 2 * GIB, 2 * GIB));
+        let ingress = pool.acquire(MIB, LeasePurpose::Ingress);
+        assert!(ingress.is_err(), "absorb admitted nothing: an unknown headroom still refuses");
+        drop(result);
+        assert_eq!(pool.reserved_total(), 0);
     }
 }
