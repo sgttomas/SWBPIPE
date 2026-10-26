@@ -1,13 +1,21 @@
 //! Pure selected-pipe mass operation drafts. The caller retains and hashes the
 //! original document and supplies the operation envelope before atomic apply.
+//!
+//! W-15 slice b (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §3):
+//! a selected member that a rigid-family component maps is given the
+//! component's own weight instead of its distributed self-weight, as nodal
+//! primitives at the component's node (the force W·ĝ and the moments r × F,
+//! r the centre-of-gravity vector in global X/Y/Z from that node, the owner's
+//! R10 convention of 2026-10-24).
 use super::{
-    compute_pipe_mass_per_length, normalize_quantity, resolve_shared_sections, Diagnostic,
-    PreviewModel, Quantity,
+    compute_pipe_mass_per_length, normalize_quantity, normalize_vector_quantity,
+    resolve_shared_sections, Diagnostic, PreviewComponent, PreviewModel, Quantity,
 };
+use crate::rigid_component::{self, is_rigid_family, mapped_pipe_ref, GEOMETRY_ONLY};
 use open_pipe_stress_units::Dimension;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::collections::HashSet;
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -32,6 +40,11 @@ pub struct SelfWeightOperationPlan {
     pub changes: Vec<SelfWeightOperationDraft>,
     pub source_evidence: Vec<Value>,
     pub scope_label: String,
+    /// W-15 slice b: one warning per selected member whose mapping rigid-family
+    /// component fails a weight condition; that member's distributed
+    /// self-weight is generated in its place. Absent when empty.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub warnings: Vec<Diagnostic>,
 }
 #[derive(Debug, Clone, Serialize)]
 pub struct SelfWeightOperationDraft {
@@ -211,7 +224,7 @@ fn generate_operations(
     if request.pipe_refs.is_empty() {
         invalid(&mut d, "pipe_refs", "select at least one pipe");
     }
-    let mut selected = HashSet::new();
+    let mut selected: HashSet<&String> = HashSet::new();
     let mut subset = model.clone();
     subset.pipe_segments.clear();
     for id in &request.pipe_refs {
@@ -267,6 +280,26 @@ fn generate_operations(
         }
         subset.pipe_segments.push(pipe.clone());
     }
+    // W-15 slice b (Design §3): a selected member mapped by a rigid-family
+    // component that meets every weight condition carries the component's
+    // weight, not its own distributed self-weight; its section is then not a
+    // mass input.
+    // A selection error (an unresolved member, a bad endpoint, ...) is
+    // returned before any component is read, so a mapping to a missing member
+    // is a refusal, never a lookup failure.
+    if !d.is_empty() {
+        return Err(d);
+    }
+    let mut warnings = Vec::new();
+    let bodies = component_weights(model, &selected, &request.gravity.axis, gravity.value, &mut d, &mut warnings);
+    for body in bodies.values() {
+        for (part, axis, _) in &body.primitives {
+            if !used.insert(component_load_id(&request.case_id, &body.component.id, part, axis)) {
+                invalid(&mut d, &body.component.id, "generated primitive identity collision");
+            }
+        }
+    }
+    subset.pipe_segments.retain(|pipe| !bodies.contains_key(&pipe.id));
     subset.pipe_segments.sort_by(|a, b| a.id.cmp(&b.id));
     resolve_shared_sections(&mut subset, &mut d);
     if !d.is_empty() {
@@ -398,6 +431,15 @@ fn generate_operations(
     if !d.is_empty() {
         return Err(d);
     }
+    for body in bodies.values() {
+        for (part, axis, value) in &body.primitives {
+            let (payload, e) = component_primitive(request, gravity.value, body, part, axis, *value);
+            let (unit, dimension) = if *part == "force" { ("N", "force") } else { ("N*m", "moment") };
+            loads.push(draft(request, "create_primitive_load", "primitive_loads", payload, unit, dimension, &e));
+            evidence.push(e);
+        }
+    }
+    let scope = if bodies.is_empty() { PIPE_MASS_SCOPE } else { COMPONENT_WEIGHT_SCOPE };
     let case = json!({"id":request.case_id,"label":request.label,"kind":"primitive_user_load","status":"draft","provenance":request.provenance,"primitive_loads":[]});
     let mut changes = vec![draft(
         request,
@@ -406,15 +448,275 @@ fn generate_operations(
         case,
         "none",
         "dimensionless",
-        &json!({"scope_label":"selected_pipe_mass_only","source_model_hash":request.source_model_hash,"source_evidence":evidence}),
+        &json!({"scope_label":scope,"source_model_hash":request.source_model_hash,"source_evidence":evidence}),
     )];
     changes.extend(loads);
     Ok(SelfWeightOperationPlan {
         source_model_hash: request.source_model_hash.clone(),
         changes,
         source_evidence: evidence,
-        scope_label: "selected_pipe_mass_only".into(),
+        scope_label: scope.into(),
+        warnings,
     })
+}
+
+/// The scope label of a plan with no component weight: the selected members'
+/// own pipe mass only (unchanged since before W-15).
+pub const PIPE_MASS_SCOPE: &str = "selected_pipe_mass_only";
+/// W-15 slice b: the scope label of a plan in which at least one selected
+/// member's distributed self-weight is replaced by its component's weight.
+pub const COMPONENT_WEIGHT_SCOPE: &str = "selected_pipe_mass_and_component_weight";
+/// W-15 slice b: the evidence method of a component-weight primitive.
+pub const COMPONENT_WEIGHT_METHOD: &str = "component_weight_at_center_of_gravity_global_offset/v1";
+/// W-15 slice b: the warning naming a rigid-family component whose weight is
+/// not generated and the member whose pipe weight is generated in its place.
+pub const COMPONENT_WEIGHT_NOT_APPLIED: &str = "SELF_WEIGHT_COMPONENT_WEIGHT_NOT_APPLIED";
+/// W-15 slice b: the authored category of every component-weight primitive,
+/// a node-targeted `weight` force or moment (admitted at nodes by
+/// `primitive_loads` since this slice).
+pub const COMPONENT_WEIGHT_CATEGORY: &str = "weight";
+const AXES: [&str; 3] = ["x", "y", "z"];
+
+/// The deterministic identity of one wrench primitive: the generator's
+/// length-prefixed case, then `component`, the length-prefixed component id,
+/// the wrench part (`force` or `moment`) and the global axis. The literal
+/// `component` cannot be read as a length, so it never meets a member identity.
+pub fn component_load_id(case: &str, component: &str, part: &str, axis: &str) -> String {
+    format!(
+        "load:self-weight:{}:{}:component:{}:{}:{part}:{axis}",
+        case.len(),
+        case,
+        component.len(),
+        component
+    )
+}
+
+fn axis_index(axis: &str) -> Option<usize> {
+    match axis {
+        "global_x" => Some(0),
+        "global_y" => Some(1),
+        "global_z" => Some(2),
+        _ => None,
+    }
+}
+
+/// The wrench at the node of a weight W whose centre of gravity is r (global,
+/// from the node) under gravity along `axis` with the sign of `acceleration`:
+/// F = W·ĝ and M = r × F. With F = f·e_k only, each moment component is one
+/// product r_j·f (or its negation), rounded once.
+fn wrench(weight: f64, cog: [f64; 3], axis: usize, acceleration: f64) -> (f64, [f64; 3]) {
+    let f = if acceleration > 0.0 { weight } else { -weight };
+    let [x, y, z] = cog;
+    let moment = match axis {
+        0 => [0.0, z * f, -(y * f)],
+        1 => [-(z * f), 0.0, x * f],
+        _ => [y * f, -(x * f), 0.0],
+    };
+    (f, moment)
+}
+
+/// One selected member's component weight (Design §3): the component, its
+/// normalized weight (N) and centre of gravity (m), and the wrench primitives
+/// (part, axis, signed value): the force along the gravity axis, then each
+/// nonzero moment component in x, y, z order.
+struct ComponentWeight<'a> {
+    component: &'a PreviewComponent,
+    pipe: String,
+    weight: f64,
+    cog: [f64; 3],
+    primitives: Vec<(&'static str, &'static str, f64)>,
+}
+
+/// The normalized dependencies of a component-weight primitive: what makes it
+/// stale when edited (the mapping, the consumption mode, the node, the weight
+/// and the centre of gravity), in SI so that an equivalent unit is no change.
+fn component_dependencies(component: &PreviewComponent, pipe: &str, weight: f64, cog: [f64; 3]) -> Value {
+    json!({"component_id":component.id,"kind":component.kind,"node":component.node,"rigid_pipe_ref":pipe,
+        "solver_consumption":GEOMETRY_ONLY,"weight":{"value":weight,"unit":"N"},
+        "center_of_gravity":{"x":cog[0],"y":cog[1],"z":cog[2],"unit":"m"}})
+}
+
+/// Decisions 1 and 2 of W-15 slice b. For every selected member mapped by a
+/// rigid-family component: a mapping conflict (slice a) blocks; a
+/// `not_solver_consumed` component is honoured (pipe weight, no warning);
+/// otherwise the component's weight replaces the member's distributed
+/// self-weight when its consumption is `mechanics_geometry_only`, its mapping
+/// is valid (the member ends at its node), its weight is a finite positive
+/// force and its centre of gravity a finite length vector. A component that
+/// fails a condition gets one warning naming the first unmet one, and the
+/// member keeps its pipe weight. No stiffness scale is required.
+fn component_weights<'a>(
+    model: &'a PreviewModel,
+    selected: &HashSet<&String>,
+    axis: &str,
+    acceleration: f64,
+    d: &mut Vec<Diagnostic>,
+    warnings: &mut Vec<Diagnostic>,
+) -> BTreeMap<String, ComponentWeight<'a>> {
+    let mut bodies = BTreeMap::new();
+    if model.components.is_empty() {
+        return bodies;
+    }
+    let conflicted: HashSet<String> = rigid_component::mapping_conflicts(model)
+        .into_iter()
+        .filter(|(member, _)| selected.contains(member))
+        .map(|(member, finding)| {
+            d.push(finding);
+            member
+        })
+        .collect();
+    let Some(axis) = axis_index(axis) else { return bodies };
+    for component in model.components.iter().filter(|c| is_rigid_family(c)) {
+        let Some(pipe_ref) = mapped_pipe_ref(component).filter(|p| selected.contains(&p.to_string())) else {
+            continue;
+        };
+        if conflicted.contains(pipe_ref) {
+            continue;
+        }
+        let consumption = component.mechanics_interface.as_ref().and_then(|m| m.solver_consumption.as_deref());
+        if consumption == Some("not_solver_consumed") {
+            continue;
+        }
+        let Some(pipe) = model.pipe_segments.iter().find(|p| p.id == pipe_ref) else {
+            invalid(d, pipe_ref, "selected pipe must resolve exactly once");
+            continue;
+        };
+        let geometry = component.geometry.as_ref();
+        let weight = geometry.and_then(|g| g.weight.as_ref()).and_then(normalized_weight);
+        let (cog, cog_underflow) = match geometry.and_then(|g| g.center_of_gravity.as_ref()) {
+            Some(v) => match normalized_cog(v) {
+                Ok(r) => (r, false),
+                Err(underflow) => (None, underflow),
+            },
+            None => (None, false),
+        };
+        if cog_underflow {
+            // A nonzero entered component that normalizes to zero would
+            // silently erase its moments.
+            invalid(d, &component.id, "a nonzero centre-of-gravity component normalizes to zero in model length units");
+            d.last_mut().unwrap().code = "SELF_WEIGHT_RANGE_INVALID".into();
+            continue;
+        }
+        let unmet = match (consumption, weight, cog) {
+            (None, _, _) => Some("it declares no mechanics_interface.solver_consumption (no mode is assumed)".to_string()),
+            (Some(mode), _, _) if mode != GEOMETRY_ONLY => Some(format!("its solver_consumption is {mode}, not {GEOMETRY_ONLY}")),
+            _ if pipe.from != component.node && pipe.to != component.node => {
+                Some(format!("its mapped member {pipe_ref} does not end at its node {}", component.node))
+            }
+            (_, None, _) => Some("its geometry.weight is missing, not a force, or not finite and positive".to_string()),
+            (_, _, None) => Some("its geometry.center_of_gravity is missing, not a length vector, or not finite".to_string()),
+            _ => None,
+        };
+        if let Some(reason) = unmet {
+            warnings.push(Diagnostic {
+                id: format!("diagnostic:self-weight:component:{}:weight-not-applied", crate::stable_suffix(&component.id)),
+                code: COMPONENT_WEIGHT_NOT_APPLIED.into(),
+                severity: "warning".into(),
+                message: format!("rigid/semi-rigid component {} maps selected member {pipe_ref}, but its weight is not generated: {reason}; the distributed self-weight of member {pipe_ref} is generated in its place", component.id),
+                source: Some("self_weight".into()),
+                affected_refs: vec![component.id.clone(), pipe_ref.to_string()],
+            });
+            continue;
+        }
+        let (weight, cog) = (weight.unwrap(), cog.unwrap());
+        let (force, moment) = wrench(weight, cog, axis, acceleration);
+        if !force.is_finite() {
+            invalid(d, &component.id, "component weight force is outside the representable range");
+            d.last_mut().unwrap().code = "SELF_WEIGHT_RANGE_INVALID".into();
+            continue;
+        }
+        let mut primitives = vec![("force", AXES[axis], force)];
+        for (i, value) in moment.into_iter().enumerate() {
+            // r_j ≠ 0 with a zero or non-finite product is a range failure,
+            // never a silently dropped moment.
+            let lever = match (axis, i) {
+                (0, 1) | (1, 0) => cog[2],
+                (0, 2) | (2, 0) => cog[1],
+                (1, 2) | (2, 1) => cog[0],
+                _ => 0.0,
+            };
+            if lever != 0.0 && (value == 0.0 || !value.is_finite()) {
+                invalid(d, &component.id, "component weight moment is outside the representable range");
+                d.last_mut().unwrap().code = "SELF_WEIGHT_RANGE_INVALID".into();
+            } else if value != 0.0 {
+                primitives.push(("moment", AXES[i], value));
+            }
+        }
+        bodies.insert(pipe_ref.to_string(), ComponentWeight { component, pipe: pipe_ref.to_string(), weight, cog, primitives });
+    }
+    bodies
+}
+
+/// The entered weight in newtons, when it is a finite positive force.
+fn normalized_weight(q: &Quantity) -> Option<f64> {
+    let mut q = q.clone();
+    let mut scratch = Vec::new();
+    normalize_quantity(&mut q, Dimension::Force, "diagnostic:self-weight:component-weight", vec![], &mut scratch);
+    (scratch.is_empty() && q.value.is_finite() && q.value > 0.0).then_some(q.value)
+}
+
+/// The entered centre of gravity in metres: `Ok(Some(r))` for a finite length
+/// vector, `Ok(None)` when it is not one, and `Err(true)` when a nonzero
+/// component normalizes to zero (a range failure, not a missing input).
+fn normalized_cog(v: &super::VectorQuantity) -> Result<Option<[f64; 3]>, bool> {
+    let entered = [v.x, v.y, v.z];
+    if !entered.iter().all(|c| c.is_finite()) {
+        return Ok(None);
+    }
+    let mut v = v.clone();
+    let mut scratch = Vec::new();
+    normalize_vector_quantity(&mut v, Dimension::Length, "diagnostic:self-weight:component-cog", vec![], &mut scratch);
+    let r = [v.x, v.y, v.z];
+    if !scratch.is_empty() || !r.iter().all(|c| c.is_finite()) {
+        return Ok(None);
+    }
+    if entered.iter().zip(&r).any(|(e, n)| *e != 0.0 && *n == 0.0) {
+        return Err(true);
+    }
+    Ok(Some(r))
+}
+
+/// One wrench primitive and its evidence row (decision 4): the method, the
+/// component, the omitted member, the inputs as entered and normalized, the
+/// whole wrench, the dependency projection and the generated payload.
+fn component_primitive(
+    request: &SelfWeightRequest,
+    acceleration: f64,
+    body: &ComponentWeight,
+    part: &str,
+    axis: &str,
+    value: f64,
+) -> (Value, Value) {
+    let c = body.component;
+    let g = c.geometry.as_ref().expect("a component weight has geometry");
+    let index = axis_index(&request.gravity.axis).expect("validated gravity axis");
+    let (force, moment) = wrench(body.weight, body.cog, index, acceleration);
+    let mut force_vector = [0.0; 3];
+    force_vector[index] = force;
+    // Both parts are `weight` primitives (a nodal force or moment), so the
+    // preview classifies them as weight, like the members' distributed loads.
+    let (category, direction, unit, dimension) = if part == "force" {
+        (COMPONENT_WEIGHT_CATEGORY, request.gravity.axis.clone(), "N", "force")
+    } else {
+        (COMPONENT_WEIGHT_CATEGORY, format!("rotation_{axis}"), "N*m", "moment")
+    };
+    let id = component_load_id(&request.case_id, &c.id, part, axis);
+    let mut payload = json!({"id":id,"category":category,"target":{"type":"node","node":c.node},"direction":direction,
+        "magnitude":{"value":value,"unit":unit},"dimension":dimension});
+    let cog_input = g.center_of_gravity.as_ref().map(|v| json!({"x":v.x,"y":v.y,"z":v.z,"unit":v.unit}));
+    let mut e = json!({"method":COMPONENT_WEIGHT_METHOD,"gravity":request.gravity,
+        "normalized_acceleration_m_per_s2":acceleration,"request_provenance":request.provenance,
+        "component_id":c.id,"component_kind":c.kind,"component_node":c.node,"component_provenance":c.provenance,
+        "omitted_pipe_id":body.pipe,"omitted_load":"distributed self-weight of the mapped member",
+        "center_of_gravity_convention":"global X/Y/Z axes from the component node, model length units (DEL-03-05 R10, 2026-10-24)",
+        "weight_input":optional(&g.weight),"center_of_gravity_input":cog_input,
+        "weight_N":body.weight,"center_of_gravity_m":body.cog,
+        "force_N":force_vector,"moment_N_m":moment,"wrench_part":part,"wrench_axis":axis});
+    e["source_model_hash"] = json!(request.source_model_hash);
+    e["normalized_dependencies"] = component_dependencies(c, &body.pipe, body.weight, body.cog);
+    e["generated_payload"] = payload.clone();
+    payload["provenance"] = json!(e.to_string());
+    (payload, e)
 }
 
 /// Same explicit density participation as legacy generation, with the named
@@ -839,6 +1141,115 @@ fn retained_basis(
     ))
 }
 
+/// The retained basis of any generated record: a component-weight primitive's
+/// (W-15 slice b) or a member's distributed self-weight.
+fn generation_basis(
+    evidence: &Value,
+    case_id: &str,
+) -> Result<(SelfWeightRequest, Value, Value), Vec<Diagnostic>> {
+    if evidence["method"] == COMPONENT_WEIGHT_METHOD {
+        component_basis(evidence, case_id)
+    } else {
+        retained_basis(evidence, case_id)
+    }
+}
+
+/// W-15 slice b: validate a component-weight record independently of the
+/// current source. The wrench is recomputed from the retained weight, centre
+/// of gravity and gravity sign; the snapshot is an exact edit detector, not
+/// its own oracle.
+fn component_basis(
+    evidence: &Value,
+    case_id: &str,
+) -> Result<(SelfWeightRequest, Value, Value), Vec<Diagnostic>> {
+    let fail = || {
+        let mut d = Vec::new();
+        invalid(&mut d, case_id, "generated component-weight provenance is incomplete or inconsistent");
+        d
+    };
+    let text = |key: &str| evidence[key].as_str().filter(|s| !s.trim().is_empty()).ok_or_else(fail);
+    let (component, node, pipe, provenance) =
+        (text("component_id")?, text("component_node")?, text("omitted_pipe_id")?, text("request_provenance")?);
+    let source_hash = evidence["source_model_hash"].as_str().filter(|h| valid_hash(h)).ok_or_else(fail)?;
+    let gravity: SelfWeightGravity = serde_json::from_value(evidence["gravity"].clone()).map_err(|_| fail())?;
+    let axis = axis_index(&gravity.axis).ok_or_else(fail)?;
+    if !gravity.value.is_finite() || gravity.value == 0.0 {
+        return Err(fail());
+    }
+    let mut acceleration = Quantity { value: gravity.value, unit: gravity.unit.clone() };
+    let mut d = Vec::new();
+    normalize_quantity(&mut acceleration, Dimension::Acceleration, "diagnostic:self-weight:gravity", vec![case_id.into()], &mut d);
+    if !d.is_empty() {
+        return Err(d);
+    }
+    if !acceleration.value.is_finite()
+        || acceleration.value == 0.0
+        || evidence["normalized_acceleration_m_per_s2"].as_f64() != Some(acceleration.value)
+    {
+        return Err(fail());
+    }
+    // The historical wrench follows from the retained authored quantities,
+    // normalized again here; the recorded SI values, dependencies and whole
+    // wrench must agree with it exactly, or the record is not lineage.
+    let weight_input: Quantity = serde_json::from_value(evidence["weight_input"].clone()).map_err(|_| fail())?;
+    let weight = normalized_weight(&weight_input).ok_or_else(fail)?;
+    let cog_input: super::VectorQuantity =
+        serde_json::from_value(evidence["center_of_gravity_input"].clone()).map_err(|_| fail())?;
+    let cog = normalized_cog(&cog_input).ok().flatten().ok_or_else(fail)?;
+    let recorded_cog: [f64; 3] = serde_json::from_value(evidence["center_of_gravity_m"].clone()).map_err(|_| fail())?;
+    if evidence["weight_N"].as_f64() != Some(weight) || recorded_cog != cog {
+        return Err(fail());
+    }
+    let dependencies = &evidence["normalized_dependencies"];
+    let kind = dependencies["kind"].as_str().ok_or_else(fail)?;
+    let expected_dependencies = json!({"component_id":component,"kind":kind,"node":node,"rigid_pipe_ref":pipe,
+        "solver_consumption":GEOMETRY_ONLY,"weight":{"value":weight,"unit":"N"},
+        "center_of_gravity":{"x":cog[0],"y":cog[1],"z":cog[2],"unit":"m"}});
+    if dependencies != &expected_dependencies {
+        return Err(fail());
+    }
+    let (force, moment) = wrench(weight, cog, axis, acceleration.value);
+    let mut force_vector = [0.0; 3];
+    force_vector[axis] = force;
+    let recorded_force: [f64; 3] = serde_json::from_value(evidence["force_N"].clone()).map_err(|_| fail())?;
+    let recorded_moment: [f64; 3] = serde_json::from_value(evidence["moment_N_m"].clone()).map_err(|_| fail())?;
+    if recorded_force != force_vector || recorded_moment != moment {
+        return Err(fail());
+    }
+    let part = evidence["wrench_part"].as_str().ok_or_else(fail)?;
+    let part_axis = evidence["wrench_axis"].as_str().and_then(|a| AXES.iter().position(|x| *x == a)).ok_or_else(fail)?;
+    let (category, direction, unit, dimension, value) = match part {
+        "force" if part_axis == axis => (COMPONENT_WEIGHT_CATEGORY, gravity.axis.clone(), "N", "force", force),
+        "moment" if moment[part_axis] != 0.0 => {
+            (COMPONENT_WEIGHT_CATEGORY, format!("rotation_{}", AXES[part_axis]), "N*m", "moment", moment[part_axis])
+        }
+        _ => return Err(fail()),
+    };
+    let snapshot = &evidence["generated_payload"];
+    let q: Quantity = serde_json::from_value(snapshot["magnitude"].clone()).map_err(|_| fail())?;
+    if q.unit != unit || q.value != value {
+        return Err(fail());
+    }
+    let mut expected = json!({"id":component_load_id(case_id, component, part, AXES[part_axis]),"category":category,
+        "target":{"type":"node","node":node},"direction":direction,"magnitude":{"value":value,"unit":unit},"dimension":dimension});
+    expected["magnitude"] = snapshot["magnitude"].clone();
+    if snapshot != &expected {
+        return Err(fail());
+    }
+    Ok((
+        SelfWeightRequest {
+            case_id: case_id.into(),
+            label: "Applied self-weight refresh".into(),
+            pipe_refs: vec![pipe.into()],
+            gravity,
+            provenance: provenance.into(),
+            source_model_hash: source_hash.into(),
+        },
+        dependencies.clone(),
+        snapshot.clone(),
+    ))
+}
+
 /// Inspect on the original, unnormalized view. Only a caller-authenticated hash
 /// requests replacement data; absence never manufactures provenance or mutates.
 pub fn inspect_applied_self_weight(
@@ -855,13 +1266,14 @@ pub fn inspect_applied_self_weight(
             let method = evidence.as_ref().and_then(|p| p["method"].as_str());
             let recognized = matches!(
                 method,
-                Some(GENERATED_METHOD | LEGACY_METHOD | MANUAL_OVERRIDE_METHOD)
+                Some(GENERATED_METHOD | LEGACY_METHOD | MANUAL_OVERRIDE_METHOD | COMPONENT_WEIGHT_METHOD)
             );
             let claimed_method_family = method.is_some_and(|method| {
                 method == "pipe_mass_per_length_times_explicit_axis_acceleration"
                     || method.starts_with("pipe_mass_per_length_times_explicit_axis_acceleration/")
                     || method == "manual_override_of_generated_self_weight"
                     || method.starts_with("manual_override_of_generated_self_weight/")
+                    || method.starts_with("component_weight_at_center_of_gravity")
             });
             let deterministic_identity = match &load.target {
                 super::LoadTargetInput::Element { pipe } => {
@@ -874,7 +1286,9 @@ pub fn inspect_applied_self_weight(
                             pipe
                         )
                 }
-                super::LoadTargetInput::Node { .. } => false,
+                // W-15 slice b: a node-targeted load in the generated
+                // namespace claims component-weight lineage (allocation-free).
+                super::LoadTargetInput::Node { .. } => load.id.starts_with("load:self-weight:"),
             };
             let looks_generated = claimed_method_family || deterministic_identity;
             if !recognized && !looks_generated {
@@ -887,6 +1301,7 @@ pub fn inspect_applied_self_weight(
                 diagnostics: Vec::new(),
                 replacement: None,
             };
+            let mut scope_changed = false;
             let result = (|| -> Result<(), Vec<Diagnostic>> {
                 let fail = || {
                     let mut d = Vec::new();
@@ -902,12 +1317,12 @@ pub fn inspect_applied_self_weight(
                     {
                         return Err(fail());
                     }
-                    retained_basis(&evidence["original_generation_provenance"], &case.id)?;
+                    generation_basis(&evidence["original_generation_provenance"], &case.id)?;
                     status.state = AppliedSelfWeightState::ManualOverride;
                     return Ok(());
                 }
                 let (mut request, old_dependencies, old_payload) =
-                    retained_basis(evidence, &case.id)?;
+                    generation_basis(evidence, &case.id)?;
                 if let Some(hash) = source_model_hash {
                     if !valid_hash(hash) {
                         return Err(fail());
@@ -934,7 +1349,57 @@ pub fn inspect_applied_self_weight(
                 let mut source = model.clone();
                 source.load_cases.clear();
                 let generated = generate_operations(&source, &request, true)?;
-                let current_evidence = &generated.source_evidence[0];
+                // The regenerated row of this primitive: the member's own row,
+                // or the same component wrench part and axis. None when the
+                // selection now generates other loads (W-15 slice b: a
+                // component weight replaces, or no longer replaces, the
+                // member's distributed self-weight, or a moment component
+                // appears or vanishes); no single replacement then exists.
+                let component = method == Some(COMPONENT_WEIGHT_METHOD);
+                let row = generated.source_evidence.iter().position(|row| {
+                    if component {
+                        row["method"] == COMPONENT_WEIGHT_METHOD
+                            && row["component_id"] == evidence["component_id"]
+                            && row["wrench_part"] == evidence["wrench_part"]
+                            && row["wrench_axis"] == evidence["wrench_axis"]
+                    } else {
+                        row["method"] == GENERATED_METHOD && row["pipe_id"] == evidence["pipe_id"]
+                    }
+                });
+                let Some(row) = row else {
+                    status.state = AppliedSelfWeightState::Stale;
+                    scope_changed = true;
+                    return Ok(());
+                };
+                // The complete wrench set: a component's primitives in this
+                // case (manual overrides of its primitives hold their slot)
+                // must be exactly those the current inputs generate. A moment
+                // that appears or vanishes leaves no in-place refresh.
+                if component {
+                    let wanted = &evidence["component_id"];
+                    let key = |e: &Value| (e["wrench_part"].as_str().unwrap_or_default().to_string(), e["wrench_axis"].as_str().unwrap_or_default().to_string());
+                    let existing: BTreeSet<_> = case
+                        .primitive_loads
+                        .iter()
+                        .filter_map(|l| serde_json::from_str::<Value>(l.provenance.as_deref()?).ok())
+                        .filter_map(|e| {
+                            let e = if e["method"] == MANUAL_OVERRIDE_METHOD { e["original_generation_provenance"].clone() } else { e };
+                            (e["method"] == COMPONENT_WEIGHT_METHOD && &e["component_id"] == wanted).then(|| key(&e))
+                        })
+                        .collect();
+                    let regenerated: BTreeSet<_> = generated
+                        .source_evidence
+                        .iter()
+                        .filter(|e| e["method"] == COMPONENT_WEIGHT_METHOD && &e["component_id"] == wanted)
+                        .map(key)
+                        .collect();
+                    if existing != regenerated {
+                        status.state = AppliedSelfWeightState::Stale;
+                        scope_changed = true;
+                        return Ok(());
+                    }
+                }
+                let current_evidence = &generated.source_evidence[row];
                 // A document moved across the exact contract changes the mass
                 // method (D-5) even where the consumed quantities agree.
                 status.state = if method == Some(LEGACY_METHOD)
@@ -947,7 +1412,7 @@ pub fn inspect_applied_self_weight(
                 };
                 if status.state == AppliedSelfWeightState::Stale && source_model_hash.is_some() {
                     let mut replacement: Value =
-                        serde_json::from_str(&generated.changes[1].after).map_err(|_| fail())?;
+                        serde_json::from_str(&generated.changes[row + 1].after).map_err(|_| fail())?;
                     let mut provenance: Value =
                         serde_json::from_str(replacement["provenance"].as_str().ok_or_else(fail)?)
                             .map_err(|_| fail())?;
@@ -971,6 +1436,7 @@ pub fn inspect_applied_self_weight(
             } else if status.state != AppliedSelfWeightState::Fresh {
                 let (code, severity, message) = match status.state {
                     AppliedSelfWeightState::Stale if method == Some(LEGACY_METHOD) => ("SELF_WEIGHT_METHOD_REFRESH_REQUIRED", "blocking", "Legacy self-weight requires explicit refresh to the source-area mass method before solving."),
+                    AppliedSelfWeightState::Stale if scope_changed => ("SELF_WEIGHT_INPUTS_STALE", "blocking", "Consumed self-weight inputs changed which loads the selection generates (a component weight now replaces, or no longer replaces, a member's distributed self-weight, or a component moment appears or vanishes); generate this self-weight case again before solving."),
                     AppliedSelfWeightState::Stale => ("SELF_WEIGHT_INPUTS_STALE", "blocking", "Consumed self-weight inputs changed; explicitly refresh this generated load before solving."),
                     AppliedSelfWeightState::Modified => ("SELF_WEIGHT_GENERATED_LOAD_MODIFIED", "blocking", "Generated self-weight payload changed or is unverifiable; explicitly preserve it as a manual override before solving."),
                     AppliedSelfWeightState::ManualOverride => ("SELF_WEIGHT_MANUAL_OVERRIDE", "warning", "Explicitly preserved self-weight is a fixed manual load and will not follow mass input changes."),

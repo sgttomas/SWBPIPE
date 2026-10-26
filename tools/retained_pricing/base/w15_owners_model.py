@@ -31,7 +31,7 @@ PP = "core/product_physics/src/"
 RE = "core/reporting/result_export/src/"
 RC = PP + "rigid_component.rs"
 CB = RE + "component_body.rs"
-PINS = {RC: "be1425b500c8045c7568878f7bd379abeca740ff3599cd2dbdbd87d353505401",
+PINS = {RC: "0203c6aa752219d4af9df90f4f31c2fc8a4d54960625cda790bab14d8a0d9dc9",
         CB: "ace48d130d710eae3412c1b850962f78673ba03e143044c0fbc5d48f2265b514"}
 
 # (file, statement, count): each owning statement the formulas price or the premise empties.

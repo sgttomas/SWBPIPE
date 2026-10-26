@@ -181,6 +181,12 @@ fn conflicts(model: &PreviewModel) -> Vec<(String, Diagnostic)> {
     found
 }
 
+/// The members in a mapping conflict with their refusals, in model order. The
+/// W-15 slice b self-weight generator blocks on a selected one (Design §3).
+pub(crate) fn mapping_conflicts(model: &PreviewModel) -> Vec<(String, Diagnostic)> {
+    conflicts(model)
+}
+
 /// The three mapping conflicts (§2.3), blocking by name.
 pub(crate) fn append_mapping_conflicts(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
     diagnostics.extend(conflicts(model).into_iter().map(|(_, finding)| finding));
