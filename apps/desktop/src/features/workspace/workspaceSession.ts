@@ -2079,6 +2079,7 @@ export function useWorkspaceSession() {
       verb: "create it"
     }).then((guarded) => {
       if (guarded !== "proceed") {
+        ++projectRequest.current;
         setProjectMessage(unsavedChangesRefusal(guarded, "Not created"));
         setProjectOperation("create_blank_kept_edits");
         return;
@@ -2230,6 +2231,7 @@ export function useWorkspaceSession() {
         verb: "open it"
       });
       if (guarded !== "proceed") {
+        ++projectRequest.current;
         setProjectMessage(unsavedChangesRefusal(guarded, "Not opened"));
         setProjectOperation("open_kept_edits");
         return;
@@ -2358,6 +2360,7 @@ export function useWorkspaceSession() {
     if (replacingNeedsConfirmation()) {
       const guarded = await confirmReplacingEdits({ action: "Opening a model document", verb: "open it" });
       if (guarded !== "proceed") {
+        ++projectRequest.current;
         setProjectMessage(unsavedChangesRefusal(guarded, "Not opened"));
         setProjectOperation("open_model_kept_edits");
         return;
@@ -2489,6 +2492,7 @@ export function useWorkspaceSession() {
   async function handleStoredDocumentExport(target: StoredDocumentExportTarget, explicitLocalPrivateIntent: boolean, report: (message: string, operation: string) => void) {
     const owner = acquireProjectOperation();
     if (!owner) return;
+    ++projectRequest.current;
     try {
       const outcome = await saveStoredModelDocumentFile(target, explicitLocalPrivateIntent);
       report(storedDocumentExportMessage(target, outcome), outcome.outcome === "saved" ? "export_stored_document"
@@ -2508,6 +2512,7 @@ export function useWorkspaceSession() {
     if (!saveModel) return;
     const owner = acquireProjectOperation();
     if (!owner) return;
+    ++projectRequest.current;
     try {
       const libraries = await resolveLibraryDispositions(saveModel);
       const prepared = await prepareModelDocumentSave({ model: saveModel, modelHash: saveHash, explicitLocalPrivateIntent, libraries });
@@ -2536,6 +2541,8 @@ export function useWorkspaceSession() {
   async function requestSaveHandoff() {
     const { model: saveModel, modelHash: saveHash } = modelDocumentSaveBasisRef.current;
     if (!saveModel || projectSessionBusy()) return;
+    // This request's project-command generation; nothing below advances it.
+    const request = ++projectRequest.current;
     const refuse = (code: string, message: string) => {
       setProjectMessage(handoffSaveRefusalMessage([{ code, path: "", message }]));
       setProjectOperation("save_handoff_refused");
@@ -2544,18 +2551,27 @@ export function useWorkspaceSession() {
     if (!saveHash) return refuse(MODEL_DOC_SAVE_HASH_PENDING, "The session's model hash is not computed yet; try again once it is shown.");
     // Captured before the workspace turns inert, which drops its focus.
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    // The session moved on while the states were listed (a newer project
+    // command started, the model or its hash changed, or an operation or prompt
+    // owns the session): the listing's outcome, success or failure, is dropped,
+    // so it cannot overwrite a newer status line or open a dialog over it.
+    const saveHashValue = saveHash.value;
+    const sessionMovedOn = () => projectRequest.current !== request
+      || modelDocumentSaveBasisRef.current.model !== saveModel
+      || modelDocumentSaveBasisRef.current.modelHash?.value !== saveHashValue || projectSessionBusy();
     let basis: HandoffBasis;
     try {
       // The basis is chosen among the readable saved states; a row the store
       // cannot read (W-12) is never a basis.
-      basis = handoffBasis((await listModelStates(saveModel.project.id)).states, saveModel.project.id, saveHash.value);
+      basis = handoffBasis((await listModelStates(saveModel.project.id)).states, saveModel.project.id, saveHashValue);
     } catch (error) {
+      if (sessionMovedOn()) return;
       setProjectMessage(handoffSaveFailureMessage(error));
       setProjectOperation("save_handoff_failed");
       return;
     }
-    // The session moved on while the states were listed: nothing is asked.
-    if (modelDocumentSaveBasisRef.current.model !== saveModel || modelDocumentSaveBasisRef.current.modelHash?.value !== saveHash.value || projectSessionBusy()) return;
+    // Nothing is asked of a session that moved on.
+    if (sessionMovedOn()) return;
     const close = () => { handoffSaveDialogOpenRef.current = false; setHandoffSaveRequest(null); };
     handoffSaveDialogOpenRef.current = true;
     setHandoffSaveRequest({
@@ -2576,6 +2592,7 @@ export function useWorkspaceSession() {
    * state left by a refused or cancelled publication stays and is reused.
    * Changes only the status line (and, for a new state, the History list). */
   async function handleSaveHandoff(choice: HandoffSaveChoice, basis: HandoffBasis, dialogModel: PreviewModel) {
+    ++projectRequest.current;
     let saveModel = modelDocumentSaveBasisRef.current.model;
     let saveHash = modelDocumentSaveBasisRef.current.modelHash;
     const refuse = (message: string, operation = "save_handoff_refused") => {
@@ -2804,6 +2821,7 @@ export function useWorkspaceSession() {
   async function handleListProjects() {
     const owner = acquireProjectOperation();
     if (!owner) return;
+    ++projectRequest.current;
     try {
       const listed = await listLocalProjects();
       setProjectIndex(listed);
