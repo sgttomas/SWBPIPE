@@ -156,7 +156,7 @@ This Scope of Work defines `DEL-04-04` in service of project scope [SOW-012] and
 > diagnostics. Per `DEC-067`, unilateral-support classification is
 > state-switched: engaged supports (including closed gaps) classify on trial
 > reaction sign and released supports classify on trial displacement penetration
-> (or the explicit gap clearance), so re-engagement and lift-off transitions are
+> (or the explicit gap clearance), each measured from the support's ground position, which an imposed support displacement moves, so re-engagement and lift-off transitions are
 > observable and the converged state does not depend on seeded initial states;
 > verification includes transition witnesses for re-engagement of a lifted
 > one-way support, lift-off of a closed gap, and bounded +/- mu*N friction
