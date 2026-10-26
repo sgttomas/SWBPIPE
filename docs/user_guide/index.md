@@ -316,6 +316,23 @@ In the desktop app the workflow is:
    line then shows `NEW-BLANK-SUPERSEDED` with the blank's name and id. The
    blank is stored: open it from List Local Projects. Selecting or typing
    into a form does not stop the blank from opening.
+   New fields start in the project's units:
+   - A load case's solve temperature starts in the temperature unit (a legacy
+     `C` is shown as `degC`).
+   - Seismic gravity starts in `<length>/s^2`: `m/s^2` in a metre project.
+     The unit catalog has no `mm/s^2`, `in/s^2` or `ft/s^2` yet, so in other
+     projects the field starts unselected with a notice naming the symbol.
+     Choose `m/s^2` there.
+   - Component stiffness and area start in units composed from the keys:
+     `<force>/<length>`, `<moment>/<angle>` and `<length>^2`. For example, SI
+     gives `N/m`, `N*m/rad` and `m^2`. A composition the catalog lacks starts
+     unselected with a notice.
+   - A field whose key is missing is refused by name, and nothing is assumed.
+     Choose its unit in the property inspector, or set the key in Project
+     units on the Project page. The grid has no unit selector: it refuses such
+     a cell and points to the inspector.
+   - Stored values keep their units. Changing a project unit changes only
+     where new entries start.
 3. In the Model stage, create the centerline: place nodes and pipes in the
    viewport, then add bends, expansion joints and other components.
 4. Assign materials and sections, and add supports and restraints.
@@ -458,6 +475,36 @@ occurs in the user's accepted professional tools. Public API transport, endpoint
 syntax, target field coverage, source confirmations, plugin loader mechanics,
 redaction workflow details, and local FEA handoff package format remain `TBD`
 unless a later accepted deliverable resolves them.
+
+Units in the PCF, `.mbf` and local FEA exports:
+
+- **Missing project unit.** An export refuses by name when a project unit it
+  writes is missing, and offers no download:
+  - `.mbf`: length, force or temperature (`MBF-PROJECT-UNIT-MISSING`);
+  - PCF: length (`PCF-PROJECT-UNIT-MISSING`);
+  - local FEA: length, temperature, or force or stress where no result row of
+    that kind is referenced (`LOCAL-FEA-PROJECT-UNIT-MISSING`).
+
+  Set the key in Project units on the Project page. A missing length in a model
+  with nodes cannot be set; re-author the model.
+- **Lengths in millimetres.** PCF and `.mbf` lengths convert exactly to
+  millimetres from `m`, `mm`, `in` (25.4 mm) and `ft` (304.8 mm). Node
+  coordinates convert from the project length unit. PCF OD and wall thickness
+  convert from their own units.
+  - A unit without a routine exact conversion is refused by name:
+    `MBF-LENGTH-UNIT-UNSUPPORTED` or `PCF-LENGTH-UNIT-UNSUPPORTED`.
+  - So is a value that is not finite: `MBF-LENGTH-OUT-OF-RANGE` or
+    `PCF-LENGTH-OUT-OF-RANGE`.
+  - In either case the download is withheld.
+- **Local FEA result units.** The local FEA handoff declares its stress and
+  force units from the result rows they label. The governing stress maximum
+  sets the stress unit; in the demo, that is `Pa`. It refers only to rows in
+  that unit, and converts none.
+  - A row in another unit is left out and named in a
+    `LOCAL-FEA-RESULT-ROW-UNIT-OMITTED` warning. Read that row from the result
+    in its own unit.
+  - If no row governs and the rows disagree, the handoff is refused
+    (`LOCAL-FEA-RESULT-UNIT-INCONSISTENT`).
 
 Local shell/solid FEA is a specialized handoff path, not the default global
 analysis method. Handoff packages should preserve units, provenance, target
