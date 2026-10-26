@@ -17,6 +17,7 @@
 // the native host bounds them before it decodes them.
 import { invokeWithIngress, nativeFailureText } from "../../services/nativeIngress";
 import { isTauriRuntime } from "../../services/nativeMenu";
+import { listedItems } from "./diagnosticList";
 import {
   MODEL_DOC_SAVE_DESKTOP_ONLY,
   MODEL_DOC_SAVE_INTENT_REQUIRED,
@@ -63,12 +64,10 @@ export async function saveStoredModelDocumentFile(
 export function storedDocumentExportMessage(target: StoredDocumentExportTarget, outcome: ModelDocumentSaveOutcome): string {
   if (outcome.outcome === "cancelled") return `Save of ${target.description} cancelled; nothing was written.`;
   if (outcome.outcome === "refused") {
-    const shown = outcome.diagnostics.slice(0, 8).map((item) => `${item.code}${item.path ? ` at ${item.path}` : ""}: ${item.message}`);
-    const more = outcome.diagnostics.length > shown.length ? ` (+${outcome.diagnostics.length - shown.length} more)` : "";
-    return `Save of ${target.description} refused: ${shown.join(" | ")}${more}`;
+    return `Save of ${target.description} refused: ${listedItems(outcome.diagnostics, 8, true)}`;
   }
   const durability = outcome.durability === "durable" ? "" : " The file was saved, but its directory sync did not complete; its durability is uncertain.";
-  const warnings = outcome.warnings.length > 0 ? ` Warnings: ${outcome.warnings.slice(0, 4).map((item) => `${item.code}${item.path ? ` at ${item.path}` : ""}`).join(" | ")}.` : "";
+  const warnings = outcome.warnings.length > 0 ? ` Warnings: ${listedItems(outcome.warnings, 4, false)}.` : "";
   return `Saved ${target.description} to ${outcome.file_name} exactly as stored (${outcome.byte_count} bytes; SHA-256 ${outcome.model_hash}). It was not opened. Add project.units to the file, then open it with Open Model Document….${durability}${warnings}`;
 }
 
