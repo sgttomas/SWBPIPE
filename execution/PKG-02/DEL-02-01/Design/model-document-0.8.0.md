@@ -164,7 +164,8 @@ This is the first version step since W-12's saved states and recorded runs
   to 0.8.0 is valid with the same meaning (§1). Making that change is the
   user's re-authoring act, not a product migration.
 - **Recorded runs** keep their existing read and compare behaviour. Their own
-  format version is unchanged, and no run gate is added. As found in Codex
+  format version is unchanged, and no model-document-version gate is added
+  for them; their integrity checks stay. As found in Codex
   r1:
   - the run read (`analysis_runs.rs` `read_run_in_store_with`, :1785) checks
     the stored result, the manifest and the state summary's model hash, not
@@ -197,11 +198,11 @@ constants (`retired_model_schema_message`):
 (`refuse_model_document`, `model_states.rs` `refuse_version`, and the
 browser-preview store) append the practical limit:
 
-> Recorded runs keep their own format and stay readable: run history is listed for the active project's id, so this project's runs are reached through a current project with the same project id, and run comparison keeps its eligibility rules.
+> Recorded runs keep their own format and existing read and compare behaviour; this change adds no model-document-version gate for recorded runs. Existing integrity checks and retained-precision/source-reader restrictions still apply. Run history is listed for the active project's id, so this project's runs are reached through a current project with the same project id, and run comparison keeps its eligibility rules.
 
 **The user guide** (`docs/user_guide`, the section on opening projects) gains:
 
-> **Projects saved before model document 0.8.0.** Model document 0.8.0 adds a reducer's optional eccentric offset. The desktop opens only the current model-document version, so a project or saved model state stored at 0.7.0 is refused by name when you open it, and nothing is migrated. A 0.7.0 document whose `schema_version` alone is changed to 0.8.0 has the same meaning in 0.8.0; making that change is your re-authoring step. Recorded runs keep their own format and are not refused. Run history is listed for the active project's id, so the runs of an older project are reached only through a current (0.8.0) project with the same project id. Comparing an older run with a newer one keeps the usual eligibility rules.
+> **Projects saved before model document 0.8.0.** Model document 0.8.0 adds a reducer's optional eccentric offset. The desktop opens only the current model-document version, so a project or saved model state stored at 0.7.0 is refused by name when you open it, and nothing is migrated. A 0.7.0 document whose `schema_version` alone is changed to 0.8.0 has the same meaning in 0.8.0; making that change is your re-authoring step. Recorded runs keep their own format and existing read and compare behaviour; this change adds no model-document-version gate for recorded runs. Existing integrity checks and retained-precision/source-reader restrictions still apply. Run history is listed for the active project's id, so the runs of an older project are reached only through a current (0.8.0) project with the same project id. Comparing an older run with a newer one keeps the usual eligibility rules.
 
 **Test plan** (with the ripple, through the desktop entry path, not only the
 Rust read):
@@ -410,7 +411,7 @@ replaces only the quoted text.
      - **New:** `` and only `0.8.0` reports `current` ``
    - **Insert after line 35** (the ruling's effect on stored work; through
      Codex, then Agent 0 under the wording grant):
-     `> - Owner ruling, 2026-10-26: "R-c1 A, 0.8.0 a2". A project or saved model state holding a retired model-document version is refused by name on open; recorded runs keep their own format and their existing read and compare behaviour, with no run gate. Run history is listed for the active project's id, so a retired project's runs are reached through a current project with the same identity, and comparison keeps its eligibility gate (DEL-02-01 Design `model-document-0.8.0.md` §3).`
+     `> - Owner ruling, 2026-10-26: "R-c1 A, 0.8.0 a2". A project or saved model state holding a retired model-document version is refused by name on open; recorded runs keep their own format and their existing read and compare behaviour, with no model-document-version gate for recorded runs; existing integrity checks and retained-precision/source-reader restrictions still apply. Run history is listed for the active project's id, so a retired project's runs are reached through a current project with the same identity, and comparison keeps its eligibility gate (DEL-02-01 Design `model-document-0.8.0.md` §3).`
 2. **DEL-04-08 ScopeOfWork**
    - **Lines 108 and 122.**
      - **Old:** `current model 0.7.0`

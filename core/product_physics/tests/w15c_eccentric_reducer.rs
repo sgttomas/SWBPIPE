@@ -429,3 +429,29 @@ fn codex_probe_two_a_near_semicircular_bend_is_refused_by_name() {
             [0.0, 0.0, 1.0], [7.0, -7.0, 0.0], route), route, "admits a semicircular arc");
     }
 }
+
+/// J2 regression (Codex numerical scrutiny r2): a resolved but weak realized bend
+/// (β ≈ 0.4158) at one end and a 1 m run (β ≈ 0.0017) at the other. With the
+/// equal-weight consensus the weak bend tilted the axis, and the placement check
+/// refused a consistent offset (`..._MISMATCH`, 8.086 mm residual). The
+/// better-resolved end now governs, and the check accepts the offset on both
+/// routes. The model then stops at formation for a reason outside this check:
+/// the arc's `y_reference` lies within 1.9e-4 of its chord, so the frame kernel
+/// refuses the member's local axes (`PIPE_ELEMENT_INPUT_INVALID`). The check's
+/// own residual (about 2.2e-15 m) is asserted in the unit test
+/// `w15c_eccentric_offset_tests::j2_weak_bend_case_is_realized`.
+#[test]
+fn a_weak_bend_does_not_tilt_the_axis() {
+    let entered = [-18.19787406218549, 13.058496225274045, 3.349962055095552];
+    let true_chord = [entered[0] + 0.001, entered[1] + 0.001, entered[2] + 0.001];
+    let y = [-0.8035474210765018, 0.5765244818323195, 0.1480914039682203];
+    let e = [0.00819795250341938, -0.005298081948721869, -0.002173454029030151];
+    let e_mm = [e[0] * 1000.0, e[1] * 1000.0, e[2] * 1000.0];
+    for route in [Route::Preview, Route::Exact] {
+        let out = run_linear_static_preview_value_with_mode(probe_request(entered, true_chord, 11.36337291391957, y, e_mm, route),
+            PreviewSolverMode::SparseInteractive).unwrap();
+        assert!(offset_codes(&out).is_empty(), "{route:?}: the offset check refuses nothing: {:?}", codes(&out, "RIGID_COMPONENT_ECCENTRIC"));
+        let blocking: Vec<&str> = out.diagnostics.iter().filter(|d| d.severity == "blocking").map(|d| d.code.as_str()).collect();
+        assert_eq!(blocking, vec!["PIPE_ELEMENT_INPUT_INVALID"], "{route:?}: only the arc frame's own refusal remains");
+    }
+}

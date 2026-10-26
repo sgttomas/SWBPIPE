@@ -300,3 +300,46 @@ fn placement_and_axial_length() {
     let side = [1.0, -0.05, 0.0];
     assert_eq!(outcome_name(&check(a, side, &sn, &EndStatus::None, mm([0.0, -50.0, 0.0]))), "invalid:no_axial_length");
 }
+
+/// Codex numerical scrutiny r2 (P3): a bend whose plane and half-angle bounds are
+/// both defined (d_n = 0.760 < sin φ = 1) but whose total tangent bound is 1.674 rad
+/// is refused with its own explanation, not as an ill-conditioned plane.
+#[test]
+fn a_total_tangent_uncertainty_of_pi_over_two_or_more_is_named_as_such() {
+    let e = arc_evidence([0.0; 3], [0.005, 0.0, 0.0], false, 0.0033660304037844385, [0.0, 1.0, 0.0]);
+    assert_eq!(e, Evidence::Unresolvable(crate::rigid_component::TOTAL_UNCERTAINTY), "{e:?}");
+}
+
+/// J2: the end direction with the smaller β governs, its β is β_run, and the
+/// choice does not depend on which end is named first.
+#[test]
+fn the_better_resolved_end_governs_the_axis() {
+    let strong = EndStatus::Direction { direction: [1.0, 0.0, 0.0], beta: 1e-3 };
+    let weak = EndStatus::Direction { direction: unit([1.0, 0.02, 0.0]), beta: 0.4 };
+    assert_eq!(decide_axis(&strong, &weak).unwrap(), ([1.0, 0.0, 0.0], 1e-3));
+    assert_eq!(decide_axis(&weak, &strong).unwrap(), ([1.0, 0.0, 0.0], 1e-3));
+    // An exact tie keeps the sign-aligned consensus.
+    let tie = EndStatus::Direction { direction: [-1.0, 0.0, 0.0], beta: 1e-3 };
+    assert_eq!(decide_axis(&strong, &tie).unwrap().1, 1e-3);
+}
+
+/// J2 regression at the check (Codex numerical scrutiny r2): the realized arc's
+/// tangent at its far end (β ≈ 0.4158) and a 1 m run along the true tangent
+/// (β ≈ 0.0017). The run governs, and the offset is realized with a residual of
+/// about 2.2e-15 m (the equal-weight consensus gave an 8.086 mm mismatch).
+#[test]
+fn j2_weak_bend_case_is_realized() {
+    let entered = [-18.19787406218549, 13.058496225274045, 3.349962055095552];
+    let truth = [entered[0] + 0.001, entered[1] + 0.001, entered[2] + 0.001];
+    let (r, y) = (11.36337291391957, [-0.8035474210765018, 0.5765244818323195, 0.1480914039682203]);
+    let e = [0.00819795250341938, -0.005298081948721869, -0.002173454029030151];
+    let t = arc_tangent_at_to([0.0; 3], truth, r, y).unwrap();
+    let f = [entered[0] + 0.04 * t[0] + e[0], entered[1] + 0.04 * t[1] + e[1], entered[2] + 0.04 * t[2] + e[2]];
+    let g = [f[0] + t[0], f[1] + t[1], f[2] + t[2]];
+    let Evidence::Run { direction, beta } = arc_evidence([0.0; 3], entered, false, r, y) else { panic!("the bend resolves") };
+    assert!((beta - 0.4158).abs() < 5e-4, "bend beta {beta}");
+    let n = EndStatus::Direction { direction, beta };
+    let f_status = run(f, g);
+    let OffsetOutcome::Realized(m) = check(entered, f, &n, &f_status, e) else { panic!("{:?}", check(entered, f, &n, &f_status, e)) };
+    assert!(m.residual < 1e-12, "residual {}", m.residual);
+}

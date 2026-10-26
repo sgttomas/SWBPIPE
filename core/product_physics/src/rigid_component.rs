@@ -494,6 +494,7 @@ pub(crate) fn straight_beta(length: f64) -> Option<f64> {
 pub(crate) const SHORT_SPAN: &str = "a member shorter than the resolvable length sqrt(3)*q";
 pub(crate) const NEAR_SEMICIRCLE: &str = "a bend whose coordinate rounding admits a semicircular arc (c + sqrt(3)*q >= 2R), where its end tangent is unresolved";
 pub(crate) const ILL_CONDITIONED_PLANE: &str = "a bend whose plane reference is too nearly parallel to its chord for the coordinate rounding to resolve the bend plane";
+pub(crate) const TOTAL_UNCERTAINTY: &str = "a bend whose total end-tangent uncertainty within the coordinate rounding reaches or exceeds pi/2";
 
 /// The tangent of a realized arc at `at` and its finite uncertainty bound β_arc
 /// (§3.3, revised after Codex numerical scrutiny r1). The tangent is
@@ -549,7 +550,7 @@ pub(crate) fn arc_evidence(from: V3, to: V3, at_from: bool, radius: f64, y_refer
     let frame = 2.0 * ((0.5 * alpha_c).sin().powi(2) + (0.5 * alpha_n).sin().powi(2)).sqrt().min(1.0).asin();
     let beta = delta_h + frame;
     if !(beta.is_finite() && beta < std::f64::consts::FRAC_PI_2) {
-        return Evidence::Unresolvable(ILL_CONDITIONED_PLANE);
+        return Evidence::Unresolvable(TOTAL_UNCERTAINTY);
     }
     Evidence::Run { direction, beta }
 }
@@ -580,9 +581,19 @@ pub(crate) fn decide_axis(n: &EndStatus, f: &EndStatus) -> Result<(V3, f64), (&'
             if !(theta <= bound) {
                 return Err(("run_directions_disagree", format!("the run directions at the two ends are {theta:e} rad apart, more than the bound {bound:e} rad")));
             }
+            // J2 (HELP_HUMAN, 2026-10-26, under the owner's delegation): the
+            // better-resolved end governs, so weak evidence cannot tilt the axis;
+            // the sign-aligned consensus is used only on an exact tie. Both
+            // choices are symmetric in the two ends.
+            if bn < bf {
+                return Ok((*dn, *bn));
+            }
+            if bf < bn {
+                return Ok((*df, *bf));
+            }
             let sigma = if along >= 0.0 { 1.0 } else { -1.0 };
             let sum = v_add(*dn, v_scale(sigma, *df));
-            Ok((v_scale(1.0 / v_norm(sum), sum), bn.max(*bf)))
+            Ok((v_scale(1.0 / v_norm(sum), sum), *bn))
         }
         (EndStatus::Direction { direction, beta }, EndStatus::None) | (EndStatus::None, EndStatus::Direction { direction, beta }) => Ok((*direction, *beta)),
         _ => Err(("standalone_body", "neither end adjoins a member that gives a run direction".to_string())),

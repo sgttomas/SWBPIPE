@@ -10,8 +10,8 @@ model document part, version 0.8.0, is DEL-02-01 Design
 [`model-document-0.8.0.md`](../../../PKG-02/DEL-02-01/Design/model-document-0.8.0.md).
 
 **Status.** Design at main `2d4b1bb4bb` (2026-10-26), PR #1649, revised after
-Codex's design reviews and numerical scrutiny r1, with Agent 0's rulings of
-2026-10-26.
+Codex's design reviews and numerical scrutiny r1 and r2, with Agent 0's
+rulings of 2026-10-26.
 - **Owner's ruling** (2026-10-26, verbatim): "R-c1 A, 0.8.0 a2".
   - R-c1 A fixes the offset convention (§2, §3.6, §10).
   - 0.8.0 a2 governs stored work and recorded runs (DEL-02-01 Design
@@ -189,7 +189,7 @@ than the body that ends at X. Each is classified:
 | the body of any other reducer: absent, zero or nonzero offset | unsupported | none. An undeclared reducer's chord may be slanted. A declared one is judged by its own check, which cannot be the evidence for this one. Eccentric reducers in series therefore stay refused in this slice (§3.8). | — |
 | a member mapped by a bend component and not realized as an arc | unsupported | none: a chord is not a tangent | — |
 | a member mapped by an expansion joint, or a span replaced by an objective connector | unsupported | none | — |
-| any run-class member whose β is not defined (√3·q ≥ L or c, or a total β ≥ π/2) | unsupported (`unresolvable_run_evidence`) | none: too short to give a direction | — |
+| any run-class member whose β is not defined (√3·q ≥ L or c, or a total β ≥ π/2) | unsupported (`unresolvable_run_evidence`) | none: the rounding admits no direction; the message names which part of the bound fails (below) | — |
 
 **Realized arc uncertainty: a finite bound** (revised after Codex numerical
 scrutiny r1, P2). The tangent is cos h·ĉ ± sin h·n̂, with:
@@ -214,8 +214,27 @@ frame, then change the frame.
 
 A bend whose bound is undefined is unresolved run evidence, refused by
 `..._INVALID` with reason `unresolvable_run_evidence`. The message names the
-member and why. The user's radius and `y_reference` are entered values, taken
-as exact.
+member and which part fails, each with its own explanation:
+- `SHORT_SPAN`: ε ≥ c;
+- `NEAR_SEMICIRCLE`: c + ε ≥ 2R;
+- `ILL_CONDITIONED_PLANE`: d_n ≥ sin φ;
+- `TOTAL_UNCERTAINTY`: every part is defined, but β_arc ≥ π/2 (the total
+  end-tangent uncertainty within the rounding reaches π/2). Codex's case
+  (numerical scrutiny r2, P3): chord (0.005, 0, 0) m, R = 0.0033660304037844385
+  m, y = (0, 1, 0); d_n = 0.760 < sin φ = 1, total β_arc = 1.674.
+
+The user's radius and `y_reference` are entered values, taken as exact.
+
+**The bound's limit is a conservative certificate boundary** (J1, §9). A bend
+whose β_arc reaches π/2, or whose parts are undefined, is refused even where
+its true geometry would resolve the axis: the check certifies only what the
+rounding region as a whole supports, with no extra margin. Probe variants'
+true-geometry controls are therefore refused, not resolved. Ordinary bends
+resolve: Codex's sweep (numerical scrutiny r2) of every 90° and 45° elbow at
+R = 1.5D, D = 100–600 mm, mm-rounded, with a global-Y reference, resolves with
+β_arc 0.0049–0.0296 rad at 90° and 0.0069–0.0412 rad at 45°. A single 180°
+return is refused (`NEAR_SEMICIRCLE`); two 90° arcs work. The near-return
+cutoff is about 167.68° at D = 100 mm and 174.97° at D = 600 mm.
 
 **Coverage, with margin.**
 - **Codex's probe 1** (plane reference nearly parallel to the chord):
@@ -247,11 +266,12 @@ resolve.
 | ambiguous (either end) | any | refuse, `ambiguous_run`, naming the end and its candidates |
 | unsupported (either end) | any | refuse, `unsupported_run_evidence` (or `unresolvable_run_evidence`), naming the end and member |
 | none | none | refuse, `standalone_body` |
-| direction | direction | Agreement: θ = atan2(‖d_N × d_F‖, |d_N·d_F|), the angle after aligning signs, must satisfy θ ≤ θ_base + β_N + β_F. Otherwise refuse, `run_directions_disagree`. Consensus u = normalize(d_N + σ·d_F) with σ = sign(d_N·d_F) (+1 when 0); β_run = max(β_N, β_F). |
+| direction | direction | Agreement: θ = atan2(‖d_N × d_F‖, |d_N·d_F|), the angle after aligning signs, must satisfy θ ≤ θ_base + β_N + β_F. Otherwise refuse, `run_directions_disagree`. Then the better-resolved end governs (J2, §9): u = the direction with the smaller β, and β_run = that β. Only on an exact tie β_N = β_F is u the consensus normalize(d_N + σ·d_F), σ = sign(d_N·d_F) (+1 when 0), with β_run = β_N. |
 | direction | none, or none | direction | u = the one direction; β_run = its β |
 
 **Orientation and naming independence.** t = u, negated if u·D < 0.
-- The consensus is symmetric in N and F up to sign.
+- The choice is symmetric in N and F up to sign: the smaller-β rule does not
+  depend on which end is N, and the tie's consensus is symmetric.
 - Swapping the ends' names negates D and t exactly. Under the other
   convention it also negates e.
 - So |e·t|, ‖D⊥ − e‖, a_e and every outcome are bit-identical under a
@@ -626,7 +646,7 @@ independent scrutiny.
 |---|---|---|
 | P1 | Body realization | Approved as Codex says. The chord member between the two centerlines (§3.1). It is equivalent to a rigid link mechanically and kinematically only with zero body eigenstrain and equivalent loading. Thermal growth stays αΔT·D, offset growth included, at every scale. Load resultants (chord self-weight over ‖D‖) differ unless matched. |
 | P2 | Tolerance, transversality and precision | Revised, then decided. The actual node geometry governs the lever arm and the solve, and every M = P·e claim means P·‖D⊥‖. Placement: the declared offset is checked within τ (the 5 mm node-proximity tolerance, user-settable), separately from any rounding allowance. Transversality: |e·t| ≤ ρ_base·‖e‖ + (√3/2)·q + ‖e‖·sin β_run, with ρ_base = 1e-3 and q = 1 mm, a fixed declared coordinate-rounding allowance, not a user setting, reflecting millimetre-rounded entry (§3.2, §3.3). A nonzero offset whose allowance reaches its magnitude is refused by `..._BELOW_PRECISION`. **Why:** with ρ alone, a 30° run entered as (866, 500, 0) mm with offset (−25, 43, 0) mm has axial share 0.003015789 and would be wrongly refused; under the rule it is accepted. Regressions: that case; 47 mm declared against 50 mm geometry (passes, and the 50 mm geometry governs); the collinear e = (5, 0, 0) mm, still refused by `..._NOT_TRANSVERSE`; one case just outside the transversality bound and one just inside the precision bound (§12). |
-| P3 | Run axis | Revised, then decided (§3.3). Run evidence comes from ordinary pipes, the bodies of valves, flanges, rigid and specialty components, and realized-arc tangents, each with a direction uncertainty β: asin(√3·q/L) for a straight member; the defined β_arc for an arc. Any other reducer's body (absent, zero or nonzero offset), an unrealized bend member, an expansion-joint member, a connector span and an unresolvably short member are unsupported. Both ends' directions must agree: θ ≤ θ_base + β_N + β_F, with θ_base = 1e-3 rad, after aligning signs. The axis is the sign-aligned normalized consensus, independent of endpoint naming, oriented by D. Ambiguous or unsupported topology is refused by name. **Why:** with θ_base alone, two parallel 100 mm spans rounded to (87, 50) and (86, 50) mm are 0.005008974 rad apart and would be wrongly refused; under the rule they are accepted. Regressions: that case; one case just outside the agreement bound; Codex's two-reducer chain; and the convention-invariance case (§12). **Realized arcs (Codex numerical scrutiny r1):** β_arc is a finite bound over the whole rounding region, and a bend whose bound is undefined (a reachable semicircle, an ill-conditioned plane) is refused by name (§3.3). |
+| P3 | Run axis | Revised, then decided (§3.3). Run evidence comes from ordinary pipes, the bodies of valves, flanges, rigid and specialty components, and realized-arc tangents, each with a direction uncertainty β: asin(√3·q/L) for a straight member; the defined β_arc for an arc. Any other reducer's body (absent, zero or nonzero offset), an unrealized bend member, an expansion-joint member, a connector span and an unresolvably short member are unsupported. Both ends' directions must agree: θ ≤ θ_base + β_N + β_F, with θ_base = 1e-3 rad, after aligning signs. The axis is the better-resolved end's direction (J2), or the sign-aligned normalized consensus on an exact tie, independent of endpoint naming, oriented by D. Ambiguous or unsupported topology is refused by name. **Why:** with θ_base alone, two parallel 100 mm spans rounded to (87, 50) and (86, 50) mm are 0.005008974 rad apart and would be wrongly refused; under the rule they are accepted. Regressions: that case; one case just outside the agreement bound; Codex's two-reducer chain; and the convention-invariance case (§12). **Realized arcs (Codex numerical scrutiny r1):** β_arc is a finite bound over the whole rounding region, and a bend whose bound is undefined (a reachable semicircle, an ill-conditioned plane) is refused by name (§3.3). |
 | P4 | Body length against geometry | Approved: not checked for any rigid-family kind. The demo valve's body length is 0.72 m on a 2.2 m member. |
 | P5 | Self-weight of the chord body | Approved: it acts over ‖D‖, and slice b's component weight replaces it when entered. |
 | P6 | `not_solver_consumed` | Approved: honoured, the offset not read and no offset diagnostic. Ordinary structural and unit validation still applies. |
@@ -636,7 +656,8 @@ independent scrutiny.
 | P10 | Thermal growth of the offset | Approved: αΔT·D, offset included. |
 | P11 | Stress rows of an eccentric reducer | Approved, with disclosure. Rows are the reference pipe section's along the chord. Scaled rows carry `component_body`. The reference-section meaning is disclosed in the info, the UI and the report text in both the scaled and unscaled cases (§3.4, §4). |
 | P12 | Version bump while #1630 closes the record | Approved: 0.8.0 (DEL-02-01 Design `model-document-0.8.0.md` §1). |
-| P13 (open, for Agent 0) | How far weak run evidence may steer the axis | **Recommended:** where both ends give a direction, take the direction with the smaller β, using the consensus only on an exact tie. It stays independent of endpoint naming, adds no constant, and bounds the axis error by the smaller β. **Why:** with an equal-weight consensus, a resolved but weak bend (β_arc up to about 0.4 rad, as in probe 1's admissible variant) can tilt the axis by up to half its β. For a body with D·t = 0.04 m, that moves D⊥ by about 8 mm against the 5 mm placement check. **Alternative:** a cap on any single evidence's β (for example 0.05 rad), refusing weaker evidence by name. Neither is built pending the decision; either is a few lines in `decide_axis` plus tests. |
+| J1 | The bound's limit for ordinary bends | Decided (Agent 0, HELP_HUMAN, 2026-10-26, under the owner's delegation): keep. Refuse at the bound's limits, with no extra margin. Codex's numbers (numerical scrutiny r2): every 90° and 45° elbow at R = 1.5D, D = 100–600 mm, mm-rounded, with a global-Y reference, resolves (β_arc 0.0049–0.0296 rad at 90°, 0.0069–0.0412 rad at 45°). A single 180° return is refused; two 90° arcs work. The near-return cutoff is about 167.68° at D = 100 mm and 174.97° at D = 600 mm. The refusal is a conservative certificate boundary: the probes' true-geometry controls are refused rather than resolved (§3.3). |
+| J2 (was P13) | How far weak run evidence may steer the axis | Decided (Agent 0, 2026-10-26, approving the recommendation). After the status and agreement checks, the end direction with the smaller β is the axis and its β is β_run; the consensus is used only on an exact tie. Endpoint and sign symmetry are kept, and no constant is added (§3.3). **Why:** with an equal-weight consensus, a resolved but weak bend can tilt the axis by up to half its β. **Regression** (Codex numerical scrutiny r2), on PF and EX: entered chord (−18.19787406218549, 13.058496225274045, 3.349962055095552) m, true chord the entered plus (0.001, 0.001, 0.001) m, R = 11.36337291391957 m, y_reference (−0.8035474210765018, 0.5765244818323195, 0.1480914039682203), e = (0.00819795250341938, −0.005298081948721869, −0.002173454029030151) m, D = 0.04·t + e, and a 1 m straight run along t, the true chord's far-end tangent. On `4291a7ace8` it gave `..._MISMATCH` (8.086 mm residual; bend β 0.4158, run β 0.0017). Now the run governs and the offset is realized (residual about 2.2e-15 m). Through the solve, the model then stops for a separate reason: the arc's `y_reference` lies within 1.9e-4 of its chord, and the frame kernel refuses its local axes (`PIPE_ELEMENT_INPUT_INVALID`). |
 
 ## 10. R-c1 ruled, and the ScopeOfWork drafts
 
@@ -748,7 +769,14 @@ any value moves, it is reported to the owner and not edited.
     as unresolved run evidence, never `run_directions_disagree`. Both gave the
     false disagreement on `c90a6d61ff`;
   - a concentric flange body at both ends is accepted;
-  - a terminal end uses the other end's direction.
+  - a terminal end uses the other end's direction;
+  - **total uncertainty (P3, r2):** Codex's bend with every part defined but
+    β_arc = 1.674 is refused with the `TOTAL_UNCERTAINTY` explanation;
+  - **J2:** the weak-bend case (§9) is realized at the check (unit test
+    `j2_weak_bend_case_is_realized`, residual < 1e-12 m) and, through the
+    solve on both routes, no offset refusal is stated
+    (`a_weak_bend_does_not_tilt_the_axis`); on `4291a7ace8` it fails with
+    `..._MISMATCH`, residual 8.086 mm.
 - **Other behaviour:**
   - `not_solver_consumed` with a contradictory offset gives no offset
     diagnostic and the same solve;
