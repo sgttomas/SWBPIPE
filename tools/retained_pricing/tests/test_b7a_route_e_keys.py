@@ -1,6 +1,7 @@
 """Exact route-E retirement preimages and ordinary mapper kind controls."""
 from copy import deepcopy
 from pathlib import Path
+import ast
 import runpy
 import shutil
 
@@ -123,3 +124,20 @@ def test_no_module_namespace_is_a_decision_table(monkeypatch):
     d = decisions(monkeypatch)
     namespaces = [k for k, v in d.items() if k.isupper() and isinstance(v, dict) and "__file__" in v]
     assert namespaces == []
+
+
+def test_no_model_state_is_bound_as_a_decision_table():
+    """The same for a model's inspected snapshot state (its sites are the snapshot's, not the basis's): in every
+    decisions file, no upper-case name binds a module namespace (`run_path`) or a model's `inspect(...)` result."""
+    found = []
+    for path in sorted((PRICING / "rules").glob("*.py")):
+        for node in ast.walk(ast.parse(path.read_text())):
+            if not (isinstance(node, ast.Assign) and isinstance(node.value, ast.Call)):
+                continue
+            func = node.value.func
+            binds_state = "run_path" in ast.unparse(func) or (
+                isinstance(func, ast.Subscript) and isinstance(func.slice, ast.Constant) and func.slice.value == "inspect")
+            names = [t.id for t in node.targets if isinstance(t, ast.Name) and t.id.isupper()]
+            if binds_state and names:
+                found.append((path.name, node.lineno, names))
+    assert found == []

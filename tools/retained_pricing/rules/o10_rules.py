@@ -1587,13 +1587,13 @@ _AGG = fnkey("run_linear_static_preview_observed_inner", _LIB)
 if _AGG:
     _w1_model = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.dirname(
         _os.path.abspath(__file__))), "base", "w1_reductions_model.py"))
-    _W1_REDUCED = _w1_model["inspect"](_SNAP)
+    _w1_reduced = _w1_model["inspect"](_SNAP)
     _agg = _fn_text("run_linear_static_preview_observed_inner", _LIB)
     _RB_GUARDED = ("            if preview.is_some() {\n                rows_by_base_id\n                    .entry(base_id)\n"
                    "                    .or_default()\n                    .insert(load_case_id.clone(), result.clone());\n            }\n")
     _RB_CALL = ("        Some(rendered) => preview_physics::append_combination_results(&model, rendered, &rows_by_base_id, "
                 "&mut results, &mut diagnostics),\n")
-    if _W1_REDUCED:
+    if _w1_reduced:
         _w1_model["guard"](_agg)
     elif _RB_GUARDED not in _agg or _RB_CALL not in _agg:
         raise SystemExit("U6-RB: the RF guarded rows_by_base_id/call changed; re-review")
@@ -1608,7 +1608,7 @@ if _AGG:
     U6_RB_PATCHES = [("ordinary_caps.py", _AGG_ROW,
         _NO_INDEX + '   # U6-RB/W1-L5: route E has no preview/index; push-capacity results (U6-RB-V)\n',
         "U6-RB: route E has no preview, so no row index clone or map; keep push-capacity results")]
-    if _W1_REDUCED:
+    if _w1_reduced:
         # The full preview_physics.rs pin includes append_combination_results:
         # base_ids and case_rows are its only pre-loop construction; results,
         # diagnostics and gates are changed only in its combinations loop.

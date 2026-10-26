@@ -230,9 +230,9 @@ ID_AUDIT = ID_AUDIT + [
 ]
 # C8: source-bound IN128 metadata survives; only owned syntax allocates.
 _c8_model = runpy.run_path(os.path.join(H, "..", "base", "member_comparison_model.py"))
-C8_MEMBER_STATE = _c8_model["inspect"](os.environ["SQ2_SNAP"])
-C8_INPUT_METADATA = [(Resolved(C8_MEMBER_STATE["site"]), {"member.member_id": IN})]
-if not C8_MEMBER_STATE["borrowed"]:
+_c8_member_state = _c8_model["inspect"](os.environ["SQ2_SNAP"])
+C8_INPUT_METADATA = [(Resolved(_c8_member_state["site"]), {"member.member_id": IN})]
+if not _c8_member_state["borrowed"]:
     ID_AUDIT = ID_AUDIT + C8_INPUT_METADATA
 
 ID_AUDIT_WHY_E = ("SQ2 G5 route E (RR I95 ruling 5: the 32 newly reached identifier placeholders of b3s_open_items.out.json, at c3cf970ad3 lines): "
