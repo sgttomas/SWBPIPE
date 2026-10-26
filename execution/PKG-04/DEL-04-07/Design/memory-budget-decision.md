@@ -64,7 +64,7 @@ Refusal reporting on the Solve panel. Every refusal point below, except the queu
 | Refusal point | Native outcome | Retry path |
 |---|---|---|
 | Start: intake, queue full, early retention, pressure, headroom, capacity, pool | `start_preview_mechanics_job` refuses; no job ran | An intake `headroom_insufficient` is re-sampled for up to 2 s before it stands. The user runs the solve again. A budget refusal needs a larger budget, up to the pool. |
-| Queue wait for the worker's starting grant | Not a refusal: the job stays `queued` with its queue reason, then runs | The queue's own retry: it starts the job once admitted, and Cancel preview stops the wait. The pool's `last_refusal` keeps the last refused attempt after the job runs. |
+| Queue wait for the worker's starting grant | Not a refusal: the job stays `queued` with its queue reason, then runs | The queue's own retry, with no deadline: it starts the job once admitted, and Cancel preview stops the wait. The pool's `last_refusal` keeps the last refused attempt after the job runs. |
 | Worker growth, cap or footprint (`worker_*`) | Job `refused`; worker killed; no fallback | A growth step refused only with `headroom_insufficient` is re-sampled for up to 2 s first; then run again. Cap or footprint: a larger budget, up to the pool. |
 | Result hand-off: the result lease, while the grant is held | Job `refused`; result dropped | `headroom_insufficient` is re-sampled for up to 2 s first; then run again. |
 | Publication: `retention_full` | Job `refused`; result dropped | Run again once a waiting result is collected or released. |

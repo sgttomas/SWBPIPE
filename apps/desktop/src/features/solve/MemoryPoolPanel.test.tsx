@@ -63,12 +63,12 @@ describe("the memory pool panel", () => {
     await screen.findByTestId("memory-pool-status");
     expect(invokeMock).toHaveBeenCalledWith("get_memory_pool_status");
     expect(line("memory-pool-budget")).toBe("12 GiB (default 12 GiB; any budget up to 48 GiB, the pool size, can be selected)");
-    expect(line("memory-pool-budget-larger")).toBe("each ordinary solve runs in a worker process held to the budget, so a larger budget admits larger ordinary solves; it does not reserve memory in advance, and a solve whose next step does not fit the available memory macOS reports throughout a 2 s re-sampling window is still refused");
+    expect(line("memory-pool-budget-larger")).toBe("each ordinary solve runs in a worker process held to the budget, so a larger budget admits larger ordinary solves; it does not reserve memory in advance: a queued solve waits for its starting grant until it is admitted or cancelled, and intake, worker growth and result transfers re-check insufficient available memory for up to 2 s before refusing");
     // Interactive requests are admitted by pool, available memory and budget, not refused for macOS memory pressure.
     expect(line("memory-pool-interactive")).toBe("each request is admitted by the pool, available memory and the budget; unlike a solve, it is not refused because macOS reports memory pressure");
     expect(screen.getByTestId("memory-pool-panel").textContent).not.toMatch(/qualif/i);
     // The budget bounds the request intake and each ordinary solve's worker, not held results.
-    expect(line("memory-pool-budget-scope")).toBe("receiving the model document (request intake) and each ordinary solve's worker process, whose reservation grows on demand up to the budget; a solve needing more, or one whose next step does not fit the available memory macOS reports throughout a 2 s re-sampling window, is refused; results held natively and by the app are bounded by the pool, available memory and result-count limits, not by the budget");
+    expect(line("memory-pool-budget-scope")).toBe("receiving the model document (request intake) and each ordinary solve's worker process, whose reservation grows on demand up to the budget; a queued solve waits for its starting grant until it is admitted or cancelled; a solve needing more than the budget is refused, and intake, worker growth and result transfers re-check insufficient available memory for up to 2 s before refusing; results held natively and by the app are bounded by the pool, available memory and result-count limits, not by the budget");
     expect(screen.getByTestId("memory-pool-status").textContent).not.toMatch(/qualified up to|guarantee/i);
     expect(line("memory-pool-size")).toBe("48 GiB; recommended 48 GiB for 64 GiB physical memory");
     expect(line("memory-pool-reserved")).toBe("18.5 GiB (model intake 512 MiB, solve workers 6 GiB, results 0 MiB, results held by the app 12 GiB)");

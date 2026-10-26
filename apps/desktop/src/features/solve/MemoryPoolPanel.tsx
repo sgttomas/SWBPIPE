@@ -146,12 +146,12 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
           <PoolLine
             label="Budgets above the default"
             testId="memory-pool-budget-larger"
-            value="each ordinary solve runs in a worker process held to the budget, so a larger budget admits larger ordinary solves; it does not reserve memory in advance, and a solve whose next step does not fit the available memory macOS reports throughout a 2 s re-sampling window is still refused"
+            value="each ordinary solve runs in a worker process held to the budget, so a larger budget admits larger ordinary solves; it does not reserve memory in advance: a queued solve waits for its starting grant until it is admitted or cancelled, and intake, worker growth and result transfers re-check insufficient available memory for up to 2 s before refusing"
           />
           <PoolLine
             label="What the budget bounds"
             testId="memory-pool-budget-scope"
-            value="receiving the model document (request intake) and each ordinary solve's worker process, whose reservation grows on demand up to the budget; a solve needing more, or one whose next step does not fit the available memory macOS reports throughout a 2 s re-sampling window, is refused; results held natively and by the app are bounded by the pool, available memory and result-count limits, not by the budget"
+            value="receiving the model document (request intake) and each ordinary solve's worker process, whose reservation grows on demand up to the budget; a queued solve waits for its starting grant until it is admitted or cancelled; a solve needing more than the budget is refused, and intake, worker growth and result transfers re-check insufficient available memory for up to 2 s before refusing; results held natively and by the app are bounded by the pool, available memory and result-count limits, not by the budget"
           />
           <PoolLine
             label="Edits, conversions and saves"
