@@ -9,6 +9,7 @@ import {
   COMPLETENESS_STATUSES,
   DeclarationsEditor,
   LIBRARY_KINDS,
+  LoadCaseCategoriesEditor,
   REQUIRED_FOR_TARGETS,
   SLOT_KINDS,
   SOURCE_KINDS,
@@ -17,6 +18,7 @@ import {
   defaultRequiredInput,
   defaultSolverResultRef,
   defaultValueSlot,
+  modelBasisOptions,
   readRequiredInputIds,
   readValueSlotIds,
   setRequiredInputs,
@@ -26,6 +28,7 @@ import {
 } from "./DeclarationsEditor";
 import { buildDraftRulePackDocument } from "../../services/rulePackService";
 import type { UnitCatalog } from "../../services/unitCatalogService";
+import type { MechanicsResult, PreviewModel } from "../../types";
 
 // TP-C2-DECLEDITOR-001 — required-input / value-slot declaration form builders.
 // Pure-helper tests pin the schema-valid default shapes, the unique-id rule,
@@ -247,20 +250,20 @@ describe("DeclarationsEditor pure helpers", () => {
     });
   });
 
-  it("builds a schema-shaped default solver_result_ref: only result_id as a TBD placeholder", () => {
-    // toEqual pins the EXACT shape: the single required member present, the id
-    // the visible uppercase "TBD" placeholder (an unfilled reference matches no
+  it("builds a schema-shaped default 0.5.0 selector: the two required members as TBD placeholders", () => {
+    // toEqual pins the EXACT shape: the required selector members present, the
+    // visible uppercase "TBD" placeholder (an unfilled selector matches no
     // result row and the input blocks — never a silent pass; never a stored
-    // result value).
-    expect(defaultSolverResultRef()).toEqual({ result_id: "TBD" });
+    // result value), and no 0.4.0 result_id.
+    expect(defaultSolverResultRef()).toEqual({ result_kind: "TBD", entity_ref: "TBD" });
   });
 });
 
-function Harness({ initial }: { initial: DeclarationDocument }) {
+function Harness({ initial, result = null }: { initial: DeclarationDocument; result?: MechanicsResult | null }) {
   const [document, setDocument] = useState<DeclarationDocument>(initial);
   return (
     <>
-      <DeclarationsEditor document={document} onChange={setDocument} disabled={false} />
+      <DeclarationsEditor document={document} onChange={setDocument} disabled={false} result={result} />
       <pre data-testid="decl-doc">{JSON.stringify(document)}</pre>
     </>
   );
@@ -648,24 +651,45 @@ describe("DeclarationsEditor component", () => {
     expect(screen.getByTestId("rule-pack-input-solver-ref")).toBeTruthy();
     expect(inputsOf(harnessDoc())[0].solver_result_ref).toEqual(defaultSolverResultRef());
     expect(screen.getByTestId("rule-pack-input-solver-ref-note").textContent).toContain(
-      "supersedes the run panel"
+      "On each required load case of a check"
     );
+    // Without a current solved result the members are typed.
+    expect(screen.getByTestId("rule-pack-input-solver-offer-none").textContent).toContain("type the selector members");
     // Seeding the solver ref must NOT also seed a library ref (independent kinds).
     expect(inputsOf(harnessDoc())[0]).not.toHaveProperty("library_value_ref");
   });
 
-  it("edits the solver-result reference id and keeps the rest of the input verbatim", () => {
+  it("types the selector members and keeps the rest of the input verbatim", () => {
     render(<Harness initial={buildDraftRulePackDocument()} />);
     fireEvent.change(screen.getByTestId("rule-pack-input-source-kind"), {
       target: { value: "solver_result" }
     });
     const inputBefore = inputsOf(harnessDoc())[0];
 
-    fireEvent.change(screen.getByTestId("rule-pack-input-solver-result-id"), {
-      target: { value: "result:stress:demo" }
+    fireEvent.change(screen.getByTestId("rule-pack-input-solver-result-kind"), { target: { value: "element_local_axial_normal_stress" } });
+    fireEvent.change(screen.getByTestId("rule-pack-input-solver-entity-ref"), { target: { value: "pipe:P-100" } });
+    fireEvent.change(screen.getByTestId("rule-pack-input-solver-location"), { target: { value: "end_i" } });
+    fireEvent.change(screen.getByTestId("rule-pack-input-solver-component"), { target: { value: "axial_normal_stress" } });
+    fireEvent.change(screen.getByTestId("rule-pack-input-solver-tie-rod"), { target: { value: "rod:invented" } });
+    fireEvent.change(screen.getByTestId("rule-pack-input-solver-section-basis"), { target: { value: "reduced_section" } });
+    expect(inputsOf(harnessDoc())[0].solver_result_ref).toEqual({
+      result_kind: "element_local_axial_normal_stress",
+      entity_ref: "pipe:P-100",
+      location: "end_i",
+      component: "axial_normal_stress",
+      tie_rod: "rod:invented",
+      section_basis: "reduced_section"
     });
+    // An emptied optional member is removed (absent matches only a row without it).
+    fireEvent.change(screen.getByTestId("rule-pack-input-solver-tie-rod"), { target: { value: "" } });
+    fireEvent.change(screen.getByTestId("rule-pack-input-solver-section-basis"), { target: { value: "" } });
     const input = inputsOf(harnessDoc())[0];
-    expect(input.solver_result_ref).toEqual({ result_id: "result:stress:demo" });
+    expect(input.solver_result_ref).toEqual({
+      result_kind: "element_local_axial_normal_stress",
+      entity_ref: "pipe:P-100",
+      location: "end_i",
+      component: "axial_normal_stress"
+    });
     // Lossless: every non-reference member of the input is unchanged (toEqual
     // ignores the undefined-keyed reference on both sides).
     expect({ ...input, solver_result_ref: undefined }).toEqual({
@@ -688,11 +712,40 @@ describe("DeclarationsEditor component", () => {
     // Remove is disabled until a reference actually exists.
     expect(screen.getByTestId("rule-pack-input-solver-remove")).toHaveProperty("disabled", true);
 
-    fireEvent.change(screen.getByTestId("rule-pack-input-solver-result-id"), {
-      target: { value: "result:disp:node-3:ux" }
+    fireEvent.change(screen.getByTestId("rule-pack-input-solver-entity-ref"), {
+      target: { value: "node:3" }
     });
     expect(inputsOf(harnessDoc())[0].solver_result_ref).toEqual({
-      result_id: "result:disp:node-3:ux"
+      result_kind: "TBD",
+      entity_ref: "node:3"
+    });
+  });
+
+  it("offers the selectors of the current solved result's rows", () => {
+    const result = {
+      results: [
+        { id: "r:1", kind: "element_local_axial_normal_stress", value: 1, unit: "Pa", entity_ref: "pipe:P-100", basis_ref: { ref_type: "load_case", ref_id: "load:L-100" }, metadata: { location: "end_i", component: "axial_normal_stress", basis: "recovered; section_basis=nominal_section" } },
+        { id: "r:2", kind: "element_local_axial_normal_stress", value: 2, unit: "Pa", entity_ref: "pipe:P-100", basis_ref: { ref_type: "load_case", ref_id: "load:L-200" }, metadata: { location: "end_i", component: "axial_normal_stress", basis: "recovered; section_basis=nominal_section" } },
+        { id: "echo", kind: "model_input_echo", value: 3, unit: "Pa", entity_ref: "pipe:P-100" }
+      ]
+    } as unknown as MechanicsResult;
+    const document = setRequiredInputs(buildDraftRulePackDocument(), [
+      { input_id: "solver_input", source_kind: "solver_result", solver_result_ref: { result_kind: "TBD", entity_ref: "TBD" } }
+    ]);
+    render(<Harness initial={document} result={result} />);
+    const offer = screen.getByTestId("rule-pack-input-solver-offer") as HTMLSelectElement;
+    // One selector for both load cases; the basis-less echo row is not offered.
+    const offered = Array.from(offer.options).slice(1);
+    expect(offered.map((option) => option.textContent)).toEqual([
+      "result_kind=element_local_axial_normal_stress; entity_ref=pipe:P-100; location=end_i; component=axial_normal_stress; section_basis=nominal_section (2 load case(s) or combination(s))"
+    ]);
+    fireEvent.change(offer, { target: { value: offered[0].value } });
+    expect(inputsOf(harnessDoc())[0].solver_result_ref).toEqual({
+      result_kind: "element_local_axial_normal_stress",
+      entity_ref: "pipe:P-100",
+      location: "end_i",
+      component: "axial_normal_stress",
+      section_basis: "nominal_section"
     });
   });
 
@@ -704,7 +757,7 @@ describe("DeclarationsEditor component", () => {
         input_id: "legacy",
         source_kind: "user_supplied_rule_value",
         name: "kept",
-        solver_result_ref: { result_id: "result:stress:legacy" }
+        solver_result_ref: { result_kind: "legacy_kind", entity_ref: "pipe:legacy" }
       }
     ]);
     render(<Harness initial={document} />);
@@ -724,3 +777,126 @@ describe("DeclarationsEditor component", () => {
     expect(screen.queryByTestId("rule-pack-input-solver-ref")).toBeNull();
   });
 });
+
+// --- Required load cases, stress categories and mappings (format 0.5.0) ---
+
+function LoadCaseHarness({ initial, model = null }: { initial: DeclarationDocument; model?: PreviewModel | null }) {
+  const [document, setDocument] = useState<DeclarationDocument>(initial);
+  return (
+    <>
+      <LoadCaseCategoriesEditor document={document} onChange={setDocument} disabled={false} model={model} />
+      <pre data-testid="decl-doc">{JSON.stringify(document)}</pre>
+    </>
+  );
+}
+
+const inventedModel = {
+  project: { id: "project:invented" },
+  load_cases: [
+    { id: "load:L-100", label: "Invented sustained case" },
+    { id: "load:L-200", label: "Invented thermal case" }
+  ],
+  combinations: [{ id: "combo:C-1", label: "Invented combination" }]
+} as unknown as PreviewModel;
+
+describe("LoadCaseCategoriesEditor", () => {
+  it("lists the model's load cases and combinations by id and label", () => {
+    expect(modelBasisOptions(inventedModel).map((option) => [option.value, option.label])).toEqual([
+      ["load_case|load:L-100", "Load case load:L-100 — Invented sustained case"],
+      ["load_case|load:L-200", "Load case load:L-200 — Invented thermal case"],
+      ["combination|combo:C-1", "Combination combo:C-1 — Invented combination"]
+    ]);
+    expect(modelBasisOptions(null)).toEqual([]);
+  });
+
+  it("chooses a required load case's basis from the current model and edits its text", () => {
+    render(<LoadCaseHarness initial={buildDraftRulePackDocument()} model={inventedModel} />);
+    const basis = screen.getByTestId("rule-pack-load-case-basis") as HTMLSelectElement;
+    // The draft's empty basis is shown as not in the model, never snapped.
+    expect(basis.value).toBe("load_case|");
+    fireEvent.change(basis, { target: { value: "combination|combo:C-1" } });
+    fireEvent.change(screen.getByTestId("rule-pack-load-case-name"), { target: { value: "My case" } });
+    fireEvent.change(screen.getByTestId("rule-pack-load-case-description"), { target: { value: "My words" } });
+    const item = (harnessDoc().required_load_cases as Array<Record<string, unknown>>)[0];
+    expect(item).toMatchObject({
+      required_load_case_id: "user_required_load_case_1",
+      name: "My case",
+      description: "My words",
+      basis_ref: { ref_type: "combination", ref_id: "combo:C-1" }
+    });
+    // Adding takes the first model basis not yet used.
+    fireEvent.click(screen.getByTestId("rule-pack-load-case-add"));
+    expect((harnessDoc().required_load_cases as Array<Record<string, unknown>>)[1]).toMatchObject({
+      required_load_case_id: "user_required_load_case_2",
+      name: "",
+      basis_ref: { ref_type: "load_case", ref_id: "load:L-100" }
+    });
+  });
+
+  it("types the basis when no model is open", () => {
+    render(<LoadCaseHarness initial={buildDraftRulePackDocument()} />);
+    expect(screen.queryByTestId("rule-pack-load-case-basis")).toBeNull();
+    fireEvent.change(screen.getByTestId("rule-pack-load-case-basis-type"), { target: { value: "combination" } });
+    fireEvent.change(screen.getByTestId("rule-pack-load-case-basis-id"), { target: { value: "combo:typed" } });
+    expect((harnessDoc().required_load_cases as Array<Record<string, unknown>>)[0].basis_ref).toEqual({
+      ref_type: "combination",
+      ref_id: "combo:typed"
+    });
+  });
+
+  it("edits categories with the user's own text and maps their required load cases", () => {
+    render(<LoadCaseHarness initial={buildDraftRulePackDocument()} model={inventedModel} />);
+    fireEvent.change(screen.getByTestId("rule-pack-category-name"), { target: { value: "Invented category" } });
+    fireEvent.change(screen.getByTestId("rule-pack-category-description"), { target: { value: "My description" } });
+    fireEvent.click(screen.getByTestId("rule-pack-load-case-add"));
+    // Tick the second load case into the category's mapping, after the first.
+    fireEvent.click(screen.getByTestId("rule-pack-category-mapping-user_required_load_case_2"));
+    let doc = harnessDoc();
+    expect(doc.stress_categories).toEqual([
+      expect.objectContaining({ category_id: "user_stress_category_1", name: "Invented category", description: "My description" })
+    ]);
+    expect(doc.load_case_mappings).toEqual([
+      {
+        mapping_id: "user_load_case_mapping_1",
+        category_ref: { ref_id: "user_stress_category_1", ref_type: "stress_category" },
+        required_load_case_refs: [
+          { ref_id: "user_required_load_case_1", ref_type: "required_load_case" },
+          { ref_id: "user_required_load_case_2", ref_type: "required_load_case" }
+        ]
+      }
+    ]);
+    // Untick the first; rename the category, which carries its mapping and checks.
+    fireEvent.click(screen.getByTestId("rule-pack-category-mapping-user_required_load_case_1"));
+    fireEvent.change(screen.getByTestId("rule-pack-category-id"), { target: { value: "my_category" } });
+    doc = harnessDoc();
+    expect((doc.load_case_mappings as Array<Record<string, unknown>>)[0]).toMatchObject({
+      category_ref: { ref_id: "my_category", ref_type: "stress_category" },
+      required_load_case_refs: [{ ref_id: "user_required_load_case_2", ref_type: "required_load_case" }]
+    });
+    expect((doc.check_definitions as Array<Record<string, unknown>>)[0].category_ref).toEqual({ ref_id: "my_category", ref_type: "stress_category" });
+  });
+
+  it("adds a category with its own mapping and removes a load case from every mapping", () => {
+    render(<LoadCaseHarness initial={buildDraftRulePackDocument()} />);
+    fireEvent.click(screen.getByTestId("rule-pack-category-add"));
+    let doc = harnessDoc();
+    expect(doc.stress_categories).toHaveLength(2);
+    expect((doc.load_case_mappings as Array<Record<string, unknown>>)[1]).toEqual({
+      mapping_id: "user_load_case_mapping_2",
+      category_ref: { ref_id: "user_stress_category_2", ref_type: "stress_category" },
+      required_load_case_refs: []
+    });
+    fireEvent.click(screen.getByTestId("rule-pack-load-case-add"));
+    fireEvent.click(screen.getAllByTestId("rule-pack-load-case-remove")[0]);
+    doc = harnessDoc();
+    expect(readIds(doc.required_load_cases, "required_load_case_id")).toEqual(["user_required_load_case_2"]);
+    expect((doc.load_case_mappings as Array<Record<string, unknown>>)[0].required_load_case_refs).toEqual([]);
+    // Removing the second category removes its mapping.
+    fireEvent.click(screen.getAllByTestId("rule-pack-category-remove")[1]);
+    expect(harnessDoc().load_case_mappings).toHaveLength(1);
+  });
+});
+
+function readIds(items: unknown, key: string): string[] {
+  return (items as Array<Record<string, unknown>>).map((item) => item[key] as string);
+}

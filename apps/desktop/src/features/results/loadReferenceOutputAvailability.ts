@@ -11,8 +11,8 @@
  * gated route carries, or null. Its remaining product caller is the rendered report,
  * which every gated route refuses. The surfaces behind `LoadReferenceOutputGate` read
  * their own per-surface decision (`surfaceRouteRefusal`), and the Result Export and
- * Stress-Neutral Export panels read theirs (`surfaceOutputRefusal`). The report package
- * keeps T0R's own fresh-result refusal (REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE). The
+ * Stress-Neutral Export panels read theirs (`surfaceOutputRefusal`), as does the report
+ * package (its `report-package` cell, `reportPackageUnavailableReason`). The
  * statement is about the desktop route only: the result stays readable, and nothing
  * here is a finding about the result or its evidence. Text only; it never changes
  * standing, rows or bytes.

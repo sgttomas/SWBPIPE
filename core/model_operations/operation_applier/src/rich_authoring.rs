@@ -1053,6 +1053,9 @@ mod tests {
 const GENERATED_V1: &str = "pipe_mass_per_length_times_explicit_axis_acceleration/v1";
 const GENERATED_V2: &str = "pipe_mass_per_length_times_explicit_axis_acceleration/v2";
 const MANUAL_WEIGHT: &str = "manual_override_of_generated_self_weight/v1";
+/// W-15 slice b: a component's weight as nodal wrench primitives
+/// (`self_weight::COMPONENT_WEIGHT_METHOD`).
+const COMPONENT_WEIGHT: &str = open_pipe_stress_product_physics::self_weight::COMPONENT_WEIGHT_METHOD;
 const GENERATED_BODY: &[&str] = &["id", "category", "target", "direction", "magnitude", "dimension"];
 fn generation_record(load: &Value) -> Result<Value> {
     serde_json::from_str(text(load.get("provenance"), "provenance")?)
@@ -1093,21 +1096,62 @@ fn generated_self_weight(model: &Value, target: &str, before: &str, after: &str,
         if crate::canonical_json(old) == crate::canonical_json(new) { continue; }
         changed = true;
         let prior = generation_record(old)?;
-        if !matches!(prior.get("method").and_then(Value::as_str), Some(GENERATED_V1 | GENERATED_V2)) {
+        let component = prior.get("method").and_then(Value::as_str) == Some(COMPONENT_WEIGHT);
+        if !component && !matches!(prior.get("method").and_then(Value::as_str), Some(GENERATED_V1 | GENERATED_V2)) {
             return Err(err("Only recognized generated records may be reconciled"));
         }
-        validate_generation_record(&prior)?;
         let record = generation_record(new)?;
-        if new["category"] != "distributed_force" || new["dimension"] != "force_per_length" {
-            return Err(err("Generated self-weight must remain a distributed force"));
+        if component {
+            // W-15 slice b: a nodal wrench primitive keeps its category,
+            // dimension, node and direction; the product's inspection below
+            // recomputes its value from the retained and current inputs.
+            validate_component_record(&prior)?;
+            let moment = match (new["category"].as_str(), new["dimension"].as_str()) {
+                (Some("weight"), Some("force")) => false,
+                (Some("weight"), Some("moment")) => true,
+                _ => return Err(err("Generated component weight must remain a nodal weight force or moment")),
+            };
+            if new.pointer("/target/type").and_then(Value::as_str) != Some("node") { return Err(err("Generated component weight target must be a node")); }
+            let directions: &[&str] = if moment { &["rotation_x", "rotation_y", "rotation_z"] } else { &["global_x", "global_y", "global_z"] };
+            enum_text(new.get("direction"), "direction", directions)?;
+            quantity(&new["magnitude"], if moment { Dimension::Moment } else { Dimension::Force }, false)?;
+            entity(model, "nodes", text(new.pointer("/target/node"), "target.node")?)?;
+        } else {
+            validate_generation_record(&prior)?;
+            if new["category"] != "distributed_force" || new["dimension"] != "force_per_length" {
+                return Err(err("Generated self-weight must remain a distributed force"));
+            }
+            if new.pointer("/target/type").and_then(Value::as_str) != Some("element") { return Err(err("Generated target must be an element")); }
+            enum_text(new.get("direction"), "direction", &["global_x", "global_y", "global_z"])?;
+            quantity(&new["magnitude"], Dimension::ForcePerLength, false)?;
+            entity(model, "pipe_segments", text(new.pointer("/target/pipe"), "target.pipe")?)?;
         }
-        if new.pointer("/target/type").and_then(Value::as_str) != Some("element") { return Err(err("Generated target must be an element")); }
-        enum_text(new.get("direction"), "direction", &["global_x", "global_y", "global_z"])?;
-        quantity(&new["magnitude"], Dimension::ForcePerLength, false)?;
-        entity(model, "pipe_segments", text(new.pointer("/target/pipe"), "target.pipe")?)?;
         let before_state = before_states.iter().find(|status| status.case_id == target && status.primitive_index == index)
             .map(|status| status.state).ok_or_else(|| err("Generated record has no source inspection state"))?;
         match record.get("method").and_then(Value::as_str) {
+            Some(COMPONENT_WEIGHT) if component => {
+                if !matches!(before_state, AppliedSelfWeightState::Fresh | AppliedSelfWeightState::Stale) {
+                    return Err(err("Managed refresh requires an unmodified valid generated source record"));
+                }
+                required_after.push((index, AppliedSelfWeightState::Fresh));
+                validate_component_record(&record)?;
+                for key in ["component_id", "component_node", "omitted_pipe_id", "wrench_part", "wrench_axis", "request_provenance"] {
+                    if record.get(key) != prior.get(key) {
+                        return Err(err(format!("Managed refresh must preserve the generated record's {key}")));
+                    }
+                }
+                if crate::canonical_json(&record["gravity"]) != crate::canonical_json(&prior["gravity"])
+                    || crate::canonical_json(&record["normalized_acceleration_m_per_s2"]) != crate::canonical_json(&prior["normalized_acceleration_m_per_s2"]) {
+                    return Err(err("Managed refresh must preserve the original explicit gravity and normalized acceleration"));
+                }
+                if crate::canonical_json(&without(old, &["magnitude", "provenance"])?) != crate::canonical_json(&without(new, &["magnitude", "provenance"])?)
+                    || old.pointer("/magnitude/unit") != new.pointer("/magnitude/unit") {
+                    return Err(err("Refresh may change only magnitude value and generated provenance"));
+                }
+                if record.get("generated_payload").map(crate::canonical_json) != Some(crate::canonical_json(&projection(new, GENERATED_BODY))) {
+                    return Err(err("Refreshed provenance must bind the generated payload and dependency projection"));
+                }
+            }
             Some(GENERATED_V2) => {
                 if !matches!(before_state, AppliedSelfWeightState::Fresh | AppliedSelfWeightState::Stale) {
                     return Err(err("Managed refresh requires an unmodified valid generated source record"));
@@ -1163,7 +1207,8 @@ fn generated_self_weight(model: &Value, target: &str, before: &str, after: &str,
         // transport may parse an integral float as an integer, without a change
         // to its exact JSON numeric payload. Only permitted changed fields cross
         // this boundary; there is no numerical tolerance or approximate match.
-        if record["method"] == GENERATED_V2 && crate::canonical_json(&old["magnitude"]["value"]) != crate::canonical_json(&new["magnitude"]["value"]) {
+        if (record["method"] == GENERATED_V2 || record["method"] == COMPONENT_WEIGHT)
+            && crate::canonical_json(&old["magnitude"]["value"]) != crate::canonical_json(&new["magnitude"]["value"]) {
             preserved[index]["magnitude"]["value"] = new["magnitude"]["value"].clone();
         }
         preserved[index]["provenance"] = new["provenance"].clone();
@@ -1187,6 +1232,32 @@ fn generated_self_weight(model: &Value, target: &str, before: &str, after: &str,
         }
     }
     Ok(RichEdit { writes: vec![(vec!["primitive_loads".into()], Some(Value::Array(preserved)))], current_display, warnings: vec![] })
+}
+
+/// W-15 slice b: the shape of a component-weight record. Its values are
+/// checked by the product's inspection (`inspect_applied_self_weight`), which
+/// recomputes the wrench; this only refuses a record that is not one.
+fn validate_component_record(record: &Value) -> Result<()> {
+    for key in ["component_id", "component_node", "omitted_pipe_id", "request_provenance"] {
+        text(record.get(key), key)?;
+    }
+    let gravity = record.get("gravity").ok_or_else(|| err("Missing gravity"))?;
+    object(gravity, &["value", "unit", "axis"])?;
+    enum_text(gravity.get("axis"), "gravity.axis", &["global_x", "global_y", "global_z"])?;
+    enum_text(record.get("wrench_part"), "wrench_part", &["force", "moment"])?;
+    enum_text(record.get("wrench_axis"), "wrench_axis", &["x", "y", "z"])?;
+    let weight = record.get("weight_N").and_then(Value::as_f64).filter(|w| w.is_finite() && *w > 0.0);
+    if weight.is_none() { return Err(err("Missing finite positive weight_N")); }
+    let payload = object(record.get("generated_payload").ok_or_else(|| err("Missing generated payload"))?, GENERATED_BODY)?;
+    if GENERATED_BODY.iter().any(|key| !payload.contains_key(*key)) { return Err(err("Incomplete generated payload")); }
+    let source = text(record.get("source_model_hash"), "source_model_hash")?;
+    if !source.strip_prefix("sha256:").is_some_and(|s| s.len() == 64 && s.bytes().all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))) {
+        return Err(err("Malformed generated source hash"));
+    }
+    if !record.get("normalized_dependencies").is_some_and(Value::is_object) {
+        return Err(err("Missing normalized dependencies"));
+    }
+    Ok(())
 }
 
 fn validate_generation_record(record: &Value) -> Result<()> {

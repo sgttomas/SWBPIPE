@@ -1,5 +1,5 @@
 import { LoadReferenceDisclosure } from "../results/loadReferenceDisclosure";
-import { QuantityReadout, useDisplayQuantity } from "../display-units";
+import { QuantityReadout } from "../display-units";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ListChecks, Play, ShieldAlert } from "lucide-react";
 import type { MechanicsResult, PreviewModel } from "../../types";
@@ -11,20 +11,25 @@ import {
   type RulePackDocument
 } from "../../services/rulePackService";
 import {
-  classifySolverResultReference,
   deriveRuleCheckBindingPlan,
+  describeSolverSelector,
   loadDemoRuleCheckPack,
+  resolveSolverSelector,
+  solverInputBases,
   runRuleChecks,
   ruleBindingPrecheck,
+  ruleCheckOutcomeIdentity,
+  ruleCheckOutcomeTestId,
   type LibraryInputRequirement,
   type LibraryValueRef,
+  type RuleCheckBasisRef,
   type RuleCheckBindingPlan,
+  type RuleCheckOutcome,
   type RuleCheckRunResult,
   type RuleCheckStatus,
   type SolverInputRequirement,
-  type SolverResultReferenceResolution,
-  type SolverResultRef,
-  type SolverResultSelector,
+  type SolverSelectorBasisStatus,
+  type SolverSelectorResolution,
   type SuppliedValueBinding
 } from "../../services/ruleCheckService";
 import {
@@ -178,8 +183,11 @@ function UnitBindingControl({
 }
 
 function ruleCheckUnitBindingPolicySummary(plan: RuleCheckBindingPlan, route: UnitCatalogRoute | null): string {
-  const authoredSolverResultRefCount = plan.solverInputs.filter((input) => input.solver_result_ref).length;
-  const solverSelectorCount = plan.solverInputs.length - authoredSolverResultRefCount;
+  // Format 0.5.0 (DEL-06-01 Design `rule-pack-0.5.0.md` §2.5): each solver
+  // input binds through its pack's own selector; an input without one is
+  // refused by validation (RULE_SOLVER_RESULT_REF_MISSING).
+  const solverSelectorCount = plan.solverInputs.filter((input) => input.solver_result_ref).length;
+  const missingSelectorCount = plan.solverInputs.length - solverSelectorCount;
   const libraryRefCount = plan.libraryInputs.filter((input) => input.library_value_ref).length;
   const hasRuntimeUnitBindings = plan.valueInputs.length > 0 || plan.valueSlots.length > 0;
   const catalogRoute = !hasRuntimeUnitBindings
@@ -193,7 +201,8 @@ function ruleCheckUnitBindingPolicySummary(plan: RuleCheckBindingPlan, route: Un
     `value_inputs=${plan.valueInputs.length}`,
     `value_slots=${plan.valueSlots.length}`,
     `solver_selectors=${solverSelectorCount}`,
-    `solver_result_refs=${authoredSolverResultRefCount}`,
+    `solver_selectors_missing=${missingSelectorCount}`,
+    `required_load_cases=${plan.requiredLoadCases.length}`,
     `private_library_refs=${libraryRefCount}`,
     `catalog=${catalogRoute}`,
     "conversion=false"
@@ -292,59 +301,65 @@ function renderLibraryPreview(inputId: string, ref: LibraryValueRef, preview: Li
   );
 }
 
-// --- Solver-result reference resolution preview (Phase C4,
-// TP-C4-SOLVERREFPICKER-001) -----------------------------------------------
-// A solver_result input may carry an authored solver_result_ref (DEC-039). That
-// in-pack reference is canonical and supersedes the run-panel selector. This
-// preview is read-only: it checks the current solved envelope for the target
-// result row and lists available row ids for discovery; it never mutates the
-// pack or invents a fallback binding.
-const SOLVER_RESULT_RESOLUTION_LABEL: Record<SolverResultReferenceResolution, string> = {
-  resolves: "resolves in the current solved result envelope",
-  result_missing: "does not match a row in the current solved result envelope",
-  no_result_rows: "cannot be checked because no solved result rows are available"
+// --- Solver-row selector preview (format 0.5.0; DEL-06-01 Design
+// `rule-pack-0.5.0.md` §2.5) -----------------------------------------------
+// A solver_result input binds through its pack's own selector, on each of the
+// pack's required load cases; it is the one binding route. This preview is
+// read-only: it shows which row of the current solved result the selector names
+// on each basis; it never mutates the pack or invents a binding.
+const SOLVER_BASIS_STATUS_LABEL: Record<SolverSelectorBasisStatus, string> = {
+  resolves: "one row matches",
+  row_missing: "no row matches (RULE_SOLVER_RESULT_ROW_MISSING at run)",
+  row_ambiguous: "more than one row matches (RULE_SOLVER_RESULT_ROW_AMBIGUOUS at run)",
+  basis_unsolved: "the solved result publishes no row on this basis"
 };
 
-type SolverPreviewState = { status: SolverResultReferenceResolution };
+/** "load_case load:L-100" plus the model's label when the model defines it. */
+function basisText(basis: RuleCheckBasisRef, model: PreviewModel | null): string {
+  const entries = basis.ref_type === "load_case" ? model?.load_cases : model?.combinations;
+  const label = entries?.find((entry) => entry.id === basis.ref_id)?.label;
+  return `${basis.ref_type} ${basis.ref_id}${label ? ` (${label})` : ""}`;
+}
 
 function renderSolverPreview(
   inputId: string,
-  ref: SolverResultRef,
-  preview: SolverPreviewState,
-  resultRows: MechanicsResult["results"]
+  preview: SolverSelectorResolution,
+  model: PreviewModel | null
 ) {
   return (
     <div className="report-list" data-testid={`rule-check-solver-browse-${inputId}`}>
       <small data-testid={`rule-check-solver-resolution-${inputId}`} data-status={preview.status}>
-        Reference {SOLVER_RESULT_RESOLUTION_LABEL[preview.status]}.{" "}
-        {preview.status === "resolves"
-          ? "The result row is read from the current solve at run time; the run-panel selector is not used for this input."
-          : "The check blocks at RULE_INPUTS_INCOMPLETE until the authored result_id points at a row in the current solve, or the reference is removed in the rule-pack editor to return to manual binding."}
+        {preview.status === "no_result_rows"
+          ? "Run a solve first so the selector can be checked against result rows."
+          : preview.status === "resolves"
+            ? "The selector names one row of the current solve on every load case of the checks that use this input."
+            : preview.bases.length === 0
+              ? "No check of this pack uses this input, so the run binds it on no load case."
+              : "On at least one load case of the checks that use this input the selector names no row or more than one; those checks are RULE_INPUTS_INCOMPLETE there. Edit the selector in the Rule-Pack Manager."}
       </small>
-      <small>
-        {resultRows.length > 0
-          ? `Available result rows in the current solve: ${resultRows.length}.`
-          : "Run a solve first so authored solver-result references can be checked against result rows."}
-      </small>
-      {resultRows.length > 0 ? (
-        <div className="report-list">
-          {resultRows.slice(0, 12).map((row) => {
-            const isReferenced = row.id === ref.result_id;
-            return (
-              <div className="report-line" key={row.id}>
-                <span>
-                  {row.id}
-                  {isReferenced ? " (referenced)" : ""}
-                </span>
-                <small>
-                  {row.kind}: <QuantityReadout quantity={{ value: row.value, unit: row.unit, dimension_id: row.dimension ?? "unknown" }} />
-                </small>
-              </div>
-            );
-          })}
-          {resultRows.length > 12 ? <small>{resultRows.length - 12} more result row(s) not shown.</small> : null}
-        </div>
-      ) : null}
+      {preview.status !== "no_result_rows"
+        ? preview.bases.map((entry) => (
+            <div
+              className="report-line"
+              key={`${entry.basis_ref.ref_type}:${entry.basis_ref.ref_id}`}
+              data-testid={`rule-check-solver-basis-${inputId}--${entry.basis_ref.ref_type}--${entry.basis_ref.ref_id}`}
+              data-status={entry.status}
+            >
+              <span>
+                {entry.name || entry.required_load_case_id}: {basisText(entry.basis_ref, model)}
+              </span>
+              <small>
+                {SOLVER_BASIS_STATUS_LABEL[entry.status]}
+                {entry.rows.map((row) => (
+                  <span key={row.id}>
+                    {"; "}
+                    {row.id}: <QuantityReadout quantity={{ value: row.value, unit: row.unit, dimension_id: row.dimension ?? "unknown" }} />
+                  </span>
+                ))}
+              </small>
+            </div>
+          ))
+        : null}
     </div>
   );
 }
@@ -388,11 +403,10 @@ export function RuleCheckRunPanel({
   const [actionStatus, setActionStatus] = useState("No rule-check run in this session.");
   const [listStatus, setListStatus] = useState("Saved rule-pack list not refreshed yet.");
   const [entries, setEntries] = useState<LocalRulePackIndexEntry[]>([]);
-  const [solverSelections, setSolverSelections] = useState<Record<string, string>>({});
   const [valueBindings, setValueBindings] = useState<Record<string, { value: string; unit: string }>>({});
   const [runPresentation, setRunPresentation] = useState<RunPresentation | null>(null);
   const [libraryPreviews, setLibraryPreviews] = useState<Record<string, LibraryPreviewState>>({});
-  const [solverPreviews, setSolverPreviews] = useState<Record<string, SolverPreviewState>>({});
+  const [solverPreviews, setSolverPreviews] = useState<Record<string, SolverSelectorResolution>>({});
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   const [inFlight, setInFlight] = useState(false);
   const runResult = runPresentation?.basisKey === basisKey ? runPresentation.result : null;
@@ -469,7 +483,6 @@ export function RuleCheckRunPanel({
     runRequestGenerationRef.current += 1;
     runBusyGenerationRef.current = null;
     setPackText(text);
-    setSolverSelections({});
     setValueBindings({});
     setRunPresentation(null);
     setLibraryPreviews({});
@@ -557,11 +570,12 @@ export function RuleCheckRunPanel({
   }
 
   function handlePreviewSolver(input: SolverInputRequirement) {
-    const ref = input.solver_result_ref;
-    if (!ref) return;
+    const selector = input.solver_result_ref;
+    if (!selector || !plan) return;
     setSolverPreviews((current) => ({
       ...current,
-      [input.input_id]: { status: classifySolverResultReference(resultRows, ref.result_id) }
+      // The input's own bases (the checks that use it), as the run binds it.
+      [input.input_id]: resolveSolverSelector(result, selector, solverInputBases(plan, input.input_id))
     }));
   }
 
@@ -632,13 +646,6 @@ export function RuleCheckRunPanel({
     }
   }
 
-  function buildSolverBindings(currentPlan: RuleCheckBindingPlan): SolverResultSelector[] {
-    return currentPlan.solverInputs
-      .filter((input) => !input.solver_result_ref)
-      .map((input) => ({ input_id: input.input_id, result_id: solverSelections[input.input_id] ?? "" }))
-      .filter((selector) => selector.result_id.length > 0);
-  }
-
   function buildSuppliedBindings(currentPlan: RuleCheckBindingPlan): SuppliedValueBinding[] {
     const bindings: SuppliedValueBinding[] = [];
     const collect = (refId: string, dimension: string, unitFallback: string) => {
@@ -675,7 +682,6 @@ export function RuleCheckRunPanel({
         rulePackDocument: parsed.document,
         model,
         solvedEnvelope: result,
-        solverResultBindings: buildSolverBindings(plan),
         suppliedValueBindings: buildSuppliedBindings(plan),
         projectId
       });
@@ -711,7 +717,7 @@ export function RuleCheckRunPanel({
     }
   }
 
-  const bindingPrecheck = plan ? ruleBindingPrecheck(result, plan, buildSolverBindings(plan)) : [];
+  const bindingPrecheck = plan ? ruleBindingPrecheck(result, plan) : [];
   const runDisabled = !parsed?.ok || inFlight;
   const runDisabledReason = !parsed?.ok ? NO_PACK_REASON : inFlight ? BUSY_REASON : undefined;
 
@@ -733,7 +739,7 @@ export function RuleCheckRunPanel({
         </small>
         {bindingPrecheck.length > 0 ? (
           <small data-testid="rule-check-binding-precheck" role="status">
-            {bindingPrecheck.map((finding) => `${finding.input_id} -> ${finding.result_id}: ${finding.reason}. ${finding.notice}`).join(" ")}
+            {bindingPrecheck.map((finding) => `${finding.input_id} on ${finding.basis_ref.ref_type} ${finding.basis_ref.ref_id} -> ${finding.result_id}: ${finding.reason}. ${finding.notice}`).join(" ")}
           </small>
         ) : null}
       </div>
@@ -826,24 +832,39 @@ export function RuleCheckRunPanel({
             {ruleCheckUnitBindingPolicySummary(plan, unitCatalogRoute)}
           </small>
 
+          {plan.checks.length > 0 ? (
+            <div className="report-list" data-testid="rule-check-plan-checks">
+              {plan.checks.map((check, index) => (
+                <small key={`${check.check_id}:${index}`} data-testid={`rule-check-plan-check-${check.check_id}`}>
+                  {check.check_id}: category {categoryText(check.category_ref, plan)}; evaluated on{" "}
+                  {check.bases.length > 0
+                    ? check.bases
+                        .map((loadCase) => `${loadCase.name || loadCase.required_load_case_id} (${loadCase.basis_ref ? basisText(loadCase.basis_ref, model) : "no basis"})`)
+                        .join(", ")
+                    : "no load case (validation refuses this pack)"}
+                </small>
+              ))}
+            </div>
+          ) : null}
+
           {plan.solverInputs.map((input) => {
-            const ref = input.solver_result_ref;
+            const selector = input.solver_result_ref;
             const preview = solverPreviews[input.input_id];
-            if (ref) {
-              return (
-                <div
-                  className="report-list"
-                  key={`solver:${input.input_id}`}
-                  data-testid={`rule-check-solver-input-${input.input_id}`}
-                >
-                  <span>
-                    {input.name} <small>(solver_result; {input.dimension})</small>
-                  </span>
-                  <small>
-                    Authored solver_result_ref result_id={ref.result_id} resolves from the current solved
-                    result envelope at run time. This canonical in-pack reference supersedes the
-                    run-panel selector; remove it in the rule-pack editor to return to manual binding.
-                  </small>
+            return (
+              <div
+                className="report-list"
+                key={`solver:${input.input_id}`}
+                data-testid={`rule-check-solver-input-${input.input_id}`}
+              >
+                <span>
+                  {input.name} <small>(solver_result; {input.dimension})</small>
+                </span>
+                <small data-testid={`rule-check-solver-selector-${input.input_id}`}>
+                  {selector
+                    ? `Bound by the pack's selector (${describeSolverSelector(selector)}) on each load case of the checks that use it, from the current solved result at run time.`
+                    : "This input has no usable solver_result_ref selector, so validation refuses the pack (RULE_SOLVER_RESULT_REF_MISSING). Author the selector in the Rule-Pack Manager."}
+                </small>
+                {selector ? (
                   <div className="report-actions">
                     <button
                       type="button"
@@ -852,36 +873,15 @@ export function RuleCheckRunPanel({
                       title={
                         inFlight
                           ? BUSY_REASON
-                          : "Check whether the authored result_id exists in the current solved result envelope. Read-only: this never changes the rule pack."
+                          : "Show which row of the current solved result the selector names on each load case of the checks that use this input. Read-only: this never changes the rule pack."
                       }
                       onClick={() => handlePreviewSolver(input)}
                     >
-                      Preview result row
+                      Preview selected rows
                     </button>
                   </div>
-                  {preview ? renderSolverPreview(input.input_id, ref, preview, resultRows) : null}
-                </div>
-              );
-            }
-            return (
-              <div className="report-line" key={`solver:${input.input_id}`}>
-                <span>
-                  {input.name} <small>(solver_result; {input.dimension})</small>
-                </span>
-                <select
-                  data-testid={`rule-check-solver-select-${input.input_id}`}
-                  value={solverSelections[input.input_id] ?? ""}
-                  disabled={inFlight || resultRows.length === 0}
-                  title={resultRows.length === 0 ? NO_SOLVE_REASON : undefined}
-                  onChange={(event) =>
-                    setSolverSelections((current) => ({ ...current, [input.input_id]: event.target.value }))
-                  }
-                >
-                  <option value="">-- pick a solved result row --</option>
-                  {resultRows.map((row) => (
-                    <ResultQuantityOption row={row} key={row.id} />
-                  ))}
-                </select>
+                ) : null}
+                {selector && preview ? renderSolverPreview(input.input_id, preview, model) : null}
               </div>
             );
           })}
@@ -1026,19 +1026,35 @@ export function RuleCheckRunPanel({
             <span>Aggregate status</span>
             <strong>{ruleCheckHeadline(runResult)}</strong>
           </div>
+          <small data-testid="rule-check-count-scope-note">{RULE_CHECK_COUNT_SCOPE_NOTE}</small>
+          {runResult.rule_pack_validation ? (
+            <div className="report-list" data-testid="rule-check-run-refusal">
+              <small>The rule pack was refused before any check ran:</small>
+              {[...runResult.rule_pack_validation.document_findings, ...runResult.rule_pack_validation.lifecycle_findings]
+                .filter((finding) => finding.blocking)
+                .map((finding, index) => (
+                  <p key={`${finding.code}:${finding.subject}:${index}`}>
+                    {finding.code} ({finding.subject}): {finding.message}
+                  </p>
+                ))}
+            </div>
+          ) : null}
           <div className="operation-record-list" data-testid="rule-check-outcomes">
             {runResult.checks.map((check) => {
               const findings = [...check.completeness_findings, ...check.evaluator_findings];
+              const testId = ruleCheckOutcomeTestId(check);
               return (
                 <article
                   className="operation-record"
-                  data-testid={`rule-check-outcome-${check.check_id}`}
+                  data-testid={testId}
+                  data-outcome-identity={ruleCheckOutcomeIdentity(check)}
                   data-status={check.status}
-                  key={check.check_id}
+                  key={ruleCheckOutcomeIdentity(check)}
                 >
                   <strong>
                     {check.check_id}: {aggregateLabel(check.status)}
                   </strong>
+                  <small data-testid={`${testId}-basis`}>{outcomeBasisText(check, plan, model)}</small>
                   <small>
                     relation={check.acceptability_relation}
                     {check.computed_value
@@ -1119,7 +1135,24 @@ function aggregateLabel(status: string): string {
   }
 }
 
-function ResultQuantityOption({ row }: { row: { id: string; kind: string; value: number; unit: string; dimension?: string } }) {
-  const display = useDisplayQuantity({ value: row.value, unit: row.unit, dimension_id: row.dimension ?? "unknown" });
-  return <option value={row.id}>{row.kind}: {row.id} ({display.value} {display.unit}{display.notice ? `; ${display.notice}` : ""})</option>;
+// Design §2.7: the counts count outcomes, one per check and basis.
+export const RULE_CHECK_COUNT_SCOPE_NOTE =
+  "Counts are per check and load case or combination; one check can contribute more than once.";
+
+function categoryText(categoryRef: string | undefined, plan: RuleCheckBindingPlan | null): string {
+  if (!categoryRef) return "(none)";
+  const name = plan?.stressCategories.find((category) => category.category_id === categoryRef)?.name;
+  return name ? `${name} (${categoryRef})` : categoryRef;
+}
+
+/** Each outcome's category and load case or combination (design §2.7). */
+function outcomeBasisText(outcome: RuleCheckOutcome, plan: RuleCheckBindingPlan | null, model: PreviewModel | null): string {
+  const basis = outcome.basis_ref;
+  const loadCase = basis
+    ? plan?.requiredLoadCases.find((entry) => entry.basis_ref?.ref_type === basis.ref_type && entry.basis_ref.ref_id === basis.ref_id)
+    : undefined;
+  const basisPart = basis
+    ? `${loadCase?.name ? `${loadCase.name}: ` : ""}${basisText(basis, model)}`
+    : "none (the pack gives this check no load case)";
+  return `category=${categoryText(outcome.category_ref, plan)}; load case or combination=${basisPart}`;
 }

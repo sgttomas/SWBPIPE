@@ -56,6 +56,7 @@ import { BuildReadinessPanel } from "./features/build-readiness/BuildReadinessPa
 import { CaepipeExternalHarnessPanel } from "./features/caepipe-external/CaepipeExternalHarnessPanel";
 import { CaepipeMbfExportPanel } from "./features/caepipe-mbf/CaepipeMbfExportPanel";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
+import { ComparisonPackageNotice } from "./features/comparison/ComparisonPackageNotice";
 import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel";
 import { DesignWorkspacePanel } from "./features/design-workspace/DesignWorkspacePanel";
 import { DiffPreviewPanel } from "./features/diff-preview/DiffPreviewPanel";
@@ -200,6 +201,12 @@ function AppSession() {
     ruleCheckRunBasis,
     dormantOutputBasis,
     comparison,
+    comparisonUnavailable,
+    packagedWithinRun,
+    withinRun,
+    droppedWithinRunBases,
+    withinRunDisabledReason,
+    handleSelectWithinRunBases,
     proposal,
     selectedReviewTarget,
     solveJob,
@@ -219,6 +226,10 @@ function AppSession() {
     handleSelectDiagnostic,
     handleSaveReportPackage
   } = session.results;
+  // Save Report Package… (DEL-08-01 Design `report-package-current-results.md` §2.1):
+  // enablement is synchronous, the output policy's route gate plus the presence
+  // checks below. The builder's own refusals (admission, rule-check binding, rule
+  // packs) are shown in the report panel's status line after an attempt.
   const reportPackageUnavailable = reportPackageUnavailableReason(currentSolvedResult);
   // The viewport's result overlays read the same standing and numerical health view as the results panel.
   const viewportResultStanding = useMemo(() => ({ eligible: numericallyEligible, health: numericalHealth }), [numericallyEligible, numericalHealth]);
@@ -444,15 +455,17 @@ function AppSession() {
               onSelect={handleSelectEntity}
               onFocusChange={(key) => commitSelectionState(setSelectionFocus(orderedSelectionRef.current, key))}
               onFilterPublication={handleTreePublication}
-            />
-            <LinesSection
-              key={`lines:${projectSessionGeneration}`}
-              model={model}
-              selection={selection}
-              selectionState={orderedSelection}
-              queuedIntents={editorIntents}
-              onQueueIntent={handleQueueEditorIntent}
-              operationBusy={operationBusy}
+              treeRecords={
+                <LinesSection
+                  key={`lines:${projectSessionGeneration}`}
+                  model={model}
+                  selection={selection}
+                  selectionState={orderedSelection}
+                  queuedIntents={editorIntents}
+                  onQueueIntent={handleQueueEditorIntent}
+                  operationBusy={operationBusy}
+                />
+              }
             />
             </div>
           <div className={shell.tab === "model-tree" ? "workspace-dock-body shell-stage-sections inactive" : "workspace-dock-body shell-stage-sections"}>
@@ -676,13 +689,19 @@ function AppSession() {
                   setIssuesDrawerOpen(true);
                 }}
               />}
-              <ComparisonPanel comparison={comparison} result={currentSolvedResult} onSelectResult={handleSelectResult} />
+              <ComparisonPanel
+                comparison={withinRun.status === "ready" ? withinRun.comparison : null}
+                result={currentSolvedResult}
+                onSelectResult={handleSelectResult}
+                withinRun={{ view: withinRun, disabledReason: withinRunDisabledReason, onSelect: handleSelectWithinRunBases, packaged: packagedWithinRun, dropped: droppedWithinRunBases }}
+              />
               <DesignWorkspacePanel
                 model={model}
                 knowledge={knowledge}
                 result={currentSolvedResult}
                 analysisRun={analysisRun}
                 comparison={comparison}
+                comparisonUnavailable={comparisonUnavailable}
                 editorIntents={editorIntents}
                 proposal={proposal}
                 selectedReviewTarget={selectedReviewTarget}
@@ -724,6 +743,7 @@ function AppSession() {
               {activeSection === "report" || activatedExpensiveSections.has("report") ? (
               <DormantSection active={activeSection === "report"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`report:${dormantOutputBasis}`}>
+              <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="report-comparison-package-notice" />
               <RenderedReportPanel
                 model={model}
                 result={currentSolvedResult}
@@ -747,6 +767,7 @@ function AppSession() {
                 numericalHealth={currentSolvedResult ? numericalHealth : null}
                 analysisRun={analysisRun}
                 comparison={comparison}
+                comparisonUnavailable={comparisonUnavailable}
                 editorIntents={editorIntents}
                 projectOperation={projectOperation}
                 projectSummary={projectSummary}
@@ -943,7 +964,7 @@ function AppSession() {
             >
               {activeSection === "rule-packs" || activatedExpensiveSections.has("rule-packs") ? (
               <DormantSection active={activeSection === "rule-packs"} sessionGeneration={projectSessionGeneration}>
-              <RulePackManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent}
+              <RulePackManagerPanel model={model} result={currentSolvedResult} onR3JourneyEvent={recordR3JourneyEvent}
                 queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
               </DormantSection>) : null}
             </section>
@@ -1054,12 +1075,14 @@ function AppSession() {
                 selectedReviewTarget={selectedReviewTarget}
                 storageCapability={storageCapability}
               />
+              <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="handoff-comparison-package-notice" />
               <HandoffPanel
                 model={model}
                 knowledge={knowledge}
                 result={currentSolvedResult}
                 analysisRun={analysisRun}
                 comparison={comparison}
+                comparisonUnavailable={comparisonUnavailable}
                 editorIntents={editorIntents}
                 proposal={proposal}
                 selectedReviewTarget={selectedReviewTarget}
@@ -1070,6 +1093,7 @@ function AppSession() {
                 result={currentSolvedResult}
                 analysisRun={analysisRun}
                 comparison={comparison}
+                comparisonUnavailable={comparisonUnavailable}
                 editorIntents={editorIntents}
                 projectOperation={projectOperation}
                 projectSummary={projectSummary}

@@ -18,6 +18,8 @@ from pathlib import Path
 import sys
 from typing import Any
 
+from . import component_body
+
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
 PROFILE = "product_preview_mechanics_v1"
 ROOT = Path(__file__).resolve().parents[2]
@@ -197,9 +199,11 @@ def _cases(evidence: Mapping[str, Any], *, withheld_multiset: bool = False) -> d
         cases[cid] = case
         _require(isinstance(case["pipe_stress_extrema"], list) and isinstance(case["intensified_measures"], list), "preview case lists")
         coverage = case["stress_maximum_coverage"]
-        _shape(coverage, {"complete", "unavailable_pipe_ids", "outside_domain_pipe_ids"}, "maximum coverage shape")
+        _shape(component_body.coverage_without_bodies(coverage), {"complete", "unavailable_pipe_ids", "outside_domain_pipe_ids"}, "maximum coverage shape")
         _require(type(coverage["complete"]) is bool and _strings(coverage["unavailable_pipe_ids"]) and _strings(coverage["outside_domain_pipe_ids"]), "maximum coverage values")
         _require(not set(coverage["unavailable_pipe_ids"]) & set(coverage["outside_domain_pipe_ids"]), "maximum coverage overlap")
+        # W-15 slice d: the optional body list is a nonempty list of distinct member ids (the raw reader binds it to rows).
+        _require(component_body.COVERAGE_KEY not in coverage or (_strings(coverage[component_body.COVERAGE_KEY]) and bool(coverage[component_body.COVERAGE_KEY])), "maximum coverage bodies")
         # T4-U4b (§2.1, review item 6): arcs publish their maximum; no member is outside its domain.
         _require(not coverage["outside_domain_pipe_ids"], "maximum coverage outside the domain")
         _require(coverage["complete"] == (not coverage["unavailable_pipe_ids"] and not coverage["outside_domain_pipe_ids"]), "maximum coverage completeness")
@@ -212,7 +216,8 @@ def _cases(evidence: Mapping[str, Any], *, withheld_multiset: bool = False) -> d
         # A3 2: a support is attributed or withheld, never both.
         _require(not set(attribution["attributed_support_ids"]) & {record["support_id"] for record in attribution["withheld"]}, "support both attributed and withheld")
         for extremum in case["pipe_stress_extrema"]:
-            _shape(extremum, EXTREMA_KEYS, "extrema shape")
+            _shape(component_body.extremum_without_record(extremum), EXTREMA_KEYS, "extrema shape")
+            _require(component_body.RECORD not in extremum or component_body.record_shape(extremum[component_body.RECORD]), "extrema body record")
             # T4-U4b (§2.3): the straight tokens or, on an arc (checked against the rows below), the arc tokens.
             arc_constants = dict(zip(EXTREMA_CONSTANTS, ("arc_closed_form_section_statics", "arc_end_j_force_and_uniform_intensities_binary64_enclosures",
                                                          "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate")))
@@ -275,7 +280,7 @@ def _validate(source: Mapping[str, Any]) -> None:
     _require(all(isinstance(row, Mapping) and _text(row.get("id")) for row in results) and all(isinstance(item, Mapping) and _text(item.get("id")) for item in diagnostics), "evidence identities")
     rows = {row["id"]: row for row in results}
     _require(len(rows) == len(results), "duplicate result ID")
-    from . import u4b
+    from . import global_end, u4b
     arcs = u4b.preview_arcs(results)
 
     # 2. Every row kind has a signature.
@@ -284,12 +289,16 @@ def _validate(source: Mapping[str, Any]) -> None:
         _require(row.get("metadata") is None or isinstance(row.get("metadata"), Mapping), "source row metadata")
         signature(row)
         u4b.row_semantics(row, False, row["entity_ref"] in arcs)
+        if row["kind"] in global_end.KINDS:
+            global_end.row_semantics(row, False)
         if row["kind"] in SUPPORT_KINDS:
             # A4 N6: every support-action row is global, whatever its basis_ref.
             _require((row.get("metadata") or {}).get("coordinate_system") == "global", "support action frame")
         basis = row.get("basis_ref")
         if basis is not None:
             _shape(basis, {"ref_type", "ref_id"}, "row basis reference")
+    # W-7: one global end row per member, end and component in every case.
+    global_end.coverage(results)
     # 3. Completeness (F-1): result-namespace references only.
     for item in diagnostics:
         # A1 a / A2 5: the key may be absent; when present it is an array of non-empty strings.
@@ -314,6 +323,9 @@ def _validate(source: Mapping[str, Any]) -> None:
         _require(not results, "blocked envelope carries result rows")
         _require(summary.get("max_displacement") is None and summary.get("max_open_formula_stress") is None, "blocked envelope carries a headline")
         _require("component_stress_modifier_count" not in summary or (_integer(summary["component_stress_modifier_count"]) and summary["component_stress_modifier_count"] == 0), "blocked envelope counts intensified rows")
+    # W-15 slice d (DEL-03-05 Design §5): the component bodies and their reference-section records
+    # (after the blocked-envelope rule, as the Rust reader).
+    bodies = component_body.source_bodies(source, TABLE)
     for row in results:
         basis = row.get("basis_ref")
         if basis is None:
@@ -373,8 +385,11 @@ def _validate(source: Mapping[str, Any]) -> None:
 
     complete = bool(cases) and all(case["stress_maximum_coverage"]["complete"] for case in cases.values())
     stress = summary.get("max_open_formula_stress")
-    if complete and maximum_rows:
-        selected = governing(maximum_rows)
+    # W-15 slice d: the stress headline ranges over the non-body members.
+    component_body.headline_not_body(stress, bodies)
+    headline_rows = [row for row in maximum_rows if row["entity_ref"] not in bodies]
+    if complete and headline_rows:
+        selected = governing(headline_rows)
         _require(stress == {"value": selected["value"], "unit": "Pa", "location_ref": selected["entity_ref"], "result_ref": selected["id"]}, "stress headline does not govern")
     else:
         _require(stress is None, "stress headline while coverage is incomplete or no maximum exists")

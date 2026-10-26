@@ -1364,10 +1364,13 @@ fn s4_failed_ordinary_manifest_carries_derived_rows_formed_after_projection() {
             let members: Vec<&str> = raw["model"]["pipe_segments"].as_array().unwrap().iter().map(|p| p["id"].as_str().unwrap()).collect();
             for member in &members {
                 let own: Vec<&Value> = rows.iter().filter(|r| r["entity_ref"] == *member).collect();
-                assert_eq!(own.len(), 66, "{label}: {member}'s manifest rows");
+                // W-7: 12 global end rows (after the maximum, as on a solved case) join the 66.
+                assert_eq!(own.len(), 78, "{label}: {member}'s manifest rows");
                 let maximum = own.iter().position(|r| r["kind"] == "pipe_elastic_normal_stress_maximum_v2").unwrap();
-                assert!(own[maximum + 1..].iter().all(|r| s4::DERIVED.contains(&r["kind"].as_str().unwrap())) && own.len() - maximum - 1 == 15,
-                    "{label}: {member}'s derived rows follow its maximum");
+                assert!(own[maximum + 1..maximum + 13].iter().all(|r| s4::GLOBAL_END.contains(&r["kind"].as_str().unwrap())),
+                    "{label}: {member}'s global end rows follow its maximum");
+                assert!(own[maximum + 13..].iter().all(|r| s4::DERIVED.contains(&r["kind"].as_str().unwrap())) && own.len() - maximum - 13 == 15,
+                    "{label}: {member}'s derived rows follow its global end rows");
             }
             assert_eq!(s4::derived_rows_follow_own_rows(&label, &s), 15 * members.len());
             s4::base_read_with_model(&label, &s, raw);
@@ -1399,7 +1402,8 @@ fn s4_failed_ordinary_out_of_domain_poisson_omits_tau_and_stays_selected() {
         let rows = s["results"].as_array().unwrap();
         let member = raw["model"]["pipe_segments"][0]["id"].as_str().unwrap();
         let case = raw["model"]["load_cases"][0]["id"].as_str().unwrap();
-        assert_eq!(rows.iter().filter(|r| r["entity_ref"] == member).count(), 61, "{label}: no τ rows");
+        // W-7: 61 + the member's 12 global end rows.
+        assert_eq!(rows.iter().filter(|r| r["entity_ref"] == member).count(), 73, "{label}: no τ rows");
         assert!(!rows.iter().any(|r| r["kind"] == s4::DERIVED[1]), "{label}: no τ row");
         assert_eq!(rows.iter().filter(|r| r["kind"] == s4::DERIVED[0]).count(), 10, "{label}: σ± at five stations");
         let named: Vec<&Value> = s["diagnostics"].as_array().unwrap().iter().filter(|d| d["code"] == "TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN").collect();

@@ -13,6 +13,7 @@ import { validateModelOperation } from "../../services/operationService";
 import type { UnitCatalogRoute } from "../../services/unitCatalogService";
 import { disabledBy, stableJson } from "../model-data/modelDataIntents";
 import { PROJECT_UNIT_PRESETS, loadedUnitCatalog, projectUnitChoices } from "../project-units/projectUnitSelection";
+import { storedProjectUnit } from "../project-units/projectUnitIntents";
 import {
   DEFAULT_NODE_PROXIMITY_TOLERANCE,
   NODE_PROXIMITY_TOLERANCE_PATH,
@@ -38,7 +39,8 @@ export type ModelSettingsSectionProps = {
 export function toleranceUnitChoices(model: PreviewModel, route: UnitCatalogRoute | null | undefined): string[] {
   const catalog = loadedUnitCatalog(route ?? null);
   const stored = authoredNodeProximityTolerance(model)?.unit;
-  const projectLength = typeof model.project.units.length === "string" ? model.project.units.length : "";
+  const storedLength = storedProjectUnit(model, "length");
+  const projectLength = typeof storedLength === "string" ? storedLength : "";
   const known = catalog
     ? projectUnitChoices(catalog, "length")
     : [projectLength, DEFAULT_NODE_PROXIMITY_TOLERANCE.unit, ...PROJECT_UNIT_PRESETS.map((preset) => preset.units.length)];
@@ -48,7 +50,7 @@ export function toleranceUnitChoices(model: PreviewModel, route: UnitCatalogRout
 /** The unit a fresh entry starts in: the stored unit, else the project's length unit, else the default's. */
 function initialUnit(model: PreviewModel): string {
   const stored = authoredNodeProximityTolerance(model)?.unit;
-  const projectLength = model.project.units.length;
+  const projectLength = storedProjectUnit(model, "length");
   return stored ?? (typeof projectLength === "string" && projectLength.trim() ? projectLength : DEFAULT_NODE_PROXIMITY_TOLERANCE.unit);
 }
 
@@ -72,10 +74,11 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
   }, []);
   // Re-seed the draft whenever the stored setting changes (apply, undo, redo, another document).
   const storedKey = stableJson(authored ?? null);
+  const projectLength = storedProjectUnit(model, "length");
   useEffect(() => {
     setValueText(authored ? String(authored.value) : "");
     setUnit(initialUnit(model));
-  }, [storedKey, model.project.id, model.project.units.length]);
+  }, [storedKey, model.project.id, projectLength]);
 
   const choices = toleranceUnitChoices(model, props.unitCatalogRoute);
   const unitOptions = choices.includes(unit) ? choices : [unit, ...choices];

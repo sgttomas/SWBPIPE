@@ -136,7 +136,7 @@ relative tolerance.
   - a non-finite, non-positive or non-length value is refused by name, with
     nothing queued.
 - **Editing.** The edit is an applier operation on the `Project` singleton
-  target, as `set_project_unit` is designed (DEL-02-02 Design
+  target, the target `set_project_unit` also uses (DEL-02-02 Design
   `project-unit-selection.md` §2.7): `set_model_setting` and
   `clear_model_setting` (`operation_applier/src/model_settings_authoring.rs`;
   wire in DEL-02-01 Design `model-document-0.7.0.md` §3.8). Each is shown as a
@@ -157,12 +157,21 @@ is linear in the node count for ordinary models.
 
 ## Known effect on bundled data
 
+The refused demo `invented_preview_model.json` declares a tee (`C-120` at
+`node:N-120`) on a node that joins two pipes, so `BRANCH_TOPOLOGY_INVALID`
+fires on it. Its warning names no applied sides, because nothing is published
+there.
+
 The bundled desktop demo (`fixtures/product_preview/invented_demo_model.json`)
-and `invented_preview_model.json` declare a tee (`C-120` at `node:N-120`) on a
-node that joins two pipes, so `BRANCH_TOPOLOGY_INVALID` fires on them. The
-solved demo's warning names the header SIF to `pipe:P-120` and the branch SIF
-to `pipe:P-110`, which carry its intensified rows. The refused demo's warning
-names none, because nothing is published there.
+no longer declares that tee: the component and its completeness finding were
+removed, and no pipe, node or support changed. The demo raises no topology
+warning. Its envelope, in both solver modes, lost only what C-120 produced: its
+four intensified rows (header `pipe:P-120` end i and branch `pipe:P-110` end j,
+in each of two cases), their four intensified-measure evidence records, and
+five diagnostics (the topology warning and four
+`COMPONENT_EQUAL_FACTOR_INTENSIFICATION_APPLIED`). The summary's
+`component_stress_modifier_count`, which counts the intensified rows, went from
+8 to 4. No other row, status or standing moved.
 
 ## Evidence
 

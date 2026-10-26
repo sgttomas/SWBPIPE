@@ -23,21 +23,22 @@ const PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         SPARSE,
-        "67f146bd4411426b2811e5b6ce7cac7a4d22c6783b106d61566ee7454e2b59a9",
-        "bc13dcf4a2479a8566ec739f1dfc7d0c1ec18a4cab0ea8b52887037c6a1b079f",
+        "cf053309e8048ae013dc5388d1115399ff89cf493eb2e36772500a3c6985a6e5",
+        "bd64548d321575ab27d11b94c2e258b75665e31d7428639b476729164ce57bcc",
     ),
     (
         "dense_scrutiny",
         DENSE,
-        "52ea3e9a29f200ada2bc7d2d73f6ee1e1eafdc5829b220c8b650f8e864e0ffc6",
-        "1dc2d2a6f3fef563ea2998653243085f47310215e8c579e5c82e893a864bb95f",
+        "f8078ee2c82ba370ab04591af49ed12c48fda5d88a54a75b0725fbdde317d884",
+        "d8b82e5a1e5449bcb06f2d0a76b0f5102d4778e9fef6f72859fffde256f61bec",
     ),
 ];
 /// The milestone's validated class counts (R/I61 experiment 02; RV86 recount):
-/// relative, absolute, input-derived, non-quantity, and (T4-U4b) the 15 derived not-covered rows.
+/// relative, absolute, input-derived, non-quantity, and (T4-U4b) the 15 derived not-covered rows, with
+/// (W-7) the member's 12 not-covered global end rows.
 const CLASSES: [(&str, [u64; 5]); 2] = [
-    ("sparse_interactive", [25, 69, 3, 1, 15]),
-    ("dense_scrutiny", [25, 69, 3, 1, 15]),
+    ("sparse_interactive", [25, 69, 3, 1, 15 + 12]),
+    ("dense_scrutiny", [25, 69, 3, 1, 15 + 12]),
 ];
 
 struct Milestone {
@@ -642,7 +643,7 @@ fn u6a_classification_summary_counts_validated_classes() {
         assert_eq!(json!(s::classification_summary_from(&validation, &m.source, &refs)), current);
         assert_eq!(json!(s::classification_summary_from(&validation, &m.source, &[])), expected);
         assert_eq!(json!(s::classification_summary_from(&validation, &m.source, &other)), expected);
-        // A not_covered row (beyond the milestone's 15 derived ones) is withheld
+        // A not_covered row (beyond the milestone's 15 derived and 12 global end ones) is withheld
         // whether or not the envelope is Current.
         let relative = validation.classifications.iter().position(|c| c.class == rp::AccuracyClass::RelativeVerified).unwrap();
         validation.classifications[relative].class = rp::AccuracyClass::NotCovered;
@@ -811,8 +812,8 @@ fn expected_summary(source: &Value) -> Value {
 
 /// RV94 S-1: on both D-U7-4 forms Rust, given the invocation and the requested
 /// refs, stands `numerically_eligible` and its summary is Current (69 absolute and, since
-/// T4-U4b, 15 not-covered rows withheld: 84); TS's side (needs_recompute, the not-Current
-/// 112) is pinned in TS. With other
+/// T4-U4b, 15 not-covered rows withheld, with W-7's 12 not-covered global end rows: 96); TS's
+/// side (needs_recompute, the not-Current 124) is pinned in TS. With other
 /// requested refs Rust reads `needs_recompute` and the not-Current summary.
 #[test]
 fn u7_d_u7_4_forms_rust_side_standing_and_summary() {
@@ -829,7 +830,7 @@ fn u7_d_u7_4_forms_rust_side_standing_and_summary() {
             assert_eq!(s::numerical_use_standing_with_context(&source, &requested, invocation.as_ref()), "numerically_eligible", "{label}");
             let summary = json!(s::classification_summary(&source, invocation.as_ref(), &requested));
             assert_eq!(summary, expected_summary_with(&source, true), "{label}");
-            assert!(summary[0]["withheld"] == 69 + 15 && summary[0]["absolute_verified"] == 69 && summary[0]["not_covered"] == 15, "{label}");
+            assert!(summary[0]["withheld"] == 69 + 15 + 12 && summary[0]["absolute_verified"] == 69 && summary[0]["not_covered"] == 15 + 12, "{label}");
             assert_eq!(s::numerical_use_standing_with_context(&source, &other, invocation.as_ref()), "needs_recompute");
             let not_current = json!(s::classification_summary(&source, invocation.as_ref(), &other));
             assert!(not_current == expected_summary(&source) && not_current != summary, "{label}");
@@ -1134,7 +1135,9 @@ fn u6_semantic_seams_have_only_governed_product_callers() {
         product_lines += product.lines().count();
         // Product code after a file's first #[cfg(test)] is scanned (RV92/RV88 G1).
         for (path, function) in [
-            ("apps/desktop/src-tauri/src/lib.rs", "fn solver_result_row_value("),
+            // Rule-pack 0.5.0 moved row binding to `rule_solver_selection.rs`;
+            // the rule-binding gate stays here, after the first #[cfg(test)].
+            ("apps/desktop/src-tauri/src/lib.rs", "fn qualify_rule_mechanics_with_context("),
             ("apps/desktop/src-tauri/src/lib.rs", "pub fn run()"),
             ("core/runner/headless/src/lib.rs", "fn invented_provenance()"),
             ("core/product_physics/src/lib.rs", "pub fn nonlinear_assembled_loop_context()"),

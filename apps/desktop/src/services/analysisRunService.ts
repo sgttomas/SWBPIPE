@@ -158,6 +158,26 @@ export async function deleteUnreadableAnalysisRun(projectId: string, unreadableH
   return invokeWithIngress<AnalysisRunDeleteReceipt>("delete_analysis_run", { projectId, unreadableHandle });
 }
 
+/** The stored lengths a run comparison reads (W-12 S3b): each recorded run's result and
+ * input manifest, in the order named, and the session's current run's as counted here. */
+export type AnalysisRunComparisonAdmission = {
+  runs: Array<{ result_bytes: number; manifest_bytes: number }>;
+  current_run_bytes: number;
+  combined_bytes: number;
+  budget_bytes: number;
+};
+
+/** The size admission of a run comparison (W-12 S3b; DEL-14-01 Design §4.2, Memory): the
+ * store verifies each named run as its list does and refuses by name
+ * (`COMPARISON-RUNS-TOO-LARGE`), before either run is read, when the runs' stored results
+ * and input manifests, with `currentRunBytes` (the session's current run when it is the
+ * other side), exceed the per-invocation budget. A 1x cap on input size, not a bound on
+ * the webview's memory. */
+export async function admitAnalysisRunComparison(projectId: string, recordingIds: string[], currentRunBytes: number | null): Promise<AnalysisRunComparisonAdmission> {
+  requireNativeStore();
+  return invokeWithIngress<AnalysisRunComparisonAdmission>("admit_analysis_run_comparison", currentRunBytes === null ? { projectId, recordingIds } : { projectId, recordingIds, currentRunBytes });
+}
+
 export function runDescription(run: Pick<AnalysisRunSummary, "run_name" | "recording_id">): string {
   return `"${run.run_name}" (${run.recording_id})`;
 }

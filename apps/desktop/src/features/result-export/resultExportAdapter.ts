@@ -9,6 +9,7 @@ import { canonicalJsonString, canonicalSha256Hex, canonicalSha256HexCheckedV1, c
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, modelLoadBasisRefs } from '../../services/analysisRunCompatibility';
 import { hasNativeMechanicsInvocation } from '../../services/previewService';
 import { verifyCurrentSessionInputManifest, type CurrentSessionInputManifestEvidence } from '../../services/inputManifestService';
+import { recordRulePackRefAnnotations, rulePackRefAnnotationsToAdd, type RulePackRefDiagnosticAnnotation } from '../../services/rulePackRefDiagnostics';
 // JSON assembly is independent of saved analysis/persistence types. Qualification
 // below owns Current authenticity; the pure projection never authenticates shape.
 export type JsonObject = Record<string, any>;
@@ -45,6 +46,24 @@ function documentDiagnostic(x:MechanicsResult['diagnostics'][number]):JsonObject
   return {code:x.code,class:diagnosticClass(x.code,x.severity),severity,source:ref('solver_component',x.source??'core/product_physics'),
     affected_object:ref('preview_diagnostic',x.id),message:x.message,
     remediation:'Review the carried solve diagnostic before relying on this exported result envelope.',provenance:derivativeProvenance};
+}
+/** A run record's rule-pack reference diagnostic (a model reference the solve left out of the
+ * input manifest's `active_rule_packs`: unresolved, or a checksum mismatch) in the document,
+ * mapped as `documentDiagnostic` maps a source diagnostic: code, message and severity copied,
+ * the class by Rust's rules (a `RULE` warning is an ASSUMPTION_WARNING). Its source is the
+ * desktop's solve-time resolution, its affected object the excluded reference by identity, and
+ * provenance the derivative's own. A record without exclusions adds nothing. */
+function rulePackRefDocumentDiagnostic(x:RulePackRefDiagnosticAnnotation):JsonObject{
+  return {code:x.code,class:diagnosticClass(x.code,x.severity),severity:x.severity,source:ref('desktop_component',x.source),
+    affected_object:ref('rule_pack_ref',x.affected_refs[0]),message:x.message,
+    remediation:'Review the excluded rule-pack reference before relying on this exported result envelope; it is not among this run\'s rule-pack references.',provenance:derivativeProvenance};
+}
+/** The document's diagnostics: each source diagnostic (`documentDiagnostic`), then each of the
+ * run record's rule-pack reference diagnostics that none of them already carries. */
+function documentDiagnostics(result:MechanicsResult,runDiagnostics:readonly unknown[]|undefined):JsonObject[]{
+  const carried=result.diagnostics.map(documentDiagnostic);
+  const added=rulePackRefAnnotationsToAdd(recordRulePackRefAnnotations(runDiagnostics,result.diagnostics.length),[...result.diagnostics,...carried]);
+  return [...carried,...added.map(rulePackRefDocumentDiagnostic)];
 }
 /** Rust's `export_diagnostic_class`, rule for rule. */
 function diagnosticClass(code:string,severity:string):string{
@@ -110,10 +129,13 @@ export async function deriveResultDocument(base:JsonObject,model:PreviewModel,so
     const rowHash=await scopedChecksum(row,rowScope,origin.received_carrier_checksum.payload_ref),original=origin.authentic_producer_available?await scopedChecksum(row,'raw_source_row',origin.original_producer_checksum.payload_ref):null;
     const annotation_ref=ref('source_annotation',`source-annotation:${index}`),object_ref=ref('preview_entity',row.entity_ref);
     const basis_ref=row.basis_ref??(disposition==='exported_review'?ref('source_basis',row.metadata!.basis):e.run_ref);
-    annotations.push({annotation_id:annotation_ref.ref_id,source_row_index:index,source_result_id:row.id,metadata:row.metadata??null,basis_ref:row.basis_ref??null,source_result_refs:row.source_result_refs??[],observed_carrier_dimension:observed,source_physical_semantic_dimension:math,derivative_target_dimension:dimension,source_origin_ref});
+    // W-15 slice d (DEL-03-05 Design §5): a component body's record travels verbatim.
+    const annotation:JsonObject={annotation_id:annotation_ref.ref_id,source_row_index:index,source_result_id:row.id,metadata:row.metadata??null,basis_ref:row.basis_ref??null,source_result_refs:row.source_result_refs??[],observed_carrier_dimension:observed,source_physical_semantic_dimension:math,derivative_target_dimension:dimension,source_origin_ref};
+    if(row.component_body!==undefined)annotation.component_body=structuredClone(row.component_body);
+    annotations.push(annotation);
     let target:JsonObject,targetPath:string,targetType:string,targetScope:string;
     if(disposition==='exported_quantity'){
-      target={result_id:row.id,family:s!.family,object_ref,basis_ref,magnitude:row.value,unit:row.unit,dimension,provenance:e.provenance,source_kind:row.kind,source_row_index:index,source_annotation_ref:annotation_ref};if(md)target.metadata=md;
+      target={result_id:row.id,family:s!.family,object_ref,basis_ref,magnitude:row.value,unit:row.unit,dimension,provenance:e.provenance,source_kind:row.kind,source_row_index:index,source_annotation_ref:annotation_ref};if(md)target.metadata=md;if(row.component_body!==undefined)target.component_body=structuredClone(row.component_body);
       targetPath=`/result_envelope/result_sets/0/values/${values.length}`;values.push(target);targetType='quantity_result';targetScope='derived_quantity_row';
     }else if(disposition==='exported_review'){
       target={evidence_id:row.id,source_row_index:index,source_result_id:row.id,source_kind:row.kind,evidence_kind:category==='assembled_load_review'?'assembled_load_review':'user_input_review',magnitude:row.value,unit:row.unit,dimension,object_ref,basis_ref,location_ref:ref('source_location',row.metadata!.location),source_annotation_ref:annotation_ref,provenance:e.provenance};
@@ -187,7 +209,10 @@ export async function validateResultDocument(doc:JsonObject,source:MechanicsResu
     requireEqual(a.target_ref,ref(type,row.id),'TARGET_REF');requireEqual([target.source_row_index,target.source_kind,target.result_id??target.evidence_id??target.source_result_id],[i,row.kind,row.id],'TARGET_IDENTITY');
     requireEqual(target.object_ref,ref('preview_entity',row.entity_ref),'TARGET_OBJECT');
     const observed={present:Object.hasOwn(row,'dimension'),value:row.dimension??null},annRef=ref('source_annotation',`source-annotation:${i}`);
-    requireEqual(ann,{annotation_id:annRef.ref_id,source_row_index:i,source_result_id:row.id,metadata:row.metadata??null,basis_ref:row.basis_ref??null,source_result_refs:row.source_result_refs??[],observed_carrier_dimension:observed,source_physical_semantic_dimension:math,derivative_target_dimension:dimension,source_origin_ref:originRef},'SOURCE_ANNOTATION');requireEqual(target.source_annotation_ref,annRef,'ANNOTATION_REF');
+    requireEqual(ann,{annotation_id:annRef.ref_id,source_row_index:i,source_result_id:row.id,metadata:row.metadata??null,basis_ref:row.basis_ref??null,source_result_refs:row.source_result_refs??[],observed_carrier_dimension:observed,source_physical_semantic_dimension:math,derivative_target_dimension:dimension,source_origin_ref:originRef,...(row.component_body!==undefined?{component_body:row.component_body}:{})},'SOURCE_ANNOTATION');requireEqual(target.source_annotation_ref,annRef,'ANNOTATION_REF');
+    // W-15 slice d (Rust `derivative_agrees`): a quantity carries its row's record verbatim; no other target carries one;
+    // no target carries the coverage-only body list (the annotation is held whole above).
+    if(Object.hasOwn(target,'component_body_pipe_ids')||(disposition==='exported_quantity'?!equalJson(target.component_body,row.component_body):Object.hasOwn(target,'component_body')))throw new Error('SOURCE_COMPONENT_BODY_MISMATCH');
     const rowHash=await scopedChecksum(row,rowScope,origin.received_carrier_checksum.payload_ref),original=origin.authentic_producer_available?await scopedChecksum(row,'raw_source_row',origin.original_producer_checksum.payload_ref):null;
     requireEqual(a.received_carrier_row_checksum,rowHash,'SOURCE_ROW_HASH');requireEqual(a.original_producer_row_checksum,original,'SOURCE_ROW_HASH');
     requireEqual(disposition==='disclosed'?[target.source_value,target.source_unit]:[target.magnitude,target.unit],[row.value,row.unit],'SOURCE_TARGET_VALUE');
@@ -224,11 +249,11 @@ function exactLoadCase(result:MechanicsResult,objectType:string):boolean{
   if(objectType!=='LoadCase')return false;
   try{const route=sourceContract(result);return route==='pressure'||route==='pressure_source';}catch{return false;}
 }
-type CurrentDocumentRun=Pick<AnalysisRunEnvelope['analysis_run'],'run_id'|'load_basis_refs'|'hashes'|'analysis_status'|'professional_boundary'>;
+type CurrentDocumentRun=Pick<AnalysisRunEnvelope['analysis_run'],'run_id'|'load_basis_refs'|'hashes'|'analysis_status'|'professional_boundary'>&Partial<Pick<AnalysisRunEnvelope['analysis_run'],'diagnostics'>>;
 /** The document base that `buildCurrentResultExport` derives from (see `currentReceivedOrigin`). */
 export function currentResultDocumentBase(model:PreviewModel,result:MechanicsResult,run:CurrentDocumentRun,manifestRef:string,solverBasis:{solver_name:string;solver_version:string;solver_build_ref:string}):JsonObject{
   const provenance=derivativeProvenance;
-  return {schema_version:RESULT_EXPORT_VERSION,deliverable_id:'DEL-08-04',package_id:'PKG-08',scope_item:'SOW-046',objectives:['OBJ-007','OBJ-009'],export_format_status:{baseline_format:'schema_first_json_result_envelope',additional_formats:'TBD',public_transport_protocol:'TBD',local_fea_package_format:'TBD',external_adapter_formats:'TBD'},result_envelope:{schema_version:RESULT_EXPORT_VERSION,envelope_id:`result-envelope:${result.run_id}`,model_ref:ref('model_payload',model.project.id),run_ref:ref('analysis_run',run.run_id),solver_version:{solver_name:solverBasis.solver_name,solver_version:solverBasis.solver_version,solver_build_ref:solverBasis.solver_build_ref},unit_system_ref:ref('unit_system',`${model.project.id}:units`),load_basis_refs:run.load_basis_refs.map(x=>exactLoadCase(result,x.object_type)?ref('load_case',x.ref):ref(x.object_type,x.ref)),result_sets:[{set_id:`result-set:${result.run_id}:mechanics`,set_type:'mechanics',basis_ref:ref('analysis_run',run.run_id),values:[]}],diagnostics:result.diagnostics.map(documentDiagnostic),provenance,reproducibility:{model_hash:null,run_hashes:run.hashes.map(x=>({algorithm:x.algorithm,canonicalization:x.canonicalization,payload_ref:ref(x.payload_ref.object_type,x.payload_ref.ref),value:x.value})),audit_manifest_ref:ref('audit_manifest',manifestRef),deterministic_ordering:true},analysis_status:run.analysis_status,professional_boundary:run.professional_boundary,downstream_use:{review:true,regression_comparison:true,report_consumption:true,headless_automation:true,governed_downstream_tooling:true,additional_export_formats:'TBD'}}};
+  return {schema_version:RESULT_EXPORT_VERSION,deliverable_id:'DEL-08-04',package_id:'PKG-08',scope_item:'SOW-046',objectives:['OBJ-007','OBJ-009'],export_format_status:{baseline_format:'schema_first_json_result_envelope',additional_formats:'TBD',public_transport_protocol:'TBD',local_fea_package_format:'TBD',external_adapter_formats:'TBD'},result_envelope:{schema_version:RESULT_EXPORT_VERSION,envelope_id:`result-envelope:${result.run_id}`,model_ref:ref('model_payload',model.project.id),run_ref:ref('analysis_run',run.run_id),solver_version:{solver_name:solverBasis.solver_name,solver_version:solverBasis.solver_version,solver_build_ref:solverBasis.solver_build_ref},unit_system_ref:ref('unit_system',`${model.project.id}:units`),load_basis_refs:run.load_basis_refs.map(x=>exactLoadCase(result,x.object_type)?ref('load_case',x.ref):ref(x.object_type,x.ref)),result_sets:[{set_id:`result-set:${result.run_id}:mechanics`,set_type:'mechanics',basis_ref:ref('analysis_run',run.run_id),values:[]}],diagnostics:documentDiagnostics(result,run.diagnostics),provenance,reproducibility:{model_hash:null,run_hashes:run.hashes.map(x=>({algorithm:x.algorithm,canonicalization:x.canonicalization,payload_ref:ref(x.payload_ref.object_type,x.payload_ref.ref),value:x.value})),audit_manifest_ref:ref('audit_manifest',manifestRef),deterministic_ordering:true},analysis_status:run.analysis_status,professional_boundary:run.professional_boundary,downstream_use:{review:true,regression_comparison:true,report_consumption:true,headless_automation:true,governed_downstream_tooling:true,additional_export_formats:'TBD'}}};
 }
 export async function buildCurrentResultExport({model,result,analysisRun,inputManifest}:{model:PreviewModel;result:MechanicsResult;analysisRun:AnalysisRunEnvelope;inputManifest:CurrentSessionInputManifestEvidence|null|undefined}):Promise<JsonObject>{
   guardResultJson(model);guardResultJson(result);guardResultJson(analysisRun);

@@ -333,9 +333,9 @@ pub(super) fn requested_mode_basis(mode: PreviewSolverMode, case_index: usize) -
     format!("captured_requested_mode; solver_mode={}; ordinary_attempt=failed_without_observation; owner_ref=case:{case_index}; certificate=retained_precision.body.cases[{case_index}].selection", mode.as_str())
 }
 /// The failed manifest's per-member rows: 12 end actions, 18 station actions, 8 endpoint and
-/// 12 station stresses, the circular maximum and (T4-U4b, §4.1) the 15 not-covered derived
-/// rows: σ⁺, σ⁻ and τ_v,max at the five stations.
-const FAILED_MEMBER_ROWS: usize = 66;
+/// 12 station stresses, the circular maximum, (W-7) the 12 not-covered global end actions and
+/// (T4-U4b, §4.1) the 15 not-covered derived rows: σ⁺, σ⁻ and τ_v,max at the five stations.
+const FAILED_MEMBER_ROWS: usize = 78;
 /// The τ_v,max rows of one member (five stations), absent when its ν is out of domain (§2.4).
 const FAILED_SHEAR_ROWS: usize = 5;
 const FAILED_STATIONS: [&str; 3] = ["quarter_1", "midspan", "quarter_3"];
@@ -2705,6 +2705,22 @@ impl ProductCapture {
                     owner.source().body_of_node(self.supports[s].1 as u32),
                     unit,
                 )
+            } else if super::is_global_end_kind(&r.kind) {
+                // GLOBAL_END_ROWS_NOT_COVERED (W-7): a recipe-free not-covered row at its own
+                // position, completed after projection from the member's projected end rows.
+                let m = member.ok_or("global end row member")?;
+                let unit = if r.kind == super::GLOBAL_END_FORCE_KIND {
+                    (r.unit == "N").then_some(k::ProductUnit::Newton)
+                } else {
+                    (r.unit == "N*m").then_some(k::ProductUnit::NewtonMetre)
+                }
+                .ok_or("global end unit")?;
+                let row = u32::try_from(out.len()).map_err(|_| CaptureError::CountRange("global end row position"))?;
+                (
+                    k::ProductRecipe::NotCovered { row },
+                    owner.source().body_of_node(self.members[m].nodes[0] as u32),
+                    unit,
+                )
             } else if derived_kind(&r.kind) {
                 // §4.1/§4.2: a recipe-free not-covered row at its own position; a mechanics
                 // combination publishes none (never_combined).
@@ -2815,7 +2831,7 @@ impl ProductCapture {
             }
             // §4.1: a route-E derived row names its own basis (no twin pairing).
             let derived_basis = match (route, recipe) {
-                (W1Route::Exact, k::ProductRecipe::NotCovered { .. }) => Some(derived_section_basis(r)?),
+                (W1Route::Exact, k::ProductRecipe::NotCovered { .. }) if derived_kind(&r.kind) => Some(derived_section_basis(r)?),
                 _ => None,
             };
             if recipe != k::ProductRecipe::ModulusBasisRecord {
@@ -3543,6 +3559,19 @@ fn validate_final_metadata(
         }
         // §4.1: a derived row's identity, unit and metadata are its ordinary row's (straight
         // members only: arcs never reach W1); its τ sign names the route's ν rule.
+        // GLOBAL_END_ROWS_NOT_COVERED (W-7): the global end row's identity and metadata are its
+        // ordinary row's; W1 admits no pressure member, so its basis is never the wall basis.
+        k::ProductRecipe::NotCovered { .. } if super::is_global_end_kind(&row.kind) => {
+            let md = m.ok_or("global end metadata")?;
+            let loc = md.location.as_str();
+            if !matches!(loc, "end_i" | "end_j") {
+                return Err("global end row site".into());
+            }
+            let names: [&str; 3] = if row.kind == super::GLOBAL_END_FORCE_KIND { ["Fx", "Fy", "Fz"] } else { ["Mx", "My", "Mz"] };
+            let component = *names.iter().find(|c| **c == md.component).ok_or("global end component")?;
+            meta(component, "global", loc, super::GLOBAL_END_BASIS, super::GLOBAL_END_SIGN)?;
+            format!("result:element-global-end:{suffix}:{loc}:{}", component.to_ascii_lowercase())
+        }
         k::ProductRecipe::NotCovered { .. } => {
             let md = m.ok_or("derived metadata")?;
             let loc = md.location.as_str();
@@ -4736,12 +4765,12 @@ impl ProductCapture {
             .and_then(|n|n.checked_add(1)).ok_or(CaptureError::CountRange("failed manifest rows"))?;
         let mut rows=self.adapter.reserve::<ResultItem>(count)?;
         self.capture_entry(AdapterEvent::LibraryBoundary)?; // Existing fixed-id formatting; internals unqualified.
-        rows.push(ResultItem{id:REQUESTED_MODE_ID.into(),kind:REQUESTED_MODE_KIND.into(),value:mode.mode_code(),unit:"mode_code".into(),
+        rows.push(ResultItem{component_body:None,id:REQUESTED_MODE_ID.into(),kind:REQUESTED_MODE_KIND.into(),value:mode.mode_code(),unit:"mode_code".into(),
             entity_ref:"solver:linear_static_preview".into(),basis_ref:None,source_result_refs:Vec::new(),
             metadata:Some(ResultMetadata{component:REQUESTED_MODE_COMPONENT.into(),coordinate_system:REQUESTED_MODE_COORDINATE.into(),
                 location:case.into(),basis:requested_mode_basis(mode,0),sign_convention:REQUESTED_MODE_SIGN.into()})});
         for (id,_) in &self.nodes {
-            rows.push(ResultItem{id:format!("result:disp:{}",stable_suffix(id)),kind:"displacement_magnitude".into(),value:0.0,
+            rows.push(ResultItem{component_body:None,id:format!("result:disp:{}",stable_suffix(id)),kind:"displacement_magnitude".into(),value:0.0,
                 unit:"mm".into(),entity_ref:id.clone(),basis_ref:None,source_result_refs:Vec::new(),metadata:None});
         }
         let zeros=[0.0;6];
@@ -4750,7 +4779,7 @@ impl ProductCapture {
         }
         for (id,_) in &self.supports {
             for (slot,component) in ["Fx","Fy","Fz","Mx","My","Mz","force_magnitude","moment_magnitude"].into_iter().enumerate() {
-                rows.push(ResultItem{id:format!("result:support-action:{}:{}:{}:{}:{}",case.len(),case,id.len(),id,component),
+                rows.push(ResultItem{component_body:None,id:format!("result:support-action:{}:{}:{}:{}:{}",case.len(),case,id.len(),id,component),
                     kind:match slot {6=>"support_reaction_force_magnitude_v2",7=>"support_reaction_moment_magnitude_v2",_=>"support_reaction_component_v2"}.into(),
                     value:0.0,unit:if slot<3 || slot==6 {"N"} else {"N*m"}.into(),entity_ref:id.clone(),basis_ref:None,source_result_refs:Vec::new(),
                     metadata:Some(ResultMetadata{component:component.into(),coordinate_system:"global".into(),location:"node".into(),
@@ -4760,6 +4789,7 @@ impl ProductCapture {
         let zero=StressComponents{axial_normal:Some(0.0),bending_normal_y:Some(0.0),bending_normal_z:Some(0.0),torsional_shear:Some(0.0)};
         let mut extrema=self.adapter.reserve::<serde_json::Value>(self.members.len())?;
         for (i,member) in self.members.iter().enumerate() {
+            let member_rows_from=rows.len();
             super::append_element_force_results(&mut rows,&member.id,&[0.0;12]);
             for location in FAILED_STATIONS {
                 super::append_station_force_results(&mut rows,&member.id,location,&zeros,super::SECTION_RESULTANT_BASIS,STATION_FORCE_SIGN,"element_local");
@@ -4775,10 +4805,16 @@ impl ProductCapture {
                 "value_lower_pa":0.0,"value_upper_pa":0.0,"global_upper_bound_pa":0.0,"certified_gap_pa":0.0,"subdivisions":0u64,
                 "approximation":"piecewise_quadratic_straight_section_statics","coefficient_basis":"j_side_section_equilibrium_binary64_enclosures",
                 "enclosure_scope":"supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"}));
-            rows.push(ResultItem{id,kind:"pipe_elastic_normal_stress_maximum_v2".into(),value:0.0,unit:"Pa".into(),entity_ref:member.id.clone(),
+            rows.push(ResultItem{component_body:None,id,kind:"pipe_elastic_normal_stress_maximum_v2".into(),value:0.0,unit:"Pa".into(),entity_ref:member.id.clone(),
                 basis_ref:None,source_result_refs:Vec::new(),metadata:Some(ResultMetadata{component:"maximum_absolute_normal_stress".into(),
                     coordinate_system:"pipe_section".into(),location:"governing_station".into(),basis:"recovered_from_open_mechanics_stress_components".into(),
                     sign_convention:MAXIMUM_SIGN.into()})});
+            // W-7 (GLOBAL_END_ROWS_NOT_COVERED): the global end rows in preview-physics-2's order
+            // (after the member's maximum), as placeholders the freeze forms from the projected
+            // end actions (`prepared_not_covered`).
+            const IDENTITY:[[f64;3];3]=[[1.0,0.0,0.0],[0.0,1.0,0.0],[0.0,0.0,1.0]];
+            super::append_element_global_end_results(&mut rows,member_rows_from,&member.id,&[IDENTITY;2])
+                .map_err(|_|CaptureError::Association("failed manifest global end rows".into()))?;
             // §4.1: the derived rows in preview-physics-2's order, as placeholders the freeze
             // forms from the projected rows (`prepared_not_covered`).
             u4b_rows::preview_straight_derived_placeholders(&mut rows,&member.id,out_of_domain[i].is_none());
@@ -6294,6 +6330,10 @@ impl ProductCapture {
         // One pass: each member's operand rows (five sites, five operands) by bound position.
         let mut operands=self.adapter.reserve::<[[Option<usize>;5];5]>(self.members.len())?;
         for _ in 0..self.members.len() {self.capture_entry(AdapterEvent::MapWrite)?;operands.push([[None;5];5]);}
+        // GLOBAL_END_ROWS_NOT_COVERED (W-7): each member's end-action rows by bound position, the
+        // operands of its global end rows (a combination block need not order them first).
+        let mut end_actions=self.adapter.reserve::<[[Option<usize>;6];2]>(self.members.len())?;
+        for _ in 0..self.members.len() {self.capture_entry(AdapterEvent::MapWrite)?;end_actions.push([[None;6];2]);}
         // O4 §4.5: the reduced table and the bound positions of the distinct-basis members'
         // reduced rows, only when there is such a member (no allocation or event otherwise).
         let mut reduced_operands:Vec<[[Option<usize>;5];5]>=Vec::new();
@@ -6314,6 +6354,14 @@ impl ProductCapture {
         let mut pending=0usize;
         for (i,r) in rows.iter().enumerate() {
             self.capture_entry(AdapterEvent::RowVisit)?;
+            if let k::ProductRecipe::Native(k::QuantityId::EndAction{member,end,component})=r.recipe {
+                let mi=source.member_index(member).ok_or("global end operand member")?;
+                let slot=k::Component::ALL.iter().position(|c|*c==component).ok_or("global end operand component")?;
+                let cell=&mut end_actions[mi][usize::from(end==k::End::J)][slot];
+                if cell.is_some() {return Err("global end operand identity".into());}
+                self.capture_entry(AdapterEvent::MapWrite)?;
+                *cell=Some(i);
+            }
             let (member,site,slot)=match r.recipe {
                 k::ProductRecipe::Stress{member,site,stress}=>(member,site,match stress {
                     k::ProductStress::Axial=>AXIAL,k::ProductStress::BendingY=>BENDING_Y,k::ProductStress::BendingZ=>BENDING_Z,
@@ -6345,6 +6393,11 @@ impl ProductCapture {
             let i=bound;bound+=1;
             if !matches!(rows.get(i).ok_or("derived row binding")?.recipe,k::ProductRecipe::NotCovered{..}) {continue;}
             self.capture_entry(AdapterEvent::ValidationEntry)?;
+            if super::is_global_end_kind(&r.kind) {
+                let value=self.global_end_value(r,&end_actions,owner,values)?;
+                values.complete_not_covered(i,value).map_err(CaptureError::PreparedProof)?;
+                continue;
+            }
             let mi=self.members.iter().position(|m|m.id==r.entity_ref).ok_or("derived member")?;
             let model=self.members[mi].model as u32;
             let md=r.metadata.as_ref().ok_or("derived metadata")?;
@@ -6403,6 +6456,33 @@ impl ProductCapture {
             values.complete_not_covered(i,value).map_err(CaptureError::PreparedProof)?;
         }
         Ok(())
+    }
+    /// GLOBAL_END_ROWS_NOT_COVERED (W-7, DEL-04-01 Design `global-end-actions.md`): a global end
+    /// row of the successor is the rotation F = R^T f (M = R^T m) of its member's projected end
+    /// actions at that end, R the straight member's local axes from the source's node coordinates
+    /// and y reference (W1 admits straight members only).
+    fn global_end_value(&self,r:&ResultItem,end_actions:&[[[Option<usize>;6];2]],owner:&k::RetainedSolve,
+        values:&mut k::ProductValuesBuilder)->Result<f64,CaptureError> {
+        let source=owner.source();
+        let mi=self.members.iter().position(|m|m.id==r.entity_ref).ok_or("global end member")?;
+        let cells=end_actions.get(mi).ok_or("global end operands")?;
+        let md=r.metadata.as_ref().ok_or("global end metadata")?;
+        let end=match md.location.as_str() {"end_i"=>0,"end_j"=>1,_=>return Err("global end row site".into())};
+        let (block,names)=if r.kind==super::GLOBAL_END_FORCE_KIND {(0,["Fx","Fy","Fz"])} else {(3,["Mx","My","Mz"])};
+        let axis=names.iter().position(|c|*c==md.component).ok_or("global end component")?;
+        let mut f=[0.0;3];
+        for (k,slot) in f.iter_mut().enumerate() {
+            let at=cells[end][block+k].ok_or("global end operand row")?;
+            *slot=values.value(at).map_err(CaptureError::PreparedProof)?.ok_or("unprojected global end operand")?;
+        }
+        let m=source.members().get(mi).ok_or("global end source member")?;
+        let nodes=source.nodes();
+        let (a,b)=(nodes.get(m.node_i as usize).ok_or("global end node")?,nodes.get(m.node_j as usize).ok_or("global end node")?);
+        let axes=open_pipe_stress_frame_kernel::FrameOrientation::from_x_axis_and_y_reference([b[0]-a[0],b[1]-a[1],b[2]-a[2]],m.y_reference)
+            .map_err(|_|CaptureError::Association("global end member axes".into()))?.local_axes;
+        let value=axes[0][axis]*f[0]+axes[1][axis]*f[1]+axes[2][axis]*f[2];
+        if !value.is_finite() {return Err("global end value".into());}
+        Ok(value)
     }
     /// Test access (§4.1): the not-covered derived rows of `ordinary`'s whole case completed on a
     /// manually driven kernel builder, as `freeze_case` completes them.
@@ -7329,11 +7409,16 @@ impl ProductCapture {
             let draft = invocation.begin_prepared_product(case.run, owner, &self.facts, &specs).into_ready().map_err(PreparedCandidateError::Proof)?;
             trace.completed(trace::Stage::ProofStart);
             trace.enter(trace::Stage::Projection);
-            let (projected, builder) = draft.project().into_ready().map_err(PreparedCandidateError::Proof)?;
+            let (projected, mut builder) = draft.project().into_ready().map_err(PreparedCandidateError::Proof)?;
             trace.completed(trace::Stage::Projection);
             // DEF-C `stages`: maxima and aliases complete empty (no maximum row; headlines cover
             // load cases only).
             trace.enter(trace::Stage::Maxima);
+            // GLOBAL_END_ROWS_NOT_COVERED (W-7): a combination's global end rows (signed linear),
+            // formed from its projected end actions; it has no derived not-covered row.
+            if let Err(cause) = self.prepared_not_covered(ProductCaseView::of(ordinary,scope,&self.distinct_bases), &base_rows, owner, &mut builder) {
+                return Err(PreparedCandidateError::Abandoned { cause, proof: projected.abandon_values(builder.abandon()) });
+            }
             trace.completed(trace::Stage::Maxima);
             trace.enter(trace::Stage::Values);
             let (values, value_work) = match builder.complete_maxima(&[]).into_ready() {

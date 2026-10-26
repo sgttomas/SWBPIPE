@@ -9,6 +9,7 @@ import { SectionAssignment } from "../toolkit/SectionAssignment";
 import { GuardedRemoval } from "../toolkit/GuardedRemoval";
 import { ModelDataAnnotations } from "../model-data/ModelDataAnnotations";
 import { ModelSettingsSection } from "../model-settings/ModelSettingsSection";
+import { ProjectUnitsSection } from "../project-units/ProjectUnitsSection";
 import { ListPlus, Pencil, PlayCircle, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type {
@@ -32,8 +33,10 @@ import { composedDefault, declaredOrComposedDefault } from "../project-units/pro
 import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selectionState";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
+import { RigidDraftFields } from "../component-creation/RigidDraftFields";
 import {
   buildCreateComponentIntent,
+  CENTER_OF_GRAVITY_CONVENTION,
   componentDraftForKind,
   componentDraftForNode,
   creatableComponentKinds,
@@ -78,14 +81,14 @@ export function PropertyInspector({
   const properties = selectedProperties(model, propertiesTarget);
   const editableFields = useMemo(() => editorFieldOptions(model, draftTarget), [draftTarget, model]);
   const [selectedFieldPath, setSelectedFieldPath] = useState(editableFields[0]?.fieldPath ?? "");
-  const [proposedValue, setProposedValue] = useState(editableFields[0]?.before ?? "");
+  const [proposedValue, setProposedValue] = useState(fieldEntryValue(editableFields[0]));
   const [proposedUnit, setProposedUnit] = useState(editableFields[0]?.unit ?? "");
   const [rationale, setRationale] = useState("user_entered_preview_change");
   const [sectionDraft, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
   const [materialDraftState, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
   const [supportDraftState, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
   const [componentDraft, setComponentDraft] = useState(() =>
-    defaultComponentDraft(model, selection, queuedIntents)
+    componentDraftFor(model, selection, queuedIntents)
   );
   const aggregateRefs = selectionState?.orderedKeys.flatMap((key) => {
     const ref = entityRefFromKey(key);
@@ -139,12 +142,12 @@ export function PropertyInspector({
   const componentAngleUnitOptions = unitOptions(
     unitCatalogRoute,
     "angle",
-    componentDraft.angleUnit || model.project.units.angle || "rad"
+    componentDraft.angleUnit || storedProjectUnits(model).angle || "rad"
   );
   const componentForceUnitOptions = unitOptions(
     unitCatalogRoute,
     "force",
-    componentDraft.forceUnit || model.project.units.force || "TBD"
+    componentDraft.forceUnit || storedProjectUnits(model).force || "TBD"
   );
   const nodeTargetOptions = useMemo(() => model.nodes.map((node) => ({ value: node.id, label: node.label || node.id })), [model.nodes]);
   const connectedPipeTargetOptions = useMemo(() => model.pipe_segments
@@ -198,7 +201,7 @@ export function PropertyInspector({
   const fieldChanged = Boolean(
     operationIntent &&
     selectedField &&
-    ((proposedValue.trim() || "TBD") !== selectedField.before ||
+    ((proposedValue.trim() || "TBD") !== (selectedField.initialValue || selectedField.before) ||
       (selectedField.unitEditable && (proposedUnit.trim() || selectedField.unit) !== selectedField.unit))
   );
   const currentIntentComplete = Boolean(operationIntent && fieldChanged && operationIntentIsComplete(operationIntent));
@@ -209,11 +212,11 @@ export function PropertyInspector({
     const firstField = editorFieldOptions(model, nextTarget)[0];
     setDraftTarget(nextTarget);
     setSelectedFieldPath(firstField?.fieldPath ?? "");
-    setProposedValue(firstField?.before ?? "");
+    setProposedValue(fieldEntryValue(firstField));
     setProposedUnit(firstField?.unit ?? "");
     setRationale("user_entered_preview_change");
     setSupportDraft(defaultSupportDraft(model, selection, queuedIntents, unitCatalogRoute));
-    setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
+    setComponentDraft(componentDraftFor(model, selection, queuedIntents));
     setMaterialDraft(defaultMaterialDraft(model, queuedIntents, unitCatalogRoute));
     setSectionDraft(defaultSectionDraft(model, queuedIntents));
     setInspectorView("properties");
@@ -232,7 +235,7 @@ export function PropertyInspector({
       const firstField = editorFieldOptions(model, nextTarget)[0];
       setDraftTarget(nextTarget);
       setSelectedFieldPath(firstField?.fieldPath ?? "");
-      setProposedValue(firstField?.before ?? "");
+      setProposedValue(fieldEntryValue(firstField));
       setProposedUnit(firstField?.unit ?? "");
       setRationale("user_entered_preview_change");
       setTaskActive(true);
@@ -283,7 +286,7 @@ export function PropertyInspector({
     taskGenerationRef.current += 1;
     const nextField = editableFields.find((field) => field.fieldPath === fieldPath);
     setSelectedFieldPath(fieldPath);
-    setProposedValue(nextField?.before ?? "");
+    setProposedValue(fieldEntryValue(nextField));
     setProposedUnit(nextField?.unit ?? "");
   }
 
@@ -293,7 +296,7 @@ export function PropertyInspector({
     const firstField = editorFieldOptions(model, nextTarget)[0];
     setDraftTarget(nextTarget);
     setSelectedFieldPath(firstField?.fieldPath ?? "");
-    setProposedValue(firstField?.before ?? "");
+    setProposedValue(fieldEntryValue(firstField));
     setProposedUnit(firstField?.unit ?? "");
     setRationale("user_entered_preview_change");
     setInspectorView("task");
@@ -304,7 +307,7 @@ export function PropertyInspector({
     taskGenerationRef.current += 1;
     const firstField = editorFieldOptions(model, draftTarget)[0];
     setSelectedFieldPath(firstField?.fieldPath ?? "");
-    setProposedValue(firstField?.before ?? "");
+    setProposedValue(fieldEntryValue(firstField));
     setProposedUnit(firstField?.unit ?? "");
     setRationale("user_entered_preview_change");
     setTaskActive(false);
@@ -336,7 +339,7 @@ export function PropertyInspector({
     if (multiSelection || !componentCreateIntent) return;
     onQueueIntent(componentCreateIntent);
     setComponentDraft(
-      defaultComponentDraft(model, propertiesTarget, [...queuedIntents, componentCreateIntent], componentDraft.kind)
+      componentDraftFor(model, propertiesTarget, [...queuedIntents, componentCreateIntent], componentDraft.kind)
     );
   }
 
@@ -593,6 +596,12 @@ export function PropertyInspector({
         <details className="inspector-details" open data-testid="model-settings-details">
           <summary>Model settings</summary>
           <ModelSettingsSection key={`model-settings:${projectSessionGeneration}`} model={model} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} unitCatalogRoute={unitCatalogRoute} />
+        </details>
+      ) : null}
+      {propertiesTarget.type === "project" ? (
+        <details className="inspector-details" open data-testid="project-units-details">
+          <summary>Project units</summary>
+          <ProjectUnitsSection key={`project-units:${projectSessionGeneration}`} model={model} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} unitCatalogRoute={unitCatalogRoute} />
         </details>
       ) : null}
       <details className="inspector-details" data-testid="model-data-annotations-details">
@@ -937,6 +946,7 @@ export function PropertyInspector({
               <ComponentTextInput label="End A reference" testId="create-component-end-a-ref" value={componentDraft.connectionEndAReference} onChange={(value) => updateComponentDraft("connectionEndAReference", value)} />
               <ComponentTextInput label="End B reference" testId="create-component-end-b-ref" value={componentDraft.connectionEndBReference} onChange={(value) => updateComponentDraft("connectionEndBReference", value)} />
               <ComponentTextInput label="Stiffness behavior reference" testId="create-component-stiffness-ref" value={componentDraft.stiffnessBehaviorReference} onChange={(value) => updateComponentDraft("stiffnessBehaviorReference", value)} />
+              <RigidDraftFields draft={componentDraft} prefix="create" TextInput={ComponentTextInput} update={(key, value) => updateComponentDraft(key, value)} />
             </>
           ) : null}
           <label>
@@ -1085,8 +1095,16 @@ type EditableField = {
   unit: string;
   sourceNote: string;
   unitEditable: boolean;
-  valueKind: "text" | "quantity";
+  valueKind: "text" | "quantity" | "vector";
+  /** The entry form of the current value where it differs from `before`
+   * (a vector's three components without its unit). */
+  initialValue?: string;
 };
+
+/** The value a field's entry starts from. */
+function fieldEntryValue(field: EditableField | undefined): string {
+  return field ? (field.initialValue ?? field.before) : "";
+}
 
 type SupportDraft = {
   id: string;
@@ -1274,6 +1292,7 @@ function SelectedFieldValue({ field, basis }: { field: EditableField; basis: Uni
     <section className="inspector-context-card" data-testid="inspector-text-value" aria-label="Current value">
       <span>Current {propertyLabel(field).toLowerCase()}</span>
       <strong>{field.before}</strong>
+      {field.valueKind === "vector" ? <small data-testid="inspector-vector-convention">{CENTER_OF_GRAVITY_CONVENTION} Enter x, y, z.</small> : null}
     </section>
   );
 }
@@ -1992,16 +2011,11 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
           "set_field",
           true
         ),
-        scalarField(
+        vectorField(
           "Center of gravity",
           "geometry.center_of_gravity",
-          component.geometry?.center_of_gravity
-            ? `x=${component.geometry.center_of_gravity.x}, y=${component.geometry.center_of_gravity.y}, z=${component.geometry.center_of_gravity.z} ${component.geometry.center_of_gravity.unit}`
-            : "TBD",
-          "Component",
-          "length",
-          component.geometry?.center_of_gravity?.unit ?? model.project.units.length ?? "m",
-          "user-entered COG vector in the component reference convention"
+          component.geometry?.center_of_gravity,
+          model.project.units.length ?? "m"
         ),
         scalarField(
           "Stiffness behavior",
@@ -2020,6 +2034,24 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
           "dimensionless",
           component.modifiers?.stiffness_scaling_user_value?.unit ?? "none",
           "user-entered rigid stiffness scaling; no catalog default"
+        ),
+        scalarField(
+          "Stiffness scale source",
+          "modifiers.source_reference",
+          component.modifiers?.source_reference ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered source reference of the stiffness scale and the component's other modifiers"
+        ),
+        scalarField(
+          "Solver consumption",
+          "mechanics_interface.solver_consumption",
+          component.mechanics_interface?.solver_consumption ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered token (mechanics_geometry_only | not_solver_consumed); mechanics_geometry_only applies the stiffness scale and the component weight"
         ),
         quantityField(
           "Linear stiffness",
@@ -2370,6 +2402,40 @@ function scalarField(
   };
 }
 
+/** W-15 (owner's R10 ruling, 2026-10-24): a `{x, y, z, unit}` vector in
+ * global X/Y/Z from the component's node. `before` is `x, y, z unit` (or
+ * `TBD`); the entry is the three components, with the unit chosen apart. */
+function vectorField(
+  label: string,
+  fieldPath: string,
+  vector: { x: number; y: number; z: number; unit: string } | undefined,
+  defaultUnit: string
+): EditableField {
+  const components = vector ? `${vector.x}, ${vector.y}, ${vector.z}` : "";
+  return {
+    label,
+    fieldPath,
+    before: vector ? `${components} ${vector.unit}` : "TBD",
+    initialValue: components,
+    objectType: "Component",
+    dimension: "length",
+    unit: vector?.unit ?? defaultUnit,
+    sourceNote: "user-entered vector in global X/Y/Z from the component's node (x, y, z)",
+    changeKind: "set_field",
+    unitEditable: true,
+    valueKind: "vector"
+  };
+}
+
+/** The explicit vector payload of three entered components, or the raw text
+ * (which the operation service refuses) when there are not three numbers. */
+function vectorPayload(raw: string, unit: string): string {
+  const parts = raw.split(/[\s,]+/).filter(Boolean).map(Number);
+  if (parts.length !== 3 || !parts.every(Number.isFinite)) return raw.trim() || "TBD";
+  const [x, y, z] = parts;
+  return JSON.stringify({ x, y, z, unit });
+}
+
 function quantityField(
   label: string,
   fieldPath: string,
@@ -2429,7 +2495,9 @@ function buildOperationIntent({
 }): EditorOperationIntent {
   const operationToken = `${selection.type}-${safeToken(selection.id)}-${safeToken(field.fieldPath)}`;
   const intentUnit = field.unitEditable ? proposedUnit.trim() || field.unit : field.unit;
-  const changeAfter = field.unitEditable
+  const changeAfter = field.valueKind === "vector"
+    ? vectorPayload(proposedValue, intentUnit)
+    : field.unitEditable
     ? JSON.stringify({
         value: parseQuantityPayloadValue(proposedValue),
         unit: intentUnit
@@ -2928,8 +2996,11 @@ function operationIntentIsComplete(intent: EditorOperationIntent): boolean {
   if (intent.change.unit === "TBD" || !intent.change.unit.trim()) return false;
   if (intent.change.dimension === "dimensionless") return true;
   try {
-    const quantity = JSON.parse(intent.change.after) as { value?: unknown; unit?: unknown };
-    return Number.isFinite(quantity.value) && typeof quantity.unit === "string" && quantity.unit.trim().length > 0;
+    const quantity = JSON.parse(intent.change.after) as { value?: unknown; unit?: unknown; x?: unknown; y?: unknown; z?: unknown };
+    const finite = "x" in quantity
+      ? [quantity.x, quantity.y, quantity.z].every((component) => Number.isFinite(component))
+      : Number.isFinite(quantity.value);
+    return finite && typeof quantity.unit === "string" && quantity.unit.trim().length > 0;
   } catch {
     return false;
   }
@@ -3108,33 +3179,49 @@ function isSupportDraftValid(model: PreviewModel, draft: SupportDraft): boolean 
   );
 }
 
+// An opened document may lack `project.units` or some of its keys (W-17 §3):
+// each then reads as absent, shown as missing ("TBD" or unselected) and offered
+// on the Project page, never written or defaulted here.
+function storedProjectUnits(model: PreviewModel): Readonly<Partial<Record<string, string>>> {
+  return (model.project.units as PreviewModel["project"]["units"] | undefined) ?? {};
+}
+
+// The component draft reads `project.units` as present; it gets a read-only view
+// in which an absent map is empty, so it does not throw. Its length and force
+// units then start as missing ("TBD"); its angle unit still falls back
+// to `rad` inside `defaultComponentDraft` (a separate, open item).
+function componentDraftFor(...[model, ...rest]: Parameters<typeof defaultComponentDraft>): ComponentDraft {
+  const view = model.project.units === undefined ? { ...model, project: { ...model.project, units: {} } } : model;
+  return defaultComponentDraft(view, ...rest);
+}
+
 function lengthUnit(model: PreviewModel): string {
-  return model.project.units.length ?? "TBD";
+  return storedProjectUnits(model).length ?? "TBD";
 }
 
 function stressUnit(model: PreviewModel): string {
-  return model.project.units.pressure ?? "TBD";
+  return storedProjectUnits(model).pressure ?? "TBD";
 }
 
 // Composed defaults (W-17 §2.4): `1/<temperature>` and `<force>/<length>`, each
 // checked against the loaded catalog. A composition the catalog lacks gives ""
 // (unselected), never a substitute. A declared `linear_stiffness` key is used as is.
 function thermalExpansionUnit(model: PreviewModel, route: UnitCatalogRoute | null = null): string {
-  return composedDefault(route, "thermal_expansion", model.project.units).symbol;
+  return composedDefault(route, "thermal_expansion", storedProjectUnits(model)).symbol;
 }
 
 function thermalExpansionUnitNoticeFor(model: PreviewModel, route: UnitCatalogRoute | null): string | null {
-  return composedDefault(route, "thermal_expansion", model.project.units).notice;
+  return composedDefault(route, "thermal_expansion", storedProjectUnits(model)).notice;
 }
 
 // A present `linear_stiffness` key is used as declared (unchecked, as before); a
 // present but invalid one gives no default. Only an absent key composes.
 function linearStiffnessUnit(model: PreviewModel, route: UnitCatalogRoute | null = null): string {
-  return declaredOrComposedDefault(route, "linear_stiffness", "linear_stiffness", model.project.units, false).symbol;
+  return declaredOrComposedDefault(route, "linear_stiffness", "linear_stiffness", storedProjectUnits(model), false).symbol;
 }
 
 function linearStiffnessUnitNotice(model: PreviewModel, route: UnitCatalogRoute | null): string | null {
-  return declaredOrComposedDefault(route, "linear_stiffness", "linear_stiffness", model.project.units, false).notice;
+  return declaredOrComposedDefault(route, "linear_stiffness", "linear_stiffness", storedProjectUnits(model), false).notice;
 }
 
 function isFiniteInput(value: string): boolean {

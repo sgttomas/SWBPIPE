@@ -464,7 +464,7 @@
     "formulation_basis": {
       "limitations": [
         "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
-        "Nonzero pressure is refused on this route.",
+        "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
         "On every member the section normal-stress extremes are N/A ± hypot(My,Mz)/Z at each station and the transverse shear maximum is the straight-annulus Saint-Venant value, with ν = E/(2G) − 1 assuming an isotropic material. On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No equivalent stress or code stress.",
         "On arcs: signed tangent-frame resultants, nominal stress components and section extremes; endpoint force rows are node-on-element actions in the tangent frame at their end. The normal-stress maximum is bounded along the arc and enters the stress headline. The transverse shear uses the straight-annulus field without curvature correction.",
         "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",
@@ -2648,6 +2648,234 @@
         "recovery_method": "contribution_preserving_multiprecision_v1",
         "unit": "Pa",
         "value": 8.170865639376687e-92
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:a",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:element-global-end:M1:end_i:fx",
+        "kind": "element_global_end_force_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "end_i",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "N",
+        "value": -1.7237173313006566e-96
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:a",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:element-global-end:M1:end_i:fy",
+        "kind": "element_global_end_force_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "end_i",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "N",
+        "value": -6.714388192046702e-96
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:a",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:element-global-end:M1:end_i:fz",
+        "kind": "element_global_end_force_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "end_i",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "N",
+        "value": 9.989296995569637e-96
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:a",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:element-global-end:M1:end_i:mx",
+        "kind": "element_global_end_moment_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "end_i",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "N*m",
+        "value": -0.004799999999999999
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:a",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:element-global-end:M1:end_i:my",
+        "kind": "element_global_end_moment_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "end_i",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "N*m",
+        "value": -0.009599999999999997
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:a",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:element-global-end:M1:end_i:mz",
+        "kind": "element_global_end_moment_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "end_i",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "N*m",
+        "value": -0.009599999999999997
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:a",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:element-global-end:M1:end_j:fx",
+        "kind": "element_global_end_force_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "end_j",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "N",
+        "value": 1.7237173313006566e-96
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:a",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:element-global-end:M1:end_j:fy",
+        "kind": "element_global_end_force_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "end_j",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "N",
+        "value": 6.714388192046702e-96
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:a",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:element-global-end:M1:end_j:fz",
+        "kind": "element_global_end_force_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "end_j",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "N",
+        "value": -9.989296995569637e-96
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:a",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:element-global-end:M1:end_j:mx",
+        "kind": "element_global_end_moment_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "end_j",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "N*m",
+        "value": 0.004799999999999999
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:a",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:element-global-end:M1:end_j:my",
+        "kind": "element_global_end_moment_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "end_j",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "N*m",
+        "value": 0.009599999999999997
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:a",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:element-global-end:M1:end_j:mz",
+        "kind": "element_global_end_moment_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "end_j",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "N*m",
+        "value": 0.009599999999999997
       },
       {
         "basis_ref": {
@@ -4953,6 +5181,222 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
+        "id": "result:loadcase:case-b:element-global-end:M1:end_i:fx",
+        "kind": "element_global_end_force_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "end_i",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "unit": "N",
+        "value": 0.0
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:b",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:loadcase:case-b:element-global-end:M1:end_i:fy",
+        "kind": "element_global_end_force_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "end_i",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "unit": "N",
+        "value": 0.0
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:b",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:loadcase:case-b:element-global-end:M1:end_i:fz",
+        "kind": "element_global_end_force_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "end_i",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "unit": "N",
+        "value": 0.0
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:b",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:loadcase:case-b:element-global-end:M1:end_i:mx",
+        "kind": "element_global_end_moment_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "end_i",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "unit": "N*m",
+        "value": 0.0
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:b",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:loadcase:case-b:element-global-end:M1:end_i:my",
+        "kind": "element_global_end_moment_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "end_i",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "unit": "N*m",
+        "value": 0.0
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:b",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:loadcase:case-b:element-global-end:M1:end_i:mz",
+        "kind": "element_global_end_moment_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "end_i",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "unit": "N*m",
+        "value": 0.0
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:b",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:loadcase:case-b:element-global-end:M1:end_j:fx",
+        "kind": "element_global_end_force_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "end_j",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "unit": "N",
+        "value": 0.0
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:b",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:loadcase:case-b:element-global-end:M1:end_j:fy",
+        "kind": "element_global_end_force_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "end_j",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "unit": "N",
+        "value": 0.0
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:b",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:loadcase:case-b:element-global-end:M1:end_j:fz",
+        "kind": "element_global_end_force_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "end_j",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "unit": "N",
+        "value": 0.0
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:b",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:loadcase:case-b:element-global-end:M1:end_j:mx",
+        "kind": "element_global_end_moment_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "end_j",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "unit": "N*m",
+        "value": 0.0
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:b",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:loadcase:case-b:element-global-end:M1:end_j:my",
+        "kind": "element_global_end_moment_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "end_j",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "unit": "N*m",
+        "value": 0.0
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:b",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:loadcase:case-b:element-global-end:M1:end_j:mz",
+        "kind": "element_global_end_moment_v1",
+        "metadata": {
+          "basis": "rotated_from_published_element_local_end_actions_v1",
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "end_j",
+          "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+        },
+        "unit": "N*m",
+        "value": 0.0
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case:b",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
         "id": "result:loadcase:case-b:stress:M1:end-i:sigma-plus",
         "kind": "element_local_normal_stress_extreme",
         "metadata": {
@@ -5681,6 +6125,282 @@
         ],
         "unit": "mm",
         "value": 0.0
+      },
+      {
+        "basis_ref": {
+          "ref_id": "combination:ab",
+          "ref_type": "combination"
+        },
+        "entity_ref": "M1",
+        "id": "result:combination:combination-ab:element-global-end:M1:end_i:fx",
+        "kind": "element_global_end_force_v1",
+        "metadata": {
+          "basis": "explicit_user_linear_combination",
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "end_i",
+          "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "source_result_refs": [
+          "result:element-global-end:M1:end_i:fx",
+          "result:loadcase:case-b:element-global-end:M1:end_i:fx"
+        ],
+        "unit": "N",
+        "value": -1.7237173313006566e-96
+      },
+      {
+        "basis_ref": {
+          "ref_id": "combination:ab",
+          "ref_type": "combination"
+        },
+        "entity_ref": "M1",
+        "id": "result:combination:combination-ab:element-global-end:M1:end_i:fy",
+        "kind": "element_global_end_force_v1",
+        "metadata": {
+          "basis": "explicit_user_linear_combination",
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "end_i",
+          "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "source_result_refs": [
+          "result:element-global-end:M1:end_i:fy",
+          "result:loadcase:case-b:element-global-end:M1:end_i:fy"
+        ],
+        "unit": "N",
+        "value": -6.714388192046702e-96
+      },
+      {
+        "basis_ref": {
+          "ref_id": "combination:ab",
+          "ref_type": "combination"
+        },
+        "entity_ref": "M1",
+        "id": "result:combination:combination-ab:element-global-end:M1:end_i:fz",
+        "kind": "element_global_end_force_v1",
+        "metadata": {
+          "basis": "explicit_user_linear_combination",
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "end_i",
+          "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "source_result_refs": [
+          "result:element-global-end:M1:end_i:fz",
+          "result:loadcase:case-b:element-global-end:M1:end_i:fz"
+        ],
+        "unit": "N",
+        "value": 9.989296995569637e-96
+      },
+      {
+        "basis_ref": {
+          "ref_id": "combination:ab",
+          "ref_type": "combination"
+        },
+        "entity_ref": "M1",
+        "id": "result:combination:combination-ab:element-global-end:M1:end_i:mx",
+        "kind": "element_global_end_moment_v1",
+        "metadata": {
+          "basis": "explicit_user_linear_combination",
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "end_i",
+          "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "source_result_refs": [
+          "result:element-global-end:M1:end_i:mx",
+          "result:loadcase:case-b:element-global-end:M1:end_i:mx"
+        ],
+        "unit": "N*m",
+        "value": -0.004799999999999999
+      },
+      {
+        "basis_ref": {
+          "ref_id": "combination:ab",
+          "ref_type": "combination"
+        },
+        "entity_ref": "M1",
+        "id": "result:combination:combination-ab:element-global-end:M1:end_i:my",
+        "kind": "element_global_end_moment_v1",
+        "metadata": {
+          "basis": "explicit_user_linear_combination",
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "end_i",
+          "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "source_result_refs": [
+          "result:element-global-end:M1:end_i:my",
+          "result:loadcase:case-b:element-global-end:M1:end_i:my"
+        ],
+        "unit": "N*m",
+        "value": -0.009599999999999997
+      },
+      {
+        "basis_ref": {
+          "ref_id": "combination:ab",
+          "ref_type": "combination"
+        },
+        "entity_ref": "M1",
+        "id": "result:combination:combination-ab:element-global-end:M1:end_i:mz",
+        "kind": "element_global_end_moment_v1",
+        "metadata": {
+          "basis": "explicit_user_linear_combination",
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "end_i",
+          "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "source_result_refs": [
+          "result:element-global-end:M1:end_i:mz",
+          "result:loadcase:case-b:element-global-end:M1:end_i:mz"
+        ],
+        "unit": "N*m",
+        "value": -0.009599999999999997
+      },
+      {
+        "basis_ref": {
+          "ref_id": "combination:ab",
+          "ref_type": "combination"
+        },
+        "entity_ref": "M1",
+        "id": "result:combination:combination-ab:element-global-end:M1:end_j:fx",
+        "kind": "element_global_end_force_v1",
+        "metadata": {
+          "basis": "explicit_user_linear_combination",
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "end_j",
+          "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "source_result_refs": [
+          "result:element-global-end:M1:end_j:fx",
+          "result:loadcase:case-b:element-global-end:M1:end_j:fx"
+        ],
+        "unit": "N",
+        "value": 1.7237173313006566e-96
+      },
+      {
+        "basis_ref": {
+          "ref_id": "combination:ab",
+          "ref_type": "combination"
+        },
+        "entity_ref": "M1",
+        "id": "result:combination:combination-ab:element-global-end:M1:end_j:fy",
+        "kind": "element_global_end_force_v1",
+        "metadata": {
+          "basis": "explicit_user_linear_combination",
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "end_j",
+          "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "source_result_refs": [
+          "result:element-global-end:M1:end_j:fy",
+          "result:loadcase:case-b:element-global-end:M1:end_j:fy"
+        ],
+        "unit": "N",
+        "value": 6.714388192046702e-96
+      },
+      {
+        "basis_ref": {
+          "ref_id": "combination:ab",
+          "ref_type": "combination"
+        },
+        "entity_ref": "M1",
+        "id": "result:combination:combination-ab:element-global-end:M1:end_j:fz",
+        "kind": "element_global_end_force_v1",
+        "metadata": {
+          "basis": "explicit_user_linear_combination",
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "end_j",
+          "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "source_result_refs": [
+          "result:element-global-end:M1:end_j:fz",
+          "result:loadcase:case-b:element-global-end:M1:end_j:fz"
+        ],
+        "unit": "N",
+        "value": -9.989296995569637e-96
+      },
+      {
+        "basis_ref": {
+          "ref_id": "combination:ab",
+          "ref_type": "combination"
+        },
+        "entity_ref": "M1",
+        "id": "result:combination:combination-ab:element-global-end:M1:end_j:mx",
+        "kind": "element_global_end_moment_v1",
+        "metadata": {
+          "basis": "explicit_user_linear_combination",
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "end_j",
+          "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "source_result_refs": [
+          "result:element-global-end:M1:end_j:mx",
+          "result:loadcase:case-b:element-global-end:M1:end_j:mx"
+        ],
+        "unit": "N*m",
+        "value": 0.004799999999999999
+      },
+      {
+        "basis_ref": {
+          "ref_id": "combination:ab",
+          "ref_type": "combination"
+        },
+        "entity_ref": "M1",
+        "id": "result:combination:combination-ab:element-global-end:M1:end_j:my",
+        "kind": "element_global_end_moment_v1",
+        "metadata": {
+          "basis": "explicit_user_linear_combination",
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "end_j",
+          "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "source_result_refs": [
+          "result:element-global-end:M1:end_j:my",
+          "result:loadcase:case-b:element-global-end:M1:end_j:my"
+        ],
+        "unit": "N*m",
+        "value": 0.009599999999999997
+      },
+      {
+        "basis_ref": {
+          "ref_id": "combination:ab",
+          "ref_type": "combination"
+        },
+        "entity_ref": "M1",
+        "id": "result:combination:combination-ab:element-global-end:M1:end_j:mz",
+        "kind": "element_global_end_moment_v1",
+        "metadata": {
+          "basis": "explicit_user_linear_combination",
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "end_j",
+          "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "source_result_refs": [
+          "result:element-global-end:M1:end_j:mz",
+          "result:loadcase:case-b:element-global-end:M1:end_j:mz"
+        ],
+        "unit": "N*m",
+        "value": 0.009599999999999997
       },
       {
         "basis_ref": {
@@ -8618,6 +9338,18 @@
               ],
               "ledger_sha256": "5e29a87cabc49bc64bcbbd37472a1f861def9ad8e0a68bc1a1297e2d5221eef0",
               "not_covered": [
+                "result:element-global-end:M1:end_i:fx",
+                "result:element-global-end:M1:end_i:fy",
+                "result:element-global-end:M1:end_i:fz",
+                "result:element-global-end:M1:end_i:mx",
+                "result:element-global-end:M1:end_i:my",
+                "result:element-global-end:M1:end_i:mz",
+                "result:element-global-end:M1:end_j:fx",
+                "result:element-global-end:M1:end_j:fy",
+                "result:element-global-end:M1:end_j:fz",
+                "result:element-global-end:M1:end_j:mx",
+                "result:element-global-end:M1:end_j:my",
+                "result:element-global-end:M1:end_j:mz",
                 "result:stress:M1:end-i:sigma-plus",
                 "result:stress:M1:end-i:sigma-minus",
                 "result:stress:M1:end-i:transverse-shear-max",
@@ -8789,6 +9521,18 @@
               "result:combination:combination-ab:disp:N2:ux",
               "result:combination:combination-ab:disp:N2:uy",
               "result:combination:combination-ab:disp:N2:uz",
+              "result:combination:combination-ab:element-global-end:M1:end_i:fx",
+              "result:combination:combination-ab:element-global-end:M1:end_i:fy",
+              "result:combination:combination-ab:element-global-end:M1:end_i:fz",
+              "result:combination:combination-ab:element-global-end:M1:end_i:mx",
+              "result:combination:combination-ab:element-global-end:M1:end_i:my",
+              "result:combination:combination-ab:element-global-end:M1:end_i:mz",
+              "result:combination:combination-ab:element-global-end:M1:end_j:fx",
+              "result:combination:combination-ab:element-global-end:M1:end_j:fy",
+              "result:combination:combination-ab:element-global-end:M1:end_j:fz",
+              "result:combination:combination-ab:element-global-end:M1:end_j:mx",
+              "result:combination:combination-ab:element-global-end:M1:end_j:my",
+              "result:combination:combination-ab:element-global-end:M1:end_j:mz",
               "result:combination:combination-ab:force:M1:axial",
               "result:combination:combination-ab:force:M1:axial:end-j",
               "result:combination:combination-ab:force:M1:midspan:axial",
@@ -9526,7 +10270,20 @@
                 }
               ],
               "ledger_sha256": "df857df2a54de0abab2c3d4c093075c46e6b28d9ae00b3fca937fa0e3079f983",
-              "not_covered": [],
+              "not_covered": [
+                "result:combination:combination-ab:element-global-end:M1:end_i:fx",
+                "result:combination:combination-ab:element-global-end:M1:end_i:fy",
+                "result:combination:combination-ab:element-global-end:M1:end_i:fz",
+                "result:combination:combination-ab:element-global-end:M1:end_i:mx",
+                "result:combination:combination-ab:element-global-end:M1:end_i:my",
+                "result:combination:combination-ab:element-global-end:M1:end_i:mz",
+                "result:combination:combination-ab:element-global-end:M1:end_j:fx",
+                "result:combination:combination-ab:element-global-end:M1:end_j:fy",
+                "result:combination:combination-ab:element-global-end:M1:end_j:fz",
+                "result:combination:combination-ab:element-global-end:M1:end_j:mx",
+                "result:combination:combination-ab:element-global-end:M1:end_j:my",
+                "result:combination:combination-ab:element-global-end:M1:end_j:mz"
+              ],
               "pivot_margin_min": "464473cc7f82d3f2",
               "precision": 128,
               "rcond": "3e5bfca1c1759ff5",
@@ -9717,15 +10474,15 @@
             "adapter": {
               "counts": [
                 534,
-                3649,
-                1082,
-                6601,
-                164638,
-                5897,
-                143,
-                355,
+                3889,
+                1155,
+                7189,
+                176374,
+                6449,
+                144,
+                379,
                 1318,
-                44070
+                47238
               ],
               "fault": null,
               "observation_capacity_bytes": [
@@ -10083,15 +10840,15 @@
             "adapter": {
               "counts": [
                 504,
-                3649,
-                1015,
-                6592,
-                164638,
-                5897,
-                120,
-                355,
+                3889,
+                1088,
+                7180,
+                176374,
+                6449,
+                121,
+                379,
                 1061,
-                41793
+                44961
               ],
               "fault": null,
               "observation_capacity_bytes": [
@@ -10399,7 +11156,7 @@
                 1,
                 73,
                 0,
-                128,
+                140,
                 21,
                 30,
                 2
@@ -10774,12 +11531,12 @@
                 }
               },
               "prepared_capacity_bytes": [
-                1024,
-                8192,
+                1120,
+                8960,
                 16,
                 1,
                 32,
-                4096
+                4480
               ],
               "projection_conversions": {
                 "kind": "exact",
@@ -11522,7 +12279,7 @@
               ],
               "visits": {
                 "kind": "exact",
-                "value": 22773
+                "value": 24393
               }
             },
             "result": {
@@ -11547,15 +12304,15 @@
             "adapter": {
               "counts": [
                 534,
-                4273,
-                1640,
-                10237,
-                270018,
-                9218,
-                148,
-                800,
+                4807,
+                1812,
+                11245,
+                292602,
+                10154,
+                151,
+                872,
                 1318,
-                71630
+                78366
               ],
               "fault": null,
               "observation_capacity_bytes": [
@@ -11612,7 +12369,7 @@
                 1,
                 73,
                 0,
-                111,
+                123,
                 21,
                 30,
                 2
@@ -11987,12 +12744,12 @@
                 }
               },
               "prepared_capacity_bytes": [
-                888,
-                7104,
+                984,
+                7872,
                 16,
                 0,
                 32,
-                3552
+                3936
               ],
               "projection_conversions": {
                 "kind": "exact",
@@ -12130,292 +12887,208 @@
                     "kind": "normal",
                     "value": "2c0b7d42c94b35cd"
                   },
-                  "row_index": 21
-                },
-                {
-                  "outcome": {
-                    "kind": "normal",
-                    "value": "ac0b7d42c94b35cd"
-                  },
-                  "row_index": 22
-                },
-                {
-                  "outcome": {
-                    "kind": "normal",
-                    "value": "ac0b7d42c94b35cd"
-                  },
-                  "row_index": 23
-                },
-                {
-                  "outcome": {
-                    "kind": "normal",
-                    "value": "2c147aed43197a7d"
-                  },
-                  "row_index": 24
-                },
-                {
-                  "outcome": {
-                    "kind": "normal",
-                    "value": "2c393a9009609b41"
-                  },
-                  "row_index": 25
-                },
-                {
-                  "outcome": {
-                    "kind": "normal",
-                    "value": "ac0b7d42c94b35cd"
-                  },
-                  "row_index": 26
-                },
-                {
-                  "outcome": {
-                    "kind": "normal",
-                    "value": "2c147aed43197a7d"
-                  },
-                  "row_index": 27
-                },
-                {
-                  "outcome": {
-                    "kind": "normal",
-                    "value": "2c393a9009609b41"
-                  },
-                  "row_index": 28
-                },
-                {
-                  "outcome": {
-                    "kind": "normal",
-                    "value": "ac0b7d42c94b35cd"
-                  },
-                  "row_index": 29
-                },
-                {
-                  "outcome": {
-                    "kind": "normal",
-                    "value": "2c147aed43197a7d"
-                  },
-                  "row_index": 30
-                },
-                {
-                  "outcome": {
-                    "kind": "normal",
-                    "value": "2c393a9009609b41"
-                  },
-                  "row_index": 31
-                },
-                {
-                  "outcome": {
-                    "kind": "normal",
-                    "value": "ac147aed43197a7d"
-                  },
-                  "row_index": 32
-                },
-                {
-                  "outcome": {
-                    "kind": "normal",
-                    "value": "2c147aed43197a7d"
-                  },
                   "row_index": 33
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac393a9009609b41"
+                    "value": "ac0b7d42c94b35cd"
                   },
                   "row_index": 34
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2c393a9009609b41"
+                    "value": "ac0b7d42c94b35cd"
                   },
                   "row_index": 35
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2c477b9315c1c798"
+                    "value": "2c147aed43197a7d"
                   },
                   "row_index": 36
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2c3cb889f09e4293"
+                    "value": "2c393a9009609b41"
                   },
                   "row_index": 37
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2bf55ff6491a2fbd"
+                    "value": "ac0b7d42c94b35cd"
                   },
                   "row_index": 38
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac30b23156e4beda"
+                    "value": "2c147aed43197a7d"
                   },
                   "row_index": 39
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac223e9c3ae54c9d"
+                    "value": "2c393a9009609b41"
                   },
                   "row_index": 40
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac220830bb7661d5"
+                    "value": "ac0b7d42c94b35cd"
                   },
                   "row_index": 41
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3f8d7dbf487fcb91"
+                    "value": "2c147aed43197a7d"
                   },
                   "row_index": 42
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac3c0b3a247b1abf"
+                    "value": "2c393a9009609b41"
                   },
                   "row_index": 43
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac14b42f8499a7cd"
+                    "value": "ac147aed43197a7d"
                   },
                   "row_index": 44
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3f8d7dbf487fcb91"
+                    "value": "2c147aed43197a7d"
                   },
                   "row_index": 45
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2c23993bd32b9c45"
+                    "value": "ac393a9009609b41"
                   },
                   "row_index": 46
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac29b649b49fefc4"
+                    "value": "2c393a9009609b41"
                   },
                   "row_index": 47
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3f8d7dbf487fcb91"
+                    "value": "2c477b9315c1c798"
                   },
                   "row_index": 48
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "bf8d7dbf487fcb91"
+                    "value": "2c3cb889f09e4293"
                   },
                   "row_index": 49
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3f8d7dbf487fcb91"
+                    "value": "2bf55ff6491a2fbd"
                   },
                   "row_index": 50
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac81fd53017c8188"
+                    "value": "ac30b23156e4beda"
                   },
                   "row_index": 51
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ad0539d5128101fd"
+                    "value": "ac223e9c3ae54c9d"
                   },
                   "row_index": 52
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "acb352144a90f889"
+                    "value": "ac220830bb7661d5"
                   },
                   "row_index": 53
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "403aa82dcd5efbcb"
+                    "value": "3f8d7dbf487fcb91"
                   },
                   "row_index": 54
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac81fd53017c8188"
+                    "value": "ac3c0b3a247b1abf"
                   },
                   "row_index": 55
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2cf9f5ec5a0ad21f"
+                    "value": "ac14b42f8499a7cd"
                   },
                   "row_index": 56
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "acee2ed7d38527b0"
+                    "value": "3f8d7dbf487fcb91"
                   },
                   "row_index": 57
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "403aa82dcd5efbcb"
+                    "value": "2c23993bd32b9c45"
                   },
                   "row_index": 58
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac81fd53017c8188"
+                    "value": "ac29b649b49fefc4"
                   },
                   "row_index": 59
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ace07dbdcaf731db"
+                    "value": "3f8d7dbf487fcb91"
                   },
                   "row_index": 60
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ace04c8d2e6ba360"
+                    "value": "bf8d7dbf487fcb91"
                   },
                   "row_index": 61
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "403aa82dcd5efbcb"
+                    "value": "3f8d7dbf487fcb91"
                   },
                   "row_index": 62
                 },
@@ -12429,14 +13102,14 @@
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "acf95944853ece74"
+                    "value": "ad0539d5128101fd"
                   },
                   "row_index": 64
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "acd2b6cfb7bdc271"
+                    "value": "acb352144a90f889"
                   },
                   "row_index": 65
                 },
@@ -12457,14 +13130,14 @@
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2ce1b70d748f3931"
+                    "value": "2cf9f5ec5a0ad21f"
                   },
                   "row_index": 68
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ace73db280f86588"
+                    "value": "acee2ed7d38527b0"
                   },
                   "row_index": 69
                 },
@@ -12478,86 +13151,114 @@
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac0d74676a3646ea"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 71
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac2caf0674cd6efc"
+                    "value": "ace07dbdcaf731db"
                   },
                   "row_index": 72
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2c35564636c83603"
+                    "value": "ace04c8d2e6ba360"
                   },
                   "row_index": 73
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "0000000000000000"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 74
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "0000000000000000"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 75
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "0000000000000000"
+                    "value": "acf95944853ece74"
                   },
                   "row_index": 76
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "0000000000000000"
+                    "value": "acd2b6cfb7bdc271"
+                  },
+                  "row_index": 77
+                },
+                {
+                  "outcome": {
+                    "kind": "normal",
+                    "value": "403aa82dcd5efbcb"
+                  },
+                  "row_index": 78
+                },
+                {
+                  "outcome": {
+                    "kind": "normal",
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 79
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "0000000000000000"
+                    "value": "2ce1b70d748f3931"
                   },
                   "row_index": 80
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "0000000000000000"
+                    "value": "ace73db280f86588"
                   },
                   "row_index": 81
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "bf73a92a30553261"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 82
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "0000000000000000"
+                    "value": "ac0d74676a3646ea"
                   },
                   "row_index": 83
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "0000000000000000"
+                    "value": "ac2caf0674cd6efc"
                   },
                   "row_index": 84
+                },
+                {
+                  "outcome": {
+                    "kind": "normal",
+                    "value": "2c35564636c83603"
+                  },
+                  "row_index": 85
+                },
+                {
+                  "outcome": {
+                    "kind": "normal",
+                    "value": "0000000000000000"
+                  },
+                  "row_index": 86
                 },
                 {
                   "outcome": {
@@ -12578,20 +13279,6 @@
                     "kind": "normal",
                     "value": "0000000000000000"
                   },
-                  "row_index": 89
-                },
-                {
-                  "outcome": {
-                    "kind": "normal",
-                    "value": "0000000000000000"
-                  },
-                  "row_index": 90
-                },
-                {
-                  "outcome": {
-                    "kind": "normal",
-                    "value": "bf83a92a30553261"
-                  },
                   "row_index": 91
                 },
                 {
@@ -12600,6 +13287,20 @@
                     "value": "0000000000000000"
                   },
                   "row_index": 92
+                },
+                {
+                  "outcome": {
+                    "kind": "normal",
+                    "value": "0000000000000000"
+                  },
+                  "row_index": 93
+                },
+                {
+                  "outcome": {
+                    "kind": "normal",
+                    "value": "bf73a92a30553261"
+                  },
+                  "row_index": 94
                 },
                 {
                   "outcome": {
@@ -12620,26 +13321,12 @@
                     "kind": "normal",
                     "value": "0000000000000000"
                   },
-                  "row_index": 97
-                },
-                {
-                  "outcome": {
-                    "kind": "normal",
-                    "value": "0000000000000000"
-                  },
-                  "row_index": 98
-                },
-                {
-                  "outcome": {
-                    "kind": "normal",
-                    "value": "0000000000000000"
-                  },
                   "row_index": 99
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "bf83a92a30553261"
+                    "value": "0000000000000000"
                   },
                   "row_index": 100
                 },
@@ -12648,28 +13335,28 @@
                     "kind": "normal",
                     "value": "0000000000000000"
                   },
+                  "row_index": 101
+                },
+                {
+                  "outcome": {
+                    "kind": "normal",
+                    "value": "0000000000000000"
+                  },
+                  "row_index": 102
+                },
+                {
+                  "outcome": {
+                    "kind": "normal",
+                    "value": "bf83a92a30553261"
+                  },
                   "row_index": 103
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "bff0000000000000"
+                    "value": "0000000000000000"
                   },
                   "row_index": 104
-                },
-                {
-                  "outcome": {
-                    "kind": "normal",
-                    "value": "0000000000000000"
-                  },
-                  "row_index": 105
-                },
-                {
-                  "outcome": {
-                    "kind": "normal",
-                    "value": "0000000000000000"
-                  },
-                  "row_index": 106
                 },
                 {
                   "outcome": {
@@ -12684,6 +13371,76 @@
                     "value": "0000000000000000"
                   },
                   "row_index": 108
+                },
+                {
+                  "outcome": {
+                    "kind": "normal",
+                    "value": "0000000000000000"
+                  },
+                  "row_index": 109
+                },
+                {
+                  "outcome": {
+                    "kind": "normal",
+                    "value": "0000000000000000"
+                  },
+                  "row_index": 110
+                },
+                {
+                  "outcome": {
+                    "kind": "normal",
+                    "value": "0000000000000000"
+                  },
+                  "row_index": 111
+                },
+                {
+                  "outcome": {
+                    "kind": "normal",
+                    "value": "bf83a92a30553261"
+                  },
+                  "row_index": 112
+                },
+                {
+                  "outcome": {
+                    "kind": "normal",
+                    "value": "0000000000000000"
+                  },
+                  "row_index": 115
+                },
+                {
+                  "outcome": {
+                    "kind": "normal",
+                    "value": "bff0000000000000"
+                  },
+                  "row_index": 116
+                },
+                {
+                  "outcome": {
+                    "kind": "normal",
+                    "value": "0000000000000000"
+                  },
+                  "row_index": 117
+                },
+                {
+                  "outcome": {
+                    "kind": "normal",
+                    "value": "0000000000000000"
+                  },
+                  "row_index": 118
+                },
+                {
+                  "outcome": {
+                    "kind": "normal",
+                    "value": "0000000000000000"
+                  },
+                  "row_index": 119
+                },
+                {
+                  "outcome": {
+                    "kind": "normal",
+                    "value": "0000000000000000"
+                  },
+                  "row_index": 120
                 }
               ],
               "scalar_operations": {
@@ -12714,7 +13471,7 @@
               ],
               "visits": {
                 "kind": "exact",
-                "value": 28479
+                "value": 31011
               }
             },
             "result": {
@@ -12736,7 +13493,7 @@
           }
         ],
         "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
-        "publication_sha256": "edad2a33021b56655e5eb196fa77349dbfac6e54a635419022b9876b0b798a4c",
+        "publication_sha256": "7144555ee4c46eb6d0436336972ce2627f7368430b7f41c85986b47643970dd2",
         "receipt_version": 1,
         "sources": [
           {
@@ -15255,7 +16012,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "35c8a4dd9f6accbbd631746fabad2c4d787937f25e77714aa8f73d040017a131"
+      "receipt_sha256": "046eac6adce960ba25b058a3467c073191171e731fddf7b900c8a06ad27d8d45"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",

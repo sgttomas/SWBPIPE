@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 129,
-  "source_kind_count": 66,
+  "source_signature_count": 135,
+  "source_kind_count": 68,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -137,7 +137,9 @@
         "user_directional_sif_times_tangent_frame_bending_stress_v1; section_basis=nominal_section",
         "user_directional_sif_times_tangent_frame_bending_stress_v1; section_basis=reduced_section",
         "bore_load_transferred_toroidal_membrane_v1; section_basis=nominal_section",
-        "bore_load_transferred_toroidal_membrane_v1; section_basis=reduced_section"
+        "bore_load_transferred_toroidal_membrane_v1; section_basis=reduced_section",
+        "rotated_from_published_element_local_end_actions_v1",
+        "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action"
       ]
     },
     "sign_convention": {
@@ -2130,6 +2132,96 @@
       "governing_ratio_eligible": false,
       "source_basis": "bore_load_transferred_toroidal_membrane_v1; section_basis=reduced_section",
       "combination_algebra": "signed_linear"
+    },
+    {
+      "signature_id": "supported-source-108",
+      "kind": "element_global_end_force_v1",
+      "unit": "N",
+      "component": "Fx",
+      "source_physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
+    },
+    {
+      "signature_id": "supported-source-109",
+      "kind": "element_global_end_force_v1",
+      "unit": "N",
+      "component": "Fy",
+      "source_physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
+    },
+    {
+      "signature_id": "supported-source-110",
+      "kind": "element_global_end_force_v1",
+      "unit": "N",
+      "component": "Fz",
+      "source_physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
+    },
+    {
+      "signature_id": "supported-source-111",
+      "kind": "element_global_end_moment_v1",
+      "unit": "N*m",
+      "component": "Mx",
+      "source_physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
+    },
+    {
+      "signature_id": "supported-source-112",
+      "kind": "element_global_end_moment_v1",
+      "unit": "N*m",
+      "component": "My",
+      "source_physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
+    },
+    {
+      "signature_id": "supported-source-113",
+      "kind": "element_global_end_moment_v1",
+      "unit": "N*m",
+      "component": "Mz",
+      "source_physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     }
   ],
   "hash_vectors": [
@@ -2184,7 +2276,7 @@
   "contract_evidence_policy": "closed_finite_case_member_material_geometry_region_result_and_extrema_binding_with_load_reference_state_binding_on_0_4_0_v1",
   "supported_profile_limitations": [
     "The independently resident ordinary pressure table contains the inherited physical row vocabulary and objective connector rows, including the two scalar pressure-force and effective-axial-force signatures pe_x and s_x and the tie-rod force signature t_r. Its vocabulary and row bases are bound by its current reviewed hash; the independent source table retains its source-only family.",
-    "Admitted families under current model 0.7.0 and 3.0.0/exact_pressure_v3: straight circular members, realized curved bends inside tangent-continuous pressure regions, linear restraints or springs, and objective connectors replacing one straight span, untied or with explicit bilateral linear elastic tie rods (explicit_axial_rods_v1). A constant-effective-area joint is admitted only under its closed pressure model and explicit one-region participation; every other family is refused by name.",
+    "Admitted families under current model 0.7.0 and 3.0.0/exact_pressure_v3: straight circular members, realized curved bends inside tangent-continuous pressure regions, linear restraints or springs, objective connectors replacing one straight span, untied or with explicit bilateral linear elastic tie rods (explicit_axial_rods_v1), and valve, flange, reducer, rigid and specialty components solved as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section, not a body stress; a reducer whose mapped member belongs to a pressure region is refused by name (EXACT_PRESSURE_REDUCER_IN_REGION), since its bore-change thrust is not modelled. A constant-effective-area joint is admitted only under its closed pressure model and explicit one-region participation; every other family is refused by name.",
     "Realized arcs (T4-U2): each owns the term K_b*u_free(eps_p) - c_b with eps_p = (1-2nu)pAi/(E As); N_w = N_el + pAi and S = N_el; end rows act along the arc end tangents; bend-adjacent direction changes up to alpha_tan = 1e-3 rad are carried by the remainder pAi(t_in - t_out); on arcs the hoop is the toroidal membrane cut average (bore_load_transferred_toroidal_membrane_v1) and the radial values are -p at the bore and 0 outside, published where R > r_o, the transverse shear is the straight-annulus Saint-Venant field driven by the tangent-frame shears (local_straight_annulus_on_arc), and the normal-stress maximum is bounded along the arc and enters the per-basis headline; on realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum, never combined. Input review rows (a bend's flexibility, a hanger's inputs) are model scoped and carry no load case.",
     "Objective connector rows bind through their entity_ref to the received connector record and stable row basis. A constant-effective-area joint carries pAe separately, and its effective axial force S = g_x + sum T_r (n_r.Q_x) - Pe is published with each tie-rod force, also on a connector with rods whatever its pressure model; its faces must be straight, coaxial, equal-bore members of one pressure region with zero attachment offsets. Connector rows remain outside the straight-member recovery bound; finite rotation, follower loads, temperature laws, ideal or tension-only ties, stops and stability are not represented.",
     "Signed internal differential pressure; external-pressure stability and collapse are not assessed.",
@@ -2192,6 +2284,7 @@
     "Direct load cases only; derived combinations and state differences are unsupported.",
     "On every member the section normal-stress extremes are Nw/As \u00b1 hypot(My,Mz)/Z (N/A off the pressure family) at each station and basis, and the transverse shear maximum is the straight-annulus Saint-Venant value with the member's authored nu; neither is a code or equivalent stress.",
     "Normal-stress maxima are bounded elastic normal stress, not code or equivalent stress.",
+    "Component bodies (W-15): the stress rows, stress extrema and maximum rows of a member solved with a valve, flange, reducer, rigid or specialty component's DEC-045 stiffness scale carry component_body {component_ref, stiffness_scale, section_role: reference_pipe_section}; they are stresses of the mapped pipe section as a reference section, not of the component body. Each stress-maximum coverage entry lists component_body_pipe_ids, the case maxima and headlines range over the other members, and a rule bound to a body row is RULE_INPUTS_INCOMPLETE (COMPONENT_BODY_REFERENCE_SECTION).",
     "Source evidence and numerical standing do not authenticate a producer or grant engineering acceptance."
   ],
   "source_basis_signature_policy": "where_declared_require_exact_metadata_basis_in_addition_to_kind_unit_component"

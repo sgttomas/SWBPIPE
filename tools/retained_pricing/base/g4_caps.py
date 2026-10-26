@@ -411,6 +411,16 @@ F5_EXACT = s("&Value") * (pushcap(DENV) + DENV)
 # T4-S5 D3 (retained-pricing-rules.md §8.8, U4B-RD): G7's base read of the projection and route L's model checks
 # (u4b_evidence's row index, covers and sets; the captured model's array clones), beside the projection.
 _U4B_RD = _u45_model.reader_working_sets(PA, CC, m, RAW_VF.tree()) if _u45["readers"] else X()
+# W-7 D3 (retained-pricing-rules.md §8.20, W7-RD): the base read's global end coverage maps over its <= cases*m
+# (load case, member) keys, beside U4B-RD's working sets.
+import w7_owners_model as _w7_model
+_W7_RD = _w7_model.reader_coverage(CC * m) if _w7_model.inspect(SNAP) else X()
+# W-15 D3 (retained-pricing-rules.md §8.21, W15-RB): the base read's component-body check (source_bodies' case and entry
+# lists) and the shape checks' one cloned extremum and coverage entry, beside U4B-RD's and W7-RD's sets.
+import w15_owners_model as _w15_model
+_W15_RB = _w15_model.reader_working_set(CC, m, VF) if _w15_model.inspect(SNAP) else X()
+if _W7_RD:
+    ASSUMED.update({k_: v_ for k_, v_ in _w7_model.ASSUMED_NODES.items() if k_ not in ASSUMED}); evv.update(ASSUMED)
 # S6-HS (T4-S6, §8.8): where result_export's domain_hash streams (u6_owners_model.reader_hash_streams), every T17 hash
 # holds only the streamed route; where G1 also hashes the publication as the borrowed source less its receipt
 # (hash_without), V2 holds no public clone (the successor itself is SUCC, priced in W4). The former forms keep their
@@ -427,7 +437,7 @@ st17 = {
     "V2 G1 public clone + hash(publication)": max(_T17_V2_CLONE, _T17_V2_HASH, key=lambda x: x.ev(dict(ASSUMED))),
     "V3 G1 source and preparation hashes": SOURCE.tree() + h17(SOURCE, ID) + PREP_PAYLOAD.tree() + h17(PREP_PAYLOAD, 64),
     "V4 G3-G6 working sets": SETS + G5C + OBJ_WALK + F5_EXACT,
-    "V5 G7 project + preview evidence": SUCC.tree() + SETS + OBJ_WALK + _U4B_RD,
+    "V5 G7 project + preview evidence": SUCC.tree() + SETS + OBJ_WALK + _U4B_RD + _W7_RD + _W15_RB,
     "V6 G8 projected + invocation hash + model rebuild": ENVP.tree() + h17(INVOC_VF, ID) + G8_VALUES + G8_BYTES + SETS + OBJ_WALK,
 }
 T17_name, T17v = max(st17.items(), key=lambda kv: ev(kv[1]))

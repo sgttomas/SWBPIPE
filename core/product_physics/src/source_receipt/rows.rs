@@ -106,7 +106,7 @@ pub(super) fn expected_primary_for(
     }
     for support in selected.support_actions() {
         for c in 0..6 {
-            let row = ResultItem {
+            let row = ResultItem { component_body: None,
                 id: support_id(&input.load_case.id, &support.support_id, COMPONENTS[c]),
                 kind: "support_reaction_component_v2".into(),
                 value: support.values[c],
@@ -305,7 +305,7 @@ fn compare(actual: &ResultItem, expected: &ResultItem) -> Result<(), ReceiptErro
     Ok(())
 }
 fn bare(id: String, kind: &str, value: f64, unit: &str, entity: &str) -> ResultItem {
-    ResultItem {
+    ResultItem { component_body: None,
         id,
         kind: kind.into(),
         value,

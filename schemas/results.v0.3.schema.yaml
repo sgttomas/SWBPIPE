@@ -608,6 +608,9 @@
         },
         "source_annotation_ref": {
           "$ref": "#/$defs/Reference"
+        },
+        "component_body": {
+          "$ref": "#/$defs/ComponentBodyRecord"
         }
       }
     },
@@ -741,7 +744,9 @@
             "user_directional_sif_times_tangent_frame_bending_stress_v1; section_basis=nominal_section",
             "user_directional_sif_times_tangent_frame_bending_stress_v1; section_basis=reduced_section",
             "bore_load_transferred_toroidal_membrane_v1; section_basis=nominal_section",
-            "bore_load_transferred_toroidal_membrane_v1; section_basis=reduced_section"
+            "bore_load_transferred_toroidal_membrane_v1; section_basis=reduced_section",
+            "rotated_from_published_element_local_end_actions_v1",
+            "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action"
           ]
         },
         "sign_convention": {
@@ -1253,7 +1258,7 @@
                 "limitations": {
                   "const": [
                     "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
-                    "Nonzero pressure is refused on this route.",
+                    "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
                     "On every member the section normal-stress extremes are N/A ± hypot(My,Mz)/Z at each station and the transverse shear maximum is the straight-annulus Saint-Venant value, with ν = E/(2G) − 1 assuming an isotropic material. On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No equivalent stress or code stress.",
                     "On arcs: signed tangent-frame resultants, nominal stress components and section extremes; endpoint force rows are node-on-element actions in the tangent frame at their end. The normal-stress maximum is bounded along the arc and enters the stress headline. The transverse shear uses the straight-annulus field without curvature correction.",
                     "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",
@@ -1342,7 +1347,7 @@
                 "limitations": {
                   "const": [
                     "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
-                    "Nonzero pressure is refused on this route.",
+                    "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
                     "On every member the section normal-stress extremes are N/A ± hypot(My,Mz)/Z at each station and the transverse shear maximum is the straight-annulus Saint-Venant value, with ν = E/(2G) − 1 assuming an isotropic material. On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No equivalent stress or code stress.",
                     "On arcs: signed tangent-frame resultants, nominal stress components and section extremes; endpoint force rows are node-on-element actions in the tangent frame at their end. The normal-stress maximum is bounded along the arc and enters the stress headline. The transverse shear uses the straight-annulus field without curvature correction.",
                     "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",
@@ -1403,7 +1408,7 @@
                 },
                 "limitations": {
                   "const": [
-                    "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
+                    "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
                     "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.",
                     "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
                     "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
@@ -1719,6 +1724,9 @@
         },
         "source_origin_ref": {
           "$ref": "#/$defs/Reference"
+        },
+        "component_body": {
+          "$ref": "#/$defs/ComponentBodyRecord"
         }
       }
     },
@@ -2445,6 +2453,15 @@
             "type": "string",
             "minLength": 1
           }
+        },
+        "component_body_pipe_ids": {
+          "type": "array",
+          "minItems": 1,
+          "description": "W-15 slice d: the component body members, present only when there are any; their maxima stay published, but the case maximum and headline range over the other members.",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     },
@@ -2933,6 +2950,9 @@
                     },
                     "enclosure_scope": {
                       "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
+                    },
+                    "component_body": {
+                      "$ref": "#/$defs/ComponentBodyRecord"
                     }
                   }
                 }
@@ -3289,6 +3309,9 @@
         },
         "source_annotation_ref": {
           "$ref": "#/$defs/Reference"
+        },
+        "component_body": {
+          "$ref": "#/$defs/ComponentBodyRecord"
         }
       }
     },
@@ -3415,6 +3438,9 @@
                         },
                         "enclosure_scope": {
                           "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
+                        },
+                        "component_body": {
+                          "$ref": "#/$defs/ComponentBodyRecord"
                         }
                       }
                     },
@@ -3484,6 +3510,9 @@
                         },
                         "enclosure_scope": {
                           "const": "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate"
+                        },
+                        "component_body": {
+                          "$ref": "#/$defs/ComponentBodyRecord"
                         }
                       }
                     }
@@ -3511,6 +3540,15 @@
                   },
                   "outside_domain_pipe_ids": {
                     "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "component_body_pipe_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "description": "W-15 slice d: the component body members, present only when there are any; their maxima stay published, but the case maximum and headline range over the other members.",
                     "items": {
                       "type": "string",
                       "minLength": 1
@@ -3922,6 +3960,9 @@
         },
         "source_annotation_ref": {
           "$ref": "#/$defs/Reference"
+        },
+        "component_body": {
+          "$ref": "#/$defs/ComponentBodyRecord"
         }
       }
     },
@@ -4031,7 +4072,8 @@
             "section_extremes_from_published_stress_rows_v1",
             "saint_venant_annulus_flexure_v1",
             "local_straight_annulus_on_arc",
-            "user_directional_sif_times_tangent_frame_bending_stress_v1"
+            "user_directional_sif_times_tangent_frame_bending_stress_v1",
+            "rotated_from_published_element_local_end_actions_v1"
           ]
         },
         "sign_convention": {
@@ -4045,6 +4087,29 @@
     },
     "PressureSourceContractEvidence": {
       "$ref": "physics_source_recovery.schema.json#/$defs/pressure_source_physical_evidence"
+    },
+    "ComponentBodyRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "W-15 slice d (DEL-03-05 Design rigid-component-stiffness-scaling.md section 5): present only on a component body's stress row, stress extremum and maximum, and on their derivative quantities and source annotations. The row is a stress of the mapped pipe section, a reference section, not of the component body.",
+      "required": [
+        "component_ref",
+        "stiffness_scale",
+        "section_role"
+      ],
+      "properties": {
+        "component_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stiffness_scale": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "section_role": {
+          "const": "reference_pipe_section"
+        }
+      }
     }
   }
 }

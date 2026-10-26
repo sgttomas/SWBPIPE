@@ -100,13 +100,14 @@ pub const PRESSURE_SOURCE_ID: &str = crate::physics_source::PRESSURE_CONTRACT_ID
 /// T4-U6 (D-5, §2.4): both tables carry one stress signature per (recovery
 /// token × section basis), each with its `source_basis`.
 pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "b5a4b0e585b9ec440d36144860baaf101b628498cfdab9a1de9248c2ed5069e7";
-pub const PRESSURE_TABLE_SHA256: &str = "6991728e6bc9c88effdbe5d0407671f4d78376c5c67d79d70f2cd1f174f47cba";
+pub const PRESSURE_TABLE_SHA256: &str = "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d";
 /// The pinned counts, re-derived from the tables (T4-U6: pressure-2 106
 /// signatures over 59 kinds, T4-U5b: plus the tie-rod force, 107 over 60, T4-U4b:
-/// plus 22 section stress, toroidal and directional signatures, 129 over 66;
+/// plus 22 section stress, toroidal and directional signatures, 129 over 66,
+/// W-7: plus the six global end-action signatures, 135 over 68;
 /// pressure-source-1 88 over 51).
-pub const PRESSURE_SIGNATURE_COUNT: u64 = 129;
-pub const PRESSURE_KIND_COUNT: u64 = 66;
+pub const PRESSURE_SIGNATURE_COUNT: u64 = 135;
+pub const PRESSURE_KIND_COUNT: u64 = 68;
 /// T4-U4b §4.3 (S4): + the straight derived signatures (sigma+, sigma-, tau on both bases), 88 -> 94
 /// over 51 -> 53 kinds.
 pub const PRESSURE_SOURCE_SIGNATURE_COUNT: u64 = 94;
@@ -124,7 +125,7 @@ pub const RETIRED_PREVIEW_PHYSICS_1_ID: &str = "openpipestress.result_semantics/
 pub const SOURCE_PREVIEW_PHYSICS_1_RETIRED: &str = "SOURCE_PREVIEW_PHYSICS_1_RETIRED";
 pub const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
 pub const PREVIEW_PHYSICS_SHA256: &str =
-    "653a4758ebdac9ca04df7a54f794f6651e4da5f3b695535342a8e5700b1f1936";
+    "f455a61ab9d80a16b24a03c5acbcce6425342d8cc2c839eb4742b2b9bb38a869";
 /// U6a (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its raw and
 /// transport statements are checked only by the accepted reader
 /// (`crate::retained_precision`), never by this module's ordinary branches, and
@@ -132,7 +133,7 @@ pub const PREVIEW_PHYSICS_SHA256: &str =
 pub const PREVIEW_PHYSICS_RETAINED_ID: &str = crate::retained_precision::CONTRACT_ID;
 pub const PREVIEW_PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::PROFILE;
 pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
-    "5d7535b310d17ab2bf469bf5be83831c9f32bcc6466e2fa3a5912f35ffee5e68";
+    "d95e6acfe79f0e08d84fe7a6a71acbd18b38ff70809614227640ee0a0c16ff60";
 /// B3b (B3-D §6.1): the exact successor `<physics-retained>`, whose base is
 /// pressure-2 since B7b D4 (a). Like the preview successor, its raw and transport statements are
 /// checked only by the accepted reader (`crate::retained_precision`, its exact
@@ -141,7 +142,7 @@ pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_
 pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
 /// T4-U6: its rows, vocabulary and counts follow the inherited pressure-2 table.
 pub const PHYSICS_RETAINED_SHA256: &str =
-    "ff7f3159d69fca32acfdea00f6b07a7c90a168f77fd264e45c997b053daf3de7";
+    "d6d86dfc418978257d1d3370684e879ba9711465ceba1de72729eb48bb12ad3c";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
@@ -333,8 +334,9 @@ mod b7b_current_table_tests {
     fn b7b_current_tables_are_independent_and_bind_their_own_bytes() {
         let ordinary = pressure_rows_contract();
         let source = pressure_source_contract();
-        // T4-U5b's tie-rod force (107), then T4-U4b's 22 per-basis signatures (129).
-        assert_eq!(ordinary["rows"].as_array().unwrap().len(), 129);
+        // T4-U5b's tie-rod force (107), then T4-U4b's 22 per-basis signatures (129), then
+        // W-7's six global end-action signatures (135).
+        assert_eq!(ordinary["rows"].as_array().unwrap().len(), 135);
         // T4-U4b §4.3: + six straight derived signatures over two kinds.
         assert_eq!(source["rows"].as_array().unwrap().len(), 94);
         assert_eq!(source["source_kind_count"], 53);
@@ -681,6 +683,13 @@ pub fn standing_reason(_source: &Value) -> Option<&'static str> {
 /// class. Every binding site calls this helper. (B4/D1 (b) retired the
 /// non-composite source-blocks-1 summary refusal with that identity.)
 pub fn rule_binding_refusal(envelope: &Value, row: &Value) -> Option<&'static str> {
+    // W-15 slice d (DEL-03-05 Design §5): a component body's row is a stress
+    // of its reference pipe section, not of the body; a rule bound to it is
+    // RULE_INPUTS_INCOMPLETE with this reason. A headline binds the row its
+    // `result_ref` names, and never names a body.
+    if row.get(crate::component_body::RECORD).is_some() {
+        return Some(crate::component_body::BODY_REFERENCE_SECTION);
+    }
     if is_retained(envelope) {
         return retained_binding_refusal(envelope, row);
     }

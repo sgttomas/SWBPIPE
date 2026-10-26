@@ -491,7 +491,7 @@ pub(super) fn append_stress_mpa(
         ),
     ] {
         let sign_convention=sign.map(str::to_string).unwrap_or_else(||format!("positive {} stress follows the section-equilibrium element-local {label} at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction",if tail=="torsional-shear" {"torsional shear"} else if tail=="axial-normal" {"normal"} else {"bending normal"}));
-        results.push(ResultItem {
+        results.push(ResultItem { component_body: None,
             id: format!("result:stress:{suffix}:{located}:{tail}"),
             kind: kind.into(),
             value: value.expect("complete certified stress"),

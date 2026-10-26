@@ -20,15 +20,22 @@ LIB = "core/product_physics/src/lib.rs"
 # O4 S5 (retained-pricing-rules.md §8.9, O4-SR): solve_prepared_load_case's selected-source maximum takes one
 # composite_member_maximum call per distinct basis (no fallback attempt) and drops SOURCE_MAXIMUM_BASES_DISTINCT; its
 # consumption of the fallback attempts and every first-return alternative are unchanged.
-CPP_FILE_PIN = '8d0fd1f1dba13e8eca74aa62130a0956d3c1ca5c1d197749cf58ee00c501184a'
-CPP_PREFIX_PIN = '41f4e67c56477e24ace4746e058be2c5863f2a53733d338e411850edaf660348'
+CPP_FILE_PIN = '8dd1a0ed3c32df695639b2adda57e2d501b6becc8fafec78c5256061148ba19c'
+CPP_PREFIX_PIN = '00d3c00131ada096b6de636d4f1d8e6ee7628722a2b8af40e77b5ae60c51d01f'
 PINS = {'checked': 'f6462ce3e9b91123fc8c424e4e932ca6ae2e06773c3c8ea4ca9a233ea0060e97', 'exact': '1722765731354ee41c0650743cbe5e3f6bd9bbe80d8bf67fb5e3e2edb7db79ac', 'rounded': '50e699a9e3ca58e8aae1425c397fc84b2bae7596fcaa665e749ba941fb21053a', 'accumulate': 'fa801055fcc8cdba9fa63b8c9e1a43d13ab6a4b531140fd05cc86636c78d47b3', 'add': '6cf32ee08ae1324229b3332932b16be33f710e3db38f38799285b70a170b555d', 'mul': 'b7a13d3aa95f1a81250596c2894aa53c08261ef50678482907ca925eb89fd375', 'divided': '42236c96706c6fd58796004eca2d9791bd37e011f0e77c1ee482673d74a501d8', 'exact_scaled': 'ce309e689bd86000332875400f5c116223ac722bc7a98a561aee67175b3d54d9', 'divided_scaled': 'aaeb7baff5bbc828cb9919c77c789e02c6c3b0d7292cfc2f24e395862231160f', 'min': '5f9dbece75030436c8445ea973d65501847f6a89f2f1aa716280eaf2c84995f0', 'max': '2b09f8df493dc541baa172795f41a10196b6e7e782333679916ed4531779de79', 'active_length': '31f1a47315b78ee62cf5e53ad68b1bdf7399a11bdab0a4df47f0550002786c95', 'fallback_section_errors': '77d7713b9a110474f69c9c98522feaedb5a615db9f5334d4db3541108a6696c9', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'straight_stress_spans': '8fa6015c0c0b6ae5c87f241c29b1187f6e3e4a3bc3e624969d37aff1c3164efe', 'directed_transport_sum': '6754f267ec85e4045fe19eabccac12312648039bb49a4c0e237639272ca7c5d8', 'maximum_cover': 'e6b1a37db23c2da925e0b069eb3e3d3e85d0bd4c6ee6f413cfbdffd4d1ef5959', 'public_mpa_magnitude_in_pa_upper': '8daef91ad0c895e81b7ce00a72f2e098a665b4b696bb682472d7497aa827397f', 'maximum_summary_mpa': '2db64af82e567c32dd219848e7ae090b698c6a2426df3f02a4d04540dbd51a8c', 'circular_maximum': 'ec77f771a0d86d9cb4a7eb98626cbba3e5f77e8359e8e8c4bbe3a018341cea0a', 'l1_summary': '669870df23a039c3d65e5f51c721e101935bc1e1bee5218c8d22ab3d2864473e', 'summary_row': '82a68500450979089472fbc47df8ceebb7bfcc4b94b8eef16647b2501d2ebfe2', 'stress_mpa': '22ff193d88839b0e2f4ff6d60e445eafddbf3cd63af9b748037941cf9c6a99c9'}
 # Pre-0.4 failure unification D3 (retained-pricing-rules.md §8.14): solve_prepared_load_case screens selection by the
 # captured replay's reservation and declines a withheld join on both exact routes (0.4's withheld text, now reachable
 # on route E: PU-TX), keeps a selected case's first support-norm refusal as its finalization cause (PU-TX) and records
 # the S2/S3 cause on both routes. No record constructor, label, route string, carrier, staging, fallback attempt or
 # first-return alternative changes.
-LIB_PINS = {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '96aab83751549846c8898defa59da887fdde529a74d231862b2ef454f109c4e8', 'exact_straight_summary_extrema': '1c15fd171ea49543bb3c7372e93a79545dfb63d5f877a5c232b423ec4ebd4ce0'}
+# W-7 D3 (retained-pricing-rules.md §8.20, W7-GE): solve_prepared_load_case appends each member's twelve global end
+# rows or one blocking ELEMENT_FORCE_RECOVERY_FAILED diagnostic after its published rows; its consumption of the
+# fallback attempts and every first-return alternative are unchanged.
+# W-15 D3 (retained-pricing-rules.md §8.21): certified_publication.rs's append_stress_mpa names `component_body: None`
+# (no pinned helper or root changes); solve_prepared_load_case keeps a body's maxima out of the headline, reads a body's
+# PF nu from the unscaled pair and passes `built` to the thermal loads; its consumption of the fallback attempts and
+# every first-return alternative are unchanged.
+LIB_PINS = {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': 'f7799193d0c21230e75ce77afd83a51afb3c477a256c9ba3debb5dc4940f1a6b', 'exact_straight_summary_extrema': '1c15fd171ea49543bb3c7372e93a79545dfb63d5f877a5c232b423ec4ebd4ce0'}
 PRIVATE = ("checked", "exact", "rounded", "accumulate", "add", "mul", "divided", "exact_scaled", "divided_scaled", "min", "max", "active_length")
 ENTRY = ("summary_row", "stress_mpa", "maximum_summary_mpa", "fallback_section_errors", "fallback_circular_maximum")
 PRIVATE_ROOTS = ("fallback_circular_maximum", "summary_row", "stress_mpa", "maximum_summary_mpa")

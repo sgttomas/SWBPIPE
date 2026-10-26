@@ -410,6 +410,11 @@ pub fn check_request(
     require(summary["input_manifest_ref"]["ref_id"].as_str() == Some(input.payload_ref.as_str()), "report input-manifest reference")?;
     if desktop {
         require(origin["qualification_ref"] == reference("current_manifest", &input.payload_ref), "origin qualification reference")?;
+        // §2.4: the desktop names its audit manifest by the input-manifest
+        // reference, so the audit id (and with it the document's
+        // `audit_manifest_ref`) and the input-manifest references name one
+        // manifest. The runner names its audit manifest by its run.
+        require(audit_manifest.manifest_id == input.payload_ref, "desktop audit manifest id is not the input-manifest reference")?;
     }
 
     // Unit system and the complete no-conversion display policy.

@@ -178,8 +178,11 @@ code_paths:
 - apps/desktop/src/services/rulePackService.ts
 - apps/desktop/src/features/rule-packs/RulePackManagerPanel.tsx
 - apps/desktop/src-tauri/src/lib.rs
+- apps/desktop/src-tauri/src/rule_solver_selection.rs
 checks:
 - tests/test_rule_pack_schema.py
 - core/rules/rule_pack_document/tests/*.rs
 - apps/desktop/src/features/rule-packs/RulePackManagerPanel.test.tsx
+- apps/desktop/src/features/rule-packs/RulePackManagerPanel.format.test.tsx
+- apps/desktop/src-tauri/src/rule_solver_selection_tests.rs
 - apps/desktop/e2e/r2-smoke.spec.ts

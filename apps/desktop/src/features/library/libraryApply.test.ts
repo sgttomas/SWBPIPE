@@ -9,7 +9,7 @@ import { applyOperationBatch } from "../../services/operationBatchService";
 import { computeModelHash } from "../../services/hashService";
 import { loadPreviewModel } from "../../services/previewService";
 import type { UnitCatalog, UnitCatalogEntry } from "../../services/unitCatalogService";
-import type { PreviewModel } from "../../types";
+import type { PreviewComponent, PreviewModel } from "../../types";
 import { modelDocumentDiagnostics } from "../model-data/documentDiagnostics";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
 import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
@@ -76,6 +76,24 @@ const independentVersion = (record: unknown) => `sha256:${createHash("sha256").u
 async function demo(): Promise<PreviewModel> {
   return structuredClone(await loadPreviewModel());
 }
+
+// The tee the bundled demo declared until the C-120 fix, kept as a test-local branch record.
+const INVENTED_BRANCH = (): PreviewComponent => ({
+  id: "component:C-120", label: "Invented branch connection marker", kind: "branch", node: "node:N-120",
+  geometry: {
+    branch_header_pipe_ref: "pipe:P-120", branch_branch_pipe_ref: "pipe:P-110", branch_run_size: { value: 0.168, unit: "m" },
+    branch_header_size: { value: 0.168, unit: "m" }, branch_connection_angle: { value: 1.5707963268, unit: "rad" },
+    branch_connection_type: "invented_unreinforced_tee_preview", branch_reinforcement_reference: "invented_user_entered_no_reinforcement_for_preview",
+    branch_geometry_source_reference: "invented_user_entered_branch_preview_geometry",
+  },
+  modifiers: {
+    branch_header_sif_user_value: { value: 1.22, unit: "none" }, branch_branch_sif_user_value: { value: 1.31, unit: "none" },
+    flexibility_factor_user_value: { value: 1.05, unit: "none" }, source_reference: "invented_user_entered_branch_modifiers_no_code_table",
+  },
+  mechanics_interface: { solver_consumption: "mechanics_geometry_only", rule_check_consumption: "user_rule_pack_inputs_only" },
+  completeness: [{ finding_id: "finding:C-120:branch-geometry", status: "complete", diagnostic_code: "BRANCH_RULE_INPUT_MISSING", missing_field_kinds: [] }],
+  provenance: "invented_example_user_entered_branch_values_no_code_table",
+} as PreviewComponent);
 
 async function apply(model: PreviewModel, plan: LibraryApplyPlan): Promise<PreviewModel> {
   const outcome = await applyOperationBatch(model, plan.batch, await computeModelHash(model));
@@ -401,9 +419,13 @@ describe("component apply", () => {
       .rejects.toThrow(/LIBRARY-APPLY-KIND-MISMATCH/);
     await expect(buildComponentApply({ model, document: componentLibrary("bend", [slot("bend_radius", 0.5, "m"), slot("bend_radius", 0.6, "m", { suffix: ".b" })]), recordId: "comp.invented", targetId: "component:C-110", replace: "none" }))
       .rejects.toThrow(/LIBRARY-APPLY-AMBIGUOUS-SOURCE.*bend_radius/);
-    // A branch record matches tee, branch and branch_connection kinds.
-    const branch = await buildComponentApply({ model, document: componentLibrary("branch", [slot("flexibility_factor_user_value", 1.2, "1")]), recordId: "comp.invented", targetId: "component:C-120", replace: "none" });
-    await apply(model, branch);
+    // A branch record matches tee, branch and branch_connection kinds. The bundled demo no longer declares the tee
+    // component:C-120 (its node N-120 joins only two pipes, BRANCH_TOPOLOGY_INVALID), so this copy of the removed
+    // record is added to the session model for this check only.
+    const branched = await demo();
+    branched.components.splice(1, 0, INVENTED_BRANCH());
+    const branch = await buildComponentApply({ model: branched, document: componentLibrary("branch", [slot("flexibility_factor_user_value", 1.2, "1")]), recordId: "comp.invented", targetId: "component:C-120", replace: "none" });
+    await apply(branched, branch);
   });
 });
 

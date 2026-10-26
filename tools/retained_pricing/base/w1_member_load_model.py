@@ -36,11 +36,11 @@ import runpy
 # loaded-maximum-hooks); final_case.rs, origins.rs and structural.rs re-export it under that off feature, and add a
 # census-probe lane hook and work snapshots (W1R-FG). No owner this model prices changes.
 SOURCE_FILES = {
-    "core/product_physics/src/retained_product.rs": 'd9b960fc255e29facf0ee6b3864c39705643cf81a796c83da92bdd5d4d497862',
+    "core/product_physics/src/retained_product.rs": '10a045d708777d29082fef0e3620bccbebc6229b61090cfcc481123bb08ef5ba',
     "core/product_physics/src/retained_wire.rs": "1c58db53d9a590d4316aea0fdc855396002935faed3d91a31e7f5434d93d8d40",
     "core/product_physics/src/retained_receipt.rs": "bf10f382e247fe84164dac5916e0b6fc69134e4b4934fd832132f59e86ca7251",
-    "core/reporting/result_export/src/lib.rs": "2dbbdd9c9fcdfc87aa0b7358c6a7661e20eded94b64e482ec62dcdbbaedce7a4",
-    "core/reporting/result_export/src/retained_precision.rs": "7176d1a0f9923bf61c2ec0eb522949184ebd454e1421657b101c966b988c2ab8",
+    "core/reporting/result_export/src/lib.rs": "2d8ba125e30d7de3cc18d304d78447095538c258419be77ed805cd255232a147",
+    "core/reporting/result_export/src/retained_precision.rs": "8fab9d0f2b6a35e9d8d31fa166fad1d1829c9dc86fb7974f5e239dbeff8bf26f",
     "core/reporting/result_export/src/declared_member_load.rs": '93787b8894f752cd4c577c58513449471672956e934d35157e31178e9c53a52c',
     "core/solver/frame_kernel/src/structural/retained_resource.rs": "ca0516b5b88ed0d55abf9780c0782f42acd68f4f80b73543415c920fd3da5b7b",
     "core/solver/frame_kernel/src/structural/retained/source.rs": "053b59579d6d5a2c18026029d6a8c8648617a341a2787f6f248ce0d5c4379053",
@@ -59,7 +59,7 @@ SOURCE_FILES = {
     "core/solver/frame_kernel/src/structural/retained/directed.rs": "031457491dcb9c2ae939de8ed617e7b59d5006debd5ad485a0fc9f8fd49c6b01",
     "core/solver/frame_kernel/src/structural/retained/directed/certificate.rs": "dadbb4d6a37e8a44b95d567494828feb795d805434814b7039c8b925a17e1a80",
     "core/solver/frame_kernel/src/structural/retained/product_certificate.rs": "2481f6038229ca0dfc7e43d4a5f23918d45f373b7afb4480b7d750a9c0cf5121",
-    "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": "271fd6a4fea736cca9d382a37815823ce474cca0868935992ee9d39af064d2c2",
+    "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": "1ff20d1d2806ee1b50abf1950ffc8c33b794f5e5312b1bf243d1e6d39e0b6466",
     "core/solver/frame_kernel/src/structural/retained/product_certificate/loaded_maximum.rs": "288ddb346d23e9737013060eb985b678475cc9b2b7b4251590bea9a972db8917",
     "core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs": "e2ef2ea11b1312d843147b042f4f41b7a7310ce52216ef48abb018ab64f954fd"
 }
