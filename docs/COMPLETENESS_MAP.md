@@ -145,7 +145,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-KNOW-003 (490) | Should | O | OD-1/OD-3 (DEL-13-03 SOW:15). `core/constraints/validation/engine.py`, Python only | DEL-13-03, DEL-13-02 | |
 | FR-KNOW-004 (491) | Should | O | OD-1/OD-3 (DEL-13-02 SOW:15). `schemas/constraint.schema.json` | DEL-13-02 | |
 | FR-KNOW-005 (492) | Could | O | PRD §13.3 "In future releases"; OD-1 defers further PKG-16 features; DEL-16-04:3 "v0.2 R7" | (R7) | |
-| §10.1 step 1, select units (415) | — | D | W-17 (a): `features/project-units/ProjectUnitsDialog.tsx`, mounted at `App.tsx:1087`; `projectService.ts:380-414` (seven keys, SI/US/custom, `PROJECT-UNITS-INCOMPLETE`). **Tests:** `ProjectUnitsDialog.test.tsx`, `projectUnitSelection.test.ts`; e2e `confirmProjectUnits`. Observed natively (§5) | DEL-02-02 | Changing units after creation (slice b, #1627): `set_project_unit` (`operation_applier/src/project_units_authoring.rs`; tests `operation_applier/tests/project_unit_authoring.rs`) and the Project units section on the Project page (`features/project-units/ProjectUnitsSection.tsx`). Length is locked once nodes exist; no stored value is converted (DEL-02-02 Design §2.7–§2.8). The e2e confirms SI only. |
+| §10.1 step 1, select units (415) | — | D | W-17 (a): `features/project-units/ProjectUnitsDialog.tsx`, mounted at `App.tsx:1087`; `projectService.ts:380-414` (seven keys, SI/US/custom, `PROJECT-UNITS-INCOMPLETE`). **Tests:** `ProjectUnitsDialog.test.tsx`, `projectUnitSelection.test.ts`; e2e `confirmProjectUnits`. Observed natively (§5) | DEL-02-02 | Changing units after creation (slice b, #1627): `set_project_unit` (`operation_applier/src/project_units_authoring.rs`; tests `operation_applier/tests/project_unit_authoring.rs`) and the Project units section on the Project page (`features/project-units/ProjectUnitsSection.tsx`). Length is locked once nodes exist; no stored value is converted (DEL-02-02 Design §2.7–§2.8). A document without `project.units` is refused by name on every open path, and the entity editors refuse a missing key by name instead of assuming a unit (DEL-02-02 Design §3). The e2e confirms SI only. |
 
 ### 2.2 Desktop GUI and operations (PRD §11.3, §11.8, §14)
 
@@ -502,7 +502,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 |---|---|---|
 | W-1 | Pointer and ScopeOfWork reconciliation sweep | #1540–#1546, #1550, #1557, #1560, #1575; remaining drift in §3 |
 | W-3 | Rendered report for local private sessions, with §19.2 content | #1553 (+#1555); observed natively (§5) |
-| W-5 | Memory-pool headroom (transient free-queue dip) | #1547; the demo result-JSON save succeeded in the smoke and the probe (§5) |
+| W-5 | Memory-pool headroom (transient free-queue dip) | #1547; the demo result-JSON save succeeded in the smoke and the probe (§5); headroom counting reclaimable file-backed and purgeable pages, and the growth and take re-samples (owner, 2026-10-26), are #1636 |
 | W-8 | Pre-solve topology and near-duplicate warnings | #1559; the absolute 5 mm, model-settable tolerance and the branch warning's applied-factor statement are #1574; the desktop control that sets and resets the tolerance is branch `claude/piping-tolerance-control-20261024` |
 | W-9 | Missing benchmarks: L-frame, simply supported weight, anchor settlement | #1548; the rigid link is W-15 (#1604) |
 | W-10 | Pipe reconnect | #1563, with its declared limitation |

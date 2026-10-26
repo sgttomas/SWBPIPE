@@ -45,8 +45,8 @@ const POOL = {
 };
 const FAILED = {
   "solve-job-summary": "state=failed; events=3; result_rows=0; cancellation_requested=false",
-  "solve-job-error": "RESOURCE_UNAVAILABLE: Not enough free memory on this Mac right now: needs 253.77 MiB, 85.11 MiB available.",
-  "solve-job-resource-refusal": "Refused by the native memory pool: Not enough free memory on this Mac right now: needs 253.77 MiB, 85.11 MiB available. No result was published.",
+  "solve-job-error": "RESOURCE_UNAVAILABLE: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 253.77 MiB, 85.11 MiB available.",
+  "solve-job-resource-refusal": "Refused by the native memory pool: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 253.77 MiB, 85.11 MiB available. No result was published.",
   "solve-job-resource": "budget=12 GiB (intake and solve worker cap); pool=16 GiB; route=not granted; refusal=headroom_insufficient"
 };
 
@@ -74,7 +74,7 @@ test("a failed solve is reported with its refusal code, required and headroom by
   assert.ok(error);
   assert.equal(error.hard, true);
   assert.match(error.message, /^demo\/sparse: state=failed; /);
-  assert.match(error.message, /error="RESOURCE_UNAVAILABLE: Not enough free memory on this Mac right now: needs 253\.77 MiB, 85\.11 MiB available\."/);
+  assert.match(error.message, /error="RESOURCE_UNAVAILABLE: Not enough available memory on this Mac right now \(free plus reclaimable file cache and purgeable memory, less the kernel's reserve\): needs 253\.77 MiB, 85\.11 MiB available\."/);
   assert.match(error.message, /reason code=headroom_insufficient \(job refusal\); required_bytes=266096640; headroom_bytes=89243648/);
   assert.match(error.message, /memory pool now: headroom_bytes=91000000; pressure=normal; sample_age_ms=40; queued_jobs=0; running_jobs=0; running_workers=0/);
   assert.deepEqual(JSON.parse(JSON.stringify(error.solve_job.reason)), { source: "job refusal", code: "headroom_insufficient", required_bytes: 266096640, headroom_bytes: 89243648, pressure: null, typed: REFUSAL });
@@ -122,7 +122,7 @@ test("a solve job that ended refused, failed or cancelled fails the wait at once
   const growth = { kind: "worker_growth_refused", granted_bytes: 0, requested_bytes: 67108864, cause: { kind: "headroom_insufficient", required_bytes: 67108864, available_bytes: 0 } };
   const refused = {
     "solve-job-summary": "state=refused; events=2; result_rows=0; cancellation_requested=false",
-    "solve-job-resource-refusal": "Refused by the native memory pool: Not enough free memory on this Mac right now: needs 64 MiB, 0 MiB available. No result was published."
+    "solve-job-resource-refusal": "Refused by the native memory pool: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 64 MiB, 0 MiB available. No result was published."
   };
   for (const [shown, state] of [[refused, "refused"], [FAILED, "failed"], [{ "solve-job-summary": "state=cancelled; events=2; result_rows=0; cancellation_requested=true" }, "cancelled"]]) {
     const { hooks } = load({ shown, record: { resource: { queue_reason: null, refusal: state === "refused" ? growth : null } }, pool: POOL });
@@ -132,7 +132,7 @@ test("a solve job that ended refused, failed or cancelled fails the wait at once
       assert.doesNotMatch(error.message, /timed out/, state);
       assert.match(error.message, new RegExp(`^demo/dense_scrutiny: state=${state}; `), state);
       if (state === "refused") {
-        assert.match(error.message, /refusal="Refused by the native memory pool: Not enough free memory on this Mac right now: needs 64 MiB, 0 MiB available\. No result was published\."/);
+        assert.match(error.message, /refusal="Refused by the native memory pool: Not enough available memory on this Mac right now \(free plus reclaimable file cache and purgeable memory, less the kernel's reserve\): needs 64 MiB, 0 MiB available\. No result was published\."/);
         assert.match(error.message, /reason code=worker_growth_refused\/headroom_insufficient \(job refusal\); required_bytes=67108864; headroom_bytes=0/);
         assert.equal(error.solve_job.reason.code, "worker_growth_refused/headroom_insufficient");
       }

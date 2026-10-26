@@ -14,6 +14,7 @@ mod model_document_version;
 mod model_states;
 mod analysis_runs;
 mod stored_read;
+mod stored_model_document_export;
 #[cfg(feature = "native-smoke")]
 mod native_smoke;
 mod native_result_download;
@@ -1678,6 +1679,70 @@ async fn save_model_document_decoded(
         .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The save's write worker did not complete; the destination may be unchanged."))
 }
 
+/// Recovery export (W-17, DEL-02-02 Design §3): a stored project's document
+/// (`state_id` absent) or a saved state's, which the desktop refuses at open,
+/// written to a file the user chooses exactly as the store holds it
+/// (`stored_model_document_export`). It needs the explicit local-private
+/// intent; the store is opened read-only and not migrated; the read is
+/// admitted by the memory pool as the saved-state reader's is, and capped at
+/// the model-document file size; the text must hold each object member once,
+/// and its dispositions are screened. Then the Save Model Document chooser is
+/// shown and its atomic writer writes, the text's reservation held throughout.
+/// Nothing is adopted. The outcome's `model_hash` is the SHA-256 of the bytes
+/// written (for a saved state, its model hash). The arguments
+/// `{projectId, stateId, explicitLocalPrivateIntent}` are an `args-json-v1`
+/// raw body within the history commands' budget (`admit_within`,
+/// `INGRESS-ARGS-TOO-LARGE`); the ingress lease is held, and counted in the
+/// read's accounting, until the worker has built the response from the
+/// outcome serialized within that accounting.
+#[tauri::command]
+async fn save_stored_model_document_file(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<NoCommandError>> {
+    use stored_model_document_export as export;
+    let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, export::COMMAND, ArgsDecoding::Moved, export::MAX_ARGS_BYTES)?;
+    let request = export::stored_export_args(&mut args)?;
+    drop(args);
+    Ok(save_stored_model_document_decoded(app, request, lease).await)
+}
+
+/// The export's worker: it holds the ingress lease, and builds the response
+/// from the outcome's text serialized within the read's memory while every
+/// reservation is still held (`stored_model_document_export::serialize_outcome`),
+/// so nothing is serialized unreserved after the lease is released.
+async fn save_stored_model_document_decoded(
+    app: AppHandle,
+    request: stored_model_document_export::StoredExportRequest,
+    lease: memory_pool::Lease,
+) -> tauri::ipc::Response {
+    use model_document_save::{ModelDocumentSaveOutcome as Outcome, WORKER_FAILED};
+    // The chooser blocks this worker, not the main thread.
+    tauri::async_runtime::spawn_blocking(move || {
+        // The store's path, without `app_store_path`'s directory creation and
+        // legacy carry-forward: the export creates and writes nothing there.
+        let store = || app.path().app_local_data_dir().map(|directory| directory.join(PROJECT_STORE_FILE)).map_err(|error| error.to_string());
+        let registry = app.state::<SolveJobRegistry>();
+        let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
+        let response = stored_model_document_export::export_stored_model_document_request(
+            &request,
+            store,
+            &registry,
+            &lease,
+            |suggested| choose_model_document_save_path(&app, suggested, directory),
+            |_, text| tauri::ipc::Response::new(text),
+        );
+        drop(lease);
+        response
+    })
+    .await
+    .unwrap_or_else(|_| {
+        let failed = Outcome::refused_one(WORKER_FAILED, "The export's worker did not complete; the destination may be unchanged.");
+        tauri::ipc::Response::new(serde_json::to_string(&failed).unwrap_or_default())
+    })
+}
+
 fn choose_model_document_save_path(
     app: &AppHandle,
     suggested_file_name: &str,
@@ -1924,9 +1989,10 @@ fn poll_preview_mechanics_job(
 
 /// The producer's exact result bytes as a raw response (an `ArrayBuffer` in
 /// the webview). The job's result lease grows to 2R first; the webview must
-/// call `dispose_preview_mechanics_result` once it has dropped its copy.
+/// call `dispose_preview_mechanics_result` once it has dropped its copy. Async
+/// so that the growth's re-sampling (up to 2 s) never runs on the main thread.
 #[tauri::command]
-fn take_preview_mechanics_job_result(
+async fn take_preview_mechanics_job_result(
     state: tauri::State<'_, SolveJobRegistry>,
     job_id: String,
 ) -> Result<tauri::ipc::Response, SolveJobError> {
@@ -4984,6 +5050,7 @@ macro_rules! app_invoke_handler {
             load_design_knowledge,
             open_model_document_file,
             save_model_document_file,
+            save_stored_model_document_file,
             save_handoff_package,
             start_preview_mechanics_job,
             poll_preview_mechanics_job,

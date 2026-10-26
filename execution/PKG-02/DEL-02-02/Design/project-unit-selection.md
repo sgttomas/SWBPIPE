@@ -173,7 +173,9 @@ keys, including `angle` (§5); the rest still applies.
        sent that way is refused by the batch.
      - A `project.units` that is not an object is
        `OP-PROJECT-UNIT-DOCUMENT-INVALID`; an absent map is created holding
-       the one key.
+       the one key. The desktop never presents a document without the map
+       (§3, "The map is required at open"), so this applies only to callers
+       of the applier outside the desktop.
      - The `stress` key takes the catalog's pressure-dimension entries (`Pa`,
        `MPa`, `psi`), as the desktop's dimension match does.
 8. **What a change after creation affects.** The edit changes one string in
@@ -250,6 +252,82 @@ keys, including `angle` (§5); the rest still applies.
       Queue button.
     - A key holding a legacy alias (`C`) is shown as stored, with a note that
       a new choice must be a catalog symbol.
+- **The map is required at open.** Model document 0.7.0's schema allows
+  `project.units` to be absent (`Project` requires only `id`), but the desktop
+  refuses such a document by name, `MODEL-FILE-SHAPE` at `project.units`, on
+  every path into a session:
+  - Open Model Document (`modelDocumentShape.ts`);
+  - Open local project, in the browser preview and natively
+    (`projectService.ts`);
+  - Open saved state (`useModelStateHistory.ts`).
+  The bundled demo carries the map; the blank builders carry all seven keys.
+  Undo, redo, applied operations and Save as new project start from a session
+  model. Missing individual keys remain allowed.
+  - **Recovery export.** A refused stored project or saved state is offered
+    "Save the stored document to a file…": the Save Model Document dialog with
+    its own explicit intent, raised by the refused open of a stored project
+    and offered as a History panel button for a refused saved state. The
+    native command (`stored_model_document_export.rs`) writes the stored text
+    unchanged (a project's `model_json`, a state's canonical text), screens its
+    dispositions as the save does, and uses the save's chooser and writer.
+    Nothing is adopted. The store is opened read-only and never migrated: a
+    store at another schema version is refused
+    (`MODEL-DOC-EXPORT-STORE-NOT-CURRENT`). The command takes its arguments
+    (the row's ids and the intent) as the `args-json-v1` raw body the history
+    commands take, within their 256 KiB budget: a longer body is refused
+    before it is decoded (`INGRESS-ARGS-TOO-LARGE`), and typed (JSON)
+    arguments are refused. The read is admitted by the memory pool as the
+    saved-state reader's is (`stored_read`), counted together with the
+    ingress lease against the per-invocation budget, and the reservation of
+    the text is held through the write (`STORE-READ-MEMORY-UNAVAILABLE`). Each
+    library the screening resolves is read in the same transaction under its
+    own reservations (SQLite's working set for the library keys, then the
+    measured load and the parse of its document), held through the
+    screening; a library the pool does not admit refuses the export by the
+    same name. The shared disposition screener is not itself metered, so
+    what it builds (a copied path for every site it records, a diagnostic for
+    every finding and unresolved reference, and a path for every object of a
+    hanger library) is bounded from the parsed model and each parsed library
+    and reserved before it runs: the model's bound before the screening, each
+    library's in its lookup. The screening itself is unchanged: every member
+    is screened and a blocking disposition still blocks. The outcome is
+    serialized within the same accounting while every reservation (the
+    lease, the screening bounds, the text) is still held: its exact length is
+    reserved, and a Saved response's bound is reserved before the chooser, so
+    no response is refused after a file is written. A refusal whose
+    diagnostics do not fit is sent as one named refusal that gives their
+    count and quotes the first. A row above the model-document file cap is
+    refused from its measured length before it is loaded
+    (`MODEL-DOC-SAVE-TOO-LARGE`). A text that holds an
+    object member twice is refused before screening
+    (`MODEL-DOC-EXPORT-DUPLICATE-MEMBER`), so the document screened is the
+    document written. The user adds the map and opens the file with Open
+    Model Document.
+- **Entity editors with a missing key** refuse by name; nothing is assumed
+  (`features/project-units/missingProjectUnit.ts`).
+  - **Fields with their own unit selector:** the unit starts unselected, and
+    Add, Review and Apply are disabled. The notice reads: "Missing project
+    unit: <key>. This field has no default unit, and nothing is assumed.
+    Choose its unit here, or set <key> in Project units on the Project page."
+    A unit the user picks there lifts the refusal and is kept.
+  - **Centre of gravity** is the exception. Its vector field has its own
+    editable unit selector, but with its default key missing the field keeps
+    the `required` refusal: picking a unit there does not lift it, unlike the
+    rule just above. It reads: "Missing project unit: <key>. This field takes
+    its unit from project.units.<key>, and nothing is assumed. Set <key> in
+    Project units on the Project page before editing it." A centre of gravity
+    that already carries its own unit is not refused.
+  - **Node positions without `length`** show the hard lock above, and picking a
+    unit does not lift it.
+  - **The table** refuses to queue such a cell: "Not queued: <column> of <id>
+    has no unit." followed by the field's notice.
+  - **The viewport's creation forms** show the same notices: component
+    creation for each unselected unit, node creation for a missing `length`
+    (the hard lock when nodes exist), and pipe creation while its unit is unset.
+  - The former defaults `m`, `rad`, `N` and `Pa` are removed from the property
+    inspector, the component draft, the viewport and the table.
+  - The load fields' fixed defaults `K` and `m/s^2` do not come from
+    `project.units` and are unchanged here.
 - **The display selector is unchanged** and keeps its note.
 
 ## 4. Tests
@@ -296,6 +374,33 @@ keys, including `angle` (§5); the rest still applies.
   and without nodes. It shows the notices, offers the fix with
   `before: not_present`, and leaves the document unchanged. A model change
   during validation queues nothing and asks for a re-queue.
+- **Vitest, entity editors and open paths.** A node, pipe, component and load
+  each open on a document with every key, unchanged, and with each relevant
+  key missing: no throw, the named refusal, no assumed unit and nothing queued
+  (`model-tree/missingProjectUnitEditors.test.tsx`). A document without the
+  map is refused by name when opened as a model document
+  (`modelDocumentOpen.test.tsx`), as a local project in each runtime, and as a
+  saved state (`compareStates.test.tsx`). The viewport's forms name the
+  missing key (`viewport/PipeViewport.missingProjectUnit.test.tsx`).
+- **Recovery export.** The refused open offers the export behind the explicit
+  intent, sends only the row's identity and adopts nothing
+  (`model-file/storedDocumentExport.test.tsx`, `compareStates.test.tsx`). The
+  written file holds the stored bytes and the store file is unchanged; a
+  blocked disposition, a duplicate member, a refused memory admission (of the
+  row, or of a referenced library larger than the pool or than what remains
+  of the budget), a row above the cap and a store at another schema version
+  each refuse by name, show no chooser and write nothing, and the store is
+  left unchanged; every reservation is released afterwards. An argument body
+  above the budget, a JSON body and a body without the header are refused at
+  ingress; the ingress lease counts against the budget; a well-formed
+  envelope exports. The screening's allocations are refused by name under a
+  pool below their peak (a hanger library with a 32 KiB key over 160 objects,
+  and 150 unresolved references under a 32 KiB key) and export under an
+  ordinary pool; the counting allocator checks the screening's bound against
+  the screener's measured peak. One byte below the smallest budget that sends
+  the whole response, the export is refused by naming the response, with no
+  chooser and nothing written (`src-tauri/src/stored_model_document_export.rs`). The
+  webview sends the `args-json-v1` body (`storedDocumentExport.test.tsx`).
 - **Applier, angle.** A rotational imposed displacement is accepted on a new
   blank document.
 - **e2e.** Specs that click "New blank" gain the dialog's Create click.

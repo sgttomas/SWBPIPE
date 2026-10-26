@@ -43,6 +43,8 @@ import {
 import { buildRecordedRunContext, type HistoricalRunContext } from "../results/HistoricalRunContext";
 import { COMPARISON_STATE_NOT_EXACT, compareModelDocuments, StateComparisonRefusal, type StateComparison } from "../comparison/stateComparison";
 import { computeModelHash } from "../../services/hashService";
+import { projectUnitsShapeRefusal } from "../model-file/modelDocumentShape";
+import type { StoredDocumentExportTarget } from "../model-file/storedDocumentExport";
 import { RULE_PACKS_NOT_RESOLVED, type UnreadableRow } from "../../services/historyListEntries";
 import { compareRunInputs, RunComparisonRefusal, type RunComparison } from "../comparison/runComparison";
 import { CURRENT_RUN_ID, currentRunBytes, currentRunSide, currentRunUnavailableReason, recordedRunSide, type RunComparisonSide } from "../comparison/runComparisonSides";
@@ -80,6 +82,10 @@ export type ModelStateHistoryDeps = {
   adoptStateSnapshot: (opened: ModelStateRead, snapshotHash: ModelHashEvidence, binding: ProjectBinding) => Promise<string>;
   /** The session's current-run slot as rendered (W-12 S2): Record Run records it and never changes it. */
   runSlot: CurrentRunSlot;
+  /** W-17 recovery export: offers to save a stored document the open refused
+   * for lacking `project.units` to a file, as stored (the Save Model Document
+   * dialog's intent first). False when nothing was offered (the session is busy). */
+  requestStoredDocumentExport?: (target: StoredDocumentExportTarget, report: (message: string, operation: string) => void) => boolean;
 };
 
 /** Why a received snapshot that does not hash to its state's stored model hash is
@@ -211,6 +217,9 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   const [statesProjectId, setStatesProjectId] = useState<string | null>(null);
   const [historyMessage, setHistoryMessage] = useState("No model states listed yet.");
   const [historyOperation, setHistoryOperation] = useState("not_started");
+  // W-17: the saved state the last Open State refused for lacking `project.units`,
+  // which can be saved to a file as stored (`exportRefusedState`).
+  const [refusedStateExport, setRefusedStateExport] = useState<StoredDocumentExportTarget | null>(null);
   const [historyBusy, setHistoryBusy] = useState(false);
   // The saved state the working model was opened from or last saved as, for
   // this project session: the parent of the next state saved.
@@ -383,6 +392,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     const state = states?.find((candidate) => candidate.state_id === stateId);
     const requestProjectId = depsRef.current.currentModel.current?.project.id;
     if (!state || !requestProjectId) return false;
+    setRefusedStateExport(null);
     if (!stateIsOpenable(state)) {
       setHistoryMessage(`Not opened: ${notOpenableReason(state)}`);
       setHistoryOperation("open_state_refused");
@@ -411,6 +421,13 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       const version = evaluateModelDocumentLocal(opened.model);
       if (version.status !== "current") {
         throw new Error(`Model document refused for editing: status=${version.status}; ${version.detail}`);
+      }
+      // W-17: a state without the `project.units` map is refused by name, as
+      // File > Open Model Document refuses it; nothing is filled in.
+      const unitsRefusal = projectUnitsShapeRefusal(opened.model);
+      if (unitsRefusal) {
+        setRefusedStateExport({ projectId: requestProjectId, stateId, description: `the saved state ${modelStateDescription(opened.state)}`, refusal: unitsRefusal });
+        throw new Error(unitsRefusal);
       }
       const hash = await computeModelHash(opened.model);
       if (!hash || hash.value !== opened.state.model_hash) {
@@ -445,6 +462,18 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     } finally {
       end(owner);
     }
+  }
+
+  /** Offers the recovery export of the state Open State refused for lacking
+   * `project.units`; its outcome becomes the history message. */
+  function exportRefusedState(): boolean {
+    const target = refusedStateExport;
+    const request = depsRef.current.requestStoredDocumentExport;
+    if (!target || !request || target.projectId !== depsRef.current.currentModel.current?.project.id) return false;
+    return request(target, (message, operation) => {
+      setHistoryMessage(message);
+      setHistoryOperation(operation);
+    });
   }
 
   async function editLabels(stateId: string, labels: StateLabels): Promise<boolean> {
@@ -845,6 +874,10 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     refreshStates,
     saveState,
     openState,
+    /** The saved state Open State refused for lacking `project.units`, if the
+     * recovery export can be offered for it (W-17). */
+    refusedStateExport: refusedStateExport && refusedStateExport.projectId === projectId && deps.requestStoredDocumentExport ? refusedStateExport : null,
+    exportRefusedState,
     editLabels,
     deleteState
   };

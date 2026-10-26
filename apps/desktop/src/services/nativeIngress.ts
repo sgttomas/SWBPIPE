@@ -47,6 +47,7 @@ export const NATIVE_INGRESS_COMMANDS = [
   "delete_analysis_run",
   "admit_analysis_run_comparison",
   "save_model_document_file",
+  "save_stored_model_document_file",
   "save_handoff_package"
 ] as const;
 export type NativeIngressCommand = (typeof NATIVE_INGRESS_COMMANDS)[number];
