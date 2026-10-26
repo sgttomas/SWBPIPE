@@ -44,6 +44,7 @@ import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selec
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
 import { RigidDraftFields } from "../component-creation/RigidDraftFields";
+import { ECCENTRIC_OFFSET_CONVENTION } from "../component-creation/eccentricOffsetConvention";
 import {
   buildCreateComponentIntent,
   CENTER_OF_GRAVITY_CONVENTION,
@@ -1319,7 +1320,7 @@ function SelectedFieldValue({ field, basis }: { field: EditableField; basis: Uni
     <section className="inspector-context-card" data-testid="inspector-text-value" aria-label="Current value">
       <span>Current {propertyLabel(field).toLowerCase()}</span>
       <strong>{field.before}</strong>
-      {field.valueKind === "vector" ? <small data-testid="inspector-vector-convention">{CENTER_OF_GRAVITY_CONVENTION} Enter x, y, z.</small> : null}
+      {field.valueKind === "vector" ? <small data-testid="inspector-vector-convention">{field.fieldPath === "geometry.eccentric_offset" ? `${ECCENTRIC_OFFSET_CONVENTION}.` : CENTER_OF_GRAVITY_CONVENTION} Enter x, y, z.</small> : null}
     </section>
   );
 }
@@ -2045,6 +2046,16 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef, route: Un
           component.geometry?.center_of_gravity,
           units.length ?? ""
         ), "length", "required"),
+        // W-15 slice c: a reducer's eccentric offset, optional, under R-c1.
+        ...(component.kind === "reducer"
+          ? [projectUnitDefault(vectorField(
+              "Eccentric offset",
+              "geometry.eccentric_offset",
+              component.geometry?.eccentric_offset,
+              units.length ?? "",
+              ECCENTRIC_OFFSET_CONVENTION
+            ), "length", "choose")]
+          : []),
         scalarField(
           "Stiffness behavior",
           "geometry.stiffness_behavior_reference",
@@ -2437,7 +2448,8 @@ function vectorField(
   label: string,
   fieldPath: string,
   vector: { x: number; y: number; z: number; unit: string } | undefined,
-  defaultUnit: string
+  defaultUnit: string,
+  sourceNote = "user-entered vector in global X/Y/Z from the component's node (x, y, z)"
 ): EditableField {
   const components = vector ? `${vector.x}, ${vector.y}, ${vector.z}` : "";
   return {
@@ -2448,7 +2460,7 @@ function vectorField(
     objectType: "Component",
     dimension: "length",
     unit: vector?.unit ?? defaultUnit,
-    sourceNote: "user-entered vector in global X/Y/Z from the component's node (x, y, z)",
+    sourceNote,
     changeKind: "set_field",
     unitEditable: true,
     valueKind: "vector"

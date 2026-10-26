@@ -1032,6 +1032,72 @@
         }
       ],
       "expected": []
+    },
+    {
+      "case_id": "eccentric-offset-malformed",
+      "edits": [
+        {
+          "path": [
+            "components",
+            0,
+            "geometry"
+          ],
+          "value": {}
+        },
+        {
+          "path": [
+            "components",
+            0,
+            "geometry",
+            "eccentric_offset"
+          ],
+          "value": {
+            "x": 0,
+            "y": -50,
+            "z": "0"
+          }
+        }
+      ],
+      "expected": [
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "components[0].geometry.eccentric_offset.z",
+          "message": "components[0].geometry.eccentric_offset.z is string; number required."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "components[0].geometry.eccentric_offset.unit",
+          "message": "components[0].geometry.eccentric_offset.unit is missing (string required)."
+        }
+      ]
+    },
+    {
+      "case_id": "eccentric-offset-valid",
+      "edits": [
+        {
+          "path": [
+            "components",
+            0,
+            "geometry"
+          ],
+          "value": {}
+        },
+        {
+          "path": [
+            "components",
+            0,
+            "geometry",
+            "eccentric_offset"
+          ],
+          "value": {
+            "x": 0,
+            "y": -50,
+            "z": 0,
+            "unit": "mm"
+          }
+        }
+      ],
+      "expected": []
     }
   ]
 }

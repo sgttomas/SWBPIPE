@@ -49,6 +49,22 @@ SCHEMA_ID = "https://openpipestress.org/schemas/model.schema.yaml"
 DOCUMENT_KIND = "openpipestress.product_preview.model"
 CURRENT_VERSION = "0.7.0"
 RETIRED_VERSIONS = {"0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0"}
+# W-15 slice c guard preparation (DEL-02-01 Design model-document-0.8.0.md §5): a
+# retired version listed here classifies a non-frozen committed document as a
+# refusal control only when the document is listed under it. Any other document at
+# that version is unclassified, and the test fails, so a current fixture the next
+# version ripple did not sweep cannot pass silently as a refusal control. The ripple
+# adds the version it retires with its explicit controls; earlier versions keep the
+# open rule.
+EXPLICIT_RETIRED_CONTROLS: dict[str, set[str]] = {}
+
+
+def is_retired_refusal_control(version, relative):
+    """Whether a non-frozen document at a retired version is a refusal control."""
+    if version not in RETIRED_VERSIONS:
+        return False
+    listed = EXPLICIT_RETIRED_CONTROLS.get(version)
+    return listed is None or relative in listed
 BUNDLED_DEMO = "fixtures/product_preview/invented_demo_model.json"
 DESKTOP_PROFILE_PREFIXES = ("apps/desktop/e2e/", "fixtures/persistence/")
 # The desktop emission golden (§5.2, TP-PMM-GUIEMIT-001): documents the desktop wrote.
@@ -214,7 +230,7 @@ def classify():
             rows.append(("unbound_frozen", relative, pointer, document))
         elif version in RETIRED_VERSIONS and is_frozen_input(relative):
             rows.append(("reauthored_frozen", relative, pointer, document))
-        elif version in RETIRED_VERSIONS:
+        elif is_retired_refusal_control(version, relative):
             rows.append(("retired", relative, pointer, document))
         else:
             rows.append(("unclassified", relative, pointer, document))
@@ -495,3 +511,14 @@ def test_shape_corpus_does_not_silently_enter_the_current_format_population():
     for bucket, relative, pointer, document in rows:
         if bucket in {"format", "desktop"}:
             _validate(schema, document, f"{relative}#{pointer}")
+
+
+def test_an_explicitly_controlled_retired_version_admits_only_its_listed_controls(monkeypatch):
+    """W-15 slice c guard preparation: once a retired version is listed, an unlisted
+    non-frozen document at it is not a refusal control."""
+    version = sorted(RETIRED_VERSIONS)[-1]
+    assert is_retired_refusal_control(version, "fixtures/any.json")
+    monkeypatch.setitem(EXPLICIT_RETIRED_CONTROLS, version, {"fixtures/listed.json"})
+    assert is_retired_refusal_control(version, "fixtures/listed.json")
+    assert not is_retired_refusal_control(version, "fixtures/unswept.json")
+    assert not is_retired_refusal_control(CURRENT_VERSION, "fixtures/listed.json")

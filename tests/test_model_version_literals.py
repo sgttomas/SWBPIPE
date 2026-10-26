@@ -28,6 +28,22 @@ TS_DEFINITION = ROOT / "apps" / "desktop" / "src" / "services" / "modelSchemaVer
 DESKTOP_TS = ROOT / "apps" / "desktop" / "src"
 DESKTOP_RS = ROOT / "apps" / "desktop" / "src-tauri" / "src"
 APPLIER_RS = ROOT / "core" / "model_operations" / "operation_applier" / "src"
+# W-15 slice c guard preparation (DEL-02-01 Design model-document-0.8.0.md §5): the
+# product-physics and result-export production sources, which hold literal model
+# versions the next version ripple must route through the constant or edit by token.
+EXTENDED_RS = (ROOT / "core" / "product_physics" / "src", ROOT / "core" / "reporting" / "result_export" / "src")
+# The current-version literals known in those sources, per file. Each is a site the
+# 0.8.0 ripple handles; the ripple empties this list. The test fails when a file
+# gains or loses one, and when the current version moves while any entry remains, so
+# an unswept literal cannot pass silently as a retired version.
+PENDING_RIPPLE_VERSION = "0.7.0"
+PENDING_RIPPLE = {
+    "core/product_physics/src/membrane_publication_range.rs": 1,
+    "core/product_physics/src/pressure_runtime.rs": 2,
+    "core/reporting/result_export/src/physics_source.rs": 3,
+    "core/reporting/result_export/src/retained_precision.rs": 2,
+    "core/reporting/result_export/src/semantic_contract.rs": 1,
+}
 
 MODEL_WORDS = re.compile(r"(?i)\bmodel(?:[ _-]?(?:document|format|version|schema))*\s+v?0\.\d+\.\d+")
 VERSION = re.compile(r"^0\.\d+\.\d+$")
@@ -115,6 +131,30 @@ def production_files():
                 yield path, True
 
 
+def extended_production_files():
+    """Product-physics and result-export production Rust: test files, test
+    directories and `#[cfg(test)]` modules excluded, and the constants' own file."""
+    for directory in EXTENDED_RS:
+        for path in sorted(directory.rglob("*.rs")):
+            parts = path.relative_to(directory).parts
+            if path == MODEL_FORMAT or path.name == "tests.rs" or path.name.endswith("_tests.rs") \
+                    or any(part.endswith("_tests") or part in ("tests", "retained_tests_hooks") for part in parts[:-1]):
+                continue
+            yield path
+
+
+def extended_current_literals() -> dict[str, int]:
+    current, _ = model_versions()
+    counts: dict[str, int] = {}
+    for path in extended_production_files():
+        text = without_rust_test_modules(path.read_text(encoding="utf-8"))
+        for _, body in literals(text, True):
+            if current in body or MODEL_WORDS.search(body):
+                relative = path.relative_to(ROOT).as_posix()
+                counts[relative] = counts.get(relative, 0) + 1
+    return counts
+
+
 def stray_literals():
     current, retired = model_versions()
     found = []
@@ -166,3 +206,16 @@ def test_the_guard_finds_each_kind_of_stray_literal():
     quiet = f"// model {current}\nfn f<'a>(x: &'a str) {{ let unit = \"0.1.0\"; }}"
     assert [body for _, body in literals(quiet, True)] == ["0.1.0"]
     assert not MODEL_WORDS.search("0.1.0")
+
+
+def test_the_extended_scan_finds_exactly_the_pending_ripple_sites():
+    """W-15 slice c guard preparation: every current-version literal in product-physics
+    and result-export production code is a listed site of the next ripple, and the
+    list is tied to the version it was taken at."""
+    current, _ = model_versions()
+    assert list(extended_production_files())
+    if PENDING_RIPPLE:
+        assert current == PENDING_RIPPLE_VERSION, (
+            f"the current version moved to {current} while PENDING_RIPPLE still lists sites taken at "
+            f"{PENDING_RIPPLE_VERSION}: route each through the constant or edit it by token, then empty the list")
+    assert extended_current_literals() == PENDING_RIPPLE

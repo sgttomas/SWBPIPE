@@ -652,6 +652,14 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                 field_path: "geometry.center_of_gravity",
                 kind: FieldKind::OptionalVectorQuantity { dimension: "length" },
             },
+            // W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §4):
+            // a reducer's eccentric offset, an explicit length vector like the
+            // centre of gravity; refused on other kinds in `resolve_field`. The
+            // solve checks it against the node geometry, which governs.
+            FieldRule {
+                field_path: "geometry.eccentric_offset",
+                kind: FieldKind::OptionalVectorQuantity { dimension: "length" },
+            },
             // W-15 slice b: the DEC-045 consumption mode of a rigid-family
             // component (other kinds are refused in `resolve_field`) and the
             // modifiers' source reference, which the stiffness scale needs.
@@ -3543,7 +3551,31 @@ fn resolve_rigid_creation_geometry(
     ) {
         return None;
     }
-    Some(serde_json::json!({
+    // W-15 slice c (Design `eccentric-reducer-offset.md` §4): a reducer may be
+    // created with an optional explicit offset vector; it is never defaulted,
+    // and no other kind accepts one.
+    let eccentric_offset = match geometry.get("eccentric_offset") {
+        None => None,
+        Some(value) => {
+            let parsed = (kind == "reducer").then(|| parse_finite_vector_quantity(value)).flatten();
+            let Some(offset) = parsed else {
+                checker.push(
+                    "OP-CREATE-RIGID-COMPONENT-GEOMETRY-INVALID",
+                    "blocking",
+                    format!("{label} eccentric_offset must be an explicit finite {{x, y, z, unit}} length vector on a reducer only."),
+                    "Enter the reducer's offset as a vector with a length unit, or leave it out; no offset is defaulted.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            };
+            let probe = EnteredQuantity { value: 1.0, unit: offset.unit.clone() };
+            if !entered_quantity_has_dimension(&probe, Dimension::Length, target_ref, &format!("{label} eccentric offset"), checker) {
+                return None;
+            }
+            Some(offset)
+        }
+    };
+    let mut created = serde_json::json!({
         "rigid_pipe_ref": pipe_ref,
         "rigid_body_length": { "value": body_length.value, "unit": body_length.unit },
         "end_a_size": { "value": end_a_size.value, "unit": end_a_size.unit },
@@ -3559,7 +3591,11 @@ fn resolve_rigid_creation_geometry(
         "connection_end_b_reference": end_b_reference,
         "stiffness_behavior_reference": stiffness_reference,
         "rigid_component_source_reference": source,
-    }))
+    });
+    if let Some(offset) = eccentric_offset {
+        created["eccentric_offset"] = serde_json::json!({ "x": offset.x, "y": offset.y, "z": offset.z, "unit": offset.unit });
+    }
+    Some(created)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -7095,6 +7131,19 @@ fn resolve_field(
         );
         return None;
     };
+    if object_type == "Component"
+        && field_path == "geometry.eccentric_offset"
+        && entity.get("kind").and_then(Value::as_str) != Some("reducer")
+    {
+        checker.push(
+            "OP-FIELD-PATH-UNSUPPORTED",
+            "blocking",
+            format!("Field path `{field_path}` is a reducer slot; `{target_ref}` is not a reducer."),
+            "Enter an eccentric offset on a reducer only.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
     if object_type == "Component"
         && field_path == "mechanics_interface.solver_consumption"
         && !is_rigid_family_kind(entity.get("kind").and_then(Value::as_str).unwrap_or(""))
@@ -13953,6 +14002,49 @@ mod tests {
         }
     }
 
+    /// W-15 slice c: a reducer may be created with an explicit offset vector; a
+    /// valve or flange may not, and a malformed vector is refused.
+    #[test]
+    fn reducer_creation_accepts_an_explicit_eccentric_offset_and_other_kinds_refuse_it() {
+        for (kind, offset, ok) in [
+            ("reducer", json!({"x": 0.0, "y": -50.0, "z": 0.0, "unit": "mm"}), true),
+            ("valve", json!({"x": 0.0, "y": -50.0, "z": 0.0, "unit": "mm"}), false),
+            ("reducer", json!({"x": 0.0, "y": -50.0, "unit": "mm"}), false),
+            ("reducer", json!({"x": 0.0, "y": -50.0, "z": 0.0, "unit": "N"}), false),
+        ] {
+            let model = sample_model();
+            let component_id = format!("component:C-{kind}");
+            let payload = json!({
+                "id": component_id, "label": format!("User {kind}"), "kind": kind, "node": "node:N-2",
+                "geometry": {
+                    "rigid_pipe_ref": "pipe:P-1",
+                    "rigid_body_length": { "value": 320.0, "unit": "mm" },
+                    "end_a_size": { "value": 168.0, "unit": "mm" },
+                    "end_b_size": { "value": 114.0, "unit": "mm" },
+                    "weight": { "value": 420.0, "unit": "N" },
+                    "center_of_gravity": { "x": 120.0, "y": 0.0, "z": 0.0, "unit": "mm" },
+                    "eccentric_offset": offset,
+                    "connection_end_a_reference": "user_entered_end_a",
+                    "connection_end_b_reference": "user_entered_end_b",
+                    "stiffness_behavior_reference": "user_entered_rigid_behavior",
+                    "rigid_component_source_reference": "user_entered_component_form"
+                },
+                "provenance": "user_entered_local_preview"
+            });
+            let mut intent = modify_intent("Component", &component_id, "insert_component_symbol", "components", "not_present",
+                &payload.to_string(), "none", "dimensionless");
+            intent["operation_kind"] = json!("insert");
+            let outcome = apply_operation(&model, &intent, None);
+            if ok {
+                assert!(outcome.diagnostics.is_empty(), "{kind}: {:?}", outcome.diagnostics);
+                assert_eq!(outcome.applied_model.expect("applied")["components"][1], payload);
+            } else {
+                assert!(outcome.applied_model.is_none(), "{kind} {offset}");
+                assert!(codes(&outcome).iter().any(|c| c.starts_with("OP-CREATE-RIGID-COMPONENT-GEOMETRY-INVALID") || *c == "OP-UNIT-DIMENSION-MISMATCH" || c.starts_with("OP-UNIT")), "{kind} {offset}: {:?}", outcome.diagnostics);
+            }
+        }
+    }
+
     #[test]
     fn tee_and_rigid_component_creation_block_incomplete_or_disconnected_geometry() {
         let model = sample_model();
@@ -15170,6 +15262,36 @@ mod tests {
             "provenance": "invented_example"
         }));
         model
+    }
+
+    /// W-15 slice c: the sample model with a reducer at node:N-2 mapping pipe:P-1.
+    fn reducer_model() -> Value {
+        let mut model = valve_model();
+        model["components"][1]["kind"] = json!("reducer");
+        model["components"][1]["id"] = json!("component:R-1");
+        model
+    }
+
+    #[test]
+    fn eccentric_offset_is_an_explicit_vector_edit_on_a_reducer_only() {
+        let model = reducer_model();
+        let edit = |model: &Value, target: &str, before: &str, after: &str, unit: &str| {
+            apply_operation(model, &modify_intent("Component", target, "set_field", "geometry.eccentric_offset", before, after, unit, "length"), None)
+        };
+        let authored = edit(&model, "component:R-1", "TBD", r#"{"x":0,"y":-50,"z":0,"unit":"mm"}"#, "mm");
+        assert!(authored.diagnostics.is_empty(), "{:?}", authored.diagnostics);
+        let applied = authored.applied_model.unwrap();
+        assert_eq!(applied["components"][1]["geometry"]["eccentric_offset"], json!({"x": 0.0, "y": -50.0, "z": 0.0, "unit": "mm"}));
+        let edited = edit(&applied, "component:R-1", "0, -50, 0 mm", r#"{"x":0,"y":-0.05,"z":0,"unit":"m"}"#, "m");
+        assert!(edited.diagnostics.is_empty(), "{:?}", edited.diagnostics);
+        let stale = edit(&applied, "component:R-1", "0, -40, 0 mm", r#"{"x":0,"y":-0.05,"z":0,"unit":"m"}"#, "m");
+        assert!(codes(&stale).contains(&"OP-STALE-BEFORE-VALUE"));
+        let not_length = edit(&model, "component:R-1", "TBD", r#"{"x":0,"y":-50,"z":0,"unit":"N"}"#, "N");
+        assert!(codes(&not_length).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"), "{:?}", not_length.diagnostics);
+        // A valve does not take the slot.
+        let valve = edit(&valve_model(), "component:V-1", "TBD", r#"{"x":0,"y":-50,"z":0,"unit":"mm"}"#, "mm");
+        assert!(codes(&valve).contains(&"OP-FIELD-PATH-UNSUPPORTED"), "{:?}", valve.diagnostics);
+        assert!(valve.applied_model.is_none());
     }
 
     #[test]

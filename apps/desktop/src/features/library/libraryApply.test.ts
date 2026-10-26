@@ -388,6 +388,27 @@ describe("component apply", () => {
       .rejects.toThrow(/LIBRARY-APPLY-RETAINED-UNSOURCED.*center_of_gravity/);
   });
 
+  it("keeps a reducer's eccentric offset as retained user geometry under keep, group and all (W-15 slice c)", async () => {
+    const base = await demo();
+    const reducer = base.components.find((component) => component.id === "component:C-130")!;
+    reducer.kind = "reducer";
+    delete (reducer.geometry as Json).center_of_gravity;
+    (reducer.geometry as Json).eccentric_offset = { x: 0, y: -50, z: 0, unit: "mm" };
+    delete (reducer.modifiers as Json).linear_stiffness_user_value;
+    delete (reducer.modifiers as Json).rotational_stiffness_user_value;
+    const document = componentLibrary("reducer", [slot("rigid_body_length", 0.7, "m"), slot("end_a_size", 0.17, "m"), slot("end_b_size", 0.11, "m"), slot("weight", 500, "N")]);
+    for (const replace of ["none", "group", "all"] as const) {
+      const plan = await buildComponentApply({ model: base, document, recordId: "comp.invented", targetId: "component:C-130", replace });
+      const after = JSON.parse(plan.batch.operations[0].change.after);
+      // The offset is user geometry the group keeps, so the group's source is combined, never replaced outright.
+      expect(after["geometry.rigid_component_source_reference"], replace)
+        .toBe(`invented_user_entered_rigid_component_preview_geometry; ${LIB}: end_a_size, end_b_size, rigid_body_length, weight`);
+      expect(after["geometry.eccentric_offset"], replace).toBeUndefined();
+      const applied = (await apply(base, plan)).components.find((component) => component.id === "component:C-130")!;
+      expect((applied.geometry as Json).eccentric_offset, replace).toEqual({ x: 0, y: -50, z: 0, unit: "mm" });
+    }
+  });
+
   it("protects required members under replace group and otherwise combines the modifiers attribution", async () => {
     const model = await demo();
     const document = componentLibrary("bend", [slot("sif_user_value", 1.3, "1")]);

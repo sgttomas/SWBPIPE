@@ -101,6 +101,8 @@ export type PreviewComponent = ModelAnnotations & {
     end_b_size?: QuantityValue;
     weight?: QuantityValue;
     center_of_gravity?: { x: number; y: number; z: number; unit: string };
+    /** W-15 slice c: a reducer's declared eccentric offset (R-c1 convention). */
+    eccentric_offset?: { x: number; y: number; z: number; unit: string };
     connection_end_a_reference?: string;
     connection_end_b_reference?: string;
     stiffness_behavior_reference?: string;

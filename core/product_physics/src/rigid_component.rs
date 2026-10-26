@@ -395,3 +395,418 @@ pub(crate) fn append_formed_diagnostics(
         }
     }
 }
+
+// ---------------------------------------------------------------------------
+// W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §3.2-§3.6):
+// a reducer's declared eccentric offset, checked against the node geometry,
+// which governs. The offset never places, moves or re-forms anything.
+
+pub(crate) const ECCENTRIC_INVALID: &str = "RIGID_COMPONENT_ECCENTRIC_OFFSET_INVALID";
+pub(crate) const ECCENTRIC_BELOW_PRECISION: &str = "RIGID_COMPONENT_ECCENTRIC_OFFSET_BELOW_PRECISION";
+pub(crate) const ECCENTRIC_NOT_TRANSVERSE: &str = "RIGID_COMPONENT_ECCENTRIC_OFFSET_NOT_TRANSVERSE";
+pub(crate) const ECCENTRIC_MISMATCH: &str = "RIGID_COMPONENT_ECCENTRIC_OFFSET_MISMATCH";
+pub(crate) const ECCENTRIC_REALIZED: &str = "RIGID_COMPONENT_ECCENTRIC_OFFSET_REALIZED";
+
+/// §3.3 (HELP_HUMAN, 2026-10-26, under the owner's delegation): the declared
+/// coordinate-rounding allowance q. A fixed constant of the product, not a
+/// user setting: coordinates and offset components are taken to be entered
+/// rounded to the millimetre, so each lies within q/2 of its true value.
+pub(crate) const COORDINATE_ROUNDING_ALLOWANCE_M: f64 = 1.0e-3;
+/// §3.2: ρ_base, the base transversality ratio.
+pub(crate) const TRANSVERSE_RATIO_BASE: f64 = 1.0e-3;
+/// §3.3: θ_base, the base agreement angle of the two ends' run directions.
+pub(crate) const AXIS_ANGLE_BASE_RAD: f64 = 1.0e-3;
+
+type V3 = [f64; 3];
+
+fn v_sub(a: V3, b: V3) -> V3 {
+    [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
+}
+fn v_add(a: V3, b: V3) -> V3 {
+    [a[0] + b[0], a[1] + b[1], a[2] + b[2]]
+}
+fn v_scale(k: f64, a: V3) -> V3 {
+    [k * a[0], k * a[1], k * a[2]]
+}
+fn v_dot(a: V3, b: V3) -> f64 {
+    a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+}
+fn v_cross(a: V3, b: V3) -> V3 {
+    [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
+}
+fn v_norm(a: V3) -> f64 {
+    v_dot(a, a).sqrt()
+}
+fn v_neg(a: V3) -> V3 {
+    [-a[0], -a[1], -a[2]]
+}
+
+/// The component's declared offset, when present.
+pub(crate) fn eccentric_offset(component: &PreviewComponent) -> Option<&crate::VectorQuantity> {
+    component.geometry.as_ref().and_then(|geometry| geometry.eccentric_offset.as_ref())
+}
+
+/// R-c1, option A (§3.6; the one place the convention lives): the origin end N
+/// is the component's node and the far end F is the mapped member's other end.
+/// Option B would return the member's (`from`, `to`). `None` when the member
+/// does not end at the component's node.
+pub(crate) fn eccentric_offset_ends<'a>(component: &'a PreviewComponent, member: &'a PreviewPipe) -> Option<(&'a str, &'a str)> {
+    if member.from == component.node {
+        Some((member.from.as_str(), member.to.as_str()))
+    } else if member.to == component.node {
+        Some((member.to.as_str(), member.from.as_str()))
+    } else {
+        None
+    }
+}
+
+/// One adjoining member's evidence at an end (§3.3).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub(crate) enum Evidence {
+    /// A run direction (undirected unit vector) with its uncertainty β (rad).
+    Run { direction: V3, beta: f64 },
+    /// Not run evidence: another reducer's body, an unrealized bend member, an
+    /// expansion-joint member or a connector span.
+    Unsupported(&'static str),
+    /// Run-class, but too short (or too curved) to give a direction.
+    Unresolvable,
+}
+
+/// An end's status (§3.3).
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum EndStatus {
+    None,
+    Direction { direction: V3, beta: f64 },
+    Ambiguous(Vec<String>),
+    Unsupported { member: String, reason: &'static str },
+    Unresolvable { member: String },
+}
+
+/// β of a straight member of length L: asin(√3·q/L), or `None` when √3·q ≥ L.
+pub(crate) fn straight_beta(length: f64) -> Option<f64> {
+    let ratio = 3f64.sqrt() * COORDINATE_ROUNDING_ALLOWANCE_M / length;
+    (length.is_finite() && ratio < 1.0).then(|| ratio.asin())
+}
+
+/// The tangent of a realized arc at `at` and its uncertainty β_arc (§3.3):
+/// chord ĉ, in-plane normal n̂ from the `y_reference` less its chord part,
+/// half-angle φ/2 = asin(c/(2R)); the tangent is cos(φ/2)·ĉ + sin(φ/2)·n̂ at
+/// the arc's `from` node and cos(φ/2)·ĉ − sin(φ/2)·n̂ at its `to` node (the arc
+/// bows toward +n̂). β_arc = β_c·(1 + sin(φ/2)·|y·ĉ|/‖y⊥‖) + √3·q/√(4R² − c²).
+pub(crate) fn arc_evidence(from: V3, to: V3, at_from: bool, radius: f64, y_reference: V3) -> Evidence {
+    let chord = v_sub(to, from);
+    let c = v_norm(chord);
+    let q3 = 3f64.sqrt() * COORDINATE_ROUNDING_ALLOWANCE_M;
+    if !(c.is_finite() && c > 0.0 && radius.is_finite() && 2.0 * radius > c && q3 < c) {
+        return Evidence::Unresolvable;
+    }
+    let chat = v_scale(1.0 / c, chord);
+    let axial = v_dot(y_reference, chat);
+    let y_perp = v_sub(y_reference, v_scale(axial, chat));
+    let y_perp_norm = v_norm(y_perp);
+    if !(y_perp_norm.is_finite() && y_perp_norm > 0.0) {
+        return Evidence::Unresolvable;
+    }
+    let nhat = v_scale(1.0 / y_perp_norm, y_perp);
+    let half = (c / (2.0 * radius)).asin();
+    let (cos, sin) = (half.cos(), half.sin());
+    let side = if at_from { 1.0 } else { -1.0 };
+    let direction = v_add(v_scale(cos, chat), v_scale(side * sin, nhat));
+    let beta_c = (q3 / c).asin();
+    let beta = beta_c * (1.0 + sin * axial.abs() / y_perp_norm) + q3 / (4.0 * radius * radius - c * c).sqrt();
+    if !(beta.is_finite() && beta < std::f64::consts::FRAC_PI_2) {
+        return Evidence::Unresolvable;
+    }
+    Evidence::Run { direction, beta }
+}
+
+/// The two ends' statuses decided into a run axis (§3.3): the undirected
+/// consensus u and β_run, or the refusal reason and its detail.
+pub(crate) fn decide_axis(n: &EndStatus, f: &EndStatus) -> Result<(V3, f64), (&'static str, String)> {
+    for (end, status) in [("N", n), ("F", f)] {
+        if let EndStatus::Ambiguous(candidates) = status {
+            return Err(("ambiguous_run", format!("end {end} adjoins more than one member ({})", candidates.join(", "))));
+        }
+    }
+    for (end, status) in [("N", n), ("F", f)] {
+        if let EndStatus::Unsupported { member, reason } = status {
+            return Err(("unsupported_run_evidence", format!("end {end} adjoins {member}, {reason}, which is not run evidence")));
+        }
+    }
+    for (end, status) in [("N", n), ("F", f)] {
+        if let EndStatus::Unresolvable { member } = status {
+            return Err(("unresolvable_run_evidence", format!("end {end} adjoins {member}, too short to resolve a run direction within the coordinate-rounding allowance")));
+        }
+    }
+    match (n, f) {
+        (EndStatus::Direction { direction: dn, beta: bn }, EndStatus::Direction { direction: df, beta: bf }) => {
+            let along = v_dot(*dn, *df);
+            let theta = v_norm(v_cross(*dn, *df)).atan2(along.abs());
+            let bound = AXIS_ANGLE_BASE_RAD + bn + bf;
+            if !(theta <= bound) {
+                return Err(("run_directions_disagree", format!("the run directions at the two ends are {theta:e} rad apart, more than the bound {bound:e} rad")));
+            }
+            let sigma = if along >= 0.0 { 1.0 } else { -1.0 };
+            let sum = v_add(*dn, v_scale(sigma, *df));
+            Ok((v_scale(1.0 / v_norm(sum), sum), bn.max(*bf)))
+        }
+        (EndStatus::Direction { direction, beta }, EndStatus::None) | (EndStatus::None, EndStatus::Direction { direction, beta }) => Ok((*direction, *beta)),
+        _ => Err(("standalone_body", "neither end adjoins a member that gives a run direction".to_string())),
+    }
+}
+
+/// The measured quantities of an accepted or refused offset, in metres.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub(crate) struct OffsetMeasure {
+    pub axis: V3,
+    pub axial_length: f64,
+    pub transverse: V3,
+    pub offset_axial: f64,
+    pub allowance: f64,
+    pub residual: f64,
+    pub beta_run: f64,
+}
+
+/// The outcome of one reducer's check.
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum OffsetOutcome {
+    Realized(OffsetMeasure),
+    Invalid(&'static str, String),
+    BelowPrecision(OffsetMeasure),
+    NotTransverse(OffsetMeasure),
+    Mismatch(OffsetMeasure),
+}
+
+/// §3.2 steps 2-4 for given ends, axis evidence, offset and tolerance. Pure:
+/// swapping N and F together with negating e (a sign-only convention change)
+/// gives bit-identical measures.
+pub(crate) fn judge_offset(x_n: V3, x_f: V3, axis: (V3, f64), offset: V3, tolerance: f64) -> OffsetOutcome {
+    let d = v_sub(x_f, x_n);
+    let (u, beta_run) = axis;
+    let t = if v_dot(u, d) < 0.0 { v_neg(u) } else { u };
+    let axial_length = v_dot(d, t);
+    let transverse = v_sub(d, v_scale(axial_length, t));
+    let e_norm = v_norm(offset);
+    let offset_axial = v_dot(offset, t).abs();
+    let allowance = TRANSVERSE_RATIO_BASE * e_norm + 0.5 * 3f64.sqrt() * COORDINATE_ROUNDING_ALLOWANCE_M + e_norm * beta_run.sin();
+    let residual = v_norm(v_sub(transverse, offset));
+    let measure = OffsetMeasure { axis: t, axial_length, transverse, offset_axial, allowance, residual, beta_run };
+    if !(axial_length > 0.0) {
+        return OffsetOutcome::Invalid("no_axial_length", format!("the body has no length along the run axis (D·t = {axial_length:e} m)"));
+    }
+    let zero = offset.iter().all(|v| *v == 0.0);
+    if !zero {
+        if !(allowance < e_norm) {
+            return OffsetOutcome::BelowPrecision(measure);
+        }
+        if !(offset_axial <= allowance) {
+            return OffsetOutcome::NotTransverse(measure);
+        }
+    }
+    if !(residual <= tolerance) {
+        return OffsetOutcome::Mismatch(measure);
+    }
+    OffsetOutcome::Realized(measure)
+}
+
+/// How a member is mapped, for run evidence (§3.3).
+#[derive(Clone, Copy)]
+enum Mapping<'a> {
+    ReducerBody,
+    ConcentricBody,
+    Bend(&'a PreviewComponent),
+    ExpansionJoint,
+}
+
+struct Topology<'a> {
+    positions: HashMap<&'a str, V3>,
+    pipes: HashMap<&'a str, &'a PreviewPipe>,
+    at_node: HashMap<&'a str, Vec<&'a PreviewPipe>>,
+    mapping: HashMap<&'a str, Mapping<'a>>,
+    realized: HashSet<&'a str>,
+    replaced: HashSet<String>,
+}
+
+impl<'a> Topology<'a> {
+    fn of(model: &'a PreviewModel) -> Self {
+        let positions = model.nodes.iter().map(|node| (node.id.as_str(), [node.position.x, node.position.y, node.position.z])).collect();
+        let pipes = pipe_map(model);
+        let mut at_node: HashMap<&str, Vec<&PreviewPipe>> = HashMap::new();
+        for pipe in &model.pipe_segments {
+            at_node.entry(pipe.from.as_str()).or_default().push(pipe);
+            if pipe.to != pipe.from {
+                at_node.entry(pipe.to.as_str()).or_default().push(pipe);
+            }
+        }
+        let mut mapping: HashMap<&str, Mapping> = HashMap::new();
+        for component in &model.components {
+            let Some(geometry) = component.geometry.as_ref() else { continue };
+            let refs = [
+                (geometry.rigid_pipe_ref.as_deref(), if component.kind == "reducer" { Mapping::ReducerBody } else { Mapping::ConcentricBody }),
+                (geometry.bend_pipe_ref.as_deref(), Mapping::Bend(component)),
+                (geometry.expansion_joint_pipe_ref.as_deref(), Mapping::ExpansionJoint),
+            ];
+            for (pipe_ref, kind) in refs {
+                let Some(pipe_ref) = pipe_ref.filter(|value| !value.trim().is_empty()) else { continue };
+                let applies = match kind {
+                    Mapping::ReducerBody | Mapping::ConcentricBody => is_rigid_family(component),
+                    Mapping::Bend(_) => crate::is_bend_component(component),
+                    Mapping::ExpansionJoint => component.kind == "expansion_joint",
+                };
+                if !applies {
+                    continue;
+                }
+                // A reducer body outranks every other mapping of the member.
+                let entry = mapping.entry(pipe_ref).or_insert(kind);
+                if matches!(kind, Mapping::ReducerBody) {
+                    *entry = kind;
+                }
+            }
+        }
+        Topology { positions, pipes, at_node, mapping, realized: crate::curved_bend_realized_pipe_ids(model), replaced: crate::joint::replaced_span_ids(model) }
+    }
+
+    fn evidence(&self, member: &PreviewPipe, at: &str) -> Evidence {
+        if self.replaced.contains(&member.id) {
+            return Evidence::Unsupported("a span replaced by an objective connector");
+        }
+        let (Some(&from), Some(&to)) = (self.positions.get(member.from.as_str()), self.positions.get(member.to.as_str())) else {
+            return Evidence::Unresolvable;
+        };
+        match self.mapping.get(member.id.as_str()) {
+            Some(Mapping::ReducerBody) => Evidence::Unsupported("the body of another reducer"),
+            Some(Mapping::ExpansionJoint) => Evidence::Unsupported("an expansion-joint member"),
+            Some(Mapping::Bend(component)) => {
+                let radius = component.geometry.as_ref().and_then(|g| g.bend_radius.as_ref()).map(|q| q.value);
+                match (self.realized.contains(member.id.as_str()), radius, member.y_reference) {
+                    (true, Some(radius), Some(y)) => arc_evidence(from, to, member.from == at, radius, [y.x, y.y, y.z]),
+                    _ => Evidence::Unsupported("a member mapped by a bend component and not realized as an arc"),
+                }
+            }
+            Some(Mapping::ConcentricBody) | None => {
+                let chord = v_sub(to, from);
+                let length = v_norm(chord);
+                match straight_beta(length) {
+                    Some(beta) if length > 0.0 => Evidence::Run { direction: v_scale(1.0 / length, chord), beta },
+                    _ => Evidence::Unresolvable,
+                }
+            }
+        }
+    }
+
+    fn end_status(&self, body: &PreviewPipe, at: &str) -> EndStatus {
+        let adjoining: Vec<&PreviewPipe> = self
+            .at_node
+            .get(at)
+            .map(|pipes| pipes.iter().copied().filter(|pipe| pipe.id != body.id).collect())
+            .unwrap_or_default();
+        match adjoining.as_slice() {
+            [] => EndStatus::None,
+            [member] => match self.evidence(member, at) {
+                Evidence::Run { direction, beta } => EndStatus::Direction { direction, beta },
+                Evidence::Unsupported(reason) => EndStatus::Unsupported { member: member.id.clone(), reason },
+                Evidence::Unresolvable => EndStatus::Unresolvable { member: member.id.clone() },
+            },
+            many => EndStatus::Ambiguous(many.iter().map(|pipe| pipe.id.clone()).collect()),
+        }
+    }
+}
+
+/// Whether the reducer's offset is read: present, and the mode is not the
+/// honoured `not_solver_consumed` (§3.2, P6).
+fn offset_is_read(component: &PreviewComponent) -> bool {
+    eccentric_offset(component).is_some()
+        && component.mechanics_interface.as_ref().and_then(|i| i.solver_consumption.as_deref()) != Some("not_solver_consumed")
+}
+
+/// Every reducer whose offset is read, with its outcome, in model order.
+fn judge_all<'a>(model: &'a PreviewModel, tolerance: f64) -> Vec<(&'a PreviewComponent, OffsetOutcome)> {
+    let topology = Topology::of(model);
+    let mut out = Vec::new();
+    for component in model.components.iter().filter(|c| c.kind == "reducer" && offset_is_read(c)) {
+        let offset = eccentric_offset(component).expect("filtered on presence");
+        let e = [offset.x, offset.y, offset.z];
+        let outcome = if !e.iter().all(|v| v.is_finite()) {
+            OffsetOutcome::Invalid("not_finite", "a component of the offset is not finite after conversion".to_string())
+        } else {
+            match mapped_pipe_ref(component).and_then(|r| topology.pipes.get(r).copied()).and_then(|member| {
+                let (n, f) = eccentric_offset_ends(component, member)?;
+                Some((member, n, f, *topology.positions.get(n)?, *topology.positions.get(f)?))
+            }) {
+                None => OffsetOutcome::Invalid("mapping_invalid", "the offset needs a mapped body member that exists and ends at the component's node".to_string()),
+                Some((member, n, f, x_n, x_f)) => match decide_axis(&topology.end_status(member, n), &topology.end_status(member, f)) {
+                    Err((reason, detail)) => OffsetOutcome::Invalid(reason, detail),
+                    Ok(axis) => judge_offset(x_n, x_f, axis, e, tolerance),
+                },
+            }
+        };
+        out.push((component, outcome));
+    }
+    out
+}
+
+fn vec_text(v: V3) -> String {
+    format!("({:e}, {:e}, {:e}) m", v[0], v[1], v[2])
+}
+
+/// §3.2-§3.4: the refusals of declared offsets. The first pass is
+/// allocation-free and returns when no component carries the slot; a
+/// non-reducer carrying it is refused before any reducer processing.
+pub(crate) fn append_eccentric_offset_refusals(model: &PreviewModel, tolerance: f64, diagnostics: &mut Vec<Diagnostic>) {
+    if !model.components.iter().any(|component| eccentric_offset(component).is_some()) {
+        return;
+    }
+    for component in model.components.iter().filter(|c| eccentric_offset(c).is_some() && c.kind != "reducer") {
+        diagnostics.push(diag(
+            &format!("diagnostic:component:{}:eccentric-offset-invalid", stable_suffix(&component.id)),
+            ECCENTRIC_INVALID,
+            "blocking",
+            format!("component {} (kind {}) carries geometry.eccentric_offset, a reducer slot (reason not_reducer); the offset is refused rather than left unread", component.id, component.kind),
+            vec![component.id.clone()],
+        ));
+    }
+    for (component, outcome) in judge_all(model, tolerance) {
+        let id = stable_suffix(&component.id);
+        let refs = vec![component.id.clone()];
+        let (suffix, code, message) = match outcome {
+            OffsetOutcome::Realized(_) => continue,
+            OffsetOutcome::Invalid(reason, detail) => ("eccentric-offset-invalid", ECCENTRIC_INVALID,
+                format!("reducer {} eccentric offset cannot be checked (reason {reason}): {detail}; the node geometry governs, and the declared offset is refused rather than left unchecked", component.id)),
+            OffsetOutcome::BelowPrecision(m) => ("eccentric-offset-below-precision", ECCENTRIC_BELOW_PRECISION,
+                format!("reducer {} declares a nonzero eccentric offset of magnitude {:e} m, not above its transversality allowance {:e} m (coordinate-rounding allowance q = {COORDINATE_ROUNDING_ALLOWANCE_M:e} m, run-axis uncertainty {:e} rad); declare a zero offset or correct the geometry", component.id, v_norm_of(component), m.allowance, m.beta_run)),
+            OffsetOutcome::NotTransverse(m) => ("eccentric-offset-not-transverse", ECCENTRIC_NOT_TRANSVERSE,
+                format!("reducer {} eccentric offset has an axial component {:e} m along the run axis {}, above its allowance {:e} m; an eccentric offset is transverse to the run", component.id, m.offset_axial, vec_text(m.axis), m.allowance)),
+            OffsetOutcome::Mismatch(m) => ("eccentric-offset-mismatch", ECCENTRIC_MISMATCH,
+                format!("reducer {} declares eccentric offset {} but its end nodes are separated transversely by {}: residual {:e} m exceeds the node-proximity tolerance {tolerance:e} m; the node geometry governs, so correct the nodes or the declared offset", component.id, vec_text(offset_v3(component)), vec_text(m.transverse), m.residual)),
+        };
+        diagnostics.push(diag(&format!("diagnostic:component:{id}:{suffix}"), code, "blocking", message, refs));
+    }
+}
+
+fn offset_v3(component: &PreviewComponent) -> V3 {
+    eccentric_offset(component).map(|o| [o.x, o.y, o.z]).unwrap_or([0.0; 3])
+}
+
+fn v_norm_of(component: &PreviewComponent) -> f64 {
+    v_norm(offset_v3(component))
+}
+
+/// §3.4: the realized offset of each checked reducer, on a published result
+/// only (called past the last blocked return).
+pub(crate) fn append_eccentric_offset_realized(model: &PreviewModel, tolerance: f64, diagnostics: &mut Vec<Diagnostic>) {
+    if !model.components.iter().any(|component| eccentric_offset(component).is_some()) {
+        return;
+    }
+    for (component, outcome) in judge_all(model, tolerance) {
+        let OffsetOutcome::Realized(m) = outcome else { continue };
+        let length = (m.axial_length * m.axial_length + v_dot(m.transverse, m.transverse)).sqrt();
+        let inclination = v_norm(m.transverse).atan2(m.axial_length);
+        diagnostics.push(diag(
+            &format!("diagnostic:component:{}:eccentric-offset-realized", stable_suffix(&component.id)),
+            ECCENTRIC_REALIZED,
+            "info",
+            format!("reducer {} declares eccentric offset {} and its end nodes realize a transverse separation {}, which governs the solve; the eccentricity is carried by the body member between the two centerlines (length {length:e} m, inclined {inclination:e} rad to the run axis); no rigid offset link is added; the member's stress rows are those of the mapped pipe section along the chord, a reference section, whether or not a stiffness scale is applied", component.id, vec_text(offset_v3(component)), vec_text(m.transverse)),
+            vec![component.id.clone()],
+        ));
+    }
+}

@@ -139,6 +139,8 @@ use validation::validate_model_inputs;
 mod rigid_component;
 #[cfg(test)]
 mod w15_rigid_scaling_tests;
+#[cfg(test)]
+mod w15c_eccentric_offset_tests;
 
 #[cfg(test)]
 #[cfg(test)]
@@ -567,6 +569,13 @@ pub struct ComponentGeometryInput {
     pub pressure_thrust_reference: Option<String>,
     #[serde(default)]
     pub expansion_joint_source_reference: Option<String>,
+    /// W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §2): a
+    /// reducer's declared eccentric offset, a length vector in global axes
+    /// under the R-c1 convention (`rigid_component::eccentric_offset_ends`).
+    /// The solve checks it against the node geometry, which governs; it never
+    /// places, moves or re-forms anything.
+    #[serde(default)]
+    pub eccentric_offset: Option<VectorQuantity>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -2807,6 +2816,17 @@ fn run_linear_static_preview_observed_inner(
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
     }
+    // W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §3.2): a
+    // declared eccentric offset is checked against the normalized node
+    // geometry, which governs. The first pass returns before any index is
+    // built when no component carries the slot. The tolerance was admitted by
+    // `validate_model_settings`.
+    if let Ok(tolerance) = model.node_proximity_tolerance_m() {
+        rigid_component::append_eccentric_offset_refusals(&model, tolerance, &mut diagnostics);
+    }
+    if has_blocking(&diagnostics) {
+        return blocked_envelope(model, diagnostics);
+    }
 
     let load_state = case_state::is_load_state(&model);
     // A 0.4.0 document never consumes a case-wide base pair: each member's
@@ -3261,6 +3281,11 @@ fn run_linear_static_preview_observed_inner(
     // applied-scale info and the precision warning name the members actually
     // formed with a scale; a refused or blocked model states none.
     rigid_component::append_formed_diagnostics(&model, &built.scaled_members, &mut diagnostics);
+    // W-15 slice c (Design `eccentric-reducer-offset.md` §3.4): the realized
+    // offset of each checked reducer, on a published result only.
+    if let Ok(tolerance) = model.node_proximity_tolerance_m() {
+        rigid_component::append_eccentric_offset_realized(&model, tolerance, &mut diagnostics);
+    }
     let mut envelope = MechanicsEnvelope {
         contract_evidence: pressure_runtime::is_exact(&model).then(|| {
             let mut evidence = serde_json::json!({"pressure": pressure_evidence, "connector": joint::connector_evidence(&model, &built.connectors, &built.connector_records), "exact_cases": exact_cases});
@@ -9567,6 +9592,21 @@ fn normalize_model_units(
                         vec![
                             component.id.clone(),
                             "geometry.center_of_gravity".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+                if let Some(offset) = &mut geometry.eccentric_offset {
+                    normalize_vector_quantity(
+                        offset,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:eccentric-offset",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "geometry.eccentric_offset".to_string(),
                         ],
                         diagnostics,
                     );

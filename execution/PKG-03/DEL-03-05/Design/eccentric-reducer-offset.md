@@ -761,6 +761,55 @@ every region is admitted; inside a region it is refused.
 **Scrutiny:** independent numerical scrutiny of the benchmark and the check,
 and independent review of the D3 registration.
 
+## 12a. As built: the convention-neutral parts (Agent 0, 2026-10-26: "go")
+
+Built on the 0.7.0-era code paths. Held back:
+- the schema member and the 0.8.0 ripple;
+- any run gate;
+- anything in #1648's files.
+
+Option A is implemented behind §3.6's single function and text constant.
+
+- **Check.**
+  - PP `rigid_component.rs`: constants and refusal codes; `eccentric_offset_ends`
+    (the R-c1 function); run evidence (`straight_beta`, `arc_evidence`, the
+    end status); `decide_axis`; `judge_offset`;
+    `append_eccentric_offset_refusals`, whose first pass scans every component
+    and refuses non-reducers first; `append_eccentric_offset_realized`.
+  - PP `lib.rs`: the wire field `ComponentGeometryInput::eccentric_offset`,
+    its normalization, the call after `normalize_model_units`, and the info
+    past the last blocked return.
+- **Tests.**
+  - `src/w15c_eccentric_offset_tests.rs`: the pure rules, the decided examples,
+    the bounds from both sides and the naming invariance.
+  - `tests/w15c_eccentric_reducer.rs`: the check through the solve on both
+    routes.
+  - `tests/w15c_eccentric_reducer_benchmarks.rs` with
+    `tests/common/w15c_bench.rs`: W15C against
+    `validation/references/w15c_eccentric_reducer`.
+  - `tests/w15c_offset_convention.rs`: R-c1 rows.
+- **Applier** (`operation_applier/src/lib.rs`): the field rule, the non-reducer
+  refusal, and the optional creation slot, with tests.
+- **Desktop.**
+  - `types.ts`;
+  - the shape descriptors in `modelDocumentShape.ts` and
+    `model_document_shape.rs`, with shared corpus cases
+    `eccentric-offset-malformed` and `-valid`;
+  - library apply `GROUP_VALUES.rigid`;
+  - the inspector's reducer-only offset field with
+    `ECCENTRIC_OFFSET_CONVENTION`
+    (`features/component-creation/eccentricOffsetConvention.ts`);
+  - report component provenance with the offset, the convention and
+    `ECCENTRIC_REDUCER_STRESS_BASIS`.
+
+  Not yet built: the offset input on the creation form, which takes it through
+  the inspector after creation.
+- **Guards** (§5 of DEL-02-01 Design `model-document-0.8.0.md`):
+  - `test_model_version_literals.py` scans product-physics and result-export
+    production code against a pending-ripple list tied to 0.7.0;
+  - `test_model_document_schema.py` gains the explicit-retired-controls rule,
+    empty until the ripple.
+
 ## 13. Reconciliation at build
 
 - **DEL-03-05:** this Design's "as built" notes, `deliverable.yaml` code paths
