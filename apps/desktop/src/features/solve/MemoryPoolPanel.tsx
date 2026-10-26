@@ -75,7 +75,7 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
       <section className="memory-pool-panel" aria-label="Memory pool" data-testid="memory-pool-panel">
         <div className="panel-subtitle">Memory</div>
         <p role="status" data-testid="memory-pool-unavailable">
-          Memory pool unavailable: the browser preview has no native memory pool, so no budget, pool or free-memory figures are shown.
+          Memory pool unavailable: the browser preview has no native memory pool, so no budget, pool or available-memory figures are shown.
         </p>
       </section>
     );
@@ -151,12 +151,12 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
           <PoolLine
             label="What the budget bounds"
             testId="memory-pool-budget-scope"
-            value="receiving the model document (request intake) and each ordinary solve's worker process, whose reservation grows on demand up to the budget; a solve needing more, or one whose next step does not fit the free memory macOS reports at that moment, is refused; results held natively and by the app are bounded by the pool, free memory and result-count limits, not by the budget"
+            value="receiving the model document (request intake) and each ordinary solve's worker process, whose reservation grows on demand up to the budget; a solve needing more, or one whose next step does not fit the available memory macOS reports throughout a 2 s re-sampling window, is refused; results held natively and by the app are bounded by the pool, available memory and result-count limits, not by the budget"
           />
           <PoolLine
             label="Edits, conversions and saves"
             testId="memory-pool-interactive"
-            value="each request is admitted by the pool, free memory and the budget; unlike a solve, it is not refused because macOS reports memory pressure"
+            value="each request is admitted by the pool, available memory and the budget; unlike a solve, it is not refused because macOS reports memory pressure"
           />
           <PoolLine
             label="Memory pool"
@@ -257,7 +257,7 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
                 onChange={(event) => setAcknowledged(event.target.checked)}
               />
               <span>
-                I acknowledge the pool is above the recommended size. The native side still refuses it when free memory
+                I acknowledge the pool is above the recommended size. The native side still refuses it when available memory
                 or capacity does not admit it.
               </span>
             </label>

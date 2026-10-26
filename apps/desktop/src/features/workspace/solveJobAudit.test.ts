@@ -133,7 +133,7 @@ describe("solve-job audit resource record", () => {
     expect(refused.resource).toMatchObject({ source: "native_job_receipt", invocation_budget_bytes: 12 * GiB, pool_bytes: 48 * GiB, route_pricing: "ordinary_worker_capped", refusal });
     expect(refused.events.at(-1)).toMatchObject({ event_id: "solve-preview-resource-refused", state: "refused", result_available: false });
     // A job's bare headroom refusal is its result lease at the hand-off: the point, the retry path and the exact code are named.
-    expect(refused.events.at(-1)!.message).toBe("Refused by the native memory pool (headroom_insufficient): Not enough free memory on this Mac right now: needs 12 GiB, 5 GiB available. No result was published. Refused at the result hand-off after the solve finished; the finished result was dropped. Free memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is free. Refusal code: headroom_insufficient (required_bytes=12884901888, available_bytes=5368709120).");
+    expect(refused.events.at(-1)!.message).toBe("Refused by the native memory pool (headroom_insufficient): Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 12 GiB, 5 GiB available. No result was published. Refused at the result hand-off after the solve finished; the finished result was dropped. Available memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is available. Refusal code: headroom_insufficient (required_bytes=12884901888, available_bytes=5368709120).");
     expect(solveRefusalPoint(refused)).toBe("result_handoff");
     // A ResourceUnavailableError reaching the failure path is recorded the same way.
     const atStep = failSolveJob(startSolveJob(model, receipt), new ResourceUnavailableError(refusal, null));
@@ -150,8 +150,8 @@ describe("solve-job audit resource record", () => {
     [{ kind: "worker_cap_exceeded" as const, cap_bytes: 12 * GiB, requested_bytes: 13 * GiB }, "The solve needed more memory than the per-invocation budget of 12 GiB allows (requested 13 GiB).",
       `${STOPPED} ${LARGER_BUDGET} Refusal code: worker_cap_exceeded (cap_bytes=12884901888, requested_bytes=13958643712).`],
     [{ kind: "worker_growth_refused" as const, granted_bytes: 4 * GiB, requested_bytes: 8 * GiB, cause: { kind: "headroom_insufficient" as const, required_bytes: 4 * GiB, available_bytes: 1 * GiB } },
-      "The solve needed more memory (8 GiB) than could be reserved while it ran: Not enough free memory on this Mac right now: needs 4 GiB, 1 GiB available.",
-      `${STOPPED} Worker growth is not re-sampled. You can run the solve again when more memory is free. Refusal code: worker_growth_refused (granted_bytes=4294967296, requested_bytes=8589934592); cause headroom_insufficient (required_bytes=4294967296, available_bytes=1073741824).`],
+      "The solve needed more memory (8 GiB) than could be reserved while it ran: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 4 GiB, 1 GiB available.",
+      `${STOPPED} Available memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is available. Refusal code: worker_growth_refused (granted_bytes=4294967296, requested_bytes=8589934592); cause headroom_insufficient (required_bytes=4294967296, available_bytes=1073741824).`],
     [{ kind: "worker_footprint_exceeded" as const, grant_bytes: 4 * GiB, footprint_bytes: 5 * GiB }, "The solve's measured memory footprint (5 GiB) does not fit the per-invocation budget, so the solve was ended (its reservation was 4 GiB).",
       `${STOPPED} ${LARGER_BUDGET} Refusal code: worker_footprint_exceeded (grant_bytes=4294967296, footprint_bytes=5368709120).`]
   ])("records a running solve's worker refusal %s as a typed refusal, keeping the worker grant", (refusal, sentence, retry) => {
@@ -174,7 +174,7 @@ describe("solve-job audit resource record", () => {
     expect(refused.events.at(-1)).toMatchObject({ event_id: "solve-preview-resource-refused-at-take", state: "refused", result_available: false, result_row_count: 0 });
     expect(refused.events.every((event) => event.state !== "completed" && event.result_row_count === 0)).toBe(true);
     expect(solveRefusalPoint(refused)).toBe("take");
-    expect(refused.events.at(-1)!.message).toBe("Refused by the native memory pool (headroom_insufficient): Not enough free memory on this Mac right now: needs 65.01 MiB, 50.2 MiB available. No result was published. Refused when the finished result was handed to the app; the take is not re-sampled, and the session does not retry a refused take, so it released the result. You can run the solve again when more memory is free. Refusal code: headroom_insufficient (required_bytes=68165632, available_bytes=52641792).");
+    expect(refused.events.at(-1)!.message).toBe("Refused by the native memory pool (headroom_insufficient): Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 65.01 MiB, 50.2 MiB available. No result was published. Refused when the finished result was handed to the app; the session does not retry a refused take, so it released the result. Available memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is available. Refusal code: headroom_insufficient (required_bytes=68165632, available_bytes=52641792).");
     // A custody refusal at the take names its own retry path.
     const custody = refusedAtTakeSolveJob(completedNatively, new ResourceUnavailableError({ kind: "custody_full", delivered: 4, limit: 4 }, null));
     expect(describeSolveRefusalRetry(custody.resource.refusal!, solveRefusalPoint(custody)!)).toMatch(/You can run the solve again once a held result has been released\.$/);
@@ -190,7 +190,7 @@ describe("solve-job audit resource record", () => {
     expect(solveRefusalPoint(refusedSolveJob(job, { kind: "worker_cap_exceeded", cap_bytes: 2, requested_bytes: 3 }))).toBe("worker");
     expect(solveRefusalPoint(refusedAtTakeSolveJob(job, new ResourceUnavailableError(headroom, null)))).toBe("take");
     expect(solveRefusalPoint(job)).toBeNull();
-    expect(describeSolveRefusalRetry(headroom, "before_start")).toBe("Refused before the solve started; no job ran. Free memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is free.");
+    expect(describeSolveRefusalRetry(headroom, "before_start")).toBe("Refused before the solve started; no job ran. Available memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is available.");
     expect(describeSolveRefusalRetry({ kind: "queue_full", queued: 4, limit: 4 }, "before_start")).toBe("Refused before the solve started; no job ran. You can run the solve again once a queued solve has started.");
     expect(describeSolveRefusalRetry({ kind: "retention_full", retained: 4, limit: 4 }, "publication")).toBe("Refused at publication after the solve finished; the finished result was dropped. You can run the solve again once a waiting result has been collected or released.");
   });

@@ -31,11 +31,11 @@ export function describeResourceRefusal(refusal: ResourceRefusal): string {
     case "capacity_unknown":
       return "This Mac's physical memory could not be read, so no new memory reservation is admitted.";
     case "headroom_unknown":
-      return "Free memory on this Mac could not be read right now, so no new memory reservation is admitted.";
+      return "Available memory on this Mac (free plus reclaimable file cache and purgeable memory) could not be read right now, so no new memory reservation is admitted.";
     case "headroom_stale":
-      return `The free-memory reading is out of date (${formatAge(refusal.age_ms)} old), so no new memory reservation is admitted until it refreshes.`;
+      return `The available-memory reading is out of date (${formatAge(refusal.age_ms)} old), so no new memory reservation is admitted until it refreshes.`;
     case "headroom_insufficient":
-      return `Not enough free memory on this Mac right now: needs ${formatBytes(refusal.required_bytes)}, ${formatBytes(refusal.available_bytes)} available.`;
+      return `Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs ${formatBytes(refusal.required_bytes)}, ${formatBytes(refusal.available_bytes)} available.`;
     case "pressure_unknown":
       return "macOS did not report a memory-pressure state, so no new solve is admitted.";
     case "pressure_elevated":

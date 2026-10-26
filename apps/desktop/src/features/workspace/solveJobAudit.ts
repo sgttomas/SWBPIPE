@@ -281,13 +281,16 @@ function refusalPoint(at: "job" | "take" | "session_step", backendJobId: string 
 /** What happened at the refusal point and the retry path the design allows,
  * in plain language. It never promises that a retry will be admitted. */
 export function describeSolveRefusalRetry(refusal: ResourceRefusal, point: SolveRefusalPoint): string {
-  const resampled = refusal.kind === "headroom_insufficient" ? " Free memory was re-sampled for up to 2 s before this refusal stood." : "";
+  // The intake, a worker growth step, the result lease and the take each
+  // re-sample a refusal that is only `headroom_insufficient` for up to 2 s.
+  const headroom = refusal.kind === "worker_growth_refused" ? refusal.cause : refusal;
+  const resampled = headroom.kind === "headroom_insufficient" ? " Available memory was re-sampled for up to 2 s before this refusal stood." : "";
   const where = {
     before_start: `Refused before the solve started; no job ran.${resampled}`,
-    worker: `Refused while the solve ran: its worker process was stopped, with no fallback to another solver mode or route.${refusal.kind === "worker_growth_refused" ? " Worker growth is not re-sampled." : ""}`,
+    worker: `Refused while the solve ran: its worker process was stopped, with no fallback to another solver mode or route.${resampled}`,
     result_handoff: `Refused at the result hand-off after the solve finished; the finished result was dropped.${resampled}`,
     publication: "Refused at publication after the solve finished; the finished result was dropped.",
-    take: "Refused when the finished result was handed to the app; the take is not re-sampled, and the session does not retry a refused take, so it released the result.",
+    take: `Refused when the finished result was handed to the app; the session does not retry a refused take, so it released the result.${resampled}`,
     session_step: "Refused at a native command of this solve's session steps; the session does not retry it."
   }[point];
   return `${where} ${solveRetryPath(refusal)}`;
@@ -314,7 +317,7 @@ function solveRetryPath(refusal: ResourceRefusal): string {
     case "worker_growth_refused":
       return solveRetryPath(refusal.cause);
     default:
-      return "You can run the solve again when more memory is free.";
+      return "You can run the solve again when more memory is available.";
   }
 }
 
