@@ -1021,13 +1021,37 @@ with no list of paths to keep in step, and it builds no serialized copy.
   (`MODEL-FILE-SHAPE`) and a positional rule-pack reference
   (`MODEL-SLOT-SHAPE`) (probed); the local library import, which stores only
   accepted libraries that the handoff later screens, refuses a positional
-  library provenance as `REJECTED` (probed); the stored-model recovery export
-  writes the stored text verbatim after a keyed screen, and the store holds
-  only documents that passed the project save's document check; Export Result
-  JSON writes the webview's bytes with no native screen or decode. The rule
-  check (W-17) runs no disposition or context screen; whether a positional
-  member can pass its keyed mechanics qualification while its engine decodes
-  the envelope with serde is not probed here and is left to its owner.
+  library provenance as `REJECTED` (probed). Export Result JSON writes the
+  webview's bytes with no native screen or decode. The rule check (W-17) runs
+  no disposition or context screen; whether a positional member can pass its
+  keyed mechanics qualification while its engine decodes the envelope with
+  serde is not probed here and is left to its owner.
+- **Remaining item: the stored-model recovery export** (Codex review round 1
+  of #1650). It writes the stored text verbatim after the keyed screen, and
+  that screen visits only object-valued provenance records
+  (`export_disposition_screen.rs:275`, caller
+  `stored_model_document_export.rs:955`). A malformed or historical stored row
+  whose `provenance_record` is an array (for example
+  `["Invented source","","","","","private_only","quarantined"]`) reached the
+  picker and saved; its object form refuses as `PROTECTED_CONTENT_BLOCKED`.
+  Current persistence rejects such a row, so this needs a stored row written
+  before the project save's document check or written outside it. It is a
+  pre-existing gap that does not share this validator, since recovery does no
+  typed decode. The fix is for recovery to reject a malformed screened-metadata
+  shape while still recovering unrelated defects. It is recorded as a remaining
+  item under the owner's finishing ruling of 2026-10-26.
+- **Constraint on the check** (Codex review round 1 of #1650). The comparing
+  walk looks fields up by their serialization names. A field that decodes
+  under a different name (`#[serde(alias = …)]`, `rename_all` that differs
+  between directions) would be compared under its serialized name and could be
+  missed. No report or wire type uses one today. A change that adds one must
+  extend the check or enforce object form during deserialization, and the
+  `object_form` tests must cover it.
+- **Headless scope.** The headless runner decodes the request's typed members
+  (`source_model_ref`, `source_basis_refs`, `audit_manifest`) before its own
+  checks, and those are values, not screened records. The shared producer's
+  guard (`wire.rs:379`) covers the raw report, where every screened record
+  sits.
 - Regressions (pressure-free route, decoded args and raw IPC, render and
   save): `object_form_tests.rs` (quarantined, rejected and protected-suspected
   positional records at ten depths: the calculation report's, its model
