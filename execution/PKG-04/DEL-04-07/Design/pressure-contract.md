@@ -166,6 +166,52 @@ with and without its declared members. Priced change: DEL-04-08
 [retained-pricing-rules.md](../../DEL-04-08/Design/retained-pricing-rules.md)
 §8.19.
 
+## Constant-effort combinations: the unit factor-sum rule
+
+A `mechanics` combination superposes its case states. A consuming
+constant-effort support's fixed load is in every case state, so the combined
+state counts it Σf times. The combined state is a state of the original system
+only when Σf = 1. Where the model has such a support,
+`CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` withholds every mechanics
+combination whose factors do not satisfy the unit factor-sum rule (option C,
+Agent 0, 2026-10-25):
+
+- **Rule:** Σf is the exact dyadic sum of the binary64 factors. The combination
+  is admitted iff |Σf − 1| ≤ 64ε = 2⁻⁴⁶ (about 1.42e-14), compared exactly. There
+  is no Σ|f| scaling. A non-finite factor is refused by name: validation's blocking
+  `LOAD_COMBINATION_FACTOR_INVALID` refuses it first, and the gate also withholds
+  it under the same reason code. An accumulator error is withheld the same way.
+- **Why:** the rule it replaces admitted |fl(Σf) − 1| ≤ 64ε·max(1, fl(Σ|f|)), and
+  the hole was the relative scaling, not the tolerance. 2⁵² and −2⁵² sum exactly
+  to 0, but the bound scaled to 128, so the combination was published with the
+  constant effort counted zero times. A fold that overflowed to infinity was also
+  admitted, because inf > inf is false. With an exact sum and an absolute bound:
+  - 2⁵³/−2⁵³ gives |0 − 1| = 1 and is refused, and an exact sum cannot overflow;
+  - 0.3 + 0.7, 1.2 − 0.2 and fl(1/3) + fl(2/3) each sum exactly to 1 − 2⁻⁵⁴ and
+    are admitted, as before;
+  - no decimal formatting is involved, so there is no Rust/TS formatting-parity
+    risk;
+  - what it admits scales the fixed loads by at most 1 ± 1.4e-14, below solve
+    precision.
+- **Rejected:** (A) exact Σf = 1, which withholds 0.3 + 0.7 and 1.2 − 0.2. (B) an
+  exact rational sum of each factor's shortest round-trip decimal = 1, which
+  refuses fl(1/3) + fl(2/3) (its decimals sum to 0.9999999999999999) and needs a
+  formatting step.
+- **Where:** the one implementation is DEL-05-02's
+  `open_pipe_stress_load_case_algebra::factor_sum_within_unit_tolerance`, so other
+  gates that need Σf = 1 can reuse it. `preview_physics.rs` `gate_reason` calls
+  it. The test-only Python verifier mirrors it with exact rationals
+  (`tests/verifiers/preview_physics_evidence.py`). The preview contract tables'
+  `combination_policy` states the same condition.
+
+Evidence: the helper's tests (both bounds closed; 1 ± (2⁻⁴⁶ + 2⁻¹⁰⁷⁴) refused),
+`src/preview_physics.rs` `constant_effort_gate_withholds_a_factor_sum_it_cannot_evaluate`,
+and `tests/preview_physics_runtime.rs`
+`constant_effort_gate_uses_the_exact_unit_factor_sum`, which covers both solver
+modes. Factors of magnitude 2⁵³ or more are integral, so the value entry refuses
+them (`CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT`), and only the typed entry reaches the
+gate with them.
+
 ## Imposed displacement on the pressure-free route
 
 Owner, 2026-10-23, verbatim: "Row 2 I approve option A". Imposed

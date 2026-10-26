@@ -1365,7 +1365,7 @@
       },
       {
         "code": "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE",
-        "condition": "the model has a consuming constant-effort support and |sum(factors) - 1| > 64*epsilon*max(1, sum(|factors|))"
+        "condition": "the model has a consuming constant-effort support and a factor is not finite or |sum(factors) - 1| > 64*epsilon, with sum(factors) the exact sum of the binary64 factors, compared exactly and not scaled by sum(|factors|)"
       },
       {
         "code": "COMBINATION_MODULUS_BASIS_MIXED",

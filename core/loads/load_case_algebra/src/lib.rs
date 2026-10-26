@@ -5,6 +5,9 @@
 //! proprietary project data, rule-pack expression evaluation, or professional
 //! approval.
 
+mod factor_sum;
+pub use factor_sum::{factor_sum_within_unit_tolerance, FactorSumError, UNIT_FACTOR_SUM_BOUND};
+
 use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
 use open_pipe_stress_primitive_loads::{
     BoundaryMetadataError, BoundaryQuantityRecord, BoundaryRecordRef, CanonicalSchemaBinding,

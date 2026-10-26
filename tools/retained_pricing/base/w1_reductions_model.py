@@ -62,12 +62,15 @@ RF_PINS = {
 # W-16 slice a D3 (§8.23): lib.rs's support target, the imposed-motion validation and prescribed map and the primitive
 # filter, and preview_physics.rs's shorter LIMITATIONS[1] and deleted pre-parse refusal, change no reduction's owner
 # or lifetime; the L5 guard, shadow, insert and call texts are unchanged.
+# Unit factor-sum gate D3 (§8.24): preview_physics.rs's gate_reason calls factor_sum_within_unit_tolerance in place
+# of its two folds; the L5 callee's inputs and the L5 guard, shadow, insert and call texts are unchanged; no reduction's
+# owner or lifetime changes.
 REDUCED_PINS = {
     "core/product_physics/src/lib.rs": "8b437bcccaa2a31cc8c5ebd2544c0e9c27bea064e54a8ccc5355f80ce0618768",
     "core/product_physics/src/retained_wire.rs": "1c58db53d9a590d4316aea0fdc855396002935faed3d91a31e7f5434d93d8d40",
     "core/product_physics/src/certified_publication.rs": "8dd1a0ed3c32df695639b2adda57e2d501b6becc8fafec78c5256061148ba19c",
     "core/product_physics/src/certified_loads.rs": "56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f",
-    "core/product_physics/src/preview_physics.rs": "5b1dc6f028f013961d02c0bddbe84af6f5308ad775ea61d94384af01a68184b0",
+    "core/product_physics/src/preview_physics.rs": "878a16b8c2d72abea6a6c4122cfa10fa29a752671660acdc299b3caed6b515c9",
     "core/solver/frame_kernel/src/structural/formation_check.rs": "ec27fd9b61191c292ef24a240efccf667976c25f4d42a0a8eea833fb37d21b5d",
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "518f343f9052a94faf3b93e16a488552f707554a66b532156cdced71a4fd75f7",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",
