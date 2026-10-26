@@ -1,6 +1,6 @@
 import type { PreviewModel } from "../../types";
 import type { UnitCatalogRoute } from "../../services/unitCatalogService";
-import { composedDefault, declaredOrComposedDefault, type CheckedComposedDefault } from "../project-units/projectUnitSelection";
+import { composedDefault, declaredOrComposedDefault, projectTemperatureDefault, type CheckedComposedDefault } from "../project-units/projectUnitSelection";
 
 // Primitive-load category vocabulary of the Load Case Manager: which target a
 // category uses, its direction choices and default, the dimension sent to core
@@ -97,8 +97,7 @@ function projectLengthUnit(model: PreviewModel): string {
 
 
 function projectTemperatureUnit(model: PreviewModel): string {
-  const unit = optionalString(model.project.units.temperature) ?? "TBD";
-  return unit === "C" ? "degC" : unit;
+  return projectTemperatureDefault(model.project.units) || "TBD";
 }
 
 function projectRotationUnit(model: PreviewModel): string {

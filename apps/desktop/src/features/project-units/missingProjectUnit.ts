@@ -13,8 +13,9 @@ import { projectUnitRow } from "./ProjectUnitsSection";
 import { storedProjectUnit } from "./projectUnitIntents";
 
 /** How the field can get a unit: `positions` (node positions: the length key alone),
- * `required` (the field has no unit selector) or `choose` (its own selector). */
-export type MissingProjectUnitMode = "positions" | "required" | "choose";
+ * `required` (the field has no unit selector), `choose` (its own selector) or
+ * `inspector` (a grid cell, whose field has a selector in the property inspector). */
+export type MissingProjectUnitMode = "positions" | "required" | "choose" | "inspector";
 
 export function isProjectUnitKey(key: string): key is ProjectUnitKey {
   return (PROJECT_UNIT_KEYS as readonly string[]).includes(key);
@@ -32,9 +33,15 @@ export function missingProjectUnitText(model: PreviewModel, key: ProjectUnitKey,
     const notice = projectUnitRow(model, key, null).notice;
     if (notice?.kind === "missing-hard-lock") return notice.text;
   }
-  return mode === "choose"
-    ? `Missing project unit: ${key}. This field has no default unit, and nothing is assumed. Choose its unit here, or set ${key} in Project units on the Project page.`
-    : `Missing project unit: ${key}. This field takes its unit from project.units.${key}, and nothing is assumed. Set ${key} in Project units on the Project page before editing it.`;
+  if (mode === "choose") return `Missing project unit: ${key}. This field has no default unit, and nothing is assumed. Choose its unit here, or set ${key} in Project units on the Project page.`;
+  if (mode === "inspector") return `Missing project unit: ${key}. This cell has no default unit, and nothing is assumed. Choose its unit in the property inspector, or set ${key} in Project units on the Project page.`;
+  return `Missing project unit: ${key}. This field takes its unit from project.units.${key}, and nothing is assumed. Set ${key} in Project units on the Project page before editing it.`;
+}
+
+/** A grid cell whose composed default is not a catalog unit (§7.3, §7.6): the grid
+ * has no unit selector, so the notice sends the user to the property inspector. */
+export function unavailableDefaultUnitCellText(notice: string): string {
+  return `${notice}. Choose its unit in the property inspector.`;
 }
 
 /** The keys a component creation draft (the property inspector's and the

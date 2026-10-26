@@ -4,6 +4,7 @@ import { usePackageHash, withCanonicalPackageHash } from "../../services/usePack
 import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 import { lengthToMillimeters, outOfRangeLengthText, outOfRangeNodeCoordinates } from "../exportLengthConversion";
+import { missingExportProjectUnits, projectUnitRefusalText, type ExportProjectUnitUse } from "../project-units/exportProjectUnits";
 
 type PcfReference = {
   object_type: string;
@@ -68,6 +69,10 @@ export const PCF_LENGTH_UNIT_UNSUPPORTED = "PCF-LENGTH-UNIT-UNSUPPORTED";
 /** A length that is not finite, or not finite once converted to millimetres (DEL-02-02 Design §7.5). */
 export const PCF_LENGTH_OUT_OF_RANGE = "PCF-LENGTH-OUT-OF-RANGE";
 const LENGTH_REFUSAL_CODES: ReadonlySet<string> = new Set([PCF_LENGTH_UNIT_UNSUPPORTED, PCF_LENGTH_OUT_OF_RANGE]);
+/** A project unit the export writes is missing (DEL-02-02 Design §7.4). It takes
+ * precedence over PCF-LENGTH-UNIT-UNSUPPORTED for a missing length key. */
+export const PCF_PROJECT_UNIT_MISSING = "PCF-PROJECT-UNIT-MISSING";
+const PCF_PROJECT_UNIT_USES: readonly ExportProjectUnitUse[] = [{ key: "length", writes: "the node coordinates' source unit" }];
 
 export function PcfExportPanel({
   model,
@@ -85,7 +90,9 @@ export function PcfExportPanel({
     "manifest_and_validation_report_package_hash_carrier_fields"
   );
   const packet = withCanonicalPackageHash(basePacket, packageHash);
-  const lengthRefusal = lengthUnitRefusalText(packet.diagnostics);
+  // §7.4: a missing project unit is refused first; then §7.5's length refusals.
+  const projectUnitRefusal = projectUnitRefusalText("PCF", PCF_PROJECT_UNIT_MISSING, packet.diagnostics);
+  const lengthRefusal = projectUnitRefusal ? null : lengthUnitRefusalText(packet.diagnostics);
 
   return (
     <section className="panel pcf-export-panel" aria-label="Conservative PCF export" data-testid="pcf-export-panel">
@@ -95,7 +102,9 @@ export function PcfExportPanel({
       </div>
       <div className="report-actions">
         <LoadReferenceOutputGate result={result} testIdPrefix="pcf-export">
-        {lengthRefusal ? (
+        {projectUnitRefusal ? (
+          <p className="muted" role="status" data-testid="pcf-export-project-unit-refusal">{projectUnitRefusal}</p>
+        ) : lengthRefusal ? (
           <p className="muted" role="status" data-testid="pcf-export-length-unit-refused">{lengthRefusal}</p>
         ) : (
         <>
@@ -121,7 +130,7 @@ export function PcfExportPanel({
         )}
         </LoadReferenceOutputGate>
         <span data-testid="pcf-export-summary">
-          {lengthRefusal ? "refused" : "available"}; segments={packet.pcf_payload.pipe_segments.length}; nodes={packet.pcf_payload.nodes.length};
+          {projectUnitRefusal || lengthRefusal ? "refused" : "available"}; segments={packet.pcf_payload.pipe_segments.length}; nodes={packet.pcf_payload.nodes.length};
           validation={packet.validation_report.validation_status}; losses={packet.loss_report.length}
         </span>
       </div>
@@ -608,7 +617,13 @@ function pcfLengthUnitDiagnostics(model: PreviewModel): PcfDiagnostic[] {
   const refusals: PcfDiagnostic[] = [];
   const remediation = "Store the quantity in m, mm, in or ft, which convert to millimetres exactly, before exporting PCF text.";
   const rangeRemediation = "Correct the stored value to a finite length before exporting PCF text.";
-  const coordinates = model.nodes.length > 0 ? lengthToMillimeters(0, projectLengthUnit(model)) : null;
+  // §7.4: a missing length key is PCF-PROJECT-UNIT-MISSING, which takes precedence
+  // over the unsupported-unit refusal below.
+  for (const missing of missingExportProjectUnits(model, PCF_PROJECT_UNIT_USES, "exporting PCF text")) {
+    refusals.push(diagnostic(PCF_PROJECT_UNIT_MISSING, "blocking", "UNIT_WARNING", missing.text, missing.remediation, reference("Project", model.project.id)));
+  }
+  const lengthKeyMissing = refusals.length > 0;
+  const coordinates = model.nodes.length > 0 && !lengthKeyMissing ? lengthToMillimeters(0, projectLengthUnit(model)) : null;
   if (coordinates?.status === "refused") {
     refusals.push(
       diagnostic(

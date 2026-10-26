@@ -226,3 +226,5 @@ checks:
 - apps/desktop/src/features/project-units/projectUnitsCheckpoint.test.tsx
 - core/model_operations/operation_applier/tests/project_unit_authoring.rs
 - apps/desktop/src/features/model-tree/missingProjectUnitEditors.test.tsx
+- apps/desktop/src/features/model-tree/sliceCUnitDefaults.test.tsx
+- apps/desktop/src/features/exportProjectUnitRefusal.test.tsx
