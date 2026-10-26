@@ -1338,3 +1338,503 @@ describe("numerical health report line", () => {
     expect(screen.queryAllByTestId(/^report-numerical-health-/)).toHaveLength(0);
   });
 });
+
+// ---------------------------------------------------------------------------
+// W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §4, §6.2, §7):
+// FR-REP-003 on every route. Material, section, component and support records under
+// one provenance predicate, library references and the store's findings, and the
+// disposition and context boundary. Targeted regression checks for a data-boundary
+// change; every record, library and finding below is invented.
+// ---------------------------------------------------------------------------
+
+const LIBRARY_VERSION = `sha256:${"7".repeat(64)}`;
+
+function inventedRecord(sourceName: string, extra: Record<string, unknown> = {}) {
+  return {
+    source_name: sourceName,
+    source_location: "invented-datasheet-shelf",
+    source_license: "invented-license",
+    contributor: "invented contributor",
+    contributor_certification: "invented certification",
+    redistribution_status: "private_only",
+    review_status: "pending",
+    ...extra
+  };
+}
+
+const MODULUS = { value: 1, unit: "Pa" };
+
+/** The invented render model with materials, sections, a component and a support each
+ * with and without a `provenance_record`, and two library references with one identity. */
+function recordModel(): PreviewModel {
+  const model = inventedModel() as unknown as Record<string, unknown> & PreviewModel;
+  const libraryRef = { library_kind: "material", library_id: "invented-material-library", library_version: LIBRARY_VERSION, record_id: "steel-a" };
+  model.materials = [
+    {
+      id: "material:with-record", label: "Invented recorded steel", elastic_modulus: MODULUS, provenance: "",
+      provenance_record: inventedRecord("Invented steel datasheet", {
+        review_status: "accepted", reviewed_by: "Invented Reviewer", reviewed_on: "2026-01-01", verification_note: "invented verification note", library_ref: libraryRef
+      })
+    },
+    { id: "material:note-only", label: "Invented note steel", elastic_modulus: MODULUS, provenance: " invented_user_note " },
+    { id: "material:missing", label: "Invented unsourced steel", elastic_modulus: MODULUS, provenance: "  " }
+  ] as never;
+  model.sections = [
+    { id: "section:with-record", name: "Invented recorded section", section_type: "pipe", properties: {}, provenance: "", provenance_record: inventedRecord("Invented section table") },
+    { id: "section:object-note", name: "Invented object section", section_type: "pipe", properties: {}, provenance: { source: "invented", page: 3 } },
+    { id: "section:missing", name: "Invented bare section", section_type: "pipe", properties: {}, provenance: {} }
+  ] as never;
+  // C-999 has no note; with a record it has provenance by the predicate.
+  model.components[1].provenance_record = inventedRecord("Invented rigid record") as never;
+  model.supports = [
+    {
+      id: "support:with-record", label: "Invented recorded support", node: "node:N-110", restraints: [], provenance: "",
+      provenance_record: inventedRecord("Invented support record", { library_ref: { ...libraryRef } })
+    },
+    { id: "support:plain", label: "Invented plain support", node: "node:N-110", restraints: [], provenance: "invented support note" }
+  ] as never;
+  return model;
+}
+
+const SESSION_RECORD = {
+  source_name: "OpenPipeStress desktop session (Invented render model)",
+  source_location: "local desktop session",
+  source_license: "user_supplied_or_private",
+  contributor: "user_local_session",
+  contributor_certification: "not_asserted",
+  redistribution_status: "private_only",
+  review_status: "pending",
+  privacy_classification: "private_project_data"
+};
+
+function patternRecord(kind: "material" | "section", label: string, location: string) {
+  return {
+    source_name: `${label} ${kind} provenance`,
+    source_location: location,
+    source_license: "user_supplied_or_private",
+    contributor: "user_local_session",
+    contributor_certification: `User-local ${kind} provenance metadata; redistribution remains private or pending until separately cleared.`,
+    redistribution_status: "private_only",
+    review_status: "pending",
+    privacy_classification: "private_project_data"
+  };
+}
+
+function mappedRecord(sourceName: string, review = "pending") {
+  return {
+    source_name: sourceName,
+    source_location: "invented-datasheet-shelf",
+    source_license: "invented-license",
+    contributor: "invented contributor",
+    contributor_certification: "invented certification",
+    redistribution_status: "private_only",
+    review_status: review,
+    privacy_classification: "private_project_data"
+  };
+}
+
+const buildFor = (model: PreviewModel, extra: Partial<Parameters<typeof buildRenderableReportInput>[0]> = {}) =>
+  buildRenderableReportInput({ model, result: inventedResult(), analysisRun: inventedRun(), projectSummary: null, renderContext: LOCAL_PRIVATE_CONTEXT, ...extra });
+
+describe("FR-REP-003 records (W-11 slice (c), §4.1)", () => {
+  it("records materials, sections, components and supports under one provenance predicate", async () => {
+    const input = await buildFor(recordModel());
+    const sections = input.report_sections;
+    expect(sections.provenance_notes).toEqual([
+      SESSION_RECORD,
+      expect.objectContaining({ source_name: "Invented elbow marker component provenance" }),
+      mappedRecord("Invented rigid record"),
+      mappedRecord("Invented steel datasheet", "accepted"),
+      patternRecord("material", "Invented note steel", "material.provenance=invented_user_note"),
+      patternRecord("material", "Invented unsourced steel", "material provenance missing"),
+      mappedRecord("Invented section table"),
+      patternRecord("section", "Invented object section", 'section.provenance={"page":3,"source":"invented"}'),
+      patternRecord("section", "Invented bare section", "section provenance missing"),
+      mappedRecord("Invented support record")
+    ]);
+    // reviewed_by, reviewed_on, verification_note and library_ref are not carried.
+    expect(JSON.stringify(sections)).not.toMatch(/Invented Reviewer|2026-01-01|invented verification note|steel-a/);
+
+    const value = (kind: string, id: string, record: unknown, missing: boolean, review = "pending") => ({
+      value_id: `${kind}-provenance:${id}`,
+      value_category: "report_metadata",
+      source: { ref_type: kind, ref_id: id },
+      provenance: record,
+      privacy_classification: "private_project_data",
+      required_for: ["reporting", "human_review"],
+      review_status: review,
+      missing_data_finding: missing
+    });
+    expect(sections.user_supplied_values.slice(2)).toEqual([
+      value("material", "material:with-record", mappedRecord("Invented steel datasheet", "accepted"), false, "accepted"),
+      value("material", "material:note-only", sections.provenance_notes[4], false),
+      value("material", "material:missing", sections.provenance_notes[5], true),
+      value("section", "section:with-record", mappedRecord("Invented section table"), false),
+      value("section", "section:object-note", sections.provenance_notes[7], false),
+      value("section", "section:missing", sections.provenance_notes[8], true),
+      value("support", "support:with-record", mappedRecord("Invented support record"), false)
+    ]);
+    // No quantity member on the new entries (schema `ValueQuantity` is an object).
+    for (const entry of sections.user_supplied_values.slice(2)) expect("quantity" in entry).toBe(false);
+    // The component's entry keeps its id, category and form; its record follows the predicate.
+    expect(sections.user_supplied_values[1]).toEqual({
+      value_id: "component-provenance:component:C-999",
+      value_category: "component_provenance:rigid",
+      source: { ref_type: "component", ref_id: "component:C-999" },
+      quantity: null,
+      provenance: mappedRecord("Invented rigid record"),
+      privacy_classification: "private_project_data",
+      required_for: ["reporting", "human_review"],
+      review_status: "pending",
+      missing_data_finding: false
+    });
+
+    const provenanceDiagnostics = sections.diagnostics.filter((item) => item.class === "PROVENANCE_WARNING");
+    expect(provenanceDiagnostics).toEqual([
+      {
+        code: "MATERIAL_PROVENANCE_MISSING", class: "PROVENANCE_WARNING", severity: "warning",
+        source: { ref_type: "material", ref_id: "material:missing" }, affected_object: { ref_type: "material", ref_id: "material:missing" },
+        message: "Material Invented unsourced steel has neither a provenance_record nor a provenance note; report provenance is incomplete for this material.",
+        remediation: "Enter material source/provenance before relying on this report.", provenance: SESSION_RECORD
+      },
+      {
+        code: "SECTION_PROVENANCE_MISSING", class: "PROVENANCE_WARNING", severity: "warning",
+        source: { ref_type: "section", ref_id: "section:missing" }, affected_object: { ref_type: "section", ref_id: "section:missing" },
+        message: "Section Invented bare section has neither a provenance_record nor a provenance note; report provenance is incomplete for this section.",
+        remediation: "Enter section source/provenance before relying on this report.", provenance: SESSION_RECORD
+      }
+    ]);
+  });
+
+  it("gives a component with a record and no note neither a missing-data flag nor COMPONENT_PROVENANCE_MISSING", async () => {
+    const without = await buildFor(inventedModel());
+    expect(without.report_sections.diagnostics.find((item) => item.code === "COMPONENT_PROVENANCE_MISSING")?.message).toBe(
+      "Component Invented component with missing provenance has neither a provenance_record nor a component.provenance note; report provenance is incomplete for this component."
+    );
+    const model = inventedModel();
+    model.components[1].provenance_record = inventedRecord("Invented rigid record") as never;
+    const withRecord = await buildFor(model);
+    expect(withRecord.report_sections.diagnostics.some((item) => item.code === "COMPONENT_PROVENANCE_MISSING")).toBe(false);
+    expect(withRecord.report_sections.user_supplied_values[1].missing_data_finding).toBe(false);
+    // A record whose source name is blank is not provenance by the predicate.
+    model.components[1].provenance_record = inventedRecord("   ") as never;
+    const blank = await buildFor(model);
+    expect(blank.report_sections.user_supplied_values[1]).toMatchObject({ missing_data_finding: true, provenance: { source_name: "not recorded" } });
+    expect(blank.report_sections.diagnostics.some((item) => item.code === "COMPONENT_PROVENANCE_MISSING")).toBe(true);
+  });
+
+  it("copies an accepted review: not a missing-data finding when sourced; pending on a missing-data value, whose record keeps accepted", async () => {
+    const model = inventedModel();
+    model.materials = [
+      { id: "material:accepted", label: "Invented accepted steel", elastic_modulus: MODULUS, provenance: "", provenance_record: inventedRecord("Invented accepted datasheet", { review_status: "accepted" }) },
+      { id: "material:accepted-blank", label: "Invented blank steel", elastic_modulus: MODULUS, provenance: "", provenance_record: inventedRecord(" ", { review_status: "accepted" }) }
+    ] as never;
+    const values = (await buildFor(model)).report_sections.user_supplied_values;
+    const sourced = values.find((item) => item.value_id === "material-provenance:material:accepted")!;
+    expect(sourced).toMatchObject({ review_status: "accepted", missing_data_finding: false, provenance: { review_status: "accepted" } });
+    const blank = values.find((item) => item.value_id === "material-provenance:material:accepted-blank")!;
+    expect(blank).toMatchObject({ review_status: "pending", missing_data_finding: true, provenance: { source_name: "not recorded", review_status: "accepted" } });
+    // No value is both a missing-data finding and accepted
+    // (REPORT_SECTION_MISSING_VALUE_MARKED_ACCEPTED; checked in Rust on the schema fixture).
+    expect(values.filter((item) => item.missing_data_finding && item.review_status === "accepted")).toEqual([]);
+  });
+
+  it("fills absent record members with not recorded, unknown and pending", async () => {
+    const model = inventedModel();
+    model.materials = [{ id: "material:sparse", label: "Invented sparse steel", elastic_modulus: MODULUS, provenance: "", provenance_record: { source_name: "Invented sparse datasheet", source_location: "  " } }] as never;
+    const note = (await buildFor(model)).report_sections.provenance_notes.at(-1);
+    expect(note).toEqual({
+      source_name: "Invented sparse datasheet",
+      source_location: "not recorded",
+      source_license: "not recorded",
+      contributor: "not recorded",
+      contributor_certification: "not recorded",
+      redistribution_status: "unknown",
+      review_status: "pending",
+      privacy_classification: "private_project_data"
+    });
+  });
+
+  it("leaves an input without materials, sections, records or library references byte-identical", async () => {
+    // Captured from the builder at 35f537355f (before slice (c)) for the same arguments;
+    // the model's components all carry a note, so no changed diagnostic text enters.
+    const expected = {
+      public_report: "d1fb38303582b15517dac4ccc44942252f157568e2c724b8439dedb06cd52177",
+      local_private: "f612cf9d351462c5794eff15e8e150fcc8b4545adae8fd1e17555f8b607a73b0"
+    } as const;
+    for (const renderContext of [PUBLIC_CONTEXT, { exportContext: "local_private", generatedAt: null } as const]) {
+      const model = inventedModel();
+      model.components[1].provenance = "invented_user_note";
+      const input = await buildFor(model, { renderContext });
+      expect("library_references" in input).toBe(false);
+      const { canonicalSha256Hex } = await import("../../services/hashService");
+      expect(await canonicalSha256Hex(input)).toBe(expected[renderContext.exportContext]);
+    }
+  });
+});
+
+describe("library references and the store's findings (W-11 slice (c), §4.2)", () => {
+  afterEach(async () => {
+    const { publishLibraryRefFindings } = await import("../library/libraryRefFindings");
+    publishLibraryRefFindings("", []);
+  });
+
+  it("lists each distinct reference once, in first-occurrence order, with its owners sorted", async () => {
+    const model = recordModel();
+    model.sections![0].provenance_record = inventedRecord("Invented section table", {
+      library_ref: { library_kind: "section", library_id: "invented-section-library" }
+    }) as never;
+    const input = await buildFor(model);
+    expect(input.library_references).toEqual([
+      {
+        reference_id: "library-ref:1", library_kind: "material", library_id: "invented-material-library", library_version: LIBRARY_VERSION,
+        record_id: "steel-a", entity_refs: ["material:with-record", "support:with-record"], provenance: SESSION_RECORD
+      },
+      {
+        reference_id: "library-ref:2", library_kind: "section", library_id: "invented-section-library", library_version: "not recorded",
+        record_id: "not recorded", entity_refs: ["section:with-record"], provenance: SESSION_RECORD
+      }
+    ]);
+  });
+
+  it("projects each finding as a provenance warning, and the panel passes the store's current findings", async () => {
+    const model = recordModel();
+    const finding = {
+      entity_ref: "material:with-record", library_kind: "material" as const, library_id: "invented-material-library", library_version: LIBRARY_VERSION,
+      record_id: "steel-a", code: "MODEL-LIBRARY-REF-VERSION-CHANGED" as const, severity: "warning" as const,
+      recorded_version: LIBRARY_VERSION, stored_version: `sha256:${"8".repeat(64)}`, message: "Invented library version changed."
+    };
+    const expected = {
+      code: "MODEL-LIBRARY-REF-VERSION-CHANGED", class: "PROVENANCE_WARNING", severity: "warning",
+      source: { ref_type: "diagnostic_source", ref_id: "apps/desktop/src-tauri/src/lib.rs check_model_library_refs" },
+      affected_object: { ref_type: "model_entity", ref_id: "material:with-record" },
+      message: "Invented library version changed.",
+      remediation: "Compare the library reference with the local library store before relying on this report.",
+      provenance: SESSION_RECORD
+    };
+    const direct = await buildFor(model, { libraryRefFindings: [finding] });
+    expect(direct.report_sections.diagnostics.at(-1)).toEqual(expected);
+    expect(JSON.stringify(direct)).not.toContain(finding.stored_version);
+
+    // Through the panel: the published finding that still applies reaches the native input;
+    // one raised on a reference the model no longer carries does not.
+    const { publishLibraryRefFindings } = await import("../library/libraryRefFindings");
+    publishLibraryRefFindings(model.project.id, [finding, { ...finding, entity_ref: "material:retired", message: "Invented stale finding." }]);
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(unblockedOutcome());
+    renderPanel({ model });
+    fireEvent.click(screen.getByTestId("rendered-report-local-private-intent"));
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-preview")).toBeInTheDocument());
+    const sent = renderedInput() as { report_sections: { diagnostics: unknown[] }; library_references: unknown[] };
+    expect(sent.report_sections.diagnostics.filter((item) => (item as { code: string }).code.startsWith("MODEL-LIBRARY-REF-"))).toEqual([expected]);
+    expect(sent.library_references).toHaveLength(1);
+  });
+});
+
+describe("FR-REP-003 disposition and context boundary (W-11 slice (c), §4.3, §6.2)", () => {
+  /** A record of each disposition class on a material, a section and a support. */
+  function dispositionModel(record: Record<string, unknown>): PreviewModel {
+    const model = recordModel();
+    model.materials![0].provenance_record = { ...model.materials![0].provenance_record!, ...record } as never;
+    return model;
+  }
+  const CLASSES: [string, Record<string, unknown>][] = [
+    ["private_only", { redistribution_status: "private_only" }],
+    ["unknown", { redistribution_status: "unknown" }],
+    ["protected_suspected", { redistribution_status: "protected_suspected" }],
+    ["quarantined", { review_status: "quarantined" }],
+    ["rejected", { review_status: "rejected" }]
+  ];
+
+  it("carries each record's disposition verbatim to the native render, which refuses the blocking ones", async () => {
+    for (const [name, record] of CLASSES) {
+      const input = await buildFor(dispositionModel(record));
+      const note = input.report_sections.provenance_notes.find((item) => item.source_name === "Invented steel datasheet")!;
+      const value = input.report_sections.user_supplied_values.find((item) => item.value_id === "material-provenance:material:with-record")!;
+      expect(note).toMatchObject(record);
+      expect(value.provenance).toMatchObject(record);
+      if ("review_status" in record) expect(value.review_status).toBe(record.review_status);
+      // The webview's local-private control under the panel's intent passes the record
+      // through unchanged (its route projection makes it opaque leaves); the native renderer
+      // refuses quarantined, rejected and protected_suspected records in every context, and
+      // shows an unknown one with a non-blocking warning only under local_private (owner
+      // ruling on #1639, "C1 b, C2 a"; `report_renderer` tests
+      // `fr_rep_003_records_render_only_locally_and_refuse_blocking_dispositions_in_every_context`,
+      // `an_unresolved_record_warns_in_local_private_and_blocks_elsewhere`).
+      const controlled = reportRedactionProjector.controlReportRendererInput(input, true);
+      expect(controlled.blocked, name).toBe(false);
+      expect(JSON.stringify(controlled.payload)).toContain(JSON.stringify(record).slice(1, -1));
+    }
+  });
+
+  it("screens structured notes and records at any depth before flattening, as the package save screens the model", async () => {
+    const cases: [string, (model: PreviewModel) => void, Record<string, string>][] = [
+      ["a note's own review", (model) => { model.sections![1].provenance = { source: "invented", review_status: "quarantined" }; }, { review_status: "quarantined" }],
+      ["a nested record in a note", (model) => { model.sections![1].provenance = { source: "invented", records: [{ note: "x", review_status: "rejected" }] }; }, { review_status: "rejected" }],
+      ["a nested redistribution in a note", (model) => { model.sections![1].provenance = { source: { redistribution_status: "protected_suspected" } }; }, { redistribution_status: "protected_suspected" }],
+      ["a nested privacy class in a note", (model) => { model.sections![1].provenance = { source: { privacy_classification: "protected_suspected" } }; }, { redistribution_status: "protected_suspected" }],
+      ["a lifecycle status in a note", (model) => { model.sections![1].provenance = { pack: { lifecycle_status: "rejected" } }; }, { review_status: "rejected" }],
+      ["a record's own privacy class", (model) => { (model.materials![0].provenance_record as Record<string, unknown>).privacy_classification = "protected_suspected"; }, { redistribution_status: "protected_suspected" }],
+      ["a record's nested member", (model) => { (model.materials![0].provenance_record as Record<string, unknown>).extra = { deep: [{ review_status: "quarantined" }] }; }, { review_status: "quarantined" }]
+    ];
+    for (const [name, edit, carried] of cases) {
+      const model = recordModel();
+      edit(model);
+      const input = await buildFor(model);
+      const subject = name.includes("note") ? "section-provenance:section:object-note" : "material-provenance:material:with-record";
+      const value = input.report_sections.user_supplied_values.find((item) => item.value_id === subject)!;
+      expect(value.provenance, name).toMatchObject(carried);
+      expect(input.report_sections.provenance_notes, name).toContainEqual(value.provenance);
+      if (carried.review_status) expect(value.review_status, name).toBe(carried.review_status);
+      // The webview's own control passes it on; the native renderer refuses it.
+      expect(reportRedactionProjector.controlReportRendererInput(input, true).blocked, name).toBe(false);
+    }
+    // A malformed disposition member refuses the build, naming the entity and member.
+    const malformed: [(model: PreviewModel) => void, string][] = [
+      [(model) => { model.sections![1].provenance = { source: { review_status: ["quarantined"] } }; }, "section section:object-note: provenance.source.review_status is an array"],
+      [(model) => { (model.materials![0].provenance_record as Record<string, unknown>).review_status = { value: "rejected" }; }, "material material:with-record: provenance_record.review_status is an object"],
+      [(model) => { (model.components[1].provenance_record as Record<string, unknown>).classification = {}; }, "component component:C-999: provenance_record.classification is an object"]
+    ];
+    for (const [edit, detail] of malformed) {
+      const model = recordModel();
+      edit(model);
+      await expect(buildFor(model)).rejects.toThrow(`REPORT-PROVENANCE-DISPOSITION-MALFORMED: ${detail}`);
+    }
+    // A clean structured note is unchanged.
+    expect((await buildFor(recordModel())).report_sections.provenance_notes[7]).toMatchObject({ redistribution_status: "private_only", review_status: "pending" });
+  });
+
+  it("withholds every record from the public-report context: blocked before IPC, nothing sent", async () => {
+    for (const [name, record] of CLASSES) {
+      const input = await buildFor(dispositionModel(record), { renderContext: PUBLIC_CONTEXT });
+      const controlled = reportRedactionProjector.controlReportRendererInput(input, false);
+      expect(controlled.blocked, name).toBe(true);
+      expect(controlled.payload, name).toBeNull();
+    }
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(unblockedOutcome());
+    renderPanel({ model: recordModel() });
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-redaction-summary")).toHaveTextContent("context=public_report"));
+    expect(screen.getByTestId("rendered-report-redaction-summary")).toHaveTextContent("blocked=true");
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+
+  // Owner ruling on #1639 ("C1 b, C2 a", owner, 2026-10-26): authored record text, a
+  // user-typed path in `source_location` included, stays as written in local-private outputs,
+  // and reaches no other: the public render is blocked before IPC and the report packet
+  // carries no record (the native public render refuses it: `report_renderer` test
+  // `a_typed_path_stays_local`).
+  it("keeps a typed source_location path as written locally and out of every other output", async () => {
+    const path = "/Users/invented-user/datasheets/steel-a.pdf";
+    const model = recordModel();
+    (model.materials![0].provenance_record as Record<string, unknown>).source_location = path;
+    const local = await buildFor(model);
+    expect(local.report_sections.provenance_notes.find((note) => note.source_name === "Invented steel datasheet")?.source_location).toBe(path);
+    const controlled = reportRedactionProjector.controlReportRendererInput(local, true);
+    expect(controlled.blocked).toBe(false);
+    expect(JSON.stringify(controlled.payload)).toContain(JSON.stringify(path));
+    // Public render: blocked before IPC, no payload, nothing sent.
+    const publicInput = await buildFor(model, { renderContext: PUBLIC_CONTEXT });
+    const publicControlled = reportRedactionProjector.controlReportRendererInput(publicInput, false);
+    expect(publicControlled.blocked).toBe(true);
+    expect(publicControlled.payload).toBeNull();
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(unblockedOutcome());
+    const { unmount } = renderPanel({ model });
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-redaction-summary")).toHaveTextContent("blocked=true"));
+    expect(invokeMock).not.toHaveBeenCalled();
+    expect(document.body.textContent ?? "").not.toContain(path);
+    unmount();
+    // The report packet (public DOM/JSON route) carries no record.
+    vi.spyOn(reportRedactionProjector, "controlReportDomAndJson").mockImplementation((payload) => ({
+      payload, decisions: [], findings: [], blocked: false,
+      summary: { decision_count: 0, finding_count: 0, redacted_count: 0, omitted_count: 0, warning_count: 0, blocking_count: 0, cloud_transmission_attempted: false, professional_claims_made: false, route_id: "test", materialization_withheld: false }
+    }) as unknown as ReturnType<typeof reportRedactionProjector.controlReportDomAndJson>);
+    render(<ReportPanel model={model} knowledge={null} result={inventedResult()} analysisRun={inventedRun()} comparison={null}
+      editorIntents={[]} projectOperation="idle" projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={null} />);
+    expect(document.body.textContent ?? "").not.toContain(path);
+    expect(document.body.innerHTML).not.toContain(path);
+  });
+
+  // Codex review round 3 of #1639: the native refusal names records by position only; the
+  // panel resolves the position to its entity locally from the input it sent.
+  it("resolves a refused record's position to its entity in the panel only", async () => {
+    const { provenanceReasonEntity } = await import("./provenanceReasonEntities");
+    const model = recordModel();
+    const input = await buildFor(model);
+    const reason = (place: string) => `report provenance: REPORT_PROVENANCE_DISPOSITION_BLOCKED (${place} review_status quarantined; review that record's disposition in the model before reporting)`;
+    expect(provenanceReasonEntity(reason("user_supplied_values[2]"), input)).toBe("material-provenance:material:with-record");
+    expect(provenanceReasonEntity(reason("user_supplied_values[2].provenance"), input)).toBe("material-provenance:material:with-record");
+    expect(provenanceReasonEntity(reason("library_references[0].provenance"), input)).toBe("library invented-material-library, referenced by material:with-record, support:with-record");
+    expect(provenanceReasonEntity(reason("provenance_notes[3]"), input)).toBe("Invented steel datasheet");
+    expect(provenanceReasonEntity(reason("user_supplied_values[99]"), input)).toBeNull();
+    expect(provenanceReasonEntity("section validation: REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED", input)).toBeNull();
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue({ ...unblockedOutcome(), html: "", derived_print_html: "", export_blocked: true, content_withheld: true, blocking_reasons: [reason("user_supplied_values[2]")] });
+    renderPanel({ model });
+    fireEvent.click(screen.getByTestId("rendered-report-local-private-intent"));
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-blocking-reasons")).toBeInTheDocument());
+    expect(screen.getByTestId("rendered-report-blocking-reasons")).toHaveTextContent(`${reason("user_supplied_values[2]")} (material-provenance:material:with-record)`);
+    expect(screen.queryByTestId("rendered-report-preview")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("rendered-report-save-local-private")).not.toBeInTheDocument();
+  });
+
+  it("keeps the report packet free of the new records", () => {
+    vi.spyOn(reportRedactionProjector, "controlReportDomAndJson").mockImplementation((payload) => ({
+      payload, decisions: [], findings: [], blocked: false,
+      summary: { decision_count: 0, finding_count: 0, redacted_count: 0, omitted_count: 0, warning_count: 0, blocking_count: 0, cloud_transmission_attempted: false, professional_claims_made: false, route_id: "test", materialization_withheld: false }
+    }) as unknown as ReturnType<typeof reportRedactionProjector.controlReportDomAndJson>);
+    render(<ReportPanel model={recordModel()} knowledge={null} result={inventedResult()} analysisRun={inventedRun()} comparison={null}
+      editorIntents={[]} projectOperation="idle" projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={null} />);
+    const body = document.body.textContent ?? "";
+    for (const text of ["Invented steel datasheet", "Invented section table", "Invented support record", "Invented rigid record", "invented-material-library", "material-provenance:"]) {
+      expect(body).not.toContain(text);
+    }
+  });
+});
+
+describe("schema check of representative records (W-11 slice (c), §7)", () => {
+  it("writes the representative report_sections; stale fails", async () => {
+    const model = inventedModel();
+    model.materials = [
+      { id: "material:accepted", label: "Invented accepted steel", elastic_modulus: MODULUS, provenance: "", provenance_record: inventedRecord("Invented accepted datasheet", { review_status: "accepted" }) },
+      { id: "material:accepted-blank", label: "Invented blank steel", elastic_modulus: MODULUS, provenance: "", provenance_record: inventedRecord(" ", { review_status: "accepted" }) },
+      { id: "material:note", label: "Invented note steel", elastic_modulus: MODULUS, provenance: "invented_user_note" },
+      { id: "material:missing", label: "Invented unsourced steel", elastic_modulus: MODULUS, provenance: "" }
+    ] as never;
+    model.sections = [
+      { id: "section:rejected", name: "Invented rejected section", section_type: "pipe", properties: {}, provenance: "", provenance_record: inventedRecord("Invented rejected table", { review_status: "rejected" }) },
+      { id: "section:object-note", name: "Invented object section", section_type: "pipe", properties: {}, provenance: { source: "invented", page: 3 } },
+      // Structured notes and a record whose blocking dispositions are nested (§6.2).
+      { id: "section:nested-rejected", name: "Invented nested section", section_type: "pipe", properties: {}, provenance: { source: "invented", records: [{ note: "x", review_status: "rejected" }] } },
+      { id: "section:note-quarantined", name: "Invented quarantined note section", section_type: "pipe", properties: {}, provenance: { source: "invented", review_status: "quarantined" } },
+      { id: "section:nested-suspected", name: "Invented suspected section", section_type: "pipe", properties: {}, provenance: "", provenance_record: inventedRecord("Invented suspected table", { extra: { redistribution_status: "protected_suspected" } }) }
+    ] as never;
+    model.components[1].provenance_record = inventedRecord("Invented quarantined component record", { review_status: "quarantined" }) as never;
+    model.supports = [
+      { id: "support:public", label: "Invented public support", node: "node:N-110", restraints: [], provenance: "", provenance_record: inventedRecord("Invented support record", { redistribution_status: "public_permissive" }) },
+      { id: "support:plain", label: "Invented plain support", node: "node:N-110", restraints: [], provenance: "invented support note" }
+    ] as never;
+    const input = await buildFor(model);
+    const content = `${JSON.stringify({
+      schema_version: "1.0.0",
+      generator: "apps/desktop/src/features/report/renderedReport.test.tsx",
+      description: "W-11 slice (c) (DEL-08-01 Design exact-route-report-sections.md sections 4.1 and 7): the desktop builder's report_sections for an invented model with materials, sections, a component and supports, each with and without a provenance_record, and records marked accepted, rejected and quarantined, including blocking dispositions nested in structured notes and records. Validated against schemas/report_sections.schema.yaml by tests/test_report_sections_provenance_records.py and read by the renderer's tests. Invented data only.",
+      report_sections: input.report_sections
+    }, null, 2)}\n`;
+    const name = "report_sections_provenance_records.json";
+    const outDir = process.env.OPENPIPESTRESS_WRITE_REPORT_SECTIONS_PROVENANCE_RECORDS;
+    if (outDir) {
+      const { mkdirSync, writeFileSync } = await import("node:fs");
+      mkdirSync(outDir, { recursive: true });
+      writeFileSync(resolve(outDir, name), content);
+      return;
+    }
+    const committed = readFileSync(resolve(__dirname, "../../../../../fixtures/reports/invented", name), "utf8");
+    expect(committed === content, `fixtures/reports/invented/${name} is stale; regenerate it with OPENPIPESTRESS_WRITE_REPORT_SECTIONS_PROVENANCE_RECORDS=<dir>`).toBe(true);
+  });
+});

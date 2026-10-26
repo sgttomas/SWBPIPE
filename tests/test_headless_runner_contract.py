@@ -874,13 +874,15 @@ def test_final_runner_export_results_refuses_unlinked_solver_identity(
     [
         (
             lambda payload: payload["export_results"].pop("package_id"),
-            "missing field `package_id`",
+            "missing field at package_id",
         ),
         (
+            # The refusal names the member and the kind, never the value
+            # (W-11 slice (c), Codex review round 3 of #1639).
             lambda payload: payload["export_results"].__setitem__(
                 "source_basis_refs", "not-an-array"
             ),
-            "invalid type: string",
+            "invalid type at source_basis_refs",
         ),
     ],
 )
@@ -909,6 +911,7 @@ def test_final_runner_export_results_wire_deserialization_failures_exit_one(
     )
     assert diagnostic["message"].startswith("REPORT-PACKAGE-WIRE-INCOMPLETE: ")
     assert serde_detail in diagnostic["message"]
+    assert "not-an-array" not in diagnostic["message"]
     assert not output.exists()
 
 

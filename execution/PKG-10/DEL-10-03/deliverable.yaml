@@ -228,3 +228,4 @@ code_paths:
 checks:
 - tests/test_local_fea_handoff_contract.py
 - apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx
+- apps/desktop/src/features/exportProjectUnitRefusal.test.tsx

@@ -336,6 +336,9 @@ code_paths:
 - apps/desktop/src-tauri/src/exact_source_binding.rs
 - fixtures/reports/invented/exact_report_package_requests/
 - fixtures/reports/invented/exact_report_witness_inputs/
+# W-11 slice (c): FR-REP-003 records on every route and their schema check.
+- fixtures/reports/invented/report_sections_provenance_records.json
+- fixtures/reports/invented/component_provenance_cross_layer_projection.json
 checks:
 - core/reporting/report_package/tests/container.rs
 - core/reporting/report_package/tests/reader.rs
@@ -363,3 +366,4 @@ checks:
 - apps/desktop/src/services/previewService.test.ts
 - core/reporting/report_package/src/exact_package_witness_tests.rs
 - core/runner/headless/tests/del1005_package_witness.rs
+- tests/test_report_sections_provenance_records.py

@@ -280,9 +280,12 @@ pub struct OutcomeFinding {
     pub blocking: bool,
 }
 
-/// Render result. `html` is always produced (a blocked document renders with
-/// a visible blocked banner for diagnosis); `export_blocked` is the gate the
-/// app must honor before saving, printing, or exporting the artifact.
+/// Render result. `html` is produced for every render (a blocked document
+/// renders with a visible blocked banner for diagnosis) except one refused for
+/// its provenance records, whose content is withheld (`content_withheld`:
+/// `html` empty, no lint findings, section messages withheld; W-11 slice (c),
+/// §6.2). `export_blocked` is the gate the app must honor before saving,
+/// printing, or exporting the artifact.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct RenderOutcome {
     pub html: String,
@@ -293,7 +296,15 @@ pub struct RenderOutcome {
     pub section_validation_diagnostics: Vec<OutcomeDiagnostic>,
     pub pre_render_findings: Vec<OutcomeFinding>,
     pub post_render_findings: Vec<OutcomeFinding>,
+    /// True only for a metadata-only refusal; absent from the serialized
+    /// outcome otherwise, so every other outcome serializes as before.
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub content_withheld: bool,
 }
+
+/// The section message a metadata-only refusal carries in place of each
+/// section diagnostic's own (which may quote a record's source name).
+pub const WITHHELD_SECTION_MESSAGE: &str = "Message withheld: this render was refused for its provenance records, so no report content is returned.";
 
 pub fn escape_html(text: &str) -> String {
     let mut escaped = String::with_capacity(text.len());
@@ -844,8 +855,10 @@ pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<AssembledS
                 ("Results", blocks)
             }
             "warnings_assumptions_provenance" => {
+                let unresolved = unresolved_provenance_warnings(input);
                 let diagnostic_rows = sections::sorted_diagnostics(disclosure)
-                    .iter()
+                    .into_iter()
+                    .chain(unresolved.iter())
                     .map(|diagnostic| {
                         vec![
                             diagnostic.code.clone(),
@@ -1440,6 +1453,181 @@ pub fn exact_route_blocking_reasons(
     reasons
 }
 
+/// The code of a report provenance record whose disposition blocks export
+/// (W-11 slice (c), DEL-08-01 Design `exact-route-report-sections.md` §4.3,
+/// §6.2).
+pub const REPORT_PROVENANCE_DISPOSITION_BLOCKED: &str = "REPORT_PROVENANCE_DISPOSITION_BLOCKED";
+
+/// The code of a report whose provenance records are private while its export
+/// context is not `local_private` (W-11 slice (c), §6.2).
+pub const REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE: &str = "REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE";
+
+/// The context the report's provenance rules are judged in: local-private only
+/// when the report records `local_private` (owner ruling on #1639, "C1 b, C2
+/// a", 2026-10-26); a public report, an absent context or any other is not.
+pub fn provenance_context(input: &RenderableReportInput) -> sections::ProvenanceContext {
+    match input.report_context.as_ref().map(|context| context.export_context) {
+        Some(ReportExportContext::LocalPrivate) => sections::ProvenanceContext::LocalPrivate,
+        _ => sections::ProvenanceContext::NotLocalPrivate,
+    }
+}
+
+/// The non-blocking warnings a local-private report shows for its unresolved
+/// (`unknown` or `TBD`) provenance records, the report sections' and the
+/// library references', after the report's own diagnostics in the warnings
+/// section. Empty in every other context, where they block instead, and
+/// without unresolved records, so such an input renders byte-identically.
+pub fn unresolved_provenance_warnings(input: &RenderableReportInput) -> Vec<sections::Diagnostic> {
+    if provenance_context(input) != sections::ProvenanceContext::LocalPrivate {
+        return Vec::new();
+    }
+    let unresolved = |item: &sections::Diagnostic| item.code == "REPORT_SECTION_PROVENANCE_UNRESOLVED" && item.severity == sections::Severity::Warning;
+    let mut warnings: Vec<sections::Diagnostic> = sections::validate_report_sections_in(&input.report_sections, sections::ProvenanceContext::LocalPrivate)
+        .diagnostics
+        .into_iter()
+        .filter(unresolved)
+        .collect();
+    for reference in input.library_references.iter().flatten() {
+        let affected = sections::Reference::new("library_reference", format!("{} (referenced by {})", reference.reference_id, reference.entity_refs.join(", ")));
+        warnings.extend(
+            sections::validate_provenance_record(&reference.provenance, affected, sections::ProvenanceContext::LocalPrivate)
+                .into_iter()
+                .filter(unresolved),
+        );
+    }
+    warnings
+}
+
+/// The remediation every disposition refusal names.
+const DISPOSITION_REMEDIATION: &str = "review that record's disposition in the model before reporting";
+
+/// A record is public only when both its privacy class and its redistribution
+/// status are public; every other class is private record content.
+fn record_is_public(privacy: sections::PrivacyClassification, redistribution: sections::RedistributionStatus) -> bool {
+    matches!(privacy, sections::PrivacyClassification::PublicMetadata | sections::PrivacyClassification::InventedPublicExample)
+        && matches!(
+            redistribution,
+            sections::RedistributionStatus::PublicPermissive | sections::RedistributionStatus::InventedNonEngineeringExample
+        )
+}
+
+/// The report's provenance refusals (W-11 slice (c), §4.3, §6.2), each of
+/// which blocks export:
+/// - `report provenance: REPORT_PROVENANCE_DISPOSITION_BLOCKED (<where> <member>
+///   <value>; ...)`: a `review_status` of `quarantined` or `rejected` (the
+///   library import's and the package save's blocking values,
+///   `export_disposition_screen.rs` `SCREENED_MEMBERS`) on any report-section
+///   provenance record, on a user-supplied value or an assumption itself, or on
+///   a library reference's record. Every record is named by its collection
+///   position and the field only (`user_supplied_values[3]`,
+///   `assumptions[0]`, `library_references[2].provenance`): ids, labels and
+///   source text are user-authored and never enter a reason (Codex review
+///   round 3 of #1639); the panel resolves a position to its entity locally;
+/// - `library references: <code> (library_references[i].provenance; ...)`: a library
+///   reference's record judged by the section validation's own provenance
+///   rules ([`sections::validate_provenance_record`]: incomplete,
+///   `protected_suspected`, `unknown` or `TBD`), as every report-section
+///   record already is;
+/// - `report provenance: REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE (...)`:
+///   any private record (a privacy class or redistribution status that is not
+///   public) when the report's export context is absent or not
+///   `local_private`, so a direct native call cannot render private record
+///   content outside the local-private route.
+///
+/// The webview's route projection makes these records opaque leaves, so the
+/// renderer judges them itself, for every emission (HTML, print view, PDF and
+/// the package's members). A clean input allocates nothing here.
+pub fn provenance_disposition_blocking_reasons(input: &RenderableReportInput) -> Vec<String> {
+    fn review_blocks(status: sections::ReviewStatus) -> Option<&'static str> {
+        match status {
+            sections::ReviewStatus::Quarantined => Some("quarantined"),
+            sections::ReviewStatus::Rejected => Some("rejected"),
+            _ => None,
+        }
+    }
+    fn push(reasons: &mut Vec<String>, place: String, member: &str, value: &str) {
+        reasons.push(format!(
+            "report provenance: {REPORT_PROVENANCE_DISPOSITION_BLOCKED} ({place} {member} {value}; {DISPOSITION_REMEDIATION})"
+        ));
+    }
+    fn judge(reasons: &mut Vec<String>, collection: &str, suffix: &str, records: &mut dyn Iterator<Item = &sections::Provenance>) {
+        for (index, record) in records.enumerate() {
+            if let Some(value) = review_blocks(record.review_status) {
+                push(reasons, format!("{collection}[{index}]{suffix}"), "review_status", value);
+            }
+        }
+    }
+    let mut reasons = Vec::new();
+    let report_sections = &input.report_sections;
+    judge(&mut reasons, "diagnostics", ".provenance", &mut report_sections.diagnostics.iter().map(|item| &item.provenance));
+    judge(&mut reasons, "provenance_notes", "", &mut report_sections.provenance_notes.iter());
+    judge(&mut reasons, "assumptions", ".provenance", &mut report_sections.assumptions.iter().map(|item| &item.provenance));
+    judge(&mut reasons, "limitations", ".provenance", &mut report_sections.limitations.iter().map(|item| &item.provenance));
+    for (index, value) in report_sections.user_supplied_values.iter().enumerate() {
+        if let Some(status) = review_blocks(value.provenance.review_status) {
+            push(&mut reasons, format!("user_supplied_values[{index}].provenance"), "review_status", status);
+        }
+        if let Some(status) = review_blocks(value.review_status) {
+            push(&mut reasons, format!("user_supplied_values[{index}]"), "review_status", status);
+        }
+    }
+    for (index, assumption) in report_sections.assumptions.iter().enumerate() {
+        if let Some(status) = review_blocks(assumption.review_status) {
+            push(&mut reasons, format!("assumptions[{index}]"), "review_status", status);
+        }
+    }
+    for (index, reference) in input.library_references.iter().flatten().enumerate() {
+        let record = &reference.provenance;
+        if let Some(value) = review_blocks(record.review_status) {
+            push(&mut reasons, format!("library_references[{index}].provenance"), "review_status", value);
+        }
+        let affected = sections::Reference::new("library_reference", format!("library_references[{index}]"));
+        for diagnostic in sections::validate_provenance_record(record, affected, provenance_context(input)) {
+            if diagnostic.severity == sections::Severity::Blocking {
+                reasons.push(format!(
+                    "library references: {} (library_references[{index}].provenance; {DISPOSITION_REMEDIATION})",
+                    diagnostic.code
+                ));
+            }
+        }
+    }
+    let local_private = matches!(
+        input.report_context.as_ref().map(|context| context.export_context),
+        Some(ReportExportContext::LocalPrivate)
+    );
+    if !local_private {
+        let private = |record: &sections::Provenance| !record_is_public(record.privacy_classification, record.redistribution_status);
+        let first = report_sections
+            .provenance_notes
+            .iter()
+            .position(private)
+            .map(|index| format!("provenance_notes[{index}]"))
+            .or_else(|| {
+                report_sections.user_supplied_values.iter().position(|value| {
+                    private(&value.provenance)
+                        || !matches!(
+                            value.privacy_classification,
+                            sections::PrivacyClassification::PublicMetadata | sections::PrivacyClassification::InventedPublicExample
+                        )
+                }).map(|index| format!("user_supplied_values[{index}]"))
+            })
+            .or_else(|| report_sections.diagnostics.iter().position(|item| private(&item.provenance)).map(|index| format!("diagnostics[{index}].provenance")))
+            .or_else(|| report_sections.assumptions.iter().position(|item| private(&item.provenance)).map(|index| format!("assumptions[{index}].provenance")))
+            .or_else(|| report_sections.limitations.iter().position(|item| private(&item.provenance)).map(|index| format!("limitations[{index}].provenance")))
+            .or_else(|| input.library_references.iter().flatten().position(|item| private(&item.provenance)).map(|index| format!("library_references[{index}].provenance")));
+        if let Some(place) = first {
+            let context = match input.report_context.as_ref().map(|context| context.export_context) {
+                Some(ReportExportContext::PublicReport) => "public_report",
+                _ => "not recorded",
+            };
+            reasons.push(format!(
+                "report provenance: {REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE} (private record content at {place} under export context {context}; render it only under the local-private selection)"
+            ));
+        }
+    }
+    reasons
+}
+
 /// Renderer-level consistency checks of the report context and rule-check
 /// blocks. Each returned code blocks export.
 fn report_context_blocking_codes(input: &RenderableReportInput) -> Vec<&'static str> {
@@ -1475,12 +1663,198 @@ fn report_context_blocking_codes(input: &RenderableReportInput) -> Vec<&'static 
     codes
 }
 
+/// The code of a renderer input that does not decode.
+pub const RENDER_INPUT_INVALID: &str = "RENDER-INPUT-INVALID";
+
+/// Decode a renderer input, refusing an invalid one with its JSON path and
+/// the error kind only (`RENDER-INPUT-INVALID: <kind> at <path>`), never the
+/// offending value or key, which may be user-authored text (Codex review
+/// round 3 of #1639).
+///
+/// Memory: each top-level member is moved out and decoded on its own, as the
+/// whole decode moves it, so the input is never copied. Before that, each
+/// element of the provenance-bearing collections (the report sections'
+/// diagnostics, notes, values, assumptions and limitations, and the library
+/// references) is decoded by reference one at a time, which holds at most one
+/// element's copy, to place an error down to a disposition member.
+pub fn decode_renderable_report_input(value: serde_json::Value) -> Result<RenderableReportInput, String> {
+    decode_renderable_report_input_as(value, RENDER_INPUT_INVALID, "")
+}
+
+/// The kind of a serde decode error, from its message's fixed prefix; the
+/// rest of the message, which can quote the offending value or key, is never
+/// used. Shared by every value-free decode refusal of the report and package
+/// paths.
+pub fn serde_error_kind(message: &str) -> &'static str {
+    [
+        "unknown variant",
+        "unknown field",
+        "missing field",
+        "invalid type",
+        "invalid value",
+        "invalid length",
+        "duplicate field",
+    ]
+    .into_iter()
+    .find(|kind| message.starts_with(kind))
+    .unwrap_or("invalid input")
+}
+
+/// A struct written positionally (a JSON array, which serde decodes field by
+/// field in declaration order) as its members by name, so a value-free decode
+/// treats both forms alike: `names` in declaration order, of which the first
+/// `required` have no default. More elements than names, or fewer than
+/// `required`, is an `invalid length`, as the whole decode refuses it.
+pub fn positional_members(items: Vec<serde_json::Value>, names: &[&str], required: usize) -> Result<serde_json::Map<String, serde_json::Value>, &'static str> {
+    if items.len() > names.len() || items.len() < required {
+        return Err("invalid length");
+    }
+    Ok(names.iter().map(|name| name.to_string()).zip(items).collect())
+}
+
+/// [`decode_renderable_report_input`] refusing with `code` and with every
+/// path under `root` (`report` for the report-package request's `report`
+/// member; empty for the renderer's own input).
+pub fn decode_renderable_report_input_as(value: serde_json::Value, code: &str, root: &str) -> Result<RenderableReportInput, String> {
+    use serde::de::DeserializeOwned;
+    use serde::Deserialize;
+    use serde_json::Value;
+    fn kind(error: &serde_json::Error) -> &'static str {
+        serde_error_kind(&error.to_string())
+    }
+    let refusal = |kind: &str, path: &str| match (root.is_empty(), path) {
+        (true, path) => format!("{code}: {kind} at {path}"),
+        (false, "the input") => format!("{code}: {kind} at {root}"),
+        (false, path) => format!("{code}: {kind} at {root}.{path}"),
+    };
+    fn by_ref<'a, T: Deserialize<'a>>(value: &'a Value) -> Result<(), serde_json::Error> {
+        T::deserialize(value).map(drop)
+    }
+    /// The failing disposition member of a provenance-bearing element.
+    fn member(object: &Value, path: String) -> String {
+        let Some(map) = object.as_object() else { return path };
+        let checks: [(&str, fn(&Value) -> bool); 4] = [
+            ("provenance", |v| by_ref::<sections::Provenance>(v).is_err()),
+            ("redistribution_status", |v| by_ref::<sections::RedistributionStatus>(v).is_err()),
+            ("review_status", |v| by_ref::<sections::ReviewStatus>(v).is_err()),
+            ("privacy_classification", |v| by_ref::<sections::PrivacyClassification>(v).is_err()),
+        ];
+        for (key, check) in checks {
+            if let Some(child) = map.get(key) {
+                if check(child) {
+                    let at = format!("{path}.{key}");
+                    return if key == "provenance" { member(child, at) } else { at };
+                }
+            }
+        }
+        path
+    }
+    fn elements<T: for<'a> Deserialize<'a>>(list: Option<&Value>, path: &str) -> Result<(), (&'static str, String)> {
+        let Some(items) = list.and_then(Value::as_array) else { return Ok(()) };
+        for (index, item) in items.iter().enumerate() {
+            if let Err(error) = by_ref::<T>(item) {
+                return Err((kind(&error), member(item, format!("{path}[{index}]"))));
+            }
+        }
+        Ok(())
+    }
+    let located = |result: Result<(), (&'static str, String)>| result.map_err(|(kind, path)| refusal(kind, &path));
+    // `fields` is the input object; `root` stays the path root of every refusal.
+    let mut fields = match value {
+        Value::Object(fields) => fields,
+        Value::Array(items) => positional_members(
+            items,
+            &["report_title", "calculation_report", "report_sections", "result_rows", "report_context", "user_rule_checks", "exact_route", "library_references"],
+            4,
+        )
+        .map_err(|kind| refusal(kind, "the input"))?,
+        _ => return Err(refusal("invalid type", "the input")),
+    };
+    if let Some(Value::Object(report_sections)) = fields.get("report_sections") {
+        located(elements::<sections::Diagnostic>(report_sections.get("diagnostics"), "report_sections.diagnostics"))?;
+        located(elements::<sections::Provenance>(report_sections.get("provenance_notes"), "report_sections.provenance_notes"))?;
+        located(elements::<sections::UserSuppliedValue>(report_sections.get("user_supplied_values"), "report_sections.user_supplied_values"))?;
+        located(elements::<sections::Assumption>(report_sections.get("assumptions"), "report_sections.assumptions"))?;
+        located(elements::<sections::Limitation>(report_sections.get("limitations"), "report_sections.limitations"))?;
+    }
+    if let Some(list @ Value::Array(_)) = fields.get("library_references") {
+        located(elements::<LibraryReference>(Some(list), "library_references"))?;
+    }
+    fn required<T: DeserializeOwned>(root: &mut serde_json::Map<String, Value>, key: &str) -> Result<T, (&'static str, String)> {
+        let Some(value) = root.remove(key) else { return Err(("missing field", key.to_string())) };
+        serde_json::from_value(value).map_err(|error| (kind(&error), key.to_string()))
+    }
+    fn optional<T: DeserializeOwned>(root: &mut serde_json::Map<String, Value>, key: &str) -> Result<Option<T>, (&'static str, String)> {
+        match root.remove(key) {
+            None => Ok(None),
+            Some(value) => serde_json::from_value(value).map_err(|error| (kind(&error), key.to_string())),
+        }
+    }
+    let at = |error: (&'static str, String)| refusal(error.0, &error.1);
+    // Every member, exhaustively (a new member is a compile error here); an
+    // unknown top-level member is ignored, as the whole decode ignores it.
+    Ok(RenderableReportInput {
+        report_title: required(&mut fields, "report_title").map_err(at)?,
+        calculation_report: required(&mut fields, "calculation_report").map_err(at)?,
+        report_sections: required(&mut fields, "report_sections").map_err(at)?,
+        result_rows: required(&mut fields, "result_rows").map_err(at)?,
+        report_context: optional(&mut fields, "report_context").map_err(at)?,
+        user_rule_checks: optional(&mut fields, "user_rule_checks").map_err(at)?,
+        exact_route: optional(&mut fields, "exact_route").map_err(at)?,
+        library_references: optional(&mut fields, "library_references").map_err(at)?,
+    })
+}
+
 /// Render the calculation report to a deterministic single-file HTML
 /// document and evaluate every gate. The returned outcome carries the
 /// canonical SHA-256 of the HTML bytes.
 pub fn render_calculation_report(input: &RenderableReportInput) -> RenderOutcome {
     let report_validation = report::validate_report(&input.calculation_report);
-    let section_validation = sections::validate_report_sections(&input.report_sections);
+    // Only a local-private report relaxes unresolved provenance to a warning.
+    let section_validation = sections::validate_report_sections_in(&input.report_sections, provenance_context(input));
+
+    // W-11 slice (c) (§6.2), Codex review round 2 of #1639: a render refused
+    // for its provenance records (a private record outside local_private, a
+    // blocking disposition, or suspected protected content) returns a
+    // metadata-only outcome, before anything is assembled: codes, reasons and
+    // affected ids, and no document body, lint excerpt or section message.
+    let provenance_reasons = provenance_disposition_blocking_reasons(input);
+    let protected_content = section_validation.diagnostics.iter().any(|diagnostic| {
+        diagnostic.severity == sections::Severity::Blocking && diagnostic.code == "REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED"
+    });
+    if !provenance_reasons.is_empty() || protected_content {
+        let mut blocking_reasons: Vec<String> = Vec::new();
+        for diagnostic in &report_validation.diagnostics {
+            if diagnostic.severity == report::DiagnosticSeverity::Blocking {
+                blocking_reasons.push(format!("report validation: {}", diagnostic.code));
+            }
+        }
+        for diagnostic in &section_validation.diagnostics {
+            if diagnostic.severity == sections::Severity::Blocking {
+                blocking_reasons.push(format!("section validation: {}", diagnostic.code));
+            }
+        }
+        blocking_reasons.extend(provenance_reasons);
+        return RenderOutcome {
+            html: String::new(),
+            sha256_hex: sha256_hex(&[]),
+            export_blocked: true,
+            blocking_reasons,
+            report_validation_diagnostics: report_validation.diagnostics.iter().map(report_outcome_diagnostic).collect(),
+            section_validation_diagnostics: section_validation
+                .diagnostics
+                .iter()
+                .map(|diagnostic| OutcomeDiagnostic {
+                    code: diagnostic.code.clone(),
+                    severity: severity_label(&diagnostic.severity).to_string(),
+                    message: WITHHELD_SECTION_MESSAGE.to_string(),
+                })
+                .collect(),
+            pre_render_findings: Vec::new(),
+            post_render_findings: Vec::new(),
+            content_withheld: true,
+        };
+    }
 
     let assembled = assemble_report_sections(input);
     let section_bodies: Vec<String> = assembled
@@ -1616,6 +1990,7 @@ evidence; only the exact bytes of this HTML file are bound by the recorded SHA-2
             .collect(),
         html,
         sha256_hex,
+        content_withheld: false,
     }
 }
 
