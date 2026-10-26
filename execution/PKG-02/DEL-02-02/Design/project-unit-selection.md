@@ -308,6 +308,26 @@ keys, including `angle` (§5); the rest still applies.
     (`MODEL-DOC-EXPORT-DUPLICATE-MEMBER`), so the document screened is the
     document written. The user adds the map and opens the file with Open
     Model Document.
+    **Object form (W-17).** #1650 (DEL-08-01 §2.6) recorded that the screen
+    visited only object-valued provenance records. Probed at `e2f9677175`,
+    the gap was reachable. A stored project or state whose
+    `provenance_record` was an array (the positional form
+    `["private_only", "quarantined", "Invented source"]`), text or null, or
+    whose `rule_pack_refs[]` entry or `library_ref` was positional, was written
+    out, and so was a record with an array-valued disposition. The rows reach
+    the store three ways. Save State keeps a snapshot with blocking slot
+    findings as `MODEL_INCOMPLETE` (W-12 §2), so a session request carrying
+    such a record is stored. Project saves before `a4e5e1103e` (2026-10-23)
+    did not run the slot validator. The store is also a local SQLite file the
+    user can edit; the export opens it with no validator, by design. Project
+    saves now refuse such rows through the slot validator
+    (`MODEL-PROVENANCE-RECORD-INVALID`, `MODEL-SLOT-SHAPE`).
+    Recovery does no typed decode, so the fix is in the shared keyed screen
+    (DEL-15-01 `canonical-model-export.md`, "Disposition screening"): such a
+    record now refuses by name, `MODEL-DISPOSITION-RECORD-MALFORMED`, with no
+    chooser and nothing written. A positional member outside the screened
+    records, such as a node or the units map, still recovers. The fix does not
+    depend on #1650's validator.
 - **Entity editors with a missing key** refuse by name; nothing is assumed
   (`features/project-units/missingProjectUnit.ts`).
   - **Fields with their own unit selector:** the unit starts unselected, and
@@ -406,6 +426,14 @@ keys, including `angle` (§5); the rest still applies.
   the whole response, the export is refused by naming the response, with no
   chooser and nothing written (`src-tauri/src/stored_model_document_export.rs`). The
   webview sends the `args-json-v1` body (`storedDocumentExport.test.tsx`).
+  Object form (§3): a screened record that is not an object, positional or
+  otherwise, or one with an array-valued disposition, is refused
+  `MODEL-DISPOSITION-RECORD-MALFORMED` on a raw project row and a raw state
+  row. So are a positional `library_ref` and a positional stored record or
+  library object it names, and a positional record in a state that Save State
+  kept. A positional node or units map still recovers. Each refusal test
+  failed on `e2f9677175` with the document written
+  (`stored_model_document_export.rs`).
 - **Applier, angle.** A rotational imposed displacement is accepted on a new
   blank document.
 - **e2e.** Specs that click "New blank" gain the dialog's Create click.

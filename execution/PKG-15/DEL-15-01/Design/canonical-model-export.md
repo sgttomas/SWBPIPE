@@ -149,6 +149,29 @@ on either route. It needs no solve and no result.
     library or record the store does not hold saves with a
     `MODEL-LIBRARY-REF-UNRESOLVED` warning; the entity's own record is still
     screened;
+  - a screened record the verdict cannot read is refused by name,
+    `MODEL-DISPOSITION-RECORD-MALFORMED` (W-17 object form, after #1650's
+    finding that a record written as a JSON array, its positional form, passed
+    keyed screens). Until `e2f9677175` the walk skipped such a record. The
+    refusal covers: a `provenance_record`, `rule_pack_refs[]` entry or
+    `library_ref` that is not an object; a `rule_pack_refs` that is not a list;
+    a record whose own or provenance `redistribution_status` or `review_status`
+    is an array or an object, or whose `provenance` is an array; and a
+    referenced stored library object, or a judged stored record or hanger
+    object, whose `provenance` is in positional form. Each record gets one
+    diagnostic, this or its verdict's, so the screening's memory bound is
+    unchanged apart from the new sites
+    (`stored_model_document_export.rs` `ScreeningBound`). A stored disposition
+    member that is an array or an object stays the structural screen's
+    finding, as `HANDOFF-DISPOSITION-MALFORMED` by its pointer. Save Model
+    Document and Save Handoff already refuse every one of these first through
+    the document validator. The refusal reaches the stored-model recovery
+    export (DEL-02-02 `project-unit-selection.md` §3) and the report package's
+    model. Regressions:
+    `stored_model_document_export.rs`
+    `a_screened_record_that_is_not_an_object_is_refused_by_name`,
+    `a_positional_library_ref_is_refused_by_name` and the malformed shape of
+    `the_screening_bound_covers_the_screeners_measured_peak`;
   - each library is read within the command's memory, which starts from its
     ingress lease. The read is measured, and its keys' working set, its load
     and its prescan-bounded parse are each leased before they are made, on a
