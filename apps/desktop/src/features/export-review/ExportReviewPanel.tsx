@@ -1,3 +1,4 @@
+import type { PreviewComparisonUnavailable } from "../comparison/withinRunComparison";
 import { Download, ShieldCheck } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
@@ -24,6 +25,7 @@ export function ExportReviewPanel({
   result,
   analysisRun,
   comparison,
+  comparisonUnavailable = null,
   editorIntents,
   projectOperation,
   projectSummary,
@@ -36,6 +38,8 @@ export function ExportReviewPanel({
   result: MechanicsResult | null;
   analysisRun: AnalysisRunEnvelope | null;
   comparison: PreviewComparison | null;
+  /** W-12 S3c: the record of a chosen within-run comparison the builder refused. */
+  comparisonUnavailable?: PreviewComparisonUnavailable | null;
   editorIntents: EditorOperationIntent[];
   projectOperation: string;
   projectSummary: LocalProjectSummary | null;
@@ -49,6 +53,7 @@ export function ExportReviewPanel({
     result,
     analysisRun,
     comparison,
+    comparisonUnavailable,
     editorIntents,
     projectOperation,
     projectSummary,
@@ -178,6 +183,7 @@ function buildExportReviewManifest({
   result,
   analysisRun,
   comparison,
+  comparisonUnavailable = null,
   editorIntents,
   projectOperation,
   projectSummary,
@@ -190,6 +196,8 @@ function buildExportReviewManifest({
   result: MechanicsResult | null;
   analysisRun: AnalysisRunEnvelope | null;
   comparison: PreviewComparison | null;
+  /** W-12 S3c: the record of a chosen within-run comparison the builder refused. */
+  comparisonUnavailable?: PreviewComparisonUnavailable | null;
   editorIntents: EditorOperationIntent[];
   projectOperation: string;
   projectSummary: LocalProjectSummary | null;
@@ -1152,7 +1160,8 @@ function buildExportReviewManifest({
     project_ref: model.project.id,
     model_ref: result?.model_ref ?? model.project.id,
     analysis_run_ref: run?.run_id ?? "not generated",
-    comparison_ref: comparison?.comparison_id ?? "not generated",
+    comparison_ref: comparison?.comparison_id ?? comparisonUnavailable?.comparison_id ?? "not generated",
+    ...(comparisonUnavailable ? { comparison_unavailable: comparisonUnavailable } : {}),
     selected_review_target: selectedReviewTarget,
     export_context: "local_browser_download_preview",
     redaction_policy: {

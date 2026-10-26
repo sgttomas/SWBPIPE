@@ -332,7 +332,7 @@ fn case_ledger(request: &Value, case_index: usize) -> (Vec<ForceTerm>, Assembled
         load_case,
         &material_map,
         &pipe_map,
-        &built.sections,
+        &built,
         &mut diagnostics,
     );
     let ledger = case_force_ledger(

@@ -199,13 +199,17 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     assert nonlinear_friction_state["metadata"]["basis"].endswith("final_state=sliding")
     assert nonlinear_friction_displacement["value"] != 0
     # Generated-fixture parity plus the accepted same-iterate current-normal law.
-    # The joint-free normal is the independent record's 52.37 N (I111 O6). The
-    # confirmed case publishes the certified coupled friction force and the
+    # The confirmed case publishes the certified coupled friction force and the
     # source restraint's certified reaction (DEL-04-01
-    # kd5-nonlinear-active-set.md section 3.1 and section 3.4, R4).
-    assert nonlinear_friction_reaction["value"] == 0.5237328198735871
+    # kd5-nonlinear-active-set.md section 3.1 and section 3.4, R4). W-15
+    # (DEL-03-05 Design section 6): the regenerated demo solves valve C-130's
+    # member with its scale 15, so its normal is 56.93 N; the unscaled demo's
+    # independent-record normal 52.37 N (I111 O6) stays held by
+    # core/product_physics/tests/friction_reversal_stop_release_runtime.rs
+    # with C-130 not consumed.
+    assert nonlinear_friction_reaction["value"] == 0.5692827995447135
     assert nonlinear_friction_normal["kind"] == "nonlinear_support_friction_normal_reaction_derived"
-    assert nonlinear_friction_normal["value"] == 52.373281987358716
+    assert nonlinear_friction_normal["value"] == 56.92827995447134
     assert round(nonlinear_friction_reaction["value"], 6) == round(
         0.01 * nonlinear_friction_normal["value"], 6
     )

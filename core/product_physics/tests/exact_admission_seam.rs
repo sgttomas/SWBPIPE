@@ -416,13 +416,10 @@ fn each_family_not_yet_admitted_is_refused_by_name_on_v3() {
     for base in [Base::X0, Base::Y0] {
         let components = [
             // T4-U2 admits the realized bend (see the A3 test below).
+            // W-15 admits valve, flange, reducer, rigid and specialty (see the
+            // W-15 tests below).
             (bend(base, false), "geometry-only bend"),
-            (simple(base, "component:valve", "valve"), "valve"),
-            (simple(base, "component:flange", "flange"), "flange"),
-            (simple(base, "component:reducer", "reducer"), "reducer"),
             (simple(base, "component:tee", "tee"), "branch connection"),
-            (simple(base, "component:rigid", "rigid"), "rigid or specialty"),
-            (simple(base, "component:specialty", "specialty"), "rigid or specialty"),
             (simple(base, "component:other", "other"), "component"),
             (annotation_joint(base), "expansion joint (annotation only"),
         ];
@@ -671,4 +668,176 @@ fn the_pressure_1_table_is_a_reviewed_input() {
     assert!(identity.contains("\"../../schemas/results_pressure_2.v0.3.schema.json\""));
     assert!(identity.contains("\"../../fixtures/results/semantic_contract_v0_3_pressure_2.json\""));
     assert!(identity.contains("\"../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json\""));
+}
+
+/// W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.7): a
+/// rigid-family component, `kind` at `node`, mapping `pipe` with scale `s`.
+fn rigid(id: &str, kind: &str, node: &str, pipe: &str, s: f64) -> Value {
+    json!({"id":id,"kind":kind,"node":node,
+        "geometry":{"rigid_pipe_ref":pipe},
+        "modifiers":{"stiffness_scaling_user_value":{"value":s,"unit":"1"},"source_reference":"invented W-15 scale"},
+        "mechanics_interface":{"solver_consumption":"mechanics_geometry_only"},
+        "provenance":PROVENANCE})
+}
+
+const REDUCER: &str = "EXACT_PRESSURE_REDUCER_IN_REGION";
+const EXTRA_PIPE: &str = "pipe:w15-extra";
+const EXTRA_NODE: &str = "node:w15-end";
+
+/// The base with a second straight member, tip to a new end node 1 m on, of
+/// the same section and material, outside every region unless `in_region`
+/// (then the pressurized region takes it and ends at the new node).
+fn extended(base: Base, in_region: bool) -> Value {
+    let mut document = base.current();
+    let mut node = document["model"]["nodes"][0].clone();
+    node["id"] = json!(EXTRA_NODE);
+    node["position"] = json!({"x":2,"y":0,"z":0});
+    push(&mut document, "nodes", node);
+    let mut pipe = document["model"]["pipe_segments"][0].clone();
+    pipe["id"] = json!(EXTRA_PIPE);
+    pipe["from"] = json!(base.tip());
+    pipe["to"] = json!(EXTRA_NODE);
+    push(&mut document, "pipe_segments", pipe);
+    if let Some(references) = document["model"].get_mut("reference_configurations").and_then(|r| r[0]["member_references"].as_array_mut()) {
+        let mut reference = references[0].clone();
+        reference["pipe_ref"] = json!(EXTRA_PIPE);
+        references.push(reference);
+    }
+    for case in document["model"]["load_cases"].as_array_mut().unwrap() {
+        if let Some(states) = case.get_mut("analysis_state").and_then(|s| s["element_states"].as_array_mut()) {
+            let mut state = states[0].clone();
+            state["pipe_ref"] = json!(EXTRA_PIPE);
+            states.push(state);
+        }
+    }
+    // Y0's far anchor moves to the new end so the chain stays supported as authored.
+    for support in document["model"]["supports"].as_array_mut().unwrap() {
+        if support["node"] == base.tip() {
+            support["node"] = json!(EXTRA_NODE);
+        }
+    }
+    if in_region {
+        let region = &mut case_mut(&mut document, base.pressurized_case())["pressure_regions"][0];
+        region["member_pipe_ids"].as_array_mut().unwrap().push(json!(EXTRA_PIPE));
+        region["terminals"][1]["node_ref"] = json!(EXTRA_NODE);
+    }
+    document
+}
+
+/// W-15: valve, flange, rigid and specialty are admitted on v3 with their
+/// scale, inside or outside a pressure region; an unmapped record is
+/// admitted and solves as pipe with its named warning.
+#[test]
+fn w15_rigid_family_is_admitted_on_v3() {
+    for base in [Base::X0, Base::Y0] {
+        for kind in ["valve", "flange", "rigid", "specialty"] {
+            let mut document = base.current();
+            push(&mut document, "components", rigid("component:w15", kind, base.tip(), base.region_pipe(), 15.0));
+            for envelope in run_all(&document) {
+                assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{base:?} {kind}: {:#?}", envelope["diagnostics"]);
+                assert!(!has_code(&envelope, FAMILY) && !has_code(&envelope, REDUCER), "{base:?} {kind}");
+                assert!(has_code(&envelope, "RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED"), "{base:?} {kind}");
+                assert_v3_identity(&envelope);
+                assert_readers_dispatch_v3(&envelope);
+            }
+        }
+        for kind in ["valve", "flange", "reducer", "rigid", "specialty"] {
+            let mut document = base.current();
+            push(&mut document, "components", simple(base, "component:w15", kind));
+            for envelope in run_all(&document) {
+                assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{base:?} {kind}: {:#?}", envelope["diagnostics"]);
+                assert!(!has_code(&envelope, FAMILY), "{base:?} {kind}");
+                assert!(!has_code(&envelope, "RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED"), "{base:?} {kind}");
+            }
+        }
+    }
+}
+
+/// W-15 §2.1, §2.7: on a closed-end cantilever region (X0), a scaled valve
+/// body is an equivalent pipe of its mapped section: the wall axial force is
+/// unchanged, and the elastic pressure strain, so the tip's axial motion, is
+/// s times smaller.
+#[test]
+fn w15_scaled_body_in_a_region_keeps_its_wall_force() {
+    let base = Base::X0;
+    let plain = run_all(&base.current());
+    let s = 15.0;
+    let mut document = base.current();
+    push(&mut document, "components", rigid("component:w15", "valve", base.tip(), base.region_pipe(), s));
+    let row = |envelope: &Value, kind: &str, entity: &str| -> f64 {
+        envelope["results"].as_array().unwrap().iter()
+            .find(|r| r["kind"] == kind && r["entity_ref"] == entity && r["basis_ref"]["ref_id"] == base.pressurized_case())
+            .unwrap_or_else(|| panic!("{kind} {entity}"))["value"].as_f64().unwrap()
+    };
+    for (scaled, plain) in run_all(&document).iter().zip(&plain) {
+        let (wall, wall_plain) = (row(scaled, "pipe_wall_axial_force_v2", base.region_pipe()), row(plain, "pipe_wall_axial_force_v2", base.region_pipe()));
+        assert!((wall - wall_plain).abs() <= 1e-12 * wall_plain.abs(), "{wall} vs {wall_plain}");
+        let (tip, tip_plain) = (row(scaled, "global_nodal_displacement_x", base.tip()), row(plain, "global_nodal_displacement_x", base.tip()));
+        assert!(tip_plain != 0.0);
+        assert!((tip * s - tip_plain).abs() <= 1e-9 * tip_plain.abs(), "{tip} * {s} vs {tip_plain}");
+    }
+}
+
+/// W-15 §2.7: a reducer whose mapped member belongs to a pressure region is
+/// refused case by case by name, in a single-member region and an equal-bore
+/// region; one mapped at a region's boundary node with its own member
+/// outside, or outside every region, is admitted like a valve.
+#[test]
+fn w15_reducer_is_refused_only_where_its_member_is_in_a_region() {
+    for base in [Base::X0, Base::Y0] {
+        let case = base.pressurized_case();
+        let region = "region:fixture-pressure";
+        let region = if matches!(base, Base::X0) { region } else { "region:closed" };
+        // Inside the single-member region.
+        let mut single = base.current();
+        push(&mut single, "components", rigid("component:reducer", "reducer", base.tip(), base.region_pipe(), 4.0));
+        // Inside an equal-bore two-member region (the guard compares the two equal bores).
+        let mut equal = extended(base, true);
+        push(&mut equal, "components", rigid("component:reducer", "reducer", base.tip(), EXTRA_PIPE, 4.0));
+        for (label, document, pipe) in [("single-member region", single, base.region_pipe()), ("equal-bore region", equal, EXTRA_PIPE)] {
+            for envelope in run_all(&document) {
+                assert_v3_blocked(&envelope, base);
+                assert!(!has_code(&envelope, FAMILY), "{label}");
+                assert!(!has_code(&envelope, "PRESSURE_REGION_BORE_MISMATCH"), "{label}");
+                let refusal = finding(&envelope, REDUCER, &[case, region, "component:reducer", pipe]);
+                assert!(refusal["message"].as_str().unwrap().starts_with("reducer maps a member of this pressure region"), "{label}");
+                // Only the pressurized case names it (Y0's hot case has the same region).
+                let count = diagnostics(&envelope).iter().filter(|d| d["code"] == REDUCER).count();
+                let regions = document["model"]["load_cases"].as_array().unwrap().iter()
+                    .filter(|c| c["pressure_regions"].as_array().is_some_and(|r| r.iter().any(|r| r["member_pipe_ids"].as_array().unwrap().contains(&json!(pipe))))).count();
+                assert_eq!(count, regions, "{label}: one refusal per case whose region holds the member");
+            }
+        }
+        // At the region's boundary node (the tip), its own member outside the region; and outside every region.
+        for (label, node) in [("boundary node", base.tip()), ("outside every region", EXTRA_NODE)] {
+            let mut document = extended(base, false);
+            push(&mut document, "components", rigid("component:reducer", "reducer", node, EXTRA_PIPE, 4.0));
+            for envelope in run_all(&document) {
+                assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{base:?} {label}: {:#?}", envelope["diagnostics"]);
+                assert!(!has_code(&envelope, REDUCER) && !has_code(&envelope, FAMILY), "{base:?} {label}");
+                assert!(has_code(&envelope, "RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED"), "{base:?} {label}");
+            }
+        }
+    }
+}
+
+/// W-15 §2.3: a body mapped onto a span an objective connector replaces is
+/// refused by name (blocking) on v3; no member is solved for it.
+#[test]
+fn w15_body_on_a_replaced_span_is_a_mapping_conflict() {
+    let mut document: Value =
+        serde_json::from_str(include_str!("fixtures/silent_zero/stress_free_connector_empty.request.json")).unwrap();
+    let span = document["model"]["components"][0]["objective_connector"]["topology"]["span_ref"].as_str().unwrap().to_string();
+    let node = document["model"]["pipe_segments"].as_array().unwrap().iter()
+        .find(|pipe| pipe["id"] == span.as_str()).unwrap()["to"].as_str().unwrap().to_string();
+    push(&mut document, "components", rigid("component:w15", "valve", &node, &span, 15.0));
+    for envelope in run_all(&document) {
+        assert_eq!(envelope["status"]["mechanics"], "MODEL_INCOMPLETE");
+        let conflicts = diagnostics(&envelope).iter().filter(|d| d["code"] == "RIGID_COMPONENT_MAPPING_CONFLICT").collect::<Vec<_>>();
+        assert_eq!(conflicts.len(), 1, "{:#?}", envelope["diagnostics"]);
+        assert_eq!(conflicts[0]["id"], "diagnostic:component:component-w15:rigid-mapping-conflict:replaced-span");
+        assert_eq!(conflicts[0]["severity"], "blocking");
+        assert_eq!(conflicts[0]["affected_refs"], json!(["component:w15", span]));
+        assert_eq!(envelope["results"], json!([]));
+    }
 }

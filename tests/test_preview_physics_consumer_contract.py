@@ -966,7 +966,10 @@ def _actual_retired_row(s):
 
 def _actual_first_case_headline(s):
     first = s["contract_evidence"]["preview_cases"][0]["load_case_id"]
-    rows = [r for r in s["results"] if r["kind"] == "pipe_elastic_normal_stress_maximum_v2" and r["basis_ref"]["ref_id"] == first]
+    # W-15 slice d: the non-governing pipe maximum; a body's row (valve C-130's pipe:P-130) is refused as a
+    # headline by its own code (SOURCE_COMPONENT_BODY_HEADLINE), not by the governing-maximum rule tested here.
+    rows = [r for r in s["results"] if r["kind"] == "pipe_elastic_normal_stress_maximum_v2" and r["basis_ref"]["ref_id"] == first
+            and "component_body" not in r]
     low = min(rows, key=lambda r: r["value"])
     s["summary"]["max_open_formula_stress"] = {"value": low["value"], "unit": "Pa", "location_ref": low["entity_ref"], "result_ref": low["id"]}
 

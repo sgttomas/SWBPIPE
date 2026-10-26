@@ -256,20 +256,29 @@ export function draftPlaceholderProvenance(): Record<string, unknown> {
   };
 }
 
+// The one current rule-pack format (DEL-06-01 Design `rule-pack-0.5.0.md` §2.1;
+// rule_pack_document RULE_PACK_SCHEMA_VERSION). Validation refuses any other
+// declared version as RULE_PACK_SCHEMA_VERSION_UNSUPPORTED, with no migration.
+export const RULE_PACK_SCHEMA_VERSION = "0.5.0";
+export const RULE_PACK_SCHEMA_VERSION_UNSUPPORTED = "RULE_PACK_SCHEMA_VERSION_UNSUPPORTED";
+
 // Draft template for "New draft rule pack". Private by default (PRD §12.4:
 // "The application shall mark such rule packs as private by default");
 // every placeholder is either TBD or invented non-engineering wording. The
 // editor never prefils code equations or standards values (PRD §14.5).
+// Format 0.5.0 (design §3): one stress category, one required load case and
+// the mapping between them, with empty text (and an empty load-case id) for the
+// user to fill; no category is named after any standard.
 export function buildDraftRulePackDocument(): RulePackDocument {
   const provenance = draftPlaceholderProvenance();
   return {
-    schema_version: "0.4.0",
+    schema_version: RULE_PACK_SCHEMA_VERSION,
     rule_pack_kind: "open_pipe_stress_rule_pack",
     grammar_version: "1.0.0",
     metadata: {
       rule_pack_id: "private_draft_rule_pack",
       name: "Private Draft Rule Pack",
-      schema_version: "0.4.0",
+      schema_version: RULE_PACK_SCHEMA_VERSION,
       rule_pack_version: "0.1.0",
       lifecycle_status: "draft",
       source_notice:
@@ -357,11 +366,36 @@ export function buildDraftRulePackDocument(): RulePackDocument {
         completeness_status: "missing_required_value"
       }
     ],
+    required_load_cases: [
+      {
+        required_load_case_id: "user_required_load_case_1",
+        name: "",
+        description: "",
+        basis_ref: { ref_type: "load_case", ref_id: "" },
+        provenance
+      }
+    ],
+    stress_categories: [
+      {
+        category_id: "user_stress_category_1",
+        name: "",
+        description: "",
+        provenance
+      }
+    ],
+    load_case_mappings: [
+      {
+        mapping_id: "user_load_case_mapping_1",
+        category_ref: { ref_id: "user_stress_category_1", ref_type: "stress_category" },
+        required_load_case_refs: [{ ref_id: "user_required_load_case_1", ref_type: "required_load_case" }]
+      }
+    ],
     check_definitions: [
       {
         check_id: "user_check_1",
         name: "User-defined check (placeholder)",
         description: "Replace with the user-defined acceptability check.",
+        category_ref: { ref_id: "user_stress_category_1", ref_type: "stress_category" },
         required_input_refs: [{ ref_id: "user_required_input_1", ref_type: "required_input" }],
         value_slot_refs: [{ ref_id: "user_limit_slot_1", ref_type: "value_slot" }],
         formula_ref: { ref_id: "user_formula_1", ref_type: "formula" },

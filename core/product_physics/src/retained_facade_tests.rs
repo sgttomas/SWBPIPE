@@ -2572,9 +2572,11 @@ fn b3b_witness_inputs_and_routes() {
 /// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] restated; against
 /// the DEF-E re-pin only that string and the hashes that bind it differ
 /// (`o4_text_only_envelope_diff`).
+// W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation (identity bytes only).
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "56fba7f1688a74b07498f98234d49b5f271995c28dc9f0aaa16ec8f9a9eb3636", "4ce55a671ba9e35a1fef9df8974e7d3f93a84dc444440a1e1867172611a8b6ff", "8015669b3b5f32baf2b785076d8694752b2e95d258180a85a24126142205f332"),
-    ("dense_scrutiny", "56d062febe90df0370b9bb3d407c14199178a28e3b8e88558a58a7470247f528", "7f8f79fd9a32d9023f1ed49811da07780c98885512d485a243464e8d65d7d3ea", "60b1b8e88c15d61ccb178febe250fc929c3a4d0ed53533cfcfe56e8c78873b67"),
+    // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation and the hashes binding it.
+    ("sparse_interactive", "0c7b14b6b08c689eee3be11ac164b0ec9296fd759c91595955eee7056dbc6ff4", "7873a31e0efb29adb5575d8bc0e2eb99a6f2dc51cabb6172789f290f3f3fad77", "53df81b7f576e714816bccfc54d96baca3814a0e919b9823e5aa9bf29b97826c"),
+    ("dense_scrutiny", "d9a6e8073a6207abd426c6d88f3cdae21c41a660a61230178921cfcd3260d872", "1540a66ad64415727bd6e6b7b12e7e754dac09d86a02bb9b8129cad3e28b72e1", "1a3f9eed3731e123264dcca1e7f46645434cc9b66b95656de837cce3f7a431ea"),
 ];
 /// The mixed exact base's pinned successor: (mode, receipt sha256, successor bytes sha256).
 /// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
@@ -2586,7 +2588,8 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
 /// O4 re-pin (E14 precedent): only DEF-E's H moved; read from the producer through the private driver.
 /// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] and the hashes that bind
 /// it moved (with the old text these pins reproduce); read from this test's writer line.
-const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "cf101fd29625fd863528da7ca17a673a209247b5668077becbf4037c26ce0f65", "60909eebac273637746f3070a03bad072d6acf20654b693e8f80c8037a8d317f"),("dense_scrutiny", "a232efbf32c0a5438f6539e55d82d70446a74b21e53f0e53b37200be37bb89eb", "93cd90140a3e2571510697ffbd52fecc14c13da59ac2b0d6f8d9ff72d9b6b2a3")];
+// W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation (identity bytes only).
+const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "43034334a5969bafdf32f5903801fa17996ef1725357ac5eb595b6621df84b9b", "40ac2acd8fa48bf72293bc8f355638c9ac949bc757be1d0fa4a545a745d03944"),("dense_scrutiny", "d1fc7e8518999d9cac74299ad7b78accc9e18e8ac9eb374957f814e8ae02a1d3", "8cdcfcfafb501d947ae11dd92c846cd05e33024a5657fd139b387280de50917d")];
 /// The exact successor's fixture document (D-U6-5's form).
 fn exact_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
     serde_json::to_string_pretty(&json!({"id":format!("b3b_m3x_{}", mode.as_str()),"source":successor,
@@ -3617,11 +3620,12 @@ fn two_member_exact(reversed: bool) -> Value {
 /// O4 re-pin (E14 precedent): only DEF-E's H moved; read from the producer through the private driver.
 /// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] and the hashes that bind
 /// it moved (with the old text these pins reproduce); read from this test's writer line.
+// W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation (identity bytes only).
 const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
-    (false, "sparse_interactive", "93179e700592df13edbc80fe395ea59b623d8cf3ea0beef57947be069f66f15d"),
-    (false, "dense_scrutiny", "503b8009f68a7cff89c9031aee0e9bad67d6ce5bac6cde9a679b92d4b6764d23"),
-    (true, "sparse_interactive", "c1ffca783f770e643cd6abfbc59286547a2b3549da73e237b5b58a7d7b9123ca"),
-    (true, "dense_scrutiny", "8116de2198c798c1dfd0f4a5d3e2325ec31412fe5469fdd95fca0f5bad211316")];
+    (false, "sparse_interactive", "e8d91ef9bbd05a27808cc9f6d7891fa4d984717ac22500d05b62aa37308fa500"),
+    (false, "dense_scrutiny", "3ff2dc2072b8bd3de7a768ce1f1ef0221df234360b6f6fc87da5917b7f2052c3"),
+    (true, "sparse_interactive", "501a97bfdb1ccb09869e71b1f5131d074a158f4ccccd1c526c73229127f19aee"),
+    (true, "dense_scrutiny", "fb85996717410da76f0ae7e0f2271525fbbd80a8c802d3c4b78b1a359e92b802")];
 /// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
 /// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
 /// and M2's prepared section differs from its source annulus's in at least one value, so the
@@ -3668,8 +3672,9 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
 /// O4 re-pin (E14 precedent): only DEF-E's H moved; read from the producer through the private driver.
 /// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] and the hashes that bind
 /// it moved (with the old text these pins reproduce); read from this test's writer line.
-const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "5afc72b853e34ff04f84611e75daf5b1fd1404d421c5ef87bccd615ce0f51c6a"),
-    ("dense_scrutiny", "6905b8d679911c010b4925338a58955c3f9b65fd00ad9fdc87d5353c96e449f1")];
+// W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation (identity bytes only).
+const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "d461d370f70520b6e7ed5d73b32bc0998ad01c2aa4863559ff969eaf1951bc80"),
+    ("dense_scrutiny", "b63f38b7dff8e01cef9bce67bd06c9dd99b251668e3bf27245afb7c028610152")];
 /// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
 /// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
 /// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),
@@ -4961,3 +4966,121 @@ fn o4_w1e_mixed_request() -> Value {
 }
 /// The O4 fixture's request: control B, Timoshenko, c_m = 0.5 mm and c_a = 1 mm.
 fn o4_w1e_fixture_request() -> Value { o4_control(O4_TIM, 0.001, Some(0.0005), Some(0.01)) }
+
+// ---- W-15 slice b (DEL-04-08 retained-pricing-rules.md §8.22, W15B-NS): the generated self-weight namespace on a
+// node target ----
+//
+// `self_weight::inspect_applied_self_weight` treats a node-targeted load whose id starts with `load:self-weight:` as
+// generated (its `deterministic_identity` node arm). Without a lineage record it can derive, the load blocks with
+// `SELF_WEIGHT_INPUT_INVALID` on the ordinary routes; D1.7 refuses it at G-A with `GeneratedLoadIdentity`, so the
+// retained route publishes exactly the ordinary route's blocked bytes. The variants are the ones the inspection
+// branches on: the id inside the namespace, the provenance (absent, unparsed text, each non-object JSON kind, and an
+// object that claims or does not claim the component-weight method), and the payload (category and dimension).
+
+/// The base (`raw()` pressure-free or `m3x()` exact) with case 0's `load:2` replaced by `load`.
+fn w15b_with_load(base: &Value, load: Value) -> Value {
+    let mut raw = base.clone();
+    raw["model"]["load_cases"][0]["primitive_loads"][2] = load;
+    raw
+}
+fn w15b_load(id: &str, provenance: Option<&str>, category: &str, direction: &str, dimension: &str) -> Value {
+    let unit = if dimension == "moment" { "N*m" } else { "N" };
+    let mut load = json!({"id": id, "category": category, "target": {"type": "node", "node": "N1"}, "direction": direction,
+        "magnitude": {"value": -2.5, "unit": unit}, "dimension": dimension});
+    if let Some(text) = provenance {
+        load["provenance"] = json!(text);
+    }
+    load
+}
+/// Every way the outcome differs from the premise, for one request on both modes: the ordinary route blocks with
+/// `SELF_WEIGHT_INPUT_INVALID` (`PROVENANCE_INPUT_MISSING` when the load has no provenance), is `MODEL_INCOMPLETE` and has no result, and the retained route refuses at G-A by `GeneratedLoadIdentity` and publishes
+/// the ordinary bytes (no W1, no successor).
+fn w15b_mismatches(label: &str, raw: &Value) -> Vec<String> {
+    // A load without provenance is blocked earlier, by validation's PROVENANCE_INPUT_MISSING.
+    let absent = raw["model"]["load_cases"][0]["primitive_loads"][2].get("provenance").is_none();
+    let code = if absent { "PROVENANCE_INPUT_MISSING" } else { "SELF_WEIGHT_INPUT_INVALID" };
+    use super::retained_memory::{AdmissionRefusal, D1Clause, FamilyFact};
+    let mut found = Vec::new();
+    for mode in MODES {
+        let plain = plain(mode, raw);
+        let envelope: Value = serde_json::from_slice(&plain).unwrap();
+        let blocked = envelope["diagnostics"].as_array().unwrap().iter()
+            .any(|d| d["code"] == code && d["severity"] == "blocking");
+        let solved = envelope["status"]["mechanics"] != "MODEL_INCOMPLETE" || !envelope["results"].as_array().is_none_or(Vec::is_empty);
+        if !blocked {
+            let codes: Vec<_> = envelope["diagnostics"].as_array().unwrap().iter()
+                .filter(|d| d["severity"] == "blocking").map(|d| d["code"].as_str().unwrap_or_default().to_owned()).collect();
+            found.push(format!("{label} {mode:?}: the ordinary route does not block with {code} (blocking: {codes:?}; {})",
+                envelope["status"]["mechanics"]));
+        }
+        if solved {
+            found.push(format!("{label} {mode:?}: the ordinary route is not MODEL_INCOMPLETE without results ({})", envelope["status"]["mechanics"]));
+        }
+        let (output, _) = direct(raw, mode);
+        let domain = output.admission().unwrap().law().domain;
+        let expected = Some(AdmissionRefusal::Family(D1Clause::Loads, FamilyFact::GeneratedLoadIdentity));
+        if domain != expected {
+            found.push(format!("{label} {mode:?}: G-A's domain refusal is {domain:?}, not {expected:?}"));
+        }
+        if output.retained().is_some() {
+            found.push(format!("{label} {mode:?}: the retained route ran W1"));
+        }
+        if output.successor().is_some() {
+            found.push(format!("{label} {mode:?}: the retained route formed a successor"));
+        }
+        if published(output) != plain {
+            found.push(format!("{label} {mode:?}: the retained route's bytes differ from the ordinary route's"));
+        }
+    }
+    found
+}
+#[test]
+fn w15b_generated_namespace_node_loads_block_and_are_refused_by_d1() {
+    const COMPONENT_ID: &str = "load:self-weight:4:case:9:component:x:force:y";
+    let ids = ["load:self-weight:", "load:self-weight:x", COMPONENT_ID];
+    let provenances: [Option<&str>; 7] = [None, Some("human note"), Some("\"quoted\""), Some("17"), Some("[1]"), Some("null"), Some("true")];
+    let objects = [
+        format!("{{\"method\":\"{}\"}}", self_weight::COMPONENT_WEIGHT_METHOD),
+        "{\"method\":\"component_weight_at_center_of_gravity_global_offset/v9\"}".to_owned(),
+        " {\"note\":\"x\"}".to_owned(),
+    ];
+    let payloads = [("weight", "global_y", "force"), ("weight", "RZ", "moment"), ("occasional", "global_x", "force"), ("concentrated_moment", "RX", "moment")];
+    let mut found = Vec::new();
+    for (route, base) in [("PF", raw()), ("EX", m3x())] {
+        for id in ids {
+            for provenance in provenances {
+                let raw = w15b_with_load(&base, w15b_load(id, provenance, "weight", "global_y", "force"));
+                found.extend(w15b_mismatches(&format!("{route} {id} {provenance:?}"), &raw));
+            }
+            for object in &objects {
+                let raw = w15b_with_load(&base, w15b_load(id, Some(object), "weight", "global_y", "force"));
+                found.extend(w15b_mismatches(&format!("{route} {id} {object}"), &raw));
+            }
+        }
+        for (category, direction, dimension) in payloads {
+            for provenance in [None, Some("human note")] {
+                let raw = w15b_with_load(&base, w15b_load(COMPONENT_ID, provenance, category, direction, dimension));
+                found.extend(w15b_mismatches(&format!("{route} {category} {dimension} {provenance:?}"), &raw));
+            }
+        }
+    }
+    assert!(found.is_empty(), "{} mismatches:\n{}", found.len(), found.join("\n"));
+}
+
+/// The control: a hand-written nodal `weight` load under any other id is inside D1.7 (G-A's domain does not refuse
+/// it), and both ordinary routes solve it.
+#[test]
+fn w15b_hand_written_nodal_weight_stays_admitted() {
+    for (route, base) in [("PF", raw()), ("EX", m3x())] {
+        for (id, direction, dimension) in [("load:w15b-weight", "global_y", "force"), ("load:self-weight", "RZ", "moment"), ("x:load:self-weight:", "global_z", "force")] {
+            let raw = w15b_with_load(&base, w15b_load(id, Some("invented_t3_p1_detection_input_no_library_data"), "weight", direction, dimension));
+            for mode in MODES {
+                let envelope: Value = serde_json::from_slice(&plain(mode, &raw)).unwrap();
+                assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{route} {id} {mode:?}: {}", envelope["diagnostics"]);
+                assert!(!envelope["diagnostics"].as_array().unwrap().iter().any(|d| d["code"].as_str().unwrap().starts_with("SELF_WEIGHT")), "{route} {id} {mode:?}");
+                let (output, _) = direct(&raw, mode);
+                assert_eq!(output.admission().unwrap().law().domain, None, "{route} {id} {mode:?}: inside D1");
+            }
+        }
+    }
+}

@@ -44,11 +44,12 @@ FROZEN = {
     # O4 (DEL-04-08 `o4-source-extension.md` §3.3): regenerated for limitation [7] only.
     # connected: silent-zero diagnostic added; no number moved (two LOAD_STATE_SOURCE_EXCLUDED warnings).
     # W-7 global end rows added; no other number moved (connected +48 rows, pressure +24 rows).
-    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "9494dfad726e83b36c67705a282da4c4cfdd8951632d24bc05e0c8e8276ace66",
-    "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "2bfa5363081b93788a9a910368071aecdec970a295ba621377231566d592ed15",
+    # W-15 (DEL-03-05): regenerated for the pressure-2 identity limitation (identity bytes only).
+    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "39ad0082a313e042eb0c26bab499bf1ed6b364d5ce0e97cc85d9e8e7cc05a332",
+    "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "f576755134a8f487255b194d2c27ac51717b4a77de4301e4db79791392e6de32",
     "fixtures/product_preview/pressure/load_reference/pressure.request.json": "a187c0949ce6fad0f357f9439daf95b63886be582f95ebee4181d327da882eca",
-    "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "861cb4f728d3450329f30b8b531416926133acfae8482701baac580c925b5bde",
-    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "31a217d3044731453a34d4dff8abf39de05d0c69c39f7f3bc502baecb3637ee0",
+    "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "41d7afc0da0df6d6bcca598dc75bbbf28da8c1af4b643a262abcffb6dccce373",
+    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "b2a25f63d524bd11ddd8195dc6077843f768416b6663a310ed24f33effc3be1a",
     "fixtures/results/semantic_contract_v0_3_pressure_2.json": PRESSURE_CONTRACT_SHA256,
     "schemas/load_reference_state.schema.json": TRANSPORT_SCHEMA_SHA256,
 }

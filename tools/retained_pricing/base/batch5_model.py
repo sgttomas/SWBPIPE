@@ -24,8 +24,11 @@ PINS = {
         # cause String and the route-neutral cause records (PU-TX); carriers, staging and prepared-pressure calls unchanged.
         # W-7 D3 (§8.20, W7-GE): the member's twelve global end rows or one blocking diagnostic, priced at their own
         # sites; carriers, staging and prepared-pressure calls unchanged.
-        "solve_prepared_load_case": "533f046490187db7edca7dd19177046a893a48cd2f6eba5334c58d42608be820",
-        "append_curved_bend_macro_element_results": "9ebc4f11d1a881b3310579118792190c4d4c9c81964a3a89eb04952f0312304c",
+        # W-15 D3 (§8.21): `component_body: None` on its row constructors, a body's maxima kept out of the headline,
+        # the unscaled pair's PF nu and `built` passed to the thermal loads (append_curved_bend_macro_element_results:
+        # `component_body: None` only); carriers, staging and prepared-pressure calls unchanged.
+        "solve_prepared_load_case": "f7799193d0c21230e75ce77afd83a51afb3c477a256c9ba3debb5dc4940f1a6b",
+        "append_curved_bend_macro_element_results": "9e9b5010a84aa73268d72fabcf99c5cb2012f6f35ef5a15adb41bb30bf045a4e",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the
     # component, region, section and load-state refusals that empty the carriers' children are unchanged.
@@ -36,9 +39,11 @@ PINS = {
     # O4 S5 (§8.9, O4-AD): the T4-U6/U8 narrowings are removed: namespace_branch admits either shear model through
     # contract_is and family_clauses drops the branch-E section-allowance refusal. The component, region and
     # load-state refusals that empty the carriers' children are unchanged.
+    # W-15 slice b (§8.22, W15B-NS): family_clauses refuses a node load in the generated self-weight namespace;
+    # it only narrows admission. The component, region and load-state refusals are unchanged.
     "core/product_physics/src/retained_memory.rs": {
         "namespace_branch": "b1f8f02df1f10552a69c357ebc329fa801243addc94d595403ab9313f79cf805",
-        "family_clauses": "e234ac88ff7a894707225c05d6c361c85492263749177d15984c654247ac2603",
+        "family_clauses": "fe83ef92579e72375027a0111e21714f9de2c203cc96bd70c400ec148d550833",
     },
 }
 # B7b: the production prefix deletes v2's declaration, refusal and negative-pressure
@@ -59,7 +64,10 @@ PINS = {
 # sites (U4B-ST, U5B-PD); family_clauses changes only its 0.6.0 comment.
 # Model document 0.7.0 D3 (W-13 S1b): the prefix reads 0.7.0 in the same two validate_profile texts (same length);
 # family_clauses changes only its 0.7.0 comment. No carrier, child or staging changes.
-PRESSURE_PREFIX_PIN = "4541c94c88fc90988a7746e3f86622c574338b098778190457f97193e763bcc9"
+# W-15 D3 (§8.21): validate_profile refuses a reducer whose mapped member belongs to a case's pressure region
+# (exact_admission::reducer_region_refusals; diagnostics only). Under D1 no component is admitted (P2) and E's regions
+# are explicitly empty (D1.5), so it collects nothing. No carrier, child or staging changes.
+PRESSURE_PREFIX_PIN = "296df65d9ad72e257b48a2dd6b02156a394099f6ac0b70ef7199564269404b12"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
 

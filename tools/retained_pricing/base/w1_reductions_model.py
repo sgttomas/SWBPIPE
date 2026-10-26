@@ -59,15 +59,15 @@ RF_PINS = {
 # (model_fields::unknown_field_refusal) change no reduction's owner or lifetime; preview_physics.rs's
 # append_combination_results keeps the L5 callee's inputs (rows_by_base_id, case_rows) and names its withheld rows; the
 # L5 guard, shadow, insert and call texts are unchanged.
-# Unit factor-sum gate D3 (§8.21): preview_physics.rs's gate_reason calls factor_sum_within_unit_tolerance in place
+# Unit factor-sum gate D3 (§8.FS, provisional): preview_physics.rs's gate_reason calls factor_sum_within_unit_tolerance in place
 # of its two folds; the L5 callee's inputs and the L5 guard, shadow, insert and call texts are unchanged; no reduction's
 # owner or lifetime changes.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "8fbc112204c483d0b91e7e9c7e6975290df3ab2bc2cf669eec7d002ef6a25979",
+    "core/product_physics/src/lib.rs": "fb94f699e887348fbfa4ca1c9065f935d2796d28ac11e54c49f50a6ff7317f12",
     "core/product_physics/src/retained_wire.rs": "1c58db53d9a590d4316aea0fdc855396002935faed3d91a31e7f5434d93d8d40",
-    "core/product_physics/src/certified_publication.rs": "8d0fd1f1dba13e8eca74aa62130a0956d3c1ca5c1d197749cf58ee00c501184a",
+    "core/product_physics/src/certified_publication.rs": "8dd1a0ed3c32df695639b2adda57e2d501b6becc8fafec78c5256061148ba19c",
     "core/product_physics/src/certified_loads.rs": "56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f",
-    "core/product_physics/src/preview_physics.rs": "9825bfc8489aecb7da8e7e2fae9c88b1a286628c68cfd1e8e0abf3f3e196d35d",
+    "core/product_physics/src/preview_physics.rs": "124e8b6b87e8ab6d698be050bac3974d8490cbc1df91f9e229579b8d2adcaa53",
     "core/solver/frame_kernel/src/structural/formation_check.rs": "ec27fd9b61191c292ef24a240efccf667976c25f4d42a0a8eea833fb37d21b5d",
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "518f343f9052a94faf3b93e16a488552f707554a66b532156cdced71a4fd75f7",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",

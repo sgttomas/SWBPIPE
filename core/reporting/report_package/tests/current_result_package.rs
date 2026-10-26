@@ -626,6 +626,34 @@ fn supported_rule_pack_checksum_pairs_assemble_and_headline_incomplete() {
 }
 
 #[test]
+fn rule_check_outcomes_with_and_without_basis_ref_package_and_read_back_at_2_0_0() {
+    // Rule-pack format 0.5.0 (DEL-06-01 Design `rule-pack-0.5.0.md` §2.7, §6;
+    // owner W-18b O-A = V1): an outcome's `basis_ref` is a member added at this
+    // head, which this head's reader accepts at 2.0.0; an outcome written
+    // without it still packages and renders "load case not recorded".
+    for request in [runner(), desktop()] {
+        let checked = with_rule_check(&request, rule_pack_checksum("JCS", "rule_pack"));
+        let with_basis = with(&checked, |r| {
+            r["report"]["user_rule_checks"]["checks"][0]["basis_ref"] = json!({"ref_type": "load_case", "ref_id": "load:L-100"});
+            r["report"]["user_rule_checks"]["checks"][1]["basis_ref"] = json!({"ref_type": "combination", "ref_id": "combo:C-1"});
+        });
+        for (case, request, cells) in [
+            ("with basis_ref", &with_basis, ["load_case load:L-100", "combination combo:C-1"]),
+            ("without basis_ref", &checked, ["load case not recorded", "load case not recorded"]),
+        ] {
+            let outcome = unblocked(request);
+            let read = read_report_package_container(&outcome.container_bytes).unwrap_or_else(|error| panic!("{case}: {error}"));
+            assert_eq!(read.schema_version, "2.0.0", "{case}");
+            assert!(!read.export_blocked, "{case}");
+            let html = String::from_utf8(member(&outcome, ROLE_REPORT_HTML).to_vec()).unwrap();
+            assert!(html.contains(&format!("<td>invented-check-a</td><td>{}</td>", cells[0])), "{case}");
+            assert!(html.contains(&format!("<td>invented-check-b</td><td>{}</td>", cells[1])), "{case}");
+            assert!(html.contains("Counts are per check and load case or combination; one check can contribute more than once."), "{case}");
+        }
+    }
+}
+
+#[test]
 fn rule_check_mismatches_are_refused() {
     for request in [runner(), desktop()] {
         let checked = with_rule_check(&request, rule_pack_checksum("JCS", "rule_pack"));

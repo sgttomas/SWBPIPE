@@ -346,6 +346,8 @@ code_paths:
 - apps/desktop/src/features/comparison/StateComparisonView.tsx
 - apps/desktop/src/features/comparison/RunComparisonView.tsx
 - apps/desktop/src/features/comparison/stateComparison.ts
+- apps/desktop/src/features/comparison/withinRunComparison.ts
+- apps/desktop/src/features/comparison/ComparisonPackageNotice.tsx
 - apps/desktop/src/features/history/HistoryPanel.tsx
 - apps/desktop/src/features/history/useModelStateHistory.ts
 - apps/desktop/src/features/project-storage/UnsavedChangesPrompt.tsx
@@ -363,4 +365,9 @@ checks:
 - apps/desktop/src/features/history/recordRun.session.test.tsx
 - apps/desktop/src/features/history/compareStates.test.tsx
 - apps/desktop/src/features/history/compareRuns.test.tsx
+- apps/desktop/src/features/comparison/withinRunComparison.test.tsx
+- apps/desktop/src/features/comparison/withinRunComparison.session.test.tsx
+- apps/desktop/src/features/comparison/withinRunPackages.test.tsx
+- apps/desktop/src/features/workspace/withinRun.resultsSessionState.test.ts
+- apps/desktop/src/App.withinRun.test.tsx
 - tests/test_design_authoring_comparison_workspace.py

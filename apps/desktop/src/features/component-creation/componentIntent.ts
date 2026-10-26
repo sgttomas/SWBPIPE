@@ -32,9 +32,23 @@ export type ComponentDraft = {
   connectionEndAReference: string;
   connectionEndBReference: string;
   stiffnessBehaviorReference: string;
+  /** W-15: the optional DEC-045 stiffness scale (dimensionless) with its
+   * source reference, and the optional solver-consumption mode. Empty means
+   * not entered; nothing is defaulted. */
+  rigidStiffnessScale: string;
+  rigidScaleSourceReference: string;
+  rigidSolverConsumption: string;
   geometrySourceReference: string;
   provenance: string;
 } & ConnectorDraft;
+
+/** W-15: the consumption modes offered for a valve, flange or reducer: the
+ * DEC-045 mode (stiffness scale and component weight are applied) and the
+ * annotation mode (analysed as pipe). */
+export const RIGID_SOLVER_CONSUMPTIONS = ["mechanics_geometry_only", "not_solver_consumed"] as const;
+/** The owner's R10 ruling (DEL-03-05, 2026-10-24) on the centre of gravity. */
+export const CENTER_OF_GRAVITY_CONVENTION =
+  "Centre of gravity: global X/Y/Z from the component's node, in the length unit. Self-weight applies the weight at the node with the moment r × F.";
 
 /** T4-U3/T4-U2: an expansion joint is authored as an objective connector
  * (objective_connector 1.0.0) on a 3.0.0/exact_pressure_v3 document, replacing
@@ -284,6 +298,9 @@ export function defaultComponentDraft(
     connectionEndAReference: "",
     connectionEndBReference: "",
     stiffnessBehaviorReference: "",
+    rigidStiffnessScale: "",
+    rigidScaleSourceReference: "",
+    rigidSolverConsumption: "",
     ...emptyConnectorDraft(),
     geometrySourceReference: kind === "expansion_joint" ? "" : "user_entered_component_form",
     provenance: kind === "expansion_joint" ? "" : "user_entered_local_preview"
@@ -392,8 +409,20 @@ export function isComponentDraftValid(
       finiteNumber(draft.centerOfGravityZ) &&
       draft.connectionEndAReference.trim() &&
       draft.connectionEndBReference.trim() &&
-      draft.stiffnessBehaviorReference.trim()
+      draft.stiffnessBehaviorReference.trim() &&
+      rigidInterfacesValid(draft)
   );
+}
+
+/** W-15: a stiffness scale is finite positive and entered with its source
+ * reference, or both are left empty; a consumption mode is one offered or
+ * none. */
+export function rigidInterfacesValid(draft: ComponentDraft): boolean {
+  const scale = draft.rigidStiffnessScale.trim();
+  const source = draft.rigidScaleSourceReference.trim();
+  const scaleValid = scale === "" ? source === "" : positiveFinite(scale) && source !== "";
+  const consumption = draft.rigidSolverConsumption;
+  return scaleValid && (consumption === "" || (RIGID_SOLVER_CONSUMPTIONS as readonly string[]).includes(consumption));
 }
 
 export function buildCreateComponentIntent({
@@ -430,6 +459,7 @@ export function buildCreateComponentIntent({
         kind,
         node: draft.node.trim(),
         geometry: componentGeometry(draft),
+        ...rigidInterfaces(draft),
         provenance: draft.provenance.trim()
       };
   return {
@@ -519,6 +549,23 @@ function componentGeometry(draft: ComponentDraft): Record<string, unknown> {
   };
 }
 
+/** W-15: the optional `modifiers` (stiffness scale with its source) and
+ * `mechanics_interface` (consumption mode) of a rigid-family draft. */
+function rigidInterfaces(draft: ComponentDraft): Record<string, unknown> {
+  if (draft.kind === "bend" || draft.kind === "tee" || draft.kind === "expansion_joint") return {};
+  const interfaces: Record<string, unknown> = {};
+  if (draft.rigidStiffnessScale.trim()) {
+    interfaces.modifiers = {
+      stiffness_scaling_user_value: { value: Number(draft.rigidStiffnessScale), unit: "none" },
+      source_reference: draft.rigidScaleSourceReference.trim()
+    };
+  }
+  if (draft.rigidSolverConsumption) {
+    interfaces.mechanics_interface = { solver_consumption: draft.rigidSolverConsumption };
+  }
+  return interfaces;
+}
+
 function componentSourceNote(kind: CreatableComponentKind): string {
   if (kind === "bend") {
     return "explicit user-entered bend node, realized pipe connectivity, radius, angle, and geometry source";
@@ -529,7 +576,7 @@ function componentSourceNote(kind: CreatableComponentKind): string {
   if (kind === "expansion_joint") {
     return "explicit user-entered objective connector (objective_connector 1.0.0): replaced span, frames, offsets, installed reference state, 6x6 work matrix, calibration, hardware, pressure model and provenance";
   }
-  return `explicit user-entered ${kind} node, realized pipe connectivity, dimensions, weight, center of gravity, connection references, stiffness behavior, and geometry source`;
+  return `explicit user-entered ${kind} node, realized pipe connectivity, dimensions, weight, center of gravity (global X/Y/Z from the component's node), connection references, stiffness behavior, optional stiffness scale and solver consumption, and geometry source`;
 }
 
 function incidentPipes(model: PreviewModel, node: string) {

@@ -51,7 +51,7 @@
 //! taxonomy per DEC-081).
 
 use crate::atomic_report_package_save::{self, AtomicSaveError};
-use crate::command_ingress::{Args, ArgsDecoding, ValueDecoder, REPORT_PACKAGE_VEC_EXPANSION};
+use crate::command_ingress::{report_package_request_parse_bytes, text_parse_bytes, Args, ArgsDecoding, ValueDecoder};
 use crate::model_document_file::MAX_MODEL_DOCUMENT_BYTES;
 use crate::export_disposition_screen::{
     malformed_values, screen_dispositions_in, screen_value, DispositionDiagnostic as Diagnostic, LibraryLookup, PathStyle,
@@ -343,22 +343,24 @@ pub fn check_text_sizes(request_text: &str, model_text: &str, input_manifest_tex
 }
 
 /// The ingress lease growth for parsing the three texts (§2.6 item 1, "a
-/// priced parse of the text"): the request is parsed and then typed-decoded
-/// (`(2 + REPORT_PACKAGE_VEC_EXPANSION)` M), the model and the input manifest
-/// only parsed (M), each with its canonical re-serialization
-/// ([`crate::command_ingress::text_parse_bytes`]). Applies the size caps
-/// first. A text that is not one JSON value is refused here, before it is
-/// parsed.
+/// priced parse of the text"): the request is parsed, then typed-decoded and
+/// assembled, priced by its regions with the command's working memory
+/// ([`crate::command_ingress::report_package_request_parse_bytes`]; DEL-04-07
+/// memory-budget decision, "Report-package request pricing"); the model and
+/// the input manifest are only parsed (M), each with its canonical
+/// re-serialization ([`crate::command_ingress::text_parse_bytes`]). Applies
+/// the size caps first. A text that is not one JSON value is refused here,
+/// before it is parsed.
 pub fn parse_lease_bytes(request_text: &str, model_text: &str, input_manifest_text: &str) -> Result<u64, ReportPackageSaveCommandError> {
     check_text_sizes(request_text, model_text, input_manifest_text)?;
-    let priced = |what: &str, text: &str, decoding: ArgsDecoding| {
-        crate::command_ingress::text_parse_bytes(text, decoding).map_err(|invalid| {
+    let priced = |what: &str, priced: Result<u64, crate::ingress::IngressInvalid>| {
+        priced.map_err(|invalid| {
             refuse(NOT_CANONICAL, &format!("/{what}"), format!("The {what} text is not JSON ({} at byte {}).", invalid.reason, invalid.offset))
         })
     };
-    let request = priced("request", request_text, ArgsDecoding::Rebuilt { vec_expansion: REPORT_PACKAGE_VEC_EXPANSION })?;
-    let model = priced("model", model_text, ArgsDecoding::Moved)?;
-    let input_manifest = priced("input_manifest", input_manifest_text, ArgsDecoding::Moved)?;
+    let request = priced("request", report_package_request_parse_bytes(request_text))?;
+    let model = priced("model", text_parse_bytes(model_text, ArgsDecoding::Moved))?;
+    let input_manifest = priced("input_manifest", text_parse_bytes(input_manifest_text, ArgsDecoding::Moved))?;
     Ok(request.saturating_add(model).saturating_add(input_manifest))
 }
 

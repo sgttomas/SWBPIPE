@@ -60,8 +60,9 @@ async function inspectBundledReference(page: Page): Promise<Locator> {
   const reference = page.getByTestId("historical-run-context");
   await expect(reference).toContainText("Bundled reference — not a solve for the current model");
   await expect(reference).toContainText("NO_CURRENT_MODEL_INVOCATION");
-  // W-7: the demo publishes 12 global end rows per pipe and case (745 -> 841).
-  await expect(reference.getByTestId("result-filter-summary")).toContainText("841 of 841 results match filter");
+  // W-7: the demo publishes 12 global end rows per pipe and case (745 -> 841); the C-120 fix removes the
+  // elbow-placed tee component:C-120 and its 4 intensified rows (841 -> 837).
+  await expect(reference.getByTestId("result-filter-summary")).toContainText("837 of 837 results match filter");
   return reference;
 }
 
@@ -70,13 +71,15 @@ async function inspectBundledReference(page: Page): Promise<Locator> {
 test("recorded reference sources retain the original row, quantity, unit and diagnostic oracles", () => {
   // Per source: [semantics, rows, reaction rows, pipe-P-120 rows, summary quantities].
   for (const [source, semantics, rows, reactions, p120, headlines] of [
-    [referenceSource, referenceSemantics, 841, 102, 156, 2],
+    // C-120 fix: 4 intensified rows go (2 of them, header P-120 end_i, matched pipe-P-120); reactions unchanged.
+    [referenceSource, referenceSemantics, 837, 102, 154, 2],
   ] as const) {
     expect(source.model_ref).toBe(demoModel.project.id);
     expect(source.results).toHaveLength(rows);
     const magnitudes = source.results.filter((row: any) => row.kind === "displacement_magnitude");
     expect(new Set(magnitudes.map((row: any) => row.entity_ref)).size).toBe(5);
-    expect(Math.max(...magnitudes.map((row: any) => row.value)).toFixed(6)).toBe("7.635384");
+    // W-15 (DEL-03-05 Design §6): valve C-130's member is solved with its scale 15 (was 7.635384 unscaled).
+    expect(Math.max(...magnitudes.map((row: any) => row.value)).toFixed(6)).toBe("7.624972");
     const vectors = source.results.filter((row: any) => ["global_nodal_displacement_x", "global_nodal_displacement_y", "global_nodal_displacement_z"].includes(row.kind));
     expect(vectors.length).toBeGreaterThanOrEqual(15);
     expect(vectors.every((row: any) => row.metadata.coordinate_system === "global" && row.unit === "mm")).toBe(true);
@@ -122,8 +125,9 @@ test("the pure recorded-source projection retains quantity unit oracles", async 
     return { summary: evidence.summary, conversion: evidence.conversion_performed, registered: hasNativeMechanicsInvocation(result, model), unchanged: JSON.stringify({ model, result }) === before };
   }, { model: demoModel, result: referenceSource });
   expect(projection.summary.project_unit_declaration_count).toBe(6);
-  expect(projection.summary.model_quantity_witness_count).toBe(40);
-  expect(projection.summary.result_quantity_witness_count).toBe(843);
+  // C-120 fix: the tee component:C-120 and its 6 quantities (3 geometry, 3 modifiers) go, and its 4 intensified rows.
+  expect(projection.summary.model_quantity_witness_count).toBe(34);
+  expect(projection.summary.result_quantity_witness_count).toBe(839);
   expect(projection.conversion).toBe(false);
   expect(projection.registered).toBe(false);
   expect(projection.unchanged).toBe(true);
@@ -675,7 +679,7 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await showCanvas(page);
   await setDisclosure(page.getByTestId("viewport-deformation-status"));
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
-  // The preserved 5-node / 7.635384 mm and signed-vector source oracles above
+  // The preserved 5-node / 7.624972 mm and signed-vector source oracles above
   // do not grant a current-model overlay from reference inspection.
   await setDisclosure(page.getByTestId("viewport-deformation-status"), false);
 
@@ -706,22 +710,24 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(page.getByTestId("result-unit-policy")).toContainText("MPa, N, N*m, mm, rad");
   // The reference's retained source units include its spring hanger row's N/m, as entered.
   await expect(page.getByTestId("result-unit-policy")).toContainText("mode_code, N/m");
-  await expect(page.getByTestId("result-unit-policy")).toContainText("841 rows");
+  // C-120 fix: the demo drops the tee component:C-120 and its 4 intensified rows (841 -> 837); no other row moved.
+  await expect(page.getByTestId("result-unit-policy")).toContainText("837 rows");
   await expect(page.getByTestId("result-unit-policy")).toContainText("entered units preserved");
-  await expect(page.getByTestId("result-filter-summary")).toContainText("841 of 841 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("837 of 837 results match filter");
   await expect(page.getByTestId("result-family-count-reaction")).toContainText("102");
   await page.getByTestId("result-family-reaction").click();
-  await expect(page.getByTestId("result-filter-summary")).toContainText("102 of 841 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("102 of 837 results match filter");
   await expect(page.getByTestId("result-page-summary")).toContainText(
     "Showing 1 to 50 of 102 matching results; page 1 of 3"
   );
   await expect(page.getByTestId("result-row-result:support-action:10:load:L-100:13:support:S-120:Fz")).toBeVisible();
   await page.getByTestId("result-family-all").click();
-  await expect(page.getByTestId("result-filter-summary")).toContainText("841 of 841 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("837 of 837 results match filter");
   await page.getByTestId("result-filter-input").fill("pipe-P-120");
-  await expect(page.getByTestId("result-filter-summary")).toContainText("156 of 841 results match filter");
+  // C-120 fix: 2 of the tee's intensified rows (header P-120 end_i, one per case) matched pipe-P-120 (156 -> 154).
+  await expect(page.getByTestId("result-filter-summary")).toContainText("154 of 837 results match filter");
   await expect(page.getByTestId("result-page-summary")).toContainText(
-    "Showing 1 to 50 of 156 matching results; page 1 of 4"
+    "Showing 1 to 50 of 154 matching results; page 1 of 4"
   );
   await expectWorkspaceStatusClearOfTarget(page, "result-row-result:force:pipe-P-120:axial");
   const inspectorBeforeReferenceSelection = await page.getByTestId("property-inspector").textContent();
@@ -819,7 +825,8 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   // The unchanged raw rows and their qualified dimension witnesses remain
   // checked by the recorded-source and pure stress-neutral contract tests.
   const reviewGeometryExport = page.getByLabel("Review geometry export");
-  await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText("count=72");
+  // C-120 fix: the tee component:C-120 and its 3 geometry quantities go.
+  await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText("count=69");
   await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText(
     "target=m"
   );
@@ -1187,6 +1194,10 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   const draft = JSON.parse(draftText);
   expect(draft.rule_pack_kind).toBe("open_pipe_stress_rule_pack");
   expect(draft.grammar_version).toBe("1.0.0");
+  // Rule-pack format 0.5.0: one category, required load case and mapping to fill.
+  expect(draft.schema_version).toBe("0.5.0");
+  expect(draft.stress_categories).toHaveLength(1);
+  await expect(page.getByTestId("rule-pack-load-case-categories-editor")).toBeVisible();
   expect(draft.classification.privacy_class).toBe("private_user_data");
   expect(draft.classification.redistribution_status).toBe("private_only");
   await expect(page.getByTestId("rule-pack-action-status")).toContainText("private_user_data");
@@ -1351,27 +1362,28 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
     }
   });
 
-  // TP-C4-SOLVERREFAUTHOR-001: an input that draws from a solved result authors
-  // a solver_result_ref (a single result_id) through a structured control — the
-  // in-pack, canonical form of the previously caller-supplied {input_id,
-  // result_id} solver binding (PRD §12.5), resolved at run time from the solved
-  // envelope's results[] by id (TP-C4-SOLVERREF-001). Add a fresh input and set
-  // source_kind to solver_result: the sub-form reveals and seeds a
-  // {result_id:"TBD"} placeholder (unfilled -> blocks, never a silent pass); the
-  // authored reference supersedes the run panel's per-input selector. Still
-  // form-only (D-02b); no raw JSON. Target the appended (last) input row.
+  // TP-C4-SOLVERREFAUTHOR-001, format 0.5.0: an input that draws from a solved
+  // result authors a solver_result_ref row selector through structured
+  // controls — the one binding route (the run panel's caller selector is
+  // retired), resolved at run time on each required load case. Add a fresh
+  // input and set source_kind to solver_result: the sub-form reveals and seeds
+  // a {result_kind:"TBD", entity_ref:"TBD"} placeholder (unfilled -> blocks,
+  // never a silent pass). Still form-only (D-02b); no raw JSON. Target the
+  // appended (last) input row.
   await page.getByTestId("rule-pack-input-add").click();
   await page.getByTestId("rule-pack-input-source-kind").last().selectOption("solver_result");
   await expect(page.getByTestId("rule-pack-input-solver-ref")).toBeVisible();
   await expect(page.getByTestId("rule-pack-input-solver-ref-note")).toContainText(
-    "supersedes the run panel"
+    "On each required load case of a check"
   );
-  await page.getByTestId("rule-pack-input-solver-result-id").fill("result:stress:demo");
+  await page.getByTestId("rule-pack-input-solver-result-kind").fill("element_local_axial_normal_stress");
+  await page.getByTestId("rule-pack-input-solver-entity-ref").fill("pipe:P-100");
+  await page.getByTestId("rule-pack-input-solver-location").fill("end_i");
   const solverRefText = await page.getByTestId("rule-pack-draft-json").inputValue();
   const solverRefInputs = JSON.parse(solverRefText).required_inputs;
   expect(solverRefInputs[solverRefInputs.length - 1]).toMatchObject({
     source_kind: "solver_result",
-    solver_result_ref: { result_id: "result:stress:demo" }
+    solver_result_ref: { result_kind: "element_local_axial_normal_stress", entity_ref: "pipe:P-100", location: "end_i" }
   });
 
   // Validate routes to the desktop-only seam: the status transitions away
@@ -1586,7 +1598,9 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
   await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("value_inputs=1");
   await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("value_slots=1");
   await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("solver_selectors=1");
-  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("solver_result_refs=0");
+  // Rule-pack format 0.5.0: the demo's one solver input binds through its own
+  // pack selector (no caller selector remains), and none lacks one.
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("solver_selectors_missing=0");
   await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("private_library_refs=0");
   await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText(
     "catalog=browser_manual_text_no_fallback"
@@ -1595,9 +1609,12 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
   const packText = await page.getByTestId("rule-check-pack-json").inputValue();
   expect(JSON.parse(packText).metadata.rule_pack_id).toBe("invented_demo_rule_pack");
 
-  // solver_result input -> result-row select; user value input + value slot ->
-  // entry fields.
-  await expect(page.getByTestId("rule-check-solver-select-demo_actual_quantity")).toBeVisible();
+  // solver_result input -> its authored pack selector (the per-input caller
+  // selector is retired); user value input + value slot -> entry fields.
+  await expect(page.getByTestId("rule-check-solver-selector-demo_actual_quantity")).toContainText(
+    "result_kind=invented_demo_quantity; entity_ref=pipe:P-100"
+  );
+  await expect(page.locator('[data-testid^="rule-check-solver-select-"]')).toHaveCount(0);
   await expect(page.getByTestId("rule-check-value-input-demo_limit_quantity")).toBeVisible();
   await expect(page.getByTestId("rule-check-slot-input-demo_limit_slot")).toBeVisible();
   await expect(page.getByTestId("rule-check-value-unit-demo_limit_quantity")).toHaveValue("demo_unit");
@@ -1657,11 +1674,12 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
     "LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY"
   );
 
-  // TP-C4-SOLVERREFPICKER-001: a solver_result input with an authored
-  // solver_result_ref gets a read-only preview against the current solved
-  // envelope. In this browser smoke path no solved rows are present yet, so the
-  // preview honestly reports no_result_rows instead of inventing a binding. The
-  // resolving solved-envelope case is pinned in the component tests.
+  // TP-C4-SOLVERREFPICKER-001, format 0.5.0: a solver_result input's authored
+  // row selector gets a read-only preview against the current solved envelope,
+  // per required load case. In this browser smoke path no solved rows are
+  // present yet, so the preview honestly reports no_result_rows instead of
+  // inventing a binding. The resolving solved-envelope case is pinned in the
+  // component tests.
   const solverRefPack = JSON.stringify({
     metadata: { rule_pack_id: "solver_ref_demo" },
     required_inputs: [
@@ -1670,13 +1688,16 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
         name: "Actual stress",
         source_kind: "solver_result",
         quantity_intent: { dimension: "stress", unit_ref: "kPa" },
-        solver_result_ref: { result_id: "result:stress:pipe-P-100:end-i:axial-normal" }
+        solver_result_ref: { result_kind: "element_local_axial_normal_stress", entity_ref: "pipe:P-100", location: "end_i" }
       }
+    ],
+    required_load_cases: [
+      { required_load_case_id: "rlc_1", name: "Invented case", basis_ref: { ref_type: "load_case", ref_id: "load:L-100" } }
     ]
   });
   await page.getByTestId("rule-check-pack-json").fill(solverRefPack);
   await expect(page.getByTestId("rule-check-solver-input-actual_stress")).toContainText(
-    "supersedes the run-panel selector"
+    "Bound by the pack's selector (result_kind=element_local_axial_normal_stress; entity_ref=pipe:P-100; location=end_i)"
   );
   await page.getByTestId("rule-check-solver-preview-actual_stress").click();
   await expect(page.getByTestId("rule-check-solver-resolution-actual_stress")).toHaveAttribute(
@@ -1731,7 +1752,13 @@ test("R3 guided flow routes private library, rule-pack, solve, binding, and bloc
 
   await page.getByTestId("rule-check-load-demo").click();
   await expect(page.getByTestId("rule-check-binding-plan")).toBeVisible();
-  await expect(page.getByTestId("rule-check-solver-select-demo_actual_quantity")).toBeDisabled();
+  // No solve yet: the demo's selector binds nothing (the retired caller
+  // selector used to be disabled here); its preview says so.
+  await page.getByTestId("rule-check-solver-preview-demo_actual_quantity").click();
+  await expect(page.getByTestId("rule-check-solver-resolution-demo_actual_quantity")).toHaveAttribute(
+    "data-status",
+    "no_result_rows"
+  );
 
   await page.getByTestId("rule-check-run").click();
   await expect(page.getByTestId("rule-check-run-status")).toContainText("RULE-CHECK-BACKEND-DESKTOP-ONLY");

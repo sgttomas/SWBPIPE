@@ -814,7 +814,7 @@ impl FinalizedSourceBlockCase {
                         (pressure_exact::SectionBasis::Reduced, Some(reduced)) => reduced,
                         _ => &nominal,
                     };
-                    let row = section_basis_row(ResultItem{id:format!(
+                    let row = section_basis_row(ResultItem{component_body:None,id:format!(
                         "result:elastic-maximum:{}:{}:{}:{}",
                         input.load_case.id.len(),
                         input.load_case.id,

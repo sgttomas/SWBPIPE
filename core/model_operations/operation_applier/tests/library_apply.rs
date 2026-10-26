@@ -273,6 +273,25 @@ fn demo_components() -> Value {
     serde_json::from_str(include_str!("../../../../fixtures/product_preview/invented_demo_model.json")).unwrap()
 }
 
+/// The bundled demo with a test-local branch: the demo no longer declares the tee
+/// component:C-120 (its node N-120 joins only two pipes, BRANCH_TOPOLOGY_INVALID), so
+/// the branch family's required-member check runs on this copy of the removed record.
+fn demo_components_with_branch() -> Value {
+    let mut model = demo_components();
+    let branch = json!({"id":"component:C-120","label":"Invented branch connection marker","kind":"branch","node":"node:N-120",
+        "geometry":{"branch_header_pipe_ref":"pipe:P-120","branch_branch_pipe_ref":"pipe:P-110","branch_run_size":{"value":0.168,"unit":"m"},
+            "branch_header_size":{"value":0.168,"unit":"m"},"branch_connection_angle":{"value":1.5707963268,"unit":"rad"},
+            "branch_connection_type":"invented_unreinforced_tee_preview","branch_reinforcement_reference":"invented_user_entered_no_reinforcement_for_preview",
+            "branch_geometry_source_reference":"invented_user_entered_branch_preview_geometry"},
+        "modifiers":{"branch_header_sif_user_value":{"value":1.22,"unit":"none"},"branch_branch_sif_user_value":{"value":1.31,"unit":"none"},
+            "flexibility_factor_user_value":{"value":1.05,"unit":"none"},"source_reference":"invented_user_entered_branch_modifiers_no_code_table"},
+        "mechanics_interface":{"solver_consumption":"mechanics_geometry_only","rule_check_consumption":"user_rule_pack_inputs_only"},
+        "completeness":[{"finding_id":"finding:C-120:branch-geometry","status":"complete","diagnostic_code":"BRANCH_RULE_INPUT_MISSING","missing_field_kinds":[]}],
+        "provenance":"invented_example_user_entered_branch_values_no_code_table"});
+    model["components"].as_array_mut().unwrap().insert(1, branch);
+    model
+}
+
 #[test]
 fn component_apply_checks_family_pair_and_required_members() {
     let model = demo_components();
@@ -291,8 +310,9 @@ fn component_apply_checks_family_pair_and_required_members() {
     // Required members are never removed.
     let op = apply_intent(&model, "Component", "components", "component:C-110", &json!({"modifiers.flexibility_factor_user_value":null}));
     assert_eq!(refused(&model, &op), vec!["OP-LIBRARY-APPLY-REQUIRED-MEMBER"]);
-    let op = apply_intent(&model, "Component", "components", "component:C-120", &json!({"modifiers.flexibility_factor_user_value":null}));
-    assert_eq!(refused(&model, &op), vec!["OP-LIBRARY-APPLY-REQUIRED-MEMBER"]);
+    let branched = demo_components_with_branch();
+    let op = apply_intent(&branched, "Component", "components", "component:C-120", &json!({"modifiers.flexibility_factor_user_value":null}));
+    assert_eq!(refused(&branched, &op), vec!["OP-LIBRARY-APPLY-REQUIRED-MEMBER"]);
     // Placement references are not writable.
     let op = apply_intent(&model, "Component", "components", "component:C-130", &json!({"geometry.rigid_pipe_ref":null}));
     assert_eq!(refused(&model, &op), vec!["OP-LIBRARY-APPLY-MEMBER-INVALID"]);

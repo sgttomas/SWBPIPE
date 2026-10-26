@@ -297,8 +297,29 @@ E the census's 102 plus the twelve global end rows its pressure-source-1 fixture
 the stress-free notice's audit by its new text (W7-SF). A snapshot without W-7 adds nothing; a partly present or changed
 owner stops the run. See the governing rules' §8.20.
 
+### W-15 rigid-component scaling actual-source owners
+
+`base/w15_owners_model.py` binds, by the sha256 of W-15's two new modules (PP `rigid_component.rs`, RE
+`component_body.rs`), their exact allocating statements and the readers' call sites, the positive owners W-15 adds on
+D1, where no component is admitted (P2) and so no member is scaled: W15-PM (the eligibility predicate's and
+mapping-conflict check's member maps, two exact-size `(&str,&T)` tables of m entries, in `ordinary_caps.py`
+BuildScratch) and W15-RB (the readers' component-body check on the projected successor: the case and entry lists and
+one cloned extremum and coverage entry, in `g4_caps.py` T17 V5). `rules/o10_rules.py` zeroes the scaled-member path's
+sites by P2 under a source guard (W15-NZ), bounds the new loops (W15-L1) and texts (W15-ID); U4B-NQ's guard excludes
+the record's `STRESS_KINDS` list, a reader of the derived kinds (W15-SK). A snapshot without the modules adds nothing;
+a changed or partly present owner stops the run. See the governing rules' §8.21 and `tests/test_w15_rigid_scaling.py`.
+
+### W-15 slice b component weight
+
+Slice b's component-weight generator adds no owner on D1. Its lineage functions are reached only after
+`inspect_applied_self_weight`'s `continue`, which every admitted load takes because D1.10 refuses object provenance
+and D1.7 refuses the deterministic element form and, since slice b, a node load in the generated self-weight
+namespace. `rules/o10_rules.py` zeroes the edge into `generation_basis` and the wrench-set key site under a source
+guard (W15B-NS). The tree is coefficient-identical to §8.21's. See the governing rules' §8.22 and
+`tests/test_w15b_component_weight.py`.
+
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual
-registration additionally requires native atoms, all 70 budget evaluations,
+registration additionally requires native atoms, all 80 budget evaluations,
 reviewed inputs/layouts and independent source/pricing scrutiny.

@@ -967,6 +967,9 @@
                   },
                   "enclosure_scope": {
                     "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
+                  },
+                  "component_body": {
+                    "$ref": "#/$defs/ComponentBodyRecord"
                   }
                 }
               },
@@ -1039,6 +1042,9 @@
                   },
                   "enclosure_scope": {
                     "const": "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate"
+                  },
+                  "component_body": {
+                    "$ref": "#/$defs/ComponentBodyRecord"
                   }
                 }
               }
@@ -2069,6 +2075,9 @@
         },
         "source_annotation_ref": {
           "$ref": "results.v0.3.schema.yaml#/$defs/Reference"
+        },
+        "component_body": {
+          "$ref": "#/$defs/ComponentBodyRecord"
         }
       }
     },
@@ -2177,6 +2186,29 @@
         },
         "representation": {
           "const": "B: p(Ae - Ai) at the attachments; joint_effective_area + joint_face_cap"
+        }
+      }
+    },
+    "ComponentBodyRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "W-15 slice d (DEL-03-05 Design rigid-component-stiffness-scaling.md section 5): present only on a component body's stress row, stress extremum and maximum, and on their derivative quantities and source annotations. The row is a stress of the mapped pipe section, a reference section, not of the component body.",
+      "required": [
+        "component_ref",
+        "stiffness_scale",
+        "section_role"
+      ],
+      "properties": {
+        "component_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stiffness_scale": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "section_role": {
+          "const": "reference_pipe_section"
         }
       }
     }

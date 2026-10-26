@@ -283,6 +283,7 @@ checks:
 - apps/desktop/src/features/rule-packs/CheckDefinitionsEditor.test.tsx
 - apps/desktop/src/features/rule-packs/DeclarationsEditor.test.tsx
 - apps/desktop/src/features/rule-packs/ExpressionComposer.test.tsx
+- apps/desktop/src/features/rule-packs/RulePackManagerPanel.format.test.tsx
 - apps/desktop/src/features/library/LibraryManagerPanel.test.tsx
 - apps/desktop/src/services/libraryImportService.test.ts
 - apps/desktop/src/features/rich-authoring/richForms.test.tsx

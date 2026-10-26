@@ -757,3 +757,44 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def test_schema_is_format_0_5_0_with_categories_load_cases_and_selectors():
+    """Rule-pack format 0.5.0 (DEL-06-01 Design rule-pack-0.5.0.md §2.1-§2.5):
+    one current version, the three new required members, a required check
+    category and the row selector without result_id. The Rust validator owns
+    the cross-reference findings (§2.9); the schema owns shapes."""
+    schema = load_schema(SCHEMA_PATH)
+    example = load_example()
+    assert schema["properties"]["schema_version"]["const"] == "0.5.0"
+    assert definition(schema, "RulePackMetadata")["properties"]["schema_version"]["const"] == "0.5.0"
+    assert {"required_load_cases", "stress_categories", "load_case_mappings"} <= set(schema["required"])
+    assert "category_ref" in required_at(schema, "CheckDefinition")
+    selector = definition(schema, "SolverResultRef")
+    assert set(selector["required"]) == {"result_kind", "entity_ref"}
+    assert set(selector["properties"]) == {
+        "result_kind", "entity_ref", "location", "component", "section_basis", "tie_rod"
+    }
+    assert definition(schema, "LoadCaseBasisRef")["properties"]["ref_type"]["enum"] == ["load_case", "combination"]
+    # The invented demo pack: an invented category and the bundled demo
+    # model's two load cases; its selector names a kind no producer publishes.
+    assert [c["name"] for c in example["stress_categories"]] == ["Invented category A"]
+    assert [c["basis_ref"]["ref_id"] for c in example["required_load_cases"]] == ["load:L-100", "load:L-200"]
+    assert example["required_inputs"][0]["solver_result_ref"]["result_kind"] == "invented_demo_quantity"
+
+    validator = _validator_or_skip(schema)
+    if validator is None:
+        return
+    legacy = deepcopy(example)
+    legacy["schema_version"] = "0.4.0"
+    _assert_invalid_instance(validator, legacy, "$.schema_version")
+    legacy_selector = deepcopy(example)
+    legacy_selector["required_inputs"][0]["solver_result_ref"] = {"result_id": "result:stress:demo"}
+    _assert_invalid_instance(validator, legacy_selector, "$.required_inputs[0].solver_result_ref")
+    no_category = deepcopy(example)
+    del no_category["check_definitions"][0]["category_ref"]
+    _assert_invalid_instance(validator, no_category, "$.check_definitions[0]")
+    for member in ("required_load_cases", "stress_categories", "load_case_mappings"):
+        missing = deepcopy(example)
+        del missing[member]
+        _assert_invalid_instance(validator, missing, "$")
