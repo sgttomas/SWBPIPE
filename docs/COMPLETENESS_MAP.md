@@ -502,7 +502,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 |---|---|---|
 | W-1 | Pointer and ScopeOfWork reconciliation sweep | #1540–#1546, #1550, #1557, #1560, #1575; remaining drift in §3 |
 | W-3 | Rendered report for local private sessions, with §19.2 content | #1553 (+#1555); observed natively (§5) |
-| W-5 | Memory-pool headroom (transient free-queue dip) | #1547; the demo result-JSON save succeeded in the smoke and the probe (§5) |
+| W-5 | Memory-pool headroom (transient free-queue dip) | #1547; the demo result-JSON save succeeded in the smoke and the probe (§5); headroom counting reclaimable file-backed and purgeable pages, and the growth and take re-samples (owner, 2026-10-26), are #1636 |
 | W-8 | Pre-solve topology and near-duplicate warnings | #1559; the absolute 5 mm, model-settable tolerance and the branch warning's applied-factor statement are #1574; the desktop control that sets and resets the tolerance is branch `claude/piping-tolerance-control-20261024` |
 | W-9 | Missing benchmarks: L-frame, simply supported weight, anchor settlement | #1548; the rigid link is W-15 (#1604) |
 | W-10 | Pipe reconnect | #1563, with its declared limitation |

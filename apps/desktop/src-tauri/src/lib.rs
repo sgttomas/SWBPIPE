@@ -1896,9 +1896,10 @@ fn poll_preview_mechanics_job(
 
 /// The producer's exact result bytes as a raw response (an `ArrayBuffer` in
 /// the webview). The job's result lease grows to 2R first; the webview must
-/// call `dispose_preview_mechanics_result` once it has dropped its copy.
+/// call `dispose_preview_mechanics_result` once it has dropped its copy. Async
+/// so that the growth's re-sampling (up to 2 s) never runs on the main thread.
 #[tauri::command]
-fn take_preview_mechanics_job_result(
+async fn take_preview_mechanics_job_result(
     state: tauri::State<'_, SolveJobRegistry>,
     job_id: String,
 ) -> Result<tauri::ipc::Response, SolveJobError> {
