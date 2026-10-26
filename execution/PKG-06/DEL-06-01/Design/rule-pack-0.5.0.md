@@ -420,6 +420,36 @@ In `features/rule-packs/` (DEL-07-03; `RulePackManagerPanel.tsx`,
   declaration in `tools/hosted-ci-routing.json` is restamped; its inputs are
   unchanged.
 
+## 6c. Object form on the rule check
+
+#1650 (DEL-08-01 `report-package-current-results.md` §2.6) found that serde's
+typed decoders read a struct written as a JSON array (its positional form)
+while keyed screens skip it, and left the rule check to W-17. Probed at
+`e2f9677175`: the rule check has no such split, so the gap is not reachable
+there. `run_rule_checks` takes the pack, model, envelope, invocation and
+supplied values as `serde_json::Value` (`lib.rs` `run_rule_checks_args`; only
+`projectId` is decoded, as text). Its gates (`validate_rule_pack_document`
+with the lifecycle crate, `qualify_rule_mechanics_with_context`) and its
+engine (`rule_solver_selection`, `rule_check_runner`) read the same members
+by key, and no typed decoder reads any of them. A positional record therefore
+reads as absent to both, and each gate refuses an absent record. Positional
+arguments are refused at ingress (`INGRESS-ARGS-NOT-OBJECT`). A positional
+pack `provenance`, `classification`, `metadata`, `professional_boundary` or
+checksum record, re-stamped and carrying a blocking disposition, is refused
+before any check with `MISSING_REVIEW_STATUS`, `MISSING_REDISTRIBUTION_STATUS`,
+`MISSING_RULE_PACK_IDENTITY`, `PROFESSIONAL_BOUNDARY_VIOLATION` or
+`MISSING_CHECKSUM`. A positional required-load-case or category provenance is
+refused with `RULE_PACK_RECORD_INCOMPLETE`, and a selector with
+`RULE_SOLVER_RESULT_REF_MISSING`. A positional model project or load case, or
+an envelope status, producer, numerical quality or contract evidence, is
+refused by its `RULE_NUMERICAL_*` or `RULE_MECHANICS_NOT_SOLVED` code. A
+positional row is not bound (`RULE_INPUTS_INCOMPLETE`), and a supplied value
+is refused by name. A positional value slot reads as an undeclared slot, with
+the `RULE_PACK_LIMIT_SLOT_UNDECLARED` warning; a slot supplies only the limit's
+declared unit, and the limit is the supplied value. The regressions, decoded
+and raw IPC, are in `src-tauri/src/rule_check_object_form_tests.rs`. They do
+not depend on #1650's validator.
+
 ## 7. Review findings resolved
 
 The Codex design review of `b1d55e38ea` found these; the design above resolves

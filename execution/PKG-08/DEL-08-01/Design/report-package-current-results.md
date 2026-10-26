@@ -1025,23 +1025,16 @@ with no list of paths to keep in step, and it builds no serialized copy.
   accepted libraries that the handoff later screens, refuses a positional
   library provenance as `REJECTED` (probed). Export Result JSON writes the
   webview's bytes with no native screen or decode. The rule check (W-17) runs
-  no disposition or context screen; whether a positional member can pass its
-  keyed mechanics qualification while its engine decodes the envelope with
-  serde is not probed here and is left to its owner.
-- **Remaining item: the stored-model recovery export** (Codex review round 1
-  of #1650). It writes the stored text verbatim after the keyed screen, and
-  that screen visits only object-valued provenance records
-  (`export_disposition_screen.rs:275`, caller
-  `stored_model_document_export.rs:955`). A malformed or historical stored row
-  whose `provenance_record` is an array (for example
-  `["Invented source","","","","","private_only","quarantined"]`) reached the
-  picker and saved; its object form refuses as `PROTECTED_CONTENT_BLOCKED`.
-  Current persistence rejects such a row, so this needs a stored row written
-  before the project save's document check or written outside it. It is a
-  pre-existing gap that does not share this validator, since recovery does no
-  typed decode. The fix is for recovery to reject a malformed screened-metadata
-  shape while still recovering unrelated defects. It is recorded as a remaining
-  item under the owner's finishing ruling of 2026-10-26.
+  no disposition or context screen. #1651 probed it: no typed decode reads its
+  inputs, so a positional record reads as missing to its gates and engine
+  alike and is refused (DEL-06-01 `rule-pack-0.5.0.md` §6c).
+- **The stored-model recovery export** (Codex review round 1 of #1650). Its
+  keyed screen visited only object-valued provenance records, so a stored row
+  whose `provenance_record` was an array saved. #1651 closed this in the shared
+  screen (`export_disposition_screen.rs`): such a record now refuses as
+  `MODEL-DISPOSITION-RECORD-MALFORMED`, while unrelated defects still recover
+  (DEL-15-01 `canonical-model-export.md`, "Disposition screening"; DEL-02-02
+  `project-unit-selection.md` §3).
 - **Constraint on the check** (Codex review round 1 of #1650). The comparing
   walk looks fields up by their serialization names. A field that decodes
   under a different name (`#[serde(alias = …)]`, `rename_all` that differs
