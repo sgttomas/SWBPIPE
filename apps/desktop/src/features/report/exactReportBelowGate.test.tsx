@@ -90,7 +90,7 @@ type Shape = { name: string; mode: "sparse_interactive" | "dense_scrutiny"; rawP
 /** The committed exact inputs a desktop session can solve (a request model and the raw
  * bytes its producer wrote): pressure-2 straight (X0, the straight corpus's input),
  * pressure-2 with load/reference states (Y0), pressure-2 with an objective connector
- * (U3-SYS-DEMO-CONNECTOR-001, the connector corpus's input) and with a realized bend
+ * (T4-U5b AS-F, the connector corpus's pressurized tied joint) and with a realized bend
  * (U2-L-ANCH-PTW-K2 0.3.0, the arc corpus's input), whose re-authored requests and
  * worker bytes `core/product_physics/tests/exact_route_limitations.rs` writes
  * (`exact_report_witness_inputs_are_current`), and pressure-source-1 (n05). */

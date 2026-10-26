@@ -628,9 +628,11 @@ Each consumer checks the binding as far as its inputs reach:
 - in a package, the bindings re-derive it from the source and its document
   (§3.5).
 
-A pressure-free report has no `exact_route` and no standing line. The
-numerical-health lines the builder already adds on the generic route
-(`renderableReportInput.ts:672-678`, which includes pressure-2) are unchanged.
+A pressure-free report has no `exact_route` and no standing line. On a
+pressure-free report, the numerical-health lines the builder already adds on the
+generic route (`renderableReportInput.ts:672-678`) are unchanged. An exact
+report carries no numerical-health line, whatever the panel supplies (§5.2,
+§6.1).
 
 **Load/reference line.** `loadReferenceDisclosure.tsx` gains the surface
 `"rendered-report"` with the tail "Their published limitations are listed under
@@ -1405,10 +1407,12 @@ committed exact corpora below the gate.
   (§7). The same vitest checks that `buildReportPackageRequest` refuses each
   witness input.
   - **The substitute.** The same vitest also writes
-    `pressure_2_straight_substitute.json`. It is built by the same builders
-    from a copy of the pressure-2 straight source with one row value changed,
-    so that every hash in the document, report and handoff records is
-    rebound. It keeps the genuine request's `native_job_id` and
+    `pressure_2_straight_substitute.overlay.json`, leaf replacements over the
+    pressure-2 straight witness request that the tests apply (`leafOverlay`),
+    and checks that the overlay reproduces exactly the substitute rebuilt by
+    the same builders from a copy of the pressure-2 straight source with one
+    row value changed, so that every hash in the document, report and handoff
+    records is rebound. It keeps the genuine request's `native_job_id` and
     `received_bytes_sha256` (§7).
 - **No rule-check run.** The witness inputs carry no rule-check run
   (`userRuleChecks` absent and no aggregate), so no W-11 fixture holds
