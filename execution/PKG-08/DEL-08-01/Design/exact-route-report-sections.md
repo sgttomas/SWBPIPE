@@ -48,6 +48,15 @@ every route. Standard claim fence applies (claims taxonomy per DEC-081).
   data contracts, not prose. The PRD §19.3 notice is the report's composite
   anchor (§3) and is unchanged.
 - **DEC-028:** one package version; the reader refuses others by name.
+- **Ruling on #1639 (owner, 2026-10-26):** "C1 b, C2 a". C1 (b): in a
+  local-private report only, a provenance record whose redistribution, review
+  or privacy status is `unknown` or `TBD` renders with a non-blocking warning
+  in the warnings section that names the record and the unresolved field and
+  says the source's status is not recorded; in every other context (a public
+  report, an absent context, and any later shared context such as W-18b's
+  user-released report) it stays report-blocking. C2 (a): text the user
+  authored in a record, a path typed in `source_location` included, stays as
+  written in local-private outputs; no other context carries these records.
 
 ## 1. Where things stand
 
@@ -1166,16 +1175,21 @@ shows `review_status`. The other fields drive the screener (§4.3).
 
 ### 4.3 Disposition
 
-The redaction screener blocks a record with `protected_suspected`,
-`quarantined` or `rejected` in every context
-(`redaction-controls/redactionExportControls.ts:439-444`), as for every report.
-`private_only` and `unknown` records render in a local-private report. A
-concrete path in a `source_location` is redacted (`:438`), which the lossless
-route then refuses; that is the existing rule.
-
-As built (slice (c), §6.2), the render route enforces these blocks in the
-renderer, and `unknown` records are refused there too; the path rule is the
-screener's key-based one.
+A record with `protected_suspected`, `quarantined` or `rejected` is refused in
+every context, as the package save refuses the model that carries it. A
+structured source (a `provenance_record`, or an object- or array-valued note)
+keeps the blocking dispositions it holds at any depth, and a malformed
+disposition member refuses the build. Private records (`private_only` and every
+other non-public class) render only in a local-private report. A record whose
+redistribution, review or privacy status is `unknown` or `TBD` renders in a
+local-private report with a non-blocking warning naming the record and the
+field, and blocks in every other context (ruling "C1 b", §0). No redaction
+applies to authored record text: the webview screener's concrete-path rule
+(`redaction-controls/redactionExportControls.ts:438`) judges key names only
+(`CONCRETE_PATH_DETAIL_KEYS`) and never reads a `source_location` value, so
+source text the user authored, a typed path included, stays as written in the
+local-private report and package and reaches no other output (ruling "C2 a",
+§0). §6.2 states where each rule is enforced.
 
 ### 4.4 What changes on the open pressure-free route
 
@@ -1452,9 +1466,11 @@ Slice (b) follows §3.1-§3.6 and §5.5 with these differences, each fail-closed
 ### 6.2 Slice (c) as built
 
 Slice (c) follows §4 with these differences, each fail-closed:
-- **The render route's disposition blocks are the renderer's.** The webview screener's rule (`redactionExportControls.ts:438-444`) never sees a report record's statuses on DREP-IPC-003: the route projection (`controlRouteExport`, `projectRouteValue`) turns every record into opaque leaves classified by path, so a `quarantined`, `rejected` or `protected_suspected` record passes the local-private control (`renderedReport.test.tsx`, "carries each record's disposition verbatim"). Before this slice no report record carried a status other than `pending`. The renderer therefore refuses export for a report-section record or user-supplied value whose `review_status` is `quarantined` or `rejected`, and for a library reference's record with those statuses or `protected_suspected` (`report_renderer` `provenance_disposition_blocking_reasons`, `REPORT_PROVENANCE_DISPOSITION_BLOCKED`; the blocking values are the package save's `SCREENED_MEMBERS`). A report-section record with `protected_suspected` was already refused by the section validation (`REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED`). The refusal covers the HTML, its print view, the PDF and the package's rendered members, in every export context; a refused render shows no preview, save or print. The package save also refuses these records first, in its structural screen of the request and the model (`report_package_save.rs`).
-- **`unknown` records render nowhere.** A record whose `redistribution_status` is `unknown`, including one that records none (§4.1 maps absent to `unknown`), is refused by the existing section validation (`REPORT_SECTION_PROVENANCE_UNRESOLVED`, `report_sections/src/lib.rs:655-666`), so it blocks the local-private render and the package (`REPORT-PACKAGE-PRODUCER-BLOCKED`). §4.3's "render in a local-private report" does not hold for `unknown`; no check is relaxed. The user sets the record's redistribution status to render.
-- **Concrete paths.** The screener's concrete-path rule (`:438`) is key-based (`CONCRETE_PATH_DETAIL_KEYS`); it never reads a `source_location` value. A path written in a record's `source_location` therefore reaches a local-private report and package as the component note's text already does, and as the model document save writes it. No value-level path rule is added; one would be a new design decision.
+- **The render route's disposition blocks are the renderer's.** The webview screener's rule (`redactionExportControls.ts:438-444`) never sees a report record's statuses on DREP-IPC-003: the route projection (`controlRouteExport`, `projectRouteValue`) turns every record into opaque leaves classified by path, so a `quarantined`, `rejected` or `protected_suspected` record passes the local-private control (`renderedReport.test.tsx`, "carries each record's disposition verbatim"). Before this slice no report record carried a status other than `pending`. The renderer therefore refuses export (`report_renderer` `provenance_disposition_blocking_reasons`; the blocking values are the package save's `SCREENED_MEMBERS`) for: a report-section record, a user-supplied value or an assumption whose own `review_status` is `quarantined` or `rejected` (`REPORT_PROVENANCE_DISPOSITION_BLOCKED`); and a library reference's record with those statuses or failing the section validation's own provenance rules, incomplete or `protected_suspected`, and outside local-private also `unknown` or `TBD` (`report_sections::validate_provenance_record`, judged in the report's context as below). A report-section record with `protected_suspected` was already refused by the section validation (`REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED`). Each reason names the value (`<kind>-provenance:<entity id>`), assumption or library owners and the member, and says to review that record's disposition in the model. The refusal covers the HTML, its print view, the PDF and the package's rendered members, in every export context; a refused render shows no preview, save or print. The package save also refuses these records first, in its structural screen of the request and the model (`report_package_save.rs`).
+- **Structured sources are screened before they are flattened** (Codex review round 1 of #1639). An object-valued section note is written into the record's `source_location` as RFC 8785 text, and a mapped `provenance_record` copies only its seven text fields, so a disposition inside either would otherwise be lost while the package save, which screens the model at every depth, refuses it. The builder screens each `provenance_record` and each non-string note at every depth with the package save's `SCREENED_MEMBERS` (`renderableReportInput.ts` `screenDispositions`, `withSourceDispositions`): a `quarantined` or `rejected` value anywhere becomes the record's `review_status`, `protected_suspected` anywhere its `redistribution_status`, so the renderer refuses it; a disposition member whose value is an array or object refuses the build with `REPORT-PROVENANCE-DISPOSITION-MALFORMED`, naming the entity and member, as the package save refuses it as malformed. A top-level `redistribution_status` of `rejected` is copied, and the renderer's input refuses it (`RENDER-INPUT-INVALID`) as the package's report decode does.
+- **Private records render only under `local_private`** (same review). A direct call of the native render command bypasses the webview's context control, so the renderer refuses any report record whose privacy class or redistribution status is not public when the report's export context is absent or not `local_private` (`REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE`; `report_render_exact_tests.rs` `the_native_render_refuses_private_records_outside_local_private`). Invented public fixtures still render without a context.
+- **Unresolved records warn in local-private only** (ruling "C1 b", §0). The section validation takes the report's context (`report_sections::ProvenanceContext`, `validate_report_sections_in`; the renderer derives it from `report_context.export_context`, `provenance_context`). Under `local_private` a record whose redistribution status is `unknown` or `TBD`, or whose review or privacy status is `TBD`, gives a non-blocking `REPORT_SECTION_PROVENANCE_UNRESOLVED` warning, class `PROVENANCE_WARNING`, which the renderer appends to the warnings section's Diagnostics table (`unresolved_provenance_warnings`): it names the record (`user_supplied_value <value id>`, `provenance <source name>` or the library reference and its owners) and each unresolved field, and says the source's status is not recorded. In every other context, a public report, an absent context and any later shared context, the same record stays report-blocking; `validate_report_sections` without a context is that strict form, so no caller gets the relaxation without the local-private context. The package renders its members under `local_private` (its bindings refuse any other context), so a local-private package shows the same warning. Which records are unresolved: a structured `provenance_record` (on a material, section, component or support) that records no redistribution status maps to `unknown` (§4.1), whatever the entity kind; a legacy `provenance` note without a record keeps the `private_only` fallback. Both the record editor's "Not recorded" choice (`ModelDataAnnotations.tsx:154,161`) and a library apply over values whose previous provenance is missing (`libraryApply.ts:202-212`, which records `unknown`) produce such a record. `quarantined`, `rejected` and `protected_suspected` still block in every context.
+- **Concrete paths.** The screener's concrete-path rule (`:438`) judges key names only (`CONCRETE_PATH_DETAIL_KEYS`); it never reads a `source_location` value. Source text the user authored in a record or note, a path included, therefore stays as written in a local-private report and package, as the component note's text already does and as the model document save writes it (ruling "C2 a", §0). No value-level path rule is added. No other output carries the records: the webview's public render is blocked before IPC, the report packet carries none, and the native render refuses private record content outside `local_private` (`a_typed_path_stays_local`, `the_native_render_refuses_private_records_outside_local_private`, `renderedReport.test.tsx` "keeps a typed source_location path as written locally").
 - **The predicate on an object-valued note.** A section whose `provenance` is an object has provenance only when the object has a member; `{}` is "section provenance missing" and a missing-data finding.
 - **Absent members.** Every mapped record member is copied trimmed and only when non-empty after trimming. A library reference's absent or empty kind or library id is "not recorded", like its version and record id.
 - **No support diagnostic.** §4.1 names component, material and section diagnostics only; a support record without provenance carries its missing-data flag and no diagnostic.
@@ -1765,11 +1781,12 @@ These are existing gaps. Each is separate from W-11 and from the others.
 
 Each Old text below occurs exactly once in its file at the basis head (Python
 `count == 1`), starting on the line given. They go through HELP_HUMAN and the
-owner's wording route before they are applied.
+owner's wording route before they are applied. The A.1 texts are applied, each
+in the slice and PR marked on it; the A.2 texts are not.
 
-### A.1 Texts the implementation changes behind the gate (not applied)
+### A.1 Texts the implementation changes behind the gate (applied)
 
-**G1. DEL-08-01 ScopeOfWork :81** (current-implementation paragraph; provenance clause; slice (c); `execution/PKG-08/DEL-08-01/ScopeOfWork.md`)
+**G1. DEL-08-01 ScopeOfWork :81** (current-implementation paragraph; provenance clause; slice (c); `execution/PKG-08/DEL-08-01/ScopeOfWork.md`; applied in slice (c), #1639)
 
 Old:
 
@@ -1783,7 +1800,7 @@ New:
 the result coordinate system, or states "not recorded"; it also records the provenance of materials, sections, components and supports and the model's library references, with the library store's findings on them (FR-REP-003);
 ```
 
-**G2. DEL-08-01 ScopeOfWork :81** (current-implementation paragraph; rendered-report clause; slice (b); `execution/PKG-08/DEL-08-01/ScopeOfWork.md`)
+**G2. DEL-08-01 ScopeOfWork :81** (current-implementation paragraph; rendered-report clause; slice (b); `execution/PKG-08/DEL-08-01/ScopeOfWork.md`; applied in slice (b), #1637)
 
 Old:
 
@@ -1797,7 +1814,7 @@ New:
 exact-route results are refused for the rendered report by its output-policy cell (`surfaceOutputRefusal` on `rendered-report`) and, natively, by the render's identity check (`REPORT-RENDER-ROUTE-NOT-ADMITTED`; owner ruling 10A, 2026-10-21), and their sections (DEL-08-01 Design `exact-route-report-sections.md`) are built behind those refusals;
 ```
 
-**G3. DEL-08-03 ScopeOfWork :99** (current-implementation paragraph; slice (c); `execution/PKG-08/DEL-08-03/ScopeOfWork.md`)
+**G3. DEL-08-03 ScopeOfWork :99** (current-implementation paragraph; slice (c); `execution/PKG-08/DEL-08-03/ScopeOfWork.md`; applied in slice (c), #1639)
 
 Old:
 
@@ -1811,7 +1828,7 @@ New:
 supplies the result diagnostics, a session provenance record classified `private_project_data` / `private_only`, the component and spring-hanger records, a record for each material and section and for each support that carries a `provenance_record` (from that record where present, else from the entity's `provenance` note; a component's record is likewise taken from its `provenance_record` where present), and the model's library references, with the library store's `MODEL-LIBRARY-REF-UNRESOLVED` and `MODEL-LIBRARY-REF-VERSION-CHANGED` findings as provenance warnings;
 ```
 
-**G4. User guide `docs/user_guide/index.md` :400** (§10, last sentence of the first paragraph; slice (c); `docs/user_guide/index.md`)
+**G4. User guide `docs/user_guide/index.md` :400** (§10, last sentence of the first paragraph; slice (c); `docs/user_guide/index.md`; applied in slice (c), #1639)
 
 Old:
 
@@ -1825,7 +1842,7 @@ New:
 it also records the provenance of materials, sections, components and supports and lists the library records the model references, with the library store's findings on them.
 ```
 
-**G5. DEL-04-07 Design `desktop-exact-outputs.md` §4.5 :209** (second sub-bullet of the first bullet; slice (b); `execution/PKG-04/DEL-04-07/Design/desktop-exact-outputs.md`)
+**G5. DEL-04-07 Design `desktop-exact-outputs.md` §4.5 :209** (second sub-bullet of the first bullet; slice (b); `execution/PKG-04/DEL-04-07/Design/desktop-exact-outputs.md`; applied in slice (b), #1637)
 
 Old:
 
