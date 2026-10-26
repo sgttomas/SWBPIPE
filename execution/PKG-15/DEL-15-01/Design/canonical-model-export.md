@@ -184,9 +184,13 @@ on either route. It needs no solve and no result.
       record, for example `material_records[0].deep.provenance`, or one in a
       record the model does not reference, was admitted on `d28869c09f`.
       The rule also applies where else `malformed_values` runs: the report
-      package's request and model, and stored rule packs. A readable
-      blocking status elsewhere in the library still takes precedence
-      (`PROTECTED_CONTENT_BLOCKED`). Regression: `handoff_package.rs`
+      package's request and model, and stored rule packs. Precedence: when
+      the shared screen refuses a judged record (the library object, a
+      matching record or a judged hanger object) for a readable blocking
+      status, Handoff stops with `PROTECTED_CONTENT_BLOCKED` alone. A
+      blocking status that only the structural screen finds is reported
+      together with that screen's malformed findings, so both codes appear
+      (#1651 Codex r3). Regression: `handoff_package.rs`
       `r2_a_positional_provenance_anywhere_in_a_stored_library_is_refused`.
 
     Other stored disposition members, such as an object-valued
