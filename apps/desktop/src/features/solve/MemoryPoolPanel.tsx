@@ -146,7 +146,7 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
           <PoolLine
             label="Budgets above the default"
             testId="memory-pool-budget-larger"
-            value="each ordinary solve runs in a worker process held to the budget, so a larger budget admits larger ordinary solves; it does not reserve memory in advance, and a solve whose memory is not free when it needs it is still refused"
+            value="each ordinary solve runs in a worker process held to the budget, so a larger budget admits larger ordinary solves; it does not reserve memory in advance, and a solve whose next step does not fit the available memory macOS reports throughout a 2 s re-sampling window is still refused"
           />
           <PoolLine
             label="What the budget bounds"

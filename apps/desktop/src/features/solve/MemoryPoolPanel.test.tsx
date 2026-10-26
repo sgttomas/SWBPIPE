@@ -63,7 +63,7 @@ describe("the memory pool panel", () => {
     await screen.findByTestId("memory-pool-status");
     expect(invokeMock).toHaveBeenCalledWith("get_memory_pool_status");
     expect(line("memory-pool-budget")).toBe("12 GiB (default 12 GiB; any budget up to 48 GiB, the pool size, can be selected)");
-    expect(line("memory-pool-budget-larger")).toBe("each ordinary solve runs in a worker process held to the budget, so a larger budget admits larger ordinary solves; it does not reserve memory in advance, and a solve whose memory is not free when it needs it is still refused");
+    expect(line("memory-pool-budget-larger")).toBe("each ordinary solve runs in a worker process held to the budget, so a larger budget admits larger ordinary solves; it does not reserve memory in advance, and a solve whose next step does not fit the available memory macOS reports throughout a 2 s re-sampling window is still refused");
     // Interactive requests are admitted by pool, available memory and budget, not refused for macOS memory pressure.
     expect(line("memory-pool-interactive")).toBe("each request is admitted by the pool, available memory and the budget; unlike a solve, it is not refused because macOS reports memory pressure");
     expect(screen.getByTestId("memory-pool-panel").textContent).not.toMatch(/qualif/i);
