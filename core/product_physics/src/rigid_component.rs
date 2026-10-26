@@ -692,12 +692,14 @@ fn offset_measure(x_n: V3, x_f: V3, axis: (V3, f64), offset: V3) -> OffsetMeasur
 /// not transverse, mismatch); then the larger axial offset share, axial length
 /// and allowance; and last the axis and transverse vectors each multiplied by
 /// the sign of D's first nonzero component, compared component by component.
-/// Every key is unchanged when the ends' names are swapped (D, t, D⊥ and, under
-/// the other convention, e negate exactly), so the outcome does not depend on
-/// which end is N. Signed zeros are the one exception IEEE negation leaves (a
-/// D·t of −0 at one naming is +0 at the other), so on this path every key and
-/// every reported quantity is canonicalised to +0 (x + 0.0). Keys that compare
-/// equal throughout then give literally identical outcomes.
+/// The outcome and its reported text do not depend on which end is N. Whenever
+/// D·t > 0 every key is also literally unchanged when the ends' names are
+/// swapped (D, t, D⊥ and, under the other convention, e negate exactly);
+/// signed zeros are the one exception IEEE negation leaves there (a D·t of −0
+/// at one naming is +0 at the other), so on this path every key and every
+/// reported quantity is canonicalised to +0 (x + 0.0). When D·t = 0
+/// (`no_axial_length`) the axis is not oriented by D and an internal key can
+/// differ under the swap, while the outcome and its text do not.
 pub(crate) fn judge_run(x_n: V3, x_f: V3, axis: RunAxis, offset: V3, tolerance: f64) -> OffsetOutcome {
     match axis {
         RunAxis::One(u, beta) => judge_offset(x_n, x_f, (u, beta), offset, tolerance),
