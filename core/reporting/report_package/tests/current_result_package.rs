@@ -1031,12 +1031,15 @@ fn round3_rendered_rule_pack_checksum_must_name_the_pack_type() {
 /// package bytes are unchanged for every current input. The base commit's
 /// container and package-identity hashes, captured on main without W-11
 /// (`aed4de9fbd`; equal to the `3a104e1e71` capture), of the committed runner
-/// witness and its desktop-profile basis.
+/// witness and its desktop-profile basis. W-16 slice a re-pinned all four: the
+/// DEL-10-05 witness basis and its preview result carry PF's LIMITATIONS[1], which
+/// drops its 69-byte support-displacement clause, with the hashes binding it (was
+/// 351f041b…/91575116… and aa96dee4…/8fbfe6bb…); the report crates are unchanged.
 #[test]
 fn current_requests_assemble_the_same_bytes_as_before_the_exact_sections() {
     for (request, container, identity) in [
-        (runner(), "351f041be0a9c1a446b2ad46575ddfd6438703f0eda6c1ad2a50e8b1ceca1c6a", "915751165e4389276d0b68ea25e10a4bf7c954f2e3131d1dfadeb8ae8053a50c"),
-        (desktop(), "aa96dee4cffbb162b40cfe2bfbdebec8d24822d4d4d72ae05151b99a96edd1c4", "8fbfe6bbb108525ba942ee28c78e4eb2c318aed93329683cb3fabf1cc31628bb"),
+        (runner(), "b1f0eaaea6c1987366e2dfa9066125e2ba14ecee2611be945b56a995388957df", "12618f502ae0e541495347f9c7014c7eaee0b570c020a76c912b9e3fce39f8c4"),
+        (desktop(), "0c939ae9d07add6678a265d1aeb538b6fa284677744164c3c399de7fe0908292", "99e34b89f6fce79545cf36aaf9516abcd2a54f42d57633c3de28979f1d79519a"),
     ] {
         let outcome = unblocked(&request);
         assert_eq!(outcome.container_sha256_hex, container);
