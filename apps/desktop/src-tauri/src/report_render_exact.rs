@@ -53,6 +53,13 @@ pub(crate) const EXACT_IDENTITIES: [&str; 3] = [PRESSURE_ID, PRESSURE_SOURCE_ID,
 
 pub(crate) const RENDER_ROUTE_NOT_ADMITTED: &str = "REPORT-RENDER-ROUTE-NOT-ADMITTED";
 
+/// A render input with a struct, at any depth, in positional (JSON array)
+/// form (found in Codex review rounds 2 and 3 of #1648). The renderer's
+/// decode reads it by field order, while step 0 and the source binding read
+/// members by key; the command refuses it before either. The webview always
+/// sends objects.
+pub(crate) const RENDER_INPUT_POSITIONAL: &str = "REPORT-RENDER-INPUT-POSITIONAL";
+
 /// The exact identities step 0 admits.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct RenderAdmittedSet(&'static [&'static str]);
@@ -81,6 +88,7 @@ pub(crate) fn render_calculation_report_args_in(
     admitted: RenderAdmittedSet,
 ) -> Result<Value, CommandError> {
     let input = args.value("input")?;
+    check_object_form(&input).map_err(CommandError::Command)?;
     check_render_route_admitted(&input, admitted).map_err(CommandError::Command)?;
     let texts = ExactRenderTexts {
         result: args.decode("exactResultText")?,
@@ -95,6 +103,21 @@ pub(crate) fn render_calculation_report_args_in(
     }
     drop(texts);
     crate::render_calculation_report_value(input).map_err(CommandError::Command)
+}
+
+/// Object form: no struct, at any depth, is in positional (JSON array) form.
+/// The renderer's decode reads a positional struct by field order, while
+/// step 0 and the source binding read members by key, so the command refuses
+/// one before either, naming the fixed path only (no body or print view, the
+/// lease not grown). The check is the shared
+/// `report_renderer::object_form` comparison of the decoded input with its
+/// JSON: collections and tuples are arrays on both sides and pass. An input
+/// that does not decode passes here and is refused by the render's decode.
+pub(crate) fn check_object_form(input: &Value) -> Result<(), String> {
+    match open_pipe_stress_report_renderer::object_form::report_positional_struct_path(input) {
+        Some(path) => Err(format!("{RENDER_INPUT_POSITIONAL}: the render input writes a struct in positional (array) form at {path}.")),
+        None => Ok(()),
+    }
 }
 
 /// The texts an exact render resubmits (§3.6); none for any other input.

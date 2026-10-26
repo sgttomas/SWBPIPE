@@ -958,6 +958,111 @@ native hold, local to the desktop command:
   `canonicalJsonString(inputManifest.manifest)`;
 - the invocation then sends them under the session's `stillCurrent` guard.
 
+**Object form (as built after Codex review round 3 of #1648; live on the
+pressure-free route before this change).** serde, and the renderer's
+value-free decode, read a struct written as a JSON array by field order (its
+positional form), while the save's disposition screen (which judges objects
+by their own disposition members), its context checks, its exact detection
+and the render's step 0 read members by key. A provenance record written
+positionally therefore hid a `quarantined`, `rejected` or
+`protected_suspected` disposition from the screen while the renderer read it,
+and an unblocked package was saved (for example
+`report.calculation_report.model_input_summary.provenance` as the array of its
+eight members). One shared check closes the class: `report_renderer::object_form`
+`positional_struct_path` decodes the value with its typed decoder, by
+reference, serializes the decoded value through a comparing serializer and
+walks the original JSON beside it; wherever the decoded value serializes a
+struct, struct variant or map and the original holds an array, it reports the
+fixed path (field and variant names and indexes; a map entry is `<key>`, so no
+input text is echoed). Collections and tuples are sequences on both sides and
+pass. It follows the decoder exactly, nested and defaulted structs included,
+with no list of paths to keep in step, and it builds no serialized copy.
+- **The native save** runs it right after the canonical parse of the request
+  text, before the exact detection, the source binding, the disposition screen
+  and the context checks (`report_package_save.rs` `check_request_object_form`,
+  `REPORT-PACKAGE-SAVE-REQUEST-POSITIONAL`, path `/request`, the message naming
+  the struct's fixed path), through `wire::request_positional_struct_path`: a
+  positional request, and the typed members (`source_model_ref`,
+  `source_basis_refs`, `audit_manifest`) and the report (as the renderer's
+  input), each compared with its JSON. The untyped members (result documents,
+  source results, handoff records) have no struct decoder and are read by key
+  everywhere; the reader validates the result member against the 0.3.0
+  schema, which admits objects only. The ingress pricing of a positional text
+  is unchanged (`report_package_region_pricing_covers_adversarial_requests`);
+  only its admission refuses.
+- **The native render** runs it on the input before step 0
+  (`report_render_exact.rs` `check_object_form`, `REPORT-RENDER-INPUT-POSITIONAL`;
+  no body or print view, the lease not grown). Step 0 itself still allocates
+  nothing, but the command now decodes the input by reference before it
+  (DEL-08-01 Design `exact-route-report-sections.md` §3.6 step 0), so the
+  step-0 refusal tests bound the command's peak by the check's own peak plus
+  a quarter of the result text: the resubmitted texts are still not parsed.
+- **The shared producer** runs it on the report after item 0 and before the
+  audit conversion and the bindings (`wire::assemble_wire_request_in`,
+  `REPORT-PACKAGE-REQUEST-POSITIONAL`), so the headless runner's package path
+  refuses a positional report struct too (`object_form_cli.rs`).
+- An input that does not decode passes the check and is refused by the
+  decode, so nothing is produced from it.
+- **Pricing (DEL-04-07).** The check's by-reference decode is a copy of the
+  report's data held only during the check, priced within the existing
+  leases: on the pressure-free witness the whole render command peaks at
+  1,181,440 bytes within its 1,367,168-byte ingress lease and the whole save
+  admission at 11,762,688 bytes within its 29,998,576-byte lease (the parse
+  lease with its W M provision), each less the buffered body's envelope; the
+  check alone peaks at 180,848 bytes. Counting-allocator figures for this
+  input, not proven bounds (`object_form_tests.rs`
+  `the_object_form_check_is_priced_within_the_existing_leases`).
+- **Other native commands audited for the same split** (a keyed screen over a
+  `Value` that a serde decoder reads positionally): Save Model Document (W-6a)
+  and Save Handoff (W-6b, through the same admission) apply the model
+  document validator and the shape check before the screen, and they refuse a
+  positional provenance record (`MODEL-PROVENANCE-RECORD-INVALID`), a
+  positional material, section, support, component or project
+  (`MODEL-FILE-SHAPE`) and a positional rule-pack reference
+  (`MODEL-SLOT-SHAPE`) (probed); the local library import, which stores only
+  accepted libraries that the handoff later screens, refuses a positional
+  library provenance as `REJECTED` (probed). Export Result JSON writes the
+  webview's bytes with no native screen or decode. The rule check (W-17) runs
+  no disposition or context screen; whether a positional member can pass its
+  keyed mechanics qualification while its engine decodes the envelope with
+  serde is not probed here and is left to its owner.
+- **Remaining item: the stored-model recovery export** (Codex review round 1
+  of #1650). It writes the stored text verbatim after the keyed screen, and
+  that screen visits only object-valued provenance records
+  (`export_disposition_screen.rs:275`, caller
+  `stored_model_document_export.rs:955`). A malformed or historical stored row
+  whose `provenance_record` is an array (for example
+  `["Invented source","","","","","private_only","quarantined"]`) reached the
+  picker and saved; its object form refuses as `PROTECTED_CONTENT_BLOCKED`.
+  Current persistence rejects such a row, so this needs a stored row written
+  before the project save's document check or written outside it. It is a
+  pre-existing gap that does not share this validator, since recovery does no
+  typed decode. The fix is for recovery to reject a malformed screened-metadata
+  shape while still recovering unrelated defects. It is recorded as a remaining
+  item under the owner's finishing ruling of 2026-10-26.
+- **Constraint on the check** (Codex review round 1 of #1650). The comparing
+  walk looks fields up by their serialization names. A field that decodes
+  under a different name (`#[serde(alias = …)]`, `rename_all` that differs
+  between directions) would be compared under its serialized name and could be
+  missed. No report or wire type uses one today. A change that adds one must
+  extend the check or enforce object form during deserialization, and the
+  `object_form` tests must cover it.
+- **Headless scope.** The headless runner decodes the request's typed members
+  (`source_model_ref`, `source_basis_refs`, `audit_manifest`) before its own
+  checks, and those are values, not screened records. The shared producer's
+  guard (`wire.rs:379`) covers the raw report, where every screened record
+  sits.
+- Regressions (pressure-free route, decoded args and raw IPC, render and
+  save): `object_form_tests.rs` (quarantined, rejected and protected-suspected
+  positional records at ten depths: the calculation report's, its model
+  summary's, a load case's, a result-export, audit and section reference's, a
+  diagnostic's, the report sections' notes and limitations, and a library
+  reference's; a positional request, report or typed member; the
+  legitimate-arrays control; the pricing), `report_renderer/tests/object_form.rs`,
+  `report_package/tests/current_result_package.rs`
+  `a_positional_report_struct_refuses_the_shared_producer`, and the headless
+  `object_form_cli.rs`.
+
 ### 2.7 The headless runner (shared producer consumer)
 
 - **Request.** `export_results` carries the §2.3 request. The runner's
