@@ -1240,21 +1240,41 @@ fn the_desktop_records_validate_and_refuse_only_their_blocking_dispositions() {
     assert!(render_calculation_report(&public).blocking_reasons.iter().any(|reason| reason.contains(REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE)));
 }
 
-/// Owner ruling on #1639 ("C1 b, C2 a", owner, 2026-10-26): a user-typed path
-/// in a record's `source_location` is shown as written in a local-private
-/// report, and a direct native render under `public_report` or without a
-/// context refuses the record, so the document reaches no sink.
+/// Owner ruling on #1639 ("C1 b, C2 a", owner, 2026-10-26) and Codex review
+/// round 2: a user-typed path in a record's `source_location` is shown as
+/// written in a local-private report. A render refused for its provenance
+/// records (under `public_report`, without a context, or for a blocking
+/// disposition in any context) is metadata-only: no field of the outcome,
+/// nor of the PDF emission, carries the record's text or the path.
 #[test]
 fn a_typed_path_stays_local() {
-    let path = "/Users/invented-user/datasheets/steel-a.pdf";
-    let mut record = private_record(sections::ReviewStatus::Pending, sections::RedistributionStatus::PrivateOnly);
-    record.source_location = path.to_string();
-    let local = render_calculation_report(&with_material_record(record.clone(), Some(ReportExportContext::LocalPrivate)));
-    assert!(!local.export_blocked, "{:?}", local.blocking_reasons);
-    assert!(local.html.contains(&format!("<td>{path}</td>")));
-    for context in [Some(ReportExportContext::PublicReport), None] {
-        let refused = render_calculation_report(&with_material_record(record.clone(), context));
-        assert!(refused.export_blocked, "{context:?}");
-        assert!(refused.blocking_reasons.iter().any(|reason| reason.contains(REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE)), "{context:?}");
+    use open_pipe_stress_report_renderer::WITHHELD_SECTION_MESSAGE;
+    for path in ["/Users/invented-user/datasheets/steel-a.pdf", "C:/x.pdf"] {
+        let mut record = private_record(sections::ReviewStatus::Pending, sections::RedistributionStatus::Unknown);
+        record.source_location = path.to_string();
+        let local = render_calculation_report(&with_material_record(record.clone(), Some(ReportExportContext::LocalPrivate)));
+        assert!(!local.export_blocked && !local.content_withheld, "{:?}", local.blocking_reasons);
+        assert!(local.html.contains(&format!("<td>{path}</td>")));
+        let mut quarantined = record.clone();
+        quarantined.review_status = sections::ReviewStatus::Quarantined;
+        let refusals = [
+            (with_material_record(record.clone(), Some(ReportExportContext::PublicReport)), REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE),
+            (with_material_record(record.clone(), None), REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE),
+            (with_material_record(quarantined, Some(ReportExportContext::LocalPrivate)), REPORT_PROVENANCE_DISPOSITION_BLOCKED),
+        ];
+        for (input, code) in refusals {
+            let refused = render_calculation_report(&input);
+            assert!(refused.export_blocked && refused.content_withheld, "{code}");
+            assert!(refused.blocking_reasons.iter().any(|reason| reason.contains(code)), "{code}: {:?}", refused.blocking_reasons);
+            assert_eq!(refused.html, "");
+            assert!(refused.pre_render_findings.is_empty() && refused.post_render_findings.is_empty());
+            assert!(refused.section_validation_diagnostics.iter().all(|item| item.message == WITHHELD_SECTION_MESSAGE));
+            let text = serde_json::to_string(&refused).unwrap();
+            for private in [path, "Invented material datasheet", "invented-datasheet-shelf", "invented-license", "invented contributor", "invented certification"] {
+                assert!(!text.contains(private), "{code}: {private} in {text}");
+            }
+            // The reasons name the affected value and the member, and nothing of its text.
+            assert!(text.contains("report provenance: "));
+        }
     }
 }

@@ -280,9 +280,12 @@ pub struct OutcomeFinding {
     pub blocking: bool,
 }
 
-/// Render result. `html` is always produced (a blocked document renders with
-/// a visible blocked banner for diagnosis); `export_blocked` is the gate the
-/// app must honor before saving, printing, or exporting the artifact.
+/// Render result. `html` is produced for every render (a blocked document
+/// renders with a visible blocked banner for diagnosis) except one refused for
+/// its provenance records, whose content is withheld (`content_withheld`:
+/// `html` empty, no lint findings, section messages withheld; W-11 slice (c),
+/// §6.2). `export_blocked` is the gate the app must honor before saving,
+/// printing, or exporting the artifact.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct RenderOutcome {
     pub html: String,
@@ -293,7 +296,15 @@ pub struct RenderOutcome {
     pub section_validation_diagnostics: Vec<OutcomeDiagnostic>,
     pub pre_render_findings: Vec<OutcomeFinding>,
     pub post_render_findings: Vec<OutcomeFinding>,
+    /// True only for a metadata-only refusal; absent from the serialized
+    /// outcome otherwise, so every other outcome serializes as before.
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub content_withheld: bool,
 }
+
+/// The section message a metadata-only refusal carries in place of each
+/// section diagnostic's own (which may quote a record's source name).
+pub const WITHHELD_SECTION_MESSAGE: &str = "Message withheld: this render was refused for its provenance records, so no report content is returned.";
 
 pub fn escape_html(text: &str) -> String {
     let mut escaped = String::with_capacity(text.len());
@@ -1659,6 +1670,49 @@ pub fn render_calculation_report(input: &RenderableReportInput) -> RenderOutcome
     // Only a local-private report relaxes unresolved provenance to a warning.
     let section_validation = sections::validate_report_sections_in(&input.report_sections, provenance_context(input));
 
+    // W-11 slice (c) (§6.2), Codex review round 2 of #1639: a render refused
+    // for its provenance records (a private record outside local_private, a
+    // blocking disposition, or suspected protected content) returns a
+    // metadata-only outcome, before anything is assembled: codes, reasons and
+    // affected ids, and no document body, lint excerpt or section message.
+    let provenance_reasons = provenance_disposition_blocking_reasons(input);
+    let protected_content = section_validation.diagnostics.iter().any(|diagnostic| {
+        diagnostic.severity == sections::Severity::Blocking && diagnostic.code == "REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED"
+    });
+    if !provenance_reasons.is_empty() || protected_content {
+        let mut blocking_reasons: Vec<String> = Vec::new();
+        for diagnostic in &report_validation.diagnostics {
+            if diagnostic.severity == report::DiagnosticSeverity::Blocking {
+                blocking_reasons.push(format!("report validation: {}", diagnostic.code));
+            }
+        }
+        for diagnostic in &section_validation.diagnostics {
+            if diagnostic.severity == sections::Severity::Blocking {
+                blocking_reasons.push(format!("section validation: {}", diagnostic.code));
+            }
+        }
+        blocking_reasons.extend(provenance_reasons);
+        return RenderOutcome {
+            html: String::new(),
+            sha256_hex: sha256_hex(&[]),
+            export_blocked: true,
+            blocking_reasons,
+            report_validation_diagnostics: report_validation.diagnostics.iter().map(report_outcome_diagnostic).collect(),
+            section_validation_diagnostics: section_validation
+                .diagnostics
+                .iter()
+                .map(|diagnostic| OutcomeDiagnostic {
+                    code: diagnostic.code.clone(),
+                    severity: severity_label(&diagnostic.severity).to_string(),
+                    message: WITHHELD_SECTION_MESSAGE.to_string(),
+                })
+                .collect(),
+            pre_render_findings: Vec::new(),
+            post_render_findings: Vec::new(),
+            content_withheld: true,
+        };
+    }
+
     let assembled = assemble_report_sections(input);
     let section_bodies: Vec<String> = assembled
         .iter()
@@ -1698,7 +1752,6 @@ pub fn render_calculation_report(input: &RenderableReportInput) -> RenderOutcome
             blocking_reasons.push(format!("section validation: {}", diagnostic.code));
         }
     }
-    blocking_reasons.extend(provenance_disposition_blocking_reasons(input));
     for code in report_context_blocking_codes(input) {
         blocking_reasons.push(format!("report context: {code}"));
     }
@@ -1794,6 +1847,7 @@ evidence; only the exact bytes of this HTML file are bound by the recorded SHA-2
             .collect(),
         html,
         sha256_hex,
+        content_withheld: false,
     }
 }
 

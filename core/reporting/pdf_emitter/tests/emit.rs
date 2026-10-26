@@ -447,7 +447,9 @@ fn a_quarantined_or_rejected_provenance_record_blocks_the_pdf() {
         assert!(pdf.export_blocked, "{value}");
         let reason = format!("report provenance: REPORT_PROVENANCE_DISPOSITION_BLOCKED (provenance_notes[{index}] review_status {value}; review that record's disposition in the model before reporting)");
         assert!(pdf.blocking_reasons.contains(&reason), "{:?}", pdf.blocking_reasons);
-        assert!(pdf_contains(&pdf.pdf_bytes, "EXPORT BLOCKED"));
+        // Metadata-only (Codex review round 2 of #1639): no PDF is emitted.
+        assert!(pdf.pdf_bytes.is_empty() && pdf.page_count == 0 && pdf.text_model_findings.is_empty());
+        assert!(!serde_json::to_string(&pdf).unwrap().contains("Invented blocked material record"));
     }
 }
 
@@ -480,7 +482,8 @@ fn the_desktop_builder_records_block_the_pdf_by_disposition_and_context() {
         assert!(pdf.blocking_reasons.iter().any(|reason| reason.contains(needle)), "{needle}: {:?}", pdf.blocking_reasons);
     }
     assert!(pdf.blocking_reasons.iter().any(|reason| reason == "section validation: REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED"));
-    assert!(pdf_contains(&pdf.pdf_bytes, "EXPORT BLOCKED"));
+    // Metadata-only: no PDF bytes, so no record text.
+    assert!(pdf.pdf_bytes.is_empty());
     let blocks = |record: &sections::Provenance| {
         matches!(record.review_status, sections::ReviewStatus::Quarantined | sections::ReviewStatus::Rejected)
             || record.redistribution_status == sections::RedistributionStatus::ProtectedSuspected
@@ -496,4 +499,17 @@ fn the_desktop_builder_records_block_the_pdf_by_disposition_and_context() {
     let refused = emit_calculation_report_pdf(&public);
     assert!(refused.export_blocked);
     assert!(refused.blocking_reasons.iter().any(|reason| reason.contains("REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE")));
+    // Metadata-only under public_report and without a context: no bytes, and no
+    // field of the outcome carries a record's text.
+    let mut absent = clean.clone();
+    absent.report_context = None;
+    for outcome in [refused, emit_calculation_report_pdf(&absent)] {
+        assert!(outcome.export_blocked && outcome.pdf_bytes.is_empty() && outcome.page_count == 0);
+        let text = serde_json::to_string(&outcome).unwrap();
+        for private in ["Invented accepted datasheet", "invented-datasheet-shelf", "invented_user_note", "Invented support record"] {
+            assert!(!text.contains(private), "{private}");
+        }
+        let package = open_pipe_stress_pdf_emitter::assemble_full_report_package(&public);
+        assert!(package.export_blocked && package.render.html.is_empty() && package.pdf.pdf_bytes.is_empty());
+    }
 }

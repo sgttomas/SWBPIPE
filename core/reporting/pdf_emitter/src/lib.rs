@@ -79,8 +79,9 @@ and are not hash-bound evidence.";
 // Outcome types.
 // ---------------------------------------------------------------------------
 
-/// Result of one deterministic PDF emission. `pdf_bytes` is always produced
-/// (a blocked document renders with a visible blocked banner for diagnosis);
+/// Result of one deterministic PDF emission. `pdf_bytes` is produced for every
+/// emission (a blocked document renders with a visible blocked banner for
+/// diagnosis) except one whose render withheld its content, which is empty;
 /// `export_blocked` is the gate the caller must honor before saving or
 /// exporting the artifact.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -138,6 +139,19 @@ pub fn pdf_from_render(
     input: &renderer::RenderableReportInput,
     render: &renderer::RenderOutcome,
 ) -> PdfEmissionOutcome {
+    // W-11 slice (c) (§6.2): a render refused for its provenance records is
+    // metadata-only, and so is its PDF: no document is emitted from the input.
+    if render.content_withheld {
+        return PdfEmissionOutcome {
+            pdf_bytes: Vec::new(),
+            sha256_hex: sha256_hex(&[]),
+            page_count: 0,
+            export_blocked: true,
+            blocking_reasons: render.blocking_reasons.clone(),
+            canonical_html_sha256_hex: render.sha256_hex.clone(),
+            text_model_findings: Vec::new(),
+        };
+    }
     let (pdf_bytes, page_count, text_model) = emit_pdf_document(input, &render.blocking_reasons);
 
     let mut lint_config = linter::LintConfiguration::public_surfaces_only("pdf-emitter-text-model");

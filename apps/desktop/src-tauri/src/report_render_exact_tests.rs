@@ -239,20 +239,47 @@ fn the_native_render_refuses_private_records_outside_local_private() {
     assert!(local["html"].as_str().unwrap().contains("Invented material datasheet"));
     // Owner ruling on #1639 ("C1 b, C2 a"): the typed path stays as written locally.
     assert!(local["html"].as_str().unwrap().contains("<td>/Users/invented-user/datasheets/steel-a.pdf</td>"));
+    // Codex review round 2 of #1639: a refusal for the record is metadata-only
+    // at the native boundary. No field of the response (html, derived print
+    // view, findings, diagnostics) carries the record's text or typed path.
+    let withheld = |refused: &Value, label: &str| {
+        assert_eq!(refused["export_blocked"], json!(true), "{label}");
+        assert_eq!(refused["content_withheld"], json!(true), "{label}");
+        assert_eq!(refused["html"], json!(""), "{label}");
+        assert_eq!(refused["derived_print_html"], json!(""), "{label}");
+        assert_eq!(refused["pre_render_findings"], json!([]), "{label}");
+        assert_eq!(refused["post_render_findings"], json!([]), "{label}");
+        let text = refused.to_string();
+        for private in ["/Users/invented-user/datasheets/steel-a.pdf", "steel-a.pdf", "Invented material datasheet", "invented-license", "invented contributor", "invented certification"] {
+            assert!(!text.contains(private), "{label}: {private} in {text}");
+        }
+    };
     for export_context in [Some("public_report"), None] {
         let refused = outcome(&input("pending", export_context));
-        assert_eq!(refused["export_blocked"], json!(true), "{export_context:?}");
         assert!(
             reasons(&refused).iter().any(|reason| reason.starts_with("report provenance: REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE (")),
             "{:?}",
             reasons(&refused)
         );
+        withheld(&refused, &format!("{export_context:?}"));
     }
     for export_context in [Some("local_private"), Some("public_report"), None] {
         let refused = outcome(&input("quarantined", export_context));
-        assert_eq!(refused["export_blocked"], json!(true), "{export_context:?}");
         assert!(reasons(&refused).iter().any(|reason| reason.contains("REPORT_PROVENANCE_DISPOSITION_BLOCKED (provenance_notes[1] review_status quarantined;")));
+        withheld(&refused, &format!("quarantined {export_context:?}"));
     }
+    // Other blocked renders keep their diagnostic document: a rule-check run
+    // for a pack the report does not reference blocks, and still returns its
+    // HTML and print view (behaviour unchanged).
+    let mut unreferenced = pressure_free_input();
+    unreferenced["user_rule_checks"] = json!({"rule_pack_id": "invented-unreferenced-pack", "grammar_version": "1.0.0", "aggregate_status": "USER_RULE_CHECKED", "checks": []});
+    let blocked = outcome(&json!({"input": unreferenced}));
+    assert_eq!(blocked["export_blocked"], json!(true), "{:?}", reasons(&blocked));
+    assert!(blocked.get("content_withheld").is_none());
+    assert_ne!(blocked["html"], json!(""));
+    assert_ne!(blocked["derived_print_html"], json!(""));
+    // A rendered (not refused) response carries no content_withheld member.
+    assert!(local.get("content_withheld").is_none());
 }
 
 /// Codex review round 1 (blocking): a coherent invented exact input, which

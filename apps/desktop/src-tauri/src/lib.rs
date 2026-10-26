@@ -1591,8 +1591,14 @@ fn render_calculation_report_value(input: Value) -> Result<Value, String> {
     let renderable: open_pipe_stress_report_renderer::RenderableReportInput =
         serde_json::from_value(input).map_err(|error| format!("RENDER-INPUT-INVALID: {error}"))?;
     let outcome = open_pipe_stress_report_renderer::render_calculation_report(&renderable);
-    let derived_print_html =
-        open_pipe_stress_report_renderer::derived_print_view(&outcome.html, &outcome.sha256_hex);
+    // W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §6.2):
+    // a render refused for its provenance records is metadata-only, so no
+    // print view is derived from it either.
+    let derived_print_html = if outcome.content_withheld {
+        String::new()
+    } else {
+        open_pipe_stress_report_renderer::derived_print_view(&outcome.html, &outcome.sha256_hex)
+    };
     let mut payload = serde_json::to_value(&outcome).map_err(|error| error.to_string())?;
     payload["derived_print_html"] = Value::String(derived_print_html);
     Ok(payload)
