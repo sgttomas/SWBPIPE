@@ -150,11 +150,16 @@ on either route. It needs no solve and no result.
     `MODEL-LIBRARY-REF-UNRESOLVED` warning; the entity's own record is still
     screened;
   - each library is read within the command's memory, which starts from its
-    ingress lease: measured, then its load and its prescan-bounded parse leased
-    before they are made, and held until the command returns (DEL-04-07
-    memory-budget decision). A read the pool refuses refuses the save
-    `STORE-READ-MEMORY-UNAVAILABLE` before anything is chosen or written. W-6b
-    reads its libraries the same way;
+    ingress lease. The read is measured, and its keys' working set, its load
+    and its prescan-bounded parse are each leased before they are made, on a
+    store connection whose page cache is bounded. The screening's allocations
+    are leased before it builds them. The leases are held until the command
+    returns (DEL-04-07 memory-budget decision). A read the pool refuses
+    refuses the save `STORE-READ-MEMORY-UNAVAILABLE` before anything is chosen
+    or written. W-6b reads its libraries the same way. It also leases the
+    canonical text it hashes for each reference digest, shares each parsed
+    library between its screening and its references without copying it, and
+    folds each reference's classification over the library;
   - the screening evidence carries the payload's sha256, and Rust refuses
     `MODEL-DOC-SAVE-EVIDENCE-UNBOUND` unless it equals the admitted text's.
 - **F-PIP-1.** No network and no telemetry. The default path is the user's
@@ -329,13 +334,16 @@ The vocabulary is not extended here.
     size cap, and cancel;
   - the extension-neutral writer, with the report writer's `.opsproj` checks
     unchanged;
-  - the library read within its leases (counting allocator), the pool's
-    refusal, bounded decode errors, and the leases released on every path.
+  - the library read, and the whole save for a 3 MB library, within their
+    leases (counting allocator); SQLite's peak within the connection's lease
+    for 30,000 library rows; a larger key written between reads priced before
+    the next search; the pool's refusal, bounded decode errors, and the leases
+    released on every path.
 - **Rust, W-6b:**
   - basis-state reuse and creation, written transactionally;
   - the disposition refusals;
   - the tamper witnesses;
-  - the library reads as for W-6a.
+  - the library reads as for W-6a, and the package bytes unchanged.
 - **pytest:**
   - one fully populated invented witness manifest validates against
     `handoff_package.schema.json`;
