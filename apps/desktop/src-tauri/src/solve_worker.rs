@@ -939,7 +939,10 @@ pub(crate) fn supervise(
                         false
                     },
                 );
-                let minimal = need.get();
+                // The need a refusal reports follows the last footprint measured,
+                // also one measured after the last attempt (a step whose deadline
+                // passed during the wait returns without another attempt).
+                let minimal = need.get().max(poll_growth(current, observed.get(), terms.reserve, terms.max_grant).1);
                 match grown {
                     Ok(bytes) => {
                         if stopped {
@@ -2629,6 +2632,46 @@ pub(crate) mod tests {
         assert!(admitted.expect("the step was admitted") >= first + more + reserve, "the first admitted grant covers the stopped footprint: {:?}", run.events);
         drop(run);
         assert_eq!(pool.reserved_total(), 0);
+    }
+
+    /// Review round 2 (P3): the child grows before the stop and the window
+    /// passes during the wait, so the step ends without another attempt; the
+    /// refusal still reports the need of the footprint measured last.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_poll_step_refused_at_the_deadline_reports_the_last_measured_need() {
+        let host = DipHost::new();
+        let pool = dip_pool(&host, Duration::from_millis(300));
+        let gate = Gate::new("poll-more-late");
+        let reserve = PROCESS_RESERVE_BYTES;
+        let (first, more) = (96 * MIB, 192 * MIB);
+        let launcher = TestLauncher::scripted(format!("map_go_more:{first}:{more}:{}", gate.dir.display()));
+        let background = run_in_background(&pool, launcher, reserve);
+        let pid = wait_for("the worker started", || gate.pids().first().copied());
+        let dir = gate.dir.clone();
+        BEFORE_STOP.lock().unwrap().push((
+            pid,
+            Box::new(move || {
+                std::fs::write(dir.join("more"), b"").unwrap();
+                wait_for("the child mapped more", || dir.join("mapped-more").exists().then_some(()));
+                // Past the window: the next check of the deadline ends the step.
+                std::thread::sleep(Duration::from_millis(400));
+            }),
+        ));
+        host.dry();
+        std::fs::write(gate.dir.join("go"), b"").unwrap();
+        let run = background.join();
+        BEFORE_STOP.lock().unwrap().retain(|(p, _)| *p != pid);
+        match run.outcome {
+            WorkerOutcome::Refused(ResourceRefusal::WorkerGrowthRefused { requested_bytes, .. }) => {
+                assert!(requested_bytes >= first + more + reserve, "the last measured need: {requested_bytes}");
+            }
+            ref other => panic!("{other:?}"),
+        }
+        let pid = run.pid;
+        drop(run);
+        assert_eq!(pool.reserved_total(), 0);
+        assert_reaped(pid);
     }
 
     /// A poll step still refused when the window has elapsed ends the job as
