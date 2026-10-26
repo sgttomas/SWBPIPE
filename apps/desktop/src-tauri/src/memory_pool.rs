@@ -790,28 +790,35 @@ impl Lease {
     /// ends the wait with [`ResampleStop::Cancelled`] and grows nothing.
     /// Returns the admitted target. Only a refusal that stands is recorded.
     pub(crate) fn grow_resampling(&mut self, targets: &[u64], stop: &mut dyn FnMut() -> bool) -> Result<u64, ResampleStop> {
-        self.grow_resampling_with(targets, &mut || {}, stop)
+        debug_assert!(!targets.is_empty() && targets.iter().all(|&target| target > self.bytes));
+        self.grow_resampling_with(&mut || targets.to_vec(), &mut || {}, stop)
     }
 
     /// [`Self::grow_resampling`], calling `waiting` once, outside the pool
     /// lock, when the first attempt has been refused only with
     /// `headroom_insufficient` and the step is about to wait; never when the
     /// first attempt is admitted or its refusal stands. A worker's poll step
-    /// stops the child there (`solve_worker.rs`).
+    /// stops the child there (`solve_worker.rs`). `targets` is called at every
+    /// attempt, under the pool lock, so a step can follow a need measured
+    /// between attempts; its last target is the need, and a need already
+    /// within the lease ends the step with no growth.
     pub(crate) fn grow_resampling_with(
         &mut self,
-        targets: &[u64],
+        targets: &mut dyn FnMut() -> Vec<u64>,
         waiting: &mut dyn FnMut(),
         stop: &mut dyn FnMut() -> bool,
     ) -> Result<u64, ResampleStop> {
-        debug_assert!(!targets.is_empty() && targets.iter().all(|&target| target > self.bytes));
         let pool = Arc::clone(&self.pool);
         let deadline = Instant::now().checked_add(pool.resample_window);
         let mut state = pool.lock();
         let mut first_wait = true;
         loop {
+            let targets = targets();
+            if targets.last().is_none_or(|&need| need <= self.bytes) {
+                return Ok(self.bytes);
+            }
             let mut refusal = None;
-            for &target in targets {
+            for &target in targets.iter().filter(|&&target| target > self.bytes) {
                 match pool.admit_bytes_locked(&mut state, target - self.bytes, self.class) {
                     Ok(()) => {
                         self.record_growth_locked(&mut state, target);
@@ -2011,16 +2018,16 @@ mod tests {
         let pool = timed_pool(&host, Duration::from_millis(100), Duration::from_millis(5));
         let (mut a, _b) = held_leases(&host, &pool);
         let mut waits = 0;
-        let refusal = refused(a.grow_resampling_with(&[2 * GIB], &mut || waits += 1, &mut || false).unwrap_err());
+        let refusal = refused(a.grow_resampling_with(&mut || vec![2 * GIB], &mut || waits += 1, &mut || false).unwrap_err());
         assert!(matches!(refusal, ResourceRefusal::HeadroomInsufficient { .. }), "{refusal:?}");
         assert_eq!(waits, 1, "one call for the whole window");
         host.set(|s| s.pressure = PressureLevel::Warning);
-        assert!(a.grow_resampling_with(&[2 * GIB], &mut || panic!("no wait"), &mut || panic!("no wait")).is_err());
+        assert!(a.grow_resampling_with(&mut || vec![2 * GIB], &mut || panic!("no wait"), &mut || panic!("no wait")).is_err());
         host.set(|s| {
             s.pressure = PressureLevel::Normal;
             s.headroom_bytes = Some(100 * GIB);
         });
-        assert_eq!(a.grow_resampling_with(&[2 * GIB], &mut || panic!("no wait"), &mut || panic!("no wait")), Ok(2 * GIB));
+        assert_eq!(a.grow_resampling_with(&mut || vec![2 * GIB], &mut || panic!("no wait"), &mut || panic!("no wait")), Ok(2 * GIB));
     }
 
     /// Concurrent growth waiters: when the headroom covers one step, exactly
@@ -2068,5 +2075,26 @@ mod tests {
         assert!(ingress.is_err(), "absorb admitted nothing: an unknown headroom still refuses");
         drop(result);
         assert_eq!(pool.reserved_total(), 0);
+    }
+
+    /// Review round 1 (P2): the targets are evaluated at every attempt, so a
+    /// need measured between attempts (a stopped worker's footprint) is what an
+    /// admitted step covers; a need already within the lease grows nothing.
+    #[test]
+    fn a_growth_step_follows_a_need_measured_between_attempts() {
+        let host = ObservedHost::with(Some(128 * GIB), Some(0), PressureLevel::Normal);
+        let pool = timed_pool(&host, Duration::from_secs(10), Duration::from_millis(10));
+        let (mut a, _b) = held_leases(&host, &pool);
+        let _samples = host.observe(Some((Duration::from_millis(100), 100 * GIB)));
+        let need = std::cell::Cell::new(2 * GIB);
+        let grown = a
+            .grow_resampling_with(&mut || vec![need.get()], &mut || {}, &mut || {
+                need.set(5 * GIB);
+                false
+            })
+            .expect("admitted after the dip");
+        assert_eq!((grown, a.bytes(), pool.reserved(LeasePurpose::Ingress)), (5 * GIB, 5 * GIB, 5 * GIB));
+        assert_eq!(a.grow_resampling_with(&mut || vec![6 * GIB, 4 * GIB], &mut || {}, &mut || false), Ok(5 * GIB), "the need is within the lease");
+        assert_eq!(a.bytes(), 5 * GIB);
     }
 }

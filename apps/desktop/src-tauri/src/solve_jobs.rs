@@ -721,7 +721,7 @@ impl SolveJobRegistry {
 
     /// Hands the producer's exact bytes over (moved, not cloned) after growing
     /// the result lease to 2R for the handoff copy; on refusal the result stays.
-    /// The growth R is admitted as its own lease outside the job table's lock,
+    /// The growth R is admitted as its own (uncredited ingress) lease outside the job table's lock,
     /// re-sampling while it is refused only with `headroom_insufficient`
     /// (`memory_pool.rs`, Re-sampling), then the record is checked again and the
     /// growth folded into its lease; a record that changed meanwhile (taken,
@@ -732,7 +732,10 @@ impl SolveJobRegistry {
             let lease = self.takeable_locked(&table, job_id)?;
             lease.bytes()
         };
-        let extra = match self.pool.acquire_resampling(growth, LeasePurpose::Custody, &|| false) {
+        // Held as an ingress lease, which no admission credits as resident,
+        // until it is folded into custody: the webview's copy is not written
+        // until the take returns, so no admission may count half of it yet.
+        let extra = match self.pool.acquire_resampling(growth, LeasePurpose::Ingress, &|| false) {
             Ok(extra) => extra,
             Err(ResampleStop::Refused(refusal)) => return Err(self.unavailable(refusal)),
             Err(ResampleStop::Cancelled) => unreachable!("the take is never cancelled"),
@@ -994,6 +997,46 @@ mod tests {
         assert_eq!(bytes, b"{\"r\":1}");
         assert_eq!((registry.pool().reserved(LeasePurpose::Result), registry.pool().reserved(LeasePurpose::Custody)), (0, 2 * result));
         assert_eq!(registry.pool().status(JobCounts::default()).last_refusal, None, "a passing re-sample leaves no refusal");
+    }
+
+    /// Review round 1 (P2): a take's admitted growth, while it waits for the
+    /// job table, is not yet the webview's copy, so no admission credits it:
+    /// an interactive request must still find the growth in the headroom.
+    #[test]
+    fn a_pending_take_growth_is_not_credited_as_written() {
+        let host = ScriptedHost::normal();
+        let gate = Gate::new("take-credit");
+        let pool = MemoryPool::with_timing(host.clone(), Duration::from_millis(5), Duration::from_secs(20), Duration::from_millis(5));
+        pool.set_max_running_workers(16);
+        let registry = SolveJobRegistry::with_hooks(pool, gate.launcher(), Arc::new(thread_spawn));
+        let receipt = registry.start(MODEL, None).unwrap();
+        gate.wait_started(1);
+        gate.release("{\"r\":1}");
+        assert_eq!(wait_terminal(&registry, &receipt.job_id).state, "completed");
+        let result = registry.pool().reserved(LeasePurpose::Result);
+        host.set(|s| s.headroom_bytes = Some(0));
+        std::thread::scope(|scope| {
+            let take = scope.spawn(|| registry.take_result(&receipt.job_id));
+            // The take has read the record and is re-sampling (headroom 0).
+            std::thread::sleep(Duration::from_millis(200));
+            let table = registry.table();
+            host.set(|s| s.headroom_bytes = Some(64 * GIB));
+            let started = std::time::Instant::now();
+            while registry.pool().reserved_total() != 2 * result {
+                assert!(started.elapsed() < Duration::from_secs(10), "the take's growth was admitted");
+                std::thread::sleep(Duration::from_millis(5));
+            }
+            // The take now waits for the table. Reserved: R (result) + R (pending);
+            // credited: R (the retained result) only, so a request of X needs X + R.
+            let request = MIB;
+            host.set(|s| s.headroom_bytes = Some(request + result - 1));
+            let refused = registry.pool().acquire_interactive(request).unwrap_err();
+            assert_eq!(refused, ResourceRefusal::HeadroomInsufficient { required_bytes: request + result, available_bytes: request + result - 1 });
+            host.set(|s| s.headroom_bytes = Some(64 * GIB));
+            drop(table);
+            assert_eq!(take.join().unwrap().unwrap(), b"{\"r\":1}");
+        });
+        assert_eq!((registry.pool().reserved(LeasePurpose::Ingress), registry.pool().reserved(LeasePurpose::Custody)), (0, 2 * result));
     }
 
     /// A pool (and budget) admitting one starting grant at a time.

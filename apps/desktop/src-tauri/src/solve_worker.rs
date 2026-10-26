@@ -54,9 +54,11 @@
 //! While an exchange step waits, the child is blocked in its allocator on the
 //! reply. A poll step's child is running: if the step's first attempt is
 //! refused only with `headroom_insufficient`, the child is stopped (SIGSTOP)
-//! for the wait, so its excess stays at what the poll measured, and continued
-//! (SIGCONT) once admitted (Agent 0, 2026-10-26, option (a)). Between attempts
-//! the footprint is measured again; above the budget the job ends
+//! for the wait and continued (SIGCONT) once admitted (Agent 0, 2026-10-26,
+//! option (a)). Between attempts the footprint is measured again (the child
+//! may have grown before the stop took effect) and each attempt's targets
+//! follow the largest footprint measured, so an admitted step covers what the
+//! stopped child holds; above the budget the job ends
 //! `worker_footprint_exceeded`. A refused step kills the stopped child; so do
 //! cancellation and session reset (SIGKILL ends a stopped process). A frame
 //! the child wrote before it was stopped is read only if the step is
@@ -75,8 +77,8 @@
 //!
 //! Residual: the footprint is sampled, not continuous. Memory outside the
 //! counted heap can exceed the lease (or the budget) for at most one poll
-//! interval (100 ms) plus the time to measure and kill, and an excess a poll
-//! measured stays unreserved, frozen with the child stopped, for at most the
+//! interval (100 ms) plus the time to measure and kill, and an excess found
+//! by a poll stays unreserved, frozen with the child stopped, for at most the
 //! re-sampling window; the counted heap itself never exceeds its cap. The result is also not polled while its
 //! bytes are read (the worker has finished computing). At the result frame
 //! the parent reads the worker's lifetime-maximum footprint, which covers
@@ -775,7 +777,35 @@ fn grow_grant(
     let targets = if preferred > minimal { &both[..] } else { &both[1..] };
     match waiting {
         None => grant.grow_resampling(targets, stop),
-        Some(waiting) => grant.grow_resampling_with(targets, waiting, stop),
+        Some(waiting) => grant.grow_resampling_with(&mut || targets.to_vec(), waiting, stop),
+    }
+}
+
+/// Test seam: a test registers an action for a worker's pid, run once just
+/// before a poll step stops that worker (to make the child grow between the
+/// poll's measurement and the stop). A no-op outside tests.
+#[cfg(test)]
+pub(crate) static BEFORE_STOP: Mutex<Vec<(i32, Box<dyn FnOnce() + Send>)>> = Mutex::new(Vec::new());
+
+fn before_stop(_pid: i32) {
+    #[cfg(test)]
+    {
+        let action = {
+            let mut actions = BEFORE_STOP.lock().unwrap_or_else(PoisonError::into_inner);
+            actions.iter().position(|(pid, _)| *pid == _pid).map(|i| actions.remove(i).1)
+        };
+        if let Some(action) = action {
+            action();
+        }
+    }
+}
+
+/// The step's targets in preference order: the doubling step, if above the need, then the need.
+fn step_targets((preferred, minimal): (u64, u64)) -> Vec<u64> {
+    if preferred > minimal {
+        vec![preferred, minimal]
+    } else {
+        vec![minimal]
     }
 }
 
@@ -871,30 +901,45 @@ pub(crate) fn supervise(
                 break;
             }
             if footprint > current {
-                let (preferred, minimal) = poll_growth(current, footprint, terms.reserve, terms.max_grant);
                 // The child is running: if the first attempt is refused only
                 // with `headroom_insufficient`, it is stopped for the
-                // re-sampling wait, so the excess stays at what this poll
-                // measured, and continued once admitted. A frame it wrote
+                // re-sampling wait and continued once admitted. Its footprint
+                // is measured again between attempts (it may have grown
+                // before the stop took effect) and every attempt's targets
+                // follow the largest footprint measured, so an admitted step
+                // covers what the stopped child holds. A frame it wrote
                 // before the stop is read after the step resolves.
                 let mut stopped = false;
                 let mut exceeded = None;
-                let mut observed = footprint;
-                let grown = grow_grant(grant, preferred, minimal, Some(&mut || stopped = control.stop()), &mut || {
-                    if control.killed() || hooks.cancelled() {
-                        return true;
-                    }
-                    let now = measured_footprint(control.pid);
-                    if now > observed {
-                        observed = now;
-                        hooks.footprint_observed(now);
-                    }
-                    if now > terms.max_grant {
-                        exceeded = Some(now);
-                        return true;
-                    }
-                    false
-                });
+                let observed = std::cell::Cell::new(footprint);
+                let need = std::cell::Cell::new(poll_growth(current, footprint, terms.reserve, terms.max_grant).1);
+                let grown = grant.grow_resampling_with(
+                    &mut || {
+                        let targets = poll_growth(current, observed.get(), terms.reserve, terms.max_grant);
+                        need.set(targets.1);
+                        step_targets(targets)
+                    },
+                    &mut || {
+                        before_stop(control.pid);
+                        stopped = control.stop();
+                    },
+                    &mut || {
+                        if control.killed() || hooks.cancelled() {
+                            return true;
+                        }
+                        let now = measured_footprint(control.pid);
+                        if now > observed.get() {
+                            observed.set(now);
+                            hooks.footprint_observed(now);
+                        }
+                        if now > terms.max_grant {
+                            exceeded = Some(now);
+                            return true;
+                        }
+                        false
+                    },
+                );
+                let minimal = need.get();
                 match grown {
                     Ok(bytes) => {
                         if stopped {
@@ -1407,6 +1452,21 @@ pub(crate) mod tests {
                 let mapped = map_uncounted(arg(0) as usize, arg(0) as usize, 0);
                 await_release(dir, "hold-released");
                 Ok(mapped.to_string())
+            }
+            // As `map_go`, then, once `more` exists, makes `arg1` more bytes
+            // resident (announcing `mapped-more`) and holds both until
+            // `hold-released`; returns the total mapped.
+            #[cfg(unix)]
+            "map_go_more" => {
+                let dir = std::path::Path::new(args.splitn(3, ':').nth(2).unwrap());
+                std::fs::write(dir.join(format!("started-{}", std::process::id())), b"").unwrap();
+                await_release(dir, "go");
+                let first = map_uncounted(arg(0) as usize, arg(0) as usize, 0);
+                await_release(dir, "more");
+                let more = map_uncounted(arg(1) as usize, arg(1) as usize, 0);
+                std::fs::write(dir.join("mapped-more"), b"").unwrap();
+                await_release(dir, "hold-released");
+                Ok((first + more).to_string())
             }
             // The fds open in the worker.
             #[cfg(unix)]
@@ -2529,6 +2589,46 @@ pub(crate) mod tests {
         drop(run);
         assert_eq!(pool.reserved_total(), 0, "the result lease was the last reservation");
         assert_reaped(pid);
+    }
+
+    /// Review round 1 (P2): the child grows between the poll's measurement and
+    /// the stop. The step's targets follow the footprint measured while it is
+    /// stopped, so the admitted grant covers everything the child holds.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_poll_growth_step_covers_what_the_child_grew_before_the_stop() {
+        let host = DipHost::new();
+        let pool = dip_pool(&host, Duration::from_secs(30));
+        let gate = Gate::new("poll-more");
+        let reserve = PROCESS_RESERVE_BYTES;
+        let (first, more) = (96 * MIB, 192 * MIB);
+        let launcher = TestLauncher::scripted(format!("map_go_more:{first}:{more}:{}", gate.dir.display()));
+        let background = run_in_background(&pool, launcher, reserve);
+        let pid = wait_for("the worker started", || gate.pids().first().copied());
+        let dir = gate.dir.clone();
+        BEFORE_STOP.lock().unwrap().push((
+            pid,
+            Box::new(move || {
+                std::fs::write(dir.join("more"), b"").unwrap();
+                wait_for("the child mapped more", || dir.join("mapped-more").exists().then_some(()));
+            }),
+        ));
+        host.dry();
+        std::fs::write(gate.dir.join("go"), b"").unwrap();
+        wait_for("the child stopped for the step", || (is_stopped(pid) && host.dry_samples() >= 2).then_some(()));
+        std::fs::write(gate.dir.join("hold-released"), b"").unwrap();
+        host.refill();
+        let run = background.join();
+        BEFORE_STOP.lock().unwrap().retain(|(p, _)| *p != pid);
+        let expected = (first + more).to_string();
+        assert!(matches!(&run.outcome, WorkerOutcome::Completed { result, .. } if result == expected.as_bytes()), "{:?}", run.outcome);
+        let admitted = run.events.iter().find_map(|e| match e {
+            Event::Grant(bytes) => Some(*bytes),
+            _ => None,
+        });
+        assert!(admitted.expect("the step was admitted") >= first + more + reserve, "the first admitted grant covers the stopped footprint: {:?}", run.events);
+        drop(run);
+        assert_eq!(pool.reserved_total(), 0);
     }
 
     /// A poll step still refused when the window has elapsed ends the job as

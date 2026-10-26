@@ -4,22 +4,26 @@
 //! - Capacity: `sysctlbyname("hw.memsize")` (u64; equals `ProcessInfo.physicalMemory`).
 //! - Headroom (owner, 2026-10-26: memory macOS can reclaim cheaply also
 //!   counts; DEL-04-07 `memory-budget-decision.md`, "Headroom counting"):
-//!   `host_statistics64(HOST_VM_INFO64)` must succeed with the full 38-word
-//!   count. It gives the free list `free_count - speculative_count`
-//!   (free_count includes speculative pages, mach/vm_statistics.h) and the
-//!   purgeable pages `purgeable_count` (resident, unwired pages of volatile
-//!   purgeable objects); `vm.page_pageable_external_count` gives the
-//!   file-backed pages on the pageable queues (wired file pages excluded).
-//!   The kernel's own reserve is `vm.vm_page_free_target` pages, subtracted
-//!   once from the total, and
+//!   three live counters, read one after another: the free list
+//!   `vm.page_free_count` (the kernel's free queue, without the speculative
+//!   pages), the file-backed pages on the pageable queues
+//!   `vm.page_pageable_external_count` (wired file pages excluded) and the
+//!   purgeable pages `vm.page_purgeable_count` (resident, unwired pages of
+//!   volatile purgeable objects). They are sysctls, not
+//!   `host_statistics64`, which XNU may answer from a cache up to 1 s old
+//!   for an unprivileged caller. The kernel's own reserve is
+//!   `vm.vm_page_free_target` pages, subtracted once from the total, and
 //!   `headroom = (free_list + external + purgeable - reserve) * vm_page_size`
 //!   (saturating at 0 for the subtractions, checked for the sum and the
 //!   product). No page is counted twice: a free page belongs to no object,
 //!   speculative pages are kept out of the free list, and purgeable objects
 //!   are anonymous, never file-backed. Inactive, anonymous, compressed and
 //!   wired pages are never counted as such, nor the pressure percentage.
-//!   An unreadable `vm.page_pageable_external_count`, or a total above the
-//!   capacity, falls back to the free list alone (the rule before 2026-10-26).
+//!   An unreadable live counter, or a total above the capacity, falls back to
+//!   the rule before 2026-10-26: the free list alone, from
+//!   `host_statistics64(HOST_VM_INFO64)` (which must succeed with the full
+//!   38-word count) as `free_count - speculative_count` (free_count includes
+//!   speculative pages, mach/vm_statistics.h).
 //! - Pressure: `kern.memorystatus_vm_pressure_level`: 1 normal, 2 warning,
 //!   4 critical; anything else or a failed read is unknown.
 //!
@@ -51,16 +55,28 @@ impl HostMemory for MacHostMemory {
 }
 
 /// The kernel's counters one headroom reading uses, in pages (bytes for the
-/// page size and capacity). `pageable_external` is `None` when its read failed.
+/// page size and capacity). `free_count` and `speculative_count` are
+/// `host_statistics64`'s (the fallback); `live` is `None` when any live
+/// counter's read failed.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct VmCounts {
     pub(crate) free_count: u64,
     pub(crate) speculative_count: u64,
-    pub(crate) purgeable_count: u64,
-    pub(crate) pageable_external: Option<u64>,
+    pub(crate) live: Option<LiveCounts>,
     pub(crate) free_target: u64,
     pub(crate) page_size: u64,
     pub(crate) capacity_bytes: Option<u64>,
+}
+
+/// The live counters the reclaimable rule adds up, in pages.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct LiveCounts {
+    /// `vm.page_free_count`: the free queue without the speculative pages.
+    pub(crate) free_list: u64,
+    /// `vm.page_pageable_external_count`.
+    pub(crate) pageable_external: u64,
+    /// `vm.page_purgeable_count`.
+    pub(crate) purgeable: u64,
 }
 
 /// The free list above the kernel's reserve, the rule before 2026-10-26 and
@@ -72,9 +88,8 @@ pub(crate) fn free_list_headroom(c: &VmCounts) -> Option<u64> {
 /// Pure headroom arithmetic over the kernel's counters (see the module docs).
 pub(crate) fn reclaimable_headroom(c: &VmCounts) -> Option<u64> {
     let fallback = free_list_headroom(c);
-    let Some(external) = c.pageable_external else { return fallback };
-    let free_list = c.free_count.saturating_sub(c.speculative_count);
-    let counted = free_list.checked_add(external).and_then(|n| n.checked_add(c.purgeable_count));
+    let Some(live) = c.live else { return fallback };
+    let counted = live.free_list.checked_add(live.pageable_external).and_then(|n| n.checked_add(live.purgeable));
     let counted_bytes = counted.and_then(|n| n.checked_mul(c.page_size));
     match (counted, counted_bytes, c.capacity_bytes) {
         (Some(pages), Some(bytes), Some(capacity)) if bytes <= capacity => pages.saturating_sub(c.free_target).checked_mul(c.page_size),
@@ -93,7 +108,7 @@ pub(crate) fn pressure_from_level(level: Option<i32>) -> PressureLevel {
 
 #[cfg(target_os = "macos")]
 mod mac {
-    use super::{pressure_from_level, reclaimable_headroom, VmCounts};
+    use super::{pressure_from_level, reclaimable_headroom, LiveCounts, VmCounts};
     use crate::memory_pool::PressureLevel;
     use std::ffi::{c_int, c_void, CStr};
     use std::mem::{size_of, MaybeUninit};
@@ -156,13 +171,20 @@ mod mac {
     pub(super) fn vm_counts() -> Option<VmCounts> {
         let stats = vm_statistics()?;
         let free_target = u64::try_from(sysctl::<c_int>(c"vm.vm_page_free_target")?).ok()?;
+        // Read one after another, each at its exact width (the two queue counts
+        // are 32-bit; `vm.page_purgeable_count` is 64-bit on the kernels read);
+        // a failed or differently sized read of any falls back to the free list alone.
+        let live = (|| {
+            Some(LiveCounts {
+                free_list: u64::from(sysctl::<u32>(c"vm.page_free_count")?),
+                pageable_external: u64::from(sysctl::<u32>(c"vm.page_pageable_external_count")?),
+                purgeable: sysctl::<u64>(c"vm.page_purgeable_count")?,
+            })
+        })();
         Some(VmCounts {
             free_count: stats.free_count as u64,
             speculative_count: stats.speculative_count as u64,
-            purgeable_count: stats.purgeable_count as u64,
-            // A u32 counter (`vm_page_pageable_external_count`); a failed or
-            // short read falls back to the free list alone.
-            pageable_external: sysctl::<u32>(c"vm.page_pageable_external_count").map(u64::from),
+            live,
             free_target,
             page_size: page_size()?,
             capacity_bytes: capacity_bytes(),
@@ -184,12 +206,17 @@ mod tests {
 
     const PAGE: u64 = 16384;
 
+    /// Live counters consistent with `host_statistics64`'s; `external: None`
+    /// stands for a failed live read.
     fn counts(free: u64, speculative: u64, purgeable: u64, external: Option<u64>, target: u64) -> VmCounts {
         VmCounts {
             free_count: free,
             speculative_count: speculative,
-            purgeable_count: purgeable,
-            pageable_external: external,
+            live: external.map(|pageable_external| LiveCounts {
+                free_list: free.saturating_sub(speculative),
+                pageable_external,
+                purgeable,
+            }),
             free_target: target,
             page_size: PAGE,
             capacity_bytes: Some(128 << 30),
@@ -249,10 +276,20 @@ mod tests {
         }
     }
 
+    /// Review round 1 (P3): the rule adds live counters only; a cached
+    /// `host_statistics64` free count (up to 1 s old) feeds only the fallback.
+    #[test]
+    fn reclaimable_rule_adds_only_live_counters() {
+        let mut c = counts(1000, 200, 300, Some(5000), 400);
+        c.free_count = 900_000; // a stale cached reading
+        assert_eq!(reclaimable_headroom(&c), Some((800 + 5000 + 300 - 400) * PAGE));
+        assert_eq!(free_list_headroom(&c), Some((900_000 - 200 - 400) * PAGE), "the fallback alone reads host_statistics64");
+    }
+
     #[test]
     fn reclaimable_rule_fails_closed_to_the_free_list() {
         let fallback = Some((1000 - 400) * PAGE);
-        assert_eq!(reclaimable_headroom(&counts(1000, 0, 300, None, 400)), fallback, "E unreadable: purgeable is not counted either");
+        assert_eq!(reclaimable_headroom(&counts(1000, 0, 300, None, 400)), fallback, "a live counter unreadable: none is counted");
         let implausible = VmCounts { capacity_bytes: Some(4000 * PAGE), ..counts(1000, 0, 300, Some(5000), 400) };
         assert_eq!(reclaimable_headroom(&implausible), fallback, "a total above capacity is implausible");
         let unknown_capacity = VmCounts { capacity_bytes: None, ..counts(1000, 0, 300, Some(5000), 400) };
@@ -283,7 +320,7 @@ mod tests {
         let headroom = sample.headroom_bytes.expect("host_statistics64 and vm.vm_page_free_target readable");
         assert!(headroom <= capacity);
         let c = mac::vm_counts().expect("counters readable");
-        assert!(c.pageable_external.is_some(), "vm.page_pageable_external_count readable");
+        assert!(c.live.is_some(), "vm.page_free_count, vm.page_pageable_external_count and vm.page_purgeable_count readable");
         assert!(reclaimable_headroom(&c) >= free_list_headroom(&c));
         assert_ne!(sample.pressure, PressureLevel::Unknown, "kern.memorystatus_vm_pressure_level readable");
     }
@@ -298,12 +335,10 @@ mod tests {
         for i in 0..20 {
             let c = mac::vm_counts().expect("counters readable");
             println!(
-                "sample {i:2}: free-list rule {:>12}, reclaimable rule {:>12} (F {} E {:?} P {} T {} pages; pressure {:?})",
+                "sample {i:2}: free-list rule {:>12}, reclaimable rule {:>12} (live {:?}; T {} pages; pressure {:?})",
                 mib(free_list_headroom(&c)),
                 mib(reclaimable_headroom(&c)),
-                c.free_count - c.speculative_count.min(c.free_count),
-                c.pageable_external,
-                c.purgeable_count,
+                c.live,
                 c.free_target,
                 mac::pressure(),
             );
