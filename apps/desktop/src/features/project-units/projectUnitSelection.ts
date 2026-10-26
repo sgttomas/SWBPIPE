@@ -144,13 +144,18 @@ export function readProjectUnitKey(units: Readonly<Record<string, unknown>>, key
   return { state: "valid", symbol: value };
 }
 
-type CompositionKind = ComposedDefaultKind | "moment";
+// W-17 slice (c) (§7.3, §7.6): acceleration `<length>/s^2` and area `<length>^2`
+// are compositions too. They are not in COMPOSED_DEFAULTS (the creation dialog's
+// list) until the catalog carries the acceleration units for every length (§7.3).
+export type CompositionKind = ComposedDefaultKind | "moment" | "acceleration" | "area";
 
 const COMPOSITIONS: Readonly<Record<CompositionKind, { parts: readonly string[]; compose: (parts: string[]) => string; dimension: string }>> = {
   distributed_force: { parts: ["force", "length"], compose: ([force, length]) => `${force}/${length}`, dimension: "force_per_length" },
   linear_stiffness: { parts: ["force", "length"], compose: ([force, length]) => `${force}/${length}`, dimension: "linear_stiffness" },
   thermal_expansion: { parts: ["temperature"], compose: ([temperature]) => `1/${temperature}`, dimension: "thermal_expansion_coefficient" },
-  moment: { parts: ["force", "length"], compose: ([force, length]) => `${force}*${length}`, dimension: "moment" }
+  moment: { parts: ["force", "length"], compose: ([force, length]) => `${force}*${length}`, dimension: "moment" },
+  acceleration: { parts: ["length"], compose: ([length]) => `${length}/s^2`, dimension: "acceleration" },
+  area: { parts: ["length"], compose: ([length]) => `${length}^2`, dimension: "area" }
 };
 
 /** The composed symbol from the project keys, or null when a part is absent or invalid. */
@@ -248,4 +253,60 @@ export function composedDefaultsFor(route: UnitCatalogRoute | null, units: Reado
     const inCatalog = catalog ? canonicalCatalogEntry(catalog, symbol, dimension) !== null : null;
     return [{ kind, label, symbol, inCatalog }];
   });
+}
+
+// --- Slice (c): editor field defaults (§7.2, §7.3, §7.6) ------------------------
+
+/**
+ * The project temperature as a new field's starting unit (§7.2): the stored
+ * symbol, a legacy `C` given as `degC`, or "" (no unit) when the key is absent,
+ * empty, whitespace-only or not a string. Shared with the thermal primitive load,
+ * which shows "" as its own "TBD".
+ */
+export function projectTemperatureDefault(units: Readonly<Record<string, unknown>>): string {
+  const read = readProjectUnitKey(units, "temperature");
+  if (read.state !== "valid") return "";
+  return read.symbol === "C" ? "degC" : read.symbol;
+}
+
+/** A field's composed starting unit: the symbol ("" when there is none) and why
+ * there is none, either the absent key it is composed from or a notice. */
+export type FieldUnitDefault = { symbol: string; notice: string | null; missingKey: string | null };
+
+function firstAbsentPart(parts: readonly string[], units: Readonly<Record<string, unknown>>): string | null {
+  return parts.find((part) => readProjectUnitKey(units, part).state === "absent") ?? null;
+}
+
+function fieldDefaultFrom(checked: CheckedComposedDefault, missingKey: () => string | null): FieldUnitDefault {
+  if (checked.symbol === "TBD") return { symbol: "", notice: null, missingKey: missingKey() };
+  return { symbol: checked.symbol, notice: checked.notice, missingKey: null };
+}
+
+/** The composed default of an editor field (§2.4, §7.3, §7.6). */
+export function fieldComposedDefault(route: UnitCatalogRoute | null, kind: CompositionKind, units: Readonly<Record<string, unknown>>): FieldUnitDefault {
+  return fieldDefaultFrom(composedDefault(route, kind, units), () => firstAbsentPart(COMPOSITIONS[kind].parts, units));
+}
+
+/** Linear stiffness: a declared `linear_stiffness` key, else `<force>/<length>` (§2.4; the support draft's default). */
+export function linearStiffnessFieldDefault(route: UnitCatalogRoute | null, units: Readonly<Record<string, unknown>>): FieldUnitDefault {
+  return fieldDefaultFrom(
+    declaredOrComposedDefault(route, "linear_stiffness", "linear_stiffness", units, false),
+    () => firstAbsentPart(COMPOSITIONS.linear_stiffness.parts, units)
+  );
+}
+
+/**
+ * Rotational stiffness `<moment>/<angle>` (§7.6), with the moment read as
+ * declared or composed (§2.4). An invalid part gives its notice; an absent one is
+ * named; the composed symbol is checked against the catalog.
+ */
+export function rotationalStiffnessFieldDefault(route: UnitCatalogRoute | null, units: Readonly<Record<string, unknown>>): FieldUnitDefault {
+  const moment = declaredOrComposedDefault(route, "moment", "moment", units, true);
+  const angle = readProjectUnitKey(units, "angle");
+  if (moment.notice) return { symbol: "", notice: moment.notice, missingKey: null };
+  if (angle.state === "invalid") return { symbol: "", notice: angle.notice, missingKey: null };
+  if (moment.symbol === "TBD") return { symbol: "", notice: null, missingKey: firstAbsentPart(COMPOSITIONS.moment.parts, units) };
+  if (angle.state === "absent") return { symbol: "", notice: null, missingKey: "angle" };
+  const checked = checkComposedDefault(route, `${moment.symbol}/${angle.symbol}`, "rotational_stiffness");
+  return { symbol: checked.symbol, notice: checked.notice, missingKey: null };
 }

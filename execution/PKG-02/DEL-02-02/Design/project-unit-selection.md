@@ -618,7 +618,7 @@ in the same files are not affected:
 |---|---|---|
 | CAEPIPE MBF (`CaepipeMbfExportPanel.tsx`) | node-coordinate source unit (`length`); the `UNIT` record's force and temperature symbols, written as stored | `MBF-PROJECT-UNIT-MISSING` |
 | PCF (`PcfExportPanel.tsx`) | node-coordinate source unit (`length`), the same in the payload and the witnesses | `PCF-PROJECT-UNIT-MISSING` |
-| Local FEA handoff (`LocalFeaHandoffPanel.tsx`) | `coordinate_unit` (`length`), `temperature_unit`, and `force_unit` and `stress_unit` where §7.7 takes them from the key | `LOCAL-FEA-PROJECT-UNIT-MISSING` |
+| Local FEA handoff (`LocalFeaHandoffPanel.tsx`) | `coordinate_unit` (`length`), `temperature_unit`, `force_unit` and `stress_unit` (the last two from the keys until §7.7 is settled) | `LOCAL-FEA-PROJECT-UNIT-MISSING` |
 
 - **The fallbacks.** The `??` fallbacks are removed. The MBF and PCF edits wait
   until #1646 merges, because it rewrites the same files' length conversion.
@@ -659,51 +659,50 @@ They appear in the inspector and in the component grid.
     kind of `core/units` addition as §7.3's. They are not requested here and
     are recorded as an improvement.
 
-### 7.7 Local FEA manifest result units (Agent 0's B)
+### 7.7 Local FEA manifest result units (Agent 0's B): stopped, touches DEL-10-03
 
 **The problem.**
-- The handoff refers to results; it does not carry their values. Its witnesses
+- The handoff refers to results; it does not carry their values. Witnesses
   record each referenced transfer row's value and unit as preserved
   (`export_unit_policy: preserve_source_result_unit_and_dimension`,
-  `conversion_performed: false`). The package defines those terms and their
-  schema.
-- Today `force_unit` and `stress_unit` come from the project keys, while the
-  rows they label carry the solver's units. Product-preview rows are in `N` and
-  `MPa`; exact-route rows are in `Pa`.
-- So an SI-preset project (`stress: Pa`) declares `Pa` beside `MPa` stress rows,
-  and a US-preset project declares `psi` and `lbf`.
+  `conversion_performed: false`), but only for displacement, force and moment
+  rows (`transferListName`).
+- The referenced stress rows appear only as ids (`entity_ids.result_ids`,
+  `criteria_input_refs`), so the package carries no stress value.
+- Today `force_unit` and `stress_unit` come from the project keys.
 
-**The proposal: declare the results' unit, rather than convert.**
-- Converting would add converted values the package does not carry and would
-  contradict the witness policy.
-- The rule, for `stress_unit` and `force_unit`:
-  - **Rows of the family are referenced, all in one unit.** That unit is
-    declared. A family is the rows `resultDimension` classes as stress or
-    force among `selectedResultRefs`.
-  - **They differ.** The handoff is refused:
-    `LOCAL-FEA-RESULT-UNIT-INCONSISTENT: the referenced <family> results carry
-    different units (<u1>, <u2>); no single <family>_unit can be declared.`
-    The download is withheld, and no packet is built.
-  - **No row of the family is referenced.** The member labels no result. It
-    keeps today's source, the project key, which §7.4 refuses by name when it is
-    missing. Today `selectedResultRefs` selects a force row only where the
-    model has `pipe:P-120`, so in most models `force_unit` is the project key.
-- **Out of scope.** `moment_unit`, `displacement_unit` and `rotation_unit` stay
-  as they are: `N*m`, `mm` and `rad`.
-  - On the routes the panel is open to, they equal the referenced rows' units.
-  - Rotation rows are never selected.
-  - Taking every member from the rows (B2) is a recorded improvement.
-- **DEL-10-03 ownership.** The proposal leaves DEL-10-03's own commitments
-  alone. `selectedResultRefs`, the transfer lists, the witnesses, their policy
-  and every referenced value are unchanged. It reads the `unit` of rows the
-  package already references, and changes the source of two manifest labels
-  that Agent 0's ruling covers.
-- **Regression.** In a model whose project stress key differs from the stress
-  rows' unit (SI `Pa`, US `psi`), `stress_unit` equals the unit of every
-  referenced stress row; before the change it was the project key.
-  - The same applies to `force_unit` with `lbf` against `N`.
-  - Mixed units refuse by name.
-  - With no stress row referenced, the declared unit is the key.
+**What the implementation attempt found.** The proposal was to declare the
+referenced rows' unit and refuse a family whose rows disagree. The bundled demo
+breaks it: its handoff references two stress rows in different units.
+- `result:elastic-maximum:10:load:L-100:10:pipe:P-100`, the summary's maximum,
+  is in `Pa`.
+- `result:stress:pipe-P-120:end-j:torsional-shear` is in `MPa`.
+
+Today's manifest says `MPa`, the demo's key, so the label already disagrees with
+one referenced row. The proposed rule would refuse the demo's handoff. No single
+declared `stress_unit` can agree with both rows, which leaves three ways out,
+each of them a DEL-10-03 change:
+- **(B-a) Convert in a stress witness.** Give each referenced stress row a
+  witness that keeps its source value and unit and adds a value converted to
+  the declared `stress_unit` (the key; Pa, MPa and psi convert routinely). This
+  changes the witness policy, the transfer lists and the witness schema
+  (`local_fea_handoff.schema.yaml`).
+- **(B-b) Per-row units.** The manifest declares units per referenced row, or
+  per family as a list. This changes the `UnitsManifest` schema
+  (`additionalProperties: false`).
+- **(B-c) Reference one unit per family.** Change `selectedResultRefs` so the
+  rows of a family share a unit. This changes which results the handoff
+  references.
+
+All three touch DEL-10-03's ownership of how the handoff references and
+represents result rows. Following Agent 0's instruction, B is not built in this
+slice: the implementation attempt was reverted, and the manifest is unchanged.
+The recommendation is B-a, conversion in witnesses, which follows the owner's
+conversion ruling and keeps one declared unit. It belongs to a DEL-10-03 item
+that Agent 0 sequences. Until then:
+- `force_unit` and `stress_unit` keep their project-key source;
+- §7.4 removes their fallbacks;
+- the demo's `stress_unit: MPa` beside a `Pa` row stays a recorded defect.
 
 ### 7.8 Ownership, overlap and sequencing
 
@@ -729,7 +728,7 @@ They appear in the inspector and in the component grid.
   - `PropertyInspector.tsx`, `ModelTree.tsx` and `modelTableAdapter.ts`;
   - `project-units/projectUnitSelection.ts` and `missingProjectUnit.ts`;
   - `load-cases/primitiveLoadVocabulary.ts`;
-  - the three export panels (§7.4, §7.7);
+  - the three export panels (§7.4);
   - tests.
   No applier, schema or solver file changes. The `core/units` entries in §7.3
   are held as described there.
@@ -768,12 +767,13 @@ They appear in the inspector and in the component grid.
   - A stored unit is kept.
 - **Grid.** An empty solve-temperature, gravity or modifier cell is refused by
   name, the refusal points to the inspector, and nothing is queued.
-- **Local FEA (§7.7).**
-  - With an SI or US project key against `MPa` or `N` rows, the manifest
-    declares the rows' unit.
-  - Mixed units refuse by name, with no link.
-  - With no stress row referenced, the declared unit is the key.
-  - The demo's manifest is unchanged (`MPa`, `N`).
+- **Local FEA (§7.7).** Waits for Agent 0's choice among B-a, B-b and B-c.
+  Whichever is chosen, its regression needs:
+  - an SI-preset key (`Pa`) and a US-preset key (`psi`/`lbf`) against rows in
+    `MPa`/`N`, and the demo's mixed `Pa`/`MPa` stress rows, each showing that
+    the declared unit and every referenced value agree;
+  - an absent result family;
+  - missing or inconsistent evidence refused by name.
 - **Export panels (§7.4, after #1646).**
   - Each required key missing (absent, empty or whitespace-only) shows the
     code and text, with no links.

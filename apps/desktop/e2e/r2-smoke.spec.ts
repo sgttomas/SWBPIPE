@@ -330,7 +330,8 @@ test("DEC-077 solve temperature queues an explicit unit-bearing operation", asyn
   const editorIntentPanel = page.getByTestId("editor-intent-panel");
   await selectCompactOption(editorIntentPanel
     .getByTestId("editor-intent-field"), "modulus_basis_temperature.value");
-  await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveAttribute("data-value", "K");
+  // W-17 slice (c) §7.2: the default is project.units.temperature (degC in the demo), no longer K.
+  await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveAttribute("data-value", "degC");
   await editorIntentPanel.getByTestId("editor-intent-value").fill("400");
   await openNamedDisclosure(editorIntentPanel, "Operation details");
   await expect(editorIntentPanel.getByTestId("editor-intent-validation")).toContainText(
@@ -342,7 +343,7 @@ test("DEC-077 solve temperature queues an explicit unit-bearing operation", asyn
     "modulus_basis_temperature.value"
   );
   await expect(editorIntentPanel.getByTestId("editor-intent-queue")).toContainText(
-    '{"value":400,"unit":"K"}'
+    '{"value":400,"unit":"degC"}'
   );
 });
 

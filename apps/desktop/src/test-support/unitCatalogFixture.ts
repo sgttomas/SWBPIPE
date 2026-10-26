@@ -16,6 +16,9 @@ export const CATALOG_FIXTURE_ROWS: ReadonlyArray<readonly [symbol: string, dimen
   ["N/m", "force_per_length", true], ["kN/m", "force_per_length", false], ["N/mm", "force_per_length", false],
   ["kN/mm", "force_per_length", false], ["lbf/ft", "force_per_length", false], ["lbf/in", "force_per_length", false],
   ["N/m", "linear_stiffness", true],
+  ["N*m/rad", "rotational_stiffness", true],
+  ["m^2", "area", true], ["mm^2", "area", false], ["in^2", "area", false],
+  ["m/s^2", "acceleration", true],
   ["1/K", "thermal_expansion_coefficient", true], ["1/degC", "thermal_expansion_coefficient", false], ["1/degF", "thermal_expansion_coefficient", false]
 ];
 

@@ -21,8 +21,12 @@ import {
   readProjectUnitKey,
   composedDefaultSymbol,
   composedDefaultsFor,
+  fieldComposedDefault,
+  linearStiffnessFieldDefault,
+  projectTemperatureDefault,
   projectUnitPresetFor,
-  projectUnitSelectionProblems
+  projectUnitSelectionProblems,
+  rotationalStiffnessFieldDefault
 } from "./projectUnitSelection";
 
 // W-17 slice (a), DEL-02-02 Design `project-unit-selection.md` §2.1-2.4 and §4.
@@ -205,12 +209,56 @@ describe("the catalog fixture against the core unit engine", () => {
     })));
     expect(accepted.filter((item) => item.status !== "converted")).toEqual([]);
     const misses: Array<[string, string]> = [
-      ["N*mm", "moment"], ["kN*mm", "moment"], ["N/in", "force_per_length"], ["kN/in", "force_per_length"], ["1/C", "thermal_expansion_coefficient"]
+      ["N*mm", "moment"], ["kN*mm", "moment"], ["N/in", "force_per_length"], ["kN/in", "force_per_length"], ["1/C", "thermal_expansion_coefficient"],
+      // Slice (c) §7.3: the acceleration entries revised (ii) needs are not yet in the core catalog;
+      // §7.6: nor is the US rotational stiffness. This expectation moves when they are added.
+      ["mm/s^2", "acceleration"], ["in/s^2", "acceleration"], ["ft/s^2", "acceleration"], ["lbf*in/deg", "rotational_stiffness"]
     ];
     const refused = await convertDisplayQuantities(misses.map(([symbol, dimension], index) => ({
       id: `miss-${index}`, value: 1, from_unit: symbol, to_unit: symbol, dimension_id: dimension
     })));
     expect(refused.map((item) => item.status)).toEqual(misses.map(() => "unavailable"));
     for (const [symbol, dimension] of misses) expect(canonicalCatalogEntry(CATALOG.catalog, symbol, dimension)).toBeNull();
+  });
+});
+
+// W-17 slice (c), DEL-02-02 Design §7.2, §7.3, §7.6.
+describe("slice (c) field defaults", () => {
+  it("project temperature: the stored symbol, C as degC, and \"\" for an absent, empty, whitespace-only or non-string key", () => {
+    expect(projectTemperatureDefault({ temperature: "degF" })).toBe("degF");
+    expect(projectTemperatureDefault({ temperature: "C" })).toBe("degC");
+    for (const units of [{}, { temperature: "" }, { temperature: "  " }, { temperature: 20 }]) expect(projectTemperatureDefault(units)).toBe("");
+    // The thermal primitive load shows the same reading, with TBD for none.
+    expect(primitiveLoadDefaultUnit(withUnits({ temperature: "C" }), "thermal", "global_x")).toBe("degC");
+    expect(primitiveLoadDefaultUnit(withUnits({ temperature: " " }), "thermal", "global_x")).toBe("TBD");
+  });
+
+  it("acceleration composes <length>/s^2: m/s^2 for m; the named notice where the catalog lacks it; the absent key named", () => {
+    expect(fieldComposedDefault(CATALOG, "acceleration", { length: "m" })).toEqual({ symbol: "m/s^2", notice: null, missingKey: null });
+    for (const length of ["mm", "in", "ft"]) {
+      expect(fieldComposedDefault(CATALOG, "acceleration", { length })).toEqual({ symbol: "", notice: `${length}/s^2 is not a catalog unit; choose one`, missingKey: null });
+    }
+    expect(fieldComposedDefault(CATALOG, "acceleration", {})).toEqual({ symbol: "", notice: null, missingKey: "length" });
+    expect(fieldComposedDefault(CATALOG, "acceleration", { length: " " })).toEqual({ symbol: "", notice: "project.units.length is empty; choose one", missingKey: null });
+    expect(fieldComposedDefault(PREVIEW, "acceleration", { length: "in" })).toEqual({ symbol: "in/s^2", notice: null, missingKey: null });
+  });
+
+  it("area composes <length>^2, a catalog unit for m, mm and in", () => {
+    for (const length of ["m", "mm", "in"]) expect(fieldComposedDefault(CATALOG, "area", { length }).symbol).toBe(`${length}^2`);
+    expect(fieldComposedDefault(CATALOG, "area", { length: "ft" }).notice).toBe("ft^2 is not a catalog unit; choose one");
+  });
+
+  it("linear and rotational stiffness: SI and the demo keep N/m and N*m/rad; US gives lbf/in and no rotational default", () => {
+    const demo = { length: "m", force: "N", angle: "rad", pressure: "Pa", temperature: "degC", stress: "MPa" };
+    for (const units of [SI_PROJECT_UNITS, demo]) {
+      expect(linearStiffnessFieldDefault(CATALOG, units).symbol).toBe("N/m");
+      expect(rotationalStiffnessFieldDefault(CATALOG, units).symbol).toBe("N*m/rad");
+    }
+    expect(linearStiffnessFieldDefault(CATALOG, US_CUSTOMARY_PROJECT_UNITS).symbol).toBe("lbf/in");
+    expect(rotationalStiffnessFieldDefault(CATALOG, US_CUSTOMARY_PROJECT_UNITS)).toEqual({ symbol: "", notice: "lbf*in/deg is not a catalog unit; choose one", missingKey: null });
+    expect(linearStiffnessFieldDefault(CATALOG, { length: "m" })).toEqual({ symbol: "", notice: null, missingKey: "force" });
+    expect(rotationalStiffnessFieldDefault(CATALOG, { length: "m", force: "N" })).toEqual({ symbol: "", notice: null, missingKey: "angle" });
+    expect(rotationalStiffnessFieldDefault(CATALOG, { angle: "rad" })).toEqual({ symbol: "", notice: null, missingKey: "force" });
+    expect(rotationalStiffnessFieldDefault(CATALOG, { moment: "N*m", angle: "" })).toEqual({ symbol: "", notice: "project.units.angle is empty; choose one", missingKey: null });
   });
 });
