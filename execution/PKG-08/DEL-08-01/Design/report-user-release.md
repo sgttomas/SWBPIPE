@@ -525,8 +525,10 @@ user-visible condition is the same; native admission now enforces it.
       (`:226-253`);
     - the stable sort's scratch buffer for the object being sorted, freed
       before its members are written;
-    - one string's escaped form, from `write_string` (`:335-337`), or one
-      number's text, each freed after it is put.
+    - one string's escaped form, from `write_string` (`:335-337`), or the
+      bounded simultaneous temporary strings used by `canonical_number`,
+      `ecma_number_to_string` and `shortest_digits` (`:400-497`), each freed
+      after it is put (Codex round 4, non-blocking).
   - The worker's existing growth path covers that heap. The grant formula, the
     result lease and the 2R custody are unchanged. The allocation checks of §6
     measure the peak on values built to maximize each piece.
@@ -1494,9 +1496,10 @@ leaves the sandbox directory empty, with no picker request.
     limit, each with many members,
     so the key vectors on the open path are largest; one object with the most
     members, for the sort scratch; and one long string of characters that
-    escape, for `write_string`. Each measured peak is at most the §2.4 sum of
-    live key vectors, one sort scratch and one escaped string, and within the
-    grant or lease that holds it.
+    escape, for `write_string`; and one numeric-heavy value exercising
+    exponential formatting. Each measured peak is within the §2.4 allocation
+    account, including number-formatting temporaries, and within the grant or
+    lease that holds it.
 
 **Owner property 2: redaction applies to every other context.**
 - The existing corpus cases are not edited. A vitest and a pytest pin the
