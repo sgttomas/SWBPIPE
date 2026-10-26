@@ -23,7 +23,9 @@ Standard claim fence applies (claims taxonomy per DEC-081).
 - **Ruling 10A (owner, 2026-10-21):** exact-route results stay refused for
   reports and the report package until DEL-08-01 designs their limitation
   sections. Opening them returns to the owner (W-11). This design does not open
-  them.
+  them. The owner opened the rendered report and the report package for
+  pressure-2 and pressure-source-1 on 2026-10-26 (DEL-08-01 Design
+  `exact-route-report-sections.md` §0).
 - **Scope of this design:** Save Report Package (local-private) for a Current
   pressure-free result (route `preview_physics`, identity
   `openpipestress.result_semantics/0.3.0/preview-physics-2`,

@@ -207,7 +207,7 @@ Missing or malformed evidence findings keep "Needs recompute". Admission is unch
 - **One derived presentation object** (the parse output plus scoped state and texts) feeds every surface. Admission and refusals are unchanged.
 - **Result JSON and stress-neutral exports** are unchanged. They already carry `numerical_quality` and the integrity diagnostics verbatim.
 - **The report and rendered report** gain one line per load case before the diagnostics section: "Numerical health of the ordinary solve: {state}." They admit only Current generic-route results, so in v0.1 the line reads "checks passed". The conditioning figure is not exported.
-- **Exact-route reports, handoffs and the report package** keep their existing refusals.
+- **Exact-route reports, handoffs and the report package** keep their existing refusals. Since the owner opened the rendered report and the report package for pressure-2 and pressure-source-1 (W-11, 2026-10-26), an exact report carries no numerical-health line (DEL-08-01 Design `exact-route-report-sections.md` §6.1); handoffs and the report JSON packet keep their refusals.
 
 ## 6. Claims registry (owner text)
 

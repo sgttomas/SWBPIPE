@@ -1502,7 +1502,11 @@ differences, each fail-closed:
   exact-route result; …`; `openpipestress-runner.rs`,
   `del1005_package_witness.rs` `the_runner_package_path_refuses_the_exact_witness_requests`).
   The shared root still refuses them under the runner profile
-  (`REPORT-PACKAGE-EXACT-RUNNER-PROFILE`).
+  (`REPORT-PACKAGE-EXACT-RUNNER-PROFILE`). Why: §5.4 keeps `headless-runner`
+  refused, and only the desktop has the Export Result JSON admission and the
+  native source binding (§3.5, §3.6); the refusal keeps the code the runner
+  gave before opening, and the test pins it by driving the runner binary on
+  each witness request and the same-run substitute, under both profiles.
 - **No test-only set remains.** `EXACT_WITNESS_ADMITTED` and
   `EXACT_RENDER_WITNESS_ADMITTED` are removed, and the scans' assertion 4 now
   checks that no set other than `PRODUCTION` is constructed or declared in any
@@ -1517,6 +1521,38 @@ differences, each fail-closed:
   physics-retained-1 at the render's step 0, the package's item 0 (producer and
   reader, the reader's with the committed exact-successor derivative document,
   which is well formed) and the desktop identity check.
+- **The exact save's memory check** now runs through the shared producer's
+  assembly of the admitted package: priced peak 45,915,856 bytes within its
+  110,845,552-byte lease (the render's is unchanged, 6,642,400 within
+  12,099,728); DEL-04-07 `memory-budget-decision.md` records both.
+- **Readability of the evidence reports (observations, not changed).** Each
+  was checked against a pressure-free report of today (the committed
+  pressure-free result `fixtures/results/preview_physics_connected_sparse.json`
+  and the headless runner's pressure-free package of
+  `del1005_export_results_success_input.json`):
+  - the Diagnostics table prints the numerical-integrity evidence as a raw
+    debug dump (`StructuralReport { … PivotEvidence { … } }`), most of each
+    PDF's length. **Pre-existing:** the pressure-free result's
+    `NUMERICAL_INTEGRITY_CHECKS_PASSED` message carries the same dump, and the
+    renderer carries result diagnostics on both routes;
+  - limitation ids and scopes name the run `run:preview-linear-static-001`.
+    **Pre-existing:** the product producer names every desktop run so
+    (`product_physics/src/lib.rs:3278`), and the pressure-free report's
+    technical-preview entry carries it; the exact entries
+    (`…:exact:<n>`) add more ids with the same run name;
+  - values are printed with every digit. **Pre-existing** for result rows
+    (`reportResultRows.ts:48`, `${value} ${unit}`, e.g. 28.462881029847143 MPa
+    on the pressure-free route). **New** on exact reports: the stress
+    headlines, which quote the producer's summary maxima in Pa (e.g.
+    41354908.75465696 Pa); a pressure-free rendered report has no headline;
+  - the pressure-source-1 example (synthetic n05) shows 0 Pa for both
+    headlines, and its standing line says "integrity checked" while
+    Diagnostics carries `NUMERICAL_INTEGRITY_SENSITIVE`. **New:** the standing
+    line and the headlines exist only on exact reports, and the
+    numerical-health line, which on a pressure-free report states the
+    ordinary solve's numerical-health state, is omitted from exact reports
+    (§6.1); the 0 Pa values are
+    the synthetic fixture's.
 - **Texts.** The same rewording of item 2 also applies to the pressure
   authoring panel's mode line (`PressureAuthoringPanel.tsx`), which repeated
   the refusal's list of admitting surfaces. Appendix A.2 adds O15 for the
