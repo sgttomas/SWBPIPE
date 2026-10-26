@@ -238,6 +238,63 @@ function mappedProvenanceRecord(record: Record<string, unknown>): ReportProvenan
   };
 }
 
+/** The disposition members the package save screens at every depth, with the values that
+ * block (`src-tauri/src/export_disposition_screen.rs` `SCREENED_MEMBERS`, W-6a's policy). */
+const SCREENED_DISPOSITIONS: Readonly<Record<string, readonly string[]>> = Object.freeze({
+  redistribution_status: ["protected_suspected", "rejected"],
+  review_status: ["quarantined", "rejected"],
+  privacy_class: ["protected_suspected", "quarantined", "rejected"],
+  privacy_classification: ["protected_suspected", "quarantined", "rejected"],
+  classification: ["protected_suspected", "quarantined", "rejected"],
+  lifecycle_status: ["quarantined", "rejected"]
+});
+
+/** A structured provenance source (a `provenance_record`, or an object- or array-valued
+ * note) whose disposition member is an array or an object: the package save refuses it as
+ * malformed, and so does the report. */
+export const REPORT_PROVENANCE_DISPOSITION_MALFORMED = "REPORT-PROVENANCE-DISPOSITION-MALFORMED";
+
+type FoundDisposition = { path: string; member: string; status: string };
+
+/** Every blocking disposition at any depth of `value` (each object judged by its own
+ * members, nothing inherited), and every disposition member that is an array or object. */
+function screenDispositions(value: unknown, path: string, found: FoundDisposition[], malformed: string[]): void {
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => screenDispositions(item, `${path}[${index}]`, found, malformed));
+    return;
+  }
+  const object = recordObject(value);
+  if (!object) return;
+  for (const [key, child] of Object.entries(object)) {
+    const at = `${path}.${key}`;
+    const blocking = Object.prototype.hasOwnProperty.call(SCREENED_DISPOSITIONS, key) ? SCREENED_DISPOSITIONS[key] : null;
+    if (blocking && typeof child === "string" && blocking.includes(child)) found.push({ path: at, member: key, status: child });
+    if (blocking && typeof child === "object" && child !== null) malformed.push(`${at} is ${Array.isArray(child) ? "an array" : "an object"}`);
+    screenDispositions(child, at, found, malformed);
+  }
+}
+
+/** W-11 slice (c) (§6.2): the report record of a structured source keeps the source's
+ * blocking dispositions at any depth, so the renderer refuses it as the package save refuses
+ * the model: a `quarantined` or `rejected` value anywhere becomes the record's
+ * `review_status`, and `protected_suspected` anywhere its `redistribution_status`. A
+ * malformed disposition refuses the build, naming the entity and member. */
+function withSourceDispositions(record: ReportProvenanceRecord, source: unknown, where: string, root: string): ReportProvenanceRecord {
+  const found: FoundDisposition[] = [];
+  const malformed: string[] = [];
+  screenDispositions(source, root, found, malformed);
+  if (malformed.length > 0) {
+    throw new Error(`${REPORT_PROVENANCE_DISPOSITION_MALFORMED}: ${where}: ${malformed.join("; ")}; its disposition cannot be judged, so nothing was rendered.`);
+  }
+  const review = found.find((item) => item.status === "quarantined" || item.status === "rejected");
+  const suspected = found.some((item) => item.status === "protected_suspected");
+  return {
+    ...record,
+    ...(review ? { review_status: review.status } : {}),
+    ...(suspected ? { redistribution_status: "protected_suspected" } : {})
+  };
+}
+
 /** The value's review status (§4.1): the record's, except that a missing-data finding whose
  * record says `accepted` carries `pending` (the record keeps `accepted`). */
 function valueReviewStatus(record: ReportProvenanceRecord, missing: boolean): string {
@@ -246,7 +303,9 @@ function valueReviewStatus(record: ReportProvenanceRecord, missing: boolean): st
 
 function componentReportRecord(component: PreviewComponent, base: ReportProvenanceRecord): ReportProvenanceRecord {
   const structured = recordObject(component.provenance_record);
-  return structured ? mappedProvenanceRecord(structured) : componentProvenanceRecord(component, base);
+  return structured
+    ? withSourceDispositions(mappedProvenanceRecord(structured), structured, `component ${component.id}`, "provenance_record")
+    : componentProvenanceRecord(component, base);
 }
 
 function componentProvenanceValues(
@@ -334,8 +393,9 @@ function supportSubjects(model: PreviewModel): ProvenanceSubject[] {
  * without one, the component pattern over its `provenance` note (an object-valued section
  * note as its RFC 8785 text). */
 async function subjectReportRecord(subject: ProvenanceSubject): Promise<ReportProvenanceRecord> {
+  const where = `${subject.kind} ${subject.id}`;
   const structured = recordObject(subject.entity.provenance_record);
-  if (structured) return mappedProvenanceRecord(structured);
+  if (structured) return withSourceDispositions(mappedProvenanceRecord(structured), structured, where, "provenance_record");
   const note = subject.entity.provenance;
   const noteText = typeof note === "string"
     ? note.trim()
@@ -343,7 +403,8 @@ async function subjectReportRecord(subject: ProvenanceSubject): Promise<ReportPr
       ? await canonicalJsonString(note)
       : "";
   const name = subject.kind === "material" ? `${subject.label} material provenance` : `${subject.label} ${subject.kind} provenance`;
-  return {
+  // A structured note is screened before it is flattened into the record's location text.
+  return withSourceDispositions({
     source_name: name,
     source_location: noteText ? `${subject.kind}.provenance=${noteText}` : `${subject.kind} provenance missing`,
     source_license: "user_supplied_or_private",
@@ -352,7 +413,7 @@ async function subjectReportRecord(subject: ProvenanceSubject): Promise<ReportPr
     redistribution_status: "private_only",
     review_status: "pending",
     privacy_classification: "private_project_data"
-  };
+  }, typeof note === "object" ? note : null, where, "provenance");
 }
 
 /** The records, values and diagnostics of the model's materials, sections and supports with

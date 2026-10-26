@@ -1657,13 +1657,52 @@ describe("FR-REP-003 disposition and context boundary (W-11 slice (c), §4.3, §
       if ("review_status" in record) expect(value.review_status).toBe(record.review_status);
       // The webview's local-private control under the panel's intent passes the record
       // through unchanged (its route projection makes it opaque leaves); the native renderer
-      // refuses quarantined, rejected, protected_suspected and unknown records
-      // (`report_renderer` REPORT_PROVENANCE_DISPOSITION_BLOCKED and the section validation,
-      // `fr_rep_003_records_render_or_refuse_by_disposition_in_every_context`).
+      // refuses quarantined, rejected and protected_suspected records in every context, and
+      // shows an unknown one with a non-blocking warning only under local_private (owner
+      // ruling on #1639, "C1 b, C2 a"; `report_renderer` tests
+      // `fr_rep_003_records_render_only_locally_and_refuse_blocking_dispositions_in_every_context`,
+      // `an_unresolved_record_warns_in_local_private_and_blocks_elsewhere`).
       const controlled = reportRedactionProjector.controlReportRendererInput(input, true);
       expect(controlled.blocked, name).toBe(false);
       expect(JSON.stringify(controlled.payload)).toContain(JSON.stringify(record).slice(1, -1));
     }
+  });
+
+  it("screens structured notes and records at any depth before flattening, as the package save screens the model", async () => {
+    const cases: [string, (model: PreviewModel) => void, Record<string, string>][] = [
+      ["a note's own review", (model) => { model.sections![1].provenance = { source: "invented", review_status: "quarantined" }; }, { review_status: "quarantined" }],
+      ["a nested record in a note", (model) => { model.sections![1].provenance = { source: "invented", records: [{ note: "x", review_status: "rejected" }] }; }, { review_status: "rejected" }],
+      ["a nested redistribution in a note", (model) => { model.sections![1].provenance = { source: { redistribution_status: "protected_suspected" } }; }, { redistribution_status: "protected_suspected" }],
+      ["a nested privacy class in a note", (model) => { model.sections![1].provenance = { source: { privacy_classification: "protected_suspected" } }; }, { redistribution_status: "protected_suspected" }],
+      ["a lifecycle status in a note", (model) => { model.sections![1].provenance = { pack: { lifecycle_status: "rejected" } }; }, { review_status: "rejected" }],
+      ["a record's own privacy class", (model) => { (model.materials![0].provenance_record as Record<string, unknown>).privacy_classification = "protected_suspected"; }, { redistribution_status: "protected_suspected" }],
+      ["a record's nested member", (model) => { (model.materials![0].provenance_record as Record<string, unknown>).extra = { deep: [{ review_status: "quarantined" }] }; }, { review_status: "quarantined" }]
+    ];
+    for (const [name, edit, carried] of cases) {
+      const model = recordModel();
+      edit(model);
+      const input = await buildFor(model);
+      const subject = name.includes("note") ? "section-provenance:section:object-note" : "material-provenance:material:with-record";
+      const value = input.report_sections.user_supplied_values.find((item) => item.value_id === subject)!;
+      expect(value.provenance, name).toMatchObject(carried);
+      expect(input.report_sections.provenance_notes, name).toContainEqual(value.provenance);
+      if (carried.review_status) expect(value.review_status, name).toBe(carried.review_status);
+      // The webview's own control passes it on; the native renderer refuses it.
+      expect(reportRedactionProjector.controlReportRendererInput(input, true).blocked, name).toBe(false);
+    }
+    // A malformed disposition member refuses the build, naming the entity and member.
+    const malformed: [(model: PreviewModel) => void, string][] = [
+      [(model) => { model.sections![1].provenance = { source: { review_status: ["quarantined"] } }; }, "section section:object-note: provenance.source.review_status is an array"],
+      [(model) => { (model.materials![0].provenance_record as Record<string, unknown>).review_status = { value: "rejected" }; }, "material material:with-record: provenance_record.review_status is an object"],
+      [(model) => { (model.components[1].provenance_record as Record<string, unknown>).classification = {}; }, "component component:C-999: provenance_record.classification is an object"]
+    ];
+    for (const [edit, detail] of malformed) {
+      const model = recordModel();
+      edit(model);
+      await expect(buildFor(model)).rejects.toThrow(`REPORT-PROVENANCE-DISPOSITION-MALFORMED: ${detail}`);
+    }
+    // A clean structured note is unchanged.
+    expect((await buildFor(recordModel())).report_sections.provenance_notes[7]).toMatchObject({ redistribution_status: "private_only", review_status: "pending" });
   });
 
   it("withholds every record from the public-report context: blocked before IPC, nothing sent", async () => {
@@ -1680,6 +1719,44 @@ describe("FR-REP-003 disposition and context boundary (W-11 slice (c), §4.3, §
     await waitFor(() => expect(screen.getByTestId("rendered-report-redaction-summary")).toHaveTextContent("context=public_report"));
     expect(screen.getByTestId("rendered-report-redaction-summary")).toHaveTextContent("blocked=true");
     expect(invokeMock).not.toHaveBeenCalled();
+  });
+
+  // Owner ruling on #1639 ("C1 b, C2 a", owner, 2026-10-26): authored record text, a
+  // user-typed path in `source_location` included, stays as written in local-private outputs,
+  // and reaches no other: the public render is blocked before IPC and the report packet
+  // carries no record (the native public render refuses it: `report_renderer` test
+  // `a_typed_path_stays_local`).
+  it("keeps a typed source_location path as written locally and out of every other output", async () => {
+    const path = "/Users/invented-user/datasheets/steel-a.pdf";
+    const model = recordModel();
+    (model.materials![0].provenance_record as Record<string, unknown>).source_location = path;
+    const local = await buildFor(model);
+    expect(local.report_sections.provenance_notes.find((note) => note.source_name === "Invented steel datasheet")?.source_location).toBe(path);
+    const controlled = reportRedactionProjector.controlReportRendererInput(local, true);
+    expect(controlled.blocked).toBe(false);
+    expect(JSON.stringify(controlled.payload)).toContain(JSON.stringify(path));
+    // Public render: blocked before IPC, no payload, nothing sent.
+    const publicInput = await buildFor(model, { renderContext: PUBLIC_CONTEXT });
+    const publicControlled = reportRedactionProjector.controlReportRendererInput(publicInput, false);
+    expect(publicControlled.blocked).toBe(true);
+    expect(publicControlled.payload).toBeNull();
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(unblockedOutcome());
+    const { unmount } = renderPanel({ model });
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-redaction-summary")).toHaveTextContent("blocked=true"));
+    expect(invokeMock).not.toHaveBeenCalled();
+    expect(document.body.textContent ?? "").not.toContain(path);
+    unmount();
+    // The report packet (public DOM/JSON route) carries no record.
+    vi.spyOn(reportRedactionProjector, "controlReportDomAndJson").mockImplementation((payload) => ({
+      payload, decisions: [], findings: [], blocked: false,
+      summary: { decision_count: 0, finding_count: 0, redacted_count: 0, omitted_count: 0, warning_count: 0, blocking_count: 0, cloud_transmission_attempted: false, professional_claims_made: false, route_id: "test", materialization_withheld: false }
+    }) as unknown as ReturnType<typeof reportRedactionProjector.controlReportDomAndJson>);
+    render(<ReportPanel model={model} knowledge={null} result={inventedResult()} analysisRun={inventedRun()} comparison={null}
+      editorIntents={[]} projectOperation="idle" projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={null} />);
+    expect(document.body.textContent ?? "").not.toContain(path);
+    expect(document.body.innerHTML).not.toContain(path);
   });
 
   it("keeps the report packet free of the new records", () => {
@@ -1707,7 +1784,11 @@ describe("schema check of representative records (W-11 slice (c), §7)", () => {
     ] as never;
     model.sections = [
       { id: "section:rejected", name: "Invented rejected section", section_type: "pipe", properties: {}, provenance: "", provenance_record: inventedRecord("Invented rejected table", { review_status: "rejected" }) },
-      { id: "section:object-note", name: "Invented object section", section_type: "pipe", properties: {}, provenance: { source: "invented", page: 3 } }
+      { id: "section:object-note", name: "Invented object section", section_type: "pipe", properties: {}, provenance: { source: "invented", page: 3 } },
+      // Structured notes and a record whose blocking dispositions are nested (§6.2).
+      { id: "section:nested-rejected", name: "Invented nested section", section_type: "pipe", properties: {}, provenance: { source: "invented", records: [{ note: "x", review_status: "rejected" }] } },
+      { id: "section:note-quarantined", name: "Invented quarantined note section", section_type: "pipe", properties: {}, provenance: { source: "invented", review_status: "quarantined" } },
+      { id: "section:nested-suspected", name: "Invented suspected section", section_type: "pipe", properties: {}, provenance: "", provenance_record: inventedRecord("Invented suspected table", { extra: { redistribution_status: "protected_suspected" } }) }
     ] as never;
     model.components[1].provenance_record = inventedRecord("Invented quarantined component record", { review_status: "quarantined" }) as never;
     model.supports = [
@@ -1718,7 +1799,7 @@ describe("schema check of representative records (W-11 slice (c), §7)", () => {
     const content = `${JSON.stringify({
       schema_version: "1.0.0",
       generator: "apps/desktop/src/features/report/renderedReport.test.tsx",
-      description: "W-11 slice (c) (DEL-08-01 Design exact-route-report-sections.md sections 4.1 and 7): the desktop builder's report_sections for an invented model with materials, sections, a component and supports, each with and without a provenance_record, and records marked accepted, rejected and quarantined. Validated against schemas/report_sections.schema.yaml by tests/test_report_sections_provenance_records.py and read by the renderer's tests. Invented data only.",
+      description: "W-11 slice (c) (DEL-08-01 Design exact-route-report-sections.md sections 4.1 and 7): the desktop builder's report_sections for an invented model with materials, sections, a component and supports, each with and without a provenance_record, and records marked accepted, rejected and quarantined, including blocking dispositions nested in structured notes and records. Validated against schemas/report_sections.schema.yaml by tests/test_report_sections_provenance_records.py and read by the renderer's tests. Invented data only.",
       report_sections: input.report_sections
     }, null, 2)}\n`;
     const name = "report_sections_provenance_records.json";

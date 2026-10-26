@@ -448,6 +448,53 @@ mod tests {
         );
     }
 
+    /// Owner ruling on #1639 ("C1 b, C2 a", owner, 2026-10-26): the package
+    /// renders its members as the rendered report does. A local-private
+    /// package with an unresolved FR-REP-003 record assembles with the
+    /// non-blocking warning in its HTML member; a quarantined record blocks it;
+    /// any other export context is refused.
+    #[test]
+    fn the_package_renders_unresolved_records_as_the_report_does() {
+        let with_record = |redistribution: &str, review: &str| {
+            let mut source = request_with_component_provenance_projection();
+            let record = serde_json::json!({
+                "source_name": "Invented material datasheet", "source_location": "invented-datasheet-shelf", "source_license": "invented-license",
+                "contributor": "invented contributor", "contributor_certification": "invented certification",
+                "redistribution_status": redistribution, "review_status": review, "privacy_classification": "private_project_data"
+            });
+            let sections = &mut source["report"]["report_sections"];
+            sections["provenance_notes"].as_array_mut().unwrap().push(record.clone());
+            sections["user_supplied_values"].as_array_mut().unwrap().push(serde_json::json!({
+                "value_id": "material-provenance:material:invented-steel", "value_category": "report_metadata",
+                "source": {"ref_type": "material", "ref_id": "material:invented-steel"}, "provenance": record,
+                "privacy_classification": "private_project_data", "required_for": ["reporting", "human_review"],
+                "review_status": review, "missing_data_finding": false
+            }));
+            source
+        };
+        let assemble = |source: serde_json::Value| {
+            let request: ReportPackageRequest = serde_json::from_value(source).unwrap();
+            assemble_wire_request(request, &linked_product_solver())
+        };
+        assert_eq!(with_record("private_only", "pending")["report"]["report_context"]["export_context"], "local_private");
+        let outcome = assemble(with_record("unknown", "pending")).expect("an unresolved record assembles locally");
+        assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+        let html = std::str::from_utf8(&outcome.members.iter().find(|member| member.role == package::ROLE_REPORT_HTML).unwrap().bytes).unwrap();
+        assert!(html.contains("<td>REPORT_SECTION_PROVENANCE_UNRESOLVED</td><td>warning</td><td>user_supplied_value material-provenance:material:invented-steel: redistribution status unknown; "));
+        let blocked = assemble(with_record("private_only", "quarantined")).expect("assembles, blocked");
+        assert!(blocked.export_blocked);
+        assert!(blocked.blocking_reasons.iter().any(|reason| reason.contains("REPORT_PROVENANCE_DISPOSITION_BLOCKED")), "{:?}", blocked.blocking_reasons);
+        let mut public = with_record("unknown", "pending");
+        public["report"]["report_context"]["export_context"] = serde_json::json!("public_report");
+        match assemble(public) {
+            Err(error) => assert!(error.contains("REPORT-PACKAGE-REPORT-CONTEXT-NOT-LOCAL-PRIVATE") || error.contains("local_private"), "{error}"),
+            Ok(outcome) => {
+                assert!(outcome.export_blocked);
+                assert!(outcome.blocking_reasons.iter().any(|reason| reason.contains("REPORT_SECTION_PROVENANCE_UNRESOLVED")), "{:?}", outcome.blocking_reasons);
+            }
+        }
+    }
+
     #[test]
     fn malformed_component_provenance_fails_closed_at_rust_consumer_validation() {
         let mut source = request_with_component_provenance_projection();

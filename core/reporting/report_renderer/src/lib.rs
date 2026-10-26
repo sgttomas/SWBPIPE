@@ -844,8 +844,10 @@ pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<AssembledS
                 ("Results", blocks)
             }
             "warnings_assumptions_provenance" => {
+                let unresolved = unresolved_provenance_warnings(input);
                 let diagnostic_rows = sections::sorted_diagnostics(disclosure)
-                    .iter()
+                    .into_iter()
+                    .chain(unresolved.iter())
                     .map(|diagnostic| {
                         vec![
                             diagnostic.code.clone(),
@@ -1445,19 +1447,83 @@ pub fn exact_route_blocking_reasons(
 /// §6.2).
 pub const REPORT_PROVENANCE_DISPOSITION_BLOCKED: &str = "REPORT_PROVENANCE_DISPOSITION_BLOCKED";
 
-/// The report's provenance records whose disposition blocks export (W-11
-/// slice (c), §4.3, §6.2), as `report provenance:
-/// REPORT_PROVENANCE_DISPOSITION_BLOCKED (<where> <member> <value>)`. The
-/// blocking values are the library import's and the package save's
-/// (`export_disposition_screen.rs` `SCREENED_MEMBERS`): `review_status`
-/// `quarantined` or `rejected` on every report-section provenance record and
-/// user-supplied value, and on each library reference's record also
-/// `redistribution_status` or `privacy_classification` `protected_suspected`
-/// (report-section records with `protected_suspected` are already refused by
-/// the section validation, `REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED`). The
-/// webview's route projection makes these records opaque leaves, so the
+/// The code of a report whose provenance records are private while its export
+/// context is not `local_private` (W-11 slice (c), §6.2).
+pub const REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE: &str = "REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE";
+
+/// The context the report's provenance rules are judged in: local-private only
+/// when the report records `local_private` (owner ruling on #1639, "C1 b, C2
+/// a", 2026-10-26); a public report, an absent context or any other is not.
+pub fn provenance_context(input: &RenderableReportInput) -> sections::ProvenanceContext {
+    match input.report_context.as_ref().map(|context| context.export_context) {
+        Some(ReportExportContext::LocalPrivate) => sections::ProvenanceContext::LocalPrivate,
+        _ => sections::ProvenanceContext::NotLocalPrivate,
+    }
+}
+
+/// The non-blocking warnings a local-private report shows for its unresolved
+/// (`unknown` or `TBD`) provenance records, the report sections' and the
+/// library references', after the report's own diagnostics in the warnings
+/// section. Empty in every other context, where they block instead, and
+/// without unresolved records, so such an input renders byte-identically.
+pub fn unresolved_provenance_warnings(input: &RenderableReportInput) -> Vec<sections::Diagnostic> {
+    if provenance_context(input) != sections::ProvenanceContext::LocalPrivate {
+        return Vec::new();
+    }
+    let unresolved = |item: &sections::Diagnostic| item.code == "REPORT_SECTION_PROVENANCE_UNRESOLVED" && item.severity == sections::Severity::Warning;
+    let mut warnings: Vec<sections::Diagnostic> = sections::validate_report_sections_in(&input.report_sections, sections::ProvenanceContext::LocalPrivate)
+        .diagnostics
+        .into_iter()
+        .filter(unresolved)
+        .collect();
+    for reference in input.library_references.iter().flatten() {
+        let affected = sections::Reference::new("library_reference", format!("{} (referenced by {})", reference.reference_id, reference.entity_refs.join(", ")));
+        warnings.extend(
+            sections::validate_provenance_record(&reference.provenance, affected, sections::ProvenanceContext::LocalPrivate)
+                .into_iter()
+                .filter(unresolved),
+        );
+    }
+    warnings
+}
+
+/// The remediation every disposition refusal names.
+const DISPOSITION_REMEDIATION: &str = "review that record's disposition in the model before reporting";
+
+/// A record is public only when both its privacy class and its redistribution
+/// status are public; every other class is private record content.
+fn record_is_public(privacy: sections::PrivacyClassification, redistribution: sections::RedistributionStatus) -> bool {
+    matches!(privacy, sections::PrivacyClassification::PublicMetadata | sections::PrivacyClassification::InventedPublicExample)
+        && matches!(
+            redistribution,
+            sections::RedistributionStatus::PublicPermissive | sections::RedistributionStatus::InventedNonEngineeringExample
+        )
+}
+
+/// The report's provenance refusals (W-11 slice (c), §4.3, §6.2), each of
+/// which blocks export:
+/// - `report provenance: REPORT_PROVENANCE_DISPOSITION_BLOCKED (<where> <member>
+///   <value>; ...)`: a `review_status` of `quarantined` or `rejected` (the
+///   library import's and the package save's blocking values,
+///   `export_disposition_screen.rs` `SCREENED_MEMBERS`) on any report-section
+///   provenance record, on a user-supplied value or an assumption itself, or on
+///   a library reference's record. A user-supplied value is named by its
+///   `value_id` (`<kind>-provenance:<entity id>`), a library reference by its
+///   owners, so the reason names the entity and field to correct;
+/// - `library references: <code> (library_references[i] ...)`: a library
+///   reference's record judged by the section validation's own provenance
+///   rules ([`sections::validate_provenance_record`]: incomplete,
+///   `protected_suspected`, `unknown` or `TBD`), as every report-section
+///   record already is;
+/// - `report provenance: REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE (...)`:
+///   any private record (a privacy class or redistribution status that is not
+///   public) when the report's export context is absent or not
+///   `local_private`, so a direct native call cannot render private record
+///   content outside the local-private route.
+///
+/// The webview's route projection makes these records opaque leaves, so the
 /// renderer judges them itself, for every emission (HTML, print view, PDF and
-/// the package's members). Reasons name positions and statuses only.
+/// the package's members). A clean input allocates nothing here.
 pub fn provenance_disposition_blocking_reasons(input: &RenderableReportInput) -> Vec<String> {
     fn review_blocks(status: sections::ReviewStatus) -> Option<&'static str> {
         match status {
@@ -1466,40 +1532,85 @@ pub fn provenance_disposition_blocking_reasons(input: &RenderableReportInput) ->
             _ => None,
         }
     }
-    let mut reasons = Vec::new();
-    let mut push = |place: String, member: &str, value: &str| {
-        reasons.push(format!("report provenance: {REPORT_PROVENANCE_DISPOSITION_BLOCKED} ({place} {member} {value})"));
-    };
-    let report_sections = &input.report_sections;
-    // Places are composed only for a blocking record, so a clean input allocates nothing here.
-    let mut judge = |collection: &str, suffix: &str, records: &mut dyn Iterator<Item = &sections::Provenance>| {
+    fn push(reasons: &mut Vec<String>, place: String, member: &str, value: &str) {
+        reasons.push(format!(
+            "report provenance: {REPORT_PROVENANCE_DISPOSITION_BLOCKED} ({place} {member} {value}; {DISPOSITION_REMEDIATION})"
+        ));
+    }
+    fn judge(reasons: &mut Vec<String>, collection: &str, suffix: &str, records: &mut dyn Iterator<Item = &sections::Provenance>) {
         for (index, record) in records.enumerate() {
             if let Some(value) = review_blocks(record.review_status) {
-                push(format!("{collection}[{index}]{suffix}"), "review_status", value);
+                push(reasons, format!("{collection}[{index}]{suffix}"), "review_status", value);
             }
         }
-    };
-    judge("diagnostics", ".provenance", &mut report_sections.diagnostics.iter().map(|item| &item.provenance));
-    judge("provenance_notes", "", &mut report_sections.provenance_notes.iter());
-    judge("user_supplied_values", ".provenance", &mut report_sections.user_supplied_values.iter().map(|item| &item.provenance));
-    judge("assumptions", ".provenance", &mut report_sections.assumptions.iter().map(|item| &item.provenance));
-    judge("limitations", ".provenance", &mut report_sections.limitations.iter().map(|item| &item.provenance));
+    }
+    let mut reasons = Vec::new();
+    let report_sections = &input.report_sections;
+    judge(&mut reasons, "diagnostics", ".provenance", &mut report_sections.diagnostics.iter().map(|item| &item.provenance));
+    judge(&mut reasons, "provenance_notes", "", &mut report_sections.provenance_notes.iter());
+    judge(&mut reasons, "assumptions", ".provenance", &mut report_sections.assumptions.iter().map(|item| &item.provenance));
+    judge(&mut reasons, "limitations", ".provenance", &mut report_sections.limitations.iter().map(|item| &item.provenance));
     for (index, value) in report_sections.user_supplied_values.iter().enumerate() {
+        if let Some(status) = review_blocks(value.provenance.review_status) {
+            push(&mut reasons, format!("user_supplied_values[{index}] {} provenance", value.value_id), "review_status", status);
+        }
         if let Some(status) = review_blocks(value.review_status) {
-            push(format!("user_supplied_values[{index}]"), "review_status", status);
+            push(&mut reasons, format!("user_supplied_values[{index}] {}", value.value_id), "review_status", status);
+        }
+    }
+    for (index, assumption) in report_sections.assumptions.iter().enumerate() {
+        if let Some(status) = review_blocks(assumption.review_status) {
+            push(&mut reasons, format!("assumptions[{index}] {}", assumption.assumption_id), "review_status", status);
         }
     }
     for (index, reference) in input.library_references.iter().flatten().enumerate() {
-        let place = || format!("library_references[{index}].provenance");
         let record = &reference.provenance;
         if let Some(value) = review_blocks(record.review_status) {
-            push(place(), "review_status", value);
+            push(&mut reasons, format!("library_references[{index}] (referenced by {}) provenance", reference.entity_refs.join(", ")), "review_status", value);
         }
-        if record.redistribution_status == sections::RedistributionStatus::ProtectedSuspected {
-            push(place(), "redistribution_status", "protected_suspected");
+        let affected = sections::Reference::new("library_reference", &reference.reference_id);
+        for diagnostic in sections::validate_provenance_record(record, affected, provenance_context(input)) {
+            if diagnostic.severity == sections::Severity::Blocking {
+                reasons.push(format!(
+                    "library references: {} (library_references[{index}] referenced by {}; {DISPOSITION_REMEDIATION})",
+                    diagnostic.code,
+                    reference.entity_refs.join(", ")
+                ));
+            }
         }
-        if record.privacy_classification == sections::PrivacyClassification::ProtectedSuspected {
-            push(place(), "privacy_classification", "protected_suspected");
+    }
+    let local_private = matches!(
+        input.report_context.as_ref().map(|context| context.export_context),
+        Some(ReportExportContext::LocalPrivate)
+    );
+    if !local_private {
+        let private = |record: &sections::Provenance| !record_is_public(record.privacy_classification, record.redistribution_status);
+        let first = report_sections
+            .provenance_notes
+            .iter()
+            .position(private)
+            .map(|index| format!("provenance_notes[{index}]"))
+            .or_else(|| {
+                report_sections.user_supplied_values.iter().position(|value| {
+                    private(&value.provenance)
+                        || !matches!(
+                            value.privacy_classification,
+                            sections::PrivacyClassification::PublicMetadata | sections::PrivacyClassification::InventedPublicExample
+                        )
+                }).map(|index| format!("user_supplied_values[{index}]"))
+            })
+            .or_else(|| report_sections.diagnostics.iter().position(|item| private(&item.provenance)).map(|index| format!("diagnostics[{index}].provenance")))
+            .or_else(|| report_sections.assumptions.iter().position(|item| private(&item.provenance)).map(|index| format!("assumptions[{index}].provenance")))
+            .or_else(|| report_sections.limitations.iter().position(|item| private(&item.provenance)).map(|index| format!("limitations[{index}].provenance")))
+            .or_else(|| input.library_references.iter().flatten().position(|item| private(&item.provenance)).map(|index| format!("library_references[{index}].provenance")));
+        if let Some(place) = first {
+            let context = match input.report_context.as_ref().map(|context| context.export_context) {
+                Some(ReportExportContext::PublicReport) => "public_report",
+                _ => "not recorded",
+            };
+            reasons.push(format!(
+                "report provenance: {REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE} (private record content at {place} under export context {context}; render it only under the local-private selection)"
+            ));
         }
     }
     reasons
@@ -1545,7 +1656,8 @@ fn report_context_blocking_codes(input: &RenderableReportInput) -> Vec<&'static 
 /// canonical SHA-256 of the HTML bytes.
 pub fn render_calculation_report(input: &RenderableReportInput) -> RenderOutcome {
     let report_validation = report::validate_report(&input.calculation_report);
-    let section_validation = sections::validate_report_sections(&input.report_sections);
+    // Only a local-private report relaxes unresolved provenance to a warning.
+    let section_validation = sections::validate_report_sections_in(&input.report_sections, provenance_context(input));
 
     let assembled = assemble_report_sections(input);
     let section_bodies: Vec<String> = assembled

@@ -199,6 +199,62 @@ fn witness_render(input: &Value) -> Result<Value, CommandError> {
     render_calculation_report_args_in(&mut args, &registry, &mut lease, EXACT_RENDER_WITNESS_ADMITTED)
 }
 
+/// W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §6.2),
+/// Codex review round 1 of #1639: the production native command, called
+/// directly with a pressure-free input that carries a private FR-REP-003
+/// record, renders it only under `local_private`; under `public_report` or
+/// with no report context it refuses private record content, and a
+/// `quarantined` record refuses in every context. A refused render is
+/// export-blocked, so no sink receives it; the record's typed
+/// `source_location` path therefore reaches only the local-private document.
+#[test]
+fn the_native_render_refuses_private_records_outside_local_private() {
+    let record = |review: &str| json!({
+        "source_name": "Invented material datasheet", "source_location": "/Users/invented-user/datasheets/steel-a.pdf", "source_license": "invented-license",
+        "contributor": "invented contributor", "contributor_certification": "invented certification",
+        "redistribution_status": "private_only", "review_status": review, "privacy_classification": "private_project_data"
+    });
+    let context = |export_context: &str| json!({
+        "export_context": export_context, "generated_at": null, "software_name": "Invented", "software_version": null,
+        "build_release_identifier": null, "solver_name": null, "solver_version": null, "solver_build_ref": null,
+        "analysis_run_name": null, "analysis_run_recorded_at": null, "solver_mode": null, "solver_settings_ref": null,
+        "solver_settings": [], "model_coordinate_system": null, "result_coordinate_systems": []
+    });
+    let input = |review: &str, export_context: Option<&str>| {
+        let mut input = pressure_free_input();
+        input["report_sections"]["provenance_notes"].as_array_mut().unwrap().push(record(review));
+        if let Some(export_context) = export_context {
+            input["report_context"] = context(export_context);
+        }
+        json!({"input": input})
+    };
+    let outcome = |args: &Value| -> Value { serde_json::from_str(&command_body(args).expect("the render answers")).unwrap() };
+    let reasons = |rendered: &Value| -> Vec<String> {
+        rendered["blocking_reasons"].as_array().unwrap().iter().map(|item| item.as_str().unwrap().to_string()).collect()
+    };
+    // The invented public input renders without a context, as before.
+    assert_eq!(outcome(&json!({"input": pressure_free_input()}))["export_blocked"], json!(false));
+    let local = outcome(&input("pending", Some("local_private")));
+    assert_eq!(local["export_blocked"], json!(false), "{:?}", reasons(&local));
+    assert!(local["html"].as_str().unwrap().contains("Invented material datasheet"));
+    // Owner ruling on #1639 ("C1 b, C2 a"): the typed path stays as written locally.
+    assert!(local["html"].as_str().unwrap().contains("<td>/Users/invented-user/datasheets/steel-a.pdf</td>"));
+    for export_context in [Some("public_report"), None] {
+        let refused = outcome(&input("pending", export_context));
+        assert_eq!(refused["export_blocked"], json!(true), "{export_context:?}");
+        assert!(
+            reasons(&refused).iter().any(|reason| reason.starts_with("report provenance: REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE (")),
+            "{:?}",
+            reasons(&refused)
+        );
+    }
+    for export_context in [Some("local_private"), Some("public_report"), None] {
+        let refused = outcome(&input("quarantined", export_context));
+        assert_eq!(refused["export_blocked"], json!(true), "{export_context:?}");
+        assert!(reasons(&refused).iter().any(|reason| reason.contains("REPORT_PROVENANCE_DISPOSITION_BLOCKED (provenance_notes[1] review_status quarantined;")));
+    }
+}
+
 /// Codex review round 1 (blocking): a coherent invented exact input, which
 /// the renderer itself renders unblocked with "integrity checked", is refused
 /// by the production native command at step 0, with no HTML. Since slice (b)

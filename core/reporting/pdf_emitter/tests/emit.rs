@@ -445,8 +445,55 @@ fn a_quarantined_or_rejected_provenance_record_blocks_the_pdf() {
         let index = input.report_sections.provenance_notes.len() - 1;
         let pdf = emit_calculation_report_pdf(&input);
         assert!(pdf.export_blocked, "{value}");
-        let reason = format!("report provenance: REPORT_PROVENANCE_DISPOSITION_BLOCKED (provenance_notes[{index}] review_status {value})");
+        let reason = format!("report provenance: REPORT_PROVENANCE_DISPOSITION_BLOCKED (provenance_notes[{index}] review_status {value}; review that record's disposition in the model before reporting)");
         assert!(pdf.blocking_reasons.contains(&reason), "{:?}", pdf.blocking_reasons);
         assert!(pdf_contains(&pdf.pdf_bytes, "EXPORT BLOCKED"));
     }
+}
+
+/// W-11 slice (c) (§6.2), builder to render to PDF: the desktop builder's
+/// representative records (`renderedReport.test.tsx` writes them), with
+/// blocking dispositions nested in structured notes and records carried into
+/// their report records, block the PDF as they block the HTML; without the
+/// blocking records the PDF emits, and outside local_private it refuses.
+#[test]
+fn the_desktop_builder_records_block_the_pdf_by_disposition_and_context() {
+    const RECORDS: &str = include_str!("../../../../fixtures/reports/invented/report_sections_provenance_records.json");
+    let fixture: serde_json::Value = serde_json::from_str(RECORDS).unwrap();
+    let mut input = fixture_input();
+    input.report_sections = serde_json::from_value(fixture["report_sections"].clone()).unwrap();
+    let context: ReportContext = serde_json::from_value(serde_json::json!({
+        "export_context": "local_private", "generated_at": null, "software_name": "Invented", "software_version": null,
+        "build_release_identifier": null, "solver_name": null, "solver_version": null, "solver_build_ref": null,
+        "analysis_run_name": null, "analysis_run_recorded_at": null, "solver_mode": null, "solver_settings_ref": null,
+        "solver_settings": [], "model_coordinate_system": null, "result_coordinate_systems": []
+    }))
+    .unwrap();
+    input.report_context = Some(context);
+    let pdf = emit_calculation_report_pdf(&input);
+    assert!(pdf.export_blocked);
+    for needle in [
+        "(provenance_notes[9] review_status rejected;",
+        "(provenance_notes[10] review_status quarantined;",
+        "(user_supplied_values[8] section-provenance:section:nested-rejected review_status rejected;",
+    ] {
+        assert!(pdf.blocking_reasons.iter().any(|reason| reason.contains(needle)), "{needle}: {:?}", pdf.blocking_reasons);
+    }
+    assert!(pdf.blocking_reasons.iter().any(|reason| reason == "section validation: REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED"));
+    assert!(pdf_contains(&pdf.pdf_bytes, "EXPORT BLOCKED"));
+    let blocks = |record: &sections::Provenance| {
+        matches!(record.review_status, sections::ReviewStatus::Quarantined | sections::ReviewStatus::Rejected)
+            || record.redistribution_status == sections::RedistributionStatus::ProtectedSuspected
+    };
+    let mut clean = input.clone();
+    clean.report_sections.provenance_notes.retain(|note| !blocks(note));
+    clean.report_sections.user_supplied_values.retain(|value| !blocks(&value.provenance));
+    let emitted = emit_calculation_report_pdf(&clean);
+    assert!(!emitted.export_blocked, "{:?}", emitted.blocking_reasons);
+    assert!(pdf_contains(&emitted.pdf_bytes, "report_metadata"));
+    let mut public = clean.clone();
+    public.report_context.as_mut().unwrap().export_context = ReportExportContext::PublicReport;
+    let refused = emit_calculation_report_pdf(&public);
+    assert!(refused.export_blocked);
+    assert!(refused.blocking_reasons.iter().any(|reason| reason.contains("REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE")));
 }

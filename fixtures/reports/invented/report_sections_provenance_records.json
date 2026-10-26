@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "generator": "apps/desktop/src/features/report/renderedReport.test.tsx",
-  "description": "W-11 slice (c) (DEL-08-01 Design exact-route-report-sections.md sections 4.1 and 7): the desktop builder's report_sections for an invented model with materials, sections, a component and supports, each with and without a provenance_record, and records marked accepted, rejected and quarantined. Validated against schemas/report_sections.schema.yaml by tests/test_report_sections_provenance_records.py and read by the renderer's tests. Invented data only.",
+  "description": "W-11 slice (c) (DEL-08-01 Design exact-route-report-sections.md sections 4.1 and 7): the desktop builder's report_sections for an invented model with materials, sections, a component and supports, each with and without a provenance_record, and records marked accepted, rejected and quarantined, including blocking dispositions nested in structured notes and records. Validated against schemas/report_sections.schema.yaml by tests/test_report_sections_provenance_records.py and read by the renderer's tests. Invented data only.",
   "report_sections": {
     "report_section_id": "sections:run:render-test-001",
     "model_ref": {
@@ -225,6 +225,36 @@
         "privacy_classification": "private_project_data"
       },
       {
+        "source_name": "Invented nested section section provenance",
+        "source_location": "section.provenance={\"records\":[{\"note\":\"x\",\"review_status\":\"rejected\"}],\"source\":\"invented\"}",
+        "source_license": "user_supplied_or_private",
+        "contributor": "user_local_session",
+        "contributor_certification": "User-local section provenance metadata; redistribution remains private or pending until separately cleared.",
+        "redistribution_status": "private_only",
+        "review_status": "rejected",
+        "privacy_classification": "private_project_data"
+      },
+      {
+        "source_name": "Invented quarantined note section section provenance",
+        "source_location": "section.provenance={\"review_status\":\"quarantined\",\"source\":\"invented\"}",
+        "source_license": "user_supplied_or_private",
+        "contributor": "user_local_session",
+        "contributor_certification": "User-local section provenance metadata; redistribution remains private or pending until separately cleared.",
+        "redistribution_status": "private_only",
+        "review_status": "quarantined",
+        "privacy_classification": "private_project_data"
+      },
+      {
+        "source_name": "Invented suspected table",
+        "source_location": "invented-datasheet-shelf",
+        "source_license": "invented-license",
+        "contributor": "invented contributor",
+        "contributor_certification": "invented certification",
+        "redistribution_status": "protected_suspected",
+        "review_status": "pending",
+        "privacy_classification": "private_project_data"
+      },
+      {
         "source_name": "Invented support record",
         "source_location": "invented-datasheet-shelf",
         "source_license": "invented-license",
@@ -427,6 +457,81 @@
           "contributor": "user_local_session",
           "contributor_certification": "User-local section provenance metadata; redistribution remains private or pending until separately cleared.",
           "redistribution_status": "private_only",
+          "review_status": "pending",
+          "privacy_classification": "private_project_data"
+        },
+        "privacy_classification": "private_project_data",
+        "required_for": [
+          "reporting",
+          "human_review"
+        ],
+        "review_status": "pending",
+        "missing_data_finding": false
+      },
+      {
+        "value_id": "section-provenance:section:nested-rejected",
+        "value_category": "report_metadata",
+        "source": {
+          "ref_type": "section",
+          "ref_id": "section:nested-rejected"
+        },
+        "provenance": {
+          "source_name": "Invented nested section section provenance",
+          "source_location": "section.provenance={\"records\":[{\"note\":\"x\",\"review_status\":\"rejected\"}],\"source\":\"invented\"}",
+          "source_license": "user_supplied_or_private",
+          "contributor": "user_local_session",
+          "contributor_certification": "User-local section provenance metadata; redistribution remains private or pending until separately cleared.",
+          "redistribution_status": "private_only",
+          "review_status": "rejected",
+          "privacy_classification": "private_project_data"
+        },
+        "privacy_classification": "private_project_data",
+        "required_for": [
+          "reporting",
+          "human_review"
+        ],
+        "review_status": "rejected",
+        "missing_data_finding": false
+      },
+      {
+        "value_id": "section-provenance:section:note-quarantined",
+        "value_category": "report_metadata",
+        "source": {
+          "ref_type": "section",
+          "ref_id": "section:note-quarantined"
+        },
+        "provenance": {
+          "source_name": "Invented quarantined note section section provenance",
+          "source_location": "section.provenance={\"review_status\":\"quarantined\",\"source\":\"invented\"}",
+          "source_license": "user_supplied_or_private",
+          "contributor": "user_local_session",
+          "contributor_certification": "User-local section provenance metadata; redistribution remains private or pending until separately cleared.",
+          "redistribution_status": "private_only",
+          "review_status": "quarantined",
+          "privacy_classification": "private_project_data"
+        },
+        "privacy_classification": "private_project_data",
+        "required_for": [
+          "reporting",
+          "human_review"
+        ],
+        "review_status": "quarantined",
+        "missing_data_finding": false
+      },
+      {
+        "value_id": "section-provenance:section:nested-suspected",
+        "value_category": "report_metadata",
+        "source": {
+          "ref_type": "section",
+          "ref_id": "section:nested-suspected"
+        },
+        "provenance": {
+          "source_name": "Invented suspected table",
+          "source_location": "invented-datasheet-shelf",
+          "source_license": "invented-license",
+          "contributor": "invented contributor",
+          "contributor_certification": "invented certification",
+          "redistribution_status": "protected_suspected",
           "review_status": "pending",
           "privacy_classification": "private_project_data"
         },
