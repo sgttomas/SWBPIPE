@@ -551,7 +551,7 @@ The survey also found these literal units, which are outside this rule:
   - Only a new entry's starting unit changes. In a `degC` project, typing 400 now
     proposes 400 degC, not 400 K, and the selector shows the unit before Review.
 
-### 7.3 Acceleration (Agent 0: revised (ii); catalog entries pending)
+### 7.3 Acceleration (Agent 0: (ii), as built)
 
 **The settled design:**
 - `project.units` has no acceleration key, and none is added; option (i) stays
@@ -569,12 +569,13 @@ The survey also found these literal units, which are outside this rule:
   exact factors to `m/s^2`: 0.001, 0.0254 and 0.3048.
 - They are `core/units` additions. No schema enumerates catalog symbols, so
   they change no model-document format or schema version.
-- They are numerical code with a CI routing digest, so they are held for Agent
-  0 and Codex numerical scrutiny before they are built.
-- The desktop needs no further change when they land. The composition simply
-  finds them in the catalog.
+- They are numerical code with a CI routing digest. Agent 0 (2026-10-26)
+  recorded them as a **deferred improvement** that needs a D3 turn in the
+  numerical lane's queue. No Rust is changed in this slice.
+- The desktop needs no further change when they land: the composition finds
+  them in the catalog.
 
-**Until the entries land:**
+**As built (until the entries land):**
 
 | Length key | Default | Field |
 |---|---|---|
@@ -593,37 +594,49 @@ The survey also found these literal units, which are outside this rule:
   row until the entries land. §4's "every composed default is a catalog unit"
   for both presets would otherwise fail on the US preset.
 
-### 7.4 Export panels' missing project keys (settled; built after #1646 merges)
+### 7.4 Export panels' missing project keys (built)
 
 These refusals cover units the exports take from `project.units`. Other units
 in the same files are not affected:
 - the target units (`mm`, `MM`) come from the target profile;
 - the local FEA result-unit declarations are covered by §7.7.
 
-- **The refusal.** If a key that a panel reads is missing (`projectUnitMissing`),
-  the export is refused by name:
-  - the download controls are not rendered;
-  - a status line with test id `<prefix>-project-unit-refusal` takes their
-    place;
-  - no packet is built with a substitute.
+- **The refusal.** If a key that a panel reads is missing (`projectUnitMissing`:
+  absent, empty or whitespace-only), the export is refused by name:
+  - the .mbf and PCF packets record a blocking `*-PROJECT-UNIT-MISSING`
+    diagnostic per missing key, and write `""` where the key would go, never a
+    substitute;
+  - the local FEA packet is not built;
+  - the download controls are not rendered, and a status line with test id
+    `<prefix>-project-unit-refusal` takes their place;
+  - the summary reads `refused`.
   The load-reference output gate keeps precedence: its refusal is shown first,
   and the unit refusal sits inside it.
 - **Text:** "`<CODE>`: Missing project unit: `<key>`. This export writes
   `<what>` from project.units.`<key>`, and nothing is assumed. Set `<key>` in
   Project units on the Project page."
   - Missing `length` with nodes present gives `<CODE>:` followed by §3's
-    hard-lock text (`missingProjectUnitText(model, "length", "positions")`).
-- **One helper.** The key check and the text are one helper beside
-  `missingProjectUnit.ts`.
+    hard-lock text (the Project units section's notice).
+- **One helper.** The key check and the text are in
+  `features/project-units/exportProjectUnits.ts`.
+- **Precedence over §7.5.** For a missing length key,
+  `MBF-PROJECT-UNIT-MISSING` or `PCF-PROJECT-UNIT-MISSING` is recorded instead
+  of `*-LENGTH-UNIT-UNSUPPORTED (missing)`, not beside it. The panel shows the
+  project-unit status line, and the length status line is not shown. A length
+  that is present but has no routine conversion (`cm`) keeps §7.5's refusal.
+  `exportProjectUnitRefusal.test.tsx` tests the order. #1646's
+  `exportLengthConversion.test.tsx` keeps only its `cm` case for coordinates.
 
 | Export | Project-derived source units | Missing key refuses as |
 |---|---|---|
 | CAEPIPE MBF (`CaepipeMbfExportPanel.tsx`) | node-coordinate source unit (`length`); the `UNIT` record's force and temperature symbols, written as stored | `MBF-PROJECT-UNIT-MISSING` |
 | PCF (`PcfExportPanel.tsx`) | node-coordinate source unit (`length`), the same in the payload and the witnesses | `PCF-PROJECT-UNIT-MISSING` |
-| Local FEA handoff (`LocalFeaHandoffPanel.tsx`) | `coordinate_unit` (`length`), `temperature_unit`, `force_unit` and `stress_unit` (the last two from the keys until §7.7 is settled) | `LOCAL-FEA-PROJECT-UNIT-MISSING` |
+| Local FEA handoff (`LocalFeaHandoffPanel.tsx`) | `coordinate_unit` (`length`), `temperature_unit`, and `force_unit` or `stress_unit` where no result row of that family is referenced (§7.7) | `LOCAL-FEA-PROJECT-UNIT-MISSING` |
 
-- **The fallbacks.** The `??` fallbacks are removed. The MBF and PCF edits wait
-  until #1646 merges, because it rewrites the same files' length conversion.
+- **The fallbacks.** The `??` fallbacks are removed.
+- **Unchanged output.** With every key present, the .mbf and PCF texts and
+  whole packets for the demo in `m`, `mm`, `in` and `ft` hash identically
+  before and after (checked against `origin/main` `b9fa486209`).
 - **Shared with #1639.** None of these files is in #1639.
 
 ### 7.5 Export length conversion (C2)
@@ -756,50 +769,56 @@ They appear in the inspector and in the component grid.
     kind of `core/units` addition as §7.3's. They are not requested here and
     are recorded as an improvement.
 
-### 7.7 Local FEA manifest result units (Agent 0's B): stopped, touches DEL-10-03
+### 7.7 Local FEA manifest result units (Agent 0's B-c, built)
 
 **The problem.**
-- The handoff refers to results; it does not carry their values. Witnesses
-  record each referenced transfer row's value and unit as preserved
-  (`export_unit_policy: preserve_source_result_unit_and_dimension`,
-  `conversion_performed: false`), but only for displacement, force and moment
-  rows (`transferListName`).
-- The referenced stress rows appear only as ids (`entity_ids.result_ids`,
-  `criteria_input_refs`), so the package carries no stress value.
-- Today `force_unit` and `stress_unit` come from the project keys.
+- The handoff refers to results and preserves their units. It carries no stress
+  values: stress rows appear only as ids.
+- `force_unit` and `stress_unit` came from the project keys.
+- The bundled demo references two stress rows:
+  - the governing summary maximum,
+    `result:elastic-maximum:10:load:L-100:10:pipe:P-100`, in `Pa`;
+  - `result:stress:pipe-P-120:end-j:torsional-shear`, in `MPa`.
+- The manifest said `MPa`, so its label disagreed with the governing row.
 
-**What the implementation attempt found.** The proposal was to declare the
-referenced rows' unit and refuse a family whose rows disagree. The bundled demo
-breaks it: its handoff references two stress rows in different units.
-- `result:elastic-maximum:10:load:L-100:10:pipe:P-100`, the summary's maximum,
-  is in `Pa`.
-- `result:stress:pipe-P-120:end-j:torsional-shear` is in `MPa`.
+**The decision.** Agent 0, 2026-10-26, under the engineering-judgment
+delegation, chose B-c. It needs no schema change and touches only the
+DEL-10-03 export builder (`buildLocalFeaHandoffPacket` and its panel).
 
-Today's manifest says `MPa`, the demo's key, so the label already disagrees with
-one referenced row. The proposed rule would refuse the demo's handoff. No single
-declared `stress_unit` can agree with both rows, which leaves three ways out,
-each of them a DEL-10-03 change:
-- **(B-a) Convert in a stress witness.** Give each referenced stress row a
-  witness that keeps its source value and unit and adds a value converted to
-  the declared `stress_unit` (the key; Pa, MPa and psi convert routinely). This
-  changes the witness policy, the transfer lists and the witness schema
-  (`local_fea_handoff.schema.yaml`).
-- **(B-b) Per-row units.** The manifest declares units per referenced row, or
-  per family as a list. This changes the `UnitsManifest` schema
-  (`additionalProperties: false`).
-- **(B-c) Reference one unit per family.** Change `selectedResultRefs` so the
-  rows of a family share a unit. This changes which results the handoff
-  references.
+**The rule** (`referencedResultUnits`), for each of `stress_unit` and
+`force_unit`:
+- **The governing row decides.** For stress, that is the summary maximum. With
+  no governing row among the candidates, the candidates' shared unit is used.
+- **Only rows in the declared unit are referenced.** A candidate in another unit
+  is dropped from the result ids, stations and transfer lists. A non-blocking
+  `LOCAL-FEA-RESULT-ROW-UNIT-OMITTED` diagnostic names it: "Result row <id>
+  (<unit>) is not referenced: this handoff declares <family>_unit <declared>,
+  from the governing <family> result, and references only <family> rows in that
+  unit; nothing is converted." The diagnostic is appended after the standing
+  findings, so their indices are kept.
+- **Candidates that disagree, with none governing,** refuse the handoff:
+  `LOCAL-FEA-RESULT-UNIT-INCONSISTENT`, shown at
+  `local-fea-result-unit-refusal`, with no download. It is checked before the
+  §7.4 missing-key refusal.
+- **No row of a family referenced:** the member is the project key (§7.4).
 
-All three touch DEL-10-03's ownership of how the handoff references and
-represents result rows. Following Agent 0's instruction, B is not built in this
-slice: the implementation attempt was reverted, and the manifest is unchanged.
-The recommendation is B-a, conversion in witnesses, which follows the owner's
-conversion ruling and keeps one declared unit. It belongs to a DEL-10-03 item
-that Agent 0 sequences. Until then:
-- `force_unit` and `stress_unit` keep their project-key source;
-- §7.4 removes their fallbacks;
-- the demo's `stress_unit: MPa` beside a `Pa` row stays a recorded defect.
+**Results.**
+- The demo now declares `stress_unit: Pa`.
+- It no longer references the MPa torsional-shear row, and shows one omitted-row
+  diagnostic for it. Its diagnostic count goes from 4 to 5.
+- Its witnesses (displacement, force, moment) are unchanged at 3, and
+  `force_unit` stays `N`.
+- No `expected.json` value reads the handoff.
+
+**Unchanged.** The schema, the candidate list (`selectedResultRefs`), the witness
+policy, and the literals `moment_unit`, `displacement_unit` and `rotation_unit`
+are not touched. On the routes the panel is open to, the literals equal the
+referenced rows' units.
+
+**Deferred** (recorded in DEL-10-03 `Design/manifest-result-units.md`):
+- **B-a:** stress witnesses with values converted to the declared unit, so that
+  rows in other units can be referenced. This is a DEL-10-03 schema change.
+- **B2:** every result-unit member taken from the rows.
 
 ### 7.8 Ownership, overlap and sequencing
 
@@ -816,19 +835,22 @@ that Agent 0 sequences. Until then:
   - its fixtures carry `length`, `force`, `stress` and `temperature`;
   - the exact route's MBF check reads the load-reference refusal, which keeps
     precedence;
-  - no expectation reads a solve temperature, gravity, modifier or export unit.
+  - no expectation reads a solve temperature, gravity, modifier or export unit,
+    or the local FEA handoff.
 - **Shared files.**
   - #1646 owns the MBF and PCF length conversion and this file's §7.5.
   - The completeness-map edits go to #1642.
   - `docs/user_guide/index.md` waits for #1639.
 - **Files:**
   - `PropertyInspector.tsx`, `ModelTree.tsx` and `modelTableAdapter.ts`;
-  - `project-units/projectUnitSelection.ts` and `missingProjectUnit.ts`;
+  - `project-units/projectUnitSelection.ts`, `missingProjectUnit.ts` and
+    `exportProjectUnits.ts`;
   - `load-cases/primitiveLoadVocabulary.ts`;
-  - the three export panels (§7.4);
+  - the three export panels (§7.4, §7.7);
+  - DEL-10-03 `Design/manifest-result-units.md`;
   - tests.
-  No applier, schema or solver file changes. The `core/units` entries in §7.3
-  are held as described there.
+  No applier, schema, solver or `core/units` file changes. The §7.3 catalog
+  entries are a deferred improvement.
 
 ### 7.9 Tests
 
@@ -864,18 +886,26 @@ that Agent 0 sequences. Until then:
   - A stored unit is kept.
 - **Grid.** An empty solve-temperature, gravity or modifier cell is refused by
   name, the refusal points to the inspector, and nothing is queued.
-- **Local FEA (§7.7).** Waits for Agent 0's choice among B-a, B-b and B-c.
-  Whichever is chosen, its regression needs:
-  - an SI-preset key (`Pa`) and a US-preset key (`psi`/`lbf`) against rows in
-    `MPa`/`N`, and the demo's mixed `Pa`/`MPa` stress rows, each showing that
-    the declared unit and every referenced value agree;
-  - an absent result family;
-  - missing or inconsistent evidence refused by name.
-- **Export panels (§7.4, after #1646).**
-  - Each required key missing (absent, empty or whitespace-only) shows the
-    code and text, with no links.
-  - Missing `length` with nodes shows the hard-lock text.
-  - The demo's packets are unchanged.
-  - On the exact route, the gate's refusal keeps precedence.
+- **Local FEA (§7.7, `LocalFeaHandoffPanel.test.tsx`).**
+  - An SI-preset key (`Pa`) and a US-preset key (`psi`, `lbf`) against rows in
+    `MPa` and `N`: the declared units are the rows' units, and every referenced
+    stress and force row carries them.
+  - A row in another unit than the governing maximum is not referenced, and the
+    non-blocking diagnostic names it.
+  - Stress candidates in two units with none governing are refused by name,
+    with no download.
+  - The bundled demo declares `Pa`, references no MPa stress row, names the
+    omitted row, and keeps 3 witnesses.
+  - All of these fail on `origin/main`'s builder.
+- **Export panels (§7.4, `exportProjectUnitRefusal.test.tsx`).**
+  - A length key that is absent, empty or whitespace-only: `.mbf` and PCF
+    record `*-PROJECT-UNIT-MISSING` and not `*-LENGTH-UNIT-UNSUPPORTED`. The
+    hard-lock text is shown and the links are withheld.
+  - With no nodes, the text offers to set the key.
+  - `cm` keeps §7.5's refusal.
+  - MBF with force or temperature missing: refused by name, and `N` and `C`
+    are not substituted.
+  - A legacy `C` is written as stored.
+  - Local FEA with each written key missing: refused, with no link.
+  - With every key present, nothing changes.
 - **Unchanged.** No Rust, applier, solver or native-smoke expectation changes.
-||||||| 9d51a4e744

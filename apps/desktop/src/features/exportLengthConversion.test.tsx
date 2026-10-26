@@ -259,10 +259,10 @@ describe("a length with no routine exact conversion is refused by name", () => {
     );
   });
 
+  // A missing length key ("" or absent) is MBF-/PCF-PROJECT-UNIT-MISSING, which takes
+  // precedence (DEL-02-02 Design §7.4, §7.5): exportProjectUnitRefusal.test.tsx.
   it.each([
-    { length: "cm", named: '"cm"' },
-    { length: "", named: "(missing)" },
-    { length: null, named: "(missing)" }
+    { length: "cm", named: '"cm"' }
   ])("PCF and .mbf: coordinates in $named", ({ length, named }) => {
     const input = model({ length });
     const packet = expectPcfRefused(input, [`project length unit ${named}`]);

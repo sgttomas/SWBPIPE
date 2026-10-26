@@ -4,6 +4,7 @@ import { usePackageHash, withCanonicalPackageHash } from "../../services/usePack
 import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 import { EXPORT_LENGTH_TARGET_UNIT, lengthToMillimeters, outOfRangeNodeCoordinates } from "../exportLengthConversion";
+import { missingExportProjectUnits, projectUnitRefusalText, storedExportProjectUnit, type ExportProjectUnitUse } from "../project-units/exportProjectUnits";
 
 type CaePipeMbfReference = {
   object_type: string;
@@ -41,6 +42,14 @@ export const MBF_LENGTH_UNIT_UNSUPPORTED = "MBF-LENGTH-UNIT-UNSUPPORTED";
 /** A length that is not finite, or not finite once converted to millimetres (DEL-02-02 Design §7.5). */
 export const MBF_LENGTH_OUT_OF_RANGE = "MBF-LENGTH-OUT-OF-RANGE";
 const LENGTH_REFUSAL_CODES: ReadonlySet<string> = new Set([MBF_LENGTH_UNIT_UNSUPPORTED, MBF_LENGTH_OUT_OF_RANGE]);
+/** A project unit the export writes is missing (DEL-02-02 Design §7.4). It takes
+ * precedence over MBF-LENGTH-UNIT-UNSUPPORTED for a missing length key. */
+export const MBF_PROJECT_UNIT_MISSING = "MBF-PROJECT-UNIT-MISSING";
+const MBF_PROJECT_UNIT_USES: readonly ExportProjectUnitUse[] = [
+  { key: "length", writes: "the node coordinates' source unit" },
+  { key: "force", writes: "the UNIT record's force unit" },
+  { key: "temperature", writes: "the UNIT record's temperature unit" }
+];
 const TARGET_VERSION_TBD = "TBD-17-01-001";
 const RECORD_SUBSET_TBD = "TBD-17-01-002";
 const DIRECT_STABLE_ID_TBD = "TBD-17-01-003";
@@ -69,7 +78,9 @@ export function CaepipeMbfExportPanel({
     "manifest_and_validation_report_package_hash_carrier_fields"
   );
   const packet = withCanonicalPackageHash(basePacket, packageHash);
-  const lengthRefusal = lengthUnitRefusalText(packet.diagnostics);
+  // §7.4: a missing project unit is refused first; then §7.5's length refusals.
+  const projectUnitRefusal = projectUnitRefusalText(".mbf", MBF_PROJECT_UNIT_MISSING, packet.diagnostics);
+  const lengthRefusal = projectUnitRefusal ? null : lengthUnitRefusalText(packet.diagnostics);
 
   return (
     <section className="panel caepipe-mbf-panel" aria-label="Model batch file (.mbf) export" data-testid="caepipe-mbf-panel">
@@ -79,7 +90,9 @@ export function CaepipeMbfExportPanel({
       </div>
       <div className="report-actions">
         <LoadReferenceOutputGate result={result} testIdPrefix="caepipe-mbf">
-        {lengthRefusal ? (
+        {projectUnitRefusal ? (
+          <p className="muted" role="status" data-testid="caepipe-mbf-project-unit-refusal">{projectUnitRefusal}</p>
+        ) : lengthRefusal ? (
           <p className="muted" role="status" data-testid="caepipe-mbf-length-unit-refused">{lengthRefusal}</p>
         ) : (
         <>
@@ -105,7 +118,7 @@ export function CaepipeMbfExportPanel({
         )}
         </LoadReferenceOutputGate>
         <span data-testid="caepipe-mbf-summary">
-          {lengthRefusal ? "refused" : "available"}; nodes={packet.model_payload.nodes.length}; pipes={packet.model_payload.elements.length};
+          {projectUnitRefusal || lengthRefusal ? "refused" : "available"}; nodes={packet.model_payload.nodes.length}; pipes={packet.model_payload.elements.length};
           supports={packet.model_payload.supports.length}; validation={packet.validation_report.validation_status};
           losses={packet.loss_report.length}
         </span>
@@ -400,8 +413,9 @@ function caepipeMbfPayload(model: PreviewModel) {
     payload_kind: "caepipe_mbf_smoke_subset_payload",
     units: {
       length: CAEPIPE_MBF_TARGET_LENGTH_UNIT,
-      force: model.project.units.force ?? "N",
-      temperature: model.project.units.temperature ?? "C"
+      // §7.4: as stored; a missing key is "" and refuses the export, never a substitute.
+      force: storedExportProjectUnit(model, "force"),
+      temperature: storedExportProjectUnit(model, "temperature")
     },
     nodes,
     elements,
@@ -613,13 +627,19 @@ function caepipeMbfDiagnostics({
   mbfText: string;
 }) {
   const diagnostics = [];
+  const missingUnits = missingExportProjectUnits(model, MBF_PROJECT_UNIT_USES);
+  for (const missing of missingUnits) {
+    diagnostics.push(diagnostic(MBF_PROJECT_UNIT_MISSING, "blocking", "UNIT_WARNING", missing.text, `Set ${missing.key} in Project units on the Project page before exporting .mbf text.`, reference("Project", model.project.id)));
+  }
+  const lengthKeyMissing = missingUnits.some((missing) => missing.key === "length");
   if (payload.nodes.length === 0 || payload.elements.length === 0) {
     diagnostics.push(diagnostic("MBF-SMOKE-SUBSET-MISSING", "blocking", "EXPORT_BLOCKING", "The .mbf smoke subset requires at least one node and one pipe element.", "Provide invented node and pipe element records or record an explicit omitted/unsupported loss.", reference("ExportProfile", exportProfile.profile_id)));
   }
   if (!isAscii(mbfText)) {
     diagnostics.push(diagnostic("MBF-TEXT-NON-ASCII", "blocking", "EXPORT_BLOCKING", "Rendered MBF text contains non-ASCII characters.", "Use ASCII-safe invented labels for MBF text output.", reference("ExportProfile", exportProfile.profile_id)));
   }
-  const coordinates = model.nodes.length > 0 ? lengthToMillimeters(0, projectLengthUnit(model)) : null;
+  // A missing length key is MBF-PROJECT-UNIT-MISSING above, which takes precedence.
+  const coordinates = model.nodes.length > 0 && !lengthKeyMissing ? lengthToMillimeters(0, projectLengthUnit(model)) : null;
   if (coordinates?.status === "refused") {
     diagnostics.push(
       diagnostic(
