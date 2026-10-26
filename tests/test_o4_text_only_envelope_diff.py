@@ -1367,4 +1367,3 @@ def test_o4_text_only_envelope_diff_w7_enumeration_refuses_other_moves():
     entry["public"]["results_sha256"] = "0" * 64
     with pytest.raises(AssertionError, match=re.escape(W7_J7)):
         test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={W7_J7: json.dumps(document)})
-

@@ -23,6 +23,7 @@ import type {
   Vec3
 } from "../../types";
 import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
+import { RigidDraftFields } from "../component-creation/RigidDraftFields";
 import {
   buildCreateComponentIntent,
   componentDraftForKind,
@@ -2979,6 +2980,7 @@ export function PipeViewport({
                 <ViewportComponentTextInput label="End A reference" testId="viewport-create-component-end-a-ref" value={componentDraft.connectionEndAReference} onChange={(value) => updateComponentDraft("connectionEndAReference", value)} />
                 <ViewportComponentTextInput label="End B reference" testId="viewport-create-component-end-b-ref" value={componentDraft.connectionEndBReference} onChange={(value) => updateComponentDraft("connectionEndBReference", value)} />
                 <ViewportComponentTextInput label="Stiffness behavior reference" testId="viewport-create-component-stiffness-ref" value={componentDraft.stiffnessBehaviorReference} onChange={(value) => updateComponentDraft("stiffnessBehaviorReference", value)} />
+                <RigidDraftFields draft={componentDraft} prefix="viewport-create" TextInput={ViewportComponentTextInput} update={(key, value) => updateComponentDraft(key, value)} />
               </>
             ) : null}
             <label>
