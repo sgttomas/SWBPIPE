@@ -1578,7 +1578,8 @@ differences, each fail-closed:
   `memory-budget-decision.md`): the check's by-reference decode is held only
   during the check and is priced within the existing leases; on the exact
   witness the whole render command peaks at 6,642,400 bytes within its
-  12,099,728-byte lease and the whole exact save at 40,620,336 within
+  12,099,728-byte lease and the whole exact save at 45,915,728 when its
+  test runs alone (40,620,336 in the crate's full test run) within
   110,845,552, each less the buffered body's envelope (counting-allocator
   figures for these inputs, not proven bounds;
   `the_genuine_exact_render_and_save_stay_within_their_leases`). Exact-route
@@ -1597,8 +1598,9 @@ differences, each fail-closed:
   regressions and the check's own tests are §2.6's.
 - **The exact save's memory check** now runs through the shared producer's
   assembly of the admitted package: priced peak 45,915,856 bytes within its
-  110,845,552-byte lease, and 40,620,336 re-measured with the object-form
-  check (the render's 6,642,400 within 12,099,728); DEL-04-07
+  110,845,552-byte lease before the object-form check, and with it
+  45,915,728 when the test runs alone, 40,620,336 in the crate's full test
+  run (the render's 6,642,400 within 12,099,728); DEL-04-07
   `memory-budget-decision.md` records them.
 - **Deferred readability items (observations on the §5.5 evidence, not
   changed).** Each was checked against a pressure-free report of today (the
