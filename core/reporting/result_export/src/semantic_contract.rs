@@ -100,7 +100,7 @@ pub const PRESSURE_SOURCE_ID: &str = crate::physics_source::PRESSURE_CONTRACT_ID
 /// T4-U6 (D-5, §2.4): both tables carry one stress signature per (recovery
 /// token × section basis), each with its `source_basis`.
 pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "b5a4b0e585b9ec440d36144860baaf101b628498cfdab9a1de9248c2ed5069e7";
-pub const PRESSURE_TABLE_SHA256: &str = "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d";
+pub const PRESSURE_TABLE_SHA256: &str = "d381ee8bb2e4dfad7d2a050eaa23b558b32cc2ebd3599c0d4eb0489e49246fd2";
 /// The pinned counts, re-derived from the tables (T4-U6: pressure-2 106
 /// signatures over 59 kinds, T4-U5b: plus the tie-rod force, 107 over 60, T4-U4b:
 /// plus 22 section stress, toroidal and directional signatures, 129 over 66,
@@ -142,7 +142,7 @@ pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_
 pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
 /// T4-U6: its rows, vocabulary and counts follow the inherited pressure-2 table.
 pub const PHYSICS_RETAINED_SHA256: &str =
-    "d6d86dfc418978257d1d3370684e879ba9711465ceba1de72729eb48bb12ad3c";
+    "ef0191ccc74a01a81ce0a5b603629f7e1166b10f87bf66334b2ebbeb1c133ac8";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";

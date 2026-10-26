@@ -915,9 +915,9 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     if m.load_cases.is_empty() || m.load_cases.len() > caps::LOAD_CASES {
         return refuse(C::Invocation, F::LoadCases);
     }
-    // D1.4's exact clause (B3-D §4.2; RR "I95's B3-S: …", ruling 4): no combination on the
-    // exact route, which the ordinary route also blocks, so its forms never price
-    // combination text. B2-C's combination clauses apply on L only.
+    // D1.4's exact clause (B3-D §4.2; RR "I95's B3-S: …", ruling 4): the retained exact route
+    // refuses combinations; the ordinary exact route evaluates them (W-16 slice b), so the
+    // retained forms never price combination text. B2-C's combination clauses apply on L only.
     if exact && !m.combinations.is_empty() {
         return refuse(C::Invocation, F::Combinations);
     }

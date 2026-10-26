@@ -382,7 +382,19 @@ fn physical_row(
 
 /// The current ordinary pressure reader. An authored load/reference-state
 /// group receives its closed pre-pass before the pressure evidence checks.
+/// W-16 slice b (DEL-05-02 Design `exact-combinations.md` §6): a document with
+/// a load combination takes these direct-case checks on its view without the
+/// combination rows and record, then the combination pass on the whole
+/// document (`exact_combination_evidence`).
 pub fn validate_pressure_evidence(source: &Value) -> Check {
+    if crate::exact_combination_evidence::present(source) {
+        let view = crate::exact_combination_evidence::direct_view(source)?;
+        validate_direct_pressure_evidence(&view)?;
+        return crate::exact_combination_evidence::validate(source);
+    }
+    validate_direct_pressure_evidence(source)
+}
+fn validate_direct_pressure_evidence(source: &Value) -> Check {
     if source["contract_evidence"]
         .get("load_reference_states")
         .is_some()

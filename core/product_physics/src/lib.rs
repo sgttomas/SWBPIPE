@@ -147,6 +147,7 @@ mod membrane_publication_range;
 mod pressure_exact;
 mod pressure_material;
 mod exact_admission;
+mod exact_combinations;
 mod bend_pressure;
 mod u4b_rows;
 mod joint;
@@ -3206,6 +3207,24 @@ fn run_linear_static_preview_observed_inner(
     } else {
         Vec::new()
     };
+    // W-16 slice b (DEL-05-02 Design `exact-combinations.md`): an exact-route
+    // document's combinations, formed from its published case rows and evidence
+    // (a document with a combination is never source-selected).
+    let connector_evidence = pressure_runtime::is_exact(&model)
+        .then(|| joint::connector_evidence(&model, &built.connectors, &built.connector_records));
+    let exact_combinations = (pressure_runtime::is_exact(&model) && !model.combinations.is_empty()).then(|| {
+        exact_combinations::append(
+            &model,
+            exact_combinations::Facts {
+                exact_cases: &exact_cases,
+                pressure: &pressure_evidence,
+                load_reference_states: &load_reference_states,
+                connector: connector_evidence.as_ref().expect("an exact document states its connectors"),
+            },
+            &mut results,
+            &mut diagnostics,
+        )
+    });
     append_combination_modulus_basis_records(&model, &mut results);
     let curved_bend_macro_element_count =
         append_curved_bend_macro_element_results(
@@ -3269,10 +3288,15 @@ fn run_linear_static_preview_observed_inner(
     // formed with a scale; a refused or blocked model states none.
     rigid_component::append_formed_diagnostics(&model, &built.scaled_members, &mut diagnostics);
     let mut envelope = MechanicsEnvelope {
-        contract_evidence: pressure_runtime::is_exact(&model).then(|| {
-            let mut evidence = serde_json::json!({"pressure": pressure_evidence, "connector": joint::connector_evidence(&model, &built.connectors, &built.connector_records), "exact_cases": exact_cases});
+        contract_evidence: connector_evidence.map(|connector| {
+            let mut evidence = serde_json::json!({"pressure": pressure_evidence, "connector": connector, "exact_cases": exact_cases});
             if case_state::is_load_state(&model) {
                 evidence["load_reference_states"] = serde_json::json!(load_reference_states);
+            }
+            // §6: present only when the document has a combination, so every
+            // other document keeps its bytes.
+            if let Some(records) = exact_combinations {
+                evidence["exact_combinations"] = serde_json::json!(records);
             }
             evidence
         }),
@@ -3307,6 +3331,10 @@ fn run_linear_static_preview_observed_inner(
         professional_boundary: professional_boundary(),
         accepted_model_state_mutated: false,
     };
+    // W-16 slice b (§5): each operand's standing, from the assessed quality.
+    if let Some(records) = envelope.contract_evidence.as_mut().and_then(|e| e.get_mut("exact_combinations")).and_then(serde_json::Value::as_array_mut) {
+        exact_combinations::state_operand_standing(records, &envelope.numerical_quality);
+    }
     if let Some(rendered) = &preview {
         envelope.formulation_basis = preview_physics::formulation_basis();
         validation::state_applied_branch_factors(&model.components, &rendered.preview_cases, &mut envelope.diagnostics); envelope.contract_evidence = Some(rendered.evidence(preview_gates));
@@ -14560,6 +14588,11 @@ fn algebra_dimension(result: &ResultItem) -> Option<LoadDimension> {
         "N" => Some(LoadDimension::Force),
         "N*m" => Some(LoadDimension::Moment),
         "MPa" => Some(LoadDimension::Pressure),
+        // W-16 slice b (DEL-05-02 Design `exact-combinations.md` §1): the exact
+        // route's pressure-family stresses (Pa) and connector translations (m).
+        // The pressure-free route combines no row in either unit.
+        "Pa" => Some(LoadDimension::Pressure),
+        "m" => Some(LoadDimension::Displacement),
         _ => None,
     }
 }

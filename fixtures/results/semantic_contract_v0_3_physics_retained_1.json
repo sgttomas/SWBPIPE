@@ -2272,7 +2272,7 @@
   },
   "metadata_policy": "preserve_source_producer_numerical_quality_formulation_basis_contract_evidence",
   "reserved_inactive_successors": [],
-  "inherited_semantic_contract_sha256": "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d",
+  "inherited_semantic_contract_sha256": "d381ee8bb2e4dfad7d2a050eaa23b558b32cc2ebd3599c0d4eb0489e49246fd2",
   "formulation_profile_id": "exact_straight_retained_w1a_v2",
   "contract_evidence_policy": "closed_finite_case_member_material_geometry_region_result_and_extrema_binding_v1",
   "supported_profile_limitations": [
