@@ -1386,6 +1386,7 @@ stays true, or makes only the factual change its own work establishes.
   - The design is W-18b, in its own section or design after this one. It needs
     the DEL-12-02 classification (wording route), targeted regression checks
     and Codex scrutiny. This design does not build it.
+  - W-18b's design: `report-user-release.md` (mechanism only; it records no release).
 - **O-2, decided (manager): the fixture transition** (§2.7). It keeps the
   determinism and zip-exact witnesses, and no existing success expectation
   becomes a refusal.

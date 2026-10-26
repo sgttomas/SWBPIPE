@@ -18,6 +18,9 @@ mod native_smoke;
 mod native_result_download;
 mod report_package_bridge;
 mod report_package_save;
+mod report_render_exact;
+#[cfg(test)]
+mod report_render_exact_tests;
 mod rule_solver_selection;
 mod solve_jobs;
 mod solve_worker;
@@ -1545,9 +1548,11 @@ fn render_calculation_report(
     respond(render_calculation_report_args(&mut args))
 }
 
+/// The render's production root (W-11, DEL-08-01 Design
+/// `exact-route-report-sections.md` §3.6 step 0, §5.5): the production
+/// admitted set, which admits no exact-route identity before opening.
 fn render_calculation_report_args(args: &mut Args) -> Result<Value, CommandError> {
-    let input = args.value("input")?;
-    render_calculation_report_value(input).map_err(CommandError::Command)
+    report_render_exact::render_calculation_report_args_in(args, report_render_exact::PRODUCTION)
 }
 
 fn render_calculation_report_value(input: Value) -> Result<Value, String> {

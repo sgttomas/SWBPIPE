@@ -2257,6 +2257,7 @@ dependencies = [
  "open_pipe_stress_report_generator",
  "open_pipe_stress_report_sections",
  "serde",
+ "serde_json",
  "sha2",
 ]
 
