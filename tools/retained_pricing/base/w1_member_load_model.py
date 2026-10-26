@@ -35,7 +35,7 @@ import runpy
 # loaded_maximum.rs: the capacity hook module and limits()'s hook read are compiled under any(test,
 # loaded-maximum-hooks); final_case.rs, origins.rs and structural.rs re-export it under that off feature, and add a
 # census-probe lane hook and work snapshots (W1R-FG). No owner this model prices changes.
-# Unit factor-sum gate D3 (§8.FS, provisional): read c029a95132. RE retained_precision.rs's preview-physics-retained-1 table digest
+# Unit factor-sum gate D3 (§8.24): read c029a95132. RE retained_precision.rs's preview-physics-retained-1 table digest
 # (a constant) moves with the table's restated gate condition. No owner this model prices changes.
 SOURCE_FILES = {
     "core/product_physics/src/retained_product.rs": '10a045d708777d29082fef0e3620bccbebc6229b61090cfcc481123bb08ef5ba',

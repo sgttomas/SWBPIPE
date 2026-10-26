@@ -59,7 +59,7 @@ RF_PINS = {
 # (model_fields::unknown_field_refusal) change no reduction's owner or lifetime; preview_physics.rs's
 # append_combination_results keeps the L5 callee's inputs (rows_by_base_id, case_rows) and names its withheld rows; the
 # L5 guard, shadow, insert and call texts are unchanged.
-# Unit factor-sum gate D3 (§8.FS, provisional): preview_physics.rs's gate_reason calls factor_sum_within_unit_tolerance in place
+# Unit factor-sum gate D3 (§8.24): preview_physics.rs's gate_reason calls factor_sum_within_unit_tolerance in place
 # of its two folds; the L5 callee's inputs and the L5 guard, shadow, insert and call texts are unchanged; no reduction's
 # owner or lifetime changes.
 REDUCED_PINS = {

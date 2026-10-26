@@ -86,7 +86,7 @@ import runpy
 # members, closed quantities) and calls model_fields::unknown_field_refusal first in run_linear_static_preview_value_dispatch
 # (every key below moves +59 before that call and +63 after it, unchanged text); preview_physics.rs's
 # append_combination_results names withheld rows (SD-WH). No owner this model prices changes.
-# Unit factor-sum gate D3 (§8.FS, provisional): read f5d28887c9; preview_physics.rs's gate_reason replaces its two binary64
+# Unit factor-sum gate D3 (§8.24): read f5d28887c9; preview_physics.rs's gate_reason replaces its two binary64
 # factor folds by one call of load_case_algebra's factor_sum_within_unit_tolerance (an exact stack accumulator; no heap,
 # UF-EX) and its tests add a gate test. RE retained_precision.rs's preview-physics-retained-1 digest and
 # semantic_contract.rs's two preview table digests move with the tables' restated condition (constants). No owner this
