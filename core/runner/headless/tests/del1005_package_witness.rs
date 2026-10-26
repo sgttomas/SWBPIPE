@@ -226,10 +226,17 @@ fn del1005_package_witness_basis_is_current_and_succeeds_end_to_end() {
 /// production path assembles an exact member.
 #[test]
 fn the_runner_package_path_refuses_the_exact_witness_requests() {
-    for name in ["pressure_2_straight", "pressure_2_load_reference_states", "pressure_source_1", "pressure_2_straight_substitute"] {
-        let witness = read(&format!("fixtures/reports/invented/exact_report_package_requests/{name}.json"));
+    let dir = "fixtures/reports/invented/exact_report_package_requests";
+    let overlay = read(&format!("{dir}/pressure_2_straight_substitute.overlay.json"));
+    let substitute = apply_overlay(read(&format!("{dir}/pressure_2_straight.json"))["request"].clone(), &overlay["replacements"]);
+    let mut requests: Vec<(String, Value)> = ["pressure_2_straight", "pressure_2_load_reference_states", "pressure_2_connector", "pressure_2_realized_bend", "pressure_source_1"]
+        .into_iter()
+        .map(|name| (name.to_string(), read(&format!("{dir}/{name}.json"))["request"].clone()))
+        .collect();
+    requests.push(("pressure_2_straight_substitute".to_string(), substitute));
+    for (name, witness) in requests {
         for profile in ["desktop_local_private_report_package_1", "runner_local_private_report_package_1"] {
-            let mut request = witness["request"].clone();
+            let mut request = witness.clone();
             request["export_profile_id"] = json!(profile);
             let request: ReportPackageRequest = serde_json::from_value(request).unwrap();
             let error = assemble_wire_request(request, &linked()).map(drop).expect_err("refused");

@@ -612,9 +612,21 @@ mod direct_native {
     use tauri::ipc::InvokeBody;
 
     const STRAIGHT: &str = include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_straight.json");
-    const SUBSTITUTE: &str =
-        include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_straight_substitute.json");
+    const LOAD_REFERENCE: &str =
+        include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_load_reference_states.json");
+    const CONNECTOR: &str = include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_connector.json");
+    const BEND: &str = include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_realized_bend.json");
+    const SUBSTITUTE_OVERLAY: &str =
+        include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_straight_substitute.overlay.json");
     const SOURCE_1: &str = include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_source_1.json");
+    /// The five witness shapes of §5.5.
+    const SHAPES: [(&str, &str); 5] = [
+        ("pressure_2_straight", STRAIGHT),
+        ("pressure_2_load_reference_states", LOAD_REFERENCE),
+        ("pressure_2_connector", CONNECTOR),
+        ("pressure_2_realized_bend", BEND),
+        ("pressure_source_1", SOURCE_1),
+    ];
     const ROUTE_NOT_ADMITTED: &str = "REPORT-PACKAGE-ROUTE-NOT-ADMITTED";
 
     fn project(path: &str) -> std::path::PathBuf {
@@ -630,6 +642,19 @@ mod direct_native {
         intake: String,
         result: String,
         mode: String,
+    }
+
+    /// The substitute: the straight witness with the overlay's leaf
+    /// replacements applied to its request (its model, input manifest and
+    /// intake text are the straight witness's).
+    fn substitute_witness() -> Witness {
+        let overlay: Value = serde_json::from_str(SUBSTITUTE_OVERLAY).unwrap();
+        assert_eq!(overlay["base"], "pressure_2_straight.json");
+        let mut w = witness(STRAIGHT);
+        for entry in overlay["replacements"].as_array().unwrap() {
+            *w.request.pointer_mut(entry["pointer"].as_str().unwrap()).unwrap() = entry["value"].clone();
+        }
+        w
     }
 
     fn witness(text: &str) -> Witness {
@@ -728,6 +753,52 @@ mod direct_native {
         assert_eq!((code.as_str(), message.contains("exact_route")), (SECTIONS_MISMATCH, true), "{message}");
     }
 
+    /// Every witness shape (§5.5): with its live job and genuine texts, the
+    /// render input renders under the witness set (HTML and the derived print
+    /// view, export gates passed), and the save request passes the native
+    /// binding and refuses at item 0.
+    #[test]
+    fn every_witness_shape_binds_natively_renders_below_the_gate_and_refuses_at_item_0() {
+        for (name, text) in SHAPES {
+            let w = witness(text);
+            let live = live(&w);
+            let rendered = witness_render_on(&live, &genuine_render_args(&w, &live.job)).unwrap_or_else(|error| panic!("{name}: {error:?}"));
+            assert_eq!(rendered["export_blocked"], json!(false), "{name}: {}", rendered["blocking_reasons"]);
+            let html = rendered["html"].as_str().unwrap();
+            assert!(html.contains(EXACT_ROUTE_SUBHEADING) && html.contains("Numerical standing: integrity checked"), "{name}");
+            assert!(rendered["derived_print_html"].as_str().is_some_and(|print| print.contains(EXACT_ROUTE_SUBHEADING)), "{name}");
+            let refused = refusal_text(production_render_on(&live, &genuine_render_args(&w, &live.job)));
+            assert_eq!(refused.split(':').next(), Some(RENDER_ROUTE_NOT_ADMITTED), "{name}");
+            let (code, message) = save_code(&live, save_args(&bound(&w.request, &live.job), &w, &w.model, Some(&w.result), Some(&w.intake)));
+            assert_eq!(code, ROUTE_NOT_ADMITTED, "{name}: {message}");
+        }
+    }
+
+    /// Codex r1 finding 2: with genuine custody and texts, a fabricated row
+    /// (a numerical-health id with a stress statement and invented refs)
+    /// refuses at the render's re-derivation; the save refuses at item 0, and
+    /// the package's item 6 refuses the row behind it
+    /// (`report_package` `a_fabricated_report_row_refuses_at_item_6`).
+    #[test]
+    fn a_fabricated_row_refuses_at_the_render_and_the_save() {
+        let w = witness(STRAIGHT);
+        let live = live(&w);
+        let fabricated = json!({
+            "row_id": "numerical-health:case:invented",
+            "label": "Maximum stress 1 Pa on every member (fabricated)",
+            "case_ref": "load_case:case:invented",
+            "quantity_display": "",
+            "source_ref": "diagnostic:invented"
+        });
+        let mut args = genuine_render_args(&w, &live.job);
+        args["input"]["result_rows"].as_array_mut().unwrap().push(fabricated.clone());
+        assert_eq!(refusal_text(witness_render_on(&live, &args)), format!("{SECTIONS_MISMATCH}: result_rows"));
+        let mut request = bound(&w.request, &live.job);
+        request["report"]["result_rows"].as_array_mut().unwrap().push(fabricated);
+        let (code, message) = save_code(&live, save_args(&request, &w, &w.model, Some(&w.result), Some(&w.intake)));
+        assert_eq!(code, ROUTE_NOT_ADMITTED, "{message}");
+    }
+
     #[test]
     fn the_genuine_render_input_renders_under_the_witness_set() {
         let w = witness(STRAIGHT);
@@ -743,7 +814,7 @@ mod direct_native {
     #[test]
     fn a_same_run_substitute_refuses_at_the_native_binding() {
         let w = witness(STRAIGHT);
-        let substitute = witness(SUBSTITUTE);
+        let substitute = substitute_witness();
         let live = live(&w);
         let request = bound(&substitute.request, &live.job);
         // 1. With the genuine result text: step 5 (the binding's result digest).
@@ -873,7 +944,7 @@ mod direct_native {
             }
         }
         // `model_sha256` changed: step 5 refuses it before the re-derivation
-        // (§3.6 step 5; see the return's note on §7's code for this case).
+        // (§3.6 step 5, as design §7 states for this case).
         let mut input = genuine.clone();
         input["exact_route"]["admission"]["model_sha256"] = json!("0".repeat(64));
         let refused = refusal_text(witness_render_on(&live, &render_args(&input, Some(&w.result), Some(&w.intake), Some(&manifest))));

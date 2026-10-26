@@ -38,10 +38,14 @@
 //! §3.6): each job records the SHA-256 of the raw model body it admitted, hashed
 //! in place before the body is copied, and of its result bytes, hashed in place
 //! in the supervisor thread before publication, with the admitted solver mode.
-//! This is 65 bytes of digest metadata per job; no result or model bytes are
+//! One record field owns them ([`JobDigests`]): 65 bytes of digest metadata
+//! (two 32-byte digests and the mode), from admission until the job ends
+//! without a result (failed, refused or cancelled), or until its result's
+//! custody ends (`dispose_result`, `dispose_all_results`), or until the
+//! record is pruned, whichever comes first. No result or model bytes are
 //! retained for it and no lease changes. [`SolveJobRegistry::custody_binding`]
 //! returns them only while the result is delivered and its custody lease is
-//! held; disposal and pruning release them with custody. The native render and
+//! held. The native render and
 //! save of an exact-route report bind resubmitted texts to them.
 //!
 //! Locks: the registry lock may be held while taking the pool lock (lease
@@ -234,6 +238,15 @@ pub(crate) fn sha256_in_place(bytes: &[u8]) -> [u8; 32] {
     Sha256::digest(bytes).into()
 }
 
+/// The one owner of a job's digest metadata (§3.6): the intake digest and the
+/// mode from admission, the result digest from publication.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct JobDigests {
+    intake_sha256: [u8; 32],
+    solver_mode: PreviewSolverMode,
+    result_sha256: Option<[u8; 32]>,
+}
+
 #[derive(Debug)]
 struct SolveJobRecord {
     number: u64,
@@ -255,10 +268,9 @@ struct SolveJobRecord {
     resource: JobResource,
     /// Kill access to the job's worker process while it may be unreaped.
     worker: Option<Arc<WorkerControl>>,
-    /// The SHA-256 of the admitted raw model body and the admitted mode.
-    intake: ([u8; 32], PreviewSolverMode),
-    /// Set at publication; released with the result and its custody lease.
-    custody_digests: Option<CustodyDigests>,
+    /// The job's digest metadata; released when the job ends without a
+    /// result, or with the result and its custody lease.
+    digests: Option<JobDigests>,
 }
 
 #[derive(Debug, Default)]
@@ -380,6 +392,7 @@ impl Drop for WorkerExit {
         if let Some(record) = table.records.get_mut(&self.job_id) {
             if !record.state.terminal() {
                 record.state = JobState::Failed;
+                record.digests = None;
                 record.queue_reason = None;
                 record.error_message =
                     Some("PREVIEW-SOLVE-WORKER-EXITED: the solve worker ended without publishing an outcome.".into());
@@ -537,8 +550,7 @@ impl SolveJobRegistry {
                     delivered: false,
                     resource: resource.clone(),
                     worker: None,
-                    intake: (intake_sha256, mode),
-                    custody_digests: None,
+                    digests: Some(JobDigests { intake_sha256, solver_mode: mode, result_sha256: None }),
                 },
             );
             (job_id, token)
@@ -555,6 +567,7 @@ impl SolveJobRegistry {
             let mut table = self.table();
             if let Some(record) = table.records.get_mut(&job_id) {
                 record.state = JobState::Failed;
+                record.digests = None;
                 record.error_message = Some(format!("PREVIEW-SOLVE-WORKER-START-FAILED: {error}"));
             }
             table.prune();
@@ -605,6 +618,10 @@ impl SolveJobRegistry {
             record.worker = None;
             record.resource.worker_grant_bytes = None;
             edit(record);
+            // A job that ends without a result releases its digest metadata.
+            if record.result.is_none() && !record.delivered {
+                record.digests = None;
+            }
         }
         table.prune();
     }
@@ -733,8 +750,9 @@ impl SolveJobRegistry {
         record.result_bytes = Some(result.len() as u64);
         record.result = Some(result);
         record.result_lease = Some(lease);
-        let (intake_sha256, solver_mode) = record.intake;
-        record.custody_digests = Some(CustodyDigests { intake_sha256, result_sha256, solver_mode });
+        if let Some(digests) = record.digests.as_mut() {
+            digests.result_sha256 = Some(result_sha256);
+        }
         table.prune();
     }
 
@@ -744,11 +762,11 @@ impl SolveJobRegistry {
     pub(crate) fn custody_binding(&self, job_id: &str) -> Option<CustodyDigests> {
         let table = self.table();
         let record = table.records.get(job_id)?;
-        if record.delivered && record.result.is_none() && record.result_lease.is_some() {
-            record.custody_digests
-        } else {
-            None
+        if !(record.delivered && record.result.is_none() && record.result_lease.is_some()) {
+            return None;
         }
+        let digests = record.digests?;
+        Some(CustodyDigests { intake_sha256: digests.intake_sha256, result_sha256: digests.result_sha256?, solver_mode: digests.solver_mode })
     }
 
     /// The job's state; never returns or clones the result.
@@ -811,7 +829,7 @@ impl SolveJobRegistry {
         let result = record.result.take();
         let lease = record.result_lease.take();
         // The digests are released with custody.
-        record.custody_digests = None;
+        record.digests = None;
         let released_bytes = lease.as_ref().map_or(0, Lease::bytes);
         let receipt = SolveResultDisposal {
             job_id: job_id.to_string(),
@@ -854,7 +872,7 @@ impl SolveJobRegistry {
             }
             let result = record.result.take();
             let lease = record.result_lease.take();
-            record.custody_digests = None;
+            record.digests = None;
             if result.is_some() || lease.is_some() {
                 released.push((result, lease));
             }
@@ -1099,11 +1117,11 @@ mod tests {
         // Released with custody: one job by `dispose_result`, the other by `dispose_all_results`.
         registry.dispose_result(&receipt.job_id).unwrap();
         assert_eq!(registry.custody_binding(&receipt.job_id), None);
-        assert!(registry.table().records[&receipt.job_id].custody_digests.is_none());
+        assert!(registry.table().records[&receipt.job_id].digests.is_none());
         assert!(registry.custody_binding(&second.job_id).is_some());
         registry.dispose_all_results();
         assert_eq!(registry.custody_binding(&second.job_id), None);
-        assert!(registry.table().records[&second.job_id].custody_digests.is_none());
+        assert!(registry.table().records[&second.job_id].digests.is_none());
         assert_eq!(registry.custody_binding("backend-solve-job-unknown"), None);
         // A disposed untaken result never had a binding.
         let third = registry.start(MODEL, None).unwrap();
@@ -1113,6 +1131,22 @@ mod tests {
         registry.dispose_result(&third.job_id).unwrap();
         assert_eq!(registry.custody_binding(&third.job_id), None);
         assert_eq!(registry.pool().reserved_total(), 0);
+    }
+
+    /// A job that ends without a result releases its digest metadata at once;
+    /// a running job holds only its intake digest and mode.
+    #[test]
+    fn a_job_without_a_result_releases_its_digests() {
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated(&host);
+        let receipt = registry.start(MODEL, None).unwrap();
+        gate.wait_started(1);
+        let running = registry.table().records[&receipt.job_id].digests;
+        assert_eq!(running.map(|d| (d.intake_sha256, d.result_sha256)), Some((Sha256::digest(MODEL).into(), None)));
+        gate.release("err:invented worker failure");
+        assert_eq!(wait_terminal(&registry, &receipt.job_id).state, "failed");
+        assert!(registry.table().records[&receipt.job_id].digests.is_none());
+        assert_eq!(registry.custody_binding(&receipt.job_id), None);
     }
 
     /// Pruning removes a released record and its digests with it; a record in
@@ -1166,10 +1200,10 @@ mod tests {
         gate.wait_started(1);
         gate.release("{\"r\":1}");
         assert_eq!(wait_terminal(&registry, &receipt.job_id).state, "completed");
-        let published = registry.table().records[&receipt.job_id].custody_digests;
-        assert!(published.is_some(), "recorded at publication");
+        let published = registry.table().records[&receipt.job_id].digests;
+        assert!(published.is_some_and(|d| d.result_sha256.is_some()), "recorded at publication");
         registry.take_result(&receipt.job_id).unwrap();
-        assert_eq!(registry.custody_binding(&receipt.job_id), published);
+        assert_eq!(registry.custody_binding(&receipt.job_id).map(|d| d.result_sha256), published.and_then(|d| d.result_sha256));
         registry.dispose_result(&receipt.job_id).unwrap();
     }
 

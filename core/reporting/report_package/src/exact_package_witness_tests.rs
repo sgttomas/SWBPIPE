@@ -35,20 +35,39 @@ use serde_json::{json, Value};
 
 const ROUTE_NOT_ADMITTED: &str = "REPORT-PACKAGE-ROUTE-NOT-ADMITTED";
 
-const WITNESSES: [(&str, &str); 3] = [
+/// The five witness shapes of §5.5.
+const WITNESSES: [(&str, &str); 5] = [
     ("pressure_2_straight", include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_straight.json")),
     (
         "pressure_2_load_reference_states",
         include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_load_reference_states.json"),
     ),
+    ("pressure_2_connector", include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_connector.json")),
+    (
+        "pressure_2_realized_bend",
+        include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_realized_bend.json"),
+    ),
     ("pressure_source_1", include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_source_1.json")),
 ];
-const SUBSTITUTE: &str =
-    include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_straight_substitute.json");
+/// The same-run substitute: leaf replacements over the straight witness's request.
+const SUBSTITUTE_OVERLAY: &str =
+    include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_straight_substitute.overlay.json");
 
 fn request_of(text: &str) -> Value {
     let witness: Value = serde_json::from_str(text).unwrap();
     witness["request"].clone()
+}
+
+/// The substitute request: the overlay's replacements applied to the straight
+/// witness's request.
+fn substitute_request() -> Value {
+    let overlay: Value = serde_json::from_str(SUBSTITUTE_OVERLAY).unwrap();
+    assert_eq!(overlay["base"], "pressure_2_straight.json");
+    let mut request = request_of(WITNESSES[0].1);
+    for entry in overlay["replacements"].as_array().unwrap() {
+        *request.pointer_mut(entry["pointer"].as_str().unwrap()).unwrap() = entry["value"].clone();
+    }
+    request
 }
 
 fn typed(request: &Value) -> ReportPackageRequest {
@@ -98,7 +117,10 @@ fn each_witness_shape_assembles_and_reads_back_under_the_witness_set() {
         let document: Value = serde_json::from_slice(&result.bytes).unwrap();
         assert_eq!(document["result_envelope"]["producer"]["semantic_contract_id"], identity_id, "{name}");
         assert_eq!(canonical_json(&document), canonical_json(&request["result_documents"][0]), "{name}");
-        // The rendered members carry the exact block and the composed standing line.
+        // Both rendered members are emitted; the HTML carries the exact block and
+        // the composed standing line.
+        let pdf = outcome.members.iter().find(|member| member.file_name.ends_with(".pdf")).expect("a PDF member");
+        assert!(pdf.bytes.starts_with(b"%PDF-") && pdf.byte_length > 0, "{name}");
         let html = outcome.members.iter().find(|member| member.file_name.ends_with(".html")).unwrap();
         let html = String::from_utf8(html.bytes.clone()).unwrap();
         assert!(html.contains("Exact-Route Result") && html.contains("Numerical standing: integrity checked"), "{name}");
@@ -187,7 +209,7 @@ fn the_runner_profile_is_refused_in_the_producer_and_the_reader() {
 #[test]
 fn the_same_run_substitute_passes_items_0_to_9() {
     let genuine = request_of(WITNESSES[0].1);
-    let substitute = request_of(SUBSTITUTE);
+    let substitute = substitute_request();
     let admission = |request: &Value| request["report"]["exact_route"]["admission"].clone();
     for field in ["native_job_id", "received_bytes_sha256", "run_ref", "semantic_contract_id"] {
         assert_eq!(admission(&substitute)[field], admission(&genuine)[field], "{field}");
@@ -195,4 +217,26 @@ fn the_same_run_substitute_passes_items_0_to_9() {
     assert_ne!(admission(&substitute)["received_result_sha256"], admission(&genuine)["received_result_sha256"]);
     assert_ne!(canonical_json(&substitute["source_results"][0]), canonical_json(&genuine["source_results"][0]));
     witness_package(&substitute);
+}
+
+/// Codex r1 finding 2: a row the source does not derive, such as a fabricated
+/// numerical-health line, refuses at item 6 under the witness set; the
+/// production entry points refuse at item 0 before it.
+#[test]
+fn a_fabricated_report_row_refuses_at_item_6() {
+    for (name, text) in WITNESSES {
+        let mut request = request_of(text);
+        request["report"]["result_rows"].as_array_mut().unwrap().push(json!({
+            "row_id": "numerical-health:case:invented",
+            "label": "Maximum stress 1 Pa on every member (fabricated)",
+            "case_ref": "load_case:case:invented",
+            "quantity_display": "",
+            "source_ref": "diagnostic:invented"
+        }));
+        let solver = linked(&request);
+        let error = assemble_wire_request_in(typed(&request), &identity(&solver), EXACT_WITNESS_ADMITTED).map(drop).expect_err("refused");
+        assert!(error.starts_with("REPORT-PACKAGE-REPORT-ROWS-MISMATCH"), "{name}: {error}");
+        let error = assemble_wire_request(typed(&request), &identity(&solver)).map(drop).expect_err("refused");
+        assert!(error.starts_with(ROUTE_NOT_ADMITTED), "{name}: {error}");
+    }
 }

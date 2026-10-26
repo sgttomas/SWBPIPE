@@ -720,7 +720,10 @@ export async function buildRenderableReportInput({
     report_title: `${model.project.name} — Calculation Report`,
     calculation_report: calculationReport,
     report_sections: reportSections,
-    result_rows: reportResultRows(result).concat((numericalHealth?.route === "generic" ? numericalHealth.cases : []).map((item) => ({
+    // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §6.1): an exact-route
+    // report carries no numerical-health line until the native render can re-derive it
+    // from the delivered result; its rows are exactly the source rows' projection.
+    result_rows: reportResultRows(result).concat((numericalHealth?.route === "generic" && !exactInputs ? numericalHealth.cases : []).map((item) => ({
       row_id: `numerical-health:${item.caseId}`,
       label: reportLineText(item.state),
       case_ref: `load_case:${item.caseId}`,

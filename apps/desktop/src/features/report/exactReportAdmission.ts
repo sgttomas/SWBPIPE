@@ -96,6 +96,11 @@ async function utf8Sha256(text: string): Promise<string> {
 export async function admitExactReportSource(inputs: ExactReportAdmissionInputs): Promise<ExactReportAdmission> {
   const { model, result, analysisRun, inputManifest } = inputs;
   if (!isExactReportSource(result)) throw mismatch("semantic_contract_id");
+  // The four inputs' checked text, before the first await: an edit made at any later
+  // point, including after Export Result JSON admitted them, makes the admission stale.
+  let text: string;
+  try { text = checkedJsonText({ model, result, analysisRun, inputManifest }); } catch { throw stale(); }
+  const solverMode = inputManifest?.manifest?.solver_basis?.solver_mode ?? "";
   const document = await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
   const envelope = document.result_envelope as JsonObject | undefined;
   const nativeJobId = deliveredMechanicsResultJob(result);
@@ -133,18 +138,17 @@ export async function admitExactReportSource(inputs: ExactReportAdmissionInputs)
     if (field.endsWith("_sha256") && !LOWER_HEX_64.test(value)) throw mismatch(field);
     binding[field] = value;
   }
-  // The admission is for the live custody of these bytes, still held after the awaits.
-  if (deliveredMechanicsResultJob(result) !== binding.native_job_id || receivedResultBytes(result) !== bytes) throw stale();
   const admission: ExactReportAdmission = Object.freeze({ document, binding: Object.freeze(binding) });
-  recorded.set(admission, {
-    model,
-    result,
-    analysisRun,
-    inputManifest,
-    text: checkedJsonText({ model, result, analysisRun, inputManifest }),
-    solverMode: inputManifest.manifest.solver_basis.solver_mode,
-    bytes: bytes as string
-  });
+  recorded.set(admission, { model, result, analysisRun, inputManifest, text, solverMode, bytes: bytes as string });
+  // After the last await: the snapshot taken before the first await still holds,
+  // with the live invocation, standing, custody and received bytes. Otherwise the
+  // admission is stale and is never returned.
+  try {
+    checkExactReportAdmission(admission, inputs);
+  } catch (error) {
+    recorded.delete(admission);
+    throw error;
+  }
   return admission;
 }
 

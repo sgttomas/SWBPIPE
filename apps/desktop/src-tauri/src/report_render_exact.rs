@@ -188,20 +188,16 @@ fn bind_exact_render_input(
 }
 
 /// The re-derivation (§3.6) with the functions the package's item 9 uses: the
-/// result rows (followed only by the panel's numerical-health lines, which
-/// carry no source value), the exact limitation entries with the profile
-/// reference, and the `exact_route` section. `input_manifest_ref` and
+/// result rows, exactly (an exact report carries no numerical-health line, so
+/// no row is admitted that the delivered result does not derive), the exact
+/// limitation entries with the profile reference, and the `exact_route`
+/// section. `input_manifest_ref` and
 /// `derivative_sha256` are checked for form here and against the report's own
 /// records by the renderer (§3.2). `Err` names the section.
 fn rederive(input: &Value, source: &Value, model_sha256: &str, digests: &crate::solve_jobs::CustodyDigests) -> Result<(), String> {
     let rows = expected_report_result_rows(source).map_err(|_| "result_rows".to_string())?;
     let found = input["result_rows"].as_array().map(Vec::as_slice).unwrap_or(&[]);
-    let tail_is_health = found.get(rows.len()..).is_some_and(|tail| {
-        tail.iter().all(|row| {
-            row["row_id"].as_str().is_some_and(|id| id.starts_with("numerical-health:")) && row["quantity_display"] == ""
-        })
-    });
-    if found.len() < rows.len() || found[..rows.len()] != rows[..] || !tail_is_health {
+    if found != rows.as_slice() {
         return Err("result_rows".to_string());
     }
     let core = expected_exact_route_core(source).map_err(|_| "exact_route".to_string())?;

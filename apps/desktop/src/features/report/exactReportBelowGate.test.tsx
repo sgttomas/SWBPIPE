@@ -55,6 +55,8 @@ import {
 } from "./exactReportAdmission";
 import { exactLimitationEntries, exactRouteCore, REPORT_EXACT_SECTIONS_MISMATCH } from "./exactReportSections";
 import { buildRenderableReportInput } from "./renderableReportInput";
+import { reportResultRows } from "./reportResultRows";
+import { numericalHealthView, readNumericalHealth } from "../results/numericalHealth";
 import { assembleExactReportBelowOutputGate } from "./renderedReportAssembly";
 import { RenderedReportPanel } from "./RenderedReportPanel";
 import {
@@ -87,10 +89,16 @@ const PUBLIC = { exportContext: "public_report" as const, generatedAt: null };
 type Shape = { name: string; mode: "sparse_interactive" | "dense_scrutiny"; rawPath: string; requestPath: string };
 /** The committed exact inputs a desktop session can solve (a request model and the raw
  * bytes its producer wrote): pressure-2 straight (X0, the straight corpus's input),
- * pressure-2 with load/reference states (Y0), and pressure-source-1 (n05). */
+ * pressure-2 with load/reference states (Y0), pressure-2 with an objective connector
+ * (U3-SYS-DEMO-CONNECTOR-001, the connector corpus's input) and with a realized bend
+ * (U2-L-ANCH-PTW-K2 0.3.0, the arc corpus's input), whose re-authored requests and
+ * worker bytes `core/product_physics/tests/exact_route_limitations.rs` writes
+ * (`exact_report_witness_inputs_are_current`), and pressure-source-1 (n05). */
 const SHAPES: readonly Shape[] = [
   { name: "pressure_2_straight", mode: "sparse_interactive", rawPath: "fixtures/results/pressure_connected_mechanics_sparse.json", requestPath: "core/product_physics/tests/fixtures/exact_pressure_connected_request.json" },
   { name: "pressure_2_load_reference_states", mode: "sparse_interactive", rawPath: "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json", requestPath: "fixtures/product_preview/pressure/load_reference/pressure.request.json" },
+  { name: "pressure_2_connector", mode: "sparse_interactive", rawPath: "fixtures/reports/invented/exact_report_witness_inputs/pressure_2_connector-sparse_interactive.raw.json", requestPath: "fixtures/reports/invented/exact_report_witness_inputs/pressure_2_connector.request.json" },
+  { name: "pressure_2_realized_bend", mode: "sparse_interactive", rawPath: "fixtures/reports/invented/exact_report_witness_inputs/pressure_2_realized_bend-sparse_interactive.raw.json", requestPath: "fixtures/reports/invented/exact_report_witness_inputs/pressure_2_realized_bend.request.json" },
   { name: "pressure_source_1", mode: "sparse_interactive", rawPath: "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json", requestPath: "fixtures/product_preview/pressure_source/physics_source/n05.request.json" }
 ];
 const shape = (name: string) => SHAPES.find((item) => item.name === name)!;
@@ -231,6 +239,27 @@ describe("admitExactReportSource (§3.1)", () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
+  // Codex r1 finding 1: an edit made after Export Result JSON admitted the inputs, while
+  // the admission still awaits its own digests, makes the admission stale. Here the
+  // analysis record's status is changed the moment the Current builder has resolved.
+  it("refuses an analysis-record edit made after Export Result JSON admitted the inputs", async () => {
+    const { model, result, analysisRun, inputManifest } = await solve(shape("pressure_2_straight"));
+    const original = resultExportAdapter.buildCurrentResultExport;
+    let resolved = false;
+    const spy = vi.spyOn(resultExportAdapter, "buildCurrentResultExport").mockImplementationOnce(async (args) => {
+      const document = await original(args);
+      resolved = true;
+      // Mid-flight, after the Current builder succeeded and before the admission returns.
+      analysisRun.analysis_run.analysis_status.push("USER_RULE_FAILED");
+      return document;
+    });
+    await expect(admitExactReportSource({ model, result, analysisRun, inputManifest })).rejects.toThrow(new RegExp(`^${REPORT_EXACT_ADMISSION_STALE}: `));
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(resolved).toBe(true);
+    // A fresh Export Result JSON build refuses the same inputs.
+    await expect(original({ model, result, analysisRun, inputManifest })).rejects.toThrow("CURRENT_STATUS_BINDING_MISMATCH");
+  });
+
   it("refuses a pressure-free source and a result without live custody", async () => {
     const session = await solve(shape("pressure_2_straight"));
     const { model, result, analysisRun, inputManifest } = session;
@@ -330,6 +359,20 @@ describe("the exact sections in the renderer input, below the gate", () => {
     expect(submission.exactIntakeText).toBe(session.intakeText);
     expect(submission.exactIntakeText).toBe(checkedJsonText(session.model));
     expect(await utf8Sha256(submission.inputManifestText)).toBe(session.inputManifest.manifest_sha256);
+  });
+
+  // Codex r1 finding 2: an exact report carries no numerical-health line (the native
+  // render re-derives its rows exactly and admits none it cannot derive).
+  it("adds no numerical-health line to an exact report, even when the panel supplies one", async () => {
+    const session = await solve(shape("pressure_2_straight"));
+    const { model, result, analysisRun, inputManifest } = session;
+    const health = numericalHealthView(readNumericalHealth(result, numericalResultStanding(result, model).findings), { eligible: true, verdictHold: false });
+    expect(health?.route).toBe("generic");
+    expect(health!.cases.length).toBeGreaterThan(0);
+    const assembly = await assembleExactReportBelowOutputGate({ model, result, analysisRun, inputManifest, projectSummary: null, ruleCheckRun: null, numericalHealth: health, context: "local_private", intent: true, generatedAt: null });
+    const rows = (assembly.input as Json).result_rows as Json[];
+    expect(rows).toEqual(reportResultRows(result));
+    expect(rows.some((row) => String(row.row_id).startsWith("numerical-health:"))).toBe(false);
   });
 
   it("a pressure-free source takes no admission and its input is unchanged", async () => {
@@ -451,6 +494,34 @@ async function substituteRequest(genuine: Json) {
   return { session, request, row: raw.results[target].id as string };
 }
 
+/** The leaf replacements that turn `base` into `variant`, as `[{pointer, value}]` in
+ * document order (the headless runner's alias-overlay form,
+ * `del1005_package_witness.rs` `leaf_overlay`). Both must have the same shape. */
+function leafOverlay(base: Json, variant: Json, pointer = "", out: Json[] = []): Json[] {
+  const escape = (key: string) => key.replaceAll("~", "~0").replaceAll("/", "~1");
+  if (Array.isArray(base) && Array.isArray(variant)) {
+    expect(variant.length, `${pointer}: the substitute changes an array length`).toBe(base.length);
+    base.forEach((item, index) => leafOverlay(item, variant[index], `${pointer}/${index}`, out));
+  } else if (base && variant && typeof base === "object" && typeof variant === "object" && !Array.isArray(base) && !Array.isArray(variant)) {
+    expect(Object.keys(variant), `${pointer}: the substitute changes an object's shape`).toEqual(Object.keys(base));
+    for (const key of Object.keys(base)) leafOverlay(base[key], variant[key], `${pointer}/${escape(key)}`, out);
+  } else if (!Object.is(base, variant) && JSON.stringify(base) !== JSON.stringify(variant)) {
+    out.push({ pointer, value: variant });
+  }
+  return out;
+}
+
+/** Applies a leaf overlay to a copy of `base`. */
+function applyOverlay(base: Json, replacements: Json[]): Json {
+  const copy = structuredClone(base);
+  for (const { pointer, value } of replacements) {
+    const keys = (pointer as string).split("/").slice(1).map((key) => key.replaceAll("~1", "/").replaceAll("~0", "~"));
+    const last = keys.pop()!;
+    keys.reduce((item: Json, key: string) => item[key], copy)[last] = value;
+  }
+  return copy;
+}
+
 describe("the witness requests (§5.5)", () => {
   it("writes each witness shape's request and the substitute; stale fails", async () => {
     const outDir = process.env.OPENPIPESTRESS_WRITE_EXACT_PACKAGE_REQUESTS;
@@ -472,7 +543,20 @@ describe("the witness requests (§5.5)", () => {
     const substitute = await substituteRequest(straight);
     expect(await canonicalSha256Hex(substitute.request.source_results[0])).not.toBe(await canonicalSha256Hex(straight.source_results[0]));
     expect(substitute.request.report.exact_route.admission.received_result_sha256).not.toBe(straight.report.exact_route.admission.received_result_sha256);
-    files.push(["pressure_2_straight_substitute.json", witnessFile(shape("pressure_2_straight"), substitute.session, substitute.request, { substituted_row: substitute.row })]);
+    // The substitute is committed as leaf replacements over the straight witness's request
+    // (Codex r1 finding 5); the overlay reproduces it exactly.
+    expect(substitute.session.intakeText).toBe(JSON.parse(files[0][1]).exact_intake_text);
+    expect(await canonicalJsonString(substitute.session.inputManifest.manifest)).toBe(await canonicalJsonString(JSON.parse(files[0][1]).input_manifest));
+    const replacements = leafOverlay(straight, substitute.request);
+    expect(applyOverlay(straight, replacements)).toEqual(substitute.request);
+    files.push(["pressure_2_straight_substitute.overlay.json", `${JSON.stringify({
+      schema_version: "1.0.0",
+      generator: GENERATOR,
+      description: "W-11 slice (b) same-run substitute (DEL-08-01 Design exact-route-report-sections.md sections 5.5 and 7): leaf replacements over the request of pressure_2_straight.json, the straight source with one nodal rotation row changed, solved, recorded and assembled by the same builders so that every hash in the document, report and handoff records is rebound, keeping the genuine request's native_job_id and received_bytes_sha256. Its model, input manifest and intake text are the straight witness's.",
+      base: "pressure_2_straight.json",
+      substituted_row: substitute.row,
+      replacements
+    })}\n`]);
     if (outDir) {
       mkdirSync(outDir, { recursive: true });
       for (const [name, content] of files) writeFileSync(resolve(outDir, name), content);
