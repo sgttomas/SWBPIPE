@@ -137,6 +137,8 @@ pub(crate) fn open_store_read_only(path: &Path, named: &str) -> Result<Connectio
     let connection = Connection::open_with_flags(path, OpenFlags::SQLITE_OPEN_READ_ONLY | OpenFlags::SQLITE_OPEN_NO_MUTEX)
         .map_err(|error| unavailable(error.to_string()))?;
     connection.busy_timeout(std::time::Duration::from_secs(5)).map_err(|error| unavailable(error.to_string()))?;
+    // The libraries' key measurement scans `local_libraries` on this connection.
+    bound_library_read_cache(&connection).map_err(unavailable)?;
     let version = crate::store_user_version(&connection).map_err(unavailable)?;
     crate::refuse_newer_store(version).map_err(|message| refusal(STORE_NOT_CURRENT, message))?;
     if version < crate::STORE_SCHEMA_TARGET_VERSION {
@@ -203,29 +205,135 @@ const LIBRARY_KEYED_ROW_SQL: &str = "SELECT COALESCE(MAX(COALESCE(octet_length(p
 const LIBRARY_LENGTH_SQL: &str = "SELECT octet_length(document_json) FROM local_libraries WHERE project_id = ?1 AND library_kind = ?2 AND library_id = ?3";
 const LIBRARY_TEXT_SQL: &str = "SELECT document_json FROM local_libraries WHERE project_id = ?1 AND library_kind = ?2 AND library_id = ?3";
 
+/// SQLite's working set for the library keys, as priced so far in one
+/// command: the largest keyed row it was priced for, and its reservations.
+#[derive(Default)]
+pub(crate) struct KeyedWorkingSet {
+    priced: i64,
+    held: Vec<ReadReservation>,
+}
+
+impl KeyedWorkingSet {
+    /// Re-measures the largest keyed row in the caller's transaction and grows
+    /// the reservation to it before any index search: a key another connection
+    /// wrote after an earlier read's transaction is priced before a search can
+    /// materialize it (#1641 Codex r1 P1).
+    fn admit(&mut self, connection: &Connection, memory: &dyn ReadMemory) -> Result<(), String> {
+        let largest: i64 = connection.query_row(LIBRARY_KEYED_ROW_SQL, [], |row| row.get(0)).map_err(|error| stored_read::sql_error(&error))?;
+        if self.held.is_empty() || largest > self.priced {
+            let what = format!("SQLite's working set for the stored libraries (their largest keyed row holds {largest} bytes)");
+            self.held.push(stored_read::reserve_sqlite_value(memory, &what, largest.saturating_sub(self.priced))?);
+            self.priced = largest;
+        }
+        Ok(())
+    }
+
+    fn into_held(self) -> Vec<ReadReservation> {
+        self.held
+    }
+
+    #[cfg(test)]
+    fn reserved_bytes(&self) -> u64 {
+        self.held.iter().map(ReadReservation::bytes).sum()
+    }
+}
+
+/// One stored library read within `memory` (Codex r3 P1): SQLite's working
+/// set for the library keys (`stored_read::SQLITE_WORKING_SET_FACTOR` times
+/// the largest keyed row, which an index seek may materialize), re-measured in
+/// this read's transaction and grown before the search ([`KeyedWorkingSet`]);
+/// then the library's `document_json` measured without loading it, its load
+/// reserved (`stored_read::loaded_text_bytes`) before it is loaded, and its
+/// `Value` materialization, bounded by the ingress prescan
+/// (`stored_read::parse_bytes`), reserved before it is parsed. The
+/// reservations are pushed to `held`. Errors are bounded: a SQLite error as
+/// `stored_read::sql_error` describes it, a text the prescan refuses by its
+/// reason and offset, a serde error by `stored_read::json_error`, never the
+/// stored text. A reservation the pool refuses is
+/// `STORE-READ-MEMORY-UNAVAILABLE`. Every measurement and the load are made on
+/// `connection` in the caller's read transaction, so the row measured is the
+/// row loaded. Shared by the recovery export's screening ([`LibraryReads`])
+/// and by Save Model Document's and Save Handoff's lookups
+/// ([`StoreLibraryReads`]).
+pub(crate) fn read_stored_library(
+    connection: &Connection,
+    memory: &dyn ReadMemory,
+    keyed: &mut KeyedWorkingSet,
+    held: &mut Vec<ReadReservation>,
+    project_id: &str,
+    library_kind: &str,
+    library_id: &str,
+) -> Result<Option<StoredLibrary>, String> {
+    let sql_error = |error: rusqlite::Error| stored_read::sql_error(&error);
+    keyed.admit(connection, memory)?;
+    let key = params![project_id, library_kind, library_id];
+    let length: Option<Option<i64>> = connection.query_row(LIBRARY_LENGTH_SQL, key, |row| row.get(0)).optional().map_err(sql_error)?;
+    let Some(length) = length else { return Ok(None) };
+    let length = u64::try_from(length.unwrap_or(0)).unwrap_or(0);
+    let what = format!("the stored {} library `{}` ({length} bytes)", stored_read::shown(library_kind), stored_read::shown(library_id));
+    held.push(memory.reserve(&what, stored_read::loaded_text_bytes(length))?);
+    let Some(text) = connection.query_row(LIBRARY_TEXT_SQL, key, |row| row.get::<_, String>(0)).optional().map_err(sql_error)? else {
+        return Ok(None);
+    };
+    let parse = stored_read::parse_bytes(&text)?;
+    held.push(memory.reserve(&what, parse)?);
+    let document: Value = serde_json::from_str(&text).map_err(|error| stored_read::json_error(&error))?;
+    drop(text);
+    Ok(Some(StoredLibrary { document, parse, what }))
+}
+
+/// The page cache, in KiB, of a connection that reads stored libraries
+/// (`PRAGMA cache_size = -LIBRARY_READ_CACHE_KIB`): it bounds what SQLite caches
+/// while the key measurement scans `local_libraries` and while a library's
+/// overflow pages are read (#1641 Codex r1 P2). The default (2 MiB) grew
+/// with the table. `sqlite3_soft_heap_limit64` and `sqlite3_hard_heap_limit64`
+/// are ruled out: they are process-wide, not per connection.
+pub(crate) const LIBRARY_READ_CACHE_KIB: i64 = 256;
+
+/// Bounds the page cache of a connection that reads stored libraries.
+pub(crate) fn bound_library_read_cache(connection: &Connection) -> Result<(), String> {
+    connection.execute_batch(&format!("PRAGMA cache_size = -{LIBRARY_READ_CACHE_KIB};")).map_err(|error| stored_read::sql_error(&error))
+}
+
+/// What Save Model Document's and Save Handoff's library store connection
+/// holds besides its priced reads, reserved before it is opened: SQLite's
+/// bounded page cache ([`LIBRARY_READ_CACHE_KIB`], with its page headers),
+/// the connection's lookaside, the parsed store schema, the open's migration
+/// check and one prepared statement at a time, and the command's own Rust
+/// memory for them (`stored_read::READ_OVERHEAD_BYTES`). The SQLite part was
+/// measured against a store with 30,000 library rows
+/// (`the_library_store_connection_is_bounded_whatever_the_table_size`).
+pub(crate) const LIBRARY_STORE_BYTES: u64 = stored_read::READ_OVERHEAD_BYTES + (1 << 20);
+
+/// A stored library read by [`read_stored_library`]: the document, its
+/// prescan's materialization bound, and what the reservations name it.
+pub(crate) struct StoredLibrary {
+    pub(crate) document: Value,
+    pub(crate) parse: u64,
+    pub(crate) what: String,
+}
+
 /// The screening's library lookup (Save Model Document's `load_library`
 /// query), metered within the export's memory, in its read transaction
-/// (Codex r3 P1): before the first lookup, SQLite's working set for the
-/// library keys (`stored_read::SQLITE_WORKING_SET_FACTOR` times the largest
-/// keyed row, which an index seek may materialize); for each library found,
-/// its `document_json` measured, then its load and its parse each reserved
-/// before they are made. The reservations are held until the screening ends
-/// (this value is dropped). A refusal of the pool is kept in `refused`, so the
-/// export refuses by its name rather than as the screening's store failure.
+/// (Codex r3 P1): each library is read by [`read_stored_library`], and the
+/// screening's bound for it is reserved before it is returned to the screener.
+/// The reservations are held until the screening ends (this value is dropped).
+/// A refusal of the pool is kept in `refused`, so the export refuses by its
+/// name rather than as the screening's store failure.
 struct LibraryReads<'a> {
     connection: &'a Connection,
     memory: &'a dyn ReadMemory,
     /// The model's longest `library_ref` path and identity, which bound the
     /// diagnostics a library's screening can add ([`library_screening_bytes`]).
     references: &'a ScreeningBound,
-    keyed: Option<ReadReservation>,
+    keyed: KeyedWorkingSet,
     held: Vec<ReadReservation>,
     refused: Option<String>,
 }
 
 impl<'a> LibraryReads<'a> {
     fn new(connection: &'a Connection, memory: &'a dyn ReadMemory, references: &'a ScreeningBound) -> Self {
-        Self { connection, memory, references, keyed: None, held: Vec::new(), refused: None }
+        Self { connection, memory, references, keyed: KeyedWorkingSet::default(), held: Vec::new(), refused: None }
     }
 
     fn read(&mut self, project_id: &str, library_kind: &str, library_id: &str) -> Result<Option<Value>, String> {
@@ -239,30 +347,274 @@ impl<'a> LibraryReads<'a> {
     }
 
     fn read_metered(&mut self, project_id: &str, library_kind: &str, library_id: &str) -> Result<Option<Value>, String> {
-        let sql_error = |error: rusqlite::Error| stored_read::sql_error(&error);
-        if self.keyed.is_none() {
-            let largest: i64 = self.connection.query_row(LIBRARY_KEYED_ROW_SQL, [], |row| row.get(0)).map_err(sql_error)?;
-            let what = format!("SQLite's working set for the stored libraries (their largest keyed row holds {largest} bytes)");
-            self.keyed = Some(stored_read::reserve_sqlite_value(self.memory, &what, largest)?);
-        }
-        let key = params![project_id, library_kind, library_id];
-        let length: Option<Option<i64>> = self.connection.query_row(LIBRARY_LENGTH_SQL, key, |row| row.get(0)).optional().map_err(sql_error)?;
-        let Some(length) = length else { return Ok(None) };
-        let length = u64::try_from(length.unwrap_or(0)).unwrap_or(0);
-        let what = format!("the stored {} library `{}` ({length} bytes)", stored_read::shown(library_kind), stored_read::shown(library_id));
-        self.held.push(self.memory.reserve(&what, stored_read::loaded_text_bytes(length))?);
-        let Some(text) = self.connection.query_row(LIBRARY_TEXT_SQL, key, |row| row.get::<_, String>(0)).optional().map_err(sql_error)? else {
+        let Some(StoredLibrary { document: library, parse, what }) =
+            read_stored_library(self.connection, self.memory, &mut self.keyed, &mut self.held, project_id, library_kind, library_id)?
+        else {
             return Ok(None);
         };
-        let parse = stored_read::parse_bytes(&text)?;
-        self.held.push(self.memory.reserve(&what, parse)?);
-        let library: Value = serde_json::from_str(&text).map_err(|error| stored_read::json_error(&error))?;
-        drop(text);
         // What the screener builds from this library (Codex r4 P1), reserved
         // before it is returned to the screener.
         let screening = library_screening_bytes(library_kind, &library, parse, self.references);
         self.held.push(self.memory.reserve(&format!("the screening of {what}"), screening)?);
         Ok(Some(library))
+    }
+}
+
+/// Save Model Document's and Save Handoff's library lookup (DEL-04-07
+/// memory-budget decision, model-sized interactive commands): the local
+/// library store opened by `open` only when a library is first referenced,
+/// with [`LIBRARY_STORE_BYTES`] reserved before it is opened and its page cache
+/// bounded ([`bound_library_read_cache`]); then each library read by
+/// [`read_stored_library`] in its own read transaction, the identities trimmed
+/// as `open_local_library` trims them. `memory` starts from the command's
+/// ingress lease (`PoolReadMemory::new`), so every reservation is counted with
+/// it against the per-invocation budget.
+///
+/// What the command builds from the libraries is reserved here too, before it
+/// is built:
+/// - the screening's allocations, as the recovery export bounds them
+///   ([`ScreeningBound`] of the model, reserved by [`Self::screen_model`]
+///   before the screening starts, and [`library_screening_bytes`] for each
+///   library before it is returned to the screener);
+/// - for the handoff ([`Self::with_reference_metadata`]), its structural
+///   screens of each library, priced from their allocation-free count
+///   ([`structural_screening_bytes`]), and the reference metadata built from
+///   each library: its canonical text, hashed once
+///   (`stored_read::grown_text_bytes` of its exact `jcs_length`); its
+///   classification is folded over the library as it is walked, collecting
+///   nothing from it (`handoff_package::library_refs`). The handoff shares each
+///   parsed library between its screening and its references (`Rc`) and
+///   copies none.
+///
+/// The reservations are held until this value is dropped, which the saves do
+/// after the write, so they last until the command returns. A refusal of the
+/// pool is kept, and the save refuses by its name
+/// ([`StoreLibraryReads::refusal`]) rather than as the screening's store
+/// failure, as the recovery export does.
+pub(crate) struct StoreLibraryReads<'a> {
+    memory: &'a dyn ReadMemory,
+    open: Box<dyn FnMut() -> Result<Connection, String> + 'a>,
+    connection: Option<Connection>,
+    overhead: Option<ReadReservation>,
+    keyed: KeyedWorkingSet,
+    held: Vec<ReadReservation>,
+    references: Option<ScreeningBound>,
+    reference_metadata: bool,
+    refused: Option<String>,
+}
+
+impl<'a> StoreLibraryReads<'a> {
+    pub(crate) fn new(memory: &'a dyn ReadMemory, open: impl FnMut() -> Result<Connection, String> + 'a) -> Self {
+        Self {
+            memory,
+            open: Box::new(open),
+            connection: None,
+            overhead: None,
+            keyed: KeyedWorkingSet::default(),
+            held: Vec::new(),
+            references: None,
+            reference_metadata: false,
+            refused: None,
+        }
+    }
+
+    /// Also reserves, for each library, the handoff's reference metadata.
+    pub(crate) fn with_reference_metadata(mut self) -> Self {
+        self.reference_metadata = true;
+        self
+    }
+
+    /// Reserves the screener's allocations over the admitted `document`
+    /// before its screening starts, and keeps its bound for the libraries'.
+    pub(crate) fn screen_model(&mut self, document: &Value) -> Result<(), Refusal> {
+        let references = ScreeningBound::of(document);
+        match self.memory.reserve("the screening of the model document", references.bytes()) {
+            Ok(reservation) => self.held.push(reservation),
+            Err(error) => {
+                self.refused.get_or_insert(error);
+                return Err(self.refusal().unwrap_or_default());
+            }
+        }
+        self.references = Some(references);
+        Ok(())
+    }
+
+    /// The screener's and the handoff's `LibraryLookup`.
+    pub(crate) fn read(&mut self, project_id: &str, library_kind: &str, library_id: &str) -> Result<Option<Value>, String> {
+        #[cfg(test)]
+        if library_read_probe::active() {
+            let before = self.reserved_bytes();
+            let (read, measured) = crate::ingress::counting::measure(|| self.read_kept(project_id, library_kind, library_id));
+            library_read_probe::record(self.reserved_bytes() - before, measured.peak_priced);
+            return read;
+        }
+        self.read_kept(project_id, library_kind, library_id)
+    }
+
+    fn read_kept(&mut self, project_id: &str, library_kind: &str, library_id: &str) -> Result<Option<Value>, String> {
+        let read = self.read_metered(project_id.trim(), library_kind.trim(), library_id.trim());
+        if let Err(error) = &read {
+            if error.starts_with(MEMORY_UNAVAILABLE) && self.refused.is_none() {
+                self.refused = Some(error.clone());
+            }
+        }
+        read
+    }
+
+    fn read_metered(&mut self, project_id: &str, library_kind: &str, library_id: &str) -> Result<Option<Value>, String> {
+        if self.connection.is_none() {
+            if self.overhead.is_none() {
+                self.overhead = Some(self.memory.reserve("the local library store (its connection and the command's own memory)", LIBRARY_STORE_BYTES)?);
+            }
+            let connection = (self.open)().map_err(stored_read::capped)?;
+            bound_library_read_cache(&connection)?;
+            self.connection = Some(connection);
+        }
+        let connection = self.connection.as_mut().expect("opened above");
+        // One read transaction per library: the rows measured are the rows loaded.
+        let transaction = stored_read::read_transaction(connection)?;
+        let read = read_stored_library(&transaction, self.memory, &mut self.keyed, &mut self.held, project_id, library_kind, library_id)?;
+        drop(transaction);
+        let Some(StoredLibrary { document, parse, what }) = read else { return Ok(None) };
+        if let Some(references) = &self.references {
+            let screening = library_screening_bytes(library_kind, &document, parse, references);
+            self.held.push(self.memory.reserve(&format!("the screening of {what}"), screening)?);
+        }
+        if self.reference_metadata {
+            let canonical = stored_read::grown_text_bytes(stored_read::jcs_length(&document));
+            self.held.push(self.memory.reserve(&format!("the canonical text of {what} (its reference digest)"), canonical)?);
+            let structural = crate::export_disposition_screen::structural_bound(&document);
+            let unscreened = ScreeningBound::default();
+            let structural = structural_screening_bytes(&structural, self.references.as_ref().unwrap_or(&unscreened));
+            self.held.push(self.memory.reserve(&format!("the structural screening of {what}"), structural)?);
+        }
+        Ok(Some(document))
+    }
+
+    /// The save's refusal when the memory pool refused a library read or the
+    /// screening's reservation, by the pool's name
+    /// (`STORE-READ-MEMORY-UNAVAILABLE`); the message quotes the pool's typed
+    /// refusal and is bounded (ids are cut as messages quote them).
+    pub(crate) fn refusal(&mut self) -> Option<Refusal> {
+        self.refused.take().map(|error| refusal(MEMORY_UNAVAILABLE, format!("{error} Nothing was written.")))
+    }
+
+    /// The bytes this lookup holds reserved now (tests).
+    #[cfg(test)]
+    pub(crate) fn reserved_bytes(&self) -> u64 {
+        self.overhead.iter().chain(self.held.iter()).map(ReadReservation::bytes).sum::<u64>() + self.keyed.reserved_bytes()
+    }
+}
+
+/// Each [`StoreLibraryReads::read`] measured by the counting allocator while
+/// started on this thread (tests): `(bytes it reserved, its measured peak)`,
+/// the peak priced as the ingress prescan prices allocations.
+#[cfg(test)]
+pub(crate) mod library_read_probe {
+    use std::cell::RefCell;
+
+    thread_local! {
+        static READS: RefCell<Option<Vec<(u64, u64)>>> = const { RefCell::new(None) };
+    }
+
+    pub(crate) fn start() {
+        READS.with(|reads| *reads.borrow_mut() = Some(Vec::new()));
+    }
+
+    pub(crate) fn take() -> Vec<(u64, u64)> {
+        READS.with(|reads| reads.borrow_mut().take().unwrap_or_default())
+    }
+
+    pub(super) fn active() -> bool {
+        READS.with(|reads| reads.borrow().is_some())
+    }
+
+    thread_local! {
+        static SAVE_PEAKS: RefCell<Vec<u64>> = const { RefCell::new(Vec::new()) };
+    }
+
+    /// The most a save's memory held at once, including its ingress lease
+    /// (`PoolReadMemory::peak_reserved`), recorded by the saves as they return.
+    pub(crate) fn record_save_peak(peak_reserved: u64) {
+        SAVE_PEAKS.with(|peaks| peaks.borrow_mut().push(peak_reserved));
+    }
+
+    pub(crate) fn take_save_peaks() -> Vec<u64> {
+        SAVE_PEAKS.with(|peaks| std::mem::take(&mut *peaks.borrow_mut()))
+    }
+
+    pub(super) fn record(reserved: u64, peak_priced: u64) {
+        READS.with(|reads| {
+            if let Some(reads) = reads.borrow_mut().as_mut() {
+                reads.push((reserved, peak_priced));
+            }
+        });
+    }
+
+    /// A representative referenced library: the committed invented material
+    /// library fixture (`fixtures/material/invented_material_library_valid.json`)
+    /// with its dispositions made public and reviewed, so it saves, under the
+    /// id `library:invented-materials` and with its first record `steel`, which
+    /// the every-slot model fixture references.
+    pub(crate) fn representative_material_library() -> serde_json::Value {
+        use serde_json::{json, Value};
+        fn reviewed_public(value: &mut Value) {
+            match value {
+                Value::Object(object) => {
+                    for (key, value) in object.iter_mut() {
+                        match key.as_str() {
+                            "redistribution_status" => *value = json!("public_permissive"),
+                            "review_status" => *value = json!("accepted"),
+                            _ => reviewed_public(value),
+                        }
+                    }
+                }
+                Value::Array(items) => items.iter_mut().for_each(reviewed_public),
+                _ => {}
+            }
+        }
+        let mut library: Value = serde_json::from_str(include_str!("../../../../fixtures/material/invented_material_library_valid.json")).unwrap();
+        reviewed_public(&mut library);
+        library["material_library"]["library_id"] = json!("library:invented-materials");
+        library["material_records"][0]["material_id"] = json!("steel");
+        library
+    }
+
+    /// #1641 Codex r2 P2-a's shape: [`representative_material_library`] with
+    /// `depth` nested objects under its wrapper, each under a key of
+    /// `key_length` bytes, holding no disposition member (invented, public).
+    pub(crate) fn nested_long_key_library(depth: usize, key_length: usize) -> serde_json::Value {
+        let mut library = representative_material_library();
+        let mut tail = serde_json::json!({ "note": "invented" });
+        for level in 0..depth {
+            tail = serde_json::json!({ format!("{level:03}{}", "k".repeat(key_length)): tail });
+        }
+        library["material_library"]["invented_notes"] = tail;
+        library
+    }
+
+    /// #1641 Codex r2 P2-b's shape: [`representative_material_library`]'s
+    /// wrapper with `records` records `steel`, each `rejected`, so W-6a's
+    /// screening refuses with one diagnostic per record.
+    pub(crate) fn rejected_records_library(records: usize) -> serde_json::Value {
+        let mut library = representative_material_library();
+        library["material_records"] = serde_json::Value::Array(vec![serde_json::json!({ "material_id": "steel", "review_status": "rejected" }); records]);
+        library
+    }
+
+    /// [`representative_material_library`] with `records` records: its record
+    /// repeated under new ids (`steel` first), about 3 KB each.
+    pub(crate) fn large_material_library(records: usize) -> serde_json::Value {
+        let mut library = representative_material_library();
+        let record = library["material_records"][0].clone();
+        let mut all = vec![record.clone()];
+        for index in 1..records {
+            let mut copy = record.clone();
+            copy["material_id"] = serde_json::json!(format!("mat.invented.r{index:05}"));
+            all.push(copy);
+        }
+        library["material_records"] = serde_json::Value::Array(all);
+        library
     }
 }
 
@@ -530,6 +882,30 @@ fn library_screening_bytes(library_kind: &str, library: &Value, parse: u64, refe
     ])
 }
 
+/// What the handoff's structural screens of one stored library build
+/// (`handoff_package::library_refs`: `screen_value` and `malformed_values`,
+/// #1641 Codex r2 P2-a), from their allocation-free count
+/// (`export_disposition_screen::structural_bound`): the walks' one pointer
+/// buffer at its longest (growing, one walk at a time); for each walk, every
+/// finding built at its exact length, their vector, the repeats' check (a
+/// flag and a borrowed key per finding) and the deduplicated vector; and the
+/// refusal quoting them, held to the end: the joined findings, the message
+/// built around them and its diagnostic, at the model's longest reference
+/// path, quoting its longest identity.
+fn structural_screening_bytes(bound: &crate::export_disposition_screen::StructuralBound, references: &ScreeningBound) -> u64 {
+    let walk = |found: crate::export_disposition_screen::FindingCount| {
+        let joined = found.text_bytes.saturating_add(found.count.saturating_mul(2));
+        stored_read::total(&[
+            found.text_bytes.saturating_mul(2).saturating_add(found.count.saturating_mul(16)),
+            found.count.saturating_mul(slot_bytes(STRING_SIZE).saturating_mul(2).saturating_add(slot_bytes(16)).saturating_add(slot_bytes(1))),
+            stored_read::exact_text_bytes(joined),
+            diagnostic_bytes(references.path_max, stored_read::total(&[joined, references.identity_max, MESSAGE_FIXED_BYTES])),
+            VECTOR_BASE_BYTES.saturating_mul(2),
+        ])
+    };
+    stored_read::total(&[stored_read::text_copy_bytes(bound.pointer_max), walk(bound.blocking), walk(bound.malformed)])
+}
+
 /// Reads the stored text of a project's document (`state_id` absent) or of one
 /// of its saved states from the store at `store`, opened read-only, and admits
 /// it for writing unchanged, within `memory`. The reservations the admitted
@@ -581,7 +957,7 @@ pub(crate) fn admit_stored_model_document(
     });
     let refused = libraries.refused.take();
     held.append(&mut libraries.held);
-    held.extend(libraries.keyed.take());
+    held.append(&mut std::mem::take(&mut libraries.keyed).into_held());
     if let Some(error) = refused {
         return Err(read_refusal(&named, error));
     }
@@ -632,60 +1008,165 @@ pub(crate) fn export_stored_model_document_request<R>(
 /// durability and the member names.
 const SAVED_FIELDS_BYTES: u64 = 4096;
 
+/// An outcome a command serializes within its memory ([`serialize_outcome`]),
+/// with the short form it sends when its whole response is refused.
+pub(crate) trait SentOutcome: serde::Serialize + Sized {
+    /// The outcome with its diagnostics (a refusal's) or warnings (a Saved
+    /// outcome's) bounded by [`bounded_diagnostics`], and how many it listed.
+    fn bounded(self) -> (Self, usize);
+
+    /// The bounded outcome sent instead when the pool refuses the whole
+    /// response (`refusal`): a refusal's first diagnostic and count, or a
+    /// Saved outcome without its warnings, `noun` naming the command (`export`,
+    /// `save`), `listed` the diagnostics or warnings the outcome listed. Quoted
+    /// texts are capped.
+    fn shortened(self, refusal: String, noun: &str, listed: usize) -> Self;
+}
+
+/// The most diagnostics (or warnings) a response of Save Model Document, Save
+/// Handoff or the recovery export names (#1641 Codex r3): the desktop shows at
+/// most eight; the rest are counted by one final diagnostic.
+pub(crate) const MAX_NAMED_DIAGNOSTICS: usize = 64;
+/// The most bytes of a named diagnostic's path or message; a longer one is cut
+/// on a character boundary and ends `…`.
+pub(crate) const MAX_DIAGNOSTIC_TEXT_BYTES: usize = 2048;
+/// The final diagnostic that counts those not named.
+pub(crate) const DIAGNOSTICS_NOT_SHOWN: &str = "SAVE-DIAGNOSTICS-NOT-SHOWN";
+/// One named diagnostic's JSON at its longest: `{"code":"","path":"","message":""}`
+/// (34 bytes), a code under 64 bytes, and a path and a message of
+/// [`MAX_DIAGNOSTIC_TEXT_BYTES`] each escaped to at most six bytes per byte.
+const DIAGNOSTIC_JSON_BYTES: u64 = 34 + 64 + 2 * 6 * MAX_DIAGNOSTIC_TEXT_BYTES as u64;
+/// The longest response of these commands, in bytes (1,636,642): 65
+/// diagnostics of [`DIAGNOSTIC_JSON_BYTES`], their commas, and 32 KiB for the outcome's
+/// other members (a file or package name of at most 255 bytes, a basis state
+/// id of at most `stored_read::MAX_ID_BYTES`, each escaped, the hashes and
+/// the durability). A longer response is never sent: its short form is
+/// ([`serialize_outcome`]). The transport's copy of it (Wry's `NSData` on
+/// macOS) is at most as long again.
+pub(crate) const MAX_RESPONSE_BYTES: u64 = (MAX_NAMED_DIAGNOSTICS as u64 + 1) * DIAGNOSTIC_JSON_BYTES + MAX_NAMED_DIAGNOSTICS as u64 + 32 * 1024;
+
+/// `text` cut to at most `max` bytes on a character boundary, ending `…`.
+fn cut_text(text: String, max: usize) -> String {
+    if text.len() <= max {
+        return text;
+    }
+    let mut cut = max - '…'.len_utf8();
+    while !text.is_char_boundary(cut) {
+        cut -= 1;
+    }
+    format!("{}…", &text[..cut])
+}
+
+/// `diagnostics` as a response names them: the first
+/// [`MAX_NAMED_DIAGNOSTICS`], in order, each path and message cut to
+/// [`MAX_DIAGNOSTIC_TEXT_BYTES`], then, when more were listed, one
+/// [`DIAGNOSTICS_NOT_SHOWN`] diagnostic counting them.
+pub(crate) fn bounded_diagnostics(diagnostics: Vec<ModelDocumentSaveDiagnostic>) -> Vec<ModelDocumentSaveDiagnostic> {
+    let listed = diagnostics.len();
+    let mut named: Vec<ModelDocumentSaveDiagnostic> = diagnostics
+        .into_iter()
+        .take(MAX_NAMED_DIAGNOSTICS)
+        .map(|item| ModelDocumentSaveDiagnostic {
+            code: item.code,
+            path: cut_text(item.path, MAX_DIAGNOSTIC_TEXT_BYTES),
+            message: cut_text(item.message, MAX_DIAGNOSTIC_TEXT_BYTES),
+        })
+        .collect();
+    if listed > MAX_NAMED_DIAGNOSTICS {
+        let more = listed - MAX_NAMED_DIAGNOSTICS;
+        named.push(diagnostic(DIAGNOSTICS_NOT_SHOWN, "", format!("{more} more of the {listed} diagnostics were not shown; the first {MAX_NAMED_DIAGNOSTICS} are.")));
+    }
+    named
+}
+
+impl SentOutcome for ModelDocumentSaveOutcome {
+    fn bounded(self) -> (Self, usize) {
+        match self {
+            ModelDocumentSaveOutcome::Saved { file_name, byte_count, model_hash, replaced_existing, durability, warnings } => {
+                let listed = warnings.len();
+                (ModelDocumentSaveOutcome::Saved { file_name, byte_count, model_hash, replaced_existing, durability, warnings: bounded_diagnostics(warnings) }, listed)
+            }
+            ModelDocumentSaveOutcome::Refused { diagnostics } => {
+                let listed = diagnostics.len();
+                (ModelDocumentSaveOutcome::Refused { diagnostics: bounded_diagnostics(diagnostics) }, listed)
+            }
+            ModelDocumentSaveOutcome::Cancelled => (ModelDocumentSaveOutcome::Cancelled, 0),
+        }
+    }
+
+    fn shortened(self, refusal: String, noun: &str, listed: usize) -> Self {
+        match self {
+            ModelDocumentSaveOutcome::Saved { file_name, byte_count, model_hash, replaced_existing, durability, .. } => ModelDocumentSaveOutcome::Saved {
+                file_name,
+                byte_count,
+                model_hash,
+                replaced_existing,
+                durability,
+                warnings: vec![diagnostic(
+                    MEMORY_UNAVAILABLE,
+                    "",
+                    format!("{} The file was saved; its {listed} warnings are not shown.", stored_read::capped(refusal)),
+                )],
+            },
+            ModelDocumentSaveOutcome::Refused { diagnostics } => ModelDocumentSaveOutcome::refused_one(MEMORY_UNAVAILABLE, shortened_refusal(refusal, noun, listed, &diagnostics)),
+            ModelDocumentSaveOutcome::Cancelled => ModelDocumentSaveOutcome::Cancelled,
+        }
+    }
+}
+
+/// A refusal whose diagnostics are not shown, named by the response's refusal,
+/// their count (`listed`) and the first of them (capped).
+pub(crate) fn shortened_refusal(refusal: String, noun: &str, listed: usize, diagnostics: &[ModelDocumentSaveDiagnostic]) -> String {
+    let first = diagnostics.first().map_or(String::new(), |item| format!(" The first is {}: {}", item.code, stored_read::capped(item.message.clone())));
+    format!("{} The {noun} was refused with {listed} diagnostics, which are not shown.{first}", stored_read::capped(refusal))
+}
+
 /// The outcome's text (Codex r4 P2), serialized within `memory` while the
 /// outcome's reservations are held: its exact length is counted first, and a
 /// buffer of that capacity is written under `reserved` (a bound reserved
 /// earlier) when it fits, else under a new reservation. If the pool refuses
-/// it, a short outcome naming the refusal is sent instead (bounded: quoted
-/// texts are capped): a refusal's first diagnostic and count, or a Saved
-/// outcome without its warnings. Returns the outcome sent, its text and the
-/// buffer's reservation, which the caller holds until the response exists.
-fn serialize_outcome(
+/// it, the outcome's short form is sent instead ([`SentOutcome::shortened`]).
+/// The outcome is first bounded ([`SentOutcome::bounded`]), so what outlives
+/// the reservations, the response and its transport copy, is at most
+/// [`MAX_RESPONSE_BYTES`] each.
+/// `what` names the response ("the response to {what}"), and `noun` the
+/// command in the short form. Returns the outcome
+/// sent, its text and the buffer's reservation, which the caller holds until
+/// the response exists. Shared by the recovery export and by Save Model
+/// Document and Save Handoff (#1641 Codex r2 P2-b).
+pub(crate) fn serialize_outcome<O: SentOutcome>(
     memory: &dyn ReadMemory,
-    named: &str,
-    outcome: ModelDocumentSaveOutcome,
+    what: &str,
+    noun: &str,
+    outcome: O,
     reserved: Option<(ReadReservation, u64)>,
-) -> (ModelDocumentSaveOutcome, String, Option<ReadReservation>) {
-    let write = |outcome: &ModelDocumentSaveOutcome, capacity: u64| -> Option<String> {
+) -> (O, String, Option<ReadReservation>) {
+    let write = |outcome: &O, capacity: u64| -> Option<String> {
         let mut buffer = Vec::with_capacity(usize::try_from(capacity).ok()?);
         serde_json::to_writer(&mut buffer, outcome).ok()?;
         String::from_utf8(buffer).ok()
     };
+    // At most MAX_RESPONSE_BYTES outlives the reservations (#1641 Codex r3).
+    let (outcome, listed) = outcome.bounded();
     let length = stored_read::serialized_length(&outcome).unwrap_or(u64::MAX);
+    if length > MAX_RESPONSE_BYTES {
+        let refusal = format!("{MEMORY_UNAVAILABLE}: the response to {what} would be {length} bytes, above the {MAX_RESPONSE_BYTES} a response may hold.");
+        let sent = outcome.shortened(refusal, noun, listed);
+        let text = serde_json::to_string(&sent).unwrap_or_default();
+        return (sent, text, None);
+    }
     let buffer = match reserved {
         Some((reservation, bound)) if length <= bound => Ok(reservation),
-        _ => memory.reserve(&format!("the response to the export of {named}"), stored_read::exact_text_bytes(length)),
+        _ => memory.reserve(&format!("the response to {what}"), stored_read::exact_text_bytes(length)),
     };
     let refusal = match buffer {
         Ok(buffer) => match write(&outcome, length) {
             Some(text) => return (outcome, text, Some(buffer)),
-            None => format!("{MEMORY_UNAVAILABLE}: the response to the export of {named} could not be serialized."),
+            None => format!("{MEMORY_UNAVAILABLE}: the response to {what} could not be serialized."),
         },
         Err(error) => error,
     };
-    let sent = match &outcome {
-        ModelDocumentSaveOutcome::Saved { file_name, byte_count, model_hash, replaced_existing, durability, warnings } => ModelDocumentSaveOutcome::Saved {
-            file_name: file_name.clone(),
-            byte_count: *byte_count,
-            model_hash: model_hash.clone(),
-            replaced_existing: *replaced_existing,
-            durability: durability.clone(),
-            warnings: vec![diagnostic(
-                MEMORY_UNAVAILABLE,
-                "",
-                format!("{} The file was saved; its {} warnings are not shown.", stored_read::capped(refusal), warnings.len()),
-            )],
-        },
-        ModelDocumentSaveOutcome::Refused { diagnostics } => {
-            let first = diagnostics.first().map_or(String::new(), |item| format!(" The first is {}: {}", item.code, stored_read::capped(item.message.clone())));
-            ModelDocumentSaveOutcome::refused_one(
-                MEMORY_UNAVAILABLE,
-                format!("{} The export was refused with {} diagnostics, which are not shown.{first}", stored_read::capped(refusal), diagnostics.len()),
-            )
-        }
-        ModelDocumentSaveOutcome::Cancelled => ModelDocumentSaveOutcome::Cancelled,
-    };
-    drop(outcome);
+    let sent = outcome.shortened(refusal, noun, listed);
     let text = serde_json::to_string(&sent).unwrap_or_default();
     (sent, text, None)
 }
@@ -724,7 +1205,7 @@ pub(crate) fn export_stored_model_document<R>(
     };
     let mut held = Vec::new();
     let (outcome, reserved) = export_outcome(store, project_id, state_id, &memory, &named, &mut held, choose);
-    let (sent, text, buffer) = serialize_outcome(&memory, &named, outcome, reserved);
+    let (sent, text, buffer) = serialize_outcome(&memory, &format!("the export of {named}"), "export", outcome, reserved);
     let response = respond(&sent, text);
     drop(sent);
     drop(buffer);
@@ -1303,8 +1784,10 @@ mod tests {
         assert_eq!(small.pool_status().reserved_bytes, 0);
         match export(&store, None, &normal, &destination, &shown) {
             ModelDocumentSaveOutcome::Saved { warnings, .. } => {
-                assert_eq!(warnings.len(), 150);
-                assert!(warnings.iter().all(|warning| warning.code == crate::MODEL_LIBRARY_REF_UNRESOLVED));
+                // The response names the first 64 of the 150 warnings and counts the rest (#1641 Codex r3).
+                assert_eq!(warnings.len(), MAX_NAMED_DIAGNOSTICS + 1);
+                assert!(warnings[..MAX_NAMED_DIAGNOSTICS].iter().all(|warning| warning.code == crate::MODEL_LIBRARY_REF_UNRESOLVED));
+                assert!(warnings[MAX_NAMED_DIAGNOSTICS].message.starts_with("86 more of the 150"), "{:?}", warnings[MAX_NAMED_DIAGNOSTICS]);
             }
             other => panic!("not saved: {other:?}"),
         }
@@ -1384,7 +1867,7 @@ mod tests {
             }
             let (screened, measured) = crate::ingress::counting::measure(|| {
                 screen_model_document_dispositions(&document, &mut |_: &str, kind: &str, id: &str| {
-                    Ok(libraries.iter().find(|(k, i, _)| *k == kind.trim() && *i == id.trim()).map(|(_, _, text)| serde_json::from_str(text).unwrap()))
+                    Ok(libraries.iter().find(|(k, i, _)| *k == kind.trim() && *i == id.trim()).map(|(_, _, text)| serde_json::from_str::<Value>(text).unwrap()))
                 })
             });
             let found = match &screened {
@@ -1424,7 +1907,7 @@ mod tests {
         let model = unresolved_shape();
         let store = current_store(&scratch, &model, STATE_TEXT);
         let destination = scratch.0.join("recovered.json");
-        let budget = smallest_budget(&store, &destination, |outcome| matches!(outcome, ModelDocumentSaveOutcome::Saved { warnings, .. } if warnings.len() == 150));
+        let budget = smallest_budget(&store, &destination, |outcome| matches!(outcome, ModelDocumentSaveOutcome::Saved { warnings, .. } if warnings.len() == MAX_NAMED_DIAGNOSTICS + 1 && warnings[MAX_NAMED_DIAGNOSTICS].message.starts_with("86 more of the 150")));
         let shown = Cell::new(false);
         let refused = export(&store, None, &pool_of(budget - 1), &destination, &shown);
         assert_refused_nothing_written(&refused, MEMORY_UNAVAILABLE, &destination, &shown);
@@ -1435,13 +1918,236 @@ mod tests {
         let model = serde_json::to_string(&json!({ "project": { "id": PROJECT }, "k".repeat(32 * 1024): vec![blocked; 150] })).unwrap();
         let store = current_store(&scratch, &model, STATE_TEXT);
         let destination = scratch.0.join("recovered.json");
-        let whole = |outcome: &ModelDocumentSaveOutcome| matches!(outcome, ModelDocumentSaveOutcome::Refused { diagnostics } if diagnostics.len() == 150);
+        let whole = |outcome: &ModelDocumentSaveOutcome| matches!(outcome, ModelDocumentSaveOutcome::Refused { diagnostics } if diagnostics.len() == MAX_NAMED_DIAGNOSTICS + 1 && diagnostics[MAX_NAMED_DIAGNOSTICS].message.starts_with("86 more of the 150"));
         let budget = smallest_budget(&store, &destination, whole);
         let shown = Cell::new(false);
         let refused = export(&store, None, &pool_of(budget - 1), &destination, &shown);
         assert_refused_nothing_written(&refused, MEMORY_UNAVAILABLE, &destination, &shown);
-        let message = refusal_message(&refused);
+        // The bounded response (#1641 Codex r3) is no longer the largest
+        // reservation of this export; its own refusal is checked directly: a
+        // refusal whose response the pool refuses is sent as one named
+        // refusal counting every diagnostic it listed and quoting the first.
+        let ModelDocumentSaveOutcome::Refused { diagnostics } = export(&store, None, &registry(ScriptedHost::normal()), &destination, &Cell::new(false)) else { panic!("not refused") };
+        assert_eq!(diagnostics.len(), MAX_NAMED_DIAGNOSTICS + 1);
+        let listed = ModelDocumentSaveOutcome::Refused { diagnostics: vec![diagnostics[0].clone(); 150] };
+        let tiny = pool_of(1 << 20);
+        let memory = PoolReadMemory::unseeded(&tiny);
+        let _held = memory.reserve("everything but a byte", (1 << 20) - 1).unwrap();
+        let (sent, text, buffer) = serialize_outcome(&memory, "the export of a test", "export", listed, None);
+        assert!(buffer.is_none());
+        assert_eq!(serde_json::to_string(&sent).unwrap(), text);
+        let message = refusal_message(&sent);
         assert!(message.contains("the response to the export of"), "{message}");
         assert!(message.contains(&format!("refused with 150 diagnostics, which are not shown. The first is {PROTECTED_CONTENT_BLOCKED}")), "{message}");
+    }
+
+    // -----------------------------------------------------------------------
+    // #1641 Codex r1: the save-side lookup's key pricing and SQLite's memory.
+    // -----------------------------------------------------------------------
+
+    /// A store opened as the saves open it (`open_project_store`), holding
+    /// `rows` small libraries of project `PROJECT` besides `lib0` and `lib1`.
+    fn save_store(scratch: &Scratch, rows: usize) -> PathBuf {
+        let store = scratch.0.join(crate::PROJECT_STORE_FILE);
+        let (mut connection, _) = crate::open_project_store(&store).unwrap();
+        let transaction = connection.transaction().unwrap();
+        {
+            let mut insert = transaction
+                .prepare("INSERT INTO local_libraries(project_id, library_kind, library_id, document_json, created_at_unix, updated_at_unix) VALUES (?1, 'material', ?2, ?3, 1, 1)")
+                .unwrap();
+            for index in 0..rows {
+                let id = format!("library:invented-row-{index:06}");
+                insert.execute(params![PROJECT, id, library_text(160, "accepted")]).unwrap();
+            }
+            for id in ["lib0", "lib1"] {
+                insert.execute(params![PROJECT, id, library_text(1024, "accepted")]).unwrap();
+            }
+        }
+        transaction.commit().unwrap();
+        store
+    }
+
+    fn save_reads<'a>(memory: &'a dyn ReadMemory, store: &'a Path) -> StoreLibraryReads<'a> {
+        StoreLibraryReads::new(memory, move || crate::open_project_store(store).map(|(connection, _)| connection))
+    }
+
+    /// #1641 Codex r1 P1: the save-side lookup priced the largest library key
+    /// once, but reads each library in its own transaction, so a larger key
+    /// another connection wrote after the first read was searched under the
+    /// old price (an 8 MiB key read under a 1 MiB budget). Each read now
+    /// re-measures in its transaction and grows the price first: the second
+    /// read is refused by name and loads nothing.
+    #[test]
+    fn a_larger_key_written_between_reads_is_priced_before_the_next_search() {
+        let scratch = Scratch::new("key-between-reads");
+        let store = save_store(&scratch, 0);
+        let pool = registry(ScriptedHost::normal());
+        pool.configure_pool(16 << 20, 4 << 20, false).unwrap();
+        let memory = PoolReadMemory::unseeded(&pool);
+        let mut reads = save_reads(&memory, &store);
+        assert!(reads.read(PROJECT, "material", "lib0").unwrap().is_some(), "the first read fits the budget");
+        let before = reads.reserved_bytes();
+        // Another connection writes an 8 MiB key.
+        Connection::open(&store)
+            .unwrap()
+            .execute(
+                "INSERT INTO local_libraries(project_id, library_kind, library_id, document_json, created_at_unix, updated_at_unix) VALUES (?1, 'material', ?2, '{}', 1, 1)",
+                params![PROJECT, "k".repeat(8 << 20)],
+            )
+            .unwrap();
+        let refused = reads.read(PROJECT, "material", "lib1").unwrap_err();
+        assert!(refused.starts_with(MEMORY_UNAVAILABLE), "{refused}");
+        assert!(refused.contains("SQLite's working set for the stored libraries (their largest keyed row holds 8388"), "{refused}");
+        assert_eq!(reads.reserved_bytes(), before, "nothing more is reserved or loaded");
+        let diagnostics = reads.refusal().expect("the refusal is kept by name");
+        assert_eq!(diagnostics[0].code, MEMORY_UNAVAILABLE);
+        drop(reads);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+        // Under an ordinary pool the larger key is priced and the read proceeds.
+        let pool = registry(ScriptedHost::normal());
+        let memory = PoolReadMemory::unseeded(&pool);
+        let mut reads = save_reads(&memory, &store);
+        assert!(reads.read(PROJECT, "material", "lib0").unwrap().is_some());
+        assert!(reads.reserved_bytes() >= (8 << 20) * stored_read::SQLITE_WORKING_SET_FACTOR);
+    }
+
+    /// Runs the named test of this module alone in a child process: SQLite's
+    /// memory status is process-wide (as `analysis_runs_tests` `in_own_process`).
+    fn in_own_process(name: &str, body: impl FnOnce()) {
+        const CHILD: &str = "OPENPIPESTRESS_SQLITE_STATUS_CHILD";
+        if std::env::var_os(CHILD).is_some() {
+            body();
+            return;
+        }
+        let path = format!("stored_model_document_export::tests::{name}");
+        let output = std::process::Command::new(std::env::current_exe().unwrap())
+            .args([path.as_str(), "--exact", "--test-threads=1", "--nocapture"])
+            .env(CHILD, "1")
+            .output()
+            .unwrap();
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        eprintln!("{stdout}{}", String::from_utf8_lossy(&output.stderr));
+        assert!(output.status.success() && stdout.contains("1 passed"), "{stdout}\n{}", String::from_utf8_lossy(&output.stderr));
+    }
+
+    /// SQLite's own allocation peak during `f`, above what it held when `f`
+    /// began (`sqlite3_status64(SQLITE_STATUS_MEMORY_USED)`, its high-water mark
+    /// reset first).
+    fn sqlite_peak_during<T>(f: impl FnOnce() -> T) -> (T, u64) {
+        let (mut current, mut high) = (0i64, 0i64);
+        // SAFETY: plain out-pointers to two live i64s; the status call takes no other state.
+        unsafe { rusqlite::ffi::sqlite3_status64(rusqlite::ffi::SQLITE_STATUS_MEMORY_USED, &mut current, &mut high, 1) };
+        let start = current;
+        let out = f();
+        // SAFETY: as above.
+        unsafe { rusqlite::ffi::sqlite3_status64(rusqlite::ffi::SQLITE_STATUS_MEMORY_USED, &mut current, &mut high, 0) };
+        (out, u64::try_from(high - start).unwrap_or(0))
+    }
+
+    /// #1641 Codex r1 P2: with 30,000 ordinary library rows, the save-side
+    /// lookup's open and key scan peaked at 2.55 MB of SQLite memory while
+    /// 512 KiB was held. Its connection's page cache is now bounded
+    /// (`LIBRARY_READ_CACHE_KIB`), and SQLite's whole peak over the open, the
+    /// scans and two library reads stays within what the lookup reserved less
+    /// the Rust share of each load (one `String` envelope) and the command's
+    /// own Rust memory. The recovery export's connection has the same bound;
+    /// its SQLite peak over the same store stays within its own memory.
+    #[test]
+    fn the_library_store_connection_is_bounded_whatever_the_table_size() {
+        in_own_process("the_library_store_connection_is_bounded_whatever_the_table_size", || {
+            let scratch = Scratch::new("thirty-thousand-rows");
+            let store = save_store(&scratch, 30_000);
+            let pool = registry(ScriptedHost::normal());
+            let memory = PoolReadMemory::unseeded(&pool);
+            let library = library_text(1024, "accepted");
+            let (share, peak) = sqlite_peak_during(|| {
+                let mut reads = save_reads(&memory, &store);
+                for id in ["lib0", "lib1"] {
+                    assert!(reads.read(PROJECT, "material", id).unwrap().is_some());
+                }
+                let reserved = reads.reserved_bytes();
+                // Less the Rust side: the command's own memory, each loaded `String` and each parse.
+                let rust = stored_read::READ_OVERHEAD_BYTES + 2 * (stored_read::exact_text_bytes(library.len() as u64) + stored_read::parse_bytes(&library).unwrap());
+                eprintln!("SAVE_LOOKUP_SQLITE rows=30000 reserved={reserved} rust_share={rust}");
+                reserved - rust
+            });
+            eprintln!("SAVE_LOOKUP_SQLITE peak={peak} sqlite_share={share}");
+            assert!(peak <= share, "SQLite peaked at {peak} bytes over the lookup; its share of the reservations is {share}");
+            // The recovery export over the same store, referencing both libraries.
+            let model = format!(
+                "{{\"project\":{{\"id\":\"{PROJECT}\"}},\"materials\":[{{\"library_ref\":{{\"library_kind\":\"material\",\"library_id\":\"lib0\"}}}},{{\"library_ref\":{{\"library_kind\":\"material\",\"library_id\":\"lib1\"}}}}]}}"
+            );
+            Connection::open(&store)
+                .unwrap()
+                .execute("INSERT INTO local_projects(project_id, project_name, model_json, created_at_unix, updated_at_unix) VALUES (?1, 'Invented', ?2, 1, 1)", params![PROJECT, model])
+                .unwrap();
+            let destination = scratch.0.join("recovered.json");
+            let export_pool = registry(ScriptedHost::normal());
+            let (request, lease) = admitted(&export_pool, &envelope(PROJECT, None)).unwrap();
+            let (held, peak) = sqlite_peak_during(|| {
+                export_stored_model_document_request(&request, || Ok(store.clone()), &export_pool, &lease, |_| Ok(Some(destination.clone())), |outcome, _| {
+                    assert!(matches!(outcome, ModelDocumentSaveOutcome::Saved { .. }), "{outcome:?}");
+                    export_pool.pool_status().reserved_bytes
+                })
+            });
+            eprintln!("EXPORT_SQLITE rows=30000 held={held} peak={peak}");
+            assert!(peak <= held, "the export's SQLite peak {peak} exceeds what it held ({held})");
+        });
+    }
+
+    // -----------------------------------------------------------------------
+    // #1641 Codex r3: the response that outlives the reservations is bounded.
+    // -----------------------------------------------------------------------
+
+    /// Named diagnostics: the first 64 in order, paths and messages cut on a
+    /// character boundary at 2 KiB, then one counting the rest; the longest
+    /// such response (control characters escaped six bytes each) is within
+    /// `MAX_RESPONSE_BYTES`, and a short list is unchanged.
+    #[test]
+    fn named_diagnostics_are_bounded_and_short_lists_are_unchanged() {
+        assert_eq!(MAX_RESPONSE_BYTES, 1_636_642);
+        let short: Vec<ModelDocumentSaveDiagnostic> = (0..64).map(|index| diagnostic("CODE", &format!("p{index}"), format!("m{index}"))).collect();
+        assert_eq!(bounded_diagnostics(short.clone()), short);
+        let worst = "\u{1}".repeat(10_000) + "é";
+        let long: Vec<ModelDocumentSaveDiagnostic> = (0..1000).map(|_| diagnostic(&"C".repeat(63), &worst, worst.clone())).collect();
+        let bounded = bounded_diagnostics(long);
+        assert_eq!(bounded.len(), 65);
+        assert!(bounded[..64].iter().all(|item| item.path.len() <= MAX_DIAGNOSTIC_TEXT_BYTES && item.path.ends_with('…') && item.message.len() <= MAX_DIAGNOSTIC_TEXT_BYTES));
+        assert_eq!(bounded[64].code, DIAGNOSTICS_NOT_SHOWN);
+        let multibyte = cut_text("é".repeat(2000), MAX_DIAGNOSTIC_TEXT_BYTES);
+        assert!(multibyte.len() <= MAX_DIAGNOSTIC_TEXT_BYTES && multibyte.ends_with('…'));
+        let refused = ModelDocumentSaveOutcome::Refused { diagnostics: bounded };
+        let length = serde_json::to_string(&refused).unwrap().len() as u64;
+        eprintln!("WORST_NAMED_RESPONSE bytes={length} max={MAX_RESPONSE_BYTES}");
+        assert!(length <= MAX_RESPONSE_BYTES - 32 * 1024, "{length}");
+    }
+
+    /// #1641 Codex r3: the recovery export's response was unbounded too (a
+    /// library of 100,000 matching rejected records refused it with 100,000
+    /// diagnostics). It names the first 64, in order, then their count.
+    #[test]
+    fn the_exports_response_names_at_most_64_diagnostics() {
+        let scratch = Scratch::new("export-rejected-records");
+        let model = format!(
+            "{{\"project\":{{\"id\":\"{PROJECT}\"}},\"materials\":[{{\"id\":\"m\",\"library_ref\":{{\"library_kind\":\"material\",\"library_id\":\"{LIBRARY}\",\"record_id\":\"steel\"}}}}]}}"
+        );
+        let library = serde_json::to_string(&library_read_probe::rejected_records_library(100_000)).unwrap();
+        let store = store_with_library(&scratch, &model, "material", LIBRARY, &library);
+        let destination = scratch.0.join("recovered.json");
+        let shown = Cell::new(false);
+        let pool = registry(ScriptedHost::normal());
+        let (request, lease) = admitted(&pool, &envelope(PROJECT, None)).unwrap();
+        let (outcome, length) = export_stored_model_document_request(&request, || Ok(store.clone()), &pool, &lease, |_| { shown.set(true); Ok(Some(destination.clone())) }, |outcome, text| (outcome.clone(), text.len() as u64));
+        eprintln!("EXPORT_REJECTED response_bytes={length}");
+        assert!(length <= MAX_RESPONSE_BYTES, "a {length}-byte response");
+        assert_refused_nothing_written(&outcome, PROTECTED_CONTENT_BLOCKED, &destination, &shown);
+        let ModelDocumentSaveOutcome::Refused { diagnostics } = &outcome else { unreachable!() };
+        let document: Value = serde_json::from_str(&model).unwrap();
+        let stored: Value = serde_json::from_str(&library).unwrap();
+        let unbounded = screen_model_document_dispositions(&document, &mut |_: &str, _: &str, _: &str| Ok(Some(stored.clone()))).unwrap_err();
+        assert_eq!(unbounded.len(), 100_000);
+        assert_eq!(diagnostics.len(), MAX_NAMED_DIAGNOSTICS + 1);
+        assert_eq!(&diagnostics[..MAX_NAMED_DIAGNOSTICS], &unbounded[..MAX_NAMED_DIAGNOSTICS]);
+        assert_eq!(diagnostics[MAX_NAMED_DIAGNOSTICS].code, DIAGNOSTICS_NOT_SHOWN);
     }
 }

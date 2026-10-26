@@ -70,6 +70,14 @@ pub(crate) struct ReadReservation {
     held: Option<Rc<Cell<u64>>>,
 }
 
+impl ReadReservation {
+    /// The bytes this reservation holds (tests).
+    #[cfg(test)]
+    pub(crate) fn bytes(&self) -> u64 {
+        self.bytes
+    }
+}
+
 impl Drop for ReadReservation {
     fn drop(&mut self) {
         if let Some(held) = &self.held {

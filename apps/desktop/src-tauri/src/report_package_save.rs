@@ -442,9 +442,49 @@ pub(crate) fn parse_canonical(what: &str, text: &str) -> Result<Value, ReportPac
 /// The typed request, decoded from the moved `Value` by [`ValueDecoder`] (no
 /// size hints, strings moved, bounded error text): the conversion
 /// [`parse_lease_bytes`] prices.
+///
+/// Each member is moved out and decoded by [`ValueDecoder`] on its own, as the
+/// whole decode decodes it, so a refusal names the member and the error kind
+/// only, never the offending value or key (W-11 slice (c), Codex review round
+/// 3 of #1639). An unknown top-level member is ignored, as there.
 pub(crate) fn typed_request(request: Value) -> Result<ReportPackageRequest, ReportPackageSaveCommandError> {
-    ReportPackageRequest::deserialize(ValueDecoder(request))
-        .map_err(|error| refuse(REQUEST_INVALID, "/request", format!("The request is not a version 2.0.0 report-package request: {error}.")))
+    let invalid = |detail: String| {
+        refuse(REQUEST_INVALID, "/request", format!("The request is not a version 2.0.0 report-package request: {detail}."))
+    };
+    // A positional request (a JSON array) is read by field order, as serde
+    // reads it.
+    let members = open_pipe_stress_report_package::wire::REQUEST_MEMBERS;
+    let mut fields = match request {
+        Value::Object(fields) => fields,
+        Value::Array(items) => open_pipe_stress_report_renderer::positional_members(items, members, members.len())
+            .map_err(|kind| invalid(format!("{kind} at the request")))?,
+        _ => return Err(invalid("invalid type at the request".to_string())),
+    };
+    fn member<T: serde::de::DeserializeOwned>(fields: &mut serde_json::Map<String, Value>, key: &str, optional: bool) -> Result<T, String> {
+        let decoded = match fields.remove(key) {
+            None if !optional => return Err(format!("missing field at {key}")),
+            None => T::deserialize(ValueDecoder(Value::Null)),
+            Some(value) => T::deserialize(ValueDecoder(value)),
+        };
+        decoded.map_err(|error| format!("{} at {key}", open_pipe_stress_report_package::serde_error_kind(&error.to_string())))
+    }
+    // Every member, exhaustively (a new member is a compile error here).
+    (|| -> Result<ReportPackageRequest, String> {
+        Ok(ReportPackageRequest {
+            package_id: member(&mut fields, "package_id", false)?,
+            export_profile_id: member(&mut fields, "export_profile_id", false)?,
+            source_model_ref: member(&mut fields, "source_model_ref", false)?,
+            source_basis_refs: member(&mut fields, "source_basis_refs", false)?,
+            report: member(&mut fields, "report", false)?,
+            audit_manifest: member(&mut fields, "audit_manifest", false)?,
+            result_documents: member(&mut fields, "result_documents", false)?,
+            source_results: member(&mut fields, "source_results", false)?,
+            state_comparison_handoff_records: member(&mut fields, "state_comparison_handoff_records", false)?,
+            rule_check_aggregate: member(&mut fields, "rule_check_aggregate", true)?,
+            solve_rule_check_status: member(&mut fields, "solve_rule_check_status", false)?,
+        })
+    })()
+    .map_err(invalid)
 }
 
 /// A request admitted for the save dialog: the assembled package and the
@@ -1291,6 +1331,52 @@ mod tests {
         assert_eq!(paths, vec!["/model/materials/0/provenance_record/review_status".to_string(), "/model/materials/0/provenance_record".to_string()]);
     }
 
+    /// W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md`
+    /// §4.3, §6.2): the report's FR-REP-003 records, values and library
+    /// references are screened in the request as every object is. A
+    /// `quarantined`, `rejected` or `protected_suspected` record refuses the
+    /// save; a `private_only` one is admitted.
+    #[test]
+    fn fr_rep_003_records_with_a_blocking_disposition_refuse_the_save() {
+        let record = |member: &str, status: &str| {
+            let mut record = json!({
+                "source_name": "Invented material datasheet", "source_location": "invented-datasheet-shelf", "source_license": "invented-license",
+                "contributor": "invented contributor", "contributor_certification": "invented certification",
+                "redistribution_status": "private_only", "review_status": "pending", "privacy_classification": "private_project_data"
+            });
+            record[member] = json!(status);
+            record
+        };
+        let with_records = |record: Value| {
+            move |r: &mut Value| {
+                let sections = &mut r["report"]["report_sections"];
+                sections["provenance_notes"].as_array_mut().unwrap().push(record.clone());
+                sections["user_supplied_values"].as_array_mut().unwrap().push(json!({
+                    "value_id": "material-provenance:material:invented-steel", "value_category": "report_metadata",
+                    "source": {"ref_type": "material", "ref_id": "material:invented-steel"}, "provenance": record.clone(),
+                    "privacy_classification": "private_project_data", "required_for": ["reporting", "human_review"],
+                    "review_status": record["review_status"].clone(), "missing_data_finding": false
+                }));
+            }
+        };
+        assert!(admit(edited(with_records(record("review_status", "pending")))).is_ok());
+        for (member, status) in [("review_status", "quarantined"), ("review_status", "rejected"), ("redistribution_status", "protected_suspected")] {
+            let (code, paths) = refusal(admit(edited(with_records(record(member, status)))));
+            assert_eq!(code, PROTECTED_CONTENT_BLOCKED, "{member} {status}");
+            assert!(paths.iter().any(|path| path.starts_with("/request/report/report_sections/provenance_notes/") && path.ends_with(member)), "{paths:?}");
+            assert!(paths.iter().any(|path| path.starts_with("/request/report/report_sections/user_supplied_values/") && path.ends_with(&format!("provenance/{member}"))), "{paths:?}");
+        }
+        // A library reference's record.
+        for (member, status) in [("review_status", "quarantined"), ("privacy_classification", "protected_suspected")] {
+            let library = json!([{
+                "reference_id": "library-ref:1", "library_kind": "material", "library_id": "invented-material-library",
+                "library_version": "not recorded", "record_id": "not recorded", "entity_refs": ["material:invented-steel"], "provenance": record(member, status)
+            }]);
+            let (code, paths) = refusal(admit(edited(move |r: &mut Value| r["report"]["library_references"] = library.clone())));
+            assert_eq!((code.as_str(), paths[0].as_str()), (PROTECTED_CONTENT_BLOCKED, format!("/request/report/library_references/0/provenance/{member}").as_str()));
+        }
+    }
+
     /// The structural screen: what W-6a's record screen does not judge
     /// (§2.6 item 4) is refused in either value, every object at every depth.
     #[test]
@@ -1426,6 +1512,16 @@ mod tests {
         assert_eq!(error.code, "REPORT-PACKAGE-REPORT-ROWS-MISMATCH");
         let error = admit(edited(|r| r["source_basis_refs"] = json!("not a list"))).unwrap_err();
         assert_eq!(error.code, REQUEST_INVALID);
+        // Codex review round 3 of #1639: the refusal names the member and the
+        // kind, never the offending value, in the typed request and in the
+        // report (an echoed value can be a private path).
+        let typed = "/Users/invented-user/private-datasheets/steel-a.pdf";
+        let error = admit(edited(|r| r["source_basis_refs"] = json!(typed))).unwrap_err();
+        assert_eq!(error.code, REQUEST_INVALID);
+        assert!(error.message.ends_with("The request is not a version 2.0.0 report-package request: invalid type at source_basis_refs."), "{}", error.message);
+        let error = admit(edited(|r| r["report"]["report_sections"]["provenance_notes"][0]["review_status"] = json!(typed))).unwrap_err();
+        let text = format!("{} {} {:?}", error.code, error.message, error.diagnostics);
+        assert!(!text.contains(typed), "{text}");
     }
 
     const PACK_A: &str = "invented-pack-a";

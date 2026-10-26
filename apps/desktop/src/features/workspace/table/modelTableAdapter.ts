@@ -15,6 +15,9 @@ export type GridColumn = {
   quantity?: boolean;
   readonly?: boolean;
   options?: readonly string[];
+  /** W-17 §7.2, §7.3, §7.6: why the column's default gives an empty cell no unit,
+   * either the absent project key or a notice; the grid's refusal names it. */
+  emptyUnit?: { missingKey: string | null; notice: string | null };
 };
 
 export type GridRow = {

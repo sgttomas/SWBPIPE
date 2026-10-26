@@ -504,7 +504,7 @@ def test_wasm_artifact_resolver_honors_redirected_cargo_target_dir(tmp_path):
     node_program = "\n".join(
         (
             f'import {{ resolveWasmArtifact }} from {json.dumps(script.as_uri())};',
-            f"console.log(resolveWasmArtifact({json.dumps(str(crate_dir))}));",
+            f"console.log(await resolveWasmArtifact({json.dumps(str(crate_dir))}));",
         )
     )
     env = os.environ.copy()

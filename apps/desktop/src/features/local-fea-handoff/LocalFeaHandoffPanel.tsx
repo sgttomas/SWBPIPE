@@ -4,6 +4,7 @@ import { componentBodyNotices } from "../results/componentBody";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import { Download, FileJson } from "lucide-react";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel } from "../../types";
+import { missingExportProjectUnits, storedExportProjectUnit, type ExportProjectUnitUse } from "../project-units/exportProjectUnits";
 
 type LocalFeaReference = {
   ref_id: string;
@@ -51,7 +52,10 @@ export function LocalFeaHandoffPanel({
   result: MechanicsResult | null;
   analysisRun: AnalysisRunEnvelope | null;
 }) {
-  const packet = result && analysisRun ? buildLocalFeaHandoffPacket({ model, result, analysisRun }) : null;
+  // W-17 slice (c), DEL-02-02 Design §7.4 and §7.7: the handoff is refused by name when a
+  // project unit it writes is missing or no result family has one consistent unit.
+  const refusal = result && analysisRun ? localFeaHandoffRefusal(model, result) : null;
+  const packet = result && analysisRun && !refusal ? buildLocalFeaHandoffPacket({ model, result, analysisRun }) : null;
 
   return (
     <section className="panel local-fea-handoff-panel" aria-label="Local FEA handoff" data-testid="local-fea-panel">
@@ -127,6 +131,10 @@ export function LocalFeaHandoffPanel({
             ) : null}
           </div>
         </>
+      ) : refusal ? (
+        <LoadReferenceOutputGate result={result} testIdPrefix="local-fea">
+          <p className="muted" role="status" data-testid={refusal.testId}>{refusal.text}</p>
+        </LoadReferenceOutputGate>
       ) : (
         <p className="muted" data-testid="local-fea-empty">
           Run mechanics preview to assemble a target-neutral local shell/solid FEA handoff package with selected region,
@@ -167,8 +175,16 @@ export function buildLocalFeaHandoffPacket({
 }) {
   const run = analysisRun.analysis_run;
   const selected = selectedLocalRegion(model, result);
-  const selectedResults = selectedResultRefs(result);
-  const diagnostics = localFeaDiagnostics(selected, componentBodyNotices(result, { pipeIds: selected.elementIds, resultIds: selectedResults }));
+  const resultUnits = referencedResultUnits(result);
+  if (resultUnits.refusal) throw new Error(resultUnits.refusal);
+  const missingUnits = localFeaMissingProjectUnits(model, resultUnits);
+  if (missingUnits.length > 0) throw new Error(`${LOCAL_FEA_PROJECT_UNIT_MISSING}: ${missingUnits[0].text}`);
+  const selectedResults = resultUnits.refs;
+  const diagnostics = localFeaDiagnostics(
+    selected,
+    componentBodyNotices(result, { pipeIds: selected.elementIds, resultIds: selectedResults }),
+    resultUnits.omitted
+  );
   const unitPreservationWitnesses = localFeaUnitPreservationWitnesses(model, result, selectedResults);
   const resultHashScope = analysisResultHashScope(analysisRun.schema_version);
   const resultHash = run.hashes.find((item) => item.payload_scope === resultHashScope);
@@ -215,7 +231,7 @@ export function buildLocalFeaHandoffPacket({
         coordinate_system_ref: reference("coordinate_system", "coordinate-system:global-preview"),
         reason_labels: ["local_detail_review_consider", "local_shell_solid_handoff_consider", "human_review_required"]
       },
-      units_manifest: unitsManifest(model),
+      units_manifest: unitsManifest(model, resultUnits),
       entity_ids: entityIds(selected, selectedResults, model),
       transfer_basis: {
         load_case_refs: run.load_basis_refs.map((item) => reference("load_case", item.ref)),
@@ -423,7 +439,7 @@ function resultDimension(item: MechanicsResult["results"][number]): string {
   return "TBD";
 }
 
-function localFeaDiagnostics(selected: ReturnType<typeof selectedLocalRegion>, bodyNotices: string[] = []) {
+function localFeaDiagnostics(selected: ReturnType<typeof selectedLocalRegion>, bodyNotices: string[] = [], omittedRows: OmittedResultRow[] = []) {
   const items = [
     diagnostic(
       "LOCAL-FEA-MESH-NOT-GENERATED",
@@ -475,6 +491,19 @@ function localFeaDiagnostics(selected: ReturnType<typeof selectedLocalRegion>, b
         "LOCAL_HANDOFF_WARNING",
         `The region includes component bodies: ${bodyNotices.join("; ")}.`,
         "Model the component body itself in the local analysis; its global stress rows are reference-section values, not body stresses.",
+        selected.regionId
+      )
+    );
+  }
+  for (const row of omittedRows) {
+    // W-17 slice (c), DEL-02-02 Design §7.7: appended after the standing findings. The
+    // omission is visible: the row is named with its unit and the declared unit.
+    items.push(
+      diagnostic(
+        LOCAL_FEA_RESULT_ROW_UNIT_OMITTED,
+        "LOCAL_HANDOFF_WARNING",
+        `Result row ${row.id} (${row.unit}) is not referenced: this handoff declares ${row.family}_unit ${row.declared}, from the governing ${row.family} result, and references only ${row.family} rows in that unit; nothing is converted.`,
+        `Read ${row.id} from the result envelope in its own unit (${row.unit}) if the local analysis needs it.`,
         selected.regionId
       )
     );
@@ -532,18 +561,92 @@ function assumption(assumptionId: string, label: string, basisLocator: string, s
   };
 }
 
-function unitsManifest(model: PreviewModel) {
+/** A project unit the handoff writes is missing (DEL-02-02 Design §7.4). */
+export const LOCAL_FEA_PROJECT_UNIT_MISSING = "LOCAL-FEA-PROJECT-UNIT-MISSING";
+/** No referenced result family can be given one consistent unit (DEL-02-02 Design §7.7). */
+export const LOCAL_FEA_RESULT_UNIT_INCONSISTENT = "LOCAL-FEA-RESULT-UNIT-INCONSISTENT";
+/** A candidate result row in another unit than its family's declared unit is not referenced (§7.7). */
+export const LOCAL_FEA_RESULT_ROW_UNIT_OMITTED = "LOCAL-FEA-RESULT-ROW-UNIT-OMITTED";
+
+type ResultUnitFamily = "force" | "stress";
+type OmittedResultRow = { id: string; family: ResultUnitFamily; unit: string; declared: string };
+
+/**
+ * W-17 slice (c), DEL-02-02 Design §7.7 (Agent 0's B-c): the handoff refers to results
+ * and preserves their units, so each of `force_unit` and `stress_unit` is declared from
+ * the rows it labels and only rows in that unit are referenced. The declared unit is
+ * the governing row's (the summary maximum, for stress); without one, the candidate
+ * rows' shared unit; where the rows disagree and nothing governs, the handoff is
+ * refused. A candidate in another unit is left out and named, never converted.
+ * With no row of a family referenced, its member keeps the project key (§7.4).
+ */
+export function referencedResultUnits(result: MechanicsResult): {
+  refs: string[];
+  declared: Record<ResultUnitFamily, string | null>;
+  omitted: OmittedResultRow[];
+  refusal: string | null;
+} {
+  const candidates = selectedResultRefs(result);
+  const rowsById = new Map(result.results.map((item) => [item.id, item]));
+  const governing: Record<ResultUnitFamily, string | undefined> = { force: undefined, stress: result.summary.max_open_formula_stress?.result_ref };
+  const declared: Record<ResultUnitFamily, string | null> = { force: null, stress: null };
+  const omitted: OmittedResultRow[] = [];
+  for (const family of ["force", "stress"] as const) {
+    const rows = candidates.map((id) => rowsById.get(id)).filter((row): row is MechanicsResult["results"][number] => Boolean(row) && resultDimension(row!) === family);
+    if (rows.length === 0) continue;
+    const governingRow = rows.find((row) => row.id === governing[family]);
+    const units = unique(rows.map((row) => row.unit)).sort();
+    if (!governingRow && units.length > 1) {
+      return {
+        refs: [], declared, omitted: [],
+        refusal: `${LOCAL_FEA_RESULT_UNIT_INCONSISTENT}: the referenced ${family} results carry different units (${units.join(", ")}) and none governs; no single ${family}_unit can be declared, and nothing is converted.`
+      };
+    }
+    declared[family] = governingRow?.unit ?? units[0];
+    for (const row of rows) if (row.unit !== declared[family]) omitted.push({ id: row.id, family, unit: row.unit, declared: declared[family]! });
+  }
+  const left = new Set(omitted.map((row) => row.id));
+  return { refs: candidates.filter((id) => !left.has(id)), declared, omitted, refusal: null };
+}
+
+function localFeaProjectUnitUses(resultUnits: ReturnType<typeof referencedResultUnits>): ExportProjectUnitUse[] {
+  return [
+    { key: "length", writes: "coordinate_unit" },
+    ...(resultUnits.declared.force ? [] : [{ key: "force", writes: "force_unit" } as const]),
+    ...(resultUnits.declared.stress ? [] : [{ key: "stress", writes: "stress_unit" } as const]),
+    { key: "temperature", writes: "temperature_unit" }
+  ];
+}
+
+function localFeaMissingProjectUnits(model: PreviewModel, resultUnits: ReturnType<typeof referencedResultUnits>) {
+  return missingExportProjectUnits(model, localFeaProjectUnitUses(resultUnits));
+}
+
+/** The handoff's refusal, or null: a referenced result family with no consistent unit
+ * (§7.7), then a missing project unit it writes (§7.4). */
+export function localFeaHandoffRefusal(model: PreviewModel, result: MechanicsResult): { testId: string; text: string } | null {
+  const resultUnits = referencedResultUnits(result);
+  if (resultUnits.refusal) return { testId: "local-fea-result-unit-refusal", text: `Local FEA handoff refused. ${resultUnits.refusal}` };
+  const missing = localFeaMissingProjectUnits(model, resultUnits);
+  if (missing.length === 0) return null;
+  return {
+    testId: "local-fea-project-unit-refusal",
+    text: `Local FEA handoff refused. ${missing.map((item) => `${LOCAL_FEA_PROJECT_UNIT_MISSING}: ${item.text}`).join(" ")}`
+  };
+}
+
+function unitsManifest(model: PreviewModel, resultUnits: ReturnType<typeof referencedResultUnits>) {
   return {
     manifest_id: `units:${safeRefToken(model.project.id)}:local-fea-handoff`,
     unit_system_ref: reference("unit_system", `${model.project.id}:units`),
     dimension_basis: "schemas/units.schema.yaml",
-    coordinate_unit: model.project.units.length ?? "m",
-    force_unit: model.project.units.force ?? "N",
+    coordinate_unit: storedExportProjectUnit(model, "length"),
+    force_unit: resultUnits.declared.force ?? storedExportProjectUnit(model, "force"),
     moment_unit: "N*m",
     displacement_unit: "mm",
     rotation_unit: "rad",
-    stress_unit: model.project.units.stress ?? "MPa",
-    temperature_unit: model.project.units.temperature ?? "degC"
+    stress_unit: resultUnits.declared.stress ?? storedExportProjectUnit(model, "stress"),
+    temperature_unit: storedExportProjectUnit(model, "temperature")
   };
 }
 
