@@ -33,6 +33,9 @@ export type RenderedReportOutcome = {
   pre_render_findings: RenderOutcomeFinding[];
   post_render_findings: RenderOutcomeFinding[];
   derived_print_html: string;
+  /** W-11 slice (c): present and true only for a render refused for its provenance records,
+   * which is metadata-only (empty `html` and `derived_print_html`, no findings). */
+  content_withheld?: boolean;
 };
 
 /** W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.6): the texts an exact

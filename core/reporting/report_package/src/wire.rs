@@ -34,6 +34,49 @@ pub struct ReportPackageRequest {
     pub solve_rule_check_status: String,
 }
 
+/// The request's members in declaration order (its positional form).
+pub const REQUEST_MEMBERS: &[&str] = &["package_id", "export_profile_id", "source_model_ref", "source_basis_refs", "report", "audit_manifest", "result_documents", "source_results", "state_comparison_handoff_records", "rule_check_aggregate", "solve_rule_check_status"];
+
+/// Decode a request, refusing an invalid one as `<kind> at <member>` only:
+/// the error kind and the top-level member, never the offending value or key
+/// (W-11 slice (c), Codex review round 3 of #1639). Each member is moved out
+/// and decoded on its own, as the whole decode decodes it, so the request is
+/// never copied; an unknown top-level member is ignored, as there.
+pub fn decode_report_package_request(value: Value) -> Result<ReportPackageRequest, String> {
+    use serde::de::DeserializeOwned;
+    let kind = |error: serde_json::Error| open_pipe_stress_report_renderer::serde_error_kind(&error.to_string());
+    // A positional request (a JSON array) is read by field order, as serde
+    // reads it; every field is positional there, the optional one included.
+    let mut fields = match value {
+        Value::Object(fields) => fields,
+        Value::Array(items) => open_pipe_stress_report_renderer::positional_members(items, REQUEST_MEMBERS, REQUEST_MEMBERS.len())
+            .map_err(|kind| format!("{kind} at the request"))?,
+        _ => return Err("invalid type at the request".to_string()),
+    };
+    let mut take = |key: &str| fields.remove(key);
+    fn decoded<T: DeserializeOwned>(value: Option<Value>, key: &str, kind: &dyn Fn(serde_json::Error) -> &'static str, optional: bool) -> Result<T, String> {
+        match value {
+            None if !optional => Err(format!("missing field at {key}")),
+            None => serde_json::from_value(Value::Null).map_err(|error| format!("{} at {key}", kind(error))),
+            Some(value) => serde_json::from_value(value).map_err(|error| format!("{} at {key}", kind(error))),
+        }
+    }
+    // Every member, exhaustively (a new member is a compile error here).
+    Ok(ReportPackageRequest {
+        package_id: decoded(take("package_id"), "package_id", &kind, false)?,
+        export_profile_id: decoded(take("export_profile_id"), "export_profile_id", &kind, false)?,
+        source_model_ref: decoded(take("source_model_ref"), "source_model_ref", &kind, false)?,
+        source_basis_refs: decoded(take("source_basis_refs"), "source_basis_refs", &kind, false)?,
+        report: decoded(take("report"), "report", &kind, false)?,
+        audit_manifest: decoded(take("audit_manifest"), "audit_manifest", &kind, false)?,
+        result_documents: decoded(take("result_documents"), "result_documents", &kind, false)?,
+        source_results: decoded(take("source_results"), "source_results", &kind, false)?,
+        state_comparison_handoff_records: decoded(take("state_comparison_handoff_records"), "state_comparison_handoff_records", &kind, false)?,
+        rule_check_aggregate: decoded(take("rule_check_aggregate"), "rule_check_aggregate", &kind, true)?,
+        solve_rule_check_status: decoded(take("solve_rule_check_status"), "solve_rule_check_status", &kind, false)?,
+    })
+}
+
 #[derive(Debug, Clone, Deserialize)]
 pub struct ReferenceDto {
     pub ref_type: String,
@@ -295,8 +338,13 @@ pub(crate) fn assemble_wire_request_in(
     }
     let audit_manifest = audit_manifest(request.audit_manifest.clone(), linked_solver)?;
     crate::bindings::check_request_in(&request, &audit_manifest, linked_solver, admitted)?;
-    let report: RenderableReportInput = serde_json::from_value(request.report)
-        .map_err(|error| format!("REPORT-PACKAGE-REPORT-DTO-INVALID: {error}"))?;
+    // The refusal names the JSON path and the error kind, never the offending
+    // value or key (W-11 slice (c), Codex review round 3 of #1639).
+    let report: RenderableReportInput = open_pipe_stress_report_renderer::decode_renderable_report_input_as(
+        request.report,
+        "REPORT-PACKAGE-REPORT-DTO-INVALID",
+        "report",
+    )?;
     let source_model_ref = package_reference(request.source_model_ref)?;
     let source_basis_refs = request
         .source_basis_refs
@@ -448,6 +496,105 @@ mod tests {
         );
     }
 
+    /// Owner ruling on #1639 ("C1 b, C2 a", owner, 2026-10-26): the package
+    /// renders its members as the rendered report does. A local-private
+    /// package with an unresolved FR-REP-003 record assembles with the
+    /// non-blocking warning in its HTML member; a quarantined record blocks it;
+    /// any other export context is refused.
+    #[test]
+    fn the_package_renders_unresolved_records_as_the_report_does() {
+        let with_record = |redistribution: &str, review: &str| {
+            let mut source = request_with_component_provenance_projection();
+            let record = serde_json::json!({
+                "source_name": "Invented material datasheet", "source_location": "invented-datasheet-shelf", "source_license": "invented-license",
+                "contributor": "invented contributor", "contributor_certification": "invented certification",
+                "redistribution_status": redistribution, "review_status": review, "privacy_classification": "private_project_data"
+            });
+            let sections = &mut source["report"]["report_sections"];
+            sections["provenance_notes"].as_array_mut().unwrap().push(record.clone());
+            sections["user_supplied_values"].as_array_mut().unwrap().push(serde_json::json!({
+                "value_id": "material-provenance:material:invented-steel", "value_category": "report_metadata",
+                "source": {"ref_type": "material", "ref_id": "material:invented-steel"}, "provenance": record,
+                "privacy_classification": "private_project_data", "required_for": ["reporting", "human_review"],
+                "review_status": review, "missing_data_finding": false
+            }));
+            source
+        };
+        let assemble = |source: serde_json::Value| {
+            let request: ReportPackageRequest = serde_json::from_value(source).unwrap();
+            assemble_wire_request(request, &linked_product_solver())
+        };
+        assert_eq!(with_record("private_only", "pending")["report"]["report_context"]["export_context"], "local_private");
+        let outcome = assemble(with_record("unknown", "pending")).expect("an unresolved record assembles locally");
+        assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+        let html = std::str::from_utf8(&outcome.members.iter().find(|member| member.role == package::ROLE_REPORT_HTML).unwrap().bytes).unwrap();
+        assert!(html.contains("<td>REPORT_SECTION_PROVENANCE_UNRESOLVED</td><td>warning</td><td>user_supplied_value material-provenance:material:invented-steel: redistribution status unknown; "));
+        let blocked = assemble(with_record("private_only", "quarantined")).expect("assembles, blocked");
+        assert!(blocked.export_blocked);
+        assert!(blocked.blocking_reasons.iter().any(|reason| reason.contains("REPORT_PROVENANCE_DISPOSITION_BLOCKED")), "{:?}", blocked.blocking_reasons);
+        let mut public = with_record("unknown", "pending");
+        public["report"]["report_context"]["export_context"] = serde_json::json!("public_report");
+        match assemble(public) {
+            Err(error) => assert!(error.contains("REPORT-PACKAGE-REPORT-CONTEXT-NOT-LOCAL-PRIVATE") || error.contains("local_private"), "{error}"),
+            Ok(outcome) => {
+                assert!(outcome.export_blocked);
+                assert!(outcome.blocking_reasons.iter().any(|reason| reason.contains("REPORT_SECTION_PROVENANCE_UNRESOLVED")), "{:?}", outcome.blocking_reasons);
+            }
+        }
+    }
+
+    /// Codex review round 3 of #1639: a package refused for its provenance
+    /// records carries no authored id (value ids, an assumption id, library
+    /// owners) in its blocking reasons, its ZIP manifest or any member.
+    #[test]
+    fn a_refused_package_carries_no_authored_id() {
+        let texts = ["/Users/invented-user/private-datasheets/steel-a.pdf", "C:/x.pdf", "Invented Private Client Project"];
+        let mut source = request_with_component_provenance_projection();
+        let record = serde_json::json!({
+            "source_name": "Invented material datasheet", "source_location": "invented-datasheet-shelf", "source_license": "invented-license",
+            "contributor": "invented contributor", "contributor_certification": "invented certification",
+            "redistribution_status": "private_only", "review_status": "quarantined", "privacy_classification": "private_project_data"
+        });
+        let sections = &mut source["report"]["report_sections"];
+        for (kind, id) in [("material", texts[0]), ("section", texts[1]), ("component", texts[2]), ("support", texts[0])] {
+            sections["user_supplied_values"].as_array_mut().unwrap().push(serde_json::json!({
+                "value_id": format!("{kind}-provenance:{kind}:{id}"), "value_category": "report_metadata",
+                "source": {"ref_type": kind, "ref_id": format!("{kind}:{id}")}, "provenance": record.clone(),
+                "privacy_classification": "private_project_data", "required_for": ["reporting"],
+                "review_status": "quarantined", "missing_data_finding": false
+            }));
+        }
+        let mut provenance = record.clone();
+        provenance["review_status"] = serde_json::json!("accepted");
+        provenance["redistribution_status"] = serde_json::json!("invented_non_engineering_example");
+        provenance["privacy_classification"] = serde_json::json!("invented_public_example");
+        sections["assumptions"] = serde_json::json!([{
+            "assumption_id": format!("assumption:{} {}", texts[2], texts[1]), "owner": "invented owner",
+            "source": {"ref_type": "model", "ref_id": "invented"}, "affected_scope": {"ref_type": "model", "ref_id": "invented"},
+            "statement": "Invented assumption.", "review_status": "quarantined", "expiration_or_re_review_trigger": null,
+            "effect": {"mechanics_solve_qualified": true, "user_rule_check_qualified": false, "report_completeness": "qualified", "human_review_required": true},
+            "provenance": provenance
+        }]);
+        source["report"]["library_references"] = serde_json::json!([{
+            "reference_id": format!("library-ref:{}", texts[1]), "library_kind": "material", "library_id": texts[2],
+            "library_version": "not recorded", "record_id": texts[0], "entity_refs": [format!("material:{}", texts[0])], "provenance": record
+        }]);
+        let request: ReportPackageRequest = serde_json::from_value(source).unwrap();
+        let outcome = assemble_wire_request(request, &linked_product_solver()).expect("assembles, blocked");
+        assert!(outcome.export_blocked);
+        let manifest = &outcome.members[0];
+        assert_eq!(manifest.role, package::ROLE_PACKAGE_MANIFEST);
+        let reasons = outcome.blocking_reasons.join("\n");
+        for private in texts {
+            assert!(!reasons.contains(private), "{private} in {reasons}");
+            for member in &outcome.members {
+                assert!(!member.bytes.windows(private.len()).any(|window| window == private.as_bytes()), "{private} in {}", member.file_name);
+            }
+            assert!(!outcome.container_bytes.windows(private.len()).any(|window| window == private.as_bytes()), "{private} in the container");
+        }
+        assert!(outcome.blocking_reasons.iter().any(|reason| reason.contains("(assumptions[0] review_status quarantined;")));
+    }
+
     #[test]
     fn malformed_component_provenance_fails_closed_at_rust_consumer_validation() {
         let mut source = request_with_component_provenance_projection();
@@ -458,8 +605,51 @@ mod tests {
         let error = assemble_wire_request(request, &linked_product_solver())
             .expect_err("malformed component provenance must fail closed");
 
-        assert!(error.contains("REPORT-PACKAGE-REPORT-DTO-INVALID"));
-        assert!(error.contains("public_permissive"), "{error}");
+        // The refusal names the path and the kind, and never echoes the value:
+        // an echoed value can be a private path (Codex review round 3 of #1639).
+        assert_eq!(
+            error,
+            "REPORT-PACKAGE-REPORT-DTO-INVALID: unknown variant at report.report_sections.user_supplied_values[0].provenance.privacy_classification"
+        );
+        assert!(!error.contains("public_permissive"), "{error}");
+    }
+
+    /// Codex review round 3 of #1639: a typed path given as an invalid value
+    /// in the report, in a typed request member or in the request's shape is
+    /// refused by path and kind only, never echoed.
+    #[test]
+    fn request_and_report_decode_refusals_never_echo_a_value() {
+        let typed = "/Users/invented-user/private-datasheets/steel-a.pdf";
+        for (member, path) in [
+            ("review_status", "report.report_sections.provenance_notes[0].review_status"),
+            ("redistribution_status", "report.report_sections.provenance_notes[0].redistribution_status"),
+        ] {
+            let mut source = request_with_component_provenance_projection();
+            source["report"]["report_sections"]["provenance_notes"][0][member] = serde_json::json!(typed);
+            let request = decode_report_package_request(source).unwrap();
+            let error = assemble_wire_request(request, &linked_product_solver()).unwrap_err();
+            assert_eq!(error, format!("REPORT-PACKAGE-REPORT-DTO-INVALID: unknown variant at {path}"));
+        }
+        let mut source = request_with_component_provenance_projection();
+        source["source_model_ref"] = serde_json::json!(typed);
+        let error = decode_report_package_request(source).unwrap_err();
+        assert_eq!(error, "invalid type at source_model_ref");
+        let mut source = request_with_component_provenance_projection();
+        source.as_object_mut().unwrap().remove("result_documents");
+        assert_eq!(decode_report_package_request(source).unwrap_err(), "missing field at result_documents");
+        assert_eq!(decode_report_package_request(serde_json::json!(typed)).unwrap_err(), "invalid type at the request");
+        // The positional (array) form decodes as the whole decode reads it.
+        let source = request_with_component_provenance_projection();
+        let positional = serde_json::Value::Array(REQUEST_MEMBERS.iter().map(|key| source[*key].clone()).collect());
+        let whole: ReportPackageRequest = serde_json::from_value(positional.clone()).unwrap();
+        assert_eq!(format!("{:?}", decode_report_package_request(positional.clone()).unwrap()), format!("{whole:?}"));
+        let mut short_form = positional;
+        short_form.as_array_mut().unwrap().pop();
+        assert_eq!(decode_report_package_request(short_form).unwrap_err(), "invalid length at the request");
+        // A valid request decodes as the whole decode does.
+        let source = request_with_component_provenance_projection();
+        let whole: ReportPackageRequest = serde_json::from_value(source.clone()).unwrap();
+        assert_eq!(format!("{:?}", decode_report_package_request(source).unwrap()), format!("{whole:?}"));
     }
 
     #[test]

@@ -87,7 +87,7 @@
         "ref_type": "component",
         "ref_id": "component:C-140"
       },
-      "message": "Component Invented tie-in marker has no component.provenance field; report provenance is incomplete for this component.",
+      "message": "Component Invented tie-in marker has neither a provenance_record nor a component.provenance note; report provenance is incomplete for this component.",
       "remediation": "Enter component source/provenance before relying on this report.",
       "provenance": {
         "source_name": "OpenPipeStress desktop session (Invented Utility Loop Preview)",

@@ -58,6 +58,9 @@ pub mod exact_sections;
 pub mod reader;
 pub mod schema_eval;
 pub mod wire;
+/// The kind of a serde decode error without its text (value-free refusals;
+/// W-11 slice (c), Codex review round 3 of #1639).
+pub use open_pipe_stress_report_renderer::serde_error_kind;
 #[cfg(test)]
 mod admitted_tests;
 #[cfg(test)]

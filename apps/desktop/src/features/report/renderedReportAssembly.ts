@@ -24,6 +24,7 @@ import {
   type SessionRuleCheckRun
 } from "./renderableReportInput";
 import { controlReportRendererInput } from "./reportRedactionProjector";
+import { currentLibraryRefFindings } from "../library/libraryRefFindings";
 
 export type RenderedReportAssemblyInputs = {
   model: PreviewModel;
@@ -63,7 +64,8 @@ export async function assembleRenderedReport(inputs: RenderedReportAssemblyInput
     ruleCheckRun,
     renderContext: { exportContext: context, generatedAt },
     numericalHealth,
-    exactAdmission: admission
+    exactAdmission: admission,
+    libraryRefFindings: currentLibraryRefFindings(model)
   });
   const controlled = controlReportRendererInput(input, intent);
   let exactSubmission: RenderedReportAssembly["exactSubmission"] = null;
