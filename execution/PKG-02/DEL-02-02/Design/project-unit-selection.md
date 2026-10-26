@@ -532,6 +532,24 @@ structural public paths), so the false conversion evidence was downloadable.
   - The witness is `null` and `refused_out_of_range`. The payload is `null` for
     a coordinate, and `TBD_OD_OUT_OF_RANGE` or `TBD_WALL_OUT_OF_RANGE` for a
     PCF section quantity.
+- **Rounding and very large values (engineering judgment, Agent 0 as HELP_HUMAN
+  under the owner's 2026-10-26 delegation).** Six-decimal millimetre
+  normalisation of the binary64 product is within normal engineering practice,
+  and it is kept.
+  - **How it was measured.** Independent scrutiny of #1646 ran three bounded
+    sweeps of 100,000 inputs each, at 1e-8 increments. The worst difference from
+    the correctly rounded exact decimal product was 0.000000552 mm (0.552 nm):
+    1000000.00044176 ft writes 304800000.134649, while the exact product rounds
+    to 304800000.134648.
+  - **Not a global bound.** At extreme magnitudes precision degrades, and values
+    that overflow are refused.
+  - **Exponent notation.** From 1e21 mm upwards, JavaScript writes the value in
+    exponent notation: a coordinate of 1e20 ft is written `3.048e+22`, and it
+    agrees with its witness. No exponent prohibition was found in the PCF or
+    .mbf references, but whether the target tools accept it has not been
+    checked.
+  - **Practical resolution.** Such magnitudes, 1e15 km and beyond, are far
+    outside any piping model, so no further range limit is added.
 - **Unchanged.** Output for `m` and `mm` is byte-identical.
 - **Scope.** No other export converts lengths to millimetres. The local FEA
   handoff preserves source units (`conversion=false`), and its unit manifest is
