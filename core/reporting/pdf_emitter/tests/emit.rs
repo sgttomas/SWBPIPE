@@ -87,6 +87,8 @@ fn fixture_input() -> RenderableReportInput {
         }],
         report_context: None,
         user_rule_checks: None,
+        exact_route: None,
+        library_references: None,
     }
 }
 
@@ -309,6 +311,7 @@ fn rule_pack_name_and_registered_status_forms_reach_the_pdf() {
         aggregate_status: UserRuleCheckStatus::UserRuleChecked,
         checks: vec![UserRuleCheckOutcome {
             check_id: "chk-a".to_string(),
+            basis_ref: None,
             status: UserRuleCheckStatus::UserRuleChecked,
             missing_inputs: vec![],
         }],
@@ -343,11 +346,13 @@ fn a_recorded_rule_fail_with_a_blocked_check_is_bannered_incomplete() {
         checks: vec![
             UserRuleCheckOutcome {
                 check_id: "invented-check-failed".to_string(),
+                basis_ref: None,
                 status: UserRuleCheckStatus::UserRuleFailed,
                 missing_inputs: vec![],
             },
             UserRuleCheckOutcome {
                 check_id: "invented-check-blocked".to_string(),
+                basis_ref: None,
                 status: UserRuleCheckStatus::RuleInputsIncomplete,
                 missing_inputs: vec!["invented_input_x".to_string()],
             },
@@ -361,4 +366,66 @@ fn a_recorded_rule_fail_with_a_blocked_check_is_bannered_incomplete() {
     without.user_rule_checks = None;
     let plain = emit_calculation_report_pdf(&without);
     assert!(!pdf_contains(&plain.pdf_bytes, "recorded:"), "no correction without a blocked check");
+}
+
+// ---------------------------------------------------------------------------
+// W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.2, §4.2 and §7,
+// slice (a)): the exact-route block and Library Records are emitted from the
+// one assembled section model, and inputs without them keep their bytes.
+// ---------------------------------------------------------------------------
+
+#[path = "../../report_renderer/tests/common/exact_input.rs"]
+mod exact_input;
+
+/// The base commit's PDF and canonical HTML hashes of the fixture input,
+/// captured on main without W-11 (`aed4de9fbd`; equal to the `3a104e1e71`
+/// capture).
+const BASE_PDF_SHA256: &str = "38f385b297869011df0a0e80b923a7a878bdf2ef079786533141351c25dfe09d";
+const BASE_HTML_SHA256: &str = "a0a80cd6af6b0231c32622e5c198603a674cc413808c5d9429bb07eaa3e8777f";
+
+#[test]
+fn existing_fixture_input_emits_byte_identical_pdf() {
+    let outcome = emit_calculation_report_pdf(&fixture_input());
+    assert_eq!(outcome.sha256_hex, BASE_PDF_SHA256);
+    assert_eq!(outcome.canonical_html_sha256_hex, BASE_HTML_SHA256);
+    let mut empty = fixture_input();
+    empty.library_references = Some(vec![]);
+    assert_eq!(emit_calculation_report_pdf(&empty).sha256_hex, BASE_PDF_SHA256);
+}
+
+#[test]
+fn exact_block_and_library_records_emit_in_the_pdf() {
+    let input = exact_input::with_exact_route(fixture_input());
+    let render = render_calculation_report(&input);
+    let pdf = emit_calculation_report_pdf(&input);
+    assert!(!pdf.export_blocked, "{:?}", pdf.blocking_reasons);
+    assert_eq!(pdf.canonical_html_sha256_hex, render.sha256_hex);
+    assert!(pdf.text_model_findings.iter().all(|finding| !finding.blocking));
+    for needle in [
+        "Exact-Route Result",
+        "Semantic contract: openpipestress.result_semantics/0.3.0/pressure-2",
+        "Stress Headlines by Section Basis",
+        "Section basis",
+        "Stress maximum",
+        "Nominal section",
+        "Reduced section",
+        "41354908.75465696 Pa",
+        "not available",
+        "Library Records",
+        "Library kind",
+        "Referenced by",
+    ] {
+        assert!(pdf_contains(&pdf.pdf_bytes, needle), "PDF emission must carry {needle:?}");
+        assert!(render.html.contains(needle), "{needle}");
+    }
+    // The section model is shared: the exact block opens the Results section.
+    let results = assemble_report_sections(&input).into_iter().find(|section| section.key == "results").unwrap();
+    assert!(matches!(&results.blocks[0], open_pipe_stress_report_renderer::SectionBlock::Subheading { text } if text == "Exact-Route Result"));
+    // A binding mismatch blocks the PDF as it blocks the HTML.
+    let mut mismatched = input.clone();
+    mismatched.exact_route.as_mut().unwrap().admission.run_ref = "invented-other-run".to_string();
+    let blocked = emit_calculation_report_pdf(&mismatched);
+    assert!(blocked.export_blocked);
+    assert!(blocked.blocking_reasons.iter().any(|reason| reason == "exact route: REPORT-EXACT-ADMISSION-BINDING-MISMATCH: run_ref"));
+    assert!(pdf_contains(&blocked.pdf_bytes, "EXPORT BLOCKED"));
 }

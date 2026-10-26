@@ -167,7 +167,7 @@ pub(super) fn append_arc_pressure_results(
     // `stress` names a stress row's section basis (D-5): each nominal row is
     // immediately followed by its reduced twin; force rows are published once.
     let mut append = |kind: &str, component: &str, location: &str, value: f64, stress: Option<SectionBasis>, sign: &str| {
-        let row = ResultItem {
+        let row = ResultItem { component_body: None,
             id: format!(
                 "result:pressure-exact:{}:{}:{}:{}:{}:{}",
                 case.id.len(),

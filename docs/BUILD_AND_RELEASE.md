@@ -250,10 +250,11 @@ npx playwright install --with-deps chromium
 ```
 
 That command is the supported-Linux-image basis. A different authorized image
-must declare its equivalent operating-system dependency preparation. CI must
-not rely on the macOS Google Chrome fallback in the Playwright configs. An
-explicit `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` is an exceptional declared
-override, not the provider-neutral default.
+must declare its equivalent operating-system dependency preparation. The
+Playwright configs launch that pinned Chromium by default, locally as in CI;
+they do not fall back to an installed Google Chrome. An explicit
+`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` is an exceptional declared override, not
+the provider-neutral default, and a missing override fails the launch.
 
 Run both browser lanes with `CI=true`. Each live config then defaults to one
 worker; a positive integer `PLAYWRIGHT_WORKERS` may override that posture only

@@ -28,6 +28,7 @@ mod geometry_operations;
 mod library_apply;
 mod model_data_authoring;
 mod model_settings_authoring;
+mod project_units_authoring;
 mod pipe_reconnect;
 mod rich_authoring;
 mod retained_semantics_binding;
@@ -287,6 +288,16 @@ enum FieldKind {
         constraint: ValueConstraint,
         dimension: &'static str,
     },
+    /// W-15 slice b: an optional `{x, y, z, unit}` vector slot pinned to one
+    /// schema dimension (the component centre of gravity: global X/Y/Z from
+    /// the component node, the owner's R10 convention of 2026-10-24). The
+    /// replacement is always the explicit vector payload with its unit; the
+    /// current value is displayed and staleness-checked as `x, y, z unit`
+    /// (absence is `TBD`). Every component must be finite; no default and no
+    /// conversion is applied.
+    OptionalVectorQuantity {
+        dimension: &'static str,
+    },
 }
 
 struct FieldRule {
@@ -311,6 +322,17 @@ const COMBINATION_RANGE_MODE_TOKENS: [&str; 4] = ["min", "max", "min_abs", "max_
 /// slot, mirroring `core/loads/primitive_loads` global-axis handling and the
 /// `core/product_physics` preview-model contract (DEC-068 item 2).
 const WIND_DIRECTION_TOKENS: [&str; 3] = ["global_x", "global_y", "global_z"];
+
+/// W-15 slice b: the solver-consumption modes a rigid-family component may be
+/// given through a field edit or at creation: the DEC-045 mode and the
+/// honoured annotation mode. Other modes have their own authoring routes.
+const RIGID_CONSUMPTION_TOKENS: [&str; 2] = ["mechanics_geometry_only", "not_solver_consumed"];
+
+/// The rigid family (valve, flange, reducer, rigid, specialty), as the product
+/// physics eligibility predicate reads it.
+fn is_rigid_family_kind(kind: &str) -> bool {
+    matches!(kind, "valve" | "flange" | "reducer" | "rigid" | "specialty")
+}
 
 /// Inspector-offered fields whose application is deliberately deferred to a
 /// later completion-plan item. Returned as explicit blocked findings so the
@@ -527,8 +549,8 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
             // Every slot is user-entered `Option<...>` data in the preview
             // model contract (`core/product_physics` component inputs); the
             // value constraints mirror the solve-side validation for the same
-            // slot, and `geometry.center_of_gravity` stays unsupported (its
-            // vector payload format needs a design ruling).
+            // slot. W-15 slice b: `geometry.center_of_gravity` is an explicit
+            // vector edit under the owner's R10 convention (2026-10-24).
             //
             // Bend / elbow family.
             FieldRule {
@@ -617,12 +639,31 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                     dimension: "length",
                 },
             },
+            // W-15 slice b: a weight is a finite positive force, as at
+            // creation and in the self-weight generator.
             FieldRule {
                 field_path: "geometry.weight.value",
                 kind: FieldKind::OptionalQuantity {
-                    constraint: ValueConstraint::AnyFinite,
+                    constraint: ValueConstraint::Positive,
                     dimension: "force",
                 },
+            },
+            FieldRule {
+                field_path: "geometry.center_of_gravity",
+                kind: FieldKind::OptionalVectorQuantity { dimension: "length" },
+            },
+            // W-15 slice b: the DEC-045 consumption mode of a rigid-family
+            // component (other kinds are refused in `resolve_field`) and the
+            // modifiers' source reference, which the stiffness scale needs.
+            FieldRule {
+                field_path: "mechanics_interface.solver_consumption",
+                kind: FieldKind::OptionalEnum {
+                    tokens: &RIGID_CONSUMPTION_TOKENS,
+                },
+            },
+            FieldRule {
+                field_path: "modifiers.source_reference",
+                kind: FieldKind::OptionalText,
             },
             FieldRule {
                 field_path: "geometry.stiffness_behavior_reference",
@@ -1524,6 +1565,31 @@ fn run_with_context(
                     "blocking",
                     error.message,
                     "Enter a finite length greater than zero in a length unit of the units catalog, or reset the setting to its default.",
+                    error.affected_refs,
+                );
+            }
+        }
+    }
+
+    // Project units (DEL-02-02 Design project-unit-selection.md §2.7): one
+    // key of `project.units` on the Project singleton.
+    if project_units_authoring::is_change_kind(&change_kind) && !checker.schema_blocked {
+        match project_units_authoring::resolve(model, intent) {
+            Ok(edit) => {
+                checker.reference_state = "passed";
+                checker.unit_state = "passed";
+                checker.before_state = "passed";
+                geometry_edit = Some(edit);
+            }
+            Err(error) => {
+                if error.code == "OP-STALE-BEFORE-VALUE" {
+                    checker.before_state = "blocked_stale";
+                }
+                checker.push(
+                    error.code,
+                    "blocking",
+                    error.message,
+                    "Choose an accepted catalog unit of the key's dimension from the current project units; the length unit is fixed once nodes exist.",
                     error.affected_refs,
                 );
             }
@@ -2538,6 +2604,10 @@ struct QuantityEdit {
 }
 
 fn check_intent_structure(intent: &Value, operation_id: &str, checker: &mut Checker) {
+    // `set_project_unit` names its own refusals for its target and change
+    // members (DEL-02-02 Design §2.7): a missing or non-string member is
+    // `OP-PROJECT-UNIT-SHAPE-INVALID`, an absent `after` a refused removal.
+    let own_shape = string_at(intent, &["change", "change_kind"]).as_deref() == Some(project_units_authoring::SET);
     let required: [&[&str]; 10] = [
         &["operation_id"],
         &["operation_kind"],
@@ -2551,6 +2621,9 @@ fn check_intent_structure(intent: &Value, operation_id: &str, checker: &mut Chec
         &["professional_boundary"],
     ];
     for path in required {
+        if own_shape && matches!(path, ["target", _] | ["change", "field_path"]) {
+            continue;
+        }
         if value_at(intent, path).is_none() {
             checker.schema_blocked = true;
             checker.push(
@@ -2567,6 +2640,9 @@ fn check_intent_structure(intent: &Value, operation_id: &str, checker: &mut Chec
     }
     // `before` and `after` must be present as strings (they may be empty;
     // emptiness is judged per field kind later).
+    if own_shape {
+        return;
+    }
     for leaf in ["before", "after", "unit", "dimension"] {
         if string_at(intent, &["change", leaf]).is_none() {
             checker.schema_blocked = true;
@@ -2636,7 +2712,8 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "insert_component_symbol"
             | "apply_library_record"
     ) || model_data_authoring::operation_kind_for(change_kind).is_some()
-        || model_settings_authoring::is_change_kind(change_kind);
+        || model_settings_authoring::is_change_kind(change_kind)
+        || project_units_authoring::is_change_kind(change_kind);
     if !supported_change {
         checker.schema_blocked = true;
         checker.push(
@@ -2654,7 +2731,8 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
     let expected_operation_kind = match change_kind {
         "set_field" | "update_load" | "update_support" | "assign_section" | "detach_section"
         | "split_pipe_run" | "transform_pipe_run" | "reconnect_pipe_run" | "insert_bend_at_corner"
-        | "apply_library_record" | "set_model_setting" | "clear_model_setting" => "modify",
+        | "apply_library_record" | "set_model_setting" | "clear_model_setting"
+        | "set_project_unit" => "modify",
         "create_node"
         | "create_section"
         | "create_material"
@@ -2840,15 +2918,92 @@ fn resolve_create_component(
         }
         _ => unreachable!("component kind allowlist checked above"),
     }?;
+    let (modifiers, interface) = if is_rigid_family_kind(kind) {
+        resolve_rigid_creation_interfaces(record, target_ref, kind, checker)?
+    } else {
+        (None, None)
+    };
     checker.reference_state = "passed";
-    Some(serde_json::json!({
+    let mut created = serde_json::json!({
         "id": id,
         "label": label,
         "kind": kind,
         "node": node,
         "geometry": canonical_geometry,
         "provenance": provenance,
-    }))
+    });
+    if let Some(modifiers) = modifiers {
+        created["modifiers"] = modifiers;
+    }
+    if let Some(interface) = interface {
+        created["mechanics_interface"] = interface;
+    }
+    Some(created)
+}
+
+/// W-15 slice b: the optional stiffness scale and consumption mode of a new
+/// rigid-family component. `modifiers` is exactly a finite positive
+/// dimensionless `stiffness_scaling_user_value` with its nonblank
+/// `source_reference`; `mechanics_interface` is exactly a `solver_consumption`
+/// of [`RIGID_CONSUMPTION_TOKENS`]. Either may be absent; nothing is defaulted.
+fn resolve_rigid_creation_interfaces(
+    record: &serde_json::Map<String, Value>,
+    target_ref: &str,
+    kind: &str,
+    checker: &mut Checker,
+) -> Option<(Option<Value>, Option<Value>)> {
+    let label = component_kind_label(kind);
+    let modifiers = match record.get("modifiers") {
+        None => None,
+        Some(value) => {
+            let object = value.as_object();
+            let scale = object
+                .and_then(|m| m.get("stiffness_scaling_user_value"))
+                .and_then(parse_positive_quantity)
+                .filter(|q| q.unit == "none" || q.unit == "1");
+            let source = object
+                .and_then(|m| m.get("source_reference"))
+                .and_then(Value::as_str)
+                .map(str::trim)
+                .filter(|s| !s.is_empty());
+            let (Some(scale), Some(source), Some(2)) = (scale, source, object.map(|m| m.len())) else {
+                checker.push(
+                    "OP-CREATE-RIGID-COMPONENT-MODIFIERS-INVALID",
+                    "blocking",
+                    format!("{label} modifiers must be exactly a finite positive dimensionless stiffness_scaling_user_value (unit none or 1) and its non-empty source_reference."),
+                    "Enter the stiffness scale with its source reference, or leave both out; no scale is defaulted.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            };
+            Some(serde_json::json!({
+                "stiffness_scaling_user_value": { "value": scale.value, "unit": scale.unit },
+                "source_reference": source,
+            }))
+        }
+    };
+    let interface = match record.get("mechanics_interface") {
+        None => None,
+        Some(value) => {
+            let object = value.as_object();
+            let mode = object
+                .and_then(|m| m.get("solver_consumption"))
+                .and_then(Value::as_str)
+                .filter(|mode| RIGID_CONSUMPTION_TOKENS.contains(mode));
+            let (Some(mode), Some(1)) = (mode, object.map(|m| m.len())) else {
+                checker.push(
+                    "OP-CREATE-RIGID-COMPONENT-CONSUMPTION-INVALID",
+                    "blocking",
+                    format!("{label} mechanics_interface must be exactly a solver_consumption of {}.", RIGID_CONSUMPTION_TOKENS.join(" or ")),
+                    "Choose mechanics_geometry_only (DEC-045 stiffness scaling and component weight) or not_solver_consumed, or leave it out.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            };
+            Some(serde_json::json!({ "solver_consumption": mode }))
+        }
+    };
+    Some((modifiers, interface))
 }
 
 /// T4-U3 (D-4, slot table N-9): expansion-joint creation follows the
@@ -5449,16 +5604,27 @@ fn resolve_create_primitive_load(
             | "concentrated_moment"
             | "thermal"
             | "imposed_displacement"
-    ) {
+            | "weight"
+    ) || (category == "weight" && target_type != "node")
+    {
         checker.push(
             "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
             "blocking",
-            "Create-primitive-load payload category must be `concentrated_force`, `distributed_force`, `concentrated_moment`, `thermal`, or `imposed_displacement`.".to_string(),
+            "Create-primitive-load payload category must be `concentrated_force`, `distributed_force`, `concentrated_moment`, `thermal`, `imposed_displacement`, or a node-targeted `weight` force or moment.".to_string(),
             "Refresh the primitive-load creation intent from explicit user-entered primitive-load fields.",
             vec![target_ref.to_string()],
         );
         return None;
     }
+    // W-15 slice b: a node-targeted `weight` (a component's weight at its node)
+    // is checked as a concentrated force, or as a concentrated moment about a
+    // rotation axis, and stored under its authored category.
+    let authored_category = category;
+    let category = match (category, direction) {
+        ("weight", "rotation_x" | "rotation_y" | "rotation_z") => "concentrated_moment",
+        ("weight", _) => "concentrated_force",
+        (category, _) => category,
+    };
 
     let imposed_is_rotational =
         category == "imposed_displacement" && matches!(direction, "RX" | "RY" | "RZ");
@@ -5697,7 +5863,7 @@ fn resolve_create_primitive_load(
         target_ref.to_string(),
         serde_json::json!({
             "id": id,
-            "category": category,
+            "category": authored_category,
             "target": target,
             "direction": direction,
             "magnitude": { "value": magnitude_value.unwrap(), "unit": magnitude_unit },
@@ -6929,6 +7095,19 @@ fn resolve_field(
         );
         return None;
     };
+    if object_type == "Component"
+        && field_path == "mechanics_interface.solver_consumption"
+        && !is_rigid_family_kind(entity.get("kind").and_then(Value::as_str).unwrap_or(""))
+    {
+        checker.push(
+            "OP-FIELD-PATH-UNSUPPORTED",
+            "blocking",
+            format!("Field path `{field_path}` is editable here only on a valve, flange, reducer, rigid or specialty component; `{target_ref}` uses its own authoring route for its consumption mode."),
+            "Use the component's own authoring route (bend realization, objective connector) for its consumption mode.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
 
     let segments: Vec<String> =
         dynamic_segments.unwrap_or_else(|| field_path.split('.').map(str::to_string).collect());
@@ -7597,7 +7776,123 @@ fn resolve_field(
             field_path,
             checker,
         ),
+        FieldKind::OptionalVectorQuantity { dimension: rule_dimension } => resolve_optional_vector(
+            entity,
+            segments,
+            before,
+            after,
+            unit,
+            dimension,
+            rule_dimension,
+            kind,
+            target_ref,
+            field_path,
+            checker,
+        ),
     }
+}
+
+/// The display (and staleness) form of a stored `{x, y, z, unit}` vector:
+/// `x, y, z unit`, or `TBD` when absent or not a vector.
+fn vector_display(value: Option<&Value>) -> String {
+    let parts = value.and_then(|v| {
+        Some((v.get("x")?.as_f64()?, v.get("y")?.as_f64()?, v.get("z")?.as_f64()?, v.get("unit")?.as_str()?))
+    });
+    match parts {
+        Some((x, y, z, unit)) => format!("{}, {}, {} {unit}", display_number(x), display_number(y), display_number(z)),
+        None => "TBD".to_string(),
+    }
+}
+
+/// W-15 slice b: resolution of an optional vector slot. The replacement is
+/// the explicit `{x, y, z, unit}` payload (exactly those keys, finite
+/// components, the intent's unit, a unit of the field's dimension). The
+/// before value is compared numerically, component by component, with its
+/// unit exactly, so ECMAScript and Rust number formatting cannot disagree.
+#[allow(clippy::too_many_arguments)]
+fn resolve_optional_vector(
+    entity: &Value,
+    segments: Vec<String>,
+    before: &str,
+    after: &str,
+    unit: &str,
+    dimension: &str,
+    rule_dimension: &'static str,
+    kind: FieldKind,
+    target_ref: &str,
+    field_path: &str,
+    checker: &mut Checker,
+) -> Option<ResolvedField> {
+    let blocked_unit = |checker: &mut Checker, code: &str, message: String| {
+        checker.unit_state = "blocked";
+        checker.push(code, "blocking", message, "Enter the vector's three components and an accepted DEC-018 unit of its dimension; no hidden fallback unit is supplied.", vec![target_ref.to_string()]);
+    };
+    if dimension != rule_dimension {
+        blocked_unit(checker, "OP-UNIT-DIMENSION-MISMATCH", format!("Field `{field_path}` carries dimension `{rule_dimension}`; intent dimension `{dimension}` is not accepted."));
+        return None;
+    }
+    let dimension_enum = Dimension::from_schema_value(rule_dimension).ok()?;
+    if !unit_symbol_matches_dimension(unit, dimension_enum) {
+        blocked_unit(checker, "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE", format!("Intent unit `{unit}` is not an accepted DEC-018 unit for dimension `{rule_dimension}` on `{field_path}`."));
+        return None;
+    }
+    let payload = serde_json::from_str::<Value>(after.trim()).ok();
+    let parsed = payload.as_ref().and_then(Value::as_object).and_then(|record| {
+        if record.len() != 4 {
+            return None;
+        }
+        let component = |key: &str| record.get(key).and_then(Value::as_f64).filter(|v| v.is_finite());
+        Some((component("x")?, component("y")?, component("z")?, record.get("unit")?.as_str()?.to_string()))
+    });
+    let Some((x, y, z, payload_unit)) = parsed else {
+        checker.push(
+            "OP-VECTOR-PAYLOAD-INVALID",
+            "blocking",
+            format!("Replacement for `{field_path}` must be a JSON object with exactly finite numeric x, y and z and a unit."),
+            "Enter all three components; none is assumed.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    if payload_unit != unit {
+        blocked_unit(checker, "OP-QUANTITY-PAYLOAD-INVALID", format!("Vector payload unit `{payload_unit}` must match intent unit `{unit}`."));
+        return None;
+    }
+    checker.unit_state = "passed";
+    let current = value_at_segments(entity, &segments);
+    let current_display = vector_display(current);
+    let matches_before = if current_display == "TBD" {
+        before.trim() == "TBD"
+    } else {
+        let stored = current.expect("a displayed vector is present");
+        before.trim().rsplit_once(' ').is_some_and(|(numbers, before_unit)| {
+            let values: Vec<Option<f64>> = numbers.split(',').map(|n| parse_finite_number(n.trim())).collect();
+            before_unit == stored["unit"].as_str().unwrap_or_default()
+                && values.len() == 3
+                && ["x", "y", "z"].iter().zip(&values).all(|(key, value)| *value == stored[*key].as_f64())
+        })
+    };
+    if matches_before {
+        checker.before_state = "passed";
+    } else {
+        checker.before_state = "blocked_stale";
+        checker.push(
+            "OP-STALE-BEFORE-VALUE",
+            "blocking",
+            format!("Intent before-value `{before}` no longer matches the current value `{current_display}` of `{field_path}`."),
+            "Re-queue the edit from the current model state; stale intents are not applied.",
+            vec![target_ref.to_string()],
+        );
+    }
+    let number = |v: f64| Value::Number(Number::from_f64(v).expect("finite"));
+    Some(ResolvedField {
+        kind,
+        current_display,
+        applied_value: serde_json::json!({"x": number(x), "y": number(y), "z": number(z), "unit": unit}),
+        segments,
+        additional_writes: Vec::new(),
+        write_mode: WriteMode::CreatePath,
+    })
 }
 
 /// Shared resolution for the optional text-shaped slots (`OptionalText`,
@@ -11110,6 +11405,39 @@ mod tests {
         let blocked = apply_operation(&model, &non_empty, None);
         assert!(codes(&blocked).contains(&"OP-CREATE-LOAD-CASE-PAYLOAD-INVALID"));
         assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn node_targeted_weight_primitives_are_created_as_force_or_moment() {
+        // W-15 slice b: a component's weight is a node-targeted `weight`
+        // force, with `weight` moments about rotation axes.
+        let model = sample_model();
+        let create = |payload: Value, unit: &str, dimension: &str| {
+            let mut intent = modify_intent("Load", "load:L-1", "create_primitive_load", "primitive_loads", "not_present", &payload.to_string(), unit, dimension);
+            intent["operation_kind"] = json!("create");
+            apply_operation(&model, &intent, None)
+        };
+        let force = json!({"id": "load:W-F", "category": "weight", "target": {"type": "node", "node": "node:N-2"},
+            "direction": "global_y", "magnitude": {"value": -420.0, "unit": "N"}, "dimension": "force", "provenance": "user"});
+        let outcome = create(force.clone(), "N", "force");
+        assert!(outcome.diagnostics.is_empty(), "{:?}", outcome.diagnostics);
+        assert_eq!(outcome.applied_model.unwrap()["load_cases"][0]["primitive_loads"][1], force);
+        let moment = json!({"id": "load:W-M", "category": "weight", "target": {"type": "node", "node": "node:N-2"},
+            "direction": "rotation_z", "magnitude": {"value": -50.4, "unit": "N*m"}, "dimension": "moment", "provenance": "user"});
+        let outcome = create(moment.clone(), "N*m", "moment");
+        assert!(outcome.diagnostics.is_empty(), "{:?}", outcome.diagnostics);
+        assert_eq!(outcome.applied_model.unwrap()["load_cases"][0]["primitive_loads"][1], moment);
+        // A moment dimension along a translation, an element target and a
+        // missing node are refused.
+        let mut wrong = moment.clone();
+        wrong["direction"] = json!("global_y");
+        assert!(create(wrong, "N*m", "moment").applied_model.is_none());
+        let element = json!({"id": "load:W-E", "category": "weight", "target": {"type": "element", "pipe": "pipe:P-1"},
+            "direction": "global_y", "magnitude": {"value": -1.0, "unit": "N/m"}, "dimension": "force_per_length", "provenance": "user"});
+        assert!(codes(&create(element, "N/m", "force_per_length")).contains(&"OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID"));
+        let mut missing = force;
+        missing["target"]["node"] = json!("node:missing");
+        assert!(codes(&create(missing, "N", "force")).contains(&"OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND"));
     }
 
     #[test]
@@ -14828,25 +15156,186 @@ mod tests {
         assert_eq!(first, second);
     }
 
+    /// W-15 slice b: the sample model with a valve at node:N-2 mapping
+    /// pipe:P-1, its weight and centre of gravity entered.
+    fn valve_model() -> Value {
+        let mut model = sample_model();
+        model["components"].as_array_mut().unwrap().push(json!({
+            "id": "component:V-1", "label": "Valve", "kind": "valve", "node": "node:N-2",
+            "geometry": {
+                "rigid_pipe_ref": "pipe:P-1",
+                "weight": { "value": 420.0, "unit": "N" },
+                "center_of_gravity": { "x": 0.12, "y": 0.02, "z": 0.0, "unit": "m" }
+            },
+            "provenance": "invented_example"
+        }));
+        model
+    }
+
     #[test]
-    fn center_of_gravity_stays_unsupported_pending_payload_ruling() {
-        let model = sample_model();
-        let outcome = apply_operation(
-            &model,
-            &modify_intent(
-                "Component",
-                "component:C-1",
-                "set_field",
-                "geometry.center_of_gravity",
-                "TBD",
-                "x=0.1, y=0.2, z=0.3 m",
-                "m",
-                "length",
-            ),
+    fn center_of_gravity_is_an_explicit_vector_edit_under_the_r10_convention() {
+        // The owner's R10 ruling (2026-10-24) lifted the former refusal.
+        let model = valve_model();
+        let edit = |before: &str, after: &str, unit: &str, dimension: &str| {
+            apply_operation(
+                &model,
+                &modify_intent("Component", "component:V-1", "set_field", "geometry.center_of_gravity", before, after, unit, dimension),
+                None,
+            )
+        };
+        let outcome = edit("0.12, 0.02, 0 m", r#"{"x":-120,"y":35.5,"z":-10,"unit":"mm"}"#, "mm", "length");
+        assert!(outcome.diagnostics.is_empty(), "{:?}", outcome.diagnostics);
+        let applied = outcome.applied_model.unwrap();
+        assert_eq!(
+            applied["components"][1]["geometry"]["center_of_gravity"],
+            json!({"x": -120.0, "y": 35.5, "z": -10.0, "unit": "mm"})
+        );
+        assert_eq!(applied["components"][1]["geometry"]["weight"], model["components"][1]["geometry"]["weight"]);
+        // A stale before value, by number or by unit, is refused.
+        for before in ["0.12, 0.02, 0.1 m", "0.12, 0.02, 0 mm", "TBD", "0.12, 0.02 m"] {
+            let stale = edit(before, r#"{"x":1,"y":2,"z":3,"unit":"m"}"#, "m", "length");
+            assert!(codes(&stale).contains(&"OP-STALE-BEFORE-VALUE"), "{before}");
+            assert!(stale.applied_model.is_none());
+        }
+        // Every component and the unit are explicit; nothing is assumed.
+        for after in [
+            r#"{"x":1,"y":2,"unit":"m"}"#,
+            r#"{"x":1,"y":2,"z":"3","unit":"m"}"#,
+            r#"{"x":1,"y":2,"z":3,"unit":"m","frame":"local"}"#,
+            "x=1, y=2, z=3 m",
+            "1, 2, 3",
+        ] {
+            let refused = edit("0.12, 0.02, 0 m", after, "m", "length");
+            assert!(codes(&refused).contains(&"OP-VECTOR-PAYLOAD-INVALID"), "{after}: {:?}", refused.diagnostics);
+        }
+        let mismatch = edit("0.12, 0.02, 0 m", r#"{"x":1,"y":2,"z":3,"unit":"mm"}"#, "m", "length");
+        assert!(codes(&mismatch).contains(&"OP-QUANTITY-PAYLOAD-INVALID"));
+        let wrong_unit = edit("0.12, 0.02, 0 m", r#"{"x":1,"y":2,"z":3,"unit":"N"}"#, "N", "length");
+        assert!(codes(&wrong_unit).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"));
+        let wrong_dimension = edit("0.12, 0.02, 0 m", r#"{"x":1,"y":2,"z":3,"unit":"m"}"#, "m", "force");
+        assert!(codes(&wrong_dimension).contains(&"OP-UNIT-DIMENSION-MISMATCH"));
+        // An absent vector is authored from the explicit entry.
+        let mut absent = valve_model();
+        absent["components"][1]["geometry"].as_object_mut().unwrap().remove("center_of_gravity");
+        let authored = apply_operation(
+            &absent,
+            &modify_intent("Component", "component:V-1", "set_field", "geometry.center_of_gravity", "TBD", r#"{"x":0,"y":0,"z":0.25,"unit":"m"}"#, "m", "length"),
             None,
         );
-        assert!(codes(&outcome).contains(&"OP-FIELD-PATH-UNSUPPORTED"));
-        assert!(outcome.applied_model.is_none());
+        assert!(authored.diagnostics.is_empty(), "{:?}", authored.diagnostics);
+        assert_eq!(
+            authored.applied_model.unwrap()["components"][1]["geometry"]["center_of_gravity"],
+            json!({"x": 0.0, "y": 0.0, "z": 0.25, "unit": "m"})
+        );
+    }
+
+    #[test]
+    fn component_weight_edits_require_a_positive_force() {
+        let model = valve_model();
+        for (after, ok) in [("500", true), ("0", false), ("-420", false)] {
+            let outcome = apply_operation(
+                &model,
+                &modify_intent("Component", "component:V-1", "set_field", "geometry.weight.value", "420", after, "N", "force"),
+                None,
+            );
+            assert_eq!(outcome.applied_model.is_some(), ok, "{after}: {:?}", outcome.diagnostics);
+            if !ok {
+                assert!(codes(&outcome).contains(&"OP-VALUE-NOT-POSITIVE"), "{after}");
+            }
+        }
+    }
+
+    #[test]
+    fn rigid_consumption_and_modifier_source_are_editable() {
+        let model = valve_model();
+        let consumption = |model: &Value, target: &str, before: &str, after: &str| {
+            apply_operation(
+                model,
+                &modify_intent("Component", target, "set_field", "mechanics_interface.solver_consumption", before, after, "none", "dimensionless"),
+                None,
+            )
+        };
+        let declared = consumption(&model, "component:V-1", "TBD", "mechanics_geometry_only");
+        assert!(declared.diagnostics.is_empty(), "{:?}", declared.diagnostics);
+        let declared = declared.applied_model.unwrap();
+        assert_eq!(declared["components"][1]["mechanics_interface"], json!({"solver_consumption": "mechanics_geometry_only"}));
+        let honoured = consumption(&declared, "component:V-1", "mechanics_geometry_only", "not_solver_consumed");
+        assert!(honoured.applied_model.is_some(), "{:?}", honoured.diagnostics);
+        let other = consumption(&model, "component:V-1", "TBD", "curved_bend_macro_element");
+        assert!(codes(&other).contains(&"OP-ENUM-TOKEN-INVALID"));
+        // A bend's consumption has its own authoring route.
+        let bend = consumption(&model, "component:C-1", "TBD", "mechanics_geometry_only");
+        assert!(codes(&bend).contains(&"OP-FIELD-PATH-UNSUPPORTED"));
+        let source = apply_operation(
+            &model,
+            &modify_intent("Component", "component:V-1", "set_field", "modifiers.source_reference", "TBD", "invented user scale source", "none", "dimensionless"),
+            None,
+        );
+        assert!(source.diagnostics.is_empty(), "{:?}", source.diagnostics);
+        assert_eq!(source.applied_model.unwrap()["components"][1]["modifiers"]["source_reference"], json!("invented user scale source"));
+        let scale = apply_operation(
+            &model,
+            &modify_intent("Component", "component:V-1", "set_field", "modifiers.stiffness_scaling_user_value.value", "TBD", r#"{"value":15,"unit":"none"}"#, "none", "dimensionless"),
+            None,
+        );
+        assert!(scale.diagnostics.is_empty(), "{:?}", scale.diagnostics);
+        assert_eq!(scale.applied_model.unwrap()["components"][1]["modifiers"]["stiffness_scaling_user_value"], json!({"value": 15.0, "unit": "none"}));
+    }
+
+    #[test]
+    fn rigid_creation_carries_an_explicit_scale_and_consumption() {
+        let model = sample_model();
+        let payload = |extra: Value| {
+            let mut payload = json!({
+                "id": "component:C-valve", "label": "Valve", "kind": "valve", "node": "node:N-2",
+                "geometry": {
+                    "rigid_pipe_ref": "pipe:P-1",
+                    "rigid_body_length": { "value": 0.32, "unit": "m" },
+                    "end_a_size": { "value": 0.168, "unit": "m" },
+                    "end_b_size": { "value": 0.168, "unit": "m" },
+                    "weight": { "value": 420.0, "unit": "N" },
+                    "center_of_gravity": { "x": 0.12, "y": 0.02, "z": 0.0, "unit": "m" },
+                    "connection_end_a_reference": "user",
+                    "connection_end_b_reference": "user",
+                    "stiffness_behavior_reference": "user",
+                    "rigid_component_source_reference": "user"
+                },
+                "provenance": "user"
+            });
+            for (key, value) in extra.as_object().unwrap() {
+                payload[key] = value.clone();
+            }
+            payload
+        };
+        let create = |payload: &Value| {
+            let mut intent = modify_intent("Component", "component:C-valve", "insert_component_symbol", "components", "not_present", &payload.to_string(), "none", "dimensionless");
+            intent["operation_kind"] = json!("insert");
+            apply_operation(&model, &intent, None)
+        };
+        let full = payload(json!({
+            "modifiers": { "stiffness_scaling_user_value": { "value": 15.0, "unit": "none" }, "source_reference": "user scale" },
+            "mechanics_interface": { "solver_consumption": "mechanics_geometry_only" }
+        }));
+        let outcome = create(&full);
+        assert!(outcome.diagnostics.is_empty(), "{:?}", outcome.diagnostics);
+        assert_eq!(outcome.applied_model.unwrap()["components"][1], full);
+        for (extra, code) in [
+            (json!({"modifiers": {"stiffness_scaling_user_value": {"value": 15.0, "unit": "none"}}}), "OP-CREATE-RIGID-COMPONENT-MODIFIERS-INVALID"),
+            (json!({"modifiers": {"source_reference": "user"}}), "OP-CREATE-RIGID-COMPONENT-MODIFIERS-INVALID"),
+            (json!({"modifiers": {"stiffness_scaling_user_value": {"value": 0.0, "unit": "none"}, "source_reference": "user"}}), "OP-CREATE-RIGID-COMPONENT-MODIFIERS-INVALID"),
+            (json!({"modifiers": {"stiffness_scaling_user_value": {"value": 2.0, "unit": "N"}, "source_reference": "user"}}), "OP-CREATE-RIGID-COMPONENT-MODIFIERS-INVALID"),
+            (json!({"modifiers": {"stiffness_scaling_user_value": {"value": 2.0, "unit": "none"}, "source_reference": "user", "sif_user_value": {"value": 1.0, "unit": "none"}}}), "OP-CREATE-RIGID-COMPONENT-MODIFIERS-INVALID"),
+            (json!({"mechanics_interface": {"solver_consumption": "objective_connector"}}), "OP-CREATE-RIGID-COMPONENT-CONSUMPTION-INVALID"),
+            (json!({"mechanics_interface": {}}), "OP-CREATE-RIGID-COMPONENT-CONSUMPTION-INVALID"),
+        ] {
+            let refused = create(&payload(extra.clone()));
+            assert!(codes(&refused).contains(&code), "{extra}: {:?}", refused.diagnostics);
+            assert!(refused.applied_model.is_none());
+        }
+        // The weight stays a finite positive force at creation.
+        let mut zero = payload(json!({}));
+        zero["geometry"]["weight"]["value"] = json!(0.0);
+        assert!(codes(&create(&zero)).contains(&"OP-CREATE-RIGID-COMPONENT-GEOMETRY-INVALID"));
     }
 
     #[test]

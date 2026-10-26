@@ -1,14 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
-import { existsSync } from "node:fs";
 
-const configuredChrome = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
-const macChrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const executablePath =
-  configuredChrome && existsSync(configuredChrome)
-    ? configuredChrome
-    : existsSync(macChrome)
-      ? macChrome
-      : undefined;
+// Browser: Playwright's pinned Chromium, the build matching the installed
+// @playwright/test (`npx playwright install chromium`). An explicit
+// PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH overrides it, and a missing override
+// fails the launch rather than switching browsers. There is no fallback to an
+// installed Google Chrome: its version drifts with the machine, and wheel and
+// scroll behaviour the specs measure differs between builds.
+const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined;
 
 // Worker cap (DEC-025 evidence-sweep robustness): the e2e lanes run last in the
 // five-surface sweep, after the cargo + wasm + vitest surfaces have saturated

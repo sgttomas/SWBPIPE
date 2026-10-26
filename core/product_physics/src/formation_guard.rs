@@ -558,10 +558,13 @@ pub(crate) fn stress_free_notice(records: &[RecoveryRecord], case_id: &str) -> O
         if !upper.is_finite() {return None;}
         if group.moment { moment = moment.max(upper); } else { force = force.max(upper); }
     }
+    // W-7 (DEL-04-01 Design `global-end-actions.md`): the guarded groups (|N|,
+    // hypot(Vy,Vz), |T|, hypot(My,Mz)) bound the element-local and support rows,
+    // not a rotated global end-action component, so the sentence names them.
     Some(super::diag(
         &format!("diagnostic:stress-free-within-numerical-precision:{case_id}"),
         "STRESS_FREE_WITHIN_NUMERICAL_PRECISION", "info",
-        format!("Load case {case_id}: every member and support force row is bounded by {force:e} N and every moment row by {moment:e} N*m at 128-bit precision; the case is stress-free to within numerical precision. The standing remains NUMERICAL_INTEGRITY_SENSITIVE."),
+        format!("Load case {case_id}: every element-local member force row and support force row is bounded by {force:e} N and every element-local member moment row and support moment row by {moment:e} N*m at 128-bit precision; the case is stress-free to within numerical precision. The standing remains NUMERICAL_INTEGRITY_SENSITIVE."),
         vec![case_id.to_string()],
     ))
 }

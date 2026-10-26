@@ -33,9 +33,14 @@
 
 use crate::command_ingress::Args;
 use crate::handoff_package_publish::{self as publish, PublishHooks, Published};
+use crate::export_disposition_screen::{
+    library_identity, malformed_dispositions, malformed_values, matching_library_records, own_or_provenance, screen_document, screen_value, truthy_str,
+    LibraryLookup,
+};
+#[cfg(test)]
+use crate::export_disposition_screen::{pointer_token, SCREENED_MEMBERS};
 use crate::model_document_save::{
-    self, library_identity, matching_library_records, own_or_provenance, truthy_str, LibraryLookup,
-    ModelDocumentSaveDiagnostic as Diagnostic, ModelDocumentSaveLocalFirst, ModelDocumentSaveScreening,
+    self, ModelDocumentSaveDiagnostic as Diagnostic, ModelDocumentSaveLocalFirst, ModelDocumentSaveScreening,
 };
 use crate::model_states::ModelStateSummary;
 use crate::solve_jobs::SolveJobError;
@@ -63,6 +68,8 @@ pub const DISPOSITION_MALFORMED: &str = "HANDOFF-DISPOSITION-MALFORMED";
 /// Pack Manager's reference list).
 pub const LIBRARY_REF_VERSION_CHANGED: &str = crate::MODEL_LIBRARY_REF_VERSION_CHANGED;
 pub const RULE_PACK_REF_UNRESOLVED: &str = "MODEL-RULE-PACK-REF-UNRESOLVED";
+/// The stored pack is not the one the reference names (#1602's code; `rulePackRefDiagnostics.ts`).
+pub const RULE_PACK_REF_CHECKSUM_MISMATCH: &str = "MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH";
 
 /// The unit catalogue every unit identifier is taken from (`get_unit_catalog`).
 pub const UNIT_SYSTEM_REF: &str = "unit-system:dec-018-si-dual-display";
@@ -135,7 +142,8 @@ pub fn validate_handoff_evidence(screening: &ModelDocumentSaveScreening, local_f
 /// A project's saved state by project id and state id (production: the metered
 /// `model_states::list_states_in_store_with`), or `None` when it has none.
 pub type StateLookup<'a> = dyn FnMut(&str, &str) -> Result<Option<ModelStateSummary>, String> + 'a;
-/// The stored rule-pack documents with a `rule_pack_id`, the model's project's first.
+/// The stored rule-pack document with a `rule_pack_id` under the model's project
+/// (at most one), as the solve's rule-pack resolution opens it (#1602).
 pub type RulePackLookup<'a> = dyn FnMut(&str, &str) -> Result<Vec<Value>, String> + 'a;
 
 // ---------------------------------------------------------------------------
@@ -288,103 +296,6 @@ fn least_permissive<'a>(values: impl IntoIterator<Item = &'a str>) -> &'a str {
 /// The least settled of the review classifications a record includes.
 fn least_reviewed<'a>(values: impl IntoIterator<Item = &'a str>) -> &'a str {
     values.into_iter().max_by_key(|value| rank(&REVIEW_ORDER, value)).unwrap_or("TBD")
-}
-
-/// The disposition members the structural screen judges, with the values that
-/// block: W-6a's policy (`redistribution_status` `protected_suspected` or
-/// `rejected`, `review_status` `quarantined` or `rejected`), the privacy and
-/// classification members' `protected_suspected` (the webview's rule), and a
-/// rule pack's `lifecycle_status` `quarantined` or `rejected`.
-const SCREENED_MEMBERS: [(&str, &[&str]); 6] = [
-    ("redistribution_status", &["protected_suspected", "rejected"]),
-    ("review_status", &["quarantined", "rejected"]),
-    ("privacy_class", &["protected_suspected", "quarantined", "rejected"]),
-    ("privacy_classification", &["protected_suspected", "quarantined", "rejected"]),
-    ("classification", &["protected_suspected", "quarantined", "rejected"]),
-    ("lifecycle_status", &["quarantined", "rejected"]),
-];
-
-/// One RFC 6901 reference token.
-fn pointer_token(key: &str) -> String {
-    key.replace('~', "~0").replace('/', "~1")
-}
-
-/// The structural screen of one document resolved from the store (review
-/// round 2, finding 2): every object at every depth (a wrapper, its records,
-/// array elements, every `provenance` and `provenance_record` beneath them) is
-/// judged by its own [`SCREENED_MEMBERS`]; nothing is inherited and no field
-/// hides another object's. Returned as `<JSON pointer> <value>`, in document
-/// order; empty when nothing blocks. The whole document is screened before
-/// any of it is mapped into the manifest.
-pub(crate) fn screen_document(document: &Value) -> Vec<String> {
-    fn walk(value: &Value, pointer: &str, found: &mut Vec<String>) {
-        match value {
-            Value::Object(object) => {
-                for (key, child) in object {
-                    let at = format!("{pointer}/{}", pointer_token(key));
-                    if let (Some((_, blocking)), Some(status)) = (SCREENED_MEMBERS.iter().find(|(member, _)| member == key), child.as_str()) {
-                        if blocking.contains(&status) {
-                            found.push(format!("{at} {status}"));
-                        }
-                    }
-                    walk(child, &at, found);
-                }
-            }
-            Value::Array(items) => {
-                for (index, item) in items.iter().enumerate() {
-                    walk(item, &format!("{pointer}/{index}"), found);
-                }
-            }
-            _ => {}
-        }
-    }
-    let mut found = Vec::new();
-    walk(document, "", &mut found);
-    found
-}
-
-/// The disposition members of a stored document whose value is an array or an
-/// object (review round 6 note 4, narrowed in round 6b by the owner's
-/// decision): either could hide a blocking value, so the save refuses them as
-/// malformed rather than guess. A rule pack's `classification` object is
-/// exempt, since its own members are screened in turn. `null`, booleans and
-/// numbers are not refused (the library import stores them); they count as
-/// no public disposition and, for privacy members, as private. Returned as
-/// `<JSON pointer> is <JSON value kind>`.
-pub(crate) fn malformed_dispositions(document: &Value) -> Vec<String> {
-    fn kind(value: &Value) -> &'static str {
-        match value {
-            Value::Null => "null",
-            Value::Bool(_) => "a boolean",
-            Value::Number(_) => "a number",
-            Value::String(_) => "a string",
-            Value::Array(_) => "an array",
-            Value::Object(_) => "an object",
-        }
-    }
-    fn walk(value: &Value, pointer: &str, found: &mut Vec<String>) {
-        match value {
-            Value::Object(object) => {
-                for (key, child) in object {
-                    let at = format!("{pointer}/{}", pointer_token(key));
-                    let screened = SCREENED_MEMBERS.iter().any(|(member, _)| member == key);
-                    if screened && (child.is_array() || child.is_object()) && !(key == "classification" && child.is_object()) {
-                        found.push(format!("{at} is {}", kind(child)));
-                    }
-                    walk(child, &at, found);
-                }
-            }
-            Value::Array(items) => {
-                for (index, item) in items.iter().enumerate() {
-                    walk(item, &format!("{pointer}/{index}"), found);
-                }
-            }
-            _ => {}
-        }
-    }
-    let mut found = Vec::new();
-    walk(document, "", &mut found);
-    found
 }
 
 fn malformed_record(path: &str, record: &str, what: &str, found: &[String]) -> Diagnostic {
@@ -925,8 +836,9 @@ fn library_refs(document: &Value, project_id: &str, lookup: &mut LibraryLookup<'
     let mut refusals = Vec::new();
     for ((kind, id), stored) in &stored_libraries {
         let Some(stored) = stored else { continue };
-        let found_blocking = screen_document(stored);
-        let found_malformed = malformed_dispositions(stored);
+        // A library has no exempt `classification` object (W-18a (b1) review r2).
+        let found_blocking = screen_value(stored);
+        let found_malformed = malformed_values(stored);
         let path = found.iter().find(|reference| &reference.kind == kind && &reference.id == id).map(|reference| reference.path.as_str()).unwrap_or("");
         if !found_blocking.is_empty() {
             refusals.push(blocked_record(path, &format!("{kind}:{id}"), "stored library", &found_blocking));
@@ -1025,6 +937,63 @@ fn library_refs(document: &Value, project_id: &str, lookup: &mut LibraryLookup<'
     if refusals.is_empty() { Ok((refs, warnings)) } else { Err(refusals) }
 }
 
+/// Whether `character` is white space to ECMAScript's `String.prototype.trim`
+/// (WhiteSpace and LineTerminator): U+0009-U+000D, U+0020, U+00A0, U+1680,
+/// U+2000-U+200A, U+2028, U+2029, U+202F, U+205F, U+3000 and U+FEFF. Unlike
+/// Rust's `str::trim` (Unicode White_Space), it includes U+FEFF and excludes
+/// U+0085.
+fn is_js_trim_white_space(character: char) -> bool {
+    matches!(
+        character,
+        '\u{0009}'..='\u{000D}' | '\u{0020}' | '\u{00A0}' | '\u{1680}' | '\u{2000}'..='\u{200A}' | '\u{2028}' | '\u{2029}' | '\u{202F}' | '\u{205F}' | '\u{3000}' | '\u{FEFF}'
+    )
+}
+
+/// A string member that is not blank to JavaScript, as written (untrimmed):
+/// the resolution's twin of `text` in `src/services/modelRulePackResolution.ts`
+/// (`value.trim() ? value : null`). Used by `rule_pack_ref_exclusion` only;
+/// `text` keeps Rust's `str::trim`.
+fn js_text<'a>(object: Option<&'a Map<String, Value>>, key: &str) -> Option<&'a str> {
+    object?.get(key).and_then(Value::as_str).filter(|value| !value.chars().all(is_js_trim_white_space))
+}
+
+/// Why a model rule-pack reference is excluded, or `None` when it resolves:
+/// the solve's resolution (#1602; `resolveModelRulePacks` in
+/// `src/services/modelRulePackResolution.ts`), rule for rule, so that a handoff
+/// warns of exactly the references a run of the same model excludes.
+/// `stored` is the model's project's pack with the reference's id, if any.
+/// - Unresolved: no stored pack, or its `metadata.rule_pack_id` is not the
+///   reference's, or it has no `metadata.rule_pack_version` or
+///   `metadata.source_notice` (text not blank to JavaScript's `trim`, `js_text`).
+/// - Checksum mismatch: its stamped `checksums.rule_pack_checksum.value` is not
+///   64 lowercase hex digits or not the reference's `checksum.value`, the
+///   document's validation does not report its checksum as `match` (as the open
+///   command's envelope reports it), or its version is not the reference's.
+///
+/// TypeScript twin and shared vectors: `fixtures/handoff/rule_pack_ref_resolution_vectors.json`.
+pub(crate) fn rule_pack_ref_exclusion(reference: &Map<String, Value>, stored: Option<&Value>) -> Option<&'static str> {
+    let Some(document) = stored else { return Some(RULE_PACK_REF_UNRESOLVED) };
+    let metadata = document.get("metadata").and_then(Value::as_object);
+    let stamped = document
+        .get("checksums")
+        .and_then(Value::as_object)
+        .and_then(|checksums| checksums.get("rule_pack_checksum"))
+        .and_then(Value::as_object)
+        .and_then(|checksum| js_text(Some(checksum), "value"));
+    let id = js_text(metadata, "rule_pack_id");
+    let version = js_text(metadata, "rule_pack_version");
+    if id != reference.get("rule_pack_id").and_then(Value::as_str) || version.is_none() || js_text(metadata, "source_notice").is_none() {
+        return Some(RULE_PACK_REF_UNRESOLVED);
+    }
+    let recomputed_matches = open_pipe_stress_rule_pack_document::validate_rule_pack_document(document, false).checksum.match_status == "match";
+    let sha256_hex = |value: &str| value.len() == 64 && value.bytes().all(|byte| matches!(byte, b'0'..=b'9' | b'a'..=b'f'));
+    let referenced = reference.get("checksum").and_then(|checksum| checksum.get("value")).and_then(Value::as_str);
+    if !stamped.is_some_and(sha256_hex) || stamped != referenced || !recomputed_matches || version != reference.get("rule_pack_version").and_then(Value::as_str) {
+        return Some(RULE_PACK_REF_CHECKSUM_MISMATCH);
+    }
+    None
+}
+
 /// `rule_pack_refs` (design §3): the document's references, each with a
 /// checksum over its reference metadata `{rule_pack_id, version,
 /// stamped_checksum_value, basis, grammar_version}`; the grammar version is the
@@ -1047,22 +1016,30 @@ fn rule_pack_refs(document: &Value, project_id: &str, lookup: &mut RulePackLooku
         }
         let version = entry.get("rule_pack_version").and_then(Value::as_str).unwrap_or("");
         let stamped = entry.get("checksum").and_then(|checksum| checksum.get("value")).and_then(Value::as_str).unwrap_or("");
+        // A store read error refuses the save. This is stricter than the solve's
+        // resolution (#1602), which records the reference as unresolved; both fail
+        // closed, and the handoff keeps its refusal.
         let stored = lookup(project_id, id).map_err(|error| {
             vec![diagnostic(RULE_PACK_STORE_UNAVAILABLE, &path, format!("The local rule-pack store could not be read to resolve `{id}` ({error}); nothing was saved."))]
         })?;
-        // Resolved only when the stored stamp is the reference's and the
-        // pack's checksum, recomputed from its stored document, is that stamp
-        // (review round 1, finding 5: an edited draft keeps its old stamp).
-        let pack = stored.into_iter().find(|pack| {
-            pack.pointer("/checksums/rule_pack_checksum/value").and_then(Value::as_str) == Some(stamped)
-                && open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(pack).is_ok_and(|computed| computed.value == stamped)
-        });
-        if pack.is_none() {
-            warnings.push(diagnostic(
+        // Resolved only as the solve resolves it (#1602, `rule_pack_ref_exclusion`):
+        // among other checks, the stored stamp is the reference's and the pack's
+        // checksum, recomputed from its stored document, matches it (review
+        // round 1, finding 5: an edited draft keeps its old stamp).
+        let exclusion = rule_pack_ref_exclusion(entry, stored.first());
+        let pack = if exclusion.is_none() { stored.into_iter().next() } else { None };
+        match exclusion {
+            Some(RULE_PACK_REF_CHECKSUM_MISMATCH) => warnings.push(diagnostic(
+                RULE_PACK_REF_CHECKSUM_MISMATCH,
+                &path,
+                format!("The local store's rule pack `{id}` for this project is not the referenced one: its stamped checksum, its own recomputed checksum or its version is not the reference's ({stamped}, version {version}); its grammar version, lifecycle and provenance are not known here."),
+            )),
+            Some(_) => warnings.push(diagnostic(
                 RULE_PACK_REF_UNRESOLVED,
                 &path,
-                format!("The local store holds no rule pack `{id}` whose document hashes to the referenced stamped checksum {stamped}; its grammar version, lifecycle and provenance are not known here."),
-            ));
+                format!("The local store holds no rule pack `{id}` for this project with a matching id, a version and a source notice; its grammar version, lifecycle and provenance are not known here."),
+            )),
+            None => {}
         }
         // A resolved pack is screened whole before anything of it is mapped
         // (review round 2, finding 2).
@@ -1973,7 +1950,7 @@ mod tests {
         let pack = &prepared.rule_pack_refs[0];
         let stored: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
         let metadata = json!({
-            "rule_pack_id": "invented_demo_rule_pack", "version": "0.2.0",
+            "rule_pack_id": "invented_demo_rule_pack", "version": "0.3.0",
             "stamped_checksum_value": stored["checksums"]["rule_pack_checksum"]["value"],
             "basis": open_pipe_stress_rule_pack_document::CHECKSUM_BASIS, "grammar_version": stored["grammar_version"]
         });
@@ -2438,7 +2415,63 @@ mod tests {
         review_emit("stale-grammar", prepared);
         let mut packs = |project: &str, id: &str| crate::stored_rule_packs_with_id(&Connection::open(&store.path).unwrap(), project, id);
         let (_, warnings) = rule_pack_refs(&model, "project:slots", &mut packs).unwrap();
-        assert!(warnings.iter().any(|w| w.code == RULE_PACK_REF_UNRESOLVED), "invalid stamped checksum was treated as a resolved pack");
+        // aligned with #1602's exclusion codes (export-diagnostics PR)
+        assert!(warnings.iter().any(|w| w.code == RULE_PACK_REF_CHECKSUM_MISMATCH), "invalid stamped checksum was treated as a resolved pack");
+    }
+    /// W-6b resolves a model rule-pack reference as the solve does (#1602): every
+    /// shared vector gives the outcome TypeScript's `resolveModelRulePacks` gives
+    /// (`src/services/rulePackRefResolutionParity.test.ts`), through the store
+    /// lookup the save command wires and through `rule_pack_ref_exclusion` alone.
+    #[test]
+    fn the_resolution_blank_test_is_javascript_trim() {
+        // Every code point JavaScript's `String.prototype.trim` removes (enumerated in node).
+        let javascript: Vec<u32> = vec![0x9, 0xA, 0xB, 0xC, 0xD, 0x20, 0xA0, 0x1680, 0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200A, 0x2028, 0x2029, 0x202F, 0x205F, 0x3000, 0xFEFF];
+        let ours: Vec<u32> = (0..=char::MAX as u32).filter_map(char::from_u32).filter(|character| is_js_trim_white_space(*character)).map(u32::from).collect();
+        assert_eq!(ours, javascript);
+        let metadata = |value: &str| json!({ "source_notice": value }).as_object().cloned();
+        assert_eq!(js_text(metadata("\u{FEFF}").as_ref(), "source_notice"), None);
+        assert_eq!(js_text(metadata("\u{0085}").as_ref(), "source_notice"), Some("\u{0085}"));
+        assert_eq!(js_text(metadata(" notice ").as_ref(), "source_notice"), Some(" notice "), "as written, untrimmed");
+    }
+    #[test]
+    fn rule_pack_ref_resolution_matches_the_solve_on_the_shared_vectors() {
+        let vectors: Value = serde_json::from_str(include_str!("../../../../fixtures/handoff/rule_pack_ref_resolution_vectors.json")).unwrap();
+        let base: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
+        let project = vectors["model_project_id"].as_str().unwrap();
+        let cases = vectors["vectors"].as_array().unwrap();
+        assert!(cases.len() >= 11);
+        for case in cases {
+            let name = case["name"].as_str().unwrap();
+            let reference = case["reference"].as_object().unwrap();
+            let rule_pack_id = reference["rule_pack_id"].as_str().unwrap();
+            let root = sandbox("rule-pack-resolution");
+            let (connection, _) = crate::open_project_store(&root.join(crate::PROJECT_STORE_FILE)).unwrap();
+            if let Some(stored_under) = case["stored_under"].as_str() {
+                let mut document = base.clone();
+                for edit in case["document_edits"].as_array().unwrap() {
+                    let pointer = edit["pointer"].as_str().unwrap();
+                    let (parent, key) = pointer.rsplit_once('/').unwrap();
+                    let object = document.pointer_mut(parent).unwrap().as_object_mut().unwrap();
+                    if edit["delete"] == json!(true) { object.remove(key); } else { object.insert(key.to_string(), edit["value"].clone()); }
+                }
+                document["checksums"]["rule_pack_checksum"]["value"] = case["stamp"].clone();
+                let validation = open_pipe_stress_rule_pack_document::validate_rule_pack_document(&document, false);
+                assert_eq!(json!(validation.checksum.match_status), case["match_status"], "{name}: the vector's match_status is the validator's");
+                crate::upsert_rule_pack(&connection, stored_under, rule_pack_id, &document).unwrap();
+            }
+            let expected = case["expected"].as_str().unwrap();
+            let held = crate::stored_rule_packs_with_id(&connection, project, rule_pack_id).unwrap();
+            assert!(held.len() <= 1, "{name}");
+            assert_eq!(rule_pack_ref_exclusion(reference, held.first()).unwrap_or("resolved"), expected, "{name}");
+            let model = json!({ "rule_pack_refs": [Value::Object(reference.clone())] });
+            let mut lookup = |project: &str, id: &str| crate::stored_rule_packs_with_id(&connection, project, id);
+            let (refs, warnings) = rule_pack_refs(&model, project, &mut lookup).unwrap();
+            assert_eq!(refs.len(), 1, "{name}: an excluded reference stays listed");
+            let codes: Vec<&str> = warnings.iter().map(|warning| warning.code.as_str()).collect();
+            assert_eq!(codes, if expected == "resolved" { vec![] } else { vec![expected] }, "{name}");
+            drop(connection);
+            fs::remove_dir_all(&root).unwrap();
+        }
     }
     #[test]
     fn review_publication_failures_and_symlinks() {
@@ -2801,7 +2834,7 @@ fn round2_nested_model_provenance_must_not_be_hidden_by_own_fields() {
     #[test]
     fn blocking_dispositions_planted_anywhere_in_a_stored_document_are_found_by_pointer() {
         let pack: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
-        assert!(screen_document(&material_library()).is_empty() && screen_document(&pack).is_empty(), "the bases block nothing");
+        assert!(screen_value(&material_library()).is_empty() && screen_document(&pack).is_empty(), "the bases block nothing");
         let mut random = Xorshift(0x5eed_0002_6b0d_2026);
         for case in 0..4000 {
             let mut document = if case % 2 == 0 { material_library() } else { pack.clone() };
@@ -2813,7 +2846,7 @@ fn round2_nested_model_provenance_must_not_be_hidden_by_own_fields() {
             });
             wanted.sort();
             wanted.dedup();
-            let found = screen_document(&document);
+            let found = if case % 2 == 0 { screen_value(&document) } else { screen_document(&document) };
             for entry in &wanted {
                 assert!(found.contains(entry), "case {case}: {entry} was not found in {found:?}\n{document}");
             }
@@ -3189,8 +3222,8 @@ fn round3_legitimate_stored_library_documents_do_not_over_refuse() {
         let saved = outcome.unwrap();
         assert!(saved.stored, "{kind}: {}", saved.message);
         let row = crate::load_library(&Connection::open(&store.path).unwrap(), "project:slots", kind, &saved.library_id).unwrap().unwrap();
-        assert!(screen_document(&row.document).is_empty(), "{kind}: {:?}", screen_document(&row.document));
-        assert!(malformed_dispositions(&row.document).is_empty(), "{kind}: {:?}", malformed_dispositions(&row.document));
+        assert!(screen_value(&row.document).is_empty(), "{kind}: {:?}", screen_value(&row.document));
+        assert!(malformed_values(&row.document).is_empty(), "{kind}: {:?}", malformed_values(&row.document));
     }
     let pack: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
     assert!(screen_document(&pack).is_empty());
@@ -3973,7 +4006,7 @@ fn review5_residual_swap_can_move_a_nonempty_substitute() {
                     let Ok(saved) = crate::save_local_library_value(|| Ok(store.path.clone()), "project:slots".to_string(), kind.to_string(), doc) else { continue };
                     if !saved.stored { continue }
                     let row = crate::load_library(&Connection::open(&store.path).unwrap(), "project:slots", kind, &saved.library_id).unwrap().unwrap();
-                    if !malformed_dispositions(&row.document).is_empty() || !screen_document(&row.document).is_empty() { accepted_then_refused.push(format!("{kind}/{place}/{key}=null")); }
+                    if !malformed_values(&row.document).is_empty() || !screen_value(&row.document).is_empty() { accepted_then_refused.push(format!("{kind}/{place}/{key}=null")); }
                 }
             }
         }
@@ -3994,7 +4027,8 @@ fn review5_residual_swap_can_move_a_nonempty_substitute() {
             ("classification-array", |p| p["classification"] = json!(["protected_suspected"]), DISPOSITION_MALFORMED),
             ("classification-privacy-null", |p| p["classification"]["privacy_class"] = Value::Null, "saved"),
             ("classification-protected", |p| p["classification"]["redistribution_status"] = json!("protected_suspected"), model_document_save::PROTECTED_CONTENT_BLOCKED),
-            ("nested-classification-object", |p| p["metadata"]["x"] = json!({ "classification": { "review_status": false } }), "saved"),
+            // nested classification objects are malformed outside a rule pack's own classification (W-18a b1 review r1)
+            ("nested-classification-object", |p| p["metadata"]["x"] = json!({ "classification": { "review_status": false } }), DISPOSITION_MALFORMED),
         ];
         for (tag, edit, code) in cases {
             let mut model = witness_model();
@@ -4087,4 +4121,143 @@ fn review5_residual_swap_can_move_a_nonempty_substitute() {
         let result = prepare(&store, &model, &state.state_id);
         assert!(matches!(&result, Err(d) if d.iter().any(|d| d.code == STATE_STORE_UNAVAILABLE)), "{:?}", codes(&result));
     }
+
+    // W-18a (b1) review round 1: the `classification` exemption is the rule
+    // pack's own object only (`export_disposition_screen::admitted_classification`).
+
+    /// An object-valued `classification` in a stored library record, or in its
+    /// nested provenance, is malformed (before the fix both were saved).
+    #[test]
+    fn b1r1_a_classification_object_in_a_stored_library_is_malformed() {
+        let cases: [(&str, fn(&mut Value), &str, &'static str); 2] = [
+            ("record", |l| l["material_records"][0]["classification"] = json!({"value": "protected_suspected"}),
+                "/material_records/0/classification", "b1b10000b1b10000b1b10000b1b10001"),
+            ("provenance", |l| l["material_records"][0]["provenance"]["classification"] = json!({"value": "protected_suspected"}),
+                "/material_records/0/provenance/classification", "b1b10000b1b10000b1b10000b1b10002"),
+        ];
+        for (place, edit, pointer, token) in cases {
+            let model = witness_model();
+            let store = store(&format!("b1r1-library-{place}"), &model, true);
+            let mut library = material_library();
+            edit(&mut library);
+            let project = model["project"]["id"].as_str().unwrap();
+            crate::upsert_library(&Connection::open(&store.path).unwrap(), project, "material", "library:invented-materials", &library).unwrap();
+            let state = save_state(&store, &model, "handoff_basis", token).state;
+            let result = prepare(&store, &model, &state.state_id);
+            assert!(
+                matches!(&result, Err(d) if d.iter().any(|d| d.code == DISPOSITION_MALFORMED && d.message.contains(&format!("{pointer} is an object")))),
+                "{place}: {:?}",
+                codes(&result)
+            );
+        }
+    }
+
+    /// The rule pack's own `classification` object still saves; a blocking
+    /// value in any of its string members, whatever the key, refuses, and a
+    /// nested object in it is malformed.
+    #[test]
+    fn b1r1_the_rule_pack_classification_object_is_screened_member_by_member() {
+        let cases: [(&str, fn(&mut Value), &str, &'static str); 3] = [
+            ("legitimate", |_| {}, "saved", "b1b20000b1b20000b1b20000b1b20001"),
+            ("blocking-member", |p| p["classification"]["public_repository_policy"] = json!("quarantined"),
+                model_document_save::PROTECTED_CONTENT_BLOCKED, "b1b20000b1b20000b1b20000b1b20002"),
+            ("nested-object", |p| p["classification"]["public_repository_policy"] = json!({"value": "quarantined"}),
+                DISPOSITION_MALFORMED, "b1b20000b1b20000b1b20000b1b20003"),
+        ];
+        for (tag, edit, code, token) in cases {
+            let mut model = witness_model();
+            let mut pack: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
+            assert!(pack["classification"].is_object());
+            edit(&mut pack);
+            let hash = open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(&pack).unwrap().value;
+            pack["checksums"]["rule_pack_checksum"]["value"] = json!(hash);
+            model["rule_pack_refs"][0]["checksum"]["value"] = json!(hash);
+            let store = store(&format!("b1r1-pack-{tag}"), &model, true);
+            crate::upsert_rule_pack(&Connection::open(&store.path).unwrap(), "project:slots", "invented_demo_rule_pack", &pack).unwrap();
+            let state = save_state(&store, &model, "handoff_basis", token).state;
+            let result = prepare(&store, &model, &state.state_id);
+            match (&result, code) {
+                (Ok(_), "saved") => {}
+                (Err(d), code) if d.iter().any(|d| d.code == code && d.message.contains("/classification/public_repository_policy")) => {}
+                _ => panic!("{tag}: {:?}", codes(&result)),
+            }
+        }
+    }
+
+    #[test]
+    fn round2_nested_classification_in_real_rule_pack_must_be_malformed() {
+        let mut model=witness_model();
+        let mut pack: Value=serde_json::from_str(DEMO_RULE_PACK).unwrap();
+        pack["classification"]["rule_pack_kind"]=json!("open_pipe_stress_rule_pack");
+        pack["classification"]["classification"]=json!({"value":"clear"});
+        let hash=open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(&pack).unwrap().value;
+        pack["checksums"]["rule_pack_checksum"]["value"]=json!(hash);
+        model["rule_pack_refs"][0]["checksum"]["value"]=json!(hash);
+        let store=store("r2-nested-pack",&model,true);
+        crate::upsert_rule_pack(&Connection::open(&store.path).unwrap(),"project:slots","invented_demo_rule_pack",&pack).unwrap();
+        let state=save_state(&store,&model,"handoff_basis","b1b30000b1b30000b1b30000b1b30001").state;
+        let result=prepare(&store,&model,&state.state_id);
+        eprintln!("R2 real stored rule pack with nested classification: {:?}",codes(&result));
+        assert!(matches!(result,Err(d) if d.iter().any(|d| d.code==DISPOSITION_MALFORMED)));
+    }
+    #[test]
+    fn independent_round3_stored_pack_and_library_entrypoints_refuse_forged_nesting() {
+        let mut cases=0;
+        for marker in [Value::Null,json!(false),json!(17),json!("wrong"),json!("open_pipe_stress_rule_pack"),json!([]),json!({})] {
+            for inner in [json!({}),json!([]),json!({"value":"protected_suspected"}),json!({"rule_pack_kind":"open_pipe_stress_rule_pack","classification":{"value":"clear"}})] {
+                for position in 0..4 {
+                    let mut model=witness_model();
+                    let mut pack:Value=serde_json::from_str(DEMO_RULE_PACK).unwrap();
+                    let nested=json!({"rule_pack_kind":marker,"classification":inner});
+                    match position {
+                        0=>{pack["classification"]["rule_pack_kind"]=marker.clone();pack["classification"]["classification"]=inner.clone();},
+                        1=>pack["metadata"]["review_probe"]=nested,
+                        2=>pack["review_probe"]=json!([{"a/b~c":nested}]),
+                        _=>pack["classification"]["arbitrary"]=nested,
+                    }
+                    let hash=open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(&pack).unwrap().value;
+                    pack["checksums"]["rule_pack_checksum"]["value"]=json!(hash);
+                    model["rule_pack_refs"][0]["checksum"]["value"]=json!(hash);
+                    let store=store("r3-nested-pack",&model,true);
+                    crate::upsert_rule_pack(&Connection::open(&store.path).unwrap(),"project:slots","invented_demo_rule_pack",&pack).unwrap();
+                    let state=save_state(&store,&model,"handoff_basis","b1b30000b1b30000b1b30000b1b30002").state;
+                    let result=prepare(&store,&model,&state.state_id);
+                    assert!(matches!(&result,Err(d) if d.iter().any(|d|d.code==DISPOSITION_MALFORMED)),"{marker} {inner} {position}: {:?}",codes(&result));cases+=1;
+                }
+                for position in 0..2 {
+                    let model=witness_model();let store=store("r3-library-marker",&model,true);
+                    let mut library=material_library();
+                    let nested=json!({"rule_pack_kind":marker,"classification":inner});
+                    if position==0 {library["rule_pack_kind"]=marker.clone();library["classification"]=inner.clone();}
+                    else {library["material_records"][0]["review_probe"]=json!([nested]);}
+                    crate::upsert_library(&Connection::open(&store.path).unwrap(),"project:slots","material","library:invented-materials",&library).unwrap();
+                    let state=save_state(&store,&model,"handoff_basis","b1b30000b1b30000b1b30000b1b30003").state;
+                    let result=prepare(&store,&model,&state.state_id);
+                    assert!(matches!(&result,Err(d) if d.iter().any(|d|d.code==DISPOSITION_MALFORMED)),"{marker} {inner} {position}: {:?}",codes(&result));cases+=1;
+                }
+            }
+        }
+        eprintln!("R3 stored pack/library refusals={cases}");
+    }
+    #[test]
+    fn independent_round3_legitimate_rule_pack_and_scalar_classifications_save() {
+        let mut cases=0;
+        for scalar in [Value::Null,json!(false),json!(42),json!("private_only"),json!("unknown")] {
+            let mut model=witness_model();
+            let mut pack:Value=serde_json::from_str(DEMO_RULE_PACK).unwrap();
+            pack["classification"]["review_probe"]=scalar;
+            let hash=open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(&pack).unwrap().value;
+            pack["checksums"]["rule_pack_checksum"]["value"]=json!(hash);
+            model["rule_pack_refs"][0]["checksum"]["value"]=json!(hash);
+            let store=store("r3-clear-pack",&model,true);
+            crate::upsert_rule_pack(&Connection::open(&store.path).unwrap(),"project:slots","invented_demo_rule_pack",&pack).unwrap();
+            let state=save_state(&store,&model,"handoff_basis","b1b30000b1b30000b1b30000b1b30004").state;
+            let prepared=prepare(&store,&model,&state.state_id).unwrap();
+            let target=store.root.join("round3.swbhandoff");
+            assert!(matches!(write(&target,prepared),HandoffSaveOutcome::Saved{..}));
+            assert!(verify_handoff_package(&target).is_ok());cases+=1;
+        }
+        eprintln!("R3 clear scalar-classification handoffs saved and verified={cases}");
+    }
+
 }

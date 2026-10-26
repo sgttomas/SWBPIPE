@@ -10,6 +10,7 @@
 //! (claims taxonomy per DEC-081).
 
 use crate as package;
+use crate::admitted::{self, AdmittedSet};
 use open_pipe_stress_audit_manifest as audit;
 use open_pipe_stress_report_renderer::RenderableReportInput;
 use serde::Deserialize;
@@ -202,7 +203,7 @@ fn audit_privacy(value: &str) -> Result<audit::PrivacyClass, String> {
     }
 }
 
-fn audit_manifest(
+pub(crate) fn audit_manifest(
     value: AuditManifestDto,
     linked_solver: &LinkedSolverIdentity<'_>,
 ) -> Result<audit::AuditManifest, String> {
@@ -276,13 +277,24 @@ pub fn assemble_wire_request(
     request: ReportPackageRequest,
     linked_solver: &LinkedSolverIdentity<'_>,
 ) -> Result<package::ReportPackageContainerOutcome, String> {
+    assemble_wire_request_in(request, linked_solver, admitted::PRODUCTION)
+}
+
+/// [`assemble_wire_request`] against `admitted` (W-11, DEL-08-01 Design
+/// `exact-route-report-sections.md` §5.5), which it forwards unchanged to every
+/// item-0 check on its path.
+pub(crate) fn assemble_wire_request_in(
+    request: ReportPackageRequest,
+    linked_solver: &LinkedSolverIdentity<'_>,
+    admitted: AdmittedSet,
+) -> Result<package::ReportPackageContainerOutcome, String> {
     // Item 0, the route preflight, comes before any other check, including the
     // audit conversion (DEL-08-01 Design §2.3).
     for document in &request.result_documents {
-        crate::document_form::check_route_admitted(document)?;
+        crate::document_form::check_route_admitted_in(document, admitted)?;
     }
     let audit_manifest = audit_manifest(request.audit_manifest.clone(), linked_solver)?;
-    crate::bindings::check_request(&request, &audit_manifest, linked_solver)?;
+    crate::bindings::check_request_in(&request, &audit_manifest, linked_solver, admitted)?;
     let report: RenderableReportInput = serde_json::from_value(request.report)
         .map_err(|error| format!("REPORT-PACKAGE-REPORT-DTO-INVALID: {error}"))?;
     let source_model_ref = package_reference(request.source_model_ref)?;
@@ -301,7 +313,7 @@ pub fn assemble_wire_request(
         result_documents: &request.result_documents,
         state_comparison_handoff_records: &request.state_comparison_handoff_records,
     };
-    Ok(package::assemble_report_package_container(&input))
+    Ok(package::assemble_report_package_container_in(&input, admitted))
 }
 
 #[cfg(test)]

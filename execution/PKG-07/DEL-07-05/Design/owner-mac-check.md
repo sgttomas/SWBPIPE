@@ -13,7 +13,7 @@ G10 remains an owner-held check requiring the owner's Mac, as specified in the o
 - Then, by hand on the owner's Mac:
   1. Open `fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.desktop_model.json` (File › Open Model Document…).
   2. Solve sparse, then dense.
-  3. Each solve shows 113 result rows, the Sensitive standing and the red "Numerical health: 1 sensitive" indicator. The `result:disp:N1` probe reads "Entered: 0.09426732782247199 mm" sparse and "Entered: 0.0942673274792288 mm" dense.
+  3. Each solve shows 125 result rows, the Sensitive standing and the red "Numerical health: 1 sensitive" indicator. The `result:disp:N1` probe reads "Entered: 0.09426732782247199 mm" sparse and "Entered: 0.0942673274792288 mm" dense.
   4. Result JSON export is unavailable.
 
 The smoke test is evidence, not the owner's witness (F-PIP-3). The check is the owner's act and is recorded only by the owner.

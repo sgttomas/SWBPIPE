@@ -30,7 +30,6 @@ import { numericalResultStanding, SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED } 
 import { PRESSURE_SOURCE_CONTRACT_ID } from "../results/numericalResultQuality";
 import { PRESSURE_SOURCE_CONTRACT_SHA256 } from "../../test-support/contractBindings";
 import { OUTPUT_SURFACES, PRESSURE_2_OUTPUT_REFUSAL, surfaceOutputRefusal, surfaceRouteRefusal } from "../results/outputPolicy";
-import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE } from "../results/knownSemanticLimitations";
 import { N_LOAD_REFERENCE_RULE_CHECK } from "../results/loadReferenceDisclosure";
 import { loadReferenceOutputRefusal } from "../results/loadReferenceOutputAvailability";
 import { ResultsPanel } from "../results/ResultsPanel";
@@ -47,7 +46,7 @@ type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 type Mode = "sparse_interactive" | "dense_scrutiny";
 const root = resolve(__dirname, "../../../../../");
 const json = (path: string) => JSON.parse(readFileSync(resolve(root, path), "utf8"));
-const PRESSURE_1 = { id: "openpipestress.result_semantics/0.3.0/pressure-2", sha256: "6991728e6bc9c88effdbe5d0407671f4d78376c5c67d79d70f2cd1f174f47cba" };
+const PRESSURE_1 = { id: "openpipestress.result_semantics/0.3.0/pressure-2", sha256: "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d" };
 /** The three surfaces the owner opened (ruling 10A). */
 const OPENED: readonly string[] = ["result-export", "stress-neutral", "rule-check"];
 /** The mocked rule backend's answer (unit simulation; invented). */
@@ -357,11 +356,10 @@ describe("the held pressure-2 result: admitted on the opened surfaces, refused b
     const document = await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
     expect(() => resultSchemaVersion(document)).not.toThrow();
     await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).resolves.toBeTruthy();
-    // The report package refuses it as a fresh result (§4.5), through the session too.
-    const freshRefusal = `${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`;
-    expect(reportPackageUnavailableReason(result)).toBe(freshRefusal);
+    // The report package refuses it by its report-package cell (§4.5; ruling 10A), through the session too.
+    expect(reportPackageUnavailableReason(result)).toBe(PRESSURE_2_OUTPUT_REFUSAL);
     await act(async () => { await hook.current.results.handleSaveReportPackage(); });
-    expect(hook.current.results.reportPackageRoute).toEqual({ route: "redaction_blocked", diagnostic: freshRefusal });
+    expect(hook.current.results.reportPackageRoute).toEqual({ route: "redaction_blocked", diagnostic: PRESSURE_2_OUTPUT_REFUSAL });
     // Native package: the export link is replaced by the refusal.
     render(<NativePackagePanel model={model} modelHash={hook.current.model.modelHash} result={result} analysisRun={analysisRun} editorIntents={[]}
       projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={null} />);

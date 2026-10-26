@@ -237,6 +237,10 @@ fn row_semantics(row: &Value, kind: &str, arc: bool) -> Check {
             require(direct, "ROW_SEMANTICS")?;
             crate::u4b_evidence::row_semantics(row, crate::u4b_evidence::Route::Preview, arc)?;
         }
+        // W-7 (DEL-04-01 Design `global-end-actions.md`): no wall basis off pressure-2.
+        _ if crate::global_end_evidence::is_kind(kind) => {
+            crate::global_end_evidence::row_semantics(row, false)?;
+        }
         _ => {}
     }
     Ok(())
@@ -308,6 +312,8 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             "ROW_BASIS",
         )?;
     }
+    // W-7: one global end row per member, end and component in every case.
+    crate::global_end_evidence::coverage(rows_list)?;
     // 3. Completeness of result-namespace references (F-1).
     for diagnostic in diagnostics {
         // A1 a: the key may be absent; A2 item 5: when present, an array of
@@ -353,6 +359,10 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             "BLOCKED_ENVELOPE",
         );
     }
+    // W-15 slice d (DEL-03-05 Design §5): the component bodies and their
+    // reference-section records, checked once over rows, extrema and coverage
+    // (after the blocked-envelope rule, which a blocked envelope's rows meet first).
+    let bodies = crate::component_body::source_bodies(source, table)?;
 
     // 4. Cases bind the numerical quality cases.
     // A2 item 2: same load cases in the same order.
@@ -420,7 +430,7 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
         let coverage = &case["stress_maximum_coverage"];
         require(
             keys(
-                coverage,
+                &crate::component_body::coverage_without_bodies(coverage),
                 &[
                     "complete",
                     "unavailable_pipe_ids",
@@ -446,7 +456,7 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             require(partition.insert(*pipe), "STRESS_COVERAGE_PARTITION")?;
         }
         for extrema in array(&case["pipe_stress_extrema"])? {
-            require(keys(extrema, EXTREMA_KEYS), "EXTREMA_SHAPE")?;
+            require(keys(&crate::component_body::extremum_without_record(extrema), EXTREMA_KEYS), "EXTREMA_SHAPE")?;
             let pipe = text(&extrema["pipe_id"])?;
             require(partition.insert(pipe), "STRESS_COVERAGE_PARTITION")?;
             let id = text(&extrema["result_id"])?;
@@ -701,17 +711,21 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
     }
 
     // 6. Headlines: all cases, identity ties, stress only with complete coverage.
+    // W-15 slice d: the stress headline ranges over the non-body members.
+    crate::component_body::headline_not_body(&summary["max_open_formula_stress"], &bodies)?;
     headline(
         &summary["max_open_formula_stress"],
         rows_list,
         MAXIMUM,
         coverage_complete,
+        &bodies,
     )?;
     headline(
         &summary["max_displacement"],
         rows_list,
         "displacement_magnitude",
         true,
+        &Default::default(),
     )?;
 
     // 9. Combination rows only for admitted combinations.
@@ -851,9 +865,9 @@ fn combination_magnitudes(rows: &[&Value]) -> Check {
     Ok(())
 }
 
-fn headline(value: &Value, rows: &[Value], kind: &str, allowed: bool) -> Check {
+fn headline(value: &Value, rows: &[Value], kind: &str, allowed: bool, bodies: &std::collections::BTreeMap<&str, &Value>) -> Check {
     let mut winner: Option<(&Value, (f64, &str, &str))> = None;
-    for row in rows.iter().filter(|r| r["kind"] == kind) {
+    for row in rows.iter().filter(|r| r["kind"] == kind && !bodies.contains_key(r["entity_ref"].as_str().unwrap_or_default())) {
         let Some(case) = case_of(row) else {
             continue; // Combinations are outside headline scope.
         };

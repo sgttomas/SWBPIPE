@@ -49,23 +49,23 @@ _PRESSURE_SOURCE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure
 # pressure-2 (`3.0.0/exact_pressure_v3`): the ordinary exact route. Its raw statements are read by the independent
 # `pressure_2` verifier; it is also the exact successor's G7 base (B7b D4 (a)).
 PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
-PRESSURE_CONTRACT_SHA256 = "6991728e6bc9c88effdbe5d0407671f4d78376c5c67d79d70f2cd1f174f47cba"
+PRESSURE_CONTRACT_SHA256 = "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d"
 _PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_2.json"
 PRESSURE_PROFILE = "exact_pressure_v3"
 PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
-PREVIEW_PHYSICS_CONTRACT_SHA256 = "653a4758ebdac9ca04df7a54f794f6651e4da5f3b695535342a8e5700b1f1936"
+PREVIEW_PHYSICS_CONTRACT_SHA256 = "1045373c26fc7bd9383e1c08fe6c2d0bb2f372b4fcdc4b5558585154a6a5fc96"
 _PREVIEW_PHYSICS_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_2.json"
 # U6b (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its statements are
 # checked only by the accepted reader (`retained_precision`), and its standing
 # comes only from that reader's verified receipt (D1 5 item 3).
 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
-PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "5d7535b310d17ab2bf469bf5be83831c9f32bcc6466e2fa3a5912f35ffee5e68"
+PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "6d06b97de0cd0c421b3a62f8b97703d6d098a12ced2bb067b52667775f4bc0e8"
 _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_retained_1.json"
 # B3b (B3-D §2, §6.1): the exact successor, whose base is pressure-2 since B7b D4 (a). As the preview successor, its
 # statements are checked only by the accepted reader, which dispatches on this identity, and its standing comes only
 # from that reader.
 PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-PHYSICS_RETAINED_CONTRACT_SHA256 = "ff7f3159d69fca32acfdea00f6b07a7c90a168f77fd264e45c997b053daf3de7"
+PHYSICS_RETAINED_CONTRACT_SHA256 = "d6d86dfc418978257d1d3370684e879ba9711465ceba1de72729eb48bb12ad3c"
 _PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_physics_retained_1.json"
 RETAINED_CONTRACTS = {PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: (PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH),
                       PHYSICS_RETAINED_CONTRACT_ID: (PHYSICS_RETAINED_CONTRACT_SHA256, _PHYSICS_RETAINED_CONTRACT_PATH)}
@@ -421,7 +421,11 @@ def rule_binding_refusal(envelope: Mapping[str, Any], row: Mapping[str, Any]) ->
 
     A successor row is refused by its validated class. B4/D1 (b) retired the
     non-composite source-blocks-1 summary refusal with that identity.
+    W-15 slice d: a component body's row (``component_body``) is refused as
+    ``COMPONENT_BODY_REFERENCE_SECTION``.
     """
+    if isinstance(row, Mapping) and "component_body" in row:
+        return "COMPONENT_BODY_REFERENCE_SECTION"
     if _is_retained(envelope):
         return _retained_binding_refusal(envelope, row)
     return None

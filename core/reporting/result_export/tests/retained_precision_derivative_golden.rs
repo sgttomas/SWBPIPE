@@ -48,59 +48,61 @@ const PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         SPARSE,
-        "67f146bd4411426b2811e5b6ce7cac7a4d22c6783b106d61566ee7454e2b59a9",
-        "bc13dcf4a2479a8566ec739f1dfc7d0c1ec18a4cab0ea8b52887037c6a1b079f",
+        "139cfdb7d960aa1c5a061ee21cbf48fa55b96f896dc40120b6576a9f8061781c",
+        "a3a2fc6748be7deb006681b493cc858b065b000f3f3427a8dc3ce0f75d7750d8",
     ),
     (
         "dense_scrutiny",
         DENSE,
-        "52ea3e9a29f200ada2bc7d2d73f6ee1e1eafdc5829b220c8b650f8e864e0ffc6",
-        "1dc2d2a6f3fef563ea2998653243085f47310215e8c579e5c82e893a864bb95f",
+        "7ce9946465092d416474faf1f455cb9466edd8fb84d3b8a3640a433b27d29d31",
+        "fcb064918059448e3e2a671821a2924f69c4d1da3fabbad105cab9f483297168",
     ),
 ];
 /// The committed goldens' file sha256 (= the documents' canonical digests).
 const GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "98233d65776130e4a86e7ce0fa823bdb89c45a94739115c51fbbbd2207819a84"),
-    ("dense_scrutiny", "0c57442b0499d10946abbf89a79f73f9f768a889b71ab83d1da8afc39682e60c"),
+    ("sparse_interactive", "ee497bffc6fab092da57ac43010ad579f7eaf40232b570acfc7a57f6efa54a39"),
+    ("dense_scrutiny", "4d362dd6a3b64b96516f277b3a931cc5a3332ce977dbf93d5a64b8f89f5ea792"),
 ];
 /// The milestone's validated class counts (as retained_precision_carriers.rs
 /// `CLASSES`): relative, absolute, input-derived, non-quantity and not-covered (T4-U4b: the member's 15
-/// derived σ⁺, σ⁻ and τ_v,max rows at five stations).
+/// derived σ⁺, σ⁻ and τ_v,max rows at five stations; W-7: its 12 global end rows).
 const CLASSES: [(&str, [usize; 5]); 2] = [
-    ("sparse_interactive", [25, 69, 3, 1, 15]),
-    ("dense_scrutiny", [25, 69, 3, 1, 15]),
+    ("sparse_interactive", [25, 69, 3, 1, 15 + 12]),
+    ("dense_scrutiny", [25, 69, 3, 1, 15 + 12]),
 ];
 /// B3b-T: lane P's m3x exact successors (PP retained_facade_tests.rs `EXACT_PINNED`):
 /// mode, file text, file sha256 (the fixture document's), receipt sha256.
 /// O4 (W1-E): re-pinned with the exact goldens after DEF-E's revision (only DEF-E-bound hashes moved).
 /// O4 limitation re-pin (§3.3, §4.9): the base limitation [7] and the hashes binding it moved.
+/// W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation and the hashes binding it.
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "08f9c9f654b4f18871cc9b08a23655fb8517c91fbfc5d9a3f24932f8694ace82",
-        "a6f0815b30fa042a51552fa8d1881fe1af39479fffbc0382a866248e2276f531",
+        "53df81b7f576e714816bccfc54d96baca3814a0e919b9823e5aa9bf29b97826c",
+        "0c7b14b6b08c689eee3be11ac164b0ec9296fd759c91595955eee7056dbc6ff4",
     ),
     (
         "dense_scrutiny",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "04ee8f329c19d19278b01be56365c3b76ee5fc8469bf8b9d488e4bd54b4aa535",
-        "6aea076aaf67042cbd61bab4697a9da2d6fb873f331510643d0764a00cd6dafc",
+        "1a3f9eed3731e123264dcca1e7f46645434cc9b66b95656de837cce3f7a431ea",
+        "d9a6e8073a6207abd426c6d88f3cdae21c41a660a61230178921cfcd3260d872",
     ),
 ];
 /// The committed exact goldens' file sha256.
 const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "cf2fbdf7e74be32cfd0cd5427d652098584303125e5bf401a3888a67267d1189"),
-    ("dense_scrutiny", "5cb6cd3e390bdd56fe8f1944e8ab71c8548ec834867bdfa23cd7ad0f1554e201"),
+    // W-15 (DEL-03-05) on W-7: the exact successors restate the pressure-2 identity limitation.
+    ("sparse_interactive", "9c4756e9289a5062a0e2e8474ddae5047297588ac7575799293b5b8b92400f07"),
+    ("dense_scrutiny", "579878c8e800ef2e4d17dd11c8ed3ec76c7c646caf786e4dab5f027d6144faef"),
 ];
 /// The m3x successors' validated class counts (relative, absolute, input-derived,
 /// non-quantity, not-covered). T4-U6 (D-5 §2.5): each of the member's 21
 /// reduced stress twins takes its nominal row's class (5 relative, 16 absolute;
 /// the receipt's own lists stay at 25 and 69). T4-U4b (U4B-RP): the 30 derived
-/// σ⁺, σ⁻ and τ_v,max rows (five stations, both bases) are not covered.
+/// σ⁺, σ⁻ and τ_v,max rows (five stations, both bases) are not covered; so are W-7's 12 global end rows.
 const EXACT_CLASSES: [(&str, [usize; 5]); 2] = [
-    ("sparse_interactive", [25 + 5, 69 + 16, 3, 1, 30]),
-    ("dense_scrutiny", [25 + 5, 69 + 16, 3, 1, 30]),
+    ("sparse_interactive", [25 + 5, 69 + 16, 3, 1, 30 + 12]),
+    ("dense_scrutiny", [25 + 5, 69 + 16, 3, 1, 30 + 12]),
 ];
 /// One set of goldens: the pinned successors, their identity, the goldens' file
 /// prefix and sha256, and the class counts; `label` prefixes the mode in messages

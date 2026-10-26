@@ -385,7 +385,7 @@ pub(crate) fn rule_pack_refs(manifest: &Value) -> Result<Vec<Value>, String> {
 
 /// The recorded revision's `library_refs`: every `library_ref` site of the
 /// solved model that the model document's one walk finds
-/// (`model_document_save::library_ref_sites`, pinned to
+/// (`export_disposition_screen::library_ref_sites`, pinned to
 /// `fixtures/model_document/library_ref_sites.json`), with its identity
 /// normalized as that walk normalizes it (`library_ref_identity`: Rust's
 /// White_Space trim). Each is written as
@@ -396,10 +396,10 @@ pub(crate) fn rule_pack_refs(manifest: &Value) -> Result<Vec<Value>, String> {
 /// library and is omitted; the state's hashed model payload still holds it, and
 /// the open-time store check reports it as unresolved.
 pub(crate) fn library_refs(model_payload: &Value) -> Vec<Value> {
-    let found: BTreeSet<String> = crate::model_document_save::library_ref_sites(model_payload)
+    let found: BTreeSet<String> = crate::export_disposition_screen::library_ref_sites(model_payload)
         .into_iter()
         .filter_map(|(_, reference)| {
-            let (kind, id, record_id) = crate::model_document_save::library_ref_identity(reference)?;
+            let (kind, id, record_id) = crate::export_disposition_screen::library_ref_identity(reference)?;
             let mut text = format!("library:{kind}/{id}");
             if let Some(version) = reference.get("library_version").and_then(Value::as_str) {
                 text.push('@');
@@ -2088,8 +2088,151 @@ pub(crate) fn delete_unreadable_run_in_store(path: &Path, project_id: &str, hand
 }
 
 // ---------------------------------------------------------------------------
+// Run comparison admission (W-12 S3b; DEL-14-01 Design §4.2).
+// ---------------------------------------------------------------------------
+
+/// The refusal of a run comparison whose stored inputs are larger together
+/// than the per-invocation budget (W-12 S3b).
+pub(crate) const COMPARISON_RUNS_TOO_LARGE: &str = "COMPARISON-RUNS-TOO-LARGE";
+/// The refusal of a run comparison request that does not name one or two
+/// distinct recorded runs (with the session's current run when it names one).
+pub(crate) const COMPARISON_RUNS_ARGS: &str = "COMPARISON-RUNS-ARGS";
+pub(crate) const ADMIT_ANALYSIS_RUN_COMPARISON_MAX_ARGS_BYTES: usize = model_states::HISTORY_COMMAND_MAX_ARGS_BYTES;
+
+/// The stored byte lengths a comparison reads of one recorded run: its result
+/// and its input manifest (which holds the solved model, the run's snapshot).
+#[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
+pub(crate) struct RunComparisonInputBytes {
+    pub(crate) result_bytes: u64,
+    pub(crate) manifest_bytes: u64,
+}
+
+/// The size admission of a comparison of two runs of one project (W-12 S3b):
+/// lengths only, in the order the runs were named, and no id echoed, so the
+/// response has a small constant size.
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+pub(crate) struct AnalysisRunComparisonAdmission {
+    pub(crate) runs: Vec<RunComparisonInputBytes>,
+    /// The session's current run's result and manifest, as the webview counted them (0 without one).
+    pub(crate) current_run_bytes: u64,
+    pub(crate) combined_bytes: u64,
+    pub(crate) budget_bytes: u64,
+}
+
+/// `admit_analysis_run_comparison` on a given store (W-12 S3b; DEL-14-01
+/// Design §4.2, Memory). In one read transaction that first reserves SQLite's
+/// working set as every history command does, each named run is found and
+/// verified as the run list verifies it (`find_run_with`: its identity columns
+/// bounded before they load, its record and labels metered and checked), so a
+/// run of another project or none is `ANALYSIS-RUN-NOT-FOUND` and an unreadable
+/// row is refused with its integrity refusal; then the stored byte lengths of
+/// its result and input manifest are read (`octet_length`, header-only), with
+/// neither loaded. The comparison is refused by name
+/// (`COMPARISON-RUNS-TOO-LARGE`) when their sum, with `current_run_bytes` (the
+/// session's current run, when it is one side), exceeds `budget_bytes`, the
+/// per-invocation budget, before either run is read. This is a 1x cap on the
+/// stored input size, not a bound on the webview's memory: it is a check, not
+/// a lease, and the comparison's parse and render memory in the webview stays
+/// unpriced (DEL-04-07's documented residual). Every reservation is released
+/// when it returns.
+pub(crate) fn admit_run_comparison_in_store_with(
+    path: &Path,
+    project_id: &str,
+    recording_ids: &[String],
+    current_run_bytes: Option<u64>,
+    budget_bytes: u64,
+    memory: &dyn ReadMemory,
+) -> Result<AnalysisRunComparisonAdmission, String> {
+    let sides = recording_ids.len() + usize::from(current_run_bytes.is_some());
+    if recording_ids.is_empty() || sides != 2 || (recording_ids.len() == 2 && recording_ids[0] == recording_ids[1]) {
+        return Err(format!(
+            "{COMPARISON_RUNS_ARGS}: a run comparison names two different recorded runs, or one recorded run and the session's current run; nothing was read."
+        ));
+    }
+    let mut connection = stored_read::open_store(path)?;
+    let transaction = stored_read::read_transaction(&mut connection)?;
+    let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory)?;
+    let not_found = |recording_id: &str| {
+        format!(
+            "ANALYSIS-RUN-NOT-FOUND: project `{}` has no recorded run `{}`.",
+            stored_read::shown(project_id),
+            stored_read::shown(recording_id)
+        )
+    };
+    let mut runs = Vec::with_capacity(recording_ids.len());
+    for recording_id in recording_ids {
+        // Verified as the list verifies it, then dropped with its reservations.
+        drop(find_run_with(&transaction, project_id, recording_id, memory)?.ok_or_else(|| not_found(recording_id))?);
+        let (result, manifest): (Option<i64>, Option<i64>) = transaction
+            .query_row(
+                "SELECT octet_length(result_json), octet_length(input_manifest_json) FROM analysis_runs WHERE project_id = ?1 AND recording_id = ?2",
+                params![project_id, recording_id],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .optional()
+            .map_err(sql)?
+            .ok_or_else(|| not_found(recording_id))?;
+        let length = |value: Option<i64>| u64::try_from(value.unwrap_or(0)).unwrap_or(0);
+        runs.push(RunComparisonInputBytes { result_bytes: length(result), manifest_bytes: length(manifest) });
+    }
+    let current_run_bytes = current_run_bytes.unwrap_or(0);
+    let combined_bytes = runs
+        .iter()
+        .fold(current_run_bytes, |sum, run| sum.saturating_add(run.result_bytes).saturating_add(run.manifest_bytes));
+    if combined_bytes > budget_bytes {
+        let named: Vec<String> = recording_ids.iter().map(|id| format!("`{}`", stored_read::shown(id))).collect();
+        let current = if recording_ids.len() == 1 { " and the session's current run" } else { "" };
+        return Err(format!(
+            "{COMPARISON_RUNS_TOO_LARGE}: comparing recorded run{} {}{current} needs their results and input manifests, {combined_bytes} bytes together, above the per-invocation budget of {budget_bytes} bytes; nothing was read and nothing was compared.",
+            if named.len() == 1 { "" } else { "s" },
+            named.join(" and ")
+        ));
+    }
+    Ok(AnalysisRunComparisonAdmission { runs, current_run_bytes, combined_bytes, budget_bytes })
+}
+
+// ---------------------------------------------------------------------------
 // Commands (each admitted through `command_ingress` with its own budget).
 // ---------------------------------------------------------------------------
+
+/// `{projectId, recordingIds, currentRunBytes?}`: one or two recorded runs; with
+/// one, `currentRunBytes` names the session's current run as the other side.
+pub(crate) fn admit_analysis_run_comparison_args(
+    args: &mut Args,
+    store: impl FnOnce() -> Result<PathBuf, String>,
+    budget_bytes: u64,
+    memory: &dyn ReadMemory,
+) -> Result<Metered<AnalysisRunComparisonAdmission>, CommandError> {
+    let project_id: String = args.decode("projectId")?;
+    let recording_ids: Vec<String> = args.decode("recordingIds")?;
+    let current_run_bytes: Option<u64> = args.decode("currentRunBytes")?;
+    store()
+        .and_then(|path| admit_run_comparison_in_store_with(&path, &project_id, &recording_ids, current_run_bytes, budget_bytes, memory))
+        .map(Metered::new)
+        .map_err(|error| CommandError::Command(stored_read::capped(error)))
+}
+
+#[tauri::command]
+pub fn admit_analysis_run_comparison(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError> {
+    let (mut args, lease) = command_ingress::admit_within(
+        &registry,
+        &invoke,
+        "admit_analysis_run_comparison",
+        ArgsDecoding::Moved,
+        ADMIT_ANALYSIS_RUN_COMPARISON_MAX_ARGS_BYTES,
+    )?;
+    let memory = PoolReadMemory::new(&registry, &lease);
+    let budget_bytes = registry.pool_status().invocation_budget_bytes;
+    stored_read::respond_metered(
+        &memory,
+        "admit_analysis_run_comparison",
+        admit_analysis_run_comparison_args(&mut args, || crate::app_store_path(&app), budget_bytes, &memory),
+    )
+}
 
 /// `{request}` (snake_case fields, see `RecordRunRequest`).
 pub(crate) fn record_analysis_run_args(

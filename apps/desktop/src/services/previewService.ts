@@ -439,6 +439,25 @@ export function deliveredMechanicsResultJob(result: MechanicsResult | null | und
   return delivered && !delivered.disposed ? delivered.jobId : null;
 }
 
+/** Query only (W-11, DEL-08-01 Design `exact-route-report-sections.md` §3.6): the model
+ * text `startPreviewMechanicsJob` sent for the job that delivered this held result,
+ * re-serialized with `checkedJsonText` from the result's native registration. Null
+ * without a valid registration (a copy, an unregistered or edited result) and once the
+ * result is no longer held (disposed). The native host checks its SHA-256 against the
+ * digest it recorded when it admitted the job's body. */
+export function deliveredIntakeText(result: MechanicsResult | null | undefined): string | null {
+  if (!result || deliveredMechanicsResultJob(result) === null) return null;
+  const registered = nativeSourceInvocations.get(result);
+  if (!registered) return null;
+  try {
+    const capture = registered.capture;
+    if (capture.invalidated
+      || nativeContentFingerprint(capture.invocation) !== capture.fingerprint
+      || nativeContentFingerprint(result) !== registered.sourceFingerprint) return null;
+    return checkedJsonText(capture.invocation.request.model);
+  } catch { return null; }
+}
+
 /** A completed job whose result the app will not take (its run was superseded,
  * or its take was refused and the session does not retry): retire its capture
  * and release the retained result natively, without copying it to the app. */
@@ -611,6 +630,9 @@ export function declaredSourceResultDimension(
   const declarations: Record<string, CanonicalResultDimension> = {
     component_user_stress_multiplier_review: "stress",
     displacement_magnitude: "length",
+    // W-7 (DEL-04-01 Design global-end-actions.md): member end actions in global coordinates.
+    element_global_end_force_v1: "force",
+    element_global_end_moment_v1: "moment",
     element_local_axial_force: "force",
     element_local_axial_normal_stress: "stress",
     element_local_bending_moment_y: "moment",
@@ -655,11 +677,18 @@ export function declaredSourceResultDimension(
   return declared;
 }
 
+/** The bases `buildPreviewComparison` compares when the caller names none: the
+ * preview fixtures' reference load case and user-defined combination. The report,
+ * handoff and export packages keep this comparison until the user chooses a case
+ * and a combination in "Within this run" (W-12 S3c, `withinRunComparison.ts`). */
+export const DEFAULT_COMPARISON_LEFT_BASIS_REF = "load:L-100";
+export const DEFAULT_COMPARISON_RIGHT_BASIS_REF = "combination:C-OPER-ALT";
+
 export function buildPreviewComparison({
   result,
   analysisRun,
-  leftBasisRef = "load:L-100",
-  rightBasisRef = "combination:C-OPER-ALT",
+  leftBasisRef = DEFAULT_COMPARISON_LEFT_BASIS_REF,
+  rightBasisRef = DEFAULT_COMPARISON_RIGHT_BASIS_REF,
 }: {
   result: MechanicsResult;
   analysisRun: AnalysisRunEnvelope;
@@ -667,10 +696,12 @@ export function buildPreviewComparison({
   rightBasisRef?: string;
 }): PreviewComparison {
   const run = analysisRun.analysis_run;
-  const resultIndex = new Map(result.results.map((item) => [item.id, item]));
   const leftResults = result.results.filter(
     (item) => item.basis_ref?.ref_id === leftBasisRef,
   );
+  // A right row pairs only with a source row of the left basis (Codex r1 on #1619):
+  // a combination's source refs name rows of each of its cases.
+  const resultIndex = new Map(leftResults.map((item) => [item.id, item]));
   const rightResults = result.results.filter(
     (item) => item.basis_ref?.ref_id === rightBasisRef,
   );
@@ -739,7 +770,7 @@ export function buildPreviewComparison({
     package_id: "PKG-14",
     scope_items: ["SOW-073"],
     objectives: ["OBJ-016"],
-    comparison_id: `comparison:${result.run_id}:${safeComparisonToken(leftBasisRef)}-to-${safeComparisonToken(rightBasisRef)}`,
+    comparison_id: previewComparisonId(result.run_id, leftBasisRef, rightBasisRef),
     comparison_kind: "single_run_load_basis_review",
     left: {
       label: "Reference load-case result rows",
@@ -833,6 +864,69 @@ function comparisonDiagnostics({
     });
   }
   return diagnostics;
+}
+
+/** The within-run comparison's id, one per (run, left basis, right basis).
+ * - **The fixed pair keeps its pre-S3c id** (`comparison:<run>:load-L-100-to-combination-C-OPER-ALT`,
+ *   the run as it is), so a document built without a choice is byte-identical to
+ *   before. That form sanitizes, so it is not injective; it is used for that pair alone.
+ * - **Any other pair** is `comparison-pair:<run>:<left>:<right>`, the run and both
+ *   bases escaped by `escapeComparisonBasis` (which writes no `:`), so it has exactly
+ *   four `:`-separated parts. The legacy form always begins `comparison:` and this
+ *   one `comparison-pair:`, so no id is of both forms (Codex r2 on #1619: the earlier
+ *   `comparison:<run>:<left>:to:<right>` could equal a legacy id). */
+export function previewComparisonId(runId: string, leftBasisRef: string, rightBasisRef: string): string {
+  if (leftBasisRef === DEFAULT_COMPARISON_LEFT_BASIS_REF && rightBasisRef === DEFAULT_COMPARISON_RIGHT_BASIS_REF) {
+    return `${LEGACY_COMPARISON_PREFIX}${runId}${LEGACY_FIXED_PAIR_SUFFIX}`;
+  }
+  return [PAIR_COMPARISON_PREFIX, escapeComparisonBasis(runId), escapeComparisonBasis(leftBasisRef), escapeComparisonBasis(rightBasisRef)].join(":");
+}
+
+const LEGACY_COMPARISON_PREFIX = "comparison:";
+const PAIR_COMPARISON_PREFIX = "comparison-pair";
+const LEGACY_FIXED_PAIR_SUFFIX = `:${safeComparisonToken(DEFAULT_COMPARISON_LEFT_BASIS_REF)}-to-${safeComparisonToken(DEFAULT_COMPARISON_RIGHT_BASIS_REF)}`;
+
+/** Keeps `A-Z a-z 0-9 _ -` and writes every other code point (a lone surrogate
+ * included) as `~<lowercase hex, no leading zero>.`; `~` and `.` are escaped
+ * themselves, so the form is injective and holds no `:`. */
+export function escapeComparisonBasis(value: string): string {
+  let escaped = "";
+  for (const character of value) {
+    escaped += /^[A-Za-z0-9_-]$/.test(character) ? character : `~${character.codePointAt(0)!.toString(16)}.`;
+  }
+  return escaped;
+}
+
+/** The inverse of `escapeComparisonBasis`, for its own output only (the decoded text
+ * must escape back to `value` exactly); null otherwise. */
+function unescapeComparisonBasis(value: string): string | null {
+  if (!/^(?:[A-Za-z0-9_-]|~[0-9a-f]+\.)*$/.test(value)) return null;
+  let decoded: string;
+  try {
+    decoded = value.replace(/~([0-9a-f]+)\./g, (_, hex: string) => String.fromCodePoint(Number.parseInt(hex, 16)));
+  } catch {
+    return null; // beyond U+10FFFF
+  }
+  return escapeComparisonBasis(decoded) === value ? decoded : null;
+}
+
+/** The run and the two bases a within-run comparison id names: exactly for the
+ * pair form, which is read first; for the legacy form, the fixed pair, and only for
+ * an id that is exactly `comparison:<run>` and the fixed pair's suffix. Null for an
+ * id of neither form. */
+export function previewComparisonBases(comparisonId: string): { run: string; left: string; right: string } | null {
+  if (comparisonId.startsWith(`${PAIR_COMPARISON_PREFIX}:`)) {
+    const parts = comparisonId.split(":");
+    if (parts.length !== 4) return null;
+    const [run, left, right] = parts.slice(1).map(unescapeComparisonBasis);
+    return run === null || left === null || right === null ? null : { run, left, right };
+  }
+  if (comparisonId.startsWith(LEGACY_COMPARISON_PREFIX) && comparisonId.endsWith(LEGACY_FIXED_PAIR_SUFFIX)
+      && comparisonId.length >= LEGACY_COMPARISON_PREFIX.length + LEGACY_FIXED_PAIR_SUFFIX.length) {
+    const run = comparisonId.slice(LEGACY_COMPARISON_PREFIX.length, comparisonId.length - LEGACY_FIXED_PAIR_SUFFIX.length);
+    return { run, left: DEFAULT_COMPARISON_LEFT_BASIS_REF, right: DEFAULT_COMPARISON_RIGHT_BASIS_REF };
+  }
+  return null;
 }
 
 function safeComparisonToken(value: string): string {

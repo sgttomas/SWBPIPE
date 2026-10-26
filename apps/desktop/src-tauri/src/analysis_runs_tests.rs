@@ -795,7 +795,7 @@ fn library_refs_follow_the_shared_site_table() {
     let table: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/library_ref_sites.json")).unwrap();
     let document = &table["document"];
     // serde_json's maps keep keys sorted, so the walk visits them in key order.
-    let mut walked: Vec<String> = crate::model_document_save::library_ref_sites(document).into_iter().map(|(path, _)| path).collect();
+    let mut walked: Vec<String> = crate::export_disposition_screen::library_ref_sites(document).into_iter().map(|(path, _)| path).collect();
     let mut tabled: Vec<String> = table["sites"].as_array().unwrap().iter().map(|site| site["path"].as_str().unwrap().to_string()).collect();
     walked.sort();
     tabled.sort();
@@ -842,6 +842,7 @@ fn each_command_is_admitted_with_its_own_budget() {
         ("read_analysis_run", READ_ANALYSIS_RUN_MAX_ARGS_BYTES),
         ("delete_analysis_run", DELETE_ANALYSIS_RUN_MAX_ARGS_BYTES),
         ("edit_analysis_run_labels", EDIT_ANALYSIS_RUN_LABELS_MAX_ARGS_BYTES),
+        ("admit_analysis_run_comparison", ADMIT_ANALYSIS_RUN_COMPARISON_MAX_ARGS_BYTES),
     ] {
         let body = |length: usize| InvokeBody::Raw(format!("{{\"projectId\":\"{}\"}}", "p".repeat(length)).into_bytes());
         assert!(admit_body_within(&registry, &body(budget - 16), &headers(Some(INGRESS_ARGS_JSON_V1)), command, ArgsDecoding::Moved, budget).is_ok());
@@ -3903,4 +3904,162 @@ fn a_blocked_delete_names_its_children_from_their_verification_without_reloading
         assert_eq!(pool.pool_status().reserved_bytes, 0);
         assert_eq!(row_count(&path, "model_states"), 2);
     });
+}
+
+// ---------------------------------------------------------------------------
+// Run comparison admission (W-12 S3b; DEL-14-01 Design §4.2, Memory): the
+// combined stored size of the two runs' results and input manifests (with the
+// session's current run when it is one side) against the per-invocation
+// budget, in one read transaction that reserves SQLite's working set first;
+// same project only; a missing or unreadable run is refused; every lease is
+// released. All data are invented.
+// ---------------------------------------------------------------------------
+
+/// A store with two recorded runs of one state: the fixture's and a second
+/// recording of the same solve (its own `created_at`), with the stored lengths
+/// of each run's result and manifest.
+fn two_recorded_runs(label: &str) -> (PathBuf, [String; 2], u64) {
+    let (path, _) = recorded_fixture(label);
+    let first = id_of(&path);
+    let solved = model("Invented project");
+    let second = record(&path, request(&solved, "Run 2"), T0 + 5_000).unwrap().run.recording_id;
+    let per_run = (result_text(1.25).len() + manifest_text(&solved).len()) as u64;
+    (path, [first, second], per_run)
+}
+
+fn ids(values: &[&str]) -> Vec<String> {
+    values.iter().map(|value| value.to_string()).collect()
+}
+
+#[test]
+fn a_run_comparison_is_admitted_by_the_combined_stored_size_of_its_inputs() {
+    let (path, [first, second], per_run) = two_recorded_runs("compare-runs-admission");
+    let combined = 2 * per_run;
+    let both = ids(&[&first, &second]);
+    // Within the budget (at it exactly): admitted, with the stored lengths in the order named.
+    let admitted = admit_run_comparison_in_store_with(&path, PROJECT, &both, None, combined, &UnmeteredReadMemory).unwrap();
+    let lengths = RunComparisonInputBytes { result_bytes: result_text(1.25).len() as u64, manifest_bytes: manifest_text(&model("Invented project")).len() as u64 };
+    assert_eq!(admitted, AnalysisRunComparisonAdmission { runs: vec![lengths, lengths], current_run_bytes: 0, combined_bytes: combined, budget_bytes: combined });
+    // One byte over: refused by name, naming both runs, before either is read.
+    let refused = admit_run_comparison_in_store_with(&path, PROJECT, &both, None, combined - 1, &UnmeteredReadMemory).unwrap_err();
+    assert!(refused.starts_with(COMPARISON_RUNS_TOO_LARGE), "{refused}");
+    assert!(refused.contains(&first) && refused.contains(&second) && refused.contains(&format!("{combined} bytes together")), "{refused}");
+    // One recorded run and the session's current run: the current run's bytes count.
+    let with_current = admit_run_comparison_in_store_with(&path, PROJECT, &ids(&[&first]), Some(700), per_run + 700, &UnmeteredReadMemory).unwrap();
+    assert_eq!((with_current.runs.len(), with_current.current_run_bytes, with_current.combined_bytes), (1, 700, per_run + 700));
+    let refused = admit_run_comparison_in_store_with(&path, PROJECT, &ids(&[&first]), Some(701), per_run + 700, &UnmeteredReadMemory).unwrap_err();
+    assert!(refused.starts_with(COMPARISON_RUNS_TOO_LARGE) && refused.contains("and the session's current run"), "{refused}");
+    // Two sides exactly: two different recorded runs, or one and the current run.
+    for (named, current) in [(ids(&[]), Some(1)), (ids(&[&first]), None), (ids(&[&first, &first]), None), (both.clone(), Some(1)), (ids(&[&first, &second, &first]), None)] {
+        let error = admit_run_comparison_in_store_with(&path, PROJECT, &named, current, u64::MAX, &UnmeteredReadMemory).unwrap_err();
+        assert!(error.starts_with(COMPARISON_RUNS_ARGS), "{named:?} {current:?}: {error}");
+    }
+    // Same project only: a run of another project, or none, is not found.
+    let missing = admit_run_comparison_in_store_with(&path, PROJECT, &ids(&[&first, "runrec:00000000000000000000000000000000"]), None, u64::MAX, &UnmeteredReadMemory).unwrap_err();
+    assert!(missing.starts_with("ANALYSIS-RUN-NOT-FOUND"), "{missing}");
+    let other_project = admit_run_comparison_in_store_with(&path, "project:another-invented", &both, None, u64::MAX, &UnmeteredReadMemory).unwrap_err();
+    assert!(other_project.starts_with("ANALYSIS-RUN-NOT-FOUND"), "{other_project}");
+}
+
+#[test]
+fn a_run_comparison_refuses_an_unreadable_run_by_its_integrity_refusal() {
+    // A record that no longer verifies.
+    let (path, [first, second], _) = two_recorded_runs("compare-runs-unreadable");
+    tamper(&path, &format!("UPDATE analysis_runs SET run_record_json = replace(run_record_json, 'MECHANICS_SOLVED', 'MECHANICS_SOLVED_X') WHERE recording_id = '{second}';"));
+    let error = admit_run_comparison_in_store_with(&path, PROJECT, &ids(&[&first, &second]), None, u64::MAX, &UnmeteredReadMemory).unwrap_err();
+    assert!(error.starts_with(&format!("ANALYSIS-RUN-INTEGRITY: recorded run `{second}`")), "{error}");
+    // An identity column beyond its bound: refused before it is loaded.
+    let (path, [first, second], _) = two_recorded_runs("compare-runs-oversized");
+    tamper_with(&path, &format!("UPDATE analysis_runs SET created_at = ?1 WHERE recording_id = '{second}'"), &"z".repeat(LARGE));
+    assert_oversized_refused("the run comparison admission", "created_at", |memory| {
+        admit_run_comparison_in_store_with(&path, PROJECT, &ids(&[&first, &second]), None, u64::MAX, memory)
+    });
+    // A result stored with the wrong type is the read's refusal, never the admission's
+    // load: the admission reads its length only.
+    let (path, [first, second], _) = two_recorded_runs("compare-runs-blob");
+    tamper(&path, &format!("UPDATE analysis_runs SET result_json = CAST(result_json AS BLOB) WHERE recording_id = '{second}';"));
+    let admitted = admit_run_comparison_in_store_with(&path, PROJECT, &ids(&[&first, &second]), None, u64::MAX, &UnmeteredReadMemory).unwrap();
+    assert_eq!(admitted.runs.len(), 2);
+    let error = read_run_in_store(&path, PROJECT, &second).unwrap_err();
+    assert!(error.starts_with("ANALYSIS-RUN-INTEGRITY"), "{error}");
+}
+
+#[test]
+fn a_run_comparison_reserves_sqlites_working_set_before_it_reads_a_row() {
+    let (path, [first, second], _) = two_recorded_runs("compare-runs-working-set");
+    // Another project's run row whose producer run id (a keyed column) holds LARGE bytes:
+    // SQLite may materialize it on an index search path, so its working set is reserved first.
+    tamper_with(
+        &path,
+        "INSERT INTO analysis_runs(project_id, recording_id, state_id, producer_run_id, created_at, run_record_json, run_record_hash,
+             input_manifest_json, result_json, result_hash)
+         VALUES ('project:another-invented', 'runrec:other', 'state:other', ?1, '2026-01-01T00:00:00.000Z', '{}', 'h', '{}', '{}', 'r')",
+        &"q".repeat(LARGE),
+    );
+    let both = ids(&[&first, &second]);
+    // Under the 2 MiB pool: refused by name at the working set, its first reservation.
+    let small = small_pool();
+    let memory = Recording { inner: PoolReadMemory::unseeded(&small), seen: std::cell::RefCell::new(Vec::new()) };
+    let error = admit_run_comparison_in_store_with(&path, PROJECT, &both, None, u64::MAX, &memory).unwrap_err();
+    assert!(error.starts_with("STORE-READ-MEMORY-UNAVAILABLE: reading SQLite's working set for the stored history"), "{error}");
+    let seen: Vec<String> = memory.seen.borrow().iter().map(|(what, _)| what.clone()).collect();
+    assert_eq!(seen.len(), 1, "{seen:?}");
+    drop(memory);
+    assert_eq!(small.pool_status().reserved_bytes, 0);
+    // With room for the working set: admitted, the working set reserved before each run's reads.
+    let pool = working_set_pool();
+    let memory = Recording { inner: PoolReadMemory::unseeded(&pool), seen: std::cell::RefCell::new(Vec::new()) };
+    let admitted = admit_run_comparison_in_store_with(&path, PROJECT, &both, None, u64::MAX, &memory).unwrap();
+    assert_eq!(admitted.runs.len(), 2);
+    let seen: Vec<(String, u64)> = memory.seen.borrow().clone();
+    assert!(seen[0].0.starts_with("SQLite's working set for the stored history"), "{seen:?}");
+    assert!(seen[1..].iter().all(|(_, held)| *held >= stored_read::SQLITE_WORKING_SET_FACTOR * LARGE as u64), "the working set is held through every later reservation: {seen:?}");
+    drop(memory);
+    assert_eq!(pool.pool_status().reserved_bytes, 0);
+}
+
+#[test]
+fn the_run_comparison_command_answers_lengths_only_and_releases_every_lease() {
+    let (path, [first, second], per_run) = two_recorded_runs("compare-runs-command");
+    let combined = 2 * per_run;
+    let pool = registry(ScriptedHost::normal());
+    let arguments = json!({ "projectId": PROJECT, "recordingIds": [first, second] });
+    let (mut args, lease) = admit_json(&pool, "admit_analysis_run_comparison", ArgsDecoding::Moved, &arguments).unwrap();
+    {
+        let memory = PoolReadMemory::new(&pool, &lease);
+        let response = stored_read::respond_metered(
+            &memory,
+            "admit_analysis_run_comparison",
+            admit_analysis_run_comparison_args(&mut args, || Ok(path.clone()), combined, &memory),
+        )
+        .unwrap();
+        use tauri::ipc::IpcResponse;
+        let body: Value = match response.body().unwrap() {
+            tauri::ipc::InvokeResponseBody::Json(text) => serde_json::from_str(&text).unwrap(),
+            tauri::ipc::InvokeResponseBody::Raw(_) => panic!("raw response"),
+        };
+        let lengths = json!({ "result_bytes": result_text(1.25).len(), "manifest_bytes": manifest_text(&model("Invented project")).len() });
+        assert_eq!(body, json!({ "runs": [lengths, lengths], "current_run_bytes": 0, "combined_bytes": combined, "budget_bytes": combined }));
+        assert!(!body.to_string().contains("runrec:"), "no id is echoed");
+    }
+    drop(lease);
+    assert_eq!(pool.pool_status().reserved_bytes, 0);
+    // Refused (over the budget, a missing run, an unreadable one): every lease released too.
+    tamper(&path, &format!("UPDATE analysis_runs SET run_record_hash = 'tampered' WHERE recording_id = '{second}';"));
+    for (budget, arguments, code) in [
+        (combined - 1, json!({ "projectId": PROJECT, "recordingIds": [first, "runrec:missing"] }), "ANALYSIS-RUN-NOT-FOUND"),
+        (u64::MAX, json!({ "projectId": PROJECT, "recordingIds": [first, second] }), "ANALYSIS-RUN-INTEGRITY"),
+        (per_run, json!({ "projectId": PROJECT, "recordingIds": [first], "currentRunBytes": 1 }), COMPARISON_RUNS_TOO_LARGE),
+    ] {
+        let (mut args, lease) = admit_json(&pool, "admit_analysis_run_comparison", ArgsDecoding::Moved, &arguments).unwrap();
+        {
+            let memory = PoolReadMemory::new(&pool, &lease);
+            match admit_analysis_run_comparison_args(&mut args, || Ok(path.clone()), budget, &memory) {
+                Err(CommandError::Command(error)) => assert!(error.starts_with(code), "{code}: {error}"),
+                other => panic!("expected {code}, got {other:?}"),
+            }
+        }
+        drop(lease);
+        assert_eq!(pool.pool_status().reserved_bytes, 0, "{code}");
+    }
 }

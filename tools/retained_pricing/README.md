@@ -120,7 +120,7 @@ All outputs go to `--out`.
 
 **`rules/`** holds the decision tables: SQ2's route rules and the O-10 name-keyed rules.
 - `i95_new_loops.json` lists I95's B3-S rebinding loops for route E.
-- `linemap_resolutions.json` holds the reviewed resolutions. One `fewer_definitions` entry is the frame kernel's `UserStiffnessElement::orientation`, deleted by T4-U3; at `666cb30520` it reproduces O-10's tree. One site entry is `load_reference_source.rs:47`, inside the private `fn code` B7b deleted with the v2 readers.
+- `linemap_resolutions.json` holds the reviewed resolutions. One `fewer_definitions` entry is the frame kernel's `UserStiffnessElement::orientation`, deleted by T4-U3; at `666cb30520` it reproduces O-10's tree. One site entry is `load_reference_source.rs:47`, inside the private `fn code` B7b deleted with the v2 readers. Five site entries are `preview_physics.rs:1093`-`1095`, `1119` and `1122`, inside the pre-parse `fn imposed_displacement_refusal` W-16 slice a deleted.
 
 **`lib/`** is the machinery.
 - `linemap_lib.py`, `linemap_rules.py`, `sq2_rules.py`, `rule_ops.py`, `o10_check.py`, `merge_trees.py`, `tree_eval.py` and `census_patch.py` are T3's O-10 tools.
@@ -285,8 +285,52 @@ scan's finding and refusal sites by its place before admission (SD-NF, guarded),
 (SD-ID, SD-WT, SD-DT) and the duplicate loops (SD-DL) and removes one by-name false edge (SD-EV); `rules/sq2_decisions_common.py` re-keys two replaced
 combination audit keys by name (SD-RK). A snapshot without the guard adds nothing. See the governing rules' §8.19.
 
+### W-7 global end rows actual-source owners
+
+`base/w7_owners_model.py` binds, by their exact statements in their functions, the owners W-7's member end actions in
+global coordinates add outside the TEXT inventory and prices them positively: W7-NC (`prepared_not_covered`'s per-member
+end-action table, `producer_caps.py` T14.7, per attempted result set), W7-QF (`qualify_source_case_rows`' filtered
+references, `ordinary_caps.py`) and W7-RD (the readers' coverage maps, `g4_caps.py` T17 V5, with four BTree node atoms
+bound in `g5_profile.py`). The rows themselves are inside P_final: route L takes `FAILED_MEMBER_ROWS` = 78 (W7-RL) and route
+E the census's 102 plus the twelve global end rows its pressure-source-1 fixtures omit (W7-RP, `lib/census_patch.py`).
+`rules/o10_rules.py` bounds the new loops (W7-L1) and texts (W7-ID), zeroes one `Option::replace` site (W7-RZ) and re-keys
+the stress-free notice's audit by its new text (W7-SF). A snapshot without W-7 adds nothing; a partly present or changed
+owner stops the run. See the governing rules' §8.20.
+
+### W-15 rigid-component scaling actual-source owners
+
+`base/w15_owners_model.py` binds, by the sha256 of W-15's two new modules (PP `rigid_component.rs`, RE
+`component_body.rs`), their exact allocating statements and the readers' call sites, the positive owners W-15 adds on
+D1, where no component is admitted (P2) and so no member is scaled: W15-PM (the eligibility predicate's and
+mapping-conflict check's member maps, two exact-size `(&str,&T)` tables of m entries, in `ordinary_caps.py`
+BuildScratch) and W15-RB (the readers' component-body check on the projected successor: the case and entry lists and
+one cloned extremum and coverage entry, in `g4_caps.py` T17 V5). `rules/o10_rules.py` zeroes the scaled-member path's
+sites by P2 under a source guard (W15-NZ), bounds the new loops (W15-L1) and texts (W15-ID); U4B-NQ's guard excludes
+the record's `STRESS_KINDS` list, a reader of the derived kinds (W15-SK). A snapshot without the modules adds nothing;
+a changed or partly present owner stops the run. See the governing rules' §8.21 and `tests/test_w15_rigid_scaling.py`.
+
+### W-15 slice b component weight
+
+Slice b's component-weight generator adds no owner on D1. Its lineage functions are reached only after
+`inspect_applied_self_weight`'s `continue`, which every admitted load takes because D1.10 refuses object provenance
+and D1.7 refuses the deterministic element form and, since slice b, a node load in the generated self-weight
+namespace. `rules/o10_rules.py` zeroes the edge into `generation_basis` and the wrench-set key site under a source
+guard (W15B-NS). The tree is coefficient-identical to §8.21's. See the governing rules' §8.22 and
+`tests/test_w15b_component_weight.py`.
+
+### W-16 slice a imposed displacement on the pressure-free route
+
+`base/w16_owners_model.py` binds, by the sha256 of W-16's new module (PP `imposed_motion.rs`) and its exact statements,
+the positive owners it adds on D1, where D1.7 refuses every support-targeted primitive: W16-NI (`case_prescribed`'s node
+index, one `(&str,usize)` table of n entries per case solved without a load state, on both routes, `ordinary_caps.py`
+CasePrefix) and W16-VF (`validate`'s findings vector, at most one per primitive load, BuildScratch). `rules/o10_rules.py`
+zeroes the support-target branch's sites and edges under a source guard (W16-NS), bounds `validate_pressure_free`'s calls
+of `refuse` by cases·l (`EDGE_PER_CALL`), and audits the reachable node/element refusal's texts (W16-ID);
+`rules/sq2_decisions_E.py` zeroes `validate` → `validate_pressure_free` on route E (EXACT). See the governing rules'
+§8.23 and `tests/test_w16_imposed_motion.py`.
+
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual
-registration additionally requires native atoms, all 70 budget evaluations,
+registration additionally requires native atoms, all 80 budget evaluations,
 reviewed inputs/layouts and independent source/pricing scrutiny.

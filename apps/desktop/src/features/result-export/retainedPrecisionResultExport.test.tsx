@@ -46,10 +46,12 @@ const caseFile = json("fixtures/results/retained_precision_carrier_cases.json");
 const corpus = readRetainedPrecisionCorpus();
 const MODES = ["sparse_interactive", "dense_scrutiny"] as const;
 
-/** Current B7a goldens from the maintained I76 recipe and its fixed base/origin stand-ins. */
+/** Current B7a goldens from the maintained I76 recipe and its fixed base/origin stand-ins. W-7: the
+ * member's 12 global end rows (113 -> 125) move the received carrier checksum in the origin; W-16 slice a's
+ * shorter preview LIMITATIONS[1] moves it again. */
 const GOLDEN: Record<PreviewSolverMode, { path: string; sha256: string; base: string; origin: string; rows: number; nonQuantity: number }> = {
-  sparse_interactive: { path: "fixtures/results/retained_precision_successor_derivative_sparse_interactive.json", sha256: "98233d65776130e4a86e7ce0fa823bdb89c45a94739115c51fbbbd2207819a84", base: "989d81cc1067e6ebe73eb15e0bd83cc851d2d66784a28af5296d47afc6d582ec", origin: "8d4c6a3739913517392d4145ca7e88ce07994b8c12ce9223e71422834f81011b", rows: 113, nonQuantity: 1 },
-  dense_scrutiny: { path: "fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json", sha256: "0c57442b0499d10946abbf89a79f73f9f768a889b71ab83d1da8afc39682e60c", base: "2e95fac829e079a7415d6dec0b9d57d890103f8cfe2a79bd1bc2a7721a28344b", origin: "325812583032d4258c5e724ab328814da719409dfb87fa2c1ad8df30d0b82a54", rows: 113, nonQuantity: 1 },
+  sparse_interactive: { path: "fixtures/results/retained_precision_successor_derivative_sparse_interactive.json", sha256: "ee497bffc6fab092da57ac43010ad579f7eaf40232b570acfc7a57f6efa54a39", base: "989d81cc1067e6ebe73eb15e0bd83cc851d2d66784a28af5296d47afc6d582ec", origin: "613a2c77bb2491c926bad3d75ca4ff4d90ff65f3e5d29f8c897d65450f87b332", rows: 125, nonQuantity: 1 },
+  dense_scrutiny: { path: "fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json", sha256: "4d362dd6a3b64b96516f277b3a931cc5a3332ce977dbf93d5a64b8f89f5ea792", base: "2e95fac829e079a7415d6dec0b9d57d890103f8cfe2a79bd1bc2a7721a28344b", origin: "e0ab967e47b45cd13896fec34804058fd620ec3520dcfe019a05b647552a9fa5", rows: 125, nonQuantity: 1 },
 };
 /** I76's fixed stand-ins (its CHECKPOINT_1 section 2): test values, not a qualified manifest or build. */
 const MANIFEST_REF = "test:t6s-golden-reference-only-manifest";
@@ -154,7 +156,7 @@ describe.each(MODES)("%s: byte parity with I76's Rust golden (T6S-2, T6S-4)", (m
     const classes = (await validateRetainedPrecision(source)).classifications;
     const absolute = classes.filter(c => c.class === "absolute_verified");
     expect(source.results).toHaveLength(golden.rows);
-    expect([classes.filter(c => c.class === "relative_verified").length, absolute.length, classes.filter(c => c.class === "input_derived").length, classes.filter(c => c.class === "non_quantity").length, classes.filter(c => c.class === "not_covered").length]).toStrictEqual([25, 69, 3, golden.nonQuantity, 15]);
+    expect([classes.filter(c => c.class === "relative_verified").length, absolute.length, classes.filter(c => c.class === "input_derived").length, classes.filter(c => c.class === "non_quantity").length, classes.filter(c => c.class === "not_covered").length]).toStrictEqual([25, 69, 3, golden.nonQuantity, 15 + 12]);
     const disclosed = e.row_disclosures.filter((d: Json) => d.reason_code === RETAINED_ABSOLUTE_VERIFIED);
     expect(disclosed.map((d: Json) => d.source_result_id).sort()).toStrictEqual(absolute.map(c => c.result_id).sort());
     for (const d of disclosed) {
@@ -166,11 +168,12 @@ describe.each(MODES)("%s: byte parity with I76's Rust golden (T6S-2, T6S-4)", (m
       expect(e.unit_preservation_witnesses.some((w: Json) => w.source_result_ref.ref_id === row.id)).toBe(false);
       expect(e.row_accounting.find((a: Json) => a.source_result_id === row.id).disposition).toBe("disclosed");
     }
-    // T4-U4b: the member's 15 derived rows (σ⁺, σ⁻, τ_v,max at five stations) are not_covered: disclosed, not valued.
+    // T4-U4b: the member's 15 derived rows (σ⁺, σ⁻, τ_v,max at five stations) are not_covered: disclosed, not valued;
+    // W-7: so are its 12 global end rows.
     const notCovered = classes.filter(c => c.class === "not_covered").map(c => c.result_id).sort();
     expect(e.row_disclosures.filter((d: Json) => d.reason_code === RETAINED_NOT_COVERED).map((d: Json) => d.source_result_id).sort()).toStrictEqual(notCovered);
-    expect(e.row_disclosures).toHaveLength(69 + 15 + golden.nonQuantity);
-    expect(e.result_sets[0].values).toHaveLength(golden.rows - 69 - 15 - golden.nonQuantity);
+    expect(e.row_disclosures).toHaveLength(69 + 15 + 12 + golden.nonQuantity);
+    expect(e.result_sets[0].values).toHaveLength(golden.rows - 69 - 15 - 12 - golden.nonQuantity);
     expect(disclosed.find((d: Json) => d.source_result_id === "result:disp:N0").message).toBe("displacement_magnitude: retained_precision_absolute_verified; verified only to the receipt's absolute bound b = 5.4215527659630466e-24 m (binary64 3b1a378ea78c5ce9), below the relative accuracy floor; source value/unit and annotation retained; withheld from rule binding and reliance");
     // No standing token, no invocation and no producer-origin claim (CQ-4, CQ-5; D-U7-6).
     const text = JSON.stringify(doc);
@@ -204,8 +207,8 @@ describe.each(MODES)("%s: the Current builder and panel export an eligible succe
   it("the panel offers the local result JSON, with its summary line", async () => {
     const { received, model, analysisRun, inputManifest } = await eligible(mode);
     render(<ResultExportPanel model={model} result={received} analysisRun={analysisRun} inputManifest={inputManifest} />);
-    expect((await screen.findByTestId("result-export-summary", undefined, { timeout: 10_000 })).textContent).toContain(`available; rows=${GOLDEN[mode].rows - 69 - 15 - GOLDEN[mode].nonQuantity}`);
-    expect(screen.getByTestId("result-export-retained-precision-summary").textContent).toBe("Retained precision, per case: case: 69 verified only to an absolute bound; 15 uncovered.");
+    expect((await screen.findByTestId("result-export-summary", undefined, { timeout: 10_000 })).textContent).toContain(`available; rows=${GOLDEN[mode].rows - 69 - 15 - 12 - GOLDEN[mode].nonQuantity}`);
+    expect(screen.getByTestId("result-export-retained-precision-summary").textContent).toBe("Retained precision, per case: case: 69 verified only to an absolute bound; 27 uncovered.");
     cleanup();
     // A moved model is not the live capture: the panel refuses with the standing's code.
     render(<ResultExportPanel model={moved(model)} result={received} analysisRun={analysisRun} inputManifest={inputManifest} />);
@@ -357,11 +360,12 @@ const EXACT_GOLDEN: Record<PreviewSolverMode, { successor: string; successorSha2
   // B7b D4 (a): the successors regenerated on the registered pressure-1 base (16478cadf4; Rust
   // `EXACT_PINNED` (file and receipt sha256) and `EXACT_GOLDEN_SHA256` in retained_precision_derivative_golden.rs).
   // T4-U6 (D-5): regenerated with the member's 21 reduced stress twins (98 + 21 rows);
-  // T4-U4b adds 15 derived not_covered rows per basis (98 + 15 + 21 + 15).
+  // T4-U4b adds 15 derived not_covered rows per basis (98 + 15 + 21 + 15); W-7 the member's 12 global end rows.
   // O4 (W1-E): re-pinned after DEF-E's revision; only the DEF-E-bound hashes moved (rows and values unchanged).
   // O4 limitation text (§3.3): re-pinned for the base's restated limitation [7] and the hashes binding it.
-  sparse_interactive: { successor: "fixtures/results/retained_precision_exact_successor_sparse_interactive.json", successorSha256: "08f9c9f654b4f18871cc9b08a23655fb8517c91fbfc5d9a3f24932f8694ace82", receiptSha256: "a6f0815b30fa042a51552fa8d1881fe1af39479fffbc0382a866248e2276f531", path: "fixtures/results/retained_precision_exact_successor_derivative_sparse_interactive.json", sha256: "cf2fbdf7e74be32cfd0cd5427d652098584303125e5bf401a3888a67267d1189", rows: 98 + 15 + 21 + 15 },
-  dense_scrutiny: { successor: "fixtures/results/retained_precision_exact_successor_dense_scrutiny.json", successorSha256: "04ee8f329c19d19278b01be56365c3b76ee5fc8469bf8b9d488e4bd54b4aa535", receiptSha256: "6aea076aaf67042cbd61bab4697a9da2d6fb873f331510643d0764a00cd6dafc", path: "fixtures/results/retained_precision_exact_successor_derivative_dense_scrutiny.json", sha256: "5cb6cd3e390bdd56fe8f1944e8ab71c8548ec834867bdfa23cd7ad0f1554e201", rows: 98 + 15 + 21 + 15 },
+  // W-15 (DEL-03-05) on W-7: re-pinned for the restated pressure-2 identity limitation and the hashes binding it.
+  sparse_interactive: { successor: "fixtures/results/retained_precision_exact_successor_sparse_interactive.json", successorSha256: "53df81b7f576e714816bccfc54d96baca3814a0e919b9823e5aa9bf29b97826c", receiptSha256: "0c7b14b6b08c689eee3be11ac164b0ec9296fd759c91595955eee7056dbc6ff4", path: "fixtures/results/retained_precision_exact_successor_derivative_sparse_interactive.json", sha256: "9c4756e9289a5062a0e2e8474ddae5047297588ac7575799293b5b8b92400f07", rows: 98 + 15 + 21 + 15 + 12 },
+  dense_scrutiny: { successor: "fixtures/results/retained_precision_exact_successor_dense_scrutiny.json", successorSha256: "1a3f9eed3731e123264dcca1e7f46645434cc9b66b95656de837cce3f7a431ea", receiptSha256: "d9a6e8073a6207abd426c6d88f3cdae21c41a660a61230178921cfcd3260d872", path: "fixtures/results/retained_precision_exact_successor_derivative_dense_scrutiny.json", sha256: "579878c8e800ef2e4d17dd11c8ed3ec76c7c646caf786e4dab5f027d6144faef", rows: 98 + 15 + 21 + 15 + 12 },
 };
 describe.each(MODES)("%s: byte parity with the exact successor's Rust golden (B3b-T)", (mode) => {
   it("derives the golden's exact canonical bytes; it validates and carries the receipt and pressure-2's evidence", async () => {

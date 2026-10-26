@@ -1,6 +1,13 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { DimensionSelect } from "./ExpressionComposer";
 import { draftPlaceholderProvenance } from "../../services/rulePackService";
+import {
+  SOLVER_SELECTOR_SECTION_BASES,
+  describeSolverSelector,
+  solverSelectorForRow,
+  type SolverResultRef
+} from "../../services/ruleCheckService";
+import type { MechanicsResult, PreviewModel } from "../../types";
 import {
   acceptedUnits,
   describeUnitBasis,
@@ -43,21 +50,21 @@ import {
 // value is NEVER embedded in the rule-pack document (IP boundary, PRD
 // §13/§17.3), so authoring a reference here never redistributes a private value.
 //
-// Solver-result references (TP-C4-SOLVERREFAUTHOR-001): a required input whose
-// source_kind is `solver_result` additionally authors a `solver_result_ref`
-// (a single `result_id`) — the pointer the C4 rule-check runner resolves from
-// the solved result envelope's `results[]` by id at run time
-// (TP-C4-SOLVERREF-001). It is the in-pack, canonical form of the previously
-// caller-supplied `{input_id, result_id}` solver binding (PRD §12.5): an
-// authored reference governs its input alone and supersedes the run panel's
-// per-input result selector. Removing it returns the input to the run-panel
-// binding path. An unfilled/unresolvable reference leaves the input unsupplied
-// so the check blocks at RULE_INPUTS_INCOMPLETE — never a silent pass.
+// Solver-row selectors (rule-pack format 0.5.0; DEL-06-01 Design
+// `rule-pack-0.5.0.md` §2.5, §3): a required input whose source_kind is
+// `solver_result` authors a `solver_result_ref` row selector — result_kind,
+// entity_ref and the optional location, component, section_basis and tie_rod —
+// that the run command resolves on each of a check's required load cases
+// against the solved envelope. It is the one binding route (the run panel's
+// caller selector is retired); a solver_result input without it is refused by
+// validation (RULE_SOLVER_RESULT_REF_MISSING). The members are typed; when the
+// session has a current solved result the editor also offers the selectors of
+// its rows. An unfilled selector names no row, so the check blocks at
+// RULE_INPUTS_INCOMPLETE — never a silent pass.
 //
-// Both reference members are additive and optional; they change nothing for
-// packs that do not use them. Both are now ratified parts of the schema:
-// `library_value_ref` (DEC-038) and `solver_result_ref` (DEC-039), carried at
-// rule-pack `schema_version` 0.4.0.
+// Required load cases, stress categories and load-case mappings (§2.3, §3) are
+// authored by `LoadCaseCategoriesEditor` below: the categories and their
+// descriptions are the user's own text, with no built-in meaning.
 //
 // Unit I/O (TP-UNITS-B2-RULEPACKUNITS-001): declaration `quantity_intent`
 // unit refs use the reviewed DEC-018 catalog when the desktop backend exposes
@@ -237,20 +244,39 @@ export function defaultLibraryValueRef(): Record<string, unknown> {
 }
 
 /**
- * A schema-shaped default `solver_result_ref` (SolverResultRef): the single
- * required `result_id` member as the visible uppercase `"TBD"` placeholder the
- * `Id` pattern accepts. An unfilled reference matches no result row, so the
- * input stays unsupplied and the check blocks (never a silent pass). The
- * authored reference is the canonical, in-pack form of the previously
- * caller-supplied `{input_id, result_id}` solver binding (PRD §12.5) and
- * supersedes the run panel's per-input result selector; no result *value* is
- * ever stored here, only the row id resolved at run time from the solved
- * envelope.
+ * A schema-shaped default `solver_result_ref` row selector (format 0.5.0): the
+ * two required members as the visible uppercase `"TBD"` placeholder. An
+ * unfilled selector matches no result row, so the input stays unsupplied and
+ * the check blocks (never a silent pass). No result *value* is ever stored
+ * here, only the selector resolved at run time on each basis.
  */
 export function defaultSolverResultRef(): Record<string, unknown> {
   return {
-    result_id: "TBD"
+    result_kind: "TBD",
+    entity_ref: "TBD"
   };
+}
+
+/** The selector members, in schema order (rule_pack.schema.yaml SolverResultRef). */
+export const SOLVER_SELECTOR_TEXT_MEMBERS = ["result_kind", "entity_ref", "location", "component", "tie_rod"] as const;
+
+/**
+ * The distinct selectors of a solved result's rows (rows without basis_ref, a
+ * malformed section basis or an unnamed rod have none), each with the number
+ * of bases it names a row on. Order follows the result's rows.
+ */
+export function solverSelectorOffers(result: MechanicsResult | null | undefined): Array<{ key: string; selector: SolverResultRef; bases: number }> {
+  if (!result) return [];
+  const offers = new Map<string, { key: string; selector: SolverResultRef; bases: number }>();
+  for (const row of result.results) {
+    const selector = solverSelectorForRow(result, row);
+    if (!selector) continue;
+    const key = describeSolverSelector(selector);
+    const entry = offers.get(key);
+    if (entry) entry.bases += 1;
+    else offers.set(key, { key, selector, bases: 1 });
+  }
+  return [...offers.values()];
 }
 
 /** Return a new document with the `required_inputs` array replaced. */
@@ -423,6 +449,8 @@ export type DeclarationsEditorProps = {
   onChange: (next: DeclarationDocument) => void;
   disabled: boolean;
   disabledReason?: string;
+  /** The session's current solved result, whose rows' selectors are offered. */
+  result?: MechanicsResult | null;
 };
 
 /**
@@ -436,9 +464,11 @@ export function DeclarationsEditor({
   document,
   onChange,
   disabled,
-  disabledReason
+  disabledReason,
+  result = null
 }: DeclarationsEditorProps) {
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
+  const selectorOffers = useMemo(() => solverSelectorOffers(result), [result]);
   const rawInputs = asArray(document.required_inputs);
   const rawSlots = asArray(document.value_slots);
   const inputIds = readRequiredInputIds(document);
@@ -526,16 +556,25 @@ export function DeclarationsEditor({
         })
       )
     );
-  // Patch one input's solver_result_ref, merging into the existing reference
-  // (or a fresh default when none exists yet — so the first field edit always
-  // produces a complete reference, never a schema-invalid empty object).
-  const updateInputSolverRef = (index: number, patch: Record<string, unknown>) => {
-    const ref = asObject(asObject(rawInputs[index])?.solver_result_ref) ?? defaultSolverResultRef();
-    updateInput(index, { solver_result_ref: { ...ref, ...patch } });
+  // Patch one member of an input's selector, merging into the existing selector
+  // (or a fresh default when none exists yet). An emptied optional member is
+  // removed, since an absent member matches only a row without it; an emptied
+  // required member stays (validation names it).
+  const updateInputSolverRef = (index: number, member: string, value: string) => {
+    const ref = { ...(asObject(asObject(rawInputs[index])?.solver_result_ref) ?? defaultSolverResultRef()) };
+    if (value === "" && member !== "result_kind" && member !== "entity_ref") delete ref[member];
+    else ref[member] = value;
+    updateInput(index, { solver_result_ref: ref });
   };
-  // Drop the solver_result_ref member entirely — returns the input to the
-  // run-panel caller-supplied binding path. Every other member round-trips
-  // verbatim.
+  // Replace the selector with one offered from the current solved result.
+  const applySolverOffer = (index: number, key: string) => {
+    const offer = selectorOffers.find((entry) => entry.key === key);
+    if (offer) updateInput(index, { solver_result_ref: { ...offer.selector } });
+  };
+  // Drop the solver_result_ref member entirely. A solver_result input without a
+  // selector is refused by validation (RULE_SOLVER_RESULT_REF_MISSING); the
+  // control stays so a selector left on another source kind can be removed.
+  // Every other member round-trips verbatim.
   const removeInputSolverRef = (index: number) =>
     onChange(
       setRequiredInputs(
@@ -740,18 +779,63 @@ export function DeclarationsEditor({
                     className="rule-pack-node-readonly"
                     data-testid="rule-pack-input-solver-ref-note"
                   >
-                    Solver-result reference. Binds this input to a specific row of the solved result
-                    envelope by result id, resolved at check-run time. An authored reference is the
-                    canonical binding — it supersedes the run panel&apos;s per-input result selector;
-                    remove it to bind from the run panel instead.
+                    Solver-row selector. On each required load case of a check, this input binds the
+                    one solved row of this kind and entity whose location, component, section basis and
+                    tie rod equal the members below; an empty optional member matches only a row
+                    without it. No row, or more than one, leaves the check incomplete there.
                   </small>
-                  <TextField
-                    testId="rule-pack-input-solver-result-id"
-                    label="result_id"
-                    value={asString(solverRef?.result_id) ?? ""}
-                    disabled={disabled}
-                    onChange={(next) => updateInputSolverRef(index, { result_id: next })}
-                  />
+                  {SOLVER_SELECTOR_TEXT_MEMBERS.map((member) => (
+                    <TextField
+                      key={member}
+                      testId={`rule-pack-input-solver-${member.replace("_", "-")}`}
+                      label={member}
+                      value={asString(solverRef?.[member]) ?? ""}
+                      disabled={disabled}
+                      onChange={(next) => updateInputSolverRef(index, member, next)}
+                    />
+                  ))}
+                  <Field label="section_basis">
+                    <select
+                      data-testid="rule-pack-input-solver-section-basis"
+                      value={asString(solverRef?.section_basis) ?? ""}
+                      disabled={disabled}
+                      onChange={(event) => updateInputSolverRef(index, "section_basis", event.target.value)}
+                    >
+                      <option value="">(none: a row without a section basis)</option>
+                      {(() => {
+                        const current = asString(solverRef?.section_basis) ?? "";
+                        return current && !(SOLVER_SELECTOR_SECTION_BASES as readonly string[]).includes(current)
+                          ? <option value={current}>(current) {current}</option>
+                          : null;
+                      })()}
+                      {SOLVER_SELECTOR_SECTION_BASES.map((basis) => (
+                        <option key={basis} value={basis}>
+                          {basis}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  {selectorOffers.length > 0 ? (
+                    <Field label="from the current solved result">
+                      <select
+                        data-testid="rule-pack-input-solver-offer"
+                        value=""
+                        disabled={disabled}
+                        onChange={(event) => applySolverOffer(index, event.target.value)}
+                      >
+                        <option value="">-- use a selector of the current result --</option>
+                        {selectorOffers.map((offer) => (
+                          <option key={offer.key} value={offer.key}>
+                            {offer.key} ({offer.bases} load case(s) or combination(s))
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                  ) : (
+                    <small className="rule-pack-node-readonly" data-testid="rule-pack-input-solver-offer-none">
+                      No current solved result in this session; type the selector members.
+                    </small>
+                  )}
                   <button
                     type="button"
                     data-testid="rule-pack-input-solver-remove"
@@ -760,12 +844,12 @@ export function DeclarationsEditor({
                       disabled
                         ? disabledReason
                         : solverRef === null
-                          ? "No solver-result reference to remove."
+                          ? "No solver-row selector to remove."
                           : undefined
                     }
                     onClick={() => removeInputSolverRef(index)}
                   >
-                    Remove solver-result reference
+                    Remove solver-row selector
                   </button>
                 </div>
               ) : null}
@@ -921,4 +1005,461 @@ function unitCatalogRouteStatus(route: UnitCatalogRoute | null): string {
   if (!route) return "loading";
   if (route.route === "unavailable_browser_preview") return "browser_preview_manual_entry";
   return "tauri_dec018_catalog";
+}
+
+// ---------------------------------------------------------------------------
+// Required load cases, stress categories and load-case mappings
+// (rule-pack format 0.5.0; DEL-06-01 Design `rule-pack-0.5.0.md` §2.3, §3)
+// ---------------------------------------------------------------------------
+//
+// A check names one stress category and is evaluated once for each required
+// load case that category's one mapping lists. Category names and descriptions
+// are the user's own text: the format gives a category no built-in meaning and
+// no fixed list, and nothing here names a category of any standard. A required
+// load case names the model's own load case or combination id; with a model
+// open it is chosen from the model's load cases and combinations, otherwise
+// typed. Whether it exists in a model is checked at run time, never here.
+
+/** The declared `required_load_case_id`s in document order. */
+export function readRequiredLoadCaseIds(document: DeclarationDocument): string[] {
+  return asArray(document.required_load_cases)
+    .map((entry) => asString(asObject(entry)?.required_load_case_id))
+    .filter((id): id is string => id !== null);
+}
+
+/** The declared stress `category_id`s in document order. */
+export function readStressCategoryIds(document: DeclarationDocument): string[] {
+  return asArray(document.stress_categories)
+    .map((entry) => asString(asObject(entry)?.category_id))
+    .filter((id): id is string => id !== null);
+}
+
+/** A new required load case: a fresh id, empty text, the given basis. */
+export function defaultRequiredLoadCase(
+  existingIds: string[],
+  basis: { ref_type: string; ref_id: string }
+): Record<string, unknown> {
+  return {
+    required_load_case_id: uniqueDeclarationId("user_required_load_case", existingIds),
+    name: "",
+    description: "",
+    basis_ref: { ref_type: basis.ref_type, ref_id: basis.ref_id },
+    provenance: draftPlaceholderProvenance()
+  };
+}
+
+/** A new stress category: a fresh id and empty text for the user to fill. */
+export function defaultStressCategory(existingIds: string[]): Record<string, unknown> {
+  return {
+    category_id: uniqueDeclarationId("user_stress_category", existingIds),
+    name: "",
+    description: "",
+    provenance: draftPlaceholderProvenance()
+  };
+}
+
+type BasisOption = { value: string; ref_type: "load_case" | "combination"; ref_id: string; label: string };
+
+const basisOptionValue = (refType: string, refId: string) => `${refType}|${refId}`;
+
+/** The current model's load cases and combinations, by id and label. */
+export function modelBasisOptions(model: PreviewModel | null | undefined): BasisOption[] {
+  if (!model) return [];
+  return [
+    ...(model.load_cases ?? []).map((entry) => ({
+      value: basisOptionValue("load_case", entry.id),
+      ref_type: "load_case" as const,
+      ref_id: entry.id,
+      label: `Load case ${entry.id}${entry.label ? ` — ${entry.label}` : ""}`
+    })),
+    ...(model.combinations ?? []).map((entry) => ({
+      value: basisOptionValue("combination", entry.id),
+      ref_type: "combination" as const,
+      ref_id: entry.id,
+      label: `Combination ${entry.id}${entry.label ? ` — ${entry.label}` : ""}`
+    }))
+  ];
+}
+
+function referenceId(value: unknown, refType: string): string | null {
+  const reference = asObject(value);
+  return reference && reference.ref_type === refType ? asString(reference.ref_id) : null;
+}
+
+export type LoadCaseCategoriesEditorProps = {
+  document: DeclarationDocument;
+  onChange: (next: DeclarationDocument) => void;
+  disabled: boolean;
+  disabledReason?: string;
+  model?: PreviewModel | null;
+};
+
+export function LoadCaseCategoriesEditor({
+  document,
+  onChange,
+  disabled,
+  disabledReason,
+  model = null
+}: LoadCaseCategoriesEditorProps) {
+  const rawLoadCases = asArray(document.required_load_cases);
+  const rawCategories = asArray(document.stress_categories);
+  const rawMappings = asArray(document.load_case_mappings);
+  const loadCaseIds = readRequiredLoadCaseIds(document);
+  const categoryIds = readStressCategoryIds(document);
+  const basisOptions = modelBasisOptions(model);
+
+  const patchItem = (items: unknown[], index: number, patch: Record<string, unknown>) =>
+    items.map((entry, position) => (position === index ? { ...(asObject(entry) ?? {}), ...patch } : entry));
+
+  // --- required load cases ---
+  const updateLoadCase = (index: number, patch: Record<string, unknown>) =>
+    onChange({ ...document, required_load_cases: patchItem(rawLoadCases, index, patch) });
+  // Renaming an id carries the mappings' references with it.
+  const renameLoadCase = (index: number, nextId: string) => {
+    const previous = asString(asObject(rawLoadCases[index])?.required_load_case_id);
+    onChange({
+      ...document,
+      required_load_cases: patchItem(rawLoadCases, index, { required_load_case_id: nextId }),
+      load_case_mappings: rawMappings.map((mapping) => {
+        const record = asObject(mapping);
+        if (!record || previous === null) return mapping;
+        return {
+          ...record,
+          required_load_case_refs: asArray(record.required_load_case_refs).map((reference) =>
+            referenceId(reference, "required_load_case") === previous
+              ? { ...(asObject(reference) ?? {}), ref_id: nextId }
+              : reference
+          )
+        };
+      })
+    });
+  };
+  const setLoadCaseBasis = (index: number, refType: string, refId: string) =>
+    updateLoadCase(index, { basis_ref: { ref_type: refType, ref_id: refId } });
+  const addLoadCase = () => {
+    const used = new Set(
+      rawLoadCases.map((entry) => {
+        const basis = asObject(asObject(entry)?.basis_ref);
+        return basisOptionValue(asString(basis?.ref_type) ?? "", asString(basis?.ref_id) ?? "");
+      })
+    );
+    const unused = basisOptions.find((option) => !used.has(option.value));
+    onChange({
+      ...document,
+      required_load_cases: [
+        ...rawLoadCases,
+        defaultRequiredLoadCase(loadCaseIds, unused ?? { ref_type: "load_case", ref_id: "" })
+      ]
+    });
+  };
+  // Removing a required load case also removes the mappings' references to it.
+  const removeLoadCase = (index: number) => {
+    const removed = asString(asObject(rawLoadCases[index])?.required_load_case_id);
+    onChange({
+      ...document,
+      required_load_cases: rawLoadCases.filter((_, position) => position !== index),
+      load_case_mappings: rawMappings.map((mapping) => {
+        const record = asObject(mapping);
+        if (!record) return mapping;
+        return {
+          ...record,
+          required_load_case_refs: asArray(record.required_load_case_refs).filter(
+            (reference) => referenceId(reference, "required_load_case") !== removed
+          )
+        };
+      })
+    });
+  };
+
+  // --- stress categories and their mapping ---
+  const updateCategory = (index: number, patch: Record<string, unknown>) =>
+    onChange({ ...document, stress_categories: patchItem(rawCategories, index, patch) });
+  // Renaming a category id carries its mapping and its checks with it.
+  const renameCategory = (index: number, nextId: string) => {
+    const previous = asString(asObject(rawCategories[index])?.category_id);
+    const retarget = (entry: unknown) => {
+      const record = asObject(entry);
+      if (!record || previous === null || referenceId(record.category_ref, "stress_category") !== previous) return entry;
+      return { ...record, category_ref: { ...(asObject(record.category_ref) ?? {}), ref_id: nextId } };
+    };
+    onChange({
+      ...document,
+      stress_categories: patchItem(rawCategories, index, { category_id: nextId }),
+      load_case_mappings: rawMappings.map(retarget),
+      check_definitions: asArray(document.check_definitions).map(retarget)
+    });
+  };
+  const addCategory = () => {
+    const category = defaultStressCategory(categoryIds);
+    const mappingIds = rawMappings
+      .map((entry) => asString(asObject(entry)?.mapping_id))
+      .filter((id): id is string => id !== null);
+    onChange({
+      ...document,
+      stress_categories: [...rawCategories, category],
+      // Every category has exactly one mapping; it starts without load cases
+      // (validation names that until the user ticks one).
+      load_case_mappings: [
+        ...rawMappings,
+        {
+          mapping_id: uniqueDeclarationId("user_load_case_mapping", mappingIds),
+          category_ref: { ref_id: category.category_id, ref_type: "stress_category" },
+          required_load_case_refs: []
+        }
+      ]
+    });
+  };
+  const removeCategory = (index: number) => {
+    const removed = asString(asObject(rawCategories[index])?.category_id);
+    onChange({
+      ...document,
+      stress_categories: rawCategories.filter((_, position) => position !== index),
+      load_case_mappings: rawMappings.filter(
+        (mapping) => referenceId(asObject(mapping)?.category_ref, "stress_category") !== removed
+      )
+    });
+  };
+  const mappedLoadCases = (categoryId: string): string[] => {
+    const mapping = rawMappings.map(asObject).find((entry) => referenceId(entry?.category_ref, "stress_category") === categoryId);
+    return asArray(mapping?.required_load_case_refs)
+      .map((reference) => referenceId(reference, "required_load_case"))
+      .filter((id): id is string => id !== null);
+  };
+  // Tick or untick a required load case in the category's mapping (the first
+  // mapping naming the category; one is created when there is none). A ticked
+  // load case is appended, so the mapping's order is the order of ticking.
+  const toggleMapping = (categoryId: string, loadCaseId: string, on: boolean) => {
+    const index = rawMappings.findIndex((entry) => referenceId(asObject(entry)?.category_ref, "stress_category") === categoryId);
+    if (index < 0) {
+      if (!on) return;
+      const mappingIds = rawMappings
+        .map((entry) => asString(asObject(entry)?.mapping_id))
+        .filter((id): id is string => id !== null);
+      onChange({
+        ...document,
+        load_case_mappings: [
+          ...rawMappings,
+          {
+            mapping_id: uniqueDeclarationId("user_load_case_mapping", mappingIds),
+            category_ref: { ref_id: categoryId, ref_type: "stress_category" },
+            required_load_case_refs: [{ ref_id: loadCaseId, ref_type: "required_load_case" }]
+          }
+        ]
+      });
+      return;
+    }
+    const record = asObject(rawMappings[index]) ?? {};
+    const refs = asArray(record.required_load_case_refs);
+    const present = refs.some((reference) => referenceId(reference, "required_load_case") === loadCaseId);
+    const nextRefs = on
+      ? present ? refs : [...refs, { ref_id: loadCaseId, ref_type: "required_load_case" }]
+      : refs.filter((reference) => referenceId(reference, "required_load_case") !== loadCaseId);
+    onChange({ ...document, load_case_mappings: patchItem(rawMappings, index, { required_load_case_refs: nextRefs }) });
+  };
+
+  return (
+    <div
+      className="report-list rule-pack-load-case-categories-editor"
+      data-testid="rule-pack-load-case-categories-editor"
+    >
+      <strong>Required load cases, stress categories and mappings</strong>
+      <small className="rule-pack-node-readonly" data-testid="rule-pack-load-case-categories-guidance">
+        Each check names one stress category and is evaluated once for each required load case its
+        category maps, with one outcome per load case or combination. Category names and
+        descriptions are your own text; the software gives them no meaning. A required load case
+        missing from the model or not solved leaves the check incomplete on it.
+      </small>
+
+      <div data-testid="rule-pack-required-load-cases">
+        <small>Required load cases ({rawLoadCases.length})</small>
+        {rawLoadCases.map((entry, index) => {
+          const record = asObject(entry) ?? {};
+          const basis = asObject(record.basis_ref) ?? {};
+          const refType = asString(basis.ref_type) ?? "";
+          const refId = asString(basis.ref_id) ?? "";
+          const current = basisOptionValue(refType, refId);
+          const known = basisOptions.some((option) => option.value === current);
+          return (
+            <div
+              className="rule-pack-node operation-record"
+              data-testid="rule-pack-required-load-case-row"
+              key={`load-case-${index}`}
+            >
+              <TextField
+                testId="rule-pack-load-case-id"
+                label="required_load_case_id"
+                value={asString(record.required_load_case_id) ?? ""}
+                disabled={disabled}
+                onChange={(next) => renameLoadCase(index, next)}
+              />
+              <TextField
+                testId="rule-pack-load-case-name"
+                label="name"
+                value={asString(record.name) ?? ""}
+                disabled={disabled}
+                onChange={(next) => updateLoadCase(index, { name: next })}
+              />
+              <TextField
+                testId="rule-pack-load-case-description"
+                label="description"
+                value={asString(record.description) ?? ""}
+                disabled={disabled}
+                onChange={(next) => updateLoadCase(index, { description: next })}
+              />
+              {basisOptions.length > 0 ? (
+                <Field label="load case or combination (current model)">
+                  <select
+                    data-testid="rule-pack-load-case-basis"
+                    value={current}
+                    disabled={disabled}
+                    onChange={(event) => {
+                      const option = basisOptions.find((candidate) => candidate.value === event.target.value);
+                      if (option) setLoadCaseBasis(index, option.ref_type, option.ref_id);
+                    }}
+                  >
+                    {!known ? (
+                      <option value={current}>
+                        (not in the current model) {refType || "?"} {refId || "(empty)"}
+                      </option>
+                    ) : null}
+                    {basisOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+              ) : (
+                <>
+                  <EnumSelect
+                    testId="rule-pack-load-case-basis-type"
+                    label="basis ref_type"
+                    options={["load_case", "combination"]}
+                    value={refType}
+                    disabled={disabled}
+                    onChange={(next) => setLoadCaseBasis(index, next, refId)}
+                  />
+                  <TextField
+                    testId="rule-pack-load-case-basis-id"
+                    label="basis ref_id (the model's id)"
+                    value={refId}
+                    disabled={disabled}
+                    onChange={(next) => setLoadCaseBasis(index, refType || "load_case", next)}
+                  />
+                </>
+              )}
+              <button
+                type="button"
+                data-testid="rule-pack-load-case-remove"
+                disabled={disabled || rawLoadCases.length <= 1}
+                title={
+                  disabled
+                    ? disabledReason
+                    : rawLoadCases.length <= 1
+                      ? "A rule pack needs at least one required load case."
+                      : undefined
+                }
+                onClick={() => removeLoadCase(index)}
+              >
+                Remove required load case
+              </button>
+            </div>
+          );
+        })}
+        <button
+          type="button"
+          data-testid="rule-pack-load-case-add"
+          disabled={disabled}
+          title={disabled ? disabledReason : undefined}
+          onClick={addLoadCase}
+        >
+          Add required load case
+        </button>
+      </div>
+
+      <div data-testid="rule-pack-stress-categories">
+        <small>Stress categories ({rawCategories.length})</small>
+        {rawCategories.map((entry, index) => {
+          const record = asObject(entry) ?? {};
+          const categoryId = asString(record.category_id) ?? "";
+          const mapped = mappedLoadCases(categoryId);
+          return (
+            <div
+              className="rule-pack-node operation-record"
+              data-testid="rule-pack-stress-category-row"
+              key={`category-${index}`}
+            >
+              <TextField
+                testId="rule-pack-category-id"
+                label="category_id"
+                value={categoryId}
+                disabled={disabled}
+                onChange={(next) => renameCategory(index, next)}
+              />
+              <TextField
+                testId="rule-pack-category-name"
+                label="name"
+                value={asString(record.name) ?? ""}
+                disabled={disabled}
+                onChange={(next) => updateCategory(index, { name: next })}
+              />
+              <TextField
+                testId="rule-pack-category-description"
+                label="description"
+                value={asString(record.description) ?? ""}
+                disabled={disabled}
+                onChange={(next) => updateCategory(index, { description: next })}
+              />
+              <div className="rule-pack-check-subgroup" data-testid="rule-pack-category-mapping">
+                <span className="rule-pack-node-label">required load cases of this category</span>
+                {loadCaseIds.map((loadCaseId) => {
+                  const loadCase = asObject(
+                    rawLoadCases.find((candidate) => asObject(candidate)?.required_load_case_id === loadCaseId)
+                  );
+                  const name = asString(loadCase?.name);
+                  return (
+                    <label className="rule-pack-node-field" key={loadCaseId}>
+                      <input
+                        type="checkbox"
+                        data-testid={`rule-pack-category-mapping-${loadCaseId}`}
+                        checked={mapped.includes(loadCaseId)}
+                        disabled={disabled || !categoryId}
+                        title={disabled ? disabledReason : !categoryId ? "Give the category an id first." : undefined}
+                        onChange={(event) => toggleMapping(categoryId, loadCaseId, event.target.checked)}
+                      />
+                      <span>{name ? `${name} (${loadCaseId})` : loadCaseId}</span>
+                    </label>
+                  );
+                })}
+              </div>
+              <button
+                type="button"
+                data-testid="rule-pack-category-remove"
+                disabled={disabled || rawCategories.length <= 1}
+                title={
+                  disabled
+                    ? disabledReason
+                    : rawCategories.length <= 1
+                      ? "A rule pack needs at least one stress category."
+                      : undefined
+                }
+                onClick={() => removeCategory(index)}
+              >
+                Remove category
+              </button>
+            </div>
+          );
+        })}
+        <button
+          type="button"
+          data-testid="rule-pack-category-add"
+          disabled={disabled}
+          title={disabled ? disabledReason : undefined}
+          onClick={addCategory}
+        >
+          Add stress category
+        </button>
+      </div>
+    </div>
+  );
 }

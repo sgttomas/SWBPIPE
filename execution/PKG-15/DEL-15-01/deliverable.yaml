@@ -204,6 +204,7 @@ code_paths:
 - apps/desktop/src/features/model-file/modelDocumentSave.ts
 - apps/desktop/src/features/model-file/ModelDocumentSaveDialog.tsx
 - apps/desktop/src-tauri/src/model_document_save.rs
+- apps/desktop/src-tauri/src/export_disposition_screen.rs
 - apps/desktop/src-tauri/src/model_document_shape.rs
 - apps/desktop/src-tauri/src/atomic_report_package_save.rs
 - apps/desktop/src/services/libraryImportService.ts
@@ -211,6 +212,8 @@ code_paths:
 - apps/desktop/src/features/handoff/HandoffSaveDialog.tsx
 - apps/desktop/src-tauri/src/handoff_package.rs
 - apps/desktop/src-tauri/src/handoff_package_publish.rs
+- apps/desktop/src/services/rulePackRefDiagnostics.ts
+- fixtures/handoff/rule_pack_ref_resolution_vectors.json
 checks:
 - tests/test_handoff_package_schema.py
 - apps/desktop/src/features/handoff/HandoffPanel.test.tsx
@@ -221,3 +224,4 @@ checks:
 - apps/desktop/src/features/handoff/handoffPackageSave.test.tsx
 - tests/test_handoff_package_witness.py
 - tests/verifiers/handoff_package.py
+- apps/desktop/src/services/rulePackRefResolutionParity.test.ts

@@ -86,7 +86,31 @@ import previewPhysicsRetainedSemanticContract from "../../../../../fixtures/resu
 import { ResultsPanel } from "./ResultsPanel";
 import { buildHistoricalRunContext } from "./HistoricalRunContext";
 import { hasNativeMechanicsInvocation, pollPreviewMechanicsJob, runPreviewMechanics, startPreviewMechanicsJob, takePreviewMechanicsJobResult, type PreviewSolverMode } from "../../services/previewService";
-import { ruleBindingPrecheck, runRuleChecks, type RuleCheckBindingPlan } from "../../services/ruleCheckService";
+import { ruleBindingPrecheck, runRuleChecks, selectSolverRows, solverSelectorForRow, type RuleCheckBasisRef, type RuleCheckBindingPlan } from "../../services/ruleCheckService";
+
+// A binding plan whose solver inputs select the given rows by their 0.5.0
+// selectors, each used by one check on its row's own basis (DEL-06-01 Design
+// `rule-pack-0.5.0.md` §2.4, §2.5): one category and required load case per
+// distinct basis.
+function selectorPlan(source: MechanicsResult, inputs: Array<[string, MechanicsResult["results"][number]]>): RuleCheckBindingPlan {
+  const keys = [...new Set(inputs.flatMap(([, row]) => (row.basis_ref ? [JSON.stringify(row.basis_ref)] : [])))];
+  const requiredLoadCases = keys.map((text, index) => ({ required_load_case_id: `rlc_${index}`, name: "", basis_ref: JSON.parse(text) as RuleCheckBasisRef }));
+  return {
+    solverInputs: inputs.map(([input_id, row]) => ({ input_id, name: input_id, dimension: "x", unit_ref: "x", solver_result_ref: solverSelectorForRow(source, row) })),
+    valueInputs: [], valueSlots: [], libraryInputs: [],
+    requiredLoadCases,
+    stressCategories: keys.map((_, index) => ({ category_id: `cat_${index}`, name: "" })),
+    checks: inputs.map(([input_id, row]) => {
+      const index = row.basis_ref ? keys.indexOf(JSON.stringify(row.basis_ref)) : -1;
+      return { check_id: `check:${input_id}`, category_ref: index >= 0 ? `cat_${index}` : "", bases: index >= 0 ? [requiredLoadCases[index]] : [], input_refs: [input_id] };
+    })
+  };
+}
+// A row the precheck can reach: a basis-bearing row its own selector names alone.
+const selectsAlone = (source: MechanicsResult, row: MechanicsResult["results"][number]) => {
+  const selector = solverSelectorForRow(source, row);
+  return Boolean(selector) && selectSolverRows(source, selector!, row.basis_ref as RuleCheckBasisRef).length === 1;
+};
 import { ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH, buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
 import { cancelPreviewMechanicsJob } from "../../services/previewService";
@@ -474,12 +498,13 @@ describe("the post-U7 standing rules (seams, independent of the reader's flag)",
   it("counts withheld rows by standing (Rust classification_summary_from)", async () => {
     const validation = await validateRetainedPrecision(source);
     const notCurrent = classificationSummaryFrom(validation, source, requested);
-    expect(notCurrent).toStrictEqual([{ case_id: "case", relative_verified: 25, absolute_verified: 69, interval_bindable: 0, not_covered: 15, input_derived: 3, non_quantity: 1, withheld: 112 }]);
-    // T4-U4b: the 15 derived rows are not_covered, so Current withholds them beside the 69 absolute rows.
+    expect(notCurrent).toStrictEqual([{ case_id: "case", relative_verified: 25, absolute_verified: 69, interval_bindable: 0, not_covered: 15 + 12, input_derived: 3, non_quantity: 1, withheld: 112 + 12 }]);
+    // T4-U4b: the 15 derived rows are not_covered, so Current withholds them beside the 69 absolute rows;
+    // W-7: so are the member's 12 global end rows.
     const current = classificationSummaryFrom({ ...validation, invocation_bound: true, numerical_eligible: true }, source, requested);
-    expect(current[0].withheld).toBe(69 + 15);
+    expect(current[0].withheld).toBe(69 + 15 + 12);
     const uncovered: RetainedPrecisionValidation = { ...validation, invocation_bound: true, numerical_eligible: true, classifications: validation.classifications.map((row, i) => i === 1 ? { ...row, class: "not_covered", scale_bits: null, bound_bits: null } : row) };
-    expect(classificationSummaryFrom(uncovered, source, requested)[0]).toMatchObject({ not_covered: 15 + 1, withheld: 69 + 15 + 1 - (validation.classifications[1].class === "absolute_verified" ? 1 : 0) });
+    expect(classificationSummaryFrom(uncovered, source, requested)[0]).toMatchObject({ not_covered: 15 + 12 + 1, withheld: 69 + 15 + 12 + 1 - (validation.classifications[1].class === "absolute_verified" ? 1 : 0) });
     // Rows count only toward their own case.
     const split: RetainedPrecisionValidation = { ...validation, classifications: validation.classifications.map((row, i) => i < 10 ? { ...row, basis_ref: { ref_type: "load_case", ref_id: "second" } } : row) };
     const counts = classificationSummaryFrom(split, twoCase(), two).map(c => [c.case_id, c.relative_verified + c.absolute_verified + c.not_covered + c.input_derived + c.non_quantity]);
@@ -495,8 +520,8 @@ describe.each(MODES)("%s: the post-U7 path through the real carriers", (mode) =>
     expect(numericalResultStanding(received, withLoadCases(model, ["other"])).findings).toStrictEqual([RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE]);
     expect(numericalResultStanding(received, null).eligible).toBe(false);
     expect(retainedPrecisionInvocation(received, model)).toStrictEqual(invocation);
-    expect(classificationSummary(received, model)[0].withheld).toBe(69 + 15);
-    expect(classificationSummary(received, null)[0].withheld).toBe(97 + 15);
+    expect(classificationSummary(received, model)[0].withheld).toBe(69 + 15 + 12);
+    expect(classificationSummary(received, null)[0].withheld).toBe(97 + 15 + 12);
     invokeMock.mockReset();
     invokeMock.mockImplementation(async (command: string, args: Json) => {
       expect(command).toBe("run_rule_checks");
@@ -520,14 +545,15 @@ describe.each(MODES)("%s: the post-U7 path through the real carriers", (mode) =>
     expect(ruleBindingRefusal(received, target)).toBe(RULE_QUANTITY_NOT_COVERED);
     expect(resultRowLabel(target, received)).toBe(N_RP_NOT_COVERED);
     expect(knownSemanticNotices(received).map(n => n.id)).toContain("retained-precision-not-covered:case");
-    expect(ruleBindingPrecheck(received, { solverInputs: [{ input_id: "x", name: "x", dimension: "angle", unit_ref: "rad", solver_result_ref: { result_id: target.id } }], valueInputs: [], valueSlots: [], libraryInputs: [] })).toStrictEqual([{ input_id: "x", result_id: target.id, reason: RULE_QUANTITY_NOT_COVERED, notice: N_RP_NOT_COVERED }]);
-    expect(classificationSummary(received, model)[0].not_covered).toBe(15 + 1);
+    expect(selectsAlone(received, target)).toBe(true);
+    expect(ruleBindingPrecheck(received, selectorPlan(received, [["x", target]]))).toStrictEqual([{ input_id: "x", basis_ref: target.basis_ref, result_id: target.id, reason: RULE_QUANTITY_NOT_COVERED, notice: N_RP_NOT_COVERED }]);
+    expect(classificationSummary(received, model)[0].not_covered).toBe(15 + 12 + 1);
   });
   it("without absolute rows there is no absolute summary notice", async () => {
     u7.simulate = true; u7.noAbsolute = true;
     const { source, model } = milestone(mode);
     const received = await deliverDirect(source, model, mode);
-    expect(classificationSummary(received, model)[0]).toMatchObject({ absolute_verified: 0, not_covered: 15 });
+    expect(classificationSummary(received, model)[0]).toMatchObject({ absolute_verified: 0, not_covered: 15 + 12 });
     // T4-U4b: the derived rows' not-covered notice remains.
     expect(knownSemanticNotices(received).map(n => n.id)).toStrictEqual(["headline-label", "retained-precision-not-covered:case"]);
     expect(ruleBindingRefusal(received, received.results[3])).toBeNull();
@@ -576,14 +602,16 @@ describe.each(MODES)("%s: the rule-check gate and binding refusals", (mode) => {
     expect(ruleBindingRefusal(received, { id: "result:absent", kind: "x" })).toBeNull();
     const headline = received.summary.max_open_formula_stress!.result_ref;
     expect(classes.get(headline)!.class).toBe("absolute_verified");
-    const plan: RuleCheckBindingPlan = { solverInputs: [{ input_id: "headline", name: "h", dimension: "stress", unit_ref: "Pa", solver_result_ref: { result_id: headline } }, { input_id: "relative", name: "r", dimension: "force", unit_ref: "N" }], valueInputs: [], valueSlots: [], libraryInputs: [] };
-    const relative = byClass("relative_verified")[0];
-    const findings = ruleBindingPrecheck(received, plan, [{ input_id: "relative", result_id: relative.id }]);
+    const headlineRow = received.results.find(row => row.id === headline)!;
+    const relative = byClass("relative_verified").find(row => selectsAlone(received, row))!;
+    expect(selectsAlone(received, headlineRow)).toBe(true);
+    const plan = selectorPlan(received, [["headline", headlineRow], ["relative", relative]]);
+    const findings = ruleBindingPrecheck(received, plan);
     const label = retainedAbsoluteNotice(classes.get(headline)!.bound_bits!, "Pa");
-    expect(findings).toStrictEqual([{ input_id: "headline", result_id: headline, reason: RULE_QUANTITY_BELOW_VERIFIED_FLOOR, notice: label }]);
+    expect(findings).toStrictEqual([{ input_id: "headline", basis_ref: headlineRow.basis_ref, result_id: headline, reason: RULE_QUANTITY_BELOW_VERIFIED_FLOOR, notice: label }]);
     const copy = structuredClone(received);
     expect(ruleBindingRefusal(copy, relative)).toBe(RULE_QUANTITY_NOT_COVERED);
-    expect(ruleBindingPrecheck(copy, plan, [{ input_id: "relative", result_id: relative.id }]).map(f => [f.reason, f.notice])).toStrictEqual([[RULE_QUANTITY_NOT_COVERED, N_RP_UNVALIDATED], [RULE_QUANTITY_NOT_COVERED, N_RP_UNVALIDATED]]);
+    expect(ruleBindingPrecheck(copy, plan).map(f => [f.reason, f.notice])).toStrictEqual([[RULE_QUANTITY_NOT_COVERED, N_RP_UNVALIDATED], [RULE_QUANTITY_NOT_COVERED, N_RP_UNVALIDATED]]);
     expect(classBindingRefusal("not_covered")).toBe(RULE_QUANTITY_NOT_COVERED);
     expect(classBindingRefusal("absolute_verified")).toBe(RULE_QUANTITY_BELOW_VERIFIED_FLOOR);
     expect(classBindingRefusal(undefined)).toBeNull();
@@ -592,7 +620,7 @@ describe.each(MODES)("%s: the rule-check gate and binding refusals", (mode) => {
     const { source, model } = milestone(mode);
     const received = await deliverDirect(source, model, mode);
     // U7: Current for the captured model, so only the absolute rows are withheld.
-    expect(classificationSummary(received, model)).toStrictEqual([{ case_id: "case", relative_verified: 25, absolute_verified: 69, interval_bindable: 0, not_covered: 15, input_derived: 3, non_quantity: 1, withheld: 69 + 15 }]);
+    expect(classificationSummary(received, model)).toStrictEqual([{ case_id: "case", relative_verified: 25, absolute_verified: 69, interval_bindable: 0, not_covered: 15 + 12, input_derived: 3, non_quantity: 1, withheld: 69 + 15 + 12 }]);
     expect(classificationSummary(structuredClone(received), model)).toStrictEqual([]);
     expect(classificationSummary(null)).toStrictEqual([]);
   });
@@ -757,10 +785,17 @@ describe("the declared differences, with TypeScript's expectations", () => {
         expect(rule).toBe("every_row");
         expect(got).toStrictEqual(rows.map(() => code === "none" ? null : code));
         if (expected.notice) {
-          // The display-only precheck shows the declared notice on every row.
-          const plan: RuleCheckBindingPlan = { solverInputs: rows.map(row => ({ input_id: row.id, name: row.id, dimension: "x", unit_ref: "x", solver_result_ref: { result_id: row.id } })), valueInputs: [], valueSlots: [], libraryInputs: [] };
-          const notices = ruleBindingPrecheck(received, plan);
-          expect(notices).toHaveLength(rows.length);
+          // The display-only precheck shows the declared notice on every row a
+          // 0.5.0 selector can bind. Only rows without a basis_ref are out of
+          // scope (design §2.5: never selected); every other row must have a
+          // selector that names it alone, so a selector regression fails here
+          // instead of shrinking the rows the notice is asserted on.
+          const eligible = rows.filter(row => row.basis_ref !== undefined && row.basis_ref !== null);
+          expect(eligible.length).toBeGreaterThan(0);
+          for (const row of eligible) expect([row.id, selectsAlone(received, row)]).toStrictEqual([row.id, true]);
+          const notices = ruleBindingPrecheck(received, selectorPlan(received, eligible.map(row => [row.id, row])));
+          expect(notices).toHaveLength(eligible.length);
+          expect(new Set(notices.map(f => f.result_id))).toStrictEqual(new Set(eligible.map(row => row.id)));
           expect(new Set(notices.map(f => f.notice))).toStrictEqual(new Set([NOTICES[expected.notice]]));
         }
       }
@@ -774,9 +809,9 @@ describe("the declared differences, with TypeScript's expectations", () => {
     expect(retainedPrecisionStanding(received, model).findings).toStrictEqual([RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED]);
     const validation = retainedPrecisionRegistration(received)!.validation!;
     const requested = model.load_cases.map(c => ({ ref_type: "load_case", ref_id: c.id }));
-    expect(classificationSummaryFrom(validation, received, requested)[0].withheld).toBe(69 + 15);
+    expect(classificationSummaryFrom(validation, received, requested)[0].withheld).toBe(69 + 15 + 12);
     const notCurrent = classificationSummaryFrom(validation, received, []);
-    expect(notCurrent[0].withheld).toBe(97 + 15);
+    expect(notCurrent[0].withheld).toBe(97 + 15 + 12);
     expect(classificationSummary(received, model)).toStrictEqual(notCurrent);
   });
   // An additional TypeScript input for the same declared difference (I67-F1): a
@@ -929,7 +964,7 @@ describe.each(MODES)("%s: the class notices do not depend on standing (U7 slice 
     expect(knownSemanticNotices(eligible)).toStrictEqual(heldNotices);
     const withModel = classificationSummary(eligible, model), withoutModel = classificationSummary(eligible);
     expect(withModel.map(({ withheld: _w, ...counts }) => counts)).toStrictEqual(withoutModel.map(({ withheld: _w, ...counts }) => counts));
-    expect([withModel[0].withheld, withoutModel[0].withheld]).toStrictEqual([69 + 15, 97 + 15]);
+    expect([withModel[0].withheld, withoutModel[0].withheld]).toStrictEqual([69 + 15 + 12, 97 + 15 + 12]);
   });
 });
 

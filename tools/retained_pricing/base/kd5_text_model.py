@@ -12,7 +12,7 @@ import hashlib, os, re
 # on route E: PU-TX), keeps a selected case's first support-norm refusal as its finalization cause (PU-TX) and records
 # the S2/S3 cause on both routes. No record constructor, label, route string, carrier, staging, fallback attempt or
 # first-return alternative changes.
-PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '42cbb33f9c55a26951f72198fdbdc017670a472ce85fb80caf83acd5b09e477a', 'straight_stress_spans': '8fa6015c0c0b6ae5c87f241c29b1187f6e3e4a3bc3e624969d37aff1c3164efe', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'a79bfa6c33095f97bc672ea78e27a3b768d901399978fac58d5ed9d804f3aac3'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '96aab83751549846c8898defa59da887fdde529a74d231862b2ef454f109c4e8'}}
+PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '42cbb33f9c55a26951f72198fdbdc017670a472ce85fb80caf83acd5b09e477a', 'straight_stress_spans': '8fa6015c0c0b6ae5c87f241c29b1187f6e3e4a3bc3e624969d37aff1c3164efe', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'a79bfa6c33095f97bc672ea78e27a3b768d901399978fac58d5ed9d804f3aac3'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '2544b007297f0f6f91a6ae73ce8d379f22fff252e248c6134da966beedf9aba5'}}
 # Epoch addbdc030e: solve_prepared_load_case's `pipe_sections` is `exact_pipe_sections(built)`, the same entries plus
 # the realized-arc marker on a realized arc (none on D1); no record constructor or label changes.
 # T4-U6/U8 D3 (retained-pricing-rules.md, "T4-U6/U8: actual-source D3"): straight_stress_spans,
@@ -33,7 +33,20 @@ PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8
 # per basis where the stress sections differ (a second composite_member_maximum on the reduced section), and the
 # SOURCE_MAXIMUM_BASES_DISTINCT withheld text is deleted. Its route strings, the maximum literals and the four record
 # constructors are unchanged.
-PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': '41f4e67c56477e24ace4746e058be2c5863f2a53733d338e411850edaf660348', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '2625f6af25de1cb3d7d18b870faae0d7ef4ff37cfa330a02fb77c7293c4a3c0b', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
+# W-7 D3 (retained-pricing-rules.md §8.20, W7-GE): solve_prepared_load_case records the member's first row position and,
+# on every publication but a source-recovery one, appends its twelve global end rows (append_element_global_end_results)
+# or one blocking ELEMENT_FORCE_RECOVERY_FAILED diagnostic. The added literals are that diagnostic's id, code, severity
+# and message; no record constructor, label or route string changes (the route strings are still `on this route`).
+# W-15 D3 (retained-pricing-rules.md §8.21): every ResultItem constructor names `component_body: None` (a stress row
+# of a component body carries the record only after publication, annotate_component_bodies, and D1 has no body by P2);
+# solve_prepared_load_case keeps a body's member maxima out of the headline (`!body &&`), reads a body's PF nu from the
+# unscaled pair (BuiltModel::unscaled_moduli) and passes `built` to the thermal loads. No literal, label, record
+# constructor or route string changes.
+# W-16 slice a D3 (§8.23): solve_prepared_load_case forms a pressure-free case's support-targeted prescribed map
+# (imposed_motion::case_prescribed, W16-NI) and returns an empty LoadCaseSolve on a blocking finding there (none on D1,
+# W16-NS); the prescribed values read that map when present. No literal, label, record constructor, route string,
+# carrier, staging, fallback attempt or first-return alternative changes.
+PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': '00d3c00131ada096b6de636d4f1d8e6ee7628722a2b8af40e77b5ae60c51d01f', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '2625f6af25de1cb3d7d18b870faae0d7ef4ff37cfa330a02fb77c7293c4a3c0b', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
 
 def function_body(text, name):
     hits = list(re.finditer(r"^(?:pub(?:\([a-z]+\))?\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
@@ -181,7 +194,8 @@ def inspect_directed_helpers(snapshot):
 # Model document 0.7.0 D3 (§8.17): lib.rs's model_settings lines add no `.min(`/`.max(` call.
 # Branch-warning statement D3 (§8.18): lib.rs's one changed line adds no `.min(`/`.max(` call.
 # Silent-drop guard D3 (§8.19): lib.rs's closed records and its one refusal call add no `.min(`/`.max(` call.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '86bc015fc0625b425327b2e292362d1c8b2b1568798d95407c73d2e9e5f8dc35'
+# W-16 slice a D3 (§8.23): lib.rs's support target, imposed-motion calls and primitive filter add no `.min(`/`.max(` call.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '8b437bcccaa2a31cc8c5ebd2544c0e9c27bea064e54a8ccc5355f80ce0618768'
 
 
 def primitive_lib_minmax_callers(snapshot):
@@ -215,6 +229,10 @@ FALLBACK_METHOD_PINS = {
     "mul": "b7a13d3aa95f1a81250596c2894aa53c08261ef50678482907ca925eb89fd375",
     "divided": "42236c96706c6fd58796004eca2d9791bd37e011f0e77c1ee482673d74a501d8",
 }
+# W-15 D3 (retained-pricing-rules.md §8.21): append_exact_pressure_results, render and append_arc_pressure_results
+# re-pinned for `component_body: None` in their row constructors; render also collects the formed bodies' ids
+# (`bodies`, from built.scaled_members: empty on D1 by P2, so the set allocates nothing) and passes them to
+# render_members, which keeps them out of the case maximum. No fallback method call changes.
 FALLBACK_OUTSIDE_CALLERS = (
     ("annulus_geometry.rs", "source_wall_area_scaled", ("mul",), "19e9559e151064359ff00db6a27c90c64ec619ef465f6dc90d077795850821f7"),
     ("annulus_geometry.rs", "source_bore_area_scaled", ("mul",), "13e243a2122d8717d5741c8698206bf8dac7d6673e91a5ffa4052252649e8a61"),
@@ -222,13 +240,13 @@ FALLBACK_OUTSIDE_CALLERS = (
     # T4-U6 (D-5): the pressure state names its basis; the sole `.add(` receiver is still the span intensity's
     # ExactAccumulator, and the sole `.divided(` receiver frame_kernel's CertifiedRow (now once per basis).
     ("lib.rs", "exact_straight_summary_extrema", ("add",), "1c15fd171ea49543bb3c7372e93a79545dfb63d5f877a5c232b423ec4ebd4ce0"),
-    ("lib.rs", "append_exact_pressure_results", ("divided",), "36242eef95d1026d77aa8107029a7423f6309e1a0665030f00b717f71fbde304"),
+    ("lib.rs", "append_exact_pressure_results", ("divided",), "6cd118c3cddbcadcd46c0545d8e7153d11831e9c4641dafc85a7f9b3e431b967"),
     ("pressure_exact.rs", "from_radii", ("mul",), "30bf50858d1c5a2223b5fa9c4f5a4d2643c87d26875e394770b6d69d89230340"),
     ("pressure_exact.rs", "eigenload_pair", ("mul",), "ce624c341c68c90e445856b617fe49fbcb81c7e5591c95e8e174f1d9a94413e9"),
     # B7a E14/C5: row slots and arc metadata changed; the sole divided
     # receiver remains frame_kernel::CertifiedRow, not FallbackError.
     # T4-S5 (U4b): render appends the case's directional records (`extend(take(..))`); still one divided call.
-    ("preview_physics.rs", "render", ("divided",), "394fc88e8443f0c5c280b327303f6302eed6afe571f15682d1c719776fd7924a"),
+    ("preview_physics.rs", "render", ("divided",), "b73446574f9ccb4d27044af6212a9c82a5764e55d2fcf7b37d3a7b30c2928cc4"),
     ("retained_memory.rs", "strings", ("add",), "b34bc5c8a6f6863d21fd93b87baae4f33e47467d1f639086650fe6a22bd1a585"),
     # The N06 capture adds pending error capacity positively. Every add
     # receiver remains this module's Bytes accumulator, not FallbackError.
@@ -253,7 +271,7 @@ FALLBACK_OUTSIDE_CALLERS = (
 FALLBACK_OUTSIDE_CALLERS_U2 = (
     # T4-U6 (D-5): the arc membrane divides the CertifiedRow once per basis; arc_pressure_strain (now on
     # ExactSectionBases) multiplies Scaled values of the pressure bore and the nominal wall. Receivers unchanged.
-    ("bend_pressure.rs", "append_arc_pressure_results", ("divided",), "6afc5a1b1a9a9c0a9dec6adbe21dfca6351b745c9b8255e0bcf1d05ff92f4e16"),
+    ("bend_pressure.rs", "append_arc_pressure_results", ("divided",), "ecf63e9e3347254156a44fe98183d4970c2d72748f11714390ede870c6d924a9"),
     ("pressure_exact/source_geometry.rs", "arc_pressure_strain", ("mul",), "de358720835e9a5ae8afd39c4b9e7f4a86e3c77788473696d338e46907f63983"),
 )
 # B5C1: the new effective-area expression's receiver is Scaled. Only

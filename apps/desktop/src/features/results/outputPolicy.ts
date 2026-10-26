@@ -14,8 +14,9 @@
  * successor (`retained_preview_physics`), and, likewise, B3b's exact successor
  * (`retained_physics`; B3-D §7, decision B3D-14), each with its own reason text. The other eighteen surfaces (T1's group
  * a, through `LoadReferenceOutputGate`) and the report package keep refusing it.
- * The report package refuses at its own point, T0R's fresh-result refusal
- * (REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE); its entry here records that decision.
+ * The report package reads its own `report-package` cell (`reportPackageUnavailableReason`,
+ * W-18; DEL-08-01 Design `report-package-current-results.md` §2.1): the pressure-free
+ * route is ungated there, and its Rust boundary admits only preview-physics-2.
  * Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md`; owner, 2026-10-21: "A accept
  * your recommendations for the entire set."): pressure-2 (`pressure`) and
  * pressure-source-1 (`pressure_source`) are `admitted` on the result JSON export, the

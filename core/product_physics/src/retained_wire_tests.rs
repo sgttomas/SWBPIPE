@@ -35,9 +35,10 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// longer publishes the retired parity observation row.
 /// C5 adds the adopted arc end-tangent limitation sentence; the current ordinary
 /// companions preserve every physical row and are still equal under capture.
+/// W-7 global end rows added (12 element_global_end rows on the one member); no other byte moved.
 const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
-    ("sparse_interactive", 80815, "fe35dfa1506a0f63cc38d9e3122224e12bbe16ad5bfcb225ec987d7e34a8e861"),
-    ("dense_scrutiny", 80839, "b9ec2b66b7248160482a7af661d29974ff3d39f4a2dfb976bd567fe4769107f7"),
+    ("sparse_interactive", 86484, "ac3bde77f91d0a9d595b08799cae5907c8fbef78c6c4c94761514ff6967b2e0d"),
+    ("dense_scrutiny", 86510, "6da64fa02c206a88e670c75ff6b74364263c94e1ac8722a963f603ddf01ac7db"),
 ];
 /// The serializer's committed milestone output: sha256 of the pretty-printed
 /// successor envelope, and its receipt_sha256 (byte-stable, both modes).
@@ -49,9 +50,11 @@ const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
 /// successors' invocation digests, the exact route's DEF-E-bound preparation and source identity
 /// hashes, and the receipt, publication and document hashes binding them moved and follow the
 /// maintained writers' bytes; no numeric leaf, class, selection, status or verdict moved.
+/// W-7 re-pin (DEL-04-01 Design `global-end-actions.md`): the member's twelve not-covered global end
+/// rows, the receipt figures counted over the rows, and the hashes binding them moved.
 const SUCCESSOR_SHA256: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "67f146bd4411426b2811e5b6ce7cac7a4d22c6783b106d61566ee7454e2b59a9", "bc13dcf4a2479a8566ec739f1dfc7d0c1ec18a4cab0ea8b52887037c6a1b079f"),
-    ("dense_scrutiny", "52ea3e9a29f200ada2bc7d2d73f6ee1e1eafdc5829b220c8b650f8e864e0ffc6", "1dc2d2a6f3fef563ea2998653243085f47310215e8c579e5c82e893a864bb95f"),
+    ("sparse_interactive", "139cfdb7d960aa1c5a061ee21cbf48fa55b96f896dc40120b6576a9f8061781c", "a3a2fc6748be7deb006681b493cc858b065b000f3f3427a8dc3ce0f75d7750d8"),
+    ("dense_scrutiny", "7ce9946465092d416474faf1f455cb9466edd8fb84d3b8a3640a433b27d29d31", "fcb064918059448e3e2a671821a2924f69c4d1da3fabbad105cab9f483297168"),
 ];
 
 fn sha(bytes: &[u8]) -> String {
@@ -230,7 +233,9 @@ fn u1_milestone_successor_both_modes() {
                 Some(k::RowClass::Unpublishable) => panic!("unpublishable"),
                 // T4-U4b §4.1: a class-None verdict is a record's (non_quantity) or a
                 // not-covered derived row's (its recipe is NotCovered).
-                None if rp::derived_kind(successor["results"][v.row]["kind"].as_str().unwrap()) => reader::AccuracyClass::NotCovered,
+                // W-7: a global end row is a named not-covered row too (GLOBAL_END_ROWS_NOT_COVERED).
+                None if rp::derived_kind(successor["results"][v.row]["kind"].as_str().unwrap())
+                    || crate::is_global_end_kind(successor["results"][v.row]["kind"].as_str().unwrap()) => reader::AccuracyClass::NotCovered,
                 None => reader::AccuracyClass::NonQuantity,
             };
             assert_eq!(c.class, expected, "{name}: {}", c.result_id);

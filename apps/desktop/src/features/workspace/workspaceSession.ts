@@ -35,7 +35,7 @@ import {
   terminalJobError
 } from "../../services/previewService";
 import { ResourceUnavailableError } from "../../services/memoryPool";
-import { nativeFailureText } from "../../services/nativeIngress";
+import { IngressRequestRetiredError, nativeFailureText } from "../../services/nativeIngress";
 import {
   buildBlankLocalModelDocument,
   buildBlankLoadStateModelDocument,
@@ -44,6 +44,7 @@ import {
   getLocalStorageCapability,
   listLocalProjects,
   openLocalProject,
+  StoredProjectUnitsRefusal,
   saveLocalProject,
   SI_PROJECT_UNITS,
   type ProjectUnitMap
@@ -71,6 +72,13 @@ import {
 } from "../model-file/modelDocumentSave";
 import type { ModelDocumentSaveDialogRequest } from "../model-file/ModelDocumentSaveDialog";
 import {
+  saveStoredModelDocumentFile,
+  storedDocumentExportFailureMessage,
+  storedDocumentExportMessage,
+  storedProjectDescription,
+  type StoredDocumentExportTarget
+} from "../model-file/storedDocumentExport";
+import {
   HANDOFF_SAVE_DESKTOP_ONLY,
   HANDOFF_SAVE_ROUTE,
   handoffBasis,
@@ -81,7 +89,7 @@ import {
   type HandoffBasis
 } from "../handoff/handoffPackageSave";
 import type { HandoffSaveChoice, HandoffSaveDialogRequest } from "../handoff/HandoffSaveDialog";
-import { saveReportPackage } from "../../services/reportPackageSaveService";
+import { invokeReportPackageSave, prepareReportPackageSave } from "../../services/reportPackageSaveService";
 import type { RuleCheckStatus } from "../../services/ruleCheckService";
 import type { SessionRuleCheckRun } from "../report/renderableReportInput";
 import type {
@@ -99,7 +107,7 @@ import type {
 } from "../../types";
 import { defaultSelection } from "../model-workspace/modelView";
 import { intentKey } from "../operations/OperationApplyPanel";
-import { buildReportPackageRequest } from "../report/reportPackageRequest";
+import { buildReportPackageRequest, reportPackageExactSubmission } from "../report/reportPackageRequest";
 import { controlReportPackageRequest } from "../report/reportRedactionProjector";
 import { buildBundledReferenceContext, buildHistoricalRunContext } from "../results/HistoricalRunContext";
 import type { HistoricalRunContext } from "../results/HistoricalRunContext";
@@ -138,6 +146,7 @@ import { persistenceHashesMatch } from "./savedModelBasis";
 import { useModelStateHistory, type LandedProjectSave, type ProjectBinding } from "../history/useModelStateHistory";
 import { unsavedChangesRefusal, useUnsavedChangesGuard } from "../project-storage/unsavedChangesGuard";
 import { createModalHolds, type ModalHolds } from "../project-storage/modalHolds";
+import { withinRunBusyReason, type WithinRunPair } from "../comparison/withinRunComparison";
 import { listModelStates, modelStateDescription, saveModelState, type ModelStateRead } from "../../services/modelStateService";
 import { useProjectSessionState } from "./projectSessionState";
 import { useResultsSessionState } from "./resultsSessionState";
@@ -171,6 +180,7 @@ import {
   modelChangedSolveJob,
   pendingBackendStartCancellationSolveJob,
   progressSolveJob,
+  refusedAtTakeSolveJob,
   refusedBeforeBackendStartSolveJob,
   refusedSolveJob,
   recordBackendCancellationFailure,
@@ -375,6 +385,7 @@ export function useWorkspaceSession() {
     inputManifest, setInputManifest,
     ruleCheckAggregate, setRuleCheckAggregate,
     ruleCheckReportRun, heldRuleCheckRun, setRuleCheckReportRun,
+    ruleCheckAggregateRef, ruleCheckReportRunRef,
     proposal, setProposal,
     selectedReviewTarget, setSelectedReviewTarget,
     solveJob, setSolveJob,
@@ -393,7 +404,13 @@ export function useWorkspaceSession() {
     currentInputManifestRef,
     activeSolveJob,
     solveCancellationTombstones,
-    comparison
+    comparison,
+    comparisonUnavailable,
+    packagedWithinRun,
+    withinRun,
+    droppedWithinRunBases,
+    setHeldWithinRunSelection,
+    setDroppedWithinRunBases
   } = useResultsSessionState();
   // Reference inspection is a transient view. Keep genuine persistence bytes
   // separate, scoped to the unchanged model/session, without retaining Current.
@@ -690,7 +707,14 @@ export function useWorkspaceSession() {
   }, [result]);
   useEffect(() => () => { void disposeDeliveredMechanicsResult(heldResultRef.current); }, []);
 
+  // Advanced by every commit of the session's model (applied operations, undo/redo,
+  // opens and creates), and by nothing else. A pending New Blank checks it rather
+  // than the request epoch, which selection and draft invalidation also advance:
+  // only a change to the model or project on screen supersedes the blank.
+  const modelCommitEpochRef = useRef(0);
+
   function commitModel(nextModel: PreviewModel, directDraftToken: string | null = null) {
+    modelCommitEpochRef.current += 1;
     referencePersistence.current = null;
     modelHashOwner.current = null;
     viewportViewCommandRef.current?.({ type: "retire-box-gesture" });
@@ -989,9 +1013,20 @@ export function useWorkspaceSession() {
         }
         if (terminal.state !== "completed") throw terminalJobError(terminal);
         // The poll carries no result: take the producer's bytes. A refused take
-        // (for example custody_full) is recorded as a typed refusal; the session
-        // does not retry a failed take, so `finally` releases the retained result.
-        output = await takePreviewMechanicsJobResult(startReceipt.job_id);
+        // (custody_full, or headroom for the handoff copy) is recorded as a typed
+        // refusal at the take; the session does not retry a failed take, so
+        // `finally` releases the retained result.
+        try {
+          output = await takePreviewMechanicsJobResult(startReceipt.job_id);
+        } catch (error) {
+          if (!(error instanceof ResourceUnavailableError)) throw error;
+          if (solveRunGate.current.isCurrent(runGeneration)) {
+            setSolveJob((current) =>
+              current.job_id === startedJob?.job_id ? refusedAtTakeSolveJob(current, error) : current
+            );
+          }
+          return;
+        }
         deliveredOutput = output;
         unsettledJob = null;
       } else {
@@ -1111,14 +1146,21 @@ export function useWorkspaceSession() {
     if (!renderedBasisIsCurrent()) return;
     // The report reads the run only while its aggregate is the current one.
     const previousRun = heldRuleCheckRun;
-    setRuleCheckReportRun(aggregate !== null && run?.result.aggregate_status === aggregate ? run : null);
+    const nextRun = aggregate !== null && run?.result.aggregate_status === aggregate ? run : null;
+    setRuleCheckReportRun(nextRun);
+    // A different run makes the previously assembled report package stale, even
+    // under the same aggregate (another pack or other outcomes; DEL-08-01 Design
+    // `report-package-current-results.md` §2.5), so this comes before the early
+    // return. The private-package intent remains an independent user choice.
+    const runChanged = nextRun !== previousRun;
+    if (runChanged) invalidateReportPackageComputedState();
     if (aggregate === ruleCheckAggregate) return;
     const previousAggregate = ruleCheckAggregate;
     const revision = ruleRevisionGate.current.start();
     // A different aggregate immediately makes the previously assembled report
     // package stale. Clear its computed route before publishing the new rule
-    // state; the private-package intent remains an independent user choice.
-    invalidateReportPackageComputedState();
+    // state.
+    if (!runChanged) invalidateReportPackageComputedState();
     setRuleCheckAggregate(aggregate);
     if (!currentSolvedResult || !inputManifest) return;
     const capturedResult = currentSolvedResult;
@@ -1845,6 +1887,11 @@ export function useWorkspaceSession() {
   }
 
   const SAVE_AS_NEW_SUPERSEDED = "Not saved: the session changed while the replace prompt was open; nothing was written.";
+  /** A New Blank whose create landed after the model on screen changed is stored but
+   * not opened; the session keeps the changed model and the stored blank is kept. */
+  const NEW_BLANK_SUPERSEDED = "NEW-BLANK-SUPERSEDED";
+  const newBlankSupersededMessage = (stored: PreviewModel["project"]) =>
+    `${NEW_BLANK_SUPERSEDED}: the new blank project "${stored.name}" (${stored.id}) was created but not opened, because the model changed while it was being created. This session keeps the changed model. The blank is stored locally: open it from List Local Projects.`;
 
   async function handleCreateProject() {
     return createProject(null);
@@ -2032,6 +2079,7 @@ export function useWorkspaceSession() {
       verb: "create it"
     }).then((guarded) => {
       if (guarded !== "proceed") {
+        ++projectRequest.current;
         setProjectMessage(unsavedChangesRefusal(guarded, "Not created"));
         setProjectOperation("create_blank_kept_edits");
         return;
@@ -2056,8 +2104,16 @@ export function useWorkspaceSession() {
     const owner = acquireProjectOperation();
     if (!owner) return;
     const request = ++projectRequest.current;
-    let epoch = requestEpochRef.current;
-    const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
+    let modelEpoch = modelCommitEpochRef.current;
+    const stillCurrent = () => request === projectRequest.current && modelEpoch === modelCommitEpochRef.current;
+    // A landed create superseded by a model change (not by another project
+    // operation, which owns the status line) is named, never dropped silently.
+    // `stored` is the project the create wrote (after any PROJECT-ID-EXISTS suffix).
+    const superseded = (stored: PreviewModel["project"]) => {
+      if (request !== projectRequest.current) return;
+      setProjectMessage(newBlankSupersededMessage(stored));
+      setProjectOperation("create_blank_superseded");
+    };
     try {
       let blankModel = buildBlankModel();
       const blankId = blankModel.project.id;
@@ -2085,7 +2141,7 @@ export function useWorkspaceSession() {
           blankModel = { ...blankModel, project: { ...blankModel.project, id: `${blankId}-${attempt}` } };
         }
       }
-      if (!stillCurrent()) return;
+      if (!stillCurrent()) { superseded(blankModel.project); return; }
       const returnedHash = await computeModelHash(created.model);
       const returnedEnvelopeHash = await computeProjectEnvelopeHash({
         model: created.model, editor_intents: created.editor_intents,
@@ -2093,7 +2149,7 @@ export function useWorkspaceSession() {
         mechanics_result: created.mechanics_result, analysis_run: created.analysis_run,
         model_hash: created.model_hash
       });
-      if (!stillCurrent()) return;
+      if (!stillCurrent()) { superseded(blankModel.project); return; }
       const verifiedBlankResponse = Boolean(blankModelHash && returnedHash &&
         created.model.project.id === blankModel.project.id &&
         created.summary.project_id === blankModel.project.id &&
@@ -2130,7 +2186,7 @@ export function useWorkspaceSession() {
       recordStoredBase(created);
       if (verifiedBlankResponse) setSavedModelBasis({ generation: projectSessionGenerationRef.current, revision: uiModelRevisionRef.current, hash: returnedHash!.value, source: "create" });
       setSelection(defaultSelection(created.model));
-      epoch = requestEpochRef.current;
+      modelEpoch = modelCommitEpochRef.current;
       setUndoStack([]);
       setRedoStack([]);
       setAppliedOperations([]);
@@ -2175,6 +2231,7 @@ export function useWorkspaceSession() {
         verb: "open it"
       });
       if (guarded !== "proceed") {
+        ++projectRequest.current;
         setProjectMessage(unsavedChangesRefusal(guarded, "Not opened"));
         setProjectOperation("open_kept_edits");
         return;
@@ -2185,6 +2242,7 @@ export function useWorkspaceSession() {
     const request = ++projectRequest.current;
     let epoch = requestEpochRef.current;
     const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
+    let recovery: StoredDocumentExportTarget | null = null;
     try {
       const opened = await openLocalProject(projectId);
       if (!stillCurrent()) return;
@@ -2276,8 +2334,19 @@ export function useWorkspaceSession() {
       if (!stillCurrent()) return;
       setProjectMessage(`Open failed: ${String(error)}`);
       setProjectOperation("open_failed");
+      // W-17: a stored project refused for lacking project.units is offered the
+      // recovery export (desktop store only); nothing was adopted.
+      if (error instanceof StoredProjectUnitsRefusal && isTauriRuntime()) {
+        recovery = { projectId: error.projectId, stateId: null, description: storedProjectDescription(error.projectId), refusal: error.message };
+      }
     } finally {
       releaseProjectOperation(owner);
+    }
+    if (recovery) {
+      requestStoredDocumentExport(recovery, (message, operation) => {
+        setProjectMessage(message);
+        setProjectOperation(operation);
+      });
     }
   }
 
@@ -2291,6 +2360,7 @@ export function useWorkspaceSession() {
     if (replacingNeedsConfirmation()) {
       const guarded = await confirmReplacingEdits({ action: "Opening a model document", verb: "open it" });
       if (guarded !== "proceed") {
+        ++projectRequest.current;
         setProjectMessage(unsavedChangesRefusal(guarded, "Not opened"));
         setProjectOperation("open_model_kept_edits");
         return;
@@ -2396,6 +2466,44 @@ export function useWorkspaceSession() {
     });
   }
 
+  /** W-17 recovery export (`storedDocumentExport.ts`): offers to save a stored
+   * document the open refused for lacking `project.units` to a file, exactly as
+   * stored, behind the Save Model Document dialog's explicit intent. Nothing is
+   * adopted; `report` gets the outcome's status line. False when another
+   * operation or modal owns the session (nothing is offered then). */
+  function requestStoredDocumentExport(target: StoredDocumentExportTarget, report: (message: string, operation: string) => void): boolean {
+    if (projectSessionBusy()) return false;
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const close = () => { modelDocumentSaveDialogOpenRef.current = false; setModelDocumentSaveRequest(null); };
+    modelDocumentSaveDialogOpenRef.current = true;
+    setModelDocumentSaveRequest({
+      projectName: target.projectId,
+      opener,
+      cancel: close,
+      recovery: { description: target.description, refusal: target.refusal },
+      save: (explicitLocalPrivateIntent) => {
+        close();
+        void handleStoredDocumentExport(target, explicitLocalPrivateIntent, report);
+      }
+    });
+    return true;
+  }
+
+  async function handleStoredDocumentExport(target: StoredDocumentExportTarget, explicitLocalPrivateIntent: boolean, report: (message: string, operation: string) => void) {
+    const owner = acquireProjectOperation();
+    if (!owner) return;
+    ++projectRequest.current;
+    try {
+      const outcome = await saveStoredModelDocumentFile(target, explicitLocalPrivateIntent);
+      report(storedDocumentExportMessage(target, outcome), outcome.outcome === "saved" ? "export_stored_document"
+        : outcome.outcome === "cancelled" ? "export_stored_document_cancelled" : "export_stored_document_refused");
+    } catch (error) {
+      report(storedDocumentExportFailureMessage(target, error), "export_stored_document_failed");
+    } finally {
+      releaseProjectOperation(owner);
+    }
+  }
+
   /** Saves the session's model document under the dialog's intent. Reads the
    * session and changes only the status line: the model, its hash, the results
    * and the solve standing are untouched. */
@@ -2404,6 +2512,7 @@ export function useWorkspaceSession() {
     if (!saveModel) return;
     const owner = acquireProjectOperation();
     if (!owner) return;
+    ++projectRequest.current;
     try {
       const libraries = await resolveLibraryDispositions(saveModel);
       const prepared = await prepareModelDocumentSave({ model: saveModel, modelHash: saveHash, explicitLocalPrivateIntent, libraries });
@@ -2432,6 +2541,8 @@ export function useWorkspaceSession() {
   async function requestSaveHandoff() {
     const { model: saveModel, modelHash: saveHash } = modelDocumentSaveBasisRef.current;
     if (!saveModel || projectSessionBusy()) return;
+    // This request's project-command generation; nothing below advances it.
+    const request = ++projectRequest.current;
     const refuse = (code: string, message: string) => {
       setProjectMessage(handoffSaveRefusalMessage([{ code, path: "", message }]));
       setProjectOperation("save_handoff_refused");
@@ -2440,18 +2551,27 @@ export function useWorkspaceSession() {
     if (!saveHash) return refuse(MODEL_DOC_SAVE_HASH_PENDING, "The session's model hash is not computed yet; try again once it is shown.");
     // Captured before the workspace turns inert, which drops its focus.
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    // The session moved on while the states were listed (a newer project
+    // command started, the model or its hash changed, or an operation or prompt
+    // owns the session): the listing's outcome, success or failure, is dropped,
+    // so it cannot overwrite a newer status line or open a dialog over it.
+    const saveHashValue = saveHash.value;
+    const sessionMovedOn = () => projectRequest.current !== request
+      || modelDocumentSaveBasisRef.current.model !== saveModel
+      || modelDocumentSaveBasisRef.current.modelHash?.value !== saveHashValue || projectSessionBusy();
     let basis: HandoffBasis;
     try {
       // The basis is chosen among the readable saved states; a row the store
       // cannot read (W-12) is never a basis.
-      basis = handoffBasis((await listModelStates(saveModel.project.id)).states, saveModel.project.id, saveHash.value);
+      basis = handoffBasis((await listModelStates(saveModel.project.id)).states, saveModel.project.id, saveHashValue);
     } catch (error) {
+      if (sessionMovedOn()) return;
       setProjectMessage(handoffSaveFailureMessage(error));
       setProjectOperation("save_handoff_failed");
       return;
     }
-    // The session moved on while the states were listed: nothing is asked.
-    if (modelDocumentSaveBasisRef.current.model !== saveModel || modelDocumentSaveBasisRef.current.modelHash?.value !== saveHash.value || projectSessionBusy()) return;
+    // Nothing is asked of a session that moved on.
+    if (sessionMovedOn()) return;
     const close = () => { handoffSaveDialogOpenRef.current = false; setHandoffSaveRequest(null); };
     handoffSaveDialogOpenRef.current = true;
     setHandoffSaveRequest({
@@ -2472,6 +2592,7 @@ export function useWorkspaceSession() {
    * state left by a refused or cancelled publication stays and is reused.
    * Changes only the status line (and, for a new state, the History list). */
   async function handleSaveHandoff(choice: HandoffSaveChoice, basis: HandoffBasis, dialogModel: PreviewModel) {
+    ++projectRequest.current;
     let saveModel = modelDocumentSaveBasisRef.current.model;
     let saveHash = modelDocumentSaveBasisRef.current.modelHash;
     const refuse = (message: string, operation = "save_handoff_refused") => {
@@ -2700,6 +2821,7 @@ export function useWorkspaceSession() {
   async function handleListProjects() {
     const owner = acquireProjectOperation();
     if (!owner) return;
+    ++projectRequest.current;
     try {
       const listed = await listLocalProjects();
       setProjectIndex(listed);
@@ -2834,6 +2956,23 @@ export function useWorkspaceSession() {
     if (route.surface !== "inspector") setToolkitFocus({ testId: route.focusTestId, elementId: route.elementId });
   }
 
+  // "Within this run" (W-12 S3c): the load case and combination choice. It is
+  // disabled with the stated reason, and refused, while another project operation
+  // or prompt owns the session (the one-owner check and the modal holds), a solve
+  // runs or a report package is being prepared. The choice is the
+  // session's choice, revalidated against every Current run (resultsSessionState.ts);
+  // a new choice clears the notice of a dropped one.
+  const withinRunDisabledReason = withinRunBusyReason({ projectBusy, running, reportPackageBusy });
+  const withinRunBusyRef = useRef<string | null>(null);
+  withinRunBusyRef.current = withinRunDisabledReason;
+  function handleSelectWithinRunBases(pair: WithinRunPair) {
+    // The latest render's reason, the one owner and an active solve, read at the
+    // call: a handler from an earlier render cannot choose while the session is busy.
+    if (withinRunBusyRef.current || projectSessionBusy() || solveRunGate.current.current() !== null || reportPackageBusyGenerationRef.current !== null) return;
+    setHeldWithinRunSelection({ left: pair.left, right: pair.right });
+    setDroppedWithinRunBases(null);
+  }
+
   async function handleSaveReportPackage() {
     if (!model || !currentSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusy) return;
     const generation = ++reportPackageRequestGenerationRef.current;
@@ -2845,10 +2984,13 @@ export function useWorkspaceSession() {
       inputManifest,
       analysisRun,
       comparison,
+      comparisonUnavailable,
       projectSummary,
       ruleCheckAggregate,
+      ruleCheckRun: ruleCheckReportRun,
       privateIntent: reportPackagePrivateIntent
     } as const;
+    // Refs, because the awaited build and preparation outlive this render's closure.
     const isCurrent = () =>
       reportPackageRequestGenerationRef.current === generation &&
       reportPackageBusyGenerationRef.current === generation &&
@@ -2857,7 +2999,9 @@ export function useWorkspaceSession() {
       currentModel.current === basis.model &&
       currentSolvedResultRef.current === basis.result &&
       currentInputManifestRef.current === basis.inputManifest &&
-      analysisBasisRef.current.value === basis.analysisRun;
+      analysisBasisRef.current.value === basis.analysisRun &&
+      ruleCheckAggregateRef.current === basis.ruleCheckAggregate &&
+      ruleCheckReportRunRef.current === basis.ruleCheckRun;
     reportPackageBusyGenerationRef.current = generation;
     setReportPackageBusy(true);
     setReportPackageRoute(null);
@@ -2869,7 +3013,9 @@ export function useWorkspaceSession() {
         inputManifest: basis.inputManifest,
         projectSummary: basis.projectSummary,
         comparison: basis.comparison,
-        ruleCheckAggregate: basis.ruleCheckAggregate
+        comparisonUnavailable: basis.comparisonUnavailable,
+        ruleCheckAggregate: basis.ruleCheckAggregate,
+        ruleCheckRun: basis.ruleCheckRun
       });
       if (!isCurrent()) return;
       const controlled = controlReportPackageRequest(request, basis.privateIntent);
@@ -2881,11 +3027,27 @@ export function useWorkspaceSession() {
         });
         return;
       }
-      const saved = await saveReportPackage(controlled);
+      // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.1, §3.6): a request
+      // from an exact source carries the texts the native save binds, and its admission
+      // is re-checked immediately before each send (null for a pressure-free request).
+      const exactSubmission = reportPackageExactSubmission(request);
+      const prepared = await prepareReportPackageSave(controlled, basis.model, request, basis.inputManifest.manifest, exactSubmission);
+      if (!isCurrent()) return;
+      if (prepared.route !== "ready") {
+        setReportPackageRoute(prepared);
+        return;
+      }
+      const exactStillCurrent = () => {
+        if (exactSubmission === null) return true;
+        try { reportPackageExactSubmission(request); return true; } catch { return false; }
+      };
+      // The last guard runs inside the invocation, immediately before each send.
+      const saved = await invokeReportPackageSave(prepared, () => isCurrent() && exactStillCurrent());
       if (!isCurrent()) return;
       setReportPackageRoute(saved);
     } catch (error) {
-      if (!isCurrent()) return;
+      // A basis retired before a send: nothing was sent, and the newer basis owns the state.
+      if (error instanceof IngressRequestRetiredError || !isCurrent()) return;
       setReportPackageRedaction(null);
       setReportPackageRoute({
         route: "redaction_blocked",
@@ -3377,6 +3539,7 @@ export function useWorkspaceSession() {
     model, currentModel, projectSessionGeneration, projectSessionGenerationRef, storedBaseRef,
     confirmReplacingEdits, acquireProjectOperation, releaseProjectOperation,
     saveLocalProject: saveLocalProjectFirst, captureProjectBinding, adoptStateSnapshot, projectSessionBusy,
+    requestStoredDocumentExport,
     runSlot: { result, analysisRun, inputManifest, restored: historicalRun?.designation === "historical_saved_run" }
   });
 
@@ -3423,6 +3586,12 @@ export function useWorkspaceSession() {
       ruleCheckRunBasis,
       dormantOutputBasis,
       comparison,
+      comparisonUnavailable,
+      packagedWithinRun,
+      withinRun,
+      droppedWithinRunBases,
+      withinRunDisabledReason,
+      handleSelectWithinRunBases,
       proposal,
       selectedReviewTarget,
       solveJob,

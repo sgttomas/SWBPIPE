@@ -3,15 +3,22 @@
 //
 //   node apps/desktop/native-smoke/run.mjs [--skip-build] [--keep]
 //
-// Builds the frontend and the app with the `native-smoke` cargo feature, then
-// runs the real app twice against a throwaway HOME (so the project store and
-// Downloads are isolated from the user's own):
+// Checks each WebAssembly engine's content stamp (`scripts/engineSourceStamp.mjs`)
+// and rebuilds a stale or unstamped engine, even under --skip-build; builds the
+// frontend and the app with the `native-smoke` cargo feature (under
+// --skip-build, whatever a stale engine, dist/ copy, frontend or app source or
+// app binding requires) and binds the executable cargo reported
+// (`scripts/appBinaryBinding.mjs`), then runs a private copy of that executable
+// twice against a throwaway HOME (so the project store and Downloads are
+// isolated from the user's own):
 //
 //   1. open-solve-save: File > Save Model Document… on the bundled demo, re-open
 //      the saved file and save it again (W-6a); three named refusals; then for the milestone model and
 //      the demo model, File > Open Model Document…, solve sparse and dense,
 //      read standing, rows, N1 displacement and the solve proof, export the
-//      result JSON where the product offers it, and save as a local project;
+//      result JSON where the product offers it (W-18: and File > Save Report
+//      Package… for the demo, re-read with the product's reader), and save as a
+//      local project;
 //   2. reopen: a fresh process opens each saved project and solves it again,
 //      then File > Save Handoff… on the stored demo twice: a new handoff-basis
 //      state and package, then the same package replaced (W-6b).
@@ -20,18 +27,69 @@
 // against an RFC 8785 JCS SHA-256 of the files it opened, the saved projects
 // in the SQLite store, and the exported file. It prints one line per check and
 // exits non-zero on any failure. This is evidence, not the owner's witness.
-import { execFileSync, spawn } from "node:child_process";
+//
+// What the engine stamps and the app binding guard against. In scope, and to be
+// closed: accidental staleness or mis-binding in our own environments: ordinary
+// edits (including ones that keep a file's modification time), branch switches,
+// reused worktrees, the environment our wrappers set and the smoke inherits
+// (CARGO_TARGET_DIR, CARGO_BUILD_BUILD_DIR and the like: every cargo build,
+// clean and target-reporting metadata the smoke tooling runs has its output and
+// build directories set to its own dedicated directory), and shared or linked
+// target directories. Out of scope, documented
+// limits: local cargo configuration or filesystem tricks deliberately
+// constructed to defeat the check (for example a linker program whose
+// contents change under the same name, or a file swapped between the check and
+// cargo's read). Some refusals (cargo configuration keys in any TOML spelling)
+// also stop such constructions where that was cheap; that does not bring them in
+// scope. DEL-07-11 Design `model-document-open-and-native-smoke.md` lists the
+// remaining limits.
+//
+// Build lock and lock order. The whole smoke, from the engine and app check,
+// build and binding through the end of its last app launch, runs under the
+// per-worktree build lock (`scripts/worktreeBuildLock.mjs`,
+// `apps/desktop/target/build.lock`), which `build:wasm` also takes (inherited
+// here through OPENPIPESTRESS_BUILD_LOCK_TOKEN), so two smokes, or a smoke and
+// a direct `npm run build:wasm`, in one worktree never interleave. One build or
+// smoke per worktree at a time is the supported use: a second is refused at
+// once, not queued. The smoke releases the lock only after its last launch
+// ends, on every exit path. The lock fails closed and is never broken
+// automatically: the refusal names the holder (pid, purpose, start and acquired
+// times), gives an informational liveness hint from `ps`, and prints the
+// commands that confirm no build is running in this worktree and then remove
+// the lock (`rm -f` of its path), so a crashed run costs a minute. One order:
+// the host slot first (`t3_slot.sh`, `t3_cargo.sh` or `t3_exclusive.sh`, taken
+// by the wrapper that launches this script), then the worktree lock. While
+// holding it, no command that would acquire a host slot runs: such a command,
+// or an inherited compiler wrapper (RUSTC_WRAPPER, RUSTC_WORKSPACE_WRAPPER,
+// CARGO_BUILD_RUSTC_WRAPPER, CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER) before any
+// cargo, is refused by name. Every build and launch runs through
+// `runUnderLock`, in its own process group: on SIGINT, SIGTERM or SIGHUP the
+// smoke stops and reaps it (SIGKILL after a bounded wait), releases the lock,
+// and exits 128 + the signal number, removing its private app copy as it
+// exits; a process that cannot be confirmed gone keeps the lock and the copy,
+// and the removal steps are printed.
+// Under the lock, the bound executable is copied into a private per-run
+// directory (`target/native-smoke/run-<token>/`, about 115 MB) and the copy's
+// SHA-256 checked against the binding; each launch runs that copy, its identity
+// checked again first, and the copy is removed when the run ends, normally or
+// by signal. SIGKILL of the smoke, or a power loss, leaves the lock and that
+// directory; the refusal the next run prints names both, and recovery removes
+// that one directory, once the lock is removed and nothing runs from it, never
+// every `run-*`.
 import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { ENGINE_BUILDS } from "../scripts/build-wasm-engine.mjs";
+import { fileIdentity, prepareSmokeApp, privateLaunchCopy } from "../scripts/appBinaryBinding.mjs";
+import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mjs";
+import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const desktop = path.resolve(here, "..");
 const project = path.resolve(desktop, "..", "..");
 const tauriDir = path.join(desktop, "src-tauri");
-const binary = path.join(tauriDir, "target", "debug", "openpipestress-desktop");
 const args = new Set(process.argv.slice(2));
 const expected = JSON.parse(readFileSync(path.join(here, "expected.json"), "utf8"));
 const PHASE_TIMEOUT_MS = 25 * 60 * 1000;
@@ -48,20 +106,113 @@ if (process.platform !== "darwin") {
   process.exit(2);
 }
 
-function run(command, commandArgs, cwd, env = {}) {
+// A failed command, as execFileSync named one.
+const commandFailed = (command, commandArgs, result) =>
+  new Error(`Command failed: ${command} ${commandArgs.join(" ")}${result.error ? ` (${result.error.message})` : ""}`);
+
+async function run(command, commandArgs, cwd, env = {}) {
+  refuseHostSlotCommand(command, commandArgs);
   console.log(`$ (${path.relative(project, cwd) || "."}) ${command} ${commandArgs.join(" ")}`);
-  execFileSync(command, commandArgs, { cwd, stdio: "inherit", env: { ...process.env, CARGO_NET_OFFLINE: "true", ...env } });
+  const result = await runUnderLock(command, commandArgs, { cwd, stdio: ["ignore", "inherit", "inherit"], env: { ...process.env, CARGO_NET_OFFLINE: "true", ...env } });
+  if (result.error !== null || result.status !== 0) throw commandFailed(command, commandArgs, result);
 }
 
-if (!args.has("--skip-build")) {
-  if (!existsSync(path.join(desktop, "public", "wasm-engine"))) run("npm", ["run", "build:wasm"], desktop);
-  run("npm", ["run", "build"], desktop);
-  run("cargo", ["build", "--locked", "--offline", "--features", "native-smoke,tauri/custom-protocol"], tauriDir, { TAURI_CONFIG: SMOKE_TAURI_CONFIG });
-}
-if (!existsSync(binary)) {
-  console.error(`native smoke: ${binary} is missing; run without --skip-build`);
+// A stale engine is never acceptable: each engine's stamp is recomputed from
+// its sources, with or without --skip-build, and `build:wasm` (which builds
+// each missing, unstamped or stale engine, clean) runs when any is.
+const skipBuild = args.has("--skip-build");
+let buildLock;
+try {
+  buildLock = acquireBuildLock({ purpose: "native smoke" });
+} catch (error) {
+  console.error(`native smoke: ${error.message}`);
   process.exit(2);
 }
+// `build:wasm` and the other builds below run under this lock.
+process.env[BUILD_LOCK_TOKEN_ENV] = buildLock.token;
+let stampContext;
+try {
+  // Refuses an inherited compiler wrapper before any cargo runs.
+  stampContext = engineStampContext(desktop);
+} catch (error) {
+  console.error(`native smoke: ${error.message}`);
+  await exitAfterSignals(2);
+}
+const engineStates = () =>
+  ENGINE_BUILDS.map(({ crateDirectory, destination }) => ({
+    name: path.basename(destination),
+    ...checkEngine({ projectRoot: project, crateDirectory, outDir: destination, context: stampContext })
+  }));
+const enginesBefore = engineStates();
+const staleEngines = enginesBefore.filter((engine) => engine.action === "rebuild");
+console.log(`native smoke: checking engine stamps${skipBuild ? " (--skip-build given; a stale engine is rebuilt regardless)" : ""}`);
+if (staleEngines.length > 0) {
+  await run("npm", ["run", "build:wasm"], desktop);
+  for (const engine of engineStates()) {
+    if (engine.action !== "current") {
+      console.error(`native smoke: engine ${engine.name} still does not match its sources after build:wasm (${engine.reason})`);
+      await exitAfterSignals(2);
+    }
+    const before = enginesBefore.find((entry) => entry.name === engine.name);
+    if (before.action === "rebuild") console.log(`engine rebuilt: ${engine.name} (${before.reason}; stamp ${engine.hash})`);
+    else console.log(`engine current, stamp ${engine.hash} (${engine.name}; build:wasm did not build it)`);
+  }
+} else {
+  for (const engine of enginesBefore) console.log(`engine current, stamp ${engine.hash} (${engine.name})`);
+}
+// The app embeds dist/ when cargo builds it. What is rebuilt, the binding record
+// and the executable launched: scripts/appBinaryBinding.mjs.
+const APP_BUILD = {
+  command: ["cargo", "build", "--locked", "--offline", "--manifest-path", path.join(tauriDir, "Cargo.toml"), "--message-format=json-render-diagnostics", "--features", "native-smoke,tauri/custom-protocol"],
+  tauri_config: SMOKE_TAURI_CONFIG
+};
+let app;
+try {
+  app = await prepareSmokeApp({
+    projectRoot: project,
+    desktopRoot: desktop,
+    tauriDir,
+    binName: "openpipestress-desktop",
+    skipBuild,
+    staleEngines: staleEngines.map((engine) => engine.name),
+    engineFolders: ENGINE_BUILDS.map(({ destination }) => path.basename(destination)),
+    engineHashes: () => Object.fromEntries(engineStates().map((engine) => [engine.name, engine.hash])),
+    build: APP_BUILD,
+    context: engineStampContext(tauriDir),
+    runFrontend: () => run("npm", ["run", "build"], desktop),
+    runCargo: async ([command, ...commandArgs], env) => {
+      refuseHostSlotCommand(command, commandArgs);
+      refuseCompilerWrapperEnv({ ...process.env, ...env });
+      console.log(`$ (${path.relative(project, tauriDir)}) ${command} ${commandArgs.join(" ")}`);
+      const result = await runUnderLock(command, commandArgs, {
+        cwd: tauriDir,
+        stdio: ["ignore", "pipe", "inherit"],
+        env: { ...process.env, CARGO_NET_OFFLINE: "true", ...env }
+      });
+      if (result.error !== null || result.status !== 0) throw commandFailed(command, commandArgs, result);
+      return result.stdout;
+    }
+  });
+} catch (error) {
+  console.error(error.message.startsWith("native smoke:") ? error.message : `native smoke: app build failed: ${error.message}`);
+  await exitAfterSignals(2);
+}
+// Checked, built and bound. The bound executable is copied to this run's
+// private directory and the copy checked against the binding; the launches run
+// the copy, still under the lock, which is released after the last one ends.
+let launchCopy;
+try {
+  launchCopy = privateLaunchCopy({ desktopRoot: desktop, binary: app.binary, identity: app.identity, token: buildLock.token });
+} catch (error) {
+  console.error(error.message.startsWith("native smoke:") ? error.message : `native smoke: could not copy the app for launch: ${error.message}`);
+  await exitAfterSignals(2);
+}
+// Removed on every exit, unless the lock was kept because a process may still run from it.
+process.on("exit", () => { if (!buildLock.kept()) launchCopy.remove(); });
+// No build runs from here; the launches still hold the lock.
+delete process.env[BUILD_LOCK_TOKEN_ENV];
+const binary = launchCopy.executable;
+console.log(`native smoke: launching ${binary}, a private copy of ${app.binary} (${app.identity.sha256})`);
 
 // RFC 8785 JCS for JSON documents (finite numbers; ECMAScript number text).
 function canonical(value) {
@@ -88,6 +239,11 @@ const MODEL_DOCUMENT_SAVE = { first: path.join(savedModels, "saved-demo.json"), 
 const savedHandoffs = path.join(root, "saved-handoffs");
 mkdirSync(savedHandoffs);
 const HANDOFF_SAVE = { path: path.join(savedHandoffs, "saved-demo.swbhandoff") };
+// W-18 (b2). Where the report-package save chooser is answered, outside HOME's
+// Documents and Downloads.
+const savedReportPackages = path.join(root, "saved-report-packages");
+mkdirSync(savedReportPackages);
+const REPORT_PACKAGE_SAVE = { path: path.join(savedReportPackages, "saved-demo.opsproj") };
 const documents = expected.cases.map((entry) => {
   const source = path.join(project, entry.fixture);
   const target = path.join(models, path.basename(entry.fixture));
@@ -133,33 +289,28 @@ function launch(phase, extra = {}) {
     ...extra
   };
   console.log(`\n== phase ${phase} (HOME=${home})`);
-  return new Promise((resolve) => {
-    // caffeinate keeps the display and system awake for the app's lifetime.
-    const child = spawn("/usr/bin/caffeinate", ["-di", binary], {
-      cwd: root,
-      env: {
-        ...process.env,
-        HOME: home,
-        SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "driver.js"),
-        SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan),
-        SWBPIPE_NATIVE_SMOKE_REPORT: report
-      },
-      stdio: ["ignore", "inherit", "inherit"],
-      detached: true
-    });
-    // On timeout or interruption, kill the whole group: caffeinate and the app under it.
-    const killGroup = () => { try { process.kill(-child.pid, "SIGKILL"); } catch { /* already gone */ } };
-    const interrupted = () => { killGroup(); process.exit(130); };
-    process.once("SIGINT", interrupted);
-    process.once("SIGTERM", interrupted);
-    const timer = setTimeout(() => { console.error(`phase ${phase}: timed out`); killGroup(); }, PHASE_TIMEOUT_MS);
-    child.on("exit", (code, signal) => {
-      clearTimeout(timer);
-      process.off("SIGINT", interrupted);
-      process.off("SIGTERM", interrupted);
-      const parsed = existsSync(report) ? JSON.parse(readFileSync(report, "utf8")) : { ok: false, error: `no report (exit ${code ?? signal})` };
-      resolve(parsed);
-    });
+  if (JSON.stringify(fileIdentity(binary)) !== JSON.stringify(app.identity)) {
+    console.error(`native smoke: ${binary}, the private copy of the bound app, changed since it was checked; not launched`);
+    return exitAfterSignals(2);
+  }
+  // caffeinate keeps the display and system awake for the app's lifetime. It
+  // runs under the lock in its own process group: on timeout the whole group,
+  // caffeinate and the app under it, is killed; on interruption the lock's
+  // handler stops and reaps it before the lock is released.
+  return runUnderLock("/usr/bin/caffeinate", ["-di", binary], {
+    cwd: root,
+    env: {
+      ...process.env,
+      HOME: home,
+      SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "driver.js"),
+      SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan),
+      SWBPIPE_NATIVE_SMOKE_REPORT: report
+    },
+    stdio: ["ignore", "inherit", "inherit"],
+    timeoutMs: PHASE_TIMEOUT_MS
+  }).then(({ status, signal, timedOut }) => {
+    if (timedOut) console.error(`phase ${phase}: timed out`);
+    return existsSync(report) ? JSON.parse(readFileSync(report, "utf8")) : { ok: false, error: `no report (exit ${status ?? signal})` };
   });
 }
 
@@ -181,7 +332,7 @@ function checkObservation(prefix, seen, want, modelHash) {
   check(`${prefix}: no retained-precision diagnostics`, seen.retained_precision_codes.length === 0 && seen.retained_precision_elements === 0, seen.retained_precision_codes);
 }
 
-const first = await launch("open-solve-save");
+const first = await launch("open-solve-save", { report_package: REPORT_PACKAGE_SAVE });
 check("phase open-solve-save completed", first.ok, first.error);
 // W-6a (DEL-15-01 Design canonical-model-export.md §2). Nothing here is pinned:
 // the expected bytes and hash are computed from the bundled demo fixture.
@@ -272,6 +423,8 @@ const namesMissingInputs = (rules) => Boolean(rules?.aggregate?.includes("RULE_I
   check("exact route: MBF refused by its own gate (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE), no package or MBF text download",
     exact?.mbf_panel && !exact.mbf_download_controls && exact.mbf_refusal?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE"), exact?.mbf_refusal);
   check("exact route: result JSON export offered", exact?.result_export_link === true);
+  check("exact route: report package refused by its route (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE), no package controls",
+    exact?.report_package_refusal?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE") && exact.report_package_controls === false, exact?.report_package_refusal);
   check("exact route: rule checks refused as RULE_INPUTS_INCOMPLETE, naming the missing inputs", namesMissingInputs(exact?.rule_checks), exact?.rule_checks?.outcomes);
 }
 // W-4. The model authored from blank in the GUI.
@@ -404,6 +557,36 @@ for (const doc of documents) {
     named.length === integrity.count && named.every((item) => item.severity === integrity.severity && item.message?.includes(integrity.sentence))
       && !(run?.diagnostics ?? []).some((item) => item.severity === "blocking" || item.severity === "error"), named.map((item) => item.severity));
 }
+// W-18 (b2; DEL-08-01 Design report-package-current-results.md §4). File > Save
+// Report Package… on the demo's Current pressure-free result. Nothing here is
+// pinned: the receipt, the file and the product reader's re-read are compared with
+// each other and with the result JSON the same session exported.
+{
+  const pkg = first.report_package;
+  const read = pkg?.read;
+  const fileBytes = existsSync(REPORT_PACKAGE_SAVE.path) ? readFileSync(REPORT_PACKAGE_SAVE.path) : null;
+  const hex = (bytes) => createHash("sha256").update(bytes).digest("hex");
+  const shown = (pattern) => pkg?.status?.match(pattern)?.[1] ?? null;
+  check("save report package: offered for the demo's Current pressure-free result, after its own local-private selection (unchecked first)",
+    pkg && pkg.unavailable === null && pkg.intent_checked_initially === false && pkg.intent_label === "Include known private values in this local package", pkg && { ...pkg, read: undefined });
+  check("save report package: saved (REPORT-PACKAGE-SAVED) to the chosen file", pkg?.status?.startsWith("outcome=saved; code=REPORT-PACKAGE-SAVED; file=") && fileBytes !== null, pkg?.status);
+  check("save report package: the file's SHA-256 and length are the receipt's",
+    fileBytes && shown(/container_sha256=([0-9a-f]{64})/) === hex(fileBytes) && Number(shown(/bytes=(\d+);/)) === fileBytes.length && read?.file_sha256_hex === hex(fileBytes), shown(/container_sha256=([0-9a-f]{64})/));
+  check("save report package: the product reader re-reads an unblocked version 2.0.0 desktop package, its identity the receipt's",
+    read && !read.error && read.schema_version === "2.0.0" && read.export_profile_id === "desktop_local_private_report_package_1" && read.export_blocked === false
+      && read.package_identity_sha256_hex === shown(/package_identity=([0-9a-f]{64})/), read?.error ?? (read && { schema_version: read.schema_version, export_blocked: read.export_blocked }));
+  const inventory = Array.isArray(read?.inventory) ? read.inventory : [];
+  const members = Array.isArray(read?.members) ? read.members.filter((member) => member.role !== "package_manifest") : [];
+  check("save report package: every member's recomputed SHA-256 and length match the manifest inventory",
+    inventory.length > 0 && inventory.length === members.length && inventory.every((entry, index) => members[index]?.role === entry.role && members[index].file_name === entry.file_name
+      && members[index].sha256_hex === entry.sha256_hex && members[index].byte_length === entry.byte_length), members.map((member) => member.role));
+  const demoExport = (first.exports ?? []).find((item) => item.label === "demo");
+  const exportName = demoExport?.status?.match(/^Saved (.+) \(\d+ bytes\)\.$/)?.[1];
+  let exportedDocument = null;
+  try { exportedDocument = exportName ? JSON.parse(readFileSync(path.join(downloads, exportName), "utf8")) : null; } catch { exportedDocument = null; }
+  check("save report package: the result member is the RFC 8785 text of the Export Result JSON document the same session saved",
+    exportedDocument && typeof read?.result_member_text === "string" && read.result_member_text === canonical(exportedDocument), exportName);
+}
 if (documents.some((doc) => (doc.result_export ?? { offered: true }).offered)) check("at least one result export written", exported.length > 0, exported);
 else check("no result export written: no case offers one", exported.length === 0, exported);
 
@@ -498,4 +681,7 @@ const failed = checks.filter((item) => !item.ok);
 writeFileSync(path.join(root, "summary.json"), JSON.stringify({ checks, first, second }, null, 2));
 console.log(`\nnative smoke: ${checks.length - failed.length}/${checks.length} checks passed; evidence in ${root}`);
 if (!args.has("--keep") && failed.length === 0) rmSync(root, { recursive: true, force: true });
-process.exit(failed.length === 0 ? 0 : 1);
+// The last launch has ended: release the lock (kept if a process of it may
+// still run); the private copy is removed as the process exits.
+buildLock.release();
+await exitAfterSignals(failed.length === 0 ? 0 : 1);

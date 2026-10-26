@@ -34,44 +34,50 @@ SOURCES = {
 # owner gains a caller. W-8 topology warnings D3 (§8.16): +2 more (`mod topology;` and its call), unchanged text.
 # Silent-zero guard D3 (§8.15): +1 more (one load-state call), unchanged text.
 # Model document 0.7.0 D3 (§8.17): +7 more (`model_settings`), unchanged text.
+# W-7 D3 (§8.20): every owner, site and caller moved with unchanged text (lib.rs +5/+37; retained_product.rs
+# +16/+36/+85); no owner gains a caller.
+# W-15 D3 (§8.21): every lib.rs owner, site and caller moved with unchanged text (+60 to the case solve, +103/+111
+# after it); retained_product.rs's are in place (its rows only name `component_body: None`); no owner gains a caller.
+# W-16 slice a D3 (§8.23): every lib.rs owner, site and caller moved with unchanged text (+7 to the case solve, +39 after
+# it), and retained_product.rs's after the captured-target match +2; no owner gains a caller.
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11343,
+    "line": 11522,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11301:exact_straight_summary_extrema",
-    "short": "lib.rs:11343",
-    "from": "lib.rs:11301:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11480:exact_straight_summary_extrema",
+    "short": "lib.rs:11522",
+    "from": "lib.rs:11480:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4845:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:4917:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
-      'core/product_physics/src/retained_product.rs:6153:prepared_maxima'
+      'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
     ]
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11349,
+    "line": 11528,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11301:exact_straight_summary_extrema",
-    "short": "lib.rs:11349",
-    "from": "lib.rs:11301:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11480:exact_straight_summary_extrema",
+    "short": "lib.rs:11528",
+    "from": "lib.rs:11480:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4845:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:4917:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
-      'core/product_physics/src/retained_product.rs:6153:prepared_maxima'
+      'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
     ]
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12004,
+    "line": 12191,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:11985:recover_curved_bend_local_forces",
-    "short": "lib.rs:12004",
-    "from": "lib.rs:11985:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:12172:recover_curved_bend_local_forces",
+    "short": "lib.rs:12191",
+    "from": "lib.rs:12172:recover_curved_bend_local_forces",
     "parents": [
-      "core/product_physics/src/lib.rs:4845:solve_prepared_load_case"
+      "core/product_physics/src/lib.rs:4917:solve_prepared_load_case"
     ]
   },
   {
@@ -88,14 +94,14 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/retained_product.rs",
-    "line": 3146,
+    "line": 3162,
     "kind": "into_text",
-    "owner": 'core/product_physics/src/retained_product.rs:3126:support_observables',
-    "short": 'retained_product.rs:3146',
-    "from": 'retained_product.rs:3126:support_observables',
+    "owner": 'core/product_physics/src/retained_product.rs:3142:support_observables',
+    "short": 'retained_product.rs:3162',
+    "from": 'retained_product.rs:3142:support_observables',
     "parents": [
-      'core/product_physics/src/retained_product.rs:3165:case_observables',
-      'core/product_physics/src/retained_product.rs:7429:combination_observables'
+      'core/product_physics/src/retained_product.rs:3181:case_observables',
+      'core/product_physics/src/retained_product.rs:7516:combination_observables'
     ]
   }
 ]
@@ -130,7 +136,16 @@ MODE_SOURCE = {
            "b8ad36562dbc2091bf1e83b297aac99a364a245944acad2aeeb68187253d709a",
            # Silent-drop guard D3 (§8.19): the same _X emitter, with retained_w1 carried to lib.rs:3689 (its only
            # difference from b8ad3656…).
-           "836d05df66da34b1464bb5c067c6d8f68662e15d67b048f32662ea06901ad6f8"},
+           "836d05df66da34b1464bb5c067c6d8f68662e15d67b048f32662ea06901ad6f8",
+           # W-7 D3 (§8.20): the same _X emitter, with retained_w1 carried to lib.rs:3694 (its only difference from
+           # 836d05df…).
+           "0955cc3338597f527e0d849d7dc58161059f2d1ea6af59fa04fae572b79448a8",
+           # W-15 D3 (§8.21): the same _X emitter, with retained_w1 carried to lib.rs:3745 (its only difference from
+           # 0955cc33…).
+           "3f1e9c513fcafda1d2efd9232791644a3a863697d6d5c41d985bf87a72859af7",
+           # W-16 slice a D3 (§8.23): the same _X emitter, with retained_w1 carried to lib.rs:3752 (its only difference
+           # from 3f1e9c51…).
+           "59bffb88632df3012358721e4ca240a5f509d79b750bf00f12e5883843ff2276"},
 }
 
 

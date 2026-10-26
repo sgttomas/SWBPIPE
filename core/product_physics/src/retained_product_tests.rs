@@ -178,7 +178,8 @@ fn i50_actual_named_case_both_modes_complete_private_verdict() {
         );
         // E14: no parity row in either mode.
         // T4-U4b: + the member's 15 derived rows (sigma+, sigma-, tau at five stations).
-        assert_eq!(e.results.len(), 113);
+        // W-7: + the member's 12 global end rows.
+        assert_eq!(e.results.len(), 125);
         assert_eq!((o.normalized_calls, o.case_calls, o.final_calls), (1, 1, 1));
         assert_eq!((o.invocation_calls, o.observation_calls), (1, 1));
         assert_eq!(o.invocation_mode, Some(mode));
@@ -972,7 +973,8 @@ fn actual_ordinary_zero_loaded_capture_and_final_verdict() {
         };
         assert_eq!(owner.publish().rows.len(), 52);
         // T4-U4b: + the member's 15 derived rows (sigma+, sigma-, tau at five stations).
-        assert_eq!(e.results.len(), 89);
+        // W-7: + the member's 12 global end rows.
+        assert_eq!(e.results.len(), 101);
         assert!(
             o.numeric_failure.is_none(),
             "{:?}; {}",
@@ -1728,7 +1730,8 @@ fn i47_actual_selected_material_zero_loaded_capture_and_final_verdict() {
         // T4-U4b: + the member's sigma+ and sigma- at five stations. The selected point's moduli
         // (E = 195 GPa, G = 55 GPa) give nu = E/(2G) - 1 outside the Saint-Venant domain, so the
         // member has no tau rows and the case carries the named warning (W1 carries it unchanged).
-        assert_eq!(e.results.len(), 85);
+        // W-7: + the member's 12 global end rows.
+        assert_eq!(e.results.len(), 97);
         assert!(e.diagnostics.iter().any(|d| d.code == "TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN"));
         assert!(
             o.numeric_failure.is_none(),
@@ -2341,7 +2344,7 @@ fn i51_first_prepared_native_both_modes() {
 
 
 fn i51_c0_mode_observation() -> ResultItem {
-    ResultItem {id:"result:solver-mode:linear-solve-basis".into(),kind:"linear_solver_mode_basis".into(),
+    ResultItem { component_body: None,id:"result:solver-mode:linear-solve-basis".into(),kind:"linear_solver_mode_basis".into(),
         value:1.,unit:"mode_code".into(),entity_ref:"solver:linear_static_preview".into(),basis_ref:None,source_result_refs:Vec::new(),
         metadata:Some(ResultMetadata{component:"linear_solver_mode".into(),coordinate_system:"reduced_system".into(),
             location:"case".into(),basis:"isolated successful ordinary observation fixture".into(),

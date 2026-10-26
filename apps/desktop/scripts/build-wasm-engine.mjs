@@ -11,14 +11,61 @@
 // (operation-seam plan §3 T3; ADR-0001).
 // Glue is written to a temp directory and renamed into place so concurrent
 // readers never see a half-written artifact set (DEC-025 F-4 rider).
+// Each engine folder also receives `source-stamp.json`, the content stamp of
+// the sources it was built from (`engineSourceStamp.mjs`), written with the
+// glue so it exists only after a successful build; the native smoke recomputes
+// it and rebuilds a stale engine. The stamp is written only for a build whose
+// complete input set held still: the inputs (static ones plus every compile
+// read known so far) are digested before cargo runs and again after; a compile
+// read the dep-info newly reveals, a source added or removed, or any changed
+// digest means cargo builds again, up to MAX_STABLE_BUILD_ATTEMPTS, then the
+// build fails naming the inputs.
+// Each engine builds in its own target directory, `target/wasm-engines/<engine>`
+// under this app: every cargo this script runs has CARGO_TARGET_DIR,
+// CARGO_BUILD_TARGET_DIR and CARGO_BUILD_BUILD_DIR set to it, so an inherited
+// build directory cannot keep intermediate artifacts elsewhere (cargo metadata
+// must report it back; a cargo configuration file setting either directory is
+// refused by `engineSourceStamp.mjs`). That directory, or one cargo descends
+// into beneath it, being a symbolic link or resolving outside it is refused by
+// name before each build and before it is deleted.
+// An engine whose published stamp equals its current inputs is not built at all:
+// nothing is compiled and nothing is republished. Any build, for whatever
+// reason (stamp missing or different, inputs that moved during an attempt), first
+// deletes that directory, so every build is clean: neither cargo's
+// modification-time freshness check nor an ordinary cargo build run in that
+// directory since (of other sources, later restored with their old times) can
+// put another build's artifact under this build's stamp.
+// The whole check, build, glue and publication runs under the worktree build
+// lock (`worktreeBuildLock.mjs`), so two builds in one worktree never
+// interleave: a second is refused at once, naming the holder and the steps
+// that remove a lock a crashed run left. The host slot, when a wrapper takes
+// one, is taken before it. An inherited compiler wrapper (RUSTC_WRAPPER and the
+// like) is refused by name before any cargo runs. Every command runs through
+// `runUnderLock`, in its own process group: on SIGINT, SIGTERM or SIGHUP the
+// build stops and reaps it before the lock is released.
 
-import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, renameSync, rmSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  STAMP_FILENAME,
+  checkEngine,
+  compileReadsFromDepInfo,
+  dedicatedCargoEnv,
+  digestInputs,
+  engineInputs,
+  engineStampContext,
+  inputDrift,
+  parseStampText,
+  readStampText,
+  refuseLinkedCargoTree,
+  stampFromDigests
+} from "./engineSourceStamp.mjs";
+import { acquireBuildLock, afterPendingSignals, exitAfterSignals, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "./worktreeBuildLock.mjs";
 
 const PINNED_WASM_BINDGEN_VERSION = "0.2.123";
+export const MAX_STABLE_BUILD_ATTEMPTS = 3;
 
 const desktopRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const projectRoot = path.resolve(desktopRoot, "..", "..");
@@ -28,33 +75,39 @@ const outDir = path.join(desktopRoot, "public", "wasm-engine");
 // Pre-TP-APP-R2-WASMPKG-001 emission location; removed on every build so a
 // stale copy can never be mistaken for the live artifact set.
 const legacyOutDir = path.join(desktopRoot, "src", "services", "wasmEngine", "__generated__");
+// The engines this script builds, in order; `native-smoke/run.mjs` checks the
+// same list's stamps.
+export const ENGINE_BUILDS = [
+  { crateDirectory: crateDir, crateName: "open_pipe_stress_operation_applier", destination: outDir },
+  { crateDirectory: path.join(projectRoot, "core", "loads", "self_weight_wasm"), crateName: "open_pipe_stress_self_weight_wasm", destination: path.join(desktopRoot, "public", "self-weight-engine") }
+];
+
+// A failure already reported: main() exits 1 once the lock is released and a
+// signal that arrived meanwhile has been handled.
+class BuildFailed extends Error {}
 
 function fail(lines) {
   console.error(["", "[build-wasm-engine] FAILED:", ...lines.map((line) => `  ${line}`), ""].join("\n"));
-  process.exit(1);
+  throw new BuildFailed(lines.join("\n"));
 }
 
-function tryRun(command, args, { cwd } = {}) {
+async function tryRun(command, args, { cwd, env = {} } = {}) {
   try {
-    return {
-      ok: true,
-      stdout: execFileSync(command, args, {
-        cwd,
-        encoding: "utf8",
-        env: { ...process.env, CARGO_NET_OFFLINE: "true" },
-        stdio: ["ignore", "pipe", "pipe"]
-      })
-    };
+    refuseHostSlotCommand(command, args);
+    if (command === "cargo") refuseCompilerWrapperEnv({ ...process.env, ...env });
   } catch (error) {
-    return { ok: false, stderr: error?.stderr?.toString?.() ?? String(error) };
+    fail([error.message]);
   }
+  const result = await runUnderLock(command, args, { cwd, env: { ...process.env, CARGO_NET_OFFLINE: "true", ...env } });
+  if (result.error === null && result.status === 0) return { ok: true, stdout: result.stdout };
+  return { ok: false, stderr: result.error ? String(result.error) : result.stderr };
 }
 
-export function resolveWasmArtifact(crateDirectory = crateDir, crateName = "open_pipe_stress_operation_applier") {
-  const metadata = tryRun(
+export async function resolveWasmArtifact(crateDirectory = crateDir, crateName = "open_pipe_stress_operation_applier", env = {}) {
+  const metadata = await tryRun(
     "cargo",
-    ["metadata", "--format-version", "1", "--no-deps"],
-    { cwd: crateDirectory }
+    ["metadata", "--format-version", "1", "--no-deps", "--manifest-path", path.join(crateDirectory, "Cargo.toml")],
+    { cwd: crateDirectory, env }
   );
   if (!metadata.ok) {
     throw new Error(`cargo metadata failed: ${metadata.stderr}`);
@@ -78,10 +131,70 @@ export function resolveWasmArtifact(crateDirectory = crateDir, crateName = "open
   );
 }
 
-function main() {
+// The dedicated target directory of one engine, inside this app.
+const engineTargetsRoot = path.join(desktopRoot, "target", "wasm-engines");
+export const engineTargetDirectory = (engine) => path.join(engineTargetsRoot, engine);
+
+// Check that `directory` is an engine's dedicated target directory,
+// `<app>/target/wasm-engines/<engine>` for an engine this script builds, with no
+// symbolic link from the app down to it or where cargo descends beneath it, and
+// no resolution outside the app (`verb` names the act refused).
+export function checkEngineTargetDirectory(directory, verb, engines = ENGINE_BUILDS.map(({ destination }) => path.basename(destination))) {
+  const engine = path.basename(directory);
+  if (!engines.includes(engine) || directory !== engineTargetDirectory(engine)) {
+    throw new Error(`refusing to ${verb} ${directory}: not an engine's dedicated target directory`);
+  }
+  for (const step of [path.dirname(engineTargetsRoot), engineTargetsRoot, directory]) {
+    if (lstatSync(step, { throwIfNoEntry: false })?.isSymbolicLink()) throw new Error(`refusing to ${verb} ${directory}: ${step} is a symbolic link`);
+  }
+  if (!existsSync(directory)) return false;
+  if (realpathSync(path.dirname(directory)) !== path.join(realpathSync(desktopRoot), "target", "wasm-engines")) {
+    throw new Error(`refusing to ${verb} ${directory}: it does not resolve inside ${desktopRoot}`);
+  }
+  refuseLinkedCargoTree(directory, engineTargetsRoot);
+  return true;
+}
+
+// Delete an engine's dedicated target directory, checked just before.
+export function removeEngineTargetDirectory(directory, engines) {
+  if (checkEngineTargetDirectory(directory, "delete", engines)) rmSync(directory, { recursive: true, force: true });
+}
+
+const CARGO_BUILD_ARGS = [
+  "build",
+  "--offline",
+  "--target",
+  "wasm32-unknown-unknown",
+  "--features",
+  "wasm",
+  "--release"
+];
+
+async function main() {
+  try {
+    let lock;
+    try {
+      lock = acquireBuildLock({ purpose: "build:wasm" });
+    } catch (error) {
+      fail(error.message.split("\n"));
+    }
+    try {
+      await buildEngines();
+    } finally {
+      lock.release();
+    }
+    // Success: a signal received meanwhile still decides the exit.
+    await afterPendingSignals();
+  } catch (error) {
+    if (!(error instanceof BuildFailed)) throw error;
+    await exitAfterSignals(1);
+  }
+}
+
+async function buildEngines() {
 
 // 1. cargo present.
-if (!tryRun("cargo", ["--version"]).ok) {
+if (!(await tryRun("cargo", ["--version"])).ok) {
   fail([
     "`cargo` was not found on PATH.",
     "Install the Rust toolchain (https://rustup.rs) before building the wasm engine."
@@ -89,7 +202,7 @@ if (!tryRun("cargo", ["--version"]).ok) {
 }
 
 // 2. wasm32 target installed.
-const targetProbe = tryRun("rustup", ["target", "list", "--installed"]);
+const targetProbe = await tryRun("rustup", ["target", "list", "--installed"]);
 if (!targetProbe.ok) {
   fail([
     "`rustup` was not found on PATH, so the wasm32 target cannot be verified.",
@@ -106,12 +219,12 @@ if (!targetProbe.stdout.split("\n").map((line) => line.trim()).includes("wasm32-
 // 3. wasm-bindgen CLI present at the pinned version (must match the crate's
 //    pinned wasm-bindgen dependency exactly).
 let wasmBindgen = "wasm-bindgen";
-let bindgenProbe = tryRun(wasmBindgen, ["--version"]);
+let bindgenProbe = await tryRun(wasmBindgen, ["--version"]);
 if (!bindgenProbe.ok) {
   const cargoBinFallback = path.join(os.homedir(), ".cargo", "bin", "wasm-bindgen");
   if (existsSync(cargoBinFallback)) {
     wasmBindgen = cargoBinFallback;
-    bindgenProbe = tryRun(wasmBindgen, ["--version"]);
+    bindgenProbe = await tryRun(wasmBindgen, ["--version"]);
   }
 }
 if (!bindgenProbe.ok) {
@@ -129,37 +242,99 @@ if (bindgenVersion !== PINNED_WASM_BINDGEN_VERSION) {
   ]);
 }
 
-const builds = [
-  { crateDirectory: crateDir, crateName: "open_pipe_stress_operation_applier", destination: outDir },
-  { crateDirectory: path.join(projectRoot, "core", "loads", "self_weight_wasm"), crateName: "open_pipe_stress_self_weight_wasm", destination: path.join(desktopRoot, "public", "self-weight-engine") }
-];
-for (const { crateDirectory, crateName, destination } of builds) {
+// The stamp context (rustc identity, compiler, wrapper, linker and rustflag
+// environment, cargo configuration); cargo runs from this process's working
+// directory.
+let stampContext;
+try {
+  stampContext = engineStampContext(process.cwd());
+} catch (error) {
+  fail(["Could not read the toolchain identity for the engine source stamp:", error.message]);
+}
+
+for (const { crateDirectory, crateName, destination } of ENGINE_BUILDS) {
 const crateManifest = path.join(crateDirectory, "Cargo.toml");
 const outDir = destination;
-// 4. Compile the engine to wasm32 with the wasm feature.
-console.log("[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release");
-const build = tryRun("cargo", [
-  "build",
-  "--offline",
-  "--manifest-path",
-  crateManifest,
-  "--target",
-  "wasm32-unknown-unknown",
-  "--features",
-  "wasm",
-  "--release"
-]);
-if (!build.ok) {
-  fail(["`cargo build` for the wasm32 engine failed:", build.stderr]);
-}
-let wasmArtifact;
+const crateLabel = path.relative(projectRoot, crateDirectory);
+const targetDirectory = engineTargetDirectory(path.basename(outDir));
+// 4. An engine whose published stamp matches its sources is not built. Otherwise
+//    compile it to wasm32 with the wasm feature, clean, in its own target
+//    directory, until a build's complete input set held still across it (4b).
+let clean;
 try {
-  wasmArtifact = resolveWasmArtifact(crateDirectory, crateName);
+  const current = checkEngine({ projectRoot, crateDirectory, outDir, context: stampContext });
+  if (current.action !== "rebuild") {
+    console.log(`[build-wasm-engine] ${crateLabel}: the published engine matches its sources (stamp ${current.hash}); nothing built`);
+    continue;
+  }
+  clean = current.reason;
 } catch (error) {
-  fail(["Could not resolve Cargo's wasm artifact directory:", error.message]);
+  fail(["Could not check the engine's source stamp:", error.message]);
 }
-if (!existsSync(wasmArtifact)) {
-  fail([`cargo build succeeded but the expected artifact is missing: ${wasmArtifact}`]);
+let knownReads = parseStampText(readStampText(outDir)).stamp?.compile_reads ?? [];
+let wasmArtifact;
+let stamp = null;
+let drift = [];
+for (let attempt = 1; attempt <= MAX_STABLE_BUILD_ATTEMPTS && stamp === null; attempt += 1) {
+  try {
+    removeEngineTargetDirectory(targetDirectory);
+  } catch (error) {
+    fail([error.message]);
+  }
+  console.log(`[build-wasm-engine] ${crateLabel}: clean build in ${path.relative(desktopRoot, targetDirectory)} (${clean})`);
+  let before;
+  let beforeDigests;
+  try {
+    before = engineInputs({ projectRoot, crateDirectory, compileReads: knownReads });
+    beforeDigests = digestInputs(projectRoot, before.all);
+  } catch (error) {
+    fail(["Could not list the engine's source inputs for its stamp:", error.message]);
+  }
+  console.log(`[build-wasm-engine] cargo ${CARGO_BUILD_ARGS.join(" ")} (${crateLabel}, attempt ${attempt}/${MAX_STABLE_BUILD_ATTEMPTS})`);
+  const cargoEnv = dedicatedCargoEnv(targetDirectory);
+  try {
+    checkEngineTargetDirectory(targetDirectory, "build in");
+  } catch (error) {
+    fail([error.message]);
+  }
+  const build = await tryRun("cargo", [...CARGO_BUILD_ARGS, "--manifest-path", crateManifest], { env: cargoEnv });
+  if (!build.ok) {
+    fail(["`cargo build` for the wasm32 engine failed:", build.stderr]);
+  }
+  try {
+    wasmArtifact = await resolveWasmArtifact(crateDirectory, crateName, cargoEnv);
+  } catch (error) {
+    if (error instanceof BuildFailed) throw error;
+    fail(["Could not resolve Cargo's wasm artifact directory:", error.message]);
+  }
+  if (wasmArtifact !== path.join(targetDirectory, "wasm32-unknown-unknown", "release", `${crateName}.wasm`)) {
+    fail([`cargo reports the wasm artifact at ${wasmArtifact}, outside the engine's dedicated target directory ${targetDirectory}`]);
+  }
+  if (!existsSync(wasmArtifact)) {
+    fail([`cargo build succeeded but the expected artifact is missing: ${wasmArtifact}`]);
+  }
+  // 4b. The content stamp: the static inputs plus the compile reads cargo's
+  //     dep-info lists for this artifact (schemas, fixtures, `#[path]` modules,
+  //     build-script `rerun-if-changed` files). No dep-info, no stamp.
+  const depInfo = wasmArtifact.replace(/\.wasm$/, ".d");
+  try {
+    const compileReads = compileReadsFromDepInfo(projectRoot, readFileSync(depInfo, "utf8"), [targetDirectory]);
+    const after = engineInputs({ projectRoot, crateDirectory, compileReads });
+    const afterDigests = digestInputs(projectRoot, after.all);
+    drift = inputDrift({ beforeStatic: before.staticInputs, beforeDigests, after, afterDigests });
+    if (drift.length === 0) {
+      stamp = { engine: path.basename(outDir), ...stampFromDigests({ projectRoot, crateDirectory, digests: afterDigests, recorded: after.recorded, context: stampContext }) };
+    } else {
+      console.log(`[build-wasm-engine] ${crateLabel}: not stamped (${drift.join("; ")}); building again`);
+      knownReads = [...new Set([...knownReads, ...compileReads])];
+      clean = "the last build was not stamped";
+    }
+  } catch (error) {
+    fail([`Could not stamp the engine built from ${crateLabel} (dep-info ${depInfo}):`, error.message]);
+  }
+}
+if (stamp === null) {
+  fail([`The inputs of the engine built from ${crateLabel} did not hold still across ${MAX_STABLE_BUILD_ATTEMPTS} builds, so it is not stamped:`, ...drift, "Stop whatever is editing them and run `npm run build:wasm` again."]);
 }
 
 // 5. Generate the web-target JS glue into a sibling temp directory, then
@@ -189,11 +364,13 @@ const tmpDir = `${outDir}.tmp-${process.pid}`;
 const oldDir = `${outDir}.old-${process.pid}`;
 
 console.log(`[build-wasm-engine] wasm-bindgen --target web --out-dir ${path.relative(desktopRoot, tmpDir)}`);
-const bindgen = tryRun(wasmBindgen, ["--target", "web", "--out-dir", tmpDir, wasmArtifact]);
+const bindgen = await tryRun(wasmBindgen, ["--target", "web", "--out-dir", tmpDir, wasmArtifact]);
 if (!bindgen.ok) {
   rmSync(tmpDir, { recursive: true, force: true });
   fail(["`wasm-bindgen` glue generation failed:", bindgen.stderr]);
 }
+const stampText = `${JSON.stringify(stamp, null, 2)}\n`;
+writeFileSync(path.join(tmpDir, STAMP_FILENAME), stampText);
 
 if (existsSync(outDir)) {
   renameSync(outDir, oldDir);
@@ -208,7 +385,7 @@ rmSync(oldDir, { recursive: true, force: true });
 
 console.log(
   `[build-wasm-engine] OK — wasm operation engine generated at ${path.relative(desktopRoot, outDir)} ` +
-    `(wasm-bindgen ${bindgenVersion}; artifacts are intentionally not committed)`
+    `(wasm-bindgen ${bindgenVersion}; stamp ${stamp.hash} over ${stamp.input_count} inputs; artifacts are intentionally not committed)`
 );
 }
 
@@ -216,5 +393,5 @@ console.log(
 
 const invokedPath = process.argv[1] ? path.resolve(process.argv[1]) : null;
 if (invokedPath === fileURLToPath(import.meta.url)) {
-  main();
+  await main();
 }

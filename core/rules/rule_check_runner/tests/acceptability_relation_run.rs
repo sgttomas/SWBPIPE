@@ -12,6 +12,8 @@
 //! is a professional, certification, sealing, authentication, or code-compliance
 //! claim.
 
+mod common;
+
 use std::fs;
 use std::path::PathBuf;
 
@@ -26,7 +28,7 @@ fn example_document() -> Value {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../../examples/rule_packs/invented_demo.yaml");
     let raw = fs::read_to_string(path).expect("example rule pack readable");
-    serde_json::from_str(&raw).expect("example rule pack is strict JSON")
+    common::single_basis(serde_json::from_str(&raw).expect("example rule pack is strict JSON"))
 }
 
 /// Inject an `acceptability_relation` onto the example pack's single check.
@@ -40,6 +42,7 @@ fn with_relation(relation: &str) -> Value {
 fn solver(value: f64) -> SolverResultBinding {
     SolverResultBinding {
         input_id: "demo_actual_quantity".to_string(),
+        basis_ref: common::basis(),
         result_id: "result:stress:demo".to_string(),
         value,
         unit: "demo_unit".to_string(),
@@ -70,6 +73,7 @@ fn run(document: &Value, solver_value: f64) -> RuleCheckRunResult {
         rule_pack_document: document,
         solver_results: vec![solver(solver_value)],
         refused_solver_results: Vec::new(),
+        unavailable_bases: Vec::new(),
         supplied_values: limit_supplied(),
         library_values: vec![],
         current_statuses: vec![AnalysisStatus::MechanicsSolved],

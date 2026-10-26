@@ -32,6 +32,8 @@ import math
 import struct
 from typing import Any
 
+from . import component_body
+
 NOMINAL = "nominal_section"
 REDUCED = "reduced_section"
 BASES = (NOMINAL, REDUCED)
@@ -343,7 +345,7 @@ def coverage(value: Any) -> list[tuple[set[str], bool]]:
     _require(isinstance(value, list) and len(value) == 2, "maximum coverage")
     out = []
     for entry, basis in zip(value, BASES):
-        _require(isinstance(entry, Mapping) and set(entry) == {"section_basis", "complete", "unavailable_pipe_ids"} and entry["section_basis"] == basis, "maximum coverage")
+        _require(isinstance(entry, Mapping) and set(component_body.coverage_without_bodies(entry)) == {"section_basis", "complete", "unavailable_pipe_ids"} and entry["section_basis"] == basis, "maximum coverage")
         ids = entry["unavailable_pipe_ids"]
         _require(isinstance(ids, list) and all(isinstance(i, str) and i for i in ids) and len(set(ids)) == len(ids) and type(entry["complete"]) is bool, "maximum coverage values")
         _require(entry["complete"] == (not ids), "maximum coverage contradiction")
@@ -367,15 +369,17 @@ def extrema_twins(nominal: Mapping[str, Any], reduced: Mapping[str, Any], sectio
         _require(reduced["value_upper_pa"] >= nominal["value_lower_pa"], "stress basis section")
 
 
-def headlines(summary: Any, rows: Mapping[str, Any], complete: Mapping[str, bool]) -> None:
+def headlines(summary: Any, rows: Mapping[str, Any], complete: Mapping[str, bool], bodies: Any = frozenset()) -> None:
     """§2.2: ``max_open_formula_stress`` null, both basis keys present, each non-null headline on complete coverage of
     its basis, bound to a maximum row of its own basis (its value bit for bit, ``bit_equal``) and not below any
     maximum of that basis."""
     _require(isinstance(summary, Mapping) and "max_open_formula_stress" in summary and summary["max_open_formula_stress"] is None
              and all(f"max_open_formula_stress_{b}" in summary for b in BASES), "stress maximum headline bases")
-    maxima = [row for row in rows.values() if row.get("kind") == "pipe_elastic_normal_stress_maximum_v2"]
+    # W-15 slice d (DEL-03-05 Design §5): the headlines range over the non-body members.
+    maxima = [row for row in rows.values() if row.get("kind") == "pipe_elastic_normal_stress_maximum_v2" and row.get("entity_ref") not in bodies]
     for basis in BASES:
         headline = summary[f"max_open_formula_stress_{basis}"]
+        _require(headline is None or not isinstance(headline, Mapping) or headline.get("location_ref") not in bodies, "stress maximum headline names a component body")
         if not complete[basis]:
             _require(headline is None, "incomplete stress maximum headline")
             continue

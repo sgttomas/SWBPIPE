@@ -4,7 +4,8 @@ use open_pipe_stress_protected_content_linter as linter;
 use open_pipe_stress_report_renderer::{
     derived_print_view, escape_html, public_report_template, render_calculation_report, status_banner_text,
     RenderableReportInput, ReportContext, ReportExportContext, ReportSetting, ResultRow,
-    UserRuleCheckOutcome, UserRuleCheckRun, UserRuleCheckStatus,
+    UserRuleCheckBasisRef, UserRuleCheckOutcome, UserRuleCheckRun, UserRuleCheckStatus,
+    USER_RULE_CHECK_COUNT_SCOPE_NOTE,
 };
 use open_pipe_stress_report_sections as sections;
 
@@ -118,6 +119,8 @@ fn fixture_input() -> RenderableReportInput {
         }],
         report_context: None,
         user_rule_checks: None,
+        exact_route: None,
+        library_references: None,
     }
 }
 
@@ -152,11 +155,13 @@ fn invented_rule_check_run() -> UserRuleCheckRun {
         checks: vec![
             UserRuleCheckOutcome {
                 check_id: "invented-check-a".to_string(),
+                basis_ref: None,
                 status: UserRuleCheckStatus::UserRuleChecked,
                 missing_inputs: vec![],
             },
             UserRuleCheckOutcome {
                 check_id: "invented-check-b".to_string(),
+                basis_ref: None,
                 status: UserRuleCheckStatus::RuleInputsIncomplete,
                 missing_inputs: vec!["invented_input_x".to_string(), "invented_input_y".to_string()],
             },
@@ -400,7 +405,7 @@ fn user_rule_check_headline_is_incomplete_while_any_check_is_blocked() {
     assert!(html.contains("Aggregate status: INCOMPLETE — 1 check(s) failed; 1 check(s) blocked · User-rule-check authority · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)"));
     assert!(!html.contains("Aggregate status: User-rule-check authority · User-rule failed"));
     // The failed check stays listed with its own status.
-    assert!(html.contains("<td>invented-check-a</td><td>User-rule-check authority · User-rule failed (USER_RULE_FAILED)</td>"));
+    assert!(html.contains("<td>invented-check-a</td><td>load case not recorded</td><td>User-rule-check authority · User-rule failed (USER_RULE_FAILED)</td>"));
 
     // A recorded failed rule-check analysis status is shown as incomplete in
     // the status banner, with the recorded status kept beside it.
@@ -446,10 +451,10 @@ fn user_rule_check_outcomes_render_identity_status_and_missing_inputs_only() {
         "Rule pack: invented-rule-pack · Grammar version: 1.0.0 · Aggregate status: INCOMPLETE — 0 check(s) failed; 1 check(s) blocked · User-rule-check authority · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)"
     ));
     assert!(html.contains(
-        "<td>invented-check-a</td><td>User-rule-check authority · User-rule checked (USER_RULE_CHECKED)</td><td>none</td>"
+        "<td>invented-check-a</td><td>load case not recorded</td><td>User-rule-check authority · User-rule checked (USER_RULE_CHECKED)</td><td>none</td>"
     ));
     assert!(html.contains(
-        "<td>invented-check-b</td><td>User-rule-check authority · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)</td><td>invented_input_x, invented_input_y</td>"
+        "<td>invented-check-b</td><td>load case not recorded</td><td>User-rule-check authority · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)</td><td>invented_input_x, invented_input_y</td>"
     ));
     // The fixture reference records no display name; it is disclosed as such.
     assert!(html.contains("<td>invented-rule-pack</td><td>not recorded</td><td>0.1.0</td>"));
@@ -569,11 +574,11 @@ fn demo_rule_pack_name_version_and_checksum_render() {
     let outcome = render_calculation_report(&input);
     assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
     assert!(outcome.html.contains(
-        "<td>invented_demo_rule_pack</td><td>Invented Demonstration Rule Pack</td><td>0.2.0</td>"
+        "<td>invented_demo_rule_pack</td><td>Invented Demonstration Rule Pack</td><td>0.3.0</td>"
     ));
     assert!(outcome
         .html
-        .contains("c2b4ddce48cd07bed4bb2ff0be3a81d3755365e255896a0bbf583725a3fa47bd"));
+        .contains("c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f"));
     let json = serde_json::to_value(&input.calculation_report.rule_pack_refs[0]).expect("serializes");
     assert_eq!(json["name"], "Invented Demonstration Rule Pack");
 }
@@ -589,4 +594,323 @@ fn blank_rule_pack_name_is_an_unsafe_reference() {
         .blocking_reasons
         .iter()
         .any(|reason| reason == "report validation: REPORT-RULE-PACK-REF-UNSAFE"));
+}
+
+// ---------------------------------------------------------------------------
+// W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.2-§3.5, §4.2 and
+// §7, slice (a)): the exact-route block, its admission binding and composed
+// standing line, the exact limitation entries, Library Records, and the
+// byte identity of every input without these fields.
+// ---------------------------------------------------------------------------
+
+#[path = "common/exact_input.rs"]
+mod exact_input;
+
+use exact_input::{with_exact_route, BYTES, DERIVATIVE, LOAD_REFERENCE_LINE, MANIFEST, MODEL, PRESSURE_2, RECEIVED, WITHHELD};
+use open_pipe_stress_report_renderer::exact_statements::{exact_statement_table, producer_sha256};
+use open_pipe_stress_report_renderer::{
+    exact_route_blocking_reasons, exact_standing_line, EXACT_ADMISSION_BINDING_MISMATCH, EXACT_HEADLINES_HEADER,
+    EXACT_HEADLINES_PARAGRAPH, EXACT_HEADLINES_SUBHEADING, EXACT_HEADLINE_UNREADABLE, EXACT_LIMITATION_UNREGISTERED,
+    EXACT_ROUTE_SUBHEADING, NOT_AVAILABLE,
+};
+
+/// The base commit's canonical HTML hashes of the existing invented inputs,
+/// captured on main without W-11 (`aed4de9fbd`): the fields' absence keeps
+/// their bytes. The private input's hash carries W-17's rule-check section
+/// (#1629); the base and public hashes equal their `3a104e1e71` captures.
+const BASE_HTML_SHA256: &str = "a137f51d3b16723e221d19c0041de670d328a3e0f904b19bfe3e909e5059f5f2";
+const PRIVATE_HTML_SHA256: &str = "e962c4aeeed5fe94ac2e70e7584e8d253e165cf85dfd10d8ab0aa24ed5ca51eb";
+const PUBLIC_HTML_SHA256: &str = "43f9ac50b08818080dc8b2769d8b4db9cfb6b9ccb76a62ca2118c310917562c9";
+
+const COVERAGE: &str = include_str!("../../../../fixtures/reports/exact_route_limitations.json");
+
+fn exact_input() -> RenderableReportInput {
+    let mut input = with_exact_route(fixture_input());
+    input.report_context = Some(invented_report_context(ReportExportContext::LocalPrivate));
+    input
+}
+
+fn has_reason(outcome: &open_pipe_stress_report_renderer::RenderOutcome, reason: &str) -> bool {
+    outcome.blocking_reasons.iter().any(|item| item == reason)
+}
+
+#[test]
+fn existing_invented_inputs_render_byte_identical() {
+    let base = fixture_input();
+    let mut private = fixture_input();
+    private.report_context = Some(invented_report_context(ReportExportContext::LocalPrivate));
+    private.user_rule_checks = Some(invented_rule_check_run());
+    let mut public = fixture_input();
+    public.report_context = Some(invented_report_context(ReportExportContext::PublicReport));
+    for (input, expected) in [(&base, BASE_HTML_SHA256), (&private, PRIVATE_HTML_SHA256), (&public, PUBLIC_HTML_SHA256)] {
+        assert_eq!(render_calculation_report(input).sha256_hex, expected);
+        // Absent fields serialize to nothing; explicit nulls and an empty
+        // library list render the same bytes.
+        let json = serde_json::to_value(input).unwrap();
+        assert!(json.get("exact_route").is_none() && json.get("library_references").is_none());
+        let mut nulls = json.clone();
+        nulls["exact_route"] = serde_json::Value::Null;
+        nulls["library_references"] = serde_json::Value::Null;
+        let back: RenderableReportInput = serde_json::from_value(nulls).unwrap();
+        assert_eq!(&back, input);
+        let mut empty = input.clone();
+        empty.library_references = Some(vec![]);
+        assert_eq!(render_calculation_report(&empty).sha256_hex, expected);
+    }
+}
+
+#[test]
+fn exact_block_and_library_records_render_with_the_composed_standing_line() {
+    let input = exact_input();
+    let outcome = render_calculation_report(&input);
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    let html = &outcome.html;
+    let binding = &input.exact_route.as_ref().unwrap().admission;
+    let standing = format!(
+        "integrity checked (the Rust reader&#39;s standing for the result Export Result JSON admitted in this session: received result sha256 {RECEIVED}, model sha256 {MODEL}, input manifest {} sha256 {MANIFEST})",
+        binding.input_manifest_ref
+    );
+    assert_eq!(
+        exact_standing_line(binding),
+        format!("integrity checked (the Rust reader's standing for the result Export Result JSON admitted in this session: received result sha256 {RECEIVED}, model sha256 {MODEL}, input manifest {} sha256 {MANIFEST})", binding.input_manifest_ref)
+    );
+    let block = format!(
+        "<h3>{EXACT_ROUTE_SUBHEADING}</h3>\n<p class=\"meta\">Semantic contract: {PRESSURE_2} · Numerical standing: {standing}</p>\n<p>{LOAD_REFERENCE_LINE}</p>\n<h3>{EXACT_HEADLINES_SUBHEADING}</h3>\n<table>\n<tr><th>Section basis</th><th>Stress maximum</th><th>Location</th><th>Source</th></tr>\n<tr><td>Nominal section (nominal wall)</td><td>41354908.75465696 Pa</td><td>pipe:invented-span</td><td>result:invented-nominal-maximum</td></tr>\n<tr><td>Reduced section (wall minus mill tolerance and corrosion allowance)</td><td>{WITHHELD}</td><td>{NOT_AVAILABLE}</td><td>{NOT_AVAILABLE}</td></tr>\n</table>\n<p>{EXACT_HEADLINES_PARAGRAPH}</p>\n"
+    );
+    // At the start of the Results section, before the rows.
+    assert!(html.contains(&format!("<h2>Results</h2>\n{block}<table>\n<tr><th>Result</th>")), "{html}");
+    assert!(html.contains("<h3>Library Records</h3>\n<table>\n<tr><th>Library kind</th><th>Library</th><th>Version</th><th>Record</th><th>Referenced by</th></tr>\n<tr><td>material</td><td>invented-material-library</td><td>sha256:7777777777777777777777777777777777777777777777777777777777777777</td><td>not recorded</td><td>material:invented-a, material:invented-b</td></tr>\n</table>\n"));
+    let provenance = html.find("<h3>Provenance Notes</h3>").unwrap();
+    assert!(html.find("<h3>Library Records</h3>").unwrap() > provenance);
+    // Every exact limitation statement is in the Limitations table.
+    for (_, statement) in exact_statement_table().unwrap().entries() {
+        assert!(html.contains(&escape_html(statement)));
+    }
+    // The PRD §19.3 notice keeps its place; no exact-route text sits beside it.
+    let boundary = html.find("<div class=\"boundary\">").unwrap();
+    assert!(html.find(EXACT_ROUTE_SUBHEADING).unwrap() < boundary);
+    // An exact report has no blocking linter finding.
+    assert!(outcome.pre_render_findings.iter().all(|finding| !finding.blocking));
+    assert!(outcome.post_render_findings.iter().all(|finding| !finding.blocking));
+}
+
+#[test]
+fn each_binding_field_that_disagrees_with_the_report_refuses() {
+    type Edit = fn(&mut RenderableReportInput);
+    let cases: [(&str, Edit); 11] = [
+        ("semantic_contract_id", |i| i.exact_route.as_mut().unwrap().semantic_contract_id = "openpipestress.result_semantics/0.3.0/pressure-source-1".into()),
+        ("run_ref", |i| i.exact_route.as_mut().unwrap().admission.run_ref = "invented-other-run".into()),
+        ("result_envelope_id", |i| i.exact_route.as_mut().unwrap().admission.result_envelope_id = "result-envelope:invented-other-run".into()),
+        ("received_result_sha256", |i| i.exact_route.as_mut().unwrap().admission.received_result_sha256 = BYTES.into()),
+        ("model_sha256", |i| i.calculation_report.model_input_summary.model_hash.value = DERIVATIVE.into()),
+        ("input_manifest_ref", |i| i.exact_route.as_mut().unwrap().admission.input_manifest_ref = "invented-other-manifest".into()),
+        ("input_manifest_sha256", |i| i.exact_route.as_mut().unwrap().admission.input_manifest_sha256 = MANIFEST[..63].into()),
+        ("derivative_sha256", |i| i.exact_route.as_mut().unwrap().admission.derivative_sha256 = DERIVATIVE.replace('4', "A")),
+        ("native_job_id", |i| i.exact_route.as_mut().unwrap().admission.native_job_id = " ".into()),
+        ("received_bytes_sha256", |i| i.exact_route.as_mut().unwrap().admission.received_bytes_sha256 = "sha256:5555".into()),
+        ("model_sha256", |i| {
+            i.calculation_report.model_input_summary.model_hash.value = "invented-hash".into();
+            i.exact_route.as_mut().unwrap().admission.model_sha256 = "invented-hash".into();
+        }),
+    ];
+    for (field, edit) in cases {
+        let mut input = exact_input();
+        edit(&mut input);
+        let outcome = render_calculation_report(&input);
+        assert!(outcome.export_blocked, "{field}");
+        let reason = format!("exact route: {EXACT_ADMISSION_BINDING_MISMATCH}: {field}");
+        assert!(has_reason(&outcome, &reason), "{field}: {:?}", outcome.blocking_reasons);
+        assert!(outcome.html.contains(&format!("Numerical standing: not stated ({EXACT_ADMISSION_BINDING_MISMATCH}: ")), "{field}");
+        assert!(!outcome.html.contains("integrity checked (the Rust reader"), "{field}");
+    }
+}
+
+#[test]
+fn exact_limitation_entries_outside_the_table_or_without_exact_route_refuse() {
+    let coverage: serde_json::Value = serde_json::from_str(COVERAGE).unwrap();
+    let source_paragraph = coverage["lists"][0]["limitations"][7].as_str().unwrap().to_string();
+    let run = "invented-run";
+    let first = format!("limitation:{run}:exact:1");
+    // A statement outside the table: the producer's whole source paragraph,
+    // and an invented text.
+    for statement in [source_paragraph.as_str(), "An invented limitation statement."] {
+        let mut input = exact_input();
+        input.report_sections.limitations[1].statement = statement.to_string();
+        assert_eq!(input.report_sections.limitations[1].limitation_id, first);
+        let outcome = render_calculation_report(&input);
+        assert!(outcome.export_blocked);
+        assert!(has_reason(&outcome, &format!("exact limitations: {EXACT_LIMITATION_UNREGISTERED}: {first}: the statement is not a reviewed exact-route statement")), "{:?}", outcome.blocking_reasons);
+    }
+    // Entries an id does not place in this run's exact series.
+    for id in [format!("limitation:{run}:exact:0"), format!("limitation:{run}:exact:x"), "limitation:invented-other-run:exact:1".to_string()] {
+        let mut input = exact_input();
+        input.report_sections.limitations[1].limitation_id = id.clone();
+        let outcome = render_calculation_report(&input);
+        assert!(has_reason(&outcome, &format!("exact limitations: {EXACT_LIMITATION_UNREGISTERED}: {id}: the entry id is not an exact-route limitation id of this report's run")), "{id}");
+    }
+    // Exact entries without exact_route, each refused.
+    let mut input = exact_input();
+    input.exact_route = None;
+    let outcome = render_calculation_report(&input);
+    let refused = outcome
+        .blocking_reasons
+        .iter()
+        .filter(|reason| reason.contains(EXACT_LIMITATION_UNREGISTERED) && reason.ends_with("an exact-route limitation entry without an exact_route section"))
+        .count();
+    assert_eq!(refused, 20);
+    // A malformed statement table refuses every exact statement.
+    let input = exact_input();
+    let reasons = exact_route_blocking_reasons(&input, Err("REPORT-EXACT-STATEMENT-TABLE-INVALID: invented"));
+    assert_eq!(reasons.len(), 19);
+    assert!(reasons.iter().all(|reason| reason.contains(EXACT_LIMITATION_UNREGISTERED) && reason.ends_with("REPORT-EXACT-STATEMENT-TABLE-INVALID: invented")));
+    assert!(exact_route_blocking_reasons(&input, exact_statement_table()).is_empty());
+    // The table keys producer strings by digest; the source paragraph has one.
+    assert!(exact_statement_table().unwrap().statement_for(&producer_sha256(&source_paragraph)).is_some());
+}
+
+#[test]
+fn headlines_out_of_basis_order_refuse() {
+    for edit in [
+        (|route: &mut open_pipe_stress_report_renderer::ExactRouteSection| route.headlines.reverse()) as fn(&mut _),
+        |route| {
+            route.headlines.pop();
+        },
+        |route| route.headlines[1].basis = "governing".to_string(),
+    ] {
+        let mut input = exact_input();
+        edit(input.exact_route.as_mut().unwrap());
+        let outcome = render_calculation_report(&input);
+        assert!(outcome.export_blocked);
+        assert!(outcome.blocking_reasons.iter().any(|reason| reason.starts_with(&format!("exact route: {EXACT_HEADLINE_UNREADABLE}"))));
+    }
+}
+
+#[test]
+fn an_unknown_field_in_the_new_structs_refuses() {
+    let input = exact_input();
+    let json = serde_json::to_value(&input).unwrap();
+    let back: RenderableReportInput = serde_json::from_value(json.clone()).unwrap();
+    assert_eq!(back, input);
+    assert_eq!(render_calculation_report(&back).sha256_hex, render_calculation_report(&input).sha256_hex);
+    for pointer in ["/exact_route", "/exact_route/admission", "/exact_route/headlines/0", "/library_references/0"] {
+        let mut changed = json.clone();
+        changed.pointer_mut(pointer).unwrap().as_object_mut().unwrap().insert("standing".to_string(), "invented".into());
+        let error = serde_json::from_value::<RenderableReportInput>(changed).unwrap_err().to_string();
+        assert!(error.contains("unknown field"), "{pointer}: {error}");
+    }
+}
+
+#[test]
+fn exact_route_texts_pass_the_claims_check() {
+    // GEN-13's litany vocabulary (`tools/validation/validate_claims_language.py`).
+    const LITANY: [&str; 11] = [
+        "certif", "seal", "authenticat", "code-compliance", "code compliance", "professional", "approval", "approve",
+        "endorse", "release-readiness", "production-readiness",
+    ];
+    let input = exact_input();
+    let binding = &input.exact_route.as_ref().unwrap().admission;
+    let mut texts = vec![
+        exact_standing_line(binding),
+        format!("not stated ({EXACT_ADMISSION_BINDING_MISMATCH}: model_sha256)"),
+        EXACT_ROUTE_SUBHEADING.to_string(),
+        EXACT_HEADLINES_SUBHEADING.to_string(),
+        EXACT_HEADLINES_PARAGRAPH.to_string(),
+        NOT_AVAILABLE.to_string(),
+        "Library Records".to_string(),
+    ];
+    texts.extend(EXACT_HEADLINES_HEADER.iter().map(|text| text.to_string()));
+    texts.extend(exact_route_blocking_reasons(&{
+        let mut changed = exact_input();
+        changed.exact_route = None;
+        changed
+    }, exact_statement_table()));
+    for text in texts {
+        let folded = text.to_lowercase();
+        assert!(!folded.contains("acceptance"), "{text}");
+        assert!(LITANY.iter().filter(|term| folded.contains(*term)).count() < 3, "{text}");
+        assert!(text.chars().all(|ch| (' '..='~').contains(&ch) || ('\u{a0}'..='\u{ff}').contains(&ch)), "{text}");
+    }
+}
+
+// --- Rule-pack format 0.5.0: one outcome per check and load case (DEL-06-01
+// Design `rule-pack-0.5.0.md` §2.7, §6) -------------------------------------
+
+fn outcome_on(check_id: &str, ref_type: &str, ref_id: &str, status: UserRuleCheckStatus) -> UserRuleCheckOutcome {
+    UserRuleCheckOutcome {
+        check_id: check_id.to_string(),
+        basis_ref: Some(UserRuleCheckBasisRef { ref_type: ref_type.to_string(), ref_id: ref_id.to_string() }),
+        status,
+        missing_inputs: vec![],
+    }
+}
+
+#[test]
+fn one_check_on_two_load_cases_lists_both_named_with_the_count_scope_note() {
+    let mut input = fixture_input();
+    input.report_context = Some(invented_report_context(ReportExportContext::LocalPrivate));
+    let mut run = invented_rule_check_run();
+    run.aggregate_status = UserRuleCheckStatus::UserRuleFailed;
+    run.checks = vec![
+        outcome_on("invented-check-a", "load_case", "load:L-100", UserRuleCheckStatus::UserRuleChecked),
+        outcome_on("invented-check-a", "combination", "combo:C-1", UserRuleCheckStatus::UserRuleFailed),
+    ];
+    input.user_rule_checks = Some(run);
+    let outcome = render_calculation_report(&input);
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    let html = &outcome.html;
+    assert!(html.contains("<th>Check</th><th>Load case or combination</th><th>Status</th><th>Missing inputs</th>"), "{html}");
+    assert!(html.contains(
+        "<td>invented-check-a</td><td>load_case load:L-100</td><td>User-rule-check authority · User-rule checked (USER_RULE_CHECKED)</td><td>none</td>"
+    ));
+    assert!(html.contains(
+        "<td>invented-check-a</td><td>combination combo:C-1</td><td>User-rule-check authority · User-rule failed (USER_RULE_FAILED)</td><td>none</td>"
+    ));
+    // The headline is unchanged; the note says what its counts count, once.
+    assert!(html.contains("Aggregate status: User-rule-check authority · User-rule failed (USER_RULE_FAILED)"));
+    assert_eq!(html.matches(USER_RULE_CHECK_COUNT_SCOPE_NOTE).count(), 1);
+    assert_eq!(
+        USER_RULE_CHECK_COUNT_SCOPE_NOTE,
+        "Counts are per check and load case or combination; one check can contribute more than once."
+    );
+}
+
+#[test]
+fn an_outcome_recorded_without_basis_ref_renders_load_case_not_recorded() {
+    // A 2.0.0 renderer input written before the member existed still reads.
+    let mut value: serde_json::Value = serde_json::to_value(fixture_input()).unwrap();
+    value["report_context"] = serde_json::to_value(invented_report_context(ReportExportContext::LocalPrivate)).unwrap();
+    value["user_rule_checks"] = serde_json::json!({
+        "rule_pack_id": "invented-rule-pack",
+        "grammar_version": "1.0.0",
+        "aggregate_status": "USER_RULE_CHECKED",
+        "checks": [{"check_id": "invented-check-a", "status": "USER_RULE_CHECKED", "missing_inputs": []}]
+    });
+    let input: RenderableReportInput = serde_json::from_value(value).expect("an input without basis_ref reads");
+    assert_eq!(input.user_rule_checks.as_ref().unwrap().checks[0].basis_ref, None);
+    let outcome = render_calculation_report(&input);
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    assert!(outcome.html.contains(
+        "<td>invented-check-a</td><td>load case not recorded</td><td>User-rule-check authority · User-rule checked (USER_RULE_CHECKED)</td><td>none</td>"
+    ));
+    // An absent member is not written back.
+    let written = serde_json::to_value(&input).unwrap();
+    assert!(written["user_rule_checks"]["checks"][0].get("basis_ref").is_none());
+}
+
+#[test]
+fn an_empty_or_unknown_recorded_basis_blocks_export() {
+    for (ref_type, ref_id) in [("load_case", " "), ("load_case", ""), ("support", "load:L-100")] {
+        let mut input = fixture_input();
+        input.report_context = Some(invented_report_context(ReportExportContext::LocalPrivate));
+        let mut run = invented_rule_check_run();
+        run.checks = vec![outcome_on("invented-check-a", ref_type, ref_id, UserRuleCheckStatus::UserRuleChecked)];
+        run.aggregate_status = UserRuleCheckStatus::UserRuleChecked;
+        input.user_rule_checks = Some(run);
+        let outcome = render_calculation_report(&input);
+        assert!(outcome.export_blocked, "{ref_type} {ref_id:?}");
+        assert!(outcome
+            .blocking_reasons
+            .iter()
+            .any(|reason| reason == "report context: USER-RULE-CHECK-BASIS-REF-INVALID"), "{:?}", outcome.blocking_reasons);
+    }
 }

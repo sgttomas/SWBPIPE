@@ -455,7 +455,12 @@ if fnkey("member_group_fires", _FG):
         ("for p in source.loads.iter().filter(|p| p.term_index == i)", "0", O10 + "KD5L12: supplied load primitive list is empty by KD5L3", ["structural/formation_check.rs:evaluate"]),
     ]
     O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [{"re": r"^route$", "max": 128, "why": O10 + "KD5A3: unavailable-route sentence selects 'on this route' or 'on the nonlinear-support route', static <=128"}]
-    for _text in ['format!("diagnostic:stress-free-within-numerical-precision:', 'format!("Load case {case_id}: every member', 'vec![case_id.to_string()]']:
+    # W7-SF (W-7, DEL-04-01 Design `global-end-actions.md`): the notice's sentence names the element-local member rows
+    # and the support rows it bounds; its site is re-keyed by that text, with the same audit (case_id IN128; the two
+    # bounds are `{:e}` numbers). A source before W-7 keeps the former text.
+    _W7_SF = 'format!("Load case {case_id}: every element-local member'
+    _SF = _W7_SF if _W7_SF in open(_os.path.join(_SNAP, _FG), encoding="utf-8").read() else 'format!("Load case {case_id}: every member'
+    for _text in ['format!("diagnostic:stress-free-within-numerical-precision:', _SF, 'vec![case_id.to_string()]']:
         O10_ID_AUDIT += [(site("stress_free_notice", _FG, _text, full=True), {"case_id": IN})]
     _CL = PP_ + "certified_loads.rs"
     O10_ID_AUDIT += [(site("summand", _CL, "family: family.into()", full=True), {"family": ST}),
@@ -1361,7 +1366,9 @@ if _D5:
         ("for b in BASES", "2", O10 + "U6-L: BASES is [&str; 2]", ["section_basis.rs:twin_id"]),
         ('iter:summary.get(" ").is_some_and(Value::is_null) && BASES.iter().all', "2", O10 + "U6-L: BASES is [&str; 2]", ["section_basis.rs:headlines"]),
         ("for (basis, complete) in BASES.into_iter().zip(complete)", "2", O10 + "U6-L: BASES is [&str; 2]", ["section_basis.rs:headlines"]),
-        ("for basis in crate::section_basis::BASES", "2", O10 + "U6-L: BASES is [&str; 2]", ["physics_source.rs:maximum_link"]),
+        # W-15 D3 (§8.21, W15-L1): validate_physics_evidence_in checks each basis's headline names no body, one loop over BASES.
+        ("for basis in crate::section_basis::BASES", "2", O10 + "U6-L: BASES is [&str; 2]",
+         ["physics_source.rs:maximum_link", "physics_evidence.rs:validate_physics_evidence_in"]),
         ("for (slot, ((unavailable, complete), done)) in coverage .iter() .zip(coverage_complete.iter_mut()) .enumerate()", "2",
          O10 + "U6-L4: section_basis::coverage returns a [_; 2]", ["physics_evidence.rs:validate_physics_evidence_in"]),
         ("for ((case, member, _, basis), values) in &lame", "Pall",
@@ -1487,14 +1494,16 @@ if _D5:
         (site_after(_CASE_FN, _LIB, "for (stress, basis) in bases {", "let id = format!(", within=3), _STRESS_DIAG),
         (site(_CASE_FN, _LIB, '&basis.map_or_else(|| id.clone(), |basis| format!("{id}:{}", basis.hyphen())),', full=True),
          {"id": _st(_DIAG_ID, "the stress-finding id formatted just above (its four audited parts and 18 literal bytes)"), "basis.hyphen()": _SEGA}),
-        (site(_CASE_FN, _LIB, 'let row = section_basis_row(ResultItem { id: format!("result:elastic-maximum:{}:{}:{}:{}", load_case.id.len(), load_case.id, pipe.element_id.len(), pipe.element_id)', full=True), _MAX_ID),
+        # W-15 D3 (§8.21): the two maximum rows name `component_body: None` first (the record is set only after
+        # publication, on a body's stress rows; none on D1 by P2), with the same id template.
+        (site(_CASE_FN, _LIB, 'let row = section_basis_row(ResultItem { component_body: None, id: format!("result:elastic-maximum:{}:{}:{}:{}", load_case.id.len(), load_case.id, pipe.element_id.len(), pipe.element_id)', full=True), _MAX_ID),
         # U4B-K (T4-U4b): a realized arc's certified maximum sets the per-basis headline with the same statement; its
         # result id is u4b_rows::arc_maximum_row's, the same elastic-maximum template with its basis segment (_RID_D5).
         *[(site_is(_CASE_FN, _LIB, '*headline = Some(LocatedQuantity { value, unit: "Pa".into(), location_ref: pipe.element_id.clone(), result_ref: result_id.clone() });',
                    nth=_k, count=_HLN), {"pipe.element_id": IN, "result_id": _RID_D5}) for _k in range(1, _HLN + 1)],
         (site(_CASE_FN, _LIB, 'diagnostics.push(diag(&format!("diagnostic:source-recovery:{}:{}:maximum:{}",load_case.id,pipe.element_id,basis.hyphen())', full=True),
          {"load_case.id": IN, "pipe.element_id": IN, "basis.hyphen()": _SEGA}),
-        (site(_CASE_FN, _LIB, "let row = section_basis_row(ResultItem { id:format!(", full=True), _MAX_ID),
+        (site(_CASE_FN, _LIB, "let row = section_basis_row(ResultItem { component_body: None, id:format!(", full=True), _MAX_ID),
         (site(_CASE_FN, _LIB, '),kind:"pipe_elastic_normal_stress_maximum_v2".to_string(),value,unit:"Pa".to_string(),entity_ref:pipe.element_id.clone(),', full=True),
          {"pipe.element_id": IN}),
         (_HL_REF, {"result_id": _RID_D5}),
@@ -1675,7 +1684,19 @@ if fnkey("append_station_quantities", _U4R) and fnkey("member_stations", _U4E):
         _pp_src = _os.path.join(_SNAP, PP_)
         _pp_files = [_os.path.relpath(_os.path.join(_d, _n), _SNAP) for _d, _, _ns in _os.walk(_pp_src) for _n in _ns
                      if _n.endswith(".rs") and not _n.endswith("_tests.rs") and "tests" not in _os.path.relpath(_d, _pp_src).split(_os.sep)]
-        _literal = sum(_text_of(_f).count('"element_local_normal_stress_extreme"') + _text_of(_f).count('"element_local_transverse_shear_stress_maximum"')
+        # W15-SK (W-15 D3, §8.21): rigid_component.rs's STRESS_KINDS names both kinds once each as the record's kind set;
+        # annotate_component_bodies only sets `component_body` on existing rows of those kinds and pushes none. That one
+        # const array is excluded from the producer count; any other occurrence there still counts.
+        def _nq_text(_f):
+            _t = _text_of(_f)
+            if _f == PP_ + "rigid_component.rs":
+                _k = _re.findall(r"pub\(crate\) const STRESS_KINDS: \[&str; \d+\] = \[[^\]]*\];", _t)
+                if len(_k) != 1 or any(_k[0].count(_kind) != 1 for _kind in ('"element_local_normal_stress_extreme"', '"element_local_transverse_shear_stress_maximum"')) \
+                        or ".push(" in _fn_text("annotate_component_bodies", _f):
+                    raise SystemExit("W15-SK: rigid_component.rs's STRESS_KINDS or annotate_component_bodies changed; re-review U4B-NQ's producer count")
+                _t = _t.replace(_k[0], "")
+            return _t
+        _literal = sum(_nq_text(_f).count('"element_local_normal_stress_extreme"') + _nq_text(_f).count('"element_local_transverse_shear_stress_maximum"')
                        for _f in _pp_files)
         _args = {_f: _text_of(_f).count("EXTREME_KIND, ") + _text_of(_f).count("SHEAR_MAX_KIND, ") for _f in _pp_files}
         if _literal != 2 or {_f: _c for _f, _c in _args.items() if _c} != {_U4R: 4}:
@@ -2578,4 +2599,298 @@ if fnkey("validate_mechanics_combination", _SD_V) and '"LOAD_COMBINATION_DUPLICA
          {"stable_suffix(&combination.id)": IN, "stable_suffix(&term.load_case)": IN}),
         (site_after("validate_mechanics_combination", _SD_V, '"LOAD_COMBINATION_DUPLICATE_TERM",', "vec![combination.id.clone(), term.load_case.clone()],", within=4),
          {"combination.id": IN}),
+    ]
+
+
+# ---- W-7 member end actions in global coordinates (DEL-04-01 Design global-end-actions.md; retained-pricing-rules.md
+# §8.20). Rows: W7-RL (sq2_decisions_L.py) and W7-RP (sq2_decisions_E.py); owners: w7_owners_model (W7-NC, W7-QF, W7-RD).
+_W7_GE = fnkey("append_element_global_end_results", _LIB)
+if _W7_GE:
+    _W7_RP = PP_ + "retained_product.rs"
+    _W7_RE = RE_ + "global_end_evidence.rs"
+    # W7-L1: the loops, each only in its own function. The published-row window `results[from..]` is the current member's
+    # own rows: `from` is taken immediately before the member's element-local end rows, inside the case solve's per-pipe
+    # iteration and in the failed manifest's per-member iteration, and the call follows in the same iteration, so the window
+    # holds only that member's rows published before its global end rows (at most an exact member's 102, W7-RP's census
+    # rows per member, on either route; 51 in the failed manifest). Guard: w7_owners_model binds both positions and calls.
+    O10_LOOPS_LAST += [
+        ("for row in results.get(from..).unwrap_or(&[])", "102", O10 + "W7-L1: one member's own published rows (<= an exact member's 102)",
+         ["lib.rs:append_element_global_end_results"]),
+        ("for (component, value) in local[end].iter().enumerate()", "6", O10 + "W7-L1: the six end-action components", ["lib.rs:append_element_global_end_results"]),
+        ("for (k, name) in names.into_iter().enumerate()", "3", O10 + "W7-L1: the three components of a force or moment", ["lib.rs:append_element_global_end_results"]),
+        ("iter:rows.into_iter().cloned().map", "R0", O10 + "W7-L1: qualify_source_case_rows, the case's rows other than its global end rows <= R0 (the former `rows.iter()` header's bound)",
+         ["lib.rs:qualify_source_case_rows"]),
+        ("for (k,slot) in f.iter_mut().enumerate()", "3", O10 + "W7-L1: one force or moment's three projected operands", ["retained_product.rs:global_end_value"]),
+        ("for key in global.keys()", "cases*m", O10 + "W7-L1: the reader's (load case, member) keys of load-case global end rows <= cases*m",
+         ["global_end_evidence.rs:coverage"]),
+    ]
+    # W7-ID: the composed texts at their sites. The case solve's one blocking diagnostic (an unavailable frame or rotation)
+    # names the member (IN128) by its stable suffix (IN128) and refs the member and the case (IN128 each); the successor's
+    # global end id is the member's suffix (IN128), the checked location (end_i or end_j, 5 B) and the lower-cased
+    # component (2 B); the reader's refusal code is a static token (SOURCE_GLOBAL_END_ + at most 17 B).
+    O10_ID_AUDIT += [
+        (site("solve_prepared_load_case", _LIB, '&format!("diagnostic:stress:{}:global-end-actions", stable_suffix(&pipe.element_id)),', full=True),
+         {"stable_suffix(&pipe.element_id)": IN}),
+        (site("solve_prepared_load_case", _LIB, 'format!("member {} global end actions are unavailable: {message}", pipe.element_id),', full=True),
+         {"pipe.element_id": IN}),
+        (site("solve_prepared_load_case", _LIB, "vec![pipe.element_id.clone(), load_case.id.clone()],", full=True),
+         {"pipe.element_id": IN, "load_case.id": IN}),
+        (site("validate_final_metadata", _W7_RP, 'format!("result:element-global-end:{suffix}:{loc}:{}", component.to_ascii_lowercase())', full=True),
+         {"suffix": IN, "loc": {"bytes": 5, "source": O10 + "W7-ID: the checked location, end_i or end_j"},
+          "component.to_ascii_lowercase()": {"bytes": 2, "source": O10 + "W7-ID: Fx..Mz lower-cased"}}),
+        (site("require", _W7_RE, 'Err(format!("SOURCE_GLOBAL_END_{code}"))', full=True), {"code": ST}),
+    ]
+    # W7-ID (append_element_global_end_results): the pushed rows' texts and the three Err texts, each at its site. Statics
+    # at their literal lengths: a kind (<= 28 B, element_global_end_moment_v1), a unit (<= 3 B), a component name (2 B), a
+    # location (end_i or end_j, 5 B), a matched element-local or wall kind (<= 30 B), the basis (<= 77 B, the wall basis);
+    # the member id and its stable suffix are IN128. `local[end][component].replace(..)` is Option::replace on an f64 slot,
+    # not a String (W7-RZ, as B2-P's Option::replace sites).
+    _W7_LOC = {"bytes": 5, "source": O10 + "W7-ID: end_i or end_j"}
+    _W7_NAME = {"bytes": 2, "source": O10 + "W7-ID: Fx..Mz"}
+    _W7_KIND = {"bytes": 30, "source": O10 + "W7-ID: one of LOCAL's six kinds or the wall kind (<= 30 B)"}
+    _W7_T = lambda text: site("append_element_global_end_results", _LIB, text, full=True)
+    O10_ID_AUDIT += [
+        (_W7_T('return Err(format!("duplicate published {} row at {}", row.kind, metadata.location));'), {"row.kind": _W7_KIND, "metadata.location": _W7_LOC}),
+        (_W7_T('format!("published {} row missing at {location}", LOCAL[component])'), {"LOCAL[component]": _W7_KIND, "location": _W7_LOC}),
+        (_W7_T('return Err(format!("{name} at {location} is not finite"));'), {"name": _W7_NAME, "location": _W7_LOC}),
+        (_W7_T('id: format!("result:element-global-end:{suffix}:{location}:{}", name.to_ascii_lowercase()),'),
+         {"suffix": IN, "location": _W7_LOC, "name.to_ascii_lowercase()": _W7_NAME}),
+        (_W7_T("kind: kind.to_string(),"), {"kind": {"bytes": 28, "source": O10 + "W7-ID: the two global end kinds (<= 28 B)"}}),
+        (_W7_T("unit: unit.to_string(),"), {"unit": {"bytes": 3, "source": O10 + "W7-ID: N or N*m"}}),
+        (_W7_T("entity_ref: pipe_id.to_string(),"), {"pipe_id": IN}),
+        (_W7_T("component: name.to_string(),"), {"name": _W7_NAME}),
+        (_W7_T("location: location.to_string(),"), {"location": _W7_LOC}),
+    ]
+    O10_SITE_ZERO += [(site("append_element_global_end_results", _LIB, "if local[end][component].replace(row.value).is_some() {"),
+                       O10 + "W7-RZ: Option::replace on an f64 slot, not a String")]
+    O10_ARGS_FIRST = [{"re": r"^\{ GLOBAL_END_BASIS \}$", "max": 77,
+                       "why": O10 + "W7-ID: `if wall[end] { GLOBAL_END_WALL_BASIS } else { GLOBAL_END_BASIS }.to_string()`, the longer the wall basis (77 B)"}] + list(globals().get("O10_ARGS_FIRST", []))
+
+# ---- W-15 rigid-component stiffness scaling and reference-section identification (DEL-03-05 Design
+# `rigid-component-stiffness-scaling.md`; retained-pricing-rules.md §8.21). Owners: w15_owners_model (W15-PM, W15-RB);
+# the producer-count guard W15-SK sits with U4B-NQ above.
+_W15_RC = PP_ + "rigid_component.rs"
+_W15_CB = RE_ + "component_body.rs"
+if fnkey("applied_scales", _W15_RC) or fnkey("source_bodies", _W15_CB):
+    if not (fnkey("applied_scales", _W15_RC) and fnkey("source_bodies", _W15_CB)):
+        raise SystemExit("W15: the producer's rigid_component.rs and the readers' component_body.rs are partly present; re-review")
+    _W15_APPLIED = _fn_text("applied_scales", _W15_RC)
+    _W15_ANNOTATE = _fn_text("annotate_component_bodies", _W15_RC)
+    _W15_BUILD = _fn_text("build_model_for_members", _LIB)
+    # W15-NZ (guard): under P2 (`model.components` empty on D1) no member is scaled. applied_scales' only source is
+    # `model.components` (a filter_map over it, collected), the build reads the result only in its one
+    # `rigid_scales.get(` match, a ScaledMember is made only in that `Some(applied)` arm and inserted only from it, and
+    # annotate_component_bodies returns at its first statement when the formed bodies are empty.
+    _w15_nz = (
+        _W15_APPLIED.count("model\n        .components\n        .iter()\n        .filter_map(") == 1,
+        _W15_APPLIED.count(".collect()") == 1,
+        _W15_BUILD.count("let rigid_scales = rigid_component::applied_scales(model);") == 1,
+        _W15_BUILD.count("rigid_scales.") == 1 and _W15_BUILD.count("match rigid_scales.get(pipe.id.as_str()) {") == 1,
+        _W15_BUILD.count("scaled_member = Some(ScaledMember {") == 1,
+        _W15_BUILD.count("scaled_members.insert(") == 1
+        and _W15_BUILD.count("if let Some(member) = scaled_member {\n            scaled_members.insert(pipe.id.clone(), member);") == 1,
+        _W15_ANNOTATE.split("{", 1)[1].lstrip().startswith("if bodies.is_empty() {\n        return;\n    }"),
+        _text_of(_LIB).count("rigid_component::annotate_component_bodies(&mut envelope, &built.pipes, &built.scaled_members);") == 1,
+    )
+    if not all(_w15_nz):
+        raise SystemExit(f"W15-NZ: the scaled-member path or its premise changed; re-review its zeros: {_w15_nz}")
+    _W15_P2 = O10 + "W15-NZ: P2 (no component on D1): applied_scales is empty, so no member is scaled"
+    O10_SITE_ZERO += [(site("build_model_for_members", _LIB, _t), _W15_P2 + " (the rigid-scale refusal of the `Some(applied)` arm)")
+                      for _t in ('&format!("diagnostic:pipe-section:{}:rigid-scale", stable_suffix(&pipe.id)),',
+                                 'format!("rigid/semi-rigid component {} scales member {} by {}: the scaled moduli',
+                                 "vec![pipe.id.clone(), applied.component_id.clone()],",
+                                 "component_id: applied.component_id.clone(),")] + [
+        (site("build_model_for_members", _LIB, "scaled_members.insert(pipe.id.clone(), member);"), _W15_P2 + " (the formed body's key)"),
+        (site("build_model_for_members", _LIB, '&format!("diagnostic:pipe-section:{}:rigid-scale", stable_suffix(&pipe.id)),',
+              row="diagnostics.push(diag("), _W15_P2 + " (the rigid-scale refusal's diagnostic: no count in D)")]
+    # W15-L1 (loops), each only in its own function. Producer: conflicts' member order and a shared member's component
+    # list hold one entry per rigid-family component's mapped member (0 by P2); annotate_component_bodies' loops follow
+    # its empty-bodies return (0 by P2, W15-NZ). Readers (on the projected successor, G7, and route L's model checks): a
+    # case's stress-maximum coverage entries (two section bases on pressure-2, one object on preview-physics-2: <= 2), a
+    # case's stress extrema (one per member and basis: <= 2m), a coverage entry's body ids (distinct member ids: <= m), the
+    # captured model's components and the expected bodies derived from them (0 by P2: retained_memory refuses non-empty
+    # `components`), and the preview headline's row filter, which only adds the body exclusion to the former header's
+    # rows (Pall, the former bound).
+    O10_LOOPS_LAST += [
+        ("for pipe_ref in order", "0", _W15_P2 + "; conflicts' mapped members", ["rigid_component.rs:conflicts"]),
+        ("iter:components.iter().map", "0", _W15_P2 + "; a shared member's components", ["rigid_component.rs:conflicts"]),
+        ("for row in &mut envelope.results", "0", _W15_P2 + "; annotate_component_bodies returns at empty bodies",
+         ["rigid_component.rs:annotate_component_bodies"]),
+        ("for extremum in extrema", "0", _W15_P2 + "; annotate_component_bodies returns at empty bodies",
+         ["rigid_component.rs:annotate_component_bodies"]),
+        ("for entry in coverage_entries(case)", "2", O10 + "W15-L1: a case's stress-maximum coverage entries (<= 2 bases)",
+         ["component_body.rs:source_bodies"]),
+        ('for extremum in case[" "].as_array().map(Vec::as_slice).unwrap_or(&[])', "2*m",
+         O10 + "W15-L1: a case's stress extrema, one per member and basis (<= 2m)", ["component_body.rs:source_bodies"]),
+        ("for id in list", "m", O10 + "W15-L1: a coverage entry's distinct body member ids (<= m)", ["component_body.rs:source_bodies"]),
+        ('for component in model[" "].as_array().unwrap_or(&empty)', "0",
+         O10 + "W15-L1: P2: the captured model's components are empty (retained_memory refuses any)", ["component_body.rs:model_bodies"]),
+        ("for (pipe, (component, scale)) in &expected", "0",
+         O10 + "W15-L1: P2: no expected body (model_bodies reads only the empty components)", ["component_body.rs:model_checks"]),
+        ('for row in rows.iter().filter(|r| r[" "] == kind && !bodies.contains_key(r[" "].as_str().unwrap_or_default()))', "Pall",
+         O10 + "W15-L1: the former headline rows (Pall) less the body members' rows", ["preview_physics_evidence.rs:headline"]),
+    ]
+    # W15-ID: the applied-scale texts state the scale in f64 Display (the chain's f64_display class, 327); the readers'
+    # refusal code is a static token (SOURCE_COMPONENT_BODY_ + at most 21 B, COVERAGE_DISAGREEMENT).
+    _W15_F64 = {"bytes": 327, "source": O10 + "W15-ID: an f64 in Display (the chain's f64_display class, 327)"}
+    O10_ID_AUDIT += [
+        (site("append_formed_diagnostics", _W15_RC, "applies its user-entered stiffness scale {scale} to mapped member {pipe_ref}", full=True),
+         {"scale": _W15_F64}),
+        (site("append_formed_diagnostics", _W15_RC, "scales member {pipe_ref} by {scale}, at least {PRECISION_WARNING_SCALE:e}", full=True),
+         {"scale": _W15_F64}),
+        (site("fail", _W15_CB, 'format!("SOURCE_COMPONENT_BODY_{code}")', full=True), {"code": ST}),
+    ]
+
+# ---- W-15 slice b: a rigid component's weight and centre of gravity as nodal weight loads (DEL-03-05 Design
+# `rigid-component-stiffness-scaling.md` §3; retained-pricing-rules.md §8.22). The generator's new functions are reached
+# on the solve graph only from inspect_applied_self_weight's lineage check, after its `continue`.
+_W15B_SW = PP_ + "self_weight.rs"
+if fnkey("generation_basis", _W15B_SW):
+    _W15B_INSPECT = _fn_text("inspect_applied_self_weight", _W15B_SW)
+    _W15B_FAMILY = _fn_text("family_clauses", PP_ + "retained_memory.rs")
+    # W15B-NS (guard): D1.10 refuses an object provenance, so `method` is None and `recognized` and
+    # `claimed_method_family` are false; D1.7 refuses an element load of the deterministic form and, since slice b, a
+    # node load whose id starts with `load:self-weight:`, the node arm's whole test; so `looks_generated` is false and
+    # every admitted load takes the `continue` before the closure that calls generation_basis.
+    _w15b_ns = (
+        _W15B_INSPECT.count('super::LoadTargetInput::Node { .. } => load.id.starts_with("load:self-weight:"),') == 1,
+        _W15B_INSPECT.count("if !recognized && !looks_generated {\n                continue;\n            }") == 1,
+        _W15B_INSPECT.count("let looks_generated = claimed_method_family || deterministic_identity;") == 1,
+        _W15B_INSPECT.count("generation_basis(") == 2,
+        _text_of(_W15B_SW).count("generation_basis(") == 3,
+        _W15B_FAMILY.count('if load.id.starts_with("load:self-weight:") {\n                        return refuse(C::Loads, F::GeneratedLoadIdentity);') == 1,
+        _W15B_FAMILY.count("if self_weight_form(&load.id, &case.id, pipe) {\n                        return refuse(C::Loads, F::GeneratedLoadIdentity);") == 1,
+    )
+    if not all(_w15b_ns):
+        raise SystemExit(f"W15B-NS: the generated-namespace premise or its D1 refusal changed; re-review: {_w15b_ns}")
+    O10_EDGE_ZERO += [(fnkey("inspect_applied_self_weight", _W15B_SW), fnkey("generation_basis", _W15B_SW),
+                       O10 + "W15B-NS: D1.10 (no object provenance) and D1.7 (no deterministic element form, and no node "
+                       "load in the generated self-weight namespace) make `looks_generated` false, so every admitted load "
+                       "continues before the lineage closure; generation_basis and its component-weight callees "
+                       "(component_basis, normalized_weight, normalized_cog, component_load_id) are reached only there or "
+                       "from the zeroed generate_operations")]
+    # The component branch's wrench-set keys (two `to_string`s per evidence row) run only inside the same closure.
+    O10_SITE_ZERO += [(site("inspect_applied_self_weight", _W15B_SW, 'let key = |e: &Value| (e["wrench_part"].as_str().unwrap_or_default().to_string(),'),
+                       O10 + "W15B-NS: inside the lineage closure, after the `continue` every admitted load takes")]
+
+# ---- W-16 slice a: imposed displacement on the pressure-free route, stage 1 (DEL-04-03 Design
+# `pf-imposed-displacement.md`; retained-pricing-rules.md §8.23). imposed_motion.rs is new: what it reaches on D1 is
+# priced here and in w16_owners_model (W16-NI, W16-VF); what lies behind a support target is zero by D1.7 (W16-NS).
+_W16_IM = PP_ + "imposed_motion.rs"
+if fnkey("case_prescribed", _W16_IM):
+    _W16_VAL = _fn_text("validate", _W16_IM)
+    _W16_PF = _fn_text("validate_pressure_free", _W16_IM)
+    _W16_CP = _fn_text("case_prescribed", _W16_IM)
+    _W16_FAMILY = _fn_text("family_clauses", PP_ + "retained_memory.rs")
+    _W16_SOLVE = _fn_text("solve_prepared_load_case", _LIB)
+    _w16_pf_else = ("let LoadTargetInput::Support { support: support_id, dof } = &load.target else {\n"
+                    "                if load.category == CATEGORY {\n"
+                    "                    refuse(diagnostics, case, load, TARGET_INVALID,")
+    _w16_solve = ("    let before = diagnostics.len();\n    let pf_motion = match load_state {\n        Some(_) => None,\n"
+                  "        None => imposed_motion::case_prescribed(model, load_case, restrained_dofs, diagnostics),\n    };\n"
+                  "    if has_blocking(&diagnostics[before..]) {\n")
+    # W16-NS (guard): D1.7 refuses every support-targeted primitive on both routes (family_clauses' exhaustive match over
+    # every case's primitive loads), so an admitted request has none. Every imposed_motion site behind a support target is
+    # then unreached: validate's exact-branch loop (it iterates only support targets), validate_pressure_free's body
+    # after its let-else (its only reachable call is the node/element `imposed_displacement` refusal, TARGET_INVALID,
+    # then `continue`), the motion-only nonlinear push (`motion` is set only after the let-else; D1.6 also refuses
+    # nonlinear supports), case_prescribed's loop body after its let-else (so its map stays empty, `any` false, and
+    # nothing is pushed), and the case solve's early return, guarded by a blocking diagnostic pushed after `before`.
+    _w16_ns = (
+        _W16_FAMILY.count("for case in &m.load_cases {\n        for load in &case.primitive_loads {\n            match &load.target {") == 1,
+        _W16_FAMILY.count("crate::LoadTargetInput::Support { .. } => {\n                    return refuse(C::Loads, F::LoadTarget);") == 1,
+        _fn_text("is_support_target", _W16_IM).count("matches!(load.target, LoadTargetInput::Support { .. })") == 1,
+        _W16_VAL.count("for load in case.primitive_loads.iter().filter(|load| is_support_target(load)) {") == 1,
+        _W16_VAL.count("refuse(") == 1,
+        _W16_VAL.count("} else {\n        validate_pressure_free(model, &mut found);\n    }") == 1,
+        _W16_PF.count(_w16_pf_else) == 1,
+        _W16_PF.split(_w16_pf_else, 1)[0].count("refuse(") == 0 and _W16_PF.split(_w16_pf_else, 1)[0].count("diag(") == 0,
+        _W16_PF.split(_w16_pf_else, 1)[1].split("continue;", 1)[0].count("refuse(") == 0,
+        _W16_PF.count("motion = true;") == 1 and _W16_PF.index("motion = true;") > _W16_PF.index(_w16_pf_else),
+        _W16_PF.count("if motion && nonlinear {") == 1,
+        _W16_CP.count("let LoadTargetInput::Support { support, dof } = &load.target else { continue };") == 1,
+        _W16_CP.count("refuse(") == 1 and _W16_CP.count(".insert(") == 1 and _W16_CP.count("any = true;") == 1,
+        _W16_CP.index("any = true;") > _W16_CP.index("&load.target else { continue };"),
+        _W16_SOLVE.count(_w16_solve) == 1,
+        _text_of(_LIB).count("imposed_motion::case_prescribed(") == 1,
+        _text_of(_LIB).count("imposed_motion::validate(&model, &mut diagnostics)") == 1,
+        _re.sub(r"//[^\n]*", "", _production(_W16_IM)).count("refuse(") == 12,
+    )
+    if not all(_w16_ns):
+        raise SystemExit(f"W16-NS: the support-target premise or its D1.7 refusal changed; re-review its zeros: {_w16_ns}")
+    _W16_NS = (O10 + "W16-NS: D1.7 refuses every support-targeted primitive (family_clauses, F::LoadTarget), so no admitted "
+               "load reaches imposed_motion's support-target branch")
+    _W16_EVF = O10 + "W16-NS: by-name edge reached only from the support-target branch; "
+    O10_EDGE_ZERO += [
+        (fnkey("validate", _W16_IM), fnkey("refuse", _W16_IM), _W16_NS + " (validate's exact-branch loop iterates only support targets)"),
+        (fnkey("validate", _W16_IM), fnkey("support", PP_ + "certified_publication.rs"),
+         _W16_EVF + "the binding `support` of the exact-branch refusal, not certified_publication's fn support"),
+        (fnkey("case_prescribed", _W16_IM), fnkey("refuse", _W16_IM), _W16_NS + " (case_prescribed's body after its let-else)"),
+        (fnkey("case_prescribed", _W16_IM), fnkey("parse_dof", _LIB), _W16_NS + " (case_prescribed's body after its let-else)"),
+        (fnkey("case_prescribed", _W16_IM), fnkey("dof_index", _LIB), _W16_NS + " (case_prescribed's body after its let-else)"),
+        (fnkey("case_prescribed", _W16_IM), fnkey("support", PP_ + "certified_publication.rs"),
+         _W16_EVF + "the binding `support`, not certified_publication's fn support"),
+        (fnkey("case_prescribed", _W16_IM), fnkey("find", FK_ + "structural/sparse.rs"), _W16_EVF + "Iterator::find over the supports"),
+    ] + [(fnkey("case_prescribed", _W16_IM), fnkey("get", _f), _W16_EVF + "HashMap::get of the node index")
+         for _f in (PP_ + "retained_memory.rs", FK_ + "load_ledger.rs", FK_ + "structural/sparse.rs", "core/solver/sparse_direct/src/lib.rs")] + [
+        (fnkey("validate_pressure_free", _W16_IM), fnkey(_n, _f), _W16_NS + f" ({_n}: the support-target branch or the motion-only push)")
+        for _n, _f in (("is_rigid", _W16_IM), ("restrains", _W16_IM), ("expected_dimension", _W16_IM), ("parse_dof", _LIB),
+                       ("dof_index", _LIB), ("diag", _LIB), ("exact_source_identity", _LIB),
+                       ("unit_by_symbol", "core/units/src/lib.rs"))] + [
+        (fnkey("validate_pressure_free", _W16_IM), fnkey(_n, _f), _W16_EVF + _why)
+        for _n, _f, _why in (("sum", PP_ + "retained_wire.rs", "Iterator::sum of the coincident restraints"),
+                             ("support_id", PP_ + "source_receipt/rows.rs", "the binding `support_id`, not rows.rs' fn support_id"),
+                             ("find", FK_ + "structural/sparse.rs", "Iterator::find over the supports"))]
+    # W16-NS: validate_pressure_free calls refuse at most once per primitive load on D1 (the node/element refusal, then
+    # `continue`); its eight support-branch calls are unreached. Per call of validate_pressure_free: cases*l.
+    EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey("validate_pressure_free", _W16_IM), fnkey("refuse", _W16_IM), "cases*l",
+        O10 + "W16-NS: on D1 only the node/element `imposed_displacement` refusal (TARGET_INVALID) calls refuse, at most once "
+        "per primitive load (it continues after it); the support-branch calls are unreached (D1.7)")]
+    _w16_lines = lambda fn, texts: [site(fn, _W16_IM, _t) for _t in texts]
+    O10_SITE_ZERO += [(_k, _W16_NS + " (validate's exact-branch refusal text)") for _k in _w16_lines("validate", (
+                          "the exact route takes support and anchor motion only as",))] + [
+                      (_k, _W16_NS + " (validate_pressure_free's support-target branch)") for _k in _w16_lines("validate_pressure_free", (
+                          "targets support {support_id} with category {}", "which is not in the model",
+                          "names target DOF {dof} and direction {}", "which is a spring, a variable spring hanger",
+                          "which does not restrain that DOF", "a translation needs dimension displacement",
+                          "but another rigid restraint also holds {name}", "both prescribe {name} at node {}",
+                          "imposes a support displacement in a model with nonlinear supports",
+                          "vec![case.id.clone()],"))] + [
+                      (site("validate_pressure_free", _W16_IM, "exact_source_identity(&[&case.id, WITH_NONLINEAR_SUPPORTS])",
+                            row="&format!("), _W16_NS + " (the motion-only nonlinear push's id; D1.6 also refuses nonlinear supports)"),
+                      (site("validate_pressure_free", _W16_IM, "exact_source_identity(&[&case.id, WITH_NONLINEAR_SUPPORTS])",
+                            row="diagnostics.push(diag("), _W16_NS + " (the motion-only nonlinear push: no count in D; D1.6 also refuses nonlinear supports)"),
+                      (site("case_prescribed", _W16_IM, "does not address one prepared rigid boundary DOF"),
+                       _W16_NS + " (case_prescribed's body after its let-else)"),
+                      (site_after("solve_prepared_load_case", _LIB, "if has_blocking(&diagnostics[before..]) {", "load_case_id: load_case.id.clone(),"),
+                       _W16_NS + " (the case solve's early return: case_prescribed pushes nothing on D1)")]
+    # W16-ID: the reachable refusal's texts. refuse's refs clone the load and case ids (IN128); its id is
+    # `diagnostic:imposed-displacement:` + exact_source_identity over (case id, load id, code): `{len}:{part}` per part,
+    # each id <= 4 + 128 B and the code <= 3 + the longest code constant passed to refuse (read at the snapshot).
+    _W16_CODES = _re.findall(r'pub\(crate\) const [A-Z_]+: &str = "([A-Z_]+)";', _production(_W16_IM))
+    if len(_W16_CODES) != 10:
+        raise SystemExit(f"W16-ID: imposed_motion's code constants changed; re-review the id bound: {_W16_CODES}")
+    _W16_CODE = max(len(_c) for _c in _W16_CODES)
+    _W16_IDENT = {"bytes": 2 * (len("128:") + 128) + len(str(_W16_CODE)) + 1 + _W16_CODE,
+                  "source": O10 + f"W16-ID: exact_source_identity over two IN128 ids and a code of <= {_W16_CODE} B"}
+    O10_ID_AUDIT += [
+        (site("refuse", _W16_IM, "let mut refs = vec![load.id.clone(), case.id.clone()];", full=True), {"load.id": IN, "case.id": IN}),
+        (site("refuse", _W16_IM, "exact_source_identity(&[&case.id, &load.id, code])", full=True, row="&format!("),
+         {"exact_source_identity(&[&case.id,&load.id,code])": _W16_IDENT}),
+        (site("validate_pressure_free", _W16_IM, "is an imposed_displacement on a node or element target", full=True),
+         {"load.id": IN, "case.id": IN}),
+    ]
+    # The zeroed sites' expressions keep their classes (the chain classifies a site before its zero applies): a case id
+    # and a load id are IN128, a DOF token upper-cased is <= 2 B, and the nonlinear push's id is exact_source_identity
+    # over one IN128 id and its code.
+    _W16_DOF = {"bytes": 2, "source": O10 + "W16-ID: a frame DOF token (UX..RZ) upper-cased"}
+    O10_ID_AUDIT += [
+        (site("validate_pressure_free", _W16_IM, "which does not restrain that DOF", full=True),
+         {"dof.as_str().to_ascii_uppercase()": _W16_DOF}),
+        (site("validate_pressure_free", _W16_IM, "both prescribe {name} at node {}", full=True), {"first": IN}),
+        (site("validate_pressure_free", _W16_IM, "exact_source_identity(&[&case.id, WITH_NONLINEAR_SUPPORTS])", full=True, row="&format!("),
+         {"exact_source_identity(&[&case.id,WITH_NONLINEAR_SUPPORTS])": {"bytes": len("128:") + 128 + len(str(_W16_CODE)) + 1 + _W16_CODE,
+          "source": O10 + "W16-ID: exact_source_identity over one IN128 id and a code"}}),
+        (site_after("solve_prepared_load_case", _LIB, "if has_blocking(&diagnostics[before..]) {", "load_case_id: load_case.id.clone(),"),
+         {"load_case.id": IN}),
     ]
