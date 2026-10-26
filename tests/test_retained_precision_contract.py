@@ -203,8 +203,8 @@ def _corpus_entries():
 
 
 MILESTONE_PINS = {
-    "sparse_interactive": ("cf053309e8048ae013dc5388d1115399ff89cf493eb2e36772500a3c6985a6e5", [25, 69, 3, 1]),
-    "dense_scrutiny": ("f8078ee2c82ba370ab04591af49ed12c48fda5d88a54a75b0725fbdde317d884", [25, 69, 3, 1]),
+    "sparse_interactive": ("139cfdb7d960aa1c5a061ee21cbf48fa55b96f896dc40120b6576a9f8061781c", [25, 69, 3, 1]),
+    "dense_scrutiny": ("7ce9946465092d416474faf1f455cb9466edd8fb84d3b8a3640a433b27d29d31", [25, 69, 3, 1]),
 }
 
 
@@ -972,10 +972,10 @@ def test_rv80_n2_integral_normalization_touches_only_the_receipt(monkeypatch):
 # PP's pinned L = 0 successor files (U8-1, `u8_l0_isolated_node_publishes_pinned_successor` at the U8
 # head): (file sha256, receipt sha256, class counts), the counts as all three readers observed them (I68).
 L0_PINS = {
-    "sparse_interactive": ("70546eeb24b8066cad7ec0af4a7810c1ad76aae7c28ffff34e039c35d7b0af28",
-                           "49a20f173919485417fca1ba32a2e502b6c9bb3a4a875a6dc3d93e023dfa6046", [25, 78, 9, 1]),
-    "dense_scrutiny": ("eadbcb87c4a35d6006700cb38e0e1544edd8dee91719798ff2ec2efd06b52745",
-                       "32f78920da21234faa53913e286f929d5eb1526daf22cd0a8c2d8a5cf99b5b0b", [25, 78, 9, 1]),
+    "sparse_interactive": ("8852f0890a87c9b5e2e3922dac29b344c1581d6765eebc62b5c7560e73119173",
+                           "abf1ef976af4d24fcc3f365f7408531a7c6513fa37561fb1c74bb81093a7a492", [25, 78, 9, 1]),
+    "dense_scrutiny": ("b4624c590ee17faa8ccd497d88019866eb8ca5f7bc8319404eb638461479c3f8",
+                       "d0587643f8b210e77990e1e8ac858b733ff6b2f21dc22c2beb675ad455d8dd0a", [25, 78, 9, 1]),
 }
 # The registered dev/test build that published them (PP `REGISTERED_PROFILES` at the U8 head).
 L0_BUILD_IDENTITY = ("v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;"
@@ -1832,8 +1832,8 @@ def test_i4p_ruling5_kernel_reason_without_a_run_is_g5_attempt_in_the_reader():
 # `expected_classifications`. Detail texts are not pinned.
 # ---------------------------------------------------------------------------------------------
 # W-8 topology warning added; no number moved.
-N07_W_C2 = {"sparse_interactive": ("c968c05140f6881488b6d3b68c1a44e412f783c6f4fb1e7e2e800776951aecad", "2dcaeffd4fbbc10e9a488b25060d3139bd2232f3e3804288d5230703c7162b05"),
-            "dense_scrutiny": ("5e3254d79454f2fa8ad0e6f64ca394a1a0f0b263529b0486bbd2626930c6cd2a", "06e56b1c8db1a0652dc5e40fce7a24c8c247cad2d914d924ae06dc41fa4174da")}
+N07_W_C2 = {"sparse_interactive": ("ec058146bca971cfd25454023670bbfe1e1d6013f7bf01616e44ddf97ab25aa5", "2e4300b358acb3f4b35f007d94520358cd4dcfc6630711fdc05753bd43af8d08"),
+            "dense_scrutiny": ("4134680944eb7aeb6aa96448ffaa67c86c4f5ab51bf4b5047aad34b5f81e4890", "7180fe56b53d9607feedb05af047f2dc29e6f0c5fd97aae5aa056ce15bd8a330")}
 # PR-N (I109): the dense W-C2 and (C, B, A) successors re-pinned at the correctly rounded `rigid:N0`
 # support force magnitude (one ulp above macOS libm's hypot chain), one pin for every platform.
 # PP `retained_facade_tests.rs` REVERSED_PINNED, CBA_PINNED and AA2_PINNED: (receipt sha256, successor bytes sha256).

@@ -44,8 +44,8 @@ use b1_sq_inputs as inputs;
 // Silent-drop guard (§8.19): +1,245,707 B in both modes from 6,211,548,237 and 6,270,679,581.
 // W-7 (§8.20): +327,563,426 B in both modes from 6,212,793,944 and 6,271,925,288.
 // W-15 (§8.21): +16,786,724 B in both modes from 6,540,357,370 and 6,599,488,714.
-// Unit factor-sum gate (§8.24): +513 B in both modes from 6,557,144,094 and 6,616,275,438.
-const W1_PHASE_BYTES: [u64; 2] = [6_557_144_607, 6_616_275_951];
+// W-16 slice a (§8.23): +2,507,429 B in both modes from 6,557,144,094 and 6,616,275,438.
+const W1_PHASE_BYTES: [u64; 2] = [6_559_651_523, 6_618_782_867];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
 /// the bound once a run has done W1 work (a registered build, G6). W-8 topology warnings D3 at
 /// 34e96d6b17 (retained-pricing-rules.md §8.16): +219,136 B in both modes from the pre-0.4
@@ -56,8 +56,8 @@ const W1_PHASE_BYTES: [u64; 2] = [6_557_144_607, 6_616_275_951];
 // Silent-drop guard (§8.19): +1,245,707 B in both modes from 8,442,447,512 and 8,501,578,856.
 // W-7 (§8.20): +391,657,186 B in both modes from 8,443,693,219 and 8,502,824,563.
 // W-15 (§8.21): +17,551,380 B in both modes from 8,835,350,405 and 8,894,481,749.
-// Unit factor-sum gate (§8.24): +513 B in both modes from 8,852,901,785 and 8,912,033,129.
-const MAX_PHASE_BYTES: [u64; 2] = [8_852_902_298, 8_912_033_642];
+// W-16 slice a (§8.23): +2,883,013 B in both modes from 8,852,901,785 and 8,912,033,129.
+const MAX_PHASE_BYTES: [u64; 2] = [8_855_784_798, 8_914_916_142];
 /// The abort cap: above E_mov,max + R at M and within T3's host allowance (PLAN_v2 §3.5).
 const CAP_BYTES: usize = 16 << 30;
 /// The N1 notice's fixed text (lib.rs `RETAINED_UNAVAILABLE_NOTICE`), as the base publication shows it.

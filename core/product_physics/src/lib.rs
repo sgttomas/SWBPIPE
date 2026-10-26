@@ -135,6 +135,7 @@ use std::f64::consts::PI;
 
 mod topology;
 mod validation;
+mod imposed_motion;
 use validation::validate_model_inputs;
 mod rigid_component;
 #[cfg(test)]
@@ -864,6 +865,10 @@ pub struct PreviewPrimitiveLoad {
 pub enum LoadTargetInput {
     Node { node: String },
     Element { pipe: String },
+    /// An `imposed_displacement` of one DOF of a rigid support (W-16 slice a;
+    /// `imposed_motion`). The pressure-free route maps it into the prescribed
+    /// boundary; the exact route refuses it by name.
+    Support { support: String, dof: String },
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -2610,9 +2615,6 @@ fn run_linear_static_preview_value_dispatch(
     if let Some(refusal) = model_fields::unknown_field_refusal(&actual_request) {
         return Err(refusal);
     }
-    if let Some(refused) = preview_physics::imposed_displacement_refusal(&actual_request) {
-        return refused.map(|envelope| RetainedPreviewOutput { envelope, admission: None, retained: None });
-    }
     let (request, capture) = source_receipt::CapturedInvocation::parse(actual_request, solver_mode)
         .map_err(|error| error.0)?;
     // G-A (API.md §2): census, then admission, before any ProductCapture can be
@@ -2769,6 +2771,11 @@ fn run_linear_static_preview_observed_inner(
 
     pressure_runtime::validate_profile(&model, &mut diagnostics);
     case_state::resolve::validate_document(&model, request_materials_supplied, &mut diagnostics);
+    // W-16 slice a: the named imposed-displacement checks (and the exact
+    // route's refusal) run ahead of generic validation.
+    if imposed_motion::validate(&model, &mut diagnostics) {
+        return blocked_envelope(model, diagnostics);
+    }
     validate_model_inputs(&model, &materials, &mut diagnostics);
     validate_support_family_tokens(&model, &mut diagnostics);
     if model.document_kind != "openpipestress.product_preview.model" {
@@ -5058,15 +5065,42 @@ fn solve_prepared_load_case(
             .copied()
             .chain(force.values().iter().copied()),
     )?;
+    // W-16 slice a: a pressure-free case's support-targeted primitives, as
+    // its own prescribed map; `None` (the existing path) when it has none.
+    let before = diagnostics.len();
+    let pf_motion = match load_state {
+        Some(_) => None,
+        None => imposed_motion::case_prescribed(model, load_case, restrained_dofs, diagnostics),
+    };
+    if has_blocking(&diagnostics[before..]) {
+        return Ok(LoadCaseSolve {
+            load_state_evidence: None,
+            exact_case_evidence: None,
+            pressure_evidence: Vec::new(),
+            source_case: None,
+            source_selected: false,
+            load_case_id: load_case.id.clone(),
+            results: Vec::new(),
+            max_displacement: None,
+            max_stress: None,
+            max_stress_reduced: None,
+            component_stress_modifier_count: 0,
+            preview: None,
+            withheld_summaries: Vec::new(),
+        });
+    }
     // Every restrained DOF is prescribed: explicit zero unless the resolved case
-    // supplies an actual support-state motion for that rigid DOF.
+    // supplies an actual support-state motion for that rigid DOF, or the
+    // pressure-free case a support-targeted primitive.
     let prescribed: Vec<(usize, f64)> = restrained_dofs
         .iter()
         .map(|&dof| {
             (
                 dof,
                 load_state
-                    .and_then(|state| state.prescribed.get(&dof).copied())
+                    .map(|state| &state.prescribed)
+                    .or(pf_motion.as_ref())
+                    .and_then(|prescribed| prescribed.get(&dof).copied())
                     .unwrap_or(0.0),
             )
         })
@@ -5110,7 +5144,8 @@ fn solve_prepared_load_case(
                 formed,
                 &force,
                 restrained_dofs,
-                load_state.is_some().then_some(prescribed_values.as_slice()),
+                (load_state.is_some() || pf_motion.is_some())
+                    .then_some(prescribed_values.as_slice()),
             )
         })
         .transpose()?;
@@ -10055,9 +10090,12 @@ fn build_load_case_primitive_loads(
         .map(|(i, p)| (p.id.as_str(), i))
         .collect::<HashMap<_, _>>();
 
+    // A support target is an imposed displacement: it enters the case's
+    // prescribed boundary (`imposed_motion::case_prescribed`), never its forces.
     let mut loads = load_case
         .primitive_loads
         .iter()
+        .filter(|load| !imposed_motion::is_support_target(load))
         .filter_map(|load| {
             let category = parse_category(&load.category);
             let direction = parse_direction(&load.direction);
@@ -10120,6 +10158,7 @@ fn build_load_case_primitive_loads(
                                 &load.id, category, pipe_index, direction, quantity,
                             ))
                         }
+                        LoadTargetInput::Support { .. } => None,
                     }
                 }
                 _ => {

@@ -35,14 +35,18 @@ import runpy
 # loaded_maximum.rs: the capacity hook module and limits()'s hook read are compiled under any(test,
 # loaded-maximum-hooks); final_case.rs, origins.rs and structural.rs re-export it under that off feature, and add a
 # census-probe lane hook and work snapshots (W1R-FG). No owner this model prices changes.
-# Unit factor-sum gate D3 (§8.24): read c029a95132. RE retained_precision.rs's preview-physics-retained-1 table digest
-# (a constant) moves with the table's restated gate condition. No owner this model prices changes.
+# W-16 slice a D3 (§8.23): retained_product.rs's captured-target match gains the support arm (`=>false`: D1.7 refuses
+# it before any capture); retained_precision.rs's TABLE_HASH literal follows the preview tables. No owner this model
+# prices changes.
+# Unit factor-sum gate D3 (§8.24): re-read on the merge with main's W-16 slice a (§8.23). RE retained_precision.rs's
+# preview-physics-retained-1 table digest (a constant) moves with the table's restated gate condition. No owner this
+# model prices changes.
 SOURCE_FILES = {
-    "core/product_physics/src/retained_product.rs": '10a045d708777d29082fef0e3620bccbebc6229b61090cfcc481123bb08ef5ba',
+    "core/product_physics/src/retained_product.rs": '11052a7bad1be6233c78a37c24003992817664d1bcae9871bc8087bc55b78fe3',
     "core/product_physics/src/retained_wire.rs": "1c58db53d9a590d4316aea0fdc855396002935faed3d91a31e7f5434d93d8d40",
     "core/product_physics/src/retained_receipt.rs": "bf10f382e247fe84164dac5916e0b6fc69134e4b4934fd832132f59e86ca7251",
     "core/reporting/result_export/src/lib.rs": "2d8ba125e30d7de3cc18d304d78447095538c258419be77ed805cd255232a147",
-    "core/reporting/result_export/src/retained_precision.rs": "90c1c3d4dc03ece665180d7ae80ed2b6f275774a0ae057f444c61815f5dd7a2e",
+    "core/reporting/result_export/src/retained_precision.rs": "2bdce1a16241775ecfc35ffd220f29f5394379eb9cb710686b9de53f8ab8571d",
     "core/reporting/result_export/src/declared_member_load.rs": '93787b8894f752cd4c577c58513449471672956e934d35157e31178e9c53a52c',
     "core/solver/frame_kernel/src/structural/retained_resource.rs": "ca0516b5b88ed0d55abf9780c0782f42acd68f4f80b73543415c920fd3da5b7b",
     "core/solver/frame_kernel/src/structural/retained/source.rs": "053b59579d6d5a2c18026029d6a8c8648617a341a2787f6f248ce0d5c4379053",

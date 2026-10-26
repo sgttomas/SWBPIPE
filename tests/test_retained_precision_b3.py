@@ -29,8 +29,8 @@ ROOT = Path(__file__).resolve().parents[1]
 # PP retained_facade_tests.rs `PINNED` pins the same bytes. W1's DEF-O meaning-hash move (DEL-04-08
 # w1-member-load-certification.md §6.4) re-sealed only the DEF-O-bound preparation, source-identity and receipt
 # hashes and replaced e3e0830d.../c24d4a1c....
-PINNED = {"sparse_interactive": "cf053309e8048ae013dc5388d1115399ff89cf493eb2e36772500a3c6985a6e5",
-          "dense_scrutiny": "f8078ee2c82ba370ab04591af49ed12c48fda5d88a54a75b0725fbdde317d884"}
+PINNED = {"sparse_interactive": "139cfdb7d960aa1c5a061ee21cbf48fa55b96f896dc40120b6576a9f8061781c",
+          "dense_scrutiny": "7ce9946465092d416474faf1f455cb9466edd8fb84d3b8a3640a433b27d29d31"}
 MODES = sorted(PINNED)
 LEGACY = {"version": "1.0.0", "mode": "legacy_pressure_v1"}
 INVOCATION = ("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")

@@ -120,7 +120,7 @@ All outputs go to `--out`.
 
 **`rules/`** holds the decision tables: SQ2's route rules and the O-10 name-keyed rules.
 - `i95_new_loops.json` lists I95's B3-S rebinding loops for route E.
-- `linemap_resolutions.json` holds the reviewed resolutions. One `fewer_definitions` entry is the frame kernel's `UserStiffnessElement::orientation`, deleted by T4-U3; at `666cb30520` it reproduces O-10's tree. One site entry is `load_reference_source.rs:47`, inside the private `fn code` B7b deleted with the v2 readers.
+- `linemap_resolutions.json` holds the reviewed resolutions. One `fewer_definitions` entry is the frame kernel's `UserStiffnessElement::orientation`, deleted by T4-U3; at `666cb30520` it reproduces O-10's tree. One site entry is `load_reference_source.rs:47`, inside the private `fn code` B7b deleted with the v2 readers. Five site entries are `preview_physics.rs:1093`-`1095`, `1119` and `1122`, inside the pre-parse `fn imposed_displacement_refusal` W-16 slice a deleted.
 
 **`lib/`** is the machinery.
 - `linemap_lib.py`, `linemap_rules.py`, `sq2_rules.py`, `rule_ops.py`, `o10_check.py`, `merge_trees.py`, `tree_eval.py` and `census_patch.py` are T3's O-10 tools.
@@ -317,6 +317,17 @@ and D1.7 refuses the deterministic element form and, since slice b, a node load 
 namespace. `rules/o10_rules.py` zeroes the edge into `generation_basis` and the wrench-set key site under a source
 guard (W15B-NS). The tree is coefficient-identical to §8.21's. See the governing rules' §8.22 and
 `tests/test_w15b_component_weight.py`.
+
+### W-16 slice a imposed displacement on the pressure-free route
+
+`base/w16_owners_model.py` binds, by the sha256 of W-16's new module (PP `imposed_motion.rs`) and its exact statements,
+the positive owners it adds on D1, where D1.7 refuses every support-targeted primitive: W16-NI (`case_prescribed`'s node
+index, one `(&str,usize)` table of n entries per case solved without a load state, on both routes, `ordinary_caps.py`
+CasePrefix) and W16-VF (`validate`'s findings vector, at most one per primitive load, BuildScratch). `rules/o10_rules.py`
+zeroes the support-target branch's sites and edges under a source guard (W16-NS), bounds `validate_pressure_free`'s calls
+of `refuse` by cases·l (`EDGE_PER_CALL`), and audits the reachable node/element refusal's texts (W16-ID);
+`rules/sq2_decisions_E.py` zeroes `validate` → `validate_pressure_free` on route E (EXACT). See the governing rules'
+§8.23 and `tests/test_w16_imposed_motion.py`.
 
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and

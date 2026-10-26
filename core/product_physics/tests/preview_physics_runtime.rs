@@ -1137,20 +1137,27 @@ fn high_displacement_review_uses_the_all_case_headline() {
     assert!(v["summary"]["max_displacement"]["result_ref"].as_str().unwrap().contains("case-large"));
 }
 
+/// W-16 slice a (DEL-04-03 Design `pf-imposed-displacement.md`): the support-targeted
+/// primitive that `IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL` refused now enters the
+/// prescribed boundary. Moving the cantilever's only anchor is a rigid-body motion: the
+/// support actions and member forces are the force-only case's, and every node moves by
+/// the anchor's translation (exactly, up to the 1e-9 criterion).
 #[test]
-fn imposed_displacement_on_a_support_is_refused_with_a_targeted_diagnostic() {
+fn imposed_displacement_on_a_support_solves_on_the_pressure_free_route() {
     let load = json!({"id":"load:imp","category":"imposed_displacement","target":{"type":"support","support":"support:a","dof":"UY"},
         "direction":"UY","magnitude":{"value":-0.006,"unit":"m"},"dimension":"displacement","provenance":"t0r"});
-    let wire = cantilever(vec![], json!([case("case:imp", json!([load, force("f", "node:b", "global_y", 100.0)]))]), json!([]));
-    let v = solve(&wire, PreviewSolverMode::SparseInteractive);
-    assert_eq!(v["status"]["mechanics"], "MODEL_INCOMPLETE");
-    assert!(results(&v).is_empty(), "no envelope may solve without the load");
-    let d = diag(&v, "IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL");
-    assert_eq!(d.len(), 1);
-    assert_eq!(d[0]["severity"], "blocking");
-    assert_eq!(d[0]["affected_refs"], json!(["load:imp", "case:imp", "support:a"]));
-    assert_eq!(v["contract_evidence"], json!({"preview_cases": [], "combination_gates": []}));
-    assert!(v["summary"]["max_open_formula_stress"].is_null());
+    let moved = cantilever(vec![], json!([case("case:imp", json!([load, force("f", "node:b", "global_y", 100.0)]))]), json!([]));
+    let plain = cantilever(vec![], json!([case("case:imp", json!([force("f", "node:b", "global_y", 100.0)]))]), json!([]));
+    for mode in MODES {
+        let v = solved(&moved, mode);
+        let w = solved(&plain, mode);
+        assert!(!codes(&v).iter().any(|c| c.contains("IMPOSED_DISPLACEMENT")), "{:?}", codes(&v));
+        close(row_value(&v, "global_nodal_displacement_y", "node:a", None, None, "load_case", "case:imp"), -6.0, 0.0, "anchor uy (mm)");
+        let tip = row_value(&w, "global_nodal_displacement_y", "node:b", None, None, "load_case", "case:imp");
+        close(row_value(&v, "global_nodal_displacement_y", "node:b", None, None, "load_case", "case:imp"), tip - 6.0, 0.0, "tip uy (mm)");
+        let fixed = support_action(&w, "support:a", "load_case", "case:imp").unwrap();
+        close6(support_action(&v, "support:a", "load_case", "case:imp").unwrap(), &fixed, 100.0, 100.0, "anchor actions");
+    }
 }
 
 #[test]

@@ -229,5 +229,16 @@ only route" statement is made.
 - **Stage 2:** the nonlinear active-set loop measures gap closure and
   lift-off relative to the imposed motion. Design first, with dual numerical
   review and its own benchmarks.
-Until stage 1 lands, the pressure-free route refuses a support-targeted
-primitive by name (`IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL`).
+Stage 1 is built (W-16 slice a; DEL-04-03 Design `pf-imposed-displacement.md`).
+On the pressure-free route a support-targeted `imposed_displacement` primitive
+is one prescribed value on its rigid support's global DOF, solved by the
+shared partitioned reduction in both solver modes; a case without one keeps
+its unchanged path. Each misuse is refused by name before generic validation
+(`IMPOSED_DISPLACEMENT_*`; `IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` until
+stage 2), and any refusal withholds the whole document. The exact route keeps
+`boundary_motion` as its form and refuses a support-targeted primitive by name
+(`EXACT_IMPOSED_DISPLACEMENT_PRIMITIVE_UNSUPPORTED`); the retained sub-route
+declines it at D1.7. `IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL` is
+retired. Evidence: `core/product_physics/tests/w16_imposed_motion.rs` (the
+nozzle movement against `validation/references/w16_imposed_motion/`, parity
+with EX) and W9-C on both routes (`tests/w9_solver_benchmarks.rs`).
