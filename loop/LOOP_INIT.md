@@ -30,6 +30,28 @@ independent review has been done and you're clear in the matter."). The PR
 quotes the old and new text and the review. Scope, risk acceptance, holds,
 release and the native-smoke `expected.json` values stay with the owner.
 
+HELP_HUMAN exercises engineering judgment to resolve a matter of precision or
+detail that cannot otherwise be resolved, choosing a practical resolution
+within normative engineering practice, such as a unit conversion routinely done
+in engineering applications (owner, 2026-10-26: "units conversions that are
+routinely done in engineering applications are permissible as a solution." and
+"I will leave with you Agent 0, in your capacity of HELP_HUMAN, with exercising
+engineering judgment where it can help resolve a matter that is due to
+precision or details that can't be resolved except to allow a practical
+resolution that is within normative engineering practices."). The owner's
+basis is that the engineering design, physics and numerical methods are
+established, so such a resolution reflects engineering practice and is not a
+degraded output. The governing Design text records each resolution and its
+reason. A resolution that changes numerical meaning still takes targeted
+regression checks and independent scrutiny. The reservations above still apply.
+
+The current phase drives toward finishing (owner, 2026-10-26: "we are nearing a
+level of maturity where there needs to be a concerted drive towards goals and
+finishing things to a practical level. Continuous improvement goes after.").
+Carry each unit to a usable, verified result. Record improvements found along
+the way as remaining items, and take them up after the unit unless they
+correct a wrong output or block the goal.
+
 Agent 0 checks that the implementation and its declarations agree before
 integration.
 
