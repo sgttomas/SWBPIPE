@@ -222,6 +222,19 @@ mod tests {
             Some((8990 + 2_462_954 + 29_276 - 4000) * PAGE));
     }
 
+    /// The #1634 native smoke under load (2026-10-26): a worker growth step
+    /// needing 72,925,760 B was refused with 0 B under the free-list rule, the
+    /// free list at the kernel's reserve. This host's file cache admits it.
+    #[test]
+    fn the_loaded_smoke_growth_refusal_is_admitted_by_the_reclaimable_rule() {
+        const NEEDED: u64 = 72_925_760;
+        let loaded = counts(3_900, 900, 20_000, Some(2_462_954), 4_000);
+        assert_eq!(free_list_headroom(&loaded), Some(0));
+        assert!(reclaimable_headroom(&loaded).unwrap() >= NEEDED);
+        // With no file cache or purgeable pages the step is still refused.
+        assert!(reclaimable_headroom(&counts(3_900, 900, 0, Some(0), 4_000)).unwrap() < NEEDED);
+    }
+
     #[test]
     fn reclaimable_rule_is_never_below_the_free_list_rule() {
         for free in [0, 3999, 4000, 4001, 100_000] {
