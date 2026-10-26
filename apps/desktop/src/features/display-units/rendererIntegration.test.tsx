@@ -164,23 +164,26 @@ describe("shared display preference in result renderers", () => {
     expect(screen.getByTestId(`comparison-delta-${testId(compared.result_deltas[0].right_result_id)}`)).toHaveTextContent("unknown");
   });
 
-  it("converts rule-check picker and reference preview values without changing selections or pack JSON", async () => {
+  it("converts rule-check selector preview values without changing the pack JSON", async () => {
+    // Format 0.5.0: solver inputs bind through the pack's selector on each
+    // required load case (the caller picker is retired); the preview shows the
+    // selected row's value in the display units.
     const result = structuredClone(sourceResult);
+    result.results[0].basis_ref = { ref_type: "load_case", ref_id: "load:1" };
     const before = JSON.stringify(result);
     const packText = JSON.stringify({ metadata: {rule_pack_id:"display:pack"}, required_inputs: [
-      {input_id:"manual", name:"Manual force", source_kind:"solver_result", quantity_intent:{dimension:"force",unit_ref:"N"}},
-      {input_id:"authored", name:"Authored force", source_kind:"solver_result", quantity_intent:{dimension:"force",unit_ref:"N"}, solver_result_ref:{result_id:"force:i"}}
-    ] });
+      {input_id:"authored", name:"Authored force", source_kind:"solver_result", quantity_intent:{dimension:"force",unit_ref:"N"}, solver_result_ref:{result_kind:"element_local_axial_force", entity_ref:"pipe:1", location:"end_i", component:"axial_force"}}
+    ], required_load_cases: [{required_load_case_id:"rlc", name:"Invented case", basis_ref:{ref_type:"load_case", ref_id:"load:1"}}],
+    stress_categories: [{category_id:"cat", name:"Invented category"}],
+    load_case_mappings: [{mapping_id:"map", category_ref:{ref_type:"stress_category", ref_id:"cat"}, required_load_case_refs:[{ref_type:"required_load_case", ref_id:"rlc"}]}],
+    // The preview covers the bases of the checks that use the input (§3).
+    check_definitions: [{check_id:"c", category_ref:{ref_type:"stress_category", ref_id:"cat"}, required_input_refs:[{ref_type:"required_input", ref_id:"authored"}]}] });
     render(<DisplayUnitsProvider converter={converter()}><DisplayUnitSelector /><RuleCheckRunPanel model={sourceModel} result={result} /></DisplayUnitsProvider>);
     fireEvent.change(screen.getByTestId("rule-check-pack-json"), {target:{value:packText}});
-    fireEvent.change(screen.getByTestId("rule-check-solver-select-manual"), {target:{value:"force:i"}});
     fireEvent.click(screen.getByTestId("rule-check-solver-preview-authored"));
     fireEvent.change(screen.getByLabelText("Display units"), {target:{value:"US"}});
-    await waitFor(() => expect(screen.getByTestId("rule-check-solver-browse-authored")).toHaveTextContent("2.248 lbf"));
-    const picker = screen.getByTestId("rule-check-solver-select-manual");
-    expect(within(picker).getByRole("option", {name:/force:i/})).toHaveTextContent("2.248 lbf");
-    expect(within(picker).getByRole("option", {name:/unclassified/})).toHaveTextContent("no US catalog target for unknown");
-    expect(picker).toHaveValue("force:i");
+    await waitFor(() => expect(screen.getByTestId("rule-check-solver-browse-authored")).toHaveTextContent("force:i: 2.248 lbf"));
+    expect(screen.getByTestId("rule-check-solver-basis-authored--load_case--load:1")).toHaveAttribute("data-status", "resolves");
     expect(screen.getByTestId("rule-check-pack-json")).toHaveValue(packText);
     expect(JSON.stringify(result)).toBe(before);
   });
@@ -188,7 +191,7 @@ describe("shared display preference in result renderers", () => {
   it("converts typed rule outcomes and retains unsupported catalog references as entered evidence", async () => {
     const outcome: RuleCheckRunResult = {
       document_kind: "test", rule_pack_id: "p", grammar_version: "1", aggregate_status: "USER_RULE_CHECKED", professional_boundary_notice: "Source result evidence.",
-      checks: [{ check_id: "c", status: "USER_RULE_CHECKED", computed_value: {value:10, unit_ref:"N", dimension:"force"}, limit_value: {value:12, unit_ref:"private:unit", dimension:"force"}, acceptability_relation:"lte", bound_inputs:[], completeness_findings:[], evaluator_findings:[], diagnostic_codes:[] }]
+      checks: [{ check_id: "c", category_ref: "cat", basis_ref: { ref_type: "load_case", ref_id: "load:1" }, status: "USER_RULE_CHECKED", computed_value: {value:10, unit_ref:"N", dimension:"force"}, limit_value: {value:12, unit_ref:"private:unit", dimension:"force"}, acceptability_relation:"lte", bound_inputs:[], completeness_findings:[], evaluator_findings:[], diagnostic_codes:[] }]
     };
     const before = JSON.stringify(outcome);
     vi.mocked(runRuleChecks).mockResolvedValueOnce({ route:"tauri_backend", result:outcome });
@@ -200,9 +203,9 @@ describe("shared display preference in result renderers", () => {
     const packText = '{"metadata":{"rule_pack_id":"p"}}';
     fireEvent.change(screen.getByTestId("rule-check-pack-json"), {target:{value:packText}});
     fireEvent.click(screen.getByTestId("rule-check-run"));
-    await waitFor(() => expect(screen.getByTestId("rule-check-outcome-c")).toHaveTextContent("computed=2.248 lbf"));
-    expect(screen.getByTestId("rule-check-outcome-c")).toHaveTextContent("limit=12 private:unit");
-    expect(screen.getByTestId("rule-check-outcome-c")).toHaveTextContent("Entered value shown: Catalog unit unavailable.");
+    await waitFor(() => expect(screen.getByTestId("rule-check-outcome-c--load_case--load:1")).toHaveTextContent("computed=2.248 lbf"));
+    expect(screen.getByTestId("rule-check-outcome-c--load_case--load:1")).toHaveTextContent("limit=12 private:unit");
+    expect(screen.getByTestId("rule-check-outcome-c--load_case--load:1")).toHaveTextContent("Entered value shown: Catalog unit unavailable.");
     expect(screen.getByTestId("rule-check-pack-json")).toHaveValue(packText);
     expect(JSON.stringify(outcome)).toBe(before);
   });

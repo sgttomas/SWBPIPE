@@ -406,7 +406,10 @@ each with a named `REPORT-PACKAGE-…` code:
        ref.
      - When the origin class is `received_current_dimension_absent` (the
        desktop), the origin's `qualification_ref` is
-       `current_manifest:<that payload ref>`.
+       `current_manifest:<that payload ref>`, and `a.manifest_id` is that
+       payload ref (§2.4), so the document's `audit_manifest_ref` and the
+       input-manifest references name one manifest. The runner names its
+       audit manifest by its run, so this equality is the desktop's.
 
      The input manifest itself is not in the request, so its digest is bound,
      not recomputed.
@@ -537,11 +540,14 @@ producer's check. Its module text (`reader.rs:30-37`) is updated to say so.
   sets the audit manifest's `manifest_id` to the input-manifest reference
   `inputManifest.manifest_ref.ref`. So the result member stays canonically equal
   to Export Result JSON's document, and the derivative goldens that build from
-  `currentResultDocumentBase` are untouched. Precedent: the headless witness
-  already names its audit manifest by its input manifest
-  (`del1005_export_results_success_input.json`, `manifest_id` =
-  `input_manifest_hash.payload_ref` = `manifest-1`). What differs from the 1.0.0
-  path: only the audit member's `manifest_id`.
+  `currentResultDocumentBase` are untouched. The headless witness names its
+  audit manifest by its run instead
+  (`del1005_export_results_success_input.json`, `manifest_id`
+  `audit-manifest:run:…`, `input_manifest_hash.payload_ref`
+  `input-manifest:del1005-invented`), so the shared producer requires
+  `manifest_id` = `input_manifest_hash.payload_ref` for the desktop profile
+  only (§2.3 item 5). What differs from the 1.0.0 path: only the audit
+  member's `manifest_id`.
 - **Unit system.** The audit manifest's `unit_system_ref` takes the document's
   `<model id>:units` (`resultExportAdapter.ts:231`), not the DEC-018 display ref
   (`reportPackageRequest.ts:34,404`). The report keeps the DEC-018 ref as its
@@ -700,8 +706,9 @@ rendered members, so the report-side rules apply at the producer.
 - **Placement of the last guard.** The new preparation awaits (canonical text and
   SHA-256, §2.6) run before the native call. A check only before entering the
   service would miss a basis change during them. The service is split:
-  - `prepareReportPackageSave(controlled, model)` (async) returns the request
-    text, its SHA-256 and the model text;
+  - `prepareReportPackageSave(controlled, model, request, inputManifest)` (async)
+    returns the request text, its SHA-256, the model text and the run's
+    input-manifest text;
   - `invokeReportPackageSave(prepared, isCurrent)` then calls
     `invokeWithIngress("save_report_package", …, { stillCurrent: isCurrent })`.
 
@@ -742,19 +749,57 @@ used and the packs the rule check evaluated can differ. FR-REP-001 asks for
   rule-check run's packs as two separately labelled sets in the report input and
   the audit manifest, each bound to its own source.
 
-(b2) chooses one, records it here, and tests the differing case. If #1602 has not
-merged by then, (b2) builds on its design.
+**Decided (manager, (b2)): agree.** #1602 has merged: the solve resolves the
+model's `rule_pack_refs` and the run's input manifest records the resolved ones in
+`active_rule_packs` (`modelRulePackResolution.ts`). The package's rule-pack set
+must equal the solve's, compared as sets of `{rule_pack_id, version, checksum
+value}`:
+- the package's set is the rule-check run's pack when a run is present
+  (`rulePackReference`), else empty;
+- the solve's set is the current result's input-manifest `active_rule_packs`;
+- when they differ, assembly refuses with `REPORT-PACKAGE-RULE-PACKS-DISAGREE`,
+  naming both sets. The remedy is to run the rule check with the model's pack,
+  or to change the model's references and solve again.
+
+The TypeScript check (`checkRulePacksAgree`) is the early refusal. The native
+command re-checks the rule itself, because a direct request could otherwise keep
+the hash-bound input-manifest reference for one solve while its report and audit
+references name another pack, or none (Codex, (b2) review round 1). The webview
+sends the run's input-manifest text with the save (§2.6 item 1). Rust binds it to
+the request's audit input-manifest hash and reference (§2.6 item 3), reads its
+`active_rule_packs`, and refuses with the same code unless that set equals the
+report's and the audit manifest's rule-pack references, with the same key and set
+semantics (§2.6 item 5). The shared producer does not see the input manifest, so
+the headless runner, whose invented input manifest records no
+`active_rule_packs`, is unchanged.
+
+So a model with no references and no rule check saves as before, and a rule check
+of a pack the solve did not use cannot stand in for the solve's packs, nor the
+reverse. An excluded reference is not in `active_rule_packs`; it reaches the
+package through the result member's diagnostics (#1613). Labelling both sets
+was not chosen: it changes the renderer's `RulePackRef` input, its schema, the
+reader and the witnesses for no gain in what the package states. Tests cover
+equal sets, a rule check of a different pack, a solve pack with no rule check,
+and a rule check with no solve pack.
 
 ### 2.6 Native admission and screening (Tauri)
 
 Today the command decodes the typed request first (`lib.rs:181-205`), then
 checks supplied evidence (`:207-219`), then assembles and opens the picker
 (`:222-236`). The new order, all before the picker:
-1. **Arguments.** `{requestCanonicalText, modelCanonicalText, screening,
-   localFirstEvidence}`, decoded `ArgsDecoding::Moved` as W-6a's save is
-   (W-6a `lib.rs:1813-1835`). `REPORT_PACKAGE_VEC_EXPANSION` and its pricing tests
-   (`command_ingress.rs:552-568,976-1181`) are replaced by the moved-string rule
-   plus a priced parse of the text, re-established by the counting-allocator test.
+1. **Arguments.** `{requestCanonicalText, modelCanonicalText,
+   inputManifestCanonicalText, screening, localFirstEvidence}`, decoded
+   `ArgsDecoding::Moved` as W-6a's save is (W-6a `lib.rs:1813-1835`).
+   The arguments are priced by the moved-string rule, and the lease grows by a
+   priced parse of each text before it is parsed (`report_package_save.rs`
+   `parse_lease_bytes`). The request text's growth is DEL-04-07's rule
+   (memory-budget decision, "Report-package request pricing"): its parse, a
+   working-memory term, the rebuilt containers of its opaque `Value` regions
+   and `REPORT_PACKAGE_VEC_EXPANSION` times the containers of its typed-vector
+   regions, checked by the counting-allocator tests. The input-manifest text is
+   the run's `CurrentSessionInputManifest` (`inputManifestService.ts`). It is
+   priced as the model text is: a moved string and a parse to `Value`. It is a validation input only: no package member
+   carries it, and it is never saved.
 2. **Evidence shape.** `screening` takes W-6a's `ModelDocumentSaveScreening` form
    (W-6a `model_document_save.rs:68-84`, `deny_unknown_fields`):
    - route `DREP-PACKAGE-SAVE-009`, `local_private`, explicit intent, not blocked;
@@ -765,8 +810,12 @@ checks supplied evidence (`:207-219`), then assembles and opens the picker
    The local-first check is unchanged (`lib.rs:64-86`). This remains defence in
    depth: intent is the user's webview choice, and Rust can only require its
    evidence (W-6a `model_document_save.rs:163-165`).
-3. **Size cap**, then **canonical binding.** Parse `requestCanonicalText` to a
-   `Value` and refuse unless:
+3. **Size caps**, then **canonical binding.** The caps are
+   `MAX_REQUEST_TEXT_BYTES` (four model-document caps), `MAX_MODEL_TEXT_BYTES`
+   (the model-document cap) and `MAX_INPUT_MANIFEST_TEXT_BYTES` (two
+   model-document caps, since the input manifest embeds the model payload and
+   repeats its load cases). Parse `requestCanonicalText` to a `Value` and refuse
+   unless:
    - `canonical_json(value) == text`;
    - `sha256:<hex>` of the text equals `screening.payload_sha256`
      (`REPORT-PACKAGE-SAVE-EVIDENCE-UNBOUND`), as W-6a binds its evidence
@@ -775,6 +824,20 @@ checks supplied evidence (`:207-219`), then assembles and opens the picker
    Parse `modelCanonicalText` likewise and refuse unless its SHA-256 equals the
    raw request's `/audit_manifest/model_hash/value`
    (`REPORT-PACKAGE-SAVE-MODEL-UNBOUND`).
+
+   Parse `inputManifestCanonicalText` likewise and refuse unless its SHA-256
+   equals the raw request's `/audit_manifest/input_manifest_hash/value`
+   (`REPORT-PACKAGE-SAVE-INPUT-MANIFEST-UNBOUND`). That is the `rfc8785_jcs`
+   basis the analysis record and the audit manifest label it with. The
+   manifest must record a solve of the bound model, or the save refuses with
+   the same code: its `model_basis.model_ref` is the model text's `project.id`,
+   and the SHA-256 of its embedded `model_basis.model_payload` in RFC 8785 form
+   is the model text's, so the payload is canonically the model text
+   (`inputManifestService.ts` embeds the solved model; `resultExportAdapter.ts`
+   requires it equal to the session model, `CURRENT_MODEL_PAYLOAD_MISMATCH`).
+   Its `active_rule_packs` must be a complete inventory: a non-empty id and
+   version and a bare 64-hex `checksum_sha256` per entry
+   (`REPORT-PACKAGE-SAVE-INPUT-MANIFEST-INVALID`).
 4. **Disposition screening of content**, on a blocking worker with the
    local-store lookup. Both screens run over **both** parsed values: the request
    and the model.
@@ -824,6 +887,25 @@ checks supplied evidence (`:207-219`), then assembles and opens the picker
      `version`, as the desktop builder does (`renderableReportInput.ts:16,379-380`).
      `admit_report_package` receives these expected values as arguments, so it
      stays testable without a window.
+   - The audit input-manifest hash's `payload_ref` is the session's reference
+     for the input-manifest text, `input-manifest:<model id>:<sha256>`
+     (`analysis_runs::input_manifest_ref`, as `inputManifestService.ts` derives
+     it), or the save refuses with `REPORT-PACKAGE-SAVE-INPUT-MANIFEST-UNBOUND`.
+     The shared producer binds that reference to the audit `manifest_id`
+     (the desktop profile's rule, §2.4), and through it to the result
+     document's `audit_manifest_ref`, and to the origin `qualification_ref`,
+     the report's `input_manifest_ref` and the handoff records (§2.3 item 5);
+     a request whose `manifest_id` names another manifest is refused there
+     (`REPORT-PACKAGE-BINDING-MISMATCH`). With item 3, the model, the
+     input-manifest text and every input-manifest reference of the package
+     name one solve.
+   - §2.5's rule: the input manifest's `active_rule_packs` equal, as a set of
+     `{rule_pack_id, version, checksum value}`, both
+     `/report/calculation_report/rule_pack_refs` (`version`, `checksum.value`)
+     and `/audit_manifest/rule_pack_refs` (`rule_pack_version`,
+     `checksum.value`), else `REPORT-PACKAGE-RULE-PACKS-DISAGREE`, naming both
+     sets. As in the webview, a repeated entry counts once, and a reference
+     without a checksum value is keyed "not recorded".
 6. **Typed conversion and the shared producer** (§2.3), then `export_blocked`
    (`lib.rs:224-229`), then the picker and the atomic write (`:232-310`).
    Admission is a pure `admit_report_package(...)` function, so its tests need
@@ -872,7 +954,8 @@ native hold, local to the desktop command:
 (`reportPackageSaveService.ts:74-111`) becomes the two calls of §2.5:
 - the preparation computes `requestCanonicalText = canonicalJsonString(controlled.payload)`
   and its SHA-256, asserts the controlled payload is canonically equal to the
-  request, and produces `canonicalJsonString(model)`;
+  request, and produces `canonicalJsonString(model)` and
+  `canonicalJsonString(inputManifest.manifest)`;
 - the invocation then sends them under the session's `stillCurrent` guard.
 
 ### 2.7 The headless runner (shared producer consumer)
@@ -1303,6 +1386,7 @@ stays true, or makes only the factual change its own work establishes.
   - The design is W-18b, in its own section or design after this one. It needs
     the DEL-12-02 classification (wording route), targeted regression checks
     and Codex scrutiny. This design does not build it.
+  - W-18b's design: `report-user-release.md` (mechanism only; it records no release).
 - **O-2, decided (manager): the fixture transition** (§2.7). It keeps the
   determinism and zip-exact witnesses, and no existing success expectation
   becomes a refusal.

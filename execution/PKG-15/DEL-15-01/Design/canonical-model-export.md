@@ -149,6 +149,28 @@ on either route. It needs no solve and no result.
     library or record the store does not hold saves with a
     `MODEL-LIBRARY-REF-UNRESOLVED` warning; the entity's own record is still
     screened;
+  - each library is read within the command's memory, which starts from its
+    ingress lease. The read is measured, and its keys' working set, its load
+    and its prescan-bounded parse are each leased before they are made, on a
+    store connection whose page cache is bounded. The screening's allocations
+    are leased before it builds them. The leases are held until the command
+    returns (DEL-04-07 memory-budget decision). A read the pool refuses
+    refuses the save `STORE-READ-MEMORY-UNAVAILABLE` before anything is chosen
+    or written. W-6b reads its libraries the same way. It also leases the
+    canonical text it hashes for each reference digest and its structural
+    screens of each library, which keep one pointer buffer and are priced from
+    an allocation-free count of their findings. It shares each parsed library
+    between its screening and its references without copying it, and folds
+    each reference's classification over the library. Both saves serialize
+    their outcome while the leases are held, its length leased first; if that
+    is refused they send a short outcome naming the refusal, the number of
+    diagnostics and the first. A response names at most the first 64
+    diagnostics or warnings, in order, with paths and messages cut at 2 KiB,
+    then one `SAVE-DIAGNOSTICS-NOT-SHOWN` counting the rest, so it is at most
+    1,636,642 bytes. (The short outcome's one message quotes each text at up
+    to 1,024 characters, so it can pass 2 KiB, within the same bound.) The
+    desktop's status line shows the first eight and counts the remainder,
+    including those the summary counts;
   - the screening evidence carries the payload's sha256, and Rust refuses
     `MODEL-DOC-SAVE-EVIDENCE-UNBOUND` unless it equals the admitted text's.
 - **F-PIP-1.** No network and no telemetry. The default path is the user's
@@ -226,6 +248,21 @@ does not embed it.
   the basis.
 - Otherwise the user confirms a new state, kind `handoff_basis`, default name
   "Handoff <date>". It is written through W-12's state store.
+- **A listing the session outlived is dropped.** The basis is found by
+  listing the project's saved states before the dialog opens. The listing's
+  outcome, whether it succeeded or failed, is dropped when any of these holds
+  as it returns:
+  - a newer project command has started: New Local Project, New Blank or the
+    blank load/reference model, Open Local Project, Open Model Document…,
+    Save Local Project, List Local Projects, Save Model Document…, the
+    stored-document recovery export, another Save Handoff (request or save),
+    or an unsaved-edits refusal of an open or a blank;
+  - the session's model or its model hash is not the one listed for;
+  - a project operation or project prompt owns the session.
+
+  A dropped listing opens no dialog and leaves the status line and the last
+  project operation as they are (W-17, Codex reviews of #1640 and #1643;
+  `requestSaveHandoff` in `workspaceSession.ts`).
 - **Order.** The state is committed first, and then the package is published.
   A filesystem rename cannot join a database transaction. If publication
   fails, the state remains; it is harmless and reusable.
@@ -268,7 +305,7 @@ is hard-coded to look complete.
   its provenance `source_name` when there is none.
 - `provenance` is the library's provenance mapped to the eight handoff fields
   (as the `provenance` row maps them). |
-| `rule_pack_refs` | The document's `rule_pack_refs`, mapped: `rule_pack_version → version`. `checksum`: sha256 JCS over the reference metadata `{rule_pack_id, version, stamped_checksum_value, basis, grammar_version}`, copied from the pack's stamped `ComputedRulePackChecksum`; `payload_scope: rule_pack_reference_metadata`, `payload_ref` `{RulePack, <id>}`. This hash truthfully covers the reference metadata, and through it the pack's own checksum. The stamped record itself cannot be a handoff `Checksum`, because its fields and scope differ (`rule_pack_document/src/lib.rs:742-751`). Also `source_notice`, `redistribution_status`, `review_classification` (from the pack's lifecycle status, by fixed table), `privacy_classification: private_rule_pack_data` unless public, `private_payload_redacted: true`, `provenance` |
+| `rule_pack_refs` | The document's `rule_pack_refs`, mapped: `rule_pack_version → version`. `checksum`: sha256 JCS over the reference metadata `{rule_pack_id, version, stamped_checksum_value, basis, grammar_version}`, copied from the pack's stamped `ComputedRulePackChecksum`; `payload_scope: rule_pack_reference_metadata`, `payload_ref` `{RulePack, <id>}`. This hash truthfully covers the reference metadata, and through it the pack's own checksum. The stamped record itself cannot be a handoff `Checksum`, because its fields and scope differ (`rule_pack_document/src/lib.rs:742-751`). Also `source_notice`, `redistribution_status`, `review_classification` (from the pack's lifecycle status, by fixed table), `privacy_classification: private_rule_pack_data` unless public, `private_payload_redacted: true`, `provenance`. **Resolution** is the solve's (#1602; `rule_pack_ref_exclusion`, a port of `resolveModelRulePacks`, pinned by `fixtures/handoff/rule_pack_ref_resolution_vectors.json`): only the pack stored under the model's own project counts. It is unresolved (`MODEL-RULE-PACK-REF-UNRESOLVED`) when none is stored or its metadata lacks the reference's id, a version or a source notice (text that is blank by JavaScript's `trim`, U+FEFF included and U+0085 excluded, counts as absent, as in the solve). It is a checksum mismatch (`MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH`) when its stamp is not 64 lowercase hex or not the reference's, its recomputed checksum does not match its stamp, or its version is not the reference's. An excluded reference stays listed with that warning, so a handoff warns of exactly the references a run of the same model excludes. A store read error refuses the save (`HANDOFF-RULE-PACK-STORE-UNAVAILABLE`), stricter than the solve, which records the reference as unresolved |
 | `unresolved_assumptions` | The document's records with `status: unresolved`: `assumption_id`, `statement`, `status: unresolved`, `affected_refs` (below), `provenance` |
 | `warnings`, `diagnostics` | The document validator's and the solve-independent model diagnostics, mapped to the handoff `Diagnostic` (`code`, `class` by fixed table from code family, `severity`, `source`, `affected_object`, `message`, `remediation`, `provenance`) |
 | `unsupported_behavior_flags`, `target_mapping_metadata` | `reserved_metadata_only`, per DEL-15-02. Nothing target-specific is claimed |
@@ -309,7 +346,10 @@ The vocabulary is not extended here.
 **The preview panels.**
 - `HandoffPanel` stays a preview. Its download is relabelled "Preview handoff
   summary (not a handoff manifest)" and it points to File › Save Handoff….
-- Its hard-coded `rule_pack_refs: []` takes the document's references.
+- Its hard-coded `rule_pack_refs: []` takes the document's references, every
+  one, as Save Handoff lists them. A reference the solve excluded stays listed;
+  the run record's exclusion diagnostic is named once in its `diagnostic_refs`
+  (`services/rulePackRefDiagnostics.ts`), never duplicating one already carried.
 - `NativePackagePanel` is PKG-17 and unchanged.
 
 ## 4. Verification
@@ -319,11 +359,21 @@ The vocabulary is not extended here.
   - the hash-mismatch refusal, the shape, validator and version refusals, the
     size cap, and cancel;
   - the extension-neutral writer, with the report writer's `.opsproj` checks
-    unchanged.
+    unchanged;
+  - the library read, and the whole save for a 3 MB library, within their
+    leases (counting allocator); SQLite's peak within the connection's lease
+    for 30,000 library rows; a larger key written between reads priced before
+    the next search; a 100,000-diagnostic refusal serialized within what is
+    held and sent naming its first 64 diagnostics; the pool's refusal, bounded decode errors, and the leases released
+    on every path.
 - **Rust, W-6b:**
   - basis-state reuse and creation, written transactionally;
   - the disposition refusals;
-  - the tamper witnesses.
+  - the tamper witnesses;
+  - the library reads as for W-6a, and the package bytes unchanged;
+  - a library nested 100 levels under 32 KiB keys screened within the leases;
+    the structural screens' findings, texts and order equal to the former
+    walks' on every committed fixture and on nested and long-key documents.
 - **pytest:**
   - one fully populated invented witness manifest validates against
     `handoff_package.schema.json`;

@@ -48,7 +48,8 @@ async function inspectBundledReference(page: Page) {
   await expect(page.getByTestId("workspace-section-results")).toBeVisible();
   const reference = page.getByRole("region", { name: "Bundled reference — not a solve for the current model", exact: true });
   await expect(reference).toBeVisible();
-  await expect(reference.getByTestId("result-filter-summary")).toHaveText("841 of 841 results match filter");
+  // C-120 fix: the demo drops the elbow-placed tee component:C-120 and its 4 intensified rows (841 -> 837).
+  await expect(reference.getByTestId("result-filter-summary")).toHaveText("837 of 837 results match filter");
   await expect(page.getByTestId("comparison-summary")).toHaveCount(0);
   return reference;
 }

@@ -42,6 +42,7 @@ import {
   type RedactionDecision
 } from "../redaction-controls/redactionExportControls";
 import { modelDocumentShapeDiagnostics, modelDocumentSlotValidation, type ModelFileDiagnostic } from "./modelDocumentShape";
+import { listedItems } from "./diagnosticList";
 
 export const MODEL_DOCUMENT_SAVE_ROUTE_ID = "DOTH-MODEL-DOC-007";
 export const MODEL_DOCUMENT_SAVE_INTENT_LABEL =
@@ -481,7 +482,8 @@ function isDiagnostic(value: unknown): value is ModelFileDiagnostic {
   return isPlainObject(value) && typeof value.code === "string" && typeof value.path === "string" && typeof value.message === "string";
 }
 
-function readOutcome(value: unknown): ModelDocumentSaveOutcome {
+/** The native save's outcome, checked field by field (also the recovery export's, `storedDocumentExport.ts`). */
+export function readOutcome(value: unknown): ModelDocumentSaveOutcome {
   if (isPlainObject(value)) {
     if (value.outcome === "cancelled") return { outcome: "cancelled" };
     if (value.outcome === "refused" && Array.isArray(value.diagnostics) && value.diagnostics.every(isDiagnostic)) {
@@ -518,9 +520,7 @@ export async function saveModelDocumentFile(args: ModelDocumentSaveArgs): Promis
 
 /** One status line naming every refusal diagnostic. */
 export function modelDocumentSaveRefusalMessage(diagnostics: ReadonlyArray<ModelFileDiagnostic>): string {
-  const shown = diagnostics.slice(0, 8).map((item) => `${item.code}${item.path ? ` at ${item.path}` : ""}: ${item.message}`);
-  const more = diagnostics.length > shown.length ? ` (+${diagnostics.length - shown.length} more)` : "";
-  return `Save model document refused: ${shown.join(" | ")}${more}`;
+  return `Save model document refused: ${listedItems(diagnostics, 8, true)}`;
 }
 
 /** The status line for a native outcome. */
@@ -528,9 +528,7 @@ export function modelDocumentSaveMessage(outcome: ModelDocumentSaveOutcome): str
   if (outcome.outcome === "cancelled") return "Save model document cancelled; nothing was written.";
   if (outcome.outcome === "refused") return modelDocumentSaveRefusalMessage(outcome.diagnostics);
   const durability = outcome.durability === "durable" ? "" : " The file was saved, but its directory sync did not complete; its durability is uncertain.";
-  const shown = outcome.warnings.slice(0, 4).map((item) => `${item.code}${item.path ? ` at ${item.path}` : ""}`);
-  const more = outcome.warnings.length > shown.length ? ` (+${outcome.warnings.length - shown.length} more)` : "";
-  const warnings = shown.length > 0 ? ` Warnings: ${shown.join(" | ")}${more}.` : "";
+  const warnings = outcome.warnings.length > 0 ? ` Warnings: ${listedItems(outcome.warnings, 4, false)}.` : "";
   return `Saved model document ${outcome.file_name} (${outcome.byte_count} bytes; model hash ${outcome.model_hash}).${durability}${warnings}`;
 }
 

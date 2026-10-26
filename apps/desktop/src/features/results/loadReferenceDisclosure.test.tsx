@@ -9,7 +9,7 @@ import type { MechanicsResult } from "../../types";
 import { receivedFixture } from "../../test-support/receivedText";
 import { sourceContract } from "./resultReader";
 import {
-  LoadReferenceDisclosure, N_LOAD_REFERENCE_EXPORT, N_LOAD_REFERENCE_INCLUDED, N_LOAD_REFERENCE_PACKAGE, N_LOAD_REFERENCE_RULE_CHECK,
+  LoadReferenceDisclosure, N_LOAD_REFERENCE_EXPORT, N_LOAD_REFERENCE_INCLUDED, N_LOAD_REFERENCE_PACKAGE, N_LOAD_REFERENCE_RENDERED_REPORT, N_LOAD_REFERENCE_RULE_CHECK,
   loadReferenceDisclosure, type LoadReferenceDisclosureSurface,
 } from "./loadReferenceDisclosure";
 
@@ -22,6 +22,7 @@ const SURFACES: readonly [LoadReferenceDisclosureSurface, string][] = [
   ["result-export", N_LOAD_REFERENCE_EXPORT],
   ["stress-neutral", N_LOAD_REFERENCE_PACKAGE],
   ["rule-check", N_LOAD_REFERENCE_RULE_CHECK],
+  ["rendered-report", N_LOAD_REFERENCE_RENDERED_REPORT],
 ];
 const fill = (template: string, configurations: string, cases: string, histories: string) =>
   template.replace("{configurations}", configurations).replace("{cases}", cases).replace("{histories}", histories);
@@ -42,6 +43,8 @@ describe("the disclosure texts (§5.4)", () => {
     expect(N_LOAD_REFERENCE_EXPORT).toBe(`${N_LOAD_REFERENCE_INCLUDED} The export carries them in contract_evidence.load_reference_states, with the producer's limitations.`);
     expect(N_LOAD_REFERENCE_PACKAGE).toBe(`${N_LOAD_REFERENCE_INCLUDED} The package carries them in contract_evidence.load_reference_states, with the producer's limitations.`);
     expect(N_LOAD_REFERENCE_RULE_CHECK).toBe(`${N_LOAD_REFERENCE_INCLUDED} Rules bind the published rows of these load cases, which are solved with these states' resolved contributions.`);
+    // W-11 §3.2; the report package's Rust producer composes the same text (`LOAD_REFERENCE_TEMPLATE`).
+    expect(N_LOAD_REFERENCE_RENDERED_REPORT).toBe(`${N_LOAD_REFERENCE_INCLUDED} Their published limitations are listed under Limitations.`);
     // A deliverable-specific scope statement in ordinary prose (docs/claims_registry.md §4):
     // no boundary statement, status label or finding about the result.
     for (const [, text] of SURFACES) {
@@ -96,6 +99,8 @@ describe("loadReferenceDisclosure(source, surface)", () => {
       "result-export": included + " " + "The export carries them in contract_evidence.load_reference_states, with the producer's limitations.",
       "stress-neutral": included + " " + "The package carries them in contract_evidence.load_reference_states, with the producer's limitations.",
       "rule-check": included + " " + "Rules bind the published rows of these load cases, which are solved with these states' resolved contributions.",
+      // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.2): the rendered report's line.
+      "rendered-report": included + " " + "Their published limitations are listed under Limitations.",
     };
     for (const [surface] of SURFACES) {
       const line = loadReferenceDisclosure(source, surface)!;

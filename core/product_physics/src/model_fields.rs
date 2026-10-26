@@ -80,6 +80,7 @@ fn target_fields(kind: &str) -> Option<&'static [&'static str]> {
     match kind {
         "node" => Some(&["type", "node"]),
         "element" => Some(&["type", "pipe"]),
+        "support" => Some(&["type", "support", "dof"]),
         _ => None,
     }
 }
@@ -296,10 +297,10 @@ mod tests {
         assert_eq!(set(fields.seismic), def(&schema, "SeismicEquivalentStaticInput"), "seismic input");
         assert_eq!(set(fields.wind), def(&schema, "WindEquivalentStaticInput"), "wind input");
         assert_eq!(set(fields.exposed_span), def(&schema, "WindExposedSpan"), "exposed span");
-        // The node and element arms of LoadTarget; its support arm is refused as an unknown
-        // variant by the typed target (and, on a pre-load-state model, by name before parsing).
+        // Every arm of LoadTarget: node, element and (W-16 slice a) support.
         let arms = schema["$defs"]["LoadTarget"]["oneOf"].as_array().expect("LoadTarget arms");
-        for kind in ["node", "element"] {
+        assert_eq!(arms.len(), 3, "LoadTarget arms");
+        for kind in ["node", "element", "support"] {
             let arm = arms.iter().find(|arm| arm["properties"]["type"]["const"] == kind).unwrap_or_else(|| panic!("{kind} arm"));
             assert_eq!(set(target_fields(kind).unwrap()), keys(arm, kind), "{kind} target");
         }
@@ -312,6 +313,9 @@ mod tests {
             (serde_json::json!({"type": "element", "pipe": "p"}), true),
             (serde_json::json!({"type": "node", "node": "n", "pipe": "p"}), false),
             (serde_json::json!({"type": "element", "pipe": "p", "nod": "n"}), false),
+            (serde_json::json!({"type": "support", "support": "s", "dof": "UY"}), true),
+            (serde_json::json!({"type": "support", "support": "s"}), false),
+            (serde_json::json!({"type": "support", "support": "s", "dof": "UY", "node": "n"}), false),
         ] {
             assert_eq!(serde_json::from_value::<crate::LoadTargetInput>(target.clone()).is_ok(), ok, "{target}");
         }

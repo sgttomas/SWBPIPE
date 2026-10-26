@@ -343,7 +343,28 @@ impl ReportSectionValidation {
     }
 }
 
+/// The export context a report's provenance rules are judged in (owner
+/// ruling on #1639, 2026-10-26: "C1 b, C2 a"). Only `LocalPrivate` relaxes
+/// anything: there an `unknown` or `TBD` provenance status is a non-blocking
+/// provenance warning that names the record and the unresolved field. Every
+/// other context (a public report, an absent context, any later shared
+/// context) is `NotLocalPrivate`, where it stays report-blocking.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProvenanceContext {
+    LocalPrivate,
+    NotLocalPrivate,
+}
+
+/// The validation outside the local-private context (every rule blocking as
+/// before); [`validate_report_sections_in`] with
+/// [`ProvenanceContext::NotLocalPrivate`].
 pub fn validate_report_sections(sections: &ReportSections) -> ReportSectionValidation {
+    validate_report_sections_in(sections, ProvenanceContext::NotLocalPrivate)
+}
+
+/// The validation in `context`. Only an unresolved (`unknown` or `TBD`)
+/// provenance status differs by context; everything else is identical.
+pub fn validate_report_sections_in(sections: &ReportSections, context: ProvenanceContext) -> ReportSectionValidation {
     let mut diagnostics = Vec::new();
 
     if sections.report_section_id.trim().is_empty()
@@ -377,12 +398,12 @@ pub fn validate_report_sections(sections: &ReportSections) -> ReportSectionValid
         ));
     }
 
-    check_report_diagnostics(sections, &mut diagnostics);
+    check_report_diagnostics(sections, context, &mut diagnostics);
     check_status_disclosures(sections, &mut diagnostics);
-    check_provenance(sections, &mut diagnostics);
-    check_user_values(sections, &mut diagnostics);
-    check_assumptions(sections, &mut diagnostics);
-    check_limitations(sections, &mut diagnostics);
+    check_provenance(sections, context, &mut diagnostics);
+    check_user_values(sections, context, &mut diagnostics);
+    check_assumptions(sections, context, &mut diagnostics);
+    check_limitations(sections, context, &mut diagnostics);
     check_tbds(sections, &mut diagnostics);
 
     ReportSectionValidation { diagnostics }
@@ -401,7 +422,7 @@ pub fn sorted_diagnostics(sections: &ReportSections) -> Vec<&Diagnostic> {
     diagnostics
 }
 
-fn check_report_diagnostics(sections: &ReportSections, diagnostics: &mut Vec<Diagnostic>) {
+fn check_report_diagnostics(sections: &ReportSections, context: ProvenanceContext, diagnostics: &mut Vec<Diagnostic>) {
     for diagnostic in &sections.diagnostics {
         if diagnostic.code.trim().is_empty()
             || !diagnostic.source.is_complete()
@@ -434,6 +455,7 @@ fn check_report_diagnostics(sections: &ReportSections, diagnostics: &mut Vec<Dia
         check_provenance_record(
             &diagnostic.provenance,
             Reference::new("diagnostic", &diagnostic.code),
+            context,
             diagnostics,
         );
     }
@@ -465,17 +487,18 @@ fn check_status_disclosures(sections: &ReportSections, diagnostics: &mut Vec<Dia
     }
 }
 
-fn check_provenance(sections: &ReportSections, diagnostics: &mut Vec<Diagnostic>) {
+fn check_provenance(sections: &ReportSections, context: ProvenanceContext, diagnostics: &mut Vec<Diagnostic>) {
     for provenance in &sections.provenance_notes {
         check_provenance_record(
             provenance,
             Reference::new("provenance", &provenance.source_name),
+            context,
             diagnostics,
         );
     }
 }
 
-fn check_user_values(sections: &ReportSections, diagnostics: &mut Vec<Diagnostic>) {
+fn check_user_values(sections: &ReportSections, context: ProvenanceContext, diagnostics: &mut Vec<Diagnostic>) {
     for value in &sections.user_supplied_values {
         if value.value_id.trim().is_empty()
             || value.value_category.trim().is_empty()
@@ -493,6 +516,7 @@ fn check_user_values(sections: &ReportSections, diagnostics: &mut Vec<Diagnostic
         check_provenance_record(
             &value.provenance,
             Reference::new("user_supplied_value", &value.value_id),
+            context,
             diagnostics,
         );
 
@@ -542,7 +566,7 @@ fn check_user_values(sections: &ReportSections, diagnostics: &mut Vec<Diagnostic
     }
 }
 
-fn check_assumptions(sections: &ReportSections, diagnostics: &mut Vec<Diagnostic>) {
+fn check_assumptions(sections: &ReportSections, context: ProvenanceContext, diagnostics: &mut Vec<Diagnostic>) {
     for assumption in &sections.assumptions {
         if assumption.assumption_id.trim().is_empty()
             || assumption.owner.trim().is_empty()
@@ -566,12 +590,13 @@ fn check_assumptions(sections: &ReportSections, diagnostics: &mut Vec<Diagnostic
         check_provenance_record(
             &assumption.provenance,
             Reference::new("assumption", &assumption.assumption_id),
+            context,
             diagnostics,
         );
     }
 }
 
-fn check_limitations(sections: &ReportSections, diagnostics: &mut Vec<Diagnostic>) {
+fn check_limitations(sections: &ReportSections, context: ProvenanceContext, diagnostics: &mut Vec<Diagnostic>) {
     for limitation in &sections.limitations {
         if limitation.limitation_id.trim().is_empty()
             || !limitation.source.is_complete()
@@ -594,6 +619,7 @@ fn check_limitations(sections: &ReportSections, diagnostics: &mut Vec<Diagnostic
         check_provenance_record(
             &limitation.provenance,
             Reference::new("limitation", &limitation.limitation_id),
+            context,
             diagnostics,
         );
     }
@@ -629,9 +655,20 @@ fn check_effect(
     }
 }
 
+/// The section validation's rules for one provenance record, for a record a
+/// caller holds outside `ReportSections` (the renderer's library references,
+/// W-11 slice (c)): the same codes as [`validate_report_sections`] gives a
+/// record inside it.
+pub fn validate_provenance_record(provenance: &Provenance, affected_object: Reference, context: ProvenanceContext) -> Vec<Diagnostic> {
+    let mut diagnostics = Vec::new();
+    check_provenance_record(provenance, affected_object, context, &mut diagnostics);
+    diagnostics
+}
+
 fn check_provenance_record(
     provenance: &Provenance,
     affected_object: Reference,
+    context: ProvenanceContext,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
     if !provenance.is_complete() {
@@ -652,17 +689,48 @@ fn check_provenance_record(
         ));
     }
 
-    if matches!(
-        provenance.redistribution_status,
-        RedistributionStatus::Unknown | RedistributionStatus::Tbd
-    ) || provenance.review_status == ReviewStatus::Tbd
-        || provenance.privacy_classification == PrivacyClassification::Tbd
-    {
-        diagnostics.push(Diagnostic::report_blocking(
+    let mut unresolved: Vec<&str> = Vec::new();
+    match provenance.redistribution_status {
+        RedistributionStatus::Unknown => unresolved.push("redistribution status unknown"),
+        RedistributionStatus::Tbd => unresolved.push("redistribution status TBD"),
+        _ => {}
+    }
+    if provenance.review_status == ReviewStatus::Tbd {
+        unresolved.push("review status TBD");
+    }
+    if provenance.privacy_classification == PrivacyClassification::Tbd {
+        unresolved.push("privacy classification TBD");
+    }
+    if unresolved.is_empty() {
+        return;
+    }
+    match context {
+        ProvenanceContext::NotLocalPrivate => diagnostics.push(Diagnostic::report_blocking(
             "REPORT_SECTION_PROVENANCE_UNRESOLVED",
             affected_object,
             "unknown or TBD provenance, redistribution, review, or privacy metadata must remain an explicit unresolved finding",
-        ));
+        )),
+        // Owner ruling on #1639 ("C1 b"): in a local-private report only, a
+        // non-blocking warning naming the record and each unresolved field.
+        ProvenanceContext::LocalPrivate => {
+            let message = format!(
+                "{} {}: {}; the source's status is not recorded, so this record's provenance is unresolved in this local-private report.",
+                affected_object.ref_type,
+                affected_object.ref_id,
+                unresolved.join(", ")
+            );
+            diagnostics.push(Diagnostic {
+                code: "REPORT_SECTION_PROVENANCE_UNRESOLVED".to_string(),
+                class: DiagnosticClass::ProvenanceWarning,
+                severity: Severity::Warning,
+                source: Reference::new("report_sections", "DEL-08-03"),
+                affected_object,
+                message,
+                remediation: "Record the source's redistribution, review and privacy status before relying on or sharing this report."
+                    .to_string(),
+                provenance: invented_provenance(),
+            });
+        }
     }
 }
 
@@ -887,6 +955,34 @@ mod tests {
         assert!(validation.diagnostics.iter().any(|diagnostic| {
             diagnostic.code == "REPORT_SECTION_BLOCKING_DIAGNOSTIC_SEVERITY_MISMATCH"
         }));
+    }
+
+    /// Owner ruling on #1639 ("C1 b, C2 a", 2026-10-26): the same unresolved
+    /// record warns in the local-private context and blocks in every other.
+    #[test]
+    fn unresolved_provenance_warns_only_in_the_local_private_context() {
+        let cases: [(fn(&mut Provenance), &str); 4] = [
+            (|p| p.redistribution_status = RedistributionStatus::Unknown, "redistribution status unknown"),
+            (|p| p.redistribution_status = RedistributionStatus::Tbd, "redistribution status TBD"),
+            (|p| p.review_status = ReviewStatus::Tbd, "review status TBD"),
+            (|p| p.privacy_classification = PrivacyClassification::Tbd, "privacy classification TBD"),
+        ];
+        for (edit, field) in cases {
+            let mut sections = sections();
+            edit(&mut sections.provenance_notes[0]);
+            let local = validate_report_sections_in(&sections, ProvenanceContext::LocalPrivate);
+            assert!(!local.has_blocking_diagnostics(), "{field}: {:?}", local.diagnostics);
+            let warning = local.diagnostics.iter().find(|item| item.code == "REPORT_SECTION_PROVENANCE_UNRESOLVED").expect("warning");
+            assert_eq!((warning.class, warning.severity), (DiagnosticClass::ProvenanceWarning, Severity::Warning));
+            assert!(warning.message.starts_with(&format!("provenance {}: {field}; the source's status is not recorded", sections.provenance_notes[0].source_name)), "{}", warning.message);
+            for strict in [validate_report_sections(&sections), validate_report_sections_in(&sections, ProvenanceContext::NotLocalPrivate)] {
+                assert!(strict.diagnostics.iter().any(|item| item.code == "REPORT_SECTION_PROVENANCE_UNRESOLVED" && item.severity == Severity::Blocking), "{field}");
+            }
+        }
+        // Protected content blocks in the local-private context too.
+        let mut sections = sections();
+        sections.provenance_notes[0].redistribution_status = RedistributionStatus::ProtectedSuspected;
+        assert!(validate_report_sections_in(&sections, ProvenanceContext::LocalPrivate).has_blocking_diagnostics());
     }
 
     #[test]

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openpipestress.org/schemas/rule_pack.schema.yaml",
   "title": "OpenPipeStress Rule-Pack Schema",
-  "description": "Strict JSON syntax schema for user-owned rule-pack artifacts. It defines metadata, required inputs, declarative formula slots, user-supplied allowable/value slots, provenance, redistribution status, checksums, diagnostics, and professional-boundary controls. It does not bundle protected standards data, proprietary engineering values, arbitrary executable code, or automatic code-acceptance claims.",
+  "description": "Strict JSON syntax schema for user-owned rule-pack artifacts. It defines metadata, required inputs, user-defined stress categories, required load cases and load-case mappings, declarative formula slots, user-supplied allowable/value slots, provenance, redistribution status, checksums, diagnostics, and professional-boundary controls. It does not bundle protected standards data, proprietary engineering values, arbitrary executable code, or automatic code-acceptance claims.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -14,6 +14,9 @@
     "required_inputs",
     "formula_declarations",
     "value_slots",
+    "required_load_cases",
+    "stress_categories",
+    "load_case_mappings",
     "check_definitions",
     "diagnostics",
     "checksums",
@@ -24,7 +27,8 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+      "const": "0.5.0",
+      "description": "The one current rule-pack format (DEL-06-01 Design rule-pack-0.5.0.md §2.1). Top-level schema_version and metadata.schema_version must both be 0.5.0; any other value is refused by the validator as RULE_PACK_SCHEMA_VERSION_UNSUPPORTED, with no migration."
     },
     "rule_pack_kind": {
       "type": "string",
@@ -61,6 +65,30 @@
       "items": {
         "$ref": "#/$defs/UserSuppliedValueSlot"
       }
+    },
+    "required_load_cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/RequiredLoadCase"
+      },
+      "description": "The model load cases and combinations the pack's checks are evaluated on (design §2.3). Item ids are unique and no two items name the same basis_ref; every item appears in at least one load-case mapping and is reached by at least one check through its category's mapping (§2.9)."
+    },
+    "stress_categories": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/StressCategory"
+      },
+      "description": "User-defined stress categories (design §2.3). Their names and descriptions are the user's text; the format gives a category no built-in meaning and no fixed list, and this repository carries no category definition of any standard."
+    },
+    "load_case_mappings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/LoadCaseMapping"
+      },
+      "description": "Per category, the required load cases it uses (design §2.3). Every category has exactly one mapping; a load case may feed more than one category."
     },
     "check_definitions": {
       "type": "array",
@@ -111,6 +139,7 @@
       "required": [
         "check_id",
         "name",
+        "category_ref",
         "required_input_refs",
         "value_slot_refs",
         "formula_ref",
@@ -129,6 +158,10 @@
         },
         "description": {
           "type": "string"
+        },
+        "category_ref": {
+          "$ref": "#/$defs/Reference",
+          "description": "The check's stress category (ref_type stress_category). The check is evaluated once for each required load case its category's mapping lists, in the mapping's order, with one outcome per basis (design §2.4, §2.7)."
         },
         "required_input_refs": {
           "type": "array",
@@ -1072,6 +1105,8 @@
             "diagnostic",
             "checksum",
             "external_record",
+            "stress_category",
+            "required_load_case",
             "TBD"
           ]
         },
@@ -1191,15 +1226,148 @@
     "SolverResultRef": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Optional reference from a solver_result required input to a specific row of a solved mechanics result envelope (the row id, e.g. 'result:stress:...' or 'result:disp:node-...:ux'). The value is resolved at rule-check run time from the solved envelope's results[] by id; it is the authored, in-pack form of the previously caller-supplied {input_id, result_id} solver binding (PRD §12.5; the 'result_envelope_integration' open decision). An authored reference is the canonical binding for its input: if the referenced row is absent (or lacks a numeric value / unit) the input stays unsupplied and the check blocks at RULE_INPUTS_INCOMPLETE — never a silent pass. Only meaningful when source_kind is solver_result.",
+      "description": "The row selector of a solver_result required input (format 0.5.0; design §2.5). For each basis of a check (a required load case mapped to its category), the input binds the one solved-envelope row whose basis_ref equals the basis, whose kind equals result_kind and entity_ref equals entity_ref, and whose metadata.location, metadata.component and section basis (the section_basis= token of metadata.basis) equal the optional members here; an absent optional member matches only a row without that member. tie_rod names one rod of a connector's tie_rods record; a connector_tie_rod_force_v1 row carries its rod only in its id. Rows without basis_ref are never selected. No row (RULE_SOLVER_RESULT_ROW_MISSING) or more than one (RULE_SOLVER_RESULT_ROW_AMBIGUOUS) leaves the input unsupplied on that basis, never a pass; every matched row passes the run's mechanics qualification and per-row binding refusal before its value is used. A solver_result input without this member is a blocking validation finding (RULE_SOLVER_RESULT_REF_MISSING). The 0.4.0 result_id member is removed.",
       "required": [
-        "result_id"
+        "result_kind",
+        "entity_ref"
       ],
       "properties": {
-        "result_id": {
-          "$ref": "#/$defs/Id"
+        "result_kind": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The envelope row kind."
+        },
+        "entity_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The envelope row entity_ref (a model entity id)."
+        },
+        "location": {
+          "type": "string",
+          "minLength": 1,
+          "description": "metadata.location of the row; absent matches only a row without one."
+        },
+        "component": {
+          "type": "string",
+          "minLength": 1,
+          "description": "metadata.component of the row; absent matches only a row without one."
+        },
+        "section_basis": {
+          "type": "string",
+          "enum": [
+            "nominal_section",
+            "reduced_section"
+          ],
+          "description": "The section_basis= token of the row's metadata.basis; absent matches only a row without one. A malformed token matches nothing."
+        },
+        "tie_rod": {
+          "$ref": "#/$defs/Id",
+          "description": "One rod id of the connector's tie_rods record; absent matches only a row that is not a tie-rod force row."
         }
       }
+    },
+    "LoadCaseBasisRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref_type",
+        "ref_id"
+      ],
+      "properties": {
+        "ref_type": {
+          "type": "string",
+          "enum": [
+            "load_case",
+            "combination"
+          ]
+        },
+        "ref_id": {
+          "$ref": "#/$defs/Id",
+          "description": "The model's id for that load case or combination."
+        }
+      },
+      "description": "A model load case or combination, as a solved envelope row's basis_ref names it."
+    },
+    "RequiredLoadCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required_load_case_id",
+        "name",
+        "basis_ref",
+        "provenance"
+      ],
+      "properties": {
+        "required_load_case_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "basis_ref": {
+          "$ref": "#/$defs/LoadCaseBasisRef"
+        },
+        "provenance": {
+          "$ref": "#/$defs/ProvenanceRecord"
+        }
+      },
+      "description": "A required load case (design §2.3): the model load case or combination it names must exist in the model and be solved at run time, else every check whose category maps it is RULE_INPUTS_INCOMPLETE on it (RULE_REQUIRED_LOAD_CASE_MISSING, RULE_REQUIRED_LOAD_CASE_UNSOLVED; §2.6). Existence in a model is checked at run time, never statically."
+    },
+    "StressCategory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "category_id",
+        "name",
+        "provenance"
+      ],
+      "properties": {
+        "category_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/ProvenanceRecord"
+        }
+      },
+      "description": "A user-defined stress category (design §2.3): the user's own name and description, with no built-in meaning."
+    },
+    "LoadCaseMapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mapping_id",
+        "category_ref",
+        "required_load_case_refs"
+      ],
+      "properties": {
+        "mapping_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "category_ref": {
+          "$ref": "#/$defs/Reference",
+          "description": "The mapped stress category (ref_type stress_category)."
+        },
+        "required_load_case_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Reference"
+          },
+          "description": "The category's required load cases (ref_type required_load_case), in evaluation order; no load case twice."
+        }
+      },
+      "description": "Assigns required load cases to one stress category (design §2.3)."
     },
     "ReviewStatus": {
       "type": "string",
@@ -1354,7 +1522,8 @@
         },
         "schema_version": {
           "type": "string",
-          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+          "const": "0.5.0",
+          "description": "The one current rule-pack format (DEL-06-01 Design rule-pack-0.5.0.md §2.1). Top-level schema_version and metadata.schema_version must both be 0.5.0; any other value is refused by the validator as RULE_PACK_SCHEMA_VERSION_UNSUPPORTED, with no migration."
         },
         "rule_pack_version": {
           "type": "string",

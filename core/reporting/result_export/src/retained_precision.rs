@@ -587,14 +587,14 @@ const TABLE_BYTES: &[u8] = include_bytes!(
 );
 const INHERITED_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json");
-const TABLE_HASH: &str = "d95e6acfe79f0e08d84fe7a6a71acbd18b38ff70809614227640ee0a0c16ff60";
+const TABLE_HASH: &str = "6d06b97de0cd0c421b3a62f8b97703d6d098a12ced2bb067b52667775f4bc0e8";
 /// The exact successor's table (XTABLE) and its inherited pressure-2 table.
 const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
     "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
 );
 const PRESSURE_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json");
-const EXACT_TABLE_HASH: &str = "92a364559e116f4e4a903ff114e1a530916b9761486bd2441aeb9c3711f290bb";
+const EXACT_TABLE_HASH: &str = "d6d86dfc418978257d1d3370684e879ba9711465ceba1de72729eb48bb12ad3c";
 /// RV78-N1's policies (B3D-8): the receipt values XTABLE's `receipt_bindings`
 /// binds from version 1, keyed by the receipt body's own paths.
 fn receipt_bindings() -> Value {
@@ -6759,9 +6759,11 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
             "preview case lists",
         )?;
         let coverage = &c["stress_maximum_coverage"];
+        // W-15 slice d (DEL-03-05 Design §5): the optional body list, a nonempty
+        // list of distinct member ids when present; the raw reader binds it to rows.
         demand(
             shape(
-                coverage,
+                &crate::component_body::coverage_without_bodies(coverage),
                 &[
                     "complete",
                     "unavailable_pipe_ids",
@@ -6769,6 +6771,10 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
                 ],
             ),
             "maximum coverage shape",
+        )?;
+        demand(
+            coverage.get(crate::component_body::COVERAGE_KEY).is_none_or(|ids| strings(ids) && !list(ids).is_empty()),
+            "maximum coverage bodies",
         )?;
         let (unavailable, outside) = (
             &coverage["unavailable_pipe_ids"],
@@ -6820,7 +6826,12 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
             "support both attributed and withheld",
         )?;
         for x in list(&c["pipe_stress_extrema"]) {
-            demand(shape(x, &EXTREMA), "extrema shape")?;
+            // W-15 slice d: an extremum of a body carries its closed record.
+            demand(shape(&crate::component_body::extremum_without_record(x), &EXTREMA), "extrema shape")?;
+            demand(
+                x.get(crate::component_body::RECORD).is_none_or(crate::component_body::record_shape),
+                "extrema body record",
+            )?;
             // T4-U4b (§2.3): the straight token triple or the arc record's (the raw
             // reader binds an arc's record to its rows; transport has no rows).
             let tokens = (x["approximation"].as_str(), x["coefficient_basis"].as_str(), x["enclosure_scope"].as_str());

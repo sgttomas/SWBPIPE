@@ -274,6 +274,12 @@ import w8_topology_model as _w8_model
 if _snapshot and _w8_model.inspect(_snapshot):
     add("W-8 topology warnings workspace (W8-TW)", "BuildScratch", _w8_model.topology_workspace(n, m, g))
     add("W-8 validation node-degree map (W8-ND)", "BuildScratch", _w8_model.node_degrees(m))
+# W-15 D3 (retained-pricing-rules.md §8.21, W15-PM): the eligibility predicate's and mapping-conflict check's member
+# maps (rigid_component pipe_map: two exact-size tables of m entries live at once in applied_scales; conflicts' in
+# validation), per ordinary run; every other owner of both is empty on D1 (P2). w15_owners_model binds the statements.
+import w15_owners_model as _w15_model
+if _snapshot and _w15_model.inspect(_snapshot):
+    add("W-15 eligibility and mapping-conflict member maps (W15-PM)", "BuildScratch", _w15_model.producer_maps(m))
 
 # ---------------- Typed core (both modes) --------------------------------------------------
 def typed_core(mode):
@@ -542,6 +548,13 @@ if _snapshot and _sd_model.inspect(_snapshot):
         add("Combination withheld names and group rows (SD-WH)", "AggregationSuffix", _sd_model.withheld_names(PA, g))
     add("Validation duplicate-term set (SD-HS)", "BuildScratch", _sd_model.seen_terms())
     add("Closed-record scan probe error (SD-PB)", "BuildScratch", _sd_model.probe_error())
+# W-16 slice a D3 (retained-pricing-rules.md §8.23): case_prescribed's node index, once per case solved without a load
+# state, one case at a time (W16-NI), and validate's findings vector, <= one per primitive load (W16-VF), each priced
+# positively where its reviewed source exists (w16_owners_model binds imposed_motion.rs and the statements).
+import w16_owners_model as _w16_model
+if _snapshot and _w16_model.inspect(_snapshot):
+    add("Imposed-motion case node index (W16-NI)", "CasePrefix", _w16_model.node_index(n))
+    add("Imposed-motion validation findings backing (W16-VF)", "BuildScratch", _w16_model.validation_findings(LL))
 # Closed formed guard construction pays the native row headers, both source
 # lists, maps, fired backing/moving storage and six independently cloned items.
 if _wide:

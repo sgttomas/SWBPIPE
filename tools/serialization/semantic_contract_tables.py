@@ -94,6 +94,25 @@ CARRIER_WRITERS = {
         "-k current_native_builder_matches_committed_package_file_bytes"
     ),
 }
+# The desktop run carriers embed checksums over records that carry the table digests. The
+# TypeScript writers build the transient inputs and the S2 run; the Rust record path then emits
+# the recorded-run witnesses from those inputs (read at compile time), so the TypeScript writers
+# run first. Each variable takes the target file's path, written as given from the test's working
+# directory, so give it absolutely.
+PERSISTENCE_RUN_WRITERS = (
+    "OPENPIPESTRESS_WRITE_TRANSIENT_RUN_INPUT=<abs fixtures/persistence/transient_run_input.json> "
+    "OPENPIPESTRESS_WRITE_TRANSIENT_RUN_INPUT_RULE_PACKS=<abs fixtures/persistence/transient_run_input_rule_packs.json> "
+    "OPENPIPESTRESS_WRITE_S2_UNRESOLVED_RULE_PACK_RUN=<abs fixtures/persistence/s2_unresolved_rule_pack_run.json> "
+    "vitest run (apps/desktop) src/services/recordedRunParity.test.ts; then "
+    "OPENPIPESTRESS_WRITE_RECORDED_RUN_WITNESS=<abs fixtures/persistence/recorded_run_witness.json> "
+    "OPENPIPESTRESS_WRITE_RECORDED_RUN_WITNESS_RULE_PACKS=<abs fixtures/persistence/recorded_run_witness_rule_packs.json> "
+    "cargo test (apps/desktop/src-tauri) analysis_runs_tests"
+)
+CARRIER_WRITERS.update({
+    "fixtures/persistence/transient_run_input": PERSISTENCE_RUN_WRITERS,
+    "fixtures/persistence/s2_unresolved_rule_pack_run": PERSISTENCE_RUN_WRITERS,
+    "fixtures/persistence/recorded_run_witness": PERSISTENCE_RUN_WRITERS,
+})
 
 
 # ---------------------------------------------------------------- apply-u4b

@@ -37,17 +37,21 @@
 //! `Value` (every command), and D = (2 + vec_expansion) * M when a typed
 //! request rebuilds `Value` fields and builds typed vectors. A command whose
 //! argument is a canonical text it parses (`save_report_package`) grows its
-//! lease by that text's priced parse ([`text_parse_bytes`]; the request's
-//! typed conversion with [`REPORT_PACKAGE_VEC_EXPANSION`]) before parsing it.
-//! The counting-allocator tests check the requested peak against these rules
-//! for representative and adversarial inputs.
+//! lease by that text's priced parse before parsing it: [`text_parse_bytes`]
+//! for its model and input-manifest texts, and
+//! [`report_package_request_parse_bytes`] for its request text, which prices
+//! the rebuild and the typed vectors by the request's regions
+//! ([`REPORT_PACKAGE_REQUEST_REGIONS`]) and adds the command's working memory
+//! ([`REPORT_PACKAGE_WORKING_MEMORY_FACTOR`]). The counting-allocator tests
+//! check the requested peak against these rules for representative and
+//! adversarial inputs.
 //!
 //! Residual: the command's own working memory and its response serialization
-//! run under the held lease but are not separately bounded; wry/Tauri copies
-//! of the raw body made before the command runs are not ours to price (as
-//! for the solve start).
+//! run under the held lease but are not separately bounded, except the report
+//! package save's working-memory term; wry/Tauri copies of the raw body made
+//! before the command runs are not ours to price (as for the solve start).
 
-use crate::ingress::{self, allocation_envelope, IngressBound};
+use crate::ingress::{self, allocation_envelope, FieldRegion, IngressBound, RegionField, RegionStruct};
 use crate::memory_pool::{Lease, ResourceRefusal};
 use crate::solve_jobs::{SolveJobError, SolveJobRegistry};
 use serde::de::{self, Deserialize, DeserializeOwned, DeserializeSeed, IntoDeserializer, Unexpected, Visitor};
@@ -79,7 +83,11 @@ pub(crate) enum ArgsDecoding {
     /// A typed request with `Value` fields and vectors of structs: decoding
     /// rebuilds the `Value` fields (at most M more: new map nodes and array
     /// buffers, strings moved) and builds typed vectors (at most
-    /// `vec_expansion` * M).
+    /// `vec_expansion` * M). No command decodes so now: the report-package
+    /// request text, the one typed request, is priced by its regions
+    /// ([`report_package_request_parse_bytes`]), which never exceed this rule
+    /// with `REPORT_PACKAGE_VEC_EXPANSION` (checked by its tests).
+    #[cfg_attr(not(test), allow(dead_code))]
     Rebuilt { vec_expansion: u64 },
 }
 
@@ -605,9 +613,10 @@ impl<'de> de::VariantAccess<'de> for VariantDecoder {
     }
 }
 
-/// `vec_expansion` for `save_report_package`'s typed request
+/// The typed-vector factor for `save_report_package`'s typed request
 /// (`open_pipe_stress_report_package::wire::ReportPackageRequest`), converted
-/// from the parsed request text (W-18 slice (b1); [`text_parse_bytes`]): decoded
+/// from the parsed request text (W-18 slice (b1);
+/// [`report_package_request_parse_bytes`] charges it on C_T): decoded
 /// by [`ValueDecoder`] (no size hints), each `Vec<X>` of a struct X starts
 /// allocating only when its first element has decoded and then grows by
 /// doubling, so with k >= 1 decoded elements it holds a buffer of cap * S_X
@@ -621,11 +630,106 @@ impl<'de> de::VariantAccess<'de> for VariantDecoder {
 /// maximized over cap and the fewest elements cap admits, is at most this
 /// constant for every vector type the request contains (checked by
 /// `report_package_vec_expansion_bounds_every_vector_type`); the shares of
-/// different vectors are disjoint parts of M. Since request 2.0.0 the worst
+/// different vectors are disjoint parts of C_T, the typed-vector regions'
+/// containers. Since request 2.0.0 the worst
 /// types are `RulePackAuditRefDto` (S = 224 B) and `AssetManifestEntryDto`
 /// (S = 216 B), both with c = 256 B: ratio 2.667; the constant keeps its
 /// earlier margin.
 pub(crate) const REPORT_PACKAGE_VEC_EXPANSION: u64 = 4;
+
+/// W, the working-memory factor of the report-package request text's lease
+/// growth (DEL-04-07 memory-budget decision, "Report-package request
+/// pricing"): the growth carries W * M for the command's working memory after
+/// the conversion, its screening walk over the parsed request and model and
+/// the shared producer's assembly of the members and the container, which
+/// DEL-04-07 otherwise lists as a residual that is not separately bounded.
+/// It is not a computed bound: the whole-command counting-allocator tests
+/// check it only for the committed witness request and the demo's request.
+/// Two values were put to the owner:
+/// - 1, the recommended value: the request text's growth is
+///   M + M + C_V + 4 C_T, never above the former (2 + 4) M;
+/// - 0, the region design without this term: M + C_V + 4 C_T, with the
+///   working memory unpriced.
+///
+/// The owner chose 1 (2026-10-25: "Both decisions I approve your recommended
+/// options."). The term covers the working memory in proportion to the
+/// request's size; it does not prove it bounded in general.
+///
+/// For any W <= 1 the growth stays within the former rule
+/// (`report_package_request_growth_never_exceeds_the_former_rule`).
+pub(crate) const REPORT_PACKAGE_WORKING_MEMORY_FACTOR: u64 = 1;
+
+/// The fields of `open_pipe_stress_report_package::wire::ReportPackageRequest`
+/// (version 2.0.0) in declaration order, with what decoding builds from each
+/// (checked against the wire types by
+/// `report_package_region_table_matches_the_wire_types`). The opaque regions
+/// are the value at `report` and the elements of `result_documents`,
+/// `source_results` and `state_comparison_handoff_records`; the typed-vector
+/// regions are the values at the six `Vec` fields without those opaque
+/// elements.
+pub(crate) static REPORT_PACKAGE_REQUEST_REGIONS: RegionStruct = RegionStruct {
+    name: "ReportPackageRequest",
+    fields: &[
+        RegionField { name: "package_id", region: FieldRegion::Neither },
+        RegionField { name: "export_profile_id", region: FieldRegion::Neither },
+        RegionField { name: "source_model_ref", region: FieldRegion::Neither },
+        RegionField { name: "source_basis_refs", region: FieldRegion::TypedVector },
+        RegionField { name: "report", region: FieldRegion::Opaque },
+        RegionField { name: "audit_manifest", region: FieldRegion::Struct(&AUDIT_MANIFEST_REGIONS) },
+        RegionField { name: "result_documents", region: FieldRegion::TypedVectorOfOpaque },
+        RegionField { name: "source_results", region: FieldRegion::TypedVectorOfOpaque },
+        RegionField { name: "state_comparison_handoff_records", region: FieldRegion::TypedVectorOfOpaque },
+        RegionField { name: "rule_check_aggregate", region: FieldRegion::Neither },
+        RegionField { name: "solve_rule_check_status", region: FieldRegion::Neither },
+    ],
+};
+
+/// `wire::AuditManifestDto`'s fields, as [`REPORT_PACKAGE_REQUEST_REGIONS`].
+pub(crate) static AUDIT_MANIFEST_REGIONS: RegionStruct = RegionStruct {
+    name: "AuditManifestDto",
+    fields: &[
+        RegionField { name: "manifest_id", region: FieldRegion::Neither },
+        RegionField { name: "model_hash", region: FieldRegion::Neither },
+        RegionField { name: "input_manifest_hash", region: FieldRegion::Neither },
+        RegionField { name: "solver_version", region: FieldRegion::Neither },
+        RegionField { name: "unit_system_ref", region: FieldRegion::Neither },
+        RegionField { name: "rule_pack_refs", region: FieldRegion::TypedVector },
+        RegionField { name: "assets", region: FieldRegion::TypedVector },
+        RegionField { name: "professional_boundary", region: FieldRegion::Neither },
+    ],
+};
+
+/// The priced parse of `save_report_package`'s request text (DEL-04-07
+/// memory-budget decision, "Report-package request pricing"; DEL-08-01 Design
+/// `report-package-current-results.md` §2.6 item 1): with M the text's
+/// materialization bound and C_V and C_T the priced containers of its opaque
+/// and typed-vector regions ([`ingress::prescan_regions`] over
+/// [`REPORT_PACKAGE_REQUEST_REGIONS`], which allocates nothing),
+/// M + W * M + C_V + [`REPORT_PACKAGE_VEC_EXPANSION`] * C_T, plus the
+/// canonical re-serialization (2 * envelope(length), as [`text_parse_bytes`])
+/// and the error allowance. W is [`REPORT_PACKAGE_WORKING_MEMORY_FACTOR`].
+/// The parse and the binding check fit M and the re-serialization; decoding
+/// moves every string and key, rebuilds the opaque values within C_V (each
+/// rebuilt container has its source's entry count), fits its one growth
+/// transient at a time in M's array-transient allowance (free once the parse
+/// has returned), and builds each typed vector within
+/// `REPORT_PACKAGE_VEC_EXPANSION` times the containers of its own region. A
+/// text the prescan refuses is returned as the prescan's finding, unparsed.
+pub(crate) fn report_package_request_parse_bytes(text: &str) -> Result<u64, ingress::IngressInvalid> {
+    let (bound, regions) = ingress::prescan_regions(text.as_bytes(), &REPORT_PACKAGE_REQUEST_REGIONS)?;
+    let overflow = ingress::IngressInvalid { reason: "the priced parse overflows", offset: 0 };
+    let materialization = bound.materialization_bytes;
+    [
+        materialization.checked_mul(REPORT_PACKAGE_WORKING_MEMORY_FACTOR),
+        Some(regions.opaque),
+        regions.typed.checked_mul(REPORT_PACKAGE_VEC_EXPANSION),
+        allocation_envelope(bound.raw_len).and_then(|envelope| envelope.checked_mul(2)),
+        Some(ARGS_ERROR_ALLOWANCE_BYTES),
+    ]
+    .into_iter()
+    .try_fold(materialization, |sum, term| sum.checked_add(term?))
+    .ok_or(overflow)
+}
 
 #[cfg(test)]
 pub(crate) mod test_support {
@@ -1147,9 +1251,10 @@ mod tests {
     }
 
     /// The priced parse of `save_report_package`'s texts (DEL-08-01 Design
-    /// §2.6 item 1, W-18 slice (b1)): parsing the request text, its canonical
-    /// re-serialization and its typed conversion, then the model text's parse
-    /// and re-serialization, stay within the lease growth
+    /// §2.6 item 1, W-18 slice (b1); the input manifest since (b2) review
+    /// round 1): parsing the request text, its canonical re-serialization and
+    /// its typed conversion, then the model text's and the input-manifest
+    /// text's parse and re-serialization, stay within the lease growth
     /// `report_package_save::parse_lease_bytes` prices, for the invented
     /// desktop request and adversarial shapes: many one-element struct
     /// vectors in array form, long vectors (growth transients), many result
@@ -1158,9 +1263,16 @@ mod tests {
     /// moved strings, priced by the ingress lease (`ArgsDecoding::Moved`).
     #[test]
     fn report_package_text_parse_stays_within_its_priced_growth() {
-        use crate::report_package_save::{parse_canonical, parse_lease_bytes, test_support, typed_request};
+        use crate::report_package_save::{parse_canonical, parse_lease_bytes, solve_rule_packs, test_support, typed_request};
         use open_pipe_stress_operation_applier::canonical_json;
         let model = canonical_json(&test_support::model());
+        // The input manifest embeds the model and repeats its load cases, as
+        // the session's does (`inputManifestService.ts`).
+        let mut manifest = test_support::input_manifest(&test_support::model(), Value::Array(
+            (0..200).map(|index| test_support::active_pack(&format!("invented-pack-{index}"), "1.0.0", &"a".repeat(64))).collect(),
+        ));
+        manifest["load_basis"] = json!({"load_cases": test_support::model()["load_cases"].clone(), "combinations": []});
+        let manifest = canonical_json(&manifest);
         let desktop = test_support::desktop_request(&test_support::model());
         let one = json!([["analysis_run", "r"]]);
         let mut duplicated = desktop.clone();
@@ -1190,16 +1302,511 @@ mod tests {
         for (name, request, decodes) in cases {
             let text = canonical_json(&request);
             drop(request);
-            let growth = parse_lease_bytes(&text, &model).unwrap();
+            let growth = parse_lease_bytes(&text, &model, &manifest).unwrap();
             let (decoded, measured) = ingress::counting::measure(|| {
                 let request = parse_canonical("request", &text).expect("canonical");
                 let model = parse_canonical("model", &model).expect("canonical");
-                drop(model);
+                let manifest = parse_canonical("input_manifest", &manifest).expect("canonical");
+                // Admission keeps the solve's rule-pack set past the manifest.
+                let packs = solve_rule_packs(&manifest).expect("complete inventory");
+                drop((model, manifest));
+                assert_eq!(packs.len(), 200);
                 typed_request(request).map(drop)
             });
             assert_eq!(decoded.is_ok(), decodes, "{name}: {:?}", decoded.err().map(|error| error.message));
             assert!(measured.peak_priced <= growth, "{name}: priced peak {} exceeds the priced growth {growth}", measured.peak_priced);
             eprintln!("{name}: text {} priced peak {} growth {growth}", text.len(), measured.peak_priced);
+        }
+    }
+
+    // --- the report-package request's regions (DEL-04-07 "Report-package
+    // request pricing") ----------------------------------------------------
+
+    /// What a wire type asks its deserializer for, field by field.
+    #[derive(Clone, Debug, PartialEq)]
+    enum WireKind {
+        /// `deserialize_any`: a `Value`.
+        Any,
+        /// `deserialize_seq`: a `Vec` of the element kind.
+        Seq(Box<WireKind>),
+        /// `deserialize_option`.
+        Opt(Box<WireKind>),
+        /// `deserialize_struct`: its name and its fields in declaration order.
+        Struct(&'static str, Vec<(&'static str, WireKind)>),
+        /// A request that builds no container: a string, a boolean, a
+        /// number or a char.
+        Scalar(&'static str),
+    }
+
+    /// The probe's leaf: the request made at the end of a path.
+    #[derive(Clone, Debug)]
+    enum Node {
+        Any,
+        Seq,
+        Opt,
+        Struct(&'static str, &'static [&'static str]),
+        Scalar(&'static str),
+        /// A request the probe does not follow (maps, tuples, enums,
+        /// newtypes, bytes, units, identifiers, ignored values). The wire
+        /// types make none of them, so one is drift: `kind_at` refuses it.
+        Unsupported(&'static str),
+    }
+
+    #[derive(Clone, Copy, Debug)]
+    enum Step {
+        Field(&'static str),
+        Elem,
+        Some,
+    }
+
+    #[derive(Debug)]
+    struct ProbeError(String);
+
+    impl fmt::Display for ProbeError {
+        fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+            formatter.write_str(&self.0)
+        }
+    }
+
+    impl std::error::Error for ProbeError {}
+
+    impl de::Error for ProbeError {
+        fn custom<T: fmt::Display>(message: T) -> Self {
+            Self(message.to_string())
+        }
+    }
+
+    /// A deserializer that follows `path` into a wire type through the
+    /// requests its derived `Deserialize` makes, records the request at the
+    /// path's end and stops there.
+    struct Probe<'a> {
+        path: &'a [Step],
+        found: &'a std::cell::RefCell<Option<Node>>,
+    }
+
+    impl Probe<'_> {
+        fn leaf<T>(self, node: Node) -> Result<T, ProbeError> {
+            assert!(self.path.is_empty(), "the path {:?} does not lead through {node:?}", self.path);
+            *self.found.borrow_mut() = Some(node);
+            Err(de::Error::custom("probe stop"))
+        }
+    }
+
+    macro_rules! probe_scalars {
+        ($($method:ident)*) => {$(
+            fn $method<V: Visitor<'de>>(self, _visitor: V) -> Result<V::Value, ProbeError> {
+                self.leaf(Node::Scalar(stringify!($method)))
+            }
+        )*};
+    }
+
+    macro_rules! probe_unsupported {
+        ($($method:ident)*) => {$(
+            fn $method<V: Visitor<'de>>(self, _visitor: V) -> Result<V::Value, ProbeError> {
+                self.leaf(Node::Unsupported(stringify!($method)))
+            }
+        )*};
+    }
+
+    impl<'de> de::Deserializer<'de> for Probe<'_> {
+        type Error = ProbeError;
+
+        fn deserialize_any<V: Visitor<'de>>(self, _visitor: V) -> Result<V::Value, ProbeError> {
+            self.leaf(Node::Any)
+        }
+
+        fn deserialize_seq<V: Visitor<'de>>(self, visitor: V) -> Result<V::Value, ProbeError> {
+            match self.path.split_first() {
+                Some((Step::Elem, rest)) => visitor.visit_seq(OneElement(Some(Probe { path: rest, found: self.found }))),
+                _ => self.leaf(Node::Seq),
+            }
+        }
+
+        fn deserialize_option<V: Visitor<'de>>(self, visitor: V) -> Result<V::Value, ProbeError> {
+            match self.path.split_first() {
+                Some((Step::Some, rest)) => visitor.visit_some(Probe { path: rest, found: self.found }),
+                _ => self.leaf(Node::Opt),
+            }
+        }
+
+        fn deserialize_struct<V: Visitor<'de>>(
+            self,
+            name: &'static str,
+            fields: &'static [&'static str],
+            visitor: V,
+        ) -> Result<V::Value, ProbeError> {
+            match self.path.split_first() {
+                Some((Step::Field(field), rest)) => {
+                    visitor.visit_map(OneEntry { key: Some(field), value: Some(Probe { path: rest, found: self.found }) })
+                }
+                _ => self.leaf(Node::Struct(name, fields)),
+            }
+        }
+
+        probe_scalars! {
+            deserialize_bool deserialize_i8 deserialize_i16 deserialize_i32 deserialize_i64 deserialize_i128
+            deserialize_u8 deserialize_u16 deserialize_u32 deserialize_u64 deserialize_u128 deserialize_f32
+            deserialize_f64 deserialize_char deserialize_str deserialize_string
+        }
+
+        probe_unsupported! {
+            deserialize_bytes deserialize_byte_buf deserialize_unit deserialize_map deserialize_identifier
+            deserialize_ignored_any
+        }
+
+        fn deserialize_unit_struct<V: Visitor<'de>>(self, _name: &'static str, _visitor: V) -> Result<V::Value, ProbeError> {
+            self.leaf(Node::Unsupported("deserialize_unit_struct"))
+        }
+
+        fn deserialize_newtype_struct<V: Visitor<'de>>(self, _name: &'static str, _visitor: V) -> Result<V::Value, ProbeError> {
+            self.leaf(Node::Unsupported("deserialize_newtype_struct"))
+        }
+
+        fn deserialize_tuple<V: Visitor<'de>>(self, _len: usize, _visitor: V) -> Result<V::Value, ProbeError> {
+            self.leaf(Node::Unsupported("deserialize_tuple"))
+        }
+
+        fn deserialize_tuple_struct<V: Visitor<'de>>(self, _name: &'static str, _len: usize, _visitor: V) -> Result<V::Value, ProbeError> {
+            self.leaf(Node::Unsupported("deserialize_tuple_struct"))
+        }
+
+        fn deserialize_enum<V: Visitor<'de>>(
+            self,
+            _name: &'static str,
+            _variants: &'static [&'static str],
+            _visitor: V,
+        ) -> Result<V::Value, ProbeError> {
+            self.leaf(Node::Unsupported("deserialize_enum"))
+        }
+    }
+
+    struct OneElement<'a>(Option<Probe<'a>>);
+
+    impl<'de> de::SeqAccess<'de> for OneElement<'_> {
+        type Error = ProbeError;
+
+        fn next_element_seed<T: DeserializeSeed<'de>>(&mut self, seed: T) -> Result<Option<T::Value>, ProbeError> {
+            match self.0.take() {
+                Some(probe) => seed.deserialize(probe).map(Some),
+                None => Ok(None),
+            }
+        }
+    }
+
+    struct OneEntry<'a> {
+        key: Option<&'static str>,
+        value: Option<Probe<'a>>,
+    }
+
+    impl<'de> de::MapAccess<'de> for OneEntry<'_> {
+        type Error = ProbeError;
+
+        fn next_key_seed<K: DeserializeSeed<'de>>(&mut self, seed: K) -> Result<Option<K::Value>, ProbeError> {
+            match self.key.take() {
+                Some(key) => seed.deserialize(de::value::StrDeserializer::<ProbeError>::new(key)).map(Some),
+                None => Ok(None),
+            }
+        }
+
+        fn next_value_seed<V: DeserializeSeed<'de>>(&mut self, seed: V) -> Result<V::Value, ProbeError> {
+            seed.deserialize(self.value.take().expect("one value"))
+        }
+    }
+
+    /// A path as a field path: `audit_manifest.model_hash?`, `assets[]`.
+    fn path_name(path: &[Step]) -> String {
+        let mut name = String::new();
+        for step in path {
+            match step {
+                Step::Field(field) if name.is_empty() => name.push_str(field),
+                Step::Field(field) => name.push_str(&format!(".{field}")),
+                Step::Elem => name.push_str("[]"),
+                Step::Some => name.push('?'),
+            }
+        }
+        if name.is_empty() { "the request".into() } else { name }
+    }
+
+    /// The kind `T` requests at `path`, recursively. A request the probe
+    /// does not follow fails, naming the field path.
+    fn kind_at<T: DeserializeOwned>(path: &mut Vec<Step>) -> WireKind {
+        let found = std::cell::RefCell::new(None);
+        let outcome = T::deserialize(Probe { path, found: &found });
+        assert!(outcome.is_err(), "the probe always stops");
+        let node = found.into_inner().unwrap_or_else(|| panic!("no request at {path:?}"));
+        let inner = |path: &mut Vec<Step>, step: Step| {
+            path.push(step);
+            let kind = kind_at::<T>(path);
+            path.pop();
+            kind
+        };
+        match node {
+            Node::Any => WireKind::Any,
+            Node::Scalar(method) => WireKind::Scalar(method),
+            Node::Unsupported(method) => panic!(
+                "{}: the wire type requests {method}, which the region probe does not follow; extend the probe and the region table",
+                path_name(path)
+            ),
+            Node::Seq => WireKind::Seq(Box::new(inner(path, Step::Elem))),
+            Node::Opt => WireKind::Opt(Box::new(inner(path, Step::Some))),
+            Node::Struct(name, fields) => WireKind::Struct(name, fields.iter().map(|field| (*field, inner(path, Step::Field(field)))).collect()),
+        }
+    }
+
+    /// Whether decoding `kind` builds a `Value` or a `Vec` anywhere.
+    fn allocates_containers(kind: &WireKind) -> bool {
+        match kind {
+            WireKind::Any | WireKind::Seq(_) => true,
+            WireKind::Opt(inner) => allocates_containers(inner),
+            WireKind::Struct(_, fields) => fields.iter().any(|(_, kind)| allocates_containers(kind)),
+            WireKind::Scalar(_) => false,
+        }
+    }
+
+    /// The table names every field of the struct in declaration order, and
+    /// its region says what decoding builds from the field's value.
+    fn check_region_table(table: &RegionStruct, kind: &WireKind) {
+        let WireKind::Struct(name, fields) = kind else { panic!("{} is not a struct: {kind:?}", table.name) };
+        assert_eq!(*name, table.name);
+        let names: Vec<&str> = table.fields.iter().map(|field| field.name).collect();
+        let wire: Vec<&str> = fields.iter().map(|(field, _)| *field).collect();
+        assert_eq!(names, wire, "{name}: field names and positions");
+        for (field, (_, kind)) in table.fields.iter().zip(fields) {
+            match (field.region, kind) {
+                (FieldRegion::Opaque, WireKind::Any) => {}
+                (FieldRegion::TypedVectorOfOpaque, WireKind::Seq(element)) if **element == WireKind::Any => {}
+                (FieldRegion::TypedVector, WireKind::Seq(element)) if !allocates_containers(element) => {}
+                (FieldRegion::Struct(inner), kind) => check_region_table(inner, kind),
+                (FieldRegion::Neither, kind) if !allocates_containers(kind) => {}
+                (region, kind) => panic!("{name}.{}: region {region:?} does not describe {kind:?}", field.name),
+            }
+        }
+    }
+
+    #[test]
+    fn report_package_region_table_matches_the_wire_types() {
+        let kind = kind_at::<wire::ReportPackageRequest>(&mut Vec::new());
+        check_region_table(&REPORT_PACKAGE_REQUEST_REGIONS, &kind);
+        // The probe reads the wire types themselves: a few kinds spelled out.
+        let WireKind::Struct(_, fields) = &kind else { unreachable!() };
+        let field = |name: &str| fields.iter().find(|(field, _)| *field == name).unwrap().1.clone();
+        assert_eq!(field("report"), WireKind::Any);
+        assert_eq!(field("result_documents"), WireKind::Seq(Box::new(WireKind::Any)));
+        assert_eq!(
+            field("source_basis_refs"),
+            WireKind::Seq(Box::new(WireKind::Struct(
+                "ReferenceDto",
+                vec![("ref_type", WireKind::Scalar("deserialize_string")), ("ref_id", WireKind::Scalar("deserialize_string"))]
+            )))
+        );
+        assert_eq!(field("rule_check_aggregate"), WireKind::Opt(Box::new(WireKind::Scalar("deserialize_string"))));
+    }
+
+    /// The regions of one request text: (C_V, C_T, containers in neither).
+    fn regions_of(text: &str) -> (u64, u64, u64) {
+        let (bound, regions) = ingress::prescan_regions(text.as_bytes(), &REPORT_PACKAGE_REQUEST_REGIONS).unwrap_or_else(|e| panic!("{text}: {e:?}"));
+        let parts = regions.strings + regions.opaque + regions.typed + regions.neither + regions.allowances;
+        assert_eq!(parts, bound.materialization_bytes, "{text}: the parts sum to M");
+        assert_eq!(ingress::prescan(text.as_bytes()).unwrap(), bound, "{text}: the bound is the prescan's");
+        (regions.opaque, regions.typed, regions.neither)
+    }
+
+    /// Region cases: the paths the decoder follows, by unescaped field name
+    /// or by position, with duplicate and unknown keys and `null` options.
+    #[test]
+    fn report_package_regions_follow_the_decoders_paths() {
+        let (a, o) = (array_price, object_price);
+        let cases: Vec<(&str, String, (u64, u64, u64))> = vec![
+            ("named fields", r#"{"report":{"a":[1,2]},"source_basis_refs":[["x","y"]]}"#.into(), (o(1) + a(2), a(1) + a(2), o(2))),
+            ("escaped field names", r#"{"\u0072eport":[1],"source\u005fbasis_refs":[[1]],"\u0061udit_manifest":{"rule_pack\u005Frefs":[[2]]}}"#.into(), (a(1), 4 * a(1), o(3) + o(1))),
+            ("escaped opaque vector names", r#"{"result\u005fdocuments":[{"a":[1]}],"\u0073ource_results":[[2]]}"#.into(), (o(1) + 2 * a(1), 2 * a(1), o(2))),
+            ("near misses are neither", r#"{"reports":[1],"repor":[1],"Report":[1],"report ":[1]}"#.into(), (0, 0, o(4) + 4 * a(1))),
+            (
+                "positional request and audit manifest",
+                r#"["p","e",["m","x"],[["a","b"]],{"k":[1]},["i",null,null,["s","v","b"],"SI",[[1]],[[2],[3]],[true,false,false,false,false]],[{"d":1}],[],[[]],null,"s"]"#.into(),
+                (o(1) + a(1) + o(1), a(1) + a(2) + a(1) + a(1) + a(2) + 2 * a(1) + a(1) + a(1), a(11) + a(2) + a(8) + a(3) + a(5)),
+            ),
+            ("positions past the fields are neither", r#"["p","e",["m","x"],[],null,null,[],[],[],null,"s",[[1]]]"#.into(), (0, 0, a(12) + a(2) + 2 * a(1))),
+            ("duplicate keys are each priced", r#"{"report":[1],"report":[1,2,3,4,5],"assets":[[1]]}"#.into(), (a(1) + a(5), 0, o(3) + 2 * a(1))),
+            ("unknown keys are neither", r#"{"extra":{"a":[1]},"audit_manifest":{"extra":[1],"assets":[[1]]}}"#.into(), (0, 2 * a(1), o(2) + o(1) + a(1) + o(2) + a(1))),
+            ("null options keep positions", r#"{"audit_manifest":["m",null,null,null,"SI",[[1]],[[2]],null]}"#.into(), (0, 4 * a(1), o(1) + a(8))),
+            ("null vectors and values", r#"{"report":null,"source_basis_refs":null,"audit_manifest":{"model_hash":null,"rule_pack_refs":null}}"#.into(), (0, 0, o(3) + o(2))),
+            ("an opaque vector given as an object is typed", r#"{"result_documents":{"a":[1]}}"#.into(), (0, o(1) + a(1), o(1))),
+            ("an opaque vector's elements are opaque", r#"{"result_documents":[{"a":[1]},[2]],"state_comparison_handoff_records":[[[]]]}"#.into(), (o(1) + 2 * a(1) + a(1), a(2) + a(1), o(2))),
+            ("field names inside an opaque value", r#"{"report":{"source_basis_refs":[1],"report":[[2]]}}"#.into(), (o(2) + 3 * a(1), 0, o(1))),
+            ("field names inside a struct of neither", r#"{"source_model_ref":{"report":[1]},"audit_manifest":{"solver_version":{"assets":[1]}}}"#.into(), (0, 0, o(2) + o(1) + a(1) + o(1) + o(1) + a(1))),
+            ("opaque-shaped content in a typed element", r#"{"source_basis_refs":[{"ref_type":"a","x":{"y":[1]}}]}"#.into(), (0, a(1) + o(2) + o(1) + a(1), o(1))),
+            ("a scalar request", "7".into(), (0, 0, 0)),
+            ("escaped key with a surrogate pair stays unmatched", r#"{"report\ud83d\ude00":[1]}"#.into(), (0, 0, o(1) + a(1))),
+        ];
+        for (name, text, expected) in cases {
+            assert_eq!(regions_of(&text), expected, "{name}: {text}");
+        }
+        // Escaped keys are attributed as their decoded, plain-key equivalents.
+        let escaped_and_plain = [
+            (r#"{"\u0072eport":[1],"source\u005fbasis_refs":[[1]],"\u0061udit_manifest":{"rule_pack\u005Frefs":[[2]]}}"#, r#"{"report":[1],"source_basis_refs":[[1]],"audit_manifest":{"rule_pack_refs":[[2]]}}"#),
+            (r#"{"result\u005fdocuments":[{"a":[1]}],"\u0073ource_results":[[2]]}"#, r#"{"result_documents":[{"a":[1]}],"source_results":[[2]]}"#),
+            (r#"{"report\ud83d\ude00":[1]}"#, r#"{"report😀":[1]}"#),
+            (r#"{"x\ud83d\ude00":"\uD83D\uDE00\n","\u0072eport":[1],"audit_manifest":["m",null,null,null,"SI",[],[[1]],null]}"#, "{\"x😀\":\"😀\\n\",\"report\":[1],\"audit_manifest\":[\"m\",null,null,null,\"SI\",[],[[1]],null]}"),
+            (r#"{"\u0072\u0065\u0070\u006f\u0072\u0074":{"a":[1]},"\u0061ssets":[[1]]}"#, r#"{"report":{"a":[1]},"assets":[[1]]}"#),
+        ];
+        for (escaped, plain) in escaped_and_plain {
+            assert_ne!(escaped, plain);
+            assert_eq!(regions_of(escaped), regions_of(plain), "{escaped} against {plain}");
+        }
+        // The desktop request: every container is in exactly one part.
+        let desktop = canonical_json_text(&crate::report_package_save::test_support::desktop_request(&crate::report_package_save::test_support::model()));
+        let (opaque, typed, neither) = regions_of(&desktop);
+        assert!(opaque > typed && typed > 0 && neither > 0, "{opaque} {typed} {neither}");
+    }
+
+    fn canonical_json_text(value: &Value) -> String {
+        open_pipe_stress_operation_applier::canonical_json(value)
+    }
+
+    /// For W <= 1 the request text's growth never exceeds the former rule,
+    /// envelope-free terms included: since C_V + C_T <= M (each priced
+    /// container is in at most one region), M + W M + C_V + 4 C_T <=
+    /// 2 M + 4 M, and the re-serialization and the error allowance are the
+    /// former rule's. The growth is exactly the rule with the current W.
+    #[test]
+    fn report_package_request_growth_never_exceeds_the_former_rule() {
+        const { assert!(REPORT_PACKAGE_WORKING_MEMORY_FACTOR <= 1) };
+        use crate::report_package_save::test_support::{desktop_request, model};
+        let mut texts: Vec<String> = vec![
+            "{}".into(),
+            "7".into(),
+            r#"{"report":[1]}"#.into(),
+            r#"{"source_basis_refs":[[1],[2]]}"#.into(),
+            canonical_json_text(&desktop_request(&model())),
+            format!(r#"{{"report":[{}0],"source_basis_refs":[{}[1]]}}"#, "[[0]],".repeat(3_000), "[1],".repeat(3_000)),
+            format!(r#"{{"source_basis_refs":[{}{{}}]}}"#, "{\"a\":[[[[1]]]]},".repeat(2_000)),
+        ];
+        texts.push(format!(r#"{{"extra":[{}0]}}"#, "[[0]],".repeat(3_000)));
+        for text in &texts {
+            let (bound, regions) = ingress::prescan_regions(text.as_bytes(), &REPORT_PACKAGE_REQUEST_REGIONS).unwrap();
+            let m = bound.materialization_bytes;
+            assert!(regions.opaque + regions.typed <= m, "{text}");
+            let former = text_parse_bytes(text, ArgsDecoding::Rebuilt { vec_expansion: REPORT_PACKAGE_VEC_EXPANSION }).unwrap();
+            let fixed = 2 * allocation_envelope(text.len() as u64).unwrap() + ARGS_ERROR_ALLOWANCE_BYTES;
+            assert_eq!(former, 6 * m + fixed, "the former rule");
+            for w in 0..=1u64 {
+                let growth = m + w * m + regions.opaque + REPORT_PACKAGE_VEC_EXPANSION * regions.typed + fixed;
+                assert!(growth <= former, "W = {w}: {growth} > {former}");
+                if w == REPORT_PACKAGE_WORKING_MEMORY_FACTOR {
+                    assert_eq!(report_package_request_parse_bytes(text).unwrap(), growth, "the rule with the current W");
+                }
+            }
+        }
+        // A text the prescan refuses is its finding; overflow refuses.
+        assert_eq!(report_package_request_parse_bytes("[1,").unwrap_err().reason, "unexpected end of input");
+    }
+
+    /// Counting-allocator cases for the region rule (the adversarial cases of
+    /// its stage-1 measurement): vector-shaped content in the opaque regions,
+    /// opaque-shaped content in typed-vector elements, positional structs,
+    /// escaped field names and duplicate keys, and a long vector refused
+    /// after many decoded elements. Escaped names, duplicates and some
+    /// positional forms are not canonical, so the command refuses them before
+    /// decoding; the measure decodes them anyway, after the parse and the
+    /// binding check's re-serialization, so the rule is checked on the
+    /// decoder's paths and not only on canonical texts.
+    #[test]
+    fn report_package_region_pricing_covers_adversarial_requests() {
+        use crate::report_package_save::{parse_canonical, parse_lease_bytes, test_support, typed_request};
+        use open_pipe_stress_operation_applier::canonical_json;
+        let model = canonical_json(&test_support::model());
+        let manifest = canonical_json(&test_support::input_manifest(&test_support::model(), json!([])));
+        let one = json!([["analysis_run", "r"]]);
+        let reference_arrays = Value::Array(vec![json!([["load_case", "LC1"], ["load_case", "LC2"]]); 3_000]);
+        let mut vector_shaped = report_request(one.clone(), Value::Array(vec![reference_arrays.clone(); 2]));
+        vector_shaped["report"] = json!({"sections": reference_arrays.clone(), "rows": Value::Array(vec![json!([[[1]]]); 4_000])});
+        vector_shaped["state_comparison_handoff_records"] = Value::Array(vec![json!([[1, [2]], {"a": [[3]]}]); 3_000]);
+        let opaque_element = json!({"x": [{"y": [1, 2, 3]}, [[4]]], "z": {"w": {}}});
+        let mut opaque_shaped = report_request(
+            Value::Array(vec![json!({"ref_type": "load_case", "ref_id": "LC1", "extra": opaque_element.clone()}); 3_000]),
+            json!([]),
+        );
+        let pack = {
+            let Value::Array(items) = minimal("RulePackAuditRefDto") else { unreachable!() };
+            let names = ["rule_pack_id", "rule_pack_version", "source_notice", "redistribution_status", "checksum", "private_payload_redacted"];
+            let mut object: serde_json::Map<String, Value> = names.iter().map(|n| n.to_string()).zip(items).collect();
+            object.insert("extra".into(), opaque_element.clone());
+            Value::Object(object)
+        };
+        opaque_shaped["audit_manifest"]["rule_pack_refs"] = Value::Array(vec![pack; 2_000]);
+        let asset = json!({"asset_id": "a", "payload_kind": "k", "privacy_class": "p", "hash": null, "provenance": "v", "extra": opaque_element});
+        opaque_shaped["audit_manifest"]["assets"] = Value::Array(vec![asset; 2_000]);
+        // Positional forms: the request and its audit manifest as arrays.
+        let positional_audit = json!(["m", null, null, ["s", "v", "b"], "SI",
+            Value::Array(vec![minimal("RulePackAuditRefDto"); 4_000]), Value::Array(vec![minimal("AssetManifestEntryDto"); 4_000]),
+            minimal("ProfessionalBoundaryDto")]);
+        let positional = json!(["pkg", "profile", ["model", "m"], Value::Array(vec![json!(["load_case", "LC1"]); 5_000]),
+            {"sections": [1]}, positional_audit, [{"a": [1]}], [], Value::Array(vec![json!([[1]]); 2_000]), null, "s"]);
+        let mut positional_refused = positional.clone();
+        positional_refused[3].as_array_mut().unwrap().push(json!({}));
+        let canonical_cases = [
+            ("vector_shaped_opaque_content", canonical_json(&vector_shaped), true),
+            ("opaque_shaped_typed_elements", canonical_json(&opaque_shaped), true),
+            ("positional_structs", canonical_json(&positional), true),
+            ("positional_refused_after_many", canonical_json(&positional_refused), false),
+        ];
+        // Escaped field names and duplicate keys, written by hand.
+        let refs = |n: usize| format!("[{}]", vec![r#"["load_case","LC1"]"#; n].join(","));
+        let plain_names = format!(
+            r#"{{"package_id":"pkg","export_profile_id":"profile","source_model_ref":["model","m"],"source_basis_refs":{},"report":{{"rows":[{}]}},"audit_manifest":{{"manifest_id":"m","model_hash":null,"input_manifest_hash":null,"solver_version":["s","v","b"],"unit_system_ref":"SI","rule_pack_refs":[{}],"assets":[],"professional_boundary":[true,false,false,false,false]}},"result_documents":[{{"a":[{}]}}],"source_results":[],"state_comparison_handoff_records":[],"rule_check_aggregate":null,"solve_rule_check_status":"s"}}"#,
+            refs(5_000),
+            vec!["[[1]]"; 3_000].join(","),
+            vec![canonical_json(&minimal("RulePackAuditRefDto")); 3_000].join(","),
+            vec!["[1]"; 3_000].join(","),
+        );
+        // The same request with escapes in its field names, attributed as the
+        // plain-key text and measured below.
+        let mut escaped = plain_names.clone();
+        for (name, escaped_name) in [
+            (r#""report":"#, r#""\u0072eport":"#),
+            (r#""source_basis_refs":"#, r#""source\u005fbasis_refs":"#),
+            (r#""audit_manifest":"#, r#""\u0061udit_manifest":"#),
+            (r#""rule_pack_refs":"#, r#""rule\u005Fpack_refs":"#),
+            (r#""result_documents":"#, r#""result\u005fdocuments":"#),
+        ] {
+            assert_eq!(escaped.matches(name).count(), 1, "{name}");
+            escaped = escaped.replace(name, escaped_name);
+        }
+        assert_eq!(regions_of(&escaped), regions_of(&plain_names), "escaped field names against plain names");
+        let duplicated = format!(
+            r#"{{"source_basis_refs":{},"source_basis_refs":{},"report":[{}],"report":[{}],"result_documents":[],"result_documents":[[{}]]}}"#,
+            refs(4_000),
+            refs(4_000),
+            vec!["[1]"; 3_000].join(","),
+            vec!["[1]"; 3_000].join(","),
+            vec!["[1]"; 3_000].join(","),
+        );
+        let mut cases: Vec<(&str, String, bool)> = canonical_cases.into_iter().map(|(name, text, decodes)| (name, text, decodes)).collect();
+        cases.push(("escaped_field_names", escaped, true));
+        cases.push(("duplicate_keys", duplicated, false));
+        // Numbers whose canonical form is longer than their text (1e20 is
+        // written as 21 digits): the binding check's re-serialization of a
+        // non-canonical text outgrows the text's length.
+        let mut expanding = report_request(one.clone(), json!([]));
+        expanding["report"] = json!("numbers");
+        let expanding = canonical_json(&expanding).replace(r#""numbers""#, &format!("[{}]", vec!["1e20"; 200_000].join(",")));
+        cases.push(("number_expansion", expanding, true));
+        for (name, text, decodes) in cases {
+            let growth = parse_lease_bytes(&text, &model, &manifest).unwrap();
+            let (regions_opaque, regions_typed, _) = regions_of(&text);
+            let (decoded, measured) = ingress::counting::measure(|| {
+                let request: Value = serde_json::from_str(&text).expect("JSON");
+                // The binding check's re-serialization, built whether or not it matches.
+                drop(canonical_json(&request));
+                let model = parse_canonical("model", &model).expect("canonical");
+                let manifest = parse_canonical("input_manifest", &manifest).expect("canonical");
+                drop((model, manifest));
+                typed_request(request).map(drop)
+            });
+            assert_eq!(decoded.is_ok(), decodes, "{name}: {:?}", decoded.err().map(|error| error.message));
+            assert!(measured.peak_priced <= growth, "{name}: priced peak {} exceeds the priced growth {growth}", measured.peak_priced);
+            eprintln!("{name}: text {} C_V {regions_opaque} C_T {regions_typed} priced peak {} growth {growth}", text.len(), measured.peak_priced);
         }
     }
 }

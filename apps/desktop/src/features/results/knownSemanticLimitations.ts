@@ -24,7 +24,6 @@ export const FRESH_SEMANTIC_CONTRACT_IDS: readonly string[] = Object.freeze([
 
 export const N_HEADLINE = "maximum elastic normal stress; nominal; no component intensification; not a code stress";
 export const N_HEADLINE_WITHHELD = "Stress headline withheld: a stress maximum is not available for every member in every load case (arc members have no maximum on this route).";
-export const N_REPORT = "The report package is unavailable for fresh results.";
 export const N_INTENSIFIED = "equal-factor intensified bending stress i·hypot(My,Mz)/Z; user SIF; member Z; not a code stress; never combined";
 
 export const COMBINATION_GATE_REASONS: Readonly<Record<string, string>> = Object.freeze({
@@ -33,8 +32,6 @@ export const COMBINATION_GATE_REASONS: Readonly<Record<string, string>> = Object
   COMBINATION_MODULUS_BASIS_MIXED: "Combination withheld: its load cases were solved on different modulus bases.",
 });
 
-export const REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE = "REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE";
-
 export const PREVIEW_INTENSIFIED_KIND = "component_equal_factor_intensified_bending_stress_v1";
 export const PREVIEW_MAXIMUM_KIND = "pipe_elastic_normal_stress_maximum_v2";
 
@@ -42,6 +39,8 @@ export const PREVIEW_MAXIMUM_KIND = "pipe_elastic_normal_stress_maximum_v2";
  * before S-I. They never demote the envelope's standing. */
 export const RULE_QUANTITY_BELOW_VERIFIED_FLOOR = "RULE_QUANTITY_BELOW_VERIFIED_FLOOR";
 export const RULE_QUANTITY_NOT_COVERED = "RULE_QUANTITY_NOT_COVERED";
+/** W-15 slice d (DEL-03-05 Design §5): the binding refusal of a component body's row. */
+export const COMPONENT_BODY_REFERENCE_SECTION = "COMPONENT_BODY_REFERENCE_SECTION";
 /** D2 4.9.9 notice texts (before S-I). `{b}` is the receipt's published absolute
  * bound and `{unit}` the SI unit the reader classified the quantity in. */
 export const N_RP_ABSOLUTE = "Uncovered quantity: verified only to an absolute bound of ±{b} {unit}, below the relative accuracy floor for this body. It is shown for inspection; rule checks cannot bind to it.";
@@ -99,7 +98,9 @@ export function standingReason(_source: MechanicsResult | null | undefined): str
  * its validated class allows it; a headline binds the row its `result_ref` names
  * and is refused exactly as that row. Without a valid registration no row has a
  * validated class, so every row is refused (fail closed, as Rust F5). */
-export function ruleBindingRefusal(source: MechanicsResult, row: Pick<MechanicsResult["results"][number], "id" | "kind">): string | null {
+export function ruleBindingRefusal(source: MechanicsResult, row: Pick<MechanicsResult["results"][number], "id" | "kind"> & { component_body?: unknown }): string | null {
+  // W-15 slice d: a component body's row is a reference-section stress, not a body stress.
+  if (row.component_body !== undefined) return COMPONENT_BODY_REFERENCE_SECTION;
   if (isRetainedIdentity(source.producer?.semantic_contract_id)) {
     const classes = retainedRowClasses(source);
     return classes ? classBindingRefusal(classes.get(row.id)?.class) : RULE_QUANTITY_NOT_COVERED;

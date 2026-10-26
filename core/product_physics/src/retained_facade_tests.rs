@@ -38,8 +38,8 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "cf053309e8048ae013dc5388d1115399ff89cf493eb2e36772500a3c6985a6e5", "bd64548d321575ab27d11b94c2e258b75665e31d7428639b476729164ce57bcc"),
-    ("dense_scrutiny", "f8078ee2c82ba370ab04591af49ed12c48fda5d88a54a75b0725fbdde317d884", "d8b82e5a1e5449bcb06f2d0a76b0f5102d4778e9fef6f72859fffde256f61bec"),
+    ("sparse_interactive", "139cfdb7d960aa1c5a061ee21cbf48fa55b96f896dc40120b6576a9f8061781c", "a3a2fc6748be7deb006681b493cc858b065b000f3f3427a8dc3ce0f75d7750d8"),
+    ("dense_scrutiny", "7ce9946465092d416474faf1f455cb9466edd8fb84d3b8a3640a433b27d29d31", "fcb064918059448e3e2a671821a2924f69c4d1da3fabbad105cab9f483297168"),
 ];
 
 fn sha(bytes: &[u8]) -> String {
@@ -1037,10 +1037,10 @@ fn u8_real_input_fallbacks_append_one_notice() {
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const U8_L0_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "70546eeb24b8066cad7ec0af4a7810c1ad76aae7c28ffff34e039c35d7b0af28", "49a20f173919485417fca1ba32a2e502b6c9bb3a4a875a6dc3d93e023dfa6046",
-        "4a89dd3dadfbfa18749d93333953d0673f3e6f8ec1082d2ff2b1ef55644ac222"),
-    ("dense_scrutiny", "eadbcb87c4a35d6006700cb38e0e1544edd8dee91719798ff2ec2efd06b52745", "32f78920da21234faa53913e286f929d5eb1526daf22cd0a8c2d8a5cf99b5b0b",
-        "9d30e78bec9de7e742c653c935d90e4f3f524d8d5e217f2d984ed878e30c2caf"),
+    ("sparse_interactive", "8852f0890a87c9b5e2e3922dac29b344c1581d6765eebc62b5c7560e73119173", "abf1ef976af4d24fcc3f365f7408531a7c6513fa37561fb1c74bb81093a7a492",
+        "783eb74c14d5e0cd03df539d2a610dfb7f3a6f9fcb9471cb4059475b0bbceeb7"),
+    ("dense_scrutiny", "b4624c590ee17faa8ccd497d88019866eb8ca5f7bc8319404eb638461479c3f8", "d0587643f8b210e77990e1e8ac858b733ff6b2f21dc22c2beb675ad455d8dd0a",
+        "a9c43b6d03e9edffb89be50d7c7a8cff8aff0c3876beeeec9b7574dcb59e1909"),
 ];
 /// The milestone's pinned successor documents (U1; the U5-verified reference rows for body 0).
 const U8_MILESTONE_DOCUMENTS: [&str; 2] = [
@@ -1946,8 +1946,8 @@ fn b1_sp_w_c2_through_retained_w1_publishes_t12() {
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// W-8 topology warning added; no number moved.
 const W_C2_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "c968c05140f6881488b6d3b68c1a44e412f783c6f4fb1e7e2e800776951aecad", "2dcaeffd4fbbc10e9a488b25060d3139bd2232f3e3804288d5230703c7162b05", "017154ea5dcf7cd4563b3a6f77c2e543f7a5c680cc976fbe923650313005aa28"),
-    ("dense_scrutiny", "5e3254d79454f2fa8ad0e6f64ca394a1a0f0b263529b0486bbd2626930c6cd2a", "06e56b1c8db1a0652dc5e40fce7a24c8c247cad2d914d924ae06dc41fa4174da", "73cba39b01e7b7bdaf1166c20cb43337e10e82df05b279333e1e6c2cddf58290"),
+    ("sparse_interactive", "ec058146bca971cfd25454023670bbfe1e1d6013f7bf01616e44ddf97ab25aa5", "2e4300b358acb3f4b35f007d94520358cd4dcfc6630711fdc05753bd43af8d08", "7049c00b7de1bf5ed6872f86caf3fc45ac09a2aae652155c7f6636c91f53c19e"),
+    ("dense_scrutiny", "4134680944eb7aeb6aa96448ffaa67c86c4f5ab51bf4b5047aad34b5f81e4890", "7180fe56b53d9607feedb05af047f2dc29e6f0c5fd97aae5aa056ce15bd8a330", "9d8845cf4869affd44fc1e3e3fee8b2b13f85f9a020e45f0aaf9f8a62d8c761f"),
 ];
 /// The W-C2 successor document, in U1's form.
 fn w_c2_document(name: &str, raw: &Value, successor: &Value) -> String {
@@ -2295,9 +2295,9 @@ fn w_c2_plus_a2(ids: &[&str]) -> Value {
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// W-8 topology warning added; no number moved.
 const CBA_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "9957e03e8fcee8102ae573d9b5543774d0dc03e68f545f0fd0acee32612ee9db", "68fa0219b4e402d47584c3ca5d2bef3402f4259ab578a99a491afed1d300905c"),
+    ("sparse_interactive", "b9050a6b3654b78a3ec7e9fb26ef66eb4bdd22b8b201586211f6158095ed69c4", "b78d80612278221ecec635c909ca1872037ed6275946901a7af85089b28c766e"),
     // Re-pinned by I109 (PR-N): W-C2 case C's correctly rounded `rigid:N0` magnitude; every platform.
-    ("dense_scrutiny", "ae6b2d580da98a8e3b0724ad36392d7ac670b12a2c7e5178b765e1deeb61aa18", "aa3b406153f1b61da337b8c328725433642dc42d9b01b1f5ffaf07f2f6931267"),
+    ("dense_scrutiny", "aa25d74c557070e4fb9aad52bb7c89221178c66abb6044af21f993f543d62765", "5cd8a9e3f1d9bcb21ce225fb6ebf3c469c238be8e86adf5b86d5f69962d23022"),
 ];
 /// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
 /// at the K-D5 head; against main the successors differ only by the current maximum declaration
@@ -2306,8 +2306,8 @@ const CBA_PINNED: [(&str, &str, &str); 2] = [
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// W-8 topology warning added; no number moved.
 const AA2_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "6cf6fda65b666e71d800af6653977a9d2d2058707f0e5a38ed7e3a480cba1962", "a78258128403c510e83252f685d3ad0029f5555669455e8edd2b206d1e362ad7"),
-    ("dense_scrutiny", "d0b78bd82798b2574267534d08015eb19c98487abdc160e0361270d48d4be6f4", "4f382b21eb02b7f80bb8ff21950f1bf4ac0616de86e6917b4fc3f640c574ef79"),
+    ("sparse_interactive", "57a9f304f69c6a132375be3dfa48336a43f95ec689cb831f7850de387acf6b40", "63c29c99fe7cf232dcd086f85876a4201d6f7bd1c595ef957c42074961297987"),
+    ("dense_scrutiny", "a0473d97274297ee87a962e009d9a757943177b800d7129566df6c448f4c403f", "d78956b8039c6cd617a1df67937e18794f34ca59dc626b8dc963fef5545034eb"),
 ];
 
 /// RV109's SF-2 (RR "RV109 passes SP in RV-P round 2; …", ruling 2): two successors pinned in both
@@ -2407,8 +2407,8 @@ fn milestone_reversed() -> Value {
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const REVERSED_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "93f657edb714c853a3eb30e90ef822b80e82352f2b20dc865adaf054797d18b0", "c2ad909e973d5764cb5118e40abcbf07ccfec2084cf8c0db4468a6c3c853f6ec"),
-    ("dense_scrutiny", "2261c0b8318af85385007d9f0155917fb1dea1582a07d08b77a98c973de1df86", "141df0c4e13e70f0d4d3d5eaeeb10f5b337b62e684cb68c118886503d9cdc6b6"),
+    ("sparse_interactive", "959cd27fc86e7ebd837ec8156de75fe41ff660946e86bb63310323490c91fc0b", "98a4e3fa50157879cc81e55fc17cd45b263172bd916157d0ea1fdf07b6a2511e"),
+    ("dense_scrutiny", "d10ab80ea981d54e76731ca2f102f64247ed74f48225201cc97f3890c080ecdb", "8a579c621f991f581f282b2f257ae238783ccde8abab9da3fd56ee641e87e29b"),
 ];
 
 /// The nodal-term ordinal (C2 `CONTRACT_DELTA`:104; RR "I98's B2-W verified; …"): a CaseSource's
@@ -2572,9 +2572,11 @@ fn b3b_witness_inputs_and_routes() {
 /// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] restated; against
 /// the DEF-E re-pin only that string and the hashes that bind it differ
 /// (`o4_text_only_envelope_diff`).
+// W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation (identity bytes only).
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "56fba7f1688a74b07498f98234d49b5f271995c28dc9f0aaa16ec8f9a9eb3636", "4ce55a671ba9e35a1fef9df8974e7d3f93a84dc444440a1e1867172611a8b6ff", "8015669b3b5f32baf2b785076d8694752b2e95d258180a85a24126142205f332"),
-    ("dense_scrutiny", "56d062febe90df0370b9bb3d407c14199178a28e3b8e88558a58a7470247f528", "7f8f79fd9a32d9023f1ed49811da07780c98885512d485a243464e8d65d7d3ea", "60b1b8e88c15d61ccb178febe250fc929c3a4d0ed53533cfcfe56e8c78873b67"),
+    // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation and the hashes binding it.
+    ("sparse_interactive", "0c7b14b6b08c689eee3be11ac164b0ec9296fd759c91595955eee7056dbc6ff4", "7873a31e0efb29adb5575d8bc0e2eb99a6f2dc51cabb6172789f290f3f3fad77", "53df81b7f576e714816bccfc54d96baca3814a0e919b9823e5aa9bf29b97826c"),
+    ("dense_scrutiny", "d9a6e8073a6207abd426c6d88f3cdae21c41a660a61230178921cfcd3260d872", "1540a66ad64415727bd6e6b7b12e7e754dac09d86a02bb9b8129cad3e28b72e1", "1a3f9eed3731e123264dcca1e7f46645434cc9b66b95656de837cce3f7a431ea"),
 ];
 /// The mixed exact base's pinned successor: (mode, receipt sha256, successor bytes sha256).
 /// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
@@ -2586,7 +2588,8 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
 /// O4 re-pin (E14 precedent): only DEF-E's H moved; read from the producer through the private driver.
 /// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] and the hashes that bind
 /// it moved (with the old text these pins reproduce); read from this test's writer line.
-const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "cf101fd29625fd863528da7ca17a673a209247b5668077becbf4037c26ce0f65", "60909eebac273637746f3070a03bad072d6acf20654b693e8f80c8037a8d317f"),("dense_scrutiny", "a232efbf32c0a5438f6539e55d82d70446a74b21e53f0e53b37200be37bb89eb", "93cd90140a3e2571510697ffbd52fecc14c13da59ac2b0d6f8d9ff72d9b6b2a3")];
+// W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation (identity bytes only).
+const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "43034334a5969bafdf32f5903801fa17996ef1725357ac5eb595b6621df84b9b", "40ac2acd8fa48bf72293bc8f355638c9ac949bc757be1d0fa4a545a745d03944"),("dense_scrutiny", "d1fc7e8518999d9cac74299ad7b78accc9e18e8ac9eb374957f814e8ae02a1d3", "8cdcfcfafb501d947ae11dd92c846cd05e33024a5657fd139b387280de50917d")];
 /// The exact successor's fixture document (D-U6-5's form).
 fn exact_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
     serde_json::to_string_pretty(&json!({"id":format!("b3b_m3x_{}", mode.as_str()),"source":successor,
@@ -3617,11 +3620,12 @@ fn two_member_exact(reversed: bool) -> Value {
 /// O4 re-pin (E14 precedent): only DEF-E's H moved; read from the producer through the private driver.
 /// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] and the hashes that bind
 /// it moved (with the old text these pins reproduce); read from this test's writer line.
+// W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation (identity bytes only).
 const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
-    (false, "sparse_interactive", "93179e700592df13edbc80fe395ea59b623d8cf3ea0beef57947be069f66f15d"),
-    (false, "dense_scrutiny", "503b8009f68a7cff89c9031aee0e9bad67d6ce5bac6cde9a679b92d4b6764d23"),
-    (true, "sparse_interactive", "c1ffca783f770e643cd6abfbc59286547a2b3549da73e237b5b58a7d7b9123ca"),
-    (true, "dense_scrutiny", "8116de2198c798c1dfd0f4a5d3e2325ec31412fe5469fdd95fca0f5bad211316")];
+    (false, "sparse_interactive", "e8d91ef9bbd05a27808cc9f6d7891fa4d984717ac22500d05b62aa37308fa500"),
+    (false, "dense_scrutiny", "3ff2dc2072b8bd3de7a768ce1f1ef0221df234360b6f6fc87da5917b7f2052c3"),
+    (true, "sparse_interactive", "501a97bfdb1ccb09869e71b1f5131d074a158f4ccccd1c526c73229127f19aee"),
+    (true, "dense_scrutiny", "fb85996717410da76f0ae7e0f2271525fbbd80a8c802d3c4b78b1a359e92b802")];
 /// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
 /// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
 /// and M2's prepared section differs from its source annulus's in at least one value, so the
@@ -3668,8 +3672,9 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
 /// O4 re-pin (E14 precedent): only DEF-E's H moved; read from the producer through the private driver.
 /// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] and the hashes that bind
 /// it moved (with the old text these pins reproduce); read from this test's writer line.
-const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "5afc72b853e34ff04f84611e75daf5b1fd1404d421c5ef87bccd615ce0f51c6a"),
-    ("dense_scrutiny", "6905b8d679911c010b4925338a58955c3f9b65fd00ad9fdc87d5353c96e449f1")];
+// W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation (identity bytes only).
+const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "d461d370f70520b6e7ed5d73b32bc0998ad01c2aa4863559ff969eaf1951bc80"),
+    ("dense_scrutiny", "b63f38b7dff8e01cef9bce67bd06c9dd99b251668e3bf27245afb7c028610152")];
 /// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
 /// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
 /// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),
@@ -4355,46 +4360,46 @@ fn b2p_dispositions(name: &str) -> &'static [&'static str] {
 /// on the declared `diagnostics` member instead of an unknown root member (`sw_stressed`), so
 /// their four rows moved with the request-bound hashes only (scratch structural proof).
 const B2P_PINNED: [(&str, &str, &str, &str); 20] = [
-    ("w_cb1", "sparse_interactive", "c422c6cd6dc675d2eda167b32c54a6519018fc5d653add93063927f6621e0766",
-        "eee76d5f09a6f3d39e288da7dd7ed47ee9466f7efaa8a573d7406fbd13a2fdc6"),
-    ("w_cb1", "dense_scrutiny", "7d33d358ac83bbb208da1d78a8925a40e46f68c961f1b757d083295cf51f1bdd",
-        "d5901549c0d5d621308d2499ff796a82761970c7cfd944509aa1c416e249b033"),
-    ("w_cb1z", "sparse_interactive", "882571a2681b28392d1c7ecada2d2b5adbc003b75607453d4489ce41c8d06ad8",
-        "06857a0a56edda3a30c327cffb4a977355dd08c69a336650a54a14d85119f2d2"),
-    ("w_cb1z", "dense_scrutiny", "66d400bb935c6535d5e692693c530a82fb323a387570bed4a36ea7a6fbfcd4db",
-        "cc144f730597ba5b9bc758439dbba7f34cfb91e4a59e4d9a7337484fdaf64e8f"),
-    ("w_cb2", "sparse_interactive", "17c5e4898c7ef7127028d632e59ae04e041bc668e87c37d4e9df931e11ae13e9",
-        "be8d7a6ed0b9b240cdf09263c1c889641033024c557bbd35b68de8c5a9a4aac6"),
-    ("w_cb2", "dense_scrutiny", "7ee15fc770a5be8c9b315a4c892bb80608c6d80adc7713cf9f8e37b538f5774c",
-        "179c680390764297fcad1284a269543040b4399b5bb8d0554ac74344d72d6bd7"),
-    ("w_cb3", "sparse_interactive", "046eac6adce960ba25b058a3467c073191171e731fddf7b900c8a06ad27d8d45",
-        "ac67f13aa11d53dad25b5a00b1ed507f2a4024c285db2361d742594f1c5d873b"),
-    ("w_cb3", "dense_scrutiny", "72c14c050c3e3cb6d6ad7f1de4b163a191b3c01fc0c931fce514be8c9231d4b6",
-        "0a12a9f4430a21aa1cff5199e5c49632f42284d7ff262af194051c93b908b24b"),
-    ("w_cb4a", "sparse_interactive", "69b018e07f45c7a4a1896c277a3ec2cc390737295fa8840348c63ab0fb09cad9",
-        "dbee94234b29828bc6b574c156f4705b1ca060b6e28e03189e8b23db7efbd641"),
-    ("w_cb4a", "dense_scrutiny", "e683ccc69f7d04a4a2ff440b7efa83c403742591ffb711dcdc3d7ad8465c4642",
-        "a4c56861c642aab3805fb6bf02b131625c53ea823ad54903a9f9c11bf4d33126"),
-    ("w_cb4b", "sparse_interactive", "3d01fc3e7d8fcf8647b9523aa6be45ea12cdad18a04112f900339b6e584ccfd7",
-        "e9c7eb9be6595d39f5f5774af057cf421b5aa41a2c3ddf059af39129aa8a3539"),
-    ("w_cb4b", "dense_scrutiny", "84fc452a71e09810d28ddb3a365d77384fb273d7ea3bfacdd7a3d96a4c5fcb60",
-        "9070567df97c191e3d7fc0037e88a6978dbdb69a5645052419dc6d689c20ff97"),
-    ("w_cb5", "sparse_interactive", "a1ce29af79058396801cca8219064998a833b8a6d27aad84de4f2f6f3f7a381f",
-        "53af2be25a205091d057133ece4503595bf73585fcc0b41afb83c6a01c1b2a31"),
-    ("w_cb5", "dense_scrutiny", "9d7e4b955d409b47b1aea5eb08ba9821ef6195771d5c27e62ad251814cf93b68",
-        "7c98c43b49945f3f15a884d4426efe93870cf35b8cb161b7441bf173c9cbdf1b"),
-    ("c1_range_mechanics", "sparse_interactive", "0fd435d83a8efdb02c6538f93d235d9d3b695ecb0688ff161e3db11aab1b25c3",
-        "6cea6ab3b08dc80c06b7443810c9da4b218cdb955a80521b7327b1fda61641c0"),
-    ("c1_range_mechanics", "dense_scrutiny", "db92afc1bf548ddf996c0b3a5c2e389feef4441ba8857caa28cd610c202e067b",
-        "b549a4ebf2bb88444f27ebd0481355b38a28554632e011b38e53dbb4a35e1555"),
-    ("rv123_w_cb3_ba", "sparse_interactive", "8c9f23efcb2c20bd99a4552e4b104d204e0bd4aaf3944aff57fd8ae4f76d5e63",
-        "a96ad350992a2a755a56afdd4ca5da169a9b97dc4ec3c09a14a4a9de773d2f0b"),
-    ("rv123_w_cb3_ba", "dense_scrutiny", "9a7678fb66615f11a8b205c2c5f233fad3fe7d8902f7048401077f254f692440",
-        "06645a35774951f68db04c53324eb60eb5565705f6443b3678db78add1da2cb0"),
-    ("rv123_c1_two_mechanics", "sparse_interactive", "124e9d423231b077fbc7d6d41fb9fa361a5b17e51c2ff8cf243d058b1fa3c1c2",
-        "2f2936302dd56973b5faf18254a185956d3d6902afbe346dfd5636444d0c163a"),
-    ("rv123_c1_two_mechanics", "dense_scrutiny", "0c0e9e29f53d9dcd6a6f20283aea3ff623605748bc3c0f5d36c2bc330445a182",
-        "a161aacacbf8a4d3f0483182653e30e64c413800a378025a80ce518c17d9f9f9"),
+    ("w_cb1", "sparse_interactive", "2b27cb545cdc3b455aba16e4508ec321f287cbc10af665cfeb4e4dac7786dd0b",
+        "3aee43512cace5bd6c782b228cbe08338e2bc3e6bc21f14d692c5830883f4a94"),
+    ("w_cb1", "dense_scrutiny", "29342df33cceb98583831b120ddd737aed49226db3c52aebfbb682fdcccd767d",
+        "f53d543d6fa2f1563c5503a113fffb3323b71f24383579a281d789f5a840410d"),
+    ("w_cb1z", "sparse_interactive", "ede03147ffc0609c26534b5249650dc7d5862336379de5f93664fda260ce1f3e",
+        "19e4a2bfa69efe46e3fc2824fdbcbe074c5eaeea382fefe08c9e5f4f58316f2e"),
+    ("w_cb1z", "dense_scrutiny", "0533beeff2eb464a73716928af293640390fd8e54cf6f3743ddd43b5b6cfb99c",
+        "86f538015805210f7038e9e70969e5253805c283b3de6d0e5938300a73e2c4f1"),
+    ("w_cb2", "sparse_interactive", "214a0e2902eae52665d8f7b1b3cf0482c88d130816287c43c40b85ab1dc58815",
+        "f3c8d5258d4d22b378414bddb0ef36faa679a3b2889dbb0547b3a461fc6903d2"),
+    ("w_cb2", "dense_scrutiny", "c5fb85ebfcc4ba1cdbc3ffa4c86edd3ba4a0bff069672669bc00e4520be5a9d6",
+        "fe8da1fdc2fcd6d8d6d78dd629b6e90b61db99e5f8a95e612e93b7835b0feda9"),
+    ("w_cb3", "sparse_interactive", "47850a5ab8092c5009204837c8aa47bff1cd6301eb4befbcadcf7c52012b9a5e",
+        "50f2d87de34c99ff7671e962bf29c13f1838f8b51fc8dec5610a2ef07ef1f56c"),
+    ("w_cb3", "dense_scrutiny", "c7cf4310bc198bec10e73eeadb2d6a861aabf7c419b9daa1f42307bf76081171",
+        "a5eb7ec2bd1f5c1c02f0b35a0c79b9a74f436fadb8a8936261ca3c8d0e0925ed"),
+    ("w_cb4a", "sparse_interactive", "31c263a2053084fa281acdf5a240076c116113ded9daf0b1b26b0dfdf1dc0bab",
+        "e80ca87f32c37827fcc925f902cd759d5ec1a3fb7e4f39cdfee0442fa7f434bd"),
+    ("w_cb4a", "dense_scrutiny", "09bf538f1f78f5d07abc4613a9578ad9db072fa808bb41247dae81d6a65be3bb",
+        "da8576eaa4fc1b55f5e339e05c90654cfd5aaf074b155dcf6f56abda078a694e"),
+    ("w_cb4b", "sparse_interactive", "6f09070eb789d2c64b311e2c8428b40e47674484113140028de1d2ca74b9be8f",
+        "5e54f505b0b2ea43c3703a21069291b4d9d2d7748d3f23dd5a78ec0c9913fb86"),
+    ("w_cb4b", "dense_scrutiny", "f9cbc62a8df8cfd70d440c83346b33fc04ac1db1e68b17a339578e5d6a9c74a7",
+        "f0d55326c9e874362d6016ead7d2088b485f37c0915a58adde1804b68e58f3f9"),
+    ("w_cb5", "sparse_interactive", "8767d3cf42987f3f7f723b1ba00b2611626d27923e79f0f352f29f3ad63e9794",
+        "182cf73063bef55f74cf6d5191b63ae342196843347603b9816c6fc6c63f5b22"),
+    ("w_cb5", "dense_scrutiny", "7ef5ffbb867b3e611c3494d24a9d81e709b6dffd9397777cff696273663aea9f",
+        "2fbfe685977b7bd53ec4976b45c31db57302f308fabb06c464fd15a50d4728aa"),
+    ("c1_range_mechanics", "sparse_interactive", "1a952d4ccbcf403042507be2b96cbe1ec76dd8acfee083e5000f23005327f102",
+        "54d19a51903d2cfc298c559e90dcfb4c5ad8ba725e6a8e89db49731f5393d86b"),
+    ("c1_range_mechanics", "dense_scrutiny", "174a5ea218f020bcc79760f31cd68b484c706dd373b8a05f59156f7ba0cf13e4",
+        "d8670176471984ca64892e879218790ce3bfe247d7513bbd130dcfc5d63115ea"),
+    ("rv123_w_cb3_ba", "sparse_interactive", "54975731905334ab3359bc059b3a805b5a6dd9c250e8920bc0f0920eef1e8a91",
+        "0845074c3f046991c0b8847772740ec628729674fd8e7512b9e9855f7e505db2"),
+    ("rv123_w_cb3_ba", "dense_scrutiny", "3b160863145c0600e366f56a17e9ca3ab66c96706ffb49ba85079b4d2740ca1d",
+        "38d5a947a53672aba0b45cdf1bc7c6934716fe2f9e234aad485991eb91ff3316"),
+    ("rv123_c1_two_mechanics", "sparse_interactive", "35a45cfc8bec0867d48abd7b867438a818b93296cb02ccfdef9e2b7473a4b9a7",
+        "25e15da731e655505df8a5f58f30d2bfa0b0d2b1bc8d7abd801ff08f2fe8fa37"),
+    ("rv123_c1_two_mechanics", "dense_scrutiny", "e5be45c533441a7699d8ff9b0230e72d26dd7cd6170b81c65764baa2687c4201",
+        "f4480eaacebb13fba68e1569ed46757f62772ae64f07201c8f7cbdaa92b3806d"),
 ];
 /// B2-P's small witnesses: (name, request).
 fn b2p_witnesses() -> Vec<(&'static str, Value)> {
@@ -4961,3 +4966,121 @@ fn o4_w1e_mixed_request() -> Value {
 }
 /// The O4 fixture's request: control B, Timoshenko, c_m = 0.5 mm and c_a = 1 mm.
 fn o4_w1e_fixture_request() -> Value { o4_control(O4_TIM, 0.001, Some(0.0005), Some(0.01)) }
+
+// ---- W-15 slice b (DEL-04-08 retained-pricing-rules.md §8.22, W15B-NS): the generated self-weight namespace on a
+// node target ----
+//
+// `self_weight::inspect_applied_self_weight` treats a node-targeted load whose id starts with `load:self-weight:` as
+// generated (its `deterministic_identity` node arm). Without a lineage record it can derive, the load blocks with
+// `SELF_WEIGHT_INPUT_INVALID` on the ordinary routes; D1.7 refuses it at G-A with `GeneratedLoadIdentity`, so the
+// retained route publishes exactly the ordinary route's blocked bytes. The variants are the ones the inspection
+// branches on: the id inside the namespace, the provenance (absent, unparsed text, each non-object JSON kind, and an
+// object that claims or does not claim the component-weight method), and the payload (category and dimension).
+
+/// The base (`raw()` pressure-free or `m3x()` exact) with case 0's `load:2` replaced by `load`.
+fn w15b_with_load(base: &Value, load: Value) -> Value {
+    let mut raw = base.clone();
+    raw["model"]["load_cases"][0]["primitive_loads"][2] = load;
+    raw
+}
+fn w15b_load(id: &str, provenance: Option<&str>, category: &str, direction: &str, dimension: &str) -> Value {
+    let unit = if dimension == "moment" { "N*m" } else { "N" };
+    let mut load = json!({"id": id, "category": category, "target": {"type": "node", "node": "N1"}, "direction": direction,
+        "magnitude": {"value": -2.5, "unit": unit}, "dimension": dimension});
+    if let Some(text) = provenance {
+        load["provenance"] = json!(text);
+    }
+    load
+}
+/// Every way the outcome differs from the premise, for one request on both modes: the ordinary route blocks with
+/// `SELF_WEIGHT_INPUT_INVALID` (`PROVENANCE_INPUT_MISSING` when the load has no provenance), is `MODEL_INCOMPLETE` and has no result, and the retained route refuses at G-A by `GeneratedLoadIdentity` and publishes
+/// the ordinary bytes (no W1, no successor).
+fn w15b_mismatches(label: &str, raw: &Value) -> Vec<String> {
+    // A load without provenance is blocked earlier, by validation's PROVENANCE_INPUT_MISSING.
+    let absent = raw["model"]["load_cases"][0]["primitive_loads"][2].get("provenance").is_none();
+    let code = if absent { "PROVENANCE_INPUT_MISSING" } else { "SELF_WEIGHT_INPUT_INVALID" };
+    use super::retained_memory::{AdmissionRefusal, D1Clause, FamilyFact};
+    let mut found = Vec::new();
+    for mode in MODES {
+        let plain = plain(mode, raw);
+        let envelope: Value = serde_json::from_slice(&plain).unwrap();
+        let blocked = envelope["diagnostics"].as_array().unwrap().iter()
+            .any(|d| d["code"] == code && d["severity"] == "blocking");
+        let solved = envelope["status"]["mechanics"] != "MODEL_INCOMPLETE" || !envelope["results"].as_array().is_none_or(Vec::is_empty);
+        if !blocked {
+            let codes: Vec<_> = envelope["diagnostics"].as_array().unwrap().iter()
+                .filter(|d| d["severity"] == "blocking").map(|d| d["code"].as_str().unwrap_or_default().to_owned()).collect();
+            found.push(format!("{label} {mode:?}: the ordinary route does not block with {code} (blocking: {codes:?}; {})",
+                envelope["status"]["mechanics"]));
+        }
+        if solved {
+            found.push(format!("{label} {mode:?}: the ordinary route is not MODEL_INCOMPLETE without results ({})", envelope["status"]["mechanics"]));
+        }
+        let (output, _) = direct(raw, mode);
+        let domain = output.admission().unwrap().law().domain;
+        let expected = Some(AdmissionRefusal::Family(D1Clause::Loads, FamilyFact::GeneratedLoadIdentity));
+        if domain != expected {
+            found.push(format!("{label} {mode:?}: G-A's domain refusal is {domain:?}, not {expected:?}"));
+        }
+        if output.retained().is_some() {
+            found.push(format!("{label} {mode:?}: the retained route ran W1"));
+        }
+        if output.successor().is_some() {
+            found.push(format!("{label} {mode:?}: the retained route formed a successor"));
+        }
+        if published(output) != plain {
+            found.push(format!("{label} {mode:?}: the retained route's bytes differ from the ordinary route's"));
+        }
+    }
+    found
+}
+#[test]
+fn w15b_generated_namespace_node_loads_block_and_are_refused_by_d1() {
+    const COMPONENT_ID: &str = "load:self-weight:4:case:9:component:x:force:y";
+    let ids = ["load:self-weight:", "load:self-weight:x", COMPONENT_ID];
+    let provenances: [Option<&str>; 7] = [None, Some("human note"), Some("\"quoted\""), Some("17"), Some("[1]"), Some("null"), Some("true")];
+    let objects = [
+        format!("{{\"method\":\"{}\"}}", self_weight::COMPONENT_WEIGHT_METHOD),
+        "{\"method\":\"component_weight_at_center_of_gravity_global_offset/v9\"}".to_owned(),
+        " {\"note\":\"x\"}".to_owned(),
+    ];
+    let payloads = [("weight", "global_y", "force"), ("weight", "RZ", "moment"), ("occasional", "global_x", "force"), ("concentrated_moment", "RX", "moment")];
+    let mut found = Vec::new();
+    for (route, base) in [("PF", raw()), ("EX", m3x())] {
+        for id in ids {
+            for provenance in provenances {
+                let raw = w15b_with_load(&base, w15b_load(id, provenance, "weight", "global_y", "force"));
+                found.extend(w15b_mismatches(&format!("{route} {id} {provenance:?}"), &raw));
+            }
+            for object in &objects {
+                let raw = w15b_with_load(&base, w15b_load(id, Some(object), "weight", "global_y", "force"));
+                found.extend(w15b_mismatches(&format!("{route} {id} {object}"), &raw));
+            }
+        }
+        for (category, direction, dimension) in payloads {
+            for provenance in [None, Some("human note")] {
+                let raw = w15b_with_load(&base, w15b_load(COMPONENT_ID, provenance, category, direction, dimension));
+                found.extend(w15b_mismatches(&format!("{route} {category} {dimension} {provenance:?}"), &raw));
+            }
+        }
+    }
+    assert!(found.is_empty(), "{} mismatches:\n{}", found.len(), found.join("\n"));
+}
+
+/// The control: a hand-written nodal `weight` load under any other id is inside D1.7 (G-A's domain does not refuse
+/// it), and both ordinary routes solve it.
+#[test]
+fn w15b_hand_written_nodal_weight_stays_admitted() {
+    for (route, base) in [("PF", raw()), ("EX", m3x())] {
+        for (id, direction, dimension) in [("load:w15b-weight", "global_y", "force"), ("load:self-weight", "RZ", "moment"), ("x:load:self-weight:", "global_z", "force")] {
+            let raw = w15b_with_load(&base, w15b_load(id, Some("invented_t3_p1_detection_input_no_library_data"), "weight", direction, dimension));
+            for mode in MODES {
+                let envelope: Value = serde_json::from_slice(&plain(mode, &raw)).unwrap();
+                assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{route} {id} {mode:?}: {}", envelope["diagnostics"]);
+                assert!(!envelope["diagnostics"].as_array().unwrap().iter().any(|d| d["code"].as_str().unwrap().starts_with("SELF_WEIGHT")), "{route} {id} {mode:?}");
+                let (output, _) = direct(&raw, mode);
+                assert_eq!(output.admission().unwrap().law().domain, None, "{route} {id} {mode:?}: inside D1");
+            }
+        }
+    }
+}

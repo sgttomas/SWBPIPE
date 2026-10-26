@@ -261,7 +261,7 @@ fn guard_inputs(request: &Value) -> (AssembledForce, Option<formation_guard::For
         load_case,
         &material_map,
         &pipe_map,
-        &built.sections,
+        &built,
         &mut diagnostics,
     );
     let ledger = case_force_ledger(

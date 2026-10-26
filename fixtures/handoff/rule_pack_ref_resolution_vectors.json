@@ -1,0 +1,412 @@
+{
+  "description": "Shared vectors for a model rule-pack reference's resolution against the local rule-pack store: the solve's resolution (#1602; TypeScript resolveModelRulePacks in apps/desktop/src/services/modelRulePackResolution.ts) and Save Handoff's (W-6b; Rust rule_pack_ref_exclusion in apps/desktop/src-tauri/src/handoff_package.rs) must give every vector the same outcome. Each stored document is base_pack with document_edits applied (JSON pointers) and checksums.rule_pack_checksum.value set to stamp; it is stored under stored_under (null: none stored) with the reference's rule_pack_id. match_status is the rule-pack document validator's checksum verdict for that document (pinned by the Rust test). The model's project is model_project_id. All data are invented.",
+  "base_pack": "fixtures/product_preview/invented_demo_rule_pack.json",
+  "model_project_id": "project:invented-resolution",
+  "vectors": [
+    {
+      "name": "held-and-matching",
+      "stored_under": "project:invented-resolution",
+      "document_edits": [],
+      "stamp": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f",
+      "reference": {
+        "rule_pack_id": "invented_demo_rule_pack",
+        "name": "Invented Demonstration Rule Pack",
+        "rule_pack_version": "0.3.0",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_scope": "rule_pack_payload",
+          "payload_excludes": [
+            "checksums"
+          ],
+          "value": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f"
+        },
+        "redistribution_status": "invented_non_engineering_example",
+        "source_notice": "Invented demonstration data only."
+      },
+      "match_status": "match",
+      "expected": "resolved"
+    },
+    {
+      "name": "none-stored",
+      "stored_under": null,
+      "document_edits": [],
+      "stamp": null,
+      "reference": {
+        "rule_pack_id": "invented_demo_rule_pack",
+        "name": "Invented Demonstration Rule Pack",
+        "rule_pack_version": "0.3.0",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_scope": "rule_pack_payload",
+          "payload_excludes": [
+            "checksums"
+          ],
+          "value": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f"
+        },
+        "redistribution_status": "invented_non_engineering_example",
+        "source_notice": "Invented demonstration data only."
+      },
+      "match_status": null,
+      "expected": "MODEL-RULE-PACK-REF-UNRESOLVED"
+    },
+    {
+      "name": "stored-under-another-project-only",
+      "stored_under": "project:invented-other",
+      "document_edits": [],
+      "stamp": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f",
+      "reference": {
+        "rule_pack_id": "invented_demo_rule_pack",
+        "name": "Invented Demonstration Rule Pack",
+        "rule_pack_version": "0.3.0",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_scope": "rule_pack_payload",
+          "payload_excludes": [
+            "checksums"
+          ],
+          "value": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f"
+        },
+        "redistribution_status": "invented_non_engineering_example",
+        "source_notice": "Invented demonstration data only."
+      },
+      "match_status": "match",
+      "expected": "MODEL-RULE-PACK-REF-UNRESOLVED"
+    },
+    {
+      "name": "stamp-differs-from-reference",
+      "stored_under": "project:invented-resolution",
+      "document_edits": [],
+      "stamp": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f",
+      "reference": {
+        "rule_pack_id": "invented_demo_rule_pack",
+        "name": "Invented Demonstration Rule Pack",
+        "rule_pack_version": "0.3.0",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_scope": "rule_pack_payload",
+          "payload_excludes": [
+            "checksums"
+          ],
+          "value": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "redistribution_status": "invented_non_engineering_example",
+        "source_notice": "Invented demonstration data only."
+      },
+      "match_status": "match",
+      "expected": "MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH"
+    },
+    {
+      "name": "stale-stamp-after-an-edit",
+      "stored_under": "project:invented-resolution",
+      "document_edits": [
+        {
+          "pointer": "/metadata/name",
+          "value": "Invented pack edited after stamping"
+        }
+      ],
+      "stamp": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f",
+      "reference": {
+        "rule_pack_id": "invented_demo_rule_pack",
+        "name": "Invented Demonstration Rule Pack",
+        "rule_pack_version": "0.3.0",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_scope": "rule_pack_payload",
+          "payload_excludes": [
+            "checksums"
+          ],
+          "value": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f"
+        },
+        "redistribution_status": "invented_non_engineering_example",
+        "source_notice": "Invented demonstration data only."
+      },
+      "match_status": "mismatch_review_required",
+      "expected": "MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH"
+    },
+    {
+      "name": "metadata-id-differs",
+      "stored_under": "project:invented-resolution",
+      "document_edits": [
+        {
+          "pointer": "/metadata/rule_pack_id",
+          "value": "invented_other_pack"
+        }
+      ],
+      "stamp": "3cf5195002b1dcc51cfa2ef7ede55cbf1ce296894de63e1c890bf4e728a98e2e",
+      "reference": {
+        "rule_pack_id": "invented_demo_rule_pack",
+        "name": "Invented Demonstration Rule Pack",
+        "rule_pack_version": "0.3.0",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_scope": "rule_pack_payload",
+          "payload_excludes": [
+            "checksums"
+          ],
+          "value": "3cf5195002b1dcc51cfa2ef7ede55cbf1ce296894de63e1c890bf4e728a98e2e"
+        },
+        "redistribution_status": "invented_non_engineering_example",
+        "source_notice": "Invented demonstration data only."
+      },
+      "match_status": "match",
+      "expected": "MODEL-RULE-PACK-REF-UNRESOLVED"
+    },
+    {
+      "name": "metadata-version-missing",
+      "stored_under": "project:invented-resolution",
+      "document_edits": [
+        {
+          "pointer": "/metadata/rule_pack_version",
+          "delete": true
+        }
+      ],
+      "stamp": "b8b34e97b4dc0fdec32634374b027b285fec2b5abba3fb1298b0fa4c3b5ba61e",
+      "reference": {
+        "rule_pack_id": "invented_demo_rule_pack",
+        "name": "Invented Demonstration Rule Pack",
+        "rule_pack_version": "0.3.0",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_scope": "rule_pack_payload",
+          "payload_excludes": [
+            "checksums"
+          ],
+          "value": "b8b34e97b4dc0fdec32634374b027b285fec2b5abba3fb1298b0fa4c3b5ba61e"
+        },
+        "redistribution_status": "invented_non_engineering_example",
+        "source_notice": "Invented demonstration data only."
+      },
+      "match_status": "match",
+      "expected": "MODEL-RULE-PACK-REF-UNRESOLVED"
+    },
+    {
+      "name": "metadata-source-notice-blank",
+      "stored_under": "project:invented-resolution",
+      "document_edits": [
+        {
+          "pointer": "/metadata/source_notice",
+          "value": "   "
+        }
+      ],
+      "stamp": "5b0fd81bfda2beda408471d32639aed96585ac14c12b507e0806d343f3646238",
+      "reference": {
+        "rule_pack_id": "invented_demo_rule_pack",
+        "name": "Invented Demonstration Rule Pack",
+        "rule_pack_version": "0.3.0",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_scope": "rule_pack_payload",
+          "payload_excludes": [
+            "checksums"
+          ],
+          "value": "5b0fd81bfda2beda408471d32639aed96585ac14c12b507e0806d343f3646238"
+        },
+        "redistribution_status": "invented_non_engineering_example",
+        "source_notice": "Invented demonstration data only."
+      },
+      "match_status": "match",
+      "expected": "MODEL-RULE-PACK-REF-UNRESOLVED"
+    },
+    {
+      "name": "metadata-source-notice-only-byte-order-mark",
+      "stored_under": "project:invented-resolution",
+      "document_edits": [
+        {
+          "pointer": "/metadata/source_notice",
+          "value": "﻿"
+        }
+      ],
+      "stamp": "bc1e3864c8a400b6ebd5b9b03f1a96dcc0e6b585d8add84116b2a2dd2742070d",
+      "reference": {
+        "rule_pack_id": "invented_demo_rule_pack",
+        "name": "Invented Demonstration Rule Pack",
+        "rule_pack_version": "0.3.0",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_scope": "rule_pack_payload",
+          "payload_excludes": [
+            "checksums"
+          ],
+          "value": "bc1e3864c8a400b6ebd5b9b03f1a96dcc0e6b585d8add84116b2a2dd2742070d"
+        },
+        "redistribution_status": "invented_non_engineering_example",
+        "source_notice": "Invented demonstration data only."
+      },
+      "match_status": "match",
+      "expected": "MODEL-RULE-PACK-REF-UNRESOLVED"
+    },
+    {
+      "name": "metadata-source-notice-only-next-line",
+      "stored_under": "project:invented-resolution",
+      "document_edits": [
+        {
+          "pointer": "/metadata/source_notice",
+          "value": ""
+        }
+      ],
+      "stamp": "0dd0f18fdd4bd645beda57f8411e0f5411cdd1fe08e34098f3d7e4b8cffa84d7",
+      "reference": {
+        "rule_pack_id": "invented_demo_rule_pack",
+        "name": "Invented Demonstration Rule Pack",
+        "rule_pack_version": "0.3.0",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_scope": "rule_pack_payload",
+          "payload_excludes": [
+            "checksums"
+          ],
+          "value": "0dd0f18fdd4bd645beda57f8411e0f5411cdd1fe08e34098f3d7e4b8cffa84d7"
+        },
+        "redistribution_status": "invented_non_engineering_example",
+        "source_notice": "Invented demonstration data only."
+      },
+      "match_status": "match",
+      "expected": "resolved"
+    },
+    {
+      "name": "metadata-source-notice-only-ideographic-space",
+      "stored_under": "project:invented-resolution",
+      "document_edits": [
+        {
+          "pointer": "/metadata/source_notice",
+          "value": "　"
+        }
+      ],
+      "stamp": "901d285c6dc36f85b2ffd591b1212565810a0d82f4c218d2120439464590b75d",
+      "reference": {
+        "rule_pack_id": "invented_demo_rule_pack",
+        "name": "Invented Demonstration Rule Pack",
+        "rule_pack_version": "0.3.0",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_scope": "rule_pack_payload",
+          "payload_excludes": [
+            "checksums"
+          ],
+          "value": "901d285c6dc36f85b2ffd591b1212565810a0d82f4c218d2120439464590b75d"
+        },
+        "redistribution_status": "invented_non_engineering_example",
+        "source_notice": "Invented demonstration data only."
+      },
+      "match_status": "match",
+      "expected": "MODEL-RULE-PACK-REF-UNRESOLVED"
+    },
+    {
+      "name": "metadata-version-only-byte-order-mark",
+      "stored_under": "project:invented-resolution",
+      "document_edits": [
+        {
+          "pointer": "/metadata/rule_pack_version",
+          "value": "﻿"
+        }
+      ],
+      "stamp": "ff010e8e54a3a287b926407d484262b8adf53a2ee582b7dfd0b12023987cdfe0",
+      "reference": {
+        "rule_pack_id": "invented_demo_rule_pack",
+        "name": "Invented Demonstration Rule Pack",
+        "rule_pack_version": "﻿",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_scope": "rule_pack_payload",
+          "payload_excludes": [
+            "checksums"
+          ],
+          "value": "ff010e8e54a3a287b926407d484262b8adf53a2ee582b7dfd0b12023987cdfe0"
+        },
+        "redistribution_status": "invented_non_engineering_example",
+        "source_notice": "Invented demonstration data only."
+      },
+      "match_status": "match",
+      "expected": "MODEL-RULE-PACK-REF-UNRESOLVED"
+    },
+    {
+      "name": "metadata-version-differs-from-reference",
+      "stored_under": "project:invented-resolution",
+      "document_edits": [
+        {
+          "pointer": "/metadata/rule_pack_version",
+          "value": "0.4.0"
+        }
+      ],
+      "stamp": "0fc41239d4938ca4367f702a61a0a9bb988848efbb52fda034f8b7ecff7e3e58",
+      "reference": {
+        "rule_pack_id": "invented_demo_rule_pack",
+        "name": "Invented Demonstration Rule Pack",
+        "rule_pack_version": "0.3.0",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_scope": "rule_pack_payload",
+          "payload_excludes": [
+            "checksums"
+          ],
+          "value": "0fc41239d4938ca4367f702a61a0a9bb988848efbb52fda034f8b7ecff7e3e58"
+        },
+        "redistribution_status": "invented_non_engineering_example",
+        "source_notice": "Invented demonstration data only."
+      },
+      "match_status": "match",
+      "expected": "MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH"
+    },
+    {
+      "name": "stamp-not-lowercase-hex",
+      "stored_under": "project:invented-resolution",
+      "document_edits": [],
+      "stamp": "C96D28D94A1D4EEE99AE2F501C3D4D5748FB81BFA7FEB034CC8D96D60651E68F",
+      "reference": {
+        "rule_pack_id": "invented_demo_rule_pack",
+        "name": "Invented Demonstration Rule Pack",
+        "rule_pack_version": "0.3.0",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_scope": "rule_pack_payload",
+          "payload_excludes": [
+            "checksums"
+          ],
+          "value": "C96D28D94A1D4EEE99AE2F501C3D4D5748FB81BFA7FEB034CC8D96D60651E68F"
+        },
+        "redistribution_status": "invented_non_engineering_example",
+        "source_notice": "Invented demonstration data only."
+      },
+      "match_status": "mismatch_review_required",
+      "expected": "MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH"
+    },
+    {
+      "name": "stamp-a-placeholder",
+      "stored_under": "project:invented-resolution",
+      "document_edits": [],
+      "stamp": "TBD",
+      "reference": {
+        "rule_pack_id": "invented_demo_rule_pack",
+        "name": "Invented Demonstration Rule Pack",
+        "rule_pack_version": "0.3.0",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_scope": "rule_pack_payload",
+          "payload_excludes": [
+            "checksums"
+          ],
+          "value": "TBD"
+        },
+        "redistribution_status": "invented_non_engineering_example",
+        "source_notice": "Invented demonstration data only."
+      },
+      "match_status": "declared_placeholder",
+      "expected": "MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH"
+    }
+  ]
+}

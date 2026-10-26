@@ -34,6 +34,7 @@ import {
   disposeAllPreviewMechanicsResults,
   resetSessionResultCustodyForTests,
   cancelPreviewMechanicsJob,
+  deliveredIntakeText,
   deliveredMechanicsResultJob,
   discardPreviewMechanicsJobResult,
   disposeDeliveredMechanicsResult,
@@ -166,8 +167,11 @@ describe("previewService explicit reference inspection and browser refusal", () 
       kind: "nonlinear_support_final_reaction",
       entity_ref: "support:NL-130-FRIC",
       unit: "N",
-      // The certified coupled friction force (DEL-04-01 kd5-nonlinear-active-set.md §3.4, R4).
-      value: 0.5237328198735871,
+      // The certified coupled friction force (DEL-04-01 kd5-nonlinear-active-set.md §3.4, R4) of the
+      // regenerated demo, whose valve C-130 is solved with its scale 15 (W-15, DEL-03-05 Design §6). The
+      // unscaled demo's 0.5237328198735871 N stays held against its independent record by
+      // core/product_physics/tests/friction_reversal_stop_release_runtime.rs (C-130 not consumed).
+      value: 0.5692827995447135,
     });
     const frictionNormal = result.results.find(
       (item) =>
@@ -177,8 +181,9 @@ describe("previewService explicit reference inspection and browser refusal", () 
     expect(frictionNormal).toMatchObject({
       kind: "nonlinear_support_friction_normal_reaction_derived",
       entity_ref: "support:NL-130-FRIC",
-      // The source restraint's certified reaction (DEL-04-01 kd5-nonlinear-active-set.md §3.1).
-      value: 52.373281987358716,
+      // The source restraint's certified reaction (DEL-04-01 kd5-nonlinear-active-set.md §3.1) of the
+      // regenerated demo with valve C-130's scale 15 (W-15; was 52.373281987358716 unscaled).
+      value: 56.92827995447134,
       unit: "N",
     });
     // The accepted same-iterate current-normal law, at the old fixture's 6-digit rounding.
@@ -578,7 +583,7 @@ describe("native mechanics failure boundary", () => {
     expect(failure).toBeInstanceOf(ResourceUnavailableError);
     expect((failure as ResourceUnavailableError).refusal).toEqual({ kind: "headroom_insufficient", required_bytes: 3 * 2 ** 30, available_bytes: 2 * 2 ** 30 });
     expect((failure as ResourceUnavailableError).pool?.pool_bytes).toBe(12 * 2 ** 30);
-    expect((failure as Error).message).toBe("RESOURCE_UNAVAILABLE: Not enough free memory on this Mac right now: needs 3 GiB, 2 GiB available.");
+    expect((failure as Error).message).toBe("RESOURCE_UNAVAILABLE: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 3 GiB, 2 GiB available.");
     invokeMock.mockRejectedValue({ code: "INVALID_REQUEST", message: "solver mode header missing" });
     await expect(runPreviewMechanics(nativeMechanicsReplayPair().model)).rejects.toThrow("INVALID_REQUEST: solver mode header missing");
   });
@@ -1047,4 +1052,33 @@ it.each(["sparse_interactive", "dense_scrutiny"] as const)("preview-physics-2 re
   expect(hasNativeMechanicsInvocation(tampered, pair.model, mode)).toBe(false);
   // R2: the Rust reader's code (TS: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: dangling result reference).
   expect(numericalResultStanding(tampered, pair.model).findings.join(" ")).toContain("SOURCE_PREVIEW_PHYSICS_DANGLING_RESULT_REF");
+});
+
+// W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.6, §7): the model
+// text the job was sent, re-serialized from the result's native registration, for the
+// native host to bind to the digest it recorded. Unit transport replay; NOT a native UI
+// qualification witness.
+describe("deliveredIntakeText", () => {
+  it("equals the body startPreviewMechanicsJob sent, and is null for a copy, an unregistered result and a disposed one", async () => {
+    const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const sent: string[] = [];
+    const transport = createSolveJobTransport((request) => { sent.push(request.text); return pair.bytes; }, { jobIdPrefix: "unit-delivered-intake" });
+    const invokeSpy = vi.fn(transport.invoke);
+    invokeMock.mockImplementation(invokeSpy);
+    const result = await runPreviewMechanics(pair.model, "sparse_interactive");
+    expect(sent).toHaveLength(1);
+    const startCall = invokeSpy.mock.calls.find(([command]) => command === "start_preview_mechanics_job")!;
+    expect(new TextDecoder().decode(startCall[1] as Uint8Array)).toBe(sent[0]);
+    expect(deliveredIntakeText(result)).toBe(sent[0]);
+    expect(deliveredIntakeText(result)).toBe(checkedJsonText(pair.model));
+    // A copy and an unregistered result.
+    expect(deliveredIntakeText(structuredClone(result))).toBeNull();
+    expect(deliveredIntakeText(JSON.parse(pair.bytes) as MechanicsResult)).toBeNull();
+    expect(deliveredIntakeText(null)).toBeNull();
+    // Disposed: no longer held.
+    await disposeDeliveredMechanicsResult(result);
+    expect(deliveredMechanicsResultJob(result)).toBeNull();
+    expect(deliveredIntakeText(result)).toBeNull();
+  });
 });

@@ -159,6 +159,8 @@ code_paths:
 - validation/hand_calcs/mechanics/**
 - validation/references/w9_benchmarks/**
 - core/product_physics/tests/w9_solver_benchmarks.rs
+- validation/references/w16_imposed_motion/**
+- core/product_physics/tests/w16_imposed_motion.rs
 - validation/qualification/**
 - tools/validation/qualification_*.py
 - tools/validation/build_first_static_selection.py
@@ -179,3 +181,4 @@ checks:
 - validation/benchmarks/physics_audit_regression/tests/*.rs
 - validation/benchmarks/physics_audit_regression/src/lib.rs
 - core/product_physics/tests/w9_solver_benchmarks.rs
+- core/product_physics/tests/w16_imposed_motion.rs

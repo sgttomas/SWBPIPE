@@ -106,9 +106,9 @@ A model solves on one of two routes:
   - Every report surface refuses exact-route results with
     `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE` (owner ruling 10A, 2026-10-21;
     `execution/PKG-04/DEL-04-07/Design/desktop-exact-outputs.md`).
-  - **Save Report Package…** refuses every current result with
-    `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE` ("The report package is
-    unavailable for fresh results.").
+  - Save Report Package… saves a local private package for a pressure-free
+    result after its own local-private selection; exact-route results are
+    refused with `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`.
 
   This is PRD FR-REP-001 (Must) and the MVP item "basic report generation".
 - **No model states, run history or comparison** between states or runs. A
@@ -145,7 +145,7 @@ The guide should refer to these current surfaces when explaining behavior:
 | Libraries and provenance | `schemas/material.schema.yaml`, `schemas/section.schema.yaml`, `schemas/component.schema.yaml`, `core/library_import/provenance_checker.py`, `core/section_properties/calculator.py` | Materials, sections, and components carry provenance and review status. Public defaults do not include protected tables or proprietary catalog values. |
 | Rule packs | `schemas/rule_pack.schema.yaml`, `core/rules/expression_evaluator`, `core/rules/completeness_checker`, `core/rules/rule_pack_lifecycle` | Rule packs are user-owned or invented examples. Required inputs, unit checks, provenance, checksums, and privacy state are explicit. |
 | GUI workflow contracts | `schemas/viewport_editor.schema.yaml`, `core/gui/viewport_editor`, `core/gui/model_tree`, `core/gui/editors`, `core/gui/warnings`, `core/gui/solve_execution`, `core/gui/results_viewer`, `apps/desktop` | The Tauri/React/Vite macOS desktop app in `apps/desktop` is the user surface ([Current Desktop App](#current-desktop-app-010)); the `core/gui/*` modules are contract/reference modules (Python engines and a standalone Rust crate) that the app does not call or link. Its native smoke (`apps/desktop/native-smoke/`) and browser specs (`apps/desktop/e2e/`) exercise the app; no single run yet takes a model authored in the app through solve, review, save and reopen. Supported-release acceptance and other platforms remain `TBD`. |
-| Reports and result envelopes | `schemas/report_generator.schema.yaml`, `schemas/report_sections.schema.yaml`, `schemas/results.schema.yaml`, `core/reporting/audit_manifest`, `core/reporting/report_sections`, `core/reporting/result_export`, `core/reporting/report_generator`, `core/reporting/report_renderer`, `core/reporting/protected_content_linter` | Report records preserve manifests, hashes, warnings, provenance, rule-pack references, limitations, and notices. A deterministic hash-bound single-file HTML renderer, a desktop preview and a native report-package save path exist in code, and the app renders a local private report for a pressure-free result after the local-private selection; a public render stays blocked, exact-route results are refused, and the report package refuses every current result ([Current Desktop App](#current-desktop-app-010)). Final styling/layout, deterministic hash-bound PDF policy, portable replay, and release-template integration remain `TBD`. |
+| Reports and result envelopes | `schemas/report_generator.schema.yaml`, `schemas/report_sections.schema.yaml`, `schemas/results.schema.yaml`, `core/reporting/audit_manifest`, `core/reporting/report_sections`, `core/reporting/result_export`, `core/reporting/report_generator`, `core/reporting/report_renderer`, `core/reporting/protected_content_linter` | Report records preserve manifests, hashes, warnings, provenance, rule-pack references, limitations, and notices. A deterministic hash-bound single-file HTML renderer, a desktop preview and a native report-package save path exist in code, and the app renders a local private report for a pressure-free result after the local-private selection; a public render stays blocked, exact-route results are refused, and the report package is saved locally for a pressure-free result ([Current Desktop App](#current-desktop-app-010)). Final styling/layout, deterministic hash-bound PDF policy, portable replay, and release-template integration remain `TBD`. |
 | Privacy and export controls | `docs/security/local_first_storage_policy.md`, `docs/security/redaction_export_controls.md`, `docs/security/telemetry_policy.md`, `core/security/redaction` | Private data is local/user-controlled by default. Project storage is local-only and offline-capable. Telemetry is off by default. Redaction/export behavior is metadata-driven. |
 | Export interoperability | `schemas/native_json_export.schema.json`, `schemas/stress_neutral_export.schema.json`, `schemas/pcf_export.schema.json`, `schemas/review_geometry_export.schema.json`, `schemas/export_adapter_sdk.schema.json`, `schemas/target_mapping.schema.json`, `core/handoff/*` | SCA-004 makes native JSON, the export of a `.mbf` model batch file, optional user-owned external-run evidence, stress-neutral CSV/JSON, conservative PCF, glTF review geometry, stable ID maps, loss reports, and adapter SDK surfaces explicit. These are bounded package surfaces: handoff evidence for external validation, not a validation outcome. |
 | Interop and local analysis | `schemas/adapter_framework.schema.yaml`, `api/api_boundary_contract.yaml`, `schemas/local_fea_handoff.schema.yaml`, `docs/local_analysis/local_fea_handoff_guidance.md`, `core/adapters/framework`, `core/handoff/*` | Public API transport, endpoint syntax, plugin runtime/loading/signing, concrete target field coverage, and local FEA package format remain `TBD`. Adapters cannot bypass units, provenance, privacy, protected-content screening, diagnostics, rule sandboxing, report controls, or human-review boundaries. |
@@ -310,6 +310,29 @@ In the desktop app the workflow is:
    pressure, stress, temperature, angle) from the unit catalog. Values are
    stored in the units entered, and the length unit is fixed once the project
    has nodes. The display units can be switched.
+   After Create, the new blank opens once it has been stored, usually at
+   once. If you change the model on screen before then (an applied edit,
+   undo or redo), your change is kept and the blank is not opened. The status
+   line then shows `NEW-BLANK-SUPERSEDED` with the blank's name and id. The
+   blank is stored: open it from List Local Projects. Selecting or typing
+   into a form does not stop the blank from opening.
+   New fields start in the project's units:
+   - A load case's solve temperature starts in the temperature unit (a legacy
+     `C` is shown as `degC`).
+   - Seismic gravity starts in `<length>/s^2`: `m/s^2` in a metre project.
+     The unit catalog has no `mm/s^2`, `in/s^2` or `ft/s^2` yet, so in other
+     projects the field starts unselected with a notice naming the symbol.
+     Choose `m/s^2` there.
+   - Component stiffness and area start in units composed from the keys:
+     `<force>/<length>`, `<moment>/<angle>` and `<length>^2`. For example, SI
+     gives `N/m`, `N*m/rad` and `m^2`. A composition the catalog lacks starts
+     unselected with a notice.
+   - A field whose key is missing is refused by name, and nothing is assumed.
+     Choose its unit in the property inspector, or set the key in Project
+     units on the Project page. The grid has no unit selector: it refuses such
+     a cell and points to the inspector.
+   - Stored values keep their units. Changing a project unit changes only
+     where new entries start.
 3. In the Model stage, create the centerline: place nodes and pipes in the
    viewport, then add bends, expansion joints and other components.
 4. Assign materials and sections, and add supports and restraints.
@@ -392,12 +415,12 @@ public defaults.
 
 The desktop app renders a report only as a local private document for a
 pressure-free result, after the local-private selection; exact-route results
-are refused, and the report package refuses every current result (see
+are refused, and the report package is saved locally for a pressure-free result (see
 [Current Desktop App](#current-desktop-app-010)). The table below is the
 intended report content. The rendered report now carries rule-pack
 references, user-rule check outcomes, software and solver versions, the
 generation time and the analysis settings a verified run manifest binds;
-materials, sections and libraries are not yet in it.
+it also records the provenance of materials, sections, components and supports and lists the library records the model references, with the library store's findings on them.
 
 Reports are structured review artifacts. A report should include or reference:
 
@@ -452,6 +475,36 @@ occurs in the user's accepted professional tools. Public API transport, endpoint
 syntax, target field coverage, source confirmations, plugin loader mechanics,
 redaction workflow details, and local FEA handoff package format remain `TBD`
 unless a later accepted deliverable resolves them.
+
+Units in the PCF, `.mbf` and local FEA exports:
+
+- **Missing project unit.** An export refuses by name when a project unit it
+  writes is missing, and offers no download:
+  - `.mbf`: length, force or temperature (`MBF-PROJECT-UNIT-MISSING`);
+  - PCF: length (`PCF-PROJECT-UNIT-MISSING`);
+  - local FEA: length, temperature, or force or stress where no result row of
+    that kind is referenced (`LOCAL-FEA-PROJECT-UNIT-MISSING`).
+
+  Set the key in Project units on the Project page. A missing length in a model
+  with nodes cannot be set; re-author the model.
+- **Lengths in millimetres.** PCF and `.mbf` lengths convert exactly to
+  millimetres from `m`, `mm`, `in` (25.4 mm) and `ft` (304.8 mm). Node
+  coordinates convert from the project length unit. PCF OD and wall thickness
+  convert from their own units.
+  - A unit without a routine exact conversion is refused by name:
+    `MBF-LENGTH-UNIT-UNSUPPORTED` or `PCF-LENGTH-UNIT-UNSUPPORTED`.
+  - So is a value that is not finite: `MBF-LENGTH-OUT-OF-RANGE` or
+    `PCF-LENGTH-OUT-OF-RANGE`.
+  - In either case the download is withheld.
+- **Local FEA result units.** The local FEA handoff declares its stress and
+  force units from the result rows they label. The governing stress maximum
+  sets the stress unit; in the demo, that is `Pa`. It refers only to rows in
+  that unit, and converts none.
+  - A row in another unit is left out and named in a
+    `LOCAL-FEA-RESULT-ROW-UNIT-OMITTED` warning. Read that row from the result
+    in its own unit.
+  - If no row governs and the rows disagree, the handoff is refused
+    (`LOCAL-FEA-RESULT-UNIT-INCONSISTENT`).
 
 Local shell/solid FEA is a specialized handoff path, not the default global
 analysis method. Handoff packages should preserve units, provenance, target

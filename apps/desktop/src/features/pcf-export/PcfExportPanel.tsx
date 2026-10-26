@@ -3,6 +3,8 @@ import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
 import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
+import { lengthToMillimeters, outOfRangeLengthText, outOfRangeNodeCoordinates } from "../exportLengthConversion";
+import { missingExportProjectUnits, projectUnitRefusalText, type ExportProjectUnitUse } from "../project-units/exportProjectUnits";
 
 type PcfReference = {
   object_type: string;
@@ -22,9 +24,9 @@ type PcfDiagnostic = {
 
 type PcfPayloadNode = {
   node_id: string;
-  x: number;
-  y: number;
-  z: number;
+  x: number | null;
+  y: number | null;
+  z: number | null;
 };
 
 type PcfPayloadSegment = {
@@ -49,12 +51,12 @@ type PcfConversionWitness = {
     dimension: "length";
   };
   target_quantity: {
-    value: number;
+    value: number | null;
     unit: "MM";
     target_field: string;
   };
-  conversion_factor_to_target: number;
-  conversion_status: "converted_to_target_unit" | "source_unit_matches_target_unit";
+  conversion_factor_to_target: number | null;
+  conversion_status: "converted_to_target_unit" | "source_unit_matches_target_unit" | "refused_no_routine_exact_conversion" | "refused_out_of_range";
   decision_basis_refs: PcfReference[];
   provenance: ReturnType<typeof previewProvenance>;
 };
@@ -62,6 +64,15 @@ type PcfConversionWitness = {
 const PCF_EXPORT_VERSION = "0.1.0";
 const HASH_STATUS_TBD = "TBD_browser_preview_does_not_emit_canonical_package_hash";
 const SCHEMA_VALIDATION_STATUS = "desktop_preview_shape_aligned_not_runtime_json_schema_validated";
+/** A length with no routine exact conversion to millimetres (DEL-02-02 Design §7, C2). */
+export const PCF_LENGTH_UNIT_UNSUPPORTED = "PCF-LENGTH-UNIT-UNSUPPORTED";
+/** A length that is not finite, or not finite once converted to millimetres (DEL-02-02 Design §7.5). */
+export const PCF_LENGTH_OUT_OF_RANGE = "PCF-LENGTH-OUT-OF-RANGE";
+const LENGTH_REFUSAL_CODES: ReadonlySet<string> = new Set([PCF_LENGTH_UNIT_UNSUPPORTED, PCF_LENGTH_OUT_OF_RANGE]);
+/** A project unit the export writes is missing (DEL-02-02 Design §7.4). It takes
+ * precedence over PCF-LENGTH-UNIT-UNSUPPORTED for a missing length key. */
+export const PCF_PROJECT_UNIT_MISSING = "PCF-PROJECT-UNIT-MISSING";
+const PCF_PROJECT_UNIT_USES: readonly ExportProjectUnitUse[] = [{ key: "length", writes: "the node coordinates' source unit" }];
 
 export function PcfExportPanel({
   model,
@@ -79,6 +90,9 @@ export function PcfExportPanel({
     "manifest_and_validation_report_package_hash_carrier_fields"
   );
   const packet = withCanonicalPackageHash(basePacket, packageHash);
+  // §7.4: a missing project unit is refused first; then §7.5's length refusals.
+  const projectUnitRefusal = projectUnitRefusalText("PCF", PCF_PROJECT_UNIT_MISSING, packet.diagnostics);
+  const lengthRefusal = projectUnitRefusal ? null : lengthUnitRefusalText(packet.diagnostics);
 
   return (
     <section className="panel pcf-export-panel" aria-label="Conservative PCF export" data-testid="pcf-export-panel">
@@ -88,6 +102,12 @@ export function PcfExportPanel({
       </div>
       <div className="report-actions">
         <LoadReferenceOutputGate result={result} testIdPrefix="pcf-export">
+        {projectUnitRefusal ? (
+          <p className="muted" role="status" data-testid="pcf-export-project-unit-refusal">{projectUnitRefusal}</p>
+        ) : lengthRefusal ? (
+          <p className="muted" role="status" data-testid="pcf-export-length-unit-refused">{lengthRefusal}</p>
+        ) : (
+        <>
         <ControlledExportLink
           className="report-export-link"
           data-testid="pcf-export-link"
@@ -106,9 +126,11 @@ export function PcfExportPanel({
           <Download size={14} aria-hidden="true" />
           PCF text
         </ControlledExportLink>
+        </>
+        )}
         </LoadReferenceOutputGate>
         <span data-testid="pcf-export-summary">
-          available; segments={packet.pcf_payload.pipe_segments.length}; nodes={packet.pcf_payload.nodes.length};
+          {projectUnitRefusal || lengthRefusal ? "refused" : "available"}; segments={packet.pcf_payload.pipe_segments.length}; nodes={packet.pcf_payload.nodes.length};
           validation={packet.validation_report.validation_status}; losses={packet.loss_report.length}
         </span>
       </div>
@@ -157,6 +179,14 @@ export function PcfExportPanel({
   );
 }
 
+/** The export's refusal for lengths with no routine exact conversion, or null. Withholds
+ * both links, as the text names the units. */
+function lengthUnitRefusalText(diagnostics: PcfDiagnostic[]): string | null {
+  const refused = diagnostics.filter((item) => LENGTH_REFUSAL_CODES.has(item.code));
+  if (refused.length === 0) return null;
+  return `PCF export refused. ${refused.map((item) => `${item.code}: ${item.message}`).join(" ")}`;
+}
+
 function PcfLine({ label, value, testId }: { label: string; value: string; testId: string }) {
   return (
     <div className="report-line" data-testid={testId}>
@@ -166,7 +196,7 @@ function PcfLine({ label, value, testId }: { label: string; value: string; testI
   );
 }
 
-function buildPcfExportPacket({
+export function buildPcfExportPacket({
   model,
   result,
   analysisRun
@@ -353,7 +383,7 @@ function pcfPayload(model: PreviewModel) {
     .slice()
     .sort((left, right) => left.id.localeCompare(right.id))
     .map((node): PcfPayloadNode => {
-      const position = toMillimeters(node.position, model.project.units.length);
+      const position = toMillimeters(node.position, projectLengthUnit(model));
       return {
         node_id: node.id,
         x: position.x,
@@ -413,7 +443,7 @@ function pcfConversionWitnesses(model: PreviewModel): PcfConversionWitness[] {
           sourceRef: reference("Node", node.id),
           fieldPath: `nodes.${node.id}.position.${axis}`,
           sourceValue: node.position[axis],
-          sourceUnit: model.project.units.length ?? "m",
+          sourceUnit: projectLengthUnit(model),
           targetField: `pcf_payload.nodes.${node.id}.${axis}`
         })
       )
@@ -460,7 +490,8 @@ function conversionWitness({
   sourceUnit: string;
   targetField: string;
 }): PcfConversionWitness {
-  const conversion = convertLengthToMillimeters(sourceValue, sourceUnit);
+  const conversion = lengthToMillimeters(sourceValue, sourceUnit);
+  const converted = conversion.status === "converted" ? conversion : null;
   return {
     witness_id: witnessId,
     source_ref: sourceRef,
@@ -471,12 +502,16 @@ function conversionWitness({
       dimension: "length"
     },
     target_quantity: {
-      value: conversion.value,
+      value: converted ? converted.value : null,
       unit: "MM",
       target_field: targetField
     },
-    conversion_factor_to_target: conversion.factor,
-    conversion_status: conversion.factor === 1 ? "source_unit_matches_target_unit" : "converted_to_target_unit",
+    conversion_factor_to_target: converted ? converted.factor : null,
+    conversion_status: !converted
+      ? conversion.status === "out_of_range" ? "refused_out_of_range" : "refused_no_routine_exact_conversion"
+      : converted.sourceMatchesTarget
+        ? "source_unit_matches_target_unit"
+        : "converted_to_target_unit",
     decision_basis_refs: [reference("Decision", "DEC-018"), reference("Deliverable", "DEL-02-02")],
     provenance: previewProvenance()
   };
@@ -526,19 +561,7 @@ function renderPcfText(payload: ReturnType<typeof pcfPayload>): string {
 }
 
 function pcfDiagnostics({ model, payload }: { model: PreviewModel; payload: ReturnType<typeof pcfPayload> }): PcfDiagnostic[] {
-  const diagnostics: PcfDiagnostic[] = [];
-  if (!["m", "mm"].includes(model.project.units.length)) {
-    diagnostics.push(
-      diagnostic(
-        "PCF-COORDINATE-UNIT-TBD",
-        "blocking",
-        "UNIT_WARNING",
-        `Preview model length unit ${model.project.units.length} is not mapped to the PCF millimeter coordinate policy.`,
-        "Select an explicit coordinate conversion policy before exporting PCF text.",
-        reference("Project", model.project.id)
-      )
-    );
-  }
+  const diagnostics: PcfDiagnostic[] = [...pcfLengthUnitDiagnostics(model)];
   if (payload.pipe_segments.some((segment) => segment.nominal_size === "TBD_SOURCE_REQUIRED")) {
     diagnostics.push(
       diagnostic(
@@ -586,6 +609,70 @@ function pcfDiagnostics({ model, payload }: { model: PreviewModel; payload: Retu
     )
   );
   return diagnostics;
+}
+
+/** One blocking refusal per stored length that has no routine exact conversion to
+ * millimetres: the node coordinates' project unit, then each section quantity by its own unit. */
+function pcfLengthUnitDiagnostics(model: PreviewModel): PcfDiagnostic[] {
+  const refusals: PcfDiagnostic[] = [];
+  const remediation = "Store the quantity in m, mm, in or ft, which convert to millimetres exactly, before exporting PCF text.";
+  const rangeRemediation = "Correct the stored value to a finite length before exporting PCF text.";
+  // §7.4: a missing length key is PCF-PROJECT-UNIT-MISSING, which takes precedence
+  // over the unsupported-unit refusal below.
+  for (const missing of missingExportProjectUnits(model, PCF_PROJECT_UNIT_USES, "exporting PCF text")) {
+    refusals.push(diagnostic(PCF_PROJECT_UNIT_MISSING, "blocking", "UNIT_WARNING", missing.text, missing.remediation, reference("Project", model.project.id)));
+  }
+  const lengthKeyMissing = refusals.length > 0;
+  const coordinates = model.nodes.length > 0 && !lengthKeyMissing ? lengthToMillimeters(0, projectLengthUnit(model)) : null;
+  if (coordinates?.status === "refused") {
+    refusals.push(
+      diagnostic(
+        PCF_LENGTH_UNIT_UNSUPPORTED,
+        "blocking",
+        "UNIT_WARNING",
+        `Node coordinates are stored in project length unit ${coordinates.unitLabel}, which has no routine exact conversion to millimetres.`,
+        remediation,
+        reference("Project", model.project.id)
+      )
+    );
+  }
+  for (const coordinate of outOfRangeNodeCoordinates(model.nodes, projectLengthUnit(model))) {
+    refusals.push(
+      diagnostic(PCF_LENGTH_OUT_OF_RANGE, "blocking", "UNIT_WARNING", coordinate.text, rangeRemediation, reference("Node", coordinate.nodeId))
+    );
+  }
+  for (const segment of model.pipe_segments.slice().sort((left, right) => left.id.localeCompare(right.id))) {
+    for (const field of ["outside_diameter", "wall_thickness"] as const) {
+      const quantity = segment.section[field];
+      if (!quantity) continue;
+      const conversion = lengthToMillimeters(quantity.value, quantity.unit);
+      if (conversion.status === "out_of_range") {
+        refusals.push(
+          diagnostic(
+            PCF_LENGTH_OUT_OF_RANGE,
+            "blocking",
+            "UNIT_WARNING",
+            outOfRangeLengthText(`Pipe segment ${segment.id} ${field}`, quantity.value, quantity.unit),
+            rangeRemediation,
+            reference("PipeSegment", segment.id)
+          )
+        );
+        continue;
+      }
+      if (conversion.status !== "refused") continue;
+      refusals.push(
+        diagnostic(
+          PCF_LENGTH_UNIT_UNSUPPORTED,
+          "blocking",
+          "UNIT_WARNING",
+          `Pipe segment ${segment.id} ${field} is stored in ${conversion.unitLabel}, which has no routine exact conversion to millimetres.`,
+          remediation,
+          reference("PipeSegment", segment.id)
+        )
+      );
+    }
+  }
+  return refusals;
 }
 
 function pcfLossReport({
@@ -687,25 +774,31 @@ function requiredLossCategoriesPresent(lossReport: ReturnType<typeof pcfLossRepo
   );
 }
 
+/** Node positions are stored in `project.units.length`; nothing is assumed when it is absent. */
+function projectLengthUnit(model: PreviewModel): string {
+  return model.project.units.length ?? "";
+}
+
+/** Millimetres, or null where the length is refused (no routine conversion, or out of range). */
+function millimetersOrNull(value: number, unit: string): number | null {
+  const conversion = lengthToMillimeters(value, unit);
+  return conversion.status === "converted" ? conversion.value : null;
+}
+
 function toMillimeters(point: PreviewModel["nodes"][number]["position"], unit: string) {
   return {
-    x: convertLengthToMillimeters(point.x, unit).value,
-    y: convertLengthToMillimeters(point.y, unit).value,
-    z: convertLengthToMillimeters(point.z, unit).value
+    x: millimetersOrNull(point.x, unit),
+    y: millimetersOrNull(point.y, unit),
+    z: millimetersOrNull(point.z, unit)
   };
 }
 
 function formatQuantityAsMillimeters(quantity: { value: number; unit: string } | undefined, fallback: string): string {
   if (!quantity) return `TBD_${fallback}`;
-  return formatNumber(convertLengthToMillimeters(quantity.value, quantity.unit).value);
-}
-
-function convertLengthToMillimeters(value: number, unit: string): { value: number; factor: number } {
-  const factor = unit === "m" ? 1000 : 1;
-  return {
-    value: Number((value * factor).toFixed(6)),
-    factor
-  };
+  const conversion = lengthToMillimeters(quantity.value, quantity.unit);
+  if (conversion.status === "refused") return `TBD_${fallback}_UNIT_UNSUPPORTED`;
+  if (conversion.status === "out_of_range") return `TBD_${fallback}_OUT_OF_RANGE`;
+  return formatNumber(conversion.value);
 }
 
 function formatPoint(point: PcfPayloadNode | undefined): string {
@@ -713,7 +806,8 @@ function formatPoint(point: PcfPayloadNode | undefined): string {
   return `${formatNumber(point.x)} ${formatNumber(point.y)} ${formatNumber(point.z)}`;
 }
 
-function formatNumber(value: number): string {
+function formatNumber(value: number | null): string {
+  if (value === null) return "TBD_LENGTH_REFUSED";
   if (Number.isInteger(value)) return String(value);
   return value.toFixed(6).replace(/0+$/g, "").replace(/\.$/, "");
 }

@@ -315,6 +315,9 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
                 # T4-U4b (§5.1): τ bit for bit with the captured model (G2).
                 from . import u4b_model
                 u4b_model.preview_model_checks(source, model)
+                # W-15 slice d (DEL-03-05 Design §5): the model's bodies and their records.
+                from . import component_body
+                component_body.model_checks(source, model, preview_physics_evidence.TABLE)
             return {"ok": True}
         if reader == "pressure":
             pressure_2.validate_pressure_evidence(source)
@@ -323,6 +326,9 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
                 # T4-U4b review item 1: the directional binding (the pressure-2 reader only).
                 from . import u4b
                 u4b.directional_model_checks(source, model, True)
+                # W-15 slice d (DEL-03-05 Design §5): the model's bodies and their records.
+                from . import component_body
+                component_body.model_checks(source, model, pressure_2.pressure_table())
             return {"ok": True}
         if reader == "pressure-source":
             eligible = _source_validate(source, invocation)

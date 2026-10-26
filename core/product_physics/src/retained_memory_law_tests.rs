@@ -436,8 +436,16 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // Re-audited on W-7 merged with main 2653f87392: the closed module is W-7's, the inspected
             // production after the resume is main's (model 0.7.0's token) and E14 is unchanged, each
             // byte-identical to its parent's; no production entered the suffix.
+            // Re-audited for W-15 slice d (DEL-03-05): only the inspected production's
+            // `rule_binding_refusal` gains its first check (a row carrying `component_body` is
+            // refused with COMPONENT_BODY_REFERENCE_SECTION, two crate constants, seven lines);
+            // no include, path module or static entered, and the closed `b7b_current_table_tests`
+            // module and E14 are byte-identical.
             first_item: SEMANTIC_B7B_TEST_ITEM,
-            complete_suffix_sha256: "e9cd031a23694dc66fb6817f276863c1da707c9355de6774748656d05bd0b440",
+            // Re-audited on W-15 merged with main c9517615af (W-7's closed module): against main's suffix
+            // only the inspected production's `rule_binding_refusal` gains W-15's first check (seven
+            // lines); the closed `b7b_current_table_tests` module and E14 are main's, byte for byte.
+            complete_suffix_sha256: "e7281f504c3d6bfaaa5d685e9e4f5318856310dce29d5a9c1c5a3a2935f10c80",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
@@ -751,7 +759,7 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     let schema_hash = format!("{:x}", Sha256::digest(schema_bytes));
     // B7b A5: the result schema takes v3 only. T4-U6 (462b777b22): it carries the D-5
     // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3).
-    assert_eq!(schema_hash, "87b7e6667acd1e067238f65759147a0531d3bc50ca706f301c46d4e8bc565414");
+    assert_eq!(schema_hash, "c35353167313f227fd90a5ef2332a80ff05f3f6dc15e1da9c0396eff90cd1779");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
@@ -816,14 +824,14 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "6bfa5ec9f0a7a4213c17ab3c1cbaef0780d0cec303ae3a950a407f0ba0f28c7a",
         "73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa",
         "a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08",
-        "d95e6acfe79f0e08d84fe7a6a71acbd18b38ff70809614227640ee0a0c16ff60",
-        "f455a61ab9d80a16b24a03c5acbcce6425342d8cc2c839eb4742b2b9bb38a869",
+        "6d06b97de0cd0c421b3a62f8b97703d6d098a12ced2bb067b52667775f4bc0e8",
+        "1045373c26fc7bd9383e1c08fe6c2d0bb2f372b4fcdc4b5558585154a6a5fc96",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
         "8f1f308092121cfe56e08199703c681ba74fd7d6d359d4eafed05d86ef8645a4",
-        "92a364559e116f4e4a903ff114e1a530916b9761486bd2441aeb9c3711f290bb",
+        "d6d86dfc418978257d1d3370684e879ba9711465ceba1de72729eb48bb12ad3c",
         "b5a4b0e585b9ec440d36144860baaf101b628498cfdab9a1de9248c2ed5069e7",
-        "87b7e6667acd1e067238f65759147a0531d3bc50ca706f301c46d4e8bc565414",
-        "a6139f7d2fc92bd777ef0b1801272dc3c6924d7f7a82ac842a934de2c3375815",
+        "c35353167313f227fd90a5ef2332a80ff05f3f6dc15e1da9c0396eff90cd1779",
+        "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
     let files: [&[u8]; build_identity::REVIEWED_INPUT_COUNT] = [
@@ -1126,6 +1134,16 @@ fn every_family_clause_refuses_with_its_fact() {
     }
     assert_eq!(with(&load("dimension", json!("pressure"))), family(C::Loads, F::LoadDimension));
     assert_eq!(with(&load("dimension", json!("force"))), None);
+    // W-15 slice b: a node load in the generated self-weight namespace (the component-weight
+    // lineage `inspect_applied_self_weight` claims for any node id with this prefix) refuses by
+    // its fact; a near id, and a weight-category nodal load under its own id, stay inside D1.7.
+    for id in ["load:self-weight:", "load:self-weight:4:case:C-1:force:y", "load:self-weight:x"] {
+        assert_eq!(with(&load("id", json!(id))), family(C::Loads, F::GeneratedLoadIdentity), "{id}");
+    }
+    for id in ["load:self-weight", "Load:self-weight:x", " load:self-weight:x", "x:load:self-weight:"] {
+        assert_eq!(with(&load("id", json!(id))), None, "{id}");
+    }
+    assert_eq!(with(&load("category", json!("weight"))), None);
     // D1.10, after D1.9: an object provenance, with or without leading ASCII whitespace.
     for provenance in ["{\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration\"}", " \t{", "{"] {
         assert_eq!(with(&load("provenance", json!(provenance))), family(C::Provenance, F::ObjectProvenance), "{provenance:?}");
@@ -1573,7 +1591,14 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     // cause (PU-S2). T4-U6/U8's at 588de796a4: 262,735,773; B7b's at 7e63847: 264,366,429.
     // W-7 at 8afaa282b3 (§8.20): +1,028,736 B, the case solve's per-member global end diagnostic (W7-ID: its id,
     // message and refs, 10,716 B) for each of 32 members in each of 3 cases, on the silent-drop guard's 269,528,816.
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 270_557_552, "current text closure at C_eq = 3, maximum over routes");
+    // W-15 at c7318c32f9 (§8.21): +84,896 B with D_env unchanged: the chain bounds a formatted diagnostic message by
+    // the largest format within 40 lines (text_budget message_size), and the rigid-scale refusal's 786 B message (zero
+    // on D1, W15-NZ) now lies in the window of the exact-section shear-factor diagnostic (407 B before): +379 B for
+    // each of its 224 envelope instances, on W-7's 270,557,552.
+    // W-16 slice a at 6d4e0c1506 (§8.23): +3,762,176 B, route L(3,0)'s envelope (now the maximum over routes) gains the
+    // node/element imposed_displacement refusal for each of its 384 primitive loads (W16-ID) and loses the 128 deleted
+    // pre-parse refusals (its D_env 25,470 -> 25,726), on W-15's 270,642,448.
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 274_404_624, "current text closure at C_eq = 3, maximum over routes");
     // W-7 (§8.20): 3 · 2,979 = 8,937 rows exceed the former 8,192 slots; their push capacity is 16,384.
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_979, 16_384), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
@@ -1583,7 +1608,7 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     assert_eq!(caps.complete[17], c * (3 * 32 + 1) * text_atoms::ERR, "C·(3m + 1)·Text(err)");
     // Current generated TEXT atoms; their backing and visit counts stay positive.
     assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, text_atoms::D_ENV, push_capacity(text_atoms::D_ENV)),
-        (6_139_118, 2_330, 16_384, 28_902, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
+        (6_139_118, 2_330, 16_384, 28_774, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
     assert_eq!(caps.complete[17], 3 * (3 * 32 + 1) * 16_384, "C·(3m + 1)·Text(err) at C = 3");
     let complete_facts: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
     let at: [PhaseObservation; COMPLETE_FACTS] = observed(&complete_facts, &caps.complete).try_into().unwrap();
@@ -1812,6 +1837,24 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
+/// W-16 slice a imposed displacement on the pressure-free route at 6d4e0c1506
+/// (retained-pricing-rules.md §8.23): from W-15's record below (unchanged by W-15 slice b), D1.7
+/// refuses every support target, so the tree adds case_prescribed's node index (W16-NI), validate's
+/// findings vector (W16-VF) and, on route L, the node/element `imposed_displacement` refusal's texts
+/// (W16-ID: L(3,0)'s Text(diag_env) +3,762,176 B), and loses the deleted pre-parse refusal (route E's
+/// D and D_env -128); LoadTargetInput's support arm raises s(PrimitiveLoadInput) by 16 B
+/// (+6,144 B per primitive-load copy). The phases move by +2,507,429 (W1, W2), +2,883,013 (W3),
+/// -608,059 (W4), +957,381 (W5), +1,863,113 (X1), +1,600,697 (X2) and +2,507,705 B (X3) in both
+/// modes; of W3's, +2,876,869 B is the tree and +6,144 B the native layouts (main's tree evaluated
+/// at this build's atoms). W3 is still the maximum.
+/// W-15 rigid-component scaling and reference-section identification at c7318c32f9
+/// (retained-pricing-rules.md §8.21): from W-7's record below, D1 holds no component body (P2) and
+/// D_env is unchanged; the readers' component-body refusal text (W15-ID), the longer pressure-2
+/// identity literal (U6-J4), the predicate's member maps (W15-PM) and the readers' working set
+/// (W15-RB) raise the tree, and ResultItem's `component_body` member raises its native layouts
+/// (s(ResultItem) 296 -> 344 B), so the phases rise by +16,786,724 (W1, W2), +17,551,380 (W3),
+/// +16,988,356 (W4), +16,871,620 (W5), +4,518,384 (X1) and +3,838,624 B (X2, X3) in both modes;
+/// W3 is still the maximum.
 /// W-7 member end actions in global coordinates at 8afaa282b3 (retained-pricing-rules.md §8.20): from
 /// the silent-drop guard's record below, the rows rise to 78 per member on route L and 114 on route E
 /// (W7-RL, W7-RP) with their texts and copies, the case solve's per-member global end diagnostic
@@ -1851,8 +1894,8 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 /// second ordinary span. The build identity, atoms and native values are unchanged; reviewed-input
 /// registration is separate below.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_540_357_370, 6_882_351_931, 8_835_350_405, 8_627_570_462, 7_704_169_191, 8_600_881_976, 7_333_229_848, 7_005_619_802],
-    [6_599_488_714, 6_941_483_275, 8_894_481_749, 8_686_701_806, 7_763_300_535, 8_660_013_320, 7_392_361_192, 7_064_751_146],
+    [6_559_651_523, 6_901_646_084, 8_855_784_798, 8_643_950_759, 7_721_998_192, 8_607_263_473, 7_338_669_169, 7_011_966_131],
+    [6_618_782_867, 6_960_777_428, 8_914_916_142, 8_703_082_103, 7_781_129_536, 8_666_394_817, 7_397_800_513, 7_071_097_475],
 ];
 
 #[test]
@@ -1971,7 +2014,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 28_902, "current canonical D_env at C_eq = 3 (W-7, §8.20: +96, the global end diagnostic per member and case; the node-proximity tolerance's refusal, §8.18: +1; silent-zero guard on W-8, §8.15: +3, one warning per case; W-8's 34e96d6b17: the three topology warnings on 28,799 from T4-U4b/U5b's b4c9f35f8e)");
+    assert_eq!(caps.complete[3], 28_774, "current canonical D_env at C_eq = 3 (W-16 slice a, §8.23: -128, route E's deleted pre-parse imposed-displacement refusal; W-7, §8.20: +96, the global end diagnostic per member and case; the node-proximity tolerance's refusal, §8.18: +1; silent-zero guard on W-8, §8.15: +3, one warning per case; W-8's 34e96d6b17: the three topology warnings on 28,799 from T4-U4b/U5b's b4c9f35f8e)");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();
@@ -3159,6 +3202,31 @@ fn b7a_d1_exact_route_keeps_member_loads_and_selectors_out() {
         }
         assert_eq!(with(case, &|c| c["modulus_basis_ref"] = json!("T0")), family(C::Case, F::ModulusBasisRef),
             "case {case}: a named-point basis");
+    }
+}
+
+/// W-16 slice a (DEL-04-03 Design `pf-imposed-displacement.md` §3): the census reads a
+/// support target's two strings and D1.7 refuses it by its target fact on both branches, as
+/// the first or last primitive of the first or last of C cases. D1 alone, so this holds in
+/// any build, registered or not.
+#[test]
+fn w16_d1_refuses_support_targeted_imposed_displacement_on_both_branches() {
+    use D1Clause as C;
+    use FamilyFact as F;
+    let motion = json!({"id": "motion", "category": "imposed_displacement", "target": {"type": "support", "support": "rigid:N0", "dof": "UY"},
+        "direction": "UY", "magnitude": {"value": 0.001, "unit": "m"}, "dimension": "displacement"});
+    for (branch, base) in [("L", milestone_cases(caps::LOAD_CASES)), ("E", exact3(milestone_cases(caps::LOAD_CASES)))] {
+        assert_eq!(domain(base.clone()), None, "branch {branch} inside D1");
+        for case in [0, caps::LOAD_CASES - 1] {
+            for first in [true, false] {
+                let mut raw = base.clone();
+                let loads = raw["model"]["load_cases"][case]["primitive_loads"].as_array_mut().unwrap();
+                if first { loads.insert(0, motion.clone()) } else { loads.push(motion.clone()) }
+                let report = admitted(raw);
+                assert!(report.census_complete(), "branch {branch} case {case}");
+                assert_eq!(report.law().domain, family(C::Loads, F::LoadTarget), "branch {branch} case {case} first {first}");
+            }
+        }
     }
 }
 

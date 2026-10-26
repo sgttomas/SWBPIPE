@@ -69,6 +69,7 @@ describe("CheckDefinitionsEditor pure helpers", () => {
       check_id: "user_check_2",
       name: "User-defined check (placeholder)",
       description: "Replace with the user-defined acceptability check.",
+      category_ref: { ref_id: "TBD", ref_type: "stress_category" },
       required_input_refs: [{ ref_id: "in1", ref_type: "required_input" }],
       value_slot_refs: [{ ref_id: "slot1", ref_type: "value_slot" }],
       formula_ref: { ref_id: "f1", ref_type: "formula" },
@@ -91,6 +92,9 @@ describe("CheckDefinitionsEditor pure helpers", () => {
     expect(check.required_input_refs).toEqual([{ ref_id: "TBD", ref_type: "required_input" }]);
     expect(check.value_slot_refs).toEqual([{ ref_id: "TBD", ref_type: "value_slot" }]);
     expect(check.formula_ref).toEqual({ ref_id: "TBD", ref_type: "formula" });
+    expect(check.category_ref).toEqual({ ref_id: "TBD", ref_type: "stress_category" });
+    // With a declared category the new check names the first one.
+    expect(defaultCheckDefinition([], [], [], [], ["cat_a", "cat_b"]).category_ref).toEqual({ ref_id: "cat_a", ref_type: "stress_category" });
   });
 
   it("replaces the check array losslessly, preserving the rest of the document", () => {
@@ -173,6 +177,29 @@ describe("CheckDefinitionsEditor component", () => {
     expect((screen.getByTestId("rule-pack-check-id") as HTMLInputElement).value).toBe(
       "user_check_1"
     );
+  });
+
+  it("selects each check's stress category from the declared categories (format 0.5.0)", () => {
+    const draft = buildDraftRulePackDocument();
+    const document = {
+      ...draft,
+      stress_categories: [
+        ...(draft.stress_categories as unknown[]),
+        { category_id: "user_stress_category_2", name: "Second invented category", description: "" }
+      ]
+    };
+    render(<Harness initial={document} />);
+    const select = screen.getByTestId("rule-pack-check-category-ref") as HTMLSelectElement;
+    expect(select.value).toBe("user_stress_category_1");
+    // Named categories show their name beside the id; an unnamed one shows its id.
+    expect(Array.from(select.options).map((option) => option.textContent)).toEqual([
+      "user_stress_category_1",
+      "Second invented category (user_stress_category_2)"
+    ]);
+    fireEvent.change(select, { target: { value: "user_stress_category_2" } });
+    expect(checksOf(harnessDoc())[0].category_ref).toEqual({ ref_id: "user_stress_category_2", ref_type: "stress_category" });
+    fireEvent.click(screen.getByTestId("rule-pack-check-add"));
+    expect(checksOf(harnessDoc())[1].category_ref).toEqual({ ref_id: "user_stress_category_1", ref_type: "stress_category" });
   });
 
   it("adds a check with a fresh unique id bound to the first declared ids", () => {

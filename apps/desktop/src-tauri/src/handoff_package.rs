@@ -50,6 +50,7 @@ use serde::Serialize;
 use serde_json::{json, Map, Value};
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
+use std::rc::Rc;
 
 /// The governed local-first route of this save.
 pub const HANDOFF_PACKAGE_ROUTE_ID: &str = "DOTH-HANDOFF-PACKAGE-008";
@@ -68,6 +69,8 @@ pub const DISPOSITION_MALFORMED: &str = "HANDOFF-DISPOSITION-MALFORMED";
 /// Pack Manager's reference list).
 pub const LIBRARY_REF_VERSION_CHANGED: &str = crate::MODEL_LIBRARY_REF_VERSION_CHANGED;
 pub const RULE_PACK_REF_UNRESOLVED: &str = "MODEL-RULE-PACK-REF-UNRESOLVED";
+/// The stored pack is not the one the reference names (#1602's code; `rulePackRefDiagnostics.ts`).
+pub const RULE_PACK_REF_CHECKSUM_MISMATCH: &str = "MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH";
 
 /// The unit catalogue every unit identifier is taken from (`get_unit_catalog`).
 pub const UNIT_SYSTEM_REF: &str = "unit-system:dec-018-si-dual-display";
@@ -140,8 +143,12 @@ pub fn validate_handoff_evidence(screening: &ModelDocumentSaveScreening, local_f
 /// A project's saved state by project id and state id (production: the metered
 /// `model_states::list_states_in_store_with`), or `None` when it has none.
 pub type StateLookup<'a> = dyn FnMut(&str, &str) -> Result<Option<ModelStateSummary>, String> + 'a;
-/// The stored rule-pack documents with a `rule_pack_id`, the model's project's first.
+/// The stored rule-pack document with a `rule_pack_id` under the model's project
+/// (at most one), as the solve's rule-pack resolution opens it (#1602).
 pub type RulePackLookup<'a> = dyn FnMut(&str, &str) -> Result<Vec<Value>, String> + 'a;
+
+/// A library lookup whose documents the caller shares (the handoff's cache).
+pub(crate) type SharedLibraryLookup<'a> = dyn FnMut(&str, &str, &str) -> Result<Option<Rc<Value>>, String> + 'a;
 
 // ---------------------------------------------------------------------------
 // Vocabulary helpers.
@@ -221,29 +228,37 @@ fn lifecycle_review_classification(lifecycle_status: Option<&str>) -> &'static s
 /// private, so nothing a covered object marks private, protected, redacted,
 /// unknown or malformed is labelled public.
 fn reference_privacy(redistribution: &str, privacy_values: &[&str], private: &'static str) -> &'static str {
-    // Explicit allow-lists from the schemas' `privacy_class` and
-    // `privacy_classification` enums (review round 4, note 3); every other
-    // value, malformed ones included, is private.
-    const PUBLIC: [&str; 5] = ["public", "public_metadata", "public_permissive", "public_permissive_reviewed", "public_schema_only"];
-    const INVENTED_EXAMPLE: [&str; 2] = ["invented_public_example", "public_invented_example"];
-    fn rank(value: &str) -> u8 {
-        if PUBLIC.contains(&value) {
-            0
-        } else if INVENTED_EXAMPLE.contains(&value) {
-            1
-        } else {
-            2
-        }
-    }
+    reference_privacy_ranked(redistribution, privacy_values.iter().map(|value| privacy_rank(value)).fold(0, u8::max), private)
+}
+
+/// [`reference_privacy`] from the highest [`privacy_rank`] of the privacy values.
+fn reference_privacy_ranked(redistribution: &str, privacy_rank: u8, private: &'static str) -> &'static str {
     let allowed = match redistribution {
         "public_permissive" => 0,
         "invented_non_engineering_example" => 1,
         _ => 2,
     };
-    match privacy_values.iter().map(|value| rank(value)).fold(allowed, u8::max) {
+    match allowed.max(privacy_rank) {
         0 => "public_metadata",
         1 => "invented_public_example",
         _ => private,
+    }
+}
+
+/// A privacy value's rank in [`reference_privacy`]: 0 public, 1 invented
+/// example, 2 private.
+fn privacy_rank(value: &str) -> u8 {
+    // Explicit allow-lists from the schemas' `privacy_class` and
+    // `privacy_classification` enums (review round 4, note 3); every other
+    // value, malformed ones included, is private.
+    const PUBLIC: [&str; 5] = ["public", "public_metadata", "public_permissive", "public_permissive_reviewed", "public_schema_only"];
+    const INVENTED_EXAMPLE: [&str; 2] = ["invented_public_example", "public_invented_example"];
+    if PUBLIC.contains(&value) {
+        0
+    } else if INVENTED_EXAMPLE.contains(&value) {
+        1
+    } else {
+        2
     }
 }
 
@@ -252,16 +267,21 @@ fn reference_privacy(redistribution: &str, privacy_values: &[&str], private: &'s
 /// an array, an object) is recorded as the empty string, which no allow-list
 /// holds, so it counts as private (review round 5, should-fix 3).
 fn privacy_values<'a>(value: &'a Value, out: &mut Vec<&'a str>) {
+    visit_privacy_values(value, &mut |found| out.push(found));
+}
+
+/// [`privacy_values`], each given to `visit` in the same order, collecting nothing.
+fn visit_privacy_values<'a>(value: &'a Value, visit: &mut dyn FnMut(&'a str)) {
     match value {
         Value::Object(object) => {
             for (key, child) in object {
                 if key == "privacy_class" || key == "privacy_classification" {
-                    out.push(child.as_str().unwrap_or(""));
+                    visit(child.as_str().unwrap_or(""));
                 }
-                privacy_values(child, out);
+                visit_privacy_values(child, visit);
             }
         }
-        Value::Array(items) => items.iter().for_each(|item| privacy_values(item, out)),
+        Value::Array(items) => items.iter().for_each(|item| visit_privacy_values(item, visit)),
         _ => {}
     }
 }
@@ -312,7 +332,7 @@ fn blocked_record(path: &str, record: &str, what: &str, found: &[String]) -> Dia
 }
 
 /// Every string `member` at any depth of `value`.
-fn members_at_any_depth<'a>(value: &'a Value, member: &str, out: &mut Vec<&'a str>) {
+fn members_at_any_depth<'a>(value: &'a Value, member: &str, visit: &mut dyn FnMut(&'a str)) {
     match value {
         Value::Object(object) => {
             for (key, child) in object {
@@ -321,41 +341,70 @@ fn members_at_any_depth<'a>(value: &'a Value, member: &str, out: &mut Vec<&'a st
                     // number; arrays and objects are refused before) counts as
                     // the empty string, which maps to no public disposition
                     // (review round 6b).
-                    out.push(child.as_str().unwrap_or(""));
+                    visit(child.as_str().unwrap_or(""));
                 }
-                members_at_any_depth(child, member, out);
+                members_at_any_depth(child, member, visit);
             }
         }
-        Value::Array(items) => items.iter().for_each(|item| members_at_any_depth(item, member, out)),
+        Value::Array(items) => items.iter().for_each(|item| members_at_any_depth(item, member, visit)),
         _ => {}
     }
 }
 
-/// The dispositions of the objects a reference covers (review round 2,
-/// finding 4): each covered object's own (or else its provenance's) and every
-/// one at any depth beneath it, so a record is never classified by its
-/// wrapper's. Returned as (redistribution dispositions, review classifications).
-fn covered_dispositions<'a>(covered: &[&'a Map<String, Value>]) -> (Vec<&'a str>, Vec<&'static str>) {
-    let mut redistribution = Vec::new();
-    let mut review = Vec::new();
-    for object in covered {
-        redistribution.push(handoff_redistribution(own_or_provenance(object, "redistribution_status")));
-        review.push(review_classification(own_or_provenance(object, "review_status")));
-        let mut found = Vec::new();
-        let mut reviews = Vec::new();
-        for (key, child) in object.iter() {
-            match key.as_str() {
-                "redistribution_status" => found.push(child.as_str().unwrap_or("")),
-                "review_status" => reviews.push(child.as_str().unwrap_or("")),
-                _ => {}
-            }
-            members_at_any_depth(child, "redistribution_status", &mut found);
-            members_at_any_depth(child, "review_status", &mut reviews);
+/// One object a reference covers: its dispositions, and the highest
+/// [`privacy_rank`] of every privacy value it states at any depth.
+fn covered_object<'a>(object: &'a Map<String, Value>, redistribution: &mut LeastOf<'a>, review: &mut LeastOf<'a>, privacy: &mut u8) {
+    covered_dispositions(object, redistribution, review);
+    for (key, child) in object.iter() {
+        if key == "privacy_class" || key == "privacy_classification" {
+            *privacy = (*privacy).max(privacy_rank(child.as_str().unwrap_or("")));
         }
-        redistribution.extend(found.into_iter().map(|status| handoff_redistribution(Some(status))));
-        review.extend(reviews.into_iter().map(|status| review_classification(Some(status))));
+        visit_privacy_values(child, &mut |value| *privacy = (*privacy).max(privacy_rank(value)));
     }
-    (redistribution, review)
+}
+
+/// The least permissive redistribution and least settled review of a
+/// sequence, as [`least_permissive`] and [`least_reviewed`] choose them (the
+/// last of the highest rank), folded as the values arrive so nothing is
+/// collected.
+struct LeastOf<'a> {
+    order: &'static [&'static str],
+    found: Option<(usize, &'a str)>,
+}
+
+impl<'a> LeastOf<'a> {
+    fn new(order: &'static [&'static str]) -> Self {
+        Self { order, found: None }
+    }
+
+    fn add(&mut self, value: &'a str) {
+        let ranked = rank(self.order, value);
+        if self.found.is_none_or(|(best, _)| ranked >= best) {
+            self.found = Some((ranked, value));
+        }
+    }
+
+    fn least(&self) -> &'a str {
+        self.found.map_or("TBD", |(_, value)| value)
+    }
+}
+
+/// The dispositions of one object a reference covers (review round 2,
+/// finding 4): its own (or else its provenance's) and every one at any depth
+/// beneath it, so a record is never classified by its wrapper's, given to
+/// `redistribution` and `review` as they are found.
+fn covered_dispositions<'a>(object: &'a Map<String, Value>, redistribution: &mut LeastOf<'a>, review: &mut LeastOf<'a>) {
+    redistribution.add(handoff_redistribution(own_or_provenance(object, "redistribution_status")));
+    review.add(review_classification(own_or_provenance(object, "review_status")));
+    for (key, child) in object.iter() {
+        match key.as_str() {
+            "redistribution_status" => redistribution.add(handoff_redistribution(Some(child.as_str().unwrap_or("")))),
+            "review_status" => review.add(review_classification(Some(child.as_str().unwrap_or("")))),
+            _ => {}
+        }
+        members_at_any_depth(child, "redistribution_status", &mut |status| redistribution.add(handoff_redistribution(Some(status))));
+        members_at_any_depth(child, "review_status", &mut |status| review.add(review_classification(Some(status))));
+    }
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -806,14 +855,17 @@ fn collect_library_refs(value: &Value, path: &str, out: &mut Vec<LibraryReferenc
 /// (kind, id, recorded version), resolved against the local store with W-6a's
 /// identity and record-matching rules. A recorded version that differs from a
 /// matching stored record is `MODEL-LIBRARY-REF-VERSION-CHANGED` (W-13 §3.5).
-fn library_refs(document: &Value, project_id: &str, lookup: &mut LibraryLookup<'_>) -> Result<(Vec<Value>, Vec<Diagnostic>), Vec<Diagnostic>> {
+///
+/// Each stored library is shared with the screening's cache (`Rc`), never
+/// copied: the references borrow it.
+fn library_refs(document: &Value, project_id: &str, lookup: &mut SharedLibraryLookup<'_>) -> Result<(Vec<Value>, Vec<Diagnostic>), Vec<Diagnostic>> {
     let mut found = Vec::new();
     collect_library_refs(document, "", &mut found);
     let mut distinct: BTreeMap<(String, String, Option<String>), &LibraryReference> = BTreeMap::new();
     for reference in &found {
         distinct.entry((reference.kind.clone(), reference.id.clone(), reference.version.clone())).or_insert(reference);
     }
-    let mut stored_libraries: BTreeMap<(String, String), Option<Value>> = BTreeMap::new();
+    let mut stored_libraries: BTreeMap<(String, String), Option<Rc<Value>>> = BTreeMap::new();
     for reference in &found {
         let key = (reference.kind.clone(), reference.id.clone());
         if stored_libraries.contains_key(&key) {
@@ -865,47 +917,53 @@ fn library_refs(document: &Value, project_id: &str, lookup: &mut LibraryLookup<'
     }
     let mut refs = Vec::new();
     for ((kind, id, version), _) in distinct {
-        let stored = stored_libraries.get(&(kind.clone(), id.clone())).cloned().flatten();
-        let library = stored.as_ref().and_then(|stored| stored.get(format!("{kind}_library"))).and_then(Value::as_object);
+        let stored: Option<&Value> = stored_libraries.get(&(kind.clone(), id.clone())).and_then(Option::as_deref);
+        let library = stored.and_then(|stored| stored.get(format!("{kind}_library"))).and_then(Value::as_object);
         let provenance_source = library.and_then(|library| library.get("provenance")).and_then(Value::as_object);
         let metadata = json!({
             "library_kind": kind,
             "library_id": id,
             "library_version": version,
-            "document_sha256": stored.as_ref().map(|stored| sha256_hex(&canonical_json(stored)))
+            "document_sha256": stored.map(|stored| sha256_hex(&canonical_json(stored)))
         });
         // The objects the reference covers: the library wrapper and the
         // records its references name (every record, for a reference that
         // names none). Its classification is the least permissive of theirs.
-        let mut covered: Vec<&Map<String, Value>> = library.into_iter().collect();
-        if let Some(stored) = &stored {
-            for reference in found.iter().filter(|reference| reference.kind == kind && reference.id == id && reference.version == version) {
-                match &reference.record_id {
-                    Some(record_id) => covered.extend(matching_library_records(&kind, stored, record_id)),
-                    None => covered.extend(
-                        crate::library_records_key(&kind)
-                            .and_then(|(records_key, _)| stored.get(records_key))
-                            .and_then(Value::as_array)
-                            .into_iter()
-                            .flatten()
-                            .filter_map(Value::as_object),
-                    ),
+        // Each object is visited once however many references name it (the
+        // verdicts depend on neither order nor repetition: each rank is one
+        // value), and nothing is collected from the library, so what this
+        // builds is bounded by the model's distinct record ids.
+        let mut record_ids: BTreeSet<&str> = BTreeSet::new();
+        let mut every_record = false;
+        for reference in found.iter().filter(|reference| reference.kind == kind && reference.id == id && reference.version == version) {
+            match &reference.record_id {
+                Some(record_id) => {
+                    record_ids.insert(record_id.as_str());
+                }
+                None => every_record = true,
+            }
+        }
+        let mut redistributions = LeastOf::new(&REDISTRIBUTION_ORDER);
+        let mut reviews = LeastOf::new(&REVIEW_ORDER);
+        let mut privacy_ranks = 0u8;
+        let mut cover = |object| covered_object(object, &mut redistributions, &mut reviews, &mut privacy_ranks);
+        if let Some(library) = library {
+            cover(library);
+        }
+        if let Some(stored) = stored {
+            if every_record {
+                let records = crate::library_records_key(&kind).and_then(|(records_key, _)| stored.get(records_key)).and_then(Value::as_array);
+                records.into_iter().flatten().filter_map(Value::as_object).for_each(&mut cover);
+            } else {
+                for record_id in &record_ids {
+                    matching_library_records(&kind, stored, record_id).into_iter().for_each(&mut cover);
                 }
             }
         }
-        let (redistributions, reviews) = covered_dispositions(&covered);
-        let redistribution = least_permissive(redistributions);
-        let review = least_reviewed(reviews);
-        let mut privacies = Vec::new();
-        for object in &covered {
-            for (key, child) in object.iter() {
-                if key == "privacy_class" || key == "privacy_classification" {
-                    privacies.push(child.as_str().unwrap_or(""));
-                }
-                privacy_values(child, &mut privacies);
-            }
-        }
-        let privacy = reference_privacy(redistribution, &privacies, "private_library_data");
+        drop(cover);
+        let redistribution = redistributions.least();
+        let review = reviews.least();
+        let privacy = reference_privacy_ranked(redistribution, privacy_ranks, "private_library_data");
         let notice = match library {
             Some(library) => text(Some(library), "source_notice").or_else(|| text(provenance_source, "source_name")).unwrap_or("TBD").to_string(),
             None => "not held by the local library store".to_string(),
@@ -934,6 +992,63 @@ fn library_refs(document: &Value, project_id: &str, lookup: &mut LibraryLookup<'
     if refusals.is_empty() { Ok((refs, warnings)) } else { Err(refusals) }
 }
 
+/// Whether `character` is white space to ECMAScript's `String.prototype.trim`
+/// (WhiteSpace and LineTerminator): U+0009-U+000D, U+0020, U+00A0, U+1680,
+/// U+2000-U+200A, U+2028, U+2029, U+202F, U+205F, U+3000 and U+FEFF. Unlike
+/// Rust's `str::trim` (Unicode White_Space), it includes U+FEFF and excludes
+/// U+0085.
+fn is_js_trim_white_space(character: char) -> bool {
+    matches!(
+        character,
+        '\u{0009}'..='\u{000D}' | '\u{0020}' | '\u{00A0}' | '\u{1680}' | '\u{2000}'..='\u{200A}' | '\u{2028}' | '\u{2029}' | '\u{202F}' | '\u{205F}' | '\u{3000}' | '\u{FEFF}'
+    )
+}
+
+/// A string member that is not blank to JavaScript, as written (untrimmed):
+/// the resolution's twin of `text` in `src/services/modelRulePackResolution.ts`
+/// (`value.trim() ? value : null`). Used by `rule_pack_ref_exclusion` only;
+/// `text` keeps Rust's `str::trim`.
+fn js_text<'a>(object: Option<&'a Map<String, Value>>, key: &str) -> Option<&'a str> {
+    object?.get(key).and_then(Value::as_str).filter(|value| !value.chars().all(is_js_trim_white_space))
+}
+
+/// Why a model rule-pack reference is excluded, or `None` when it resolves:
+/// the solve's resolution (#1602; `resolveModelRulePacks` in
+/// `src/services/modelRulePackResolution.ts`), rule for rule, so that a handoff
+/// warns of exactly the references a run of the same model excludes.
+/// `stored` is the model's project's pack with the reference's id, if any.
+/// - Unresolved: no stored pack, or its `metadata.rule_pack_id` is not the
+///   reference's, or it has no `metadata.rule_pack_version` or
+///   `metadata.source_notice` (text not blank to JavaScript's `trim`, `js_text`).
+/// - Checksum mismatch: its stamped `checksums.rule_pack_checksum.value` is not
+///   64 lowercase hex digits or not the reference's `checksum.value`, the
+///   document's validation does not report its checksum as `match` (as the open
+///   command's envelope reports it), or its version is not the reference's.
+///
+/// TypeScript twin and shared vectors: `fixtures/handoff/rule_pack_ref_resolution_vectors.json`.
+pub(crate) fn rule_pack_ref_exclusion(reference: &Map<String, Value>, stored: Option<&Value>) -> Option<&'static str> {
+    let Some(document) = stored else { return Some(RULE_PACK_REF_UNRESOLVED) };
+    let metadata = document.get("metadata").and_then(Value::as_object);
+    let stamped = document
+        .get("checksums")
+        .and_then(Value::as_object)
+        .and_then(|checksums| checksums.get("rule_pack_checksum"))
+        .and_then(Value::as_object)
+        .and_then(|checksum| js_text(Some(checksum), "value"));
+    let id = js_text(metadata, "rule_pack_id");
+    let version = js_text(metadata, "rule_pack_version");
+    if id != reference.get("rule_pack_id").and_then(Value::as_str) || version.is_none() || js_text(metadata, "source_notice").is_none() {
+        return Some(RULE_PACK_REF_UNRESOLVED);
+    }
+    let recomputed_matches = open_pipe_stress_rule_pack_document::validate_rule_pack_document(document, false).checksum.match_status == "match";
+    let sha256_hex = |value: &str| value.len() == 64 && value.bytes().all(|byte| matches!(byte, b'0'..=b'9' | b'a'..=b'f'));
+    let referenced = reference.get("checksum").and_then(|checksum| checksum.get("value")).and_then(Value::as_str);
+    if !stamped.is_some_and(sha256_hex) || stamped != referenced || !recomputed_matches || version != reference.get("rule_pack_version").and_then(Value::as_str) {
+        return Some(RULE_PACK_REF_CHECKSUM_MISMATCH);
+    }
+    None
+}
+
 /// `rule_pack_refs` (design §3): the document's references, each with a
 /// checksum over its reference metadata `{rule_pack_id, version,
 /// stamped_checksum_value, basis, grammar_version}`; the grammar version is the
@@ -956,22 +1071,30 @@ fn rule_pack_refs(document: &Value, project_id: &str, lookup: &mut RulePackLooku
         }
         let version = entry.get("rule_pack_version").and_then(Value::as_str).unwrap_or("");
         let stamped = entry.get("checksum").and_then(|checksum| checksum.get("value")).and_then(Value::as_str).unwrap_or("");
+        // A store read error refuses the save. This is stricter than the solve's
+        // resolution (#1602), which records the reference as unresolved; both fail
+        // closed, and the handoff keeps its refusal.
         let stored = lookup(project_id, id).map_err(|error| {
             vec![diagnostic(RULE_PACK_STORE_UNAVAILABLE, &path, format!("The local rule-pack store could not be read to resolve `{id}` ({error}); nothing was saved."))]
         })?;
-        // Resolved only when the stored stamp is the reference's and the
-        // pack's checksum, recomputed from its stored document, is that stamp
-        // (review round 1, finding 5: an edited draft keeps its old stamp).
-        let pack = stored.into_iter().find(|pack| {
-            pack.pointer("/checksums/rule_pack_checksum/value").and_then(Value::as_str) == Some(stamped)
-                && open_pipe_stress_rule_pack_document::compute_rule_pack_checksum(pack).is_ok_and(|computed| computed.value == stamped)
-        });
-        if pack.is_none() {
-            warnings.push(diagnostic(
+        // Resolved only as the solve resolves it (#1602, `rule_pack_ref_exclusion`):
+        // among other checks, the stored stamp is the reference's and the pack's
+        // checksum, recomputed from its stored document, matches it (review
+        // round 1, finding 5: an edited draft keeps its old stamp).
+        let exclusion = rule_pack_ref_exclusion(entry, stored.first());
+        let pack = if exclusion.is_none() { stored.into_iter().next() } else { None };
+        match exclusion {
+            Some(RULE_PACK_REF_CHECKSUM_MISMATCH) => warnings.push(diagnostic(
+                RULE_PACK_REF_CHECKSUM_MISMATCH,
+                &path,
+                format!("The local store's rule pack `{id}` for this project is not the referenced one: its stamped checksum, its own recomputed checksum or its version is not the reference's ({stamped}, version {version}); its grammar version, lifecycle and provenance are not known here."),
+            )),
+            Some(_) => warnings.push(diagnostic(
                 RULE_PACK_REF_UNRESOLVED,
                 &path,
-                format!("The local store holds no rule pack `{id}` whose document hashes to the referenced stamped checksum {stamped}; its grammar version, lifecycle and provenance are not known here."),
-            ));
+                format!("The local store holds no rule pack `{id}` for this project with a matching id, a version and a source notice; its grammar version, lifecycle and provenance are not known here."),
+            )),
+            None => {}
         }
         // A resolved pack is screened whole before anything of it is mapped
         // (review round 2, finding 2).
@@ -1009,10 +1132,10 @@ fn rule_pack_refs(document: &Value, project_id: &str, lookup: &mut RulePackLooku
             reviews.push(lifecycle_review_classification(text(pack_metadata, "lifecycle_status")));
             reviews.push(review_classification(text(pack_provenance, "review_status")));
             let mut found = Vec::new();
-            members_at_any_depth(pack, "redistribution_status", &mut found);
+            members_at_any_depth(pack, "redistribution_status", &mut |status| found.push(status));
             dispositions.extend(found.into_iter().map(|status| handoff_redistribution(Some(status))));
             let mut found = Vec::new();
-            members_at_any_depth(pack, "review_status", &mut found);
+            members_at_any_depth(pack, "review_status", &mut |status| found.push(status));
             reviews.extend(found.into_iter().map(|status| review_classification(Some(status))));
         }
         let redistribution = least_permissive(dispositions);
@@ -1134,7 +1257,9 @@ pub fn suggested_package_name(document: &Value) -> String {
     format!("{stem}.{}", publish::PACKAGE_EXTENSION)
 }
 
-/// The admission and every store-derived manifest part (see the module docs).
+/// The admission and every store-derived manifest part (see the module docs),
+/// with no reservation before the screening (tests).
+#[cfg(test)]
 #[allow(clippy::too_many_arguments)]
 pub fn prepare_handoff(
     canonical_text: String,
@@ -1146,19 +1271,37 @@ pub fn prepare_handoff(
     libraries: &mut LibraryLookup<'_>,
     rule_packs: &mut RulePackLookup<'_>,
 ) -> Result<PreparedHandoff, Vec<Diagnostic>> {
+    prepare_handoff_screened(canonical_text, claimed_model_hash, evidence_payload_sha256, basis_state_id, package_label, &mut |_| Ok(()), states, libraries, rule_packs)
+}
+
+/// [`prepare_handoff`], with `before_screening` given the admitted document
+/// before its screening starts (`model_document_save::admit_model_document_text_screened`).
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn prepare_handoff_screened(
+    canonical_text: String,
+    claimed_model_hash: &str,
+    evidence_payload_sha256: &str,
+    basis_state_id: &str,
+    package_label: &str,
+    before_screening: &mut dyn FnMut(&Value) -> Result<(), Vec<Diagnostic>>,
+    states: &mut StateLookup<'_>,
+    libraries: &mut LibraryLookup<'_>,
+    rule_packs: &mut RulePackLookup<'_>,
+) -> Result<PreparedHandoff, Vec<Diagnostic>> {
     let package_label = admit_label(package_label)?;
-    // One store read per library for both the screening and the references.
-    let mut cache: BTreeMap<(String, String, String), Option<Value>> = BTreeMap::new();
-    let mut cached = |project: &str, kind: &str, id: &str| -> Result<Option<Value>, String> {
+    // One store read per library for both the screening and the references,
+    // shared (never copied) between them.
+    let mut cache: BTreeMap<(String, String, String), Option<Rc<Value>>> = BTreeMap::new();
+    let mut cached = |project: &str, kind: &str, id: &str| -> Result<Option<Rc<Value>>, String> {
         let key = (project.to_string(), kind.to_string(), id.to_string());
         if let Some(found) = cache.get(&key) {
             return Ok(found.clone());
         }
-        let found = libraries(project, kind, id)?;
+        let found = libraries(project, kind, id)?.map(Rc::new);
         cache.insert(key, found.clone());
         Ok(found)
     };
-    let admitted = model_document_save::admit_model_document_text(canonical_text, claimed_model_hash, evidence_payload_sha256, &mut cached)?;
+    let admitted = model_document_save::admit_model_document_text_screened(canonical_text, claimed_model_hash, evidence_payload_sha256, before_screening, &mut cached)?;
     let document: Value = serde_json::from_str(&admitted.text).expect("the admitted text is JSON");
     let model_hex = sha256_hex(&admitted.text);
     let project_id = document.pointer("/project/id").and_then(Value::as_str).unwrap_or("").to_string();
@@ -1548,6 +1691,165 @@ pub fn write_handoff_package(destination: &Path, prepared: PreparedHandoff, crea
     }
 }
 
+/// The save after its ingress and its route-evidence check (`lib.rs`
+/// `save_handoff_package_decoded`), on one blocking worker, within the
+/// command's memory (`PoolReadMemory`, started from the ingress lease
+/// `ingress`): [`prepare_handoff`] with the saved states read by
+/// [`stored_state`], each referenced library read from the local store by
+/// `stored_model_document_export::StoreLibraryReads` (measured, its load and
+/// its prescan-bounded parse each reserved before they are made) and the rule
+/// packs by the solve's resolution; then the chooser (`choose`, given the
+/// suggested package name), the basis state read again, and publication at
+/// `created_at()` through `hooks`. The store is the one at `store`. The
+/// screening's allocations and each library's reference metadata are reserved
+/// before they are built (`StoreLibraryReads`); the parsed libraries are shared
+/// between the screening and the references, never copied. A library read or
+/// reservation the memory pool refuses refuses the save by the pool's name
+/// (`STORE-READ-MEMORY-UNAVAILABLE`) before any folder is chosen. The
+/// reservations are held through the chooser and the publication, and the
+/// outcome is serialized within the same memory while they are held
+/// (`stored_model_document_export::serialize_outcome`; a Saved response's
+/// bound is reserved before the chooser); `respond` receives it and its text
+/// before any reservation is released.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn save_handoff_admitted<R>(
+    request: HandoffSaveRequest,
+    store: &dyn Fn() -> Result<std::path::PathBuf, String>,
+    registry: &crate::solve_jobs::SolveJobRegistry,
+    ingress: &crate::memory_pool::Lease,
+    choose: impl FnOnce(&str) -> Result<Option<std::path::PathBuf>, String>,
+    created_at: impl FnOnce() -> String,
+    hooks: &PublishHooks<'_>,
+    respond: impl FnOnce(&HandoffSaveOutcome, String) -> R,
+) -> R {
+    use crate::stored_model_document_export::{serialize_outcome, StoreLibraryReads};
+    let memory = crate::stored_read::PoolReadMemory::new(registry, ingress);
+    let open = || crate::open_project_store(&store()?).map(|(connection, _)| connection);
+    let mut libraries = StoreLibraryReads::new(&memory, open).with_reference_metadata();
+    let (outcome, reserved) = handoff_outcome(request, store, &memory, &mut libraries, choose, created_at, hooks);
+    // The outcome is serialized while every reservation its diagnostics live
+    // under is held (#1641 Codex r2 P2-b), and the response built from it.
+    let (sent, text, buffer) = serialize_outcome(&memory, "Save Handoff", "handoff", outcome, reserved);
+    let response = respond(&sent, text);
+    drop(sent);
+    drop(buffer);
+    drop(libraries);
+    #[cfg(test)]
+    crate::stored_model_document_export::library_read_probe::record_save_peak(memory.peak_reserved());
+    response
+}
+
+/// What a Saved outcome adds to its warnings' JSON and the basis state id: its
+/// tag, the package name (at most 255 bytes, each escaped to at most six), the
+/// two hashes and the durability, and the publication's own warnings (a
+/// leftover staging folder each); a longer response is reserved anew.
+const SAVED_FIELDS_BYTES: u64 = 8192;
+
+/// [`save_handoff_admitted`]'s outcome, and the Saved response's bound
+/// reserved before the chooser (with its bytes), when the handoff was prepared.
+fn handoff_outcome(
+    request: HandoffSaveRequest,
+    store: &dyn Fn() -> Result<std::path::PathBuf, String>,
+    memory: &crate::stored_read::PoolReadMemory<'_>,
+    libraries: &mut crate::stored_model_document_export::StoreLibraryReads<'_>,
+    choose: impl FnOnce(&str) -> Result<Option<std::path::PathBuf>, String>,
+    created_at: impl FnOnce() -> String,
+    hooks: &PublishHooks<'_>,
+) -> (HandoffSaveOutcome, Option<(crate::stored_read::ReadReservation, u64)>) {
+    use crate::stored_read::ReadMemory;
+    use rusqlite::Connection;
+    let HandoffSaveRequest { canonical_text, claimed_model_hash, screening, basis_state_id, package_label, .. } = request;
+    let mut states = |project_id: &str, state_id: &str| stored_state(&store()?, project_id, state_id, memory);
+    // The rule packs' store connection, opened on first use.
+    let mut packs: Option<Connection> = None;
+    let mut rule_packs = |project_id: &str, rule_pack_id: &str| -> Result<Vec<Value>, String> {
+        if packs.is_none() {
+            packs = Some(crate::open_project_store(&store()?)?.0);
+        }
+        crate::stored_rule_packs_with_id(packs.as_ref().expect("opened above"), project_id, rule_pack_id)
+    };
+    let reads = std::cell::RefCell::new(libraries);
+    let prepared = prepare_handoff_screened(
+        canonical_text,
+        &claimed_model_hash,
+        &screening.payload_sha256,
+        &basis_state_id,
+        &package_label,
+        &mut |document: &Value| reads.borrow_mut().screen_model(document),
+        &mut states,
+        &mut |project_id: &str, library_kind: &str, library_id: &str| reads.borrow_mut().read(project_id, library_kind, library_id),
+        &mut rule_packs,
+    );
+    let libraries = reads.into_inner();
+    if let Some(diagnostics) = libraries.refusal() {
+        return (HandoffSaveOutcome::Refused { diagnostics }, None);
+    }
+    let prepared = match prepared {
+        Ok(prepared) => prepared,
+        Err(diagnostics) => return (HandoffSaveOutcome::Refused { diagnostics }, None),
+    };
+    let bound = crate::stored_read::total(&[
+        crate::stored_read::serialized_length(&prepared.save_warnings).unwrap_or(u64::MAX),
+        crate::stored_read::serialized_length(prepared.basis.state_id.as_str()).unwrap_or(u64::MAX),
+        SAVED_FIELDS_BYTES,
+    ]);
+    let response = match memory.reserve("the response to Save Handoff", crate::stored_read::exact_text_bytes(bound)) {
+        Ok(response) => response,
+        Err(error) => return (HandoffSaveOutcome::refused_one(crate::stored_read::STORE_READ_MEMORY_UNAVAILABLE, format!("{error} Nothing was written.")), None),
+    };
+    let reserved = Some((response, bound));
+    let destination = match choose(&prepared.suggested_package_name) {
+        Ok(Some(destination)) => destination,
+        Ok(None) => return (HandoffSaveOutcome::Cancelled, reserved),
+        Err(message) => return (HandoffSaveOutcome::refused_one(PICKER_PATH_INVALID, message), reserved),
+    };
+    // The basis state is read again immediately before publication.
+    if let Err(diagnostics) = confirm_basis_state(&prepared, &mut states) {
+        return (HandoffSaveOutcome::Refused { diagnostics }, reserved);
+    }
+    (write_handoff_package(&destination, prepared, &created_at(), hooks), reserved)
+}
+
+impl crate::stored_model_document_export::SentOutcome for HandoffSaveOutcome {
+    fn bounded(self) -> (Self, usize) {
+        use crate::stored_model_document_export::bounded_diagnostics;
+        match self {
+            HandoffSaveOutcome::Saved { package_name, model_hash, export_hash, basis_state_id, replaced_existing, durability, warnings } => {
+                let listed = warnings.len();
+                (HandoffSaveOutcome::Saved { package_name, model_hash, export_hash, basis_state_id, replaced_existing, durability, warnings: bounded_diagnostics(warnings) }, listed)
+            }
+            HandoffSaveOutcome::Refused { diagnostics } => {
+                let listed = diagnostics.len();
+                (HandoffSaveOutcome::Refused { diagnostics: bounded_diagnostics(diagnostics) }, listed)
+            }
+            HandoffSaveOutcome::Cancelled => (HandoffSaveOutcome::Cancelled, 0),
+        }
+    }
+
+    fn shortened(self, refusal: String, noun: &str, listed: usize) -> Self {
+        use crate::stored_read::{capped, STORE_READ_MEMORY_UNAVAILABLE};
+        match self {
+            HandoffSaveOutcome::Saved { package_name, model_hash, export_hash, basis_state_id, replaced_existing, durability, .. } => HandoffSaveOutcome::Saved {
+                package_name,
+                model_hash,
+                export_hash,
+                basis_state_id,
+                replaced_existing,
+                durability,
+                warnings: vec![diagnostic(
+                    STORE_READ_MEMORY_UNAVAILABLE,
+                    "",
+                    format!("{} The package was saved; its {listed} warnings are not shown.", capped(refusal)),
+                )],
+            },
+            HandoffSaveOutcome::Refused { diagnostics } => {
+                HandoffSaveOutcome::refused_one(STORE_READ_MEMORY_UNAVAILABLE, crate::stored_model_document_export::shortened_refusal(refusal, noun, listed, &diagnostics))
+            }
+            HandoffSaveOutcome::Cancelled => HandoffSaveOutcome::Cancelled,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1556,6 +1858,7 @@ mod tests {
     use crate::handoff_package_publish::{verify_handoff_package, MANIFEST_MEMBER, MODEL_DIRECTORY, MODEL_FILE, PRODUCTION_HOOKS};
     use crate::memory_pool::test_host::ScriptedHost;
     use crate::model_states::{labels_from_value, save_state_in_store, SaveModelStateRequest, StateWriteHooks};
+    use crate::stored_model_document_export::{library_read_probe::representative_material_library, StoreLibraryReads};
     use rusqlite::{Connection, Transaction};
     use std::fs;
     use std::io;
@@ -1661,13 +1964,30 @@ mod tests {
         save_state_in_store(&store.path, request, &StateWriteHooks { allocate: &allocate, between_rows: &between_rows }).unwrap()
     }
 
-    /// `prepare_handoff` with the store's lookups, as the command wires them.
+    /// `prepare_handoff` with the store's lookups, as the command wires them:
+    /// the libraries through the command's metered lookup (`StoreLibraryReads`)
+    /// under an ordinary pool.
     fn prepare(store: &Store, model: &Value, state_id: &str) -> Result<PreparedHandoff, Vec<Diagnostic>> {
         let connection = Connection::open(&store.path).unwrap();
         let text = canonical_json(model);
         let hash = hash_of(&text);
+        let pool = registry(ScriptedHost::normal());
+        let memory = crate::stored_read::PoolReadMemory::unseeded(&pool);
+        let mut reads = StoreLibraryReads::new(&memory, || Connection::open(&store.path).map_err(|error| error.to_string()));
         let mut states = |project: &str, state: &str| stored_state(&store.path, project, state, &crate::stored_read::UnmeteredReadMemory);
-        let mut libraries = |project: &str, kind: &str, id: &str| crate::load_library(&connection, project, kind, id).map(|row| row.map(|row| row.document));
+        let mut libraries = |project: &str, kind: &str, id: &str| reads.read(project, kind, id);
+        let mut packs = |project: &str, id: &str| crate::stored_rule_packs_with_id(&connection, project, id);
+        prepare_handoff(text, &hash, &hash, state_id, "Invented handoff", &mut states, &mut libraries, &mut packs)
+    }
+
+    /// [`prepare`] with the library lookup the command used before its reads
+    /// were metered (`lib.rs` `load_library`), for the byte-identity check.
+    fn prepare_unmetered(store: &Store, model: &Value, state_id: &str) -> Result<PreparedHandoff, Vec<Diagnostic>> {
+        let connection = Connection::open(&store.path).unwrap();
+        let text = canonical_json(model);
+        let hash = hash_of(&text);
+        let mut states = |project: &str, state: &str| stored_state(&store.path, project, state, &crate::stored_read::UnmeteredReadMemory);
+        let mut libraries = |project: &str, kind: &str, id: &str| crate::load_library(&connection, project.trim(), kind.trim(), id.trim()).map(|row| row.map(|row| row.document));
         let mut packs = |project: &str, id: &str| crate::stored_rule_packs_with_id(&connection, project, id);
         prepare_handoff(text, &hash, &hash, state_id, "Invented handoff", &mut states, &mut libraries, &mut packs)
     }
@@ -1686,6 +2006,306 @@ mod tests {
 
     fn write(destination: &Path, prepared: PreparedHandoff) -> HandoffSaveOutcome {
         write_handoff_package(destination, prepared, CREATED_AT, &PRODUCTION_HOOKS)
+    }
+
+    // --- The library reads' memory (DEL-04-07) ------------------------------
+
+    /// The witness model's store holding the representative library (a
+    /// committed library fixture) as `document_json`, and a basis state.
+    fn library_store(label: &str, library: Option<&str>) -> (Store, Value, String) {
+        let model = witness_model();
+        let store = store(label, &model, true);
+        let connection = Connection::open(&store.path).unwrap();
+        match library {
+            None => {
+                crate::upsert_library(&connection, "project:slots", "material", "library:invented-materials", &representative_material_library()).unwrap();
+            }
+            Some(text) => {
+                connection
+                    .execute(
+                        "UPDATE local_libraries SET document_json = ?1 WHERE project_id = 'project:slots' AND library_kind = 'material' AND library_id = 'library:invented-materials'",
+                        [text],
+                    )
+                    .unwrap();
+            }
+        }
+        let state = save_state(&store, &model, "handoff_basis", "0123456789abcdef0123456789abcdef").state;
+        (store, model, state.state_id)
+    }
+
+    /// The stored text of the store's library.
+    fn stored_library_text(store: &Store) -> String {
+        Connection::open(&store.path)
+            .unwrap()
+            .query_row("SELECT document_json FROM local_libraries WHERE library_id = 'library:invented-materials'", [], |row| row.get(0))
+            .unwrap()
+    }
+
+    /// The command's ingress for `model` and `state_id`, then its arguments.
+    fn admitted_request(pool: &crate::solve_jobs::SolveJobRegistry, model: &Value, state_id: &str) -> (HandoffSaveRequest, crate::memory_pool::Lease) {
+        let text = canonical_json(model);
+        let body = json!({
+            "canonicalText": text, "claimedModelHash": hash_of(&text),
+            "screening": serde_json::to_value(screening(&hash_of(&text))).unwrap(),
+            "localFirstEvidence": serde_json::to_value(local_first()).unwrap(),
+            "basisStateId": state_id, "packageLabel": "Invented handoff"
+        });
+        let (mut args, lease) = admit_json(pool, "save_handoff_package", ArgsDecoding::Moved, &body).unwrap();
+        (save_handoff_package_args(&mut args).unwrap(), lease)
+    }
+
+    /// The command after its ingress, at `destination`; `shown` records whether
+    /// the chooser was shown, with the pool's reserved bytes then.
+    fn save_at(store: &Store, pool: &crate::solve_jobs::SolveJobRegistry, request: HandoffSaveRequest, lease: &crate::memory_pool::Lease, destination: &Path, shown: &std::cell::Cell<Option<u64>>) -> HandoffSaveOutcome {
+        let path = || Ok(store.path.clone());
+        save_handoff_admitted(
+            request,
+            &path,
+            pool,
+            lease,
+            |_| {
+                shown.set(Some(pool.pool_status().reserved_bytes));
+                Ok(Some(destination.to_path_buf()))
+            },
+            || CREATED_AT.to_string(),
+            &PRODUCTION_HOOKS,
+            |outcome, text| {
+                assert_eq!(serde_json::to_string(outcome).unwrap(), text, "the response is the outcome sent");
+                outcome.clone()
+            },
+        )
+    }
+
+    /// The counting-allocator check: Save Handoff reads the representative
+    /// library within its reservations (the measured peak of each read, priced
+    /// as the ingress prescan prices allocations, is within what that read
+    /// reserved), holds them with the ingress lease through the chooser and
+    /// the publication, and releases every one when it returns. The package
+    /// written is byte-identical to the one the unmetered lookup produced.
+    #[test]
+    fn save_handoff_reads_libraries_within_their_reservations_and_writes_the_same_bytes() {
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+        let (store, model, state_id) = library_store("library-lease", None);
+        let library_bytes = stored_library_text(&store).len() as u64;
+        let pool = registry(ScriptedHost::normal());
+        let (request, lease) = admitted_request(&pool, &model, &state_id);
+        fs::create_dir_all(store.root.join("metered")).unwrap();
+        fs::create_dir_all(store.root.join("unmetered")).unwrap();
+        let destination = store.root.join("metered").join("invented.swbhandoff");
+        let shown = std::cell::Cell::new(None);
+        crate::stored_model_document_export::library_read_probe::start();
+        let outcome = save_at(&store, &pool, request, &lease, &destination, &shown);
+        let reads = crate::stored_model_document_export::library_read_probe::take();
+        assert!(matches!(outcome, HandoffSaveOutcome::Saved { .. }), "{outcome:?}");
+        assert_eq!(reads.len(), 1, "one read of the one referenced library: {reads:?}");
+        let (reserved, peak) = reads[0];
+        let load_and_parse = crate::stored_read::loaded_text_bytes(library_bytes) + crate::stored_read::parse_bytes(&stored_library_text(&store)).unwrap();
+        eprintln!("SAVE_HANDOFF_LIBRARY_READ library_bytes={library_bytes} reserved={reserved} load_and_parse={load_and_parse} measured_peak={peak}");
+        assert!(reserved >= load_and_parse + crate::stored_read::READ_OVERHEAD_BYTES);
+        assert!(peak <= reserved, "the read's measured peak {peak} exceeds its reservations {reserved}");
+        let held = shown.get().expect("the chooser was shown");
+        assert!(held >= lease.bytes() + reserved, "the library reservations ({reserved}) are held with the lease ({}) through the chooser: {held}", lease.bytes());
+        assert_eq!(pool.pool_status().reserved_bytes, lease.bytes(), "the save releases its reservations when it returns");
+        drop(lease);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+        // The same save through the unmetered lookup writes the same bytes.
+        let before = store.root.join("unmetered").join("invented.swbhandoff");
+        let prepared = prepare_unmetered(&store, &model, &state_id).unwrap();
+        assert!(matches!(write_handoff_package(&before, prepared, CREATED_AT, &PRODUCTION_HOOKS), HandoffSaveOutcome::Saved { .. }));
+        assert_eq!(package_bytes(&destination), package_bytes(&before), "the metered save writes the bytes the unmetered lookup wrote");
+    }
+
+    /// #1641 Codex r1 P2: the handoff copied each library twice more (its
+    /// cache and its references), unreserved (a 3.2 MB library peaked at 65.8 MB
+    /// against 44.3 MB reserved). The parsed library is now shared, and the
+    /// whole save's measured peak (admission, screening, references, metadata,
+    /// the basis state's reads and the publication) is within the most its
+    /// memory held at once, the ingress lease included, for a library of
+    /// 1,024 records (about 3 MB) whose every record the model references.
+    #[test]
+    fn the_whole_handoff_is_within_its_reservations_for_a_large_library() {
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+        let library = crate::stored_model_document_export::library_read_probe::large_material_library(1024);
+        let text = serde_json::to_string(&library).unwrap();
+        let (store, mut model, _) = library_store("large-library", Some(&text));
+        // Two references: the record `steel`, and the whole library (no record id).
+        let mut whole = model["materials"][0].clone();
+        whole["id"] = json!("material:invented-whole-library");
+        whole["provenance_record"]["library_ref"].as_object_mut().unwrap().remove("record_id");
+        model["materials"].as_array_mut().unwrap().push(whole);
+        let state_id = save_state(&store, &model, "handoff_basis", "fedcba9876543210fedcba9876543210").state.state_id;
+        let pool = registry(ScriptedHost::normal());
+        let (request, lease) = admitted_request(&pool, &model, &state_id);
+        let destination = store.root.join("large.swbhandoff");
+        let shown = std::cell::Cell::new(None);
+        crate::stored_model_document_export::library_read_probe::take_save_peaks();
+        let (outcome, measured) = crate::ingress::counting::measure(|| save_at(&store, &pool, request, &lease, &destination, &shown));
+        assert!(matches!(outcome, HandoffSaveOutcome::Saved { .. }), "{outcome:?}");
+        let reserved = *crate::stored_model_document_export::library_read_probe::take_save_peaks().last().expect("the save recorded its peak");
+        eprintln!("SAVE_HANDOFF_LARGE library_bytes={} lease={} reserved_peak={reserved} measured_peak={}", text.len(), lease.bytes(), measured.peak_priced);
+        assert!(text.len() > 3_000_000);
+        assert!(measured.peak_priced <= reserved, "the handoff's measured peak {} exceeds its reservations {reserved}", measured.peak_priced);
+        drop(lease);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+        // The same package as the unmetered lookup's.
+        let before = store.root.join("unmetered");
+        fs::create_dir_all(&before).unwrap();
+        let before = before.join("large.swbhandoff");
+        assert!(matches!(write_handoff_package(&before, prepare_unmetered(&store, &model, &state_id).unwrap(), CREATED_AT, &PRODUCTION_HOOKS), HandoffSaveOutcome::Saved { .. }));
+        assert_eq!(package_bytes(&destination), package_bytes(&before));
+    }
+
+    /// #1641 Codex r2 P2-a: the handoff's structural screens of a stored
+    /// library kept a growing path per level (a public library 100 levels deep
+    /// under 32 KiB keys peaked at 500 MB against 47 MB reserved). The walks
+    /// keep one pointer buffer, their findings are priced from an
+    /// allocation-free count, and the whole handoff's measured peak is within
+    /// the most its memory held.
+    #[test]
+    fn a_deeply_nested_library_is_screened_within_the_handoffs_reservations() {
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+        let library = crate::stored_model_document_export::library_read_probe::nested_long_key_library(100, 32 * 1024);
+        let text = serde_json::to_string(&library).unwrap();
+        let (store, model, state_id) = library_store("nested-library", Some(&text));
+        let pool = registry(ScriptedHost::normal());
+        let (request, lease) = admitted_request(&pool, &model, &state_id);
+        let destination = store.root.join("nested.swbhandoff");
+        crate::stored_model_document_export::library_read_probe::take_save_peaks();
+        let (outcome, measured) = crate::ingress::counting::measure(|| save_at(&store, &pool, request, &lease, &destination, &std::cell::Cell::new(None)));
+        assert!(matches!(outcome, HandoffSaveOutcome::Saved { .. }), "{outcome:?}");
+        let reserved = *crate::stored_model_document_export::library_read_probe::take_save_peaks().last().unwrap();
+        eprintln!("SAVE_HANDOFF_NESTED library_bytes={} reserved_peak={reserved} measured_peak={}", text.len(), measured.peak_priced);
+        assert!(measured.peak_priced <= reserved, "the handoff's measured peak {} exceeds its reservations {reserved}", measured.peak_priced);
+    }
+
+    /// #1641 Codex r2 P2-b: a refusal's diagnostics outlived the library
+    /// reservations and were serialized unreserved (100,000 matching rejected
+    /// records: 77.6 MB live with 62 KB reserved, a 26.4 MB response). The
+    /// outcome is now serialized within the save's memory while every
+    /// reservation is held: when the response is built, the live bytes are
+    /// within what is held, and the whole peak is within the most held.
+    #[test]
+    fn a_refusal_with_100000_diagnostics_is_serialized_within_the_handoffs_reservations() {
+        let library = crate::stored_model_document_export::library_read_probe::rejected_records_library(100_000);
+        let text = serde_json::to_string(&library).unwrap();
+        let (store, model, state_id) = library_store("rejected-records", Some(&text));
+        let pool = registry(ScriptedHost::normal());
+        let (request, lease) = admitted_request(&pool, &model, &state_id);
+        let path = || Ok(store.path.clone());
+        crate::stored_model_document_export::library_read_probe::take_save_peaks();
+        let ((outcome, live, held, length), measured) = crate::ingress::counting::measure(|| {
+            save_handoff_admitted(request, &path, &pool, &lease, |_| panic!("no chooser after a refusal"), || CREATED_AT.to_string(), &PRODUCTION_HOOKS, |outcome, text| {
+                (outcome.clone(), crate::ingress::counting::live_priced(), pool.pool_status().reserved_bytes, text.len())
+            })
+        });
+        let reserved = *crate::stored_model_document_export::library_read_probe::take_save_peaks().last().unwrap();
+        let HandoffSaveOutcome::Refused { diagnostics } = &outcome else { panic!("not refused") };
+        eprintln!("SAVE_HANDOFF_REJECTED diagnostics={} response_bytes={length} live_at_response={live} held_at_response={held} reserved_peak={reserved} measured_peak={}", diagnostics.len(), measured.peak_priced);
+        assert!(u64::try_from(live).unwrap() <= held, "{live} bytes live when the response is built, {held} held");
+        assert!(measured.peak_priced <= reserved, "the measured peak {} exceeds the most held {reserved}", measured.peak_priced);
+        // #1641 Codex r3: the response, which outlives the reservations, is
+        // bounded: the first 64 of the unbounded list, then their count.
+        use crate::stored_model_document_export::{DIAGNOSTICS_NOT_SHOWN, MAX_NAMED_DIAGNOSTICS, MAX_RESPONSE_BYTES};
+        assert!(length as u64 <= MAX_RESPONSE_BYTES, "a {length}-byte response");
+        let Err(unbounded) = prepare_unmetered(&store, &model, &state_id) else { panic!("prepared") };
+        assert_eq!(unbounded.len(), 100_000);
+        assert_eq!(diagnostics.len(), MAX_NAMED_DIAGNOSTICS + 1);
+        assert_eq!(&diagnostics[..MAX_NAMED_DIAGNOSTICS], &unbounded[..MAX_NAMED_DIAGNOSTICS], "the named diagnostics are the unbounded list's first");
+        assert_eq!(diagnostics[MAX_NAMED_DIAGNOSTICS].code, DIAGNOSTICS_NOT_SHOWN);
+        assert!(diagnostics[MAX_NAMED_DIAGNOSTICS].message.starts_with("99936 more of the 100000 diagnostics"), "{}", diagnostics[MAX_NAMED_DIAGNOSTICS].message);
+        drop(lease);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+    }
+
+    /// A library read the memory pool refuses ends the save by the pool's name
+    /// before its load or its parse (no headroom; a per-invocation budget one
+    /// byte short of the parse), with nothing chosen or written and every
+    /// reservation released.
+    #[test]
+    fn a_library_read_the_pool_refuses_refuses_the_handoff_and_writes_nothing() {
+        let (store, model, state_id) = library_store("library-refused", None);
+        let text = stored_library_text(&store);
+        // No headroom once the arguments are admitted: the store is not opened.
+        let host = ScriptedHost::normal();
+        let pool = registry(host.clone());
+        let (request, lease) = admitted_request(&pool, &model, &state_id);
+        host.set(|script| script.headroom_bytes = Some(0));
+        let destination = store.root.join("refused.swbhandoff");
+        let shown = std::cell::Cell::new(None);
+        let outcome = save_at(&store, &pool, request, &lease, &destination, &shown);
+        let HandoffSaveOutcome::Refused { diagnostics } = &outcome else { panic!("not refused: {outcome:?}") };
+        assert_eq!(diagnostics.len(), 1);
+        assert_eq!(diagnostics[0].code, crate::stored_read::STORE_READ_MEMORY_UNAVAILABLE);
+        assert!(diagnostics[0].message.contains("headroom_insufficient"), "{}", diagnostics[0].message);
+        assert!(shown.get().is_none() && !destination.exists(), "nothing is chosen or written");
+        assert_eq!(pool.pool_status().reserved_bytes, lease.bytes());
+        drop(lease);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+        // A budget that admits the lease, the store, the keys and the load,
+        // but not the parse: refused naming the library, before it is parsed.
+        let probe = registry(ScriptedHost::normal());
+        let (request, lease) = admitted_request(&probe, &model, &state_id);
+        let shown = std::cell::Cell::new(None);
+        crate::stored_model_document_export::library_read_probe::start();
+        assert!(matches!(save_at(&store, &probe, request, &lease, &store.root.join("probe.swbhandoff"), &shown), HandoffSaveOutcome::Saved { .. }));
+        let reserved = crate::stored_model_document_export::library_read_probe::take()[0].0;
+        let parse = crate::stored_read::parse_bytes(&text).unwrap();
+        let budget = lease.bytes() + reserved - 1;
+        drop(lease);
+        let small = registry(ScriptedHost::normal());
+        small.configure_pool(budget.max(64 << 20), budget, false).unwrap();
+        let (request, lease) = admitted_request(&small, &model, &state_id);
+        let shown = std::cell::Cell::new(None);
+        crate::stored_model_document_export::library_read_probe::start();
+        let outcome = save_at(&store, &small, request, &lease, &destination, &shown);
+        let reads = crate::stored_model_document_export::library_read_probe::take();
+        let HandoffSaveOutcome::Refused { diagnostics } = &outcome else { panic!("not refused: {outcome:?}") };
+        assert_eq!(diagnostics[0].code, crate::stored_read::STORE_READ_MEMORY_UNAVAILABLE);
+        assert!(diagnostics[0].message.contains("the stored material library `library:invented-materials`"), "{}", diagnostics[0].message);
+        assert!(diagnostics[0].message.contains(&format!("{parse}")) || diagnostics[0].message.contains("per-invocation budget"), "{}", diagnostics[0].message);
+        assert_eq!(reads.len(), 1);
+        assert!(reads[0].1 < parse, "refused before the parse: its measured peak {} is below the parse bound {parse}", reads[0].1);
+        assert!(shown.get().is_none() && !destination.exists());
+        assert_eq!(small.pool_status().reserved_bytes, lease.bytes());
+        drop(lease);
+        assert_eq!(small.pool_status().reserved_bytes, 0);
+    }
+
+    /// A stored library that is not JSON refuses the handoff with the store
+    /// failure's code, and the refusal quotes the read's bounded description
+    /// (the prescan's reason and offset, or serde's category and position),
+    /// never the stored text. Cancel and a chooser error release the
+    /// reservations too.
+    #[test]
+    fn library_decode_errors_are_bounded_and_every_path_releases_its_reservations() {
+        let pad = "x".repeat(256 * 1024);
+        for (label, text) in [("unterminated", format!("{{\"material_library\":\"{pad}")), ("out-of-range", format!("{{\"pad\":\"{pad}\",\"n\":1e400}}"))] {
+            let (store, model, state_id) = library_store(&format!("library-decode-{label}"), Some(&text));
+            let pool = registry(ScriptedHost::normal());
+            let (request, lease) = admitted_request(&pool, &model, &state_id);
+            let destination = store.root.join("decode.swbhandoff");
+            let shown = std::cell::Cell::new(None);
+            let outcome = save_at(&store, &pool, request, &lease, &destination, &shown);
+            let HandoffSaveOutcome::Refused { diagnostics } = &outcome else { panic!("{label}: not refused: {outcome:?}") };
+            assert_eq!(diagnostics[0].code, model_document_save::LIBRARY_STORE_UNAVAILABLE, "{label}");
+            let message = &diagnostics[0].message;
+            assert!(message.len() < 1024 && !message.contains("xxxx"), "{label}: {message}");
+            assert!(shown.get().is_none() && !destination.exists());
+            assert_eq!(pool.pool_status().reserved_bytes, lease.bytes(), "{label}");
+            drop(lease);
+            assert_eq!(pool.pool_status().reserved_bytes, 0, "{label}");
+        }
+        let (store, model, state_id) = library_store("library-cancel", None);
+        let pool = registry(ScriptedHost::normal());
+        for chosen in [Ok(None), Err("invented chooser failure".to_string())] {
+            let (request, lease) = admitted_request(&pool, &model, &state_id);
+            let path = || Ok(store.path.clone());
+            let outcome = save_handoff_admitted(request, &path, &pool, &lease, |_| chosen, || CREATED_AT.to_string(), &PRODUCTION_HOOKS, |outcome, _| outcome.clone());
+            assert!(matches!(&outcome, HandoffSaveOutcome::Cancelled) || matches!(&outcome, HandoffSaveOutcome::Refused { diagnostics } if diagnostics[0].code == PICKER_PATH_INVALID), "{outcome:?}");
+            assert_eq!(pool.pool_status().reserved_bytes, lease.bytes());
+            drop(lease);
+            assert_eq!(pool.pool_status().reserved_bytes, 0);
+        }
     }
 
     // --- Basis state -------------------------------------------------------
@@ -1882,7 +2502,7 @@ mod tests {
         let pack = &prepared.rule_pack_refs[0];
         let stored: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
         let metadata = json!({
-            "rule_pack_id": "invented_demo_rule_pack", "version": "0.2.0",
+            "rule_pack_id": "invented_demo_rule_pack", "version": "0.3.0",
             "stamped_checksum_value": stored["checksums"]["rule_pack_checksum"]["value"],
             "basis": open_pipe_stress_rule_pack_document::CHECKSUM_BASIS, "grammar_version": stored["grammar_version"]
         });
@@ -2347,7 +2967,63 @@ mod tests {
         review_emit("stale-grammar", prepared);
         let mut packs = |project: &str, id: &str| crate::stored_rule_packs_with_id(&Connection::open(&store.path).unwrap(), project, id);
         let (_, warnings) = rule_pack_refs(&model, "project:slots", &mut packs).unwrap();
-        assert!(warnings.iter().any(|w| w.code == RULE_PACK_REF_UNRESOLVED), "invalid stamped checksum was treated as a resolved pack");
+        // aligned with #1602's exclusion codes (export-diagnostics PR)
+        assert!(warnings.iter().any(|w| w.code == RULE_PACK_REF_CHECKSUM_MISMATCH), "invalid stamped checksum was treated as a resolved pack");
+    }
+    /// W-6b resolves a model rule-pack reference as the solve does (#1602): every
+    /// shared vector gives the outcome TypeScript's `resolveModelRulePacks` gives
+    /// (`src/services/rulePackRefResolutionParity.test.ts`), through the store
+    /// lookup the save command wires and through `rule_pack_ref_exclusion` alone.
+    #[test]
+    fn the_resolution_blank_test_is_javascript_trim() {
+        // Every code point JavaScript's `String.prototype.trim` removes (enumerated in node).
+        let javascript: Vec<u32> = vec![0x9, 0xA, 0xB, 0xC, 0xD, 0x20, 0xA0, 0x1680, 0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200A, 0x2028, 0x2029, 0x202F, 0x205F, 0x3000, 0xFEFF];
+        let ours: Vec<u32> = (0..=char::MAX as u32).filter_map(char::from_u32).filter(|character| is_js_trim_white_space(*character)).map(u32::from).collect();
+        assert_eq!(ours, javascript);
+        let metadata = |value: &str| json!({ "source_notice": value }).as_object().cloned();
+        assert_eq!(js_text(metadata("\u{FEFF}").as_ref(), "source_notice"), None);
+        assert_eq!(js_text(metadata("\u{0085}").as_ref(), "source_notice"), Some("\u{0085}"));
+        assert_eq!(js_text(metadata(" notice ").as_ref(), "source_notice"), Some(" notice "), "as written, untrimmed");
+    }
+    #[test]
+    fn rule_pack_ref_resolution_matches_the_solve_on_the_shared_vectors() {
+        let vectors: Value = serde_json::from_str(include_str!("../../../../fixtures/handoff/rule_pack_ref_resolution_vectors.json")).unwrap();
+        let base: Value = serde_json::from_str(DEMO_RULE_PACK).unwrap();
+        let project = vectors["model_project_id"].as_str().unwrap();
+        let cases = vectors["vectors"].as_array().unwrap();
+        assert!(cases.len() >= 11);
+        for case in cases {
+            let name = case["name"].as_str().unwrap();
+            let reference = case["reference"].as_object().unwrap();
+            let rule_pack_id = reference["rule_pack_id"].as_str().unwrap();
+            let root = sandbox("rule-pack-resolution");
+            let (connection, _) = crate::open_project_store(&root.join(crate::PROJECT_STORE_FILE)).unwrap();
+            if let Some(stored_under) = case["stored_under"].as_str() {
+                let mut document = base.clone();
+                for edit in case["document_edits"].as_array().unwrap() {
+                    let pointer = edit["pointer"].as_str().unwrap();
+                    let (parent, key) = pointer.rsplit_once('/').unwrap();
+                    let object = document.pointer_mut(parent).unwrap().as_object_mut().unwrap();
+                    if edit["delete"] == json!(true) { object.remove(key); } else { object.insert(key.to_string(), edit["value"].clone()); }
+                }
+                document["checksums"]["rule_pack_checksum"]["value"] = case["stamp"].clone();
+                let validation = open_pipe_stress_rule_pack_document::validate_rule_pack_document(&document, false);
+                assert_eq!(json!(validation.checksum.match_status), case["match_status"], "{name}: the vector's match_status is the validator's");
+                crate::upsert_rule_pack(&connection, stored_under, rule_pack_id, &document).unwrap();
+            }
+            let expected = case["expected"].as_str().unwrap();
+            let held = crate::stored_rule_packs_with_id(&connection, project, rule_pack_id).unwrap();
+            assert!(held.len() <= 1, "{name}");
+            assert_eq!(rule_pack_ref_exclusion(reference, held.first()).unwrap_or("resolved"), expected, "{name}");
+            let model = json!({ "rule_pack_refs": [Value::Object(reference.clone())] });
+            let mut lookup = |project: &str, id: &str| crate::stored_rule_packs_with_id(&connection, project, id);
+            let (refs, warnings) = rule_pack_refs(&model, project, &mut lookup).unwrap();
+            assert_eq!(refs.len(), 1, "{name}: an excluded reference stays listed");
+            let codes: Vec<&str> = warnings.iter().map(|warning| warning.code.as_str()).collect();
+            assert_eq!(codes, if expected == "resolved" { vec![] } else { vec![expected] }, "{name}");
+            drop(connection);
+            fs::remove_dir_all(&root).unwrap();
+        }
     }
     #[test]
     fn review_publication_failures_and_symlinks() {
@@ -3134,7 +3810,7 @@ fn round4_every_library_kind_propagates_nested_private_values() {
                 fn public(v:&mut Value) { match v { Value::Object(m)=>for (k,v) in m {if k=="redistribution_status"{*v=json!("public_permissive")}else{public(v)}},Value::Array(a)=>for v in a{public(v)},_=>{}} }
                 public(&mut lib);
                 lib[format!("{kind}_library")]["extra_privacy"]=json!({"array":[[{key:private}]]});
-                let mut lookup=|_:&str,_:&str,_:&str|Ok(Some(lib.clone()));
+                let mut lookup=|_:&str,_:&str,_:&str|Ok(Some(Rc::new(lib.clone())));
                 let (refs,_)=library_refs(&model,"project:slots",&mut lookup).unwrap();
                 assert_eq!(refs.len(),1,"{kind}");
                 assert_eq!(refs[0]["privacy_classification"],json!("private_library_data"),"{kind}:{key}:{private}");
@@ -3494,7 +4170,7 @@ fn round5_nonstring_privacy_classifications_are_not_public() {
         let saved = crate::save_local_library_value(|| Ok(store.path.clone()), "project:slots".to_string(), "material".to_string(), lib.clone()).unwrap();
         assert!(saved.stored, "normal private import refused {value}: {}", saved.message);
         let row = crate::load_library(&Connection::open(&store.path).unwrap(), "project:slots", "material", &saved.library_id).unwrap().unwrap();
-        let mut lookup = |_: &str, _: &str, _: &str| Ok(Some(row.document.clone()));
+        let mut lookup = |_: &str, _: &str, _: &str| Ok(Some(Rc::new(row.document.clone())));
         // Since review round 6 (note 4) the save refuses such a document as
         // malformed; the classifier itself still counts the value as private.
         match library_refs(&model, "project:slots", &mut lookup) {

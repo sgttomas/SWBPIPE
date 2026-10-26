@@ -7,6 +7,8 @@ import type {
   PreviewModel
 } from "../../types";
 import { canonicalJsonString, canonicalSha256Hex } from "../../services/hashService";
+import { libraryRefSites, type LibraryRefFinding } from "../../services/libraryImportService";
+import { LIBRARY_REF_CHECK_SOURCE } from "../library/libraryRefFindings";
 import {
   verifyCurrentSessionInputManifest,
   type CurrentSessionInputManifestEvidence
@@ -17,6 +19,8 @@ import desktopAppConfig from "../../../src-tauri/tauri.conf.json";
 import type { NumericalHealthView } from "../results/numericalHealth";
 import { reportLineText } from "../results/numericalHealthText";
 import { reportResultRows } from "./reportResultRows";
+import { checkExactReportAdmission, REPORT_EXACT_ADMISSION_BINDING_MISMATCH, type ExactReportAdmission } from "./exactReportAdmission";
+import { exactLimitationEntries, exactRouteCore, isExactReportSource } from "./exactReportSections";
 
 // DEC-021 (A7): assemble the renderer input document from session state.
 // The frontend composes only references, disclosures, and display rows — the
@@ -193,8 +197,115 @@ function componentProvenanceRecord(
   };
 }
 
-function componentHasProvenance(component: PreviewComponent): boolean {
-  return Boolean(component.provenance?.trim());
+// W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §4.1, FR-REP-003 on
+// every route): the provenance of materials, sections, components and supports.
+
+type ReportProvenanceRecord = ReturnType<typeof sessionProvenance>;
+type ProvenanceEntity = { provenance_record?: unknown; provenance?: unknown };
+
+function recordObject(value: unknown): Record<string, unknown> | null {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+/** The one provenance predicate (§4.1): the entity's `provenance_record.source_name` or its
+ * `provenance` note is non-empty after trimming. An object-valued note (a section's) counts
+ * only when it has a member. */
+function hasProvenance(entity: ProvenanceEntity): boolean {
+  if (text(recordObject(entity.provenance_record)?.source_name)) return true;
+  const note = entity.provenance;
+  if (typeof note === "string") return note.trim() !== "";
+  const object = recordObject(note);
+  return object !== null && Object.keys(object).length > 0;
+}
+
+/** A `provenance_record` mapped to the report's record (§4.1): the seven PRD §20.2 fields,
+ * each copied when non-empty after trimming, else "not recorded" ("unknown" for
+ * redistribution, "pending" for review); `review_status` is the user's source-data review,
+ * copied so the screener's blocks keep applying. `reviewed_by`, `reviewed_on`,
+ * `verification_note` and `library_ref` are not carried. */
+function mappedProvenanceRecord(record: Record<string, unknown>): ReportProvenanceRecord {
+  return {
+    source_name: text(record.source_name) ?? "not recorded",
+    source_location: text(record.source_location) ?? "not recorded",
+    source_license: text(record.source_license) ?? "not recorded",
+    contributor: text(record.contributor) ?? "not recorded",
+    contributor_certification: text(record.contributor_certification) ?? "not recorded",
+    redistribution_status: text(record.redistribution_status) ?? "unknown",
+    review_status: text(record.review_status) ?? "pending",
+    privacy_classification: "private_project_data"
+  };
+}
+
+/** The disposition members the package save screens at every depth, with the values that
+ * block (`src-tauri/src/export_disposition_screen.rs` `SCREENED_MEMBERS`, W-6a's policy). */
+const SCREENED_DISPOSITIONS: Readonly<Record<string, readonly string[]>> = Object.freeze({
+  redistribution_status: ["protected_suspected", "rejected"],
+  review_status: ["quarantined", "rejected"],
+  privacy_class: ["protected_suspected", "quarantined", "rejected"],
+  privacy_classification: ["protected_suspected", "quarantined", "rejected"],
+  classification: ["protected_suspected", "quarantined", "rejected"],
+  lifecycle_status: ["quarantined", "rejected"]
+});
+
+/** A structured provenance source (a `provenance_record`, or an object- or array-valued
+ * note) whose disposition member is an array or an object: the package save refuses it as
+ * malformed, and so does the report. */
+export const REPORT_PROVENANCE_DISPOSITION_MALFORMED = "REPORT-PROVENANCE-DISPOSITION-MALFORMED";
+
+type FoundDisposition = { path: string; member: string; status: string };
+
+/** Every blocking disposition at any depth of `value` (each object judged by its own
+ * members, nothing inherited), and every disposition member that is an array or object. */
+function screenDispositions(value: unknown, path: string, found: FoundDisposition[], malformed: string[]): void {
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => screenDispositions(item, `${path}[${index}]`, found, malformed));
+    return;
+  }
+  const object = recordObject(value);
+  if (!object) return;
+  for (const [key, child] of Object.entries(object)) {
+    const at = `${path}.${key}`;
+    const blocking = Object.prototype.hasOwnProperty.call(SCREENED_DISPOSITIONS, key) ? SCREENED_DISPOSITIONS[key] : null;
+    if (blocking && typeof child === "string" && blocking.includes(child)) found.push({ path: at, member: key, status: child });
+    if (blocking && typeof child === "object" && child !== null) malformed.push(`${at} is ${Array.isArray(child) ? "an array" : "an object"}`);
+    screenDispositions(child, at, found, malformed);
+  }
+}
+
+/** W-11 slice (c) (§6.2): the report record of a structured source keeps the source's
+ * blocking dispositions at any depth, so the renderer refuses it as the package save refuses
+ * the model: a `quarantined` or `rejected` value anywhere becomes the record's
+ * `review_status`, and `protected_suspected` anywhere its `redistribution_status`. A
+ * malformed disposition refuses the build, naming the entity and member. */
+function withSourceDispositions(record: ReportProvenanceRecord, source: unknown, where: string, root: string): ReportProvenanceRecord {
+  const found: FoundDisposition[] = [];
+  const malformed: string[] = [];
+  screenDispositions(source, root, found, malformed);
+  if (malformed.length > 0) {
+    throw new Error(`${REPORT_PROVENANCE_DISPOSITION_MALFORMED}: ${where}: ${malformed.join("; ")}; its disposition cannot be judged, so nothing was rendered.`);
+  }
+  const review = found.find((item) => item.status === "quarantined" || item.status === "rejected");
+  const suspected = found.some((item) => item.status === "protected_suspected");
+  return {
+    ...record,
+    ...(review ? { review_status: review.status } : {}),
+    ...(suspected ? { redistribution_status: "protected_suspected" } : {})
+  };
+}
+
+/** The value's review status (§4.1): the record's, except that a missing-data finding whose
+ * record says `accepted` carries `pending` (the record keeps `accepted`). */
+function valueReviewStatus(record: ReportProvenanceRecord, missing: boolean): string {
+  return missing && record.review_status === "accepted" ? "pending" : record.review_status;
+}
+
+function componentReportRecord(component: PreviewComponent, base: ReportProvenanceRecord): ReportProvenanceRecord {
+  const structured = recordObject(component.provenance_record);
+  return structured
+    ? withSourceDispositions(mappedProvenanceRecord(structured), structured, `component ${component.id}`, "provenance_record")
+    : componentProvenanceRecord(component, base);
 }
 
 function componentProvenanceValues(
@@ -202,7 +313,8 @@ function componentProvenanceValues(
   provenance: ReturnType<typeof sessionProvenance>
 ) {
   return model.components.map((component) => {
-    const record = componentProvenanceRecord(component, provenance);
+    const record = componentReportRecord(component, provenance);
+    const missing = !hasProvenance(component);
     return {
       value_id: `component-provenance:${component.id}`,
       value_category: `component_provenance:${component.kind || "TBD"}`,
@@ -211,8 +323,8 @@ function componentProvenanceValues(
       provenance: record,
       privacy_classification: record.privacy_classification,
       required_for: ["reporting", "human_review"],
-      review_status: record.review_status,
-      missing_data_finding: !componentHasProvenance(component)
+      review_status: valueReviewStatus(record, missing),
+      missing_data_finding: missing
     };
   });
 }
@@ -222,17 +334,164 @@ function componentProvenanceDiagnostics(
   provenance: ReturnType<typeof sessionProvenance>
 ) {
   return model.components
-    .filter((component) => !componentHasProvenance(component))
+    .filter((component) => !hasProvenance(component))
     .map((component) => ({
       code: "COMPONENT_PROVENANCE_MISSING",
       class: "PROVENANCE_WARNING",
       severity: "warning",
       source: { ref_type: "component", ref_id: component.id },
       affected_object: { ref_type: "component", ref_id: component.id },
-      message: `Component ${component.label || component.id} has no component.provenance field; report provenance is incomplete for this component.`,
+      message: `Component ${component.label || component.id} has neither a provenance_record nor a component.provenance note; report provenance is incomplete for this component.`,
       remediation: "Enter component source/provenance before relying on this report.",
       provenance
     }));
+}
+
+type ModelMaterial = NonNullable<PreviewModel["materials"]>[number];
+type ModelSection = NonNullable<PreviewModel["sections"]>[number];
+type ModelSupport = PreviewModel["supports"][number];
+
+/** A material, section or support with its report identity (§4.1). */
+type ProvenanceSubject = {
+  kind: "material" | "section" | "support";
+  id: string;
+  label: string;
+  entity: ProvenanceEntity;
+};
+
+function materialSubjects(model: PreviewModel): ProvenanceSubject[] {
+  return (model.materials ?? []).map((material: ModelMaterial) => ({
+    kind: "material",
+    id: material.id,
+    label: text(material.label) ?? material.id,
+    entity: material
+  }));
+}
+
+function sectionSubjects(model: PreviewModel): ProvenanceSubject[] {
+  return (model.sections ?? []).map((section: ModelSection) => ({
+    kind: "section",
+    id: section.id,
+    label: text(section.name) ?? section.id,
+    entity: section
+  }));
+}
+
+/** Only the supports that carry a `provenance_record` get a record (§4.1). */
+function supportSubjects(model: PreviewModel): ProvenanceSubject[] {
+  return model.supports
+    .filter((support: ModelSupport) => recordObject(support.provenance_record) !== null)
+    .map((support: ModelSupport) => ({
+      kind: "support",
+      id: support.id,
+      label: text(support.label) ?? support.id,
+      entity: support
+    }));
+}
+
+/** The record of a material, section or support (§4.1): its mapped `provenance_record`, or,
+ * without one, the component pattern over its `provenance` note (an object-valued section
+ * note as its RFC 8785 text). */
+async function subjectReportRecord(subject: ProvenanceSubject): Promise<ReportProvenanceRecord> {
+  const where = `${subject.kind} ${subject.id}`;
+  const structured = recordObject(subject.entity.provenance_record);
+  if (structured) return withSourceDispositions(mappedProvenanceRecord(structured), structured, where, "provenance_record");
+  const note = subject.entity.provenance;
+  const noteText = typeof note === "string"
+    ? note.trim()
+    : recordObject(note) && Object.keys(recordObject(note)!).length > 0
+      ? await canonicalJsonString(note)
+      : "";
+  const name = subject.kind === "material" ? `${subject.label} material provenance` : `${subject.label} ${subject.kind} provenance`;
+  // A structured note is screened before it is flattened into the record's location text.
+  return withSourceDispositions({
+    source_name: name,
+    source_location: noteText ? `${subject.kind}.provenance=${noteText}` : `${subject.kind} provenance missing`,
+    source_license: "user_supplied_or_private",
+    contributor: "user_local_session",
+    contributor_certification: `User-local ${subject.kind} provenance metadata; redistribution remains private or pending until separately cleared.`,
+    redistribution_status: "private_only",
+    review_status: "pending",
+    privacy_classification: "private_project_data"
+  }, typeof note === "object" ? note : null, where, "provenance");
+}
+
+/** The records, values and diagnostics of the model's materials, sections and supports with
+ * a record, in that order and in model order within each (§4.1). */
+async function subjectProvenance(model: PreviewModel, provenance: ReportProvenanceRecord) {
+  const subjects = [...materialSubjects(model), ...sectionSubjects(model), ...supportSubjects(model)];
+  const records = await Promise.all(subjects.map(subjectReportRecord));
+  const values = subjects.map((subject, index) => {
+    const record = records[index];
+    const missing = !hasProvenance(subject.entity);
+    return {
+      value_id: `${subject.kind}-provenance:${subject.id}`,
+      value_category: "report_metadata",
+      source: { ref_type: subject.kind, ref_id: subject.id },
+      provenance: record,
+      privacy_classification: record.privacy_classification,
+      required_for: ["reporting", "human_review"],
+      review_status: valueReviewStatus(record, missing),
+      missing_data_finding: missing
+    };
+  });
+  // Material and section diagnostics only: the design names no support diagnostic; a
+  // support record without provenance carries its missing-data flag.
+  const diagnostics = subjects
+    .filter((subject) => subject.kind !== "support" && !hasProvenance(subject.entity))
+    .map((subject) => ({
+      code: subject.kind === "material" ? "MATERIAL_PROVENANCE_MISSING" : "SECTION_PROVENANCE_MISSING",
+      class: "PROVENANCE_WARNING",
+      severity: "warning",
+      source: { ref_type: subject.kind, ref_id: subject.id },
+      affected_object: { ref_type: subject.kind, ref_id: subject.id },
+      message: `${subject.kind === "material" ? "Material" : "Section"} ${subject.label} has neither a provenance_record nor a provenance note; report provenance is incomplete for this ${subject.kind}.`,
+      remediation: `Enter ${subject.kind} source/provenance before relying on this report.`,
+      provenance
+    }));
+  return { records, values, diagnostics };
+}
+
+/** The model's library references (§4.2): one entry per distinct (kind, library, version,
+ * record), in first-occurrence order of the open-time check's walk (`libraryRefSites`), with
+ * the owning ids sorted and unique. An absent or empty member is "not recorded". Safe
+ * metadata only: no library payload or record snapshot. */
+function libraryReferences(model: PreviewModel, provenance: ReportProvenanceRecord) {
+  const entries = new Map<string, { library_kind: string; library_id: string; library_version: string; record_id: string; owners: Set<string> }>();
+  for (const { entity_ref, reference } of libraryRefSites(model)) {
+    const member = (value: unknown) => (typeof value === "string" && value.trim() ? value.trim() : "not recorded");
+    const identity = {
+      library_kind: member(reference.library_kind),
+      library_id: member(reference.library_id),
+      library_version: member(reference.library_version),
+      record_id: member(reference.record_id)
+    };
+    const key = JSON.stringify([identity.library_kind, identity.library_id, identity.library_version, identity.record_id]);
+    const entry = entries.get(key) ?? { ...identity, owners: new Set<string>() };
+    entry.owners.add(entity_ref);
+    entries.set(key, entry);
+  }
+  return Array.from(entries.values()).map(({ owners, ...identity }, index) => ({
+    reference_id: `library-ref:${index + 1}`,
+    ...identity,
+    entity_refs: Array.from(owners).sort(),
+    provenance
+  }));
+}
+
+/** The library store's findings on the model's references (§4.2), as provenance warnings.
+ * Resolution is the desktop's existing store check; nothing here resolves anything. */
+function libraryFindingDiagnostics(findings: ReadonlyArray<LibraryRefFinding>, provenance: ReportProvenanceRecord) {
+  return findings.map((finding) => ({
+    code: finding.code,
+    class: "PROVENANCE_WARNING",
+    severity: "warning",
+    source: { ref_type: "diagnostic_source", ref_id: LIBRARY_REF_CHECK_SOURCE },
+    affected_object: { ref_type: "model_entity", ref_id: finding.entity_ref },
+    message: finding.message,
+    remediation: "Compare the library reference with the local library store before relying on this report.",
+    provenance
+  }));
 }
 
 function springHangerSupports(model: PreviewModel) {
@@ -457,8 +716,14 @@ function userRuleChecks(run: SessionRuleCheckRun) {
     rule_pack_id: run.result.rule_pack_id,
     grammar_version: run.result.grammar_version,
     aggregate_status: status(run.result.aggregate_status),
+    // One outcome per check and load case or combination (rule-pack format
+    // 0.5.0; DEL-06-01 Design `rule-pack-0.5.0.md` §2.7, §6): each carries
+    // the basis it was evaluated on. An outcome without one (a check the pack
+    // gives no basis) omits the member, and the report shows "load case not
+    // recorded".
     checks: run.result.checks.map((check) => ({
       check_id: check.check_id,
+      ...(check.basis_ref ? { basis_ref: { ref_type: check.basis_ref.ref_type, ref_id: check.basis_ref.ref_id } } : {}),
       status: status(check.status),
       missing_inputs: Array.from(
         new Set(check.bound_inputs.filter((input) => !input.supplied).map((input) => input.input_id))
@@ -475,7 +740,9 @@ export async function buildRenderableReportInput({
   renderContext,
   inputManifest = null,
   ruleCheckRun = null,
-  numericalHealth = null
+  numericalHealth = null,
+  exactAdmission = null,
+  libraryRefFindings = []
 }: {
   model: PreviewModel;
   result: MechanicsResult;
@@ -489,9 +756,27 @@ export async function buildRenderableReportInput({
    * route only. Absent, the input is unchanged (the report package passes none). No
    * figure is exported. */
   numericalHealth?: NumericalHealthView | null;
+  /** W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.1): the recorded Export
+   * Result JSON admission of an exact-route source (`admitExactReportSource`), required
+   * for an exact source and refused for any other. A pressure-free source takes none, so
+   * its input is unchanged. */
+  exactAdmission?: ExactReportAdmission | null;
+  /** W-11 slice (c) (§4.2): the library store's findings that still apply to `model`; the
+   * callers pass `currentLibraryRefFindings(model)`. Each becomes a provenance warning. */
+  libraryRefFindings?: ReadonlyArray<LibraryRefFinding>;
 }) {
+  const exact = isExactReportSource(result);
+  if (!exact && exactAdmission !== null) {
+    throw new Error(`${REPORT_EXACT_ADMISSION_BINDING_MISMATCH}: semantic_contract_id`);
+  }
   const run = analysisRun.analysis_run;
+  // The exact path's admission is checked at the start and again after the last await
+  // (`checkExactReportAdmission`): retirement, an edit or a substitute refuses.
+  const exactInputs = exact ? { model, result, analysisRun, inputManifest: inputManifest as CurrentSessionInputManifestEvidence } : null;
+  if (exactInputs) checkExactReportAdmission(exactAdmission, exactInputs);
   const provenance = sessionProvenance(model);
+  const subjects = await subjectProvenance(model, provenance);
+  const libraryRefs = libraryReferences(model, provenance);
   const modelHashValue = await canonicalSha256Hex(model);
   const runRecordHash = run.hashes.find((item) => item.payload_scope === "analysis_run_record");
   const receivedResultScope = analysisResultHashScope(analysisRun.schema_version);
@@ -513,7 +798,9 @@ export async function buildRenderableReportInput({
 	    diagnostics: [
 	      ...diagnosticsForSections(result, provenance),
 	      ...componentProvenanceDiagnostics(model, provenance),
-	      ...springHangerDiagnostics(model, provenance)
+	      ...springHangerDiagnostics(model, provenance),
+	      ...subjects.diagnostics,
+	      ...libraryFindingDiagnostics(libraryRefFindings, provenance)
 	    ],
     analysis_status_disclosures: [
       ...analysisStatus
@@ -537,12 +824,14 @@ export async function buildRenderableReportInput({
     ],
 	    provenance_notes: [
 	      provenance,
-	      ...model.components.map((component) => componentProvenanceRecord(component, provenance)),
-	      ...springHangerSupports(model).map((support) => springHangerProvenanceRecord(support, provenance))
+	      ...model.components.map((component) => componentReportRecord(component, provenance)),
+	      ...springHangerSupports(model).map((support) => springHangerProvenanceRecord(support, provenance)),
+	      ...subjects.records
 	    ],
 	    user_supplied_values: [
 	      ...componentProvenanceValues(model, provenance),
-	      ...springHangerValues(model, provenance)
+	      ...springHangerValues(model, provenance),
+	      ...subjects.values
 	    ],
     assumptions: [],
     limitations: [
@@ -569,6 +858,17 @@ export async function buildRenderableReportInput({
     })),
     professional_boundary: PROFESSIONAL_BOUNDARY
   };
+
+  // W-11 (§2.4): an exact source's limitation entries, one per published producer
+  // string with the closed table's statement, then the profile reference, after the
+  // technical-preview entry (which stays first), sharing its effect and provenance.
+  if (exactInputs) {
+    const semanticContract = run.reproducibility.semantic_contract;
+    if (!semanticContract) throw new Error(`${REPORT_EXACT_ADMISSION_BINDING_MISMATCH}: semantic_contract_id`);
+    const [preview] = reportSections.limitations;
+    const entries = await exactLimitationEntries(result, result.run_id, { id: semanticContract.id, sha256: semanticContract.sha256 });
+    reportSections.limitations.push(...entries.map((entry) => ({ ...entry, effect: preview.effect, provenance: preview.provenance })) as never[]);
+  }
 
   const sectionsChecksumValue = await canonicalSha256Hex(reportSections);
 
@@ -665,18 +965,42 @@ export async function buildRenderableReportInput({
     }))
   };
 
+  const reportContext = await buildReportContext(result, analysisRun, renderContext, inputManifest);
+  // W-11 (§3.2-§3.3): the exact-route result block: the identity, the admission binding
+  // (the renderer composes the standing line from it), the load/reference line and the
+  // headlines, nominal then reduced.
+  const exactRoute = exactInputs
+    ? await (async () => {
+        const core = await exactRouteCore(result);
+        return {
+          semantic_contract_id: core.semantic_contract_id,
+          admission: { ...exactAdmission!.binding },
+          load_reference_states: core.load_reference_states,
+          headlines: core.headlines
+        };
+      })()
+    : null;
+  // After the last await: the admission still holds for these live objects.
+  if (exactInputs) checkExactReportAdmission(exactAdmission, exactInputs);
+
   return {
     report_title: `${model.project.name} — Calculation Report`,
     calculation_report: calculationReport,
     report_sections: reportSections,
-    result_rows: reportResultRows(result).concat((numericalHealth?.route === "generic" ? numericalHealth.cases : []).map((item) => ({
+    // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §6.1): an exact-route
+    // report carries no numerical-health line until the native render can re-derive it
+    // from the delivered result; its rows are exactly the source rows' projection.
+    result_rows: reportResultRows(result).concat((numericalHealth?.route === "generic" && !exactInputs ? numericalHealth.cases : []).map((item) => ({
       row_id: `numerical-health:${item.caseId}`,
       label: reportLineText(item.state),
       case_ref: `load_case:${item.caseId}`,
       quantity_display: "",
       source_ref: item.integrityDiagnosticId ?? "numerical_quality"
     }))),
-    report_context: await buildReportContext(result, analysisRun, renderContext, inputManifest),
-    user_rule_checks: ruleCheckRun ? userRuleChecks(ruleCheckRun) : null
+    report_context: reportContext,
+    user_rule_checks: ruleCheckRun ? userRuleChecks(ruleCheckRun) : null,
+    ...(exactRoute ? { exact_route: exactRoute } : {}),
+    // W-11 slice (c) (§4.2): absent without references, so such an input is unchanged.
+    ...(libraryRefs.length > 0 ? { library_references: libraryRefs } : {})
   };
 }

@@ -69,10 +69,15 @@ function selectedPropertyValues(model: PreviewModel, selection: EntityRef): Arra
   }
   const node = selection.type === "node" ? model.nodes.find((item) => item.id === selection.id) : null;
   if (node) {
+    // W-17 §3: positions are in project.units.length; without it they have no stated unit.
+    const lengthUnit = (model.project.units as PreviewModel["project"]["units"] | undefined)?.length;
+    const coordinates = `${node.position.x}, ${node.position.y}, ${node.position.z}`;
     return [
       ["ID", node.id],
       ["Label", node.label],
-      ["Position", vectorQuantityDisplay({ ...node.position, unit: model.project.units.length }, `${node.position.x}, ${node.position.y}, ${node.position.z} ${model.project.units.length}`)],
+      ["Position", typeof lengthUnit === "string" && lengthUnit.trim()
+        ? vectorQuantityDisplay({ ...node.position, unit: lengthUnit }, `${coordinates} ${lengthUnit}`)
+        : `${coordinates} (Missing project unit: length)`],
       ["Provenance", node.provenance]
     ];
   }

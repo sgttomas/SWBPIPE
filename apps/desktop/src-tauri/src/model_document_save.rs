@@ -31,7 +31,12 @@
 //!   `PROTECTED_CONTENT_BLOCKED`, naming the record. A store read error refuses
 //!   (`MODEL-DOC-SAVE-LIBRARY-STORE-UNAVAILABLE`); a library or record the
 //!   store does not hold is no disposition: the save proceeds with a
-//!   `MODEL-LIBRARY-REF-UNRESOLVED` warning naming it.
+//!   `MODEL-LIBRARY-REF-UNRESOLVED` warning naming it. Each library is read
+//!   within the command's memory, started from its ingress lease
+//!   (`stored_model_document_export::StoreLibraryReads`, the recovery export's
+//!   metered read): measured, its load and its prescan-bounded parse each
+//!   reserved before they are made, and held until the command returns. A
+//!   read the pool refuses refuses the save `STORE-READ-MEMORY-UNAVAILABLE`.
 //!
 //! The file is written by the extension-neutral atomic writer under the
 //! `.json` model-document format. Nothing is sent anywhere (F-PIP-1); the
@@ -42,7 +47,10 @@ use crate::atomic_report_package_save::{self, AtomicSaveError, MODEL_DOCUMENT_FO
 use crate::command_ingress::Args;
 use crate::model_document_file::{check_model_document, ModelDocumentOpenOutcome, MAX_MODEL_DOCUMENT_BYTES};
 use crate::model_document_shape::{model_document_shape_diagnostics, MODEL_FILE_SHAPE};
-use crate::solve_jobs::SolveJobError;
+use crate::memory_pool::Lease;
+use crate::solve_jobs::{SolveJobError, SolveJobRegistry};
+use crate::stored_model_document_export::StoreLibraryReads;
+use crate::stored_read::PoolReadMemory;
 pub use crate::export_disposition_screen::DispositionDiagnostic as ModelDocumentSaveDiagnostic;
 pub use crate::export_disposition_screen::{LibraryLookup, PROTECTED_CONTENT_BLOCKED};
 #[cfg(test)]
@@ -206,9 +214,9 @@ pub struct AdmittedModelDocument {
 
 /// Native disposition screening of the exact admitted document (review repair
 /// 1b/1c), by the shared store-resolved screen (`export_disposition_screen`).
-pub fn screen_model_document_dispositions(
+pub fn screen_model_document_dispositions<V: std::borrow::Borrow<Value>>(
     document: &Value,
-    lookup: &mut LibraryLookup<'_>,
+    lookup: &mut dyn FnMut(&str, &str, &str) -> Result<Option<V>, String>,
 ) -> Result<Vec<ModelDocumentSaveDiagnostic>, Vec<ModelDocumentSaveDiagnostic>> {
     let project_id = document.pointer("/project/id").and_then(Value::as_str).unwrap_or("");
     screen_dispositions_in(document, "", PathStyle::Dotted, project_id, LIBRARY_STORE_UNAVAILABLE, lookup)
@@ -220,12 +228,27 @@ fn claimed_hex(claimed: &str) -> Option<&str> {
         .filter(|hex| hex.len() == 64 && hex.bytes().all(|byte| matches!(byte, b'0'..=b'9' | b'a'..=b'f')))
 }
 
-/// The admission of §2 over the webview's canonical text, before any file is chosen.
-pub fn admit_model_document_text(
+/// The admission of §2 over the webview's canonical text, before any file is
+/// chosen, with no reservation before the screening (tests).
+#[cfg(test)]
+pub fn admit_model_document_text<V: std::borrow::Borrow<Value>>(
     canonical_text: String,
     claimed_model_hash: &str,
     evidence_payload_sha256: &str,
-    lookup: &mut LibraryLookup<'_>,
+    lookup: &mut dyn FnMut(&str, &str, &str) -> Result<Option<V>, String>,
+) -> Result<AdmittedModelDocument, Vec<ModelDocumentSaveDiagnostic>> {
+    admit_model_document_text_screened(canonical_text, claimed_model_hash, evidence_payload_sha256, &mut |_| Ok(()), lookup)
+}
+
+/// [`admit_model_document_text`], with `before_screening` given the checked
+/// document before the screening starts (the saves reserve the screening's
+/// memory there).
+pub fn admit_model_document_text_screened<V: std::borrow::Borrow<Value>>(
+    canonical_text: String,
+    claimed_model_hash: &str,
+    evidence_payload_sha256: &str,
+    before_screening: &mut dyn FnMut(&Value) -> Result<(), Vec<ModelDocumentSaveDiagnostic>>,
+    lookup: &mut dyn FnMut(&str, &str, &str) -> Result<Option<V>, String>,
 ) -> Result<AdmittedModelDocument, Vec<ModelDocumentSaveDiagnostic>> {
     let byte_count = canonical_text.len() as u64;
     if byte_count > MAX_MODEL_DOCUMENT_BYTES {
@@ -284,6 +307,7 @@ pub fn admit_model_document_text(
     if !shape.is_empty() {
         return Err(shape.into_iter().map(|item| diagnostic(MODEL_FILE_SHAPE, &item.path, item.message)).collect());
     }
+    before_screening(&document)?;
     let warnings = screen_model_document_dispositions(&document, lookup)?;
     drop(document);
     Ok(AdmittedModelDocument { text: canonical_text, suggested_file_name, warnings })
@@ -335,6 +359,94 @@ pub fn write_admitted_model_document(destination: &Path, admitted: AdmittedModel
         },
         Err(error) => ModelDocumentSaveOutcome::refused(vec![writer_diagnostic(error)]),
     }
+}
+
+/// The save after its ingress and its route-evidence check (`lib.rs`
+/// `save_model_document_decoded`), on one blocking worker: the admission of
+/// §2, with each referenced library read from the local store (`open_store`,
+/// opened only if the document references one) within the command's memory
+/// (`StoreLibraryReads`: started from the ingress lease `ingress`, so every
+/// library reservation is counted with it against the per-invocation budget);
+/// then the chooser (`choose`, given the suggested file name) and the atomic
+/// write. The screening's allocations are reserved before it builds them, as
+/// the recovery export reserves them (`StoreLibraryReads::screen_model`). A
+/// library read or screening the memory pool refuses refuses the save by the
+/// pool's name (`STORE-READ-MEMORY-UNAVAILABLE`) before any file is chosen.
+/// The outcome is serialized within the same memory while every reservation
+/// is held (`stored_model_document_export::serialize_outcome`; a Saved
+/// response's bound is reserved before the chooser), and `respond` receives
+/// it and its text before any reservation is released.
+pub(crate) fn save_model_document_admitted<R>(
+    canonical_text: String,
+    claimed_model_hash: &str,
+    evidence_payload_sha256: &str,
+    open_store: impl FnMut() -> Result<rusqlite::Connection, String>,
+    registry: &SolveJobRegistry,
+    ingress: &Lease,
+    choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>,
+    respond: impl FnOnce(&ModelDocumentSaveOutcome, String) -> R,
+) -> R {
+    use crate::stored_model_document_export::serialize_outcome;
+    let memory = PoolReadMemory::new(registry, ingress);
+    let mut libraries = StoreLibraryReads::new(&memory, open_store);
+    let (outcome, reserved) = save_model_document_outcome(canonical_text, claimed_model_hash, evidence_payload_sha256, &memory, &mut libraries, choose);
+    // The outcome is serialized while every reservation its diagnostics live
+    // under is held (#1641 Codex r2 P2-b), and the response built from it.
+    let (sent, text, buffer) = serialize_outcome(&memory, "Save Model Document", "save", outcome, reserved);
+    let response = respond(&sent, text);
+    drop(sent);
+    drop(buffer);
+    drop(libraries);
+    #[cfg(test)]
+    crate::stored_model_document_export::library_read_probe::record_save_peak(memory.peak_reserved());
+    response
+}
+
+/// What a Saved outcome adds to its warnings' JSON: its tag, the file name (at
+/// most 255 bytes, each escaped to at most six), the byte count, the hash and
+/// the durability.
+pub(crate) const SAVED_FIELDS_BYTES: u64 = 4096;
+
+/// [`save_model_document_admitted`]'s outcome, and the Saved response's
+/// bound reserved before the chooser (with its bytes), when the document was
+/// admitted: no response is refused after a file was written.
+fn save_model_document_outcome(
+    canonical_text: String,
+    claimed_model_hash: &str,
+    evidence_payload_sha256: &str,
+    memory: &PoolReadMemory<'_>,
+    libraries: &mut StoreLibraryReads<'_>,
+    choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>,
+) -> (ModelDocumentSaveOutcome, Option<(crate::stored_read::ReadReservation, u64)>) {
+    use crate::stored_read::ReadMemory;
+    let reads = std::cell::RefCell::new(libraries);
+    let admitted = admit_model_document_text_screened(
+        canonical_text,
+        claimed_model_hash,
+        evidence_payload_sha256,
+        &mut |document: &Value| reads.borrow_mut().screen_model(document),
+        &mut |project_id: &str, library_kind: &str, library_id: &str| reads.borrow_mut().read(project_id, library_kind, library_id),
+    );
+    let libraries = reads.into_inner();
+    if let Some(refusal) = libraries.refusal() {
+        return (ModelDocumentSaveOutcome::refused(refusal), None);
+    }
+    let admitted = match admitted {
+        Ok(admitted) => admitted,
+        Err(diagnostics) => return (ModelDocumentSaveOutcome::refused(diagnostics), None),
+    };
+    let bound = crate::stored_read::serialized_length(&admitted.warnings).unwrap_or(u64::MAX).saturating_add(SAVED_FIELDS_BYTES);
+    let response = match memory.reserve("the response to Save Model Document", crate::stored_read::exact_text_bytes(bound)) {
+        Ok(response) => response,
+        Err(error) => return (ModelDocumentSaveOutcome::refused_one(crate::stored_read::STORE_READ_MEMORY_UNAVAILABLE, format!("{error} Nothing was written.")), None),
+    };
+    let reserved = Some((response, bound));
+    let destination = match choose(&admitted.suggested_file_name) {
+        Ok(Some(destination)) => destination,
+        Ok(None) => return (ModelDocumentSaveOutcome::Cancelled, reserved),
+        Err(message) => return (ModelDocumentSaveOutcome::refused_one(PICKER_PATH_INVALID, message), reserved),
+    };
+    (write_admitted_model_document(&destination, admitted), reserved)
 }
 
 #[cfg(test)]
@@ -431,6 +543,7 @@ mod tests {
     /// returned hash) is the model hash of the document it re-opens as.
     #[test]
     fn save_then_open_gives_identical_bytes_and_an_equal_model_hash() {
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
         for (label, source) in [("demo", DEMO), ("every-slot", EVERY_SLOT)] {
             let text = canonical_of(source);
             let claimed = hash_of(&text);
@@ -816,6 +929,7 @@ mod tests {
     /// warning, never a refusal.
     #[test]
     fn every_emitted_authoring_and_library_apply_document_saves_and_reopens() {
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
         let root = sandbox("emitted");
         let mut saved = 0;
         for (fixture, member) in [
@@ -844,6 +958,7 @@ mod tests {
     /// open with a clean shape (the webview half is in modelDocumentSave.test.tsx).
     #[test]
     fn every_shape_corpus_case_that_admits_reopens() {
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
         let corpus: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/desktop_shape_cases.json")).unwrap();
         let root = sandbox("corpus-reopen");
         let mut admitted_cases = 0;
@@ -868,6 +983,285 @@ mod tests {
             }
         }
         assert!(admitted_cases >= 4, "{admitted_cases}");
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    // --- The library reads' memory (DEL-04-07) ------------------------------
+
+    /// A store (opened as the command opens it) holding `library` as the
+    /// every-slot model's referenced material library's `document_json`.
+    fn library_store(label: &str, library: &str) -> (PathBuf, PathBuf) {
+        let root = sandbox(label);
+        let store = root.join(crate::PROJECT_STORE_FILE);
+        let (connection, _) = crate::open_project_store(&store).unwrap();
+        connection
+            .execute(
+                "INSERT INTO local_libraries(project_id, library_kind, library_id, document_json, created_at_unix, updated_at_unix) VALUES ('project:slots', 'material', 'library:invented-materials', ?1, 1, 1)",
+                [library],
+            )
+            .unwrap();
+        (root, store)
+    }
+
+    fn representative_text() -> String {
+        serde_json::to_string(&crate::stored_model_document_export::library_read_probe::representative_material_library()).unwrap()
+    }
+
+    /// The command's ingress for the every-slot model, then its arguments.
+    fn admitted_request(pool: &SolveJobRegistry) -> (ModelDocumentSaveRequest, Lease) {
+        let text = canonical_of(EVERY_SLOT);
+        let mut evidence = screening();
+        evidence.payload_sha256 = hash_of(&text);
+        let body = json!({
+            "canonicalText": text, "claimedModelHash": hash_of(&text),
+            "screening": serde_json::to_value(evidence).unwrap(),
+            "localFirstEvidence": serde_json::to_value(local_first()).unwrap(),
+        });
+        let (mut args, lease) = admit_json(pool, "save_model_document_file", ArgsDecoding::Moved, &body).unwrap();
+        (save_model_document_args(&mut args).unwrap(), lease)
+    }
+
+    /// The command after its ingress, the store at `store`; `shown` records the
+    /// pool's reserved bytes when the chooser is shown.
+    fn save_at(
+        store: &Path,
+        pool: &SolveJobRegistry,
+        request: ModelDocumentSaveRequest,
+        lease: &Lease,
+        chosen: Result<Option<PathBuf>, String>,
+        shown: &std::cell::Cell<Option<u64>>,
+    ) -> ModelDocumentSaveOutcome {
+        let open = || crate::open_project_store(store).map(|(connection, _)| connection);
+        save_model_document_admitted(
+            request.canonical_text,
+            &request.claimed_model_hash,
+            &request.screening.payload_sha256,
+            open,
+            pool,
+            lease,
+            |_| {
+                shown.set(Some(pool.pool_status().reserved_bytes));
+                chosen
+            },
+            |outcome, text| {
+                assert_eq!(serde_json::to_string(outcome).unwrap(), text, "the response is the outcome sent");
+                outcome.clone()
+            },
+        )
+    }
+
+    /// The counting-allocator check: Save Model Document reads the
+    /// representative library within its reservations (the read's measured
+    /// peak, priced as the ingress prescan prices allocations, is within what
+    /// it reserved), holds them with the ingress lease through the chooser and
+    /// the write, and releases every one when it returns. The file is
+    /// byte-identical to the one the unmetered lookup wrote.
+    #[test]
+    fn save_reads_libraries_within_their_reservations_and_writes_the_same_bytes() {
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+        let library = representative_text();
+        let (root, store) = library_store("library-lease", &library);
+        let pool = registry(ScriptedHost::normal());
+        let (request, lease) = admitted_request(&pool);
+        let text = request.canonical_text.clone();
+        let destination = root.join("metered.json");
+        let shown = std::cell::Cell::new(None);
+        crate::stored_model_document_export::library_read_probe::start();
+        let outcome = save_at(&store, &pool, request, &lease, Ok(Some(destination.clone())), &shown);
+        let reads = crate::stored_model_document_export::library_read_probe::take();
+        let ModelDocumentSaveOutcome::Saved { warnings, .. } = &outcome else { panic!("not saved: {outcome:?}") };
+        assert!(warnings.is_empty(), "the library resolved: {warnings:?}");
+        assert_eq!(reads.len(), 1, "{reads:?}");
+        let (reserved, peak) = reads[0];
+        let library_bytes = library.len() as u64;
+        let load_and_parse = crate::stored_read::loaded_text_bytes(library_bytes) + crate::stored_read::parse_bytes(&library).unwrap();
+        eprintln!("SAVE_MODEL_DOCUMENT_LIBRARY_READ library_bytes={library_bytes} reserved={reserved} load_and_parse={load_and_parse} measured_peak={peak}");
+        assert!(reserved >= load_and_parse + crate::stored_read::READ_OVERHEAD_BYTES);
+        assert!(peak <= reserved, "the read's measured peak {peak} exceeds its reservations {reserved}");
+        let held = shown.get().expect("the chooser was shown");
+        assert!(held >= lease.bytes() + reserved, "the library reservations are held with the lease through the chooser: {held}");
+        assert_eq!(pool.pool_status().reserved_bytes, lease.bytes(), "the save releases its reservations when it returns");
+        drop(lease);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+        // The same text admitted with the unmetered lookup writes the same bytes.
+        let connection = rusqlite::Connection::open(&store).unwrap();
+        let mut unmetered = |project: &str, kind: &str, id: &str| crate::load_library(&connection, project.trim(), kind.trim(), id.trim()).map(|row| row.map(|row| row.document));
+        let hash = hash_of(&text);
+        let admitted = admit_model_document_text(text.clone(), &hash, &hash, &mut unmetered).unwrap();
+        let before = root.join("unmetered.json");
+        let ModelDocumentSaveOutcome::Saved { warnings: before_warnings, model_hash, byte_count, .. } = write_admitted_model_document(&before, admitted) else { panic!("not saved") };
+        assert_eq!(fs::read(&destination).unwrap(), fs::read(&before).unwrap());
+        assert_eq!(fs::read(&destination).unwrap(), text.as_bytes());
+        assert!(matches!(&outcome, ModelDocumentSaveOutcome::Saved { warnings, model_hash: hash, byte_count: count, .. } if *warnings == before_warnings && *hash == model_hash && *count == byte_count));
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    /// #1641 Codex r1 P2: the whole save's measured peak (the admission, the
+    /// screening, the library read and the write, priced as the ingress prescan
+    /// prices allocations) is within the most its memory held at once, the
+    /// ingress lease included, for a large library: 1,024 records, about 3 MB.
+    #[test]
+    fn the_whole_save_is_within_its_reservations_for_a_large_library() {
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+        let library = serde_json::to_string(&crate::stored_model_document_export::library_read_probe::large_material_library(1024)).unwrap();
+        let (root, store) = library_store("large-library", &library);
+        let pool = registry(ScriptedHost::normal());
+        let (request, lease) = admitted_request(&pool);
+        let destination = root.join("large.json");
+        crate::stored_model_document_export::library_read_probe::take_save_peaks();
+        let (outcome, measured) = crate::ingress::counting::measure(|| save_at(&store, &pool, request, &lease, Ok(Some(destination.clone())), &std::cell::Cell::new(None)));
+        assert!(matches!(outcome, ModelDocumentSaveOutcome::Saved { .. }), "{outcome:?}");
+        let reserved = *crate::stored_model_document_export::library_read_probe::take_save_peaks().last().expect("the save recorded its peak");
+        eprintln!("SAVE_MODEL_DOCUMENT_LARGE library_bytes={} lease={} reserved_peak={reserved} measured_peak={}", library.len(), lease.bytes(), measured.peak_priced);
+        assert!(library.len() > 3_000_000);
+        assert!(measured.peak_priced <= reserved, "the save's measured peak {} exceeds its reservations {reserved}", measured.peak_priced);
+        drop(lease);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    /// #1641 Codex r2 P2-b: a refusal's diagnostics outlived the library
+    /// reservations and were serialized unreserved (100,000 matching rejected
+    /// records: 77.6 MB live with 53 KB reserved, a 26.4 MB response). The
+    /// outcome is now serialized within the save's memory while every
+    /// reservation is held: when the response is built, the live bytes are
+    /// within what is held, and the whole peak is within the most held. The
+    /// deeply nested library of r2 P2-a saves within its reservations too.
+    #[test]
+    fn a_refusal_with_100000_diagnostics_is_serialized_within_the_saves_reservations() {
+        use crate::stored_model_document_export::library_read_probe::{nested_long_key_library, rejected_records_library, take_save_peaks};
+        let library = serde_json::to_string(&rejected_records_library(100_000)).unwrap();
+        let (root, store) = library_store("rejected-records", &library);
+        let pool = registry(ScriptedHost::normal());
+        let (request, lease) = admitted_request(&pool);
+        let open = || crate::open_project_store(&store).map(|(connection, _)| connection);
+        take_save_peaks();
+        let ((outcome, live, held, length), measured) = crate::ingress::counting::measure(|| {
+            save_model_document_admitted(request.canonical_text, &request.claimed_model_hash, &request.screening.payload_sha256, open, &pool, &lease, |_| panic!("no chooser after a refusal"), |outcome, text| {
+                (outcome.clone(), crate::ingress::counting::live_priced(), pool.pool_status().reserved_bytes, text.len())
+            })
+        });
+        let reserved = *take_save_peaks().last().unwrap();
+        let ModelDocumentSaveOutcome::Refused { diagnostics } = &outcome else { panic!("not refused") };
+        eprintln!("SAVE_MODEL_DOCUMENT_REJECTED diagnostics={} response_bytes={length} live_at_response={live} held_at_response={held} reserved_peak={reserved} measured_peak={}", diagnostics.len(), measured.peak_priced);
+        assert!(u64::try_from(live).unwrap() <= held, "{live} bytes live when the response is built, {held} held");
+        assert!(measured.peak_priced <= reserved, "the measured peak {} exceeds the most held {reserved}", measured.peak_priced);
+        // #1641 Codex r3: the response, which outlives the reservations, is
+        // bounded: the first 64 of the unbounded list, then their count.
+        use crate::stored_model_document_export::{DIAGNOSTICS_NOT_SHOWN, MAX_NAMED_DIAGNOSTICS, MAX_RESPONSE_BYTES};
+        assert!(length as u64 <= MAX_RESPONSE_BYTES, "a {length}-byte response");
+        let connection = rusqlite::Connection::open(&store).unwrap();
+        let mut unmetered = |project: &str, kind: &str, id: &str| crate::load_library(&connection, project.trim(), kind.trim(), id.trim()).map(|row| row.map(|row| row.document));
+        let text = canonical_of(EVERY_SLOT);
+        let hash = hash_of(&text);
+        let unbounded = admit_model_document_text(text, &hash, &hash, &mut unmetered).unwrap_err();
+        assert_eq!(unbounded.len(), 100_000);
+        assert_eq!(diagnostics.len(), MAX_NAMED_DIAGNOSTICS + 1);
+        assert_eq!(&diagnostics[..MAX_NAMED_DIAGNOSTICS], &unbounded[..MAX_NAMED_DIAGNOSTICS], "the named diagnostics are the unbounded list's first");
+        assert_eq!(diagnostics[MAX_NAMED_DIAGNOSTICS].code, DIAGNOSTICS_NOT_SHOWN);
+        assert!(diagnostics[MAX_NAMED_DIAGNOSTICS].message.starts_with("99936 more of the 100000 diagnostics"), "{}", diagnostics[MAX_NAMED_DIAGNOSTICS].message);
+        drop(lease);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+        fs::remove_dir_all(root).unwrap();
+        // r2 P2-a's library through Save Model Document.
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+        let library = serde_json::to_string(&nested_long_key_library(100, 32 * 1024)).unwrap();
+        let (root, store) = library_store("nested-library", &library);
+        let (request, lease) = admitted_request(&pool);
+        let (outcome, measured) = crate::ingress::counting::measure(|| save_at(&store, &pool, request, &lease, Ok(Some(root.join("nested.json"))), &std::cell::Cell::new(None)));
+        assert!(matches!(outcome, ModelDocumentSaveOutcome::Saved { .. }), "{outcome:?}");
+        let reserved = *take_save_peaks().last().unwrap();
+        eprintln!("SAVE_MODEL_DOCUMENT_NESTED library_bytes={} reserved_peak={reserved} measured_peak={}", library.len(), measured.peak_priced);
+        assert!(measured.peak_priced <= reserved);
+        drop(lease);
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    /// A library read the memory pool refuses ends the save by the pool's name
+    /// (no headroom: before the store is opened; a per-invocation budget one
+    /// byte short: before the library is parsed), with nothing chosen or
+    /// written and every reservation released.
+    #[test]
+    fn a_library_read_the_pool_refuses_refuses_the_save_and_writes_nothing() {
+        let library = representative_text();
+        let (root, store) = library_store("library-refused", &library);
+        let destination = root.join("refused.json");
+        let host = ScriptedHost::normal();
+        let pool = registry(host.clone());
+        let (request, lease) = admitted_request(&pool);
+        host.set(|script| script.headroom_bytes = Some(0));
+        let shown = std::cell::Cell::new(None);
+        let outcome = save_at(&store, &pool, request, &lease, Ok(Some(destination.clone())), &shown);
+        let ModelDocumentSaveOutcome::Refused { diagnostics } = &outcome else { panic!("not refused: {outcome:?}") };
+        assert_eq!(diagnostics.len(), 1);
+        assert_eq!(diagnostics[0].code, crate::stored_read::STORE_READ_MEMORY_UNAVAILABLE);
+        assert!(diagnostics[0].message.contains("headroom_insufficient"), "{}", diagnostics[0].message);
+        assert!(shown.get().is_none() && !destination.exists());
+        assert_eq!(pool.pool_status().reserved_bytes, lease.bytes());
+        drop(lease);
+        assert_eq!(pool.pool_status().reserved_bytes, 0);
+        // The smallest budget the save needs, less one byte: refused at the parse.
+        let probe = registry(ScriptedHost::normal());
+        let (request, lease) = admitted_request(&probe);
+        crate::stored_model_document_export::library_read_probe::start();
+        let saved = save_at(&store, &probe, request, &lease, Ok(Some(root.join("probe.json"))), &std::cell::Cell::new(None));
+        assert!(matches!(saved, ModelDocumentSaveOutcome::Saved { .. }), "{saved:?}");
+        let reserved = crate::stored_model_document_export::library_read_probe::take()[0].0;
+        let budget = lease.bytes() + reserved - 1;
+        drop(lease);
+        let small = registry(ScriptedHost::normal());
+        small.configure_pool(budget.max(64 << 20), budget, false).unwrap();
+        let (request, lease) = admitted_request(&small);
+        let shown = std::cell::Cell::new(None);
+        crate::stored_model_document_export::library_read_probe::start();
+        let outcome = save_at(&store, &small, request, &lease, Ok(Some(destination.clone())), &shown);
+        let reads = crate::stored_model_document_export::library_read_probe::take();
+        let ModelDocumentSaveOutcome::Refused { diagnostics } = &outcome else { panic!("not refused: {outcome:?}") };
+        assert_eq!(diagnostics[0].code, crate::stored_read::STORE_READ_MEMORY_UNAVAILABLE);
+        assert!(diagnostics[0].message.contains("the stored material library `library:invented-materials`"), "{}", diagnostics[0].message);
+        let parse = crate::stored_read::parse_bytes(&library).unwrap();
+        assert!(reads[0].1 < parse, "refused before the parse: its measured peak {} is below the parse bound {parse}", reads[0].1);
+        assert!(shown.get().is_none() && !destination.exists());
+        assert_eq!(small.pool_status().reserved_bytes, lease.bytes());
+        drop(lease);
+        assert_eq!(small.pool_status().reserved_bytes, 0);
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    /// A stored library that is not JSON refuses the save with the store
+    /// failure's code, quoting the read's bounded description, never the
+    /// stored text. Cancel and a chooser error release the reservations too.
+    #[test]
+    fn library_decode_errors_are_bounded_and_every_path_releases_its_reservations() {
+        let pad = "x".repeat(256 * 1024);
+        for (label, text) in [("unterminated", format!("{{\"material_library\":\"{pad}")), ("out-of-range", format!("{{\"pad\":\"{pad}\",\"n\":1e400}}"))] {
+            let (root, store) = library_store(&format!("library-decode-{label}"), &text);
+            let destination = root.join("decode.json");
+            let pool = registry(ScriptedHost::normal());
+            let (request, lease) = admitted_request(&pool);
+            let shown = std::cell::Cell::new(None);
+            let outcome = save_at(&store, &pool, request, &lease, Ok(Some(destination.clone())), &shown);
+            let ModelDocumentSaveOutcome::Refused { diagnostics } = &outcome else { panic!("{label}: not refused: {outcome:?}") };
+            assert_eq!(diagnostics[0].code, LIBRARY_STORE_UNAVAILABLE, "{label}");
+            let message = &diagnostics[0].message;
+            eprintln!("{label}: {message}");
+            assert!(message.len() < 1024 && !message.contains("xxxx"), "{label}: {message}");
+            assert!(shown.get().is_none() && !destination.exists());
+            assert_eq!(pool.pool_status().reserved_bytes, lease.bytes(), "{label}");
+            drop(lease);
+            assert_eq!(pool.pool_status().reserved_bytes, 0, "{label}");
+            fs::remove_dir_all(root).unwrap();
+        }
+        let (root, store) = library_store("library-cancel", &representative_text());
+        let pool = registry(ScriptedHost::normal());
+        for chosen in [Ok(None), Err("invented chooser failure".to_string())] {
+            let (request, lease) = admitted_request(&pool);
+            let outcome = save_at(&store, &pool, request, &lease, chosen, &std::cell::Cell::new(None));
+            assert!(matches!(&outcome, ModelDocumentSaveOutcome::Cancelled) || matches!(&outcome, ModelDocumentSaveOutcome::Refused { diagnostics } if diagnostics[0].code == PICKER_PATH_INVALID), "{outcome:?}");
+            assert_eq!(pool.pool_status().reserved_bytes, lease.bytes());
+            drop(lease);
+            assert_eq!(pool.pool_status().reserved_bytes, 0);
+        }
         fs::remove_dir_all(root).unwrap();
     }
 

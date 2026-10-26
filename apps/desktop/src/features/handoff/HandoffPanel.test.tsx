@@ -1,14 +1,18 @@
-import {it,expect} from 'vitest';
+import {afterEach,describe,it,expect} from 'vitest';
+import {cleanup} from '@testing-library/react';
 import modelJson from '../../../../../fixtures/product_preview/invented_demo_model.json';
 import resultJson from '../../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json';
-import {buildHandoffPackage} from './HandoffPanel';
+import {buildHandoffPackage,HandoffPanel} from './HandoffPanel';
 import {buildAnalysisRunPreview} from '../../services/previewService';
-import {RULE_PACK_REF_UNRESOLVED} from '../../services/rulePackRefDiagnostics';
+import {RULE_PACK_REF_CHECKSUM_MISMATCH,RULE_PACK_REF_UNRESOLVED} from '../../services/rulePackRefDiagnostics';
+import {resolveModelRulePacks} from '../../services/modelRulePackResolution';
+import {hex,inventedEnvelope,inventedReference} from '../../test/inventedRulePacks';
 import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
 import previewText from '../../../../../fixtures/results/preview_physics_connected_sparse.json?raw';
 import previewModelJson from '../../../../../fixtures/model_operations/precision_connected_ui_model.json';
 import { sourceContract } from '../results/resultReader';
-import type {PreviewModel,MechanicsResult} from '../../types';
+import type {DesignKnowledge,PreviewModel,MechanicsResult,RulePackReference} from '../../types';
+afterEach(cleanup);
 // A supported analysis record binds the producer identity the carrier declares.
 const manifestFor=(model:PreviewModel)=>buildCurrentSessionInputManifest({model,solver:{solver_name:"open_pipe_stress_product_physics",solver_version:"0.2.0",solver_build_ref:"fixture",solver_mode:"sparse_interactive",settings:{}},active_rule_packs:[],external_assets:[]});
 // B1 retired precision-1, whose synthetic carrier gave the legacy rows' received
@@ -45,8 +49,61 @@ it('is labelled a preview summary, points to Save Handoff, and carries the docum
  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest:await manifestFor(model),rulePackExclusions});
  const packet=buildHandoffPackage({model,result,analysisRun,knowledge:null,comparison:null,editorIntents:[],proposal:null,selectedReviewTarget:null});
  expect(packet.library_refs.rule_pack_refs).toEqual(everySlot.rule_pack_refs);
+ // The excluded reference stays listed; its exclusion is named once among the diagnostics.
+ expect(packet.diagnostic_refs.filter(ref=>ref==='diagnostic:rule-pack-ref:invented_demo_rule_pack@0.3.0')).toHaveLength(1);
  render(<HandoffPanel model={model} knowledge={null} result={result} analysisRun={analysisRun} comparison={null} editorIntents={[]} proposal={null} selectedReviewTarget={null}/>);
  expect(screen.getByTestId('handoff-export-link')).toHaveTextContent(HANDOFF_PREVIEW_DOWNLOAD_LABEL);
  expect(screen.getByTestId('handoff-save-pointer')).toHaveTextContent(HANDOFF_SAVE_POINTER);
  expect(HANDOFF_SAVE_POINTER).toContain('File › Save Handoff…');
+});
+
+// #1602's follow-up: the preview lists every document reference, as Save Handoff's manifest does
+// (W-6b), and names each reference the solve excluded once among its diagnostics.
+describe('the preview handoff summary follows the solve-time rule-pack resolution',()=>{
+ const HELD=inventedReference('invented-pack-held',hex('1')),MISSING=inventedReference('invented-pack-missing',hex('2')),CHANGED=inventedReference('invented-pack-changed',hex('3'));
+ async function solvedWith(references:RulePackReference[]|null){
+  const model=structuredClone(previewModelJson) as unknown as PreviewModel,result=JSON.parse(previewText) as MechanicsResult;
+  if(references)model.rule_pack_refs=references;
+  const store=new Map([[HELD.rule_pack_id,inventedEnvelope(model.project.id,HELD.rule_pack_id,hex('1'))],[CHANGED.rule_pack_id,inventedEnvelope(model.project.id,CHANGED.rule_pack_id,hex('4'))]]);
+  const resolution=await resolveModelRulePacks(model,async(_projectId,id)=>({route:'tauri_backend',envelope:store.get(id)??null}));
+  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:'open_pipe_stress_product_physics',solver_version:'0.2.0',solver_build_ref:'fixture',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:resolution.active_rule_packs,external_assets:[]});
+  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest,rulePackExclusions:resolution.excluded});
+  return {model,result,analysisRun,resolution};
+ }
+ const packetOf=(session:Awaited<ReturnType<typeof solvedWith>>,knowledge:DesignKnowledge|null=null)=>buildHandoffPackage({...session,knowledge,comparison:null,editorIntents:[],proposal:null,selectedReviewTarget:null});
+ const MISSING_ID='diagnostic:rule-pack-ref:invented-pack-missing@1.0.0',CHANGED_ID='diagnostic:rule-pack-ref:invented-pack-changed@1.0.0';
+
+ it('lists every reference, excluded ones included, and names each exclusion once',async()=>{
+  const session=await solvedWith([HELD,MISSING,CHANGED]);
+  expect(session.resolution.excluded.map(item=>item.code)).toEqual([RULE_PACK_REF_UNRESOLVED,RULE_PACK_REF_CHECKSUM_MISMATCH]);
+  const packet=packetOf(session);
+  expect(packet.library_refs.rule_pack_refs).toEqual([HELD,MISSING,CHANGED]);
+  expect(packet.library_refs.rule_pack_refs[0]).not.toBe(session.model.rule_pack_refs![0]);
+  const carried=[...session.model.diagnostics,...session.result.diagnostics].map(item=>item.id??item.code);
+  expect(packet.diagnostic_refs).toEqual([...carried,MISSING_ID,CHANGED_ID]);
+  expect(session.analysisRun.analysis_run.diagnostics!.map(item=>item.source_annotation.id)).toEqual(expect.arrayContaining([MISSING_ID,CHANGED_ID]));
+  const {render,screen}=await import('@testing-library/react');
+  render(<HandoffPanel model={session.model} knowledge={null} result={session.result} analysisRun={session.analysisRun} comparison={null} editorIntents={[]} proposal={null} selectedReviewTarget={null}/>);
+  expect(screen.getByTestId('handoff-export-summary')).toHaveTextContent(`${carried.length+2} diagnostics`);
+ });
+
+ it('adds no second reference for an exclusion a carried diagnostic already names',async()=>{
+  const session=await solvedWith([HELD,MISSING,CHANGED]);
+  const knowledge={schema_version:'0.1.0',document_kind:'invented',knowledge_set_id:'invented',model_ref:session.model.project.id,records:[],
+   diagnostics:[{id:'invented-knowledge-diagnostic',code:RULE_PACK_REF_UNRESOLVED,severity:'warning',message:'Invented diagnostic naming the reference.',affected_refs:['invented-pack-missing@1.0.0']}]} as DesignKnowledge;
+  const packet=packetOf(session,knowledge);
+  expect(packet.diagnostic_refs.filter(ref=>ref==='invented-knowledge-diagnostic')).toHaveLength(1);
+  expect(packet.diagnostic_refs).not.toContain(MISSING_ID);
+  expect(packet.diagnostic_refs.filter(ref=>ref===CHANGED_ID)).toHaveLength(1);
+ });
+
+ it('without exclusions lists every model reference and adds no diagnostic',async()=>{
+  for(const references of [null,[HELD]]){
+   const session=await solvedWith(references);
+   expect(session.resolution.excluded).toEqual([]);
+   const packet=packetOf(session);
+   expect(packet.library_refs.rule_pack_refs).toEqual(references??[]);
+   expect(packet.diagnostic_refs).toEqual([...session.model.diagnostics,...session.result.diagnostics].map(item=>item.id??item.code));
+  }
+ });
 });

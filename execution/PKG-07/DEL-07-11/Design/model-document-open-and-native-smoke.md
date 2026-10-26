@@ -158,6 +158,30 @@ export use their existing routes unchanged.
     first.
   - **New Blank.** A New Blank whose time-stamped id is already stored takes a
     suffixed id, since a new blank has no identity of its own to keep.
+    - **When the blank becomes the session.** Create closes the units dialog
+      at once. The blank becomes the session only when its native create and
+      the hashes of its response return (`createBlankProjectFrom` in
+      `workspaceSession.ts`). Until then the previous project stays on screen
+      and stays editable.
+    - **What supersedes it (W-17, #1640).** Only a change to the model or
+      project on screen supersedes the pending blank: a commit through
+      `commitModel` (an applied operation, or undo/redo with history) or
+      another project operation. The create checks its own model-commit
+      epoch for this, not the request epoch. Selecting an entity or typing
+      into an unapplied form advances the request epoch but not the
+      model-commit epoch, so the blank still installs. Before #1640 either
+      one cancelled it silently.
+    - **A superseded blank is named (Agent 0, #1640).** The edit wins and is
+      never overwritten. The blank is stored but not opened. The status line
+      gives its name and id and the way back:
+      `NEW-BLANK-SUPERSEDED: the new blank project "<name>" (<id>) was created
+      but not opened, because the model changed while it was being created.
+      This session keeps the changed model. The blank is stored locally: open
+      it from List Local Projects.` The last project operation is recorded as
+      `create_blank_superseded`. The stored blank is not deleted, and the
+      desktop has no command to delete a stored project. A blank superseded
+      by another project operation gets no message: that operation owns the
+      status line.
   - **No normalization.** Save never rewrites a model document; B7a removed the
     0.1.0 → 0.2.0 normalization and its migration ledger records. The store's
     `model_migration_ledger_json` column (store v9) is no longer read or
@@ -237,7 +261,10 @@ are #1461 (15 rows per member per case) and #1387 E14 (no dense parity row)
 and E15 (correctly rounded norm3); see DEL-07-05 Design `owner-mac-check.md`.
 W-7 (#1581) then added 12 global end rows per member per case, and the owner's
 ruling of 2026-10-25 ("I approve W-7's native-smoke values") set the rows to
-milestone 125 and demo 841 in both modes.
+milestone 125 and demo 841 in both modes. The C-120 fix (#1620) then removed
+the demo's malformed tee and its 4 intensified rows, and the owner's ruling of
+2026-10-25 ("Both decisions I approve your recommended options.") set the demo
+rows to 837 in both modes.
 It also checks:
 
 - the proof hash against its own JCS hash of each file;
@@ -288,9 +315,32 @@ refusal named in the product:
     nor the MBF text download.
   - The result JSON export is offered. The driver waits for the asynchronous
     packet.
+  - In the report panel, the report package shows the same code, with no
+    package controls (W-18 (b2); owner ruling 10A).
+- **The demo's report package (W-18 (b2)).** In phase 1, right after the
+  demo's result JSON export and in the same session, the driver selects
+  "Include known private values in this local package" (unchecked until then)
+  and runs File > Save Report Package…, answering the save chooser outside
+  Downloads. A save the native memory pool refuses only for the Mac's
+  momentary free memory (nothing runs or is written) is asked again. Checked, with no value pinned: the receipt is `REPORT-PACKAGE-SAVED`;
+  the file's SHA-256 and length are the receipt's; the product's reader
+  (`read_report_package_container`, through a smoke-only command) re-reads an
+  unblocked 2.0.0 desktop package whose identity is the receipt's; every
+  member's recomputed SHA-256 and length match the manifest inventory; and the
+  result member is the RFC 8785 text of the result JSON the same session
+  exported.
 - **A model authored from blank.**
   - **Authoring.** New Blank Project must open the units dialog (SI, US
-    customary, custom); the default SI is accepted. The driver then authors
+    customary, custom); the default SI is accepted. The blank becomes the
+    session only when its native create returns (see New Blank above), and
+    until then the tree shows the previous project. In run 2 of the #1634
+    smoke at `4847f14b13` the driver read that row as the blank's id and
+    authored at once. Its typing into the node form, or its first applied
+    edit, superseded the pending create; the authoring and the solve then ran
+    on the previous project. Since #1640 only an applied edit supersedes it.
+    So before authoring, the driver waits for the create's own status line
+    and for a tree whose only project is a new id; that id is the blank's. A
+    `Blank create failed` line stops it at once. The driver then authors
     through the GUI a node, a material, a pipe to a new node, a fixed support,
     a load case and a 350 N tip force. It uses the viewport commands, the
     toolkit, the target pickers and Review changes, and applies each queued
@@ -319,6 +369,221 @@ refusal named in the product:
 
 A broken step stops the driver, the phase reports not completed, and every
 later check fails for want of its observation.
+
+A step the window reports as failed stops the driver at once with that
+report, rather than waiting out its timeout. One example is a solve whose job
+reaches a terminal state other than `completed`: `refused`, `failed` or
+`cancelled` (a job still `cancelling` has not ended). A solve that is refused,
+fails, is cancelled or does not finish in time is reported with:
+- its job's summary, and any queue reason, resource refusal or error the Solve
+  panel shows;
+- the typed reason (code, required bytes, headroom bytes, pressure);
+- the native memory pool's current headroom and pressure, as
+  `get_memory_pool_status` reads them.
+A memory refusal or queue wait is then told apart from a slow solve. The
+details go to the driver log, the phase error and `summary.json`
+(`solve_job_diagnostics`). Timeouts and expected values are unchanged.
+`native-smoke/driver.test.mjs` tests this behaviour, and the New Blank wait
+above, with a fake window (`node --test`); no CI job runs it.
+
+The smoke checks each WebAssembly engine against a content stamp before it
+runs. `build:wasm` writes `source-stamp.json` into each engine folder: a
+SHA-256 over the engine crate's closure (normal and build path dependencies:
+manifests, build scripts, `src/`), its lock file, the build script, the compile
+reads cargo's dep-info lists (schemas and fixtures included or digested at
+build time, by the path cargo reported, with every symbolic link on that path
+and its target), the bytes of the cargo configuration files, `rustc -vV` of the
+rustc cargo runs, and the compiler, linker, rustflag and profile environment
+(`RUSTC`, `RUSTFLAGS`, `CARGO_BUILD_*`, `CARGO_TARGET_<triple>_*`,
+`CARGO_PROFILE_*` and similar). The cargo configuration files' keys are
+decoded as TOML (bare, basic-string with every escape, literal-string, dotted,
+in table headers and inline tables). Refused by name: a configuration file with
+a `rustc`, `rustc-wrapper` or `rustc-workspace-wrapper` key anywhere, a
+`build.build-dir` or `build.target-dir` key, or an `include` key; one the
+scanner cannot tokenize with confidence; a compile read whose path has a
+`..` that cancels a symbolic link; and, before any cargo runs (the engine build
+and stamp, the manifest reads and the smoke's app build and clean), a non-empty
+`RUSTC_WRAPPER`, `RUSTC_WORKSPACE_WRAPPER`, `CARGO_BUILD_RUSTC_WRAPPER` or
+`CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER` in the environment. Our wrappers never
+set one; an inherited wrapper would run unseen for every compile, and one that
+calls `t3_slot.sh` would take a host slot under the worktree lock. The app
+build's cargo configuration is checked the same way, from `src-tauri`. A `[target.<triple>]` `linker`, `runner` or
+`rustflags` key is not refused: the file's bytes are in the stamp. Each engine
+builds in its own target directory, `apps/desktop/target/wasm-engines/<engine>`:
+every cargo that builds, cleans or reports the target directory (the engine
+build and its `cargo metadata`, the app build and the app's `cargo clean -p`;
+the manifest-reading `cargo metadata --no-deps` writes into neither) has `CARGO_TARGET_DIR`,
+`CARGO_BUILD_TARGET_DIR` and `CARGO_BUILD_BUILD_DIR` set to its dedicated
+directory, so an inherited build directory can neither keep intermediate
+artifacts outside it nor be cleaned. That directory, or one cargo descends into
+beneath it (each entry one and two levels down, such as `debug`, `debug/deps`
+or `wasm32-unknown-unknown/release`, and the `deps`, `build`, `.fingerprint`,
+`incremental` and `examples` of each `<triple>/<profile>`), being a symbolic
+link or resolving outside it is refused by name before each cargo run and
+before the directory is deleted.
+An engine whose published stamp equals its current inputs is not built at
+all: nothing is compiled and nothing is republished. Any build, for whatever
+reason (a missing or different stamp, inputs that moved during an attempt),
+first deletes that directory, so every build is clean: neither an edit that
+kept a file's modification time, nor a link retargeted to an older file, nor
+an ordinary cargo build run in that directory since (of other sources, later
+restored with their old times) leaves cargo's mtime-based freshness check an
+artifact to publish under the new stamp. A clean build of both engines costs
+about a minute (58 s measured for both together on the development host). The
+stamp is written only when
+the complete input set, digested before cargo runs and again after, held
+still; a newly revealed compile read or a changed input means another clean
+build, and after three the build fails naming the inputs. `run.mjs` recomputes
+each stamp and runs `build:wasm` when a folder or stamp is missing or the hash
+differs, also under `--skip-build`. It logs `engine rebuilt: <engine>
+(<reason>; stamp <hash>)` or `engine current, stamp <hash>`.
+
+One per-worktree build lock, `apps/desktop/target/build.lock`
+(`scripts/worktreeBuildLock.mjs`), is held for the whole engine check, build,
+glue and publication of `build:wasm` (a direct `npm run build:wasm` takes it)
+and by `run.mjs` from its engine check through the app build, binding and
+both app launches: the smoke releases it only after its last launch ends, on
+every exit path; `build:wasm` under the smoke inherits it through the token
+the lock records. So two builds or smokes in one worktree never interleave, and
+the `.tmp-`/`.old-` cleanup never removes another active run's directories.
+One build or smoke per worktree at a time is the supported use; a second is
+refused, not queued. The lock is created
+atomically (a complete record hard-linked into place) with the holder's pid,
+the start time `ps` reports for it (in UTC and the C locale), its purpose, a
+token and when it was acquired. It fails closed: no lock is ever broken
+automatically, since neither a pid's absence nor its start time shows that no
+build process of the holder survives. A taker that finds the lock held refuses
+at once, naming the holder's pid, purpose, recorded start and acquired times,
+with a liveness hint from `ps` (informational; it removes nothing) and the
+exact removal step, so that a crashed run costs a minute, not a diagnosis:
+`TZ=UTC ps -p <pid> -o pid,lstart,command` for the holder and
+`pgrep -fl -- '<project directory>'` for any cargo, rustc, wasm-bindgen,
+build-script or app process whose command line names this worktree's project
+directory (rustc carries it in `--out-dir`, and every cargo build the tooling
+runs names a manifest in it), then `rm -f '<lock path>'`, each with the
+absolute paths quoted for zsh and bash. Lock order: the host slot first
+(`t3_slot.sh`, `t3_cargo.sh` or `t3_exclusive.sh`, taken by the wrapper that
+launches the build or smoke), then the worktree lock; code holding the
+worktree lock never acquires a host slot, and a command that resolves to one of
+those wrappers, or to a script naming them, is refused by name, as is an
+inherited compiler wrapper.
+
+Interruption. The holder installs its exit and stop-signal handlers before
+it publishes the lock, so from the moment the lock exists an exit or a stop
+signal releases it; an acquisition that fails stops listening without losing
+a signal already received. While it holds its own lock, the holder runs every
+build command, and the smoke each app launch, through `runUnderLock`:
+asynchronously and as the leader of its own process group (`detached`), so
+cargo's rustc, build-script and wasm-bindgen descendants, or caffeinate and the
+app, are in that group. A command under an inherited lock (`build:wasm` under
+the smoke) stays in its parent's group, which the holder signals. Each
+command's group is settled before the command returns and the next one starts:
+once its leader exits, the group gets up to 2 s to empty, then SIGTERM and up
+to 2 s, then SIGKILL and up to 2 s. A group seen empty is forgotten at once,
+and only a group still tracked and seen alive just before is ever signalled,
+so no signal reaches a group id the system has since reused. A group that
+cannot be confirmed empty stops the run (exit 1), keeping the lock with the
+removal steps. On SIGINT, SIGTERM or SIGHUP the holder sends that signal to
+each of its groups and waits up to 5 s for every group to be empty, sends
+SIGKILL to any group that is not and waits up to 2 s more, and only when every
+group is gone releases its lock; it then exits 128 + the signal number (130,
+143, 129), the smoke removing its private app copy as it exits. Once it is
+handling a stop signal the handler alone escalates: a command's own settlement
+sends nothing more, so a descendant still cleaning up keeps the full 5 s. A group still
+not empty after SIGKILL (on macOS a group left with only an unreaped zombie
+counts) keeps the lock and the copy, and the holder prints the same
+confirmation and removal steps as the refusal. That text is written
+synchronously, its first line saying the lock is kept, and retried while the
+pipe is full for at most 2 s: delivery is best effort, and a reader that does
+not drain standard error within 2 s gets only the head of the text, or
+nothing, while the lock is kept regardless. A signal that arrives during
+synchronous work (the probes `ps`, `rustc -vV` and `cargo metadata`, or the
+work after a command returns) is delivered in the event loop's next poll
+phase. The tooling waits for one before deciding an exit or removing its
+handlers (`afterPendingSignals`: a timer, which fires in a later loop
+iteration, then an immediate, which runs after that iteration's poll phase).
+`exitAfterSignals`, which the build and the smoke exit through, waits so before
+it exits; a release keeps the handlers until then; and a successful
+`build:wasm` waits so after its release. A signal received before that wait is
+then honoured: it exits 128 + the signal number. An ordinary or nonzero exit releases the lock.
+An uncaught error releases it too; were a group still running at that point,
+it is sent SIGKILL and the lock is kept. A signal pending at an uncaught error
+is not honoured: the exit status is the error's. Limits: SIGKILL of the
+holder, or a power loss, cannot be handled. They leave the lock, any surviving build
+process, and for the smoke its private app copy; recovery is the printed steps
+below. A descendant that leaves its process group is not followed; the printed
+`pgrep` step is what finds it.
+
+The app embeds `dist/` when cargo builds it. `run.mjs` builds it with
+the target and build directories set to `src-tauri/target` and
+`--message-format=json-render-diagnostics`, and binds and launches only the
+executable cargo's `compiler-artifact` message reports, which must lie in that
+directory; no report, or one elsewhere, stops the run by name before anything is
+bound or launched. After a build whose inputs held still it writes a binding
+record, `apps/desktop/target/native-smoke/app-binding.json`: the engine stamps;
+a hash of the frontend inputs (`src/`, the app's `index.html`, `package.json`,
+Vite, TS, PostCSS and `.env` files, `public/` other than the engine folders, the
+npm workspace's `package.json` and `package-lock.json`, and each file outside
+`src/` a source names in a relative import, such as the project fixtures); a
+digest of `dist/`; a hash, with the stamp's toolchain context, of the app's Rust
+inputs (the `src-tauri` crate closure by the same cargo-metadata method, every
+file at the top of `src-tauri/` including `tauri.conf.json` and `build.rs`,
+`icons/`, `capabilities/`, and the dep-info compile reads, which are recorded);
+the build command and smoke configuration; and the executable's path, size and
+SHA-256. Before every app build the smoke performs, `cargo clean -p` removes the
+closure's own packages from `src-tauri/target`, so the build is clean for them:
+neither a valid record nor matching Rust inputs say what the directory holds,
+since an ordinary cargo build after the binding (of other sources, later
+restored with their old times) leaves artifacts cargo would take as fresh. `dist/` changing while cargo builds, or
+the frontend inputs changing while Vite builds, stops the run by name with no
+binding and no launch; a changed or newly revealed Rust input means another
+build, up to three. Under the lock, the bound executable is copied into a
+private per-run directory, `apps/desktop/target/native-smoke/run-<token>/`
+(created exclusively, about 115 MB), and the copy's SHA-256 must equal the
+bound binary's; each launch runs the copy, its identity checked again first,
+and the copy is removed when the run ends, normally or by SIGINT, SIGTERM or
+SIGHUP. No other build in the worktree runs while the smoke launches, and none
+could change what it launches. A hard-killed run (SIGKILL, power loss) leaves
+that directory, an accepted cost. The refusal the next run prints names it by
+the lock's token, after the lock's removal step: once the lock is removed and
+nothing runs from that directory (the printed `pgrep` shows no process from
+it), `rm -rf '<that directory>'` removes it. Recovery removes only that named,
+inactive directory, never every `run-*`. The app needs nothing beside its
+executable: `dist/` is embedded, it links only system libraries, and its solve
+workers start the same copy (`current_exe`). Under `--skip-build` the frontend and app are rebuilt when an engine was
+rebuilt, a `dist/` engine copy's stamp differs, the record is missing or
+unreadable, or the frontend hash or `dist/` digest differs; the app alone when
+the engine stamps, the Rust inputs, the build or the executable differ. The log
+names which applies.
+
+What this guards against. In scope, and to be closed: accidental staleness or
+mis-binding in our own environments: ordinary edits (including ones that keep a
+file's modification time), branch switches, reused worktrees, the environment
+our wrappers set and the smoke inherits (`CARGO_TARGET_DIR`,
+`CARGO_BUILD_BUILD_DIR` and the like) and shared or linked target directories.
+Out of scope, documented limits: local cargo configuration or filesystem tricks
+deliberately constructed to defeat the check. The refusal of compiler and
+output keys in any TOML spelling, and of files the scanner cannot tokenize,
+also stops such constructions where that was cheap; these limits remain: the
+contents of a linker or runner program (only its name; compiler wrappers are
+refused); a file swapped between
+the check and cargo's read, or a link created during a build; and cargo
+configuration read from places other than the working directory's ancestry and
+`CARGO_HOME` (command-line `--config`, which the smoke does not pass).
+
+Not covered: files outside the project (registry crates and npm packages beyond
+their lock files, the Rust toolchain beyond `rustc -vV`, system SDKs). The
+frontend binding's textual import scan sees every import in production sources;
+the only computed URLs there load the engine glue from `public/`, which the
+engine stamps cover. It does not see test-only inputs: the `import.meta.glob`
+in `src/features/solve/LoadReferenceStatesBlock.test.tsx`,
+`src/features/workspace/resultsSessionState.test.ts`,
+`src/features/results/pressureSourceIntegration.test.tsx` and
+`src/features/results/PhysicsSourceEvidencePanel.test.tsx`, and the computed
+generator path in `src/design/tokens.test.ts`. Those are not in `dist/` and are
+not bound. `native-smoke/engine-stamp.test.mjs`,
+`native-smoke/app-binding.test.mjs` and `scripts/build-wasm-engine.test.mjs`
+test the stamp, the clean and stable-build rules and these decisions.
 
 Run it on a Mac with a GUI session:
 

@@ -1,5 +1,6 @@
 mod atomic_report_package_save;
 mod command_ingress;
+mod exact_source_binding;
 mod export_disposition_screen;
 mod handoff_package;
 mod handoff_package_publish;
@@ -13,11 +14,16 @@ mod model_document_version;
 mod model_states;
 mod analysis_runs;
 mod stored_read;
+mod stored_model_document_export;
 #[cfg(feature = "native-smoke")]
 mod native_smoke;
 mod native_result_download;
 mod report_package_bridge;
 mod report_package_save;
+mod report_render_exact;
+#[cfg(test)]
+mod report_render_exact_tests;
+mod rule_solver_selection;
 mod solve_jobs;
 mod solve_worker;
 mod worker_alloc;
@@ -39,7 +45,6 @@ use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::{
-    collections::HashSet,
     fs,
     path::{Path, PathBuf},
     sync::Arc,
@@ -60,16 +65,24 @@ async fn save_report_package(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<ReportPackageSaveCommandError>> {
-    // The arguments are two canonical texts and two structs of scalars, moved.
+    // The arguments are three canonical texts and two structs of scalars, moved.
     let (mut args, mut lease) = command_ingress::admit(&registry, &invoke, "save_report_package", ArgsDecoding::Moved)?;
     let request = report_package_save::save_report_package_args(&mut args)?;
     drop(args);
-    // Evidence shape, the size caps, then the priced parse of both texts: the
-    // lease grows by their parse before either is parsed (DEL-08-01 Design
+    // Evidence shape, the size caps, then the priced parse of the three texts:
+    // the lease grows by their parse before any is parsed (DEL-08-01 Design
     // `report-package-current-results.md` §2.6 items 1-3). The lease is held
     // through admission, the save dialog and the write.
     let growth = report_package_save::validate_report_package_save_evidence(&request.screening, request.local_first.as_ref())
-        .and_then(|()| report_package_save::parse_lease_bytes(&request.request_text, &request.model_text));
+        .and_then(|()| {
+            report_package_save::parse_lease_bytes_with_exact(
+                &request.request_text,
+                &request.model_text,
+                &request.input_manifest_text,
+                request.exact_result_text.as_deref(),
+                request.exact_intake_text.as_deref(),
+            )
+        });
     let growth = match growth {
         Ok(growth) => growth,
         Err(error) => return respond::<report_package_save::ReportPackageSaveReceipt, _>(Err(CommandError::Command(error))),
@@ -86,7 +99,9 @@ async fn save_report_package_decoded(
     let software = report_package_save::ExpectedSoftware { name: info.name.clone(), version: info.version.to_string() };
     tauri::async_runtime::spawn_blocking(move || {
         let mut lookup = library_store_lookup(&app);
-        save_report_package_with_picker(request, &software, &mut lookup, |file_name| choose_report_package_save_path(&app, file_name))
+        let registry = app.state::<SolveJobRegistry>().inner().clone();
+        let custody = |job: &str| registry.custody_binding(job);
+        save_report_package_with_picker(request, &software, &mut lookup, &custody, |file_name| choose_report_package_save_path(&app, file_name))
     })
     .await
     .unwrap_or_else(|_| {
@@ -111,21 +126,26 @@ fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<R
 }
 
 /// The save after argument decoding: the native admission
-/// (`report_package_save::admit_report_package`), then the save dialog and the
-/// atomic write. `choose` is the save dialog (a counting seam in tests).
+/// (`report_package_save::admit_report_package_in`, with the registry's
+/// custody lookup for an exact-route request's native source binding, W-11),
+/// then the save dialog and the atomic write. `choose` is the save dialog (a
+/// counting seam in tests).
 fn save_report_package_with_picker(
     request: report_package_save::ReportPackageSaveRequest,
     software: &report_package_save::ExpectedSoftware,
     lookup: &mut model_document_save::LibraryLookup<'_>,
+    custody: &report_package_save::CustodyLookup<'_>,
     choose: impl FnOnce(&str) -> Option<Result<PathBuf, String>>,
 ) -> Result<report_package_save::ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
-    let admitted = report_package_save::admit_report_package(request, software, lookup)?;
-    report_package_save::save_admitted_report_package(admitted, choose)
+    let admitted = report_package_save::admit_report_package_in(request, software, lookup, custody)?;
+    report_package_save::save_admitted_report_package_in(admitted, custody, choose)
 }
 
-/// The local library store as the native saves read it (W-6a, W-18): opened
+/// The local library store as Save Report Package reads it (W-18): opened
 /// only when a library is first referenced, as `open_local_library` opens it,
 /// with the identities trimmed as it normalizes them. A read error is an `Err`.
+/// Save Model Document and Save Handoff read it within their memory instead
+/// (`stored_model_document_export::StoreLibraryReads`).
 fn library_store_lookup(app: &AppHandle) -> impl FnMut(&str, &str, &str) -> Result<Option<Value>, String> + '_ {
     let mut connection: Option<Connection> = None;
     move |project_id: &str, library_kind: &str, library_id: &str| {
@@ -1536,29 +1556,52 @@ fn get_unit_catalog() -> UnitCatalogResponse {
 /// `x-swbpipe-ingress: args-json-v1`, body = the UTF-8 JSON object of the
 /// camelCase arguments. Each command's arguments are decoded by its `*_args`
 /// function; the response is serialized while the lease is held.
+///
+/// W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.6):
+/// the render runs on a blocking worker thread, as the save does, because an
+/// exact input's native source binding parses and re-derives under the held
+/// lease; every other input renders there unchanged.
 #[tauri::command]
-fn render_calculation_report(
+async fn render_calculation_report(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
-    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "render_calculation_report", ArgsDecoding::Moved)?;
-    respond(render_calculation_report_args(&mut args))
+    let (mut args, mut lease) = command_ingress::admit(&registry, &invoke, "render_calculation_report", ArgsDecoding::Moved)?;
+    let registry = registry.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let outcome = render_calculation_report_args(&mut args, &registry, &mut lease);
+        // The response is serialized while the lease is still held.
+        let response = respond(outcome);
+        drop(lease);
+        response
+    })
+    .await
+    .unwrap_or_else(|_| Err(CommandError::Command("RENDER-WORKER-FAILED: the render's worker did not complete.".to_string())))
 }
 
-fn render_calculation_report_args(args: &mut Args) -> Result<Value, CommandError> {
-    let input = args.value("input")?;
-    render_calculation_report_value(input).map_err(CommandError::Command)
+/// The render's production root (W-11, DEL-08-01 Design
+/// `exact-route-report-sections.md` §3.6 step 0, §5.5): the production
+/// admitted set, which admits no exact-route identity before opening.
+fn render_calculation_report_args(args: &mut Args, registry: &SolveJobRegistry, lease: &mut memory_pool::Lease) -> Result<Value, CommandError> {
+    report_render_exact::render_calculation_report_args_in(args, registry, lease, report_render_exact::PRODUCTION)
 }
 
 fn render_calculation_report_value(input: Value) -> Result<Value, String> {
     // DEC-021 (A7): deterministic hash-bound HTML rendering with the
     // three-point protected-content gates evaluated in the renderer crate.
     // The derived print view is non-hash-bound and names the canonical hash.
-    let renderable: open_pipe_stress_report_renderer::RenderableReportInput =
-        serde_json::from_value(input).map_err(|error| format!("RENDER-INPUT-INVALID: {error}"))?;
+    // The decode refusal names the JSON path and the error kind, never the
+    // offending value (W-11 slice (c), Codex review round 3 of #1639).
+    let renderable = open_pipe_stress_report_renderer::decode_renderable_report_input(input)?;
     let outcome = open_pipe_stress_report_renderer::render_calculation_report(&renderable);
-    let derived_print_html =
-        open_pipe_stress_report_renderer::derived_print_view(&outcome.html, &outcome.sha256_hex);
+    // W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §6.2):
+    // a render refused for its provenance records is metadata-only, so no
+    // print view is derived from it either.
+    let derived_print_html = if outcome.content_withheld {
+        String::new()
+    } else {
+        open_pipe_stress_report_renderer::derived_print_view(&outcome.html, &outcome.sha256_hex)
+    };
     let mut payload = serde_json::to_value(&outcome).map_err(|error| error.to_string())?;
     payload["derived_print_html"] = Value::String(derived_print_html);
     Ok(payload)
@@ -1597,52 +1640,122 @@ async fn open_model_document_file(app: AppHandle) -> Result<model_document_file:
 /// document checks) before the chooser is shown, then written by the atomic
 /// writer as `.json`. Cancel is an outcome, not an error. Async so the blocking
 /// chooser stays off the main thread (as `save_report_package`); the ingress
-/// lease is held through admission, the chooser and the write.
+/// lease is held until the command returns, and each referenced library's read
+/// is metered against the pool with it (`StoreLibraryReads`).
 #[tauri::command]
 async fn save_model_document_file(
     app: AppHandle,
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<NoCommandError>> {
-    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "save_model_document_file", ArgsDecoding::Moved)?;
+    let (mut args, lease) = command_ingress::admit(&registry, &invoke, "save_model_document_file", ArgsDecoding::Moved)?;
     let request = model_document_save::save_model_document_args(&mut args)?;
     drop(args);
-    respond(Ok(save_model_document_decoded(app, request).await))
+    // The command keeps the lease until it returns; the worker shares it.
+    let lease = std::sync::Arc::new(lease);
+    Ok(save_model_document_decoded(app, request, std::sync::Arc::clone(&lease)).await)
 }
 
 async fn save_model_document_decoded(
     app: AppHandle,
     request: model_document_save::ModelDocumentSaveRequest,
-) -> model_document_save::ModelDocumentSaveOutcome {
-    use model_document_save::{ModelDocumentSaveOutcome as Outcome, PICKER_PATH_INVALID, WORKER_FAILED};
+    lease: std::sync::Arc<memory_pool::Lease>,
+) -> tauri::ipc::Response {
+    use model_document_save::{ModelDocumentSaveOutcome as Outcome, WORKER_FAILED};
+    // A short outcome of fixed texts, within the ingress lease's error allowance.
+    let short = |outcome: Outcome| tauri::ipc::Response::new(serde_json::to_string(&outcome).unwrap_or_default());
     if let Err(diagnostic) =
         model_document_save::validate_model_document_save_evidence(&request.screening, &request.local_first)
     {
-        return Outcome::refused(vec![diagnostic]);
+        return short(Outcome::refused(vec![diagnostic]));
     }
     let model_document_save::ModelDocumentSaveRequest { canonical_text, claimed_model_hash, screening, .. } = request;
-    let store_app = app.clone();
-    let admitted = match tauri::async_runtime::spawn_blocking(move || {
+    // The admission, the chooser and the write run on one blocking worker,
+    // which holds the library reads' reservations throughout; the chooser
+    // blocks this worker, not the main thread.
+    tauri::async_runtime::spawn_blocking(move || {
+        let registry = app.state::<SolveJobRegistry>();
+        let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
         // The local library store, opened only if the document references a
         // library. A read error refuses.
-        let mut lookup = library_store_lookup(&store_app);
-        model_document_save::admit_model_document_text(canonical_text, &claimed_model_hash, &screening.payload_sha256, &mut lookup)
+        let open_store = || open_project_store(&app_store_path(&app)?).map(|(connection, _)| connection);
+        model_document_save::save_model_document_admitted(
+            canonical_text,
+            &claimed_model_hash,
+            &screening.payload_sha256,
+            open_store,
+            &registry,
+            &lease,
+            |suggested| choose_model_document_save_path(&app, suggested, directory),
+            |_, text| tauri::ipc::Response::new(text),
+        )
     })
     .await
-    {
-        Ok(Ok(admitted)) => admitted,
-        Ok(Err(diagnostics)) => return Outcome::refused(diagnostics),
-        Err(_) => return Outcome::refused_one(WORKER_FAILED, "The save's admission worker did not complete."),
-    };
-    let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
-    let destination = match choose_model_document_save_path(&app, &admitted.suggested_file_name, directory) {
-        Ok(Some(destination)) => destination,
-        Ok(None) => return Outcome::Cancelled,
-        Err(message) => return Outcome::refused_one(PICKER_PATH_INVALID, message),
-    };
-    tauri::async_runtime::spawn_blocking(move || model_document_save::write_admitted_model_document(&destination, admitted))
-        .await
-        .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The save's write worker did not complete; the destination may be unchanged."))
+    .unwrap_or_else(|_| short(Outcome::refused_one(WORKER_FAILED, "The save's worker did not complete; the destination may be unchanged.")))
+}
+
+/// Recovery export (W-17, DEL-02-02 Design §3): a stored project's document
+/// (`state_id` absent) or a saved state's, which the desktop refuses at open,
+/// written to a file the user chooses exactly as the store holds it
+/// (`stored_model_document_export`). It needs the explicit local-private
+/// intent; the store is opened read-only and not migrated; the read is
+/// admitted by the memory pool as the saved-state reader's is, and capped at
+/// the model-document file size; the text must hold each object member once,
+/// and its dispositions are screened. Then the Save Model Document chooser is
+/// shown and its atomic writer writes, the text's reservation held throughout.
+/// Nothing is adopted. The outcome's `model_hash` is the SHA-256 of the bytes
+/// written (for a saved state, its model hash). The arguments
+/// `{projectId, stateId, explicitLocalPrivateIntent}` are an `args-json-v1`
+/// raw body within the history commands' budget (`admit_within`,
+/// `INGRESS-ARGS-TOO-LARGE`); the ingress lease is held, and counted in the
+/// read's accounting, until the worker has built the response from the
+/// outcome serialized within that accounting.
+#[tauri::command]
+async fn save_stored_model_document_file(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<NoCommandError>> {
+    use stored_model_document_export as export;
+    let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, export::COMMAND, ArgsDecoding::Moved, export::MAX_ARGS_BYTES)?;
+    let request = export::stored_export_args(&mut args)?;
+    drop(args);
+    Ok(save_stored_model_document_decoded(app, request, lease).await)
+}
+
+/// The export's worker: it holds the ingress lease, and builds the response
+/// from the outcome's text serialized within the read's memory while every
+/// reservation is still held (`stored_model_document_export::serialize_outcome`),
+/// so nothing is serialized unreserved after the lease is released.
+async fn save_stored_model_document_decoded(
+    app: AppHandle,
+    request: stored_model_document_export::StoredExportRequest,
+    lease: memory_pool::Lease,
+) -> tauri::ipc::Response {
+    use model_document_save::{ModelDocumentSaveOutcome as Outcome, WORKER_FAILED};
+    // The chooser blocks this worker, not the main thread.
+    tauri::async_runtime::spawn_blocking(move || {
+        // The store's path, without `app_store_path`'s directory creation and
+        // legacy carry-forward: the export creates and writes nothing there.
+        let store = || app.path().app_local_data_dir().map(|directory| directory.join(PROJECT_STORE_FILE)).map_err(|error| error.to_string());
+        let registry = app.state::<SolveJobRegistry>();
+        let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
+        let response = stored_model_document_export::export_stored_model_document_request(
+            &request,
+            store,
+            &registry,
+            &lease,
+            |suggested| choose_model_document_save_path(&app, suggested, directory),
+            |_, text| tauri::ipc::Response::new(text),
+        );
+        drop(lease);
+        response
+    })
+    .await
+    .unwrap_or_else(|_| {
+        let failed = Outcome::refused_one(WORKER_FAILED, "The export's worker did not complete; the destination may be unchanged.");
+        tauri::ipc::Response::new(serde_json::to_string(&failed).unwrap_or_default())
+    })
 }
 
 fn choose_model_document_save_path(
@@ -1685,107 +1798,53 @@ async fn save_handoff_package(
     let (mut args, lease) = command_ingress::admit(&registry, &invoke, "save_handoff_package", ArgsDecoding::Moved)?;
     let request = handoff_package::save_handoff_package_args(&mut args)?;
     drop(args);
-    // The lease is held until the command returns; each store read is metered
-    // against the pool with it (W-12 S2's `PoolReadMemory`).
+    // The lease is held until the command returns; the saved states and the
+    // referenced libraries are read within the pool with it (W-12 S2's
+    // `PoolReadMemory`). The worker shares it.
     let lease = std::sync::Arc::new(lease);
-    respond(Ok(save_handoff_package_decoded(app, request, lease).await))
+    Ok(save_handoff_package_decoded(app, request, std::sync::Arc::clone(&lease)).await)
 }
 
-/// The stored rule-pack documents with `rule_pack_id`, the model's project's
-/// first (the Rule Pack Manager lets a model use a pack stored under any project).
+/// The stored rule-pack document with `rule_pack_id` under the model's project
+/// (at most one), as the solve's rule-pack resolution opens it (#1602:
+/// `open_local_rule_pack` for the model's project), so that a handoff resolves
+/// exactly the references a run of the same model resolves.
 fn stored_rule_packs_with_id(connection: &Connection, project_id: &str, rule_pack_id: &str) -> Result<Vec<Value>, String> {
-    let mut statement = connection
-        .prepare("SELECT document_json FROM local_rule_packs WHERE rule_pack_id = ?1 ORDER BY project_id = ?2 DESC, project_id")
-        .map_err(|error| error.to_string())?;
-    let rows = statement
-        .query_map(params![rule_pack_id, project_id], |row| row.get::<_, String>(0))
-        .map_err(|error| error.to_string())?
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(|error| error.to_string())?;
-    rows.iter().map(|text| serde_json::from_str(text).map_err(|error| error.to_string())).collect()
+    Ok(load_rule_pack(connection, project_id.trim(), rule_pack_id.trim())?.map(|row| row.document).into_iter().collect())
 }
 
 async fn save_handoff_package_decoded(
     app: AppHandle,
     request: handoff_package::HandoffSaveRequest,
     lease: std::sync::Arc<memory_pool::Lease>,
-) -> handoff_package::HandoffSaveOutcome {
-    use handoff_package::{HandoffSaveOutcome as Outcome, PICKER_PATH_INVALID, WORKER_FAILED};
+) -> tauri::ipc::Response {
+    use handoff_package::{HandoffSaveOutcome as Outcome, WORKER_FAILED};
+    // A short outcome of fixed texts, within the ingress lease's error allowance.
+    let short = |outcome: Outcome| tauri::ipc::Response::new(serde_json::to_string(&outcome).unwrap_or_default());
     if let Err(diagnostic) = handoff_package::validate_handoff_evidence(&request.screening, &request.local_first) {
-        return Outcome::Refused { diagnostics: vec![diagnostic] };
+        return short(Outcome::Refused { diagnostics: vec![diagnostic] });
     }
-    let handoff_package::HandoffSaveRequest { canonical_text, claimed_model_hash, screening, basis_state_id, package_label, .. } = request;
-    let store_app = app.clone();
-    let store_lease = std::sync::Arc::clone(&lease);
-    let prepared = match tauri::async_runtime::spawn_blocking(move || {
-        let registry = store_app.state::<SolveJobRegistry>();
-        let memory = stored_read::PoolReadMemory::new(&registry, &store_lease);
-        // One store connection, opened on first use, as the model-document save opens it.
-        let connection: std::cell::RefCell<Option<Connection>> = std::cell::RefCell::new(None);
-        let with_store = |read: &mut dyn FnMut(&Connection) -> Result<(), String>| -> Result<(), String> {
-            let mut held = connection.borrow_mut();
-            if held.is_none() {
-                *held = Some(open_project_store(&app_store_path(&store_app)?)?.0);
-            }
-            read(held.as_ref().expect("opened above"))
-        };
-        let mut states = |project_id: &str, state_id: &str| {
-            handoff_package::stored_state(&app_store_path(&store_app)?, project_id, state_id, &memory)
-        };
-        let mut libraries = |project_id: &str, library_kind: &str, library_id: &str| -> Result<Option<Value>, String> {
-            let mut found = None;
-            with_store(&mut |connection| {
-                found = load_library(connection, project_id.trim(), library_kind.trim(), library_id.trim())?.map(|row| row.document);
-                Ok(())
-            })?;
-            Ok(found)
-        };
-        let mut rule_packs = |project_id: &str, rule_pack_id: &str| -> Result<Vec<Value>, String> {
-            let mut found = Vec::new();
-            with_store(&mut |connection| {
-                found = stored_rule_packs_with_id(connection, project_id, rule_pack_id)?;
-                Ok(())
-            })?;
-            Ok(found)
-        };
-        handoff_package::prepare_handoff(
-            canonical_text,
-            &claimed_model_hash,
-            &screening.payload_sha256,
-            &basis_state_id,
-            &package_label,
-            &mut states,
-            &mut libraries,
-            &mut rule_packs,
+    // The admission, the chooser, the basis state's re-read and the
+    // publication run on one blocking worker, which holds the store reads'
+    // reservations throughout; the chooser blocks this worker, not the main
+    // thread.
+    tauri::async_runtime::spawn_blocking(move || {
+        let registry = app.state::<SolveJobRegistry>();
+        let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
+        let store = || app_store_path(&app);
+        handoff_package::save_handoff_admitted(
+            request,
+            &store,
+            &registry,
+            &lease,
+            |suggested| choose_handoff_package_path(&app, suggested, directory),
+            handoff_package::local_iso_now,
+            &handoff_package_publish::PRODUCTION_HOOKS,
+            |_, text| tauri::ipc::Response::new(text),
         )
     })
     .await
-    {
-        Ok(Ok(prepared)) => prepared,
-        Ok(Err(diagnostics)) => return Outcome::Refused { diagnostics },
-        Err(_) => return Outcome::refused_one(WORKER_FAILED, "The handoff's admission worker did not complete."),
-    };
-    let directory = model_document_save::default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok());
-    let destination = match choose_handoff_package_path(&app, &prepared.suggested_package_name, directory) {
-        Ok(Some(destination)) => destination,
-        Ok(None) => return Outcome::Cancelled,
-        Err(message) => return Outcome::refused_one(PICKER_PATH_INVALID, message),
-    };
-    let write_app = app.clone();
-    tauri::async_runtime::spawn_blocking(move || {
-        // The basis state is read again immediately before publication.
-        let registry = write_app.state::<SolveJobRegistry>();
-        let memory = stored_read::PoolReadMemory::new(&registry, &lease);
-        let mut states = |project_id: &str, state_id: &str| {
-            handoff_package::stored_state(&app_store_path(&write_app)?, project_id, state_id, &memory)
-        };
-        if let Err(diagnostics) = handoff_package::confirm_basis_state(&prepared, &mut states) {
-            return Outcome::Refused { diagnostics };
-        }
-        handoff_package::write_handoff_package(&destination, prepared, &handoff_package::local_iso_now(), &handoff_package_publish::PRODUCTION_HOOKS)
-    })
-    .await
-    .unwrap_or_else(|_| Outcome::refused_one(WORKER_FAILED, "The handoff's write worker did not complete; the destination may be unchanged."))
+    .unwrap_or_else(|_| short(Outcome::refused_one(WORKER_FAILED, "The handoff's worker did not complete; the destination may be unchanged.")))
 }
 
 fn choose_handoff_package_path(app: &AppHandle, suggested_name: &str, directory: Option<PathBuf>) -> Result<Option<PathBuf>, String> {
@@ -1897,9 +1956,10 @@ fn poll_preview_mechanics_job(
 
 /// The producer's exact result bytes as a raw response (an `ArrayBuffer` in
 /// the webview). The job's result lease grows to 2R first; the webview must
-/// call `dispose_preview_mechanics_result` once it has dropped its copy.
+/// call `dispose_preview_mechanics_result` once it has dropped its copy. Async
+/// so that the growth's re-sampling (up to 2 s) never runs on the main thread.
 #[tauri::command]
-fn take_preview_mechanics_job_result(
+async fn take_preview_mechanics_job_result(
     state: tauri::State<'_, SolveJobRegistry>,
     job_id: String,
 ) -> Result<tauri::ipc::Response, SolveJobError> {
@@ -2825,13 +2885,14 @@ fn validate_rule_pack_value(
     ))
 }
 
-/// Run a rule pack's checks against a solved model and return per-check
-/// outcomes (completion plan C4). The pack is validated first; a pack with
-/// blocking validation findings is reported as `RULE_INPUTS_INCOMPLETE` without
-/// running checks. Solver values are resolved from the solved mechanics
-/// envelope supplied via `solved_envelope` (a solve-job result; this command
-/// does not solve) using the caller's `{input_id, result_id}`
-/// selectors; user values and value-slot limits come from
+/// Run a rule pack's checks against a solved model and return one outcome per
+/// check and load case or combination (completion plan C4; rule-pack format
+/// 0.5.0, DEL-06-01 Design `rule-pack-0.5.0.md` §2.7). The pack is validated
+/// first; a pack with blocking validation findings (any format other than
+/// 0.5.0 among them) is reported as `RULE_INPUTS_INCOMPLETE` without running
+/// checks. Solver values are resolved from the solved mechanics envelope
+/// supplied via `solved_envelope` (a solve-job result; this command does not
+/// solve) by each input's in-pack selector on each basis (§2.5); user values and value-slot limits come from
 /// `supplied_value_bindings`. This emits only the automatic rule-check statuses
 /// and makes no professional, certification, sealing, authentication, approval,
 /// or code-compliance claim.
@@ -2847,6 +2908,10 @@ fn run_rule_checks(
 
 /// `{rulePackDocument, model?, solvedEnvelope?, solverResultBindings?,
 /// suppliedValueBindings?, projectId?, sourceBlockInvocation?}`.
+/// `solverResultBindings` is retired for a 0.5.0 pack and refused by name
+/// (`RULE_CALLER_SOLVER_BINDING_RETIRED`; DEL-06-01 Design
+/// `rule-pack-0.5.0.md` §2.5); it is still read so that it is refused rather
+/// than silently ignored.
 fn run_rule_checks_args(args: &mut Args, store: &dyn Fn() -> Result<PathBuf, String>) -> Result<Value, CommandError> {
     let rule_pack_document = args.value("rulePackDocument")?;
     let model = args.opt_value("model");
@@ -2909,6 +2974,7 @@ fn run_rule_checks_value(
     };
     run_rule_checks_core(
         rule_pack_document,
+        supplied_model,
         envelope,
         solver_result_bindings,
         supplied_value_bindings,
@@ -2971,8 +3037,18 @@ fn qualify_rule_mechanics_with_context(model: &Value, envelope: &Value, invocati
 /// references from the local store into `library_value_bindings`, then calls
 /// this; tests target it directly with already-resolved bindings. It requires
 /// the solved envelope: it never solves (every solve runs in the pool's slot).
+///
+/// Rule-pack format 0.5.0 (DEL-06-01 Design `rule-pack-0.5.0.md`): a pack
+/// that does not validate (a version other than 0.5.0 among the findings) is
+/// refused with no outcome. Otherwise the pack's required load cases are
+/// checked against `model` and the envelope (§2.6) and each solver input is
+/// resolved on each basis by the pack's own selector (§2.5;
+/// [`rule_solver_selection`]); caller-supplied solver selectors are retired
+/// and refused by name. The runner then yields one outcome per check and
+/// basis (§2.7).
 fn run_rule_checks_core(
     rule_pack_document: Value,
+    model: &Value,
     envelope: Value,
     solver_result_bindings: Option<Value>,
     supplied_value_bindings: Option<Value>,
@@ -2997,31 +3073,19 @@ fn run_rule_checks_core(
         }));
     }
 
-    // Solver values for `solver_result` inputs come from two sources: an
-    // authored in-pack `solver_result_ref` (the additive solver-result-selector
-    // member, canonical) and the legacy caller-supplied `{input_id, result_id}`
-    // selectors (a fallback). An input that carries an authored reference is
-    // governed by it alone — the caller-supplied selector for that input is
-    // dropped (no run-time override; the authored reference even blocks the
-    // input when it does not resolve, never a caller rescue). Inputs without an
-    // authored reference still bind from caller-supplied selectors (backward
-    // compatible: a pack with no authored references behaves exactly as before).
-    let mut refused_solver_results = Vec::new();
-    let (mut solver_results, authored_solver_input_ids) =
-        resolve_authored_solver_result_bindings(&rule_pack_document, &envelope, &mut refused_solver_results);
-    let mut caller_refused = Vec::new();
-    let caller_solver_results =
-        resolve_solver_result_bindings(solver_result_bindings.as_ref(), &envelope, &mut caller_refused)?;
-    solver_results.extend(
-        caller_solver_results
-            .into_iter()
-            .filter(|binding| !authored_solver_input_ids.contains(&binding.input_id)),
-    );
-    refused_solver_results.extend(
-        caller_refused
-            .into_iter()
-            .filter(|refusal| !authored_solver_input_ids.contains(&refusal.input_id)),
-    );
+    // §2.5: one binding route remains, the pack's own selector. Caller
+    // selectors are refused by name, never merged or silently dropped.
+    if solver_result_bindings.as_ref().is_some_and(|value| !value.is_null()) {
+        return Err(format!(
+            "{}: caller-supplied solverResultBindings are retired for rule-pack format {}; each \
+             solver_result input is bound by its pack's solver_result_ref selector",
+            rule_pack_document::RULE_CALLER_SOLVER_BINDING_RETIRED,
+            rule_pack_document::RULE_PACK_SCHEMA_VERSION
+        ));
+    }
+
+    let resolution =
+        rule_solver_selection::resolve_rule_pack_solver_inputs(&rule_pack_document, model, &envelope);
     let supplied_values = parse_supplied_value_bindings(supplied_value_bindings.as_ref())?;
     let library_values = parse_library_value_bindings(library_value_bindings.as_ref())?;
 
@@ -3035,8 +3099,9 @@ fn run_rule_checks_core(
 
     let result = rule_check_runner::run_rule_checks(&rule_check_runner::RuleCheckRunInput {
         rule_pack_document: &rule_pack_document,
-        solver_results,
-        refused_solver_results,
+        solver_results: resolution.solver_results,
+        refused_solver_results: resolution.refused_solver_results,
+        unavailable_bases: resolution.unavailable_bases,
         supplied_values,
         library_values,
         current_statuses,
@@ -3320,141 +3385,6 @@ fn parse_library_value_bindings(
         });
     }
     Ok(parsed)
-}
-
-/// Read `{value, unit}` from a solved mechanics envelope's `results[]` row whose
-/// `id` matches `result_id`. Returns `None` when no row matches, or the matching
-/// row lacks a numeric `value` or a string `unit` — so the caller omits the
-/// binding and the required input stays unsupplied (the check blocks, never a
-/// silent pass). Shared by the caller-supplied selector path and the authored
-/// `solver_result_ref` path so both address result rows identically. A row the
-/// shared `rule_binding_refusal` helper refuses (T0R) yields `Err(reason)`; the
-/// caller records it as a refused input, reported incomplete with the reason.
-fn solver_result_row_value(envelope: &Value, result_id: &str) -> Result<Option<(f64, String)>, &'static str> {
-    let Some(row) = envelope
-        .pointer("/results")
-        .and_then(Value::as_array)
-        .and_then(|rows| rows.iter().find(|row| row.pointer("/id").and_then(Value::as_str) == Some(result_id)))
-    else {
-        return Ok(None);
-    };
-    if let Some(reason) = open_pipe_stress_result_export::semantic_contract::rule_binding_refusal(envelope, row) {
-        return Err(reason);
-    }
-    let Some(value) = row.pointer("/value").and_then(Value::as_f64) else { return Ok(None) };
-    let Some(unit) = row.pointer("/unit").and_then(Value::as_str) else { return Ok(None) };
-    Ok(Some((value, unit.to_string())))
-}
-
-/// Resolve caller-supplied `{input_id, result_id}` selectors against a solved
-/// mechanics envelope's `results[]`, reading `value`/`unit` by result id. A
-/// selector with no matching row (or a row missing value/unit) is omitted, so
-/// the required input is treated as unsupplied and the check blocks — never a
-/// silent pass. This is the legacy caller-supplied solver binding; an authored
-/// `solver_result_ref` in the pack supersedes it (see
-/// [`resolve_authored_solver_result_bindings`]).
-fn resolve_solver_result_bindings(
-    selectors: Option<&Value>,
-    envelope: &Value,
-    refused: &mut Vec<rule_check_runner::RefusedSolverResult>,
-) -> Result<Vec<rule_check_runner::SolverResultBinding>, String> {
-    let Some(selectors) = selectors.filter(|value| !value.is_null()) else {
-        return Ok(Vec::new());
-    };
-    let array = selectors
-        .as_array()
-        .ok_or_else(|| "solver_result_bindings must be an array".to_string())?;
-    let mut bindings = Vec::new();
-    for selector in array {
-        let input_id = selector
-            .pointer("/input_id")
-            .and_then(Value::as_str)
-            .ok_or_else(|| "each solver_result binding requires input_id".to_string())?;
-        let result_id = selector
-            .pointer("/result_id")
-            .and_then(Value::as_str)
-            .ok_or_else(|| "each solver_result binding requires result_id".to_string())?;
-        match solver_result_row_value(envelope, result_id) {
-            Ok(Some((value, unit))) => bindings.push(rule_check_runner::SolverResultBinding {
-                input_id: input_id.to_string(),
-                result_id: result_id.to_string(),
-                value,
-                unit,
-            }),
-            Ok(None) => {}
-            Err(reason) => refused.push(rule_check_runner::RefusedSolverResult {
-                input_id: input_id.to_string(),
-                reason: reason.to_string(),
-            }),
-        }
-    }
-    Ok(bindings)
-}
-
-/// Resolve every `solver_result` required input that carries an authored
-/// `solver_result_ref` (the additive solver-result-selector schema member;
-/// PROPOSAL, precedent `DEC-038` / `library_value_ref`) to a
-/// [`rule_check_runner::SolverResultBinding`] by reading the referenced row from
-/// the solved envelope's `results[]` by id. The authored reference is the
-/// canonical, in-pack form of the previously caller-supplied solver binding.
-///
-/// Returns the resolved bindings plus the set of input ids that carry an
-/// authored reference (resolvable or not), so the caller can exclude those
-/// inputs from the legacy caller-supplied fallback: an authored reference
-/// governs its input alone — the caller cannot override or rescue it at run
-/// time (run-time override is a deferred non-goal, matching the
-/// `library_value_ref` ruling). An unresolvable reference yields no binding (its
-/// input then blocks at `RULE_INPUTS_INCOMPLETE`, never a silent pass).
-fn resolve_authored_solver_result_bindings(
-    document: &Value,
-    envelope: &Value,
-    refused: &mut Vec<rule_check_runner::RefusedSolverResult>,
-) -> (Vec<rule_check_runner::SolverResultBinding>, HashSet<String>) {
-    let mut bindings = Vec::new();
-    let mut authored_input_ids = HashSet::new();
-    let Some(required_inputs) = document.get("required_inputs").and_then(Value::as_array) else {
-        return (bindings, authored_input_ids);
-    };
-    for input in required_inputs {
-        if input.pointer("/source_kind").and_then(Value::as_str) != Some("solver_result") {
-            continue;
-        }
-        let Some(reference) = input.get("solver_result_ref") else {
-            continue;
-        };
-        let input_id = input
-            .pointer("/input_id")
-            .and_then(Value::as_str)
-            .unwrap_or_default();
-        if input_id.is_empty() {
-            // No usable key; treat as if it carried no authored reference.
-            continue;
-        }
-        // The input carries an authored reference: it is governed by that
-        // reference alone, even if the reference does not resolve.
-        authored_input_ids.insert(input_id.to_string());
-        let result_id = reference
-            .pointer("/result_id")
-            .and_then(Value::as_str)
-            .unwrap_or_default();
-        if result_id.is_empty() {
-            continue;
-        }
-        match solver_result_row_value(envelope, result_id) {
-            Ok(Some((value, unit))) => bindings.push(rule_check_runner::SolverResultBinding {
-                input_id: input_id.to_string(),
-                result_id: result_id.to_string(),
-                value,
-                unit,
-            }),
-            Ok(None) => {}
-            Err(reason) => refused.push(rule_check_runner::RefusedSolverResult {
-                input_id: input_id.to_string(),
-                reason: reason.to_string(),
-            }),
-        }
-    }
-    (bindings, authored_input_ids)
 }
 
 /// Parse caller-supplied `{ref_id, value, unit, dimension}` user values (for
@@ -5087,6 +5017,7 @@ macro_rules! app_invoke_handler {
             load_design_knowledge,
             open_model_document_file,
             save_model_document_file,
+            save_stored_model_document_file,
             save_handoff_package,
             start_preview_mechanics_job,
             poll_preview_mechanics_job,
@@ -5122,6 +5053,7 @@ macro_rules! app_invoke_handler {
             analysis_runs::read_analysis_run,
             analysis_runs::edit_analysis_run_labels,
             analysis_runs::delete_analysis_run,
+            analysis_runs::admit_analysis_run_comparison,
             sync_native_shell_state,
             validate_rule_pack,
             compute_rule_pack_document_checksum,
@@ -5158,11 +5090,13 @@ pub fn run() {
     #[cfg(feature = "native-smoke")]
     let builder = native_smoke::install(builder).invoke_handler(app_invoke_handler!(
         native_smoke::native_smoke_choose,
+        native_smoke::native_smoke_clear_choices,
         native_smoke::native_smoke_menu,
         native_smoke::native_smoke_plan,
         native_smoke::native_smoke_log,
         native_smoke::native_smoke_external_save,
         native_smoke::native_smoke_verify_handoff_package,
+        native_smoke::native_smoke_read_report_package,
         native_smoke::native_smoke_finish,
     ));
     builder
@@ -5368,6 +5302,8 @@ mod tests {
     fn preview_policy_envelope(model: &Value) -> Value {
         let cases = model["load_cases"].as_array().unwrap();
         let mut envelope = demo_solved_envelope(0.125);
+        // One row, as before the demo envelope gained its second load case.
+        envelope["results"] = json!([envelope["results"][0].clone()]);
         envelope["diagnostics"] = json!([]);
         envelope["schema_version"] = json!("0.2.0");
         envelope["model_ref"] = model["project"]["id"].clone();
@@ -5470,7 +5406,7 @@ mod tests {
             source["results"][0]["value"] = json!(value);
             let output = precision_transport(&model, &source);
             qualify_rule_mechanics(&model, &output).unwrap();
-            let bindings = resolve_solver_result_bindings(Some(&demo_solver_selectors()), &output, &mut Vec::new()).unwrap();
+            let bindings = bind_row_by_selector(&model, &output, &output["results"][0]);
             assert_eq!(bindings[0].value.to_bits(), bits, "{}", vector["id"]);
         }
         // Canonical hashing may normalize -0 to +0; all shared nonzero vectors
@@ -5553,19 +5489,32 @@ mod tests {
 
     const EXACT_RULE_MODES: [&str; 2] = ["sparse_interactive", "dense_scrutiny"];
 
+    /// Rule-pack format 0.5.0 (DEL-06-01 Design `rule-pack-0.5.0.md` §2.5): bind
+    /// `row` through the run path's selector resolution, with a one-input pack
+    /// whose selector names the row and whose one required load case is the
+    /// row's basis. Asserts nothing was refused or unavailable.
+    fn bind_row_by_selector(model: &Value, envelope: &Value, row: &Value) -> Vec<rule_check_runner::SolverResultBinding> {
+        let selector = rule_solver_selection::selector_for_row(envelope, row).expect("the row has a selector");
+        let pack = json!({
+            "required_load_cases": [{"required_load_case_id": "invented_case", "basis_ref": row["basis_ref"]}],
+            "required_inputs": [{"input_id": "invented_actual", "source_kind": "solver_result", "solver_result_ref": selector}]
+        });
+        let resolution = rule_solver_selection::resolve_rule_pack_solver_inputs(&pack, model, envelope);
+        assert!(resolution.refused_solver_results.is_empty(), "{:?}", resolution.refused_solver_results);
+        assert!(resolution.unavailable_bases.is_empty(), "{:?}", resolution.unavailable_bases);
+        resolution.solver_results
+    }
+
     /// No row of an admitted exact source is refused by the shared binding helper,
-    /// and a selector binds a published row by id with its exact bits and unit.
-    fn assert_exact_rows_bind(source: &Value, label: &str) {
+    /// and a selector binds a published row with its exact bits and unit.
+    fn assert_exact_rows_bind(model: &Value, source: &Value, label: &str) {
         let rows = source["results"].as_array().unwrap();
         assert!(!rows.is_empty(), "{label}");
         for row in rows {
             assert_eq!(open_pipe_stress_result_export::semantic_contract::rule_binding_refusal(source, row), None, "{label}: {}", row["id"]);
         }
-        let row = rows.iter().find(|row| row["value"].as_f64().is_some() && row["unit"].is_string()).unwrap();
-        let selectors = json!([{"input_id":"exact_actual", "result_id":row["id"]}]);
-        let mut refused = Vec::new();
-        let bindings = resolve_solver_result_bindings(Some(&selectors), source, &mut refused).unwrap();
-        assert!(refused.is_empty(), "{label}");
+        let row = rows.iter().find(|row| row["value"].as_f64().is_some() && row["unit"].is_string() && row["basis_ref"].is_object()).unwrap();
+        let bindings = bind_row_by_selector(model, source, row);
         assert_eq!(bindings.len(), 1, "{label}");
         assert_eq!(bindings[0].result_id, row["id"].as_str().unwrap(), "{label}");
         assert_eq!(bindings[0].value.to_bits(), row["value"].as_f64().unwrap().to_bits(), "{label}");
@@ -5582,7 +5531,7 @@ mod tests {
             assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-2", "{label}");
             assert!(source["contract_evidence"].get("load_reference_states").is_none(), "{label}");
             qualify_rule_mechanics_with_context(model, &source, None).unwrap_or_else(|error| panic!("{label}: {error}"));
-            assert_exact_rows_bind(&source, &label);
+            assert_exact_rows_bind(model, &source, &label);
         }
     }
 
@@ -5597,7 +5546,7 @@ mod tests {
                 assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-2", "{label}");
                 assert!(source["contract_evidence"]["load_reference_states"].as_array().is_some_and(|states| !states.is_empty()), "{label}");
                 qualify_rule_mechanics_with_context(model, &source, None).unwrap_or_else(|error| panic!("{label}: {error}"));
-                assert_exact_rows_bind(&source, &label);
+                assert_exact_rows_bind(model, &source, &label);
             }
         }
     }
@@ -5614,7 +5563,7 @@ mod tests {
                 // The registered invocation, as resultStanding.ts builds it.
                 let invocation = json!({"request":request,"solver_mode":mode});
                 qualify_rule_mechanics_with_context(model, &source, Some(&invocation)).unwrap_or_else(|error| panic!("{label}: {error}"));
-                assert_exact_rows_bind(&source, &label);
+                assert_exact_rows_bind(model, &source, &label);
                 // Without its invocation the backend's standing cannot be eligible.
                 assert!(qualify_rule_mechanics_with_context(model, &source, None).is_err(), "{label}");
             }
@@ -5663,8 +5612,7 @@ mod tests {
                 assert_eq!(row["unit"], unit);
                 assert!(actual != 0.0 && actual.signum() == force.signum());
                 assert!((actual - expected).abs() <= expected.abs() * 1e-10, "{kind}: {actual} != {expected}");
-                let selectors = json!([{"input_id":"tiny", "result_id":row["id"]}]);
-                let bindings = resolve_solver_result_bindings(Some(&selectors), &output, &mut Vec::new()).unwrap();
+                let bindings = bind_row_by_selector(&model, &output, row);
                 assert_eq!(bindings[0].value.to_bits(), actual.to_bits());
             }
             // Preserve the actual gate output; no passing metadata is manufactured.
@@ -7302,8 +7250,8 @@ mod tests {
     fn solves_hand_the_desktop_the_producers_exact_bytes() {
         // W-7 global end rows added (12 element_global_end rows on the one member); no other byte moved.
         const PINS: [(&str, usize, &str); 2] = [
-            ("sparse_interactive", 86553, "a35f7a85780e66bd20f4060a0668098aef0f6f9d1bc2bb43166499cceaa3de99"),
-            ("dense_scrutiny", 86579, "ab62383de29f770a1c66e33a9a23131f7644dbee6a10ad00f9ae9775f8dbf20c"),
+            ("sparse_interactive", 86484, "ac3bde77f91d0a9d595b08799cae5907c8fbef78c6c4c94761514ff6967b2e0d"),
+            ("dense_scrutiny", 86510, "6da64fa02c206a88e670c75ff6b74364263c94e1ac8722a963f603ddf01ac7db"),
         ];
         let fixtures = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/product_preview");
         let model: Value = serde_json::from_str(include_str!(
@@ -7569,7 +7517,8 @@ mod tests {
     }
 
     // PP's derived pressure-free, joint-free invented model. The bundled default
-    // (`invented_demo_model.json`) is the same model under its own project identity.
+    // (`invented_demo_model.json`) is the same model under its own project identity,
+    // without the malformed tee component:C-120.
     fn derived_invented_model() -> Value {
         serde_json::from_str(include_str!(
             "../../../../core/product_physics/tests/fixtures/preview_physics_invented_model.json"
@@ -8102,7 +8051,13 @@ mod tests {
         demo_solved_envelope_with_unit(actual, "demo_unit")
     }
 
+    /// An invented solved envelope with the demo row on both of the demo
+    /// pack's required load cases (`load:L-100`, `load:L-200`), same value.
     fn demo_solved_envelope_with_unit(actual: f64, unit: &str) -> Value {
+        demo_solved_envelope_by_case(actual, actual, unit)
+    }
+
+    fn demo_solved_envelope_by_case(first: f64, second: f64, unit: &str) -> Value {
         json!({
             "status": {
                 "mechanics": "MECHANICS_SOLVED",
@@ -8112,16 +8067,48 @@ mod tests {
                 {
                     "id": "result:stress:demo",
                     "kind": "stress",
-                    "value": actual,
+                    "value": first,
                     "unit": unit,
-                    "entity_ref": "pipe:demo"
+                    "entity_ref": "pipe:demo",
+                    "basis_ref": {"ref_type": "load_case", "ref_id": "load:L-100"}
+                },
+                {
+                    "id": "result:loadcase:load-L-200:stress:demo",
+                    "kind": "stress",
+                    "value": second,
+                    "unit": unit,
+                    "entity_ref": "pipe:demo",
+                    "basis_ref": {"ref_type": "load_case", "ref_id": "load:L-200"}
                 }
             ]
         })
     }
 
-    fn demo_solver_selectors() -> Value {
-        json!([{ "input_id": "demo_actual_quantity", "result_id": "result:stress:demo" }])
+    /// The invented model the demo envelopes answer: the demo pack's two
+    /// required load cases and one combination.
+    fn demo_rule_model() -> Value {
+        json!({
+            "project": {"id": "project:invented-rule-demo"},
+            "load_cases": [{"id": "load:L-100"}, {"id": "load:L-200"}],
+            "combinations": [{"id": "combination:C-OPER-ALT"}]
+        })
+    }
+
+    /// The demo pack with a selector naming the demo envelope's row (the
+    /// committed demo names the invented kind `invented_demo_quantity`, which
+    /// no producer publishes, so it always refuses), re-stamped.
+    fn runnable_demo_pack() -> Value {
+        let mut pack = example_rule_pack_document();
+        pack["required_inputs"][0]["solver_result_ref"] =
+            json!({"result_kind": "stress", "entity_ref": "pipe:demo"});
+        restamp(pack)
+    }
+
+    fn restamp(mut pack: Value) -> Value {
+        let computed =
+            rule_pack_document::compute_rule_pack_checksum(&pack).expect("checksum recomputes");
+        pack["checksums"]["rule_pack_checksum"]["value"] = json!(computed.value);
+        pack
     }
 
     fn demo_supplied_values() -> Value {
@@ -8139,7 +8126,7 @@ mod tests {
     }
 
     fn example_rule_pack_with_stress_unit(unit: &str) -> Value {
-        let mut pack = example_rule_pack_document();
+        let mut pack = runnable_demo_pack();
         pack["required_inputs"][0]["quantity_intent"]["unit_ref"] = json!(unit);
         pack["required_inputs"][1]["quantity_intent"]["unit_ref"] = json!(unit);
         let computed =
@@ -8151,9 +8138,10 @@ mod tests {
     #[test]
     fn run_rule_checks_command_passing_demo_reports_user_rule_checked() {
         let outcome = run_rule_checks_core(
-            example_rule_pack_document(),
+            runnable_demo_pack(),
+            &demo_rule_model(),
             demo_solved_envelope(50.0),
-            Some(demo_solver_selectors()),
+            None,
             Some(demo_supplied_values()),
             None,
         )
@@ -8168,8 +8156,9 @@ mod tests {
     fn run_rule_checks_command_normalizes_compatible_rule_check_units() {
         let outcome = run_rule_checks_core(
             example_rule_pack_with_stress_unit("Pa"),
+            &demo_rule_model(),
             demo_solved_envelope_with_unit(0.05, "MPa"),
-            Some(demo_solver_selectors()),
+            None,
             Some(demo_supplied_values_with_stress_unit(100.0, "kPa")),
             None,
         )
@@ -8197,9 +8186,10 @@ mod tests {
     #[test]
     fn run_rule_checks_command_failing_case_reports_user_rule_failed() {
         let outcome = run_rule_checks_core(
-            example_rule_pack_document(),
+            runnable_demo_pack(),
+            &demo_rule_model(),
             demo_solved_envelope(150.0),
-            Some(demo_solver_selectors()),
+            None,
             Some(demo_supplied_values()),
             None,
         )
@@ -8210,9 +8200,12 @@ mod tests {
 
     #[test]
     fn run_rule_checks_command_missing_input_reports_rule_inputs_incomplete() {
-        // No solver selectors -> the solver_result input is unsupplied.
+        // The committed demo pack's selector names the invented kind
+        // `invented_demo_quantity`, which no producer publishes: on each basis
+        // the solver_result input matches no row and stays unsupplied (§4).
         let outcome = run_rule_checks_core(
             example_rule_pack_document(),
+            &demo_rule_model(),
             demo_solved_envelope(50.0),
             None,
             Some(demo_supplied_values()),
@@ -8220,15 +8213,60 @@ mod tests {
         )
         .expect("rule checks run");
         assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"));
-        assert!(outcome["checks"][0]["computed_value"].is_null());
+        let checks = outcome["checks"].as_array().expect("outcomes");
+        assert_eq!(checks.len(), 2);
+        for (check, case) in checks.iter().zip(["load:L-100", "load:L-200"]) {
+            assert_eq!(check["basis_ref"], json!({"ref_type": "load_case", "ref_id": case}));
+            assert_eq!(check["status"], json!("RULE_INPUTS_INCOMPLETE"));
+            assert!(check["computed_value"].is_null());
+            assert!(check["completeness_findings"].as_array().unwrap().iter().any(|finding|
+                finding["code"] == "RULE_SOLVER_RESULT_ROW_MISSING" && finding["subject_id"] == "demo_actual_quantity"));
+        }
+    }
+
+    #[test]
+    fn run_rule_checks_command_refuses_caller_solver_bindings_by_name() {
+        let error = run_rule_checks_core(
+            runnable_demo_pack(),
+            &demo_rule_model(),
+            demo_solved_envelope(50.0),
+            Some(json!([{ "input_id": "demo_actual_quantity", "result_id": "result:stress:demo" }])),
+            Some(demo_supplied_values()),
+            None,
+        )
+        .unwrap_err();
+        assert!(error.starts_with("RULE_CALLER_SOLVER_BINDING_RETIRED"), "{error}");
+        // A 0.4.0 pack is refused by its version before any binding is read.
+        let mut legacy = runnable_demo_pack();
+        legacy["schema_version"] = json!("0.4.0");
+        legacy["metadata"]["schema_version"] = json!("0.4.0");
+        let outcome = run_rule_checks_core(
+            restamp(legacy),
+            &demo_rule_model(),
+            demo_solved_envelope(50.0),
+            Some(json!([{ "input_id": "demo_actual_quantity", "result_id": "result:stress:demo" }])),
+            Some(demo_supplied_values()),
+            None,
+        )
+        .expect("a refused pack returns a response");
+        assert_eq!(outcome["checks"], json!([]));
+        assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"));
+        let codes: Vec<&str> = outcome["rule_pack_validation"]["document_findings"]
+            .as_array()
+            .expect("findings")
+            .iter()
+            .filter_map(|finding| finding["code"].as_str())
+            .collect();
+        assert!(codes.contains(&"RULE_PACK_SCHEMA_VERSION_UNSUPPORTED"), "{outcome}");
     }
 
     #[test]
     fn run_rule_checks_command_rejects_blocking_invalid_pack() {
         let outcome = run_rule_checks_core(
             json!({ "not": "a valid rule pack" }),
+            &demo_rule_model(),
             demo_solved_envelope(50.0),
-            Some(demo_solver_selectors()),
+            None,
             Some(demo_supplied_values()),
             None,
         )
@@ -8236,12 +8274,55 @@ mod tests {
         assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"));
     }
 
+    /// PR #1629 review r1 finding 2: the runnable demo pack reaches
+    /// USER_RULE_CHECKED; the same pack with a required member of a new record
+    /// removed (checksum re-stamped) is refused with no outcome, by its named
+    /// blocking finding (rule_pack_document `format_findings`).
+    #[test]
+    fn run_rule_checks_command_refuses_a_pack_whose_new_records_lack_required_members() {
+        for (pointer, code) in [
+            ("/required_load_cases/0/name", "RULE_PACK_RECORD_INCOMPLETE"),
+            ("/required_load_cases/0/provenance", "RULE_PACK_RECORD_INCOMPLETE"),
+            ("/stress_categories/0/name", "RULE_PACK_RECORD_INCOMPLETE"),
+            ("/stress_categories/0/provenance", "RULE_PACK_RECORD_INCOMPLETE"),
+            ("/stress_categories/0/provenance/source_license", "RULE_PACK_PROVENANCE_INCOMPLETE"),
+            ("/required_load_cases/1/provenance/review_status", "RULE_PACK_PROVENANCE_INCOMPLETE"),
+        ] {
+            let mut pack = runnable_demo_pack();
+            let (parent, member) = pointer.rsplit_once('/').unwrap();
+            pack.pointer_mut(parent)
+                .and_then(Value::as_object_mut)
+                .and_then(|object| object.remove(member))
+                .unwrap_or_else(|| panic!("{pointer} is in the demo pack"));
+            let outcome = run_rule_checks_core(
+                restamp(pack),
+                &demo_rule_model(),
+                demo_solved_envelope(50.0),
+                None,
+                Some(demo_supplied_values()),
+                None,
+            )
+            .expect("a refused pack returns a response");
+            assert_eq!(outcome["checks"], json!([]), "{pointer}");
+            assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"), "{pointer}");
+            let codes: Vec<&str> = outcome["rule_pack_validation"]["document_findings"]
+                .as_array()
+                .expect("findings")
+                .iter()
+                .filter_map(|finding| finding["code"].as_str())
+                .collect();
+            assert!(codes.contains(&code), "{pointer}: {outcome}");
+            assert!(!codes.contains(&"CHECKSUM_MISMATCH"), "{pointer}");
+        }
+    }
+
     #[test]
     fn run_rule_checks_command_emits_only_status_vocabulary() {
         let outcome = run_rule_checks_core(
-            example_rule_pack_document(),
+            runnable_demo_pack(),
+            &demo_rule_model(),
             demo_solved_envelope(50.0),
-            Some(demo_solver_selectors()),
+            None,
             Some(demo_supplied_values()),
             None,
         )
@@ -8303,6 +8384,45 @@ mod tests {
         let deleted_again = delete_rule_pack(&connection, "project:test-local", &rule_pack_id)
             .expect("second delete returns");
         assert!(!deleted_again);
+    }
+
+    /// Rule-pack format 0.5.0 (DEL-06-01 Design `rule-pack-0.5.0.md` §2.1, §5
+    /// "Round trip"): a 0.5.0 pack read back from the store is the same document
+    /// in canonical form and its checksum verifies; a stored 0.4.0 pack stays
+    /// listed, reads back with the version refusal (its checksum still a
+    /// match), and can be deleted. The store schema is unchanged.
+    #[test]
+    fn local_rule_pack_store_keeps_0_5_0_packs_and_refuses_0_4_0_by_name() {
+        let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        apply_store_migrations(&connection).expect("store migrations apply");
+        let current = example_rule_pack_document();
+        upsert_rule_pack(&connection, "project:format", "invented_demo_rule_pack", &current).unwrap();
+        let loaded = load_rule_pack(&connection, "project:format", "invented_demo_rule_pack").unwrap().unwrap();
+        let canonical = open_pipe_stress_operation_applier::canonical_json;
+        assert_eq!(canonical(&loaded.document), canonical(&current));
+        let validation = rule_pack_validation_value(&loaded.document, false);
+        assert_eq!(validation["has_blocking_findings"], json!(false));
+        assert_eq!(validation["checksum"]["match_status"], json!("match"));
+
+        let mut legacy = example_rule_pack_document();
+        legacy["schema_version"] = json!("0.4.0");
+        legacy["metadata"]["schema_version"] = json!("0.4.0");
+        legacy["metadata"]["rule_pack_id"] = json!("invented_legacy_pack");
+        let legacy = restamp(legacy);
+        upsert_rule_pack(&connection, "project:format", "invented_legacy_pack", &legacy).unwrap();
+        let listed = list_rule_packs(&connection, Some("project:format")).unwrap();
+        assert_eq!(listed.len(), 2);
+        let loaded = load_rule_pack(&connection, "project:format", "invented_legacy_pack").unwrap().unwrap();
+        let validation = rule_pack_validation_value(&loaded.document, false);
+        assert_eq!(validation["has_blocking_findings"], json!(true));
+        assert_eq!(validation["checksum"]["match_status"], json!("match"));
+        assert!(validation["document_findings"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|finding| finding["code"] == "RULE_PACK_SCHEMA_VERSION_UNSUPPORTED"));
+        assert!(delete_rule_pack(&connection, "project:format", "invented_legacy_pack").unwrap());
+        assert_eq!(list_rule_packs(&connection, Some("project:format")).unwrap().len(), 1);
     }
 
     // --- C3 <-> C4 library-reference wiring (TP-C3C4-LIBREF-001) -------------
@@ -8383,7 +8503,7 @@ mod tests {
     }
 
     fn pack_with_library_ref_to(reference: Value) -> Value {
-        let mut pack = example_rule_pack_document();
+        let mut pack = runnable_demo_pack();
         // Repoint demo_limit_quantity to a private-library value reference.
         pack["required_inputs"][1]["source_kind"] = json!("private_library_value");
         pack["required_inputs"][1]["library_value_ref"] = reference;
@@ -8393,43 +8513,6 @@ mod tests {
             rule_pack_document::compute_rule_pack_checksum(&pack).expect("checksum recomputes");
         pack["checksums"]["rule_pack_checksum"]["value"] = json!(computed.value);
         pack
-    }
-
-    /// Give the demo pack's `demo_actual_quantity` (the `solver_result` input,
-    /// required_inputs[0]) an authored in-pack `solver_result_ref` to a solved
-    /// result row, then re-stamp the checksum so validation does not block.
-    fn pack_with_solver_result_ref(result_id: &str) -> Value {
-        let mut pack = example_rule_pack_document();
-        pack["required_inputs"][0]["solver_result_ref"] = json!({ "result_id": result_id });
-        let computed =
-            rule_pack_document::compute_rule_pack_checksum(&pack).expect("checksum recomputes");
-        pack["checksums"]["rule_pack_checksum"]["value"] = json!(computed.value);
-        pack
-    }
-
-    #[test]
-    fn resolve_authored_solver_result_bindings_resolves_ref_and_records_input_id() {
-        let pack = pack_with_solver_result_ref("result:stress:demo");
-        let envelope = demo_solved_envelope(42.0);
-        let (bindings, authored_ids) = resolve_authored_solver_result_bindings(&pack, &envelope, &mut Vec::new());
-        assert_eq!(bindings.len(), 1);
-        assert_eq!(bindings[0].input_id, "demo_actual_quantity");
-        assert_eq!(bindings[0].result_id, "result:stress:demo");
-        assert_eq!(bindings[0].value, 42.0);
-        assert_eq!(bindings[0].unit, "demo_unit");
-        assert!(authored_ids.contains("demo_actual_quantity"));
-    }
-
-    #[test]
-    fn resolve_authored_solver_result_bindings_records_input_id_but_omits_unresolvable_binding() {
-        // An authored ref to a missing row records the input id (so the
-        // caller-supplied fallback is excluded) but yields no binding: the input
-        // then blocks, never a silent pass and never a caller rescue.
-        let pack = pack_with_solver_result_ref("result:absent");
-        let envelope = demo_solved_envelope(42.0);
-        let (bindings, authored_ids) = resolve_authored_solver_result_bindings(&pack, &envelope, &mut Vec::new());
-        assert!(bindings.is_empty());
-        assert!(authored_ids.contains("demo_actual_quantity"));
     }
 
     #[test]
@@ -8591,8 +8674,9 @@ mod tests {
         }]);
         let outcome = run_rule_checks_core(
             pack_with_library_ref(),
+            &demo_rule_model(),
             demo_solved_envelope(50.0),
-            Some(demo_solver_selectors()),
+            None,
             Some(demo_supplied_values()),
             Some(library_bindings),
         )
@@ -8617,8 +8701,9 @@ mod tests {
         // a silent pass).
         let outcome = run_rule_checks_core(
             pack_with_library_ref(),
+            &demo_rule_model(),
             demo_solved_envelope(50.0),
-            Some(demo_solver_selectors()),
+            None,
             Some(demo_supplied_values()),
             None,
         )
@@ -8627,48 +8712,131 @@ mod tests {
     }
 
     #[test]
-    fn run_rule_checks_core_authored_solver_result_ref_resolves_without_caller_selector() {
-        // The authored in-pack solver_result_ref binds the solver value end to
-        // end with NO caller-supplied selector: actual 50 / limit 100 = 0.5
-        // <= ratio_limit 1.0 -> pass. This is the additive solver-result-selector
-        // member retiring the caller-supplied solver binding.
+    fn run_rule_checks_core_binds_each_basis_by_the_pack_selector() {
+        // §2.5, §2.7: the pack's own selector binds the demo row on each of the
+        // two required load cases; values differ by case, so the check passes on
+        // load:L-100 (40 / 100 = 0.4) and fails on load:L-200 (150 / 100 = 1.5),
+        // and the pack fails.
         let outcome = run_rule_checks_core(
-            pack_with_solver_result_ref("result:stress:demo"),
-            demo_solved_envelope(50.0),
+            runnable_demo_pack(),
+            &demo_rule_model(),
+            demo_solved_envelope_by_case(40.0, 150.0, "demo_unit"),
             None,
             Some(demo_supplied_values()),
             None,
         )
         .expect("rule checks run");
-        assert_eq!(outcome["aggregate_status"], json!("USER_RULE_CHECKED"));
-        assert_eq!(outcome["checks"][0]["status"], json!("USER_RULE_CHECKED"));
-        assert_eq!(outcome["checks"][0]["computed_value"]["value"], json!(0.5));
-        let bound = outcome["checks"][0]["bound_inputs"]
+        assert_eq!(outcome["aggregate_status"], json!("USER_RULE_FAILED"));
+        let checks = outcome["checks"].as_array().expect("outcomes");
+        assert_eq!(checks.len(), 2);
+        let expected = [
+            ("load:L-100", "USER_RULE_CHECKED", 0.4, "result:stress:demo"),
+            ("load:L-200", "USER_RULE_FAILED", 1.5, "result:loadcase:load-L-200:stress:demo"),
+        ];
+        for (check, (case, status, ratio, row)) in checks.iter().zip(expected) {
+            assert_eq!(check["check_id"], json!("demo_training_check"));
+            assert_eq!(check["category_ref"], json!("demo_category_a"));
+            assert_eq!(check["basis_ref"], json!({"ref_type": "load_case", "ref_id": case}));
+            assert_eq!(check["status"], json!(status));
+            assert_eq!(check["computed_value"]["value"], json!(ratio));
+            let bound = check["bound_inputs"]
+                .as_array()
+                .expect("bound inputs")
+                .iter()
+                .find(|binding| binding["input_id"] == json!("demo_actual_quantity"))
+                .expect("solver-sourced input present");
+            assert_eq!(bound["supplied"], json!(true));
+            assert_eq!(bound["result_id"], json!(row));
+        }
+    }
+
+    /// §5 (numerical meaning): a single-basis 0.5.0 pack gives the same computed
+    /// value and status as the same check bound by row id before the change.
+    /// Pinned from the pre-change runner (38e5b73d5b `run_rule_checks`, the 0.4.0
+    /// demo pack with MPa units and a `SolverResultBinding` naming this row by
+    /// id; limit 7.3 MPa, ratio limit 1.0): computed 0.62266500622665 (bits
+    /// 0x3fe3ecdf29c36d59), bound actual 4.545454545454545 MPa (bits
+    /// 0x40122e8ba2e8ba2e), USER_RULE_CHECKED.
+    #[test]
+    fn run_rule_checks_core_single_basis_matches_the_pre_change_row_id_binding() {
+        let envelope = exact_rule_fixture("fixtures/results/pressure_connected_mechanics_dense.json");
+        let mut pack = runnable_demo_pack();
+        pack["required_inputs"][0]["quantity_intent"]["unit_ref"] = json!("MPa");
+        pack["required_inputs"][1]["quantity_intent"]["unit_ref"] = json!("MPa");
+        pack["required_inputs"][0]["solver_result_ref"] = json!({
+            "result_kind": "pipe_axial_membrane_stress_v2", "entity_ref": "pipe:fixture-span",
+            "location": "end_i", "component": "axial_membrane_stress", "section_basis": "reduced_section"
+        });
+        pack["required_load_cases"] = json!([{
+            "required_load_case_id": "invented_closed_pressure", "name": "Invented closed pressure case",
+            "basis_ref": {"ref_type": "load_case", "ref_id": "case:closed-pressure"},
+            "provenance": pack["provenance"].clone()
+        }]);
+        pack["load_case_mappings"][0]["required_load_case_refs"] =
+            json!([{"ref_id": "invented_closed_pressure", "ref_type": "required_load_case"}]);
+        let pack = restamp(pack);
+        let model = json!({"load_cases": [{"id": "case:closed-pressure"}], "combinations": []});
+        let outcome = run_rule_checks_core(
+            pack,
+            &model,
+            envelope,
+            None,
+            Some(json!([
+                { "ref_id": "demo_limit_quantity", "value": 7.3, "unit": "MPa", "dimension": "stress" },
+                { "ref_id": "demo_limit_slot", "value": 1.0, "unit": "ratio", "dimension": "dimensionless" }
+            ])),
+            None,
+        )
+        .expect("rule checks run");
+        assert!(outcome.get("rule_pack_validation").is_none(), "{outcome}");
+        let checks = outcome["checks"].as_array().expect("outcomes");
+        assert_eq!(checks.len(), 1);
+        assert_eq!(checks[0]["status"], json!("USER_RULE_CHECKED"));
+        assert_eq!(checks[0]["computed_value"]["value"].as_f64().unwrap().to_bits(), 0x3fe3ecdf29c36d59);
+        let bound = checks[0]["bound_inputs"]
             .as_array()
-            .expect("bound inputs")
+            .unwrap()
             .iter()
-            .find(|binding| binding["input_id"] == json!("demo_actual_quantity"))
-            .expect("solver-sourced input present");
-        assert_eq!(bound["supplied"], json!(true));
-        assert_eq!(bound["result_id"], json!("result:stress:demo"));
+            .find(|binding| binding["input_id"] == "demo_actual_quantity")
+            .unwrap();
+        assert_eq!(bound["value"].as_f64().unwrap().to_bits(), 0x40122e8ba2e8ba2e);
+        assert_eq!(
+            bound["result_id"],
+            json!("result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_i:axial_membrane_stress:reduced_section")
+        );
     }
 
     #[test]
-    fn run_rule_checks_core_authored_solver_result_ref_unresolvable_blocks_over_caller_selector() {
-        // The authored ref points at a missing row, so the solver_result input
-        // stays unsupplied and the check blocks -- even though a caller-supplied
-        // selector for the SAME input would resolve. An authored reference is
-        // canonical: the caller cannot override or rescue it (run-time override
-        // is a deferred non-goal). Never a silent pass.
-        let outcome = run_rule_checks_core(
-            pack_with_solver_result_ref("result:absent"),
-            demo_solved_envelope(50.0),
-            Some(demo_solver_selectors()),
-            Some(demo_supplied_values()),
-            None,
-        )
-        .expect("rule checks run");
-        assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"));
+    fn run_rule_checks_core_required_load_case_missing_or_unsolved_is_incomplete_on_that_basis_only() {
+        // §2.6: load:L-200 absent from the model, then present but unsolved.
+        let mut model = demo_rule_model();
+        model["load_cases"] = json!([{"id": "load:L-100"}]);
+        let mut unsolved = demo_solved_envelope(50.0);
+        unsolved["results"].as_array_mut().unwrap().pop();
+        for (model, envelope, code) in [
+            (model, demo_solved_envelope(50.0), "RULE_REQUIRED_LOAD_CASE_MISSING"),
+            (demo_rule_model(), unsolved, "RULE_REQUIRED_LOAD_CASE_UNSOLVED"),
+        ] {
+            let outcome = run_rule_checks_core(
+                runnable_demo_pack(),
+                &model,
+                envelope,
+                None,
+                Some(demo_supplied_values()),
+                None,
+            )
+            .expect("rule checks run");
+            assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"), "{code}");
+            let checks = outcome["checks"].as_array().expect("outcomes");
+            assert_eq!(checks[0]["status"], json!("USER_RULE_CHECKED"), "{code}");
+            assert_eq!(checks[0]["computed_value"]["value"], json!(0.5), "{code}");
+            assert_eq!(checks[1]["basis_ref"]["ref_id"], json!("load:L-200"), "{code}");
+            assert_eq!(checks[1]["status"], json!("RULE_INPUTS_INCOMPLETE"), "{code}");
+            assert!(checks[1]["computed_value"].is_null(), "{code}");
+            let finding = &checks[1]["completeness_findings"][0];
+            assert_eq!(finding["code"], json!(code));
+            assert_eq!(finding["subject_id"], json!("demo_required_case_2"));
+        }
     }
 
     #[test]
@@ -8711,7 +8879,7 @@ mod tests {
     /// pack with a second check whose formula subtracts quantities in two
     /// different units (and a second required input for it).
     fn example_rule_pack_with_unit_inconsistent_check(other_unit: &str, restamp: bool) -> Value {
-        let mut pack = example_rule_pack_document();
+        let mut pack = runnable_demo_pack();
         let mut other_input = pack["required_inputs"][1].clone();
         other_input["input_id"] = json!("demo_other_quantity");
         other_input["quantity_intent"]["unit_ref"] = json!(other_unit);
@@ -8781,8 +8949,9 @@ mod tests {
         }));
         let outcome = run_rule_checks_core(
             pack,
+            &demo_rule_model(),
             demo_solved_envelope(50.0),
-            Some(demo_solver_selectors()),
+            None,
             Some(supplied),
             None,
         )
@@ -8790,9 +8959,9 @@ mod tests {
         assert!(outcome.get("rule_pack_validation").is_none());
         assert_eq!(outcome["checks"][0]["check_id"], json!("demo_training_check"));
         assert_eq!(outcome["checks"][0]["status"], json!("USER_RULE_CHECKED"));
-        assert_eq!(outcome["checks"][1]["check_id"], json!("demo_inconsistent_check"));
-        assert_eq!(outcome["checks"][1]["status"], json!("RULE_INPUTS_INCOMPLETE"));
-        let runtime: Vec<(&str, &str)> = outcome["checks"][1]["evaluator_findings"]
+        assert_eq!(outcome["checks"][2]["check_id"], json!("demo_inconsistent_check"));
+        assert_eq!(outcome["checks"][2]["status"], json!("RULE_INPUTS_INCOMPLETE"));
+        let runtime: Vec<(&str, &str)> = outcome["checks"][2]["evaluator_findings"]
             .as_array()
             .expect("evaluator findings")
             .iter()
@@ -8829,8 +8998,9 @@ mod tests {
 
         let outcome = run_rule_checks_core(
             pack,
+            &demo_rule_model(),
             demo_solved_envelope(50.0),
-            Some(demo_solver_selectors()),
+            None,
             Some(demo_supplied_values()),
             None,
         )
@@ -9350,8 +9520,10 @@ mod tests {
         #[test]
         fn report_rendering_and_sample_proposal_commands_decode_raw_bodies() {
             let broken = json!({"report_title": "broken"});
-            let (mut args, _lease) = admit("render_calculation_report", json!({"input": broken}));
-            let error = command_error(render_calculation_report_args(&mut args).unwrap_err());
+            let registry = registry(ScriptedHost::normal());
+            let (mut args, mut lease) =
+                admit_json(&registry, "render_calculation_report", ArgsDecoding::Moved, &json!({"input": broken})).unwrap();
+            let error = command_error(render_calculation_report_args(&mut args, &registry, &mut lease).unwrap_err());
             assert_eq!(Err(error), render_calculation_report_value(broken));
 
             let result = json!({"result_kind": "invented", "nodes": []});
@@ -9485,11 +9657,12 @@ mod tests {
             let (mut args, mut lease) = admit_json(&registry, "save_report_package", ArgsDecoding::Moved, &body).unwrap();
             let decoded = report_package_save::save_report_package_args(&mut args).unwrap();
             drop(args);
-            let growth = report_package_save::parse_lease_bytes(&decoded.request_text, &decoded.model_text).unwrap();
+            let growth = report_package_save::parse_lease_bytes(&decoded.request_text, &decoded.model_text, &decoded.input_manifest_text).unwrap();
             lease.grow_to(lease.bytes() + growth).unwrap();
+            let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
             let root = sandbox("command-path");
             let mut picks = 0usize;
-            let receipt = save_report_package_with_picker(decoded, &software(), &mut no_store, |_| {
+            let receipt = save_report_package_with_picker(decoded, &software(), &mut no_store, &report_package_save::no_custody, |_| {
                 picks += 1;
                 Some(Ok(root.join("admitted.opsproj")))
             })
@@ -9515,7 +9688,7 @@ mod tests {
             let decoded = report_package_save::save_report_package_args(&mut args).unwrap();
             let root = sandbox("forged");
             let mut picks = 0usize;
-            let error = match save_report_package_with_picker(decoded, &software(), &mut no_store, |_| {
+            let error = match save_report_package_with_picker(decoded, &software(), &mut no_store, &report_package_save::no_custody, |_| {
                 picks += 1;
                 Some(Ok(root.join("forged.opsproj")))
             }) {
@@ -9529,7 +9702,7 @@ mod tests {
             fs::remove_dir_all(&root).unwrap();
         }
 
-        /// The raw-body arguments decode within the moved lease rule: the two
+        /// The raw-body arguments decode within the moved lease rule: the three
         /// texts are moved strings, the evidence structs of scalars.
         #[test]
         fn report_package_command_decodes_its_arguments() {
@@ -9541,6 +9714,7 @@ mod tests {
             let decoded = report_package_save::save_report_package_args(&mut args).unwrap();
             assert_eq!(decoded.request_text, request.request_text);
             assert_eq!(decoded.model_text, request.model_text);
+            assert_eq!(decoded.input_manifest_text, request.input_manifest_text);
             assert_eq!(decoded.screening, request.screening);
             assert_eq!(decoded.local_first, request.local_first);
             // Absent local-first evidence decodes as None (admission then refuses it).
@@ -9560,6 +9734,131 @@ mod tests {
                 other => panic!("{other:?}"),
             };
             assert!(message.contains("`requestCanonicalText`"), "{message}");
+            // The input manifest is a required argument (§2.6 item 1).
+            let mut no_manifest = body.clone();
+            no_manifest.as_object_mut().unwrap().remove("inputManifestCanonicalText");
+            let (mut args, _lease) = admit_json(&registry, "save_report_package", ArgsDecoding::Moved, &no_manifest).unwrap();
+            let message = match report_package_save::save_report_package_args(&mut args).unwrap_err() {
+                SolveJobError::InvalidRequest { message } => message,
+                other => panic!("{other:?}"),
+            };
+            assert!(message.contains("`inputManifestCanonicalText`"), "{message}");
+        }
+
+        /// The whole report-package save on one raw args body, under the
+        /// counting allocator (DEL-04-07 memory-budget decision,
+        /// "Report-package request pricing"): the buffered body, admission
+        /// with the moved lease, argument decoding, the lease growth, the
+        /// native admission (parse, binding, screening, conversion and the
+        /// shared producer), a cancelled save dialog and the response, with
+        /// the priced peak of every live allocation against the whole lease.
+        /// Also measures the ingress peak: the parse and binding check of the
+        /// three texts and the typed conversion, as
+        /// `report_package_text_parse_stays_within_its_priced_growth` does.
+        fn report_package_whole_command_within_its_lease(label: &str, body: &[u8]) {
+            use crate::command_ingress::test_support::headers;
+            use crate::command_ingress::{
+                report_package_request_parse_bytes, INGRESS_ARGS_JSON_V1, REPORT_PACKAGE_REQUEST_REGIONS, REPORT_PACKAGE_WORKING_MEMORY_FACTOR,
+            };
+            use report_package_save::test_support::{no_store, software};
+            let registry = registry(ScriptedHost::normal());
+            let current = headers(Some(INGRESS_ARGS_JSON_V1));
+            let (receipt_code, lease, whole) = {
+                let ((code, lease), measured) = ingress::counting::measure(|| {
+                    // The body as the IPC layer buffers it, held until the command returns.
+                    let invoke_body = tauri::ipc::InvokeBody::Raw(body.to_vec());
+                    let (mut args, mut lease) =
+                        command_ingress::admit_body(&registry, &invoke_body, &current, "save_report_package", ArgsDecoding::Moved).unwrap();
+                    let request = report_package_save::save_report_package_args(&mut args).unwrap();
+                    drop(args);
+                    report_package_save::validate_report_package_save_evidence(&request.screening, request.local_first.as_ref()).unwrap();
+                    let growth = report_package_save::parse_lease_bytes(&request.request_text, &request.model_text, &request.input_manifest_text).unwrap();
+                    lease.grow_to(lease.bytes() + growth).unwrap();
+                    let mut picks = 0usize;
+                    let receipt = save_report_package_with_picker(request, &software(), &mut no_store, &report_package_save::no_custody, |_| {
+                        picks += 1;
+                        None
+                    })
+                    .unwrap_or_else(|error| panic!("{label}: refused: {}", error.message));
+                    assert_eq!(picks, 1);
+                    let code = receipt.code.clone();
+                    let response = respond::<_, String>(Ok(receipt)).unwrap();
+                    drop(response);
+                    let bytes = lease.bytes();
+                    drop(lease);
+                    drop(invoke_body);
+                    (code, bytes)
+                });
+                (code, lease, measured.peak_priced)
+            };
+            assert_eq!(receipt_code, "REPORT-PACKAGE-SAVE-CANCELLED");
+            assert_eq!(registry.pool().reserved_total(), 0);
+            // The ingress peak and the request text's regions.
+            let args: Value = serde_json::from_slice(body).unwrap();
+            let text = args["requestCanonicalText"].as_str().unwrap().to_string();
+            let model = args["modelCanonicalText"].as_str().unwrap().to_string();
+            let manifest = args["inputManifestCanonicalText"].as_str().unwrap().to_string();
+            drop(args);
+            let (bound, regions) = ingress::prescan_regions(text.as_bytes(), &REPORT_PACKAGE_REQUEST_REGIONS).unwrap();
+            let (_, ingress_peak) = ingress::counting::measure(|| {
+                let request = report_package_save::parse_canonical("request", &text).unwrap();
+                let model = report_package_save::parse_canonical("model", &model).unwrap();
+                let manifest = report_package_save::parse_canonical("input_manifest", &manifest).unwrap();
+                let packs = report_package_save::solve_rule_packs(&manifest).unwrap();
+                drop((model, manifest, packs));
+                report_package_save::typed_request(request).map(drop).unwrap();
+            });
+            let m = bound.materialization_bytes;
+            let mib = |bytes: u64| bytes as f64 / (1024.0 * 1024.0);
+            eprintln!(
+                "{label}: body {} request text {} M {m} C_V {} C_T {} request growth {} W {REPORT_PACKAGE_WORKING_MEMORY_FACTOR} \
+                 lease {lease} ({:.2} MiB; at W = 0 {} ({:.2} MiB)) ingress peak {} whole-command peak {whole}",
+                body.len(),
+                text.len(),
+                regions.opaque,
+                regions.typed,
+                report_package_request_parse_bytes(&text).unwrap(),
+                mib(lease),
+                lease - REPORT_PACKAGE_WORKING_MEMORY_FACTOR * m,
+                mib(lease - REPORT_PACKAGE_WORKING_MEMORY_FACTOR * m),
+                ingress_peak.peak_priced,
+            );
+            assert!(ingress_peak.peak_priced <= whole, "{label}");
+            assert!(whole <= lease, "{label}: whole-command priced peak {whole} exceeds the lease {lease}");
+        }
+
+        /// The whole command on the committed witness request
+        /// (`del1005_export_results_success_input.json`, as the desktop
+        /// builder derives its request): its peak with the buffered body is
+        /// within the whole lease.
+        #[test]
+        fn report_package_save_whole_command_peak_is_within_its_lease() {
+            use report_package_save::test_support::{args_body, desktop_request, model, save_request};
+            let body = serde_json::to_vec(&args_body(&save_request(&desktop_request(&model()), &model()))).unwrap();
+            report_package_whole_command_within_its_lease("witness", &body);
+        }
+
+        /// The whole command on the demo's request: the bundled demo
+        /// (`invented_demo_model.json`) with its committed dense result
+        /// (`invented_demo_result_preview_physics_1_dense.json`), as the
+        /// native smoke saves it. The request (about 7 MB) is not committed;
+        /// generate its raw args body with the desktop's request builder, then
+        /// run this test with the same variable (an absolute path; the first
+        /// command from `apps/desktop`, the second from `apps/desktop/src-tauri`):
+        ///
+        /// ```text
+        /// OPENPIPESTRESS_DEMO_REPORT_PACKAGE_REQUEST=/abs/demo-request.json \
+        ///   npx vitest run src/test-support/demoReportPackageRequest.test.ts
+        /// OPENPIPESTRESS_DEMO_REPORT_PACKAGE_REQUEST=/abs/demo-request.json \
+        ///   cargo test --locked --offline report_package_save_demo_request -- --ignored --nocapture
+        /// ```
+        #[test]
+        #[ignore = "needs the generated demo request in OPENPIPESTRESS_DEMO_REPORT_PACKAGE_REQUEST"]
+        fn report_package_save_demo_request_peak_is_within_its_lease() {
+            let path = std::env::var("OPENPIPESTRESS_DEMO_REPORT_PACKAGE_REQUEST")
+                .expect("OPENPIPESTRESS_DEMO_REPORT_PACKAGE_REQUEST names the generated demo request");
+            let body = fs::read(&path).unwrap_or_else(|error| panic!("{path}: {error}"));
+            report_package_whole_command_within_its_lease("demo", &body);
         }
 
         #[test]
@@ -9631,7 +9930,9 @@ mod tests {
             refused_local_first["localFirstEvidence"]["blocked"] = json!(long.clone());
             let mut refused_text = clean.clone();
             refused_text["requestCanonicalText"] = json!([long.clone()]);
-            for body in [clean, refused_screening, refused_local_first, refused_text] {
+            let mut refused_manifest = clean.clone();
+            refused_manifest["inputManifestCanonicalText"] = json!([long.clone()]);
+            for body in [clean, refused_screening, refused_local_first, refused_text, refused_manifest] {
                 let raw = serde_json::to_vec(&body).unwrap();
                 let _ = check_decode_bound(&raw, ArgsDecoding::Moved, |args| report_package_save::save_report_package_args(args).map(drop));
             }
@@ -9716,6 +10017,54 @@ mod tests {
             let reset = applied(&one_cm_tolerance, intent(&one_cm_tolerance, "clear_model_setting", "not_present", "none", "dimensionless"));
             assert!(reset.get("model_settings").is_none(), "reset never writes the default");
             assert!(near_pairs(&reset, mode).is_empty(), "reset to the default, 8 mm does not warn");
+        }
+    }
+
+    /// DEL-02-02 Design `project-unit-selection.md` §2.8, §4 "Through the apply
+    /// command": a force-key change applied through the apply command changes
+    /// `project.units.force` and nothing else, and the same model solves to the
+    /// same rows (the solver reads only the length key). Invented data only.
+    #[test]
+    fn a_project_unit_change_through_the_apply_command_changes_one_key_and_no_result() {
+        let model = read_fixture("invented_demo_model.json").expect("bundled preview model loads");
+        assert_eq!(model["project"]["units"]["force"], "N");
+        let intent = json!({
+            "operation_id": "op:project-units:force", "operation_kind": "modify", "operation_status": "proposed",
+            "author_type": "user", "target": {"object_type": "Project", "ref": model["project"]["id"]},
+            "change": {"change_id": "change:project-units:force", "change_kind": "set_project_unit",
+                "field_label": "Project force unit", "field_path": "project.units.force",
+                "before": "N", "after": "lbf", "unit": "lbf", "dimension": "force", "source_note": "invented test input"},
+            "validation": {"schema_validation":"not_run","constraint_validation":"not_run","unit_validation":"not_run",
+                "diff_preview_status":"not_generated","application_status":"not_applied"},
+            "audit_boundary": {"mutation_route":"structured_operations_only","direct_model_mutation_allowed":false,
+                "requires_user_acceptance":true,"mutates_accepted_model_state":false},
+            "professional_boundary": {"human_review_required":true,"software_makes_compliance_claim":false,
+                "software_makes_certification_claim":false,"software_makes_sealing_claim":false,
+                "software_makes_approval_claim":false,"software_makes_authentication_claim":false},
+            "rationale": "Invented project-unit test"
+        });
+        let outcome = apply_model_operation_value(model.clone(), intent, None).expect("command returns outcome");
+        assert_eq!(outcome["validation"]["application_status"], "applied_to_session_model", "{}", outcome["diagnostics"]);
+        assert_eq!(
+            outcome["diff_preview"],
+            json!([{"entity_ref": model["project"]["id"], "object_type": "Project", "field_path": "project.units.force",
+                "before": "N", "after": "lbf", "unit": "lbf", "dimension": "force", "change_kind": "set_project_unit"}])
+        );
+        let applied = outcome["applied_model"].clone();
+        let mut expected = model.clone();
+        expected["project"]["units"]["force"] = json!("lbf");
+        assert_eq!(applied, expected, "only project.units.force changed");
+        assert_ne!(
+            open_pipe_stress_operation_applier::canonical_json(&applied),
+            open_pipe_stress_operation_applier::canonical_json(&model),
+            "the edit changes the document and its hash"
+        );
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let before = solve_preview_mechanics_value_with_mode(model.clone(), mode).expect("solve returns an envelope");
+            let after = solve_preview_mechanics_value_with_mode(applied.clone(), mode).expect("solve returns an envelope");
+            assert!(!before["results"].as_array().unwrap().is_empty(), "the model solves");
+            assert_eq!(before["results"], after["results"], "the same rows");
+            assert_eq!(before["status"], after["status"]);
         }
     }
 }

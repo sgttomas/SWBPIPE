@@ -6,7 +6,7 @@ import {
   stampChecksumIntoDocument,
   RULE_PACK_BACKEND_DIAGNOSTIC
 } from "../../services/rulePackService";
-import type { PreviewModel } from "../../types";
+import type { MechanicsResult, PreviewModel } from "../../types";
 
 // Phase C2 slice 1 (TP-C2-EDITOR-001). jsdom has no Tauri runtime, so these
 // tests pin the honest browser-preview seam: drafts stay in memory and
@@ -192,6 +192,36 @@ describe("RulePackManagerPanel", () => {
     expect(JSON.parse(textarea.value).check_definitions).toHaveLength(2);
   });
 
+  it("mounts the load-case/category editor with the current model's load cases and offers the current result's selectors", () => {
+    const model = {
+      project: { id: "project:invented-panel-test", name: "Invented" },
+      load_cases: [{ id: "load:L-100", label: "Invented case" }],
+      combinations: []
+    } as unknown as PreviewModel;
+    const result = {
+      results: [
+        { id: "r:1", kind: "invented_kind", value: 1, unit: "Pa", entity_ref: "pipe:P-100", basis_ref: { ref_type: "load_case", ref_id: "load:L-100" }, metadata: { location: "end_i" } }
+      ]
+    } as unknown as MechanicsResult;
+    render(<RulePackManagerPanel model={model} result={result} />);
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    expect(screen.getByTestId("rule-pack-load-case-categories-editor")).toBeTruthy();
+    const basis = screen.getByTestId("rule-pack-load-case-basis") as HTMLSelectElement;
+    fireEvent.change(basis, { target: { value: "load_case|load:L-100" } });
+    const textarea = screen.getByTestId("rule-pack-draft-json") as HTMLTextAreaElement;
+    expect(JSON.parse(textarea.value).required_load_cases[0].basis_ref).toEqual({ ref_type: "load_case", ref_id: "load:L-100" });
+
+    fireEvent.change(screen.getByTestId("rule-pack-input-source-kind"), { target: { value: "solver_result" } });
+    const offer = screen.getByTestId("rule-pack-input-solver-offer") as HTMLSelectElement;
+    fireEvent.change(offer, { target: { value: offer.options[1].value } });
+    expect(JSON.parse(textarea.value).required_inputs[0].solver_result_ref).toEqual({
+      result_kind: "invented_kind",
+      entity_ref: "pipe:P-100",
+      location: "end_i"
+    });
+    expect(screen.getByTestId("rule-pack-check-category-ref")).toHaveProperty("value", "user_stress_category_1");
+  });
+
   it("binds a freshly declared required input in a check's reference picker", () => {
     // The declarations editor and the check editor read the same draft, so a
     // variable declared in one is immediately bindable as a check reference in
@@ -208,7 +238,8 @@ describe("RulePackManagerPanel", () => {
 describe("rulePackService draft helpers", () => {
   it("builds a schema-shaped private draft with the frozen grammar declared", () => {
     const draft = buildDraftRulePackDocument();
-    expect(draft.schema_version).toBe("0.4.0");
+    expect(draft.schema_version).toBe("0.5.0");
+    expect((draft.metadata as Record<string, unknown>).schema_version).toBe("0.5.0");
     expect(draft.grammar_version).toBe("1.0.0");
     const formulas = draft.formula_declarations as Array<Record<string, unknown>>;
     const payload = formulas[0].declaration_payload as Record<string, unknown>;
@@ -217,6 +248,38 @@ describe("rulePackService draft helpers", () => {
     const boundary = draft.professional_boundary as Record<string, unknown>;
     expect(boundary.software_makes_compliance_claim).toBe(false);
     expect(boundary.human_review_required).toBe(true);
+  });
+
+  it("seeds one empty-text category, required load case and mapping, and names the category in the check", () => {
+    const draft = buildDraftRulePackDocument();
+    const provenance = (draft.provenance as Record<string, unknown>);
+    expect(draft.required_load_cases).toEqual([
+      {
+        required_load_case_id: "user_required_load_case_1",
+        name: "",
+        description: "",
+        basis_ref: { ref_type: "load_case", ref_id: "" },
+        provenance
+      }
+    ]);
+    // No category is named after any standard: the text is the user's to fill.
+    expect(draft.stress_categories).toEqual([
+      { category_id: "user_stress_category_1", name: "", description: "", provenance }
+    ]);
+    expect(draft.load_case_mappings).toEqual([
+      {
+        mapping_id: "user_load_case_mapping_1",
+        category_ref: { ref_id: "user_stress_category_1", ref_type: "stress_category" },
+        required_load_case_refs: [{ ref_id: "user_required_load_case_1", ref_type: "required_load_case" }]
+      }
+    ]);
+    const checks = draft.check_definitions as Array<Record<string, unknown>>;
+    expect(checks[0].category_ref).toEqual({ ref_id: "user_stress_category_1", ref_type: "stress_category" });
+    // Schema member order: the new members sit between value_slots and check_definitions.
+    const keys = Object.keys(draft);
+    expect(keys.slice(keys.indexOf("value_slots"), keys.indexOf("check_definitions") + 1)).toEqual([
+      "value_slots", "required_load_cases", "stress_categories", "load_case_mappings", "check_definitions"
+    ]);
   });
 
   it("stamps a computed checksum without touching other members", () => {

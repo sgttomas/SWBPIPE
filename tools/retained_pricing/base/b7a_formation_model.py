@@ -18,7 +18,9 @@ SOURCE_FILES = {
     # PP (D-5 mass): an exact-contract section's generated self-weight uses EXACT_MASS_METHOD (metal on the nominal
     # wall, contents on the pressure bore, the allowance among its inputs); the added refusals are static `invalid`
     # messages and retained_basis checks one more input key. The formed-load and finding owners are unchanged.
-    "core/product_physics/src/self_weight.rs": "a1e523fd975b0b99720c3c229737cb00f35797c8f38202797b23ef205bb3f75c",
+    # W-16 slice a (§8.23): primitive_payload and inspect_applied_self_weight gain the support arm (a payload for a
+    # support target, none on D1; `false` for the generated identity). The formed-load and finding owners are unchanged.
+    "core/product_physics/src/self_weight.rs": "da6445461f33b09c15eb744429dd5b0ed8599112d0bf40c7a11f410b962b2729",
     "core/product_physics/src/source_receipt/source.rs": "384140db918da65d5e76dd601cd0a2068ae2a098379b41c6907069cf99ced419",
     # T4-U8: retained::assemble's Timoshenko refusal; W1 adds one retained_api
     # export line for member-source types. Existing formation owners stay.
@@ -193,7 +195,9 @@ def decisions(snapshot, resolved):
     audit[1][1]["case_id"] = {"bytes": 128, "source": "IN128"}
     # T4-U6/U8 snapshot keys (PP head 20c6126a16; same text): self_weight.rs 814 -> 869 (the D-5 exact mass branch
     # above it); formation_check.rs +13 from check_at on (PP's frame-member binding before it).
-    audit.append((resolved("core/product_physics/src/self_weight.rs:869"), {
+    # W-15 slice b (§8.22): 869 -> 1281 (the component-weight generator above it; same text). W-16 slice a (§8.23):
+    # 1281 -> 1284 (primitive_payload's support arm above it; same text).
+    audit.append((resolved("core/product_physics/src/self_weight.rs:1284"), {
         "case.id": {"bytes": 128, "source": "IN128"},
         "pipe": {"bytes": 128, "source": "IN128"},
         "case.id.len()": {"bytes": 20, "source": "NUM"},
@@ -276,6 +280,8 @@ def prepare(snapshot, inherited, output):
     # Preserve the 17 later self-weight function zeros. Their actual warrant
     # is the guarded nonobject provenance + deterministic identity refusal,
     # followed by continue825; Element identity formatting itself is positive.
+    # W-15 slice b (§8.22, W15B-NS): the node arm now tests the generated
+    # namespace prefix, and D1.7 refuses a node load with that prefix too.
     old_why = None
     for row in loops["fn_zero"]:
         if row["fn"].startswith("self_weight.rs:"):
@@ -283,7 +289,7 @@ def prepare(snapshot, inherited, output):
                 old_why = row["why"]
             if row["why"] != old_why or "false for a Node target" not in old_why:
                 raise ValueError("B7a self-weight downstream zero preimage changed")
-            row["why"] = "B7a: guarded provenance forbids objects; self_weight_form refuses the generated Element identity; inspect_applied_self_weight continues at825 before this owner. Formatting that identity is positively priced. Was: " + old_why
+            row["why"] = "B7a: guarded provenance forbids objects; self_weight_form refuses the generated Element identity and W15B-NS a node load in the generated namespace; inspect_applied_self_weight continues at825 before this owner. Formatting that identity is positively priced. Was: " + old_why
     if sum(row["fn"].startswith("self_weight.rs:") for row in loops["fn_zero"]) != 17:
         raise ValueError("B7a self-weight downstream function inventory changed")
     for key, expected in COPY_PREIMAGES.items():

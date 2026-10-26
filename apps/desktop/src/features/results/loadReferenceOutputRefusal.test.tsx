@@ -28,7 +28,7 @@ import {
   OUTPUT_ROUTE_NOT_REGISTERED_REFUSAL, OUTPUT_SURFACES, RETAINED_PHYSICS_OUTPUT_REFUSAL, RETAINED_PRECISION_OUTPUT_REFUSAL,
   routeSurfaceDecision, surfaceOutputRefusal, surfaceRouteRefusal,
 } from "./outputPolicy";
-import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE, isFreshSemanticResult } from "./knownSemanticLimitations";
+import { isFreshSemanticResult } from "./knownSemanticLimitations";
 import { buildReportPackageRequest, reportPackageUnavailableReason } from "../report/reportPackageRequest";
 import { buildStressNeutralExportPacket, validateStressNeutralExportPacket, StressNeutralExportPanel } from "../stress-neutral/StressNeutralExportPanel";
 import { buildCurrentResultExport } from "../result-export/resultExportAdapter";
@@ -104,7 +104,6 @@ const PRESSURE_RAWS = ["connected", "pressure"].flatMap(name => MODES.map(mode =
 const SOURCE_RAWS = ["n05", "n06", "fields", "mixed", "eigen_motion"].flatMap(name => MODES.map(mode => [`${name}-${mode}`, name, mode] as const));
 /** The three surfaces the owner opened (ruling 10A). */
 const OPENED = ["result-export", "stress-neutral", "rule-check"] as const;
-const REPORT_PACKAGE_REFUSAL = `${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`;
 
 /** Surfaces whose downloads or handoffs carry result data (group a). */
 const GATED: [string, ComponentType<Json>, string][] = [
@@ -369,12 +368,11 @@ describe("the opened surfaces follow the reader's standing", () => {
     expect(screen.queryByTestId("result-export-load-reference-disclosure")).toBeNull();
     expect(document.querySelectorAll("a[download]")).toHaveLength(0);
   });
-  it.each(STATES)("the report package refuses %s with its fresh-result refusal (§4.5)", async (_id, make, reason) => {
+  it.each(STATES)("the report package refuses %s by its report-package cell (§4.5; ruling 10A)", async (_id, make, reason) => {
     const { model, result, analysisRun } = await make();
-    expect(reportPackageUnavailableReason(result)).toBe(REPORT_PACKAGE_REFUSAL);
-    expect(reportPackageUnavailableReason(result)).not.toBe(reason);
-    expect(surfaceRouteRefusal(result, "report-package")).toBe(reason); // the policy entry records the decision
-    await expect(buildReportPackageRequest({ model, result, analysisRun } as never)).rejects.toThrow(REPORT_PACKAGE_REFUSAL);
+    expect(reportPackageUnavailableReason(result)).toBe(reason);
+    expect(surfaceRouteRefusal(result, "report-package")).toBe(reason);
+    await expect(buildReportPackageRequest({ model, result, analysisRun } as never)).rejects.toThrow(reason);
   });
 });
 
