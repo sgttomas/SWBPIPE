@@ -214,8 +214,9 @@ keys, including `angle` (§5); the rest still applies.
      result. The edit clears the current result, so a report cannot pair the
      new units with a result solved under the old ones. The report-package save
      already requires the report's units to equal the model text's
-     (`report_package_save.rs`). Export unit manifests copy the current units;
-     length conversion in exports uses the length key, which is locked.
+     (`report_package_save.rs`). Export unit manifests copy the current units.
+     Exports convert node coordinates from the length key, which is locked,
+     and other lengths from their own units (§7.5).
    - **Rule checks.** The rule-check runner and the desktop rule-check service
      do not read `project.units`; inputs convert to each rule's declared unit.
      Only the cleared aggregate is affected.
@@ -452,3 +453,110 @@ them:
 4. **Moment fallback without a moment key** (found in implementation, not by
    that review). The composition is kept as the fallback because the bundled
    sample model has no `moment` key (§2.4).
+
+## 7. Export units
+
+The rest of slice (c), the load-field defaults and the export panels'
+missing-key refusals, is designed separately. This subsection settles its choice
+C, the export length conversion.
+
+### 7.5 Export length conversion (C2)
+
+**Ruling.** The owner, 2026-10-26: "units conversions that are routinely done in
+engineering applications are permissible as a solution." Agent 0 chose C2, exact
+conversion, with no interim refusal for units that convert routinely.
+
+**The defect.** Before this change, both exports' `convertLengthToMillimeters`
+multiplied by 1000 for `m` and by 1 for every other unit:
+- 1 in and 1 ft were written as 1 mm in the .mbf and PCF text.
+- A PCF OD of 6 in and a wall of 0.25 in were written as `6` and `0.25` MM. Their
+  witnesses recorded `conversion_factor_to_target: 1` and
+  `source_unit_matches_target_unit`, and no section-unit diagnostic was raised.
+- This happened with a project length of `m` too, because section quantities
+  carry their own units.
+
+**Exposure before the fix.** With the real `ControlledExportLink`, the text
+controls have no download href, and the downloadable package JSON redacts
+geometry and embedded text. But the package's structural allowlist keeps
+`conversion_factor_to_target` (`redactionExportControls.ts`, the PCF and .mbf
+structural public paths), so the false conversion evidence was downloadable.
+
+**Rule.**
+- **Exact factors, in one place.** `apps/desktop/src/features/exportLengthConversion.ts`
+  holds the only table, in millimetres per unit: `m` 1000, `mm` 1, `in` 25.4
+  and `ft` 304.8. These are exact by definition (1 in = 25.4 mm, 1 ft =
+  304.8 mm). They are the four lengths the engine registers
+  (`core/units/src/lib.rs` `UnitId::Meter`, `Millimeter`, `Inch`, `Foot`); the
+  engine has no `cm`. The factor is applied as written, not as 0.0254 × 1000.
+  The value keeps the exports' six-decimal normalisation,
+  `Number((value * factor).toFixed(6))`. For example, 6 × 25.4 is
+  152.39999999999998 in binary64 and is written as 152.4.
+- **Per quantity.** Each quantity converts by its own stored unit. Node
+  coordinates use `project.units.length`. PCF OD and wall thickness use their
+  own section units, whatever the project length.
+- **Witnesses tell the truth.** `conversion_factor_to_target` is the factor
+  used. `source_unit_matches_target_unit` is recorded only when the source unit
+  is `mm`.
+- **No routine conversion: refused by name.** Any other length unit is refused
+  by name: `cm`, `MM`, `TBD`, an empty string or a missing length key. The
+  export records a blocking `MBF-LENGTH-UNIT-UNSUPPORTED` or
+  `PCF-LENGTH-UNIT-UNSUPPORTED` diagnostic for the coordinates or for each
+  section quantity concerned. Each diagnostic names the unit, and for a section
+  quantity the segment and field.
+  - Both download links are withheld. A status line takes their place
+    (`caepipe-mbf-length-unit-refused`, `pcf-export-length-unit-refused`), and
+    the summary reads `refused`. The load-reference output gate keeps
+    precedence: the length refusal sits inside it.
+  - What a refused quantity carries:
+    - Its witness target and factor are `null`, with
+      `refused_no_routine_exact_conversion`.
+    - A refused node coordinate is `null` in the payload and
+      `TBD_LENGTH_REFUSED` in the text.
+    - A refused PCF OD or wall is the placeholder string
+      `TBD_OD_UNIT_UNSUPPORTED` or `TBD_WALL_UNIT_UNSUPPORTED`.
+    - Nothing records a conversion that did not happen.
+  - These replace the earlier `MBF-NODE-COORDINATE-UNIT-TBD` and
+    `PCF-COORDINATE-UNIT-TBD`, which blocked `in` and `ft` but still offered
+    the links. The missing-key refusal designed for the export panels, when
+    built, takes precedence for a missing length key.
+- **Out of range: refused by name.** A source value that is not finite (`NaN`,
+  `Infinity`, `-Infinity`) is refused, and so is one whose converted value is
+  not finite, such as 1e308 in overflowing after × 25.4. The helper checks the
+  source and the product with `Number.isFinite`.
+  - The export records a blocking `MBF-LENGTH-OUT-OF-RANGE` or
+    `PCF-LENGTH-OUT-OF-RANGE` diagnostic. There is one per node coordinate
+    concerned, read from the actual coordinates, and one per PCF section
+    quantity. Each names the node and axis, or the segment and field, with the
+    value and unit.
+  - The links are withheld and the status line shows the refusal, as above.
+  - The witness is `null` and `refused_out_of_range`. The payload is `null` for
+    a coordinate, and `TBD_OD_OUT_OF_RANGE` or `TBD_WALL_OUT_OF_RANGE` for a
+    PCF section quantity.
+- **Rounding and very large values (engineering judgment, Agent 0 as HELP_HUMAN
+  under the owner's 2026-10-26 delegation).** Six-decimal millimetre
+  normalisation of the binary64 product is within normal engineering practice,
+  and it is kept.
+  - **How it was measured.** Independent scrutiny of #1646 ran three bounded
+    sweeps of 100,000 inputs each, at 1e-8 increments. The worst difference from
+    the correctly rounded exact decimal product was 0.000000552 mm (0.552 nm):
+    1000000.00044176 ft writes 304800000.134649, while the exact product rounds
+    to 304800000.134648.
+  - **Not a global bound.** At extreme magnitudes precision degrades, and values
+    that overflow are refused.
+  - **Exponent notation.** From 1e21 mm upwards, JavaScript writes the value in
+    exponent notation: a coordinate of 1e20 ft is written `3.048e+22`, and it
+    agrees with its witness. No exponent prohibition was found in the PCF or
+    .mbf references, but whether the target tools accept it has not been
+    checked.
+  - **Practical resolution.** Such magnitudes, 1e15 km and beyond, are far
+    outside any piping model, so no further range limit is added.
+- **Unchanged.** Output for `m` and `mm` is byte-identical.
+- **Scope.** No other export converts lengths to millimetres. The local FEA
+  handoff preserves source units (`conversion=false`), and its unit manifest is
+  a separate question.
+- **Checks.** `exportLengthConversion.test.tsx` checks the conversions against
+  hand-computed millimetres for coordinates in `in` and `ft` and for OD and wall
+  in `in` and `ft` under a project length of `m`. It also checks the witness
+  factors through the real export controls, and both refusals with their links
+  withheld: unsupported units, and out-of-range values (1e308 in, `NaN`,
+  `Infinity` and `-Infinity` coordinates, and PCF OD and wall).
