@@ -1086,11 +1086,32 @@ def _states_w16_old(value) -> bool:
     return isinstance(value, str) and value == W16_LIMITATION[0]
 
 
+def _w16b_restated(value, path=()):
+    """`value` with every W-15 identity field (a formulation basis's first limitation holding exactly
+    W16B_IDENTITY_FROM) restated to W16B_IDENTITY_NEW; the text anywhere else is left in place."""
+    if isinstance(value, Obj):
+        return Obj([(k, _w16b_restated(v, path + (k,))) for k, v in value])
+    if isinstance(value, list):
+        return [_w16b_restated(v, path + (i,)) for i, v in enumerate(value)]
+    if (isinstance(value, str) and not isinstance(value, Token) and value == W16B_IDENTITY_FROM
+            and path[-3:] == ("formulation_basis", "limitations", 0)):
+        return W16B_IDENTITY_NEW
+    return value
+
+
+def _states_w16b_from(value) -> bool:
+    if isinstance(value, list):
+        return any(_states_w16b_from(v[1] if isinstance(value, Obj) else v) for v in value)
+    return isinstance(value, str) and value == W16B_IDENTITY_FROM
+
+
 def test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_w16_limitation(current=None):
     """W-16 slice a: the committed retained corpus against main's bytes at `W16_BASE`. The same entries
     in the same order; an entry moves exactly where its base stated the old LIMITATIONS[1] sentence,
     and with that sentence restated it differs only by binding hashes (no number, status, class, work
-    counter or other text); every other entry and member is unchanged."""
+    counter or other text); every other entry and member is unchanged. W-16 slice b: an entry also moves
+    exactly where its base stated W-15's pressure-2 identity (the six route-E exact bases), and with the
+    identity field restated it differs only by binding hashes."""
     base = _w16_base_corpus()
     now = (PROJECT / RETAINED_CORPUS).read_text() if current is None else current
     for member in ("cases", "mutations", "must_pass"):
@@ -1099,11 +1120,11 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_w16
         assert [k for k, _ in after] == [k for k, _ in before], (member, "entries or order")
         known = dict(before)
         moved = {k for k, entry in after if classify(known[k], entry)}
-        stating = {k for k, entry in before if _states_w16_old(entry)}
+        stating = {k for k, entry in before if _states_w16_old(entry) or _states_w16b_from(entry)}
         assert moved == stating, (member, sorted(moved ^ stating))
         for key, entry in after:
             if key in moved:
-                leaves = classify(_w16_restated(known[key]), entry)
+                leaves = classify(_w16b_restated(_w16_restated(known[key])), entry)
                 assert all(kind == "hash" for kind, _ in leaves), (member, key, "beyond the sentence and binding hashes", leaves)
     before, after = dict(load(base)), dict(load(now))
     assert list(before) == list(after)
@@ -1488,6 +1509,12 @@ def test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current=
         if not found:
             continue
         public = dict(dict(b)["public"])
+        # W-16 slice b: the pressure-source-1 identity is restated too, so a source publication's envelope
+        # digest moves (and nothing else of it).
+        if public["identity"].endswith("/pressure-source-1"):
+            assert public["outcome"] == "source_published", (W7_J7, dict(b)["id"])
+            assert {(kind, path) for kind, path in found} <= {("hash", "/public/envelope_sha256")}, (W7_J7, dict(b)["id"], found)
+            continue
         assert public["identity"].endswith("/pressure-2"), (W7_J7, dict(b)["id"])
         # W-15 (DEL-03-05) on W-7: every pressure-2 envelope restates the identity, so a refused one's envelope
         # digest moves too; only an ordinary publication's results digest (W-7's rows) may move with it.
@@ -1518,10 +1545,10 @@ def test_o4_text_only_envelope_diff_w16b_identity_exception_is_its_one_field():
     new identity planted as another limitation of a moved carrier fails at that file."""
     name = next(n for n in W7_ENVELOPES if n.endswith(".raw.json"))
     text = (PROJECT / name).read_text()
-    assert json.dumps(W16B_IDENTITY_NEW) in text and W16B_IDENTITY_TAIL_OLD not in text
+    assert json.dumps(W16B_IDENTITY_NEW, ensure_ascii=False) in text and W16B_IDENTITY_TAIL_OLD not in text
     history = "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented."
     assert text.count(json.dumps(history)) == 1
-    mutant = text.replace(json.dumps(history), json.dumps(W16B_IDENTITY_NEW))
+    mutant = text.replace(json.dumps(history), json.dumps(W16B_IDENTITY_NEW, ensure_ascii=False))
     with pytest.raises(AssertionError, match=re.escape(name)):
         test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={name: mutant})
 
