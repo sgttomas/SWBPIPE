@@ -62,6 +62,8 @@ pub mod wire;
 mod admitted_tests;
 #[cfg(test)]
 mod forwarding_graph_scan;
+#[cfg(test)]
+mod exact_package_witness_tests;
 
 use crate::admitted::AdmittedSet;
 
