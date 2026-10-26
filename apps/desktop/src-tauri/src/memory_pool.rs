@@ -790,10 +790,25 @@ impl Lease {
     /// ends the wait with [`ResampleStop::Cancelled`] and grows nothing.
     /// Returns the admitted target. Only a refusal that stands is recorded.
     pub(crate) fn grow_resampling(&mut self, targets: &[u64], stop: &mut dyn FnMut() -> bool) -> Result<u64, ResampleStop> {
+        self.grow_resampling_with(targets, &mut || {}, stop)
+    }
+
+    /// [`Self::grow_resampling`], calling `waiting` once, outside the pool
+    /// lock, when the first attempt has been refused only with
+    /// `headroom_insufficient` and the step is about to wait; never when the
+    /// first attempt is admitted or its refusal stands. A worker's poll step
+    /// stops the child there (`solve_worker.rs`).
+    pub(crate) fn grow_resampling_with(
+        &mut self,
+        targets: &[u64],
+        waiting: &mut dyn FnMut(),
+        stop: &mut dyn FnMut() -> bool,
+    ) -> Result<u64, ResampleStop> {
         debug_assert!(!targets.is_empty() && targets.iter().all(|&target| target > self.bytes));
         let pool = Arc::clone(&self.pool);
         let deadline = Instant::now().checked_add(pool.resample_window);
         let mut state = pool.lock();
+        let mut first_wait = true;
         loop {
             let mut refusal = None;
             for &target in targets {
@@ -810,6 +825,11 @@ impl Lease {
             if !matches!(refusal, ResourceRefusal::HeadroomInsufficient { .. }) || remaining.is_zero() {
                 state.last_refusal = Some(refusal.clone());
                 return Err(ResampleStop::Refused(refusal));
+            }
+            if std::mem::take(&mut first_wait) {
+                drop(state);
+                waiting();
+                state = pool.lock();
             }
             drop(pool.changed.wait_timeout(state, pool.resample_tick.min(remaining)).unwrap_or_else(PoisonError::into_inner));
             if stop() {
@@ -1981,6 +2001,26 @@ mod tests {
         });
         assert!(matches!(stopped, Err(ResampleStop::Cancelled)), "{stopped:?}");
         assert_eq!((calls, a.bytes(), pool.reserved_total()), (3, GIB, 2 * GIB));
+    }
+
+    /// `waiting` runs once, before the first wait, and only when the step
+    /// waits: never for a step admitted at once or refused otherwise.
+    #[test]
+    fn a_growth_step_calls_waiting_once_and_only_before_it_waits() {
+        let host = ObservedHost::with(Some(128 * GIB), Some(0), PressureLevel::Normal);
+        let pool = timed_pool(&host, Duration::from_millis(100), Duration::from_millis(5));
+        let (mut a, _b) = held_leases(&host, &pool);
+        let mut waits = 0;
+        let refusal = refused(a.grow_resampling_with(&[2 * GIB], &mut || waits += 1, &mut || false).unwrap_err());
+        assert!(matches!(refusal, ResourceRefusal::HeadroomInsufficient { .. }), "{refusal:?}");
+        assert_eq!(waits, 1, "one call for the whole window");
+        host.set(|s| s.pressure = PressureLevel::Warning);
+        assert!(a.grow_resampling_with(&[2 * GIB], &mut || panic!("no wait"), &mut || panic!("no wait")).is_err());
+        host.set(|s| {
+            s.pressure = PressureLevel::Normal;
+            s.headroom_bytes = Some(100 * GIB);
+        });
+        assert_eq!(a.grow_resampling_with(&[2 * GIB], &mut || panic!("no wait"), &mut || panic!("no wait")), Ok(2 * GIB));
     }
 
     /// Concurrent growth waiters: when the headroom covers one step, exactly
