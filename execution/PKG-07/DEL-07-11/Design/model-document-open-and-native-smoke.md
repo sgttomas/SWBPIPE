@@ -307,7 +307,15 @@ refusal named in the product:
   exported.
 - **A model authored from blank.**
   - **Authoring.** New Blank Project must open the units dialog (SI, US
-    customary, custom); the default SI is accepted. The driver then authors
+    customary, custom); the default SI is accepted. Create closes the dialog
+    at once, but the blank becomes the session only when its native create
+    and hashes return. Until then the tree shows the previous project, and an
+    edit made meanwhile lands there and supersedes the create
+    (`createBlankProjectFrom` in `workspaceSession.ts`; the product is
+    unchanged). So before authoring, the driver waits for the
+    create's own status line and for a tree whose only project is a new id;
+    that id is the blank's. A `Blank create failed` line stops it at once.
+    The driver then authors
     through the GUI a node, a material, a pipe to a new node, a fixed support,
     a load case and a 350 N tip force. It uses the viewport commands, the
     toolkit, the target pickers and Review changes, and applies each queued
@@ -350,8 +358,8 @@ fails, is cancelled or does not finish in time is reported with:
 A memory refusal or queue wait is then told apart from a slow solve. The
 details go to the driver log, the phase error and `summary.json`
 (`solve_job_diagnostics`). Timeouts and expected values are unchanged.
-`native-smoke/driver.test.mjs` tests this behaviour with a fake window
-(`node --test`); no CI job runs it.
+`native-smoke/driver.test.mjs` tests this behaviour, and the New Blank wait
+above, with a fake window (`node --test`); no CI job runs it.
 
 The smoke checks each WebAssembly engine against a content stamp before it
 runs. `build:wasm` writes `source-stamp.json` into each engine folder: a
