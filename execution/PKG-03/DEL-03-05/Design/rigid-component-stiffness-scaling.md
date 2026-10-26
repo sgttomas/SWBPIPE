@@ -275,6 +275,127 @@ unambiguous and needs no component-local frame. A model transformation rotates
 r without translating it. Slice b's tests include a nontrivial offset along
 each axis, checking both the force and the moment.
 
+As implemented (PP `self_weight.rs`; the applier
+`core/model_operations/operation_applier/src/lib.rs` and `rich_authoring.rs`;
+the desktop component-creation, inspector and self-weight features):
+
+- **Selection.** A selected member mapped (slice a's mapping rule) by a
+  rigid-family component carries the component's weight when the component's
+  `solver_consumption` is `mechanics_geometry_only`, its `geometry.weight` is
+  a finite positive force and its `geometry.center_of_gravity` a finite length
+  vector. No stiffness scale is required. The gravity acceleration contributes
+  its axis and sign only: W is the user's force.
+- **Replacement.** That member's distributed self-weight is not generated, and
+  its section is not a mass input. A component that fails a condition gets
+  one warning, `SELF_WEIGHT_COMPONENT_WEIGHT_NOT_APPLIED`. The warning names
+  the component and the first unmet condition, in the order consumption
+  (absent, or another mode), mapping (the member does not end at the node),
+  weight, centre of gravity. The member keeps its pipe weight. A
+  `not_solver_consumed` component is honoured with no warning. A mapping
+  conflict on a selected member blocks with slice a's
+  `RIGID_COMPONENT_MAPPING_CONFLICT`. A plan with a component weight has the
+  scope label `selected_pipe_mass_and_component_weight`; any other plan keeps
+  `selected_pipe_mass_only`. The plan's `warnings` are omitted when empty, so
+  a plan without one keeps its bytes.
+- **Nodal weight for every author.** Admitting `weight` at a node widens what
+  any user may author, not only what the generator emits. The reasons:
+  - PRD §12.5 lists component weight among the load types.
+  - The element-only rule came from the initial migration with no stated
+    rationale.
+  - No ScopeOfWork, acceptance criterion, ruling or DEC states it. DEL-05-01
+    CLM-006 described only the element loads then implemented, and now names
+    the nodal case.
+  - The model schema has no category-to-target constraint.
+
+  On PF and EX, a hand-written nodal `weight` force or moment solves bit for
+  bit like the same `occasional` load (independent scrutiny of #1608, round
+  1). It differs only in its category, so its primitive category stays
+  weight in every case and in every admitted combination (PF combinations; EX
+  still refuses combinations by name). The primitive category does not
+  classify the load for any design code; rule-pack stress categories and
+  load-case mappings remain unimplemented.
+- **Wrench.** One node-targeted `weight` force primitive along the gravity
+  axis (value ±W), then one `weight` moment primitive (`rotation_x|y|z`,
+  dimension moment) per nonzero component of r × F, in x, y, z order. Both
+  routes classify them as weight, so no `LOAD_CATEGORY_PREVIEW_MAPPED` is
+  stated for them. `core/loads/primitive_loads` admits `weight` at a node for
+  this: its element-only rule reflected only that weight had been a
+  distributed body force, and no lineage invariant or exact-route weight rule
+  depended on it. The nodal force/moment dimension check still applies. The
+  applier creates a node-targeted `weight` force or moment and refuses an
+  element-targeted one, which stays `distributed_force`. Each moment component is one
+  product r_j·f, rounded once. A nonzero lever whose product is zero or not
+  finite is the blocking `SELF_WEIGHT_RANGE_INVALID`, never a dropped
+  moment. So is a nonzero entered centre-of-gravity component that normalizes
+  to zero in model length units. A selection error (such as a mapped member
+  that no longer exists) is returned before any component is read. The
+  identity is
+  `load:self-weight:{len}:{case}:component:{len}:{component}:{force|moment}:{x|y|z}`.
+  The literal `component` cannot be read as a length, so it never meets a
+  member identity.
+- **Evidence and lineage.** Each primitive's evidence row carries:
+  - the method `component_weight_at_center_of_gravity_global_offset/v1`;
+  - the component, its kind, node and provenance, and the omitted member;
+  - the weight and centre of gravity as entered and in SI;
+  - the whole wrench, the convention and the request's gravity and
+    provenance;
+  - the generated payload;
+  - the normalized dependencies: component, kind, node, mapping,
+    consumption, weight and centre of gravity, in SI, so an equivalent unit is
+    no change.
+
+  Inspection normalizes the retained entered weight and centre of gravity
+  again and derives the historical wrench from them. The recorded SI values,
+  dependencies, whole wrench and payload must agree with it exactly. A record
+  that contradicts its own entered inputs, such as a self-authenticating
+  snapshot, is invalid. A node-targeted load whose id is in the
+  `load:self-weight:` namespace, or whose method claims the family, is
+  inspected as lineage.
+- **Staleness.** Editing the weight, centre of gravity, mapping, consumption,
+  node or kind makes the component's primitives stale. An edit that keeps the
+  primitive set refreshes in place: the wasm refresh plan, applied through the
+  applier's managed refresh. Inspection compares the complete set of a
+  component's primitives in the case (a manual override holds its slot) with
+  the set the current inputs generate. An edit that changes the set has no in-place
+  replacement, so the refresh plan is refused and the case must be generated
+  again. Such edits are: a moment component appears or vanishes,
+  the component starts or stops carrying the weight, or the mapping moves.
+  The same holds for a member's distributed load once its component starts
+  carrying the weight. A modified primitive is preserved only as an explicit
+  manual override.
+- **Applier.** The centre-of-gravity edit is an explicit `{x, y, z, unit}`
+  vector of a length unit, every component finite. Its before value is
+  `x, y, z unit` (`TBD` when absent), compared number by number and unit
+  exactly. A weight edit requires a positive force, as creation does.
+  `mechanics_interface.solver_consumption` is editable on a rigid-family
+  component only, and only to `mechanics_geometry_only` or
+  `not_solver_consumed`; creation accepts the same two modes. Other modes
+  (bend macro-element, objective connector) keep their own authoring routes.
+  `modifiers.source_reference` is editable. Valve, flange and reducer creation
+  accepts an exact `modifiers` {finite positive dimensionless
+  `stiffness_scaling_user_value`, nonblank `source_reference`} and an exact
+  `mechanics_interface` {`solver_consumption`}; both are optional and nothing
+  is defaulted.
+- **Desktop.** Valve, flange and reducer creation, in the inspector and the
+  viewport, offers the scale with its source reference and the consumption
+  mode. The inspector edits the centre of gravity as a vector, and the scale
+  source and consumption beside the weight and scale. Both state the
+  convention, "global X/Y/Z from the component's node". The desktop offers
+  no rigid or specialty creation. The self-weight panel accepts both scopes
+  and shows the warnings.
+- **Both routes.** The primitives are ordinary nodal forces and moments; PF
+  and EX solve them (W15-B, §6).
+- **Fixtures and pricing.** The bundled demo has no generated self-weight
+  case, so slice b moves no demo or result fixture. PP `self_weight.rs` is a
+  retained-pricing input (`tools/retained_pricing/base/b7a_formation_model.py`
+  pins its hash). Its inspection's node arm gains an allocation-free prefix
+  check, so slice b joins the D3 re-pricing turn (§2.8). So does
+  `core/loads/primitive_loads/src/lib.rs`, pinned in
+  `tools/retained_pricing/base/b7a_domain_model.py`: a user-authored nodal
+  `weight` force or moment, formerly refused at load preparation, now
+  prepares on every route, the retained route included. The retained route
+  still refuses every component.
+
 ## 4. Eccentric reducer offset (slice c)
 
 PRD §12.3 requires an eccentric offset vector for reducers. No slot exists.
@@ -473,7 +594,16 @@ As implemented (`core/product_physics/src/rigid_component.rs`,
     no applied-scale info or warning on a refused or blocked model (input
     refusal, mapping conflict, scaled moduli outside the normal range).
   - Slice b: weight replacement, staleness, every gravity axis and sign, and
-    wrench components.
+    wrench components. The frozen references are
+    `validation/references/w15_component_weight` (W15-B). They give the
+    wrench for each gravity axis and sign, with an offset along each axis and
+    in combination. They also give the reactions, motions and section actions
+    of a cantilever whose tip body carries the weight: scaled and unscaled,
+    Euler–Bernoulli and Timoshenko. Both routes and solver modes meet 1e-9.
+    Every failed weight condition, `not_solver_consumed`, an unselected member,
+    a mapping conflict, identities, and staleness after each edit kind are
+    tested (`tests/w15_component_weight.rs`, the self-weight wasm end-to-end
+    test).
   - Slice c: eccentric geometry, accepted and refused.
 - **Regression.** The bundled demo's valve C-130 (s = 15, `pipe:P-130`) moves
   the demo and preview-physics result fixtures. They are regenerated by their
