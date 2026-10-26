@@ -111,4 +111,5 @@ checks:
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
 - apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
 - apps/desktop/src/App.test.tsx
+- apps/desktop/src/features/exportProjectUnitRefusal.test.tsx
 - apps/desktop/e2e/r2-smoke.spec.ts

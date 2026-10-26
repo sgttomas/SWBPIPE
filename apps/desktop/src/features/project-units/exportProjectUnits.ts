@@ -10,20 +10,31 @@ import { projectUnitRow } from "./ProjectUnitsSection";
 /** A project key an export reads, and what it writes from it. */
 export type ExportProjectUnitUse = { key: ProjectUnitKey; writes: string };
 
-/** The refusal text for one missing key, without its code. */
-export function exportProjectUnitMissingText(model: PreviewModel, use: ExportProjectUnitUse): string {
-  if (use.key === "length") {
-    const notice = projectUnitRow(model, "length", null).notice;
-    if (notice?.kind === "missing-hard-lock") return notice.text;
-  }
-  return `Missing project unit: ${use.key}. This export writes ${use.writes} from project.units.${use.key}, and nothing is assumed. Set ${use.key} in Project units on the Project page.`;
+/** True when the key is `length`, missing, and the model has nodes: §3's hard lock. */
+function lengthHardLock(model: PreviewModel, key: ProjectUnitKey): string | null {
+  if (key !== "length") return null;
+  const notice = projectUnitRow(model, "length", null).notice;
+  return notice?.kind === "missing-hard-lock" ? notice.text : null;
 }
 
-/** The uses whose key is missing, each with its refusal text, in the order given. */
-export function missingExportProjectUnits(model: PreviewModel, uses: readonly ExportProjectUnitUse[]): Array<ExportProjectUnitUse & { text: string }> {
+/** The refusal text for one missing key, without its code. */
+export function exportProjectUnitMissingText(model: PreviewModel, use: ExportProjectUnitUse): string {
+  return lengthHardLock(model, use.key) ??
+    `Missing project unit: ${use.key}. This export writes ${use.writes} from project.units.${use.key}, and nothing is assumed. Set ${use.key} in Project units on the Project page.`;
+}
+
+/** The remediation for one missing key: set it, or, under the hard lock, re-author the model. */
+export function exportProjectUnitRemediation(model: PreviewModel, use: ExportProjectUnitUse, exportAction: string): string {
+  return lengthHardLock(model, use.key)
+    ? `Re-author the model with a length unit before ${exportAction}; the positions have no stated unit, and no fix is offered.`
+    : `Set ${use.key} in Project units on the Project page before ${exportAction}.`;
+}
+
+/** The uses whose key is missing, each with its refusal text and remediation, in the order given. */
+export function missingExportProjectUnits(model: PreviewModel, uses: readonly ExportProjectUnitUse[], exportAction = "exporting"): Array<ExportProjectUnitUse & { text: string; remediation: string }> {
   return uses
     .filter((use) => projectUnitMissing(model, use.key))
-    .map((use) => ({ ...use, text: exportProjectUnitMissingText(model, use) }));
+    .map((use) => ({ ...use, text: exportProjectUnitMissingText(model, use), remediation: exportProjectUnitRemediation(model, use, exportAction) }));
 }
 
 /** The stored symbol of a key the export has checked, or "" when it is missing (never a substitute). */

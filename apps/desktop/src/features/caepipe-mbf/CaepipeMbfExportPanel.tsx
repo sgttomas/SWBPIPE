@@ -627,9 +627,9 @@ function caepipeMbfDiagnostics({
   mbfText: string;
 }) {
   const diagnostics = [];
-  const missingUnits = missingExportProjectUnits(model, MBF_PROJECT_UNIT_USES);
+  const missingUnits = missingExportProjectUnits(model, MBF_PROJECT_UNIT_USES, "exporting .mbf text");
   for (const missing of missingUnits) {
-    diagnostics.push(diagnostic(MBF_PROJECT_UNIT_MISSING, "blocking", "UNIT_WARNING", missing.text, `Set ${missing.key} in Project units on the Project page before exporting .mbf text.`, reference("Project", model.project.id)));
+    diagnostics.push(diagnostic(MBF_PROJECT_UNIT_MISSING, "blocking", "UNIT_WARNING", missing.text, missing.remediation, reference("Project", model.project.id)));
   }
   const lengthKeyMissing = missingUnits.some((missing) => missing.key === "length");
   if (payload.nodes.length === 0 || payload.elements.length === 0) {

@@ -6,9 +6,10 @@ additions (§2.7 refusals, §2.8, §3, §4) at `25b7df82ae` (2026-10-25); slice 
 implemented in W-17 (`apps/desktop/src/features/project-units/`). Slice (b),
 `set_project_unit` and the Project units section, is designed here and
 implemented with it. Slice (c), the remaining fixed load-field defaults and the
-export panels' unit fallbacks, is designed in §7. It is implemented except B
-(§7.7), and §7.5's export length conversion was built in #1646. Standard claim fence applies (F-PIP-2;
-claims taxonomy per DEC-081).
+export panels' unit fallbacks, is designed in §7 and implemented. That includes
+B as B-c (§7.7), whose B-a and B2 remain deferred, and §7.5's export length
+conversion, built in #1646. The §7.3 catalog entries also remain deferred.
+Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 Requirement: PRD §10.1 step 1, "User creates a project and selects units". Unit
 policy: DEC-018 (D-01 accepted 2026-06-10: SI-canonical calculation, a dual
@@ -585,6 +586,11 @@ The survey also found these literal units, which are outside this rule:
 | empty or whitespace-only | none | "project.units.length is empty; choose one" |
 
 - A unit picked in the inspector lifts the refusal.
+- **A catalog that arrives late.** Opening the field before the catalog loads
+  starts it at the unchecked composition. When the catalog arrives, an
+  inherited default is recomputed and replaced. A unit the user picked, and a
+  stored unit, are kept. The inspector holds the user's choice apart from the
+  field's default; the default follows the field (Codex review round 1, P2).
 - In the grid, an empty cell is refused by name. The refusal names the missing
   `length` or the unavailable composed symbol, and sends the user to the
   inspector.
@@ -616,8 +622,12 @@ in the same files are not affected:
   `<what>` from project.units.`<key>`, and nothing is assumed. Set `<key>` in
   Project units on the Project page."
   - Missing `length` with nodes present gives `<CODE>:` followed by §3's
-    hard-lock text (the Project units section's notice).
-- **One helper.** The key check and the text are in
+    hard-lock text (the Project units section's notice). Its remediation
+    agrees: "Re-author the model with a length unit before exporting <text>;
+    the positions have no stated unit, and no fix is offered." Any other
+    missing key's remediation is to set the key in Project units on the
+    Project page.
+- **One helper.** The key check, the text and the remediation are in
   `features/project-units/exportProjectUnits.ts`.
 - **Precedence over §7.5.** For a missing length key,
   `MBF-PROJECT-UNIT-MISSING` or `PCF-PROJECT-UNIT-MISSING` is recorded instead
@@ -677,7 +687,10 @@ structural public paths), so the false conversion evidence was downloadable.
   used. `source_unit_matches_target_unit` is recorded only when the source unit
   is `mm`.
 - **No routine conversion: refused by name.** Any other length unit is refused
-  by name: `cm`, `MM`, `TBD`, an empty string or a missing length key. The
+  by name, for example `cm`, `MM`, `TBD` or an empty section unit. A project
+  length key that is absent, empty or whitespace-only is not refused here:
+  §7.4's `*-PROJECT-UNIT-MISSING` replaces it. This sentence was edited when
+  slice (c) built that refusal; #1646's text named the missing key here. The
   export records a blocking `MBF-LENGTH-UNIT-UNSUPPORTED` or
   `PCF-LENGTH-UNIT-UNSUPPORTED` diagnostic for the coordinates or for each
   section quantity concerned. Each diagnostic names the unit, and for a section
@@ -696,8 +709,10 @@ structural public paths), so the false conversion evidence was downloadable.
     - Nothing records a conversion that did not happen.
   - These replace the earlier `MBF-NODE-COORDINATE-UNIT-TBD` and
     `PCF-COORDINATE-UNIT-TBD`, which blocked `in` and `ft` but still offered
-    the links. The missing-key refusal designed for the export panels, when
-    built, takes precedence for a missing length key.
+    the links. For a missing project length key, §7.4's
+    `MBF-PROJECT-UNIT-MISSING` or `PCF-PROJECT-UNIT-MISSING` is recorded
+    instead of the unsupported-unit refusal, and its status line is shown.
+    This sentence was edited when slice (c) was built.
 - **Out of range: refused by name.** A source value that is not finite (`NaN`,
   `Infinity`, `-Infinity`) is refused, and so is one whose converted value is
   not finite, such as 1e308 in overflowing after × 25.4. The helper checks the
@@ -886,6 +901,13 @@ referenced rows' units.
   - A stored unit is kept.
 - **Grid.** An empty solve-temperature, gravity or modifier cell is refused by
   name, the refusal points to the inspector, and nothing is queued.
+- **A catalog that arrives late** (`sliceCUnitDefaults.test.tsx`).
+  - Gravity in an inch project, and US rotational stiffness: once the catalog
+    loads, the field is unselected with the notice and nothing is queued.
+  - A stored unit is kept.
+  - A chosen unit is kept when the inherited default changes, while an inherited
+    one follows.
+  - The first two and the last fail on the inspector before the fix.
 - **Local FEA (§7.7, `LocalFeaHandoffPanel.test.tsx`).**
   - An SI-preset key (`Pa`) and a US-preset key (`psi`, `lbf`) against rows in
     `MPa` and `N`: the declared units are the rows' units, and every referenced
@@ -901,7 +923,8 @@ referenced rows' units.
   - A length key that is absent, empty or whitespace-only: `.mbf` and PCF
     record `*-PROJECT-UNIT-MISSING` and not `*-LENGTH-UNIT-UNSUPPORTED`. The
     hard-lock text is shown and the links are withheld.
-  - With no nodes, the text offers to set the key.
+  - The remediation says to re-author under the hard lock. With no nodes,
+    both the text and the remediation say to set the key.
   - `cm` keeps §7.5's refusal.
   - MBF with force or temperature missing: refused by name, and `N` and `C`
     are not substituted.

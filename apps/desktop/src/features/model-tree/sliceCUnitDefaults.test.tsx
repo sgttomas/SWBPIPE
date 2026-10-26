@@ -18,15 +18,15 @@ import { DisplayUnitsProvider } from "../display-units";
 import { ModelTree } from "./ModelTree";
 import { PropertyInspector } from "./PropertyInspector";
 
-const route = vi.hoisted(() => ({ current: null as UnitCatalogRoute | null }));
+const route = vi.hoisted(() => ({ current: null as UnitCatalogRoute | null, delayed: null as Promise<UnitCatalogRoute | null> | null }));
 vi.mock("../../services/unitCatalogService", async (original) => ({
   ...await original<typeof import("../../services/unitCatalogService")>(),
-  loadUnitCatalog: async () => route.current
+  loadUnitCatalog: () => route.delayed ?? Promise.resolve(route.current)
 }));
 const CATALOG: UnitCatalogRoute = { route: "tauri_unit_catalog", catalog: unitCatalogFixture() };
 const PREVIEW: UnitCatalogRoute = { route: "unavailable_browser_preview", diagnostic: "UNIT-CATALOG-DESKTOP-ONLY: fixture" };
 
-afterEach(() => { cleanup(); route.current = null; });
+afterEach(() => { cleanup(); route.current = null; route.delayed = null; });
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../..");
 /** The bundled invented demo, with its valve's stored stiffness units removed so the defaults show. */
@@ -249,5 +249,74 @@ describe("the grid refuses an empty cell by name and points to the inspector", (
     const refused = await grid(model({ force: undefined }), "components", "entity-grid-input-component:C-130-linear-stiffness");
     expect(refused).not.toHaveBeenCalled();
     expect(screen.getByText(/^Not queued: Linear stiffness of component:C-130 has no unit\. Missing project unit: force\./)).toBeInTheDocument();
+  });
+});
+
+// Codex review round 1 (P2): a catalog that arrives after the field was opened replaces
+// an inherited default it does not admit; a unit the user chose is kept.
+describe("a catalog that arrives late (§7.3, §7.6)", () => {
+  async function openWhileLoading(document: PreviewModel, selection: EntityRef, fieldPath: string) {
+    let arrive!: (value: UnitCatalogRoute) => void;
+    route.delayed = new Promise<UnitCatalogRoute>((resolve) => { arrive = resolve; });
+    const mounted = mount(document, selection);
+    expect(byId("property-unit-catalog-status")).toHaveTextContent("loading");
+    fireEvent.click(screen.getByRole("tab", { name: "Task" }));
+    fireEvent.click(byId("inspector-start-task"));
+    changeFormControl(byId("editor-intent-field"), { target: { value: fieldPath } });
+    return { ...mounted, arrive: async () => { await act(async () => { arrive(CATALOG); }); } };
+  }
+
+  it("inch project, seismic gravity: in/s^2 while loading, then unselected with the notice and nothing queued", async () => {
+    const { arrive, queue } = await openWhileLoading(model({ length: "in" }), LOAD, GRAVITY);
+    expectFormControlValue(byId("editor-intent-unit"), "in/s^2");
+    await arrive();
+    expectFormControlValue(byId("editor-intent-unit"), "");
+    expect(byId(NOTICE)).toHaveTextContent("in/s^2 is not a catalog unit; choose one.");
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "386" } });
+    expect(byId("queue-editor-intent")).toBeDisabled();
+    fireEvent.click(byId("queue-editor-intent"));
+    expect(queue).not.toHaveBeenCalled();
+  });
+
+  it("US preset, rotational stiffness: lbf*in/deg while loading, then unselected with the notice", async () => {
+    const us = { length: "in", force: "lbf", moment: "lbf*in", pressure: "psi", stress: "psi", temperature: "degF", angle: "deg" };
+    const { arrive } = await openWhileLoading(model(us), VALVE, "modifiers.rotational_stiffness_user_value.value");
+    expectFormControlValue(byId("editor-intent-unit"), "lbf*in/deg");
+    await arrive();
+    expectFormControlValue(byId("editor-intent-unit"), "");
+    expect(byId(NOTICE)).toHaveTextContent("lbf*in/deg is not a catalog unit; choose one.");
+    expect(byId("queue-editor-intent")).toBeDisabled();
+  });
+
+  it("a stored unit is kept when the catalog arrives", async () => {
+    const stored = model({ length: "in" });
+    stored.load_cases[0].equivalent_static = { seismic: { gravity_acceleration: { value: 9.8, unit: "m/s^2" } } } as PreviewModel["load_cases"][number]["equivalent_static"];
+    const { arrive } = await openWhileLoading(stored, LOAD, GRAVITY);
+    await arrive();
+    expectFormControlValue(byId("editor-intent-unit"), "m/s^2");
+    expect(screen.queryByTestId(NOTICE)).toBeNull();
+  });
+
+  it("a unit the user chose is kept when the inherited default changes; an inherited one follows", async () => {
+    // While the catalog loads, the selector offers only the inherited default, so a different
+    // choice is made with the catalog loaded and the inherited default is then changed by a
+    // project-unit change (the same recompute a late catalog triggers).
+    const { queue, view } = await editField(model(), LOAD, TEMPERATURE);
+    changeFormControl(byId("editor-intent-unit"), { target: { value: "K" } });
+    const rerender = (document: PreviewModel) => view.rerender(
+      <DisplayUnitsProvider initialPreference="SI">
+        <PropertyInspector model={document} selection={LOAD} onQueueIntent={queue} onValidateIntent={vi.fn()} onApplyIntent={vi.fn(async () => true)} />
+      </DisplayUnitsProvider>
+    );
+    rerender(model({ temperature: "degF" }));
+    expectFormControlValue(byId("editor-intent-unit"), "K");
+    queueValue("400");
+    expect(JSON.parse(queue.mock.calls[0][0].change.after)).toEqual({ value: 400, unit: "K" });
+    // Re-selecting the field drops the choice; the inherited default then follows the key.
+    changeFormControl(byId("editor-intent-field"), { target: { value: GRAVITY } });
+    changeFormControl(byId("editor-intent-field"), { target: { value: TEMPERATURE } });
+    expectFormControlValue(byId("editor-intent-unit"), "degF");
+    rerender(model({ temperature: "degR" }));
+    expectFormControlValue(byId("editor-intent-unit"), "degR");
   });
 });

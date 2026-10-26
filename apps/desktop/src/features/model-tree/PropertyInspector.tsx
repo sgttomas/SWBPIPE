@@ -93,7 +93,12 @@ export function PropertyInspector({
   const editableFields = useMemo(() => editorFieldOptions(model, draftTarget, unitCatalogRoute), [draftTarget, model, unitCatalogRoute]);
   const [selectedFieldPath, setSelectedFieldPath] = useState(editableFields[0]?.fieldPath ?? "");
   const [proposedValue, setProposedValue] = useState(fieldEntryValue(editableFields[0]));
-  const [proposedUnit, setProposedUnit] = useState(editableFields[0]?.unit ?? "");
+  // W-17 slice (c) §7.3: a unit the user picks is kept; until then the field's own
+  // (inherited) default is used, recomputed whenever the field is, so a catalog that
+  // arrives late, or a project-unit change, replaces an inherited default but never a
+  // chosen unit. A stored unit is the field's default and is kept.
+  const [chosenUnit, setChosenUnit] = useState<string | null>(null);
+  const chooseProposedUnit = (unit: string) => setChosenUnit(unit);
   const [rationale, setRationale] = useState("user_entered_preview_change");
   const [sectionDraft, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
   const [materialDraftState, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
@@ -167,6 +172,7 @@ export function PropertyInspector({
     .map((pipe) => ({ value: pipe.id, label: pipe.label || pipe.id, keywords: [pipe.from, pipe.to] })),
   [componentDraft.node, model.pipe_segments]);
   const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
+  const proposedUnit = chosenUnit ?? selectedField?.unit ?? "";
   const selectedFieldLabel = selectedField ? propertyLabel(selectedField) : "Property";
   const requiredFlags = requiredFlagsForSelection(model, propertiesTarget, properties);
   const selectedFieldUnitOptions = selectedField
@@ -226,7 +232,7 @@ export function PropertyInspector({
     setDraftTarget(nextTarget);
     setSelectedFieldPath(firstField?.fieldPath ?? "");
     setProposedValue(fieldEntryValue(firstField));
-    setProposedUnit(firstField?.unit ?? "");
+    setChosenUnit(null);
     setRationale("user_entered_preview_change");
     setSupportDraft(defaultSupportDraft(model, selection, queuedIntents, unitCatalogRoute));
     setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
@@ -249,7 +255,7 @@ export function PropertyInspector({
       setDraftTarget(nextTarget);
       setSelectedFieldPath(firstField?.fieldPath ?? "");
       setProposedValue(fieldEntryValue(firstField));
-      setProposedUnit(firstField?.unit ?? "");
+      setChosenUnit(null);
       setRationale("user_entered_preview_change");
       setTaskActive(true);
     } else if (!multiSelection) {
@@ -300,7 +306,7 @@ export function PropertyInspector({
     const nextField = editableFields.find((field) => field.fieldPath === fieldPath);
     setSelectedFieldPath(fieldPath);
     setProposedValue(fieldEntryValue(nextField));
-    setProposedUnit(nextField?.unit ?? "");
+    setChosenUnit(null);
   }
 
   function beginPropertyTaskFromSelection() {
@@ -310,7 +316,7 @@ export function PropertyInspector({
     setDraftTarget(nextTarget);
     setSelectedFieldPath(firstField?.fieldPath ?? "");
     setProposedValue(fieldEntryValue(firstField));
-    setProposedUnit(firstField?.unit ?? "");
+    setChosenUnit(null);
     setRationale("user_entered_preview_change");
     setInspectorView("task");
     setTaskActive(true);
@@ -321,7 +327,7 @@ export function PropertyInspector({
     const firstField = editorFieldOptions(model, draftTarget, unitCatalogRoute)[0];
     setSelectedFieldPath(firstField?.fieldPath ?? "");
     setProposedValue(fieldEntryValue(firstField));
-    setProposedUnit(firstField?.unit ?? "");
+    setChosenUnit(null);
     setRationale("user_entered_preview_change");
     setTaskActive(false);
   }
@@ -509,14 +515,14 @@ export function PropertyInspector({
                     aria-label="Proposed editor unit" data-testid="editor-intent-unit" list="mass-unit-options" placeholder="Enter a unit"
                     value={proposedUnit} onChange={(event) => {
                       taskGenerationRef.current += 1;
-                      setProposedUnit(event.target.value);
+                      chooseProposedUnit(event.target.value);
                     }}
                   /> : <CompactSelect
                     aria-label="Proposed editor unit"
                     data-testid="editor-intent-unit"
                     onValueChange={(value) => {
                       taskGenerationRef.current += 1;
-                      setProposedUnit(value);
+                      chooseProposedUnit(value);
                     }}
                     value={proposedUnit || selectedField.unit}
                     options={selectedFieldUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}

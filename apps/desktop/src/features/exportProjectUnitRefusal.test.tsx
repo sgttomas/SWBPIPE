@@ -51,6 +51,10 @@ describe("a missing length key: the project-unit refusal takes precedence over L
       const refusal = packet.diagnostics.find((item) => item.code === missingCode)!;
       expect(refusal.severity).toBe("blocking");
       expect(refusal.message).toContain(HARD_LOCK);
+      // The remediation agrees with the hard lock: re-author, never "set length" (Codex review P3).
+      const action = missingCode === MBF_PROJECT_UNIT_MISSING ? "exporting .mbf text" : "exporting PCF text";
+      expect(refusal.remediation).toBe(`Re-author the model with a length unit before ${action}; the positions have no stated unit, and no fix is offered.`);
+      expect(refusal.remediation).not.toContain("Project units on the Project page");
     }
 
     render(<CaepipeMbfExportPanel model={input} result={null} analysisRun={null} />);
@@ -72,9 +76,13 @@ describe("a missing length key: the project-unit refusal takes precedence over L
 
   it("with no nodes, a missing length is offered to be set, not the hard lock", () => {
     const packet = buildPcfExportPacket({ model: model({ length: null }, false), result: null, analysisRun: null });
-    expect(packet.diagnostics.find((item) => item.code === PCF_PROJECT_UNIT_MISSING)!.message).toBe(
+    const refusal = packet.diagnostics.find((item) => item.code === PCF_PROJECT_UNIT_MISSING)!;
+    expect(refusal.message).toBe(
       "Missing project unit: length. This export writes the node coordinates' source unit from project.units.length, and nothing is assumed. Set length in Project units on the Project page."
     );
+    expect(refusal.remediation).toBe("Set length in Project units on the Project page before exporting PCF text.");
+    const mbf = buildCaePipeMbfExportPacket({ model: model({ length: null }, false), result: null, analysisRun: null });
+    expect(mbf.diagnostics.find((item) => item.code === MBF_PROJECT_UNIT_MISSING)!.remediation).toBe("Set length in Project units on the Project page before exporting .mbf text.");
   });
 
   it("an unsupported length that is present keeps §7.5's refusal", () => {

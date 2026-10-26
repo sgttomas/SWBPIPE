@@ -619,8 +619,8 @@ function pcfLengthUnitDiagnostics(model: PreviewModel): PcfDiagnostic[] {
   const rangeRemediation = "Correct the stored value to a finite length before exporting PCF text.";
   // §7.4: a missing length key is PCF-PROJECT-UNIT-MISSING, which takes precedence
   // over the unsupported-unit refusal below.
-  for (const missing of missingExportProjectUnits(model, PCF_PROJECT_UNIT_USES)) {
-    refusals.push(diagnostic(PCF_PROJECT_UNIT_MISSING, "blocking", "UNIT_WARNING", missing.text, `Set ${missing.key} in Project units on the Project page before exporting PCF text.`, reference("Project", model.project.id)));
+  for (const missing of missingExportProjectUnits(model, PCF_PROJECT_UNIT_USES, "exporting PCF text")) {
+    refusals.push(diagnostic(PCF_PROJECT_UNIT_MISSING, "blocking", "UNIT_WARNING", missing.text, missing.remediation, reference("Project", model.project.id)));
   }
   const lengthKeyMissing = refusals.length > 0;
   const coordinates = model.nodes.length > 0 && !lengthKeyMissing ? lengthToMillimeters(0, projectLengthUnit(model)) : null;
