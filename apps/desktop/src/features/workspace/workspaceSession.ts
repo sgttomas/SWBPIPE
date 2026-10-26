@@ -2544,18 +2544,25 @@ export function useWorkspaceSession() {
     if (!saveHash) return refuse(MODEL_DOC_SAVE_HASH_PENDING, "The session's model hash is not computed yet; try again once it is shown.");
     // Captured before the workspace turns inert, which drops its focus.
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    // The session moved on while the states were listed (another model or hash,
+    // or another operation or prompt owns it): the listing's outcome, success or
+    // failure, is dropped, so it cannot overwrite a newer status line.
+    const saveHashValue = saveHash.value;
+    const sessionMovedOn = () => modelDocumentSaveBasisRef.current.model !== saveModel
+      || modelDocumentSaveBasisRef.current.modelHash?.value !== saveHashValue || projectSessionBusy();
     let basis: HandoffBasis;
     try {
       // The basis is chosen among the readable saved states; a row the store
       // cannot read (W-12) is never a basis.
-      basis = handoffBasis((await listModelStates(saveModel.project.id)).states, saveModel.project.id, saveHash.value);
+      basis = handoffBasis((await listModelStates(saveModel.project.id)).states, saveModel.project.id, saveHashValue);
     } catch (error) {
+      if (sessionMovedOn()) return;
       setProjectMessage(handoffSaveFailureMessage(error));
       setProjectOperation("save_handoff_failed");
       return;
     }
-    // The session moved on while the states were listed: nothing is asked.
-    if (modelDocumentSaveBasisRef.current.model !== saveModel || modelDocumentSaveBasisRef.current.modelHash?.value !== saveHash.value || projectSessionBusy()) return;
+    // Nothing is asked of a session that moved on.
+    if (sessionMovedOn()) return;
     const close = () => { handoffSaveDialogOpenRef.current = false; setHandoffSaveRequest(null); };
     handoffSaveDialogOpenRef.current = true;
     setHandoffSaveRequest({

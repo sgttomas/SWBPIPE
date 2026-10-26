@@ -226,6 +226,13 @@ does not embed it.
   the basis.
 - Otherwise the user confirms a new state, kind `handoff_basis`, default name
   "Handoff <date>". It is written through W-12's state store.
+- **A listing the session outlived is dropped.** The basis is found by
+  listing the project's saved states before the dialog opens. If the session
+  moves on while they are listed (another model or model hash, or another
+  project operation or prompt owns the session), the listing's outcome is
+  dropped, whether it succeeded or failed. No dialog opens, and the status
+  line and last project operation are left to the newer action (W-17, Codex
+  review of #1640; `requestSaveHandoff` in `workspaceSession.ts`).
 - **Order.** The state is committed first, and then the package is published.
   A filesystem rename cannot join a database transaction. If publication
   fails, the state remains; it is harmless and reusable.

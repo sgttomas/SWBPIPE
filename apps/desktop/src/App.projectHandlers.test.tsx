@@ -808,6 +808,71 @@ describe("project handlers: a landed write records snapshot verification even wh
   });
 });
 
+// W-17 (Codex, review of #1640). Save Handoff lists the project's model states
+// before it asks anything. A listing that fails after the session moved on is
+// dropped, as its success is: it cannot replace a newer status line.
+describe("Save Handoff: a stale state-list failure is dropped", () => {
+  async function pendingStateList() {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const envelope = await openProjectWithRecordedMismatch(model);
+    const pendingList = deferred<unknown>();
+    const pendingCreate = deferred<LocalProjectEnvelope>();
+    let createRequest: Record<string, unknown> | undefined;
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+      if (command === "list_model_states") return pendingList.promise;
+      if (command === "create_local_project") {
+        createRequest = args;
+        return pendingCreate.promise;
+      }
+      return Promise.reject(new Error(`Unexpected command ${command}`));
+    });
+    act(() => nativeMenuCommand("file.save-handoff"));
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("list_model_states", { projectId: envelope.model.project.id }));
+    return { pendingList, pendingCreate, createRequest: () => createRequest };
+  }
+
+  it("keeps NEW-BLANK-SUPERSEDED when the earlier listing rejects after New Blank and an edit", async () => {
+    const { pendingList, pendingCreate, createRequest } = await pendingStateList();
+    act(() => nativeMenuCommand("file.new-blank"));
+    confirmProjectUnits();
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("create_local_project", expect.any(Object)));
+    await applyGridEditWhilePending();
+    const blank = createRequest()!.model as PreviewModel;
+    await act(async () => {
+      pendingCreate.resolve(savedEnvelopeFor(blank, createRequest()!, "Created blank after the model was edited."));
+      await pendingCreate.promise;
+    });
+    await flushPendingWork();
+    const supersededMessage = `NEW-BLANK-SUPERSEDED: the new blank project "${blank.project.name}" (${blank.project.id}) was created but not opened`;
+    expect(projectMessage()).toHaveTextContent(supersededMessage);
+    expect(lastProjectOperation()).toBe("create_blank_superseded");
+    await act(async () => {
+      pendingList.reject(new Error("Invented stale state-list failure"));
+      await pendingList.promise.catch(() => undefined);
+    });
+    await flushPendingWork();
+    expect(projectMessage()).toHaveTextContent(supersededMessage);
+    expect(projectMessage()).not.toHaveTextContent("Save handoff failed");
+    expect(lastProjectOperation()).toBe("create_blank_superseded");
+    expect(screen.queryByTestId("handoff-save-dialog")).not.toBeInTheDocument();
+  });
+
+  it("still names a current listing's failure", async () => {
+    const { pendingList } = await pendingStateList();
+    await act(async () => {
+      pendingList.reject(new Error("Invented current state-list failure"));
+      await pendingList.promise.catch(() => undefined);
+    });
+    await flushPendingWork();
+    expect(projectMessage()).toHaveTextContent("Save handoff failed:");
+    expect(projectMessage()).toHaveTextContent("Invented current state-list failure");
+    expect(lastProjectOperation()).toBe("save_handoff_failed");
+    expect(screen.queryByTestId("handoff-save-dialog")).not.toBeInTheDocument();
+  });
+});
+
 // B3A: observable saved canonical model identity, through the shared command route.
 describe("B3A saved-model marker", () => {
   it("marks an edit, save clears it, Undo differs from the saved snapshot and Redo returns clean", async () => {
