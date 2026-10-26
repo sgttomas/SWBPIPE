@@ -173,8 +173,11 @@ code_paths:
 - tools/validation/validate_dependencies_schema.py
 - core/reporting/report_renderer/src/lib.rs
 - apps/desktop/src/features/report/renderableReportInput.ts
+- fixtures/reports/invented/report_sections_provenance_records.json
 checks:
 - core/reporting/report_sections/src/lib.rs
 - tests/test_report_sections_contract.py
 - core/reporting/report_renderer/tests/render.rs
 - apps/desktop/src/features/report/renderedReport.test.tsx
+- tests/test_report_sections_provenance_records.py
+- apps/desktop/src/features/report/reportPackageRequest.test.ts

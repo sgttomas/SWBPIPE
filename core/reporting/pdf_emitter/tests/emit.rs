@@ -429,3 +429,130 @@ fn exact_block_and_library_records_emit_in_the_pdf() {
     assert!(blocked.blocking_reasons.iter().any(|reason| reason == "exact route: REPORT-EXACT-ADMISSION-BINDING-MISMATCH: run_ref"));
     assert!(pdf_contains(&blocked.pdf_bytes, "EXPORT BLOCKED"));
 }
+
+// W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §4.3,
+// §6.2): a report provenance record the renderer refuses blocks the PDF too.
+#[test]
+fn a_quarantined_or_rejected_provenance_record_blocks_the_pdf() {
+    for (status, value) in [(sections::ReviewStatus::Quarantined, "quarantined"), (sections::ReviewStatus::Rejected, "rejected")] {
+        let mut input = fixture_input();
+        let mut record = invented_section_provenance();
+        record.source_name = "Invented blocked material record".to_string();
+        record.redistribution_status = sections::RedistributionStatus::PrivateOnly;
+        record.privacy_classification = sections::PrivacyClassification::PrivateProjectData;
+        record.review_status = status;
+        input.report_sections.provenance_notes.push(record);
+        let index = input.report_sections.provenance_notes.len() - 1;
+        let pdf = emit_calculation_report_pdf(&input);
+        assert!(pdf.export_blocked, "{value}");
+        let reason = format!("report provenance: REPORT_PROVENANCE_DISPOSITION_BLOCKED (provenance_notes[{index}] review_status {value}; review that record's disposition in the model before reporting)");
+        assert!(pdf.blocking_reasons.contains(&reason), "{:?}", pdf.blocking_reasons);
+        // Metadata-only (Codex review round 2 of #1639): no PDF is emitted.
+        assert!(pdf.pdf_bytes.is_empty() && pdf.page_count == 0 && pdf.text_model_findings.is_empty());
+        assert!(!serde_json::to_string(&pdf).unwrap().contains("Invented blocked material record"));
+    }
+}
+
+/// W-11 slice (c) (§6.2), builder to render to PDF: the desktop builder's
+/// representative records (`renderedReport.test.tsx` writes them), with
+/// blocking dispositions nested in structured notes and records carried into
+/// their report records, block the PDF as they block the HTML; without the
+/// blocking records the PDF emits, and outside local_private it refuses.
+#[test]
+fn the_desktop_builder_records_block_the_pdf_by_disposition_and_context() {
+    const RECORDS: &str = include_str!("../../../../fixtures/reports/invented/report_sections_provenance_records.json");
+    let fixture: serde_json::Value = serde_json::from_str(RECORDS).unwrap();
+    let mut input = fixture_input();
+    input.report_sections = serde_json::from_value(fixture["report_sections"].clone()).unwrap();
+    let context: ReportContext = serde_json::from_value(serde_json::json!({
+        "export_context": "local_private", "generated_at": null, "software_name": "Invented", "software_version": null,
+        "build_release_identifier": null, "solver_name": null, "solver_version": null, "solver_build_ref": null,
+        "analysis_run_name": null, "analysis_run_recorded_at": null, "solver_mode": null, "solver_settings_ref": null,
+        "solver_settings": [], "model_coordinate_system": null, "result_coordinate_systems": []
+    }))
+    .unwrap();
+    input.report_context = Some(context);
+    let pdf = emit_calculation_report_pdf(&input);
+    assert!(pdf.export_blocked);
+    for needle in [
+        "(provenance_notes[9] review_status rejected;",
+        "(provenance_notes[10] review_status quarantined;",
+        "(user_supplied_values[8] review_status rejected;",
+    ] {
+        assert!(pdf.blocking_reasons.iter().any(|reason| reason.contains(needle)), "{needle}: {:?}", pdf.blocking_reasons);
+    }
+    assert!(pdf.blocking_reasons.iter().any(|reason| reason == "section validation: REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED"));
+    // Metadata-only: no PDF bytes, so no record text.
+    assert!(pdf.pdf_bytes.is_empty());
+    let blocks = |record: &sections::Provenance| {
+        matches!(record.review_status, sections::ReviewStatus::Quarantined | sections::ReviewStatus::Rejected)
+            || record.redistribution_status == sections::RedistributionStatus::ProtectedSuspected
+    };
+    let mut clean = input.clone();
+    clean.report_sections.provenance_notes.retain(|note| !blocks(note));
+    clean.report_sections.user_supplied_values.retain(|value| !blocks(&value.provenance));
+    let emitted = emit_calculation_report_pdf(&clean);
+    assert!(!emitted.export_blocked, "{:?}", emitted.blocking_reasons);
+    assert!(pdf_contains(&emitted.pdf_bytes, "report_metadata"));
+    let mut public = clean.clone();
+    public.report_context.as_mut().unwrap().export_context = ReportExportContext::PublicReport;
+    let refused = emit_calculation_report_pdf(&public);
+    assert!(refused.export_blocked);
+    assert!(refused.blocking_reasons.iter().any(|reason| reason.contains("REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE")));
+    // Metadata-only under public_report and without a context: no bytes, and no
+    // field of the outcome carries a record's text.
+    let mut absent = clean.clone();
+    absent.report_context = None;
+    for outcome in [refused, emit_calculation_report_pdf(&absent)] {
+        assert!(outcome.export_blocked && outcome.pdf_bytes.is_empty() && outcome.page_count == 0);
+        let text = serde_json::to_string(&outcome).unwrap();
+        for private in ["Invented accepted datasheet", "invented-datasheet-shelf", "invented_user_note", "Invented support record"] {
+            assert!(!text.contains(private), "{private}");
+        }
+        let package = open_pipe_stress_pdf_emitter::assemble_full_report_package(&public);
+        assert!(package.export_blocked && package.render.html.is_empty() && package.pdf.pdf_bytes.is_empty());
+    }
+}
+
+/// Codex review round 3 of #1639: authored ids (paths, private text) enter
+/// neither the withheld PDF outcome nor the full package assembly, in any
+/// context. The input is the renderer test's private-id input, built here.
+#[test]
+fn authored_ids_never_enter_a_withheld_pdf_or_package_outcome() {
+    let texts = ["/Users/invented-user/private-datasheets/steel-a.pdf", "C:/x.pdf", "Invented Private Client Project"];
+    let mut record = invented_section_provenance();
+    record.redistribution_status = sections::RedistributionStatus::PrivateOnly;
+    record.privacy_classification = sections::PrivacyClassification::PrivateProjectData;
+    record.review_status = sections::ReviewStatus::Quarantined;
+    for local in [false, true] {
+        let mut input = fixture_input();
+        if local {
+            input.report_context = Some(serde_json::from_value(serde_json::json!({
+                "export_context": "local_private", "generated_at": null, "software_name": "Invented", "software_version": null,
+                "build_release_identifier": null, "solver_name": null, "solver_version": null, "solver_build_ref": null,
+                "analysis_run_name": null, "analysis_run_recorded_at": null, "solver_mode": null, "solver_settings_ref": null,
+                "solver_settings": [], "model_coordinate_system": null, "result_coordinate_systems": []
+            })).unwrap());
+        }
+        for (kind, id) in [("material", texts[0]), ("section", texts[1]), ("component", texts[2])] {
+            input.report_sections.user_supplied_values.push(sections::UserSuppliedValue {
+                value_id: format!("{kind}-provenance:{kind}:{id}"),
+                value_category: "report_metadata".to_string(),
+                source: sections::Reference::new(kind, format!("{kind}:{id}")),
+                quantity: None,
+                provenance: record.clone(),
+                privacy_classification: sections::PrivacyClassification::PrivateProjectData,
+                required_for: vec![sections::RequiredFor::Reporting],
+                review_status: sections::ReviewStatus::Quarantined,
+                missing_data_finding: false,
+            });
+        }
+        let pdf = emit_calculation_report_pdf(&input);
+        let package = assemble_full_report_package(&input);
+        assert!(pdf.export_blocked && pdf.pdf_bytes.is_empty() && package.export_blocked);
+        let text = format!("{} {}", serde_json::to_string(&pdf).unwrap(), serde_json::to_string(&package).unwrap());
+        for private in texts {
+            assert!(!text.contains(private), "local={local}: {private}");
+        }
+    }
+}

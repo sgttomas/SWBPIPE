@@ -21,7 +21,7 @@ use open_pipe_stress_product_physics::{
     LinearStaticPreviewRequest, MechanicsEnvelope, PreviewSolverMode,
 };
 use open_pipe_stress_report_package::{
-    wire::{assemble_wire_request, LinkedSolverIdentity, ReportPackageRequest},
+    wire::{assemble_wire_request, decode_report_package_request, LinkedSolverIdentity, ReportPackageRequest},
     ReportPackageContainerOutcome,
 };
 use serde::{Deserialize, Deserializer, Serialize};
@@ -368,7 +368,18 @@ fn execute_json_with_mode(
                         "HEADLESS_RUNNER_CLI_INPUT_JSON_INVALID",
                         "cli_input",
                         "stdin-or-file",
-                        format!("input must be a JSON object with request metadata: {error}"),
+                        // A data error names its kind and position only; its own text
+                        // can quote the offending value (Codex review round 3 of #1639).
+                        if error.is_data() {
+                            format!(
+                                "input must be a JSON object with request metadata: {} at line {} column {}",
+                                open_pipe_stress_report_package::serde_error_kind(&error.to_string()),
+                                error.line(),
+                                error.column()
+                            )
+                        } else {
+                            format!("input must be a JSON object with request metadata: {error}")
+                        },
                     )],
                 ),
             );
@@ -455,7 +466,9 @@ fn execute_export_results(
         );
     };
 
-    let payload: ReportPackageRequest = match serde_json::from_value(raw_payload) {
+    // The refusal names the member and the error kind, never the offending
+    // value or key (W-11 slice (c), Codex review round 3 of #1639).
+    let payload: ReportPackageRequest = match decode_report_package_request(raw_payload) {
         Ok(payload) => payload,
         Err(error) => {
             diagnostics.push(blocking(
