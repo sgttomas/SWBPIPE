@@ -854,6 +854,170 @@ mod tests {
         }
     }
 
+    /// The DEL-12-02 input-contract sweep, expanded by the same rule as
+    /// `tests/security/test_redaction_input_contract_sweep.py` and
+    /// `redactionInputContractSweep.test.ts`: items in family order labels, flags, claims,
+    /// each decided in the spec's twelve contexts in order.
+    const SWEEP_CASE_COUNT: usize = 74_760;
+
+    struct SweepCase {
+        family: &'static str,
+        item: Map<String, Value>,
+        context: String,
+        local_intent: bool,
+        release_intent: bool,
+    }
+
+    fn sweep_json(text: &str) -> Value {
+        serde_json::from_str(text).expect("sweep fixture must remain valid JSON")
+    }
+
+    fn expand_sweep(spec: &Value) -> Vec<SweepCase> {
+        let absent = spec["absent"].as_str().expect("absent marker");
+        let put = |target: &mut Map<String, Value>, key: &str, value: &Value| {
+            if value.as_str() != Some(absent) {
+                target.insert(key.to_string(), value.clone());
+            }
+        };
+        let list = |value: &Value| value.as_array().expect("sweep list").clone();
+        let mut items: Vec<(&'static str, Map<String, Value>)> = Vec::new();
+        let labels = &spec["labels"];
+        for privacy in list(&labels["privacy"]) {
+            for redistribution in list(&labels["redistribution"]) {
+                for review in list(&labels["review"]) {
+                    for placement in list(&labels["placements"]) {
+                        let mut item = Map::from_iter([("value".to_string(), json!("x"))]);
+                        match placement.as_str().expect("placement") {
+                            "item" => {
+                                put(&mut item, "privacy_classification", &privacy);
+                                put(&mut item, "redistribution_status", &redistribution);
+                                put(&mut item, "review_status", &review);
+                            }
+                            "provenance" => {
+                                let mut provenance = Map::new();
+                                put(&mut provenance, "privacy_classification", &privacy);
+                                put(&mut provenance, "redistribution_status", &redistribution);
+                                put(&mut provenance, "review_status", &review);
+                                item.insert("provenance".to_string(), Value::Object(provenance));
+                            }
+                            _ => {
+                                // split: the privacy and review on the item, the redistribution
+                                // on a public provenance whose review is quarantined only with
+                                // the item's.
+                                put(&mut item, "privacy_classification", &privacy);
+                                let quarantined = review.as_str() == Some("quarantined");
+                                let mut provenance = Map::from_iter([
+                                    ("privacy_classification".to_string(), json!("public")),
+                                    ("redistribution_status".to_string(), json!("public_permissive")),
+                                    (
+                                        "review_status".to_string(),
+                                        json!(if quarantined { "quarantined" } else { "accepted" }),
+                                    ),
+                                ]);
+                                put(&mut provenance, "redistribution_status", &redistribution);
+                                item.insert("provenance".to_string(), Value::Object(provenance));
+                                put(&mut item, "review_status", &review);
+                            }
+                        }
+                        items.push(("labels", item));
+                    }
+                }
+            }
+        }
+        let bases = list(&spec["bases"]);
+        for key in list(&spec["flags"]["keys"]) {
+            let key = key.as_str().expect("flag key");
+            for value in list(&spec["flags"]["values"]) {
+                for base in &bases {
+                    let mut item = Map::from_iter([("value".to_string(), json!("x"))]);
+                    item.extend(base.as_object().expect("base object").clone());
+                    match key.strip_prefix("export_policy.") {
+                        Some(policy_key) => {
+                            item.insert(
+                                "export_policy".to_string(),
+                                Value::Object(Map::from_iter([(
+                                    policy_key.to_string(),
+                                    value.clone(),
+                                )])),
+                            );
+                        }
+                        None => {
+                            item.insert(key.to_string(), value.clone());
+                        }
+                    }
+                    items.push(("flags", item));
+                }
+            }
+        }
+        for value in list(&spec["claims"]["values"]) {
+            for base in &bases {
+                let mut item = Map::from_iter([("value".to_string(), json!("x"))]);
+                item.extend(base.as_object().expect("base object").clone());
+                put(&mut item, "professional_claim", &value);
+                items.push(("claims", item));
+            }
+        }
+        let contexts = list(&spec["contexts"]);
+        let mut cases = Vec::with_capacity(items.len() * contexts.len());
+        for (family, item) in items {
+            for context in &contexts {
+                cases.push(SweepCase {
+                    family,
+                    item: item.clone(),
+                    context: context[0].as_str().expect("context").to_string(),
+                    local_intent: context[1].as_bool().expect("local intent"),
+                    release_intent: context[2].as_bool().expect("release intent"),
+                });
+            }
+        }
+        cases
+    }
+
+    fn sweep_decision(case: &SweepCase) -> String {
+        let decided = classify_contract_item(
+            &case.item,
+            &case.context,
+            case.local_intent,
+            case.release_intent,
+        );
+        format!("{}/{}", decided.action, decided.reason_code)
+    }
+
+    fn frozen_column(frozen: &Value, name: &str) -> Vec<String> {
+        let alphabet: Vec<char> = frozen["alphabet"].as_str().expect("alphabet").chars().collect();
+        let codes = frozen["codes"].as_array().expect("codes");
+        frozen["decisions"][name]
+            .as_array()
+            .expect("decision column")
+            .iter()
+            .flat_map(|line| line.as_str().expect("decision line").chars().collect::<Vec<_>>())
+            .map(|symbol| {
+                let index = alphabet.iter().position(|known| *known == symbol).expect("symbol");
+                codes[index].as_str().expect("code").to_string()
+            })
+            .collect()
+    }
+
+    #[test]
+    fn frozen_rust_sweep_column_is_the_current_mirror() {
+        let spec = sweep_json(include_str!(
+            "../../../../fixtures/redaction_export_controls/input_contract_sweep.json"
+        ));
+        let frozen = sweep_json(include_str!(
+            "../../../../fixtures/redaction_export_controls/input_contract_sweep_decisions.json"
+        ));
+        let cases = expand_sweep(&spec);
+        assert_eq!(cases.len(), SWEEP_CASE_COUNT);
+        assert!(cases.iter().all(|case| matches!(case.family, "labels" | "flags" | "claims")));
+        let decided: Vec<String> = cases.iter().map(sweep_decision).collect();
+        let expected = frozen_column(&frozen, "rust_before");
+        assert_eq!(expected.len(), SWEEP_CASE_COUNT);
+        let mismatches: Vec<usize> = (0..SWEEP_CASE_COUNT)
+            .filter(|index| decided[*index] != expected[*index])
+            .collect();
+        assert!(mismatches.is_empty(), "{} mismatches, first {:?}", mismatches.len(), &mismatches[..mismatches.len().min(5)]);
+    }
+
     #[test]
     fn user_release_intent_cannot_enable_export_in_another_context() {
         let item = json!({
