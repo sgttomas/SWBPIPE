@@ -357,9 +357,15 @@ def _classify(
     privacy = item.get("privacy_classification")
     redistribution = item.get("redistribution_status")
     review_status = item.get("review_status", "unknown")
-    local_private_intent = _local_private_intent(
-        item,
-        explicit_local_private_intent=explicit_local_private_intent,
+    # Payload-carried local-private intent is not read in the user-released context
+    # (§3.2): only the wrapper's release intent decides there.
+    local_private_intent = (
+        False
+        if export_context == USER_RELEASED_REPORT_CONTEXT
+        else _local_private_intent(
+            item,
+            explicit_local_private_intent=explicit_local_private_intent,
+        )
     )
 
     provenance = item.get("provenance")

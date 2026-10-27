@@ -68,8 +68,10 @@ blocking behavior.
 The five existing contexts keep every decision on every input, and the
 release intent cannot enable export in them: the controls refuse
 `explicit_user_release_intent` with any context other than
-`user_released_report` (DEL-08-01 Design `report-user-release.md` §3). No
-route uses `user_released_report` yet.
+`user_released_report` (DEL-08-01 Design `report-user-release.md` §3), and
+local-first route admission refuses it there with `block_storage` /
+`USER_RELEASE_ROUTE_REQUIRED` on every route; an absent or false flag leaves
+the route evidence unchanged. No route uses `user_released_report` yet.
 
 ## Protected Classes
 
@@ -175,12 +177,16 @@ payload. The strip list above is unchanged: a payload member named
 `user_release_intent` or `explicit_user_release_intent` grants nothing, so it is
 not stripped, and in every existing context and route it is raw content,
 preserved byte for byte. The user-release route `DREP-PACKAGE-USER-RELEASE-010`
-has its own projector (`controlUserReleasedReportPackageRequest`), which labels
-each leaf of the request and the model with the privacy and redistribution of
-its nearest enclosing object that states them, else `private_project_data` /
-`private_only`, with no path-token labelling; it is lossless, and its
-local-first admission holds the route metadata under the existing
-`private_report` storage context.
+has its own projector (`controlUserReleasedReportPackageRequest`). It first
+decides every enclosing object of the request and of the model by the
+professional-claim, network, SQL, storage-bypass, secret, payload,
+concrete-path, protected and quarantined/rejected checks, exactly as the
+classification decides that object. Only then does it label each leaf with the
+privacy and redistribution of its nearest enclosing object that states them
+(its own member, else its provenance's, as the classification reads them),
+else `private_project_data` / `private_only`, with no path-token labelling. It
+is lossless, and its local-first admission holds the route metadata under the
+existing `private_report` storage context.
 
 The frozen route set covers Python JSON/downstream/specialized-format writers,
 both Rust headless runners, report DOM/JSON/render-IPC/HTML/save/print/lint,
@@ -201,6 +207,18 @@ file on block. The Rust runners emit the same controlled shape, accept
 wrapper-owned `--explicit-local-private-intent`, and write no output on block;
 their mirror is pinned to the same invented parity corpus as Python and
 TypeScript.
+
+Remaining (not changed, since repairing them would change existing decisions):
+in the five existing contexts the bounded Rust mirror reads some inputs
+differently from Python and TypeScript. It does not screen `cache_payload` or
+`sqlite_payload`; it does not fall back to the provenance for a null privacy or
+redistribution member or for an `unknown` or null review status; and it does
+not count a scalar storage-privacy metadata key as metadata present. No parity
+case covers these inputs. In `user_released_report` the mirror reads them as
+Python and TypeScript do, and parity cases hold all three to it. Separately,
+Python reads `professional_claim` by its truth value, so a non-empty string
+such as `"no"` or a non-empty list blocks there, while TypeScript and Rust
+block only on `true`, a recognized true string or a non-zero number.
 
 The protected-content lint CLI remains a separately governed DEC-058/DEC-059
 diagnostic used only by the release scan and public-source exporter; it is not

@@ -11,6 +11,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   EXPORT_CONTEXTS,
+  GOVERNED_LOCAL_FIRST_ROUTE_IDS,
   REDACTED_VALUE,
   REPORT_PACKAGE_USER_RELEASE_ROUTE_ID,
   USER_RELEASED_REPORT_CONTEXT,
@@ -873,7 +874,7 @@ describe("user-released context: local-first admission (§3.3)", () => {
 
   it("keeps every existing route's evidence members exactly as before", () => {
     for (const exportContext of EXPORT_CONTEXTS) {
-      for (const explicitUserReleaseIntent of [undefined, false, true]) {
+      for (const explicitUserReleaseIntent of [undefined, false]) {
         const evidence = enforceLocalFirstRoute({
           routeId: "DREP-PACKAGE-SAVE-009",
           exportContext,
@@ -893,6 +894,66 @@ describe("user-released context: local-first admission (§3.3)", () => {
         expect(evidence.storage_context).toBe(exportContext);
       }
     }
+  });
+
+  it("refuses user-release intent in every existing context on every governed route (Codex r1 finding 2)", () => {
+    const routes = [...GOVERNED_LOCAL_FIRST_ROUTE_IDS].filter((routeId) => routeId !== REPORT_PACKAGE_USER_RELEASE_ROUTE_ID);
+    expect(routes.length).toBeGreaterThan(10);
+    for (const routeId of routes) {
+      for (const exportContext of EXPORT_CONTEXTS) {
+        for (const explicitLocalPrivateIntent of [false, true]) {
+          // An absent or false flag leaves the evidence byte for byte as without the option.
+          const without = enforceLocalFirstRoute({ routeId, exportContext, explicitLocalPrivateIntent });
+          expect(without).not.toHaveProperty("explicit_user_release_intent");
+          expect(without.reason_code).not.toMatch(/^USER_RELEASE_/);
+          for (const absentOrFalse of [undefined, false, null]) {
+            expect(
+              JSON.stringify(
+                enforceLocalFirstRoute({
+                  routeId,
+                  exportContext,
+                  explicitLocalPrivateIntent,
+                  explicitUserReleaseIntent: absentOrFalse as boolean | undefined
+                })
+              )
+            ).toBe(JSON.stringify(without));
+          }
+          // Any stated intent is refused by name; it never admits the existing context.
+          for (const stated of [true, "yes", 1]) {
+            expect(
+              enforceLocalFirstRoute({
+                routeId,
+                exportContext,
+                explicitLocalPrivateIntent,
+                explicitUserReleaseIntent: stated as boolean
+              })
+            ).toEqual({
+              route_id: routeId,
+              export_context: exportContext,
+              storage_context: exportContext,
+              action: "block_storage",
+              reason_code: "USER_RELEASE_ROUTE_REQUIRED",
+              blocked: true,
+              metadata_only: true,
+              explicit_local_private_intent: explicitLocalPrivateIntent,
+              explicit_user_release_intent: stated === true
+            });
+          }
+        }
+      }
+    }
+    // The reproduction from the review: no longer admitted as safe public metadata.
+    expect(
+      enforceLocalFirstRoute({ routeId: "DREP-PACKAGE-SAVE-009", exportContext: "public_report", explicitUserReleaseIntent: true })
+    ).toMatchObject({ action: "block_storage", reason_code: "USER_RELEASE_ROUTE_REQUIRED", blocked: true });
+    // Unknown routes and invalid contexts stay refused by their own reasons, with the stated
+    // intent recorded.
+    expect(
+      enforceLocalFirstRoute({ routeId: "INVENTED-UNKNOWN-ROUTE", exportContext: "public_report", explicitUserReleaseIntent: true })
+    ).toMatchObject({ reason_code: "LOCAL_FIRST_ROUTE_UNKNOWN", blocked: true, explicit_user_release_intent: true });
+    expect(
+      enforceLocalFirstRoute({ routeId: "DREP-PACKAGE-SAVE-009", exportContext: "invented_context", explicitUserReleaseIntent: true })
+    ).toMatchObject({ reason_code: "LOCAL_FIRST_EXPORT_CONTEXT_INVALID", blocked: true, explicit_user_release_intent: true });
   });
 });
 
@@ -953,7 +1014,7 @@ describe("user-released context: the release projector (§3.2)", () => {
     };
     const admitted = controlUserReleasedReportPackageRequest(request, {}, false);
     const stress = admitted.decisions.find((decision) => decision.path.endsWith("stress_value"));
-    const nested = admitted.decisions.find((decision) => decision.path.endsWith("nested.__route_key__value"));
+    const nested = admitted.decisions.find((decision) => decision.path === "$.request.public_record.nested.value");
     expect(stress).toMatchObject({ privacy_classification: "public_metadata", action: "include" });
     expect(nested).toMatchObject({ privacy_classification: "private_project_data", reason_code: "USER_RELEASE_INTENT_REQUIRED" });
   });
@@ -990,8 +1051,176 @@ describe("user-released context: the release projector (§3.2)", () => {
       {},
       true
     );
-    const inner = projected.decisions.find((decision) => decision.path.endsWith("__route_key__note"));
+    const inner = projected.decisions.find((decision) => decision.path === "$.request.held.inner.note");
     expect(inner).toMatchObject({ review_status: "quarantined", reason_code: "PROTECTED_CONTENT_BLOCKED" });
+  });
+
+  // Codex r1 finding 1: steps 1-9 precede the nearest-metadata labelling, for every enclosing
+  // object of the request and of the model, exactly as `classifyExportItem` decides it.
+  const projectMetadata = { privacy_classification: "private_project_data", redistribution_status: "private_only" };
+  const boundaryMarkers: Array<[string, Record<string, unknown>, RedactionAction, RedactionReasonCode]> = [
+    ["1 professional claim", { professional_claim: true }, "block_export", "PROFESSIONAL_BOUNDARY_BLOCKED"],
+    ["1 professional claim text", { professional_claim: "yes" }, "block_export", "PROFESSIONAL_BOUNDARY_BLOCKED"],
+    ["2 network flag", { cloud_or_network_reference: true }, "block_export", "CLOUD_OR_NETWORK_REFERENCE_BLOCKED"],
+    ["2 network detail", { remote_url: "invented-remote" }, "block_export", "CLOUD_OR_NETWORK_REFERENCE_BLOCKED"],
+    ["3 SQL flag", { direct_sql_access: true }, "block_export", "DIRECT_SQL_ACCESS_BLOCKED"],
+    ["3 SQL detail", { connection_string: "invented-connection" }, "block_export", "DIRECT_SQL_ACCESS_BLOCKED"],
+    ["4 storage bypass", { storage_bypass: true }, "block_export", "STORAGE_BYPASS_BLOCKED"],
+    ["4 storage bypass requested", { storage_bypass_requested: "yes" }, "block_export", "STORAGE_BYPASS_BLOCKED"],
+    ["4 direct storage bypass", { direct_storage_bypass: true }, "block_export", "STORAGE_BYPASS_BLOCKED"],
+    ["4 application service bypass", { application_service_bypass: 1 }, "block_export", "STORAGE_BYPASS_BLOCKED"],
+    ["5 secret flag", { secret_material_present: true }, "block_export", "SECRET_MATERIAL_BLOCKED"],
+    ["5 secret detail", { password: "INVENTED_SECRET_MARKER" }, "block_export", "SECRET_MATERIAL_BLOCKED"],
+    ["6 payload flag", { contains_payload: true }, "block_export", "PAYLOAD_METADATA_ONLY_REQUIRED"],
+    ["6 payload present", { payload_present: "present" }, "block_export", "PAYLOAD_METADATA_ONLY_REQUIRED"],
+    ["6 cache payload", { cache_payload: 1 }, "block_export", "PAYLOAD_METADATA_ONLY_REQUIRED"],
+    ["6 sqlite payload", { sqlite_payload: 1 }, "block_export", "PAYLOAD_METADATA_ONLY_REQUIRED"],
+    ["7 path flag", { concrete_path_present: true }, "redact_value", "CONCRETE_PATH_REDACTED"],
+    ["7 path detail", { file_path: "invented/relative/file" }, "redact_value", "CONCRETE_PATH_REDACTED"],
+    ["8 protected privacy", { privacy_classification: "protected_suspected" }, "block_export", "PROTECTED_CONTENT_BLOCKED"],
+    ["8 protected redistribution", { redistribution_status: "protected_suspected" }, "block_export", "PROTECTED_CONTENT_BLOCKED"],
+    [
+      "8 protected in provenance",
+      { privacy_classification: null, provenance: { privacy_classification: "protected_suspected" } },
+      "block_export",
+      "PROTECTED_CONTENT_BLOCKED"
+    ],
+    ["9 quarantined", { review_status: "quarantined" }, "block_export", "PROTECTED_CONTENT_BLOCKED"],
+    ["9 rejected", { review_status: "rejected" }, "block_export", "PROTECTED_CONTENT_BLOCKED"],
+    [
+      "9 quarantined in provenance",
+      { review_status: "unknown", provenance: { review_status: "quarantined" } },
+      "block_export",
+      "PROTECTED_CONTENT_BLOCKED"
+    ]
+  ];
+
+  it("reproduces the review's case: a secret-marked project item is blocked, not admitted", () => {
+    const item = {
+      privacy_classification: "private_project_data",
+      redistribution_status: "private_only",
+      secret_material_present: true,
+      value: "INVENTED_SECRET_MARKER"
+    };
+    expect(classifyExportItem(item, { exportContext: USER_RELEASED_REPORT_CONTEXT, explicitUserReleaseIntent: true })).toMatchObject({
+      action: "block_export",
+      reason_code: "SECRET_MATERIAL_BLOCKED"
+    });
+    for (const [request, model] of [
+      [item, {}],
+      [{}, item]
+    ]) {
+      const projected = controlUserReleasedReportPackageRequest(request, model, true);
+      expect(projected.blocked).toBe(true);
+      expect(projected.payload).toBeNull();
+      expect(projected.decisions.some((decision) => decision.reason_code === "SECRET_MATERIAL_BLOCKED")).toBe(true);
+      expect(JSON.stringify(projected.payload)).not.toContain("INVENTED_SECRET_MARKER");
+    }
+  });
+
+  for (const [step, marker, action, reason] of boundaryMarkers) {
+    it(`applies step ${step} before labelling, at depth, in the request and in the model`, () => {
+      const item = { ...projectMetadata, ...marker, value: "Invented marked value" };
+      const expected = classifyExportItem(item, { exportContext: USER_RELEASED_REPORT_CONTEXT, explicitUserReleaseIntent: true });
+      expect(expected).toMatchObject({ action, reason_code: reason });
+      // Without the marker the same item is admitted with the wrapper's intent.
+      expect(
+        controlUserReleasedReportPackageRequest({ item: { ...projectMetadata, value: "Invented marked value" } }, {}, true).blocked
+      ).toBe(false);
+
+      const nest = (inner: unknown) => ({ section: { ...projectMetadata, rows: [{ note: "Invented note" }, { detail: { inner } }] } });
+      const markedPath = (root: string) => `${root}.section.rows[1].detail.inner`;
+      for (const [request, model, root] of [
+        [nest(item), releasedModel(), "$.request"],
+        [releasedRequest(), { ...releasedModel(), ...nest(item) }, "$.model"],
+        [item, releasedModel(), "$.request"]
+      ] as Array<[unknown, unknown, string]>) {
+        const projected = controlUserReleasedReportPackageRequest(request, model, true);
+        expect(projected.blocked).toBe(true);
+        expect(projected.payload).toBeNull();
+        expect(projected.summary.materialization_withheld).toBe(true);
+        const objectPath = request === item ? "$.request" : markedPath(root);
+        const decision = projected.decisions.find((candidate) => candidate.path === objectPath);
+        expect(decision).toBeDefined();
+        const { decision_id: _decisionId, ...decided } = decision!;
+        const { decision_id: _expectedId, ...wanted } = classifyExportItem(item, {
+          exportContext: USER_RELEASED_REPORT_CONTEXT,
+          explicitUserReleaseIntent: true,
+          path: objectPath
+        });
+        expect(decided).toEqual(wanted);
+        expect(projected.findings.some((finding) => finding.path === objectPath && finding.code === reason)).toBe(true);
+      }
+    });
+  }
+
+  it("decides every enclosing object, not only the nearest one that states metadata", () => {
+    // A marker on an object without metadata, beneath a labelled project object, and on an
+    // array element of the model.
+    for (const [request, model] of [
+      [{ section: { ...projectMetadata, block: { token: "INVENTED_SECRET_MARKER" } } }, {}],
+      [{}, { components: [{ id: "c1" }, { id: "c2", sql: "invented" }] }]
+    ]) {
+      const projected = controlUserReleasedReportPackageRequest(request, model, true);
+      expect(projected.blocked).toBe(true);
+      expect(projected.payload).toBeNull();
+      expect(
+        projected.decisions.some((decision) =>
+          ["SECRET_MATERIAL_BLOCKED", "DIRECT_SQL_ACCESS_BLOCKED"].includes(decision.reason_code)
+        )
+      ).toBe(true);
+    }
+  });
+
+  it("labels from the provenance as classifyExportItem reads it", () => {
+    const projected = controlUserReleasedReportPackageRequest(
+      { record: { provenance: { privacy_classification: "private_rule_pack_data" }, note: "Invented note" } },
+      {},
+      true
+    );
+    expect(projected.blocked).toBe(true);
+    expect(projected.decisions.find((decision) => decision.path === "$.request.record.note")).toMatchObject({
+      privacy_classification: "private_rule_pack_data",
+      reason_code: "PRIVATE_DATA_REDACTED"
+    });
+  });
+});
+
+describe("user-released context: payload-carried local-private intent is not read (Codex r1 finding 4)", () => {
+  const withIntentGetters = (reads: string[]): Record<string, unknown> => {
+    const item: Record<string, unknown> = {
+      field_id: "invented.project.name",
+      privacy_classification: "private_project_data",
+      redistribution_status: "private_only",
+      value: "Invented value"
+    };
+    for (const key of ["local_private_intent", "explicit_local_private_intent", "user_intent", "export_policy"]) {
+      Object.defineProperty(item, key, {
+        enumerable: true,
+        get() {
+          reads.push(key);
+          return key === "export_policy" ? { local_private_intent: true } : true;
+        }
+      });
+    }
+    return item;
+  };
+
+  it("never reads the intent members in user_released_report, and still reads them in local_private", () => {
+    const releasedReads: string[] = [];
+    expect(
+      classifyExportItem(withIntentGetters(releasedReads), {
+        exportContext: USER_RELEASED_REPORT_CONTEXT,
+        explicitUserReleaseIntent: false
+      })
+    ).toMatchObject({ reason_code: "USER_RELEASE_INTENT_REQUIRED" });
+    expect(releasedReads).toEqual([]);
+
+    const localReads: string[] = [];
+    expect(classifyExportItem(withIntentGetters(localReads), { exportContext: "local_private" })).toMatchObject({
+      reason_code: "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+    });
+    expect(localReads.length).toBeGreaterThan(0);
   });
 });
 

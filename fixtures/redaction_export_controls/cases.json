@@ -1106,6 +1106,153 @@
         "source_metadata_present": true,
         "finding": { "class": "PROVENANCE_WARNING", "severity": "WARNING" }
       }
+    },
+    {
+      "case_id": "user-released-cache-payload-blocked",
+      "item": {
+        "field_id": "invented.project.note",
+        "field_class": "project",
+        "privacy_classification": "private_project_data",
+        "redistribution_status": "private_only",
+        "cache_payload": 1,
+        "value": "Invented placeholder value"
+      },
+      "export_context": "user_released_report",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": true,
+      "expected": {
+        "action": "block_export",
+        "reason_code": "PAYLOAD_METADATA_ONLY_REQUIRED",
+        "source_metadata_present": true,
+        "finding": { "class": "STORAGE_BOUNDARY_WARNING", "severity": "BLOCKING" }
+      }
+    },
+    {
+      "case_id": "user-released-sqlite-payload-blocked",
+      "item": {
+        "field_id": "invented.project.note",
+        "field_class": "project",
+        "privacy_classification": "private_project_data",
+        "redistribution_status": "private_only",
+        "sqlite_payload": 1,
+        "value": "Invented placeholder value"
+      },
+      "export_context": "user_released_report",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": true,
+      "expected": {
+        "action": "block_export",
+        "reason_code": "PAYLOAD_METADATA_ONLY_REQUIRED",
+        "source_metadata_present": true,
+        "finding": { "class": "STORAGE_BOUNDARY_WARNING", "severity": "BLOCKING" }
+      }
+    },
+    {
+      "case_id": "user-released-unknown-review-quarantined-provenance-blocked",
+      "item": {
+        "field_id": "invented.project.note",
+        "field_class": "project",
+        "privacy_classification": "private_project_data",
+        "redistribution_status": "private_only",
+        "review_status": "unknown",
+        "provenance": {
+          "review_status": "quarantined"
+        },
+        "value": "Invented placeholder value"
+      },
+      "export_context": "user_released_report",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": true,
+      "expected": {
+        "action": "block_export",
+        "reason_code": "PROTECTED_CONTENT_BLOCKED",
+        "source_metadata_present": true,
+        "finding": { "class": "IP_BOUNDARY_WARNING", "severity": "BLOCKING" }
+      }
+    },
+    {
+      "case_id": "user-released-null-review-rejected-provenance-blocked",
+      "item": {
+        "field_id": "invented.project.note",
+        "field_class": "project",
+        "privacy_classification": "private_project_data",
+        "redistribution_status": "private_only",
+        "review_status": null,
+        "provenance": {
+          "review_status": "rejected"
+        },
+        "value": "Invented placeholder value"
+      },
+      "export_context": "user_released_report",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": true,
+      "expected": {
+        "action": "block_export",
+        "reason_code": "PROTECTED_CONTENT_BLOCKED",
+        "source_metadata_present": true,
+        "finding": { "class": "IP_BOUNDARY_WARNING", "severity": "BLOCKING" }
+      }
+    },
+    {
+      "case_id": "user-released-null-privacy-private-rule-pack-provenance-redacted",
+      "item": {
+        "field_id": "invented.rule_pack.private_value",
+        "field_class": "rule_pack",
+        "privacy_classification": null,
+        "redistribution_status": "private_only",
+        "provenance": {
+          "privacy_classification": "private_rule_pack_data"
+        },
+        "value": 4.2
+      },
+      "export_context": "user_released_report",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": true,
+      "expected": {
+        "action": "redact_value",
+        "reason_code": "PRIVATE_DATA_REDACTED",
+        "source_metadata_present": true,
+        "finding": { "class": "PRIVATE_DATA_WARNING", "severity": "WARNING" }
+      }
+    },
+    {
+      "case_id": "user-released-null-redistribution-protected-provenance-blocked",
+      "item": {
+        "field_id": "invented.project.note",
+        "field_class": "project",
+        "privacy_classification": "private_project_data",
+        "redistribution_status": null,
+        "provenance": {
+          "redistribution_status": "protected_suspected"
+        },
+        "value": "Invented placeholder value"
+      },
+      "export_context": "user_released_report",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": true,
+      "expected": {
+        "action": "block_export",
+        "reason_code": "PROTECTED_CONTENT_BLOCKED",
+        "source_metadata_present": true,
+        "finding": { "class": "IP_BOUNDARY_WARNING", "severity": "BLOCKING" }
+      }
+    },
+    {
+      "case_id": "user-released-storage-metadata-only-unbound",
+      "item": {
+        "field_id": "invented.storage.note",
+        "storage_locality": "invented_locality",
+        "value": "Invented placeholder value"
+      },
+      "export_context": "user_released_report",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": true,
+      "expected": {
+        "action": "block_export",
+        "reason_code": "USER_RELEASE_VALUE_UNBOUND",
+        "source_metadata_present": true,
+        "finding": { "class": "PROVENANCE_WARNING", "severity": "BLOCKING" }
+      }
     }
   ]
 }

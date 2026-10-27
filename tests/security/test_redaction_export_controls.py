@@ -1145,7 +1145,7 @@ def test_existing_route_local_first_evidence_keeps_its_exact_members():
     from core.security.local_first_storage.route_control import enforce_local_first_route
 
     for context in EXISTING_CONTEXTS:
-        for intent in (False, True):
+        for intent in (False, None):
             evidence = enforce_local_first_route(
                 route_id="DREP-PACKAGE-SAVE-009",
                 export_context=context,
@@ -1163,6 +1163,117 @@ def test_existing_route_local_first_evidence_keeps_its_exact_members():
                 "explicit_local_private_intent",
             ]
             assert evidence["storage_context"] == context
+
+
+def test_existing_contexts_refuse_user_release_intent_on_every_governed_route():
+    """Codex r1 finding 2: stated release intent is refused by name outside its context.
+
+    An absent, None or False flag leaves the evidence exactly as without the option.
+    """
+
+    from core.security.local_first_storage.route_control import (
+        GOVERNED_LOCAL_FIRST_ROUTE_IDS,
+        enforce_local_first_route,
+    )
+
+    routes = sorted(GOVERNED_LOCAL_FIRST_ROUTE_IDS - {USER_RELEASE_ROUTE})
+    assert len(routes) > 10
+    for route_id in routes:
+        for context in EXISTING_CONTEXTS:
+            for local_intent in (False, True):
+                without = enforce_local_first_route(
+                    route_id=route_id,
+                    export_context=context,
+                    explicit_local_private_intent=local_intent,
+                )
+                assert without.explicit_user_release_intent is None
+                assert not without.reason_code.startswith("USER_RELEASE_")
+                for absent_or_false in (False, None):
+                    same = enforce_local_first_route(
+                        route_id=route_id,
+                        export_context=context,
+                        explicit_local_private_intent=local_intent,
+                        explicit_user_release_intent=absent_or_false,
+                    )
+                    assert same == without
+                    assert canonical_text(same.as_schema_dict()) == canonical_text(
+                        without.as_schema_dict()
+                    )
+                for stated in (True, "yes", 1):
+                    refused = enforce_local_first_route(
+                        route_id=route_id,
+                        export_context=context,
+                        explicit_local_private_intent=local_intent,
+                        explicit_user_release_intent=stated,
+                    ).as_schema_dict()
+                    assert refused == {
+                        "route_id": route_id,
+                        "export_context": context,
+                        "storage_context": context,
+                        "action": "block_storage",
+                        "reason_code": "USER_RELEASE_ROUTE_REQUIRED",
+                        "blocked": True,
+                        "metadata_only": True,
+                        "explicit_local_private_intent": local_intent,
+                        "explicit_user_release_intent": stated is True,
+                    }
+    # The reproduction from the review.
+    refused = enforce_local_first_route(
+        route_id="DREP-PACKAGE-SAVE-009",
+        export_context="public_report",
+        explicit_user_release_intent=True,
+    )
+    assert (refused.action, refused.reason_code, refused.blocked) == (
+        "block_storage",
+        "USER_RELEASE_ROUTE_REQUIRED",
+        True,
+    )
+    # Unknown routes and invalid contexts keep their own refusals and record the intent.
+    unknown = enforce_local_first_route(
+        route_id="INVENTED-UNKNOWN-ROUTE",
+        export_context="public_report",
+        explicit_user_release_intent=True,
+    )
+    assert (unknown.reason_code, unknown.explicit_user_release_intent) == (
+        "LOCAL_FIRST_ROUTE_UNKNOWN",
+        True,
+    )
+    invalid = enforce_local_first_route(
+        route_id="DREP-PACKAGE-SAVE-009",
+        export_context="invented_context",
+        explicit_user_release_intent=True,
+    )
+    assert (invalid.reason_code, invalid.explicit_user_release_intent) == (
+        "LOCAL_FIRST_EXPORT_CONTEXT_INVALID",
+        True,
+    )
+
+
+def test_payload_carried_local_private_intent_is_not_read_in_the_user_released_context(
+    monkeypatch,
+):
+    """Codex r1 finding 4: the item intent helper is never called there."""
+
+    from core.security.redaction import controls
+
+    calls = []
+    original = controls._local_private_intent
+
+    def spy(item, **kwargs):
+        calls.append(item)
+        return original(item, **kwargs)
+
+    monkeypatch.setattr(controls, "_local_private_intent", spy)
+    item = private_item(local_private_intent=True, export_policy={"user_intent": True})
+    decision = classify_export_item(
+        item, export_context=USER_RELEASED_REPORT, explicit_user_release_intent=False
+    )
+    assert decision.reason_code == "USER_RELEASE_INTENT_REQUIRED"
+    redact_export_payload({"item": item}, export_context=USER_RELEASED_REPORT)
+    assert calls == []
+    local = classify_export_item(item, export_context="local_private")
+    assert local.reason_code == "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+    assert calls
 
 
 def _request_with_raw_release_members():

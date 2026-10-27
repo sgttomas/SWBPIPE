@@ -71,8 +71,9 @@ class LocalFirstRouteDecision:
     blocked: bool
     metadata_only: bool = True
     explicit_local_private_intent: bool = False
-    # Recorded only when the route or the context is the user release's, so the
-    # evidence of every existing route keeps its exact members.
+    # Recorded only when the route or the context is the user release's, or a
+    # user-release intent is stated, so the evidence of every existing route with an
+    # absent or false flag keeps its exact members.
     explicit_user_release_intent: bool | None = None
 
     def as_schema_dict(self) -> dict[str, Any]:
@@ -94,17 +95,30 @@ def enforce_local_first_route(
     Public/shared/downstream routes retain their existing redaction behavior.
     A local-private route additionally requires intent supplied by its owning
     wrapper.  The user-released context is admitted only on its own route and
-    only with the wrapper's user-release intent.  Payload-carried intent is
-    never an input to this function.
+    only with the wrapper's user-release intent; user-release intent with any
+    other context is refused (``USER_RELEASE_ROUTE_REQUIRED``).  Payload-carried
+    intent is never an input to this function.
     """
 
     normalized_route_id = route_id if isinstance(route_id, str) else ""
     normalized_context = export_context if isinstance(export_context, str) else ""
     normalized_intent = explicit_local_private_intent is True
     release_intent = explicit_user_release_intent is True
+    # Any user-release intent other than None or False: the predicate of the flag
+    # assertion (``assert_user_release_intent_context``).  It is refused below in every
+    # context but ``user_released_report``, so it cannot be admitted in another context.
+    release_intent_stated = (
+        explicit_user_release_intent is not None and explicit_user_release_intent is not False
+    )
     user_release_route = normalized_route_id == USER_RELEASE_ROUTE_ID
     user_release_context = normalized_context == USER_RELEASED_REPORT_CONTEXT
-    release_evidence = release_intent if user_release_route or user_release_context else None
+    # Recorded only where it is the subject of the decision, so the evidence of every
+    # existing route with an absent or false flag keeps its exact members.
+    release_evidence = (
+        release_intent
+        if user_release_route or user_release_context or release_intent_stated
+        else None
+    )
     storage_context = ROUTE_STORAGE_CONTEXTS.get(normalized_context, "invalid")
 
     if normalized_route_id not in GOVERNED_LOCAL_FIRST_ROUTE_IDS:
@@ -129,7 +143,9 @@ def enforce_local_first_route(
             explicit_local_private_intent=normalized_intent,
             explicit_user_release_intent=release_evidence,
         )
-    if user_release_route != user_release_context:
+    if user_release_route != user_release_context or (
+        release_intent_stated and not user_release_context
+    ):
         return LocalFirstRouteDecision(
             route_id=normalized_route_id,
             export_context=normalized_context,
