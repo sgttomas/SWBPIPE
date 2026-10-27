@@ -449,6 +449,7 @@ export function useWorkspaceSession() {
     batchSequence,
     operationBusy, setOperationBusy,
     operationMessage, setOperationMessage,
+    historyFailure, setHistoryFailure,
     operationEngineStatus, setOperationEngineStatus,
     intentSequence,
     operationRequest,
@@ -762,6 +763,8 @@ export function useWorkspaceSession() {
   function publishModel(prepared: ModelPublication, directDraftToken: string | null = null) {
     const { model: nextModel, identityHash } = prepared;
     modelCommitEpochRef.current += 1;
+    // A later model supersedes an earlier undo or redo failure.
+    setHistoryFailure(null);
     referencePersistence.current = null;
     modelHashOwner.current = null;
     invalidateReportPackageComputedState();
@@ -1898,7 +1901,9 @@ export function useWorkspaceSession() {
         solveJob: sessionHistoryChangedSolveJob(action, checkpoint.operation_id)
       };
     } catch (error) {
-      setOperationMessage(`${action === "undo" ? "Undo" : "Redo"} failed to run: ${nativeFailureText(error)}`);
+      const failure = `${action === "undo" ? "Undo" : "Redo"} failed to run: ${nativeFailureText(error)}`;
+      setOperationMessage(failure);
+      setHistoryFailure(failure);
       return;
     }
 
@@ -1921,7 +1926,10 @@ export function useWorkspaceSession() {
     // Notify: external callbacks, each caught and reported; the step is not
     // rolled back.
     const viewportFailure = retireViewportBoxGestureAfterPublication();
-    if (viewportFailure) setOperationMessage(`${steppedMessage} ${viewportFailure}`);
+    if (viewportFailure) {
+      setOperationMessage(`${steppedMessage} ${viewportFailure}`);
+      setHistoryFailure(`${action === "undo" ? "Undid" : "Redid"} ${checkpoint.operation_id}. ${viewportFailure}`);
+    }
   }
 
   function clearComputedModelState(nextSolveJob: SolveJobAuditState) {
@@ -3833,6 +3841,7 @@ export function useWorkspaceSession() {
       directDraftCommitToken,
       operationBusy,
       operationMessage,
+      historyFailure,
       operationEngineStatus,
       operationRequest,
       handleQueueEditorIntent,

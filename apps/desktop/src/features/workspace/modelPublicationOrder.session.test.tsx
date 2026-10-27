@@ -11,6 +11,7 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as previewService from "../../services/previewService";
 import { buildRouteSubmission, type DraftSubmission, type FrozenDraftReview, type RouteDraft } from "../viewport/routeDraft";
+import * as selectionState from "./selectionState";
 import * as sessionModel from "./sessionModel";
 import { buildGridOperationIntent, type GridColumn } from "./table/modelTableAdapter";
 import { useWorkspaceSession } from "./workspaceSession";
@@ -251,6 +252,22 @@ describe.each(["batch", "single"] as const)("draft-review apply (%s): Prepare ->
     expect(result.current.operations.operationMessage).toBe(expected[kind].message(review));
   });
 
+  it("a review kept after a failed preparation is refused once another edit has changed the model", async () => {
+    const result = await session();
+    const review = await frozenReview(result, kind);
+    const failure = failIdentityHashFor(hasPipeS);
+    expect(await applyDraft(result, review)).toBe(false);
+    failure.mockRestore();
+    await act(async () => { await result.current.operations.handleApplyIntent(coordinateIntent(result.current.model.model!, "2.5", 2)); });
+    expect(nodeCY(result)).toBe(2.5);
+    const edited = snapshot(result);
+
+    expect(await applyDraft(result, review)).toBe(false);
+
+    expect(snapshot(result)).toEqual(edited);
+    expect(hasPipeS(result.current.model.model!)).toBe(false);
+  });
+
   it("a viewport callback failure after publication is reported; the model and history advance", async () => {
     const result = await session();
     await withRedoEntry(result);
@@ -343,6 +360,22 @@ describe("undo and redo: Prepare -> Publish -> Notify", () => {
     expect(result.current.operations.undoStack).toHaveLength(1);
     expect(result.current.operations.redoStack).toHaveLength(0);
     expect(result.current.operations.operationMessage).toBe(REDID(operationId));
+  });
+
+  it.each([
+    ["the restored-model clone", () => vi.spyOn(sessionModel, "clonePreviewModel").mockImplementationOnce(() => { throw new Error("injected preparation failure"); })],
+    ["the restored selection", () => vi.spyOn(selectionState, "singletonSelection").mockImplementationOnce(() => { throw new Error("injected preparation failure"); })]
+  ])("an undo failure while preparing %s is reported, does not throw and changes nothing", async (_label, inject) => {
+    const result = await session();
+    await withUndoEntry(result);
+    const before = snapshot(result);
+    inject();
+
+    expect(() => act(() => result.current.operations.handleUndoSessionModelEdit())).not.toThrow();
+
+    expect(snapshot(result)).toEqual(before);
+    expect(result.current.operations.operationMessage).toBe("Undo failed to run: Error: injected preparation failure");
+    expect(result.current.operations.historyFailure).toBe("Undo failed to run: Error: injected preparation failure");
   });
 
   it("a viewport callback failure after an undo is reported and does not throw; the model and stacks move", async () => {
