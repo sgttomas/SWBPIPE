@@ -107,6 +107,7 @@ import { ReportPanel } from "./features/report/ReportPanel";
 import { RenderedReportPanel } from "./features/report/RenderedReportPanel";
 import { ResultExportPanel } from "./features/result-export/ResultExportPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
+import { SupportLoadSummaryPanel } from "./features/results/SupportLoadSummaryPanel";
 import { resolveLocatedCauseSelection } from "./features/results/resultInterpretation";
 import { useDiagnosticFilterRequest, type DiagnosticFilterRequest } from "./features/diagnostics/diagnosticFilterRequest";
 import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPanel";
@@ -689,6 +690,15 @@ function AppSession() {
                   setIssuesDrawerOpen(true);
                 }}
               />}
+              {historicalRun ? null : (
+                // A2: the per-support load summary reads the same standing as the viewport overlays.
+                <SupportLoadSummaryPanel
+                  model={model}
+                  result={result}
+                  standing={viewportResultStanding}
+                  focusSupportId={selection.type === "support" ? selection.id : null}
+                />
+              )}
               <ComparisonPanel
                 comparison={withinRun.status === "ready" ? withinRun.comparison : null}
                 result={currentSolvedResult}
