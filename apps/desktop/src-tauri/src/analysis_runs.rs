@@ -654,8 +654,6 @@ pub(crate) fn checked_submission(
     manifest_text: &str,
     memory: &dyn ReadMemory,
 ) -> Result<Metered<CheckedSubmission>, String> {
-    const MANIFEST: &str = "ANALYSIS-RUN-MANIFEST-MISMATCH";
-    const RESULT: &str = "ANALYSIS-RUN-RESULT-MISMATCH";
     let result_parse = stored_read::parse_bytes(result_json).map_err(|detail| refused(RESULT, format_args!("the result: {detail}")))?;
     let manifest_parse =
         stored_read::parse_bytes(manifest_text).map_err(|detail| refused(MANIFEST, format_args!("the input manifest: {detail}")))?;
@@ -666,8 +664,45 @@ pub(crate) fn checked_submission(
         return Err(refused(MANIFEST, "the input manifest is not its own canonical JCS text"));
     }
     let manifest_hash_hex = sha256_hex(manifest_text);
+    let model_payload = check_manifest_binding(project_id, transient, &manifest, &manifest_hash_hex)?;
+    let payload_canonical = stored_read::jcs_text(memory, "the run to record's model payload", model_payload)?;
+    let payload_hash = format!("sha256:{}", sha256_hex(payload_canonical.get()));
+    let recomputed = check_transient_record(project_id, transient, &manifest, &manifest_hash_hex, memory)?;
+
+    let head: ResultHead = serde_json::from_str(result_json)
+        .map_err(|error| refused(RESULT, format_args!("the result is not a mechanics result ({error})", error = stored_read::json_error(&error))))?;
+    let result_reservation = memory.reserve("the run to record's result", result_parse)?;
+    let result: Value = serde_json::from_str(result_json)
+        .map_err(|error| refused(RESULT, format_args!("the result is not JSON ({error})", error = stored_read::json_error(&error))))?;
+    let result_hash_hex = stored_read::checked_sha256_text(memory, "the run to record's result", result_json, &result).map_err(|error| {
+        if error.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE) { error } else { refused(RESULT, error) }
+    })?;
+    let bound = RecordResult { result: &result, run_id: &head.run_id, model_ref: &head.model_ref, hash_hex: &result_hash_hex };
+    let rule_packs_not_resolved = check_record_result(project_id, transient, &recomputed, &bound, &manifest, memory)?;
+    let run_id = transient.pointer("/analysis_run/run_id").and_then(Value::as_str).unwrap_or("");
+    let producer_run_id = run_id.to_string();
+    drop((result, result_reservation));
+    Ok(payload_canonical.holding(manifest_reservation).map(|payload_canonical| CheckedSubmission {
+        manifest,
+        payload_canonical,
+        payload_hash,
+        producer_run_id,
+        result_hash_hex,
+        rule_packs_not_resolved,
+    }))
+}
+
+const MANIFEST: &str = "ANALYSIS-RUN-MANIFEST-MISMATCH";
+const RESULT: &str = "ANALYSIS-RUN-RESULT-MISMATCH";
+
+/// Record Run's first binding checks, over the parsed input manifest and its
+/// SHA-256 (factored for W-18b's route 010, DEL-08-01 Design
+/// `report-user-release.md` §2.5 step 8): the manifest's hash is the record's
+/// `input_manifest_hashes[0]`, whose ref is `input_manifest_refs[0]`, and the
+/// manifest and its model payload are `project_id`'s. Returns the payload.
+fn check_manifest_binding<'m>(project_id: &str, transient: &Value, manifest: &'m Value, manifest_hash_hex: &str) -> Result<&'m Value, String> {
     let claimed = single_manifest_hash(transient);
-    if claimed.and_then(|hash| hash.get("value")).and_then(Value::as_str) != Some(manifest_hash_hex.as_str()) {
+    if claimed.and_then(|hash| hash.get("value")).and_then(Value::as_str) != Some(manifest_hash_hex) {
         return Err(refused(
             MANIFEST,
             format_args!("the input manifest hashes to {manifest_hash_hex}, not the record's input_manifest_hashes[0]"),
@@ -686,9 +721,15 @@ pub(crate) fn checked_submission(
     if manifest_project != Some(project_id) || crate::project_id_from_model(model_payload) != project_id {
         return Err(refused(MANIFEST, format_args!("the input manifest is not of project `{project_id}`", project_id = stored_read::shown(&project_id))));
     }
-    let payload_canonical = stored_read::jcs_text(memory, "the run to record's model payload", model_payload)?;
-    let payload_hash = format!("sha256:{}", sha256_hex(payload_canonical.get()));
+    Ok(model_payload)
+}
 
+/// Record Run's checks of the record itself (factored, as
+/// [`check_manifest_binding`]): a transient v0.3 record (`created_at` null,
+/// the synthetic `state:<project>:preview` ref) whose status is v0.3's words,
+/// each at most once, whose own checksum verifies, and whose members the
+/// manifest fixes are the manifest's. Returns the recomputed record hash.
+fn check_transient_record(project_id: &str, transient: &Value, manifest: &Value, manifest_hash_hex: &str, memory: &dyn ReadMemory) -> Result<String, String> {
     const RECORD: &str = "ANALYSIS-RUN-NOT-TRANSIENT";
     if transient.get("schema_version").and_then(Value::as_str) != Some("0.3.0")
         || transient.pointer("/run_contract_status/record_contract").and_then(Value::as_str)
@@ -715,7 +756,6 @@ pub(crate) fn checked_submission(
     if !status_accepted {
         return Err(refused(RECORD, "the record's analysis status is not a list of v0.3's status words, each at most once"));
     }
-    let run_id = transient.pointer("/analysis_run/run_id").and_then(Value::as_str).unwrap_or("");
     let claim = single_hash(transient, "analysis_run_record");
     let recomputed = run_record_hash_within(transient, memory, "the run to record's record").map_err(|error| {
         if error.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE) { error } else { refused(RECORD, error) }
@@ -724,41 +764,60 @@ pub(crate) fn checked_submission(
         return Err(refused(RECORD, format_args!("the record's own checksum does not verify (it hashes to {recomputed})")));
     }
     // The members the manifest fixes, from the manifest (never from the record).
-    if let Some(name) = first_difference(transient, &manifest_members(&manifest, &manifest_hash_hex, false).map_err(|error| refused(MANIFEST, error))?) {
+    if let Some(name) = first_difference(transient, &manifest_members(manifest, manifest_hash_hex, false).map_err(|error| refused(MANIFEST, error))?) {
         return Err(refused(MANIFEST, format_args!("the record's {name} is not the input manifest's")));
     }
+    Ok(recomputed)
+}
 
-    let head: ResultHead = serde_json::from_str(result_json)
-        .map_err(|error| refused(RESULT, format_args!("the result is not a mechanics result ({error})", error = stored_read::json_error(&error))))?;
-    let result_reservation = memory.reserve("the run to record's result", result_parse)?;
-    let result: Value = serde_json::from_str(result_json)
-        .map_err(|error| refused(RESULT, format_args!("the result is not JSON ({error})", error = stored_read::json_error(&error))))?;
-    let result_hash_hex = stored_read::checked_sha256_text(memory, "the run to record's result", result_json, &result).map_err(|error| {
-        if error.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE) { error } else { refused(RESULT, error) }
-    })?;
+/// The parsed result a record is checked against, with its run, its project
+/// and its checked SHA-256.
+struct RecordResult<'a> {
+    result: &'a Value,
+    run_id: &'a str,
+    model_ref: &'a str,
+    hash_hex: &'a str,
+}
+
+/// Record Run's checks of the record against its result (factored, as
+/// [`check_manifest_binding`]): the result is the record's received result
+/// (its checked SHA-256 and ref), of the record's run and `project_id`; the
+/// checksum inventory is exactly v0.3's; every row's checksum; and the
+/// record's diagnostics are the result's, then exactly the rule-pack
+/// reference diagnostics of the references the manifest leaves out. Returns
+/// whether the record was made before rule-pack resolution.
+fn check_record_result(
+    project_id: &str,
+    transient: &Value,
+    recomputed: &str,
+    bound: &RecordResult<'_>,
+    manifest: &Value,
+    memory: &dyn ReadMemory,
+) -> Result<bool, String> {
+    let run_id = transient.pointer("/analysis_run/run_id").and_then(Value::as_str).unwrap_or("");
     let received = single_hash(transient, "received_result");
-    if received.and_then(|hash| hash.get("value")).and_then(Value::as_str) != Some(result_hash_hex.as_str())
+    if received.and_then(|hash| hash.get("value")).and_then(Value::as_str) != Some(bound.hash_hex)
         || received.and_then(|hash| hash.get("payload_ref"))
-            != Some(&reference("ResultEnvelope", &format!("result-envelope:{}", head.run_id)))
+            != Some(&reference("ResultEnvelope", &format!("result-envelope:{}", bound.run_id)))
     {
-        return Err(refused(RESULT, format_args!("the result hashes to {result_hash_hex}, not the record's received result")));
+        return Err(refused(RESULT, format_args!("the result hashes to {}, not the record's received result", bound.hash_hex)));
     }
-    if head.run_id != run_id || head.model_ref != project_id {
+    if bound.run_id != run_id || bound.model_ref != project_id {
         return Err(refused(RESULT, "the result is not the record's run of this project"));
     }
     // The whole checksum inventory, exactly: algorithm, profile, scope, payload
     // ref and value of both checksums, nothing else (v0.3; S1's exact descriptors).
-    if transient.pointer("/analysis_run/hashes") != Some(&expected_hashes(run_id, &recomputed, &result_hash_hex)) {
+    if transient.pointer("/analysis_run/hashes") != Some(&expected_hashes(run_id, recomputed, bound.hash_hex)) {
         return Err(refused("ANALYSIS-RUN-CHECKSUM-MISMATCH", "the record's checksum descriptors are not exactly the v0.3 ones"));
     }
-    if let Some(detail) = result_rows_difference(transient, &result, memory).map_err(|error| {
+    if let Some(detail) = result_rows_difference(transient, bound.result, memory).map_err(|error| {
         if error.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE) { error } else { refused(RESULT, error) }
     })? {
         return Err(refused("ANALYSIS-RUN-CHECKSUM-MISMATCH", detail));
     }
     // The record's diagnostics: the result's, then the rule-pack reference
     // diagnostics of exactly the references the manifest leaves out.
-    let difference = diagnostics_difference(transient, &result, &manifest).map_err(|error| refused(MANIFEST, error))?;
+    let difference = diagnostics_difference(transient, bound.result, manifest).map_err(|error| refused(MANIFEST, error))?;
     match difference {
         Some(DiagnosticsDifference::Producer) => return Err(refused(RESULT, "the record's diagnostics do not begin with the result's")),
         Some(DiagnosticsDifference::RulePacks) => {
@@ -769,16 +828,37 @@ pub(crate) fn checked_submission(
         }
         Some(DiagnosticsDifference::NotResolved) | None => {}
     }
-    let rule_packs_not_resolved = difference == Some(DiagnosticsDifference::NotResolved);
-    drop((result, result_reservation));
-    Ok(payload_canonical.holding(manifest_reservation).map(|payload_canonical| CheckedSubmission {
-        manifest,
-        payload_canonical,
-        payload_hash,
-        producer_run_id: run_id.to_string(),
-        result_hash_hex,
-        rule_packs_not_resolved,
-    }))
+    Ok(difference == Some(DiagnosticsDifference::NotResolved))
+}
+
+/// Record Run's binding checks over values a caller has already parsed and
+/// bound (W-18b's route 010, DEL-08-01 Design `report-user-release.md` §2.5
+/// step 8): the same checks, in the same order, as [`checked_submission`],
+/// with the run record's transient form, its own checksum, the members the
+/// manifest fixes, the exact two-hash inventory, every row's checksum and the
+/// diagnostics. `manifest_hash_hex` is the SHA-256 of the manifest's canonical
+/// text, which the caller has bound; the result's checked SHA-256 is computed
+/// here, its texts reserved in `memory`. Returns whether the record was made
+/// before rule-pack resolution (the caller refuses that too).
+pub(crate) fn check_record_for_values(
+    project_id: &str,
+    transient: &Value,
+    result: &Value,
+    manifest: &Value,
+    manifest_hash_hex: &str,
+    memory: &dyn ReadMemory,
+) -> Result<bool, String> {
+    check_manifest_binding(project_id, transient, manifest, manifest_hash_hex)?;
+    let recomputed = check_transient_record(project_id, transient, manifest, manifest_hash_hex, memory)?;
+    let run_id = result.get("run_id").and_then(Value::as_str);
+    let model_ref = result.get("model_ref").and_then(Value::as_str);
+    let (Some(run_id), Some(model_ref)) = (run_id, model_ref) else {
+        return Err(refused(RESULT, "the result is not a mechanics result (it has no run_id or model_ref text)"));
+    };
+    let hash_hex = stored_read::checked_sha256(memory, "the run record's result", result).map_err(|error| {
+        if error.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE) { error } else { refused(RESULT, error) }
+    })?;
+    check_record_result(project_id, transient, &recomputed, &RecordResult { result, run_id, model_ref, hash_hex: &hash_hex }, manifest, memory)
 }
 
 // ---------------------------------------------------------------------------

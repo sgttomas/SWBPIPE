@@ -29,6 +29,7 @@ mod rule_solver_selection;
 mod solve_attestation;
 mod solve_jobs;
 mod solve_worker;
+mod user_release_admission;
 mod worker_alloc;
 #[cfg(test)]
 mod rule_check_object_form_tests;
