@@ -65,8 +65,10 @@ blocking behavior.
 | `local_private` | Retain private values only when explicit local/private user intent is recorded; emit warning findings. |
 | `user_released_report` | A report of the user's own session in which the user releases their own project data for sharing, for that one report, with their statement that they hold the redistribution right (`docs/IP_AND_DATA_BOUNDARY.md` §6). Admitted only on route `DREP-PACKAGE-USER-RELEASE-010` with the wrapper's user-release intent. After the professional-claim, network, SQL, storage-bypass, secret, payload, protected and quarantined/rejected checks, which apply as in every context, it decides in this order (and a concrete path then redacts only what (10)-(13) did not block; see Input Contract): (10) a private class other than `private_project_data` is redacted (`PRIVATE_DATA_REDACTED`) whatever its redistribution status, so a lossless route withholds it; (11) `private_project_data`, whatever its redistribution status, is retained with a `USER_RELEASED_PROJECT_DATA` warning only with the wrapper's user-release intent, else blocks (`USER_RELEASE_INTENT_REQUIRED`); (12) public metadata and invented public examples are included; (13) anything else, including missing, unknown, `TBD` or unrecognized metadata, blocks (`USER_RELEASE_VALUE_UNBOUND`), never warning-only. Payload-carried intent of any name is not read. |
 
-The five existing contexts keep every decision on every input, and the
-release intent cannot enable export in them: the controls refuse
+The five existing contexts keep every decision on every input except where the
+Input Contract below makes it stricter (for example, private data with
+`concrete_path_present: true` and no local intent now blocks where it was
+redacted), and the release intent cannot enable export in them: the controls refuse
 `explicit_user_release_intent` with any context other than
 `user_released_report` (DEL-08-01 Design `report-user-release.md` §3), and
 local-first route admission refuses it there with `block_storage` /
@@ -292,14 +294,17 @@ was decided right after the payload check and so returned `redact_value` ahead
 of the protected, quarantined/rejected, intent and user-release blocks; for
 example `concrete_path_present: true` downgraded a `protected_suspected` block.
 
-**Labels.** A `privacy_classification` or `redistribution_status` that is not a
-string (an array, object, number or boolean) is a stated label that matches no
-class: it is not unknown, safe, private or protected, and it does not fall back
-to the provenance, so the item takes the fallback decision unless its other
+**Labels.** A `privacy_classification` or `redistribution_status` that is
+neither a string nor null (an array, object, number or boolean) is a stated
+label that matches no class: it is not unknown, safe, private or protected, and
+it does not fall back to the provenance, so the item takes the fallback decision unless its other
 label decides it. A `review_status` that is not a string reads as `unknown` and
 so gives way to the provenance's. The same holds on the item and in its
 provenance, and for the route projector's public basis: `["public"]` is not
-public. Python no longer raises `TypeError` on an array or object label.
+public. Python no longer raises `TypeError` on an array or object label. A
+null label is unchanged: it falls back to the provenance, as an absent one does,
+so null privacy and redistribution under public, permissive provenance are
+included (`SAFE_PUBLIC_METADATA`).
 
 **Flags.** All three recognize the strings `true`, `yes`, `explicit`,
 `present`, `local_private` and `explicit_local_private`, compared after
@@ -341,6 +346,13 @@ agree case for case. Strictness is the total order `include` < `warning_only` <
 action in every public or shared context. The classifier produces no
 `redact_field` or `omit_field`. The shared corpus's `input-contract-*` cases
 pin one case per rule for all three suites.
+
+"Less strictly" compares actions among decisions that existed before. It does
+not cover inputs on which Python raised `TypeError` and so produced no output:
+those now take the decision TypeScript and the Rust mirror already gave, which
+can be `include` (192 sweep cases; for example public, permissive labels with
+`review_status: []`). That follows the contract's label rule; it is not an
+action loosening, but such an output is newly available from Python.
 
 The runners' fixed `control_local_private` projection is untouched: it reads
 none of these labels, flags or `professional_claim`. It strips the intent keys
