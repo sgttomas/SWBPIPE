@@ -2285,7 +2285,44 @@ build configuration as well as the sources:
   None of the five manifests holds either today. `src-tauri`'s lock does
   hold a TOML crate, but parsing with it would mean a new dependency edge,
   so it is not used. An override that takes effect also moves the resolved
-  identities above.
+  identities above. This is the one check that still matches manifest
+  text: `cargo metadata` does not report `[patch]` or `[replace]`, and the
+  text rule only adds findings to what the resolved identities establish.
+- **Dependents (code review r8 at #1682).** The packages that depend on each
+  reporting package are derived from Cargo, not from manifest text:
+  - **Which packages.** Every file named `Cargo.toml` under
+    `projects/chirality-piping/`, at any depth (`.git` aside; `target` and
+    `node_modules` are not skipped; symbolic links to directories are not
+    followed), and every path dependency reachable from them, inside the
+    project or not. A workspace's members count as packages.
+  - **How each is read.** `cargo metadata --format-version 1 --offline
+    --locked --no-deps --manifest-path <manifest>`, run in the manifest's
+    directory, which needs no download. A dependency is on a reporting
+    package when Cargo reports its package name (`dependencies[].name`,
+    the normalized name whatever the key's quoting or dotting, with a
+    rename in `rename`) as one, or its `path` as one's directory. Every
+    kind (normal, `dev`, `build`) and every platform `target` counts.
+  - **Allowed dependents, exactly** (`REPORTING_DEPENDENTS`), each by
+    package name and canonical manifest:
+    - `report_package`: `openpipestress-desktop`
+      (`apps/desktop/src-tauri/Cargo.toml`) and
+      `open_pipe_stress_headless_runner` (`core/runner/headless/Cargo.toml`);
+    - `report_renderer`: `openpipestress-desktop`,
+      `open_pipe_stress_pdf_emitter` and `open_pipe_stress_report_package`;
+    - `pdf_emitter`: `open_pipe_stress_report_package`.
+
+    The reporting packages' manifests are those the scan read. Any other
+    dependent, by any spelling, rename or kind, is a finding. So is an
+    allowed dependent that no longer depends on its package, because the
+    lists are exact.
+  - **Resolved graph.** In the shell's resolved graph (above), every
+    package that depends on a reporting package, by
+    `resolve.nodes[].dependencies` and `deps[].pkg`, must be on its allowed
+    list.
+  - **Fail closed.** A manifest whose metadata Cargo does not give, offline
+    and locked, is a finding naming it, never a skip. So is a directory
+    that cannot be read. Today every one of the 43 manifests is read; each
+    is a package.
 - **Test-only items.** In the three reporting crates, `#[cfg(test)]` items
   and test modules, inline or outlined, are no longer skipped. They are read
   under the rules that keep the proof unforgeable:
@@ -2483,6 +2520,30 @@ build configuration as well as the sources:
     finding, and one that depends on no reporting crate is not.
   - **Dependency sets:** each parser crate moved to normal dependencies, an
     added PDF crate dependency and a renamed dependency.
+  - **Code review r8 at #1682, dependents, on scratch projects that Cargo
+    reads** (copies of the shell and the headless runner at their real
+    relative paths): each of these gives exactly one finding, for the
+    runner copy's dependency on the renderer:
+    - the reviewer's quoted key under `[dependencies]`, with the
+      library's crate-alias call;
+    - a quoted key under `[dev-dependencies]` and under
+      `[build-dependencies]`;
+    - a `[target.'cfg(unix)'.dependencies]` entry;
+    - a dotted key in `[dependencies]` and under a target table;
+    - a rename, plain and single-quoted;
+    - a path to the renderer under another package name.
+
+    A new package whose root-level dotted key
+    `dependencies.open_pipe_stress_report_renderer.path` names the renderer
+    is one finding for that package. A manifest Cargo cannot read is one
+    finding. A package outside the project, reached through a quoted-key
+    path dependency from the shell copy, is a finding in the walk and, once
+    the copy's lock is updated offline, in its resolved graph. The unedited
+    copies (today's dependents) and the real tree pass. The fixtures read
+    the manifest without resolving it, so they do not update the runner's
+    lock: an offline resolve of the runner fails where only the shell's
+    dependencies are fetched, and `--no-deps` metadata does not read the
+    lock.
   - **Shell test-only forms, on the real sources:** a call through a crate
     alias, a glob of the renderer, an import of the pair, a crate binding,
     the pair as a value and in `assert!` tokens, a test-only macro joining
@@ -2652,15 +2713,18 @@ function's own name, whatever path comes before it.
 *Also asserted:*
 - no source under `core/runner` calls `assemble_derived` or the bridge
   function;
-- the project's Cargo manifests that depend on
-  `open_pipe_stress_report_renderer` are exactly `src-tauri`'s, `pdf_emitter`'s
-  and `report_package`'s, and only `report_package`'s depends on
-  `open_pipe_stress_pdf_emitter`.
+- the packages that depend on each reporting package are exactly the
+  allowed ones, as Cargo reports every package in the project and every path
+  dependency reachable from them (*Build configuration*, "Dependents").
 
-A new caller, re-export, dependent, module path, included file, macro
-definition, macro invocation, attribute or derive outside the lists, or a
-changed `app_invoke_handler`, fails the scan, so changing one is reviewed as a
-change to this boundary.
+A new caller, re-export, module path, included file, macro definition, macro
+invocation, attribute or derive outside the lists, or a changed
+`app_invoke_handler`, fails the scan. So does a new dependent of a reporting
+package: since code review r8 the dependents are part of the scan test's
+build-configuration check, derived from Cargo's metadata rather than
+manifest text, so a quoted, dotted, renamed, development, build or
+platform-specific dependency is one too. Changing any of these is reviewed
+as a change to this boundary.
 
 *What the scan does not establish.*
 - **Code that does not call the functions.** The scan pins the calls of the
