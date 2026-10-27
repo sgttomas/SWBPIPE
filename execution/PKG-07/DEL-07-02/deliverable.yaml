@@ -185,6 +185,7 @@ code_paths:
 - schemas/results.schema.yaml
 - apps/desktop/src/features/workspace/table/**
 - apps/desktop/src/features/model-data/**
+- apps/desktop/src/features/workspace/contextMenu/**
 checks:
 - apps/desktop/src/features/model-tree/ModelTree.test.tsx
 - apps/desktop/src/features/model-tree/typedInspector.test.tsx
@@ -200,3 +201,8 @@ checks:
 - apps/desktop/e2e/b4-sections.spec.ts
 - apps/desktop/src/features/model-data/modelData.test.tsx
 - apps/desktop/src/features/workspace/selectionReveal.test.tsx
+- apps/desktop/src/features/model-tree/ModelTree.contextMenu.test.tsx
+- apps/desktop/src/features/workspace/contextMenu/ContextMenu.test.tsx
+- apps/desktop/src/features/workspace/contextMenu/EntityContextMenu.test.tsx
+- apps/desktop/src/App.contextMenu.test.tsx
+- apps/desktop/src/features/workspace/table/EngineeringTable.contextMenu.test.tsx

@@ -384,6 +384,27 @@ it. When the wait did pass, the render ran on a closed page, and on the exact
 route the package save chose Report a third time to reopen it. `native-smoke/driver.test.mjs` covers both cases, an open
 section and a hidden one. Timeouts are unchanged.
 
+The other show helpers follow the same rule, and every show first yields one
+task before it samples. React draws a click's update in a microtask, after the
+driver's own synchronous code, so a sample taken straight after a click sees
+the page as it was.
+- Review changes (`showOperations`). Queuing an intent opens Review changes
+  itself. In run 1 of the #1679 smoke at `15c1996957`, the from-blank load
+  step sampled the Load Cases stage before the queue's navigation was drawn.
+  That stage has no Review changes tab, so the driver chose View > Review
+  changes, which closed the page that had just opened, and the wait timed out
+  after 120 s. The rerun passed because its first sample ran before the
+  toggle landed.
+  - The driver now sends nothing when the page shows.
+  - Otherwise it uses the Model stage's tab, which only opens the page, and
+    the menu only where that tab is not shown.
+- Closing a page (`closeSection`) waits until its Close control is gone,
+  instead of a fixed 200 ms.
+- The Inspector toggle (`ensureInspector`) is pressed at most once and waited
+  for until open, instead of a fixed 300 ms.
+
+`driver.test.mjs` covers each. No timeout was raised.
+
 A step the window reports as failed stops the driver at once with that
 report, rather than waiting out its timeout. One example is a solve whose job
 reaches a terminal state other than `completed`: `refused`, `failed` or
