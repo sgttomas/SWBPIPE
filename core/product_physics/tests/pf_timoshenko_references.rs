@@ -15,19 +15,6 @@
 //! listed mutants; the Euler–Bernoulli twins as the breach control on every row
 //! marked `discriminating`; and the realized-arc controls, which the product must
 //! not match on every row marked `arc_timoshenko_discriminating`.
-//!
-//! **Two request-authoring defects, returned to the reference owner.** Sixteen
-//! frozen requests are refused by the product for reasons unrelated to beam
-//! theory, both twins alike: SS-MID and the four PHI2 families author a `guide`
-//! restraining RX (`SUPPORT_INPUT_INVALID`, "Rx is not valid for Guide"), and the
-//! three NL families omit each nonlinear support's explicit `initial_state`
-//! (`NONLINEAR_SUPPORT_INITIAL_STATE_MISSING`). Each such frozen request is solved
-//! and must be refused by exactly that code; its copy is then re-authored in
-//! memory ([`reauthor_defects`]: the same restraint set in the `anchor` family,
-//! and the solver's initial seed, `inactive` or `sticking`, which the converged
-//! state the rows record does not depend on) and judged like every other request.
-//! No expected value is touched. Once the owner re-authors the requests (their
-//! hashes move, their rows do not), the refusal assertion fails and the list goes.
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
 
@@ -98,52 +85,6 @@ const EULER_BERNOULLI_ID: &str = "openpipestress.result_semantics/0.3.0/preview-
 const EULER_BERNOULLI_PROFILE: &str = "product_preview_mechanics_v1";
 const EULER_BERNOULLI_LIMITATION_0: &str = "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.";
 const AUXETIC: &str = "PFT-PHI2-EXACT-AUXETIC-TIMOSHENKO";
-/// The frozen requests the product refuses for an authoring defect, with the refusal code.
-const REQUEST_DEFECTS: [(&str, &str); 16] = [
-    ("PFT-SS-MID-TIMOSHENKO", GUIDE_RX),
-    ("PFT-SS-MID-EULER-BERNOULLI", GUIDE_RX),
-    ("PFT-PHI2-NEAREST-TIMOSHENKO", GUIDE_RX),
-    ("PFT-PHI2-NEAREST-EULER-BERNOULLI", GUIDE_RX),
-    ("PFT-PHI2-PLUS2ULP-TIMOSHENKO", GUIDE_RX),
-    ("PFT-PHI2-PLUS2ULP-EULER-BERNOULLI", GUIDE_RX),
-    ("PFT-PHI2-MINUS2ULP-TIMOSHENKO", GUIDE_RX),
-    ("PFT-PHI2-MINUS2ULP-EULER-BERNOULLI", GUIDE_RX),
-    ("PFT-PHI2-EXACT-AUXETIC-TIMOSHENKO", GUIDE_RX),
-    ("PFT-PHI2-EXACT-AUXETIC-EULER-BERNOULLI", GUIDE_RX),
-    ("PFT-NL-ONEWAY-TIMOSHENKO", NO_INITIAL_STATE),
-    ("PFT-NL-ONEWAY-EULER-BERNOULLI", NO_INITIAL_STATE),
-    ("PFT-NL-GAP-TIMOSHENKO", NO_INITIAL_STATE),
-    ("PFT-NL-GAP-EULER-BERNOULLI", NO_INITIAL_STATE),
-    ("PFT-NL-FRICTION-TIMOSHENKO", NO_INITIAL_STATE),
-    ("PFT-NL-FRICTION-EULER-BERNOULLI", NO_INITIAL_STATE),
-];
-const GUIDE_RX: &str = "SUPPORT_INPUT_INVALID";
-const NO_INITIAL_STATE: &str = "NONLINEAR_SUPPORT_INITIAL_STATE_MISSING";
-
-/// The in-memory repair of the two defects (see the module comment), or `None` when the
-/// request has neither: a `guide` restraining a rotation becomes an `anchor` with the same
-/// restraints, and a nonlinear support without `initial_state` is seeded `inactive`
-/// (one-way, gap) or `sticking` (friction).
-fn reauthor_defects(request: &Value) -> Option<Value> {
-    let mut copy = request.clone();
-    let mut changed = false;
-    for support in copy["model"]["supports"].as_array_mut().unwrap() {
-        let rotational = support["restraints"].as_array().unwrap().iter().any(|dof| dof.as_str().unwrap().starts_with('R'));
-        if support["family"] == json!("guide") && rotational {
-            support["family"] = json!("anchor");
-            changed = true;
-        }
-        if let Some(nonlinear) = support.get_mut("nonlinear").and_then(Value::as_object_mut) {
-            if !nonlinear.contains_key("initial_state") {
-                let seed = if nonlinear["behavior"] == json!("friction") { "sticking" } else { "inactive" };
-                nonlinear.insert("initial_state".into(), json!(seed));
-                changed = true;
-            }
-        }
-    }
-    changed.then_some(copy)
-}
-
 /// A frozen row's identity: (kind, entity_ref, component, location, basis ref_id).
 type Key = (String, String, String, String, String);
 
@@ -243,7 +184,6 @@ struct Tally {
     twin_breaches: usize,
     arc_control_breaches: usize,
     passed: usize,
-    refused_frozen: usize,
 }
 
 /// Every request through the value entry in both modes, judged against its record.
@@ -262,11 +202,7 @@ fn pf_timoshenko_references_agree_in_both_solver_modes() {
             continue;
         }
         tally.documents += 1;
-        let frozen_request = request(case);
-        let defect = REQUEST_DEFECTS.iter().find(|(defective, _)| *defective == id).map(|(_, code)| *code);
-        let repaired = reauthor_defects(&frozen_request);
-        assert_eq!(defect.is_some(), repaired.is_some(), "{id}: the defect list names exactly the requests the repair changes");
-        let request = repaired.unwrap_or_else(|| frozen_request.clone());
+        let request = request(case);
         let timoshenko = case["shear_model"] == json!("timoshenko_annulus_energy_v1");
         let frozen = rows(&by_id, case);
         let twin = case["twin"].as_str().map(|twin| rows(&by_id, by_id[twin]));
@@ -276,14 +212,6 @@ fn pf_timoshenko_references_agree_in_both_solver_modes() {
             .map(|control| rows(&by_id, control));
         for mode in MODES {
             let context = format!("{id} {mode:?}");
-            if let Some(code) = defect {
-                let refused = solve(&frozen_request, mode);
-                assert!(refused["status"]["mechanics"] != json!("MECHANICS_SOLVED") && codes(&refused, Some("blocking")).contains(&code.to_owned()),
-                    "{context}: the frozen request is refused by {code}; once re-authored, remove it from REQUEST_DEFECTS: {}", refused["diagnostics"]);
-                let identity = if timoshenko { TIMOSHENKO_ID } else { EULER_BERNOULLI_ID };
-                assert_eq!(refused["producer"]["semantic_contract_id"], json!(identity), "{context}: a blocked envelope's identity");
-                tally.refused_frozen += 1;
-            }
             let envelope = solve(&request, mode);
             tally.solves += 1;
             // The result identity, on solved and blocked envelopes alike.
@@ -421,7 +349,6 @@ fn pf_timoshenko_references_agree_in_both_solver_modes() {
     assert_eq!(tally.documents, 48);
     assert_eq!(tally.solves, 96);
     assert_eq!(tally.cancellation_rows, 12, "the six theta_B rows in both modes");
-    assert_eq!(tally.refused_frozen, 32, "the sixteen defective frozen requests in both modes");
     assert_eq!(auxetic, ["SparseInteractive: admitted and solved", "DenseScrutiny: admitted and solved"],
         "nu = -5/9 lies in the factor's range (-1, 1/2), so the product admits the exact phi = 2 control");
 }
