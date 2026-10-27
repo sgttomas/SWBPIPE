@@ -118,11 +118,18 @@ import {
   availableResultColourQuantities,
   buildResultColourOverlay,
   resultColourTable,
-  resultOverlayCases
+  resultOverlayCases,
+  type ResultColourDisplay,
+  type ResultColourResolution
 } from "./resultColourOverlay";
 import { buildReactionOverlay, type ReactionVector } from "./reactionOverlay";
 import { instancedReactionForceMeshes, instancedReactionMomentMeshes, type ReactionArrowPlacement } from "./viewportReactionArrows";
-import { ResultOverlayLegend, type OverlayFocus } from "./ResultOverlayLegend";
+import { ResultOverlayLegend, useDisplayPerStored, type OverlayFocus } from "./ResultOverlayLegend";
+import { contourValueLabels, thresholdInOverlayUnit } from "./resultContour";
+import { buildResultContourMesh, contourMeshMembers, type ContourMeshMember } from "./resultContourMesh";
+import { ResultValueLabels, resultValueLabelAnchors } from "./ResultValueLabels";
+import { buildStressRatioTable } from "../results/stressRatioTable";
+import type { SessionRuleCheckRun } from "../report/renderableReportInput";
 import type { ResultOverlayStanding } from "../results/numericalHealth";
 import type { ViewportPaletteRole } from "./viewportPalette";
 import {
@@ -239,6 +246,9 @@ type Props = {
   /** The reader's numerical standing and the session's numerical health view of `result`. The
    * result overlays (colour, reaction arrows) draw only rows these admit; absent, they draw none. */
   resultStanding?: ResultOverlayStanding | null;
+  /** The session's rule-check run of `result`, for the result colour's rule ratios (A4); App passes
+   * it only while `result` is the current solved result it was run on. */
+  ruleCheckRun?: SessionRuleCheckRun | null;
   selection: EntityRef;
   selectionState?: OrderedSelectionState;
   /** Presentation-only clearance below viewport furniture and the painted orientation frame. */
@@ -438,6 +448,7 @@ export function PipeViewport({
   reservedIntents = [],
   result = null,
   resultStanding = null,
+  ruleCheckRun = null,
   selection,
   selectionState,
   presentationBottomInsetPx = 0,
@@ -528,6 +539,12 @@ export function PipeViewport({
   const [reactionsOn, setReactionsOn] = useState(false);
   const [overlayQuantityId, setOverlayQuantityId] = useState<string | null>(null);
   const [overlayCaseKey, setOverlayCaseKey] = useState<string | null>(null);
+  // Result contour (A4): along members or one value per member, colours or numbers, and the
+  // threshold. Session view state, never persisted and never model data.
+  const [overlayResolution, setOverlayResolution] = useState<ResultColourResolution>("member");
+  const [overlayDisplay, setOverlayDisplay] = useState<ResultColourDisplay>("colour");
+  const [overlayThresholdOn, setOverlayThresholdOn] = useState(false);
+  const [overlayThresholdText, setOverlayThresholdText] = useState("");
   // Deflected-shape controls (A5): session view state, never persisted and never model data.
   // The case is null for each node's governing row (the normalized drawing); the factor is
   // null for the case's default; the phase runs from 0 (undeformed) to 1 (deformed).
@@ -711,14 +728,30 @@ export function PipeViewport({
   const deformation = useMemo(() => deformationAtPhase(model, fullDeformation, drawnPhase), [drawnPhase, fullDeformation, model]);
   const rotation = useMemo(() => buildRotationOverlay(model, result, { basisKey: deflectionCase?.key ?? null }), [deflectionCase, model, result]);
   const elementAxes = useMemo(() => elementAxesFrame ? buildElementAxesView(model, elementAxesFrame) : null, [elementAxesFrame, model]);
-  const overlayQuantities = useMemo(() => availableResultColourQuantities(model, result), [model, result]);
+  // The rule ratios come from the stress and ratio table's own reading of the session's run (A3).
+  const ratioTable = useMemo(
+    () => resultColourOn && ruleCheckRun ? buildStressRatioTable({ model, result, standing: resultStanding, ruleCheckRun }) : null,
+    [model, result, resultColourOn, resultStanding, ruleCheckRun]
+  );
+  const overlayQuantities = useMemo(() => availableResultColourQuantities(model, result, ratioTable), [model, ratioTable, result]);
   const overlayCase = overlayCases.find((item) => item.key === overlayCaseKey) ?? overlayCases[0] ?? null;
   const overlayQuantity = overlayQuantities.find((item) => item.id === overlayQuantityId) ?? overlayQuantities[0] ?? null;
   const colourOverlay = useMemo(
-    () => resultColourOn ? buildResultColourOverlay({ model, result, standing: resultStanding, quantity: overlayQuantity, overlayCase }) : null,
-    [model, overlayCase, overlayQuantity, result, resultColourOn, resultStanding]
+    () => resultColourOn
+      ? buildResultColourOverlay({ model, result, standing: resultStanding, quantity: overlayQuantity, overlayCase, resolution: overlayResolution, ratioTable })
+      : null,
+    [model, overlayCase, overlayQuantity, overlayResolution, ratioTable, result, resultColourOn, resultStanding]
   );
-  const colourTable = useMemo(() => colourOverlay ? resultColourTable(model, colourOverlay) : null, [colourOverlay, model]);
+  const displayPerStored = useDisplayPerStored(colourOverlay?.unit ?? null, colourOverlay?.quantity?.dimension ?? null);
+  const overlayThreshold = colourOverlay && overlayThresholdOn ? thresholdInOverlayUnit(overlayThresholdText, displayPerStored) : null;
+  const colourTable = useMemo(
+    () => colourOverlay ? resultColourTable(model, colourOverlay, { threshold: overlayThreshold, display: overlayDisplay }) : null,
+    [colourOverlay, model, overlayDisplay, overlayThreshold]
+  );
+  const contourValues = useMemo(
+    () => colourOverlay && overlayDisplay === "numbers" ? contourValueLabels(colourOverlay, { threshold: overlayThreshold }) : null,
+    [colourOverlay, overlayDisplay, overlayThreshold]
+  );
   const reactionOverlay = useMemo(
     () => reactionsOn ? buildReactionOverlay({ model, result, standing: resultStanding, overlayCase }) : null,
     [model, overlayCase, reactionsOn, result, resultStanding]
@@ -731,6 +764,25 @@ export function PipeViewport({
     ),
     [activeModelIndex, model, renderTransform]
   );
+  // The contour sleeves (A4): members drawn along their length, minus hidden and dimmed members.
+  // Without sleeves the value keeps one identity, so the result layer is not rebuilt for nothing.
+  const contourMembers = useMemo(() => overlayDisplay !== "colour" || colourOverlay?.state !== "available" || colourOverlay.resolution !== "station"
+    ? NO_CONTOUR_MEMBERS
+    : contourMeshMembers(model, colourOverlay, {
+      nodes: localNodeMap,
+      radii: geometryMode === "actual-od" ? actualOd.radii : new Map(),
+      defaultRadius: 0.052,
+      threshold: overlayThreshold,
+      excluded: new Set([...hiddenKeys, ...dimmedKeys])
+    }), [actualOd, colourOverlay, dimmedKeys, geometryMode, hiddenKeys, localNodeMap, model, overlayDisplay, overlayThreshold]);
+  const contourValueAnchors = useMemo(() => contourValues ? resultValueLabelAnchors(
+    contourValues.labels.filter((label) => !hiddenKeys.has(entityKey({ type: "pipe", id: label.memberId }))),
+    new Map(model.pipe_segments.flatMap((pipe) => {
+      const from = localNodeMap.get(pipe.from);
+      const to = localNodeMap.get(pipe.to);
+      return from && to ? [[pipe.id, { from, to }] as const] : [];
+    }))
+  ) : null, [contourValues, hiddenKeys, localNodeMap, model]);
   const visibleIntents = onQueueIntent ? viewportIntents(queuedIntents) : localIntents;
   const pendingViewportIntents = [...reservedIntents, ...queuedIntents, ...localIntents];
   const routeNodeMap = useMemo(
@@ -1423,9 +1475,11 @@ export function PipeViewport({
       resultObjects.push(...instancedReactionForceMeshes(reactionArrowGroups(model, reactionOverlay.forces, renderTransform.origin, activeModelIndex)));
       resultObjects.push(...instancedReactionMomentMeshes(reactionArrowGroups(model, reactionOverlay.moments, renderTransform.origin, activeModelIndex)));
     }
+    // Painted for the resource's theme as the layer takes them (`paintResultContourTheme`).
+    resultObjects.push(...spatialGroups(activeModelIndex, contourMembers).flatMap((group) => buildResultContourMesh(group, "light") ?? []));
     resource.replaceLayer(resource.resultLayer, resultObjects);
     applySelectionPresentation(resource, orderedSelectionKeys);
-  }, [activeModelIndex, deformation, model, reactionOverlay, renderTransform, rotation]);
+  }, [activeModelIndex, contourMembers, deformation, model, reactionOverlay, renderTransform, rotation]);
 
   // The element axis triads live in the diagnostic layer: annotations of the model that are
   // neither the element (no halo, no pick) nor a result, rebuilt when the frame or model changes.
@@ -2725,6 +2779,26 @@ export function PipeViewport({
             reactions={reactionOverlay}
             standing={resultStanding}
             focus={overlayFocus(hoveredEntityKey, selection)}
+            contour={colourOverlay ? {
+              resolution: overlayResolution,
+              onResolutionChange: setOverlayResolution,
+              display: overlayDisplay,
+              onDisplayChange: setOverlayDisplay,
+              thresholdOn: overlayThresholdOn,
+              onThresholdOnChange: setOverlayThresholdOn,
+              thresholdText: overlayThresholdText,
+              onThresholdTextChange: setOverlayThresholdText,
+              threshold: overlayThreshold,
+              numbers: contourValues && contourValueAnchors ? { selected: contourValueAnchors.length, candidates: contourValues.candidateCount } : null
+            } : null}
+          />
+        ) : null}
+        {colourOverlay?.state === "available" && colourOverlay.quantity && contourValueAnchors ? (
+          <ResultValueLabels
+            anchors={contourValueAnchors}
+            unit={colourOverlay.unit ?? ""}
+            dimension={colourOverlay.quantity.dimension}
+            resourceRef={viewportResourceRef}
           />
         ) : null}
         {deformation.state === "available" ? (
@@ -4047,6 +4121,8 @@ function viewportChange(
       : "viewport editor gesture review intent; pending_service_validation"
   };
 }
+
+const NO_CONTOUR_MEMBERS: ReadonlyMap<EntityKey, ContourMeshMember> = new Map();
 
 function spatialGroups<T>(index: ModelIndex, entries: ReadonlyMap<EntityKey, T>): T[][] {
   const groups: T[][] = [];

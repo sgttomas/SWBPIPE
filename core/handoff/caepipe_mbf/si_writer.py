@@ -22,6 +22,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from fractions import Fraction
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -121,8 +122,10 @@ MATERIAL_ORIGINS = ("project_invented", "user_supplied")
 _TITLE_MAX = 70
 _DESCRIPTION_MAX = 30
 # The writer sidecar's format (Design §15). Format 2 records the effective value of every field, never null or another
-# sentinel for a default to fill; a sidecar without `sidecar_format` is a legacy one, from main's tranche-1 writer.
-SIDECAR_FORMAT = 2
+# sentinel for a default to fill; format 3 is format 2 with its self-digest `sidecar_sha256`. A sidecar without
+# `sidecar_format` is a legacy one, from main's tranche-1 writer.
+SIDECAR_FORMAT = 3
+SIDECAR_DIGEST_KEY = "sidecar_sha256"
 _MAX_NODES = 9999  # node numbers 10, 20, ... stay below 99999
 
 
@@ -163,9 +166,10 @@ class MbfSiResult:
         }
 
     def sidecar(self, mbf_sha256: str) -> dict[str, Any]:
-        """The writer sidecar of the written text whose SHA-256 is `mbf_sha256` (Design §15), format 2: what a bound
+        """The writer sidecar of the written text whose SHA-256 is `mbf_sha256` (Design §15), format 3: what a bound
         import restores and the MBF does not carry, each field with its effective value. What the MBF determines
-        (layout order, record names, numbers, bend geometry, sections) is not repeated in it."""
+        (layout order, record names, numbers, bend geometry, sections) is not repeated in it. Its `sidecar_sha256` is
+        the self-digest of the rest (sidecar_self_digest)."""
         record = self.to_dict()
 
         def element(entry: Mapping[str, Any]) -> dict[str, Any]:
@@ -175,7 +179,7 @@ class MbfSiResult:
             return {**kept, "y_reference": entry["y_reference"], "y_reference_authored": entry["y_reference_authored"]}
 
         pressure = record["pressure_map"]
-        return {
+        body = {
             "sidecar_format": SIDECAR_FORMAT,
             "node_map": record["node_map"],
             "element_map": {key: element(entry) for key, entry in record["element_map"].items()},
@@ -191,6 +195,102 @@ class MbfSiResult:
                                          for region in pressure["regions"]]},
             "mbf_sha256": mbf_sha256,
         }
+        return {**body, SIDECAR_DIGEST_KEY: sidecar_self_digest(body)}
+
+
+# Maps whose entries a JSON path names as map[key], as the importer's sidecar parser names them; other fields .field.
+_KEYED_MAPS = ("node_map", "element_map", "support_map", "load_case_map", "material_map", "section_map", "load_map")
+_ESCAPES = {'"': '\\"', "\\": "\\\\", "\b": "\\b", "\t": "\\t", "\n": "\\n", "\f": "\\f", "\r": "\\r"}
+
+
+class SidecarNotCanonical(ValueError):
+    """A sidecar value that has no canonical serialisation (sidecar_canonical_bytes), at the JSON path `path`."""
+
+    def __init__(self, path: str, reason: str) -> None:
+        super().__init__(f"{path}: {reason}")
+        self.path, self.reason = path, reason
+
+
+def sidecar_canonical_bytes(sidecar: Mapping[str, Any]) -> bytes:
+    """The byte-exact canonical serialisation of `sidecar` without its `sidecar_sha256`, which the self-digest covers
+    (Design §15): RFC 8785 (JCS). Members are sorted by key as UTF-16 code units, with no whitespace (`,` and `:`
+    alone separate); a string escapes `"` and `\\` with a backslash, U+0008, U+0009, U+000A, U+000C and U+000D as
+    `\\b \\t \\n \\f \\r`, the other controls below U+0020 as `\\u00xx` (lowercase hex), and nothing else; a number is
+    the binary64 it denotes (1 and 1.0 are one value, -0 is 0), written as ECMAScript's Number::toString writes it;
+    then `true`, `false`, `null`; the whole in UTF-8, no BOM and no final newline. A value with no such form (a
+    non-finite number, an integer that is not exactly a binary64, a lone surrogate, a key that is not a string, or
+    anything but a JSON value) raises SidecarNotCanonical naming its path."""
+    def child(path: str, key: str) -> str:
+        return f"{path}[{key}]" if path in _KEYED_MAPS else (f"{path}.{key}" if path else key)
+
+    def text(value: str, path: str) -> str:
+        try:
+            value.encode("utf-8")
+        except UnicodeEncodeError:
+            raise SidecarNotCanonical(path, "holds a lone surrogate, which has no UTF-8 form") from None
+        return '"' + "".join(_ESCAPES.get(char) or (f"\\u{ord(char):04x}" if char < " " else char)
+                             for char in value) + '"'
+
+    def walk(value: Any, path: str) -> str:
+        if value is None or type(value) is bool:
+            return {None: "null", True: "true", False: "false"}[value]
+        if type(value) is int:
+            try:
+                exact = float(value) == value
+            except OverflowError:
+                exact = False
+            if not exact:
+                raise SidecarNotCanonical(path, "is an integer that is not exactly a binary64 number")
+            return _canonical_number(float(value))
+        if type(value) is float:
+            if not math.isfinite(value):
+                raise SidecarNotCanonical(path, "is not a finite number")
+            return _canonical_number(value)
+        if type(value) is str:
+            return text(value, path)
+        if type(value) is list:
+            return "[" + ",".join(walk(item, f"{path}[{index}]") for index, item in enumerate(value)) + "]"
+        if type(value) is dict:
+            for key in value:
+                if type(key) is not str:
+                    raise SidecarNotCanonical(path, f"has a key {key!r} that is not a string")
+                text(key, child(path, key))
+            ordered = sorted(value, key=lambda key: key.encode("utf-16-be"))
+            return "{" + ",".join(f"{text(key, child(path, key))}:{walk(value[key], child(path, key))}"
+                                  for key in ordered) + "}"
+        raise SidecarNotCanonical(path or "sidecar", f"is a {type(value).__name__}, not a JSON value")
+
+    if type(sidecar) is not dict:
+        raise SidecarNotCanonical("sidecar", "must be an object")
+    return walk({key: value for key, value in sidecar.items() if key != SIDECAR_DIGEST_KEY}, "").encode("utf-8")
+
+
+def sidecar_self_digest(sidecar: Mapping[str, Any]) -> str:
+    """The sidecar's self-digest (Design §15): the lowercase hex SHA-256 of sidecar_canonical_bytes."""
+    return hashlib.sha256(sidecar_canonical_bytes(sidecar)).hexdigest()
+
+
+def _canonical_number(value: float) -> str:
+    """ECMAScript's Number::toString of the finite binary64 `value` (RFC 8785 §3.2.2.3): the fewest decimal digits
+    that read back as `value`, the nearest where several do (Python's repr gives these digits), placed as ECMAScript
+    places them for the decimal exponent n of value = 0.digits x 10^n."""
+    if value == 0:
+        return "0"
+    mantissa, _, exponent = repr(abs(value)).partition("e")
+    whole, _, fraction = mantissa.partition(".")
+    significant = (whole + fraction).lstrip("0")
+    n = len(whole) + int(exponent or 0) - (len(whole + fraction) - len(significant))
+    digits = significant.rstrip("0")
+    k = len(digits)
+    sign = "-" if value < 0 else ""
+    if k <= n <= 21:
+        return sign + digits + "0" * (n - k)
+    if 0 < n <= 21:
+        return sign + digits[:n] + "." + digits[n:]
+    if -6 < n <= 0:
+        return sign + "0." + "0" * -n + digits
+    e = n - 1
+    return sign + digits[0] + ("." + digits[1:] if k > 1 else "") + "e" + ("+" if e >= 0 else "-") + str(abs(e))
 
 
 def _known(value: Any, table: Mapping[str, Any]) -> bool:
@@ -1469,6 +1569,11 @@ class _Writer:
             loss_report=self.loss,
             assumptions=self.assumptions,
         )
+        try:  # the self-digest covers canonical JSON content only (Design §15)
+            result.sidecar("0" * 64)
+        except SidecarNotCanonical as error:
+            self.invalid(error.path, f"the sidecar's {error.path} {error.reason}; the sidecar has no self-digest")
+            return self.refused()
         if self.contract is not None and self.regenerating is None and not self.survives_reimport(result):
             return self.refused()
         return result

@@ -13,6 +13,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from fractions import Fraction
+import hashlib
+import json
 import math
 from typing import Any, Mapping
 
@@ -522,3 +524,82 @@ def unoriented(form: Canonical, limits: Mapping[tuple, float]) -> tuple[Canonica
                       {_unoriented_key(key): unordered(key, value) for key, value in form.sets.items()
                        if key[0] != "support"}),
             {_unoriented_key(key): value for key, value in limits.items()})
+
+
+# --- the sidecar's self-digest (Design §15), written independently of si_writer.sidecar_canonical_bytes ---------------
+SELF_DIGEST_KEY = "sidecar_sha256"
+
+
+def jcs_number(value: float) -> str:
+    """RFC 8785's form of a finite binary64: the fewest significant digits p whose correctly rounded p-digit form
+    reads back as `value` (the nearest p-digit decimal reads back whenever any does), placed by ECMAScript's rules."""
+    if value == 0:
+        return "0"
+    magnitude = abs(value)
+    text = next(text for text in (f"{magnitude:.{p}e}" for p in range(17)) if float(text) == magnitude)
+    mantissa, exponent = text.split("e")
+    digits, n = mantissa.replace(".", "").rstrip("0"), int(exponent) + 1  # value = 0.digits x 10^n
+    k = len(digits)
+    if k <= n <= 21:
+        body = digits + "0" * (n - k)
+    elif 0 < n <= 21:
+        body = f"{digits[:n]}.{digits[n:]}"
+    elif -6 < n <= 0:
+        body = "0." + "0" * -n + digits
+    else:
+        body = f"{digits[0]}{'.' + digits[1:] if k > 1 else ''}e{n - 1:+d}"
+    return ("-" if value < 0 else "") + body
+
+
+def jcs(value: Any) -> str:
+    """RFC 8785 (JCS) text of a JSON value; ValueError where it has none."""
+    if value is None or isinstance(value, bool):
+        return json.dumps(value)
+    if isinstance(value, int):
+        try:
+            number = float(value)
+        except OverflowError:
+            number = math.nan
+        if number != value:
+            raise ValueError(f"{value!r} is not exactly a binary64")
+        return jcs_number(number)
+    if isinstance(value, float):
+        if not math.isfinite(value):
+            raise ValueError(f"{value!r} is not finite")
+        return jcs_number(value)
+    if isinstance(value, str):
+        # Python's json escapes what RFC 8785 escapes, and as it does: quote, backslash, the five short forms, and
+        # the other controls below U+0020 as lowercase \u00xx; nothing else.
+        text = json.dumps(value, ensure_ascii=False)
+        text.encode("utf-8")  # a lone surrogate raises
+        return text
+    if isinstance(value, list):
+        return "[" + ",".join(jcs(item) for item in value) + "]"
+    if isinstance(value, dict):
+        if not all(isinstance(key, str) for key in value):
+            raise ValueError("a key is not a string")
+        def units(key: str) -> list[int]:  # UTF-16 code units, the order RFC 8785 sorts by
+            data = key.encode("utf-16-be")
+            return [int.from_bytes(data[i:i + 2], "big") for i in range(0, len(data), 2)]
+        return "{" + ",".join(f"{jcs(key)}:{jcs(value[key])}" for key in sorted(value, key=units)) + "}"
+    raise ValueError(f"{type(value).__name__} is not a JSON value")
+
+
+def self_digest(sidecar: Mapping[str, Any]) -> str:
+    """The SHA-256 of the RFC 8785 UTF-8 text of `sidecar` without its self-digest."""
+    return hashlib.sha256(jcs({key: value for key, value in sidecar.items() if key != SELF_DIGEST_KEY})
+                          .encode("utf-8")).hexdigest()
+
+
+def redigested(sidecar: Any) -> Any:
+    """`sidecar` as a deliberate editor leaves it (Design §15): one carrying a well-formed self-digest gets the
+    digest of its content as it now stands, so an edit reaches the guards behind the self-digest; any other (no
+    digest, a malformed one, or content with no canonical form, which the importer refuses by path) is unchanged."""
+    if not isinstance(sidecar, dict) or not (isinstance(sidecar.get(SELF_DIGEST_KEY), str)
+                                             and len(sidecar[SELF_DIGEST_KEY]) == 64
+                                             and set(sidecar[SELF_DIGEST_KEY]) <= set("0123456789abcdef")):
+        return sidecar
+    try:
+        return {**sidecar, SELF_DIGEST_KEY: self_digest(sidecar)}
+    except (ValueError, UnicodeEncodeError, RecursionError):
+        return sidecar
