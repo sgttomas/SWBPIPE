@@ -1,6 +1,6 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { createPortal, flushSync } from "react-dom";
-import { adjacentTabStop, recoverMenuFocus } from "./menuFocus";
+import { adjacentTabStop, canTakeFocus, recoverMenuFocus } from "./menuFocus";
 
 export { adjacentTabStop, recoverMenuFocus } from "./menuFocus";
 
@@ -9,7 +9,8 @@ export { adjacentTabStop, recoverMenuFocus } from "./menuFocus";
 // runs that command's own handler. WAI-ARIA menu semantics: role="menu" with menuitems, the
 // first item focused on open, Arrow keys, Home and End to move, Enter or Space to act,
 // Escape to close, Tab and Shift+Tab to close and move to the next or previous tab stop. A
-// disabled item stays focusable (aria-disabled) and states why. An item runs first; focus is
+// disabled item stays focusable (aria-disabled) and states why. At the document's ends Tab
+// is left to the browser, from the invoker. An item runs first; focus is
 // then recovered only if the command left it nowhere (see `recoverMenuFocus`).
 
 export type ContextMenuCommand = Readonly<{
@@ -101,14 +102,27 @@ export function ContextMenu({ label, entries, request, onClose, testId = "contex
     if (restoreFocus) recover();
   }
 
-  function tabAway(backward: boolean) {
+  /**
+   * Closes the menu and moves to the tab stop after (or before) the invoker. At the document's
+   * end (or start) there is none: focus goes back to the invoker and the browser's own Tab
+   * proceeds from it, leaving the web content as it does natively. Returns true then, so that
+   * the key's default action is not prevented.
+   */
+  function tabAway(backward: boolean): boolean {
     const request = latest.current.request;
     const menu = menuRef.current;
     dismiss();
     const reference = request.returnFocus?.isConnected ? request.returnFocus : candidates(request).find((element) => element.isConnected) ?? null;
     const next = reference ? adjacentTabStop(reference, backward, menu) : null;
-    next?.focus();
-    if (document.activeElement !== next) recover();
+    if (next) {
+      next.focus();
+      if (document.activeElement === next) return false;
+    } else if (reference && canTakeFocus(reference)) {
+      reference.focus();
+      if (document.activeElement === reference) return true;
+    }
+    recover();
+    return false;
   }
 
   // Keep the menu inside the window.
@@ -177,7 +191,7 @@ export function ContextMenu({ label, entries, request, onClose, testId = "contex
     else if (event.key === "Home") move("first");
     else if (event.key === "End") move("last");
     else if (event.key === "Enter" || event.key === " ") { if (command) activate(command); }
-    else if (event.key === "Tab") tabAway(event.shiftKey);
+    else if (event.key === "Tab") { if (tabAway(event.shiftKey)) return; }
     else if (event.key === "Escape" || isContextMenuKey(event)) close(true);
     else if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
       // Type-ahead: the next item whose label starts with the typed character.

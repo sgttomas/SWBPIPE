@@ -8,15 +8,23 @@ import { canSurfaceRevealNow } from "../surfaceReveal";
 // Scope: the product has no positive tabindex and no authored shadow roots, so the order here
 // is document order over tabindex 0 stops, with the browser's exclusions, radio groups and
 // iframes. A positive tabindex is treated as 0 and a shadow root's contents are not entered.
+// The reference is a single control (the supported invokers are); a container reference
+// excludes all of its own descendants. At the document's ends there is no next stop: the menu
+// then leaves Tab to the browser, from the invoker, so focus leaves the web content as it
+// does natively.
 
 const TAB_STOP = [
   "a[href]", "area[href]", "button", "input:not([type=\"hidden\"])", "select", "textarea", "iframe", "summary",
   "[tabindex]", "[contenteditable]:not([contenteditable=\"false\"])"
 ].join(", ");
 
-/** Disabled itself, or inside a disabled fieldset outside that fieldset's first legend. */
+/**
+ * Disabled itself, or a form control inside a disabled fieldset outside that fieldset's first
+ * legend. A link in a disabled fieldset is not a form control and stays a stop.
+ */
 function disabled(element: HTMLElement): boolean {
   if ("disabled" in element && (element as HTMLButtonElement).disabled) return true;
+  if (!element.matches("button, input, select, textarea")) return false;
   for (let fieldset = element.closest("fieldset"); fieldset; fieldset = fieldset.parentElement?.closest("fieldset") ?? null) {
     if (!fieldset.disabled) continue;
     const legend = fieldset.querySelector(":scope > legend");
@@ -41,38 +49,40 @@ function tryFocus(element: HTMLElement): boolean {
   return document.activeElement === element;
 }
 
+/** The radios sharing `radio`'s name and form owner, wherever they sit (a `form` attribute can associate one outside its form). */
 function radioGroup(radio: HTMLInputElement): HTMLInputElement[] {
-  const scope: ParentNode = radio.form ?? radio.ownerDocument;
-  return [...scope.querySelectorAll<HTMLInputElement>("input[type=\"radio\"]")].filter((candidate) =>
+  return [...radio.ownerDocument.querySelectorAll<HTMLInputElement>("input[type=\"radio\"]")].filter((candidate) =>
     candidate.name === radio.name && (candidate.form ?? null) === (radio.form ?? null));
 }
 
-/** A named radio group is one stop: its checked radio, or else its first that can take focus. */
-function radioStop(radio: HTMLInputElement): boolean {
+/**
+ * A named radio group is one stop: its checked radio, or else, with none checked, its first
+ * radio that can take focus going forward and its last going backward.
+ */
+function radioStop(radio: HTMLInputElement, backward: boolean): boolean {
   if (!radio.name) return true;
   const group = radioGroup(radio).filter(canTakeFocus);
   const checked = group.find((candidate) => candidate.checked);
-  return (checked ?? group[0]) === radio;
+  return (checked ?? (backward ? group[group.length - 1] : group[0])) === radio;
 }
 
 /** Every element the browser's Tab visits, in order, outside `exclude` (the menu). */
-export function tabStops(exclude: Element | null = null): HTMLElement[] {
+export function tabStops(exclude: Element | null = null, backward = false): HTMLElement[] {
   return [...document.querySelectorAll<HTMLElement>(TAB_STOP)].filter((element) =>
     element.tabIndex >= 0 && !exclude?.contains(element) && canTakeFocus(element) &&
-    !(element instanceof HTMLInputElement && element.type === "radio" && !radioStop(element)));
+    !(element instanceof HTMLInputElement && element.type === "radio" && !radioStop(element, backward)));
 }
 
 /**
- * The tab stop after (or before) `reference`, as Tab from it would reach. Past the last stop
- * Tab wraps to the first, and Shift+Tab before the first wraps to the last: the desktop window
- * has no browser chrome for focus to leave to. With no other stop, the reference itself.
+ * The tab stop after (or before) `reference`, as Tab from it would reach, or null at the
+ * document's end (or start). There the browser's Tab leaves the web content (Chromium, and
+ * macOS WKWebView in the review's probe); the caller lets it, rather than wrapping.
  */
 export function adjacentTabStop(reference: HTMLElement, backward: boolean, exclude: Element | null): HTMLElement | null {
-  const stops = tabStops(exclude).filter((element) => element !== reference && !reference.contains(element));
+  const stops = tabStops(exclude, backward).filter((element) => element !== reference && !reference.contains(element));
   const follows = (element: HTMLElement) => Boolean(reference.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING);
-  if (stops.length === 0) return canTakeFocus(reference) ? reference : null;
-  if (backward) return [...stops].reverse().find((element) => !follows(element)) ?? stops[stops.length - 1];
-  return stops.find(follows) ?? stops[0];
+  if (backward) return [...stops].reverse().find((element) => !follows(element)) ?? null;
+  return stops.find(follows) ?? null;
 }
 
 /** A region, section, tab panel, dialog or heading that takes programmatic focus: a place, not an action. */

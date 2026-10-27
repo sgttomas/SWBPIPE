@@ -110,24 +110,33 @@ the existing commands' own where they have one:
   are visited.
 - Enter or Space runs the item. Escape, Shift+F10 or the ContextMenu key
   closes the menu.
-- Tab and Shift+Tab close the menu and move focus to the tab stop after or
-  before the element the menu was opened from, as Tab from that element would
-  (`menuFocus.ts`, `adjacentTabStop`). Neither key reaches the surface below.
+- Tab and Shift+Tab close the menu and use custom document-order tab-stop
+  traversal from the invoking element (`menuFocus.ts`, `adjacentTabStop`).
+  Neither key reaches the surface below; a table's ordinary cell-to-cell Tab
+  handler does not run.
   - A stop is an element with tabindex 0 (natively or set) that can take
     focus. That rules out:
-    - disabled elements, and those inside a disabled fieldset other than in
-      its first legend;
+    - disabled elements, and form controls inside a disabled fieldset other
+      than in its first legend (a link there stays a stop, as natively);
     - elements under `inert`;
     - elements that are not laid out (the reveal helper's test);
     - elements with `visibility: hidden` or `collapse`.
-  - A named radio group is one stop: its checked radio, or else its first
-    radio that can take focus.
+  - A named radio group is one stop: its checked radio. With none checked, it
+    is the first radio that can take focus going forward, and the last going
+    backward. The group is every radio with the same name and form owner,
+    including one associated with a form it sits outside.
   - An iframe is a stop.
-  - Past the last stop Tab wraps to the first, and Shift+Tab before the first
-    wraps to the last, because the desktop window has no browser chrome for
-    focus to leave to.
+  - At the document's ends there is no next stop. Past the last stop, or
+    before the first, the menu closes, puts focus back on the invoker and does
+    not prevent the key. The browser's own Tab then proceeds from the invoker
+    and leaves the web content, as native traversal does. The review's probes
+    show `BODY` active and `document.hasFocus()` false in Chromium and in
+    macOS WKWebView. jsdom has no default Tab action, so the regression checks
+    that the key is not prevented and that focus is on the invoker.
   - Out of scope, because the product has none: a positive tabindex is treated
     as 0, and a shadow root's contents are not entered.
+  - The reference is a single control, as every supported invoker is. A
+    container reference would exclude all its own descendants.
 - An item runs in the same update that closes the menu, and focus is judged
   afterwards (`recoverMenuFocus`). A command that throws still closes the menu
   and gets focus back; its error then propagates as before.
@@ -170,8 +179,9 @@ the existing commands' own where they have one:
 ## Evidence
 
 - `features/workspace/contextMenu/ContextMenu.test.tsx`: menu semantics, the
-  keyboard model, the Tab order (disabled fieldset, radio groups, invisible,
-  inert, iframe, both ends) and focus after commands that remove, hide,
+  keyboard model, the Tab order (disabled fieldset and a link in one, radio
+  groups in both directions and across a form attribute, invisible, inert,
+  iframe, both document edges) and focus after commands that remove, hide,
   throw, or focus and then hide.
 - `features/workspace/contextMenu/EntityContextMenu.test.tsx`: the Remove-panel
   intents and the reasons.
@@ -203,6 +213,9 @@ and stays where a command put it. With the menu and tree sources as they were
 at #1679's second revision, 10 of the 13 Tab-order, command-focus and
 empty-grid tests added in the third fail. The three that pass are an
 unchecked radio group, an inert subtree and Shift+Tab out of a radio layout,
-which the second revision already handled.
+which the second revision already handled. With the menu sources as they were
+at #1679's third revision, all 5 tests added in the fourth fail: the two
+document-edge cases, the link in a disabled fieldset, Shift+Tab into an
+unchecked radio group and a radio associated with a form it sits outside.
 
 Native checks of the menus remain open.

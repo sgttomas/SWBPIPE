@@ -245,20 +245,31 @@ describe("focus after a command changes the invoking surface", () => {
 
 // Tab from the menu reaches what the browser's Tab from the invoker would (the review's
 // Chromium probes, TAB_ORDER): disabled controls, those in a disabled fieldset, inert and
-// CSS-invisible ones are skipped, a radio group is one stop, an iframe is a stop, and the ends
-// wrap. Positive tabindex and shadow roots are outside the product's scope (Design).
-type Layout = "fieldset" | "radio" | "radio-unchecked" | "visibility" | "inert" | "iframe" | "edge-first" | "edge-last";
+// CSS-invisible ones are skipped (a link in a disabled fieldset is not), a radio group is one
+// stop wherever its radios sit, an iframe is a stop, and at the document's ends the browser's
+// own Tab proceeds from the invoker (NATIVE_EXTRA; the WebKit edge probe). Positive tabindex
+// and shadow roots are outside the product's scope (Design).
+type Layout = "fieldset" | "fieldset-link" | "radio" | "radio-unchecked" | "radio-unchecked-before" | "radio-outside-form" | "visibility" | "inert" | "iframe" | "edge-first" | "edge-last";
 function TabPage({ layout }: { layout: Layout }) {
   const [request, setRequest] = useState<ContextMenuRequest | null>(null);
   return (
     <div>
       {layout !== "edge-first" ? <button type="button" id="before">Before</button> : null}
+      {layout === "radio-unchecked-before" ? <>
+        <input id="radio-a" type="radio" name="invented-radio" />
+        <input id="radio-b" type="radio" name="invented-radio" />
+      </> : null}
       <button type="button" id="invoker" onKeyDown={(event) => {
         if (!isContextMenuKey(event)) return;
         event.preventDefault();
         setRequest(keyboardMenuRequest(event.currentTarget));
       }}>Invoker</button>
       {layout === "fieldset" ? <fieldset disabled><button type="button" id="inherited">Disabled inherited</button></fieldset> : null}
+      {layout === "fieldset-link" ? <fieldset disabled><a href="#invented" id="link">Link</a><button type="button">Disabled</button></fieldset> : null}
+      {layout === "radio-outside-form" ? <>
+        <form id="invented-form"><input id="radio-a" type="radio" name="invented-radio" /></form>
+        <input id="radio-b" type="radio" name="invented-radio" form="invented-form" defaultChecked />
+      </> : null}
       {layout === "radio" || layout === "radio-unchecked" ? <>
         <input id="radio-a" type="radio" name="invented-radio" />
         <input id="radio-b" type="radio" name="invented-radio" defaultChecked={layout === "radio"} />
@@ -276,26 +287,34 @@ function tabFromMenu(backward = false) {
   const invoker = document.getElementById("invoker")!;
   invoker.focus();
   fireEvent.keyDown(invoker, { key: "F10", shiftKey: true });
-  fireEvent.keyDown(screen.getByRole("menu"), { key: "Tab", shiftKey: backward });
+  const notPrevented = fireEvent.keyDown(screen.getByRole("menu"), { key: "Tab", shiftKey: backward });
   expect(screen.queryByRole("menu")).toBeNull();
-  return (document.activeElement as HTMLElement).id;
+  return { id: (document.activeElement as HTMLElement).id, notPrevented };
 }
 
 describe("Tab from the menu follows the browser's tab order", () => {
   it.each([
     ["fieldset", "Tab", "after"],
+    ["fieldset-link", "Tab", "link"],
+    ["radio-unchecked-before", "Shift+Tab", "radio-b"],
+    ["radio-outside-form", "Tab", "radio-b"],
     ["radio", "Tab", "radio-b"],
     ["radio-unchecked", "Tab", "radio-a"],
     ["visibility", "Tab", "after"],
     ["inert", "Tab", "after"],
     ["iframe", "Tab", "frame"],
-    ["edge-last", "Tab", "before"],
-    ["edge-first", "Shift+Tab", "after"],
     ["radio", "Shift+Tab", "before"]
   ] as const)("in a %s layout, %s reaches #%s", (layout, key, expected) => {
     render(<TabPage layout={layout} />);
-    expect(tabFromMenu(key === "Shift+Tab")).toBe(expected);
+    expect(tabFromMenu(key === "Shift+Tab")).toEqual({ id: expected, notPrevented: false });
   });
+
+  it.each([["edge-last", "Tab"], ["edge-first", "Shift+Tab"]] as const)(
+    "at the document's edge (%s, %s), closes and leaves the browser's own Tab to proceed from the invoker", (layout, key) => {
+      render(<TabPage layout={layout} />);
+      // jsdom has no default Tab action; the review's WebKit probe shows focus then leaving the web content.
+      expect(tabFromMenu(key === "Shift+Tab")).toEqual({ id: "invoker", notPrevented: true });
+    });
 });
 
 // Commands that throw, or that put focus somewhere and then hide it (COMMAND_FOCUS), and the
