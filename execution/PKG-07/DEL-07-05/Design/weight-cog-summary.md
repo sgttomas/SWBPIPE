@@ -187,22 +187,44 @@ binary64 range. The derivation refuses rather than shows a non-finite or underfl
   weight is outside the representable range; no total or centre of gravity is formed."
 - The centre of gravity is formed range-safely. Every weight is first scaled by the one power of
   two 2^s that brings the largest weight into [1, 2), and Σ(2^s·wᵢ·pᵢ)/Σ(2^s·wᵢ) is formed. The
-  scaling is exact, and a power of two commutes with binary64 rounding in the normal range, so
-  every model whose products and sums stay in the normal range gets bit-for-bit the unscaled
-  formula's result. The scaled sum of weights cannot overflow, and a subnormal weight no longer
-  underflows its products: a span from 0 to 10⁻²⁰⁰ m weighing about 5.969 × 10⁻³¹⁰ N has its
-  centre of gravity at 5 × 10⁻²⁰¹ m, not 0.
-- No centre of gravity is formed, with the reason, when a scaled weight, a product with a nonzero
-  coordinate, or a nonzero moment's quotient falls below the normal range ("A weighted position
-  falls below the normal binary64 range, where it would lose precision; …", which needs weights
-  about 2¹⁰²² apart or subnormal coordinates), or when a moment or the result is not finite ("The
-  centre of gravity is outside the representable range; none is formed."). The finite total is
-  still shown then, because it does not depend on the moments.
+  scaled sum of weights cannot overflow, and a subnormal weight no longer underflows its products:
+  a span from 0 to 10⁻²⁰⁰ m weighing about 5.969 × 10⁻³¹⁰ N has its centre of gravity at
+  5 × 10⁻²⁰¹ m, not 0.
+- Scaling a weight is exact only when its exact scaled value 2^s·wᵢ is at least 2⁻¹⁰²², the
+  smallest normal binary64 value. Below that it is rounded, and it can round up to 2⁻¹⁰²² and pass
+  a range test: 2 N beside 2·2⁻¹⁰²² − 2⁻¹⁰⁷⁴ N halves the smaller to 2⁻¹⁰²², and its altered moment
+  can cancel to exactly 0. So a scaled weight is used only when it is normal and scales back to the
+  stated weight; that holds exactly when 2^s·wᵢ ≥ 2⁻¹⁰²², that is, unless the weights are about
+  2¹⁰²² apart. Otherwise no centre of gravity is formed: "The counted weights are about 2^1022
+  apart or more, so the smaller cannot be scaled exactly within the normal binary64 range; no
+  centre of gravity is formed."
+- A product with a nonzero coordinate, or a nonzero moment's quotient, whose magnitude is at most
+  2⁻¹⁰²² is refused ("A weighted position falls below the normal binary64 range, where it would
+  lose precision; …"). Rounding is monotone, so a larger rounded value had a normal exact value.
+  A value equal to 2⁻¹⁰²² may have been rounded up from below, so it is refused even when exact.
+  This needs weights about 2¹⁰²² apart or coordinates near the subnormal range.
+- Sums of the accepted products are rounded in the normal range, and a sum whose exact value is
+  subnormal is exact, so no further step rounds below the normal range. A moment or result that is
+  not finite is refused ("The centre of gravity is outside the representable range; none is
+  formed."). In every refusal the finite total is still shown, because it does not depend on the
+  moments.
+- The weights and positions themselves are formed as §3.3 states (an engine weight, a span
+  length times an intensity, a midpoint, a node plus an offset), each by ordinary binary64
+  operations; the guards above cover the centre-of-gravity arithmetic on them.
 
-Ordinary results do not change. The only changed results are those whose unscaled moments
-overflowed with a finite total, which had no centre of gravity before and now have the correct
-one, and those whose products underflowed, which had a wrong one before and now have the correct
-one or a stated refusal.
+**Agreement with the unscaled formula.** An accepted step is an ordinary binary64 operation on
+exactly scaled values, and a power of two commutes with rounding in the normal range. So when every
+product, sum and quotient of the unscaled formula Σ(wᵢ·pᵢ)/Σwᵢ is zero or normal and finite, the
+centre of gravity is bit-for-bit the unscaled formula's result. Ordinary models are of this kind,
+and their results do not change. Otherwise the result is the scaled formula's or a stated refusal:
+
+- unscaled moments that overflowed with a finite total had no centre of gravity before and now have
+  the correct one;
+- products that underflowed gave a wrong one before and now give the correct one or a refusal;
+- weights about 2¹⁰²² apart are refused.
+
+A scaled moment can also leave the range where the unscaled one does not, when the largest weight
+is below 1 and a coordinate is near the binary64 maximum; that is refused, never shown.
 
 **Partial.** The summary is partial when a scope pipe is not counted, a component weight is not
 included or a scope reference is unresolved. `countedPipeCount` is the scope pipes whose weight (or
@@ -332,6 +354,9 @@ changes no model, result or export and persists nothing.
   - range: an overflowing total (unavailable), a subnormal span's centre of gravity, mixed
     magnitudes, a coordinate whose product overflows, and bit-for-bit agreement with the unscaled
     formula on ordinary sets;
+  - inexact scaling refused: the weight 2·2⁻¹⁰²² − 2⁻¹⁰⁷⁴ beside 2 N (refused, total shown),
+    exactly scaled weights at 2·2⁻¹⁰²² and just above it (centre given, bit-for-bit the unscaled
+    formula's), and a product rounded up to 2⁻¹⁰²² that would cancel a moment to 0 (refused);
   - a selection subset, and the unavailable states;
   - two tests through the actual candidate engines. The bundled demo: valve C-130's 420 N stands
     for `pipe:P-130` at (7.72, 2.42, 0) m, the other pipes state no density, 7 calls. An invented
@@ -339,7 +364,10 @@ changes no model, result or export and persists nothing.
     invented three-pipe model: two components sharing identity `V` on different pipes refuse the
     whole request (each pipe alone gives 30 N), the same behind another pipe's own refusal (joint
     request), a member mapped by two components split as pipe-local, and a `not_solver_consumed`
-    valve listed in the model, line and selection scopes.
+    valve listed in the model, line and selection scopes. Codex r2's case: components of 2 N and
+    2·2⁻¹⁰²² − 2⁻¹⁰⁷⁴ N at X = −2.2250738585072014 m and 10³⁰⁸ m under gravity along global X,
+    where the engine accepts the request and the centre of gravity is refused with its reason while
+    the 2 N total is shown.
 - `apps/desktop/src/features/results/WeightSummaryPanel.test.tsx`:
   - the gravity alert, with no call;
   - the display rule in the weight and centre-of-gravity cells, with no full-precision value in the

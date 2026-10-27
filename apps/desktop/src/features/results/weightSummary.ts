@@ -337,8 +337,10 @@ function sumByUnit(entities: readonly WeightEntity[]): Readonly<{ unit: string; 
 const NORMAL_MIN = 2 ** -1022;
 const CENTRE_OVERFLOW = "The centre of gravity is outside the representable range; none is formed.";
 const CENTRE_UNDERFLOW = "A weighted position falls below the normal binary64 range, where it would lose precision; no centre of gravity is formed.";
+const CENTRE_WEIGHT_SPREAD = "The counted weights are about 2^1022 apart or more, so the smaller cannot be scaled exactly within the normal binary64 range; no centre of gravity is formed.";
 
-/** value × 2^exponent, in steps that stay representable (exact unless the result leaves the normal range). */
+/** value × 2^exponent, in steps that stay representable. Exact when the exact result lies in the
+ * normal range; below it the result is rounded (`weightedCentre` refuses that case). */
 function scaleByPowerOfTwo(value: number, exponent: number): number {
   let scaled = value;
   let rest = exponent;
@@ -355,12 +357,21 @@ function binaryExponent(value: number): number {
   return exponent;
 }
 
-/** Σ(wᵢ·pᵢ)/Σwᵢ (Design §3.4), range-safe. Every weight is first scaled by the one power of two
- * that brings the largest into [1, 2): the scaling is exact, so a model whose products and sums
- * stay in the normal range gets bit-for-bit the unscaled formula's result, while Σwᵢ can no longer
- * overflow and a subnormal weight no longer underflows its products. Refused, with a reason, when
- * a scaled weight or a product with a nonzero coordinate falls below the normal range, or a
- * moment or the result is not finite. */
+/** Σ(wᵢ·pᵢ)/Σwᵢ (Design §3.4), range-safe. Every weight is first scaled by the power of two 2^s
+ * that brings the largest into [1, 2), so Σwᵢ cannot overflow and a subnormal weight does not
+ * underflow its products. Each step is guarded so that no rounding happens below the normal range:
+ * - Scaling a weight is exact when its exact scaled value is normal. Otherwise it is rounded
+ *   (it may round up to 2^-1022 and pass a range test), so it is refused unless the scaled weight is
+ *   normal and scales back to the stated weight. That holds exactly when wᵢ·2^s ≥ 2^-1022.
+ * - A product with a nonzero coordinate, and a nonzero moment's quotient, is refused when its
+ *   magnitude is at most 2^-1022: rounding is monotone, so a larger rounded value had a normal exact
+ *   value, while one equal to 2^-1022 may have been rounded up from below (refused even if exact).
+ * - Sums of normal products round in the normal range; a sum whose exact value is subnormal is exact.
+ * Accepted steps are then ordinary binary64 operations on exactly scaled data, and a power of two
+ * commutes with rounding in the normal range. So when the unscaled formula's products, sums and
+ * quotients are all zero or normal and finite, the result is bit-for-bit the unscaled one; otherwise
+ * it is the scaled formula's result or a stated refusal. Also refused when a moment or the result is
+ * not finite. */
 function weightedCentre(entities: readonly WeightEntity[]): { centre: Vec3 } | { reason: string } {
   let largest = 0;
   for (const entity of entities) largest = Math.max(largest, entity.weight);
@@ -369,20 +380,20 @@ function weightedCentre(entities: readonly WeightEntity[]): { centre: Vec3 } | {
   const moments = { x: 0, y: 0, z: 0 };
   for (const entity of entities) {
     const weight = scaleByPowerOfTwo(entity.weight, shift);
-    if (!(weight >= NORMAL_MIN)) return { reason: CENTRE_UNDERFLOW };
+    if (!(weight >= NORMAL_MIN) || scaleByPowerOfTwo(weight, -shift) !== entity.weight) return { reason: CENTRE_WEIGHT_SPREAD };
     weights += weight;
     for (const axis of ["x", "y", "z"] as const) {
       const coordinate = entity.position[axis];
       const product = weight * coordinate;
       if (!Number.isFinite(product)) return { reason: CENTRE_OVERFLOW };
-      if (coordinate !== 0 && Math.abs(product) < NORMAL_MIN) return { reason: CENTRE_UNDERFLOW };
+      if (coordinate !== 0 && Math.abs(product) <= NORMAL_MIN) return { reason: CENTRE_UNDERFLOW };
       moments[axis] += product;
     }
   }
   const centre = { x: moments.x / weights, y: moments.y / weights, z: moments.z / weights };
   for (const axis of ["x", "y", "z"] as const) {
     if (!Number.isFinite(moments[axis]) || !Number.isFinite(centre[axis])) return { reason: CENTRE_OVERFLOW };
-    if (moments[axis] !== 0 && Math.abs(centre[axis]) < NORMAL_MIN) return { reason: CENTRE_UNDERFLOW };
+    if (moments[axis] !== 0 && Math.abs(centre[axis]) <= NORMAL_MIN) return { reason: CENTRE_UNDERFLOW };
   }
   return { centre: Object.freeze(centre) };
 }

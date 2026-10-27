@@ -23,6 +23,9 @@ import {
 } from "./weightSummary";
 
 const GRAVITY: WeightGravity = { value: -9.5, unit: "m/s^2", axis: "global_z" };
+const NORMAL_MIN = 2 ** -1022;
+const WEIGHT_SPREAD = "The counted weights are about 2^1022 apart or more, so the smaller cannot be scaled exactly within the normal binary64 range; no centre of gravity is formed.";
+const POSITION_UNDERFLOW = "A weighted position falls below the normal binary64 range, where it would lose precision; no centre of gravity is formed.";
 
 function model(lengthUnit = "m", scale = 1): PreviewModel {
   const node = (id: string, x: number, y: number, z: number) => ({ id, label: id, position: { x: x * scale, y: y * scale, z: z * scale }, provenance: "invented" });
@@ -354,12 +357,43 @@ describe("sums and centre of gravity", () => {
     // Weights about 2^1022 apart: the lighter one's share leaves the normal range, so no centre is formed, with the reason.
     const apart = available(centre([1e300, 1e-300], [[1, 0, 0], [2, 0, 0]]));
     expect([apart.total, apart.centreOfGravity]).toEqual([{ weight: 1e300, unit: "N" }, null]);
-    expect(apart.note).toBe("A weighted position falls below the normal binary64 range, where it would lose precision; no centre of gravity is formed.");
+    expect(apart.note).toBe(WEIGHT_SPREAD);
     // A coordinate whose weighted product leaves the range: refused, never Infinity.
     const far = available(centre([3, 3], [[1.7e308, 0, 0], [1.7e308, 0, 0]]));
     expect([far.centreOfGravity, far.note]).toEqual([null, "The centre of gravity is outside the representable range; none is formed."]);
     // Two subnormal weights.
     expect(available(centre([4e-310, 1e-309], [[1, 0, 0], [3, 0, 0]])).centreOfGravity!.x).toBeCloseTo((4 * 1 + 10 * 3) / 14, 12);
+  });
+
+  it("refuses a weight that scaling would round, at the 2·2^-1022 − MIN_VALUE boundary (Codex r2)", () => {
+    const m = model();
+    const centre = (weights: number[], positions: [number, number, number][]) => available(summarize(m, collected([plan(weights.map((weight, index) =>
+      componentEvidence(`V${index}`, `P${index + 1}`, "A", weight, positions[index])))])));
+    // Halving 2·2^-1022 − MIN_VALUE rounds up to 2^-1022; the altered moment then cancels exactly to 0.
+    const boundary = 2 * NORMAL_MIN - Number.MIN_VALUE;
+    expect(boundary / 2).toBe(NORMAL_MIN);
+    for (const positions of [[[-2.2250738585072014, 0, 0], [1e308, 0, 0]], [[0, 0, 0], [1, 0, 0]]] as [number, number, number][][]) {
+      const refused = centre([2, boundary], positions);
+      expect([refused.total, refused.centreOfGravity, refused.note]).toEqual([{ weight: 2, unit: "N" }, null, WEIGHT_SPREAD]);
+    }
+    // Exactly scaled weights next to that boundary keep their centre of gravity, bit-for-bit the unscaled formula's.
+    for (const small of [2 * NORMAL_MIN, 2 * NORMAL_MIN + 2 * Number.MIN_VALUE]) {
+      const given = centre([2, small], [[0, 0, 0], [1e308, 0, 0]]);
+      const naive = (small * 1e308) / (2 + small);
+      expect(naive).toBeGreaterThan(2.2);
+      expect([given.note, Object.is(given.centreOfGravity!.x, naive), given.centreOfGravity!.y, given.centreOfGravity!.z]).toEqual([null, true, 0, 0]);
+    }
+  });
+
+  it("refuses a weighted product that rounds up to 2^-1022 rather than cancelling it to an unqualified 0 (Codex r2)", () => {
+    // Scaled weights 1, 1 and 0.5. Along X the first two moments are normal (−3·2^-1022 and 2·2^-1022) and sum
+    // exactly to −2^-1022; the third, 0.5 · (2·2^-1022 − MIN_VALUE), rounds up to 2^-1022 and cancels it to 0,
+    // though the exact centre is −MIN_VALUE/5 m. The z axis carries an ordinary moment.
+    const m = model();
+    const summary = available(summarize(m, collected([plan([componentEvidence("V0", "P1", "A", 2, [-3 * NORMAL_MIN, 0, 1]),
+      componentEvidence("V1", "P2", "A", 2, [2 * NORMAL_MIN, 0, 1]), componentEvidence("V2", "P3", "A", 1, [2 * NORMAL_MIN - Number.MIN_VALUE, 0, 1])])])));
+    expect(0.5 * (2 * NORMAL_MIN - Number.MIN_VALUE)).toBe(NORMAL_MIN);
+    expect([summary.total, summary.centreOfGravity, summary.note]).toEqual([{ weight: 5, unit: "N" }, null, POSITION_UNDERFLOW]);
   });
 
   it("gives ordinary models bit-for-bit the unscaled centre of gravity", () => {
@@ -500,6 +534,25 @@ describe("through the actual candidate self-weight engine", () => {
     expect(summary.entities.map((item) => [item.kind, item.pipeRef, item.componentId])).toEqual([["pipe", "pipe:0", null], ["component", "pipe:2", "X"]]);
     expect(summary.componentsNotIncluded.map((item) => item.componentId)).toEqual(["V", "W"]);
     expect(summary.partial).toBe(true);
+  });
+
+  it("refuses, with its reason, a centre of gravity that inexact scaling would cancel to 0 (Codex r2 repro)", async () => {
+    // Weights 2 N and 2·2^-1022 − MIN_VALUE N at X = −2.2250738585072014 m and 1e308 m, gravity along global X.
+    const demo = await loadPreviewModel();
+    const template = demo.components!.find((item) => item.id === "component:C-130")!;
+    const m = await engineModel();
+    m.pipe_segments = m.pipe_segments.slice(1);
+    m.nodes = m.nodes.map((node) => node.id === "n:a" ? { ...node, position: { x: -2.2250738585072014, y: 0, z: 0 } }
+      : node.id === "n:c" ? { ...node, position: { x: 1e308, y: 0, z: 0 } } : { ...node, position: { x: 0, y: 0, z: 0 } });
+    const heavy = valve(template, "V", "pipe:1", "n:a");
+    const light = valve(template, "W", "pipe:2", "n:c");
+    heavy.geometry = { ...heavy.geometry, weight: { value: 2, unit: "N" } };
+    light.geometry = { ...light.geometry, weight: { value: 4.4501477170144023e-308, unit: "N" } };
+    m.components = [heavy, light];
+    const summary = available(await computeWeightSummary({ model: m, scope: weightSummaryScopes(m)[0], gravity: { value: -9.81, unit: "m/s^2", axis: "global_x" },
+      hash: computeModelHash, generate: generateSelfWeightPlan }));
+    expect(summary.entities.map((item) => [item.componentId, item.weight, item.position.x])).toEqual([["V", 2, -2.2250738585072014], ["W", 4.4501477170144023e-308, 1e308]]);
+    expect([summary.total, summary.centreOfGravity, summary.note, summary.partial]).toEqual([{ weight: 2, unit: "N" }, null, WEIGHT_SPREAD, false]);
   });
 
   it("lists a not-solver-consumed valve's stated weight in the model, line and selection scopes (Codex r1)", async () => {
