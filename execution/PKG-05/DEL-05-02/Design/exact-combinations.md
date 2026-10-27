@@ -312,7 +312,18 @@ The Rust reader is RE `exact_combination_evidence.rs`: `physics_evidence.rs`
 runs the direct pass on the document without the records and combination
 rows, then this pass re-derives every record, row, witness, gate, withheld
 name and diagnostic with its own exact products and compares them bit for
-bit; `reader_verdict.rs` binds the records to a supplied model's combinations.
+bit. A diagnostic is re-derived whole: id, code, severity, message, source and
+affected refs. A recomputed magnitude is the correctly rounded norm
+(`correct_norm::norm3`) over the whole binary64 range, subnormal and
+overflowing results included; the Python mirror forms the same rounding from
+the exact rational sum of squares, scaled into range before its estimate, and
+refuses by name if its exact midpoint test cannot establish it.
+`reader_verdict.rs` binds the records to a supplied model's combinations. A
+supplied model is complete: an absent or null `combinations` means none, so
+combination records against it are refused. Each operand's recorded
+selection temperature is the producer's normalized value (kelvin), so the
+captured quantity is normalized by the units authority (`core/units`; in
+Python, the verifier's unit catalog) before the comparison.
 Because the direct pass reads the document without its combination rows and
 records, the family readers listed above (`load_reference.rs`,
 `connector_evidence.rs`, `section_basis.rs`, `u4b_evidence.rs`,
@@ -321,7 +332,10 @@ reaches one of them is refused there as before. The Python mirror is
 `tests/verifiers/exact_combinations.py`, called the same way from
 `tests/verifiers/pressure_2.py` and `reader_verdict.py`.
 `qualification_exact_pressure.py`'s input binding admits combination rows only
-for the bound input's combinations, whose records must match them exactly.
+for the bound input's combinations: one record per input combination in input
+order, with the input's id, basis, complete expression (factors bit for bit)
+and operand modulus references. Its owned-reader observation receives the
+bound model, so the reader also binds the operands' selection temperatures.
 The `stress_neutral_export` and `analysis_run` schemas change in their pins
 only: they reference the pressure evidence definition.
 

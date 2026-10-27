@@ -25,9 +25,11 @@ from collections.abc import Mapping
 from copy import deepcopy
 from fractions import Fraction
 import math
+import sys
 from typing import Any
 
 from .section_basis import bit_equal
+from .units import to_canonical
 
 STANDING = "derived_from_case_results"
 RECOVERY_METHOD = "pressure_free_operand_recovery"
@@ -44,6 +46,28 @@ MAXIMUM_UNAVAILABLE = "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE"
 INTENSIFIED_UNAVAILABLE = "COMBINATION_INTENSIFIED_STRESS_UNAVAILABLE"
 PREFIX = "diagnostic:exact-combination:"
 EXCLUDED_ID = "diagnostic:exact-combination:source-recovery-excluded"
+DIAGNOSTIC_SOURCE = "core/product_physics"
+# The producer's diagnostic texts (PP `exact_combinations.rs` `append`), re-derived whole.
+GATE_MESSAGES = {
+    "COMBINATION_MODULUS_BASIS_MIXED": "Combination withheld: its load cases were solved on different modulus bases.",
+    "COMBINATION_RESOLVED_STIFFNESS_MIXED": ("Combination withheld: a member's resolved stiffness (its selected E/nu, property-temperature "
+                                             "selection, section bases or shear model) differs between its load cases, so superposing their "
+                                             "states is not a state of one system."),
+    "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE": ("Combination withheld: a connector or tie rod has a nonzero installed reference, which "
+                                                       "superposition counts by the sum of the factors instead of once, and the factors do not "
+                                                       "sum to 1 within 64 epsilon."),
+}
+DERIVED_TEXT = ("publishes rows derived from case results: they carry no numerical check of their own and never count towards numerical "
+                "eligibility; each operand's standing and numerical findings are stated in contract_evidence.exact_combinations, and the "
+                "headlines and stress maxima cover the load cases only")
+MAXIMUM_TEXT = "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead"
+INTENSIFIED_TEXT = "intensified measures are never combined (their ranges and combinations follow the owner's rule in T6)"
+EXCLUDED_TEXT = ("this exact-route document has load combinations, so retained-source recovery is not attempted for any of its cases, "
+                 "primitive cases included; every case publishes ordinary structural recovery")
+
+
+def _diagnostic(did: str, code: str, severity: str, message: str, combination: str) -> dict:
+    return {"id": did, "code": code, "severity": severity, "message": message, "source": DIAGNOSTIC_SOURCE, "affected_refs": [combination]}
 RECORD_KEYS = {"combination_id", "basis", "expression", "operands", "gate", "rows", "recoveries", "missing_sources",
                "withheld", "standing", "source_recovery"}
 OPERAND_KEYS = {"load_case_id", "modulus_basis_ref", "modulus_basis_temperature", "numerical_quality"}
@@ -146,22 +170,40 @@ def _round(value: Fraction) -> float | None:
     return out + 0.0 if out == 0 else out
 
 
+_MAX = Fraction(sys.float_info.max)
+# The midpoint between the largest finite double and 2^1024: a root at or above it rounds to +inf.
+_OVERFLOW_MIDPOINT = _MAX + Fraction(2) ** 970
+
+
 def _sqrt_rounded(q: Fraction) -> float:
-    """The correctly rounded square root of a nonnegative rational."""
+    """The correctly rounded square root of a nonnegative rational, ties to even, over the whole binary64 range
+    (subnormal results included; a root beyond the finite range is +inf, as `correct_norm::norm3`).
+
+    The estimate is formed on the rational scaled by an even power of two into [1, 4), so the float conversion
+    neither underflows nor overflows; the exact midpoint comparison then moves it one ulp at a time and must
+    establish the rounding, or the derivation fails by name."""
     if q == 0:
         return 0.0
-    d = math.sqrt(float(q))
-    for _ in range(4):
+    if q >= _OVERFLOW_MIDPOINT * _OVERFLOW_MIDPOINT:
+        return math.inf
+    e = q.numerator.bit_length() - q.denominator.bit_length()
+    s = e - (e % 2)
+    scaled = q / Fraction(2) ** s if s >= 0 else q * Fraction(2) ** -s
+    try:
+        d = math.ldexp(math.sqrt(float(scaled)), s // 2)
+    except OverflowError:
+        d = sys.float_info.max
+    for _ in range(64):
         up, down = math.nextafter(d, math.inf), math.nextafter(d, 0.0)
-        mid_up = (Fraction(d) + Fraction(up)) / 2
+        mid_up = _OVERFLOW_MIDPOINT if math.isinf(up) else (Fraction(d) + Fraction(up)) / 2
         mid_down = (Fraction(d) + Fraction(down)) / 2
         if mid_up * mid_up < q or (mid_up * mid_up == q and (struct_bits(up) & 1) == 0):
             d = up
-        elif mid_down * mid_down > q or (mid_down * mid_down == q and (struct_bits(down) & 1) == 0):
+        elif d > 0 and (mid_down * mid_down > q or (mid_down * mid_down == q and (struct_bits(down) & 1) == 0)):
             d = down
         else:
             return d
-    return d
+    raise _fail("MAGNITUDE_ROUNDING_UNESTABLISHED")
 
 
 def struct_bits(x: float) -> int:
@@ -631,7 +673,7 @@ def validate(source: Mapping[str, Any], table: Mapping[str, Any]) -> None:
         if reason is not None:
             for member in ("rows", "recoveries", "missing_sources", "withheld"):
                 _require(record[member] == [], "GATED_RECORD")
-            expected_diagnostics.append((f"{PREFIX}gate:{identity([cid])}", reason, "warning"))
+            expected_diagnostics.append(_diagnostic(f"{PREFIX}gate:{identity([cid])}", reason, "warning", GATE_MESSAGES[reason], cid))
             continue
         built = _derive(cid, expression, results, evidence, linear, recomputed)
         _require(bit_equal(record["rows"], built["row_evidence"]), "ROW_EVIDENCE")
@@ -639,14 +681,21 @@ def validate(source: Mapping[str, Any], table: Mapping[str, Any]) -> None:
         _require(bit_equal(record["missing_sources"], built["missing"]), "MISSING_SOURCES")
         _require(bit_equal(record["withheld"], built["withheld"]), "WITHHELD")
         for missing in built["missing"]:
-            expected_diagnostics.append((f"{PREFIX}source-missing:{identity([cid, missing['source_result_id']])}", SOURCE_MISSING, "warning"))
+            source_id = missing["source_result_id"]
+            cases = ", ".join(missing["missing_load_case_ids"])
+            expected_diagnostics.append(_diagnostic(f"{PREFIX}source-missing:{identity([cid, source_id])}", SOURCE_MISSING, "warning",
+                                                    f"combination {cid} omits {source_id} because a matching source row is missing in operand case {cases}", cid))
         if built["withheld"]:
-            expected_diagnostics.append((f"{PREFIX}row-withheld:{identity([cid])}", ROW_WITHHELD, "warning"))
-        expected_diagnostics.append((f"{PREFIX}derived:{identity([cid])}", DERIVED, "info"))
+            named = ", ".join(f"{w['name']} ({w['reason']})" for w in built["withheld"][:8])
+            if len(built["withheld"]) > 8:
+                named += f", and {len(built['withheld']) - 8} more"
+            expected_diagnostics.append(_diagnostic(f"{PREFIX}row-withheld:{identity([cid])}", ROW_WITHHELD, "warning",
+                                                    f"combination {cid} withholds {len(built['withheld'])} combined row(s) that could not be formed: {named}", cid))
+        expected_diagnostics.append(_diagnostic(f"{PREFIX}derived:{identity([cid])}", DERIVED, "info", f"combination {cid} {DERIVED_TEXT}", cid))
         if has_maximum:
-            expected_diagnostics.append((f"{PREFIX}maximum:{identity([cid])}", MAXIMUM_UNAVAILABLE, "info"))
+            expected_diagnostics.append(_diagnostic(f"{PREFIX}maximum:{identity([cid])}", MAXIMUM_UNAVAILABLE, "info", MAXIMUM_TEXT, cid))
         if has_intensified:
-            expected_diagnostics.append((f"{PREFIX}intensified:{identity([cid])}", INTENSIFIED_UNAVAILABLE, "info"))
+            expected_diagnostics.append(_diagnostic(f"{PREFIX}intensified:{identity([cid])}", INTENSIFIED_UNAVAILABLE, "info", INTENSIFIED_TEXT, cid))
         expected_rows.extend(built["rows"])
     expected_rows.extend(modulus_rows)
     published = [r for r in results if _is_combination(r)]
@@ -655,19 +704,20 @@ def validate(source: Mapping[str, Any], table: Mapping[str, Any]) -> None:
         _require(bit_equal(row, expected), "ROW")
     stated = [d for d in diagnostics if isinstance(d, Mapping) and isinstance(d.get("id"), str) and d["id"].startswith(PREFIX)]
     _require(len(stated) == len(expected_diagnostics) + 1, "DIAGNOSTICS")
-    for did, code, severity in expected_diagnostics:
-        matching = [d for d in stated if d["id"] == did]
-        _require(len(matching) == 1 and matching[0].get("code") == code and matching[0].get("severity") == severity, "DIAGNOSTICS")
-    excluded = [d for d in stated if d["id"] == EXCLUDED_ID]
-    _require(len(excluded) == 1 and excluded[0].get("code") == SOURCE_RECOVERY_EXCLUDED and excluded[0].get("severity") == "info"
-             and excluded[0].get("affected_refs") == ids, "DIAGNOSTICS")
+    expected_diagnostics.append({"id": EXCLUDED_ID, "code": SOURCE_RECOVERY_EXCLUDED, "severity": "info", "message": EXCLUDED_TEXT,
+                                 "source": DIAGNOSTIC_SOURCE, "affected_refs": ids})
+    for expected in expected_diagnostics:
+        matching = [d for d in stated if d["id"] == expected["id"]]
+        _require(len(matching) == 1 and bit_equal(matching[0], expected), "DIAGNOSTICS")
 
 
 def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
-    """G2: one record per model combination, in model order, with the model's expression and operand selections."""
-    if model.get("combinations") is None:
-        return
-    combinations = _items(model["combinations"])
+    """G2: one record per model combination, in model order, with the model's expression and operand selections. A
+    supplied model is complete: an absent or null `combinations` is the input's default, none, so the document then
+    states no combination record."""
+    combinations = model.get("combinations")
+    combinations = [] if combinations is None else combinations
+    _require(isinstance(combinations, list), "MODEL_COVERAGE")
     records = _items((source.get("contract_evidence") or {}).get("exact_combinations"))
     _require(len(records) == len(combinations), "MODEL_COVERAGE")
     cases = _items(model.get("load_cases"))
@@ -683,7 +733,14 @@ def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
         for operand in _items(record.get("operands")):
             case = next((c for c in cases if isinstance(c, Mapping) and c.get("id") == operand.get("load_case_id")), None)
             _require(case is not None, "MODEL_OPERAND")
+            # The producer records the selection temperature in kelvin, normalized by the units authority; the
+            # captured quantity is normalized through the verifier's unit catalog the same way.
             temperature = case.get("modulus_basis_temperature")
-            temperature = None if temperature is None else {"value": temperature.get("value"), "unit": temperature.get("unit")}
+            if temperature is not None:
+                try:
+                    kelvin = to_canonical(temperature.get("value"), temperature.get("unit"), "temperature")
+                except (ValueError, TypeError, AttributeError) as exc:
+                    raise _fail("MODEL_OPERAND") from exc
+                temperature = {"value": kelvin, "unit": "K"}
             _require(bit_equal(operand.get("modulus_basis_ref"), case.get("modulus_basis_ref"))
                      and bit_equal(operand.get("modulus_basis_temperature"), temperature), "MODEL_OPERAND")

@@ -536,6 +536,56 @@ class BindingAndReaderTests(unittest.TestCase):
         self.assertTrue(refused['response']['reason'])
 
 
+class CombinationBindingTests(unittest.TestCase):
+    """W-16 slice b, review r1 (3): the raw combination records bind the input's complete expressions, and the owned
+    reader receives the bound model, so a changed factor is refused by both."""
+
+    def entry(self):
+        corpus = json.loads((PROJECT / 'fixtures/results/pressure_v3_combination_reader_corpus.json').read_text())
+        case = next(c for c in corpus['cases'] if c['label'].startswith('W16B line'))
+        return deepcopy(case['envelope']), deepcopy(case['model'])
+
+    def test_the_input_binding_binds_complete_expressions(self):
+        raw, model = self.entry()
+        ep.combination_binding(raw, model)
+        changed = deepcopy(model)
+        self.assertEqual(changed['combinations'][0]['terms'][1]['factor'], 1.3)
+        changed['combinations'][0]['terms'][1]['factor'] = 1.25
+        with self.assertRaisesRegex(ValueError, 'expression differs'):
+            ep.combination_binding(raw, changed)
+        changed['combinations'][0]['terms'][1]['factor'] = 1.3000000000000003
+        with self.assertRaisesRegex(ValueError, 'expression differs'):
+            ep.combination_binding(raw, changed)
+        swapped = deepcopy(model)
+        swapped['combinations'][1]['minuend_id'], swapped['combinations'][1]['subtrahend_id'] = (
+            swapped['combinations'][1]['subtrahend_id'], swapped['combinations'][1]['minuend_id'])
+        with self.assertRaisesRegex(ValueError, 'expression differs'):
+            ep.combination_binding(raw, swapped)
+        for absent in ('absent', None, []):
+            other = deepcopy(model)
+            if absent == 'absent':
+                del other['combinations']
+            else:
+                other['combinations'] = absent
+            with self.assertRaisesRegex(ValueError, 'records differ'):
+                ep.combination_binding(raw, other)
+
+    def test_the_owned_reader_receives_the_bound_model(self):
+        raw, model = self.entry()
+        fixture = Fixture(self, 'sparse_interactive', ['U2-L-ANCH-PTW-K2@0.3.0'])
+        binding_path = fixture.root / 'binding-direct.json'
+        binding_path.write_bytes(dump(fixture.binding))
+        binding = ep.load_binding(fixture.candidate, binding_path, sha256_bytes(binding_path.read_bytes()))
+        observed = ep.consistency_observation(raw, binding, fixture.root / 'reader-bound', model=model)
+        self.assertEqual(observed['response']['verdict'], 'consistent')
+        self.assertEqual(json.loads((fixture.root / 'reader-bound/stdin.bin').read_bytes()), {'source': raw, 'model': model})
+        changed = deepcopy(model)
+        changed['combinations'][0]['terms'][1]['factor'] = 1.25
+        refused = ep.consistency_observation(raw, binding, fixture.root / 'reader-changed-factor', model=changed)
+        self.assertEqual(refused['response']['verdict'], 'refused')
+        self.assertIn('COMBINATION_MODEL_EXPRESSION', json.dumps(refused['response']))
+
+
 class TransportRefusalTests(unittest.TestCase):
     def refused(self, mutate, message, case_id='U2-L-ANCH-PTW-K2@0.3.0', mode='sparse_interactive', raw_mode=None):
         fixture = Fixture(self, mode, [case_id], raw_mode)

@@ -35,7 +35,7 @@ fn refused(source: &Value, model: Option<&Value>, code: &str, what: &str) {
 #[test]
 fn every_corpus_envelope_is_admitted_with_and_without_its_model() {
     let cases = corpus();
-    assert_eq!(cases.len(), 4);
+    assert_eq!(cases.len(), 5);
     for case in &cases {
         let envelope = &case["envelope"];
         assert!(envelope["contract_evidence"]["exact_combinations"].as_array().is_some_and(|r| !r.is_empty()));
@@ -191,4 +191,76 @@ fn a_composite_with_a_combination_record_is_refused() {
     forged["contract_evidence"]["exact_combinations"] = line["contract_evidence"]["exact_combinations"].clone();
     let verdict = reader_verdict::validate("pressure-source", &forged, None, Some(&json!({"request": request, "solver_mode": "sparse_interactive"})));
     assert_eq!(verdict["ok"], false, "{verdict}");
+}
+
+/// Review r1 (1): a Celsius selection temperature binds: the producer records it
+/// normalized to kelvin, and the model's authored 100 degC normalizes to the same
+/// bits; another authored temperature, or the same number in another unit, is
+/// refused.
+#[test]
+fn a_celsius_selection_temperature_binds_after_normalization() {
+    let (source, model) = entry("W16B Celsius");
+    assert_eq!(source["contract_evidence"]["exact_combinations"][0]["operands"][0]["modulus_basis_temperature"], json!({"value": 100.0 + 273.15, "unit": "K"}));
+    assert_eq!(read(&source, Some(&model)), Ok(()));
+    let mut kelvin = model.clone();
+    for case in kelvin["load_cases"].as_array_mut().unwrap() {
+        case["modulus_basis_temperature"] = json!({"value": 100.0 + 273.15, "unit": "K"});
+    }
+    assert_eq!(read(&source, Some(&kelvin)), Ok(()));
+    for (value, unit) in [(101.0, "degC"), (100.0, "K"), (100.0, "degF")] {
+        let mut other = model.clone();
+        other["load_cases"][1]["modulus_basis_temperature"] = json!({"value": value, "unit": unit});
+        refused(&source, Some(&other), "SOURCE_PHYSICS_COMBINATION_MODEL_OPERAND", &format!("{value} {unit}"));
+    }
+    let mut unknown = model.clone();
+    unknown["load_cases"][0]["modulus_basis_temperature"] = json!({"value": 100.0, "unit": "furlong"});
+    refused(&source, Some(&unknown), "SOURCE_PHYSICS_COMBINATION_MODEL_OPERAND", "an unknown unit");
+}
+
+/// Review r1 (2): a supplied model is complete: absent, null and an empty
+/// `combinations` all state none, so combination records against it are refused;
+/// a document without combinations still reads against each.
+#[test]
+fn a_model_without_combinations_refuses_combination_records() {
+    let (source, model) = entry("W16B line");
+    let mut absent = model.clone();
+    absent.as_object_mut().unwrap().remove("combinations");
+    let mut null = model.clone();
+    null["combinations"] = Value::Null;
+    let mut empty = model.clone();
+    empty["combinations"] = json!([]);
+    let mut direct = source.clone();
+    direct["contract_evidence"].as_object_mut().unwrap().remove("exact_combinations");
+    direct["results"].as_array_mut().unwrap().retain(|r| r["basis_ref"]["ref_type"] != "combination");
+    direct["diagnostics"].as_array_mut().unwrap().retain(|d| !d["id"].as_str().unwrap().starts_with("diagnostic:exact-combination:"));
+    for (what, other) in [("absent", &absent), ("null", &null), ("[]", &empty)] {
+        refused(&source, Some(other), "SOURCE_PHYSICS_COMBINATION_MODEL_COVERAGE", what);
+        let direct_reading = read(&direct, Some(other));
+        assert!(direct_reading.as_ref().is_err_and(|e| !e.starts_with("SOURCE_PHYSICS_COMBINATION_")) || direct_reading.is_ok(), "{what}: {direct_reading:?}");
+    }
+}
+
+/// Review r1 (5): every combination diagnostic is re-derived whole: a forged
+/// message, extra or missing affected refs, another source or a changed
+/// severity is refused.
+#[test]
+fn forged_diagnostics_are_refused() {
+    for (prefix, namespace) in [("W16B line", "derived:"), ("W16B line", "source-missing:"), ("W16B line", "source-recovery-excluded"),
+        ("W16B connector", "gate:"), ("W16B MO-F", "row-withheld:"), ("W16B line", "maximum:")] {
+        let (source, _) = entry(prefix);
+        let index = source["diagnostics"].as_array().unwrap().iter()
+            .position(|d| d["id"].as_str().unwrap().starts_with(&format!("diagnostic:exact-combination:{namespace}"))).unwrap_or_else(|| panic!("{prefix} {namespace}"));
+        let mutations: [(&str, Value); 5] = [
+            ("message", json!("combination rows are certified")),
+            ("affected_refs", json!(["comb:forged"])),
+            ("affected_refs", json!([])),
+            ("source", json!("core/forged")),
+            ("severity", json!("blocking")),
+        ];
+        for (field, value) in mutations {
+            let mut forged = source.clone();
+            forged["diagnostics"][index][field] = value.clone();
+            refused(&forged, None, "SOURCE_PHYSICS_COMBINATION_DIAGNOSTICS", &format!("{prefix} {namespace} {field} {value}"));
+        }
+    }
 }

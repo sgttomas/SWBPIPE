@@ -811,9 +811,11 @@ fn shared_combination_reader_corpus_is_current() {
         mechanics("comb:cold+hot", &[("case:cold", 1.0), ("case:hot", 1.0)]),
         {"id": "comb:hot-cold", "basis": "result_state_subtraction", "minuend_id": "case:hot", "subtrahend_id": "case:cold", "provenance": PROV},
     ]);
+    let celsius = celsius_line();
     let mut cases = Vec::new();
     for (label, wire, mode) in [
         ("W16B line: mechanics, subtraction and envelope", line, PreviewSolverMode::SparseInteractive),
+        ("W16B Celsius modulus temperature: the record states kelvin", celsius, PreviewSolverMode::SparseInteractive),
         ("W16B connector with an installed reference: admitted and gated sums", connector, PreviewSolverMode::SparseInteractive),
         ("W16B MO-F: two tie rods withheld by name", rods, PreviewSolverMode::DenseScrutiny),
         ("W16B load state: mixed stiffness gated, subtraction published", load_state, PreviewSolverMode::SparseInteractive),
@@ -843,6 +845,35 @@ fn shared_combination_reader_corpus_is_current() {
     // index binds it to this test (no runtime read).
     let committed = include_str!("../../../fixtures/results/pressure_v3_combination_reader_corpus.json");
     assert!(committed == bytes, "the shared pressure-2 combination reader corpus is stale; regenerate it with W16B_WRITE_CORPUS=1");
+}
+
+/// Review r1 (1): the line with temperature-dependent properties, each case
+/// selecting them at an authored 100 degC; one mechanics combination.
+fn celsius_line() -> Value {
+    let mut wire = line(json!([mechanics("comb:K1", &[("case:A", 1.0), ("case:B", 1.3)])]));
+    let point = |id: &str, celsius: f64| json!({"id": id, "temperature": {"value": celsius, "unit": "degC"},
+        "elastic_modulus": qv(input("/material/elastic_modulus_Pa"), "Pa"), "poisson_ratio": qv(input("/material/poisson_ratio"), "1"),
+        "provenance": PROV});
+    wire["model"]["materials"][0]["temperature_points"] = json!([point("point:cold", 0.0), point("point:hot", 200.0)]);
+    for case in wire["model"]["load_cases"].as_array_mut().unwrap() {
+        case["modulus_basis_temperature"] = json!({"value": 100.0, "unit": "degC"});
+    }
+    wire
+}
+
+/// Review r1 (1): an authored Celsius selection temperature is recorded as the
+/// producer normalized it (kelvin, by the units authority), which the readers
+/// re-derive from the captured quantity.
+#[test]
+fn a_celsius_selection_temperature_is_recorded_in_kelvin() {
+    for mode in MODES {
+        let out = solved(&celsius_line(), mode, "celsius");
+        let record = record(&out, "comb:K1");
+        assert_eq!(record["gate"]["withheld"], false);
+        for operand in record["operands"].as_array().unwrap() {
+            assert_eq!(operand["modulus_basis_temperature"], json!({"value": 100.0 + 273.15, "unit": "K"}));
+        }
+    }
 }
 
 /// §3: ids rich in delimiters (and in multi-byte characters) pair by their

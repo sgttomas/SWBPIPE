@@ -27,6 +27,7 @@
 //! numerical eligibility (§5), which stays with the primitive cases.
 use crate::section_basis::bit_equal;
 use open_pipe_stress_correct_norm::norm3;
+use open_pipe_stress_units::{canonical_unit, Dimension};
 use serde_json::{json, Value};
 use std::collections::{HashMap, HashSet};
 
@@ -45,6 +46,12 @@ const ROW_WITHHELD: &str = "LOAD_COMBINATION_ROW_WITHHELD";
 const MAXIMUM_UNAVAILABLE: &str = "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE";
 const INTENSIFIED_UNAVAILABLE: &str = "COMBINATION_INTENSIFIED_STRESS_UNAVAILABLE";
 const DIAGNOSTIC_PREFIX: &str = "diagnostic:exact-combination:";
+const DIAGNOSTIC_SOURCE: &str = "core/product_physics";
+/// The producer's diagnostic texts (PP `exact_combinations.rs` `append`), re-derived whole.
+const DERIVED_TEXT: &str = "publishes rows derived from case results: they carry no numerical check of their own and never count towards numerical eligibility; each operand's standing and numerical findings are stated in contract_evidence.exact_combinations, and the headlines and stress maxima cover the load cases only";
+const MAXIMUM_TEXT: &str = "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead";
+const INTENSIFIED_TEXT: &str = "intensified measures are never combined (their ranges and combinations follow the owner's rule in T6)";
+const EXCLUDED_TEXT: &str = "this exact-route document has load combinations, so retained-source recovery is not attempted for any of its cases, primitive cases included; every case publishes ordinary structural recovery";
 const EXCLUDED_ID: &str = "diagnostic:exact-combination:source-recovery-excluded";
 const RECORD_KEYS: [&str; 11] = [
     "combination_id", "basis", "expression", "operands", "gate", "rows", "recoveries",
@@ -937,7 +944,9 @@ pub(crate) fn validate(source: &Value) -> Check {
     let (has_maximum, has_intensified) = (case_rows_present(&MAXIMUM_KINDS), case_rows_present(&INTENSIFIED_KINDS));
 
     let mut expected_rows: Vec<Value> = Vec::new();
-    let mut expected_diagnostics: Vec<(String, &str, &str)> = Vec::new();
+    // Each expected diagnostic whole (id, code, severity, message, source and
+    // affected refs), as the producer states it.
+    let mut expected_diagnostics: Vec<Value> = Vec::new();
     let mut modulus_rows: Vec<Value> = Vec::new();
     let mut ids: Vec<&str> = Vec::new();
     for record in records {
@@ -992,7 +1001,7 @@ pub(crate) fn validate(source: &Value) -> Check {
             for member in ["rows", "recoveries", "missing_sources", "withheld"] {
                 require(items(&record[member]).is_empty() && record[member].is_array(), "GATED_RECORD")?;
             }
-            expected_diagnostics.push((format!("{DIAGNOSTIC_PREFIX}gate:{}", identity(&[id])), code, "warning"));
+            expected_diagnostics.push(diagnostic(format!("{DIAGNOSTIC_PREFIX}gate:{}", identity(&[id])), code, "warning", gate_message(code).to_string(), id));
             continue;
         }
         let built = derive(id, &expression, &operand_ids, results, evidence, &linear, &recomputed);
@@ -1002,17 +1011,27 @@ pub(crate) fn validate(source: &Value) -> Check {
         require(bit_equal(&record["withheld"], &json!(built.withheld)), "WITHHELD")?;
         for missing in &built.missing {
             let source = missing["source_result_id"].as_str().unwrap_or_default();
-            expected_diagnostics.push((format!("{DIAGNOSTIC_PREFIX}source-missing:{}", identity(&[id, source])), SOURCE_MISSING, "warning"));
+            let cases = items(&missing["missing_load_case_ids"]).iter().filter_map(Value::as_str).collect::<Vec<_>>().join(", ");
+            expected_diagnostics.push(diagnostic(format!("{DIAGNOSTIC_PREFIX}source-missing:{}", identity(&[id, source])), SOURCE_MISSING, "warning",
+                format!("combination {id} omits {source} because a matching source row is missing in operand case {cases}"), id));
         }
         if !built.withheld.is_empty() {
-            expected_diagnostics.push((format!("{DIAGNOSTIC_PREFIX}row-withheld:{}", identity(&[id])), ROW_WITHHELD, "warning"));
+            const NAMED: usize = 8;
+            let mut named = built.withheld.iter().take(NAMED)
+                .map(|w| format!("{} ({})", w["name"].as_str().unwrap_or_default(), w["reason"].as_str().unwrap_or_default()))
+                .collect::<Vec<_>>().join(", ");
+            if built.withheld.len() > NAMED {
+                named.push_str(&format!(", and {} more", built.withheld.len() - NAMED));
+            }
+            expected_diagnostics.push(diagnostic(format!("{DIAGNOSTIC_PREFIX}row-withheld:{}", identity(&[id])), ROW_WITHHELD, "warning",
+                format!("combination {id} withholds {} combined row(s) that could not be formed: {named}", built.withheld.len()), id));
         }
-        expected_diagnostics.push((format!("{DIAGNOSTIC_PREFIX}derived:{}", identity(&[id])), DERIVED, "info"));
+        expected_diagnostics.push(diagnostic(format!("{DIAGNOSTIC_PREFIX}derived:{}", identity(&[id])), DERIVED, "info", format!("combination {id} {DERIVED_TEXT}"), id));
         if has_maximum {
-            expected_diagnostics.push((format!("{DIAGNOSTIC_PREFIX}maximum:{}", identity(&[id])), MAXIMUM_UNAVAILABLE, "info"));
+            expected_diagnostics.push(diagnostic(format!("{DIAGNOSTIC_PREFIX}maximum:{}", identity(&[id])), MAXIMUM_UNAVAILABLE, "info", MAXIMUM_TEXT.to_string(), id));
         }
         if has_intensified {
-            expected_diagnostics.push((format!("{DIAGNOSTIC_PREFIX}intensified:{}", identity(&[id])), INTENSIFIED_UNAVAILABLE, "info"));
+            expected_diagnostics.push(diagnostic(format!("{DIAGNOSTIC_PREFIX}intensified:{}", identity(&[id])), INTENSIFIED_UNAVAILABLE, "info", INTENSIFIED_TEXT.to_string(), id));
         }
         expected_rows.extend(built.rows);
     }
@@ -1028,20 +1047,40 @@ pub(crate) fn validate(source: &Value) -> Check {
     // source-recovery exclusion: each once, and none other in this namespace.
     let stated: Vec<&Value> = diagnostics.iter().filter(|d| d["id"].as_str().is_some_and(|i| i.starts_with(DIAGNOSTIC_PREFIX))).collect();
     require(stated.len() == expected_diagnostics.len() + 1, "DIAGNOSTICS")?;
-    for (id, code, severity) in &expected_diagnostics {
-        require(stated.iter().filter(|d| d["id"] == id.as_str()).count() == 1
-            && stated.iter().any(|d| d["id"] == id.as_str() && d["code"] == *code && d["severity"] == *severity), "DIAGNOSTICS")?;
+    expected_diagnostics.push(json!({
+        "id": EXCLUDED_ID, "code": SOURCE_RECOVERY_EXCLUDED, "severity": "info", "message": EXCLUDED_TEXT,
+        "source": DIAGNOSTIC_SOURCE, "affected_refs": ids,
+    }));
+    for expected in &expected_diagnostics {
+        let matching: Vec<&&Value> = stated.iter().filter(|d| d["id"] == expected["id"]).collect();
+        require(matching.len() == 1 && bit_equal(matching[0], expected), "DIAGNOSTICS")?;
     }
-    let excluded = stated.iter().find(|d| d["id"] == EXCLUDED_ID).ok_or_else(|| fail("DIAGNOSTICS"))?;
-    require(excluded["code"] == SOURCE_RECOVERY_EXCLUDED && excluded["severity"] == "info" && excluded["affected_refs"] == json!(ids), "DIAGNOSTICS")
+    Ok(())
+}
+
+/// One expected diagnostic, whole, as the producer's `diag` states it.
+fn diagnostic(id: String, code: &str, severity: &str, message: String, combination: &str) -> Value {
+    json!({"id": id, "code": code, "severity": severity, "message": message, "source": DIAGNOSTIC_SOURCE, "affected_refs": [combination]})
+}
+
+fn gate_message(code: &str) -> &'static str {
+    match code {
+        MODULUS_BASIS_MIXED => "Combination withheld: its load cases were solved on different modulus bases.",
+        RESOLVED_STIFFNESS_MIXED => "Combination withheld: a member's resolved stiffness (its selected E/nu, property-temperature selection, section bases or shear model) differs between its load cases, so superposing their states is not a state of one system.",
+        _ => "Combination withheld: a connector or tie rod has a nonzero installed reference, which superposition counts by the sum of the factors instead of once, and the factors do not sum to 1 within 64 epsilon.",
+    }
 }
 
 /// G2: each record's expression and its operands' modulus selections are the
-/// captured model's, one record per model combination in model order. Runs
-/// when the model states its combinations.
+/// captured model's, one record per model combination in model order. A
+/// supplied model is complete: an absent or null `combinations` is the input's
+/// default, none, so the document then states no combination record.
 pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {
-    let Some(combinations) = model.get("combinations").filter(|v| !v.is_null()) else { return Ok(()) };
-    let combinations = items(combinations);
+    let combinations = match model.get("combinations") {
+        None | Some(Value::Null) => &[][..],
+        Some(Value::Array(list)) => list.as_slice(),
+        Some(_) => return Err(fail("MODEL_COVERAGE")),
+    };
     let records = items(&source["contract_evidence"]["exact_combinations"]);
     require(records.len() == combinations.len(), "MODEL_COVERAGE")?;
     let cases = items(&model["load_cases"]);
@@ -1056,8 +1095,14 @@ pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {
         for operand in items(&record["operands"]) {
             let case = cases.iter().find(|c| c["id"] == operand["load_case_id"]).ok_or_else(|| fail("MODEL_OPERAND"))?;
             let reference = case.get("modulus_basis_ref").cloned().unwrap_or(Value::Null);
+            // The producer records the selection temperature normalized to the
+            // canonical unit (kelvin) by the units authority; the captured
+            // quantity is normalized the same way before the comparison.
             let temperature = match case.get("modulus_basis_temperature").filter(|t| !t.is_null()) {
-                Some(t) => json!({"value": t["value"], "unit": t["unit"]}),
+                Some(t) => {
+                    let kelvin = crate::physics_source::normalized_quantity(t, Dimension::Temperature).map_err(|_| fail("MODEL_OPERAND"))?;
+                    json!({"value": kelvin, "unit": canonical_unit(Dimension::Temperature).ok_or_else(|| fail("MODEL_OPERAND"))?.definition().symbol})
+                }
                 None => Value::Null,
             };
             require(bit_equal(&operand["modulus_basis_ref"], &reference) && bit_equal(&operand["modulus_basis_temperature"], &temperature), "MODEL_OPERAND")?;
@@ -1107,6 +1152,58 @@ mod tests {
         assert_ne!(0.1 * 3.0 + 0.2 * 3.0, 0.9);
         // The smallest normal and the largest subnormal.
         assert_eq!(exact(&[(f64::MIN_POSITIVE, 1.0), (-tiny, 1.0)]), Some(f64::MIN_POSITIVE - tiny));
+    }
+
+    /// Review r1 (4): the magnitude derivation (`correct_norm::norm3`) is the
+    /// correctly rounded norm across the whole binary64 range: subnormal,
+    /// extreme and overflowing magnitudes. The vectors are shared with the Python
+    /// mirror's test (`tests/test_exact_combination_verifier.py`), whose exact
+    /// rational derivation computed the expected bits.
+    #[test]
+    fn magnitudes_are_correctly_rounded_across_the_binary64_range() {
+        let tiny = f64::from_bits(1);
+        assert_eq!(norm3(1e-200, 0.0, 0.0), 1e-200);
+        assert_eq!(norm3(1e200, 0.0, 0.0), 1e200);
+        assert_eq!(norm3(3.0 * 2f64.powi(-700), 4.0 * 2f64.powi(-700), 0.0), 5.0 * 2f64.powi(-700));
+        assert_eq!(norm3(3.0 * 2f64.powi(900), 4.0 * 2f64.powi(900), 0.0), 5.0 * 2f64.powi(900));
+        assert_eq!(norm3(3.0 * tiny, 4.0 * tiny, 0.0), 5.0 * tiny);
+        assert_eq!(norm3(f64::MAX, 0.0, 0.0), f64::MAX);
+        assert_eq!(norm3(f64::MAX, f64::MAX, 0.0), f64::INFINITY);
+        assert_eq!(norm3(1e-160, 2e-160, 3e-160), 3.7416573867739414e-160);
+        const SHARED: [(u64, u64, u64, u64); 28] = [
+        (0x0000000000000b92, 0x0000000000000f04, 0x0000000000000f61, 0x0000000000001869),
+        (0x0000000000000849, 0x000000000000079d, 0x000000000000071f, 0x0000000000000d51),
+        (0x000000000000048b, 0x80000000000009ed, 0x00000000000000b6, 0x0000000000000af0),
+        (0x00000000000004ee, 0x00000000000000e1, 0x0000000000000ee0, 0x0000000000000fb2),
+        (0x000000009cb706ad, 0x0000000ae4ee4542, 0x00000003935dd386, 0x0000000b7b7cf22f),
+        (0x000001900977a960, 0x00000000010b4404, 0x0000ea91ac1fffc3, 0x0000ea93013c3a59),
+        (0x12f4f126169bc518, 0x12775fc622e83df0, 0x9342a0caf96608b6, 0x1342a3bc244895bc),
+        (0x9427dd509407296c, 0x13bd702c24f33d74, 0x133cbb58103ef1fe, 0x1427dd99346cb9ef),
+        (0x1def7d457c49b3b2, 0x1d43b757e7d6cc30, 0x1c9e59279ebd0e32, 0x1def7d45df0bc176),
+        (0x9d851c287ef477d6, 0x1e2ab2359fe7d0f2, 0x1dcc86713d5c804a, 0x1e2ab329f71f3be1),
+        (0xb2ab523aa02fae74, 0x3191f1b98c7c7bf0, 0x31a64f1c8b404c28, 0x32ab523aa03a4349),
+        (0x331f0c9a81b18ad6, 0x3356486f444e6d9a, 0x321a36b0956309a0, 0x33565e06a1179d74),
+        (0x3443e93c81d6850c, 0x3451aa1e9f48246f, 0x34e448162ec6d36e, 0x34e44818b77ae67f),
+        (0x34275f3f1a850e88, 0xb570f21a420f8721, 0x35632bd65adaec3b, 0x3573780f45fd833d),
+        (0x3e4cfe91246e8da2, 0xbe46a7b47543ddcc, 0x3ef48a4c3e3b547b, 0x3ef48a4cc2104c16),
+        (0x3fde2089564330e0, 0x3f1675559add9dd8, 0x3e6399175cca8484, 0x3fde20895ea21ef5),
+        (0x4966873c6e6adbac, 0x4816d35125b18c4b, 0x4937cfbd6c9bfc28, 0x4966b95a983d9649),
+        (0x48afe453bb92c56e, 0x488bcb6014ff7ade, 0x49088cc1df49eccf, 0x49088e1d01b72aa7),
+        (0x4c18dab51e28b8b7, 0x4bea1ea121fb7eb2, 0xcbe1b79efd72ad17, 0x4c192a5dee3e4eeb),
+        (0x4aaba5665782a09e, 0x4ba836b2b4ab6f9d, 0x4bf2be53c0331d6a, 0x4bf2c23c503c7ecc),
+        (0x5e630db06ce88204, 0x5f4b7e715406b1d8, 0x5ea000dd74717b6c, 0x5f4b7e719ef59e60),
+        (0x5e0e70073d47ca1c, 0xde162e052f4006a2, 0x5fe25b5eb3550eb0, 0x5fe25b5eb3550eb0),
+        (0x6b1c9f35a1b0dea9, 0xeb2daa52ff14040e, 0x6b4d3a270d46e7f0, 0x6b4e5d6c112b135d),
+        (0x6b69d7d5d739a5e4, 0x6a3cddc541057a1c, 0x6ac78b5fc7293aca, 0x6b69d7d682d3ee73),
+        (0x7cce80edb45874ba, 0x7cb308b1ce0b8024, 0x7e0ee68356bf64e1, 0x7e0ee68356bf7567),
+        (0x7ca18db6dc4f8976, 0xfdc2f938bfdc0196, 0x7dfb057bf58412e6, 0x7dfb2014060080fb),
+        (0xfed341cc49226afc, 0x7fd173bb005d3a1d, 0x7e216ffd5eec53cf, 0x7fd173bb0067d9f1),
+        (0x7e5b9c93558f51b2, 0xfedc5d12426909ba, 0x7eb0ae96d781778f, 0x7edcab32098a2c82),
+        ];
+        for (x, y, z, r) in SHARED {
+            let n = norm3(f64::from_bits(x), f64::from_bits(y), f64::from_bits(z));
+            assert_eq!(n.to_bits(), r, "{x:016x} {y:016x} {z:016x}");
+        }
     }
 
     #[test]
