@@ -1143,14 +1143,17 @@ after canonicalisation. Any value the writer would not reproduce counts as a dif
 is refused by name at its JSON path. The guard proves consistency, not authorship. An edit
 that the writer would reproduce for the model it yields cannot be told apart from writer
 output, and imports as such. Such consistent edits import as stated, with nothing defaulted
-or misread. Authorship is not claimed.
+or misread. Authorship is not claimed. The sidecar's self-digest (§15) adds a check in
+front of this guard. It catches an accidental or partial edit. It does not replace the guard
+or bear on authorship.
 
 **The regeneration identity** is the exact-digest route's guard of record. After assembly,
-a bound import of a format-2 sidecar has the writer regenerate the sidecar from the imported
+a bound import of a format-2 or format-3 sidecar has the writer regenerate the sidecar from the imported
 model (`regenerate_caepipe_sidecar`). No MBF is written and the writer's export preflight
 is not run. The one input beyond the model is the import's record of which straights'
 `y_reference` it derived (`id_map` `y_reference_derived`), so a derived orientation
-regenerates as derived. The two sidecars are compared without the digest, with key order
+regenerates as derived. The two sidecars are compared without the digests (`mbf_sha256`
+and the self-digest `sidecar_sha256`), in the given sidecar's format, with key order
 immaterial, every number as a binary64 (1 and 1.0 are one value) and each load direction
 as the axis it names (`global_y`, `GLOBAL_Y`, `UY` and `uy` alike). A difference is refused
 as `MBF-IMPORT-SIDECAR-NOT-REPRODUCED`, naming the first differing JSON path in sorted key
@@ -1177,7 +1180,8 @@ sidecar, which the writer no longer writes, is closed instead by the agreement o
 MBF-determined field it retains (§15).
 
 **Consistent edits.** The digest binds only the MBF, and the MBF has no carrier for the
-sidecar (TBD-17-01-003, TBD-17-04-003; O-6). Some values pass from the model to the sidecar
+sidecar (TBD-17-01-003, TBD-17-04-003; O-6). The self-digest binds the sidecar only to
+itself, and an editor can recompute it (§15). Some values pass from the model to the sidecar
 unchanged: ids, `reversed`, an authored `y_reference` or `family`, a recorded `origin`, a
 thermal direction, the shear model of a contract, region ids, and closure transfers with
 their provenance. Such a value regenerates as the sidecar gives it, so an edit of one imports
@@ -1273,12 +1277,14 @@ travels in a sidecar.
 
 **Input.** The writer's sidecar (`MbfSiResult.sidecar`): `sidecar_format`, the maps
 (`node_map`, `element_map`, `support_map`, `load_case_map`, `material_map`, `section_map`,
-`load_map`, `pressure_map`) and `mbf_sha256`, as `run_pilot.py` writes it to
-`caepipe_in/id_map.json` (older runs hold the digest in `mbf_render.json`, and the importer
-accepts either file pair).
+`load_map`, `pressure_map`), `mbf_sha256` and the self-digest `sidecar_sha256`, as
+`run_pilot.py` writes it to `caepipe_in/id_map.json`. Main's earliest pilot runs kept the
+digest in `mbf_render.json` beside a legacy sidecar. For that layout only, the file loader
+takes the companion's digest (*Loading*, below).
 
 **Sidecar format** (independent review VER-002 r10 to r12). The current writer records
-`sidecar_format` = 2. A format-2 sidecar holds what a bound import restores and the MBF does
+`sidecar_format` = 3, which is format 2 with its self-digest (below). A format-2 sidecar
+holds what a bound import restores and the MBF does
 not carry, every field with its effective value; it never uses null, or another sentinel, as
 a value a default then fills, and it does not repeat what the MBF determines (layout order,
 record names, material and section numbers, bend geometry, CAEPIPE kinds and names; no
@@ -1301,7 +1307,7 @@ record names, material and section numbers, bend geometry, CAEPIPE kinds and nam
   effective `shear_model` (the contract's, or the route's `euler_bernoulli` without a
   contract) and `regions` (each `id`, `members`, two `terminals`; none without a contract).
 
-The parser refuses a format-2 sidecar missing any field, with null in any, or with a field
+The parser refuses a format-2 or format-3 sidecar missing any field, with null in any, or with a field
 outside this list, by JSON path (`MBF-IMPORT-SIDECAR-INVALID`). Each recorded value the MBF
 or a derivation also determines must agree with it, or the import is refused
 (`MBF-IMPORT-SIDECAR-CONFLICT`, or `-INVALID` for the parser's own checks): the CAEPIPE
@@ -1320,6 +1326,105 @@ each value (an unauthored family as absent, which the solve infers to the same f
 entry's variant must be the element's: a bend record for a bend, an orientation for a
 straight (`MBF-IMPORT-SIDECAR-CONFLICT` at `element_map[<id>].bend`, on both routes; VER-002
 r13).
+
+**The self-digest** (Agent 0, under the owner's delegation, after tranche 2). A format-3
+sidecar is a format-2 sidecar plus one field, `sidecar_sha256`. Its value is the lowercase
+hex SHA-256 of the sidecar's canonical serialisation, taken without that field.
+
+*Why a new format and not an optional field in format 2.* With a new format number, each
+format's parser rule stays a fixed list in which every field is required. An optional digest
+inside format 2 could not tell a sidecar written before the digest from one whose digest was
+removed. The downgrade refusal below would then be impossible. Every format-2 sidecar stays
+readable, unchanged.
+
+*Canonical serialisation* (`si_writer.sidecar_canonical_bytes`). The serialisation is RFC 8785
+(JSON Canonicalization Scheme), applied to the sidecar object without `sidecar_sha256`:
+
+- **Objects.** Members are sorted by key, with keys compared as sequences of UTF-16 code units.
+  There is no whitespace anywhere. A `,` separates members and elements, and a `:` separates
+  a key from its value.
+- **Strings.** `"` and `\` are escaped as `\"` and `\\`. U+0008, U+0009, U+000A, U+000C
+  and U+000D become `\b`, `\t`, `\n`, `\f` and `\r`. Every other code point below U+0020
+  becomes `\u00xx` in lowercase hex. All other characters are written literally, U+007F and
+  non-ASCII included.
+- **Numbers.** Each number is the binary64 value it denotes, so 1 and 1.0 are one value and
+  −0 is 0. It is written as ECMAScript's Number::toString writes it: the fewest significant
+  digits that read back as the value. The form is positional for values from 10⁻⁶ up to,
+  but not including, 10²¹ (`0.000001`, `150000000000000000000`), and exponential otherwise
+  (`1e-7`, `1e+21`).
+- **Literals.** `true`, `false` and `null` are written as they are.
+- **Encoding.** UTF-8, with no byte-order mark and no trailing newline.
+
+Some values have no such form: a non-finite number, an integer that is not exactly a
+binary64, a lone surrogate, a key that is not a string, and anything that is not a JSON
+value. Each is refused by JSON path (`MBF-IMPORT-SIDECAR-INVALID`).
+
+The self-digest does not reuse an existing canonical form, because neither is a byte-exact
+definition that another implementation could reproduce. The regeneration identity's
+canonicalisation (§14) compares parsed values; it is not a byte serialisation. The
+importer's `canonical_bytes` is Python's `json.dumps`, which has its own number text (`1.0`
+against `1`, `1e-07`). The tests carry an independent implementation and a digest derived
+by hand from a small invented sidecar.
+
+*Loading* (independent review VER-002, self-digest r1). The sidecar is verified exactly as
+supplied. Nothing is added, merged or normalised before the check.
+
+- **Parsing.** Where the importer parses JSON itself, it parses strictly
+  (`parse_sidecar_json`), in every format. This covers the file loader (`load_sidecar`, the
+  command line, the private regression of §18.3) and sidecar text or bytes passed to
+  `import_caepipe_mbf`. Bytes must be strict UTF-8, and the text must be RFC 8259 JSON:
+  NaN, Infinity and -Infinity are refused. A member name repeated within one object is
+  refused at its JSON path (`MBF-IMPORT-SIDECAR-INVALID`, for example `node_map[N0]`).
+  Python's `json.loads` would otherwise keep the last value silently and so hide the
+  conflict. RFC 8785 requires unique names. A caller that passes `import_caepipe_mbf` an
+  already-parsed object has resolved its own parse, and the importer reads that object as
+  given.
+- **Companion digest.** `load_sidecar` returns the file's bytes unchanged, for the importer
+  to parse. There is one exception, which applies only to legacy sidecars, the format that
+  relied on it: a legacy sidecar (no `sidecar_format`) without `mbf_sha256` takes the digest
+  of the `mbf_render.json` beside it, and that companion is parsed strictly too. A format-2
+  or format-3 sidecar always recorded its own `mbf_sha256` and never takes the companion's.
+  Deleting it is a partial edit: format 3 refuses it by its self-digest, and format 2 by the
+  parser.
+- **Sweep.** These steps changed content before the check, and each is now closed:
+  - the companion backfill, which applied to any sidecar without `mbf_sha256`;
+  - `json.loads` keeping the last of repeated members;
+  - `json.loads` admitting NaN and Infinity;
+  - the private regression's own lenient `json.loads` of `id_map.json`, which now uses
+    `load_sidecar`.
+
+  `import_caepipe_mbf` neither copies nor changes a sidecar before the check. A number's
+  spelling becomes its binary64 value, which is the canonical form's own value model, not a
+  change of content.
+
+*Import.* The self-digest is checked before the parser or any route reads the sidecar. The
+check runs on every route: the exact-digest route, the explicit rebind, and the route that
+leaves a sidecar of another MBF unapplied. A sidecar claims format 3 when `sidecar_format`
+is the integer 3. Such a sidecar is refused, and nothing of it is applied, in three cases:
+
+- **Digest missing.** Refused as `MBF-IMPORT-SIDECAR-INVALID` at `sidecar_sha256`. A removed
+  digest is not read as format 2.
+- **Digest malformed.** A value that is not a lowercase SHA-256 hex digest is refused at
+  `sidecar_sha256` (`-INVALID`).
+- **Digest wrong.** A digest that is not the content's is refused as
+  `MBF-IMPORT-SIDECAR-DIGEST-MISMATCH` at `sidecar_sha256`.
+
+A verified import reports `source.sidecar_self_digest` = `verified`. Two kinds of sidecar
+carry no self-digest: a format-2 sidecar, written before the self-digest existed, and a
+legacy sidecar. Each imports exactly as before, and the import says so by name
+(`MBF-IMPORT-SIDECAR-NO-SELF-DIGEST`, info; `source.sidecar_self_digest` = `absent`).
+Only format 3 has `sidecar_sha256`: a format-2 or legacy sidecar that carries it is refused
+by path. The writer's preflight (§9.4) re-imports the writer's own output with its
+self-digest.
+
+*What it proves and what it does not.* The self-digest detects accidental or partial edits:
+a changed byte, a dropped map, or a sidecar paired with another sidecar's digest. It is not
+a signature. A deliberate editor can recompute it, or remove it and claim format 2. Meaning
+is therefore still governed by the regeneration identity and the agreement rule (§14),
+over exactly the values they governed before. Authorship is still not claimed. Key order,
+whitespace and the JSON spelling of a number are not content. The sidecar reaches the
+importer as a parsed JSON object, and the canonical form sorts its members and writes the
+value of each number.
 
 **Legacy sidecars.** A sidecar without `sidecar_format` is legacy: written by main's
 tranche-1 writer (`si_writer.py` up to 42a86df92f) through `run_pilot.py`. That writer
@@ -1400,7 +1505,8 @@ and wrong shapes are refused by JSON path, for example `element_map[S1].reversed
 union of what every SWBPIPE writer version records, so a sidecar from an older run, without
 `family`, `origin`, `direction` or `y_reference`, still parses:
 
-- top level: format 2 as listed under **Sidecar format**; a legacy sidecar holds the seven
+- top level: format 2 as listed under **Sidecar format**, format 3 the same with
+  `sidecar_sha256` (**The self-digest**); a legacy sidecar holds the seven
   maps below (no `pressure_map`) and `mbf_sha256`, a lowercase SHA-256 or null. The entries
   below are a legacy sidecar's ("optionally": its documented omissions; format 2 keeps only
   the fields listed above);
@@ -1432,7 +1538,7 @@ union of what every SWBPIPE writer version records, so a sidecar from an older r
   wrote (`FOR`, `MOM`, `D`, `ROT`, `LOADS <L> Temperature 1`, `MATERIAL <M> weight
   density`). On a bound import a legacy element's `material`, `section` and `load` must be
   the file's record names;
-- `pressure_map` (format 2 only): as under **Sidecar format**; each terminal has
+- `pressure_map` (formats 2 and 3 only): as under **Sidecar format**; each terminal has
   `node_ref`, `closure_transfer` and provenance;
 - integers (layout order and row) are non-negative and at most 2⁵³, exact in binary64.
 
@@ -1454,7 +1560,7 @@ aliases. The check against the file of what the parser
 admits stays where it was: ownership and pressure of regions (§9.4), supports' DOF sets per
 node (§12), the frame check of `y_reference` (§10.5).
 
-A seeded mutation test exercises the parser on format-2 sidecars of five invented files
+A seeded mutation test exercises the parser on the writer's format-3 sidecars of five invented files
 (pressurized, pressure-free, with a contract and no region, with an authored non-default
 orientation, and with two forces the MBF sums). Each field is swapped for every other JSON type, each container emptied, each
 number made huge or non-finite, an unknown key added and each key removed, and each of the
@@ -1467,13 +1573,19 @@ target, the direction and the case, and adds an entry under the summed primitive
 id (a duplicate primitive id). Each is refused, and the identity alone, which sets aside
 only the summed identity, refuses each too. The regeneration identity alone,
 given the model the file and the unmutated sidecar determine, refuses each mutation too (a
-mutated digest is the parser's: it decides the route). The writer's own sidecar regenerates
+mutated digest is the parser's: it decides the route; a mutated self-digest is the
+self-digest's). The writer's own sidecar regenerates
 exactly, as a positive control, and so does that of every model in the reversible subset
 (§18.2). With pressure, the writer's preflight given the same maps refuses with a named
 `MBF-SI-*` code exactly where the import refuses. Each field is also set to a different
 well-formed value. One the MBF or a derivation determines is refused, and the identity alone
 refuses it. One the writer copies from the model unchanged imports and regenerates as given
-(§14).
+(§14). Each mutation and replacement is imported as a deliberate editor would leave it:
+its self-digest is recomputed, so it reaches the guards above. Each is imported a second
+time with its self-digest left stale, as an accidental edit leaves it. Where the sidecar
+still claims format 3 with a well-formed digest and canonical content, the self-digest
+alone refuses it (`MBF-IMPORT-SIDECAR-DIGEST-MISMATCH`). Otherwise the parser refuses it
+by path.
 
 **What a bound sidecar cannot restore.** Many-to-one mappings and identities the sidecar
 does not preserve are reported, never guessed. Each is listed in the loss report as
@@ -1995,9 +2107,12 @@ tranche, in priority order, each with its writer counterpart where one is missin
 5. hangers;
 6. temperature-dependent materials, after a ruling on modulus basis and mean α.
 
-After tranche 2 merges, not part of its branch (Agent 0, under the owner's delegation): a
-sidecar self-digest over the sidecar's canonical content, to catch accidental or partial
-edits, with older sidecars without one reported as legacy.
+After tranche 2 (Agent 0, under the owner's delegation), the sidecar self-digest is
+**implemented** (§15). The writer records format 3: format 2 plus `sidecar_sha256`, the
+SHA-256 of the RFC 8785 serialisation of the rest. The importer verifies it before anything
+reads the sidecar, on every route. A mismatch, and a format-3 sidecar without the digest,
+are refused by name. Format-2 and legacy sidecars import as before and are reported as
+carrying no self-digest.
 
 Later, in proposed order: concentrated weight and uniform load; contents, insulation and
 lining; rigid and valve joints; reducers (0.8.0); SIF user values; multiple thermal loads;

@@ -29,7 +29,7 @@ if str(ROOT) not in sys.path:
 
 from core.handoff.caepipe_mbf import importer as importer_module  # noqa: E402
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si  # noqa: E402
-from core.handoff.caepipe_mbf.si_writer import current_model_schema_version  # noqa: E402
+from core.handoff.caepipe_mbf.si_writer import current_model_schema_version, sidecar_self_digest  # noqa: E402
 from core.handoff.caepipe_mbf.importer import (  # noqa: E402
     IMPORT_PROFILE_ID,
     REPORT_KIND,
@@ -800,6 +800,7 @@ def test_a_bound_import_restores_straight_orientation_from_the_sidecar():
     # A sidecar orientation that is not a usable vector (here zero length) is refused by name with the element, and
     # nothing is substituted (lane manager, after VER-002 r6).
     sidecar["element_map"]["S"]["y_reference"] = {"x": 0.0, "y": 0.0, "z": 0.0}
+    sidecar["sidecar_sha256"] = sidecar_self_digest(sidecar)  # a deliberate edit, past the self-digest (§15)
     zero = run(data, sidecar=sidecar)
     assert refused(zero, "MBF-IMPORT-ORIENTATION-UNUSABLE")["location"] == "S"
     assert "MBF-IMPORT-ORIENTATION-DEFAULTED" not in {item["code"] for item in zero.diagnostics}
