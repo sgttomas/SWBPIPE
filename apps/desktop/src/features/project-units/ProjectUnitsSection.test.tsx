@@ -168,8 +168,8 @@ describe("project units section", () => {
     expect(item).toHaveTextContent("OP-PROJECT-UNIT-NOT-CANONICAL: `kgf_invented` is not a catalog unit symbol.");
     expect(byId("project-units-section-error")).toHaveTextContent("was refused by the operation engine; nothing was queued");
     // A retired document is refused by the engine too, by name (model document 0.8.0, r6),
-    // and a newer one by the project-unit check.
-    for (const [version, code] of [["0.6.0", "MODEL_SCHEMA_VERSION_RETIRED"], ["0.9.0", "OP-PROJECT-UNIT-DOCUMENT-INVALID"]] as const) {
+    // and a newer one as newer than supported (r7).
+    for (const [version, code] of [["0.6.0", "MODEL_SCHEMA_VERSION_RETIRED"], ["0.9.0", "MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED"]] as const) {
       cleanup();
       const old = { ...seven(), schema_version: version };
       render(<ProjectUnitsSection model={old} onQueueIntent={(intent) => list.push(intent)} unitCatalogRoute={CATALOG} />);

@@ -299,13 +299,13 @@ fn record_operations_refuse_malformed_records_by_the_validator_name() {
     assert_eq!(blocking(&refused(&model, &colliding)), vec!["OP-DATA-ID-COLLISION"]);
     // Model-data records are authored on the current document only: a retired
     // one is refused by name before any operation is checked (model document
-    // 0.8.0, r6); any other non-current version by the record check.
+    // 0.8.0, r6), and a newer one as newer than supported (r7).
     let mut retired = model.clone();
     retired["schema_version"] = json!("0.6.0");
     let operation = record_op("create_line", "Line", "lines", "line:L-400", None, Some(&line("line:L-400", &["pipe:P-2"])));
     assert_eq!(blocking(&refused(&retired, &operation)), vec!["MODEL_SCHEMA_VERSION_RETIRED"]);
     retired["schema_version"] = json!("0.9.0");
-    assert_eq!(blocking(&refused(&retired, &operation)), vec!["OP-DATA-DOCUMENT-INVALID"]);
+    assert_eq!(blocking(&refused(&retired, &operation)), vec!["MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED"]);
 }
 
 /// Tags and notes on every entity type and the project; provenance records on

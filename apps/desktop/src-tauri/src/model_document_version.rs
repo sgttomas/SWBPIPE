@@ -14,10 +14,6 @@
 //! The stored bytes are never rewritten by an open or a save. Contract and
 //! section completeness remain separate from this version-only persistence check.
 
-use open_pipe_stress_product_physics::{
-    is_retired_model_schema_version, retired_model_schema_message, MODEL_SCHEMA_VERSION,
-    MODEL_SCHEMA_VERSION_RETIRED,
-};
 use serde::Serialize;
 use serde_json::Value;
 
@@ -56,73 +52,23 @@ impl ModelDocumentVersionStatus {
     }
 }
 
-fn parse_semver(raw: &str) -> Option<(u64, u64, u64)> {
-    let mut parts = raw.split('.');
-    let major = parts.next()?.parse::<u64>().ok()?;
-    let minor = parts.next()?.parse::<u64>().ok()?;
-    let patch = parts.next()?.parse::<u64>().ok()?;
-    if parts.next().is_some() {
-        return None;
-    }
-    Some((major, minor, patch))
-}
-
-fn status(status: &str, source: &str, target: &str, detail: String) -> ModelDocumentVersionStatus {
-    ModelDocumentVersionStatus {
-        status: status.to_string(),
-        source_schema_version: source.to_string(),
-        target_schema_version: target.to_string(),
-        detail,
-    }
-}
-
-/// Check a model document's version. Never mutates or rewrites the document.
+/// Check a model document's version. Never mutates or rewrites the document. The
+/// states and texts are the applier's (`model_document_version`), which the TS and
+/// Python checks mirror against `fixtures/model_document/version_states.json`.
 pub fn evaluate_model_document(document: &Value) -> ModelDocumentVersionStatus {
-    let raw = document
-        .get("schema_version")
-        .and_then(Value::as_str)
-        .unwrap_or("");
-    if raw == MODEL_SCHEMA_VERSION {
-        return status(
-            "current",
-            raw,
-            raw,
-            format!("Model document {MODEL_SCHEMA_VERSION} is the current version; a pressure contract, when present, and solve eligibility are validated separately."),
-        );
+    let version = open_pipe_stress_operation_applier::evaluate_model_document_version(document);
+    ModelDocumentVersionStatus {
+        status: version.status.to_string(),
+        source_schema_version: version.source_schema_version,
+        target_schema_version: version.target_schema_version,
+        detail: version.detail,
     }
-    let Some(version) = parse_semver(raw) else {
-        return status(
-            "unsupported_schema",
-            if raw.is_empty() { "missing_schema_version" } else { raw },
-            MODEL_SCHEMA_VERSION,
-            "Model document has no valid semver schema_version; refusing to open it for editing without coercion.".to_string(),
-        );
-    };
-    let current = parse_semver(MODEL_SCHEMA_VERSION).expect("the current version is semver");
-    if version > current {
-        return status(
-            "newer_than_supported",
-            raw,
-            MODEL_SCHEMA_VERSION,
-            format!("Model document schema_version {raw} is newer than the current {MODEL_SCHEMA_VERSION}; refusing to open it for editing (no down-migration)."),
-        );
-    }
-    let detail = if is_retired_model_schema_version(raw) {
-        retired_model_schema_message(raw)
-    } else {
-        format!("model document {raw} is not a supported version; re-author it as model document {MODEL_SCHEMA_VERSION}. Nothing is migrated.")
-    };
-    status(
-        "retired_schema",
-        raw,
-        MODEL_SCHEMA_VERSION,
-        format!("{MODEL_SCHEMA_VERSION_RETIRED}: {detail}"),
-    )
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use open_pipe_stress_product_physics::{MODEL_SCHEMA_VERSION, MODEL_SCHEMA_VERSION_RETIRED};
     use serde_json::json;
 
     fn document(version: &str) -> Value {
@@ -198,6 +144,28 @@ mod tests {
             let evaluated = evaluate_model_document(&doc);
             assert_eq!(evaluated.status, "unsupported_schema");
             assert!(evaluated.is_refused());
+        }
+    }
+
+    /// The desktop gives every state in the shared table (the applier's, the TS and Python checks').
+    #[test]
+    fn every_version_state_matches_the_shared_table() {
+        let table: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/version_states.json")).unwrap();
+        for case in table["cases"].as_array().unwrap() {
+            let mut doc = document(MODEL_SCHEMA_VERSION);
+            match case.get("schema_version") {
+                Some(version) => doc["schema_version"] = version.clone(),
+                None => {
+                    doc.as_object_mut().unwrap().remove("schema_version");
+                }
+            }
+            let evaluated = evaluate_model_document(&doc);
+            let label = case["label"].as_str().unwrap();
+            assert_eq!(evaluated.status, case["status"].as_str().unwrap(), "{label}");
+            assert_eq!(evaluated.source_schema_version, case["source_schema_version"].as_str().unwrap(), "{label}");
+            assert_eq!(evaluated.target_schema_version, case["target_schema_version"].as_str().unwrap(), "{label}");
+            assert_eq!(evaluated.detail, case["detail"].as_str().unwrap(), "{label}");
+            assert_eq!(evaluated.is_refused(), case["code"].is_string(), "{label}");
         }
     }
 }

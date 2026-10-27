@@ -67,3 +67,56 @@ fn a_retired_document_is_refused_in_a_batch_and_no_model_is_returned() {
     assert!(outcome["applied_model"].is_null(), "{outcome}");
     assert!(outcome.to_string().contains("MODEL_SCHEMA_VERSION_RETIRED"), "{outcome}");
 }
+
+/// R7-2: every non-current state (`fixtures/model_document/version_states.json`, the
+/// desktop's states) is refused at the common boundary with its code, on validate,
+/// apply and batch, for each kind of edit; nothing is written.
+fn shear_intent(project: &str) -> Value {
+    let mut intent = offset_intent();
+    intent["target"] = json!({"object_type": "Project", "ref": project});
+    intent["change"] = json!({"change_id": "change:test-shear", "change_kind": "set_model_setting", "field_label": "shear model",
+        "field_path": "model_settings.shear_model", "before": "not_present", "after": "euler_bernoulli",
+        "unit": "none", "dimension": "dimensionless", "source_note": "test"});
+    intent
+}
+
+#[test]
+fn every_non_current_version_is_refused_by_state_on_every_entry() {
+    let table: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/version_states.json")).unwrap();
+    let mut refused = 0;
+    for case in table["cases"].as_array().unwrap() {
+        let label = case["label"].as_str().unwrap();
+        let mut document = model("0.8.0");
+        match case.get("schema_version") {
+            Some(version) => document["schema_version"] = version.clone(),
+            None => {
+                document.as_object_mut().unwrap().remove("schema_version");
+            }
+        }
+        let project = document["project"]["id"].as_str().unwrap().to_string();
+        for intent in [offset_intent(), shear_intent(&project)] {
+            let kind = intent["change"]["change_kind"].as_str().unwrap().to_string();
+            let outcomes = [validate_operation(&document, &intent, None), apply_operation(&document, &intent, None)];
+            let batch = apply_operation_batch(&document, &json!({"batch_id": "batch:version", "operations": [intent]}), Some(&claim(&document)));
+            let Some(code) = case["code"].as_str() else {
+                for outcome in outcomes {
+                    assert!(outcome.diagnostics.is_empty(), "{label} {kind}: {:?}", outcome.diagnostics);
+                }
+                assert_eq!(batch["validation"]["application_status"], json!("applied_to_session_model"), "{label} {kind}: {batch}");
+                continue;
+            };
+            let detail = case["detail"].as_str().unwrap();
+            let message = detail.strip_prefix("MODEL_SCHEMA_VERSION_RETIRED: ").unwrap_or(detail);
+            for outcome in outcomes {
+                assert!(outcome.applied_model.is_none(), "{label} {kind}: nothing is written");
+                let named: Vec<_> = outcome.diagnostics.iter().filter(|d| d.code == code).collect();
+                assert_eq!(named.len(), 1, "{label} {kind}: {:?}", outcome.diagnostics);
+                assert_eq!((named[0].severity.as_str(), named[0].message.as_str()), ("blocking", message), "{label} {kind}");
+            }
+            assert!(batch["applied_model"].is_null(), "{label} {kind}: {batch}");
+            assert!(batch.to_string().contains(code), "{label} {kind}: {batch}");
+            refused += 1;
+        }
+    }
+    assert_eq!(refused, 2 * 18, "eighteen non-current states, two edits each");
+}

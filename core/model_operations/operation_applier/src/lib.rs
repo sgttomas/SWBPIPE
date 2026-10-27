@@ -45,6 +45,8 @@ pub use atomic_batch::{apply_operation_batch, validate_operation_batch};
 pub use display_units::convert_display_quantities;
 pub use library_apply::derived_shear_modulus_pa;
 pub use document_validator::{validate_model_document, DocumentDiagnostic};
+pub mod model_document_version;
+pub use model_document_version::{evaluate_model_document_version, ModelDocumentVersion};
 
 pub const OPERATION_APPLIER_VERSION: &str = "0.1.0";
 pub const OUTCOME_DOCUMENT_KIND: &str = "openpipestress.desktop.operation_outcome";
@@ -1425,19 +1427,19 @@ fn run_with_context(
     check_audit_boundary(intent, &operation_id, &mut checker);
     check_kinds(&operation_kind, &change_kind, &operation_id, &mut checker);
     // Model document 0.8.0 (DEL-02-01 Design `model-document-0.8.0.md` §3.1): the applier
-    // operates only on a current document. A retired one is refused by name, with the
-    // solve's and the desktop's code and text, before any change is checked or written;
+    // operates only on a current document. Any other version is refused by name with the
+    // desktop's state and code (`model_document_version`): an older one as
+    // MODEL_SCHEMA_VERSION_RETIRED with the re-author text, a newer one as
+    // MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED, and a missing, non-string or non-semver
+    // one as MODEL_SCHEMA_VERSION_UNSUPPORTED, before any change is checked or written;
     // nothing is migrated. Every operation, single or in a batch, passes here.
-    if let Some(version) = model
-        .get("schema_version")
-        .and_then(Value::as_str)
-        .filter(|version| open_pipe_stress_product_physics::is_retired_model_schema_version(version))
-    {
+    let version = model_document_version::evaluate_model_document_version(model);
+    if let Some(code) = version.refusal_code() {
         checker.schema_blocked = true;
         checker.push(
-            open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION_RETIRED,
+            code,
             "blocking",
-            open_pipe_stress_product_physics::retired_model_schema_message(version),
+            version.refusal_message().to_string(),
             "Re-author the model as the current model document version; nothing is migrated.",
             vec![target_ref.clone()],
         );

@@ -286,12 +286,12 @@ fn the_wire_is_checked() {
     clear_with_value["change"]["after"] = json!("2");
     refused(&set_model, &clear_with_value, "OP-MODEL-SETTING-SHAPE-INVALID");
     // A retired document is refused by name before any operation is checked
-    // (model document 0.8.0, r6); any other non-current one by the settings check.
+    // (model document 0.8.0, r6), and a newer one as newer than supported (r7).
     let mut old = model.clone();
     old["schema_version"] = json!("0.6.0");
     refused(&old, &set(&old, "2", "mm"), "MODEL_SCHEMA_VERSION_RETIRED");
     old["schema_version"] = json!("0.9.0");
-    refused(&old, &set(&old, "2", "mm"), "OP-MODEL-SETTING-DOCUMENT-INVALID");
+    refused(&old, &set(&old, "2", "mm"), "MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED");
 }
 
 /// Through the solve: two nodes 3 mm apart warn at the 5 mm default; after

@@ -1,0 +1,176 @@
+{
+  "description": "Model-document version states (DEL-02-05 CLM-003; DEL-02-01 Design model-document-0.8.0.md §3.1): each case's schema_version (absent when the case has none) and the state, versions, detail and refusal code every version check gives. Invented test data; checked by the applier (model_document_version.rs), the desktop (src-tauri model_document_version.rs, projectService.ts) and Python persistence.",
+  "current": "0.8.0",
+  "cases": [
+    {
+      "label": "current",
+      "schema_version": "0.8.0",
+      "status": "current",
+      "source_schema_version": "0.8.0",
+      "target_schema_version": "0.8.0",
+      "detail": "Model document 0.8.0 is the current version; a pressure contract, when present, and solve eligibility are validated separately.",
+      "code": null
+    },
+    {
+      "label": "retired 0.7.0",
+      "schema_version": "0.7.0",
+      "status": "retired_schema",
+      "source_schema_version": "0.7.0",
+      "target_schema_version": "0.8.0",
+      "detail": "MODEL_SCHEMA_VERSION_RETIRED: model document 0.7.0 is retired; re-author it as model document 0.8.0 (a pressure-free model omits pressure_contract). Nothing is migrated.",
+      "code": "MODEL_SCHEMA_VERSION_RETIRED"
+    },
+    {
+      "label": "retired 0.1.0",
+      "schema_version": "0.1.0",
+      "status": "retired_schema",
+      "source_schema_version": "0.1.0",
+      "target_schema_version": "0.8.0",
+      "detail": "MODEL_SCHEMA_VERSION_RETIRED: model document 0.1.0 is retired; re-author it as model document 0.8.0 (a pressure-free model omits pressure_contract). Nothing is migrated.",
+      "code": "MODEL_SCHEMA_VERSION_RETIRED"
+    },
+    {
+      "label": "older, unlisted 0.4.1",
+      "schema_version": "0.4.1",
+      "status": "retired_schema",
+      "source_schema_version": "0.4.1",
+      "target_schema_version": "0.8.0",
+      "detail": "MODEL_SCHEMA_VERSION_RETIRED: model document 0.4.1 is not a supported version; re-author it as model document 0.8.0. Nothing is migrated.",
+      "code": "MODEL_SCHEMA_VERSION_RETIRED"
+    },
+    {
+      "label": "older, unlisted 0.0.1",
+      "schema_version": "0.0.1",
+      "status": "retired_schema",
+      "source_schema_version": "0.0.1",
+      "target_schema_version": "0.8.0",
+      "detail": "MODEL_SCHEMA_VERSION_RETIRED: model document 0.0.1 is not a supported version; re-author it as model document 0.8.0. Nothing is migrated.",
+      "code": "MODEL_SCHEMA_VERSION_RETIRED"
+    },
+    {
+      "label": "newer patch",
+      "schema_version": "0.8.1",
+      "status": "newer_than_supported",
+      "source_schema_version": "0.8.1",
+      "target_schema_version": "0.8.0",
+      "detail": "Model document schema_version 0.8.1 is newer than the current 0.8.0; refusing to open it for editing (no down-migration).",
+      "code": "MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED"
+    },
+    {
+      "label": "newer minor",
+      "schema_version": "0.9.0",
+      "status": "newer_than_supported",
+      "source_schema_version": "0.9.0",
+      "target_schema_version": "0.8.0",
+      "detail": "Model document schema_version 0.9.0 is newer than the current 0.8.0; refusing to open it for editing (no down-migration).",
+      "code": "MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED"
+    },
+    {
+      "label": "newer major",
+      "schema_version": "1.0.0",
+      "status": "newer_than_supported",
+      "source_schema_version": "1.0.0",
+      "target_schema_version": "0.8.0",
+      "detail": "Model document schema_version 1.0.0 is newer than the current 0.8.0; refusing to open it for editing (no down-migration).",
+      "code": "MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED"
+    },
+    {
+      "label": "missing",
+      "status": "unsupported_schema",
+      "source_schema_version": "missing_schema_version",
+      "target_schema_version": "0.8.0",
+      "detail": "Model document has no valid semver schema_version; refusing to open it for editing without coercion.",
+      "code": "MODEL_SCHEMA_VERSION_UNSUPPORTED"
+    },
+    {
+      "label": "empty",
+      "schema_version": "",
+      "status": "unsupported_schema",
+      "source_schema_version": "missing_schema_version",
+      "target_schema_version": "0.8.0",
+      "detail": "Model document has no valid semver schema_version; refusing to open it for editing without coercion.",
+      "code": "MODEL_SCHEMA_VERSION_UNSUPPORTED"
+    },
+    {
+      "label": "null",
+      "schema_version": null,
+      "status": "unsupported_schema",
+      "source_schema_version": "missing_schema_version",
+      "target_schema_version": "0.8.0",
+      "detail": "Model document has no valid semver schema_version; refusing to open it for editing without coercion.",
+      "code": "MODEL_SCHEMA_VERSION_UNSUPPORTED"
+    },
+    {
+      "label": "number",
+      "schema_version": 17,
+      "status": "unsupported_schema",
+      "source_schema_version": "missing_schema_version",
+      "target_schema_version": "0.8.0",
+      "detail": "Model document has no valid semver schema_version; refusing to open it for editing without coercion.",
+      "code": "MODEL_SCHEMA_VERSION_UNSUPPORTED"
+    },
+    {
+      "label": "object",
+      "schema_version": {},
+      "status": "unsupported_schema",
+      "source_schema_version": "missing_schema_version",
+      "target_schema_version": "0.8.0",
+      "detail": "Model document has no valid semver schema_version; refusing to open it for editing without coercion.",
+      "code": "MODEL_SCHEMA_VERSION_UNSUPPORTED"
+    },
+    {
+      "label": "two parts",
+      "schema_version": "0.8",
+      "status": "unsupported_schema",
+      "source_schema_version": "0.8",
+      "target_schema_version": "0.8.0",
+      "detail": "Model document has no valid semver schema_version; refusing to open it for editing without coercion.",
+      "code": "MODEL_SCHEMA_VERSION_UNSUPPORTED"
+    },
+    {
+      "label": "four parts",
+      "schema_version": "0.8.0.0",
+      "status": "unsupported_schema",
+      "source_schema_version": "0.8.0.0",
+      "target_schema_version": "0.8.0",
+      "detail": "Model document has no valid semver schema_version; refusing to open it for editing without coercion.",
+      "code": "MODEL_SCHEMA_VERSION_UNSUPPORTED"
+    },
+    {
+      "label": "prefixed",
+      "schema_version": "v0.8.0",
+      "status": "unsupported_schema",
+      "source_schema_version": "v0.8.0",
+      "target_schema_version": "0.8.0",
+      "detail": "Model document has no valid semver schema_version; refusing to open it for editing without coercion.",
+      "code": "MODEL_SCHEMA_VERSION_UNSUPPORTED"
+    },
+    {
+      "label": "leading space",
+      "schema_version": " 0.8.0",
+      "status": "unsupported_schema",
+      "source_schema_version": " 0.8.0",
+      "target_schema_version": "0.8.0",
+      "detail": "Model document has no valid semver schema_version; refusing to open it for editing without coercion.",
+      "code": "MODEL_SCHEMA_VERSION_UNSUPPORTED"
+    },
+    {
+      "label": "signed",
+      "schema_version": "+0.8.0",
+      "status": "unsupported_schema",
+      "source_schema_version": "+0.8.0",
+      "target_schema_version": "0.8.0",
+      "detail": "Model document has no valid semver schema_version; refusing to open it for editing without coercion.",
+      "code": "MODEL_SCHEMA_VERSION_UNSUPPORTED"
+    },
+    {
+      "label": "leading zero",
+      "schema_version": "0.08.0",
+      "status": "retired_schema",
+      "source_schema_version": "0.08.0",
+      "target_schema_version": "0.8.0",
+      "detail": "MODEL_SCHEMA_VERSION_RETIRED: model document 0.08.0 is not a supported version; re-author it as model document 0.8.0. Nothing is migrated.",
+      "code": "MODEL_SCHEMA_VERSION_RETIRED"
+    }
+  ]
+}
