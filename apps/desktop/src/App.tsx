@@ -115,6 +115,8 @@ import { SupportLoadSummaryPanel } from "./features/results/SupportLoadSummaryPa
 import { StressRatioTablePanel } from "./features/results/StressRatioTablePanel";
 import { DisplacementExtremesPanel } from "./features/results/DisplacementExtremesPanel";
 import { WeightSummaryPanel } from "./features/results/WeightSummaryPanel";
+import { KeyResultsPanel } from "./features/results/KeyResultsPanel";
+import { useKeyResultsSession } from "./features/results/useKeyResultsSession";
 import { resolveLocatedCauseSelection } from "./features/results/resultInterpretation";
 import { useDiagnosticFilterRequest, type DiagnosticFilterRequest } from "./features/diagnostics/diagnosticFilterRequest";
 import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPanel";
@@ -335,6 +337,19 @@ function AppSession() {
   // "Show solver diagnostic" (DEL-07-05 numerical health §3): the Issues drawer's
   // Diagnostics panel opens filtered to exactly that diagnostic, once.
   const { filterRequest: diagnosticFilterRequest, requestDiagnosticFilter } = useDiagnosticFilterRequest({ issuesDrawerOpen, result, analysisRun });
+  // A6 (DEL-07-05 Design `key-results-panel.md`): the key-results panel's open state, auto-open
+  // rule and actions, each through an existing setter. The rule-check run follows the A3 rule.
+  const keyResults = useKeyResultsSession({
+    result,
+    standing: viewportResultStanding,
+    historical: historicalRun !== null,
+    setActiveSection,
+    selectEntity: (entity) => { handleSelectEntity(entity); },
+    viewCommandRef: viewportViewCommandRef,
+    enterModelStage: () => runMenuCommand("view.stage.model"),
+    openRuleChecks: () => runMenuCommand("analyze.rule-checks")
+  });
+  const keyResultsRuleCheckRun = currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null;
 
   // In the packaged Tauri shell the OS-level menu bar is the single menu, so the
   // in-DOM menu bar is suppressed to avoid a redundant second row. In the
@@ -414,7 +429,8 @@ function AppSession() {
           run={runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null, numericalHealthHold })}
           theme={uiPreferences.theme}
           density={uiPreferences.density}
-          onCommand={runMenuCommand}
+          keyResultsOpen={keyResults.open}
+          onCommand={(command) => { if (command === "view.key-results") { setOpenMenu(null); keyResults.toggle(); } else runMenuCommand(command); }}
           onOpenMenu={setOpenMenu}
         />
       ) : null}
@@ -727,6 +743,9 @@ function AppSession() {
               <button type="button" onClick={() => void handleInspectBundledReference()}>
                 Inspect bundled reference
               </button>
+              <button type="button" data-testid="key-results-open" aria-pressed={keyResults.open} onClick={keyResults.toggle}>
+                Key results
+              </button>
               {historicalRun ? <HistoricalRunPanel key={historicalRun.runId} context={historicalRun} /> : <ResultsPanel
                 result={result}
                 knowledge={knowledge}
@@ -734,6 +753,7 @@ function AppSession() {
                 selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
                 onSelectResult={handleSelectResult}
                 selectedEntity={selection}
+                viewRequest={keyResults.resultsRequest}
                 numericalHealth={numericalHealth}
                 resolveCauseLocation={(location) => resolveLocatedCauseSelection(model, location)}
                 onSelectCauseLocation={(entity) => handleSelectEntity(entity)}
@@ -750,6 +770,7 @@ function AppSession() {
                   result={result}
                   standing={viewportResultStanding}
                   focusSupportId={selection.type === "support" ? selection.id : null}
+                  focusRequest={keyResults.supportRequest}
                 />
               )}
               {historicalRun ? null : (
@@ -1215,6 +1236,20 @@ function AppSession() {
       </div>
 
       <SolveProgressPanel solveJob={solveJob} running={running} onCancel={handleCancelRun} />
+      {keyResults.open ? (
+        <KeyResultsPanel
+          model={model}
+          result={result}
+          standing={viewportResultStanding}
+          ruleCheckRun={keyResultsRuleCheckRun}
+          historical={historicalRun !== null}
+          canvasHidden={stageView === "table"}
+          everySolve={keyResults.everySolve}
+          onEverySolveChange={keyResults.setEverySolve}
+          panelRef={keyResults.panelRef}
+          {...keyResults.actions}
+        />
+      ) : null}
       <ShellStatusBar issueCount={issueCount} />
 
       {auditDrawerOpen ? (
@@ -1314,6 +1349,7 @@ function MenuBar({
   run,
   theme,
   density,
+  keyResultsOpen = false,
   onCommand,
   onOpenMenu
 }: {
@@ -1324,6 +1360,7 @@ function MenuBar({
   run: Parameters<typeof railStageStates>[0];
   theme: UiThemePreference;
   density: UiDensityPreference;
+  keyResultsOpen?: boolean;
   activeSection: WorkspaceSectionId | null;
   auditOpen: boolean;
   canRedo: boolean;
@@ -1414,6 +1451,7 @@ function MenuBar({
         { kind: "separator" },
         { kind: "command", id: "view.issues", label: "Issues", active: issuesOpen },
         { kind: "command", id: "view.audit", label: "Audit & Boundaries", active: auditOpen },
+        { kind: "command", id: "view.key-results", label: "Key Results", active: keyResultsOpen },
         { kind: "separator" },
         ...(["light", "dark", "system"] as const).map((value): MenuItemSpec => ({
           kind: "command", id: `view.theme.${value}`, label: { light: "Light", dark: "Dark", system: "System" }[value], active: theme === value

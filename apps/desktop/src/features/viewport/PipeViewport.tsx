@@ -2445,6 +2445,22 @@ export function PipeViewport({
       setViewCommandStatus(`${visibilitySelectionKeys.length} selected item${visibilitySelectionKeys.length === 1 ? "" : "s"} isolated; other shown geometry is dimmed to 20%.`);
       return;
     }
+    if (command.type === "show-result-colour") {
+      // As the Result colour toggle turned on, then the legend's quantity and case selectors.
+      setResultColourOn(true);
+      setOverlayQuantityId(command.quantityId);
+      setOverlayCaseKey(command.caseKey);
+      setViewCommandStatus("Result colour shown.");
+      return;
+    }
+    if (command.type === "show-deflected-shape") {
+      // As the deformation popover's case selector (`DeflectedShapeControls` onCaseChange).
+      setDeflectionCaseKey(command.caseKey);
+      setDeflectionFactor(null);
+      setDeflectionPhase(1);
+      setViewCommandStatus("Deflected shape case chosen.");
+      return;
+    }
     if (command.type === "show-all") {
       onClearVisibility();
       setViewCommandStatus("All eligible model geometry shown.");
