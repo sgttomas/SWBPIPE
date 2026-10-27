@@ -105,6 +105,18 @@ describe("on-demand model checks", () => {
     expect(run.findings).toEqual([]);
   });
 
+  // Codex review r4 of #1665: a check whose start wait ends with every worker
+  // slot occupied has ended; it does not wait as a queued solve does.
+  it("in the app, a check refused for occupied worker slots says it ended and can be run again", async () => {
+    const model = clone(await loadPreviewModel());
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockRejectedValue({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "worker_limit_reached", running: 2, limit: 2 } });
+    const run = await runModelChecks(model);
+    expect(run.solve).toEqual({ kind: "unavailable", reason: "Refused by the native memory pool: Model checks could not start because all worker slots are occupied (2 running, limit 2). Run model checks again after a running worker finishes." });
+    expect(run.solve.kind === "unavailable" && run.solve.reason).not.toContain("waits until one finishes");
+    expect(run.findings).toEqual([]);
+  });
+
   it("in the browser preview, refuses a model text above the bound by name without passing it to the engine", async () => {
     const model = clone(await loadPreviewModel());
     model.nodes[0] = { ...model.nodes[0], provenance: "x".repeat(MODEL_CHECKS_MAX_BROWSER_INPUT_BYTES) };

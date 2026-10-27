@@ -16,6 +16,7 @@ import { invoke } from "@tauri-apps/api/core";
 import type { Diagnostic, EntityRef, PreviewModel } from "../../types";
 import { loadedWasmEngine, WASM_ENGINE_BUILD_COMMAND } from "../../services/wasmEngine/loadWasmEngine";
 import { invokeWithIngress, nativeFailureText } from "../../services/nativeIngress";
+import { ResourceUnavailableError } from "../../services/memoryPool";
 import { isTauriRuntime } from "../../services/nativeMenu";
 import { DOCUMENT_VALIDATOR_SOURCE } from "../model-data/documentDiagnostics";
 import { resolveEntitySelection } from "../results/resultInterpretation";
@@ -127,6 +128,18 @@ export async function cancelNativeModelChecks(): Promise<void> {
   }
 }
 
+/** A native refusal of the checks, read for this command. A check does not
+ * queue: when every worker slot stays occupied through its start wait it ends,
+ * so the solve's "waits until one finishes" reading would be untrue here
+ * (Codex review r4 of #1665). */
+function checkFailureText(error: unknown): string {
+  if (error instanceof ResourceUnavailableError && error.refusal.kind === "worker_limit_reached") {
+    const { running, limit } = error.refusal;
+    return `Refused by the native memory pool: Model checks could not start because all worker slots are occupied (${running} running, limit ${limit}). Run model checks again after a running worker finishes.`;
+  }
+  return nativeFailureText(error);
+}
+
 /** The engine's checks for `model`: the solve's checks before stiffness
  * formation and the W-13 slot checks, in one bounded report. In the native app
  * they run in the native host (`check_preview_model`), admitted by its memory
@@ -140,7 +153,7 @@ export async function engineModelChecks(model: PreviewModel): Promise<EngineChec
     try {
       report = await invokeWithIngress<ModelChecksReport>("check_preview_model", { model });
     } catch (error) {
-      return unavailable(nativeFailureText(error));
+      return unavailable(checkFailureText(error));
     }
   } else {
     const engine = loadedWasmEngine();
