@@ -1254,6 +1254,14 @@ command's ingress lease once, by the largest candidate's
 `text_parse_bytes(·, Moved)`. It then parses the candidates one at a time and
 drops each before the next, so at most one embedded value is held beside M,
 and the peak beyond M stays within that growth and the reported site.
+That bound covers detection (`library_reference_site`). Formatting the
+refusal message from the reported site (`refuse_library_referenced`) allocates
+further, up to about four times the site's pointer and kept texts (Codex round
+2 at #1673: 8,388,656 bytes on 124 enclosing keys of 4,000 bytes each, against
+7,280 bytes of growth plus a 2,099,200-byte site allowance). Slice (r2c)
+prices that formatting within route 010's ingress lease, which the
+budget-bounded growth rule of DEL-04-07 (draft #1676) caps at the budget the
+command was admitted under.
 
 **The webview** applies the same three rules as an early check
 (`libraryRefMemberSites`, the substring tests, and `JSON.parse` in a `try` for
