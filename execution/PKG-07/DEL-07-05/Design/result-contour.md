@@ -113,12 +113,13 @@ the member's whole length. This is the one-value display, not an extrapolation
 of stations, and the legend says how many members are shown this way. The
 rule-check outcomes follow the same two rules.
 
-**A station's sign.** For a signed quantity (the table below), a station has a
-sign when every row stated there has the same sign: 0 when all are zero, and
-none when they differ. A station also records the sign convention its rows
-state (`metadata.sign_convention`), when they all state the same one. The row
-that gives a station's value is kept, and that row is the one each number's
-tooltip names.
+**A station's sign.** For a signed quantity (the table below), each row is
+first expressed in the section convention, the j-side section action
+(`sectionSignFactor`, from the row's `metadata.sign_convention` and location).
+The station's sign is then the sign its non-zero rows share. It is 0 when every
+row is zero, so {0, +2} gives +. It has no sign when its non-zero rows disagree,
+or when any row's convention cannot be converted exactly. The row that gives a
+station's value is kept, and that row is the one each number's tooltip names.
 
 | Quantity | Rows | Rule along members |
 |---|---|---|
@@ -131,11 +132,29 @@ tooltip names.
 | Transverse shear stress maximum | Non-negative | Magnitude |
 | User-rule ratio | A ratio, never signed | Magnitude |
 
-The emitted rows state the end stations (`end_i`, `end_j`) under the element's
-end-force conventions. They state the interior stations under the section
-convention (the j-side section action). Signs are compared only between
-adjacent stations that state the same convention, so an end station's sign is
-not compared with an interior station's. No sign is ever inferred.
+**Conventions.** Force and moment end rows use node-on-element end actions:
+negate the i-end components and retain the j-end components to express section
+signs. Endpoint torsional shear stress already uses section resultants. This
+agrees with my reading of the producer (`core/product_physics/src/lib.rs`):
+
+- The straight end rows state "positive value follows the element-local DOF at
+  the i-end (j-end) force vector", and the producer notes that "Raw end rows
+  remain node-on-element actions" while the station rows use the j-side
+  section cut.
+- The curved-bend end rows say so outright: the i-end value "equals minus the
+  j-side section action at end_i", and the j-end value "equals the j-side
+  section action at end_j".
+- The station rows, and the endpoint torsional shear stress rows, state the
+  "j-side section action".
+- The curved-bend section rows state their arc-tangent frame without the words
+  "j-side". The producer forms them as the j-side cut action ("Negate all
+  components together to express the j-side cut action, matching curved
+  station orientation"), so that exact convention is read as the section
+  convention too.
+
+An i-end row is converted only at `end_i` and a j-end row only at `end_j`. Any
+other convention, or a convention at the wrong end, is not converted, and the
+station has no sign. No sign is ever inferred.
 
 **Interpolation.** `interpolateStations` is the one pure, tested function the
 contour uses.
@@ -148,15 +167,24 @@ contour uses.
 - There is no value at a station without a value, or between it and either
   neighbour. Nothing is interpolated across a gap.
 - For a signed quantity, there is no value strictly between two adjacent
-  stations of opposite non-zero sign stated under one convention
-  (`oppositeSigns`). Blending their magnitudes would hide the zero crossing, so
-  that open interval has the no-value colour. Each station keeps its own value
-  at the station, as a ring joined to the gap by a hard edge, which is how the
-  mesh draws a station beside any gap.
+  stations whose section signs are opposite, or either of whose section signs
+  cannot be established (`signBreak`). That open interval has the no-value
+  colour.
+
+**Station bands.** Each stated station with a value is drawn as a short band
+in its own value colour, centred on the station. The band is one sleeve
+diameter long (2 × 1.12 × the member's tube radius), so it is a mark the size
+of the pipe it sits on. It reaches at most a sixteenth of the member either side
+(`CONTOUR_BAND_MAX_HALF_FRACTION`), so the bands of the quarter-point grid never
+meet. It is clipped to the stated span and to half the distance to each
+neighbour. Beside a gap, the band therefore keeps the station's own value
+visible, an isolated station between two gaps included. Beside a blend, the
+band meets the blend at its edge, where the blend takes the interpolated value
+there.
 
 Otherwise the values interpolated are the magnitudes the overlay already
-shows. That covers a magnitude quantity, a signed quantity between stations of
-the same sign or with a zero, and stations whose conventions differ. For two
+shows. That covers a magnitude quantity, and a signed quantity between stations
+of the same section sign or with a zero. For two
 stations of one sign, the blend of their magnitudes is the magnitude of the
 straight-line blend of their signed values. In every other case it is not, and
 the legend says so in the product's words whenever Along member is selected:
@@ -166,11 +194,13 @@ represent a signed result or its zero crossing".
 ### Sign changes: the rule and its reason
 
 **Rule.** Two adjacent stated stations of a signed quantity may carry opposite
-signs under one stated sign convention. The open interval between them is then
-a gap in the no-value colour, and each station keeps its own value at the
-station. An unsigned magnitude, or an extremum whose governing component may
-switch, carries no usable sign. Its stations are blended, and the legend
-discloses the blend explicitly.
+section signs, after the end rows are converted as above. The open interval
+between them is then a gap in the no-value colour, and each station keeps its
+own value, shown as its band. The same holds when a station's section sign
+cannot be established. Such a quantity's sign is known in kind, so a disclosure
+alone would not be enough. An unsigned magnitude, or an extremum whose
+governing component may switch, carries no usable sign. Its stations are
+blended, and the legend discloses the blend explicitly.
 
 **Reason.** A signed result that changes sign between two stations must pass
 through zero somewhere between them. A straight-line blend of the two
@@ -181,7 +211,8 @@ For an unsigned quantity no such crossing is known, so the blend is kept, and
 the disclosure says it does not represent a signed result or its zero crossing.
 
 The rule was decided by the manager in review r1 and endorsed by Agent 0
-(2026-10-27).
+(2026-10-27). Review r2 added the end-convention conversion and the no-value
+interval for a sign that cannot be established.
 
 **One value per member** is the special case. Each member's value is the
 largest magnitude over all its rows, exactly as before this item. Its colour
@@ -210,16 +241,17 @@ a limit.
 - how many members are drawn from stations, and how many are shown as one
   value;
 - the count of stated stations without a value;
-- the count of intervals between stations of opposite sign;
+- the count of intervals between stations of opposite or unknown section sign;
 - the count of rows not drawn because they state no station;
 - the boundary sentence "Along members, colour between two stated stations is
   a straight-line graphical blend of adjacent stated magnitudes, which does not
   represent a signed result or its zero crossing. Outside the first and last
   stated stations the tube has the no-value colour.";
 - the quantity's sign rule. For a signed quantity: "This quantity is signed:
-  between adjacent stations of opposite sign stated under one sign convention
-  the tube has the no-value colour. Signs stated under different conventions,
-  such as the end-force and section conventions, are not compared." Otherwise:
+  each row is expressed in the section convention (end-force rows at end i are
+  negated), and between adjacent stations of opposite section sign, or of a
+  sign that cannot be established, the tube has the no-value colour; each
+  station's own value is shown as a short band." Otherwise:
   "This quantity is shown as a magnitude whose sign is not stated or may switch
   between stations; no sign is inferred."
 
@@ -328,9 +360,9 @@ member's ten-sided tube. It runs from the first to the last stated station.
 
 The sleeve has a ring of vertices at each contour ring (`contourRings`):
 
-- every stated station;
-- enough pieces per interval that a piece spans at most one twelfth of the
-  scale, with at most 12 pieces per interval;
+- the two edges of every station band (a single ring without a band);
+- enough pieces between bands that a piece spans at most one twelfth of the
+  scale, with at most 8 pieces per interval;
 - an exact threshold crossing, drawn as a hard edge, including one at a
   station;
 - the two sides of every gap, including a sign change, drawn as hard edges.
@@ -369,9 +401,11 @@ D-72 as follows:
   existing browser evidence (`e2e/result-overlays.spec.ts`) still holds, so
   the orbit workload with result colour is unchanged by default.
 - Along member adds one draw call per spatial chunk that has a sleeve. It adds
-  `(rings − 1) × 8 × 2` triangles per member. Five stations, with the piece cap
-  reached in every interval, give at most 768 triangles per member, plus up to
-  32 for each threshold crossing or gap edge.
+  `(rings − 1) × 8 × 2` triangles per member. Five stations give at most 47
+  ring intervals: 3 per station band, counting its two hard edges, and 8 per
+  interval at the piece cap. That is at most 752 triangles per member, within
+  the 768 first stated, plus up to 32 for each threshold crossing. A gap is one
+  piece, so it adds none.
 - The D-72 orbit qualification with result colour has not run, with or without
   sleeves. Nothing here claims or implies it, or any performance acceptance.
 - The number for along-member colour remains item 6's to propose, and the
@@ -382,8 +416,10 @@ D-72 as follows:
 - `resultContour.test.ts` covers:
   - interpolation at stations, ends, a single value and non-finite values,
     with no extrapolation;
-  - opposite signs (a gap), the same sign (a blend), and signs under
-    different conventions or with a zero (a blend, with no sign inferred);
+  - opposite section signs or an unknown sign (a gap), and the same sign or a
+    zero (a blend);
+  - station bands of non-zero length, an isolated station between gaps
+    included, and the band's edge meeting the blend;
   - rings, pieces, threshold edges inside an interval and at a station, gaps
     and sign-change gaps;
   - numbers, the threshold and the budget;
@@ -394,7 +430,11 @@ D-72 as follows:
   - non-finite stations, nodal ends, and members with one stated value;
   - the no-value tube beneath a member drawn from stations at 0.25 and 0.75;
   - the governing row of a station with two rows;
-  - station signs for a signed quantity, and none for the section extreme;
+  - section signs from the producer's conventions: an i-end row negated (a gap
+    against +2 at quarter_1), a j-end row kept, the endpoint torsional shear
+    stress as stated, and an unconvertible convention or wrong end giving a
+    no-value interval;
+  - the zero rule for a station's sign, and no sign for the section extreme;
   - the standing per case;
   - the member table under a threshold, and the numbers display;
   - rule ratios, including incomplete outcomes, withheld outcomes and the
@@ -405,6 +445,8 @@ D-72 as follows:
   - ring geometry and radius;
   - no picking;
   - ring colours in both themes;
+  - for every stated station, triangles of non-zero area in its own value
+    colour, an isolated station between two sign gaps included;
   - the theme repaint through the resource's palette path.
 - `PipeViewport.contour.test.tsx` covers:
   - labelled, focusable controls;
