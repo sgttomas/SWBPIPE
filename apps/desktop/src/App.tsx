@@ -109,6 +109,8 @@ import { ResultExportPanel } from "./features/result-export/ResultExportPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
 import { SupportLoadSummaryPanel } from "./features/results/SupportLoadSummaryPanel";
 import { StressRatioTablePanel } from "./features/results/StressRatioTablePanel";
+import { DisplacementExtremesPanel } from "./features/results/DisplacementExtremesPanel";
+import { WeightSummaryPanel } from "./features/results/WeightSummaryPanel";
 import { resolveLocatedCauseSelection } from "./features/results/resultInterpretation";
 import { useDiagnosticFilterRequest, type DiagnosticFilterRequest } from "./features/diagnostics/diagnosticFilterRequest";
 import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPanel";
@@ -718,6 +720,24 @@ function AppSession() {
                     }
                   }}
                 />
+              )}
+              {historicalRun ? null : (
+                // A8: displacement extremes per node across the chosen cases, under the same standing.
+                <DisplacementExtremesPanel
+                  model={model}
+                  result={result}
+                  standing={viewportResultStanding}
+                  selectedNodeId={selection.type === "node" ? selection.id : null}
+                  onSelectNode={(nodeId) => {
+                    const entity = resolveEntitySelection(model, nodeId);
+                    if (entity) handleSelectEntity(entity);
+                  }}
+                />
+              )}
+              {historicalRun ? null : (
+                // A9: weight and centre of gravity of the model, a line or the selected pipes, from the
+                // self-weight generator's own weights; model data, so no solve is needed.
+                <WeightSummaryPanel model={model} selectedPipeRefs={selectedPipeRefs} />
               )}
               <ComparisonPanel
                 comparison={withinRun.status === "ready" ? withinRun.comparison : null}
