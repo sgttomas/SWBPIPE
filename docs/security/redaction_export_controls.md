@@ -306,6 +306,25 @@ null label is unchanged: it falls back to the provenance, as an absent one does,
 so null privacy and redistribution under public, permissive provenance are
 included (`SAFE_PUBLIC_METADATA`).
 
+**Alias.** The route projector reads a record's privacy for its direct public
+basis from `privacy_classification`, and from the `classification` alias only
+when `privacy_classification` is absent. A present primary label, null
+included, is the label and the alias is ignored, so a null primary label cannot
+let the alias lift a sibling into a public basis (HELP_HUMAN decision under the
+owner's delegation, 2026-10-27). TypeScript formerly read the alias with `??`,
+so `{"privacy_classification": null, "classification": "public",
+"redistribution_status": "public_permissive", "note": ...}` included `note` in
+`public_report` on `DREP-JSON-002`; Python read it as now, and the test-only
+Rust mirror carries the same reading for the sweep's projector cases. The
+projector's public basis does not read the record's provenance, so a null
+primary label gives the record no public basis: its siblings are labelled by
+their paths, and an unknown leaf is redacted (`REDISTRIBUTION_STATUS_UNKNOWN`)
+in the public and shared contexts and warning-only in `local_private`. The item
+classifier reads no alias: a null `privacy_classification` falls back to the
+provenance as above, never to `classification`. The user-release projector's
+`privacy_class` alias is likewise read only when `privacy_classification` is
+absent from the object and its provenance.
+
 **Flags.** All three recognize the strings `true`, `yes`, `explicit`,
 `present`, `local_private` and `explicit_local_private`, compared after
 trimming and lowercasing. Python and JavaScript lowercase by Unicode and Rust by
@@ -332,12 +351,20 @@ JavaScript (checked over every code point), so the three agree.
 `false`. `"false"`, `"no"`, `""`, `0`, `[]` and `{}` all block.
 
 **Proof.** `fixtures/redaction_export_controls/input_contract_sweep.json`
-expands to 74,760 cases in each implementation's test
+expands to 82,600 cases in each implementation's test
 (`tests/security/test_redaction_input_contract_sweep.py`,
-`redactionInputContractSweep.test.ts` and the Rust test module).
-`input_contract_sweep_decisions.json` freezes each implementation's decision per
-case before the contract, captured from the real code, the Rust from the real
-test-only mirror. Each test fails if any case is decided less strictly than any
+`redactionInputContractSweep.test.ts` and the Rust test module): the 74,760
+cases of the contract and 7,840 alias cases, 5,040 classifier items and 2,800
+records decided by the route projector on `DREP-JSON-002` in the ten contexts it
+admits. `input_contract_sweep_decisions.json` freezes each implementation's
+decision per case before the contract, captured from the real code, the Rust
+from the real test-only mirror; the alias cases before the alias rule. The Rust
+mirror then had no route projector, so its column holds no decision for the
+2,800 projector cases, which are held to the Python and TypeScript columns. The
+alias rule made 120 TypeScript projector cases stricter (a null primary label
+with a safe alias and a public redistribution: `include` became `redact_value`
+in 96 and `warning_only` in 24, in `local_private`) and changed no other
+decision. Each test fails if any case is decided less strictly than any
 frozen decision, and requires the contract decision for every case, so the three
 agree case for case. Strictness is the total order `include` < `warning_only` <
 `redact_value` < `block_export`. `redact_value` sits above `warning_only` because
