@@ -12,8 +12,10 @@ from typing import Any, Mapping, Sequence
 import copy
 
 from core.security.local_first_storage import enforce_local_first_route
+from core.security.local_first_storage.route_control import USER_RELEASE_ROUTE_ID
 
 from .controls import (
+    USER_RELEASED_REPORT_CONTEXT,
     RedactionDecision,
     RedactionFinding,
     assert_user_release_intent_context,
@@ -103,9 +105,15 @@ def control_route_export(
     caller-selectable policy input.  Final wrappers hard-code it together
     with ``export_context``.  User-release intent with any context other than
     ``user_released_report`` raises, so it cannot enable export elsewhere.
+    The ``user_released_report`` context and route
+    ``DREP-PACKAGE-USER-RELEASE-010`` raise in every pairing, before any
+    projection (DEL-08-01 Design ``report-user-release.md`` §3.3): this
+    path-token projector would admit what the release screen refuses, so only
+    the user-release projector admits them.
     """
 
     assert_user_release_intent_context(export_context, explicit_user_release_intent)
+    _assert_generic_route_export(route_id, export_context)
     normalized_local_private_intent = explicit_local_private_intent is True
     normalized_release_intent = explicit_user_release_intent is True
     source = copy.deepcopy(payload)
@@ -168,6 +176,18 @@ def control_route_export(
         blocked=blocked,
         summary=summary,
     )
+
+
+def _assert_generic_route_export(route_id: Any, export_context: Any) -> None:
+    """Refuse the user-released context and route 010 outright, as an unsupported
+    context raises."""
+
+    if export_context == USER_RELEASED_REPORT_CONTEXT or route_id == USER_RELEASE_ROUTE_ID:
+        raise ValueError(
+            "USER_RELEASE_ROUTE_REQUIRED: the generic route exporter does not admit the "
+            f"{USER_RELEASED_REPORT_CONTEXT} context or route {USER_RELEASE_ROUTE_ID}; "
+            "only the user-release projector does"
+        )
 
 
 def _strip_source_intent(value: Any) -> Any:

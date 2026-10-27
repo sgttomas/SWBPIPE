@@ -1321,6 +1321,97 @@ def test_existing_html_route_preserves_raw_intent_named_text():
     assert controlled.payload == html
 
 
+# Codex r2: the generic route exporter refuses the user-released context and
+# route 010 outright, in every pairing; only the user-release projector admits
+# them.  Steps 1-9 markers and the non-project private classes ride on a
+# project-labelled object, as in the vitest twin.
+GENERIC_REFUSAL = r"^USER_RELEASE_ROUTE_REQUIRED: the generic route exporter does not admit"
+PROJECT_METADATA = {"privacy_classification": "private_project_data", "redistribution_status": "private_only"}
+BOUNDARY_MARKERS = (
+    {"professional_claim": True},
+    {"professional_claim": "yes"},
+    {"cloud_or_network_reference": True},
+    {"remote_url": "invented-remote"},
+    {"direct_sql_access": True},
+    {"connection_string": "invented-connection"},
+    {"storage_bypass": True},
+    {"storage_bypass_requested": "yes"},
+    {"direct_storage_bypass": True},
+    {"application_service_bypass": 1},
+    {"secret_material_present": True},
+    {"password": "INVENTED_SECRET_MARKER"},
+    {"contains_payload": True},
+    {"payload_present": "present"},
+    {"cache_payload": 1},
+    {"sqlite_payload": 1},
+    {"concrete_path_present": True},
+    {"file_path": "invented/relative/file"},
+    {"privacy_classification": "protected_suspected"},
+    {"redistribution_status": "protected_suspected"},
+    {"privacy_classification": None, "provenance": {"privacy_classification": "protected_suspected"}},
+    {"review_status": "quarantined"},
+    {"review_status": "rejected"},
+    {"review_status": "unknown", "provenance": {"review_status": "quarantined"}},
+)
+GENERIC_REFUSAL_PAYLOADS = (
+    {
+        "project_ref": {
+            "privacy_classification": "private_rule_pack_data",
+            "secret_material_present": True,
+            "data": "INVENTED_PRIVATE_RULE_VALUE",
+        }
+    },
+    *({"project_ref": {**PROJECT_METADATA, **marker, "data": "INVENTED_MARKED_VALUE"}} for marker in BOUNDARY_MARKERS),
+    *(
+        {"project_ref": {"privacy_classification": privacy, "redistribution_status": "private_only", "data": "INVENTED_PRIVATE_VALUE"}}
+        for privacy in sorted(NON_PROJECT_PRIVATE_CLASSES)
+    ),
+    {"project_ref": {**PROJECT_METADATA, "data": "INVENTED_CLEAN_PROJECT_VALUE"}},
+    {"project_ref": {"data": "INVENTED_RAW_VALUE"}},
+)
+GENERIC_REFUSAL_OPTIONS = (
+    {},
+    {"require_lossless_materialization": True},
+    {"explicit_local_private_intent": True},
+    {"explicit_local_private_intent": True, "require_lossless_materialization": True},
+)
+
+
+def test_review_payload_marker_and_private_class_variants_are_refused_by_the_generic_exporter():
+    from core.security.local_first_storage.route_control import GOVERNED_LOCAL_FIRST_ROUTE_IDS
+
+    routes = sorted(GOVERNED_LOCAL_FIRST_ROUTE_IDS) + ["INVENTED-UNKNOWN-ROUTE"]
+    for payload in GENERIC_REFUSAL_PAYLOADS:
+        snapshot = canonical_text(payload)
+        for route_id in routes:
+            for flag in ({"explicit_user_release_intent": True}, {"explicit_user_release_intent": False}, {}):
+                for options in GENERIC_REFUSAL_OPTIONS:
+                    with pytest.raises(ValueError, match=GENERIC_REFUSAL):
+                        control_route_export(
+                            payload,
+                            route_id=route_id,
+                            export_context=USER_RELEASED_REPORT,
+                            **flag,
+                            **options,
+                        )
+        for context in EXISTING_CONTEXTS:
+            for options in GENERIC_REFUSAL_OPTIONS:
+                for flag in ({"explicit_user_release_intent": False}, {}):
+                    with pytest.raises(ValueError, match=GENERIC_REFUSAL):
+                        control_route_export(
+                            payload, route_id=USER_RELEASE_ROUTE, export_context=context, **flag, **options
+                        )
+                with pytest.raises(ValueError, match="admitted only in the user_released_report"):
+                    control_route_export(
+                        payload,
+                        route_id=USER_RELEASE_ROUTE,
+                        export_context=context,
+                        explicit_user_release_intent=True,
+                        **options,
+                    )
+        assert canonical_text(payload) == snapshot
+
+
 if __name__ == "__main__":
     test_schema_is_strict_and_traceable()
     test_schema_vocabularies_cover_required_controls()

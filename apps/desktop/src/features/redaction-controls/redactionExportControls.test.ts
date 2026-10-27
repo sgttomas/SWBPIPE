@@ -1184,6 +1184,98 @@ describe("user-released context: the release projector (§3.2)", () => {
       reason_code: "PRIVATE_DATA_REDACTED"
     });
   });
+
+  describe("the generic route exporter refuses the user-released context and route 010 outright (Codex r2)", () => {
+    const refusal = /^USER_RELEASE_ROUTE_REQUIRED: the generic route exporter does not admit/;
+    const flagRefusal = /admitted only in the user_released_report context/;
+    const reviewPayload = {
+      project_ref: {
+        privacy_classification: "private_rule_pack_data",
+        secret_material_present: true,
+        data: "INVENTED_PRIVATE_RULE_VALUE"
+      }
+    };
+    const variants: Array<[string, unknown, boolean]> = [
+      ["the review's payload", reviewPayload, true],
+      ...boundaryMarkers.map(
+        ([step, marker]) =>
+          [`step ${step}`, { project_ref: { ...projectMetadata, ...marker, data: "INVENTED_MARKED_VALUE" } }, true] as [string, unknown, boolean]
+      ),
+      ...NON_PROJECT_PRIVATE_CLASSES.map(
+        (privacy) =>
+          [
+            `non-project class ${privacy}`,
+            { project_ref: { privacy_classification: privacy, redistribution_status: "private_only", data: "INVENTED_PRIVATE_VALUE" } },
+            true
+          ] as [string, unknown, boolean]
+      ),
+      ["a clean project-data request", releasedRequest(), false],
+      ["a raw payload without metadata", { project_ref: { data: "INVENTED_RAW_VALUE" } }, false]
+    ];
+    const routes = [...GOVERNED_LOCAL_FIRST_ROUTE_IDS, "INVENTED-UNKNOWN-ROUTE"];
+    const optionSets = [
+      {},
+      { requireLosslessMaterialization: true },
+      { explicitLocalPrivateIntent: true },
+      { explicitLocalPrivateIntent: true, requireLosslessMaterialization: true }
+    ];
+    const releasedContext = USER_RELEASED_REPORT_CONTEXT as unknown as RedactionExportContext;
+
+    it("refuses the user-released context on every route, with or without the wrapper's release intent", () => {
+      for (const [label, payload] of variants) {
+        const snapshot = canonicalText(payload);
+        for (const routeId of routes) {
+          for (const flag of [{ explicitUserReleaseIntent: true }, { explicitUserReleaseIntent: false }, {}]) {
+            for (const options of optionSets) {
+              expect(
+                () => controlRouteExport(payload, { routeId, exportContext: releasedContext, ...flag, ...options }),
+                `${label} on ${routeId}`
+              ).toThrowError(refusal);
+            }
+          }
+        }
+        expect(canonicalText(payload)).toBe(snapshot);
+      }
+    });
+
+    it("refuses route 010 in every existing context; release intent there is refused by the flag assertion first", () => {
+      for (const [label, payload] of variants) {
+        for (const exportContext of EXPORT_CONTEXTS) {
+          for (const options of optionSets) {
+            for (const flag of [{ explicitUserReleaseIntent: false }, {}]) {
+              expect(
+                () =>
+                  controlRouteExport(payload, { routeId: REPORT_PACKAGE_USER_RELEASE_ROUTE_ID, exportContext, ...flag, ...options }),
+                `${label} in ${exportContext}`
+              ).toThrowError(refusal);
+            }
+            expect(() =>
+              controlRouteExport(payload, {
+                routeId: REPORT_PACKAGE_USER_RELEASE_ROUTE_ID,
+                exportContext,
+                explicitUserReleaseIntent: true,
+                ...options
+              })
+            ).toThrowError(flagRefusal);
+          }
+        }
+      }
+    });
+
+    it("leaves the release projector deciding: the marked and non-project variants block, a clean request is admitted", () => {
+      for (const [label, payload, refused] of variants) {
+        const projected = controlUserReleasedReportPackageRequest(payload, {}, true);
+        expect(projected.blocked, label).toBe(refused);
+        if (refused) expect(projected.payload, label).toBeNull();
+      }
+      const request = releasedRequest();
+      const admitted = controlUserReleasedReportPackageRequest(request, releasedModel(), true);
+      expect(admitted.blocked).toBe(false);
+      expect(canonicalText(admitted.payload)).toBe(canonicalText(request));
+      expect(admitted.decisions.every((decision) => decision.reason_code === "USER_RELEASED_PROJECT_DATA")).toBe(true);
+      expect(controlUserReleasedReportPackageRequest(request, releasedModel(), false).blocked).toBe(true);
+    });
+  });
 });
 
 describe("user-released context: payload-carried local-private intent is not read (Codex r1 finding 4)", () => {

@@ -177,7 +177,13 @@ payload. The strip list above is unchanged: a payload member named
 `user_release_intent` or `explicit_user_release_intent` grants nothing, so it is
 not stripped, and in every existing context and route it is raw content,
 preserved byte for byte. The user-release route `DREP-PACKAGE-USER-RELEASE-010`
-has its own projector (`controlUserReleasedReportPackageRequest`). It first
+has its own projector (`controlUserReleasedReportPackageRequest`), the only
+entry for `user_released_report`. The generic route exporter
+(`controlRouteExport` / `control_route_export`), whose projector labels values
+by path tokens, refuses that context on every route and route 010 in every
+context, before any projection: it raises
+`USER_RELEASE_ROUTE_REQUIRED`, as it raises for an unsupported context, after
+the release-intent check. The release projector first
 decides every enclosing object of the request and of the model by the
 professional-claim, network, SQL, storage-bypass, secret, payload,
 concrete-path, protected and quarantined/rejected checks, exactly as the

@@ -1134,11 +1134,26 @@ function materializeRouteValue(value: unknown): unknown {
   );
 }
 
+/** The generic route exporter serves the five existing contexts only (§3.3). The
+ * `user_released_report` context and route `DREP-PACKAGE-USER-RELEASE-010` are refused
+ * outright, in every pairing and before any projection, as `assertContext` refuses a context
+ * the exporter does not support: its path-token projector labels a value by its key, so it
+ * would admit what the release screen refuses (markers on enclosing objects, non-project
+ * private classes). `controlUserReleasedReportPackageRequest` is the only entry for the
+ * user-released context. */
+function assertGenericRouteExport(routeId: unknown, exportContext: unknown): void {
+  if (exportContext === USER_RELEASED_REPORT_CONTEXT || routeId === REPORT_PACKAGE_USER_RELEASE_ROUTE_ID) {
+    throw new Error(
+      `USER_RELEASE_ROUTE_REQUIRED: the generic route exporter does not admit the ${USER_RELEASED_REPORT_CONTEXT} context or route ${REPORT_PACKAGE_USER_RELEASE_ROUTE_ID}; only the user-release projector does`
+    );
+  }
+}
+
 export function controlRouteExport(
   payload: unknown,
   options: {
     routeId: string;
-    exportContext: ControlExportContext;
+    exportContext: RedactionExportContext;
     explicitLocalPrivateIntent?: boolean;
     explicitUserReleaseIntent?: boolean;
     requireLosslessMaterialization?: boolean;
@@ -1146,6 +1161,7 @@ export function controlRouteExport(
 ): ControlledRouteExport {
   assertContext(options.exportContext);
   assertUserReleaseIntentContext(options.exportContext, options.explicitUserReleaseIntent);
+  assertGenericRouteExport(options.routeId, options.exportContext);
   const localFirst = enforceLocalFirstRoute(options);
   const structuralProjection = structuralProjectionFor(payload, options.routeId);
   const projected = projectRouteValue(stripRouteIntent(payload), {
