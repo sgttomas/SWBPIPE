@@ -101,12 +101,41 @@ case. A station has no value in two cases:
 
 **A member with two or more stated stations** is drawn from those stations
 only. Its legend value is the largest of its stations' values. Rows of that
-member that state no station are not drawn, and the legend counts them.
+member that state no station are not drawn, and the legend counts them. The
+member's own tube beneath the sleeve takes the no-value colour along its whole
+length. Where the first stated station is after the From node, or the last is
+before the To node, the exposed end of the tube therefore shows no result
+colour.
 
 **A member with fewer than two stated stations** is shown as one value: the
-largest magnitude over its rows, the same rule as one value per member. The
-legend says how many members are shown this way. The rule-check outcomes
-follow the same two rules.
+largest magnitude over its rows, the same rule as one value per member, over
+the member's whole length. This is the one-value display, not an extrapolation
+of stations, and the legend says how many members are shown this way. The
+rule-check outcomes follow the same two rules.
+
+**A station's sign.** For a signed quantity (the table below), a station has a
+sign when every row stated there has the same sign: 0 when all are zero, and
+none when they differ. A station also records the sign convention its rows
+state (`metadata.sign_convention`), when they all state the same one. The row
+that gives a station's value is kept, and that row is the one each number's
+tooltip names.
+
+| Quantity | Rows | Rule along members |
+|---|---|---|
+| Axial force, shear forces y and z, torsional moment, bending moments y and z | One signed value per station | Signed |
+| Torsional shear stress | One signed value per station | Signed |
+| Displacement magnitude | Unsigned magnitude | Magnitude |
+| Normal-stress maximum | Non-negative maximum | Magnitude |
+| Section normal-stress extreme | σ+ and σ−; the larger magnitude governs, and the governing component may switch | Magnitude |
+| Intensified bending stress | Non-negative | Magnitude |
+| Transverse shear stress maximum | Non-negative | Magnitude |
+| User-rule ratio | A ratio, never signed | Magnitude |
+
+The emitted rows state the end stations (`end_i`, `end_j`) under the element's
+end-force conventions. They state the interior stations under the section
+convention (the j-side section action). Signs are compared only between
+adjacent stations that state the same convention, so an end station's sign is
+not compared with an interior station's. No sign is ever inferred.
 
 **Interpolation.** `interpolateStations` is the one pure, tested function the
 contour uses.
@@ -118,11 +147,21 @@ contour uses.
   is extrapolated, and the sleeve starts and ends at those stations.
 - There is no value at a station without a value, or between it and either
   neighbour. Nothing is interpolated across a gap.
+- For a signed quantity, there is no value strictly between two adjacent
+  stations of opposite non-zero sign stated under one convention
+  (`oppositeSigns`). Blending their magnitudes would hide the zero crossing, so
+  that open interval has the no-value colour. Each station keeps its own value
+  at the station, as a ring joined to the gap by a hard edge, which is how the
+  mesh draws a station beside any gap.
 
-The values interpolated are the magnitudes the overlay already shows. A sign
-change between two stations is therefore not drawn. The blend is a display
-device between stated values, not a recovered result, and the legend says so
-whenever Along member is selected.
+Otherwise the values interpolated are the magnitudes the overlay already
+shows. That covers a magnitude quantity, a signed quantity between stations of
+the same sign or with a zero, and stations whose conventions differ. For two
+stations of one sign, the blend of their magnitudes is the magnitude of the
+straight-line blend of their signed values. In every other case it is not, and
+the legend says so in the product's words whenever Along member is selected:
+"a straight-line graphical blend of adjacent stated magnitudes, which does not
+represent a signed result or its zero crossing".
 
 **One value per member** is the special case. Each member's value is the
 largest magnitude over all its rows, exactly as before this item. Its colour
@@ -151,10 +190,18 @@ a limit.
 - how many members are drawn from stations, and how many are shown as one
   value;
 - the count of stated stations without a value;
+- the count of intervals between stations of opposite sign;
 - the count of rows not drawn because they state no station;
 - the boundary sentence "Along members, colour between two stated stations is
-  a straight-line display blend of their values, not a result; nothing is drawn
-  past the first or last stated station."
+  a straight-line graphical blend of adjacent stated magnitudes, which does not
+  represent a signed result or its zero crossing. Outside the first and last
+  stated stations the tube has the no-value colour.";
+- the quantity's sign rule. For a signed quantity: "This quantity is signed:
+  between adjacent stations of opposite sign stated under one sign convention
+  the tube has the no-value colour. Signs stated under different conventions,
+  such as the end-force and section conventions, are not compared." Otherwise:
+  "This quantity is shown as a magnitude whose sign is not stated or may switch
+  between stations; no sign is inferred."
 
 A rule ratio adds the count of outcomes that are incomplete or form no ratio.
 
@@ -174,8 +221,11 @@ Under a threshold, only values strictly above it are coloured. A member at or
 below it draws its plain pipe colour (`pipe` role). That is distinct from the
 no-value colour, so "below the threshold" is never confused with "no value".
 
-Along members, a crossing inside an interval is placed exactly, at the
-fraction where the linear blend equals the threshold, as a hard edge. The
+Along members, a crossing is placed exactly, at the fraction where the linear
+blend equals the threshold, as a hard edge of two coincident rings. That holds
+inside an interval and at its end: a station whose value equals the threshold
+puts the edge at that station. Every drawn value strictly above the threshold
+is coloured, and no plain ring is ever blended into a coloured one. The
 legend states "Coloured above *x* unit; at or below it, the plain pipe colour"
 and "The threshold is the user's display filter. It is not a limit or an
 allowable." The product supplies no default threshold.
@@ -187,10 +237,13 @@ station's own value at its station, or a member's one value at its midpoint.
 An interpolated value is never labelled.
 
 Under a threshold, only values above it are labelled. At most 60 numbers are
-drawn, the largest first (`CONTOUR_VALUE_LABEL_BUDGET`). A number that would
-overlap one already placed, or that is outside the view, is not drawn, as with
-the entity labels. The legend states how many of how many stated values are
-drawn. Each number's tooltip names its member, its station and its row.
+selected for labelling, the largest first (`CONTOUR_VALUE_LABEL_BUDGET`). A
+selected number that would overlap one already placed, or that is outside the
+view, is hidden, as with the entity labels. Placement changes with every
+frame, so the legend states how many of how many stated values are selected
+for labelling and says that some may be hidden; it does not claim a visible
+count. Each number's tooltip names its member, its station and the row that
+gives the station's value.
 
 ## 6. Refused, incomplete, withheld, non-finite and unhealthy results
 
@@ -205,8 +258,10 @@ it. The contour adds no rule of its own and relaxes none.
   `overlayMayShowRow` in `numericalHealth.ts`; the stress and ratio table
   applies the same rule to outcomes.
 
-  A withheld row leaves its station without a value. When nothing can be
-  shown, the overlay is "held": the legend gives "No result colour on the
+  A withheld row leaves its station without a value. The standing is per
+  case, so within one case either every row of the quantity is withheld or
+  none is. When nothing can be shown, the overlay is "held": the legend gives
+  "No result colour on the
   current model" with the numerical health header, the case's state and the
   output sentence. Nothing is coloured, no sleeve is drawn and no number is
   labelled. The output policy (`outputPolicy.ts`) governs output surfaces.
@@ -216,9 +271,11 @@ it. The contour adds no rule of its own and relaxes none.
   members, a non-finite row leaves its station without a value.
 - **Incomplete rule outcomes** (`RULE_INPUTS_INCOMPLETE`), and outcomes that
   form no ratio. These colour nothing, and the legend counts them.
-- **A station without a value.** The sleeve beside it has the no-value colour
-  (`canvas.unsolved` at 60 % over the ground). The tube beneath is never shown
-  in the member's colour there.
+- **A station without a value, and an interval between stations of opposite
+  sign.** The sleeve there has the no-value colour (`canvas.unsolved` at 60 %
+  over the ground). The tube beneath a member drawn from its stations has the
+  no-value colour along its whole length, so it never shows the member's colour
+  there or beyond the stated span.
 
 ## 7. Display only
 
@@ -254,15 +311,18 @@ The sleeve has a ring of vertices at each contour ring (`contourRings`):
 - every stated station;
 - enough pieces per interval that a piece spans at most one twelfth of the
   scale, with at most 12 pieces per interval;
-- an exact threshold crossing, drawn as a hard edge.
+- an exact threshold crossing, drawn as a hard edge, including one at a
+  station;
+- the two sides of every gap, including a sign change, drawn as hard edges.
 
 The GPU blends the vertex colours linearly between rings. Because the rings
 are that close on the scale, the drawn blend follows the scale.
 
 All sleeves of a spatial chunk are merged into one mesh with the figure
 material. A sleeve is never picked, never haloed and never registered for
-selection. The member's own tube stays underneath, unchanged, so selection,
-hover, picking and labels behave as before. Hidden and dimmed members get no
+selection. The member's own tube stays underneath in the no-value colour, so
+selection, hover, picking and labels behave as before, and any part of the
+member outside its stated span shows no result colour. Hidden and dimmed members get no
 sleeve and keep their own tube's presentation. The sleeves are rebuilt only
 when one of these changes:
 
@@ -291,7 +351,7 @@ D-72 as follows:
 - Along member adds one draw call per spatial chunk that has a sleeve. It adds
   `(rings − 1) × 8 × 2` triangles per member. Five stations, with the piece cap
   reached in every interval, give at most 768 triangles per member, plus up to
-  32 for each threshold crossing.
+  32 for each threshold crossing or gap edge.
 - The D-72 orbit qualification with result colour has not run, with or without
   sleeves. Nothing here claims or implies it, or any performance acceptance.
 - The number for along-member colour remains item 6's to propose, and the
@@ -302,13 +362,19 @@ D-72 as follows:
 - `resultContour.test.ts` covers:
   - interpolation at stations, ends, a single value and non-finite values,
     with no extrapolation;
-  - rings, pieces, threshold edges and gaps;
+  - opposite signs (a gap), the same sign (a blend), and signs under
+    different conventions or with a zero (a blend, with no sign inferred);
+  - rings, pieces, threshold edges inside an interval and at a station, gaps
+    and sign-change gaps;
   - numbers, the threshold and the budget;
   - threshold parsing and conversion.
 - `resultContourOverlay.test.ts` covers:
   - the station grid, which the bundled reference also states;
   - drawing along members and one value per member as the special case;
   - non-finite stations, nodal ends, and members with one stated value;
+  - the no-value tube beneath a member drawn from stations at 0.25 and 0.75;
+  - the governing row of a station with two rows;
+  - station signs for a signed quantity, and none for the section extreme;
   - the standing per case;
   - the member table under a threshold, and the numbers display;
   - rule ratios, including incomplete outcomes, withheld outcomes and the
@@ -324,11 +390,20 @@ D-72 as follows:
   - labelled, focusable controls;
   - the along-member legend;
   - the threshold in the legend's unit, including invalid text;
-  - numbers in place of colours, with and without a threshold;
+  - the blend disclosure and each quantity's sign rule;
+  - numbers in place of colours, with and without a threshold, selected for
+    labelling;
   - a withheld result, which shows nothing;
   - no model, result or queue change.
+- `PipeViewport.contourScene.test.tsx` runs the viewport resource with three's
+  renderer replaced by a stand-in that draws nothing. It covers:
+  - the sleeve meshes in the result layer along members only;
+  - the no-value colour of every pipe instance beneath them;
+  - disposal of their geometry and material when the layer is replaced and
+    when the viewport unmounts.
 - The existing result colour tests are unchanged and still pass.
 
-The along-member sleeve has no browser pixel evidence yet. That remains open
-and is not claimed. This note describes the design and
+What is drawn on the GPU still needs a browser: the sleeve's pixels, the hard
+edges, the exposed tube ends and the canvas numbers' placement. It has no
+browser evidence yet. That remains open and is not claimed. This note describes the design and
 code only. It records no backcheck or acceptance.

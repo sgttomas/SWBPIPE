@@ -323,6 +323,7 @@ checks:
 - apps/desktop/src/features/viewport/resultContourOverlay.test.ts
 - apps/desktop/src/features/viewport/resultContourMesh.test.ts
 - apps/desktop/src/features/viewport/PipeViewport.contour.test.tsx
+- apps/desktop/src/features/viewport/PipeViewport.contourScene.test.tsx
 - apps/desktop/e2e/result-overlays.spec.ts
 - apps/desktop/src/features/workspace/selectionReveal.test.tsx
 - apps/desktop/src/features/viewport/deflectedShape.test.ts
