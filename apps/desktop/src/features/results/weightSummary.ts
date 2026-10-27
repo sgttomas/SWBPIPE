@@ -360,17 +360,19 @@ function binaryExponent(value: number): number {
 /** Σ(wᵢ·pᵢ)/Σwᵢ (Design §3.4), range-safe. Every weight is first scaled by the power of two 2^s
  * that brings the largest into [1, 2), so Σwᵢ cannot overflow and a subnormal weight does not
  * underflow its products. Each step is guarded so that no rounding happens below the normal range:
- * - Scaling a weight is exact when its exact scaled value is normal. Otherwise it is rounded
- *   (it may round up to 2^-1022 and pass a range test), so it is refused unless the scaled weight is
- *   normal and scales back to the stated weight. That holds exactly when wᵢ·2^s ≥ 2^-1022.
+ * - Scaling a weight is guaranteed exact when its exact scaled value is normal. Otherwise it may
+ *   round (it may round up to 2^-1022 and pass a range test), so it is refused unless the scaled weight is
+ *   normal and scales back to the stated weight. That holds exactly when wᵢ·2^s ≥ 2^-1022 (a
+ *   subnormal scaled weight is refused even when its scaling is exact).
  * - A product with a nonzero coordinate, and a nonzero moment's quotient, is refused when its
  *   magnitude is at most 2^-1022: rounding is monotone, so a larger rounded value had a normal exact
  *   value, while one equal to 2^-1022 may have been rounded up from below (refused even if exact).
  * - Sums of normal products round in the normal range; a sum whose exact value is subnormal is exact.
  * Accepted steps are then ordinary binary64 operations on exactly scaled data, and a power of two
  * commutes with rounding in the normal range. So when the unscaled formula's products, sums and
- * quotients are all zero or normal and finite, the result is bit-for-bit the unscaled one; otherwise
- * it is the scaled formula's result or a stated refusal. Also refused when a moment or the result is
+ * quotients are all zero or normal and finite, a returned result is bit-for-bit the unscaled one
+ * (a centre may still be refused by the normal-range policy); otherwise it is the scaled formula's
+ * result or a stated refusal. Also refused when a moment or the result is
  * not finite. */
 function weightedCentre(entities: readonly WeightEntity[]): { centre: Vec3 } | { reason: string } {
   let largest = 0;

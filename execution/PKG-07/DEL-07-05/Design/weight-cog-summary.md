@@ -190,12 +190,13 @@ binary64 range. The derivation refuses rather than shows a non-finite or underfl
   scaled sum of weights cannot overflow, and a subnormal weight no longer underflows its products:
   a span from 0 to 10⁻²⁰⁰ m weighing about 5.969 × 10⁻³¹⁰ N has its centre of gravity at
   5 × 10⁻²⁰¹ m, not 0.
-- Scaling a weight is exact only when its exact scaled value 2^s·wᵢ is at least 2⁻¹⁰²², the
-  smallest normal binary64 value. Below that it is rounded, and it can round up to 2⁻¹⁰²² and pass
+- Scaling a weight is guaranteed exact when its exact scaled value 2^s·wᵢ is at least 2⁻¹⁰²², the
+  smallest normal binary64 value. Below that it may round, and it can round up to 2⁻¹⁰²² and pass
   a range test: 2 N beside 2·2⁻¹⁰²² − 2⁻¹⁰⁷⁴ N halves the smaller to 2⁻¹⁰²², and its altered moment
   can cancel to exactly 0. So a scaled weight is used only when it is normal and scales back to the
   stated weight; that holds exactly when 2^s·wᵢ ≥ 2⁻¹⁰²², that is, unless the weights are about
-  2¹⁰²² apart. Otherwise no centre of gravity is formed: "The counted weights are about 2^1022
+  2¹⁰²² apart. A subnormal scaled weight is refused even when its scaling happens to be exact
+  (2 N beside 2⁻¹⁰²² N), by this normal-range policy. Otherwise no centre of gravity is formed: "The counted weights are about 2^1022
   apart or more, so the smaller cannot be scaled exactly within the normal binary64 range; no
   centre of gravity is formed."
 - A product with a nonzero coordinate, or a nonzero moment's quotient, whose magnitude is at most
@@ -215,7 +216,9 @@ binary64 range. The derivation refuses rather than shows a non-finite or underfl
 **Agreement with the unscaled formula.** An accepted step is an ordinary binary64 operation on
 exactly scaled values, and a power of two commutes with rounding in the normal range. So when every
 product, sum and quotient of the unscaled formula Σ(wᵢ·pᵢ)/Σwᵢ is zero or normal and finite, the
-centre of gravity is bit-for-bit the unscaled formula's result. Ordinary models are of this kind,
+centre of gravity, when one is returned, is bit-for-bit the unscaled formula's result. (A centre
+may still be refused under the normal-range policy above, as for 2 N beside 2⁻¹⁰²² N, whose
+unscaled intermediates are normal.) Ordinary models are of this kind,
 and their results do not change. Otherwise the result is the scaled formula's or a stated refusal:
 
 - unscaled moments that overflowed with a finite total had no centre of gravity before and now have
