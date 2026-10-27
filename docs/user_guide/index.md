@@ -79,7 +79,8 @@ A model solves on one of two routes:
 - **Exports.** Both routes export result JSON and stress-neutral JSON, each
   only with explicit local-private intent. Pressure-free results also export
   the PCF and MBF package documents (redacted for downstream tools), a native
-  package review manifest and a preview handoff JSON, among others.
+  package review manifest and a preview handoff JSON, among others. The MBF
+  text is a placeholder record subset that CAEPIPE does not import (§12).
   Outputs that must be byte-exact for a downstream tool (stress-neutral CSV,
   glTF review geometry, PCF text and MBF text) are withheld whenever
   redaction would alter them. Session geometry and result values are
@@ -90,7 +91,7 @@ A model solves on one of two routes:
 
 **What the app refuses or does not offer today:**
 
-- **Reports are local-private only, and pressure-free only.**
+- **Reports are local-private only.**
   - On a pressure-free result, **Render report** works for your own review
     when you tick "Include known private values in this local rendered
     report". The render then shows a preview and its canonical HTML SHA-256,
@@ -105,12 +106,15 @@ A model solves on one of two routes:
     a run manifest that verifies, and the result coordinate systems. The
     build or release id, the run's creation time and model-level coordinates
     are stated as "not recorded".
-  - Every report surface refuses exact-route results with
-    `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE` (owner ruling 10A, 2026-10-21;
-    `execution/PKG-04/DEL-04-07/Design/desktop-exact-outputs.md`).
+  - On an exact-route result (pressure-2 or pressure-source-1) that Export
+    Result JSON admits, **Render report** adds the producer's limitations,
+    the stress headline of each section basis, the numerical standing and,
+    where present, the resolved load/reference states. The report JSON packet
+    still refuses exact-route results with
+    `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`.
   - Save Report Package… saves a local private package for a pressure-free
-    result after its own local-private selection; exact-route results are
-    refused with `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`.
+    result, or for an exact-route result that Export Result JSON admits,
+    after its own local-private selection.
 
   This is PRD FR-REP-001 (Must) and the MVP item "basic report generation".
 - **No model states, run history or comparison** between states or runs. A
@@ -147,7 +151,7 @@ The guide should refer to these current surfaces when explaining behavior:
 | Libraries and provenance | `schemas/material.schema.yaml`, `schemas/section.schema.yaml`, `schemas/component.schema.yaml`, `core/library_import/provenance_checker.py`, `core/section_properties/calculator.py` | Materials, sections, and components carry provenance and review status. Public defaults do not include protected tables or proprietary catalog values. |
 | Rule packs | `schemas/rule_pack.schema.yaml`, `core/rules/expression_evaluator`, `core/rules/completeness_checker`, `core/rules/rule_pack_lifecycle` | Rule packs are user-owned or invented examples. Required inputs, unit checks, provenance, checksums, and privacy state are explicit. |
 | GUI workflow contracts | `schemas/viewport_editor.schema.yaml`, `core/gui/viewport_editor`, `core/gui/model_tree`, `core/gui/editors`, `core/gui/warnings`, `core/gui/solve_execution`, `core/gui/results_viewer`, `apps/desktop` | The Tauri/React/Vite macOS desktop app in `apps/desktop` is the user surface ([Current Desktop App](#current-desktop-app-010)); the `core/gui/*` modules are contract/reference modules (Python engines and a standalone Rust crate) that the app does not call or link. Its native smoke (`apps/desktop/native-smoke/`) and browser specs (`apps/desktop/e2e/`) exercise the app; no single run yet takes a model authored in the app through solve, review, save and reopen. Supported-release acceptance and other platforms remain `TBD`. |
-| Reports and result envelopes | `schemas/report_generator.schema.yaml`, `schemas/report_sections.schema.yaml`, `schemas/results.schema.yaml`, `core/reporting/audit_manifest`, `core/reporting/report_sections`, `core/reporting/result_export`, `core/reporting/report_generator`, `core/reporting/report_renderer`, `core/reporting/protected_content_linter` | Report records preserve manifests, hashes, warnings, provenance, rule-pack references, limitations, and notices. A deterministic hash-bound single-file HTML renderer, a desktop preview and a native report-package save path exist in code, and the app renders a local private report for a pressure-free result after the local-private selection; a public render stays blocked, exact-route results are refused, and the report package is saved locally for a pressure-free result ([Current Desktop App](#current-desktop-app-010)). Final styling/layout, deterministic hash-bound PDF policy, portable replay, and release-template integration remain `TBD`. |
+| Reports and result envelopes | `schemas/report_generator.schema.yaml`, `schemas/report_sections.schema.yaml`, `schemas/results.schema.yaml`, `core/reporting/audit_manifest`, `core/reporting/report_sections`, `core/reporting/result_export`, `core/reporting/report_generator`, `core/reporting/report_renderer`, `core/reporting/protected_content_linter` | Report records preserve manifests, hashes, warnings, provenance, rule-pack references, limitations, and notices. A deterministic hash-bound single-file HTML renderer, a desktop preview and a native report-package save path exist in code, and the app renders a local private report for a pressure-free result after the local-private selection; a public render stays blocked, eligible exact-route results can be rendered and packaged, and the report JSON packet still refuses them ([Current Desktop App](#current-desktop-app-010)). Final styling/layout, deterministic hash-bound PDF policy, portable replay, and release-template integration remain `TBD`. |
 | Privacy and export controls | `docs/security/local_first_storage_policy.md`, `docs/security/redaction_export_controls.md`, `docs/security/telemetry_policy.md`, `core/security/redaction` | Private data is local/user-controlled by default. Project storage is local-only and offline-capable. Telemetry is off by default. Redaction/export behavior is metadata-driven. |
 | Export interoperability | `schemas/native_json_export.schema.json`, `schemas/stress_neutral_export.schema.json`, `schemas/pcf_export.schema.json`, `schemas/review_geometry_export.schema.json`, `schemas/export_adapter_sdk.schema.json`, `schemas/target_mapping.schema.json`, `core/handoff/*` | SCA-004 makes native JSON, the export of a `.mbf` model batch file, optional user-owned external-run evidence, stress-neutral CSV/JSON, conservative PCF, glTF review geometry, stable ID maps, loss reports, and adapter SDK surfaces explicit. These are bounded package surfaces: handoff evidence for external validation, not a validation outcome. |
 | Interop and local analysis | `schemas/adapter_framework.schema.yaml`, `api/api_boundary_contract.yaml`, `schemas/local_fea_handoff.schema.yaml`, `docs/local_analysis/local_fea_handoff_guidance.md`, `core/adapters/framework`, `core/handoff/*` | Public API transport, endpoint syntax, plugin runtime/loading/signing, concrete target field coverage, and local FEA package format remain `TBD`. Adapters cannot bypass units, provenance, privacy, protected-content screening, diagnostics, rule sandboxing, report controls, or human-review boundaries. |
@@ -415,9 +419,10 @@ public defaults.
 
 ## 10. Reports And Audit Records
 
-The desktop app renders a report only as a local private document for a
-pressure-free result, after the local-private selection; exact-route results
-are refused, and the report package is saved locally for a pressure-free result (see
+The desktop app renders a report only as a local private document, after the
+local-private selection, for a pressure-free result or an exact-route result
+that Export Result JSON admits, and the report package is saved locally for
+the same results (see
 [Current Desktop App](#current-desktop-app-010)). The table below is the
 intended report content. The rendered report now carries rule-pack
 references, user-rule check outcomes, software and solver versions, the
@@ -469,6 +474,13 @@ user-owned external-run evidence, stress-neutral CSV/JSON, conservative PCF, glT
 geometry, stable ID maps, loss reports, and adapter SDK support. These exports
 must remain deterministic, provenance-bearing, privacy-aware, and loss-reporting
 where target limitations exist.
+
+The desktop `.mbf` text is not yet a CAEPIPE model: it writes a placeholder
+record subset (`UNIT`, `NODE`, `PIPE`, `SUPPORT`, `LOADCASE` lines) that CAEPIPE
+does not import, so do not hand it to CAEPIPE. A real SI MBF writer for a pilot
+subset exists in `core/handoff/caepipe_mbf/si_writer.py` for the developer
+correlation pilot (DEL-17-05 `Design/caepipe-correlation-pilot.md`); the desktop
+export does not use it yet.
 
 Export evidence must not bundle commercial solvers, bypass licenses, reverse
 engineer protected formats, or embed proprietary examples. Export packages are
@@ -535,7 +547,7 @@ The following remain explicit limitations or open decisions:
 
 - the app refusals and gaps listed under
   [Current Desktop App](#current-desktop-app-010): reports only as local private
-  documents and only for pressure-free results, no model states, run history or comparison, no rigid elements, no model export
+  documents, and the report JSON packet only for pressure-free results, no model states, run history or comparison, no rigid elements, no model export
   to a file, and no design-knowledge entry or constraint validation;
 - publication of the v0.1 macOS Apple Silicon `.app` zip, which is the
   owner's act; the published location is still to be named (§3.1);

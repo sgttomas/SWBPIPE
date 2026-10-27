@@ -203,3 +203,85 @@ def test_hanger_nested_provenance_quarantine_carries_exact_location():
     assert ('IMPORT_PROTECTED_CONTENT_SUSPECTED', '$.hanger_records[0].hanger.stiffness.value', 'quarantine') in [
         (f.code, f.path, f.severity) for f in result.findings
     ]
+
+
+# W-17 object form: a disposition member no verdict can read is refused by
+# name (MODEL-DISPOSITION-RECORD-MALFORMED, blocking), the desktop export
+# screen's rule; the Rust port is pinned to this by provenance_parity.rs.
+MALFORMED = "MODEL-DISPOSITION-RECORD-MALFORMED"
+HANGER_FIXTURE = ROOT / "fixtures" / "hanger" / "invented_hanger_library_valid.json"
+
+
+def malformed(result):
+    return [(f.path, f.message) for f in result.findings if f.code == MALFORMED]
+
+
+def test_unreadable_record_dispositions_are_refused_by_name():
+    cases = [
+        (("material_records", 0, "review_status"), ["quarantined"], "material_records[0].review_status", "review_status", "an array"),
+        (("material_records", 0, "review_status"), {"status": "rejected"}, "material_records[0].review_status", "review_status", "an object"),
+        (("material_records", 0, "redistribution_status"), ["protected_suspected"], "material_records[0].redistribution_status", "redistribution_status", "an array"),
+        (("material_records", 0, "redistribution_status"), {"status": "rejected"}, "material_records[0].redistribution_status", "redistribution_status", "an object"),
+        (("material_records", 0, "provenance", "review_status"), ["quarantined"], "material_records[0].provenance.review_status", "provenance.review_status", "an array"),
+        (("material_records", 0, "provenance", "redistribution_status"), {"status": "rejected"}, "material_records[0].provenance.redistribution_status", "provenance.redistribution_status", "an object"),
+        (("material_records", 0, "properties", 0, "provenance", "review_status"), ["quarantined"], "material_records[0].properties[0].provenance.review_status", "properties[0].provenance.review_status", "an array"),
+        (("material_records", 0, "properties", 0, "provenance"), ["Invented", "quarantined"], "material_records[0].properties[0].provenance", "properties[0].provenance", "an array"),
+    ]
+    for pointer, value, path, member, shape in cases:
+        payload = load_json(MATERIAL_FIXTURE)
+        target = payload
+        for key in pointer[:-1]:
+            target = target[key]
+        target[pointer[-1]] = value
+        for visibility in ("private", "public"):
+            result = validate_library_import(payload, library_kind="material", intended_visibility=visibility)
+            assert not result.accepted, (path, visibility)
+            assert malformed(result) == [(
+                path,
+                f"Record `mat.invented.alpha` of the material library `matlib.invented.public_fixture` holds `{member}` as {shape}, so its disposition cannot be read.",
+            )], (path, visibility, malformed(result))
+        assert validate_library_import(payload, library_kind="material", intended_visibility="private").outcome in {"REJECTED", "QUARANTINE"}
+
+
+def test_unreadable_library_metadata_and_positional_provenance_are_refused():
+    payload = load_json(MATERIAL_FIXTURE)
+    payload["material_library"]["review_status"] = ["quarantined"]
+    result = validate_library_import(payload, library_kind="material", intended_visibility="private")
+    assert result.outcome == "REJECTED"
+    assert malformed(result) == [(
+        "material_library.review_status",
+        "The material library `matlib.invented.public_fixture` holds `review_status` as an array, so its disposition cannot be read.",
+    )]
+    payload = load_json(MATERIAL_FIXTURE)
+    payload["material_records"][0]["provenance"] = ["Invented", "private_only", "pending"]
+    result = validate_library_import(payload, library_kind="material", intended_visibility="private")
+    assert result.outcome == "REJECTED"
+    assert [f.code for f in result.findings if f.path.startswith("material_records[0].provenance")] == ["IMPORT_PROVENANCE_MISSING", MALFORMED]
+
+
+def test_readable_and_unscreened_dispositions_still_import():
+    # Controls: the fixture itself, an object-valued classification at the
+    # record, library and nested levels, and non-text scalars, which state no
+    # disposition the verdict reads, are not refused as malformed.
+    payload = load_json(MATERIAL_FIXTURE)
+    assert validate_library_import(payload, library_kind="material", intended_visibility="private").outcome == "PRIVATE_LOCAL_ONLY"
+    payload["material_records"][0]["classification"] = {"value": "protected_suspected"}
+    payload["material_library"]["classification"] = {"redistribution_status": "private_only"}
+    payload["material_records"][0]["properties"][0]["classification"] = {"review_status": "accepted"}
+    payload["material_records"][0]["privacy_class"] = {"value": "private_user_data"}
+    payload["material_records"][0]["review_status"] = None
+    result = validate_library_import(payload, library_kind="material", intended_visibility="private")
+    assert result.outcome == "PRIVATE_LOCAL_ONLY", [(f.code, f.path) for f in result.findings]
+    assert malformed(result) == []
+
+
+def test_unreadable_hanger_dispositions_are_refused_by_name():
+    payload = load_json(HANGER_FIXTURE)
+    payload["hanger_records"][0]["provenance"]["review_status"] = ["quarantined"]
+    result = validate_library_import(payload, library_kind="hanger", intended_visibility="private")
+    assert result.outcome == "REJECTED"
+    assert malformed(result) == [(
+        "$.hanger_records[0].provenance.review_status",
+        "Record `invented.variable` of the hanger library `invented.hangers` holds `provenance.review_status` as an array, so its disposition cannot be read.",
+    )]
+

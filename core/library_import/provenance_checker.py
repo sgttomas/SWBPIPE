@@ -31,11 +31,26 @@ PRIVATE_REDIS_STATUSES = {"private_only"}
 UNKNOWN_REDIS_STATUSES = {"unknown", "TBD", None}
 PROTECTED_REDIS_STATUS = "protected_suspected"
 
+# A disposition member no verdict can read (W-17 object form): a
+# redistribution_status or review_status holding an array or an object, or a
+# provenance written as an array, anywhere in the library metadata object or a
+# record. The same code as the desktop's export disposition screen and library
+# apply; the import refuses it (blocking). Mirrors the Rust port's
+# DISPOSITION_RECORD_MALFORMED.
+DISPOSITION_RECORD_MALFORMED = "MODEL-DISPOSITION-RECORD-MALFORMED"
+
 RECORD_KEYS = {
     "hanger": ("hanger_library", "hanger_records"),
     "material": ("material_library", "material_records"),
     "section": ("section_library", "section_records"),
     "component": ("component_library", "component_records"),
+}
+
+RECORD_ID_KEYS = {
+    "hanger": "hanger_id",
+    "material": "material_id",
+    "section": "section_id",
+    "component": "component_id",
 }
 
 
@@ -111,6 +126,7 @@ def validate_library_import(
     findings: list[ImportFinding] = []
 
     library = payload.get(library_key)
+    library_label = _library_label(payload, library_kind)
     if not isinstance(library, dict):
         findings.append(
             ImportFinding(
@@ -129,6 +145,7 @@ def validate_library_import(
                 intended_visibility=intended_visibility,
             )
         )
+        findings.extend(_unreadable_dispositions(library, library_key, "T" + library_label[1:]))
 
     records = payload.get(records_key)
     if not isinstance(records, list):
@@ -164,6 +181,8 @@ def validate_library_import(
             )
         )
         findings.extend(_validate_nested_values(record, path=record_path))
+        subject = _record_label(record, library_kind, record_path, library_label)
+        findings.extend(_unreadable_dispositions(record, record_path, subject))
 
     return ImportValidationResult(
         outcome=_determine_outcome(findings, intended_visibility),
@@ -200,11 +219,17 @@ def _validate_object_disposition(
             )
         )
 
-    redistribution_status = item.get("redistribution_status") or provenance.get(
-        "redistribution_status"
+    # The item's own status wins when it is non-empty text, else its
+    # provenance's (the Rust port's `truthy_str` fallback): a status that is
+    # not text states no disposition here. One that is an array or an object
+    # is refused by name (_unreadable_dispositions).
+    redistribution_status = _status_text(item.get("redistribution_status")) or _status_text(
+        provenance.get("redistribution_status")
     )
-    review_status = item.get("review_status") or provenance.get("review_status")
-    privacy_class = item.get("privacy_class")
+    review_status = _status_text(item.get("review_status")) or _status_text(
+        provenance.get("review_status")
+    )
+    privacy_class = _status_text(item.get("privacy_class"))
 
     if redistribution_status == PROTECTED_REDIS_STATUS or review_status == "quarantined":
         findings.append(
@@ -237,6 +262,11 @@ def _validate_object_disposition(
         )
 
     return findings
+
+
+def _status_text(value: Any) -> str | None:
+    """A non-empty text status, else None (the Rust port's `truthy_str`)."""
+    return value if isinstance(value, str) and value else None
 
 
 def _validate_public_disposition(
@@ -318,6 +348,70 @@ def _validate_nested_values(item: dict[str, Any], *, path: str) -> list[ImportFi
                     "Record value-level provenance for imported numeric data.",
                 )
             )
+    return findings
+
+
+def _library_label(payload: Any, library_kind: str) -> str:
+    """The library as an unreadable-disposition finding names it (Rust `library_label`)."""
+    library_key, _ = RECORD_KEYS[library_kind]
+    library = payload.get(library_key) if isinstance(payload, dict) else None
+    identity = library.get("library_id") if isinstance(library, dict) else None
+    if isinstance(identity, str) and identity:
+        return f"the {library_kind} library `{identity}`"
+    return f"the {library_kind} library (no library_id)"
+
+
+def _record_label(record: dict[str, Any], library_kind: str, path: str, library: str) -> str:
+    """A record as an unreadable-disposition finding names it (Rust `record_label`)."""
+    identity = record.get(RECORD_ID_KEYS[library_kind])
+    if isinstance(identity, str) and identity:
+        return f"Record `{identity}` of {library}"
+    return f"Record {path} of {library}"
+
+
+def _unreadable_dispositions(item: dict[str, Any], path: str, subject: str) -> list[ImportFinding]:
+    """Every disposition member of `item`, at any depth, no verdict can read.
+
+    A redistribution_status or review_status holding an array or an object, or
+    a provenance written as an array (the desktop export screen's
+    StoredMembers::Refuse rule), is refused by name rather than skipped. Other
+    members (classification, the privacy members) and non-text scalars are not
+    refused here. Keys are visited in sorted order (Rust
+    `unreadable_dispositions`).
+    """
+
+    findings: list[ImportFinding] = []
+
+    def walk_object(obj: dict[str, Any], relative: str) -> None:
+        for key in sorted(obj):
+            value = obj[key]
+            member = key if not relative else f"{relative}.{key}"
+            shape = None
+            if key in ("redistribution_status", "review_status") and isinstance(value, dict):
+                shape = "an object"
+            elif key in ("redistribution_status", "review_status", "provenance") and isinstance(value, list):
+                shape = "an array"
+            if shape is not None:
+                findings.append(
+                    ImportFinding(
+                        DISPOSITION_RECORD_MALFORMED,
+                        "blocking",
+                        f"{path}.{member}",
+                        f"{subject} holds `{member}` as {shape}, so its disposition cannot be read.",
+                        "Write each redistribution_status and review_status as text and each "
+                        "provenance as an object, then import the library again.",
+                    )
+                )
+            walk_value(value, member)
+
+    def walk_value(value: Any, relative: str) -> None:
+        if isinstance(value, dict):
+            walk_object(value, relative)
+        elif isinstance(value, list):
+            for index, nested in enumerate(value):
+                walk_value(nested, f"{relative}[{index}]")
+
+    walk_object(item, "")
     return findings
 
 
@@ -422,7 +516,17 @@ def _validate_hanger_import(payload, visibility):
                 for key in ("redistribution_status", "review_status")
             ):
                 findings.extend(_hanger_disposition({"provenance": provenance}, path + ".provenance", visibility))
+    # The schema already refuses these shapes; they are also refused by name.
+    library = _library_label(payload, "hanger")
+    metadata = payload.get("hanger_library") if isinstance(payload, dict) else None
+    if isinstance(metadata, dict):
+        findings.extend(_unreadable_dispositions(metadata, "$.hanger_library", "T" + library[1:]))
     records = payload.get("hanger_records", []) if isinstance(payload, dict) else []
+    if isinstance(records, list):
+        for i, record in enumerate(records):
+            if isinstance(record, dict):
+                path = f"$.hanger_records[{i}]"
+                findings.extend(_unreadable_dispositions(record, path, _record_label(record, "hanger", path, library)))
     seen = set()
     if isinstance(records, list):
         for i, record in enumerate(records):

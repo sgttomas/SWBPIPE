@@ -41,8 +41,9 @@ export type RenderedReportOutcome = {
 /** W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.6): the texts an exact
  * render resubmits beside its input: the bytes the solve job delivered, the model text it
  * was sent and the admission's input manifest text. The native host binds them to the
- * digests it recorded for the job. A pressure-free render carries none. The native render
- * refuses every exact identity at its step 0 until the owner opens exact-route reports. */
+ * digests it recorded for the job. A pressure-free render carries none. The native render's
+ * step 0 admits pressure-2 and pressure-source-1 since the owner opened exact-route
+ * reports (2026-10-26, §5.1), and refuses every other exact identity. */
 export type ExactRenderSubmission = { exactResultText: string; exactIntakeText: string; inputManifestText: string };
 
 export type RenderReportRoute =

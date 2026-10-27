@@ -2414,13 +2414,16 @@ mod tests {
         store
     }
 
-    /// The ordinary private-library writer (`save_local_library_value`)
-    /// stores a record whose `review_status` or `redistribution_status` is an
-    /// array or an object (the import accepts it as `PRIVATE_LOCAL_ONLY`: it
-    /// states no disposition). Recovering a project or state that references
-    /// it is refused by name; on `20bde6a3a3` both were written.
+    /// The ordinary private-library writer (`save_local_library_value`) now
+    /// refuses a record whose `review_status` or `redistribution_status` is an
+    /// array or an object (`MODEL-DISPOSITION-RECORD-MALFORMED`; on
+    /// `afd3869371` it stored it as `PRIVATE_LOCAL_ONLY`). A library already in
+    /// the store with such a record (stored before that rule, or written by
+    /// other means) still refuses recovery of the project and of the state by
+    /// name, with a message naming the library and the record and saying how
+    /// to repair the store.
     #[test]
-    fn a_library_the_ordinary_writer_stores_with_an_unreadable_disposition_refuses_recovery() {
+    fn the_writer_refuses_an_unreadable_disposition_and_a_stored_one_still_refuses_recovery_by_name() {
         for member in ["review_status", "redistribution_status"] {
             let blocking = if member == "review_status" { "quarantined" } else { "protected_suspected" };
             for value in [json!([blocking]), json!({ "status": "rejected" })] {
@@ -2431,15 +2434,34 @@ mod tests {
                 let text = with_material(json!({ "id": "m", "library_ref": { "library_kind": "material", "library_id": LIBRARY, "record_id": "steel" } }));
                 let scratch = Scratch::new("ordinary-writer");
                 let store = current_store(&scratch, &text, &text);
-                let saved = crate::save_local_library_value(|| Ok(store.clone()), PROJECT.into(), "material".into(), library).unwrap();
-                assert!(saved.stored, "{member}={value}: the writer stores it");
-                assert_eq!(saved.validation["outcome"], "PRIVATE_LOCAL_ONLY");
+                let saved = crate::save_local_library_value(|| Ok(store.clone()), PROJECT.into(), "material".into(), library.clone()).unwrap();
+                assert!(!saved.stored, "{member}={value}: the writer refuses it");
+                assert_eq!(saved.validation["outcome"], "REJECTED");
+                assert!(saved.validation["findings"].as_array().unwrap().iter().any(|finding| finding["code"] == DISPOSITION_RECORD_MALFORMED), "{}", saved.validation);
+                // The same library already in the store (before the rule).
+                Connection::open(&store)
+                    .unwrap()
+                    .execute(
+                        "INSERT INTO local_libraries(project_id, library_kind, library_id, document_json, created_at_unix, updated_at_unix) VALUES (?1, 'material', ?2, ?3, 1, 1)",
+                        params![PROJECT, LIBRARY, serde_json::to_string(&library).unwrap()],
+                    )
+                    .unwrap();
                 for state_id in [None, Some(STATE)] {
                     let destination = scratch.0.join("recovered.json");
                     let shown = Cell::new(false);
                     let refused = export(&store, state_id, &registry(ScriptedHost::normal()), &destination, &shown);
                     assert_eq!(refused_codes(&refused), vec![(DISPOSITION_RECORD_MALFORMED, "materials[0].library_ref")], "{member}={value} ({state_id:?})");
                     assert_refused_nothing_written(&refused, DISPOSITION_RECORD_MALFORMED, &destination, &shown);
+                    let ModelDocumentSaveOutcome::Refused { diagnostics, .. } = &refused else { unreachable!() };
+                    assert_eq!(
+                        diagnostics[0].message,
+                        format!(
+                            "material:{LIBRARY}#steel (stored library record: {member}) holds an array or an object where its disposition is read, so the disposition cannot be judged. \
+                             Open the library in the Library Manager, write each redistribution_status and review_status as text and each provenance as an object, \
+                             and save it to the local store again (or delete the library, or remove the reference), then retry."
+                        ),
+                        "the refusal names the library and the record ({state_id:?})"
+                    );
                 }
             }
         }
@@ -2493,6 +2515,9 @@ mod tests {
         let refused = crate::model_document_save::admit_model_document_text(text, &hash, &hash, &mut |_: &str, kind: &str, id: &str| Ok((kind == "material" && id == LIBRARY).then(|| library.clone()))).unwrap_err();
         let codes: Vec<(&str, &str)> = refused.iter().map(|item| (item.code.as_str(), item.path.as_str())).collect();
         assert_eq!(codes, vec![(DISPOSITION_RECORD_MALFORMED, "materials[0].provenance_record.library_ref")]);
+        // It names the stored library and record and how to repair the store.
+        assert!(refused[0].message.starts_with(&format!("material:{LIBRARY}#steel (stored library record: review_status) holds an array or an object")), "{}", refused[0].message);
+        assert!(refused[0].message.contains("Open the library in the Library Manager"), "{}", refused[0].message);
     }
 
     /// A whole stored record in positional form is not identifiable by its

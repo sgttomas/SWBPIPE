@@ -244,6 +244,8 @@ const HANDOFF_SAVE = { path: path.join(savedHandoffs, "saved-demo.swbhandoff") }
 const savedReportPackages = path.join(root, "saved-report-packages");
 mkdirSync(savedReportPackages);
 const REPORT_PACKAGE_SAVE = { path: path.join(savedReportPackages, "saved-demo.opsproj") };
+// W-11 (DEL-08-01 Design exact-route-report-sections.md §5.1): the exact route's package.
+const EXACT_REPORT_PACKAGE_SAVE = { path: path.join(savedReportPackages, "saved-exact.opsproj") };
 const documents = expected.cases.map((entry) => {
   const source = path.join(project, entry.fixture);
   const target = path.join(models, path.basename(entry.fixture));
@@ -283,7 +285,7 @@ function launch(phase, extra = {}) {
     refusals: expected.refusals.map((item) => ({ path: path.join(models, item.file) })),
     // The first case also exercises the replace prompt (HELP_HUMAN ruling 2026-10-10).
     documents: documents.map(({ case: name, path: file, project_id, modes, probe }, index) => ({ case: name, path: file, project_id, modes, probe: probe ?? null, replace_flows: index === 0 })),
-    exact: { path: exactPath, project_id: exactDocument.project.id },
+    exact: { path: exactPath, project_id: exactDocument.project.id, ...(extra.exact_report_package ? { report_package: extra.exact_report_package } : {}) },
     blank: BLANK,
     model_document: MODEL_DOCUMENT_SAVE,
     ...extra
@@ -332,7 +334,7 @@ function checkObservation(prefix, seen, want, modelHash) {
   check(`${prefix}: no retained-precision diagnostics`, seen.retained_precision_codes.length === 0 && seen.retained_precision_elements === 0, seen.retained_precision_codes);
 }
 
-const first = await launch("open-solve-save", { report_package: REPORT_PACKAGE_SAVE });
+const first = await launch("open-solve-save", { report_package: REPORT_PACKAGE_SAVE, exact_report_package: EXACT_REPORT_PACKAGE_SAVE });
 check("phase open-solve-save completed", first.ok, first.error);
 // W-6a (DEL-15-01 Design canonical-model-export.md §2). Nothing here is pinned:
 // the expected bytes and hash are computed from the bundled demo fixture.
@@ -418,13 +420,33 @@ const namesMissingInputs = (rules) => Boolean(rules?.aggregate?.includes("RULE_I
   const solved = exact?.solve;
   check("exact route: solved, its proof bound to the opened document", solved?.solve_job_summary?.includes("state=completed") && solved.proof_model_sha256 === modelSha256(exactDocument) && solved.solve_proof?.includes("identity=match"), solved?.proof_model_sha256);
   check("exact route: the standing names the route", solved?.standing?.includes("3.0.0/exact_pressure_v3"), solved?.standing?.slice(0, 80));
-  check("exact route: rendered report refused by its own gate (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE), no render control",
-    exact?.rendered_report_panel && !exact.render_control_present && exact.render_refusal?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE"), exact?.render_refusal);
+  // W-11 (DEL-08-01 Design exact-route-report-sections.md §5.1 item 7; owner, 2026-10-26):
+  // admission checks of what the driver did. Nothing here is pinned: the shown hash's
+  // form, the gate line, and the saved file against its receipt and the product reader.
+  const exactRender = exact?.report_render;
+  check("exact route: rendered report offered by its own gate (no refusal), and rendered unblocked in the local-private context",
+    exact?.rendered_report_panel && exact.render_control_present && exact.render_refusal === null
+      && exactRender?.redaction?.includes("context=local_private") && exactRender.redaction.includes("blocked=false"), exactRender?.redaction ?? exactRender?.error ?? exact?.render_refusal);
+  check("exact route: rendered report's canonical HTML SHA-256 shown and export gates passed",
+    /^Canonical HTML SHA-256: [0-9a-f]{64}$/.test(exactRender?.hash ?? "") && exactRender.gate === "export gates passed" && exactRender.preview_local_private_notice, exactRender && { hash: exactRender.hash, gate: exactRender.gate, error: exactRender.error });
   check("exact route: MBF refused by its own gate (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE), no package or MBF text download",
     exact?.mbf_panel && !exact.mbf_download_controls && exact.mbf_refusal?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE"), exact?.mbf_refusal);
   check("exact route: result JSON export offered", exact?.result_export_link === true);
-  check("exact route: report package refused by its route (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE), no package controls",
-    exact?.report_package_refusal?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE") && exact.report_package_controls === false, exact?.report_package_refusal);
+  const exactPackage = exact?.report_package;
+  const exactRead = exactPackage?.read;
+  const exactFile = existsSync(EXACT_REPORT_PACKAGE_SAVE.path) ? readFileSync(EXACT_REPORT_PACKAGE_SAVE.path) : null;
+  const exactShown = (pattern) => exactPackage?.status?.match(pattern)?.[1] ?? null;
+  let exactMember = null;
+  try { exactMember = typeof exactRead?.result_member_text === "string" ? JSON.parse(exactRead.result_member_text) : null; } catch { exactMember = null; }
+  const exactIdentity = exactMember?.result_envelope?.producer?.semantic_contract_id ?? null;
+  check("exact route: report package saved (REPORT-PACKAGE-SAVED), its file the receipt's, re-read by the product reader as an unblocked 2.0.0 desktop package with an exact-identity result member",
+    exact?.report_package_refusal === null && exact.report_package_controls === true
+      && exactPackage?.status?.startsWith("outcome=saved; code=REPORT-PACKAGE-SAVED; file=") && exactFile !== null
+      && exactShown(/container_sha256=([0-9a-f]{64})/) === createHash("sha256").update(exactFile).digest("hex")
+      && exactRead && !exactRead.error && exactRead.schema_version === "2.0.0" && exactRead.export_profile_id === "desktop_local_private_report_package_1"
+      && exactRead.export_blocked === false && exactRead.package_identity_sha256_hex === exactShown(/package_identity=([0-9a-f]{64})/)
+      && ["openpipestress.result_semantics/0.3.0/pressure-2", "openpipestress.result_semantics/0.3.0/pressure-source-1"].includes(exactIdentity),
+    exactRead?.error ?? exactPackage?.status ?? exact?.report_package_refusal ?? { identity: exactIdentity });
   check("exact route: rule checks refused as RULE_INPUTS_INCOMPLETE, naming the missing inputs", namesMissingInputs(exact?.rule_checks), exact?.rule_checks?.outcomes);
 }
 // W-4. The model authored from blank in the GUI.

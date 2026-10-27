@@ -82,7 +82,7 @@ it("shows a declared 3.0.0/exact_pressure_v3 contract with its families, the sig
   render(<PressureAuthoringPanel model={v3} selection={{ type: "load", id: model.load_cases[0].id }} loadCaseId={model.load_cases[0].id} onQueueIntent={vi.fn()} />);
   // T4-U8: the mode text also names the document's straight-member shear model and
   // states that realized arcs are Euler–Bernoulli under either model.
-  expect(screen.getByText(/pressure mode: exact_pressure_v3 \(straight members, realized bends and linear restraints or springs; other families are refused by name; straight members use Timoshenko \(energy-matched annular shear factor\), and realized arcs are Euler–Bernoulli under either shear model; pressure-2 results are read with their standing, and only the result JSON and stress-neutral exports and the rule check admit a numerically eligible result\)/)).toBeInTheDocument();
+  expect(screen.getByText(/pressure mode: exact_pressure_v3 \(straight members, realized bends and linear restraints or springs; other families are refused by name; straight members use Timoshenko \(energy-matched annular shear factor\), and realized arcs are Euler–Bernoulli under either shear model; pressure-2 results are read with their standing, and only the result JSON and stress-neutral exports, the rule check, the rendered report and the report package admit a numerically eligible result\)/)).toBeInTheDocument();
   expect(screen.queryByText(/solves are refused/)).toBeNull();
   expect(screen.getByText(/a direction change above 1e-3 rad at a bend's end is refused as a mitre/)).toBeInTheDocument();
   expect(screen.getByText(/signed \(a negative value is a net external differential; external-pressure stability and collapse are not assessed\)/)).toBeInTheDocument();

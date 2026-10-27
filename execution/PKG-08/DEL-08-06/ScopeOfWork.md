@@ -115,7 +115,7 @@ This Scope of Work defines `DEL-08-06` in service of project scope [SOW-024] and
 > | Authority boundary | No human-acceptance, validation, or release inference. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Held scope | External/non-JSON payload partitioning, rendered layout, concrete adapter/runtime hooks, and broader workflow integration |
 
-Desktop report-package request (current, after W-18). `apps/desktop/src/features/report/reportPackageRequest.ts` assembles the state/run and comparison sections (`stateComparisonHandoffSections.ts`, kept equal to the Python assembler `core/reporting/state_comparison_handoff_sections/engine.py` by a shared parity fixture) for a Current preview-physics-2 result. The output policy's `report-package` cell refuses its retained successor and, under owner ruling 10A, pressure-2 and pressure-source-1; the package's Rust boundary admits only preview-physics-2 (DEL-08-01 Design `report-package-current-results.md`).
+Desktop report-package request (current, after W-18). `apps/desktop/src/features/report/reportPackageRequest.ts` assembles the state/run and comparison sections (`stateComparisonHandoffSections.ts`, kept equal to the Python assembler `core/reporting/state_comparison_handoff_sections/engine.py` by a shared parity fixture) for a Current preview-physics-2, pressure-2 or pressure-source-1 result. The output policy's `report-package` cell refuses the retained successors; the package's Rust boundary admits those three identities (DEL-08-01 Designs `report-package-current-results.md` and `exact-route-report-sections.md`).
 
 ## Completion and Reliance Basis — Epistemology
 

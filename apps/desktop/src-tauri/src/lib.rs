@@ -1585,7 +1585,8 @@ async fn render_calculation_report(
 
 /// The render's production root (W-11, DEL-08-01 Design
 /// `exact-route-report-sections.md` §3.6 step 0, §5.5): the production
-/// admitted set, which admits no exact-route identity before opening.
+/// admitted set, which admits pressure-2 and pressure-source-1 since the owner
+/// opened exact-route report outputs (§5.1; 2026-10-26).
 fn render_calculation_report_args(args: &mut Args, registry: &SolveJobRegistry, lease: &mut memory_pool::Lease) -> Result<Value, CommandError> {
     report_render_exact::render_calculation_report_args_in(args, registry, lease, report_render_exact::PRODUCTION)
 }
@@ -9424,6 +9425,65 @@ mod tests {
         assert_eq!(entries[0].library_kind, "hanger");
         assert_eq!(entries[0].library_name, "Invented fixture only");
         assert_eq!(entries[0].privacy_class, "private_user_supplied");
+    }
+
+    /// W-17 object form: the private-library writer refuses, by name
+    /// (`MODEL-DISPOSITION-RECORD-MALFORMED`, the export screen's code), a
+    /// library whose metadata or record holds a disposition no verdict can
+    /// read, for every kind and at any depth; nothing is stored. Before this
+    /// rule it stored such a library as `PRIVATE_LOCAL_ONLY`, and every export
+    /// of a model referencing it then refused. The accept rule is the library
+    /// import's (`library_import_document`, pinned to its Python twin).
+    #[test]
+    fn save_local_library_refuses_an_unreadable_disposition_by_name() {
+        for (kind, fixture, library_key, records_key, record_id) in [
+            ("material", include_str!("../../../../fixtures/material/invented_material_library_valid.json"), "material_library", "material_records", "material_id"),
+            ("section", include_str!("../../../../fixtures/component/invented_section_library_valid.json"), "section_library", "section_records", "section_id"),
+            ("component", include_str!("../../../../fixtures/component/invented_component_library_valid.json"), "component_library", "component_records", "component_id"),
+            ("hanger", include_str!("../../../../fixtures/hanger/invented_hanger_library_valid.json"), "hanger_library", "hanger_records", "hanger_id"),
+        ] {
+            let base: Value = serde_json::from_str(fixture).unwrap();
+            let library_id = base[library_key]["library_id"].as_str().unwrap().to_string();
+            let record = base[records_key][0][record_id].as_str().unwrap().to_string();
+            let control = save_local_library_value(|| Ok(scratch_library_store(kind)), "project:unreadable".into(), kind.into(), base.clone()).unwrap();
+            assert!(control.stored, "{kind}: the control stores: {}", control.validation);
+            for (site, value) in [
+                ("own", json!(["quarantined"])),
+                ("own", json!({ "status": "rejected" })),
+                ("provenance", json!(["quarantined"])),
+                ("positional", json!(["Invented", "quarantined"])),
+                ("library", json!({ "status": "rejected" })),
+            ] {
+                let mut document = base.clone();
+                let (member, named) = match site {
+                    "own" => { document[records_key][0]["review_status"] = value.clone(); ("review_status", format!("Record `{record}` of the {kind} library `{library_id}`")) }
+                    "provenance" => { document[records_key][0]["provenance"]["redistribution_status"] = value.clone(); ("provenance.redistribution_status", format!("Record `{record}` of the {kind} library `{library_id}`")) }
+                    "positional" => { document[records_key][0]["provenance"] = value.clone(); ("provenance", format!("Record `{record}` of the {kind} library `{library_id}`")) }
+                    _ => { document[library_key]["review_status"] = value.clone(); ("review_status", format!("The {kind} library `{library_id}`")) }
+                };
+                let store = scratch_library_store(kind);
+                let saved = save_local_library_value(|| Ok(store.clone()), "project:unreadable".into(), kind.into(), document).unwrap();
+                assert!(!saved.stored, "{kind}/{site}/{value}: refused");
+                assert_eq!(saved.validation["accepted"], json!(false));
+                let refusals: Vec<&Value> = saved.validation["findings"].as_array().unwrap().iter().filter(|finding| finding["code"] == json!(crate::export_disposition_screen::DISPOSITION_RECORD_MALFORMED)).collect();
+                assert_eq!(refusals.len(), 1, "{kind}/{site}/{value}: {}", saved.validation["findings"]);
+                let message = refusals[0]["message"].as_str().unwrap();
+                assert!(message.starts_with(&format!("{named} holds `{member}` as ")), "{kind}/{site}: {message}");
+                assert!(refusals[0]["severity"] == json!("blocking"));
+                // Nothing was written: the store was never opened.
+                assert!(!store.exists(), "{kind}/{site}: nothing stored");
+            }
+        }
+    }
+
+    fn scratch_library_store(label: &str) -> PathBuf {
+        let root = std::env::temp_dir().join(format!(
+            "swbpipe-unreadable-{label}-{}-{}",
+            std::process::id(),
+            SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        root.join(PROJECT_STORE_FILE)
     }
 
     #[test]

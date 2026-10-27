@@ -237,3 +237,106 @@ print(json.dumps(out))
     assert_eq!(LibraryKind::from_token("hanger"), Some(LibraryKind::Hanger));
     assert_eq!(LibraryKind::Hanger.token(), "hanger");
 }
+
+/// W-17 object form: the cases of `tests/test_library_import_provenance.py`'s
+/// unreadable-disposition tests, over every library kind, run through both
+/// implementations; full ordered `(code, path, severity, message)` tuples and
+/// outcomes must agree. Every unreadable case is refused by name
+/// (`MODEL-DISPOSITION-RECORD-MALFORMED`) and every control is not.
+#[test]
+fn unreadable_disposition_cases_match_python() {
+    use open_pipe_stress_library_import_document::DISPOSITION_RECORD_MALFORMED;
+    let bases = [
+        ("material", "fixtures/material/invented_material_library_valid.json", "material_library", "material_records"),
+        ("section", "fixtures/component/invented_section_library_valid.json", "section_library", "section_records"),
+        ("component", "fixtures/component/invented_component_library_valid.json", "component_library", "component_records"),
+        ("hanger", "fixtures/hanger/invented_hanger_library_valid.json", "hanger_library", "hanger_records"),
+    ];
+    let unreadable: [(&str, Value); 4] = [
+        ("review_status", json!(["quarantined"])),
+        ("review_status", json!({ "status": "rejected" })),
+        ("redistribution_status", json!(["protected_suspected"])),
+        ("redistribution_status", json!({ "status": "rejected" })),
+    ];
+    let mut cases = Vec::new();
+    for (kind, fixture, library_key, records_key) in bases {
+        let base = load_fixture(fixture);
+        cases.push((kind, "control", false, base.clone()));
+        for (member, value) in &unreadable {
+            for site in ["library", "record", "record-provenance", "nested"] {
+                let mut payload = base.clone();
+                let target = match site {
+                    "library" => &mut payload[library_key],
+                    "record" => &mut payload[records_key][0],
+                    "record-provenance" => &mut payload[records_key][0]["provenance"],
+                    _ => &mut payload[records_key][0],
+                };
+                if site == "nested" {
+                    let mut leaf = serde_json::Map::new();
+                    leaf.insert(member.to_string(), value.clone());
+                    target["invented_nested"] = json!({ "deeper": [Value::Object(leaf)] });
+                } else {
+                    target[*member] = value.clone();
+                }
+                cases.push((kind, "unreadable", true, payload));
+            }
+        }
+        for site in ["record", "nested"] {
+            let mut payload = base.clone();
+            if site == "record" {
+                payload[records_key][0]["provenance"] = json!(["Invented", "private_only", "pending"]);
+            } else {
+                payload[records_key][0]["invented_nested"] = json!({ "provenance": ["Invented", "quarantined"] });
+            }
+            cases.push((kind, "positional", true, payload));
+        }
+        // Controls: an object-valued classification at every level and a
+        // non-text scalar status state no disposition the verdict reads (the
+        // hanger schema admits neither member, so hangers have no such control).
+        if kind == "hanger" {
+            continue;
+        }
+        let mut payload = base.clone();
+        payload[library_key]["classification"] = json!({ "redistribution_status": "private_only" });
+        payload[records_key][0]["classification"] = json!({ "value": "protected_suspected" });
+        payload[records_key][0]["invented_nested"] = json!({ "classification": { "review_status": "accepted" }, "review_status": null });
+        cases.push((kind, "classification", false, payload));
+    }
+    let input = json!(cases.iter().map(|(kind, _, _, payload)| json!({ "kind": kind, "payload": payload })).collect::<Vec<_>>());
+    let scratch = std::env::temp_dir().join(format!("unreadable-disposition-cases-{}.json", std::process::id()));
+    fs::write(&scratch, serde_json::to_vec(&input).unwrap()).unwrap();
+    let python = std::process::Command::new("python3").current_dir(repo_root())
+        .args(["-c", r#"
+import json, sys
+from core.library_import.provenance_checker import validate_library_import
+out=[]
+for c in json.load(open(sys.argv[1])):
+ for v in ('private','public'):
+  r=validate_library_import(c['payload'],library_kind=c['kind'],intended_visibility=v)
+  out.append({'outcome':r.outcome,'findings':[[f.code,f.path,f.severity,f.message,f.remediation] for f in r.findings]})
+print(json.dumps(out))
+"#, scratch.to_str().unwrap()]).output().expect("Python parity runner");
+    let _ = fs::remove_file(&scratch);
+    assert!(python.status.success(), "{}", String::from_utf8_lossy(&python.stderr));
+    let expected: Value = serde_json::from_slice(&python.stdout).unwrap();
+    let mut index = 0;
+    for (kind, label, refused, payload) in &cases {
+        for visibility in [IntendedVisibility::Private, IntendedVisibility::Public] {
+            let result = validate_library_import(payload, LibraryKind::from_token(kind).unwrap(), visibility);
+            let tuples: Vec<Value> = result.findings.iter().map(|f| json!([f.code, f.path, f.severity, f.message, f.remediation])).collect();
+            assert_eq!(json!({ "outcome": result.outcome, "findings": tuples }), expected[index], "{kind}/{label}/{visibility:?}");
+            let named = result.findings.iter().any(|f| f.code == DISPOSITION_RECORD_MALFORMED);
+            assert_eq!(named, *refused, "{kind}/{label}/{visibility:?}: {:?}", codes(&result));
+            if *refused {
+                assert!(!result.accepted, "{kind}/{label}");
+            }
+            index += 1;
+        }
+        if !refused {
+            let private = validate_library_import(payload, LibraryKind::from_token(kind).unwrap(), IntendedVisibility::Private);
+            assert!(private.accepted, "{kind}/{label}: the control imports privately: {:?}", codes(&private));
+        }
+    }
+    assert_eq!(index, cases.len() * 2);
+    assert_eq!(cases.len(), 4 * (1 + 16 + 2) + 3);
+}

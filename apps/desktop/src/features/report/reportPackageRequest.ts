@@ -7,23 +7,21 @@
 // re-checks it before the save dialog (`src-tauri/src/report_package_save.rs`),
 // and the shared producer binds its members (`report_package::bindings`).
 //
-// Only a Current pressure-free (preview-physics-2) result is admitted. The
-// exact routes stay refused by the output policy's `report-package` cell
-// (`PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`; owner ruling 10A, 2026-10-21), by the
-// identity check against `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS`, and by the
-// producer's Rust boundary, which admits only preview-physics-2.
+// A Current pressure-free (preview-physics-2) result is admitted, and, since the owner
+// opened exact-route packages (W-11, DEL-08-01 Design `exact-route-report-sections.md`
+// §5.1; owner, 2026-10-26), an eligible pressure-2 or pressure-source-1 result: the
+// output policy's `report-package` cell admits the three routes, the identity check
+// admits `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS`, and the producer's Rust boundary admits
+// the same three identities. The retained successors stay refused by the cell.
 //
-// W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.1, §3.5, §5.5):
-// `buildReportPackageRequest` is the cell check followed by the assembly with the
-// production admitted set. Behind them, an exact source is assembled from its Export
-// Result JSON admission (whose document is the result member, so the package and the
-// report name one admission), and `reportPackageExactSubmission` re-checks it
-// immediately before IPC and yields the texts the native save binds. Tests reach the
-// assembly below the gate through `assembleReportPackageRequestBelowOutputGate`; the
-// Rust boundary still refuses whatever it produces.
+// W-11 (§3.1, §3.5, §5.5): `buildReportPackageRequest` is the cell check followed by the
+// assembly with the production admitted set. An exact source is assembled from its
+// Export Result JSON admission (whose document is the result member, so the package and
+// the report name one admission), and `reportPackageExactSubmission` re-checks it
+// immediately before IPC and yields the texts the native save binds.
 // Standard claim fence applies (claims taxonomy per DEC-081).
 import { refuseSurfaceOutput, surfaceRouteRefusal } from "../results/outputPolicy";
-import { PREVIEW_PHYSICS_CONTRACT_ID } from "../results/numericalResultQuality";
+import { PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID } from "../results/numericalResultQuality";
 import { buildCurrentResultExport, type JsonObject as ResultDocument } from "../result-export/resultExportAdapter";
 import {
   admitExactReportSource,
@@ -50,12 +48,13 @@ import { currentLibraryRefFindings } from "../library/libraryRefFindings";
 
 /** The desktop's export profile (`report_package::bindings::DESKTOP_PROFILE`). */
 export const REPORT_PACKAGE_DESKTOP_PROFILE = "desktop_local_private_report_package_1";
-/** The result document's identity is not the package's admitted one (preview-physics-2). */
+/** The result document's identity is not one the package admits. */
 export const REPORT_PACKAGE_ROUTE_NOT_ADMITTED = "REPORT-PACKAGE-ROUTE-NOT-ADMITTED";
 /** The semantic contracts the package admits: Rust's `ADMITTED_SEMANTIC_CONTRACTS`
  * (`report_package/src/document_form.rs`), kept equal by the exact-section parity vectors.
- * Exact identities are added only when the owner opens exact-route packages (§5.1). */
-export const REPORT_PACKAGE_ADMITTED_CONTRACT_IDS: readonly string[] = Object.freeze([PREVIEW_PHYSICS_CONTRACT_ID]);
+ * The exact identities were added when the owner opened exact-route packages (§5.1;
+ * owner, 2026-10-26). */
+export const REPORT_PACKAGE_ADMITTED_CONTRACT_IDS: readonly string[] = Object.freeze([PREVIEW_PHYSICS_CONTRACT_ID, PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID]);
 /** The rule-check aggregate, the rule-check run and the analysis record do not name one rule check. */
 export const REPORT_PACKAGE_RULE_CHECK_BINDING_MISMATCH = "REPORT-PACKAGE-RULE-CHECK-BINDING-MISMATCH";
 /** A rule-pack checksum whose declared pair has no audit basis the package can name (§2.4). */
@@ -77,9 +76,10 @@ const PROFESSIONAL_BOUNDARY = {
 
 /** The route gate (§2.1): the output policy's `report-package` cell. Synchronous, for
  * the menu and the report panel. Null admits the route to the builder's own checks:
- * `preview_physics` is ungated, the exact routes and both retained successors are
- * refused with their routes' reasons, and an unsupported statement falls to the
- * builder's contract check. */
+ * `preview_physics` is ungated, the exact routes are admitted to the builder's
+ * Export Result JSON admission (W-11 §5.1), both retained successors are refused with
+ * their routes' reasons, and an unsupported statement falls to the builder's contract
+ * check. */
 export function reportPackageUnavailableReason(result: MechanicsResult | null | undefined): string | null {
   return surfaceRouteRefusal(result, "report-package");
 }
@@ -315,6 +315,3 @@ async function assembleReportPackageRequest(input: ReportPackageRequestInput, ad
   return request;
 }
 
-/** Test-only name of the assembly, which production reaches only after the
- * `report-package` cell (never for an exact result before opening). */
-export const assembleReportPackageRequestBelowOutputGate = assembleReportPackageRequest;
