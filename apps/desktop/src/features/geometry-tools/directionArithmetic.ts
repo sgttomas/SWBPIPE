@@ -5,8 +5,8 @@
 //
 // The arithmetic is binary64, round to nearest, in the order written below (§3.2):
 //   Ls     = convert_for_dimension(L, entry unit -> project length unit)    one rounding at most
-//   |d|    = sqrt(dx*dx + dy*dy + dz*dz)        left to right; sqrt is correctly rounded
-//   u_i    = d_i / |d|
+//   u      = scaled normalization of d (see unitDirection): s = max|d_i|, e = d / s,
+//            n = sqrt(ex*ex + ey*ey + ez*ez), u_i = e_i / n; no underflow or overflow
 //   vector: Δ_i = Ls * u_i
 //   angle:  θ = convert_for_dimension(θ, entry unit -> rad); Δ_i = (Ls * cos θ) * h_i on the
 //           horizontal axes, Δ_up = s_up * (Ls * sin θ)
@@ -81,11 +81,20 @@ function upAxis(up: UpDirection): { axis: Axis; sign: 1 | -1 } {
   return { axis: up[1] as Axis, sign: up[0] === "-" ? -1 : 1 };
 }
 
-/** u = d / |d|, with |d| = sqrt(dx*dx + dy*dy + dz*dz) evaluated left to right. */
+/** Scaled normalization, so that no square underflows or overflows:
+ *   s = max(|dx|, |dy|, |dz|)            exact
+ *   e_i = d_i / s                         one rounding; the largest |e_i| is exactly 1
+ *   n = sqrt(ex*ex + ey*ey + ez*ez)       left to right; n is in [1, √3]
+ *   u_i = e_i / n                         one rounding
+ * For any finite nonzero d, |‖u‖ − 1| ≤ 3u to first order (u = 2⁻⁵³). A square below the
+ * normal range adds at most 2⁻¹⁰⁷⁴ to a sum of at least 1 and is absorbed. */
 export function unitDirection(d: Vec3): Vec3 {
-  const norm = Math.sqrt(d.x * d.x + d.y * d.y + d.z * d.z);
-  if (!(norm > 0) || !Number.isFinite(norm)) throw new Error("The direction must be a nonzero vector whose length is a finite number.");
-  return { x: d.x / norm, y: d.y / norm, z: d.z / norm };
+  if (!AXES.every((axis) => Number.isFinite(d[axis]))) throw new Error("The direction must have finite components.");
+  const s = Math.max(Math.abs(d.x), Math.abs(d.y), Math.abs(d.z));
+  if (!(s > 0)) throw new Error("The direction must be a nonzero vector.");
+  const e = { x: d.x / s, y: d.y / s, z: d.z / s };
+  const n = Math.sqrt(e.x * e.x + e.y * e.y + e.z * e.z);
+  return { x: e.x / n, y: e.y / n, z: e.z / n };
 }
 
 function enteredDirection(draft: DirectionDraft, label: string): Vec3 {

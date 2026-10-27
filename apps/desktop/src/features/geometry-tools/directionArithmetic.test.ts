@@ -94,3 +94,57 @@ describe("refusals: nothing is assumed", () => {
     expect(directionDraftIssue(entry, unit)).toContain(text);
   });
 });
+
+describe("scaled normalization (r1): any finite nonzero direction has unit length", () => {
+  // Stated bound: |‖u‖ − 1| ≤ 3u to first order, u = 2⁻⁵³. Measuring ‖u‖ in binary64 adds up
+  // to about 3u more, so the check allows 6u (= 3 · Number.EPSILON).
+  const norm = (v: { x: number; y: number; z: number }) => Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+  const BOUND = 3 * Number.EPSILON;
+  it.each([
+    ["tiny (squares underflow)", "2e-162", "0", "0"],
+    ["tiny, three components", "1e-162", "2e-162", "-3e-162"],
+    ["huge (squares overflow)", "1e160", "2e160", "-3e160"],
+    ["huge, one component", "0", "-1.5e+307", "0"],
+    ["mixed scale (one square overflows, one underflows)", "3e-170", "4e155", "1"],
+    ["mixed tiny and ordinary", "1e-300", "0", "-2.5"]
+  ])("%s: the increment has the entered length within the bound", async (_name, x, y, z) => {
+    const end = await computeDirectionEnd(draft({ mode: "vector", length: "10", ...dir(x, y, z) }), { x: 0, y: 0, z: 0 }, "ft");
+    expect(Math.abs(norm(end.increment) / 10 - 1)).toBeLessThanOrEqual(BOUND);
+  });
+
+  it("a tiny direction along X gives exactly the length along X", async () => {
+    const end = await computeDirectionEnd(draft({ mode: "vector", length: "10", ...dir("2e-162", "0", "0") }), { x: 0, y: 0, z: 0 }, "ft");
+    expect(end.position).toEqual({ x: 10, y: 0, z: 0 });
+  });
+
+  it("a tiny horizontal direction for a slope keeps the run", async () => {
+    const end = await computeDirectionEnd(draft({ mode: "slope", length: "12", ...dir("1e-200", "1e-200", "0"), up: "+z", slopeN: "48", slopeSense: "falls" }), { x: 0, y: 0, z: 0 }, "ft");
+    expect(Math.abs(Math.hypot(end.increment.x, end.increment.y) / 12 - 1)).toBeLessThanOrEqual(BOUND);
+    expect(end.increment.z).toBe(-0.25);
+  });
+});
+
+describe("all six up directions (r1), angle and slope", () => {
+  // For each up direction, a horizontal direction along another axis; hand values.
+  const cases = [
+    ["+x", "x", 1, { x: "0", y: "1", z: "0" }, "y"],
+    ["-x", "x", -1, { x: "0", y: "0", z: "1" }, "z"],
+    ["+y", "y", 1, { x: "0", y: "0", z: "-1" }, "z"],
+    ["-y", "y", -1, { x: "1", y: "0", z: "0" }, "x"],
+    ["+z", "z", 1, { x: "-1", y: "0", z: "0" }, "x"],
+    ["-z", "z", -1, { x: "0", y: "1", z: "0" }, "y"]
+  ] as const;
+  it.each(cases)("up %s: a slope falling 1 in 48 over 12 drops 0.25 along the down sense; an angle of 30° rises", async (up, axis, sign, h, along) => {
+    const hSign = Number(h[along]);
+    const slope = await computeDirectionEnd(draft({ mode: "slope", length: "12", direction: { ...h }, up, slopeN: "48", slopeSense: "falls" }), { x: 0, y: 0, z: 0 }, "ft");
+    const expected = { x: 0, y: 0, z: 0 };
+    expected[along] = 12 * hSign;
+    expected[axis] = -0.25 * sign;
+    expect(slope.position).toEqual(expected);
+    const angle = await computeDirectionEnd(draft({ mode: "angle", length: "2", direction: { ...h }, up, angle: "30", angleUnit: "deg" }), { x: 0, y: 0, z: 0 }, "ft");
+    expect(Math.abs(angle.position[along] - 1.7320508075688772 * hSign)).toBeLessThanOrEqual(ULP(1.7320508075688772));
+    expect(Math.abs(angle.position[axis] - sign)).toBeLessThanOrEqual(ULP(1));
+    const third = (["x", "y", "z"] as const).find((c) => c !== axis && c !== along)!;
+    expect(angle.position[third]).toBe(0);
+  });
+});
