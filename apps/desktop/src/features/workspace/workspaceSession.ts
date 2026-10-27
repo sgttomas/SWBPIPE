@@ -3070,16 +3070,22 @@ export function useWorkspaceSession() {
   const [modelCheckRun, setModelCheckRun] = useState<ModelCheckRun | null>(null);
   const [modelCheckBusy, setModelCheckBusy] = useState(false);
   const modelCheckRequest = useRef(0);
+  // A new project session retires a run in progress and the last run's list
+  // (Codex review r2 of #1665): neither describes the new session's model.
+  useEffect(() => {
+    modelCheckRequest.current += 1;
+    setModelCheckBusy(false);
+    setModelCheckRun(null);
+  }, [projectSessionGeneration]);
   async function handleRunModelChecks() {
     if (!model) return;
     const request = ++modelCheckRequest.current;
     const generation = projectSessionGenerationRef.current;
     setIssuesDrawerOpen(true);
     setModelCheckBusy(true);
-    const run = await runModelChecks(model, libraryRefDiagnostics(currentLibraryRefFindings(model)));
-    if (request !== modelCheckRequest.current) return;
+    const run = await runModelChecks(model, () => libraryRefDiagnostics(currentLibraryRefFindings(model)));
+    if (request !== modelCheckRequest.current || generation !== projectSessionGenerationRef.current) return;
     setModelCheckBusy(false);
-    if (generation !== projectSessionGenerationRef.current) return;
     setModelCheckRun(run);
   }
 

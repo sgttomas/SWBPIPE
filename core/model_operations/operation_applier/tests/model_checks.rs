@@ -53,13 +53,15 @@ fn a_model_the_solve_cannot_read_is_reported_unchecked_with_its_refusal() {
     assert!(report.get("diagnostics").is_none());
 }
 
-// Codex review r1 of #1665: the report is bounded whatever the model, and the
-// browser engine refuses a model text above its bound before parsing it.
+// Codex reviews r1 and r2 of #1665: the report is bounded whatever the model;
+// only display text is shortened, never an id or a reference; the slot checks
+// share the bound; the browser engine refuses a model text above its bound
+// before parsing it.
 #[test]
 fn the_report_is_bounded_whatever_the_model() {
     use open_pipe_stress_operation_applier::{
-        model_checks_text, MODEL_CHECKS_INPUT_TOO_LARGE, MODEL_CHECKS_MAX_BROWSER_INPUT_BYTES, MODEL_CHECKS_MAX_REFS,
-        MODEL_CHECKS_MAX_RESPONSE_BYTES, MODEL_CHECKS_MAX_TEXT_BYTES,
+        model_checks_text, MODEL_CHECKS_INPUT_TOO_LARGE, MODEL_CHECKS_MAX_BROWSER_INPUT_BYTES, MODEL_CHECKS_MAX_RESPONSE_BYTES,
+        MODEL_CHECKS_MAX_TEXT_BYTES,
     };
     // 4,000 supports with long ids and an unknown family: one blocking finding each,
     // whose references quote the long id (about 11.3 MB of findings unbounded).
@@ -69,25 +71,47 @@ fn the_report_is_bounded_whatever_the_model() {
     let report = model_checks(&model);
     let text = report.to_string();
     assert!(text.len() <= MODEL_CHECKS_MAX_RESPONSE_BYTES + 512, "report {} bytes", text.len());
-    for finding in report["diagnostics"].as_array().unwrap() {
-        for key in ["id", "code", "severity", "message", "source"] {
-            assert!(finding[key].as_str().map_or(true, |text| text.len() <= MODEL_CHECKS_MAX_TEXT_BYTES), "{key}");
-        }
-        assert!(finding["affected_refs"].as_array().map_or(true, |refs| refs.len() <= MODEL_CHECKS_MAX_REFS));
-    }
-    let shown = report["diagnostics"].as_array().unwrap().len() as u64;
     let solved = solve_diagnostics(&model);
-    assert_eq!(shown + report["diagnostics_not_shown"].as_u64().unwrap(), solved.len() as u64, "every finding is shown or counted");
+    let shown = report["diagnostics"].as_array().unwrap();
+    // Every listed finding keeps its identifiers whole: they equal the solve's.
+    for (finding, solve) in shown.iter().zip(&solved) {
+        for key in ["id", "code", "severity", "source", "affected_refs"] {
+            assert_eq!(finding.get(key), solve.get(key), "{key}");
+        }
+        assert!(finding["message"].as_str().unwrap().len() <= MODEL_CHECKS_MAX_TEXT_BYTES);
+    }
+    assert_eq!(shown.len() as u64 + report["diagnostics_not_shown"].as_u64().unwrap(), solved.len() as u64, "every finding is shown or counted");
     let unbounded = serde_json::to_string(&solved).unwrap().len();
-    eprintln!("bounded report {} bytes, {shown} shown, {} not shown; unbounded findings {unbounded} bytes", text.len(), report["diagnostics_not_shown"]);
-    assert!(unbounded > MODEL_CHECKS_MAX_RESPONSE_BYTES, "the probe exceeds the bound unbounded");
-    assert!(report["diagnostics_not_shown"].as_u64().unwrap() > 0);
+    eprintln!("bounded report {} bytes, {} shown, {} not shown; unbounded findings {unbounded} bytes", text.len(), shown.len(), report["diagnostics_not_shown"]);
+    assert!(unbounded > MODEL_CHECKS_MAX_RESPONSE_BYTES && report["diagnostics_not_shown"].as_u64().unwrap() > 0);
 
-    // A long text the solve quotes in its refusal is cut on a character boundary.
+    // Codex r2: a 3,008-byte support id stays whole, so its finding still names the support.
+    let mut model: Value = serde_json::from_str(BUNDLED_DEMO).unwrap();
+    let id = format!("support:{}", "é".repeat(1500));
+    model["supports"] = json!([{"id": id, "node": node, "family": "review_unknown", "restraints": ["UX"], "provenance": "review_invented"}]);
+    let report = model_checks(&model);
+    let finding = report["diagnostics"].as_array().unwrap().iter().find(|d| d["code"] == "SUPPORT_FAMILY_INVALID").expect("listed");
+    assert_eq!(finding["affected_refs"][0], json!(id));
+    let solve = solve_diagnostics(&model);
+    let solve = solve.iter().find(|d| d["code"] == "SUPPORT_FAMILY_INVALID").unwrap();
+    assert_eq!(finding["id"], solve["id"], "the diagnostic id is kept whole");
+
+    // Codex r2: 4,000 assumptions naming missing entities flood the slot checks; they share the bound.
+    let mut model: Value = serde_json::from_str(BUNDLED_DEMO).unwrap();
+    model["unresolved_assumptions"] = Value::Array((0..4_000).map(|i| json!({"assumption_id": format!("assumption:review-{i}"), "kind": "assumption", "status": "unresolved", "statement": "Invented probe", "affected_refs": [format!("missing:{}", "x".repeat(600))]})).collect());
+    let report = model_checks(&model);
+    assert!(report.to_string().len() <= MODEL_CHECKS_MAX_RESPONSE_BYTES + 512);
+    let slots = open_pipe_stress_operation_applier::validate_model_document(&model);
+    let slot_shown = report["slot_findings"].as_array().unwrap().len();
+    assert_eq!(slot_shown as u64 + report["slot_findings_not_shown"].as_u64().unwrap(), slots.len() as u64);
+    assert!(report["slot_findings_not_shown"].as_u64().unwrap() > 0, "{} slot findings, {slot_shown} shown", slots.len());
+
+    // A long text the solve quotes in its refusal is cut on a character boundary and marked.
     let long = json!("révïew".repeat(200_000));
     let report = model_checks(&long);
     assert_eq!(report["checked"], false);
     assert!(report["refusal"].as_str().unwrap().len() <= MODEL_CHECKS_MAX_TEXT_BYTES);
+    assert_eq!(report["refusal_truncated"], true);
 
     // The browser bound: refused by name before any parse, at one byte over.
     let over = format!("{}{}", " ".repeat(MODEL_CHECKS_MAX_BROWSER_INPUT_BYTES), "{}");

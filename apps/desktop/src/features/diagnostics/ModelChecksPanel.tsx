@@ -89,16 +89,16 @@ export function ModelChecksPanel({
           The model has changed since these checks ran; run them again to check the current model.
         </p>
       ) : null}
-      {run && run.notShown > 0 ? (
+      {run && notShownTotal(run) > 0 ? (
         <p className="memory-pool-message info" data-testid="model-checks-not-shown">
-          {run.notShown} more {run.notShown === 1 ? "finding of the solve's checks is" : "findings of the solve's checks are"} not listed: the report is bounded. Correct the listed findings and run the checks again.
+          {notShownTotal(run)} more {notShownTotal(run) === 1 ? "finding is" : "findings are"} not listed: the report is bounded. Correct the listed findings and run the checks again.
         </p>
       ) : null}
       {run && run.solve.kind !== "checked" ? (
         <p className="memory-pool-message warning" data-testid="model-checks-solve-unchecked">
           {run.solve.kind === "refused"
             ? `The solve's checks did not run: the solve cannot read this model (${run.solve.refusal}).`
-            : `The solve's checks did not run: ${run.solve.reason}`}
+            : `The model checks did not run: ${run.solve.reason}`}
         </p>
       ) : null}
       {run ? (
@@ -107,7 +107,7 @@ export function ModelChecksPanel({
             <li className="model-checks-group" data-group={group} key={group}>
               <strong>{MODEL_CHECK_GROUP_LABELS[group]}</strong>{" "}
               <span className="muted">
-                {group === "solve" && run.solve.kind !== "checked" ? "not run" : `${findings.length} ${findings.length === 1 ? "finding" : "findings"}`}
+                {groupCount(run, group, findings.length)}
               </span>
               {findings.length > 0 ? (
                 <ul>
@@ -145,6 +145,16 @@ function FindingButton({ finding, onSelectEntity }: { finding: ModelCheckFinding
       {(diagnostic as { truncated?: boolean }).truncated ? <small data-testid="model-check-truncated"> Text shortened in the bounded report.</small> : null}
     </button>
   );
+}
+
+function notShownTotal(run: ModelCheckRun): number {
+  return run.notShown.solve + run.notShown.slots + run.notShown.library;
+}
+
+function groupCount(run: ModelCheckRun, group: ModelCheckGroupId, listed: number): string {
+  if (run.solve.kind === "unavailable" || (group === "solve" && run.solve.kind !== "checked")) return "not run";
+  const counted = run.notShown[group];
+  return `${listed} ${listed === 1 ? "finding" : "findings"}${counted > 0 ? `; ${counted} more not listed` : ""}`;
 }
 
 function summaryText(run: ModelCheckRun): string {

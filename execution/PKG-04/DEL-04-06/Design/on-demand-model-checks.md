@@ -16,8 +16,8 @@ or refusal changes.
 | Group | What runs | Owner |
 |---|---|---|
 | Solve input, restraint and topology checks | The solve's own checks before it forms the first stiffness, in the solve's order and with its stops: request parse and closed records; input validation; applied self weight, shared sections, unit normalization and the base material pair; load-state resolution; the model build; constant-effort consumption; the W-8 topology checks; and the restraint pre-checks (no support, fewer than six ground constraints, invalid support input) | `core/product_physics/src/model_settings/model_checks.rs` (`model_settings::model_checks::preview_model_checks_value`) |
-| Model-data slot checks | The W-13 document validator | `core/model_operations/operation_applier/src/document_validator.rs`, through `modelDocumentDiagnostics` |
-| Library references | The W-13 library-reference findings the store published for this model | `features/library/libraryRefFindings.ts` |
+| Model-data slot checks | The W-13 document validator, run in the same native command or wasm call and listed in the same bounded report | `core/model_operations/operation_applier/src/document_validator.rs` (`validate_model_document`) |
+| Library references | The W-13 library-reference findings the store published for this model, read only when the checks were admitted and listed within what the report leaves of its bound | `features/library/libraryRefFindings.ts` |
 
 **One sequence, held to the solve's.** `preview_model_checks_value` takes the
 desktop's solve request (`{"model": …, "materials": []}`). It calls the
@@ -60,25 +60,42 @@ hard-coded model-version fixtures follow the 0.8.0 documents.
 ## Desktop
 
 - **Report.** `operation_applier/src/model_checks.rs` returns
-  `{document_kind: "openpipestress.desktop.model_checks", checked: true, diagnostics, diagnostics_not_shown}`,
-  or `{checked: false, refusal}` with the solve's own refusal text. The report
-  is bounded whatever the model: at most 1 MiB of serialized findings in the
-  checks' order, each text cut at 2 KiB on a character boundary (the finding
-  is then marked `truncated`), at most 16 references per finding, and a count
-  of the findings left out; a refusal's text is cut the same way. The panel
-  states how many were left out and marks shortened text.
+  `{document_kind: "openpipestress.desktop.model_checks", checked, diagnostics, diagnostics_not_shown, slot_findings, slot_findings_not_shown}`;
+  with `checked: false` it carries the solve's own refusal text in `refusal`
+  (with `refusal_truncated` when shortened) and no solve findings, and the slot
+  checks still run. The report is bounded whatever the model: at most 1 MiB of
+  serialized findings, the solve's first and then the slot checks', each list
+  in its checks' order, and a count of each list's findings left out. Only
+  display text is shortened: a finding's message, cut at 2 KiB on a character
+  boundary (the finding is then marked `truncated`), and a refusal's text.
+  Machine identifiers (ids, codes, severities, sources, paths and affected
+  references) are kept whole, so a listed finding always names the entity it
+  was raised on; a finding whose identifiers would pass the remaining bound is
+  counted as not shown rather than altered (Codex review r2 of #1665: a
+  shortened 3,008-byte support id had made its finding unselectable). The
+  library-reference findings take what the report leaves of the bound. The
+  panel states how many were left out and marks shortened text.
 - **Memory (DEL-04-07).** Model-sized work follows the memory-budget decision
   (`memory-budget-decision.md`, "On-demand model checks"):
-  - in the app, the checks run in the native host as `check_preview_model`, a
-    raw `args-json-v1` command admitted and leased by the memory pool before
-    it parses the model, as every model-sized interactive command is. The
-    lease grows by 8 M for the check's working memory before it runs; a
-    refused admission or growth leaves the solve's checks not run, and the
-    panel names the refusal;
+  - in the app, the checks run as a solve runs: `check_preview_model` takes a
+    raw `args-json-v1` body, admitted by the memory pool (the intake lease and
+    a starting grant within the per-invocation budget) before this process
+    copies it, and the checks run in a capped worker process
+    (`solve_worker.rs` task `ModelChecks`) whose grant grows on demand up to
+    the budget. Their working memory therefore stays within the pool and the
+    budget whatever the model's shape, including the load-state fan-out Codex
+    found in review r2. A refusal at intake, at the starting grant or while
+    the worker runs leaves the checks not run, and the panel names it. The
+    check is not queued and has no job record;
   - in the browser preview, which has no pool, the wasm engine's
-    `model_checks_json` checks a model text of at most 4 MiB and refuses a
-    longer one `MODEL-CHECKS-INPUT-TOO-LARGE` before parsing it; the desktop
-    refuses it before copying it into the engine.
+    `model_checks_json` checks a model text of at most 4 MiB, counted in UTF-8
+    bytes, and refuses a longer one `MODEL-CHECKS-INPUT-TOO-LARGE` before
+    parsing it; the desktop counts the same bytes without encoding the text
+    and refuses before passing it to the engine;
+  - either way a refusal leaves the slot and library groups not run too: no
+    model-sized work runs outside the admission or the bound. (The Issues
+    drawer's continuous Diagnostics list keeps its existing W-13 slot
+    validation, which this command does not change.)
 - **Command.** Analyze → **Check Model**, with the keyboard equivalent ⇧⌘M
   (Shift+Ctrl+M off macOS):
   - in-app menu: `analyze.check-model`;
@@ -106,9 +123,10 @@ hard-coded model-version fixtures follow the 0.8.0 documents.
   - **Run model checks again** in the panel reruns them.
 - **Never a change.** The checks change neither the model nor the undo history.
   A run keeps the model value it read. After an edit, the panel says the list is
-  out of date until the checks run again. When the solve cannot read the model,
-  or the engine is not loaded, the panel says that the solve's checks did not
-  run, and gives the reason.
+  out of date until the checks run again. When the solve cannot read the
+  model, the panel says the solve's checks did not run and still lists the
+  slot and library findings; when the checks are refused or the engine is not
+  loaded, it says the model checks did not run, and gives the reason.
 
 ## Evidence
 
@@ -123,14 +141,20 @@ hard-coded model-version fixtures follow the 0.8.0 documents.
   carries the solve's leading diagnostics, leaves the model alone, and reports
   an unreadable model unchecked with the solve's refusal.
   `the_report_is_bounded_whatever_the_model`: 4,000 long-id supports give
-  11,296,671 bytes of findings unbounded and a 1,046,747-byte report (371
-  shown, 3,629 counted); a 1.2-million-character string refusal is cut to
-  2 KiB; the browser bound refuses one byte over.
-- `apps/desktop/src-tauri/src/lib.rs`: `model_checks_stay_within_their_lease`
-  (the whole command's priced peak within its grown lease for four invented
-  models; figures in `memory-budget-decision.md`; the native report equals
-  the applier's) and
-  `model_checks_refuse_by_type_when_their_working_memory_is_not_admitted`.
+  about 11.3 MB of findings unbounded and a report within 1 MiB whose listed
+  findings keep the solve's ids and references and whose rest is counted; a
+  3,008-byte support id stays whole; 4,000 assumptions naming missing
+  entities flood the slot checks within the same bound; a
+  1.2-million-character string refusal is cut to 2 KiB and marked; the
+  browser bound refuses one byte over.
+- `apps/desktop/src-tauri/src/solve_jobs.rs`:
+  `model_checks_run_in_a_capped_worker_whatever_the_fan_out` (Codex r2's 1-,
+  16- and 64-pipe load-state fan-out shapes complete in the worker with the
+  applier's report, the grant never passes the budget, and nothing stays
+  reserved; figures in `memory-budget-decision.md`) and
+  `model_checks_refuse_by_type_at_the_invocation_budget` (Codex r2's budget
+  probe: the intake refused `ingress_exceeds_budget`; a budget the 64-pipe
+  check outgrows ends its worker with a typed worker refusal).
 - `apps/desktop/src/features/diagnostics/modelChecks.test.ts`, through the
   built wasm engine:
   - the topology warning, linked to its node;
@@ -141,7 +165,10 @@ hard-coded model-version fixtures follow the 0.8.0 documents.
   - in the app, the native command with the raw ingress body and never the
     wasm engine, and a memory-pool refusal named;
   - in the browser, a model text over the bound refused by name without
-    reaching the engine.
+    reaching the engine, counted in UTF-8 bytes (1,500,000 CJK characters);
+  - a long support id kept whole, so its finding selects the support;
+  - no slot validation after a native refusal or over the browser bound, and
+    a slot flood listed within the bound with the rest counted.
 - `apps/desktop/src/features/diagnostics/ModelChecksPanel.test.tsx`:
   - grouping, codes and text;
   - selection, and no selection for a finding that names no entity;
@@ -155,4 +182,7 @@ hard-coded model-version fixtures follow the 0.8.0 documents.
     outcome;
   - the topology finding selects its node;
   - undo is unchanged;
-  - the native menu command runs the checks too.
+  - the native menu command runs the checks too;
+  - of overlapping native checks, the latest request's report is the one
+    shown, in either completion order;
+  - a new project retires a check in progress and its busy state.

@@ -82,3 +82,63 @@ it("runs from the native menu's command too", async () => {
   const panel = await screen.findByTestId("model-checks-panel");
   expect(within(panel).getByTestId("model-check-MODEL_TOPOLOGY_DISCONNECTED")).toBeInTheDocument();
 });
+
+// Codex review r2 of #1665 (its probes, kept): asynchronous native checks; the
+// latest request wins, and a new project retires a check in progress.
+function nativeMenuCommand(command: string) {
+  window.dispatchEvent(new CustomEvent("openpipestress-native-menu-command", { detail: command }));
+}
+it("review round 2: a later async check wins; an old completion cannot clear its busy state", async () => {
+const releases: Array<(value:unknown)=>void>=[];
+invokeMock.mockImplementation((command:string)=>{
+if(command==="sync_native_shell_state") return Promise.resolve(undefined);
+if(command==="dispose_all_preview_mechanics_results")return Promise.resolve({released_results:0,released_bytes:0,abandoned_jobs:0});
+if(command==="check_preview_model")return new Promise(resolve=>releases.push(resolve));
+throw new Error(`Unexpected command ${command}`);
+});
+render(<App />);await screen.findByTestId("desktop-preview-shell");
+(window as unknown as Record<string,unknown>).__TAURI_INTERNALS__={};
+act(()=>nativeMenuCommand("analyze.check-model"));
+await waitFor(()=>expect(releases).toHaveLength(1));
+expect(screen.getByTestId("model-checks-run")).toHaveAttribute("aria-disabled","true");
+act(()=>nativeMenuCommand("analyze.check-model"));
+await waitFor(()=>expect(releases).toHaveLength(2));
+const report=(code:string)=>({checked:true,diagnostics:[{id:code,code,severity:"warning",message:code,affected_refs:[]}],diagnostics_not_shown:0,slot_findings:[],slot_findings_not_shown:0});
+await act(async()=>releases[0](report("REVIEW_OLD")));
+expect(screen.getByTestId("model-checks-run")).toHaveAttribute("aria-disabled","true");
+expect(screen.queryByTestId("model-check-REVIEW_OLD")).toBeNull();
+await act(async()=>releases[1](report("REVIEW_NEW")));
+expect(screen.getByTestId("model-checks-run")).toHaveAttribute("aria-disabled","false");
+expect(screen.getByTestId("model-check-REVIEW_NEW")).toBeInTheDocument();
+expect(screen.queryByTestId("model-check-REVIEW_OLD")).toBeNull();
+// The reverse completion order also leaves the later request's report in place.
+act(()=>nativeMenuCommand("analyze.check-model"));
+act(()=>nativeMenuCommand("analyze.check-model"));
+await waitFor(()=>expect(releases).toHaveLength(4));
+await act(async()=>releases[3](report("REVIEW_LATEST")));
+await act(async()=>releases[2](report("REVIEW_OVERTAKEN")));
+expect(screen.getByTestId("model-check-REVIEW_LATEST")).toBeInTheDocument();
+expect(screen.queryByTestId("model-check-REVIEW_OVERTAKEN")).toBeNull();
+});
+it("review round 2: a new project retires the previous model-check busy state", async()=>{
+let release:(v:unknown)=>void=()=>{};let called=false;
+invokeMock.mockImplementation((command:string)=>{
+if(command==="sync_native_shell_state")return Promise.resolve(undefined);
+if(command==="dispose_all_preview_mechanics_results")return Promise.resolve({released_results:0,released_bytes:0,abandoned_jobs:0});
+if(command==="check_preview_model"){called=true;return new Promise(resolve=>{release=resolve;});}
+throw new Error(`Unexpected command ${command}`);
+});
+render(<App/>);await screen.findByTestId("desktop-preview-shell");
+(window as unknown as Record<string,unknown>).__TAURI_INTERNALS__={};
+act(()=>nativeMenuCommand("analyze.check-model"));await waitFor(()=>expect(called).toBe(true));
+expect(screen.getByTestId("model-checks-run")).toHaveAttribute("aria-disabled","true");
+delete (window as unknown as Record<string,unknown>).__TAURI_INTERNALS__;
+act(()=>nativeMenuCommand("file.new-blank"));
+fireEvent.click(await screen.findByTestId("project-units-create"));
+await waitFor(()=>expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent("Blank Local Model"));
+fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
+const busy=screen.getByTestId("model-checks-run").getAttribute("aria-disabled");
+await act(async()=>release({checked:true,diagnostics:[{id:"OLD_PROJECT",code:"OLD_PROJECT",severity:"warning",message:"Old project",affected_refs:[]}],diagnostics_not_shown:0,slot_findings:[],slot_findings_not_shown:0}));
+expect(screen.queryByTestId("model-check-OLD_PROJECT")).toBeNull();
+expect(busy).toBe("false");
+});

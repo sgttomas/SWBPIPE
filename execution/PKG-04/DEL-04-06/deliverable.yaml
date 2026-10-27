@@ -136,3 +136,4 @@ checks:
 - apps/desktop/src/features/diagnostics/ModelChecksPanel.test.tsx
 - apps/desktop/src/App.modelChecks.test.tsx
 - apps/desktop/src-tauri/src/lib.rs
+- apps/desktop/src-tauri/src/solve_jobs.rs

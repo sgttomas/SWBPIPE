@@ -39,7 +39,7 @@ pub use numerical_health::numerical_health_json;
 mod model_checks;
 pub use model_checks::{
     model_checks, model_checks_owned, model_checks_text, MODEL_CHECKS_DOCUMENT_KIND, MODEL_CHECKS_INPUT_TOO_LARGE,
-    MODEL_CHECKS_MAX_BROWSER_INPUT_BYTES, MODEL_CHECKS_MAX_REFS, MODEL_CHECKS_MAX_RESPONSE_BYTES, MODEL_CHECKS_MAX_TEXT_BYTES,
+    MODEL_CHECKS_MAX_BROWSER_INPUT_BYTES, MODEL_CHECKS_MAX_RESPONSE_BYTES, MODEL_CHECKS_MAX_TEXT_BYTES,
 };
 mod pressure_authoring;
 mod joint_pressure_authoring;
