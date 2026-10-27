@@ -206,7 +206,8 @@ slope:  Δ_i  = Ls · h_i on the horizontal axes;  Δ_up = s_up · s_sense · (L
 end_i = start_i + Δ_i,  then −0 becomes +0
 ```
 
-- s_up and s_sense are ±1, so the multiplications by them are exact. The
+- s_up and s_sense are ±1, so the multiplications by them are exact. For a
+  slope, s_sense is applied first, to Ls / n, and s_up second. The
   vertical increment is never mixed with a horizontal term.
 - **Conversion before addition**, as in B1 (DEL-07-02 `run-sheet-entry.md`
   §6.2). The length is converted once, through the engine's display-conversion
@@ -227,19 +228,33 @@ end_i = start_i + Δ_i,  then −0 becomes +0
   (12, −1/4) for 12 ft at 1 in 48.
 - **Conversion c.** It is the identity, exactly, when the units are the same.
   Otherwise, for length and angle (offset 0), it is
-  c(v) = (v · f_e + 0) / f_s, with two roundings and binary64 factors f_e and
-  f_s (`core/units/src/lib.rs:714-720`).
+  c(v) = ((v · f_e + 0) − 0) / f_s (`core/units/src/lib.rs:714-720`), with
+  binary64 factors f_e and f_s.
+  - There are up to two inexact roundings: the multiplication and the division.
+  - Adding the source's zero offset is exact, except that it canonicalizes a
+    signed zero (−0 + 0 = +0).
+  - Subtracting the destination's zero offset before dividing is also exact.
 - **Scaled normalization.** Dividing by the largest component first means no
   square overflows, and any square that underflows is below 2⁻¹⁰⁷⁴ against a
-  sum of at least 1. For any finite nonzero d, |‖u‖ − 1| ≤ 3u to first order.
-  A direction with an axis component only gives u = ±1 exactly.
-- **Error.** Each vector-method increment is within about 4u relative of
-  Ls·d_i/|d|, plus one rounding in the sum. The angle method adds the runtime's trigonometric
+  sum of at least 1. Such underflowing small components do not materially
+  affect the norm. For any finite nonzero d, |‖u‖ − 1| ≤ 3u to first order.
+  This bound is on the norm, not on each component's relative accuracy. A
+  direction with an axis component only gives u = ±1 exactly.
+- **Error.** When nothing underflows in the normalization or the
+  multiplication, each vector-method increment is within about 4u relative of
+  Ls·d_i/|d|, plus one rounding in the sum.
+  - A component can underflow when it is far smaller than the largest one. Its
+    increment then carries an absolute error of up to about Ls · 2⁻¹⁰⁷⁴, and
+    can be 0. For example, d = (1e-200, 1e200, 0) and Ls = 1e200 give an X
+    increment of 0, where the ideal value is about 1e-200.
+  - The same holds for h in the angle and slope methods. The angle method adds the runtime's trigonometric
   error and the angle conversion's rounding. The slope method has one rounding
   in R/n and, for a non-axis h, one in each product.
-- **−0.** JSON cannot carry −0, so every computed coordinate is normalized with
-  `x === 0 ? 0 : x` before it is shown or used. −0 arises, for example, from a
-  start coordinate of −0 plus a −0 increment.
+- **−0.** JSON cannot carry −0, so every computed end-point coordinate is
+  normalized with `x === 0 ? 0 : x` before it is shown or used. −0 arises, for
+  example, from a start coordinate of −0 plus a −0 increment. The returned
+  increments Δ are not normalized and can keep −0; only end points are shown
+  or emitted.
 
 ### 3.3 Displayed equals emitted
 

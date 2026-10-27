@@ -4,7 +4,7 @@
 // point) and nothing else. The slope, angle and direction are never written to the model.
 //
 // The arithmetic is binary64, round to nearest, in the order written below (§3.2):
-//   Ls     = convert_for_dimension(L, entry unit -> project length unit)    one rounding at most
+//   Ls     = convert_for_dimension(L, entry unit -> project length unit)    up to two inexact roundings (the multiplication and the division)
 //   u      = scaled normalization of d (see unitDirection): s = max|d_i|, e = d / s,
 //            n = sqrt(ex*ex + ey*ey + ez*ez), u_i = e_i / n; no underflow or overflow
 //   vector: Δ_i = Ls * u_i
@@ -81,7 +81,7 @@ function upAxis(up: UpDirection): { axis: Axis; sign: 1 | -1 } {
   return { axis: up[1] as Axis, sign: up[0] === "-" ? -1 : 1 };
 }
 
-/** Scaled normalization, so that no square underflows or overflows:
+/** Scaled normalization, so that no square overflows; underflowing small components do not materially affect the norm:
  *   s = max(|dx|, |dy|, |dz|)            exact
  *   e_i = d_i / s                         one rounding; the largest |e_i| is exactly 1
  *   n = sqrt(ex*ex + ey*ey + ez*ez)       left to right; n is in [1, √3]
