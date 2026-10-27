@@ -24,8 +24,10 @@ PARSER_VERSION = "caepipe-print-csv-1"
 DOCUMENT_KIND = "openpipestress.caepipe_print_csv.parsed"
 PAIRING_BASIS = "row_order_from_to_pairs"
 _BASIS = "public CAEPIPE-EXPORT-DATA / Print To File page + invented fixture"
-_BLANK_NOTE = "A blank numeric field inside a recognized data row is read as 0.0 (observed export convention)."
+_BLANK_NOTE = "A blank numeric field inside a recognized data row is read as 0.0."
 
+# The target tool's print-to-file layout: units, the version header, stress labels and the sections below.
+VERSION_PREFIX = "Version "
 UNITS = {"length": "mm", "rotation": "deg", "force": "N", "moment": "N*m"}
 
 _FORCE_KEYS = ("fx", "fy", "fz", "mx", "my", "mz")
@@ -224,10 +226,10 @@ class _Parser:
         lines = [index for index, row in enumerate(self.rows) if row][:2]
         if len(lines) == 2:
             first, second = self.rows[lines[0]], self.rows[lines[1]]
-            if second[0].startswith("Version ") and len(first) >= 1:
+            if second[0].startswith(VERSION_PREFIX) and len(first) >= 1:
                 self.header["product_label"] = first[0]
                 self.header["model_name"] = ",".join(first[1:]) if len(first) > 1 else None
-                self.header["version"] = second[0][len("Version "):].strip()
+                self.header["version"] = second[0][len(VERSION_PREFIX):].strip()
                 if len(second) >= 3:
                     self.header["title"] = ",".join(second[1:-1])
                     self.header["analyzed"] = second[-1]
