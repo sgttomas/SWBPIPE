@@ -2,7 +2,9 @@
 
 **Basis:** main `ad03de4a0c` (2026-10-27). Design only; no product code.
 
-**Status:** revision 1, for Agent 0's decisions (§6) before any implementation.
+**Status:** revision 2, after Codex design review r1 (on `22dc6edcbd`: no P1; four P2s
+and the OC-3, OC-5 and OC-7 conditions, resolved here), for Agent 0's decisions
+(§6) before any implementation.
 Survey item C1 (operating-condition sets) with the solver lane's two 0.9.0
 members. Risk class: persistence and numerical meaning, so every build slice
 takes targeted regression checks and independent scrutiny by a separate agent
@@ -106,6 +108,15 @@ boolean. Absent means not marked, as a pipe absent from `exposed_pipe_refs` is
 not exposed today. `snow_ice` and `wave` are read by no solve in 0.9.0; the
 product has no generator for them.
 
+**Members carried but not used by the solve are labelled as such.** In 0.9.0
+these are `design`, `peak`, `exposure.snow_ice`, `exposure.wave` and each
+condition's `contents_density` (until its consumer lands, §1.6). Wherever one is
+shown, it carries the visible statement "not used by the solve in 0.9.0": in
+the desktop's tables, inspector and load manager, and in any report, export or
+handoff view that displays it. An exporter that writes the document verbatim
+needs no label, because it displays nothing. The label is removed for a member
+only in the slice that makes the solve read it.
+
 **Element assignment: `pipe_segments[].condition_set_ref`** (`Id`), naming one
 set.
 
@@ -139,6 +150,8 @@ same code and message for document-level rules (the `shear_model` precedent,
   below zero kelvin (`case_state/temperature.rs` `exact_kelvin`'s rule), or a
   contents density is negative (the `section.contents_density` rule). The message
   names the JSON path and the reason.
+- `OPERATING_CONDITION_TEMPERATURE_RANGE_UNSUPPORTED`: an absolute temperature
+  in a set lies outside the exact-arithmetic range of §1.5.1.
 - `OPERATING_CONDITION_PROVENANCE_MISSING`: blank set provenance.
 - `OPERATING_CONDITION_SET_UNRESOLVED`: a `condition_set_ref` names no set.
 - `LOAD_CASE_CONDITION_USE_EMPTY`: an empty `condition_use`, or `false` in a
@@ -154,8 +167,6 @@ admissibility does not depend on which cases use what.
 - `OPERATING_CONDITION_VALUE_MISSING`: condition `key` lacks the used quantity.
 - `OPERATING_CONDITION_INSTALLATION_TEMPERATURE_MISSING`: PF temperature use on
   a pipe whose set has no `installation_temperature`.
-- `OPERATING_CONDITION_TEMPERATURE_RANGE_UNSUPPORTED`: the exact difference
-  (§1.5) exceeds the exact range or rounds outside binary64's finite range.
 - `LOAD_CASE_CONDITION_TEMPERATURE_CONFLICT`: the case uses `temperature` and
   carries a `thermal` primitive (§1.7).
 - `LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT`: the case uses `wind_exposure`
@@ -220,10 +231,10 @@ today's pipeline, unchanged, applied to the lowered model.
    ΔT = RN( K(T) − K(T₀) )
 
    where K is the exact rational kelvin value of the shortest round-trip decimal
-   of the authored binary64 under the unit's exact affine definition
-   (`case_state/temperature.rs` `exact_kelvin`), and RN rounds the exact
-   difference once to binary64, to nearest, ties to even, with no binary64
-   intermediate. Append the primitive
+   of the authored binary64 under the unit's exact affine definition, and RN
+   rounds the exact difference once to binary64, to nearest, ties to even, with
+   no binary64 intermediate. The arithmetic is defined on integers below
+   (§1.5.1). Append the primitive
    `{id, category: "thermal", target: {type: "element", pipe}, direction: "global_z", magnitude: {value: ΔT, unit: "K"}, dimension: "temperature_change", provenance}`.
    The thermal direction does not change the thermal magnitude or sign (the
    existing test `thermal_load_direction_does_not_change_thermal_magnitude_or_sign`);
@@ -238,9 +249,53 @@ today's pipeline, unchanged, applied to the lowered model.
    the pipes, in `pipe_segments` order, whose set has `exposure.wind: true`. An
    empty result meets the existing `EQUIVALENT_STATIC_INPUT_MISSING` finding.
 
+#### 1.5.1 The exact temperature difference: range and algorithm
+
+This is normative, so that Rust (production), Python (the E3 reference) and
+TypeScript (with `BigInt`, should it ever compute ΔT; the desktop uses the wasm
+lowering) give the same bits.
+
+- **The decimal.** For a finite binary64 v, its shortest round-trip decimal is
+  the shortest decimal string that parses back to v, and the one nearest v when
+  several have that length: Rust `format!("{v:e}")`, Python `repr(v)` and
+  JavaScript `Number.prototype.toString` each produce it. Write it m·10^e with
+  m and e integers, m carrying no trailing zero (m = 0 gives e = 0).
+- **Admitted operand range.** |v| ≤ 10^6 in its own unit, and e ≥ −24. Typed
+  values (350.1, 20.3, 1e-5) are inside it. Every absolute temperature in a
+  condition set (each condition's, the installation, design and peak values) is
+  judged at document level; one outside the range is
+  `OPERATING_CONDITION_TEMPERATURE_RANGE_UNSUPPORTED`, and one below zero kelvin
+  is `OPERATING_CONDITION_QUANTITY_INVALID`.
+- **Integer form.** With D = 9·10^24 and M = m·10^(e+24) (an integer, as
+  e ≥ −24), each operand's kelvin value is N/D with
+  - K: N = 9·M;
+  - degC: N = 9·(M + 27315·10^22);
+  - degF: N = 5·(M + 45967·10^22);
+  - degR: N = 5·M.
+
+  In range, |M| ≤ 10^30, so |N| < 10^31 and the difference
+  N(T) − N(T₀) < 2·10^31, well inside a signed 128-bit integer (about
+  1.7·10^38). No intermediate leaves that range, and nothing can overflow.
+- **Rounding.** ΔT = RN(N/D) with N = N(T) − N(T₀). If N = 0, ΔT = +0.0.
+  Otherwise, with a = |N|, let k = bitlen(a) − bitlen(D) − 53. Divide (a by
+  D·2^k if k ≥ 0, else a·2^−k by D) to get quotient q and remainder r; if
+  q ≥ 2^53, add 1 to k and divide again. Round up when 2r exceeds the divisor,
+  or equals it and q is odd. If q reaches 2^53, set q = 2^52 and add 1 to k.
+  ΔT = sign(N)·q·2^k.
+- **Result range.** A nonzero |N| ≥ 1 gives |ΔT| ≥ 1/D ≈ 1.1·10^−25, and in
+  range |ΔT| < 1.1·10^6. Every result is a normal binary64: never subnormal,
+  never overflowing. An exact tie cannot occur: a dyadic N/D has its lowest bit
+  at 2^−24 or above (D's power of two is 2^24), so 54 significant bits would
+  need |ΔT| ≥ 2^29, outside the range. Ties-to-even is stated for completeness.
+- **`exact_kelvin` is not extended.** Its bounded `i128` rationals refuse values
+  such as 1e-310, which the range above excludes too. Within the range it
+  computes the same rational, and S2 may call it or the integer form; E3 checks
+  that they agree.
+
 Then, for every document: remove `condition_use` from each case,
 `condition_set_ref` from each pipe and `condition_sets` from the model; and
-remove `direction` from a support whose direction is exactly axis-aligned (§2.1).
+remove `direction` from a support whose direction is exactly axis-aligned,
+setting its DOF token to that axis when it differs (§2.1).
 
 **Generated identity.** Ids are length-prefixed, as self-weight's are
 (`self_weight.rs` `load:self-weight:{len}:{case}:{len}:{pipe}`), so they are
@@ -279,10 +334,11 @@ condition `key`, seismic and modal mass) and their relation to
 here. 0.9.0 carries the member and the case key so that no later version step is
 needed, and the solve refuses the key by name (OC-7).
 
-### 1.7 Coexistence with per-case values: exclusive per case and quantity
+### 1.7 Coexistence with per-case values: exclusive, except added weight
 
-A case takes each quantity either from conditions or from its own records, never
-both (OC-3):
+A case takes its temperature, pressure and wind exposure either from conditions
+or from its own records, never both (OC-3); added weight is the one additive
+exception (below):
 - `temperature` excludes the case's `thermal` primitives (PF) or authored
   `operating_temperature` values (EX, S4);
 - `pressure` excludes authored region `pressure` values;
@@ -301,7 +357,7 @@ case's one elastic basis. Per-element E(T) is not introduced.
 ### 1.8 Numerical meaning and its tests
 
 **The twin.** For a document D, its twin T(D) is D with every C1 member removed,
-each axis-aligned `direction` removed, and each case's generated records added as
+each axis-aligned `direction` removed (its DOF token set to that axis, §2.1), and each case's generated records added as
 §1.5 defines them (ids, provenance, values, order). T(D) is an ordinary 0.9.0
 document that today's per-case path solves.
 
@@ -324,6 +380,17 @@ two authored temperatures, rounded once.
   differ in its last bits. Example: 212 degF − 70 degF gives 78.88888888888889 K
   here and 78.88888888888886 K by the binary64 affine route.
 
+**This is a new numerical policy for Agent 0 to approve (OC-5).** No product
+path today forms a temperature difference from two absolute temperatures on the
+PF route. The twin carries RN(exact difference) in kelvin: 0.2, not
+0.19999999999998863. The equivalence is to that twin, not to today's
+absolute-temperature conversion route (`temperature_difference`, or any
+user-side conversion of absolutes to a ΔT). **Consequence:** for the same two
+temperatures, a per-case ΔT that a user formed through the unit route, as an
+0.8.0-era document would carry, can differ by a few ulps from the 0.9.0
+condition route's ΔT, and so can the results that follow from it. A typed
+decimal ΔT in K or degC matches exactly; a typed degF or degR ΔT may not.
+
 **Tests** (S2; each fails before the change it guards):
 - **E1, structure.** For each fixture, the lowered model equals the decoded
   twin. The twin is written by an independent test helper from §1.5's text, not
@@ -332,12 +399,22 @@ two authored temperatures, rounded once.
   byte-identical after removing the hash-bound fields, which are listed.
 - **E3, ΔT.** A table of (T, unit, T₀, unit) → expected bits, generated by an
   independent Python reference (`fractions.Fraction` of the shortest repr and
-  the exact unit definitions; `float()` of a Fraction rounds correctly). It
-  covers K, degC, degF and degR, mixed units, equal temperatures (+0.0),
-  negative ΔT, subnormal and large results, the two examples above, a value
-  below zero kelvin and an out-of-range value. Mutants killed: the binary64
-  affine route; conversion of each temperature before subtraction; truncation in
-  place of rounding.
+  the exact unit definitions; `float()` of a Fraction rounds correctly), and
+  cross-checked against a Python transcription of §1.5.1's integer algorithm. It
+  covers:
+  - K, degC, degF and degR, and mixed units;
+  - equal temperatures (+0.0) and negative ΔT;
+  - the two examples above;
+  - the range edges: |v| = 10^6 and e = −24 (admitted, including the smallest
+    nonzero |ΔT| ≈ 1.1·10^−25, a normal binary64), and |v| just above 10^6,
+    e = −25 (for example 1.5e-24) and 1e-310 (refused,
+    `OPERATING_CONDITION_TEMPERATURE_RANGE_UNSUPPORTED`);
+  - a value below zero kelvin (`OPERATING_CONDITION_QUANTITY_INVALID`);
+  - near-halfway cases (an exact tie cannot occur in range, §1.5.1);
+  - agreement with `exact_kelvin` on every admitted row.
+
+  Mutants killed: the binary64 affine route; conversion of each temperature
+  before subtraction; truncation in place of rounding.
 - **E4, order.** A case where authored and generated weight on one pipe sum
   differently in another order; a mutant that prepends generated primitives, or
   uses set order, changes E2's bytes.
@@ -348,7 +425,10 @@ two authored temperatures, rounded once.
   at the validator.
 - **E7, G-1 after lowering.** An operating case using `temperature` and a
   sustained case without it pass G-1 (the generated thermal primitives are in the
-  minuend only); swapped, G-1 withholds.
+  minuend only); swapped, G-1 withholds. A sustained case using `added_weight`
+  against an operating case that also authors the same added-weight primitive
+  by hand (two equal primitives in the minuend, one in the subtrahend) passes;
+  the reverse multiplicity withholds.
 
 ## 2. `direction` and `difference_basis`
 
@@ -367,11 +447,18 @@ two authored temperatures, rounded once.
 - **Absent means axis-aligned** along the record's DOF; the product never writes
   `direction` unprompted.
 - **Sign.** Published scalars are positive along +d.
+- **The DOF token.** R-7 asks only that the record's single DOF be
+  translational; when `direction` is present, d governs the axis, and the token
+  states nothing more. This design adds no relation between the token and d
+  (see ND-1 in §6 for the one Agent 0 may choose to add).
 - **Exact ±axis directions take today's path, byte for byte.** A d with exactly
-  one nonzero component, on the record's own axis, is removed by the lowering
-  (§1.5), so the solve is the twin's. Every published value is today's. The
-  along-d scalar is a new publication of the skew kernel; for d = −e_x it is the
-  exact negation of today's UX component.
+  one nonzero component, on axis a, is removed by the lowering (§1.5). If a is
+  the record's DOF axis, the token is kept as authored; otherwise the token
+  (the single restraint token, or `stiffness.dof`) is rewritten to `UX`, `UY` or
+  `UZ` for a. The solve is that twin's, and every published value is today's for
+  it. Example: a single-DOF UX spring with d = (0,3,0) solves as a UY spring.
+  The along-d scalar is a new publication of the skew kernel; for d = −e_x it is
+  the exact negation of today's UX component.
 - **Codes** (validator and solve unless marked):
   - `SUPPORT_DIRECTION_INVALID`: null, not an object, a missing or non-number
     component, or a non-finite component;
@@ -379,8 +466,6 @@ two authored temperatures, rounded once.
   - `SUPPORT_DIRECTION_RECORD_UNSUPPORTED`: any other family, an inferred family,
     more than one DOF, or a `nonlinear` member;
   - `SUPPORT_DIRECTION_ROTATIONAL_UNSUPPORTED`: the record's DOF is rotational;
-  - `SUPPORT_DIRECTION_AXIS_COMPONENT_ZERO`: d's component on the record's DOF
-    axis is zero (an axis-aligned d on another axis contradicts the record);
   - `SUPPORT_DIRECTION_SKEW_UNSUPPORTED` (solve and applier only; interim until
     the skew kernel): two or more nonzero components. The kernel's own refusals
     (range, redundant constraints, prescribed motion at the node, motion targets,
@@ -396,11 +481,23 @@ two authored temperatures, rounded once.
 - **Null or an unknown token** gives `LOAD_COMBINATION_DIFFERENCE_BASIS_UNKNOWN`
   (blocking). The wire decodes any present value so that these codes, not a
   decode error, name it.
-- **Gates at solve.** G-1 (the subtrahend's primitive loads, by content after the
-  solve's normalization, ⊆ the minuend's) and G-2 (the same modulus basis) are
-  withholding warnings: `EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING` and
-  `EXPANSION_BASIS_MODULUS_MIXED`. G-1 runs on the lowered model, so condition-
-  generated primitives count by content (E7).
+- **Gates at solve** are withholding warnings, as the solver note §1.2 states
+  them:
+  - **G-1**, verbatim: "a conservative containment check. The subtrahend's
+    primitive loads, as a multiset, are contained in the minuend's by content:
+    category, target, direction, dimension, and value and unit bits after the
+    solve's own normalization; ids are ignored. Code
+    `EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING`. It does **not** require equal
+    final active sets." Multiplicity counts: for each content key (those six
+    fields), the subtrahend's count must not exceed the minuend's, so each
+    subtrahend primitive is matched to a distinct minuend primitive. Two
+    identical sustained weight primitives against one matching operating
+    primitive fail G-1. Provenance is not a content field.
+  - **G-2**: the same modulus basis (`EXPANSION_BASIS_MODULUS_MIXED`), binding
+    the resolved elastic basis.
+
+  G-1 runs on the lowered model, so condition-generated primitives count by
+  content (E7).
 - **Refused by name on EX:** `LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED`
   (blocking).
 - **Written only when the user sets it.** Choosing the "operating − sustained"
@@ -523,7 +620,9 @@ All four are checked against the one table.
   lowers through the engine, or refuses a member it cannot express by name, never
   dropping it. In S1 the CAEPIPE SI writer (`si_writer.py`) refuses
   `condition_use`, non-axis `direction` and `difference_basis` by name; the
-  report's load-case section reads the lowered case through the engine.
+  report's load-case section reads the lowered case through the engine. A
+  report or export view that displays a member the solve does not read labels it
+  "not used by the solve in 0.9.0" (§1.2).
 - **Literals, audit and guards** as at 0.8.0 §2 and §5: every file containing
   `0.8.0` is listed and classified; `READER_TOKEN_SITES` is re-checked;
   `test_model_document_schema.py` gains an explicit 0.8.0 exception list.
@@ -611,7 +710,9 @@ updated in S3.
 - **Condition sets** in the model tree, with a table per set whose rows are its
   conditions (key, T, P, contents) and fields for installation temperature,
   design, peak, added weight and exposure. Every value is entered with a catalog
-  unit; empty cells read "not stated"; nothing is prefilled.
+  unit; empty cells read "not stated"; nothing is prefilled. Design, peak,
+  snow/ice, wave and contents density carry the label "not used by the solve in
+  0.9.0" (§1.2).
 - **Pipe inspector and engineering table:** a "Condition set" field
   (`assign_condition_set`, or clear).
 - **Bulk change** (B2): "Assign condition set" over the selection.
@@ -639,7 +740,7 @@ any later one must transform it exactly or refuse.
 
 | Slice | Content | Checks and review gates |
 |---|---|---|
-| **S1. The 0.9.0 version step** | Every 0.9.0 member at once: schema, closed wire, validator, all document-level codes, interim solve refusals (`condition_use`, skew `direction`, `difference_basis`), axis-aligned `direction` on today's path, geometry operations carrying `condition_set_ref`, the version constants in all four implementations, the table, the ripple, reader classification, user guide, D3 and registration | `version_states.json` on the applier, src-tauri, TS and Python; refusal on every 0.8.0 §3.1 surface; ruling a2 and the recorded table basis; annotated equivalence (E5) and axis `direction` equivalence (twin without `direction`, byte for byte, both modes, including d = −e_x and d = (2,0,0)); leaf comparison; literal guard; D3 `price`, `compare`, `generate --check`; AC-004 witnesses under the exclusive lane; native smoke compared with main; `piping-pytest`, `desktop-test`, affected crates, hosted `harness`. Independent review of the ripple and the registration. |
+| **S1. The 0.9.0 version step** | Every 0.9.0 member at once: schema, closed wire, validator, all document-level codes, interim solve refusals (`condition_use`, skew `direction`, `difference_basis`), axis-aligned `direction` on today's path, geometry operations carrying `condition_set_ref`, the version constants in all four implementations, the table, the ripple, reader classification, user guide, D3 and registration | `version_states.json` on the applier, src-tauri, TS and Python; refusal on every 0.8.0 §3.1 surface; ruling a2 and the recorded table basis; annotated equivalence (E5) and axis `direction` equivalence (twin without `direction`, byte for byte, both modes, including d = −e_x, d = (2,0,0), and d = (0,3,0) on a UX record, which solves as its UY twin); leaf comparison; literal guard; D3 `price`, `compare`, `generate --check`; AC-004 witnesses under the exclusive lane; native smoke compared with main; `piping-pytest`, `desktop-test`, affected crates, hosted `harness`. Independent review of the ripple and the registration. |
 | **S2. PF resolution** | Temperature, added weight and wind exposure resolution (§1.5); the correctly rounded ΔT; removal of `LOAD_CASE_CONDITION_USE_UNSUPPORTED`; retained-route placement or decline; wasm preview export | E1–E7; the Python reference table; D3 if D1-reachable code moves. Independent numerical scrutiny by a separate agent of ΔT, order and the twin. |
 | **S3a. Applier authoring** | §4.2's operations; reference guards; bend and split rules | One regression per operation and refusal; save and reopen byte for byte; contract corpus additions. Persistence review. |
 | **S3b. Desktop** | Condition-set manager, inspector field, bulk change, load-manager control, support direction, the run-sheet column (with B1's slice if B1 has not landed) | `desktop-test`; run-sheet inheritance and projection tests; native smoke where open/save changes. |
@@ -662,13 +763,23 @@ per-element temperatures into condition sets (DEL-17-04).
 |---|---|---|---|
 | OC-1 | **Names** | `condition_sets[]` with `conditions[].key`; `pipe_segments[].condition_set_ref` (parallel to `section_ref`); `load_cases[].condition_use` | Names freeze at S1. "Operating" is avoided in the record names because design, peak and hydrotest conditions are not all operating; the alternative `operating_condition_sets` / `condition_refs` costs nothing now and a version step later. |
 | OC-2 | **Stored or read-resolved** | (a) Assignment stored explicitly per pipe; inheritance in authoring tools (§1.4). (b) Values resolved at read by the lowering, not generated into cases | (a) Re-assigning a line is a bulk change; no topology rule is needed. Read-time inheritance would need a "run" or evaluated `lines[]` rule, ambiguous at tees. (b) One source of truth; authoring-time generation would duplicate values in every case and need a staleness check like self-weight's. |
-| OC-3 | **Coexistence with per-case values** | Exclusive per case and quantity; added weight additive (§1.7) | A case cannot mix condition and hand-typed temperatures; per-pipe exceptions are made with another set. Precedence would override stated values without a trace. |
+| OC-3 | **Coexistence with per-case values** | Exclusive per case for temperature, pressure and wind exposure; added weight additive (§1.7) | A case cannot mix condition and hand-typed temperatures; per-pipe exceptions are made with another set. Precedence would override stated values without a trace. |
 | OC-4 | **0.8.0 documents** | Retired, refused by name, nothing migrated (§3.2) | Same burden as at 0.8.0: users re-author by changing the token, using the recovery export for stored projects. A desktop rewrite action is migration code and changes DEL-02-05 CLM-003, an owner decision. |
-| OC-5 | **PF temperature basis** | Absolute condition temperatures, the set's installation temperature, exact difference rounded once (§1.5) | Needs a new correctly rounded rational → binary64 conversion, with the E3 reference. Alternatives: the units crate's `temperature_difference` (no new numerics; last-bit differences from the decimal ΔT, e.g. 0.19999999999998863 for 0.2); or storing ΔT in the condition (no arithmetic, but not an operating temperature, and EX needs absolutes). A model-level installation temperature in place of the per-set one is smaller but cannot express lines installed at different temperatures. |
+| OC-5 | **PF temperature basis: a new numerical policy for Agent 0's approval** | Absolute condition temperatures, the set's installation temperature, exact difference rounded once in kelvin within §1.5.1's range (§1.5, §1.8) | The twin carries 0.2, not 0.19999999999998863; equivalence is to the twin, not to today's absolute-temperature conversion route, so a per-case ΔT formed through the unit route (as 0.8.0-era documents carry) can differ by ulps from the condition route for the same temperatures. Needs a new correctly rounded rational → binary64 conversion, with the E3 reference. Alternatives: the units crate's `temperature_difference` (no new numerics; last-bit differences from the decimal ΔT, e.g. 0.19999999999998863 for 0.2); or storing ΔT in the condition (no arithmetic, but not an operating temperature, and EX needs absolutes). A model-level installation temperature in place of the per-set one is smaller but cannot express lines installed at different temperatures. |
 | OC-6 | **Key form** | String keys (REQ-02-01-03) | Typos are caught as `OPERATING_CONDITION_KEY_MISSING` at solve, not at entry. An integer index k is positional; a model-level key registry adds a member and catches typos earlier. |
-| OC-7 | **Members read by no solve in 0.9.0** | Carry per-condition `contents_density` with its case key (refused at solve), `design`, `peak`, `snow_ice` and `wave` now | Avoids a 0.10.0 step when their consumers come; the format is fixed before those consumers are designed. Omitting them keeps 0.9.0 smaller, and each later adoption is a version step that strands projects again. |
+| OC-7 | **Members read by no solve in 0.9.0** | Carry per-condition `contents_density` with its case key (refused at solve), `design`, `peak`, `snow_ice` and `wave` now, each visibly labelled "not used by the solve in 0.9.0" wherever shown (§1.2) | Avoids a 0.10.0 step when their consumers come; the format is fixed before those consumers are designed. Omitting them keeps 0.9.0 smaller, and each later adoption is a version step that strands projects again. |
 | OC-8 | **A pipe without a set in a case that uses conditions** | Refuse the case by name | Every pipe needs a set (an ambient pipe states its temperature). Skipping would be a silent zero. |
 | OC-9 | **S1 and S2 separate** | Separate, with the interim refusal | Two reviewable steps and one more D3 turn if S2 moves D1-reachable code. Merging gives one turn and one larger review. |
+
+**A further decision, not part of R-7 (ND-1).** Codex r1 found that an earlier
+revision refused a d with a zero component on the record's DOF axis
+(`SUPPORT_DIRECTION_AXIS_COMPONENT_ZERO`), a restriction R-7 does not make; it is
+removed, and `direction` is carried as decided (§2.1). Agent 0 may add it as a
+separate rule:
+
+| # | Choice | Recommendation | Consequence |
+|---|---|---|---|
+| ND-1 | **Tie the DOF token to d** by refusing a d whose component on the record's DOF axis is zero | Do not adopt; keep R-7 as decided | Not adopting: d governs, the token only marks the record translational, and an axis-aligned d on another axis lowers to the record on d's axis (a UX spring with d = (0,3,4) is admitted; one with d = (0,3,0) solves as a UY spring). The inspector shows d as governing. Adopting: the token and d never disagree, so a reader of the token alone is never misled, at the cost of refusing records R-7 admits. |
 
 ## 7. Proposed ScopeOfWork text (not applied)
 
@@ -694,7 +805,7 @@ wording is applied with the slice that makes it true.
    - **Old:** `Reference temperature, material property provenance, expansion policy, and broader thermal behavior remain bounded to future sealed scopes.`
    - **New:** `Reference temperature, material property provenance, expansion policy, and broader thermal behavior remain bounded to future sealed scopes, except that a load case may take each pipe's temperature change from its operating-condition set and the set's installation temperature (DEL-05-01:2).`
 2. **New commitment, inserted after the DEL-05-01:1 bullet (anchor `- **DEL-05-01:1** —`, 1 occurrence).**
-   - **New:** `- **DEL-05-01:2** — Operating-condition resolution (survey item C1; model document 0.9.0; DEL-02-01 Design model-document-0.9.0.md §1.5-§1.8). A load case's condition use resolves, before validation, into the records the existing solve consumes: per-pipe thermal temperature changes (the exact difference of the condition temperature and the set's installation temperature, rounded once to binary64 kelvin), per-pipe added-weight primitives and wind-exposed pipes, in a fixed order with deterministic ids. A case takes each quantity from conditions or from its own records, never both. A missing set, condition or value refuses the case by name; nothing is defaulted. Pressure and contents resolution remain refused by name until designed with DEL-04-07. Implementation and independent numerical review remain open.`
+   - **New:** `- **DEL-05-01:2** — Operating-condition resolution (survey item C1; model document 0.9.0; DEL-02-01 Design model-document-0.9.0.md §1.5-§1.8). A load case's condition use resolves, before validation, into the records the existing solve consumes: per-pipe thermal temperature changes (the exact difference of the condition temperature and the set's installation temperature, rounded once to binary64 kelvin), per-pipe added-weight primitives and wind-exposed pipes, in a fixed order with deterministic ids. A case takes its temperature, pressure and wind exposure from conditions or from its own records, never both; a set's added weight adds to the case's own weight primitives. A missing set, condition or value refuses the case by name; nothing is defaulted. Pressure and contents resolution remain refused by name until designed with DEL-04-07. Implementation and independent numerical review remain open.`
 
 ### 7.3 DEL-07-02 (`execution/PKG-07/DEL-07-02/ScopeOfWork.md`)
 
