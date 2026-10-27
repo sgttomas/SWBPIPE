@@ -74,4 +74,72 @@ describe("Bulk change in the shell", () => {
     expect(screen.getByTestId("bulk-change-count")).toHaveTextContent("1 entity affected; 0 unchanged; 0 not matched; 0 refused.");
     expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
   });
+
+  // Keyboard alone: Shift+F10 or the ContextMenu key opens the menu, End then ArrowUp reaches
+  // Change selected… (Queue removal stays last), and Enter opens the panel on the selection.
+  function activateChangeSelected(invoker: HTMLElement, key: { key: string; shiftKey?: boolean }) {
+    invoker.focus();
+    fireEvent.keyDown(invoker, key);
+    const menu = screen.getByRole("menu");
+    fireEvent.keyDown(menu, { key: "End" });
+    fireEvent.keyDown(menu, { key: "ArrowUp" });
+    expect(within(menu).getByText("Change selected…").closest("[role='menuitem']")).toHaveFocus();
+    fireEvent.keyDown(menu, { key: "Enter" });
+  }
+  async function expectPanel(scopeText: string) {
+    const panel = await screen.findByTestId("bulk-change");
+    await waitFor(() => expect(panel).toHaveFocus());
+    expect(within(panel).getByTestId("bulk-change-scope")).toHaveTextContent(scopeText);
+  }
+  function nodeRows(): HTMLElement[] {
+    return within(screen.getByTestId("model-tree-virtual")).getAllByRole("treeitem").filter((row) => row.dataset.testid?.startsWith("tree-row-node-"));
+  }
+  async function twoNodesInTheTable() {
+    await renderShell();
+    const [first, second] = nodeRows();
+    const ids = [first, second].map((row) => decodeURIComponent(row.dataset.testid!.replace("tree-row-node-", "")));
+    fireEvent.click(first);
+    fireEvent.click(second, { shiftKey: true });
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    fireEvent.click(screen.getByTestId("entity-grid-type-nodes"));
+    return ids;
+  }
+
+  it("from an engineering-table cell with Shift+F10 and Enter, on the cell's row", async () => {
+    const [first] = await twoNodesInTheTable();
+    const cell = screen.getAllByRole("gridcell").map((gridcell) => gridcell.querySelector<HTMLElement>("[data-table-cell]")).find((button) => button?.dataset.rowKey?.includes(first))!;
+    // Existing table behaviour: keyboard focus on a cell makes its row the selection, so the
+    // panel acts on that one node.
+    activateChangeSelected(cell, { key: "F10", shiftKey: true });
+    await expectPanel("1 selected entity");
+    fireEvent.change(screen.getByTestId("bulk-change-kind"), { target: { value: "tag" } });
+    fireEvent.change(screen.getByTestId("bulk-change-tag"), { target: { value: "b2-key" } });
+    expect(within(screen.getByTestId("bulk-change-affected")).getAllByRole("row").slice(1).map((row) => row.firstElementChild?.textContent)).toEqual([first]);
+  });
+
+  it("from an engineering-table row header with the ContextMenu key and Enter", async () => {
+    const [first] = await twoNodesInTheTable();
+    const header = within(screen.getAllByRole("rowheader").find((rowheader) => rowheader.textContent?.includes(first))!).getByRole("button");
+    activateChangeSelected(header, { key: "ContextMenu" });
+    await expectPanel("2 selected entities");
+  });
+
+  it("from a viewport label with Shift+F10 and Enter", async () => {
+    await renderShell();
+    const [first, second] = pipeRows();
+    fireEvent.click(first);
+    fireEvent.click(second, { shiftKey: true });
+    const id = decodeURIComponent(second.dataset.testid!.replace("tree-row-pipe-", ""));
+    activateChangeSelected(within(screen.getByTestId("viewport-selection-layer")).getByTestId(`viewport-select-${id}`), { key: "F10", shiftKey: true });
+    await expectPanel("2 selected entities");
+  });
+
+  it("from the viewport canvas with the ContextMenu key and Enter, for the selection", async () => {
+    await renderShell();
+    const [first, second] = pipeRows();
+    fireEvent.click(first);
+    fireEvent.click(second, { shiftKey: true });
+    activateChangeSelected(screen.getByTestId("viewport-canvas"), { key: "ContextMenu" });
+    await expectPanel("2 selected entities");
+  });
 });

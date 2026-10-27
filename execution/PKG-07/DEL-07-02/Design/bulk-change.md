@@ -187,10 +187,22 @@ panel shows the scope as the selection count.
   through the session and the wasm engine. It is queued, validates with no
   blocking finding, applies once, and one Undo gives back the original model
   hash.
+- `features/bulk-change/bulkChange.edges.session.test.tsx`, through the wasm
+  engine:
+  - a radius entered in millimetres or inches is written and stored as
+    entered, unconverted, in the inspector field's shape;
+  - an absent radius has the `TBD` before and applies;
+  - a normal-reaction source is refused before queuing;
+  - a support a primitive load names is queued, and the applier blocks it
+    (`OP-SUPPORT-DELETE-REFERENCED`), leaving the model unchanged;
+  - "Keep each support's restraints" writes them exactly.
 - `features/bulk-change/BulkChangeMenus.test.tsx`: Change selected… in the
   menus of the tree (from the keyboard), the bulk grid (with the B9 disabled
   reason), an engineering-table cell and the viewport. It is absent where
   nothing is wired.
 - `App.bulkChange.test.tsx`: through the shell, from the tree's menu on a
   Shift range to the focused panel, then Batch review, Apply and Undo. The
-  checkpoint restores the primary selection, as every Undo does.
+  checkpoint restores the primary selection, as every Undo does. Keyboard alone (Shift+F10 or the ContextMenu key, then
+  Enter) from a table cell, a table row header, a viewport label and the
+  canvas opens the panel on the selection. Keyboard focus on a table cell
+  already makes its row the selection, so that route acts on one row.

@@ -211,4 +211,5 @@ checks:
 - apps/desktop/src/features/bulk-change/BulkChangePanel.test.tsx
 - apps/desktop/src/features/bulk-change/BulkChangeMenus.test.tsx
 - apps/desktop/src/features/bulk-change/bulkChange.session.test.tsx
+- apps/desktop/src/features/bulk-change/bulkChange.edges.session.test.tsx
 - apps/desktop/src/App.bulkChange.test.tsx
