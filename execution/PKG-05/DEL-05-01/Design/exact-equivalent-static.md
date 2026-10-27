@@ -140,22 +140,23 @@ paths. As built, both rules are in the shared generator, through
 
 **Timoshenko and partial-span wind.** On an EX document selecting
 `timoshenko_annulus_energy_v1`, a wind marking of a proper fraction of a
-straight span is refused by name, with
-`EXACT_EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO_UNSUPPORTED`. "Proper"
-means `!(start == 0.0 && end == 1.0)` after ordinary fraction validation,
-matching `straight_pipe` ~761 and the frame kernel ~2230. Exactly [0, 1] is
-full span, whether given through `exposed_pipe_refs` or `exposed_spans`. Any
-near-full extent counts as partial. Both formation
-paths are unavailable for a Timoshenko partial-span uniform load: straight-pipe
-formation returns `CannotBound` (`core/solver/straight_pipe/src/lib.rs`
-~752-768), and the frame kernel's re-formation reports it unavailable
-(`structural/formation_check.rs` ~2225-2235). The refusal keeps that path
-unreachable, as DEL-05-03 states (~161), and every case keeps its formation
-checks. Full-span wind on Timoshenko is admitted. Euler–Bernoulli admits both
-full and partial spans. As built, the refusal is emitted by the generator after
-`LoadExtent::new` accepts the fractions. A realized arc is not a straight span:
-any extent on it keeps the arc's own refusal (`LOAD_INPUT_INVALID`) under
-either shear model.
+straight span is admitted, as on Euler–Bernoulli. "Proper" means
+`!(start == 0.0 && end == 1.0)` after ordinary fraction validation, the
+predicate `straight_pipe` and the frame kernel use. Exactly [0, 1] is full
+span, whether given through `exposed_pipe_refs` or `exposed_spans`, and keeps
+the Euler–Bernoulli vector, which a Timoshenko member shares on a full span.
+Any near-full extent counts as partial. A proper fraction takes the exact
+Timoshenko fixed-end vector in assembly and recovery: for w on [aL, bL],
+feq_T = feq_EB + ΔV₀·[1, L/2, −1, L/2] with
+ΔV₀ = φ/(1+φ)·(wL/2)·[a²(1−a)² − b²(1−b)²] (DEL-05-03
+`section-bases-and-timoshenko.md` §3.4). Its two formation checks are those of
+DEL-05-03 §4 item 4: S11-G records each slot as `Bounded` with an exact
+a-posteriori bound, and K-D5 re-forms the vector as a ball from the frame's own
+leaves. A failure of either is fail closed, so every case keeps its formation
+checks. The former refusal
+`EXACT_EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO_UNSUPPORTED` is retired and
+not reused. A realized arc is not a straight span: any extent on it keeps the
+arc's own refusal (`LOAD_INPUT_INVALID`) under either shear model.
 
 **Load/reference-state documents** refuse a case's `equivalent_static` by name,
 with `EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED`. The document-level
@@ -193,8 +194,9 @@ under slice b.
 - **DEL-04-07 `pressure-contract.md`** ~7.
 - **Completeness map:** the §12.5 row.
 - **DEL-05-03 `section-bases-and-timoshenko.md`** ~161, the statement that
-  partial-span Timoshenko is unreachable. It now names the new refusal. The
-  identity quotations at ~89 and ~93 are reconciled with W-15.
+  partial-span Timoshenko is unreachable. It now states the partial-span
+  formation and its checks (§3). The identity quotations at ~89 and ~93 are
+  reconciled with W-15.
 - **DEL-05-01 ScopeOfWork.** Its requirements and acceptance criteria name no
   route, so REQ-05-01-008 and AC-001 do not change. Two evidence descriptions
   are repaired through the owner's wording grant:
@@ -249,13 +251,16 @@ exact-rational generator that runs no product code.
   - |M₀| = q_w·L²·(b² − a²)/2;
   - u_L = q_w·L⁴·[(b³ − a³) − (b⁴ − a⁴)/4]/(6EI_n).
 
-  On full spans, Timoshenko adds q_w·L²/(2GA_s). The fractions bound the
+  Timoshenko adds q_w·L²·(b² − a²)/(2GA_s) to u_L, which is q_w·L²/(2GA_s)
+  on a full span; θ_L is unchanged. The fractions bound the
   interval; they do not multiply the intensity a second time. The witness
   uses L ≠ 1 so that a missing length factor shows. The generated
   loads must be equal on PF and EX.
 - **Coverage.**
   - Both solver modes, Euler–Bernoulli and Timoshenko.
-  - Full-span and partial-span wind on Timoshenko (the latter refused).
+  - Full-span and partial-span wind on Timoshenko, at either end and in the
+    interior, on cantilevers, a subdivided cantilever, a fixed-fixed run and a
+    skew member, against `validation/references/w16_timoshenko_partial_wind/`.
   - Arcs: full spans, with partial spans blocked.
   - Replaced spans, for seismic and for wind (the latter refused).
   - Shared sections, non-SI inputs, and authored and generated loads mixed.
@@ -277,8 +282,9 @@ The path touches priced files: PP `lib.rs`, `pressure_runtime.rs`,
 `exact_admission.rs`, `self_weight.rs` and `certified_loads.rs` (pinned in
 `b7a_domain_model.py` ~89). It also touches the pressure-2 table, the evidence schema
 and readers, the pressure-source-1 companion binding, the source schema and
-transport reader with their pins, and the identity TEXT. No frame-kernel or
-`straight_pipe` change is needed, because partial-span Timoshenko is refused. The retained
+transport reader with their pins, and the identity TEXT. Slice c changes no
+frame-kernel or `straight_pipe` code; the partial-span Timoshenko formation
+(§3) prices its own files. The retained
 route keeps refusing generation. Re-pricing comes with slice b's, behind the
 solver lane's earlier turns.
 
@@ -294,3 +300,14 @@ retained-reachable case meets no new allocation. Byte identity: an EX document
 without `equivalent_static` is unchanged except that, on a load/reference-state
 document, the applied-loads limitation gains its refusal sentence (its
 carriers are regenerated by their writers).
+
+**Partial-span Timoshenko (§3).** The formation touches priced files: SP
+`lib.rs` (`equivalent_global_nodal_loads_with_spans_formed` and its new bound),
+FK `structural/formation_check.rs` (`load_reformation`,
+`uniform_straight_balls`), PP `lib.rs` (the generator loses the refusal and two
+locals) and `exact_admission.rs` (one code and its text removed). No reader,
+schema, table, identity text or ledger layout changes. The new branches run
+only for a Timoshenko frame with a proper span. Extents arise only from
+generation, which every retained branch refuses, so a retained-reachable case
+meets no new allocation. The priced owners keep their bounds, and the pins and
+keys are re-registered.

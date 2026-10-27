@@ -10,7 +10,8 @@
 //! from product code. Model inputs are invented.
 //!
 //! Coverage (§5): both solver modes; Euler-Bernoulli and Timoshenko; full-
-//! and partial-span wind (partial refused on Timoshenko); arcs (full span,
+//! and partial-span wind (Timoshenko partial spans against
+//! `w16_timoshenko_partial_wind`); arcs (full span,
 //! partial blocked); replaced spans (seismic skips, wind refused); shared
 //! sections; non-SI inputs; authored and generated loads mixed; the certified
 //! source controls (the raw re-formation with an allowance and with an
