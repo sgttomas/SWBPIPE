@@ -224,4 +224,24 @@ describe("solve progress panel", () => {
     view.rerender(panel({ ...initialSolveJob(), job_id: "job:preview-linear-static:restored:invented", state: "completed" }, false));
     expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
   });
+
+  it.each([
+    ["a first run (no job yet)", () => initialSolveJob()],
+    ["a run after a model reset", () => modelChangedSolveJob({ operation_id: "op:invented-reset" } as never)]
+  ])("shows Starting with Cancel for %s while the start receipt is pending (Codex r2 of #1665)", (_case, before) => {
+    const onCancel = vi.fn();
+    const idle = before();
+    const view = render(panel(idle, false, onCancel));
+    expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
+    view.rerender(panel(idle, true, onCancel));
+    expect(screen.getByRole("region", { name: "Solve progress" })).toHaveAttribute("data-state", "starting");
+    const cancel = screen.getByRole("button", { name: "Cancel solve" });
+    expect(cancel).toHaveAttribute("aria-disabled", "false");
+    fireEvent.click(cancel);
+    expect(onCancel).toHaveBeenCalledTimes(1);
+    expect(within(screen.getByRole("list", { name: "Solve job events" })).queryAllByRole("listitem")).toHaveLength(0);
+    // A run that ends without publishing a record leaves nothing shown.
+    view.rerender(panel(idle, false, onCancel));
+    expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
+  });
 });

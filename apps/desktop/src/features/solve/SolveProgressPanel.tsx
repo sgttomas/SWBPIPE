@@ -64,9 +64,14 @@ function runView(solveJob: SolveJobAuditState, running: boolean, tracker: RunTra
   tracker.wasRunning = running;
 
   const startedFrom = tracker.startedFrom;
-  if (startedFrom === null || tracker.closed || solveJob.state === "not_started") return { kind: "hidden" };
+  if (startedFrom === null || tracker.closed) return { kind: "hidden" };
   const earlier = startedFrom.events;
-  if (running) return solveJob === startedFrom ? { kind: "starting", earlier } : { kind: "job", job: solveJob, earlier };
+  // A run that has not published a record yet shows Starting, whatever the
+  // record it started from, including one that names no job (`not_started`,
+  // a first run or a run after a model reset; Codex review r2 of #1665).
+  if (running && solveJob === startedFrom) return { kind: "starting", earlier };
+  if (solveJob.state === "not_started") return { kind: "hidden" };
+  if (running) return { kind: "job", job: solveJob, earlier };
   return tracker.runJobId !== null && solveJob.job_id === tracker.runJobId ? { kind: "job", job: solveJob, earlier } : { kind: "hidden" };
 }
 

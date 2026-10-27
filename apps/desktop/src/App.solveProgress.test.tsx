@@ -110,3 +110,29 @@ it("a rerun after a failed job shows Starting with Cancel, never the previous jo
   await waitFor(() => expect(screen.getByTestId("solve-progress-job")).toHaveTextContent("review-job-two"));
   expect(within(within(region).getByRole("list", { name: "Solve job events" })).getAllByRole("listitem").map((item) => item.getAttribute("data-event-id"))[0]).toBe("solve-preview-queued");
 });
+
+// Codex review r2 of #1665 (its probe, kept): the first run starts from a record
+// that names no job; the panel still shows Starting with Cancel.
+it("review round 2: first deferred start exposes Starting and Cancel", async () => {
+  let release: (value: unknown) => void = () => {};
+  let starts = 0;
+  invokeMock.mockImplementation((command: string) => {
+    if (command === "sync_native_shell_state") return Promise.resolve(undefined);
+    if (command === "dispose_all_preview_mechanics_results") return Promise.resolve({released_results:0,released_bytes:0,abandoned_jobs:0});
+    if (command === "start_preview_mechanics_job") { starts++; return new Promise(resolve => { release=resolve; }); }
+    if (command === "poll_preview_mechanics_job") return Promise.resolve({job_id:"review-first",state:"failed",cancellation_requested:false,cancellation_status:"not_requested",cancellation_scope:"worker_process_terminated",result_available:false,error_message:"review stop"});
+    throw new Error(`Unexpected native command ${command}`);
+  });
+  render(<App />);
+  await screen.findByTestId("desktop-preview-shell");
+  (window as unknown as Record<string,unknown>).__TAURI_INTERNALS__={};
+  act(() => nativeMenuCommand("analyze.run"));
+  await waitFor(() => expect(starts).toBe(1));
+  const panel=screen.queryByTestId("solve-progress-panel");
+  const cancel=screen.queryByTestId("solve-progress-cancel");
+  // Finish the outstanding native promise even if the expectation below fails.
+  await act(async () => {release({job_id:"review-first",backend_cancellation_token:"review-token-first",state:"queued",cancellation_scope:"worker_process_terminated"});});
+  expect(panel).not.toBeNull();
+  expect(panel).toHaveAttribute("data-state", "starting");
+  expect(cancel).toHaveAttribute("aria-disabled", "false");
+});

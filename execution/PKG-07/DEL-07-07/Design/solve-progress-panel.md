@@ -45,7 +45,9 @@ panel.
   the previous one, so the panel keeps the record held at the start and never
   shows it, or its events, as the new run's (Codex review r1 of #1665). Until
   the new job reports, the panel reads **Starting** ("The solve was requested;
-  its job has not reported a state yet."), shows no job id and offers Cancel.
+  its job has not reported a state yet."), shows no job id and offers Cancel,
+  on every run: also on a first run or after a model reset, when the record
+  held at the start names no job (`not_started`; Codex review r2 of #1665).
   A record built over the previous record's events, such as a cancellation
   before the start receipt, lists only its own events.
 - It stays open after the terminal state, so a completion, cancellation,
@@ -93,4 +95,6 @@ job reports.
   cancellation lists only its own event; a later restored record is hidden.
   In `App.solveProgress.test.tsx`, Codex's probe: after a failed run and
   Close, a second run whose start receipt is deferred shows Starting, no job
-  id and an enabled Cancel, then the new job once it reports.
+  id and an enabled Cancel, then the new job once it reports. Review r2 adds
+  Starting with Cancel on a first run and after a model reset (unit tests,
+  and Codex's App probe of a first run whose start receipt is deferred).
