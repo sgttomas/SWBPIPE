@@ -100,7 +100,13 @@ def _normalized(text: str) -> str:
             continue
         last = out[-1][-1] if out else None
         joined = last is not None and word(last) and not gap
-        if gap and last is not None and ((word(last) and word(c)) or (operator(last) and operator(c))):
+        quote = ('"', "'")
+        if gap and last is not None and (
+            (word(last) and word(c))
+            or (operator(last) and operator(c))
+            or (word(last) and c in quote)
+            or (last in quote and word(c))
+        ):
             out.append(" ")
         gap = False
         prefix = i
@@ -274,6 +280,14 @@ def test_the_guard_reads_through_formatting_and_not_through_a_change():
         edit(decision, '== Some("spring ") || is_variable_spring_hanger(support) {\n                let stiffness'),
     ):
         assert not _pinned(changed)
+
+
+def test_normalizing_keeps_token_boundaries_at_quotes():
+    # Code review r2 on #1686: each pair is two different token streams (Rust's
+    # `normalizing_keeps_token_boundaries_at_quotes`).
+    for spaced, joined in (("m!('a 'b)", "m!('a'b)"), ('m!(b "x")', 'm!(b"x")'), ('m!("x" y)', 'm!("x"y)')):
+        assert _normalized(spaced) != _normalized(joined), spaced
+    assert _normalized("m!( 'a   'b )") == _normalized("m!('a 'b)")
 
 
 def test_the_trim_is_rusts():

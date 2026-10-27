@@ -2037,8 +2037,11 @@ mod solver_spring_rule_tests {
                 let stiffness = support_stiffness_input(support).and_then(|input| {";
 
     /// `text` with comments dropped and whitespace outside string and char
-    /// literals collapsed: one space is kept only between two word characters
-    /// or two operator characters, where dropping it could join two tokens.
+    /// literals collapsed: one space is kept only between two word characters,
+    /// two operator characters, or a word character and a quote (either way
+    /// round), where dropping it could join two tokens: `'a 'b` is two
+    /// lifetimes, `b "x"` an identifier and a string, `"x" y` a string and an
+    /// identifier.
     /// Literals are kept verbatim, so a change inside one still counts.
     fn normalized(text: &str) -> String {
         let chars = text.chars().collect::<Vec<_>>();
@@ -2078,7 +2081,15 @@ mod solver_spring_rule_tests {
             }
             let last = out.chars().last();
             let joined = last.is_some_and(word) && !gap;
-            if gap && last.is_some_and(|l| (word(l) && word(c)) || (operator(l) && operator(c))) {
+            let quote = |q: char| q == '"' || q == '\'';
+            if gap
+                && last.is_some_and(|l| {
+                    (word(l) && word(c))
+                        || (operator(l) && operator(c))
+                        || (word(l) && quote(c))
+                        || (quote(l) && word(c))
+                })
+            {
                 out.push(' ');
             }
             gap = false;
@@ -2312,6 +2323,15 @@ mod solver_spring_rule_tests {
         ] {
             assert!(pinned(&changed).is_err());
         }
+    }
+
+    #[test]
+    fn normalizing_keeps_token_boundaries_at_quotes() {
+        // Code review r2 on #1686: each pair is two different token streams.
+        for (spaced, joined) in [("m!('a 'b)", "m!('a'b)"), ("m!(b \"x\")", "m!(b\"x\")"), ("m!(\"x\" y)", "m!(\"x\"y)")] {
+            assert_ne!(normalized(spaced), normalized(joined), "{spaced}");
+        }
+        assert_eq!(normalized("m!( 'a   'b )"), normalized("m!('a 'b)"));
     }
 
     #[test]
