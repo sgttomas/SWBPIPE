@@ -1,0 +1,295 @@
+{
+ "model": {
+  "schema_version": "0.8.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "analysis_status": {
+   "mechanics": "ready_for_preview_diagnostics",
+   "rule_check": "not_performed_user_rule_inputs_missing",
+   "professional_acceptance": "not_provided"
+  },
+  "project": {
+   "id": "invented:pf-timoshenko:PFT-WEIGHT-EULER-BERNOULLI",
+   "units": {
+    "length": "m",
+    "force": "N",
+    "angle": "rad",
+    "pressure": "Pa",
+    "stress": "Pa",
+    "temperature": "degC"
+   }
+  },
+  "nodes": [
+   {
+    "id": "node:W0",
+    "position": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "node:W1",
+    "position": {
+     "x": 2.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "node:W2",
+    "position": {
+     "x": 3.5,
+     "y": 0.0,
+     "z": 2.0
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "node:W3",
+    "position": {
+     "x": 3.5,
+     "y": 1.5,
+     "z": 2.0
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "pipe_segments": [
+   {
+    "id": "pipe:W1",
+    "from": "node:W0",
+    "to": "node:W1",
+    "material": "mat:A",
+    "y_reference": {
+     "x": 0.0,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "section": {
+     "outside_diameter": {
+      "value": 0.2,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.01,
+      "unit": "m"
+     },
+     "mill_tolerance": {
+      "value": 0.001,
+      "unit": "m"
+     }
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "pipe:W2",
+    "from": "node:W1",
+    "to": "node:W2",
+    "material": "mat:A",
+    "y_reference": {
+     "x": 0.0,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "section": {
+     "outside_diameter": {
+      "value": 0.2,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.01,
+      "unit": "m"
+     },
+     "mill_tolerance": {
+      "value": 0.001,
+      "unit": "m"
+     }
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "pipe:W3",
+    "from": "node:W2",
+    "to": "node:W3",
+    "material": "mat:A",
+    "y_reference": {
+     "x": -1.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "section": {
+     "outside_diameter": {
+      "value": 0.2,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.01,
+      "unit": "m"
+     },
+     "mill_tolerance": {
+      "value": 0.001,
+      "unit": "m"
+     }
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "materials": [
+   {
+    "id": "mat:A",
+    "elastic_modulus": {
+     "value": 200000000000.0,
+     "unit": "Pa"
+    },
+    "shear_modulus": {
+     "value": 77000000000.0,
+     "unit": "Pa"
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "supports": [
+   {
+    "id": "support:W0",
+    "node": "node:W0",
+    "family": "anchor",
+    "restraints": [
+     "UX",
+     "UY",
+     "UZ",
+     "RX",
+     "RY",
+     "RZ"
+    ],
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "support:W1",
+    "node": "node:W1",
+    "family": "guide",
+    "restraints": [
+     "UZ"
+    ],
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "support:W3",
+    "node": "node:W3",
+    "family": "anchor",
+    "restraints": [
+     "UX",
+     "UY",
+     "UZ",
+     "RX",
+     "RY",
+     "RZ"
+    ],
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "components": [],
+  "load_cases": [
+   {
+    "id": "case:self_weight_with_contents",
+    "kind": "primitive_user_load",
+    "primitive_loads": [
+     {
+      "id": "load:self_weight_with_contents:0",
+      "category": "weight",
+      "target": {
+       "type": "element",
+       "pipe": "pipe:W1"
+      },
+      "direction": "global_z",
+      "magnitude": {
+       "value": -415.73451482776716,
+       "unit": "N/m"
+      },
+      "dimension": "force_per_length",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     },
+     {
+      "id": "load:self_weight_with_contents:1",
+      "category": "weight",
+      "target": {
+       "type": "element",
+       "pipe": "pipe:W1"
+      },
+      "direction": "global_z",
+      "magnitude": {
+       "value": -255.12518515717846,
+       "unit": "N/m"
+      },
+      "dimension": "force_per_length",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     },
+     {
+      "id": "load:self_weight_with_contents:2",
+      "category": "weight",
+      "target": {
+       "type": "element",
+       "pipe": "pipe:W2"
+      },
+      "direction": "global_z",
+      "magnitude": {
+       "value": -415.73451482776716,
+       "unit": "N/m"
+      },
+      "dimension": "force_per_length",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     },
+     {
+      "id": "load:self_weight_with_contents:3",
+      "category": "weight",
+      "target": {
+       "type": "element",
+       "pipe": "pipe:W2"
+      },
+      "direction": "global_z",
+      "magnitude": {
+       "value": -255.12518515717846,
+       "unit": "N/m"
+      },
+      "dimension": "force_per_length",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     },
+     {
+      "id": "load:self_weight_with_contents:4",
+      "category": "weight",
+      "target": {
+       "type": "element",
+       "pipe": "pipe:W3"
+      },
+      "direction": "global_z",
+      "magnitude": {
+       "value": -415.73451482776716,
+       "unit": "N/m"
+      },
+      "dimension": "force_per_length",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     },
+     {
+      "id": "load:self_weight_with_contents:5",
+      "category": "weight",
+      "target": {
+       "type": "element",
+       "pipe": "pipe:W3"
+      },
+      "direction": "global_z",
+      "magnitude": {
+       "value": -255.12518515717846,
+       "unit": "N/m"
+      },
+      "dimension": "force_per_length",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     }
+    ],
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "combinations": []
+ },
+ "materials": []
+}
