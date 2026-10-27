@@ -194,10 +194,30 @@ document after the bump:
 | Browser-preview store (`projectService.ts`) | the TS evaluator's `retired_schema` refusal |
 | Saved model states (W-12, `model_states.rs` :2088, :2473) | Saving a 0.7.0 snapshot is refused. Opening or comparing a stored 0.7.0 state (`StateReadPurpose::Open` and `Compare`) is refused by `refuse_version`'s text. Rows are never rewritten. |
 | Retained and source readers (`physics_source.rs`, `retained_precision.rs` and their twins) | refused: they accept only the current version |
-| Model operations (`operation_applier` `run_with_context`: validate, apply and every batch step; wasm alike) | `MODEL_SCHEMA_VERSION_RETIRED` with the message above, blocking, before any change is checked or written (r6) |
-| Python project persistence (`core/project_persistence/service.py`: validate, create, save, open) | `MODEL_SCHEMA_VERSION_RETIRED`, blocking, with the desktop's text: the message above, then §3.3's note; nothing is written (r6) |
+| Model operations (`operation_applier` `run_with_context`: validate, apply and every batch step; wasm alike) | `MODEL_SCHEMA_VERSION_RETIRED` with the message above, blocking, before any change is checked or written (r6). Every other non-current version is refused there too, with the desktop's state (r7, below) |
+| Python project persistence (`core/project_persistence/service.py`: validate, create, save, open) | `MODEL_SCHEMA_VERSION_RETIRED`, blocking, with the desktop's text: the message above, then §3.3's note; nothing is written (r6). Every other non-current version is refused too (r7, below) |
 | Python preview service (`core/product_preview/service.py` `validate_preview_model`) | `MODEL_SCHEMA_VERSION_RETIRED`, blocking; another non-current version `PREVIEW_SCHEMA_VERSION_UNSUPPORTED` (r6) |
 | CAEPIPE SI writer (`core/handoff/caepipe_mbf/si_writer.py`) | `MODEL_SCHEMA_VERSION_RETIRED` with the message above, status `refused`, no MBF text; another non-current version `MBF-SI-SCHEMA-VERSION`, now an error (r6) |
+
+**Every non-current version (Codex r7).** The desktop's evaluator has four states, and the
+applier now owns it (`operation_applier` `model_document_version.rs`; src-tauri
+`model_document_version.rs` delegates to it). The TS evaluator and Python persistence
+mirror it, and all three are checked against one table,
+`fixtures/model_document/version_states.json`:
+- `current`: the one current version;
+- `retired_schema`, code `MODEL_SCHEMA_VERSION_RETIRED`: a semver version below the
+  current one. A listed retired version gets the message above; any other older one gets
+  "model document {v} is not a supported version; re-author it as model document 0.8.0.
+  Nothing is migrated.";
+- `newer_than_supported`, code `MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED`: a semver
+  version above the current one;
+- `unsupported_schema`, code `MODEL_SCHEMA_VERSION_UNSUPPORTED`: a missing, non-string or
+  non-semver version. Each part must be ASCII digits, as the TS and Python checks read it,
+  so a signed part such as `+0.8.0` is unsupported in the native check too, where it had
+  read as an older version.
+
+The applier and Python persistence refuse each non-current state by its code, blocking,
+before anything is written. The desktop's surfaces keep their texts.
 
 Not gated, by design: the one document validator (`document_validator.rs`) judges a
 document's model-data slots whatever its version, and every caller that admits a
@@ -540,6 +560,12 @@ ripple lands joins 0.8.0 through Agent 0.
   and batch; Python persistence validate, create, save and open; the preview
   service; the CAEPIPE SI writer. Every Python retired list equals
   `model_format.rs`'s (`test_model_version_literals.py`).
+- **r7 surfaces.** Every state of the shared version table, at the applier
+  (validate, apply and batch, for an offset edit and a model-setting edit;
+  `tests/retired_model_version.rs`) and at Python persistence (validate, create,
+  save and open; `test_project_persistence_service.py`), each failing before its
+  fix. The applier, the native desktop, the TS evaluator and Python persistence
+  each give the table's states.
 - **`model_settings.shear_model` (§1.1).** Every existing document gives
   byte-identical results (`pressure_free_byte_identity`), and `euler_bernoulli`
   gives the rows and mechanics of its twin without the member
