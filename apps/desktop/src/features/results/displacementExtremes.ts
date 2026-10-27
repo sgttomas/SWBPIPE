@@ -4,7 +4,7 @@
  * For each model node: the largest and smallest emitted global translation (ux, uy, uz) and
  * rotation (rx, ry, rz) over the load cases and combinations the user chooses, each naming the
  * case that holds it and its result-row id. A filter lists only the nodes of supports of one kind
- * (the model's stated support family, or any hanger); a sort orders nodes by the largest magnitude
+ * (the model's stated support family, or any hanger under the report's rule); a sort orders nodes by the largest magnitude
  * of one component.
  *
  * Pure post-processing of emitted rows: the extremes are arithmetic over the listed values, not a
@@ -14,6 +14,7 @@
  * unchanged for an export (D2). */
 
 import type { MechanicsResult, PreviewModel } from "../../types";
+import { isSpringHangerSupport } from "../report/springHangerSupport";
 import { basisKey } from "../viewport/resultColourOverlay";
 import { overlayMayShowRow, type ResultOverlayStanding } from "./numericalHealth";
 import {
@@ -49,9 +50,6 @@ export const SUPPORT_FAMILIES: readonly Readonly<{ value: string; label: string 
   { value: "nonlinear", label: "Nonlinear support" }
 ].map((item) => Object.freeze(item)));
 
-/** The hanger families (also the `SpringHanger.hanger_type` values). */
-export const HANGER_FAMILIES: readonly string[] = Object.freeze(["variable_spring_hanger", "spring_hanger", "constant_effort_support"]);
-
 const FAMILY_LABEL = new Map(SUPPORT_FAMILIES.map((item) => [item.value, item.label] as const));
 
 export const FAMILY_NOT_STATED = "Family not stated";
@@ -80,6 +78,7 @@ export type DisplacementSupport = Readonly<{
   family: string | null;
   /** The family's label, with a nonlinear support's stated behavior and DOF. */
   kindText: string;
+  /** A spring hanger or constant-effort support under the report's rule (`isSpringHangerSupport`). */
   hanger: boolean;
 }>;
 
@@ -127,7 +126,8 @@ function supportOf(support: Support): DisplacementSupport {
     label: support.label || support.id,
     family,
     kindText: `${familyLabel(family)}${nonlinear}`,
-    hanger: (family !== null && HANGER_FAMILIES.includes(family)) || HANGER_FAMILIES.includes(support.hanger?.hanger_type ?? "")
+    // The report's rule (`springHangerSupport.ts`), shared so the two cannot differ.
+    hanger: isSpringHangerSupport(support)
   });
 }
 

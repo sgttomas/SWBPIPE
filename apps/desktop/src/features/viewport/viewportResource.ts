@@ -501,6 +501,9 @@ export class ViewportResource {
   private modelIndex: ModelIndex | null = null;
   private hiddenKeys: ReadonlySet<EntityKey> = new Set();
   private dimmedKeys: ReadonlySet<EntityKey> = new Set();
+  // The undeformed ghost (DEL-07-05, A5): model-layer entities drawn at the dimmed opacity
+  // while the deformed shape is shown. Display only; picking and hiding are unchanged.
+  private ghostKeys: ReadonlySet<EntityKey> = new Set();
   private selectedKeys: ReadonlySet<EntityKey> = new Set();
   private hoveredKey: EntityKey | null = null;
   // Selection and hover halos. Display-only: never given to either picking path. Absent only on a
@@ -752,11 +755,7 @@ export class ViewportResource {
   setVisibilityPresentation(hiddenKeys: ReadonlySet<EntityKey>, dimmedKeys: ReadonlySet<EntityKey> = new Set()): void {
     this.hiddenKeys = new Set(hiddenKeys);
     this.dimmedKeys = new Set(dimmedKeys);
-    applyVisibilityPresentation(
-      [this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer],
-      this.hiddenKeys,
-      this.dimmedKeys
-    );
+    this.applyLayerVisibility();
     this.syncHalo();
     this.updateSelectionCue();
     this.invalidate();
@@ -785,17 +784,31 @@ export class ViewportResource {
       this.selectedKeys,
       this.themePresentation
     );
-    applyVisibilityPresentation(
-      [this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer],
-      this.hiddenKeys,
-      this.dimmedKeys
-    );
+    this.applyLayerVisibility();
     this.applyAuxiliaryVisibility();
     // After the layer holds its new objects: halos of geometries that left with the old layer are
     // disposed, and the selected and hovered elements are haloed from the new ones.
     this.syncHalo();
     this.notifyResourceStateChange(false);
     this.invalidate();
+  }
+
+  /**
+   * The undeformed ghost: these model-layer entities draw at the dimmed opacity, through the
+   * same dim batches as isolation, so nothing is created or disposed. The deformed shape and the
+   * other layers keep their opacity. Hide still wins; dimmed geometry stays selectable.
+   */
+  setUndeformedGhostPresentation(ghostKeys: ReadonlySet<EntityKey>): void {
+    this.ghostKeys = new Set(ghostKeys);
+    this.applyLayerVisibility();
+    this.invalidate();
+  }
+
+  private applyLayerVisibility(): void {
+    const dimmed = this.dimmedKeys ?? new Set<EntityKey>();
+    const ghost = this.ghostKeys ?? new Set<EntityKey>();
+    applyVisibilityPresentation([this.modelLayer], this.hiddenKeys, ghost.size ? new Set([...dimmed, ...ghost]) : dimmed);
+    applyVisibilityPresentation([this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer], this.hiddenKeys, dimmed);
   }
 
   /**

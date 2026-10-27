@@ -406,7 +406,8 @@
         "public_example",
         "shared_model",
         "downstream_tool",
-        "local_private"
+        "local_private",
+        "user_released_report"
       ]
     },
     "FieldClass": {
@@ -500,7 +501,10 @@
         "CLOUD_OR_NETWORK_REFERENCE_BLOCKED",
         "DIRECT_SQL_ACCESS_BLOCKED",
         "STORAGE_BYPASS_BLOCKED",
-        "CONCRETE_PATH_REDACTED"
+        "CONCRETE_PATH_REDACTED",
+        "USER_RELEASED_PROJECT_DATA",
+        "USER_RELEASE_INTENT_REQUIRED",
+        "USER_RELEASE_VALUE_UNBOUND"
       ]
     },
     "FindingClass": {

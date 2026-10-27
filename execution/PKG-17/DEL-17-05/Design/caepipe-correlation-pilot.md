@@ -63,6 +63,27 @@ command (`CAEPIPE-PRINT-TO-FILE`), finding menu items and buttons by their visib
 captions. It reads no binary result file and stops only processes it started. The run
 record states which route produced the CSV (`csv_from_batch` or `csv_from_gui_print`).
 
+**MBF export of the solved model (two-way iteration, DEL-17-04 Design §18.3).** A
+separate guest step writes the solved model back to MBF. The guest script, run with
+`-ExportMod`, opens a guest copy of `caepipe_out/model.mod` in a CAEPIPE instance it
+starts. A fresh instance starts either with the layout window of a start-up model or
+with a frame window without one; both offer File > Open.... The script waits for the
+layout window whose title names the opened model, then runs File > Export to MBF.... In
+the "Export Model to Batch File" dialog it selects the type "Model batch file (*.mbf)",
+sets the file name (control 1152) and commits (control 1). It waits for the file to
+stop growing, then stops the instance it started. It reports the SHA-256 of the model it
+opened and of the MBF it wrote. The step uses the stored solve rather than a fresh round
+trip: the run record already binds `model.mod` to the current MBF, and the export only
+reads that model. `run_pilot --export-mbf` runs the step after each case's live round
+trip. `--export-only` runs it alone from each case's stored solve and needs no SWBPIPE
+runner. It writes the case's `caepipe_out/` files (the export, its guest logs and the
+run record's export entry) and the harness copy of the guest script and run lock in
+`_harness/`, and creates missing layer folders. When the stored solve is no longer bound,
+any earlier export is removed and the run record's export entry states why. The step's route is `mbf_exported` or the
+reason none was written: `not_bound`, `prepare_failed`, `timeout`, `no_guest_json`,
+`input_hash_mismatch`, `export_failed`, `mbf_not_written`, `mbf_not_collected` or
+`export_hash_mismatch`.
+
 ## 4. Configuration surface (DEL-17-05-PH-001)
 
 The harness is disabled unless the user configures it (REQ-001, REQ-016):
@@ -109,7 +130,20 @@ SHA-256 of the MBF it solved; the run record holds it beside the host MBF's hash
 when they differ the run is `input_hash_mismatch` and nothing is collected. A CSV is
 compared only when its run record binds it to the current MBF (both hashes equal);
 an offline re-run reports `stale` when the solved MBF differs from the current one
-and `unbound_output` when no valid run record binds the CSV. Each guest step is
+and `unbound_output` when no valid run record binds the CSV. The run record also holds
+the SHA-256 of each collected output.
+
+The export step (§3) runs only when the run record binds the solve to the current MBF
+(both hashes) and lists `model.mod`, with its recorded hash equal to the file's where
+the record has one; otherwise it is `not_bound` and nothing runs. It collects
+`caepipe_out/exported.mbf` with the same containment and link refusal as the CSV, and
+only when the guest reports opening a model whose hash equals the stored one. It keeps
+the file only when its hash equals the one the guest reported. The run record's
+`mbf_export` entry records the route, the solved-MBF, model and exported-MBF hashes,
+the steps and the guest log. The step's guest output goes to `export_guest_log.json`,
+`export_guest_stdout.txt` and `export_guest_stderr.txt`. Re-running the step replaces
+these files and the entry. A new solve deletes them, because the export no longer
+describes the solved model. Each guest step is
 idempotent and is retried when the `prlctl` client itself fails (exit 255 with a
 `PrlJob_` message), which happens intermittently on this host.
 
@@ -321,6 +355,7 @@ classification. It never prints external-prover values outside the local run.
 - Non-unit bend flexibility factors are untested: the bend case uses k = 1.
 - CAEPIPE's pipe shear shape factor and default gravitational acceleration
   (CQ-17-01-010); κ = 0.5 stays an `ASSUMPTION` until answered.
-- Two-way iteration (CAEPIPE's MBF export of the solved model): a guest step that
-  writes `caepipe_out/exported.mbf` for DEL-17-04's private import regression
-  (DEL-17-04 `Design/caepipe-mbf-import.md` §18.3).
+- Two-way iteration: the export step (§3) writes `caepipe_out/exported.mbf` for
+  DEL-17-04's private import regression (DEL-17-04 `Design/caepipe-mbf-import.md` §18.3).
+  That regression's first recording run (`SWBPIPE_CAEPIPE_IMPORT_RECORD=1`), which
+  writes `imported/`, is still to be done.

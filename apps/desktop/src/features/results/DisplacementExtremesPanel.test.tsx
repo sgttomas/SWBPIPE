@@ -27,7 +27,7 @@ function model(): PreviewModel {
     ...base,
     supports: [
       { id: "support:S-A", label: "Anchor A", node: "node:A", family: "anchor", restraints: [] },
-      { id: "support:H-C", label: "Hanger C", node: "node:C", family: "spring_hanger", restraints: [] }
+      { id: "support:H-C", label: "Hanger C", node: "node:C", family: "variable_spring_hanger", restraints: [] }
     ]
   } as unknown as PreviewModel;
 }
@@ -114,12 +114,12 @@ describe("displacement extremes panel: cases, standing and filter", () => {
   it("filters to the nodes of a support kind and names the supports", () => {
     render(<DisplacementExtremesPanel model={model()} result={overlayResult(rows())} standing={PASSING} />);
     const filter = screen.getByTestId("displacement-extremes-filter") as HTMLSelectElement;
-    expect([...filter.options].map((option) => option.textContent)).toEqual(["All nodes (4)", "Support nodes (2)", "Hangers (1)", "Anchor (1)", "Spring hanger (1)"]);
+    expect([...filter.options].map((option) => option.textContent)).toEqual(["All nodes (4)", "Support nodes (2)", "Hangers (1)", "Anchor (1)", "Variable spring hanger (1)"]);
     fireEvent.change(filter, { target: { value: FILTER_HANGERS } });
     const table = screen.getByTestId("displacement-extremes-table");
     expect(table.getAttribute("aria-label")).toBe("Displacement and rotation extremes: Hangers");
     expect(within(table).getAllByRole("row").filter((item) => item.getAttribute("data-testid")?.startsWith("displacement-extremes-row-")).map((item) => item.getAttribute("data-testid"))).toEqual(["displacement-extremes-row-node:C"]);
-    expect(within(table).getByText("Hanger C: Spring hanger")).toBeTruthy();
+    expect(within(table).getByText("Hanger C: Variable spring hanger")).toBeTruthy();
     fireEvent.change(filter, { target: { value: familyFilterId("anchor") } });
     expect(screen.getByTestId("displacement-extremes-row-node:A")).toBeTruthy();
     expect(screen.queryByTestId("displacement-extremes-row-node:C")).toBeNull();
@@ -188,6 +188,80 @@ describe("displacement extremes panel: paging and selection", () => {
     fireEvent.click(screen.getByTestId("displacement-extremes-page-previous"));
     view.rerender(<DisplacementExtremesPanel model={big} result={result} standing={PASSING} onSelectNode={onSelectNode} selectedNodeId={`node:N${count - 2}`} />);
     expect(screen.getByTestId("displacement-extremes-page").textContent).toBe(`Nodes ${DISPLACEMENT_EXTREMES_PAGE + 1}–${DISPLACEMENT_EXTREMES_PAGE * 2} of ${count}`);
+  });
+
+  // Codex r1: the jump waits until the selected node's row can be shown.
+  function sized(total: number, supported = 0): { model: PreviewModel; result: MechanicsResult } {
+    const nodes = Array.from({ length: total }, (_, index) => ({ id: `node:N${index}`, label: "", position: { x: index, y: 0, z: 0 } }));
+    const supports = nodes.slice(0, supported).map((node) => ({ id: `support:${node.id}`, node: node.id, family: "guide", restraints: [] }));
+    return {
+      model: { ...overlayModel(), nodes, supports } as unknown as PreviewModel,
+      result: overlayResult(nodes.map((node, index) => move(`ux:${index}`, "x", node.id, index)))
+    };
+  }
+  const pageText = () => screen.getByTestId("displacement-extremes-page").textContent;
+
+  it("keeps a selection made before results exist and shows its page when they arrive", () => {
+    const { model: big, result } = sized(123);
+    const view = render(<DisplacementExtremesPanel model={big} result={null} standing={PASSING} selectedNodeId="node:N122" />);
+    expect(screen.getByTestId("displacement-extremes-unavailable").textContent).toBe(DISPLACEMENT_NO_RESULT);
+    view.rerender(<DisplacementExtremesPanel model={big} result={result} standing={PASSING} selectedNodeId="node:N122" />);
+    expect(pageText()).toBe("Nodes 101–123 of 123");
+    expect(screen.getByTestId("displacement-extremes-row-node:N122").getAttribute("aria-current")).toBe("true");
+  });
+
+  it("applies a selection changed while results are absent, and the selection again after results return", () => {
+    const { model: big, result } = sized(123);
+    const view = render(<DisplacementExtremesPanel model={big} result={result} standing={PASSING} selectedNodeId="node:N3" />);
+    expect(pageText()).toBe("Nodes 1–50 of 123");
+    view.rerender(<DisplacementExtremesPanel model={big} result={null} standing={PASSING} selectedNodeId="node:N3" />);
+    view.rerender(<DisplacementExtremesPanel model={big} result={null} standing={PASSING} selectedNodeId="node:N122" />);
+    view.rerender(<DisplacementExtremesPanel model={big} result={result} standing={PASSING} selectedNodeId="node:N122" />);
+    expect(pageText()).toBe("Nodes 101–123 of 123");
+    // The same selection across a result that goes and returns: its page is shown again.
+    view.rerender(<DisplacementExtremesPanel model={big} result={null} standing={PASSING} selectedNodeId="node:N60" />);
+    view.rerender(<DisplacementExtremesPanel model={big} result={result} standing={PASSING} selectedNodeId="node:N60" />);
+    expect(pageText()).toBe("Nodes 51–100 of 123");
+    view.rerender(<DisplacementExtremesPanel model={big} result={null} standing={PASSING} selectedNodeId="node:N60" />);
+    view.rerender(<DisplacementExtremesPanel model={big} result={overlayResult([...result.results])} standing={PASSING} selectedNodeId="node:N60" />);
+    expect(pageText()).toBe("Nodes 51–100 of 123");
+  });
+
+  it("keeps a selection the filter hides, and shows its page when a filter lists it", () => {
+    const { model: big, result } = sized(123, 10);
+    const view = render(<DisplacementExtremesPanel model={big} result={result} standing={PASSING} />);
+    fireEvent.change(screen.getByTestId("displacement-extremes-filter"), { target: { value: "supports" } });
+    expect(pageText()).toBe("Nodes 1–10 of 10");
+    view.rerender(<DisplacementExtremesPanel model={big} result={result} standing={PASSING} selectedNodeId="node:N122" />);
+    expect(pageText()).toBe("Nodes 1–10 of 10");
+    fireEvent.change(screen.getByTestId("displacement-extremes-filter"), { target: { value: "all" } });
+    expect(pageText()).toBe("Nodes 101–123 of 123");
+  });
+
+  it("keeps a selection made while no case is chosen, and shows its page when a case is chosen", () => {
+    const { model: big, result } = sized(123);
+    const view = render(<DisplacementExtremesPanel model={big} result={result} standing={PASSING} />);
+    fireEvent.click(screen.getByTestId("displacement-extremes-case-load_case:load:L-1"));
+    expect(screen.getByTestId("displacement-extremes-no-case")).toBeTruthy();
+    view.rerender(<DisplacementExtremesPanel model={big} result={result} standing={PASSING} selectedNodeId="node:N122" />);
+    fireEvent.click(screen.getByTestId("displacement-extremes-cases-all"));
+    expect(pageText()).toBe("Nodes 101–123 of 123");
+  });
+
+  it("leaves paging to the user after the jump, across unrelated re-renders", () => {
+    const { model: big, result } = sized(123);
+    const view = render(<DisplacementExtremesPanel model={big} result={null} standing={PASSING} selectedNodeId="node:N122" />);
+    view.rerender(<DisplacementExtremesPanel model={big} result={result} standing={PASSING} selectedNodeId="node:N122" />);
+    expect(pageText()).toBe("Nodes 101–123 of 123");
+    fireEvent.click(screen.getByTestId("displacement-extremes-page-previous"));
+    fireEvent.click(screen.getByTestId("displacement-extremes-page-previous"));
+    expect(pageText()).toBe("Nodes 1–50 of 123");
+    view.rerender(<DisplacementExtremesPanel model={big} result={result} standing={PASSING} selectedNodeId="node:N122" onSelectNode={() => undefined} />);
+    view.rerender(<DisplacementExtremesPanel model={big} result={result} standing={PASSING} selectedNodeId="node:N122" testIdPrefix="displacement-extremes" />);
+    expect(pageText()).toBe("Nodes 1–50 of 123");
+    fireEvent.change(screen.getByTestId("displacement-extremes-sort"), { target: { value: "ux" } });
+    fireEvent.change(screen.getByTestId("displacement-extremes-sort"), { target: { value: "model" } });
+    expect(pageText()).toBe("Nodes 1–50 of 123");
   });
 
   it("shows node names as text when no selection handler is given", () => {

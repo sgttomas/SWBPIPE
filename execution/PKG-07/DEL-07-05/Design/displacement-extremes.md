@@ -62,9 +62,14 @@ and fails if the two lists differ.
   restate the solver's inference, so such a support's kind is "Family not stated".
 - A stated value outside the enumeration (a preserved source value) is shown as stated, for
   example `"strut" (as stated)`.
-- **Hangers.** The filter also offers "Hangers" for nodes with a support whose family is one of
-  the three hanger families, or whose `hanger.hanger_type` names one. The report already
-  identifies a constant-effort support from either member (`ReportPanel.tsx`).
+- **Hangers.** The filter also offers "Hangers" for nodes with a support the report treats as a
+  spring hanger or constant-effort support. The rule is the report's, `isSpringHangerSupport` in
+  `apps/desktop/src/features/report/springHangerSupport.ts`, which the report's spring hanger
+  evidence (`ReportPanel.tsx`) and its review rows and provenance (`renderableReportInput.ts`)
+  also call. A support counts when its `family` or its `hanger.hanger_type` is
+  `variable_spring_hanger` or `constant_effort_support`. Under this rule `spring_hanger` does not
+  count, by either member, so such a support is listed under its family, "Spring hanger", and not
+  under "Hangers". Whether it should count is open (§10).
 - A nonlinear support's entry in the supports column adds its stated behavior and DOF (for
   example "Nonlinear support (gap, UY)"). The filter does not split nonlinear behaviors (§10).
 
@@ -164,13 +169,23 @@ when sorted.
 The view lists every filtered node. The panel renders one page of `DISPLACEMENT_EXTREMES_PAGE` =
 50 node rows, with Previous page and Next page buttons and a polite live line "Nodes i–j of n". A
 page renders at most 50 rows of 14 cells (node, supports and 12 extremes), whatever the model's
-size. A new filter, sort or case choice returns to the first page. When the session's selection is
-a node, the panel moves to that node's page once each time the selection changes.
+size. A new filter, sort or case choice returns to the first page.
 
-The derivation visits the result rows once to count the cases and once to index the movement rows,
-which is O(R). The view visits each filtered node's six components over the chosen cases, which is
-O(N × C × 6), plus a sort of O(N log N). On the 10,000-node scale that is about 60,000 value visits
-per case per control change, with no rendering beyond the page.
+When the session's selection is a node, the panel moves to that node's page once each time the
+selection changes. The move waits until the node's row can be shown: there is a result with
+movement rows, at least one admitted case is chosen, and the current filter lists the node.
+Until then the selection stays pending. A selection made before results exist, or while the
+filter hides the node or no case is chosen, therefore shows its page when the row appears. While
+the derivation is unavailable (no result, mechanics not solved, no nodes or no movement rows),
+the session's selection is held pending again, so a result that returns shows its selection's
+page. Once the move is made, paging is the user's: only a new selection, or a result that
+returns after none was available, moves the page to the selection again.
+
+The derivation is linear in the result-row count R: it scans `result.results` for movement rows,
+`supportLoadCases` scans them again for the case list, and the kept movement rows are then
+indexed by case and node. The view visits each filtered node's six components over the chosen
+cases, which is O(N × C × 6), plus a sort of O(N log N). On the 10,000-node scale that is about
+60,000 value visits per case per control change, with no rendering beyond the page.
 
 ## 6. Display rule, placement and interaction
 
@@ -227,7 +242,7 @@ export function displacementExtremesView(data: DisplacementExtremes, options: {
 // DisplacementExtremesPanel.tsx
 export function DisplacementExtremesPanel(props: {
   model: PreviewModel; result: MechanicsResult | null; standing: ResultOverlayStanding | null | undefined;
-  selectedNodeId?: string | null;              // marked, and its page is shown when it changes
+  selectedNodeId?: string | null;              // marked; its page is shown once per change (§5.4)
   onSelectNode?: (nodeId: string) => void;
   testIdPrefix?: string;                       // default "displacement-extremes"
 }): JSX.Element;
@@ -260,8 +275,16 @@ no limit and compares nothing with one, and it writes nothing.
   display rule in cells, titles and headers with no stored value at full precision in the markup;
   per-cell units when a column's units differ; the case chooser with withheld and envelope reasons;
   the no-admitted-case state; the filter and the sort with `aria-sort`; paging and its bound;
-  selecting a node by click and keyboard; the selected-node mark and its page; a custom test-id
-  prefix; and one derivation per input identity.
+  selecting a node by click and keyboard; the selected-node mark and its page; a selection made
+  before results exist (a 123-node model then shows nodes 101–123), changed while results are
+  absent, hidden by the filter or made while no case is chosen, each shown when its row appears;
+  manual paging kept after the move; a custom test-id prefix; and one derivation per input identity.
+- `apps/desktop/src/features/report/springHangerSupport.test.ts` pins the shared hanger rule over
+  every schema `SupportFamily` value and an absent, null, empty and unknown family, crossed with
+  every `SpringHanger.hanger_type` value, no hanger record, a record without a type and an empty
+  and unknown type. The shared function equals the report's predicate as it stood inline, A8's
+  support flag and "Hangers" filter give the same answer for every support, and the report's two
+  files call the shared function and keep no inline copy.
 - Native smoke (`apps/desktop/native-smoke/driver.js`, `run.mjs`): structure only, no values, and
   the committed `expected.json` is unchanged. After each solve the panel is present, and either it
   lists node rows with twelve extreme cells each and a page line, or no case is admitted and it
@@ -278,3 +301,13 @@ no limit and compares nothing with one, and it writes nothing.
 - **Display units.** The panel could follow the session's display-unit preference, as A2 and A3
   could.
 - **Nodes beyond the model's list.** Rows of such nodes are counted, not shown.
+- **Whether `spring_hanger` is a hanger.** "Hangers" follows the report's rule; whether
+  `spring_hanger` should count is open. The schema lists `spring_hanger` in both `SupportFamily`
+  and `SpringHanger.hanger_type`. The support form offers it and the applier admits it beside the
+  other two hanger spellings. The solver treats it as a variable spring hanger
+  (`is_variable_spring_hanger` in `core/product_physics/src/lib.rs`) and emits
+  `spring_hanger_user_input_review` rows for it, but the report's hanger evidence leaves such a
+  support out. The solver also reads `hanger.hanger_type` first and falls back to `family`, where
+  the report accepts either member. A change would alter the report's hanger evidence, review
+  rows and provenance as well as this filter, so it is a report change outside A8. The shared
+  function keeps the two surfaces equal meanwhile.
