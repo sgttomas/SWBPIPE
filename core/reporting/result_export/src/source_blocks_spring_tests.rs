@@ -2,7 +2,8 @@
 //! (`source_blocks.rs`: `solver_spring_support`, `solver_support_hanger_type`,
 //! `solver_constant_effort_support`, `solver_built_support`). They live here,
 //! not in `source_blocks.rs`, because that file's test suffix is audited as
-//! closed (`product_physics` `retained_memory_law_tests`).
+//! closed (`product_physics` `retained_memory_law_tests`), and are declared
+//! from `arc_evidence.rs`, which no retained-pricing model pins.
 use crate::source_blocks::{solver_constant_effort_support, solver_spring_support, supports, COMPONENTS};
 use serde_json::{json, Value};
 use std::collections::HashMap;

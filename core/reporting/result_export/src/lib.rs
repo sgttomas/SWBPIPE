@@ -1702,6 +1702,3 @@ pub mod source_blocks;
 pub mod retained_precision;
 pub mod reader_verdict;
 pub mod component_body;
-
-#[cfg(test)]
-mod source_blocks_spring_tests;
