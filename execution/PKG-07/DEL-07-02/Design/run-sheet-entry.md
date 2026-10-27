@@ -2,7 +2,8 @@
 
 **Basis:** main `187b67bb6b` (2026-10-27). Design only; no product code.
 Revision 5, after Codex reviews r1 (`ebd9660fa1`), r2 (`3bfc23653a`), r3
-(`7cd24fb5b1`) and r4 (`28860397e2`).
+(`7cd24fb5b1`) and r4 (`28860397e2`). Codex r5 passed it at `6a26ef95b8`, and
+Agent 0 decided O1–O10 and the two S2 session changes (§3.6, §8).
 Survey item B1 (`execution/_Coordination/PROPOSAL_2026-10-26_FEATURE_SURVEY.md`
 §Bundle B), adopted design-first under the owner's 2026-10-27 delegation
 (`loop/LOOP_INIT.md`). It serves FR-GUI-004 (`docs/PRD.md:503`, add and connect
@@ -645,6 +646,10 @@ other surfaces, Undo, Redo and opened states.
   row `detached`.
 
 **Retiring stale registrations** (a session change, in S2's scope).
+
+**Adopted by Agent 0.** The two cross-producer session changes below are
+adopted (owner's 2026-10-27 delegation): retiring stale queued batches from
+every producer (step 1), and Prepare/Publish/Notify publication (step 2).
 - Today a queued batch whose basis revision is no longer current shows
   disabled Validate and Apply buttons (`BatchReviewPanel.tsx:68-77`).
   `handleRunOperationBatch` returns silently on a revision mismatch
@@ -672,6 +677,10 @@ other surfaces, Undo, Redo and opened states.
        - So a throw part-way leaves a partial state. For example, an undo
          checkpoint is pushed with no model change, and the catch (1400-1401)
          restores nothing.
+       - A separate standalone PR fixes this gap now, ahead of the B1 slices:
+         history is queued before a `commitModel` that can fail
+         (`workspaceSession.ts:1367-1372`). S2 generalizes that fix to every
+         publish path.
      - **The change.** S2 splits every model-publishing path into three
        phases. The paths are batch apply, single-intent apply, draft-review
        apply, Undo and Redo.
@@ -699,6 +708,33 @@ other surfaces, Undo, Redo and opened states.
           These are view notifications, not state of record. Report-package
           invalidation and the solve gates become state writes in Publish,
           so no state of record depends on a callback.
+     - **Implementation constraints** (Codex r5):
+       - **What Publish covers:**
+         - model, assignment and revision state;
+         - the commit, request and publication refs;
+         - persistence and hash ownership;
+         - the operation-busy state and draft registrations;
+         - history, receipts and review context;
+         - batch registration and the queue;
+         - solve and report invalidation;
+         - the staged sheet state.
+       - **The no-throw claim is narrow.** It holds only for setters given
+         prepared values, and for plain refs the session owns. Existing
+         updater bodies that clone, hash, parse or do other fallible work
+         move to Prepare. Updaters in Publish only place prepared values.
+       - **Caller-supplied outcomes.** `ownedOutcome.current`
+         (`handleApplyIntent`'s optional argument) may be an accessor
+         supplied by its caller. Assigning it is outside Publish: it runs in
+         Notify, with its external code caught there.
+       - **`commitModel` is split.** The existing function cannot stay
+         intact inside Publish. Its fallible work and external callbacks go
+         to Prepare and Notify, and only its prepared writes stay in Publish.
+       - **Batching.** The desktop uses React 19 (`apps/desktop/package.json`)
+         with `createRoot` (`src/main.tsx:12`), which
+         batches state updates automatically, including in async
+         continuations after an `await`. So Publish's setters land in one
+         render without an explicit batching wrapper, provided Publish
+         itself contains no `await`.
   3. In `handleRunOperationBatch`, every return after the registration lookup
      that produces no outcome, and is not covered by step 1, emits
      `abandoned` with its reason. These are the returns where
@@ -1039,6 +1075,11 @@ scrutiny).
     `workspaceSession.ts`), which the bend form's intents take.
   - `PREVIEW_REQUIRED_REASON` (`BatchReviewPanel.tsx:34`) names the operation
     kind instead of "a reconnect".
+  - **Behaviour change, accepted by Agent 0 (O6).** The existing bend form
+    (`features/bend-authoring/`) now needs a preview before Apply. The S2
+    PR states this in its body and in the deliverable text that describes
+    the bend form. That text belongs to DEL-07-03 and DEL-03-03, which list
+    the form among their code paths.
   - Tests:
     - a sheet batch with a bend, a bend-form intent, and a requeued
       single-intent bend batch (`App.tsx:499-500`);
@@ -1175,19 +1216,22 @@ scrutiny).
 
 S1 lands first. S2 depends on S1, S3 on S2, and S4 on S2.
 
-## 8. Open choices (Agent 0)
+## 8. Decisions (Agent 0)
 
-| # | Choice | Recommendation | Consequence |
+Each choice below was decided by Agent 0 under the owner's 2026-10-27
+delegation and adopted as recommended. The reasons are kept.
+
+| # | Choice | Decision | Consequence |
 |---|---|---|---|
-| O1 | Applied-row edit: keep downstream stored positions, or shift downstream nodes with the edited one | Keep (§3.4). Later, an explicit "Shift following rows" command on the selected downstream pipes through the existing `transform_pipe_run` translate, previewed. | No implicit geometry moves. A mistyped length in an applied run needs one extra explicit command. |
-| O2 | Should k and k source inherit between bend rows? | No. Use explicit Fill down. | Holds the "k is user data, never suggested or defaulted" rule (`bend_authoring.rs:5-7`). One keystroke per bend run. |
-| O3 | Derive guide and line-stop restraints from an axis-aligned run, or fill all six for an anchor | No in v1. Restraints are typed, with `*` for all six. | Holds the coverage record's "No inferred restraints". Allowing it would revise that record and fill shown, code-derived values; V would still need typed restraints, since the model has no vertical axis. |
-| O4 | Add the kernel orientation check (as reconnect's R7) to `connect_pipe_run`, so near-parallel orientation refuses at authoring and not at solve | Yes, as its own applier PR with regression tests. | Changes refusals for existing connect batches (persistence risk class). Without it, the sheet catches only exactly parallel orientations. |
-| O5 | Queue all draft rows or only the valid ones | All or nothing. | Matches the atomic batch. One refused row blocks the queue, and the reason names it. |
-| O6 | Require preview for every batch or intent containing `insert_bend_at_corner` | Yes, as S2's prerequisite (§7). | The bend moves the corner to tangent points the user did not type, so the review shows them before apply. The bend form's intents are gated too, which adds one preview step to that existing path. |
-| O7 | Operating-condition column | Defer to C1. | B1 needs no version step. Rows inherit conditions once C1's member exists. |
-| O8 | Persist sheets, so a sheet reopens as a sheet | No. Rows are transient; a later "load run from model" view (with B4) can derive rows from stored geometry. | Persisting would need workspace persistence, kept beside the project and not necessarily in the model document. It needs a model-document member, and a version step, only if sheets are to travel with the model. |
-| O9 | Default numbering `node:N`/`pipe:P`, start 10, step 10, counter-based | As designed. | Ids never renumber; insertion order is not encoded in ids. Labels remain free for the user's scheme. |
-| O10 | Consecutive bends (§3.3) | Allow them, with the id-only record projection. | The builder mirrors three structural effects (append, `section_ref`, corner replacement) and computes no number. A drift is refused by the engine and pinned by S1. The alternatives are refusing consecutive bends, which loses common geometry, or an engine-backed projection, which needs an acceptance-shaped scratch apply or a change to DEL-16-06's validate contract. |
+| O1 | Applied-row edit: keep downstream stored positions, or shift downstream nodes with the edited one | Decided by Agent 0 (owner's 2026-10-27 delegation): adopted as recommended. Keep (§3.4). Later, an explicit "Shift following rows" command on the selected downstream pipes through the existing `transform_pipe_run` translate, previewed. | No implicit geometry moves. A mistyped length in an applied run needs one extra explicit command. |
+| O2 | Should k and k source inherit between bend rows? | Decided by Agent 0 (owner's 2026-10-27 delegation): adopted as recommended. No. Use explicit Fill down. | Holds the "k is user data, never suggested or defaulted" rule (`bend_authoring.rs:5-7`). One keystroke per bend run. |
+| O3 | Derive guide and line-stop restraints from an axis-aligned run, or fill all six for an anchor | Decided by Agent 0 (owner's 2026-10-27 delegation): adopted as recommended. No in v1. Restraints are typed, with `*` for all six. | Holds the coverage record's "No inferred restraints". Allowing it would revise that record and fill shown, code-derived values; V would still need typed restraints, since the model has no vertical axis. |
+| O4 | Add the kernel orientation check (as reconnect's R7) to `connect_pipe_run`, so near-parallel orientation refuses at authoring and not at solve | Decided by Agent 0 (owner's 2026-10-27 delegation): adopted as recommended. Yes, as its own applier PR with regression tests. Agent 0's conditions for that PR: (a) it lists exactly which previously accepted connect batch shapes are now refused, and why each is wrong; (b) it includes a regression test that fails at base; (c) it shows that every stored fixture and model that replays `connect_pipe_run` still passes, or lists each one that fails and why; (d) it gets a separate Codex review of the refusal change. If an `apps/desktop/native-smoke/expected.json` change would be needed, the PR stops and reports it. | Changes refusals for existing connect batches (persistence risk class). Without it, the sheet catches only exactly parallel orientations. |
+| O5 | Queue all draft rows or only the valid ones | Decided by Agent 0 (owner's 2026-10-27 delegation): adopted as recommended. All or nothing. | Matches the atomic batch. One refused row blocks the queue, and the reason names it. |
+| O6 | Require preview for every batch or intent containing `insert_bend_at_corner` | Decided by Agent 0 (owner's 2026-10-27 delegation): adopted as recommended. Yes, as S2's prerequisite (§7). Gating the existing bend form behind preview is accepted; S2 states the behaviour change in its PR body and in the deliverable text that describes the bend form (§7 S2). | The bend moves the corner to tangent points the user did not type, so the review shows them before apply. The bend form's intents are gated too, which adds one preview step to that existing path. |
+| O7 | Operating-condition column | Decided by Agent 0 (owner's 2026-10-27 delegation): adopted as recommended. Defer to C1. C1's brief must carry the operating-condition column for the run sheet (§1.2). | B1 needs no version step. Rows inherit conditions once C1's member exists. |
+| O8 | Persist sheets, so a sheet reopens as a sheet | Decided by Agent 0 (owner's 2026-10-27 delegation): adopted as recommended. No. Rows are transient; a later "load run from model" view (with B4) can derive rows from stored geometry. | Persisting would need workspace persistence, kept beside the project and not necessarily in the model document. It needs a model-document member, and a version step, only if sheets are to travel with the model. |
+| O9 | Default numbering `node:N`/`pipe:P`, start 10, step 10, counter-based | Decided by Agent 0 (owner's 2026-10-27 delegation): adopted as recommended. As designed. | Ids never renumber; insertion order is not encoded in ids. Labels remain free for the user's scheme. |
+| O10 | Consecutive bends (§3.3) | Decided by Agent 0 (owner's 2026-10-27 delegation): adopted as recommended. Allow them, with the id-only record projection. | The builder mirrors three structural effects (append, `section_ref`, corner replacement) and computes no number. A drift is refused by the engine and pinned by S1. The alternatives are refusing consecutive bends, which loses common geometry, or an engine-backed projection, which needs an acceptance-shaped scratch apply or a change to DEL-16-06's validate contract. |
 
-Codex review r1 agreed with O1–O9. Agent 0 decides all ten.
+Codex review r1 agreed with O1–O9 and r2 with O10; r5 passed the design.
