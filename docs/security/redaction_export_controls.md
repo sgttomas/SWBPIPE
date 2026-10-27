@@ -72,6 +72,11 @@ release intent cannot enable export in them: the controls refuse
 local-first route admission refuses it there with `block_storage` /
 `USER_RELEASE_ROUTE_REQUIRED` on every route; an absent or false flag leaves
 the route evidence unchanged. No route uses `user_released_report` yet.
+In `user_released_report` only, the redaction walk decides by step 13 each
+value it reaches outside every metadata-bearing object (`block_export` /
+`USER_RELEASE_VALUE_UNBOUND`, its value redacted), so no value is left
+undecided there; a value inside a metadata-bearing object takes that object's
+decision. The five existing contexts keep such a value as before.
 
 ## Protected Classes
 
@@ -183,7 +188,7 @@ entry for `user_released_report`. The generic route exporter
 by path tokens, refuses that context on every route and route 010 in every
 context, before any projection: it raises
 `USER_RELEASE_ROUTE_REQUIRED`, as it raises for an unsupported context, after
-the release-intent check. The release projector first
+the user-release intent check. The user-release projector first
 decides every enclosing object of the request and of the model by the
 professional-claim, network, SQL, storage-bypass, secret, payload,
 concrete-path, protected and quarantined/rejected checks, exactly as the

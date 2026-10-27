@@ -330,6 +330,26 @@ def _walk(
                 output_list.append(child)
         return output_list
 
+    # §3.2 step 13 in ``user_released_report`` only: a value the walk reaches
+    # outside every value-bearing object states no metadata, so it is decided as
+    # an item that states nothing (``block_export`` / ``USER_RELEASE_VALUE_UNBOUND``)
+    # and its value is redacted.  It is never left undecided there.  The five
+    # existing contexts keep the value as today.
+    if export_context == USER_RELEASED_REPORT_CONTEXT:
+        decision, finding = _classify(
+            {},
+            path=path,
+            export_context=export_context,
+            explicit_local_private_intent=explicit_local_private_intent,
+            explicit_user_release_intent=explicit_user_release_intent,
+            decision_index=len(decisions) + 1,
+            finding_index=len(findings) + 1,
+        )
+        decisions.append(decision)
+        if finding is not None:
+            findings.append(finding)
+        return REDACTED_VALUE
+
     return value
 
 

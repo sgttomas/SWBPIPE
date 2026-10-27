@@ -1412,6 +1412,84 @@ def test_review_payload_marker_and_private_class_variants_are_refused_by_the_gen
         assert canonical_text(payload) == snapshot
 
 
+# Manager decision after Codex r2: in ``user_released_report`` the walk decides
+# every value it reaches outside a value-bearing object by step 13 (§3.2).
+UNBOUND = ("block_export", "USER_RELEASE_VALUE_UNBOUND", False)
+
+
+def _released(payload, intent=True):
+    return redact_export_payload(
+        payload, export_context=USER_RELEASED_REPORT, explicit_user_release_intent=intent
+    )
+
+
+def _decided(result):
+    return [(d.path, d.action, d.reason_code, d.source_metadata_present) for d in result.decisions]
+
+
+@pytest.mark.parametrize("intent", (True, False))
+def test_user_released_walk_blocks_the_unlabelled_review_payload(intent):
+    payload = {"project_ref": {"data": "INVENTED_RAW_VALUE"}}
+    result = _released(payload, intent)
+    assert result.blocked is True
+    assert _decided(result) == [("$.project_ref.data", *UNBOUND)]
+    assert [(f.code, f.severity) for f in result.findings] == [("USER_RELEASE_VALUE_UNBOUND", "BLOCKING")]
+    assert "INVENTED_RAW_VALUE" not in canonical_text(result.payload)
+    assert payload == {"project_ref": {"data": "INVENTED_RAW_VALUE"}}
+
+
+def test_user_released_walk_decides_unlabelled_leaves_in_parents_and_arrays():
+    result = _released(
+        {"section": {"rows": [{"data": "INVENTED_A"}, 2, None, [True, {"deeper": "INVENTED_B"}]], "empty": {}, "none": []}}
+    )
+    assert result.blocked is True
+    assert _decided(result) == [
+        ("$.section.rows[0].data", *UNBOUND),
+        ("$.section.rows[1]", *UNBOUND),
+        ("$.section.rows[2]", *UNBOUND),
+        ("$.section.rows[3][0]", *UNBOUND),
+        ("$.section.rows[3][1].deeper", *UNBOUND),
+    ]
+    assert result.payload == {
+        "section": {
+            "rows": [{"data": REDACTED_VALUE}, REDACTED_VALUE, REDACTED_VALUE, [REDACTED_VALUE, {"deeper": REDACTED_VALUE}]],
+            "empty": {},
+            "none": [],
+        }
+    }
+    for scalar in ("INVENTED_TOP", 0, False, None):
+        assert _decided(_released(scalar)) == [("$", *UNBOUND)]
+
+
+def test_user_released_walk_leaves_a_labelled_parent_to_its_own_decision():
+    labelled = {**private_item(), "rows": [{"data": "INVENTED_NESTED"}, 3]}
+    alone = _released({"section": labelled})
+    assert alone.blocked is False
+    assert [(d.path, d.reason_code) for d in alone.decisions] == [("$.section", "USER_RELEASED_PROJECT_DATA")]
+    assert alone.payload == {"section": labelled}
+    mixed = _released({"section": labelled, "loose": {"data": "INVENTED_LOOSE"}})
+    assert mixed.blocked is True
+    assert [(d.path, d.reason_code) for d in mixed.decisions] == [
+        ("$.section", "USER_RELEASED_PROJECT_DATA"),
+        ("$.loose.data", "USER_RELEASE_VALUE_UNBOUND"),
+    ]
+
+
+def test_user_released_walk_decides_each_labelled_corpus_case_by_its_item_alone():
+    cases = [c for c in load_json(PARITY_FIXTURE_PATH)["cases"] if c["export_context"] == USER_RELEASED_REPORT]
+    assert len(cases) == 36
+    for case in cases:
+        result = _released({"item": case["item"]}, case["explicit_user_release_intent"])
+        assert [(d.path, d.reason_code) for d in result.decisions] == [("$.item", case["expected"]["reason_code"])], case["case_id"]
+
+
+def test_existing_contexts_keep_an_unlabelled_value_undecided_as_today():
+    for context in EXISTING_CONTEXTS:
+        result = redact_export_payload({"project_ref": {"data": "INVENTED_RAW_VALUE"}}, export_context=context)
+        assert result.decisions == ()
+        assert result.payload == {"project_ref": {"data": "INVENTED_RAW_VALUE"}}
+
+
 if __name__ == "__main__":
     test_schema_is_strict_and_traceable()
     test_schema_vocabularies_cover_required_controls()

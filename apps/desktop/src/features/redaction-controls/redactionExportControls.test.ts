@@ -1366,3 +1366,79 @@ describe("existing_contexts_preserve_raw_intent_named_members (§3.3, §6)", () 
     expect(controlled.payload).toBe(html);
   });
 });
+
+describe("user-released context: the walk decides every unlabelled value by step 13 (§3.2)", () => {
+  const unbound = { action: "block_export", reason_code: "USER_RELEASE_VALUE_UNBOUND", source_metadata_present: false };
+  const released = (payload: unknown, explicitUserReleaseIntent = true) =>
+    redactExportPayload(payload, { exportContext: USER_RELEASED_REPORT_CONTEXT, explicitUserReleaseIntent });
+
+  it("blocks the review's unlabelled payload, with and without the wrapper's intent", () => {
+    for (const intent of [true, false]) {
+      const payload = { project_ref: { data: "INVENTED_RAW_VALUE" } };
+      const run = released(payload, intent);
+      expect(run.blocked).toBe(true);
+      expect(run.decisions).toHaveLength(1);
+      expect(run.decisions[0]).toMatchObject({ path: "$.project_ref.data", ...unbound });
+      expect(run.findings.map((finding) => [finding.code, finding.severity])).toEqual([["USER_RELEASE_VALUE_UNBOUND", "BLOCKING"]]);
+      expect(JSON.stringify(run.payload)).not.toContain("INVENTED_RAW_VALUE");
+      expect(payload).toEqual({ project_ref: { data: "INVENTED_RAW_VALUE" } });
+    }
+  });
+
+  it("decides each unlabelled leaf under unlabelled parents and in arrays, of every scalar kind", () => {
+    const run = released({ section: { rows: [{ data: "INVENTED_A" }, 2, null, [true, { deeper: "INVENTED_B" }]], empty: {}, none: [] } });
+    expect(run.blocked).toBe(true);
+    expect(run.decisions.map((decision) => decision.path)).toEqual([
+      "$.section.rows[0].data",
+      "$.section.rows[1]",
+      "$.section.rows[2]",
+      "$.section.rows[3][0]",
+      "$.section.rows[3][1].deeper"
+    ]);
+    expect(run.decisions.every((decision) => decision.action === unbound.action && decision.reason_code === unbound.reason_code)).toBe(true);
+    expect(run.payload).toEqual({
+      section: { rows: [{ data: REDACTED_VALUE }, REDACTED_VALUE, REDACTED_VALUE, [REDACTED_VALUE, { deeper: REDACTED_VALUE }]], empty: {}, none: [] }
+    });
+    for (const scalar of ["INVENTED_TOP", 0, false, null]) {
+      expect(released(scalar).decisions).toEqual([expect.objectContaining({ path: "$", ...unbound })]);
+    }
+  });
+
+  it("leaves a leaf under a labelled parent to the parent's decision, beside an unlabelled sibling that blocks", () => {
+    const labelled = { ...privateItem(), rows: [{ data: "INVENTED_NESTED" }, 3] };
+    const alone = released({ section: labelled });
+    expect(alone.blocked).toBe(false);
+    expect(alone.decisions).toHaveLength(1);
+    expect(alone.decisions[0]).toMatchObject({ path: "$.section", reason_code: "USER_RELEASED_PROJECT_DATA" });
+    expect(alone.payload).toEqual({ section: labelled });
+
+    const mixed = released({ section: labelled, loose: { data: "INVENTED_LOOSE" } });
+    expect(mixed.blocked).toBe(true);
+    expect(mixed.decisions.map((decision) => [decision.path, decision.reason_code])).toEqual([
+      ["$.section", "USER_RELEASED_PROJECT_DATA"],
+      ["$.loose.data", "USER_RELEASE_VALUE_UNBOUND"]
+    ]);
+  });
+
+  it("decides every labelled corpus case of the new context by its item alone, as before", () => {
+    const cases = corpus.cases.filter((parityCase) => parityCase.export_context === USER_RELEASED_REPORT_CONTEXT);
+    expect(cases).toHaveLength(36);
+    for (const parityCase of cases) {
+      const run = redactExportPayload(
+        { item: parityCase.item },
+        { exportContext: USER_RELEASED_REPORT_CONTEXT, explicitUserReleaseIntent: parityCase.explicit_user_release_intent }
+      );
+      expect(run.decisions.map((decision) => [decision.path, decision.reason_code]), parityCase.case_id).toEqual([
+        ["$.item", parityCase.expected.reason_code]
+      ]);
+    }
+  });
+
+  it("keeps an unlabelled value as today in each of the five existing contexts", () => {
+    for (const exportContext of EXPORT_CONTEXTS) {
+      const run = redactExportPayload({ project_ref: { data: "INVENTED_RAW_VALUE" } }, { exportContext });
+      expect(run.decisions).toEqual([]);
+      expect(run.payload).toEqual({ project_ref: { data: "INVENTED_RAW_VALUE" } });
+    }
+  });
+});

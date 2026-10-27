@@ -2137,8 +2137,8 @@ unknown-metadata branch:
 
 10. privacy in the non-project private set (§2.7), whatever the redistribution
     status (`unknown` included) → `redact_value` / `PRIVATE_DATA_REDACTED`. On
-    the lossless route this withholds the payload (`controlRouteExport`,
-    `:968-969`), so the save is refused;
+    route 010 the user-release projector is lossless, so this withholds the
+    payload and the save is refused;
 11. privacy `private_project_data`, whatever the redistribution status: with
     the wrapper's user-release intent → `warning_only` /
     `USER_RELEASED_PROJECT_DATA`; without it → `block_export` /
@@ -2148,7 +2148,12 @@ unknown-metadata branch:
     → `include` / `SAFE_PUBLIC_METADATA` (or `SAFE_INVENTED_PUBLIC_EXAMPLE`);
 13. anything else (missing metadata; unknown, `TBD` or null privacy or
     redistribution; `private_only` with a non-private privacy; any
-    unrecognized value) → `block_export` / `USER_RELEASE_VALUE_UNBOUND`.
+    unrecognized value) → `block_export` / `USER_RELEASE_VALUE_UNBOUND`. The
+    redaction walk (`redactExportPayload` / `redact_export_payload`) decides
+    by this step, in this context only, each value it reaches outside every
+    metadata-bearing object, and redacts it; a value inside such an object
+    takes that object's decision. No value is left undecided in the context.
+    The five existing contexts keep such a value as today.
 
 For the five existing contexts, step 10 onward is today's sequence, unchanged:
 missing metadata, unknown redistribution, unknown privacy, the safe include,
@@ -2216,6 +2221,15 @@ Route tables and local-first admission:
   `explicitUserReleaseIntent: true` with any context other than
   `user_released_report` (an exception, as `assertContext` throws,
   `:665-669`). The flag therefore cannot enable export in another context.
+- **The generic route exporters refuse the context and the route (Codex r2
+  of the r1 slice).** `controlRouteExport` and `control_route_export` throw
+  `USER_RELEASE_ROUTE_REQUIRED` for `user_released_report` on every route and
+  for route 010 in every context, after the context and user-release intent
+  checks and before any projection, as they throw for an unsupported context.
+  Their path-token projector would admit what the user-release screen
+  refuses. The user-release projector is therefore the only entry for the
+  context and the route. The redaction walk keeps the context for the shared
+  corpus and decides every unlabelled value there by step 13 (§3.2).
 - The Rust mirror (`core/runner/headless/src/redaction_binding.rs:166,216-218`)
   implements the same rule so the shared corpus
   (`fixtures/redaction_export_controls/cases.json`, read at `:702-740`) holds.

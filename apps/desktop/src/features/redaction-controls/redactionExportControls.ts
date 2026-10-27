@@ -834,6 +834,26 @@ function walk(
     });
     return output;
   }
+  // §3.2 step 13 in `user_released_report` only: a value the walk reaches outside every
+  // value-bearing object states no metadata, so it is decided as an item that states
+  // nothing (`block_export` / `USER_RELEASE_VALUE_UNBOUND`) and its value is redacted. It is
+  // never left undecided there. The five existing contexts keep the value as today.
+  if (args.exportContext === USER_RELEASED_REPORT_CONTEXT) {
+    const { decision, finding } = classify(
+      {},
+      {
+        path: args.path,
+        exportContext: args.exportContext,
+        explicitLocalPrivateIntent: args.explicitLocalPrivateIntent,
+        explicitUserReleaseIntent: args.explicitUserReleaseIntent,
+        decisionIndex: args.decisions.length + 1,
+        findingIndex: args.findings.length + 1
+      }
+    );
+    args.decisions.push(decision);
+    if (finding !== null) args.findings.push(finding);
+    return REDACTED_VALUE;
+  }
   return value;
 }
 
@@ -1138,7 +1158,7 @@ function materializeRouteValue(value: unknown): unknown {
  * `user_released_report` context and route `DREP-PACKAGE-USER-RELEASE-010` are refused
  * outright, in every pairing and before any projection, as `assertContext` refuses a context
  * the exporter does not support: its path-token projector labels a value by its key, so it
- * would admit what the release screen refuses (markers on enclosing objects, non-project
+ * would admit what the user-release screen refuses (markers on enclosing objects, non-project
  * private classes). `controlUserReleasedReportPackageRequest` is the only entry for the
  * user-released context. */
 function assertGenericRouteExport(routeId: unknown, exportContext: unknown): void {
