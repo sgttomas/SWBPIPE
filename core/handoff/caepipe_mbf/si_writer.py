@@ -29,6 +29,7 @@ STANDARD_GRAVITY = 9.80665  # m/s^2; converts SWBPIPE weight per length to CAEPI
 MBF_VERSION = "15.10"
 # The model document version this writer reads (DEL-02-01 Design model-document-0.8.0.md).
 MODEL_VERSION = "0.8.0"
+RETIRED_MODEL_VERSIONS = ("0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0")
 SUSTAINED_LABEL = "Sustained (W+P)"
 EXPANSION_LABEL = "Expansion (T1)"
 DOFS = ("UX", "UY", "UZ", "RX", "RY", "RZ")
@@ -237,8 +238,14 @@ class _Writer:
 
     def check_document(self) -> None:
         version = self.model.get("schema_version")
-        if version != MODEL_VERSION:
-            self.diag("MBF-SI-SCHEMA-VERSION", "warning", "model.schema_version",
+        # Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.1): only the current document is read;
+        # a retired one is refused by name with the solve's code and text, any other version as not readable.
+        if version in RETIRED_MODEL_VERSIONS:
+            self.diag("MODEL_SCHEMA_VERSION_RETIRED", "error", "model.schema_version",
+                      f"model document {version} is retired; re-author it as model document {MODEL_VERSION} "
+                      "(a pressure-free model omits pressure_contract). Nothing is migrated.")
+        elif version != MODEL_VERSION:
+            self.diag("MBF-SI-SCHEMA-VERSION", "error", "model.schema_version",
                       f"model schema_version {version!r} is not {MODEL_VERSION}, the version this writer reads")
         if self.model.get("pressure_contract") is not None:
             self.refuse("MBF-SI-PRESSURE-UNSUPPORTED", "model.pressure_contract",

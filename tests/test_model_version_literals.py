@@ -53,7 +53,7 @@ READER_TOKEN_SITES = {
 # gate and message reads; any other literal holding the current version, or naming a
 # model version in words, is refused. Docstrings and comments are free text.
 PYTHON_VERSION_ROOTS = (ROOT / "tests" / "verifiers", ROOT / "tools" / "validation", ROOT / "tools" / "fixtures",
-                        ROOT / "core" / "handoff")
+                        ROOT / "core" / "handoff", ROOT / "core" / "project_persistence", ROOT / "core" / "product_preview")
 
 MODEL_WORDS = re.compile(r"(?i)\bmodel(?:[ _-]?(?:document|format|version|schema))*\s+v?0\.\d+\.\d+")
 VERSION = re.compile(r"^0\.\d+\.\d+$")
@@ -316,3 +316,19 @@ def test_the_python_scan_finds_a_stray_current_literal(tmp_path, monkeypatch):
     sample.write_text('MODEL_VERSION = "0.0.1"\n', encoding="utf-8")
     found, _ = python_version_literals()
     assert [kind for _, kind, _ in found] == ["MODEL_VERSION is not the current version"]
+
+
+def test_every_python_retired_list_is_the_rust_one():
+    """r6 (model document 0.8.0): the Python readers that refuse a retired model document by name (project
+    persistence, the preview service, the CAEPIPE SI writer, qualification) list exactly model_format.rs's retired
+    versions, so the next ripple fails here until each is re-checked."""
+    _, retired = model_versions()
+    found = {}
+    for path in python_files():
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for node in tree.body:
+            if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "RETIRED_MODEL_VERSIONS" for t in node.targets) \
+                    and isinstance(node.value, ast.Tuple) and all(isinstance(e, ast.Constant) for e in node.value.elts):
+                found[path.relative_to(ROOT).as_posix()] = [e.value for e in node.value.elts]
+    assert {"core/project_persistence/service.py", "core/product_preview/service.py", "core/handoff/caepipe_mbf/si_writer.py"} <= set(found)
+    assert {path: listed for path, listed in found.items() if listed != retired} == {}

@@ -153,6 +153,17 @@ document after the bump:
 | Browser-preview store (`projectService.ts`) | the TS evaluator's `retired_schema` refusal |
 | Saved model states (W-12, `model_states.rs` :2088, :2473) | Saving a 0.7.0 snapshot is refused. Opening or comparing a stored 0.7.0 state (`StateReadPurpose::Open` and `Compare`) is refused by `refuse_version`'s text. Rows are never rewritten. |
 | Retained and source readers (`physics_source.rs`, `retained_precision.rs` and their twins) | refused: they accept only the current version |
+| Model operations (`operation_applier` `run_with_context`: validate, apply and every batch step; wasm alike) | `MODEL_SCHEMA_VERSION_RETIRED` with the message above, blocking, before any change is checked or written (r6) |
+| Python project persistence (`core/project_persistence/service.py`: validate, create, save, open) | `MODEL_SCHEMA_VERSION_RETIRED`, blocking, with the desktop's text: the message above, then §3.3's note; nothing is written (r6) |
+| Python preview service (`core/product_preview/service.py` `validate_preview_model`) | `MODEL_SCHEMA_VERSION_RETIRED`, blocking; another non-current version `PREVIEW_SCHEMA_VERSION_UNSUPPORTED` (r6) |
+| CAEPIPE SI writer (`core/handoff/caepipe_mbf/si_writer.py`) | `MODEL_SCHEMA_VERSION_RETIRED` with the message above, status `refused`, no MBF text; another non-current version `MBF-SI-SCHEMA-VERSION`, now an error (r6) |
+
+Not gated, by design: the one document validator (`document_validator.rs`) judges a
+document's model-data slots whatever its version, and every caller that admits a
+document gates the version itself; the stored-document recovery export
+(`stored_model_document_export.rs`) writes a refused project's or state's stored
+bytes so that the user can re-author them; and the run and report readers that read
+a recorded run's own model (§3.2).
 
 ### 3.2 Stored work under the owner's ruling "0.8.0 a2"
 
@@ -178,6 +189,20 @@ This is the first version step since W-12's saved states and recorded runs
   Both stay as they are. 0.8.0 is purely additive (one optional member,
   absent from every 0.7.0 document), so a 0.7.0 run's results mean what they
   meant.
+- **The recorded table basis (Codex r6, F1).** The ripple's token edit moved
+  pressure-2's table digest (`3e2aac3c…` → `a47626ed…`), and a run record binds
+  its table by digest, so an ordinary pressure-2 run recorded at 0.7.0 failed
+  `ANALYSIS_SEMANTIC_CONTRACT_MISMATCH` and was refused for comparison. The two
+  tables differ only in the admitted-families sentence's version token; every
+  row, and so every row reading, is the same. The record validators
+  (`analysisRunCompatibility.ts` and `compatibility.py`,
+  `RECORDED_RUN_TABLE_BASES`) therefore read the 0.7.0-era digest as the
+  recorded basis of exactly the current pressure-2 table: the record and each
+  row must name it consistently, and any other digest is refused as before.
+  The record builder and the export bind only the current table, and no record
+  is rewritten. Regression: main's own pressure-2 record at `2e4748eada`
+  (`fixtures/persistence/recorded_model_0_7_0`) reads, displays with no finding
+  and is offered for comparison as a recorded revision; it failed before.
 - **The practical limit.**
   - Run history loads by the active project's id
     (`apps/desktop/src/features/history/useModelStateHistory.ts` :231). A
@@ -465,6 +490,11 @@ ripple lands joins 0.8.0 through Agent 0.
   project, read and compared under the existing gate; a tampered hash refused.
 - **Handoff.** An old package's integrity verifies, and its embedded model is
   refused by the solve and the open paths.
+- **r6 surfaces.** One regression each, failing before its fix: the 0.7.0 pressure-2
+  record read and recorded revision (TS and Python); the applier's validate, apply
+  and batch; Python persistence validate, create, save and open; the preview
+  service; the CAEPIPE SI writer. Every Python retired list equals
+  `model_format.rs`'s (`test_model_version_literals.py`).
 - **Literals.** The extended literal guard passes, and the audit list is
   reviewed.
 - **Leaf comparison.** 0 numeric, boolean or status differences outside the

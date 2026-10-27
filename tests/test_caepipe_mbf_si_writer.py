@@ -531,3 +531,27 @@ def test_bend_with_other_properties_than_its_incoming_straight_is_refused():
     model = bent_l()
     model["load_cases"][0]["primitive_loads"][1]["magnitude"] = q(90.0, "degC")
     assert_refused(render_caepipe_mbf_si(model, title="B"), "MBF-SI-BEND-UNSUPPORTED", "one layout row")
+
+
+# Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.1): the writer reads only the current model
+# document. A retired one is refused by name with the solve's code and text, and nothing is written; any other
+# non-current version is refused as MBF-SI-SCHEMA-VERSION.
+def test_a_retired_model_document_is_refused_by_name_and_nothing_is_written():
+    for version in ("0.7.0", "0.1.0"):
+        model = cantilever()
+        model["schema_version"] = version
+        result = render_caepipe_mbf_si(model, title="Invented retired cantilever")
+        assert (result.status, result.text) == ("refused", None), version
+        refusal = [d for d in result.diagnostics if d["code"] == "MODEL_SCHEMA_VERSION_RETIRED"]
+        assert refusal == [{"code": "MODEL_SCHEMA_VERSION_RETIRED", "severity": "error", "entity": "model.schema_version",
+                            "message": f"model document {version} is retired; re-author it as model document 0.8.0 (a pressure-free model omits pressure_contract). Nothing is migrated."}]
+
+
+def test_a_newer_or_unversioned_model_document_is_refused():
+    for version in ("0.9.0", None):
+        model = cantilever()
+        model["schema_version"] = version
+        result = render_caepipe_mbf_si(model, title="Invented newer cantilever")
+        assert (result.status, result.text) == ("refused", None), version
+        assert [d["severity"] for d in result.diagnostics if d["code"] == "MBF-SI-SCHEMA-VERSION"] == ["error"]
+    assert render_caepipe_mbf_si(cantilever(), title="Invented current cantilever").status == "written"
