@@ -223,6 +223,8 @@ type Props = {
   onClearVisibility?: () => void;
   onViewportInteractionStart?: (interaction: ViewportExposureInteraction) => void;
   onQueueIntent?: (intent: EditorOperationIntent) => void;
+  /** Opens Bulk change on the selection, for the menus' Change selected… (B2). */
+  onChangeSelected?: () => void;
   /** An operation is validating or applying (the inspector's Remove panel waits for it). */
   operationBusy?: boolean;
   onBoxSelection?: (
@@ -428,6 +430,7 @@ export function PipeViewport({
   onClearVisibility = () => {},
   onViewportInteractionStart = () => {},
   onQueueIntent,
+  onChangeSelected,
   operationBusy = false,
   onBoxSelection = () => Object.freeze({ orderedKeys: [], primaryKey: null, rangeAnchorKey: null, focusKey: null, preparationEpoch: 0 }),
   onSelect,
@@ -2398,7 +2401,8 @@ export function PipeViewport({
     viewportShortcuts: true,
     fitSelectionAvailable: Boolean(fitSelectionBounds),
     operationBusy,
-    onQueueIntent
+    onQueueIntent,
+    onChangeSelected
   };
 
   function openEntityMenu(target: EntityRef, request: ContextMenuRequest) {
