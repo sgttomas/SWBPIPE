@@ -446,6 +446,8 @@ function AppSession() {
               selectionState={orderedSelection}
               onQueueIntent={handleQueueEditorIntent}
               operationBusy={operationBusy}
+              viewCommandRef={viewportViewCommandRef}
+              showAllAvailable={hiddenEntityKeys.size > 0 || isolationActive}
               onApplyCellIntent={async (intent) => {
                 const owned: { current?: Readonly<OperationOutcome> } = {};
                 const applied = await handleApplyIntent(intent, owned);
@@ -834,6 +836,7 @@ function AppSession() {
               onViewportInteractionStart={exposeViewportForNarrowInteraction}
               onInvalidateDraft={invalidateDirectDraftContext}
               onQueueIntent={handleQueueEditorIntent}
+              operationBusy={operationBusy}
               onSelect={handleSelectEntity}
               queuedIntents={editorIntents}
               reservedIntents={queuedBatches.flatMap((entry) => entry.batch.operations)}

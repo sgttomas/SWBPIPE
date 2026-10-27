@@ -4,12 +4,15 @@ import type React from "react";
 import { createPortal } from "react-dom";
 import { useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, PreviewModel } from "../../types";
-import { entityKey, type EntityKey, type OrderedSelectionState, type SelectionModifiers } from "../workspace/selectionState";
+import { entityKey, entityRefFromKey, type EntityKey, type OrderedSelectionState, type SelectionModifiers } from "../workspace/selectionState";
 import { modelIndexFor, type ModelIndex } from "../workspace/modelIndex";
 import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
 import { VirtualList } from "../workspace/VirtualList";
 import { OverflowRail, TableChromeContext } from "../workspace/table/OverflowRail";
-import { EngineeringTable, useTableBodyHeight, type TableApplyResult } from "../workspace/table/EngineeringTable";
+import { EngineeringTable, TableContextMenuContext, useTableBodyHeight, type TableApplyResult, type TableContextMenuArgs } from "../workspace/table/EngineeringTable";
+import { isContextMenuKey, keyboardMenuRequest, pointerMenuRequest, type ContextMenuRequest } from "../workspace/contextMenu/ContextMenu";
+import { EntityContextMenu, type EntityCommandEnvironment } from "../workspace/contextMenu/EntityContextMenu";
+import type { ViewportViewCommand } from "../viewport/viewportSelection";
 import { buildGridOperationIntent, materialTableColumns, sectionTableColumns, nodeTableColumns, type GridColumn, type GridRow } from "../workspace/table/modelTableAdapter";
 import { quantityCellKey, useQuantitySortProjection } from "../workspace/table/quantitySortProjection";
 import { capturedCellIsCurrent, type CapturedCell, type TableRow } from "../workspace/table/tableState";
@@ -43,6 +46,10 @@ type Props = {
   onQueueIntent?: (intent: EditorOperationIntent) => void;
   onApplyCellIntent?: (intent: EditorOperationIntent) => Promise<TableApplyResult>;
   operationBusy?: boolean;
+  /** The viewport's view-command dispatcher, for the context menus' Hide, Isolate, Fit and Show all (B9). */
+  viewCommandRef?: { current: ((command: ViewportViewCommand) => void) | null };
+  /** Whether anything is hidden or isolated in the viewport, so that Show all has something to do. */
+  showAllAvailable?: boolean;
   // Tree-layout records beneath the tree rows (the Lines section). It stays
   // mounted, so drafts survive a layout switch, but only the Tree layout shows
   // it: the Grid layout owns the whole bounded host.
@@ -71,7 +78,7 @@ const GRID_ENTITY_TYPES: ReadonlyArray<{ id: GridEntityType; label: string }> = 
   { id: "combinations", label: "Combinations" }
 ];
 
-export function ModelTree({ boundedGrid = false, compactGrid = false, model, modelIndex, selection, selectionState, density = "comfortable", hiddenKeys = new Set(), projectSessionGeneration = 0, onSelect, onFocusChange = () => {}, onFilterPublication = () => {}, onQueueIntent, onApplyCellIntent, operationBusy, treeRecords }: Props) {
+export function ModelTree({ boundedGrid = false, compactGrid = false, model, modelIndex, selection, selectionState, density = "comfortable", hiddenKeys = new Set(), projectSessionGeneration = 0, onSelect, onFocusChange = () => {}, onFilterPublication = () => {}, onQueueIntent, onApplyCellIntent, operationBusy, treeRecords, viewCommandRef, showAllAvailable = false }: Props) {
   const [columnTarget, setColumnTarget] = useState<HTMLDivElement | null>(null);
   const [chromeOwner, setChromeOwner] = useState<string | null>(null);
   const [toolbarTarget, setToolbarTarget] = useState<HTMLDivElement | null>(null);
@@ -106,6 +113,30 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
     () => new Set(selectionState?.orderedKeys ?? [entityKey(selection)]),
     [selection.id, selection.type, selectionState]
   );
+  // B9: context menus on tree rows and on the grids' rows and cells. They share one set of
+  // entity commands with the viewport (EntityContextMenu). Right-clicking an entity that is not
+  // selected selects it first; opening a menu from the keyboard never changes the selection.
+  const viewCommand = viewCommandRef?.current ? (command: ViewportViewCommand) => viewCommandRef.current?.(command) : null;
+  const entityEnvironment: EntityCommandEnvironment = {
+    model,
+    modelIndex: activeModelIndex,
+    selectedKeys: selectionState?.orderedKeys ?? [entityKey(selection)],
+    hiddenKeys,
+    showAllAvailable,
+    viewCommand,
+    operationBusy,
+    onQueueIntent
+  };
+  const [treeMenu, setTreeMenu] = useState<{ target: EntityRef; request: ContextMenuRequest; serial: number } | null>(null);
+  const treeMenuSerial = useRef(0);
+  const openTreeMenu = (target: EntityRef, request: ContextMenuRequest) => setTreeMenu({ target, request, serial: ++treeMenuSerial.current });
+  const tableMenuContext = {
+    isRowSelected: (key: EntityKey) => selectedKeys.has(key),
+    contextMenu: (args: TableContextMenuArgs) => {
+      const target = entityRefFromKey(args.rowKey);
+      return target ? <EntityContextMenu key={args.serial} env={entityEnvironment} target={target} leading={args.leading} request={args.request} onClose={args.onClose} testId="table-context-menu" /> : null;
+    }
+  };
 
   useEffect(() => {
     const externallyFocused = selectionState?.focusKey ?? null;
@@ -197,6 +228,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
 
   return (
     <TableChromeContext.Provider value={{ target: columnTarget, owner: chromeOwner, setOwner: setChromeOwner }}>
+    <TableContextMenuContext.Provider value={tableMenuContext}>
     <div className="panel model-tree" ref={treeRootRef} data-bounded-grid={boundedGrid && layoutMode === "grid"} data-compact-grid={compactGrid && layoutMode === "grid"} aria-label="Model tree"
       onKeyDown={(event) => {
         if (event.key === "Escape" && !event.defaultPrevented && closeCompactDetails(true)) { event.preventDefault(); event.stopPropagation(); }
@@ -260,6 +292,8 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
           selection={selection}
           setDrafts={setGridDrafts}
           setFocusedGridKey={setFocusedGridKey}
+          entityEnvironment={entityEnvironment}
+          isSelected={(key) => selectedKeys.has(key)}
         />
       </div> : null}
       {layoutMode !== "grid" ? (
@@ -273,7 +307,17 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
             height={420}
             itemKey={(row) => row.key}
             items={treeRows}
-            onKeyDown={(event) => handleTreeKeyDown(event, treeRows, focusedTreeIndex, (index) => {
+            onKeyDown={(event) => {
+              if (isContextMenuKey(event)) {
+                const row = treeRows[focusedTreeIndex];
+                // A group row has no entity commands.
+                if (row?.kind !== "entity") return;
+                event.preventDefault();
+                const element = document.getElementById(treeRowDomId(row)) ?? event.currentTarget;
+                openTreeMenu({ type: row.item.type, id: row.item.id }, keyboardMenuRequest(element, event.currentTarget));
+                return;
+              }
+              handleTreeKeyDown(event, treeRows, focusedTreeIndex, (index) => {
               const row = treeRows[index];
               setFocusedTreeKey(row.key);
               onFocusChange(row.kind === "entity" ? entityKey(row.item) : null);
@@ -292,7 +336,8 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
                 range: event.shiftKey,
                 toggle: event.ctrlKey || event.metaKey
               }, displayedEntityOrder);
-            })}
+              });
+            }}
             renderItem={(row) => row.kind === "group" ? (
               <button
                 aria-expanded={row.expanded}
@@ -331,6 +376,16 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
                   }, displayedEntityOrder);
                   event.currentTarget.closest<HTMLElement>('[role="tree"]')?.focus();
                 }}
+                onContextMenu={(event) => {
+                  event.preventDefault();
+                  const list = event.currentTarget.closest<HTMLElement>('[role="tree"]');
+                  const ref: EntityRef = { type: row.item.type, id: row.item.id };
+                  setFocusedTreeKey(row.key);
+                  onFocusChange(entityKey(ref));
+                  if (!selectedKeys.has(entityKey(ref))) onSelect(row.item, {}, displayedEntityOrder);
+                  list?.focus();
+                  openTreeMenu(ref, pointerMenuRequest(event, list));
+                }}
                 position={row.position}
                 setSize={row.setSize}
               />
@@ -349,7 +404,11 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
         )
       ) : null}
       {treeRecords ? <div className="model-tree-records" hidden={layoutMode === "grid"} inert={layoutMode === "grid"}>{treeRecords}</div> : null}
+      {treeMenu ? (
+        <EntityContextMenu key={treeMenu.serial} env={entityEnvironment} target={treeMenu.target} request={treeMenu.request} onClose={() => setTreeMenu(null)} testId="tree-context-menu" />
+      ) : null}
     </div>
+    </TableContextMenuContext.Provider>
     </TableChromeContext.Provider>
   );
 
@@ -659,13 +718,14 @@ function matchesTreeItem(item: TreeItem, groupTitle: string, query: string): boo
     .includes(query);
 }
 
-function TreeButton({ active, focused, hidden, item, level, onClick, position, setSize }: {
+function TreeButton({ active, focused, hidden, item, level, onClick, onContextMenu, position, setSize }: {
   active: boolean;
   focused: boolean;
   hidden: boolean;
   item: TreeItem;
   level: number;
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onContextMenu: (event: React.MouseEvent<HTMLButtonElement>) => void;
   position: number;
   setSize: number;
 }) {
@@ -680,6 +740,7 @@ function TreeButton({ active, focused, hidden, item, level, onClick, position, s
       aria-setsize={setSize}
       title={`${item.label}${item.detail ? ` (${item.detail})` : ""}`}
       onClick={onClick}
+      onContextMenu={onContextMenu}
       role="treeitem"
       tabIndex={-1}
       type="button"
@@ -774,7 +835,9 @@ function EntityGrid({
   selection,
   setDrafts,
   setFocusedGridKey,
-  projectSessionGeneration
+  projectSessionGeneration,
+  entityEnvironment,
+  isSelected
 }: {
   bounded: boolean;
   compact: boolean;
@@ -794,8 +857,27 @@ function EntityGrid({
   setDrafts: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   setFocusedGridKey: React.Dispatch<React.SetStateAction<EntityKey | null>>;
   projectSessionGeneration: number;
+  entityEnvironment: EntityCommandEnvironment;
+  isSelected: (key: EntityKey) => boolean;
 }) {
   const [queuedMessage, setQueuedMessage] = useState("");
+  // B9: a bulk-grid row's context menu: right-click the row (outside its text and choice fields,
+  // which keep the platform's own editing menu) or press Shift+F10 on its ID button.
+  const [rowMenu, setRowMenu] = useState<{ target: EntityRef; request: ContextMenuRequest; serial: number } | null>(null);
+  const rowMenuSerial = useRef(0);
+  function openRowMenu(event: React.MouseEvent<HTMLElement>, row: GridRow) {
+    if (event.target instanceof Element && event.target.closest("input, select, textarea")) return;
+    event.preventDefault();
+    const target: EntityRef = { type: row.type, id: row.id };
+    if (!isSelected(entityKey(target))) onSelect(target);
+    const header = event.currentTarget.querySelector<HTMLElement>("[data-grid-row-header]");
+    setRowMenu({ target, request: pointerMenuRequest(event, header), serial: ++rowMenuSerial.current });
+  }
+  function rowHeaderKeyDown(event: React.KeyboardEvent<HTMLButtonElement>, row: GridRow) {
+    if (!isContextMenuKey(event)) return;
+    event.preventDefault();
+    setRowMenu({ target: { type: row.type, id: row.id }, request: keyboardMenuRequest(event.currentTarget), serial: ++rowMenuSerial.current });
+  }
   // W-17 §7.3, §7.6: composed column defaults are checked against the DEC-018 catalog,
   // as in the property inspector; until it loads (or in the browser preview) they stay unchecked.
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
@@ -1093,10 +1175,11 @@ function EntityGrid({
                   className={`entity-grid-virtual-row${selection.type === row.type && selection.id === row.id ? " active" : ""}`}
                   onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocusedGridKey(null); }}
                   onFocusCapture={() => setFocusedGridKey(entityKey({ type: row.type, id: row.id }))}
+                  onContextMenu={(event) => openRowMenu(event, row)}
                   role="row"
                   style={{ gridTemplateColumns: `minmax(100px, 1fr) repeat(${columns.length}, minmax(120px, 1fr))` }}
                 >
-                  <div role="rowheader"><button aria-pressed={selection.type === row.type && selection.id === row.id} data-testid={`entity-grid-row-${safeToken(row.type)}-${safeToken(row.id)}`} onClick={() => onSelect({ type: row.type, id: row.id })} type="button">{row.id}</button></div>
+                  <div role="rowheader"><button aria-pressed={selection.type === row.type && selection.id === row.id} data-grid-row-header="true" data-testid={`entity-grid-row-${safeToken(row.type)}-${safeToken(row.id)}`} onClick={() => onSelect({ type: row.type, id: row.id })} onKeyDown={(event) => rowHeaderKeyDown(event, row)} type="button">{row.id}</button></div>
                   {columns.map((column) => {
                     const key = draftKey(row, column, projectSessionGeneration);
                     const value = drafts[key] ?? column.value(row);
@@ -1124,12 +1207,14 @@ function EntityGrid({
           </thead>
           <tbody>
             {visibleRows.map((row) => (
-              <tr key={`${row.type}:${row.id}`} className={selection.type === row.type && selection.id === row.id ? "active" : ""}>
+              <tr key={`${row.type}:${row.id}`} className={selection.type === row.type && selection.id === row.id ? "active" : ""} onContextMenu={(event) => openRowMenu(event, row)}>
                 <th scope="row">
                   <button
                     aria-pressed={selection.type === row.type && selection.id === row.id}
+                    data-grid-row-header="true"
                     data-testid={`entity-grid-row-${safeToken(row.type)}-${safeToken(row.id)}`}
                     onClick={() => onSelect({ type: row.type, id: row.id })}
+                    onKeyDown={(event) => rowHeaderKeyDown(event, row)}
                     type="button"
                   >
                     {row.id}
@@ -1186,6 +1271,9 @@ function EntityGrid({
         </div>
       </div>
       {!compact ? reviewToggle : null}
+      {rowMenu ? (
+        <EntityContextMenu key={rowMenu.serial} env={entityEnvironment} target={rowMenu.target} request={rowMenu.request} onClose={() => setRowMenu(null)} testId="grid-context-menu" />
+      ) : null}
     </section>
   );
 }
