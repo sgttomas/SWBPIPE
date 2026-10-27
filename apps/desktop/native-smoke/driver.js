@@ -242,7 +242,20 @@
       proof_model_sha256: field("model_sha256"),
       proof_project: field("project"),
       retained_precision_codes: [...new Set(dom.match(/RETAINED_PRECISION_[A-Z_]+/g) ?? [])],
-      retained_precision_elements: document.querySelectorAll('[data-testid*="retained-precision"]').length
+      retained_precision_elements: document.querySelectorAll('[data-testid*="retained-precision"]').length,
+      // A2: the per-support load summary's structure (no values are read).
+      support_load: (() => {
+        const panel = byTestId("support-load-summary");
+        if (!panel) return null;
+        const rows = panel.querySelectorAll("tbody tr[data-standing]");
+        return {
+          position: text("support-load-position"),
+          table: Boolean(byTestId("support-load-table")),
+          rows: rows.length,
+          rows_stated: [...rows].filter((row) => row.getAttribute("data-standing") === "admitted" || row.querySelector('[data-testid^="support-load-withheld-"]')?.textContent?.trim()).length,
+          extreme_rows: panel.querySelectorAll('[data-testid="support-load-extreme-max"], [data-testid="support-load-extreme-min"]').length
+        };
+      })()
     };
     if (probe) fill("result-filter-input", "");
     await log(`${label}: ${JSON.stringify(observation)}`);
