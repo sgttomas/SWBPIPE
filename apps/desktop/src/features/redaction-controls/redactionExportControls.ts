@@ -422,15 +422,65 @@ function isPlainObject(value: unknown): value is PlainObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function truthy(value: unknown): boolean {
+// Input contract (docs/security/redaction_export_controls.md, "Input contract"; HELP_HUMAN ruling
+// 2026-10-27). The flag strings all three implementations recognize, after trimming and lowercasing;
+// identical in core/security/redaction/controls.py and redaction_binding.rs.
+const RECOGNIZED_FLAG_STRINGS = new Set(["true", "yes", "explicit", "present", "local_private", "explicit_local_private"]);
+/** Trimmed from an intent flag: ASCII whitespace only, U+0009-U+000D and U+0020. */
+const INTENT_FLAG_TRIM = new Set([0x0009, 0x000a, 0x000b, 0x000c, 0x000d, 0x0020]);
+/** Trimmed from a blocking flag: the union of what JavaScript's String.prototype.trim, Python's
+ * str.strip() (core/security/redaction/controls.py) and Rust's str::trim (the mirror in
+ * redaction_binding.rs) removed before the contract, so no implementation reads a blocking flag as
+ * unset where it read it as set. The same code points as BLOCKING_FLAG_TRIM there. */
+const BLOCKING_FLAG_TRIM = new Set([
+  0x0009, 0x000a, 0x000b, 0x000c, 0x000d, 0x001c, 0x001d, 0x001e, 0x001f, 0x0020, 0x0085, 0x00a0, 0x1680,
+  0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200a, 0x2028, 0x2029,
+  0x202f, 0x205f, 0x3000, 0xfeff
+]);
+
+function trimCodePoints(value: string, trimmed: Set<number>): string {
+  const codePoints = [...value];
+  let start = 0;
+  let end = codePoints.length;
+  while (start < end && trimmed.has(codePoints[start].codePointAt(0) as number)) start += 1;
+  while (end > start && trimmed.has(codePoints[end - 1].codePointAt(0) as number)) end -= 1;
+  return codePoints.slice(start, end).join("");
+}
+
+/** A blocking flag is set by `true`, a non-zero number, or a recognized string after trimming
+ * BLOCKING_FLAG_TRIM (input contract). Any other scalar keeps `Boolean()`, as before the contract. */
+function blockingFlag(value: unknown): boolean {
   if (typeof value === "boolean") return value;
   if (typeof value === "string") {
-    return ["true", "yes", "explicit", "present", "local_private", "explicit_local_private"].includes(
-      value.trim().toLowerCase()
-    );
+    return RECOGNIZED_FLAG_STRINGS.has(trimCodePoints(value, BLOCKING_FLAG_TRIM).toLowerCase());
   }
+  if (typeof value === "number") return value !== 0;
   if (typeof value === "object" && value !== null) return false;
   return Boolean(value);
+}
+
+/** An intent flag is set only by `true` or a recognized string after trimming ASCII whitespace
+ * (input contract); a number, an array or an object is not intent. */
+function intentFlag(value: unknown): boolean {
+  if (value === true) return true;
+  if (typeof value === "string") {
+    return RECOGNIZED_FLAG_STRINGS.has(trimCodePoints(value, INTENT_FLAG_TRIM).toLowerCase());
+  }
+  return false;
+}
+
+/** A professional claim blocks unless it is absent, null or `false` (input contract). */
+function professionalClaim(item: PlainObject): boolean {
+  const claim = item.professional_claim;
+  return !(claim === undefined || claim === null || claim === false);
+}
+
+/** A review status that is not a string (nor null) reads as `unknown`, and so gives way to the
+ * provenance's (input contract). A privacy or redistribution label that is not a string is a
+ * stated label that matches no class: it is not unknown, safe, private or protected, and does not
+ * fall back to the provenance; every check below reads it so. */
+function reviewLabel(value: unknown): unknown {
+  return value === null || value === undefined || typeof value === "string" ? value : "unknown";
 }
 
 function isScalarMetadataValue(value: unknown): boolean {
@@ -467,39 +517,41 @@ function isValueBearing(item: PlainObject): boolean {
 }
 
 function containsPayload(item: PlainObject): boolean {
-  return truthy(item.contains_payload) || truthy(item.payload_present) || intersects(PAYLOAD_DETAIL_KEYS, item);
+  return (
+    blockingFlag(item.contains_payload) || blockingFlag(item.payload_present) || intersects(PAYLOAD_DETAIL_KEYS, item)
+  );
 }
 
 function secretMaterialPresent(item: PlainObject): boolean {
-  return truthy(item.secret_material_present) || intersects(SECRET_MATERIAL_KEYS, item);
+  return blockingFlag(item.secret_material_present) || intersects(SECRET_MATERIAL_KEYS, item);
 }
 
 function cloudOrNetworkReference(item: PlainObject): boolean {
-  return truthy(item.cloud_or_network_reference) || intersects(CLOUD_NETWORK_DETAIL_KEYS, item);
+  return blockingFlag(item.cloud_or_network_reference) || intersects(CLOUD_NETWORK_DETAIL_KEYS, item);
 }
 
 function directSqlAccess(item: PlainObject): boolean {
-  return truthy(item.direct_sql_access) || intersects(DIRECT_SQL_DETAIL_KEYS, item);
+  return blockingFlag(item.direct_sql_access) || intersects(DIRECT_SQL_DETAIL_KEYS, item);
 }
 
 function storageBypassRequested(item: PlainObject): boolean {
   return ["storage_bypass", "storage_bypass_requested", "direct_storage_bypass", "application_service_bypass"].some(
-    (key) => truthy(item[key])
+    (key) => blockingFlag(item[key])
   );
 }
 
 function concretePathPresent(item: PlainObject): boolean {
-  return truthy(item.concrete_path_present) || intersects(CONCRETE_PATH_DETAIL_KEYS, item);
+  return blockingFlag(item.concrete_path_present) || intersects(CONCRETE_PATH_DETAIL_KEYS, item);
 }
 
 function itemIntent(item: PlainObject): boolean | null {
   for (const key of ["local_private_intent", "explicit_local_private_intent", "user_intent"]) {
-    if (key in item) return truthy(item[key]);
+    if (key in item) return intentFlag(item[key]);
   }
   const exportPolicy = item.export_policy;
   if (isPlainObject(exportPolicy)) {
     for (const key of ["local_private_intent", "explicit_local_private_intent", "user_intent"]) {
-      if (key in exportPolicy) return truthy(exportPolicy[key]);
+      if (key in exportPolicy) return intentFlag(exportPolicy[key]);
     }
   }
   return null;
@@ -515,8 +567,9 @@ function unknownAction(exportContext: RedactionExportContext): RedactionAction {
   return exportContext === "local_private" ? "warning_only" : "redact_value";
 }
 
-/** Steps 10-13 of the decision order (§3.2), only for `user_released_report`, after steps 1-9
- * and before any unknown-metadata branch. Only the wrapper's release intent is read. */
+/** Steps 10-13 of the decision order (§3.2), only for `user_released_report`, after the blocks of
+ * steps 1-9 and before any unknown-metadata branch; the concrete path (step 7) redacts only what they
+ * do not block. Only the wrapper's release intent is read. */
 function userReleasedAction(args: {
   privacy: unknown;
   redistribution: unknown;
@@ -561,9 +614,10 @@ type ActionInputs = {
   concretePathPresent: boolean;
 };
 
-/** Steps 1-9 of the decision order (§3.2), the same for every context: the claim, network,
- * SQL, storage-bypass, secret, payload and path checks, then the protected and the
- * quarantined or rejected blocks. `null` when none of them decides. */
+/** The blocks of the decision order (§3.2) that come first in every context: the claim, network,
+ * SQL, storage-bypass, secret and payload checks, then the protected and the quarantined or
+ * rejected blocks. `null` when none of them decides. The concrete-path redaction comes after
+ * the context's own decision (`actionFor`). */
 function boundaryActionFor(args: ActionInputs): { action: RedactionAction; reason: RedactionReasonCode } | null {
   if (args.professionalClaim) return { action: "block_export", reason: "PROFESSIONAL_BOUNDARY_BLOCKED" };
   if (args.cloudOrNetworkReference) return { action: "block_export", reason: "CLOUD_OR_NETWORK_REFERENCE_BLOCKED" };
@@ -571,7 +625,6 @@ function boundaryActionFor(args: ActionInputs): { action: RedactionAction; reaso
   if (args.storageBypass) return { action: "block_export", reason: "STORAGE_BYPASS_BLOCKED" };
   if (args.secretMaterialPresent) return { action: "block_export", reason: "SECRET_MATERIAL_BLOCKED" };
   if (args.containsPayload) return { action: "block_export", reason: "PAYLOAD_METADATA_ONLY_REQUIRED" };
-  if (args.concretePathPresent) return { action: "redact_value", reason: "CONCRETE_PATH_REDACTED" };
   if (args.privacy === "protected_suspected" || args.redistribution === "protected_suspected") {
     return { action: "block_export", reason: "PROTECTED_CONTENT_BLOCKED" };
   }
@@ -581,7 +634,7 @@ function boundaryActionFor(args: ActionInputs): { action: RedactionAction; reaso
   return null;
 }
 
-/** Step 10 onward (§3.2), after `boundaryActionFor` decided nothing: steps 10-13 in
+/** The context's own decision (§3.2), after `boundaryActionFor` decided nothing: steps 10-13 in
  * `user_released_report`, today's sequence in the five existing contexts. */
 function contextActionFor(args: ActionInputs): { action: RedactionAction; reason: RedactionReasonCode } {
   if (args.exportContext === USER_RELEASED_REPORT_CONTEXT) return userReleasedAction(args);
@@ -620,13 +673,21 @@ function contextActionFor(args: ActionInputs): { action: RedactionAction; reason
   return { action: unknownAction(args.exportContext), reason: "UNKNOWN_PROVENANCE_WARNING" };
 }
 
+/** `boundary` is true when a marker or disposition decided: a `boundaryActionFor` block, or a
+ * concrete path. A concrete path redacts only what would not block (input contract, 2026-10-27):
+ * it never turns a protected, quarantined/rejected, intent or user-release block into a redaction. */
 function actionFor(args: ActionInputs): {
   action: RedactionAction;
   reason: RedactionReasonCode;
   boundary: boolean;
 } {
   const boundary = boundaryActionFor(args);
-  return boundary === null ? { ...contextActionFor(args), boundary: false } : { ...boundary, boundary: true };
+  if (boundary !== null) return { ...boundary, boundary: true };
+  const decided = contextActionFor(args);
+  if (args.concretePathPresent && decided.action !== "block_export") {
+    return { action: "redact_value", reason: "CONCRETE_PATH_REDACTED", boundary: true };
+  }
+  return { ...decided, boundary: args.concretePathPresent };
 }
 
 const FINDING_CLASS_BY_REASON: Record<string, RedactionFindingClass> = {
@@ -725,7 +786,7 @@ function classify(
   const fieldClass = stringOrUnknown(item.field_class ?? "unknown");
   let privacy: unknown = item.privacy_classification;
   let redistribution: unknown = item.redistribution_status;
-  let reviewStatus: unknown = item.review_status ?? "unknown";
+  let reviewStatus: unknown = reviewLabel(item.review_status) ?? "unknown";
   // Payload-carried local-private intent is not read in the user-released context (§3.2):
   // only the wrapper's release intent decides there.
   const intent =
@@ -739,7 +800,7 @@ function classify(
     reviewStatus =
       reviewStatus !== null && reviewStatus !== undefined && reviewStatus !== "unknown"
         ? reviewStatus
-        : (provenance.review_status ?? "unknown");
+        : (reviewLabel(provenance.review_status) ?? "unknown");
   }
 
   const { action, reason, boundary } = actionFor({
@@ -750,7 +811,7 @@ function classify(
     exportContext: args.exportContext,
     explicitLocalPrivateIntent: intent,
     explicitUserReleaseIntent: args.explicitUserReleaseIntent,
-    professionalClaim: truthy(item.professional_claim ?? false),
+    professionalClaim: professionalClaim(item),
     containsPayload: containsPayload(item),
     secretMaterialPresent: secretMaterialPresent(item),
     cloudOrNetworkReference: cloudOrNetworkReference(item),
@@ -1073,11 +1134,14 @@ function projectRouteValue(
       return structuredClone(value);
     }
     const directPrivacy = value.privacy_classification ?? value.classification;
+    // A non-string label is a stated label that matches no class (input contract): `["public"]`
+    // is not a public basis.
+    const directRedistribution = value.redistribution_status;
     const boundedPublicBasis =
-      ["public", "public_metadata", "invented_public_example"].includes(String(directPrivacy)) &&
-        ["public_permissive", "invented_non_engineering_example"].includes(
-          String(value.redistribution_status)
-        );
+      typeof directPrivacy === "string" &&
+      SAFE_PRIVACY_CLASSES.has(directPrivacy) &&
+      typeof directRedistribution === "string" &&
+      PUBLIC_REDIS_STATUSES.has(directRedistribution);
     return Object.fromEntries(
       Object.entries(value).map(([key, item]) => [
         `${ROUTE_KEY_PREFIX}${key}`,

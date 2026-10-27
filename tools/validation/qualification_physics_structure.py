@@ -24,10 +24,10 @@ CHECK_IDS = (
     'complete_unique_scalar_rows', 'normal_maximum_evidence', 'governing_location',
     'stress_summary_binding', 'displacement_summary_binding',
 )
-# The first-static cases are qualified as pressure-2 on the re-authored current (0.7.0) copy of their frozen input.
+# The first-static cases are qualified as pressure-2 on the re-authored current (0.8.0) copy of their frozen input.
 CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-2'
 PROFILE = 'exact_pressure_v3'
-MODEL_VERSION = '0.7.0'
+MODEL_VERSION = '0.8.0'
 PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': PROFILE, 'shear_model': 'euler_bernoulli'}
 ZERO_CORROSION_ALLOWANCE = {'value': 0, 'unit': 'm'}
 CASE_BASIS = {'ref_type': 'load_case', 'ref_id': 'case'}

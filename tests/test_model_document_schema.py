@@ -5,7 +5,7 @@ Every committed JSON file and every line of every committed JSON Lines file is
 searched for model documents by `document_kind`, including documents embedded in
 requests, envelopes and corpora. Rules (DEL-02-01 Design model-document-0.7.0.md §5.1):
 
-- a document at the current version (0.7.0) validates against the schema root;
+- a document at the current version (0.8.0) validates against the schema root;
 - a desktop-profile document also validates against `$defs/DesktopDocument`: the
   bundled demo (named explicitly), the desktop e2e fixtures, and saved projects in
   the persistence fixtures;
@@ -14,7 +14,9 @@ requests, envelopes and corpora. Rules (DEL-02-01 Design model-document-0.7.0.md
   memory (`qualification_physics.reauthor_model`) and validated. A frozen input
   that no SHA256SUMS binds is excluded only by its entry in UNBOUND_FROZEN_INPUTS;
 - any other retired-version document (0.1.0-0.6.0) is excluded: it is a refusal
-  control;
+  control. A document at 0.7.0, retired by model document 0.8.0 (DEL-02-01 Design
+  model-document-0.8.0.md §5), is a refusal control only when it is listed in
+  EXPLICIT_RETIRED_CONTROLS; any other 0.7.0 document is unclassified and fails;
 - a partial applier operation fixture is excluded: the material-only base and
   applied documents of the applier contract corpus, pinned below;
 - any other exclusion is an explicit entry below, with its reason.
@@ -47,8 +49,33 @@ from qualification_physics import reauthor_model  # noqa: E402
 SCHEMA_PATH = ROOT / "schemas" / "model.schema.yaml"
 SCHEMA_ID = "https://openpipestress.org/schemas/model.schema.yaml"
 DOCUMENT_KIND = "openpipestress.product_preview.model"
-CURRENT_VERSION = "0.7.0"
-RETIRED_VERSIONS = {"0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0"}
+CURRENT_VERSION = "0.8.0"
+RETIRED_VERSIONS = {"0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0"}
+# W-15 slice c (DEL-02-01 Design model-document-0.8.0.md §5): a retired version
+# listed here classifies a non-frozen committed document as a refusal control only
+# when the document is listed under it. Any other document at that version is
+# unclassified, and the test fails, so a current fixture the version ripple did not
+# sweep cannot pass silently as a refusal control. Each ripple adds the version it
+# retires with its explicit controls; earlier versions keep the open rule. The 0.8.0
+# ripple's one committed 0.7.0 control is the handoff witness package as the 0.7.0
+# producer wrote it: its bytes still verify, and its model is refused by the open and
+# solve paths (MD8 §3.4, §12). The second (r6, MD8 §3.2) is the model of a pressure-2 run
+# recorded at 0.7.0, main's request at 2e4748eada verbatim beside its record and source:
+# the run keeps its read and compare, while the model itself is refused. Every other 0.7.0
+# refusal control is built in memory.
+RETIRED_0_7_0_CONTROLS = {"fixtures/handoff/retired_0_7_0_witness.swbhandoff/model/model.json",
+                          "fixtures/persistence/recorded_model_0_7_0/exact_pressure_connected_request.json"}
+EXPLICIT_RETIRED_CONTROLS: dict[str, set[str]] = {
+    "0.7.0": set(RETIRED_0_7_0_CONTROLS),
+}
+
+
+def is_retired_refusal_control(version, relative):
+    """Whether a non-frozen document at a retired version is a refusal control."""
+    if version not in RETIRED_VERSIONS:
+        return False
+    listed = EXPLICIT_RETIRED_CONTROLS.get(version)
+    return listed is None or relative in listed
 BUNDLED_DEMO = "fixtures/product_preview/invented_demo_model.json"
 DESKTOP_PROFILE_PREFIXES = ("apps/desktop/e2e/", "fixtures/persistence/")
 # The desktop emission golden (§5.2, TP-PMM-GUIEMIT-001): documents the desktop wrote.
@@ -214,7 +241,7 @@ def classify():
             rows.append(("unbound_frozen", relative, pointer, document))
         elif version in RETIRED_VERSIONS and is_frozen_input(relative):
             rows.append(("reauthored_frozen", relative, pointer, document))
-        elif version in RETIRED_VERSIONS:
+        elif is_retired_refusal_control(version, relative):
             rows.append(("retired", relative, pointer, document))
         else:
             rows.append(("unclassified", relative, pointer, document))
@@ -420,9 +447,10 @@ def test_frozen_coverage_includes_every_retired_version_and_json_lines():
     frozen = [(relative, document["schema_version"]) for bucket, relative, _, document in classify()
               if bucket == "reauthored_frozen"]
     # The 0.1.0 frozen requests (validation/references/kd5_nonlinear) are unbound (UNBOUND_FROZEN_INPUTS). No frozen
-    # 0.6.0 model document exists under validation/**: the t4_u4b and t4_u5b references are case descriptions that
-    # the builders author requests from, and the committed 0.6.0 requests elsewhere were re-authored to 0.7.0.
-    assert {version for _, version in frozen} == RETIRED_VERSIONS - {"0.1.0", "0.6.0"}
+    # 0.6.0 or 0.7.0 model document exists under validation/**: the t4_u4b and t4_u5b references are case
+    # descriptions that the builders author requests from, the committed 0.6.0 requests elsewhere were re-authored
+    # to 0.7.0, and the committed 0.7.0 ones to 0.8.0 (the tp_runner_015 witness input by its generator).
+    assert {version for _, version in frozen} == RETIRED_VERSIONS - {"0.1.0", "0.6.0", "0.7.0"}
     assert not any(relative.startswith(FROZEN_ROOT) for bucket, relative, _, _ in classify() if bucket == "retired")
     assert any(relative.endswith(".jsonl") for relative, _ in frozen)
 
@@ -433,6 +461,8 @@ DESKTOP_EMISSION_PATHS = [
     "pipe_creation", "support_creation", "load_creation", "combination_creation", "project_tags_and_notes",
     "entity_tags_and_notes", "provenance_records", "line", "assumptions_and_open_issues",
     "constraints_and_equipment_interfaces", "rule_pack_ref", "library_material_insert",
+    # Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §5): a reducer's eccentric offset.
+    "reducer_eccentric_offset",
 ]
 
 
@@ -467,6 +497,8 @@ APPLIER_EMISSION_KINDS = [
     "create_equipment_interface", "update_equipment_interface", "delete_equipment_interface",
     "add_rule_pack_ref", "remove_rule_pack_ref",
     "tags", "notes", "provenance_record",
+    # Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §5): a reducer's eccentric offset.
+    "eccentric_offset",
 ]
 
 
@@ -495,3 +527,29 @@ def test_shape_corpus_does_not_silently_enter_the_current_format_population():
     for bucket, relative, pointer, document in rows:
         if bucket in {"format", "desktop"}:
             _validate(schema, document, f"{relative}#{pointer}")
+
+
+def test_an_explicitly_controlled_retired_version_admits_only_its_listed_controls(monkeypatch):
+    """W-15 slice c: once a retired version is listed, an unlisted non-frozen document
+    at it is not a refusal control. 0.7.0 is listed with no committed control, so an
+    unswept 0.7.0 document is unclassified; the earlier versions keep the open rule."""
+    assert set(EXPLICIT_RETIRED_CONTROLS) == {"0.7.0"}
+    assert EXPLICIT_RETIRED_CONTROLS["0.7.0"] == RETIRED_0_7_0_CONTROLS
+    assert not is_retired_refusal_control("0.7.0", "fixtures/any.json")
+    assert is_retired_refusal_control("0.6.0", "fixtures/any.json")
+    monkeypatch.setitem(EXPLICIT_RETIRED_CONTROLS, "0.7.0", {"fixtures/listed.json"})
+    assert is_retired_refusal_control("0.7.0", "fixtures/listed.json")
+    assert not is_retired_refusal_control("0.7.0", "fixtures/unswept.json")
+    assert not is_retired_refusal_control(CURRENT_VERSION, "fixtures/listed.json")
+
+
+def test_an_unlisted_non_frozen_0_7_0_document_fails_classification(monkeypatch):
+    """MD8 §5, §12: a committed, non-frozen model document left at 0.7.0 by the ripple is
+    unclassified, and the classification test fails on it."""
+    document = json.loads((ROOT / BUNDLED_DEMO).read_text(encoding="utf-8"))
+    document["schema_version"] = "0.7.0"
+    unswept = [("fixtures/product_preview/unswept.json", "", document)]
+    monkeypatch.setattr(sys.modules[__name__], "committed_documents", lambda: unswept)
+    assert [bucket for bucket, *_ in classify()] == ["unclassified"]
+    with pytest.raises(AssertionError):
+        test_every_committed_model_document_is_classified_by_rule()

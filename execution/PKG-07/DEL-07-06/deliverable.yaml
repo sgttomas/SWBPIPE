@@ -108,3 +108,4 @@ checks:
 - apps/desktop/src/design/themeAttribute.test.tsx
 - apps/desktop/src/features/workspace/uiPreferences.test.ts
 - tests/test_accessibility_usability_baseline.py
+- apps/desktop/src/features/workspace/contextMenu/ContextMenu.test.tsx

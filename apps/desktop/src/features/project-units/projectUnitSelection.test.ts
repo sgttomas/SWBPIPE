@@ -34,8 +34,8 @@ const AT = new Date("2026-06-12T00:00:00Z");
 const CATALOG: UnitCatalogRoute = { route: "tauri_unit_catalog", catalog: unitCatalogFixture() };
 const PREVIEW: UnitCatalogRoute = { route: "unavailable_browser_preview", diagnostic: "UNIT-CATALOG-DESKTOP-ONLY: fixture" };
 // sha256 (RFC 8785) of the SI blank before W-17 (`origin/main` f0b6ae40a0), when it had six keys and no angle,
-// at model 0.7.0 (W-13 S1b: the version token is the only change).
-const SIX_KEY_BLANK_SHA256 = "e07eb8138e6032297c4b2fd638bfb6a22688faf7a61fefd7663b413f92c924ad";
+// at model 0.8.0 (W-13 S1b and W-15 slice c: the version token is the only change).
+const SIX_KEY_BLANK_SHA256 = "ed3a25c9c76a62b483a8d264644ad3c3f284d232bf753fbec78b5e56424841e0";
 
 function withUnits(units: Record<string, string>): PreviewModel {
   const model = buildBlankLocalModelDocument(AT);

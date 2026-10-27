@@ -10,7 +10,7 @@ const RETIRED_LOAD_REFERENCE_SOURCE_ID: &str =
     "openpipestress.result_semantics/0.3.0/load-reference-source-1";
 const RETIRED_V2_CONTRACT: &str = r#"{"version":"2.0.0","mode":"exact_straight_pressure_v2"}"#;
 
-/// The committed current (0.7.0, v3, CA 0, Euler-Bernoulli) source controls.
+/// The committed current (0.8.0, v3, CA 0, Euler-Bernoulli) source controls.
 fn fixture_request(family: &str, name: &str) -> Value {
     let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(format!(
         "../../fixtures/product_preview/pressure_source/{family}/{name}.request.json"
@@ -516,7 +516,7 @@ fn cached_source_context_keeps_original_raw_custody_and_typed_selection() {
 #[test]
 fn cached_source_context_none_preserves_preview_and_invalid_contract_refusal() {
     let refusal=bad("composite source requires an actual exact contract");
-    for schema in ["0.1.0","0.2.0","0.3.0","0.4.0","0.5.0","0.6.0","0.7.0"] {
+    for schema in ["0.1.0","0.2.0","0.3.0","0.4.0","0.5.0","0.6.0","0.7.0","0.8.0"] {
         // B7b: a present null contract fails decoding (no capture is formed).
         let mut null_contract=request(false);
         null_contract["model"]["schema_version"]=json!(schema);

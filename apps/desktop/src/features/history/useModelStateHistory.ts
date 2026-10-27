@@ -51,6 +51,7 @@ import { CURRENT_RUN_ID, currentRunBytes, currentRunSide, currentRunUnavailableR
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
 import { nativeFailureText } from "../../services/nativeIngress";
 import { evaluateModelDocumentLocal } from "../../services/projectService";
+import { RETIRED_PROJECT_RUNS_NOTE } from "../../services/modelSchemaVersion";
 import type { LocalProjectSummary, ModelHashEvidence, PreviewModel, ProjectEnvelopeHashEvidence } from "../../types";
 import { buildModelIndex } from "../workspace/modelIndex";
 import { unsavedChangesRefusal, type UnsavedChangesOutcome, type UnsavedChangesRequest } from "../project-storage/unsavedChangesGuard";
@@ -420,7 +421,9 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       const opened = await readModelState(requestProjectId, stateId);
       const version = evaluateModelDocumentLocal(opened.model);
       if (version.status !== "current") {
-        throw new Error(`Model document refused for editing: status=${version.status}; ${version.detail}`);
+        // A retired state: what it means for the project's recorded runs (MD8 §3.3, ruling a2).
+        const note = version.status === "retired_schema" ? ` ${RETIRED_PROJECT_RUNS_NOTE}` : "";
+        throw new Error(`Model document refused for editing: status=${version.status}; ${version.detail}${note}`);
       }
       // W-17: a state without the `project.units` map is refused by name, as
       // File > Open Model Document refuses it; nothing is filled in.

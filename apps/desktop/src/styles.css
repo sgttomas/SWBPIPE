@@ -4575,3 +4575,22 @@ body { min-width: 760px; min-height: 540px; }
 .model-checks-list button.diagnostic { width: 100%; text-align: start; }
 .model-checks-list button[aria-disabled="true"] { cursor: default; }
 .app-menu-item .app-menu-shortcut { margin-inline-start: auto; padding-inline-start: var(--space-4); color: var(--ui-muted); font: inherit; }
+
+/* B9: the entity and cell context menu (ContextMenu.tsx). It is portalled to the shell, so it
+   takes the shell's tokens, with the base tokens where it opens outside the shell. */
+.context-menu {
+  position: fixed; z-index: 80; display: flex; flex-direction: column; min-width: 220px; max-width: 360px; padding: var(--space-2);
+  color: var(--ui-text, var(--text-primary)); background: var(--surface-raised); border: 1px solid var(--ui-border, var(--border-hairline));
+  border-radius: var(--radius-control); box-shadow: var(--elevation-2); font-size: var(--type-size-body);
+}
+.context-menu:focus { outline: none; }
+.context-menu-item {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; column-gap: var(--space-5);
+  min-height: 28px; padding: var(--space-2) var(--space-3); border-radius: var(--radius-control); cursor: pointer;
+}
+.context-menu-item.active { background: var(--ui-selection, var(--selection-band)); }
+.context-menu-item:focus-visible { outline: 2px solid var(--ui-focus, var(--focus-ring)); outline-offset: -2px; }
+.context-menu-item[aria-disabled="true"] { color: var(--ui-disabled-text, #667680); cursor: not-allowed; }
+.context-menu-shortcut { font-family: var(--font-mono); font-size: var(--type-size-caption); color: inherit; }
+.context-menu-reason { grid-column: 1 / -1; font-size: var(--type-size-caption); color: var(--ui-disabled-text, #667680); white-space: normal; }
+.context-menu-separator { height: 1px; margin: var(--space-2) var(--space-1); background: var(--ui-divider, var(--border-hairline)); }

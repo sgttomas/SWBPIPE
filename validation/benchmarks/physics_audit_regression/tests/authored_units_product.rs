@@ -12,7 +12,7 @@ fn model(temperature: &str, engineering_units: bool) -> Value {
     } else {
         (200e9, 77e9, "Pa")
     };
-    json!({"schema_version":"0.7.0","document_kind":"openpipestress.product_preview.model",
+    json!({"schema_version":"0.8.0","document_kind":"openpipestress.product_preview.model",
       "project":{"id":"project:authored-unit-contract","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","temperature":temperature,"stress":"MPa"}},
       "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
       "nodes":[{"id":"node:root","position":{"x":0,"y":0,"z":0},"provenance":"user_entered_local_preview"},{"id":"node:tip","position":{"x":6,"y":0,"z":0},"provenance":"user_entered_local_preview"}],

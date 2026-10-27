@@ -297,11 +297,15 @@ fn record_operations_refuse_malformed_records_by_the_validator_name() {
     assert_eq!(blocking(&refused(&model, &colliding)), vec!["OP-DATA-ID-COLLISION"]);
     let colliding = record_op("create_line", "Line", "lines", "assumption:A-001", None, Some(&line("assumption:A-001", &[])));
     assert_eq!(blocking(&refused(&model, &colliding)), vec!["OP-DATA-ID-COLLISION"]);
-    // Model-data records are authored on the current document only.
+    // Model-data records are authored on the current document only: a retired
+    // one is refused by name before any operation is checked (model document
+    // 0.8.0, r6), and a newer one as newer than supported (r7).
     let mut retired = model.clone();
     retired["schema_version"] = json!("0.6.0");
     let operation = record_op("create_line", "Line", "lines", "line:L-400", None, Some(&line("line:L-400", &["pipe:P-2"])));
-    assert_eq!(blocking(&refused(&retired, &operation)), vec!["OP-DATA-DOCUMENT-INVALID"]);
+    assert_eq!(blocking(&refused(&retired, &operation)), vec!["MODEL_SCHEMA_VERSION_RETIRED"]);
+    retired["schema_version"] = json!("0.9.0");
+    assert_eq!(blocking(&refused(&retired, &operation)), vec!["MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED"]);
 }
 
 /// Tags and notes on every entity type and the project; provenance records on
@@ -585,9 +589,25 @@ fn applier_golden_records_one_document_per_new_operation_kind() {
                 "source_license": "invented-permissive", "contributor": "Invented contributor",
                 "contributor_certification": "invented-attestation", "redistribution_status": "public_permissive",
                 "review_status": "pending"})));
+    // Model document 0.8.0 (DEL-02-01 Design `model-document-0.8.0.md` §5; DEL-03-05 Design
+    // `eccentric-reducer-offset.md` §6): an invented reducer at node:N-2 mapping pipe:P-1, given
+    // its eccentric offset through the applier's vector field. Intentional new golden content.
+    let mut with_reducer = base.clone();
+    with_reducer["components"].as_array_mut().unwrap().push(json!({
+        "id": "component:R-1", "label": "Invented reducer", "kind": "reducer", "node": "node:N-2",
+        "geometry": {"rigid_pipe_ref": "pipe:P-1", "rigid_body_length": {"value": 120.0, "unit": "mm"}},
+        "provenance": "invented_example"
+    }));
+    let mut offset = intent("modify", "Component", "component:R-1", "set_field", "geometry.eccentric_offset", "TBD",
+        r#"{"x":0,"y":-50,"z":0,"unit":"mm"}"#);
+    offset["change"]["unit"] = json!("mm");
+    offset["change"]["dimension"] = json!("length");
+    let offset_applied = push("eccentric_offset", &with_reducer, offset);
+    assert_eq!(find(&offset_applied, "components", "id", "component:R-1")["geometry"]["eccentric_offset"],
+        json!({"x": 0.0, "y": -50.0, "z": 0.0, "unit": "mm"}));
     let golden = json!({
         "document_kind": "openpipestress.test.applier_model_data_golden",
-        "description": "One applied model document per W-13 model-data operation kind (design model-document-0.7.0.md §5.2). Invented data. Regenerate with MODEL_DATA_GOLDEN_BLESS=1 cargo test --test model_data_authoring.",
+        "description": "One applied model document per W-13 model-data operation kind (design model-document-0.7.0.md §5.2), and a reducer's eccentric_offset (model-document-0.8.0.md §5). Invented data. Regenerate with MODEL_DATA_GOLDEN_BLESS=1 cargo test --test model_data_authoring.",
         "entries": entries,
     });
     let text = serde_json::to_string_pretty(&golden).unwrap() + "\n";

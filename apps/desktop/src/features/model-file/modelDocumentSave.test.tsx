@@ -562,7 +562,7 @@ describe("emitted documents", () => {
     ...desktopEmitted.entries.map((entry) => [`desktop ${entry.path}`, entry.document] as const),
     ...applierEmitted.entries.map((entry, index) => [`applier ${index} ${entry.change_kind}`, entry.applied_model] as const)
   ];
-  it("has all 34", () => expect(emitted).toHaveLength(34));
+  it("has all 36", () => expect(emitted).toHaveLength(36));
   it.each(emitted)("%s opens and is ready to save", async (_label, document) => {
     const checked = checkNativeOutcome({ outcome: "opened", file_name: "emitted.json", byte_count: 1, schema_status: "current", document: clone(document) });
     expect(checked.outcome === "refused" ? checked.diagnostics : []).toEqual([]);

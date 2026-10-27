@@ -1,9 +1,9 @@
-//! T4-U5b: the model 0.7.0 request builder for the frozen references in
-//! `validation/references/t4_u5b/` (its README, "Binding to model 0.7.0").
+//! T4-U5b: the model 0.8.0 request builder for the frozen references in
+//! `validation/references/t4_u5b/` (its README, "Binding to model 0.8.0").
 //!
 //! Each case description names its t4_u5a base request and that request's
 //! SHA-256. The builder checks the oracle's `case_sha256` of the description
-//! and the base's SHA-256, re-expresses the base in model 0.7.0 in memory
+//! and the base's SHA-256, re-expresses the base in model 0.8.0 in memory
 //! through the shared rule (`current_model.rs`), and applies the listed
 //! changes in 0.7.0's defined rod shape (DEL-04-07 Design
 //! `u4b-u5b-implementation.md` §3.1): the hardware with offsets in the
@@ -129,7 +129,7 @@ fn offset(v: &Value) -> Value {
     json!({"x": quantity(x, "m"), "y": quantity(y, "m"), "z": quantity(z, "m")})
 }
 
-/// The 0.7.0 `hardware` object of a case description's rods (§3.1).
+/// The 0.8.0 `hardware` object of a case description's rods (§3.1).
 pub fn hardware(description: &Value) -> Value {
     let rods = description["physical_inputs"]["connector"]["hardware"]["rods"].as_array().unwrap();
     json!({"kind": "explicit_axial_rods_v1", "rods": rods.iter().map(|rod| {
@@ -151,7 +151,7 @@ fn by_id<'a>(items: &'a mut Value, id: &str) -> &'a mut Value {
         .unwrap_or_else(|| panic!("no item {id}"))
 }
 
-/// The model 0.7.0 request of oracle case `name`.
+/// The model 0.8.0 request of oracle case `name`.
 pub fn request(name: &str, case: &Value) -> Value {
     let description = description(case);
     assert_eq!(description["id"], name);
