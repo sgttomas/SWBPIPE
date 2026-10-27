@@ -274,6 +274,7 @@ code_paths:
 - apps/desktop/src/features/results/StressRatioTablePanel.tsx
 - apps/desktop/src/features/results/displacementExtremes.ts
 - apps/desktop/src/features/results/DisplacementExtremesPanel.tsx
+- apps/desktop/src/features/report/springHangerSupport.ts
 checks:
 - apps/desktop/src/features/results/ResultsPanel.test.tsx
 - apps/desktop/src/App.resultPaging.test.tsx
@@ -310,3 +311,4 @@ checks:
 - apps/desktop/src/features/results/displacementExtremes.test.ts
 - apps/desktop/src/features/results/DisplacementExtremesPanel.test.tsx
 - apps/desktop/src/features/results/DisplacementExtremesPanel.derivation.test.tsx
+- apps/desktop/src/features/report/springHangerSupport.test.ts

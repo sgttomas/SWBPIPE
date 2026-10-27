@@ -22,6 +22,7 @@ import { reportResultRows } from "./reportResultRows";
 import { checkExactReportAdmission, REPORT_EXACT_ADMISSION_BINDING_MISMATCH, type ExactReportAdmission } from "./exactReportAdmission";
 import { exactLimitationEntries, exactRouteCore, isExactReportSource, SECTION_BASIS_HEADLINES } from "./exactReportSections";
 import { isDisplayedScaled } from "./reportQuantityDisplay";
+import { isSpringHangerSupport } from "./springHangerSupport";
 
 // DEC-021 (A7): assemble the renderer input document from session state.
 // The frontend composes only references, disclosures, and display rows — the
@@ -517,13 +518,7 @@ function libraryFindingDiagnostics(findings: ReadonlyArray<LibraryRefFinding>, p
 }
 
 function springHangerSupports(model: PreviewModel) {
-  return model.supports.filter(
-    (support) =>
-      support.family === "variable_spring_hanger" ||
-      support.family === "constant_effort_support" ||
-      support.hanger?.hanger_type === "variable_spring_hanger" ||
-      support.hanger?.hanger_type === "constant_effort_support"
-  );
+  return model.supports.filter(isSpringHangerSupport);
 }
 
 function springHangerSourceLocation(support: PreviewModel["supports"][number]): string {

@@ -41,7 +41,8 @@ export type DisplacementExtremesPanelProps = Readonly<{
   result: MechanicsResult | null;
   /** The reader's numerical standing and the session's numerical health view (the overlays' input). */
   standing: ResultOverlayStanding | null | undefined;
-  /** The session's selected node: its row is marked, and its page is shown when it changes. */
+  /** The session's selected node: its row is marked, and its page is shown once when it changes,
+   * as soon as its row can be shown. */
   selectedNodeId?: string | null;
   /** Selects a node through the session's selection. */
   onSelectNode?: (nodeId: string) => void;
@@ -95,13 +96,21 @@ export function DisplacementExtremesPanel({
   // A new filter, sort or case choice lists from the first page again.
   useEffect(() => setPage(0), [filter, sort, caseKeys]);
   // The session's selected node moves the panel to its page once each time the selection changes.
-  const appliedSelection = useRef<string | null>(null);
+  // The move waits until the node's row can be shown (a result with an admitted chosen case, and
+  // the node listed under the filter); while there is no result it stays pending, so a result that
+  // arrives later shows the selection's page. Once applied, paging is the user's again.
+  const seenSelection = useRef<string | null>(null);
+  const pendingSelection = useRef<string | null>(null);
   useEffect(() => {
-    if (selectedNodeId === appliedSelection.current) return;
-    appliedSelection.current = selectedNodeId;
-    const at = selectedNodeId ? view.rows.findIndex((row) => row.nodeId === selectedNodeId) : -1;
-    if (at >= 0) setPage(Math.floor(at / DISPLACEMENT_EXTREMES_PAGE));
-  }, [selectedNodeId, view]);
+    if (selectedNodeId !== seenSelection.current || data.state !== "available") pendingSelection.current = selectedNodeId;
+    seenSelection.current = selectedNodeId;
+    const target = pendingSelection.current;
+    if (target === null || data.state !== "available" || view.chosenCases.length === 0) return;
+    const at = view.rows.findIndex((row) => row.nodeId === target);
+    if (at < 0) return;
+    pendingSelection.current = null;
+    setPage(Math.floor(at / DISPLACEMENT_EXTREMES_PAGE));
+  }, [selectedNodeId, data, view]);
   const tid = (suffix: string) => `${testIdPrefix}-${suffix}`;
   const health = standing?.health ?? null;
   const first = shownPage * DISPLACEMENT_EXTREMES_PAGE;
