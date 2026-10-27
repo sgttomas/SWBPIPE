@@ -230,17 +230,40 @@ wrapper-owned `--explicit-local-private-intent`, and write no output on block;
 their mirror is pinned to the same invented parity corpus as Python and
 TypeScript.
 
-Remaining (not changed, since repairing them would change existing decisions):
-in the five existing contexts the bounded Rust mirror reads some inputs
-differently from Python and TypeScript. It does not screen `cache_payload` or
-`sqlite_payload`; it does not fall back to the provenance for a null privacy or
-redistribution member or for an `unknown` or null review status; and it does
-not count a scalar storage-privacy metadata key as metadata present. No parity
-case covers these inputs. In `user_released_report` the mirror reads them as
-Python and TypeScript do, and parity cases hold all three to it. Separately,
-Python reads `professional_claim` by its truth value, so a non-empty string
-such as `"no"` or a non-empty list blocks there, while TypeScript and Rust
-block only on `true`, a recognized true string or a non-zero number.
+The bounded Rust mirror's departures in the five existing contexts were
+resolved by the W-18b Rust-mirror alignment (2026-10-27). It now reads the
+inputs described here as Python and TypeScript do, except for the remaining
+differences below: it screens `cache_payload` and
+`sqlite_payload`, falls back to the provenance for a null privacy or
+redistribution member and for an `unknown` or null review status, and counts a
+scalar storage-privacy metadata key as metadata present. The alignment's
+differential also found, and the mirror now follows, two further readings: any
+safe privacy class with any public redistribution status is included (for
+example `public_metadata` with `invented_non_engineering_example`), and only an
+absent, null, `unknown` or `TBD` privacy or redistribution is unknown, so a
+stated non-string label is decided as Python and TypeScript decide it.
+Existing-context parity cases hold all three implementations to these inputs.
+The mirror is test-only; the runners' fixed `control_local_private` projection
+does not use it and is unchanged.
+
+Remaining: Python reads `professional_claim` by its truth value, so a non-empty
+string such as `"no"` or a non-empty list blocks there, while TypeScript and
+Rust block only on `true`, a recognized true string or a non-zero number.
+Python's reading is kept for now because it blocks more and never fewer. It is
+to be resolved by typing the field as boolean in the schema, so the three
+implementations cannot diverge. Also remaining: Python's classification raises
+`TypeError` on an array or object privacy, redistribution or review status (the
+value is unhashable in its set lookups), where TypeScript and Rust decide the
+item. The error fails closed: it is raised before anything is materialized or
+written, so no output results. Typing these labels as strings in the schema
+would close it. Also remaining: the three implementations trim different
+whitespace from a boolean-like flag string such as `contains_payload`.
+TypeScript's trim removes U+FEFF, which Python and Rust keep; Python's strip
+removes U+001C to U+001F, which TypeScript and Rust keep. So `"\ufefftrue\ufeff"`
+blocks a `public_report` item in TypeScript and is included in Python and Rust,
+and the same string with U+001C blocks in Python only. TypeScript and Python
+already disagree here, so the mirror cannot follow both; resolving it needs one
+normalization rule for flag strings, or flags typed as booleans in the schema.
 
 The protected-content lint CLI remains a separately governed DEC-058/DEC-059
 diagnostic used only by the release scan and public-source exporter; it is not
