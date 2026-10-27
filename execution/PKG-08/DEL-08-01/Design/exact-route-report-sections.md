@@ -610,7 +610,8 @@ pub struct ReportHeadline {
 
 The three new structs are `#[serde(deny_unknown_fields)]`; the enclosing
 struct still drops unknown top-level fields (§1.1 item 3). The renderer emits
-the block at the start of the Results section
+the block at the start of the Results section, after the display rule
+statement when the report declares that policy (§3.7)
 (`report_renderer/src/lib.rs:710`), in `assemble_report_sections`, so the HTML
 and the PDF carry it alike:
 - subheading "Exact-Route Result";
@@ -712,8 +713,10 @@ reaches a report.
 - `label`: "Nominal section (nominal wall)" and "Reduced section (wall minus
   mill tolerance and corrosion allowance)". The labels move to one exported
   constant shared with `ResultsPanel.tsx:227-230`.
-- `value_display`: `` `${value} ${unit}` ``, the result rows' form, which the
-  Rust side reproduces with `canonical_number` (`bindings.rs:114-117`).
+- `value_display`: `<display value> <display unit>`, the result rows' form
+  including its display rule (`report-package-current-results.md` §2.3 item
+  6), which the Rust side reproduces with the same rule over
+  `canonical_number`.
   `location_ref` and `source_ref` are the headline's `location_ref` and
   `result_ref`.
 - A null key (incomplete coverage) is withheld: `value_display` "withheld: a
@@ -1098,6 +1101,60 @@ residual.
   check would need every render, pressure-free included, to resubmit its
   source. The app's own production caller sends such an input only for a
   result its cell admits (`RenderedReportPanel.tsx:171`).
+
+### 3.7 Readability on every route (§6.3 items 1-3)
+
+Three presentation changes from the owner's review of the §5.5 evidence. They
+are in the shared renderer (or, for the display rule, in the shared row and
+headline projections), so the HTML and the PDF, the native render and the
+package carry them alike, on the exact and the pressure-free route. No input,
+schema, section, package member, binding or identifier changes.
+
+- **Diagnostic evidence (item 1).** In the Diagnostics table of "Warnings,
+  Assumptions, And Provenance", a diagnostic whose code begins
+  `NUMERICAL_INTEGRITY_`, or whose message is longer than 1,000 characters
+  (`DIAGNOSTIC_MESSAGE_TABLE_LIMIT`; the producer's other messages on the
+  committed witnesses are at most 720), gets a short Message cell:
+  "<code phrase> (load case <case>); full text: Diagnostic evidence E<k>"
+  for an integrity code (the producer publishes one per load case, with the
+  case as its affected reference), "<code phrase> (affected: <ref>); full
+  text: Diagnostic evidence E<k>" otherwise. The code phrase is the code in
+  lower case with spaces, first letter capitalised ("Numerical integrity
+  checks passed"). The code and severity cells are unchanged, so the
+  standing line's pointer (§3.2) still finds its code. The section gains a
+  last block, "Diagnostic Evidence (full text)": per label, in table order, a
+  line "E<k>: <code> (<severity>), <load case or affected>" and then the
+  message verbatim as its own paragraph (FR-REP-001: nothing is summarised
+  or dropped). No summary is derived from `numerical_quality`: the native
+  render could not re-derive it.
+- **Display rule (item 3).** Result rows and headlines are displayed by the
+  rule of `report-package-current-results.md` §2.3 item 6 (a `Pa` value in
+  `MPa`, six significant digits, half away from zero, on the decimal text).
+  When the report declares that policy, the Results section opens with the
+  statement "Displayed values: result values and stress headlines are rounded
+  for display to six significant digits, half away from zero, and a value
+  stored in Pa is displayed in MPa (1 MPa = 10^6 Pa, an exact decimal shift).
+  Stored values and units are unchanged; the stored units are listed as
+  Result units in the Model Input Summary." A report declaring another policy
+  (the older invented fixtures) states none, so its bytes are unchanged.
+- **Run name (item 2, presentation).** The product producer names every
+  desktop solve `run:preview-linear-static-001`
+  (`core/product_physics/src/lib.rs` `run_id`), and report, result and
+  limitation identifiers derive from it. When the report's run is that name,
+  the header gains a line after the meta line (`run_name_note_text`): "Run
+  name: run:preview-linear-static-001 is the producer's fixed run name for
+  every desktop solve, not an identity of this run; the report, result and
+  limitation identifiers derived from it repeat across runs. This run is
+  identified by its received result sha256 <sha256>." The digest is the
+  checksum of the report's audit reference `result_envelope`
+  `result-envelope:<run>`: on both routes the desktop records the received
+  result's digest there (`renderableReportInput.ts`, payload scope
+  `received_result`), and on the exact route the renderer has checked it
+  against the admission binding's `received_result_sha256` (§3.2). Without
+  that reference the line ends "This report records no received result
+  sha256 that identifies the run." Any other run name adds nothing. No id,
+  binding or fixture id changes; a per-run identity is a remaining item
+  (§6.3).
 
 ## 4. Report provenance: materials, sections, supports and library records (FR-REP-003, every route)
 
@@ -1643,11 +1700,14 @@ differences, each fail-closed:
   110,845,552-byte lease before the object-form check, and with it
   45,915,728 when the test runs alone, 40,620,336 in the crate's full test
   run (the render's 6,642,400 within 12,099,728); DEL-04-07
-  `memory-budget-decision.md` records them.
+  `memory-budget-decision.md` records them. After the readability slice
+  (§3.7), run alone: the save 40,416,304 within 110,841,136 and the render
+  6,637,888 within 12,097,520.
 - **Readability items (observations on the §5.5 evidence).** Under the
   owner's ruling on the evidence (§0, option A), item 4's standing line is
-  fixed in #1648 (below); items 1-3 and item 4's headline labelling are not
-  changed and are deferred to the next slice. Each was checked against a pressure-free report of today (the
+  fixed in #1648 (below). Items 1-3 are built in the readability slice that
+  follows #1648 (§3.7, Agent 0's direction on the owner's review); item 4's
+  headline labelling is not changed and remains. Each was checked against a pressure-free report of today (the
   committed pressure-free result `fixtures/results/preview_physics_connected_sparse.json`
   and the headless runner's pressure-free package of
   `del1005_export_results_success_input.json`); Codex review round 1 of #1648
@@ -1658,19 +1718,44 @@ differences, each fail-closed:
      PDF's length. **Pre-existing:** the pressure-free result's
      `NUMERICAL_INTEGRITY_CHECKS_PASSED` message carries the same dump, and the
      renderer carries result diagnostics on both routes. *Improvement:* a
-     readable summary with the detail accessible;
+     readable summary with the detail accessible.
+     **Built (readability slice, §3.7):** the table shows a short cell
+     ("Numerical integrity checks passed (load case <case>); full text:
+     Diagnostic evidence E<k>") for every integrity code and every message
+     over 1,000 characters, and the section's last block, "Diagnostic
+     Evidence (full text)", carries each such message verbatim under its
+     label. *Remaining:* none for readability; a structured rendering of the
+     producer's evidence would need a producer change and is not planned;
   2. limitation ids and scopes name the run `run:preview-linear-static-001`.
      **Pre-existing:** the product producer names every desktop run so
      (`product_physics/src/lib.rs:3278`), and the pressure-free report's
      technical-preview entry carries it; the exact entries (`…:exact:<n>`) add
      more ids with the same run name. *Improvement:* the producer's run
-     naming;
+     naming.
+     **Built, presentation only (readability slice, §3.7):** on a report of
+     that run name the header states that it is the producer's fixed name for
+     every desktop solve, not an identity of this run, and identifies the run
+     by its received result sha256 (both routes, from the audit reference
+     `result-envelope:<run>`). *Remaining:* a per-run identity: a producer run
+     id that differs per solve (3b), and the report, result and limitation
+     ids that derive from it (3c). The run id is hash-bound in the producer's
+     output, the analysis record and every committed fixture that carries
+     it, so it changes with the producer (`core/product_physics`, priced);
+     not changed here;
   3. values are printed with every digit. **Pre-existing** for result rows
      (`reportResultRows.ts:48`, `${value} ${unit}`, e.g. 28.462881029847143 MPa
      on the pressure-free route). **New** on exact reports: the stress
      headlines, which quote the producer's summary maxima in Pa (e.g.
      41354908.75465696 Pa); a pressure-free rendered report has no headline.
-     *Improvement:* a reviewed display-rounding and unit policy;
+     *Improvement:* a reviewed display-rounding and unit policy.
+     **Resolved (readability slice):** values stored in `Pa` are displayed
+     in `MPa` and every displayed row and headline value is rounded to six
+     significant digits, on the decimal text; stored data unchanged; the
+     report states the rule once at the start of Results. Agent 0 resolved
+     it under the owner's delegation of 2026-10-26
+     (`report-package-current-results.md` §2.3 item 5, display resolution;
+     §3.3, §3.7). The headline above now reads 41.3549 MPa, the row
+     28.4629 MPa;
   4. the pressure-source-1 example (synthetic n05) shows 0 Pa for both
      headlines, and its standing line says "integrity checked" while
      Diagnostics carries `NUMERICAL_INTEGRITY_SENSITIVE`. **New:** the standing
@@ -1765,7 +1850,26 @@ differences, each fail-closed:
     `REPORT-EXACT-LIMITATION-UNREGISTERED`;
   - an unknown field in the new structs refuses;
   - the existing invented inputs render byte-identical;
-  - an exact report has no blocking linter finding.
+  - an exact report has no blocking linter finding;
+  - readability (§3.7): the short Diagnostics cell and the "Diagnostic
+    Evidence (full text)" block with each message verbatim, at and over the
+    1,000-character limit and for every integrity code, on invented
+    diagnostics and on the committed pressure-source-1 witness; the display
+    rule statement once at the start of Results, only under the declared
+    policy; the run-name note in the header with the received-result digest
+    on both routes, and none for another run name; the HTML and the PDF
+    carry them (`the_readability_texts_reach_the_pdf`); and a claims check of
+    the new texts (`the_readability_texts_pass_the_claims_check`: no
+    "acceptance", fewer than three GEN-13 litany terms, WinAnsi-encodable).
+- Display rule (`report-package-current-results.md` §2.3 item 6): the vitest
+  `reportQuantityDisplay.parity.test.ts` and the Rust
+  `report_package/tests/quantity_display_parity.rs` against
+  `report_quantity_display_parity.json`, with `conversion_performed` true
+  only for a displayed `Pa` value; `current_result_package.rs`
+  `the_stored_data_members_keep_their_bytes` (the audit manifest, result
+  export and handoff members keep their `1ee5d0e5dc` hashes; only the
+  rendered members and the manifest change); the native per-shape test
+  checks the three texts in the native render and the saved package.
 - Rust integration (`core/reporting/report_package/tests/report_rows_parity.rs`,
   a new `tests/exact_sections_parity.rs`):
   - the suffix rule;
