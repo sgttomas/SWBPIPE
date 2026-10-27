@@ -56,7 +56,8 @@ export function ResultsPanel({
   numericalHealth,
   resolveCauseLocation,
   onSelectCauseLocation,
-  onShowDiagnostic
+  onShowDiagnostic,
+  selectedEntity = null
 }: {
   result: MechanicsResult | null;
   knowledge: DesignKnowledge | null;
@@ -69,8 +70,19 @@ export function ResultsPanel({
   resolveCauseLocation?: (location: NumericalHealthLocation) => EntityRef | null;
   onSelectCauseLocation?: (entity: EntityRef) => void;
   onShowDiagnostic?: (diagnosticId: string) => void;
+  /** The workspace's primary selection. With "Selected entity only" on, the
+   * table shows only the rows stated for it. */
+  selectedEntity?: EntityRef | null;
 }) {
   const [filterText, setFilterText] = useState("");
+  const [selectionOnly, setSelectionOnly] = useState(false);
+  const [frameFilter, setFrameFilter] = useState<string>(ALL_FRAMES);
+  const selectionEntityId = selectedEntity && selectedEntity.type !== "project" ? selectedEntity.id : null;
+  const selectionFilterId = selectionOnly ? selectionEntityId : null;
+  // With "Selected entity only" on and no model entity selected, the table shows no rows and
+  // says so; the restriction is never dropped silently. Turning the toggle off removes the
+  // selection restriction; the text, family and frame filters still apply.
+  const selectionOnlyWithoutEntity = selectionOnly && selectionEntityId === null;
   const [familyFilter, setFamilyFilter] = useState<ResultFamilyFilter>("all");
   // The page is the user's position in one run's rows, held with that run's id.
   // Any other run reads as page 1 in the very render that first shows it. A
@@ -92,10 +104,15 @@ export function ResultsPanel({
     () => (result && labels ? countResultFamilies(result.results, labels) : EMPTY_RESULT_FAMILY_COUNTS),
     [result, labels]
   );
-  const filteredResults = useMemo(
-    () => (result && labels ? filterResults(result.results, filterText, familyFilter, labels) : []),
-    [familyFilter, filterText, result, labels]
-  );
+  const frameCounts = useMemo(() => (result ? countResultFrames(result.results) : new Map<string, number>()), [result]);
+  const activeFrame = frameFilter !== ALL_FRAMES && frameCounts.has(frameFilter) ? frameFilter : ALL_FRAMES;
+  const filteredResults = useMemo(() => {
+    const rows = result && labels ? filterResults(result.results, filterText, familyFilter, labels) : [];
+    if (selectionOnlyWithoutEntity) return [];
+    return rows.filter((item) =>
+      (selectionFilterId === null || item.entity_ref === selectionFilterId) &&
+      (activeFrame === ALL_FRAMES || resultFrame(item) === activeFrame));
+  }, [activeFrame, familyFilter, filterText, result, labels, selectionFilterId, selectionOnlyWithoutEntity]);
   const page = useMemo(
     () => paginateResults(filteredResults, pageIndex, pageSize),
     [filteredResults, pageIndex, pageSize]
@@ -114,6 +131,10 @@ export function ResultsPanel({
   useEffect(() => {
     setPageIndex((current) => Math.min(current, page.pageCount - 1));
   }, [page.pageCount]);
+  // A new selected entity starts its rows at page 1.
+  useEffect(() => {
+    if (selectionFilterId !== null) setPageIndex(0);
+  }, [selectionFilterId]);
 
   function handleFilterChange(value: string) {
     setFilterText(value);
@@ -157,6 +178,12 @@ export function ResultsPanel({
             onPageSizeChange={handlePageSizeChange}
             onPreviousPage={() => setPageIndex((current) => Math.max(0, current - 1))}
             onNextPage={() => setPageIndex((current) => Math.min(page.pageCount - 1, current + 1))}
+            selectionEntityId={selectionEntityId}
+            selectionOnly={selectionOnly}
+            onSelectionOnlyChange={(value) => { setSelectionOnly(value); setPageIndex(0); }}
+            frameCounts={frameCounts}
+            frameFilter={activeFrame}
+            onFrameFilterChange={(value) => { setFrameFilter(value); setPageIndex(0); }}
           />
           <ResultDetail interpretation={interpretation} result={result} />
           <GoverningRatioState ratioCount={0} />
@@ -176,6 +203,7 @@ export function ResultsPanel({
                         <th>ID</th>
                         <th>Entity</th>
                         <th>Location</th>
+                        <th title="The coordinate frame the row's value is stated in, as the row states it">Frame</th>
                         <th>Value</th>
                         <th>Entered source</th>
                       </tr>
@@ -199,6 +227,7 @@ export function ResultsPanel({
                           <td>{item.id}<small> {labels!.category(item)}</small>{labelSource && resultRowLabel(item, labelSource) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource)}</small> : null}<RowHealthBadge health={health} item={item} />{item.component_body ? <small data-testid={`result-row-component-body-${item.id}`}> reference section of component body {item.component_body.component_ref}</small> : null}</td>
                           <td>{item.entity_ref}</td>
                           <td>{item.metadata?.location ?? "summary"}</td>
+                          <td data-testid={`result-row-frame-${item.id}`}>{frameLabel(resultFrame(item))}</td>
                           <td>
                             <QuantityReadout quantity={{ value: item.value, unit: item.unit, dimension_id: labels!.dimension(item) ?? "unknown" }} />
                           </td>
@@ -289,7 +318,13 @@ function ResultControls({
   onFilterChange,
   onPageSizeChange,
   onPreviousPage,
-  onNextPage
+  onNextPage,
+  selectionEntityId,
+  selectionOnly,
+  onSelectionOnlyChange,
+  frameCounts,
+  frameFilter,
+  onFrameFilterChange
 }: {
   familyCounts: ResultFamilyCounts;
   familyFilter: ResultFamilyFilter;
@@ -304,6 +339,12 @@ function ResultControls({
   onPageSizeChange: (value: number) => void;
   onPreviousPage: () => void;
   onNextPage: () => void;
+  selectionEntityId: string | null;
+  selectionOnly: boolean;
+  onSelectionOnlyChange: (value: boolean) => void;
+  frameCounts: ReadonlyMap<string, number>;
+  frameFilter: string;
+  onFrameFilterChange: (value: string) => void;
 }) {
   const visibleFamilyOptions = RESULT_FAMILY_OPTIONS.filter(
     (option) => option.id === "all" || familyCounts[option.id as ResultFamily] > 0
@@ -338,6 +379,28 @@ function ResultControls({
           );
         })}
       </div>
+      {frameCounts.size > 1 ? (
+        <div className="result-family-row" role="group" aria-label="Result frame filter" data-testid="result-frame-filter">
+          {[ALL_FRAMES, ...frameCounts.keys()].map((frame) => {
+            const isActive = frame === frameFilter;
+            const count = frame === ALL_FRAMES ? [...frameCounts.values()].reduce((sum, value) => sum + value, 0) : frameCounts.get(frame) ?? 0;
+            return (
+              <button
+                aria-pressed={isActive}
+                className={isActive ? "result-family-active" : undefined}
+                data-testid={`result-frame-${frame}`}
+                key={frame}
+                onClick={() => onFrameFilterChange(frame)}
+                title={frame === ALL_FRAMES ? "Rows in every frame" : `Only rows stated in the ${frameLabel(frame).toLowerCase()} frame; values are shown as published, never re-projected`}
+                type="button"
+              >
+                <span>{frame === ALL_FRAMES ? "All frames" : frameLabel(frame)}</span>
+                <strong>{count}</strong>
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
       <div className="result-filter-row">
         <label>
           <Search size={14} aria-hidden="true" />
@@ -363,7 +426,23 @@ function ResultControls({
         >
           <X size={14} aria-hidden="true" />
         </button>
+        <button
+          aria-pressed={selectionOnly}
+          className={selectionOnly ? "result-family-active" : undefined}
+          data-testid="result-selection-only"
+          disabled={!selectionEntityId && !selectionOnly}
+          onClick={() => onSelectionOnlyChange(!selectionOnly)}
+          title={selectionEntityId ? `Show only the rows stated for ${selectionEntityId}; the table follows the selection` : "Select a model entity to show its rows"}
+          type="button"
+        >
+          Selected entity only{selectionOnly ? `: ${selectionEntityId ?? "none selected"}` : ""}
+        </button>
       </div>
+      {selectionOnly && !selectionEntityId ? (
+        <p role="status" className="muted" data-testid="result-selection-only-empty">
+          No model entity is selected, so no rows are shown. Select an entity, or turn off "Selected entity only" to remove the selection restriction; the other table filters still apply.
+        </p>
+      ) : null}
       <div className="result-page-row" aria-label="Result page controls">
         <label className="result-page-size">
           <span>Rows</span>
@@ -608,6 +687,37 @@ function countResultFamilies(resultItems: MechanicsResult["results"], labels: Ro
     counts[resultFamilyKey(item, labels)] += 1;
   }
   return counts;
+}
+
+const ALL_FRAMES = "all";
+const UNSTATED_FRAME = "unstated";
+const FRAME_LABELS: Readonly<Record<string, string>> = {
+  element_local: "Element local",
+  global: "Global",
+  pipe_section: "Pipe section",
+  connector_axes_q: "Connector axes",
+  reduced_system: "Reduced system",
+  solver_iteration: "Solver iteration",
+  [UNSTATED_FRAME]: "Not stated"
+};
+
+/** The frame a row states its value in (`metadata.coordinate_system`); rows that state none
+ * are "unstated". Read from the row, never inferred from its kind. */
+function resultFrame(item: MechanicsResult["results"][number]): string {
+  const frame = item.metadata?.coordinate_system;
+  return typeof frame === "string" && frame.trim() ? frame : UNSTATED_FRAME;
+}
+
+function frameLabel(frame: string): string {
+  return FRAME_LABELS[frame] ?? frame;
+}
+
+/** Row counts per frame, element local and global first, then the others by name. */
+function countResultFrames(items: MechanicsResult["results"]): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const item of items) counts.set(resultFrame(item), (counts.get(resultFrame(item)) ?? 0) + 1);
+  const order = (frame: string) => frame === "element_local" ? 0 : frame === "global" ? 1 : frame === UNSTATED_FRAME ? 3 : 2;
+  return new Map([...counts].sort(([a], [b]) => order(a) - order(b) || a.localeCompare(b)));
 }
 
 function filterResults(

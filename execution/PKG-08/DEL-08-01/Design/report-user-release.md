@@ -1187,10 +1187,13 @@ with no trimming. M is library-referenced when any of these holds:
    So each layer gains its own detector over the same walk, and the existing
    helpers stay unchanged (Record Run's revision and the pinned
    `fixtures/model_document/library_ref_sites.json` keep their meaning):
-   - natively, `library_ref_member_sites(M)` in `export_disposition_screen.rs`
-     runs `walk_document` and keeps, in walk order, every
+   - natively, `first_library_ref_member(M)` in `export_disposition_screen.rs`
+     finds the first member named `library_ref`, whatever its value, in
+     `walk_document`'s order, and stops there. It is pinned to the collecting
+     walk `library_ref_member_sites`, which keeps, in walk order, every
      `DocumentSite::LibraryRef` and every
-     `DocumentSite::NotAnObject { member: "library_ref", .. }`;
+     `DocumentSite::NotAnObject { member: "library_ref", .. }` and is pinned to
+     the shared member table; admission does not call the collecting walk;
    - in the webview, `libraryRefMemberSites(model)` beside `libraryRefSites`
      walks the same way and keeps every `library_ref` key, whatever its value.
 
@@ -1214,8 +1217,8 @@ with no trimming. M is library-referenced when any of these holds:
      It holds legacy evidence when that object has a member named
      `library_kind`, `library_id`, `library_metadata` or `record_snapshot`, or
      when rule 1, 2 or 3 (a) holds within the parsed value
-     (`library_ref_member_sites` over it, and the substring tests over its
-     strings).
+     (`holds_library_ref_member` over it, and the substring tests over its
+     strings; each stops at its first hit).
 
    Parsing goes one level deep. Strings inside the parsed value are tested by
    the substring rules, not parsed again: no apply wrote embedded JSON inside
@@ -1234,16 +1237,31 @@ gives the site's JSON pointer, the rule (`library_ref`, `provenance_string` or
 them. For rule 3 the kind is `hanger`. A non-object `library_ref` states
 neither, so its message gives the pointer and the rule only.
 
-**Cost.** Rules 1, 2 and 3 (a) are linear passes over the parsed M. Rule 1's
-walk returns one path per `library_ref` member, as Record Run's use of
-`library_ref_sites` does today (`analysis_runs.rs:399`); rules 2 and 3 (a)
-allocate nothing. Admission
+**Cost.** Rules 1, 2 and 3 (a) are linear passes over the parsed M. Every
+walk of these rules, of the rule-pack rule and of the private-class rule stops
+at its first site and holds its path on its own stack frames, borrowing each
+key: it allocates nothing per level, whatever the depth or the keys' length.
+Only the site that is reported is built: its JSON pointer in M, at its exact
+length, and the library kind and id, each kept to the 161 characters the
+message can show. The same walks over a parsed embedded value (rule 3 (b))
+decide at the first hit and allocate nothing (Codex round 1 at #1673: a walk
+that collected every site and built each level's path allocated about 94
+times the lease growth). Admission
 refuses at the first site. For rule 3 (b), admission first prescans every
 candidate (a string that, trimmed as above, begins with `{`; `ingress::prescan`
 allocates nothing) and grows the
 command's ingress lease once, by the largest candidate's
 `text_parse_bytes(·, Moved)`. It then parses the candidates one at a time and
-drops each before the next, so at most one embedded value is held beside M.
+drops each before the next, so at most one embedded value is held beside M,
+and the peak beyond M stays within that growth and the reported site.
+That bound covers detection (`library_reference_site`). Formatting the
+refusal message from the reported site (`refuse_library_referenced`) allocates
+further, in proportion to the site's pointer and kept texts (Codex round
+2 at #1673: 8,388,656 bytes on 124 enclosing keys of 4,000 bytes each, against
+7,280 bytes of growth plus a 2,099,200-byte site allowance). Slice (r2c)
+prices that formatting within route 010's ingress lease, which the
+budget-bounded growth rule of DEL-04-07 (draft #1676) caps at the budget the
+command was admitted under.
 
 **The webview** applies the same three rules as an early check
 (`libraryRefMemberSites`, the substring tests, and `JSON.parse` in a `try` for
@@ -2137,8 +2155,8 @@ unknown-metadata branch:
 
 10. privacy in the non-project private set (§2.7), whatever the redistribution
     status (`unknown` included) → `redact_value` / `PRIVATE_DATA_REDACTED`. On
-    the lossless route this withholds the payload (`controlRouteExport`,
-    `:968-969`), so the save is refused;
+    route 010 the user-release projector is lossless, so this withholds the
+    payload and the save is refused;
 11. privacy `private_project_data`, whatever the redistribution status: with
     the wrapper's user-release intent → `warning_only` /
     `USER_RELEASED_PROJECT_DATA`; without it → `block_export` /
@@ -2165,10 +2183,41 @@ else `private_project_data` / `private_only`. So:
   wrapper's intent, a block without it;
 - an object labelled with a non-project private class is withheld by step 10;
 - a protected, quarantined or rejected object blocks (steps 8-9);
-- an object with unknown own metadata blocks (step 13).
+- an object with unknown own metadata blocks (step 13). An explicitly stated
+  own privacy or redistribution (its own member, its provenance's, or its
+  `privacy_class`, as the projector reads them) that the classification does not
+  recognize, such as `{}`, `[]`, a number, a boolean, an empty or unknown
+  string, or a null, `unknown` or `TBD` privacy, blocks at that object by step
+  13 (`USER_RELEASE_VALUE_UNBOUND`), and no descendant's label replaces it;
+  only an absent label inherits (Codex r4 of the r1 slice).
 
 There is no path-token labelling and no field table on this route. The
 webview's check is early; native admission's derivation decides (§2.6).
+
+**The redaction walk refuses the context (Codex r3 of the r1 slice).**
+`redactExportPayload` and `redact_export_payload` throw
+`USER_RELEASE_ROUTE_REQUIRED` for `user_released_report`, whatever the intent
+and the payload, after the context and user-release intent checks and before
+any walk, as the generic route exporters do (§3.3). The walk decides a
+value-bearing object as a whole and keeps an unlabelled value. In this context
+a labelled object would therefore hide a restricted descendant: a nested
+marker, protected or quarantined content, or a non-project private class. It
+would also leave a private object's members other than `value` and `text`
+unredacted. Sharing the projector's procedure was considered and not chosen,
+for three reasons:
+- Agreement with the projector on every input would need the projector's
+  default label. The walk would then admit an unlabelled value with the
+  wrapper's intent, which it blocked by step 13 before this change.
+- Python carries no user-release projector (§3.3).
+- Route 010 is lossless, so a redacted user-release payload has no consumer.
+
+The classification of one item (`classifyExportItem` /
+`classify_export_item`) still decides an item by steps 1-13; the shared corpus
+holds it there. The corpus's new-context finding checks run on the
+user-release projector in TypeScript, and on the item's own finding in
+Python. Two corpus items state no privacy: the item rule blocks them by step
+13, and on the projector they take the default label. The five existing
+contexts' walk is unchanged.
 
 ### 3.3 Context and route
 
@@ -2216,6 +2265,15 @@ Route tables and local-first admission:
   `explicitUserReleaseIntent: true` with any context other than
   `user_released_report` (an exception, as `assertContext` throws,
   `:665-669`). The flag therefore cannot enable export in another context.
+- **The generic route exporters refuse the context and the route (Codex r2
+  of the r1 slice).** `controlRouteExport` and `control_route_export` throw
+  `USER_RELEASE_ROUTE_REQUIRED` for `user_released_report` on every route and
+  for route 010 in every context, after the context and user-release intent
+  checks and before any projection, as they throw for an unsupported context.
+  Their path-token projector would admit what the user-release screen
+  refuses. The redaction walk refuses the context in the same way (§3.2). The
+  user-release projector is therefore the only payload entry for the context
+  and the route.
 - The Rust mirror (`core/runner/headless/src/redaction_binding.rs:166,216-218`)
   implements the same rule so the shared corpus
   (`fixtures/redaction_export_controls/cases.json`, read at `:702-740`) holds.
@@ -2481,7 +2539,9 @@ leaves the sandbox directory empty, with no picker request.
   nested.
   - The detector alone, with no disposition screen (a Rust unit test of
     `library_ref_member_sites` and a vitest of `libraryRefMemberSites`), names
-    each one as a rule-1 site with its pointer.
+    each one as a rule-1 site with its pointer. Admission's early-exit
+    `first_library_ref_member` finds each in turn as that walk's first site,
+    with the same pointer.
   - Natively each is refused, whichever check runs first.
   - In the webview the save is disabled.
   - The same members held inside embedded JSON (rule 3 (b) through rule 1),
@@ -2504,7 +2564,13 @@ leaves the sandbox directory empty, with no picker request.
     kept (3 (a));
   - the full string with leading and trailing JSON whitespace;
   - an embedded object holding only a nested `library_ref` (3 (b) through
-    rule 1), and one holding only a `library:hanger:…` string (rule 2);
+    rule 1);
+  - an embedded object holding only a `library:hanger:…` string. §2.7's
+    order governs: rule 2 tests the outer string first, so the plain form is
+    refused as `provenance_string`; with the prefix escaped in the JSON text
+    (for example its colon written `\u003a`), rule 2 does not match the outer
+    string, and the prefix found after parsing (3 (b) through rule 2) is
+    refused as `legacy_hanger_selection`;
   - the legacy string held in an array element and at a nested object member,
     not only at `supports[].provenance`;
   - a candidate beginning with `{` that the prescan refuses for nesting deeper
@@ -2872,7 +2938,13 @@ leaves the sandbox directory empty, with no picker request.
 - Rust, Tauri, rule 3 (b)'s lease: the ingress lease grows by the largest
   candidate's priced parse before any embedded parse, and a counting-allocator
   test over a model with several large embedded candidates shows at most one
-  embedded value held at a time, within that growth.
+  embedded value held at a time, within that growth. A second
+  counting-allocator test holds deep and wide embedded values (Codex round 1
+  at #1673's shape: 1,000 `library_ref` members beneath 90 object levels with
+  1,000-character keys; 124 such levels; 100,000 members in one list; each
+  without a site, and with the site last). Its peak stays within the growth
+  plus the reported site, and the same values as M allocate nothing beyond
+  the site, in the private-class and rule-pack walks too.
 - Rust, `report_package::user_release`: the derivation vectors pass. A
   mutation of each member of a derived request is refused, naming its pointer.
 - Parity: the derivation vectors in vitest and in Rust.

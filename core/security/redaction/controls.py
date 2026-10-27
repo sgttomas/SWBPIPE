@@ -16,7 +16,13 @@ REDACTED_VALUE = "[REDACTED]"
 OMITTED_SENTINEL = object()
 
 PUBLIC_CONTEXTS = {"public_report", "public_example", "shared_model", "downstream_tool"}
-EXPORT_CONTEXTS = PUBLIC_CONTEXTS | {"local_private"}
+# W-18b (DEL-08-01 Design `report-user-release.md` §3.1): a report of the user's own
+# session in which the user releases their own project data for sharing, for that one
+# report.  It is admitted only on route DREP-PACKAGE-USER-RELEASE-010 with the wrapper's
+# user-release intent; payload content never selects or grants it.  No Python route
+# uses it.
+USER_RELEASED_REPORT_CONTEXT = "user_released_report"
+EXPORT_CONTEXTS = PUBLIC_CONTEXTS | {"local_private", USER_RELEASED_REPORT_CONTEXT}
 
 SAFE_PRIVACY_CLASSES = {"public", "public_metadata", "invented_public_example"}
 PRIVATE_PRIVACY_CLASSES = {
@@ -29,6 +35,9 @@ PRIVATE_PRIVACY_CLASSES = {
     "path_data",
     "secret_like_data",
 }
+# The private classes other than the user's own project data (§2.7): redacted in the
+# user-released context whatever their redistribution status.
+NON_PROJECT_PRIVATE_CLASSES = PRIVATE_PRIVACY_CLASSES - {"private_project_data"}
 UNKNOWN_PRIVACY_CLASSES = {"unknown", "TBD", None}
 PUBLIC_REDIS_STATUSES = {"public_permissive", "invented_non_engineering_example"}
 UNKNOWN_REDIS_STATUSES = {"unknown", "TBD", None}
@@ -188,11 +197,46 @@ class RedactionResult:
         }
 
 
+def assert_user_release_intent_context(
+    export_context: str, explicit_user_release_intent: Any
+) -> None:
+    """Refuse user-release intent with any context but ``user_released_report``.
+
+    The flag therefore cannot enable export in another context (§3.3).
+    """
+
+    if explicit_user_release_intent is None or explicit_user_release_intent is False:
+        return
+    if export_context != USER_RELEASED_REPORT_CONTEXT:
+        raise ValueError(
+            "explicit_user_release_intent is admitted only in the "
+            f"{USER_RELEASED_REPORT_CONTEXT} context, not in {export_context}"
+        )
+
+
+def _assert_redaction_walk_context(export_context: Any) -> None:
+    """Refuse ``user_released_report`` outright, in every call and before any walk
+    (§3.2), as the generic route exporter does.
+
+    The walk decides a value-bearing object as a whole and keeps an unlabelled
+    value, so in that context it would admit what the user-release screen refuses
+    (a marker or a non-project private class on a descendant of a labelled
+    object).  ``classify_export_item`` decides one item by the rule.
+    """
+
+    if export_context == USER_RELEASED_REPORT_CONTEXT:
+        raise ValueError(
+            "USER_RELEASE_ROUTE_REQUIRED: the redaction walk does not admit the "
+            f"{USER_RELEASED_REPORT_CONTEXT} context; only the user-release projector does"
+        )
+
+
 def redact_export_payload(
     payload: Any,
     *,
     export_context: str,
     explicit_local_private_intent: bool = False,
+    explicit_user_release_intent: bool = False,
 ) -> RedactionResult:
     """Return a redacted export/report representation and findings.
 
@@ -203,6 +247,8 @@ def redact_export_payload(
 
     if export_context not in EXPORT_CONTEXTS:
         raise ValueError(f"unsupported export_context: {export_context}")
+    assert_user_release_intent_context(export_context, explicit_user_release_intent)
+    _assert_redaction_walk_context(export_context)
 
     decisions: list[RedactionDecision] = []
     findings: list[RedactionFinding] = []
@@ -224,17 +270,20 @@ def classify_export_item(
     *,
     export_context: str,
     explicit_local_private_intent: bool = False,
+    explicit_user_release_intent: bool = False,
     path: str = "$",
 ) -> RedactionDecision:
     """Classify a single metadata-bearing export item."""
 
     if export_context not in EXPORT_CONTEXTS:
         raise ValueError(f"unsupported export_context: {export_context}")
+    assert_user_release_intent_context(export_context, explicit_user_release_intent)
     decision, _finding = _classify(
         item,
         path=path,
         export_context=export_context,
         explicit_local_private_intent=explicit_local_private_intent,
+        explicit_user_release_intent=explicit_user_release_intent is True,
         decision_index=1,
         finding_index=1,
     )
@@ -250,6 +299,8 @@ def _walk(
     decisions: list[RedactionDecision],
     findings: list[RedactionFinding],
 ) -> Any:
+    # The walk serves the five existing contexts only; ``redact_export_payload``
+    # refuses ``user_released_report`` before it is reached (§3.2).
     if isinstance(value, dict):
         if _is_value_bearing(value):
             decision, finding = _classify(
@@ -257,6 +308,7 @@ def _walk(
                 path=path,
                 export_context=export_context,
                 explicit_local_private_intent=explicit_local_private_intent,
+                explicit_user_release_intent=False,
                 decision_index=len(decisions) + 1,
                 finding_index=len(findings) + 1,
             )
@@ -312,6 +364,7 @@ def _classify(
     path: str,
     export_context: str,
     explicit_local_private_intent: bool,
+    explicit_user_release_intent: bool,
     decision_index: int,
     finding_index: int,
 ) -> tuple[RedactionDecision, RedactionFinding | None]:
@@ -320,9 +373,15 @@ def _classify(
     privacy = item.get("privacy_classification")
     redistribution = item.get("redistribution_status")
     review_status = item.get("review_status", "unknown")
-    local_private_intent = _local_private_intent(
-        item,
-        explicit_local_private_intent=explicit_local_private_intent,
+    # Payload-carried local-private intent is not read in the user-released context
+    # (§3.2): only the wrapper's release intent decides there.
+    local_private_intent = (
+        False
+        if export_context == USER_RELEASED_REPORT_CONTEXT
+        else _local_private_intent(
+            item,
+            explicit_local_private_intent=explicit_local_private_intent,
+        )
     )
 
     provenance = item.get("provenance")
@@ -346,6 +405,7 @@ def _classify(
         metadata_present=metadata_present,
         export_context=export_context,
         explicit_local_private_intent=local_private_intent,
+        explicit_user_release_intent=explicit_user_release_intent,
         professional_claim=bool(item.get("professional_claim", False)),
         contains_payload=_contains_payload(item),
         secret_material_present=_secret_material_present(item),
@@ -377,6 +437,7 @@ def _action_for(
     metadata_present: bool,
     export_context: str,
     explicit_local_private_intent: bool,
+    explicit_user_release_intent: bool,
     professional_claim: bool,
     contains_payload: bool,
     secret_material_present: bool,
@@ -403,6 +464,12 @@ def _action_for(
         return "block_export", "PROTECTED_CONTENT_BLOCKED"
     if review_status in {"quarantined", "rejected"}:
         return "block_export", "PROTECTED_CONTENT_BLOCKED"
+    if export_context == USER_RELEASED_REPORT_CONTEXT:
+        return _user_released_action(
+            privacy=privacy,
+            redistribution=redistribution,
+            explicit_user_release_intent=explicit_user_release_intent,
+        )
     if not metadata_present:
         return _unknown_action(export_context), "MISSING_METADATA_REDACTED"
     if redistribution in UNKNOWN_REDIS_STATUSES:
@@ -423,6 +490,36 @@ def _action_for(
             return "block_export", "LOCAL_PRIVATE_INTENT_REQUIRED"
         return "redact_value", "PRIVATE_DATA_REDACTED"
     return _unknown_action(export_context), "UNKNOWN_PROVENANCE_WARNING"
+
+
+def _user_released_action(
+    *, privacy: Any, redistribution: Any, explicit_user_release_intent: bool
+) -> tuple[str, str]:
+    """Steps 10-13 of §3.2, only for ``user_released_report``.
+
+    They run after steps 1-9 and before any unknown-metadata branch.  Only the
+    wrapper's release intent is read; payload-carried intent is not.
+    """
+
+    if isinstance(privacy, str) and privacy in NON_PROJECT_PRIVATE_CLASSES:
+        return "redact_value", "PRIVATE_DATA_REDACTED"
+    if privacy == "private_project_data":
+        if explicit_user_release_intent:
+            return "warning_only", "USER_RELEASED_PROJECT_DATA"
+        return "block_export", "USER_RELEASE_INTENT_REQUIRED"
+    if (
+        isinstance(privacy, str)
+        and privacy in SAFE_PRIVACY_CLASSES
+        and isinstance(redistribution, str)
+        and redistribution in PUBLIC_REDIS_STATUSES
+    ):
+        reason = (
+            "SAFE_INVENTED_PUBLIC_EXAMPLE"
+            if privacy == "invented_public_example"
+            else "SAFE_PUBLIC_METADATA"
+        )
+        return "include", reason
+    return "block_export", "USER_RELEASE_VALUE_UNBOUND"
 
 
 def _unknown_action(export_context: str) -> str:
@@ -453,8 +550,11 @@ def _finding_for(
         "DIRECT_SQL_ACCESS_BLOCKED": "STORAGE_BOUNDARY_WARNING",
         "STORAGE_BYPASS_BLOCKED": "STORAGE_BOUNDARY_WARNING",
         "CONCRETE_PATH_REDACTED": "STORAGE_BOUNDARY_WARNING",
+        "USER_RELEASED_PROJECT_DATA": "PRIVATE_DATA_WARNING",
+        "USER_RELEASE_INTENT_REQUIRED": "PRIVATE_DATA_WARNING",
+        "USER_RELEASE_VALUE_UNBOUND": "PROVENANCE_WARNING",
     }[decision.reason_code]
-    message = {
+    message = USER_RELEASE_FINDING_MESSAGES.get(decision.reason_code) or {
         "warning_only": "Export retained the value only in a local/private context with an explicit warning.",
         "redact_value": "Export value was replaced because metadata does not support public/shared release.",
         "redact_field": "Export field was redacted because metadata does not support release.",
@@ -474,6 +574,15 @@ def _finding_for(
         message=message,
         remediation=remediation,
     )
+
+
+# The user-released context's own messages (§3.1); every other reason keeps its
+# action's message.  Identical to the TypeScript mirror's.
+USER_RELEASE_FINDING_MESSAGES = {
+    "USER_RELEASED_PROJECT_DATA": "Export retained the user's own project data in this report under the user's release of their project data, with a warning.",
+    "USER_RELEASE_INTENT_REQUIRED": "Export is blocked: this report carries the user's project data and no user release of that data was selected for it.",
+    "USER_RELEASE_VALUE_UNBOUND": "Export is blocked: a user-released report includes only values whose privacy and redistribution metadata it recognizes.",
+}
 
 
 def _apply_action(item: dict[str, Any], action: str) -> Any:

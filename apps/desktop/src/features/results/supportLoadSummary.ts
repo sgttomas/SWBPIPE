@@ -192,10 +192,12 @@ export function supportLoadCases(model: PreviewModel, result: MechanicsResult): 
   return [...cases.filter((item) => item.basis.ref_type === "load_case"), ...cases.filter((item) => item.basis.ref_type === "combination")];
 }
 
-function withheldReason(standing: ResultOverlayStanding | null | undefined, basis: ResultBasisRef): string {
+/** Why the numerical standing withholds a case's rows (the texts above). A3's stress and ratio
+ * table states its withheld cases with the same texts. */
+export function caseWithheldReason(standing: ResultOverlayStanding | null | undefined, basis: ResultBasisRef | null): string {
   if (!standing?.health) return SUPPORT_LOAD_WITHHELD_NO_HEALTH;
   if (!standing.eligible) return SUPPORT_LOAD_WITHHELD_NOT_ELIGIBLE;
-  const state = rowHealthState(standing.health, { basis_ref: basis });
+  const state = rowHealthState(standing.health, { basis_ref: basis ?? undefined });
   return state ? supportLoadWithheldStateText(state) : SUPPORT_LOAD_WITHHELD_NO_STATE;
 }
 
@@ -265,7 +267,7 @@ function summaryOf(
     const withheldAttribution = attributionReason === undefined ? null : { reason: attributionReason };
     if (!overlayMayShowRow(standing, { basis_ref: item.basis })) {
       return Object.freeze({
-        case: item, standing: "withheld", withheldReason: withheldReason(standing, item.basis),
+        case: item, standing: "withheld", withheldReason: caseWithheldReason(standing, item.basis),
         reactionAbsence: null, reactionAbsenceDetail: null, values: Object.freeze({}), inExtremes: false
       });
     }

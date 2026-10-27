@@ -336,6 +336,27 @@ function checkObservation(prefix, seen, want, modelHash, supportCount) {
   const loads = seen.support_load;
   check(`${prefix}: support load summary, one support of the model's ${supportCount} with every row stated and the extreme rows`,
     loads?.table && new RegExp(`^Support \\d+ of ${supportCount}$`).test(loads.position ?? "") && loads.rows > 0 && loads.rows_stated === loads.rows && loads.extreme_rows === 2, loads);
+  // A3 (DEL-07-05 Design stress-ratio-table.md): structure only. With no rule-check run the table
+  // lists emitted stress kinds, sorted by magnitude, and offers no ratio.
+  const table = seen.stress_ratio;
+  check(`${prefix}: stress and ratio table lists emitted stresses with no ratio while no rule-check run is held`,
+    table?.table && table.mode === "stress" && table.ratio_disabled && table.rule_groups === 0 && table.stress_groups > 0 && table.rows > 0, table);
+  // A8 (DEL-07-05 Design displacement-extremes.md): structure only. Either the admitted cases are
+  // chosen and one page of node rows lists twelve extreme cells each, or no case is admitted and
+  // the panel says so with every case disabled. A model with supports offers support filters.
+  const extremes = seen.displacement_extremes;
+  check(`${prefix}: displacement extremes list one page of nodes with twelve extremes each, or state that no case is admitted`,
+    extremes && extremes.cases > 0 && extremes.filters >= (supportCount > 0 ? 2 : 1) && (extremes.table
+      ? extremes.cases_chosen > 0 && extremes.rows > 0 && extremes.rows <= 50 && extremes.cells_per_row.every((count) => count === 12)
+        && /^Nodes 1–\d+ of \d+$/.test(extremes.page ?? "") && !extremes.no_case
+      : extremes.no_case && extremes.cases_chosen === 0 && extremes.cases_disabled === extremes.cases), extremes && { ...extremes, cells_per_row: [...new Set(extremes.cells_per_row)] });
+}
+// A3: after the demo pack's rule checks (every outcome RULE_INPUTS_INCOMPLETE), the table opens on
+// the pack's category in ratio mode and lists every outcome pinned as incomplete (FR-RULE-003).
+function checkStressRatioAfterRuleChecks(prefix, rules) {
+  const table = rules?.stress_ratio;
+  check(`${prefix}: stress and ratio table lists the run's outcomes pinned as incomplete, none ranked`,
+    table?.table && table.rule_groups > 0 && table.group?.startsWith("rule:") && table.mode === "ratio" && table.rows > 0 && table.pinned_incomplete === table.rows && table.ranked === 0, table);
 }
 
 const first = await launch("open-solve-save", { report_package: REPORT_PACKAGE_SAVE, exact_report_package: EXACT_REPORT_PACKAGE_SAVE });
@@ -417,6 +438,7 @@ const namesMissingInputs = (rules) => Boolean(rules?.aggregate?.includes("RULE_I
   check("demo local-private report: local-private warning, save and the document's notice", render?.local_private_warning && render.save_offered && render.preview_local_private_notice, render && { warning: render.local_private_warning, save: render.save_offered, notice: render.preview_local_private_notice });
   const rules = first.rule_checks;
   check("demo rule checks: refused as RULE_INPUTS_INCOMPLETE, naming the missing inputs", namesMissingInputs(rules), rules?.outcomes);
+  checkStressRatioAfterRuleChecks("demo rule checks", rules);
 }
 // W-4. Exact-route (pressure-2) gates, by name.
 {
@@ -452,6 +474,7 @@ const namesMissingInputs = (rules) => Boolean(rules?.aggregate?.includes("RULE_I
       && ["openpipestress.result_semantics/0.3.0/pressure-2", "openpipestress.result_semantics/0.3.0/pressure-source-1"].includes(exactIdentity),
     exactRead?.error ?? exactPackage?.status ?? exact?.report_package_refusal ?? { identity: exactIdentity });
   check("exact route: rule checks refused as RULE_INPUTS_INCOMPLETE, naming the missing inputs", namesMissingInputs(exact?.rule_checks), exact?.rule_checks?.outcomes);
+  checkStressRatioAfterRuleChecks("exact route: rule checks", exact?.rule_checks);
 }
 // W-4. The model authored from blank in the GUI.
 const blankId = first.blank?.project_id ?? null;

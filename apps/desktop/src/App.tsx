@@ -108,6 +108,8 @@ import { RenderedReportPanel } from "./features/report/RenderedReportPanel";
 import { ResultExportPanel } from "./features/result-export/ResultExportPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
 import { SupportLoadSummaryPanel } from "./features/results/SupportLoadSummaryPanel";
+import { StressRatioTablePanel } from "./features/results/StressRatioTablePanel";
+import { DisplacementExtremesPanel } from "./features/results/DisplacementExtremesPanel";
 import { resolveLocatedCauseSelection } from "./features/results/resultInterpretation";
 import { useDiagnosticFilterRequest, type DiagnosticFilterRequest } from "./features/diagnostics/diagnosticFilterRequest";
 import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPanel";
@@ -681,6 +683,7 @@ function AppSession() {
                 analysisRun={analysisRun}
                 selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
                 onSelectResult={handleSelectResult}
+                selectedEntity={selection}
                 numericalHealth={numericalHealth}
                 resolveCauseLocation={(location) => resolveLocatedCauseSelection(model, location)}
                 onSelectCauseLocation={(entity) => handleSelectEntity(entity)}
@@ -697,6 +700,37 @@ function AppSession() {
                   result={result}
                   standing={viewportResultStanding}
                   focusSupportId={selection.type === "support" ? selection.id : null}
+                />
+              )}
+              {historicalRun ? null : (
+                // A3: the sorted stress and ratio table reads the same standing; the session's rule-check
+                // run is passed only while the shown result is the current solved result it was run on.
+                <StressRatioTablePanel
+                  model={model}
+                  result={result}
+                  standing={viewportResultStanding}
+                  ruleCheckRun={currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null}
+                  selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
+                  onSelectLocation={(target) => {
+                    if (target.resultId) handleSelectResult(target.resultId);
+                    else if (target.entityRef) {
+                      const entity = resolveEntitySelection(model, target.entityRef);
+                      if (entity) handleSelectEntity(entity);
+                    }
+                  }}
+                />
+              )}
+              {historicalRun ? null : (
+                // A8: displacement extremes per node across the chosen cases, under the same standing.
+                <DisplacementExtremesPanel
+                  model={model}
+                  result={result}
+                  standing={viewportResultStanding}
+                  selectedNodeId={selection.type === "node" ? selection.id : null}
+                  onSelectNode={(nodeId) => {
+                    const entity = resolveEntitySelection(model, nodeId);
+                    if (entity) handleSelectEntity(entity);
+                  }}
                 />
               )}
               <ComparisonPanel

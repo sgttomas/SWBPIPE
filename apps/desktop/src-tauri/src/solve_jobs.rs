@@ -660,9 +660,12 @@ impl SolveJobRegistry {
         let _exit = WorkerExit { registry: self.clone(), job_id: job_id.clone() };
         let AdmittedInput { raw, lease, mode, start_grant, max_grant } = input;
         let mut input = Some((raw, lease));
+        // The worker is bounded by the budget its job was admitted under
+        // (`max_grant`), not the budget at the time it leaves the queue.
         let grant = self.pool.wait_acquire(
             start_grant,
             LeasePurpose::Worker,
+            Some(max_grant),
             &|| self.cancellation_requested(&job_id),
             &mut |reason| self.set_queue_reason(&job_id, reason),
         );

@@ -779,7 +779,8 @@ fn the_render_scanner_finds_each_break_of_the_graph() {
 
 mod direct_native {
     use super::*;
-    use crate::command_ingress::{admit_body, test_support::headers, text_parse_bytes, INGRESS_ARGS_JSON_V1, REPORT_PACKAGE_WORKING_MEMORY_FACTOR};
+    use crate::command_ingress::test_support::{grown_lease_meets_the_budget, headers};
+    use crate::command_ingress::{admit_body, text_parse_bytes, INGRESS_ARGS_JSON_V1, REPORT_PACKAGE_WORKING_MEMORY_FACTOR};
     use crate::exact_source_binding::{CUSTODY_RELEASED, SECTIONS_MISMATCH, SOURCE_NOT_DELIVERED, STANDING_NOT_ELIGIBLE};
     use crate::memory_pool::test_host::ScriptedHost;
     use crate::report_package_save::test_support::{no_store, save_request_with, software};
@@ -1909,6 +1910,70 @@ mod direct_native {
         let args = genuine_render_args(&w, &live.job);
         let (_, check) = measure(|| crate::report_render_exact::check_object_form(&args["input"]));
         assert!(measured.peak_requested < check.peak_requested + (w.result.len() as u64) / 4, "nothing is parsed: {measured:?}, check {check:?}");
+    }
+
+    /// The growth is bounded by the per-invocation budget, as the ingress
+    /// lease is (Codex review r2 of #1665): with the budget at the admitted
+    /// lease, it is refused `ingress_exceeds_budget` and the lease is unchanged.
+    #[test]
+    fn a_growth_above_the_budget_refuses_with_ingress_exceeds_budget() {
+        let w = witness(STRAIGHT);
+        let live = live_on(ScriptedHost::normal(), &w.intake, &w.mode, &w.result);
+        let args = genuine_render_args(&w, &live.job);
+        // A lease's growth is bounded by the budget it was admitted under, so
+        // the budget is set before the admission: once to learn the ingress
+        // lease, then again at exactly that lease.
+        let admitted_bytes = admit_json(&live.registry, "render_calculation_report", ArgsDecoding::Moved, &args).unwrap().1.bytes();
+        let growth = exact_render_growth_bytes(&w.result, &w.intake, &canonical_json(&w.manifest)).unwrap();
+        let (pool_bytes, _) = live.registry.pool().settings();
+        live.registry.configure_pool(pool_bytes, admitted_bytes, false).unwrap();
+        let (mut decoded, mut lease) = admit_json(&live.registry, "render_calculation_report", ArgsDecoding::Moved, &args).unwrap();
+        assert_eq!(lease.bytes(), admitted_bytes);
+        match crate::render_calculation_report_args(&mut decoded, &live.registry, &mut lease) {
+            Err(CommandError::Ingress(crate::solve_jobs::SolveJobError::ResourceUnavailable { refusal, .. })) => assert_eq!(
+                refusal,
+                crate::memory_pool::ResourceRefusal::IngressExceedsBudget { required_bytes: admitted_bytes + growth, budget_bytes: admitted_bytes }
+            ),
+            other => panic!("not the budget refusal: {other:?}"),
+        }
+        assert_eq!(lease.bytes(), admitted_bytes);
+    }
+
+    /// The exact render's and the exact save's normal paths, on every witness
+    /// shape, stay within the per-invocation budget under the growth check
+    /// (`grown_lease_meets_the_budget`): admitted under the default budget and
+    /// at a budget of exactly the grown lease, refused at their growth one byte
+    /// below it.
+    #[test]
+    fn every_witness_shape_grows_within_the_budget_at_the_render_and_the_save() {
+        let headers = headers(Some(INGRESS_ARGS_JSON_V1));
+        for (name, text) in SHAPES {
+            let w = witness(text);
+            let live = live(&w);
+            assert_eq!(live.registry.pool().settings().1, crate::memory_pool::DEFAULT_INVOCATION_BUDGET_BYTES);
+            let render = InvokeBody::Raw(serde_json::to_vec(&genuine_render_args(&w, &live.job)).unwrap());
+            let ingress = admit_body(&live.registry, &render, &headers, "render_calculation_report", ArgsDecoding::Moved).unwrap().1.bytes();
+            grown_lease_meets_the_budget(&live.registry, &format!("{name} exact render"), ingress, &|| {
+                let (mut decoded, mut lease) = admit_body(&live.registry, &render, &headers, "render_calculation_report", ArgsDecoding::Moved)?;
+                match crate::render_calculation_report_args(&mut decoded, &live.registry, &mut lease) {
+                    Ok(_) => Ok(lease.bytes()),
+                    Err(CommandError::Ingress(error)) => Err(error),
+                    Err(other) => panic!("{name}: the render failed otherwise: {other:?}"),
+                }
+            });
+            let mut save = crate::report_package_save::test_support::args_body(&save_args(&bound(&w.request, &live.job), &w, &w.model, Some(&w.result), Some(&w.intake)));
+            save["exactResultText"] = json!(w.result);
+            save["exactIntakeText"] = json!(w.intake);
+            let save = InvokeBody::Raw(serde_json::to_vec(&save).unwrap());
+            let ingress = admit_body(&live.registry, &save, &headers, "save_report_package", ArgsDecoding::Moved).unwrap().1.bytes();
+            grown_lease_meets_the_budget(&live.registry, &format!("{name} exact save"), ingress, &|| {
+                match crate::admit_report_package_save(&live.registry, &save, &headers) {
+                    Ok((_, lease)) => Ok(lease.bytes()),
+                    Err(CommandError::Ingress(error)) => Err(error),
+                    Err(other) => panic!("{name}: the save failed otherwise: {other:?}"),
+                }
+            });
+        }
     }
 
     /// The whole-command counting-allocator check of the genuine exact render

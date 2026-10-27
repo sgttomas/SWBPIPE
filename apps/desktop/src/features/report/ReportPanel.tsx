@@ -19,6 +19,7 @@ import type {
 } from "../../types";
 import { buildUnitDisplaySummary, DEC018_UNIT_SYSTEM_REF } from "./renderableReportInput";
 import { controlReportDomAndJson } from "./reportRedactionProjector";
+import { isSpringHangerSupport } from "./springHangerSupport";
 import type { NumericalHealthView } from "../results/numericalHealth";
 import { reportLineText } from "../results/numericalHealthText";
 import { modelDocumentVersionCheckStatus } from "../../services/projectService";
@@ -515,15 +516,6 @@ function formatSpringHangerSummary(records: ReturnType<typeof reportSpringHanger
   const constantCount = records.filter((item) => item.hanger_type === "constant_effort_support").length;
   const rowCount = records.reduce((count, item) => count + item.result_refs.length, 0);
   return `${records.length} hanger record${records.length === 1 ? "" : "s"}; variable=${variableCount}; constant_effort=${constantCount}; rows=${rowCount}`;
-}
-
-function isSpringHangerSupport(support: PreviewModel["supports"][number]): boolean {
-  return (
-    support.family === "variable_spring_hanger" ||
-    support.family === "constant_effort_support" ||
-    support.hanger?.hanger_type === "variable_spring_hanger" ||
-    support.hanger?.hanger_type === "constant_effort_support"
-  );
 }
 
 function componentGeometrySourceRef(component: PreviewModel["components"][number]): string {
