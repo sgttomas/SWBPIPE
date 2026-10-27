@@ -1,19 +1,24 @@
 // Result colour on the viewport's tubes (FR-GUI-001; design system 2.6 and 6.7; owner ruling
-// OD-5). One scalar per member, for one load case or combination: the largest absolute value of
-// one emitted row kind over that member's rows (its stations, or its end nodes for a nodal
-// quantity). A magnitude display of emitted rows only: it sets no threshold, computes no
-// engineering quantity and makes no professional claim. Colour is view state; nothing here
-// writes to the model, the result or any export.
+// OD-5; survey item A4, DEL-07-05 Design `result-contour.md`). For one load case or combination,
+// either one scalar per member (the largest absolute value of one emitted row kind over that
+// member's rows: its stations, or its end nodes for a nodal quantity), or, along members, the
+// largest absolute value at each result station the rows state. A user-rule ratio is read from
+// the session's rule-check outcomes as the stress and ratio table forms it. A magnitude display of
+// emitted rows and rule outcomes only: it computes no engineering quantity, sets no limit and makes
+// no professional claim. Colour is view state; nothing here writes to the model, the result or any
+// export.
 
 import type { MechanicsResult, PreviewModel, ResultBasisRef } from "../../types";
 import { overlayMayShowRow, type ResultOverlayStanding } from "../results/numericalHealth";
+import type { StressRatioGroup, StressRatioTable } from "../results/stressRatioTable";
 import { entityKey } from "../workspace/selectionState";
 import { resultNoValueHex, resultScaleHex } from "./viewportPalette";
 import type { ResultColourTable } from "./viewportResource";
 
 type ResultRow = MechanicsResult["results"][number];
 
-export type ResultOverlayDimension = "length" | "stress" | "force" | "moment";
+/** "ratio" is a user-rule ratio: a pure number, shown without a unit and never converted. */
+export type ResultOverlayDimension = "length" | "stress" | "force" | "moment" | "ratio";
 
 /** How a quantity's rows reach a member: rows of the member itself, rows of its two end nodes,
  * or rows of another entity whose emitted source rows are the member's. */
@@ -22,10 +27,36 @@ export type ResultColourAttachment = "member" | "end_nodes" | "source_rows";
 export type ResultColourQuantity = Readonly<{
   id: string;
   label: string;
+  /** The emitted row kind, or the rule pack's stress category id for a rule ratio. */
   kind: string;
   dimension: ResultOverlayDimension;
   attachment: ResultColourAttachment;
+  /** Emitted rows (absent: rows), or the session rule-check run's outcomes of one stress category. */
+  source?: "rows" | "rule_ratio";
 }>;
+
+/** How values reach the tube: one value per member, or along each member from its stated stations. */
+export type ResultColourResolution = "member" | "station";
+
+/**
+ * The product's fixed result-station grid: the `metadata.location` tokens the solve routes state
+ * for a member's stations, as fractions of the member from its From node (end_i) to its To node
+ * (end_j). Any other location (a governing station, a node, a summary) states no position.
+ */
+export const RESULT_STATION_FRACTIONS: Readonly<Record<string, number>> = Object.freeze({
+  end_i: 0,
+  quarter_1: 0.25,
+  midspan: 0.5,
+  quarter_3: 0.75,
+  end_j: 1
+});
+
+export function stationFraction(location: string | null | undefined): number | null {
+  return typeof location === "string" && Object.hasOwn(RESULT_STATION_FRACTIONS, location) ? RESULT_STATION_FRACTIONS[location] : null;
+}
+
+/** The ratio quantity id of a rule-check stress category group. */
+export const RULE_RATIO_QUANTITY_PREFIX = "rule-ratio:";
 
 /**
  * The quantities result colour can show: the per-member row kinds the solve routes emit. A kind
@@ -111,21 +142,65 @@ function membersOf(row: ResultRow, attachment: ResultColourAttachment, index: Me
   return [...members];
 }
 
-/** The quantities with at least one finite, drawable row attached to a member of the model. */
-export function availableResultColourQuantities(model: PreviewModel, result: MechanicsResult | null): ResultColourQuantity[] {
-  if (!result) return [];
-  const index = memberIndex(model, result);
-  return RESULT_COLOUR_QUANTITIES.filter((quantity) =>
-    result.results.some((row) => row.kind === quantity.kind && isDrawableRow(row) && membersOf(row, quantity.attachment, index).length > 0));
+/** The pipe a rule outcome's locations name, and its station, or null when they name no single pipe. */
+function ruleOutcomePlace(row: StressRatioGroup["rows"][number], pipeIds: ReadonlySet<string>): { member: string; fraction: number | null } | null {
+  const entities = new Set(row.locations.map((location) => location.entityRef));
+  if (entities.size !== 1) return null;
+  const member = [...entities][0];
+  if (!pipeIds.has(member)) return null;
+  const fractions = new Set(row.locations.map((location) => stationFraction(location.station)));
+  return { member, fraction: fractions.size === 1 ? [...fractions][0] : null };
 }
 
+/** The ratio quantities of the session's rule-check run: one per stress category of the user's
+ * rule pack with at least one outcome located on a single pipe of the model. None without a run. */
+export function ruleRatioColourQuantities(model: PreviewModel, table: StressRatioTable | null | undefined): ResultColourQuantity[] {
+  if (!table || table.run.state !== "used") return [];
+  const pipeIds = new Set(model.pipe_segments.map((pipe) => pipe.id));
+  return table.groups
+    .filter((group) => group.source === "rule_category" && group.rows.some((row) => ruleOutcomePlace(row, pipeIds) !== null))
+    .map((group) => Object.freeze({
+      id: `${RULE_RATIO_QUANTITY_PREFIX}${group.id}`,
+      label: `Rule ratio · ${group.label}`,
+      kind: group.ref,
+      dimension: "ratio" as const,
+      attachment: "member" as const,
+      source: "rule_ratio" as const
+    }));
+}
+
+/** The quantities with at least one finite, drawable row attached to a member of the model, then
+ * the rule-check run's ratio quantities. */
+export function availableResultColourQuantities(
+  model: PreviewModel,
+  result: MechanicsResult | null,
+  ratioTable?: StressRatioTable | null
+): ResultColourQuantity[] {
+  if (!result) return [];
+  const index = memberIndex(model, result);
+  return [
+    ...RESULT_COLOUR_QUANTITIES.filter((quantity) =>
+      result.results.some((row) => row.kind === quantity.kind && isDrawableRow(row) && membersOf(row, quantity.attachment, index).length > 0)),
+    ...ruleRatioColourQuantities(model, ratioTable)
+  ];
+}
+
+/** One stated station of a member: its fraction from the From node, and its value in the overlay's
+ * unit, or null when the station has no colourable value (a row the numerical standing withholds,
+ * a non-finite row, or a rule outcome that is withheld, incomplete or forms no ratio). */
+export type ResultColourStation = Readonly<{ fraction: number; value: number | null; rowIds: readonly string[] }>;
+
 export type ResultColourMember = Readonly<{
-  /** The largest absolute value over the member's rows, in the overlay's unit. */
+  /** The largest absolute value over the member's rows, in the overlay's unit; along members, the
+   * largest of its stations' values when it has stations. */
   value: number;
   /** The row that gives it. */
   rowId: string;
   /** Position on the scale, 0 to 1: value / maximum (design system 2.6: the range is 0 to the maximum). */
   position: number;
+  /** Along members: the member's stated stations in order, two or more. Empty for one value per
+   * member, and for a member with fewer than two stated stations (it is shown as one value). */
+  stations: readonly ResultColourStation[];
 }>;
 
 export type ResultColourOverlay = Readonly<{
@@ -134,31 +209,161 @@ export type ResultColourOverlay = Readonly<{
   reason: string | null;
   quantity: ResultColourQuantity | null;
   case: ResultOverlayCase | null;
+  resolution: ResultColourResolution;
   unit: string | null;
   members: ReadonlyMap<string, ResultColourMember>;
   /** Members of the model. */
   memberCount: number;
   /** Members with no colourable value, drawn as such and counted in the legend. */
   noValueCount: number;
-  /** Rows of the quantity and case that the numerical standing withholds. */
+  /** Rows (or rule outcomes) of the quantity and case that the numerical standing withholds. */
   heldRowCount: number;
+  /** Along members: members drawn from their stations. */
+  stationMemberCount: number;
+  /** Along members: stated stations with no colourable value; the tube is not coloured beside them. */
+  gapStationCount: number;
+  /** Along members: shown rows of a member drawn from its stations that state no station; not drawn. */
+  unplacedRowCount: number;
+  /** Rule ratio: outcomes that are incomplete or form no ratio, so colour nothing. */
+  noRatioCount: number;
   minimum: number | null;
   maximum: number | null;
 }>;
 
-function unavailable(model: PreviewModel, reason: string, quantity: ResultColourQuantity | null, overlayCase: ResultOverlayCase | null): ResultColourOverlay {
+function emptyOverlay(
+  model: PreviewModel,
+  state: "held" | "unavailable",
+  reason: string,
+  quantity: ResultColourQuantity | null,
+  overlayCase: ResultOverlayCase | null,
+  resolution: ResultColourResolution,
+  counts: { heldRowCount?: number; noRatioCount?: number } = {}
+): ResultColourOverlay {
   return Object.freeze({
-    state: "unavailable", reason, quantity, case: overlayCase, unit: null, members: new Map(),
-    memberCount: model.pipe_segments.length, noValueCount: model.pipe_segments.length, heldRowCount: 0, minimum: null, maximum: null
+    state, reason, quantity, case: overlayCase, resolution, unit: null, members: new Map(),
+    memberCount: model.pipe_segments.length, noValueCount: model.pipe_segments.length,
+    heldRowCount: counts.heldRowCount ?? 0, stationMemberCount: 0, gapStationCount: 0, unplacedRowCount: 0,
+    noRatioCount: counts.noRatioCount ?? 0, minimum: null, maximum: null
   });
 }
 
 export const RESULT_COLOUR_HELD_REASON = "No result colour on the current model";
 
+/** One value reaching one member: from a row, or from a rule outcome. "gap" is a value that cannot
+ * colour (non-finite, or an outcome with no ratio); "held" is withheld by the numerical standing. */
+type Contribution = Readonly<{
+  id: string;
+  member: string;
+  fraction: number | null;
+  value: number;
+  unit: string;
+  state: "shown" | "held" | "gap";
+}>;
+
+/** The fraction of a row's value along a member under the quantity's attachment, or null. */
+function rowFraction(row: ResultRow, member: string, attachment: ResultColourAttachment, model: PreviewModel, members: readonly string[]): number | null {
+  if (attachment === "end_nodes") {
+    const pipe = model.pipe_segments.find((item) => item.id === member);
+    if (!pipe || pipe.from === pipe.to) return null;
+    return row.entity_ref === pipe.from ? 0 : row.entity_ref === pipe.to ? 1 : null;
+  }
+  if (attachment === "source_rows" && members.length !== 1) return null;
+  return stationFraction(row.metadata?.location);
+}
+
+function rowContributions(
+  model: PreviewModel,
+  result: MechanicsResult,
+  standing: ResultOverlayStanding | null | undefined,
+  quantity: ResultColourQuantity,
+  overlayCase: ResultOverlayCase,
+  resolution: ResultColourResolution
+): { contributions: Contribution[]; heldRowCount: number } {
+  const index = memberIndex(model, result);
+  const contributions: Contribution[] = [];
+  let heldRowCount = 0;
+  for (const row of result.results) {
+    if (row.kind !== quantity.kind || row.metadata?.basis === RANGE_ENVELOPE_BASIS || basisKey(row.basis_ref) !== overlayCase.key) continue;
+    const finite = Number.isFinite(row.value);
+    // One value per member reads finite rows only, as it always has; along members a non-finite
+    // row at a stated station leaves that station without a value.
+    if (!finite && resolution === "member") continue;
+    const members = membersOf(row, quantity.attachment, index);
+    if (members.length === 0) continue;
+    const held = finite && !overlayMayShowRow(standing, row);
+    if (held) heldRowCount += 1;
+    const state = held ? "held" : finite ? "shown" : "gap";
+    for (const member of members) {
+      contributions.push({ id: row.id, member, fraction: rowFraction(row, member, quantity.attachment, model, members), value: row.value, unit: row.unit, state });
+    }
+  }
+  return { contributions, heldRowCount };
+}
+
+function ruleContributions(
+  model: PreviewModel,
+  group: StressRatioGroup,
+  overlayCase: ResultOverlayCase
+): { contributions: Contribution[]; heldRowCount: number; noRatioCount: number } {
+  const pipeIds = new Set(model.pipe_segments.map((pipe) => pipe.id));
+  const contributions: Contribution[] = [];
+  let heldRowCount = 0;
+  let noRatioCount = 0;
+  for (const row of group.rows) {
+    if (!row.case || row.case.envelope || basisKey(row.case.basis) !== overlayCase.key) continue;
+    const place = ruleOutcomePlace(row, pipeIds);
+    if (!place) continue;
+    const ratio = row.outcome?.ratio ?? null;
+    const held = row.standing !== "admitted";
+    const hasRatio = !held && ratio !== null && Number.isFinite(ratio);
+    if (held) heldRowCount += 1;
+    else if (!hasRatio) noRatioCount += 1;
+    contributions.push({
+      id: row.key, member: place.member, fraction: place.fraction, value: hasRatio ? ratio! : Number.NaN, unit: "",
+      state: held ? "held" : hasRatio ? "shown" : "gap"
+    });
+  }
+  return { contributions, heldRowCount, noRatioCount };
+}
+
+type Largest = { value: number; rowId: string };
+
+function largestOf(items: readonly Contribution[]): Largest | null {
+  let best: Largest | null = null;
+  for (const item of items) {
+    const magnitude = Math.abs(item.value);
+    if (!best || magnitude > best.value) best = { value: magnitude, rowId: item.id };
+  }
+  return best;
+}
+
+/** A member's stated stations: the largest magnitude at each fraction, or null where any value
+ * stated there cannot colour. */
+function memberStations(items: readonly Contribution[]): { stations: ResultColourStation[]; largest: Largest | null } {
+  const byFraction = new Map<number, Contribution[]>();
+  for (const item of items) {
+    if (item.fraction === null) continue;
+    byFraction.set(item.fraction, [...(byFraction.get(item.fraction) ?? []), item]);
+  }
+  let largest: Largest | null = null;
+  const stations = [...byFraction].sort(([a], [b]) => a - b).map(([fraction, at]) => {
+    const colourable = at.every((item) => item.state === "shown");
+    const best = colourable ? largestOf(at) : null;
+    if (best && (!largest || best.value > largest.value)) largest = best;
+    return Object.freeze({ fraction, value: best ? best.value : null, rowIds: Object.freeze(at.map((item) => item.id)) });
+  });
+  return { stations, largest };
+}
+
 /**
  * The colour of each member for one quantity and one case. A row the numerical standing withholds
  * (`overlayMayShowRow`) never colours; a member without a shown row has no value. Rows of one
  * quantity and case in more than one unit are not compared: the overlay is then unavailable.
+ *
+ * Along members (`resolution: "station"`), a member whose rows state two or more stations of the
+ * station grid is drawn from those stations only: each station's value is the largest magnitude
+ * stated there, and a station where any stated value is withheld or not finite has none. A member
+ * with fewer than two stated stations keeps one value, as with one value per member.
  */
 export function buildResultColourOverlay(input: {
   model: PreviewModel;
@@ -166,55 +371,78 @@ export function buildResultColourOverlay(input: {
   standing: ResultOverlayStanding | null | undefined;
   quantity: ResultColourQuantity | null;
   overlayCase: ResultOverlayCase | null;
+  resolution?: ResultColourResolution;
+  /** The stress and ratio table of the result and the session's rule-check run, for a rule ratio. */
+  ratioTable?: StressRatioTable | null;
 }): ResultColourOverlay {
-  const { model, result, standing, quantity, overlayCase } = input;
-  if (!result) return unavailable(model, "No result", quantity, overlayCase);
-  if (result.status.mechanics !== "MECHANICS_SOLVED") return unavailable(model, "Mechanics not solved", quantity, overlayCase);
-  if (!quantity) return unavailable(model, "No member result rows for a colour scale", quantity, overlayCase);
-  if (!overlayCase) return unavailable(model, "No load case or combination with result rows", quantity, overlayCase);
-  const index = memberIndex(model, result);
-  const shown: Array<{ row: ResultRow; members: string[] }> = [];
-  let heldRowCount = 0;
-  for (const row of result.results) {
-    if (row.kind !== quantity.kind || !isDrawableRow(row) || basisKey(row.basis_ref) !== overlayCase.key) continue;
-    const members = membersOf(row, quantity.attachment, index);
-    if (members.length === 0) continue;
-    if (!overlayMayShowRow(standing, row)) {
-      heldRowCount += 1;
-      continue;
-    }
-    shown.push({ row, members });
+  const { model, result, standing, quantity, overlayCase, ratioTable = null } = input;
+  const resolution = input.resolution ?? "member";
+  const empty = (reason: string, state: "held" | "unavailable" = "unavailable", counts = {}) =>
+    emptyOverlay(model, state, reason, quantity, overlayCase, resolution, counts);
+  if (!result) return empty("No result");
+  if (result.status.mechanics !== "MECHANICS_SOLVED") return empty("Mechanics not solved");
+  if (!quantity) return empty("No member result rows for a colour scale");
+  if (!overlayCase) return empty("No load case or combination with result rows");
+  let gathered: { contributions: Contribution[]; heldRowCount: number; noRatioCount?: number };
+  if (quantity.source === "rule_ratio") {
+    const group = ratioTable?.run.state === "used"
+      ? ratioTable.groups.find((item) => item.source === "rule_category" && `${RULE_RATIO_QUANTITY_PREFIX}${item.id}` === quantity.id)
+      : undefined;
+    if (!group) return empty("No rule-check run of this result for the ratio");
+    gathered = ruleContributions(model, group, overlayCase);
+  } else {
+    gathered = rowContributions(model, result, standing, quantity, overlayCase, resolution);
   }
-  const memberCount = model.pipe_segments.length;
+  const { contributions, heldRowCount } = gathered;
+  const noRatioCount = gathered.noRatioCount ?? 0;
+  const shown = contributions.filter((item) => item.state === "shown");
   if (shown.length === 0) {
-    return Object.freeze({
-      state: heldRowCount > 0 ? "held" : "unavailable",
-      reason: heldRowCount > 0 ? RESULT_COLOUR_HELD_REASON : `No ${quantity.label.toLowerCase()} rows for ${overlayCase.label}`,
-      quantity, case: overlayCase, unit: null, members: new Map(), memberCount, noValueCount: memberCount, heldRowCount, minimum: null, maximum: null
-    });
+    return heldRowCount > 0
+      ? empty(RESULT_COLOUR_HELD_REASON, "held", { heldRowCount, noRatioCount })
+      : empty(`No ${quantity.label.toLowerCase()} ${quantity.source === "rule_ratio" ? "ratios" : "rows"} for ${overlayCase.label}`, "unavailable", { noRatioCount });
   }
-  const units = [...new Set(shown.map(({ row }) => row.unit))].sort();
-  if (units.length !== 1) return unavailable(model, `Units mixed (${units.join(", ")})`, quantity, overlayCase);
-  const largest = new Map<string, { value: number; rowId: string }>();
-  for (const { row, members } of shown) {
-    const magnitude = Math.abs(row.value);
-    for (const member of members) {
-      const current = largest.get(member);
-      if (!current || magnitude > current.value) largest.set(member, { value: magnitude, rowId: row.id });
+  const units = [...new Set(shown.map((item) => item.unit))].sort();
+  if (units.length !== 1) return empty(`Units mixed (${units.join(", ")})`);
+  const byMember = new Map<string, Contribution[]>();
+  for (const item of contributions) byMember.set(item.member, [...(byMember.get(item.member) ?? []), item]);
+  const drawn = new Map<string, { largest: Largest; stations: ResultColourStation[] }>();
+  let gapStationCount = 0;
+  let unplacedRowCount = 0;
+  for (const [member, items] of byMember) {
+    if (resolution === "station") {
+      const { stations, largest } = memberStations(items);
+      if (stations.length >= 2) {
+        gapStationCount += stations.filter((station) => station.value === null).length;
+        unplacedRowCount += items.filter((item) => item.fraction === null && item.state === "shown").length;
+        // A member none of whose stations can colour has no value, as any other member without one.
+        if (largest) drawn.set(member, { largest, stations });
+        continue;
+      }
     }
+    const largest = largestOf(items.filter((item) => item.state === "shown"));
+    if (largest) drawn.set(member, { largest, stations: [] });
   }
-  const values = [...largest.values()].map((item) => item.value);
+  if (drawn.size === 0) {
+    return heldRowCount > 0
+      ? empty(RESULT_COLOUR_HELD_REASON, "held", { heldRowCount, noRatioCount })
+      : empty(`No colourable ${quantity.label.toLowerCase()} values for ${overlayCase.label}`, "unavailable", { noRatioCount });
+  }
+  const values = [...drawn.values()].map((item) => item.largest.value);
   const maximum = Math.max(...values);
   const minimum = Math.min(...values);
-  const members = new Map([...largest].map(([member, item]) => [member, Object.freeze({
-    value: item.value,
-    rowId: item.rowId,
-    position: maximum > 0 ? item.value / maximum : 0
+  const members = new Map([...drawn].map(([member, item]) => [member, Object.freeze({
+    value: item.largest.value,
+    rowId: item.largest.rowId,
+    position: maximum > 0 ? item.largest.value / maximum : 0,
+    stations: Object.freeze(item.stations)
   })] as const));
   return Object.freeze({
-    state: "available", reason: null, quantity, case: overlayCase, unit: units[0], members, memberCount,
+    state: "available", reason: null, quantity, case: overlayCase, resolution, unit: units[0], members,
+    memberCount: model.pipe_segments.length,
     noValueCount: model.pipe_segments.filter((pipe) => !members.has(pipe.id)).length,
-    heldRowCount, minimum, maximum
+    heldRowCount,
+    stationMemberCount: [...members.values()].filter((member) => member.stations.length >= 2).length,
+    gapStationCount, unplacedRowCount, noRatioCount, minimum, maximum
   });
 }
 
@@ -223,19 +451,34 @@ export function resultColourTicks(overlay: ResultColourOverlay): number[] {
   return overlay.maximum === null ? [] : [0, 0.25, 0.5, 0.75, 1].map((fraction) => fraction * overlay.maximum!);
 }
 
+/** How the overlay is shown: colours on the tubes, or numbers at the stated values in place of colours. */
+export type ResultColourDisplay = "colour" | "numbers";
+
+/** Whether a value is coloured under a threshold: strictly above it, or always when there is none. */
+export function aboveThreshold(value: number, threshold: number | null | undefined): boolean {
+  return threshold === null || threshold === undefined || value > threshold;
+}
+
 /**
  * The per-member colours the viewport draws, for both themes: a member with a value takes its
- * position on the result scale, every other member the no-value colour. Null unless the overlay is
- * available, so a held or unavailable overlay leaves the figure neutral.
+ * position on the result scale, every other member the no-value colour. Under a threshold a member
+ * whose value is not above it is left out of the table, so it draws its plain pipe colour. Null
+ * unless the overlay is available and shown as colours, so a held or unavailable overlay, or the
+ * numbers display, leaves the figure neutral.
  */
-export function resultColourTable(model: PreviewModel, overlay: ResultColourOverlay): ResultColourTable | null {
-  if (overlay.state !== "available") return null;
+export function resultColourTable(
+  model: PreviewModel,
+  overlay: ResultColourOverlay,
+  options: { threshold?: number | null; display?: ResultColourDisplay } = {}
+): ResultColourTable | null {
+  if (overlay.state !== "available" || options.display === "numbers") return null;
   const noValue = Object.freeze({ light: resultNoValueHex("light"), dark: resultNoValueHex("dark") });
-  return new Map(model.pipe_segments.map((pipe) => {
+  return new Map(model.pipe_segments.flatMap((pipe) => {
     const member = overlay.members.get(pipe.id);
+    if (member && !aboveThreshold(member.value, options.threshold)) return [];
     const colour = member
       ? Object.freeze({ light: resultScaleHex("light", member.position), dark: resultScaleHex("dark", member.position) })
       : noValue;
-    return [entityKey({ type: "pipe", id: pipe.id }), colour] as const;
+    return [[entityKey({ type: "pipe", id: pipe.id }), colour] as const];
   }));
 }

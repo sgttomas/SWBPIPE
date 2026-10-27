@@ -14,6 +14,7 @@ import {
 
 import { ViewportSelectionPresentation } from "./viewportSelectionPresentation";
 import { ViewportHaloPresentation } from "./viewportHalo";
+import { paintResultContourTheme } from "./resultContourMesh";
 import { isFigureMaterial, setFigureEdge, setFigureShadeRatio } from "./viewportFigureMaterial";
 import {
   DEFAULT_VIEWPORT_PALETTE_THEME,
@@ -516,6 +517,7 @@ export class ViewportResource {
   private resultColours: ResultColourTable | null = null;
   private renderOrigin: Readonly<Vec3> = Object.freeze({ x: 0, y: 0, z: 0 });
   private labelUpdater: (() => void) | null = null;
+  private overlayLabelUpdater: (() => void) | null = null;
   private disposed = false;
   private contextStatus: ViewportContextStatus = "ready";
   private contextLostCount = 0;
@@ -685,6 +687,12 @@ export class ViewportResource {
 
   setLabelUpdater(updater: (() => void) | null): void {
     this.labelUpdater = updater;
+  }
+
+  /** The result overlay's own canvas labels (the contour's numbers), placed after each main
+   * render as the entity labels are, or none. */
+  setOverlayLabelUpdater(updater: (() => void) | null): void {
+    this.overlayLabelUpdater = updater;
   }
 
   /**
@@ -960,6 +968,7 @@ export class ViewportResource {
     this.dimmedKeys = new Set();
     this.actualOdRadiusByPipe = new Map();
     this.labelUpdater = null;
+    this.overlayLabelUpdater = null;
     this.host.replaceChildren();
     this.notifyResourceStateChange(true);
   }
@@ -998,6 +1007,7 @@ export class ViewportResource {
     const rendererInfo = copyRendererInfo(this.renderer.info);
     this.renderGizmo();
     this.labelUpdater?.();
+    this.overlayLabelUpdater?.();
     // Renderer diagnostics are captured in the actual main-render completion
     // path above. Presentation timing comes from the external compositor
     // witness; diagnostics must not schedule an additional app-owned RAF.
@@ -1225,6 +1235,8 @@ function paintFigureShade(object: THREE.Object3D, theme: ViewportThemePresentati
 
 function paintObjectForTheme(object: THREE.Object3D, theme: ViewportThemePresentation, edgeWidth = 1): void {
   paintFigureShade(object, theme, edgeWidth);
+  // A result contour sleeve holds both themes' vertex colours and has no palette role.
+  paintResultContourTheme(object, theme);
   const gridRoles = object.userData.viewportPaletteGridRoles as GridPaletteRoles | undefined;
   if (gridRoles && object instanceof THREE.LineSegments) paintGridColors(object, gridRoles, theme);
   const role: unknown = object.userData.viewportPaletteRole;

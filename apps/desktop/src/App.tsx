@@ -881,6 +881,7 @@ function AppSession() {
               reservedIntents={queuedBatches.flatMap((entry) => entry.batch.operations)}
               result={result}
               resultStanding={viewportResultStanding}
+              ruleCheckRun={currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null}
               selection={selection}
               selectionState={orderedSelection}
               theme={resolvedTheme}

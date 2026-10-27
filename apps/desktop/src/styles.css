@@ -1377,6 +1377,23 @@ button:focus-visible {
 .viewport-result-scale-ticks { display: flex; flex-direction: column; justify-content: space-between; margin: -6px 0; padding: 0; list-style: none; }
 .viewport-legend-no-value { display: flex; align-items: center; gap: 6px; }
 .viewport-result-no-value-swatch { flex: 0 0 auto; width: 12px; height: 12px; border-radius: 2px; background: var(--canvas-unsolved); opacity: 0.6; }
+/* The result contour (A4): its controls in the legend, and the numbers drawn on the canvas in the
+   canvas label tokens of both themes. */
+.viewport-contour-controls { margin: 4px 0; }
+.viewport-legend-threshold { display: flex; align-items: center; gap: 6px; }
+.viewport-legend-threshold input[type="text"] { width: 72px; min-width: 0; font-size: 11px; }
+.viewport-value-labels { position: absolute; inset: 0; z-index: 2; overflow: hidden; pointer-events: none; }
+.viewport-value-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: var(--canvas-label);
+  background: var(--canvas-labelBg);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
 
 .viewport-deformation-status {
   display: grid;

@@ -9,8 +9,10 @@ import type { ResultOverlayStanding } from "../results/numericalHealth";
 import type { EntityRef } from "../../types";
 import {
   resultColourTicks,
+  type ResultColourDisplay,
   type ResultColourOverlay,
   type ResultColourQuantity,
+  type ResultColourResolution,
   type ResultOverlayCase,
   type ResultOverlayDimension
 } from "./resultColourOverlay";
@@ -20,6 +22,10 @@ import type { ReactionOverlay, ReactionVector } from "./reactionOverlay";
 export const NUMERICAL_HEALTH_UNAVAILABLE_TEXT = "Numerical health is not available for this result.";
 export const RESULT_COLOUR_BOUNDARY_TEXT =
   "Colour shows the magnitude of emitted result rows, from 0 to the largest member value. It marks no limit.";
+export const RESULT_CONTOUR_BOUNDARY_TEXT =
+  "Along members, colour between two stated stations is a straight-line display blend of their values, not a result; nothing is drawn past the first or last stated station.";
+export const RESULT_THRESHOLD_BOUNDARY_TEXT =
+  "The threshold is the user's display filter. It is not a limit or an allowable.";
 export const REACTION_BOUNDARY_TEXT =
   "Arrows show emitted support reactions on the pipe in global axes; lengths are scaled to the largest drawn reaction of each kind, not to a physical length.";
 
@@ -34,11 +40,100 @@ export function formatLegendNumber(value: number | string): string {
 
 function LegendQuantity({ value, unit, dimension, testId }: { value: number; unit: string; dimension: ResultOverlayDimension; testId?: string }) {
   const display = useDisplayQuantity({ value, unit, dimension_id: dimension });
+  // A rule ratio is a pure number: shown as stated, with no unit and no conversion.
+  if (dimension === "ratio") return <span className="viewport-legend-value" data-display-status="entered" data-testid={testId} title={String(value)}>{formatLegendNumber(value)}</span>;
   return <span className="viewport-legend-value" data-display-status={display.status} data-testid={testId} title={`${value} ${unit}`}>{formatLegendNumber(display.value)}{" "}{display.unit}</span>;
 }
 
 function LegendUnit({ value, unit, dimension }: { value: number; unit: string; dimension: ResultOverlayDimension }) {
   return <>{useDisplayQuantity({ value, unit, dimension_id: dimension }).unit}</>;
+}
+
+/**
+ * How many display units one stored unit of the overlay is, through the display-units path: the
+ * legend's unit is the one the threshold is typed in. 1 while the legend shows the stored unit
+ * (entered units, a pending or unavailable conversion, or a ratio). Every overlay dimension
+ * converts by a factor alone, so converting 1 gives the factor.
+ */
+export function useDisplayPerStored(unit: string | null, dimension: ResultOverlayDimension | null): number {
+  const display = useDisplayQuantity({ value: 1, unit: unit ?? "", dimension_id: dimension ?? "" });
+  if (dimension === "ratio" || display.status !== "converted" || typeof display.value !== "number") return 1;
+  return Number.isFinite(display.value) && display.value > 0 ? display.value : 1;
+}
+
+/** The contour controls' state, owned by the viewport as session view state. */
+export type ResultContourControls = Readonly<{
+  resolution: ResultColourResolution;
+  onResolutionChange: (resolution: ResultColourResolution) => void;
+  display: ResultColourDisplay;
+  onDisplayChange: (display: ResultColourDisplay) => void;
+  thresholdOn: boolean;
+  onThresholdOnChange: (on: boolean) => void;
+  thresholdText: string;
+  onThresholdTextChange: (text: string) => void;
+  /** The applied threshold in the overlay's stored unit, or null (off, or not a number). */
+  threshold: number | null;
+  /** The numbers display: how many stated values are drawn, of how many. */
+  numbers: Readonly<{ shown: number; candidates: number }> | null;
+}>;
+
+function ContourControlsBlock({ colour, controls }: { colour: ResultColourOverlay; controls: ResultContourControls }) {
+  const dimension = colour.quantity?.dimension ?? null;
+  const unit = colour.unit;
+  const thresholdInvalid = controls.thresholdOn && controls.thresholdText.trim() !== "" && controls.threshold === null;
+  return (
+    <div className="viewport-contour-controls" data-testid="viewport-contour-controls">
+      <label className="viewport-legend-field">
+        <span>Along</span>
+        <select
+          aria-label="Result colour resolution"
+          data-testid="viewport-overlay-resolution"
+          value={controls.resolution}
+          onChange={(event) => controls.onResolutionChange(event.target.value as ResultColourResolution)}
+        >
+          <option value="member">One value per member (largest)</option>
+          <option value="station">Along member (stated stations)</option>
+        </select>
+      </label>
+      <label className="viewport-legend-field">
+        <span>Show</span>
+        <select
+          aria-label="Result overlay display"
+          data-testid="viewport-overlay-display"
+          value={controls.display}
+          onChange={(event) => controls.onDisplayChange(event.target.value as ResultColourDisplay)}
+        >
+          <option value="colour">Colours</option>
+          <option value="numbers">Numbers in place of colours</option>
+        </select>
+      </label>
+      <div className="viewport-legend-threshold">
+        <label>
+          <input
+            type="checkbox"
+            data-testid="viewport-overlay-threshold-on"
+            checked={controls.thresholdOn}
+            onChange={(event) => controls.onThresholdOnChange(event.target.checked)}
+          />
+          {" "}Only above
+        </label>
+        <input
+          type="text"
+          inputMode="decimal"
+          aria-label={dimension === "ratio" || unit === null ? "Threshold" : "Threshold, in the legend's unit"}
+          aria-invalid={thresholdInvalid}
+          data-testid="viewport-overlay-threshold"
+          disabled={!controls.thresholdOn}
+          value={controls.thresholdText}
+          onChange={(event) => controls.onThresholdTextChange(event.target.value)}
+        />
+        {unit !== null && dimension !== null && dimension !== "ratio" && colour.maximum !== null ? (
+          <span data-testid="viewport-overlay-threshold-unit"><LegendUnit value={colour.maximum} unit={unit} dimension={dimension} /></span>
+        ) : null}
+      </div>
+      {thresholdInvalid ? <p data-testid="viewport-overlay-threshold-invalid">Not a number; no threshold is applied.</p> : null}
+    </div>
+  );
 }
 
 /** The results surface's numerical standing lines for the case: the health header, the case's own
@@ -89,7 +184,8 @@ export function ResultOverlayLegend({
   colour,
   reactions,
   standing,
-  focus
+  focus,
+  contour = null
 }: {
   cases: readonly ResultOverlayCase[];
   overlayCase: ResultOverlayCase | null;
@@ -101,6 +197,8 @@ export function ResultOverlayLegend({
   reactions: ReactionOverlay | null;
   standing: ResultOverlayStanding | null | undefined;
   focus: OverlayFocus;
+  /** The contour controls (A4): resolution, colours or numbers, and the threshold. */
+  contour?: ResultContourControls | null;
 }) {
   const lines = standingLines(standing, overlayCase);
   const focusMember = colour?.state === "available" && focus?.ref.type === "pipe" ? colour.members.get(focus.ref.id) : undefined;
@@ -115,7 +213,14 @@ export function ResultOverlayLegend({
         </select>
       </label>
       {colour ? (
-        <div className="viewport-legend-block" data-testid="viewport-result-colour-legend" data-state={colour.state}>
+        <div
+          className="viewport-legend-block"
+          data-testid="viewport-result-colour-legend"
+          data-state={colour.state}
+          data-resolution={colour.resolution}
+          data-display={contour?.display ?? "colour"}
+          data-threshold={contour?.threshold ?? ""}
+        >
           <label className="viewport-legend-field">
             <span>Quantity</span>
             <select aria-label="Result colour quantity" data-testid="viewport-overlay-quantity" disabled={quantities.length === 0} value={quantity?.id ?? ""} onChange={(event) => onQuantityChange(event.target.value)}>
@@ -123,10 +228,13 @@ export function ResultOverlayLegend({
               {quantities.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
             </select>
           </label>
+          {contour ? <ContourControlsBlock colour={colour} controls={contour} /> : null}
           {colour.state === "available" && colour.quantity && colour.unit !== null && colour.maximum !== null && colour.minimum !== null ? (
             <>
               <p className="viewport-legend-title" data-testid="viewport-result-colour-title">
-                {colour.quantity.label} [<LegendUnit value={colour.maximum} unit={colour.unit} dimension={colour.quantity.dimension} />] · {colour.case?.label}
+                {colour.quantity.dimension === "ratio"
+                  ? <>{colour.quantity.label} · {colour.case?.label}</>
+                  : <>{colour.quantity.label} [<LegendUnit value={colour.maximum} unit={colour.unit} dimension={colour.quantity.dimension} />] · {colour.case?.label}</>}
               </p>
               <div className="viewport-result-scale" data-testid="viewport-result-colour-scale">
                 <div className="viewport-result-scale-bar" aria-hidden="true">
@@ -144,6 +252,36 @@ export function ResultOverlayLegend({
                 Members: min <LegendQuantity value={colour.minimum} unit={colour.unit} dimension={colour.quantity.dimension} testId="viewport-result-colour-min" />
                 {" · "}max <LegendQuantity value={colour.maximum} unit={colour.unit} dimension={colour.quantity.dimension} testId="viewport-result-colour-max" />
               </p>
+              {colour.resolution === "station" ? (
+                <p data-testid="viewport-result-contour-summary">
+                  Along members: {colour.stationMemberCount} member{colour.stationMemberCount === 1 ? "" : "s"} from stated stations
+                  {colour.members.size - colour.stationMemberCount > 0
+                    ? <>; {colour.members.size - colour.stationMemberCount} with fewer than two stated stations, shown as one value</>
+                    : null}
+                </p>
+              ) : null}
+              {colour.gapStationCount > 0 ? (
+                <p data-testid="viewport-result-contour-gaps">
+                  {colour.gapStationCount} stated station{colour.gapStationCount === 1 ? "" : "s"} without a colourable value: the tube beside {colour.gapStationCount === 1 ? "it" : "them"} has the no-value colour
+                </p>
+              ) : null}
+              {colour.unplacedRowCount > 0 ? (
+                <p data-testid="viewport-result-contour-unplaced">
+                  {colour.unplacedRowCount} row{colour.unplacedRowCount === 1 ? "" : "s"} of members drawn from stations state no station and {colour.unplacedRowCount === 1 ? "is" : "are"} not drawn
+                </p>
+              ) : null}
+              {contour && contour.threshold !== null ? (
+                <p data-testid="viewport-result-threshold-legend">
+                  {contour.display === "numbers" ? "Numbers above " : "Coloured above "}
+                  <LegendQuantity value={contour.threshold} unit={colour.unit} dimension={colour.quantity.dimension} testId="viewport-result-threshold-value" />
+                  {contour.display === "numbers" ? null : "; at or below it, the plain pipe colour"}
+                </p>
+              ) : null}
+              {contour?.display === "numbers" && contour.numbers ? (
+                <p data-testid="viewport-result-numbers-summary">
+                  Numbers in place of colours: {contour.numbers.shown} of {contour.numbers.candidates} stated value{contour.numbers.candidates === 1 ? "" : "s"}, largest first; a number that would overlap another is not drawn
+                </p>
+              ) : null}
               {focusMember && focus ? (
                 <p className="viewport-legend-focus" data-testid="viewport-result-colour-focus">
                   <strong>{focus.ref.id}</strong> <LegendQuantity value={focusMember.value} unit={colour.unit} dimension={colour.quantity.dimension} /> <small>({focusMember.rowId})</small>
@@ -158,7 +296,14 @@ export function ResultOverlayLegend({
             No value: {colour.noValueCount} of {colour.memberCount} member{colour.memberCount === 1 ? "" : "s"}
             {colour.heldRowCount > 0 ? <> ({colour.heldRowCount} row{colour.heldRowCount === 1 ? "" : "s"} withheld by the numerical standing)</> : null}
           </p>
+          {colour.noRatioCount > 0 ? (
+            <p data-testid="viewport-result-colour-no-ratio">
+              {colour.noRatioCount} rule outcome{colour.noRatioCount === 1 ? " is" : "s are"} incomplete or without a ratio, and colour{colour.noRatioCount === 1 ? "s" : ""} nothing
+            </p>
+          ) : null}
           <small>{RESULT_COLOUR_BOUNDARY_TEXT}</small>
+          {colour.resolution === "station" ? <small>{RESULT_CONTOUR_BOUNDARY_TEXT}</small> : null}
+          {contour?.thresholdOn ? <small>{RESULT_THRESHOLD_BOUNDARY_TEXT}</small> : null}
         </div>
       ) : null}
       {reactions ? (
