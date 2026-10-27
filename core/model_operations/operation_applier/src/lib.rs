@@ -1424,6 +1424,24 @@ fn run_with_context(
     check_intent_structure(intent, &operation_id, &mut checker);
     check_audit_boundary(intent, &operation_id, &mut checker);
     check_kinds(&operation_kind, &change_kind, &operation_id, &mut checker);
+    // Model document 0.8.0 (DEL-02-01 Design `model-document-0.8.0.md` §3.1): the applier
+    // operates only on a current document. A retired one is refused by name, with the
+    // solve's and the desktop's code and text, before any change is checked or written;
+    // nothing is migrated. Every operation, single or in a batch, passes here.
+    if let Some(version) = model
+        .get("schema_version")
+        .and_then(Value::as_str)
+        .filter(|version| open_pipe_stress_product_physics::is_retired_model_schema_version(version))
+    {
+        checker.schema_blocked = true;
+        checker.push(
+            open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION_RETIRED,
+            "blocking",
+            open_pipe_stress_product_physics::retired_model_schema_message(version),
+            "Re-author the model as the current model document version; nothing is migrated.",
+            vec![target_ref.clone()],
+        );
+    }
 
     let mut model_basis = model_basis_evidence(model, claimed_model_hash);
     check_claimed_model_hash(
@@ -14133,11 +14151,13 @@ mod tests {
         with_contract["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3"});
         let outcome = apply_operation(&with_contract, &expansion_joint_intent(&annotation), None);
         assert_eq!(codes(&outcome), vec!["OP-CREATE-EXPANSION-JOINT-CONTRACT-UNSUPPORTED"]);
+        // A retired document is refused by name before any operation is checked
+        // (model document 0.8.0, r6).
         for retired in ["0.1.0", "0.2.0"] {
             let mut retired_model = model.clone();
             retired_model["schema_version"] = json!(retired);
             let outcome = apply_operation(&retired_model, &expansion_joint_intent(&annotation), None);
-            assert_eq!(codes(&outcome), vec!["OP-CREATE-EXPANSION-JOINT-CONTRACT-UNSUPPORTED"], "{retired}");
+            assert_eq!(codes(&outcome), vec!["MODEL_SCHEMA_VERSION_RETIRED"], "{retired}");
         }
     }
 

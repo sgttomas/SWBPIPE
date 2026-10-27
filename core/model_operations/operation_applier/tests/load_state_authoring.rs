@@ -664,8 +664,15 @@ fn explicit_null_wrong_version_missing_hash_and_envelope_are_refused() {
         );
 
         // The model must already be current (B7b: 0.8.0); nothing sets or
-        // changes the version, and a retired version is refused.
-        for version in [json!("0.3.0"), json!("0.4.0"), json!("0.4.1"), json!("0.5.0"), json!("0.6.0"), Value::Null] {
+        // changes the version. A retired version is refused by name before
+        // any operation is checked (model document 0.8.0, r6); any other
+        // non-current version by the load-state check.
+        for version in ["0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0"] {
+            let mut older = base.clone();
+            older["schema_version"] = json!(version);
+            refused(&older, &op, "MODEL_SCHEMA_VERSION_RETIRED");
+        }
+        for version in [json!("0.4.1"), Value::Null] {
             let mut older = base.clone();
             older["schema_version"] = version;
             refused(&older, &op, "OP-LOAD-STATE-SCHEMA-VERSION-INVALID");

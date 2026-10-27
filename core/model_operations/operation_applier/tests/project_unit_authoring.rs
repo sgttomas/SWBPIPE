@@ -256,6 +256,8 @@ fn each_refusal_is_reached_by_name() {
     // OP-PROJECT-UNIT-DOCUMENT-INVALID: an older document, another kind, a units member that is not a map.
     let mut old = model.clone();
     old["schema_version"] = json!("0.6.0");
+    refused(&old, &set(&old, "force", "lbf"), "MODEL_SCHEMA_VERSION_RETIRED");
+    old["schema_version"] = json!("0.9.0");
     refused(&old, &set(&old, "force", "lbf"), "OP-PROJECT-UNIT-DOCUMENT-INVALID");
     let mut other_kind = model.clone();
     other_kind["document_kind"] = json!("openpipestress.other");
@@ -334,9 +336,10 @@ fn the_refusals_run_in_the_table_order() {
     };
     // Shape before target.
     both(&|intent| { intent["target"]["ref"] = json!("project:other"); intent["change"]["before"] = json!(3); }, &model, "OP-PROJECT-UNIT-SHAPE-INVALID");
-    // Target before document.
+    // Target before document (a newer document: a retired one is refused by
+    // name before any operation is checked, model document 0.8.0, r6).
     let mut old = model.clone();
-    old["schema_version"] = json!("0.6.0");
+    old["schema_version"] = json!("0.9.0");
     both(&|intent| intent["target"]["ref"] = json!("project:other"), &old, "OP-TARGET-NOT-FOUND");
     // Document before key.
     both(&|intent| intent["change"]["field_path"] = json!("project.units.mass"), &old, "OP-PROJECT-UNIT-DOCUMENT-INVALID");

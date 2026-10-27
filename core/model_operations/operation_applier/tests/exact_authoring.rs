@@ -606,12 +606,12 @@ fn pressure_profile_writes_only_the_current_contract() {
     // every other byte.
     let upgraded = apply(&v2, &intent("Model", &id, "pressure_profile", Some(&profile(&v2)), &profile(&v3)));
     assert_eq!(canonical_json(&upgraded), canonical_json(&v3));
-    // A retired model version is locked: neither authored on nor written to.
+    // A retired model version is locked: neither authored on (refused by name
+    // before any operation is checked: model document 0.8.0, r6) nor written to.
     for retired in ["0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0"] {
         let mut old = v3.clone();
         old["schema_version"] = json!(retired);
-        assert!(code(&old, &profile(&old), &profile(&v3))
-            .contains(&"OP-PRESSURE-PROFILE-SCHEMA-VERSION-LOCKED".to_string()), "{retired}");
+        assert_eq!(code(&old, &profile(&old), &profile(&v3)), vec!["MODEL_SCHEMA_VERSION_RETIRED".to_string()], "{retired}");
         assert!(code(&v3, &profile(&v3), &profile(&old))
             .contains(&"OP-PRESSURE-PROFILE-SCHEMA-VERSION-LOCKED".to_string()), "{retired}");
     }

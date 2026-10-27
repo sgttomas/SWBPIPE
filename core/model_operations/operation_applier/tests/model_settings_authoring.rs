@@ -285,8 +285,12 @@ fn the_wire_is_checked() {
     let mut clear_with_value = clear(&set_model);
     clear_with_value["change"]["after"] = json!("2");
     refused(&set_model, &clear_with_value, "OP-MODEL-SETTING-SHAPE-INVALID");
+    // A retired document is refused by name before any operation is checked
+    // (model document 0.8.0, r6); any other non-current one by the settings check.
     let mut old = model.clone();
     old["schema_version"] = json!("0.6.0");
+    refused(&old, &set(&old, "2", "mm"), "MODEL_SCHEMA_VERSION_RETIRED");
+    old["schema_version"] = json!("0.9.0");
     refused(&old, &set(&old, "2", "mm"), "OP-MODEL-SETTING-DOCUMENT-INVALID");
 }
 

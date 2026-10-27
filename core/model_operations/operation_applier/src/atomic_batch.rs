@@ -456,7 +456,8 @@ fn preflight_operation(value: &Value) -> Result<(), String> {
 mod tests {
     use super::*;
     fn model() -> Value {
-        json!({"schema_version":"0.2.0","project":{"id":"project:batch-fixture","units":{"length":"m","force":"N","pressure":"Pa","temperature":"K","angle":"rad"}},"nodes":[{"id":"node:n","label":"N","position":{"x":0,"y":0,"z":0}}],"pipe_segments":[],"supports":[],"materials":[],"sections":[],"components":[],"load_cases":[],"combinations":[]})
+        // The current model version (model document 0.8.0, r6: a retired one is refused by name).
+        json!({"schema_version":open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION,"project":{"id":"project:batch-fixture","units":{"length":"m","force":"N","pressure":"Pa","temperature":"K","angle":"rad"}},"nodes":[{"id":"node:n","label":"N","position":{"x":0,"y":0,"z":0}}],"pipe_segments":[],"supports":[],"materials":[],"sections":[],"components":[],"load_cases":[],"combinations":[]})
     }
     fn intent(
         id: &str,
