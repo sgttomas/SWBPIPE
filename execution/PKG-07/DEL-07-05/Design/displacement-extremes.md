@@ -66,10 +66,17 @@ and fails if the two lists differ.
   spring hanger or constant-effort support. The rule is the report's, `isSpringHangerSupport` in
   `apps/desktop/src/features/report/springHangerSupport.ts`, which the report's spring hanger
   evidence (`ReportPanel.tsx`) and its review rows and provenance (`renderableReportInput.ts`)
-  also call. A support counts when its `family` or its `hanger.hanger_type` is
-  `variable_spring_hanger` or `constant_effort_support`. Under this rule `spring_hanger` does not
-  count, by either member, so such a support is listed under its family, "Spring hanger", and not
-  under "Hangers". Whether it should count is open (§10).
+  also call. The rule is the solver's (`support_hanger_type`, `is_variable_spring_hanger` and
+  `is_constant_effort_support` in `core/product_physics/src/lib.rs`): the trimmed
+  `hanger.hanger_type` when it is non-empty, otherwise the trimmed `family`, counts when it is
+  `variable_spring_hanger`, `spring_hanger` or `constant_effort_support`. An explicit hanger type
+  decides over the family. Trimming is Rust's `str::trim`, which removes the Unicode `White_Space`
+  characters (`trimLikeRust`). JavaScript's `trim` differs: it also removes U+FEFF and keeps
+  U+0085. The report's hanger summary splits variable and constant-effort hangers by the same
+  reading (`springHangerKind`), so a padded or family-only hanger falls in its group. A
+  `spring_hanger` support is therefore listed under "Hangers" as well as under its family, "Spring
+  hanger" (report-content correction, HELP_HUMAN, 2026-10-27: the solver treats such supports as
+  variable spring hangers and emits their review rows, so the report had omitted real evidence).
 - A nonlinear support's entry in the supports column adds its stated behavior and DOF (for
   example "Nonlinear support (gap, UY)"). The filter does not split nonlinear behaviors (§10).
 
@@ -293,9 +300,15 @@ no limit and compares nothing with one, and it writes nothing.
 - `apps/desktop/src/features/report/springHangerSupport.test.ts` pins the shared hanger rule over
   every schema `SupportFamily` value and an absent, null, empty and unknown family, crossed with
   every `SpringHanger.hanger_type` value, no hanger record, a record without a type and an empty
-  and unknown type. The shared function equals the report's predicate as it stood inline, A8's
-  support flag and "Hangers" filter give the same answer for every support, and the report's two
-  files call the shared function and keep no inline copy.
+  and unknown type, with a family and type padded by spaces, U+0085, U+FEFF or U+001C, and a type of
+  U+0085, U+FEFF or U+001C alone. The shared function equals the solver's classification, an
+  explicit table read from the Rust whose source the test checks is unchanged; its trim equals
+  Rust's `White_Space` set over every BMP code point and astral samples, a set hard-coded from a
+  rustc probe; explicit, family and fallback readings each count a U+0085-padded value and not a
+  U+FEFF- or U+001C-padded one; the summary's variable and constant-effort split follows the same
+  reading; the cases the correction changed from the report's earlier rule are listed exactly;
+  A8's support flag and "Hangers" filter give the same answer for every support; and the report's
+  two files call the shared function and keep no inline copy.
 - Native smoke (`apps/desktop/native-smoke/driver.js`, `run.mjs`): structure only, no values, and
   the committed `expected.json` is unchanged. After each solve the panel is present, and either it
   lists node rows with twelve extreme cells each and a page line, or no case is admitted and it
@@ -312,13 +325,3 @@ no limit and compares nothing with one, and it writes nothing.
 - **Display units.** The panel could follow the session's display-unit preference, as A2 and A3
   could.
 - **Nodes beyond the model's list.** Rows of such nodes are counted, not shown.
-- **Whether `spring_hanger` is a hanger.** "Hangers" follows the report's rule; whether
-  `spring_hanger` should count is open. The schema lists `spring_hanger` in both `SupportFamily`
-  and `SpringHanger.hanger_type`. The support form offers it and the applier admits it beside the
-  other two hanger spellings. The solver treats it as a variable spring hanger
-  (`is_variable_spring_hanger` in `core/product_physics/src/lib.rs`) and emits
-  `spring_hanger_user_input_review` rows for it, but the report's hanger evidence leaves such a
-  support out. The solver also reads `hanger.hanger_type` first and falls back to `family`, where
-  the report accepts either member. A change would alter the report's hanger evidence, review
-  rows and provenance as well as this filter, so it is a report change outside A8. The shared
-  function keeps the two surfaces equal meanwhile.
