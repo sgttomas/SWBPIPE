@@ -11,11 +11,12 @@ import {
   RATIO_DISABLED_EMITTED,
   RATIO_DISABLED_NO_RUN,
   STRESS_RATIO_BOUNDARY_TEXT,
+  STRESS_RATIO_KEY_TEXT_UNSORTED,
   STRESS_RATIO_PAGE,
   STRESS_RATIO_PINNED_TEXT,
   StressRatioTablePanel
 } from "./StressRatioTablePanel";
-import { STRESS_RATIO_NO_RESULT, STRESS_RATIO_NO_RUN, THRESHOLD_INVALID_NOTE, stressRatioRunText } from "./stressRatioTable";
+import { INCOMPLETE_MESSAGES_NOTE, STRESS_RATIO_NO_RESULT, STRESS_RATIO_NO_RUN, THRESHOLD_INVALID_NOTE, stressRatioRunText, unitsDifferNote } from "./stressRatioTable";
 import { supportLoadWithheldStateText } from "./supportLoadSummary";
 
 afterEach(cleanup);
@@ -139,10 +140,28 @@ describe("StressRatioTablePanel: emitted stresses", () => {
     const many = Array.from({ length: STRESS_RATIO_PAGE + 7 }, (_, index) => row(`a:${index}`, "element_local_axial_normal_stress", "pipe:P-1", index, "MPa"));
     renderPanel({ result: overlayResult(many) });
     expect(bodyRows()).toHaveLength(STRESS_RATIO_PAGE);
-    expect(screen.getByTestId("stress-ratio-summary").textContent).toBe(`Showing ${STRESS_RATIO_PAGE + 7} of ${STRESS_RATIO_PAGE + 7} rows.`);
+    // The live line counts the rows listed on this page, apart from those a later page lists.
+    expect(screen.getByTestId("stress-ratio-summary").textContent).toBe(`Showing ${STRESS_RATIO_PAGE} of ${STRESS_RATIO_PAGE + 7} rows; 7 more not yet listed.`);
     fireEvent.click(screen.getByTestId("stress-ratio-more"));
     expect(bodyRows()).toHaveLength(STRESS_RATIO_PAGE + 7);
+    expect(screen.getByTestId("stress-ratio-summary").textContent).toBe(`Showing ${STRESS_RATIO_PAGE + 7} of ${STRESS_RATIO_PAGE + 7} rows.`);
     expect(screen.queryByTestId("stress-ratio-more")).toBeNull();
+  });
+
+  it("says source order, not largest first, when a kind's units differ", () => {
+    renderPanel({ result: overlayResult([
+      row("a:mpa", "element_local_axial_normal_stress", "pipe:P-1", 1, "MPa"),
+      row("a:pa", "element_local_axial_normal_stress", "pipe:P-2", 5e6, "Pa")
+    ]) });
+    fireEvent.change(screen.getByTestId("stress-ratio-group"), { target: { value: "stress:element_local_axial_normal_stress" } });
+    const table = screen.getByRole("table", { name: "Axial normal stress: in source order, stress magnitude not sorted (units differ)" });
+    expect(within(table).getByTestId("stress-ratio-column-stress").getAttribute("aria-sort")).toBe("none");
+    expect(screen.getByTestId("stress-ratio-key").textContent).toBe(STRESS_RATIO_KEY_TEXT_UNSORTED.emitted_stress);
+    expect(screen.getByTestId("stress-ratio-unit-note").textContent).toBe(unitsDifferNote(["MPa", "Pa"]));
+    expect(screen.getByTestId("stress-ratio-key").textContent).not.toContain("largest first");
+    expect(table.getAttribute("aria-label")).not.toContain("sorted by");
+    // The first column states a position in source order, not a rank.
+    expect(within(table).getAllByRole("columnheader")[0].textContent).toBe("Position");
   });
 
   it("states the unavailable state under a custom test-id prefix", () => {
@@ -165,7 +184,7 @@ describe("StressRatioTablePanel: rule-check outcomes", () => {
       ["pinned", "RULE_INPUTS_INCOMPLETE"], ["ranked", "USER_RULE_FAILED"], ["ranked", "USER_RULE_CHECKED"]
     ]);
     expect(screen.getByTestId(`stress-ratio-status-${P2_L2}`).textContent).toBe("Incomplete (RULE_INPUTS_INCOMPLETE)");
-    expect(screen.getByTestId(`stress-ratio-reason-${P2_L2}`).textContent).toBe("Missing input: in_p2. RULE_SOLVER_RESULT_ROW_MISSING (in_p2): no row matched");
+    expect(screen.getByTestId(`stress-ratio-reason-${P2_L2}`).textContent).toBe(`Missing input: in_p2. Completeness finding RULE_SOLVER_RESULT_ROW_MISSING (in_p2). ${INCOMPLETE_MESSAGES_NOTE}`);
     // 4.5 / 3 = 1.5; 1 / 3 to six significant digits.
     expect(screen.getByTestId(`stress-ratio-value-${P2_L1}`).textContent).toBe("1.5");
     expect(screen.getByTestId(`stress-ratio-value-${P1}`).textContent).toBe("0.333333");
@@ -205,6 +224,72 @@ describe("StressRatioTablePanel: rule-check outcomes", () => {
     expect(view.container.textContent).not.toContain("USER_RULE_FAILED");
     expect(view.container.textContent).not.toContain("USER_RULE_CHECKED");
     expect(view.container.innerHTML).not.toContain("0.333333");
+    // No pass or fail status in any attribute, title or class of a withheld row; incomplete stays stated.
+    expect(view.container.innerHTML).not.toContain("USER_RULE");
+    for (const key of [P1, P2_L1]) {
+      const held = screen.getByTestId(`stress-ratio-row-${key}`);
+      expect(held.hasAttribute("data-status")).toBe(false);
+      expect(held.outerHTML).not.toMatch(/fail|checked|pass/i);
+    }
+    expect(screen.getByTestId(`stress-ratio-row-${P2_L2}`).getAttribute("data-status")).toBe("RULE_INPUTS_INCOMPLETE");
+  });
+
+  it("never shows a quantity from a finding's message, withheld or admitted (#1655)", () => {
+    const tableMessage = "table argument 123456789.5 is outside the table range [0.5, 100.25]";
+    const checks = [
+      outcome("chk_p1", "in_p1", "s:P-1:i", "USER_RULE_CHECKED", L1, { computed_value: quantity(1), limit_value: quantity(3) }),
+      outcome("chk_p2", "in_p2", null, "RULE_INPUTS_INCOMPLETE", L2, {
+        computed_value: quantity(123456789.5, "Pa"), limit_value: quantity(98765432.1, "Pa"),
+        completeness_findings: [{ code: "RULE_SOLVER_RESULT_ROW_MISSING", severity: "blocking", subject_id: "in_p2", message: "no row matched at 0.5" }],
+        evaluator_findings: [{ code: "TableOutOfRange", severity: "blocking", subject_id: "chk_p2", message: tableMessage }]
+      })
+    ];
+    const reason = `Missing input: in_p2. Completeness finding RULE_SOLVER_RESULT_ROW_MISSING (in_p2). Evaluator finding TableOutOfRange (chk_p2). ${INCOMPLETE_MESSAGES_NOTE}`;
+    const quantities = ["123456789", "123.457", "1.23457", "123457", "98765432", "98.7654", "100.25", "0.5", "table argument", "no row matched"];
+    const withheld = healthStanding({ eligible: true, states: { "load:L-1": "checks_passed", "load:L-2": "sensitive" } });
+    for (const mode of ["ratio", "stress"] as const) {
+      // Withheld: the cause (code, subject, missing input) and the incomplete status stay; no digit of a value anywhere.
+      const held = renderPanel({ ruleCheckRun: ruleRun(checks), standing: withheld });
+      fireEvent.click(screen.getByTestId(`stress-ratio-mode-${mode}`));
+      const heldRow = screen.getByTestId(`stress-ratio-row-${P2_L2}`);
+      expect([heldRow.getAttribute("data-standing"), heldRow.getAttribute("data-status")]).toEqual(["withheld", "RULE_INPUTS_INCOMPLETE"]);
+      expect(screen.getByTestId(`stress-ratio-status-${P2_L2}`).textContent).toBe("Incomplete (RULE_INPUTS_INCOMPLETE)");
+      expect(screen.getByTestId(`stress-ratio-reason-${P2_L2}`).textContent).toBe(`${reason} ${supportLoadWithheldStateText("sensitive")}`);
+      for (const fragment of quantities) expect(held.container.innerHTML).not.toContain(fragment);
+      held.unmount();
+      // Admitted: the same structured reason; the message's numbers are not shown in any form.
+      const admitted = renderPanel({ ruleCheckRun: ruleRun(checks) });
+      fireEvent.click(screen.getByTestId(`stress-ratio-mode-${mode}`));
+      expect(screen.getByTestId(`stress-ratio-reason-${P2_L2}`).textContent).toBe(reason);
+      for (const fragment of quantities) expect(admitted.container.innerHTML).not.toContain(fragment);
+      admitted.unmount();
+    }
+  });
+
+  it("keeps a failed outcome on the page when the mode moves it past the page length", () => {
+    // Fifty checked outcomes with computed -100 .. -149 against a limit of 1, and one failed 2 / 1.
+    const checked = Array.from({ length: STRESS_RATIO_PAGE + 7 }, (_, index) =>
+      outcome(`chk_${index}`, "in_p1", null, "USER_RULE_CHECKED", L1, { bound_inputs: [], computed_value: quantity(-100 - index), limit_value: quantity(1) }));
+    const failed = outcome("chk_failed", "in_p1", null, "USER_RULE_FAILED", L1, { bound_inputs: [], computed_value: quantity(2), limit_value: quantity(1) });
+    const failedKey = JSON.stringify(["chk_failed", "load_case", "load:L-1"]);
+    for (const count of [STRESS_RATIO_PAGE, STRESS_RATIO_PAGE + 7]) {
+      const view = renderPanel({ ruleCheckRun: ruleRun([...checked.slice(0, count), failed]) });
+      expect(bodyRows()[0].getAttribute("data-testid")).toBe(`stress-ratio-row-${failedKey}`);
+      fireEvent.click(screen.getByTestId("stress-ratio-mode-stress"));
+      const failedRow = screen.getByTestId(`stress-ratio-row-${failedKey}`);
+      expect([failedRow.getAttribute("data-part"), failedRow.getAttribute("data-status")]).toEqual(["ranked", "USER_RULE_FAILED"]);
+      // Its rank is its own place in the stress order, past the page.
+      expect(within(failedRow).getByRole("rowheader").textContent).toBe(String(count + 1));
+      expect(bodyRows()).toHaveLength(STRESS_RATIO_PAGE + 1);
+      expect(screen.getByTestId("stress-ratio-summary").textContent).toBe(count === STRESS_RATIO_PAGE
+        ? `Showing ${count + 1} of ${count + 1} rows.`
+        : `Showing ${STRESS_RATIO_PAGE + 1} of ${count + 1} rows; ${count - STRESS_RATIO_PAGE} more not yet listed.`);
+      expect(screen.queryByTestId("stress-ratio-more") !== null).toBe(count > STRESS_RATIO_PAGE);
+      // A threshold above every value keeps it, alone.
+      fireEvent.change(screen.getByTestId("stress-ratio-threshold"), { target: { value: "1000" } });
+      expect(bodyRows().map((item) => item.getAttribute("data-status"))).toEqual(["USER_RULE_FAILED"]);
+      view.unmount();
+    }
   });
 
   it("highlights an outcome by its bound row, or by the selector's entity", () => {

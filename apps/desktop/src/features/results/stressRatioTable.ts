@@ -151,6 +151,8 @@ export function ratioNoteUnitsDiffer(computed: string, limit: string): string {
   return `Computed value and limit in different units (${computed}, ${limit}); no ratio is formed`;
 }
 export const INCOMPLETE_NO_REASON = "The run states no reason.";
+/** Said after the findings: their messages are the runner's free text and are not shown here (§3.2). */
+export const INCOMPLETE_MESSAGES_NOTE = "The findings' messages are shown with the rule-check run.";
 
 const UPPER_BOUND_RELATIONS = new Set(["less_than", "less_than_or_equal"]);
 const LOWER_BOUND_RELATIONS = new Set(["greater_than", "greater_than_or_equal"]);
@@ -288,14 +290,20 @@ export function outcomeRatio(outcome: Pick<RuleCheckOutcome, "acceptability_rela
   return Number.isFinite(ratio) ? { ratio, note: null } : { ratio: null, note: RATIO_NOTE_NOT_FINITE };
 }
 
-/** §3.2: the missing inputs, then the run's findings, else its diagnostic codes. */
+/** §3.2: the missing inputs, then the run's findings by kind, code and subject, else its diagnostic
+ * codes. Built from structured fields only: a finding's message is the runner's free text and can
+ * carry a quantity (a table argument, a bound) with no unit to display it by, so it is never copied
+ * here, whatever the row's standing. */
 export function incompleteReason(outcome: RuleCheckOutcome): string {
   const parts: string[] = [];
   const missing = outcome.bound_inputs.filter((input) => !input.supplied).map((input) => input.input_id);
   if (missing.length > 0) parts.push(`Missing input${missing.length === 1 ? "" : "s"}: ${missing.join(", ")}.`);
-  for (const finding of [...outcome.completeness_findings, ...outcome.evaluator_findings]) {
-    parts.push(`${finding.code} (${finding.subject_id}): ${finding.message}`);
-  }
+  const findings = [
+    ...outcome.completeness_findings.map((finding) => `Completeness finding ${finding.code} (${finding.subject_id}).`),
+    ...outcome.evaluator_findings.map((finding) => `Evaluator finding ${finding.code} (${finding.subject_id}).`)
+  ];
+  parts.push(...findings);
+  if (findings.length > 0) parts.push(INCOMPLETE_MESSAGES_NOTE);
   if (parts.length === 0 && outcome.diagnostic_codes.length > 0) parts.push(outcome.diagnostic_codes.join(", "));
   return parts.length > 0 ? parts.join(" ") : INCOMPLETE_NO_REASON;
 }
@@ -479,6 +487,12 @@ function keyOf(row: StressRatioRow, mode: StressRatioMode): { key: number; unit:
   return outcome.computed ? { key: Math.abs(outcome.computed.value), unit: outcome.computed.unit } : null;
 }
 
+/** Only a ranked stress row, or a ranked outcome the rule check reports as checked, can be hidden
+ * by the threshold or left to a later page. A failed outcome never is. */
+function mayBeOmitted(row: StressRatioRow): boolean {
+  return row.stress !== null || row.outcome?.status === "USER_RULE_CHECKED";
+}
+
 const STATUS_RANK: Readonly<Record<string, number>> = Object.freeze({ USER_RULE_FAILED: 0, USER_RULE_CHECKED: 1 });
 
 /** The view of one group under a mode and a threshold text (§5). Pure; frozen. */
@@ -513,12 +527,10 @@ export function stressRatioView(group: StressRatioGroup, options: { mode: Stress
     const value = thresholdInStoredUnit(text, keyUnit);
     threshold = value === null ? Object.freeze({ state: "invalid", text }) : Object.freeze({ state: "applied", text, value });
   }
-  // Only a ranked stress row, or a ranked outcome the rule check reports as checked, can be hidden.
-  const hideable = (row: StressRatioRow) => row.stress !== null || row.outcome?.status === "USER_RULE_CHECKED";
   const ranked = ordered.map((item) => Object.freeze({
     row: item.row,
     key: item.key,
-    hidden: threshold.state === "applied" && hideable(item.row) && item.key < threshold.value
+    hidden: threshold.state === "applied" && mayBeOmitted(item.row) && item.key < threshold.value
   }));
   const hiddenCount = ranked.filter((item) => item.hidden).length;
   const withheldRowCount = group.withheldCases.reduce((sum, item) => sum + item.rowCount, 0);
@@ -536,4 +548,36 @@ export function stressRatioView(group: StressRatioGroup, options: { mode: Stress
     shownCount: totalCount - hiddenCount,
     totalCount
   });
+}
+
+// --- The page (§7) ---------------------------------------------------------------------------
+
+export type StressRatioPage = Readonly<{
+  /** The ranked rows listed, each with its rank: its position among the rows at or above the
+   * threshold, so a failed outcome listed beyond the page keeps its own rank. */
+  ranked: readonly Readonly<{ row: StressRatioRow; rank: number }>[];
+  /** Rows listed: pinned (and withheld stress rows), the listed ranked rows and the not-ranked rows. */
+  listedCount: number;
+  /** Rows at or above the threshold that a later page lists. */
+  notListedCount: number;
+}>;
+
+/** The ranked rows one page lists: the first `limit` stress rows or checked outcomes at or above the
+ * threshold, and every failed outcome at its rank whatever its position, the mode, the threshold or
+ * the page length (FR-RULE-003 keeps incomplete ones pinned; this keeps failed ones listed). */
+export function stressRatioPage(view: StressRatioView, limit: number): StressRatioPage {
+  const ranked: Array<Readonly<{ row: StressRatioRow; rank: number }>> = [];
+  let paged = 0;
+  let notListedCount = 0;
+  view.ranked.filter((item) => !item.hidden).forEach((item, index) => {
+    if (mayBeOmitted(item.row)) {
+      paged += 1;
+      if (paged > limit) {
+        notListedCount += 1;
+        return;
+      }
+    }
+    ranked.push(Object.freeze({ row: item.row, rank: index + 1 }));
+  });
+  return Object.freeze({ ranked: Object.freeze(ranked), listedCount: view.shownCount - notListedCount, notListedCount });
 }

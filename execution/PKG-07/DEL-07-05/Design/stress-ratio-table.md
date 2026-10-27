@@ -110,9 +110,19 @@ re-derive it. A rounded ratio of 1 can sit beside either status.
 
 ### 3.2 Incomplete reason
 
-An incomplete outcome states: the missing inputs (`bound_inputs` not supplied), then its
-completeness and evaluator findings as "CODE (subject): message", or else its diagnostic codes,
-or else "The run states no reason."
+An incomplete outcome states: the missing inputs (`bound_inputs` not supplied), then each
+completeness and evaluator finding by kind, code and subject ("Completeness finding CODE
+(subject)." or "Evaluator finding CODE (subject).") followed by "The findings' messages are shown
+with the rule-check run.", or else its diagnostic codes, or else "The run states no reason."
+
+The reason is built from these structured fields only. A finding's `message` is the runner's free
+text and is never copied into the table, whatever the row's standing. A message can carry a
+quantity, such as the argument of a `TableOutOfRange` finding ("table argument … is outside the
+table range [ … ]"). It carries no unit for that number, so the display rule (§6) could not be
+applied to it faithfully, and rewriting numeric tokens would also corrupt identifiers that contain
+digits. For a withheld row (§4) such a number would also be a withheld value. The cause stays
+visible: the code, the subject and the missing inputs. The full messages remain in the rule-check
+run panel, which is the run's own surface.
 
 ## 4. Numerical standing and withheld rows
 
@@ -123,9 +133,12 @@ Rows are admitted only by the viewport overlays' rule, `overlayMayShowRow(standi
   states each case once with its reason, A2's texts ("Withheld: numerical health {state}." and the
   others; `caseWithheldReason` in `supportLoadSummary.ts`).
 - A withheld outcome row carries no value and no status. It states its check, its case and the
-  reason. It is pinned (§5) and never sorted or hidden.
-- An incomplete outcome is shown as incomplete whatever its standing. If its case is also withheld,
-  its values are not shown.
+  reason. It is pinned (§5) and never sorted or hidden. No attribute, title or class of the row
+  carries its pass or fail status either: it has no `data-status`, and its status cell reads
+  "Withheld".
+- An incomplete outcome is shown as incomplete whatever its standing, in its status cell and in
+  `data-status="RULE_INPUTS_INCOMPLETE"`. If its case is also withheld, its values are not shown,
+  and its reason (§3.2) carries no quantity in either case.
 
 The retained routes have no numerical health view, so all of their rows are withheld.
 
@@ -149,7 +162,10 @@ order for outcomes, result-row order for stress rows). 0 and -0 tie.
 
 **Units.** A key compares only within one stored unit. If a group's keyed rows have more than one
 unit in stress mode, the ranked part keeps source order, the view says "Units differ (…); not
-sorted and no threshold is applied", and the threshold is disabled. Ratios are unitless.
+sorted and no threshold is applied", and the threshold is disabled. Ratios are unitless. The
+panel's texts then say so: the key line states source order and that the rows are not sorted, the
+table's label reads "{group}: in source order, {key} not sorted (units differ)", the key column has
+`aria-sort="none"`, and the first column is headed "Position", not "Rank".
 
 **Threshold.** The user enters a number. A row is shown when its key is at or above it (≥). In
 stress mode the number is in the display unit (MPa for a value stored in Pa), and it is converted to
@@ -186,13 +202,23 @@ below A2's panel and is hidden while a reopened historical run is shown, as A2's
   `onSelectLocation(target)`. App maps a result-row id to `handleSelectResult` (the results table's
   own path: the review target and the entity selection) and an entity reference to
   `resolveEntitySelection` and `handleSelectEntity`. The row whose result-row id is the session's
-  selected result is marked (`aria-selected`, `.selected-result-row`).
-- **Length.** The ranked part shows 50 rows, and "Show 50 more" extends it. Pinned and not-ranked
-  rows are always shown.
+  selected result is marked (`aria-current="true"`, `.selected-result-row`).
+- **Length.** `stressRatioPage(view, limit)` forms a page. The page length (50, extended by
+  "Show 50 more") counts only rows the threshold could hide: ranked stress rows and ranked outcomes
+  the rule check reports as `USER_RULE_CHECKED`. A failed outcome is listed on every page at its
+  rank, whatever the mode, its sort position, the threshold or the page length. It is not moved
+  into the pinned part, so its rank and key stay visible. A rank is the row's position among the
+  ranked rows at or above the threshold, so a failed outcome listed past the page keeps its own
+  rank (for example 51). Pinned and not-ranked rows are always shown. Example: fifty checked
+  outcomes with computed values -100 to -149 against a limit of 1 and one failed outcome of 2 against
+  1. In ratio mode the failed outcome ranks first. In stress mode it ranks 51st and is still listed,
+  after the fifty checked rows.
 - **Accessibility.** The table is labelled "{group}: sorted by {key}". The key column header has
-  `aria-sort="descending"` when sorted. Column and row headers are `th` with scope. A polite live
-  line states "Showing n of m rows; k below the threshold hidden." An empty cell reads "none" to a
-  screen reader.
+  `aria-sort="descending"` when sorted (see §5, Units, for source order). Column and row headers
+  are `th` with scope. A polite live line states "Showing n of m rows; k below the threshold
+  hidden; j more not yet listed." Here n counts the rows this page lists, m all rows of the group,
+  k the rows the threshold hides and j the rows at or above the threshold that a later page lists.
+  The last two clauses appear only when not zero. An empty cell reads "none" to a screen reader.
 - **Context lines.** The numerical health header and output sentence when present, the run line
   (pack id and outcome count, or that no run is held), the key's definition, and the boundary
   sentence.
@@ -211,6 +237,8 @@ export function buildStressRatioTable(input: {
 // StressRatioGroup = { id, source: "rule_category" | "emitted_stress", label, modes, rows, withheldCases }
 export function stressRatioView(group: StressRatioGroup, options: { mode: StressRatioMode; threshold: string }): StressRatioView;
 // StressRatioView = { mode, keyUnit, sorted, unitNote, threshold, pinned, ranked, unranked, hiddenCount, shownCount, totalCount }
+export function stressRatioPage(view: StressRatioView, limit: number): StressRatioPage;
+// StressRatioPage = { ranked: { row, rank }[]; listedCount; notListedCount } (§7, Length)
 
 // StressRatioTablePanel.tsx
 export function StressRatioTablePanel(props: {
@@ -224,7 +252,9 @@ export function StressRatioTablePanel(props: {
 
 A6 passes the inputs it already has. A key-results headline can call `buildStressRatioTable` and
 `stressRatioView(group, { mode, threshold: "" })` and read `pinned` and `ranked[0]` per group
-without rendering the panel; it must show the pinned incomplete rows beside any "worst" row. Every
+without rendering the panel; it must show the pinned incomplete rows beside any "worst" row. A
+surface that lists only part of a group pages it through `stressRatioPage`, so no failed outcome
+is left off. Every
 output is frozen and deterministic for its inputs. The panel derives once per identity of
 (`model`, `result`, `standing`, `ruleCheckRun`) and applies the view per control change.
 
@@ -244,14 +274,19 @@ and writes nothing.
   MPa threshold against Pa rows by decimal shift; withheld rows under mixed standing (a sensitive
   case, ineligible standing, no health view); rule groups by category in pack order; the ratio and
   each reason none is formed; incomplete outcomes pinned under every threshold, mode and sort;
-  withheld outcomes pinned with no status; failed outcomes never hidden; multiple bases per check;
+  withheld outcomes pinned with no status; failed outcomes never hidden, and listed on every page at
+  their rank in either mode; the incomplete reason built from structured fields, with no number
+  from a finding's message; multiple bases per check;
   tie order (failed before checked, then run order); locations from bound rows and from selectors;
   the run-mismatch guard; no run gives stress groups only; unavailable states.
 - `apps/desktop/src/features/results/StressRatioTablePanel.test.tsx`: the display rule in cells,
   titles and headers, with no stored value at full precision in the markup; the toggle and its
   disabled reason; the threshold and the hidden count; pinned incomplete rows with their reasons
-  under a threshold above every ratio; highlight by click and keyboard; the selected-row mark;
-  "Show 50 more"; a custom test-id prefix; one derivation per input identity.
+  under a threshold above every ratio; no digit of a finding message's quantity anywhere in the
+  markup, for a withheld or an admitted incomplete outcome; no pass or fail attribute on a withheld
+  row; a failed outcome kept on the page when switching to stress moves it past 50; highlight by
+  click and keyboard; the selected-row mark; "Show 50 more" with the listed count; source-order
+  labels for mixed units; a custom test-id prefix; one derivation per input identity.
 - Native smoke (`apps/desktop/native-smoke/driver.js`, `run.mjs`): structure only, no values, and
   the committed `expected.json` is unchanged. After each solve, with no run held, the table lists
   emitted stress kinds in stress mode with ratio disabled. After the bundled invented pack's rule

@@ -8,6 +8,7 @@ import type { RuleCheckOutcome, RuleCheckStatus } from "../../services/ruleCheck
 import type { ResultOverlayStanding } from "./numericalHealth";
 import { SUPPORT_LOAD_WITHHELD_NO_HEALTH, SUPPORT_LOAD_WITHHELD_NOT_ELIGIBLE, supportLoadWithheldStateText } from "./supportLoadSummary";
 import {
+  INCOMPLETE_MESSAGES_NOTE,
   INCOMPLETE_NO_REASON,
   RATIO_NOTE_LIMIT_NOT_POSITIVE,
   RATIO_NOTE_LOWER_BOUND,
@@ -23,7 +24,9 @@ import {
   THRESHOLD_INVALID_NOTE,
   buildStressRatioTable,
   ratioNoteUnitsDiffer,
+  incompleteReason,
   stressRatioLocationText,
+  stressRatioPage,
   stressRatioRunText,
   stressRatioView,
   thresholdInStoredUnit,
@@ -287,7 +290,7 @@ describe("stress ratio table: rule-check outcomes", () => {
   it("sorts by ratio, pins the incomplete outcome with its reason and keeps the failed one first", () => {
     const shown = view(table(stressRows(), PASSING, run(outcomes())), "rule:cat_a");
     expect(shown.pinned.map((item) => item.outcome!.status)).toEqual(["RULE_INPUTS_INCOMPLETE"]);
-    expect(shown.pinned[0].outcome!.incompleteReason).toBe("Missing input: in_p1. RULE_SOLVER_RESULT_ROW_MISSING (in_p1): no row matched");
+    expect(shown.pinned[0].outcome!.incompleteReason).toBe(`Missing input: in_p1. Completeness finding RULE_SOLVER_RESULT_ROW_MISSING (in_p1). ${INCOMPLETE_MESSAGES_NOTE}`);
     expect(shown.pinned[0].outcome!.ratio).toBeNull();
     expect(shown.ranked.map((item) => [item.row.outcome!.checkId, item.row.case?.basis.ref_id, item.key])).toEqual([
       ["chk_p2", "load:L-1", 1.2], ["chk_p2", "load:L-2", 0.5], ["chk_p1", "load:L-1", 0.4]
@@ -437,6 +440,52 @@ describe("stress ratio table: rule-check outcomes", () => {
     expect(only.caseLabel).toBe("No load case or combination");
     expect(only.outcome!.incompleteReason).toBe(INCOMPLETE_NO_REASON);
     expect(view(built, "rule:cat_a").pinned).toEqual([only]);
+  });
+
+  it("builds an incomplete reason from structured fields only, never from a finding's message", () => {
+    const numeric = bound(undefined, {
+      status: "RULE_INPUTS_INCOMPLETE",
+      completeness_findings: [{ code: "RULE_SOLVER_RESULT_ROW_MISSING", severity: "blocking", subject_id: "in_p1", message: "no row matched at 0.25" }],
+      evaluator_findings: [{ code: "TableOutOfRange", severity: "blocking", subject_id: "chk_p1", message: "table argument 123456789.5 is outside the table range [0, 100]; the lookup is not clamped" }],
+      diagnostic_codes: ["RULE_DIAG_7"]
+    });
+    const reason = incompleteReason(numeric);
+    expect(reason).toBe(`Missing input: in_p1. Completeness finding RULE_SOLVER_RESULT_ROW_MISSING (in_p1). Evaluator finding TableOutOfRange (chk_p1). ${INCOMPLETE_MESSAGES_NOTE}`);
+    for (const fragment of ["123456789", "0.25", "100", "table argument", "no row matched"]) expect(reason).not.toContain(fragment);
+    // Withheld or admitted, the row carries the same structured reason.
+    for (const standing of [PASSING, healthStanding({ eligible: true, states: { "load:L-1": "sensitive", "load:L-2": "checks_passed" } })]) {
+      const pinned = view(table(stressRows(), standing, run([numeric])), "rule:cat_a").pinned[0];
+      expect(pinned.outcome!.incompleteReason).toBe(reason);
+    }
+    expect(incompleteReason(outcome("chk_p1", "cat_a", L1, "RULE_INPUTS_INCOMPLETE", { diagnostic_codes: ["RULE_DIAG_7", "RULE_DIAG_8"] }))).toBe("RULE_DIAG_7, RULE_DIAG_8");
+  });
+
+  it("lists a failed outcome on every page at its rank, in either mode, past the page length", () => {
+    // Fifty checked outcomes with computed -100 .. -149 against a limit of 1, and one failed 2 / 1.
+    const checked = (count: number) => Array.from({ length: count }, (_, index) =>
+      outcome(`chk_${index}`, "cat_a", L1, "USER_RULE_CHECKED", { computed_value: quantity(-100 - index), limit_value: quantity(1) }));
+    const failed = outcome("chk_failed", "cat_a", L1, "USER_RULE_FAILED", { computed_value: quantity(2), limit_value: quantity(1) });
+    const failedKey = JSON.stringify(["chk_failed", "load_case", "load:L-1"]);
+    for (const count of [50, 57]) {
+      const built = table(stressRows(), PASSING, run([...checked(count), failed]));
+      const byRatio = stressRatioPage(view(built, "rule:cat_a", "ratio"), 50);
+      expect(byRatio.ranked[0]).toMatchObject({ rank: 1 });
+      expect(byRatio.ranked[0].row.key).toBe(failedKey);
+      const byStress = stressRatioPage(view(built, "rule:cat_a", "stress"), 50);
+      expect(byStress.ranked.map((item) => item.row.key)).toContain(failedKey);
+      expect(byStress.ranked.at(-1)).toMatchObject({ rank: count + 1 });
+      expect(byStress.ranked.at(-1)!.row.key).toBe(failedKey);
+      expect(byStress.ranked).toHaveLength(51);
+      expect(byStress.notListedCount).toBe(count - 50);
+      expect(byStress.listedCount).toBe(51);
+      // A threshold above every value and a page of one keep it too.
+      const narrow = stressRatioPage(view(built, "rule:cat_a", "stress", "1000"), 1);
+      expect(narrow.ranked.map((item) => [item.row.key, item.rank])).toEqual([[failedKey, 1]]);
+      expect(narrow.notListedCount).toBe(0);
+      const paged = stressRatioPage(view(built, "rule:cat_a", "ratio"), 1);
+      expect(paged.ranked.map((item) => item.rank)).toEqual([1, 2]);
+      expect(paged.notListedCount).toBe(count - 1);
+    }
   });
 
   it("does not use a run that binds a row this result does not hold", () => {
