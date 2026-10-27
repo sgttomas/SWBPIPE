@@ -111,6 +111,14 @@ Twelve rows per member per case, after the member's local end rows:
 - **Desktop, exports, verifiers:** the desktop's declared result dimensions,
   the stress-neutral export's family mapping and the Python verifiers read the
   new kinds from the tables or list them explicitly.
+- **Desktop element axes and frame filter (A7, DEL-07-05):** the viewport's
+  local-axis triads form the straight-member frame above from the node
+  coordinates and `y_reference` in TypeScript (`elementAxes.ts`); realized
+  curved bends get none. `elementAxes.test.ts` rotates the bundled
+  reference's published local end rows with those axes and recovers its
+  global end rows. The results table states each row's
+  `metadata.coordinate_system` and filters by it; it never re-projects a
+  value.
 
 ## Evidence
 

@@ -213,6 +213,17 @@ needs:
   gating: true
   when: Before the modal results view ships (DEL-04-09 M3).
   evidence: execution/PKG-04/DEL-04-09/Design/modal-analysis.md
+- from: DEL-06-03
+  condition: >-
+    The stress and ratio table (survey item A3) reads the session's rule-check
+    run as `ruleCheckService.ts` types it: one outcome per check and load case
+    or combination, with the user's stress category, the runner's status, the
+    computed value, the limit, the relation and the bound solver rows. An
+    incomplete outcome (RULE_INPUTS_INCOMPLETE) stays visible as incomplete
+    with the run's own reason and is never ranked or hidden. The table forms no
+    status and reads no rule-pack value into any output.
+  gating: false
+  evidence: execution/PKG-07/DEL-07-05/Design/stress-ratio-table.md
 code_paths:
 - apps/desktop/package.json
 - apps/desktop/src/App.test.tsx
@@ -252,9 +263,15 @@ code_paths:
 - apps/desktop/src/features/viewport/viewportResource.ts
 - apps/desktop/src/test-support/resultOverlayFixtures.ts
 - apps/desktop/e2e/result-overlays/
+- apps/desktop/src/features/viewport/DeflectedShapeControls.tsx
+- apps/desktop/src/features/viewport/elementAxes.ts
+- apps/desktop/src/features/viewport/viewportElementAxes.ts
+- apps/desktop/src/test-support/frameKernelOrientationCases.json
 - apps/desktop/src/features/results/supportLoadSummary.ts
 - apps/desktop/src/features/results/SupportLoadSummaryPanel.tsx
 - apps/desktop/src/features/report/reportQuantityDisplay.ts
+- apps/desktop/src/features/results/stressRatioTable.ts
+- apps/desktop/src/features/results/StressRatioTablePanel.tsx
 checks:
 - apps/desktop/src/features/results/ResultsPanel.test.tsx
 - apps/desktop/src/App.resultPaging.test.tsx
@@ -278,5 +295,13 @@ checks:
 - apps/desktop/src/features/viewport/viewportResultColour.test.ts
 - apps/desktop/src/features/viewport/PipeViewport.overlays.test.tsx
 - apps/desktop/e2e/result-overlays.spec.ts
+- apps/desktop/src/features/workspace/selectionReveal.test.tsx
+- apps/desktop/src/features/viewport/deflectedShape.test.ts
+- apps/desktop/src/features/viewport/PipeViewport.deflection.test.tsx
+- apps/desktop/src/features/viewport/elementAxes.test.ts
+- apps/desktop/src/features/viewport/PipeViewport.elementAxes.test.tsx
 - apps/desktop/src/features/results/supportLoadSummary.test.ts
 - apps/desktop/src/features/results/SupportLoadSummaryPanel.test.tsx
+- apps/desktop/src/features/results/stressRatioTable.test.ts
+- apps/desktop/src/features/results/StressRatioTablePanel.test.tsx
+- apps/desktop/src/features/results/StressRatioTablePanel.derivation.test.tsx

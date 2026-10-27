@@ -14,12 +14,30 @@
 
 export const REDACTED_VALUE = "[REDACTED]";
 
+/** The five contexts the redaction panel, the controlled links and every existing route
+ * select. The user-released context (`UserReleasedReportContext`) is deliberately not one
+ * of them, so no existing surface can select it. */
 export type RedactionExportContext =
   | "public_report"
   | "public_example"
   | "shared_model"
   | "downstream_tool"
   | "local_private";
+
+/** W-18b (DEL-08-01 Design `report-user-release.md` §3.1): a report of the user's own
+ * session in which the user releases their own project data for sharing, for that one
+ * report, with their statement that they hold the redistribution right. It is admitted only on route
+ * `DREP-PACKAGE-USER-RELEASE-010` with the wrapper's user-release intent; payload content
+ * never selects or grants it. */
+export type UserReleasedReportContext = "user_released_report";
+
+/** The full DEL-12-02 export-context vocabulary the controls decide in. */
+export type ControlExportContext = RedactionExportContext | UserReleasedReportContext;
+
+export const USER_RELEASED_REPORT_CONTEXT: UserReleasedReportContext = "user_released_report";
+
+/** The user-release route (§3.3). No route uses it before W-18b (r3). */
+export const REPORT_PACKAGE_USER_RELEASE_ROUTE_ID = "DREP-PACKAGE-USER-RELEASE-010";
 
 export type RedactionAction =
   | "include"
@@ -45,7 +63,10 @@ export type RedactionReasonCode =
   | "CLOUD_OR_NETWORK_REFERENCE_BLOCKED"
   | "DIRECT_SQL_ACCESS_BLOCKED"
   | "STORAGE_BYPASS_BLOCKED"
-  | "CONCRETE_PATH_REDACTED";
+  | "CONCRETE_PATH_REDACTED"
+  | "USER_RELEASED_PROJECT_DATA"
+  | "USER_RELEASE_INTENT_REQUIRED"
+  | "USER_RELEASE_VALUE_UNBOUND";
 
 export type RedactionFindingClass =
   | "IP_BOUNDARY_WARNING"
@@ -64,7 +85,7 @@ export type RedactionDecision = {
   privacy_classification: string;
   redistribution_status: string;
   review_status: string;
-  export_context: RedactionExportContext;
+  export_context: ControlExportContext;
   action: RedactionAction;
   reason_code: RedactionReasonCode;
   source_metadata_present: boolean;
@@ -110,10 +131,16 @@ export type LocalFirstRouteEvidence = {
     | "PRIVATE_LOCAL_METADATA_ALLOWED"
     | "LOCAL_PRIVATE_INTENT_REQUIRED"
     | "LOCAL_FIRST_ROUTE_UNKNOWN"
-    | "LOCAL_FIRST_EXPORT_CONTEXT_INVALID";
+    | "LOCAL_FIRST_EXPORT_CONTEXT_INVALID"
+    | "USER_RELEASE_METADATA_ALLOWED"
+    | "USER_RELEASE_ROUTE_REQUIRED"
+    | "USER_RELEASE_INTENT_REQUIRED";
   blocked: boolean;
   metadata_only: true;
   explicit_local_private_intent: boolean;
+  /** Present only when the route or the context is the user release's (§3.3), so the
+   * evidence of every existing route keeps its exact members. */
+  explicit_user_release_intent?: boolean;
 };
 
 export type ControlledRouteExport = RedactionRunResult & {
@@ -124,6 +151,7 @@ export type ControlledRouteExport = RedactionRunResult & {
   };
 };
 
+/** The selectable contexts (the redaction panel lists exactly these). */
 export const EXPORT_CONTEXTS: RedactionExportContext[] = [
   "public_report",
   "public_example",
@@ -132,7 +160,11 @@ export const EXPORT_CONTEXTS: RedactionExportContext[] = [
   "local_private"
 ];
 
-const GOVERNED_LOCAL_FIRST_ROUTE_IDS = new Set([
+/** Every context the controls accept: the selectable five and the user-released context. */
+export const CONTROL_EXPORT_CONTEXTS: ControlExportContext[] = [...EXPORT_CONTEXTS, USER_RELEASED_REPORT_CONTEXT];
+
+/** The governed local-first routes (exported read-only for the regressions). */
+export const GOVERNED_LOCAL_FIRST_ROUTE_IDS: ReadonlySet<string> = new Set([
   "DOTH-CAEPIPE-LOCAL-006",
   "DOTH-FORMAT-003",
   "DOTH-HANDOFF-002",
@@ -145,28 +177,56 @@ const GOVERNED_LOCAL_FIRST_ROUTE_IDS = new Set([
   "DREP-JSON-002",
   "DREP-LINT-JSON-007",
   "DREP-PACKAGE-SAVE-009",
+  "DREP-PACKAGE-USER-RELEASE-010",
   "DREP-UI-001/DREP-JSON-002"
 ]);
+
+/** The storage context of a context's governed route metadata: a user-released report is
+ * written to the user's own local path by the same atomic save, so its route metadata is
+ * held under the existing `private_report` storage context (§3.3). */
+function storageContextFor(exportContext: string): string {
+  return exportContext === USER_RELEASED_REPORT_CONTEXT ? "private_report" : exportContext;
+}
+
+/** Whether a caller stated any user-release intent: every value but absent, null or false.
+ * The flag assertion and local-first admission refuse such a statement outside
+ * `user_released_report`; only `true` admits route 010 (§3.3). */
+function userReleaseIntentStated(explicitUserReleaseIntent: unknown): boolean {
+  return !(explicitUserReleaseIntent === undefined || explicitUserReleaseIntent === null || explicitUserReleaseIntent === false);
+}
 
 export function enforceLocalFirstRoute(options: {
   routeId: unknown;
   exportContext: unknown;
   explicitLocalPrivateIntent?: boolean;
+  explicitUserReleaseIntent?: boolean;
 }): LocalFirstRouteEvidence {
   const routeId = typeof options.routeId === "string" ? options.routeId : "";
   const exportContext = typeof options.exportContext === "string" ? options.exportContext : "";
-  const validContext = (EXPORT_CONTEXTS as string[]).includes(exportContext);
+  const validContext = (CONTROL_EXPORT_CONTEXTS as string[]).includes(exportContext);
   const explicitIntent = options.explicitLocalPrivateIntent === true;
+  const releaseIntent = options.explicitUserReleaseIntent === true;
+  // Any user-release intent other than absent, null or false, the predicate of the flag
+  // assertion (`assertUserReleaseIntentContext`): it is refused below in every context but
+  // `user_released_report`, so it cannot be admitted in another context here either.
+  const releaseIntentStated = userReleaseIntentStated(options.explicitUserReleaseIntent);
+  const userReleaseRoute = routeId === REPORT_PACKAGE_USER_RELEASE_ROUTE_ID;
+  const userReleaseContext = exportContext === USER_RELEASED_REPORT_CONTEXT;
+  // The release intent is recorded only where it is the subject of the decision, so the
+  // evidence of every existing route with an absent or false flag keeps its exact members.
+  const releaseEvidence =
+    userReleaseRoute || userReleaseContext || releaseIntentStated ? { explicit_user_release_intent: releaseIntent } : {};
   if (!GOVERNED_LOCAL_FIRST_ROUTE_IDS.has(routeId)) {
     return {
       route_id: routeId,
       export_context: exportContext,
-      storage_context: validContext ? exportContext : "invalid",
+      storage_context: validContext ? storageContextFor(exportContext) : "invalid",
       action: "block_storage",
       reason_code: "LOCAL_FIRST_ROUTE_UNKNOWN",
       blocked: true,
       metadata_only: true,
-      explicit_local_private_intent: explicitIntent
+      explicit_local_private_intent: explicitIntent,
+      ...releaseEvidence
     };
   }
   if (!validContext) {
@@ -178,7 +238,37 @@ export function enforceLocalFirstRoute(options: {
       reason_code: "LOCAL_FIRST_EXPORT_CONTEXT_INVALID",
       blocked: true,
       metadata_only: true,
-      explicit_local_private_intent: explicitIntent
+      explicit_local_private_intent: explicitIntent,
+      ...releaseEvidence
+    };
+  }
+  // W-18b (§3.3): the user-released context only on its own route, that route only in that
+  // context, and user-release intent only with that context; then the wrapper's release
+  // intent.
+  if (userReleaseRoute !== userReleaseContext || (releaseIntentStated && !userReleaseContext)) {
+    return {
+      route_id: routeId,
+      export_context: exportContext,
+      storage_context: storageContextFor(exportContext),
+      action: "block_storage",
+      reason_code: "USER_RELEASE_ROUTE_REQUIRED",
+      blocked: true,
+      metadata_only: true,
+      explicit_local_private_intent: explicitIntent,
+      ...releaseEvidence
+    };
+  }
+  if (userReleaseRoute) {
+    return {
+      route_id: routeId,
+      export_context: exportContext,
+      storage_context: storageContextFor(exportContext),
+      action: releaseIntent ? "include_metadata_only" : "block_storage",
+      reason_code: releaseIntent ? "USER_RELEASE_METADATA_ALLOWED" : "USER_RELEASE_INTENT_REQUIRED",
+      blocked: !releaseIntent,
+      metadata_only: true,
+      explicit_local_private_intent: explicitIntent,
+      explicit_user_release_intent: releaseIntent
     };
   }
   if (exportContext === "local_private" && !explicitIntent) {
@@ -209,6 +299,17 @@ export function enforceLocalFirstRoute(options: {
 }
 
 const SAFE_PRIVACY_CLASSES = new Set(["public", "public_metadata", "invented_public_example"]);
+/** The private classes other than the user's own project data (§2.7): redacted in the
+ * user-released context whatever their redistribution status. */
+const NON_PROJECT_PRIVATE_CLASSES = new Set([
+  "private_material_data",
+  "private_component_data",
+  "private_rule_pack_data",
+  "owner_standard_data",
+  "company_design_basis_data",
+  "path_data",
+  "secret_like_data"
+]);
 const PRIVATE_PRIVACY_CLASSES = new Set([
   "private_project_data",
   "private_material_data",
@@ -414,13 +515,43 @@ function unknownAction(exportContext: RedactionExportContext): RedactionAction {
   return exportContext === "local_private" ? "warning_only" : "redact_value";
 }
 
-function actionFor(args: {
+/** Steps 10-13 of the decision order (§3.2), only for `user_released_report`, after steps 1-9
+ * and before any unknown-metadata branch. Only the wrapper's release intent is read. */
+function userReleasedAction(args: {
+  privacy: unknown;
+  redistribution: unknown;
+  explicitUserReleaseIntent: boolean;
+}): { action: RedactionAction; reason: RedactionReasonCode } {
+  if (typeof args.privacy === "string" && NON_PROJECT_PRIVATE_CLASSES.has(args.privacy)) {
+    return { action: "redact_value", reason: "PRIVATE_DATA_REDACTED" };
+  }
+  if (args.privacy === "private_project_data") {
+    return args.explicitUserReleaseIntent
+      ? { action: "warning_only", reason: "USER_RELEASED_PROJECT_DATA" }
+      : { action: "block_export", reason: "USER_RELEASE_INTENT_REQUIRED" };
+  }
+  if (
+    typeof args.privacy === "string" &&
+    SAFE_PRIVACY_CLASSES.has(args.privacy) &&
+    typeof args.redistribution === "string" &&
+    PUBLIC_REDIS_STATUSES.has(args.redistribution)
+  ) {
+    return {
+      action: "include",
+      reason: args.privacy === "invented_public_example" ? "SAFE_INVENTED_PUBLIC_EXAMPLE" : "SAFE_PUBLIC_METADATA"
+    };
+  }
+  return { action: "block_export", reason: "USER_RELEASE_VALUE_UNBOUND" };
+}
+
+type ActionInputs = {
   privacy: unknown;
   redistribution: unknown;
   reviewStatus: unknown;
   metadataPresent: boolean;
-  exportContext: RedactionExportContext;
+  exportContext: ControlExportContext;
   explicitLocalPrivateIntent: boolean;
+  explicitUserReleaseIntent: boolean;
   professionalClaim: boolean;
   containsPayload: boolean;
   secretMaterialPresent: boolean;
@@ -428,7 +559,12 @@ function actionFor(args: {
   directSqlAccess: boolean;
   storageBypass: boolean;
   concretePathPresent: boolean;
-}): { action: RedactionAction; reason: RedactionReasonCode } {
+};
+
+/** Steps 1-9 of the decision order (§3.2), the same for every context: the claim, network,
+ * SQL, storage-bypass, secret, payload and path checks, then the protected and the
+ * quarantined or rejected blocks. `null` when none of them decides. */
+function boundaryActionFor(args: ActionInputs): { action: RedactionAction; reason: RedactionReasonCode } | null {
   if (args.professionalClaim) return { action: "block_export", reason: "PROFESSIONAL_BOUNDARY_BLOCKED" };
   if (args.cloudOrNetworkReference) return { action: "block_export", reason: "CLOUD_OR_NETWORK_REFERENCE_BLOCKED" };
   if (args.directSqlAccess) return { action: "block_export", reason: "DIRECT_SQL_ACCESS_BLOCKED" };
@@ -442,6 +578,13 @@ function actionFor(args: {
   if (args.reviewStatus === "quarantined" || args.reviewStatus === "rejected") {
     return { action: "block_export", reason: "PROTECTED_CONTENT_BLOCKED" };
   }
+  return null;
+}
+
+/** Step 10 onward (§3.2), after `boundaryActionFor` decided nothing: steps 10-13 in
+ * `user_released_report`, today's sequence in the five existing contexts. */
+function contextActionFor(args: ActionInputs): { action: RedactionAction; reason: RedactionReasonCode } {
+  if (args.exportContext === USER_RELEASED_REPORT_CONTEXT) return userReleasedAction(args);
   if (!args.metadataPresent) {
     return { action: unknownAction(args.exportContext), reason: "MISSING_METADATA_REDACTED" };
   }
@@ -477,6 +620,15 @@ function actionFor(args: {
   return { action: unknownAction(args.exportContext), reason: "UNKNOWN_PROVENANCE_WARNING" };
 }
 
+function actionFor(args: ActionInputs): {
+  action: RedactionAction;
+  reason: RedactionReasonCode;
+  boundary: boolean;
+} {
+  const boundary = boundaryActionFor(args);
+  return boundary === null ? { ...contextActionFor(args), boundary: false } : { ...boundary, boundary: true };
+}
+
 const FINDING_CLASS_BY_REASON: Record<string, RedactionFindingClass> = {
   PRIVATE_DATA_REDACTED: "PRIVATE_DATA_WARNING",
   PRIVATE_LOCAL_ALLOWED_WITH_WARNING: "PRIVATE_DATA_WARNING",
@@ -491,7 +643,10 @@ const FINDING_CLASS_BY_REASON: Record<string, RedactionFindingClass> = {
   CLOUD_OR_NETWORK_REFERENCE_BLOCKED: "STORAGE_BOUNDARY_WARNING",
   DIRECT_SQL_ACCESS_BLOCKED: "STORAGE_BOUNDARY_WARNING",
   STORAGE_BYPASS_BLOCKED: "STORAGE_BOUNDARY_WARNING",
-  CONCRETE_PATH_REDACTED: "STORAGE_BOUNDARY_WARNING"
+  CONCRETE_PATH_REDACTED: "STORAGE_BOUNDARY_WARNING",
+  USER_RELEASED_PROJECT_DATA: "PRIVATE_DATA_WARNING",
+  USER_RELEASE_INTENT_REQUIRED: "PRIVATE_DATA_WARNING",
+  USER_RELEASE_VALUE_UNBOUND: "PROVENANCE_WARNING"
 };
 
 const FINDING_MESSAGE_BY_ACTION: Record<string, string> = {
@@ -500,6 +655,16 @@ const FINDING_MESSAGE_BY_ACTION: Record<string, string> = {
   redact_field: "Export field was redacted because metadata does not support release.",
   omit_field: "Export field was omitted because metadata does not support release.",
   block_export: "Export is blocked until the metadata or boundary issue is resolved."
+};
+
+/** The user-released context's own messages (§3.1); every other reason keeps its action's message. */
+const FINDING_MESSAGE_BY_REASON: Record<string, string> = {
+  USER_RELEASED_PROJECT_DATA:
+    "Export retained the user's own project data in this report under the user's release of their project data, with a warning.",
+  USER_RELEASE_INTENT_REQUIRED:
+    "Export is blocked: this report carries the user's project data and no user release of that data was selected for it.",
+  USER_RELEASE_VALUE_UNBOUND:
+    "Export is blocked: a user-released report includes only values whose privacy and redistribution metadata it recognizes."
 };
 
 const FINDING_REMEDIATION =
@@ -515,7 +680,7 @@ function findingFor(decision: RedactionDecision, findingIndex: number): Redactio
     severity,
     path: decision.path,
     action: decision.action,
-    message: FINDING_MESSAGE_BY_ACTION[decision.action],
+    message: FINDING_MESSAGE_BY_REASON[decision.reason_code] ?? FINDING_MESSAGE_BY_ACTION[decision.action],
     remediation: FINDING_REMEDIATION
   };
 }
@@ -549,18 +714,22 @@ function classify(
   item: PlainObject,
   args: {
     path: string;
-    exportContext: RedactionExportContext;
+    exportContext: ControlExportContext;
     explicitLocalPrivateIntent: boolean;
+    explicitUserReleaseIntent: boolean;
     decisionIndex: number;
     findingIndex: number;
   }
-): { decision: RedactionDecision; finding: RedactionFinding | null } {
+): { decision: RedactionDecision; finding: RedactionFinding | null; boundary: boolean } {
   const metadataPresent = hasExplicitMetadata(item) || intersects(UNSAFE_DETAIL_KEYS, item);
   const fieldClass = stringOrUnknown(item.field_class ?? "unknown");
   let privacy: unknown = item.privacy_classification;
   let redistribution: unknown = item.redistribution_status;
   let reviewStatus: unknown = item.review_status ?? "unknown";
-  const intent = localPrivateIntent(item, args.explicitLocalPrivateIntent);
+  // Payload-carried local-private intent is not read in the user-released context (§3.2):
+  // only the wrapper's release intent decides there.
+  const intent =
+    args.exportContext === USER_RELEASED_REPORT_CONTEXT ? false : localPrivateIntent(item, args.explicitLocalPrivateIntent);
 
   const provenance = item.provenance;
   if (isPlainObject(provenance)) {
@@ -573,13 +742,14 @@ function classify(
         : (provenance.review_status ?? "unknown");
   }
 
-  const { action, reason } = actionFor({
+  const { action, reason, boundary } = actionFor({
     privacy,
     redistribution,
     reviewStatus,
     metadataPresent,
     exportContext: args.exportContext,
     explicitLocalPrivateIntent: intent,
+    explicitUserReleaseIntent: args.explicitUserReleaseIntent,
     professionalClaim: truthy(item.professional_claim ?? false),
     containsPayload: containsPayload(item),
     secretMaterialPresent: secretMaterialPresent(item),
@@ -600,27 +770,32 @@ function classify(
     reason_code: reason,
     source_metadata_present: metadataPresent
   };
-  return { decision, finding: findingFor(decision, args.findingIndex) };
+  return { decision, finding: findingFor(decision, args.findingIndex), boundary };
 }
 
 export function classifyExportItem(
   item: PlainObject,
   options: {
-    exportContext: RedactionExportContext;
+    exportContext: ControlExportContext;
     explicitLocalPrivateIntent?: boolean;
+    explicitUserReleaseIntent?: boolean;
     path?: string;
   }
 ): RedactionDecision {
   assertContext(options.exportContext);
+  assertUserReleaseIntentContext(options.exportContext, options.explicitUserReleaseIntent);
   return classify(item, {
     path: options.path ?? "$",
     exportContext: options.exportContext,
     explicitLocalPrivateIntent: options.explicitLocalPrivateIntent ?? false,
+    explicitUserReleaseIntent: options.explicitUserReleaseIntent === true,
     decisionIndex: 1,
     findingIndex: 1
   }).decision;
 }
 
+/** The redaction walk serves the five existing contexts only; `redactExportPayload` refuses
+ * `user_released_report` before it is reached (§3.2). */
 function walk(
   value: unknown,
   args: {
@@ -637,6 +812,7 @@ function walk(
         path: args.path,
         exportContext: args.exportContext,
         explicitLocalPrivateIntent: args.explicitLocalPrivateIntent,
+        explicitUserReleaseIntent: false,
         decisionIndex: args.decisions.length + 1,
         findingIndex: args.findings.length + 1
       });
@@ -663,8 +839,20 @@ function walk(
 }
 
 function assertContext(exportContext: string): void {
-  if (!EXPORT_CONTEXTS.includes(exportContext as RedactionExportContext)) {
+  if (!CONTROL_EXPORT_CONTEXTS.includes(exportContext as ControlExportContext)) {
     throw new Error(`unsupported export_context: ${exportContext}`);
+  }
+}
+
+/** The flag assertion (§3.3): user-release intent with any context other than
+ * `user_released_report` is refused loudly, so the flag cannot enable export in another
+ * context. */
+function assertUserReleaseIntentContext(exportContext: string, explicitUserReleaseIntent: unknown): void {
+  if (!userReleaseIntentStated(explicitUserReleaseIntent)) return;
+  if (exportContext !== USER_RELEASED_REPORT_CONTEXT) {
+    throw new Error(
+      `explicitUserReleaseIntent is admitted only in the ${USER_RELEASED_REPORT_CONTEXT} context, not in ${exportContext}`
+    );
   }
 }
 
@@ -682,11 +870,31 @@ function summarize(decisions: RedactionDecision[], findings: RedactionFinding[])
   };
 }
 
+/** The redaction walk refuses the `user_released_report` context outright, in every call and
+ * before any walk (§3.2), as the generic route exporter does. The walk decides a value-bearing
+ * object as a whole and keeps an unlabelled value, so in that context it would admit what the
+ * user-release screen refuses (a marker or a non-project private class on a descendant of a
+ * labelled object). `controlUserReleasedReportPackageRequest` is the only payload entry for
+ * the context; `classifyExportItem` decides one item by the rule. */
+function assertRedactionWalkContext(exportContext: unknown): void {
+  if (exportContext === USER_RELEASED_REPORT_CONTEXT) {
+    throw new Error(
+      `USER_RELEASE_ROUTE_REQUIRED: the redaction walk does not admit the ${USER_RELEASED_REPORT_CONTEXT} context; only the user-release projector does`
+    );
+  }
+}
+
 export function redactExportPayload(
   payload: unknown,
-  options: { exportContext: RedactionExportContext; explicitLocalPrivateIntent?: boolean }
+  options: {
+    exportContext: RedactionExportContext;
+    explicitLocalPrivateIntent?: boolean;
+    explicitUserReleaseIntent?: boolean;
+  }
 ): RedactionRunResult {
   assertContext(options.exportContext);
+  assertUserReleaseIntentContext(options.exportContext, options.explicitUserReleaseIntent);
+  assertRedactionWalkContext(options.exportContext);
   const decisions: RedactionDecision[] = [];
   const findings: RedactionFinding[] = [];
   const redacted = walk(structuredClone(payload), {
@@ -941,15 +1149,34 @@ function materializeRouteValue(value: unknown): unknown {
   );
 }
 
+/** The generic route exporter serves the five existing contexts only (§3.3). The
+ * `user_released_report` context and route `DREP-PACKAGE-USER-RELEASE-010` are refused
+ * outright, in every pairing and before any projection, as `assertContext` refuses a context
+ * the exporter does not support: its path-token projector labels a value by its key, so it
+ * would admit what the user-release screen refuses (markers on enclosing objects, non-project
+ * private classes). `controlUserReleasedReportPackageRequest` is the only entry for the
+ * user-released context. */
+function assertGenericRouteExport(routeId: unknown, exportContext: unknown): void {
+  if (exportContext === USER_RELEASED_REPORT_CONTEXT || routeId === REPORT_PACKAGE_USER_RELEASE_ROUTE_ID) {
+    throw new Error(
+      `USER_RELEASE_ROUTE_REQUIRED: the generic route exporter does not admit the ${USER_RELEASED_REPORT_CONTEXT} context or route ${REPORT_PACKAGE_USER_RELEASE_ROUTE_ID}; only the user-release projector does`
+    );
+  }
+}
+
 export function controlRouteExport(
   payload: unknown,
   options: {
     routeId: string;
     exportContext: RedactionExportContext;
     explicitLocalPrivateIntent?: boolean;
+    explicitUserReleaseIntent?: boolean;
     requireLosslessMaterialization?: boolean;
   }
 ): ControlledRouteExport {
+  assertContext(options.exportContext);
+  assertUserReleaseIntentContext(options.exportContext, options.explicitUserReleaseIntent);
+  assertGenericRouteExport(options.routeId, options.exportContext);
   const localFirst = enforceLocalFirstRoute(options);
   const structuralProjection = structuralProjectionFor(payload, options.routeId);
   const projected = projectRouteValue(stripRouteIntent(payload), {
@@ -960,7 +1187,8 @@ export function controlRouteExport(
   });
   const controlled = redactExportPayload(projected, {
     exportContext: options.exportContext,
-    explicitLocalPrivateIntent: options.explicitLocalPrivateIntent ?? false
+    explicitLocalPrivateIntent: options.explicitLocalPrivateIntent ?? false,
+    ...(options.explicitUserReleaseIntent === undefined ? {} : { explicitUserReleaseIntent: options.explicitUserReleaseIntent })
   });
   const destructive = controlled.decisions.some((decision) =>
     ["redact_value", "redact_field", "omit_field", "block_export"].includes(decision.action)
@@ -974,6 +1202,236 @@ export function controlRouteExport(
     summary: {
       ...controlled.summary,
       route_id: options.routeId,
+      materialization_withheld: materializationWithheld,
+      local_first: localFirst
+    }
+  };
+}
+
+/** The label a user-release leaf takes from its enclosing objects (§3.2). */
+type UserReleaseLabel = { privacy: unknown; redistribution: unknown; review: unknown };
+
+const USER_RELEASE_DEFAULT_LABEL: UserReleaseLabel = {
+  privacy: "private_project_data",
+  redistribution: "private_only",
+  review: undefined
+};
+
+const ABSENT: unique symbol = Symbol("user-release-absent");
+
+function ownMember(object: unknown, key: string): unknown | typeof ABSENT {
+  return isPlainObject(object) && Object.prototype.hasOwnProperty.call(object, key) ? object[key] : ABSENT;
+}
+
+function isStatedValue(value: unknown): boolean {
+  return value !== ABSENT && value !== null && value !== undefined;
+}
+
+/** What an object states for one member, read as `classify` reads it: its own non-null
+ * member, else its `provenance` object's member, else its own null member; ABSENT when it
+ * states nothing. */
+function statedMember(object: PlainObject, key: string): unknown | typeof ABSENT {
+  const own = ownMember(object, key);
+  if (isStatedValue(own)) return own;
+  const fromProvenance = ownMember(object.provenance, key);
+  if (fromProvenance !== ABSENT) return fromProvenance;
+  return own;
+}
+
+/** The privacy and redistribution an object states, as the projector reads them (ABSENT
+ * when it states none): its own `privacy_classification`, else its provenance's, else its
+ * own `privacy_class`; its own `redistribution_status`, else its provenance's. */
+function statedUserReleaseLabel(object: PlainObject): { privacy: unknown; redistribution: unknown } {
+  const statedPrivacy = statedMember(object, "privacy_classification");
+  return {
+    privacy: statedPrivacy !== ABSENT ? statedPrivacy : ownMember(object, "privacy_class"),
+    redistribution: statedMember(object, "redistribution_status")
+  };
+}
+
+/** The values the classification gives a meaning in `user_released_report` (§3.2): the
+ * privacy classes steps 8 and 10-12 decide (any other privacy, null included, falls to
+ * step 13), and the redistribution statuses it recognizes (public, private, the
+ * unknown forms it treats as unknown, and protected). Built from the classification's
+ * own sets. */
+const USER_RELEASE_RECOGNIZED_PRIVACY = new Set<unknown>([
+  ...SAFE_PRIVACY_CLASSES,
+  ...PRIVATE_PRIVACY_CLASSES,
+  "protected_suspected"
+]);
+const USER_RELEASE_RECOGNIZED_REDISTRIBUTION = new Set<unknown>([
+  ...PUBLIC_REDIS_STATUSES,
+  ...PRIVATE_REDIS_STATUSES,
+  ...UNKNOWN_REDIS_STATUSES,
+  "protected_suspected"
+]);
+
+/** Whether an object's own stated label blocks by step 13 (§3.2), so that no descendant
+ * can replace it: a stated privacy or redistribution the classification does not
+ * recognize (`{}`, `[]`, a number, a boolean, an empty or unknown string; a null,
+ * `unknown` or `TBD` privacy), or a stated pair that the classification itself decides by
+ * step 13 (a safe class with a non-public redistribution). `decided` is the
+ * classification of the object's own stated members alone; an absent member is not stated
+ * and inherits. */
+function ownUserReleaseLabelUnbound(
+  stated: { privacy: unknown; redistribution: unknown },
+  decided: RedactionDecision
+): boolean {
+  const privacyStated = stated.privacy !== ABSENT;
+  const redistributionStated = stated.redistribution !== ABSENT;
+  if (privacyStated && !USER_RELEASE_RECOGNIZED_PRIVACY.has(stated.privacy)) return true;
+  if (redistributionStated && !USER_RELEASE_RECOGNIZED_REDISTRIBUTION.has(stated.redistribution)) return true;
+  return privacyStated && redistributionStated && decided.reason_code === "USER_RELEASE_VALUE_UNBOUND";
+}
+
+/** The nearest enclosing object that states a member supplies it: an object's own
+ * `privacy_classification` (else its provenance's, as `classify` reads them, else its own
+ * `privacy_class`), `redistribution_status` and `review_status` replace what it inherits.
+ * As in `classify`, a review status of `unknown` gives way to the provenance's. A blocking
+ * disposition is never replaced by a nested statement: `protected_suspected` and a
+ * `quarantined` or `rejected` review stay on every leaf beneath the object that states
+ * them. A label can add a refusal; no label grants inclusion, since the wrapper's intent
+ * alone admits project data. */
+function nextUserReleaseLabel(object: PlainObject, inherited: UserReleaseLabel): UserReleaseLabel {
+  const { privacy, redistribution } = statedUserReleaseLabel(object);
+  const ownReview = ownMember(object, "review_status");
+  const provenanceReview = ownMember(object.provenance, "review_status");
+  const review =
+    isStatedValue(ownReview) && ownReview !== "unknown"
+      ? ownReview
+      : provenanceReview !== ABSENT
+        ? provenanceReview
+        : ownReview;
+  return {
+    privacy:
+      inherited.privacy === "protected_suspected" || privacy === ABSENT ? inherited.privacy : privacy,
+    redistribution:
+      inherited.redistribution === "protected_suspected" || redistribution === ABSENT
+        ? inherited.redistribution
+        : redistribution,
+    review:
+      inherited.review === "quarantined" || inherited.review === "rejected" || review === ABSENT
+        ? inherited.review
+        : review
+  };
+}
+
+/** The release projector's screen of one value (§3.2). Every enclosing object is first
+ * decided by steps 1-9 exactly as `classifyExportItem` decides it, from its own members
+ * (claim, network, SQL, storage bypass, secret, payload and path markers; protected,
+ * quarantined and rejected dispositions, its provenance's included); a decision there is
+ * recorded for the object. Otherwise an object's explicitly stated own label that the
+ * classification does not recognize, or decides by step 13, is recorded for the object as
+ * `block_export` / `USER_RELEASE_VALUE_UNBOUND`, so no descendant's label can replace it;
+ * only an absent label inherits. Only then is each leaf labelled with its nearest
+ * enclosing metadata and decided by steps 8-13. */
+function screenUserReleaseValue(
+  value: unknown,
+  args: {
+    routeId: string;
+    path: string;
+    label: UserReleaseLabel;
+    explicitUserReleaseIntent: boolean;
+    decisions: RedactionDecision[];
+    findings: RedactionFinding[];
+  }
+): void {
+  const decide = (item: PlainObject) =>
+    classify(item, {
+      path: args.path,
+      exportContext: USER_RELEASED_REPORT_CONTEXT,
+      explicitLocalPrivateIntent: false,
+      explicitUserReleaseIntent: args.explicitUserReleaseIntent,
+      decisionIndex: args.decisions.length + 1,
+      findingIndex: args.findings.length + 1
+    });
+  const push = (decision: RedactionDecision): void => {
+    args.decisions.push(decision);
+    const finding = findingFor(decision, args.findings.length + 1);
+    if (finding !== null) args.findings.push(finding);
+  };
+  const fieldId = `${args.routeId}:${args.path}`;
+  const fieldClass = args.path.split(".").at(-1)?.split("[")[0] || "unknown";
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => screenUserReleaseValue(item, { ...args, path: `${args.path}[${index}]` }));
+    return;
+  }
+  if (isPlainObject(value)) {
+    const screened = decide(value);
+    if (screened.boundary) {
+      push(screened.decision);
+    } else {
+      // The object's own stated label, decided alone (§3.2): an unrecognized or step-13 own
+      // label blocks here, before any descendant could replace it for its leaves.
+      const stated = statedUserReleaseLabel(value);
+      if (stated.privacy !== ABSENT || stated.redistribution !== ABSENT) {
+        const { decision } = decide({
+          field_id: fieldId,
+          field_class: fieldClass,
+          ...(stated.privacy === ABSENT ? {} : { privacy_classification: stated.privacy }),
+          ...(stated.redistribution === ABSENT ? {} : { redistribution_status: stated.redistribution })
+        });
+        if (ownUserReleaseLabelUnbound(stated, decision)) {
+          push({ ...decision, action: "block_export", reason_code: "USER_RELEASE_VALUE_UNBOUND" });
+        }
+      }
+    }
+    const label = nextUserReleaseLabel(value, args.label);
+    for (const [key, item] of Object.entries(value)) {
+      screenUserReleaseValue(item, { ...args, path: `${args.path}.${key}`, label });
+    }
+    return;
+  }
+  push(
+    decide({
+      field_id: fieldId,
+      field_class: fieldClass,
+      privacy_classification: args.label.privacy,
+      redistribution_status: args.label.redistribution,
+      ...(args.label.review === undefined ? {} : { review_status: args.label.review })
+    }).decision
+  );
+}
+
+/** The user-release projector for route `DREP-PACKAGE-USER-RELEASE-010` (§3.2), lossless.
+ * The request and the model are screened alike: every enclosing object by steps 1-9 as
+ * `classifyExportItem` decides it, then every leaf labelled with the privacy and
+ * redistribution of its nearest enclosing object that states them, else
+ * `private_project_data` / `private_only`; there is no path-token labelling and no field
+ * table. The release intent is read only from the wrapper's argument; payload members of
+ * any name grant nothing and are not stripped, so an admitted payload is the request
+ * itself. The model is never part of the payload. This is the webview's early check;
+ * native admission's derivation decides (§2.6). No route uses it before W-18b (r3). */
+export function controlUserReleasedReportPackageRequest(
+  payload: unknown,
+  model: unknown,
+  explicitUserReleaseIntent: boolean
+): ControlledRouteExport {
+  const routeId = REPORT_PACKAGE_USER_RELEASE_ROUTE_ID;
+  const releaseIntent = explicitUserReleaseIntent === true;
+  const localFirst = enforceLocalFirstRoute({
+    routeId,
+    exportContext: USER_RELEASED_REPORT_CONTEXT,
+    explicitUserReleaseIntent: releaseIntent
+  });
+  const decisions: RedactionDecision[] = [];
+  const findings: RedactionFinding[] = [];
+  const screen = { routeId, label: USER_RELEASE_DEFAULT_LABEL, explicitUserReleaseIntent: releaseIntent, decisions, findings };
+  screenUserReleaseValue(payload, { ...screen, path: "$.request" });
+  screenUserReleaseValue(model, { ...screen, path: "$.model" });
+  const decisionsBlock = decisions.some((decision) => decision.action === "block_export");
+  const materializationWithheld = decisions.some((decision) =>
+    ["redact_value", "redact_field", "omit_field", "block_export"].includes(decision.action)
+  );
+  const blocked = decisionsBlock || materializationWithheld || localFirst.blocked;
+  return {
+    payload: blocked ? null : structuredClone(payload),
+    decisions,
+    findings,
+    blocked,
+    summary: {
+      ...summarize(decisions, findings),
+      route_id: routeId,
       materialization_withheld: materializationWithheld,
       local_first: localFirst
     }

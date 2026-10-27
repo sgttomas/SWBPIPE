@@ -4,6 +4,7 @@
 // professional claim.
 
 import type { MechanicsResult, PreviewModel, Vec3 } from "../../types";
+import { unitRatio } from "../../services/unitConversion";
 import { statusDisplayWithToken } from "../workspace/statusLabels";
 
 type ResultRow = MechanicsResult["results"][number];
@@ -14,31 +15,82 @@ export type DeformationOverlay = {
   maximum?: { value: number; unit: string };
   nodeCount?: number;
   boundary: string;
+  /** Each node's drawn position at full deflection (phase 1). */
   nodePositions: Map<string, Vec3>;
+  /** Each node's drawn offset at full deflection, in model length units of the
+   * display. `nodePositions` is the node plus this offset. */
+  offsets: Map<string, Vec3>;
+  /** The load case or combination drawn (`ref_type:ref_id`), or null for each
+   * node's governing row over every case. */
+  basisKey: string | null;
+  /** How the offsets are scaled. A factor multiplies the physical displacement;
+   * the normalized scale draws the largest one at a fixed display length. */
+  scale: { mode: "normalized" } | { mode: "factor"; factor: number; isDefault: boolean };
+  /** The default factor for the drawn case: the 1-2-5 value nearest to drawing
+   * the largest displacement at one tenth of the model extent. */
+  defaultFactor?: number;
+  /** Why a factor scale is not available, when one was asked for or cannot be. */
+  factorUnavailable?: string;
+  /** A factor can be drawn for this choice: one case with complete, convertible rows. */
+  factorAccepted: boolean;
+  /** Why the asked factor, or the default, is not the one drawn (no default without a
+   * positive model extent; a factor whose shape cannot be represented). */
+  factorNote?: string;
+  /** The fraction of each offset drawn, from 0 (undeformed) to 1 (the stated scale). */
+  phase: number;
 };
 
-export function buildDeformationOverlay(model: PreviewModel, result: MechanicsResult | null): DeformationOverlay {
-  if (!result) {
-    return {
-      state: "not_started",
-      summary: "not started; result rows=0",
-      boundary: "scale=not_generated; professional_claim=false",
-      nodePositions: new Map()
-    };
-  }
+/** A deflected-shape view setting. Never model data: it changes how emitted
+ * displacement rows are drawn, never a result value. */
+export type DeflectionScale = Readonly<{ mode: "normalized" } | { mode: "factor"; factor: number | null }>;
+
+export type DeformationOptions = Readonly<{
+  /** Draw only the rows of this load case or combination (`ref_type:ref_id`). */
+  basisKey?: string | null;
+  scale?: DeflectionScale;
+  /** The model's length unit: node coordinates are in it. A factor needs it. */
+  modelLengthUnit?: string | null;
+  /** The model's largest bounding-box side, in model length units, for the default factor. */
+  modelExtent?: number | null;
+}>;
+
+/** The normalized scale's display length of the largest displacement, in model length units. */
+export const NORMALIZED_DEFORMATION_DISPLAY_OFFSET = 0.65;
+
+/** The largest drawn offset a factor may produce, in model length units. The viewport's instance
+ * buffers are 32-bit floats (largest finite 3.4e38) and the GPU multiplies them by the camera
+ * matrices; at 1e15 the drawn coordinates and their products stay many orders inside that range. */
+export const MAX_DRAWN_DEFLECTION_OFFSET = 1e15;
+
+const NOT_GENERATED = "scale=not_generated; professional_claim=false";
+
+function emptyDeformation(state: DeformationOverlay["state"], summary: string, basisKey: string | null): DeformationOverlay {
+  return { state, summary, boundary: NOT_GENERATED, nodePositions: new Map(), offsets: new Map(), basisKey, scale: { mode: "normalized" }, factorAccepted: false, phase: 1 };
+}
+
+export function buildDeformationOverlay(
+  model: PreviewModel,
+  result: MechanicsResult | null,
+  options: DeformationOptions = {}
+): DeformationOverlay {
+  const basisKey = options.basisKey ?? null;
+  if (!result) return emptyDeformation("not_started", "not started; result rows=0", basisKey);
   if (result.status.mechanics !== "MECHANICS_SOLVED") {
-    return {
-      state: "blocked",
-      summary: `blocked; mechanics=${statusDisplayWithToken(result.status.mechanics)}; rows=${result.results.length}`,
-      boundary: "scale=not_generated; professional_claim=false",
-      nodePositions: new Map()
-    };
+    return emptyDeformation(
+      "blocked",
+      `blocked; mechanics=${statusDisplayWithToken(result.status.mechanics)}; rows=${result.results.length}`,
+      basisKey
+    );
   }
 
+  // One case drawn: only its rows, and never a range envelope's (an envelope picks each
+  // component separately, so its rows are not one solved state).
+  const drawn = (row: ResultRow) => basisKey === null ||
+    (rowBasisKey(row) === basisKey && row.metadata?.basis !== RANGE_ENVELOPE_BASIS);
   const nodeIds = new Set(model.nodes.map((node) => node.id));
   const nodeValues = new Map<string, { value: number; unit: string; basisKey: string }>();
   for (const row of result.results) {
-    if (row.kind !== "displacement_magnitude" || !nodeIds.has(row.entity_ref) || !Number.isFinite(row.value)) continue;
+    if (row.kind !== "displacement_magnitude" || !nodeIds.has(row.entity_ref) || !Number.isFinite(row.value) || !drawn(row)) continue;
     const current = nodeValues.get(row.entity_ref);
     if (!current || Math.abs(row.value) > Math.abs(current.value)) {
       nodeValues.set(row.entity_ref, {
@@ -48,14 +100,7 @@ export function buildDeformationOverlay(model: PreviewModel, result: MechanicsRe
       });
     }
   }
-  if (nodeValues.size === 0) {
-    return {
-      state: "unavailable",
-      summary: "unavailable; displacement rows=0",
-      boundary: "scale=not_generated; professional_claim=false",
-      nodePositions: new Map()
-    };
-  }
+  if (nodeValues.size === 0) return emptyDeformation("unavailable", "unavailable; displacement rows=0", basisKey);
 
   // Signed global-cartesian translation components (ux/uy/uz rows) grouped by
   // node and result basis, so each node's direction comes from the same load
@@ -63,7 +108,7 @@ export function buildDeformationOverlay(model: PreviewModel, result: MechanicsRe
   const nodeComponentVectors = new Map<string, Map<string, Partial<Record<"x" | "y" | "z", number>>>>();
   for (const row of result.results) {
     const axis = DISPLACEMENT_COMPONENT_AXES[row.kind];
-    if (!axis || !nodeIds.has(row.entity_ref) || !Number.isFinite(row.value)) continue;
+    if (!axis || !nodeIds.has(row.entity_ref) || !Number.isFinite(row.value) || !drawn(row)) continue;
     const perBasis: Map<string, Partial<Record<"x" | "y" | "z", number>>> = nodeComponentVectors.get(row.entity_ref) ??
     new Map();
     const vector = perBasis.get(rowBasisKey(row)) ?? {};
@@ -86,35 +131,159 @@ export function buildDeformationOverlay(model: PreviewModel, result: MechanicsRe
   const maxValue = Math.max(...values.map((item) => Math.abs(item.value)));
   const units = Array.from(new Set(values.map((item) => item.unit))).sort();
   const unit = units.length === 1 ? units[0] : "mixed";
-  const displayOffset = 0.65;
+
+  // A factor multiplies the physical displacement, so it needs one case, a direction from
+  // each node's own components, and displacement and model length units that convert.
+  const lengthRatio = units.length === 1 && options.modelLengthUnit ? unitRatio(unit, options.modelLengthUnit) : null;
+  const factorUnavailable = basisKey === null
+    ? "choose one load case or combination; the governing row per node mixes cases"
+    : !directional
+      ? "displacement component rows are incomplete, so no direction is drawn to scale"
+      : lengthRatio === null
+        ? `displacement unit ${unit} does not convert to the model length unit ${options.modelLengthUnit || "(not declared)"}`
+        : !(maxValue > 0)
+          ? "every drawn displacement is zero"
+          : undefined;
+  const factorAccepted = factorUnavailable === undefined;
   const fallbackDirection: Vec3 = { x: 0, y: 1, z: 0 };
-  const nodePositions = new Map(
-    model.nodes.map((node) => {
+  // The offsets and positions for a factor (or the normalized scale), or null when any is not
+  // a finite number: a finite factor can still be too large to draw.
+  const draw = (factor: number | undefined) => {
+    const offsets = new Map<string, Vec3>();
+    const nodePositions = new Map<string, Vec3>();
+    for (const node of model.nodes) {
       const value = nodeValues.get(node.id)?.value ?? 0;
-      const normalizedOffset = maxValue > 0 ? (Math.abs(value) / maxValue) * displayOffset : 0;
+      const length = factor !== undefined
+        ? Math.abs(value) * lengthRatio! * factor
+        : maxValue > 0 ? (Math.abs(value) / maxValue) * NORMALIZED_DEFORMATION_DISPLAY_OFFSET : 0;
       const direction = directional ? (nodeDirections.get(node.id) ?? fallbackDirection) : fallbackDirection;
-      return [
-        node.id,
-        {
-          x: node.position.x + direction.x * normalizedOffset,
-          y: node.position.y + direction.y * normalizedOffset,
-          z: node.position.z + direction.z * normalizedOffset
-        }
-      ] as const;
-    })
-  );
+      const offset = { x: direction.x * length, y: direction.y * length, z: direction.z * length };
+      const position = { x: node.position.x + offset.x, y: node.position.y + offset.y, z: node.position.z + offset.z };
+      // The normalized scale is bounded; only a factor is checked (a node already off the
+      // finite range is the model's own issue, reported by the model index). The renderer keeps
+      // geometry in 32-bit floats and multiplies it on the GPU, so a drawn offset is held within
+      // MAX_DRAWN_DEFLECTION_OFFSET and every position must stay finite in 32 bits.
+      if (factor !== undefined && Number.isFinite(node.position.x + node.position.y + node.position.z) &&
+          (![offset.x, offset.y, offset.z].every((value) => Math.abs(value) <= MAX_DRAWN_DEFLECTION_OFFSET) ||
+           ![position.x, position.y, position.z].every((value) => Number.isFinite(Math.fround(value))))) return null;
+      offsets.set(node.id, offset);
+      nodePositions.set(node.id, position);
+    }
+    return { offsets, nodePositions };
+  };
+
+  // The default draws the largest displacement at a tenth of the model's largest side, as the
+  // nearest 1-2-5 value; it needs a positive, finite extent and a representable ratio.
+  const extent = options.modelExtent;
+  const rawDefault = factorAccepted && extent !== null && extent !== undefined && extent > 0 && Number.isFinite(extent)
+    ? extent / 10 / (maxValue * lengthRatio!)
+    : undefined;
+  const defaultCandidate = rawDefault !== undefined && Number.isFinite(rawDefault) && rawDefault > 0 ? roundFactor125(rawDefault) : undefined;
+  const defaultDrawing = defaultCandidate !== undefined ? draw(defaultCandidate) : null;
+  const defaultFactor = defaultDrawing ? defaultCandidate : undefined;
+  const noDefaultReason = !(extent !== null && extent !== undefined && extent > 0 && Number.isFinite(extent))
+    ? "the model has no positive extent (for example a single node), so there is no default factor; enter one"
+    : "the largest displacement is too small for a default factor; enter one";
+
+  const asked = options.scale?.mode === "factor" ? options.scale.factor : undefined;
+  let factor: number | undefined;
+  let isDefault = false;
+  let factorNote: string | undefined;
+  let drawing: ReturnType<typeof draw> = null;
+  if (factorAccepted && asked !== undefined && asked !== null && Number.isFinite(asked) && asked > 0) {
+    drawing = draw(asked);
+    if (drawing) factor = asked;
+    else factorNote = `×${formatNumber(asked)} cannot be drawn: a drawn offset would exceed 1e15 model length units, beyond what the viewport represents`;
+  }
+  if (factorAccepted && asked !== undefined && factor === undefined) {
+    if (defaultFactor !== undefined) {
+      factor = defaultFactor;
+      isDefault = true;
+      drawing = defaultDrawing;
+      if (factorNote) factorNote = `${factorNote}; the default ×${formatNumber(defaultFactor)} is drawn`;
+    } else {
+      factorNote = factorNote ? `${factorNote}, and ${noDefaultReason}` : noDefaultReason;
+    }
+  }
+  const scale: DeformationOverlay["scale"] = factor !== undefined
+    ? { mode: "factor", factor, isDefault }
+    : { mode: "normalized" };
+  const { offsets, nodePositions } = (factor !== undefined ? drawing : null) ?? draw(undefined)!;
 
   const vectorDirection = directional
     ? "global_cartesian_displacement_components"
     : "vertical_display_axis_fallback_component_rows_unavailable";
+  const scaleText = factor !== undefined
+    ? `scale=factor_times_physical_displacement; factor=${formatNumber(factor)}; model_length_unit=${options.modelLengthUnit}`
+    : "scale=normalized_display_offset_not_physical_length";
+  const caseText = basisKey === null ? "" : `; case=${basisKey}`;
   return {
     state: "available",
     summary: `available; nodes=${nodeValues.size}; max=${formatNumber(maxValue)} ${unit}`,
     maximum: { value: maxValue, unit },
     nodeCount: nodeValues.size,
-    boundary: `scale=normalized_display_offset_not_physical_length; vector_direction=${vectorDirection}; unit_basis=${unit}; professional_claim=false`,
-    nodePositions
+    boundary: `${scaleText}${caseText}; vector_direction=${vectorDirection}; unit_basis=${unit}; professional_claim=false`,
+    nodePositions,
+    offsets,
+    basisKey,
+    scale,
+    ...(defaultFactor !== undefined ? { defaultFactor } : {}),
+    ...(factorUnavailable !== undefined && (asked !== undefined || basisKey !== null) ? { factorUnavailable } : {}),
+    factorAccepted,
+    ...(factorNote !== undefined ? { factorNote } : {}),
+    phase: 1
   };
+}
+
+/**
+ * The deformed shape drawn part of the way from the undeformed shape: each node at
+ * `phase` (0 to 1) of its offset. Display only; the overlay's readout is unchanged.
+ */
+export function deformationAtPhase(model: PreviewModel, overlay: DeformationOverlay, phase: number): DeformationOverlay {
+  const t = Number.isFinite(phase) ? Math.min(1, Math.max(0, phase)) : 1;
+  if (overlay.state !== "available" || t === 1) return overlay;
+  const nodePositions = new Map<string, Vec3>();
+  for (const node of model.nodes) {
+    const offset = overlay.offsets.get(node.id);
+    if (!offset) continue;
+    nodePositions.set(node.id, { x: node.position.x + offset.x * t, y: node.position.y + offset.y * t, z: node.position.z + offset.z * t });
+  }
+  const drawn = overlay.scale.mode === "factor" ? `; drawn_factor=${formatNumber(overlay.scale.factor * t)}` : "";
+  return { ...overlay, nodePositions, phase: t, boundary: overlay.boundary.replace("; professional_claim=false", `; phase=${formatNumber(t)}${drawn}; professional_claim=false`) };
+}
+
+const FACTOR_MANTISSAS = [1, 2, 5] as const;
+
+/** The 1-2-5 value (…, 0.5, 1, 2, 5, 10, 20, …) nearest to `value` on a log scale. */
+export function roundFactor125(value: number): number {
+  if (!Number.isFinite(value) || value <= 0) return 1;
+  const exponent = Math.floor(Math.log10(value));
+  let best = 1;
+  let bestDistance = Infinity;
+  for (const power of [exponent - 1, exponent, exponent + 1]) {
+    for (const mantissa of FACTOR_MANTISSAS) {
+      const candidate = cleanFactor(mantissa * 10 ** power);
+      const distance = Math.abs(Math.log10(candidate) - Math.log10(value));
+      if (distance < bestDistance) { best = candidate; bestDistance = distance; }
+    }
+  }
+  return best;
+}
+
+/** The next 1-2-5 value above (`direction` 1) or below (-1) `value`. */
+export function stepFactor125(value: number, direction: 1 | -1): number {
+  if (!Number.isFinite(value) || value <= 0) return 1;
+  const exponent = Math.floor(Math.log10(value));
+  const candidates = [exponent - 1, exponent, exponent + 1, exponent + 2]
+    .flatMap((power) => FACTOR_MANTISSAS.map((mantissa) => cleanFactor(mantissa * 10 ** power)));
+  const relative = 1e-9;
+  return direction === 1
+    ? candidates.find((candidate) => candidate > value * (1 + relative)) ?? candidates.at(-1)!
+    : [...candidates].reverse().find((candidate) => candidate < value * (1 - relative)) ?? candidates[0];
+}
+
+function cleanFactor(value: number): number {
+  return Number(value.toPrecision(12));
 }
 
 const DISPLACEMENT_COMPONENT_AXES: Record<string, "x" | "y" | "z" | undefined> = {
@@ -136,7 +305,10 @@ function unitVector(vector: Vec3): Vec3 {
 }
 
 function formatNumber(value: number): string {
-  return value.toFixed(6).replace(/0+$/u, "").replace(/\.$/u, "");
+  const fixed = value.toFixed(6);
+  // toFixed gives exponent notation from 1e21; its digits are not trailing decimals.
+  if (/e/iu.test(fixed)) return String(value);
+  return fixed.replace(/0+$/u, "").replace(/\.$/u, "");
 }
 
 // ---------------------------------------------------------------------------
@@ -196,9 +368,15 @@ const ROTATION_BOUNDARY_NOT_GENERATED = "scale=not_generated; professional_claim
  * three need not be one emitted rotation state. Glyph lengths
  * are normalized to the longest drawn rotation vector, so every drawn node must
  * share one unit; mixed units leave the overlay unavailable rather than
- * comparing them.
+ * comparing them. With `basisKey`, only that load case's or combination's rows
+ * are read, as the deformed shape reads them for the same option.
  */
-export function buildRotationOverlay(model: PreviewModel, result: MechanicsResult | null): RotationOverlay {
+export function buildRotationOverlay(
+  model: PreviewModel,
+  result: MechanicsResult | null,
+  options: Readonly<{ basisKey?: string | null }> = {}
+): RotationOverlay {
+  const basisKey = options.basisKey ?? null;
   if (!result) {
     return { state: "not_started", summary: "not started; result rows=0", boundary: ROTATION_BOUNDARY_NOT_GENERATED, glyphs: new Map() };
   }
@@ -219,6 +397,7 @@ export function buildRotationOverlay(model: PreviewModel, result: MechanicsResul
     if (!axis || !nodeIds.has(row.entity_ref) || !Number.isFinite(row.value)) continue;
     if (row.dimension !== undefined && row.dimension !== "angle") continue;
     if (row.metadata?.basis === RANGE_ENVELOPE_BASIS) continue;
+    if (basisKey !== null && rowBasisKey(row) !== basisKey) continue;
     const perBasis = triples.get(row.entity_ref) ?? new Map<string, Triple>();
     const triple = perBasis.get(rowBasisKey(row)) ?? {};
     triple[axis] = row;
@@ -226,7 +405,7 @@ export function buildRotationOverlay(model: PreviewModel, result: MechanicsResul
     triples.set(row.entity_ref, perBasis);
   }
 
-  const governingBasis = governingDisplacementBases(nodeIds, result);
+  const governingBasis = governingDisplacementBases(nodeIds, result, basisKey);
   const chosen = new Map<string, { components: { x: number; y: number; z: number }; unit: string; basisKey: string; length: number }>();
   for (const [nodeId, perBasis] of triples) {
     const complete = [...perBasis.entries()]
@@ -292,10 +471,11 @@ export function buildRotationOverlay(model: PreviewModel, result: MechanicsResul
 
 /** The basis of each node's governing displacement magnitude row, chosen exactly
  * as the deformed shape chooses it (largest absolute value, first row wins ties). */
-function governingDisplacementBases(nodeIds: ReadonlySet<string>, result: MechanicsResult): Map<string, string> {
+function governingDisplacementBases(nodeIds: ReadonlySet<string>, result: MechanicsResult, basisKey: string | null): Map<string, string> {
   const governing = new Map<string, { value: number; basisKey: string }>();
   for (const row of result.results) {
     if (row.kind !== "displacement_magnitude" || !nodeIds.has(row.entity_ref) || !Number.isFinite(row.value)) continue;
+    if (basisKey !== null && (rowBasisKey(row) !== basisKey || row.metadata?.basis === RANGE_ENVELOPE_BASIS)) continue;
     const current = governing.get(row.entity_ref);
     if (!current || Math.abs(row.value) > Math.abs(current.value)) {
       governing.set(row.entity_ref, { value: row.value, basisKey: rowBasisKey(row) });

@@ -2137,8 +2137,8 @@ unknown-metadata branch:
 
 10. privacy in the non-project private set (§2.7), whatever the redistribution
     status (`unknown` included) → `redact_value` / `PRIVATE_DATA_REDACTED`. On
-    the lossless route this withholds the payload (`controlRouteExport`,
-    `:968-969`), so the save is refused;
+    route 010 the user-release projector is lossless, so this withholds the
+    payload and the save is refused;
 11. privacy `private_project_data`, whatever the redistribution status: with
     the wrapper's user-release intent → `warning_only` /
     `USER_RELEASED_PROJECT_DATA`; without it → `block_export` /
@@ -2165,10 +2165,41 @@ else `private_project_data` / `private_only`. So:
   wrapper's intent, a block without it;
 - an object labelled with a non-project private class is withheld by step 10;
 - a protected, quarantined or rejected object blocks (steps 8-9);
-- an object with unknown own metadata blocks (step 13).
+- an object with unknown own metadata blocks (step 13). An explicitly stated
+  own privacy or redistribution (its own member, its provenance's, or its
+  `privacy_class`, as the projector reads them) that the classification does not
+  recognize, such as `{}`, `[]`, a number, a boolean, an empty or unknown
+  string, or a null, `unknown` or `TBD` privacy, blocks at that object by step
+  13 (`USER_RELEASE_VALUE_UNBOUND`), and no descendant's label replaces it;
+  only an absent label inherits (Codex r4 of the r1 slice).
 
 There is no path-token labelling and no field table on this route. The
 webview's check is early; native admission's derivation decides (§2.6).
+
+**The redaction walk refuses the context (Codex r3 of the r1 slice).**
+`redactExportPayload` and `redact_export_payload` throw
+`USER_RELEASE_ROUTE_REQUIRED` for `user_released_report`, whatever the intent
+and the payload, after the context and user-release intent checks and before
+any walk, as the generic route exporters do (§3.3). The walk decides a
+value-bearing object as a whole and keeps an unlabelled value. In this context
+a labelled object would therefore hide a restricted descendant: a nested
+marker, protected or quarantined content, or a non-project private class. It
+would also leave a private object's members other than `value` and `text`
+unredacted. Sharing the projector's procedure was considered and not chosen,
+for three reasons:
+- Agreement with the projector on every input would need the projector's
+  default label. The walk would then admit an unlabelled value with the
+  wrapper's intent, which it blocked by step 13 before this change.
+- Python carries no user-release projector (§3.3).
+- Route 010 is lossless, so a redacted user-release payload has no consumer.
+
+The classification of one item (`classifyExportItem` /
+`classify_export_item`) still decides an item by steps 1-13; the shared corpus
+holds it there. The corpus's new-context finding checks run on the
+user-release projector in TypeScript, and on the item's own finding in
+Python. Two corpus items state no privacy: the item rule blocks them by step
+13, and on the projector they take the default label. The five existing
+contexts' walk is unchanged.
 
 ### 3.3 Context and route
 
@@ -2216,6 +2247,15 @@ Route tables and local-first admission:
   `explicitUserReleaseIntent: true` with any context other than
   `user_released_report` (an exception, as `assertContext` throws,
   `:665-669`). The flag therefore cannot enable export in another context.
+- **The generic route exporters refuse the context and the route (Codex r2
+  of the r1 slice).** `controlRouteExport` and `control_route_export` throw
+  `USER_RELEASE_ROUTE_REQUIRED` for `user_released_report` on every route and
+  for route 010 in every context, after the context and user-release intent
+  checks and before any projection, as they throw for an unsupported context.
+  Their path-token projector would admit what the user-release screen
+  refuses. The redaction walk refuses the context in the same way (§3.2). The
+  user-release projector is therefore the only payload entry for the context
+  and the route.
 - The Rust mirror (`core/runner/headless/src/redaction_binding.rs:166,216-218`)
   implements the same rule so the shared corpus
   (`fixtures/redaction_export_controls/cases.json`, read at `:702-740`) holds.

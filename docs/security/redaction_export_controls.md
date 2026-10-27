@@ -63,6 +63,25 @@ blocking behavior.
 | `shared_model` | Redact private project, material, component, rule-pack, owner-standard, design-basis, path, and secret-like data unless metadata supports sharing. |
 | `downstream_tool` | Redact unresolved or private values unless explicit metadata supports the handoff. |
 | `local_private` | Retain private values only when explicit local/private user intent is recorded; emit warning findings. |
+| `user_released_report` | A report of the user's own session in which the user releases their own project data for sharing, for that one report, with their statement that they hold the redistribution right (`docs/IP_AND_DATA_BOUNDARY.md` §6). Admitted only on route `DREP-PACKAGE-USER-RELEASE-010` with the wrapper's user-release intent. After the professional-claim, network, SQL, storage-bypass, secret, payload, concrete-path, protected and quarantined/rejected checks, which apply unchanged, it decides in this order and returns: (10) a private class other than `private_project_data` is redacted (`PRIVATE_DATA_REDACTED`) whatever its redistribution status, so a lossless route withholds it; (11) `private_project_data`, whatever its redistribution status, is retained with a `USER_RELEASED_PROJECT_DATA` warning only with the wrapper's user-release intent, else blocks (`USER_RELEASE_INTENT_REQUIRED`); (12) public metadata and invented public examples are included; (13) anything else, including missing, unknown, `TBD` or unrecognized metadata, blocks (`USER_RELEASE_VALUE_UNBOUND`), never warning-only. Payload-carried intent of any name is not read. |
+
+The five existing contexts keep every decision on every input, and the
+release intent cannot enable export in them: the controls refuse
+`explicit_user_release_intent` with any context other than
+`user_released_report` (DEL-08-01 Design `report-user-release.md` §3), and
+local-first route admission refuses it there with `block_storage` /
+`USER_RELEASE_ROUTE_REQUIRED` on every route; an absent or false flag leaves
+the route evidence unchanged. No route uses `user_released_report` yet.
+The redaction walk (`redactExportPayload` / `redact_export_payload`) refuses
+`user_released_report` outright, whatever the intent and the payload: it raises
+`USER_RELEASE_ROUTE_REQUIRED` after the context and user-release intent checks
+and before any walk. The walk decides a value-bearing object as a whole and
+keeps an unlabelled value, so in that context it would let a labelled object
+hide a restricted descendant (a nested marker, protected or quarantined
+content, or a non-project private class) and would leave a private object's
+other members unredacted. The classification of one item
+(`classifyExportItem` / `classify_export_item`) still decides an item by the
+rule above, and the five existing contexts' walk is unchanged.
 
 ## Protected Classes
 
@@ -162,6 +181,35 @@ route's fixed context and wrapper-owned intent. Source-carried intent therefore
 cannot grant export authority. The projector materializes only the controlled
 copy and preserves the source object byte/deep-equal.
 
+User-release intent comes only from the wrapper's argument
+(`explicitUserReleaseIntent` / `explicit_user_release_intent`), never from the
+payload. The strip list above is unchanged: a payload member named
+`user_release_intent` or `explicit_user_release_intent` grants nothing, so it is
+not stripped, and in every existing context and route it is raw content,
+preserved byte for byte. The user-release route `DREP-PACKAGE-USER-RELEASE-010`
+has its own projector (`controlUserReleasedReportPackageRequest`), the only
+payload entry for `user_released_report`; the redaction walk refuses the
+context (above). The generic route exporter
+(`controlRouteExport` / `control_route_export`), whose projector labels values
+by path tokens, refuses that context on every route and route 010 in every
+context, before any projection: it raises
+`USER_RELEASE_ROUTE_REQUIRED`, as it raises for an unsupported context, after
+the user-release intent check. The user-release projector first
+decides every enclosing object of the request and of the model by the
+professional-claim, network, SQL, storage-bypass, secret, payload,
+concrete-path, protected and quarantined/rejected checks, exactly as the
+classification decides that object. Only then does it label each leaf with the
+privacy and redistribution of its nearest enclosing object that states them
+(its own member, else its provenance's, as the classification reads them),
+else `private_project_data` / `private_only`, with no path-token labelling.
+Only an absent label inherits: an object's explicitly stated privacy or
+redistribution that the classification does not recognize (for example `{}`,
+`[]`, a number, an empty or unknown string, or a null or `unknown` privacy)
+blocks at that object (`USER_RELEASE_VALUE_UNBOUND`), whatever its descendants
+state. It
+is lossless, and its local-first admission holds the route metadata under the
+existing `private_report` storage context.
+
 The frozen route set covers Python JSON/downstream/specialized-format writers,
 both Rust headless runners, report DOM/JSON/render-IPC/HTML/save/print/lint,
 and all other desktop download panels. Structured routes may emit a sanitized
@@ -181,6 +229,18 @@ file on block. The Rust runners emit the same controlled shape, accept
 wrapper-owned `--explicit-local-private-intent`, and write no output on block;
 their mirror is pinned to the same invented parity corpus as Python and
 TypeScript.
+
+Remaining (not changed, since repairing them would change existing decisions):
+in the five existing contexts the bounded Rust mirror reads some inputs
+differently from Python and TypeScript. It does not screen `cache_payload` or
+`sqlite_payload`; it does not fall back to the provenance for a null privacy or
+redistribution member or for an `unknown` or null review status; and it does
+not count a scalar storage-privacy metadata key as metadata present. No parity
+case covers these inputs. In `user_released_report` the mirror reads them as
+Python and TypeScript do, and parity cases hold all three to it. Separately,
+Python reads `professional_claim` by its truth value, so a non-empty string
+such as `"no"` or a non-empty list blocks there, while TypeScript and Rust
+block only on `true`, a recognized true string or a non-zero number.
 
 The protected-content lint CLI remains a separately governed DEC-058/DEC-059
 diagnostic used only by the release scan and public-source exporter; it is not
