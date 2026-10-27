@@ -27,8 +27,8 @@ MBF_SI_PROFILE_ID = "caepipe-mbf-si-pilot-1"
 STANDARD_GRAVITY = 9.80665  # m/s^2; converts SWBPIPE weight per length to CAEPIPE weight density only.
 
 MBF_VERSION = "15.10"
-SUSTAINED_LABEL = "Sustained (W+P)"
-EXPANSION_LABEL = "Expansion (T1)"
+# The target tool's labels for the load cases the writer requests.
+LOAD_CASE_LABELS = {"sustained": "Sustained (W+P)", "expansion": "Expansion (T1)"}
 DOFS = ("UX", "UY", "UZ", "RX", "RY", "RZ")
 _DOF_TOKENS = {
     **{dof: dof for dof in DOFS},
@@ -673,11 +673,11 @@ class _Writer:
             if mechanical and thermal:
                 self.refuse("MBF-SI-LOAD-CASE-MAPPING-UNSUPPORTED", entity,
                             f"{entity} mixes mechanical (force, moment, weight) and thermal/displacement primitives; "
-                            f"each case must map to exactly one of {SUSTAINED_LABEL!r} or {EXPANSION_LABEL!r}")
+                            f"each case must map to exactly one of {LOAD_CASE_LABELS['sustained']!r} or {LOAD_CASE_LABELS['expansion']!r}")
                 continue
             if unsupported and not (mechanical or thermal):
                 continue
-            label = SUSTAINED_LABEL if mechanical else EXPANSION_LABEL
+            label = LOAD_CASE_LABELS["sustained" if mechanical else "expansion"]
             other = next((key for key, value in kinds.items() if value == label), None)
             if other is not None:
                 self.refuse("MBF-SI-LOAD-CASE-MAPPING-UNSUPPORTED", entity,
@@ -1117,8 +1117,8 @@ class _Writer:
             "SWBPIPE global X, Y, Z are written unchanged as the target program's X, Y, Z, with gravity along -Y.",
             "Lengths are written in mm, forces in N, moments in N*m, modulus in N/mm2 (= MPa), temperatures in C; "
             "every source unit scales to these by an exact power of ten, and no other unit system is converted.",
-            f"Load case mapping: mechanical cases (concentrated force, concentrated moment, weight) -> {SUSTAINED_LABEL!r}; "
-            f"thermal and imposed-displacement cases -> {EXPANSION_LABEL!r}.",
+            f"Load case mapping: mechanical cases (concentrated force, concentrated moment, weight) -> {LOAD_CASE_LABELS['sustained']!r}; "
+            f"thermal and imposed-displacement cases -> {LOAD_CASE_LABELS['expansion']!r}.",
             "Materials are written temperature-independent: identical E and expansion coefficient at "
             + ", ".join(f"{_num(value)} C" for value in temperatures)
             + "; the optional allowable, yield and rupture columns are omitted.",

@@ -27,8 +27,9 @@ asking first, once an independent review has examined the exact old and new text
 and HELP_HUMAN is clear in the matter (owner, 2026-10-23: "You can continue to
 replace wording as you recommend without asking me any more so long as an
 independent review has been done and you're clear in the matter."). The PR
-quotes the old and new text and the review. Scope, risk acceptance, holds,
-release and the native-smoke `expected.json` values stay with the owner.
+quotes the old and new text and the review. Scope (except as delegated below),
+risk acceptance, holds, release and the native-smoke `expected.json` values
+stay with the owner.
 
 HELP_HUMAN exercises engineering judgment to resolve a matter of precision or
 detail that cannot otherwise be resolved, choosing a practical resolution
@@ -51,6 +52,31 @@ finishing things to a practical level. Continuous improvement goes after.").
 Carry each unit to a usable, verified result. Record improvements found along
 the way as remaining items, and take them up after the unit unless they
 correct a wrong output or block the goal.
+
+The goal is an app on par with or superior to CAEPIPE and other industry
+applications in modelling and user interface, beyond v0.1 parity (owner,
+2026-10-27: "At this point we're hill-climbing towards an app that would be on
+par with or considered superior to CAEPIPE and other industry standard
+applications in this domain, in terms of the modelling characteristics and the
+user interface, so if there's a change or expansion in scope that would clearly
+benefit that kind of hill climb then we want to do it and you can decide under
+the extension of the same standing delegation authorization. If it fixes a
+mistake, if it plugs an obvious gap, if it's about making something more
+accurate, truthful, or capable without considerable risks of any sort, you can
+take initiative and drive scope towards a successful completion of the first
+publications ready version of SWBPIPE."). HELP_HUMAN therefore decides scope
+changes and expansions that clearly serve that goal and carry no considerable
+risk, including commitment and acceptance-criterion text, and may reverse
+earlier deferrals to v0.2 where the climb warrants it (owner, 2026-10-27:
+"Yes, decide them too"). HELP_HUMAN also approves feature proposals, such as
+the CAEPIPE survey's, and reports what it adopted, deferred and why (owner,
+2026-10-27: "I decide, you get a summary"). The governing text records each
+such decision with its reason. Changed commitment text still gets the
+independent review above, and numerical meaning still gets targeted regression
+checks and independent scrutiny. Release, acceptance and issuance, risk
+acceptance, holds, purchases and the native-smoke `expected.json` values stay
+with the owner. The product and data boundaries (`docs/PRODUCT_BOUNDARIES.md`,
+`docs/IP_AND_DATA_BOUNDARY.md`) are unchanged.
 
 Agent 0 checks that the implementation and its declarations agree before
 integration.
