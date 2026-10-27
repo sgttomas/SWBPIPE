@@ -82,7 +82,6 @@ use open_pipe_stress_report_package::user_release::{
     self as user_release, SoftwareIdentity, EXACT_ROUTE_NOT_ADMITTED, NOT_THIS_ROUTE, RECORD_INVALID, RESULT_NOT_ATTESTED,
     UNBOUND, USER_RELEASED_CONTEXT, USER_RELEASED_DESKTOP_PROFILE,
 };
-use open_pipe_stress_report_renderer::UserReleaseRecord;
 use open_pipe_stress_report_package::ReportPackageContainerOutcome;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -1180,10 +1179,13 @@ fn refused_sized(code: &str, path: &str, detail: &str) -> ReportPackageSaveComma
 /// Step 4 (§2.5): the record is of its form (§2.3; no `content_binding`) and
 /// each bound member equals a value admission itself computed or already
 /// bound, never another caller field alone.
-fn check_user_release_record(request: &Value, bound: &UserReleaseBound<'_>) -> Result<UserReleaseRecord, ReportPackageSaveCommandError> {
+fn check_user_release_record(
+    request: &Value,
+    bound: &UserReleaseBound<'_>,
+) -> Result<open_pipe_stress_report_renderer::UserReleaseRecord, ReportPackageSaveCommandError> {
     const RECORD: &str = "/request/report/report_context/user_release";
     let value = request.pointer("/report/report_context/user_release").unwrap_or(&Value::Null);
-    let record: UserReleaseRecord = serde::Deserialize::deserialize(value)
+    let record: open_pipe_stress_report_renderer::UserReleaseRecord = serde::Deserialize::deserialize(value)
         .map_err(|_| refuse(RECORD_INVALID, RECORD, "The user-release record is not of its form (every member required, no other admitted)."))?;
     if let Some(member) = record.form_defect() {
         return Err(refuse(RECORD_INVALID, &format!("{RECORD}/{}", member.replace('.', "/")), format!("The user-release record's {member} is not of its form.")));

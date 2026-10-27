@@ -31,6 +31,8 @@ mod solve_jobs;
 mod solve_worker;
 mod user_release_admission;
 #[cfg(test)]
+mod user_release_reach_scan;
+#[cfg(test)]
 mod user_release_save_tests;
 mod worker_alloc;
 #[cfg(test)]
