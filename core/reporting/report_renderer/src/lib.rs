@@ -21,6 +21,8 @@
 //! deterministic PDF emission (`pdf_emitter`, DEC-061) are two deterministic
 //! emissions of this one assembled section model.
 
+#![forbid(unsafe_code)]
+
 use open_pipe_stress_protected_content_linter as linter;
 use open_pipe_stress_report_generator as report;
 use open_pipe_stress_report_sections as sections;

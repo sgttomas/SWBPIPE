@@ -12,9 +12,9 @@
 //!   `cfg`, is production. A `#[path]` on a production `mod`, a `cfg_attr`
 //!   applying `path` at any depth and under any predicate (refused, not
 //!   followed: the scan does not evaluate predicates), any `include!`, an
-//!   `include_str!`/`include_bytes!` that is not one string literal or names
-//!   a `.rs` file, a missing or ambiguous module file, and a file that does
-//!   not parse are findings.
+//!   `include_str!` that is not one string literal or names a `.rs` file,
+//!   any `include_bytes!`, a missing or ambiguous module file, and a file
+//!   that does not parse are findings.
 //! - **Spellings** (Codex round 1 at #1682). Identifiers are compared without
 //!   `r#` (in the three reporting crates a raw identifier is itself a finding,
 //!   below) and paths without a leading `::`; a prefix of only `crate`, `self`
@@ -69,6 +69,20 @@
 //!   group in generic arguments, found on each read file's tokens, and every
 //!   const generic argument but a literal, are findings. Anywhere, syntax
 //!   `syn` gives as `Verbatim` is a finding.
+//! - **`unsafe` and macro names** (code review r4 at #1682). Each reporting
+//!   crate's root carries `#![forbid(unsafe_code)]` exactly, so the compiler
+//!   refuses `unsafe` there, in macro arguments and included files too; its
+//!   absence or any other form, and a `forbid` elsewhere, are findings, and
+//!   the token rule also finds every `unsafe` keyword there. So that no
+//!   listed macro path resolves to another macro: in the reporting crates
+//!   every `use … as …` rename and every non-private `use` is on a closed
+//!   list of today's ([`USE_RENAMES`], [`PUBLIC_USES`]); in all four crates a
+//!   `mod`, `use` binding, `extern crate` or `macro_rules!` named like a
+//!   macro path root or a listed macro ([`reserved_name`]) is a finding, as is
+//!   a `mod`, `use`, `extern`, `macro` or `macro_rules!` in tokens the scan
+//!   does not parse; and `include!`, `include_bytes!` and `concat_idents!`
+//!   are refused by any path, invoked or imported, with `include_str!`
+//!   admitted only bare.
 //!
 //! What it does not establish: code that builds a document without calling
 //! the scanned functions, and a listed external macro whose version would
@@ -272,6 +286,73 @@ const MACRO_INVOCATIONS: [&str; 22] = [
     "tauri::generate_context",
     "app_invoke_handler",
 ];
+
+/// The crate roots of the three reporting crates. Each must carry the inner
+/// attribute `#![forbid(unsafe_code)]` exactly (code review r4 at #1682): the
+/// compiler then refuses `unsafe` code in the crate, inside macro arguments
+/// and included files too, and no inner `allow` can lift it. Its absence or
+/// any other form is a finding, as is a `forbid` anywhere else.
+const REPORTING_ROOTS: [&str; 3] = ["report_package/src/lib.rs", "report_renderer/src/lib.rs", "pdf_emitter/src/lib.rs"];
+
+/// The standard crate roots a macro path can start from, besides the listed
+/// external crates ([`LISTED_ROOTS`]): no local item may take one of these
+/// names, nor any root of a listed invocation ([`reserved_name`]).
+const BUILTIN_ROOTS: [&str; 3] = ["std", "core", "alloc"];
+
+/// The renames admitted in a `use` item of the three reporting crates, as
+/// (path, name): exactly today's, each a crate alias (code review r4 at
+/// #1682). Whether a renamed path is a macro is not decidable from source,
+/// so every other `use … as …`, `as _` included, is a finding there.
+const USE_RENAMES: [(&str, &str); 7] = [
+    ("open_pipe_stress_audit_manifest", "audit"),
+    ("open_pipe_stress_pdf_emitter", "pdf"),
+    ("open_pipe_stress_report_renderer", "renderer"),
+    ("open_pipe_stress_protected_content_linter", "linter"),
+    ("open_pipe_stress_report_generator", "report"),
+    ("open_pipe_stress_report_sections", "sections"),
+    ("crate", "package"),
+];
+
+/// The non-private `use` paths admitted in the three reporting crates, as
+/// (file, path): exactly today's re-exports, none a macro (code review r4 at
+/// #1682). Every other `pub use`, `pub(crate) use` or other visibility there
+/// is a finding.
+const PUBLIC_USES: [(&str, &str); 5] = [
+    ("report_package/src/lib.rs", "open_pipe_stress_report_renderer::serde_error_kind"),
+    ("report_package/src/lib.rs", "reader::read_report_package_container"),
+    ("report_package/src/lib.rs", "reader::PackageReadRefusal"),
+    ("report_package/src/lib.rs", "reader::ReadReportPackage"),
+    ("report_package/src/lib.rs", "reader::SUPPORTED_PACKAGE_VERSION"),
+];
+
+/// Macros that bring in source or build identifiers the scan cannot read,
+/// refused by any path, as invocations and as imports (code review r4 at
+/// #1682); `include_str!` is admitted only bare and with one string literal
+/// that names no `.rs` file ([`FileScan::check_invocation_path`]).
+const SOURCE_MACROS: [&str; 4] = ["include", "include_str", "include_bytes", "concat_idents"];
+
+/// Whether `name` is reserved for macro paths (code review r4 at #1682): a
+/// standard crate root, a listed external crate, or the first segment of a
+/// listed invocation (a bare listed macro's own name included). A local
+/// `mod`, `use` binding, `extern crate` or `macro_rules!` of that name could
+/// make a listed path resolve to another macro (`mod tauri { pub use
+/// std::include as generate_context; }`), so each is a finding.
+fn reserved_name(name: &str) -> bool {
+    BUILTIN_ROOTS.contains(&name) || LISTED_ROOTS.contains(&name) || MACRO_INVOCATIONS.iter().any(|path| path.split("::").next() == Some(name))
+}
+
+/// Whether `attr` is the crate-root `#![forbid(unsafe_code)]` of a reporting
+/// crate, exactly: inner, the bare path `forbid`, parentheses, and the one
+/// lint `unsafe_code`.
+fn is_root_forbid(file: &str, attr: &syn::Attribute) -> bool {
+    REPORTING_ROOTS.contains(&file)
+        && matches!(attr.style, syn::AttrStyle::Inner(_))
+        && matches!(&attr.meta, syn::Meta::List(list)
+            if list.path.leading_colon.is_none()
+                && list.path.is_ident("forbid")
+                && matches!(list.delimiter, syn::MacroDelimiter::Paren(_))
+                && list.tokens.to_string() == "unsafe_code")
+}
 
 /// The attribute paths admitted (§2.8 macro rule 3).
 const ATTRIBUTES: [&str; 11] = ["cfg", "cfg_attr", "allow", "inline", "cold", "global_allocator", "derive", "doc", "default", "serde", "tauri::command"];
@@ -488,7 +569,8 @@ impl FileScan<'_> {
 
     /// The token rules over a whole file of the three reporting crates (code
     /// review r3 at #1682): every raw identifier not on [`RAW_IDENTIFIERS`],
-    /// and every brace group in generic arguments ([`generic_blocks`]), in
+    /// every `unsafe` keyword (code review r4), and every brace group in
+    /// generic arguments ([`lexical_findings`]), in
     /// any position, macro tokens, attributes and inline test modules
     /// included. A file that does not lex is a finding.
     fn token_rules(&mut self) {
@@ -585,9 +667,22 @@ impl FileScan<'_> {
                     if name == "UserRelease" {
                         self.constructions.push((Owner::Macro, self.file.clone(), line));
                     }
+                    // An item that binds a name, in tokens the scan does not
+                    // parse (code review r4 at #1682): a `mod`, `use`,
+                    // `extern crate`, `macro` (2.0) or `macro_rules!` there
+                    // could shadow a listed macro or its root unseen, so each
+                    // is a finding. (The first four are keywords, so as
+                    // identifiers they would be raw.)
+                    let raw = ident.to_string() != name;
+                    if !raw && matches!(name.as_str(), "mod" | "use" | "extern" | "macro") {
+                        self.finding(line, format!("the item keyword {name} in tokens the scan does not parse"));
+                    }
+                    if name == "macro_rules" && matches!(trees.get(index + 1), Some(TokenTree::Punct(bang)) if bang.as_char() == '!') {
+                        self.finding(line, "a macro_rules! definition in tokens the scan does not parse");
+                    }
                     // A nested invocation: `<path> ! <group>`.
                     if check_invocations {
-                        if let (Some(TokenTree::Punct(bang)), Some(TokenTree::Group(_))) = (trees.get(index + 1), trees.get(index + 2)) {
+                        if let (Some(TokenTree::Punct(bang)), Some(TokenTree::Group(arguments))) = (trees.get(index + 1), trees.get(index + 2)) {
                             if bang.as_char() == '!' {
                                 let mut segments = vec![name.clone()];
                                 let mut at = index;
@@ -601,11 +696,9 @@ impl FileScan<'_> {
                                     }
                                 }
                                 let path = segments.join("::");
-                                if path != "macro_rules" && !MACRO_INVOCATIONS.contains(&path.as_str()) {
-                                    self.finding(line, format!("the macro {path}! is not on the invocation list"));
-                                }
-                                if path == "include" {
-                                    self.finding(line, "include! brings in source the scan does not read");
+                                // A `macro_rules!` is found above, whatever follows it.
+                                if path != "macro_rules" {
+                                    self.check_invocation_path(&path, &arguments.stream(), line);
                                 }
                             }
                         }
@@ -616,7 +709,13 @@ impl FileScan<'_> {
         }
     }
 
+    /// One attribute. The crate-root `#![forbid(unsafe_code)]` of a
+    /// reporting crate ([`is_root_forbid`]) is admitted; every other
+    /// `forbid` is not on the attribute list.
     fn check_attribute(&mut self, attr: &syn::Attribute) {
+        if is_root_forbid(&self.file, attr) {
+            return;
+        }
         self.check_meta(&attr.meta, line_of(attr.pound_token.span), false);
     }
 
@@ -724,19 +823,7 @@ impl FileScan<'_> {
     fn check_invocation(&mut self, mac: &syn::Macro) {
         let path = path_text(&mac.path);
         let line = line_of(mac.bang_token.span);
-        if !MACRO_INVOCATIONS.contains(&path.as_str()) {
-            self.finding(line, format!("the macro {path}! is not on the invocation list"));
-        }
-        if path == "include" {
-            self.finding(line, "include! brings in source the scan does not read");
-        }
-        if path == "include_str" || path == "include_bytes" {
-            let literal = syn::parse2::<syn::LitStr>(mac.tokens.clone()).ok().map(|text| text.value());
-            match literal {
-                Some(text) if !text.ends_with(".rs") => {}
-                _ => self.finding(line, format!("{path}! takes one string literal that names no .rs file")),
-            }
-        }
+        self.check_invocation_path(&path, &mac.tokens, line);
         let subtree = in_defining_module(&self.file);
         let listed = SUBTREE_MACROS.contains(&path.as_str());
         if subtree && !listed {
@@ -765,6 +852,34 @@ impl FileScan<'_> {
                 }
                 self.with_owner(Owner::Macro, |scan| scan.screen_tokens(&mac.tokens, true));
             }
+        }
+    }
+
+    /// An invocation's path, as written and normalized, parsed or in tokens
+    /// alike: on the invocation list, and the source macros
+    /// ([`SOURCE_MACROS`]) by their final segment, whatever path comes before
+    /// it (code review r4 at #1682). `include!`, `include_bytes!` and
+    /// `concat_idents!` are refused outright; `include_str!` only bare and
+    /// with one string literal that names no `.rs` file (production reads
+    /// JSON and schema text with it). `env!` and `option_env!` expand only to
+    /// a string literal, so they bring in no code and need no rule beyond the
+    /// list.
+    fn check_invocation_path(&mut self, path: &str, tokens: &TokenStream, line: usize) {
+        if !MACRO_INVOCATIONS.contains(&path) {
+            self.finding(line, format!("the macro {path}! is not on the invocation list"));
+        }
+        let last = path.rsplit("::").next().unwrap_or(path);
+        match last {
+            "include" => self.finding(line, format!("{path}! brings in source the scan does not read")),
+            "include_bytes" | "concat_idents" => self.finding(line, format!("{path}! is refused by any path in production")),
+            "include_str" if path != "include_str" => self.finding(line, format!("{path}! names include_str by a path other than its bare name")),
+            "include_str" => {
+                let literal = syn::parse2::<syn::LitStr>(tokens.clone()).ok().map(|text| text.value());
+                if !literal.is_some_and(|text| !text.ends_with(".rs")) {
+                    self.finding(line, format!("{path}! takes one string literal that names no .rs file"));
+                }
+            }
+            _ => {}
         }
     }
 
@@ -830,6 +945,9 @@ impl FileScan<'_> {
             self.text.get(from..to)
         });
         let pinned = MACRO_DEFINITIONS.iter().find(|(file, macro_name, _)| *file == self.file && *macro_name == name);
+        if pinned.is_none() && reserved_name(&name) {
+            self.finding(line, format!("the macro definition {name} takes the reserved macro-path name {name}"));
+        }
         match (pinned, text) {
             (Some((_, _, sha)), Some(text)) if sha256_hex(text.as_bytes()) == *sha => {
                 self.macros.push((self.file.clone(), name.clone()));
@@ -908,7 +1026,26 @@ impl FileScan<'_> {
                 self.type_names.aliases.insert(rename.clone());
             }
             let name = rename.clone().unwrap_or_else(|| if last == "self" { path.iter().rev().nth(1).cloned().unwrap_or_default() } else { last.clone() });
-            let listed_name = MACRO_INVOCATIONS.contains(&name.as_str()) || DERIVES.contains(&name.as_str()) || LISTED_ROOTS.contains(&name.as_str());
+            let listed_name = reserved_name(&name) || DERIVES.contains(&name.as_str());
+            // Code review r4 at #1682: the source macros by any path.
+            let imported = if last == "self" { path.iter().rev().nth(1).cloned().unwrap_or_default() } else { last.clone() };
+            if SOURCE_MACROS.contains(&imported.as_str()) {
+                self.finding(line, format!("the import {joined} binds the source macro {imported}"));
+            }
+            if crate_key != "src-tauri" {
+                // Code review r4 at #1682: whether a path names a macro is not
+                // decidable from source, so in the three reporting crates
+                // every rename and every non-private import is on a closed
+                // list of today's.
+                if let Some(rename) = &rename {
+                    if !USE_RENAMES.contains(&(joined.as_str(), rename.as_str())) {
+                        self.finding(line, format!("the import {joined} as {rename}, a rename not on the rename allow-list"));
+                    }
+                }
+                if public && !PUBLIC_USES.contains(&(self.file.as_str(), joined.as_str())) {
+                    self.finding(line, format!("a non-private use of {joined}, which is not on the re-export allow-list"));
+                }
+            }
             let from_source = LISTED_IMPORTS.iter().any(|(bound_name, source)| *bound_name == name && *source == joined && rename.is_none())
                 || (LISTED_ROOTS.contains(&name.as_str()) && path.len() == 1 && rename.is_none())
                 || (LISTED_ROOTS.contains(&name.as_str()) && last == "self" && path.len() == 2 && path[0] == name && rename.is_none());
@@ -1010,7 +1147,12 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
             }
             syn::Item::ExternCrate(extern_crate) => {
                 self.check_attributes(&extern_crate.attrs);
-                self.finding(line_of(extern_crate.crate_token.span), format!("extern crate {}", extern_crate.ident));
+                let line = line_of(extern_crate.crate_token.span);
+                self.finding(line, format!("extern crate {}", extern_crate.ident));
+                let bound = extern_crate.rename.as_ref().map_or_else(|| ident_text(&extern_crate.ident), |(_, rename)| ident_text(rename));
+                if reserved_name(&bound) {
+                    self.finding(line, format!("extern crate binds the reserved macro-path name {bound}"));
+                }
             }
             _ => visit::visit_item(self, item),
         }
@@ -1023,6 +1165,9 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
     fn visit_item_mod(&mut self, module: &'ast syn::ItemMod) {
         let line = line_of(module.mod_token.span);
         let name = ident_text(&module.ident);
+        if reserved_name(&name) {
+            self.finding(line, format!("the module {name} takes the reserved macro-path name {name}"));
+        }
         for attr in &module.attrs {
             if path_text(attr.path()) == "path" {
                 self.finding(line, format!("a #[path] on the production module {name}"));
@@ -1588,6 +1733,12 @@ fn lexical_findings(tokens: TokenStream, out: &mut Vec<(usize, String)>) {
         match tree {
             TokenTree::Ident(ident) => {
                 let text = ident.to_string();
+                // Code review r4 at #1682: `unsafe` in any position, macro
+                // tokens included, besides the crate root's
+                // `#![forbid(unsafe_code)]`, which the compiler enforces.
+                if text == "unsafe" {
+                    out.push((line_of(ident.span()), "the unsafe keyword in a reporting crate".to_string()));
+                }
                 if let Some(raw) = text.strip_prefix("r#") {
                     if !RAW_IDENTIFIERS.contains(&raw) {
                         out.push((line_of(ident.span()), format!("the raw identifier {text} in a reporting crate, which is not on the raw-identifier allow-list")));
@@ -1712,6 +1863,11 @@ pub(crate) fn scan_reading(sources: &Sources) -> (Vec<String>, BTreeSet<String>)
         };
         if scan.is_core() {
             scan.token_rules();
+        }
+        // Code review r4 at #1682: each reporting crate's root carries
+        // `#![forbid(unsafe_code)]` exactly.
+        if REPORTING_ROOTS.contains(&file.as_str()) && !parsed.attrs.iter().any(|attr| is_root_forbid(&file, attr)) {
+            scan.finding(0, "the crate root does not carry #![forbid(unsafe_code)] exactly");
         }
         for attr in &parsed.attrs {
             scan.visit_attribute(attr);

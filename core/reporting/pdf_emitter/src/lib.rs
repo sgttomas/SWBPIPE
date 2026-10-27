@@ -25,6 +25,8 @@
 //! claims. The app's derived webview print view keeps its ruled role as a
 //! non-hash-bound convenience (`DEC-021`); this emitter does not replace it.
 
+#![forbid(unsafe_code)]
+
 use open_pipe_stress_protected_content_linter as linter;
 use open_pipe_stress_report_renderer as renderer;
 use serde::Serialize;

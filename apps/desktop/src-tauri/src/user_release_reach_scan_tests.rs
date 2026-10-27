@@ -196,6 +196,7 @@ fn invented() -> Sources {
     files.insert(
         "report_renderer/src/lib.rs".to_string(),
         file("
+#![forbid(unsafe_code)]
 pub fn render_calculation_report(input: &RenderableReportInput) -> RenderOutcome {
     let assembled = assemble_report_sections(input);
     RenderOutcome::from(assembled)
@@ -209,6 +210,7 @@ pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<Section> {
     files.insert(
         "pdf_emitter/src/lib.rs".to_string(),
         file("
+#![forbid(unsafe_code)]
 use open_pipe_stress_report_renderer as renderer;
 pub fn emit_calculation_report_pdf(input: &renderer::RenderableReportInput) -> PdfEmissionOutcome {
     let render = renderer::render_calculation_report(input);
@@ -232,6 +234,7 @@ fn emit_pdf_document(input: &renderer::RenderableReportInput, reasons: &[String]
     files.insert(
         "report_package/src/lib.rs".to_string(),
         file("
+#![forbid(unsafe_code)]
 use open_pipe_stress_pdf_emitter as pdf;
 use open_pipe_stress_report_renderer as renderer;
 pub(crate) mod admitted;
@@ -787,6 +790,181 @@ fn user_release_reach_scan_admits_the_listed_forms() {
                 "pub(crate) struct Plain { a: u8 }\nconst KEY: &str = \"k\";\nfn listed(flag: bool, items: &[u8], name: &str) -> Value {\n    let _ = format!(\"{name} {} {count}\", items.len(), count = items.len());\n    let _ = format_args!(\"{}\", 1);\n    let _ = vec![0u8; items.len()];\n    let _ = vec![Plain { a: 1 }, Plain { a: 2 },];\n    let _ = matches!(flag, true if items.is_empty(),);\n    json!({\n        \"a\": [1, {\"b\": null}, [true, false],],\n        KEY: if flag { 1 } else { 2 },\n        (format!(\"{}\", name)): items.iter().map(|item| json!({\"i\": item})).collect::<Vec<_>>(),\n        \"c\": Value::Null,\n        \"d\": -1,\n    })\n}\n",
             ),
         ),
+    ];
+    for (case, sources) in passing {
+        let findings = scan(&sources);
+        assert!(findings.is_empty(), "{case}: {findings:#?}");
+    }
+}
+
+/// Code review r4 at #1682 (P2s), verbatim on the real sources: each compiled
+/// in `report_package` and gave no finding. `unsafe` inside a macro's
+/// arguments is now a finding of the token rule (and the crate root's
+/// `#![forbid(unsafe_code)]` makes the compiler refuse it); a local `mod
+/// tauri` re-exporting `std::include` under a listed macro's name is a
+/// finding of each macro namespace rule it breaks. A real crate root without
+/// the exact `forbid`, or with it altered, is a finding.
+#[test]
+fn the_real_sources_find_the_review_r4_forms() {
+    const ROOT: &str = "report_package/src/lib.rs";
+    const FORBID: &str = "#![forbid(unsafe_code)]\n";
+    let base = project_sources(&project());
+    let lines = base.files[ROOT].lines().count();
+    let repros: [(&str, &[&str]); 3] = [
+        ("pub(crate) fn forge() -> user_release::DerivedUserRelease { vec![unsafe { std::mem::zeroed() }].pop().unwrap() }\n", &["the unsafe keyword in a reporting crate"]),
+        ("pub(crate) fn forge() -> user_release::ProducerEntry { vec![unsafe { std::mem::transmute::<u8, user_release::ProducerEntry>(1) }].pop().unwrap() }\n", &["the unsafe keyword in a reporting crate"]),
+        (
+            "mod tauri { pub use std::include as generate_context; }\ntauri::generate_context!(\"review_escape.rs\");\n",
+            &[
+                "the module tauri takes the reserved macro-path name tauri",
+                "the import std::include as generate_context, a rename not on the rename allow-list",
+                "a non-private use of std::include, which is not on the re-export allow-list",
+                "the import std::include binds the source macro include",
+            ],
+        ),
+    ];
+    for (repro, expected) in repros {
+        let mut sources = base.clone();
+        sources.files.get_mut(ROOT).unwrap().push_str(repro);
+        sources.files.insert("report_package/src/review_escape.rs".to_string(), "user_release::ProducerEntry::UserRelease(unsafe { std::mem::zeroed() })\n".to_string());
+        let findings = scan(&sources);
+        let on_repro = |finding: &&String| finding.starts_with(ROOT) && finding.split(':').nth(1).and_then(|line| line.parse::<usize>().ok()).is_some_and(|line| line > lines);
+        for expected in expected {
+            assert!(findings.iter().filter(on_repro).any(|finding| finding.contains(expected)), "{repro}: expected {expected:?} in {findings:#?}");
+        }
+    }
+    for root in ["report_package/src/lib.rs", "report_renderer/src/lib.rs", "pdf_emitter/src/lib.rs"] {
+        for (replacement, extra) in [
+            ("", None),
+            ("#![forbid(unsafe_code, dead_code)]\n", Some("the attribute #[forbid] is not on the attribute list")),
+            ("#![deny(unsafe_code)]\n", Some("the attribute #[deny] is not on the attribute list")),
+            ("#![cfg_attr(all(), forbid(unsafe_code))]\n", Some("the attribute #[forbid] (through cfg_attr) is not on the attribute list")),
+        ] {
+            let mut sources = base.clone();
+            let text = sources.files.get_mut(root).unwrap();
+            assert_eq!(text.matches(FORBID).count(), 1, "{root}");
+            *text = text.replacen(FORBID, replacement, 1);
+            let findings = scan(&sources);
+            let missing = format!("{root}:0: the crate root does not carry #![forbid(unsafe_code)] exactly");
+            assert!(findings.contains(&missing), "{root} {replacement:?}: {findings:#?}");
+            if let Some(extra) = extra {
+                assert!(findings.iter().any(|finding| finding.starts_with(root) && finding.contains(extra)), "{root} {replacement:?}: expected {extra:?} in {findings:#?}");
+            }
+        }
+    }
+}
+
+/// Code review r4 at #1682: the compiler-enforced `forbid(unsafe_code)` and
+/// the macro namespace rules. Each case is a finding.
+#[test]
+fn user_release_reach_scan_finds_the_review_r4_classes() {
+    const RENDERER: &str = "report_renderer/src/lib.rs";
+    const PDF: &str = "pdf_emitter/src/lib.rs";
+    const BINDINGS: &str = "report_package/src/bindings.rs";
+    const FORBID: &str = "#![forbid(unsafe_code)]\n";
+    let unsafe_keyword = "the unsafe keyword in a reporting crate";
+    let missing = "the crate root does not carry #![forbid(unsafe_code)] exactly";
+    let mut cases: Vec<(String, Sources, &str)> = Vec::new();
+    // `unsafe` in macro arguments, in each reporting crate (outside the
+    // defining subtree, where macro tokens are only screened).
+    for file in [LIB, BINDINGS, RENDERER, PDF] {
+        for (form, text) in [
+            ("vec!", "fn forge() -> Vec<u8> { vec![unsafe { std::mem::zeroed() }] }\n"),
+            ("format!", "fn forge() -> String { format!(\"{}\", unsafe { std::mem::zeroed::<u8>() }) }\n"),
+            ("assert!", "fn forge() { assert!(unsafe { std::mem::zeroed::<bool>() }); }\n"),
+            ("transmute in vec!", "fn forge() -> Vec<u8> { vec![unsafe { std::mem::transmute::<u8, u8>(1) }] }\n"),
+        ] {
+            cases.push((format!("unsafe in {form} in {file}"), appended(file, text), unsafe_keyword));
+        }
+    }
+    // The crate-root attribute: missing, altered, or elsewhere.
+    for root in [LIB, RENDERER, PDF] {
+        cases.push((format!("{root} without the forbid"), edited(root, FORBID, ""), missing));
+        cases.push((format!("{root} with another lint added"), edited(root, FORBID, "#![forbid(unsafe_code, dead_code)]\n"), missing));
+        cases.push((format!("{root} with deny"), edited(root, FORBID, "#![deny(unsafe_code)]\n"), missing));
+        cases.push((format!("{root} with the forbid as an outer attribute"), edited(root, FORBID, "#[forbid(unsafe_code)]\nfn f() {}\n"), missing));
+    }
+    let more: Vec<(&str, Sources, &str)> = vec![
+        ("a forbid in a non-root file", appended(BINDINGS, "#[forbid(unsafe_code)]\nfn f() {}\n"), "the attribute #[forbid] is not on the attribute list"),
+        // (c) Local items named like a macro path root or a listed macro.
+        ("Codex's mod tauri shadow", appended(LIB, "mod tauri { pub use std::include as generate_context; }\ntauri::generate_context!(\"escape.rs\");\n"), "the module tauri takes the reserved macro-path name tauri"),
+        ("mod tauri in src-tauri", appended(TAURI, "mod tauri {}\n"), "the module tauri takes the reserved macro-path name tauri"),
+        ("mod serde_json in a block", appended(PDF, "fn f() { mod serde_json {} }\n"), "the module serde_json takes the reserved macro-path name serde_json"),
+        ("mod std", appended(RENDERER, "mod std {}\n"), "the module std takes the reserved macro-path name std"),
+        ("extern crate std as tauri", appended(LIB, "extern crate std as tauri;\n"), "extern crate binds the reserved macro-path name tauri"),
+        ("a use binding named tauri", appended(TAURI, "mod shadow {}\nuse crate::shadow as tauri;\n"), "binds the listed name tauri"),
+        ("a use binding named core", appended(PDF, "use crate::inner as core;\n"), "binds the listed name core"),
+        ("a macro_rules named vec", appended(LIB, "macro_rules! vec { ($e:expr) => { $e }; }\n"), "the macro definition vec takes the reserved macro-path name vec"),
+        ("a macro_rules named json", appended(BINDINGS, "macro_rules! json { ($e:expr) => { $e }; }\n"), "the macro definition json takes the reserved macro-path name json"),
+        ("a macro_rules named tauri in src-tauri", appended(TAURI, "macro_rules! tauri { () => {}; }\n"), "the macro definition tauri takes the reserved macro-path name tauri"),
+        // (a) Renames in a reporting crate's use items.
+        ("use std::include as x", appended(LIB, "use std::include as x;\nfn f() { x!(\"escape.rs\"); }\n"), "the import std::include as x, a rename not on the rename allow-list"),
+        ("its invocation", appended(LIB, "use std::include as x;\nfn f() { x!(\"escape.rs\"); }\n"), "the macro x! is not on the invocation list"),
+        ("a rename of an ordinary item", appended(RENDERER, "use std::collections::BTreeMap as Map;\n"), "the import std::collections::BTreeMap as Map, a rename not on the rename allow-list"),
+        ("a rename to _", appended(PDF, "use std::fmt::Write as _;\n"), "the import std::fmt::Write as _, a rename not on the rename allow-list"),
+        ("an allow-listed name at another path", appended(LIB, "use forwarder as pdf;\n"), "the import forwarder as pdf, a rename not on the rename allow-list"),
+        // (b) Non-private uses in a reporting crate.
+        ("pub use std::include_str as y", appended(LIB, "pub use std::include_str as y;\n"), "a non-private use of std::include_str, which is not on the re-export allow-list"),
+        ("its rename", appended(LIB, "pub use std::include_str as y;\n"), "the import std::include_str as y, a rename not on the rename allow-list"),
+        ("pub(crate) use of a macro", appended(BINDINGS, "pub(crate) use std::vec;\n"), "a non-private use of std::vec, which is not on the re-export allow-list"),
+        ("pub(super) use of an item", appended(RENDERER, "mod inner { pub(super) use std::collections::BTreeMap; }\n"), "a non-private use of std::collections::BTreeMap"),
+        ("an allow-listed re-export in another file", appended(BINDINGS, "pub use open_pipe_stress_report_renderer::serde_error_kind;\n"), "a non-private use of open_pipe_stress_report_renderer::serde_error_kind, which is not on the re-export allow-list"),
+        // (d) The source macros by any path, invoked or imported.
+        ("std::include!", appended(LIB, "std::include!(\"escape.rs\");\n"), "std::include! brings in source the scan does not read"),
+        ("core::include! in src-tauri", appended(TAURI, "core::include!(\"escape.rs\");\n"), "core::include! brings in source the scan does not read"),
+        ("include_bytes! bare", appended(PDF, "const B: &[u8] = include_bytes!(\"font.bin\");\n"), "include_bytes! is refused by any path in production"),
+        ("std::include_bytes!", appended(RENDERER, "const B: &[u8] = std::include_bytes!(\"font.bin\");\n"), "std::include_bytes! is refused by any path in production"),
+        ("std::include_str!", appended(LIB, "const S: &str = std::include_str!(\"../schema.json\");\n"), "std::include_str! names include_str by a path other than its bare name"),
+        ("concat_idents!", appended(LIB, "fn f() { concat_idents!(assemble_, derived)(); }\n"), "concat_idents! is refused by any path in production"),
+        ("use std::include", appended(BINDINGS, "use std::include;\n"), "the import std::include binds the source macro include"),
+        ("use core::{include_bytes}", appended(TAURI, "use core::{include_bytes};\n"), "the import core::include_bytes binds the source macro include_bytes"),
+        ("include! nested in another macro's tokens", appended(LIB, "fn f() -> String { format!(\"{}\", std::include!(\"escape.rs\")) }\n"), "std::include! brings in source the scan does not read"),
+        ("include_str! of a .rs file nested in tokens", appended(PDF, "fn f() -> String { format!(\"{}\", include_str!(\"escape.rs\")) }\n"), "include_str! takes one string literal that names no .rs file"),
+        // Items in tokens the scan does not parse.
+        (
+            "the shadow inside format! tokens",
+            appended(LIB, "fn f() -> String { format!(\"{}\", { mod tauri { pub use std::include as generate_context; } tauri::generate_context!(\"escape.rs\") }) }\n"),
+            "the item keyword mod in tokens the scan does not parse",
+        ),
+        ("a use inside assert! tokens", appended(RENDERER, "fn f() { assert!({ use std::vec as format; true }); }\n"), "the item keyword use in tokens the scan does not parse"),
+        ("an extern crate inside println! tokens", appended(TAURI, "fn f() { println!(\"{}\", { extern crate std as tauri; 1 }); }\n"), "the item keyword extern in tokens the scan does not parse"),
+        ("a macro_rules! inside format! tokens", appended(PDF, "fn f() -> String { format!(\"{}\", { macro_rules! json { ($e:expr) => { $e }; } json!(1) }) }\n"), "a macro_rules! definition in tokens the scan does not parse"),
+        ("a macro 2.0 item inside vec! tokens", appended(LIB, "fn f() -> Vec<u8> { vec![{ macro json($e:expr) { $e } json!(1) }] }\n"), "the item keyword macro in tokens the scan does not parse"),
+        // (e) #[macro_use] on a module and on extern crate.
+        ("#[macro_use] on an inline module", appended(PDF, "#[macro_use]\nmod inline_macros {}\n"), "#[macro_use]"),
+        ("#[macro_use] on an outlined module", with_file_text("report_package/src/macros.rs", "\n", appended(LIB, "#[macro_use]\nmod macros;\n")), "#[macro_use]"),
+        ("#[macro_use] extern crate std", appended(RENDERER, "#[macro_use]\nextern crate std;\n"), "#[macro_use]"),
+    ];
+    cases.extend(more.into_iter().map(|(case, sources, expected)| (case.to_string(), sources, expected)));
+    for (case, sources, expected) in cases {
+        let findings = scan(&sources);
+        assert!(findings.iter().any(|finding| finding.contains(expected)), "{case}: expected {expected:?} in {findings:#?}");
+    }
+}
+
+/// `invented()`-based sources with one more file.
+fn with_file_text(path: &str, text: &str, mut sources: Sources) -> Sources {
+    sources.files.insert(path.to_string(), text.to_string());
+    sources
+}
+
+/// Code review r4 at #1682: ordinary code passes the macro namespace rules
+/// and the `unsafe` token rule.
+#[test]
+fn user_release_reach_scan_admits_the_review_r4_ordinary_forms() {
+    let passing: Vec<(&str, Sources)> = vec![
+        (
+            "casts, ordinary modules and private imports in the reporting crates",
+            appended(
+                "report_renderer/src/lib.rs",
+                "use std::collections::BTreeMap;\nuse std::fmt::Write;\nmod rendering {\n    pub(crate) fn width(a: u32) -> u8 { a as u8 }\n}\nfn f(a: u32, out: &mut String) -> u8 { let _ = write!(out, \"{}\", a as u8); let _: BTreeMap<u8, u8> = BTreeMap::new(); let _ = format!(\"{}\", a as u64); rendering::width(a) }\n",
+            ),
+        ),
+        ("the word unsafe in strings and comments", appended("pdf_emitter/src/lib.rs", "// unsafe is refused here\nconst S: &str = \"unsafe\";\nconst T: &str = r#\"unsafe { }\"#;\nfn unsafe_named_like() -> &'static str { S }\n")),
+        ("a bare include_str! of a data file in tokens", appended("pdf_emitter/src/lib.rs", "fn f() -> String { format!(\"{}\", include_str!(\"../schema.json\")) }\n")),
+        ("src-tauri's own renames, underscore imports and re-exports", appended(TAURI, "use std::fmt::Write as _;\nuse std::collections::BTreeMap as Map;\npub use native_smoke::take_chosen_path;\nfn f() -> Map<u8, u8> { Map::new() }\n")),
+        ("module names that share no reserved name", appended("report_package/src/lib.rs", "mod std_like {}\nmod formatting {}\nmod tauri_bridge {}\n")),
+        ("a private use of a listed import in a reporting crate", appended("report_package/src/bindings.rs", "use serde_json::{json, Value};\nfn f() -> Value { json!({\"a\": 1}) }\n")),
     ];
     for (case, sources) in passing {
         let findings = scan(&sources);

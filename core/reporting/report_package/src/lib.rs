@@ -43,6 +43,8 @@
 //! authentication, or code-compliance claims; human professional review is
 //! required before any reliance on package contents.
 
+#![forbid(unsafe_code)]
+
 use open_pipe_stress_audit_manifest as audit;
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_pdf_emitter as pdf;
