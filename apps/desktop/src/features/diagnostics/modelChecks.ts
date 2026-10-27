@@ -3,7 +3,7 @@
 // checks state them. No check is defined here; each comes from its owner:
 // - the solve's own checks before stiffness formation (input validation, the
 //   restraint pre-checks and the W-8 topology checks;
-//   core/product_physics/src/model_settings/model_checks.rs), through the native
+//   core/product_physics/src/validation/model_checks.rs), through the native
 //   `check_preview_model` command under the memory pool in the app, or the wasm
 //   engine's bounded `model_checks_json` in the browser preview;
 // - the W-13 model-data slot checks of the one document validator, run by the
@@ -19,7 +19,7 @@ import { isTauriRuntime } from "../../services/nativeMenu";
 import { DOCUMENT_VALIDATOR_SOURCE } from "../model-data/documentDiagnostics";
 import { resolveEntitySelection } from "../results/resultInterpretation";
 
-export const SOLVE_CHECKS_SOURCE = "core/product_physics/src/model_settings/model_checks.rs";
+export const SOLVE_CHECKS_SOURCE = "core/product_physics/src/validation/model_checks.rs";
 
 export type ModelCheckGroupId = "solve" | "slots" | "library";
 

@@ -116,7 +116,7 @@ code_paths:
 - core/product_physics/src/topology.rs
 - core/product_physics/src/topology_tests.rs
 - core/product_physics/tests/topology_checks_runtime.rs
-- core/product_physics/src/model_settings/model_checks.rs
+- core/product_physics/src/validation/model_checks.rs
 - core/product_physics/tests/model_checks_runtime.rs
 - core/model_operations/operation_applier/src/model_checks.rs
 - apps/desktop/src/features/diagnostics/modelChecks.ts

@@ -1,6 +1,6 @@
 //! On-demand model checks for the desktop (DEL-04-06 Design
 //! `on-demand-model-checks.md`): the solve's own checks before stiffness
-//! formation (`open_pipe_stress_product_physics::model_settings::model_checks`)
+//! formation (`LinearStaticPreviewRequest::pre_formation_checks_value`)
 //! and the W-13 model-data slot checks (`document_validator`), run on the
 //! session model as the desktop's solve request carries it
 //! (`{"model": …, "materials": []}`). Nothing here writes to the model, adds a
@@ -17,7 +17,7 @@
 //! than altered. The native command runs it in a capped worker; the browser
 //! engine also refuses a model text above [`MODEL_CHECKS_MAX_BROWSER_INPUT_BYTES`]
 //! before parsing it.
-use open_pipe_stress_product_physics::model_settings::model_checks::preview_model_checks_value;
+use open_pipe_stress_product_physics::LinearStaticPreviewRequest;
 use serde_json::{json, Map, Value};
 
 pub const MODEL_CHECKS_DOCUMENT_KIND: &str = "openpipestress.desktop.model_checks";
@@ -47,7 +47,7 @@ pub fn model_checks_owned(model: Value) -> Value {
     let mut request = Map::new();
     request.insert("model".to_string(), model);
     request.insert("materials".to_string(), Value::Array(Vec::new()));
-    let solve = preview_model_checks_value(Value::Object(request));
+    let solve = LinearStaticPreviewRequest::pre_formation_checks_value(Value::Object(request));
     let mut budget = Budget { remaining: MODEL_CHECKS_MAX_RESPONSE_BYTES };
     let mut report = Map::new();
     report.insert("document_kind".to_string(), json!(MODEL_CHECKS_DOCUMENT_KIND));

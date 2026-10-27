@@ -6,7 +6,11 @@
 //! rows). Where a finding blocks, the solve publishes exactly those findings.
 //! A request the solve refuses outright is refused with the same text. All
 //! models are invented.
-use open_pipe_stress_product_physics::model_settings::model_checks::preview_model_checks_value;
+use open_pipe_stress_product_physics::LinearStaticPreviewRequest;
+
+fn preview_model_checks_value(request: Value) -> Result<Vec<open_pipe_stress_product_physics::Diagnostic>, String> {
+    LinearStaticPreviewRequest::pre_formation_checks_value(request)
+}
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use serde_json::{json, Value};
 

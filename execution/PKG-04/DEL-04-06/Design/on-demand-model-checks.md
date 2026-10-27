@@ -15,7 +15,7 @@ or refusal changes.
 
 | Group | What runs | Owner |
 |---|---|---|
-| Solve input, restraint and topology checks | The solve's own checks before it forms the first stiffness, in the solve's order and with its stops: request parse and closed records; input validation; applied self weight, shared sections, unit normalization and the base material pair; load-state resolution; the model build; constant-effort consumption; the W-8 topology checks; and the restraint pre-checks (no support, fewer than six ground constraints, invalid support input) | `core/product_physics/src/model_settings/model_checks.rs` (`model_settings::model_checks::preview_model_checks_value`) |
+| Solve input, restraint and topology checks | The solve's own checks before it forms the first stiffness, in the solve's order and with its stops: request parse and closed records; input validation; applied self weight, shared sections, unit normalization and the base material pair; load-state resolution; the model build; constant-effort consumption; the W-8 topology checks; and the restraint pre-checks (no support, fewer than six ground constraints, invalid support input) | `core/product_physics/src/validation/model_checks.rs` (`LinearStaticPreviewRequest::pre_formation_checks_value`) |
 | Model-data slot checks | The W-13 document validator, run in the same native command or wasm call and listed in the same bounded report | `core/model_operations/operation_applier/src/document_validator.rs` (`validate_model_document`) |
 | Library references | The W-13 library-reference findings the store published for this model, read only when the checks were admitted and listed within what the report leaves of its bound | `features/library/libraryRefFindings.ts` |
 
@@ -29,12 +29,15 @@ formation does not run here: the dense-scrutiny size guard, assembly, the
 solve itself and its numerical-integrity diagnostics. Nor does the
 retained-memory observer.
 
-The module is declared from `model_settings.rs`, a public module of the crate
-that is not a retained-pricing owner source, so `lib.rs` and every other owner
-source stay byte-identical; it reaches the crate root's private checks as any
-module of the crate does. Nothing on the solve or retained route calls it. The
-retained-pricing tool prices the head with exit 0, and its tree compares
-`a_le_b` and identical to main's but for the basis line.
+The module is private, declared from `validation.rs`, and exposed as an
+associated function of the already-exported request type,
+`LinearStaticPreviewRequest::pre_formation_checks_value` (Codex review r2 of
+#1665 suggested this over the earlier `model_settings` placement).
+`validation.rs` is not a retained-pricing owner source, so `lib.rs` and every
+other owner source stay byte-identical to main, and the module reaches the
+crate root's private checks as any module of the crate does. Nothing on the
+solve or retained route calls it. The retained-pricing tool's run and
+comparison for this placement are reported with the PR.
 
 The drift guard is `core/product_physics/tests/model_checks_runtime.rs`. It
 solves each of 15 invented models in both solver modes, including the bundled

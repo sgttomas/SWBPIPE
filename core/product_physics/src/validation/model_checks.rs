@@ -1,7 +1,7 @@
 //! On-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`): the
 //! solve's own input checks, run without forming a stiffness or solving.
 //!
-//! [`preview_model_checks_value`] takes the request the desktop's solve takes
+//! [`LinearStaticPreviewRequest::pre_formation_checks_value`] takes the request the desktop's solve takes
 //! (`{"model": …, "materials": []}`) and runs, in the solve's order and with the
 //! solve's stops, the checks that `run_linear_static_preview_observed_inner`
 //! runs before it forms the first stiffness:
@@ -30,18 +30,21 @@
 //! model; the caller's request is consumed.
 use crate::*;
 
-/// The solve's pre-formation diagnostics for `actual_request`, or the solve's
-/// own refusal text when the request cannot be read (a model record that is not
-/// an object or has an undeclared key, or a request that does not parse).
-pub fn preview_model_checks_value(actual_request: serde_json::Value) -> Result<Vec<Diagnostic>, String> {
-    if let Some(refusal) = model_fields::unknown_field_refusal(&actual_request) {
-        return Err(refusal);
+impl LinearStaticPreviewRequest {
+    /// The solve's pre-formation diagnostics for `actual_request` (the
+    /// request the desktop's solve takes), or the solve's own refusal text when
+    /// the request cannot be read (a model record that is not an object or has
+    /// an undeclared key, or a request that does not parse).
+    pub fn pre_formation_checks_value(actual_request: serde_json::Value) -> Result<Vec<Diagnostic>, String> {
+        if let Some(refusal) = model_fields::unknown_field_refusal(&actual_request) {
+            return Err(refusal);
+        }
+        // The solve's parse; no check before stiffness formation reads the solver mode.
+        let (request, _capture) =
+            source_receipt::CapturedInvocation::parse(actual_request, PreviewSolverMode::default())
+                .map_err(|error| error.0)?;
+        Ok(pre_formation_checks(request))
     }
-    // The solve's parse; no check before stiffness formation reads the solver mode.
-    let (request, _capture) =
-        source_receipt::CapturedInvocation::parse(actual_request, PreviewSolverMode::default())
-            .map_err(|error| error.0)?;
-    Ok(pre_formation_checks(request))
 }
 
 fn pre_formation_checks(request: LinearStaticPreviewRequest) -> Vec<Diagnostic> {
