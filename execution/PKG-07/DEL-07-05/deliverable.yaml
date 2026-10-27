@@ -243,6 +243,8 @@ code_paths:
 - apps/desktop/src/test-support/resultOverlayFixtures.ts
 - apps/desktop/e2e/result-overlays/
 - apps/desktop/src/features/viewport/DeflectedShapeControls.tsx
+- apps/desktop/src/features/viewport/elementAxes.ts
+- apps/desktop/src/features/viewport/viewportElementAxes.ts
 checks:
 - apps/desktop/src/features/results/ResultsPanel.test.tsx
 - apps/desktop/src/App.resultPaging.test.tsx
@@ -269,3 +271,5 @@ checks:
 - apps/desktop/src/features/workspace/selectionReveal.test.tsx
 - apps/desktop/src/features/viewport/deflectedShape.test.ts
 - apps/desktop/src/features/viewport/PipeViewport.deflection.test.tsx
+- apps/desktop/src/features/viewport/elementAxes.test.ts
+- apps/desktop/src/features/viewport/PipeViewport.elementAxes.test.tsx

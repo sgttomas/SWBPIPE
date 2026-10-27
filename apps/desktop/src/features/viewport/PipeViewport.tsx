@@ -109,6 +109,8 @@ import {
 import { createFigureMaterial, figureEdgeOutlineFor } from "./viewportFigureMaterial";
 import { buildDeformationOverlay, buildRotationOverlay, deformationAtPhase, rotationGlyphAnchors } from "./deformationOverlay";
 import { DEFLECTION_PHASE_STEPS, DeflectedShapeControls, deflectionLabel, formatFactor } from "./DeflectedShapeControls";
+import { buildElementAxesView, type ElementAxesFrame, type ElementAxesView } from "./elementAxes";
+import { elementAxisDisplayLength, instancedElementAxisMeshes, type ElementAxisPlacement } from "./viewportElementAxes";
 import { instancedRotationGlyphMeshes, type RotationGlyphPlacement } from "./viewportRotationGlyph";
 import {
   availableResultColourQuantities,
@@ -131,6 +133,39 @@ import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { componentDraftMissingUnitNotices, missingProjectUnitText, projectUnitMissing } from "../project-units/missingProjectUnit";
 
 export { buildDeformationOverlay, buildRotationOverlay } from "./deformationOverlay";
+
+function axisText(vector: Vec3): string {
+  const part = (value: number) => {
+    const rounded = Number(value.toFixed(4));
+    return String(Object.is(rounded, -0) ? 0 : rounded);
+  };
+  return `(${part(vector.x)}, ${part(vector.y)}, ${part(vector.z)})`;
+}
+
+/** What the element axes show: the frame, the members drawn and withheld, and the selected
+ * member's axes as unit vectors in global X, Y, Z. */
+function ElementAxesStatus({ view, selection }: { view: ElementAxesView; selection: EntityRef }) {
+  const reasons = [...new Set(view.withheld.values())];
+  const frameName = view.frame === "local" ? "Local axes" : "Global axes";
+  const selected = selection.type === "pipe" ? view.triads.get(selection.id) : undefined;
+  const selectedReason = selection.type === "pipe" ? view.withheld.get(selection.id) : undefined;
+  const legend = view.frame === "local"
+    ? "x from the From node to the To node, y from the member's y_reference, z = x × y; drawn x red, y green, z blue"
+    : "the model's X, Y and Z; drawn X red, Y green, Z blue";
+  return (
+    <span role="status" data-testid="viewport-element-axes-status" title={`${frameName}: ${legend}${reasons.length ? `. Without a triad: ${reasons.join("; ")}` : ""}`}>
+      {frameName}: {view.triads.size} member{view.triads.size === 1 ? "" : "s"}
+      {view.withheld.size > 0 ? <>; {view.withheld.size} without a {view.frame === "local" ? "local frame" : "triad"}</> : null}
+      {selected ? (
+        <span data-testid="viewport-element-axes-selected">
+          {" · "}{selection.id} x {axisText(selected.x)} y {axisText(selected.y)} z {axisText(selected.z)}
+        </span>
+      ) : selectedReason ? (
+        <span data-testid="viewport-element-axes-selected">{" · "}{selection.id}: {selectedReason}</span>
+      ) : null}
+    </span>
+  );
+}
 
 function ViewportMeasurementQuantityReadout({ label, unit, value }: { label: string; unit: string; value: number }) {
   const display = useDisplayQuantity({ value, unit, dimension_id: "length" });
@@ -493,6 +528,8 @@ export function PipeViewport({
   const [undeformedGhost, setUndeformedGhost] = useState(false);
   const [deflectionPlaying, setDeflectionPlaying] = useState(false);
   const [deflectionPhase, setDeflectionPhase] = useState(1);
+  // Element axis triads (A7): session view state, off by default, never persisted.
+  const [elementAxesFrame, setElementAxesFrame] = useState<ElementAxesFrame | null>(null);
   const [boxSelectActive, setBoxSelectActive] = useState(false);
   const [boxSelectionFilter, setBoxSelectionFilter] = useState<BoxSelectionFilter>("all");
   const [boxRect, setBoxRect] = useState<{ left: number; top: number; right: number; bottom: number } | null>(null);
@@ -659,6 +696,7 @@ export function PipeViewport({
   const drawnPhase = deflectionAnimatable ? deflectionPhase : 1;
   const deformation = useMemo(() => deformationAtPhase(model, fullDeformation, drawnPhase), [drawnPhase, fullDeformation, model]);
   const rotation = useMemo(() => buildRotationOverlay(model, result, { basisKey: deflectionCase?.key ?? null }), [deflectionCase, model, result]);
+  const elementAxes = useMemo(() => elementAxesFrame ? buildElementAxesView(model, elementAxesFrame) : null, [elementAxesFrame, model]);
   const overlayQuantities = useMemo(() => availableResultColourQuantities(model, result), [model, result]);
   const overlayCase = overlayCases.find((item) => item.key === overlayCaseKey) ?? overlayCases[0] ?? null;
   const overlayQuantity = overlayQuantities.find((item) => item.id === overlayQuantityId) ?? overlayQuantities[0] ?? null;
@@ -1374,6 +1412,15 @@ export function PipeViewport({
     resource.replaceLayer(resource.resultLayer, resultObjects);
     applySelectionPresentation(resource, orderedSelectionKeys);
   }, [activeModelIndex, deformation, model, reactionOverlay, renderTransform, rotation]);
+
+  // The element axis triads live in the diagnostic layer: annotations of the model that are
+  // neither the element (no halo, no pick) nor a result, rebuilt when the frame or model changes.
+  useEffect(() => {
+    const resource = viewportResourceRef.current;
+    if (!resource || (!elementAxes && resource.diagnosticLayer.children.length === 0)) return;
+    resource.replaceLayer(resource.diagnosticLayer, elementAxes ? instancedElementAxisMeshes(elementAxisGroups(elementAxes, renderTransform.origin, activeModelIndex)) : []);
+    applySelectionPresentation(resource, orderedSelectionKeys);
+  }, [activeModelIndex, elementAxes, renderTransform]);
 
   // Result colour on the model's tubes: one in-place repaint of instance colours per change. The
   // resource keeps the table, so a rebuilt model layer (the effect above this one) takes it again.
@@ -2386,6 +2433,21 @@ export function PipeViewport({
           >
             Grid
           </button>
+          <span className="viewport-element-axes-toggle" role="group" aria-label="Element axes">
+            {([null, "local", "global"] as const).map((frame) => (
+              <button
+                key={frame ?? "off"}
+                type="button"
+                data-testid={`viewport-element-axes-${frame ?? "off"}`}
+                aria-pressed={elementAxesFrame === frame}
+                className={elementAxesFrame === frame ? "active" : ""}
+                onClick={() => setElementAxesFrame(frame)}
+                title={frame === "local"
+                  ? "Show each member's local axes: x from its From node to its To node, y from its y_reference, z = x × y"
+                  : frame === "global" ? "Show the model's global X, Y and Z axes at each member" : "Hide the element axes"}
+              >{frame === "local" ? "Local axes" : frame === "global" ? "Global axes" : "No axes"}</button>
+            ))}
+          </span>
           {result ? (
             <>
               <button
@@ -2449,6 +2511,7 @@ export function PipeViewport({
             className="viewport-toolbar-selection-status"
             title={`Selected ${selection.type}: ${selection.id}`}
           >Selected: {selection.id}</span>
+          {elementAxes ? <ElementAxesStatus view={elementAxes} selection={selection} /> : null}
           {hiddenCount > 0 ? <button type="button" className="viewport-hidden-count" data-testid="viewport-hidden-count" onClick={() => dispatchViewportViewCommand({ type: "show-all" })} title="Clear Hide and isolation">{hiddenCount} hidden · Show all</button> : null}
           {selectedHiddenCount > 0 ? <span role="status" title={`${selectedHiddenCount} selected item${selectedHiddenCount === 1 ? " is" : "s are"} hidden`}>{selectedHiddenCount} selected item{selectedHiddenCount === 1 ? " is" : "s are"} hidden</span> : null}
           <span role="status" data-testid="viewport-od-status" title={geometryMode === "actual-od" ? actualOd.reason : "Schematic centerline geometry"}>{geometryMode === "actual-od" ? actualOd.reason : "Schematic centerline geometry"}</span>
@@ -4054,6 +4117,18 @@ function instancedComponentMeshes(
     }
   }
   return output;
+}
+
+// Element axis placements in render-local coordinates, grouped by spatial chunk and owned by
+// their member. Members with invalid geometry get none.
+function elementAxisGroups(view: ElementAxesView, origin: Readonly<Vec3>, index: ModelIndex): ElementAxisPlacement[][] {
+  const placements = new Map<EntityKey, ElementAxisPlacement>();
+  for (const triad of view.triads.values()) {
+    const key = entityKey({ type: "pipe", id: triad.pipeId });
+    if (index.invalidGeometry.has(key)) continue;
+    placements.set(key, { ownerKey: key, anchor: authoredToLocal(triad.origin, origin), axes: [triad.x, triad.y, triad.z], displayLength: elementAxisDisplayLength(triad.length) });
+  }
+  return spatialGroups(index, placements);
 }
 
 // Rotation glyph placements in render-local coordinates, grouped by spatial chunk.
