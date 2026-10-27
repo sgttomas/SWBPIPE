@@ -51,7 +51,14 @@
     const element = byTestId(`workspace-section-${section}`);
     return Boolean(element && element.offsetParent !== null);
   };
+  // A click the driver just made can have navigated already without being drawn: React
+  // renders a click's update in a microtask, after the driver's own synchronous code. A
+  // sample taken before that render sees the old page and would send a toggle that closes
+  // the new one. So every show first yields one task, which lets that render land, and only
+  // then samples. This is a yield, not a timed wait.
+  const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
   async function showSection(section) {
+    await settle();
     if (sectionShown(section)) {
       await log(`show section ${section} (already shown)`);
       return;
@@ -565,17 +572,29 @@
     await waitFor(`${testId} = ${value}`, () => picker.querySelector(".virtual-target-picker-current")?.textContent?.includes(value), 10000);
   }
   const visible = (element) => Boolean(element && element.offsetParent !== null);
+  // Review changes. Queuing an intent opens it itself (handleQueueEditorIntent), and View >
+  // Review changes closes it when it is already open; so, as showSection, nothing is sent
+  // when it shows. Otherwise the Model stage's tab, which only opens it, is used where shown;
+  // the menu only where it is not. At 15c1996957 the from-blank load step sampled before the
+  // queue's own navigation was drawn, sent the menu command, and that toggle closed the page.
   async function showOperations() {
-    if (visible(byTestId("workspace-review"))) click("workspace-review");
-    else await menu("view.section.operations");
-    await waitFor("operations section", () => visible(byTestId("workspace-section-operations")));
+    await settle();
+    if (!sectionShown("operations")) {
+      if (visible(byTestId("workspace-review"))) click("workspace-review");
+      else await menu("view.section.operations");
+    }
+    await waitFor("operations section", () => sectionShown("operations"));
     const tab = byTestId("operation-tab-review");
     if (tab && tab.getAttribute("aria-pressed") !== "true") tab.click();
   }
+  // Close the open page and wait until it has closed (its Close control is gone), so that
+  // the next show samples the closed state rather than a close not yet drawn.
   async function closeSection() {
+    await settle();
     const close = byTestId("workspace-dock-close");
-    if (visible(close)) close.click();
-    await sleep(200);
+    if (!visible(close)) return;
+    close.click();
+    await waitFor("page closed", () => !visible(byTestId("workspace-dock-close")), 20000);
   }
   // Apply the queued intent through Review changes, as a person does.
   async function applyQueued(label) {
@@ -595,11 +614,18 @@
     await waitFor(`${label}: review`, () => byTestId("viewport-draft-review-preview"), 10000);
     click("apply-reviewed-draft");
   }
+  // The Inspector toggle is a toggle too: sample after a yield, press at most once, and wait
+  // for the inspector to be open rather than a fixed pause.
+  const inspectorOpen = () => byTestId("toggle-inspector")?.getAttribute("aria-expanded") === "true";
   async function ensureInspector() {
-    const toggle = byTestId("toggle-inspector");
-    if (toggle?.getAttribute("aria-disabled") === "true" && toggle.getAttribute("aria-expanded") !== "true") click("view-switch-both");
-    if (byTestId("toggle-inspector")?.getAttribute("aria-expanded") !== "true") byTestId("toggle-inspector")?.click();
-    await sleep(300);
+    await settle();
+    if (inspectorOpen()) return;
+    if (byTestId("toggle-inspector")?.getAttribute("aria-disabled") === "true") {
+      click("view-switch-both");
+      await waitFor("inspector toggle enabled", () => byTestId("toggle-inspector")?.getAttribute("aria-disabled") !== "true" || inspectorOpen(), 20000);
+    }
+    if (!inspectorOpen()) byTestId("toggle-inspector")?.click();
+    await waitFor("inspector open", inspectorOpen, 20000);
   }
   const typedTreeRow = (type, id) => byTestId(`tree-row-${encodeURIComponent(type)}-${encodeURIComponent(id)}`);
   // The project ids the model tree shows.
@@ -862,7 +888,7 @@
   // Under the driver's node test only: hand over the helpers instead of running.
   const testHooks = globalThis.__SWBPIPE_NATIVE_SMOKE_DRIVER_TEST__;
   if (testHooks) {
-    Object.assign(testHooks, { waitFor, waitForSolve, solveDone, solveJobDiagnostics, composeSolveDiagnostics, awaitBlankProject, showSection });
+    Object.assign(testHooks, { waitFor, waitForSolve, solveDone, solveJobDiagnostics, composeSolveDiagnostics, awaitBlankProject, showSection, showOperations, closeSection, ensureInspector });
     return;
   }
 
