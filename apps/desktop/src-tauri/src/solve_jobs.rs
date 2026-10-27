@@ -60,7 +60,7 @@ use crate::memory_pool::{
     MAX_RETAINED_RESULTS, MAX_TERMINAL_RECORDS, MAX_WEBVIEW_CUSTODY_RESULTS,
 };
 use crate::solve_worker::{
-    CurrentExeLauncher, SupervisorHooks, WorkerControl, WorkerLauncher, WorkerOutcome, WorkerTerms, PROCESS_RESERVE_BYTES,
+    CurrentExeLauncher, SupervisorHooks, WorkerControl, WorkerLauncher, WorkerOutcome, WorkerTask, WorkerTerms, PROCESS_RESERVE_BYTES,
 };
 use open_pipe_stress_product_physics::PreviewSolverMode;
 use serde::Serialize;
@@ -327,6 +327,58 @@ struct AdmittedInput {
     max_grant: u64,
 }
 
+/// The admitted intake of an on-demand model check (`check_preview_model`):
+/// the raw `{model}` args body copied under its intake lease, and the worker's
+/// starting grant and cap.
+pub(crate) struct ModelChecksInput {
+    raw: Vec<u8>,
+    lease: Lease,
+    start_grant: u64,
+    max_grant: u64,
+}
+
+/// How an on-demand model check did not produce its report.
+#[derive(Debug)]
+pub(crate) enum ModelChecksError {
+    /// A typed memory-pool refusal: at intake, at the worker's start grant, or
+    /// while it ran (its growth, cap or footprint).
+    Unavailable(SolveJobError),
+    /// The worker failed (a crash, a protocol violation or its own error).
+    Failed(String),
+}
+
+/// A completed model check: the report's bytes in their result lease, and the
+/// worker's peak grant and peak measured footprint.
+#[derive(Debug)]
+pub(crate) struct ModelChecksOutput {
+    pub report: Vec<u8>,
+    pub lease: Lease,
+    pub peak_grant_bytes: u64,
+    pub peak_footprint_bytes: u64,
+}
+
+/// The model check's worker has no job record and no cancellation; it records
+/// the worker's peak grant and footprint.
+struct ModelChecksHooks {
+    peak_grant: u64,
+    peak_footprint: u64,
+}
+
+impl SupervisorHooks for ModelChecksHooks {
+    fn attach(&mut self, _control: Arc<WorkerControl>) -> bool {
+        true
+    }
+    fn cancelled(&self) -> bool {
+        false
+    }
+    fn grant_changed(&mut self, grant_bytes: u64) {
+        self.peak_grant = self.peak_grant.max(grant_bytes);
+    }
+    fn footprint_observed(&mut self, footprint_bytes: u64) {
+        self.peak_footprint = self.peak_footprint.max(footprint_bytes);
+    }
+}
+
 #[derive(Clone)]
 pub(crate) struct SolveJobRegistry {
     jobs: Arc<Mutex<SolveJobTable>>,
@@ -582,6 +634,65 @@ impl SolveJobRegistry {
         })
     }
 
+    /// Admits an on-demand model check's raw `{model}` args body as `start`
+    /// admits a solve (DEL-04-07 memory-budget decision, "On-demand model
+    /// checks"): the prescan, the worker's starting grant (process reserve plus
+    /// the intake bound) within the per-invocation budget, and the intake lease
+    /// before this process copies the bytes.
+    pub(crate) fn admit_model_checks(&self, body: &[u8]) -> Result<ModelChecksInput, SolveJobError> {
+        let bound = ingress::prescan(body).map_err(|invalid| {
+            self.unavailable(ResourceRefusal::IngressInvalid { reason: format!("{} at byte {}", invalid.reason, invalid.offset) })
+        })?;
+        let (_, budget) = self.pool.settings();
+        let start_grant = bound
+            .lease_bytes()
+            .and_then(|ingress| crate::solve_worker::initial_grant(self.reserve, ingress))
+            .unwrap_or(u64::MAX);
+        if start_grant > budget {
+            return Err(self.unavailable(ResourceRefusal::IngressExceedsBudget { required_bytes: start_grant, budget_bytes: budget }));
+        }
+        let ingress_bytes = ingress::allocation_envelope(bound.raw_len).unwrap_or(u64::MAX);
+        let lease = match self.pool.acquire_resampling(ingress_bytes, LeasePurpose::Ingress, &|| false) {
+            Ok(lease) => lease,
+            Err(ResampleStop::Refused(refusal)) => return Err(self.unavailable(refusal)),
+            Err(ResampleStop::Cancelled) => unreachable!("the intake wait is never cancelled"),
+        };
+        Ok(ModelChecksInput { raw: body.to_vec(), lease, start_grant, max_grant: budget })
+    }
+
+    /// Runs an admitted model check in a capped worker process, as an ordinary
+    /// solve runs: its starting grant is admitted at once as a worker lease (a
+    /// refusal, including the worker count limit, stands; the check does not
+    /// queue), its grant grows on demand up to the per-invocation budget, and
+    /// its report's bytes come back in a result lease, which the caller holds
+    /// until it has sent them.
+    pub(crate) fn run_model_checks(&self, input: ModelChecksInput) -> Result<ModelChecksOutput, ModelChecksError> {
+        let ModelChecksInput { raw, lease, start_grant, max_grant } = input;
+        let mut grant = match self.pool.acquire(start_grant, LeasePurpose::Worker) {
+            Ok(grant) => grant,
+            Err(refusal) => {
+                drop((raw, lease));
+                return Err(ModelChecksError::Unavailable(self.unavailable(refusal)));
+            }
+        };
+        let terms = WorkerTerms { pool: &self.pool, launcher: &*self.launcher, task: WorkerTask::ModelChecks, max_grant, reserve: self.reserve };
+        let mut hooks = ModelChecksHooks { peak_grant: grant.bytes(), peak_footprint: 0 };
+        let outcome = catch_unwind(AssertUnwindSafe(|| crate::solve_worker::supervise(&terms, &mut grant, (raw, lease), &mut hooks)));
+        drop(grant);
+        match outcome {
+            Err(payload) => Err(ModelChecksError::Failed(format!("MODEL-CHECKS-PANICKED: {}", crate::solve_worker::panic_message(payload.as_ref())))),
+            Ok(WorkerOutcome::Completed { result, lease }) => Ok(ModelChecksOutput {
+                report: result,
+                lease,
+                peak_grant_bytes: hooks.peak_grant,
+                peak_footprint_bytes: hooks.peak_footprint,
+            }),
+            Ok(WorkerOutcome::Failed(error)) => Err(ModelChecksError::Failed(error)),
+            Ok(WorkerOutcome::Refused(refusal)) => Err(ModelChecksError::Unavailable(self.unavailable(refusal))),
+            Ok(WorkerOutcome::Terminated) => Err(ModelChecksError::Failed("MODEL-CHECKS-WORKER-TERMINATED: the check's worker was stopped.".to_string())),
+        }
+    }
+
     fn cancellation_requested(&self, job_id: &str) -> bool {
         self.table().records.get(job_id).is_none_or(|r| r.cancellation_requested)
     }
@@ -665,7 +776,7 @@ impl SolveJobRegistry {
             return;
         }
         let Some(input) = input.take() else { return };
-        let terms = WorkerTerms { pool: &self.pool, launcher: &*self.launcher, mode, max_grant, reserve: self.reserve };
+        let terms = WorkerTerms { pool: &self.pool, launcher: &*self.launcher, task: WorkerTask::Solve(mode), max_grant, reserve: self.reserve };
         // The worker is reaped inside `supervise`, also while it unwinds; only
         // then is the grant released.
         let outcome = catch_unwind(AssertUnwindSafe(|| {
@@ -2040,6 +2151,93 @@ mod tests {
         assert!(peak < crate::memory_pool::DEFAULT_INVOCATION_BUDGET_BYTES, "{peak}");
         assert_eq!(registry.take_result(&receipt.job_id).unwrap(), direct.as_bytes(), "the producer's exact bytes");
         registry.dispose_result(&receipt.job_id).unwrap();
+        assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
+    }
+
+    // ---- B11 on-demand model checks (Codex reviews r1 and r2 of #1665) ----
+
+    const FAN_OUT_BASE: &str = include_str!("../../../../core/product_physics/tests/fixtures/model_checks/load_state_fan_out_base.json");
+
+    /// Codex r2's adversarial shape (invented): a load-state model whose one
+    /// material carries 1.2 MB of provenance, shared by `pipes` members; the
+    /// load-state resolution copies the material into every resolved member.
+    fn fan_out_model(pipes: usize) -> serde_json::Value {
+        let mut model: serde_json::Value = serde_json::from_str(FAN_OUT_BASE).unwrap();
+        model["materials"][0]["provenance"] = serde_json::json!(format!("review_invented_{}", "a".repeat(1_200_000)));
+        let replicate = |value: &serde_json::Value| -> serde_json::Value {
+            let text = value.to_string();
+            serde_json::Value::Array((0..pipes).map(|i| serde_json::from_str(&text.replace("pipe:probe-0", &format!("pipe:probe-{i}"))).unwrap()).collect())
+        };
+        model["pipe_segments"] = replicate(&model["pipe_segments"][0]);
+        let members = replicate(&model["reference_configurations"][0]["member_references"][0]);
+        model["reference_configurations"][0]["member_references"] = members;
+        let states = replicate(&model["load_cases"][0]["analysis_state"]["element_states"][0]);
+        model["load_cases"][0]["analysis_state"]["element_states"] = states;
+        model
+    }
+
+    fn checks_body(model: &serde_json::Value) -> Vec<u8> {
+        serde_json::to_vec(&serde_json::json!({ "model": model })).unwrap()
+    }
+
+    /// The checks run in a capped worker process: Codex's 16- and 64-pipe
+    /// fan-out shapes complete with the applier's report, their grant grows
+    /// on demand and never passes the per-invocation budget, and every lease
+    /// is released afterwards.
+    #[test]
+    fn model_checks_run_in_a_capped_worker_whatever_the_fan_out() {
+        let host = ScriptedHost::normal();
+        let registry = registry(&host, TestLauncher::solve());
+        let (_, budget) = registry.pool().settings();
+        for pipes in [1, 16, 64] {
+            let model = fan_out_model(pipes);
+            let body = checks_body(&model);
+            let input = registry.admit_model_checks(&body).unwrap();
+            let start_grant = input.start_grant;
+            let output = registry.run_model_checks(input).unwrap();
+            let report: serde_json::Value = serde_json::from_slice(&output.report).unwrap();
+            assert_eq!(report, open_pipe_stress_operation_applier::model_checks(&model), "{pipes} pipes");
+            assert!(output.peak_grant_bytes <= budget, "{pipes} pipes: grant {} above the budget {budget}", output.peak_grant_bytes);
+            eprintln!(
+                "model checks fan-out {pipes} pipes: body {} B, starting grant {start_grant} B, peak grant {} B, peak footprint {} B, report {} B",
+                body.len(), output.peak_grant_bytes, output.peak_footprint_bytes, output.report.len()
+            );
+            drop(output);
+            assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0), "{pipes} pipes");
+        }
+    }
+
+    /// The per-invocation budget holds at the start and while the check runs
+    /// (Codex r2's budget probe): a budget below the starting grant refuses the
+    /// intake by type, and a budget the 64-pipe check outgrows ends its worker
+    /// with a typed worker refusal; nothing stays reserved.
+    #[test]
+    fn model_checks_refuse_by_type_at_the_invocation_budget() {
+        let host = ScriptedHost::normal();
+        let registry = registry(&host, TestLauncher::solve());
+        let pool_bytes = registry.pool().settings().0;
+        // Codex's probe: the budget set to the demo's admitted ingress amount.
+        let demo: serde_json::Value = serde_json::from_str(crate::BUNDLED_DEMO_MODEL).unwrap();
+        registry.configure_pool(pool_bytes, 196_752, false).unwrap();
+        let error = registry.admit_model_checks(&checks_body(&demo)).err().expect("refused at intake");
+        assert!(
+            matches!(&error, SolveJobError::ResourceUnavailable { refusal: ResourceRefusal::IngressExceedsBudget { budget_bytes: 196_752, .. }, .. }),
+            "{error:?}"
+        );
+        // A budget just above the 64-pipe check's starting grant: the worker outgrows it.
+        let body = checks_body(&fan_out_model(64));
+        registry.configure_pool(pool_bytes, 12 * GIB, false).unwrap();
+        let start_grant = registry.admit_model_checks(&body).unwrap().start_grant;
+        let budget = start_grant + 8 * (1 << 20);
+        registry.configure_pool(pool_bytes, budget, false).unwrap();
+        let input = registry.admit_model_checks(&body).unwrap();
+        match registry.run_model_checks(input) {
+            Err(ModelChecksError::Unavailable(SolveJobError::ResourceUnavailable { refusal, .. })) => assert!(
+                matches!(refusal, ResourceRefusal::WorkerCapExceeded { .. } | ResourceRefusal::WorkerFootprintExceeded { .. } | ResourceRefusal::WorkerGrowthRefused { .. }),
+                "{refusal:?}"
+            ),
+            other => panic!("expected a typed worker refusal at the budget, got {other:?}"),
+        }
         assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
     }
 }

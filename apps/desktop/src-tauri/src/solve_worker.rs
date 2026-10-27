@@ -8,8 +8,9 @@
 //! ends with its job.
 //!
 //! Protocol (all integers little-endian):
-//! - Parent -> child, once: the request header `SWRQ`, then u64 mode
-//!   (0 sparse_interactive, 1 dense_scrutiny), u64 initial grant, u64 maximum
+//! - Parent -> child, once: the request header `SWRQ`, then u64 task
+//!   (0 sparse_interactive solve, 1 dense_scrutiny solve, 2 the on-demand
+//!   model checks of `check_preview_model`), u64 initial grant, u64 maximum
 //!   grant (the per-invocation budget), u64 process reserve, u64 raw length L,
 //!   then L raw model bytes (UTF-8 JSON). The child closes every inherited fd
 //!   but stdio and its control pair, and reads all of the request before its
@@ -130,26 +131,36 @@ pub(crate) fn initial_grant(reserve: u64, ingress_bound: u64) -> Option<u64> {
     reserve.checked_add(ingress_bound)?.checked_next_multiple_of(GRANT_GRANULE_BYTES)
 }
 
+/// What a worker runs: an ordinary solve in a solver mode, or the on-demand
+/// model checks (DEL-04-06 Design `on-demand-model-checks.md`), which run the
+/// solve's own checks before stiffness formation under the same capped grant.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum WorkerTask {
+    Solve(PreviewSolverMode),
+    ModelChecks,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 struct Request {
-    mode: PreviewSolverMode,
+    task: WorkerTask,
     initial_grant: u64,
     max_grant: u64,
     reserve: u64,
     raw_len: u64,
 }
 
-fn mode_code(mode: PreviewSolverMode) -> u64 {
-    match mode {
-        PreviewSolverMode::SparseInteractive => 0,
-        PreviewSolverMode::DenseScrutiny => 1,
+fn task_code(task: WorkerTask) -> u64 {
+    match task {
+        WorkerTask::Solve(PreviewSolverMode::SparseInteractive) => 0,
+        WorkerTask::Solve(PreviewSolverMode::DenseScrutiny) => 1,
+        WorkerTask::ModelChecks => 2,
     }
 }
 
 fn encode_request(request: &Request) -> [u8; REQUEST_BYTES] {
     let mut bytes = [0u8; REQUEST_BYTES];
     bytes[..4].copy_from_slice(&REQUEST_TAG);
-    let fields = [mode_code(request.mode), request.initial_grant, request.max_grant, request.reserve, request.raw_len];
+    let fields = [task_code(request.task), request.initial_grant, request.max_grant, request.reserve, request.raw_len];
     for (index, field) in fields.iter().enumerate() {
         bytes[4 + index * 8..12 + index * 8].copy_from_slice(&field.to_le_bytes());
     }
@@ -161,12 +172,13 @@ fn decode_request(bytes: &[u8; REQUEST_BYTES]) -> Option<Request> {
         return None;
     }
     let field = |index: usize| u64::from_le_bytes(bytes[4 + index * 8..12 + index * 8].try_into().unwrap_or([0; 8]));
-    let mode = match field(0) {
-        0 => PreviewSolverMode::SparseInteractive,
-        1 => PreviewSolverMode::DenseScrutiny,
+    let task = match field(0) {
+        0 => WorkerTask::Solve(PreviewSolverMode::SparseInteractive),
+        1 => WorkerTask::Solve(PreviewSolverMode::DenseScrutiny),
+        2 => WorkerTask::ModelChecks,
         _ => return None,
     };
-    let request = Request { mode, initial_grant: field(1), max_grant: field(2), reserve: field(3), raw_len: field(4) };
+    let request = Request { task, initial_grant: field(1), max_grant: field(2), reserve: field(3), raw_len: field(4) };
     (request.reserve <= request.initial_grant && request.initial_grant <= request.max_grant).then_some(request)
 }
 
@@ -220,7 +232,7 @@ pub fn run_solve_worker() -> i32 {
             return WORKER_PROTOCOL_EXIT;
         }
         crate::worker_alloc::arm(request.initial_grant, request.max_grant, request.reserve);
-        let outcome = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| workload(raw, request.mode)));
+        let outcome = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| workload(raw, request.task)));
         let sent = match outcome {
             Ok(Ok(result)) => crate::worker_alloc::send_frame(
                 TAG_RESULT,
@@ -454,12 +466,35 @@ fn close_inherited_fds(keep: &[i32]) {
     }
 }
 
-fn workload(raw: Vec<u8>, mode: PreviewSolverMode) -> Result<String, String> {
+fn workload(raw: Vec<u8>, task: WorkerTask) -> Result<String, String> {
     #[cfg(test)]
     if let Some(workload) = tests::scripted_workload() {
+        let mode = match task {
+            WorkerTask::Solve(mode) => mode,
+            WorkerTask::ModelChecks => PreviewSolverMode::SparseInteractive,
+        };
         return tests::run_scripted(&workload, raw, mode);
     }
-    ordinary_solve(raw, mode)
+    match task {
+        WorkerTask::Solve(mode) => ordinary_solve(raw, mode),
+        WorkerTask::ModelChecks => model_checks(raw),
+    }
+}
+
+/// The on-demand model checks: the raw `{model}` args body, materialized here
+/// under the capped allocator, then the bounded report's JSON text
+/// (`operation_applier::model_checks_owned`). Nothing is solved.
+fn model_checks(raw: Vec<u8>) -> Result<String, String> {
+    let args: serde_json::Value =
+        serde_json::from_slice(&raw).map_err(|error| format!("MODEL-CHECKS-ARGS-INVALID: {error}"))?;
+    drop(raw);
+    let serde_json::Value::Object(mut args) = args else {
+        return Err("MODEL-CHECKS-ARGS-INVALID: the arguments must be one JSON object.".to_string());
+    };
+    let model = args.remove("model").ok_or_else(|| "MODEL-CHECKS-ARGS-INVALID: `model` is required.".to_string())?;
+    drop(args);
+    let report = open_pipe_stress_operation_applier::model_checks_owned(model);
+    serde_json::to_string(&report).map_err(|error| format!("MODEL-CHECKS-REPORT-INVALID: {error}"))
 }
 
 /// The ordinary solve, unchanged: materialize the model, release the raw
@@ -723,7 +758,7 @@ pub(crate) trait SupervisorHooks {
 pub(crate) struct WorkerTerms<'a> {
     pub pool: &'a Arc<MemoryPool>,
     pub launcher: &'a dyn WorkerLauncher,
-    pub mode: PreviewSolverMode,
+    pub task: WorkerTask,
     pub max_grant: u64,
     pub reserve: u64,
 }
@@ -860,7 +895,7 @@ pub(crate) fn supervise(
     // The grant the child knows (its heap cap is this less the reserve).
     let mut child_grant = grant.bytes();
     let request = Request {
-        mode: terms.mode,
+        task: terms.task,
         initial_grant: child_grant,
         max_grant: terms.max_grant,
         reserve: terms.reserve,
@@ -1727,7 +1762,7 @@ pub(crate) mod tests {
             excursion_gate,
             shared,
         };
-        let terms = WorkerTerms { pool, launcher, mode: PreviewSolverMode::SparseInteractive, max_grant, reserve };
+        let terms = WorkerTerms { pool, launcher, task: WorkerTask::Solve(PreviewSolverMode::SparseInteractive), max_grant, reserve };
         let outcome = supervise(&terms, &mut grant, (body.to_vec(), ingress), &mut hooks);
         assert_eq!(pool.reserved(LeasePurpose::Ingress), 0, "the raw copy's lease dropped once sent");
         assert_eq!(pool.running_workers(), 1, "the grant is held until supervise returns");
@@ -1787,7 +1822,7 @@ pub(crate) mod tests {
             excursion_gate: None,
             shared: Default::default(),
         };
-        let terms = WorkerTerms { pool, launcher: &*launcher, mode, max_grant: 12 * GIB, reserve: PROCESS_RESERVE_BYTES };
+        let terms = WorkerTerms { pool, launcher: &*launcher, task: WorkerTask::Solve(mode), max_grant: 12 * GIB, reserve: PROCESS_RESERVE_BYTES };
         match supervise(&terms, &mut grant, (BODY.to_vec(), ingress), &mut hooks) {
             WorkerOutcome::Completed { result, .. } => String::from_utf8(result).unwrap(),
             other => panic!("{other:?}"),
@@ -2181,7 +2216,7 @@ pub(crate) mod tests {
             let terms = WorkerTerms {
                 pool: &pool2,
                 launcher: &*launcher,
-                mode: PreviewSolverMode::SparseInteractive,
+                task: WorkerTask::Solve(PreviewSolverMode::SparseInteractive),
                 max_grant: 12 * GIB,
                 reserve: PROCESS_RESERVE_BYTES,
             };
@@ -2237,7 +2272,7 @@ pub(crate) mod tests {
         let terms = WorkerTerms {
             pool: &pool,
             launcher: &*launcher,
-            mode: PreviewSolverMode::SparseInteractive,
+            task: WorkerTask::Solve(PreviewSolverMode::SparseInteractive),
             max_grant: 12 * GIB,
             reserve: PROCESS_RESERVE_BYTES,
         };
@@ -2299,7 +2334,7 @@ pub(crate) mod tests {
 
             // The request header round-trips every field exactly.
             for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
-                let request = Request { mode, initial_grant: budget / 2, max_grant: budget, reserve, raw_len: budget - reserve };
+                let request = Request { task: WorkerTask::Solve(mode), initial_grant: budget / 2, max_grant: budget, reserve, raw_len: budget - reserve };
                 assert_eq!(decode_request(&encode_request(&request)), Some(request));
                 let at_budget = Request { initial_grant: budget, ..request };
                 assert_eq!(decode_request(&encode_request(&at_budget)), Some(at_budget));
@@ -2767,7 +2802,7 @@ pub(crate) mod tests {
         let launcher = TestLauncher::scripted("sleep");
         let mut process = WorkerProcess::spawn(&*launcher).unwrap();
         let request = Request {
-            mode: PreviewSolverMode::SparseInteractive,
+            task: WorkerTask::Solve(PreviewSolverMode::SparseInteractive),
             initial_grant: PROCESS_RESERVE_BYTES + MIB,
             max_grant: 12 * GIB,
             reserve: PROCESS_RESERVE_BYTES,
