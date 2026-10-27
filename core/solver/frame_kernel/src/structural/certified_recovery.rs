@@ -1721,14 +1721,29 @@ impl CertifiedValue {
 }
 
 /// Spring support-on-pipe sign is negative on ordinary and W2 routes.
+///
+/// W-16 R-c (DEL-04-03 Design `pf-nonlinear-imposed-motion.md` §11.1): a
+/// spring whose base moves by `ground` publishes -k·(u + w + w₂ - g). When
+/// `ground` compares equal to zero, of either sign, the fixed-base row is
+/// evaluated unchanged and the authored zero is never subtracted. Otherwise
+/// the exact product +k·g joins the accumulator that holds -k·u, -k·w and
+/// -k·w₂, and the evaluation scale includes |k·g|; neither k·g nor u - g is
+/// folded to binary64.
 pub fn certify_spring_reaction(
     dof: usize,
     stiffness: f64,
+    ground: f64,
     u: &[f64],
     bound: &MemberBoundInputs,
 ) -> Result<CertifiedRow, RecoveryFailure> {
     let op = [Ball::exact(Wide2::from_f64(-stiffness)?)];
-    evaluate_row(&op, &[dof], Ball::ZERO, 0.0, u, bound)
+    if ground == 0.0 {
+        return evaluate_row(&op, &[dof], Ball::ZERO, 0.0, u, bound);
+    }
+    let mut load = RowLoad::default();
+    load.sum.add_product(stiffness, ground).map_err(sum_error)?;
+    load.scale = mul_up(stiffness.abs(), ground.abs());
+    evaluate_row_inner(&op, &[dof], load, u, bound, true)
 }
 
 #[cfg(test)]

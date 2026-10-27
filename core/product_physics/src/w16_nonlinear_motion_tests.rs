@@ -49,8 +49,11 @@ pub(super) enum Expect {
     /// the state, and the standing stays `RECOVERY_BASIS_UNQUALIFIED`.
     /// Displacements and the slot reaction within 1e-9 relative.
     Gap,
+    /// A linear case (R-c, no nonlinear support): passed, with no nonlinear
+    /// confirmation line.
+    Linear,
 }
-use Expect::{Gap, LoopNotConverged, NotEstablished, NotEstablishedAny, Passed};
+use Expect::{Gap, Linear, LoopNotConverged, NotEstablished, NotEstablishedAny, Passed};
 
 const STICK_WEAK: &str = "support support:NL-F: stick capacity not established";
 
@@ -306,7 +309,7 @@ pub(super) fn run_case(
         return (output, records);
     }
     assert_eq!(integrity.code, "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{at}: {}", integrity.message);
-    assert!(integrity.message.contains(NONLINEAR_CONFIRMED_EVIDENCE_LINE), "{at}");
+    assert_eq!(integrity.message.contains(NONLINEAR_CONFIRMED_EVIDENCE_LINE), !matches!(expect, Linear), "{at}");
     // The relative rows' observation clause follows the K-D5 line exactly when they exist.
     assert_eq!(integrity.message.contains(NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE), !grounds.is_empty(), "{at}");
     assert_eq!(strict.len(), 1, "{at}: the reference has one strict state");
@@ -459,15 +462,25 @@ fn refused_whole(wire: &serde_json::Value, code: &str, at: &str) {
     }
 }
 
-/// A linear spring's base stays refused (§10.3; R-c builds it separately).
+/// R-c retires the spring refusals (§11.3): a linear spring's base moves in a
+/// model with nonlinear supports.
 #[test]
-fn a_linear_spring_base_stays_refused() {
+fn a_linear_spring_base_moves() {
     let spring = a1_with(|m| {
         m["supports"].as_array_mut().unwrap().push(serde_json::json!({"id": "support:K", "node": "node:M", "family": "spring",
             "restraints": ["UY"], "stiffness": {"dof": "UY", "value": {"value": 1.0e6, "unit": "N/m"}}, "provenance": "w16 invented"}));
         m["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(motion_on("support:K", "UY", 1.0e-4));
     });
-    refused_whole(&spring, "IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID", "a linear spring's base");
+    admitted(&spring, "a linear spring's base");
+}
+
+/// Solved in both modes with no imposed-displacement diagnostic.
+fn admitted(wire: &serde_json::Value, at: &str) {
+    for mode in MODES {
+        let output = run_linear_static_preview_value_with_mode(wire.clone(), mode).unwrap();
+        assert_eq!(output.status.mechanics, "MECHANICS_SOLVED", "{at} {mode:?}: {:?}", codes(&output));
+        assert!(!codes(&output).iter().any(|c| c.starts_with("IMPOSED_DISPLACEMENT_")), "{at} {mode:?}: {:?}", codes(&output));
+    }
 }
 
 /// A mixed document, one valid motion case and one invalid, is refused whole;
@@ -637,7 +650,8 @@ fn r_b_refusals_are_named() {
     // A DOF other than the record's nonlinear DOF.
     let other = a1_with(|m| m["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(motion_on("support:PROP", "UY", 1.0e-4)));
     refused_whole(&other, "IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH", "another DOF of the prop");
-    // A spring on the nonlinear record itself: moving its ground would move the spring's.
+    // A spring on the nonlinear record itself, on a disjoint DOF: R-c retires
+    // this refusal; the nonlinear ground moves alone (§11.3).
     let sprung = a1_with(|m| {
         let prop = m["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "support:PROP").unwrap();
         prop["family"] = serde_json::json!("spring");
@@ -645,7 +659,7 @@ fn r_b_refusals_are_named() {
         prop["stiffness"] = serde_json::json!({"dof": "UY", "value": {"value": 1.0e6, "unit": "N/m"}});
         m["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(motion_on("support:PROP", "UZ", 1.0e-4));
     });
-    refused_whole(&sprung, "IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID", "a spring on the nonlinear record");
+    admitted(&sprung, "a spring on the nonlinear record");
     // Another nonlinear support acting on the same node DOF.
     let shared = a1_with(|m| {
         m["supports"].as_array_mut().unwrap().push(serde_json::json!({"id": "support:PROP2", "node": "node:T", "family": "nonlinear",
@@ -852,9 +866,9 @@ fn r_d_refusals_are_named() {
         }
     }
     // Unchanged refusals on a nonlinear record (§10.1): a constant-effort
-    // record carrying a nonlinear field, on any DOF; a spring-family record's
-    // spring axis (R-c is separate); a rigid restraint overlapping the
-    // record's own nonlinear DOF.
+    // record carrying a nonlinear field, on any DOF; a rigid restraint
+    // overlapping the record's own nonlinear DOF. A spring-family record's
+    // spring axis moves its base (R-c).
     let constant = with(&|m| {
         let tip = m["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "support:TIP").unwrap();
         tip["family"] = serde_json::json!("constant_effort_support");
@@ -868,7 +882,8 @@ fn r_d_refusals_are_named() {
         tip["restraints"] = serde_json::json!(["UZ"]);
         tip["stiffness"] = serde_json::json!({"dof": "UZ", "value": {"value": 1.0e6, "unit": "N/m"}});
     });
-    refused_whole(&sprung, "IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID", "the spring axis of a nonlinear record");
+    // At the R-d layer this spring axis was refused; R-c moves its base (§11).
+    admitted(&sprung, "the spring axis of a nonlinear record");
     let overlap = with(&|m| {
         let tip = m["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "support:TIP").unwrap();
         tip["restraints"] = serde_json::json!(["UY", "UZ", "RY"]);
@@ -901,6 +916,315 @@ fn an_authored_zero_on_a_mixed_restraint_keeps_every_output() {
             assert_eq!(a["status"], b["status"], "{case} {mode:?}");
             assert_eq!(a["results"], b["results"], "{case} {mode:?}");
             assert_eq!(a["diagnostics"], b["diagnostics"], "{case} {mode:?}");
+        }
+    }
+}
+
+
+// ------------------------------------------------ R-c (§11): a linear spring's base moves
+
+const C1: &[(&str, Expect)] = &[("load:AXIAL", Linear), ("load:AXIAL-NEG", Linear), ("load:INEXACT", Linear)];
+const C5: &[(&str, Expect)] = &[("load:ACTIVE", Passed), ("load:LIFTED", Passed), ("load:UNEQUAL", Passed)];
+const D2: &[(&str, Expect)] = &[("load:SPRING", Passed), ("load:GROUND", Passed), ("load:ALL", Passed)];
+
+/// §11.4: C-1 (axial, its RX twin and its hanger twin, with an inexact k·g),
+/// C-2, C-3 (a pair and its equivalent), C-5 (equal and unequal grounds, and
+/// the property), a moved spring on a rigidly prescribed DOF, a moved spring
+/// reducing a derived friction normal, and D-2 with its same-record twin.
+pub(super) const R_C: [Request; 12] = [
+    Request { name: "c1", text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/c1.json"), expected: C1 },
+    Request {
+        name: "c1_rot",
+        text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/c1_rot.json"),
+        expected: &[("load:TWIST", Linear), ("load:TWIST-NEG", Linear)],
+    },
+    Request { name: "c1_hanger", text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/c1_hanger.json"), expected: C1 },
+    Request {
+        name: "c2",
+        text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/c2.json"),
+        expected: &[("load:SETTLE", Linear), ("load:HALF", Linear), ("load:RISE", Linear)],
+    },
+    Request { name: "c3", text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/c3.json"), expected: &[("load:PAIR", Linear)] },
+    Request {
+        name: "c3_equivalent",
+        text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/c3_equivalent.json"),
+        expected: &[("load:PAIR", Linear)],
+    },
+    Request { name: "c5", text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/c5.json"), expected: C5 },
+    Request { name: "c5_translated", text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/c5_translated.json"), expected: C5 },
+    Request { name: "c6", text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/c6.json"), expected: &[("load:SHARED", Linear)] },
+    Request {
+        name: "c7",
+        text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/c7.json"),
+        expected: &[("load:SLIDE-N", Passed), ("load:SLIDE-SAME", Passed)],
+    },
+    Request { name: "d2", text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/d2.json"), expected: D2 },
+    Request { name: "d2_twin", text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/d2_twin.json"), expected: D2 },
+];
+
+fn spring_ids(wire: &serde_json::Value) -> Vec<String> {
+    wire["model"]["supports"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|s| s["family"] == "spring" || s["family"] == "variable_spring_hanger")
+        .map(|s| s["id"].as_str().unwrap().to_string())
+        .collect()
+}
+
+fn component(output: &MechanicsEnvelope, support: &str, index: usize) -> f64 {
+    output
+        .results
+        .iter()
+        .find(|r| r.kind == "support_reaction_component_v2" && r.entity_ref == support
+            && r.metadata.as_ref().is_some_and(|m| m.component == SUPPORT_SLOT[index]))
+        .unwrap_or_else(|| panic!("{support} {}: {:?}", SUPPORT_SLOT[index],
+            output.results.iter().filter(|r| r.entity_ref == support).map(|r| (&r.kind, &r.id, r.value)).collect::<Vec<_>>()))
+        .value
+}
+
+/// Each spring's six published components within their certified family
+/// bound of the exact -k·(u - g) (§11.2); returns the largest relative error.
+fn spring_actions_match(
+    output: &MechanicsEnvelope,
+    records: &[formation_guard::RecoveryRecord],
+    state: &serde_json::Value,
+    springs: &[String],
+    wire: &serde_json::Value,
+    at: &str,
+) -> f64 {
+    let mut worst = 0.0_f64;
+    let supports = wire["model"]["supports"].as_array().unwrap();
+    for support in springs {
+        // A spring on a node DOF a rigid restraint also holds: the existing
+        // attribution rule withholds both records' signed rows
+        // (`preview_physics::ambiguous_supports`); the displacements and the
+        // certified groups are judged in `run_case`.
+        let record = supports.iter().find(|s| &s["id"] == support).unwrap();
+        let shared = supports.iter().any(|other| other["id"] != record["id"] && other["node"] == record["node"]
+            && other["family"] != "spring" && other["restraints"].as_array().unwrap().contains(&record["restraints"][0]));
+        if shared {
+            assert!(!output.results.iter().any(|r| r.kind == "support_reaction_component_v2" && &r.entity_ref == support), "{at}: {support} withheld");
+            continue;
+        }
+        let components = state["signed"][support]["components"].as_array().unwrap();
+        let record = records.iter().find(|r| &r.member == support).unwrap_or_else(|| panic!("{at}: {support} certified"));
+        for (index, pair) in components.iter().enumerate() {
+            let observed = component(output, support, index);
+            let family = if index < 3 { "support_force" } else { "support_moment" };
+            let bound = record.groups.iter().find(|g| g.kind == family).unwrap().bound.clone().unwrap();
+            let range = bound_pair(pair);
+            assert!(within_exact(observed, range, bound), "{at}: {support} {} {observed:e} B={bound:e} exact={range:?}", SUPPORT_SLOT[index]);
+            let scale = range.0.abs().max(range.1.abs());
+            if scale > 0.0 {
+                worst = worst.max((observed - (0.5 * range.0 + 0.5 * range.1)).abs() / scale);
+            }
+        }
+    }
+    worst
+}
+
+/// §11.4: every R-c reference in both modes, each spring's action against
+/// its exact row within its certified bound.
+#[test]
+fn r_c_references_bind_and_match_in_both_modes() {
+    for request in &R_C {
+        let (wire, oracle) = bound_request(request);
+        assert_eq!(oracle["part"], "R-c");
+        leaves_match(&wire);
+        assert_eq!(oracle["cases"].as_object().unwrap().len(), request.expected.len(), "{}", request.name);
+        let springs = spring_ids(&wire);
+        assert!(!springs.is_empty());
+        for &(case, expect) in request.expected {
+            for mode in MODES {
+                let at = format!("{} {case} {mode:?}", request.name);
+                let (output, records) = run_case(request, &wire, &oracle, case, expect, mode);
+                let state = &oracle["cases"][case]["strict_states"][0];
+                let worst = spring_actions_match(&output, &records, state, &springs, &wire, &at);
+                println!("W16-NL {at}: spring actions max relative error {worst:.3e}");
+            }
+        }
+    }
+}
+
+/// The hanger twin publishes the spring twin's displacements and spring
+/// rows bit for bit: a variable spring hanger uses the same incremental law.
+#[test]
+fn the_hanger_twin_is_the_spring_twin_bit_for_bit() {
+    let (spring, _) = bound_request(&R_C[0]);
+    let (hanger, _) = bound_request(&R_C[2]);
+    for (case, _) in C1 {
+        for mode in MODES {
+            let a = run_linear_static_preview_value_with_mode(single_case(&spring, case), mode).unwrap();
+            let b = run_linear_static_preview_value_with_mode(single_case(&hanger, case), mode).unwrap();
+            let rows = |o: &MechanicsEnvelope| {
+                o.results
+                    .iter()
+                    .filter(|r| r.id.starts_with("result:disp:") || (r.kind == "support_reaction_component_v2" && r.entity_ref == "support:K"))
+                    .map(|r| (r.id.clone(), r.value.to_bits()))
+                    .collect::<Vec<_>>()
+            };
+            assert!(rows(&a).iter().filter(|(id, _)| !id.starts_with("result:disp:")).count() == 6, "{case} {mode:?}");
+            assert_eq!(rows(&a), rows(&b), "{case} {mode:?}");
+        }
+    }
+}
+
+fn c2_case(case: &str) -> serde_json::Value {
+    let (wire, _) = bound_request(&R_C[3]);
+    single_case(&wire, case)
+}
+
+fn set_spring_motion(wire: &mut serde_json::Value, value: Option<f64>) {
+    let loads = wire["model"]["load_cases"][0]["primitive_loads"].as_array_mut().unwrap();
+    let index = loads.iter().position(|l| l["category"] == "imposed_displacement").unwrap();
+    match value {
+        Some(value) => loads[index]["magnitude"]["value"] = serde_json::json!(value),
+        None => {
+            loads.remove(index);
+        }
+    }
+}
+
+/// §11.1: an authored zero spring base, of either sign, is the fixed-base
+/// case: every row, bit for bit, and every diagnostic.
+#[test]
+fn a_zero_spring_base_of_either_sign_is_the_fixed_base_case() {
+    let mut plain = c2_case("load:SETTLE");
+    set_spring_motion(&mut plain, None);
+    for zero in [0.0, -0.0] {
+        let mut moved = c2_case("load:SETTLE");
+        set_spring_motion(&mut moved, Some(zero));
+        assert_eq!(moved["model"]["load_cases"][0]["primitive_loads"][1]["magnitude"]["value"].as_f64().unwrap().to_bits(), zero.to_bits());
+        for mode in MODES {
+            let a = run_linear_static_preview_value_with_mode(plain.clone(), mode).unwrap();
+            let b = run_linear_static_preview_value_with_mode(moved.clone(), mode).unwrap();
+            assert_eq!(a.status.mechanics, "MECHANICS_SOLVED");
+            assert_eq!(a.status.mechanics, b.status.mechanics);
+            assert_eq!(a.results.len(), b.results.len(), "{zero:?} {mode:?}");
+            for (x, y) in a.results.iter().zip(&b.results) {
+                assert_eq!((x.id.as_str(), x.value.to_bits()), (y.id.as_str(), y.value.to_bits()), "{zero:?} {mode:?}");
+            }
+            assert_eq!(serde_json::to_value(&a.diagnostics).unwrap(), serde_json::to_value(&b.diagnostics).unwrap(), "{zero:?} {mode:?}");
+        }
+    }
+}
+
+/// C-4 (§11.4): the spring-base case against the same model with the nodal
+/// force k·g (exact here): displacements and member rows bit for bit; the
+/// spring actions, each exactly representable here, differ by exactly k·g.
+#[test]
+fn c4_a_spring_base_is_the_force_k_g_on_the_displacements() {
+    let moved = c2_case("load:SETTLE");
+    let model = &moved["model"];
+    let k = model["supports"][1]["stiffness"]["value"]["value"].as_f64().unwrap();
+    let g = model["load_cases"][0]["primitive_loads"][1]["magnitude"]["value"].as_f64().unwrap();
+    let kg = k * g;
+    assert_eq!(kg / g, k, "k·g is exact (g is a power of two)");
+    let mut forced = moved.clone();
+    let loads = forced["model"]["load_cases"][0]["primitive_loads"].as_array_mut().unwrap();
+    loads[1] = serde_json::json!({"id": "load:SETTLE-KG", "category": "concentrated_force", "target": {"type": "node", "node": "node:T"},
+        "direction": "global_z", "magnitude": {"value": kg, "unit": "N"}, "dimension": "force", "provenance": "w16 invented"});
+    for mode in MODES {
+        let a = run_linear_static_preview_value_with_mode(moved.clone(), mode).unwrap();
+        let b = run_linear_static_preview_value_with_mode(forced.clone(), mode).unwrap();
+        let rows = |o: &MechanicsEnvelope| {
+            o.results
+                .iter()
+                .filter(|r| r.entity_ref != "support:K" && r.entity_ref != "support:ANCHOR" && r.metadata.as_ref().is_none_or(|m| m.location != "node"))
+                .map(|r| (r.id.clone(), r.value.to_bits()))
+                .collect::<Vec<_>>()
+        };
+        let disp = |o: &MechanicsEnvelope| o.results.iter().filter(|r| r.id.starts_with("result:disp:")).map(|r| r.value.to_bits()).collect::<Vec<_>>();
+        assert_eq!(disp(&a), disp(&b), "{mode:?}");
+        assert!(!rows(&a).is_empty());
+        assert_eq!(rows(&a), rows(&b), "{mode:?}");
+        let (spring, force) = (component(&a, "support:K", 2), component(&b, "support:K", 2));
+        assert_eq!(spring - force, kg, "{mode:?}: -k(u - g) - (-k u) = k g");
+        assert_eq!((spring - force) - kg, 0.0);
+    }
+}
+
+/// §11.4: closure mutants on the spring-base primitive. A missing operand, a
+/// wrong factor and a wrong DOF binding each fail the K-D5 closure.
+#[test]
+fn spring_base_closure_mutants_fail_closed() {
+    use crate::certified_loads::supplied_mutant;
+    use open_pipe_stress_frame_kernel::structural::{LoadFormula, LoadPrimitive};
+    let wire = c2_case("load:SETTLE");
+    type Edit = fn(&mut Vec<LoadPrimitive>) -> bool;
+    let mutants: [(&str, Edit); 3] = [
+        ("missing", |supplied| {
+            let before = supplied.len();
+            supplied.retain(|p| p.identity.family != "spring_base_motion");
+            supplied.len() != before
+        }),
+        ("factor", |supplied| {
+            let mut hit = false;
+            for p in supplied.iter_mut().filter(|p| p.identity.family == "spring_base_motion") {
+                if let LoadFormula::NodalProduct { factor, .. } = &mut p.formula {
+                    *factor *= 2.0;
+                    hit = true;
+                }
+            }
+            hit
+        }),
+        ("binding", |supplied| {
+            let mut hit = false;
+            for p in supplied.iter_mut().filter(|p| p.identity.family == "spring_base_motion") {
+                if let LoadFormula::NodalProduct { global_dof, .. } = &mut p.formula {
+                    *global_dof -= 1;
+                    hit = true;
+                }
+            }
+            hit
+        }),
+    ];
+    for mode in MODES {
+        let plain = serde_json::to_value(run_linear_static_preview_value_with_mode(wire.clone(), mode).unwrap()).unwrap();
+        assert_eq!(plain["numerical_quality"]["status"], "checks_passed", "{mode:?}");
+        for (name, edit) in mutants {
+            supplied_mutant::arm(Box::new(move |_, supplied: &mut Vec<LoadPrimitive>| edit(supplied)));
+            let mutated = serde_json::to_value(run_linear_static_preview_value_with_mode(wire.clone(), mode).unwrap()).unwrap();
+            assert!(supplied_mutant::disarm().is_some(), "{name} {mode:?}: the mutant reached the spring-base primitive");
+            assert_ne!(mutated["numerical_quality"]["status"], "checks_passed", "{name} {mode:?}");
+        }
+    }
+}
+
+/// §11.3 R-c admission: what stays refused, the per-spring duplicate key,
+/// parallel springs moving independently, and combinations.
+#[test]
+fn r_c_admission_and_combinations() {
+    // A spring record's non-axis DOF.
+    let mut other = c2_case("load:SETTLE");
+    let load = &mut other["model"]["load_cases"][0]["primitive_loads"][1];
+    load["target"]["dof"] = serde_json::json!("UY");
+    load["direction"] = serde_json::json!("UY");
+    refused_whole(&other, "IMPOSED_DISPLACEMENT_DOF_UNRESTRAINED", "a spring's non-axis DOF");
+    // Two values for one spring base, equal.
+    let mut duplicate = c2_case("load:SETTLE");
+    let loads = duplicate["model"]["load_cases"][0]["primitive_loads"].as_array_mut().unwrap();
+    let mut again = loads[1].clone();
+    again["id"] = serde_json::json!("load:SETTLE-G2");
+    loads.push(again);
+    refused_whole(&duplicate, "IMPOSED_DISPLACEMENT_DOF_DUPLICATE", "two values for one spring base");
+    // A constant-effort device stays refused (stage 1's test; and with a nonlinear field, R-d's).
+    // Combinations: superposed in a linear model, withheld in a nonlinear one.
+    let (c2, _) = bound_request(&R_C[3]);
+    let (c5, _) = bound_request(&R_C[6]);
+    for (wire, withheld) in [(c2, false), (c5, true)] {
+        let mut combined = wire.clone();
+        combined["model"]["load_cases"].as_array_mut().unwrap().truncate(2);
+        let ids = combined["model"]["load_cases"].as_array().unwrap().iter().map(|c| c["id"].clone()).collect::<Vec<_>>();
+        combined["model"]["combinations"] = serde_json::json!([{"id": "comb:pair", "basis": "mechanics",
+            "terms": [{"load_case": ids[0], "factor": 1.0}, {"load_case": ids[1], "factor": 1.0}], "provenance": "w16 invented"}]);
+        for mode in MODES {
+            let output = serde_json::to_value(run_linear_static_preview_value_with_mode(combined.clone(), mode).unwrap()).unwrap();
+            assert_eq!(output["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}");
+            let gates = output["contract_evidence"]["combination_gates"].as_array().unwrap();
+            assert_eq!(gates.len(), 1);
+            assert_eq!(gates[0]["withheld"], withheld, "{mode:?}: {gates:?}");
         }
     }
 }

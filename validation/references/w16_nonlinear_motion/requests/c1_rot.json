@@ -1,0 +1,167 @@
+{
+ "materials": [],
+ "model": {
+  "analysis_status": {
+   "mechanics": "ready_for_preview_diagnostics",
+   "professional_acceptance": "not_provided",
+   "rule_check": "not_performed_user_rule_inputs_missing"
+  },
+  "combinations": [],
+  "components": [],
+  "document_kind": "openpipestress.product_preview.model",
+  "load_cases": [
+   {
+    "id": "load:TWIST",
+    "primitive_loads": [
+     {
+      "category": "imposed_displacement",
+      "dimension": "rotation",
+      "direction": "RX",
+      "id": "load:TWIST-G",
+      "magnitude": {
+       "unit": "rad",
+       "value": 0.0009765625
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "RX",
+       "support": "support:K",
+       "type": "support"
+      }
+     }
+    ],
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   },
+   {
+    "id": "load:TWIST-NEG",
+    "primitive_loads": [
+     {
+      "category": "imposed_displacement",
+      "dimension": "rotation",
+      "direction": "RX",
+      "id": "load:TWIST-NEG-G",
+      "magnitude": {
+       "unit": "rad",
+       "value": -0.0009765625
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "RX",
+       "support": "support:K",
+       "type": "support"
+      }
+     }
+    ],
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   }
+  ],
+  "materials": [
+   {
+    "elastic_modulus": {
+     "unit": "Pa",
+     "value": 171798691840.0
+    },
+    "id": "material:w16nl",
+    "provenance": "invented_w16_nonlinear_motion_reference",
+    "shear_modulus": {
+     "unit": "Pa",
+     "value": 68719476736.0
+    },
+    "thermal_expansion_coefficient": {
+     "unit": "1/degC",
+     "value": 1.2e-05
+    }
+   }
+  ],
+  "nodes": [
+   {
+    "id": "node:A",
+    "position": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   },
+   {
+    "id": "node:T",
+    "position": {
+     "x": 4.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   }
+  ],
+  "pipe_segments": [
+   {
+    "from": "node:A",
+    "id": "pipe:AT",
+    "material": "material:w16nl",
+    "provenance": "invented_w16_nonlinear_motion_reference",
+    "section": {
+     "outside_diameter": {
+      "unit": "m",
+      "value": 0.206
+     },
+     "wall_thickness": {
+      "unit": "m",
+      "value": 0.011
+     }
+    },
+    "to": "node:T",
+    "y_reference": {
+     "x": 0,
+     "y": 0,
+     "z": 1
+    }
+   }
+  ],
+  "project": {
+   "description": "W-16 stage 2 C-1 (R-c, rot): a tip spring whose base moves.",
+   "id": "project:w16nl-c1_rot",
+   "name": "W-16 stage 2 c1_rot",
+   "units": {
+    "angle": "rad",
+    "force": "N",
+    "length": "m",
+    "pressure": "Pa",
+    "stress": "Pa",
+    "temperature": "degC"
+   }
+  },
+  "schema_version": "0.7.0",
+  "supports": [
+   {
+    "family": "anchor",
+    "id": "support:ANCHOR",
+    "node": "node:A",
+    "provenance": "invented_w16_nonlinear_motion_reference",
+    "restraints": [
+     "UX",
+     "UY",
+     "UZ",
+     "RX",
+     "RY",
+     "RZ"
+    ]
+   },
+   {
+    "family": "spring",
+    "id": "support:K",
+    "node": "node:T",
+    "provenance": "invented_w16_nonlinear_motion_reference",
+    "restraints": [
+     "RX"
+    ],
+    "stiffness": {
+     "dof": "RX",
+     "value": {
+      "unit": "N*m/rad",
+      "value": 1104043.1179135144
+     }
+    }
+   }
+  ]
+ }
+}

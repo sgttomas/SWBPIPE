@@ -440,18 +440,24 @@ fn unknown_support_is_refused() {
 }
 
 #[test]
-fn a_non_rigid_target_is_refused() {
+fn a_constant_effort_target_is_refused_and_a_spring_base_moves() {
     let spring = json!({"id": "support:s", "node": "node:c", "family": "spring", "restraints": ["UZ"],
         "stiffness": {"dof": "UZ", "value": qv(1.0e6, "N/m")}, "provenance": PROV});
     let hanger = json!({"id": "support:s", "node": "node:c", "family": "variable_spring_hanger", "restraints": ["UZ"],
-        "hanger": {"hanger_type": "variable_spring_hanger", "stiffness": {"dof": "UZ", "value": qv(1.0e5, "N/m")}, "installed_load": qv(100.0, "N")}, "provenance": PROV});
+        "hanger": {"hanger_type": "variable_spring_hanger", "stiffness": {"dof": "UZ", "value": qv(1.0e5, "N/m")}, "installed_load": qv(100.0, "N"),
+            "cold_load": qv(100.0, "N"), "hot_load": qv(90.0, "N"), "travel_range": qv(0.05, "m"), "source_reference": "w16 invented"}, "provenance": PROV});
     let constant = json!({"id": "support:s", "node": "node:c", "family": "constant_effort_support", "restraints": ["UZ"],
         "hanger": {"hanger_type": "constant_effort_support", "constant_load": qv(375.0, "N"), "travel_range": qv(0.05, "m"), "source_reference": "w16 invented"}, "provenance": PROV});
     // A nonlinear support's own DOF moves its ground (stage 2, R-b;
-    // `w16_nonlinear_motion_tests`); its refusals are tested there.
-    for (name, support) in [("spring", spring), ("variable spring hanger", hanger), ("constant effort", constant)] {
+    // `w16_nonlinear_motion_tests`); its refusals are tested there. Stage 2's
+    // R-c moves a spring's or hanger's base on its axis (Design
+    // `pf-nonlinear-imposed-motion.md` §11; references in
+    // `w16_nonlinear_motion_tests`); only a constant-effort device stays refused.
+    let wire = with_supports(one_case(vec![motion_load("m", "support:s", "UZ", 0.001, "m")]), vec![constant]);
+    refused(&wire, "IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID", "constant effort");
+    for (name, support) in [("spring", spring), ("variable spring hanger", hanger)] {
         let wire = with_supports(one_case(vec![motion_load("m", "support:s", "UZ", 0.001, "m")]), vec![support]);
-        refused(&wire, "IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID", name);
+        solved(&wire, Route::Preview, PreviewSolverMode::SparseInteractive, name);
     }
 }
 

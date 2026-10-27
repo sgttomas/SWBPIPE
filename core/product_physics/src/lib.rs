@@ -1812,6 +1812,7 @@ fn force_scaling_attempt(
     model: &PreviewModel,
     built: &BuiltModel,
     spring_entries: &[SpringEntry],
+    spring_ground: &[f64],
     restrained_dofs: &[usize],
     load_case: &PreviewLoadCase,
     load_application: &LoadApplication,
@@ -1883,6 +1884,7 @@ fn force_scaling_attempt(
         model,
         built,
         spring_entries,
+        spring_ground,
         restrained_dofs,
         &outcome,
         force,
@@ -1986,6 +1988,7 @@ fn force_scaled_publication(
     model: &PreviewModel,
     built: &BuiltModel,
     spring_entries: &[SpringEntry],
+    spring_ground: &[f64],
     restrained_dofs: &[usize],
     outcome: &ForceScalingOutcome,
     force: &AssembledForce,
@@ -2020,11 +2023,14 @@ fn force_scaled_publication(
             refused(error, quantity)
         })?;
     let reactions = dofs.into_iter().zip(reactions).collect::<Vec<_>>();
+    // W-16 R-c: each spring's base motion (0.0 when unmoved: the fixed-base
+    // arithmetic, bit for bit).
     let spring_actions = spring_entries
         .iter()
-        .map(|spring| {
+        .zip(spring_ground)
+        .map(|(spring, &ground)| {
             let dof = spring.node_dof.global_index();
-            force_scaled_spring_action((dof, spring.stiffness.value), u, scale).map_err(|error| {
+            force_scaled_spring_action((dof, spring.stiffness.value), ground, u, scale).map_err(|error| {
                 refused(
                     error,
                     format!("spring_action@{}", integrity_dof_label(model, dof)),
@@ -5127,7 +5133,7 @@ fn solve_prepared_load_case(
     // S11 sections 4.2 and 4.3: every producer pushes its contributions, term
     // by term, into one per-case exact ledger; the solve's force vector is
     // each DOF's correctly rounded net, and it can be built only here.
-    let ledger = case_force_ledger(
+    let mut ledger = case_force_ledger(
         model,
         built,
         &load_application,
@@ -5137,6 +5143,15 @@ fn solve_prepared_load_case(
         &load_case.id,
         diagnostics,
     );
+    // W-16 R-c: a pressure-free case's moved spring bases, one per prepared
+    // spring (0.0 when unmoved), and their formed loads k·g; refusals join
+    // the motion maps' check below.
+    let before = diagnostics.len();
+    let spring_ground = match load_state {
+        Some(_) => vec![0.0; spring_entries.len()],
+        None => imposed_motion::case_spring_ground(model, load_case, spring_entries, diagnostics),
+    };
+    certified_loads::spring_base_motion(&mut ledger, spring_entries, &spring_ground);
     if let Some(observer) = product.as_deref_mut() {
         observer.case_source(model, built, materials, load_case, restrained_dofs, spring_entries,
             &load_application, &thermal_loads);
@@ -5175,7 +5190,6 @@ fn solve_prepared_load_case(
     )?;
     // W-16 slice a: a pressure-free case's support-targeted primitives, as
     // its own prescribed map; `None` (the existing path) when it has none.
-    let before = diagnostics.len();
     let pf_motion = match load_state {
         Some(_) => None,
         None => imposed_motion::case_prescribed(model, load_case, restrained_dofs, diagnostics),
@@ -5462,6 +5476,7 @@ fn solve_prepared_load_case(
                     model,
                     built,
                     spring_entries,
+                    &spring_ground,
                     restrained_dofs,
                     load_case,
                     &load_application,
@@ -5871,10 +5886,14 @@ fn solve_prepared_load_case(
                 let global = spring.node_dof.global_index();
                 if global % DOF_PER_NODE < 6 {
                     // F1b (§4.7 step 5): at b != 0, K2b's checked
-                    // `force_scaled_spring_action`, unscaled once.
+                    // `force_scaled_spring_action`, unscaled once. W-16 R-c:
+                    // a moved base publishes -k·(u - g); an unmoved one (g
+                    // equal to zero, of either sign) keeps -k·u.
+                    let ground = spring_ground[spring_index];
                     vector[global % DOF_PER_NODE] = match &w2_publication {
                         Some(publication) => publication.spring_actions[spring_index].value,
-                        None => -spring.stiffness.value * displacements[global],
+                        None if ground == 0.0 => -spring.stiffness.value * displacements[global],
+                        None => -spring.stiffness.value * (displacements[global] - ground),
                     };
                 }
             }
@@ -5906,7 +5925,7 @@ fn solve_prepared_load_case(
                 }
             }
             let certified_support = match (member_bound, certified_source.as_ref()) {
-                (Some(bound),Some(source)) => match certified_publication::support(model,support,built,spring_entries,source,certified_force,&displacements,bound,certified_nonlinear) {
+                (Some(bound),Some(source)) => match certified_publication::support(model,support,built,spring_entries,&spring_ground,source,certified_force,&displacements,bound,certified_nonlinear) {
                     Ok(rows) => {
                         vector = rows.map(|row| row.published);
                         match certified_publication::support_record(&support.id,formation_bodies.body_of_node(index),&rows) {

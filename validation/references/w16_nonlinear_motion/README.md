@@ -108,6 +108,26 @@ coupling K[RY, UZ] is +6EI/L².
 
 s* = PL³/(48EI) = 2^-10 m and g = 3s*/32 (4EI·g/L = PL/32); P follows exactly.
 
+**R-c (a linear spring's base moves by g; Design §11).** The case gains the
+load k·g at the spring's DOF and the spring acts on the pipe with −k·(u − g).
+The 4 m cantilever's condensed tip stiffnesses (tip rotations free) are
+EA/L (UX), GJ/L (RX) and 3EI/L³ (UY, UZ).
+
+| Request | Model | Cases | Closed form checked |
+|---|---|---|---|
+| `c1`, `c1_rot`, `c1_hanger` | 4 m bar, a tip spring on UX (k = EA/L), its RX twin (k = GJ/L) and its variable-spring-hanger twin | g = ±2^-12 m (±2^-10 rad), and g = 0.001 m, where k·g is inexact in binary64 | u = k·g/(k + k_m) = g/2; spring row k·g/2 |
+| `c2` | 4 m cantilever, tip load −P, a tip spring on UZ (k = 3EI/L³) whose global UZ base displacement is g = −d | d = d*, d*/2, −d* | u = −(P + k·d)/(k + k_b) |
+| `c3`, `c3_equivalent` | two tip springs k₁ = 3EI/L³, k₂ = 2k₁ with bases 2^-10, 2^-12 m, and one spring k₁ + k₂ with base (k₁g₁ + k₂g₂)/(k₁ + k₂) | one | every operand exact; u = (k₁g₁ + k₂g₂ − P)/(k₁ + k₂ + k_b), and the pair equals its equivalent |
+| `c5`, `c5_translated` | `b1_spring` with the spring base moving: with the lift-off ground (−d), unequal (−d/4 against −d/2), and the property in Z | Active, Inactive, unequal | R = P − k_b·d − k·(d − g_k); equal grounds give R = P/2; Inactive u = −3d*/2 |
+| `c6` | a tip UZ held rigidly at s = d* with a spring there whose base moves by −d* | one | u = s; the rigid row (K·u − f) = k_b·s + k·(s − g) |
+| `c7` | `b3` with a spring on the derived normal's DOF (tip UY), k·g = 3N/4 | the former sticking and sliding cases | the normal is N/4 and the support strictly slides |
+| `d2`, `d2_twin` | D-3's record with a separate tip UY spring (k = 3EI_z/L³) whose base moves by g; the twin carries the spring on one spring-family record with the nonlinear RY, and the rigid UZ on another record | the spring alone, the ground alone, and both with s | u_y = g/2; R = PL/8 − 6EI·s/L² − 4EI·g_s/L (Active) |
+
+d* = PL³/(3EI) = 2^-10 m as in B-1. A spring on a node DOF that a rigid
+restraint also holds (`c6`, `c7`) keeps the existing attribution rule: both
+records' signed rows are withheld, and the displacements and certified groups
+are compared.
+
 **A-3's reduced closed form.** With K = [[a, b], [b, d]] the condensed
 stiffness on (n, t) = (tip UY, tip UX) and u_n = g_n:
 α = (a − b²/d)·g_n + (b/d)·f_t − f_n, γ = b/d, c_f = −dir·μ·β,

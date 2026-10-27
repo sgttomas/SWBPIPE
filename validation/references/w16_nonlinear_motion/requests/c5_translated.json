@@ -1,0 +1,343 @@
+{
+ "materials": [],
+ "model": {
+  "analysis_status": {
+   "mechanics": "ready_for_preview_diagnostics",
+   "professional_acceptance": "not_provided",
+   "rule_check": "not_performed_user_rule_inputs_missing"
+  },
+  "combinations": [],
+  "components": [],
+  "document_kind": "openpipestress.product_preview.model",
+  "load_cases": [
+   {
+    "id": "load:ACTIVE",
+    "primitive_loads": [
+     {
+      "category": "concentrated_force",
+      "dimension": "force",
+      "direction": "global_z",
+      "id": "load:ACTIVE-P",
+      "magnitude": {
+       "unit": "N",
+       "value": -252.69541578220696
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "node": "node:T",
+       "type": "node"
+      }
+     },
+     {
+      "category": "imposed_displacement",
+      "dimension": "displacement",
+      "direction": "UZ",
+      "id": "load:ACTIVE-G",
+      "magnitude": {
+       "unit": "m",
+       "value": 0.00341796875
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "UZ",
+       "support": "support:LIFT",
+       "type": "support"
+      }
+     },
+     {
+      "category": "imposed_displacement",
+      "dimension": "displacement",
+      "direction": "UZ",
+      "id": "load:ACTIVE-K",
+      "magnitude": {
+       "unit": "m",
+       "value": 0.00341796875
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "UZ",
+       "support": "support:K",
+       "type": "support"
+      }
+     },
+     {
+      "category": "imposed_displacement",
+      "dimension": "displacement",
+      "direction": "UZ",
+      "id": "load:ACTIVE-TZ-ANCHOR",
+      "magnitude": {
+       "unit": "m",
+       "value": 0.00390625
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "UZ",
+       "support": "support:ANCHOR",
+       "type": "support"
+      }
+     }
+    ],
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   },
+   {
+    "id": "load:LIFTED",
+    "primitive_loads": [
+     {
+      "category": "concentrated_force",
+      "dimension": "force",
+      "direction": "global_z",
+      "id": "load:LIFTED-P",
+      "magnitude": {
+       "unit": "N",
+       "value": -252.69541578220696
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "node": "node:T",
+       "type": "node"
+      }
+     },
+     {
+      "category": "imposed_displacement",
+      "dimension": "displacement",
+      "direction": "UZ",
+      "id": "load:LIFTED-G",
+      "magnitude": {
+       "unit": "m",
+       "value": 0.001953125
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "UZ",
+       "support": "support:LIFT",
+       "type": "support"
+      }
+     },
+     {
+      "category": "imposed_displacement",
+      "dimension": "displacement",
+      "direction": "UZ",
+      "id": "load:LIFTED-K",
+      "magnitude": {
+       "unit": "m",
+       "value": 0.001953125
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "UZ",
+       "support": "support:K",
+       "type": "support"
+      }
+     },
+     {
+      "category": "imposed_displacement",
+      "dimension": "displacement",
+      "direction": "UZ",
+      "id": "load:LIFTED-TZ-ANCHOR",
+      "magnitude": {
+       "unit": "m",
+       "value": 0.00390625
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "UZ",
+       "support": "support:ANCHOR",
+       "type": "support"
+      }
+     }
+    ],
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   },
+   {
+    "id": "load:UNEQUAL",
+    "primitive_loads": [
+     {
+      "category": "concentrated_force",
+      "dimension": "force",
+      "direction": "global_z",
+      "id": "load:UNEQUAL-P",
+      "magnitude": {
+       "unit": "N",
+       "value": -252.69541578220696
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "node": "node:T",
+       "type": "node"
+      }
+     },
+     {
+      "category": "imposed_displacement",
+      "dimension": "displacement",
+      "direction": "UZ",
+      "id": "load:UNEQUAL-G",
+      "magnitude": {
+       "unit": "m",
+       "value": 0.00341796875
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "UZ",
+       "support": "support:LIFT",
+       "type": "support"
+      }
+     },
+     {
+      "category": "imposed_displacement",
+      "dimension": "displacement",
+      "direction": "UZ",
+      "id": "load:UNEQUAL-K",
+      "magnitude": {
+       "unit": "m",
+       "value": 0.003662109375
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "UZ",
+       "support": "support:K",
+       "type": "support"
+      }
+     },
+     {
+      "category": "imposed_displacement",
+      "dimension": "displacement",
+      "direction": "UZ",
+      "id": "load:UNEQUAL-TZ-ANCHOR",
+      "magnitude": {
+       "unit": "m",
+       "value": 0.00390625
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "UZ",
+       "support": "support:ANCHOR",
+       "type": "support"
+      }
+     }
+    ],
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   }
+  ],
+  "materials": [
+   {
+    "elastic_modulus": {
+     "unit": "Pa",
+     "value": 171798691840.0
+    },
+    "id": "material:w16nl",
+    "provenance": "invented_w16_nonlinear_motion_reference",
+    "shear_modulus": {
+     "unit": "Pa",
+     "value": 68719476736.0
+    },
+    "thermal_expansion_coefficient": {
+     "unit": "1/degC",
+     "value": 1.2e-05
+    }
+   }
+  ],
+  "nodes": [
+   {
+    "id": "node:A",
+    "position": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   },
+   {
+    "id": "node:T",
+    "position": {
+     "x": 4.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   }
+  ],
+  "pipe_segments": [
+   {
+    "from": "node:A",
+    "id": "pipe:AT",
+    "material": "material:w16nl",
+    "provenance": "invented_w16_nonlinear_motion_reference",
+    "section": {
+     "outside_diameter": {
+      "unit": "m",
+      "value": 0.206
+     },
+     "wall_thickness": {
+      "unit": "m",
+      "value": 0.011
+     }
+    },
+    "to": "node:T",
+    "y_reference": {
+     "x": 0,
+     "y": 0,
+     "z": 1
+    }
+   }
+  ],
+  "project": {
+   "description": "W-16 stage 2 C-5 (R-c with R-b): a lift-off and a parallel spring whose bases move. Translated rigidly by t in Z (the property).",
+   "id": "project:w16nl-c5_translated",
+   "name": "W-16 stage 2 c5",
+   "units": {
+    "angle": "rad",
+    "force": "N",
+    "length": "m",
+    "pressure": "Pa",
+    "stress": "Pa",
+    "temperature": "degC"
+   }
+  },
+  "schema_version": "0.7.0",
+  "supports": [
+   {
+    "family": "anchor",
+    "id": "support:ANCHOR",
+    "node": "node:A",
+    "provenance": "invented_w16_nonlinear_motion_reference",
+    "restraints": [
+     "UX",
+     "UY",
+     "UZ",
+     "RX",
+     "RY",
+     "RZ"
+    ]
+   },
+   {
+    "family": "nonlinear",
+    "id": "support:LIFT",
+    "node": "node:T",
+    "nonlinear": {
+     "behavior": "lift_off",
+     "contact_when": "positive_reaction",
+     "dof": "UZ",
+     "initial_state": "active"
+    },
+    "provenance": "invented_w16_nonlinear_motion_reference",
+    "restraints": []
+   },
+   {
+    "family": "spring",
+    "id": "support:K",
+    "node": "node:T",
+    "provenance": "invented_w16_nonlinear_motion_reference",
+    "restraints": [
+     "UZ"
+    ],
+    "stiffness": {
+     "dof": "UZ",
+     "value": {
+      "unit": "N/m",
+      "value": 258760.10576097993
+     }
+    }
+   }
+  ]
+ }
+}

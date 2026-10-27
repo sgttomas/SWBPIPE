@@ -17,11 +17,13 @@
 //! g_s (`case_ground_motion`); its state is measured on u_d - g_s. R-d: a
 //! rigid restraint of a mixed nonlinear record (a nonlinear record that also
 //! restrains other DOFs rigidly) takes a base prescribed value as under R-a.
-//! Validation and the case resolvers classify the target DOF (`acting`):
-//! only rigid targets enter `case_prescribed`, only nonlinear targets enter
-//! `case_ground_motion`. Still refused (`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`):
-//! a constant-effort record, a nonlinear field included, and a linear
-//! spring's base (R-c is separate).
+//! R-c: a primitive on a linear spring's axis moves that spring's base by g_k
+//! (`case_spring_ground`); the case gains the formed load k·g_k and the spring
+//! publishes -k·(u - g_k). Validation and all three case resolvers classify
+//! the target DOF (`acting`): only rigid targets enter `case_prescribed`, only
+//! nonlinear targets enter `case_ground_motion`, and only spring targets enter
+//! `case_spring_ground`. Still refused (`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`):
+//! a constant-effort record, a nonlinear field included.
 //!
 //! The exact route refuses every support-targeted primitive by name; its form
 //! is `analysis_state.support_states[].boundary_motion`.
@@ -33,7 +35,7 @@ use crate::{
 };
 use open_pipe_stress_nonlinear_integration::exact_gap_closing_position;
 use open_pipe_stress_nonlinear_supports::GapDirection;
-use open_pipe_stress_linear_supports::FrameDof;
+use open_pipe_stress_linear_supports::{FrameDof, SpringEntry};
 use open_pipe_stress_units::{unit_by_symbol, Dimension};
 use std::collections::{BTreeMap, HashMap};
 
@@ -65,14 +67,6 @@ fn restraints_rigid(support: &PreviewSupport) -> bool {
     !is_spring_family(support) && !is_constant_effort_support(support)
 }
 
-/// The exact resolver's rigid-support rule (`case_state/resolve.rs`, `is_spring`
-/// and the `rigid` test of its boundary-motion loop): not a spring or variable
-/// spring hanger, not a nonlinear device and not a constant-effort device.
-/// Pressure-free admission of a record without a nonlinear support.
-fn is_rigid(support: &PreviewSupport) -> bool {
-    restraints_rigid(support) && support.nonlinear.is_none()
-}
-
 /// How a record acts on one DOF (Design `pf-nonlinear-imposed-motion.md`
 /// §10.1); a support-targeted primitive moves the base of that action only.
 /// A constant-effort record has no base on any DOF and is refused as a
@@ -82,7 +76,7 @@ enum Acting {
     /// The record's nonlinear DOF: a primitive moves its ground (R-b).
     Nonlinear,
     /// The stiffness axis of a spring or variable spring hanger record,
-    /// chosen as `build_model` chooses it (refused here; R-c).
+    /// chosen as `build_model` chooses it: a primitive moves its base (R-c).
     Spring,
     /// A rigid restraint, a mixed nonlinear record's included: a base
     /// prescribed value (stage 1, R-a, R-d).
@@ -131,13 +125,6 @@ fn target_acting<'m>(model: &'m PreviewModel, load: &PreviewPrimitiveLoad) -> Op
     let record = model.supports.iter().find(|record| &record.id == support)?;
     let dof = parse_dof(dof).ok()?;
     (!is_constant_effort_support(record)).then(|| (record, dof, acting(record, dof)))
-}
-
-/// R-b: a nonlinear record that is not also a spring, a variable spring
-/// hanger or a constant-effort device; a primitive on its own DOF moves its
-/// ground.
-fn moves_ground(support: &PreviewSupport) -> bool {
-    support.nonlinear.is_some() && !is_spring_family(support) && !is_constant_effort_support(support)
 }
 
 /// The nonlinear DOF a record acts on, when its token parses.
@@ -266,23 +253,50 @@ fn validate_pressure_free(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic
                 validate_ground_motion(model, case, load, support, dof, &mut prescribed, diagnostics);
                 continue;
             }
-            if !is_rigid(support) {
+            if is_constant_effort_support(support) {
                 refuse(diagnostics, case, load, SUPPORT_NOT_RIGID,
-                    format!("load {} in {} imposes a displacement on support {support_id}, which is a spring, a variable spring hanger or a constant-effort device; an imposed displacement applies only to a rigid restraint or to a nonlinear support's own DOF", load.id, case.id),
+                    format!("load {} in {} imposes a displacement on support {support_id}, which is a constant-effort device; a constant-effort record has no base on any DOF and is not a motion target", load.id, case.id),
                     Some(support_id));
                 continue;
             }
-            if restrains(support, dof) == 0 {
-                refuse(diagnostics, case, load, DOF_UNRESTRAINED,
-                    format!("load {} in {} imposes {} on support {support_id}, which does not restrain that DOF; an imposed displacement applies only to a DOF the support already restrains rigidly", load.id, case.id, dof.as_str().to_ascii_uppercase()),
-                    Some(support_id));
+            let acts = acting(support, dof);
+            if acts == Acting::None {
+                let message = if is_spring_family(support) {
+                    format!("load {} in {} imposes {} on spring support {support_id}, which acts on another DOF; an imposed displacement on a spring moves the base of its own axis", load.id, case.id, dof.as_str().to_ascii_uppercase())
+                } else {
+                    format!("load {} in {} imposes {} on support {support_id}, which does not restrain that DOF; an imposed displacement applies only to a DOF the support already restrains rigidly", load.id, case.id, dof.as_str().to_ascii_uppercase())
+                };
+                refuse(diagnostics, case, load, DOF_UNRESTRAINED, message, Some(support_id));
                 continue;
             }
             if !dimension_valid(case, load, dof, support_id, diagnostics) {
                 continue;
             }
-            validate_rigid_base(model, case, load, support, dof, &mut prescribed, diagnostics);
+            if acts == Acting::Spring {
+                validate_spring_base(case, load, support, dof, &mut prescribed, diagnostics);
+            } else {
+                validate_rigid_base(model, case, load, support, dof, &mut prescribed, diagnostics);
+            }
         }
+    }
+}
+
+/// R-c (§11.3): a spring's base, after the target and dimension checks. One
+/// value per spring base, keyed (support, DOF): parallel springs on one node
+/// DOF each keep their own base, so no coincident-restraint check applies.
+fn validate_spring_base<'m>(
+    case: &PreviewLoadCase,
+    load: &'m PreviewPrimitiveLoad,
+    support: &'m PreviewSupport,
+    dof: FrameDof,
+    prescribed: &mut HashMap<(Base, &'m str, usize), &'m str>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let name = dof.as_str().to_ascii_uppercase();
+    if let Some(first) = prescribed.insert((Base::SupportDof, support.id.as_str(), dof_index(dof)), load.id.as_str()) {
+        refuse(diagnostics, case, load, DOF_DUPLICATE,
+            format!("loads {first} and {} in {} both move the base of spring {} in {name}; one spring base takes one value, even when the values are equal", load.id, case.id, support.id),
+            Some(support.id.as_str()));
     }
 }
 
@@ -373,23 +387,14 @@ fn validate_ground_motion<'m>(
         Acting::Nonlinear => {}
         // R-d: a rigid restraint of a mixed nonlinear record.
         Acting::Rigid => return validate_rigid_base(model, case, load, support, dof, prescribed, diagnostics),
-        Acting::Spring => {
-            return refuse(diagnostics, case, load, SUPPORT_NOT_RIGID,
-                format!("load {} in {} imposes {name} on the spring axis of nonlinear record {support_id}; a linear spring's base does not move", load.id, case.id),
-                Some(support_id));
-        }
+        // R-c: the spring axis of a spring-family nonlinear record.
+        Acting::Spring => return validate_spring_base(case, load, support, dof, prescribed, diagnostics),
         Acting::None => {
             return refuse(diagnostics, case, load, NONLINEAR_DOF_MISMATCH,
-                format!("load {} in {} imposes {name} on nonlinear support {support_id}, which acts on {}; a primitive on a nonlinear record moves its nonlinear DOF's ground or one of its rigid restraints", load.id, case.id,
+                format!("load {} in {} imposes {name} on nonlinear support {support_id}, which acts on {}; a primitive on a nonlinear record moves its nonlinear DOF's ground, its spring's base or one of its rigid restraints", load.id, case.id,
                     support.nonlinear.as_ref().map_or("", |nonlinear| nonlinear.dof.as_str())),
                 Some(support_id));
         }
-    }
-    if !moves_ground(support) {
-        refuse(diagnostics, case, load, SUPPORT_NOT_RIGID,
-            format!("load {} in {} imposes {name} on nonlinear record {support_id}, which also carries a spring, a variable spring hanger or a constant-effort device; moving its ground would also move that device's base, so the request is refused", load.id, case.id),
-            Some(support_id));
-        return;
     }
     if gap_closure_exact(support, load) == Some(false) {
         refuse(diagnostics, case, load, GAP_CLOSURE_INEXACT,
@@ -449,10 +454,11 @@ pub(crate) fn case_prescribed(
     for load in &case.primitive_loads {
         let LoadTargetInput::Support { support, dof } = &load.target else { continue };
         // Only a rigid target is a prescribed value. A nonlinear DOF's
-        // primitive moves its ground (`case_ground_motion`, R-b); every other
+        // primitive moves its ground (`case_ground_motion`, R-b), and a
+        // spring's moves its base (`case_spring_ground`, R-c); every other
         // target is refused by `validate` and, if reached, is a blocking
         // finding below.
-        if matches!(target_acting(model, load), Some((_, _, Acting::Nonlinear))) {
+        if matches!(target_acting(model, load), Some((_, _, Acting::Nonlinear | Acting::Spring))) {
             continue;
         }
         any = true;
@@ -481,4 +487,40 @@ pub(crate) fn case_prescribed(
         }
     }
     any.then_some(prescribed)
+}
+
+/// R-c (§11.1): each prepared spring's base motion g_k (m or rad), in
+/// `springs` order; 0.0 for a spring the case does not move. Called after unit
+/// normalization, from the validated primitives on spring axes. A spring
+/// target without exactly one prepared spring entry is a blocking finding
+/// (unreachable after `validate`); nothing is silently dropped.
+pub(crate) fn case_spring_ground(
+    model: &PreviewModel,
+    case: &PreviewLoadCase,
+    springs: &[SpringEntry],
+    diagnostics: &mut Vec<Diagnostic>,
+) -> Vec<f64> {
+    let mut ground = vec![0.0; springs.len()];
+    let mut moved = vec![false; springs.len()];
+    for load in &case.primitive_loads {
+        let Some((record, dof, Acting::Spring)) = target_acting(model, load) else { continue };
+        let mut entries = springs
+            .iter()
+            .enumerate()
+            .filter(|(_, spring)| spring.support_id == record.id && spring.node_dof.dof == dof)
+            .map(|(index, _)| index);
+        match (entries.next(), entries.next()) {
+            (Some(index), None) if !moved[index] => {
+                moved[index] = true;
+                ground[index] = load.magnitude.value;
+            }
+            (Some(_), None) => refuse(diagnostics, case, load, DOF_DUPLICATE,
+                format!("load {} in {} moves the base of spring {} a second time", load.id, case.id, record.id),
+                Some(record.id.as_str())),
+            _ => refuse(diagnostics, case, load, SUPPORT_UNKNOWN,
+                format!("load {} in {} does not address one prepared spring of support {}", load.id, case.id, record.id),
+                Some(record.id.as_str())),
+        }
+    }
+    ground
 }

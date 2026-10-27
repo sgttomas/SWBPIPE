@@ -19,7 +19,9 @@ exactly with the case's prescribed values:
        (g_s + sigma*c for an active gap, sigma = +1 closing in +, -1 in -);
   R-d  a rigid restraint on a mixed nonlinear record (a nonlinear record that
        also restrains other DOFs rigidly) prescribed at its case value g_b,
-       as under R-a.
+       as under R-a;
+  R-c  a linear spring's base moved by g_k: the case gains the load k*g_k at
+       the spring's DOF, and the spring acts on the pipe with -k*(u - g_k).
 
 It records every state that satisfies all DEC-067 conditions strictly, with
 its exact published rows, and every state that satisfies them only weakly
@@ -89,8 +91,17 @@ def anchor(support_id, node_id, restraints=("UX", "UY", "UZ", "RX", "RY", "RZ"),
 
 
 def spring(support_id, node_id, dof, k):
+    unit = "N*m/rad" if dof.startswith("R") else "N/m"
     return {"id": support_id, "node": node_id, "family": "spring", "restraints": [dof],
-            "stiffness": {"dof": dof, "value": qv(k, "N/m")}, "provenance": PROV}
+            "stiffness": {"dof": dof, "value": qv(k, unit)}, "provenance": PROV}
+
+
+def hanger(support_id, node_id, dof, k):
+    """A variable spring hanger: the same incremental spring law; its installed load is review data only."""
+    return {"id": support_id, "node": node_id, "family": "variable_spring_hanger", "restraints": [dof],
+            "hanger": {"hanger_type": "variable_spring_hanger", "stiffness": {"dof": dof, "value": qv(k, "N/m")},
+                       "installed_load": qv(1000.0, "N"), "cold_load": qv(1000.0, "N"), "hot_load": qv(900.0, "N"),
+                       "travel_range": qv(0.05, "m"), "source_reference": PROV}, "provenance": PROV}
 
 
 def nonlinear(support_id, node_id, spec, restraints=()):
@@ -266,25 +277,27 @@ class Model:
                         src_node = self.nodes.index(next(x for x in m["supports"] if x["id"] == src["support_ref"])["node"])
                         entry["source"] = 6 * src_node + DOFS.index(src["dof"])
                 self.nonlinear.append(entry)
-                # R-d: a mixed record's rigid restraints, which never include its nonlinear DOF.
-                assert s.get("family") == "nonlinear" and nl["dof"] not in s["restraints"]
-                for r in s["restraints"]:
-                    self.rigid.setdefault(s["id"], []).append(6 * nd + DOFS.index(r))
-            elif s.get("family") == "spring":
-                st = s["stiffness"]
-                d = 6 * nd + DOFS.index(st["dof"])
-                k = F(st["value"]["value"])
+            stiffness = s.get("stiffness") or (s.get("hanger") or {}).get("stiffness")
+            if s.get("family") in ("spring", "variable_spring_hanger"):
+                # A spring-family record's restraint is its spring axis (R-c), on a
+                # DOF disjoint from any nonlinear law it carries.
+                d = 6 * nd + DOFS.index(stiffness["dof"])
+                assert s["restraints"] == [stiffness["dof"]] and not (s.get("nonlinear") and s["nonlinear"]["dof"] == stiffness["dof"])
+                k = F(stiffness["value"]["value"])
                 self.springs.append((s["id"], d, k))
                 self.K[d][d] += k
             else:
+                # R-d: a mixed record's rigid restraints, which never include its nonlinear DOF.
+                assert not s.get("nonlinear") or (s.get("family") == "nonlinear" and s["nonlinear"]["dof"] not in s["restraints"])
                 for r in s["restraints"]:
                     self.rigid.setdefault(s["id"], []).append(6 * nd + DOFS.index(r))
         self.cases = m["load_cases"]
 
     def loads(self, case):
-        """The case's force vector, base prescribed values g_B and ground offsets g_s."""
+        """The case's force vector, base prescribed values g_B, ground offsets g_s and spring bases g_k."""
         f = [F(0)] * self.n
-        base, ground = {}, {}
+        base, ground, spring_g = {}, {}, {}
+        springs = {(sid, d): k for sid, d, k in self.springs}
         for load in case["primitive_loads"]:
             if load["category"] == "imposed_displacement":
                 target = load["target"]
@@ -293,6 +306,11 @@ class Model:
                 value = F(load["magnitude"]["value"])
                 if s.get("nonlinear") and s["nonlinear"]["dof"] == target["dof"]:
                     ground[s["id"]] = value
+                elif (s["id"], d) in springs:
+                    # R-c: the base load k*g_k, exact.
+                    assert s["id"] not in spring_g
+                    spring_g[s["id"]] = value
+                    f[d] += springs[(s["id"], d)] * value
                 else:
                     assert d in self.rigid[s["id"]]
                     base[d] = value
@@ -301,7 +319,7 @@ class Model:
             nd = self.nodes.index(load["target"]["node"])
             axis = {"global_x": 0, "global_y": 1, "global_z": 2}[load["direction"]]
             f[6 * nd + axis] += F(load["magnitude"]["value"])
-        return f, base, ground
+        return f, base, ground, spring_g
 
 
 def states_for(entry):
@@ -401,7 +419,7 @@ def classify(model, combo, u, r, ground):
     return "weak" if weak else "strict"
 
 
-def published(model, combo, u, r, ground):
+def published(model, combo, u, r, ground, spring_g=None):
     """Exact published rows of one state: member and support groups, signed slots, displacements."""
     groups, signed = {}, {}
     for pipe_id, kg, T, length, dofs in model.members:
@@ -435,7 +453,7 @@ def published(model, combo, u, r, ground):
             rows[d % 6] = r[d]
         for sid, d, k in model.springs:
             if sid == support_id:
-                rows[d % 6] = -k * u[d]
+                rows[d % 6] = -k * (u[d] - (spring_g or {}).get(sid, F(0)))
         if support_id in slots:
             d, value = slots[support_id]
             rows[d % 6] = value
@@ -464,7 +482,7 @@ def coupling_gain(model, combo, entry, direction, beta):
 
 
 def enumerate_case(model, case):
-    f, base, ground = model.loads(case)
+    f, base, ground, spring_g = model.loads(case)
     qualifying, exact_states = [], []
     for combo in product(*[states_for(e) for e in model.nonlinear]):
         solved = solve_state(model, f, base, ground, combo)
@@ -474,7 +492,7 @@ def enumerate_case(model, case):
         kind = classify(model, combo, u, r, ground)
         if kind is None:
             continue
-        groups, signed, displacements = published(model, combo, u, r, ground)
+        groups, signed, displacements = published(model, combo, u, r, ground, spring_g)
         states = {e["id"]: s for e, (s, _, _) in zip(model.nonlinear, combo)}
         record = {"standing": kind, "states": states, "groups": groups, "signed": signed, "displacements": displacements}
         for e, (s, direction, beta) in zip(model.nonlinear, combo):
@@ -484,9 +502,12 @@ def enumerate_case(model, case):
         qualifying.append(record)
         exact_states.append((kind, states, u, r))
     strict = [q for q in qualifying if q["standing"] == "strict"]
-    return {"strict_states": strict, "weak_states": [q["states"] for q in qualifying if q["standing"] == "weak"],
-            "base_prescribed": {DOFS[d % 6] + "@" + model.nodes[d // 6]: bounds(v) for d, v in sorted(base.items())},
-            "ground_motion": {k: bounds(v) for k, v in sorted(ground.items())}}, exact_states
+    oracle = {"strict_states": strict, "weak_states": [q["states"] for q in qualifying if q["standing"] == "weak"],
+              "base_prescribed": {DOFS[d % 6] + "@" + model.nodes[d // 6]: bounds(v) for d, v in sorted(base.items())},
+              "ground_motion": {k: bounds(v) for k, v in sorted(ground.items())}}
+    if spring_g:
+        oracle["spring_ground"] = {k: bounds(v) for k, v in sorted(spring_g.items())}
+    return oracle, exact_states
 
 
 # ----------------------------------------------------------------------------- the benchmarks
@@ -691,8 +712,9 @@ def translated(request, name, axis):
         loads = c["primitive_loads"]
         for s in m["supports"]:
             nl = s.get("nonlinear")
-            # A nonlinear ground on its own DOF (R-b); a rigid restraint, a mixed record's included (R-d).
-            acts = (nl is not None and nl["dof"] == dof) or (s.get("family") != "spring" and dof in s["restraints"])
+            # A nonlinear ground on its own DOF (R-b); a rigid restraint, a mixed record's included (R-d);
+            # a spring's base on its axis (R-c).
+            acts = (nl is not None and nl["dof"] == dof) or dof in s["restraints"]
             if not acts:
                 continue
             existing = [l for l in loads if l["category"] == "imposed_displacement"
@@ -1048,6 +1070,220 @@ def d3_closed_form(model, case_id, exact_states):
               r[tip + 4] == 0 and reaction < 0 and u[tip + 4] == 0 and u[tip + 4] + gv == gv and u[tip + 2] == -sv)
 
 
+# ----------------------------------------------------------------------------- R-c
+# A linear spring whose base moves by g acts on the pipe with -k(u - g): the
+# case gains the load k*g at its DOF. The 4 m cantilever's condensed tip
+# stiffnesses (tip rotations free) are EA/L (UX), GJ/L (RX) and 3EI/L^3 (UY, UZ).
+KT = G * J / 4
+G_C = F(1, 2 ** 12)
+
+
+def c1_request(kind="spring"):
+    """C-1: a tip spring on UX (k = EA/L) or RX (k = GJ/L) whose base moves; a hanger twin."""
+    nodes, pipes = cantilever_nodes()
+    if kind == "rot":
+        supports = [anchor("support:ANCHOR", "node:A"), spring("support:K", "node:T", "RX", as_float(KT))]
+        picks = {"load:TWIST": ("RX", F(1, 2 ** 10)), "load:TWIST-NEG": ("RX", -F(1, 2 ** 10))}
+    else:
+        make = hanger if kind == "hanger" else spring
+        supports = [anchor("support:ANCHOR", "node:A"), make("support:K", "node:T", "UX", as_float(KX))]
+        picks = {"load:AXIAL": ("UX", G_C), "load:AXIAL-NEG": ("UX", -G_C), "load:INEXACT": ("UX", F(0.001))}
+    cases = [case(cid, [motion(cid + "-G", "support:K", dof, as_float(g))]) for cid, (dof, g) in picks.items()]
+    name = {"spring": "c1", "rot": "c1_rot", "hanger": "c1_hanger"}[kind]
+    return document(name, f"W-16 stage 2 C-1 (R-c, {kind}): a tip spring whose base moves.", nodes, pipes, supports, cases)
+
+
+def c1_closed_form(model, case_id, exact_states):
+    tip = 6 * model.nodes.index("node:T")
+    (_, d, k), = model.springs
+    axis = d - tip
+    k_m = KX if axis == 0 else KT
+    (cond,), = condensed(model, [d], set(model.rigid["support:ANCHOR"]))
+    check(f"C-1 {case_id}: the condensed tip stiffness is {'EA/L' if axis == 0 else 'GJ/L'}", cond - k == k_m)
+    g = next(F(l["magnitude"]["value"]) for c in model.cases if c["id"] == case_id for l in c["primitive_loads"])
+    (_, _, u, r), = exact_states
+    check(f"C-1 {case_id}: u = k g/(k + k_m) = g/2, spring row -k(u - g) = k g/2", u[d] == k * g / (k + k_m) == g / 2)
+    if case_id == "load:INEXACT":
+        check(f"C-1 {case_id}: k*g is inexact in binary64 (the ledger term rounds)", F(float(k * g)) != k * g)
+
+
+def c2_request():
+    """C-2: a cantilever, tip load -P, a tip spring on UZ (k = 3EI/L^3) whose base moves by g = -d."""
+    P = as_float(P_B1)
+    nodes, pipes = cantilever_nodes()
+    supports = [anchor("support:ANCHOR", "node:A"), spring("support:K", "node:T", "UZ", as_float(KB4))]
+    cases = []
+    for cid, d in (("load:SETTLE", D_STAR), ("load:HALF", D_STAR / 2), ("load:RISE", -D_STAR)):
+        cases.append(case(cid, [force(cid + "-P", "node:T", "z", -P), motion(cid + "-G", "support:K", "UZ", as_float(-d))]))
+    return document("c2", "W-16 stage 2 C-2 (R-c): a loaded cantilever whose tip spring base settles.", nodes, pipes, supports, cases)
+
+
+def c2_closed_form(model, case_id, exact_states):
+    d = {"load:SETTLE": D_STAR, "load:HALF": D_STAR / 2, "load:RISE": -D_STAR}[case_id]
+    tip = 6 * model.nodes.index("node:T") + 2
+    (_, _, u, r), = exact_states
+    check(f"C-2 {case_id}: u = -(P + k_s d)/(k_s + k_b)", u[tip] == -(P_B1 + KB4 * d) / (2 * KB4))
+
+
+K1_C3, K2_C3, G1_C3, G2_C3 = KB4, 2 * KB4, F(1, 2 ** 10), F(1, 2 ** 12)
+
+
+def c3_request(equivalent=False):
+    """C-3: two springs on the tip UZ with bases g1, g2, and their one-spring equivalent."""
+    P = as_float(P_B1)
+    nodes, pipes = cantilever_nodes()
+    supports = [anchor("support:ANCHOR", "node:A")]
+    if equivalent:
+        k, g = K1_C3 + K2_C3, (K1_C3 * G1_C3 + K2_C3 * G2_C3) / (K1_C3 + K2_C3)
+        supports.append(spring("support:K", "node:T", "UZ", as_float(k)))
+        loads = [motion("load:PAIR-G", "support:K", "UZ", as_float(g))]
+    else:
+        supports += [spring("support:K1", "node:T", "UZ", as_float(K1_C3)), spring("support:K2", "node:T", "UZ", as_float(K2_C3))]
+        loads = [motion("load:PAIR-G1", "support:K1", "UZ", as_float(G1_C3)), motion("load:PAIR-G2", "support:K2", "UZ", as_float(G2_C3))]
+    cases = [case("load:PAIR", [force("load:PAIR-P", "node:T", "z", -P)] + loads)]
+    name = "c3_equivalent" if equivalent else "c3"
+    return document(name, "W-16 stage 2 C-3 (R-c): parallel springs with their own bases, and their equivalent.", nodes, pipes, supports, cases)
+
+
+C3_U = {}
+
+
+def c3_closed_form(model, case_id, exact_states):
+    (_, _, u, r), = exact_states
+    tip = 6 * model.nodes.index("node:T") + 2
+    for value in (K1_C3 + K2_C3, K1_C3 * G1_C3, K2_C3 * G2_C3, K1_C3 * G1_C3 + K2_C3 * G2_C3,
+                  (K1_C3 * G1_C3 + K2_C3 * G2_C3) / (K1_C3 + K2_C3)):
+        as_float(value)
+    check(f"C-3 {case_id}: every operand is exact in binary64 (k1 + k2, both products, their sum, the equivalent base)", True)
+    C3_U.setdefault("u", u)
+    check(f"C-3 {case_id}: u = (k1 g1 + k2 g2 - P)/(k1 + k2 + k_b) and the pair equals its equivalent",
+          u[tip] == (K1_C3 * G1_C3 + K2_C3 * G2_C3 - P_B1) / (K1_C3 + K2_C3 + KB4) and C3_U["u"] == u)
+
+
+def c5_request():
+    """C-5: B-1's spring twin with the spring base moving with the lift-off ground, and unequal grounds."""
+    P = as_float(P_B1)
+    nodes, pipes = cantilever_nodes()
+    supports = [anchor("support:ANCHOR", "node:A"),
+                nonlinear("support:LIFT", "node:T", {"behavior": "lift_off", "dof": "UZ", "initial_state": "active",
+                                                      "contact_when": "positive_reaction"}),
+                spring("support:K", "node:T", "UZ", as_float(KB4))]
+    cases = []
+    for cid, d, gk in (("load:ACTIVE", D_STAR / 2, D_STAR / 2), ("load:LIFTED", 2 * D_STAR, 2 * D_STAR),
+                       ("load:UNEQUAL", D_STAR / 2, D_STAR / 4)):
+        cases.append(case(cid, [force(cid + "-P", "node:T", "z", -P), motion(cid + "-G", "support:LIFT", "UZ", as_float(-d)),
+                                motion(cid + "-K", "support:K", "UZ", as_float(-gk))]))
+    return document("c5", "W-16 stage 2 C-5 (R-c with R-b): a lift-off and a parallel spring whose bases move.",
+                    nodes, pipes, supports, cases)
+
+
+def c5_closed_form(model, case_id, exact_states):
+    d, gk = {"load:ACTIVE": (D_STAR / 2, D_STAR / 2), "load:LIFTED": (2 * D_STAR, 2 * D_STAR),
+             "load:UNEQUAL": (D_STAR / 2, D_STAR / 4)}[case_id]
+    tip = 6 * model.nodes.index("node:T") + 2
+    states = {(k, s["support:LIFT"]): (u, r) for k, s, u, r in exact_states}
+    if case_id == "load:LIFTED":
+        u, r = states[("strict", "inactive")]
+        check(f"C-5 {case_id}: u = (-P - k g)/(k + k_b) = -3d*/2, separation u + d = d*/2",
+              u[tip] == (-P_B1 - KB4 * 2 * D_STAR) / (2 * KB4) == -3 * D_STAR / 2 and u[tip] + d == D_STAR / 2)
+    else:
+        u, r = states[("strict", "active")]
+        check(f"C-5 {case_id}: R = P - k_b d - k (d - g_k), u = -d",
+              r[tip] == P_B1 - KB4 * d - KB4 * (d - gk) and u[tip] == -d)
+        if case_id == "load:ACTIVE":
+            check(f"C-5 {case_id}: equal grounds: the spring carries nothing and R = P - k_b d = P/2", r[tip] == P_B1 / 2)
+
+
+def c6_request():
+    """A moved spring sharing a rigid prescribed DOF: the tip UZ held rigidly at s and a spring there with base g."""
+    nodes, pipes = cantilever_nodes()
+    supports = [anchor("support:ANCHOR", "node:A"), anchor("support:VS", "node:T", ("UZ",), family="vertical_support"),
+                spring("support:K", "node:T", "UZ", as_float(KB4))]
+    cases = [case("load:SHARED", [motion("load:SHARED-S", "support:VS", "UZ", as_float(D_STAR)),
+                                  motion("load:SHARED-G", "support:K", "UZ", as_float(-D_STAR))])]
+    return document("c6", "W-16 stage 2 R-c control: a moved spring on a rigidly prescribed DOF.", nodes, pipes, supports, cases)
+
+
+def c6_closed_form(model, case_id, exact_states):
+    (_, _, u, r), = exact_states
+    tip = 6 * model.nodes.index("node:T") + 2
+    check(f"R-c shared {case_id}: u = s; the rigid row (K u - f) = k_b s + k (s - g)",
+          u[tip] == D_STAR and r[tip] == KB4 * D_STAR + KB4 * 2 * D_STAR)
+
+
+G_C7 = F(1, 2 ** 10)
+K_C7 = 3 * N_B3 / (4 * G_C7)  # k g = 3N/4: the derived normal falls to N/4
+
+
+def c7_request():
+    """A moved spring changing a derived friction normal: B-3 with a tip UY spring on the normal source's DOF."""
+    request, picks = b3_request()
+    m = request["model"]
+    m["project"]["id"] = "project:w16nl-c7"
+    m["project"]["description"] = "W-16 stage 2 R-c control: a spring base moving on the derived normal's DOF reduces the friction normal."
+    m["supports"].append(spring("support:KY", "node:T", "UY", as_float(K_C7)))
+    keep = {"load:STICK": "load:SLIDE-N", "load:SLIDE": "load:SLIDE-SAME"}
+    cases = []
+    for c in m["load_cases"]:
+        if c["id"] in keep:
+            cid = keep[c["id"]]
+            loads = [dict(l, id=l["id"].replace(c["id"], cid)) for l in c["primitive_loads"]]
+            loads.append(motion(cid + "-KY", "support:KY", "UY", as_float(G_C7)))
+            cases.append(case(cid, loads))
+    m["load_cases"] = cases
+    return request
+
+
+def c7_closed_form(model, case_id, exact_states):
+    (kind, states, u, r), = exact_states
+    src = 6 * model.nodes.index("node:T") + 1
+    check(f"R-c friction {case_id}: the derived normal is N - k g = N/4", r[src] == N_B3 - K_C7 * G_C7 == N_B3 / 4)
+    check(f"R-c friction {case_id}: strictly sliding (the reduced capacity mu N/4 is exceeded)",
+          kind == "strict" and states["support:NL-F"] == "sliding")
+
+
+def d2_request(twin=False):
+    """D-2: D-3's record plus a separate UY spring (k = 3EI_z/L^3) whose base moves; the twin carries the
+    spring on one spring-family record with the nonlinear RY, and the rigid UZ on another record."""
+    P = as_float(P_D)
+    nodes, pipes = d_nodes()
+    lift = {"behavior": "lift_off", "dof": "RY", "initial_state": "active", "contact_when": "positive_reaction"}
+    if twin:
+        record = spring("support:TIP", "node:T", "UY", as_float(KB4))
+        record["nonlinear"] = lift
+        supports = [anchor("support:ANCHOR", "node:A"), record, anchor("support:VS", "node:T", ("UZ",), family="vertical_support")]
+        spring_id, rigid_id = "support:TIP", "support:VS"
+    else:
+        supports = [anchor("support:ANCHOR", "node:A"), tip_record(("UZ",)), spring("support:KY", "node:T", "UY", as_float(KB4))]
+        spring_id, rigid_id = "support:KY", "support:TIP"
+    g = F(1, 2 ** 11)
+    picks = {"load:SPRING": (g, F(0), F(0)), "load:GROUND": (F(0), G_D3, F(0)), "load:ALL": (g, G_D3, S_STAR_D / 4)}
+    cases = []
+    for cid, (gk, gs, sv) in picks.items():
+        loads = [force(cid + "-P", "node:M", "z", -P)]
+        if gk:
+            loads.append(motion(cid + "-K", spring_id, "UY", as_float(gk)))
+        if gs:
+            loads.append(motion(cid + "-G", "support:TIP", "RY", as_float(-gs)))
+        if sv:
+            loads.append(motion(cid + "-S", rigid_id, "UZ", as_float(-sv)))
+        cases.append(case(cid, loads))
+    name = "d2_twin" if twin else "d2"
+    return document(name, "W-16 stage 2 D-2 (R-c with R-b and R-d): a tip UY spring whose base moves beside the D-3 record.",
+                    nodes, pipes, supports, cases)
+
+
+def d2_closed_form(model, case_id, exact_states):
+    gk, gs, sv = {"load:SPRING": (F(1, 2 ** 11), F(0), F(0)), "load:GROUND": (F(0), G_D3, F(0)),
+                  "load:ALL": (F(1, 2 ** 11), G_D3, S_STAR_D / 4)}[case_id]
+    tip = 6 * model.nodes.index("node:T")
+    (kind, states, u, r), = exact_states
+    (only,) = states.values()
+    check(f"D-2 {case_id}: u_y = k g/(k + 3EI_z/L^3) = g/2; R = PL/8 - 6EI s/L^2 - 4EI g_s/L (active)",
+          kind == "strict" and only == "active" and u[tip + 1] == gk / 2
+          and r[tip + 4] == P_D * 4 / 8 - V6 * sv - K_THETA * gs and u[tip + 4] == -gs and u[tip + 2] == -sv)
+
+
 REQUESTS = [
     ("a1", "R-a", a1_request, a1_closed_form),
     ("a2", "R-a", a2_request, a2_closed_form),
@@ -1068,11 +1304,23 @@ REQUESTS = [
     ("d1", "R-d", d1_request, d1_closed_form),
     ("d3", "R-d", d3_request, d3_closed_form),
     ("d1_translated", "R-d", lambda: translated(d1_request(), "d1_translated", "Y"), None),
+    ("c1", "R-c", c1_request, c1_closed_form),
+    ("c1_rot", "R-c", lambda: c1_request("rot"), c1_closed_form),
+    ("c1_hanger", "R-c", lambda: c1_request("hanger"), c1_closed_form),
+    ("c2", "R-c", c2_request, c2_closed_form),
+    ("c3", "R-c", c3_request, c3_closed_form),
+    ("c3_equivalent", "R-c", lambda: c3_request(True), c3_closed_form),
+    ("c5", "R-c", c5_request, c5_closed_form),
+    ("c5_translated", "R-c", lambda: translated(c5_request(), "c5_translated", "Z"), None),
+    ("c6", "R-c", c6_request, c6_closed_form),
+    ("c7", "R-c", c7_request, c7_closed_form),
+    ("d2", "R-c", d2_request, d2_closed_form),
+    ("d2_twin", "R-c", lambda: d2_request(True), d2_closed_form),
 ]
 
 # The base of each translated request (the property).
 TRANSLATED = {"a2_translated": ("a2", 1), "b1_translated": ("b1", 2), "b2_translated": ("b2", 2), "b3_translated": ("b3", 0),
-              "d1_translated": ("d1", 1)}
+              "d1_translated": ("d1", 1), "c5_translated": ("c5", 2)}
 
 
 def encode(obj):
@@ -1082,6 +1330,7 @@ def encode(obj):
 def build():
     CROSS.clear()
     A3_CLOSED.clear()
+    C3_U.clear()
     a3_unit_check()
     files, oracles = {}, {}
     kept = {}
