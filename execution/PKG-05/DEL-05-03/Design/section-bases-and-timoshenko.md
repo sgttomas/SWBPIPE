@@ -240,7 +240,7 @@ Each is killed by the named test.
 | ε_p area on the reduced section | `i7_valued_cases_match_in_both_modes_and_document_versions` (re-frozen T4-I7 realized arcs with mill tolerance: the arc's `PressureFreeStrainCurved` is the only site where As enters ε_p; straights apply the Poisson pair 2νpAi as forces, so t4_u6's straight cases cannot see this mutant). `u6_bases_restrained_wall_force_uses_the_stiffness_area` pins the restrained straight wall force N_w and S on t4_u6 |
 | One basis for both families (reduced rows copied from nominal) | `u6_bases_stress_rows_on_both_sections`; reader mutation `pressure_1_reader_refuses_cross_basis_stress` |
 | A headline bound across bases | reader mutation `pressure_1_reader_refuses_cross_basis_headline` |
-| Stale Euler–Bernoulli load equivalents with Timoshenko K | straight_pipe's `timoshenko_distal_half_load_kills_the_stale_vector` (54/384; frame_kernel's test of the same name uses test-local vectors); on the exact route, `timoshenko_partial_span_wind_matches_the_reference` (W16T cantilever tips and fixed-fixed reactions) |
+| Stale Euler–Bernoulli load equivalents with Timoshenko K | straight_pipe's `timoshenko_distal_half_load_kills_the_stale_vector` (54/384; frame_kernel's test of the same name uses test-local vectors); on the exact route, `every_partial_span_case_matches_its_reference` (W16T cantilever tips and fixed-fixed reactions) |
 | θ = v′ | `timoshenko_s_a_rational_cantilever_controls` (tip θ = 1/2, slope 7/12) |
 | κ applied to GJ; A_s in EA | `timoshenko_axial_and_torsion_are_unchanged` |
 | Swapped bending-plane signs | `timoshenko_bending_planes_and_rotation_covariance` |
