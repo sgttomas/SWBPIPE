@@ -29,7 +29,7 @@ Agent 0 (HELP_HUMAN) decided this change under that delegation on 2026-10-27. Ag
 
 ## What enters scope, and what does not
 
-- **In scope:** modal analysis of the linear model: the generalized eigenproblem of the restraint-reduced stiffness and a mass matrix on the self-weight basis. A mode count, a frequency cut-off or both is required as user input, with no default. Each mode's frequency, period, shape normalized to unit maximum translation, generalized mass, translational participation factors and effective masses are published. Each extracted set gets integrity checks, a Sturm count for completeness among them, and the result refuses by name what it does not admit. The domain, decisions and sequence are in DEL-04-09's ScopeOfWork and Design.
+- **In scope:** modal analysis of the linear model: the generalized eigenproblem of the restraint-reduced stiffness and a mass matrix on the self-weight basis. A mode count, a frequency cut-off or both is required as user input, with no default. Each mode's frequency, period, shape, generalized mass, translational participation factors and effective masses are published. A mode with translation is normalized to unit maximum translation (generalized mass in kg); a mode with no translation, such as pure torsion, decided by a stated threshold relative to its rotations, is normalized to unit maximum rotation (generalized mass in kg·m², zero translational participation and effective mass). Each extracted set gets numerical-integrity checks under stated premises, not certified bounds: a residual against a higher-precision re-formation with an error estimate, mass orthogonality, and a Sturm count for completeness taken only at a shift separated from the computed eigenvalues. The result refuses by name what it does not admit, and a set whose count disagrees or cannot be taken under that separation. The domain, decisions and sequence are in DEL-04-09's ScopeOfWork and Design.
 - **Not in this amendment:** response spectrum (F2), time history (F3), harmonic analysis and every other dynamic module. They stay deferred under DEC-078. Rotational participation, nonlinear supports linearized at a static state, Timoshenko mass (M4) and a concentrated-mass model field are later slices or later changes.
 - **Unchanged:** every other scope item, Deliverable mapping, dependency meaning and lifecycle state. The kernel, element, support, diagnostics, self-weight, component and solve-integration Deliverables keep their scope and are DEL-04-09's declared inputs. No lifecycle, release-readiness, professional, certification or code-compliance claim follows.
 
@@ -53,9 +53,11 @@ DEL-04-09's ScopeOfWork (REQ-009, REQ-010) and Design §4.4 carry it. The review
 
 DEL-04-09's sequence (Agent 0, 2026-10-27) is:
 1. M1a, mass;
-2. M1b, the dense path;
-3. M2, the sparse path, with Sturm and inertia certification;
+2. M1b, the dense path, with every integrity check, the Sturm count's shift placement, growth limit and `sparse_direct` observation accessor included;
+3. M2, the sparse path;
 4. M3, UI.
+
+The count infrastructure moved from M2 into M1b after the second independent review round, so that M1b publishes dense results with the full checks.
 
 The build starts after PF Timoshenko (#1663) is in review, and D3 runs join the queue on Agent 0's go. The governing design is [DEL-04-09 Design, modal-analysis.md](../../PKG-04/DEL-04-09/Design/modal-analysis.md).
 

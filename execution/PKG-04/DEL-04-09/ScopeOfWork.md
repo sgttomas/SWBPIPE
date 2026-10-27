@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-04-09
 package_id: PKG-04
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:5c10f3e42f541cf3bcf44a310cdc6236a44bfc729fab59f08da3a10ee3b234bc
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:578fe4139372fb68bafffddcf198a4c2f12594d60c18a3ff65aae025b084d393
 project_scope_refs: [SOW-081]
 package_objective_refs: [OBJ-003]
 ---
