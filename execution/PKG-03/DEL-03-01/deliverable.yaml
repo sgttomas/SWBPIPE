@@ -166,6 +166,7 @@ checks:
 - apps/desktop/src/services/libraryImportService.test.ts
 - core/library_import/library_import_document/tests/provenance_parity.rs
 - apps/desktop/src/features/library/libraryApply.test.ts
+- apps/desktop/src/features/library/libraryApply.disposition.test.ts
 - core/model_operations/operation_applier/tests/library_apply.rs
 - apps/desktop/src/features/library/libraryRefFindings.test.tsx
 - apps/desktop/src/services/libraryRefSites.test.ts

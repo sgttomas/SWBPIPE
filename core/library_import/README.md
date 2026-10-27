@@ -9,6 +9,10 @@ It checks:
 - redistribution and review disposition for public imports;
 - private-only data handling;
 - suspected protected-content quarantine;
+- disposition members no verdict can read: a `redistribution_status` or
+  `review_status` holding an array or an object, or a `provenance` written as
+  an array, anywhere in the library metadata or a record, refused by name as
+  `MODEL-DISPOSITION-RECORD-MALFORMED` (the desktop export screen's code);
 - unit and value-level provenance metadata for imported numeric values.
 - PKG-02-style diagnostic envelope projection for import findings.
 
