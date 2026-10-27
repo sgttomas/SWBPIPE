@@ -1,6 +1,7 @@
 # Run-sheet entry in the grid (B1)
 
 **Basis:** main `187b67bb6b` (2026-10-27). Design only; no product code.
+Revision 2, after Codex review r1 of `ebd9660fa1`.
 Survey item B1 (`execution/_Coordination/PROPOSAL_2026-10-26_FEATURE_SURVEY.md`
 §Bundle B), adopted design-first under the owner's 2026-10-27 delegation
 (`loop/LOOP_INIT.md`). It serves FR-GUI-004 (`docs/PRD.md:503`, add and connect
@@ -256,18 +257,59 @@ Payloads:
     (`bend_authoring.rs:486-754`).
 
 **Corner context inside a batch.** Each step of an atomic batch runs on the
-state the earlier steps left (`atomic_batch.rs:108-162`). The builder therefore
-computes each bend's `before` on a **projected model**. That is the basis model
-with the builder's own records applied as the applier stores them:
-- nodes and pipes appended in emission order;
-- `assign_section` adds `section_ref`;
-- an earlier bend removes its corner, appends T1 and T2 and the arc, and
-  retargets the two straights' ends to T1 and T2 (`bend_authoring.rs:641-731`).
+state the earlier steps left (`atomic_batch.rs:108-162`). A bend's `before` is
+therefore the corner context of that intermediate state. Batch validation
+returns no model (`atomic_batch.rs:1-16`, 166-192), so the builder cannot read
+it from the engine.
 
-A wrong projection cannot change the model wrongly. The engine compares
-`before` with its own context and refuses a mismatch
-(`OP-BEFORE-VALUE-MISMATCH`, `bend_authoring.rs:503-505`), and the regression of
-§7 S1 pins equality.
+**What the context contains.** The canonical corner context holds no
+coordinate the engine computes (`bend_authoring.rs:475-479`). It is:
+- the corner node's record, which no earlier step changes;
+- the full records of the pipes that meet the corner, in model order;
+- the bend markers at the corner.
+
+An earlier bend changes a later corner's context only through ids. It
+retargets the shared straight's `from` or `to` to T1 or T2, ids the sheet
+itself chose (`retarget`, `bend_authoring.rs:649-657`). It writes the tangent
+positions only into the new node records (`bend_authoring.rs:644-647`), and
+those records are never in a later corner's context:
+- a corner's pipes are the two straights;
+- the earlier bend's component sits at its own T1 (`bend_authoring.rs:671,
+  689`), not at the later corner.
+
+So consecutive bends need no bend geometry in the builder.
+
+**The projection (recommended).** The builder keeps a **record projection**:
+the basis model plus the records its own earlier steps write, with ids and
+verbatim payloads only. Its effects, and nothing else, are:
+- `create_node` and `connect_pipe_run` append their `after` records
+  normalized as the applier stores them (§3.3);
+- `assign_section` adds `section_ref` and copies the section's OD and wall
+  objects verbatim;
+- `insert_bend_at_corner` removes the corner from `nodes` and replaces the
+  corner id with the T1 or T2 id in the two straights' ends.
+
+The projection computes no number. It does not place T1, T2 or the arc; they
+are absent from it, and no later context reads them. It is used only to form
+`before` texts and for the sheet's own reference checks.
+
+A wrong projection cannot change the model. The engine compares `before` with
+its own context and refuses a mismatch (`OP-BEFORE-VALUE-MISMATCH`,
+`bend_authoring.rs:503-505`). The sheet validates every batch before queueing
+(§4.2), and S1 pins equality for chains of two and three consecutive bends
+(§7).
+
+**Routes considered and not recommended** (open choice O10):
+- *Refuse consecutive bends in v1.* This needs no projection of bends, but it
+  refuses common isometric geometry (an offset, a rolled pair) for no
+  numerical reason.
+- *Engine-backed projection.* For example, apply each prefix of the batch to
+  a scratch copy through `applyOperationBatch` and read `applied_model`. That
+  returns an acceptance-shaped outcome (`atomic_batch.rs:192-198`) for a
+  change no one accepted, and costs one engine apply per bend. The
+  alternative, a validate call that returns its projected model, would reverse
+  validate's deliberate "returns no model" (`atomic_batch.rs:1-10`) in
+  DEL-16-06's engine.
 
 **What a bend row needs** (otherwise the row is refused, §4):
 - a next row that is a run in the same chain;
@@ -310,34 +352,70 @@ available as an explicit, previewed command (open choice O1).
 from Pending changes returns them to draft. A draft row whose predecessor is
 queued waits for that batch to be applied.
 
-**Applied rows** (slice 4):
-- **Status.** A row is applied when the ids it creates exist in the model:
-  for a bend row, its pipe, T1, T2, the arc and the component, with the corner
-  absent. It then shows stored values. Its increments read
-  `stored(end) − stored(predecessor)`, converted to the sheet unit for
-  display only.
-- **Edit an increment of applied row k.** The end node takes the new absolute
-  position `stored(predecessor) + c(Δ′)` (§6.2). The batch holds one `set_field`
-  per changed axis on `Node` `position.x|y|z`, in the project length unit, with
-  the current stored value as `before` (field rule `lib.rs:408-437`). The
-  editor is the grid's existing builder (`buildGridOperationIntent`,
-  `src/features/workspace/table/modelTableAdapter.ts`). Downstream nodes stay
-  where they are; row k+1's displayed increment changes and is marked.
-- **Insert between applied rows k and k+1.**
-  - The batch is `create_node`(new), `connect_pipe_run`(N_k → new),
-    `reconnect_pipe_run`(pipe_{k+1}, end `from`, target new)
-    (`execution/PKG-16/DEL-16-06/Design/pipe-reconnect.md` §1).
+**Applied rows** (slice 4). Status comes from the row's history (§3.6), not
+from entity existence. An applied row shows stored values. Its increments read
+`stored(end) − stored(predecessor)`, converted to the sheet unit for display
+only.
+
+**Ownership.** Each applied row records the ids its applied batches created,
+in its history (§3.6). A row **owns** exactly those entities:
+
+| Row | Owns |
+|---|---|
+| Run to a new node | its end node, its pipe, and its support if it created one |
+| Run to an existing node | its pipe and its support. Never the node. |
+| Bend run | its pipe, T1, T2, the arc and the component, and its support (none is allowed, §3.3) |
+| `S` | its support |
+| `F` | its support, if any. Never the node. |
+| `P` | its node and its support |
+
+A node is never deleted unless a row owns it. A node that existed before the
+sheet created anything, a node an `F` row names and a node a run connects to
+are never deleted by the sheet.
+
+- **Edit an increment of applied row k** (a run to a new node, or a `P` row).
+  - The end node takes the new absolute position `stored(predecessor) + c(Δ′)`
+    (§6.2); for `P`, `c(X′)`.
+  - The batch holds one `set_field` per changed axis on `Node`
+    `position.x|y|z`, in the project length unit, with the current stored value
+    as `before` (field rule `lib.rs:408-437`). The intents come from the grid's
+    existing builder (`buildGridOperationIntent`,
+    `src/features/workspace/table/modelTableAdapter.ts`).
+  - Downstream nodes stay where they are. Row k+1's displayed increment
+    changes and is marked.
+  - Runs to an existing node and `F` and `S` rows have no increment to edit.
+- **Insert a run between applied rows k and k+1** (k+1 a run of the same
+  chain starting at N_k):
+  - The batch is:
+    - `create_node`(new);
+    - `connect_pipe_run`(N_k → new);
+    - `assign_section`(new pipe), when the inserted row's effective Section
+      is set;
+    - `create_support`(new), if a support code is set;
+    - `reconnect_pipe_run`(pipe_{k+1}, end `from`, target new)
+      (`execution/PKG-16/DEL-16-06/Design/pipe-reconnect.md` §1).
+  - `assign_section` is formed as in §3.3. Its `before` is the canonical JSON
+    of the new pipe's record in the record projection. Without it, the new
+    pipe would carry local quantities, and later edits to the shared section
+    would not reach it (`section_bindings.rs:187-233`).
   - N_{k+1} keeps its position. Reconnect is preview-gated
     (`src/features/toolkit/BatchReviewPanel.tsx:17-19`), so the pipe's new
     chord is reviewed before apply.
-- **Delete applied row k.**
-  - Not the last row: `delete_support` for supports this row created,
-    `delete_pipe_run`(pipe_k), `reconnect_pipe_run`(pipe_{k+1}, `from` →
-    N_{k−1}), then `delete_node`(N_k).
-  - The last row: `delete_support`, `delete_pipe_run`, `delete_node`.
-  - Anything else referring to N_k or pipe_k (another support, a load, a
-    branch) refuses, as `delete_node` and `delete_pipe_run` already do
-    (`lib.rs:3903-3915`, `OP-NODE-DELETE-REFERENCED`; `pipe-reconnect.md` §7).
+- **Delete an applied row.** The batch deletes only what the row owns, in
+  this order: its supports, then its pipe, then any reconnect, then its node.
+
+  | Row | Batch | Refused when |
+  |---|---|---|
+  | Run to a new node, a later run in its chain starts at its end node | `delete_support`(owned); `delete_pipe_run`(own pipe); `reconnect_pipe_run`(next pipe, `from` → own start node); `delete_node`(end) | anything else refers to the end node or the pipe: another pipe (a branch, or an `F` row naming it), a support it does not own, a load (`lib.rs:3903-3915`, `OP-NODE-DELETE-REFERENCED`; `pipe-reconnect.md` §7) |
+  | Run to a new node, last of its chain | `delete_support`(owned); `delete_pipe_run`; `delete_node`(end) | as above |
+  | Run to an existing node | `delete_support`(owned); `delete_pipe_run` | a later run of the chain starts there. Deleting this row would leave that run with no predecessor in the sheet; delete or move that run first. |
+  | `S` | `delete_support` | — |
+  | `F` | `delete_support`(owned), or nothing if it created none | its chain has later rows. They would lose their start; delete them first. |
+  | `P`, including the sheet's first row | `delete_support`(owned); `delete_node` | its chain has later rows, or anything else refers to its node |
+
+  - The chain boundaries are explicit. A deletion never makes a row continue
+    from a different node than the stored one, and never re-parents a branch.
+  - A deleted row's ids leave the row but are not reused (§3.2).
 - **Refused in v1.** Any edit, insert or delete touching a realized bend's
   corner, tangent points or adjacent straights. Moving a straight's far node
   would break the bend's tangency, which the generic node edit does not check
@@ -352,13 +430,62 @@ queued waits for that batch to be applied.
 - **All or nothing.** Queue is disabled while any draft row is refused; the
   disabled reason lists the rows (open choice O5).
 - **Preview.** The Pending changes review shows the batch's per-step diff rows
-  (`BatchReviewPanel.tsx`). The sheet adds nothing to that path. Bend batches
-  should also require preview (open choice O6).
+  (`BatchReviewPanel.tsx`). Every batch containing `insert_bend_at_corner` or
+  `reconnect_pipe_run` requires a preview of that exact batch on the current
+  model revision before Apply. The gate today covers reconnect only
+  (`BatchReviewPanel.tsx:17-19`). Extending it is an S2 prerequisite (§7) and
+  covers the bend form's intents too (O6).
 - **Apply and undo.** Apply is the user's explicit act in the review queue. One
   applied batch pushes one whole-model undo checkpoint
-  (`workspaceSession.ts:1367-1372`). Undo removes the batch's entities. Row
-  status is derived from the model (§3.4), so the rows return to draft with
-  their ids and values intact; Redo makes them applied again.
+  (`workspaceSession.ts:1367-1372`), and the checkpoint carries the batch id
+  as its `operation_id`. Undo and Redo move that checkpoint between the stacks
+  with the same `operation_id` (`workspaceSession.ts:1720-1765`). The sheet
+  follows them through its row history (§3.6).
+
+### 3.6 Row lifecycle
+
+Entity existence cannot give a row's status. After an increment edit, the
+row's ids exist before the edit, after it, and after its Undo. The sheet
+therefore keeps transient history.
+
+**History.** Each row holds:
+- its entered values;
+- a stack of **entries** `{batchId, action, basisHash, ownedIds, priorValues}`.
+  `action` is `create`, `edit`, `insert` or `delete`. `basisHash` is the model
+  hash the batch was queued on. `ownedIds` are the ids the action created.
+  `priorValues` are the entered values before an `edit`.
+- a **status**: `draft`, `queued`, `applied`, `deleted` or `detached`.
+
+The workspace session reports these events to the sheet, keyed by `batch_id`,
+through one transient callback added in S2:
+- queued, with the basis hash;
+- validated or refused, with diagnostics;
+- applied, with `applied_model_backend_hash`;
+- withdrawn (Pending changes cleared, or the project changed);
+- undone and redone, with the checkpoint's `operation_id`.
+
+**Transitions.**
+
+| Event | From | To |
+|---|---|---|
+| Queue | `draft`, or `applied` with an edit or delete pending | `queued`; the entry is pushed with `basisHash` |
+| Validation or apply refused (blocking finding, stale basis "The model changed", or a late step failing) | `queued` | the previous status; entry popped; diagnostics shown on the rows. The atomic batch publishes no model when any step fails (`atomic_batch.rs:166-170`, 192). |
+| Withdrawn | `queued` | the previous status; entry popped |
+| Applied | `queued` | `applied`, or `deleted` for a delete entry. The entry keeps the applied hash. |
+| Undone (`operation_id` = the row's top entry's `batchId`) | `applied` or `deleted` | `create` or `insert` → `draft` with the same ids and values; `edit` → `applied` with `priorValues` restored; `delete` → `applied` |
+| Redone (same `batchId`) | as left by Undo | the entry's applied status again |
+| A model change no entry explains removes an owned entity | `applied` | `detached`: read-only, shown with the reason "Changed outside the sheet"; it can be removed from the sheet without any operation |
+
+- `deleted` rows are hidden, with a count and an "Undo restores" note. Queue
+  never emits operations for `deleted` or `detached` rows. So a deleted row
+  cannot turn back into a draft and be recreated, except by Undo of its
+  deletion.
+- **Stale basis.** At apply, the existing queue refuses a batch whose basis
+  hash differs from the current model (`workspaceSession.ts:1345`). Its
+  rows return to their previous status, and the sheet offers Requeue, which
+  rebuilds the batch on the current model.
+- A checkpoint pushed off the 25-entry undo stack leaves its rows `applied`
+  for the rest of the session.
 
 ## 4. Validation and refusal
 
@@ -417,12 +544,15 @@ The sheet reuses the engineering table's cell model and handler conventions
 - arrows move between cells when not editing;
 - a printable key starts editing a text or number cell;
 - Escape cancels an edit and is consumed;
-- modified keys (Ctrl, Meta, Alt) are ignored, so shell accelerators pass
-  through.
+- modified keys (Ctrl, Meta, Alt) are ignored, except the two chords below,
+  so shell accelerators pass through;
+- no key acts during IME composition (`isComposing`), so Enter that confirms a
+  composition never commits or moves (`EngineeringTable.tsx:369`).
 
 | Key | In a cell | Result |
 |---|---|---|
-| Enter | any | Commit. Then the **fast path**: dX → dY → dZ → Kind → Support → the next row's dX. Enter on the last row's Support appends a row. |
+| Enter | dX, dY, dZ, Kind, Support | Commit. Then the **fast path**: dX → dY → dZ → Kind → Support → the next row's dX. Enter on the last row's Support appends a row. |
+| Enter | any other editable cell (Node, Material, Section, Restraints, k, k source, Label and the rest) | Commit and move to the same column in the next row, as the table's Enter does (`tableState.ts:43`). On the last row it commits and stays; it does not append. |
 | Tab / Shift+Tab | any | Commit and move to the next or previous editable cell in column order, wrapping rows. Past the last cell, focus leaves to the sheet footer, as in the table. |
 | Arrow keys | not editing | Move; read-only readouts are reachable here only |
 | Delete / Backspace | not editing | Clear the cell, returning it to inheritance (§2.4) |
@@ -435,6 +565,18 @@ Ctrl/⌘+D and Ctrl/⌘+Enter are unused in the shell. The shell owns ⌘1–3, 
 `apps/desktop/src-tauri/src/lib.rs:4496-4525`) and the palette owns ⌘K
 (`src/features/toolkit/ToolkitPalette.tsx:46-52`). The sheet handles its two
 keys only while focus is inside it, and stops their propagation.
+
+**Focus recovery.** Tested in S2:
+- after Queue, focus stays on the same cell, now read-only;
+- after Delete row, focus goes to the same column of the next shown row, else
+  the previous row, else the sheet footer;
+- after Insert row, focus goes to the new row's dX;
+- after Undo or Redo, focus stays on the same row's cell when the row is still
+  shown, else follows the Delete rule;
+- after a row menu command, the context-menu recovery order applies
+  (`Design/context-menus.md`, Keyboard).
+
+Native assistive-technology verification (VoiceOver on macOS) remains open.
 
 ### 5.2 Single-key codes
 
@@ -542,9 +684,14 @@ x_P   = c(X)                                     for a P row
   (`core/model_operations/operation_applier/src/display_units.rs`, via
   `src/services/displayQuantityService.ts`). It never reimplements a factor.
 - `x_{k−1}` is the predecessor's exact binary64 position: stored for an
-  applied predecessor, computed for a draft one. Chained rows therefore round
-  once per conversion and once per addition, as sequential absolute entry
-  would.
+  applied predecessor, computed for a draft one. Each row rounds once in the
+  conversion of its own increment and once in the addition.
+- **Conversion before addition is the rule.** For a non-identity unit, this is
+  not the same number as converting an absolute coordinate typed in U_e. With
+  a predecessor at 0.1 m and an increment of 0.3 in, `0.1 + c(0.3)` is
+  `0.10762000000000001` m. Converting the predecessor to inches, adding 0.3
+  and converting back gives `0.10762000000000002` m. The sheet uses the first,
+  and S1 pins this case.
 - No value on the write path is rounded to a display precision. Display
   formatting affects readouts only.
 - `create_node` is emitted with `unit` = U_s, so the applier's conversion takes
@@ -553,7 +700,14 @@ x_P   = c(X)                                     for a P row
 - The JSON text of `x_k` is `JSON.stringify`'s shortest round-trip form. The
   engine parses it with serde_json's `float_roundtrip`, which reaches the
   applier through `core/product_physics/Cargo.toml:30` by feature
-  unification. The stored bits therefore equal the computed bits.
+  unification. The stored bits therefore equal the computed bits, with one
+  exception: negative zero.
+- **Signed zero.** `JSON.stringify(-0)` is `"0"`, so −0 cannot cross the wire.
+  It arises only from a typed `-0`, or from a sum of two negative zeros. The
+  builder normalizes every computed coordinate with `x === 0 ? 0 : x` before
+  using it as a position. That normalized value is the one that is displayed,
+  projected, emitted and stored. The bit-identity claim holds for the
+  normalized value, and S1 tests a `-0` entry.
 - Canonical JSON (JCS) prints numbers the same way, so hashes and `before`
   texts agree.
 - Default U_e = U_s, so the default sum is exactly the stored coordinates plus
@@ -590,77 +744,136 @@ A route entry in DEL-07-09's coverage record is that deliverable's own update.
 
 Each slice is one PR. Every slice runs its focused Vitest files and the
 affected-check selection (`tools/software_workflow/select_affected_checks.py`).
+Fixtures are invented data.
 
-**S1. Rules and builder, no UI** (persistence; independent scrutiny).
-- **Code.** `runSheetModel.ts` (row types, the inheritance resolution of §2,
-  id assignment of §3.2, sheet rules of §4.2) and `runSheetBatch.ts` (§3.3,
-  projected-model corner contexts), under `src/features/model-tree/runSheet/`.
-- **Fixture.** `fixtures/model_operations/run_sheet_authoring.json`, invented
-  data: a basis model, sheets, the hand-built expected batches and the
-  expected applied models. Cases:
+**S1. Rules, builder and record projection, no UI** (persistence; independent
+scrutiny).
+- **Code.** Under `src/features/model-tree/runSheet/`:
+  - `runSheetModel.ts`: row types, the inheritance resolution of §2, id
+    assignment of §3.2 and the sheet rules of §4.2;
+  - `runSheetBatch.ts`: §3.3, the record projection of §3.3 and −0
+    normalization (§6.2). It takes the resolver's output as its only input.
+- **Fixture.** `fixtures/model_operations/run_sheet_authoring.json`: a basis
+  model, sheets, hand-built expected batches and expected applied models.
+  Cases:
   - a straight chain;
-  - a chain with two consecutive bends;
+  - chains of two and of three consecutive bends;
   - a shared-section run;
   - insulation ended by `-`;
-  - an `F` branch from a stored node with agreeing and disagreeing pipes;
+  - an `F` branch from a stored node, with agreeing and disagreeing pipes;
   - a `P` start;
   - a run to an existing node;
-  - a non-identity unit (sheet `in`, model `m`).
+  - a non-identity unit (sheet `in`, model `m`), including the 0.1 m + 0.3 in
+    case of §6.2;
+  - a `-0` entry;
+  - a batch whose last step is refused (a bend radius too large at the
+    final corner).
 - **Tests.**
   - The builder's batch deep-equals each hand-built batch.
-  - The wasm engine applies it to the expected model.
+  - The wasm engine applies each batch to its expected model.
   - A Rust test (`operation_applier/tests/run_sheet_authoring.rs`) applies the
-    same batches natively to the same expected models: native/wasm
-    equivalence, DEL-16-06 CLM-003.
+    same batches natively to the same models: native/wasm equivalence,
+    DEL-16-06 CLM-003.
   - Every created coordinate is bit-identical (`Object.is`) to the builder's
-    computed value.
-  - The non-identity case equals `convert_for_dimension` plus one addition.
-  - Inheritance table tests cover every row of §2.1–2.4.
-  - Refusal tests cover every row of §4.2.
-  - Projected corner contexts equal the engine's.
-  - A mutation check: corrupting a projected context makes the engine refuse.
+    normalized value. The non-identity case equals `convert_for_dimension`
+    plus one addition, and differs from the absolute-entry value as stated.
+  - **Displayed equals emitted.** For every fixture row, each value the
+    resolver reports for display equals the corresponding field of the
+    emitted payloads; no emitted field lacks a displayed source.
+  - Projected corner contexts equal the engine's for the two- and three-bend
+    chains. A corrupted projection makes the engine refuse with
+    `OP-BEFORE-VALUE-MISMATCH`.
+  - **Late-step rollback.** The batch with a refused last step leaves the model
+    unchanged (`rolled_back_no_model_published`). The refusal maps to that
+    row.
+  - **Existing-node ownership.** A run to an existing node and an `F` row emit
+    no `create_node` and record no owned node.
+  - Inheritance tests cover every row of §2.1–2.4; refusal tests cover every
+    row of §4.2.
 
-**S2. The sheet in Grid mode.**
+**S2. Preview gate, then the sheet in Grid mode.**
+- **Prerequisite, first in the PR: the preview gate** (§3.5, O6).
+  - One predicate, `operationRequiresPreview(change_kind)`, is true for
+    `reconnect_pipe_run` and `insert_bend_at_corner`.
+  - `batchRequiresPreview` (`BatchReviewPanel.tsx:17-19`) uses it, and so does
+    the single-intent apply path (`handleApplyIntent` in
+    `workspaceSession.ts`), which the bend form's intents take.
+  - `PREVIEW_REQUIRED_REASON` (`BatchReviewPanel.tsx:34`) names the operation
+    kind instead of "a reconnect".
+  - Tests:
+    - a sheet batch with a bend, a bend-form intent, and a requeued
+      single-intent bend batch (`App.tsx:499-500`);
+    - each, applied directly with no preview, is refused with the reason and
+      leaves the model unchanged;
+    - each applies after a clean preview of that exact content;
+    - an edited batch needs a new preview.
 - **Code.** The "Run sheet" tab in `EntityGrid` (`ModelTree.tsx:821`):
   - columns, origin display and the sheet header;
   - code cells, the keyboard flow of §5.1–5.3 and row menus;
   - per-row refusals from both rule sets;
   - Queue to `handleQueueOperationBatch`;
-  - status derivation (draft, queued, applied) and undo and redo.
+  - the row lifecycle of §3.6 for create batches, with the session callback.
 - **Tests.**
   - `RunSheet.test.tsx`:
-    - the Enter fast path and row append, and Tab order;
+    - the Enter fast path and row append;
+    - Enter in Material, Restraints and k moving down the column, and staying
+      on the last row;
+    - Tab order;
+    - Enter during IME composition and with modifiers doing nothing;
     - valid and invalid code keys;
     - H, I and ⌘ keys reaching their owners;
-    - Escape;
-    - Fill down;
+    - Escape and Fill down;
+    - the focus-recovery cases of §5.1;
     - accessible names and descriptions, and live-region text;
-    - the unit selector lock.
+    - the unit selector lock;
+    - deleting a draft `P`, `F` or `S` row and the recomputation it causes.
   - `App.runSheet.test.tsx`, through the shell:
-    - typing rows, Queue, the batch in Pending changes with its diff,
-      Apply;
-    - Undo returning the rows to draft, Redo returning them to applied.
+    - typing rows, Queue, the batch in Pending changes with its diff, Apply;
+    - Undo returning the rows to `draft`, and Redo returning them to
+      `applied`;
+    - **stale queue basis**: a model edit after Queue makes Apply refuse;
+      the rows return to `draft`, and Requeue succeeds;
+    - **late-step rollback** in the UI: rows return to `draft` with the
+      refusal on the failing row;
+    - withdrawal by clearing Pending changes.
   - The S1 fixture batches queued from the UI equal the hand-built batches.
 
 **S3. Viewport overlay and follow.**
 - **Code.** The two view commands of §5.4, the overlay layer and the follow
   rule in `PipeViewport.tsx`, shared with DEL-07-01's viewport code paths.
-- **Tests.** `PipeViewport.runSheet.test.tsx` covers the published overlay
-  geometry, the dashed refused rows, follow on commit, a manual camera move
-  turning Follow off, and no camera action in Table view. jsdom has no
-  WebGL, so these tests check the published state and camera requests. A
-  Playwright step in `e2e/` checks the drawn overlay.
+- **Tests.** `PipeViewport.runSheet.test.tsx` covers:
+  - the published overlay geometry and the dashed refused rows;
+  - follow on commit;
+  - a manual camera move turning Follow off;
+  - no camera action in Table view.
+
+  jsdom has no WebGL, so these tests check the published state and camera
+  requests. A Playwright step in `e2e/` checks the drawn overlay.
 
 **S4. Applied-row edits** (persistence; independent scrutiny).
-- **Code.** §3.4 for applied rows: edit increment, insert and delete, with
-  the bend-adjacent refusals.
-- **Tests.**
-  - Hand-built batches for each case: the builder's batch deep-equals them,
-    and native and wasm apply them to the same expected models.
-  - Downstream stored positions are unchanged, bit for bit.
-  - Reconnect batches are preview-gated.
-  - Refusals cover supports or branches at the deleted node and rows next to
+- **Code.** §3.4 for applied rows: edit increment, insert and delete, by
+  ownership, with the bend-adjacent refusals. The §3.6 lifecycle for `edit`,
+  `insert` and `delete` entries.
+- **Tests.** Every batch case below is hand-built; the builder's batch
+  deep-equals it, and native and wasm apply it to the same expected model.
+  - **Increment edit.** Downstream stored positions are unchanged, bit for
+    bit.
+  - **Undo and Redo of an applied edit.** Undo restores the row's prior
+    entered values and status `applied`; Redo reapplies. Ids exist
+    throughout, and the status still follows the history.
+  - **Shared-section insertion.** The inserted pipe carries `section_ref`, and
+    a later shared-section edit propagates to it.
+  - **Deleting the first row** (a `P` with no later rows) deletes its node and
+    support. With later rows, it is refused.
+  - **Deleting `F` and `S` rows** deletes only their supports. An `F` with
+    later rows is refused.
+  - **Existing-node ownership.** Deleting a run to an existing node, and
+    deleting an `F` row, never emits `delete_node`.
+  - **Deleted rows are not recreated.** After a deletion applies, Queue emits
+    nothing for the row. Undo of the deletion restores it as `applied`.
+  - Refusals cover a support or branch at the deleted node, and rows next to
     a bend.
+  - Insert and delete batches containing a reconnect are preview-gated.
 
 S1 lands first. S2 depends on S1, S3 on S2, and S4 on S2.
 
@@ -673,7 +886,10 @@ S1 lands first. S2 depends on S1, S3 on S2, and S4 on S2.
 | O3 | Derive guide and line-stop restraints from an axis-aligned run, or fill all six for an anchor | No in v1. Restraints are typed, with `*` for all six. | Holds the coverage record's "No inferred restraints". Allowing it would revise that record and fill shown, code-derived values; V would still need typed restraints, since the model has no vertical axis. |
 | O4 | Add the kernel orientation check (as reconnect's R7) to `connect_pipe_run`, so near-parallel orientation refuses at authoring and not at solve | Yes, as its own applier PR with regression tests. | Changes refusals for existing connect batches (persistence risk class). Without it, the sheet catches only exactly parallel orientations. |
 | O5 | Queue all draft rows or only the valid ones | All or nothing. | Matches the atomic batch. One refused row blocks the queue, and the reason names it. |
-| O6 | Require preview for every batch containing `insert_bend_at_corner` (extend `batchRequiresPreview`) | Yes. | The bend moves the corner to tangent points the user did not type, so the review shows them before apply. This also gates the bend form's batches. |
+| O6 | Require preview for every batch or intent containing `insert_bend_at_corner` | Yes, as S2's prerequisite (§7). | The bend moves the corner to tangent points the user did not type, so the review shows them before apply. The bend form's intents are gated too, which adds one preview step to that existing path. |
 | O7 | Operating-condition column | Defer to C1. | B1 needs no version step. Rows inherit conditions once C1's member exists. |
-| O8 | Persist sheets, so a sheet reopens as a sheet | No. Rows are transient; a later "load run from model" view (with B4) can derive rows from stored geometry. | Persisting would need a new model-document member and a version step. |
+| O8 | Persist sheets, so a sheet reopens as a sheet | No. Rows are transient; a later "load run from model" view (with B4) can derive rows from stored geometry. | Persisting would need workspace persistence, kept beside the project and not necessarily in the model document. It needs a model-document member, and a version step, only if sheets are to travel with the model. |
 | O9 | Default numbering `node:N`/`pipe:P`, start 10, step 10, counter-based | As designed. | Ids never renumber; insertion order is not encoded in ids. Labels remain free for the user's scheme. |
+| O10 | Consecutive bends (§3.3) | Allow them, with the id-only record projection. | The builder mirrors three structural effects (append, `section_ref`, corner replacement) and computes no number. A drift is refused by the engine and pinned by S1. The alternatives are refusing consecutive bends, which loses common geometry, or an engine-backed projection, which needs an acceptance-shaped scratch apply or a change to DEL-16-06's validate contract. |
+
+Codex review r1 agreed with O1–O9. Agent 0 decides all ten.
