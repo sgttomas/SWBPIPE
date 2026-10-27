@@ -14,10 +14,11 @@
 //! for the tolerance; the product never writes the default into a document the
 //! user did not author, and clear restores the absent form (MD8 §0, R7-1). It is
 //! refused on a document with `pressure_contract` (that document's choice is
-//! `pressure_contract.shear_model`), and in 0.8.0 `timoshenko_annulus_energy_v1` is
-//! refused by name at solve and at authoring; the document validator admits it as
-//! schema-valid. `euler_bernoulli` solves exactly as absent: the same result rows and
-//! mechanics, while the model hash differs because the document differs.
+//! `pressure_contract.shear_model`). `euler_bernoulli` solves exactly as absent: the
+//! same result rows and mechanics, while the model hash differs because the document
+//! differs. `timoshenko_annulus_energy_v1` selects Timoshenko straight members on the
+//! pressure-free route (DEL-05-03 Design `pf-timoshenko.md`; `crate::pf_timoshenko`),
+//! which removed 0.8.0's interim refusal at solve and at authoring.
 //!
 //! The topology check (`topology::append_topology_diagnostics`) reads it through
 //! [`PreviewModel::node_proximity_tolerance_m`]. The solve's validation
@@ -45,14 +46,12 @@ pub const NODE_PROXIMITY_TOLERANCE_PATH: &str = "model_settings.node_proximity_t
 pub const SHEAR_MODEL_PATH: &str = "model_settings.shear_model";
 /// `euler_bernoulli`: the default when absent.
 pub const SHEAR_MODEL_EULER_BERNOULLI: &str = "euler_bernoulli";
-/// `timoshenko_annulus_energy_v1`: schema-valid, refused at solve and authoring in 0.8.0.
+/// `timoshenko_annulus_energy_v1`: Timoshenko straight members on a pressure-free document.
 pub const SHEAR_MODEL_TIMOSHENKO: &str = "timoshenko_annulus_energy_v1";
 /// The value is not one of the two strings (a non-string and `null` included).
 pub const MODEL_SETTING_SHEAR_MODEL_UNKNOWN: &str = "MODEL-SETTING-SHEAR-MODEL-UNKNOWN";
 /// The member is present on a document that declares `pressure_contract`.
 pub const MODEL_SETTING_SHEAR_MODEL_WITH_PRESSURE_CONTRACT: &str = "MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT";
-/// `timoshenko_annulus_energy_v1` on a pressure-free document (the 0.8.0 interim).
-pub const MODEL_SETTING_SHEAR_MODEL_TIMOSHENKO_UNSUPPORTED: &str = "MODEL-SETTING-SHEAR-MODEL-TIMOSHENKO-UNSUPPORTED";
 
 /// The authored `model_settings.shear_model`, as decoded: one of the two names, or any other
 /// JSON value (a non-string and `null` included), which is refused by name rather than at decode.
@@ -132,31 +131,16 @@ pub fn shear_model_with_pressure_contract_message() -> String {
     format!("{SHEAR_MODEL_PATH} is set on a document that declares pressure_contract; that document's shear model is pressure_contract.shear_model, so remove {SHEAR_MODEL_PATH}.")
 }
 
-/// The refusal message for `timoshenko_annulus_energy_v1` on a pressure-free document.
-pub fn shear_model_timoshenko_unsupported_message() -> String {
-    format!("{SHEAR_MODEL_PATH} `{SHEAR_MODEL_TIMOSHENKO}` is not yet solved on a pressure-free document; set `{SHEAR_MODEL_EULER_BERNOULLI}` or remove the member.")
-}
-
-/// The document validator's refusals of an authored setting: the value, then the single
-/// source of truth. `timoshenko_annulus_energy_v1` is schema-valid here.
-pub fn shear_model_document_refusal(setting: ShearModelSetting, has_pressure_contract: bool) -> Option<ModelSettingError> {
+/// The refusals of an authored setting, at solve, at authoring and in the document
+/// validator alike: a value other than the two names, then the member on a document
+/// that declares `pressure_contract`. Both names are admitted on a pressure-free document.
+pub fn shear_model_refusal(setting: ShearModelSetting, has_pressure_contract: bool) -> Option<ModelSettingError> {
     if setting == ShearModelSetting::Unknown {
         return Some(ModelSettingError { code: MODEL_SETTING_SHEAR_MODEL_UNKNOWN, message: shear_model_unknown_message() });
     }
     has_pressure_contract.then(|| ModelSettingError {
         code: MODEL_SETTING_SHEAR_MODEL_WITH_PRESSURE_CONTRACT,
         message: shear_model_with_pressure_contract_message(),
-    })
-}
-
-/// The solve's and the applier's refusals: the document validator's, then, in 0.8.0,
-/// `timoshenko_annulus_energy_v1` on a pressure-free document.
-pub fn shear_model_refusal(setting: ShearModelSetting, has_pressure_contract: bool) -> Option<ModelSettingError> {
-    shear_model_document_refusal(setting, has_pressure_contract).or_else(|| {
-        (setting == ShearModelSetting::TimoshenkoAnnulusEnergyV1).then(|| ModelSettingError {
-            code: MODEL_SETTING_SHEAR_MODEL_TIMOSHENKO_UNSUPPORTED,
-            message: shear_model_timoshenko_unsupported_message(),
-        })
     })
 }
 
@@ -259,8 +243,8 @@ impl PreviewModel {
     }
 
     /// The effective shear-model choice: the authored `model_settings.shear_model`, else
-    /// Euler–Bernoulli. In 0.8.0 nothing consumes it beyond the refusals
-    /// ([`shear_model_refusal`]); an unknown value reads as Euler–Bernoulli here and is refused there.
+    /// Euler–Bernoulli. An unknown value reads as Euler–Bernoulli here and is refused by
+    /// [`shear_model_refusal`]; `crate::pf_timoshenko::selects` consumes the choice.
     pub fn shear_model(&self) -> ShearModelSetting {
         match self.model_settings.as_ref().and_then(|settings| settings.shear_model) {
             Some(ShearModelSetting::TimoshenkoAnnulusEnergyV1) => ShearModelSetting::TimoshenkoAnnulusEnergyV1,

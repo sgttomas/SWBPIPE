@@ -155,6 +155,7 @@ mod joint;
 use exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID;
 mod pressure_runtime;
 mod preview_physics;
+mod pf_timoshenko;
 mod retained_product;
 mod retained_receipt;
 mod retained_memory;
@@ -1299,7 +1300,7 @@ fn mechanics_producer_for_model(model: &PreviewModel) -> MechanicsProducer {
     mechanics_producer(if pressure_runtime::is_exact(model) {
         PRESSURE_SEMANTIC_CONTRACT_ID
     } else {
-        preview_physics::ID
+        pf_timoshenko::semantic_contract_id(model)
     })
 }
 
@@ -2893,6 +2894,7 @@ fn run_linear_static_preview_observed_inner(
     }
     validate_model_inputs(&model, &materials, &mut diagnostics);
     validate_support_family_tokens(&model, &mut diagnostics);
+    pf_timoshenko::append_partial_span_refusals(&model, &mut diagnostics);
     if model.document_kind != "openpipestress.product_preview.model" {
         diagnostics.push(diag(
             "diagnostic:physics:document-kind",
@@ -2971,10 +2973,15 @@ fn run_linear_static_preview_observed_inner(
     } else {
         None
     };
-    let built = build_model_for_members(
+    // PF Timoshenko (DEL-05-03 Design `pf-timoshenko.md` §2): the consumed bases, from
+    // the cases' selections before any build. The seed forms Timoshenko members only
+    // when a case consumes the base basis; otherwise it is never solved.
+    let consumed_bases = pf_timoshenko::ConsumedBases::of(&model);
+    let built = build_model_for_basis(
         &model,
         &materials,
         resolved_cases.as_ref().map(|cases| &cases[0].pairs),
+        consumed_bases.base.as_ref(),
         &mut diagnostics,
     );
     if has_blocking(&diagnostics) {
@@ -3180,7 +3187,7 @@ fn run_linear_static_preview_observed_inner(
                 else {
                     return blocked_envelope(model, diagnostics);
                 };
-                let basis_built = build_model(&model, &basis_materials, &mut diagnostics);
+                let basis_built = build_model_for_basis(&model, &basis_materials, None, consumed_bases.selected(&basis_key), &mut diagnostics);
                 if has_blocking(&diagnostics) {
                     return blocked_envelope(model, diagnostics);
                 }
@@ -3392,9 +3399,12 @@ fn run_linear_static_preview_observed_inner(
     // applied-scale info and the precision warning name the members actually
     // formed with a scale; a refused or blocked model states none.
     rigid_component::append_formed_diagnostics(&model, &built.scaled_members, &mut diagnostics);
+    // PF Timoshenko §4: the realized arcs that stay Euler-Bernoulli, named once per result.
+    pf_timoshenko::append_arc_disclosure(&model, built, &mut diagnostics);
     // W-15 slice c (Design `eccentric-reducer-offset.md` §3.4): the realized
     // offset of each checked reducer, on a published result only.
     rigid_component::append_eccentric_offset_realized(&model, &mut diagnostics);
+    let preview_basis = preview.is_some().then(|| pf_timoshenko::formulation_basis(&model));
     let mut envelope = MechanicsEnvelope {
         contract_evidence: pressure_runtime::is_exact(&model).then(|| {
             let mut evidence = serde_json::json!({"pressure": pressure_evidence, "connector": joint::connector_evidence(&model, &built.connectors, &built.connector_records), "exact_cases": exact_cases});
@@ -3434,8 +3444,8 @@ fn run_linear_static_preview_observed_inner(
         professional_boundary: professional_boundary(),
         accepted_model_state_mutated: false,
     };
-    if let Some(rendered) = &preview {
-        envelope.formulation_basis = preview_physics::formulation_basis();
+    if let (Some(rendered), Some(basis)) = (&preview, preview_basis) {
+        envelope.formulation_basis = basis;
         validation::state_applied_branch_factors(&model.components, &rendered.preview_cases, &mut envelope.diagnostics); envelope.contract_evidence = Some(rendered.evidence(preview_gates));
     }
     // B4/D1 (b): only an exact-route composite is ever selected (`source_eligible`).
@@ -8280,6 +8290,19 @@ fn build_model_for_members(
     member_pairs: Option<&HashMap<String, pressure_exact::IsotropicENu>>,
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Option<BuiltModel> {
+    build_model_for_basis(model, materials, member_pairs, None, diagnostics)
+}
+
+/// As [`build_model_for_members`], forming a PF Timoshenko document's straight members on
+/// `pf_shear`, the consumed basis these materials resolve (DEL-05-03 Design
+/// `pf-timoshenko.md` §2). `None` forms Euler-Bernoulli members, as on every other document.
+fn build_model_for_basis(
+    model: &PreviewModel,
+    materials: &[MaterialInput],
+    member_pairs: Option<&HashMap<String, pressure_exact::IsotropicENu>>,
+    pf_shear: Option<&pf_timoshenko::ConsumedBasis>,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> Option<BuiltModel> {
     let material_map = materials
         .iter()
         .map(|m| (m.id.as_str(), m))
@@ -8320,6 +8343,7 @@ fn build_model_for_members(
     // eligible rigid-family component's member is formed with s*E and s*G.
     let rigid_scales = rigid_component::applied_scales(model);
     let mut scaled_members = HashMap::new();
+    let mut pf_poisson_warned = HashSet::new();
     for pipe in &model.pipe_segments {
         let Some(&from) = node_map.get(pipe.from.as_str()) else {
             diagnostics.push(diag(
@@ -8453,6 +8477,14 @@ fn build_model_for_members(
                     continue;
                 }
             }
+        } else if let Some(basis) = pf_shear.filter(|_| !curved_bend_pipe_ids.contains(pipe.id.as_str())) {
+            // PF Timoshenko (DEL-05-03 Design `pf-timoshenko.md` §2): every straight
+            // member on a consumed basis, from PF's stiffness annulus and the nu of
+            // the unscaled (E, G) above; a refused factor blocks the member by name.
+            let Some(shear_area) = pf_timoshenko::shear_area(basis, pipe, &derived, material, elastic_modulus, shear_modulus, &mut pf_poisson_warned, diagnostics) else {
+                continue;
+            };
+            Some(shear_area)
         } else {
             None
         };
@@ -14591,6 +14623,7 @@ fn blocked_envelope(model: PreviewModel, diagnostics: Vec<Diagnostic>) -> Mechan
     let preview = !exact_namespace;
     // D-5: an exact-contract envelope always names both basis headlines.
     let basis_headlines = pressure_runtime::is_exact(&model).then_some(None);
+    let preview_basis = preview.then(|| pf_timoshenko::formulation_basis(&model));
     let mut envelope = MechanicsEnvelope {
         // An admitted exact namespace with blocked inputs has no recovered
         // physical evidence. Retain the empty namespace for truthful inspection;
@@ -14633,8 +14666,8 @@ fn blocked_envelope(model: PreviewModel, diagnostics: Vec<Diagnostic>) -> Mechan
         professional_boundary: professional_boundary(),
         accepted_model_state_mutated: false,
     };
-    if preview {
-        envelope.formulation_basis = preview_physics::formulation_basis();
+    if let Some(basis) = preview_basis {
+        envelope.formulation_basis = basis;
         envelope.contract_evidence = Some(preview_physics::empty_evidence());
         preview_physics::sanitize_blocked_diagnostics(&mut envelope.diagnostics);
     }

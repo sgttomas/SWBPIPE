@@ -34,10 +34,10 @@
 //! - **Shear model** (model document 0.8.0): set takes `after` the name, unit
 //!   `none` and dimension `dimensionless`, and writes the string; it is judged by
 //!   product_physics' `model_settings::shear_model_refusal`, so a value other
-//!   than the two names (`MODEL-SETTING-SHEAR-MODEL-UNKNOWN`), a document with
-//!   `pressure_contract` (`-WITH-PRESSURE-CONTRACT`) and, in 0.8.0,
-//!   `timoshenko_annulus_energy_v1` (`-TIMOSHENKO-UNSUPPORTED`) are refused by
-//!   name. An explicit set of `euler_bernoulli` writes the member, as for the
+//!   than the two names (`MODEL-SETTING-SHEAR-MODEL-UNKNOWN`) and a document with
+//!   `pressure_contract` (`-WITH-PRESSURE-CONTRACT`) are refused by name; both
+//!   names are admitted on a pressure-free document (DEL-05-03 Design
+//!   `pf-timoshenko.md` §1). An explicit set of `euler_bernoulli` writes the member, as for the
 //!   tolerance (Agent 0, DEL-02-01 Design `model-document-0.8.0.md` §0, R7-1);
 //!   clear removes the member as for the tolerance. Nothing writes the default
 //!   unless the user sets it.

@@ -639,6 +639,10 @@ pub(super) enum CensusPart {
 pub(super) enum FamilyFact {
     SchemaVersion,
     PressureContract,
+    /// PF Timoshenko (DEL-05-03 Design `pf-timoshenko.md` §3): a pressure-free document
+    /// selecting `model_settings.shear_model` `timoshenko_annulus_energy_v1`. Route L's
+    /// domain is straight Euler-Bernoulli members; exact route E keeps its admission.
+    ShearModel,
     ReferenceConfigurations,
     MaterialExpansionLaw,
     RequestExpansionLaws,
@@ -890,6 +894,11 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
         Ok(branch) => branch == NamespaceBranch::Exact,
         Err(fact) => return refuse(C::Namespace, fact),
     };
+    // PF Timoshenko (DEL-05-03 Design `pf-timoshenko.md` §3): declined on branch L before
+    // any charged work; the document takes the ordinary route unchanged.
+    if !exact && crate::pf_timoshenko::selects(m) {
+        return refuse(C::Namespace, F::ShearModel);
+    }
     // O4 (DEL-04-08 Design `o4-source-extension.md` §4.1): on branch E any
     // admitted mill tolerance and corrosion allowance are inside D1; W1-E
     // publishes each stress row on its own D-5 basis section (§4.5).

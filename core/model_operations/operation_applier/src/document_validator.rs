@@ -720,11 +720,10 @@ impl Validator {
         };
         self.members(settings, "model_settings", &[], &["node_proximity_tolerance", "shear_model"], &[]);
         // Model document 0.8.0: `shear_model`, one of the two names, never beside a
-        // pressure contract; `timoshenko_annulus_energy_v1` is schema-valid here and is
-        // refused at solve and at authoring.
+        // pressure contract; the solve and authoring apply the same refusals.
         if let Some(value) = settings.get("shear_model") {
             let has_contract = root.get("pressure_contract").is_some_and(|contract| !contract.is_null());
-            if let Some(error) = ms::shear_model_document_refusal(ms::ShearModelSetting::of(value), has_contract) {
+            if let Some(error) = ms::shear_model_refusal(ms::ShearModelSetting::of(value), has_contract) {
                 self.block(error.code, ms::SHEAR_MODEL_PATH, error.message, Vec::new());
             }
         }

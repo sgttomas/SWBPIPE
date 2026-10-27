@@ -364,16 +364,27 @@ fn euler_bernoulli_is_set_and_cleared_and_the_default_is_never_written() {
     assert_eq!(tolerance_only["model_settings"], json!({"node_proximity_tolerance": {"value": 2.0, "unit": "mm"}}));
 }
 
+/// DEL-05-03 Design `pf-timoshenko.md` §1: the 0.8.0 interim refusal is lifted. An explicit set of
+/// `timoshenko_annulus_energy_v1` on a pressure-free document writes the member, as an explicit
+/// user set; the validator admits it; switching to `euler_bernoulli` writes that explicit value;
+/// clear restores the absent form byte for byte.
+#[test]
+fn timoshenko_is_admitted_at_authoring_on_a_pressure_free_document() {
+    let model = cantilevers(0.003);
+    let (timoshenko, outcome) = applied(&model, &set_shear(&model, "timoshenko_annulus_energy_v1"));
+    assert_eq!(timoshenko["model_settings"], json!({"shear_model": "timoshenko_annulus_energy_v1"}));
+    assert_eq!(outcome.diff_preview[0].after, "\"timoshenko_annulus_energy_v1\"");
+    assert!(validator_codes(&timoshenko).is_empty());
+    refused(&timoshenko, &set_shear(&timoshenko, "timoshenko_annulus_energy_v1"), "OP-MODEL-SETTING-UNCHANGED");
+    let (switched, _) = applied(&timoshenko, &set_shear(&timoshenko, "euler_bernoulli"));
+    assert_eq!(switched["model_settings"], json!({"shear_model": "euler_bernoulli"}));
+    let (cleared, _) = applied(&timoshenko, &clear_shear(&timoshenko));
+    assert_eq!(canonical_json(&cleared), canonical_json(&model));
+}
+
 #[test]
 fn the_shear_model_refusals_are_named_at_authoring_and_at_the_validator() {
     let model = cantilevers(0.003);
-    // Code 3 (the 0.8.0 interim): Timoshenko on a pressure-free document is refused at
-    // authoring; the document validator admits it as schema-valid.
-    let message = refused(&model, &set_shear(&model, "timoshenko_annulus_energy_v1"), "MODEL-SETTING-SHEAR-MODEL-TIMOSHENKO-UNSUPPORTED");
-    assert_eq!(message, "model_settings.shear_model `timoshenko_annulus_energy_v1` is not yet solved on a pressure-free document; set `euler_bernoulli` or remove the member.");
-    let mut timoshenko = model.clone();
-    timoshenko["model_settings"] = json!({"shear_model": "timoshenko_annulus_energy_v1"});
-    assert!(validator_codes(&timoshenko).is_empty());
     // Code 2: never beside a pressure contract, for either value.
     for value in ["euler_bernoulli", "timoshenko_annulus_energy_v1"] {
         let document = exact(&model);

@@ -6,8 +6,9 @@
 //!   the two documents, and so their model hashes, differ;
 //! - the member on a document with `pressure_contract` is refused by name, for
 //!   either value (MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT);
-//! - `timoshenko_annulus_energy_v1` on a pressure-free document is refused by name
-//!   and nothing is solved (MODEL-SETTING-SHEAR-MODEL-TIMOSHENKO-UNSUPPORTED);
+//! - `timoshenko_annulus_energy_v1` on a pressure-free document is admitted and
+//!   solved under its own result identity (DEL-05-03 Design `pf-timoshenko.md` §§1, 4;
+//!   0.8.0's interim refusal is lifted);
 //! - any other value, a non-string and `null` included, is refused by name
 //!   (MODEL-SETTING-SHEAR-MODEL-UNKNOWN).
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, run_linear_static_preview_with_mode, LinearStaticPreviewRequest, PreviewSolverMode};
@@ -70,15 +71,23 @@ fn the_member_is_refused_with_a_pressure_contract_for_either_value() {
 }
 
 #[test]
-fn timoshenko_is_refused_on_a_pressure_free_document() {
+fn timoshenko_is_admitted_on_a_pressure_free_document() {
     let demo = json!({"model": serde_json::from_str::<Value>(DEMO).unwrap(), "materials": []});
     let request = with_shear_model(&demo, json!("timoshenko_annulus_energy_v1"));
     for mode in MODES {
         let envelope = solve(&request, mode);
-        refused_by(&envelope, "MODEL-SETTING-SHEAR-MODEL-TIMOSHENKO-UNSUPPORTED");
-        let message = envelope["diagnostics"].as_array().unwrap().iter().find(|d| d["code"] == "MODEL-SETTING-SHEAR-MODEL-TIMOSHENKO-UNSUPPORTED").unwrap()["message"].clone();
-        assert_eq!(message, json!("model_settings.shear_model `timoshenko_annulus_energy_v1` is not yet solved on a pressure-free document; set `euler_bernoulli` or remove the member."));
-        refused_by(&typed(&request, mode), "MODEL-SETTING-SHEAR-MODEL-TIMOSHENKO-UNSUPPORTED");
+        assert_eq!(envelope["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{mode:?}: {}", envelope["diagnostics"]);
+        assert_eq!(envelope["producer"]["semantic_contract_id"], json!("openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"));
+        assert_eq!(envelope["formulation_basis"]["profile_id"], json!("product_preview_mechanics_timoshenko_v1"));
+        assert!(!envelope["diagnostics"].as_array().unwrap().iter().any(|d| d["code"].as_str().unwrap().starts_with("MODEL-SETTING-SHEAR-MODEL")));
+        assert_eq!(serde_json::to_string(&typed(&request, mode)).unwrap(), serde_json::to_string(&envelope).unwrap(), "{mode:?}: typed entry");
+        // The selection is consumed: some displacement moves from the Euler-Bernoulli result.
+        let euler_bernoulli = solve(&demo, mode);
+        let displacements = |envelope: &Value| -> Vec<(Value, Value)> {
+            envelope["results"].as_array().unwrap().iter().filter(|r| r["kind"].as_str().unwrap().starts_with("global_nodal_displacement"))
+                .map(|r| (r["id"].clone(), r["value"].clone())).collect()
+        };
+        assert_ne!(displacements(&envelope), displacements(&euler_bernoulli), "{mode:?}");
     }
 }
 
