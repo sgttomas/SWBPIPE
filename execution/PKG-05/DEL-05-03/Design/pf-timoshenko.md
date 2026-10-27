@@ -12,6 +12,12 @@ The CAEPIPE correlation pilot (DEL-17-05 Design `caepipe-correlation-pilot.md` �
   - The field is refused on a document with `pressure_contract` (`MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT`), so each document has one selection. An exact document keeps `pressure_contract.shear_model`.
 - **0.8.0 interim.** `euler_bernoulli` is admitted and solves exactly as absent: same rows and mechanics, only the model hash differs. `timoshenko_annulus_energy_v1` is refused by name at solve and at authoring (`MODEL-SETTING-SHEAR-MODEL-TIMOSHENKO-UNSUPPORTED`).
   - This unit removes that refusal in the solve and the applier. It needs no schema or version change; T4-U8 used the same pattern for `pressure_contract.shear_model`.
+- **Named consumer: the MBF importer** (DEL-17-04, the CAEPIPE lane; Agent 0, 2026-10-27). It gives pressure imports `timoshenko_annulus_energy_v1` by default, with a caller `shear_model` override. Once this unit lands, it applies the same rule to pressure-free imports by writing `model_settings.shear_model = timoshenko_annulus_energy_v1`, so an import's beam theory never depends on whether pressure is present. This unit keeps for it:
+  - the member's name, its two values and their meaning;
+  - its admission on PF documents, and its refusal alongside `pressure_contract`;
+  - the explicit-set rule (an explicit value is written, the default never unprompted).
+
+  The CAEPIPE lane coordinates when this unit nears merge.
 - **Scope of the choice.** Per document, applying to every straight frame member, as H5 rules for the exact route. That includes tees' straight legs, W-15 rigid-family components and **geometry-only bends**, which PF analyses as their mapped straight frame (`lib.rs` ~8703–8714). Only **realized arcs** (`curved_bend_realized_pipe_ids`, the curved-bend consumption mode) stay Euler–Bernoulli, as on the exact route (`lib.rs` ~8411). Element-level selection is declined for now (Agent 0, 2026-10-27).
 
 ## 2. Formulation
