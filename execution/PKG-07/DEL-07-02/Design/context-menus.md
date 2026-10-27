@@ -33,7 +33,7 @@ set of entity commands (`EntityContextMenu.tsx`) serve:
 | Fit selection | `fit-selection` | none | viewport toolbar Fit Selection |
 | Show all | `show-all` | none | viewport toolbar Show All; the hidden-count status button |
 | Queue removal for review | the inspector's Delete node, pipe or support intent (`model-tree/removalIntents.ts`), or its Remove panel's material, section or component intent (`toolkit/GuardedRemoval.tsx`) | none | the inspector's Delete or Remove panel |
-| Split into N… (pipes) | opens Split into equal parts on the pipe (B5, DEL-07-01 Design `split-and-slope-entry.md`); disabled unless that pipe is the only selected entity | none | the Geometry tab under Editing and review tools |
+| Split into N… (pipes; listed above Change selected…) | opens Split into equal parts on the pipe (B5, DEL-07-01 Design `split-and-slope-entry.md`); disabled unless that pipe is the only selected entity | none | the Geometry tab under Editing and review tools |
 | Edit cell (tables) | the table's own edit start, as Enter does | Enter | Enter, typing, or a double-click on the cell |
 | Sort ⟨column⟩ ascending / descending (tables) | the table's own sort state | none | the column header button (cycles ascending, descending, none) |
 | Clear sort (tables) | the same sort state | none | the footer's "Sorted by … · Clear" button, or a third header click |

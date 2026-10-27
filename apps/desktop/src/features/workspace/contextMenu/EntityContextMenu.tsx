@@ -103,8 +103,9 @@ export function entityCommandEntries(env: EntityCommandEnvironment, target: Enti
     viewEntry("fit-selection", "Fit selection", { type: "fit-selection" }, viewReason(fittable, FIT_SELECTION_REASON)),
     viewEntry("show-all", "Show all", { type: "show-all" }, !view ? "The viewport is unavailable." : env.showAllAvailable ? null : SHOW_ALL_REASON),
     { kind: "separator", id: "separator-removal" },
-    ...changeSelectedEntries(env, target, selected),
+    // Split into N… sits above Change selected…, which stays directly above Queue removal.
     ...splitPipeEntries(env, target, selected),
+    ...changeSelectedEntries(env, target, selected),
     removalEntry(env, target, prepared)
   ];
 }
