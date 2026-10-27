@@ -622,6 +622,11 @@ if fnkey("fallback_circular_maximum", _CP):
     if fnkey("near_duplicate_nodes", PP_ + "topology.rs"):
         _primitive_minmax_callers["topology.rs"] = ["near_duplicate_nodes"] + (
             ["scaled_norm"] if fnkey("scaled_norm", PP_ + "topology.rs") else [])
+    # W15C-CG (W-15 slice c, the eccentric offset; retained-pricing-rules.md §8.26): arc_evidence's two min/max
+    # receivers are f64 (`(...).max(...)` of two angle differences and `(c - eps).max(0.0)`, and `(...).sqrt().min(1.0)`).
+    # Only where the offset check exists.
+    if fnkey("arc_evidence", PP_ + "rigid_component.rs"):
+        _primitive_minmax_callers["rigid_component.rs"] = ["arc_evidence"]
     for _file, _names in _primitive_minmax_callers.items():
         for _name in _names:
             _file = PP_ + _file if not _file.startswith(PP_) else _file
@@ -2286,6 +2291,12 @@ if fnkey("state_applied_branch_factors", _W8V):
 # Debug (24) by the inherited f64 classes. The diagnostic's message `error.message` is one of those texts, at most
 # 39 + 58 + 327 = 424 B, priced by its inherited class (8,192 B); its refs are the one path String (the default
 # vec! element, 24 + 128 B; the to_string site at the literal's bytes).
+# SM-MS (retained-pricing-rules.md §8.26, "The shear-model member"): model document 0.8.0's
+# `model_settings.shear_model` adds validate_model_settings' second blocking diagnostic, pushed when
+# `shear_model_refusal` refuses the authored member. D1 admits it as it admits the tolerance (no D1 clause names
+# `model_settings`; the decoder accepts any JSON value and allocates nothing), so the site keeps the chain's
+# multiplicity. Its three texts format only the three static literal constants (SM-PT), and its refs are the one
+# path String. The guard below reads both diagnostics, the call, the three templates and the decoder.
 _NP_MS = PP_ + "model_settings.rs"
 if fnkey("validate_model_settings", _W8V) and fnkey("tolerance_not_finite_message", _NP_MS):
     _NP_TEXT = _text_of(_NP_MS)
@@ -2298,18 +2309,45 @@ if fnkey("validate_model_settings", _W8V) and fnkey("tolerance_not_finite_messag
         "tolerance_zero_in_metres_message": 'format!("{NODE_PROXIMITY_TOLERANCE_PATH} is {value:?} {unit}, which is zero in metres; the tolerance must be greater than zero.")',
         "tolerance_not_finite_in_metres_message": 'format!("{NODE_PROXIMITY_TOLERANCE_PATH} is {value:?} {unit}, which is not finite in metres; a finite length greater than zero is required.")',
     }
+    # SM-MS: the shear-model refusal's three templates, each once in its function, and the three literal constants.
+    _SM_T = {
+        "shear_model_unknown_message": 'format!("{SHEAR_MODEL_PATH} must be `{SHEAR_MODEL_EULER_BERNOULLI}` or `{SHEAR_MODEL_TIMOSHENKO}`.")',
+        "shear_model_with_pressure_contract_message": 'format!("{SHEAR_MODEL_PATH} is set on a document that declares pressure_contract; that document\'s shear model is pressure_contract.shear_model, so remove {SHEAR_MODEL_PATH}.")',
+        "shear_model_timoshenko_unsupported_message": 'format!("{SHEAR_MODEL_PATH} `{SHEAR_MODEL_TIMOSHENKO}` is not yet solved on a pressure-free document; set `{SHEAR_MODEL_EULER_BERNOULLI}` or remove the member.")',
+    }
+    _SM_C = {n: _re.findall(r'^pub const ' + n + r': &str = "([^"\\{}]*)";$', _NP_TEXT, _re.M)
+             for n in ("SHEAR_MODEL_PATH", "SHEAR_MODEL_EULER_BERNOULLI", "SHEAR_MODEL_TIMOSHENKO")}
+    _SM_DEC = _fn_text("deserialize_shear_model", _NP_MS) if fnkey("deserialize_shear_model", _NP_MS) else ""
+    _SM_REF = _fn_text("shear_model_refusal", _NP_MS) if fnkey("shear_model_refusal", _NP_MS) else ""
+    _SM_DOC = _fn_text("shear_model_document_refusal", _NP_MS) if fnkey("shear_model_document_refusal", _NP_MS) else ""
     _np = (
         len(_NP_PATH) == 1,
         all(_fn_text(fn, _NP_MS).count(t) == 1 for fn, t in _NP_T.items()),
-        _re.sub(r"//[^\n]*", "", _NP_TEXT.split("#[cfg(test)]")[0]).count("format!(") == len(_NP_T),
-        _NP_VMS.count("diag(") == 1, _NP_VMS.count("error.message,") == 1, _NP_VMS.count("error.code,") == 1,
-        _NP_VMS.count('"blocking",') == 1, _NP_VMS.count('"diagnostic:model-settings:node-proximity-tolerance",') == 1,
+        _re.sub(r"//[^\n]*", "", _NP_TEXT.split("#[cfg(test)]")[0]).count("format!(") == len(_NP_T) + len(_SM_T),
+        _NP_VMS.count("diag(") == 2, _NP_VMS.count("error.message,") == 2, _NP_VMS.count("error.code,") == 2,
+        _NP_VMS.count('"blocking",') == 2, _NP_VMS.count('"diagnostic:model-settings:node-proximity-tolerance",') == 1,
         _NP_VMS.count("vec![crate::model_settings::NODE_PROXIMITY_TOLERANCE_PATH.to_string()],") == 1,
         _fn_text("validate_model_inputs", _W8V).count("validate_model_settings(model, diagnostics);") == 1,
         _text_of(_W8V).count("validate_model_settings(") == 2,
+        # SM-MS: the second diagnostic, its one refusal call, and the refusal chain's message calls.
+        _NP_VMS.count('"diagnostic:model-settings:shear-model",') == 1,
+        _NP_VMS.count("vec![crate::model_settings::SHEAR_MODEL_PATH.to_string()],") == 1,
+        _NP_VMS.count("crate::model_settings::shear_model_refusal(setting, model.pressure_contract.is_some())") == 1,
+        _text_of(_W8V).count("shear_model_refusal(") == 1,
+        all(fnkey(fn, _NP_MS) and _fn_text(fn, _NP_MS).count(t) == 1 for fn, t in _SM_T.items()),
+        all(len(v) == 1 for v in _SM_C.values()),
+        _SM_DOC.count("shear_model_unknown_message()") == 1 and _SM_DOC.count("shear_model_with_pressure_contract_message()") == 1,
+        _SM_REF.count("shear_model_document_refusal(setting, has_pressure_contract)") == 1,
+        _SM_REF.count("shear_model_timoshenko_unsupported_message()") == 1,
+        all(_re.sub(r"//[^\n]*", "", _NP_TEXT.split("#[cfg(test)]")[0]).count(fn + "()") == 2 for fn in _SM_T),  # def + one call
+        # The decoder builds no value: one visitor through deserialize_any, IgnoredAny draining, no owner.
+        _SM_DEC.count("deserializer.deserialize_any(ShearModelVisitor).map(Some)") == 1,
+        _SM_DEC.count("next_element::<serde::de::IgnoredAny>()") == 1,
+        _SM_DEC.count("next_entry::<serde::de::IgnoredAny, serde::de::IgnoredAny>()") == 1,
+        not any(t in _SM_DEC for t in ("Value::", "String", "to_string", "to_owned", "collect", "Vec", "Box", "format!", "clone")),
     )
     if not all(_np):
-        raise SystemExit(f"NP-MS: the node-proximity tolerance's refusal texts changed; re-review their bounds: {_np}")
+        raise SystemExit(f"NP-MS: the model-settings refusals' texts or calls changed; re-review their bounds: {_np}")
     _NP_PB = len(_NP_PATH[0].encode())                                                    # 39 (NP-PT)
     _NP_PT = {"NODE_PROXIMITY_TOLERANCE_PATH": {"bytes": _NP_PB, "source": O10 + f"NP-PT: the path constant, a static literal of {_NP_PB} B"}}
     for _fn, _t in _NP_T.items():
@@ -2317,9 +2355,16 @@ if fnkey("validate_model_settings", _W8V) and fnkey("tolerance_not_finite_messag
         if "{unit}" in _t:
             _audit["unit"] = IN
         O10_ID_AUDIT += [(site(_fn, _NP_MS, _t, full=True), _audit)]
-    O10_ID_AUDIT += [(site("validate_model_settings", _W8V, ".to_string()],", full=True),
+    O10_ID_AUDIT += [(site("validate_model_settings", _W8V, "NODE_PROXIMITY_TOLERANCE_PATH.to_string()],", full=True),
                       {"crate::model_settings::NODE_PROXIMITY_TOLERANCE_PATH":
                        {"bytes": _NP_PB, "source": O10 + f"NP-PT: the path constant, a static literal of {_NP_PB} B"}})]
+    # SM-PT: the shear-model constants are plain literals, audited at their bytes in the three texts and the refs.
+    _SM_A = {n: {"bytes": len(v[0].encode()), "source": O10 + f"SM-PT: {n}, a static literal of {len(v[0].encode())} B"}
+             for n, v in _SM_C.items()}
+    for _fn, _t in _SM_T.items():
+        O10_ID_AUDIT += [(site(_fn, _NP_MS, _t, full=True), {n: a for n, a in _SM_A.items() if "{" + n + "}" in _t})]
+    O10_ID_AUDIT += [(site("validate_model_settings", _W8V, "SHEAR_MODEL_PATH.to_string()],", full=True),
+                      {"crate::model_settings::SHEAR_MODEL_PATH": _SM_A["SHEAR_MODEL_PATH"]})]
 
 # ---- The silent-zero guard (DEL-04-07 Design pressure-contract.md, "Load cases that apply nothing";
 # retained-pricing-rules.md §8.15). Each rule applies only where the guard's code exists, so earlier revisions price as
@@ -2392,6 +2437,36 @@ if _S1B_MV is None:
 O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [
     {"re": r"^crate::MODEL_SCHEMA_VERSION$", "max": len(_S1B_MV.group(1).encode()),
      "why": O10 + "S1B-MV: the current model version constant, a static literal of " + str(len(_S1B_MV.group(1).encode())) + " B"}]
+
+# M08-VZ (model document 0.8.0, retained-pricing-rules.md §8.26): validate_profile's two current-version texts format
+# the shared constant (S1B-MV) where they were literals, so each is a TEXT site of its own. Neither is reached on D1:
+# D1.3 (family_clauses refuses whatever namespace_branch refuses) admits only the current version, pressure-free (L) or
+# with a (3.0.0, exact_pressure_v3) contract (E). So the `_` arm (a version neither current nor retired) never runs, and
+# on E ExactContract::of (the current version and that identity) is Some, so PRESSURE_CONTRACT_UNSUPPORTED's branch
+# never runs. A change to any of these texts stops the run.
+_M08_PR = PP_ + "pressure_runtime.rs"
+_M08_PROFILE = _fn_text("validate_profile", _M08_PR) if fnkey("validate_profile", _M08_PR) else ""
+_M08_TEXTS = ('format!("model document {} accepts only 3.0.0/exact_pressure_v3; incomplete or unknown contracts never fall back", crate::MODEL_SCHEMA_VERSION)',
+              'format!("direct mechanics solves support exactly model version {}", crate::MODEL_SCHEMA_VERSION)')
+if any(_t in _M08_PROFILE for _t in _M08_TEXTS):
+    _M08_BRANCH = _fn_text("namespace_branch", PP_ + "retained_memory.rs")
+    _m08_vz = (
+        all(_M08_PROFILE.count(_t) == 1 for _t in _M08_TEXTS),
+        _M08_PROFILE.count("} else if ExactContract::of(model).is_none() {\n                    problem(diagnostics, \"PRESSURE_CONTRACT_UNSUPPORTED\"") == 1,
+        _M08_PROFILE.count("version if crate::is_retired_model_schema_version(version) => problem(") == 1
+        and _M08_PROFILE.count("        _ => problem(\n            diagnostics,\n            \"PREVIEW_SCHEMA_VERSION_UNSUPPORTED\",") == 1,
+        _M08_BRANCH.count("if crate::model_format::is_pressure_free(m) {\n        return Ok(NamespaceBranch::Preview);") == 1,
+        _M08_BRANCH.count('(crate::MODEL_SCHEMA_VERSION, Some(c)) if contract_is(c, "3.0.0", "exact_pressure_v3") => Ok(NamespaceBranch::Exact),') == 1,
+        _M08_BRANCH.count("(crate::MODEL_SCHEMA_VERSION, _) => Err(FamilyFact::PressureContract),\n        _ => Err(FamilyFact::SchemaVersion),") == 1,
+        _fn_text("family_clauses", PP_ + "retained_memory.rs").count("Err(fact) => return refuse(C::Namespace, fact),") == 1,
+        _fn_text("of", PP_ + "exact_admission.rs").count("if model.schema_version != crate::MODEL_SCHEMA_VERSION {\n            return None;") == 1
+        if fnkey("of", PP_ + "exact_admission.rs") else False,
+    )
+    if not all(_m08_vz):
+        raise SystemExit(f"M08-VZ: validate_profile's version texts or D1.3's namespace changed; re-review: {_m08_vz}")
+    O10_SITE_ZERO += [(site("validate_profile", _M08_PR, _t), O10 + "M08-VZ: D1.3 admits only the current version, "
+                       "pressure-free or with the (3.0.0, exact_pressure_v3) contract, so this refusal is never formed")
+                      for _t in _M08_TEXTS]
 
 # ---- The silent-drop guard (DEL-04-07 Design pressure-contract.md, "Pressure-free input closure";
 # retained-pricing-rules.md §8.19). Each rule applies only where the guard's code exists, so earlier revisions price as
@@ -2924,6 +2999,68 @@ if fnkey("applied_scales", _W15_RC) or fnkey("source_bodies", _W15_CB):
         (site("append_formed_diagnostics", _W15_RC, "scales member {pipe_ref} by {scale}, at least {PRECISION_WARNING_SCALE:e}", full=True),
          {"scale": _W15_F64}),
         (site("fail", _W15_CB, 'format!("SOURCE_COMPONENT_BODY_{code}")', full=True), {"code": ST}),
+    ]
+
+# ---- W-15 slice c: a reducer's declared eccentric offset (DEL-03-05 Design `eccentric-reducer-offset.md` §3, §8;
+# retained-pricing-rules.md §8.26). Both entry points return at their first statement when no component carries the
+# slot, before the tolerance is read or any index is built.
+if fnkey("append_eccentric_offset_refusals", _W15_RC):
+    _W15C_REFUSE = _fn_text("append_eccentric_offset_refusals", _W15_RC)
+    _W15C_REALIZE = _fn_text("append_eccentric_offset_realized", _W15_RC)
+    _w15c_first = ("{\n    if !model.components.iter().any(|component| eccentric_offset(component).is_some()) {\n"
+                   "        return;\n    }\n    let Ok(tolerance) = model.node_proximity_tolerance_m() else { return };\n")
+    # W15C-NO (guard): each entry point's body begins with the allocation-free scan of `model.components` and its
+    # return, then reads the tolerance; under P2 (`model.components` empty on D1) `any` is false, so each returns there.
+    # judge_all (Topology::of's maps and sets, the run-axis decision, the judgement) and the tolerance accessor are
+    # called only after it, once each (judge_all nowhere else); lib.rs calls each entry point once.
+    _w15c_no = (
+        _W15C_REFUSE.split(") {", 1)[1].startswith(_w15c_first[1:]) if ") {" in _W15C_REFUSE else False,
+        _W15C_REALIZE.split(") {", 1)[1].startswith(_w15c_first[1:]) if ") {" in _W15C_REALIZE else False,
+        _W15C_REFUSE.count("judge_all(") == 1 and _W15C_REALIZE.count("judge_all(") == 1,
+        _W15C_REFUSE.count("node_proximity_tolerance_m(") == 1 and _W15C_REALIZE.count("node_proximity_tolerance_m(") == 1,
+        _text_of(_W15_RC).count("judge_all(") == 2 and _text_of(_W15_RC).count("fn judge_all<") == 1,
+        _text_of(_LIB).count("rigid_component::append_eccentric_offset_refusals(&model, &mut diagnostics);") == 1,
+        _text_of(_LIB).count("rigid_component::append_eccentric_offset_realized(&model, &mut diagnostics);") == 1,
+    )
+    if not all(_w15c_no):
+        raise SystemExit(f"W15C-NO: the eccentric-offset entry points or their premise changed; re-review their zeros: {_w15c_no}")
+    _W15C_P2 = O10 + "W15C-NO: P2 (no component on D1): no component carries eccentric_offset, so the entry point returns at its first statement"
+    # The accessor's two definitions (the method and the quantity function it calls) share a name, so both are zeroed.
+    _w15c_callees = [fnkey("judge_all", _W15_RC)] + [
+        Resolved("model_settings.rs:" + _fn_n("node_proximity_tolerance_m", PP_ + "model_settings.rs", _n, 2).split(":")[1]
+                 + ":node_proximity_tolerance_m") for _n in (1, 2)]
+    O10_EDGE_ZERO += [(fnkey(_caller, _W15_RC), _callee, _W15C_P2)
+                      for _caller in ("append_eccentric_offset_refusals", "append_eccentric_offset_realized")
+                      for _callee in _w15c_callees]
+    # W15C-L1 (loops): each entry point's loops follow its return (0 by P2), each only in its own function.
+    O10_LOOPS_LAST += [
+        ("for (component, outcome) in judge_all(model, tolerance)", "0", _W15C_P2 + "; the judged reducers",
+         ["rigid_component.rs:append_eccentric_offset_refusals", "rigid_component.rs:append_eccentric_offset_realized"]),
+    ]
+    # The texts behind the return, at multiplicity 0 (their vector texts are vec_text's three f64 in LowerExp).
+    O10_SITE_ZERO += [(site(_fn, _W15_RC, _t), _W15C_P2) for _fn, _t in (
+        ("append_eccentric_offset_refusals", 'format!("reducer {} eccentric offset has an axial component'),
+        ("append_eccentric_offset_refusals", 'format!("reducer {} declares eccentric offset {} but its end nodes are separated transversely'),
+        ("append_eccentric_offset_realized", "which governs the solve; the eccentricity is carried by the body member"),
+        ("append_eccentric_offset_realized", "exceeds the node-proximity tolerance {tolerance:e} m and is accepted only within"),
+    )]
+    # W15C-ID: a vector text is vec_text's `({:e}, {:e}, {:e}) m`, three f64 bounded by the chain's f64_display class
+    # (327 B each) and 8 B of literal; decide_axis's candidates are a node's adjoining member ids, at most MEMBERS (32)
+    # ids (IN128) joined by ", ". Both are reached only behind W15C-NO's return (multiplicity 0); the classes are stated so
+    # every argument is classified.
+    _W15C_VEC = {"bytes": 3 * 327 + 8, "source": O10 + "W15C-ID: vec_text, three f64 (f64_display class, 327) and 8 B"}
+    O10_ID_AUDIT += [
+        (site("append_eccentric_offset_refusals", _W15_RC, 'format!("reducer {} eccentric offset has an axial component', full=True),
+         {"vec_text(m.axis)": _W15C_VEC}),
+        (site("append_eccentric_offset_refusals", _W15_RC, 'format!("reducer {} declares eccentric offset {} but its end nodes are separated transversely', full=True),
+         {"vec_text(m.transverse)": _W15C_VEC}),
+        (site("append_eccentric_offset_realized", _W15_RC, "which governs the solve; the eccentricity is carried by the body member", full=True),
+         {"vec_text(m.transverse)": _W15C_VEC}),
+        (site("append_eccentric_offset_realized", _W15_RC, "exceeds the node-proximity tolerance {tolerance:e} m and is accepted only within", full=True),
+         {"vec_text(m.transverse)": _W15C_VEC}),
+        (site("decide_axis", _W15_RC, 'format!("end {end} adjoins more than one member ({})", candidates.join(", "))', full=True),
+         {'candidates.join(",")': {"bytes": 32 * 128 + 31 * 2,
+                                    "source": O10 + "W15C-ID: at most MEMBERS (32) member ids (IN128) joined by \", \""}}),
     ]
 
 # ---- W-15 slice b: a rigid component's weight and centre of gravity as nodal weight loads (DEL-03-05 Design

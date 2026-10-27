@@ -183,7 +183,7 @@ fn model(reference: &Value, route: Route, timoshenko: bool) -> Value {
     }
     let units = json!({"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa", "temperature": "degC"});
     let status = json!({"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"});
-    let mut model = json!({"schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
+    let mut model = json!({"schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
         "project": {"id": "project:w15b", "units": units}, "analysis_status": status,
         "nodes": nodes, "pipe_segments": pipes, "supports": supports, "components": [component], "combinations": [], "load_cases": []});
     match route {

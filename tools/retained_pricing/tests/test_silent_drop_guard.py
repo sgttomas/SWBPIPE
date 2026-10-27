@@ -55,8 +55,9 @@ def test_the_scan_finding_path_is_zeroed_and_its_loops_bound(monkeypatch):
         'for (j, load) in objects(case, " ")': ("l", ["model_fields.rs:unknown_field_refusal"]),
         'for (i, combination) in objects(model, " ")': ("z", ["model_fields.rs:unknown_field_refusal"]),
         'for (j, term) in objects(combination, " ")': ("3", ["model_fields.rs:unknown_field_refusal"]),
-        # SD-NR: the component geometry's 31 declared members bound one record's keys in both functions.
-        "for key in record.keys()": ("31", ["model_fields.rs:check", "model_fields.rs:check_nested"]),
+        # SD-NR: the component geometry's 32 declared members (31, and model document 0.8.0's eccentric_offset,
+        # §8.26) bound one record's keys in both functions.
+        "for key in record.keys()": ("32", ["model_fields.rs:check", "model_fields.rs:check_nested"]),
     }
     edges = [(str(a), str(b)) for a, b, why in d["O10_EDGE_ZERO"] if "SD-EV" in why]
     assert len(edges) == 1 and edges[0][0].endswith(":keep_finding") and ":push" in edges[0][1] and "load_ledger.rs" in edges[0][1]

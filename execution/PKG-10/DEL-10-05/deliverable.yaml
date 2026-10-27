@@ -45,7 +45,7 @@ needs:
   gating: true
   evidence: execution/PKG-10/DEL-10-05/ScopeOfWork.md
 - from: DEL-02-05
-  condition: 'The runner needs DEL-02-05''s model-document version contract (one current version, 0.7.0;
+  condition: 'The runner needs DEL-02-05''s model-document version contract (one current version, 0.8.0;
     every other version refused by name) and its canonical JSON (JCS) hash basis for reproducible structured
     model data flow. Persisted projects stay behind application-service boundaries, with no direct SQL or
     SQLite access (DEC-065).'

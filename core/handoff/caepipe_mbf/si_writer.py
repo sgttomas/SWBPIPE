@@ -32,6 +32,9 @@ MBF_SI_PROFILE_ID = "caepipe-mbf-si-pilot-1"
 STANDARD_GRAVITY = 9.80665  # m/s^2; converts SWBPIPE weight per length to CAEPIPE weight density only.
 
 MBF_VERSION = "15.10"
+# The retired model document versions, refused by name (DEL-02-01 Design model-document-0.8.0.md §3.1); the
+# current one is the schema's (`current_model_schema_version`).
+RETIRED_MODEL_VERSIONS = ("0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0")
 # The target tool's labels for the load cases the writer requests.
 LOAD_CASE_LABELS = {"sustained": "Sustained (W+P)", "expansion": "Expansion (T1)"}
 DOFS = ("UX", "UY", "UZ", "RX", "RY", "RZ")
@@ -348,9 +351,15 @@ class _Writer:
 
     def check_document(self) -> None:
         version = self.model.get("schema_version")
+        # Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.1): only the current document is read;
+        # a retired one is refused by name with the solve's code and text, any other version as not readable.
         current = current_model_schema_version()
-        if version != current:
-            self.diag("MBF-SI-SCHEMA-VERSION", "warning", "model.schema_version",
+        if version in RETIRED_MODEL_VERSIONS:
+            self.diag("MODEL_SCHEMA_VERSION_RETIRED", "error", "model.schema_version",
+                      f"model document {version} is retired; re-author it as model document {current} "
+                      "(a pressure-free model omits pressure_contract). Nothing is migrated.")
+        elif version != current:
+            self.diag("MBF-SI-SCHEMA-VERSION", "error", "model.schema_version",
                       f"model schema_version {version!r} is not {current}, the version this writer reads")
         if self.model.get("pressure_contract") is not None:
             self.refuse("MBF-SI-PRESSURE-UNSUPPORTED", "model.pressure_contract",

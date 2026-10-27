@@ -264,7 +264,10 @@ def test_invented_examples_carry_concrete_hashes_for_published_payloads():
 def test_invented_examples_round_trip_and_are_not_persistable_model_documents():
     """The persistence service round-trips any payload byte-stably, but the
     persistence schema's ModelPayload is the model document: an example in the
-    transform's reference format is refused there, and no adapter converts it."""
+    transform's reference format is refused there, and no adapter converts it.
+    The service refuses it too: its `schema_version` (the transform format's
+    0.6.0) is not the current model document's (DEL-02-01 Design
+    `model-document-0.8.0.md` §3.1; the shared version-state table)."""
     persistence_schema = load_schema(PERSISTENCE_SCHEMA_PATH)
 
     for path, example in load_examples():
@@ -304,13 +307,14 @@ def test_invented_examples_round_trip_and_are_not_persistable_model_documents():
             assert "'document_kind' is a required property" in str(exc), path
         else:
             raise AssertionError(f"{path.name}: a transform-format payload passed as a model document")
-        assert validate_project_persistence_envelope(envelope) == []
+        refusal = [(d["code"], d["severity"]) for d in validate_project_persistence_envelope(envelope)]
+        assert refusal == [("MODEL_SCHEMA_VERSION_RETIRED", "blocking")], path
         assert project_hash_manifest(envelope) == envelope["hash"]["hash_manifest"]
 
         round_trip = round_trip_project_envelope(envelope)
         assert round_trip["serialization"] == "sorted_compact_json"
         assert round_trip["semantic_equal"] is True
-        assert round_trip["diagnostics"] == []
+        assert [(d["code"], d["severity"]) for d in round_trip["diagnostics"]] == refusal
         assert round_trip["source_hash"]["value"] == round_trip["round_trip_hash"]["value"]
 
 

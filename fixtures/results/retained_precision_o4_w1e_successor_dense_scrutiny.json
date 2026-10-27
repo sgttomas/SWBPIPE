@@ -165,7 +165,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.7.0",
+        "schema_version": "0.8.0",
         "supports": [
           {
             "id": "rigid:N0",
@@ -4335,7 +4335,7 @@
               ],
               "verification_precision": 256
             },
-            "source_identity_sha256": "4009909d4afa4095fe1e39c4de27a9e7fd321a657c70fc8e2d4a0d31817bf05d",
+            "source_identity_sha256": "c7ce3b0fd6d01770db372fbede2db706cb361a1b8f0dca075e9418af85cc8e0a",
             "source_ref": 0,
             "status": "selected"
           }
@@ -4361,7 +4361,7 @@
           "domain": "source_blocks_invocation_v1",
           "profile": "openpipestress_jcs_ijson_v1",
           "scope": "actual_request_and_solver_mode",
-          "value": "de755de4713b7ab223e3774b0a67835c826f08987f55f582b8ed2186919116c0"
+          "value": "d8e3d71027b1ac8bcad5b3ea8b83d67ad97452ec8aaa8835fb183c03a5b1901c"
         },
         "material_bases": [
           {
@@ -6953,7 +6953,7 @@
             },
             "preparation": {
               "attempt_ref": 0,
-              "sha256": "1a6467af2ff938dea105d4c6ac469942cf9db19a681dec0718fe14686c33d97e"
+              "sha256": "28f773238863b5b89951855a2c726e00920f727755897bbea9e124c64d38a727"
             },
             "section_terms": [
               {
@@ -7086,7 +7086,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "3b8d384496b0327d7f7eec0d8e1033eab414f4dd44132c888862492f6efe12da"
+      "receipt_sha256": "f57c29f8dfefba44828534b83d434c3c62645cfdd1c0502fcfc64538dadf8990"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",

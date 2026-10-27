@@ -9,7 +9,7 @@
   },
   "purpose": "Thermal expansion: writer LOADS temperature and material expansion coefficient, thermal-case mapping, anchor reactions at both ends.",
   "model": {
-    "schema_version": "0.7.0",
+    "schema_version": "0.8.0",
     "document_kind": "openpipestress.product_preview.model",
     "project": {
       "id": "project:cpc-02",

@@ -222,14 +222,15 @@ every row it does not publish.
   route; an unknown key there is not checked.
 
 Evidence: `core/product_physics/tests/silent_drop_guard_runtime.rs` and
-`src/silent_drop_unit_tests.rs`, both solver modes; the annotated 0.7.0
-document (`tests/annotated_model_document_solve.rs`) solves byte-identically
+`src/silent_drop_unit_tests.rs`, both solver modes; the annotated document
+(`tests/annotated_model_document_solve.rs`) solves byte-identically
 with and without its declared members, and the demo does with its nested
 records' declared members varied or removed. The desktop refuses a hand-edited
 nested key at solve with that reason. Priced changes: DEL-04-08
 [retained-pricing-rules.md](../../DEL-04-08/Design/retained-pricing-rules.md)
-§8.19, and §8.25 for the nested records (the tree is coefficient-identical to
-§8.24's).
+§8.19, §8.25 for the nested records (the tree is coefficient-identical to
+§8.24's), and §8.26 for model document 0.8.0 and the reducer's closed
+`eccentric_offset` (coefficient-identical to §8.25's).
 
 ## Constant-effort combinations: the unit factor-sum rule
 

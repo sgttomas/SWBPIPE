@@ -30,7 +30,7 @@
         "temperature": "degC"
       }
     },
-    "schema_version": "0.7.0",
+    "schema_version": "0.8.0",
     "supports": []
   },
   "case_id": "accept-create-material",
@@ -86,10 +86,10 @@
           "temperature": "degC"
         }
       },
-      "schema_version": "0.7.0",
+      "schema_version": "0.8.0",
       "supports": []
     },
-    "applied_model_canonical_sha256": "sha256:9fec785617ea101362282959f03e53fa45b58f13b97aefcffa81d68df821982d",
+    "applied_model_canonical_sha256": "sha256:badb68f91d13f60d06ee8e8657d37825d1f948e2ef28e21c0504a1a938c2f58f",
     "outcome": {
       "acceptance": {
         "acceptance_basis": "user_initiated_apply_in_local_session",
@@ -128,7 +128,7 @@
       "mode": "apply",
       "model_basis": {
         "backend_canonicalization": "rfc8785_jcs",
-        "backend_model_hash": "sha256:efb6faad75757cbefb6777244406b4da7687fff798851a71d85c1fdc235aa101",
+        "backend_model_hash": "sha256:90984d3af08a66ae0c03fcb1e564ae7fe277b99fec61607df6a9b5ae0cbfadd5",
         "binding_status": "no_claimed_hash_before_state_check_is_the_staleness_guard",
         "claimed_hash_canonicalization": "not_provided",
         "claimed_model_hash": "not_provided"

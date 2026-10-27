@@ -1,5 +1,5 @@
 // W-12 S3a (DEL-14-01 Design `desktop-states-runs-comparison.md` §4.1, §6):
-// the state comparison's flattening (complete and fail-closed against the 0.7.0
+// the state comparison's flattening (complete and fail-closed against the 0.8.0
 // schema), the equal-hash invariant (including a reorder-only pair),
 // classification by stable id, the duplicate-id refusal and the desktop's own
 // field diff (nested paths, `unit_changed`). Parity with the reference engine is
@@ -32,7 +32,7 @@ type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 // Vitest runs with the desktop package as its working directory.
 const SCHEMA_PATH = path.join(process.cwd(), "..", "..", "schemas", "model.schema.yaml");
 
-/** The every-slot fixture, with the two 0.7.0 slots it lacks (pressure_contract,
+/** The every-slot fixture, with the two 0.8.0 slots it lacks (pressure_contract,
  * reference_configurations) added so every family is exercised. */
 function everySlot(): Json {
   const model = structuredClone(everySlotModel) as Json;
@@ -56,7 +56,7 @@ function differences(comparison: StateComparison) {
 }
 
 describe("flattening (complete and fail-closed)", () => {
-  it("assigns every top-level member of the 0.7.0 schema, and nothing else", () => {
+  it("assigns every top-level member of the 0.8.0 schema, and nothing else", () => {
     const schema = JSON.parse(readFileSync(SCHEMA_PATH, "utf8")) as { properties: Record<string, unknown>; additionalProperties: boolean };
     // The document is closed, so the schema's properties are every member it can hold.
     expect(schema.additionalProperties).toBe(false);
