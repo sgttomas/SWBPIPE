@@ -10830,19 +10830,22 @@ describe("SWBPIPE desktop preview", () => {
   // Report-content correction (2026-10-27): the solver reads `spring_hanger` as a variable spring
   // hanger (`is_variable_spring_hanger`, core/product_physics/src/lib.rs) and emits the same review
   // rows for it, so the demo's rows for support:SH-140 are its rows under either spelling. The
-  // report's hanger evidence now carries a `spring_hanger` support, by hanger type or by family.
+  // report's hanger evidence now carries a `spring_hanger` support, by hanger type, by family, or by a
+  // hanger type padded with U+0085, which the solver's `str::trim` removes (Codex r1, P2). The summary
+  // splits variable and constant-effort by the solver's reading, so each falls in "variable" (P3).
   it("carries a spring_hanger support's hanger evidence and review rows into the report packet", async () => {
     const basis = await referenceAnalysis(), { result, analysisRun } = basis;
     const knowledge = await loadDesignKnowledge(), comparison = buildPreviewComparison({ result, analysisRun });
     const reviewRows = result.results.filter(row => row.kind === "spring_hanger_user_input_review" && row.entity_ref === "support:SH-140").map(row => row.id);
     expect(reviewRows.length).toBeGreaterThan(0);
     const policy = await import("./features/report/reportRedactionProjector"), actualControl = policy.controlReportDomAndJson;
-    for (const spelling of ["hanger_type", "family"] as const) {
+    const spellings = { hanger_type: "spring_hanger", padded: " spring_hanger ", nel_padded: "\u0085spring_hanger\u0085", family: null } as const;
+    for (const [spelling, hangerType] of Object.entries(spellings)) {
       const model = structuredClone(basis.model);
       const hanger = model.supports.find(support => support.id === "support:SH-140")!;
       expect([hanger.family, hanger.hanger?.hanger_type]).toEqual(["variable_spring_hanger", "variable_spring_hanger"]);
       hanger.family = "spring_hanger";
-      if (spelling === "hanger_type") hanger.hanger!.hanger_type = "spring_hanger";
+      if (hangerType !== null) hanger.hanger!.hanger_type = hangerType;
       else delete hanger.hanger!.hanger_type;
       let observed: any;
       const spy = vi.spyOn(policy, "controlReportDomAndJson").mockImplementation(input => { observed = input; return actualControl(input); });
@@ -10853,7 +10856,7 @@ describe("SWBPIPE desktop preview", () => {
       const evidence = observed.spring_hanger_evidence.find((item: { support_ref: string }) => item.support_ref === "support:SH-140");
       expect(evidence).toEqual(expect.objectContaining({
         support_family: "spring_hanger",
-        hanger_type: spelling === "hanger_type" ? "spring_hanger" : "not provided",
+        hanger_type: hangerType ?? "not provided",
         user_entered_stiffness: { value: 42000, unit: "N/m" },
         installed_load: { value: 460, unit: "N" },
         hot_load: { value: 390, unit: "N" },
@@ -10861,9 +10864,7 @@ describe("SWBPIPE desktop preview", () => {
         protected_content_included: false
       }));
       const rows = observed.spring_hanger_evidence.reduce((count: number, item: { result_refs: string[] }) => count + item.result_refs.length, 0);
-      // The summary's variable/constant split reads the explicit hanger type, as before.
-      if (spelling === "hanger_type") expect(formatSpringHangerSummary(observed.spring_hanger_evidence)).toBe(`2 hanger records; variable=1; constant_effort=1; rows=${rows}`);
-      else expect(formatSpringHangerSummary(observed.spring_hanger_evidence)).toMatch(new RegExp(`^2 hanger records; .*; rows=${rows}$`));
+      expect([spelling, formatSpringHangerSummary(observed.spring_hanger_evidence)]).toEqual([spelling, `2 hanger records; variable=1; constant_effort=1; rows=${rows}`]);
       spy.mockRestore();
       unmount();
     }

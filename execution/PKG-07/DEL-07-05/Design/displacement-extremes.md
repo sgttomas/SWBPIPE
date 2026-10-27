@@ -70,10 +70,13 @@ and fails if the two lists differ.
   `is_constant_effort_support` in `core/product_physics/src/lib.rs`): the trimmed
   `hanger.hanger_type` when it is non-empty, otherwise the trimmed `family`, counts when it is
   `variable_spring_hanger`, `spring_hanger` or `constant_effort_support`. An explicit hanger type
-  decides over the family. A `spring_hanger` support is therefore listed under "Hangers" as well as
-  under its family, "Spring hanger" (report-content correction, HELP_HUMAN, 2026-10-27: the solver
-  treats such supports as variable spring hangers and emits their review rows, so the report had
-  omitted real evidence).
+  decides over the family. Trimming is Rust's `str::trim`, which removes the Unicode `White_Space`
+  characters (`trimLikeRust`). JavaScript's `trim` differs: it also removes U+FEFF and keeps
+  U+0085. The report's hanger summary splits variable and constant-effort hangers by the same
+  reading (`springHangerKind`), so a padded or family-only hanger falls in its group. A
+  `spring_hanger` support is therefore listed under "Hangers" as well as under its family, "Spring
+  hanger" (report-content correction, HELP_HUMAN, 2026-10-27: the solver treats such supports as
+  variable spring hangers and emits their review rows, so the report had omitted real evidence).
 - A nonlinear support's entry in the supports column adds its stated behavior and DOF (for
   example "Nonlinear support (gap, UY)"). The filter does not split nonlinear behaviors (§10).
 
@@ -297,9 +300,13 @@ no limit and compares nothing with one, and it writes nothing.
 - `apps/desktop/src/features/report/springHangerSupport.test.ts` pins the shared hanger rule over
   every schema `SupportFamily` value and an absent, null, empty and unknown family, crossed with
   every `SpringHanger.hanger_type` value, no hanger record, a record without a type and an empty
-  and unknown type, with a whitespace-padded family and type. The shared function equals the
-  solver's classification, an explicit table read from the Rust whose source the test checks is
-  unchanged; the cases the correction changed from the report's earlier rule are listed exactly;
+  and unknown type, with a family and type padded by spaces, U+0085, U+FEFF or U+001C, and a type of
+  U+0085, U+FEFF or U+001C alone. The shared function equals the solver's classification, an
+  explicit table read from the Rust whose source the test checks is unchanged; its trim equals
+  Rust's `White_Space` set over every BMP code point and astral samples, a set hard-coded from a
+  rustc probe; explicit, family and fallback readings each count a U+0085-padded value and not a
+  U+FEFF- or U+001C-padded one; the summary's variable and constant-effort split follows the same
+  reading; the cases the correction changed from the report's earlier rule are listed exactly;
   A8's support flag and "Hangers" filter give the same answer for every support; and the report's
   two files call the shared function and keep no inline copy.
 - Native smoke (`apps/desktop/native-smoke/driver.js`, `run.mjs`): structure only, no values, and
