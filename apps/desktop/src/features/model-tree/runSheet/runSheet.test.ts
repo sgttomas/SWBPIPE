@@ -12,7 +12,7 @@ import type { PreviewModel } from "../../../types";
 import { cornerContext } from "../../bend-authoring/BendAuthoringForms";
 import { BEND_LABELS, buildRunSheetBatch, mapOutcomeToRows, projectedCornerContext, type RunSheetBuild } from "./runSheetBatch";
 import {
-  DEFAULT_NUMBERING, MESSAGES, OPTIONAL_SECTION_COLUMNS, QUANTITY_COLUMNS, assignRowNumber, idsForNumber, initialIdState, modelIds,
+  DEFAULT_NUMBERING, MAX_NUMBER_SEARCH, MESSAGES, OPTIONAL_SECTION_COLUMNS, QUANTITY_COLUMNS, assignRowNumber, idsForNumber, initialIdState, modelIds,
   reservedOperationIds, resolveRunSheet, resolveRunSheetWithEngine,
   type ResolvedRunSheet, type ResolvedRunSheetRow, type RunSheetIdState, type RunSheetInput, type RunSheetRowInput, type RunSheetRule,
 } from "./runSheetModel";
@@ -654,5 +654,92 @@ describe("run sheet S1: sheet rules §4.2", () => {
     const input = sheet([startE, { key: "r2", dx: "1", ...ELEMENT }], { lengthUnit: "Pa" });
     const { resolved } = await resolveRunSheetWithEngine(input, { model, idState: idStateFor(input, model) });
     expect(resolved.rows[1].refusals.map((finding) => finding.rule)).toContain("length-unit");
+  });
+});
+
+// ---- Codex r1 regressions (#1699).
+/** A reservation set that fails the test instead of letting a non-advancing search hang. */
+class LookupBudget extends Set<string> {
+  lookups = 0;
+  constructor(ids: Iterable<string>, private readonly budget = 1_000_000) { super(ids); }
+  override has(id: string): boolean {
+    this.lookups += 1;
+    if (this.lookups > this.budget) throw new Error(`number search did not terminate within ${this.budget} reservation lookups`);
+    return super.has(id);
+  }
+}
+
+describe("run sheet S1: an S row needs a support (r1 P2-1)", () => {
+  it("an S row with no support code is refused and never reaches the builder", async () => {
+    const resolved = resolveSync(sheet([startE, { key: "r2", kind: "S" }]));
+    expect(resolved.rows[1].refusals).toEqual([{ rule: "support", column: "Support", message: MESSAGES.supportMissing }]);
+    expect(resolved.queueable).toBe(false);
+    await expect(buildRunSheetBatch(resolved)).rejects.toThrow(/refused rows/);
+  });
+  it("the builder never throws on a sheet the resolver marks queueable", async () => {
+    const sheets: RunSheetRowInput[][] = [
+      [startE, { key: "r2", kind: "S" }],
+      [startE, { key: "r2", kind: "S", support: "A" }],
+      [startE, { key: "r2", kind: "S", restraints: "*" }],
+      [startE, { key: "r2", kind: "S", support: "A", restraints: "*" }],
+      [startE, { key: "r2", kind: "F", node: "node:E" }],
+      [{ key: "r1", kind: "P", dx: "30" }],
+      [{ key: "r1", kind: "P", dx: "30" }, { key: "r2", kind: "S", support: "V", restraints: "UY" }, { key: "r3", dy: "1", ...ELEMENT }],
+    ];
+    for (const rows of sheets) {
+      const resolved = resolveSync(sheet(rows));
+      if (resolved.queueable) await expect(buildRunSheetBatch(resolved)).resolves.toBeTruthy();
+    }
+  });
+});
+
+describe("run sheet S1: numbering terminates (r1 P2-2)", () => {
+  const numbering = (patch: Partial<typeof DEFAULT_NUMBERING>) => ({ ...DEFAULT_NUMBERING, ...patch });
+  const refusalOf = (state: RunSheetIdState, key: string) => state.refused?.[key];
+  it("step 0 is refused, not searched", () => {
+    const settings = numbering({ step: 0 });
+    const reserved = new LookupBudget(Object.values(idsForNumber(settings, 10)).flatMap((v) => (typeof v === "string" ? [v] : Object.values(v))));
+    const state = assignRowNumber(initialIdState(settings), settings, "r1", reserved);
+    expect(state.assigned.r1).toBeUndefined();
+    expect(refusalOf(state, "r1")).toBe(MESSAGES.numberingInvalid);
+  }, 5000);
+  it("a non-integer step is refused", () => {
+    const settings = numbering({ step: 0.5 });
+    const state = assignRowNumber(initialIdState(settings), settings, "r1", new LookupBudget(["node:N10"]));
+    expect(state.assigned.r1).toBeUndefined();
+    expect(refusalOf(state, "r1")).toBe(MESSAGES.numberingInvalid);
+  }, 5000);
+  it("a counter beyond the exact-integer range is refused, not left to stagnate", () => {
+    const settings = numbering({ start: 2 ** 60, step: 1 });
+    const reserved = new LookupBudget([`node:N${2 ** 60}`]);
+    const state = assignRowNumber(initialIdState(settings), settings, "r1", reserved);
+    expect(state.assigned.r1).toBeUndefined();
+    expect(refusalOf(state, "r1")).toBe(MESSAGES.numberingInvalid);
+  }, 5000);
+  it("a counter that would leave the exact-integer range is refused", () => {
+    const start = Number.MAX_SAFE_INTEGER - 1;
+    const settings = numbering({ start, step: 1 });
+    const reserved = new LookupBudget([`node:N${start}`, `node:N${start + 1}`]);
+    const state = assignRowNumber(initialIdState(settings), settings, "r1", reserved);
+    expect(state.assigned.r1).toBeUndefined();
+    expect(refusalOf(state, "r1")).toBe(MESSAGES.numberingExhausted);
+  }, 5000);
+  it("a long run of reserved ids stops at the stated search limit", () => {
+    const settings = DEFAULT_NUMBERING;
+    const ids = Array.from({ length: MAX_NUMBER_SEARCH + 5 }, (_, i) => `node:N${10 + 10 * i}`);
+    const state = assignRowNumber(initialIdState(settings), settings, "r1", new LookupBudget(ids));
+    expect(state.assigned.r1).toBeUndefined();
+    expect(refusalOf(state, "r1")).toBe(MESSAGES.numberingSearchLimit);
+    // Just inside the limit, the number is found.
+    const inside = assignRowNumber(initialIdState(settings), settings, "r2", new LookupBudget(ids.slice(0, MAX_NUMBER_SEARCH - 1)));
+    expect(inside.assigned.r2).toBe(10 + 10 * (MAX_NUMBER_SEARCH - 1));
+  }, 5000);
+  it("the resolver refuses invalid numbering at the sheet and shows a row's numbering refusal", () => {
+    const input = sheet([startE, { key: "r2", dx: "1", ...ELEMENT }], { numbering: { step: 0 } });
+    const model = basis();
+    const resolved = resolveRunSheet(input, { model, idState: idStateFor(input, model) });
+    expect(resolved.blockers).toContainEqual({ rule: "numbering", message: MESSAGES.numberingInvalid });
+    expect(resolved.rows[1].refusals).toContainEqual({ rule: "ids", column: "Ids", message: MESSAGES.numberingInvalid });
+    expect(resolved.queueable).toBe(false);
   });
 });

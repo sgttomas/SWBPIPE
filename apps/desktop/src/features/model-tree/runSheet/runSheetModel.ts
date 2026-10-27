@@ -81,8 +81,11 @@ export type RunSheetInput = {
   rows: RunSheetRowInput[];
 };
 
-/** §3.2 The counter: numbers only move forward and are never reused. */
-export type RunSheetIdState = { next: number; assigned: Readonly<Record<string, number>> };
+/** §3.2 The counter: numbers only move forward and are never reused. `refused`
+ * holds, per row, why no number could be assigned. */
+export type RunSheetIdState = { next: number; assigned: Readonly<Record<string, number>>; refused?: Readonly<Record<string, string>> };
+/** The most numbers one assignment examines before it refuses (§3.2 reservation search). */
+export const MAX_NUMBER_SEARCH = 10_000;
 
 export type CellOrigin =
   | { kind: "entered" }
@@ -111,7 +114,7 @@ export type RunSheetRule =
   | "no-current-node" | "zero-length" | "below-resolution" | "both-forms" | "coincident" | "near-coincident"
   | "missing-material" | "missing-section" | "missing-orientation" | "parallel-orientation" | "invalid-code"
   | "increment-not-number" | "quantity-without-unit" | "quantity-not-number" | "support" | "bend" | "ids"
-  | "unknown-node" | "source" | "length-unit";
+  | "unknown-node" | "source" | "length-unit" | "numbering" | "incomplete";
 export type RunSheetFinding = { rule: RunSheetRule; message: string; column?: string; detail?: string };
 
 export type BendIds = { start: string; end: string; arc: string; component: string };
@@ -180,6 +183,11 @@ export const MESSAGES = {
   quantityWithoutUnit: (column: string) => `Choose the ${column} unit.`,
   quantityNotNumber: (column: string, unit: string) => `${column} is a number in ${unit}.`,
   support: "Enter the restraints of this support.",
+  supportMissing: "Enter the support code and restraints of this S row.",
+  incomplete: "This row is incomplete.",
+  numberingInvalid: "Numbering needs a whole start and a whole step of at least 1, within the exact-integer range.",
+  numberingExhausted: "Numbering has run past the exact-integer range; choose a smaller start.",
+  numberingSearchLimit: `Every number in the next ${MAX_NUMBER_SEARCH} is reserved; choose another id prefix or start.`,
   restraintsWithoutSupport: "Enter the support code of these restraints.",
   idUsed: (id: string) => `Id ${id} is already used.`,
   idBlank: (what: string) => `Enter the ${what} id.`,
@@ -234,13 +242,31 @@ export function initialIdState(numbering: RunSheetNumbering = DEFAULT_NUMBERING)
  * The counter only moves forward, so a released number is never reused. */
 export function assignRowNumber(state: RunSheetIdState, numbering: RunSheetNumbering, rowKey: string, reserved: ReadonlySet<string>): RunSheetIdState {
   if (state.assigned[rowKey] !== undefined) return state;
-  let n = state.next;
+  const refuse = (reason: string): RunSheetIdState => ({ ...state, refused: { ...(state.refused ?? {}), [rowKey]: reason } });
+  if (numberingProblem(numbering) || !Number.isSafeInteger(state.next)) return refuse(MESSAGES.numberingInvalid);
   const yields = (value: number) => {
     const ids = idsForNumber(numbering, value);
     return [ids.node, ids.pipe, ids.support, ids.bend.start, ids.bend.end, ids.bend.arc, ids.bend.component];
   };
-  while (yields(n).some((id) => reserved.has(id))) n += numbering.step;
-  return { next: n + numbering.step, assigned: { ...state.assigned, [rowKey]: n } };
+  let n = state.next;
+  // Bounded, and every step must advance within the exact-integer range.
+  for (let examined = 1; ; examined += 1) {
+    const after = n + numbering.step;
+    if (!Number.isSafeInteger(after) || after <= n) return refuse(MESSAGES.numberingExhausted);
+    if (!yields(n).some((id) => reserved.has(id))) {
+      const { [rowKey]: _cleared, ...refused } = state.refused ?? {};
+      return { next: after, assigned: { ...state.assigned, [rowKey]: n }, refused };
+    }
+    if (examined >= MAX_NUMBER_SEARCH) return refuse(MESSAGES.numberingSearchLimit);
+    n = after;
+  }
+}
+
+/** Numbering settings are whole numbers: a safe-integer start and a step of at least 1. */
+export function numberingProblem(numbering: RunSheetNumbering): string | null {
+  return Number.isSafeInteger(numbering.start) && Number.isSafeInteger(numbering.step) && numbering.step >= 1
+    ? null
+    : MESSAGES.numberingInvalid;
 }
 
 /** Every id the model holds, in any collection of records with an `id`. */
@@ -388,6 +414,8 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
   if (!source) blockers.push({ rule: "source", message: MESSAGES.source });
   if (!storedLengthUnit) blockers.push({ rule: "length-unit", message: MESSAGES.noStoredUnit });
   if (!sheetLengthUnit) blockers.push({ rule: "length-unit", message: MESSAGES.noSheetUnit });
+  const numberingFinding = numberingProblem(numbering);
+  if (numberingFinding) blockers.push({ rule: "numbering", message: numberingFinding });
 
   const columnUnit = (column: QuantityColumn): string =>
     text(input.columnUnits?.[column]) || text(model.project?.units?.[QUANTITY_COLUMNS[column].dimension]);
@@ -505,7 +533,8 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
 
     // ---- Ids (§3.2).
     const assigned = context.idState.assigned[raw.key];
-    const derivedIds = assigned === undefined ? null : idsForNumber(numbering, assigned);
+    const derivedIds = assigned === undefined || numberingFinding ? null : idsForNumber(numbering, assigned);
+    const numberRefusal = context.idState.refused?.[raw.key];
     const overrides = raw.ids ?? {};
     const ids: ResolvedRunSheetRow["ids"] = {};
     const labels: ResolvedRunSheetRow["labels"] = {};
@@ -587,13 +616,22 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
 
     // ---- Ids, labels and support (§3.2, §5.2).
     const creates = (kind === "run" || kind === "bend") ? !nodeName : kind === "point";
+    // A row without an id says why: its number was refused (§3.2), or the id is blank.
+    const numberingReason = numberRefusal ?? numberingFinding;
+    let missingIdReported = false;
+    const missingId = (what: string) => {
+      if (numberingReason) {
+        if (!missingIdReported) refusals.push({ rule: "ids", column: "Ids", message: numberingReason });
+        missingIdReported = true;
+      } else refusals.push({ rule: "ids", column: "Ids", message: MESSAGES.idBlank(what) });
+    };
     if (creates) {
       ids.node = text(overrides.node) || derivedIds?.node || "";
-      if (!ids.node) refusals.push({ rule: "ids", column: "Ids", message: MESSAGES.idBlank("node") });
+      if (!ids.node) missingId("node");
     }
     if (kind === "run" || kind === "bend") {
       ids.pipe = text(overrides.pipe) || derivedIds?.pipe || "";
-      if (!ids.pipe) refusals.push({ rule: "ids", column: "Ids", message: MESSAGES.idBlank("pipe") });
+      if (!ids.pipe) missingId("pipe");
       else labels.pipe = idToken(ids.pipe);
     }
     let label: ResolvedRunSheetRow["label"] = null;
@@ -616,6 +654,8 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
         ids.support = text(overrides.support) || supportIdFor(at);
         labels.support = idToken(ids.support);
       }
+    } else if (kind === "support") {
+      refusals.push({ rule: "support", column: "Support", message: MESSAGES.supportMissing });
     } else if (restraintsText) {
       refusals.push({ rule: "support", column: "Restraints", message: MESSAGES.restraintsWithoutSupport });
     }
@@ -749,6 +789,13 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
     if (!referencing && storedPipes + draftedPipes !== 2) row.refusals.push({ rule: "bend", message: MESSAGES.bendCornerPipes(storedPipes + draftedPipes) });
   });
 
+  // Last: a row the rules accept must carry everything the builder emits, so
+  // a queueable sheet always builds.
+  for (const row of rows) {
+    const gap = row.refusals.length === 0 ? buildGap(row) : null;
+    if (gap) row.refusals.push({ rule: "incomplete", message: MESSAGES.incomplete, detail: gap });
+  }
+
   const missingConversions = convert.missing;
   return {
     basis: model,
@@ -762,6 +809,31 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
     missingConversions,
     queueable: blockers.length === 0 && missingConversions.length === 0 && rows.length > 0 && rows.every((row) => row.refusals.length === 0),
   };
+}
+
+/** What the builder would lack for an accepted row, or null (the builder's preconditions). */
+export function buildGap(row: ResolvedRunSheetRow): string | null {
+  const supportOk = !row.support || Boolean(row.ids.support && row.labels.support);
+  switch (row.kind) {
+    case "run":
+    case "bend": {
+      if (!row.start || !row.end) return "no start or end node";
+      if (!row.end.existing && !(row.ids.node && row.label)) return "no end node id or label";
+      if (!row.ids.pipe || !row.labels.pipe) return "no pipe id";
+      const cells = row.cells;
+      if (!cells.od.value || !cells.wall.value || !cells.material.value || !cells.orientation.value) return "no section, material or orientation";
+      if (row.kind === "bend" && !(row.bend && row.ids.bend)) return "no bend radius, k or bend ids";
+      return supportOk ? null : "no support id";
+    }
+    case "support":
+      return row.support && row.start && row.ids.support && row.labels.support ? null : "no support";
+    case "from":
+      return row.end && supportOk ? null : "no start node or support id";
+    case "point":
+      return row.end && row.ids.node && row.label && supportOk ? null : "no node id or label";
+    default:
+      return "no kind";
+  }
 }
 
 /** Resolve with every unit conversion taken from the engine's display-conversion

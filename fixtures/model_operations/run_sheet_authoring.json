@@ -6,6 +6,7 @@
     "apps/desktop/src/features/model-tree/runSheet/runSheet.test.ts",
     "core/model_operations/operation_applier/tests/run_sheet_authoring.rs"
   ],
+  "generator": "tools/fixtures/run_sheet_authoring.mjs",
   "id_assignment": "Each sheet's rows take numbers in row order from a fresh counter (node:N, pipe:P, start 10, step 10), skipping numbers that yield an id of the basis model.",
   "basis_model": {
     "schema_version": "0.8.0",

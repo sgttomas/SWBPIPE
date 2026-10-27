@@ -209,18 +209,21 @@ export async function buildRunSheetBatch(resolved: ResolvedRunSheet): Promise<Ru
         }
         await connect(row);
         built.ownedIds.push(row.ids.pipe!);
-        if (row.support) {
+        if (row.support && row.ids.support) {
           createSupport(row, row.end!.id);
           built.ownedIds.push(row.ids.support!);
         }
         break;
       }
       case "support":
-        createSupport(row, row.start!);
-        built.ownedIds.push(row.ids.support!);
+        // The resolver refuses an S row without a support; a support-less row emits nothing.
+        if (row.support && row.ids.support && row.start) {
+          createSupport(row, row.start);
+          built.ownedIds.push(row.ids.support);
+        }
         break;
       case "from":
-        if (row.support) {
+        if (row.support && row.ids.support) {
           createSupport(row, row.end!.id);
           built.ownedIds.push(row.ids.support!);
         }
@@ -228,7 +231,7 @@ export async function buildRunSheetBatch(resolved: ResolvedRunSheet): Promise<Ru
       case "point":
         createNode(row);
         built.ownedIds.push(row.ids.node!);
-        if (row.support) {
+        if (row.support && row.ids.support) {
           createSupport(row, row.end!.id);
           built.ownedIds.push(row.ids.support!);
         }
