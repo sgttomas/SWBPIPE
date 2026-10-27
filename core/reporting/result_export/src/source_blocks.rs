@@ -1208,12 +1208,12 @@ fn supports(
                     .get("stiffness")
                     .filter(|v| !v.is_null())
                     .unwrap_or(&authored["hanger"]["stiffness"]);
-                let spring = matches!(
-                    authored["family"].as_str(),
-                    Some("spring" | "variable_spring_hanger" | "spring_hanger")
-                ) || matches!(
-                    authored["hanger"]["hanger_type"].as_str(),
-                    Some("variable_spring_hanger" | "spring_hanger")
+                // The solver's spring decision, mirrored (`solver_spring_support`
+                // at the end of this file): family `spring` exactly, or a variable
+                // spring hanger as the solver's `support_hanger_type` reads it, the
+                // trimmed explicit `hanger_type` deciding over the trimmed family.
+                let spring = solver_spring_support(
+                    authored,
                 );
                 let dof = ["UX", "UY", "UZ", "RX", "RY", "RZ"][slot];
                 let expected = if spring && stiffness["dof"] == dof {
@@ -1819,5 +1819,246 @@ mod rf16_failure_block_order_tests {
         }
         assert!(shape_in(&Value::Null, &case["failure"], &schema));
         assert!(!shape_in(&json!("unsupported"), &case["outcome"], &schema));
+    }
+}
+
+/// Whether the solver makes an authored support a ground spring: the decision
+/// `supports` checks the published action terms against (ACTUAL_SUPPORT_LAW).
+/// result_export does not depend on product_physics (product_physics depends
+/// on it), so this mirrors `core/product_physics/src/lib.rs`, whose
+/// linear-support assembly builds `LinearSupport::spring` when
+/// `support.family.as_deref() == Some("spring") || is_variable_spring_hanger(support)`
+/// and a rigid support otherwise. `is_variable_spring_hanger` reads
+/// `support_hanger_type`: the explicit `hanger.hanger_type` trimmed by
+/// `str::trim` when that is non-empty, otherwise the trimmed `family`, matched
+/// against `variable_spring_hanger` and `spring_hanger`. An explicit hanger type
+/// therefore decides over a hanger family, while family `spring` (a plain
+/// ground spring, not a hanger) counts untrimmed whatever the hanger type says.
+/// `solver_spring_rule_tests` guards that solver text and checks this function
+/// and the reader against a table read from it.
+fn solver_spring_support(support: &Value) -> bool {
+    let hanger_type = support["hanger"]["hanger_type"]
+        .as_str()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .or_else(|| support["family"].as_str().map(str::trim));
+    support["family"].as_str() == Some("spring")
+        || matches!(hanger_type, Some("variable_spring_hanger" | "spring_hanger"))
+}
+
+/// The support-reaction reader's terms for one authored support: six
+/// components, the UZ slot carrying a ground spring when `spring` holds and an
+/// ideal constraint otherwise, the producer's terms for each decision
+/// (`core/product_physics/src/source_receipt/rows.rs`: ideal constraints only
+/// for a non-spring support's restraints, a ground spring at the stiffness DOF).
+/// The authored support restrains UZ and declares UZ stiffness, so only the
+/// spring decision separates the two.
+#[cfg(test)]
+fn support_law_case(declaration: &Value, spring: bool) -> Result<(), String> {
+    let mut authored = json!({"id":"support:s","node":"node:0","restraints":["UZ"],"stiffness":{"dof":"UZ"}});
+    for (key, value) in declaration.as_object().unwrap() {
+        authored[key] = value.clone();
+    }
+    let model = json!({"nodes":[{"id":"node:0"}],"supports":[authored]});
+    let (mut rows, mut ps, mut components) = (Vec::new(), Vec::new(), Vec::new());
+    for slot in 0..6 {
+        let result_id = format!("result:{slot}");
+        let kind = match (slot, spring) {
+            (2, true) => "ground_spring",
+            (2, false) => "ideal_constraint",
+            _ => "structural_zero",
+        };
+        rows.push(json!({"kind":"support_reaction_component_v2","entity_ref":"support:s","basis_ref":"basis:b","unit":if slot < 3 { "N" } else { "N*m" },"value":if slot == 2 { 1.0 } else { 0.0 },"metadata":{"component":COMPONENTS[slot],"coordinate_system":"global","location":"node","basis":"recovered_from_assembled_support_law","sign_convention":crate::physics_source::SUPPORT_SIGN}}));
+        ps.push(json!({"result_id":result_id,"functional_id":format!("functional:{slot}"),"quantity":"support_action_component","basis":if slot == 2 { "exact" } else { "exact_zero" }}));
+        components.push(json!({"component":COMPONENTS[slot],"result_id":result_id,"functional_id":format!("functional:{slot}"),"action_terms":[{"kind":kind,"source_id":"support:s","global_dof":slot}]}));
+    }
+    let prescribed = if spring { json!([]) } else { json!([2]) };
+    let case = json!({"basis_ref":"basis:b","supports":[{"support_id":"support:s","node_id":"node:0","components":components}],"source":{"support_ids":["support:s"],"dof_count":6,"prescribed_dofs":prescribed}});
+    let raw = ps
+        .iter()
+        .zip(&rows)
+        .map(|(p, r)| (p["result_id"].as_str().unwrap(), r))
+        .collect::<HashMap<_, _>>();
+    supports(&case, &raw, &ps, Some(&model))
+}
+
+/// Regressions: the reader decides a padded or conflicting hanger declaration
+/// as the solver does. Each failed before the reader read declarations as the
+/// solver does (at `eb9450806e`, ACTUAL_SUPPORT_LAW on the solver's terms).
+#[cfg(test)]
+mod support_law_regression_tests {
+    use super::*;
+    const LAW: &str = "SOURCE_BLOCKS_ACTUAL_SUPPORT_LAW";
+
+    fn decides(declaration: Value, spring: bool) {
+        assert_eq!(support_law_case(&declaration, spring), Ok(()), "{declaration}");
+        assert_eq!(support_law_case(&declaration, !spring), Err(LAW.into()), "{declaration}");
+    }
+
+    /// Rust's `str::trim` removes U+0085 and ASCII spaces, so the padded
+    /// declaration is a hanger; it keeps U+FEFF and U+001C, so a type padded
+    /// with either is an unknown type, which decides over the hanger family.
+    #[test]
+    fn a_padded_declaration_is_read_as_the_solver_trims_it() {
+        decides(json!({"family":"guide","hanger":{"hanger_type":"\u{85}spring_hanger\u{85}"}}), true);
+        decides(json!({"family":"guide","hanger":{"hanger_type":" variable_spring_hanger "}}), true);
+        decides(json!({"family":"\u{85}spring_hanger\u{85}"}), true);
+        decides(json!({"family":" variable_spring_hanger "}), true);
+        decides(json!({"family":"variable_spring_hanger","hanger":{"hanger_type":"\u{feff}spring_hanger\u{feff}"}}), false);
+        decides(json!({"family":"variable_spring_hanger","hanger":{"hanger_type":"\u{1c}spring_hanger\u{1c}"}}), false);
+    }
+
+    /// A non-empty explicit type decides over a hanger family.
+    #[test]
+    fn an_explicit_hanger_type_decides_over_the_family() {
+        decides(json!({"family":"spring_hanger","hanger":{"hanger_type":"constant_effort_support"}}), false);
+        decides(json!({"family":"variable_spring_hanger","hanger":{"hanger_type":"strut"}}), false);
+    }
+}
+
+/// The reader's spring decision equals the solver's over every schema
+/// `SupportFamily`, an absent, null, empty, unknown and padded family, crossed
+/// with no hanger record, a null record, a record without a type or with a null
+/// type, every schema `SpringHanger.hanger_type`, and an empty, unknown, padded
+/// and padding-only type. The solver's answers are an explicit table read from
+/// its text, which the first test guards: product_physics depends on
+/// result_export, so it cannot be a dev-dependency here, and its
+/// `support_hanger_type` and `is_variable_spring_hanger` are `pub(crate)` and the
+/// decision itself is inline in its linear-support assembly, so no public
+/// solver function computes it. Padding uses ASCII spaces, U+0085 (which
+/// `str::trim` removes) and U+FEFF and U+001C (which it keeps).
+#[cfg(test)]
+mod solver_spring_rule_tests {
+    use super::*;
+
+    /// The solver's text the tables below are read from
+    /// (`core/product_physics/src/lib.rs`), verbatim.
+    const SOLVER_SOURCE: [&str; 3] = [
+        "pub(crate) fn support_hanger_type(support: &PreviewSupport) -> Option<&str> {
+    support
+        .hanger
+        .as_ref()
+        .and_then(|hanger| hanger.hanger_type.as_deref())
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .or_else(|| support.family.as_deref().map(str::trim))
+}",
+        "pub(crate) fn is_variable_spring_hanger(support: &PreviewSupport) -> bool {
+    matches!(
+        support_hanger_type(support),
+        Some(\"variable_spring_hanger\" | \"spring_hanger\")
+    )
+}",
+        "            if support.family.as_deref() == Some(\"spring\") || is_variable_spring_hanger(support) {
+                let stiffness = support_stiffness_input(support).and_then(|input| {",
+    ];
+
+    const NEL: &str = "\u{85}";
+    const BOM: &str = "\u{feff}";
+    const FS: &str = "\u{1c}";
+
+    /// How the hanger record decides: `None` when the trimmed explicit type is
+    /// absent or empty and the family decides, else whether the type is a
+    /// variable spring hanger.
+    fn hanger_cases() -> Vec<(String, Option<Value>, Option<bool>)> {
+        let typed = |t: &str, decides| (format!("hanger_type {t:?}"), Some(json!({"hanger_type":t})), decides);
+        vec![
+            ("no hanger record".into(), None, None),
+            ("null hanger record".into(), Some(Value::Null), None),
+            ("no hanger_type".into(), Some(json!({})), None),
+            ("null hanger_type".into(), Some(json!({"hanger_type":null})), None),
+            typed("variable_spring_hanger", Some(true)),
+            typed("spring_hanger", Some(true)),
+            typed("constant_effort_support", Some(false)),
+            typed("", None),
+            typed("strut", Some(false)),
+            typed("spring", Some(false)),
+            typed(" spring_hanger ", Some(true)),
+            typed(&format!("{NEL}spring_hanger{NEL}"), Some(true)),
+            typed(&format!("{BOM}spring_hanger{BOM}"), Some(false)),
+            typed(&format!("{FS}spring_hanger{FS}"), Some(false)),
+            typed("  ", None),
+            typed(NEL, None),
+            typed(BOM, Some(false)),
+            typed(FS, Some(false)),
+        ]
+    }
+
+    /// Each family: whether it is exactly `spring`, and whether its trimmed
+    /// reading is a variable spring hanger (used when the family decides).
+    fn family_cases() -> Vec<(String, Option<Value>, bool, bool)> {
+        let named = |f: &str, spring, hanger| (format!("family {f:?}"), Some(json!(f)), spring, hanger);
+        let mut cases = vec![
+            named("anchor", false, false),
+            named("guide", false, false),
+            named("line_stop", false, false),
+            named("vertical_support", false, false),
+            named("spring", true, false),
+            named("variable_spring_hanger", false, true),
+            named("spring_hanger", false, true),
+            named("constant_effort_support", false, false),
+            named("nonlinear", false, false),
+            ("no family".into(), None, false, false),
+            ("null family".into(), Some(Value::Null), false, false),
+            named("", false, false),
+            named("strut", false, false),
+        ];
+        for pad in [" ", NEL, BOM, FS] {
+            let trims = pad != BOM && pad != FS;
+            cases.push(named(&format!("{pad}spring_hanger{pad}"), false, trims));
+            // `spring` is compared untrimmed: padded, it is no ground spring.
+            cases.push(named(&format!("{pad}spring{pad}"), false, false));
+        }
+        cases
+    }
+
+    fn grid() -> Vec<(String, Value, bool)> {
+        let mut grid = Vec::new();
+        for (family_name, family, exactly_spring, family_hanger) in family_cases() {
+            for (hanger_name, hanger, decides) in hanger_cases() {
+                let mut declaration = json!({});
+                if let Some(family) = &family {
+                    declaration["family"] = family.clone();
+                }
+                if let Some(hanger) = &hanger {
+                    declaration["hanger"] = hanger.clone();
+                }
+                let solver = exactly_spring || decides.unwrap_or(family_hanger);
+                grid.push((format!("{family_name} | {hanger_name}"), declaration, solver));
+            }
+        }
+        grid
+    }
+
+    #[test]
+    fn the_tables_are_read_from_the_solver_as_it_stands() {
+        let solver = include_str!("../../../product_physics/src/lib.rs");
+        for text in SOLVER_SOURCE {
+            assert!(solver.contains(text), "{text}");
+        }
+        let schema: Value = serde_json::from_str(include_str!("../../../../schemas/model.schema.yaml")).unwrap();
+        let families = schema["$defs"]["SupportFamily"]["enum"].as_array().unwrap();
+        let types = schema["$defs"]["SpringHanger"]["properties"]["hanger_type"]["enum"].as_array().unwrap();
+        let named = |cases: Vec<Option<Value>>| cases.into_iter().flatten().collect::<Vec<_>>();
+        let family_values = named(family_cases().into_iter().map(|c| c.1).collect());
+        let type_values = named(hanger_cases().into_iter().map(|c| c.1.map(|h| h["hanger_type"].clone())).collect());
+        assert_eq!(family_values[..families.len()], families[..]);
+        for t in types {
+            assert!(type_values.contains(t), "{t}");
+        }
+        assert_eq!(grid().len(), family_cases().len() * hanger_cases().len());
+    }
+
+    #[test]
+    fn the_reader_decides_every_declaration_as_the_solver_does() {
+        for (name, declaration, solver) in grid() {
+            assert_eq!(solver_spring_support(&declaration), solver, "{name}");
+            assert_eq!(support_law_case(&declaration, solver), Ok(()), "{name}");
+            assert_eq!(
+                support_law_case(&declaration, !solver),
+                Err("SOURCE_BLOCKS_ACTUAL_SUPPORT_LAW".into()),
+                "{name}"
+            );
+        }
     }
 }
