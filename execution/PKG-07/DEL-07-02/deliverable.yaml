@@ -187,6 +187,7 @@ code_paths:
 - apps/desktop/src/features/model-data/**
 - apps/desktop/src/features/workspace/contextMenu/**
 - fixtures/model_operations/run_sheet_authoring.json
+- apps/desktop/src/features/bulk-change/**
 checks:
 - apps/desktop/src/features/model-tree/ModelTree.test.tsx
 - apps/desktop/src/features/model-tree/typedInspector.test.tsx
@@ -209,3 +210,9 @@ checks:
 - apps/desktop/src/features/workspace/table/EngineeringTable.contextMenu.test.tsx
 - apps/desktop/src/features/model-tree/runSheet/runSheet.test.ts
 - core/model_operations/operation_applier/tests/run_sheet_authoring.rs
+- apps/desktop/src/features/bulk-change/bulkChange.test.ts
+- apps/desktop/src/features/bulk-change/BulkChangePanel.test.tsx
+- apps/desktop/src/features/bulk-change/BulkChangeMenus.test.tsx
+- apps/desktop/src/features/bulk-change/bulkChange.session.test.tsx
+- apps/desktop/src/features/bulk-change/bulkChange.edges.session.test.tsx
+- apps/desktop/src/App.bulkChange.test.tsx
