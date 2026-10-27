@@ -50,7 +50,7 @@
         ]
       }
     ],
-    "schema_version": "0.7.0"
+    "schema_version": "0.8.0"
   },
   "case_id": "accept-set-field-material-temperature-point-shear-modulus",
   "claimed_model_hash": null,
@@ -107,9 +107,9 @@
           ]
         }
       ],
-      "schema_version": "0.7.0"
+      "schema_version": "0.8.0"
     },
-    "applied_model_canonical_sha256": "sha256:e8c79a05371cfeff4dabb6966d8043d3fe9be7d74b900ea9b5d8fef4a066b684",
+    "applied_model_canonical_sha256": "sha256:c9edf661e467718b4c44a06d632f7d1b3fb8603e48c345f37c60397024574d6b",
     "outcome": {
       "acceptance": {
         "acceptance_basis": "user_initiated_apply_in_local_session",
@@ -148,7 +148,7 @@
       "mode": "apply",
       "model_basis": {
         "backend_canonicalization": "rfc8785_jcs",
-        "backend_model_hash": "sha256:899385f7d63df0d342380083de557b4e496ae31e326b53fcd3f2fac18d7ef514",
+        "backend_model_hash": "sha256:cbc3f275f780afee97f3c43c946f3d4b5833e6a95af0d5dd16a2c3528ebb66e8",
         "binding_status": "no_claimed_hash_before_state_check_is_the_staleness_guard",
         "claimed_hash_canonicalization": "not_provided",
         "claimed_model_hash": "not_provided"

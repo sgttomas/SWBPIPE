@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -11,8 +12,9 @@ import {
   INCOMPLETE_MESSAGES_NOTE,
   INCOMPLETE_NO_REASON,
   RATIO_NOTE_LIMIT_NOT_POSITIVE,
-  RATIO_NOTE_LOWER_BOUND,
+  RATIO_NOTE_COMPUTED_NOT_POSITIVE,
   RATIO_NOTE_MISSING,
+  RATIO_NOTE_NOT_FINITE,
   RATIO_NOTE_PREDICATE,
   STRESS_KINDS,
   STRESS_RATIO_NO_RESULT,
@@ -27,6 +29,8 @@ import {
   buildStressRatioTable,
   ratioNoteUnitsDiffer,
   incompleteReason,
+  outcomeRatio,
+  ratioDirection,
   stressRatioLocationText,
   stressRatioPage,
   stressRatioRunText,
@@ -341,11 +345,12 @@ describe("stress ratio table: rule-check outcomes", () => {
     expect(view(table(stressRows(), PASSING, mixed), "rule:cat_a", "ratio").sorted).toBe(true);
   });
 
-  it("forms a ratio only under an upper-bound relation, in one unit, with a positive limit", () => {
+  it("forms a ratio only under a bound relation, in one unit, with a positive limit", () => {
+    // A lower bound forms limit ÷ computed (HELP_HUMAN, 2026-10-27; Design §3.1): 4 / 3.
     const cases: Array<[Partial<RuleCheckOutcome>, number | null, string | null]> = [
       [{ computed_value: quantity(3), limit_value: quantity(4), acceptability_relation: "less_than" }, 0.75, null],
-      [{ computed_value: quantity(3), limit_value: quantity(4), acceptability_relation: "greater_than_or_equal" }, null, RATIO_NOTE_LOWER_BOUND],
-      [{ computed_value: quantity(3), limit_value: quantity(4), acceptability_relation: "greater_than" }, null, RATIO_NOTE_LOWER_BOUND],
+      [{ computed_value: quantity(3), limit_value: quantity(4), acceptability_relation: "greater_than_or_equal" }, 4 / 3, null],
+      [{ computed_value: quantity(3), limit_value: quantity(4), acceptability_relation: "greater_than" }, 4 / 3, null],
       [{ acceptability_relation: "formula_predicate" }, null, RATIO_NOTE_PREDICATE],
       [{ computed_value: quantity(3) }, null, RATIO_NOTE_MISSING],
       [{ computed_value: quantity(3, "MPa"), limit_value: quantity(4e6, "Pa") }, null, ratioNoteUnitsDiffer("MPa", "Pa")],
@@ -360,8 +365,9 @@ describe("stress ratio table: rule-check outcomes", () => {
   });
 
   it("lists outcomes with no ratio after the ranked ones and never hides them", () => {
+    // A lower bound over a computed value that is not positive forms no ratio (Design §3.1).
     const checks = [
-      bound("s:P-1:i", { status: "USER_RULE_CHECKED", computed_value: quantity(3), limit_value: quantity(4), acceptability_relation: "greater_than_or_equal" }),
+      bound("s:P-1:i", { status: "USER_RULE_CHECKED", computed_value: quantity(-3), limit_value: quantity(4), acceptability_relation: "greater_than_or_equal" }),
       bound("s:P-2:i", { status: "USER_RULE_CHECKED", input: "in_p2", check: "chk_p2", computed_value: quantity(1), limit_value: quantity(4) })
     ];
     const shown = view(table(stressRows(), PASSING, run(checks)), "rule:cat_a", "ratio", "100");
@@ -565,5 +571,201 @@ describe("stress ratio table: rule-check outcomes", () => {
     expect(Object.isFrozen(first.groups[0].rows[0])).toBe(true);
     const shown = view(first, "rule:cat_a");
     expect(Object.isFrozen(shown) && Object.isFrozen(shown.ranked) && Object.isFrozen(shown.ranked[0])).toBe(true);
+  });
+});
+
+// A lower-bound relation forms limit ÷ computed (HELP_HUMAN, 2026-10-27: "Lower-bound ratio ranking
+// decided: for a greater-than relation, ratio = limit ÷ computed, same unit and dimension, positive
+// computed value, finite quotient; ratio > 1 means failure in both directions; label each ratio's
+// direction; rank by magnitude otherwise."; Design §3.1, §5).
+describe("stress ratio table: lower-bound ratio", () => {
+  const LOWER = ["greater_than", "greater_than_or_equal"] as const;
+  const lower = (relation: string, computed: number | null, limit: number | null, computedUnit = "MPa", limitUnit = "MPa") => outcomeRatio({
+    acceptability_relation: relation,
+    computed_value: computed === null ? undefined : quantity(computed, computedUnit),
+    limit_value: limit === null ? undefined : quantity(limit, limitUnit)
+  });
+  const lb = (check: string, basis: typeof L1 | typeof L2, status: RuleCheckStatus, relation: string, computed: number, limit: number) =>
+    outcome(check, "cat_a", basis, status, { acceptability_relation: relation, computed_value: quantity(computed), limit_value: quantity(limit) });
+  const id = (check: string, basis: typeof L1 | typeof L2) => JSON.stringify([check, "load_case", basis.ref_id]);
+
+  it("names each relation's direction", () => {
+    expect(["less_than", "less_than_or_equal", ...LOWER, "formula_predicate", "none", "equal", ""].map(ratioDirection))
+      .toEqual(["upper", "upper", "lower", "lower", null, null, null, null]);
+  });
+
+  it("forms limit ÷ computed under either lower-bound relation", () => {
+    for (const relation of LOWER) {
+      expect(lower(relation, 8, 4), relation).toEqual({ ratio: 0.5, note: null });
+      expect(lower(relation, 2, 4), relation).toEqual({ ratio: 2, note: null });
+      expect(lower(relation, 3, 4), relation).toEqual({ ratio: 4 / 3, note: null });
+      expect(lower(relation, 4, 4), relation).toEqual({ ratio: 1, note: null });
+      // Dimensionless, in one unit.
+      expect(outcomeRatio({ acceptability_relation: relation, computed_value: quantity(5, "1", "dimensionless"), limit_value: quantity(2, "1", "dimensionless") })).toEqual({ ratio: 0.4, note: null });
+    }
+  });
+
+  it("forms no ratio over a computed value that is zero, negative or not finite", () => {
+    for (const relation of LOWER) {
+      for (const computed of [0, -0, -3, -Number.MIN_VALUE]) {
+        expect(lower(relation, computed, 4), `${relation} ${computed}`).toEqual({ ratio: null, note: RATIO_NOTE_COMPUTED_NOT_POSITIVE });
+      }
+      // A value that is not finite is no value, as in the computed and limit cells (Design §3.1).
+      for (const computed of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
+        expect(lower(relation, computed, 4), `${relation} ${computed}`).toEqual({ ratio: null, note: RATIO_NOTE_MISSING });
+      }
+      expect(lower(relation, null, 4)).toEqual({ ratio: null, note: RATIO_NOTE_MISSING });
+    }
+  });
+
+  it("forms no ratio against a limit that is zero, negative or not finite", () => {
+    for (const relation of LOWER) {
+      for (const limit of [0, -0, -4]) expect(lower(relation, 3, limit), `${relation} ${limit}`).toEqual({ ratio: null, note: RATIO_NOTE_LIMIT_NOT_POSITIVE });
+      for (const limit of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
+        expect(lower(relation, 3, limit), `${relation} ${limit}`).toEqual({ ratio: null, note: RATIO_NOTE_MISSING });
+      }
+      expect(lower(relation, 3, null)).toEqual({ ratio: null, note: RATIO_NOTE_MISSING });
+      // The divisor is checked first: both at zero read as the computed value.
+      expect(lower(relation, 0, 0)).toEqual({ ratio: null, note: RATIO_NOTE_COMPUTED_NOT_POSITIVE });
+      expect(lower(relation, -3, -4)).toEqual({ ratio: null, note: RATIO_NOTE_COMPUTED_NOT_POSITIVE });
+    }
+  });
+
+  it("forms no ratio across units or dimensions, and none when the quotient overflows", () => {
+    for (const relation of LOWER) {
+      expect(lower(relation, 3, 4e6, "MPa", "Pa")).toEqual({ ratio: null, note: ratioNoteUnitsDiffer("MPa", "Pa") });
+      expect(outcomeRatio({ acceptability_relation: relation, computed_value: quantity(3, "1", "dimensionless"), limit_value: quantity(4, "1", "length") }))
+        .toEqual({ ratio: null, note: ratioNoteUnitsDiffer("1", "1") });
+      // A tiny computed value against a large limit.
+      expect(lower(relation, 1e-300, 1e300)).toEqual({ ratio: null, note: RATIO_NOTE_NOT_FINITE });
+      expect(lower(relation, Number.MIN_VALUE, 1)).toEqual({ ratio: null, note: RATIO_NOTE_NOT_FINITE });
+      expect(lower(relation, Number.MIN_VALUE, Number.MAX_VALUE)).toEqual({ ratio: null, note: RATIO_NOTE_NOT_FINITE });
+      // An underflowing quotient is finite: the computed value is far above the limit.
+      expect(lower(relation, 1e300, 1e-300)).toEqual({ ratio: 0, note: null });
+    }
+  });
+
+  it("keeps the rule pack's status beside the ratio, at the boundary too", () => {
+    // At computed = limit, greater_than does not hold and greater_than_or_equal does; both ratios are 1.
+    const checks = [
+      lb("lb_pass", L1, "USER_RULE_CHECKED", "greater_than", 8, 4),
+      lb("lb_gte_edge", L1, "USER_RULE_CHECKED", "greater_than_or_equal", 4, 4),
+      lb("lb_gt_edge", L1, "USER_RULE_FAILED", "greater_than", 4, 4),
+      lb("lb_fail", L2, "USER_RULE_FAILED", "greater_than_or_equal", 2, 4)
+    ];
+    const built = table(stressRows(), PASSING, run(checks));
+    const rows = group(built, "rule:cat_a").rows.map((item) => [item.outcome!.checkId, item.outcome!.status, item.outcome!.ratio, item.outcome!.ratioNote]);
+    expect(rows).toEqual([
+      ["lb_pass", "USER_RULE_CHECKED", 0.5, null],
+      ["lb_gte_edge", "USER_RULE_CHECKED", 1, null],
+      ["lb_gt_edge", "USER_RULE_FAILED", 1, null],
+      ["lb_fail", "USER_RULE_FAILED", 2, null]
+    ]);
+    // Largest first; at a tie the failed outcome comes first, then run order.
+    expect(view(built, "rule:cat_a").ranked.map((item) => [item.row.outcome!.checkId, item.key])).toEqual([
+      ["lb_fail", 2], ["lb_gt_edge", 1], ["lb_gte_edge", 1], ["lb_pass", 0.5]
+    ]);
+  });
+
+  // Upper: 1.2 failed, 0.4 checked. Lower: 2 failed, 0.5 checked, a non-positive computed value
+  // (no ratio), and an incomplete outcome.
+  const mixed = () => run([
+    outcome("up_fail", "cat_a", L1, "USER_RULE_FAILED", { acceptability_relation: "less_than_or_equal", computed_value: quantity(120), limit_value: quantity(100) }),
+    lb("lb_pass", L1, "USER_RULE_CHECKED", "greater_than", 200, 100),
+    outcome("up_pass", "cat_a", L1, "USER_RULE_CHECKED", { acceptability_relation: "less_than", computed_value: quantity(40), limit_value: quantity(100) }),
+    lb("lb_none", L1, "USER_RULE_CHECKED", "greater_than_or_equal", -300, 100),
+    lb("lb_fail", L2, "USER_RULE_FAILED", "greater_than_or_equal", 50, 100),
+    outcome("lb_incomplete", "cat_a", L2, "RULE_INPUTS_INCOMPLETE", { acceptability_relation: "greater_than", computed_value: quantity(1), limit_value: quantity(100) })
+  ]);
+
+  it("sorts upper- and lower-bound ratios together, then lists rows with no ratio, and pins incomplete ones", () => {
+    const built = table(stressRows(), PASSING, mixed());
+    const shown = view(built, "rule:cat_a");
+    expect(shown.sorted).toBe(true);
+    expect(shown.pinned.map((item) => item.key)).toEqual([id("lb_incomplete", L2)]);
+    expect(shown.pinned[0].outcome!.ratio).toBeNull();
+    expect(shown.ranked.map((item) => [item.row.outcome!.checkId, item.key])).toEqual([["lb_fail", 2], ["up_fail", 1.2], ["lb_pass", 0.5], ["up_pass", 0.4]]);
+    expect(shown.ranked.map((item) => ratioDirection(item.row.outcome!.relation))).toEqual(["lower", "upper", "lower", "upper"]);
+    expect(shown.unranked.map((item) => [item.outcome!.checkId, item.outcome!.ratioNote])).toEqual([["lb_none", RATIO_NOTE_COMPUTED_NOT_POSITIVE]]);
+    // Stress mode ranks every admitted outcome by the magnitude of its computed value, either direction.
+    const byStress = view(built, "rule:cat_a", "stress");
+    expect(byStress.ranked.map((item) => [item.row.outcome!.checkId, item.key])).toEqual([
+      ["lb_none", 300], ["lb_pass", 200], ["up_fail", 120], ["lb_fail", 50], ["up_pass", 40]
+    ]);
+    expect(byStress.unranked).toEqual([]);
+    expect(byStress.pinned.map((item) => item.key)).toEqual([id("lb_incomplete", L2)]);
+  });
+
+  it("applies the threshold to the ratio whatever its direction, never to a failed, incomplete or unranked row", () => {
+    const built = table(stressRows(), PASSING, mixed());
+    const at = (threshold: string) => view(built, "rule:cat_a", "ratio", threshold);
+    expect(at("0.45").ranked.filter((item) => item.hidden).map((item) => item.row.outcome!.checkId)).toEqual(["up_pass"]);
+    expect(at("0.5").ranked.filter((item) => item.hidden).map((item) => item.row.outcome!.checkId)).toEqual(["up_pass"]);
+    expect(at("0.6").ranked.filter((item) => item.hidden).map((item) => item.row.outcome!.checkId)).toEqual(["lb_pass", "up_pass"]);
+    for (const threshold of ["0.6", "1", "1e9"]) {
+      const shown = at(threshold);
+      expect(rankedKeys(shown), threshold).toEqual([id("lb_fail", L2), id("up_fail", L1)]);
+      expect(shown.pinned.map((item) => item.key)).toEqual([id("lb_incomplete", L2)]);
+      expect(shown.unranked.map((item) => item.outcome!.checkId)).toEqual(["lb_none"]);
+      expect(shown).toMatchObject({ hiddenCount: 2, shownCount: 4, totalCount: 6 });
+    }
+  });
+});
+
+// The upper-bound path is unchanged by the lower-bound ratio (HELP_HUMAN, 2026-10-27; Design §3.1).
+// Every relation other than a lower bound, over a grid of computed values and limits, gives the same
+// ratio and note as before, and a run of such outcomes builds the same table, views and pages. The
+// digest is of the outputs at the code before the lower-bound ratio (commit 1618bf866b).
+describe("stress ratio table: upper-bound outputs pinned", () => {
+  const RELATIONS = ["less_than", "less_than_or_equal", "formula_predicate", "none", "equal", ""];
+  const VALUES = [3, 4, 0, -0, -3, Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, 1e-308, 1e308, 5e-324];
+  const json = (value: unknown) => JSON.stringify(value, (_, item) => (typeof item === "number" && !Number.isFinite(item) ? String(item) : Object.is(item, -0) ? "-0" : item));
+  function grid(): unknown[] {
+    const out: unknown[] = [];
+    for (const relation of RELATIONS) {
+      for (const computed of VALUES) {
+        for (const limit of VALUES) out.push([relation, computed, limit, outcomeRatio({ acceptability_relation: relation, computed_value: quantity(computed), limit_value: quantity(limit) })]);
+      }
+      out.push([relation, "units", outcomeRatio({ acceptability_relation: relation, computed_value: quantity(3, "MPa"), limit_value: quantity(4e6, "Pa") })]);
+      out.push([relation, "dimension", outcomeRatio({ acceptability_relation: relation, computed_value: quantity(3, "1", "dimensionless"), limit_value: quantity(4, "1", "length") })]);
+      out.push([relation, "no computed", outcomeRatio({ acceptability_relation: relation, limit_value: quantity(4) })]);
+      out.push([relation, "no limit", outcomeRatio({ acceptability_relation: relation, computed_value: quantity(3) })]);
+    }
+    return out;
+  }
+  function views(): unknown[] {
+    const checks = [
+      bound("s:P-1:i", { status: "USER_RULE_CHECKED", computed_value: quantity(40), limit_value: quantity(100), acceptability_relation: "less_than" }),
+      bound("s:P-2:i", { status: "USER_RULE_FAILED", input: "in_p2", check: "chk_p2", computed_value: quantity(120), limit_value: quantity(100) }),
+      bound("s:P-2:i:L2", { status: "USER_RULE_CHECKED", basis: L2, input: "in_p2", check: "chk_p2", computed_value: quantity(-70), limit_value: quantity(0) }),
+      bound("s:P-1:i", { status: "USER_RULE_FAILED", basis: L2, computed_value: quantity(3, "MPa"), limit_value: quantity(4e6, "Pa") }),
+      bound("s:P-1:i", { status: "USER_RULE_CHECKED", check: "chk_both", category: "cat_b", computed_value: quantity(1e-300), limit_value: quantity(1e300) }),
+      bound("s:P-2:i", { status: "USER_RULE_FAILED", check: "chk_both", category: "cat_b", input: "in_p2", computed_value: quantity(1e300), limit_value: quantity(1e-300) }),
+      bound(undefined, { status: "RULE_INPUTS_INCOMPLETE", basis: L2 }),
+      bound("s:P-1:i", { status: "USER_RULE_CHECKED", basis: L2, check: "chk_both", category: "cat_b", acceptability_relation: "formula_predicate" })
+    ];
+    const out: unknown[] = [];
+    for (const standing of [PASSING, SENSITIVE_L2]) {
+      const built = table(stressRows(), standing, run(checks));
+      out.push(built);
+      for (const item of built.groups) {
+        for (const mode of ["ratio", "stress"] as const) {
+          for (const threshold of ["", "0.5", "1", "50", "junk"]) {
+            const shown = stressRatioView(item, { mode, threshold });
+            out.push(shown, stressRatioPage(shown, 1), stressRatioPage(shown, 50));
+          }
+        }
+      }
+    }
+    return out;
+  }
+  const sha = (text: string) => createHash("sha256").update(text).digest("hex");
+
+  it("gives the same ratio and note for every relation other than a lower bound", () => {
+    expect(sha(json(grid()))).toBe("0b3f0b9dbfe91cbb0efa8d3d3cea23b5b0d22fa3083bb09d0cee8bd89282a8e6");
+  });
+
+  it("builds the same table, views and pages for a run of upper-bound outcomes", () => {
+    expect(sha(json(views()))).toBe("331b222e3dc5aefcedffb45162fb41cdb6799a78dd248d3cdba8b0683b1625c0");
   });
 });

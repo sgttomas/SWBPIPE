@@ -1,6 +1,7 @@
 """W8-BF, NP-MS and NP-PT (retained-pricing-rules.md §8.18): the branch warning's applied-factors statement, added
 after publication over the model's components, stays at multiplicity 0 under W8-BT's premise with its texts bounded, the node-proximity tolerance's refusal and the accessor's
-five texts are priced positively at their audited bytes, and a changed text or call stops the run."""
+five texts are priced positively at their audited bytes, and a changed text or call stops the run. SM-MS and SM-PT
+(§8.26, "The shear-model member"): the shear-model refusal's diagnostic and three texts are priced the same way."""
 from pathlib import Path
 import runpy
 import shutil
@@ -80,7 +81,34 @@ def test_the_applied_factors_statement_is_guarded_at_zero_and_bounded(monkeypatc
     assert audit[f"{VALIDATION}:{message}"] == {"degree": {"bytes": 20, "source": "O-10 (T4): W8-BT: a usize member count"}}
 
 
+def test_the_shear_model_refusal_is_priced_at_its_audited_bytes(monkeypatch):
+    d = decisions(monkeypatch)
+    audit = audits(d)
+    sizes = {"SHEAR_MODEL_PATH": len("model_settings.shear_model"), "SHEAR_MODEL_EULER_BERNOULLI": len("euler_bernoulli"),
+             "SHEAR_MODEL_TIMOSHENKO": len("timoshenko_annulus_energy_v1")}
+    for fn, names in (("shear_model_unknown_message", sizes),
+                      ("shear_model_with_pressure_contract_message", ["SHEAR_MODEL_PATH"]),
+                      ("shear_model_timoshenko_unsupported_message", sizes)):
+        entry = audit[f"{SETTINGS}:{line_of(SETTINGS, f'pub fn {fn}(') + 1}"]
+        assert {n: entry[n]["bytes"] for n in names} == {n: sizes[n] for n in names} and set(entry) == set(names)
+    refs = line_of(VALIDATION, "vec![crate::model_settings::SHEAR_MODEL_PATH.to_string()],")
+    assert audit[f"{VALIDATION}:{refs}"]["crate::model_settings::SHEAR_MODEL_PATH"]["bytes"] == sizes["SHEAR_MODEL_PATH"]
+    # D1 admits the member, so its refusal keeps its multiplicity: no zero rule names it.
+    diag = line_of(VALIDATION, '"diagnostic:model-settings:shear-model",')
+    assert not any(str(k) == f"validation.rs:{diag - 1}" for k, _ in d["O10_MULT0_SITES"])
+    assert not any(str(k).endswith(f":{diag - 1}") for k, _ in d.get("SITE_ZERO", []))
+
+
 @pytest.mark.parametrize("path, old, new, match", [
+    (SETTINGS, "is not yet solved on a pressure-free document;", "is not yet solved on a pressure-free document {SHEAR_MODEL_PATH};", "NP-MS"),
+    (SETTINGS, "deserializer.deserialize_any(ShearModelVisitor).map(Some)",
+     "serde_json::Value::deserialize(deserializer).map(|value| Some(ShearModelSetting::of(&value)))", "NP-MS"),
+    (SETTINGS, "while seq.next_element::<serde::de::IgnoredAny>()?.is_some() {}",
+     "let _kept: Vec<serde_json::Value> = std::iter::from_fn(|| seq.next_element().transpose()).collect::<Result<_, _>>()?;", "NP-MS"),
+    (VALIDATION, "vec![crate::model_settings::SHEAR_MODEL_PATH.to_string()],",
+     "vec![crate::model_settings::SHEAR_MODEL_PATH.to_string(), error.message.clone()],", "NP-MS"),
+    (VALIDATION, "crate::model_settings::shear_model_refusal(setting, model.pressure_contract.is_some())",
+     "crate::model_settings::shear_model_refusal(setting, model.pressure_contract.is_some()).or(crate::model_settings::shear_model_refusal(setting, true))", "NP-MS"),
     (SETTINGS, ".value is {value}; the tolerance must be greater than zero.",
      ".value is {value} (as authored); the tolerance must be greater than zero.", "NP-MS"),
     (VALIDATION, "vec![crate::model_settings::NODE_PROXIMITY_TOLERANCE_PATH.to_string()],",

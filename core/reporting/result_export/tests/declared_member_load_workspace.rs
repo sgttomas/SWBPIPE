@@ -203,7 +203,7 @@ fn full_g8_rejects_mixed_overcap_before_any_hash_or_json_staging() {
 pub fn member_guard_scope_control() {
     let mut loads=vec![json!({"id":"n".repeat(1024),"target":{"type":"node"}});128];
     loads.push(json!({"target":{"type":"element"},"category":"distributed_force","dimension":"force_per_length"}));
-    let inv=json!({"request":{"model":{"schema_version":"0.7.0","load_cases":[{"id":"c","primitive_loads":loads}]}},"solver_mode":"sparse_interactive"});
+    let inv=json!({"request":{"model":{"schema_version":"0.8.0","load_cases":[{"id":"c","primitive_loads":loads}]}},"solver_mode":"sparse_interactive"});
     let source=json!({"retained_precision":{"body":{"sources":[]}}});
     METER.with(|m|m.set((true,0,0)));
     let error=reader_logic::invocation_binding(&source,&inv).unwrap_err();

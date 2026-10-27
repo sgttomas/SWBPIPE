@@ -1,233 +1,233 @@
 {
- "binding": "validation/references/t4_u5b README \"Binding to model 0.7.0\": one model 0.7.0 request per case, authored by the shared builder (core/product_physics/tests/common/t4_u5b.rs) from the SHA-bound case description and its t4_u5a base, kept beside the headless t4_u5b test outside the frozen reference tree; only request bytes and hashes are added, and no oracle value, case description or reference file moves",
+ "binding": "validation/references/t4_u5b README \"Binding to model 0.8.0\": one model 0.8.0 request per case, authored by the shared builder (core/product_physics/tests/common/t4_u5b.rs) from the SHA-bound case description and its t4_u5a base, kept beside the headless t4_u5b test outside the frozen reference tree; only request bytes and hashes are added, and no oracle value, case description or reference file moves",
  "cases": {
   "AS-A": {
    "case_description": "cases/AS-A.case.json",
    "case_sha256": "763a1a18ac7f85ca42f150d2d02c42e483c5d3e895ec10c48bebdbd34e1f1d45",
    "request": "AS-A.request.json",
-   "request_sha256": "537d6c90cfc843dbe4e85c72c8ecea7fe0c23ecbcd61032062994df1e02449e6"
+   "request_sha256": "abc5bd98ae0ebf577272471f677b63dcae7d82cd2dbf799138effea2d1ae08d0"
   },
   "AS-A-ER": {
    "case_description": "cases/AS-A-ER.case.json",
    "case_sha256": "678c8cf8914e1bb8f419c75d52cf7f5717118e1b1c06ddf90474a9851dcde332",
    "request": "AS-A-ER.request.json",
-   "request_sha256": "8ba9db8cab09bfc25e972054635aa4efe242db1e975b8601fc54c01601542440"
+   "request_sha256": "da5f28f8290c0680be27370aadf96a25af371b9b989a2677ca665477c16be7c4"
   },
   "AS-A-R": {
    "case_description": "cases/AS-A-R.case.json",
    "case_sha256": "ed9e2f1bec6483634f6243f89082681d1d1324e09232d555da57e0c7337a6032",
    "request": "AS-A-R.request.json",
-   "request_sha256": "84115e1477c0e82b8c23922488861f40d7de8a59d8fd78b619b8481affcd5c88"
+   "request_sha256": "a87bc23854d70ef02e8c8309d3df5b7f60a29fb68ea6b15e53cb6024ff691dde"
   },
   "AS-A-V": {
    "case_description": "cases/AS-A-V.case.json",
    "case_sha256": "8365fb47a271922ad8ae19699f0a0dcf42c22f0a775631311b21117b61165ce0",
    "request": "AS-A-V.request.json",
-   "request_sha256": "a3ee55c53345b2fe398424392ddc2b7fbe23c5519d7cbd0e609c87e170c23e1d"
+   "request_sha256": "f5cdf98887336610ff35519d92fb471313c5e27cfd14f896ead4ae85fdd92bef"
   },
   "AS-F": {
    "case_description": "cases/AS-F.case.json",
    "case_sha256": "014cc53da7749b1de80d8b7f91330472f18b45ca5137206bea2499bd5a1ef54f",
    "request": "AS-F.request.json",
-   "request_sha256": "2ef8b79c29b742023b383ce11b6ffef277833bd02c050f673104ce336faff570"
+   "request_sha256": "e195e2d364a87e7b70ab2874e63334a5f3478f86cb777a4c1d8f980efc0684c9"
   },
   "AS-F-ER": {
    "case_description": "cases/AS-F-ER.case.json",
    "case_sha256": "0153b3ffea7a7c6f751be79a719f31a8269acc14d014e7f2f90d879dbb25ebd2",
    "request": "AS-F-ER.request.json",
-   "request_sha256": "2155ba3e8a44d1e3a5ee267e8d9cc32b8c28965c9aea182236f7764b56cb6583"
+   "request_sha256": "b896965378d141b1e9036a39c66a806aae6fc19abef9caeeda2698a2c5228fbe"
   },
   "AS-F-R": {
    "case_description": "cases/AS-F-R.case.json",
    "case_sha256": "d15eff742ccca89306a17233f3b28747881dc42c199bda45e0a5ab2db56805c4",
    "request": "AS-F-R.request.json",
-   "request_sha256": "4cf03a72ff9a3cc251f444b2a199ef4a6396432ddee6e6631592df5ac1383e8e"
+   "request_sha256": "898505cb462d183cf858082f88880493d1190b5b3180c5ff7c939bdcd7a2b5cc"
   },
   "AS-F-V": {
    "case_description": "cases/AS-F-V.case.json",
    "case_sha256": "871b4ff2c797fe4f4d2dfb4fd353c1ffdfc2d2bf7c3df1e7b6d7e010eb4e5360",
    "request": "AS-F-V.request.json",
-   "request_sha256": "154361eaad560cb5b1883b6d327b5aa1b9e3ac280cea54ec93227b0b2c0c4f99"
+   "request_sha256": "1f5ceb0f5fd8a7e4b538a600c66c0193e7c58f3045a461e562d5681e4e52586b"
   },
   "ER-A": {
    "case_description": "cases/ER-A.case.json",
    "case_sha256": "6ffc7905d9ff5eb8d0064c0485e395b9268fe31c5b754e58236f62f130584a9a",
    "request": "ER-A.request.json",
-   "request_sha256": "f1ce9c9f76c26b220b8705d88cacc7d0d232445f819841f41262f6cc54d3e5f5"
+   "request_sha256": "44d4bfb0b012c9fc5cf690301858458915019988a2711d54ac11710d48c5ced0"
   },
   "ER-F": {
    "case_description": "cases/ER-F.case.json",
    "case_sha256": "bb6ce54000c4f38046d76d31a91bfd69db228a1b004e3071d20178d1400b9a47",
    "request": "ER-F.request.json",
-   "request_sha256": "92156998943b4b84a0f7827d50570e54b96b085c6fb3e7187b194036965cb095"
+   "request_sha256": "7eb50d2847f1c1dad7d07597109261fa1cedd7e65790c10e0b618d4b0484fc63"
   },
   "L2-CL-2E11": {
    "case_description": "cases/L2-CL-2E11.case.json",
    "case_sha256": "3dc9616ac4f263eaa65b8146c3a9dc8077f8dd83f63b91e711ae5b3a07fedbf3",
    "request": "L2-CL-2E11.request.json",
-   "request_sha256": "780034741a1580fa8e6f141330f91805300a4c174915b2877a6f5741ab7fa67d"
+   "request_sha256": "493d613b244e5067838666d7549fb758f374cb09ebcfa956bc3b5e8f2a0b6377"
   },
   "L2-CL-2E3": {
    "case_description": "cases/L2-CL-2E3.case.json",
    "case_sha256": "26d2c0db3051409ec44ad00224577989ce61ceac6f14151037d393ff945af42c",
    "request": "L2-CL-2E3.request.json",
-   "request_sha256": "bf610043e584a373ca336ff05c232f2b3537e2e69c27b946cefd096c086678a8"
+   "request_sha256": "5287cba84a2b69e4909b4e327d8da5a9545d6d54343a07aa413ac35549fb97f7"
   },
   "L2-CL-2E5": {
    "case_description": "cases/L2-CL-2E5.case.json",
    "case_sha256": "ea86499521bb208be50567ceccfddec5b6a2b96ebe1f559324b2d3d0e7f2ebc1",
    "request": "L2-CL-2E5.request.json",
-   "request_sha256": "a7df65ff1d02f86bafc3b7481925d13dc594115d23135066b341fce6c2d4822c"
+   "request_sha256": "3c5475f2cd804820e44fad4e0ced6ac31f757c1a85f57296a41fdd35b4e6f2e6"
   },
   "L2-CL-2E7": {
    "case_description": "cases/L2-CL-2E7.case.json",
    "case_sha256": "9b364253b41988f4c872de37a000ba5715a706e2a2b76d9058d9b173f757d4e1",
    "request": "L2-CL-2E7.request.json",
-   "request_sha256": "2d36c42309474c20f971f26d0c34c3e595d027703139f36dc35596d636422d0f"
+   "request_sha256": "1149602758a5ae16dd1279f5712a8d0f0d2f4186fe88ff250ca4d103e18b3e2f"
   },
   "L2-CL-2E9": {
    "case_description": "cases/L2-CL-2E9.case.json",
    "case_sha256": "e8a0cc2da587b78642c07fe6d0124fe08e307a8d1493f667a24e1673767d1e58",
    "request": "L2-CL-2E9.request.json",
-   "request_sha256": "b6c2eb9876da6b9f9929502a9ceb4f2762e4485794dffb962a147b98651feb7c"
+   "request_sha256": "f5b39df4af935463d2922a69e6caab85808a250fb5d9cd3f0d93da1530f58d95"
   },
   "L2-PR-2E11": {
    "case_description": "cases/L2-PR-2E11.case.json",
    "case_sha256": "a9b5252bc715666fc244474fb44e98fb44b5884172b293a8d4d6652fc35c1946",
    "request": "L2-PR-2E11.request.json",
-   "request_sha256": "0013b5f667bab2c53f2ef3264876d6e36c7f0355991c874f189b3f0eb9fe98c0"
+   "request_sha256": "220f1e28038a3a8d20f1cb544461e376492b3b8ab1c8bf8705c36bae0c9a7eaa"
   },
   "L2-PR-2E3": {
    "case_description": "cases/L2-PR-2E3.case.json",
    "case_sha256": "fd2e8813270b860b9cbbe6305a4f092a058fb41fb4ba1f5686dd550f71dcf3ca",
    "request": "L2-PR-2E3.request.json",
-   "request_sha256": "db6aee1d9a1f95bba8a45dface7e44e38eec74c63fd75550571c520b075fcf79"
+   "request_sha256": "1572780e7c6d478d202bbbcddaaab639bd32fc7608a98f361ab728376f6f2c6c"
   },
   "L2-PR-2E5": {
    "case_description": "cases/L2-PR-2E5.case.json",
    "case_sha256": "e4cac37e7deee348fd362692c8264ddcc80fb4a2adee0f791f48b1caa012e3de",
    "request": "L2-PR-2E5.request.json",
-   "request_sha256": "746cd2196e9538493de94bf7359b5918b249fbb895e11cca7944553bc7ac510c"
+   "request_sha256": "390360db400c3cf6991aae48a247d4487a812dd44655cc4d3240403de5fabc9c"
   },
   "L2-PR-2E7": {
    "case_description": "cases/L2-PR-2E7.case.json",
    "case_sha256": "8800aeed8b04a7daf3cb1fb6b32ab76ffc2f99a1d32461972fcb7ed8765731a7",
    "request": "L2-PR-2E7.request.json",
-   "request_sha256": "4dfc7e7480ec732faec7bc026a948433741bf55ea1dfa1792cb2995240d405d4"
+   "request_sha256": "62a40c2ba65999b0f1c90602327ef39c678796fba17f2842be8897a62e29aa2d"
   },
   "L2-PR-2E9": {
    "case_description": "cases/L2-PR-2E9.case.json",
    "case_sha256": "21f1f6826311a226476a17236ef2da7d91d68a076e6ff73e6f29df7c9a3c1939",
    "request": "L2-PR-2E9.request.json",
-   "request_sha256": "2862bef702b981461a019db74e31f8ebe5e05ea4c3035b2ff730bab2ebb65abd"
+   "request_sha256": "9b7f49c41777c6adff11a0b547d767f5e95013a4a070e18ec516e4797bd2edb2"
   },
   "L4-CL-2E11": {
    "case_description": "cases/L4-CL-2E11.case.json",
    "case_sha256": "f2841e4a75e4a2f5e816c717ab94c4bdd39ed6042930117daeee0da046d1113b",
    "request": "L4-CL-2E11.request.json",
-   "request_sha256": "3468e83d43ea1f7109dd3e1f9598887af92dce1c82c5a199125cae170f860a9c"
+   "request_sha256": "fd53a576b1a56895630637580536a37c34b7fcce7d034c0525bf8e573e73b62f"
   },
   "L4-CL-2E3": {
    "case_description": "cases/L4-CL-2E3.case.json",
    "case_sha256": "317a97b209cb009b7750241471d05d5c98b1e64c0f4120906c4c68825176b44c",
    "request": "L4-CL-2E3.request.json",
-   "request_sha256": "bd1e29761bf1f6357527fd59524b01a5619a9ceb2308764416a22514e9b1a39b"
+   "request_sha256": "6b871fbaaedf239848e405879cfd6548d0ff571b6b4536abd134b34e183c601c"
   },
   "L4-CL-2E5": {
    "case_description": "cases/L4-CL-2E5.case.json",
    "case_sha256": "18ccc75894c7a34d4ed97578ac4859c1abec8ee24f5cccd25ab2015101b52d21",
    "request": "L4-CL-2E5.request.json",
-   "request_sha256": "26babfaba3653d8225cd81362aab0d744c7a3357a36214d0c016dee255a11552"
+   "request_sha256": "de5d68e574df1c29cf00448d9ef8ecc101ba1cc97996a45f61828f57ff6f7f05"
   },
   "L4-CL-2E7": {
    "case_description": "cases/L4-CL-2E7.case.json",
    "case_sha256": "78a06abcaedee396d2218a6528c4c48d5bea595c9889ea5f15184756f1c699cf",
    "request": "L4-CL-2E7.request.json",
-   "request_sha256": "36ac09b03c663db9a0fbb5853f88bd0496260273f7ea06843fba0c901bffe5f8"
+   "request_sha256": "d0ceb0b00fc809f99c14fe0f7b87120e08bcbafb34cab931f2e761edbdd78faa"
   },
   "L4-CL-2E9": {
    "case_description": "cases/L4-CL-2E9.case.json",
    "case_sha256": "a85e2e6f3e35080e99c7c7353c2116fea0ade8939e9bbd7e814af4f4e95d5793",
    "request": "L4-CL-2E9.request.json",
-   "request_sha256": "6b3646790e51755dcfd4df859deb62dfb6d2a91bf2eccc4b942f108426e248ac"
+   "request_sha256": "a677be33bd51460840ab0b27350e2b84f1945a0360e2e19c8cbb270923389fc7"
   },
   "L4-PR-2E11": {
    "case_description": "cases/L4-PR-2E11.case.json",
    "case_sha256": "452bbbb261cf1a3242f5521a8fa4c874c09eaca4bc25be270422ed8c0afcb63e",
    "request": "L4-PR-2E11.request.json",
-   "request_sha256": "1da65d99a0e368f736e97bd6287121a1e7c8d4897b2431fd9950154ac15b3863"
+   "request_sha256": "3e0fa6f56258e8e1b2c2913028702bf555364f3ee0049f1783c85fce6d5193a7"
   },
   "L4-PR-2E3": {
    "case_description": "cases/L4-PR-2E3.case.json",
    "case_sha256": "0e29f076408ec0f224c79bce1f8b36221f83ae4635293cc62954914503384a67",
    "request": "L4-PR-2E3.request.json",
-   "request_sha256": "f0c590f148db42705c99714aeb4e01a562f4e33b90536592c3d7ecbd162f9bae"
+   "request_sha256": "0bfadfb52e42ca1805b729d195c94df5e2cacc576b1761920a6b2080cd49ff08"
   },
   "L4-PR-2E5": {
    "case_description": "cases/L4-PR-2E5.case.json",
    "case_sha256": "e7ab990d17805fe1a37e8c252a1202f62e32939d394bd97451c942eca4d27172",
    "request": "L4-PR-2E5.request.json",
-   "request_sha256": "2fc5b101086eee5f490c5e6b3c185caa345c302aa4128ea640692f41fb6676b6"
+   "request_sha256": "04b9959175ee8d8e9799580b6a0e13e0219d0706cef249457ac6494c9de7c754"
   },
   "L4-PR-2E7": {
    "case_description": "cases/L4-PR-2E7.case.json",
    "case_sha256": "628ad718e5adddb3ffba7046dcca466991968ded4d6aa0fce1dec94a4fe5da0a",
    "request": "L4-PR-2E7.request.json",
-   "request_sha256": "2193c1d6b9ae90fdfce2ab9a7cf4f92cbba7d2d0598e924914e5edf668841b9f"
+   "request_sha256": "c183cfd6bb29db0aa0b1a5f7e2ef6b8cdfd021dd8a875775c8ee1dc7f8f22916"
   },
   "L4-PR-2E9": {
    "case_description": "cases/L4-PR-2E9.case.json",
    "case_sha256": "e999a5ea9745c6925e32275b174936280ebba03dd01ef5efb1a893d89a5541c0",
    "request": "L4-PR-2E9.request.json",
-   "request_sha256": "98237cd5dc451f507baa2a6ca4550e0d2ce738be41757714f030066b6b783ea3"
+   "request_sha256": "f65ab41cfc80ff8c6ed88b416e7e521a9cb844c12321f4a8235aac851262f056"
   },
   "MO-F": {
    "case_description": "cases/MO-F.case.json",
    "case_sha256": "78f3704dc0fffc6e5d99fc7aae92840ccc3e56d2767d0a67ff512b4150e4180e",
    "request": "MO-F.request.json",
-   "request_sha256": "f0acf3f787ec9f53a99a7bd25272196e147f1b24c0978de746c44081f127aeba"
+   "request_sha256": "21462ee6fd17b22721851787bc1bafab8ede4495d64b72e0ceed7f79afe8356d"
   },
   "MO-T": {
    "case_description": "cases/MO-T.case.json",
    "case_sha256": "18c92ef0d58021c7e1e05379932db620b9a21804971bf5d35e6ea23e7d96cf10",
    "request": "MO-T.request.json",
-   "request_sha256": "b7b4b4b2c5df9eb483755b05108e02f2c2257dfcfb508c6b285ee5699d7db6f6"
+   "request_sha256": "e28e480b018fa7d9690690381aa90f64271e7c22df3efe9274ff7ac9917089ce"
   },
   "OP-4": {
    "case_description": "cases/OP-4.case.json",
    "case_sha256": "5b3381be0c704b9592125988e0eb1a9d8e40f073234e856175a87007d68664b6",
    "request": "OP-4.request.json",
-   "request_sha256": "de4fc08476c5860b8a78bb632b90f38c445dd4b33f00a2b902244ee62464ac9e"
+   "request_sha256": "0ed82a77eecf2483d8c9057a4838a4e169b13f03ac79689ea9386c91d7d8abe7"
   },
   "OP-Y": {
    "case_description": "cases/OP-Y.case.json",
    "case_sha256": "b2ea33087d58bc9eb0d81091dcf7e22a6c71f2ad6b2724d93b3abf9b636c0a15",
    "request": "OP-Y.request.json",
-   "request_sha256": "a4b70c2916312a2bee3bfa8cf0834d1bc749d4370bf87ade896ee621030e34ca"
+   "request_sha256": "dc5a9b37e4db5abb80e7a7b7eaee7e5f59778c6ae08d69b7b309ebc5ce9c4e93"
   },
   "OP-Z": {
    "case_description": "cases/OP-Z.case.json",
    "case_sha256": "fd86c1307e751ef9f788418860d2fa46dc6340d436a4155dc655e6bcc76e9d56",
    "request": "OP-Z.request.json",
-   "request_sha256": "f3c11b67eefbe3c934beb1ed934072d986c903451cd883e4339e28fec2a664c7"
+   "request_sha256": "fac7419552db430f25feff12dad5055c3911fdf6653884dfd40525ac7399133a"
   },
   "RR-P": {
    "case_description": "cases/RR-P.case.json",
    "case_sha256": "5f1bebb915d7a3d92bb3872dd6377ee25eddfa9dd5b6e3ecbeb7ee101300bb72",
    "request": "RR-P.request.json",
-   "request_sha256": "97dfe21674740a848305d47576129a89656dfcbe30658db837458f81bad18dbe"
+   "request_sha256": "72388280f874018298497d4648f5dbba3efe0be21b07e9382a2b32dc14f327b5"
   },
   "RR-U": {
    "case_description": "cases/RR-U.case.json",
    "case_sha256": "1efe513c16f01adbc9ceb8d11477ea8107989e58f77eaad7a5734387455776aa",
    "request": "RR-U.request.json",
-   "request_sha256": "e4ffc2554136ecaedd7f81fb770e8d73e8f90d5c61974e721788885f7a151ab9"
+   "request_sha256": "d3e7f2c1ef3d8970b130719e1bfa710849f46e2dcbdfff9cc445d4f62300eafb"
   },
   "SK-F": {
    "case_description": "cases/SK-F.case.json",
    "case_sha256": "8980c52c16d200c7cadbb809307b268e9ba70293d0152813a3a00f482678680d",
    "request": "SK-F.request.json",
-   "request_sha256": "a331107cbea856ce265b714d891e8a5380c811b2e5d50ae350b25c7d4c523c52"
+   "request_sha256": "4853a9c35afc33950d3297d47801239269887d62dc9516c5d289f7327886ca25"
   }
  }
 }

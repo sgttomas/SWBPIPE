@@ -643,11 +643,14 @@ const REPLACEABLE: Record<Group, string[]> = {
   expansion: ["geometry.effective_area", "geometry.movement_limit"],
   modifiers: ["modifiers.sif_user_value", "modifiers.flexibility_factor_user_value", "modifiers.sif_in_plane_user_value", "modifiers.sif_out_of_plane_user_value", "modifiers.linear_stiffness_user_value", "modifiers.rotational_stiffness_user_value"]
 };
-/** Values of each group, including non-replaceable ones such as center_of_gravity. */
+/** Values of each group, including non-replaceable ones such as center_of_gravity
+ * and a reducer's eccentric_offset (W-15 slice c): a retained offset keeps the
+ * group's source reference, so an apply never treats the group as left with no
+ * user geometry. */
 const GROUP_VALUES: Record<Exclude<Group, "modifiers">, string[]> = {
   bend: REPLACEABLE.bend,
   branch: REPLACEABLE.branch,
-  rigid: [...REPLACEABLE.rigid, "geometry.center_of_gravity"],
+  rigid: [...REPLACEABLE.rigid, "geometry.center_of_gravity", "geometry.eccentric_offset"],
   expansion: REPLACEABLE.expansion
 };
 

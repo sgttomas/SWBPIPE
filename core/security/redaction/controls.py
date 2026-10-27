@@ -115,6 +115,34 @@ CLOUD_NETWORK_DETAIL_KEYS = {
     "cloud_sync_target",
     "hosted_database",
 }
+# Input contract (docs/security/redaction_export_controls.md, "Input contract"; HELP_HUMAN
+# ruling 2026-10-27).  The flag strings all three implementations recognize, after trimming
+# and lowercasing; identical in redactionExportControls.ts and redaction_binding.rs.
+RECOGNIZED_FLAG_STRINGS = frozenset(
+    {"true", "yes", "explicit", "present", "local_private", "explicit_local_private"}
+)
+# Trimmed from an intent flag: ASCII whitespace only, U+0009-U+000D and U+0020.
+INTENT_FLAG_TRIM = "\t\n\x0b\x0c\r "
+# Trimmed from a blocking flag: the union of what Python's str.strip(), JavaScript's
+# String.prototype.trim (redactionExportControls.ts) and Rust's str::trim (the mirror in
+# redaction_binding.rs) removed before the contract, so no implementation reads a blocking
+# flag as unset where it read it as set.  The same code points as BLOCKING_FLAG_TRIM there.
+BLOCKING_FLAG_TRIM = "".join(
+    chr(code_point)
+    for code_point in (
+        0x0009, 0x000A, 0x000B, 0x000C, 0x000D,
+        0x001C, 0x001D, 0x001E, 0x001F,
+        0x0020, 0x0085, 0x00A0, 0x1680,
+        0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005,
+        0x2006, 0x2007, 0x2008, 0x2009, 0x200A,
+        0x2028, 0x2029, 0x202F, 0x205F, 0x3000, 0xFEFF,
+    )
+)
+# A privacy or redistribution label that is not a string (nor null): a stated label that
+# matches no class.  It is not unknown, safe, private or protected, and it does not fall
+# back to the provenance.
+NON_STRING_LABEL = object()
+
 DIRECT_SQL_DETAIL_KEYS = {
     "sql",
     "query",
@@ -370,9 +398,9 @@ def _classify(
 ) -> tuple[RedactionDecision, RedactionFinding | None]:
     metadata_present = _has_explicit_metadata(item) or bool(UNSAFE_DETAIL_KEYS & set(item))
     field_class = _string_or_unknown(item.get("field_class", "unknown"))
-    privacy = item.get("privacy_classification")
-    redistribution = item.get("redistribution_status")
-    review_status = item.get("review_status", "unknown")
+    privacy = _label(item.get("privacy_classification"))
+    redistribution = _label(item.get("redistribution_status"))
+    review_status = _review_label(item.get("review_status", "unknown"))
     # Payload-carried local-private intent is not read in the user-released context
     # (§3.2): only the wrapper's release intent decides there.
     local_private_intent = (
@@ -386,16 +414,20 @@ def _classify(
 
     provenance = item.get("provenance")
     if isinstance(provenance, dict):
-        privacy = privacy if privacy is not None else provenance.get("privacy_classification")
+        privacy = (
+            privacy
+            if privacy is not None
+            else _label(provenance.get("privacy_classification"))
+        )
         redistribution = (
             redistribution
             if redistribution is not None
-            else provenance.get("redistribution_status")
+            else _label(provenance.get("redistribution_status"))
         )
         review_status = (
             review_status
             if review_status not in {None, "unknown"}
-            else provenance.get("review_status", "unknown")
+            else _review_label(provenance.get("review_status", "unknown"))
         )
 
     action, reason = _action_for(
@@ -406,7 +438,7 @@ def _classify(
         export_context=export_context,
         explicit_local_private_intent=local_private_intent,
         explicit_user_release_intent=explicit_user_release_intent,
-        professional_claim=bool(item.get("professional_claim", False)),
+        professional_claim=_professional_claim(item),
         contains_payload=_contains_payload(item),
         secret_material_present=_secret_material_present(item),
         cloud_or_network_reference=_cloud_or_network_reference(item),
@@ -458,18 +490,42 @@ def _action_for(
         return "block_export", "SECRET_MATERIAL_BLOCKED"
     if contains_payload:
         return "block_export", "PAYLOAD_METADATA_ONLY_REQUIRED"
-    if concrete_path_present:
-        return "redact_value", "CONCRETE_PATH_REDACTED"
     if privacy == "protected_suspected" or redistribution == "protected_suspected":
         return "block_export", "PROTECTED_CONTENT_BLOCKED"
     if review_status in {"quarantined", "rejected"}:
         return "block_export", "PROTECTED_CONTENT_BLOCKED"
     if export_context == USER_RELEASED_REPORT_CONTEXT:
-        return _user_released_action(
+        action, reason = _user_released_action(
             privacy=privacy,
             redistribution=redistribution,
             explicit_user_release_intent=explicit_user_release_intent,
         )
+    else:
+        action, reason = _context_action(
+            privacy=privacy,
+            redistribution=redistribution,
+            metadata_present=metadata_present,
+            export_context=export_context,
+            explicit_local_private_intent=explicit_local_private_intent,
+        )
+    # A concrete path redacts only what would not block (input contract, 2026-10-27): it
+    # never turns a protected, quarantined/rejected, intent or user-release block into a
+    # redaction.
+    if concrete_path_present and action != "block_export":
+        return "redact_value", "CONCRETE_PATH_REDACTED"
+    return action, reason
+
+
+def _context_action(
+    *,
+    privacy: Any,
+    redistribution: Any,
+    metadata_present: bool,
+    export_context: str,
+    explicit_local_private_intent: bool,
+) -> tuple[str, str]:
+    """Step 10 onward in the five existing contexts (unchanged sequence)."""
+
     if not metadata_present:
         return _unknown_action(export_context), "MISSING_METADATA_REDACTED"
     if redistribution in UNKNOWN_REDIS_STATUSES:
@@ -497,7 +553,8 @@ def _user_released_action(
 ) -> tuple[str, str]:
     """Steps 10-13 of §3.2, only for ``user_released_report``.
 
-    They run after steps 1-9 and before any unknown-metadata branch.  Only the
+    They run after the blocks of steps 1-9 and before any unknown-metadata branch;
+    the concrete path (step 7) redacts only what they do not block.  Only the
     wrapper's release intent is read; payload-carried intent is not.
     """
 
@@ -638,32 +695,32 @@ def _has_unsafe_item_detail(item: dict[str, Any]) -> bool:
 
 
 def _contains_payload(item: dict[str, Any]) -> bool:
-    return _truthy(item.get("contains_payload")) or _truthy(
+    return _blocking_flag(item.get("contains_payload")) or _blocking_flag(
         item.get("payload_present")
     ) or bool(PAYLOAD_DETAIL_KEYS & set(item))
 
 
 def _secret_material_present(item: dict[str, Any]) -> bool:
-    return _truthy(item.get("secret_material_present")) or bool(
+    return _blocking_flag(item.get("secret_material_present")) or bool(
         SECRET_MATERIAL_KEYS & set(item)
     )
 
 
 def _cloud_or_network_reference(item: dict[str, Any]) -> bool:
-    return _truthy(item.get("cloud_or_network_reference")) or bool(
+    return _blocking_flag(item.get("cloud_or_network_reference")) or bool(
         CLOUD_NETWORK_DETAIL_KEYS & set(item)
     )
 
 
 def _direct_sql_access(item: dict[str, Any]) -> bool:
-    return _truthy(item.get("direct_sql_access")) or bool(
+    return _blocking_flag(item.get("direct_sql_access")) or bool(
         DIRECT_SQL_DETAIL_KEYS & set(item)
     )
 
 
 def _storage_bypass_requested(item: dict[str, Any]) -> bool:
     return any(
-        _truthy(item.get(key))
+        _blocking_flag(item.get(key))
         for key in (
             "storage_bypass",
             "storage_bypass_requested",
@@ -674,7 +731,7 @@ def _storage_bypass_requested(item: dict[str, Any]) -> bool:
 
 
 def _concrete_path_present(item: dict[str, Any]) -> bool:
-    return _truthy(item.get("concrete_path_present")) or bool(
+    return _blocking_flag(item.get("concrete_path_present")) or bool(
         CONCRETE_PATH_DETAIL_KEYS & set(item)
     )
 
@@ -693,7 +750,7 @@ def _local_private_intent(
 def _item_intent(item: dict[str, Any]) -> bool | None:
     for key in ("local_private_intent", "explicit_local_private_intent", "user_intent"):
         if key in item:
-            return _truthy(item[key])
+            return _intent_flag(item[key])
     export_policy = item.get("export_policy")
     if isinstance(export_policy, dict):
         for key in (
@@ -702,25 +759,58 @@ def _item_intent(item: dict[str, Any]) -> bool | None:
             "user_intent",
         ):
             if key in export_policy:
-                return _truthy(export_policy[key])
+                return _intent_flag(export_policy[key])
     return None
 
 
-def _truthy(value: Any) -> bool:
+def _blocking_flag(value: Any) -> bool:
+    """A blocking flag is set by ``True``, a non-zero number, or a recognized string after
+    trimming ``BLOCKING_FLAG_TRIM`` (input contract).  A non-JSON scalar keeps ``bool()``,
+    as before the contract."""
+
     if isinstance(value, bool):
         return value
     if isinstance(value, str):
-        return value.strip().lower() in {
-            "true",
-            "yes",
-            "explicit",
-            "present",
-            "local_private",
-            "explicit_local_private",
-        }
+        return value.strip(BLOCKING_FLAG_TRIM).lower() in RECOGNIZED_FLAG_STRINGS
     if isinstance(value, (dict, list, tuple, set)):
         return False
     return bool(value)
+
+
+def _intent_flag(value: Any) -> bool:
+    """An intent flag is set only by ``True`` or a recognized string after trimming ASCII
+    whitespace (input contract); a number, an array or an object is not intent."""
+
+    if value is True:
+        return True
+    if isinstance(value, str):
+        return value.strip(INTENT_FLAG_TRIM).lower() in RECOGNIZED_FLAG_STRINGS
+    return False
+
+
+def _professional_claim(item: dict[str, Any]) -> bool:
+    """A professional claim blocks unless it is absent, null or ``False`` (input contract)."""
+
+    claim = item.get("professional_claim")
+    return not (claim is None or claim is False)
+
+
+def _label(value: Any) -> Any:
+    """A privacy or redistribution label as the classifier reads it (input contract): a
+    string or null as stated, any other value ``NON_STRING_LABEL``."""
+
+    if value is None or isinstance(value, str):
+        return value
+    return NON_STRING_LABEL
+
+
+def _review_label(value: Any) -> Any:
+    """A review status that is not a string (nor null) reads as ``unknown`` and so gives way
+    to the provenance's (input contract)."""
+
+    if value is None or isinstance(value, str):
+        return value
+    return "unknown"
 
 
 def _is_scalar_metadata_value(value: Any) -> bool:

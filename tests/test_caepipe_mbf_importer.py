@@ -26,6 +26,7 @@ if str(ROOT) not in sys.path:
 
 from core.handoff.caepipe_mbf import importer as importer_module  # noqa: E402
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si  # noqa: E402
+from core.handoff.caepipe_mbf.si_writer import current_model_schema_version  # noqa: E402
 from core.handoff.caepipe_mbf.importer import (  # noqa: E402
     IMPORT_PROFILE_ID,
     REPORT_KIND,
@@ -357,7 +358,7 @@ def test_material_provenance_must_be_affirmative():
 
 
 def test_a_bound_sidecar_origin_qualifies_and_a_rebound_one_does_not():
-    model = {"schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
+    model = {"schema_version": current_model_schema_version(), "document_kind": "openpipestress.product_preview.model",
              "project": {"id": "invented", "units": {"length": "mm", "force": "N", "temperature": "degC"}},
              "analysis_status": {"mechanics": "x", "rule_check": "x", "professional_acceptance": "x"},
              "nodes": [{"id": "A", "position": {"x": 0, "y": 0, "z": 0}}, {"id": "B", "position": {"x": 1000, "y": 0, "z": 0}}],
@@ -763,7 +764,7 @@ def test_imported_straights_take_the_documented_local_y_and_report_it():
 
 
 def test_a_bound_import_restores_straight_orientation_from_the_sidecar():
-    model = {"schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
+    model = {"schema_version": current_model_schema_version(), "document_kind": "openpipestress.product_preview.model",
              "project": {"id": "invented", "units": {"length": "mm", "force": "N", "temperature": "degC"}},
              "analysis_status": {"mechanics": "x", "rule_check": "x", "professional_acceptance": "x"},
              "nodes": [{"id": "A", "position": {"x": 0, "y": 0, "z": 0}}, {"id": "B", "position": {"x": 1000, "y": 0, "z": 0}}],

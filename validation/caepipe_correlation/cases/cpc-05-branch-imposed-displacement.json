@@ -9,7 +9,7 @@
   },
   "purpose": "Branch and imposed support displacement: anchor D() displacement in thermal-case, a three-leg junction, torsion and bending coupling.",
   "model": {
-    "schema_version": "0.7.0",
+    "schema_version": "0.8.0",
     "document_kind": "openpipestress.product_preview.model",
     "project": {
       "id": "project:cpc-05",

@@ -197,7 +197,9 @@ def inspect_directed_helpers(snapshot):
 # W-16 slice a D3 (§8.23): lib.rs's support target, imposed-motion calls and primitive filter add no `.min(`/`.max(` call.
 # Nested-record closure D3 (§8.25): lib.rs's closed nested records and material wire add or remove no `.min(`/`.max(`
 # call, and the observation lane stays deleted (E14); E13's retired preimage is unchanged.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '06e98114c960d95f0d7dc59b749e274c7bca5fc206343e4c7460604a4213e761'
+# Model document 0.8.0 D3 (§8.26): lib.rs's eccentric_offset member, its normalization and the offset-check calls add or
+# remove no `.min(`/`.max(` call (rigid_component.rs's arc_evidence receivers are f64, W15C-CG).
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '06a49656af6d46b67230c44a56eebc9511999e2495c9d2eb2489d892c630d290'
 
 
 def primitive_lib_minmax_callers(snapshot):

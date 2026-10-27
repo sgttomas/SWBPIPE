@@ -48,10 +48,11 @@ const MODES = ["sparse_interactive", "dense_scrutiny"] as const;
 
 /** Current B7a goldens from the maintained I76 recipe and its fixed base/origin stand-ins. W-7: the
  * member's 12 global end rows (113 -> 125) move the received carrier checksum in the origin; W-16 slice a's
- * shorter preview LIMITATIONS[1] moves it again. */
+ * shorter preview LIMITATIONS[1] moves it again; model document 0.8.0's version token moves the goldens and the
+ * origin (its model and source hashes) again. */
 const GOLDEN: Record<PreviewSolverMode, { path: string; sha256: string; base: string; origin: string; rows: number; nonQuantity: number }> = {
-  sparse_interactive: { path: "fixtures/results/retained_precision_successor_derivative_sparse_interactive.json", sha256: "ee497bffc6fab092da57ac43010ad579f7eaf40232b570acfc7a57f6efa54a39", base: "989d81cc1067e6ebe73eb15e0bd83cc851d2d66784a28af5296d47afc6d582ec", origin: "613a2c77bb2491c926bad3d75ca4ff4d90ff65f3e5d29f8c897d65450f87b332", rows: 125, nonQuantity: 1 },
-  dense_scrutiny: { path: "fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json", sha256: "4d362dd6a3b64b96516f277b3a931cc5a3332ce977dbf93d5a64b8f89f5ea792", base: "2e95fac829e079a7415d6dec0b9d57d890103f8cfe2a79bd1bc2a7721a28344b", origin: "e0ab967e47b45cd13896fec34804058fd620ec3520dcfe019a05b647552a9fa5", rows: 125, nonQuantity: 1 },
+  sparse_interactive: { path: "fixtures/results/retained_precision_successor_derivative_sparse_interactive.json", sha256: "1a1124c51ce1cee7021874be18ae2f374ce40cbe9c7c8f4f079408957bce7151", base: "989d81cc1067e6ebe73eb15e0bd83cc851d2d66784a28af5296d47afc6d582ec", origin: "f34f63100591c20d2578ab4293726bfcd23bffeacb8bfb0f90b5ac3aaa392aad", rows: 125, nonQuantity: 1 },
+  dense_scrutiny: { path: "fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json", sha256: "0920a5428060c1d0feec6eb665dce4926b0ab812213bd77e36839c8f10d17669", base: "2e95fac829e079a7415d6dec0b9d57d890103f8cfe2a79bd1bc2a7721a28344b", origin: "77fcc85d61bf4cb3c9287b46114b600424b20ce0fa7dfe9335873cfb40ceeb4f", rows: 125, nonQuantity: 1 },
 };
 /** I76's fixed stand-ins (its CHECKPOINT_1 section 2): test values, not a qualified manifest or build. */
 const MANIFEST_REF = "test:t6s-golden-reference-only-manifest";
@@ -364,8 +365,8 @@ const EXACT_GOLDEN: Record<PreviewSolverMode, { successor: string; successorSha2
   // O4 (W1-E): re-pinned after DEF-E's revision; only the DEF-E-bound hashes moved (rows and values unchanged).
   // O4 limitation text (§3.3): re-pinned for the base's restated limitation [7] and the hashes binding it.
   // W-15 (DEL-03-05) on W-7: re-pinned for the restated pressure-2 identity limitation and the hashes binding it.
-  sparse_interactive: { successor: "fixtures/results/retained_precision_exact_successor_sparse_interactive.json", successorSha256: "53df81b7f576e714816bccfc54d96baca3814a0e919b9823e5aa9bf29b97826c", receiptSha256: "0c7b14b6b08c689eee3be11ac164b0ec9296fd759c91595955eee7056dbc6ff4", path: "fixtures/results/retained_precision_exact_successor_derivative_sparse_interactive.json", sha256: "9c4756e9289a5062a0e2e8474ddae5047297588ac7575799293b5b8b92400f07", rows: 98 + 15 + 21 + 15 + 12 },
-  dense_scrutiny: { successor: "fixtures/results/retained_precision_exact_successor_dense_scrutiny.json", successorSha256: "1a3f9eed3731e123264dcca1e7f46645434cc9b66b95656de837cce3f7a431ea", receiptSha256: "d9a6e8073a6207abd426c6d88f3cdae21c41a660a61230178921cfcd3260d872", path: "fixtures/results/retained_precision_exact_successor_derivative_dense_scrutiny.json", sha256: "579878c8e800ef2e4d17dd11c8ed3ec76c7c646caf786e4dab5f027d6144faef", rows: 98 + 15 + 21 + 15 + 12 },
+  sparse_interactive: { successor: "fixtures/results/retained_precision_exact_successor_sparse_interactive.json", successorSha256: "65953bd4296bf2f4c281318f4147b95b3b6eeffa778b885ff35d597ef8842f5b", receiptSha256: "2cf168193edf2dfc00f668eee52adc0e8361b6a88c5e47ae1e207db2cf126845", path: "fixtures/results/retained_precision_exact_successor_derivative_sparse_interactive.json", sha256: "341252147ed033e1fff30ee3c8cc2ad907e8b110e41a4483bcc25fd7e00d3260", rows: 98 + 15 + 21 + 15 + 12 },
+  dense_scrutiny: { successor: "fixtures/results/retained_precision_exact_successor_dense_scrutiny.json", successorSha256: "b66082a3cac16ed740a0f3cc031e0f24ff4528ed635f95ebd97a5a161fb8527a", receiptSha256: "a27d1c0234024dfe2e9d5dc7b90c18cabff25bc61f5d2df2c15329b294465d2d", path: "fixtures/results/retained_precision_exact_successor_derivative_dense_scrutiny.json", sha256: "5ab928c78a5a56f44d2aba204a1dad973aabcf4a931591edcc6c320d45601eb3", rows: 98 + 15 + 21 + 15 + 12 },
 };
 describe.each(MODES)("%s: byte parity with the exact successor's Rust golden (B3b-T)", (mode) => {
   it("derives the golden's exact canonical bytes; it validates and carries the receipt and pressure-2's evidence", async () => {

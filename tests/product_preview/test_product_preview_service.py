@@ -398,3 +398,17 @@ def test_agent_proposal_is_review_only_and_non_mutating():
     assert preview["proposal"]["audit_boundary"]["requires_user_acceptance"] is True
     assert preview["proposal"]["audit_boundary"]["mutates_accepted_model_state"] is False
     assert "certified" not in canonical_json(preview).lower()
+
+
+# Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.1): the preview validator reads only the current
+# model document; a retired one is refused by name, any other version as unsupported.
+def test_a_retired_or_non_current_preview_model_is_refused():
+    from core.product_preview import load_preview_model
+    for version, code in (("0.7.0", "MODEL_SCHEMA_VERSION_RETIRED"), ("0.1.0", "MODEL_SCHEMA_VERSION_RETIRED"),
+                          ("0.9.0", "PREVIEW_SCHEMA_VERSION_UNSUPPORTED")):
+        model = load_preview_model()
+        model["schema_version"] = version
+        validation = validate_preview_model(model)
+        assert {"code": code, "severity": "blocking", "target_ref": "model.schema_version"} in validation["diagnostics"], version
+    current = validate_preview_model(load_preview_model())
+    assert not [d for d in current["diagnostics"] if "SCHEMA_VERSION" in d["code"]]

@@ -21,6 +21,9 @@ from core.serialization.canonical_json.adapter import canonical_sha256_checked_v
 
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_DIR = ROOT / "fixtures" / "product_preview"
+# The one current model document version (DEL-02-01 Design model-document-0.8.0.md); every older one is retired.
+MODEL_VERSION = "0.8.0"
+RETIRED_MODEL_VERSIONS = ("0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0")
 
 PROFESSIONAL_BOUNDARY = {
     "human_review_required": True,
@@ -271,6 +274,11 @@ def validate_preview_model(model: Mapping[str, Any] | None = None) -> dict[str, 
         diagnostics.append(_diagnostic("PREVIEW_DOCUMENT_KIND_INVALID", "blocking", "model"))
     if not record.get("schema_version"):
         diagnostics.append(_diagnostic("PREVIEW_SCHEMA_VERSION_MISSING", "blocking", "model"))
+    elif record.get("schema_version") in RETIRED_MODEL_VERSIONS:
+        # Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.1): a retired document is refused by name.
+        diagnostics.append(_diagnostic("MODEL_SCHEMA_VERSION_RETIRED", "blocking", "model.schema_version"))
+    elif record.get("schema_version") != MODEL_VERSION:
+        diagnostics.append(_diagnostic("PREVIEW_SCHEMA_VERSION_UNSUPPORTED", "blocking", "model.schema_version"))
     if not record.get("nodes") or not record.get("pipe_segments"):
         diagnostics.append(_diagnostic("PREVIEW_GEOMETRY_INCOMPLETE", "blocking", "model"))
 

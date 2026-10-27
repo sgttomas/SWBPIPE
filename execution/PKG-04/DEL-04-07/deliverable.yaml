@@ -4,8 +4,8 @@ needs:
 - from: DEL-02-01
   condition: >-
     DEL-04-07 decodes the model document that DEL-02-01's canonical schema (`schemas/model.schema.yaml`)
-    defines: model 0.7.0 only, pressure-free without `pressure_contract` and on the exact contract with it,
-    with the retired versions, 0.5.0 and 0.6.0 included, refused by name (PP `model_format.rs`). It needs that canonical shape,
+    defines: model 0.8.0 only, pressure-free without `pressure_contract` and on the exact contract with it,
+    with the retired versions, 0.5.0, 0.6.0 and 0.7.0 included, refused by name (PP `model_format.rs`). It needs that canonical shape,
     including the exact-contract fields (section `corrosion_allowance`, `pressure_contract.shear_model`).
     Primitive mathematics remains with its owners.
   gating: true

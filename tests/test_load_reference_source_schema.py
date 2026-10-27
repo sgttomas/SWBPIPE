@@ -44,11 +44,11 @@ LRSCHEMA = "load_reference_state.schema.json"
 
 PRS_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 # T4-U6 (D-5, DEL-05-03 section-bases-and-timoshenko.md §2.4): the per-basis stress signatures (88).
-PRS_SHA = "b5a4b0e585b9ec440d36144860baaf101b628498cfdab9a1de9248c2ed5069e7"
+PRS_SHA = "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c"
 PRS_POLICY = "PRESSURE-SOURCE-1"
 PROFILE = "exact_pressure_v3"
 PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
-PRESSURE_SHA = "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d"
+PRESSURE_SHA = "a47626ed51791f984fbc07630732a046f8090ff645efdb56e73a284110e9c80c"
 PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
 SUCCESSOR_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 EXACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"

@@ -50,7 +50,7 @@ def model(exact):
         "id": "load:w15-fx", "category": "concentrated_force", "target": {"type": "node", "node": "node:b"},
         "direction": "global_x", "magnitude": q(3000.0, "N"), "dimension": "force", "provenance": PROV}],
         "provenance": PROV}
-    out = {"schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
+    out = {"schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
            "project": {"id": "project:w15-slice-d", "units": {"length": "m"}},
            "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
                                "rule_check": "not_performed_user_rule_inputs_missing",

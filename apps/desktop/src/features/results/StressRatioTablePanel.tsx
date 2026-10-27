@@ -1,6 +1,7 @@
 /** The sorted stress and ratio table (survey item A3; DEL-07-05 Design `stress-ratio-table.md`
  * §5, §7, §8). One category at a time: the user's rule-check outcomes of one of the pack's stress
- * categories, sorted by ratio or by computed value, or one emitted stress kind sorted by magnitude.
+ * categories, sorted by ratio (each row stating its direction, §3.1) or by computed value, or one
+ * emitted stress kind sorted by magnitude.
  * A threshold shows only the rows at or above it; it never hides an incomplete, withheld or failed
  * check (FR-RULE-003). Each row's location button highlights it through the session's selection.
  *
@@ -19,9 +20,11 @@ import type { ResultOverlayStanding } from "./numericalHealth";
 import {
   THRESHOLD_INVALID_NOTE,
   buildStressRatioTable,
+  ratioDirection,
   stressRatioLocationText,
   stressRatioPage,
   stressRatioView,
+  type RatioDirection,
   type StressRatioGroup,
   type StressRatioMode,
   type StressRatioPage,
@@ -39,7 +42,7 @@ export const STRESS_RATIO_PINNED_TEXT =
 export const STRESS_RATIO_BOUNDARY_TEXT =
   "Ratios, limits and statuses are your rule pack's own outcomes, shown in this session only. The product supplies no allowable; this table sorts and filters what is stated and qualifies nothing.";
 export const STRESS_RATIO_KEY_TEXT: Readonly<Record<"ratio" | "rule_stress" | "emitted_stress", string>> = Object.freeze({
-  ratio: "Ratio = your rule's computed value ÷ its limit, formed only for a less-than relation with both in one unit and a positive limit. Largest first.",
+  ratio: "Ratio = your rule's computed value ÷ its limit under a less-than relation, or its limit ÷ its computed value under a greater-than relation; the Direction column says which. It is formed only with both in one unit, a positive limit and, under greater-than, a positive computed value. In either direction a ratio above 1 means the computed value is past your limit. Largest first.",
   rule_stress: "Sorted by the magnitude of your rule's computed value, largest first.",
   emitted_stress: "Sorted by the magnitude of the emitted stress, largest first; values are shown signed."
 });
@@ -61,6 +64,13 @@ export function stressRatioSummaryText(view: StressRatioView, page: StressRatioP
   const later = page.notListedCount > 0 ? `; ${page.notListedCount} more not yet listed` : "";
   return `Showing ${page.listedCount} of ${view.totalCount} rows${hidden}${later}.`;
 }
+/** Each ratio row's direction (§3.1), in the Direction column. */
+export const RATIO_DIRECTION_TEXT: Readonly<Record<RatioDirection, string>> = Object.freeze({
+  upper: "Upper bound: computed ÷ limit",
+  lower: "Lower bound: limit ÷ computed"
+});
+/** The formula in a ratio's title. */
+const RATIO_FORMULA: Readonly<Record<RatioDirection, string>> = Object.freeze({ upper: "computed ÷ limit", lower: "limit ÷ computed" });
 export const RATIO_DISABLED_NO_RUN = "No rule-check run in this session";
 export const RATIO_DISABLED_EMITTED = "Emitted stress: no rule outcome";
 
@@ -250,7 +260,7 @@ function RowsTable({ group, view, page, selectedResultId, onSelectLocation, tid 
   const stressUnit = sharedUnit(listed.map((row) => row.stress));
   const computedUnit = sharedUnit(listed.map((row) => row.outcome?.computed ?? null));
   const limitUnit = sharedUnit(listed.map((row) => row.outcome?.limit ?? null));
-  const valueColumns = rule ? 2 : 1;
+  const valueColumns = !rule ? 1 : view.mode === "ratio" ? 3 : 2;
   const keyLabel = !rule ? "stress magnitude" : view.mode === "ratio" ? "ratio" : "computed value magnitude";
   const sort = view.sorted ? "descending" : "none";
   const tableLabel = view.sorted ? `${group.label}: sorted by ${keyLabel}` : `${group.label}: in source order, ${keyLabel} not sorted (units differ)`;
@@ -264,7 +274,13 @@ function RowsTable({ group, view, page, selectedResultId, onSelectLocation, tid 
             <th scope="col">Case</th>
             {rule ? <><th scope="col">Check</th><th scope="col">Status</th></> : null}
             {!rule ? <th scope="col" aria-sort={sort} data-testid={tid("column-stress")}>{headerWithUnit("Stress", stressUnit)}</th> : null}
-            {rule && view.mode === "ratio" ? <><th scope="col" aria-sort={sort} data-testid={tid("column-ratio")}>Ratio</th><th scope="col">Relation</th></> : null}
+            {rule && view.mode === "ratio" ? (
+              <>
+                <th scope="col" aria-sort={sort} data-testid={tid("column-ratio")}>Ratio</th>
+                <th scope="col" data-testid={tid("column-direction")}>Direction</th>
+                <th scope="col">Relation</th>
+              </>
+            ) : null}
             {rule && view.mode === "stress" ? (
               <>
                 <th scope="col" aria-sort={sort} data-testid={tid("column-computed")}>{headerWithUnit("Computed", computedUnit)}</th>
@@ -362,6 +378,7 @@ function Row({ row, rank, part, mode, rule, units, selectedResultId, onSelectLoc
   tid: (suffix: string) => string;
 }) {
   const outcome = row.outcome;
+  const direction = outcome && outcome.ratio !== null ? ratioDirection(outcome.relation) : null;
   return (
     <tr {...rowAttributes(row, part, selectedResultId, tid)}>
       <th scope="row">{rank === null ? <Dash label="not ranked" /> : rank}</th>
@@ -374,10 +391,11 @@ function Row({ row, rank, part, mode, rule, units, selectedResultId, onSelectLoc
       {rule && outcome && mode === "ratio" ? (
         <>
           <td data-testid={tid(`value-${row.key}`)}>
-            {outcome.ratio !== null
-              ? <span title={`${displayQuantityParts(outcome.ratio, "").number} (computed ÷ limit; ${outcome.identity})`}>{displayQuantityParts(outcome.ratio, "").number}</span>
+            {outcome.ratio !== null && direction
+              ? <span title={`${displayQuantityParts(outcome.ratio, "").number} (${RATIO_FORMULA[direction]}; ${outcome.identity})`}>{displayQuantityParts(outcome.ratio, "").number}</span>
               : <small>{outcome.ratioNote ?? "No ratio is formed"}</small>}
           </td>
+          <td data-testid={tid(`direction-${row.key}`)}>{direction ? RATIO_DIRECTION_TEXT[direction] : <Dash label="none" />}</td>
           <td>{outcome.relation}</td>
         </>
       ) : null}

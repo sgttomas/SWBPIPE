@@ -41,12 +41,15 @@ import runpy
 # Unit factor-sum gate D3 (§8.24): re-read on the merge with main's W-16 slice a (§8.23). RE retained_precision.rs's
 # preview-physics-retained-1 table digest (a constant) moves with the table's restated gate condition. No owner this
 # model prices changes.
+# Model document 0.8.0 D3 (§8.26): retained_product.rs changes one comment; retained_wire.rs and RE retained_precision.rs
+# carry DEF-E's definition hash and the physics-retained-1 table hash, and RE retained_precision.rs's current-version
+# gates read 0.8.0 (same length). No owner this model prices changes.
 SOURCE_FILES = {
-    "core/product_physics/src/retained_product.rs": '11052a7bad1be6233c78a37c24003992817664d1bcae9871bc8087bc55b78fe3',
-    "core/product_physics/src/retained_wire.rs": "1c58db53d9a590d4316aea0fdc855396002935faed3d91a31e7f5434d93d8d40",
+    "core/product_physics/src/retained_product.rs": 'df90ded63eb1b0b35684b5372fffbfda4296f26d1fe57e73308838da729a9b64',
+    "core/product_physics/src/retained_wire.rs": "b457aff075c67f6eb93000dff2ca0cf4bab43119fe34db1316c78356bf1864b3",
     "core/product_physics/src/retained_receipt.rs": "bf10f382e247fe84164dac5916e0b6fc69134e4b4934fd832132f59e86ca7251",
     "core/reporting/result_export/src/lib.rs": "2d8ba125e30d7de3cc18d304d78447095538c258419be77ed805cd255232a147",
-    "core/reporting/result_export/src/retained_precision.rs": "2bdce1a16241775ecfc35ffd220f29f5394379eb9cb710686b9de53f8ab8571d",
+    "core/reporting/result_export/src/retained_precision.rs": "cac05759ed3cd76d16173fea6f21415a970aaa44b6d0691c8eeae466050dcca0",
     "core/reporting/result_export/src/declared_member_load.rs": '93787b8894f752cd4c577c58513449471672956e934d35157e31178e9c53a52c',
     "core/solver/frame_kernel/src/structural/retained_resource.rs": "ca0516b5b88ed0d55abf9780c0782f42acd68f4f80b73543415c920fd3da5b7b",
     "core/solver/frame_kernel/src/structural/retained/source.rs": "053b59579d6d5a2c18026029d6a8c8648617a341a2787f6f248ce0d5c4379053",
