@@ -1711,9 +1711,11 @@ with `syn::visit::Visit`.
     whatever its predicate. The scan does not evaluate predicates, so it
     cannot know which file such a module loads; it refuses the attribute
     rather than follow one candidate (Codex round 1 at #1682, P2b);
-  - any `include!`;
-  - an `include_str!` or `include_bytes!` whose argument is not one string
-    literal, or names a `.rs` file;
+  - an `include!`, `include_bytes!` or `concat_idents!`, by any path
+    (`std::include!`, `core::include_bytes!`), invoked or imported (code
+    review r4 at #1682; *Unsafe code and macro names* below);
+  - an `include_str!` by any path but its bare name, or whose argument is
+    not one string literal, or names a `.rs` file;
   - a production file that does not parse.
 
   So no production Rust, generated or external, reaches these crates through
@@ -1788,7 +1790,9 @@ broken.
    (`schema_eval.rs:750-751`, `handoff_package_publish.rs:826-827`), so it
    is not listed.
 3. **Attributes and derives.** Every attribute's path, outer or inner, must
-   be one of these:
+   be one of these, except each reporting crate's crate-root
+   `#![forbid(unsafe_code)]` (*Unsafe code and macro names* below), which is
+   admitted only there and only in exactly that form:
    - built in: `cfg`, `cfg_attr`, `allow`, `inline`, `cold`,
      `global_allocator`, `derive`, and `doc` (doc comments). The attributes a
      `cfg_attr` applies, at any depth and whatever the predicate, are checked
@@ -1821,9 +1825,10 @@ broken.
    - any `extern crate`, and any glob import (there is none in production at
      the basis);
    - a `use` whose bound name, its last segment or its `as` alias, equals a
-     listed bare macro or derive name, or the first segment of a listed path
-     (`serde`, `serde_json`, `rusqlite`, `tauri`), unless it imports that
-     item from its listed source. At the basis these are
+     listed bare macro or derive name, the first segment of a listed path
+     (`serde`, `serde_json`, `rusqlite`, `tauri`) or a standard crate root
+     (`std`, `core`, `alloc`; code review r4 at #1682), unless it imports
+     that item from its listed source. At the basis these are
      `use serde_json::{json, …}`, `use rusqlite::{params, …}` and
      `use serde::{Serialize, Deserialize}` or one of the two, and none binds
      a crate root under another name.
@@ -1838,7 +1843,8 @@ code made only from its own tokens and its own crate's internals:
   call the renderer, since only these crates depend on it (asserted below);
 - `vec!` moves its argument expressions into a vector, and `matches!` is a
   `match` on its expression with its pattern. `env!` and `include_str!`
-  expand to a string literal;
+  expand to a string literal (`include_str!` only bare and of a non-`.rs`
+  file, so it brings in no code);
 - `json!` builds a `serde_json::Value`, and `params!` a slice of references
   to its argument expressions. Any expression in either is written in the
   invocation's tokens, which the name screen reads;
@@ -1893,7 +1899,7 @@ was a search, not a scan run:
     (`command_ingress.rs:1395,1403`), are inside the test-only `mod tests`
     (`:793-1812`).
   - The other three crates define none.
-- **`include!`.** None.
+- **`include!`, `include_bytes!` and `concat_idents!`.** None.
 - **`include_str!`.** Production uses read JSON and schema files, for example
   `src-tauri/src/lib.rs:168,170`, `report_package/src/schema_eval.rs:47-62`
   and `report_renderer/src/exact_statements.rs:20`. Each argument is one
@@ -1957,8 +1963,9 @@ Every other spelling fails closed:
 - `DerivedUserRelease`: a `Self { .. }` literal in an `impl` of it is its
   literal; naming it in a type alias or an associated type is a finding; its
   definition carries no attribute but its documentation (no derive); and the
-  three reporting crates hold no `unsafe` block, function, impl or trait and
-  no `extern` block, through which one could be built without naming it;
+  three reporting crates hold no `unsafe` code and no `extern` block,
+  through which one could be built without naming it. The compiler enforces
+  that (*Unsafe code and macro names* below);
 - `DerivedUserRelease` under another name (Codex round 2 at #1682, P2): an
   associated type assigned `Self` in an impl for it names it under another
   path, through which a struct literal compiles (an alias of
@@ -2003,9 +2010,11 @@ Every other spelling fails closed:
   const generic argument of its pattern, escaped). A `matches!` whose tokens
   do not parse so is a finding. Every other macro's tokens are screened
   with the same normalization, and a `UserRelease` named in them is a
-  construction: `include_str!` and `include_bytes!` are also checked as one
-  string literal, `include!` is refused, and `macro_rules!` bodies are
-  screened whole, none discarding a construction.
+  construction: `include_str!` is also checked as one string literal,
+  `include!`, `include_bytes!` and `concat_idents!` are refused by any
+  path, item keywords and `macro_rules!` there are findings (*Unsafe code
+  and macro names* below), and `macro_rules!` bodies are screened whole,
+  none discarding a construction.
 
 *Conservative rules (code review r3 at #1682).* Three review rounds each
 found a form that the scanner modelled wrongly: an alias declared inside a
@@ -2064,8 +2073,89 @@ broken, and each allow-list is empty or derived from today's source:
   impl item, trait item, foreign item, expression, type, pattern or bound
   that `syn` gives as `Verbatim` is a finding, never skipped.
 
+*Unsafe code and macro names (code review r4 at #1682).* Two forms compiled
+and gave no finding. Outside the defining module a macro's tokens were only
+screened, and the screen never checked `unsafe`, so
+`vec![unsafe { std::mem::zeroed() }].pop().unwrap()` in
+`report_package/src/lib.rs` built a `DerivedUserRelease`, and
+`transmute::<u8, user_release::ProducerEntry>(1)` built
+`ProducerEntry::UserRelease`. And a listed path could resolve to another
+macro: `mod tauri { pub use std::include as generate_context; }` made
+`tauri::generate_context!("review_escape.rs")` an `include!` of a file the
+scan never read. The repairs are structural rather than more token
+modelling:
+- **`#![forbid(unsafe_code)]`, enforced by the compiler.** The crate roots
+  of `report_package`, `report_renderer` and `pdf_emitter` carry it. The
+  compiler then refuses every `unsafe` block, `unsafe fn`, `unsafe impl` and
+  `unsafe trait` the crate's own source writes, including inside macro
+  arguments and in included files (both repros, and `format!`, `assert!`
+  and `vec!` forms, fail to compile), and no inner `#[allow(unsafe_code)]`
+  can lift it (E0453). None of the three crates had `unsafe` code, so each
+  builds unchanged. The scan requires that exact inner attribute at each of
+  the three roots: its absence, or any other form (another lint added,
+  `deny`, through `cfg_attr`, or as an outer attribute), is a finding, and a
+  `forbid` anywhere else is not on the attribute list. The token rule also
+  finds every `unsafe` keyword in the three crates' read files, in any
+  position, and the parsed-tree `unsafe` findings stay.
+  Without `unsafe`, nothing in these crates' dependencies can build either
+  private type. `DerivedUserRelease` has a private field, so only a literal
+  in its own module builds one (the literal rule), and a safe generic
+  constructor in any crate (`Default`, `Clone`, `Deserialize`) needs a trait
+  impl for it, which is refused (no derive; the trait-impl allow-list is
+  empty). `ProducerEntry::UserRelease` holds one, so it cannot be built
+  without one.
+- **Macro names.** So that a listed invocation path resolves only to the
+  listed macro, each of these is a finding:
+  - (a) in the three reporting crates, a `use … as …` rename (`as _`
+    included) other than today's seven, each a crate alias:
+    `open_pipe_stress_audit_manifest as audit`,
+    `open_pipe_stress_pdf_emitter as pdf`,
+    `open_pipe_stress_report_renderer as renderer`,
+    `open_pipe_stress_protected_content_linter as linter`,
+    `open_pipe_stress_report_generator as report`,
+    `open_pipe_stress_report_sections as sections` and `crate as package`
+    (`USE_RENAMES`). Whether a renamed path is a macro cannot be decided from
+    source, so every rename is listed rather than macro renames alone;
+  - (b) in the three reporting crates, a non-private `use` (`pub`,
+    `pub(crate)`, any restricted visibility) other than today's five, all in
+    `report_package/src/lib.rs` and none a macro:
+    `open_pipe_stress_report_renderer::serde_error_kind` and
+    `reader::{read_report_package_container, PackageReadRefusal,
+    ReadReportPackage, SUPPORTED_PACKAGE_VERSION}` (`PUBLIC_USES`). The
+    same reason applies;
+  - (c) in all four crates, a `mod`, `use` binding, `extern crate` (already
+    a finding itself) or `macro_rules!` whose name is reserved: a standard
+    crate root (`std`, `core`, `alloc`), a listed external crate (`serde`,
+    `serde_json`, `rusqlite`, `tauri`), or the first segment of a listed
+    invocation, which for a bare listed macro is its own name (`format`,
+    `vec`, `json`, `params` and the rest). A `use` that imports a listed
+    name from its listed source, and the pinned `app_invoke_handler`, are
+    the exceptions. A local module or binding of such a name is what lets a
+    listed path name another macro;
+  - (d) in all four crates, an invocation of `include!`, `include_bytes!` or
+    `concat_idents!` by any path, judged by its final segment, and an import
+    of any of them or of `include_str!`. `include_str!` is admitted only
+    bare, with one string literal that names no `.rs` file: production uses
+    it for JSON and schema text (`schema_eval.rs:47-62`,
+    `exact_statements.rs:20`, `src-tauri/src/lib.rs`). No production code
+    uses `include_bytes!`. `env!` and `option_env!` expand only to a string
+    literal, so they need no rule beyond the invocation list (`env!` is
+    listed; `option_env!` is not). Only one `macro_rules!` exists, pinned;
+  - in all four crates, the keywords `mod`, `use`, `extern` and `macro`, and
+    `macro_rules!`, in tokens the scan does not parse (a macro's that is not
+    parsed, an attribute's). An item there would bind a name the scan never
+    sees, so the shadow above written inside `format!("{}", { … })` is a
+    finding too;
+  - (e) `#[macro_use]` on an `extern crate` or a `mod`, outlined or inline,
+    or anywhere else, as before.
+
+  None of these rules hit the real sources: today's renames and re-exports
+  are exactly the allow-lists, and no module, binding or macro definition
+  takes a reserved name.
+
 The real-source scan finds nothing under these rules; no rule needed an
-allow-list entry or a change to production code. What the scan does not
+allow-list entry beyond today's renames and re-exports or a change to
+production code other than the three crate-root attributes. What the scan does not
 attempt to model, and refuses instead: macro expansion (beyond the listed
 macros' input grammars), name resolution beyond the crate-wide inventory of
 struct and alias names, type inference, constant evaluation and `cfg`
@@ -2224,6 +2314,16 @@ change to this boundary.
   identifier from parts. The scan would not see it. None of today's does
   (Codex round 4 at revision 4, N4), and a change to one of those
   dependencies is reviewed as a change to this boundary.
+- **`unsafe` in an external macro's own expansion.** The compiler does not
+  lint code that an external macro's definition writes (as opposed to
+  tokens the crate passes it), so `forbid(unsafe_code)` covers the crates'
+  own source, macro arguments and included files, not an `unsafe` emitted
+  by a listed external macro itself. The listed ones take no type to
+  construct, and a change to one is reviewed as a change to this boundary.
+- **Manifests and dependency names.** A listed external crate root is
+  trusted to be that crate. A `Cargo.toml` rename of a dependency to a
+  listed root's name (`tauri = { package = … }`) is not judged by the scan;
+  it is reviewed as a manifest change.
 - **W-11's scan.** W-11's forwarding-graph scan keeps its line rules for the
   admitted set, which is W-11's own claim. This design relies on that scan
   for no reach claim, since the reach scan pins the producer's internal
