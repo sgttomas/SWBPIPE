@@ -744,3 +744,91 @@ def test_the_persistence_refusal_text_is_the_desktop_s():
     retired = re.findall(r'"(0\.\d+\.\d+)"', re.search(r"pub const RETIRED_MODEL_SCHEMA_VERSIONS[^=]*=\s*\[([^\]]*)\]", rust_format).group(1))
     assert list(service.RETIRED_MODEL_VERSIONS) == retired
     assert f'pub const RETIRED_PROJECT_RUNS_NOTE: &str = "{service.RETIRED_PROJECT_RUNS_NOTE}";' in desktop
+
+
+# R7-3: every non-current model document is refused, with the desktop's state, code and text, on validate, create,
+# save and open (the shared table, fixtures/model_document/version_states.json, which the applier, the native desktop
+# and the TS check also read). A missing version is the payload without the member.
+_VERSION_TABLE = json.loads((ROOT / "fixtures/model_document/version_states.json").read_text())
+_CODES = {"MODEL_SCHEMA_VERSION_RETIRED", "MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED", "MODEL_SCHEMA_VERSION_UNSUPPORTED"}
+
+
+def _envelope_for(case):
+    model = json.loads(_RETIRED_MODEL.read_text())
+    if "schema_version" in case:
+        model["schema_version"] = case["schema_version"]
+    else:
+        del model["schema_version"]
+    return build_project_persistence_envelope(
+        project_id=model["project"]["id"], project_name="Invented version-state project", model_payload=model,
+        model_state_refs=[{"object_type": "model_state", "ref": "state:version"}],
+        analysis_run_refs=[{"object_type": "analysis_run", "ref": "run:version"}],
+        result_envelope_refs=[{"object_type": "result_envelope", "ref": "result:version"}],
+        result_refs=[{"object_type": "result", "ref": "rows:version"}])
+
+
+def _version_refusals(diagnostics):
+    return [(d["code"], d["severity"], d["message"]) for d in diagnostics if d["code"] in _CODES]
+
+
+def _expected(case):
+    if case["code"] is None:
+        return []
+    note = f" {RETIRED_PROJECT_RUNS_NOTE_TEXT}" if case["status"] == "retired_schema" else ""
+    return [(case["code"], "blocking", case["detail"] + note)]
+
+
+RETIRED_PROJECT_RUNS_NOTE_TEXT = _RETIRED_TEXT.split("Nothing is migrated. ", 1)[1]
+
+
+def test_every_version_state_is_the_desktop_s():
+    from core.project_persistence.service import model_document_version_state
+    assert len(_VERSION_TABLE["cases"]) >= 10
+    for case in _VERSION_TABLE["cases"]:
+        payload = {"document_kind": "openpipestress.product_preview.model"}
+        if "schema_version" in case:
+            payload["schema_version"] = case["schema_version"]
+        state = model_document_version_state(payload)
+        assert state == {key: case[key] for key in ("status", "source_schema_version", "target_schema_version", "detail", "code")}, case["label"]
+
+
+def test_every_non_current_model_payload_is_refused_on_validate_create_save_and_open(tmp_path, monkeypatch):
+    from core.project_persistence import service
+    for index, case in enumerate(_VERSION_TABLE["cases"]):
+        expected = _expected(case)
+        envelope = _envelope_for(case)
+        assert _version_refusals(validate_project_persistence_envelope(envelope)) == expected, case["label"]
+        for action in (create_project_store, save_project_store):
+            store = tmp_path / f"{index}-{action.__name__}.sqlite3"
+            outcome = action(store, envelope)
+            assert _version_refusals(outcome["diagnostics"]) == expected, (case["label"], action.__name__)
+            assert ("hash_manifest" in outcome) is (not expected), (case["label"], action.__name__)
+        store = tmp_path / f"{index}-written-before.sqlite3"
+        with monkeypatch.context() as patched:
+            patched.setattr(service, "model_payload_version_refusal", lambda model_payload: None)
+            assert save_project_store(store, envelope)["diagnostics"] == [], case["label"]
+        opened = open_project_store(store)
+        # Open reports the store's blocking findings beside the stored envelope, as for a hash mismatch.
+        assert _version_refusals(opened["diagnostics"]) == expected, case["label"]
+
+
+def test_an_authored_euler_bernoulli_member_is_kept_byte_for_byte(tmp_path):
+    # R7-1: a document that carries model_settings.shear_model = euler_bernoulli (authored outside the applier) is a
+    # current document; persistence keeps the member as authored, and reopening gives the same bytes.
+    case = {"label": "current", "schema_version": "0.8.0"}
+    envelope = _envelope_for(case)
+    model = envelope["project"]["model_payload"]
+    model.setdefault("model_settings", {})["shear_model"] = "euler_bernoulli"
+    envelope = build_project_persistence_envelope(
+        project_id=model["project"]["id"], project_name="Invented shear-model project", model_payload=model,
+        model_state_refs=[{"object_type": "model_state", "ref": "state:shear"}],
+        analysis_run_refs=[{"object_type": "analysis_run", "ref": "run:shear"}],
+        result_envelope_refs=[{"object_type": "result_envelope", "ref": "result:shear"}],
+        result_refs=[{"object_type": "result", "ref": "rows:shear"}])
+    store = tmp_path / "shear.sqlite3"
+    assert save_project_store(store, envelope)["diagnostics"] == []
+    opened = open_project_store(store)
+    assert opened["diagnostics"] == []
+    assert json.dumps(opened["envelope"]["project"]["model_payload"], sort_keys=True, separators=(",", ":")) == \
+        json.dumps(model, sort_keys=True, separators=(",", ":"))
+    assert opened["envelope"]["project"]["model_payload"]["model_settings"]["shear_model"] == "euler_bernoulli"

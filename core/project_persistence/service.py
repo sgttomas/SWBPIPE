@@ -20,12 +20,18 @@ from typing import Any, Mapping, Sequence
 SCHEMA_VERSION = "0.1.0"
 DOCUMENT_KIND = "openpipestress.project_persistence"
 # Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.1, §3.3): the model payload's version is the
-# desktop's. A retired model document (0.7.0 and older) is refused by name on validate, create, save and open, with
-# the desktop's code and text (src-tauri `refuse_model_document`: the retired message, then RETIRED_PROJECT_RUNS_NOTE).
-# Nothing is migrated. The project's recorded runs are not gated here (owner ruling "0.8.0 a2").
+# desktop's. Every non-current model document is refused by name on validate, create, save and open, with the
+# desktop's state, code and text (the applier's `model_document_version`, which src-tauri delegates to; the shared
+# table is fixtures/model_document/version_states.json): an older one as MODEL_SCHEMA_VERSION_RETIRED (then
+# RETIRED_PROJECT_RUNS_NOTE, as `refuse_model_document` appends it), a newer one as
+# MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED, and a missing, non-string or non-semver one as
+# MODEL_SCHEMA_VERSION_UNSUPPORTED. Nothing is migrated. The project's recorded runs are not gated here (owner ruling
+# "0.8.0 a2").
 MODEL_VERSION = "0.8.0"
 RETIRED_MODEL_VERSIONS = ("0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0")
 MODEL_SCHEMA_VERSION_RETIRED = "MODEL_SCHEMA_VERSION_RETIRED"
+MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED = "MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED"
+MODEL_SCHEMA_VERSION_UNSUPPORTED = "MODEL_SCHEMA_VERSION_UNSUPPORTED"
 RETIRED_PROJECT_RUNS_NOTE = (
     "Recorded runs keep their own format and existing read and compare behaviour; this change adds no "
     "model-document-version gate for recorded runs. Existing integrity checks and retained-precision/source-reader "
@@ -253,16 +259,50 @@ def validate_project_persistence_envelope(envelope: Mapping[str, Any]) -> list[d
     return sorted(diagnostics, key=canonical_json)
 
 
-def model_payload_version_refusal(model_payload: Any) -> dict[str, Any] | None:
-    """The named refusal of a retired model document, as the desktop states it; None for any other payload."""
+def _model_semver(raw: str) -> tuple[int, int, int] | None:
+    parts = raw.split(".")
+    if len(parts) != 3 or not all(part and all("0" <= ch <= "9" for ch in part) for part in parts):
+        return None
+    return int(parts[0]), int(parts[1]), int(parts[2])
+
+
+def model_document_version_state(model_payload: Any) -> dict[str, Any]:
+    """The model document's version state, as the desktop gives it: status, versions, detail and refusal code."""
 
     version = model_payload.get("schema_version") if isinstance(model_payload, Mapping) else None
-    if version not in RETIRED_MODEL_VERSIONS:
+    raw = version if isinstance(version, str) else ""
+    if raw == MODEL_VERSION:
+        return {"status": "current", "source_schema_version": raw, "target_schema_version": raw, "code": None,
+                "detail": f"Model document {MODEL_VERSION} is the current version; a pressure contract, when present, "
+                          "and solve eligibility are validated separately."}
+    parsed = _model_semver(raw)
+    if parsed is None:
+        return {"status": "unsupported_schema", "source_schema_version": raw or "missing_schema_version",
+                "target_schema_version": MODEL_VERSION, "code": MODEL_SCHEMA_VERSION_UNSUPPORTED,
+                "detail": "Model document has no valid semver schema_version; refusing to open it for editing without "
+                          "coercion."}
+    if parsed > _model_semver(MODEL_VERSION):
+        return {"status": "newer_than_supported", "source_schema_version": raw, "target_schema_version": MODEL_VERSION,
+                "code": MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED,
+                "detail": f"Model document schema_version {raw} is newer than the current {MODEL_VERSION}; refusing to "
+                          "open it for editing (no down-migration)."}
+    detail = (f"model document {raw} is retired; re-author it as model document {MODEL_VERSION} (a pressure-free model "
+              "omits pressure_contract). Nothing is migrated." if raw in RETIRED_MODEL_VERSIONS else
+              f"model document {raw} is not a supported version; re-author it as model document {MODEL_VERSION}. "
+              "Nothing is migrated.")
+    return {"status": "retired_schema", "source_schema_version": raw, "target_schema_version": MODEL_VERSION,
+            "code": MODEL_SCHEMA_VERSION_RETIRED, "detail": f"{MODEL_SCHEMA_VERSION_RETIRED}: {detail}"}
+
+
+def model_payload_version_refusal(model_payload: Any) -> dict[str, Any] | None:
+    """The named refusal of a non-current model document, as the desktop states it; None for the current one."""
+
+    state = model_document_version_state(model_payload)
+    if state["code"] is None:
         return None
-    diagnostic = _diagnostic(MODEL_SCHEMA_VERSION_RETIRED, "SCHEMA_VALIDATION", "project.model_payload.schema_version")
-    diagnostic["message"] = (
-        f"{MODEL_SCHEMA_VERSION_RETIRED}: model document {version} is retired; re-author it as model document "
-        f"{MODEL_VERSION} (a pressure-free model omits pressure_contract). Nothing is migrated. {RETIRED_PROJECT_RUNS_NOTE}")
+    diagnostic = _diagnostic(state["code"], "SCHEMA_VALIDATION", "project.model_payload.schema_version")
+    note = f" {RETIRED_PROJECT_RUNS_NOTE}" if state["status"] == "retired_schema" else ""
+    diagnostic["message"] = f"{state['detail']}{note}"
     diagnostic["remediation"] = f"Re-author the model as model document {MODEL_VERSION}; nothing is migrated."
     return diagnostic
 
