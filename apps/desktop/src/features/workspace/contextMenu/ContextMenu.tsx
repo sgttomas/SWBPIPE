@@ -1,6 +1,8 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { createPortal, flushSync } from "react-dom";
-import { canSurfaceRevealNow } from "../surfaceReveal";
+import { adjacentTabStop, recoverMenuFocus } from "./menuFocus";
+
+export { adjacentTabStop, recoverMenuFocus } from "./menuFocus";
 
 // B9: one context menu for the viewport, the tree and the grids. It lists commands that
 // already exist elsewhere (the menu bar, a toolbar, the inspector, a shortcut); each entry
@@ -50,53 +52,15 @@ export function pointerMenuRequest(event: { clientX: number; clientY: number }, 
   return { anchor: { x: event.clientX, y: event.clientY }, returnFocus, fallbacks };
 }
 
-const TABBABLE = 'a[href], button, input, select, textarea, summary, [tabindex], [contenteditable]:not([contenteditable="false"])';
-
-/** Shown, connected and able to take focus. */
-function focusable(element: Element | null | undefined): element is HTMLElement {
-  return element instanceof HTMLElement && canSurfaceRevealNow(element) && !(element as HTMLButtonElement).disabled;
-}
-
-function tryFocus(element: HTMLElement): boolean {
-  element.focus();
-  return document.activeElement === element;
-}
-
-/** The candidates in order: the invoker, then the surface's equivalents and stable places. */
+/** The request's candidates in order: the invoker, then the surface's equivalents and stable places. */
 function candidates(request: ContextMenuRequest): HTMLElement[] {
   return [request.returnFocus, ...(request.fallbacks?.() ?? [])].filter((element): element is HTMLElement => element instanceof HTMLElement);
 }
 
-/**
- * Puts focus back after the menu closed and its command ran. A command that placed focus
- * itself (an editor) keeps it. Otherwise focus goes to the first candidate still connected
- * and shown. When none is (the command hid the whole surface, as queuing a removal opens the
- * Pending changes page in the tree's pane), it goes to the first shown focusable element in
- * the nearest shown ancestor of the surface: the page that replaced it.
- */
-export function recoverMenuFocus(request: ContextMenuRequest): HTMLElement | null {
-  const active = document.activeElement;
-  if (active instanceof HTMLElement && active !== document.body && active.isConnected) return active;
-  const list = candidates(request);
-  for (const element of list) if (focusable(element) && tryFocus(element)) return element;
-  const start = list.find((element) => element.isConnected);
-  for (let ancestor = start?.parentElement ?? null; ancestor; ancestor = ancestor.parentElement) {
-    if (!canSurfaceRevealNow(ancestor)) continue;
-    if (ancestor.hasAttribute("tabindex") && tryFocus(ancestor)) return ancestor;
-    for (const element of ancestor.querySelectorAll<HTMLElement>("[tabindex]")) {
-      if (focusable(element) && tryFocus(element)) return element;
-    }
-  }
-  return null;
-}
-
-/** The tab stop after (or before) the invoker, as Tab would have moved from it. */
-export function adjacentTabStop(reference: HTMLElement, backward: boolean, exclude: Element | null): HTMLElement | null {
-  const stops = [...document.querySelectorAll<HTMLElement>(TABBABLE)].filter((element) =>
-    element.tabIndex >= 0 && focusable(element) && !exclude?.contains(element) && element !== reference && !reference.contains(element)
-  );
-  const follows = (element: HTMLElement) => Boolean(reference.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING);
-  return backward ? [...stops].reverse().find((element) => !follows(element)) ?? null : stops.find(follows) ?? null;
+function ancestorsOf(element: HTMLElement | null): HTMLElement[] {
+  const list: HTMLElement[] = [];
+  for (let node = element?.parentElement ?? null; node; node = node.parentElement) list.push(node);
+  return list;
 }
 
 const VIEWPORT_MARGIN = 4;
@@ -116,6 +80,10 @@ export function ContextMenu({ label, entries, request, onClose, testId = "contex
   const closed = useRef(false);
   const latest = useRef({ onClose, request });
   latest.current = { onClose, request };
+  // The invoker's ancestors now, so that focus can still be placed near the surface when the
+  // invoker and every equivalent are gone by the time the menu closes.
+  const [ancestry] = useState(() => ancestorsOf(request.returnFocus));
+  const recover = () => recoverMenuFocus({ candidates: candidates(latest.current.request), ancestry }, menuRef.current);
 
   /** Removes the menu now (and runs `then` in the same commit), so that focus can be judged after. */
   function dismiss(then?: () => void) {
@@ -130,16 +98,17 @@ export function ContextMenu({ label, entries, request, onClose, testId = "contex
   function close(restoreFocus: boolean) {
     if (closed.current) return;
     dismiss();
-    if (restoreFocus) recoverMenuFocus(latest.current.request);
+    if (restoreFocus) recover();
   }
 
   function tabAway(backward: boolean) {
     const request = latest.current.request;
     const menu = menuRef.current;
     dismiss();
-    const reference = candidates(request).find((element) => element.isConnected) ?? null;
+    const reference = request.returnFocus?.isConnected ? request.returnFocus : candidates(request).find((element) => element.isConnected) ?? null;
     const next = reference ? adjacentTabStop(reference, backward, menu) : null;
-    if (!next || !tryFocus(next)) recoverMenuFocus(request);
+    next?.focus();
+    if (document.activeElement !== next) recover();
   }
 
   // Keep the menu inside the window.
@@ -184,8 +153,12 @@ export function ContextMenu({ label, entries, request, onClose, testId = "contex
     // Close and run in one commit, then recover focus only if the command left it nowhere:
     // a command that moves focus (an editor) keeps it, and one that hides or removes the
     // invoker sends it to the surface's equivalent or a stable place.
-    dismiss(() => command.run());
-    recoverMenuFocus(latest.current.request);
+    // A command that throws still closes the menu and gets focus back; the error goes on.
+    try {
+      dismiss(() => command.run());
+    } finally {
+      recover();
+    }
   }
 
   function move(step: number | "first" | "last") {

@@ -878,12 +878,15 @@ function EntityGrid({
     event.preventDefault();
     setRowMenu({ target: { type: row.type, id: row.id }, request: keyboardMenuRequest(event.currentTarget, event.currentTarget, rowMenuFallbacks(row)), serial: ++rowMenuSerial.current });
   }
-  /** The same row's current ID button, then the first shown row's. */
+  /**
+   * The same row's current ID button, then the first shown row's, then the grid's table region,
+   * which stays mounted (with its empty-state message) when every row is gone.
+   */
   function rowMenuFallbacks(row: GridRow) {
     const testId = `entity-grid-row-${safeToken(row.type)}-${safeToken(row.id)}`;
     return () => {
       const headers = [...(gridRootRef.current?.querySelectorAll<HTMLElement>("[data-grid-row-header]") ?? [])];
-      return [headers.find((element) => element.dataset.testid === testId), ...headers];
+      return [headers.find((element) => element.dataset.testid === testId), ...headers, bulkScrollRef.current];
     };
   }
   // W-17 §7.3, §7.6: composed column defaults are checked against the DEC-018 catalog,
@@ -1164,7 +1167,7 @@ function EntityGrid({
           active={reviewVisible && entityType === "sections"} bounded={bounded} compact={compact} density={density} filter={filterText} selection={selection}
           onSelect={onSelect} updateCell={updateCell} resetEditsKey={sectionReviewReset} />
       </div>
-      {!commonFamily ? <div className="entity-grid-scroll" ref={bulkScrollRef} role="region" aria-label="Editable model entity table">
+      {!commonFamily ? <div className="entity-grid-scroll" ref={bulkScrollRef} role="region" aria-label="Editable model entity table" tabIndex={-1}>
         {virtualGrid ? (
           <div className="entity-grid-virtual-table" role="table" aria-label={`${entityType} editable grid`} data-testid={`entity-grid-table-${entityType}`}>
             <div className="entity-grid-virtual-row header" role="row" style={{ gridTemplateColumns: `minmax(100px, 1fr) repeat(${columns.length}, minmax(120px, 1fr))` }}>

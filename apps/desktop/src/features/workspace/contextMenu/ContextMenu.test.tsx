@@ -242,3 +242,126 @@ describe("focus after a command changes the invoking surface", () => {
     expect(screen.getByTestId("container")).toHaveFocus();
   });
 });
+
+// Tab from the menu reaches what the browser's Tab from the invoker would (the review's
+// Chromium probes, TAB_ORDER): disabled controls, those in a disabled fieldset, inert and
+// CSS-invisible ones are skipped, a radio group is one stop, an iframe is a stop, and the ends
+// wrap. Positive tabindex and shadow roots are outside the product's scope (Design).
+type Layout = "fieldset" | "radio" | "radio-unchecked" | "visibility" | "inert" | "iframe" | "edge-first" | "edge-last";
+function TabPage({ layout }: { layout: Layout }) {
+  const [request, setRequest] = useState<ContextMenuRequest | null>(null);
+  return (
+    <div>
+      {layout !== "edge-first" ? <button type="button" id="before">Before</button> : null}
+      <button type="button" id="invoker" onKeyDown={(event) => {
+        if (!isContextMenuKey(event)) return;
+        event.preventDefault();
+        setRequest(keyboardMenuRequest(event.currentTarget));
+      }}>Invoker</button>
+      {layout === "fieldset" ? <fieldset disabled><button type="button" id="inherited">Disabled inherited</button></fieldset> : null}
+      {layout === "radio" || layout === "radio-unchecked" ? <>
+        <input id="radio-a" type="radio" name="invented-radio" />
+        <input id="radio-b" type="radio" name="invented-radio" defaultChecked={layout === "radio"} />
+      </> : null}
+      {layout === "visibility" ? <button type="button" id="invisible" style={{ visibility: "hidden" }}>Invisible</button> : null}
+      {layout === "inert" ? <div inert><button type="button" id="inert-button">Inert</button></div> : null}
+      {layout === "iframe" ? <iframe id="frame" title="Invented frame" /> : null}
+      {layout !== "edge-last" ? <button type="button" id="after">After</button> : null}
+      {request ? <ContextMenu label="Commands" entries={[{ kind: "command", id: "act", label: "Act", run: () => undefined }]} request={request} onClose={() => setRequest(null)} /> : null}
+    </div>
+  );
+}
+
+function tabFromMenu(backward = false) {
+  const invoker = document.getElementById("invoker")!;
+  invoker.focus();
+  fireEvent.keyDown(invoker, { key: "F10", shiftKey: true });
+  fireEvent.keyDown(screen.getByRole("menu"), { key: "Tab", shiftKey: backward });
+  expect(screen.queryByRole("menu")).toBeNull();
+  return (document.activeElement as HTMLElement).id;
+}
+
+describe("Tab from the menu follows the browser's tab order", () => {
+  it.each([
+    ["fieldset", "Tab", "after"],
+    ["radio", "Tab", "radio-b"],
+    ["radio-unchecked", "Tab", "radio-a"],
+    ["visibility", "Tab", "after"],
+    ["inert", "Tab", "after"],
+    ["iframe", "Tab", "frame"],
+    ["edge-last", "Tab", "before"],
+    ["edge-first", "Shift+Tab", "after"],
+    ["radio", "Shift+Tab", "before"]
+  ] as const)("in a %s layout, %s reaches #%s", (layout, key, expected) => {
+    render(<TabPage layout={layout} />);
+    expect(tabFromMenu(key === "Shift+Tab")).toBe(expected);
+  });
+});
+
+// Commands that throw, or that put focus somewhere and then hide it (COMMAND_FOCUS), and the
+// generic fallback's preference for a place over an action (fallback-negative).
+function CommandPage({ effect }: { effect: "throws" | "focus-hidden" | "destructive-neighbour" }) {
+  const [request, setRequest] = useState<ContextMenuRequest | null>(null);
+  const [hidden, setHidden] = useState(false);
+  const run = () => {
+    if (effect === "throws") throw new Error("INVENTED_COMMAND_FAILURE");
+    if (effect === "focus-hidden") document.getElementById("invoker")?.focus();
+    setHidden(true);
+  };
+  return (
+    <div>
+      <div className={hidden ? "inactive" : undefined}>
+        <button type="button" id="invoker" onKeyDown={(event) => {
+          if (!isContextMenuKey(event)) return;
+          event.preventDefault();
+          setRequest(keyboardMenuRequest(event.currentTarget, event.currentTarget,
+            effect === "destructive-neighbour" ? undefined : () => [document.getElementById("stable")]));
+        }}>Invoker</button>
+        <div id="stable" tabIndex={-1}>Stable place</div>
+      </div>
+      {effect === "throws" ? null : <>
+        <button type="button" id="destructive" tabIndex={-1}>Delete permanently</button>
+        <section id="replacement" tabIndex={-1} aria-label="Replacement page">Replacement page</section>
+      </>}
+      {request ? <ContextMenu label="Commands" entries={[{ kind: "command", id: "act", label: "Act", run }]} request={request} onClose={() => setRequest(null)} /> : null}
+    </div>
+  );
+}
+
+function runFromMenu() {
+  const invoker = document.getElementById("invoker")!;
+  invoker.focus();
+  fireEvent.keyDown(invoker, { key: "F10", shiftKey: true });
+  fireEvent.keyDown(screen.getByRole("menu"), { key: "Enter" });
+}
+
+describe("focus after unusual commands", () => {
+  it("recovers focus when the command throws, and the error still propagates", () => {
+    const errors: string[] = [];
+    const onError = (event: ErrorEvent) => { errors.push(event.error?.message ?? event.message); event.preventDefault(); };
+    window.addEventListener("error", onError);
+    try {
+      render(<CommandPage effect="throws" />);
+      runFromMenu();
+    } finally {
+      window.removeEventListener("error", onError);
+    }
+    expect(errors).toEqual(["INVENTED_COMMAND_FAILURE"]);
+    expect(screen.queryByRole("menu")).toBeNull();
+    expect(document.getElementById("invoker")).toHaveFocus();
+  });
+
+  it("does not keep focus a command put on an element it then hid", () => {
+    render(<CommandPage effect="focus-hidden" />);
+    runFromMenu();
+    expect(document.activeElement).not.toBe(document.getElementById("invoker"));
+    expect(document.getElementById("replacement")).toHaveFocus();
+  });
+
+  it("prefers a page region over a tabindex=-1 button when nothing designated is shown", () => {
+    render(<CommandPage effect="destructive-neighbour" />);
+    runFromMenu();
+    expect(document.getElementById("destructive")).not.toHaveFocus();
+    expect(document.getElementById("replacement")).toHaveFocus();
+  });
+});

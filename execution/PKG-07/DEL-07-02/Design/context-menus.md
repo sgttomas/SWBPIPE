@@ -44,10 +44,10 @@ them only there. A viewport command is unavailable while no viewport is
 mounted. While the Table view is shown the viewport is mounted but not
 displayed; Hide, Isolate and Show all still apply there, and the tree shows
 the hidden state. The other routes stay available in their own views. In the
-Table view the viewport toolbar is not shown, so the tree's menu is then the
-only route to Hide selected, Isolate selected and Fit selection. The removal
-builders moved unchanged from
-`PropertyInspector.tsx`; their `source_ref` still names the inspector, because
+Table view the viewport toolbar is not shown, so the context menus of the
+tree, the bulk grid and the engineering tables are then the routes to Hide
+selected, Isolate selected and Fit selection. The removal builders moved
+unchanged from `PropertyInspector.tsx`; their `source_ref` still names the inspector, because
 the intent is the same intent, whichever surface queues it.
 
 Commands not offered because none exists yet: copying an identifier, listing
@@ -111,24 +111,52 @@ the existing commands' own where they have one:
 - Enter or Space runs the item. Escape, Shift+F10 or the ContextMenu key
   closes the menu.
 - Tab and Shift+Tab close the menu and move focus to the tab stop after or
-  before the element the menu was opened from, as Tab from that element would.
-  Neither key reaches the surface below.
+  before the element the menu was opened from, as Tab from that element would
+  (`menuFocus.ts`, `adjacentTabStop`). Neither key reaches the surface below.
+  - A stop is an element with tabindex 0 (natively or set) that can take
+    focus. That rules out:
+    - disabled elements, and those inside a disabled fieldset other than in
+      its first legend;
+    - elements under `inert`;
+    - elements that are not laid out (the reveal helper's test);
+    - elements with `visibility: hidden` or `collapse`.
+  - A named radio group is one stop: its checked radio, or else its first
+    radio that can take focus.
+  - An iframe is a stop.
+  - Past the last stop Tab wraps to the first, and Shift+Tab before the first
+    wraps to the last, because the desktop window has no browser chrome for
+    focus to leave to.
+  - Out of scope, because the product has none: a positive tabindex is treated
+    as 0, and a shadow root's contents are not entered.
 - An item runs in the same update that closes the menu, and focus is judged
-  afterwards (`recoverMenuFocus`):
-  - An item that placed focus keeps it. For example, Edit cell opens the
-    editor.
+  afterwards (`recoverMenuFocus`). A command that throws still closes the menu
+  and gets focus back; its error then propagates as before.
+  - An item that placed focus on an element that can still take it keeps it.
+    For example, Edit cell opens the editor and a dialog command focuses the
+    dialog. Focus the command put on an element it then hid is not kept.
   - Otherwise focus returns to the element the menu was opened from, if it is
     still connected and shown: the tree list, the cell, the row header, the
     label or the canvas.
   - Otherwise it goes to the surface's current equivalent or stable place:
     - for a viewport label, the same entity's label, then the canvas;
-    - for a bulk-grid row, the same row's ID button, then the first row's;
+    - for a bulk-grid row, the same row's ID button, then the first row's,
+      then the grid's table region ("Editable model entity table",
+      `tabindex="-1"`), which stays mounted with its empty-state message when
+      every row is gone;
     - for a table, the same cell or row header, then the table's footer, as a
       removed edit row does.
-  - When the whole surface is hidden, focus goes to the first shown focusable
-    element in the surface's nearest shown ancestor. This happens when queuing
-    a removal opens Pending changes in the tree's pane, and focus then goes to
-    that page.
+  - When none of those can take focus, recovery starts from the nearest
+    element of the surface that is still connected: a candidate, or else an
+    ancestor the invoker had when the menu opened. From there it takes the
+    nearest shown ancestor, and focuses, in order:
+    - that ancestor, if it is a place: a section, region, tab panel, dialog
+      or heading with a tabindex;
+    - else its first place;
+    - else its first tab stop.
+
+    Other `tabindex="-1"` elements are never chosen, so an action button is
+    not focused in place of a page. This happens when queuing a removal opens
+    Pending changes in the tree's pane, and focus then goes to that page.
 - Escape uses the same order, so a row removed while its menu was open sends
   focus to the table's footer.
 - "Shown" is the reveal helper's test (`canSurfaceRevealNow`). jsdom does no
@@ -141,15 +169,18 @@ the existing commands' own where they have one:
 
 ## Evidence
 
-- `features/workspace/contextMenu/ContextMenu.test.tsx`: menu semantics and the
-  keyboard model.
+- `features/workspace/contextMenu/ContextMenu.test.tsx`: menu semantics, the
+  keyboard model, the Tab order (disabled fieldset, radio groups, invisible,
+  inert, iframe, both ends) and focus after commands that remove, hide,
+  throw, or focus and then hide.
 - `features/workspace/contextMenu/EntityContextMenu.test.tsx`: the Remove-panel
   intents and the reasons.
 - `features/model-tree/ModelTree.contextMenu.test.tsx`:
   - the tree, the bulk grid and the engineering tables;
   - routing to the viewport command, the inspector's intents and the table's
     edit and sort;
-  - focus return, Tab traversal and the selection rule.
+  - focus return, Tab traversal and the selection rule;
+  - focus on the grid's table region after its last row is removed.
 - `features/workspace/table/EngineeringTable.contextMenu.test.tsx`: a row
   removed while its menu is open, and a selection made elsewhere while it is
   open.
@@ -168,6 +199,10 @@ table and tree sources as they were at #1679's first revision, 11 tests fail.
 These are 10 of the 12 focus, Tab and drag tests added since, and the
 bulk-grid test, whose Tab expectation changed. The two that still pass check
 behaviour that held before: focus returns to an invoker that is still shown,
-and stays where a command put it.
+and stays where a command put it. With the menu and tree sources as they were
+at #1679's second revision, 10 of the 13 Tab-order, command-focus and
+empty-grid tests added in the third fail. The three that pass are an
+unchecked radio group, an inert subtree and Shift+Tab out of a radio layout,
+which the second revision already handled.
 
 Native checks of the menus remain open.

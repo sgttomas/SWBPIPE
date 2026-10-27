@@ -226,6 +226,26 @@ describe("the bulk grid row context menu", () => {
   });
 });
 
+describe("the bulk grid when its last row goes", () => {
+  it("puts focus on the grid's table region, not the page, when the menu's only row is removed (BULK_LAST_ROW_REMOVED)", () => {
+    const model = inventedModel();
+    const selection: EntityRef = { type: "pipe", id: "pipe:AB" };
+    const { view } = mountTree({ selection, model });
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    fireEvent.click(screen.getByTestId("entity-grid-type-pipes"));
+    const header = screen.getByTestId("entity-grid-row-pipe-pipe:AB");
+    header.focus();
+    fireEvent.keyDown(header, { key: "F10", shiftKey: true });
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+    view.rerender(<ModelTree model={{ ...model, pipe_segments: [] }} selection={selection} selectionState={selectionOf([selection])} onSelect={vi.fn()} />);
+    expect(header.isConnected).toBe(false);
+    fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
+    expect(document.activeElement).not.toBe(document.body);
+    expect(screen.getByRole("region", { name: "Editable model entity table" })).toHaveFocus();
+    expect(screen.getByTestId("entity-grid-empty")).toBeInTheDocument();
+  });
+});
+
 describe("the engineering table cell context menu", () => {
   const nodeCell = (id: string, column: string) => screen.getByTestId(`table-cell-${id}-${column}`);
 
