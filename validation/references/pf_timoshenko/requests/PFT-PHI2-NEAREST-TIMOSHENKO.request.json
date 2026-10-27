@@ -83,7 +83,7 @@
    {
     "id": "support:A",
     "node": "node:A",
-    "family": "guide",
+    "family": "anchor",
     "restraints": [
      "UX",
      "UY",

@@ -130,6 +130,7 @@
     "nonlinear": {
      "behavior": "friction",
      "dof": "UZ",
+     "initial_state": "sticking",
      "friction_coefficient": {
       "value": 0.3,
       "unit": "none"

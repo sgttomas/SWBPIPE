@@ -130,6 +130,7 @@
     "nonlinear": {
      "behavior": "one_way",
      "dof": "UY",
+     "initial_state": "inactive",
      "active_when": "positive_reaction"
     },
     "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"

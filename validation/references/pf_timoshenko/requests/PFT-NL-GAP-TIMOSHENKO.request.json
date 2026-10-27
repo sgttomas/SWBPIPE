@@ -133,6 +133,7 @@
     "nonlinear": {
      "behavior": "gap",
      "dof": "UY",
+     "initial_state": "inactive",
      "closes_when": "negative_displacement",
      "gap": {
       "value": 0.0005,

@@ -1579,8 +1579,10 @@ G_ACC = F(980665, 100000)
 RHO_METAL, RHO_CONTENTS = F(7850), F(1000)
 
 
-def anchor(sid, node):
-    return {"id": sid, "node": node, "family": "anchor", "restraints": list(DOFS)}
+def anchor(sid, node, restraints=DOFS):
+    """A rigid restraint in the anchor family: all six DOFs, or a partial set that includes a
+    rotation (the product refuses a rotation in the guide family: "Rx is not valid for Guide")."""
+    return {"id": sid, "node": node, "family": "anchor", "restraints": list(restraints)}
 
 
 def guide(sid, node, restraints):
@@ -1614,7 +1616,7 @@ def ss_mid_spec(case_id):
             "nodes": [("node:A", (F(0), F(0), F(0))), ("node:M", (F(1), F(0), F(0))), ("node:B", (F(2), F(0), F(0)))],
             "members": [pipe("pipe:AM", "node:A", "node:M", SEC, (0, 1, 0)),
                         pipe("pipe:MB", "node:M", "node:B", SEC, (0, 1, 0))],
-            "supports": [guide("support:A", "node:A", ("UX", "UY", "UZ", "RX")),
+            "supports": [anchor("support:A", "node:A", ("UX", "UY", "UZ", "RX")),
                          guide("support:B", "node:B", ("UY", "UZ"))],
             "load_cases": [{"id": "case:w_y", "uniform": [("pipe:AM", "global_y", F(-1000), "distributed_force"),
                                                           ("pipe:MB", "global_y", F(-1000), "distributed_force")]},
@@ -1661,7 +1663,7 @@ def phi2_spec(case_id, L, sec=None, materials=None):
     return {"case_id": case_id, "materials": materials or MAT_A,
             "nodes": [("node:A", (F(0), F(0), F(0))), ("node:B", (F(L), F(0), F(0)))],
             "members": [pipe("pipe:AB", "node:A", "node:B", sec or SEC_PHI2, (0, 1, 0))],
-            "supports": [guide("support:A", "node:A", ("UX", "UY", "UZ", "RX")),
+            "supports": [anchor("support:A", "node:A", ("UX", "UY", "UZ", "RX")),
                          guide("support:B", "node:B", ("UY", "UZ"))],
             "load_cases": [{"id": "case:couple_a_z", "nodal": [("node:A", "rotation_z", F(100))]},
                            {"id": "case:couple_a_y", "nodal": [("node:A", "rotation_y", F(100))]},
@@ -1825,21 +1827,24 @@ def nl_frame(case_id, supports, load_cases):
 
 def nl_oneway_spec(case_id):
     sup = {"id": "support:NL-B", "node": "node:B", "family": "nonlinear", "restraints": [],
-           "nonlinear": {"behavior": "one_way", "dof": "UY", "active_when": "positive_reaction"}}
+           "nonlinear": {"behavior": "one_way", "dof": "UY", "initial_state": "inactive",
+                         "active_when": "positive_reaction"}}
     return nl_frame(case_id, [sup], [{"id": "case:pressed", "nodal": [("node:C", "global_y", F(-1000))]},
                                      {"id": "case:lifted", "nodal": [("node:C", "global_y", F(1000))]}])
 
 
 def nl_gap_spec(case_id):
     sup = {"id": "support:GAP-C", "node": "node:C", "family": "nonlinear", "restraints": [],
-           "nonlinear": {"behavior": "gap", "dof": "UY", "closes_when": "negative_displacement", "gap": F(1, 2000)}}
+           "nonlinear": {"behavior": "gap", "dof": "UY", "initial_state": "inactive",
+                         "closes_when": "negative_displacement", "gap": F(1, 2000)}}
     return nl_frame(case_id, [sup], [{"id": "case:closed", "nodal": [("node:C", "global_y", F(-2000))]},
                                      {"id": "case:open", "nodal": [("node:C", "global_y", F(-500))]}])
 
 
 def nl_friction_spec(case_id):
     sup = {"id": "support:FR-B", "node": "node:B", "family": "nonlinear", "restraints": [],
-           "nonlinear": {"behavior": "friction", "dof": "UZ", "mu": F(3, 10), "normal": F(1000)}}
+           "nonlinear": {"behavior": "friction", "dof": "UZ", "initial_state": "sticking",
+                         "mu": F(3, 10), "normal": F(1000)}}
     return nl_frame(case_id, [sup], [{"id": "case:stick", "nodal": [("node:C", "global_z", F(80))]},
                                      {"id": "case:slide", "nodal": [("node:C", "global_z", F(200))]}])
 
@@ -1884,7 +1889,9 @@ def request_doc(spec, shear_member):
             entry["stiffness"] = {"dof": dof, "value": qty(k, "N/m" if dof.startswith("U") else "N*m/rad")}
         if s["family"] == "nonlinear":
             nl = s["nonlinear"]
-            out = {"behavior": nl["behavior"], "dof": nl["dof"]}
+            # initial_state is only the active-set seed: each case has exactly one consistent state
+            # (support_states), so the converged state and the rows do not depend on it
+            out = {"behavior": nl["behavior"], "dof": nl["dof"], "initial_state": nl["initial_state"]}
             if nl["behavior"] == "one_way":
                 out["active_when"] = nl["active_when"]
             elif nl["behavior"] == "gap":
@@ -1958,6 +1965,9 @@ def check_request(doc, spec, shear_member):
     m = doc["model"]
     assert "pressure_contract" not in m
     assert m.get("model_settings", {}).get("shear_model") == shear_member
+    for s in m["supports"]:
+        assert s["family"] != "guide" or all(d.startswith("U") for d in s["restraints"]), s["id"]
+        assert s["family"] != "nonlinear" or s["nonlinear"]["initial_state"] in ("inactive", "sticking"), s["id"]
     for (nid, p), node in zip(spec["nodes"], m["nodes"]):
         assert node["id"] == nid and all(node["position"][a] == float(F(c)) for a, c in zip("xyz", p))
     for mem, pj in zip(spec["members"], m["pipe_segments"]):

@@ -24,6 +24,10 @@ decimals below disagreed with their rationals in the last digit, and the
 cancellation-row criterion was stated too categorically. No expected row value
 moved. **Added after round 1 and not yet refuted:** the realized-arc cases
 (`PFT-ARC-*`) and the exact φ = 2 control (`PFT-PHI2-EXACT-AUXETIC`).
+**Requests re-authored after the product's first consumption:** 16 requests
+refused for their support authoring now author the same mechanics validly
+(see [Support re-authoring](#support-re-authoring-the-managers-premises)); no
+row, mutant, discriminator or expected diagnostic moved.
 
 ## Files
 
@@ -45,13 +49,75 @@ The requests are **model document 0.8.0** PF documents: no `pressure_contract`,
 and on each Timoshenko document `model_settings: {"shear_model":
 "timoshenko_annulus_energy_v1"}`; the Euler–Bernoulli twins omit the member
 (two explicit twins write `"euler_bernoulli"`). The member is written as the
-0.8.0 schema on draft PR #1649 (branch `claude/piping-w17-w15c-20261026`,
-commit `cef3780af7`) defines it: an optional string enum
-{`euler_bernoulli`, `timoshenko_annulus_energy_v1`} in `ModelSettings`.
-**Re-check the member's final schema shape when #1649 merges.** In 0.8.0 the
+0.8.0 schema defines it: an optional string enum
+{`euler_bernoulli`, `timoshenko_annulus_energy_v1`} in `ModelSettings`
+(introduced on #1649 at `cef3780af7`). With #1649 merged, all 48 requests'
+`model` documents validate against `schemas/model.schema.yaml` as on main
+(blob `a17ead5416`; JSON Schema 2020-12). In 0.8.0 the
 product refuses `timoshenko_annulus_energy_v1` until this unit removes the
 interim refusal (pf-timoshenko.md §1), so the Timoshenko requests are for the
 build, not for 0.8.0 as merged.
+
+## Support re-authoring: the manager's premises
+
+**Defect.** The product build, consuming this package, refused 16 of the 48
+requests for both theories, for reasons unrelated to beam theory. The schema
+does not catch either: the original requests also validate against it.
+
+**Premises** (product facts supplied by the manager, not derived or checked
+here):
+1. A support of family `guide` cannot restrain RX. The 10 `PFT-SS-MID-*` and
+   `PFT-PHI2-*` requests authored `support:A` as a guide restraining
+   UX, UY, UZ, RX, and the product refused them with `SUPPORT_INPUT_INVALID`
+   ("Rx is not valid for Guide").
+2. The product requires an explicit `initial_state` on a nonlinear support. The
+   6 `PFT-NL-*` requests omitted it, and the product refused them with
+   `NONLINEAR_SUPPORT_INITIAL_STATE_MISSING`.
+3. The product's stopgap test solved in-memory copies with the same restraints
+   in the `anchor` family and the nonlinear seed `inactive` (one-way, gap) or
+   `sticking` (friction). The product accepted these copies, and they agreed
+   with every frozen row.
+
+**Family.** Neither the schema (`SupportFamily`, `Support.restraints`) nor the
+support designs (DEL-04-03 ScopeOfWork and Design, DEL-04-01
+`kd5-nonlinear-active-set.md`) state which DOFs a family admits. So, by premise
+3, `support:A` is now family `anchor` with the unchanged restraint set
+UX, UY, UZ, RX. `support:B` keeps the guide family with UY and UZ. That
+support was not refused, and translational guides are accepted in this
+package's other documents (UX UY UZ in `PFT-SKEW-SPRING`, UZ in `PFT-WEIGHT`).
+A restraint is a prescribed zero at its DOF whatever the family (Method:
+"Supports and solve"), so the mechanics are unchanged.
+
+**Seed.** The schema's `NonlinearSupport.initial_state` admits `active`,
+`inactive`, `sticking` and `sliding` (and their upper-case spellings). The
+one-way and gap supports are authored `inactive` and the friction support
+`sticking`, as in premise 3. A converged, qualified loop ends in a state that
+meets DEC-067's conditions (kd5-nonlinear-active-set.md §0, "Convergence and
+qualification"). For every load case of these cases, the generator's
+enumeration finds exactly one state that meets them, strictly and with no
+zero-margin alternative (`support_states`). The manager records that round 1's
+refutation confirmed this uniqueness. For one-way and gap supports, kd5 §2.3
+also states uniqueness in the frictionless case. Friction is a single support
+with an explicit normal, where the enumeration is exhaustive: inactive (which
+fails for N > 0), stick, and slide in either direction. The seed can change only the path
+to that state, not the state or its rows. A loop that fails to converge from
+this seed is a product finding, not a row change.
+
+**What moved.** Only the 16 requests below, their 16 `sha256` values in
+`product_cases.json`, the generator's support authoring, this README and
+`SHA256SUMS`. Every other byte of `product_cases.json` is identical to
+`ac6f1136dc`: every row, mutant, discriminating flag, support state and
+expected diagnostic.
+
+| Requests (both twins each) | Old authoring | New authoring |
+|---|---|---|
+| `PFT-SS-MID`, `PFT-PHI2-{NEAREST,PLUS2ULP,MINUS2ULP,EXACT-AUXETIC}` | `support:A` `family: guide`, restraints UX UY UZ RX | `family: anchor`, restraints UX UY UZ RX |
+| `PFT-NL-ONEWAY` | `support:NL-B` one-way UY, no `initial_state` | `initial_state: inactive` |
+| `PFT-NL-GAP` | `support:GAP-C` gap UY, no `initial_state` | `initial_state: inactive` |
+| `PFT-NL-FRICTION` | `support:FR-B` friction UZ, no `initial_state` | `initial_state: sticking` |
+
+`check_request` now refuses a guide that restrains a rotation and a nonlinear
+support without one of these seeds.
 
 ## Independence
 
@@ -373,7 +439,9 @@ and `factor` converts them exactly (m → mm 1000, Pa → MPa 1/1000000).
   carry the product's `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED` standing
   (kd5-nonlinear-active-set.md §0); the rows here are their physical
   expectation either way.
-- **Authoring.** Partial restraints use `family: guide`; springs use
+- **Authoring.** Partial translational restraints use `family: guide`; a
+  partial set that includes a rotation uses `family: anchor` (premise 1);
+  nonlinear supports carry an explicit `initial_state` seed; springs use
   `family: spring` with `restraints: [dof]` and `stiffness {dof, value}`; a zero
   mill tolerance is written as absence; thermal primitives are
   `temperature_interval` in degC with direction `global_z`; weight and
