@@ -37,6 +37,7 @@ mod current_model;
 
 const REFERENCES: &str = include_str!("../../../validation/references/w16_exact_equivalent_static/references.json");
 const SUMS: &str = include_str!("../../../validation/references/w16_exact_equivalent_static/SHA256SUMS");
+const W16T_REFERENCES: &str = include_str!("../../../validation/references/w16_timoshenko_partial_wind/references.json");
 const ARC_SKETCHES: &str = include_str!("../../../validation/references/t4_i7/u2_document_sketches.json");
 const SOURCE_MIXED: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/mixed.request.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
@@ -432,17 +433,31 @@ fn route_specific_seismic_mass_and_equal_wind_loads() {
 }
 
 // ------------------------------------------------------------------ Timoshenko and partial spans
-/// §3: a proper fraction of a straight span under the Timoshenko member is
-/// refused by name, a near-full extent included; exactly [0, 1] through
+/// §3 (W-16t): a proper fraction of a straight span under the Timoshenko
+/// member is admitted and takes the exact Timoshenko vector: this file's own
+/// cantilever, solved in both modes, matches the W-16t references
+/// (`validation/references/w16_timoshenko_partial_wind/`) for spans at either
+/// end, in the interior and near full span; exactly [0, 1] through
 /// `exposed_spans` is full span and matches the full-span reference;
 /// Euler-Bernoulli admits partial spans (the oracle's partial case).
 #[test]
-fn timoshenko_refuses_a_partial_span_and_admits_exactly_the_full_span() {
-    for (a, b) in [(0.2, 0.7), (0.0, 0.5), (0.5, 1.0), (0.0, 1.0 - 1.0e-12)] {
+fn timoshenko_partial_span_wind_matches_the_reference() {
+    let w16t: Value = serde_json::from_str(W16T_REFERENCES).unwrap();
+    let w16t_case = |id: &str| w16t["cases"].as_array().unwrap().iter().find(|c| c["id"] == id).unwrap().clone();
+    let components = |r: &Value| ["support_reaction", "nodal_motion", "section_action", "section_stress"].contains(&r["quantity"].as_str().unwrap());
+    for (id, a, b) in [("W16T-CANT-INTERIOR", 0.2, 0.7), ("W16T-CANT-PROXIMAL", 0.0, 0.5), ("W16T-CANT-DISTAL", 0.5, 1.0),
+        ("W16T-CANT-NEARFULL", 0.0, 1.0 - 2f64.powi(-40))] {
+        let reference = w16t_case(id);
         let wire = cantilever(Route::Exact, TIMOSHENKO, vec![case(CASE, Some(wind(&[], vec![("pipe:a-b", a, b)])), vec![])]);
-        let found = refused(&wire, "EXACT_EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO_UNSUPPORTED", &format!("Timoshenko [{a}, {b}]"));
-        assert!(found[0]["message"].as_str().unwrap().contains("timoshenko_annulus_energy_v1"));
-        assert!(found[0]["affected_refs"].as_array().unwrap().contains(&json!("pipe:a-b")));
+        for mode in MODES {
+            let what = format!("Timoshenko [{a}, {b}] {}", mode.as_str());
+            let out = solved(&wire, Route::Exact, mode, &what);
+            checks_passed(&out, &what);
+            assert!(!codes(&out).iter().any(|c| c == "EXACT_EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO_UNSUPPORTED"));
+            let (n, _, _) = compare(&out, &reference, CASE, &what, components);
+            assert_eq!(n, reference["rows"].as_array().unwrap().iter().filter(|r| components(r)).count(), "{what}");
+            assert!(n >= 50, "{what}: {n} rows");
+        }
     }
     let reference = case_ref("W16C-WIND-FULL-EX-TIMOSHENKO");
     let wire = cantilever(Route::Exact, TIMOSHENKO, vec![case(CASE, Some(wind(&[], vec![("pipe:a-b", 0.0, 1.0)])), vec![])]);

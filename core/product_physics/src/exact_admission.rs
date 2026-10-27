@@ -132,13 +132,6 @@ pub(crate) fn pressure_v3_formulation_basis_with_source(
 pub(crate) const EQUIVALENT_STATIC_LOAD_STATE: &str = "EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED";
 /// The static text of [`EQUIVALENT_STATIC_LOAD_STATE`].
 pub(crate) const EQUIVALENT_STATIC_LOAD_STATE_TEXT: &str = "equivalent_static generation is not provided on a load/reference-state document: a case's applied loads there are exactly its declared source ledger, and generated seismic or wind loads have no ledger class; the exact route refuses the generation rather than apply loads outside the ledger";
-/// W-16 slice c (§3): a wind marking of a proper fraction of a straight span
-/// on a document selecting `timoshenko_annulus_energy_v1`. Neither formation
-/// path bounds a Timoshenko partial-span uniform load, so it is refused.
-pub(crate) const EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO: &str =
-    "EXACT_EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO_UNSUPPORTED";
-/// The static text of [`EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO`].
-pub(crate) const EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO_TEXT: &str = "a wind marking of part of a straight span is not provided under shear_model timoshenko_annulus_energy_v1: no formation of a partial-span uniform load on a Timoshenko member is available; mark the whole span (exactly [0, 1] or exposed_pipe_refs), model the exposed part as its own pipe, or select euler_bernoulli";
 
 /// Every object family the exact route can meet besides its straight base.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -295,8 +288,9 @@ pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admissi
         (ExactContract::PressureV3, ExactFamily::RealizedBend) => Admission::Admitted,
         // W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md`): a
         // case's DEC-068 seismic or wind generation on a plain v3 document,
-        // on the route's D-5 mass basis; load/reference-state documents,
-        // Timoshenko partial spans and replaced spans keep named refusals.
+        // on the route's D-5 mass basis; load/reference-state documents and
+        // replaced spans keep named refusals; a Timoshenko partial span takes
+        // the exact Timoshenko vector (W-16t).
         (ExactContract::PressureV3, ExactFamily::EquivalentStatic) => Admission::Admitted,
         // W-16 slice b (DEL-05-02 Design `exact-combinations.md`): model-authored
         // combinations over the primitive cases, formed from their published
