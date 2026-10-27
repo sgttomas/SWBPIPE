@@ -1,6 +1,6 @@
 # Opt-in Timoshenko straight members on the pressure-free route
 
-**Status: design for Agent 0's review; not built.** The owner's steer of 2026-10-27 (#1662) asks for an app "on par with or considered superior to CAEPIPE and other industry standard applications... in terms of the modelling characteristics". Agent 0 adopted this unit under it: an explicit, opt-in choice of transverse shear deformation for straight members on the pressure-free (PF) route. The default stays Euler–Bernoulli, and every existing document, result, table hash and recorded run stays byte-identical. The unit reuses the exact route's Timoshenko element and shear-factor definition (D-6, [section-bases-and-timoshenko.md](section-bases-and-timoshenko.md) §3). Here, "the exact route" means documents with `pressure_contract`, and "PF" means documents without it. Codex round 1 reviewed an earlier draft (`b272696f71`); this text answers its findings.
+**Status: approved to build after Codex round 2 (Agent 0, 2026-10-27), with the rulings recorded below; not built.** The owner's steer of 2026-10-27 (#1662) asks for an app "on par with or considered superior to CAEPIPE and other industry standard applications... in terms of the modelling characteristics". Agent 0 adopted this unit under it: an explicit, opt-in choice of transverse shear deformation for straight members on the pressure-free (PF) route. The default stays Euler–Bernoulli, and every existing document, result, table hash and recorded run stays byte-identical. The unit reuses the exact route's Timoshenko element and shear-factor definition (D-6, [section-bases-and-timoshenko.md](section-bases-and-timoshenko.md) §3). Here, "the exact route" means documents with `pressure_contract`, and "PF" means documents without it. Codex rounds 1 (`b272696f71`) and 2 (`6f2fcf675e`) reviewed earlier drafts; this text answers their findings.
 
 The CAEPIPE correlation pilot (DEL-17-05 Design `caepipe-correlation-pilot.md` §7) classified the SWBPIPE–CAEPIPE differences in seven of its eight cases as shear-deformation differences (`dd-shear-deformation`). Only hand calculations are public. CAEPIPE's shear factor for steel pipe is not established (CQ-17-01-010 is open). This unit gives PF the same element and factor definition as the exact route; it does not adopt CAEPIPE's factor.
 
@@ -19,9 +19,13 @@ The CAEPIPE correlation pilot (DEL-17-05 Design `caepipe-correlation-pilot.md` �
 - **Element (reused, unchanged).** FK `FrameSection::timoshenko` / `BeamTheory::Timoshenko { shear_area }`, through `StraightPipeSectionProperties::timoshenko`. The stiffness is section-bases-and-timoshenko.md §3.3 with φ = 12EI/(G·A_s·L²): axial EA/L and torsion GJ/L unchanged, and six rigid modes. No kernel, straight_pipe or curved_bend code changes.
 - **Shear-factor definition: the exact route's.** A_s = κ_E·A, with κ_E = `shear::annulus_energy_shear_factor(r_i, r_o, ν)` in its fixed operation order, and `shear::shear_area`. The factor is energy-matched, not 5/6 and not Cowper. Each route applies the definition to its own constitutive and section basis.
   - **Annulus.** PF's stiffness section, computed by PF's existing arithmetic (`derive_pipe_section`): r_o = OD/2 and r_i = OD/2 − (t − c_m), with A its area. The exact route uses its stiffness (nominal) section. With zero mill tolerance the two coincide geometrically but not necessarily bit for bit, because the routes' area arithmetic differs by ulps. PF keeps its own arithmetic, so its Euler–Bernoulli bytes are untouched.
-  - **ν: the one that gives the member's G.** The exact route takes the ν of "the E/ν basis that gives its G": it resolves G from E and ν, and ignores a redundant authored G with a warning (`pressure_material.rs` ~78–91). PF authors E and G independently. So on PF, the ν that gives G is ν = E/(2G) − 1, computed in binary64 from the **unscaled** moduli in the fixed order PF's stress recovery already uses (`u4b_rows.rs` ~573, `lib.rs` ~6786–6791). PF then has one ν for the shear stiffness (κ_E) and the published transverse-shear stresses.
+  - **ν: the one that gives the member's G.** The exact route takes the ν of "the E/ν basis that gives its G": it resolves G from E and ν, and ignores a redundant authored G with a warning (`pressure_material.rs` ~78–91). PF authors E and G independently. So on PF, the ν that gives G is ν = E/(2G) − 1, computed in binary64 from the **unscaled** moduli in the fixed order PF's stress recovery already uses (`u4b_rows.rs` ~573, `lib.rs` ~6786–6791). PF then has one ν for the shear stiffness (κ_E) and the published transverse-shear stresses. **Ruling (Agent 0, 2026-10-27, under the owner's engineering-judgment delegation):** "On PF, G is authored, so κ_E uses ν = E/(2G) − 1 from the case's unscaled moduli. That keeps the shear stiffness consistent with the G the solve uses, and PF's stress recovery already does the same." Codex round 2 found it numerically faithful to the exact factor definition: the exact route starts from E and ν and derives G, PF starts from its authored E and G and derives ν.
     - E and G are resolved per case by PF's existing temperature selection (base, named point, interpolation), so ν follows the case with no resolver change. A W-15 scaled member uses its unscaled moduli.
-    - An authored `poisson_ratio`, which is optional on PF materials, is not consumed. If it is present and differs from E/(2G) − 1 by more than 1e-6 relative, the result carries a warning diagnostic, `PF_TIMOSHENKO_AUTHORED_POISSON_RATIO_NOT_USED`, naming the material, both values and the case basis. That mirrors the exact route's warning for its unused input. Euler–Bernoulli documents emit nothing new.
+    - **Admission follows consumption.** PF first builds the model on the base materials (`lib.rs` ~2956), then rebuilds per selected basis (~3160). A base build whose moduli no published case consumes must not impose the factor check. Otherwise base E = 210 GPa and G = 60 GPa (ν = 0.75) would block a document whose every case selects E = 200 GPa and G = 80 GPa (ν = 0.25).
+      - The factor-range block is attached to the basis it was formed on. It is raised only for a basis that a solved case uses, naming that case and basis.
+      - A base build that only seeds topology carries no Timoshenko block.
+      - Regressions cover a named-point selection and an interpolated selection with an out-of-range base ν, and an out-of-range selected ν, which is blocked by name.
+    - An authored `poisson_ratio`, which is optional on PF materials, is not consumed. If it is present and |ν_a − ν_d| > 1e-6·max(|ν_a|, |ν_d|), with ν_a authored and ν_d derived, the result carries a warning diagnostic, `PF_TIMOSHENKO_AUTHORED_POISSON_RATIO_NOT_USED`, naming the material, both values and the case basis. Two zeros, or two equal values, give no warning. The threshold is for disclosure only, separate from numerical tolerances. Its purpose matches the exact route's warning for its unused G, which is unconditional (`pressure_material.rs` ~84); the trigger differs. Euler–Bernoulli documents emit nothing new.
     - A derived ν for which `annulus_energy_shear_factor` or `shear_area` refuses (not finite, or out of the factor's range) blocks the solve by name, as on the exact route. There is no default factor.
 - **Load equivalents** (§3.4 there):
   - Full-span uniform loads (authored, self-weight and contents) keep the Euler–Bernoulli vector, which is identical for a prismatic member.
@@ -38,12 +42,12 @@ The CAEPIPE correlation pilot (DEL-17-05 Design `caepipe-correlation-pilot.md` �
 | Family | This unit |
 |---|---|
 | Straight members, geometry-only bends (mapped straight frames), tees' straight legs, W-15 rigid-family components | Timoshenko when selected |
-| Realized arcs | Euler–Bernoulli, disclosed |
+| Realized arcs | Euler–Bernoulli, never silently: the identity's limitation and a named per-result record (§4) |
 | Full-span uniform loads, self-weight, contents, thermal, nodal loads, springs | Admitted, unchanged vectors |
 | Imposed displacement (W-16), combinations, the constant-effort gate | Admitted: partitioned elimination through the assembled K; superposition and the gate are independent of beam theory |
 | Linear supports; nonlinear supports (one-way, gaps, friction) and constant-effort hangers | Admitted. The nonlinear adapter forms frames through the generic `local_stiffness`/`global_stiffness` (`structural_adapter.rs` ~1343). These are new on a Timoshenko element, so §5 adds reference cases for each, friction stick and slide included |
 | Objective connectors and their tie rods | Unchanged: PF refuses an authored objective connector today (`PREVIEW_CONTRACT_VERSION_MISMATCH`, `pressure_runtime.rs` ~267–285; connector construction is exact-v3-only). Annotation joints analysed as pipe follow the straight-member rule |
-| **Partial-span member loads** (wind's exposed spans) on a Timoshenko member | **Refused by name:** `PF_TIMOSHENKO_PARTIAL_SPAN_UNSUPPORTED`, naming the member and load, before any route. straight_pipe has the exact Timoshenko partial-span vector. But the S11-G guard records it as `CannotBound` (`straight_pipe/src/lib.rs` ~767), and K-D5 as an unavailable reformation (`formation_check.rs` ~2230), so every such case would be demoted to Sensitive. A later slice can extend both, with independent references, and remove the refusal |
+| **Partial-span member loads** (wind's exposed spans) on a Timoshenko member | **Refused by name:** `PF_TIMOSHENKO_PARTIAL_SPAN_UNSUPPORTED`, naming the member and load, before any route. straight_pipe has the exact Timoshenko partial-span vector. But the S11-G guard records it as `CannotBound` (`straight_pipe/src/lib.rs` ~767), and K-D5 as an unavailable reformation (`formation_check.rs` ~2230), so every such case would be demoted to Sensitive. It joins a later slice beside the solver lane's exact-route partial-span item, so the two share one formation check (Agent 0, 2026-10-27) |
 | **Retained route L** (W1-L, D1) | **Declined by name at D1**, PF only, under a new family fact `ShearModel`, before any charged work. The document takes the ordinary PF route unchanged. This keeps W1-L's shear-sidecar refusal (`retained_product.rs` ~2121–2125) unreached, and route L's committed domain ("straight Euler–Bernoulli members…", DEL-04-08 ScopeOfWork) true. Exact route E keeps its existing Timoshenko admission |
 | Sparse and dense solver modes | Both, same formation |
 
@@ -57,6 +61,15 @@ Changing the preview-physics-2 table would move its hash. Every recorded run bou
   - a new results profile, `product_preview_mechanics_timoshenko_v1`, whose schema `const` is that text.
 
   The table is derived mechanically from preview-physics-2 by `semantic_contract_tables.py` (a new `derive` step with `--check`), never hand-copied.
+- **Named arc disclosure** (Agent 0's condition: "never silent"). A Timoshenko PF result that contains realized arcs carries `PF_TIMOSHENKO_REALIZED_ARCS_EULER_BERNOULLI`, a named per-result record. It lists the realized-arc members (Euler–Bernoulli) and counts the straight members that used shear deformation, with their ids when the list is within the diagnostic text bound. The identity's limitation text states the rule. The report's analysis-basis section prints both the limitation and that record. A result with no realized arc carries no record. A regression on a model with arcs, and one without, checks the record, the report text and their absence.
+- **Identity-aware bindings.** Today one identity per route is assumed in several places. Each becomes keyed by the envelope's `semantic_contract_id`, with the route's admitted set {preview-physics-2, preview-physics-timoshenko-1}:
+  - `reader_verdict.rs` ~122/~553, which selects a binding by route name;
+  - the desktop's `analysisRunCompatibility.ts` ~39 (a closed set of identities);
+  - `StressNeutralExportPanel.tsx` ~925 (one table filename per route);
+  - `contractBindings.ts` (test expectations);
+  - `result_export/src/derivative.rs` ~158 (the allowlist that copies contract evidence).
+
+  The producer selects the identity for both successful and blocked PF envelopes (`lib.rs` ~1293, ~3417, ~14601).
 - **Readers.**
   - **Model-free** (raw `preview_physics_evidence.rs` ~259 and its Python mirror ~299; the transport validator `retained_precision.rs` ~6657/6689 and its Python mirror ~543): each admits either complete identity, meaning table, profile and limitation array together. A mixed array is refused (`FORMULATION_BASIS`).
   - **Model-bound** (`reader_verdict.rs` ~250, `tests/verifiers/reader_verdict.py` ~313): a crossed pair is refused, i.e. a Timoshenko identity on a model without the selection, or the Euler–Bernoulli identity on a model with it.
@@ -68,7 +81,7 @@ Changing the preview-physics-2 table would move its hash. Every recorded run bou
 
 ## 5. Verification
 
-- **Byte identity (regression).** Every existing PF fixture, golden and corpus document gives byte-identical results, and every existing table and schema hash is unchanged. The checks are `pressure_free_byte_identity`, the corpus replay at main against head, and the full suites with main comparison. A document with `shear_model: euler_bernoulli` gives the same rows as its twin without it.
+- **Byte identity (regression).** Every existing PF fixture, golden and corpus document gives byte-identical results. Every existing semantic-table hash and every recorded payload's bytes are unchanged. The schema files that admit the new identity (results, AnalysisRun, stress-neutral) do change, additively. The checks are `pressure_free_byte_identity`, the corpus replay at main against head, and the full suites with main comparison. A document with `shear_model: euler_bernoulli` gives the same rows as its twin without it.
 - **Physical references** (independent). A new `validation/references/pf_timoshenko/` is derived and frozen by a TASK that neither reads nor writes product code, then refuted by a second TASK, before any product output is compared with it (Plan 01 §5).
   - The generator extends t4_u8's `u8_reference.py` arithmetic: exact rationals of the binary64 inputs, ν = E/(2G) − 1 and κ_E from them, and an assembly and solve of its own. It emits PF 0.8.0 requests.
   - The cases:
@@ -107,7 +120,7 @@ Changing the preview-physics-2 table would move its hash. Every recorded run bou
   - the D1 decline (ordinary route, unchanged result);
   - `MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT`;
   - the objective connector's existing refusal on a Timoshenko document.
-- **Readers.** Rust and Python mirrors: both identities admitted model-free, mixed arrays refused, crossed pairs refused model-bound, and existing recorded runs compatible.
+- **Readers and round trips.** Rust and Python mirrors: both identities admitted model-free, mixed arrays refused, crossed pairs refused model-bound, and existing recorded runs compatible. A Timoshenko solve also round-trips through AnalysisRun recording, result export and stress-neutral export, with its own identity and table at each step, and a blocked Timoshenko envelope carries the new identity.
 - **Independent numerical scrutiny.** A Codex review covers the wiring, the ν and κ basis, the refusals, the readers and the references against their generator.
 - **Desktop.** The Model settings section gains "Straight-member shear deformation": Euler–Bernoulli (the default, written as absence) or Timoshenko (energy-matched annular factor). A line states that realized arcs stay Euler–Bernoulli and that Poisson's ratio is E/(2G) − 1. On an exact document the control is disabled and points to the pressure panel. There are Vitest tests for the intents, and the native smoke runs a Timoshenko solve, save and reopen.
 
@@ -118,11 +131,11 @@ Changing the preview-physics-2 table would move its hash. Every recorded run bou
   - `retained_memory.rs` (D1's `ShearModel` fact);
   - `preview_physics.rs` (the identity selection);
   - `model_settings.rs`;
-  - `core/reporting/result_export/src/preview_physics_evidence.rs`, `retained_precision.rs` (the transport validator), `reader_verdict.rs` and `semantic_contract.rs` (a new resident parsed table, if it is cached like the others);
+  - `core/reporting/result_export/src/preview_physics_evidence.rs`, `retained_precision.rs` (the transport validator), `reader_verdict.rs`, `derivative.rs` and `semantic_contract.rs` (a new resident parsed table, if it is cached like the others);
   - the results schema and the new table.
 
   The preview-physics-2 and retained tables are unchanged. Route L's Euler–Bernoulli invocations still load whatever resident tables the readers cache, so a new resident table is a priced static owner even though Timoshenko documents decline D1. The pricing inventory covers the shared readers, resident table growth and the source-bound rules; the footprint is measured, not assumed. No FK or straight_pipe source changes.
-- **Order.** The unit builds after #1649 (0.8.0) merges. It joins the D3 queue after stage 2 (#1654), and is priced only on Agent 0's go. The AC-004 witnesses run if D1's change or the stack moves them.
+- **Order.** The unit builds after #1649 (0.8.0) merges. D3 is queued after #1649, W-16b/c and #1654, and is priced only on Agent 0's go. The AC-004 witnesses run if D1's change or the stack moves them.
 - **Size.**
   - About 600–900 lines of product, reader, table-derivation and desktop change.
   - The reference generator and its frozen physical and judged sets.
@@ -145,6 +158,6 @@ Changing the preview-physics-2 table would move its hash. Every recorded run bou
 ## 8. Open
 
 - A per-member PF evidence record (case basis, ν, κ_E, A_s) that would let readers re-derive the factor.
-- The partial-span slice: S11-G and K-D5 for Timoshenko partial spans.
+- The partial-span slice: S11-G and K-D5 for Timoshenko partial spans, beside the exact-route partial-span item (one formation check).
 - A formulation-matched published benchmark for κ_E. This remains open, as for the exact route (§11 there).
 - CAEPIPE correlation after the change: re-running the pilot's shear-deformation series is the owner's private comparison (DEL-17-05 §8), not a repository record.
