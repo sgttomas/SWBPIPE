@@ -812,3 +812,63 @@ our reasoning, not observed.
   shape of a chosen case as a second node set. That is useful for clash
   review, and its privacy follows the result-export gating.
 - *Touches:* DEL-17-08, DEL-12-02.
+
+## Decisions (Agent 0, 2026-10-27, under the owner's delegation in #1662)
+
+The owner's steer of 2026-10-27, recorded in the loop's `LOOP_INIT.md` by #1662, sets the goal of an app on
+par with or superior to industry piping-analysis tools in modelling and UI, and delegates scope decisions
+that clearly serve it to Agent 0. Agent 0 adopted the manager's recommendations as written. Each adopted
+item becomes a commitment through its own deliverable's ScopeOfWork when its lane builds it; nothing here
+changes a commitment by itself. Lanes: solver, reports, W-17/model (model document, grid, viewport,
+desktop), CAEPIPE, numerical.
+
+| Item | Decision | Reason | Lane |
+|---|---|---|---|
+| Timoshenko on the pressure-free route | Adopt now | the formulation, references and certification exist on the exact route; opt-in keeps existing documents byte-identical | numerical |
+| Native US-customary MBF writing | Adopt later | exact normalization already round-trips meaning; build when a US-customary workflow needs same-unit files | CAEPIPE |
+| A1 | Adopt now | core of everyday results review | W-17/model |
+| A2 | Adopt now | the support-design deliverable users expect | reports |
+| A3 | Adopt now | fast triage, keeps the incomplete-check rule | reports |
+| A4 | Adopt now | expected visual standard | W-17/model |
+| A5 | Adopt now | small, high-visibility | W-17/model |
+| A6 | Adopt now | after A2/A4: composes them | W-17/model |
+| A7 | Adopt now | small; pairs with the importer's local-axis convention | W-17/model |
+| A8 | Adopt now | small envelope over existing rows | reports |
+| A9 | Adopt now | data exists per entity | reports |
+| B1 | Adopt now | design first: the biggest authoring-speed gap; write inheritance rules before code | W-17/model |
+| B2 | Adopt now | core bulk editing | W-17/model |
+| B3 | Adopt later | after B2's operation vocabulary | W-17/model |
+| B4 | Adopt later | after B1 | W-17/model |
+| B5 | Adopt now | small, frequent | W-17/model |
+| B6 | Adopt later | labels only; low urgency | W-17/model |
+| B7 | Adopt later | needs an id-collision policy; pairs with the importer | W-17/model |
+| B8 | Adopt now | confirm what exists first | W-17/model |
+| B9 | Adopt now | small; keyboard equivalents required | W-17/model |
+| B10 | Adopt later | convenience | W-17/model |
+| B11 | Adopt now | extends W-8 | W-17/model |
+| C1 | Adopt now | foundation for multi-condition modelling; model-document version step | W-17/model |
+| C2 | Adopt later | after C1; invented demo pack only | solver |
+| C3 | Adopt later | after C1, on the pressure-free route | solver |
+| C4 | Adopt later | high value; multi-solve procedure; no manufacturer data | solver |
+| C5 | Adopt later | niche | solver |
+| C6 | Adopt later | generator packs as rule-pack capability | solver |
+| C7 | Adopt later | after C1 | solver |
+| C8 | Decline for now | outside the piping focus until supports demand it | solver |
+| D1 | Adopt now | reports are the deliverable users hand over | reports |
+| D2 | Adopt now | small; follows result-export gating | reports |
+| D3 | Adopt later | useful, not core | reports |
+| D4 | Adopt later | with the boundary note in field help | W-17/model |
+| D5 | Adopt now | protects work; expected baseline | W-17/model |
+| D6 | Adopt now | small; helps large models | W-17/model |
+| D7 | Adopt later | follows export gating | reports |
+| E1 | Adopt later | after current rule-pack work | solver |
+| E2 | Adopt later | needed by most real packs; tables stay user-supplied | solver |
+| E3 | Adopt later | after E2 | solver |
+| E4 | Adopt later | pack-driven | solver |
+| E5 | Adopt later | pack-driven | solver |
+| E6 | Adopt later | behind FR-SOL-011 branch flexibility | solver |
+| F1 | Adopt later | research now: scope it as the first dynamic module; the idle numerical lane can do the research | numerical |
+| F2 | Adopt later | behind F1; no spectra shipped | numerical |
+| F3 | Decline for now | behind F1/F2 | numerical |
+| F4 | Decline for now | specialised; revisit with users | solver |
+| F5 | Adopt later | after the nonlinear-support work settles | solver |
