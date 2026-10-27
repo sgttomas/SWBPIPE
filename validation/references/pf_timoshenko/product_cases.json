@@ -1,7 +1,7 @@
 {
  "schema_version": "independent.pf_timoshenko_product_cases/1.0.0",
  "unit": "PF opt-in Timoshenko straight members (model_settings.shear_model = timoshenko_annulus_energy_v1) and their Euler-Bernoulli twins",
- "status": "frozen independent reference before any product comparison; not yet refuted by the second TASK; not product output, not a qualification or acceptance claim",
+ "status": "frozen independent reference before any product comparison; refuted in round 1 by a second TASK (every row and mutant recomputed; its findings are repaired here); not product output, not a qualification or acceptance claim",
  "independence": "generators/pf_reference.py imports, reads and runs no product code; expected values are this generator's exact arithmetic, never product observations",
  "sources": {
   "design": "execution/PKG-05/DEL-05-03/Design/pf-timoshenko.md sections 1-3 and 5; section-bases-and-timoshenko.md sections 1, 3.1, 3.3-3.5 and 7",
@@ -20207,7 +20207,7 @@
      "authored_poisson_ratio": {"exact": "3/10", "decimal": "0.3", "value": 0.3},
      "derived_poisson_ratio": {"exact": "23/77", "decimal": "0.2987012987012987012987012987012987012987", "value": 0.2987012987012987},
      "case_basis": "the material's base E and G (no temperature selection), for every load case",
-     "trigger": "|nu_a - nu_d| = 13/770 > 1e-6 max(|nu_a|, |nu_d|) (pf-timoshenko.md 2)"
+     "trigger": "|nu_a - nu_d| = 1/770 > 1e-6 max(|nu_a|, |nu_d|) (pf-timoshenko.md 2)"
     }
    ],
    "load_cases": [

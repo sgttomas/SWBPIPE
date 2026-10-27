@@ -1999,7 +1999,8 @@ def authnu_cases(requests):
                             "material": "mat:A", "authored_poisson_ratio": rnum(F(3, 10)),
                             "derived_poisson_ratio": rnum(nu_d), "case_basis": "the material's base E and G (no "
                             "temperature selection), for every load case",
-                            "trigger": "|nu_a - nu_d| = 13/770 > 1e-6 max(|nu_a|, |nu_d|) (pf-timoshenko.md 2)"}],
+                            "trigger": f"|nu_a - nu_d| = {fstr(abs(F(3, 10) - nu_d))} > 1e-6 max(|nu_a|, |nu_d|) "
+                                       "(pf-timoshenko.md 2)"}],
             "euler_bernoulli": [{"code": "none new", "note": "an Euler-Bernoulli document emits nothing new "
                                                             "(pf-timoshenko.md 2)"}]}
     extra = {"poisson": {"authored": rnum(F(3, 10)), "derived": rnum(nu_d),
@@ -2136,8 +2137,9 @@ def product_document(cases):
         "schema_version": "independent.pf_timoshenko_product_cases/1.0.0",
         "unit": "PF opt-in Timoshenko straight members (model_settings.shear_model = timoshenko_annulus_energy_v1) "
                 "and their Euler-Bernoulli twins",
-        "status": "frozen independent reference before any product comparison; not yet refuted by the second TASK; "
-                  "not product output, not a qualification or acceptance claim",
+        "status": "frozen independent reference before any product comparison; refuted in round 1 by a second TASK "
+                  "(every row and mutant recomputed; its findings are repaired here); not product output, not a "
+                  "qualification or acceptance claim",
         "independence": "generators/pf_reference.py imports, reads and runs no product code; expected values are this "
                         "generator's exact arithmetic, never product observations",
         "sources": {
@@ -2201,14 +2203,25 @@ def product_document(cases):
     }
 
 
+def readme_kappa_figures():
+    """(section name, exact kappa_E, its 17-digit decimal): the README's kappa_E table, from the rationals."""
+    nu = derived_nu(E_A, G_A)
+    out = []
+    for name, sec, n in (("SEC (m = 9/10)", SEC, nu), ("SEC_WT (m = 91/100)", SEC_WT, nu),
+                         ("SEC_PHI2 (m = 7/8)", SEC_PHI2, nu), ("SEC_THICK (m = 3/5)", SEC_THICK, nu),
+                         ("SEC_THICK, authored nu 3/10", SEC_THICK, F(3, 10))):
+        s = pf_section(dict(sec))
+        k = kappa_energy(s["ri"] / s["ro"], n)
+        out.append((name, fstr(k), format(Decimal(k.numerator) / Decimal(k.denominator), ".17g")))
+    return out
+
+
 def readme_figures(cases):
     """The figures the README quotes, recomputed (printed in check mode)."""
     nu = derived_nu(E_A, G_A)
     out = [f"nu = E/(2G) - 1 = {fstr(nu)}; binary64 {derived_nu_binary64(E_A, G_A)!r}"]
-    for name, sec in (("SEC (m = 9/10)", SEC), ("SEC_WT (m = 91/100)", SEC_WT), ("SEC_PHI2 (m = 7/8)", SEC_PHI2),
-                      ("SEC_THICK (m = 3/5)", SEC_THICK)):
-        s = pf_section(dict(sec))
-        out.append(f"kappa_E {name} = {fstr(kappa_energy(s['ri'] / s['ro'], nu))}")
+    for name, exact, dec in readme_kappa_figures():
+        out.append(f"kappa_E {name} = {exact} = {dec}")
     byid = {c["id"]: c for c in cases}
     for c in cases:
         if c["shear_model"] != TIMO:
@@ -2278,9 +2291,14 @@ def main():
             failures.append(path)
     committed = {str(p.relative_to(OUT)) for p in OUT.rglob("*") if p.is_file() and "__pycache__" not in p.parts}
     extra = sorted(committed - set(files))
-    if failures or extra or bad:
-        print("MISMATCH: " + ", ".join(failures + [f"unexpected {e}" for e in extra]))
+    readme = (OUT / "README.md").read_text(encoding="utf-8")
+    figures = readme_kappa_figures()
+    missing = [f"README kappa_E {name} {exact} = {dec}" for name, exact, dec in figures
+               if f"| {exact} | {dec} |" not in readme]
+    if failures or extra or bad or missing:
+        print("MISMATCH: " + ", ".join(failures + [f"unexpected {e}" for e in extra] + missing))
         return 1
+    print(f"README kappa_E figures: {len(figures)} rows equal their rationals' 17-digit decimals")
     print(f"verified {len(files)} files byte for byte (SHA256SUMS included)")
     return 0
 
