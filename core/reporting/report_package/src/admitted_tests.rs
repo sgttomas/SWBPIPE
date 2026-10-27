@@ -16,6 +16,13 @@
 //!    module uses the public roots;
 //! 5. no variant is declared `pub fn`.
 //!
+//! W-18b (DEL-08-01 Design `report-user-release.md` §2.8) adds one root to
+//! `assemble_wire_request_in`'s row: `user_release::assemble_derived`, the
+//! producer's one admitting entry, which passes `admitted::PRODUCTION` (its
+//! producer entry argument, before the set, is pinned by
+//! `user_release_reach_scan`). No variant becomes `pub fn` and no second set
+//! exists.
+//!
 //! The scan rule (test-item removal, and the rejection of any use of a graph
 //! function other than a direct call by an allowed caller) is
 //! `forwarding_graph_scan`'s, shared with the desktop native render's scan.

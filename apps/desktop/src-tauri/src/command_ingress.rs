@@ -42,9 +42,15 @@
 //! [`report_package_request_parse_bytes`] for its request text, which prices
 //! the rebuild and the typed vectors by the request's regions
 //! ([`REPORT_PACKAGE_REQUEST_REGIONS`]) and adds the command's working memory
-//! ([`REPORT_PACKAGE_WORKING_MEMORY_FACTOR`]). The counting-allocator tests
-//! check the requested peak against these rules for representative and
-//! adversarial inputs.
+//! ([`REPORT_PACKAGE_WORKING_MEMORY_FACTOR`]). Its route
+//! `DREP-PACKAGE-USER-RELEASE-010` (W-18b) adds the run record text's priced
+//! parse, its derivation's request and input manifest (one more priced parse
+//! of each text) and its refusal formatting allowance
+//! (`report_package_save::ingress_lease_bytes`), and grows the lease inside
+//! admission by rule 3 (b)'s largest embedded candidate; every growth is
+//! refused above the budget the command was admitted under. The
+//! counting-allocator tests check the requested peak against these rules for
+//! representative and adversarial inputs.
 //!
 //! Residual: the command's own working memory and its response serialization
 //! run under the held lease but are not separately bounded, except the report

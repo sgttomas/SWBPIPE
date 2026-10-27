@@ -55,9 +55,29 @@
 //! the owner opened exact-route packages (§5.1; 2026-10-26), and refuses every
 //! other exact identity (`REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).
 //!
+//! W-18b (DEL-08-01 Design `report-user-release.md` §2.5): the route id in
+//! the evidence selects the branch. Route `DREP-PACKAGE-USER-RELEASE-010`
+//! saves a user-released package, after the user's per-report user release of
+//! their own project data: it takes the solve's run record text as well;
+//! refuses an exact-route request (`REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED`)
+//! directly after the object-form check and its exact texts in the outer
+//! command, before they are priced; renders under `user_released_report`
+//! with the user-released profile and the record; and then checks the
+//! record's form and bindings, refuses a model with a library or rule-pack
+//! reference and any non-project private class, requires this session's
+//! attested solve of the model and result, checks the run record, and
+//! reaches the producer only through its one admitting entry, which derives
+//! the whole request (`report_package_bridge::assemble_user_released_request`).
+//! Route 009 refuses a user-release record (`REPORT-USER-RELEASE-NOT-THIS-ROUTE`)
+//! and reaches the producer through the general entry, which refuses every
+//! user-release marker. A user release is the user's statement about rights
+//! in their own data; admission records no acceptance or issuance.
+//!
 //! Admission is a pure function of its arguments, the library lookup and the
-//! custody lookup, so its tests need no window. The command (`lib.rs` `save_report_package`)
-//! prices the parse of the three texts in its ingress lease before admission.
+//! custody lookup (and, on route 010, the session's attested solves and the
+//! command's lease), so its tests need no window. The command (`lib.rs`
+//! `save_report_package`) prices the parse of the texts in its ingress lease
+//! before admission ([`ingress_lease_bytes`], route-aware).
 //! The input manifest is a validation input only: it is not screened, because
 //! no package member carries it, and it is never saved.
 //! Nothing is sent anywhere (F-PIP-1). Standard claim fence applies (claims

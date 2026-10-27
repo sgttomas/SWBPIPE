@@ -26,12 +26,22 @@
 //!   (`reportPackageRequest.ts`) writes it, self-checked with the producer's
 //!   [`check_report_result_refs`] and [`check_unit_display_summary`].
 //!
-//! The record `U` is carried as given; its form and bound members are checked
-//! elsewhere (§2.3, §2.5 step 4). Nothing here calls the producer, renders,
-//! writes or admits anything: [`check_matches_derivation`] reports the first
-//! JSON pointer at which a request differs, and the admitting entry that uses
-//! it is (r2c)'s. The derivation records no user release and implies no
-//! acceptance, issuance or lifecycle standing.
+//! The record `U` is the typed `report_renderer::UserReleaseRecord`, carried
+//! as given; its form and bound members are checked by native admission
+//! (§2.3, §2.5 step 4), the producer (item 10) and the reader.
+//! [`check_matches_derivation`] reports the first JSON pointer at which a
+//! request differs.
+//!
+//! Slice (r2c) adds, here, the route-010 vocabulary every layer refuses with,
+//! the user-release markers ([`user_release_marker`]), the producer entry
+//! ([`ProducerEntry`], [`DerivedUserRelease`]) and the producer's one entry
+//! that admits the user-released profile, [`assemble_derived`] (§2.8): its
+//! preflight (item 0, then the user-released exact check), then the
+//! whole-request derivation (`check_derived`), then the shared producer under
+//! the user-release entry. Its one caller is native admission's route-010
+//! branch, through `report_package_bridge::assemble_user_released_request`
+//! (`user_release_reach_scan`). The derivation records no user release and
+//! implies no acceptance, issuance or lifecycle standing.
 //! Standard claim fence applies (claims taxonomy per DEC-081).
 
 use crate::bindings::{

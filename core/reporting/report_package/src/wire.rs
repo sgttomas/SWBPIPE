@@ -6,8 +6,17 @@
 //! result it derives from as JSON values. [`assemble_wire_request`] converts
 //! the audit manifest, runs [`crate::bindings::check_request`] and only then
 //! assembles. The typed 1.0.0 result-envelope DTOs and the fresh-result
-//! refusal are retired with the 1.0.0 package. Standard claim fence applies
-//! (claims taxonomy per DEC-081).
+//! refusal are retired with the 1.0.0 package.
+//!
+//! [`assemble_wire_request`] is a general entry (W-18b, DEL-08-01 Design
+//! `report-user-release.md` §2.8): it passes `ProducerEntry::General`, so the
+//! checks and the writer refuse every user-release marker. The crate-private
+//! `assemble_wire_request_in` has two callers, that entry and
+//! `user_release::assemble_derived`, the one admitting entry, which passes
+//! `ProducerEntry::UserRelease` after its preflight and derivation; it
+//! forwards the entry unchanged to the checks and the writer
+//! (`user_release_reach_scan`). Standard claim fence applies (claims taxonomy
+//! per DEC-081).
 
 use crate as package;
 use crate::admitted::{self, AdmittedSet};

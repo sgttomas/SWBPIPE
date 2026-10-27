@@ -38,6 +38,37 @@
 //! value with the audit member's (`document_form`). The reader has no source
 //! result, so source-dependent row accounting stays the producer's check;
 //! other member contents beyond their checked envelope are not re-validated.
+//!
+//! A user-released package (W-18b, DEL-08-01 Design `report-user-release.md`
+//! §2.9) is the same 2.0.0 container selected by the manifest's optional
+//! `user_release` record. When the record is present the reader requires an
+//! unblocked package under the `desktop_user_released_report_package_1`
+//! profile; exactly one HTML, PDF, audit and result member and no
+//! state/comparison/handoff member; a pressure-free (`preview-physics-2`)
+//! result member; the record's constants and forms; its bound model
+//! reference and hash, input-manifest hash and reference, result-document
+//! identity and derivative hash, run, report and package identities equal to
+//! the manifest's, the audit member's and the result member's; a
+//! `content_binding` listing exactly the other members with the SHA-256 of
+//! their bytes; and the HTML member carrying the notice regenerated from the
+//! manifest record exactly once. The user-released profile without a record,
+//! or a record under another profile, is refused. Each failure is
+//! `OPSPROJ_USER_RELEASE_UNBOUND`.
+//!
+//! What these checks establish, and what they do not: they are equality
+//! checks, not signatures. They establish consistency: the record, the
+//! members and the member bytes agree with each other. They do not establish
+//! authentic user consent (that a person made the statement) or producer
+//! origin (that this application wrote the package), and they do not
+//! establish that the statement is true. Anyone who can write the file can
+//! build a coherent package with a record, its members and every hash
+//! re-computed together, and the reader will not detect it. At save time the
+//! desktop's native admission also established that the record came through
+//! route `DREP-PACKAGE-USER-RELEASE-010` with the wrapper's user-release
+//! intent, that the model and result were that session's solve, and that
+//! every member was derived from them; the package does not carry that
+//! evidence.
+//!
 //! It is not an acceptance or issuance act. Standard claim fence applies
 //! (claims taxonomy per DEC-081).
 

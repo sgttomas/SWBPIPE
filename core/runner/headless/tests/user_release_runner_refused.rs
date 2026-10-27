@@ -105,3 +105,80 @@ fn user_release_runner_refused() {
         }
     }
 }
+
+/// Also asserted by the reach scan's design (DEL-08-01 Design
+/// `report-user-release.md` §2.8): no source of the headless runner, its
+/// library, binaries or tests, names the producer's admitting entry, its
+/// derivation check, its proof type or the desktop's bridge function. The
+/// names are assembled here so this file holds none of them.
+#[test]
+fn no_runner_source_names_the_admitting_entry() {
+    fn walk(dir: &Path, out: &mut Vec<PathBuf>) {
+        let mut entries: Vec<_> = std::fs::read_dir(dir).unwrap().map(|entry| entry.unwrap().path()).collect();
+        entries.sort();
+        for path in entries {
+            if path.is_dir() {
+                walk(&path, out);
+            } else if path.extension().is_some_and(|extension| extension == "rs") {
+                out.push(path);
+            }
+        }
+    }
+    /// The identifiers of Rust source outside comments and string literals.
+    fn identifiers(text: &str) -> std::collections::BTreeSet<String> {
+        let chars: Vec<char> = text.chars().collect();
+        let (mut out, mut index) = (std::collections::BTreeSet::new(), 0);
+        while index < chars.len() {
+            match chars[index] {
+                '/' if chars.get(index + 1) == Some(&'/') => {
+                    while index < chars.len() && chars[index] != '\n' {
+                        index += 1;
+                    }
+                }
+                '/' if chars.get(index + 1) == Some(&'*') => {
+                    index += 2;
+                    while index + 1 < chars.len() && !(chars[index] == '*' && chars[index + 1] == '/') {
+                        index += 1;
+                    }
+                    index += 2;
+                }
+                // A char literal (`'"'`, `'\\''`); a lifetime is read as identifier text.
+                '\'' if chars.get(index + 2) == Some(&'\'') => index += 3,
+                '\'' if chars.get(index + 1) == Some(&'\\') && chars.get(index + 3) == Some(&'\'') => index += 4,
+                '"' => {
+                    index += 1;
+                    while index < chars.len() && chars[index] != '"' {
+                        index += if chars[index] == '\\' { 2 } else { 1 };
+                    }
+                    index += 1;
+                }
+                c if c.is_alphabetic() || c == '_' => {
+                    let start = index;
+                    while index < chars.len() && (chars[index].is_alphanumeric() || chars[index] == '_') {
+                        index += 1;
+                    }
+                    out.insert(chars[start..index].iter().collect());
+                }
+                _ => index += 1,
+            }
+        }
+        out
+    }
+    let crate_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let mut files = Vec::new();
+    walk(&crate_dir.join("src"), &mut files);
+    walk(&crate_dir.join("tests"), &mut files);
+    assert!(files.len() > 5, "{files:?}");
+    let names = [
+        ["assemble", "derived"].join("_"),
+        ["check", "derived"].join("_"),
+        ["assemble", "user", "released", "request"].join("_"),
+        ["Derived", "User", "Release"].concat(),
+    ];
+    for file in files {
+        let found = identifiers(&std::fs::read_to_string(&file).unwrap());
+        for name in &names {
+            assert!(!found.contains(name), "{} names {name}", file.display());
+        }
+    }
+}

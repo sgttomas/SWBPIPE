@@ -3,6 +3,21 @@
 //! bridge and the headless runner both call [`check_request`] through
 //! `wire::assemble_wire_request`, before assembly.
 //!
+//! Which entry admits what (W-18b, DEL-08-01 Design `report-user-release.md`
+//! §2.8): the general entries, [`check_request`] and
+//! `wire::assemble_wire_request`, pass `ProducerEntry::General`, which refuses
+//! every user-release marker (the user-released profile, the
+//! `user_released_report` context, a `user_release` member) with
+//! `REPORT-PACKAGE-USER-RELEASE-NOT-ADMITTED`, after the two cardinality
+//! checks, item 0 and `check_runner_profile`. The one admitting entry,
+//! `user_release::assemble_derived`, passes `ProducerEntry::UserRelease` only
+//! after its preflight and its whole-request derivation; under it the
+//! user-released profile is admitted with no handoff record set, and items 8
+//! and 10 bind the record to the request (`REPORT-PACKAGE-USER-RELEASE-UNBOUND`).
+//! The user-released profile's exact-route refusal
+//! (`exact_sections::check_user_released_profile`) runs after the marker
+//! refusal.
+//!
 //! These checks bind the request's members to one model, one run and one
 //! validated source result. They are equality and derivation checks:
 //! - the analysis record and the input manifest are not in the request, so

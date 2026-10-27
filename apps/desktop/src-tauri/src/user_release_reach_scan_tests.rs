@@ -48,13 +48,14 @@ fn the_scan_reads_the_production_files() {
     }
 }
 
-/// Also asserted (§2.8): no source under `core/runner` names the admitting
-/// entry or the bridge function, and the manifests that depend on the
-/// renderer are exactly `src-tauri`'s, `pdf_emitter`'s and
-/// `report_package`'s, of which only `report_package`'s depends on
-/// `pdf_emitter`.
+/// Also asserted (§2.8): the manifests that depend on the renderer are
+/// exactly `src-tauri`'s, `pdf_emitter`'s and `report_package`'s, of which
+/// only `report_package`'s depends on `pdf_emitter`. That no source under the
+/// headless runner names the admitting entry or the bridge function is the
+/// runner's own test (`core/runner/headless/tests/user_release_runner_refused.rs`),
+/// so this crate's tests read no runner source.
 #[test]
-fn no_other_crate_reaches_the_renderer_or_the_admitting_entry() {
+fn only_the_three_crates_depend_on_the_renderer() {
     fn walk(dir: &Path, out: &mut Vec<std::path::PathBuf>, wanted: &dyn Fn(&Path) -> bool) {
         let Ok(entries) = std::fs::read_dir(dir) else { return };
         let mut entries: Vec<_> = entries.map(|entry| entry.unwrap().path()).collect();
@@ -71,29 +72,6 @@ fn no_other_crate_reaches_the_renderer_or_the_admitting_entry() {
         }
     }
     let project = project();
-    let mut runner = Vec::new();
-    walk(&project.join("core/runner"), &mut runner, &|path| path.extension().is_some_and(|extension| extension == "rs"));
-    assert!(!runner.is_empty());
-    for path in runner {
-        let text = std::fs::read_to_string(&path).unwrap();
-        let tokens: TokenStream = text.parse().unwrap_or_else(|error| panic!("{}: {error:?}", path.display()));
-        fn names(tokens: TokenStream, out: &mut BTreeSet<String>) {
-            for tree in tokens {
-                match tree {
-                    TokenTree::Group(group) => names(group.stream(), out),
-                    TokenTree::Ident(ident) => {
-                        out.insert(ident.to_string());
-                    }
-                    _ => {}
-                }
-            }
-        }
-        let mut found = BTreeSet::new();
-        names(tokens, &mut found);
-        for name in ["assemble_derived", "assemble_user_released_request", "check_derived", "DerivedUserRelease"] {
-            assert!(!found.contains(name), "{} names {name}", path.display());
-        }
-    }
     let mut manifests = Vec::new();
     walk(&project, &mut manifests, &|path| path.file_name().is_some_and(|name| name == "Cargo.toml"));
     let dependents = |krate: &str| -> BTreeSet<String> {
