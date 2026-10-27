@@ -1253,6 +1253,509 @@
         "source_metadata_present": true,
         "finding": { "class": "PROVENANCE_WARNING", "severity": "BLOCKING" }
       }
+    },
+    {
+      "case_id": "public-report-cache-payload-blocked",
+      "item": {
+        "field_id": "invented.project.note",
+        "field_class": "project",
+        "privacy_classification": "private_project_data",
+        "redistribution_status": "private_only",
+        "cache_payload": 1,
+        "value": "Invented placeholder value"
+      },
+      "export_context": "public_report",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "block_export",
+        "reason_code": "PAYLOAD_METADATA_ONLY_REQUIRED",
+        "source_metadata_present": true,
+        "finding": { "class": "STORAGE_BOUNDARY_WARNING", "severity": "BLOCKING" }
+      }
+    },
+    {
+      "case_id": "local-private-sqlite-payload-with-intent-blocked",
+      "item": {
+        "field_id": "invented.project.note",
+        "field_class": "project",
+        "privacy_classification": "private_project_data",
+        "redistribution_status": "private_only",
+        "sqlite_payload": 1,
+        "value": "Invented placeholder value"
+      },
+      "export_context": "local_private",
+      "explicit_local_private_intent": true,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "block_export",
+        "reason_code": "PAYLOAD_METADATA_ONLY_REQUIRED",
+        "source_metadata_present": true,
+        "finding": { "class": "STORAGE_BOUNDARY_WARNING", "severity": "BLOCKING" }
+      }
+    },
+    {
+      "case_id": "downstream-tool-cache-payload-only-blocked",
+      "item": {
+        "field_id": "invented.cache.note",
+        "cache_payload": "Invented cache placeholder"
+      },
+      "export_context": "downstream_tool",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "block_export",
+        "reason_code": "PAYLOAD_METADATA_ONLY_REQUIRED",
+        "source_metadata_present": true,
+        "finding": { "class": "STORAGE_BOUNDARY_WARNING", "severity": "BLOCKING" }
+      }
+    },
+    {
+      "case_id": "shared-model-null-privacy-private-rule-pack-provenance-redacted",
+      "item": {
+        "field_id": "invented.rule_pack.private_value",
+        "field_class": "rule_pack",
+        "privacy_classification": null,
+        "redistribution_status": "private_only",
+        "provenance": {
+          "privacy_classification": "private_rule_pack_data"
+        },
+        "value": 4.2
+      },
+      "export_context": "shared_model",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "redact_value",
+        "reason_code": "PRIVATE_DATA_REDACTED",
+        "source_metadata_present": true,
+        "finding": { "class": "PRIVATE_DATA_WARNING", "severity": "WARNING" }
+      }
+    },
+    {
+      "case_id": "local-private-null-members-private-provenance-without-intent-blocks",
+      "item": {
+        "field_id": "invented.project.note",
+        "field_class": "project",
+        "privacy_classification": null,
+        "redistribution_status": null,
+        "provenance": {
+          "privacy_classification": "private_project_data",
+          "redistribution_status": "private_only"
+        },
+        "value": "Invented placeholder value"
+      },
+      "export_context": "local_private",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "block_export",
+        "reason_code": "LOCAL_PRIVATE_INTENT_REQUIRED",
+        "source_metadata_present": true,
+        "finding": { "class": "PRIVATE_DATA_WARNING", "severity": "BLOCKING" }
+      }
+    },
+    {
+      "case_id": "local-private-null-members-private-provenance-with-intent-warns",
+      "item": {
+        "field_id": "invented.project.note",
+        "field_class": "project",
+        "privacy_classification": null,
+        "redistribution_status": null,
+        "provenance": {
+          "privacy_classification": "private_project_data",
+          "redistribution_status": "private_only"
+        },
+        "value": "Invented placeholder value"
+      },
+      "export_context": "local_private",
+      "explicit_local_private_intent": true,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "warning_only",
+        "reason_code": "PRIVATE_LOCAL_ALLOWED_WITH_WARNING",
+        "source_metadata_present": true,
+        "finding": { "class": "PRIVATE_DATA_WARNING", "severity": "WARNING" }
+      }
+    },
+    {
+      "case_id": "public-report-null-redistribution-protected-provenance-blocked",
+      "item": {
+        "field_id": "invented.project.note",
+        "field_class": "project",
+        "privacy_classification": "public_metadata",
+        "redistribution_status": null,
+        "provenance": {
+          "redistribution_status": "protected_suspected"
+        },
+        "value": "Invented placeholder value"
+      },
+      "export_context": "public_report",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "block_export",
+        "reason_code": "PROTECTED_CONTENT_BLOCKED",
+        "source_metadata_present": true,
+        "finding": { "class": "IP_BOUNDARY_WARNING", "severity": "BLOCKING" }
+      }
+    },
+    {
+      "case_id": "public-example-null-members-invented-provenance-included",
+      "item": {
+        "field_id": "invented.example.label",
+        "field_class": "example",
+        "privacy_classification": null,
+        "redistribution_status": null,
+        "provenance": {
+          "privacy_classification": "invented_public_example",
+          "redistribution_status": "invented_non_engineering_example"
+        },
+        "value": "Invented example label"
+      },
+      "export_context": "public_example",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "include",
+        "reason_code": "SAFE_INVENTED_PUBLIC_EXAMPLE",
+        "source_metadata_present": true,
+        "finding": null
+      }
+    },
+    {
+      "case_id": "public-example-null-members-private-material-provenance-redacted",
+      "item": {
+        "field_id": "invented.material.value",
+        "field_class": "material",
+        "privacy_classification": null,
+        "redistribution_status": null,
+        "provenance": {
+          "privacy_classification": "private_material_data",
+          "redistribution_status": "private_only"
+        },
+        "value": 1.5
+      },
+      "export_context": "public_example",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "redact_value",
+        "reason_code": "PRIVATE_DATA_REDACTED",
+        "source_metadata_present": true,
+        "finding": { "class": "PRIVATE_DATA_WARNING", "severity": "WARNING" }
+      }
+    },
+    {
+      "case_id": "public-report-unknown-review-quarantined-provenance-blocked",
+      "item": {
+        "field_id": "invented.public.note",
+        "field_class": "public_metadata",
+        "privacy_classification": "public_metadata",
+        "redistribution_status": "public_permissive",
+        "review_status": "unknown",
+        "provenance": {
+          "review_status": "quarantined"
+        },
+        "value": "Invented placeholder value"
+      },
+      "export_context": "public_report",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "block_export",
+        "reason_code": "PROTECTED_CONTENT_BLOCKED",
+        "source_metadata_present": true,
+        "finding": { "class": "IP_BOUNDARY_WARNING", "severity": "BLOCKING" }
+      }
+    },
+    {
+      "case_id": "local-private-null-review-rejected-provenance-with-intent-blocked",
+      "item": {
+        "field_id": "invented.project.note",
+        "field_class": "project",
+        "privacy_classification": "private_project_data",
+        "redistribution_status": "private_only",
+        "review_status": null,
+        "provenance": {
+          "review_status": "rejected"
+        },
+        "value": "Invented placeholder value"
+      },
+      "export_context": "local_private",
+      "explicit_local_private_intent": true,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "block_export",
+        "reason_code": "PROTECTED_CONTENT_BLOCKED",
+        "source_metadata_present": true,
+        "finding": { "class": "IP_BOUNDARY_WARNING", "severity": "BLOCKING" }
+      }
+    },
+    {
+      "case_id": "downstream-tool-unknown-review-accepted-provenance-included",
+      "item": {
+        "field_id": "invented.public.note",
+        "field_class": "public_metadata",
+        "privacy_classification": "public_metadata",
+        "redistribution_status": "public_permissive",
+        "review_status": "unknown",
+        "provenance": {
+          "review_status": "accepted"
+        },
+        "value": "Invented placeholder value"
+      },
+      "export_context": "downstream_tool",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "include",
+        "reason_code": "SAFE_PUBLIC_METADATA",
+        "source_metadata_present": true,
+        "finding": null
+      }
+    },
+    {
+      "case_id": "downstream-tool-storage-locality-only-metadata-present",
+      "item": {
+        "field_id": "invented.storage.note",
+        "storage_locality": "invented_locality",
+        "value": "Invented placeholder value"
+      },
+      "export_context": "downstream_tool",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "redact_value",
+        "reason_code": "REDISTRIBUTION_STATUS_UNKNOWN",
+        "source_metadata_present": true,
+        "finding": { "class": "PROVENANCE_WARNING", "severity": "WARNING" }
+      }
+    },
+    {
+      "case_id": "local-private-null-symbolic-path-class-metadata-present",
+      "item": {
+        "field_id": "invented.storage.note",
+        "symbolic_path_class": null,
+        "value": "Invented placeholder value"
+      },
+      "export_context": "local_private",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "warning_only",
+        "reason_code": "REDISTRIBUTION_STATUS_UNKNOWN",
+        "source_metadata_present": true,
+        "finding": { "class": "PROVENANCE_WARNING", "severity": "WARNING" }
+      }
+    },
+    {
+      "case_id": "public-report-false-contains-payload-metadata-present",
+      "item": {
+        "field_id": "invented.storage.note",
+        "contains_payload": false,
+        "value": "Invented placeholder value"
+      },
+      "export_context": "public_report",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "redact_value",
+        "reason_code": "REDISTRIBUTION_STATUS_UNKNOWN",
+        "source_metadata_present": true,
+        "finding": { "class": "PROVENANCE_WARNING", "severity": "WARNING" }
+      }
+    },
+    {
+      "case_id": "shared-model-object-storage-locality-missing-metadata",
+      "item": {
+        "field_id": "invented.storage.note",
+        "storage_locality": {
+          "kind": "invented_locality"
+        },
+        "value": "Invented placeholder value"
+      },
+      "export_context": "shared_model",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "redact_value",
+        "reason_code": "MISSING_METADATA_REDACTED",
+        "source_metadata_present": false,
+        "finding": { "class": "PROVENANCE_WARNING", "severity": "WARNING" }
+      }
+    },
+    {
+      "case_id": "public-report-cache-payload-with-quarantined-provenance-review-blocked",
+      "item": {
+        "field_id": "invented.project.note",
+        "field_class": "project",
+        "privacy_classification": "private_project_data",
+        "redistribution_status": "private_only",
+        "review_status": "unknown",
+        "provenance": {
+          "review_status": "quarantined"
+        },
+        "cache_payload": 1,
+        "value": "Invented placeholder value"
+      },
+      "export_context": "public_report",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "block_export",
+        "reason_code": "PAYLOAD_METADATA_ONLY_REQUIRED",
+        "source_metadata_present": true,
+        "finding": { "class": "STORAGE_BOUNDARY_WARNING", "severity": "BLOCKING" }
+      }
+    },
+    {
+      "case_id": "local-private-storage-key-null-members-quarantined-provenance-blocked",
+      "item": {
+        "field_id": "invented.project.note",
+        "field_class": "project",
+        "storage_locality": "invented_locality",
+        "privacy_classification": null,
+        "redistribution_status": null,
+        "review_status": "unknown",
+        "provenance": {
+          "privacy_classification": "private_project_data",
+          "redistribution_status": "private_only",
+          "review_status": "quarantined"
+        },
+        "value": "Invented placeholder value"
+      },
+      "export_context": "local_private",
+      "explicit_local_private_intent": true,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "block_export",
+        "reason_code": "PROTECTED_CONTENT_BLOCKED",
+        "source_metadata_present": true,
+        "finding": { "class": "IP_BOUNDARY_WARNING", "severity": "BLOCKING" }
+      }
+    },
+    {
+      "case_id": "shared-model-storage-key-null-privacy-private-provenance-redacted",
+      "item": {
+        "field_id": "invented.storage.note",
+        "path_class": "invented_path_class",
+        "privacy_classification": null,
+        "provenance": {
+          "privacy_classification": "private_component_data",
+          "redistribution_status": "private_only"
+        },
+        "value": "Invented placeholder value"
+      },
+      "export_context": "shared_model",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "redact_value",
+        "reason_code": "PRIVATE_DATA_REDACTED",
+        "source_metadata_present": true,
+        "finding": { "class": "PRIVATE_DATA_WARNING", "severity": "WARNING" }
+      }
+    },
+    {
+      "case_id": "public-report-public-metadata-invented-redistribution-included",
+      "item": {
+        "field_id": "invented.public.note",
+        "field_class": "public_metadata",
+        "privacy_classification": "public_metadata",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "accepted",
+        "value": "Invented placeholder value"
+      },
+      "export_context": "public_report",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "include",
+        "reason_code": "SAFE_PUBLIC_METADATA",
+        "source_metadata_present": true,
+        "finding": null
+      }
+    },
+    {
+      "case_id": "public-example-invented-privacy-public-permissive-included",
+      "item": {
+        "field_id": "invented.example.label",
+        "field_class": "example",
+        "privacy_classification": "invented_public_example",
+        "redistribution_status": "public_permissive",
+        "review_status": "accepted",
+        "value": "Invented example label"
+      },
+      "export_context": "public_example",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "include",
+        "reason_code": "SAFE_INVENTED_PUBLIC_EXAMPLE",
+        "source_metadata_present": true,
+        "finding": null
+      }
+    },
+    {
+      "case_id": "local-private-numeric-redistribution-private-project-without-intent-blocks",
+      "item": {
+        "field_id": "invented.project.note",
+        "field_class": "project",
+        "privacy_classification": "private_project_data",
+        "redistribution_status": 1,
+        "review_status": "accepted",
+        "value": "Invented placeholder value"
+      },
+      "export_context": "local_private",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "block_export",
+        "reason_code": "LOCAL_PRIVATE_INTENT_REQUIRED",
+        "source_metadata_present": true,
+        "finding": { "class": "PRIVATE_DATA_WARNING", "severity": "BLOCKING" }
+      }
+    },
+    {
+      "case_id": "public-report-boolean-privacy-private-only-redacted",
+      "item": {
+        "field_id": "invented.project.note",
+        "field_class": "project",
+        "privacy_classification": true,
+        "redistribution_status": "private_only",
+        "review_status": "accepted",
+        "value": "Invented placeholder value"
+      },
+      "export_context": "public_report",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "redact_value",
+        "reason_code": "PRIVATE_DATA_REDACTED",
+        "source_metadata_present": true,
+        "finding": { "class": "PRIVATE_DATA_WARNING", "severity": "WARNING" }
+      }
+    },
+    {
+      "case_id": "shared-model-empty-privacy-public-permissive-unknown-provenance",
+      "item": {
+        "field_id": "invented.project.note",
+        "field_class": "project",
+        "privacy_classification": "",
+        "redistribution_status": "public_permissive",
+        "review_status": "accepted",
+        "value": "Invented placeholder value"
+      },
+      "export_context": "shared_model",
+      "explicit_local_private_intent": false,
+      "explicit_user_release_intent": false,
+      "expected": {
+        "action": "redact_value",
+        "reason_code": "UNKNOWN_PROVENANCE_WARNING",
+        "source_metadata_present": true,
+        "finding": { "class": "PROVENANCE_WARNING", "severity": "WARNING" }
+      }
     }
   ]
 }

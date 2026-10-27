@@ -23,8 +23,9 @@ const REDACTION_METADATA_KEYS: [&str; 7] = [
     "export_policy",
     "professional_claim",
 ];
+/// The payload keys the TypeScript and Python contracts screen (`PAYLOAD_DETAIL_KEYS`).
 #[cfg(test)]
-const PAYLOAD_KEYS: [&str; 10] = [
+const PAYLOAD_KEYS: [&str; 12] = [
     "payload",
     "content",
     "contents",
@@ -35,13 +36,11 @@ const PAYLOAD_KEYS: [&str; 10] = [
     "component_values",
     "report_payload",
     "diagnostic_payload",
+    "cache_payload",
+    "sqlite_payload",
 ];
-/// The payload keys the TypeScript and Python contracts screen beyond `PAYLOAD_KEYS`.
-/// Read only in the user-released context, so no existing-context decision changes.
-#[cfg(test)]
-const USER_RELEASED_EXTRA_PAYLOAD_KEYS: [&str; 2] = ["cache_payload", "sqlite_payload"];
-/// The storage-privacy metadata keys whose scalar value marks metadata present in the
-/// TypeScript and Python contracts.  Read only in the user-released context.
+/// The storage-privacy metadata keys whose scalar value marks metadata present, as in the
+/// TypeScript and Python contracts (`STORAGE_PRIVACY_METADATA_KEYS`).
 #[cfg(test)]
 const STORAGE_PRIVACY_METADATA_KEYS: [&str; 16] = [
     "contains_payload",
@@ -139,12 +138,12 @@ fn classify_contract_item(
         !wrapper_release_intent || export_context == USER_RELEASED_REPORT_CONTEXT,
         "explicit user-release intent is admitted only in the {USER_RELEASED_REPORT_CONTEXT} context, not in {export_context}"
     );
-    // The user-released context reads its inputs exactly as the TypeScript and Python
-    // contracts do (`classify` / `_classify`): the two further payload keys, the
-    // storage-privacy metadata keys, and the provenance fallback for a null member and an
-    // `unknown` review.  The five existing contexts keep this mirror's reading unchanged;
-    // its departures there remain open (`docs/security/redaction_export_controls.md`,
-    // Final-Sink Route Binding).
+    // Every context reads its inputs exactly as the TypeScript and Python contracts do
+    // (`classify` / `_classify`): all twelve payload keys, the scalar storage-privacy
+    // metadata keys, the provenance fallback for a null privacy or redistribution
+    // member and for a null or `unknown` review, the unknown-label sets and the public
+    // pairing.  Until the 2026-10-27 alignment the five existing contexts kept an older
+    // reading of these inputs (`docs/security/redaction_export_controls.md`).
     let user_released = export_context == USER_RELEASED_REPORT_CONTEXT;
     let unsafe_present = PAYLOAD_KEYS
         .iter()
@@ -152,44 +151,25 @@ fn classify_contract_item(
         .chain(PATH_KEYS.iter())
         .chain(CLOUD_KEYS.iter())
         .chain(SQL_KEYS.iter())
-        .any(|key| item.contains_key(*key))
-        || (user_released
-            && USER_RELEASED_EXTRA_PAYLOAD_KEYS
-                .iter()
-                .any(|key| item.contains_key(*key)));
+        .any(|key| item.contains_key(*key));
     let metadata_present = REDACTION_METADATA_KEYS
         .iter()
         .any(|key| item.contains_key(*key))
         || unsafe_present
-        || (user_released
-            && STORAGE_PRIVACY_METADATA_KEYS.iter().any(|key| {
-                item.get(*key)
-                    .is_some_and(|value| !value.is_array() && !value.is_object())
-            }));
+        || STORAGE_PRIVACY_METADATA_KEYS.iter().any(|key| {
+            item.get(*key)
+                .is_some_and(|value| !value.is_array() && !value.is_object())
+        });
     let provenance = item.get("provenance").and_then(Value::as_object);
-    let (privacy, redistribution, review) = if user_released {
-        let stated_or_provenance = |key: &str| match item.get(key) {
-            Some(value) if !value.is_null() => Some(value),
-            own => provenance.map_or(own, |value| value.get(key)),
-        };
-        let review = match item.get("review_status") {
-            Some(value) if !value.is_null() && value.as_str() != Some("unknown") => Some(value),
-            own => provenance.map_or(own, |value| value.get("review_status")),
-        };
-        (
-            stated_or_provenance("privacy_classification"),
-            stated_or_provenance("redistribution_status"),
-            review,
-        )
-    } else {
-        (
-            item.get("privacy_classification")
-                .or_else(|| provenance.and_then(|value| value.get("privacy_classification"))),
-            item.get("redistribution_status")
-                .or_else(|| provenance.and_then(|value| value.get("redistribution_status"))),
-            item.get("review_status")
-                .or_else(|| provenance.and_then(|value| value.get("review_status"))),
-        )
+    let stated_or_provenance = |key: &str| match item.get(key) {
+        Some(value) if !value.is_null() => Some(value),
+        own => provenance.map_or(own, |value| value.get(key)),
+    };
+    let privacy = stated_or_provenance("privacy_classification");
+    let redistribution = stated_or_provenance("redistribution_status");
+    let review = match item.get("review_status") {
+        Some(value) if !value.is_null() && value.as_str() != Some("unknown") => Some(value),
+        own => provenance.map_or(own, |value| value.get("review_status")),
     };
     // Payload-carried local-private intent is not read in the user-released context
     // (§3.2): only the wrapper's release intent decides there.
@@ -216,15 +196,24 @@ fn classify_contract_item(
     };
     let privacy_text = privacy.and_then(Value::as_str);
     let redistribution_text = redistribution.and_then(Value::as_str);
+    // As in the TypeScript and Python contracts, any safe privacy class with any public
+    // redistribution status is safe, in every context; the reason follows the privacy.
+    let safe_public = match (privacy_text, redistribution_text) {
+        (
+            Some(privacy @ ("public" | "public_metadata" | "invented_public_example")),
+            Some("public_permissive" | "invented_non_engineering_example"),
+        ) => Some(if privacy == "invented_public_example" {
+            "SAFE_INVENTED_PUBLIC_EXAMPLE"
+        } else {
+            "SAFE_PUBLIC_METADATA"
+        }),
+        _ => None,
+    };
     let review_text = review.and_then(Value::as_str).unwrap_or("unknown");
 
     let contains_payload = truthy_option(item.get("contains_payload"))
         || truthy_option(item.get("payload_present"))
-        || PAYLOAD_KEYS.iter().any(|key| item.contains_key(*key))
-        || (user_released
-            && USER_RELEASED_EXTRA_PAYLOAD_KEYS
-                .iter()
-                .any(|key| item.contains_key(*key)));
+        || PAYLOAD_KEYS.iter().any(|key| item.contains_key(*key));
     let secret_present = truthy_option(item.get("secret_material_present"))
         || SECRET_KEYS.iter().any(|key| item.contains_key(*key));
     let cloud_present = truthy_option(item.get("cloud_or_network_reference"))
@@ -285,35 +274,19 @@ fn classify_contract_item(
             } else {
                 ("block_export", "USER_RELEASE_INTENT_REQUIRED")
             }
-        } else if matches!(
-            privacy_text,
-            Some("public") | Some("public_metadata") | Some("invented_public_example")
-        ) && matches!(
-            redistribution_text,
-            Some("public_permissive") | Some("invented_non_engineering_example")
-        ) {
-            if privacy_text == Some("invented_public_example") {
-                ("include", "SAFE_INVENTED_PUBLIC_EXAMPLE")
-            } else {
-                ("include", "SAFE_PUBLIC_METADATA")
-            }
+        } else if let Some(reason) = safe_public {
+            ("include", reason)
         } else {
             ("block_export", "USER_RELEASE_VALUE_UNBOUND")
         }
     } else if !metadata_present {
         (unknown_action, "MISSING_METADATA_REDACTED")
-    } else if matches!(redistribution_text, None | Some("unknown") | Some("TBD")) {
+    } else if unknown_label(redistribution) {
         (unknown_action, "REDISTRIBUTION_STATUS_UNKNOWN")
-    } else if matches!(privacy_text, None | Some("unknown") | Some("TBD")) {
+    } else if unknown_label(privacy) {
         (unknown_action, "UNKNOWN_PROVENANCE_WARNING")
-    } else if matches!(privacy_text, Some("public") | Some("public_metadata"))
-        && redistribution_text == Some("public_permissive")
-    {
-        ("include", "SAFE_PUBLIC_METADATA")
-    } else if privacy_text == Some("invented_public_example")
-        && redistribution_text == Some("invented_non_engineering_example")
-    {
-        ("include", "SAFE_INVENTED_PUBLIC_EXAMPLE")
+    } else if let Some(reason) = safe_public {
+        ("include", reason)
     } else if matches!(
         privacy_text,
         Some("private_project_data")
@@ -364,6 +337,17 @@ fn classify_contract_item(
                 "WARNING"
             }
         }),
+    }
+}
+
+/// A label the TypeScript and Python contracts read as unknown (`UNKNOWN_*` sets): absent,
+/// null, `unknown` or `TBD`.  Any other value, a non-string included, is a stated label.
+#[cfg(test)]
+fn unknown_label(value: Option<&Value>) -> bool {
+    match value {
+        None | Some(Value::Null) => true,
+        Some(Value::String(text)) => matches!(text.as_str(), "unknown" | "TBD"),
+        Some(_) => false,
     }
 }
 
@@ -922,14 +906,18 @@ mod tests {
         assert_eq!(blocked.reason_code, "USER_RELEASE_INTENT_REQUIRED");
     }
 
-    /// Codex r1 finding 3: the user-released context reads its inputs as TypeScript and
-    /// Python do (the shared corpus holds the decisions), while each existing context
-    /// keeps this mirror's reading byte for byte.  The existing contexts' departures
-    /// from TypeScript and Python remain open (`docs/security/redaction_export_controls.md`,
-    /// Final-Sink Route Binding) and are not changed here: repairing them would change
-    /// existing decisions.
+    /// The user-released context and the five existing contexts read these inputs as
+    /// TypeScript and Python do (the shared corpus holds the decisions).  Re-pinned
+    /// (W-18b Rust-mirror alignment): this test previously asserted main's old
+    /// existing-context answers on the same items, recording the mirror's departure
+    /// from TypeScript and Python (it ignored `cache_payload` / `sqlite_payload`, did
+    /// not fall back to the provenance for a null member or a null / `unknown` review,
+    /// and did not count a scalar storage-privacy key as metadata).  The decision of
+    /// 2026-10-27 aligns the mirror, so the existing contexts now give the contract's
+    /// answers: the payload and the quarantined provenance block, and the null privacy
+    /// takes its provenance's private class.
     #[test]
-    fn user_released_context_mirrors_the_contract_reading_without_changing_existing_contexts() {
+    fn every_context_mirrors_the_contract_reading_of_payload_provenance_and_storage_inputs() {
         let cases = [
             (
                 json!({"privacy_classification": "private_project_data", "redistribution_status": "private_only", "cache_payload": 1, "value": "Invented value"}),
@@ -953,7 +941,9 @@ mod tests {
             let released = classify_contract_item(item, USER_RELEASED_REPORT_CONTEXT, false, true);
             assert_eq!((released.action, released.reason_code), (*action, *reason));
         }
-        // The existing contexts' reading of the same items, as on main.
+        // The existing contexts' reading of the same items, now the contract's.  On main
+        // these were `PRIVATE_LOCAL_ALLOWED_WITH_WARNING` for items 0 and 2 and
+        // `UNKNOWN_PROVENANCE_WARNING` for item 3.
         let local = |item: &Value, intent| {
             let decided = classify_contract_item(
                 item.as_object().expect("object"),
@@ -965,16 +955,44 @@ mod tests {
         };
         assert_eq!(
             local(&cases[0].0, true),
-            ("warning_only", "PRIVATE_LOCAL_ALLOWED_WITH_WARNING")
+            ("block_export", "PAYLOAD_METADATA_ONLY_REQUIRED")
+        );
+        assert_eq!(
+            local(&cases[1].0, true),
+            ("block_export", "PAYLOAD_METADATA_ONLY_REQUIRED")
         );
         assert_eq!(
             local(&cases[2].0, true),
-            ("warning_only", "PRIVATE_LOCAL_ALLOWED_WITH_WARNING")
+            ("block_export", "PROTECTED_CONTENT_BLOCKED")
         );
         assert_eq!(
             local(&cases[3].0, true),
-            ("warning_only", "UNKNOWN_PROVENANCE_WARNING")
+            ("warning_only", "PRIVATE_LOCAL_ALLOWED_WITH_WARNING")
         );
+        assert_eq!(
+            local(&cases[3].0, false),
+            ("block_export", "LOCAL_PRIVATE_INTENT_REQUIRED")
+        );
+        for context in [
+            "public_report",
+            "public_example",
+            "shared_model",
+            "downstream_tool",
+        ] {
+            for (index, (item, (action, reason))) in cases.iter().enumerate() {
+                let decided = classify_contract_item(
+                    item.as_object().expect("object"),
+                    context,
+                    false,
+                    false,
+                );
+                assert_eq!(
+                    (decided.action, decided.reason_code),
+                    (*action, *reason),
+                    "item {index} in {context}"
+                );
+            }
+        }
         let no_metadata_but_storage = json!({"storage_locality": "invented_locality", "value": 1});
         let public = classify_contract_item(
             no_metadata_but_storage.as_object().expect("object"),
@@ -982,7 +1000,12 @@ mod tests {
             false,
             false,
         );
-        assert!(!public.source_metadata_present);
+        // On main the scalar storage key did not count: `MISSING_METADATA_REDACTED`.
+        assert!(public.source_metadata_present);
+        assert_eq!(
+            (public.action, public.reason_code),
+            ("redact_value", "REDISTRIBUTION_STATUS_UNKNOWN")
+        );
         let released = classify_contract_item(
             no_metadata_but_storage.as_object().expect("object"),
             USER_RELEASED_REPORT_CONTEXT,
