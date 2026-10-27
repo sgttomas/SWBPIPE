@@ -84,7 +84,7 @@ export function DeflectedShapeControls({
     : deformation.factorUnavailable
       ? `Factor unavailable: ${deformation.factorUnavailable}.`
       : factorReady
-        ? `Displacements are drawn at ×${formatFactor(factor)} their physical length in model units${deformation.scale.mode === "factor" && deformation.scale.isDefault ? "; the default draws the largest at one tenth of the model extent, rounded to 1, 2 or 5" : ""}.`
+        ? `Displacements are drawn at ×${formatFactor(factor * phase)} their physical length in model units${phase < 1 ? `, ${Math.round(phase * 100)}% of the stated ×${formatFactor(factor)}` : ""}${deformation.scale.mode === "factor" && deformation.scale.isDefault ? `; the default ×${formatFactor(factor)} draws the largest at one tenth of the model extent, rounded to 1, 2 or 5` : ""}.`
         : deformation.basisKey === null
           ? "The largest displacement is drawn at a fixed display length; choose one case to set a factor."
           : "The largest displacement is drawn at a fixed display length.";

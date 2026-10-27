@@ -4173,7 +4173,8 @@ function overlayFocus(hoveredKey: EntityKey | null, selection: EntityRef): Overl
   return selection.type === "pipe" || selection.type === "support" ? { ref: selection, source: "selection" } : null;
 }
 
-function instancedDeformedPipeMesh(
+/** Exported for the renderer-buffer check in `deflectedShape.test.ts`. */
+export function instancedDeformedPipeMesh(
   model: PreviewModel,
   positions: ReadonlyMap<string, Vec3>,
   origin: Readonly<Vec3>,
@@ -4214,7 +4215,8 @@ function instancedDeformedPipeMesh(
   });
 }
 
-function instancedDeformationMarkerMesh(
+/** Exported for the renderer-buffer check in `deflectedShape.test.ts`. */
+export function instancedDeformationMarkerMesh(
   model: PreviewModel,
   positions: ReadonlyMap<string, Vec3>,
   origin: Readonly<Vec3>,

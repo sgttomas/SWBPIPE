@@ -142,6 +142,39 @@ describe("the virtual bulk grid (review r1, #1667)", () => {
     expect(screen.getByTestId("entity-grid-row-pipe-p-150")).toHaveAttribute("aria-pressed", "true");
   });
 
+  // Review r2 (#1667): the reveal waits for the list that holds the selected row.
+  it("reveals a selection made before the grid is first opened", () => {
+    const view = render(pipeGrid("p/0"));
+    view.rerender(pipeGrid("p/150"));
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    expect(screen.getByTestId("entity-grid-virtual-rows").scrollTop).toBeGreaterThan(0);
+    expect(screen.getByTestId("entity-grid-row-pipe-p-150")).toBeInTheDocument();
+  });
+
+  it("reveals a selection that switches the grid from nodes to pipes", () => {
+    const model = nodesModel(161, 160);
+    const view = render(tree(model, { type: "node", id: "n/0" }));
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    act(() => (document.activeElement as HTMLElement | null)?.blur());
+    view.rerender(tree(model, { type: "pipe", id: "p/150" }));
+    expect(screen.getByTestId("entity-grid-virtual-rows").scrollTop).toBeGreaterThan(0);
+    expect(screen.getByTestId("entity-grid-row-pipe-p-150")).toBeInTheDocument();
+  });
+
+  it("reveals the last of rapid selections and keeps no index after a manual scroll", () => {
+    const model = nodesModel(161, 160);
+    const view = render(tree(model, { type: "pipe", id: "p/0" }));
+    const list = openGrid();
+    view.rerender(tree(model, { type: "pipe", id: "p/150" }));
+    view.rerender(tree(model, { type: "pipe", id: "p/20" }));
+    view.rerender(tree(model, { type: "pipe", id: "p/140" }));
+    expect(screen.getByTestId("entity-grid-row-pipe-p-140")).toBeInTheDocument();
+    list.scrollTop = 0;
+    fireEvent.scroll(list);
+    view.rerender(tree({ ...model, pipe_segments: [...model.pipe_segments].reverse() }, { type: "pipe", id: "p/140" }));
+    expect(list.scrollTop).toBe(0);
+  });
+
   it("keeps its position while an edit has focus in the grid", () => {
     const view = render(pipeGrid("p/0"));
     const list = openGrid();
@@ -210,6 +243,19 @@ describe("the results table follows the selected entity", () => {
     fireEvent.click(toggle);
     expect(screen.queryByTestId("result-selection-only-empty")).toBeNull();
     expect(screen.getByTestId("result-row-r:a")).toBeInTheDocument();
+  });
+
+  it("says the other filters still apply when the selection restriction is turned off (review r2, #1667)", () => {
+    const view = render(panel({ type: "node", id: "node:A" }));
+    fireEvent.change(screen.getByTestId("result-filter-input"), { target: { value: "absent" } });
+    fireEvent.click(screen.getByTestId("result-selection-only"));
+    view.rerender(panel({ type: "project", id: "p" }));
+    const message = screen.getByTestId("result-selection-only-empty");
+    expect(message).not.toHaveTextContent("show every row");
+    expect(message).toHaveTextContent("remove the selection restriction; the other table filters still apply.");
+    fireEvent.click(screen.getByTestId("result-selection-only"));
+    expect(screen.queryByTestId("result-row-r:a")).toBeNull();
+    expect(screen.getByTestId("result-filter-summary")).toHaveTextContent("0 of 3");
   });
 
   it("is unavailable without a selected model entity", () => {

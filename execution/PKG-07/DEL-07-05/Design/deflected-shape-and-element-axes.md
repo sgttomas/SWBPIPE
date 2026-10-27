@@ -48,16 +48,20 @@ The controls are in `DeflectedShapeControls.tsx`. The builder is
   still takes a factor.
 - **Entering a factor.** The steppers move through the 1-2-5 sequence. The
   field takes any positive number: Enter commits it and Escape reverts it.
-- **A factor that cannot be drawn.** A finite factor can still make a node's
-  offset or position non-finite. Such a factor is not drawn: the default is
-  drawn instead, or the normalized scale when there is no default, and the
-  popover states why.
-- **Statement.** The canvas and the popover summary state the magnification
-  drawn, which is the stated factor times the phase. At a partial phase both
-  are named, for example "Deformed ×25, 25% of ×100 · case". The boundary
-  string adds `phase=` and `drawn_factor=`. A normalized drawing names its
-  basis: the chosen case, or "governing case per node". The readout keeps the
-  emitted maximum with its unit at every factor and phase.
+- **A factor that cannot be drawn.** The viewport keeps geometry in 32-bit
+  floats and multiplies it on the GPU. A factor is drawn only if every drawn
+  offset is within 1e15 model length units and every drawn position is finite
+  at 32 bits (`MAX_DRAWN_DEFLECTION_OFFSET`). A larger factor is not drawn: the
+  default is drawn instead, or the normalized scale when there is no default,
+  and the popover states why. The instance buffers then hold only finite
+  values.
+- **Statement.** The canvas, the popover summary and the popover explanation
+  state the magnification drawn, which is the stated factor times the phase.
+  At a partial phase both are named, for example "Deformed ×25, 25% of ×100 ·
+  case". At a partial phase only, the boundary string adds `phase=` and
+  `drawn_factor=`; at phase 1 it states the factor alone. A normalized drawing
+  names its basis: the chosen case, or "governing case per node". The readout
+  keeps the emitted maximum with its unit at every factor and phase.
 - **Undeformed ghost.** The model layer is drawn at the dimmed opacity
   through the dim batches that isolation uses
   (`ViewportResource.setUndeformedGhostPresentation`), so nothing is created or
@@ -89,12 +93,23 @@ but take no halo and no pick.
   - x = (to − from)/|to − from|;
   - y = the `y_reference` less its x part, normalized;
   - z = x × y.
-- **Kernel validation.** The kernel's validation now matches, with its
-  arithmetic and its tolerance of 1e-12:
+- **Kernel validation.** The kernel's validation now matches, in its order,
+  with its arithmetic and its tolerance of 1e-12:
   - finite inputs;
+  - the member axis normalized by `FrameElement::local_x_axis`, then
+    normalized again by `FrameOrientation::from_x_axis_and_y_reference`. The
+    second pass changes the last bits, and with them the orthogonality outcome
+    for some nearly parallel references;
   - each normalization refused at a magnitude of 1e-12 or less;
   - then `FrameOrientation::new`: each axis of unit length, the three mutually
     orthogonal, and x × y = z, each to 1e-12.
+
+  The checked-in table `apps/desktop/src/test-support/frameKernelOrientationCases.json`
+  was produced by compiling the kernel on 48 invented members: m, mm, in and
+  ft; normal, nearly parallel, zero, parallel, huge and small references; and
+  lengths about the 1e-12 cutoff. `elementAxes.test.ts` shows the view
+  converting to the kernel's metres, accepting and refusing exactly where the
+  kernel does, and giving its axes to the bit.
 - **Withheld triads.** A member that would be refused gets no triad, and the
   reason is stated:
   - a zero-length member in metres;
@@ -122,8 +137,8 @@ but take no halo and no pick.
   re-projected: the global end rows (W-7) are the solver's own rows.
 - **Selected entity only.** This results-table toggle shows the rows stated
   for the primary selection, and follows it. With the toggle on and no model
-  entity selected, the table shows no rows and says so. Turning it off shows
-  every row.
+  entity selected, the table shows no rows and says so. Turning it off removes
+  the selection restriction; the other table filters still apply.
 
 ## Evidence
 

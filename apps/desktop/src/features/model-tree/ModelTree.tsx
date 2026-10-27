@@ -860,26 +860,34 @@ function EntityGrid({
   const queueDisabled = !onQueueIntent || changedCells.length === 0;
   const virtualGrid = visibleRows.length >= 100;
   // A selection made outside the grid is scrolled into view in this family's
-  // rows (the node, material and section tables reveal their own). Focus in
-  // the grid (an edit, or a row control) keeps its position, in the plain and
-  // the virtual table alike. The virtual table is asked once, by a one-shot
-  // reveal index that is cleared after the list has scrolled.
+  // rows (the node, material and section tables reveal their own). The reveal
+  // is held as pending until this family's list holds the selected row, so a
+  // grid opened after the selection, or a family the selection switches to,
+  // still reveals it. Focus in the grid (an edit, or a row control) keeps its
+  // position: it drops the pending reveal. The virtual list is asked once, by a
+  // one-shot index cleared after it has scrolled.
+  const gridRootRef = useRef<HTMLElement>(null);
   const bulkScrollRef = useRef<HTMLDivElement>(null);
   const [virtualReveal, setVirtualReveal] = useState<number | null>(null);
-  const revealedGridSelection = useRef(entityKey(selection));
+  const selectionKey = entityKey(selection);
+  const pendingGridReveal = useRef<EntityKey | null>(selectionKey);
+  const revealedGridSelection = useRef(selectionKey);
   useLayoutEffect(() => {
-    const key = entityKey(selection);
-    if (revealedGridSelection.current === key) return;
-    revealedGridSelection.current = key;
+    if (revealedGridSelection.current === selectionKey) return;
+    revealedGridSelection.current = selectionKey;
+    pendingGridReveal.current = gridRootRef.current?.contains(document.activeElement) ? null : selectionKey;
+  }, [selectionKey]);
+  useLayoutEffect(() => {
+    const key = pendingGridReveal.current;
+    if (key === null || commonFamily) return;
+    const index = visibleRows.findIndex((row) => entityKey({ type: row.type, id: row.id }) === key);
     const host = bulkScrollRef.current;
-    if (!host || host.contains(document.activeElement)) return;
-    if (virtualGrid) {
-      const index = visibleRows.findIndex((row) => row.type === selection.type && row.id === selection.id);
-      if (index >= 0) setVirtualReveal(index);
-      return;
-    }
-    host.querySelector<HTMLElement>("tbody tr.active")?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
-  }, [selection.id, selection.type, virtualGrid]);
+    if (index < 0 || !host) return;
+    pendingGridReveal.current = null;
+    if (host.contains(document.activeElement)) return;
+    if (virtualGrid) setVirtualReveal(index);
+    else host.querySelector<HTMLElement>("tbody tr.active")?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+  });
   useEffect(() => {
     if (virtualReveal !== null) setVirtualReveal(null);
   }, [virtualReveal]);
@@ -982,7 +990,7 @@ function EntityGrid({
     </div>
   </>;
   return (
-    <section className={`entity-grid${bounded ? " bounded" : ""}`} aria-label="Bulk entity grid" data-testid="entity-grid">
+    <section className={`entity-grid${bounded ? " bounded" : ""}`} ref={gridRootRef} aria-label="Bulk entity grid" data-testid="entity-grid">
       {compact && toolbarTarget ? createPortal(compactControls, toolbarTarget) : null}
       <div hidden={compact} className="entity-grid-tabs" aria-label="Grid entity type">
         {GRID_ENTITY_TYPES.map((item) => (

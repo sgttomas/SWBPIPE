@@ -7,10 +7,14 @@
 //   y = (y_ref - (y_ref . x) x) / |...|            (the pipe's `y_reference`)
 //   z = x cross y
 //
-// with the kernel's whole validation, at its `AXIS_TOLERANCE` of 1e-12 and with its own
-// arithmetic (|v| = sqrt(v . v), v / |v| as v times 1/|v|): finite inputs, each normalization
-// refused at a magnitude of 1e-12 or less, then `FrameOrientation::new`'s checks that each axis
-// is unit length, that the three are mutually orthogonal and that x cross y is z, each to 1e-12.
+// with the kernel's whole validation, in its order, at its `AXIS_TOLERANCE` of 1e-12 and with its
+// own arithmetic (|v| = sqrt(v . v), v / |v| as v times 1/|v|): finite inputs; the member axis
+// normalized by `FrameElement::local_x_axis` and normalized again by
+// `FrameOrientation::from_x_axis_and_y_reference` (the second pass changes the last bits, and so
+// the orthogonality check, for some nearly parallel references); each normalization refused at a
+// magnitude of 1e-12 or less; then `FrameOrientation::new`'s checks that each axis is unit
+// length, that the three are mutually orthogonal and that x cross y is z, each to 1e-12.
+// `elementAxes.test.ts` compares this with a table produced by the compiled kernel.
 // A member the kernel would refuse gets no triad, with the reason. No default orientation is
 // applied: a pipe without a `y_reference` has no local frame here, as the solver blocks it. A
 // span realized as a curved bend publishes its end rows in end-tangent frames, not in a straight
@@ -74,10 +78,14 @@ export function straightMemberLocalAxes(from: Vec3, to: Vec3, yReference: Vec3 |
   const i = scale(from, metresPerUnit);
   const j = scale(to, metresPerUnit);
   if (![i, j].every(finite)) return { reason: WITHHELD_REASONS.nonFinite };
-  const x = normalize(subtract(j, i));
-  if (!x) return { reason: WITHHELD_REASONS.zeroLength };
   if (!yReference) return { reason: WITHHELD_REASONS.noYReference };
   if (!finite(yReference)) return { reason: WITHHELD_REASONS.nonFinite };
+  // `FrameElement::local_x_axis` (and the element-length check): the member axis normalized once.
+  const elementX = normalize(subtract(j, i));
+  if (!elementX) return { reason: WITHHELD_REASONS.zeroLength };
+  // `FrameOrientation::from_x_axis_and_y_reference` normalizes that axis again.
+  const x = normalize(elementX);
+  if (!x) return { reason: WITHHELD_REASONS.zeroLength };
   const y = normalize(subtract(yReference, scale(x, dot(yReference, x))));
   if (!y) return { reason: WITHHELD_REASONS.parallelYReference };
   const z = normalize(cross(x, y));

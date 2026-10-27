@@ -245,6 +245,7 @@ code_paths:
 - apps/desktop/src/features/viewport/DeflectedShapeControls.tsx
 - apps/desktop/src/features/viewport/elementAxes.ts
 - apps/desktop/src/features/viewport/viewportElementAxes.ts
+- apps/desktop/src/test-support/frameKernelOrientationCases.json
 checks:
 - apps/desktop/src/features/results/ResultsPanel.test.tsx
 - apps/desktop/src/App.resultPaging.test.tsx

@@ -18,6 +18,8 @@ import {
 import { createFigureMaterial } from "./viewportFigureMaterial";
 import { registerInstancedRolePresentation, ViewportOwnershipLedger, ViewportResource } from "./viewportResource";
 import { deflectionLabel, deflectionSummaryScale } from "./DeflectedShapeControls";
+import { instancedDeformationMarkerMesh, instancedDeformedPipeMesh } from "./PipeViewport";
+import { modelIndexFor } from "../workspace/modelIndex";
 
 type Row = MechanicsResult["results"][number];
 
@@ -237,7 +239,7 @@ describe("a factor that cannot be drawn", () => {
     const { model, result } = await fixture();
     const extreme = buildDeformationOverlay(model, result, { basisKey: L100, scale: { mode: "factor", factor: 1e308 }, modelLengthUnit: "mm", modelExtent: 10 });
     expect(extreme.scale).toEqual({ mode: "factor", factor: extreme.defaultFactor, isDefault: true });
-    expect(extreme.factorNote).toContain("cannot be drawn: the shape would not be representable");
+    expect(extreme.factorNote).toContain("×1e+308 cannot be drawn: a drawn offset would exceed 1e15 model length units");
     expect(extreme.factorNote).toContain("the default ×");
     for (const offset of extreme.offsets.values()) expect([offset.x, offset.y, offset.z].every(Number.isFinite)).toBe(true);
     for (const position of extreme.nodePositions.values()) expect([position.x, position.y, position.z].every(Number.isFinite)).toBe(true);
@@ -259,5 +261,39 @@ describe("a factor that cannot be drawn", () => {
     const entered = buildDeformationOverlay(model, result, { basisKey: L100, scale: { mode: "factor", factor: 10 }, modelLengthUnit: "m", modelExtent: 0 });
     expect(entered.scale).toEqual({ mode: "factor", factor: 10, isDefault: false });
     expect(entered.nodePositions.get("node:N-140")!.z).toBeCloseTo(node.position.z - 0.2, 12);
+  });
+});
+
+// Review r2 (#1667).
+describe("phase ends and renderer buffers", () => {
+  it("states the drawn factor at phase zero and one", async () => {
+    const { model, result } = await fixture();
+    const full = buildDeformationOverlay(model, result, { basisKey: L100, scale: { mode: "factor", factor: 100 }, modelLengthUnit: "m", modelExtent: 10 });
+    const zero = deformationAtPhase(model, full, 0);
+    expect(deflectionLabel(zero, "Case A")).toBe("Deformed ×0, 0% of ×100 · Case A");
+    expect(deflectionLabel(deformationAtPhase(model, full, 1), "Case A")).toBe("Deformed ×100 · Case A");
+    for (const node of model.nodes) expect(zero.nodePositions.get(node.id)).toEqual(node.position);
+    // The phase and the drawn factor are named only at a partial phase.
+    expect(zero.boundary).toContain("phase=0; drawn_factor=0");
+    expect(full.boundary).not.toContain("phase=");
+  });
+
+  it("never fills the viewport's 32-bit instance buffers with a non-finite value", async () => {
+    const { model, result } = await fixture();
+    const index = modelIndexFor(model, 0, 0);
+    expect(index.invalidGeometry.size).toBe(0);
+    for (const factor of [1e50, 1e30, 1e12]) {
+      const overlay = buildDeformationOverlay(model, result, { basisKey: L100, scale: { mode: "factor", factor }, modelLengthUnit: "m", modelExtent: 10 });
+      const meshes = [
+        ...instancedDeformedPipeMesh(model, overlay.nodePositions, { x: 0, y: 0, z: 0 }, index),
+        ...instancedDeformationMarkerMesh(model, overlay.nodePositions, { x: 0, y: 0, z: 0 }, index)
+      ];
+      expect(meshes.length, `${factor}`).toBeGreaterThan(0);
+      for (const mesh of meshes) expect([...mesh.instanceMatrix.array].every(Number.isFinite), `${factor}`).toBe(true);
+      // 1e50 and 1e30 exceed the drawn-offset bound and fall back to the default with the reason;
+      // 1e12 (a 2e10 m offset) is drawn.
+      if (factor > 1e15) expect(overlay.factorNote, `${factor}`).toContain("exceed 1e15 model length units");
+      else expect(overlay.scale).toEqual({ mode: "factor", factor, isDefault: false });
+    }
   });
 });

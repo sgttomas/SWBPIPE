@@ -172,3 +172,19 @@ describe("deflected-shape controls without a default factor (review r1, #1667)",
     expect(onFactorChange).toHaveBeenCalledWith(20);
   });
 });
+
+describe("the popover explanation at a partial phase (review r2, #1667)", () => {
+  it("states the drawing at phase zero, not the stated factor", async () => {
+    const { model, source } = await loadBundledMechanicsReference();
+    mount(model, source);
+    fireEvent.change(byId("viewport-deflection-case"), { target: { value: "load_case:load:L-100" } });
+    const field = byId("viewport-deflection-factor");
+    fireEvent.change(field, { target: { value: "100" } });
+    fireEvent.keyDown(field, { key: "Enter" });
+    fireEvent.change(byId("viewport-deflection-phase"), { target: { value: "0" } });
+    expect(byId("viewport-deflection-label")).toHaveTextContent("Deformed ×0, 0% of ×100 · ");
+    expect(byId("viewport-deformation-status").querySelector("summary")).toHaveTextContent("Deformation · ×0");
+    expect(byId("viewport-deflection-reason")).not.toHaveTextContent("Displacements are drawn at ×100");
+    expect(byId("viewport-deflection-reason")).toHaveTextContent("Displacements are drawn at ×0 their physical length in model units, 0% of the stated ×100.");
+  });
+});

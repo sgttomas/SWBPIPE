@@ -8,6 +8,8 @@ import { loadBundledMechanicsReference } from "../../services/previewService";
 import type { MechanicsResult, PreviewModel, Vec3 } from "../../types";
 import { entityKey } from "../workspace/selectionState";
 import { buildElementAxesView, straightMemberLocalAxes, WITHHELD_REASONS } from "./elementAxes";
+import { unitRatio } from "../../services/unitConversion";
+import kernelCases from "../../test-support/frameKernelOrientationCases.json";
 import { elementAxisArrowMatrices, elementAxisDisplayLength, ELEMENT_AXIS_MAX_LENGTH, instancedElementAxisMeshes } from "./viewportElementAxes";
 
 type Row = MechanicsResult["results"][number];
@@ -164,5 +166,40 @@ describe("members the kernel would refuse get no triad", () => {
 
   it("refuses a non-finite y_reference", () => {
     expect(straightMemberLocalAxes({ x: 0, y: 0, z: 0 }, { x: 1, y: 0, z: 0 }, { x: 0, y: Number.NaN, z: 1 })).toEqual({ reason: WITHHELD_REASONS.nonFinite });
+  });
+});
+
+// Review r2 (#1667): the compiled frame kernel's own outcomes (an invented table it produced).
+describe("the drawn frame equals the compiled kernel's", () => {
+  type KernelCase = { id: string; unit: string; from: number[]; to: number[]; y_reference: number[]; metres: number[][] } &
+    ({ accepted: true; axes: number[][] } | { accepted: false; refusal: string; detail: string });
+  const vec = (values: number[]) => ({ x: values[0], y: values[1], z: values[2] });
+  const reasonFor = (detail: string) => detail === "local axes must be mutually orthogonal" || detail.startsWith("local axes must")
+    ? WITHHELD_REASONS.notOrthonormal
+    : detail === "element length" || detail === "local x axis" ? WITHHELD_REASONS.zeroLength : WITHHELD_REASONS.parallelYReference;
+
+  it("accepts and refuses exactly as the kernel does, with its axes to the bit", () => {
+    const cases = (kernelCases as { cases: KernelCase[] }).cases;
+    expect(cases).toHaveLength(48);
+    for (const item of cases) {
+      const ratio = unitRatio(item.unit, "m")!;
+      // The view converts as the units engine does.
+      expect(item.from.map((value) => value * ratio), `${item.id} from`).toEqual(item.metres[0]);
+      expect(item.to.map((value) => value * ratio), `${item.id} to`).toEqual(item.metres[1]);
+      const axes = straightMemberLocalAxes(vec(item.from), vec(item.to), vec(item.y_reference), ratio);
+      expect("reason" in axes, `${item.id} refused`).toBe(!item.accepted);
+      if (item.accepted && !("reason" in axes)) {
+        [axes.x, axes.y, axes.z].forEach((axis, row) => (["x", "y", "z"] as const).forEach((component, column) =>
+          expect(axis[component] === item.axes[row][column], `${item.id} axis ${row} ${component}`).toBe(true)));
+      }
+      if (!item.accepted && "reason" in axes) expect(axes.reason, item.id).toBe(reasonFor(item.detail));
+    }
+  });
+
+  it("follows the kernel on the two references a single normalization got wrong", () => {
+    // Accepted by the kernel (its second normalization of x), withheld by one normalization.
+    expect("reason" in straightMemberLocalAxes({ x: 0, y: 0, z: 0 }, { x: 1, y: 1, z: 0 }, { x: 1, y: 1.00006, z: 0 })).toBe(false);
+    // Refused by the kernel, drawn by one normalization.
+    expect(straightMemberLocalAxes({ x: 0, y: 0, z: 0 }, { x: 1, y: 2, z: 0 }, { x: 1, y: 2.001, z: 0 })).toEqual({ reason: WITHHELD_REASONS.notOrthonormal });
   });
 });

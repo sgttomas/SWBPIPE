@@ -80,7 +80,8 @@ export function ResultsPanel({
   const selectionEntityId = selectedEntity && selectedEntity.type !== "project" ? selectedEntity.id : null;
   const selectionFilterId = selectionOnly ? selectionEntityId : null;
   // With "Selected entity only" on and no model entity selected, the table shows no rows and
-  // says so; the restriction is never dropped silently. Turning the toggle off shows all rows.
+  // says so; the restriction is never dropped silently. Turning the toggle off removes the
+  // selection restriction; the text, family and frame filters still apply.
   const selectionOnlyWithoutEntity = selectionOnly && selectionEntityId === null;
   const [familyFilter, setFamilyFilter] = useState<ResultFamilyFilter>("all");
   // The page is the user's position in one run's rows, held with that run's id.
@@ -439,7 +440,7 @@ function ResultControls({
       </div>
       {selectionOnly && !selectionEntityId ? (
         <p role="status" className="muted" data-testid="result-selection-only-empty">
-          No model entity is selected, so no rows are shown. Select an entity, or turn off "Selected entity only" to show every row.
+          No model entity is selected, so no rows are shown. Select an entity, or turn off "Selected entity only" to remove the selection restriction; the other table filters still apply.
         </p>
       ) : null}
       <div className="result-page-row" aria-label="Result page controls">

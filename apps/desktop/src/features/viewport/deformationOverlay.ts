@@ -57,6 +57,11 @@ export type DeformationOptions = Readonly<{
 /** The normalized scale's display length of the largest displacement, in model length units. */
 export const NORMALIZED_DEFORMATION_DISPLAY_OFFSET = 0.65;
 
+/** The largest drawn offset a factor may produce, in model length units. The viewport's instance
+ * buffers are 32-bit floats (largest finite 3.4e38) and the GPU multiplies them by the camera
+ * matrices; at 1e15 the drawn coordinates and their products stay many orders inside that range. */
+export const MAX_DRAWN_DEFLECTION_OFFSET = 1e15;
+
 const NOT_GENERATED = "scale=not_generated; professional_claim=false";
 
 function emptyDeformation(state: DeformationOverlay["state"], summary: string, basisKey: string | null): DeformationOverlay {
@@ -155,9 +160,12 @@ export function buildDeformationOverlay(
       const offset = { x: direction.x * length, y: direction.y * length, z: direction.z * length };
       const position = { x: node.position.x + offset.x, y: node.position.y + offset.y, z: node.position.z + offset.z };
       // The normalized scale is bounded; only a factor is checked (a node already off the
-      // finite range is the model's own issue, reported by the model index).
+      // finite range is the model's own issue, reported by the model index). The renderer keeps
+      // geometry in 32-bit floats and multiplies it on the GPU, so a drawn offset is held within
+      // MAX_DRAWN_DEFLECTION_OFFSET and every position must stay finite in 32 bits.
       if (factor !== undefined && Number.isFinite(node.position.x + node.position.y + node.position.z) &&
-          ![offset.x, offset.y, offset.z, position.x, position.y, position.z].every(Number.isFinite)) return null;
+          (![offset.x, offset.y, offset.z].every((value) => Math.abs(value) <= MAX_DRAWN_DEFLECTION_OFFSET) ||
+           ![position.x, position.y, position.z].every((value) => Number.isFinite(Math.fround(value))))) return null;
       offsets.set(node.id, offset);
       nodePositions.set(node.id, position);
     }
@@ -185,7 +193,7 @@ export function buildDeformationOverlay(
   if (factorAccepted && asked !== undefined && asked !== null && Number.isFinite(asked) && asked > 0) {
     drawing = draw(asked);
     if (drawing) factor = asked;
-    else factorNote = `×${formatNumber(asked)} cannot be drawn: the shape would not be representable`;
+    else factorNote = `×${formatNumber(asked)} cannot be drawn: a drawn offset would exceed 1e15 model length units, beyond what the viewport represents`;
   }
   if (factorAccepted && asked !== undefined && factor === undefined) {
     if (defaultFactor !== undefined) {
@@ -297,7 +305,10 @@ function unitVector(vector: Vec3): Vec3 {
 }
 
 function formatNumber(value: number): string {
-  return value.toFixed(6).replace(/0+$/u, "").replace(/\.$/u, "");
+  const fixed = value.toFixed(6);
+  // toFixed gives exponent notation from 1e21; its digits are not trailing decimals.
+  if (/e/iu.test(fixed)) return String(value);
+  return fixed.replace(/0+$/u, "").replace(/\.$/u, "");
 }
 
 // ---------------------------------------------------------------------------
