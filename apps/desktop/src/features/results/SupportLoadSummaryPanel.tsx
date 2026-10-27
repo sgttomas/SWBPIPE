@@ -6,9 +6,9 @@
  *
  * Self-contained: it takes the model, the result and the overlays' standing and derives
  * everything through `buildSupportLoadSummaries`, so another surface (W-17's key-results panel,
- * A6) can embed it with the same props. Values follow the report's display rule
- * (`reportQuantityDisplay.ts`: six significant digits, half away from zero, Pa shown as MPa) in
- * the stored units. A view only: it changes no model, result or export. */
+ * A6) can embed it with the same props. Values, and the titles that carry them with their
+ * result-row ids, follow the report's display rule (`reportQuantityDisplay.ts`: six significant
+ * digits, half away from zero, Pa shown as MPa) in the stored units. A view only: it changes no model, result or export. */
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
@@ -55,9 +55,11 @@ function columnUnit(rows: readonly SupportLoadRow[], item: SupportLoadColumn): s
   return units.size === 1 ? [...units][0] : null;
 }
 
+/** A value's text under the display rule; its title gives the number with its display unit and
+ * the result-row id, so no surface of the panel shows a stored value unrounded. */
 function ValueText({ value, shareUnit }: { value: SupportLoadValue; shareUnit: boolean }) {
   const parts = displayQuantityParts(value.value, value.unit);
-  return <span title={`${value.value} ${value.unit} (${value.resultId})`}>{shareUnit ? parts.number : `${parts.number} ${parts.unit}`}</span>;
+  return <span title={`${parts.number} ${parts.unit} (${value.resultId})`}>{shareUnit ? parts.number : `${parts.number} ${parts.unit}`}</span>;
 }
 
 function equipmentText(summary: SupportLoadSummary): string | null {

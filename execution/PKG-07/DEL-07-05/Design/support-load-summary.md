@@ -1,9 +1,10 @@
 # Per-support load summary
 
 This design covers survey item A2: for a chosen support, a table of its loads and movements for
-every solved load case and combination, followed by the extreme values of each column with the
-case that governs it. Paths are relative to `projects/chirality-piping/`. The standard claim fence
-applies (F-PIP-2). The table lists emitted rows, and its extremes are arithmetic over those rows.
+each load case and combination that the result's finite emitted rows represent, followed by the
+extreme values of each column with the case that governs it. Paths are relative to
+`projects/chirality-piping/`. The standard claim fence applies (F-PIP-2). The table lists emitted
+rows, and its extremes are arithmetic over the admitted rows that are one solved state (§3.4).
 Neither is a qualification, an acceptance or a code check.
 
 ## 1. Basis and scope
@@ -44,8 +45,9 @@ paragraph).
 | rx, ry, rz | `global_nodal_rotation_x/y/z` | the support's node | Global by kind |
 
 - **Cases.** Each row's `basis_ref` names a `load_case` or a `combination`. The table lists the
-  cases in the order they first appear in the result, load cases first and then combinations,
-  which is the viewport's case order (`resultOverlayCases`). A case is labelled with its model
+  cases that at least one finite emitted row of the result names, of any kind, in the order they
+  first appear in the result, load cases first and then combinations, which is the viewport's
+  case order (`resultOverlayCases`). A case is labelled with its model
   label and id where the model has a label. A combination whose rows state
   `metadata.basis: "explicit_user_range_envelope"` is a range envelope.
 - **Routes.** The preview (preview-physics-2) and exact (pressure-2, pressure-source-1) routes emit
@@ -116,12 +118,13 @@ The node's movements are still listed when they exist.
 
 For each of the fourteen columns, the maximum and the minimum are signed values taken over the
 rows that are one solved state. Those rows are admitted, not a range envelope, and have at least
-one value. Each extreme names its governing case (key and label) and its result-row id.
+one value. A column's extremes are formed only when those rows' values in it share one stored
+unit. Each extreme names its governing case (key and label) and its result-row id.
 
 - **Ties.** The comparisons are strict, so a tie names the first row in row order. 0 and -0 tie.
-- **Units.** If a column's values in those rows have more than one unit, no extreme is formed, and
-  the cell says "Units differ (…); no extreme is formed". Values are not converted to compare
-  them.
+- **Units.** If a column's values in those rows have more than one stored unit, no extreme is
+  formed, and the cell says "Units differ (…); no extreme is formed", naming the stored units.
+  Values are not converted to compare them.
 - **Exclusions.** Rows withheld by standing, range-envelope rows and rows with no values are
   listed but stay out of the extremes. Each support's summary counts them (`exclusions`), and the
   panel states the count: "Maximum and minimum over n of m rows; not included: …".
@@ -142,7 +145,10 @@ moments, translations and rotations in their stored units (N, N*m, mm, rad on th
 `displayQuantityParts` is an additive split of the same rule: `displayQuantity` prints its two
 parts, and the shared parity vectors are unchanged. Where every listed value in a column has one
 unit, the column header carries the unit and the cells carry the number. Otherwise each cell
-carries both. The exact stored value, its unit and its result-row id are in each value's tooltip.
+carries both. Each value's tooltip (its `title`), in the cells and in the extreme rows alike,
+gives the number and display unit under the same rule and the value's result-row id. No text or
+attribute of the panel shows a value other than under the rule. The stored value and unit stay in
+the derivation's rows for D2.
 
 The rest of the results surface formats values differently. The results table and the overlay
 legend use the session's display-unit preference (`QuantityReadout` and `useDisplayQuantity` in
@@ -231,8 +237,10 @@ allowable, and it compares nothing with a limit.
   out of the extremes; the unavailable states; and the bundled invented reference (each support,
   emitted ids, `CE-120` withheld).
 - `apps/desktop/src/features/results/SupportLoadSummaryPanel.test.tsx` covers the panel: the
-  display rule and header units; a withheld row with no values and the exclusion note; the
-  ineligible state; stepping by button, Alt+Arrow and select, with no wrap; following a focused
+  display rule and header units; the rule in every cell, cell title and extreme title for a value
+  that rounds (1234.5678 N), Pa values shown in MPa and a mixed-unit column, with no stored value
+  at full precision anywhere in the panel's markup; a withheld row with no values and the
+  exclusion note; the ineligible state; stepping by button, Alt+Arrow and select, with no wrap; following a focused
   support; and the unavailable state under a custom test-id prefix.
 - `apps/desktop/src/features/results/SupportLoadSummaryPanel.derivation.test.tsx` counts
   derivations. There is one per input identity, none for a focus change, a test-id prefix or

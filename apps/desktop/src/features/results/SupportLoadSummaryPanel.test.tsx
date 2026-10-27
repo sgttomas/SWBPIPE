@@ -51,6 +51,46 @@ describe("SupportLoadSummaryPanel", () => {
     expect(screen.getByTestId("support-load-allowables").textContent).toBe(SUPPORT_LOAD_ALLOWABLES_TEXT);
   });
 
+  it("formats every value, its title and the extremes' titles by the display rule; no stored value shows raw", () => {
+    // Invented: Fx rounds (1234.5678 N), Fy is stated in Pa (shown in MPa), Fz mixes units so
+    // its cells carry their own units and it has no extreme.
+    const stated: Row[] = [
+      reaction("support:S-A", "Fx", 1234.5678, "N", { id: "r:Fx:1" }),
+      reaction("support:S-A", "Fx", -0.5, "N", { id: "r:Fx:2", basis_ref: L2 }),
+      reaction("support:S-A", "Fy", 123456789.5, "Pa", { id: "r:Fy:1" }),
+      reaction("support:S-A", "Fy", 2500000, "Pa", { id: "r:Fy:2", basis_ref: L2 }),
+      reaction("support:S-A", "Fz", 98765.4321, "N", { id: "r:Fz:1" }),
+      reaction("support:S-A", "Fz", 0.123456789, "Pa", { id: "r:Fz:2", basis_ref: L2 }),
+      row("uA", "global_nodal_displacement_x", "node:A", 1.23456789, "mm")
+    ];
+    const view = render(<SupportLoadSummaryPanel model={overlayModel()} result={overlayResult(stated)} standing={PASSING} />);
+    const title = (testId: string) => screen.getByTestId(testId).querySelector("span[title]")?.getAttribute("title");
+    const cell = (key: string, column: string) => `support-load-cell-load_case:load:${key}-${column}`;
+    expect(screen.getByRole("columnheader", { name: "Fy (MPa)" })).toBeTruthy();
+    expect(screen.getByRole("columnheader", { name: "Fz" })).toBeTruthy();
+    expect(screen.getByTestId(cell("L-1", "Fx")).textContent).toBe("1234.57");
+    expect(title(cell("L-1", "Fx"))).toBe("1234.57 N (r:Fx:1)");
+    expect(screen.getByTestId(cell("L-1", "Fy")).textContent).toBe("123.457");
+    expect(title(cell("L-1", "Fy"))).toBe("123.457 MPa (r:Fy:1)");
+    expect(screen.getByTestId(cell("L-2", "Fy")).textContent).toBe("2.5");
+    expect(title(cell("L-2", "Fy"))).toBe("2.5 MPa (r:Fy:2)");
+    expect(screen.getByTestId(cell("L-1", "Fz")).textContent).toBe("98765.4 N");
+    expect(title(cell("L-1", "Fz"))).toBe("98765.4 N (r:Fz:1)");
+    expect(screen.getByTestId(cell("L-2", "Fz")).textContent).toBe("1.23457e-7 MPa");
+    expect(title(cell("L-2", "Fz"))).toBe("1.23457e-7 MPa (r:Fz:2)");
+    expect(title(cell("L-1", "ux"))).toBe("1.23457 mm (uA)");
+    expect(title("support-load-extreme-max-Fx")).toBe("1234.57 N (r:Fx:1)");
+    expect(title("support-load-extreme-min-Fx")).toBe("-0.5 N (r:Fx:2)");
+    expect(screen.getByTestId("support-load-extreme-max-Fy").textContent).toBe("123.457Invented one (load:L-1)");
+    expect(title("support-load-extreme-max-Fy")).toBe("123.457 MPa (r:Fy:1)");
+    expect(title("support-load-extreme-min-Fy")).toBe("2.5 MPa (r:Fy:2)");
+    expect(title("support-load-extreme-max-ux")).toBe("1.23457 mm (uA)");
+    expect(screen.getByTestId("support-load-extreme-max-Fz").textContent).toBe("Units differ (N, Pa); no extreme is formed");
+    // Nowhere in the panel's markup, text or attributes, does a stored value appear at full precision.
+    const markup = view.container.innerHTML;
+    for (const raw of ["1234.5678", "123456789", "2500000", "98765.4321", "1.23456789"]) expect(markup).not.toContain(raw);
+  });
+
   it("shows a withheld case's reason and none of its values", () => {
     renderPanel({ standing: healthStanding({ eligible: true, states: { "load:L-1": "checks_passed", "load:L-2": "sensitive" } }) });
     expect(screen.getByTestId("support-load-withheld-load_case:load:L-2").textContent).toBe(supportLoadWithheldStateText("sensitive"));
