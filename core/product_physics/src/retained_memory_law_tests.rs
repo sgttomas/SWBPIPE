@@ -454,7 +454,14 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // Re-audited for model 0.8.0 (W-15 slice c): only the inspected production's
             // current_header v2 re-author text changed its model version token (0.7.0 -> 0.8.0,
             // same length); the closed `b7b_current_table_tests` module and E14 are byte-identical.
-            complete_suffix_sha256: "6dc09d339738a7ac30ef674a4d017d266433b3be8d95f7596d1b2fb23a420428",
+            // Re-audited for PF Timoshenko (DEL-05-03 pf-timoshenko.md §4), on the merged halves
+            // against main 187b67bb6b: the closed `b7b_current_table_tests` module is byte-identical;
+            // the inspected production's `current_header`, `for_source` and FRESH_IDENTITIES admit
+            // preview-physics-timoshenko-1 beside preview-physics-2 (identity dispatch, its profile and
+            // its table); the closed E14 module's test-only table list gains that table. No include,
+            // path module, static or OnceLock entered the suffix; the Timoshenko table's one include
+            // is in the inspected prefix, parsed only for a source of that identity.
+            complete_suffix_sha256: "5be6af0159e12fedce3ed127df261e3a500530dfe40a66c9d14961fbec4bf1a0",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
