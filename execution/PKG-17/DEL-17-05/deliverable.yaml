@@ -123,10 +123,17 @@ needs:
     TargetLocation: user-controlled local path or environment'
   evidence: execution/PKG-17/DEL-17-05/Specification.md
 code_paths:
-- core/handoff/caepipe_external/run.py
+- core/handoff/caepipe_external/
+- tools/caepipe_correlation/
+- validation/caepipe_correlation/
 - apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx
 checks:
 - tests/test_caepipe_external_run_package.py
+- tests/test_caepipe_print_csv_parser.py
+- tests/test_caepipe_correlation.py
+- tests/test_caepipe_data_boundary.py
+- tests/test_caepipe_private_correlation.py
+- tests/test_check_public_observations.py
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
 - apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
 - apps/desktop/src/App.test.tsx

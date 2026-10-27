@@ -43,6 +43,15 @@ const PROTECTED_REDIS_STATUS: &str = "protected_suspected";
 pub const DIAGNOSTIC_SOURCE: &str = "core.library_import.library_import_document";
 const DIAGNOSTIC_CLASS: &str = "import_boundary";
 
+/// The code for a disposition member no verdict can read (W-17 object form):
+/// a `redistribution_status` or `review_status` holding an array or an
+/// object, or a `provenance` written as an array, anywhere in the library
+/// metadata object or a record. The same code as the desktop's export
+/// disposition screen and library apply, which refuse such a stored record;
+/// the import refuses to accept it (`blocking`). Mirrors
+/// `DISPOSITION_RECORD_MALFORMED` in the Python contract.
+pub const DISPOSITION_RECORD_MALFORMED: &str = "MODEL-DISPOSITION-RECORD-MALFORMED";
+
 /// Which library family a payload declares. Mirrors the Python `RECORD_KEYS`
 /// dispatch table.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -216,12 +225,16 @@ pub fn validate_library_import(
     let (library_key, records_key) = library_kind.keys();
     let mut findings: Vec<ImportFinding> = Vec::new();
 
+    let library_label = library_label(payload, library_kind);
     match payload.get(library_key).and_then(Value::as_object) {
-        Some(library) => findings.extend(validate_object_disposition(
-            library,
-            library_key,
-            intended_visibility,
-        )),
+        Some(library) => {
+            findings.extend(validate_object_disposition(
+                library,
+                library_key,
+                intended_visibility,
+            ));
+            findings.extend(unreadable_dispositions(library, library_key, &sentence(&library_label)));
+        }
         None => findings.push(ImportFinding::new(
             "IMPORT_LIBRARY_METADATA_MISSING",
             "blocking",
@@ -255,6 +268,8 @@ pub fn validate_library_import(
                     intended_visibility,
                 ));
                 findings.extend(validate_nested_values(record, &record_path));
+                let subject = record_label(record, library_kind, &record_path, &library_label);
+                findings.extend(unreadable_dispositions(record, &record_path, &subject));
             }
             None => findings.push(ImportFinding::new(
                 "IMPORT_RECORD_INVALID",
@@ -456,6 +471,94 @@ fn validate_nested_values<'a>(item: &'a Map<String, Value>, path: &str) -> Vec<I
     }
 
     findings
+}
+
+/// The record identity member of each library kind (the store's
+/// `library_records_key`).
+fn record_id_key(library_kind: LibraryKind) -> &'static str {
+    match library_kind {
+        LibraryKind::Material => "material_id",
+        LibraryKind::Section => "section_id",
+        LibraryKind::Component => "component_id",
+        LibraryKind::Hanger => "hanger_id",
+    }
+}
+
+/// The library as an unreadable-disposition finding names it: `the material
+/// library `id``, or `(no library_id)` when its metadata holds none. Mirrors
+/// `_library_label`.
+fn library_label(payload: &Value, library_kind: LibraryKind) -> String {
+    let (library_key, _) = library_kind.keys();
+    let id = truthy_str(payload.get(library_key).and_then(|library| library.get("library_id")));
+    match id {
+        Some(id) => format!("the {} library `{id}`", library_kind.token()),
+        None => format!("the {} library (no library_id)", library_kind.token()),
+    }
+}
+
+/// `label` (from [`library_label`], which starts "the ") opening a sentence.
+fn sentence(label: &str) -> String {
+    format!("T{}", &label[1..])
+}
+
+/// A record as an unreadable-disposition finding names it: by its id, else
+/// its path. Mirrors `_record_label`.
+fn record_label(record: &Map<String, Value>, library_kind: LibraryKind, path: &str, library: &str) -> String {
+    match truthy_str(record.get(record_id_key(library_kind))) {
+        Some(id) => format!("Record `{id}` of {library}"),
+        None => format!("Record {path} of {library}"),
+    }
+}
+
+/// Every disposition member of `item`, at any depth, that no disposition
+/// verdict can read (W-17 object form; the desktop export screen's
+/// `StoredMembers::Refuse` rule): a `redistribution_status` or
+/// `review_status` holding an array or an object, or a `provenance` written
+/// as an array. Each is refused by name ([`DISPOSITION_RECORD_MALFORMED`],
+/// `blocking`) rather than skipped, so a blocking value can never sit there
+/// unseen. Other members (`classification`, the privacy members) and scalars
+/// that are not text are not refused here: they state no disposition the
+/// verdict reads. Keys are visited in sorted order. Mirrors
+/// `_unreadable_dispositions`.
+fn unreadable_dispositions(item: &Map<String, Value>, path: &str, subject: &str) -> Vec<ImportFinding> {
+    let mut findings = Vec::new();
+    unreadable_in_object(item, "", path, subject, &mut findings);
+    findings
+}
+
+fn unreadable_in_object(object: &Map<String, Value>, relative: &str, path: &str, subject: &str, out: &mut Vec<ImportFinding>) {
+    let mut entries: Vec<(&String, &Value)> = object.iter().collect();
+    entries.sort_by(|left, right| left.0.cmp(right.0));
+    for (key, value) in entries {
+        let member = if relative.is_empty() { key.clone() } else { format!("{relative}.{key}") };
+        let shape = match (key.as_str(), value) {
+            ("redistribution_status" | "review_status", Value::Object(_)) => Some("an object"),
+            ("redistribution_status" | "review_status" | "provenance", Value::Array(_)) => Some("an array"),
+            _ => None,
+        };
+        if let Some(shape) = shape {
+            out.push(ImportFinding::new(
+                DISPOSITION_RECORD_MALFORMED,
+                "blocking",
+                &format!("{path}.{member}"),
+                &format!("{subject} holds `{member}` as {shape}, so its disposition cannot be read."),
+                "Write each redistribution_status and review_status as text and each provenance as an object, then import the library again.",
+            ));
+        }
+        unreadable_in_value(value, &member, path, subject, out);
+    }
+}
+
+fn unreadable_in_value(value: &Value, relative: &str, path: &str, subject: &str, out: &mut Vec<ImportFinding>) {
+    match value {
+        Value::Object(object) => unreadable_in_object(object, relative, path, subject, out),
+        Value::Array(items) => {
+            for (index, item) in items.iter().enumerate() {
+                unreadable_in_value(item, &format!("{relative}[{index}]"), path, subject, out);
+            }
+        }
+        _ => {}
+    }
 }
 
 /// Pre-order walk yielding every nested object (including the root) with its
@@ -813,6 +916,18 @@ fn validate_hanger_import(payload: &Value, visibility: IntendedVisibility) -> Im
                     findings.extend(validate_object_disposition(&wrapper, &format!("{path}.provenance"), visibility));
                 }
             }
+        }
+    }
+    // The schema already refuses these shapes; they are also refused by name.
+    let library = library_label(payload, LibraryKind::Hanger);
+    if let Some(metadata) = payload.get("hanger_library").and_then(Value::as_object) {
+        findings.extend(unreadable_dispositions(metadata, "$.hanger_library", &sentence(&library)));
+    }
+    for (i, record) in payload.get("hanger_records").and_then(Value::as_array).into_iter().flatten().enumerate() {
+        if let Some(record) = record.as_object() {
+            let path = format!("$.hanger_records[{i}]");
+            let subject = record_label(record, LibraryKind::Hanger, &path, &library);
+            findings.extend(unreadable_dispositions(record, &path, &subject));
         }
     }
     let mut seen = std::collections::HashSet::new();

@@ -487,13 +487,33 @@ def verify_analysis_run_record(envelope: Mapping[str, Any], hash_fn: Callable[[A
 PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 # T4-U6 (D-5, §2.4): pressure-2, pressure-source-1 and physics-retained-1 carry one stress signature per (recovery
 # token x section basis); a record binding the former table hashes is refused (ANALYSIS_SEMANTIC_CONTRACT_MISMATCH).
-PRESSURE_SOURCE_CONTRACT_SHA256 = "b5a4b0e585b9ec440d36144860baaf101b628498cfdab9a1de9248c2ed5069e7"
+PRESSURE_SOURCE_CONTRACT_SHA256 = "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c"
 _PRESSURE_SOURCE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_source_1.json"
 # pressure-2: the ordinary exact route (a load/reference-state model publishes it with
 # contract_evidence.load_reference_states). Its record carries neither source_block_recovery nor contract_evidence.
 PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
-PRESSURE_CONTRACT_SHA256 = "d381ee8bb2e4dfad7d2a050eaa23b558b32cc2ebd3599c0d4eb0489e49246fd2"
+PRESSURE_CONTRACT_SHA256 = "be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919"
 _PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_2.json"
+# Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.2; owner ruling "0.8.0 a2": recorded runs keep
+# their existing read and compare behaviour). pressure-2's table changed only the model version token of its
+# admitted-families sentence; every row is the same. A run recorded under the 0.7.0-era table binds that exact digest,
+# read by the record validator only as the recorded basis of exactly this current table (id, recorded, current); the
+# builder binds the current table, and any other digest or a mixed binding is refused as before. The desktop's twin is
+# analysisRunCompatibility.ts RECORDED_RUN_TABLE_BASES.
+RECORDED_RUN_TABLE_BASES = (
+    (PRESSURE_CONTRACT_ID, "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d", PRESSURE_CONTRACT_SHA256),
+)
+
+
+def recorded_run_semantic_binding(recorded: Any, contract_id: str, contract_hash: str) -> dict[str, str]:
+    """The binding a record is checked against: the current table's, or the exact recorded basis it names."""
+    if isinstance(recorded, Mapping) and len(recorded) == 2:
+        for basis_id, recorded_hash, current_hash in RECORDED_RUN_TABLE_BASES:
+            if (contract_id, contract_hash) == (basis_id, current_hash) and recorded.get("id") == basis_id and recorded.get("sha256") == recorded_hash:
+                return {"id": basis_id, "sha256": recorded_hash}
+    return {"id": contract_id, "sha256": contract_hash}
+
+
 PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
 PREVIEW_PHYSICS_CONTRACT_SHA256 = "5a6630d9157ad1f4232c558d0cd57414677add8d1c95cc0a5d19a2579fb3a05b"
 _PREVIEW_PHYSICS_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_2.json"
@@ -507,7 +527,7 @@ _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3
 # statements are checked only by the accepted reader, which dispatches on this identity, and its standing comes only
 # from that reader.
 PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-PHYSICS_RETAINED_CONTRACT_SHA256 = "ef0191ccc74a01a81ce0a5b603629f7e1166b10f87bf66334b2ebbeb1c133ac8"
+PHYSICS_RETAINED_CONTRACT_SHA256 = "33cc0c4dc1d7dea07e14c16e07f4ee3f93cc2f84e4dd0494e232397d4e3861c1"
 _PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_physics_retained_1.json"
 RETAINED_CONTRACTS = {PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: (PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH),
                       PHYSICS_RETAINED_CONTRACT_ID: (PHYSICS_RETAINED_CONTRACT_SHA256, _PHYSICS_RETAINED_CONTRACT_PATH)}
@@ -840,7 +860,7 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
         raise ValueError("ANALYSIS_SOURCE_MODEL_MISMATCH")
     if run.get("run_id") != source.get("run_id"):
         raise ValueError("ANALYSIS_SOURCE_RUN_MISMATCH")
-    semantic = {"id": contract_id, "sha256": contract_hash}
+    semantic = recorded_run_semantic_binding(run.get("reproducibility", {}).get("semantic_contract"), contract_id, contract_hash)
     if run.get("reproducibility", {}).get("semantic_contract") != semantic:
         raise ValueError("ANALYSIS_SEMANTIC_CONTRACT_MISMATCH")
     hashes = [item for item in run.get("hashes", []) if item.get("payload_scope") == "received_result"]

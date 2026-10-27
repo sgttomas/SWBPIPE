@@ -242,6 +242,10 @@ fn emit_pdf_document(
     let meta_line = renderer::report_meta_text(input);
     emitter.note(&meta_line);
     emitter.text_block(&meta_line, META_SIZE, META_LEADING, false);
+    if let Some(note) = renderer::run_name_note_text(input) {
+        emitter.note(&note);
+        emitter.text_block(&note, META_SIZE, META_LEADING, false);
+    }
 
     let status_text = renderer::status_banner_text(input);
     emitter.note(&status_text);

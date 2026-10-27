@@ -1,0 +1,16 @@
+INVENTED UNITS CHECK ENGLISH
+Invented by the DEL-17-04 importer tests; round values, not engineering data
+VERSION
+15.10
+OPTIONS
+HGRA
+MATERIAL
+CS1,0.283,0.3,1,1,CS,invented steel
+CS1,70,29000000,6.5E-06
+PIPE
+S6,6.625,0.28,0,0,0,0,0,0
+LAYOUT
+* invented layout: an anchored L with a tip-free corner
+F10,KA,MCS1,PS6
+T20,X10'6",CFOR(0,-1000,0),FLC=1,MOM(0,0,500)
+T30,Z7’3-1/4”,KA,CD(0,0.5,0),ROT(0.25,0,0)

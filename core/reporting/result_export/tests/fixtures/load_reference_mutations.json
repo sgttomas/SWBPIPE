@@ -1,5 +1,5 @@
 {
- "description": "Shared adversarial cases for the current pressure-2 reader with the optional load/reference-state group (Rust result_export tests/load_reference_contract.rs; the Python verifier and the base-reader corpus read the same file). B7b re-authored the retired load-reference-1 cases as v3 twins over the current 0.7.0/3.0.0/exact_pressure_v3 producer fixtures: physical values unchanged, sources moved to fixtures/product_preview/pressure/load_reference/ and fixtures/results/pressure_connected_mechanics_sparse.json. 'dispatch' is the raw-dispatch outcome (Rust semantic_contract::for_source); 'validator' is validate_pressure_evidence called directly and defaults to 'dispatch'. A value ending in PHYSICS_EVIDENCE is compared by leading code, the inherited pressure detail being language-specific. Language-specific keys (dispatch_rust, dispatch_python, validator_rust, validator_python) replace a shared value where the languages cannot agree, with a note. An identity of the retired 2.0.0/exact_straight_pressure_v2 contract (physics-1, physics-source-1, load-reference-1, load-reference-source-1) is refused by name at the header (SOURCE_EXACT_PRESSURE_V2_RETIRED); a retired profile string is a profile no current identity carries. pressure-2 has no transport (metadata-only) reader (SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED), so the retired reader's transport cases were retired with it and 'transport_cases' is empty. Table cases run verify_pressure_table on the pinned pressure-2 table bytes. The 'json_text' op splices its string value into the document as JSON text (Rust: into the serialized text before parsing; Python: json.loads of the value), so that literals a serde_json Value cannot hold are exercised; in Rust such a case must be refused at the text boundary. 'carrier_rust' and 'carrier_python' on an accepted case give the exact refusal of the canonical carrier build (Rust derivative::derive_document, Python build_analysis_run) where the checked-JSON number profile refuses a document that both readers admit.",
+ "description": "Shared adversarial cases for the current pressure-2 reader with the optional load/reference-state group (Rust result_export tests/load_reference_contract.rs; the Python verifier and the base-reader corpus read the same file). B7b re-authored the retired load-reference-1 cases as v3 twins over the current 0.8.0/3.0.0/exact_pressure_v3 producer fixtures: physical values unchanged, sources moved to fixtures/product_preview/pressure/load_reference/ and fixtures/results/pressure_connected_mechanics_sparse.json. 'dispatch' is the raw-dispatch outcome (Rust semantic_contract::for_source); 'validator' is validate_pressure_evidence called directly and defaults to 'dispatch'. A value ending in PHYSICS_EVIDENCE is compared by leading code, the inherited pressure detail being language-specific. Language-specific keys (dispatch_rust, dispatch_python, validator_rust, validator_python) replace a shared value where the languages cannot agree, with a note. An identity of the retired 2.0.0/exact_straight_pressure_v2 contract (physics-1, physics-source-1, load-reference-1, load-reference-source-1) is refused by name at the header (SOURCE_EXACT_PRESSURE_V2_RETIRED); a retired profile string is a profile no current identity carries. pressure-2 has no transport (metadata-only) reader (SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED), so the retired reader's transport cases were retired with it and 'transport_cases' is empty. Table cases run verify_pressure_table on the pinned pressure-2 table bytes. The 'json_text' op splices its string value into the document as JSON text (Rust: into the serialized text before parsing; Python: json.loads of the value), so that literals a serde_json Value cannot hold are exercised; in Rust such a case must be refused at the text boundary. 'carrier_rust' and 'carrier_python' on an accepted case give the exact refusal of the canonical carrier build (Rust derivative::derive_document, Python build_analysis_run) where the checked-JSON number profile refuses a document that both readers admit.",
  "sources": {
   "connected-sparse": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json",
   "connected-dense": "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json",
@@ -1278,7 +1278,7 @@
      "value": "resolved_straight_load_state_v1"
     }
    ],
-   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.7.0 with the current exact pressure contract and re-run the analysis",
+   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.8.0 with the current exact pressure contract and re-run the analysis",
    "validator": "accept",
    "note": "B7b: load-reference-1 is a retired identity, refused by name at the header."
   },
@@ -1292,7 +1292,7 @@
      "value": "openpipestress.result_semantics/0.3.0/load-reference-1"
     }
    ],
-   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.7.0 with the current exact pressure contract and re-run the analysis",
+   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.8.0 with the current exact pressure contract and re-run the analysis",
    "validator": "accept",
    "note": "B7b: load-reference-1 is a retired identity, refused by name at the header."
   },
@@ -1331,7 +1331,7 @@
      "value": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
     }
    ],
-   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.7.0 with the current exact pressure contract and re-run the analysis",
+   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.8.0 with the current exact pressure contract and re-run the analysis",
    "note": "B7b: load-reference-source-1 is a retired identity, refused by name at the header.",
    "validator": "accept"
   },
@@ -1345,7 +1345,7 @@
      "value": "openpipestress.result_semantics/0.3.0/physics-1"
     }
    ],
-   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.7.0 with the current exact pressure contract and re-run the analysis",
+   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.8.0 with the current exact pressure contract and re-run the analysis",
    "validator": "accept",
    "note": "B7b: physics-1 is a retired identity, refused by name at the header."
   },
@@ -1364,7 +1364,7 @@
      "value": "exact_straight_pressure_v2"
     }
    ],
-   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.7.0 with the current exact pressure contract and re-run the analysis",
+   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.8.0 with the current exact pressure contract and re-run the analysis",
    "validator": "accept",
    "note": "B7b: physics-1 is a retired identity, refused by name at the header."
   },
@@ -1383,7 +1383,7 @@
      "value": "exact_straight_pressure_v2"
     }
    ],
-   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.7.0 with the current exact pressure contract and re-run the analysis",
+   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.8.0 with the current exact pressure contract and re-run the analysis",
    "validator": "accept",
    "note": "B7b: physics-source-1 is a retired identity, refused by name at the header."
   },

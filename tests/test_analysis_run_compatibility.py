@@ -231,3 +231,32 @@ def test_copy_checks_accept_exact_stored_and_javascript_written_copies(joined) -
     assert json.dumps(written["analysis_run"]["source_block_recovery"]) != json.dumps(record["analysis_run"]["source_block_recovery"])
     assert json.dumps(written["analysis_run"]["contract_evidence"]) != json.dumps(record["analysis_run"]["contract_evidence"])
     validate_analysis_run_v0_3(written, source)
+
+
+# Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.2; owner ruling "0.8.0 a2"): a
+# pressure-2 run recorded before the ripple, main's record at 2e4748eada verbatim, binds the 0.7.0-era table
+# (3e2aac3c…) and keeps its existing read; that digest is the recorded basis of exactly the current table.
+_RECORDED_070 = Path(__file__).resolve().parents[1] / "fixtures/persistence/recorded_model_0_7_0"
+
+
+def test_a_pressure_2_run_recorded_at_model_0_7_0_reads_as_before():
+    from core.analysis_runs import compatibility as c
+    envelope = json.loads((_RECORDED_070 / "pressure_plain_connected_sparse.analysis_run.json").read_text())
+    source = json.loads((_RECORDED_070 / "pressure_connected_mechanics_sparse.json").read_text())
+    assert envelope["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"].startswith("3e2aac3c")
+    assert c.verify_analysis_run_record(envelope) == "match"
+    c.validate_analysis_run_v0_3(envelope, source, expected_basis_refs=envelope["analysis_run"]["load_basis_refs"])
+
+
+def test_the_recorded_basis_warrants_no_other_digest():
+    from core.analysis_runs import compatibility as c
+    envelope = json.loads((_RECORDED_070 / "pressure_plain_connected_sparse.analysis_run.json").read_text())
+    source = json.loads((_RECORDED_070 / "pressure_connected_mechanics_sparse.json").read_text())
+    changed = json.loads(json.dumps(envelope))
+    changed["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"] = "0" * 64
+    with pytest.raises(ValueError, match="ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"):
+        c.validate_analysis_run_v0_3(changed, source, expected_basis_refs=changed["analysis_run"]["load_basis_refs"])
+    mixed = json.loads(json.dumps(envelope))
+    mixed["analysis_run"]["result_refs"][0]["semantic_contract"]["sha256"] = c.PRESSURE_CONTRACT_SHA256
+    with pytest.raises(ValueError, match="ANALYSIS_ROW_SOURCE_BINDING_MISMATCH"):
+        c.validate_analysis_run_v0_3(mixed, source, expected_basis_refs=mixed["analysis_run"]["load_basis_refs"])

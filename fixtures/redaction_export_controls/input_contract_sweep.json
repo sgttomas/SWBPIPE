@@ -1,0 +1,227 @@
+{
+  "description": "Generated input-contract sweep for the DEL-12-02 redaction classifier (docs/security/redaction_export_controls.md, 'Input contract'). Each implementation expands it identically: items in family order labels, flags, claims; each item is decided in the twelve contexts in order. Every value is invented; no real private data, secret material or protected content.",
+  "deliverable_id": "DEL-12-02",
+  "absent": "__absent__",
+  "contexts": [
+    [
+      "public_report",
+      false,
+      false
+    ],
+    [
+      "public_report",
+      true,
+      false
+    ],
+    [
+      "public_example",
+      false,
+      false
+    ],
+    [
+      "public_example",
+      true,
+      false
+    ],
+    [
+      "shared_model",
+      false,
+      false
+    ],
+    [
+      "shared_model",
+      true,
+      false
+    ],
+    [
+      "downstream_tool",
+      false,
+      false
+    ],
+    [
+      "downstream_tool",
+      true,
+      false
+    ],
+    [
+      "local_private",
+      false,
+      false
+    ],
+    [
+      "local_private",
+      true,
+      false
+    ],
+    [
+      "user_released_report",
+      false,
+      false
+    ],
+    [
+      "user_released_report",
+      false,
+      true
+    ]
+  ],
+  "labels": {
+    "privacy": [
+      "__absent__",
+      null,
+      "unknown",
+      "public",
+      "private_project_data",
+      "private_material_data",
+      "protected_suspected",
+      5,
+      0,
+      true,
+      false,
+      [],
+      [
+        "public"
+      ],
+      {},
+      {
+        "a": 1
+      }
+    ],
+    "redistribution": [
+      "__absent__",
+      null,
+      "unknown",
+      "public_permissive",
+      "private_only",
+      "protected_suspected",
+      5,
+      true,
+      [],
+      [
+        "public_permissive"
+      ],
+      {}
+    ],
+    "review": [
+      "__absent__",
+      "unknown",
+      "quarantined",
+      5,
+      [],
+      {}
+    ],
+    "placements": [
+      "item",
+      "provenance",
+      "split"
+    ]
+  },
+  "flags": {
+    "keys": [
+      "contains_payload",
+      "payload_present",
+      "secret_material_present",
+      "cloud_or_network_reference",
+      "direct_sql_access",
+      "storage_bypass",
+      "storage_bypass_requested",
+      "direct_storage_bypass",
+      "application_service_bypass",
+      "concrete_path_present",
+      "local_private_intent",
+      "explicit_local_private_intent",
+      "user_intent",
+      "export_policy.local_private_intent",
+      "export_policy.explicit_local_private_intent",
+      "export_policy.user_intent"
+    ],
+    "values": [
+      true,
+      false,
+      null,
+      1,
+      0,
+      -1,
+      0.5,
+      "true",
+      "TRUE",
+      "yes",
+      "present",
+      "no",
+      "false",
+      "",
+      "1",
+      [],
+      [
+        "true"
+      ],
+      {},
+      "\ttrue",
+      "\ntrue",
+      "\u000btrue",
+      "\ftrue",
+      "\rtrue",
+      " true",
+      "\u001ctrue",
+      "\u001ftrue",
+      "\u0085true",
+      "\u00a0true",
+      "\u1680true",
+      "\u2003true",
+      "\u2028true",
+      "\u202ftrue",
+      "\u3000true",
+      "\ufefftrue",
+      "true\t",
+      "true\n",
+      "true\u000b",
+      "true\f",
+      "true\r",
+      "true ",
+      "true\u001c",
+      "true\u001f",
+      "true\u0085",
+      "true\u00a0",
+      "true\u1680",
+      "true\u2003",
+      "true\u2028",
+      "true\u202f",
+      "true\u3000",
+      "true\ufeff"
+    ]
+  },
+  "claims": {
+    "values": [
+      "__absent__",
+      null,
+      false,
+      true,
+      "false",
+      "no",
+      "",
+      "true",
+      "yes",
+      0,
+      1,
+      [],
+      [
+        false
+      ],
+      {},
+      "\ufefftrue"
+    ]
+  },
+  "bases": [
+    {
+      "privacy_classification": "public",
+      "redistribution_status": "public_permissive"
+    },
+    {
+      "privacy_classification": "private_project_data",
+      "redistribution_status": "private_only"
+    },
+    {
+      "privacy_classification": "private_project_data"
+    },
+    {}
+  ]
+}

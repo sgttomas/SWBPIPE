@@ -1,10 +1,12 @@
-import { useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { createContext, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent as ReactMouseEvent, type ReactNode } from "react";
+import { ContextMenu, isContextMenuKey, keyboardMenuRequest, pointerMenuRequest, type ContextMenuEntry, type ContextMenuRequest } from "../contextMenu/ContextMenu";
 import { createPortal } from "react-dom";
 import { focusPanControl, OverflowRail, TableChromeContext } from "./OverflowRail";
 import { useTableGeometry } from "./tableGeometry";
 import { useEnumEditor } from "./useEnumEditor";
 import { VirtualList } from "../VirtualList";
 import type { EntityKey } from "../selectionState";
+import { canSurfaceRevealNow } from "../surfaceReveal";
 import {
   adjacentCell, capturedCellIsCurrent, sameCell,
   type CapturedCell, type CellAddress, type TableColumn, type TableEdit, type TableRow, type TableSort
@@ -12,6 +14,20 @@ import {
 
 export type TableApplyResult = Readonly<{ applied: boolean; rejected?: boolean; messages: readonly string[] }>;
 export type TableDraftResult = Readonly<{ retained: boolean; messages: readonly string[] }>;
+/** B9: what a caller needs to show a row's context menu with the table's own cell commands first. */
+export type TableContextMenuArgs = Readonly<{
+  rowKey: EntityKey;
+  rowLabel: string;
+  leading: readonly ContextMenuEntry[];
+  request: ContextMenuRequest;
+  onClose: () => void;
+  serial: number;
+}>;
+/** Supplies the row context menu and the selection test to every table below it (the model tree's grids). */
+export const TableContextMenuContext = createContext<Readonly<{
+  contextMenu?: (args: TableContextMenuArgs) => ReactNode;
+  isRowSelected?: (key: EntityKey) => boolean;
+}> | null>(null);
 type Props = Readonly<{
   label: string;
   rowHeader?: string;
@@ -29,6 +45,10 @@ type Props = Readonly<{
   selectedKey: EntityKey;
   busy?: boolean;
   onSelect: (key: EntityKey) => void;
+  /** Whether a row's entity is in the ordered selection; defaults to the primary selection. */
+  isRowSelected?: (key: EntityKey) => boolean;
+  /** Renders the row's context menu (the entity commands); without it the cell commands show alone. */
+  contextMenu?: (args: TableContextMenuArgs) => ReactNode;
 }> & (Readonly<{ policy?: "direct"; onApply: (captured: CapturedCell, text: string) => Promise<TableApplyResult> }> | Readonly<{
   policy: "review";
   resetEditsKey: number;
@@ -73,6 +93,7 @@ export function EngineeringTable(props: Props) {
     selectionOwnership.current = { key: selectedKey, revision: selectionOwnership.current.revision + 1 };
   }
   const focusRequest = useRef<CellAddress | null>(null);
+  const menuOpen = useRef(false);
   const editorFocusRequest = useRef<{ token: number; generation: string; owner: Element | null; selectionRevision: number } | null>(null);
   const ownedCellElement = useRef<{ element: HTMLElement; selectionRevision: number } | null>(null);
   // A completed label edit can disappear on a later canonical publication.
@@ -90,6 +111,56 @@ export function EngineeringTable(props: Props) {
     return () => document.removeEventListener("focusin", track);
   }, []);
   function setEdit(value: TableEdit | null) { editRef.current = value; setEditState(value); }
+  // B9: a cell's or row header's context menu. Right-clicking a row whose entity is not
+  // selected selects it first; the keyboard (Shift+F10, ContextMenu) opens it on the focused
+  // cell or row header and never changes the selection.
+  const [menu, setMenu] = useState<{ rowKey: EntityKey; columnKey: string | null; request: ContextMenuRequest; serial: number } | null>(null);
+  const menuSerial = useRef(0);
+  menuOpen.current = Boolean(menu);
+  const menuContext = useContext(TableContextMenuContext);
+  const renderContextMenu = props.contextMenu ?? menuContext?.contextMenu;
+  const isRowSelected = props.isRowSelected ?? menuContext?.isRowSelected ?? ((key: EntityKey) => key === selectedKey);
+  function cellCommands(rowKey: EntityKey, columnKey: string | null): ContextMenuEntry[] {
+    const column = columnKey === null ? undefined : columns.find((candidate) => candidate.key === columnKey);
+    if (!column) return [];
+    const cell = rows.find((row) => row.key === rowKey)?.cells[column.key];
+    const editReason = !cell ? "This row is no longer in the model." : cell.readonly ? cell.unavailable ?? "This cell is read-only."
+      : busy ? "Another operation is running." : editRef.current ? "Finish or cancel the current edit first." : null;
+    const sorted = (direction: "ascending" | "descending") => sort?.columnKey === column.key && sort.direction === direction;
+    return [
+      { kind: "command", id: "edit-cell", label: "Edit cell", shortcut: "Enter", disabled: Boolean(editReason), reason: editReason, run: () => startEdit({ rowKey, columnKey: column.key }) },
+      { kind: "separator", id: "separator-sort" },
+      { kind: "command", id: "sort-ascending", label: `Sort ${column.label} ascending`, disabled: sorted("ascending"), reason: sorted("ascending") ? `Already sorted by ${column.label}, ascending.` : null, run: () => setSort({ columnKey: column.key, direction: "ascending" }) },
+      { kind: "command", id: "sort-descending", label: `Sort ${column.label} descending`, disabled: sorted("descending"), reason: sorted("descending") ? `Already sorted by ${column.label}, descending.` : null, run: () => setSort({ columnKey: column.key, direction: "descending" }) },
+      { kind: "command", id: "clear-sort", label: "Clear sort", disabled: !sort, reason: sort ? null : "The table is not sorted.", run: () => setSort(null) }
+    ];
+  }
+  /** The same cell or row header as now rendered, then the table's footer, as an edit's removed row does. */
+  function menuFallbacks(rowKey: EntityKey, columnKey: string | null) {
+    return () => [
+      [...(root.current?.querySelectorAll<HTMLElement>(columnKey === null ? '[role="rowheader"] button' : "[data-table-cell]") ?? [])]
+        .find((element) => columnKey === null ? element.closest('[role="row"]')?.querySelector<HTMLElement>("[data-row-key]")?.dataset.rowKey === rowKey
+          : element.dataset.rowKey === rowKey && element.dataset.columnKey === columnKey),
+      footer.current,
+      root.current
+    ];
+  }
+  function openMenu(rowKey: EntityKey, columnKey: string | null, request: ContextMenuRequest) {
+    if (!renderContextMenu && cellCommands(rowKey, columnKey).length === 0) return;
+    setMenu({ rowKey, columnKey, request, serial: ++menuSerial.current });
+  }
+  function pointerMenu(event: ReactMouseEvent<HTMLElement>, rowKey: EntityKey, columnKey: string | null) {
+    event.preventDefault();
+    if (!isRowSelected(rowKey)) onSelect(rowKey);
+    if (columnKey !== null && !editRef.current) setFocused({ rowKey, columnKey });
+    openMenu(rowKey, columnKey, pointerMenuRequest(event, event.currentTarget, menuFallbacks(rowKey, columnKey)));
+  }
+  function keyboardMenu(event: KeyboardEvent<HTMLElement>, rowKey: EntityKey, columnKey: string | null): boolean {
+    if (!isContextMenuKey(event)) return false;
+    event.preventDefault(); event.stopPropagation();
+    openMenu(rowKey, columnKey, keyboardMenuRequest(event.currentTarget, event.currentTarget, menuFallbacks(rowKey, columnKey)));
+    return true;
+  }
 
   const matchingRows = useMemo(() => rows.filter((row) => !filter.trim() || (row.searchText ?? `${row.label} ${row.key}`).toLowerCase().includes(filter.trim().toLowerCase())), [rows, filter]);
   const comparisonRows = useMemo(() => {
@@ -117,6 +188,32 @@ export function EngineeringTable(props: Props) {
     : !edit && viewRows[0] && columns[0] ? { rowKey: viewRows[0].key, columnKey: columns[0].key } : null;
   const active = edit?.captured ?? rovingFocus;
   const activeIndex = active ? viewRows.findIndex((row) => row.key === active.rowKey) : null;
+  // A selection made outside the table (the viewport, the tree, a result row)
+  // becomes the table's current row, which the list scrolls into view. DOM focus
+  // and the selection stay where they are; focus or an edit in the table keeps
+  // the table's own position. The request is kept while the table cannot show
+  // it (another layout or family, a hidden, inert or CSS-hidden pane:
+  // `canSurfaceRevealNow`) or its row is filtered out, and done when the row can
+  // be shown. The selection the table first mounts with is such a request.
+  const revealedSelectionKey = useRef(selectedKey);
+  const pendingSelectionReveal = useRef<EntityKey | null>(selectedKey);
+  useLayoutEffect(() => {
+    if (revealedSelectionKey.current === selectedKey) return;
+    revealedSelectionKey.current = selectedKey;
+    // Focus in this table's open context menu belongs to the table: its focus comes back here.
+    pendingSelectionReveal.current = editRef.current || menuOpen.current || root.current?.contains(document.activeElement) ? null : selectedKey;
+  }, [selectedKey]);
+  useLayoutEffect(() => {
+    const key = pendingSelectionReveal.current;
+    if (key === null || !root.current || !canSurfaceRevealNow(root.current)) return;
+    if (!viewRows.some((row) => row.key === key)) return;
+    pendingSelectionReveal.current = null;
+    if (editRef.current || root.current.contains(document.activeElement)) return;
+    const columnKey = focused && columns.some((column) => column.key === focused.columnKey) ? focused.columnKey : columns[0]?.key;
+    if (!columnKey) return;
+    setFocused({ rowKey: key, columnKey });
+    setReveal((value) => value + 1);
+  });
   const minimums = [130, ...columns.map((column) => column.minWidth ?? (column.kind === "text" ? 150 : review ? 160 : 90))];
   const weights = [1.4, ...columns.map((column) => column.minWidth ? 1 : column.kind === "text" ? 1.5 : 1)];
   const geometry = useTableGeometry(root, minimums, weights, Boolean(props.compact), surfaceActive, `${viewRows.length}:${body.height}:${density}:${JSON.stringify(columns.map(({ label, unit }) => [label, unit]))}`);
@@ -379,7 +476,7 @@ export function EngineeringTable(props: Props) {
       </div>
       <div className="engineering-table-body-slot" ref={body.ref}>
       <VirtualList items={viewRows} itemKey={(row) => row.key} activeIndex={activeIndex} pinIndex={activeIndex} revealActiveRequest={reveal} height={bounded ? Math.min(body.height, viewRows.length * (density === "compact" ? 30 : 36)) : 360} rowHeight={density === "compact" ? 30 : 36} role="rowgroup" testId={`${props.testIdPrefix ?? ""}${review ? "engineering-table-review-rows" : "engineering-table-rows"}`} renderItem={(row, index) => <div role="row" aria-rowindex={index + 2} aria-selected={selectedKey === row.key} className={`engineering-table-row${index % 2 ? " stripe" : ""}${selectedKey === row.key ? " selected" : ""}`} style={rowStyle}>
-        <div role="rowheader" data-column-index={0}><button type="button" disabled={!rows.some((canonical) => canonical.key === row.key)} onClick={() => onSelect(row.key)} title={row.label}>{row.label}{!rows.some((canonical) => canonical.key === row.key) ? " (removed edit)" : ""}</button></div>
+        <div role="rowheader" data-column-index={0}><button type="button" disabled={!rows.some((canonical) => canonical.key === row.key)} onClick={() => onSelect(row.key)} onContextMenu={(event) => pointerMenu(event, row.key, null)} onKeyDown={(event) => { keyboardMenu(event, row.key, null); }} title={row.label}>{row.label}{!rows.some((canonical) => canonical.key === row.key) ? " (removed edit)" : ""}</button></div>
         {columns.map((column, index) => {
           const address = { rowKey: row.key, columnKey: column.key }; const editing = sameCell(edit?.captured ?? null, address);
           return <div key={column.key} role="gridcell" data-column-index={index + 1} aria-owns={editing && props.persistentEditor ? editorId : undefined} aria-selected={sameCell(focused, address)} title={row.cells[column.key].unavailable} aria-readonly={Boolean(row.cells[column.key].readonly)} data-kind={column.kind} className={`engineering-table-cell${row.cells[column.key].readout ? " has-readout" : ""}${editing ? " editing" : ""}${editing && edit?.error ? " invalid" : ""}`}>
@@ -389,7 +486,7 @@ export function EngineeringTable(props: Props) {
               pointerFocus.current = null;
               if (editRef.current) { void apply(address, true); return; }
               if (sameCell(focused, address)) startEdit(address); else focusCell(address);
-            }} onDoubleClick={() => { if (!editRef.current) startEdit(address); }} onKeyDown={(event) => cellKey(event, address, false)}>{row.cells[column.key].value}</button>}
+            }} onDoubleClick={() => { if (!editRef.current) startEdit(address); }} onContextMenu={(event) => pointerMenu(event, row.key, column.key)} onKeyDown={(event) => { if (!keyboardMenu(event, row.key, column.key)) cellKey(event, address, false); }}>{row.cells[column.key].value}</button>}
             {row.cells[column.key].showUnit ? <span className="engineering-table-unit" title={editing && edit ? edit.captured.unit : row.cells[column.key].unit}>{(editing && edit ? edit.captured.unit : row.cells[column.key].unit) || "unit missing"}</span> : null}
             {row.cells[column.key].readout ? <small aria-label="Quantity readout">{row.cells[column.key].readout}</small> : null}
           </div>;
@@ -429,6 +526,12 @@ export function EngineeringTable(props: Props) {
       {columns.map((item) => <p id={`${infoId}-header-${item.key}`} key={item.key}>{item.unit === "per-row entered unit" ? ({ elastic: "Elastic modulus", shear: "Shear modulus", thermal: "Thermal expansion coefficient", outside: "Outside diameter", wall: "Wall thickness" } as Record<string, string>)[item.key] ?? item.label : item.label}{item.kind === "text" ? "" : item.unit === "per-row entered unit" ? " — unit as entered in each row." : ` [${item.unit}]`}</p>)}
     </div> : null}
     {!props.compact ? messages : null}
+    {menu ? (() => {
+      const row = rows.find((candidate) => candidate.key === menu.rowKey);
+      const args: TableContextMenuArgs = { rowKey: menu.rowKey, rowLabel: row?.label ?? menu.rowKey, leading: cellCommands(menu.rowKey, menu.columnKey), request: menu.request, onClose: () => setMenu(null), serial: menu.serial };
+      return renderContextMenu ? renderContextMenu(args)
+        : <ContextMenu key={menu.serial} label={`Commands for ${args.rowLabel}`} entries={args.leading} request={args.request} onClose={args.onClose} testId="table-context-menu" />;
+    })() : null}
   </div>;
 }
 

@@ -61,7 +61,7 @@ fn the_annotated_document_solves_exactly_as_the_document_without_its_new_members
     for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
         let solved = serde_json::to_value(
             run_linear_static_preview_value_with_mode(json!({"model": annotated, "materials": []}), mode)
-                .expect("the annotated 0.7.0 document is admitted"),
+                .expect("the annotated document is admitted"),
         )
         .unwrap();
         let reference = serde_json::to_value(

@@ -409,7 +409,7 @@ fn exact_block_and_library_records_emit_in_the_pdf() {
         "Stress maximum",
         "Nominal section",
         "Reduced section",
-        "41354908.75465696 Pa",
+        "41.3549 MPa",
         "not available",
         "Library Records",
         "Library kind",
@@ -555,4 +555,54 @@ fn authored_ids_never_enter_a_withheld_pdf_or_package_outcome() {
             assert!(!text.contains(private), "local={local}: {private}");
         }
     }
+}
+
+// Readability (DEL-08-01 Design `exact-route-report-sections.md` §3.7, §6.3
+// items 1-3): the run-name note in the header, the display rule statement and
+// the diagnostic evidence block reach the PDF as they reach the HTML.
+#[test]
+fn the_readability_texts_reach_the_pdf() {
+    use open_pipe_stress_report_renderer::{
+        run_name_note_text, DESKTOP_FIXED_RUN_NAME, DIAGNOSTIC_EVIDENCE_SUBHEADING, DISPLAY_RULE_STATEMENT, QUANTITY_DISPLAY_POLICY,
+    };
+    let mut base = fixture_input();
+    base.report_sections.run_ref.ref_id = DESKTOP_FIXED_RUN_NAME.to_string();
+    let mut input = exact_input::with_exact_route(base);
+    input.calculation_report.model_input_summary.unit_display_summary.as_mut().unwrap().quantity_display_policy =
+        QUANTITY_DISPLAY_POLICY.to_string();
+    let mut diagnostic = sections::Diagnostic {
+        code: "NUMERICAL_INTEGRITY_CHECKS_PASSED".to_string(),
+        class: sections::DiagnosticClass::AssumptionWarning,
+        severity: sections::Severity::Info,
+        source: sections::Reference::new("diagnostic_source", "core/product_physics"),
+        affected_object: sections::Reference::new("affected_refs", "case:invented"),
+        message: "M03-INTEGRITY-v1 invented evidence record for load case case:invented".to_string(),
+        remediation: "Human review required.".to_string(),
+        provenance: invented_section_provenance(),
+    };
+    diagnostic.message.push_str(&" StructuralReport invented".repeat(10));
+    input.report_sections.diagnostics = vec![diagnostic];
+    let render = render_calculation_report(&input);
+    let pdf = emit_calculation_report_pdf(&input);
+    assert!(!pdf.export_blocked, "{:?}", pdf.blocking_reasons);
+    assert_eq!(pdf.canonical_html_sha256_hex, render.sha256_hex);
+    let note = run_name_note_text(&input).unwrap();
+    for needle in [
+        // Short needles without parentheses: the PDF wraps long lines and
+        // escapes parentheses in its strings.
+        "Run name: run:preview-linear-static-001",
+        "Displayed values: result values",
+        "Diagnostic Evidence",
+        "E1: NUMERICAL_INTEGRITY_CHECKS_PASSED",
+        "M03-INTEGRITY-v1 invented evidence",
+    ] {
+        assert!(pdf_contains(&pdf.pdf_bytes, needle), "PDF emission must carry {needle:?}");
+    }
+    assert!(render.html.contains(&open_pipe_stress_report_renderer::escape_html(&note)));
+    assert!(render.html.contains(&open_pipe_stress_report_renderer::escape_html(DISPLAY_RULE_STATEMENT)));
+    // The shared section model carries the evidence block the PDF emits.
+    let warnings = assemble_report_sections(&input).into_iter().find(|section| section.key == "warnings_assumptions_provenance").unwrap();
+    assert!(warnings.blocks.iter().any(|block| matches!(block, open_pipe_stress_report_renderer::SectionBlock::Subheading { text } if text == DIAGNOSTIC_EVIDENCE_SUBHEADING)));
+    assert!(warnings.blocks.iter().any(|block| matches!(block, open_pipe_stress_report_renderer::SectionBlock::Table { rows, .. }
+        if rows.iter().any(|row| row[2] == "Numerical integrity checks passed (load case case:invented); full text: Diagnostic evidence E1"))));
 }

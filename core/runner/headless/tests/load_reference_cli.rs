@@ -1,4 +1,4 @@
-//! T1 WP4 (B7b: on the current 0.7.0 exact pressure v3 route): the
+//! T1 WP4 (B7b: on the current 0.8.0 exact pressure v3 route): the
 //! load/reference-state group through the actual `openpipestress-runner solve`
 //! process (stdin JSON in, the `ControlledExport`-wrapped CLI output on stdout),
 //! in both solver modes. Tests only; no native UI qualification is claimed.

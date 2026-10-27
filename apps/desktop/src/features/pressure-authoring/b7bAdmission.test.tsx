@@ -13,7 +13,7 @@ import fixture from "../../../../../fixtures/model_operations/exact_pressure_aut
 afterEach(cleanup);
 function model(): PreviewModel {
   const model = structuredClone(fixture) as PreviewModel;
-  model.schema_version = "0.7.0";
+  model.schema_version = "0.8.0";
   delete model.pressure_contract;
   for (const pipe of model.pipe_segments) {
     pipe.section.corrosion_allowance = { value: 0, unit: "m" };
@@ -31,7 +31,7 @@ it("B7b preserves authored null presence in the profile display and before proje
   fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" }));
   await waitFor(() => expect(queue).toHaveBeenCalledOnce());
   const intent = queue.mock.calls[0][0] as EditorOperationIntent;
-  expect(JSON.parse(intent.change.before)).toEqual({ schema_version: "0.7.0", pressure_contract: null });
+  expect(JSON.parse(intent.change.before)).toEqual({ schema_version: "0.8.0", pressure_contract: null });
   expect(JSON.parse(intent.change.after)).toEqual(pressureProfileTarget(current));
   expect(current.pressure_contract).toBeNull();
 });
@@ -96,7 +96,7 @@ it("B7b WASM applies explicit omitted-region then profile edits without manufact
   expect(outcome.diagnostics.filter(d => d.severity === "blocking")).toEqual([]);
   current = outcome.applied_model as PreviewModel;
   const profile = makeRichIntent({ object_type: "Model", ref: current.project.id }, "set_field",
-    "pressure_profile", await canonicalJsonString({ schema_version: "0.7.0" }),
+    "pressure_profile", await canonicalJsonString({ schema_version: "0.8.0" }),
     pressureProfileTarget(current), "Pressure profile");
   const activated = await applyModelOperation(current, profile, await computeModelHash(current));
   expect(activated.diagnostics.filter(d => d.severity === "blocking")).toEqual([]);

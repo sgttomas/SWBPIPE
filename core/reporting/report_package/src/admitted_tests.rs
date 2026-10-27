@@ -8,8 +8,12 @@
 //!    its file imports `crate::admitted`); an internal edge passes `admitted`;
 //! 3. `AdmittedSet(` occurs in non-test source only in `admitted.rs`, in the
 //!    struct and in `PRODUCTION`'s definition;
-//! 4. `EXACT_WITNESS_ADMITTED` occurs only in its `#[cfg(test)]` definition and
-//!    in the witness module;
+//! 4. no test-only set exists: in every source, test items and test modules
+//!    included, `AdmittedSet(` occurs only in the struct and `PRODUCTION`'s
+//!    definition, and no other `AdmittedSet` constant is declared. Since the
+//!    owner opened exact-route packages (§5.1; owner, 2026-10-26) the
+//!    production set admits the three identities, so the in-crate witness
+//!    module uses the public roots;
 //! 5. no variant is declared `pub fn`.
 //!
 //! The scan rule (test-item removal, and the rejection of any use of a graph
@@ -55,16 +59,9 @@ const ROWS: [Row; 6] = [
     ("verify_members", "reader.rs", &[("reader.rs", "read_report_package_container_in", Arg::Admitted)]),
 ];
 
-const WITNESS_MODULE: &str = "exact_package_witness_tests.rs";
 const SCANNER: &str = "admitted_tests.rs";
 
-const GRAPH: Graph = Graph {
-    rows: &ROWS,
-    set_type: "AdmittedSet",
-    set_module: "admitted",
-    witness: "EXACT_WITNESS_ADMITTED",
-    witness_files: &[WITNESS_MODULE, SCANNER],
-};
+const GRAPH: Graph = Graph { rows: &ROWS, set_type: "AdmittedSet", set_module: "admitted", scanner_files: &[SCANNER] };
 
 fn scan(files: &BTreeMap<String, String>) -> Vec<String> {
     crate::forwarding_graph_scan::scan(&GRAPH, files)
@@ -106,8 +103,6 @@ fn invented_crate() -> BTreeMap<String, String> {
             file("
 pub(crate) struct AdmittedSet(&'static [&'static str]);
 pub(crate) const PRODUCTION: AdmittedSet = AdmittedSet(&A);
-#[cfg(test)]
-pub(crate) const EXACT_WITNESS_ADMITTED: AdmittedSet = AdmittedSet(&B);
 "),
         ),
         (
@@ -188,8 +183,8 @@ fn verify_members(bytes: &[u8], archive: &A, admitted: AdmittedSet) -> R {
 }
 "),
         ),
-        ("admitted_tests.rs".to_string(), file("fn scan() { EXACT_WITNESS_ADMITTED }\n")),
-        ("exact_package_witness_tests.rs".to_string(), file("fn w() { assemble_wire_request_in(r, EXACT_WITNESS_ADMITTED) }\n")),
+        ("admitted_tests.rs".to_string(), file("fn scan() { AdmittedSet(&B) }\n")),
+        ("exact_package_witness_tests.rs".to_string(), file("fn w() { assemble_wire_request(r) }\n")),
     ])
 }
 
@@ -221,9 +216,18 @@ fn the_scanner_finds_each_break_of_the_graph() {
             "the edge assemble_wire_request_in passes admitted::PRODUCTION, not admitted",
         ),
         (
-            "a witness-set use outside the witness module",
-            edit("wire.rs", "crate::bindings::check_request_in(&request, admitted)?;", "crate::bindings::check_request_in(&request, EXACT_WITNESS_ADMITTED)?;"),
-            "EXACT_WITNESS_ADMITTED in non-test source",
+            "a test-only widened set",
+            edit(
+                "admitted.rs",
+                "pub(crate) const PRODUCTION: AdmittedSet = AdmittedSet(&A);\n",
+                "pub(crate) const PRODUCTION: AdmittedSet = AdmittedSet(&A);\n#[cfg(test)]\npub(crate) const EXACT_WITNESS_ADMITTED: AdmittedSet = AdmittedSet(&B);\n",
+            ),
+            "admitted.rs:4: a set of type AdmittedSet other than PRODUCTION",
+        ),
+        (
+            "a set constructed in a test module",
+            edit("exact_package_witness_tests.rs", "fn w() { assemble_wire_request(r) }", "fn w() { assemble_wire_request_in(r, AdmittedSet(&B)) }"),
+            "exact_package_witness_tests.rs:1: a set of type AdmittedSet other than PRODUCTION",
         ),
         (
             "an indented test item's call counts",

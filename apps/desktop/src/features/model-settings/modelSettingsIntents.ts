@@ -14,6 +14,9 @@
 import type { EditorOperationIntent, PreviewModel, QuantityValue } from "../../types";
 
 export const NODE_PROXIMITY_TOLERANCE_PATH = "model_settings.node_proximity_tolerance";
+/** Model document 0.8.0: the pressure-free document's beam theory; absent means Euler–Bernoulli. */
+export const SHEAR_MODEL_PATH = "model_settings.shear_model";
+export type SettingPath = typeof NODE_PROXIMITY_TOLERANCE_PATH | typeof SHEAR_MODEL_PATH;
 /** The default the product applies when the setting is absent (never written). */
 export const DEFAULT_NODE_PROXIMITY_TOLERANCE: Readonly<QuantityValue> = Object.freeze({ value: 5, unit: "mm" });
 
@@ -38,9 +41,10 @@ function intent(
   after: string,
   unit: string,
   dimension: string,
-  label: string
+  label: string,
+  path: SettingPath = NODE_PROXIMITY_TOLERANCE_PATH
 ): EditorOperationIntent {
-  const token = `${changeKind}:${NODE_PROXIMITY_TOLERANCE_PATH}`;
+  const token = `${changeKind}:${path}`;
   return {
     operation_id: `op:model-settings:${token}`,
     operation_kind: "modify",
@@ -56,12 +60,14 @@ function intent(
       change_id: `change:model-settings:${token}`,
       change_kind: changeKind,
       field_label: label,
-      field_path: NODE_PROXIMITY_TOLERANCE_PATH,
+      field_path: path,
       before,
       after,
       unit,
       dimension,
-      source_note: "User-entered node-proximity tolerance for the near-duplicate node warning; it changes no solved value."
+      source_note: path === SHEAR_MODEL_PATH
+        ? "User-selected beam theory of a pressure-free document; the operation engine judges it."
+        : "User-entered node-proximity tolerance for the near-duplicate node warning; it changes no solved value."
     },
     validation: {
       schema_validation: "not_run",
@@ -108,4 +114,25 @@ export async function setNodeProximityToleranceIntent(
 export async function clearNodeProximityToleranceIntent(canonicalize: Canonicalize, model: PreviewModel): Promise<EditorOperationIntent> {
   const before = await currentBefore(canonicalize, model);
   return intent(model, "clear_model_setting", before, "not_present", "none", "dimensionless", "Reset node-proximity tolerance to default");
+}
+
+/** The authored shear model, or null when Euler–Bernoulli applies by default. */
+export function authoredShearModel(model: PreviewModel): string | null {
+  return model.model_settings?.shear_model ?? null;
+}
+
+async function shearBefore(canonicalize: Canonicalize, model: PreviewModel): Promise<string> {
+  const authored = authoredShearModel(model);
+  return authored === null ? "not_present" : canonicalize(authored);
+}
+
+/** Set the shear model to `name` (the engine refuses by name: an unknown name, a document with a
+ * pressure contract and, in 0.8.0, `timoshenko_annulus_energy_v1`). */
+export async function setShearModelIntent(canonicalize: Canonicalize, model: PreviewModel, name: string): Promise<EditorOperationIntent> {
+  return intent(model, "set_model_setting", await shearBefore(canonicalize, model), name, "none", "dimensionless", "Set shear model", SHEAR_MODEL_PATH);
+}
+
+/** Clear the shear model, so Euler–Bernoulli applies: the member is removed. */
+export async function clearShearModelIntent(canonicalize: Canonicalize, model: PreviewModel): Promise<EditorOperationIntent> {
+  return intent(model, "clear_model_setting", await shearBefore(canonicalize, model), "not_present", "none", "dimensionless", "Clear shear model", SHEAR_MODEL_PATH);
 }

@@ -67,12 +67,14 @@ RF_PINS = {
 # owner or lifetime changes.
 # Nested-record closure D3 (§8.25): lib.rs's closed nested wire records and material wire change no reduction's owner or
 # lifetime; the L5 guard, shadow, insert and call texts are unchanged.
+# Model document 0.8.0 D3 (§8.26): lib.rs's eccentric_offset member and offset-check calls, retained_wire.rs's DEF-E hash
+# and preview_physics.rs's test literal change no reduction's owner or lifetime; the L5 texts are unchanged.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "06e98114c960d95f0d7dc59b749e274c7bca5fc206343e4c7460604a4213e761",
-    "core/product_physics/src/retained_wire.rs": "1c58db53d9a590d4316aea0fdc855396002935faed3d91a31e7f5434d93d8d40",
+    "core/product_physics/src/lib.rs": "06a49656af6d46b67230c44a56eebc9511999e2495c9d2eb2489d892c630d290",
+    "core/product_physics/src/retained_wire.rs": "b457aff075c67f6eb93000dff2ca0cf4bab43119fe34db1316c78356bf1864b3",
     "core/product_physics/src/certified_publication.rs": "8dd1a0ed3c32df695639b2adda57e2d501b6becc8fafec78c5256061148ba19c",
     "core/product_physics/src/certified_loads.rs": "56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f",
-    "core/product_physics/src/preview_physics.rs": "878a16b8c2d72abea6a6c4122cfa10fa29a752671660acdc299b3caed6b515c9",
+    "core/product_physics/src/preview_physics.rs": "bc3d93c28744cb8ec68f324c21809caff9bba007ea50876f2fa425238c9edacc",
     "core/solver/frame_kernel/src/structural/formation_check.rs": "ec27fd9b61191c292ef24a240efccf667976c25f4d42a0a8eea833fb37d21b5d",
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "518f343f9052a94faf3b93e16a488552f707554a66b532156cdced71a4fd75f7",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",

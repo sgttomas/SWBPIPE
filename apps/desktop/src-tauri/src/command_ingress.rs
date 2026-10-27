@@ -762,6 +762,38 @@ pub(crate) mod test_support {
         admit_body(registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1)), command, decoding)
     }
 
+    /// A growing site's normal path against the per-invocation budget
+    /// (`memory_pool::Lease::grow_to`): `run` admits its body and grows the
+    /// lease as the command does, returning the grown lease. It is admitted
+    /// under `registry`'s budget, and again with the budget at exactly the
+    /// grown lease; one byte below that, the growth is refused
+    /// `ingress_exceeds_budget` (the ingress lease itself still fits).
+    /// Returns (ingress lease, grown lease).
+    pub(crate) fn grown_lease_meets_the_budget(
+        registry: &SolveJobRegistry,
+        label: &str,
+        ingress: u64,
+        run: &dyn Fn() -> Result<u64, SolveJobError>,
+    ) -> (u64, u64) {
+        let (pool_bytes, budget) = registry.pool().settings();
+        let grown = run().unwrap_or_else(|error| panic!("{label}: refused under the budget {budget}: {error:?}"));
+        assert!(ingress < grown && grown <= budget, "{label}: ingress {ingress} grown {grown} budget {budget}");
+        registry.configure_pool(pool_bytes, grown, false).unwrap();
+        assert_eq!(run().unwrap_or_else(|error| panic!("{label}: refused at a budget of its grown lease: {error:?}")), grown);
+        registry.configure_pool(pool_bytes, grown - 1, false).unwrap();
+        match run() {
+            Err(SolveJobError::ResourceUnavailable { refusal, .. }) => assert_eq!(
+                refusal,
+                ResourceRefusal::IngressExceedsBudget { required_bytes: grown, budget_bytes: grown - 1 },
+                "{label}"
+            ),
+            other => panic!("{label}: not refused at its growth one byte below: {other:?}"),
+        }
+        registry.configure_pool(pool_bytes, budget, false).unwrap();
+        eprintln!("{label}: ingress lease {ingress} B, grown lease {grown} B, budget {budget} B");
+        (ingress, grown)
+    }
+
     /// Checks the lease rule for one raw body: the requested peak (each live
     /// allocation priced by `allocation_envelope`, as the prescan bound
     /// prices them) of parsing the body and running `decode` on its args is

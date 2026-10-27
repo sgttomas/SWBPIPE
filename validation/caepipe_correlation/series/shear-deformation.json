@@ -1,0 +1,33 @@
+{
+  "document_kind": "openpipestress.caepipe_correlation.series_definition",
+  "hypothesis_id": "shear-deformation",
+  "provenance": {
+    "origin": "invented",
+    "license": "project-original",
+    "redistribution_status": "public_permissive",
+    "contributor_note": "Invented by the DEL-17-05 pilot implementer. The resolvability numbers below come from the hand calculation only; no CAEPIPE output, vendor material or library data is included."
+  },
+  "purpose": "Slenderness series for the shear-deformation hypothesis (DEL-17-05 Design section 7): the same cantilever at three spans. If the SWBPIPE-CAEPIPE tip-deflection gap is shear deformation, the relative gap (C - S) / S = 3 E I / (kappa G A L^2) falls as L^-2, i.e. as (r/L)^2 with r the radius of gyration, whatever the shape factor.",
+  "quantity": "n1_uy",
+  "members": [
+    {"case_id": "cpc-07-cantilever-span-3m", "span": 3.0},
+    {"case_id": "cpc-01-cantilever-force", "span": 6.0},
+    {"case_id": "cpc-08-cantilever-span-12m", "span": 12.0}
+  ],
+  "span_unit": "m",
+  "relative_gap": "(C - S) / S with C the CAEPIPE value and S the SWBPIPE value of the quantity, in SI units",
+  "expected_exponent": -2.0,
+  "expected_relative_gap_sign": 1,
+  "fit": "log-log slope of |relative gap| against span between the shortest and the longest member: ln(|g_long| / |g_short|) / ln(L_long / L_short); the least-squares slope over all members is recorded alongside for information",
+  "slope_tolerance": {
+    "abs": 0.05,
+    "basis": "ASSUMPTION",
+    "note": "ASSUMPTION chosen by the implementer for the pilot. Resolvable at print resolution: the external prover prints displacements to 0.001 mm, so C carries at most 5e-7 m of rounding while S is binary64. With the hand-calculated shear gaps (shape factor 2) of 0.0433 mm at 3 m and 0.1733 mm at 12 m, the rounding moves ln|g| by at most 1.2 % and 0.3 %, so the fitted slope by at most about 0.011, a fifth of the tolerance. The bound scales with the inverse of the shape factor; for any shape factor of 1 or more it stays below about 0.022."
+  },
+  "member_conditions": [
+    "the member's comparison record exists and was built from the case's current MBF",
+    "its analytic_vs_swbpipe check of the quantity matched (SWBPIPE confirmed by the Euler-Bernoulli witness)",
+    "the SWBPIPE and external-prover values are present, and |C - S| exceeds the caepipe_print_resolution absolute tolerance of the quantity's unit (the gap is resolved)"
+  ],
+  "status_rule": "not_evaluated, with the reasons, unless every member condition holds; then consistent when every relative gap has the expected sign (shear flexibility makes |C| larger than |S|, so (C - S) / S > 0) and |fitted slope - expected exponent| <= slope tolerance, inconsistent otherwise"
+}

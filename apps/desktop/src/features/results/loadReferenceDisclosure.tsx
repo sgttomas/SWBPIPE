@@ -8,8 +8,8 @@
  * in ordinary prose, not a boundary statement. UI text, except one line: the
  * `rendered-report` surface's line is written into the rendered report's exact-route
  * result block (W-11, DEL-08-01 Design `exact-route-report-sections.md` §3.2), which
- * every report surface still refuses for an exact result until the owner opens it. No
- * other line is written into a document, package, record or run result. */
+ * the rendered report and the report package carry since the owner opened them
+ * (2026-10-26, §5.1). No other line is written into a document, package, record or run result. */
 import { sourceContract } from "./resultReader";
 import type { MechanicsResult } from "../../types";
 

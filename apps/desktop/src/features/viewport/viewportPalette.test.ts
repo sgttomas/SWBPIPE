@@ -167,14 +167,17 @@ describe("viewport palette roles", () => {
       gizmoAxisX: "canvas.axisX",
       gizmoAxisY: "canvas.axisY",
       gizmoAxisZ: "canvas.axisZ",
-      gizmoBadge: "surface.raised"
+      gizmoBadge: "surface.raised",
+      elementAxisX: "canvas.axisX",
+      elementAxisY: "canvas.axisY",
+      elementAxisZ: "canvas.axisZ"
     });
     // Exposed and not consumed: its use is a later feasibility probe.
     expect(Object.values(VIEWPORT_ROLE_TOKENS)).not.toContain("canvas.edgeAlt");
   });
 
   it("resolves every role in both themes to its token's value in the token file", () => {
-    expect(VIEWPORT_PALETTE_ROLES).toHaveLength(21);
+    expect(VIEWPORT_PALETTE_ROLES).toHaveLength(24);
     for (const theme of VIEWPORT_PALETTE_THEMES) {
       for (const role of VIEWPORT_PALETTE_ROLES) {
         const stated = tokenFile.color[VIEWPORT_ROLE_TOKENS[role]][theme];

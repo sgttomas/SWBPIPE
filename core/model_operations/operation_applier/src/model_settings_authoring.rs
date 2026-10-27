@@ -4,15 +4,17 @@
 //! `clear_model_setting` on `model_settings.node_proximity_tolerance`.
 //!
 //! The owner ruled a 5 mm default "and give the user the means to change it".
-//! The product never writes the default: setting writes the value the user
-//! authored, with its unit, and clearing removes the member so the default
+//! The product never writes the default into a document the user did not
+//! author: setting writes the value the user authored, with its unit (an
+//! authored 5 mm included), and clearing removes the member so the default
 //! applies again.
 //!
 //! Wire (the `Project` singleton target, as DEL-02-02 Design
 //! `project-unit-selection.md` §2.7 defines it for project-level edits):
 //! - `target`: object type `Project`, `ref` the document's `project.id`; any
 //!   other `ref` is refused (`OP-TARGET-NOT-FOUND`).
-//! - `field_path`: `model_settings.node_proximity_tolerance`, the one setting.
+//! - `field_path`: `model_settings.node_proximity_tolerance` or, since model
+//!   document 0.8.0, `model_settings.shear_model`.
 //! - `before`: the current member's canonical JSON, or `not_present`; a
 //!   `before` that no longer matches is stale (`OP-STALE-BEFORE-VALUE`).
 //! - **Set** (`set_model_setting`, operation kind `modify`): `after` is the
@@ -28,6 +30,17 @@
 //!   set followed by a clear restores the document exactly when the record was
 //!   absent before the set. Clearing an absent setting, or setting the value
 //!   already stored, is refused as `OP-MODEL-SETTING-UNCHANGED`.
+//!
+//! - **Shear model** (model document 0.8.0): set takes `after` the name, unit
+//!   `none` and dimension `dimensionless`, and writes the string; it is judged by
+//!   product_physics' `model_settings::shear_model_refusal`, so a value other
+//!   than the two names (`MODEL-SETTING-SHEAR-MODEL-UNKNOWN`), a document with
+//!   `pressure_contract` (`-WITH-PRESSURE-CONTRACT`) and, in 0.8.0,
+//!   `timoshenko_annulus_energy_v1` (`-TIMOSHENKO-UNSUPPORTED`) are refused by
+//!   name. An explicit set of `euler_bernoulli` writes the member, as for the
+//!   tolerance (Agent 0, DEL-02-01 Design `model-document-0.8.0.md` §0, R7-1);
+//!   clear removes the member as for the tolerance. Nothing writes the default
+//!   unless the user sets it.
 //!
 //! Each operation's inverse is the other one, built from the diff row's
 //! `before`; the desktop undoes through its session checkpoint, which restores
@@ -68,7 +81,7 @@ pub(crate) fn resolve(model: &Value, intent: &Value) -> Result<GeometryEdit, Geo
     let unit = text_at(intent, "/change/unit");
     let dimension = text_at(intent, "/change/dimension");
     let refs = [target_ref.to_string()];
-    let setting = ms::NODE_PROXIMITY_TOLERANCE_PATH;
+    let settings_list = format!("`{}` and `{}`", ms::NODE_PROXIMITY_TOLERANCE_PATH, ms::SHEAR_MODEL_PATH);
 
     if object_type != "Project" {
         return Err(refusal(
@@ -77,13 +90,17 @@ pub(crate) fn resolve(model: &Value, intent: &Value) -> Result<GeometryEdit, Geo
             &refs,
         ));
     }
-    if field_path != setting {
-        return Err(refusal(
-            "OP-MODEL-SETTING-UNKNOWN",
-            format!("`{field_path}` is not a model setting; the one setting is `{setting}`."),
-            &refs,
-        ));
-    }
+    let (setting, member) = match field_path {
+        ms::NODE_PROXIMITY_TOLERANCE_PATH => (ms::NODE_PROXIMITY_TOLERANCE_PATH, "node_proximity_tolerance"),
+        ms::SHEAR_MODEL_PATH => (ms::SHEAR_MODEL_PATH, "shear_model"),
+        _ => {
+            return Err(refusal(
+                "OP-MODEL-SETTING-UNKNOWN",
+                format!("`{field_path}` is not a model setting; the settings are {settings_list}."),
+                &refs,
+            ));
+        }
+    };
     if model.get("document_kind").and_then(Value::as_str) != Some("openpipestress.product_preview.model")
         || model.get("schema_version").and_then(Value::as_str) != Some(open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION)
     {
@@ -115,7 +132,7 @@ pub(crate) fn resolve(model: &Value, intent: &Value) -> Result<GeometryEdit, Geo
             ));
         }
     };
-    let current = settings.and_then(|settings| settings.get("node_proximity_tolerance"));
+    let current = settings.and_then(|settings| settings.get(member));
     let current_text = current.map(canonical_json).unwrap_or_else(|| "not_present".into());
     if before != current_text {
         return Err(refusal(
@@ -129,7 +146,34 @@ pub(crate) fn resolve(model: &Value, intent: &Value) -> Result<GeometryEdit, Geo
     let root = candidate
         .as_object_mut()
         .ok_or_else(|| refusal("OP-MODEL-SETTING-DOCUMENT-INVALID", "The model must be an object.", &refs))?;
-    let (after_text, row_unit, row_dimension) = if change_kind == SET {
+    let (after_text, row_unit, row_dimension) = if change_kind == SET && member == "shear_model" {
+        if unit != "none" || dimension != "dimensionless" {
+            return Err(refusal(
+                "OP-MODEL-SETTING-SHAPE-INVALID",
+                format!("`{setting}` is a name: unit none and dimension dimensionless."),
+                &refs,
+            ));
+        }
+        let next = Value::String(after.to_string());
+        let has_contract = model.get("pressure_contract").is_some_and(|contract| !contract.is_null());
+        if let Some(error) = ms::shear_model_refusal(ms::ShearModelSetting::of(&next), has_contract) {
+            return Err(refusal(error.code, error.message, &refs));
+        }
+        let next_text = canonical_json(&next);
+        if current.map(canonical_json).as_deref() == Some(next_text.as_str()) {
+            return Err(refusal(
+                "OP-MODEL-SETTING-UNCHANGED",
+                format!("`{setting}` is already `{after}`; nothing to apply."),
+                &refs,
+            ));
+        }
+        root.entry("model_settings")
+            .or_insert_with(|| Value::Object(Map::new()))
+            .as_object_mut()
+            .expect("checked object")
+            .insert(member.into(), next);
+        (next_text, "none".to_string(), "dimensionless".to_string())
+    } else if change_kind == SET {
         if dimension != "length" {
             return Err(refusal(
                 "OP-UNIT-DIMENSION-MISMATCH",
@@ -184,14 +228,15 @@ pub(crate) fn resolve(model: &Value, intent: &Value) -> Result<GeometryEdit, Geo
             ));
         }
         if current.is_none() {
+            let default = if member == "shear_model" { "Euler–Bernoulli" } else { "the 5 mm default" };
             return Err(refusal(
                 "OP-MODEL-SETTING-UNCHANGED",
-                format!("`{setting}` is not set (the 5 mm default applies); nothing to clear."),
+                format!("`{setting}` is not set ({default} applies); nothing to clear."),
                 &refs,
             ));
         }
         let settings = root.get_mut("model_settings").and_then(Value::as_object_mut).expect("checked object");
-        settings.remove("node_proximity_tolerance");
+        settings.remove(member);
         // Absence means the default: an emptied record is removed, never left behind.
         if settings.is_empty() {
             root.remove("model_settings");

@@ -9,13 +9,14 @@
 use crate::admitted::{self, AdmittedSet};
 use crate::schema_eval::{Catalog, RESULTS_V03};
 use open_pipe_stress_result_export::derivative::{checksum, guard_json, reference};
-use open_pipe_stress_result_export::semantic_contract::{for_export_metadata, PREVIEW_PHYSICS_ID, RESULT_EXPORT_VERSION};
+use open_pipe_stress_result_export::semantic_contract::{for_export_metadata, PRESSURE_ID, PRESSURE_SOURCE_ID, PREVIEW_PHYSICS_ID, RESULT_EXPORT_VERSION};
 use serde_json::Value;
 
 /// The semantic contracts a report package admits (§2.3 item 0): the
-/// pressure-free route only. Exact-route results stay refused under owner
-/// ruling 10A until W-11.
-pub const ADMITTED_SEMANTIC_CONTRACTS: [&str; 1] = [PREVIEW_PHYSICS_ID];
+/// pressure-free route and, since W-11 opened exact-route packages (DEL-08-01
+/// Design `exact-route-report-sections.md` §5.1; owner, 2026-10-26), the
+/// pressure-2 and pressure-source-1 routes.
+pub const ADMITTED_SEMANTIC_CONTRACTS: [&str; 3] = [PREVIEW_PHYSICS_ID, PRESSURE_ID, PRESSURE_SOURCE_ID];
 
 pub const ROUTE_NOT_ADMITTED: &str = "REPORT-PACKAGE-ROUTE-NOT-ADMITTED";
 pub const RESULT_FORM_INVALID: &str = "REPORT-PACKAGE-RESULT-FORM-INVALID";
@@ -54,7 +55,7 @@ pub fn check_route_admitted(document: &Value) -> Result<(), String> {
 pub(crate) fn check_route_admitted_in(document: &Value, admitted: AdmittedSet) -> Result<(), String> {
     match producer_contract_id(document) {
         Some(id) if admitted.contains(id) => Ok(()),
-        Some(id) => Err(format!("{ROUTE_NOT_ADMITTED}: the report package admits only preview-physics-2; found {id}")),
+        Some(id) => Err(format!("{ROUTE_NOT_ADMITTED}: the report package admits only {}; found {id}", admitted.ids().join(", "))),
         None => Err(format!("{ROUTE_NOT_ADMITTED}: the result member names no producer semantic contract")),
     }
 }

@@ -46,9 +46,10 @@ type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 type Mode = "sparse_interactive" | "dense_scrutiny";
 const root = resolve(__dirname, "../../../../../");
 const json = (path: string) => JSON.parse(readFileSync(resolve(root, path), "utf8"));
-const PRESSURE_1 = { id: "openpipestress.result_semantics/0.3.0/pressure-2", sha256: "d381ee8bb2e4dfad7d2a050eaa23b558b32cc2ebd3599c0d4eb0489e49246fd2" };
+const PRESSURE_1 = { id: "openpipestress.result_semantics/0.3.0/pressure-2", sha256: "be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919" };
 /** The three surfaces the owner opened (ruling 10A). */
-const OPENED: readonly string[] = ["result-export", "stress-neutral", "rule-check"];
+/** Epoch 8's three opened surfaces and W-11's two (owner, 2026-10-26). */
+const OPENED: readonly string[] = ["result-export", "stress-neutral", "rule-check", "rendered-report", "report-package"];
 /** The mocked rule backend's answer (unit simulation; invented). */
 const RULE_ANSWER = {
   document_kind: "openpipestress.rule_check.run",
@@ -350,16 +351,21 @@ describe("the held pressure-2 result: admitted on the opened surfaces, refused b
       expect(surfaceRouteRefusal(result, surface), surface).toBe(expected);
       expect(surfaceOutputRefusal(result, model, surface), surface).toBe(expected);
     }
-    // The route's shared reason is unchanged for its remaining direct callers (§5.2).
+    // The route's shared reason is unchanged (§5.2); no product surface reads it since W-11.
     expect(loadReferenceOutputRefusal(result)).toBe(PRESSURE_2_OUTPUT_REFUSAL);
     // Result export and stress-neutral build from the session's own record and manifest.
     const document = await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
     expect(() => resultSchemaVersion(document)).not.toThrow();
     await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).resolves.toBeTruthy();
-    // The report package refuses it by its report-package cell (§4.5; ruling 10A), through the session too.
-    expect(reportPackageUnavailableReason(result)).toBe(PRESSURE_2_OUTPUT_REFUSAL);
+    // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §5.1; owner, 2026-10-26): the
+    // report package's cell admits it; through the session the save no longer stops at the
+    // route refusal: the request is built and screened, and, without the package's own
+    // local-private selection (not chosen here), the screen blocks it before any IPC.
+    expect(reportPackageUnavailableReason(result)).toBeNull();
     await act(async () => { await hook.current.results.handleSaveReportPackage(); });
-    expect(hook.current.results.reportPackageRoute).toEqual({ route: "redaction_blocked", diagnostic: PRESSURE_2_OUTPUT_REFUSAL });
+    const packageRoute = hook.current.results.reportPackageRoute as Json;
+    expect(packageRoute.route).toBe("redaction_blocked");
+    expect(packageRoute.diagnostic).toMatch(/^REPORT-PACKAGE-REDACTION-BLOCKED: \d+ finding\(s\) prevent package assembly or persistence\.$/);
     // Native package: the export link is replaced by the refusal.
     render(<NativePackagePanel model={model} modelHash={hook.current.model.modelHash} result={result} analysisRun={analysisRun} editorIntents={[]}
       projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={null} />);

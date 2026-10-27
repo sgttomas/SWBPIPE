@@ -203,8 +203,8 @@ def _corpus_entries():
 
 
 MILESTONE_PINS = {
-    "sparse_interactive": ("139cfdb7d960aa1c5a061ee21cbf48fa55b96f896dc40120b6576a9f8061781c", [25, 69, 3, 1]),
-    "dense_scrutiny": ("7ce9946465092d416474faf1f455cb9466edd8fb84d3b8a3640a433b27d29d31", [25, 69, 3, 1]),
+    "sparse_interactive": ("7fc66eeef48d03b64da78db705fe5b4d34f12e9b2b90ab0578eb5af9699d3c92", [25, 69, 3, 1]),
+    "dense_scrutiny": ("ce0f6a6a80a327fbcdf594b166290cc2c86ca8e91e852ce3de84303f54713357", [25, 69, 3, 1]),
 }
 
 
@@ -754,17 +754,17 @@ def test_integers_by_value_at_every_site_d32():
 
 
 def test_model_schema_versions_d31():
-    """D31, as B7a keys it: G8's preview namespace is the current model version 0.7.0 without a pressure contract; the
+    """D31, as B7a keys it: G8's preview namespace is the current model version 0.8.0 without a pressure contract; the
     retired 0.1.0 and 0.2.0 are refused, and 0.4.0 stays excluded. B3D-10, as ruled: 0.3.0 without a contract is
-    refused. B3a is dropped, so 0.3.0 with the retired legacy_pressure_v1 contract is refused too, and so is 0.7.0 with
+    refused. B3a is dropped, so 0.3.0 with the retired legacy_pressure_v1 contract is refused too, and so is 0.8.0 with
     any contract."""
     expected = _cases()[O_BASE]["expected_classifications"]
     version_edit = lambda version: {"path": ["request", "model", "schema_version"], "op": "set", "value": version}
     legacy = {"path": ["request", "model", "pressure_contract"], "op": "set", "value": {"version": "1.0.0", "mode": "legacy_pressure_v1"}}
-    assert _validate_entry(O_BASE, [], [version_edit("0.7.0")])["classifications"] == expected
+    assert _validate_entry(O_BASE, [], [version_edit("0.8.0")])["classifications"] == expected
     for version in ("0.1.0", "0.2.0"):
         _raises(lambda: _validate_entry(O_BASE, [], [version_edit(version)]), "G8", "INVOCATION_MISMATCH")
-    _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.7.0"), legacy]), "G8", "INVOCATION_MISMATCH")
+    _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.8.0"), legacy]), "G8", "INVOCATION_MISMATCH")
     _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.3.0"), legacy]), "G8", "INVOCATION_MISMATCH")
     _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.3.0")]), "G8", "INVOCATION_MISMATCH")
     _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.4.0")]), "G8", "INVOCATION_MISMATCH")
@@ -786,7 +786,7 @@ def test_b3a_legacy_pressure_namespace_29_controls_match_existing_rust_controls(
     entries=[(base,[version("0.3.0"),contract(legacy)],False) for base in
              (O_BASE,"ordinary_prepared_dense_synthetic","two_case_synthetic","u8_l0_isolated_node_sparse_interactive","u8_l0_isolated_node_dense_scrutiny")]
     entries.extend((O_BASE,edits,admitted) for edits,admitted in (
-        ([contract(None)],False),([version("0.7.0"),absent()],True),
+        ([contract(None)],False),([version("0.8.0"),absent()],True),
         ([version("0.3.0"),contract(changed("mode","exact_straight_pressure_v2"))],False),
         ([version("0.3.0"),contract(changed("version","1.0.1"))],False),
         ([version("0.3.0"),contract({"version":"2.0.0","mode":"exact_straight_pressure_v2"})],False),
@@ -972,10 +972,10 @@ def test_rv80_n2_integral_normalization_touches_only_the_receipt(monkeypatch):
 # PP's pinned L = 0 successor files (U8-1, `u8_l0_isolated_node_publishes_pinned_successor` at the U8
 # head): (file sha256, receipt sha256, class counts), the counts as all three readers observed them (I68).
 L0_PINS = {
-    "sparse_interactive": ("8852f0890a87c9b5e2e3922dac29b344c1581d6765eebc62b5c7560e73119173",
-                           "abf1ef976af4d24fcc3f365f7408531a7c6513fa37561fb1c74bb81093a7a492", [25, 78, 9, 1]),
-    "dense_scrutiny": ("b4624c590ee17faa8ccd497d88019866eb8ca5f7bc8319404eb638461479c3f8",
-                       "d0587643f8b210e77990e1e8ac858b733ff6b2f21dc22c2beb675ad455d8dd0a", [25, 78, 9, 1]),
+    "sparse_interactive": ("41c173da931cac35fcd16585e9c8409c93fca543d45ff8077db13060a98b1990",
+                           "8e2f57ebf68c286b7afa5088037f7a7a2e8becc7298bee297ae87ef2a8c72484", [25, 78, 9, 1]),
+    "dense_scrutiny": ("d13b72efd7e48b92e5ee0b844852ad57adcf0409bf0a141d58c5de688cad2572",
+                       "8a2ce256551e7bc164c92235fb83407ec4a5b43276e9b3134e4aa32ec9aed271", [25, 78, 9, 1]),
 }
 # The registered dev/test build that published them (PP `REGISTERED_PROFILES` at the U8 head).
 L0_BUILD_IDENTITY = ("v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;"
@@ -1832,8 +1832,8 @@ def test_i4p_ruling5_kernel_reason_without_a_run_is_g5_attempt_in_the_reader():
 # `expected_classifications`. Detail texts are not pinned.
 # ---------------------------------------------------------------------------------------------
 # W-8 topology warning added; no number moved.
-N07_W_C2 = {"sparse_interactive": ("ec058146bca971cfd25454023670bbfe1e1d6013f7bf01616e44ddf97ab25aa5", "2e4300b358acb3f4b35f007d94520358cd4dcfc6630711fdc05753bd43af8d08"),
-            "dense_scrutiny": ("4134680944eb7aeb6aa96448ffaa67c86c4f5ab51bf4b5047aad34b5f81e4890", "7180fe56b53d9607feedb05af047f2dc29e6f0c5fd97aae5aa056ce15bd8a330")}
+N07_W_C2 = {"sparse_interactive": ("28c2f256366619ebe4e4896e52f1ad07cf5acfcd3d2c5865b7328a6f767488ec", "3c34cf9b6333413863f407eed2e27ea84ae7fdb86c4869ff5b421cf8ca0ab6fb"),
+            "dense_scrutiny": ("29c361e46c10b61b6574e1206629355458ff51ffe8f68d4218ff43ef02354eb4", "15f0ba01dd2f57f636d93752d7bf2c08270e0170df61e18dce036fa48b2eb60a")}
 # PR-N (I109): the dense W-C2 and (C, B, A) successors re-pinned at the correctly rounded `rigid:N0`
 # support force magnitude (one ulp above macOS libm's hypot chain), one pin for every platform.
 # PP `retained_facade_tests.rs` REVERSED_PINNED, CBA_PINNED and AA2_PINNED: (receipt sha256, successor bytes sha256).

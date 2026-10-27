@@ -98,7 +98,7 @@ def test_retired_v2_labels_are_refused(label, envelope):
         with pytest.raises(ValueError) as refused:
             validate_exact_pressure_evidence(relabelled)
         assert str(refused.value) == V2_RETIRED_TEXT
-        assert str(refused.value).startswith(f"{SOURCE_EXACT_PRESSURE_V2_RETIRED}: ") and "re-author the model as 0.7.0" in str(refused.value)
+        assert str(refused.value).startswith(f"{SOURCE_EXACT_PRESSURE_V2_RETIRED}: ") and "re-author the model as 0.8.0" in str(refused.value)
         # The product paths take the Rust verdict: the same refusal, by name, at the header.
         for check_receipt in (True, False):
             with pytest.raises(ValueError) as refused:

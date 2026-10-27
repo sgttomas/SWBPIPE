@@ -34,6 +34,23 @@ every route. Standard claim fence applies (claims taxonomy per DEC-081).
   (completeness map, W-11 row :541). **This design builds the sections behind
   the existing refusals. It opens nothing.** §5 states what opening would
   change.
+- **Opening ruling (owner, 2026-10-26, through HELP_HUMAN):** "My two
+  decisions are to approve your recommendations in both cases. Proceed
+  accordingly." The approved recommendation opens both surfaces, the rendered
+  report and the report package, for `pressure-2` and `pressure-source-1`,
+  exactly as §5.1 lists them, once slices (b) and (c) are merged and the
+  owner has seen the evidence of §5.5 (the rendered local-private example
+  reports of each exact-route shape). §6.3 records the opening as built. The
+  report JSON packet, the handoff preview and the other fifteen surfaces stay
+  refused (§5.4).
+- **Ruling on the §5.5 evidence (owner, 2026-10-26, through HELP_HUMAN):**
+  "#1648 I approve option A. For FR-REP-003 I approve option D." Option A
+  approves the opening of #1648 with observation 4 of the evidence (§6.3) fixed
+  in #1648 before it merges: on an exact report, the standing line does not read
+  only "integrity checked" while the Diagnostics carry an integrity warning; it
+  names the warning and points to it (§3.2). Observations 1-3 stay deferred to
+  the next slice. The FR-REP-003 decision (option D) is recorded as given; this
+  design's text does not apply it.
 - **FR-REP-001 (Must)**, PRD §19.2: inputs, versions, states, runs,
   assumptions, warnings, results and rule-pack references. **FR-REP-002:**
   mechanics, user-rule checks and human review kept distinct.
@@ -593,7 +610,8 @@ pub struct ReportHeadline {
 
 The three new structs are `#[serde(deny_unknown_fields)]`; the enclosing
 struct still drops unknown top-level fields (§1.1 item 3). The renderer emits
-the block at the start of the Results section
+the block at the start of the Results section, after the display rule
+statement when the report declares that policy (§3.7)
 (`report_renderer/src/lib.rs:710`), in `assemble_report_sections`, so the HTML
 and the PDF carry it alike:
 - subheading "Exact-Route Result";
@@ -625,6 +643,40 @@ Export Result JSON admitted in this session: received result sha256
 {received_result_sha256}, model sha256 {model_sha256}, input manifest
 {input_manifest_ref} sha256 {input_manifest_sha256})". "integrity checked" is
 the session's label (`LoadReferenceStatesBlock.tsx:16`).
+
+**Integrity warnings (owner, 2026-10-26, option A; §0).** The line never reads
+only "integrity checked" while the report's Diagnostics carry an integrity
+warning. An *integrity warning* is an entry of `report_sections.diagnostics`
+(the Diagnostics table) whose code begins `NUMERICAL_INTEGRITY_` and which is
+not `NUMERICAL_INTEGRITY_CHECKS_PASSED` at severity `info`. The source is the
+producer's per-load-case integrity diagnostic
+(`diagnostic:numerical-integrity:<case>`, `core/product_physics/src/lib.rs`
+`append_integrity_report`, `append_integrity_failure`, the recovery-basis and
+range-scaling paths, and `formation_guard::demote`): it publishes
+`NUMERICAL_INTEGRITY_CHECKS_PASSED` at `info`, `NUMERICAL_INTEGRITY_SENSITIVE`
+and `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED` at `warning`, and the
+failure codes (`…_UNRESOLVED`, `…_ASSEMBLY_UNRESOLVED`, `…_FAILED`,
+`…_PHYSICAL_MECHANISM`, `…_NEGATIVE_ENERGY`) at `blocking`; the desktop
+carries each result diagnostic's code and severity into the report
+(`renderableReportInput.ts` `diagnosticsForSections`). A passed code out of its
+`info` severity counts as a warning, so the rule fails toward stating one. When
+the binding holds and there are warnings, the renderer
+(`report_renderer` `exact_integrity_warning_codes`,
+`exact_integrity_warning_lead`) writes before the line above: "integrity
+warning present in the Diagnostics: {code} (see the Diagnostics table under
+Warnings, Assumptions, And Provenance); ", or, for several, "integrity warnings
+present in the Diagnostics: {code}, {code} (…); ", each code once in the
+Diagnostics table's order. On the pressure-source-1 witness (synthetic n05) the
+line therefore reads "Numerical standing: integrity warning present in the
+Diagnostics: NUMERICAL_INTEGRITY_SENSITIVE (see the Diagnostics table under
+Warnings, Assumptions, And Provenance); integrity checked (the Rust reader's
+standing …)". Without an integrity warning the line is unchanged byte for byte.
+The lead names diagnostics the report already shows and states no
+numerical-health state; it is part of the block's meta paragraph, not a result
+row, so the exact report still carries no numerical-health line and the native
+re-derivation of the rows (§3.6, §6.1) is unchanged. A binding that does not
+hold still writes only "not stated (…)". The HTML and the PDF carry the same
+line (one section model, `assemble_report_sections`).
 
 Each consumer checks the binding as far as its inputs reach:
 - the desktop recorded it at admission and re-checked it live before IPC
@@ -661,8 +713,10 @@ reaches a report.
 - `label`: "Nominal section (nominal wall)" and "Reduced section (wall minus
   mill tolerance and corrosion allowance)". The labels move to one exported
   constant shared with `ResultsPanel.tsx:227-230`.
-- `value_display`: `` `${value} ${unit}` ``, the result rows' form, which the
-  Rust side reproduces with `canonical_number` (`bindings.rs:114-117`).
+- `value_display`: `<display value> <display unit>`, the result rows' form
+  including its display rule (`report-package-current-results.md` §2.3 item
+  6), which the Rust side reproduces with the same rule over
+  `canonical_number`.
   `location_ref` and `source_ref` are the headline's `location_ref` and
   `result_ref`.
 - A null key (incomplete coverage) is withheld: `value_display` "withheld: a
@@ -766,6 +820,10 @@ exact identity:
   `binding`, `reader_verdict.rs:88,122`).
 - both are compared with the report, refusing with
   `REPORT-PACKAGE-EXACT-SECTIONS-MISMATCH`;
+- the report's Diagnostics are bound to the source's
+  (`bindings::check_report_diagnostics`, §6.3 item 4), for an exact identity
+  only, refusing with `REPORT-PACKAGE-BINDING-MISMATCH: report diagnostic…`.
+  The native render applies the same function (§3.6);
 - **One projection for both commands.** These functions are public in a new
   `report_package::exact_sections` module, beside `expected_report_result_rows`.
   The source-derived part, `expected_exact_route_core(source)`, covers the
@@ -960,6 +1018,21 @@ Then each command finishes its own checks:
   (`check_manifest_model`, `:502`). The host then re-derives, from the bound
   source and with the functions item 9 uses (§3.5):
   - the result rows (`expected_report_result_rows`);
+  - the rows' references and full-precision checksums
+    (`check_report_result_refs`, item 5's), since the displayed rows are
+    rounded (§3.7) and two sources can display the same rows
+    (`REPORT-EXACT-SECTIONS-MISMATCH: result_export_refs`);
+  - the unit display summary (`check_unit_display_summary`, item 5's): the
+    storage convention, the display policy whose statement the renderer
+    prints, `conversion_performed` exactly when a displayed value is stored
+    in `Pa`, and the stored result units
+    (`REPORT-EXACT-SECTIONS-MISMATCH: unit_display_summary`);
+  - the Diagnostics (`check_report_diagnostics`, item 9's; §6.3 item 4), since
+    the standing line names every integrity warning in them (§3.2): the
+    report's first N entries are the projection of the source's N
+    diagnostics, in order, on code, class, severity, source, affected object,
+    message and remediation, and no entry after them carries a
+    `NUMERICAL_INTEGRITY_` code (`REPORT-EXACT-SECTIONS-MISMATCH: diagnostics`);
   - the exact limitation entries and the profile reference;
   - the `exact_route` section (`expected_exact_route_core`), with
     `model_sha256`, `native_job_id` and `received_bytes_sha256` from steps 2-5.
@@ -1016,8 +1089,8 @@ residual.
 - **Enforced.** After the checks, an exact report's source and model are the
   bytes that a solve job of this app delivered and received, while that job's
   result is in custody. The native host has read them at the native reader's
-  eligible standing. A standalone render's rows and exact sections are derived
-  from that result.
+  eligible standing. A standalone render's rows, Diagnostics and exact sections
+  are derived from that result.
 - **Input manifest.** The host keeps no record of the input manifest a session
   used. The render therefore binds the manifest digest to a manifest whose
   model is the solved model, not to the session's manifest.
@@ -1047,6 +1120,85 @@ residual.
   check would need every render, pressure-free included, to resubmit its
   source. The app's own production caller sends such an input only for a
   result its cell admits (`RenderedReportPanel.tsx:171`).
+
+### 3.7 Readability on every route (§6.3 items 1-3)
+
+Three presentation changes from the owner's review of the §5.5 evidence. They
+are in the shared renderer (or, for the display rule, in the shared row and
+headline projections), so the HTML and the PDF, the native render and the
+package carry them alike, on the exact and the pressure-free route. No input,
+schema, section, package member or identifier changes. The native exact
+render gains two bindings for the display rule (below, and §3.6).
+
+- **Diagnostic evidence (item 1).** In the Diagnostics table of "Warnings,
+  Assumptions, And Provenance", a diagnostic whose code begins
+  `NUMERICAL_INTEGRITY_`, or whose message is longer than 1,000 characters
+  (`DIAGNOSTIC_MESSAGE_TABLE_LIMIT`; the producer's other messages on the
+  committed witnesses are at most 720), gets a short Message cell:
+  "<code phrase> (load case <case>); full text: Diagnostic evidence E<k>"
+  for an integrity code (the producer publishes one per load case, with the
+  case as its affected reference), "<code phrase> (affected: <ref>); full
+  text: Diagnostic evidence E<k>" otherwise. The code phrase is the code in
+  lower case with spaces, first letter capitalised ("Numerical integrity
+  checks passed"). The code and severity cells are unchanged, so the
+  standing line's pointer (§3.2) still finds its code. The section gains a
+  last block, "Diagnostic Evidence (full text)": per label, in table order, a
+  line "E<k>: <code> (<severity>), <load case or affected>" and then the
+  message verbatim as its own paragraph (FR-REP-001: nothing is summarised
+  or dropped). No summary is derived from `numerical_quality`: the native
+  render could not re-derive it.
+- **Display rule (item 3).** Result rows and headlines are displayed by the
+  rule of `report-package-current-results.md` §2.3 item 6 (a `Pa` value in
+  `MPa`, six significant digits, half away from zero, on the decimal text).
+  When the report declares that policy, the Results section opens with the
+  statement "Displayed values: result values and stress headlines are rounded
+  for display to six significant digits, half away from zero, and a value
+  stored in Pa is displayed in MPa (1 MPa = 10^6 Pa, an exact decimal shift).
+  Stored values and units are unchanged; the stored units are listed as
+  Result units in the Model Input Summary." A report declaring another policy
+  (the older invented fixtures) states none, so its bytes are unchanged.
+  The renderer prints what the report declares, so the bound paths check the
+  declaration against the source (Codex review round 1 of #1655):
+  - *The rounded rows.* Two sources whose values differ below the sixth
+    significant digit display the same rows, so the rows alone no longer
+    bind the report to its source. The package's item 5 already binds each
+    row's reference and full-precision checksum
+    (`calculation_report.result_export_refs`) to the source row; the native
+    exact render now applies the same check (`check_report_result_refs`) to
+    the delivered source after the rows (§3.6). The same-run substitute
+    (§5.5, one nodal rotation changed by a relative 1e-6) displays the
+    genuine rows and is refused by it, with or without the genuine
+    received-result checksum.
+  - *The policy and `conversion_performed`.* The package's item 5 requires
+    the policy text and derives `conversion_performed` from the source; the
+    native exact render now applies the same check
+    (`check_unit_display_summary`), so an exact report cannot show MPa values
+    under `conversion_performed: false` or drop the statement under another
+    policy.
+  - *The pressure-free render* is route-blind (§3.6, "A route-blind input"):
+    it receives no source, so neither its rows nor its display summary are
+    bound when it renders, as before this slice; the package binds both when
+    it is saved. The report JSON packet (`ReportPanel.tsx`) is not rendered
+    and keeps its own disclosure (`report-package-current-results.md` §2.3
+    item 5).
+- **Run name (item 2, presentation).** The product producer names every
+  desktop solve `run:preview-linear-static-001`
+  (`core/product_physics/src/lib.rs` `run_id`), and report, result and
+  limitation identifiers derive from it. When the report's run is that name,
+  the header gains a line after the meta line (`run_name_note_text`): "Run
+  name: run:preview-linear-static-001 is the producer's fixed run name for
+  every desktop solve, not an identity of this run; the report, result and
+  limitation identifiers derived from it repeat across runs. This run is
+  identified by its received result sha256 <sha256>." The digest is the
+  checksum of the report's audit reference `result_envelope`
+  `result-envelope:<run>`: on both routes the desktop records the received
+  result's digest there (`renderableReportInput.ts`, payload scope
+  `received_result`), and on the exact route the renderer has checked it
+  against the admission binding's `received_result_sha256` (§3.2). Without
+  that reference the line ends "This report records no received result
+  sha256 that identifies the run." Any other run name adds nothing. No id,
+  binding or fixture id changes; a per-run identity is a remaining item
+  (§6.3).
 
 ## 4. Report provenance: materials, sections, supports and library records (FR-REP-003, every route)
 
@@ -1479,6 +1631,286 @@ Slice (c) follows §4 with these differences, each fail-closed:
 - **Witnesses.** The five exact-route witness requests (`fixtures/reports/invented/exact_report_package_requests/`) each gain their model's material record and value, and with them the report-sections checksum; nothing else in them changes, and the substitute overlay is unchanged. `del1005_export_results_success_input.json` does not change: the Rust test basis (`report_package/tests/common/package_basis.rs`) builds its report with invented provenance and no desktop records, so §1.7's regeneration is a no-op. The shared component projection (`component_provenance_cross_layer_projection.json`) changes the missing component's diagnostic message, written by its vitest's new write mode (`OPENPIPESTRESS_WRITE_COMPONENT_PROVENANCE_PROJECTION`).
 - **Citations moved.** The component record and predicate are `renderableReportInput.ts` `componentProvenanceRecord` and `hasProvenance`, `libraryRefSites` is `libraryImportService.ts:440-457`, and the renderer's provenance tables are in `assemble_report_sections` (`report_renderer/src/lib.rs:846-950`).
 
+### 6.3 Opening as built (§5.1)
+
+The opening follows §5.1 items 1-9 under the ruling of §0, with these
+differences, each fail-closed:
+- **The headless runner stays refused** (§5.4: `headless-runner` is one of
+  the fifteen refused surfaces). Before opening, its package path refused
+  exact identities only through the shared producer's item 0, which now admits
+  them under the desktop profile. The runner's `export-results` therefore
+  refuses a result document with an exact identity under any export profile,
+  before its other bindings, with the code it gave before opening
+  (`REPORT-PACKAGE-ROUTE-NOT-ADMITTED: the headless runner packages no
+  exact-route result; …`; `openpipestress-runner.rs`,
+  `del1005_package_witness.rs` `the_runner_package_path_refuses_the_exact_witness_requests`).
+  The shared root still refuses them under the runner profile
+  (`REPORT-PACKAGE-EXACT-RUNNER-PROFILE`). Why: §5.4 keeps `headless-runner`
+  refused, and only the desktop has the Export Result JSON admission and the
+  native source binding (§3.5, §3.6); the refusal keeps the code the runner
+  gave before opening, and the test pins it by driving the runner binary on
+  each witness request and the same-run substitute, under both profiles.
+- **No test-only set remains.** `EXACT_WITNESS_ADMITTED` and
+  `EXACT_RENDER_WITNESS_ADMITTED` are removed, and the scans' assertion 4 now
+  checks that no set other than `PRODUCTION` is constructed or declared in any
+  source, test code included (the scans' own invented sources excepted). The
+  in-crate witness module stays in the crate and calls the public roots only;
+  the test-only names `assembleExactReportBelowOutputGate` and
+  `assembleReportPackageRequestBelowOutputGate` are removed (their callers use
+  `assembleRenderedReport` and `buildReportPackageRequest`). The witness test
+  file keeps its name, which the committed witness requests record as their
+  generator; only the requests' `description` changed.
+- **Route refusals that stay pinned** use an identity outside the admitted set:
+  physics-retained-1 at the render's step 0, the package's item 0 (producer and
+  reader, the reader's with the committed exact-successor derivative document,
+  which is well formed) and the desktop identity check.
+- **An exact render is local private natively** (Codex review round 1 of
+  #1648, blocking). With genuine custody and texts, a render input whose
+  provenance flags were relabelled public rendered unblocked under
+  `public_report` or with no context, because the renderer's private-record
+  refusal trusts those flags. The native render therefore requires
+  `report_context.export_context == "local_private"` for every input with
+  `exact_route`, after step 0 and before the source binding, and otherwise
+  refuses the command (`REPORT-RENDER-EXACT-CONTEXT-NOT-LOCAL-PRIVATE`; no
+  body and no print view, the lease not grown; the message names no input
+  value) (`report_render_exact.rs` `check_exact_render_context`). The native
+  save (`report_package_save.rs` `check_context`) and the shared producer
+  (bindings item 8) already refuse any context but `local_private`
+  (`REPORT-PACKAGE-REPORT-CONTEXT-NOT-LOCAL-PRIVATE`, no package), and the
+  headless runner refuses exact identities outright. The regression
+  (`report_render_exact_tests.rs`
+  `an_exact_render_or_save_outside_local_private_refuses_whatever_its_provenance_flags`)
+  covers pressure-2 and pressure-source-1 with relabelled provenance under
+  `public_report`, another context, no export context and no report
+  context, through the decoded args and the raw body, and the save and the
+  shared producer.
+- **Native inputs are object form at every depth** (Codex review rounds 2
+  and 3 of #1648, blocking). serde, and the renderer's value-free decode, read
+  a struct written as a JSON array by field order (its positional form),
+  while step 0, the exact context check, the exact detection, the save's
+  disposition screen and the source binding read members by key. Round 2
+  found a positional render input carrying an exact section past all of them;
+  round 3 found a positional provenance record (for example
+  `calculation_report.provenance` with `review_status` `quarantined`) hiding
+  its disposition from the save's screen while the renderer read it, so an
+  unblocked package was produced. A path list of members cannot close this,
+  and round 3's gap was live on the pressure-free route too, so the one
+  shared check landed against main first (#1650) and is described in
+  `report-package-current-results.md` §2.6: `report_renderer::object_form`
+  compares the typed decode with the original JSON, following the decoder
+  exactly. The opening's earlier path-list checks are removed; the exact
+  route uses the same check at the same points, each before any keyed policy
+  check:
+  - the native render, before step 0 and so before the exact context check
+    and the source binding (`report_render_exact.rs` `check_object_form`,
+    `REPORT-RENDER-INPUT-POSITIONAL`; no body or print view, the lease not
+    grown);
+  - the native save, after its canonical parse and before its exact
+    detection, source binding, screen and context checks
+    (`report_package_save.rs` `check_request_object_form`,
+    `REPORT-PACKAGE-SAVE-REQUEST-POSITIONAL`);
+  - the shared producer, after item 0 and before the audit conversion and the
+    bindings (`wire::assemble_wire_request_in`,
+    `REPORT-PACKAGE-REQUEST-POSITIONAL`); the headless runner also refuses
+    exact identities outright (above).
+
+  The audit of the other native commands, the check's constraint on serde
+  aliases and the remaining items (among them the stored-model recovery
+  export's keyed screen over malformed stored rows, W-17's queued check) are
+  recorded there and are not changed here. Pricing (DEL-04-07
+  `memory-budget-decision.md`): the check's by-reference decode is held only
+  during the check and is priced within the existing leases; on the exact
+  witness the whole render command peaks at 6,642,400 bytes within its
+  12,099,728-byte lease and the whole exact save at 45,915,728 when its
+  test runs alone (40,620,336 in the crate's full test run) within
+  110,845,552, each less the buffered body's envelope (counting-allocator
+  figures for these inputs, not proven bounds;
+  `the_genuine_exact_render_and_save_stay_within_their_leases`). Exact-route
+  regressions (`report_render_exact_tests.rs`, pressure-2 and
+  pressure-source-1, decoded args and raw body):
+  `a_positional_provenance_record_refuses_the_render_and_the_save_at_every_depth`
+  (quarantined, rejected and protected-suspected records at every provenance
+  depth of the witness report, the calculation report's own included, render
+  and save; in object form the save's screen refuses them), `a_positional_render_input_refuses_before_any_check`,
+  `a_positional_save_request_refuses_before_any_check` and the
+  legitimate-arrays control
+  `genuine_inputs_with_every_array_field_pass_the_object_form_check`; the
+  producer's
+  `positional_members_refuse_and_a_positional_request_assembles_the_same_package`
+  and the headless binary test's positional variants. The pressure-free
+  regressions and the check's own tests are §2.6's.
+- **The exact save's memory check** now runs through the shared producer's
+  assembly of the admitted package: priced peak 45,915,856 bytes within its
+  110,845,552-byte lease before the object-form check, and with it
+  45,915,728 when the test runs alone, 40,620,336 in the crate's full test
+  run (the render's 6,642,400 within 12,099,728); DEL-04-07
+  `memory-budget-decision.md` records them. After the readability slice
+  (§3.7) and its native display-rule bindings, with the test run alone in
+  a fresh process: the save 45,711,696 within 110,841,136 and the render
+  6,637,888 within 12,097,520; in the crate's full test run, the save
+  40,416,304 and the render 6,076,848.
+- **Readability items (observations on the §5.5 evidence).** Under the
+  owner's ruling on the evidence (§0, option A), item 4's standing line is
+  fixed in #1648 (below). Items 1-3 are built in the readability slice that
+  follows #1648 (§3.7, Agent 0's direction on the owner's review); item 4's
+  headline labelling is not changed and remains. Each was checked against a pressure-free report of today (the
+  committed pressure-free result `fixtures/results/preview_physics_connected_sparse.json`
+  and the headless runner's pressure-free package of
+  `del1005_export_results_success_input.json`); Codex review round 1 of #1648
+  classified them as readability, not correctness, and suggested the
+  improvement given for each:
+  1. the Diagnostics table prints the numerical-integrity evidence as a raw
+     debug dump (`StructuralReport { … PivotEvidence { … } }`), most of each
+     PDF's length. **Pre-existing:** the pressure-free result's
+     `NUMERICAL_INTEGRITY_CHECKS_PASSED` message carries the same dump, and the
+     renderer carries result diagnostics on both routes. *Improvement:* a
+     readable summary with the detail accessible.
+     **Built (readability slice, §3.7):** the table shows a short cell
+     ("Numerical integrity checks passed (load case <case>); full text:
+     Diagnostic evidence E<k>") for every integrity code and every message
+     over 1,000 characters, and the section's last block, "Diagnostic
+     Evidence (full text)", carries each such message verbatim under its
+     label. *Remaining:* none for readability; a structured rendering of the
+     producer's evidence would need a producer change and is not planned;
+  2. limitation ids and scopes name the run `run:preview-linear-static-001`.
+     **Pre-existing:** the product producer names every desktop run so
+     (`product_physics/src/lib.rs:3278`), and the pressure-free report's
+     technical-preview entry carries it; the exact entries (`…:exact:<n>`) add
+     more ids with the same run name. *Improvement:* the producer's run
+     naming.
+     **Built, presentation only (readability slice, §3.7):** on a report of
+     that run name the header states that it is the producer's fixed name for
+     every desktop solve, not an identity of this run, and identifies the run
+     by its received result sha256 (both routes, from the audit reference
+     `result-envelope:<run>`). *Remaining:* a per-run identity: a producer run
+     id that differs per solve (3b), and the report, result and limitation
+     ids that derive from it (3c). The run id is hash-bound in the producer's
+     output, the analysis record and every committed fixture that carries
+     it, so it changes with the producer (`core/product_physics`, priced);
+     not changed here;
+  3. values are printed with every digit. **Pre-existing** for result rows
+     (`reportResultRows.ts:48`, `${value} ${unit}`, e.g. 28.462881029847143 MPa
+     on the pressure-free route). **New** on exact reports: the stress
+     headlines, which quote the producer's summary maxima in Pa (e.g.
+     41354908.75465696 Pa); a pressure-free rendered report has no headline.
+     *Improvement:* a reviewed display-rounding and unit policy.
+     **Resolved (readability slice):** values stored in `Pa` are displayed
+     in `MPa` and every displayed row and headline value is rounded to six
+     significant digits, on the decimal text; stored data unchanged; the
+     report states the rule once at the start of Results. Agent 0 resolved
+     it under the owner's delegation of 2026-10-26
+     (`report-package-current-results.md` §2.3 item 5, display resolution;
+     §3.3, §3.7). The headline above now reads 41.3549 MPa, the row
+     28.4629 MPa. Codex review round 1 of #1655 found that the native exact
+     render then accepted a report whose rounded rows matched the delivered
+     source while its row checksums were another source's, and a report
+     whose display policy or `conversion_performed` was not the source's;
+     the render now binds both with the package's item 5 checks (§3.6,
+     §3.7);
+  4. the pressure-source-1 example (synthetic n05) shows 0 Pa for both
+     headlines, and its standing line says "integrity checked" while
+     Diagnostics carries `NUMERICAL_INTEGRITY_SENSITIVE`. **New:** the standing
+     line and the headlines exist only on exact reports, and the
+     numerical-health line, which on a pressure-free report states the
+     ordinary solve's numerical-health state, is omitted from exact reports
+     (§6.1). Codex found it numerically correct: n05 is pure torsion (1e-8 N·m
+     about RX), so the normal-stress maxima are zero while the torsional shear
+     is not, and the warning describes the ordinary attempt while the
+     retained-source response is the qualified one. *Improvement:* label the
+     headlines explicitly as normal-stress maxima, and distinguish the
+     retained-source eligibility from the ordinary solve's health next to
+     them.
+     **Fixed (standing line; owner, 2026-10-26, option A):** beside an
+     integrity warning in the Diagnostics the standing line now names it and
+     points to it (§3.2): "Numerical standing: integrity warning present in
+     the Diagnostics: NUMERICAL_INTEGRITY_SENSITIVE (see the Diagnostics table
+     under Warnings, Assumptions, And Provenance); integrity checked (the Rust
+     reader's standing …)". The four pressure-2 witnesses carry only
+     `NUMERICAL_INTEGRITY_CHECKS_PASSED` at `info`, so their lines, HTML and
+     PDF are byte-identical to the evidence. The fix is in the shared renderer,
+     so the native render's HTML and print view and the package's HTML and
+     PDF members carry it alike. Regressions:
+     `report_renderer/tests/render.rs`
+     `the_pressure_source_1_standing_line_states_its_integrity_warning_and_points_to_it`
+     (the committed witness's report; the HTML line exactly, never only
+     "integrity checked", the Diagnostics row it points to, no
+     numerical-health row, and the section model the PDF emits) and
+     `every_integrity_warning_is_named_and_a_passed_check_alone_keeps_the_line`
+     (each warning code and severity, several codes once each in table order,
+     a passed code at `info` or another code keeping the line byte for byte,
+     a binding mismatch still "not stated (…)", no standing line without
+     `exact_route`); `report_package` `exact_package_witness_tests.rs`
+     `each_witness_shape_assembles_and_reads_back_through_the_production_roots`
+     (per shape, the HTML member and the PDF member's shown text); and
+     `report_render_exact_tests.rs`
+     `every_witness_shape_binds_natively_renders_and_saves_through_the_production_roots`
+     (per shape, the native render's HTML and print view and the saved
+     package's HTML member). The lead depends on the Diagnostics the report
+     carries. A reviewer then showed that a request whose
+     `NUMERICAL_INTEGRITY_SENSITIVE` entry was deleted, renamed or replaced,
+     with genuine pressure-source-1 custody and texts, was still admitted by
+     the native render, its print view and the package save with the plain
+     "integrity checked" line.
+     **Bound on the exact route (diagnostics slice; HELP_HUMAN: "exact-only.
+     One shared Rust check binding the exact-route report's Diagnostics to
+     the delivered result, used by both the native render and the save.").**
+     One function, `report_package::bindings::check_report_diagnostics(report,
+     source)`, serves the native render's re-derivation (§3.6,
+     `REPORT-EXACT-SECTIONS-MISMATCH: diagnostics`) and the package's item 9
+     for an exact identity (§3.5, `REPORT-PACKAGE-BINDING-MISMATCH: report
+     diagnostic…`), so the save, which runs the shared producer on the
+     delivered source, refuses too. The rule:
+     - the report's first N `report_sections.diagnostics` entries equal
+       `expected_report_diagnostics(source)`, the projection of the source's
+       N `diagnostics`, entry for entry in order, on `code`, `class`,
+       `severity`, `source`, `affected_object`, `message` and `remediation`.
+       The projection mirrors the desktop's `diagnosticsForSections`
+       (`renderableReportInput.ts`), which builds the report: code and
+       message copied; `blocking` or `error` becomes `blocking` with class
+       `SOLVE_BLOCKING`, any other severity is copied with class
+       `ASSUMPTION_WARNING`; source `{diagnostic_source, source}`, or
+       `core/product_physics` when absent or null; affected object
+       `{affected_refs, …}` naming the refs joined by ", ", else the id,
+       else `diagnostic-<index>`; the fixed remediation text. A source
+       diagnostic not of the producer's form refuses. Parity vectors
+       (`fixtures/reports/invented/report_diagnostics_parity.json`, 23
+       vectors, each with its reason) are checked by vitest
+       `reportDiagnostics.parity.test.ts` and by `report_package`
+       `tests/report_diagnostics_parity.rs`;
+     - `provenance` is not bound: the desktop writes the session's record
+       (`sessionProvenance`), which the result does not carry;
+     - the entries the desktop appends after them (component, spring-hanger
+       and subject provenance findings, library findings) are not derived
+       from the result and are not bound, except that none may carry a
+       `NUMERICAL_INTEGRITY_` code, so a forged integrity entry cannot be
+       appended. None of the desktop's appended codes is of that family.
+
+     An integrity warning the result carries can therefore be neither
+     deleted, renamed, replaced, downgraded, edited nor moved, and none can
+     be added, so the standing line's lead is the delivered result's. All
+     five committed witness requests already equal the projection, so none is
+     regenerated, and their HTML, print view and PDF are unchanged. The lease
+     figures are unchanged (the test alone in a fresh process: the save
+     45,711,696 within 110,841,136 and the render 6,637,888 within
+     12,097,520; in the crate's full test run 40,416,304 and 6,076,848).
+     *Remaining:* the pressure-free package (whose report carries no standing
+     line) and the runner profile (which packages no exact identity, §3.5)
+     do not bind the report's Diagnostics to the source; extending the check
+     to them is not done here.
+- **Remaining item (Codex review round 3 of #1648, not changed).** A direct
+  call of the low-level `pdf_emitter` library can emit a relabelled exact
+  report under `public_report`; its production callers (the package assembly
+  and the native commands) enforce the local-private context boundary.
+- **Remaining FR-REP-003 item (Codex review round 1 of #1648, not changed).**
+  `supportSubjects` (`renderableReportInput.ts:381`) gives a record only for a
+  support that carries a `provenance_record`, so a support that carries only a
+  legacy `provenance` note has no record in the report.
+- **Texts.** The same rewording of item 2 also applies to the pressure
+  authoring panel's mode line (`PressureAuthoringPanel.tsx`), which repeated
+  the refusal's list of admitting surfaces. Appendix A.2 adds O15 for the
+  user guide's limitations list, which would otherwise say reports are only for
+  pressure-free results.
+
 ## 7. Verification
 
 **Slice (a).**
@@ -1508,7 +1940,8 @@ Slice (c) follows §4 with these differences, each fail-closed:
 - Rust integration (`core/reporting/report_renderer/tests/render.rs`,
   `core/reporting/pdf_emitter/tests/emit.rs`):
   - the exact block and Library Records render in HTML and PDF;
-  - the standing line is composed from the binding;
+  - the standing line is composed from the binding, and names and points to
+    any integrity warning in the Diagnostics (§3.2, §6.3 item 4);
   - each binding field that disagrees with the report's records refuses with
     `REPORT-EXACT-ADMISSION-BINDING-MISMATCH`;
   - an exact limitation statement outside the table, or exact limitation
@@ -1516,7 +1949,38 @@ Slice (c) follows §4 with these differences, each fail-closed:
     `REPORT-EXACT-LIMITATION-UNREGISTERED`;
   - an unknown field in the new structs refuses;
   - the existing invented inputs render byte-identical;
-  - an exact report has no blocking linter finding.
+  - an exact report has no blocking linter finding;
+  - readability (§3.7): the short Diagnostics cell and the "Diagnostic
+    Evidence (full text)" block with each message verbatim, at and over the
+    1,000-character limit and for every integrity code, on invented
+    diagnostics and on the committed pressure-source-1 witness; the display
+    rule statement once at the start of Results, only under the declared
+    policy; the run-name note in the header with the received-result digest
+    on both routes, and none for another run name; the HTML and the PDF
+    carry them (`the_readability_texts_reach_the_pdf`); and a claims check of
+    the new texts (`the_readability_texts_pass_the_claims_check`: no
+    "acceptance", fewer than three GEN-13 litany terms, WinAnsi-encodable).
+- Display rule (`report-package-current-results.md` §2.3 item 6): the vitest
+  `reportQuantityDisplay.parity.test.ts` and the Rust
+  `report_package/tests/quantity_display_parity.rs` against
+  `report_quantity_display_parity.json`, with `conversion_performed` true
+  only for a displayed `Pa` value; `current_result_package.rs`
+  `the_stored_data_members_keep_their_bytes` (the audit manifest, result
+  export and handoff members keep their `1ee5d0e5dc` hashes; only the
+  rendered members and the manifest change); the native per-shape test
+  checks the three texts in the native render and the saved package. The
+  native display-rule bindings (§3.7; Codex review round 1 of #1655), on
+  pressure-2 straight and pressure-source-1 (`report_render_exact_tests.rs`):
+  `the_render_binds_the_rows_full_precision_checksums_on_both_identities`
+  (a row checksum, two exchanged, a reference and a removed entry, with the
+  displayed rows unchanged, refuse with
+  `REPORT-EXACT-SECTIONS-MISMATCH: result_export_refs`) and
+  `the_render_binds_the_display_policy_and_conversion_on_both_identities`
+  (`conversion_performed` false, the earlier policy with and without it, and
+  another result unit refuse with
+  `REPORT-EXACT-SECTIONS-MISMATCH: unit_display_summary` at the render and
+  with the matching `REPORT-PACKAGE-BINDING-MISMATCH` at the save; the
+  genuine report renders with the statement).
 - Rust integration (`core/reporting/report_package/tests/report_rows_parity.rs`,
   a new `tests/exact_sections_parity.rs`):
   - the suffix rule;
@@ -1595,8 +2059,12 @@ Slice (c) follows §4 with these differences, each fail-closed:
   1. the substitute with the genuine result text, with
      `REPORT-EXACT-SOURCE-NOT-DELIVERED: result` at step 5. A variant keeps
      the genuine `exact_route` binding and is refused at the save's source
-     equality and, as `REPORT-EXACT-SECTIONS-MISMATCH`, at the render's
-     re-derivation;
+     equality and, as `REPORT-EXACT-SECTIONS-MISMATCH: result_export_refs`,
+     at the render's re-derivation: its displayed rows equal the genuine
+     rows at six significant digits (§3.7), and its substituted row's
+     checksum is not the delivered row's. The same refusal holds when the
+     variant also carries the genuine received-result checksum (Codex
+     review round 1 of #1655);
   2. the substitute with its own text as `exact_result_text`, with the same
      code at step 2, because its SHA-256 is not the delivered bytes';
   3. a substituted model (one support stiffness changed, with the model,
@@ -1714,6 +2182,37 @@ Slice (c) follows §4 with these differences, each fail-closed:
   `tests/test_report_sections_contract.py`.
 - The regenerated witnesses and the counting-allocator tests of the package
   request (`report_package_text_parse_stays_within_its_priced_growth`).
+
+**Diagnostics binding (§3.6, §6.3 item 4).**
+- `report_package` `tests/report_diagnostics_parity.rs`: the projection
+  against the shared vectors, a report carrying each vector's projection
+  passes, the vectors cover the stated edge cases, an unreadable source
+  diagnostic refuses (each field), and the check over invented entries
+  refuses each bound field edited, a deletion, a reordering, a truncation and
+  an appended integrity entry (the passed code included), while an appended
+  entry of another code and another provenance pass.
+- vitest `features/report/reportDiagnostics.parity.test.ts`: the desktop's
+  `diagnosticsForSections` against the same vectors, with the session
+  provenance carried unchanged.
+- `report_package` `exact_package_witness_tests.rs`
+  `an_edited_integrity_diagnostic_refuses_at_item_9`: for each of the five
+  witnesses, its first integrity entry deleted, renamed or given another
+  severity, and a forged integrity entry appended, refuse in
+  `assemble_wire_request` and `check_request` with the exact
+  `REPORT-PACKAGE-BINDING-MISMATCH` detail; the genuine witnesses assemble
+  (`each_witness_shape_assembles_and_reads_back_through_the_production_roots`).
+- `report_render_exact_tests.rs`
+  `the_render_and_the_save_bind_the_diagnostics_on_both_identities`: for
+  pressure-2 (straight; its `NUMERICAL_INTEGRITY_CHECKS_PASSED` entry) and
+  pressure-source-1 (its `NUMERICAL_INTEGRITY_SENSITIVE` entry), with genuine
+  custody and texts, the entry deleted, renamed, replaced by the other
+  integrity code and severity, given another severity, its message or
+  affected object edited, moved one place, and a forged integrity entry
+  appended, each refuse the native render (no body or print view; decoded
+  args and raw body) with `REPORT-EXACT-SECTIONS-MISMATCH: diagnostics` and
+  the save (decoded args and raw body) with the exact
+  `REPORT-PACKAGE-BINDING-MISMATCH` detail; the genuine witnesses render,
+  with their standing line in the HTML and the print view, and save.
 
 **Every slice.**
 - GEN-13: `python3 tools/validation/validate_claims_language.py --repo-root .`
@@ -1872,11 +2371,15 @@ New:
 ```
 
 
-### A.2 Texts only opening would change (for the opening decision; not applied)
+### A.2 Texts only opening would change (applied at opening)
 
 O4 is stated against the text as it reads after A.1 G2, and O13 against the
 text as it reads after A.1 G5. Their Olds were checked for one occurrence in
 those texts (revision 5 re-checked both: `count == 1` after G2 and after G5).
+At opening (after slices (b) and (c), #1637 and #1639), every Old O1-O14 was
+checked again (`count == 1` in its file), none had drifted, and each New was
+applied as drafted, with the placeholder replaced by the owner's words of §0.
+O15 was added at opening.
 
 **The placeholders stay placeholders.** "[the owner's opening decision, quoted
 with its date]" (O1, O4, O13) holds the place of the owner's actual words and
@@ -2105,4 +2608,20 @@ New:
 
 ```text
 eligible exact-route results can be rendered and packaged, and the report JSON packet still refuses them
+```
+
+**O15. User guide `docs/user_guide/index.md` :482** (§14, the app's refusals and gaps; added at opening; `docs/user_guide/index.md`)
+
+Old:
+
+```text
+[Current Desktop App](#current-desktop-app-010): reports only as local private
+  documents and only for pressure-free results,
+```
+
+New:
+
+```text
+[Current Desktop App](#current-desktop-app-010): reports only as local private
+  documents, and the report JSON packet only for pressure-free results,
 ```

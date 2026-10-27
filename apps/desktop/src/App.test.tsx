@@ -40,7 +40,7 @@ import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel";
 import { buildMissingDataBlockingPacket, MissingDataBlockingPanel } from "./features/missing-data/MissingDataBlockingPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
-import { ReportPanel } from "./features/report/ReportPanel";
+import { ReportPanel, formatSpringHangerSummary } from "./features/report/ReportPanel";
 import { KnowledgePanel } from "./features/knowledge/KnowledgePanel";
 import { buildStressNeutralExportPacket } from "./features/stress-neutral/StressNeutralExportPanel";
 import { NativePackagePanel, buildNativePackageReview } from "./features/native-package/NativePackagePanel";
@@ -3847,7 +3847,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(projectValidation).getByTestId("project-validation-schema")
         .textContent,
-    ).toContain("schema_version=0.7.0");
+    ).toContain("schema_version=0.8.0");
     expect(
       within(projectValidation).getByTestId("project-validation-round-trip")
         .textContent,
@@ -8976,14 +8976,14 @@ describe("SWBPIPE desktop preview", () => {
     expect(validationPacket.store_migration.migration_scope).toBe(
       "local_store_schema_ddl_only_model_document_schema_tracked_separately_per_dec_019",
     );
-    // DEL-02-05 CLM-003: the bundled preview model is the current 0.7.0
+    // DEL-02-05 CLM-003: the bundled preview model is the current 0.8.0
     // document; the browser preview stores its bytes unchanged.
     expect(validationPacket.model_document_version.status).toBe("current");
     expect(validationPacket.model_document_version.evidence_source).toBe(
       "persistence_operation_envelope",
     );
     expect(validationPacket.model_document_version.source_schema_version).toBe(
-      "0.7.0",
+      "0.8.0",
     );
     expect(validationPacket.store_migration.migrations_applied_on_open).toEqual(
       [],
@@ -10827,6 +10827,49 @@ describe("SWBPIPE desktop preview", () => {
     expect(JSON.stringify(basis)).toBe(before);
   });
 
+  // Report-content correction (2026-10-27): the solver reads `spring_hanger` as a variable spring
+  // hanger (`is_variable_spring_hanger`, core/product_physics/src/lib.rs) and emits the same review
+  // rows for it, so the demo's rows for support:SH-140 are its rows under either spelling. The
+  // report's hanger evidence now carries a `spring_hanger` support, by hanger type, by family, or by a
+  // hanger type padded with U+0085, which the solver's `str::trim` removes (Codex r1, P2). The summary
+  // splits variable and constant-effort by the solver's reading, so each falls in "variable" (P3).
+  it("carries a spring_hanger support's hanger evidence and review rows into the report packet", async () => {
+    const basis = await referenceAnalysis(), { result, analysisRun } = basis;
+    const knowledge = await loadDesignKnowledge(), comparison = buildPreviewComparison({ result, analysisRun });
+    const reviewRows = result.results.filter(row => row.kind === "spring_hanger_user_input_review" && row.entity_ref === "support:SH-140").map(row => row.id);
+    expect(reviewRows.length).toBeGreaterThan(0);
+    const policy = await import("./features/report/reportRedactionProjector"), actualControl = policy.controlReportDomAndJson;
+    const spellings = { hanger_type: "spring_hanger", padded: " spring_hanger ", nel_padded: "\u0085spring_hanger\u0085", family: null } as const;
+    for (const [spelling, hangerType] of Object.entries(spellings)) {
+      const model = structuredClone(basis.model);
+      const hanger = model.supports.find(support => support.id === "support:SH-140")!;
+      expect([hanger.family, hanger.hanger?.hanger_type]).toEqual(["variable_spring_hanger", "variable_spring_hanger"]);
+      hanger.family = "spring_hanger";
+      if (hangerType !== null) hanger.hanger!.hanger_type = hangerType;
+      else delete hanger.hanger!.hanger_type;
+      let observed: any;
+      const spy = vi.spyOn(policy, "controlReportDomAndJson").mockImplementation(input => { observed = input; return actualControl(input); });
+      const { unmount } = render(<ReportPanel model={model} knowledge={knowledge} result={result} analysisRun={analysisRun} comparison={comparison} editorIntents={[]} projectOperation="reference_inspection" projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={null} />);
+      expect(observed).toBeDefined();
+      expect(observed.spring_hanger_evidence_count).toBe(2);
+      expect(observed.spring_hanger_evidence.map((item: { support_ref: string }) => item.support_ref).sort()).toEqual(["support:CE-120", "support:SH-140"]);
+      const evidence = observed.spring_hanger_evidence.find((item: { support_ref: string }) => item.support_ref === "support:SH-140");
+      expect(evidence).toEqual(expect.objectContaining({
+        support_family: "spring_hanger",
+        hanger_type: hangerType ?? "not provided",
+        user_entered_stiffness: { value: 42000, unit: "N/m" },
+        installed_load: { value: 460, unit: "N" },
+        hot_load: { value: 390, unit: "N" },
+        result_refs: reviewRows,
+        protected_content_included: false
+      }));
+      const rows = observed.spring_hanger_evidence.reduce((count: number, item: { result_refs: string[] }) => count + item.result_refs.length, 0);
+      expect([spelling, formatSpringHangerSummary(observed.spring_hanger_evidence)]).toEqual([spelling, `2 hanger records; variable=1; constant_effort=1; rows=${rows}`]);
+      spy.mockRestore();
+      unmount();
+    }
+  });
+
   it("projects a branch record's header and branch SIF provenance into the report packet", async () => {
     // The bundled demo no longer declares a tee (C-120 fix), so this copy of the demo carries a test-local
     // branch record: the removed component:C-120, unchanged.
@@ -11217,14 +11260,14 @@ describe("SWBPIPE desktop preview", () => {
     );
 
     // DEL-02-05 CLM-003 evidence: the saved (edited) model document is the
-    // current 0.7.0 version, with the in-document version authority; nothing
+    // current 0.8.0 version, with the in-document version authority; nothing
     // is migrated.
     const documentVersionLine = within(
       openWorkspaceSection("project"),
     ).getByTestId("project-validation-model-document-version");
     expect(documentVersionLine.textContent).toContain("status=current");
-    expect(documentVersionLine.textContent).toContain("source=0.7.0");
-    expect(documentVersionLine.textContent).toContain("target=0.7.0");
+    expect(documentVersionLine.textContent).toContain("source=0.8.0");
+    expect(documentVersionLine.textContent).toContain("target=0.8.0");
   });
 
   it("queues and applies explicit material creation through the structured operation seam", async () => {

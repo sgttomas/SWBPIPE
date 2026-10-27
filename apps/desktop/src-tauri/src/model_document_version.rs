@@ -2,24 +2,28 @@
 //! `b7-plan.md`, "Current model format").
 //!
 //! The in-document `schema_version` is the sole authority for the model-document
-//! version. Model document 0.7.0 is the one current version; its
+//! version. Model document 0.8.0 is the one current version; its
 //! `pressure_contract` is optional and its absence makes the document
 //! pressure-free. Every other version is refused by name, and nothing is
 //! migrated, upgraded or down-migrated:
 //! - `retired_schema`: an older version (0.1.0, 0.2.0 or any other version
-//!   below 0.7.0 that is not accepted), with a re-author diagnostic;
-//! - `newer_than_supported`: a version above 0.7.0;
+//!   below 0.8.0 that is not accepted), with a re-author diagnostic;
+//! - `newer_than_supported`: a version above 0.8.0;
 //! - `unsupported_schema`: a missing or non-semver version.
 //!
 //! The stored bytes are never rewritten by an open or a save. Contract and
 //! section completeness remain separate from this version-only persistence check.
 
-use open_pipe_stress_product_physics::{
-    is_retired_model_schema_version, retired_model_schema_message, MODEL_SCHEMA_VERSION,
-    MODEL_SCHEMA_VERSION_RETIRED,
-};
 use serde::Serialize;
 use serde_json::Value;
+
+/// What a refused retired project or saved model state means for its recorded
+/// runs (owner ruling, 2026-10-26: "R-c1 A, 0.8.0 a2"; DEL-02-01 Design
+/// `model-document-0.8.0.md` §3.3). The project-store open and save refusal
+/// (`refuse_model_document`) and the saved-state refusal (`model_states.rs`
+/// `refuse_version`) append it to a `retired_schema` refusal; the browser-preview
+/// store appends the same text (`modelSchemaVersion.ts`).
+pub const RETIRED_PROJECT_RUNS_NOTE: &str = "Recorded runs keep their own format and existing read and compare behaviour; this change adds no model-document-version gate for recorded runs. Existing integrity checks and retained-precision/source-reader restrictions still apply. Run history is listed for the active project's id, so this project's runs are reached through a current project with the same project id, and run comparison keeps its eligibility rules.";
 
 /// The version statuses that refuse a document for editing.
 pub const REFUSED_MODEL_DOCUMENT_STATUSES: [&str; 3] =
@@ -40,75 +44,31 @@ impl ModelDocumentVersionStatus {
     pub fn is_refused(&self) -> bool {
         REFUSED_MODEL_DOCUMENT_STATUSES.contains(&self.status.as_str())
     }
-}
 
-fn parse_semver(raw: &str) -> Option<(u64, u64, u64)> {
-    let mut parts = raw.split('.');
-    let major = parts.next()?.parse::<u64>().ok()?;
-    let minor = parts.next()?.parse::<u64>().ok()?;
-    let patch = parts.next()?.parse::<u64>().ok()?;
-    if parts.next().is_some() {
-        return None;
-    }
-    Some((major, minor, patch))
-}
-
-fn status(status: &str, source: &str, target: &str, detail: String) -> ModelDocumentVersionStatus {
-    ModelDocumentVersionStatus {
-        status: status.to_string(),
-        source_schema_version: source.to_string(),
-        target_schema_version: target.to_string(),
-        detail,
+    /// The text a refusal of this status appends after its detail: the recorded-runs
+    /// note for a retired document, nothing otherwise.
+    pub fn refusal_suffix(&self) -> &'static str {
+        if self.status == "retired_schema" { RETIRED_PROJECT_RUNS_NOTE } else { "" }
     }
 }
 
-/// Check a model document's version. Never mutates or rewrites the document.
+/// Check a model document's version. Never mutates or rewrites the document. The
+/// states and texts are the applier's (`model_document_version`), which the TS and
+/// Python checks mirror against `fixtures/model_document/version_states.json`.
 pub fn evaluate_model_document(document: &Value) -> ModelDocumentVersionStatus {
-    let raw = document
-        .get("schema_version")
-        .and_then(Value::as_str)
-        .unwrap_or("");
-    if raw == MODEL_SCHEMA_VERSION {
-        return status(
-            "current",
-            raw,
-            raw,
-            format!("Model document {MODEL_SCHEMA_VERSION} is the current version; a pressure contract, when present, and solve eligibility are validated separately."),
-        );
+    let version = open_pipe_stress_operation_applier::evaluate_model_document_version(document);
+    ModelDocumentVersionStatus {
+        status: version.status.to_string(),
+        source_schema_version: version.source_schema_version,
+        target_schema_version: version.target_schema_version,
+        detail: version.detail,
     }
-    let Some(version) = parse_semver(raw) else {
-        return status(
-            "unsupported_schema",
-            if raw.is_empty() { "missing_schema_version" } else { raw },
-            MODEL_SCHEMA_VERSION,
-            "Model document has no valid semver schema_version; refusing to open it for editing without coercion.".to_string(),
-        );
-    };
-    let current = parse_semver(MODEL_SCHEMA_VERSION).expect("the current version is semver");
-    if version > current {
-        return status(
-            "newer_than_supported",
-            raw,
-            MODEL_SCHEMA_VERSION,
-            format!("Model document schema_version {raw} is newer than the current {MODEL_SCHEMA_VERSION}; refusing to open it for editing (no down-migration)."),
-        );
-    }
-    let detail = if is_retired_model_schema_version(raw) {
-        retired_model_schema_message(raw)
-    } else {
-        format!("model document {raw} is not a supported version; re-author it as model document {MODEL_SCHEMA_VERSION}. Nothing is migrated.")
-    };
-    status(
-        "retired_schema",
-        raw,
-        MODEL_SCHEMA_VERSION,
-        format!("{MODEL_SCHEMA_VERSION_RETIRED}: {detail}"),
-    )
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use open_pipe_stress_product_physics::{MODEL_SCHEMA_VERSION, MODEL_SCHEMA_VERSION_RETIRED};
     use serde_json::json;
 
     fn document(version: &str) -> Value {
@@ -126,15 +86,15 @@ mod tests {
         let before = doc.clone();
         let evaluated = evaluate_model_document(&doc);
         assert_eq!(evaluated.status, "current");
-        assert_eq!(evaluated.source_schema_version, "0.7.0");
-        assert_eq!(evaluated.target_schema_version, "0.7.0");
+        assert_eq!(evaluated.source_schema_version, "0.8.0");
+        assert_eq!(evaluated.target_schema_version, "0.8.0");
         assert!(!evaluated.is_refused());
         assert_eq!(doc, before);
     }
 
     #[test]
     fn retired_versions_are_refused_by_name_with_a_re_author_diagnostic() {
-        for version in ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0"] {
+        for version in ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0"] {
             let mut doc = document(version);
             // A carried contract (here the current one) changes nothing: the version refuses.
             doc["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
@@ -148,7 +108,7 @@ mod tests {
             assert!(!evaluated.detail.contains("migrated in memory"));
         }
         // Any other older version is refused the same way, never migrated.
-        for version in ["0.0.9", "0.3.1", "0.4.9", "0.5.1", "0.6.1"] {
+        for version in ["0.0.9", "0.3.1", "0.4.9", "0.5.1", "0.6.1", "0.7.1"] {
             let evaluated = evaluate_model_document(&document(version));
             assert_eq!(evaluated.status, "retired_schema", "{version}");
             assert!(evaluated.detail.contains("re-author"), "{version}");
@@ -168,7 +128,7 @@ mod tests {
 
     #[test]
     fn newer_versions_are_refused_without_down_migration() {
-        for version in ["0.7.1", "0.8.0", "1.0.0"] {
+        for version in ["0.8.1", "0.9.0", "1.0.0"] {
             let evaluated = evaluate_model_document(&document(version));
             assert_eq!(evaluated.status, "newer_than_supported", "{version}");
             assert!(evaluated.is_refused());
@@ -180,10 +140,32 @@ mod tests {
     fn invalid_or_missing_versions_are_unsupported_not_coerced() {
         let mut missing = document("x");
         missing.as_object_mut().unwrap().remove("schema_version");
-        for doc in [document("not-semver"), document("1.2"), document(" 0.7.0"), missing] {
+        for doc in [document("not-semver"), document("1.2"), document(" 0.8.0"), missing] {
             let evaluated = evaluate_model_document(&doc);
             assert_eq!(evaluated.status, "unsupported_schema");
             assert!(evaluated.is_refused());
+        }
+    }
+
+    /// The desktop gives every state in the shared table (the applier's, the TS and Python checks').
+    #[test]
+    fn every_version_state_matches_the_shared_table() {
+        let table: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/version_states.json")).unwrap();
+        for case in table["cases"].as_array().unwrap() {
+            let mut doc = document(MODEL_SCHEMA_VERSION);
+            match case.get("schema_version") {
+                Some(version) => doc["schema_version"] = version.clone(),
+                None => {
+                    doc.as_object_mut().unwrap().remove("schema_version");
+                }
+            }
+            let evaluated = evaluate_model_document(&doc);
+            let label = case["label"].as_str().unwrap();
+            assert_eq!(evaluated.status, case["status"].as_str().unwrap(), "{label}");
+            assert_eq!(evaluated.source_schema_version, case["source_schema_version"].as_str().unwrap(), "{label}");
+            assert_eq!(evaluated.target_schema_version, case["target_schema_version"].as_str().unwrap(), "{label}");
+            assert_eq!(evaluated.detail, case["detail"].as_str().unwrap(), "{label}");
+            assert_eq!(evaluated.is_refused(), case["code"].is_string(), "{label}");
         }
     }
 }

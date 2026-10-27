@@ -48,20 +48,20 @@ const PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         SPARSE,
-        "139cfdb7d960aa1c5a061ee21cbf48fa55b96f896dc40120b6576a9f8061781c",
-        "a3a2fc6748be7deb006681b493cc858b065b000f3f3427a8dc3ce0f75d7750d8",
+        "7fc66eeef48d03b64da78db705fe5b4d34f12e9b2b90ab0578eb5af9699d3c92",
+        "c238347e1e0f32f1e484e84a0c0e4679be5c86546ab87af59da469cf560d6374",
     ),
     (
         "dense_scrutiny",
         DENSE,
-        "7ce9946465092d416474faf1f455cb9466edd8fb84d3b8a3640a433b27d29d31",
-        "fcb064918059448e3e2a671821a2924f69c4d1da3fabbad105cab9f483297168",
+        "ce0f6a6a80a327fbcdf594b166290cc2c86ca8e91e852ce3de84303f54713357",
+        "51f2d8b75c12305ac184cb4378dc6d543389e958655465032cee3161a89eee49",
     ),
 ];
 /// The committed goldens' file sha256 (= the documents' canonical digests).
 const GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "ee497bffc6fab092da57ac43010ad579f7eaf40232b570acfc7a57f6efa54a39"),
-    ("dense_scrutiny", "4d362dd6a3b64b96516f277b3a931cc5a3332ce977dbf93d5a64b8f89f5ea792"),
+    ("sparse_interactive", "1a1124c51ce1cee7021874be18ae2f374ce40cbe9c7c8f4f079408957bce7151"),
+    ("dense_scrutiny", "0920a5428060c1d0feec6eb665dce4926b0ab812213bd77e36839c8f10d17669"),
 ];
 /// The milestone's validated class counts (as retained_precision_carriers.rs
 /// `CLASSES`): relative, absolute, input-derived, non-quantity and not-covered (T4-U4b: the member's 15
@@ -80,22 +80,22 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "268144bef456b04a1a84b177558cb98e6dfa4ef78a0e5f5b4aa9c09a2daf9cc6",
-        "c00297d82811b5b262002ce04b415629615c7a061f5548919e22543c91f1807f",
+        "df425e31871b43cc704ac44a33612936643a638987128ec655118b46972c51fb",
+        "85e38b97c9cea2579f7851e4c570923ba2ba1494c7226480847f46ca76802ab8",
     ),
     (
         "dense_scrutiny",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "9bc4351e7ee3eaa9dafc9567bec9200b9b8cb6826078e73ae2beb5a2a986e2d9",
-        "44fe0350a5f00b7547ebf78c83a1e58b53ba0ac4db5710edbba89853d35a6aba",
+        "3bb19d83cb9e2c9f3cbbaff82b68053c02a4ede07f11904127c91cacfc4f74c0",
+        "aeb67070108feb991b68d0292cafc341442e789b36cf3a64a38ae24b3ad33e8d",
     ),
 ];
 /// The committed exact goldens' file sha256.
 const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
     // W-15 (DEL-03-05) on W-7: the exact successors restate the pressure-2 identity limitation.
     // W-16 slice b (DEL-05-02): and again (was 9c4756e9.../579878c8...).
-    ("sparse_interactive", "8efaaf26b5742e6181e1683e835bd42aba69c9f82f54db276d4f18e98e0a66c1"),
-    ("dense_scrutiny", "7b2759b18c02fb10117e6cfe90b789ee41bc096a7a9a889e014b9f06bfe03692"),
+    ("sparse_interactive", "e15c27cdcb41d8e07a3da2ede3c901a6c0eb791c7a1706d5ab676f9e65a87a76"),
+    ("dense_scrutiny", "e0c14d0ee0b8084e75f4c0546a35b5b083cfa2f92ad48a41a36a48c8c9755914"),
 ];
 /// The m3x successors' validated class counts (relative, absolute, input-derived,
 /// non-quantity, not-covered). T4-U6 (D-5 §2.5): each of the member's 21

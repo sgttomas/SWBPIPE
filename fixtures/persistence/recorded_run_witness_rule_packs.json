@@ -155,7 +155,7 @@
             "ref": "run:preview-linear-static-001"
           },
           "payload_scope": "analysis_run_record",
-          "value": "31ab7f56d86c02e21baeb68d7db128dbda8ee64f86d65f404f676c411622c87a"
+          "value": "a57eee0462d9588826e555d46567c07b50162f4cbfb74aea513f6112025e0187"
         },
         {
           "algorithm": "sha256",
@@ -211,16 +211,16 @@
             "canonicalization": "rfc8785_jcs",
             "payload_ref": {
               "object_type": "InputManifest",
-              "ref": "input-manifest:project-precision-connected-fixture:b2860cb416c0781fbc500bb3f4c5fb1696dbdccbbcc223f7b1249717f08d8a95"
+              "ref": "input-manifest:project-precision-connected-fixture:8c3e0b66d1d221df51aed323404ccb16d197550bee663102bced6c3e31a18f63"
             },
             "payload_scope": "input_manifest",
-            "value": "b2860cb416c0781fbc500bb3f4c5fb1696dbdccbbcc223f7b1249717f08d8a95"
+            "value": "8c3e0b66d1d221df51aed323404ccb16d197550bee663102bced6c3e31a18f63"
           }
         ],
         "input_manifest_refs": [
           {
             "object_type": "InputManifest",
-            "ref": "input-manifest:project-precision-connected-fixture:b2860cb416c0781fbc500bb3f4c5fb1696dbdccbbcc223f7b1249717f08d8a95"
+            "ref": "input-manifest:project-precision-connected-fixture:8c3e0b66d1d221df51aed323404ccb16d197550bee663102bced6c3e31a18f63"
           }
         ],
         "semantic_contract": {
@@ -4680,7 +4680,7 @@
       "run_name": "run:preview-linear-static-001 analysis record",
       "settings_ref": {
         "object_type": "SolverSettings",
-        "ref": "solver-settings:input-manifest:project-precision-connected-fixture:b2860cb416c0781fbc500bb3f4c5fb1696dbdccbbcc223f7b1249717f08d8a95:b2860cb416c0781fbc500bb3f4c5fb1696dbdccbbcc223f7b1249717f08d8a95"
+        "ref": "solver-settings:input-manifest:project-precision-connected-fixture:8c3e0b66d1d221df51aed323404ccb16d197550bee663102bced6c3e31a18f63:8c3e0b66d1d221df51aed323404ccb16d197550bee663102bced6c3e31a18f63"
       },
       "solver_version": {
         "build_ref": {
@@ -4692,7 +4692,7 @@
       },
       "unit_system_ref": {
         "object_type": "UnitSystem",
-        "ref": "unit-system:project:precision-connected-fixture:b2860cb416c0781fbc500bb3f4c5fb1696dbdccbbcc223f7b1249717f08d8a95"
+        "ref": "unit-system:project:precision-connected-fixture:8c3e0b66d1d221df51aed323404ccb16d197550bee663102bced6c3e31a18f63"
       }
     },
     "deliverable_id": "DEL-14-02",
@@ -4708,8 +4708,8 @@
     "schema_version": "0.3.0",
     "scope_item": "SOW-072"
   },
-  "recording_id": "runrec:31ab7f56d86c02e21baeb68d7db128db",
-  "run_record_hash": "31ab7f56d86c02e21baeb68d7db128dbda8ee64f86d65f404f676c411622c87a",
+  "recording_id": "runrec:a57eee0462d9588826e555d46567c07b",
+  "run_record_hash": "a57eee0462d9588826e555d46567c07b50162f4cbfb74aea513f6112025e0187",
   "state_id": "state:0123456789abcdef0123456789abcdef",
-  "state_model_hash": "sha256:83dc28cdaac0a3b59807ea18efc715ba1fa78765ceeceb0b6a02d26c782d471d"
+  "state_model_hash": "sha256:0d072ec1e8db11d5ebd8267fb09eedcabbb326517dd5525ec8e98efc93c66d23"
 }

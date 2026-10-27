@@ -17,6 +17,37 @@ These sources are accepted as public/official evidence for documented interfaces
 | CAEPIPE-PCF | `https://www.sstusa.com/pdfs/PCF.pdf` | `PD2CAEPIPE - Plant Design-to-CAEPIPE Translator`; `Reference`; `PCF to CAEPIPE component Mapping` | Official/public PCF translator documentation records translator inputs, defaults, mapping behavior, and limitations such as defaulted or externally mapped values. | Supports conservative subset and loss-report planning only; hidden translator behavior and external mapping databases are not reproduced. |
 | GLTF-2.0 | `https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html` | `glTF 2.0 Specification`; `2.4 glTF Basics`; `3.2 Asset`; `3.3 Indices and Names`; `3.4 Coordinate System and Units`; `4 GLB File Format Specification` | Khronos glTF 2.0 defines asset structure, versioning, indices/names, coordinate/units conventions, scenes/nodes, and GLB container semantics for visual exchange. | Review geometry only; not solver geometry equivalence, stress-model proof, or professional acceptance evidence. |
 
+### Current public locations (2026-10-26)
+
+On 2026-10-26 every `https://www.sstusa.com/...` path above answered
+`301 Moved Permanently` to `https://www.sstcae.com` (the site root). The manuals
+are now published at `https://docs.sstcae.com/`, with the same page names: the
+user's manual at `https://docs.sstcae.com/users_manual/caepipe_user_s_manual.htm`
+and the technical reference at `https://docs.sstcae.com/tech_manual/index.htm`.
+Agent 0 made the live pages the primary basis on 2026-10-26; the Internet Archive
+captures of the old URLs are the fallback. Nothing private or vendor-installed is
+cited.
+
+| Source ID | Live page (primary) | Archived copy (fallback) and capture date |
+|---|---|---|
+| CAEPIPE-IMPORT-MBF | `https://docs.sstcae.com/users_manual/import_mbf.htm` (`IMPORT MBF`, `Command line operation`, `Format of .MBF`) | `https://web.archive.org/web/20251112202203/https://www.sstusa.com/docs/users_manual/import_mbf.htm`, 2025-11-12 |
+| CAEPIPE-EXPORT-DATA | `https://docs.sstcae.com/users_manual/export_data_from_caepipe.htm` | `https://web.archive.org/web/20251112203724/https://www.sstusa.com/docs/users_manual/export_data_from_caepipe.htm`, 2025-11-12 |
+| CAEPIPE-EXPORT-MBF | `https://docs.sstcae.com/users_manual/export_mbf.htm` | `https://web.archive.org/web/20251112195234/https://www.sstusa.com/docs/users_manual/export_mbf.htm`, 2025-11-12 |
+| CAEPIPE-BATCH | `https://docs.sstcae.com/users_manual/running_caepipe_caepipe_3d__in_batch_mode.htm` | `https://web.archive.org/web/20251114213552/https://www.sstusa.com/docs/users_manual/running_caepipe_caepipe_3d__in_batch_mode.htm`, 2025-11-14 |
+| CAEPIPE-MBF-EXAMPLE | `https://docs.sstcae.com/users_manual/example_mbf_format.htm` (`Example MBF Format`; record syntax reference only, never copied into fixtures) | `https://web.archive.org/web/20251114215018/https://www.sstusa.com/docs/users_manual/example_mbf_format.htm`, 2025-11-14 |
+| CAEPIPE-PRINT-TO-FILE | `https://docs.sstcae.com/users_manual/print__ctrl_p__2.htm` (`Print (Ctrl+P)`; `To File` exports the selected input and results to `.txt` or `.csv`) | `https://web.archive.org/web/20251114204223/https://www.sstusa.com/docs/users_manual/print__ctrl_p__2.htm`, 2025-11-14 |
+| CAEPIPE-LAYOUT-OFFSETS | `https://docs.sstcae.com/users_manual/dx__dy__dz.htm` (`DX, DY, DZ`; record syntax only) | `https://web.archive.org/web/20251114220005/https://www.sstusa.com/docs/users_manual/dx__dy__dz.htm`, 2025-11-14 |
+| CAEPIPE-NODE | `https://docs.sstcae.com/users_manual/node.htm` (`Node`; record syntax only) | `https://web.archive.org/web/20251114213414/https://www.sstusa.com/docs/users_manual/node.htm`, 2025-11-14 |
+| CAEPIPE-MBF-ABSOLUTE | `https://docs.sstcae.com/users_manual/mbf_generation_in_excel_with_absolute_coordinates.htm` (`MBF Generation in Excel with Absolute Coordinates`; record syntax only, never copied into fixtures) | No capture found (Internet Archive searched 2026-10-26) |
+| CAEPIPE-UNITS | `https://docs.sstcae.com/users_manual/units__ctrl_u_.htm` (`Units (Ctrl+U)`; record syntax only) | `https://web.archive.org/web/20251114202707/https://www.sstusa.com/docs/users_manual/units__ctrl_u_.htm`, 2025-11-14 |
+| CAEPIPE-LOAD-CASES | `https://docs.sstcae.com/users_manual/load_cases.htm` (`Load cases`; case-membership semantics only) | `https://web.archive.org/web/20260515074802/https://www.sstusa.com/docs/users_manual/load_cases.htm`, 2026-05-15 |
+| CAEPIPE-TECH-REF | `https://docs.sstcae.com/tech_manual/index.htm` (CAEPIPE Technical Reference Manual) | Not checked |
+| CAEPIPE-BEND | `https://docs.sstcae.com/tech_manual/bend.htm` (technical reference, `Bend`; end-node naming and section assignment only) | `https://web.archive.org/web/20251112195552/https://www.sstusa.com/docs/tech_manual/bend.htm`, 2025-11-12 |
+| CAEPIPE-FORCE | `https://docs.sstcae.com/tech_manual/force.htm` (technical reference, `Force`; case-membership semantics only) | `https://web.archive.org/web/20251114212139/https://www.sstusa.com/docs/tech_manual/force.htm`, 2025-11-14 |
+| CAEPIPE-ANALYSIS | `https://docs.sstcae.com/users_manual/analysis.htm` (`Analysis`; analysis-option semantics only: number of thermal loads, gravitational acceleration and direction) | `https://web.archive.org/web/20251114203205/https://www.sstusa.com/docs/users_manual/analysis.htm`, 2025-11-14 |
+| CAEPIPE-LOCAL-AXES | `https://docs.sstcae.com/tech_manual/local_coordinate_system.htm` (technical reference, `Local Coordinate System`; pipe local-axis convention only) | `https://web.archive.org/web/20251112192726/https://www.sstusa.com/docs/tech_manual/local_coordinate_system.htm`, 2025-11-12 |
+| CAEPIPE-PCF | Not yet checked under `docs.sstcae.com`; not used by the correlation pilot. | Not checked |
+
 ## Accepted Project References
 
 These sources are accepted project-basis references. They are governance, planning, or workflow sources rather than public target-format evidence.

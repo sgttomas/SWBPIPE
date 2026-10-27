@@ -1,0 +1,819 @@
+{
+  "schema_version": "1.0.0",
+  "description": "Shared parity vectors for the report's projection of a result's diagnostics (DEL-08-01 Design exact-route-report-sections.md sections 3.6 and 6.3 item 4): the desktop's diagnosticsForSections (apps/desktop/src/features/report/renderableReportInput.ts, vitest reportDiagnostics.parity.test.ts), which builds the report's first Diagnostics entries, and the report package's bindings::expected_report_diagnostics (core/reporting/report_package/src/bindings.rs, test tests/report_diagnostics_parity.rs), which checks them on the exact route, must both turn each vector's source diagnostics into its expected entries. The provenance of each entry is the desktop session's and is not part of the projection, so the expected entries omit it. Hand-written; invented values only. Each vector states its reason.",
+  "vectors": [
+    {
+      "reason": "The producer's form: a warning with a source and one affected ref is copied, class ASSUMPTION_WARNING.",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "case:invented"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "No diagnostics: the projection is empty.",
+      "diagnostics": [],
+      "expected": []
+    },
+    {
+      "reason": "Source absent: the source reference names core/product_physics (the desktop's ?? default).",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "affected_refs": [
+            "case:invented"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "Source null: ?? replaces null as it replaces an absent source.",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "source": null,
+          "affected_refs": [
+            "case:invented"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "Source an empty string: ?? keeps it; only an absent or null source takes the default.",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "source": "",
+          "affected_refs": [
+            "case:invented"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": ""
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "Another source is copied.",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "source": "core/product_physics/formation_guard",
+          "affected_refs": [
+            "case:invented"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics/formation_guard"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "affected_refs absent (the producer omits an empty list): the affected object names the id.",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "source": "core/product_physics"
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "diagnostic:invented:a"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "affected_refs an empty list: it joins to the empty text, so the affected object names the id.",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "source": "core/product_physics",
+          "affected_refs": []
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "diagnostic:invented:a"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "affected_refs one empty text: it joins to the empty text, so the affected object names the id.",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "source": "core/product_physics",
+          "affected_refs": [
+            ""
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "diagnostic:invented:a"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "affected_refs null: the affected object names the id.",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "source": "core/product_physics",
+          "affected_refs": null
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "diagnostic:invented:a"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "Two affected refs are joined by a comma and a space, in order.",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "torque",
+            "case"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "torque, case"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "Two empty affected refs join to a comma and a space, which is not empty and is kept.",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "",
+            ""
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": ", "
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "affected_refs absent and the id empty: the affected object names the diagnostic's index (here 1, its position in the source list).",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "case:invented"
+          ]
+        },
+        {
+          "id": "",
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "source": "core/product_physics"
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        },
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "diagnostic-1"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "affected_refs and the id both absent: the affected object names the diagnostic's index (here 2).",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "case:invented"
+          ]
+        },
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "case:invented"
+          ]
+        },
+        {
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "source": "core/product_physics"
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        },
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        },
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "diagnostic-2"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "affected_refs empty and the id null: the index (here 0).",
+      "diagnostics": [
+        {
+          "id": null,
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "source": "core/product_physics",
+          "affected_refs": []
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "diagnostic-0"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "Severity error: the report severity is blocking, class SOLVE_BLOCKING.",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_CODE",
+          "severity": "error",
+          "message": "invented message",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "case:invented"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_CODE",
+          "class": "SOLVE_BLOCKING",
+          "severity": "blocking",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "Severity blocking: blocking, class SOLVE_BLOCKING.",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_CODE",
+          "severity": "blocking",
+          "message": "invented message",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "case:invented"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_CODE",
+          "class": "SOLVE_BLOCKING",
+          "severity": "blocking",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "Severity warning: passed through, class ASSUMPTION_WARNING.",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "case:invented"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "Severity info: passed through, class ASSUMPTION_WARNING.",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_CODE",
+          "severity": "info",
+          "message": "invented message",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "case:invented"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "info",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "An integrity warning (NUMERICAL_INTEGRITY_SENSITIVE at warning) is copied with its code, severity and message.",
+      "diagnostics": [
+        {
+          "id": "diagnostic:numerical-integrity:case",
+          "code": "NUMERICAL_INTEGRITY_SENSITIVE",
+          "severity": "warning",
+          "message": "invented integrity evidence for load case case",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "case"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "NUMERICAL_INTEGRITY_SENSITIVE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case"
+          },
+          "message": "invented integrity evidence for load case case",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "A passed integrity check (NUMERICAL_INTEGRITY_CHECKS_PASSED at info) is copied as info.",
+      "diagnostics": [
+        {
+          "id": "diagnostic:numerical-integrity:case",
+          "code": "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+          "severity": "info",
+          "message": "invented message",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "case"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "info",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "A message with markup, quotes, a newline and non-ASCII text is copied verbatim; escaping is the renderer's.",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "<b>\"invented\"</b>\nline two — µ",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "case:invented"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "<b>\"invented\"</b>\nline two — µ",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    },
+    {
+      "reason": "Several diagnostics keep source order; each affected object falls back on its own id or index.",
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:b",
+          "code": "INVENTED_B",
+          "severity": "warning",
+          "message": "invented message",
+          "source": "core/product_physics"
+        },
+        {
+          "id": "diagnostic:invented:a",
+          "code": "INVENTED_A",
+          "severity": "error",
+          "message": "invented message",
+          "affected_refs": [
+            "case:invented"
+          ]
+        },
+        {
+          "id": "",
+          "code": "INVENTED_C",
+          "severity": "info",
+          "message": "invented message",
+          "source": "core/product_physics",
+          "affected_refs": []
+        }
+      ],
+      "expected": [
+        {
+          "code": "INVENTED_B",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "diagnostic:invented:b"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        },
+        {
+          "code": "INVENTED_A",
+          "class": "SOLVE_BLOCKING",
+          "severity": "blocking",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        },
+        {
+          "code": "INVENTED_C",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "info",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "diagnostic-2"
+          },
+          "message": "invented message",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
+    }
+  ]
+}

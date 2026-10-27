@@ -47,7 +47,7 @@ PINS = {
     # narrows admission. The component, region and load-state refusals are unchanged.
     "core/product_physics/src/retained_memory.rs": {
         "namespace_branch": "b1f8f02df1f10552a69c357ebc329fa801243addc94d595403ab9313f79cf805",
-        "family_clauses": "2e23cc04f4e6e12a08e9c8dc2fedaad5bd7efee9cbd1d175492c00f24a7afbcc",
+        "family_clauses": "74954532694363a2046e96f1c297872f0620d1d10320baf896e0dd42f5e80b2d",
     },
 }
 # B7b: the production prefix deletes v2's declaration, refusal and negative-pressure
@@ -71,7 +71,9 @@ PINS = {
 # W-15 D3 (§8.21): validate_profile refuses a reducer whose mapped member belongs to a case's pressure region
 # (exact_admission::reducer_region_refusals; diagnostics only). Under D1 no component is admitted (P2) and E's regions
 # are explicitly empty (D1.5), so it collects nothing. No carrier, child or staging changes.
-PRESSURE_PREFIX_PIN = "296df65d9ad72e257b48a2dd6b02156a394099f6ac0b70ef7199564269404b12"
+# Model document 0.8.0 D3 (§8.26): the same two validate_profile texts format the shared crate::MODEL_SCHEMA_VERSION
+# constant (S1B-MV) in place of the literal, same bytes; diagnostics only. No carrier, child or staging changes.
+PRESSURE_PREFIX_PIN = "0c7083a590fbb4e2ad031e7e1a4599f6ee49c81b3560bef0d447da0cc057493b"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
 
