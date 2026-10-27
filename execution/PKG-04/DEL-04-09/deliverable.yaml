@@ -6,16 +6,18 @@ needs:
     DEL-04-09 forms K_ff by DEL-04-01's kernel assembly and partitioned restraint reduction
     (`reduce_system…`, `reduce_assembled_sparse_system`), including the curved-bend macro-element
     (`curved_bend`, its arc length and `consistent_uniform_nodal_loads` for the arc resultant check). Its
-    modal formation check re-forms K at p128 through one new read-only frame_kernel entry exposing K-D5's
-    element re-formation (`intended_stiffness_pass`, `formation_check.rs`) without K-D5's D5C1 criterion,
-    which judges a static correction and is not reused (M1b), and evaluates residuals with `exact_sum`.
-    The sparse path uses `sparse_direct`'s public API (`reverse_cuthill_mckee`,
-    `SymmetricProfileMatrix::from_entries_with_order`, `factorize_ldlt` with its `nonpositive_pivot_count`
-    and `first_nonpositive_pivot`, and `solve_ordered`) plus one new read-only accessor on
-    `ProfileFactorization` returning max|L_ij| and the pivot magnitudes, with no mutation and no allocation
-    (M2). Both seams are additions to DEL-04-01's code in priced crates, re-registered under D3 in their
-    change. The Sturm count relies on `nonpositive_pivot_count` being the number of negative pivots of the
-    unpivoted LDLᵀ (Design §3.3, §3.4).
+    modal formation check re-forms K, in at least double-double precision, through one new read-only
+    frame_kernel entry exposing K-D5's p128 element re-formation (`intended_stiffness_pass`,
+    `formation_check.rs`) without K-D5's D5C1 criterion, which judges a static correction and is not
+    reused (M1b), and evaluates residuals with `exact_sum`. Both paths take their Sturm counts from
+    `sparse_direct`'s public API (`reverse_cuthill_mckee`, `SymmetricProfileMatrix::from_entries_with_order`,
+    `factorize_ldlt` with its `nonpositive_pivot_count` and `first_nonpositive_pivot`, and `solve_ordered`)
+    plus one new read-only accessor on `ProfileFactorization` returning max|L_ij| and the pivot magnitudes,
+    with no mutation and no allocation (M1b, used unchanged by M2's sparse path). Both seams are additions
+    to DEL-04-01's code in priced crates, re-registered under D3 in their change. The Sturm count relies
+    on `nonpositive_pivot_count` being the number of negative pivots of the unpivoted LDLᵀ, and is relied
+    on only at shifts separated from the computed eigenvalues by a stated multiple of the estimated
+    backward error that the accessor's growth observations feed (Design §3.2, §3.3, §3.4).
   gating: true
   evidence: core/solver/sparse_direct/src/lib.rs
 - from: DEL-04-02
@@ -68,8 +70,8 @@ needs:
   evidence: core/product_physics/src/rigid_component.rs
 - from: DEL-04-08
   condition: >-
-    F1 touches priced sources (PP `lib.rs`, `self_weight.rs`, the `sparse_direct` accessor, the frame_kernel
-    re-formation entry, and DEL-02-02's unit families in `core/units`) and the reviewed
+    F1 touches priced sources (PP `lib.rs`, `self_weight.rs`, the `sparse_direct` accessor and the frame_kernel
+    re-formation entry, both in M1b, and DEL-02-02's unit families in `core/units`) and the reviewed
     `core/product_physics/Cargo.lock`. Each such change is
     re-registered under DEL-04-08's actual-source pricing law (D3, `tools/retained_pricing`) in the change
     that makes it, and keeps the AC-004 stack witnesses passing. F1 never enters the retained Direct entry
@@ -141,5 +143,5 @@ code_paths:
 - validation/references/f1_modal/**
 - apps/desktop/src/features/results/ModalResultsPanel*
 - apps/desktop/src/features/viewport/modeShapeOverlay*
-# Planned checks: registered by each slice (ScopeOfWork VER-001 to VER-009).
+# Planned checks: registered by each slice (ScopeOfWork VER-001 to VER-010).
 checks: []
