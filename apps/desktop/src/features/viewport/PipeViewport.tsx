@@ -2433,21 +2433,6 @@ export function PipeViewport({
           >
             Grid
           </button>
-          <span className="viewport-element-axes-toggle" role="group" aria-label="Element axes">
-            {([null, "local", "global"] as const).map((frame) => (
-              <button
-                key={frame ?? "off"}
-                type="button"
-                data-testid={`viewport-element-axes-${frame ?? "off"}`}
-                aria-pressed={elementAxesFrame === frame}
-                className={elementAxesFrame === frame ? "active" : ""}
-                onClick={() => setElementAxesFrame(frame)}
-                title={frame === "local"
-                  ? "Show each member's local axes: x from its From node to its To node, y from its y_reference, z = x × y"
-                  : frame === "global" ? "Show the model's global X, Y and Z axes at each member" : "Hide the element axes"}
-              >{frame === "local" ? "Local axes" : frame === "global" ? "Global axes" : "No axes"}</button>
-            ))}
-          </span>
           {result ? (
             <>
               <button
@@ -2472,6 +2457,21 @@ export function PipeViewport({
               </button>
             </>
           ) : null}
+        </div>
+        <div className="viewport-display-toggles viewport-element-axes-toggle" role="group" aria-label="Element axes">
+          {([null, "local", "global"] as const).map((frame) => (
+            <button
+              key={frame ?? "off"}
+              type="button"
+              data-testid={`viewport-element-axes-${frame ?? "off"}`}
+              aria-pressed={elementAxesFrame === frame}
+              className={elementAxesFrame === frame ? "active" : ""}
+              onClick={() => setElementAxesFrame(frame)}
+              title={frame === "local"
+                ? "Show each member's local axes: x from its From node to its To node, y from its y_reference, z = x × y"
+                : frame === "global" ? "Show the model's global X, Y and Z axes at each member" : "Hide the element axes"}
+            >{frame === "local" ? "Local axes" : frame === "global" ? "Global axes" : "No axes"}</button>
+          ))}
         </div>
         <div className="viewport-selection-tools" role="group" aria-label="Viewport selection tools">
           <button
