@@ -166,7 +166,8 @@ import type { EntityKey, OrderedSelectionState, SelectionModifiers } from "./sel
 import {
   clonePreviewModel,
   selectionForOperationOutcome,
-  uiModelIdentityHash
+  uiModelIdentityHash,
+  type SessionModelCheckpoint
 } from "./sessionModel";
 import { commitModelAfterSolveInvalidation } from "./solveGates";
 import {
@@ -714,18 +715,38 @@ export function useWorkspaceSession() {
   // only a change to the model or project on screen supersedes the blank.
   const modelCommitEpochRef = useRef(0);
 
+  // A model commit is split so that an apply path can order it as Prepare,
+  // Publish, Notify: `prepareModelPublication` holds the fallible work and
+  // changes nothing; `publishModel` only assigns session state and
+  // session-owned refs; `retireViewportBoxGesture` calls out to the viewport.
+  // `commitModel` keeps the earlier behaviour for every other caller: the
+  // viewport is told first, so its failure still precedes publication.
+  type ModelPublication = Readonly<{ model: PreviewModel; identityHash: string }>;
+
+  function prepareModelPublication(nextModel: PreviewModel): ModelPublication {
+    return { model: nextModel, identityHash: uiModelIdentityHash(nextModel) };
+  }
+
+  function retireViewportBoxGesture() {
+    viewportViewCommandRef.current?.({ type: "retire-box-gesture" });
+  }
+
   function commitModel(nextModel: PreviewModel, directDraftToken: string | null = null) {
+    retireViewportBoxGesture();
+    publishModel(prepareModelPublication(nextModel), directDraftToken);
+  }
+
+  function publishModel(prepared: ModelPublication, directDraftToken: string | null = null) {
+    const { model: nextModel, identityHash } = prepared;
     modelCommitEpochRef.current += 1;
     referencePersistence.current = null;
     modelHashOwner.current = null;
-    viewportViewCommandRef.current?.({ type: "retire-box-gesture" });
     invalidateReportPackageComputedState();
     const assignmentStartedAt = performance.now();
     const modelPublicationGeneration = ++nextUiModelPublicationGeneration;
     publishUiModelAssignmentStarted(modelPublicationGeneration, assignmentStartedAt);
     const nextUiModelRevision = uiModelRevisionRef.current + 1;
     const indexGeneration = `${projectSessionGenerationRef.current}:${nextUiModelRevision}`;
-    const identityHash = uiModelIdentityHash(nextModel);
     setModelAssignment({
       status: "started",
       generation: modelPublicationGeneration,
@@ -1360,23 +1381,31 @@ export function useWorkspaceSession() {
       }
       if (!registered()) throw new Error("The batch was withdrawn from the review queue; its result was discarded.");
       if (!apply) registration.validated = { fingerprint, outcome };
-      setBatchOutcomes((current) => ({ ...current, [entry.key]: outcome }));
-      if (!apply || outcome.validation.application_status !== "applied_to_session_model") return;
+      // A validation, or an apply that did not apply, is shown at once. An
+      // applied outcome is published only with its model, below, so a failed
+      // preparation keeps the earlier preview and its Apply gate.
+      if (!apply || outcome.validation.application_status !== "applied_to_session_model") {
+        setBatchOutcomes((current) => ({ ...current, [entry.key]: outcome }));
+        return;
+      }
       if (!outcome.applied_model || !outcome.acceptance || outcome.simulation_disposition !== "committed_as_one_batch") {
         throw new Error("The batch did not return a complete application receipt; the model was not changed.");
       }
-      setUndoStack((current) => [{
+      // Prepare: every value the publication needs, computed before any state
+      // changes. A failure here leaves the history, receipts, review context,
+      // applied operations, registration and queue as they were.
+      const appliedModel = outcome.applied_model;
+      const publication = prepareModelPublication(appliedModel);
+      const checkpoint: SessionModelCheckpoint = {
         checkpoint_id: `undo-${entry.key}`,
         operation_id: entry.batch.batch_id,
         model: clonePreviewModel(entry.basisModel),
         selection: selection ?? defaultSelection(entry.basisModel)
-      }, ...current].slice(0, 25));
-      setRedoStack([]);
-      setBatchReceipts((current) => [...current, { batch: entry.batch, outcome }]);
-      setRetainedReviewContext((current) => [...current, ...structuredClone(entry.batch.operations)]);
-      setAppliedOperations((current) => [...current, {
-        receipt_id: `applied-${entry.key}`,
-        sequence: current.length + 1,
+      };
+      const batchReceipt = { batch: entry.batch, outcome };
+      const reviewContext = structuredClone(entry.batch.operations);
+      const appliedReceiptId = `applied-${entry.key}`;
+      const appliedFields: Omit<AppliedOperationReceipt, "receipt_id" | "sequence"> = {
         operation_id: entry.batch.batch_id,
         change_id: entry.batch.batch_id,
         target_object_type: "Model",
@@ -1389,15 +1418,42 @@ export function useWorkspaceSession() {
         acceptance: outcome.acceptance!,
         diagnostics: outcome.diagnostics,
         professional_boundary: outcome.professional_boundary
-      }]);
-      commitModel(outcome.applied_model);
-      preserveAndPruneSelection(outcome.applied_model);
+      };
+      // The index under the generation `publishModel` assigns, as
+      // `preserveAndPruneSelection` would build it after the commit.
+      const appliedIndex = modelIndexFor(appliedModel, projectSessionGenerationRef.current, uiModelRevisionRef.current + 1);
+      const prunedSelection = pruneSelection(
+        orderedSelectionRef.current,
+        new Set(appliedIndex.entities.keys()),
+        { type: "project", id: appliedModel.project.id }
+      );
+      const appliedSolveJob = sessionHistoryChangedSolveJob("batch", entry.batch.batch_id);
+
+      // Publish: one synchronous block of state setters and session-owned ref
+      // writes; nothing here throws.
+      setBatchOutcomes((current) => ({ ...current, [entry.key]: outcome }));
+      setUndoStack((current) => [checkpoint, ...current].slice(0, 25));
+      setRedoStack([]);
+      setBatchReceipts((current) => [...current, batchReceipt]);
+      setRetainedReviewContext((current) => [...current, ...reviewContext]);
+      setAppliedOperations((current) => [...current, { receipt_id: appliedReceiptId, sequence: current.length + 1, ...appliedFields }]);
+      publishModel(publication);
+      commitSelectionState(prunedSelection, appliedModel);
       batchRegistrations.current.delete(entry.key);
       setQueuedBatches((current) => current.filter((candidate) => candidate.key !== entry.key));
-      clearComputedModelState(sessionHistoryChangedSolveJob("batch", entry.batch.batch_id));
+      clearComputedModelState(appliedSolveJob);
       setProposal(null);
       setSelectedReviewTarget(null);
-      setBatchMessage("Batch applied once. Previous solve results were cleared; one undo checkpoint is available.");
+      const appliedMessage = "Batch applied once. Previous solve results were cleared; one undo checkpoint is available.";
+      setBatchMessage(appliedMessage);
+
+      // Notify: external callbacks, each caught and reported; the published
+      // batch is not rolled back.
+      try {
+        retireViewportBoxGesture();
+      } catch (error) {
+        setBatchMessage(`${appliedMessage} The viewport did not retire its box gesture: ${nativeFailureText(error)}`);
+      }
     } catch (error) {
       if (stillCurrent()) setBatchMessage(`Batch request failed: ${nativeFailureText(error)}`);
     } finally {
