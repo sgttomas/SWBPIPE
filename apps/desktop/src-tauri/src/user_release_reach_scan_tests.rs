@@ -2,7 +2,7 @@
 //! `report-user-release.md` §2.8, §6). Standard claim fence applies (claims
 //! taxonomy per DEC-081).
 
-use crate::user_release_reach_scan::{project_sources, scan, scan_reading, Sources, CRATES};
+use crate::user_release_reach_scan::{cargo_crate, crate_sources, project_sources, scan, scan_reading, CrateTarget, Sources, BUILD_DEPENDENCIES, CRATES, TARGETS};
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
 
@@ -376,8 +376,15 @@ fn admit_user_released(request: Value) -> Result<Outcome, String> {
 }
 "),
     );
-    let manifests = CRATES.iter().map(|(key, _)| (key.to_string(), format!("[package]\nname = \"{key}\"\n\n[lib]\npath = \"src/lib.rs\"\n"))).collect();
-    Sources { files, manifests, bin_dirs: BTreeSet::new() }
+    let targets = TARGETS
+        .iter()
+        .map(|(key, targets)| {
+            let targets = targets.iter().map(|(kind, name, src_path)| CrateTarget { kind: kind.to_string(), name: name.to_string(), src_path: src_path.to_string() }).collect();
+            (key.to_string(), targets)
+        })
+        .collect();
+    let build_dependencies = BUILD_DEPENDENCIES.iter().map(|(key, names)| (key.to_string(), names.iter().map(|name| name.to_string()).collect())).collect();
+    Sources { files, targets, build_dependencies, bin_dirs: BTreeSet::new() }
 }
 
 /// `invented()` with one exact edit (`old` must occur once in `file`).
@@ -495,11 +502,11 @@ fn user_release_reach_scan_finds_each_break() {
         ("a missing module file", appended(LIB, "mod missing;\n"), "the module missing has no file"),
         ("a module that matches both candidates", with_file("report_package/src/both/mod.rs", "\n", with_file("report_package/src/both.rs", "\n", appended(LIB, "mod both;\n"))), "matches both"),
         ("a production file that does not parse", appended(LIB, "fn broken( {\n"), "does not parse"),
-        ("a [[bin]] target", {
+        ("a bin target", {
             let mut sources = invented();
-            sources.manifests.get_mut("report_package").unwrap().push_str("\n[[bin]]\nname = \"x\"\n");
+            sources.targets.get_mut("report_package").unwrap().push(CrateTarget { kind: "bin".to_string(), name: "x".to_string(), src_path: "report_package/src/lib.rs".to_string() });
             sources
-        }, "declares a [[bin]] target"),
+        }, "report_package: Cargo builds the bin target x from report_package/src/lib.rs, which is not on the target allow-list"),
         ("a src/bin directory", {
             let mut sources = invented();
             sources.bin_dirs.insert("pdf_emitter".to_string());
@@ -969,5 +976,273 @@ fn user_release_reach_scan_admits_the_review_r4_ordinary_forms() {
     for (case, sources) in passing {
         let findings = scan(&sources);
         assert!(findings.is_empty(), "{case}: {findings:#?}");
+    }
+}
+
+/// Code review r5 at #1682: Cargo reports exactly the allow-listed targets and
+/// build-dependencies of each real crate ([`TARGETS`]), and the scan reads
+/// each library root Cargo reports.
+#[test]
+fn cargo_reports_exactly_the_allow_listed_targets() {
+    let project = project();
+    for (key, root) in CRATES {
+        let (targets, build_dependencies) = cargo_crate(key, &project.join(root)).unwrap_or_else(|error| panic!("{key}: {error}"));
+        let expected = TARGETS.iter().find(|(crate_key, _)| *crate_key == key).unwrap().1;
+        let mut expected: Vec<CrateTarget> = expected.iter().map(|(kind, name, src_path)| CrateTarget { kind: kind.to_string(), name: name.to_string(), src_path: src_path.to_string() }).collect();
+        expected.sort();
+        assert_eq!(targets, expected, "{key}");
+        let expected_build: BTreeSet<String> = BUILD_DEPENDENCIES.iter().find(|(crate_key, _)| *crate_key == key).unwrap().1.iter().map(|name| name.to_string()).collect();
+        assert_eq!(build_dependencies, expected_build, "{key}");
+    }
+    let (findings, read) = scan_reading(&project_sources(&project));
+    assert!(findings.is_empty(), "{findings:#?}");
+    for root in ["src-tauri/src/lib.rs", "src-tauri/src/main.rs", "report_package/src/lib.rs", "report_renderer/src/lib.rs", "pdf_emitter/src/lib.rs"] {
+        assert!(read.contains(root), "{root}: {read:?}");
+    }
+    for not_read in ["src-tauri/build.rs", "report_package/tests/container.rs", "pdf_emitter/tests/emit.rs"] {
+        assert!(!read.contains(not_read), "{not_read} is read");
+    }
+}
+
+/// Code review r5 at #1682 (P3): `#![forbid(unsafe_code)]` is admitted only
+/// among the crate root's own `syn::File` attributes. An inner `#![forbid]` in
+/// a nested module of a reporting `src/lib.rs`, inline or outlined, is a
+/// finding; so is any other target set, on invented targets.
+#[test]
+fn user_release_reach_scan_finds_the_review_r5_classes() {
+    let not_listed = "the attribute #[forbid] is not on the attribute list";
+    let target = |key: &str, kind: &str, name: &str, src_path: &str| {
+        let mut sources = invented();
+        sources.targets.get_mut(key).unwrap().push(CrateTarget { kind: kind.to_string(), name: name.to_string(), src_path: src_path.to_string() });
+        sources
+    };
+    let mut cases: Vec<(String, Sources, String)> = Vec::new();
+    for root in [LIB, "report_renderer/src/lib.rs", "pdf_emitter/src/lib.rs"] {
+        cases.push((format!("a nested inline module's #![forbid] in {root}"), appended(root, "mod extra_fence { #![forbid(unsafe_code)] }\n"), not_listed.to_string()));
+        cases.push((format!("a nested module's #![forbid] in a block in {root}"), appended(root, "fn f() { mod extra_fence { #![forbid(unsafe_code)] } }\n"), not_listed.to_string()));
+    }
+    cases.push((
+        "an outlined module's #![forbid]".to_string(),
+        with_file_text("report_package/src/extra_fence.rs", "#![forbid(unsafe_code)]\n", appended(LIB, "mod extra_fence;\n")),
+        format!("report_package/src/extra_fence.rs:1: {not_listed}"),
+    ));
+    for (kind, name, src_path) in [
+        ("bin", "x", "report_renderer/src/main.rs"),
+        ("example", "x", "report_renderer/examples/x.rs"),
+        ("bench", "x", "report_renderer/benches/x.rs"),
+        ("custom-build", "build-script-build", "report_renderer/build.rs"),
+        ("proc-macro", "x", "report_renderer/src/lib.rs"),
+        ("test", "x", "report_renderer/tests/x.rs"),
+        ("test", "render", "report_renderer/tests/other.rs"),
+        ("bin", "openpipestress-desktop-2", "src-tauri/src/bin/two.rs"),
+    ] {
+        let key = src_path.split('/').next().unwrap();
+        cases.push((format!("an added {kind} target {name}"), target(key, kind, name, src_path), format!("{key}: Cargo builds the {kind} target {name} from {src_path}, which is not on the target allow-list")));
+    }
+    cases.push((
+        "another library root".to_string(),
+        {
+            let mut sources = with_file_text("report_package/src/review_alternate.rs", "#![forbid(unsafe_code)]\n", invented());
+            let library = sources.targets.get_mut("report_package").unwrap().iter_mut().find(|target| target.kind == "lib").unwrap();
+            library.src_path = "report_package/src/review_alternate.rs".to_string();
+            sources
+        },
+        "report_package: Cargo's library root is report_package/src/review_alternate.rs, not report_package/src/lib.rs".to_string(),
+    ));
+    cases.push((
+        "an allow-listed test missing".to_string(),
+        {
+            let mut sources = invented();
+            sources.targets.get_mut("pdf_emitter").unwrap().retain(|target| target.kind != "test");
+            sources
+        },
+        "pdf_emitter: Cargo does not build the allow-listed test target emit from pdf_emitter/tests/emit.rs".to_string(),
+    ));
+    cases.push((
+        "no targets reported".to_string(),
+        {
+            let mut sources = invented();
+            sources.targets.remove("report_renderer");
+            sources
+        },
+        "report_renderer: Cargo reports no target".to_string(),
+    ));
+    cases.push((
+        "a build-dependency of a reporting crate".to_string(),
+        {
+            let mut sources = invented();
+            sources.build_dependencies.get_mut("report_package").unwrap().insert("cc".to_string());
+            sources
+        },
+        "report_package: the build-dependencies are".to_string(),
+    ));
+    for (case, sources, expected) in cases {
+        let findings = scan(&sources);
+        assert!(findings.iter().any(|finding| finding.contains(&expected)), "{case}: expected {expected:?} in {findings:#?}");
+    }
+    // The nested forbid on the real sources gives exactly that finding.
+    let mut sources = project_sources(&project());
+    sources.files.get_mut(LIB).unwrap().push_str("mod extra_fence { #![forbid(unsafe_code)] }\n");
+    let findings = scan(&sources);
+    assert_eq!(findings.len(), 1, "{findings:#?}");
+    assert!(findings[0].starts_with(LIB) && findings[0].contains(not_listed), "{findings:#?}");
+}
+
+/// A scratch copy of one real crate (its manifest, lock file, `src/` and
+/// `tests/`), removed on drop, so that Cargo itself reads an edited layout.
+struct ScratchCrate {
+    base: std::path::PathBuf,
+    dir: std::path::PathBuf,
+}
+
+impl ScratchCrate {
+    fn of(key: &str) -> ScratchCrate {
+        fn copy(from: &Path, to: &Path) {
+            std::fs::create_dir_all(to).unwrap();
+            for entry in std::fs::read_dir(from).unwrap() {
+                let path = entry.unwrap().path();
+                let target = to.join(path.file_name().unwrap());
+                if path.is_dir() {
+                    copy(&path, &target);
+                } else {
+                    std::fs::copy(&path, &target).unwrap();
+                }
+            }
+        }
+        static NEXT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+        let number = NEXT.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        let base = std::env::temp_dir().join(format!("swbpipe-reach-scan-{}-{number}", std::process::id()));
+        let root = CRATES.iter().find(|(crate_key, _)| *crate_key == key).unwrap().1;
+        let source = project().join(root);
+        let dir = base.join(key);
+        std::fs::create_dir_all(&dir).unwrap();
+        for file in ["Cargo.toml", "Cargo.lock"] {
+            if source.join(file).is_file() {
+                std::fs::copy(source.join(file), dir.join(file)).unwrap();
+            }
+        }
+        for directory in ["src", "tests"] {
+            if source.join(directory).is_dir() {
+                copy(&source.join(directory), &dir.join(directory));
+            }
+        }
+        ScratchCrate { base, dir }
+    }
+
+    fn write(&self, path: &str, text: &str) {
+        let path = self.dir.join(path);
+        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+        std::fs::write(path, text).unwrap();
+    }
+
+    fn edit(&self, path: &str, old: &str, new: &str) {
+        let text = std::fs::read_to_string(self.dir.join(path)).unwrap();
+        assert_eq!(text.matches(old).count(), 1, "{path}: {old}");
+        self.write(path, &text.replacen(old, new, 1));
+    }
+
+    /// The scan over the real sources with this crate's part read from the
+    /// scratch copy, its targets as Cargo reports them there.
+    fn scan(&self, key: &str) -> Vec<String> {
+        let mut sources = project_sources(&project());
+        sources.files.retain(|file, _| !file.starts_with(&format!("{key}/")));
+        sources.bin_dirs.remove(key);
+        crate_sources(key, &self.dir, &mut sources);
+        scan(&sources)
+    }
+}
+
+impl Drop for ScratchCrate {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.base);
+    }
+}
+
+/// Code review r5 at #1682 (P2s), each on a scratch copy of a real crate, so
+/// that Cargo decides the targets: an alternate library root (`[ lib ]`, or
+/// a `path` line with `"src/lib.rs"` in a comment), an automatically
+/// discovered `src/main.rs` in each reporting crate, `src/bin/x.rs`,
+/// `build.rs`, `benches/x.rs`, a declared `[[bin]]` and `[[example]]`,
+/// `autobins = true` with a binary, a proc-macro library and an unexpected
+/// integration test are each findings; the unedited copies pass.
+#[test]
+fn cargo_targets_in_scratch_copies() {
+    const LIB_SECTION: &str = "[lib]\npath = \"src/lib.rs\"\n";
+    const FORGE: &str = "pub(crate) fn forge() -> user_release::DerivedUserRelease { vec![unsafe { std::mem::zeroed() }].pop().unwrap() }\n";
+    const MAIN: &str = "fn main() { let _ = open_pipe_stress_report_renderer::render_calculation_report; let _ = unsafe { std::mem::zeroed::<u8>() }; }\n";
+    let unsafe_keyword = "the unsafe keyword in a reporting crate";
+    // Today's real targets pass on the copies.
+    for key in ["report_package", "report_renderer", "pdf_emitter"] {
+        let findings = ScratchCrate::of(key).scan(key);
+        assert!(findings.is_empty(), "{key} unedited: {findings:#?}");
+    }
+    let alternate = |manifest_lib: &str| {
+        let scratch = ScratchCrate::of("report_package");
+        let lib = std::fs::read_to_string(scratch.dir.join("src/lib.rs")).unwrap();
+        assert_eq!(lib.matches("#![forbid(unsafe_code)]\n").count(), 1);
+        scratch.write("src/review_alternate.rs", &format!("{}{FORGE}", lib.replacen("#![forbid(unsafe_code)]\n", "", 1)));
+        scratch.edit("Cargo.toml", LIB_SECTION, manifest_lib);
+        scratch
+    };
+    let mut cases: Vec<(String, ScratchCrate, &str, Vec<String>)> = vec![
+        (
+            "[ lib ] with an alternate path".to_string(),
+            alternate("[ lib ]\npath = \"src/review_alternate.rs\"\n"),
+            "report_package",
+            vec![
+                "report_package: Cargo's library root is report_package/src/review_alternate.rs, not report_package/src/lib.rs".to_string(),
+                "report_package/src/review_alternate.rs:0: the crate root does not carry #![forbid(unsafe_code)] exactly".to_string(),
+                unsafe_keyword.to_string(),
+            ],
+        ),
+        (
+            "[lib] with \"src/lib.rs\" in a comment".to_string(),
+            alternate("[lib]\npath = \"src/review_alternate.rs\" # \"src/lib.rs\"\n"),
+            "report_package",
+            vec![
+                "report_package: Cargo's library root is report_package/src/review_alternate.rs, not report_package/src/lib.rs".to_string(),
+                "report_package/src/review_alternate.rs:0: the crate root does not carry #![forbid(unsafe_code)] exactly".to_string(),
+                unsafe_keyword.to_string(),
+            ],
+        ),
+    ];
+    let bin_finding = |key: &str, name: &str, src: &str| format!("{key}: Cargo builds the bin target {name} from {key}/{src}, which is not on the target allow-list");
+    for (key, package) in [("report_package", "open_pipe_stress_report_package"), ("report_renderer", "open_pipe_stress_report_renderer"), ("pdf_emitter", "open_pipe_stress_pdf_emitter")] {
+        let scratch = ScratchCrate::of(key);
+        scratch.write("src/main.rs", MAIN);
+        cases.push((format!("src/main.rs in {key}"), scratch, key, vec![bin_finding(key, package, "src/main.rs"), format!("{key}/src/main.rs:1: {unsafe_keyword}")]));
+    }
+    let scratch = ScratchCrate::of("pdf_emitter");
+    scratch.write("src/bin/x.rs", MAIN);
+    cases.push(("src/bin/x.rs".to_string(), scratch, "pdf_emitter", vec![bin_finding("pdf_emitter", "x", "src/bin/x.rs"), "pdf_emitter has a src/bin directory".to_string(), format!("pdf_emitter/src/bin/x.rs:1: {unsafe_keyword}")]));
+    let scratch = ScratchCrate::of("report_package");
+    scratch.write("build.rs", "fn main() {}\n");
+    cases.push(("build.rs".to_string(), scratch, "report_package", vec!["report_package: Cargo builds the custom-build target build-script-build from report_package/build.rs, which is not on the target allow-list".to_string()]));
+    let scratch = ScratchCrate::of("report_renderer");
+    scratch.write("benches/x.rs", "fn main() {}\n");
+    cases.push(("benches/x.rs".to_string(), scratch, "report_renderer", vec!["report_renderer: Cargo builds the bench target x from report_renderer/benches/x.rs, which is not on the target allow-list".to_string()]));
+    let scratch = ScratchCrate::of("report_package");
+    scratch.write("src/review_bin.rs", MAIN);
+    scratch.edit("Cargo.toml", LIB_SECTION, &format!("{LIB_SECTION}\n[[bin]]\nname = \"review_bin\"\npath = \"src/review_bin.rs\"\n"));
+    cases.push(("a [[bin]] entry".to_string(), scratch, "report_package", vec![bin_finding("report_package", "review_bin", "src/review_bin.rs"), format!("report_package/src/review_bin.rs:1: {unsafe_keyword}")]));
+    let scratch = ScratchCrate::of("report_package");
+    scratch.write("examples/review_example.rs", MAIN);
+    scratch.edit("Cargo.toml", LIB_SECTION, &format!("{LIB_SECTION}\n[[example]]\nname = \"review_example\"\npath = \"examples/review_example.rs\"\n"));
+    cases.push(("an [[example]] entry".to_string(), scratch, "report_package", vec!["report_package: Cargo builds the example target review_example from report_package/examples/review_example.rs, which is not on the target allow-list".to_string()]));
+    let scratch = ScratchCrate::of("pdf_emitter");
+    scratch.edit("Cargo.toml", "publish = false\n", "publish = false\nautobins = true\n");
+    scratch.write("src/main.rs", MAIN);
+    cases.push(("autobins = true with a bin".to_string(), scratch, "pdf_emitter", vec![bin_finding("pdf_emitter", "open_pipe_stress_pdf_emitter", "src/main.rs")]));
+    let scratch = ScratchCrate::of("report_renderer");
+    scratch.edit("Cargo.toml", LIB_SECTION, "[lib]\npath = \"src/lib.rs\"\nproc-macro = true\n");
+    cases.push(("a proc-macro library".to_string(), scratch, "report_renderer", vec!["report_renderer: Cargo builds the proc-macro target open_pipe_stress_report_renderer from report_renderer/src/lib.rs".to_string(), "report_renderer: Cargo reports 0 lib targets, not exactly one".to_string()]));
+    let scratch = ScratchCrate::of("report_renderer");
+    scratch.write("tests/x.rs", "#[test]\nfn x() {}\n");
+    cases.push(("an unexpected tests/x.rs".to_string(), scratch, "report_renderer", vec!["report_renderer: Cargo builds the test target x from report_renderer/tests/x.rs, which is not on the target allow-list".to_string()]));
+    for (case, scratch, key, expected) in cases {
+        let findings = scratch.scan(key);
+        for expected in &expected {
+            assert!(findings.iter().any(|finding| finding.contains(expected.as_str())), "{case}: expected {expected:?} in {findings:#?}");
+        }
     }
 }

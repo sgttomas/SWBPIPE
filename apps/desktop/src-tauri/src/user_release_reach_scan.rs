@@ -5,9 +5,18 @@
 //! `core/reporting/pdf_emitter`, `core/reporting/report_renderer`) with `syn`
 //! and attributes every scanned name to its innermost lexical scope owner.
 //!
-//! - **Production source.** From each crate's `src/lib.rs` (and `src-tauri`'s
-//!   `src/main.rs`) it follows every `mod` item, outlined and inline, and
-//!   resolves the files itself. An item is test-only when one of its outer
+//! - **Targets, from Cargo** (code review r5 at #1682). `cargo metadata
+//!   --offline --locked --no-deps` reports each crate's actual targets; they
+//!   must be exactly the allow-listed set ([`TARGETS`]): each library at its
+//!   expected root, `src-tauri`'s app binary and build script, and today's
+//!   integration tests by name and file. Any other binary, example, bench,
+//!   build script, proc-macro or test target, auto-discovered or declared,
+//!   and any other library root, is a finding; the build-dependencies are
+//!   pinned ([`BUILD_DEPENDENCIES`]).
+//! - **Production source.** From each library and binary target's actual
+//!   root file (`src/lib.rs`, and `src-tauri`'s `src/main.rs`, when the
+//!   targets are as allow-listed) it follows every `mod` item, outlined and
+//!   inline, and resolves the files itself. An item is test-only when one of its outer
 //!   attributes is exactly `#[cfg(test)]`; every other item, whatever its
 //!   `cfg`, is production. A `#[path]` on a production `mod`, a `cfg_attr`
 //!   applying `path` at any depth and under any predicate (refused, not
@@ -70,9 +79,11 @@
 //!   const generic argument but a literal, are findings. Anywhere, syntax
 //!   `syn` gives as `Verbatim` is a finding.
 //! - **`unsafe` and macro names** (code review r4 at #1682). Each reporting
-//!   crate's root carries `#![forbid(unsafe_code)]` exactly, so the compiler
-//!   refuses `unsafe` there, in macro arguments and included files too; its
-//!   absence or any other form, and a `forbid` elsewhere, are findings, and
+//!   crate's library root carries `#![forbid(unsafe_code)]` exactly among
+//!   its own file attributes, so the compiler refuses `unsafe` there, in
+//!   macro arguments and included files too; its absence or any other form,
+//!   and a `forbid` elsewhere (a nested module's inner one included), are
+//!   findings, and
 //!   the token rule also finds every `unsafe` keyword there. So that no
 //!   listed macro path resolves to another macro: in the reporting crates
 //!   every `use … as …` rename and every non-private `use` is on a closed
@@ -290,12 +301,16 @@ const MACRO_INVOCATIONS: [&str; 22] = [
     "app_invoke_handler",
 ];
 
-/// The crate roots of the three reporting crates. Each must carry the inner
-/// attribute `#![forbid(unsafe_code)]` exactly (code review r4 at #1682): the
-/// compiler then refuses `unsafe` code in the crate, inside macro arguments
-/// and included files too, and no inner `allow` can lift it. Its absence or
-/// any other form is a finding, as is a `forbid` anywhere else.
-const REPORTING_ROOTS: [&str; 3] = ["report_package/src/lib.rs", "report_renderer/src/lib.rs", "pdf_emitter/src/lib.rs"];
+/// The library roots of the three reporting crates, as Cargo must report
+/// them ([`TARGETS`]). The root the scan reads is the lib target's actual
+/// `src_path`, and its `syn::File` attributes must carry the inner attribute
+/// `#![forbid(unsafe_code)]` exactly (code review r4 at #1682): the compiler
+/// then refuses `unsafe` code in the crate, inside macro arguments and
+/// included files too, and no inner `allow` can lift it. Its absence or any
+/// other form is a finding, as is a `forbid` anywhere else, a nested
+/// module's inner `#![forbid]` included (code review r5 at #1682).
+const REPORTING_ROOTS: [(&str, &str); 3] =
+    [("report_package", "report_package/src/lib.rs"), ("report_renderer", "report_renderer/src/lib.rs"), ("pdf_emitter", "pdf_emitter/src/lib.rs")];
 
 /// The standard crate roots a macro path can start from, besides the listed
 /// external crates ([`LISTED_ROOTS`]): no local item may take one of these
@@ -344,12 +359,13 @@ fn reserved_name(name: &str) -> bool {
     BUILTIN_ROOTS.contains(&name) || LISTED_ROOTS.contains(&name) || MACRO_INVOCATIONS.iter().any(|path| path.split("::").next() == Some(name))
 }
 
-/// Whether `attr` is the crate-root `#![forbid(unsafe_code)]` of a reporting
-/// crate, exactly: inner, the bare path `forbid`, parentheses, and the one
-/// lint `unsafe_code`.
-fn is_root_forbid(file: &str, attr: &syn::Attribute) -> bool {
-    REPORTING_ROOTS.contains(&file)
-        && matches!(attr.style, syn::AttrStyle::Inner(_))
+/// Whether `attr` is `#![forbid(unsafe_code)]` exactly: inner, the bare path
+/// `forbid`, parentheses, and the one lint `unsafe_code`. It is admitted only
+/// among the `syn::File` attributes of a reporting crate's actual library
+/// root ([`scan_reading`]); anywhere else, a nested `mod`'s inner attributes
+/// included, it is not on the attribute list.
+fn is_root_forbid(attr: &syn::Attribute) -> bool {
+    matches!(attr.style, syn::AttrStyle::Inner(_))
         && matches!(&attr.meta, syn::Meta::List(list)
             if list.path.leading_colon.is_none()
                 && list.path.is_ident("forbid")
@@ -421,14 +437,93 @@ struct Occurrence {
     owner: Owner,
 }
 
-/// The sources the scan reads: crate files by `<crate key>/src/...` path, and
-/// each crate's manifest text and whether it has a `src/bin` directory.
+/// The sources the scan reads: crate files by `<crate key>/...` path, each
+/// crate's Cargo targets and build-dependency names as Cargo itself reports
+/// them ([`cargo_crate`]), and whether it has a `src/bin` directory.
 #[derive(Clone, Default)]
 pub(crate) struct Sources {
     pub(crate) files: BTreeMap<String, String>,
-    pub(crate) manifests: BTreeMap<String, String>,
+    pub(crate) targets: BTreeMap<String, Vec<CrateTarget>>,
+    pub(crate) build_dependencies: BTreeMap<String, BTreeSet<String>>,
     pub(crate) bin_dirs: BTreeSet<String>,
 }
+
+/// One Cargo target of a scanned crate, from `cargo metadata`: its kinds
+/// joined by `,` (`lib`, `bin`, `test`, `bench`, `example`, `custom-build`,
+/// `proc-macro`, or a lib's crate types), its name, and its source file as
+/// `<crate key>/<path in the crate>` (the absolute path when it lies outside
+/// the crate directory).
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) struct CrateTarget {
+    pub(crate) kind: String,
+    pub(crate) name: String,
+    pub(crate) src_path: String,
+}
+
+/// The target kinds whose source is a crate root the scan reads: a library
+/// (any crate type) or a binary. Integration tests, benches, examples and
+/// build scripts are not read; only the allow-listed ones may exist
+/// ([`TARGETS`]).
+fn is_scanned_target(kind: &str) -> bool {
+    kind.split(',').all(|kind| !matches!(kind, "test" | "bench" | "example" | "custom-build"))
+}
+
+/// Each scanned crate's Cargo targets, exactly, as (kinds, name, source
+/// file) (code review r5 at #1682). Cargo, not the manifest's spelling,
+/// decides what a crate builds: `cargo metadata` reports the targets Cargo
+/// would build, auto-discovered ones (`src/main.rs`, `src/bin/`, `examples/`,
+/// `benches/`, `tests/`, `build.rs`) and an `autobins` or other `auto*` key
+/// included, and the library's actual root file. Each reporting crate builds
+/// its library from `src/lib.rs` and today's integration tests, nothing
+/// else; `src-tauri` also builds the app binary from `src/main.rs` (read as a
+/// crate root) and runs its `build.rs` (`tauri_build::build()`, whose only
+/// build-dependency is `tauri-build`, [`BUILD_DEPENDENCIES`]). Any other
+/// target (a binary, an example, a bench, a build script, a proc-macro or
+/// another integration test) and any other root file is a finding.
+pub(crate) const TARGETS: [(&str, &[(&str, &str, &str)]); 4] = [
+    (
+        "src-tauri",
+        &[
+            ("staticlib,cdylib,rlib", "openpipestress_desktop_lib", "src-tauri/src/lib.rs"),
+            ("bin", "openpipestress-desktop", "src-tauri/src/main.rs"),
+            ("custom-build", "build-script-build", "src-tauri/build.rs"),
+        ],
+    ),
+    (
+        "report_package",
+        &[
+            ("lib", "open_pipe_stress_report_package", "report_package/src/lib.rs"),
+            ("test", "container", "report_package/tests/container.rs"),
+            ("test", "current_result_package", "report_package/tests/current_result_package.rs"),
+            ("test", "exact_sections_parity", "report_package/tests/exact_sections_parity.rs"),
+            ("test", "quantity_display_parity", "report_package/tests/quantity_display_parity.rs"),
+            ("test", "reader", "report_package/tests/reader.rs"),
+            ("test", "reader_allocation", "report_package/tests/reader_allocation.rs"),
+            ("test", "report_diagnostics_parity", "report_package/tests/report_diagnostics_parity.rs"),
+            ("test", "report_rows_parity", "report_package/tests/report_rows_parity.rs"),
+            ("test", "schema_eval", "report_package/tests/schema_eval.rs"),
+            ("test", "user_release_derivation", "report_package/tests/user_release_derivation.rs"),
+            ("test", "user_release_package", "report_package/tests/user_release_package.rs"),
+        ],
+    ),
+    (
+        "pdf_emitter",
+        &[("lib", "open_pipe_stress_pdf_emitter", "pdf_emitter/src/lib.rs"), ("test", "emit", "pdf_emitter/tests/emit.rs")],
+    ),
+    (
+        "report_renderer",
+        &[
+            ("lib", "open_pipe_stress_report_renderer", "report_renderer/src/lib.rs"),
+            ("test", "object_form", "report_renderer/tests/object_form.rs"),
+            ("test", "render", "report_renderer/tests/render.rs"),
+        ],
+    ),
+];
+
+/// Each scanned crate's build-dependencies, by name, exactly: only
+/// `src-tauri`'s build script has any, and it cannot link a reporting crate.
+pub(crate) const BUILD_DEPENDENCIES: [(&str, &[&str]); 4] =
+    [("src-tauri", &["tauri-build"]), ("report_package", &[]), ("pdf_emitter", &[]), ("report_renderer", &[])];
 
 fn crate_of(file: &str) -> &str {
     file.split('/').next().unwrap_or("")
@@ -712,13 +807,10 @@ impl FileScan<'_> {
         }
     }
 
-    /// One attribute. The crate-root `#![forbid(unsafe_code)]` of a
-    /// reporting crate ([`is_root_forbid`]) is admitted; every other
-    /// `forbid` is not on the attribute list.
+    /// One attribute. `forbid` is not on the attribute list: the crate-root
+    /// `#![forbid(unsafe_code)]` of a reporting crate ([`is_root_forbid`]) is
+    /// admitted before this, only among its root file's own attributes.
     fn check_attribute(&mut self, attr: &syn::Attribute) {
-        if is_root_forbid(&self.file, attr) {
-            return;
-        }
         self.check_meta(&attr.meta, line_of(attr.pound_token.span), false);
     }
 
@@ -1774,13 +1866,13 @@ fn lexical_findings(tokens: TokenStream, out: &mut Vec<(usize, String)>) {
 
 /// The module file that `name`, declared in `declaring` under the inline
 /// modules `inline`, loads: `name.rs` or `name/mod.rs` in the directory of a
-/// root or `mod.rs` file, else in the directory named after the declaring
-/// file, under the inline modules as further directories.
-fn module_file(files: &BTreeMap<String, String>, declaring: &str, inline: &[String], name: &str) -> Result<String, String> {
+/// crate root (one of `roots`, the target files Cargo reports) or a `mod.rs`
+/// file, else in the directory named after the declaring file, under the
+/// inline modules as further directories.
+fn module_file(files: &BTreeMap<String, String>, roots: &BTreeSet<String>, declaring: &str, inline: &[String], name: &str) -> Result<String, String> {
     let (directory, stem) = declaring.rsplit_once('/').unwrap_or(("", declaring));
     let stem = stem.trim_end_matches(".rs");
-    let crate_root = declaring.split('/').take(2).collect::<Vec<_>>().join("/");
-    let is_root = (directory == crate_root && (stem == "lib" || stem == "main")) || stem == "mod";
+    let is_root = roots.contains(declaring) || stem == "mod";
     let mut base = if is_root { directory.to_string() } else { format!("{directory}/{stem}") };
     for module in inline {
         base.push('/');
@@ -1804,19 +1896,47 @@ pub(crate) fn scan(sources: &Sources) -> Vec<String> {
 /// [`scan`], with the production files it read.
 pub(crate) fn scan_reading(sources: &Sources) -> (Vec<String>, BTreeSet<String>) {
     let mut findings = Vec::new();
-    // Manifests: the library at src/lib.rs, no binary target, no src/bin.
-    for (key, _) in CRATES {
-        let manifest = sources.manifests.get(key).cloned().unwrap_or_default();
-        if manifest.contains("[[bin]]") {
-            findings.push(format!("{key}/Cargo.toml declares a [[bin]] target"));
+    // Targets, as Cargo reports them (code review r5 at #1682): exactly the
+    // allow-listed set, the library of each reporting crate at its expected
+    // root, and the build-dependencies exactly. The crate roots read are the
+    // actual library and binary target files, whatever the expected ones.
+    let mut roots: BTreeSet<String> = BTreeSet::new();
+    let mut forbid_roots: BTreeSet<String> = BTreeSet::new();
+    for (key, expected) in TARGETS {
+        let actual: BTreeSet<CrateTarget> = sources.targets.get(key).into_iter().flatten().cloned().collect();
+        let expected: BTreeSet<CrateTarget> =
+            expected.iter().map(|(kind, name, src_path)| CrateTarget { kind: kind.to_string(), name: name.to_string(), src_path: src_path.to_string() }).collect();
+        if actual.is_empty() {
+            findings.push(format!("{key}: Cargo reports no target"));
         }
-        if let Some(lib) = manifest.split("[lib]").nth(1) {
-            let section = lib.split("\n[").next().unwrap_or("");
-            if let Some(line) = section.lines().find(|line| line.trim_start().starts_with("path")) {
-                if !line.contains("\"src/lib.rs\"") {
-                    findings.push(format!("{key}/Cargo.toml's [lib] names another path"));
+        for target in actual.difference(&expected) {
+            let CrateTarget { kind, name, src_path } = target;
+            findings.push(format!("{key}: Cargo builds the {kind} target {name} from {src_path}, which is not on the target allow-list"));
+        }
+        for target in expected.difference(&actual) {
+            let CrateTarget { kind, name, src_path } = target;
+            findings.push(format!("{key}: Cargo does not build the allow-listed {kind} target {name} from {src_path}"));
+        }
+        for target in actual.iter().filter(|target| is_scanned_target(&target.kind)) {
+            roots.insert(target.src_path.clone());
+        }
+        if let Some((_, expected_root)) = REPORTING_ROOTS.iter().find(|(reporting, _)| *reporting == key) {
+            let libraries: Vec<&CrateTarget> = actual.iter().filter(|target| target.kind == "lib").collect();
+            match libraries.as_slice() {
+                [library] => {
+                    if library.src_path != *expected_root {
+                        findings.push(format!("{key}: Cargo's library root is {}, not {expected_root}", library.src_path));
+                    }
+                    forbid_roots.insert(library.src_path.clone());
                 }
+                _ => findings.push(format!("{key}: Cargo reports {} lib targets, not exactly one", libraries.len())),
             }
+        }
+        let build: BTreeSet<String> = sources.build_dependencies.get(key).cloned().unwrap_or_default();
+        let expected_build: BTreeSet<String> =
+            BUILD_DEPENDENCIES.iter().find(|(crate_key, _)| *crate_key == key).map(|(_, names)| names.iter().map(|name| name.to_string()).collect()).unwrap_or_default();
+        if build != expected_build {
+            findings.push(format!("{key}: the build-dependencies are {build:?}, not {expected_build:?}"));
         }
         if sources.bin_dirs.contains(key) {
             findings.push(format!("{key} has a src/bin directory"));
@@ -1828,8 +1948,7 @@ pub(crate) fn scan_reading(sources: &Sources) -> (Vec<String>, BTreeSet<String>)
     let mut macros = Vec::new();
     let mut type_names = TypeNames::default();
     let mut plain_literals = Vec::new();
-    let mut queue: Vec<String> = CRATES.iter().map(|(key, _)| format!("{key}/src/lib.rs")).collect();
-    queue.push("src-tauri/src/main.rs".to_string());
+    let mut queue: Vec<String> = roots.iter().rev().cloned().collect();
     let mut read: BTreeSet<String> = BTreeSet::new();
     while let Some(file) = queue.pop() {
         if !read.insert(file.clone()) {
@@ -1867,19 +1986,25 @@ pub(crate) fn scan_reading(sources: &Sources) -> (Vec<String>, BTreeSet<String>)
         if scan.is_core() {
             scan.token_rules();
         }
-        // Code review r4 at #1682: each reporting crate's root carries
-        // `#![forbid(unsafe_code)]` exactly.
-        if REPORTING_ROOTS.contains(&file.as_str()) && !parsed.attrs.iter().any(|attr| is_root_forbid(&file, attr)) {
+        // Code review r4 at #1682: each reporting crate's actual library root
+        // carries `#![forbid(unsafe_code)]` exactly. It is admitted only
+        // among that file's own attributes (`syn::File.attrs`): a nested
+        // module's inner `#![forbid]` is checked as any other attribute
+        // (code review r5 at #1682).
+        let forbid_root = forbid_roots.contains(&file);
+        if forbid_root && !parsed.attrs.iter().any(is_root_forbid) {
             scan.finding(0, "the crate root does not carry #![forbid(unsafe_code)] exactly");
         }
         for attr in &parsed.attrs {
-            scan.visit_attribute(attr);
+            if !(forbid_root && is_root_forbid(attr)) {
+                scan.visit_attribute(attr);
+            }
         }
         for item in &parsed.items {
             scan.visit_item(item);
         }
         for (declaring, inline, name, line) in modules {
-            match module_file(&sources.files, &declaring, &inline, &name) {
+            match module_file(&sources.files, &roots, &declaring, &inline, &name) {
                 Ok(next) => queue.push(next),
                 Err(error) => findings.push(format!("{error} (line {line})")),
             }
@@ -1976,8 +2101,29 @@ fn describe(kind: &Kind) -> String {
     }
 }
 
-/// The real sources of the four crates, read from the project tree.
+/// The real sources of the four crates, read from the project tree, with
+/// each crate's targets from Cargo ([`crate_sources`]). Read once per test
+/// process for each project path.
 pub(crate) fn project_sources(project: &Path) -> Sources {
+    static READ: std::sync::Mutex<BTreeMap<std::path::PathBuf, Sources>> = std::sync::Mutex::new(BTreeMap::new());
+    let mut read = READ.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    read.entry(project.to_path_buf())
+        .or_insert_with(|| {
+            let mut sources = Sources::default();
+            for (key, root) in CRATES {
+                crate_sources(key, &project.join(root), &mut sources);
+            }
+            sources
+        })
+        .clone()
+}
+
+/// One crate's part of [`Sources`], read from `crate_dir` under the key
+/// `key`: its `.rs` files under `src/`, any scanned target root outside
+/// `src/` inside the crate, whether it has `src/bin`, and its targets and
+/// build-dependencies from [`cargo_crate`]. Panics when Cargo cannot report
+/// them, so the scan fails rather than assuming a layout.
+pub(crate) fn crate_sources(key: &str, crate_dir: &Path, sources: &mut Sources) {
     fn read_dir(dir: &Path, prefix: &str, out: &mut BTreeMap<String, String>) {
         let mut entries: Vec<_> = std::fs::read_dir(dir).unwrap().map(|entry| entry.unwrap().path()).collect();
         entries.sort();
@@ -1990,14 +2136,68 @@ pub(crate) fn project_sources(project: &Path) -> Sources {
             }
         }
     }
-    let mut sources = Sources::default();
-    for (key, root) in CRATES {
-        let crate_dir = project.join(root);
-        read_dir(&crate_dir.join("src"), &format!("{key}/src"), &mut sources.files);
-        sources.manifests.insert(key.to_string(), std::fs::read_to_string(crate_dir.join("Cargo.toml")).unwrap());
-        if crate_dir.join("src/bin").is_dir() {
-            sources.bin_dirs.insert(key.to_string());
+    read_dir(&crate_dir.join("src"), &format!("{key}/src"), &mut sources.files);
+    if crate_dir.join("src/bin").is_dir() {
+        sources.bin_dirs.insert(key.to_string());
+    }
+    let (targets, build_dependencies) = cargo_crate(key, crate_dir).unwrap_or_else(|error| panic!("{key}: {error}"));
+    for target in targets.iter().filter(|target| is_scanned_target(&target.kind)) {
+        if let Some(relative) = target.src_path.strip_prefix(&format!("{key}/")) {
+            if !sources.files.contains_key(&target.src_path) {
+                if let Ok(text) = std::fs::read_to_string(crate_dir.join(relative)) {
+                    sources.files.insert(target.src_path.clone(), text);
+                }
+            }
         }
     }
-    sources
+    sources.targets.insert(key.to_string(), targets);
+    sources.build_dependencies.insert(key.to_string(), build_dependencies);
+}
+
+/// The targets and build-dependency names Cargo reports for the crate in
+/// `crate_dir` (code review r5 at #1682), by `cargo metadata --format-version
+/// 1 --offline --locked --no-deps --manifest-path <crate>/Cargo.toml`, run
+/// with the `cargo` that runs this test (`CARGO`). Each target's source path
+/// is given relative to the crate directory under `key`, or absolute when it
+/// lies outside it.
+pub(crate) fn cargo_crate(key: &str, crate_dir: &Path) -> Result<(Vec<CrateTarget>, BTreeSet<String>), String> {
+    let cargo = std::env::var_os("CARGO").unwrap_or_else(|| env!("CARGO").into());
+    let manifest = crate_dir.join("Cargo.toml");
+    let output = std::process::Command::new(&cargo)
+        .args(["metadata", "--format-version", "1", "--offline", "--locked", "--no-deps", "--manifest-path"])
+        .arg(&manifest)
+        .output()
+        .map_err(|error| format!("cargo metadata did not run: {error}"))?;
+    if !output.status.success() {
+        return Err(format!("cargo metadata failed: {}", String::from_utf8_lossy(&output.stderr)));
+    }
+    let metadata: serde_json::Value = serde_json::from_slice(&output.stdout).map_err(|error| format!("cargo metadata output: {error}"))?;
+    let canonical_manifest = std::fs::canonicalize(&manifest).map_err(|error| format!("{}: {error}", manifest.display()))?;
+    let canonical_dir = canonical_manifest.parent().unwrap().to_path_buf();
+    let packages = metadata["packages"].as_array().ok_or("cargo metadata reports no packages")?;
+    let package = packages
+        .iter()
+        .find(|package| package["manifest_path"].as_str().and_then(|path| std::fs::canonicalize(path).ok()).as_ref() == Some(&canonical_manifest))
+        .ok_or("cargo metadata reports no package for the manifest")?;
+    let mut targets = Vec::new();
+    for target in package["targets"].as_array().ok_or("a package without targets")? {
+        let kind = target["kind"].as_array().ok_or("a target without kinds")?.iter().map(|kind| kind.as_str().unwrap_or("?")).collect::<Vec<_>>().join(",");
+        let name = target["name"].as_str().ok_or("a target without a name")?.to_string();
+        let src = Path::new(target["src_path"].as_str().ok_or("a target without a source path")?);
+        let src = std::fs::canonicalize(src).unwrap_or_else(|_| src.to_path_buf());
+        let src_path = match src.strip_prefix(&canonical_dir) {
+            Ok(relative) => format!("{key}/{}", relative.to_string_lossy().replace('\\', "/")),
+            Err(_) => src.to_string_lossy().to_string(),
+        };
+        targets.push(CrateTarget { kind, name, src_path });
+    }
+    targets.sort();
+    let build_dependencies = package["dependencies"]
+        .as_array()
+        .ok_or("a package without dependencies")?
+        .iter()
+        .filter(|dependency| dependency["kind"].as_str() == Some("build"))
+        .map(|dependency| dependency["name"].as_str().unwrap_or("?").to_string())
+        .collect();
+    Ok((targets, build_dependencies))
 }
