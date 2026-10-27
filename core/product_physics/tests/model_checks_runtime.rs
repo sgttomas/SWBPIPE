@@ -17,10 +17,21 @@ use serde_json::{json, Value};
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const BUNDLED_DEMO: &str = include_str!("../../../fixtures/product_preview/invented_demo_model.json");
 const REFUSED_DEMO: &str = include_str!("../../../fixtures/product_preview/invented_preview_model.json");
-/// Codex review r1 of #1665 (invented): an unknown support family, which
-/// validation refuses, and a stale generated self-weight load, which the next
-/// stage would refuse. The solve stops after validation.
+/// Codex review r1 of #1665 (invented): a schema-valid model with a fresh
+/// generated self-weight load. `intermediate_stop` makes it invalid in code.
 const INTERMEDIATE_STOP: &str = include_str!("fixtures/model_checks/intermediate_stop_witness.json");
+
+/// The committed fixture made invalid twice: an unknown support family, which
+/// validation refuses, and a section density other than the one the generated
+/// self-weight load recorded (7850 kg/m^3), so the load is stale and the next
+/// stage would refuse it. The solve stops after validation. The fixture stays a
+/// valid current model document (tests/test_model_document_schema.py).
+fn intermediate_stop() -> Value {
+    let mut wire: Value = serde_json::from_str(INTERMEDIATE_STOP).unwrap();
+    wire["model"]["supports"][0]["family"] = json!("review_unknown");
+    wire["model"]["pipe_segments"][0]["section"]["material_density"]["value"] = json!(15700.0);
+    wire
+}
 
 fn base(nodes: Value, pipes: Value, supports: Value, components: Value) -> Value {
     json!({"model":{"schema_version":"0.7.0","document_kind":"openpipestress.product_preview.model",
@@ -105,7 +116,7 @@ fn corpus() -> Vec<(&'static str, Value)> {
     let mut zero_length = cantilever();
     zero_length["model"]["nodes"][1]["position"] = json!({"x":0.0,"y":0.0,"z":0.0});
     cases.push(("a zero-length pipe", zero_length));
-    cases.push(("an unknown support family with a stale generated self-weight load", serde_json::from_str(INTERMEDIATE_STOP).unwrap()));
+    cases.push(("an unknown support family with a stale generated self-weight load", intermediate_stop()));
     cases
 }
 
@@ -174,7 +185,7 @@ fn a_request_the_solve_refuses_is_refused_with_the_same_text() {
 #[test]
 fn the_checks_stop_where_the_solve_stops() {
     // Validation blocks on the family, so the stale self weight is never reached.
-    let wire: Value = serde_json::from_str(INTERMEDIATE_STOP).unwrap();
+    let wire = intermediate_stop();
     let codes = |findings: &[Value]| findings.iter().map(|d| d["code"].as_str().unwrap().to_string()).collect::<Vec<_>>();
     let found = codes(&checked(&wire));
     assert!(found.contains(&"SUPPORT_FAMILY_INVALID".to_string()), "{found:?}");

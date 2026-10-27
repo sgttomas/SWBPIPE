@@ -103,7 +103,7 @@
     "section": {
      "material_density": {
       "unit": "kg/m^3",
-      "value": 15700.0
+      "value": 7850.0
      },
      "outside_diameter": {
       "unit": "m",
@@ -136,7 +136,7 @@
   "schema_version": "0.7.0",
   "supports": [
    {
-    "family": "review_unknown",
+    "family": "anchor",
     "id": "support:a",
     "node": "node:a",
     "provenance": "checks",
