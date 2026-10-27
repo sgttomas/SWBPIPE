@@ -24,6 +24,8 @@ import type {
 } from "../../types";
 import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
 import { RigidDraftFields } from "../component-creation/RigidDraftFields";
+import { isContextMenuKey, keyboardMenuRequest, pointerMenuRequest, type ContextMenuRequest } from "../workspace/contextMenu/ContextMenu";
+import { EntityContextMenu, type EntityCommandEnvironment } from "../workspace/contextMenu/EntityContextMenu";
 import {
   buildCreateComponentIntent,
   componentDraftForKind,
@@ -221,6 +223,8 @@ type Props = {
   onClearVisibility?: () => void;
   onViewportInteractionStart?: (interaction: ViewportExposureInteraction) => void;
   onQueueIntent?: (intent: EditorOperationIntent) => void;
+  /** An operation is validating or applying (the inspector's Remove panel waits for it). */
+  operationBusy?: boolean;
   onBoxSelection?: (
     keys: readonly EntityKey[],
     modifiers: { additive?: boolean; toggle?: boolean },
@@ -424,6 +428,7 @@ export function PipeViewport({
   onClearVisibility = () => {},
   onViewportInteractionStart = () => {},
   onQueueIntent,
+  operationBusy = false,
   onBoxSelection = () => Object.freeze({ orderedKeys: [], primaryKey: null, rangeAnchorKey: null, focusKey: null, preparationEpoch: 0 }),
   onSelect,
   queuedIntents = [],
@@ -587,6 +592,12 @@ export function PipeViewport({
     ? null
     : "Select at least one valid drawable node, pipe, support, or component.";
   const [hoveredEntityKey, setHoveredEntityKey] = useState<EntityKey | null>(null);
+  // B9: the entity context menu. A right-click (or a secondary press released within 4 CSS px,
+  // so that a right-drag still pans) opens it at the pointer; Shift+F10 or the ContextMenu key
+  // opens it on the focused label or, from the canvas, on the primary selection.
+  const [entityMenu, setEntityMenu] = useState<{ target: EntityRef; request: ContextMenuRequest; serial: number } | null>(null);
+  const entityMenuSerialRef = useRef(0);
+  const secondaryPressRef = useRef<{ pointerId: number; x: number; y: number; moved: boolean } | null>(null);
   useEffect(() => {
     setHoveredEntityKey((current) => current && !hiddenKeys.has(current) ? current : null);
   }, [activeModelIndex.sessionGeneration, hiddenKeys]);
@@ -1864,6 +1875,15 @@ export function PipeViewport({
   }
 
   function handleViewportPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.button === 2) {
+      secondaryPressRef.current = {
+        pointerId: finitePointerEventNumber(event.pointerId, 1),
+        x: finitePointerEventNumber(event.clientX, 0),
+        y: finitePointerEventNumber(event.clientY, 0),
+        moved: false
+      };
+      return;
+    }
     if (draftReviewBusy) return;
     if (event.button !== 0 && event.button !== undefined) return;
     if (event.isPrimary === false) return;
@@ -1924,6 +1944,12 @@ export function PipeViewport({
   }
 
   function handleViewportPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+    // A secondary press that ever travels beyond 4 CSS px is a pan, even if it comes back.
+    const secondary = secondaryPressRef.current;
+    if (secondary && !secondary.moved && secondary.pointerId === finitePointerEventNumber(event.pointerId, 1) &&
+      Math.hypot(finitePointerEventNumber(event.clientX, 0) - secondary.x, finitePointerEventNumber(event.clientY, 0) - secondary.y) > 4) {
+      secondary.moved = true;
+    }
     const boxCandidate = boxGestureRef.current;
     if (boxCandidate && boxCandidate.pointerId === finitePointerEventNumber(event.pointerId, 1)) {
       if (!boxCandidateIsCurrent(boxCandidate.context)) {
@@ -2010,6 +2036,10 @@ export function PipeViewport({
   }
 
   function handleViewportPointerUp(event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.button === 2) {
+      handleViewportSecondaryRelease(event);
+      return;
+    }
     const boxCandidate = boxGestureRef.current;
     if (boxCandidate && boxCandidate.pointerId === finitePointerEventNumber(event.pointerId, 1)) {
       if (!boxCandidateIsCurrent(boxCandidate.context)) {
@@ -2358,6 +2388,54 @@ export function PipeViewport({
     );
   }
 
+  const entityCommandEnvironment: EntityCommandEnvironment = {
+    model,
+    modelIndex: activeModelIndex,
+    selectedKeys: orderedSelectionKeys,
+    hiddenKeys,
+    showAllAvailable: explicitHiddenKeys.size > 0 || isolationActive,
+    viewCommand: dispatchViewportViewCommand,
+    viewportShortcuts: true,
+    fitSelectionAvailable: Boolean(fitSelectionBounds),
+    operationBusy,
+    onQueueIntent
+  };
+
+  function openEntityMenu(target: EntityRef, request: ContextMenuRequest) {
+    setEntityMenu({ target, request, serial: ++entityMenuSerialRef.current });
+  }
+
+  /** Right-clicking an entity that is not selected selects it first; a selected one keeps the selection. */
+  function selectForContextMenu(ref: EntityRef, inputKind: "pointer" | "label") {
+    if (orderedSelectionKeySet.has(entityKey(ref)) || draftReviewBusy) return;
+    publishSelectionAction(onSelect(ref), inputKind, null);
+  }
+
+  /** A label's menu falls back to the same entity's current label, then to the canvas. */
+  function labelMenuFallbacks(ref: EntityRef) {
+    const key = entityKey(ref);
+    return () => [
+      [...(selectionLayerRef.current?.querySelectorAll<HTMLElement>("[data-entity-key]") ?? [])].find((element) => element.dataset.entityKey === key),
+      hostRef.current
+    ];
+  }
+
+  function primarySelectionRef(): EntityRef {
+    return (primarySelectionKey ? entityRefFromKey(primarySelectionKey) : null) ?? selection;
+  }
+
+  function handleViewportSecondaryRelease(event: ReactPointerEvent<HTMLDivElement>) {
+    const press = secondaryPressRef.current;
+    secondaryPressRef.current = null;
+    const x = finitePointerEventNumber(event.clientX, 0);
+    const y = finitePointerEventNumber(event.clientY, 0);
+    // A right-drag pans the camera; only a press released in place opens the menu.
+    if (!press || press.moved || press.pointerId !== finitePointerEventNumber(event.pointerId, 1) || Math.hypot(x - press.x, y - press.y) > 4) return;
+    const picked = pickRef.current?.({ clientX: x, clientY: y }) ?? null;
+    if (picked) selectForContextMenu(picked, "pointer");
+    openEntityMenu(picked ?? primarySelectionRef(), pointerMenuRequest({ clientX: x, clientY: y }, hostRef.current));
+  }
+
   return (
     <div
       className="viewport-shell"
@@ -2545,6 +2623,13 @@ export function PipeViewport({
           onPointerUp={handleViewportPointerUp}
           onPointerCancel={handleViewportPointerCancel}
           onLostPointerCapture={handleViewportLostPointerCapture}
+          onContextMenu={(event) => event.preventDefault()}
+          onKeyDown={(event) => {
+            if (event.target !== event.currentTarget || !isContextMenuKey(event)) return;
+            event.preventDefault();
+            const rect = event.currentTarget.getBoundingClientRect();
+            openEntityMenu(primarySelectionRef(), { anchor: { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }, returnFocus: event.currentTarget });
+          }}
           ref={hostRef}
           aria-label="Three.js pipe centerline viewport"
           title={webglAvailable === false ? pointerCaptureReason : "Click a part to select it; drag to orbit, scroll to zoom"}
@@ -2574,6 +2659,16 @@ export function PipeViewport({
                     additive: event.shiftKey,
                     toggle: event.ctrlKey || event.metaKey
                   })}
+                  onContextMenu={(event) => {
+                    event.preventDefault();
+                    selectForContextMenu(target.ref, "label");
+                    openEntityMenu(target.ref, pointerMenuRequest(event, event.currentTarget, labelMenuFallbacks(target.ref)));
+                  }}
+                  onKeyDown={(event) => {
+                    if (!isContextMenuKey(event)) return;
+                    event.preventDefault();
+                    openEntityMenu(target.ref, keyboardMenuRequest(event.currentTarget, event.currentTarget, labelMenuFallbacks(target.ref)));
+                  }}
                   style={{
                     left: `${target.screen.x}%`,
                     top: `${target.screen.y}%`
@@ -3241,6 +3336,16 @@ export function PipeViewport({
         </div></details>
         </section>
       </OptionalPortal>
+      {entityMenu ? (
+        <EntityContextMenu
+          key={entityMenu.serial}
+          env={entityCommandEnvironment}
+          target={entityMenu.target}
+          request={entityMenu.request}
+          onClose={() => setEntityMenu(null)}
+          testId="viewport-context-menu"
+        />
+      ) : null}
     </div>
   );
 }

@@ -63,10 +63,12 @@ blocking behavior.
 | `shared_model` | Redact private project, material, component, rule-pack, owner-standard, design-basis, path, and secret-like data unless metadata supports sharing. |
 | `downstream_tool` | Redact unresolved or private values unless explicit metadata supports the handoff. |
 | `local_private` | Retain private values only when explicit local/private user intent is recorded; emit warning findings. |
-| `user_released_report` | A report of the user's own session in which the user releases their own project data for sharing, for that one report, with their statement that they hold the redistribution right (`docs/IP_AND_DATA_BOUNDARY.md` §6). Admitted only on route `DREP-PACKAGE-USER-RELEASE-010` with the wrapper's user-release intent. After the professional-claim, network, SQL, storage-bypass, secret, payload, concrete-path, protected and quarantined/rejected checks, which apply unchanged, it decides in this order and returns: (10) a private class other than `private_project_data` is redacted (`PRIVATE_DATA_REDACTED`) whatever its redistribution status, so a lossless route withholds it; (11) `private_project_data`, whatever its redistribution status, is retained with a `USER_RELEASED_PROJECT_DATA` warning only with the wrapper's user-release intent, else blocks (`USER_RELEASE_INTENT_REQUIRED`); (12) public metadata and invented public examples are included; (13) anything else, including missing, unknown, `TBD` or unrecognized metadata, blocks (`USER_RELEASE_VALUE_UNBOUND`), never warning-only. Payload-carried intent of any name is not read. |
+| `user_released_report` | A report of the user's own session in which the user releases their own project data for sharing, for that one report, with their statement that they hold the redistribution right (`docs/IP_AND_DATA_BOUNDARY.md` §6). Admitted only on route `DREP-PACKAGE-USER-RELEASE-010` with the wrapper's user-release intent. After the professional-claim, network, SQL, storage-bypass, secret, payload, protected and quarantined/rejected checks, which apply as in every context, it decides in this order (and a concrete path then redacts only what (10)-(13) did not block; see Input Contract): (10) a private class other than `private_project_data` is redacted (`PRIVATE_DATA_REDACTED`) whatever its redistribution status, so a lossless route withholds it; (11) `private_project_data`, whatever its redistribution status, is retained with a `USER_RELEASED_PROJECT_DATA` warning only with the wrapper's user-release intent, else blocks (`USER_RELEASE_INTENT_REQUIRED`); (12) public metadata and invented public examples are included; (13) anything else, including missing, unknown, `TBD` or unrecognized metadata, blocks (`USER_RELEASE_VALUE_UNBOUND`), never warning-only. Payload-carried intent of any name is not read. |
 
-The five existing contexts keep every decision on every input, and the
-release intent cannot enable export in them: the controls refuse
+The five existing contexts keep every decision on every input except where the
+Input Contract below makes it stricter (for example, private data with
+`concrete_path_present: true` and no local intent now blocks where it was
+redacted), and the release intent cannot enable export in them: the controls refuse
 `explicit_user_release_intent` with any context other than
 `user_released_report` (DEL-08-01 Design `report-user-release.md` §3), and
 local-first route admission refuses it there with `block_storage` /
@@ -129,7 +131,8 @@ review evidence only, not a legal or professional clearance.
 Storage/privacy hardening adds blocking findings for payload material, explicit
 secret-material flags, cloud or network references, direct SQL or raw SQLite
 access, and storage-bypass metadata. Concrete path indicators are reduced to a
-redacted representation so concrete user paths are not emitted.
+redacted representation so concrete user paths are not emitted, unless the item
+blocks for another reason (see Input Contract).
 
 ## Application Binding
 
@@ -196,9 +199,10 @@ context, before any projection: it raises
 `USER_RELEASE_ROUTE_REQUIRED`, as it raises for an unsupported context, after
 the user-release intent check. The user-release projector first
 decides every enclosing object of the request and of the model by the
-professional-claim, network, SQL, storage-bypass, secret, payload,
-concrete-path, protected and quarantined/rejected checks, exactly as the
-classification decides that object. Only then does it label each leaf with the
+professional-claim, network, SQL, storage-bypass, secret, payload, protected
+and quarantined/rejected checks and by a concrete path, exactly as the
+classification decides that object; a path-marked object that states no label
+of its own is therefore refused by step 13 (`USER_RELEASE_VALUE_UNBOUND`). Only then does it label each leaf with the
 privacy and redistribution of its nearest enclosing object that states them
 (its own member, else its provenance's, as the classification reads them),
 else `private_project_data` / `private_only`, with no path-token labelling.
@@ -232,8 +236,7 @@ TypeScript.
 
 The bounded Rust mirror's departures in the five existing contexts were
 resolved by the W-18b Rust-mirror alignment (2026-10-27). It now reads the
-inputs described here as Python and TypeScript do, except for the remaining
-differences below: it screens `cache_payload` and
+inputs described here as Python and TypeScript do: it screens `cache_payload` and
 `sqlite_payload`, falls back to the provenance for a null privacy or
 redistribution member and for an `unknown` or null review status, and counts a
 scalar storage-privacy metadata key as metadata present. The alignment's
@@ -246,30 +249,114 @@ Existing-context parity cases hold all three implementations to these inputs.
 The mirror is test-only; the runners' fixed `control_local_private` projection
 does not use it and is unchanged.
 
-Remaining: Python reads `professional_claim` by its truth value, so a non-empty
-string such as `"no"` or a non-empty list blocks there, while TypeScript and
-Rust block only on `true`, a recognized true string or a non-zero number.
-Python's reading is kept for now because it blocks more and never fewer. It is
-to be resolved by typing the field as boolean in the schema, so the three
-implementations cannot diverge. Also remaining: Python's classification raises
-`TypeError` on an array or object privacy, redistribution or review status (the
-value is unhashable in its set lookups), where TypeScript and Rust decide the
-item. The error fails closed: it is raised before anything is materialized or
-written, so no output results. Typing these labels as strings in the schema
-would close it. Also remaining: the three implementations trim different
-whitespace from a boolean-like flag string such as `contains_payload`.
-TypeScript's trim removes U+FEFF, which Python and Rust keep; Python's strip
-removes U+001C to U+001F, which TypeScript and Rust keep. So `"\ufefftrue\ufeff"`
-blocks a `public_report` item in TypeScript and is included in Python and Rust,
-and the same string with U+001C blocks in Python only. TypeScript and Python
-already disagree here, so the mirror cannot follow both; resolving it needs one
-normalization rule for flag strings, or flags typed as booleans in the schema.
-
 The protected-content lint CLI remains a separately governed DEC-058/DEC-059
 diagnostic used only by the release scan and public-source exporter; it is not
 a product report/model/result route and this tranche does not change it. No
 plugin runtime/loader or bug/crash-report egress exists. Any future such route
 must consume this controlled-export boundary before it can expose a payload.
+
+## Input Contract
+
+One input contract governs the classifier's reading of item metadata, and
+Python (`core/security/redaction/controls.py`), TypeScript
+(`redactionExportControls.ts`) and the test-only Rust mirror
+(`core/runner/headless/src/redaction_binding.rs`) follow it identically
+(HELP_HUMAN ruling under the owner's delegation, 2026-10-27). It governs
+classifier input that no schema validates. The labels are already typed where
+they are persisted: `schemas/model_state.schema.json` `$defs/Provenance`
+(`additionalProperties: false`) types `privacy_classification`,
+`redistribution_status` and `review_status` as string enums, and
+`analysis_run.v0.3` fixes `professional_claim` to `const: false`. The flags
+below are typed as item members in no persisted schema; `ExportRun` records
+only the wrapper's `explicit_local_private_intent`, as a boolean.
+
+**Decision order.** In every context the classifier decides, in order:
+
+1. professional claim → `block_export` / `PROFESSIONAL_BOUNDARY_BLOCKED`;
+2. cloud or network reference → `block_export`;
+3. direct SQL access → `block_export`;
+4. storage bypass → `block_export`;
+5. secret material → `block_export`;
+6. contained payload → `block_export` / `PAYLOAD_METADATA_ONLY_REQUIRED`;
+7. privacy or redistribution `protected_suspected` → `block_export` /
+   `PROTECTED_CONTENT_BLOCKED`;
+8. review status `quarantined` or `rejected` → `block_export` /
+   `PROTECTED_CONTENT_BLOCKED`;
+9. the context's own decision: steps 10-13 in `user_released_report`, else
+   missing metadata, unknown redistribution, unknown privacy, the safe include,
+   the private branch (`LOCAL_PRIVATE_INTENT_REQUIRED` without intent in
+   `local_private`) and the fallback;
+10. a concrete path → `redact_value` / `CONCRETE_PATH_REDACTED`, unless step 9
+    blocked.
+
+A concrete path never turns a block into a redaction. Before the contract it
+was decided right after the payload check and so returned `redact_value` ahead
+of the protected, quarantined/rejected, intent and user-release blocks; for
+example `concrete_path_present: true` downgraded a `protected_suspected` block.
+
+**Labels.** A `privacy_classification` or `redistribution_status` that is
+neither a string nor null (an array, object, number or boolean) is a stated
+label that matches no class: it is not unknown, safe, private or protected, and
+it does not fall back to the provenance, so the item takes the fallback decision unless its other
+label decides it. A `review_status` that is not a string reads as `unknown` and
+so gives way to the provenance's. The same holds on the item and in its
+provenance, and for the route projector's public basis: `["public"]` is not
+public. Python no longer raises `TypeError` on an array or object label. A
+null label is unchanged: it falls back to the provenance, as an absent one does,
+so null privacy and redistribution under public, permissive provenance are
+included (`SAFE_PUBLIC_METADATA`).
+
+**Flags.** All three recognize the strings `true`, `yes`, `explicit`,
+`present`, `local_private` and `explicit_local_private`, compared after
+trimming and lowercasing. Python and JavaScript lowercase by Unicode and Rust by
+ASCII; no non-ASCII code point lowercases into these strings in Python or
+JavaScript (checked over every code point), so the three agree.
+
+- *Blocking flags* (`contains_payload`, `payload_present`,
+  `secret_material_present`, `cloud_or_network_reference`,
+  `direct_sql_access`, `storage_bypass`, `storage_bypass_requested`,
+  `direct_storage_bypass`, `application_service_bypass`,
+  `concrete_path_present`) are set by `true`, by a non-zero number, or by a
+  recognized string after trimming the union of what the three trims removed
+  before the contract: U+0009-U+000D, U+001C-U+001F, U+0020, U+0085, U+00A0,
+  U+1680, U+2000-U+200A, U+2028, U+2029, U+202F, U+205F, U+3000 and U+FEFF.
+  No implementation reads a blocking flag as unset where it read it as set.
+- *Intent flags* (`local_private_intent`, `explicit_local_private_intent`,
+  `user_intent`, on the item, else in `export_policy`) are set only by `true` or
+  by a recognized string after trimming ASCII whitespace (U+0009-U+000D,
+  U+0020). A number, any other whitespace, an array or an object is not intent;
+  a present member that is not intent still overrides the wrapper's intent, as
+  before.
+
+**Professional claim.** `professional_claim` blocks unless it is absent, null or
+`false`. `"false"`, `"no"`, `""`, `0`, `[]` and `{}` all block.
+
+**Proof.** `fixtures/redaction_export_controls/input_contract_sweep.json`
+expands to 74,760 cases in each implementation's test
+(`tests/security/test_redaction_input_contract_sweep.py`,
+`redactionInputContractSweep.test.ts` and the Rust test module).
+`input_contract_sweep_decisions.json` freezes each implementation's decision per
+case before the contract, captured from the real code, the Rust from the real
+test-only mirror. Each test fails if any case is decided less strictly than any
+frozen decision, and requires the contract decision for every case, so the three
+agree case for case. Strictness is the total order `include` < `warning_only` <
+`redact_value` < `block_export`. `redact_value` sits above `warning_only` because
+`warning_only` keeps the value and is the unknown-metadata action only in
+`local_private`, while `redact_value` replaces `value` and `text` and is that
+action in every public or shared context. The classifier produces no
+`redact_field` or `omit_field`. The shared corpus's `input-contract-*` cases
+pin one case per rule for all three suites.
+
+"Less strictly" compares actions among decisions that existed before. It does
+not cover inputs on which Python raised `TypeError` and so produced no output:
+those now take the decision TypeScript and the Rust mirror already gave, which
+can be `include` (192 sweep cases; for example public, permissive labels with
+`review_status: []`). That follows the contract's label rule; it is not an
+action loosening, but such an output is newly available from Python.
+
+The runners' fixed `control_local_private` projection is untouched: it reads
+none of these labels, flags or `professional_claim`. It strips the intent keys
+at every depth and labels values by path.
 
 ## Source Data
 

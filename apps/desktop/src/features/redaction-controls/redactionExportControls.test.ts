@@ -1505,7 +1505,19 @@ function generatedReleaseInputs(): Array<{ label: string; payload: unknown; refu
       for (const ownPrivacy of ownPrivacies) {
         const child = { ...(ownPrivacy === undefined ? {} : { privacy_classification: ownPrivacy }), ...marker, value: "INVENTED_NESTED" };
         const { payload, childPath } = underLabelledParent(child, depth);
-        inputs.push({ label: `marker-${index}-${ownPrivacy ?? "inherited"}-depth-${depth}`, payload, refusedAt: childPath, reason });
+        // Re-pinned (input contract, HELP_HUMAN ruling 2026-10-27, (d)): a concrete path no longer
+        // turns a block into a redaction. A path-marked object that states no label of its own is
+        // decided at the object by step 13, `block_export` / `USER_RELEASE_VALUE_UNBOUND`; it was
+        // `redact_value` / `CONCRETE_PATH_REDACTED`. Both refuse the release; the new answer is the
+        // stricter action. With its own private label the object still redacts by the path.
+        const pathMarker = reason === "CONCRETE_PATH_REDACTED";
+        const decidedReason = pathMarker && ownPrivacy === undefined ? "USER_RELEASE_VALUE_UNBOUND" : reason;
+        inputs.push({
+          label: `marker-${index}-${ownPrivacy ?? "inherited"}-depth-${depth}`,
+          payload,
+          refusedAt: childPath,
+          reason: decidedReason
+        });
       }
     });
     for (const privacy of NON_PROJECT_PRIVATE_CLASSES) {
