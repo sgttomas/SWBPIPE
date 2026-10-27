@@ -3,9 +3,12 @@
 pressure-free route (DEL-05-03 Design pf-timoshenko.md sections 1-3 and 5).
 
 Standard-library Python 3 only. This generator imports, reads and runs no product
-code, and reads no file other than the outputs it compares in check mode. Every
-expected value is derived here in exact arithmetic over Q(pi) (rational functions of
-pi with rational coefficients), from:
+code. Besides the outputs it compares in check mode it reads only the README (whose
+kappa_E figures it checks) and runs one piece of reference code, t4_u4a's arc engine
+(validation/references/t4_u4a/u4a_engine.py), to cross-check its arcs. Every expected
+value is derived here in exact arithmetic over Q(pi) (rational functions of pi with
+rational coefficients; a realized arc's quarter stations add sqrt(2), cos(pi/8) and
+sin(pi/8)), from:
   - the element of section-bases-and-timoshenko.md section 3.3: per bending plane
     phi = 12EI/(G A_s L^2), k_vv = 12EI/(L^3(1+phi)), k_vtheta = 6EI/(L^2(1+phi)),
     k_thetatheta = (4+phi)EI/(L(1+phi)), k_thetatheta' = (2-phi)EI/(L(1+phi)); axial
@@ -17,7 +20,9 @@ pi with rational coefficients), from:
   - the full-span uniform load vector [wL/2, wL^2/12, wL/2, -wL^2/12] (section 3.4);
   - partitioned elimination through the assembled K for supports, springs and
     imposed support displacements, and DEC-067's support law (DEL-04-01 Design
-    kd5-nonlinear-active-set.md section 0) solved by enumerating every support state.
+    kd5-nonlinear-active-set.md section 0) solved by enumerating every support state;
+  - for a realized arc (a bend consumed as curved_bend_macro_element), t4_u4a's
+    Euler-Bernoulli arc treatment condensed exactly to a 12x12 element (see arc_element).
 The frame assembly and solve are this generator's own. The Q(pi) arithmetic and the
 row vocabulary follow validation/references/t4_u8/generators/u8_reference.py (reference
 code, not product code).
@@ -33,7 +38,7 @@ import itertools
 import json
 import struct
 import sys
-from decimal import Decimal, getcontext
+from decimal import Decimal, getcontext, localcontext
 from fractions import Fraction as F
 from math import isqrt
 from pathlib import Path
@@ -347,23 +352,80 @@ class Expr:
         return self.d
 
 
+SQRT2_DEC = Decimal(2).sqrt()
+C8_DEC = (2 + SQRT2_DEC).sqrt() / 2  # cos(pi/8)
+S8_DEC = (2 - SQRT2_DEC).sqrt() / 2  # sin(pi/8)
+ALG_NAMES = ("", "sqrt(2)", "cos(pi/8)", "sin(pi/8)")
+
+
+class Alg:
+    """a + b sqrt(2) + c cos(pi/8) + d sin(pi/8) with a, b, c, d in Q(pi): the values of a
+    quarter-circle arc's section actions at its stations psi = k pi/8. Only the linear
+    operations the rows need are defined."""
+
+    __slots__ = ("v",)
+
+    def __init__(self, v):
+        self.v = tuple(Q.of(x) for x in v)
+
+    def __add__(self, o):
+        o = o if isinstance(o, Alg) else Alg((o, 0, 0, 0))
+        return Alg(tuple(a + b for a, b in zip(self.v, o.v)))
+
+    __radd__ = __add__
+
+    def __neg__(self):
+        return Alg(tuple(-a for a in self.v))
+
+    def __sub__(self, o):
+        return self + (-(o if isinstance(o, Alg) else Alg((o, 0, 0, 0))))
+
+    def __mul__(self, o):
+        return Alg(tuple(a * o for a in self.v))
+
+    __rmul__ = __mul__
+
+    def __truediv__(self, o):
+        return Alg(tuple(a / o for a in self.v))
+
+    def dec(self):
+        a, b, c, d = (x.dec() for x in self.v)
+        return a + b * SQRT2_DEC + c * C8_DEC + d * S8_DEC
+
+    def text(self):
+        terms = []
+        for x, name in zip(self.v, ALG_NAMES):
+            if not x.is_zero():
+                terms.append(f"({qexpr(x)})" + (f"*{name}" if name else ""))
+        return " + ".join(terms)
+
+
+def alg_simplify(a):
+    """An Alg with no irrational part is returned as its Q(pi) element."""
+    return a.v[0] if all(x.is_zero() for x in a.v[1:]) else a
+
+
 def vdec(v):
-    return v.dec() if isinstance(v, (Sqrt, Expr)) else Q.of(v).dec()
+    return v.dec() if isinstance(v, (Sqrt, Expr, Alg)) else Q.of(v).dec()
 
 
 def vzero(v):
-    return (not isinstance(v, (Sqrt, Expr))) and Q.of(v).is_zero()
+    return (not isinstance(v, (Sqrt, Expr, Alg))) and Q.of(v).is_zero()
 
 
 def vexpr(v):
     if isinstance(v, Expr):
         return v.text
+    if isinstance(v, Alg):
+        return v.text()
     return f"sqrt({qexpr(v.radicand)})" if isinstance(v, Sqrt) else qexpr(v)
 
 
 def vabs(v):
     if isinstance(v, (Sqrt, Expr)):
         return v
+    if isinstance(v, Alg):
+        return -v if v.dec() < 0 else v
     v = Q.of(v)
     return -v if v.sign() < 0 else v
 
@@ -640,6 +702,292 @@ def member_terms(spec, mem, theory, mut):
 
 
 # ===========================================================================
+# Realized arcs (curved_bend_macro_element), in exact form. The treatment is t4_u4a's
+# (validation/references/t4_u4a/u4a_engine.py): the arc rule of Member.__init__ (the arc bows
+# toward +y_reference projected normal to the chord, centre c = (x_i + x_j)/2 - sqrt(R^2 -
+# (L/2)^2) n_hat), the tangent frame of Member.axes (x toward j, y toward the centre, z the
+# bend-plane normal), uniform loads as a constant global force per unit arc length
+# (Member.uniform_resultant), and Line._integrand's complementary energy N n/(EA) + T t/(GJ) +
+# k (M.m - T t)/(EI) + n eps0, Euler-Bernoulli with the user's k on both bending planes. Here it
+# is condensed to a 12x12 stiffness: the flexibility of end j over end i (clamped) and the
+# member-load tip displacement are integrated exactly over a quarter circle, where every
+# integral lies in Q(pi). check_arcs_against_u4a_engine runs that engine on the same lines.
+# ===========================================================================
+
+PHI_ARC = Q((0, F(1, 2)))  # pi/2: the quarter circle, the only arc angle used here
+
+
+def _cos_table(m):
+    """cos(m pi/8) as coefficients on (1, sqrt(2), cos(pi/8), sin(pi/8))."""
+    m %= 16
+    h = F(1, 2)
+    table = {0: (1, 0, 0, 0), 1: (0, 0, 1, 0), 2: (0, h, 0, 0), 3: (0, 0, 0, 1), 4: (0, 0, 0, 0)}
+    if m <= 4:
+        return table[m]
+    if m <= 8:
+        return tuple(-x for x in table[8 - m])
+    return _cos_table(16 - m)
+
+
+def _sin_table(m):
+    return _cos_table(4 - m)
+
+
+class Tri:
+    """A function of the arc angle psi: sum of coef * psi^e * cos(n psi) or sin(n psi), coef in Q(pi).
+    Keys (e, 'c' | 's', n), n >= 0."""
+
+    __slots__ = ("t",)
+
+    def __init__(self, t=None):
+        self.t = {}
+        for k, v in (t or {}).items():
+            v = Q.of(v)
+            if not v.is_zero():
+                self.t[k] = v
+
+    @staticmethod
+    def of(x):
+        return x if isinstance(x, Tri) else Tri({(0, "c", 0): Q.of(x)})
+
+    def __add__(self, o):
+        o = Tri.of(o)
+        out = dict(self.t)
+        for k, v in o.t.items():
+            out[k] = out[k] + v if k in out else v
+        return Tri(out)
+
+    __radd__ = __add__
+
+    def __neg__(self):
+        return Tri({k: -v for k, v in self.t.items()})
+
+    def __sub__(self, o):
+        return self + (-Tri.of(o))
+
+    def __rsub__(self, o):
+        return Tri.of(o) - self
+
+    def __mul__(self, o):
+        if not isinstance(o, Tri):
+            o = Q.of(o)
+            return Tri({k: v * o for k, v in self.t.items()})
+        out = {}
+
+        def put(e, kind, n, v):
+            if n < 0:
+                n = -n
+                if kind == "s":
+                    v = -v
+            if kind == "s" and n == 0:
+                return
+            k = (e, kind, n)
+            out[k] = out[k] + v if k in out else v
+
+        for (e1, k1, n1), a in self.t.items():
+            for (e2, k2, n2), b in o.t.items():
+                h = a * b * F(1, 2)
+                e = e1 + e2
+                if k1 == "c" and k2 == "c":
+                    put(e, "c", n1 - n2, h), put(e, "c", n1 + n2, h)
+                elif k1 == "s" and k2 == "s":
+                    put(e, "c", n1 - n2, h), put(e, "c", n1 + n2, -h)
+                elif k1 == "c":
+                    put(e, "s", n1 + n2, h), put(e, "s", n2 - n1, h)
+                else:
+                    put(e, "s", n1 + n2, h), put(e, "s", n1 - n2, h)
+        return Tri(out)
+
+    __rmul__ = __mul__
+
+    def integral(self):
+        """Exact integral over [0, pi/2]."""
+        ph = PHI_ARC
+        total = ZERO
+        for (e, kind, n), v in self.t.items():
+            if n == 0:
+                val = [ph, ph * ph / 2, ph * ph * ph / 3][e]
+            else:
+                sn, cn = [0, 1, 0, -1][n % 4], [1, 0, -1, 0][n % 4]
+                n = F(n)
+                if kind == "c":
+                    val = [Q.of(sn / n), ph * (sn / n) + (cn - 1) / (n * n),
+                           ph * ph * (sn / n) + ph * (2 * cn / (n * n)) - 2 * sn / n ** 3][e]
+                else:
+                    val = [Q.of((1 - cn) / n), ph * (-cn / n) + sn / (n * n),
+                           ph * ph * (-cn / n) + ph * (2 * sn / (n * n)) + 2 * (cn - 1) / n ** 3][e]
+            total = total + v * val
+        return total
+
+    def at(self, k):
+        """The value at psi = k pi/8, a Q(pi) element or an Alg."""
+        acc = [ZERO] * 4
+        for (e, kind, n), v in self.t.items():
+            trig = _cos_table(n * k) if kind == "c" else _sin_table(n * k)
+            pe = Q((0,) * e + (F(k, 8) ** e,)) if k else (ONE if e == 0 else ZERO)
+            for a in range(4):
+                if trig[a]:
+                    acc[a] = acc[a] + v * pe * trig[a]
+        return alg_simplify(Alg(acc))
+
+
+COS, SIN, PSI = Tri({(0, "c", 1): 1}), Tri({(0, "s", 1): 1}), Tri({(1, "c", 0): 1})
+
+
+def tdot(a, b):
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+
+
+def arc_geometry(xi, xj, yref, R):
+    """Centre and bend-plane axes of a quarter-circle arc by t4_u4a's rule (Member.__init__),
+    exactly: every quantity is rational for the arcs used here."""
+    xi, xj, y = [F(c) for c in xi], [F(c) for c in xj], [F(c) for c in yref]
+    R = F(R)
+    d = [b - a for a, b in zip(xi, xj)]
+    dd = sum(c * c for c in d)
+    yd = sum(a * b for a, b in zip(y, d)) / dd
+    yp = [a - yd * b for a, b in zip(y, d)]
+    h = fsqrt((R * R - dd / 4) / sum(c * c for c in yp))
+    if h is None:
+        raise ValueError("arc centre is not rational")
+    centre = [(a + b) / 2 - h * c for a, b, c in zip(xi, xj, yp)]
+    ri_, rj_ = [a - c for a, c in zip(xi, centre)], [b - c for b, c in zip(xj, centre)]
+    if not (sum(c * c for c in ri_) == R * R == sum(c * c for c in rj_) and sum(a * b for a, b in zip(ri_, rj_)) == 0):
+        raise ValueError("not a quarter circle")
+    ex = [c / R for c in ri_]
+    normal = [c / (R * R) for c in cross(ri_, rj_)]
+    ey = cross(normal, ex)
+    assert ey == [c / R for c in rj_]
+    return {"centre": centre, "ex": ex, "ey": ey, "normal": normal, "R": R, "xi": xi, "xj": xj}
+
+
+def arc_fields(g):
+    """Point and tangent frame (t4_u4a Member.point and Member.axes) as functions of psi."""
+    c, ex, ey, n, R = g["centre"], g["ex"], g["ey"], g["normal"], g["R"]
+    p = [c[k] + (ex[k] * COS + ey[k] * SIN) * R for k in range(3)]
+    tx = [ex[k] * (-SIN) + ey[k] * COS for k in range(3)]
+    ty = [-(ex[k] * COS + ey[k] * SIN) for k in range(3)]
+    tz = [Tri.of(n[k]) for k in range(3)]
+    return p, (tx, ty, tz)
+
+
+def arc_components(Fv, Mv, axes):
+    return [tdot(Fv, a) for a in axes] + [tdot(Mv, a) for a in axes]
+
+
+def arc_load_actions(g, w, p):
+    """Section action at psi (j-side on i-side) of a uniform global load w per unit arc length on
+    (psi, pi/2], and the resultant of the whole load about x_i."""
+    R, c, ex, ey = g["R"], g["centre"], g["ex"], g["ey"]
+    rest = Tri.of(PHI_ARC) - PSI  # the angle beyond the cut
+    force = [rest * (w[k] * R) for k in range(3)]
+    lever = [(rest * c[k] + (ex[k] * (1 - SIN) + ey[k] * COS) * R - rest * p[k]) * R for k in range(3)]
+    moment = cross(lever, [Tri.of(x) for x in w])
+    xi = g["xi"]
+    f_res = [Q.of(x) * R * PHI_ARC for x in w]
+    lev0 = [(PHI_ARC * (c[k] - xi[k]) + (ex[k] + ey[k]) * R) * R for k in range(3)]
+    m_res = cross(lev0, [Q.of(x) for x in w])
+    return force, moment, f_res, m_res
+
+
+def arc_element(spec, mem, lc, mut):
+    """The arc's global 12x12 stiffness, equivalent loads and recovery data. Euler-Bernoulli
+    (t4_u4a's integrand); the control mutant timoshenko_arc adds (V.v)/(kappa_E G A)."""
+    pos = dict(spec["nodes"])
+    t = member_terms(spec, mem, TIMO, mut)
+    g = arc_geometry(pos[mem["i"]], pos[mem["j"]], mem["y_ref"], mem["arc"]["R"])
+    R = g["R"]
+    k_flex = F(1) if "arc_flexibility_factor_ignored" in mut else F(mem["arc"]["k"])
+    E, G, A, I, J = Q.of(t["Es"]), Q.of(t["Gs"]), t["A"], t["I"], t["J"]
+    shear = "timoshenko_arc" in mut
+    comp = [1 / (E * A), (1 / (G * A * t["kappa"])) if shear else ZERO, (1 / (G * A * t["kappa"])) if shear else ZERO,
+            1 / (G * J), k_flex / (E * I), k_flex / (E * I)]
+    p, axes = arc_fields(g)
+    xj = g["xj"]
+    arm = [Tri.of(xj[k]) - p[k] for k in range(3)]
+    B = []
+    for q in range(6):
+        e = [Tri.of(1 if r == q % 3 else 0) for r in range(3)]
+        if q < 3:
+            B.append(arc_components(e, cross(arm, e), axes))
+        else:
+            B.append(arc_components([Tri()] * 3, e, axes))
+    Fm = [[sum(((B[q][s] * B[r][s]).integral() * comp[s] for s in range(6) if not comp[s].is_zero()), ZERO) * R
+           for r in range(6)] for q in range(6)]
+    w = [ZERO, ZERO, ZERO]
+    for (pid, direction, val, _cat) in lc.get("uniform", []):
+        if pid == mem["id"]:
+            w[DIRS[direction]] = w[DIRS[direction]] + Q.of(val)
+    eps0 = ZERO
+    for (pid, dT) in lc.get("thermal", []):
+        if pid == mem["id"]:
+            eps0 = eps0 + Q.of(F(spec["materials"][mem["material"]]["alpha"]) * F(dT))
+    S0F, S0M, f_res, m_res = arc_load_actions(g, w, p)
+    S0 = arc_components(S0F, S0M, axes)
+    delta0 = []
+    for q in range(6):
+        val = sum(((B[q][s] * S0[s]).integral() * comp[s] for s in range(6) if not comp[s].is_zero()), ZERO)
+        if not eps0.is_zero():
+            val = val + B[q][0].integral() * eps0
+        delta0.append(val * R)
+    cols = [gauss_solve(Fm, [ONE if r == c else ZERO for r in range(6)]) for c in range(6)]
+    Kjj = [[cols[c][r] for c in range(6)] for r in range(6)]
+    d = [b - a for a, b in zip(g["xi"], xj)]
+    Gam = [[ZERO] * 6 for _ in range(6)]
+    for r in range(6):
+        Gam[r][r] = ONE
+    dx = [[0, -d[2], d[1]], [d[2], 0, -d[0]], [-d[1], d[0], 0]]
+    for r in range(3):
+        for c in range(3):
+            Gam[r][3 + c] = Q.of(-dx[r][c])
+
+    def mm(a, b):
+        return [[sum((a[r][s] * b[s][c] for s in range(6)), ZERO) for c in range(6)] for r in range(6)]
+
+    GamT = [[Gam[c][r] for c in range(6)] for r in range(6)]
+    KG = mm(Kjj, Gam)
+    Kii = mm(GamT, KG)
+    Kij = [[-x for x in row] for row in mm(GamT, Kjj)]
+    Kji = [[-x for x in row] for row in KG]
+    kg = [Kii[r] + Kij[r] for r in range(6)] + [Kji[r] + Kjj[r] for r in range(6)]
+    kd0 = matvec(Kjj, delta0)
+    gkd0 = matvec(GamT, kd0)
+    feq = [-gkd0[r] + (f_res + m_res)[r] for r in range(6)] + kd0
+    return {"kg": kg, "feq": feq, "Kjj": Kjj, "Gam": Gam, "GamT": GamT, "delta0": delta0, "S0F": S0F, "S0M": S0M,
+            "f_res": f_res, "m_res": m_res, "geom": g, "p": p, "axes": axes, "arm": arm, "t": t, "k_flex": k_flex,
+            "arc_shear": shear}
+
+
+ARC_STATIONS = (("end_i", 0), ("quarter_1", 1), ("midspan", 2), ("quarter_3", 3), ("end_j", 4))
+
+
+def arc_recover(ae, dg):
+    """Node-on-element end actions from the solved displacements, and the tangent-frame section
+    action (j-side on i-side) at the five stations psi = 0, pi/8, pi/4, 3pi/8, pi/2."""
+    ui, uj = dg[0:6], dg[6:12]
+    gui = matvec(ae["Gam"], ui)
+    rel = [uj[r] - gui[r] - ae["delta0"][r] for r in range(6)]
+    fj = matvec(ae["Kjj"], rel)
+    gfj = matvec(ae["GamT"], fj)
+    fi = [-gfj[r] - (ae["f_res"] + ae["m_res"])[r] for r in range(6)]
+    SF = [ae["S0F"][k] + fj[k] for k in range(3)]
+    fjF = [Tri.of(x) for x in fj[0:3]]
+    SM = [ae["S0M"][k] + fj[3 + k] for k in range(3)]
+    SM = [SM[k] + v for k, v in enumerate(cross(ae["arm"], fjF))]
+    S = arc_components(SF, SM, ae["axes"])
+    faces = {name: [s.at(k) for s in S] for name, k in ARC_STATIONS}
+    f = [-v for v in faces["end_i"]] + list(faces["end_j"])
+    # f_i and f_j projected on the end frames must equal -S(0) and +S(pi/2)
+    ends_ok = True
+    for (fv, k, sign) in ((fi, 0, -1), (fj, 4, 1)):
+        ax = [[c.at(k) for c in axis] for axis in ae["axes"]]
+        loc = [sum((Q.of(fv[a]) * ax[r][a] for a in range(3)), ZERO) for r in range(3)] + \
+              [sum((Q.of(fv[3 + a]) * ax[r][a] for a in range(3)), ZERO) for r in range(3)]
+        ends_ok &= all(x == sign * y for x, y in zip(loc, faces["end_i" if k == 0 else "end_j"]))
+    return {"f": f, "faces": faces, "f_global_i": fi, "f_global_j": fj, "ends_ok": ends_ok}
+
+
+# ===========================================================================
 # Assembly and solve.
 # ===========================================================================
 
@@ -653,6 +1001,17 @@ def assemble(spec, lc, theory, mut):
     Fv = [ZERO] * ndof
     mres = {}
     for mem in spec["members"]:
+        dofs = [6 * nidx[mem["i"]] + k for k in range(6)] + [6 * nidx[mem["j"]] + k for k in range(6)]
+        if "arc" in mem:
+            ae = arc_element(spec, mem, lc, mut)
+            for a in range(12):
+                Fv[dofs[a]] = Fv[dofs[a]] + ae["feq"][a]
+                for b in range(12):
+                    if not ae["kg"][a][b].is_zero():
+                        K[dofs[a]][dofs[b]] = K[dofs[a]][dofs[b]] + ae["kg"][a][b]
+            mres[mem["id"]] = dict(ae["t"], mem=mem, L=Q.of(ae["geom"]["R"]) * PHI_ARC, R=None, kl=None, feq=ae["feq"],
+                                   w_loc=None, dofs=dofs, arc=ae, Ks=None)
+            continue
         t = member_terms(spec, mem, theory, mut)
         L, R = member_frame(pos[mem["i"]], pos[mem["j"]], mem["y_ref"])
         kl = frame_local_k(t, L, mut)
@@ -684,7 +1043,6 @@ def assemble(spec, lc, theory, mut):
         fg = []
         for b in range(4):
             fg += to_global(R, feq[3 * b:3 * b + 3])
-        dofs = [6 * nidx[mem["i"]] + k for k in range(6)] + [6 * nidx[mem["j"]] + k for k in range(6)]
         for a in range(12):
             Fv[dofs[a]] = Fv[dofs[a]] + fg[a]
             for b in range(12):
@@ -818,6 +1176,13 @@ def solve_model(spec, lc_id, theory, mut=frozenset()):
     members = {}
     for mid, mr in sysm["members"].items():
         dg = [u[g] for g in mr["dofs"]]
+        if "arc" in mr:
+            rec = arc_recover(mr["arc"], dg)
+            if not mut:
+                agree("arc end actions", f"{spec['case_id']} {lc_id} {mid}: f_i and f_j on the end tangent frames "
+                      "equal -S(0) and +S(pi/2)", rec["ends_ok"])
+            members[mid] = dict(mr, f=rec["f"], faces=rec["faces"], f_global=(rec["f_global_i"], rec["f_global_j"]))
+            continue
         dl = []
         for b in range(4):
             dl += to_local(mr["R"], dg[3 * b:3 * b + 3])
@@ -881,6 +1246,9 @@ def equilibrium_check(sol):
         add(v[0:3], v[3:6], pos[nid])
     for mr in sol["members"].values():
         mem = mr["mem"]
+        if "arc" in mr:
+            add(mr["arc"]["f_res"], mr["arc"]["m_res"], pos[mem["i"]])
+            continue
         for (pid, direction, w, _cat) in lc.get("uniform", []):
             if pid == mem["id"]:
                 v = [ZERO] * 3
@@ -1004,8 +1372,12 @@ def member_rows(sol, mid, basis, rows, omitted):
                 ("element_local_bending_normal_stress_z", "bending_normal_stress_z", face[5] / s["Z"]),
                 ("element_local_torsional_shear_stress", "torsional_shear_stress", face[3] * s["ro"] / s["J"])):
             rows.append(make_row(kind, mid, comp, loc, "Pa", "MPa", "element_local", basis, val, "member_stress"))
-    mx = member_maximum(mr, s)
-    if mx is None:
+    mx = None if "arc" in mr else member_maximum(mr, s)
+    if mx is None and "arc" in mr:
+        omitted.append({"kind": "pipe_elastic_normal_stress_maximum_v2", "entity_ref": mid,
+                        "reason": "a realized arc's maximum is an extremum over the arc angle (T4-U4b), not a "
+                                  "station value; not frozen here"})
+    elif mx is None:
         omitted.append({"kind": "pipe_elastic_normal_stress_maximum_v2", "entity_ref": mid,
                         "reason": "the five-station maximum is not provably the member maximum here "
                                   "(two loaded planes or an axial member load)"})
@@ -1068,6 +1440,14 @@ FAMILY_SCALE_DEFINITIONS = {
 }
 
 
+def member_length(spec, mem):
+    """A straight member's length, or a quarter-circle arc's length R pi/2 (Q(pi))."""
+    if "arc" in mem:
+        return Q.of(F(mem["arc"]["R"])) * PHI_ARC
+    pos = dict(spec["nodes"])
+    return Q.of(member_frame(pos[mem["i"]], pos[mem["j"]], mem["y_ref"])[0])
+
+
 def family_tag(r):
     return "scale_" + FAMILY_GROUP[r["_family"]]
 
@@ -1082,8 +1462,7 @@ def family_scales(spec, rows):
         if tag not in best or d > best[tag][1]:
             best[tag] = (vabs(r["_value"]), d)
     out = {tag: v for tag, (v, _) in best.items()}
-    pos = dict(spec["nodes"])
-    lmax = max(member_frame(pos[m["i"]], pos[m["j"]], m["y_ref"])[0] for m in spec["members"])
+    lmax = max((member_length(spec, m) for m in spec["members"]), key=lambda v: v.dec())
     for tag, src, op in (("scale_force", "scale_moment", lambda v: v / lmax),
                          ("scale_moment", "scale_force", lambda v: v * lmax),
                          ("scale_length", "scale_rotation", lambda v: v * lmax),
@@ -1396,6 +1775,46 @@ SEC_AUX = {"od": F(9, 32), "wall": F(3, 32), "mill": F(0)}
 E_AUX, G_AUX, L_AUX = F(8000000000), F(9000000000), F(7, 32)
 MAT_AUX = {"mat:A": {"E": E_AUX, "G": G_AUX, "nu_authored": None, "alpha": None}}
 
+# The realized-arc L-line: A(0,0,0) -> B(1,0,0) straight, B -> C(11/8,3/8,0) a quarter-circle arc of
+# R = 3/8 m (a bend component consumed as curved_bend_macro_element, k = 2), C -> D(11/8,11/8,0)
+# straight; dyadic coordinates, as t4_u4a's L-LEFT line.
+ARC_R, ARC_K = F(3, 8), F(2)
+
+
+def arc_pipe(pid, i, j, sec, yref, R, k):
+    return dict(pipe(pid, i, j, sec, yref), arc={"R": F(R), "k": F(k)})
+
+
+def arc_line_spec(case_id, anchored_d, load_cases):
+    supports = [anchor("support:A", "node:A")] + ([anchor("support:D", "node:D")] if anchored_d else [])
+    return {"case_id": case_id, "materials": MAT_A_THERMAL,
+            "nodes": [("node:A", (F(0), F(0), F(0))), ("node:B", (F(1), F(0), F(0))),
+                      ("node:C", (F(11, 8), F(3, 8), F(0))), ("node:D", (F(11, 8), F(11, 8), F(0)))],
+            "members": [pipe("pipe:AB", "node:A", "node:B", SEC, (0, 1, 0)),
+                        arc_pipe("pipe:BC", "node:B", "node:C", SEC, (1, -1, 0), ARC_R, ARC_K),
+                        pipe("pipe:CD", "node:C", "node:D", SEC, (-1, 0, 0))],
+            "supports": supports, "load_cases": load_cases}
+
+
+def arc_anch_spec(case_id):
+    allp = ("pipe:AB", "pipe:BC", "pipe:CD")
+    return arc_line_spec(case_id, True, [
+        {"id": "case:nodal", "nodal": [("node:C", "global_x", F(400)), ("node:C", "global_y", F(-300)),
+                                       ("node:C", "global_z", F(600)), ("node:B", "rotation_z", F(150))]},
+        {"id": "case:thermal", "thermal": [(p, F(80)) for p in allp]},
+        {"id": "case:uniform_z", "uniform": [(p, "global_z", F(-800), "distributed_force") for p in allp]},
+        {"id": "case:arc_in_plane", "uniform": [("pipe:BC", "global_x", F(500), "distributed_force"),
+                                                ("pipe:BC", "global_y", F(-300), "distributed_force")]}])
+
+
+def arc_tip_spec(case_id):
+    return arc_line_spec(case_id, False, [
+        {"id": "case:tip", "nodal": [("node:D", "global_x", F(300)), ("node:D", "global_y", F(-200)),
+                                     ("node:D", "global_z", F(500)), ("node:D", "rotation_y", F(80))]},
+        {"id": "case:uniform_z", "uniform": [(p, "global_z", F(-800), "distributed_force")
+                                             for p in ("pipe:AB", "pipe:BC", "pipe:CD")]}])
+
+
 def nl_frame(case_id, supports, load_cases):
     return {"case_id": case_id, "materials": MAT_A,
             "nodes": [("node:A", (F(0), F(0), F(0))), ("node:B", (F(1), F(0), F(0))), ("node:C", (F(2), F(0), F(0)))],
@@ -1478,6 +1897,17 @@ def request_doc(spec, shear_member):
         entry["provenance"] = PROV
         supports.append(entry)
     components = []
+    for m in spec["members"]:
+        if "arc" in m:
+            components.append({"id": "component:bend-" + m["id"].split(":", 1)[1], "kind": "bend", "node": m["i"],
+                               "geometry": {"bend_pipe_ref": m["id"], "bend_radius": qty(m["arc"]["R"], "m"),
+                                            "bend_angle": {"value": b64(PHI_ARC.dec()), "unit": "rad"},
+                                            "bend_plane_orientation": "plane of the span chord and the pipe "
+                                                                      "y_reference; the arc bows toward +y_reference"},
+                               "modifiers": {"flexibility_factor_user_value": qty(m["arc"]["k"], "none"),
+                                             "source_reference": "invented test value"},
+                               "mechanics_interface": {"solver_consumption": "curved_bend_macro_element"},
+                               "provenance": PROV})
     for c in spec.get("components", []):
         components.append({"id": c["id"], "kind": c["kind"], "node": c["node"],
                            "geometry": {"rigid_pipe_ref": c["pipe"]},
@@ -1591,6 +2021,9 @@ MUTANT_CATALOGUE = {
     "euler_bernoulli_recovery": "member end actions recovered with the Euler-Bernoulli K from the Timoshenko "
                                 "displacements (reactions from R = K u - f with the Timoshenko K are unaffected)",
     "shear_stiffness_unscaled": "a W-15 body's shear stiffness kappa G A left unscaled while E and G are scaled by s",
+    "timoshenko_arc": "the realized arc made Timoshenko too: shear compliance 1/(kappa_E G A) on both transverse "
+                      "directions along the arc (the ARC-TIMOSHENKO-CONTROL case's rows)",
+    "arc_flexibility_factor_ignored": "the bend's flexibility_factor_user_value ignored (k = 1 on the arc)",
 }
 
 
@@ -1606,8 +2039,19 @@ def member_table(spec, theory):
     out = []
     for mem in spec["members"]:
         t = member_terms(spec, mem, TIMO, frozenset())
-        L, _ = member_frame(pos[mem["i"]], pos[mem["j"]], mem["y_ref"])
         sec = t["sec"]
+        if "arc" in mem:
+            R = F(mem["arc"]["R"])
+            out.append({"id": mem["id"], "kind": "realized_arc (curved_bend_macro_element)", "radius_m": rnum(R),
+                        "included_angle_rad": num(PHI_ARC), "arc_length_m": num(Q.of(R) * PHI_ARC),
+                        "flexibility_factor_k": rnum(F(mem["arc"]["k"])), "r_o_m": rnum(sec["ro"]),
+                        "r_i_m": rnum(sec["ri"]), "m": rnum(sec["ri"] / sec["ro"]), "E_Pa": rnum(t["E"]),
+                        "G_Pa": rnum(t["G"]), "nu_derived": rnum(t["nu"]), "A_m2": num(sec["A"]), "I_m4": num(sec["I"]),
+                        "applies": "euler_bernoulli in every document (realized arc); the arc-Timoshenko control "
+                                   "adds the shear compliance 1/(kappa_E G A) on the arc",
+                        "control_kappa_E": rnum(t["kappa"]), "control_A_s_m2": num(t["As"])})
+            continue
+        L, _ = member_frame(pos[mem["i"]], pos[mem["j"]], mem["y_ref"])
         entry = {"id": mem["id"], "length_m": rnum(L), "r_o_m": rnum(sec["ro"]), "r_i_m": rnum(sec["ri"]),
                  "m": rnum(sec["ri"] / sec["ro"]), "E_Pa": rnum(t["E"]), "G_Pa": rnum(t["G"]),
                  "nu_derived": rnum(t["nu"]), "kappa_E": rnum(t["kappa"]), "A_m2": num(sec["A"]),
@@ -1629,10 +2073,14 @@ def member_table(spec, theory):
     return out
 
 
+ALT_MARKS = {"authored_nu_for_kappa": "authored_nu_discriminating", "timoshenko_arc": "arc_timoshenko_discriminating"}
+
+
 def build_case(case_id, family, description, spec_fn, mutants, requests, explicit_eb_twin=False,
-               key_values=None, diagnostics=None, extra=None):
+               key_values=None, diagnostics=None, extra=None, arc_control=False):
     """A Timoshenko document and its Euler-Bernoulli twin (member absent), optionally also the
-    explicit euler_bernoulli twin. Returns three case records (or two)."""
+    explicit euler_bernoulli twin and the arc-Timoshenko control (rows the product must not
+    meet; no document). Returns the case records."""
     t_id, e_id, x_id = f"{case_id}-TIMOSHENKO", f"{case_id}-EULER-BERNOULLI", f"{case_id}-EXPLICIT-EULER-BERNOULLI"
     spec_t, spec_e = spec_fn(t_id), spec_fn(e_id)
     docs = {t_id: (request_doc(spec_t, TIMO), spec_t, TIMO), e_id: (request_doc(spec_e, None), spec_e, None)}
@@ -1664,20 +2112,23 @@ def build_case(case_id, family, description, spec_fn, mutants, requests, explici
                      None))
         lc_e.append((comb["id"], basis, ce, [{"kind": k, "reason": "not linear in the terms"} for k in NONLINEAR_KINDS],
                      None))
-    out_t, out_e = [], []
+    out_t, out_e, out_c = [], [], []
     for (lid, basis, rt, om_t, st), (_, _, re_, om_e, se) in zip(lc_t, lc_e):
         emap = {row_key(r): r for r in re_}
         tmap = {row_key(r): r for r in rt}
         assert set(emap) == set(tmap), (case_id, lid)
-        nu_map = {}
-        if "authored_nu_for_kappa" in mutants and st is not None:
-            for r in mutant_rows(spec_t, lid, TIMO, "authored_nu_for_kappa", basis):
-                nu_map[row_key(r)] = r
+        alt, alt_rows = {}, {}
+        for name, mark in ALT_MARKS.items():
+            if name in mutants and st is not None:
+                sol = solve_model(spec_t, lid, TIMO, frozenset([name]))
+                equilibrium_check(sol)
+                alt_rows[mark] = all_rows(sol, basis)
+                alt[mark] = {row_key(r): r for r in alt_rows[mark][0]}
 
         def status(key):
             d = {"discriminating": bool(separation(tmap[key]["_value"], emap[key]["_value"]) > SEP)}
-            if nu_map:
-                d["authored_nu_discriminating"] = bool(separation(tmap[key]["_value"], nu_map[key]["_value"]) > SEP)
+            for mark, amap in alt.items():
+                d[mark] = bool(separation(tmap[key]["_value"], amap[key]["_value"]) > SEP)
             return d
 
         scales_t, scales_e = family_scales(spec_t, rt), family_scales(spec_e, re_)
@@ -1706,14 +2157,22 @@ def build_case(case_id, family, description, spec_fn, mutants, requests, explici
         nd = sum(1 for r in frt if r["discriminating"])
         rec_t.update({"zero_scales": {k: num(v) for k, v in scales_t.items()}, "rows": frt,
                       "discriminating_rows": nd, "omitted_rows": om_t, "discriminators": disc})
-        if nu_map:
-            rec_t["authored_nu_discriminating_rows"] = sum(1 for r in frt if r["authored_nu_discriminating"])
+        for mark in alt:
+            rec_t[f"{mark}_rows"] = sum(1 for r in frt if r[mark])
         fre = finish_rows(re_, scales_e, lambda key: {"discriminating": bool(
             separation(tmap[key]["_value"], emap[key]["_value"]) > SEP)})
         rec_e.update({"zero_scales": {k: num(v) for k, v in scales_e.items()}, "rows": fre,
                       "discriminating_rows": nd, "omitted_rows": om_e})
         out_t.append(rec_t)
         out_e.append(rec_e)
+        if arc_control:
+            mark = ALT_MARKS["timoshenko_arc"]
+            rc, om_c = alt_rows[mark]
+            scales_c = family_scales(spec_t, rc)
+            frc = finish_rows(rc, scales_c, lambda key: {mark: bool(
+                separation(tmap[key]["_value"], alt[mark][key]["_value"]) > SEP)})
+            out_c.append({"id": lid, "basis_ref": basis, "zero_scales": {k: num(v) for k, v in scales_c.items()},
+                          "rows": frc, f"{mark}_rows": rec_t[f"{mark}_rows"], "omitted_rows": om_c})
     base = {"family": family, "description": description}
     if extra:
         base.update(extra)
@@ -1727,6 +2186,15 @@ def build_case(case_id, family, description, spec_fn, mutants, requests, explici
         cases.append(dict(base, id=x_id, shear_model=EB, twin=t_id, request=req[x_id], same_rows_as=e_id,
                           note="model_settings.shear_model = euler_bernoulli solves exactly as absent "
                                "(pf-timoshenko.md 1): every row equals the absent twin's row"))
+    if arc_control:
+        cases.append(dict(base, id=f"{case_id}-ARC-TIMOSHENKO-CONTROL",
+                          shear_model="control (no document): the TIMOSHENKO document solved with the realized arc "
+                                      "also Timoshenko (shear compliance 1/(kappa_E G A) on the arc)",
+                          twin=t_id, request=None, must_not_match=True,
+                          note="a product given the TIMOSHENKO request must breach these rows wherever "
+                               "arc_timoshenko_discriminating is true: PF keeps realized arcs Euler-Bernoulli "
+                               "(pf-timoshenko.md 1)",
+                          members=member_table(spec_t, TIMO), load_cases=out_c))
     return cases, sols
 
 
@@ -2130,6 +2598,168 @@ def nl_cases(requests):
     return out
 
 
+U4A_ENGINE = OUT.parent / "t4_u4a" / "u4a_engine.py"
+_U4A = []
+
+
+def u4a_engine():
+    """t4_u4a's engine (reference code), loaded from its file without writing bytecode there."""
+    if not _U4A:
+        import importlib.util
+        sys.dont_write_bytecode = True
+        sp = importlib.util.spec_from_file_location("u4a_engine", U4A_ENGINE)
+        mod = importlib.util.module_from_spec(sp)
+        sp.loader.exec_module(mod)
+        _U4A.append(mod)
+    return _U4A[0]
+
+
+def fdecstr(x):
+    """The exact decimal text of a rational with a terminating expansion."""
+    x = F(x)
+    d = Decimal(x.numerator) / Decimal(x.denominator)
+    assert F(d) == x
+    return str(d)
+
+
+def u4a_model(spec, lc):
+    """The same line as t4_u4a engine input (traversal = node order; anchored at the first node and,
+    when supported there, at the last)."""
+    order = [nid for nid, _ in spec["nodes"]]
+    members = []
+    for m in spec["members"]:
+        e = {"pipe": m["id"], "kind": "arc" if "arc" in m else "straight", "authored_from": m["i"],
+             "authored_to": m["j"], "y_reference": [float(c) for c in m["y_ref"]]}
+        if "arc" in m:
+            e.update(R=fdecstr(m["arc"]["R"]), k=fdecstr(m["arc"]["k"]))
+        members.append(e)
+    mem0 = spec["members"][0]
+    mat = spec["materials"][mem0["material"]]
+    uniform = {}
+    for (pid, direction, w, _cat) in lc.get("uniform", []):
+        v = ["0", "0", "0"]
+        v[DIRS[direction]] = fdecstr(w)
+        uniform.setdefault(pid, []).append(v)
+    nodal = {}
+    for (nid, direction, val) in lc.get("nodal", []):
+        fm = nodal.setdefault(nid, [["0", "0", "0"], ["0", "0", "0"]])
+        k = DIRS[direction]
+        fm[k // 3][k % 3] = fdecstr(val)
+    return {"nodes": {nid: [float(c) for c in p] for nid, p in spec["nodes"]}, "traversal_order": order,
+            "members": members,
+            "section": {"outside_diameter": fdecstr(mem0["od"]), "wall_thickness": fdecstr(mem0["wall"] - mem0["mill"])},
+            "material": {"E": fdecstr(mat["E"]), "G": fdecstr(mat["G"]), "alpha": fdecstr(mat["alpha"] or 0)},
+            "loads": {"uniform": uniform, "nodal": nodal, "delta_T": {pid: fdecstr(dT) for pid, dT in lc.get("thermal", [])}},
+            "anchor_last": any(s["node"] == order[-1] for s in spec["supports"])}
+
+
+def check_arcs_against_u4a_engine(spec, lc_id, sol, shear_members, label):
+    """Run t4_u4a's unit-load engine (90 digits, 48-point Gauss-Legendre per member) on the same line,
+    with the shear complementary energy (F.f - N n)/(kappa_E G A) added on the members in
+    shear_members, and compare every nodal displacement, support A's action and the five tangent-frame
+    cuts of every member with this generator's exact values."""
+    lc = next(c for c in spec["load_cases"] if c["id"] == lc_id)
+    with localcontext() as ctx:
+        ctx.prec = 90
+        E = u4a_engine()
+        shear = {}
+        for mem in spec["members"]:
+            if mem["id"] in shear_members:
+                t = member_terms(spec, mem, TIMO, frozenset())
+                shear[mem["id"]] = (1 / (Q.of(t["G"]) * t["As"])).dec()
+
+        class ShearLine(E.Line):
+            def _integrand(self, m, u, actual, unit_load, with_strain):
+                value = super()._integrand(m, u, actual, unit_load, with_strain)
+                c = shear.get(m.id)
+                if c is not None:
+                    (Fa, _), (fu, _) = actual, unit_load
+                    tg = m.traversal_tangent(u)
+                    value += (E.dot(Fa, fu) - E.dot(Fa, tg) * E.dot(fu, tg)) * c
+                return value
+
+        line = ShearLine(u4a_model(spec, lc)).solve()
+        got = {"displacement": [], "reaction": [], "cut": []}
+        for index, (nid, _) in enumerate(spec["nodes"]):
+            if index == 0 or (line.anchor_d and index == len(spec["nodes"]) - 1):
+                continue
+            got["displacement"].append((line.virtual_work(index), sol["u"][nid]))
+        fa, ma = line.support_a()
+        got["reaction"].append((list(fa) + list(ma), sol["reactions"]["support:A"]))
+        for k, m in enumerate(line.members):
+            faces = sol["members"][m.id]["faces"]
+            for (loc, u), (name, _) in zip(E.FRACTIONS, STATIONS):
+                Fc, Mc = line.cut(k, u)
+                got["cut"].append((E.components(Fc, Mc, m.axes(u)), faces[name]))
+    worst = Decimal(0)
+    for fam, pairs in got.items():
+        for half in (slice(0, 3), slice(3, 6)):
+            scale = max(abs(vdec(v)) for _, mine in pairs for v in mine[half])
+            if scale == 0:
+                continue
+            for theirs, mine in pairs:
+                for a, b in zip(theirs[half], mine[half]):
+                    worst = max(worst, abs(a - vdec(b)) / scale)
+    agree("t4_u4a engine (validation/references/t4_u4a/u4a_engine.py: Line, Member, unit-load method)",
+          f"{spec['case_id']} {lc_id} {label}: nodal displacements, support A and the five cuts of every member agree "
+          f"within 1e-60 of their family scale", worst < Decimal("1e-60"),
+          max_relative_difference=float(format(worst, ".3e")))
+
+
+def arc_cases(requests):
+    out = []
+    mutants = ["cowper_factor", "five_sixths_factor", "euler_bernoulli_recovery", "theta_equals_slope",
+               "arc_flexibility_factor_ignored", "timoshenko_arc"]
+    diag = {"timoshenko": [{"code": "PF_TIMOSHENKO_REALIZED_ARCS_EULER_BERNOULLI", "severity": "nonblocking",
+                            "emission": "once per result, model-wide", "entity_refs": ["pipe:BC"],
+                            "message_counts": {"straight_members_with_shear_deformation": 2,
+                                               "realized_arcs_without_shear_deformation": 1},
+                            "source": "pf-timoshenko.md section 4, named arc disclosure"}],
+            "euler_bernoulli": [{"code": "none new", "note": "no arc disclosure without the Timoshenko selection "
+                                                            "(pf-timoshenko.md section 4)"}]}
+    premise = {"arc_premise": "manager's premise (a product code fact, not derived here): on PF a bend component "
+                              "consumed as curved_bend_macro_element (DEC-070) replaces its pipe's straight chord by "
+                              "the curved-bend macro-element, the element the exact route builds with the same "
+                              "function; under the Timoshenko selection it stays Euler-Bernoulli and the straight "
+                              "tangents are Timoshenko",
+               "arc_treatment": "t4_u4a's (u4a_engine.py Member, Line._integrand): arc rule, tangent frame, k on "
+                                "both bending planes, constant global uniform load per unit arc length, alpha dT "
+                                "along the arc; arc rows in the tangent frame at their own section, end rows "
+                                "node-on-element (DEL-04-07 arc-frames-and-signs.md section 2); PF's single section "
+                                "(c_m = 0 here)",
+               "station_values": "the arc's quarter stations are psi = pi/8 and 3pi/8, so their exact values lie in "
+                                 "Q(pi)(sqrt(2), cos(pi/8), sin(pi/8)); midspan in Q(pi)(sqrt(2))"}
+    line = ("L-line A(0,0,0) -> B(1,0,0) -> quarter-circle arc R = 3/8 m (bend component, curved_bend_macro_element, "
+            "k = 2, bowing toward +y_reference (1,-1,0)) -> C(11/8,3/8,0) -> D(11/8,11/8,0); OD 0.2 m, wall 0.01 m, "
+            "E 200 GPa, G 77 GPa, alpha 1.2e-5 /degC; ")
+    specs = (("PFT-ARC-ANCH", "realized arc between Timoshenko tangents, both ends anchored", line + "anchors at A "
+              "and D; case:nodal (400, -300, 600) N at C and 150 N*m about Z at B; case:thermal 80 degC on every "
+              "member; case:uniform_z -800 N/m in Z on every member, the arc included; case:arc_in_plane (500, -300, "
+              "0) N/m on the arc only", arc_anch_spec),
+             ("PFT-ARC-TIP", "realized arc between Timoshenko tangents, tip-loaded", line + "anchor at A, D free; "
+              "case:tip (300, -200, 500) N and 80 N*m about Y at D; case:uniform_z -800 N/m in Z on every member",
+              arc_tip_spec))
+    for cid, fam, desc, fn in specs:
+        def keys(lid, st, se):
+            res = []
+            for sol, label, shear in ((st, "timoshenko", ("pipe:AB", "pipe:CD")), (se, "euler_bernoulli", ())):
+                check_arcs_against_u4a_engine(sol["spec"], lid, sol, shear, label)
+                rec = {"u_C_m": [num(x, "m") for x in sol["u"]["node:C"][0:3]]}
+                if sol["spec"]["case_id"].startswith("PFT-ARC-TIP"):
+                    rec["u_D_m"] = [num(x, "m") for x in sol["u"]["node:D"][0:3]]
+                else:
+                    rec["reaction_D_N"] = [num(x, "N") for x in sol["reactions"]["support:D"][0:3]]
+                res.append(rec)
+            ctl = solve_model(st["spec"], lid, TIMO, frozenset(["timoshenko_arc"]))
+            check_arcs_against_u4a_engine(ctl["spec"], lid, ctl, ("pipe:AB", "pipe:BC", "pipe:CD"), "arc-Timoshenko control")
+            return res
+
+        cases, _ = build_case(cid, fam, desc, fn, mutants, requests, key_values=keys, diagnostics=diag,
+                              extra=premise, arc_control=True)
+        out += cases
+    return out
+
+
 def crosscheck_t4_u8():
     """Agreement with t4_u8's frozen S-B values (its README): kappa_E(m = 9/10, nu = 3/10) =
     16609827/33068756 and the L = 1 Timoshenko tip u_y 125917189/(6068975250000 pi) m under
@@ -2154,15 +2784,11 @@ def crosscheck_t4_u8():
 
 
 OMITTED = [
-    {"case": "L-line with a realized arc (an Euler-Bernoulli arc between Timoshenko tangents)",
-     "reason": "the existing realized-arc treatments (t4_u4a's unit-load arc engine, t4_i7's U2 engine) are "
-               "formulated for the exact pressure route or for preview-physics-1 and fix the arc geometry, "
-               "flexibility factor, frames and stations by their own conventions; reusing one here on a 0.8.0 PF "
-               "document would need confirmation that PF's realized arc is that element, which is product behaviour. "
-               "No arc element is invented here. Returned to the manager as a separate reference step"},
-    {"case": "geometry-only bend analysed as its mapped straight frame",
-     "reason": "the mapping (which pipes a bend component's geometry-only consumption turns into one straight frame, "
-               "and with what section) is product behaviour not stated in a design read here"},
+    {"case": "geometry-only bend (mechanics_geometry_only, the default consumption)",
+     "reason": "no separate case needed, on the manager's premise (a product code fact, not derived here): such a "
+               "bend is analysed as an ordinary straight chord member, and a DEC-045 multiplier applies only to a "
+               "stress-review row, never to stiffness, so its rows are a straight member's. Consumer test: a "
+               "geometry-only bend document gives the same rows as its plain straight-member twin"},
     {"case": "constant-effort hangers",
      "reason": "not asked in this step; the support law of a constant-effort gate is not frozen here"},
     {"case": "friction with a derived normal reaction (normal_reaction_source)",
@@ -2179,7 +2805,7 @@ def product_cases(requests):
     crosscheck_t4_u8()
     return (sb_cases(requests) + ss_cases(requests) + phi2_cases(requests) + phi2_exact_cases(requests)
             + skew_cases(requests) + imposed_cases(requests) + weight_cases(requests) + w15_cases(requests)
-            + authnu_cases(requests) + nl_cases(requests))
+            + authnu_cases(requests) + nl_cases(requests) + arc_cases(requests))
 
 
 def product_document(cases):
@@ -2188,10 +2814,12 @@ def product_document(cases):
         "unit": "PF opt-in Timoshenko straight members (model_settings.shear_model = timoshenko_annulus_energy_v1) "
                 "and their Euler-Bernoulli twins",
         "status": "frozen independent reference before any product comparison; refuted in round 1 by a second TASK "
-                  "(every row and mutant recomputed; its findings are repaired here); not product output, not a "
+                  "(every row and mutant recomputed; its findings are repaired here), with the realized-arc cases and "
+                  "the exact phi = 2 control added after that round and not yet refuted; not product output, not a "
                   "qualification or acceptance claim",
         "independence": "generators/pf_reference.py imports, reads and runs no product code; expected values are this "
-                        "generator's exact arithmetic, never product observations",
+                        "generator's exact arithmetic, never product observations; one product fact, PF's realized "
+                        "arc, is the manager's premise (see the PFT-ARC cases)",
         "sources": {
             "design": "execution/PKG-05/DEL-05-03/Design/pf-timoshenko.md sections 1-3 and 5; "
                       "section-bases-and-timoshenko.md sections 1, 3.1, 3.3-3.5 and 7",
@@ -2199,17 +2827,24 @@ def product_document(cases):
             "w15_scaling": "execution/PKG-03/DEL-03-05/Design/rigid-component-stiffness-scaling.md sections 1-2.3",
             "imposed_motion": "validation/references/w16_imposed_motion/README.md (PF authoring of support-targeted "
                               "imposed_displacement)",
-            "arithmetic_and_rows": "validation/references/t4_u8/generators/u8_reference.py (reference code)"},
+            "arithmetic_and_rows": "validation/references/t4_u8/generators/u8_reference.py (reference code)",
+            "realized_arc": "validation/references/t4_u4a/u4a_engine.py (Member, Line; reference code, run here as a "
+                            "cross-check) and DEL-04-07 Design arc-frames-and-signs.md section 2 (arc row frames and "
+                            "signs); pf-timoshenko.md section 1 (realized arcs stay Euler-Bernoulli) and section 4 "
+                            "(the named arc disclosure)"},
         "numeric_representation": {
             "exact": "authoritative; Q(pi) text forms 'p', 'p/q', 'r*pi', 'r/pi', '(n0 + n1*pi + ...)/(d0 + d1*pi + "
-                     "...)', 'sqrt(...)' for a norm outside Q(pi), 'a + sqrt(b)/(c)' for a maximum",
+                     "...)', 'sqrt(...)' for a norm outside Q(pi), 'a + sqrt(b)/(c)' for a maximum; on a realized "
+                     "arc's midspan and quarter stations '(a) + (b)*sqrt(2) + (c)*cos(pi/8) + (d)*sin(pi/8)' with a, "
+                     "b, c, d in Q(pi) (zero terms omitted)",
             "decimal": "40 significant digits from the exact form (pi by Machin, 140-digit context)",
             "expected": "binary64 rounding of the exact value converted into the row unit; never a product value",
             "inputs": "decimal inputs are exact rationals (r_i = 9/100 m, and so on); the requests author the nearest "
                       "binary64 values (relative effects of order 1e-16). E = 200e9 Pa and G = 77e9 Pa are exact "
                       "binary64 integers, so nu = E/(2G) - 1 = 23/77 is exact for the authored values; the phi = 2 "
                       "cases author dyadic OD, wall and L, exact in binary64, and the exact phi = 2 control also E = "
-                      "8e9 Pa and G = 9e9 Pa (nu = -5/9)"},
+                      "8e9 Pa and G = 9e9 Pa (nu = -5/9); the arc lines author dyadic coordinates and R = 0.375 m, "
+                      "with the bend angle the binary64 nearest pi/2"},
         "criteria": {
             "modes": ["sparse_interactive", "dense_scrutiny"], "same_reference_both_modes": True,
             "nonzero": "|observed - expected| <= 1e-9 |expected| (criterion.kind relative)",
@@ -2228,13 +2863,19 @@ def product_document(cases):
                        "hypot(M_y, M_z)/Z, frozen only where the five-station maximum is provably the member maximum",
             "displacements": "global, mm; rotations global, rad: on a Timoshenko member the section rotation theta, "
                              "not the slope",
+            "arcs": "on a realized arc every element_local row is in the tangent frame at its own section (x toward "
+                    "authored j, y toward the arc centre, z the bend-plane normal); end rows node-on-element, station "
+                    "and stress rows the j-side section action at psi = 0, pi/8, pi/4, 3pi/8, pi/2 "
+                    "(arc-frames-and-signs.md section 2); stresses by the straight formulas on the arc resultants; "
+                    "the arc's pipe_elastic_normal_stress_maximum_v2 is not frozen",
             "reactions": "support_reaction_component_v2: support-on-pipe, global, R = K u - f; a spring's reaction is "
                          "-k u in its DOF; a nonlinear support's slot carries its constraint force when engaged, the "
                          "applied friction force when sliding and zero when released; magnitudes are the force and "
                          "moment norms",
             "discriminating": "on every row of both twins: true where the Timoshenko and Euler-Bernoulli expectations "
                               "lie more than 1e-7 relative apart (a zero against a nonzero counts); "
-                              "authored_nu_discriminating likewise against the authored-nu solve (PFT-AUTHNU)",
+                              "authored_nu_discriminating likewise against the authored-nu solve (PFT-AUTHNU), and "
+                              "arc_timoshenko_discriminating against the arc-Timoshenko control (PFT-ARC-*)",
             "not_frozen": "element_global_end_force_v1, element_global_end_moment_v1, "
                           "element_local_normal_stress_extreme, element_local_transverse_shear_stress_maximum, "
                           "displacement_magnitude and linear_solver_mode_basis rows, whose formulas are not stated in a "
@@ -2246,7 +2887,9 @@ def product_document(cases):
                                      "EXPLICIT-EULER-BERNOULLI case has the same rows",
             "breach": "a Timoshenko product judged against the Euler-Bernoulli twin's rows must breach on every "
                       "row marked discriminating; on PFT-AUTHNU a product judged against the authored-nu rows must "
-                      "breach on every row marked authored_nu_discriminating"},
+                      "breach on every row marked authored_nu_discriminating; on PFT-ARC-* a product given the "
+                      "TIMOSHENKO request and judged against the ARC-TIMOSHENKO-CONTROL rows must breach on every row "
+                      "marked arc_timoshenko_discriminating"},
         "discriminator_catalogue": MUTANT_CATALOGUE,
         "omitted_cases": OMITTED,
         "crosscheck": list(CROSS),
@@ -2278,7 +2921,7 @@ def readme_figures(cases):
     for c in cases:
         if c["shear_model"] != TIMO:
             continue
-        phis = ", ".join(f"{m['id']} {float(Decimal(m['phi']['decimal'])):.17g}" for m in c["members"])
+        phis = ", ".join(f"{m['id']} {float(Decimal(m['phi']['decimal'])):.17g}" for m in c["members"] if "phi" in m)
         src = byid[c.get("same_rows_as", c["id"])]
         nd = sum(lc["discriminating_rows"] for lc in src["load_cases"])
         nr = sum(len(lc["rows"]) for lc in src["load_cases"])
