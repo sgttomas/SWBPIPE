@@ -10,6 +10,7 @@ import { resolveEntitySelection } from "./features/results/resultInterpretation"
 import { BoundaryAuthoringPanel } from "./features/boundary-authoring/BoundaryAuthoringPanel";
 import { DisplayUnitsProvider } from "./features/display-units";
 import { BatchReviewPanel } from "./features/toolkit/BatchReviewPanel";
+import { BulkChangePanel } from "./features/bulk-change/BulkChangePanel";
 import {
   Bot,
   ClipboardCheck,
@@ -58,6 +59,8 @@ import { CaepipeMbfExportPanel } from "./features/caepipe-mbf/CaepipeMbfExportPa
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
 import { ComparisonPackageNotice } from "./features/comparison/ComparisonPackageNotice";
 import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel";
+import { MODEL_CHECKS_ARIA_SHORTCUTS, MODEL_CHECKS_SHORTCUT, ModelChecksPanel } from "./features/diagnostics/ModelChecksPanel";
+import type { ModelCheckRun } from "./features/diagnostics/modelChecks";
 import { DesignWorkspacePanel } from "./features/design-workspace/DesignWorkspacePanel";
 import { DiffPreviewPanel } from "./features/diff-preview/DiffPreviewPanel";
 import { EditorContractPanel } from "./features/editor-contract/EditorContractPanel";
@@ -73,7 +76,7 @@ import { LoadCaseManagerPanel } from "./features/load-cases/LoadCaseManagerPanel
 import { LocalFeaHandoffPanel } from "./features/local-fea-handoff/LocalFeaHandoffPanel";
 import { MissingDataBlockingPanel, countMissingDataBlockers } from "./features/missing-data/MissingDataBlockingPanel";
 import { professionalStatusToken, ruleCheckStatusToken, statusDisplay } from "./features/workspace/statusLabels";
-import { setSelectionFocus } from "./features/workspace/selectionState";
+import { entityRefFromKey, setSelectionFocus } from "./features/workspace/selectionState";
 import { solveProofStatus, type SolveProofEvidence } from "./features/workspace/solveProof";
 import {
   WORKSPACE_SECTIONS,
@@ -125,6 +128,7 @@ import { SecretPrivateLibraryPanel } from "./features/secret-private-library/Sec
 import { SecurityThreatModelPanel } from "./features/security-threat-model/SecurityThreatModelPanel";
 import { HistoricalRunPanel } from "./features/results/HistoricalRunContext";
 import { SolvePanel } from "./features/solve/SolvePanel";
+import { SolveProgressPanel } from "./features/solve/SolveProgressPanel";
 import { StressNeutralExportPanel } from "./features/stress-neutral/StressNeutralExportPanel";
 import { TelemetryBoundaryPanel } from "./features/telemetry/TelemetryBoundaryPanel";
 import { ValidationEvidencePanel } from "./features/validation-evidence/ValidationEvidencePanel";
@@ -309,6 +313,9 @@ function AppSession() {
     reviewDetailsOpen, setReviewDetailsOpen,
     auditDrawerOpen, setAuditDrawerOpen,
     issuesDrawerOpen, setIssuesDrawerOpen,
+    modelCheckRun,
+    modelCheckBusy,
+    handleRunModelChecks,
     stageSurface,
     stageViewMemory,
     narrowWindow,
@@ -333,6 +340,19 @@ function AppSession() {
   // browser/Playwright preview there is no native menu, so the in-DOM bar
   // renders and remains the navigable, tested source of truth.
   const showInAppMenuBar = !isTauriRuntime();
+
+  // B2 (DEL-07-02 Design `bulk-change.md`): Bulk change acts on the ordered selection. Change
+  // selected… in the entity menus opens its tab and moves focus to the panel.
+  const bulkChangeScope = useMemo(
+    () => orderedSelection.orderedKeys.flatMap((key) => { const ref = entityRefFromKey(key); return ref ? [ref] : []; }),
+    [orderedSelection.orderedKeys]
+  );
+  const [bulkChangeFocusRequest, setBulkChangeFocusRequest] = useState(0);
+  const openBulkChange = () => {
+    setActiveSection("operations");
+    setOperationTab("bulk");
+    setBulkChangeFocusRequest((current) => current + 1);
+  };
 
   if (!model || !selection) {
     return <div className="loading-screen">Loading local SWBPIPE preview fixture.</div>;
@@ -451,6 +471,7 @@ function AppSession() {
               operationBusy={operationBusy}
               viewCommandRef={viewportViewCommandRef}
               showAllAvailable={hiddenEntityKeys.size > 0 || isolationActive}
+              onChangeSelected={openBulkChange}
               onApplyCellIntent={async (intent) => {
                 const owned: { current?: Readonly<OperationOutcome> } = {};
                 const applied = await handleApplyIntent(intent, owned);
@@ -484,7 +505,7 @@ function AppSession() {
               {activeSection === "operations" || activatedExpensiveSections.has("operations") ? (
               <DormantSection active={activeSection === "operations"} guardGeneration={requestEpoch} sessionGeneration={projectSessionGeneration}>
               <nav className="operation-tabs" aria-label="Editing and review tools">
-                {[["review", "Review changes"], ["geometry", "Geometry"], ["supports", "Supports"], ["weight", "Self weight"], ["agent", "Agent"], ["records", "Model records"], ["details", "Details"]].map(([id, label]) => (
+                {[["review", "Review changes"], ["bulk", "Bulk change"], ["geometry", "Geometry"], ["supports", "Supports"], ["weight", "Self weight"], ["agent", "Agent"], ["records", "Model records"], ["details", "Details"]].map(([id, label]) => (
                   <button type="button" key={id} aria-pressed={operationTab === id} data-testid={`operation-tab-${id}`} onClick={() => setOperationTab(id)}>{label}</button>
                 ))}
               </nav>
@@ -503,6 +524,15 @@ function AppSession() {
                   </details>
                 ))}
               </section>
+              </div>
+              <div className="operation-tool-page" hidden={operationTab !== "bulk"}>
+              <BulkChangePanel
+                model={model}
+                scope={bulkChangeScope}
+                onQueueBatch={handleQueueOperationBatch}
+                busy={operationBusy}
+                focusRequest={bulkChangeFocusRequest}
+              />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "records"}>
               <AssumptionsPanel key={`assumptions:${projectSessionGeneration}`} model={model} selection={selection} queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
@@ -875,12 +905,14 @@ function AppSession() {
               onViewportInteractionStart={exposeViewportForNarrowInteraction}
               onInvalidateDraft={invalidateDirectDraftContext}
               onQueueIntent={handleQueueEditorIntent}
+              onChangeSelected={openBulkChange}
               operationBusy={operationBusy}
               onSelect={handleSelectEntity}
               queuedIntents={editorIntents}
               reservedIntents={queuedBatches.flatMap((entry) => entry.batch.operations)}
               result={result}
               resultStanding={viewportResultStanding}
+              ruleCheckRun={currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null}
               selection={selection}
               selectionState={orderedSelection}
               theme={resolvedTheme}
@@ -1164,6 +1196,7 @@ function AppSession() {
         <AgentStrip />
       </div>
 
+      <SolveProgressPanel solveJob={solveJob} running={running} onCancel={handleCancelRun} />
       <ShellStatusBar issueCount={issueCount} />
 
       {auditDrawerOpen ? (
@@ -1186,6 +1219,10 @@ function AppSession() {
           diagnosticFilterRequest={diagnosticFilterRequest}
           onClose={() => setIssuesDrawerOpen(false)}
           onSelectDiagnostic={handleSelectDiagnostic}
+          modelCheckRun={modelCheckRun}
+          modelCheckBusy={modelCheckBusy}
+          onRunModelChecks={() => { void handleRunModelChecks(); }}
+          onSelectEntity={(entity) => { handleSelectEntity(entity); }}
         />
       ) : null}
       <ReplaceProjectPrompt prompt={replaceProjectPrompt} />
@@ -1390,7 +1427,8 @@ function MenuBar({
         { kind: "command", id: "analyze.run", label: "Run Mechanics Preview", disabled: running },
         { kind: "command", id: "analyze.cancel", label: "Cancel Run", disabled: !running },
         { kind: "separator" },
-        { kind: "command", id: "analyze.rule-checks", label: "Rule Checks" }
+        { kind: "command", id: "analyze.rule-checks", label: "Rule Checks" },
+        { kind: "command", id: "analyze.check-model", label: "Check Model", shortcut: { label: MODEL_CHECKS_SHORTCUT, aria: MODEL_CHECKS_ARIA_SHORTCUTS } }
       ]
     }
   ];
@@ -1426,11 +1464,13 @@ function MenuBar({
                       className={item.active ? "app-menu-item active" : "app-menu-item"}
                       data-testid={`menu-item-${item.id}`}
                       aria-pressed={item.active ?? undefined}
+                      aria-keyshortcuts={item.shortcut?.aria}
                       disabled={item.disabled}
                       title={item.disabled && item.reason ? item.reason : undefined}
                       onClick={() => onCommand(item.id)}
                     >
                       {item.label}
+                      {item.shortcut ? <kbd className="app-menu-shortcut">{item.shortcut.label}</kbd> : null}
                       {item.disabled && item.reason ? <small className="app-menu-reason">{item.reason}</small> : null}
                     </button>
                   )
@@ -1621,7 +1661,11 @@ function IssuesHome({
   selectedDiagnosticId,
   diagnosticFilterRequest = null,
   onClose,
-  onSelectDiagnostic
+  onSelectDiagnostic,
+  modelCheckRun = null,
+  modelCheckBusy = false,
+  onRunModelChecks = () => {},
+  onSelectEntity = () => {}
 }: {
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
@@ -1631,6 +1675,11 @@ function IssuesHome({
   diagnosticFilterRequest?: DiagnosticFilterRequest | null;
   onClose: () => void;
   onSelectDiagnostic: (diagnosticId: string) => void;
+  /** B11: the session's last on-demand model-check run and its command. */
+  modelCheckRun?: ModelCheckRun | null;
+  modelCheckBusy?: boolean;
+  onRunModelChecks?: () => void;
+  onSelectEntity?: (entity: EntityRef) => void;
 }) {
   const operationDiagnostics = Object.values(operationOutcomes).flatMap((outcome) => outcome.diagnostics);
   return (
@@ -1644,6 +1693,7 @@ function IssuesHome({
           Close
         </button>
       </div>
+      <ModelChecksPanel model={model} run={modelCheckRun} busy={modelCheckBusy} onRun={onRunModelChecks} onSelectEntity={onSelectEntity} />
       {operationDiagnostics.length > 0 ? (
         <section className="panel issues-operation-list" aria-label="Operation diagnostics">
           <div className="panel-title">Operation diagnostics</div>

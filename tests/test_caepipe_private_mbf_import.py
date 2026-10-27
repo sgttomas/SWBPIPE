@@ -37,7 +37,8 @@ for extra in (ROOT, ROOT / "tests"):
 
 import caepipe_mbf_canonical as canon  # noqa: E402
 from core.handoff.caepipe_external.harness import EXPORT_ROUTE, contained, contained_dir, write_private  # noqa: E402
-from core.handoff.caepipe_mbf.importer import IMPORT_PROFILE_ID, import_caepipe_mbf, inside_git_work_tree  # noqa: E402
+from core.handoff.caepipe_mbf.importer import (  # noqa: E402
+    IMPORT_PROFILE_ID, import_caepipe_mbf, inside_git_work_tree, load_sidecar)
 from tools.caepipe_correlation.run_pilot import load_cases, render_case_mbf  # noqa: E402
 
 
@@ -67,7 +68,7 @@ def exchange_root(environ: Mapping[str, str]) -> Path | str:
     return root
 
 
-def classify(case: Mapping[str, Any], exported: bytes, sidecar: Mapping[str, Any]) -> dict[str, Any]:
+def classify(case: Mapping[str, Any], exported: bytes, sidecar: Any) -> dict[str, Any]:
     """The private outcome of importing one exported MBF (never printed)."""
     declaration = {"*": {"origin": "project_invented", "source_name": f"invented correlation case {case['case_id']}"}}
     result = import_caepipe_mbf(exported, sidecar=sidecar, material_provenance=declaration, rebind_by_node_number=True,
@@ -130,7 +131,7 @@ def check_exchange(root: Path, *, record: bool, emit: Callable[[str], None] = pr
         elif not sidecar_path.is_file():
             statuses.append(CaseStatus(case_id, "skipped", "no caepipe_in/id_map.json writer sidecar"))
         else:
-            outcome = classify(case, exported_path.read_bytes(), json.loads(sidecar_path.read_text(encoding="utf-8")))
+            outcome = classify(case, exported_path.read_bytes(), load_sidecar(sidecar_path))
             if record:
                 contained_dir(root, record_path.parent)
                 write_private(root, record_path, json.dumps(outcome, indent=2, sort_keys=True) + "\n")
@@ -169,9 +170,8 @@ def invented_exchange(tmp_path: Path, case: Mapping[str, Any]) -> Path:
     root = tmp_path / "exchange"
     writer, _, mbf_text = render_case_mbf(case)
     data = mbf_text.encode("ascii")
-    for layer, name, content in (("caepipe_in", "id_map.json", json.dumps({
-            **{key: value for key, value in writer.to_dict().items() if key.endswith("_map")},
-            "mbf_sha256": hashlib.sha256(data).hexdigest()})), ("caepipe_out", "exported.mbf", mbf_text),
+    for layer, name, content in (("caepipe_in", "id_map.json", json.dumps(
+            writer.sidecar(hashlib.sha256(data).hexdigest()))), ("caepipe_out", "exported.mbf", mbf_text),
             ("caepipe_out", "run_record.json", json.dumps({"mbf_export": {
                 "route": EXPORT_ROUTE, "exported_mbf": {"sha256": hashlib.sha256(data).hexdigest()}}}))):
         path = root / "cases" / case["case_id"] / layer

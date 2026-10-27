@@ -641,9 +641,12 @@ def test_support_map_records_each_support_family():
     model["supports"][0]["family"] = "anchor"
     result = render_caepipe_mbf_si(model, title="FAMILY")
     assert result.status == "written", result.diagnostics
-    assert result.support_map["A1"]["family"] == "anchor"
-    assert result.support_map["A3"]["family"] is None  # authored without a family
-    assert result.support_map["R4"]["family"] is None
+    # The effective family (Design §15, format 2): the authored one, or the solve's inference, with the flag.
+    assert (result.support_map["A1"]["family"], result.support_map["A1"]["family_authored"]) == ("anchor", True)
+    assert (result.support_map["A3"]["family"], result.support_map["A3"]["family_authored"]) == ("anchor", False)
+    restraints = result.support_map["R4"]["restrained"]
+    assert len(restraints) < 6  # fewer than six DOFs and no family: the solve's guide
+    assert (result.support_map["R4"]["family"], result.support_map["R4"]["family_authored"]) == ("guide", False)
 
 
 def test_load_map_records_each_primitive_direction():
@@ -661,7 +664,8 @@ def test_material_map_origin_only_from_affirmative_provenance():
             model["materials"][0]["provenance_record"] = record
         result = render_caepipe_mbf_si(model, title="ORIGIN")
         assert result.status == "written", result.diagnostics
-        return result.material_map["M1"].get("origin")
+        found = result.material_map["M1"]["origin"]
+        return None if found == "undeclared" else found  # format 2 records "undeclared", never null
 
     invented = {"source_name": "invented", "contributor_certification": "invented non-engineering example",
                 "redistribution_status": "public_permissive"}
@@ -796,3 +800,154 @@ def test_a_tangent_intersection_beyond_binary64_is_refused():
     assert result.status == "refused"
     assert any(item["code"] == "MBF-SI-VALUE-OUT-OF-RANGE" and "tangent intersection" in item["message"]
                for item in result.diagnostics)
+
+
+# --- pressure (Design §9.4, tranche 2) -----------------------------------------------------------------------------
+EXACT = {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}
+
+
+def region(region_id, members, value, unit, ends, closures=("transfers_to_wall", "transfers_to_wall")):
+    return {"id": region_id, "member_pipe_ids": list(members), "pressure_basis": "internal_differential_zero_external_v1",
+            "pressure": q(value, unit), "provenance": "invented pressure for this test",
+            "terminals": [{"node_ref": node_id, "closure_transfer": closure, "provenance": "invented closure for this test"}
+                          for node_id, closure in zip(ends, closures)]}
+
+
+def exact(model):
+    """`model` under the exact pressure contract: an E/nu material basis, explicit zero corrosion allowances and an
+    explicit (empty) region list on every case."""
+    model = deepcopy(model)
+    model["pressure_contract"] = dict(EXACT)
+    for material in model["materials"]:
+        material["constitutive_basis"] = "homogeneous_isotropic_E_nu_v1"
+        if material.get("poisson_ratio") is None:
+            material["poisson_ratio"] = q(0.25, "1")  # E / (2G) - 1 for the shell material
+        material.pop("shear_modulus", None)
+    for item in model["pipe_segments"]:
+        item["section"]["corrosion_allowance"] = q(0.0, item["section"]["wall_thickness"]["unit"])
+    for case in model["load_cases"]:
+        case.setdefault("pressure_regions", [])
+    return model
+
+
+def pressurized_l(value=2.5e6, unit="Pa", shear="euler_bernoulli"):
+    """Invented: the bent L with one region over S1, the bend and S2 in a pressure-only case."""
+    model = exact(bent_l())
+    model["pressure_contract"]["shear_model"] = shear
+    model["load_cases"].insert(0, {"id": "case:p", "primitive_loads": [], "pressure_regions": [
+        region("region:L", ("S1", "BEND", "S2"), value, unit, ("A", "B"))]})
+    return model
+
+
+def pressurized_tee():
+    """Invented tee in mm with three anchored legs, one region per leg at 10 bar, and a separately supported end."""
+    model = exact(branched())
+    model["supports"] = [{"id": f"A{n}", "node": f"N{n}", "restraints": list(SIX)} for n in (1, 3, 4)]
+    model["load_cases"] = [
+        {"id": "case:sus", "primitive_loads": [force("f2", "N2", "global_y", -2500.0)], "pressure_regions": [
+            region("region:west", ("P1",), 10.0, "bar", ("N1", "N2")),
+            region("region:east", ("P2",), 10.0, "bar", ("N2", "N3")),
+            region("region:branch", ("P3",), 10.0, "bar", ("N2", "N4"),
+                   ("transfers_to_wall", "separately_supported_or_compensated"))]},
+        {"id": "case:th", "primitive_loads": [
+            {"id": "t1", "category": "thermal", "target": {"type": "element", "pipe": "P1"}, "direction": "global_x",
+             "magnitude": q(80.0, "degC"), "dimension": "temperature_interval"}], "pressure_regions": []}]
+    model["combinations"] = []
+    return model
+
+
+def pressurized_us_cantilever():
+    """Invented US-customary cantilever with 150 psi over S1, capped at its free end."""
+    model = exact(us_customary_cantilever())
+    model["load_cases"][0]["pressure_regions"] = [region("region:S1", ("S1",), 150.0, "psi", ("N0", "N1"))]
+    return model
+
+
+def test_a_pressure_region_is_written_as_pressure_1_in_bar():
+    result = render_caepipe_mbf_si(pressurized_l(), title="PRESSURE L")
+    assert result.status == "written", result.diagnostics
+    lines = result.text.split("\r\n")
+    assert lines[lines.index("OPPRES") + 1] == "0,0,0,1,0" and lines.index("OPPRES") == lines.index("OPTEMP") + 2
+    assert lines[lines.index("LOADS") + 1] == "L1,120,25,0"  # 2.5e6 Pa = 25 bar; T1 = 20 + 100
+    assert result.load_case_map == {"case:p": "Sustained (W+P)", "case:th": "Expansion (T1)"}
+    assert result.pressure_map == {"contract": {"version": "3.0.0", "mode": "exact_pressure_v3"},
+                                   "shear_model": EXACT["shear_model"], "regions": [
+        {"id": "region:L", "members": ["S1", "BEND", "S2"], "pressure_bar": 25.0,
+         "provenance": "invented pressure for this test",
+         "terminals": [{"node_ref": node_id, "closure_transfer": "transfers_to_wall",
+                        "provenance": "invented closure for this test"} for node_id in ("A", "B")]}]}
+    assert codes(result, "warning") >= {"MBF-SI-SHEAR-MODEL-NOT-EXPORTED"}
+    notes = " ".join(result.assumptions)
+    assert "1 bar = 1e5 Pa exactly" in notes and "pressure_map" in notes and "OPPRES is written 0,0,0,1,0" in notes
+    assert result.to_dict()["pressure_map"] == result.pressure_map
+
+
+@pytest.mark.parametrize("value, unit, printed", [
+    (2.5e6, "Pa", "25"), (1.5, "MPa", "15"), (300.0, "kPa", "3"), (12.5, "bar", "12.5"),
+    # 100 psi = 100 x 4.4482216152605 N / 645.16 mm^2 = 444.82216152605 / 64.516 bar = 6.8947572931683...bar.
+    (100.0, "psi", "6.894757293"),
+])
+def test_each_pressure_unit_becomes_bar_by_its_definition(value, unit, printed):
+    result = render_caepipe_mbf_si(pressurized_l(value, unit), title="P")
+    assert result.text.split("\r\n")[result.text.split("\r\n").index("LOADS") + 1] == f"L1,120,{printed},0"
+    exact_bar = Fraction(value) * {"Pa": Fraction(1, 10**5), "MPa": 10, "kPa": Fraction(1, 100), "bar": 1,
+                                   "psi": Fraction("4.4482216152605") / Fraction("0.00064516") / 10**5}[unit]
+    assert result.pressure_map["regions"][0]["pressure_bar"] == float(exact_bar)
+    if unit == "psi":
+        assert exact_bar == Fraction("444.82216152605") / Fraction("64.516")
+        assert "MBF-SI-UNITS-NORMALIZED" in codes(result, "info")
+
+
+def test_unpressurized_elements_and_models_write_pressure_0_and_no_oppres():
+    tee = render_caepipe_mbf_si(pressurized_tee(), title="TEE")
+    assert tee.status == "written", tee.diagnostics
+    lines = tee.text.split("\r\n")
+    assert lines[lines.index("LOADS") + 1:lines.index("LAYOUT")] == ["L1,100,10,0", "L2,20,10,0"]
+    plain = render_caepipe_mbf_si(cantilever(), title="PLAIN")
+    assert "OPPRES" not in plain.text.split("\r\n")
+    assert plain.pressure_map == {"contract": "none", "shear_model": "euler_bernoulli", "regions": []}
+    no_regions = exact(cantilever())  # the contract alone: Pressure 1 = 0 everywhere, the contract in the sidecar
+    result = render_caepipe_mbf_si(no_regions, title="CONTRACT ONLY")
+    assert "OPPRES" not in result.text.split("\r\n")
+    assert result.pressure_map == {"contract": {"version": "3.0.0", "mode": "exact_pressure_v3"},
+                                   "shear_model": EXACT["shear_model"], "regions": []}
+
+
+def test_pressure_refusals_and_omissions():
+    thermal = pressurized_l()
+    regions = thermal["load_cases"].pop(0)["pressure_regions"]
+    thermal["load_cases"][0]["pressure_regions"] = regions
+    assert_refused(render_caepipe_mbf_si(thermal, title="P"), "MBF-SI-PRESSURE-CASE-UNSUPPORTED", "Expansion (T1)")
+    assert_refused(render_caepipe_mbf_si(pressurized_l(-1.0e5), title="P"), "MBF-SI-PRESSURE-UNSUPPORTED", "negative")
+    zero = render_caepipe_mbf_si(pressurized_l(0.0), title="P")
+    assert "MBF-SI-PRESSURE-REGION-ZERO" in codes(zero, "warning") and "OPPRES" not in zero.text.split("\r\n")
+    no_contract = pressurized_l()
+    del no_contract["pressure_contract"]
+    assert_refused(render_caepipe_mbf_si(no_contract, title="P"), "MBF-SI-PRESSURE-UNSUPPORTED",
+                   "without the exact pressure contract")
+    old = pressurized_l()
+    old["pressure_contract"]["version"] = "2.0.0"
+    assert_refused(render_caepipe_mbf_si(old, title="P"), "MBF-SI-PRESSURE-UNSUPPORTED", "3.0.0/exact_pressure_v3")
+    joint = pressurized_l()
+    joint["load_cases"][0]["pressure_regions"][0]["member_connector_ids"] = ["joint:1"]
+    assert_refused(render_caepipe_mbf_si(joint, title="P"), "MBF-SI-PRESSURE-UNSUPPORTED", "connectors")
+    split = pressurized_l()
+    split["load_cases"][0]["pressure_regions"][0]["member_pipe_ids"] = ["BEND", "S2"]
+    assert_refused(render_caepipe_mbf_si(split, title="P"), "MBF-SI-BEND-UNSUPPORTED", "temperature or pressure")
+    unclosed = pressurized_l()
+    unclosed["load_cases"][0]["pressure_regions"][0]["terminals"][1]["closure_transfer"] = None
+    assert_refused(render_caepipe_mbf_si(unclosed, title="P"), "MBF-SI-INPUT-INVALID", "closure transfer")
+
+
+def test_an_exact_pressure_section_without_an_allowance_is_refused_not_written_as_zero():
+    # VER-002 r2 item 2: the solve refuses such a model (EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED); writing the
+    # MBF's 0 and importing it back would author an allowance and solve.
+    for pipe_id in ("S2", "S1"):
+        model = pressurized_l()
+        del next(item for item in model["pipe_segments"] if item["id"] == pipe_id)["section"]["corrosion_allowance"]
+        assert_refused(render_caepipe_mbf_si(model, title="P"), "MBF-SI-CORROSION-ALLOWANCE-MISSING", f"pipe:{pipe_id}")
+    contract_only = exact(cantilever())  # the contract without regions needs it too
+    del contract_only["pipe_segments"][0]["section"]["corrosion_allowance"]
+    assert_refused(render_caepipe_mbf_si(contract_only, title="P"), "MBF-SI-CORROSION-ALLOWANCE-MISSING")
+    plain = cantilever()  # no contract: no allowance needed
+    assert render_caepipe_mbf_si(plain, title="P").status == "written"
