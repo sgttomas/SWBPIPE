@@ -1206,6 +1206,14 @@ pub(super) struct RegisteredProfile {
 static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
     // aarch64-apple-darwin, rustc 1.97.1 (8bab26f4f68e), profile=debug, opt_level=0,
     // debug_assertions=true, panic=unwind, no RUSTFLAGS.
+    // Model document 0.8.0 D3 at d5b71e2dda (W-15 slice c: the version ripple and a reducer's
+    // eccentric offset, on main 289bd8d546; retained-pricing-rules.md §8.26): the tree is
+    // coefficient-identical to the nested-record closure's (§8.25, 1,586 coefficients; only the
+    // basis line moves). The reviewed inputs DEF-E (#7), physics-retained-1 (#8, which also
+    // carries DEF-E's definition hash), pressure-source-1 (#9) and pressure-2 (#11), counted from
+    // 0, take their 0.8.0 version-token bytes; the identity, the other eight inputs, reader
+    // layouts and threshold are unchanged. The nested-record closure's D3 (§8.25, which kept
+    // §8.24's inputs) was the previous registration.
     // Unit factor-sum gate D3 at 0f0f28106e (the constant-effort combination gate's exact unit
     // factor-sum rule; retained-pricing-rules.md §8.24): both preview tables restate the gate's
     // condition, so preview-physics-retained-1 (#4) and preview-physics-2 (#5), counted from 0,
@@ -1351,7 +1359,7 @@ pub(super) fn priced_maximum(estimates: usize, mode: crate::PreviewSolverMode) -
 /// U4 G5 part 2: the cap-priced admission maximum as named in-build expressions. Every term is a
 /// linear form over layout atoms at the D1 caps (l <= 128); every maximum (stages, phases, moving
 /// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections at
-/// SQ2 G5 at c9440263cf: the maximum over routes L (C_eq <= 3: worst shape c = 3, z = 0) and E (c = 3), SQ2 rules; text at l <= 128.
+/// SQ2 G5 at d5b71e2dda: the maximum over routes L (C_eq <= 3: worst shape c = 3, z = 0) and E (c = 3), SQ2 rules; text at l <= 128.
 pub(super) mod profile {
     #![allow(clippy::all, dead_code)]
     use open_pipe_stress_frame_kernel::structural::retained_resource as fkr;
