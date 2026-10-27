@@ -1907,8 +1907,11 @@ was a search, not a scan run:
   inline module outside a root is `mac`. No crate has a subdirectory under
   `src`.
 
-So the rules hold at the basis. The only allow-lists are the macro lists
-above, each derived from the basis source.
+So the rules hold at the basis. The allow-lists are the macro lists above,
+each derived from the basis source, and those of the conservative rules
+below (code review r3 at #1682): the defining module's macros, derived from
+its source, and its type aliases and the reporting crates' raw identifiers,
+both empty.
 
 *Scanned names and how they are matched.* The scanned names are:
 - the six document functions: `render_calculation_report`,
@@ -1923,7 +1926,10 @@ above, each derived from the basis source.
 normalized, in calls, literals, types, imports, attributes, macro paths and
 token screening alike:
 - a raw identifier is compared without its `r#` (`r#assemble_derived` is
-  `assemble_derived`), including a module's name when its file is resolved;
+  `assemble_derived`), including a module's name when its file is resolved.
+  In the three reporting crates a raw identifier is also itself a finding
+  (*Conservative rules* below), so normalization matters there only for the
+  finding's text;
 - a leading `::` is dropped (`::serde_json::json!` is `serde_json::json!`);
 - a path prefix of only `crate`, `self` and `super` is the current crate's
   own modules.
@@ -1963,41 +1969,110 @@ Every other spelling fails closed:
   an impl of such a name. A `<T as Trait>::` path, generic arguments, a path
   of more than one segment (`Self::Assoc`, `module::Alias`, an enum variant)
   and a leading `::` are findings, as is `Self { .. }` in a trait's default
-  method. The rule applies in a macro's tokens too: there a brace group after
-  a name is a literal unless the name is a keyword or ends an `if`, `while`,
-  `match` or `for … in` condition, where Rust admits no struct literal. The
-  rule is sound because a literal's path resolves to `DerivedUserRelease`
-  only through its own name (the literal rule), an alias (a type alias, an
-  associated type, an import rename, or a projection or defaulted parameter
-  reached through one), `Self` in an impl of it, or generic arguments or a
-  qualified path at the literal; each of these is a finding. The real
-  sources' literals in the module are the crate's own structs, so the real
-  scan still finds nothing;
+  method. The rule reaches every literal in the module because every
+  literal there is in code the scan parses: outside macros, or in a listed
+  macro's tokens, which are parsed and visited as code (*Conservative rules*
+  below); any other macro there, and a brace group in any other tokens
+  there, is a finding. The rule then holds because a literal's path
+  resolves to `DerivedUserRelease` only through its own name (the literal
+  rule), an alias (a type alias, an associated type, an import rename, or a
+  projection or defaulted parameter reached through one), `Self` in an impl
+  of it, or generic arguments or a qualified path at the literal. Each of
+  these is a finding: a type alias or associated type declared in the
+  module, in any position, is one outright, and any other alias, import
+  rename or associated type the crate declares shares its name with no
+  admitted struct. The real sources' literals in the module are the crate's
+  own structs, so the real scan still finds nothing;
 - `ProducerEntry::UserRelease` named as a value, not only as a callee, and
   its braced form (`ProducerEntry::UserRelease { 0: derived }`), are
   constructions;
-- macro-generated paths: only the listed macros may be invoked, and their
-  tokens are screened with the same normalization. A `UserRelease` named in
-  any macro's tokens is a construction, except in the pattern of a
-  `matches!`, which constructs nothing. Its tokens are split by parsing them
-  as an expression, a comma and a pattern; the scrutinee and everything after
-  the pattern (the guard, `if let` included) are screened as expression
-  tokens, constructions counted (Codex round 2 at #1682, P2: the guard of
-  `matches!((), _ if { let _e = ProducerEntry::UserRelease(d); true })`
-  escaped when every construction in its tokens was discarded). A pattern
-  that could hold an expression (an inline `const` block or a macro) is
-  screened as expression tokens, and tokens that do not parse so are a
-  finding. `matches!` is the only macro whose tokens the scan reads other
-  than as expression tokens: `include_str!` and `include_bytes!` are also
-  checked as one string literal, `include!` is refused, and `macro_rules!`
-  bodies are screened whole, none discarding a construction.
+- macro-generated paths: only the listed macros may be invoked. A
+  `matches!` anywhere, and in the defining module each macro it admits, is
+  parsed by its input grammar and visited as code (*Conservative rules*
+  below). So a `UserRelease` in a `matches!` pattern is a pattern and
+  constructs nothing, while its scrutinee, its guard (`if let` included)
+  and any expression inside its pattern (an inline `const` block, a const
+  generic argument, an array length in a qualified path, a macro) are
+  visited as expressions, constructions counted (Codex round 2 and code
+  review r3 at #1682: a construction in a `matches!` guard, and one in a
+  const generic argument of its pattern, escaped). A `matches!` whose tokens
+  do not parse so is a finding. Every other macro's tokens are screened
+  with the same normalization, and a `UserRelease` named in them is a
+  construction: `include_str!` and `include_bytes!` are also checked as one
+  string literal, `include!` is refused, and `macro_rules!` bodies are
+  screened whole, none discarding a construction.
+
+*Conservative rules (code review r3 at #1682).* Three review rounds each
+found a form that the scanner modelled wrongly: an alias declared inside a
+macro's tokens, a raw identifier (`r#const`) taken for a block keyword, and
+a construction inside a const generic argument of a `matches!` pattern.
+Rather than model each form, the scan refuses whole classes, failing closed
+on what it does not parse into its model. Each rule below is a finding when
+broken, and each allow-list is empty or derived from today's source:
+- **Type aliases in the defining module.** Every type alias declared in
+  `report_package/src/user_release.rs` or a module beneath it is a finding,
+  whatever it names: an item, a block's item, an impl's associated type and
+  a trait's associated type, inside a listed macro's tokens included. The
+  allow-list (`SUBTREE_TYPE_ALIASES`) is empty; none exists today.
+- **Macros in the defining module.** Only `format!`, `format_args!`,
+  `vec!`, `matches!` and `json!` may be invoked there (`SUBTREE_MACROS`,
+  exactly the ones its production code uses today).
+  Each one's tokens are parsed by its input grammar into `syn`'s tree and
+  visited by the same visitor as code outside macros, so every rule, the
+  alias, literal and construction rules included, applies inside them:
+  `format!` and `format_args!` as comma-separated expressions (a named
+  argument is an assignment expression); `vec!` as `expr; expr` or
+  comma-separated expressions; `matches!` as `expr, pattern (if expr)? ,?`;
+  and `json!` as a lone `{ … }` object of `key: value` entries (the key an
+  expression), a lone `[ … ]` array, or one expression, recursively. Every
+  token is in a parsed expression or pattern or is the grammar's own
+  punctuation. Tokens that do not parse so are a finding. Any other macro
+  there (`println!`, `assert!`, an item-level macro) is a finding, and a
+  brace group in tokens the scan does not parse there (an attribute's, or a
+  refused macro's) is a finding. The scan chose to refuse every other
+  macro, rather than screen for `type`, `Path { … }` or `ProducerEntry` in
+  their tokens, because that screen would itself be a token-level model of
+  Rust's grammar, the kind of rule each round found wanting; a parsed tree
+  needs no such model.
+- **Raw identifiers in the three reporting crates.** Every raw identifier
+  (`r#name`) in a file the scan reads in `report_package`, `report_renderer`
+  or `pdf_emitter`, in any position (code, attributes, macro tokens and
+  inline test modules), is a finding. The rule runs on each file's tokens,
+  as `proc_macro2` lexes it, so no position escapes it; a file that does not
+  lex is a finding. The allow-list (`RAW_IDENTIFIERS`) is empty: the three
+  crates hold no raw identifier today (raw string literals such as
+  `r#"…"#` are literals, not identifiers). In `src-tauri` raw identifiers
+  are compared normalized, as above.
+- **Blocks in generic arguments in the three reporting crates.** On the
+  same tokens, a brace group directly after `<`, or after `,` or `=` while
+  an angle bracket is open, is a finding: `Type<{ … }>`,
+  `path::<A, { … }>`, a const parameter's `= { … }` default, in types,
+  expressions, patterns, macro tokens and attributes alike. The angle count
+  is lexical: `<` opens unless it is half of `<<` or `<=`, `>` closes unless
+  it ends `->` or `=>` or starts `>=`, and `;` and each brace group reset it.
+  It can therefore also find a comparison followed by a block argument
+  (`f(a < b, { … })`), which fails closed; today's source holds none. In the
+  parsed tree, a const generic argument other than a literal, and an
+  associated-constant argument, are findings too.
+- **Syntax `syn` does not model.** Anywhere in the four crates' production
+  source, an item,
+  impl item, trait item, foreign item, expression, type, pattern or bound
+  that `syn` gives as `Verbatim` is a finding, never skipped.
+
+The real-source scan finds nothing under these rules; no rule needed an
+allow-list entry or a change to production code. What the scan does not
+attempt to model, and refuses instead: macro expansion (beyond the listed
+macros' input grammars), name resolution beyond the crate-wide inventory of
+struct and alias names, type inference, constant evaluation and `cfg`
+predicates.
 
 An occurrence is an identifier equal to a scanned name, wherever it stands:
 - in a path, a `use` tree, a method call, a field, a pattern or a type;
 - in an attribute's arguments;
 - in the tokens of any macro definition or invocation. `syn` leaves macro
   bodies unparsed, so the scan walks every token stream, groups included,
-  and every `Verbatim` node.
+  except where it parses a listed macro's tokens and visits them as code.
+  A `Verbatim` node is a finding (*Conservative rules* above).
 
 In `src-tauri` the bare `render_calculation_report` is the Tauri command's:
 its definition (`lib.rs:1569`) and its handler entry (`:5076`). Its command
@@ -2079,7 +2154,8 @@ call of `check_request_in`, `wire::assemble_wire_request_in` and
 
 The variant `UserRelease` may be constructed, that is appear in expression
 position, only there. In a pattern it may appear anywhere, since a pattern
-constructs nothing.
+constructs nothing; an expression inside a pattern is read as an
+expression.
 
 *Re-exports and imports.* These are findings too:
 - **(a) A re-export by module, alias or glob.** In `report_package` and
@@ -3143,6 +3219,44 @@ leaves the sandbox directory empty, with no picker request.
       in a `matches!`; an inherent impl of `DerivedUserRelease`; and
       `matches!` patterns naming `UserRelease` with a guard and with a
       trailing comma.
+
+    Code review r3 at #1682 adds the cases below (§2.8, *Conservative
+    rules*). Each must be a finding unless it is marked as passing; the
+    reviewer's three repros, with their shared prelude
+    (`trait ReviewIdentity<T = DerivedUserRelease> { type Repr; }` and
+    `impl<T> ReviewIdentity<T> for () { type Repr = T; }`), are applied to
+    the real sources, and each must give findings on its own lines:
+    - **The repros:** an alias declared in `vec!`'s tokens and written as a
+      literal (`type UserReleaseInputs = <() as ReviewIdentity>::Repr;`);
+      `type r#const = …;` written as `vec![r#const { _derived: () }]`; and a
+      `ProducerEntry::UserRelease(ReviewAlias { .. })` inside a const generic
+      argument of a `matches!` pattern;
+    - **Type aliases in the defining module:** at item level, in a block, in
+      an inline module, as an impl's and a trait's associated type, and in
+      `vec!`, `format!`, `format_args!`, a `json!` value, a `matches!` guard
+      and a listed macro nested in another; `println!` and `assert!` there,
+      and `serde_json::json!` by its path, are unlisted, and `println!`'s
+      unparsed block is a finding too; `json!` tokens that are not its
+      grammar (a block for an object, an empty entry); a literal of an alias
+      in parsed `json!` tokens;
+    - **Raw identifiers in the reporting crates:** `r#match` as a function
+      name, `r#if` as a binding and in a macro's tokens, `r#unused` in an
+      attribute, a raw identifier in an inline test module, and `r#if` as a
+      literal's name in the defining module;
+    - **Blocks in generic arguments:** in type position, in an expression,
+      after another argument, in a pattern, in another macro's tokens, as a
+      const parameter's default and in a qualified type; and a construction
+      in an array length of a `matches!` pattern's qualified path;
+    - **Syntax `syn` does not model:** a `box` pattern and a
+      `builtin # offset_of` expression;
+    - **Passing cases:** ordinary generics, const arguments that are
+      literals, comparisons, `<=`, shifts, nested generics before a block,
+      match guards and closures in a reporting crate; raw string literals; a
+      raw identifier in `src-tauri`; a type alias outside the defining
+      module; and each listed macro's grammar in the defining module (named
+      `format!` arguments, `vec![x; n]`, a trailing comma, a `matches!` guard,
+      and a `json!` object with nested arrays and objects, an expression
+      key, a parenthesized key and a negative value).
   - **Render command:** a pressure-free `local_private` input with a
     `user_release` member, and an exact `local_private` input with one, are
     each refused with `RENDER-USER-RELEASE-PACKAGE-ONLY`, with no body.

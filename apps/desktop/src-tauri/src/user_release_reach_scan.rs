@@ -16,7 +16,8 @@
 //!   a `.rs` file, a missing or ambiguous module file, and a file that does
 //!   not parse are findings.
 //! - **Spellings** (Codex round 1 at #1682). Identifiers are compared without
-//!   `r#` and paths without a leading `::`; a prefix of only `crate`, `self`
+//!   `r#` (in the three reporting crates a raw identifier is itself a finding,
+//!   below) and paths without a leading `::`; a prefix of only `crate`, `self`
 //!   and `super` is the crate's own. Every other spelling fails closed:
 //!   `<T as Trait>::` paths to scanned names, `Self::` and alias prefixes to
 //!   the `src-tauri` renderer pair, other aliases of the renderer and PDF
@@ -52,10 +53,22 @@
 //!   impl of such a name: a `<T as Trait>::` path, generic arguments, a path
 //!   of more than one segment and a leading `::` are findings.
 //! - **Constructions** of `ProducerEntry::UserRelease` are its call, its value,
-//!   its braced form (`UserRelease { 0: derived }`) and its name in any macro's
-//!   tokens; only the pattern of a `matches!` is read as a pattern, and its
-//!   scrutinee and guard are screened as expression tokens (Codex round 2 at
-//!   #1682).
+//!   its braced form (`UserRelease { 0: derived }`) and its name in any
+//!   unparsed macro tokens. A `matches!` is parsed (`expr, pattern (if
+//!   expr)?`) and visited as code, so only its pattern is read as a pattern,
+//!   and an expression inside the pattern is visited as one (Codex round 2
+//!   and code review r3 at #1682).
+//! - **Conservative rules** (code review r3 at #1682). Rather than model each
+//!   form, these close whole classes, failing closed: in the defining subtree,
+//!   every type alias (item, block, impl or trait `type`, inside macro tokens
+//!   included) is a finding, the allow-list being empty; only the macros on
+//!   [`SUBTREE_MACROS`] may be invoked there, their tokens parsed by their
+//!   input grammar and visited as code, and tokens that do not parse, or a
+//!   brace group in any other tokens there, are findings. In the three
+//!   reporting crates every raw identifier (allow-list empty) and every brace
+//!   group in generic arguments, found on each read file's tokens, and every
+//!   const generic argument but a literal, are findings. Anywhere, syntax
+//!   `syn` gives as `Verbatim` is a finding.
 //!
 //! What it does not establish: code that builds a document without calling
 //! the scanned functions, and a listed external macro whose version would
@@ -144,9 +157,23 @@ const DERIVED_FILE: &str = "report_package/src/user_release.rs";
 /// the type under another path, which a struct literal could then construct.
 const DERIVED_TRAIT_IMPLS: [&str; 0] = [];
 
-/// Keywords that can directly precede a brace group in a macro's tokens
-/// without that group being a struct literal's fields.
-const BLOCK_KEYWORDS: [&str; 14] = ["else", "loop", "unsafe", "async", "move", "const", "try", "fn", "impl", "struct", "enum", "union", "trait", "mod"];
+/// The type aliases admitted in `DerivedUserRelease`'s defining subtree
+/// (item, block, impl and trait `type` declarations, in any position), by
+/// name: none exist today (code review r3 at #1682). Any other is a finding:
+/// an alias can name the type under a name the literal rule would admit.
+const SUBTREE_TYPE_ALIASES: [&str; 0] = [];
+
+/// The macros the defining subtree may invoke, by path as written (code
+/// review r3 at #1682). Each one's tokens are parsed into `syn`'s syntax tree
+/// by its input grammar ([`parse_listed_macro`]) and visited as code, so every
+/// rule applies inside them as outside; tokens that do not parse are a
+/// finding. Any other macro there is a finding.
+const SUBTREE_MACROS: [&str; 5] = ["format", "format_args", "vec", "matches", "json"];
+
+/// The raw identifiers (`r#name`) admitted in the three reporting crates, by
+/// name without `r#`: none exist today (code review r3 at #1682). Any other,
+/// in any position of a file the scan reads, is a finding.
+const RAW_IDENTIFIERS: [&str; 0] = [];
 
 /// Whether `file` is in `DerivedUserRelease`'s defining module (its file, or a
 /// file of a module beneath it): the only code that can name its private
@@ -422,9 +449,9 @@ struct FileScan<'a> {
     /// Inside a type alias (`type X = ...;`), where naming `DerivedUserRelease`
     /// would give it a name the literal rule does not match.
     in_type_alias: bool,
-    /// Screening a `matches!` pattern that can construct nothing
-    /// ([`pattern_can_construct`]): its brace groups are struct patterns.
-    in_pattern: bool,
+    /// Visiting a listed macro's parsed tokens ([`parse_listed_macro`]): the
+    /// findings say so.
+    in_macro: bool,
 }
 
 impl FileScan<'_> {
@@ -439,10 +466,40 @@ impl FileScan<'_> {
         self.crate_key() != "src-tauri"
     }
 
-    /// A type alias's or an associated type's name in `report_package`.
+    /// A type alias's or an associated type's name in `report_package`. In the
+    /// defining subtree every one not on [`SUBTREE_TYPE_ALIASES`] is a finding,
+    /// whatever it names and wherever it is declared (code review r3 at #1682).
     fn alias(&mut self, ident: &proc_macro2::Ident) {
+        let name = ident_text(ident);
+        if in_defining_module(&self.file) && !SUBTREE_TYPE_ALIASES.contains(&name.as_str()) {
+            self.finding(line_of(ident.span()), format!("the type alias {name} in the defining module of {DERIVED}, which is not on the alias allow-list"));
+        }
         if self.crate_key() == "report_package" {
-            self.type_names.aliases.insert(ident_text(ident));
+            self.type_names.aliases.insert(name);
+        }
+    }
+
+    /// Code `syn` gives as `Verbatim` (syntax it does not model): a finding,
+    /// never skipped.
+    fn unparsed(&mut self, tokens: &TokenStream, what: &str) {
+        let line = tokens.clone().into_iter().next().map_or(0, |tree| line_of(tree.span()));
+        self.finding(line, format!("{what} syn gives as Verbatim (syntax the scan does not model)"));
+    }
+
+    /// The token rules over a whole file of the three reporting crates (code
+    /// review r3 at #1682): every raw identifier not on [`RAW_IDENTIFIERS`],
+    /// and every brace group in generic arguments ([`generic_blocks`]), in
+    /// any position, macro tokens, attributes and inline test modules
+    /// included. A file that does not lex is a finding.
+    fn token_rules(&mut self) {
+        let Ok(tokens) = self.text.parse::<TokenStream>() else {
+            self.finding(0, "a file that does not lex");
+            return;
+        };
+        let mut found = Vec::new();
+        lexical_findings(tokens, &mut found);
+        for (line, what) in found {
+            self.finding(line, what);
         }
     }
 
@@ -494,16 +551,20 @@ impl FileScan<'_> {
         self.scanned_bare(last).then(|| last.clone())
     }
 
-    /// Screens a token stream (a macro's or an attribute's arguments): every
-    /// scanned name in it, every `mod` token where `forbid_mod`, and every
-    /// nested macro invocation's path against the list.
+    /// Screens a token stream the scan does not parse (an attribute's
+    /// arguments, or a macro's outside the defining subtree or that did not
+    /// parse): every scanned name in it, every `UserRelease` as a
+    /// construction, and every nested macro invocation's path against the
+    /// list. In the defining subtree a brace group in such tokens is a finding
+    /// (code review r3 at #1682): it could be a struct literal or a block the
+    /// scan would have to model.
     fn screen_tokens(&mut self, tokens: &TokenStream, check_invocations: bool) {
         let trees: Vec<TokenTree> = tokens.clone().into_iter().collect();
         for (index, tree) in trees.iter().enumerate() {
             match tree {
                 TokenTree::Group(group) => {
-                    if group.delimiter() == proc_macro2::Delimiter::Brace && index >= 1 && in_defining_module(&self.file) && !self.in_pattern {
-                        self.token_literal(&trees, index, line_of(group.span()));
+                    if group.delimiter() == proc_macro2::Delimiter::Brace && in_defining_module(&self.file) {
+                        self.finding(line_of(group.span()), format!("a brace group in tokens the scan does not parse, in the defining module of {DERIVED}"));
                     }
                     self.screen_tokens(&group.stream(), check_invocations)
                 }
@@ -653,7 +714,13 @@ impl FileScan<'_> {
     }
 
     /// A production macro invocation: its path against the list, the
-    /// `include*!` rules, and its tokens.
+    /// `include*!` rules, and its tokens. In the defining subtree only the
+    /// macros on [`SUBTREE_MACROS`] are admitted, and their tokens are parsed
+    /// and visited as code; a `matches!` anywhere is parsed and visited the
+    /// same way, so only its pattern is read as a pattern (Codex round 2 and
+    /// code review r3 at #1682). Tokens that do not parse are a finding and
+    /// are screened as tokens, constructions counted; every other macro's
+    /// tokens are screened ([`Self::screen_tokens`]).
     fn check_invocation(&mut self, mac: &syn::Macro) {
         let path = path_text(&mac.path);
         let line = line_of(mac.bang_token.span);
@@ -670,73 +737,34 @@ impl FileScan<'_> {
                 _ => self.finding(line, format!("{path}! takes one string literal that names no .rs file")),
             }
         }
-        if path == "matches" {
-            self.with_owner(Owner::Macro, |scan| scan.screen_matches(&mac.tokens, line));
-        } else {
-            self.with_owner(Owner::Macro, |scan| scan.screen_tokens(&mac.tokens, true));
+        let subtree = in_defining_module(&self.file);
+        let listed = SUBTREE_MACROS.contains(&path.as_str());
+        if subtree && !listed {
+            self.finding(line, format!("the macro {path}! in the defining module of {DERIVED} is not on its parsed-macro list"));
         }
-    }
-
-    /// `matches!(scrutinee, pattern if guard)` (Codex round 2 at #1682, P2):
-    /// only the pattern is screened as a pattern, which constructs nothing, so
-    /// a `UserRelease` named there is not counted as a construction. The
-    /// scrutinee, the guard and anything after the pattern are screened as
-    /// any macro's tokens, constructions counted. A pattern that could hold an
-    /// expression (an inline `const` block or a macro) is screened as
-    /// expression tokens too, and tokens that do not parse as an expression, a
-    /// comma and a pattern are a finding, screened whole as expression tokens.
-    fn screen_matches(&mut self, tokens: &TokenStream, line: usize) {
-        let Some((scrutinee, pattern, rest)) = matches_parts(tokens) else {
-            self.finding(line, "a matches! that does not parse as an expression, a pattern and a guard");
-            self.screen_tokens(tokens, true);
-            return;
-        };
-        self.screen_tokens(&scrutinee, true);
-        if pattern_can_construct(&pattern) {
-            self.screen_tokens(&pattern, true);
-        } else {
-            let saved = self.constructions.len();
-            let outer = std::mem::replace(&mut self.in_pattern, true);
-            self.screen_tokens(&pattern, true);
-            self.in_pattern = outer;
-            self.constructions.truncate(saved);
-        }
-        self.screen_tokens(&rest, true);
-    }
-
-    /// A brace group in a macro's tokens in the defining module, after
-    /// `trees[index - 1]` (Codex round 2 at #1682, P2): a struct literal is
-    /// held to the rule of one written outside a macro
-    /// ([`Self::check_literal_path`]); a block after a keyword, a closure's
-    /// `|..|` or a match arm's `=>`, and the block of an `if`, `while`,
-    /// `match` or `for .. in` whose condition ends in a name, are not
-    /// literals.
-    fn token_literal(&mut self, trees: &[TokenTree], index: usize, line: usize) {
-        match &trees[index - 1] {
-            TokenTree::Ident(ident) => {
-                let name = ident_text(ident);
-                if BLOCK_KEYWORDS.contains(&name.as_str()) || in_condition(&trees[..index - 1]) {
-                    return;
+        let parsed = if (subtree && listed) || path == "matches" { parse_listed_macro(&path, &mac.tokens) } else { None };
+        match parsed {
+            Some(body) => self.with_owner(Owner::Macro, |scan| {
+                let outer = std::mem::replace(&mut scan.in_macro, true);
+                for expr in &body.exprs {
+                    scan.visit_expr(expr);
                 }
-                let qualified = index >= 3
-                    && matches!((&trees[index - 2], &trees[index - 3]), (TokenTree::Punct(a), TokenTree::Punct(b)) if a.as_char() == ':' && b.as_char() == ':');
-                if qualified {
-                    self.finding(line, format!("a struct literal of a qualified path ending in {name} in a macro's tokens, in the defining module of {DERIVED}"));
-                } else if name == "Self" {
-                    self.check_self_literal(line, "a Self literal in a macro's tokens");
-                } else if name != DERIVED {
-                    // `DerivedUserRelease` in tokens is already a finding.
-                    self.plain_literals.push((self.file.clone(), line, name, "a struct literal in a macro's tokens"));
+                if let Some(pattern) = &body.pattern {
+                    scan.visit_pat(pattern);
                 }
+                for expr in &body.after {
+                    scan.visit_expr(expr);
+                }
+                scan.in_macro = outer;
+            }),
+            None => {
+                if path == "matches" {
+                    self.finding(line, "a matches! that does not parse as an expression, a pattern and a guard");
+                } else if subtree && listed {
+                    self.finding(line, format!("the tokens of {path}! do not parse by its grammar, in the defining module of {DERIVED}"));
+                }
+                self.with_owner(Owner::Macro, |scan| scan.screen_tokens(&mac.tokens, true));
             }
-            TokenTree::Punct(close) if close.as_char() == '>' => {
-                let arrow = index >= 2
-                    && matches!(&trees[index - 2], TokenTree::Punct(first) if matches!(first.as_char(), '=' | '-') && first.spacing() == proc_macro2::Spacing::Joint);
-                if !arrow {
-                    self.finding(line, format!("a struct literal with generic arguments in a macro's tokens, in the defining module of {DERIVED}"));
-                }
-            }
-            _ => {}
         }
     }
 
@@ -748,19 +776,29 @@ impl FileScan<'_> {
     /// arguments, a path of more than one segment (`Self::Assoc`,
     /// `module::Alias`, an enum variant) and a leading `::` could each
     /// resolve to `DerivedUserRelease` without naming it, so each is a
-    /// finding. `DerivedUserRelease` itself is held to its literal rule.
+    /// finding. `DerivedUserRelease` itself is held to its literal rule. In a
+    /// listed macro's parsed tokens the same rules apply, and the findings
+    /// say so.
     fn check_literal_path(&mut self, qself: Option<&syn::QSelf>, path: &syn::Path, line: usize) {
         let written = segments(path).join("::");
-        if qself.is_some() {
+        let last = segments(path).last().cloned().unwrap_or_default();
+        let generic = path.segments.iter().any(|segment| !matches!(segment.arguments, syn::PathArguments::None));
+        let qualified = qself.is_some() || path.leading_colon.is_some() || path.segments.len() != 1;
+        if self.in_macro && generic {
+            self.finding(line, format!("a struct literal with generic arguments in a macro's tokens ({written}), in the defining module of {DERIVED}"));
+        } else if self.in_macro && qualified {
+            self.finding(line, format!("a struct literal of a qualified path ending in {last} in a macro's tokens ({written}), in the defining module of {DERIVED}"));
+        } else if qself.is_some() {
             self.finding(line, format!("a struct literal through a qualified <T as Trait>:: path ({written}) in the defining module of {DERIVED}"));
-        } else if path.segments.iter().any(|segment| !matches!(segment.arguments, syn::PathArguments::None)) {
+        } else if generic {
             self.finding(line, format!("a struct literal with generic arguments ({written}) in the defining module of {DERIVED}"));
-        } else if path.leading_colon.is_some() || path.segments.len() != 1 {
+        } else if qualified {
             self.finding(line, format!("a struct literal of {written} in the defining module of {DERIVED}, which is not one plain struct name"));
         } else if written == "Self" {
-            self.check_self_literal(line, "a Self literal");
+            self.check_self_literal(line, if self.in_macro { "a Self literal in a macro's tokens" } else { "a Self literal" });
         } else if written != DERIVED {
-            self.plain_literals.push((self.file.clone(), line, written, "a struct literal"));
+            let how = if self.in_macro { "a struct literal in a macro's tokens" } else { "a struct literal" };
+            self.plain_literals.push((self.file.clone(), line, written, how));
         }
     }
 
@@ -1037,6 +1075,10 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
             syn::ImplItem::Fn(i) => &i.attrs,
             syn::ImplItem::Type(i) => &i.attrs,
             syn::ImplItem::Macro(i) => &i.attrs,
+            syn::ImplItem::Verbatim(tokens) => {
+                self.unparsed(tokens, "an impl item");
+                return;
+            }
             _ => &[],
         };
         if !is_test_only(attrs) {
@@ -1335,69 +1377,245 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
             self.record(&name, line_of(ident.span()), Kind::Other("named other than as a definition or a direct call"));
         }
     }
-}
 
-/// `matches!`'s tokens as its scrutinee, its pattern and the rest (the guard
-/// and a trailing comma), each as written; `None` when they do not parse so.
-fn matches_parts(tokens: &TokenStream) -> Option<(TokenStream, TokenStream, TokenStream)> {
-    use syn::parse::{ParseStream, Parser};
-    fn between(mut from: syn::buffer::Cursor<'_>, to: syn::buffer::Cursor<'_>) -> TokenStream {
-        let mut out = TokenStream::new();
-        while from < to {
-            let Some((tree, next)) = from.token_tree() else { break };
-            out.extend([tree]);
-            from = next;
-        }
-        out
-    }
-    let parser = |input: ParseStream<'_>| -> syn::Result<(TokenStream, TokenStream, TokenStream)> {
-        let start = input.cursor();
-        input.parse::<syn::Expr>()?;
-        let scrutinee = between(start, input.cursor());
-        input.parse::<syn::Token![,]>()?;
-        let start = input.cursor();
-        syn::Pat::parse_multi_with_leading_vert(input)?;
-        let pattern = between(start, input.cursor());
-        let rest: TokenStream = input.parse()?;
-        Ok((scrutinee, pattern, rest))
-    };
-    parser.parse2(tokens.clone()).ok()
-}
-
-/// Whether the tokens just before a brace group's preceding name are an
-/// `if`, `while`, `match` or `for .. in` condition: Rust admits no struct
-/// literal there unparenthesized, so the group is that construct's block.
-/// The walk back stops at a statement or argument boundary (`;`, `,`, a match
-/// arm's `=>`) and at an earlier brace group, after which a literal could
-/// follow (`if c { 1 } else { 2 } + A { .. }`), so those count as no
-/// condition.
-fn in_condition(before: &[TokenTree]) -> bool {
-    for (at, tree) in before.iter().enumerate().rev() {
-        match tree {
-            TokenTree::Ident(ident) if matches!(ident_text(ident).as_str(), "if" | "while" | "match" | "in") => return true,
-            TokenTree::Punct(punct) if matches!(punct.as_char(), ';' | ',') => return false,
-            TokenTree::Punct(punct)
-                if punct.as_char() == '>' && at >= 1 && matches!(&before[at - 1], TokenTree::Punct(first) if first.as_char() == '=' && first.spacing() == proc_macro2::Spacing::Joint) =>
-            {
-                return false
+    /// In the three reporting crates a const generic argument other than a
+    /// literal (a block, `{ .. }`) and an associated-constant argument are
+    /// findings (code review r3 at #1682), as the token rule finds them in
+    /// any tokens.
+    fn visit_generic_argument(&mut self, argument: &'ast syn::GenericArgument) {
+        if self.is_core() {
+            match argument {
+                syn::GenericArgument::Const(expr) if !matches!(expr, syn::Expr::Lit(_)) => {
+                    let at = match expr {
+                        syn::Expr::Block(block) => line_of(block.block.brace_token.span.open()),
+                        _ => 0,
+                    };
+                    self.finding(at, "a const generic argument other than a literal in a reporting crate");
+                }
+                syn::GenericArgument::AssocConst(constant) => {
+                    self.finding(line_of(constant.ident.span()), "an associated-constant generic argument in a reporting crate");
+                }
+                _ => {}
             }
-            TokenTree::Group(group) if group.delimiter() == proc_macro2::Delimiter::Brace => return false,
+        }
+        visit::visit_generic_argument(self, argument);
+    }
+
+    // Syntax `syn` does not model (`Verbatim`) is a finding wherever it
+    // occurs (code review r3 at #1682), never skipped.
+    fn visit_expr(&mut self, expr: &'ast syn::Expr) {
+        match expr {
+            syn::Expr::Verbatim(tokens) => self.unparsed(tokens, "an expression"),
+            _ => visit::visit_expr(self, expr),
+        }
+    }
+
+    fn visit_type(&mut self, ty: &'ast syn::Type) {
+        match ty {
+            syn::Type::Verbatim(tokens) => self.unparsed(tokens, "a type"),
+            _ => visit::visit_type(self, ty),
+        }
+    }
+
+    fn visit_pat(&mut self, pat: &'ast syn::Pat) {
+        match pat {
+            syn::Pat::Verbatim(tokens) => self.unparsed(tokens, "a pattern"),
+            _ => visit::visit_pat(self, pat),
+        }
+    }
+
+    fn visit_trait_item(&mut self, item: &'ast syn::TraitItem) {
+        match item {
+            syn::TraitItem::Verbatim(tokens) => self.unparsed(tokens, "a trait item"),
+            _ => visit::visit_trait_item(self, item),
+        }
+    }
+
+    fn visit_foreign_item(&mut self, item: &'ast syn::ForeignItem) {
+        match item {
+            syn::ForeignItem::Verbatim(tokens) => self.unparsed(tokens, "a foreign item"),
+            _ => visit::visit_foreign_item(self, item),
+        }
+    }
+
+    fn visit_type_param_bound(&mut self, bound: &'ast syn::TypeParamBound) {
+        match bound {
+            syn::TypeParamBound::Verbatim(tokens) => self.unparsed(tokens, "a bound"),
+            _ => visit::visit_type_param_bound(self, bound),
+        }
+    }
+}
+
+/// A listed macro's tokens parsed by its input grammar: the expressions
+/// before a pattern, the pattern (`matches!` only) and the expressions after
+/// it (its guard). Every token is in one of them, or is the grammar's own
+/// punctuation (`,`, `;`, `if`, and `json!`'s `{`, `[`, `:`).
+struct MacroBody {
+    exprs: Vec<syn::Expr>,
+    pattern: Option<syn::Pat>,
+    after: Vec<syn::Expr>,
+}
+
+/// The tokens of the listed macro `path` ([`SUBTREE_MACROS`]) parsed by its
+/// input grammar, or `None` when they do not parse so (code review r3 at
+/// #1682):
+/// - `format!`, `format_args!`: comma-separated expressions (a named
+///   argument `name = value` is an assignment expression);
+/// - `vec!`: `expr; expr`, or comma-separated expressions;
+/// - `matches!`: `expr, pattern (if expr)? ,?`, as the standard macro's
+///   `$expression:expr, $pattern:pat $(if $guard:expr)? $(,)?`;
+/// - `json!`: [`json_value`].
+fn parse_listed_macro(path: &str, tokens: &TokenStream) -> Option<MacroBody> {
+    use syn::parse::{ParseStream, Parser};
+    let exprs = |exprs: Vec<syn::Expr>| MacroBody { exprs, pattern: None, after: Vec::new() };
+    let list = |tokens: &TokenStream| syn::punctuated::Punctuated::<syn::Expr, syn::Token![,]>::parse_terminated.parse2(tokens.clone()).ok().map(|list| list.into_iter().collect::<Vec<_>>());
+    match path {
+        "format" | "format_args" => list(tokens).map(exprs),
+        "vec" => {
+            let repeat = |input: ParseStream<'_>| -> syn::Result<Vec<syn::Expr>> {
+                let element: syn::Expr = input.parse()?;
+                input.parse::<syn::Token![;]>()?;
+                let count: syn::Expr = input.parse()?;
+                Ok(vec![element, count])
+            };
+            repeat.parse2(tokens.clone()).ok().or_else(|| list(tokens)).map(exprs)
+        }
+        "matches" => {
+            let parser = |input: ParseStream<'_>| -> syn::Result<MacroBody> {
+                let scrutinee: syn::Expr = input.parse()?;
+                input.parse::<syn::Token![,]>()?;
+                let pattern = syn::Pat::parse_multi_with_leading_vert(input)?;
+                let mut after = Vec::new();
+                if input.peek(syn::Token![if]) {
+                    input.parse::<syn::Token![if]>()?;
+                    after.push(input.parse::<syn::Expr>()?);
+                }
+                if !input.is_empty() {
+                    input.parse::<syn::Token![,]>()?;
+                }
+                Ok(MacroBody { exprs: vec![scrutinee], pattern: Some(pattern), after })
+            };
+            parser.parse2(tokens.clone()).ok()
+        }
+        "json" => {
+            let mut out = Vec::new();
+            json_value(tokens.clone().into_iter().collect(), &mut out).map(|()| exprs(out))
+        }
+        _ => None,
+    }
+}
+
+/// One `json!` value: a lone `{ .. }` is an object of `key: value` entries
+/// separated by commas, the key an expression and the value a `json!` value;
+/// a lone `[ .. ]` is an array of comma-separated `json!` values; anything
+/// else is one expression. Each key and expression goes to `out`; `None`
+/// when any part does not parse so.
+fn json_value(tokens: Vec<TokenTree>, out: &mut Vec<syn::Expr>) -> Option<()> {
+    if let [TokenTree::Group(group)] = tokens.as_slice() {
+        match group.delimiter() {
+            proc_macro2::Delimiter::Brace => {
+                for entry in json_entries(group.stream())? {
+                    let colon = entry_colon(&entry)?;
+                    out.push(syn::parse2(entry[..colon].iter().cloned().collect()).ok()?);
+                    json_value(entry[colon + 1..].to_vec(), out)?;
+                }
+                return Some(());
+            }
+            proc_macro2::Delimiter::Bracket => {
+                for entry in json_entries(group.stream())? {
+                    json_value(entry, out)?;
+                }
+                return Some(());
+            }
             _ => {}
         }
     }
-    false
+    out.push(syn::parse2(tokens.into_iter().collect()).ok()?);
+    Some(())
 }
 
-/// Whether a pattern's tokens could hold an expression: an inline `const`
-/// block or a macro invocation, at any depth.
-fn pattern_can_construct(tokens: &TokenStream) -> bool {
-    let trees: Vec<TokenTree> = tokens.clone().into_iter().collect();
-    trees.iter().enumerate().any(|(index, tree)| match tree {
-        TokenTree::Group(group) => pattern_can_construct(&group.stream()),
-        TokenTree::Ident(ident) => ident_text(ident) == "const",
-        TokenTree::Punct(bang) => bang.as_char() == '!' && matches!(trees.get(index + 1), Some(TokenTree::Group(_))),
-        _ => false,
-    })
+/// A `json!` object's or array's entries, split at its top-level commas; one
+/// trailing comma is admitted, and any other empty entry is `None`.
+fn json_entries(tokens: TokenStream) -> Option<Vec<Vec<TokenTree>>> {
+    let mut entries = vec![Vec::new()];
+    for tree in tokens {
+        match &tree {
+            TokenTree::Punct(comma) if comma.as_char() == ',' => entries.push(Vec::new()),
+            _ => entries.last_mut()?.push(tree),
+        }
+    }
+    if entries.last().is_some_and(Vec::is_empty) {
+        entries.pop();
+    }
+    (!entries.iter().any(Vec::is_empty)).then_some(entries)
+}
+
+/// The index of a `json!` object entry's key-value colon: its first
+/// top-level `:` that is not half of a path's `::`.
+fn entry_colon(entry: &[TokenTree]) -> Option<usize> {
+    let mut index = 0;
+    while index < entry.len() {
+        if let TokenTree::Punct(colon) = &entry[index] {
+            if colon.as_char() == ':' {
+                let path = colon.spacing() == proc_macro2::Spacing::Joint && matches!(entry.get(index + 1), Some(TokenTree::Punct(next)) if next.as_char() == ':');
+                if !path {
+                    return Some(index);
+                }
+                index += 1;
+            }
+        }
+        index += 1;
+    }
+    None
+}
+
+/// The token rules of [`FileScan::token_rules`] over one token sequence and
+/// each group in it: (line, finding).
+///
+/// A brace group directly after `<`, or after `,` or `=` while an angle
+/// bracket is open in the sequence, is a block in generic arguments
+/// (`Type<{ .. }>`, `path::<A, { .. }>`, a const parameter's `= { .. }`
+/// default). The angle count is lexical and conservative: `<` opens unless it
+/// is half of `<<` or `<=`; `>` closes unless it ends `->`, `=>` or starts
+/// `>=`; `;` and every brace group reset it. A comparison followed by a block
+/// argument (`f(a < b, { .. })`) is therefore found too, which fails closed.
+fn lexical_findings(tokens: TokenStream, out: &mut Vec<(usize, String)>) {
+    let trees: Vec<TokenTree> = tokens.into_iter().collect();
+    let mut open = 0usize;
+    for (index, tree) in trees.iter().enumerate() {
+        let previous = index.checked_sub(1).map(|at| &trees[at]);
+        let previous_char = |chars: &[char]| matches!(previous, Some(TokenTree::Punct(punct)) if chars.contains(&punct.as_char()));
+        match tree {
+            TokenTree::Ident(ident) => {
+                let text = ident.to_string();
+                if let Some(raw) = text.strip_prefix("r#") {
+                    if !RAW_IDENTIFIERS.contains(&raw) {
+                        out.push((line_of(ident.span()), format!("the raw identifier {text} in a reporting crate, which is not on the raw-identifier allow-list")));
+                    }
+                }
+            }
+            TokenTree::Punct(punct) => {
+                let joint_with = |chars: &[char]| punct.spacing() == proc_macro2::Spacing::Joint && matches!(trees.get(index + 1), Some(TokenTree::Punct(next)) if chars.contains(&next.as_char()));
+                let after_joint = |chars: &[char]| matches!(previous, Some(TokenTree::Punct(first)) if chars.contains(&first.as_char()) && first.spacing() == proc_macro2::Spacing::Joint);
+                match punct.as_char() {
+                    '<' if !joint_with(&['<', '=']) && !after_joint(&['<']) => open += 1,
+                    '>' if !after_joint(&['-', '=']) && !joint_with(&['=']) => open = open.saturating_sub(1),
+                    ';' => open = 0,
+                    _ => {}
+                }
+            }
+            TokenTree::Group(group) => {
+                if group.delimiter() == proc_macro2::Delimiter::Brace {
+                    if previous_char(&['<']) || (open > 0 && previous_char(&[',', '='])) {
+                        out.push((line_of(group.span()), "a brace or block expression in generic arguments in a reporting crate".to_string()));
+                    }
+                    open = 0;
+                }
+                lexical_findings(group.stream(), out);
+            }
+            TokenTree::Literal(_) => {}
+        }
+    }
 }
 
 /// The module file that `name`, declared in `declaring` under the inline
@@ -1490,8 +1708,11 @@ pub(crate) fn scan_reading(sources: &Sources) -> (Vec<String>, BTreeSet<String>)
             type_names: &mut type_names,
             plain_literals: &mut plain_literals,
             in_type_alias: false,
-            in_pattern: false,
+            in_macro: false,
         };
+        if scan.is_core() {
+            scan.token_rules();
+        }
         for attr in &parsed.attrs {
             scan.visit_attribute(attr);
         }

@@ -128,6 +128,50 @@ fn the_real_sources_find_the_escaping_spellings() {
     }
 }
 
+/// Code review r3 at #1682 (P2s), verbatim on the real sources: each of the
+/// three forms compiled in `report_package/src/user_release.rs` and gave no
+/// finding. Each now gives findings for its own construct, not only for the
+/// shared prelude: an alias declared in a macro's tokens, a raw identifier
+/// taken for a block keyword, and a construction in a const generic argument
+/// of a `matches!` pattern.
+#[test]
+fn the_real_sources_find_the_review_r3_forms() {
+    const PRELUDE: &str = "trait ReviewIdentity<T = DerivedUserRelease> { type Repr; }\nimpl<T> ReviewIdentity<T> for () { type Repr = T; }\n";
+    let repros: [(&str, &[&str]); 4] = [
+        ("", &["the type alias Repr in the defining module of DerivedUserRelease"]),
+        (
+            "fn review_macro_alias() -> DerivedUserRelease { vec![{ type UserReleaseInputs = <() as ReviewIdentity>::Repr; UserReleaseInputs { _derived: () } }].pop().unwrap() }\n",
+            &["the type alias UserReleaseInputs in the defining module", "a struct literal in a macro's tokens of UserReleaseInputs in the defining module"],
+        ),
+        (
+            "type r#const = <() as ReviewIdentity>::Repr;\nfn review_raw_keyword() -> DerivedUserRelease { vec![r#const { _derived: () }].pop().unwrap() }\n",
+            &["the raw identifier r#const in a reporting crate", "the type alias const in the defining module", "a struct literal in a macro's tokens of const in the defining module"],
+        ),
+        (
+            "type ReviewAlias = <() as ReviewIdentity>::Repr;\nenum ReviewMarker<const N: usize> { V }\nfn review_const_generic_pattern() -> bool { matches!(ReviewMarker::<0>::V, ReviewMarker::<{ let _entry = ProducerEntry::UserRelease(ReviewAlias { _derived: () }); 0 }>::V) }\n",
+            &[
+                "the type alias ReviewAlias in the defining module",
+                "a brace or block expression in generic arguments in a reporting crate",
+                "a const generic argument other than a literal in a reporting crate",
+                "ProducerEntry::UserRelease is constructed outside assemble_derived (Macro)",
+                "a struct literal in a macro's tokens of ReviewAlias in the defining module",
+            ],
+        ),
+    ];
+    let base = project_sources(&project());
+    let lines = base.files["report_package/src/user_release.rs"].lines().count() + PRELUDE.lines().count();
+    for (repro, expected) in repros {
+        let mut sources = base.clone();
+        sources.files.get_mut("report_package/src/user_release.rs").unwrap().push_str(&format!("{PRELUDE}{repro}"));
+        let findings = scan(&sources);
+        for expected in expected {
+            // The repro's own findings are on its lines, after the prelude's.
+            let on_repro = |finding: &&String| repro.is_empty() || finding.split(':').nth(1).and_then(|line| line.parse::<usize>().ok()).is_some_and(|line| line > lines);
+            assert!(findings.iter().filter(on_repro).any(|finding| finding.contains(expected)), "{repro}: expected {expected:?} in {findings:#?}");
+        }
+    }
+}
+
 /// Codex round 2 at #1682 (P2), verbatim: a literal through an associated
 /// type assigned `Self`.
 const CODEX_R2_ALIAS: &str = "trait Identity { type Repr; }\nimpl Identity for DerivedUserRelease { type Repr = Self; }\ntype Alias<T> = <T as Identity>::Repr;\nfn forge() -> DerivedUserRelease { Alias::<DerivedUserRelease> { _derived: () } }\n";
@@ -629,6 +673,69 @@ fn user_release_reach_scan_finds_each_break() {
     }
 }
 
+/// Code review r3 at #1682: the conservative rules that close whole classes
+/// rather than model each form. In the defining subtree every type alias is
+/// a finding (none is listed), only the listed macros are invoked and their
+/// tokens are parsed and visited as code; in the three reporting crates every
+/// raw identifier (none is listed) and every block in generic arguments is a
+/// finding; and syntax `syn` does not model is a finding. Each case is a
+/// finding.
+#[test]
+fn user_release_reach_scan_finds_the_review_r3_classes() {
+    const RENDERER: &str = "report_renderer/src/lib.rs";
+    const PDF: &str = "pdf_emitter/src/lib.rs";
+    const BINDINGS: &str = "report_package/src/bindings.rs";
+    let alias = "the type alias Local in the defining module of DerivedUserRelease, which is not on the alias allow-list";
+    let cases: Vec<(&str, Sources, &str)> = vec![
+        // Type aliases in the defining subtree, in every position.
+        ("an item-level alias", appended(USER_RELEASE, "type Local = u8;\n"), alias),
+        ("an alias in a block", appended(USER_RELEASE, "fn f() -> u8 { type Local = u8; 1 }\n"), alias),
+        ("an alias in an inline module", appended(USER_RELEASE, "mod inner {\n    pub(crate) type Local = u8;\n}\n"), alias),
+        ("an associated type in an impl", appended(USER_RELEASE, "pub(crate) struct Counter;\nimpl Iterator for Counter { type Local = u8; fn next(&mut self) -> Option<u8> { None } }\n"), alias),
+        ("an associated type in a trait", appended(USER_RELEASE, "trait Shape { type Local; }\n"), alias),
+        ("an alias in vec!", appended(USER_RELEASE, "fn f() -> Vec<u8> { vec![{ type Local = u8; 1 }] }\n"), alias),
+        ("an alias in format!", appended(USER_RELEASE, "fn f() -> String { format!(\"{}\", { type Local = u8; 1 }) }\n"), alias),
+        ("an alias in format_args!", appended(USER_RELEASE, "fn f() { let _ = format_args!(\"{}\", { type Local = u8; 1 }); }\n"), alias),
+        ("an alias in a json! value", appended(USER_RELEASE, "fn f() -> Value { json!({\"a\": [({ type Local = u8; 1 })]}) }\n"), alias),
+        ("an alias in a matches! guard", appended(USER_RELEASE, "fn f() -> bool { matches!(1, _ if { type Local = u8; true }) }\n"), alias),
+        ("an alias in a nested listed macro", appended(USER_RELEASE, "fn f() -> String { format!(\"{:?}\", vec![{ type Local = u8; 1 }]) }\n"), alias),
+        ("println! in the defining subtree", appended(USER_RELEASE, "fn f() { println!(\"{}\", { type Local = u8; 1 }); }\n"), "the macro println! in the defining module of DerivedUserRelease is not on its parsed-macro list"),
+        ("println!'s unparsed block", appended(USER_RELEASE, "fn f() { println!(\"{}\", { type Local = u8; 1 }); }\n"), "a brace group in tokens the scan does not parse, in the defining module of DerivedUserRelease"),
+        ("a listed macro with other tokens", appended(USER_RELEASE, "fn f() -> Value { json!({ type Local = u8; 1 }) }\n"), "the tokens of json! do not parse by its grammar"),
+        ("a json! object entry without a key", appended(USER_RELEASE, "fn f() -> Value { json!({\"a\": 1,, \"b\": 2}) }\n"), "the tokens of json! do not parse by its grammar"),
+        ("assert! in the defining subtree", appended(USER_RELEASE, "fn f() { assert!(true); }\n"), "the macro assert! in the defining module of DerivedUserRelease is not on its parsed-macro list"),
+        ("json! by its qualified path in the defining subtree", appended(USER_RELEASE, "fn f() -> Value { serde_json::json!(null) }\n"), "the macro serde_json::json! in the defining module of DerivedUserRelease is not on its parsed-macro list"),
+        ("a struct literal of an alias in parsed json! tokens", appended(USER_RELEASE, "pub(crate) struct Plain { a: u8 }\ntype Other = Plain;\nfn f() -> Value { json!({\"a\": Other { a: 1 }.a}) }\n"), "a struct literal in a macro's tokens of Other"),
+        // Raw identifiers in the three reporting crates.
+        ("r#match as a function name", appended(PDF, "fn r#match() {}\n"), "the raw identifier r#match in a reporting crate"),
+        ("r#if as a binding", appended(RENDERER, "fn f() { let r#if = 1; let _ = r#if; }\n"), "the raw identifier r#if in a reporting crate"),
+        ("r#if in a macro's tokens", appended(LIB, "fn f(r: u8) { let _ = format!(\"{}\", r#if); }\n"), "the raw identifier r#if in a reporting crate"),
+        ("a raw identifier in an attribute", appended(LIB, "#[allow(r#unused)]\nfn f() {}\n"), "the raw identifier r#unused in a reporting crate"),
+        ("a raw identifier in an inline test module", appended(RENDERER, "#[cfg(test)]\nmod tests {\n    fn r#match() {}\n}\n"), "the raw identifier r#match in a reporting crate"),
+        ("r#if as a struct literal's name in the defining subtree", appended(USER_RELEASE, "fn f() -> Vec<u8> { vec![r#if { a: 1 }.a] }\n"), "a struct literal in a macro's tokens of if"),
+        // Blocks in generic arguments in the three reporting crates.
+        ("a block argument in type position", appended(RENDERER, "fn f() { let _: Marker<{ 1 + 1 }> = Marker; }\n"), "a brace or block expression in generic arguments in a reporting crate"),
+        ("a block argument in an expression", appended(PDF, "fn f() { let _ = Marker::<{ 1 }>::new(); }\n"), "a brace or block expression in generic arguments in a reporting crate"),
+        ("a block argument after another argument", appended(LIB, "fn f() { let _ = Pair::<u8, { 2 }>::new(); }\n"), "a brace or block expression in generic arguments in a reporting crate"),
+        ("a block argument in a pattern", appended(LIB, "fn f(m: Marker<0>) { match m { Marker::<{ 0 }>::V => {} } }\n"), "a const generic argument other than a literal in a reporting crate"),
+        ("a block argument in another macro's tokens", appended(BINDINGS, "fn f() -> Vec<Marker<0>> { vec![Marker::<{ 0 }>::V] }\n"), "a brace or block expression in generic arguments in a reporting crate"),
+        ("a block as a const parameter's default", appended(RENDERER, "pub struct Sized<const N: usize = { 1 }>;\n"), "a brace or block expression in generic arguments in a reporting crate"),
+        ("a block argument in a qualified type", appended(PDF, "fn f() -> usize { <Marker<{ 1 }> as Count>::N }\n"), "a brace or block expression in generic arguments in a reporting crate"),
+        (
+            "a construction in an array length in a matches! pattern",
+            appended(BINDINGS, "fn f(derived: DerivedUserRelease) -> bool { matches!(0, <[u8; { let _entry = ProducerEntry::UserRelease(derived); 1 }] as Count>::N) }\n"),
+            "ProducerEntry::UserRelease is constructed outside assemble_derived (Macro)",
+        ),
+        // Syntax syn does not model.
+        ("a box pattern", appended(LIB, "fn f(x: Box<u8>) { match x { box y => {} } }\n"), "a pattern syn gives as Verbatim"),
+        ("a builtin expression", appended(PDF, "fn f() -> usize { builtin # offset_of(S, f) }\n"), "an expression syn gives as Verbatim"),
+    ];
+    for (case, sources, expected) in cases {
+        let findings = scan(&sources);
+        assert!(findings.iter().any(|finding| finding.contains(expected)), "{case}: expected {expected:?} in {findings:#?}");
+    }
+}
+
 /// Each of these must pass (§6, "Passing cases").
 #[test]
 fn user_release_reach_scan_admits_the_listed_forms() {
@@ -661,6 +768,24 @@ fn user_release_reach_scan_admits_the_listed_forms() {
         (
             "matches! patterns naming UserRelease with a guard and a trailing comma",
             appended("report_package/src/bindings.rs", "fn arms(entry: &ProducerEntry) -> bool { matches!(entry, ProducerEntry::UserRelease(_) | ProducerEntry::General if true) || matches!(entry, ProducerEntry::UserRelease(_),) }\n"),
+        ),
+        // Code review r3 at #1682: ordinary code passes the conservative rules.
+        (
+            "ordinary generics, comparisons and blocks in the reporting crates",
+            appended(
+                "report_renderer/src/lib.rs",
+                "pub struct M<const N: usize>;\npub const K: usize = 2;\nfn g() -> M<2> { M::<2> }\nfn h<T: Clone>(t: &T) -> Vec<T> { if 1 < 2 { vec![t.clone()] } else { Vec::new() } }\nfn k(a: u8, b: u8) -> bool { let c = a < b; let d = { a <= b }; let e: Vec<Vec<u8>> = { Vec::new() }; c && d && e.is_empty() }\nfn arms(a: u8) -> u8 { match a { x if x < 3 => { 1 } _ => { 2 } } }\nfn shifts(a: u32) -> u32 { (a << 2) >> 1 }\nfn closure() -> impl Fn(u8) -> bool { |a| { a < 1 } }\n",
+            ),
+        ),
+        ("raw string literals in a reporting crate", appended("pdf_emitter/src/lib.rs", "const S: &str = r#\"{\"a\": 1}\"#;\nconst T: &str = r##\"r#match\"##;\n")),
+        ("a raw identifier in src-tauri, outside the three crates", appended(TAURI, "fn typed() -> u8 { let r#type = 1; r#type }\n")),
+        ("a type alias outside the defining subtree", appended(LIB, "type Local = u8;\nfn f() -> Local { 1 }\n")),
+        (
+            "the listed macros' grammars in the defining subtree",
+            appended(
+                USER_RELEASE,
+                "pub(crate) struct Plain { a: u8 }\nconst KEY: &str = \"k\";\nfn listed(flag: bool, items: &[u8], name: &str) -> Value {\n    let _ = format!(\"{name} {} {count}\", items.len(), count = items.len());\n    let _ = format_args!(\"{}\", 1);\n    let _ = vec![0u8; items.len()];\n    let _ = vec![Plain { a: 1 }, Plain { a: 2 },];\n    let _ = matches!(flag, true if items.is_empty(),);\n    json!({\n        \"a\": [1, {\"b\": null}, [true, false],],\n        KEY: if flag { 1 } else { 2 },\n        (format!(\"{}\", name)): items.iter().map(|item| json!({\"i\": item})).collect::<Vec<_>>(),\n        \"c\": Value::Null,\n        \"d\": -1,\n    })\n}\n",
+            ),
         ),
     ];
     for (case, sources) in passing {
