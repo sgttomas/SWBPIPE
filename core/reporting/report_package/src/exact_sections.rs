@@ -92,6 +92,23 @@ pub fn check_runner_profile(export_profile_id: &str, document: &Value) -> Result
     Ok(())
 }
 
+/// The user-released profile's exact-route refusal (W-18b, DEL-08-01 Design
+/// `report-user-release.md` §0, §2.8): under scope R a shareable package
+/// carries pressure-free results only. Of the same form as
+/// [`check_runner_profile`]: it reads only the profile it is given and the
+/// document's producer identity, so it refuses whatever the report carries.
+/// The admitting entry's preflight calls it with the profile constant; the
+/// producer runs it again after the general entries' marker refusal.
+pub fn check_user_released_profile(export_profile_id: &str, document: &Value) -> Result<(), String> {
+    if export_profile_id == crate::user_release::USER_RELEASED_DESKTOP_PROFILE && producer_contract_id(document).is_some_and(is_exact_identity) {
+        return Err(format!(
+            "{}: a shareable report package carries pressure-free (preview-physics-2) results only; this exact-route result can be saved in a local private package.",
+            crate::user_release::EXACT_ROUTE_NOT_ADMITTED
+        ));
+    }
+    Ok(())
+}
+
 fn source_identity(source: &Value) -> Result<&str, String> {
     match source.pointer("/producer/semantic_contract_id").and_then(Value::as_str) {
         Some(id) if is_exact_identity(id) => Ok(id),

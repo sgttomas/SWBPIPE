@@ -15,6 +15,7 @@ use crate::admitted::{self, AdmittedSet};
 use crate::document_form;
 use crate::exact_sections;
 use crate::quantity_display::{display_quantity, source_displays_scaled_value, QUANTITY_DISPLAY_POLICY};
+use crate::user_release::{self, ProducerEntry, USER_RELEASED_CONTEXT, USER_RELEASED_DESKTOP_PROFILE};
 use crate::wire::{LinkedSolverIdentity, ReportPackageRequest};
 use open_pipe_stress_audit_manifest as audit;
 use open_pipe_stress_result_export::derivative::{digest, guard_json, validate_document};
@@ -347,15 +348,22 @@ pub fn check_request(
     audit_manifest: &audit::AuditManifest,
     linked: &LinkedSolverIdentity<'_>,
 ) -> Result<(), String> {
-    check_request_in(request, audit_manifest, linked, admitted::PRODUCTION)
+    check_request_in(request, audit_manifest, linked, &ProducerEntry::General, admitted::PRODUCTION)
 }
 
 /// [`check_request`] against `admitted` (W-11 §5.5), forwarded to its item-0
-/// check.
+/// check, under the producer `entry` (W-18b, DEL-08-01 Design
+/// `report-user-release.md` §2.8): [`ProducerEntry::General`] refuses every
+/// user-release marker after the two cardinality checks, item 0 and
+/// `check_runner_profile`; only [`ProducerEntry::UserRelease`], which
+/// `user_release::assemble_derived` alone passes, admits the user-released
+/// profile, with no handoff record set (item 8, the handoff rule) and with its
+/// record bound to the request's members (item 10).
 pub(crate) fn check_request_in(
     request: &ReportPackageRequest,
     audit_manifest: &audit::AuditManifest,
     linked: &LinkedSolverIdentity<'_>,
+    entry: &ProducerEntry,
     admitted: AdmittedSet,
 ) -> Result<(), String> {
     require(request.result_documents.len() == 1, "exactly one result document is required")?;
@@ -371,6 +379,15 @@ pub(crate) fn check_request_in(
     // W-11 §3.5: only the desktop builds exact sections, so the runner profile
     // does not package an exact identity, whatever the report carries.
     exact_sections::check_runner_profile(&request.export_profile_id, document)?;
+    // W-18b §2.8, refusal 2: a general entry builds no user-released package.
+    let user_release = entry.is_user_release();
+    if !user_release {
+        if let Some(marker) = user_release::user_release_marker(&request.export_profile_id, &request.report) {
+            return Err(user_release::general_entry_refusal(marker));
+        }
+    }
+    // §0: the user-released profile carries pressure-free results only.
+    exact_sections::check_user_released_profile(&request.export_profile_id, document)?;
     document_form::validate_result_export_form(document)?;
     let header_table = document_form::check_transported_header(document)?;
     document_form::check_self_hash(document)?;
@@ -392,6 +409,9 @@ pub(crate) fn check_request_in(
     let desktop = match (request.export_profile_id.as_str(), origin_class) {
         (DESKTOP_PROFILE, DESKTOP_ORIGIN) => true,
         (RUNNER_PROFILE, RUNNER_ORIGIN) => false,
+        // Reached only under the user-release entry (§2.8): a general entry has
+        // already refused the profile.
+        (USER_RELEASED_DESKTOP_PROFILE, DESKTOP_ORIGIN) if user_release => true,
         _ => return Err(mismatch("the export profile does not match the result document's origin")),
     };
 
@@ -484,67 +504,79 @@ pub(crate) fn check_request_in(
     )?;
     require(package_loads == load_set, "source_basis_refs[1..] equal the document load basis")?;
 
-    // The current state and run sections of the handoff record.
-    require(request.state_comparison_handoff_records.len() == 1, "exactly one handoff record set is required")?;
-    let handoff = &request.state_comparison_handoff_records[0];
-    require(
-        handoff["section_set_id"].as_str().is_some_and(|id| id.ends_with(&format!(":{run}"))),
-        "handoff section_set_id names the run",
-    )?;
-    let sections = array(handoff, "/sections/state_run_sections");
-    let state = format!("state:{model}:preview");
-    let of_kind = |kind: &str| sections.iter().filter(|section| section["section_kind"] == kind).collect::<Vec<_>>();
-    let (model_states, run_records) = (of_kind("model_state_record"), of_kind("analysis_run_record"));
-    require(model_states.len() == 1 && run_records.len() == 1, "exactly one current model-state and analysis-run section")?;
-    let (model_state, run_record) = (model_states[0], run_records[0]);
-    require(model_state["state_ref"] == object_ref("ModelState", &state), "handoff model-state reference")?;
-    require(model_state["section_id"] == format!("state-run:{state}"), "handoff model-state section id")?;
-    let state_hash = &array(model_state, "/hash_refs").first().cloned().unwrap_or(Value::Null);
-    require(state_hash["payload_scope"] == "model_state", "handoff model-state hash scope")?;
-    check_hash(state_hash, &object_ref("ModelState", &state), model_hash, &JCS_LABELS, "handoff model-state hash")?;
-    require(run_record["state_ref"] == object_ref("ModelState", &state), "handoff analysis-run state reference")?;
-    require(run_record["section_id"] == format!("state-run:{run}"), "handoff analysis-run section id")?;
-    require(run_record["run_ref"] == object_ref("AnalysisRun", run), "handoff analysis-run reference")?;
-    let handoff_hashes = array(run_record, "/hash_refs");
-    require(handoff_hashes.len() == 2, "handoff analysis-run hash inventory")?;
-    for (scope, payload, value) in [
-        ("analysis_run_record", object_ref("AnalysisRun", run), record_value),
-        ("received_result", object_ref("ResultEnvelope", &envelope_ref), received_digest.as_str()),
-    ] {
-        let hash = handoff_hashes
-            .iter()
-            .find(|hash| hash["payload_scope"] == scope)
-            .ok_or_else(|| mismatch(format!("handoff {scope} hash")))?;
-        check_hash(hash, &payload, value, &[DERIVATIVE_LABEL], &format!("handoff {scope} hash"))?;
-    }
-    let handoff_rows = array(run_record, "/result_refs");
-    require(handoff_rows.len() == row_digests.len(), "handoff result references cover the source rows")?;
-    for (entry, (id, row_digest)) in handoff_rows.iter().zip(&row_digests) {
-        require(entry["result_ref"] == object_ref("Result", id), format!("handoff result reference {id}"))?;
-        let hash = array(entry, "/hash_refs").first().cloned().unwrap_or(Value::Null);
-        require(hash["payload_scope"] == "result_row", format!("handoff row hash scope {id}"))?;
-        check_hash(&hash, &object_ref("Result", id), row_digest, &[DERIVATIVE_LABEL], &format!("handoff row hash {id}"))?;
-    }
-    // An exact-route document names its load bases `load_case`, as the
-    // derivative maps the record's `LoadCase` (DEL-04-07 Design
-    // `desktop-exact-outputs.md` §4.2, §6.2); the handoff run section keeps the
-    // record's object type. W-11 (DEL-08-01 Design
-    // `exact-route-report-sections.md` §5.3): compare under that one mapping,
-    // for exact identities only. Active since the owner opened exact-route
-    // packages (§5.1; 2026-10-26), when item 0 began admitting them.
+    // The current state and run sections of the handoff record. Under the
+    // user-release entry the request carries no handoff record set (§2.8):
+    // its run record is bound natively by admission (§2.5 step 8), so the
+    // checks that read the handoff's run section have nothing to read.
     let exact_document = document_form::producer_contract_id(document).is_some_and(exact_sections::is_exact_identity);
-    let handoff_loads = unique_refs(
-        array(run_record, "/load_basis_refs").iter().filter_map(|item| {
-            let object_type = item["object_type"].as_str()?;
-            let object_type = if exact_document && object_type == "LoadCase" { "load_case" } else { object_type };
-            Some((object_type, item["ref"].as_str()?))
-        }),
-        "handoff load basis",
-    )?;
-    require(
-        handoff_loads == load_set && handoff_loads.len() == array(run_record, "/load_basis_refs").len(),
-        "handoff load basis equals the document's",
-    )?;
+    let run_record: Option<&Value> = if user_release {
+        if !request.state_comparison_handoff_records.is_empty() {
+            return Err(format!("{}: a user-released request carries no state/comparison/handoff record set", user_release::PACKAGE_UNBOUND));
+        }
+        None
+    } else {
+        // The current state and run sections of the handoff record.
+        require(request.state_comparison_handoff_records.len() == 1, "exactly one handoff record set is required")?;
+        let handoff = &request.state_comparison_handoff_records[0];
+        require(
+            handoff["section_set_id"].as_str().is_some_and(|id| id.ends_with(&format!(":{run}"))),
+            "handoff section_set_id names the run",
+        )?;
+        let sections = array(handoff, "/sections/state_run_sections");
+        let state = format!("state:{model}:preview");
+        let of_kind = |kind: &str| sections.iter().filter(|section| section["section_kind"] == kind).collect::<Vec<_>>();
+        let (model_states, run_records) = (of_kind("model_state_record"), of_kind("analysis_run_record"));
+        require(model_states.len() == 1 && run_records.len() == 1, "exactly one current model-state and analysis-run section")?;
+        let (model_state, run_record) = (model_states[0], run_records[0]);
+        require(model_state["state_ref"] == object_ref("ModelState", &state), "handoff model-state reference")?;
+        require(model_state["section_id"] == format!("state-run:{state}"), "handoff model-state section id")?;
+        let state_hash = &array(model_state, "/hash_refs").first().cloned().unwrap_or(Value::Null);
+        require(state_hash["payload_scope"] == "model_state", "handoff model-state hash scope")?;
+        check_hash(state_hash, &object_ref("ModelState", &state), model_hash, &JCS_LABELS, "handoff model-state hash")?;
+        require(run_record["state_ref"] == object_ref("ModelState", &state), "handoff analysis-run state reference")?;
+        require(run_record["section_id"] == format!("state-run:{run}"), "handoff analysis-run section id")?;
+        require(run_record["run_ref"] == object_ref("AnalysisRun", run), "handoff analysis-run reference")?;
+        let handoff_hashes = array(run_record, "/hash_refs");
+        require(handoff_hashes.len() == 2, "handoff analysis-run hash inventory")?;
+        for (scope, payload, value) in [
+            ("analysis_run_record", object_ref("AnalysisRun", run), record_value),
+            ("received_result", object_ref("ResultEnvelope", &envelope_ref), received_digest.as_str()),
+        ] {
+            let hash = handoff_hashes
+                .iter()
+                .find(|hash| hash["payload_scope"] == scope)
+                .ok_or_else(|| mismatch(format!("handoff {scope} hash")))?;
+            check_hash(hash, &payload, value, &[DERIVATIVE_LABEL], &format!("handoff {scope} hash"))?;
+        }
+        let handoff_rows = array(run_record, "/result_refs");
+        require(handoff_rows.len() == row_digests.len(), "handoff result references cover the source rows")?;
+        for (entry, (id, row_digest)) in handoff_rows.iter().zip(&row_digests) {
+            require(entry["result_ref"] == object_ref("Result", id), format!("handoff result reference {id}"))?;
+            let hash = array(entry, "/hash_refs").first().cloned().unwrap_or(Value::Null);
+            require(hash["payload_scope"] == "result_row", format!("handoff row hash scope {id}"))?;
+            check_hash(&hash, &object_ref("Result", id), row_digest, &[DERIVATIVE_LABEL], &format!("handoff row hash {id}"))?;
+        }
+        // An exact-route document names its load bases `load_case`, as the
+        // derivative maps the record's `LoadCase` (DEL-04-07 Design
+        // `desktop-exact-outputs.md` §4.2, §6.2); the handoff run section keeps the
+        // record's object type. W-11 (DEL-08-01 Design
+        // `exact-route-report-sections.md` §5.3): compare under that one mapping,
+        // for exact identities only. Active since the owner opened exact-route
+        // packages (§5.1; 2026-10-26), when item 0 began admitting them.
+        let handoff_loads = unique_refs(
+            array(run_record, "/load_basis_refs").iter().filter_map(|item| {
+                let object_type = item["object_type"].as_str()?;
+                let object_type = if exact_document && object_type == "LoadCase" { "load_case" } else { object_type };
+                Some((object_type, item["ref"].as_str()?))
+            }),
+            "handoff load basis",
+        )?;
+        require(
+            handoff_loads == load_set && handoff_loads.len() == array(run_record, "/load_basis_refs").len(),
+            "handoff load basis equals the document's",
+        )?;
+        Some(run_record)
+    };
 
     // Solver.
     let name_version = |value: &Value, name: &str, version: &str| {
@@ -580,13 +612,15 @@ pub(crate) fn check_request_in(
         input.canonicalization == audit::Canonicalization::Rfc8785Jcs && input.payload_kind == audit::PayloadKind::InputManifestJson,
         "audit input-manifest hash basis",
     )?;
-    let manifest_refs = array(run_record, "/reproducibility/input_manifest_refs");
-    let manifest_hashes = array(run_record, "/reproducibility/input_manifest_hashes");
-    require(manifest_refs.len() == 1 && manifest_hashes.len() == 1, "handoff input-manifest evidence")?;
-    let manifest_ref = object_ref("InputManifest", &input.payload_ref);
-    require(manifest_refs[0] == manifest_ref, "handoff input-manifest reference")?;
-    require(manifest_hashes[0]["payload_scope"] == "input_manifest", "handoff input-manifest hash scope")?;
-    check_hash(&manifest_hashes[0], &manifest_ref, &input.value, &["rfc8785_jcs"], "handoff input-manifest hash")?;
+    if let Some(run_record) = run_record {
+        let manifest_refs = array(run_record, "/reproducibility/input_manifest_refs");
+        let manifest_hashes = array(run_record, "/reproducibility/input_manifest_hashes");
+        require(manifest_refs.len() == 1 && manifest_hashes.len() == 1, "handoff input-manifest evidence")?;
+        let manifest_ref = object_ref("InputManifest", &input.payload_ref);
+        require(manifest_refs[0] == manifest_ref, "handoff input-manifest reference")?;
+        require(manifest_hashes[0]["payload_scope"] == "input_manifest", "handoff input-manifest hash scope")?;
+        check_hash(&manifest_hashes[0], &manifest_ref, &input.value, &["rfc8785_jcs"], "handoff input-manifest hash")?;
+    }
     require(summary["input_manifest_ref"]["ref_id"].as_str() == Some(input.payload_ref.as_str()), "report input-manifest reference")?;
     if desktop {
         require(origin["qualification_ref"] == reference("current_manifest", &input.payload_ref), "origin qualification reference")?;
@@ -620,7 +654,9 @@ pub(crate) fn check_request_in(
     let mut with_review = status_set(statuses);
     with_review.insert("HUMAN_REVIEW_REQUIRED".to_string());
     require(status_set(array(report, "/calculation_report/analysis_status")) == with_review, "report analysis status")?;
-    require(status_set(array(run_record, "/analysis_status")) == status_set(statuses), "handoff analysis status")?;
+    if let Some(run_record) = run_record {
+        require(status_set(array(run_record, "/analysis_status")) == status_set(statuses), "handoff analysis status")?;
+    }
 
     // Item 6: the displayed rows are derived from the validated source.
     let expected_rows = expected_report_result_rows(source)?;
@@ -665,8 +701,22 @@ pub(crate) fn check_request_in(
         }
     }
 
-    // Item 8: the local-private report context.
-    if report["report_context"]["export_context"] != "local_private" {
+    // Item 8: under a general entry, the local-private report context (a
+    // record never reaches here: the marker refusal has refused it); under the
+    // user-release entry, the user-released profile, context and a record
+    // (W-18b §2.8).
+    if user_release {
+        let context = &report["report_context"];
+        if request.export_profile_id != USER_RELEASED_DESKTOP_PROFILE
+            || context["export_context"] != USER_RELEASED_CONTEXT
+            || context.get("user_release").is_none_or(Value::is_null)
+        {
+            return Err(format!(
+                "{}: the admitting entry packages only the {USER_RELEASED_DESKTOP_PROFILE} profile under {USER_RELEASED_CONTEXT} with a user-release record",
+                user_release::PACKAGE_UNBOUND
+            ));
+        }
+    } else if report["report_context"]["export_context"] != "local_private" {
         return Err(format!("{REPORT_CONTEXT_NOT_LOCAL_PRIVATE}: the report package renders under local_private only"));
     }
 
@@ -679,5 +729,63 @@ pub(crate) fn check_request_in(
     if exact_document {
         check_report_diagnostics(report, source)?;
     }
-    exact_sections::check_exact_sections(source, document, audit_manifest, report)
+    exact_sections::check_exact_sections(source, document, audit_manifest, report)?;
+
+    // Item 10 (W-18b §2.8): the record against the request's members.
+    if user_release {
+        check_user_release_record(request, audit_manifest, document)?;
+    }
+    Ok(())
+}
+
+/// Item 10 (W-18b, DEL-08-01 Design `report-user-release.md` §2.8): the
+/// record is of its form (§2.3), and each bound member equals the request's:
+/// - `model_ref` = `source_model_ref.ref_id` = the document's
+///   `model_ref.ref_id` = `audit_manifest.model_hash.payload_ref`;
+/// - `model_document_sha256` = the audit and the document model hash;
+/// - `input_manifest_sha256` and `input_manifest_ref` = the audit
+///   input-manifest hash value and payload reference;
+/// - `analysis_run_ref` = the document's `run_ref.ref_id`;
+/// - the envelope id and derivative hash = the document's;
+/// - `scope.report_id` = `report:<analysis_run_ref>` = the report's
+///   `report_id`, and `scope.package_id` = the request's.
+///
+/// Each inequality is `REPORT-PACKAGE-USER-RELEASE-UNBOUND`, naming the member.
+fn check_user_release_record(request: &ReportPackageRequest, audit_manifest: &audit::AuditManifest, document: &Value) -> Result<(), String> {
+    let unbound = |member: &str| format!("{}: the user-release record's {member} is not the request's", user_release::PACKAGE_UNBOUND);
+    let value = request.report.pointer("/report_context/user_release").ok_or_else(|| unbound("presence"))?;
+    let record: open_pipe_stress_report_renderer::UserReleaseRecord =
+        serde::Deserialize::deserialize(value).map_err(|_| format!("{}: the user-release record is not of its form", user_release::PACKAGE_UNBOUND))?;
+    if let Some(member) = record.form_defect() {
+        return Err(format!("{}: the user-release record's {member} is not of its form", user_release::PACKAGE_UNBOUND));
+    }
+    let bound = &record.bound_to;
+    let e = &document["result_envelope"];
+    let audit_model = audit_manifest.model_hash.as_ref();
+    let audit_input = audit_manifest.input_manifest_hash.as_ref();
+    let checks: [(&str, bool); 11] = [
+        ("bound_to.model_ref", request.source_model_ref.ref_id == bound.model_ref),
+        ("bound_to.model_ref", text(e, "/model_ref/ref_id") == Some(bound.model_ref.as_str())),
+        ("bound_to.model_ref", audit_model.is_some_and(|hash| hash.payload_ref == bound.model_ref)),
+        ("bound_to.model_document_sha256", audit_model.is_some_and(|hash| hash.value == bound.model_document_sha256)),
+        ("bound_to.model_document_sha256", text(e, "/reproducibility/model_hash/value") == Some(bound.model_document_sha256.as_str())),
+        ("bound_to.input_manifest_sha256", audit_input.is_some_and(|hash| hash.value == bound.input_manifest_sha256)),
+        ("bound_to.input_manifest_ref", audit_input.is_some_and(|hash| hash.payload_ref == bound.input_manifest_ref)),
+        ("bound_to.analysis_run_ref", text(e, "/run_ref/ref_id") == Some(bound.analysis_run_ref.as_str())),
+        (
+            "bound_to.result_envelope_id",
+            text(e, "/envelope_id") == Some(bound.result_envelope_id.as_str())
+                && text(e, "/reproducibility/derivative_hash/value") == Some(bound.result_document_derivative_sha256.as_str()),
+        ),
+        (
+            "scope.report_id",
+            record.scope.report_id == format!("report:{}", bound.analysis_run_ref)
+                && text(&request.report, "/calculation_report/report_id") == Some(record.scope.report_id.as_str()),
+        ),
+        ("scope.package_id", record.scope.package_id == request.package_id),
+    ];
+    match checks.iter().find(|(_, holds)| !holds) {
+        Some((member, _)) => Err(unbound(member)),
+        None => Ok(()),
+    }
 }

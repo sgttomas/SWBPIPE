@@ -37,8 +37,11 @@
 use crate::bindings::{
     check_report_result_refs, check_unit_display_summary, expected_report_diagnostics, expected_report_result_rows,
 };
+use crate::admitted;
 use crate::quantity_display::{source_displays_scaled_value, QUANTITY_DISPLAY_POLICY};
+use crate::wire::{decode_report_package_request, LinkedSolverIdentity};
 use open_pipe_stress_canonical_json::canonical_json;
+use open_pipe_stress_report_renderer::UserReleaseRecord;
 use open_pipe_stress_result_export::derivative::{checksum, derive_document, digest, reference};
 use open_pipe_stress_result_export::semantic_contract::{PRESSURE_ID, PRESSURE_SOURCE_ID, PREVIEW_PHYSICS_ID};
 use serde_json::{json, Map, Value};
@@ -59,6 +62,110 @@ pub const EXACT_ROUTE_NOT_ADMITTED: &str = "REPORT-USER-RELEASE-EXACT-ROUTE-NOT-
 /// The basis cannot be derived from (a member the derivation reads is absent
 /// or not of the builders' form).
 pub const BASIS_INVALID: &str = "REPORT-USER-RELEASE-BASIS-INVALID";
+
+// The route-010 vocabulary (§2.5, §2.7, §2.8, §2.9), one definition for every
+// layer that refuses with it: native admission (`src-tauri`), the producer
+// and the headless runner.
+
+/// The record is absent where route 010 needs it, or not of its form (§2.3,
+/// §2.5 steps 3-4).
+pub const RECORD_INVALID: &str = "REPORT-USER-RELEASE-RECORD-INVALID";
+/// A bound record member differs from the value native admission computed or
+/// bound (§2.5 step 4).
+pub const UNBOUND: &str = "REPORT-USER-RELEASE-UNBOUND";
+/// A user-release record on the local-private route 009 (§2.5 step 3).
+pub const NOT_THIS_ROUTE: &str = "REPORT-USER-RELEASE-NOT-THIS-ROUTE";
+/// The model carries a detectable library reference (§2.7).
+pub const LIBRARY_REFERENCED: &str = "REPORT-USER-RELEASE-LIBRARY-REFERENCED";
+/// The model or its input manifest carries a rule-pack reference (§2.7).
+pub const RULE_PACK_REFERENCED: &str = "REPORT-USER-RELEASE-RULE-PACK-REFERENCED";
+/// An object carries a non-project private class (§2.7).
+pub const PRIVATE_CLASS: &str = "REPORT-USER-RELEASE-PRIVATE-CLASS";
+/// This session's solver holds no attested solve of the model and result
+/// (§2.4, §2.5 step 7).
+pub const RESULT_NOT_ATTESTED: &str = "REPORT-USER-RELEASE-RESULT-NOT-ATTESTED";
+/// The run record fails a Record Run binding check or one of route 010's
+/// (§2.5 step 8).
+pub const ANALYSIS_RECORD_UNBOUND: &str = "REPORT-USER-RELEASE-ANALYSIS-RECORD-UNBOUND";
+/// The headless runner's refusal of every user-release marker (§2.8,
+/// refusal 1).
+pub const RUNNER_NOT_ADMITTED: &str = "REPORT-USER-RELEASE-RUNNER-NOT-ADMITTED";
+/// The producer's general entries refuse every user-release marker (§2.8,
+/// refusal 2).
+pub const PACKAGE_NOT_ADMITTED: &str = "REPORT-PACKAGE-USER-RELEASE-NOT-ADMITTED";
+/// Under the admitting entry, the request is not a user-released request, or
+/// its record differs from the request's members (§2.8 items 8 and 10, the
+/// handoff rule).
+pub const PACKAGE_UNBOUND: &str = "REPORT-PACKAGE-USER-RELEASE-UNBOUND";
+
+/// The three user-release markers (§2.8), each by its fixed path, in order.
+pub const MARKER_PATHS: [&str; 3] = ["export_profile_id", "report.report_context.export_context", "report.report_context.user_release"];
+
+/// The first user-release marker a request carries (§2.8): its
+/// `export_profile_id` is the user-released profile; its
+/// `report.report_context.export_context` is `user_released_report`; or its
+/// `report.report_context` has a `user_release` member, whatever its value.
+/// Returns the marker's fixed path from [`MARKER_PATHS`], never a value. The
+/// report is read by key; a report in positional form is refused by the
+/// producer's object-form check before any keyed check.
+pub fn user_release_marker(export_profile_id: &str, report: &Value) -> Option<&'static str> {
+    let context = report.get("report_context");
+    if export_profile_id == USER_RELEASED_DESKTOP_PROFILE {
+        Some(MARKER_PATHS[0])
+    } else if context.and_then(|context| context.get("export_context")).and_then(Value::as_str) == Some(USER_RELEASED_CONTEXT) {
+        Some(MARKER_PATHS[1])
+    } else if context.and_then(Value::as_object).is_some_and(|context| context.contains_key("user_release")) {
+        Some(MARKER_PATHS[2])
+    } else {
+        None
+    }
+}
+
+/// The general entries' refusal of a marker (§2.8, refusal 2).
+pub(crate) fn general_entry_refusal(marker: &str) -> String {
+    format!(
+        "{PACKAGE_NOT_ADMITTED}: this producer entry packages no user-released report; only the desktop's route DREP-PACKAGE-USER-RELEASE-010 builds one, through user_release::assemble_derived (marker: {marker})"
+    )
+}
+
+/// The user-release marker of a typed container input: its profile, its
+/// report context, or a record in that context.
+pub(crate) fn container_marker(export_profile_id: &str, report: &open_pipe_stress_report_renderer::RenderableReportInput) -> Option<&'static str> {
+    use open_pipe_stress_report_renderer::ReportExportContext;
+    let context = report.report_context.as_ref();
+    if export_profile_id == USER_RELEASED_DESKTOP_PROFILE {
+        Some(MARKER_PATHS[0])
+    } else if context.is_some_and(|context| context.export_context == ReportExportContext::UserReleasedReport) {
+        Some(MARKER_PATHS[1])
+    } else if context.is_some_and(|context| context.user_release.is_some()) {
+        Some(MARKER_PATHS[2])
+    } else {
+        None
+    }
+}
+
+/// Proof that the whole-request derivation held (§2.8). Its field is private
+/// and it derives neither `Clone`, `Copy` nor `Default`: only
+/// [`check_derived`] constructs one, and only [`assemble_derived`] calls that
+/// (`user_release_reach_scan`).
+pub(crate) struct DerivedUserRelease {
+    _derived: (),
+}
+
+/// Which producer entry a request came through (§2.8). The general entries
+/// pass [`ProducerEntry::General`], which refuses every user-release marker;
+/// only [`assemble_derived`] passes [`ProducerEntry::UserRelease`]. It is not
+/// an admitted set and changes no item-0 decision.
+pub(crate) enum ProducerEntry {
+    General,
+    UserRelease(DerivedUserRelease),
+}
+
+impl ProducerEntry {
+    pub(crate) fn is_user_release(&self) -> bool {
+        matches!(self, ProducerEntry::UserRelease(_))
+    }
+}
 
 /// `CURRENT_ORIGIN_LIMIT` (`resultExportAdapter.ts`).
 pub const CURRENT_ORIGIN_LIMIT: &str = "Qualified Current received carrier; independent authentic original producer bytes unavailable; dimension absence is not producer attestation";
@@ -108,7 +215,7 @@ pub struct UserReleaseBasis<'a> {
     /// `H`.
     pub software: &'a SoftwareIdentity,
     /// `U`, the record, as the request's `report.report_context.user_release`.
-    pub record: &'a Value,
+    pub record: &'a UserReleaseRecord,
 }
 
 /// `E(M, S, m, I, R, H, U)`: the derived input manifest, its identity, and
@@ -479,7 +586,7 @@ fn report_envelope(payload_ref: Value, schema_id: &str, value: Option<&str>, pro
 /// `user_released_report` with `generated_at` null, `H`'s software identity
 /// and the record `U` (§2.6). The solver mode and settings are the bound input
 /// manifest's.
-fn report_context(source: &Value, run: &Value, input_manifest: &Value, software: &SoftwareIdentity, record: &Value) -> Result<Value, String> {
+fn report_context(source: &Value, run: &Value, input_manifest: &Value, software: &SoftwareIdentity, record: &UserReleaseRecord) -> Result<Value, String> {
     let solver_basis = input_manifest.get("solver_basis").ok_or_else(|| invalid("the input manifest has no solver basis"))?;
     let settings = solver_basis.get("settings").and_then(Value::as_object).ok_or_else(|| invalid("the input manifest's settings are not an object"))?;
     let mut keys: Vec<&String> = settings.keys().collect();
@@ -509,7 +616,7 @@ fn report_context(source: &Value, run: &Value, input_manifest: &Value, software:
         "solver_settings": solver_settings,
         "model_coordinate_system": null,
         "result_coordinate_systems": coordinate_systems,
-        "user_release": record
+        "user_release": serde_json::to_value(record).map_err(|error| invalid(format_args!("the record does not serialize ({error})")))?
     }))
 }
 
@@ -526,7 +633,7 @@ pub fn minimal_renderer_input(
     run_record: &Value,
     input_manifest: &Value,
     software: &SoftwareIdentity,
-    record: &Value,
+    record: &UserReleaseRecord,
 ) -> Result<Value, String> {
     let run = run_record.get("analysis_run").ok_or_else(|| invalid("the run record has no analysis_run"))?;
     let (model_id, name) = (text(model, "/project/id")?, text(model, "/project/name")?);
@@ -876,6 +983,60 @@ pub fn check_matches_derivation(derivation: &UserReleaseDerivation, input_manife
     Ok(())
 }
 
+/// The derivation check (§2.5 step 9, §2.8): `E(M, S, m, I, R, H, U)`, then
+/// the input manifest and the whole request must equal it canonically. Only
+/// [`assemble_derived`] calls it, and only it constructs a
+/// [`DerivedUserRelease`].
+fn check_derived(basis: &UserReleaseBasis<'_>, input_manifest: &Value, request: &Value) -> Result<DerivedUserRelease, String> {
+    let derivation = derive(basis)?;
+    check_matches_derivation(&derivation, input_manifest, request)?;
+    Ok(DerivedUserRelease { _derived: () })
+}
+
+/// The producer's one entry that admits the user-released profile (§2.8,
+/// refusal 3). Its preflight runs first on each result document, reading no
+/// member of the report: item 0 (the public
+/// `document_form::check_route_admitted`), then
+/// `exact_sections::check_user_released_profile` with the profile constant,
+/// so an exact document is refused with
+/// `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED` whatever the request
+/// carries. Only then does it derive the request from `basis` and require the
+/// input manifest `input_manifest` and the whole `request` to equal the
+/// derivation (`REPORT-USER-RELEASE-CONTENT-NOT-DERIVED`, naming the first
+/// differing pointer). It then runs the shared producer under
+/// [`ProducerEntry::UserRelease`]. Native admission's route-010 branch is its
+/// one caller, through `report_package_bridge::assemble_user_released_request`
+/// (`user_release_reach_scan`). It records no user release; the user's record
+/// is the request's.
+pub fn assemble_derived(
+    request: Value,
+    linked: &LinkedSolverIdentity<'_>,
+    basis: &UserReleaseBasis<'_>,
+    input_manifest: &Value,
+) -> Result<crate::ReportPackageContainerOutcome, String> {
+    for document in request.get("result_documents").and_then(Value::as_array).into_iter().flatten() {
+        crate::document_form::check_route_admitted(document)?;
+        crate::exact_sections::check_user_released_profile(USER_RELEASED_DESKTOP_PROFILE, document)?;
+    }
+    let derived = check_derived(basis, input_manifest, &request)?;
+    let request = decode_report_package_request(request).map_err(|detail| format!("{PACKAGE_UNBOUND}: {detail}"))?;
+    crate::wire::assemble_wire_request_in(request, linked, &ProducerEntry::UserRelease(derived), admitted::PRODUCTION)
+}
+
+/// The `content_binding` the writer adds to the manifest's copy of the record
+/// (§2.3): one entry per non-manifest member, in archive order, each the
+/// SHA-256 of that member's exact bytes.
+pub(crate) fn content_binding(members: &[crate::ContainerMember]) -> Value {
+    json!({
+        "algorithm": "sha256",
+        "members": members.iter().map(|member| json!({
+            "file_name": member.file_name,
+            "role": member.role,
+            "sha256": member.sha256_hex
+        })).collect::<Vec<_>>()
+    })
+}
+
 /// A pointer as a refusal shows it: the root as `/`, a long one cut to its
 /// first 240 characters.
 fn shown_pointer(pointer: &str) -> String {
@@ -889,6 +1050,63 @@ fn shown_pointer(pointer: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    const VECTORS: &str = include_str!("../../../../fixtures/reports/invented/user_release_derivation_vectors.json");
+    const MODEL: &str = include_str!("../../../../fixtures/model_operations/precision_connected_ui_model.json");
+    const SOURCE: &str = include_str!("../../../../fixtures/results/preview_physics_connected_sparse.json");
+
+    fn linked() -> LinkedSolverIdentity<'static> {
+        LinkedSolverIdentity {
+            solver_name: "open_pipe_stress_product_physics",
+            solver_version: "0.2.0",
+            solver_build_ref: "open_pipe_stress_product_physics@0.2.0",
+        }
+    }
+
+    /// The first vector's derived request, typed, with its converted audit
+    /// manifest.
+    fn typed(edit: impl FnOnce(&mut Value)) -> (crate::wire::ReportPackageRequest, open_pipe_stress_audit_manifest::AuditManifest) {
+        let vector = serde_json::from_str::<Value>(VECTORS).unwrap()["vectors"][0].clone();
+        assert_eq!(vector["source_fixture"], "fixtures/results/preview_physics_connected_sparse.json");
+        let (model, source): (Value, Value) = (serde_json::from_str(MODEL).unwrap(), serde_json::from_str(SOURCE).unwrap());
+        let record: UserReleaseRecord = serde_json::from_value(vector["user_release"].clone()).unwrap();
+        let software = SoftwareIdentity { name: "SWBPIPE".into(), version: "0.1.0".into() };
+        let basis = UserReleaseBasis {
+            model: &model,
+            source: &source,
+            solver_mode: vector["solver_mode"].as_str().unwrap(),
+            run_record: &vector["run_record"],
+            software: &software,
+            record: &record,
+        };
+        let mut request = derive(&basis).unwrap().request;
+        edit(&mut request);
+        let request = decode_report_package_request(request).unwrap();
+        let audit = crate::wire::audit_manifest(request.audit_manifest.clone(), &linked()).unwrap();
+        (request, audit)
+    }
+
+    /// `bindings::check_request`, a general entry, refuses every marker
+    /// (§2.8, refusal 2); under the user-release entry the request carries no
+    /// handoff record set and the user-released profile, context and record
+    /// (item 8, the handoff rule).
+    #[test]
+    fn check_request_refuses_markers_and_the_entry_binds_its_form() {
+        let (request, audit) = typed(|_| {});
+        let refusal = crate::bindings::check_request(&request, &audit, &linked()).unwrap_err();
+        assert!(refusal.starts_with(&format!("{PACKAGE_NOT_ADMITTED}:")) && refusal.ends_with("(marker: export_profile_id)"), "{refusal}");
+        let entry = ProducerEntry::UserRelease(DerivedUserRelease { _derived: () });
+        let check = |request: &crate::wire::ReportPackageRequest, audit| crate::bindings::check_request_in(request, audit, &linked(), &entry, admitted::PRODUCTION);
+        assert_eq!(check(&request, &audit), Ok(()));
+        let (handoff, audit) = typed(|request| request["state_comparison_handoff_records"] = json!([{"deliverable_id": "DEL-08-06"}]));
+        assert!(check(&handoff, &audit).unwrap_err().starts_with(&format!("{PACKAGE_UNBOUND}:")));
+        let (local, audit) = typed(|request| request["export_profile_id"] = json!(crate::bindings::DESKTOP_PROFILE));
+        assert!(check(&local, &audit).unwrap_err().starts_with(&format!("{PACKAGE_UNBOUND}:")));
+        let (no_record, audit) = typed(|request| {
+            request["report"]["report_context"].as_object_mut().unwrap().remove("user_release");
+        });
+        assert!(check(&no_record, &audit).unwrap_err().starts_with(&format!("{PACKAGE_UNBOUND}:")));
+    }
 
     #[test]
     fn safe_token_matches_the_desktop_rule() {

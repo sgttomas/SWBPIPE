@@ -84,6 +84,13 @@ pub struct ReadReportPackage {
     /// package form itself (for example duplicate member names) is refused.
     pub export_blocked: bool,
     pub blocking_reasons: Vec<String>,
+    /// The manifest's user-release record with its `content_binding` (W-18b,
+    /// DEL-08-01 Design `report-user-release.md` §2.9), so a consumer can show
+    /// it; `None` for every package without a user release. The reader's
+    /// checks of it are equality checks: they establish consistency between
+    /// the record and the members, not authentic user consent, producer
+    /// origin or the truth of the statement.
+    pub user_release: Option<Value>,
 }
 
 /// Why a container was refused. Every refusal is final: nothing of the
@@ -106,6 +113,9 @@ pub enum PackageReadRefusal {
     MalformedManifest { reason: String },
     /// A member disagrees with the manifest inventory or its own form.
     MemberIntegrity { file_name: String, reason: String },
+    /// A user-release record that is not of its form, not bound to this
+    /// package's members, or in a package it may not be in (W-18b §2.9).
+    UserReleaseUnbound { reason: String },
 }
 
 impl PackageReadRefusal {
@@ -119,6 +129,7 @@ impl PackageReadRefusal {
             Self::MalformedContainer { .. } => "OPSPROJ_CONTAINER_MALFORMED",
             Self::MalformedManifest { .. } => "OPSPROJ_MANIFEST_MALFORMED",
             Self::MemberIntegrity { .. } => "OPSPROJ_MEMBER_INTEGRITY",
+            Self::UserReleaseUnbound { .. } => "OPSPROJ_USER_RELEASE_UNBOUND",
         }
     }
 }
@@ -148,7 +159,8 @@ impl fmt::Display for PackageReadRefusal {
             ),
             Self::NotAPackage { reason }
             | Self::MalformedContainer { reason }
-            | Self::MalformedManifest { reason } => write!(f, "{}: {reason}", self.code()),
+            | Self::MalformedManifest { reason }
+            | Self::UserReleaseUnbound { reason } => write!(f, "{}: {reason}", self.code()),
             Self::MemberIntegrity { file_name, reason } => {
                 write!(f, "{}: member {file_name}: {reason}", self.code())
             }
@@ -232,7 +244,19 @@ pub(crate) fn read_report_package_container_in(
     }
     let fields = manifest_fields(manifest_object)?;
     let rows = manifest_member_rows(manifest_object)?;
-    let members = verify_members(bytes, &archive, &rows, fields.export_blocked, &fields.export_profile_id, admitted)?;
+    // A record, or the user-released profile, selects the user-released
+    // member rule; the record's own checks then decide (W-18b §2.9).
+    let user_released = fields.user_release.is_some() || fields.export_profile_id == crate::user_release::USER_RELEASED_DESKTOP_PROFILE;
+    let members = verify_members(bytes, &archive, &rows, fields.export_blocked, &fields.export_profile_id, user_released, admitted)?;
+    // W-18b (§2.9): the record's checks, after the members are verified and
+    // before the rebuild; the rebuild then holds the record's form exactly.
+    let caller_record = match &fields.user_release {
+        Some(record) => Some(check_user_release(&fields, record, &members)?),
+        None if fields.export_profile_id == crate::user_release::USER_RELEASED_DESKTOP_PROFILE => {
+            return Err(user_release_unbound("the user-released profile carries no user-release record"));
+        }
+        None => None,
+    };
 
     let rebuilt = package_manifest_document(
         &ManifestFields {
@@ -242,6 +266,7 @@ pub(crate) fn read_report_package_container_in(
             source_basis_refs: &fields.source_basis_refs,
             export_blocked: fields.export_blocked,
             blocking_reasons: &fields.blocking_reasons,
+            user_release: caller_record.as_ref(),
         },
         &members[1..],
     );
@@ -271,6 +296,7 @@ pub(crate) fn read_report_package_container_in(
         members,
         export_blocked: fields.export_blocked,
         blocking_reasons: fields.blocking_reasons,
+        user_release: fields.user_release,
     })
 }
 
@@ -651,6 +677,7 @@ struct OwnedManifestFields {
     source_basis_refs: Vec<PackageRef>,
     export_blocked: bool,
     blocking_reasons: Vec<String>,
+    user_release: Option<Value>,
 }
 
 struct MemberRow {
@@ -729,6 +756,11 @@ fn manifest_fields(
         source_basis_refs,
         export_blocked,
         blocking_reasons,
+        user_release: match manifest.get("user_release") {
+            None => None,
+            Some(record @ Value::Object(_)) => Some(record.clone()),
+            Some(_) => return Err(malformed_manifest("user_release must be an object")),
+        },
     })
 }
 
@@ -822,6 +854,7 @@ fn verify_members(
     rows: &[MemberRow],
     export_blocked: bool,
     export_profile_id: &str,
+    user_released: bool,
     admitted: AdmittedSet,
 ) -> Result<Vec<ContainerMember>, PackageReadRefusal> {
     let content_entries = &archive.entries[1..];
@@ -944,6 +977,12 @@ fn verify_members(
                             document_form::check_route_admitted_in(&document, admitted).map_err(&defect)?;
                             // W-11 §3.5: the runner profile packages no exact identity.
                             exact_sections::check_runner_profile(export_profile_id, &document).map_err(&defect)?;
+                            // W-18b (§0, §2.9): a user-released package carries
+                            // pressure-free results only.
+                            if user_released || export_profile_id == crate::user_release::USER_RELEASED_DESKTOP_PROFILE {
+                                exact_sections::check_user_released_profile(crate::user_release::USER_RELEASED_DESKTOP_PROFILE, &document)
+                                    .map_err(|reason| user_release_unbound(format!("the result member is not pressure-free: {reason}")))?;
+                            }
                             let (manifest_id, model_hash) = audit_identity
                                 .as_ref()
                                 .ok_or_else(|| defect("no audit manifest precedes the result member".to_string()))?;
@@ -974,8 +1013,15 @@ fn verify_members(
         ));
     }
     // The writer blocks a package without a result export or a
-    // state/comparison/handoff member, so an unblocked one carries both.
-    if !export_blocked && !(ranks_seen.contains(&3) && ranks_seen.contains(&4)) {
+    // state/comparison/handoff member, so an unblocked one carries both; a
+    // user-released package (W-18b §2.9) carries no state/comparison/handoff
+    // member, so only its result member is required here (its cardinality is
+    // the user-release check's).
+    if !export_blocked && user_released {
+        if !ranks_seen.contains(&3) {
+            return Err(user_release_unbound("a user-released package carries exactly one result member"));
+        }
+    } else if !export_blocked && !(ranks_seen.contains(&3) && ranks_seen.contains(&4)) {
         return Err(malformed_manifest(
             "an unblocked package must carry at least one result export and one \
              state/comparison/handoff report-section member",
@@ -1048,6 +1094,97 @@ fn check_member_document(
         _ => {}
     }
     Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// User release (W-18b, DEL-08-01 Design `report-user-release.md` §2.9).
+// ---------------------------------------------------------------------------
+
+fn user_release_unbound(reason: impl Into<String>) -> PackageReadRefusal {
+    PackageReadRefusal::UserReleaseUnbound { reason: reason.into() }
+}
+
+/// The checks of a package whose manifest records a user release (§2.9),
+/// each failure `OPSPROJ_USER_RELEASE_UNBOUND` with its reason. They are
+/// equality checks: they establish that the record, the members and the
+/// member bytes agree with each other, not that a person made the statement,
+/// that this application wrote the package, or that the statement is true.
+/// Returns the caller's record (the manifest copy without `content_binding`)
+/// for the manifest rebuild.
+fn check_user_release(
+    fields: &OwnedManifestFields,
+    manifest_record: &Value,
+    members: &[ContainerMember],
+) -> Result<Value, PackageReadRefusal> {
+    use crate::user_release::USER_RELEASED_DESKTOP_PROFILE;
+    use open_pipe_stress_report_renderer::{escape_html, user_release_notice_for, UserReleaseRecord};
+    if fields.export_blocked {
+        return Err(user_release_unbound("a user-release record is not admitted in a blocked package"));
+    }
+    if fields.export_profile_id != USER_RELEASED_DESKTOP_PROFILE {
+        return Err(user_release_unbound(format!("a user-release record is admitted only under the {USER_RELEASED_DESKTOP_PROFILE} profile")));
+    }
+    // Cardinality: one HTML, one PDF, one audit and one result member, and no
+    // state/comparison/handoff member.
+    let content = &members[1..];
+    let count = |role: &str| content.iter().filter(|member| member.role == role).count();
+    if content.len() != 4 || [ROLE_REPORT_HTML, ROLE_REPORT_PDF, ROLE_AUDIT_MANIFEST, ROLE_RESULT_EXPORT].iter().any(|role| count(role) != 1) {
+        return Err(user_release_unbound(
+            "a user-released package carries exactly one HTML, PDF, audit and result member and no state/comparison/handoff member",
+        ));
+    }
+    // The record's form: the caller's members (§2.3) plus `content_binding`.
+    let mut caller = manifest_record.clone();
+    let binding = caller.as_object_mut().and_then(|object| object.remove("content_binding"));
+    let record: UserReleaseRecord =
+        serde::Deserialize::deserialize(&caller).map_err(|_| user_release_unbound("the user-release record is not of its form"))?;
+    if let Some(member) = record.form_defect() {
+        return Err(user_release_unbound(format!("the user-release record's {member} is not of its form")));
+    }
+    let member_of = |role: &str| content.iter().find(|member| member.role == role).expect("cardinality checked");
+    let parse = |member: &ContainerMember| serde_json::from_slice::<Value>(&member.bytes).unwrap_or(Value::Null);
+    let (audit, result) = (parse(member_of(ROLE_AUDIT_MANIFEST)), parse(member_of(ROLE_RESULT_EXPORT)));
+    let envelope = &result["result_envelope"];
+    let text = |value: &Value, pointer: &str| value.pointer(pointer).and_then(Value::as_str).map(str::to_string);
+    let bound = &record.bound_to;
+    let checks: [(&str, bool); 10] = [
+        (
+            "bound_to.model_ref",
+            fields.source_model_ref.ref_id == bound.model_ref
+                && text(envelope, "/model_ref/ref_id").as_deref() == Some(bound.model_ref.as_str())
+                && text(&audit, "/model_hash/payload_ref").as_deref() == Some(bound.model_ref.as_str()),
+        ),
+        ("bound_to.model_document_sha256", text(&audit, "/model_hash/value").as_deref() == Some(bound.model_document_sha256.as_str())),
+        ("bound_to.input_manifest_sha256", text(&audit, "/input_manifest_hash/value").as_deref() == Some(bound.input_manifest_sha256.as_str())),
+        ("bound_to.input_manifest_ref", text(&audit, "/input_manifest_hash/payload_ref").as_deref() == Some(bound.input_manifest_ref.as_str())),
+        ("bound_to.result_envelope_id", text(envelope, "/envelope_id").as_deref() == Some(bound.result_envelope_id.as_str())),
+        (
+            "bound_to.result_document_derivative_sha256",
+            text(envelope, "/reproducibility/derivative_hash/value").as_deref() == Some(bound.result_document_derivative_sha256.as_str()),
+        ),
+        ("bound_to.analysis_run_ref", text(envelope, "/run_ref/ref_id").as_deref() == Some(bound.analysis_run_ref.as_str())),
+        (
+            "bound_to.analysis_run_ref",
+            fields.source_basis_refs.first().is_some_and(|first| first.ref_id == bound.analysis_run_ref),
+        ),
+        ("scope.package_id", record.scope.package_id == fields.package_id),
+        ("scope.report_id", record.scope.report_id == format!("report:{}", bound.analysis_run_ref)),
+    ];
+    if let Some((member, _)) = checks.iter().find(|(_, holds)| !holds) {
+        return Err(user_release_unbound(format!("the user-release record's {member} is not this package's")));
+    }
+    // `content_binding` lists exactly the non-manifest members, by file name
+    // and role in archive order, each with the SHA-256 of its bytes.
+    if binding.as_ref() != Some(&crate::user_release::content_binding(content)) {
+        return Err(user_release_unbound("the user-release record's content_binding does not bind this package's members"));
+    }
+    // The HTML member carries the notice regenerated from the manifest record,
+    // exactly once; the PDF is tied by its byte hash only.
+    let html = std::str::from_utf8(&member_of(ROLE_REPORT_HTML).bytes).unwrap_or("");
+    if html.matches(&escape_html(&user_release_notice_for(&record))).count() != 1 {
+        return Err(user_release_unbound("the rendered report does not carry this record's user-release notice exactly once"));
+    }
+    Ok(caller)
 }
 
 // ---------------------------------------------------------------------------

@@ -11,6 +11,7 @@
 
 use crate as package;
 use crate::admitted::{self, AdmittedSet};
+use crate::user_release::ProducerEntry;
 use open_pipe_stress_audit_manifest as audit;
 use open_pipe_stress_report_renderer::RenderableReportInput;
 use serde::{Deserialize, Serialize};
@@ -357,15 +358,19 @@ pub fn assemble_wire_request(
     request: ReportPackageRequest,
     linked_solver: &LinkedSolverIdentity<'_>,
 ) -> Result<package::ReportPackageContainerOutcome, String> {
-    assemble_wire_request_in(request, linked_solver, admitted::PRODUCTION)
+    assemble_wire_request_in(request, linked_solver, &ProducerEntry::General, admitted::PRODUCTION)
 }
 
 /// [`assemble_wire_request`] against `admitted` (W-11, DEL-08-01 Design
 /// `exact-route-report-sections.md` §5.5), which it forwards unchanged to every
-/// item-0 check on its path.
+/// item-0 check on its path, under the producer `entry` (W-18b, DEL-08-01
+/// Design `report-user-release.md` §2.8), which it forwards unchanged to the
+/// checks and the writer: the general entry refuses every user-release marker,
+/// and only `user_release::assemble_derived` passes the user-release entry.
 pub(crate) fn assemble_wire_request_in(
     request: ReportPackageRequest,
     linked_solver: &LinkedSolverIdentity<'_>,
+    entry: &ProducerEntry,
     admitted: AdmittedSet,
 ) -> Result<package::ReportPackageContainerOutcome, String> {
     // Item 0, the route preflight, comes before any other check, including the
@@ -380,7 +385,7 @@ pub(crate) fn assemble_wire_request_in(
         return Err(format!("{REQUEST_POSITIONAL}: the report writes a struct in positional (array) form at report.{path}"));
     }
     let audit_manifest = audit_manifest(request.audit_manifest.clone(), linked_solver)?;
-    crate::bindings::check_request_in(&request, &audit_manifest, linked_solver, admitted)?;
+    crate::bindings::check_request_in(&request, &audit_manifest, linked_solver, entry, admitted)?;
     // The refusal names the JSON path and the error kind, never the offending
     // value or key (W-11 slice (c), Codex review round 3 of #1639).
     let report: RenderableReportInput = open_pipe_stress_report_renderer::decode_renderable_report_input_as(
@@ -404,7 +409,7 @@ pub(crate) fn assemble_wire_request_in(
         result_documents: &request.result_documents,
         state_comparison_handoff_records: &request.state_comparison_handoff_records,
     };
-    Ok(package::assemble_report_package_container_in(&input, admitted))
+    Ok(package::assemble_report_package_container_in(&input, entry, admitted))
 }
 
 #[cfg(test)]

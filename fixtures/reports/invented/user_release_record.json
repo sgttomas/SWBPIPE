@@ -1,0 +1,31 @@
+{
+  "record_kind": "user_release_of_own_project_data",
+  "record_version": "1.0.0",
+  "statement": "I hold the right to share this project's data, and I release my project data in this report for sharing.",
+  "statement_basis": "docs/IP_AND_DATA_BOUNDARY.md §6: a user intentionally exports their own data with documented redistribution rights",
+  "standing": "user_statement_of_data_rights_only",
+  "scope": {
+    "scope_kind": "this_report_only",
+    "report_id": "report:run:preview-linear-static-001",
+    "package_id": "desktop-user-released-report-run-preview-linear-static-001",
+    "user_released_data_class": "private_project_data",
+    "not_carried": [
+      "rule_pack_references",
+      "user_rule_outcomes",
+      "run_comparisons",
+      "handoff_records",
+      "library_records",
+      "audit_assets"
+    ]
+  },
+  "bound_to": {
+    "model_ref": "project:precision-connected-fixture",
+    "model_document_sha256": "0e0cb0c64c70fce59457225361e19da72cfdf9fe3c56178badec9bf9f0124b45",
+    "analysis_run_ref": "run:preview-linear-static-001",
+    "input_manifest_ref": "input-manifest:project-precision-connected-fixture:dbf365b957c9251feb2f362757cef7a37965219ed2600289497c682f335c6ce1",
+    "input_manifest_sha256": "dbf365b957c9251feb2f362757cef7a37965219ed2600289497c682f335c6ce1",
+    "result_envelope_id": "result-envelope:run:preview-linear-static-001",
+    "result_document_derivative_sha256": "444195893fa003b52c2f64ee5d8d9c91144ff725cfeaf987f10b964039693775"
+  },
+  "user_released_at": "2026-10-27T00:00:00Z"
+}
