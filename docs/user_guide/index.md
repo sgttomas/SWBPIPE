@@ -79,7 +79,8 @@ A model solves on one of two routes:
 - **Exports.** Both routes export result JSON and stress-neutral JSON, each
   only with explicit local-private intent. Pressure-free results also export
   the PCF and MBF package documents (redacted for downstream tools), a native
-  package review manifest and a preview handoff JSON, among others.
+  package review manifest and a preview handoff JSON, among others. The MBF
+  text is a placeholder record subset that CAEPIPE does not import (§12).
   Outputs that must be byte-exact for a downstream tool (stress-neutral CSV,
   glTF review geometry, PCF text and MBF text) are withheld whenever
   redaction would alter them. Session geometry and result values are
@@ -467,6 +468,13 @@ user-owned external-run evidence, stress-neutral CSV/JSON, conservative PCF, glT
 geometry, stable ID maps, loss reports, and adapter SDK support. These exports
 must remain deterministic, provenance-bearing, privacy-aware, and loss-reporting
 where target limitations exist.
+
+The desktop `.mbf` text is not yet a CAEPIPE model: it writes a placeholder
+record subset (`UNIT`, `NODE`, `PIPE`, `SUPPORT`, `LOADCASE` lines) that CAEPIPE
+does not import, so do not hand it to CAEPIPE. A real SI MBF writer for a pilot
+subset exists in `core/handoff/caepipe_mbf/si_writer.py` for the developer
+correlation pilot (DEL-17-05 `Design/caepipe-correlation-pilot.md`); the desktop
+export does not use it yet.
 
 Export evidence must not bundle commercial solvers, bypass licenses, reverse
 engineer protected formats, or embed proprietary examples. Export packages are
