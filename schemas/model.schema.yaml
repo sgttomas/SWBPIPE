@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openpipestress.org/schemas/model.schema.yaml",
   "title": "OpenPipeStress model document",
-  "description": "The model document openpipestress.product_preview.model, version 0.7.0: the document the desktop opens, edits and saves and the solver reads. Coordinates, directions and orientation vectors are in one implicit global right-handed Cartesian frame (axes X, Y, Z; length unit project.units.length); the document declares no other coordinate system. The schema describes structure only: physical validity, unit admission and cross-references are the readers' and the applier's, which report named diagnostics. Every member a reader decodes or a writer emits is described, and every record is closed. The load/reference-state group (reference_configurations, material expansion_laws, load-case analysis_state) is defined in load_reference_state.schema.json. $defs/DesktopDocument is the desktop's open and save profile. The annotation and record slots (tags, notes, lines, unresolved_assumptions, rule_pack_refs, provenance_record, constraints, equipment_interfaces) are optional model data that no solve reads; absence means none, and nothing evaluates lines, constraints or equipment interfaces. Values are user-entered; the software supplies no code value and no acceptance.",
+  "description": "The model document openpipestress.product_preview.model, version 0.8.0: the document the desktop opens, edits and saves and the solver reads. Coordinates, directions and orientation vectors are in one implicit global right-handed Cartesian frame (axes X, Y, Z; length unit project.units.length); the document declares no other coordinate system. The schema describes structure only: physical validity, unit admission and cross-references are the readers' and the applier's, which report named diagnostics. Every member a reader decodes or a writer emits is described, and every record is closed. The load/reference-state group (reference_configurations, material expansion_laws, load-case analysis_state) is defined in load_reference_state.schema.json. $defs/DesktopDocument is the desktop's open and save profile. The annotation and record slots (tags, notes, lines, unresolved_assumptions, rule_pack_refs, provenance_record, constraints, equipment_interfaces) are optional model data that no solve reads; absence means none, and nothing evaluates lines, constraints or equipment interfaces. Values are user-entered; the software supplies no code value and no acceptance.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -16,10 +16,10 @@
   ],
   "properties": {
     "schema_version": {
-      "description": "Model document 0.7.0 is the one current version. Versions 0.1.0 to 0.6.0 are retired and refused by name with a re-author diagnostic; nothing is migrated.",
+      "description": "Model document 0.8.0 is the one current version: 0.7.0 plus a reducer's optional geometry.eccentric_offset. Versions 0.1.0 to 0.7.0 are retired and refused by name with a re-author diagnostic; nothing is migrated.",
       "type": "string",
       "enum": [
-        "0.7.0"
+        "0.8.0"
       ]
     },
     "document_kind": {
@@ -450,6 +450,10 @@
         },
         "expansion_joint_source_reference": {
           "type": "string"
+        },
+        "eccentric_offset": {
+          "description": "A reducer's declared eccentric offset (model document 0.8.0; owner ruling R-c1 A): a vector in the global X/Y/Z axes, from the centreline at the component's node to the centreline at its body's other end, in a model length unit. The node geometry governs; the solve checks the declared offset against it and never places nodes from it. Read only on a reducer.",
+          "$ref": "#/$defs/VectorQuantity"
         }
       }
     },
@@ -2826,6 +2830,14 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "shear_model": {
+          "description": "Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §1, §4): the pressure-free document's beam theory, in the exact contract's vocabulary. Absent: Euler–Bernoulli. An explicit user set of euler_bernoulli writes the member (as for the tolerance); the product never writes the default into a document the user did not author, and clear restores the absent form. Refused on a document with pressure_contract (MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT; that document's choice is pressure_contract.shear_model); in 0.8.0 timoshenko_annulus_energy_v1 is schema-valid but refused at solve and at authoring (MODEL-SETTING-SHEAR-MODEL-TIMOSHENKO-UNSUPPORTED); any other value, null included, is refused (MODEL-SETTING-SHEAR-MODEL-UNKNOWN). euler_bernoulli solves exactly as absent.",
+          "type": "string",
+          "enum": [
+            "euler_bernoulli",
+            "timoshenko_annulus_energy_v1"
+          ]
+        },
         "node_proximity_tolerance": {
           "description": "The length within which the near-duplicate node check treats two nodes as near duplicates (owner, 2026-10-23: a fixed 5 mm default \"and give the user the means to change it\"). Absent model_settings or absent member: 5 mm. A finite value greater than zero in a length unit of the units catalog; a non-finite or non-positive value or a non-length or unknown unit is refused by name (MODEL-SETTING-TOLERANCE-NOT-FINITE, -NOT-POSITIVE, -UNIT-NOT-LENGTH).",
           "type": "object",

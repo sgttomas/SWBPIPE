@@ -254,7 +254,8 @@ witness and prior reproduction bundles — including
 three committed generated witnesses and the generator remain byte-identical
 frozen surfaces. The input fixtures are re-authored when the model document
 version changes: the solve input's model `schema_version` token moved to
-0.5.0 at B7a, to 0.6.0 at T4-S1 and to 0.7.0 at W-13 S1b, and the generator
+0.5.0 at B7a, to 0.6.0 at T4-S1, to 0.7.0 at W-13 S1b and to 0.8.0 at W-15
+slice c, and the generator
 reproduces the current inputs byte for byte from the invented preview model
 fixture.
 
@@ -298,7 +299,7 @@ Re-run on `main` at `084ff961f8`:
 
   Result validation adds the blocking `HEADLESS_RUNNER_RESULT_REFS_MISSING`
   diagnostic.
-- *Why.* The input's model `schema_version` is the current `0.7.0`, so this is
+- *Why.* The input's model `schema_version` is the current `0.8.0`, so this is
   not a version refusal. The generator copies the bundled legacy demo
   `fixtures/product_preview/invented_preview_model.json`, whose *content* uses
   retired contracts. Legacy nonzero pressure loads have been refused since

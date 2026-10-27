@@ -2666,6 +2666,30 @@ mod tests {
 
     // --- The witness ----------------------------------------------------------
 
+    /// Model document 0.8.0 (DEL-02-01 Design `model-document-0.8.0.md` §3.4, §12): the
+    /// witness package as the 0.7.0 producer wrote it
+    /// (`fixtures/handoff/retired_0_7_0_witness.swbhandoff/`). Its bytes still verify
+    /// (`tests/test_handoff_package_witness.py`), but its model is not admitted as current:
+    /// File › Open refuses it by name and the solve refuses it with the re-author code.
+    #[test]
+    fn a_package_written_at_model_0_7_0_holds_a_model_the_open_and_solve_paths_refuse() {
+        const RETIRED_MODEL: &str = include_str!("../../../../fixtures/handoff/retired_0_7_0_witness.swbhandoff/model/model.json");
+        let model: Value = serde_json::from_str(RETIRED_MODEL).unwrap();
+        assert_eq!(model["schema_version"], "0.7.0");
+        let outcome = crate::model_document_file::read_model_document_bytes("model.json".into(), RETIRED_MODEL.as_bytes());
+        let crate::model_document_file::ModelDocumentOpenOutcome::Refused { diagnostics, .. } = outcome else {
+            panic!("a 0.7.0 model opened: {outcome:?}");
+        };
+        assert_eq!(diagnostics[0].code, "MODEL-FILE-SCHEMA-REFUSED");
+        assert!(diagnostics[0].message.contains("(retired_schema): MODEL_SCHEMA_VERSION_RETIRED: model document 0.7.0 is retired"), "{}", diagnostics[0].message);
+        for mode in [open_pipe_stress_product_physics::PreviewSolverMode::SparseInteractive, open_pipe_stress_product_physics::PreviewSolverMode::DenseScrutiny] {
+            let envelope = open_pipe_stress_product_physics::run_linear_static_preview_value_with_mode(json!({"model": model, "materials": []}), mode).unwrap();
+            assert_ne!(envelope.status.mechanics, "MECHANICS_SOLVED", "{mode:?}");
+            assert!(envelope.results.is_empty(), "{mode:?}: nothing is solved");
+            assert!(envelope.diagnostics.iter().any(|d| d.code == "MODEL_SCHEMA_VERSION_RETIRED" && d.severity == "blocking"), "{mode:?}");
+        }
+    }
+
     /// The fully populated invented witness package
     /// (`fixtures/handoff/invented_witness.swbhandoff/`): the producer's exact
     /// output for the witness model and store, which pytest validates against

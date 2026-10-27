@@ -13,7 +13,7 @@ const section = { outside_diameter: { value: 0.1, unit: "m" }, wall_thickness: {
 const pipe = (id: string, from: string, to: string) => ({ id, label: id.replace("pipe:", ""), from, to, section, material: "material:steel", y_reference: { x: 0, y: 0, z: 1 }, provenance: PROV });
 const anchor = (id: string, at: string) => ({ id, node: at, family: "anchor", restraints: ["UX", "UY", "UZ", "RX", "RY", "RZ"], provenance: PROV });
 const model = {
-  schema_version: "0.7.0", document_kind: "openpipestress.product_preview.model",
+  schema_version: "0.8.0", document_kind: "openpipestress.product_preview.model",
   data_boundary: { public_examples_policy: "invented_or_cleared_data_only", protected_source_policy: "no_bundled_protected_owner_or_standards_data", private_data_policy: "no_private_project_data", professional_boundary: "technical_preview_requires_human_engineering_review" },
   project: { id: "project:w10-e2e", name: "W-10 reconnect e2e", units: { length: "m", force: "N", angle: "rad", pressure: "Pa", stress: "Pa", temperature: "degC" } },
   analysis_status: { mechanics: "ready_for_preview_diagnostics", rule_check: "not_performed_user_rule_inputs_missing", professional_acceptance: "not_provided" },

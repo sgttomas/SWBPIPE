@@ -101,6 +101,8 @@ export type PreviewComponent = ModelAnnotations & {
     end_b_size?: QuantityValue;
     weight?: QuantityValue;
     center_of_gravity?: { x: number; y: number; z: number; unit: string };
+    /** W-15 slice c: a reducer's declared eccentric offset (R-c1 convention). */
+    eccentric_offset?: { x: number; y: number; z: number; unit: string };
     connection_end_a_reference?: string;
     connection_end_b_reference?: string;
     stiffness_behavior_reference?: string;
@@ -178,7 +180,7 @@ export type EquivalentStaticGenerationInput = {
 export type PressureRegionInput = {
   id: string;
   member_pipe_ids: string[];
-  /** Defined only in model 0.7.0; old documents never author this member. */
+  /** Defined only in model 0.8.0; old documents never author this member. */
   member_connector_ids?: string[];
   pressure_basis: string;
   pressure: QuantityValue;
@@ -545,9 +547,13 @@ export type PreviewModel = {
 };
 
 /** `model_settings`: a closed record. `node_proximity_tolerance` is the near-duplicate node
- * tolerance, a length quantity; absent means 5 mm. The desktop never writes the default. */
+ * tolerance, a length quantity; absent means 5 mm. `shear_model` (model document 0.8.0) is the
+ * pressure-free document's beam theory, absent meaning Euler–Bernoulli; it is refused beside a
+ * pressure contract, and in 0.8.0 `timoshenko_annulus_energy_v1` is refused at solve and authoring.
+ * The desktop never writes a default. */
 export type ModelSettings = {
   node_proximity_tolerance?: QuantityValue;
+  shear_model?: string;
 };
 
 export type Diagnostic = {

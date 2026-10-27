@@ -70,7 +70,7 @@ TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); T4-U5b adds the tie-rod force and
 # T4-U4b its 22 per-basis signatures: 129 signatures over 66 kinds; W-7 (DEL-04-01) the six global end-action
 # signatures: 135 over 68.
-TABLE_SHA256 = "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d"
+TABLE_SHA256 = "a47626ed51791f984fbc07630732a046f8090ff645efdb56e73a284110e9c80c"
 TABLE_SIGNATURE_COUNT = 135
 TABLE_KIND_COUNT = 68
 
@@ -84,8 +84,10 @@ RETIRED_EXACT_V2_IDS = (
     "openpipestress.result_semantics/0.3.0/load-reference-source-1",
 )
 SOURCE_EXACT_PRESSURE_V2_RETIRED = "SOURCE_EXACT_PRESSURE_V2_RETIRED"
+# The current model document version this verifier names (b7-plan "Current model format").
+MODEL_VERSION = "0.8.0"
 V2_RETIRED_TEXT = (f"{SOURCE_EXACT_PRESSURE_V2_RETIRED}: 2.0.0/exact_straight_pressure_v2 results are no longer read; "
-                   "re-author the model as 0.7.0 with the current exact pressure contract and re-run the analysis")
+                   f"re-author the model as {MODEL_VERSION} with the current exact pressure contract and re-run the analysis")
 # Model 0.6.0 (DEL-04-07 Design u4b-u5b-implementation.md §1.2): the retired pressure-1 identity, refused by name.
 RETIRED_PRESSURE_1_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
 SOURCE_PRESSURE_1_RETIRED = "SOURCE_PRESSURE_1_RETIRED"

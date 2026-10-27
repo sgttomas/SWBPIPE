@@ -674,7 +674,7 @@ fn retired_identities_and_readers_are_refused_by_name() {
         let d = rv::dispatch(&s, None, None);
         assert_eq!((d["ok"].as_bool(), d["binding"].is_null()), (Some(false), true), "{id}");
         assert_eq!(d["error"]["code"], sc::SOURCE_EXACT_PRESSURE_V2_RETIRED, "{id}");
-        assert!(d["error"]["detail"].as_str().unwrap().contains("re-author the model as 0.7.0"), "{id}");
+        assert!(d["error"]["detail"].as_str().unwrap().contains("re-author the model as 0.8.0"), "{id}");
         assert_eq!(findings(&d["standing"]), [rv::SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED], "{id}");
         assert_eq!(rv::row_semantics(&s["results"][0], Some(&s))["error"]["code"], "SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED", "{id}");
     }

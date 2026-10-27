@@ -9,7 +9,7 @@
   },
   "purpose": "Fault injection: the elastic modulus in the written MBF is altered after writing, to show that the loop catches a real difference and classifies it on the CAEPIPE side; reactions are statically determinate and unaffected.",
   "model": {
-    "schema_version": "0.7.0",
+    "schema_version": "0.8.0",
     "document_kind": "openpipestress.product_preview.model",
     "project": {
       "id": "project:cpc-06-cantilever-fault-injected",

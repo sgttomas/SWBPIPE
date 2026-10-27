@@ -7,6 +7,18 @@
 //! identically. An absent record or member means the default, and the product
 //! never writes the default into a document the user did not author.
 //!
+//! Model document 0.8.0 (DEL-02-01 Design `model-document-0.8.0.md` §1.1; Agent 0's
+//! decision in its §0) adds a second member, `shear_model`: `euler_bernoulli` or
+//! `timoshenko_annulus_energy_v1`, the exact contract's vocabulary. Absent means
+//! Euler–Bernoulli. An explicit user set of `euler_bernoulli` writes the member, as
+//! for the tolerance; the product never writes the default into a document the
+//! user did not author, and clear restores the absent form (MD8 §0, R7-1). It is
+//! refused on a document with `pressure_contract` (that document's choice is
+//! `pressure_contract.shear_model`), and in 0.8.0 `timoshenko_annulus_energy_v1` is
+//! refused by name at solve and at authoring; the document validator admits it as
+//! schema-valid. `euler_bernoulli` solves exactly as absent: the same result rows and
+//! mechanics, while the model hash differs because the document differs.
+//!
 //! The topology check (`topology::append_topology_diagnostics`) reads it through
 //! [`PreviewModel::node_proximity_tolerance_m`]. The solve's validation
 //! (`validation::validate_model_settings`) and the document validator
@@ -29,6 +41,125 @@ pub const MODEL_SETTING_TOLERANCE_NOT_FINITE: &str = "MODEL-SETTING-TOLERANCE-NO
 /// The path of the setting in the document.
 pub const NODE_PROXIMITY_TOLERANCE_PATH: &str = "model_settings.node_proximity_tolerance";
 
+/// The path of the shear-model setting in the document.
+pub const SHEAR_MODEL_PATH: &str = "model_settings.shear_model";
+/// `euler_bernoulli`: the default when absent.
+pub const SHEAR_MODEL_EULER_BERNOULLI: &str = "euler_bernoulli";
+/// `timoshenko_annulus_energy_v1`: schema-valid, refused at solve and authoring in 0.8.0.
+pub const SHEAR_MODEL_TIMOSHENKO: &str = "timoshenko_annulus_energy_v1";
+/// The value is not one of the two strings (a non-string and `null` included).
+pub const MODEL_SETTING_SHEAR_MODEL_UNKNOWN: &str = "MODEL-SETTING-SHEAR-MODEL-UNKNOWN";
+/// The member is present on a document that declares `pressure_contract`.
+pub const MODEL_SETTING_SHEAR_MODEL_WITH_PRESSURE_CONTRACT: &str = "MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT";
+/// `timoshenko_annulus_energy_v1` on a pressure-free document (the 0.8.0 interim).
+pub const MODEL_SETTING_SHEAR_MODEL_TIMOSHENKO_UNSUPPORTED: &str = "MODEL-SETTING-SHEAR-MODEL-TIMOSHENKO-UNSUPPORTED";
+
+/// The authored `model_settings.shear_model`, as decoded: one of the two names, or any other
+/// JSON value (a non-string and `null` included), which is refused by name rather than at decode.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ShearModelSetting {
+    EulerBernoulli,
+    TimoshenkoAnnulusEnergyV1,
+    Unknown,
+}
+
+impl ShearModelSetting {
+    /// The setting a JSON value names.
+    pub fn of(value: &serde_json::Value) -> Self {
+        match value.as_str() {
+            Some(SHEAR_MODEL_EULER_BERNOULLI) => ShearModelSetting::EulerBernoulli,
+            Some(SHEAR_MODEL_TIMOSHENKO) => ShearModelSetting::TimoshenkoAnnulusEnergyV1,
+            _ => ShearModelSetting::Unknown,
+        }
+    }
+}
+
+/// Any present value, `null` included, decoded to its setting (absence is the field default).
+/// The visitor builds no value: a string is matched in place and dropped, and any other value
+/// (an array or object drained as `IgnoredAny`) is `Unknown`, so the decode allocates nothing.
+fn deserialize_shear_model<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Result<Option<ShearModelSetting>, D::Error> {
+    struct ShearModelVisitor;
+    impl<'de> serde::de::Visitor<'de> for ShearModelVisitor {
+        type Value = ShearModelSetting;
+
+        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+            formatter.write_str("any JSON value")
+        }
+        fn visit_str<E: serde::de::Error>(self, value: &str) -> Result<Self::Value, E> {
+            Ok(match value {
+                SHEAR_MODEL_EULER_BERNOULLI => ShearModelSetting::EulerBernoulli,
+                SHEAR_MODEL_TIMOSHENKO => ShearModelSetting::TimoshenkoAnnulusEnergyV1,
+                _ => ShearModelSetting::Unknown,
+            })
+        }
+        fn visit_bool<E: serde::de::Error>(self, _: bool) -> Result<Self::Value, E> {
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_i64<E: serde::de::Error>(self, _: i64) -> Result<Self::Value, E> {
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_u64<E: serde::de::Error>(self, _: u64) -> Result<Self::Value, E> {
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_f64<E: serde::de::Error>(self, _: f64) -> Result<Self::Value, E> {
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_unit<E: serde::de::Error>(self) -> Result<Self::Value, E> {
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_none<E: serde::de::Error>(self) -> Result<Self::Value, E> {
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_seq<A: serde::de::SeqAccess<'de>>(self, mut seq: A) -> Result<Self::Value, A::Error> {
+            while seq.next_element::<serde::de::IgnoredAny>()?.is_some() {}
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_map<A: serde::de::MapAccess<'de>>(self, mut map: A) -> Result<Self::Value, A::Error> {
+            while map.next_entry::<serde::de::IgnoredAny, serde::de::IgnoredAny>()?.is_some() {}
+            Ok(ShearModelSetting::Unknown)
+        }
+    }
+    deserializer.deserialize_any(ShearModelVisitor).map(Some)
+}
+
+/// The refusal message for a value that is not one of the two names.
+pub fn shear_model_unknown_message() -> String {
+    format!("{SHEAR_MODEL_PATH} must be `{SHEAR_MODEL_EULER_BERNOULLI}` or `{SHEAR_MODEL_TIMOSHENKO}`.")
+}
+
+/// The refusal message for the member on a document that declares `pressure_contract`.
+pub fn shear_model_with_pressure_contract_message() -> String {
+    format!("{SHEAR_MODEL_PATH} is set on a document that declares pressure_contract; that document's shear model is pressure_contract.shear_model, so remove {SHEAR_MODEL_PATH}.")
+}
+
+/// The refusal message for `timoshenko_annulus_energy_v1` on a pressure-free document.
+pub fn shear_model_timoshenko_unsupported_message() -> String {
+    format!("{SHEAR_MODEL_PATH} `{SHEAR_MODEL_TIMOSHENKO}` is not yet solved on a pressure-free document; set `{SHEAR_MODEL_EULER_BERNOULLI}` or remove the member.")
+}
+
+/// The document validator's refusals of an authored setting: the value, then the single
+/// source of truth. `timoshenko_annulus_energy_v1` is schema-valid here.
+pub fn shear_model_document_refusal(setting: ShearModelSetting, has_pressure_contract: bool) -> Option<ModelSettingError> {
+    if setting == ShearModelSetting::Unknown {
+        return Some(ModelSettingError { code: MODEL_SETTING_SHEAR_MODEL_UNKNOWN, message: shear_model_unknown_message() });
+    }
+    has_pressure_contract.then(|| ModelSettingError {
+        code: MODEL_SETTING_SHEAR_MODEL_WITH_PRESSURE_CONTRACT,
+        message: shear_model_with_pressure_contract_message(),
+    })
+}
+
+/// The solve's and the applier's refusals: the document validator's, then, in 0.8.0,
+/// `timoshenko_annulus_energy_v1` on a pressure-free document.
+pub fn shear_model_refusal(setting: ShearModelSetting, has_pressure_contract: bool) -> Option<ModelSettingError> {
+    shear_model_document_refusal(setting, has_pressure_contract).or_else(|| {
+        (setting == ShearModelSetting::TimoshenkoAnnulusEnergyV1).then(|| ModelSettingError {
+            code: MODEL_SETTING_SHEAR_MODEL_TIMOSHENKO_UNSUPPORTED,
+            message: shear_model_timoshenko_unsupported_message(),
+        })
+    })
+}
+
 /// `model_settings`: a closed record; every member optional.
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -37,6 +168,10 @@ pub struct ModelSettings {
     /// is not absence: it is refused, as for the `model_settings` record itself.
     #[serde(default, deserialize_with = "crate::deserialize_present_object")]
     pub node_proximity_tolerance: Option<Quantity>,
+    /// The pressure-free document's beam theory (model document 0.8.0). Absent:
+    /// Euler–Bernoulli. Any present value, `null` included, is kept for its named refusal.
+    #[serde(default, deserialize_with = "deserialize_shear_model")]
+    pub shear_model: Option<ShearModelSetting>,
 }
 
 /// A refused setting: its named code and the message the validator also gives.
@@ -120,6 +255,16 @@ impl PreviewModel {
         match self.model_settings.as_ref().and_then(|settings| settings.node_proximity_tolerance.as_ref()) {
             Some(quantity) => node_proximity_tolerance_m(quantity),
             None => Ok(DEFAULT_NODE_PROXIMITY_TOLERANCE_M),
+        }
+    }
+
+    /// The effective shear-model choice: the authored `model_settings.shear_model`, else
+    /// Euler–Bernoulli. In 0.8.0 nothing consumes it beyond the refusals
+    /// ([`shear_model_refusal`]); an unknown value reads as Euler–Bernoulli here and is refused there.
+    pub fn shear_model(&self) -> ShearModelSetting {
+        match self.model_settings.as_ref().and_then(|settings| settings.shear_model) {
+            Some(ShearModelSetting::TimoshenkoAnnulusEnergyV1) => ShearModelSetting::TimoshenkoAnnulusEnergyV1,
+            _ => ShearModelSetting::EulerBernoulli,
         }
     }
 }

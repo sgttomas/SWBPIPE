@@ -728,7 +728,7 @@ mod integration_tests {
     use serde_json::json;
 
     fn model() -> Value {
-        json!({"schema_version":"0.7.0","document_kind":"openpipestress.product_preview.model","project":{"id":"p","name":"Invented boundary test"},"nodes":[{"id":"node:a"}],"supports":[],"loads":[],"load_cases":[],"pipe_segments":[],"components":[]})
+        json!({"schema_version":"0.8.0","document_kind":"openpipestress.product_preview.model","project":{"id":"p","name":"Invented boundary test"},"nodes":[{"id":"node:a"}],"supports":[],"loads":[],"load_cases":[],"pipe_segments":[],"components":[]})
     }
     fn payload(dof: Option<&str>) -> Value {
         let mut value = json!({"id":"boundary:a:rigid","label":"Rigid UX","node":"node:a","provenance":"invented source","family":"anchor","restraints":["UX"],"boundary_association":{"boundary_id":"boundary:a","kind":"equipment_nozzle","equipment_reference":" Drawing E-42 ","nozzle_reference":" N1 ","coordinate_system":"global"}});

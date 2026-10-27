@@ -23,6 +23,7 @@ import { isSpringHangerSupport, springHangerKind } from "./springHangerSupport";
 import type { NumericalHealthView } from "../results/numericalHealth";
 import { reportLineText } from "../results/numericalHealthText";
 import { modelDocumentVersionCheckStatus } from "../../services/projectService";
+import { ECCENTRIC_OFFSET_CONVENTION, ECCENTRIC_REDUCER_STRESS_BASIS } from "../component-creation/eccentricOffsetConvention";
 
 export function ReportPanel({
   model,
@@ -339,7 +340,18 @@ function reportDiagnostics({
   return [...model.diagnostics, ...(knowledge?.diagnostics ?? []), ...result.diagnostics];
 }
 
-function reportComponentProvenance(model: PreviewModel, result: MechanicsResult) {
+/** W-15 slice c (Design `eccentric-reducer-offset.md` §4, P11): a reducer with a
+ * declared eccentric offset reports the entered offset, its convention and the
+ * reference-section meaning of its body's stress rows, scaled or not. Other
+ * components keep their record unchanged. */
+function eccentricOffsetProvenance(component: PreviewModel["components"][number]) {
+  const offset = component.kind === "reducer" ? component.geometry?.eccentric_offset : undefined;
+  return offset
+    ? { eccentric_offset: offset, eccentric_offset_convention: ECCENTRIC_OFFSET_CONVENTION, eccentric_reducer_stress_basis: ECCENTRIC_REDUCER_STRESS_BASIS }
+    : {};
+}
+
+export function reportComponentProvenance(model: PreviewModel, result: MechanicsResult) {
   return model.components.map((component) => {
     const modifierRows = result.results.filter(
       (item) => item.kind === "component_user_stress_multiplier_review" && item.entity_ref === component.id
@@ -361,6 +373,7 @@ function reportComponentProvenance(model: PreviewModel, result: MechanicsResult)
       rigid_body_length: component.geometry?.rigid_body_length ?? null,
       weight: component.geometry?.weight ?? null,
       center_of_gravity: component.geometry?.center_of_gravity ?? null,
+      ...eccentricOffsetProvenance(component),
       stiffness_behavior_ref: component.geometry?.stiffness_behavior_reference ?? null,
       user_entered_stiffness_scale: component.modifiers?.stiffness_scaling_user_value ?? null,
       user_entered_linear_stiffness: component.modifiers?.linear_stiffness_user_value ?? null,
@@ -460,6 +473,10 @@ function formatComponentProvenanceSummary(records: ReturnType<typeof reportCompo
   const rigidSummary = rigidRecords.length
     ? `; rigid=${rigidRecords.map((item) => `${item.component_ref}->${item.rigid_pipe_ref ?? "TBD"}`).join(",")}`
     : "";
+  const eccentric = records.filter((item) => "eccentric_offset" in item);
+  const eccentricSummary = eccentric.length
+    ? `; eccentric_reducer=${eccentric.map((item) => item.component_ref).join(",")} (${ECCENTRIC_REDUCER_STRESS_BASIS})`
+    : "";
   const expansionJointSummary = expansionJointRecords.length
     ? `; expansion_joint=${expansionJointRecords
         .map((item) => `${item.component_ref}->${item.expansion_joint_pipe_ref ?? "TBD"}`)
@@ -468,7 +485,7 @@ function formatComponentProvenanceSummary(records: ReturnType<typeof reportCompo
   return [
     `${records.length} component${records.length === 1 ? "" : "s"}`,
     `${stressRows} stress modifier row${stressRows === 1 ? "" : "s"}`,
-    `${primary.component_ref}; source=${primary.modifier_source_ref}; solver=${primary.solver_consumption}${rigidSummary}${expansionJointSummary}`
+    `${primary.component_ref}; source=${primary.modifier_source_ref}; solver=${primary.solver_consumption}${rigidSummary}${eccentricSummary}${expansionJointSummary}`
   ].join("; ");
 }
 
