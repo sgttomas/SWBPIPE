@@ -182,7 +182,7 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
     - the profile and limitation against the request;
     - the total and free-DOF masses, rederived from the model;
     - that the effective masses do not exceed the free-DOF mass in any direction;
-    - each mode's normalization case and sign (its normalizing component +1; in case (b), every translation, Γ and effective translational mass exactly 0), and Γ²·m = m_eff;
+    - each mode's normalization case and sign (its normalizing component +1; in case (b), every translation at most τ_t·ℓ times the largest rotation and every translational effective-mass fraction at most τ_t, with Γ and the effective masses recomputed from the published vector), and Γ²·m = m_eff;
     - the counts, ordering, cluster structure and any cluster extension.
     They do not re-run the eigen-solve.
 - **AC-005** — The two readers return the same verdict for every committed modal result and every committed mutation of the profile, limitation, masses, normalization, counts, ordering, sign or clusters. The committed results include both normalization cases, among them a pure-torsion mode in case (b). A maintained producer test shows a mode meeting only the translation condition refused with `MODAL_NORMALIZATION_UNRESOLVED`. Further producer tests show a case (b) mode published with its computed translations unaltered, its integrity checks evaluated on that published vector, and its Γ and effective masses recomputed from it; and a one-element cantilever, with one free node, classifying its torsional mode by the positive length ℓ. A verifier-independence test shows that the Python verifier imports no producer code.

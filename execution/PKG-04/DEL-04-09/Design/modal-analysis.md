@@ -92,8 +92,8 @@ on the free degrees of freedom of the linear pressure-free (PF) model.
   - **(b) A mode with no translation**, such as pure torsion of a straight run: normalized to **unit maximum rotation**. The largest-magnitude rotational component is +1 (rad/rad). The translations are the computed vector's own, in m/rad, and are not altered: under the conditions above they are at most τ_t·ℓ. The generalized mass is in kg·m². Γ (in rad/m) and the effective translational masses (kg) are computed from that same published vector, so each translational effective-mass fraction is at most τ_t; none is set to zero. The integrity checks (§3.4) are evaluated on the published vector itself, so the evidence describes the published shape. A display may show translations below τ_t·ℓ as 0, and says so; the published values are unchanged.
 - The **generalized mass** m_i = φᵢᵀ M_ff φᵢ: kg in case (a), kg·m² in case (b).
 - For k = X, Y, Z, with r_k the rigid unit translation (1 on each node's k translation, 0 elsewhere):
-  - participation factor Γ_ik = φᵢᵀ M_ff r_k / m_i: dimensionless in case (a), exactly 0 in case (b);
-  - effective mass m_eff,ik = (φᵢᵀ M_ff r_k)² / m_i: kg, normalization-invariant in case (a), exactly 0 in case (b);
+  - participation factor Γ_ik = φᵢᵀ M_ff r_k / m_i: dimensionless in case (a); in case (b), in rad/m, computed from the published vector and negligible (its effective-mass fraction at most τ_t);
+  - effective mass m_eff,ik = (φᵢᵀ M_ff r_k)² / m_i: kg, normalization-invariant in both cases; in case (b) computed from the published vector, each translational fraction at most τ_t;
   - effective-mass fraction m_eff,ik / (r_kᵀ M_ff r_k) (dimensionless), and its cumulative sum.
   - Γ, m_i and m_eff are what F2 needs: a modal response is Γ_ik·φᵢ times a modal coordinate, whatever the normalization.
 - Per-mode integrity evidence (§3.4) and a cluster id when eigenvalues are repeated or nearly repeated (§3.4).
