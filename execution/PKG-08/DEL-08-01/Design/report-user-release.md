@@ -1948,10 +1948,49 @@ Every other spelling fails closed:
   definition carries no attribute but its documentation (no derive); and the
   three reporting crates hold no `unsafe` block, function, impl or trait and
   no `extern` block, through which one could be built without naming it;
-- `ProducerEntry::UserRelease` named as a value, not only as a callee, is a
-  construction;
+- `DerivedUserRelease` under another name (Codex round 2 at #1682, P2): an
+  associated type assigned `Self` in an impl for it names it under another
+  path, through which a struct literal compiles (an alias of
+  `<T as Identity>::Repr`, written `Alias::<DerivedUserRelease> { .. }`). So
+  any impl of a trait for a type that names it is a finding, except an
+  explicit allow-list of the impls that exist today, which is empty; any
+  associated type in an impl for it is a finding; and in its defining module
+  (`report_package/src/user_release.rs` and any module beneath it, the only
+  code that can name its private field, so the only code that can write its
+  literal) a struct literal is admitted only when its path is one plain
+  identifier naming a struct the `report_package` crate defines that no type
+  alias, associated type or import rename in the crate shares, or `Self` in
+  an impl of such a name. A `<T as Trait>::` path, generic arguments, a path
+  of more than one segment (`Self::Assoc`, `module::Alias`, an enum variant)
+  and a leading `::` are findings, as is `Self { .. }` in a trait's default
+  method. The rule applies in a macro's tokens too: there a brace group after
+  a name is a literal unless the name is a keyword or ends an `if`, `while`,
+  `match` or `for … in` condition, where Rust admits no struct literal. The
+  rule is sound because a literal's path resolves to `DerivedUserRelease`
+  only through its own name (the literal rule), an alias (a type alias, an
+  associated type, an import rename, or a projection or defaulted parameter
+  reached through one), `Self` in an impl of it, or generic arguments or a
+  qualified path at the literal; each of these is a finding. The real
+  sources' literals in the module are the crate's own structs, so the real
+  scan still finds nothing;
+- `ProducerEntry::UserRelease` named as a value, not only as a callee, and
+  its braced form (`ProducerEntry::UserRelease { 0: derived }`), are
+  constructions;
 - macro-generated paths: only the listed macros may be invoked, and their
-  tokens are screened with the same normalization.
+  tokens are screened with the same normalization. A `UserRelease` named in
+  any macro's tokens is a construction, except in the pattern of a
+  `matches!`, which constructs nothing. Its tokens are split by parsing them
+  as an expression, a comma and a pattern; the scrutinee and everything after
+  the pattern (the guard, `if let` included) are screened as expression
+  tokens, constructions counted (Codex round 2 at #1682, P2: the guard of
+  `matches!((), _ if { let _e = ProducerEntry::UserRelease(d); true })`
+  escaped when every construction in its tokens was discarded). A pattern
+  that could hold an expression (an inline `const` block or a macro) is
+  screened as expression tokens, and tokens that do not parse so are a
+  finding. `matches!` is the only macro whose tokens the scan reads other
+  than as expression tokens: `include_str!` and `include_bytes!` are also
+  checked as one string literal, `include!` is refused, and `macro_rules!`
+  bodies are screened whole, none discarding a construction.
 
 An occurrence is an identifier equal to a scanned name, wherever it stands:
 - in a path, a `use` tree, a method call, a field, a pattern or a type;
@@ -3070,6 +3109,36 @@ leaves the sandbox directory empty, with no picker request.
       `crate::render_calculation_report(input)` in `src-tauri`, the local
       command; and a nested `cfg_attr` applying `allow(dead_code)` and listed
       derives.
+
+    Codex round 2 at #1682 (P2) adds the cases below (§2.8, *Spellings*).
+    Each must be a finding unless it is marked as passing; Codex's three
+    repros are also applied to the real sources:
+    - **Another name of `DerivedUserRelease`:** Codex's repro
+      (`impl Identity for DerivedUserRelease { type Repr = Self; }` and
+      `Alias::<DerivedUserRelease> { _derived: () }`, three findings: the
+      impl, its associated type, the literal); the trait in another module
+      with `<DerivedUserRelease as other::Identity>::Repr { .. }`; a generic
+      associated type; `<DerivedUserRelease as Identity>::Repr { .. }` and
+      `Alias::<DerivedUserRelease> { .. }` through a blanket impl; a plain
+      alias through a defaulted parameter
+      (`struct W<T = DerivedUserRelease>`), outside a macro, in a macro's
+      tokens and after an `if … else` block there; generic arguments and a
+      qualified path in a macro's tokens; `Self::Repr { .. }` in another
+      type's impl; `Self { .. }` in a trait's default method and in an impl
+      of an alias; an import renamed and written as a literal; a leading `::`
+      literal; a trait impl for `&DerivedUserRelease` and one from another
+      file;
+    - **`ProducerEntry::UserRelease` constructions:** the braced form, through
+      `Self::` and in a macro's tokens; a `matches!` guard (Codex's repro),
+      an `if let` guard, the scrutinee, a guard after an or-pattern, a
+      `matches!` inside `format!` and inside `assert!`, an inline `const`
+      pattern, and a `matches!` that does not parse;
+    - **Passing cases:** plain literals of the crate's structs in the
+      defining module, outside a macro, as `Self` in their impl, and in a
+      macro's tokens beside `if`, `match` and `for` blocks; a struct pattern
+      in a `matches!`; an inherent impl of `DerivedUserRelease`; and
+      `matches!` patterns naming `UserRelease` with a guard and with a
+      trailing comma.
   - **Render command:** a pressure-free `local_private` input with a
     `user_release` member, and an exact `local_private` input with one, are
     each refused with `RENDER-USER-RELEASE-PACKAGE-ONLY`, with no body.

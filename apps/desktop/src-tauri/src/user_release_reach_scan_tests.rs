@@ -94,11 +94,13 @@ fn only_the_three_crates_depend_on_the_renderer() {
     assert_eq!(dependents("open_pipe_stress_pdf_emitter"), BTreeSet::from(["core/reporting/report_package".to_string()]));
 }
 
-/// Codex round 1 at #1682 (P2, P2b): the spellings Codex found escaping on the
+/// Codex rounds 1 and 2 at #1682 (P2s): the forms Codex found escaping on the
 /// real source inventory are findings there: a raw `assemble_derived` call, a
 /// renderer call through a leading `::`, a raw `DerivedUserRelease` literal in
 /// its own module, a nested `cfg_attr` applying `path` (Rust would load
-/// `alternate.rs`) and a derive applied by `cfg_attr`.
+/// `alternate.rs`), a derive applied by `cfg_attr`, a `DerivedUserRelease`
+/// literal through an associated type assigned `Self`, and the braced and
+/// `matches!`-guard constructions of `ProducerEntry::UserRelease`.
 #[test]
 fn the_real_sources_find_the_escaping_spellings() {
     let base = project_sources(&project());
@@ -108,6 +110,13 @@ fn the_real_sources_find_the_escaping_spellings() {
         ("report_package/src/user_release.rs", "fn forge() -> DerivedUserRelease { r#DerivedUserRelease { _derived: () } }\n", "literal outside check_derived"),
         ("report_package/src/lib.rs", "#[cfg_attr(all(), cfg_attr(all(), path = \"alternate.rs\"))]\nmod ordinary;\n", "a cfg_attr that applies #[path]"),
         ("report_package/src/lib.rs", "#[cfg_attr(all(), derive(UnlistedDerive))]\nstruct Rogue;\n", "the derive UnlistedDerive is not on the derive list"),
+        // Codex round 2 at #1682 (P2): an associated-type alias of
+        // `DerivedUserRelease`, and the braced and `matches!`-guard
+        // constructions of `ProducerEntry::UserRelease`.
+        ("report_package/src/user_release.rs", CODEX_R2_ALIAS, "an impl of the trait Identity for DerivedUserRelease, which is not on the allow-list"),
+        ("report_package/src/user_release.rs", CODEX_R2_ALIAS, "a struct literal with generic arguments (Alias) in the defining module"),
+        ("report_package/src/user_release.rs", "fn braced(derived: DerivedUserRelease) -> ProducerEntry { ProducerEntry::UserRelease { 0: derived } }\n", "ProducerEntry::UserRelease is constructed outside assemble_derived (Fn(\"braced\"))"),
+        ("report_package/src/user_release.rs", "fn guarded(derived: DerivedUserRelease) -> bool { matches!((), _ if { let _entry = ProducerEntry::UserRelease(derived); true }) }\n", "ProducerEntry::UserRelease is constructed outside assemble_derived (Macro)"),
     ];
     for (file, text, expected) in cases {
         let mut sources = base.clone();
@@ -118,6 +127,10 @@ fn the_real_sources_find_the_escaping_spellings() {
         assert!(findings.iter().any(|finding| finding.contains(expected)), "{file}: expected {expected:?} in {findings:#?}");
     }
 }
+
+/// Codex round 2 at #1682 (P2), verbatim: a literal through an associated
+/// type assigned `Self`.
+const CODEX_R2_ALIAS: &str = "trait Identity { type Repr; }\nimpl Identity for DerivedUserRelease { type Repr = Self; }\ntype Alias<T> = <T as Identity>::Repr;\nfn forge() -> DerivedUserRelease { Alias::<DerivedUserRelease> { _derived: () } }\n";
 
 // --- The invented closed set and its negative fixtures (§6) -----------------
 
@@ -505,7 +518,111 @@ fn user_release_reach_scan_finds_each_break() {
         ("an attribute macro through a nested cfg_attr", appended(LIB, "#[cfg_attr(all(), cfg_attr(all(), forwarder::instrument))]\nfn f() {}\n"), "the attribute #[forwarder::instrument] (through cfg_attr) is not on the attribute list"),
         ("a macro in a cfg_attr's doc value", appended(LIB, "#[cfg_attr(all(), doc = include!(\"forward.rs\"))]\nfn f() {}\n"), "include! brings in source"),
     ];
-    let cases: Vec<(&str, Sources, &str)> = cases.into_iter().chain(spellings).chain(conditional).collect();
+    // Codex round 2 at #1682 (P2): an associated type can name
+    // `DerivedUserRelease` under another path, which a struct literal then
+    // constructs. Every trait impl for it (none is listed), every associated
+    // type in an impl for it, and in its defining module every struct literal
+    // whose path is not one plain name of a struct the crate defines (no
+    // alias sharing it) are findings.
+    const IDENTITY: &str = "trait Identity { type Repr; }\n";
+    const BLANKET: &str = "trait Identity { type Repr; }\nimpl<T> Identity for T { type Repr = T; }\n";
+    const DEFAULTED: &str = "pub(crate) struct W<T = DerivedUserRelease>(T);\ntrait Identity { type Repr; }\nimpl<T> Identity for W<T> { type Repr = T; }\ntype A = <W as Identity>::Repr;\n";
+    let repro = format!("{IDENTITY}impl Identity for DerivedUserRelease {{ type Repr = Self; }}\ntype Alias<T> = <T as Identity>::Repr;\nfn forge() -> DerivedUserRelease {{ Alias::<DerivedUserRelease> {{ _derived: () }} }}\n");
+    let aliases: Vec<(&str, Sources, &str)> = vec![
+        ("Codex's repro: the trait impl", appended(USER_RELEASE, &repro), "an impl of the trait Identity for DerivedUserRelease, which is not on the allow-list"),
+        ("Codex's repro: its associated type", appended(USER_RELEASE, &repro), "the associated type Repr assigned Self in an impl for DerivedUserRelease"),
+        ("Codex's repro: the literal", appended(USER_RELEASE, &repro), "a struct literal with generic arguments (Alias) in the defining module"),
+        (
+            "a trait in another module",
+            appended(USER_RELEASE, "mod other {\n    pub trait Identity { type Repr; }\n}\nimpl other::Identity for DerivedUserRelease { type Repr = Self; }\nfn forge() -> DerivedUserRelease { <DerivedUserRelease as other::Identity>::Repr { _derived: () } }\n"),
+            "an impl of the trait other::Identity for DerivedUserRelease",
+        ),
+        (
+            "a trait in another module: the literal",
+            appended(USER_RELEASE, "mod other {\n    pub trait Identity { type Repr; }\n}\nimpl other::Identity for DerivedUserRelease { type Repr = Self; }\nfn forge() -> DerivedUserRelease { <DerivedUserRelease as other::Identity>::Repr { _derived: () } }\n"),
+            "a struct literal through a qualified <T as Trait>:: path",
+        ),
+        (
+            "a generic associated type",
+            appended(USER_RELEASE, "trait Identity { type Repr<T>; }\nimpl Identity for DerivedUserRelease { type Repr<T> = Self; }\nfn forge() -> DerivedUserRelease { <DerivedUserRelease as Identity>::Repr::<()> { _derived: () } }\n"),
+            "the associated type Repr assigned Self in an impl for DerivedUserRelease",
+        ),
+        (
+            "a generic associated type: the literal",
+            appended(USER_RELEASE, "trait Identity { type Repr<T>; }\nimpl Identity for DerivedUserRelease { type Repr<T> = Self; }\nfn forge() -> DerivedUserRelease { <DerivedUserRelease as Identity>::Repr::<()> { _derived: () } }\n"),
+            "a struct literal through a qualified <T as Trait>:: path",
+        ),
+        (
+            "<DerivedUserRelease as Trait>::Assoc { .. } through a blanket impl",
+            appended(USER_RELEASE, &format!("{BLANKET}fn forge() -> DerivedUserRelease {{ <DerivedUserRelease as Identity>::Repr {{ _derived: () }} }}\n")),
+            "a struct literal through a qualified <T as Trait>:: path (Identity::Repr)",
+        ),
+        (
+            "a generic alias through a blanket impl",
+            appended(USER_RELEASE, &format!("{BLANKET}type Alias<T> = <T as Identity>::Repr;\nfn forge() -> DerivedUserRelease {{ Alias::<DerivedUserRelease> {{ _derived: () }} }}\n")),
+            "a struct literal with generic arguments (Alias)",
+        ),
+        (
+            "a plain alias through a defaulted parameter",
+            appended(USER_RELEASE, &format!("{DEFAULTED}fn forge() -> DerivedUserRelease {{ A {{ _derived: () }} }}\n")),
+            "a struct literal of A in the defining module of DerivedUserRelease, which is not a struct the crate defines",
+        ),
+        (
+            "that alias inside a macro's tokens",
+            appended(USER_RELEASE, &format!("{DEFAULTED}fn forge() -> Vec<DerivedUserRelease> {{ vec![A {{ _derived: () }}] }}\n")),
+            "a struct literal in a macro's tokens of A",
+        ),
+        (
+            "generic arguments inside a macro's tokens",
+            appended(USER_RELEASE, &format!("{BLANKET}type Alias<T> = <T as Identity>::Repr;\nfn forge() -> Vec<DerivedUserRelease> {{ vec![Alias::<DerivedUserRelease> {{ _derived: () }}] }}\n")),
+            "a struct literal with generic arguments in a macro's tokens",
+        ),
+        (
+            "Self::Assoc in another type's impl",
+            appended(USER_RELEASE, "pub(crate) struct W;\ntrait Identity { type Repr; fn forge() -> Self::Repr; }\nimpl Identity for W { type Repr = <W as Next>::Out; fn forge() -> Self::Repr { Self::Repr { _derived: () } } }\n"),
+            "a struct literal of Self::Repr in the defining module of DerivedUserRelease, which is not one plain struct name",
+        ),
+        (
+            "a qualified path in a macro's tokens",
+            appended(USER_RELEASE, "pub(crate) struct W;\nimpl Identity for W { type Repr = <W as Next>::Out; fn forge() -> Vec<Self::Repr> { vec![Self::Repr { _derived: () }] } }\n"),
+            "a struct literal of a qualified path ending in Repr in a macro's tokens",
+        ),
+        ("a Self literal in a trait's default method", appended(USER_RELEASE, "trait Make: Sized { fn make() -> Self { Self { _derived: () } } }\n"), "a Self literal outside an impl of one plain struct name"),
+        (
+            "a Self literal in an impl of an alias",
+            appended(USER_RELEASE, &format!("{DEFAULTED}impl A {{ fn forge() -> Self {{ Self {{ _derived: () }} }} }}\n")),
+            "a Self literal of A in the defining module",
+        ),
+        (
+            "a renamed import as a literal",
+            appended(USER_RELEASE, "mod inner {\n    use super::Basis as Rogue;\n    fn forge() -> Rogue { Rogue { note: None } }\n}\n"),
+            "a struct literal of Rogue in the defining module",
+        ),
+        ("a leading :: literal", appended(USER_RELEASE, "fn forge() -> W { ::W { a: 1 } }\n"), "a struct literal of W in the defining module of DerivedUserRelease, which is not one plain struct name"),
+        ("a trait impl for a reference to it", appended(USER_RELEASE, &format!("{IDENTITY}impl Identity for &DerivedUserRelease {{ type Repr = u8; }}\n")), "an impl of the trait Identity for DerivedUserRelease"),
+        (
+            "an alias after an if-else block in a macro's tokens",
+            appended(USER_RELEASE, &format!("{DEFAULTED}fn forge(c: bool) -> Vec<u8> {{ vec![if c {{ 1 }} else {{ 2 }} + A {{ _derived: () }}] }}\n")),
+            "a struct literal in a macro's tokens of A",
+        ),
+        ("a trait impl for it from another file", appended(LIB, "impl Default for crate::user_release::DerivedUserRelease { fn default() -> Self { todo() } }\n"), "an impl of the trait Default for DerivedUserRelease"),
+    ];
+    // Codex round 2 at #1682 (P2): `ProducerEntry::UserRelease` constructed in
+    // braced form, or anywhere in a `matches!` but its pattern.
+    let constructions: Vec<(&str, Sources, &str)> = vec![
+        ("the braced tuple-variant form", appended("report_package/src/bindings.rs", "fn braced(derived: DerivedUserRelease) -> ProducerEntry { ProducerEntry::UserRelease { 0: derived } }\n"), "ProducerEntry::UserRelease is constructed outside assemble_derived (Fn(\"braced\"))"),
+        ("the braced form through Self", appended(USER_RELEASE, "impl ProducerEntry { fn forge(derived: DerivedUserRelease) -> Self { Self::UserRelease { 0: derived } } }\n"), "ProducerEntry::UserRelease is constructed outside assemble_derived (Method(\"forge\"))"),
+        ("the braced form in a macro's tokens", appended("report_package/src/bindings.rs", "fn braced(derived: DerivedUserRelease) -> Vec<ProducerEntry> { vec![ProducerEntry::UserRelease { 0: derived }] }\n"), "ProducerEntry::UserRelease is constructed outside assemble_derived (Macro)"),
+        ("a matches! guard", appended("report_package/src/bindings.rs", "fn guarded(derived: DerivedUserRelease) -> bool { matches!((), _ if { let _entry = ProducerEntry::UserRelease(derived); true }) }\n"), "ProducerEntry::UserRelease is constructed outside assemble_derived (Macro)"),
+        ("an if let guard", appended("report_package/src/bindings.rs", "fn guarded(derived: DerivedUserRelease) -> bool { matches!(Some(1), Some(_) if let Some(_entry) = Some(ProducerEntry::UserRelease(derived))) }\n"), "ProducerEntry::UserRelease is constructed outside assemble_derived (Macro)"),
+        ("a matches! scrutinee", appended("report_package/src/bindings.rs", "fn scrutinee(derived: DerivedUserRelease) -> bool { matches!(ProducerEntry::UserRelease(derived), ProducerEntry::UserRelease(_)) }\n"), "ProducerEntry::UserRelease is constructed outside assemble_derived (Macro)"),
+        ("a guard after an or-pattern", appended("report_package/src/bindings.rs", "fn guarded(entry: &ProducerEntry, derived: DerivedUserRelease) -> bool { matches!(entry, ProducerEntry::UserRelease(_) | ProducerEntry::General if vec![ProducerEntry::UserRelease(derived)].is_empty()) }\n"), "ProducerEntry::UserRelease is constructed outside assemble_derived (Macro)"),
+        ("a matches! in another macro", appended("report_package/src/bindings.rs", "fn nested(derived: DerivedUserRelease) -> String { format!(\"{}\", matches!((), _ if vec![ProducerEntry::UserRelease(derived)].is_empty())) }\n"), "ProducerEntry::UserRelease is constructed outside assemble_derived (Macro)"),
+        ("assert!(matches!(..))", appended("report_package/src/bindings.rs", "fn asserted(derived: DerivedUserRelease) { assert!(matches!((), _ if { let _entry = ProducerEntry::UserRelease(derived); true })); }\n"), "ProducerEntry::UserRelease is constructed outside assemble_derived (Macro)"),
+        ("an inline const pattern", appended("report_package/src/bindings.rs", "fn constant(derived: DerivedUserRelease) -> bool { matches!((), const { let _entry = ProducerEntry::UserRelease(derived); }) }\n"), "ProducerEntry::UserRelease is constructed outside assemble_derived (Macro)"),
+        ("a matches! that does not parse", appended("report_package/src/bindings.rs", "fn broken() -> bool { matches!(1) }\n"), "a matches! that does not parse as an expression, a pattern and a guard"),
+    ];
+    let cases: Vec<(&str, Sources, &str)> = cases.into_iter().chain(spellings).chain(conditional).chain(aliases).chain(constructions).collect();
     for (case, sources, expected) in cases {
         let findings = scan(&sources);
         assert!(findings.iter().any(|finding| finding.contains(expected)), "{case}: expected {expected:?} in {findings:#?}");
@@ -533,6 +650,18 @@ fn user_release_reach_scan_admits_the_listed_forms() {
         ("listed macros and an attribute behind a leading ::", appended(TAURI, "#[::tauri::command]\nfn rooted() { let _ = ::serde_json::json!({}); }\n")),
         ("the local Tauri command through crate::", appended(TAURI, "fn again(input: Value) -> Result<Value, String> { crate::render_calculation_report(input) }\n")),
         ("a nested cfg_attr applying listed attributes", appended("report_package/src/user_release.rs", "#[cfg_attr(all(), cfg_attr(not(test), allow(dead_code)), derive(Clone, Debug))]\nstruct Listed;\n")),
+        // Codex round 2 at #1682 (P2): the forms its rules admit.
+        (
+            "plain literals of the crate's structs in the defining module",
+            appended(
+                USER_RELEASE,
+                "pub(crate) struct Plain { a: u8 }\nimpl Plain { fn make() -> Self { Self { a: 1 } } }\nfn plain() -> Plain { Plain { a: 1 } }\nfn in_macro(flag: bool, items: &[u8]) -> Vec<Plain> { let _ = json!({\"a\": if flag { 1 } else { 2 }, \"b\": match flag { true => 1, false => 2 }}); let _ = format!(\"{}\", { for item in items { let _ = item; } 1 }); vec![Plain { a: 1 }] }\nfn pattern(p: &Plain) -> bool { matches!(p, Plain { a: 1 }) }\nimpl DerivedUserRelease { fn is_derived(&self) -> bool { true } }\n",
+            ),
+        ),
+        (
+            "matches! patterns naming UserRelease with a guard and a trailing comma",
+            appended("report_package/src/bindings.rs", "fn arms(entry: &ProducerEntry) -> bool { matches!(entry, ProducerEntry::UserRelease(_) | ProducerEntry::General if true) || matches!(entry, ProducerEntry::UserRelease(_),) }\n"),
+        ),
     ];
     for (case, sources) in passing {
         let findings = scan(&sources);

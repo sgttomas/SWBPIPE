@@ -1214,7 +1214,7 @@ pub enum SaveRoute {
     /// refuses): its refusals leave unchanged.
     LocalPrivate,
     /// Route `DREP-PACKAGE-USER-RELEASE-010`: its refusals leave bounded.
-    UserRelease,
+    UserReleased,
 }
 
 /// The save command's error as the command returns it (W-18b, DEL-08-01
@@ -1244,7 +1244,7 @@ impl SaveCommandError {
 impl SaveRoute {
     pub fn of(request: &ReportPackageSaveRequest) -> Self {
         if request.screening.route_id == REPORT_PACKAGE_USER_RELEASE_ROUTE_ID {
-            Self::UserRelease
+            Self::UserReleased
         } else {
             Self::LocalPrivate
         }
@@ -1255,7 +1255,7 @@ impl SaveRoute {
     fn bounded(self, error: ReportPackageSaveCommandError) -> ReportPackageSaveCommandError {
         match self {
             Self::LocalPrivate => error,
-            Self::UserRelease => bound_route_010_refusal(error),
+            Self::UserReleased => bound_route_010_refusal(error),
         }
     }
 

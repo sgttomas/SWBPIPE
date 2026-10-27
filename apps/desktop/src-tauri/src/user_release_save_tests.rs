@@ -823,7 +823,7 @@ fn string_fields(error: &crate::report_package_save::ReportPackageSaveCommandErr
 fn leaves_bounded(name: &str, error: crate::report_package_save::ReportPackageSaveCommandError) -> (String, crate::report_package_save::ReportPackageSaveCommandError) {
     use crate::command_ingress::CommandError;
     use crate::report_package_save::{SaveRoute, ROUTE_010_REFUSAL_JSON_BYTES, ROUTE_010_REFUSAL_TEXT_BYTES};
-    let outcome: Result<(), _> = SaveRoute::UserRelease.exit(Err(CommandError::Command(error)));
+    let outcome: Result<(), _> = SaveRoute::UserReleased.exit(Err(CommandError::Command(error)));
     let Err(exited) = outcome else { unreachable!() };
     let serialized = serde_json::to_string(&exited).unwrap();
     let CommandError::Command(exited) = exited else { panic!("{name}: the save's own error left as another kind") };
@@ -1029,7 +1029,7 @@ fn every_route_010_error_form_leaves_within_its_bound() {
         let (serialized, _) = leaves_bounded(name, form());
         largest = largest.max(serialized.len());
         let error = form();
-        let (_, measured) = crate::ingress::counting::measure(|| SaveRoute::UserRelease.exit::<()>(Err(CommandError::Command(error))));
+        let (_, measured) = crate::ingress::counting::measure(|| SaveRoute::UserReleased.exit::<()>(Err(CommandError::Command(error))));
         assert!(measured.peak_priced <= ROUTE_010_BOUNDED_REFUSAL_BYTES, "{name}: bounding peaked at {} B", measured.peak_priced);
         route_009_leaves_unchanged(name, form());
     }
@@ -1043,7 +1043,7 @@ fn every_route_010_error_form_leaves_within_its_bound() {
     ];
     for other in others {
         let before = serde_json::to_string(&other).unwrap();
-        let after = SaveRoute::UserRelease.exit::<()>(Err(other)).unwrap_err();
+        let after = SaveRoute::UserReleased.exit::<()>(Err(other)).unwrap_err();
         assert_eq!(serde_json::to_string(&after).unwrap(), before);
         match after {
             CommandError::Ingress(_) | CommandError::Response(_) => {}

@@ -42,6 +42,20 @@
 //!   `&ProducerEntry::General` at the public roots, the forwarded `entry`
 //!   inside `assemble_wire_request_in`, and `&ProducerEntry::UserRelease(derived)`
 //!   only in `assemble_derived`, the one place `UserRelease` is constructed.
+//! - **Other names of `DerivedUserRelease`** (Codex round 2 at #1682). No
+//!   trait is implemented for it (the allow-list is empty), and an impl for it
+//!   declares no associated type, so no associated type assigns it `Self`. In
+//!   its defining module, the only code that can name its private field, a
+//!   struct literal's path, outside a macro or in a macro's tokens, must be
+//!   one plain name of a struct the `report_package` crate defines that no
+//!   type alias, associated type or import rename shares, or `Self` in an
+//!   impl of such a name: a `<T as Trait>::` path, generic arguments, a path
+//!   of more than one segment and a leading `::` are findings.
+//! - **Constructions** of `ProducerEntry::UserRelease` are its call, its value,
+//!   its braced form (`UserRelease { 0: derived }`) and its name in any macro's
+//!   tokens; only the pattern of a `matches!` is read as a pattern, and its
+//!   scrutinee and guard are screened as expression tokens (Codex round 2 at
+//!   #1682).
 //!
 //! What it does not establish: code that builds a document without calling
 //! the scanned functions, and a listed external macro whose version would
@@ -123,6 +137,73 @@ pub(crate) const ROWS: [Row; 12] = [
 
 const DERIVED: &str = "DerivedUserRelease";
 const DERIVED_FILE: &str = "report_package/src/user_release.rs";
+
+/// The trait impls admitted for `DerivedUserRelease`, by trait path as
+/// written: none exist today. Any other impl of a trait for it is a finding
+/// (Codex round 2 at #1682, P2): an associated type it assigns `Self` names
+/// the type under another path, which a struct literal could then construct.
+const DERIVED_TRAIT_IMPLS: [&str; 0] = [];
+
+/// Keywords that can directly precede a brace group in a macro's tokens
+/// without that group being a struct literal's fields.
+const BLOCK_KEYWORDS: [&str; 14] = ["else", "loop", "unsafe", "async", "move", "const", "try", "fn", "impl", "struct", "enum", "union", "trait", "mod"];
+
+/// Whether `file` is in `DerivedUserRelease`'s defining module (its file, or a
+/// file of a module beneath it): the only code that can name its private
+/// field, so the only code that can write its literal.
+fn in_defining_module(file: &str) -> bool {
+    file == DERIVED_FILE || file.starts_with("report_package/src/user_release/")
+}
+
+/// Whether a type names `DerivedUserRelease` anywhere (`&DerivedUserRelease`,
+/// `Wrapper<DerivedUserRelease>`, `<DerivedUserRelease as Trait>::Assoc`).
+fn type_names_derived(ty: &syn::Type) -> bool {
+    struct Finder(bool);
+    impl<'ast> Visit<'ast> for Finder {
+        fn visit_ident(&mut self, ident: &'ast proc_macro2::Ident) {
+            if ident_text(ident) == DERIVED {
+                self.0 = true;
+            }
+        }
+        fn visit_macro(&mut self, mac: &'ast syn::Macro) {
+            fn walk(tokens: TokenStream, found: &mut bool) {
+                for tree in tokens {
+                    match tree {
+                        TokenTree::Ident(ident) if ident_text(&ident) == DERIVED => *found = true,
+                        TokenTree::Group(group) => walk(group.stream(), found),
+                        _ => {}
+                    }
+                }
+            }
+            walk(mac.tokens.clone(), &mut self.0);
+        }
+    }
+    let mut finder = Finder(false);
+    finder.visit_type(ty);
+    finder.0
+}
+
+/// An enclosing `impl`'s self type, as a `Self { .. }` literal in it reads.
+#[derive(Clone, Debug, PartialEq, Eq)]
+enum ImplSelf {
+    /// It names `DerivedUserRelease`: `Self { .. }` constructs one.
+    Derived,
+    /// One plain identifier (with any generic arguments): `Self { .. }`
+    /// constructs that type when it is a struct the crate defines.
+    Named(String),
+    /// Any other type, or a trait's default methods (no self type).
+    Other,
+}
+
+/// The names `DerivedUserRelease`'s defining module may write as a struct
+/// literal, read from the `report_package` crate: its structs, less every
+/// name that could be an alias of another type (type aliases, associated
+/// types, import renames).
+#[derive(Default)]
+struct TypeNames {
+    structs: BTreeSet<String>,
+    aliases: BTreeSet<String>,
+}
 
 /// The producer's internal entries whose entry argument is read, and what it
 /// must be in each caller: (callee, caller, entry).
@@ -329,12 +410,21 @@ struct FileScan<'a> {
     constructions: &'a mut Vec<(Owner, String, usize)>,
     /// Admitted macro definitions seen: (file, name).
     macros: &'a mut Vec<(String, String)>,
-    /// For each enclosing `impl`, whether its self type is `DerivedUserRelease`
-    /// (a `Self { .. }` literal there constructs one).
-    impl_derived: Vec<bool>,
+    /// For each enclosing `impl`, its self type ([`ImplSelf`]): a
+    /// `Self { .. }` literal there constructs it.
+    impl_self: Vec<ImplSelf>,
+    /// The `report_package` crate's struct and alias names.
+    type_names: &'a mut TypeNames,
+    /// Struct literals in the defining module that name one plain identifier,
+    /// checked against [`TypeNames`] once every file is read: (file, line,
+    /// name, how it was written).
+    plain_literals: &'a mut Vec<(String, usize, String, &'static str)>,
     /// Inside a type alias (`type X = ...;`), where naming `DerivedUserRelease`
     /// would give it a name the literal rule does not match.
     in_type_alias: bool,
+    /// Screening a `matches!` pattern that can construct nothing
+    /// ([`pattern_can_construct`]): its brace groups are struct patterns.
+    in_pattern: bool,
 }
 
 impl FileScan<'_> {
@@ -347,6 +437,13 @@ impl FileScan<'_> {
     /// naming it (`std::mem::zeroed`, `transmute`), so it is refused there.
     fn is_core(&self) -> bool {
         self.crate_key() != "src-tauri"
+    }
+
+    /// A type alias's or an associated type's name in `report_package`.
+    fn alias(&mut self, ident: &proc_macro2::Ident) {
+        if self.crate_key() == "report_package" {
+            self.type_names.aliases.insert(ident_text(ident));
+        }
     }
 
     fn unsafe_found(&mut self, line: usize, what: &str) {
@@ -404,7 +501,12 @@ impl FileScan<'_> {
         let trees: Vec<TokenTree> = tokens.clone().into_iter().collect();
         for (index, tree) in trees.iter().enumerate() {
             match tree {
-                TokenTree::Group(group) => self.screen_tokens(&group.stream(), check_invocations),
+                TokenTree::Group(group) => {
+                    if group.delimiter() == proc_macro2::Delimiter::Brace && index >= 1 && in_defining_module(&self.file) && !self.in_pattern {
+                        self.token_literal(&trees, index, line_of(group.span()));
+                    }
+                    self.screen_tokens(&group.stream(), check_invocations)
+                }
                 TokenTree::Ident(ident) => {
                     let name = ident_text(ident);
                     let line = line_of(ident.span());
@@ -569,12 +671,108 @@ impl FileScan<'_> {
             }
         }
         if path == "matches" {
-            // A pattern constructs nothing: only its scanned names are screened.
-            let saved = self.constructions.len();
-            self.with_owner(Owner::Macro, |scan| scan.screen_tokens(&mac.tokens, true));
-            self.constructions.truncate(saved);
+            self.with_owner(Owner::Macro, |scan| scan.screen_matches(&mac.tokens, line));
         } else {
             self.with_owner(Owner::Macro, |scan| scan.screen_tokens(&mac.tokens, true));
+        }
+    }
+
+    /// `matches!(scrutinee, pattern if guard)` (Codex round 2 at #1682, P2):
+    /// only the pattern is screened as a pattern, which constructs nothing, so
+    /// a `UserRelease` named there is not counted as a construction. The
+    /// scrutinee, the guard and anything after the pattern are screened as
+    /// any macro's tokens, constructions counted. A pattern that could hold an
+    /// expression (an inline `const` block or a macro) is screened as
+    /// expression tokens too, and tokens that do not parse as an expression, a
+    /// comma and a pattern are a finding, screened whole as expression tokens.
+    fn screen_matches(&mut self, tokens: &TokenStream, line: usize) {
+        let Some((scrutinee, pattern, rest)) = matches_parts(tokens) else {
+            self.finding(line, "a matches! that does not parse as an expression, a pattern and a guard");
+            self.screen_tokens(tokens, true);
+            return;
+        };
+        self.screen_tokens(&scrutinee, true);
+        if pattern_can_construct(&pattern) {
+            self.screen_tokens(&pattern, true);
+        } else {
+            let saved = self.constructions.len();
+            let outer = std::mem::replace(&mut self.in_pattern, true);
+            self.screen_tokens(&pattern, true);
+            self.in_pattern = outer;
+            self.constructions.truncate(saved);
+        }
+        self.screen_tokens(&rest, true);
+    }
+
+    /// A brace group in a macro's tokens in the defining module, after
+    /// `trees[index - 1]` (Codex round 2 at #1682, P2): a struct literal is
+    /// held to the rule of one written outside a macro
+    /// ([`Self::check_literal_path`]); a block after a keyword, a closure's
+    /// `|..|` or a match arm's `=>`, and the block of an `if`, `while`,
+    /// `match` or `for .. in` whose condition ends in a name, are not
+    /// literals.
+    fn token_literal(&mut self, trees: &[TokenTree], index: usize, line: usize) {
+        match &trees[index - 1] {
+            TokenTree::Ident(ident) => {
+                let name = ident_text(ident);
+                if BLOCK_KEYWORDS.contains(&name.as_str()) || in_condition(&trees[..index - 1]) {
+                    return;
+                }
+                let qualified = index >= 3
+                    && matches!((&trees[index - 2], &trees[index - 3]), (TokenTree::Punct(a), TokenTree::Punct(b)) if a.as_char() == ':' && b.as_char() == ':');
+                if qualified {
+                    self.finding(line, format!("a struct literal of a qualified path ending in {name} in a macro's tokens, in the defining module of {DERIVED}"));
+                } else if name == "Self" {
+                    self.check_self_literal(line, "a Self literal in a macro's tokens");
+                } else if name != DERIVED {
+                    // `DerivedUserRelease` in tokens is already a finding.
+                    self.plain_literals.push((self.file.clone(), line, name, "a struct literal in a macro's tokens"));
+                }
+            }
+            TokenTree::Punct(close) if close.as_char() == '>' => {
+                let arrow = index >= 2
+                    && matches!(&trees[index - 2], TokenTree::Punct(first) if matches!(first.as_char(), '=' | '-') && first.spacing() == proc_macro2::Spacing::Joint);
+                if !arrow {
+                    self.finding(line, format!("a struct literal with generic arguments in a macro's tokens, in the defining module of {DERIVED}"));
+                }
+            }
+            _ => {}
+        }
+    }
+
+    /// A struct literal's path in `DerivedUserRelease`'s defining module
+    /// (Codex round 2 at #1682, P2). Only one plain identifier is admitted,
+    /// and only as a struct the crate defines that no alias shares
+    /// ([`TypeNames`], checked once every file is read), or `Self` in an impl
+    /// of such a struct: a qualified `<T as Trait>::` path, generic
+    /// arguments, a path of more than one segment (`Self::Assoc`,
+    /// `module::Alias`, an enum variant) and a leading `::` could each
+    /// resolve to `DerivedUserRelease` without naming it, so each is a
+    /// finding. `DerivedUserRelease` itself is held to its literal rule.
+    fn check_literal_path(&mut self, qself: Option<&syn::QSelf>, path: &syn::Path, line: usize) {
+        let written = segments(path).join("::");
+        if qself.is_some() {
+            self.finding(line, format!("a struct literal through a qualified <T as Trait>:: path ({written}) in the defining module of {DERIVED}"));
+        } else if path.segments.iter().any(|segment| !matches!(segment.arguments, syn::PathArguments::None)) {
+            self.finding(line, format!("a struct literal with generic arguments ({written}) in the defining module of {DERIVED}"));
+        } else if path.leading_colon.is_some() || path.segments.len() != 1 {
+            self.finding(line, format!("a struct literal of {written} in the defining module of {DERIVED}, which is not one plain struct name"));
+        } else if written == "Self" {
+            self.check_self_literal(line, "a Self literal");
+        } else if written != DERIVED {
+            self.plain_literals.push((self.file.clone(), line, written, "a struct literal"));
+        }
+    }
+
+    /// `Self { .. }` in the defining module: admitted in an impl of a plain
+    /// struct name ([`Self::check_literal_path`]); in an impl of
+    /// `DerivedUserRelease` it is that type's literal, held to its rule; in
+    /// any other impl or a trait's default method it is a finding.
+    fn check_self_literal(&mut self, line: usize, how: &'static str) {
+        match self.impl_self.last().cloned() {
+            Some(ImplSelf::Derived) => {}
+            Some(ImplSelf::Named(name)) => self.plain_literals.push((self.file.clone(), line, name, how)),
+            _ => self.finding(line, format!("{how} outside an impl of one plain struct name, in the defining module of {DERIVED}")),
         }
     }
 
@@ -667,6 +865,10 @@ impl FileScan<'_> {
                 continue;
             }
             let last = path.last().cloned().unwrap_or_default();
+            if let (Some(rename), "report_package") = (&rename, crate_key.as_str()) {
+                // A renamed import could name any type under a struct's name.
+                self.type_names.aliases.insert(rename.clone());
+            }
             let name = rename.clone().unwrap_or_else(|| if last == "self" { path.iter().rev().nth(1).cloned().unwrap_or_default() } else { last.clone() });
             let listed_name = MACRO_INVOCATIONS.contains(&name.as_str()) || DERIVES.contains(&name.as_str()) || LISTED_ROOTS.contains(&name.as_str());
             let from_source = LISTED_IMPORTS.iter().any(|(bound_name, source)| *bound_name == name && *source == joined && rename.is_none())
@@ -908,6 +1110,9 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
     fn visit_item_struct(&mut self, item: &'ast syn::ItemStruct) {
         self.check_attributes(&item.attrs);
         let name = ident_text(&item.ident);
+        if self.crate_key() == "report_package" {
+            self.type_names.structs.insert(name.clone());
+        }
         if name == DERIVED {
             self.record(DERIVED, line_of(item.ident.span()), Kind::Definition);
             // No derive (or any attribute but its documentation): a derived
@@ -928,10 +1133,37 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
         if item.unsafety.is_some() {
             self.unsafe_found(line_of(item.impl_token.span), "an unsafe impl");
         }
-        let derived = matches!(&*item.self_ty, syn::Type::Path(path) if path.path.segments.last().is_some_and(|segment| ident_text(&segment.ident) == DERIVED));
-        self.impl_derived.push(derived);
+        let line = line_of(item.impl_token.span);
+        let derived = type_names_derived(&item.self_ty);
+        let impl_self = match &*item.self_ty {
+            _ if derived => ImplSelf::Derived,
+            syn::Type::Path(path) if path.qself.is_none() && path.path.leading_colon.is_none() && path.path.segments.len() == 1 => {
+                ImplSelf::Named(ident_text(&path.path.segments[0].ident))
+            }
+            _ => ImplSelf::Other,
+        };
+        if derived {
+            // Codex round 2 at #1682 (P2): a trait impl for the type, other
+            // than the listed ones, and any associated type in an impl for it,
+            // could give it another name a literal resolves through.
+            if let Some((_, trait_path, _)) = &item.trait_ {
+                let name = path_text(trait_path);
+                if !DERIVED_TRAIT_IMPLS.contains(&name.as_str()) {
+                    self.finding(line, format!("an impl of the trait {name} for {DERIVED}, which is not on the allow-list"));
+                }
+            }
+            for member in &item.items {
+                if let syn::ImplItem::Type(assoc) = member {
+                    if !is_test_only(&assoc.attrs) {
+                        let assigned = if matches!(&assoc.ty, syn::Type::Path(path) if path.qself.is_none() && path.path.is_ident("Self")) { "Self" } else { "a type" };
+                        self.finding(line_of(assoc.ident.span()), format!("the associated type {} assigned {assigned} in an impl for {DERIVED}", ident_text(&assoc.ident)));
+                    }
+                }
+            }
+        }
+        self.impl_self.push(impl_self);
         visit::visit_item_impl(self, item);
-        self.impl_derived.pop();
+        self.impl_self.pop();
     }
 
     fn visit_item_trait(&mut self, item: &'ast syn::ItemTrait) {
@@ -939,9 +1171,9 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
             self.unsafe_found(line_of(item.trait_token.span), "an unsafe trait");
         }
         // A trait's default methods have no impl self type.
-        self.impl_derived.push(false);
+        self.impl_self.push(ImplSelf::Other);
         visit::visit_item_trait(self, item);
-        self.impl_derived.pop();
+        self.impl_self.pop();
     }
 
     fn visit_item_foreign_mod(&mut self, item: &'ast syn::ItemForeignMod) {
@@ -955,18 +1187,21 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
     }
 
     fn visit_item_type(&mut self, item: &'ast syn::ItemType) {
+        self.alias(&item.ident);
         let saved = std::mem::replace(&mut self.in_type_alias, true);
         visit::visit_item_type(self, item);
         self.in_type_alias = saved;
     }
 
     fn visit_impl_item_type(&mut self, item: &'ast syn::ImplItemType) {
+        self.alias(&item.ident);
         let saved = std::mem::replace(&mut self.in_type_alias, true);
         visit::visit_impl_item_type(self, item);
         self.in_type_alias = saved;
     }
 
     fn visit_trait_item_type(&mut self, item: &'ast syn::TraitItemType) {
+        self.alias(&item.ident);
         let saved = std::mem::replace(&mut self.in_type_alias, true);
         visit::visit_trait_item_type(self, item);
         self.in_type_alias = saved;
@@ -1042,14 +1277,20 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
     }
 
     fn visit_expr_struct(&mut self, literal: &'ast syn::ExprStruct) {
-        let names_derived = literal.path.segments.last().is_some_and(|segment| ident_text(&segment.ident) == DERIVED);
+        let line = literal.path.segments.last().map_or(0, |segment| line_of(segment.ident.span()));
+        let last = literal.path.segments.last().map(|segment| ident_text(&segment.ident)).unwrap_or_default();
+        // `ProducerEntry::UserRelease { 0: derived }` constructs one, as its
+        // call form does (Codex round 2 at #1682, P2).
+        if last == "UserRelease" {
+            self.constructions.push((self.owner(), self.file.clone(), line));
+        }
+        if in_defining_module(&self.file) {
+            self.check_literal_path(literal.qself.as_ref(), &literal.path, line);
+        }
+        let names_derived = last == DERIVED;
         // `Self { .. }` in an `impl` of `DerivedUserRelease` is its literal too.
-        let self_literal = literal.qself.is_none()
-            && literal.path.segments.len() == 1
-            && ident_text(&literal.path.segments[0].ident) == "Self"
-            && self.impl_derived.last() == Some(&true);
+        let self_literal = literal.qself.is_none() && literal.path.segments.len() == 1 && last == "Self" && self.impl_self.last() == Some(&ImplSelf::Derived);
         if names_derived || self_literal {
-            let line = line_of(literal.path.segments.last().unwrap().ident.span());
             self.record(DERIVED, line, Kind::Literal);
             for field in &literal.fields {
                 self.visit_expr(&field.expr);
@@ -1094,6 +1335,69 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
             self.record(&name, line_of(ident.span()), Kind::Other("named other than as a definition or a direct call"));
         }
     }
+}
+
+/// `matches!`'s tokens as its scrutinee, its pattern and the rest (the guard
+/// and a trailing comma), each as written; `None` when they do not parse so.
+fn matches_parts(tokens: &TokenStream) -> Option<(TokenStream, TokenStream, TokenStream)> {
+    use syn::parse::{ParseStream, Parser};
+    fn between(mut from: syn::buffer::Cursor<'_>, to: syn::buffer::Cursor<'_>) -> TokenStream {
+        let mut out = TokenStream::new();
+        while from < to {
+            let Some((tree, next)) = from.token_tree() else { break };
+            out.extend([tree]);
+            from = next;
+        }
+        out
+    }
+    let parser = |input: ParseStream<'_>| -> syn::Result<(TokenStream, TokenStream, TokenStream)> {
+        let start = input.cursor();
+        input.parse::<syn::Expr>()?;
+        let scrutinee = between(start, input.cursor());
+        input.parse::<syn::Token![,]>()?;
+        let start = input.cursor();
+        syn::Pat::parse_multi_with_leading_vert(input)?;
+        let pattern = between(start, input.cursor());
+        let rest: TokenStream = input.parse()?;
+        Ok((scrutinee, pattern, rest))
+    };
+    parser.parse2(tokens.clone()).ok()
+}
+
+/// Whether the tokens just before a brace group's preceding name are an
+/// `if`, `while`, `match` or `for .. in` condition: Rust admits no struct
+/// literal there unparenthesized, so the group is that construct's block.
+/// The walk back stops at a statement or argument boundary (`;`, `,`, a match
+/// arm's `=>`) and at an earlier brace group, after which a literal could
+/// follow (`if c { 1 } else { 2 } + A { .. }`), so those count as no
+/// condition.
+fn in_condition(before: &[TokenTree]) -> bool {
+    for (at, tree) in before.iter().enumerate().rev() {
+        match tree {
+            TokenTree::Ident(ident) if matches!(ident_text(ident).as_str(), "if" | "while" | "match" | "in") => return true,
+            TokenTree::Punct(punct) if matches!(punct.as_char(), ';' | ',') => return false,
+            TokenTree::Punct(punct)
+                if punct.as_char() == '>' && at >= 1 && matches!(&before[at - 1], TokenTree::Punct(first) if first.as_char() == '=' && first.spacing() == proc_macro2::Spacing::Joint) =>
+            {
+                return false
+            }
+            TokenTree::Group(group) if group.delimiter() == proc_macro2::Delimiter::Brace => return false,
+            _ => {}
+        }
+    }
+    false
+}
+
+/// Whether a pattern's tokens could hold an expression: an inline `const`
+/// block or a macro invocation, at any depth.
+fn pattern_can_construct(tokens: &TokenStream) -> bool {
+    let trees: Vec<TokenTree> = tokens.clone().into_iter().collect();
+    trees.iter().enumerate().any(|(index, tree)| match tree {
+        TokenTree::Group(group) => pattern_can_construct(&group.stream()),
+        TokenTree::Ident(ident) => ident_text(ident) == "const",
+        TokenTree::Punct(bang) => bang.as_char() == '!' && matches!(trees.get(index + 1), Some(TokenTree::Group(_))),
+        _ => false,
+    })
 }
 
 /// The module file that `name`, declared in `declaring` under the inline
@@ -1150,6 +1454,8 @@ pub(crate) fn scan_reading(sources: &Sources) -> (Vec<String>, BTreeSet<String>)
     let mut entries = Vec::new();
     let mut constructions = Vec::new();
     let mut macros = Vec::new();
+    let mut type_names = TypeNames::default();
+    let mut plain_literals = Vec::new();
     let mut queue: Vec<String> = CRATES.iter().map(|(key, _)| format!("{key}/src/lib.rs")).collect();
     queue.push("src-tauri/src/main.rs".to_string());
     let mut read: BTreeSet<String> = BTreeSet::new();
@@ -1180,8 +1486,11 @@ pub(crate) fn scan_reading(sources: &Sources) -> (Vec<String>, BTreeSet<String>)
             entries: &mut entries,
             constructions: &mut constructions,
             macros: &mut macros,
-            impl_derived: Vec::new(),
+            impl_self: Vec::new(),
+            type_names: &mut type_names,
+            plain_literals: &mut plain_literals,
             in_type_alias: false,
+            in_pattern: false,
         };
         for attr in &parsed.attrs {
             scan.visit_attribute(attr);
@@ -1197,6 +1506,13 @@ pub(crate) fn scan_reading(sources: &Sources) -> (Vec<String>, BTreeSet<String>)
         }
     }
 
+    // A plain struct literal in the defining module names a struct the crate
+    // defines, and no alias shares the name.
+    for (file, line, name, how) in &plain_literals {
+        if !type_names.structs.contains(name) || type_names.aliases.contains(name) {
+            findings.push(format!("{file}:{line}: {how} of {name} in the defining module of {DERIVED}, which is not a struct the crate defines under a name no alias shares"));
+        }
+    }
     // The rule over every occurrence of a scanned name.
     let mut calls: BTreeMap<(&str, String, String), usize> = BTreeMap::new();
     let mut definitions: BTreeMap<String, usize> = BTreeMap::new();
