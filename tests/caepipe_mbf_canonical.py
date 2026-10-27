@@ -26,6 +26,8 @@ EXCLUDED_LOSSES = (
     "zero-valued primitives (dropped)",
     "absent versus zero expansion coefficient, and absent versus zero section fields",
     "combinations (not exported)",
+    "pressure-region ids and region provenance (bound imports restore the ids from the sidecar's pressure_map; "
+    "regions are compared by their member pipes, terminals with closure transfer, and pressure)",
 )
 __doc__ += "".join(f"\n- {item}" for item in EXCLUDED_LOSSES) + "\n"
 
@@ -36,7 +38,7 @@ _TO_SI = {
     "N": 1.0, "kN": 1e3, "lbf": 4.4482216152605,
     "N*m": 1.0, "kN*m": 1e3, "lbf*in": 4.4482216152605 * 0.0254, "lbf*ft": 4.4482216152605 * 0.3048,
     "N/m": 1.0, "N/mm": 1e3, "kN/m": 1e3, "kN/mm": 1e6, "lbf/in": 4.4482216152605 / 0.0254,
-    "Pa": 1.0, "kPa": 1e3, "MPa": 1e6, "GPa": 1e9, "psi": 4.4482216152605 / 0.00064516,
+    "Pa": 1.0, "kPa": 1e3, "MPa": 1e6, "GPa": 1e9, "bar": 1e5, "psi": 4.4482216152605 / 0.00064516,
     "1/K": 1.0, "1/degC": 1.0, "1/degF": 1.8, "K": 1.0, "degC": 1.0, "C": 1.0, "degF": 5.0 / 9.0,
     "rad": 1.0, "deg": math.pi / 180.0, "1": 1.0, "none": 1.0,
 }
@@ -51,11 +53,35 @@ _TO_SI_EXACT = {
     "lbf/in": Fraction("4.4482216152605") / Fraction("0.0254"),
     "K": Fraction(1), "degC": Fraction(1), "C": Fraction(1), "degF": Fraction(5, 9),
     "rad": Fraction(1), "deg": Fraction(math.pi) / 180,
+    "Pa": Fraction(1), "kPa": Fraction(1000), "MPa": Fraction(10**6), "bar": Fraction(10**5),
+    "psi": Fraction("4.4482216152605") / Fraction("0.0254") ** 2,
 }
 _DOF_TOKEN = {**{dof: dof for dof in DOFS}, **{dof.lower(): dof for dof in DOFS},
               **{dof[0] + dof[1].lower(): dof for dof in DOFS}}
 _AXIS = {"global_x": 0, "global_y": 1, "global_z": 2, "GLOBAL_X": 0, "GLOBAL_Y": 1, "GLOBAL_Z": 2,
          "RX": 0, "RY": 1, "RZ": 2, "rotation_x": 0, "rotation_y": 1, "rotation_z": 2}
+
+
+def rotate_z_vertical(vector):
+    """A Z-vertical file's global (X, Y, Z) in SWBPIPE's Y-vertical axes, (X, Z, -Y): the rotation by -90 degrees
+    about X that takes +Z to +y (Design §5.1). Exact for rationals and for binary64 alike."""
+    x, y, z = vector
+    return (x, z, -y)
+
+
+def printed_positions(text: str) -> dict[str, tuple[Fraction, Fraction, Fraction]]:
+    """The exact rational position of every From/To node of a printed SI MBF, in the file's axes, summed along
+    each run from its printed start coordinates and offsets (no absolute markers, no bends)."""
+    position: dict[str, tuple[Fraction, Fraction, Fraction]] = {}
+    current = None
+    for row in read_printed(text).rows:
+        given = [Fraction(row["axes"][axis]) if axis in row["axes"] else Fraction(0) for axis in range(3)]
+        if row["kind"] == "F":
+            position.setdefault(row["node"], tuple(given))
+        else:
+            position[row["node"]] = tuple(position[current][axis] + given[axis] for axis in range(3))
+        current = row["node"]
+    return position
 
 
 def si(quantity: Mapping[str, Any]) -> float:
@@ -89,6 +115,7 @@ class Printed:
     materials: dict[str, dict[str, str]]
     sections: dict[str, tuple[str, str]]
     loads: dict[str, str]
+    pressures: dict[str, str]
     node_bound: dict[str, list[float]]  # CAEPIPE name -> per-axis absolute bound, metres
     coordinate_max_mm: float
     rows: list[dict[str, Any]] = field(default_factory=list)
@@ -109,9 +136,9 @@ def _fields(line: str) -> list[str]:
 
 def read_printed(text: str) -> Printed:
     lines = text.split("\r\n")
-    section, materials, sections, loads, rows = None, {}, {}, {}, []
+    section, materials, sections, loads, pressures, rows = None, {}, {}, {}, {}, []
     t_ref = "0"
-    keywords = {"VERSION", "OPTIONS", "OPTEMP", "MATERIAL", "PIPE", "LOADS", "LAYOUT"}
+    keywords = {"VERSION", "OPTIONS", "OPTEMP", "OPPRES", "OPMISC", "MATERIAL", "PIPE", "LOADS", "LAYOUT"}
     for line in lines[1:]:
         if line in keywords:
             section = line
@@ -132,6 +159,7 @@ def read_printed(text: str) -> Printed:
             sections[fields[0]] = (fields[1], fields[2])
         elif section == "LOADS":
             loads[fields[0]] = fields[1]
+            pressures[fields[0]] = fields[2]
         elif section == "LAYOUT":
             row: dict[str, Any] = {"kind": fields[0][0], "node": fields[0][1:], "axes": {}, "radius": None,
                                    "M": None, "P": None, "L": None, "comments": []}
@@ -163,7 +191,7 @@ def read_printed(text: str) -> Printed:
             position[row["node"]] = [base[axis] + float(row["axes"].get(axis, "0")) for axis in range(3)]
             current = row["node"]
         coordinate_max = max([coordinate_max, *map(abs, position[row["node"]])])
-    printed = Printed(t_ref, materials, sections, loads, {}, coordinate_max, rows)
+    printed = Printed(t_ref, materials, sections, loads, pressures, {}, coordinate_max, rows)
     # Node coordinates (Design §18.2): along the path from its run start, per axis, the sum of
     # delta(p) + 2 eps C over the printed start coordinate and every printed offset, plus 4 eps C for the import.
     c_eps = 2 * EPS * coordinate_max
@@ -262,9 +290,20 @@ def canonical(model: Mapping[str, Any], names: Mapping[str, str], case_kinds: Ma
             out.values[("bend", key, "k")] = si(modifiers["flexibility_factor_user_value"])
         out.sets[("bend", key, "plane")] = direction
         out.sets[("bend", key, "node")] = names[component["node"]]
+    if model.get("pressure_contract") is not None:
+        contract = model["pressure_contract"]
+        out.sets[("pressure_contract",)] = (contract["version"], contract["mode"], contract["shear_model"])
     sums: dict[tuple, Fraction] = {}
     for case in model.get("load_cases") or []:
         kind = case_kinds[case["id"]]
+        for region in case.get("pressure_regions") or []:
+            # A region by its member pipes; its terminals (CAEPIPE name, closure transfer) and pressure in Pa.
+            members = frozenset(pipes[pipe_id] for pipe_id in region["member_pipe_ids"])
+            terminals = tuple((names[item["node_ref"]], item["closure_transfer"]) for item in region["terminals"])
+            out.sets[("region", kind, members)] = (terminals if oriented else frozenset(terminals),
+                                                  region["pressure_basis"])
+            pressure = region["pressure"]
+            out.values[("pressure", kind, members)] = float(Fraction(pressure["value"]) * _TO_SI_EXACT[pressure["unit"]])
         for load in case.get("primitive_loads") or []:
             value = Fraction(load["magnitude"]["value"]) * _TO_SI_EXACT[load["magnitude"]["unit"]]
             target = load["target"]
@@ -363,6 +402,9 @@ def bounds(model: Mapping[str, Any], writer: Any, printed: Printed, names: Mappi
                 if load_key[:3] == ("load", "sustained", "weight") and load_key[3] == key:
                     out[load_key] = weight_relative * abs(value)
         load_name = entry["load"]
+        for region_key in reference.values:  # Pressure 1, printed directly in bar
+            if region_key[0] == "pressure" and key in region_key[2]:
+                out[region_key] = printed_bound(printed.pressures[load_name], 1e5)
         t1 = printed.loads[load_name]
         for load_key in reference.values:
             if load_key[:3] == ("load", "expansion", "thermal") and load_key[3] == key:
@@ -462,6 +504,8 @@ def compare(reference: Canonical, imported: Canonical, limits: Mapping[tuple, fl
 
 
 def _unoriented_key(key: tuple) -> tuple:
+    if key[0] in ("region", "pressure"):
+        return key[:2] + (frozenset(tuple(sorted(member)) for member in key[2]),)
     if key[0] in ("pipe", "bend"):
         return (key[0], tuple(sorted(key[1])), *key[2:])
     if key[0] == "load" and isinstance(key[3], tuple):
@@ -471,6 +515,10 @@ def _unoriented_key(key: tuple) -> tuple:
 
 def unoriented(form: Canonical, limits: Mapping[tuple, float]) -> tuple[Canonical, dict[tuple, float]]:
     """A canonical form and its bounds with pipe ends unordered and per-support identities dropped (unbound)."""
+    def unordered(key: tuple, value: Any) -> Any:
+        return (frozenset(value[0]), value[1]) if key[0] == "region" else value
+
     return (Canonical({_unoriented_key(key): value for key, value in form.values.items()},
-                      {_unoriented_key(key): value for key, value in form.sets.items() if key[0] != "support"}),
+                      {_unoriented_key(key): unordered(key, value) for key, value in form.sets.items()
+                       if key[0] != "support"}),
             {_unoriented_key(key): value for key, value in limits.items()})

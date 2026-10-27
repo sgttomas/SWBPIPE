@@ -9,11 +9,14 @@ asserts that the model is produced and the entry is listed.
 
 from __future__ import annotations
 
+import decimal
 from fractions import Fraction
 import hashlib
 import json
 import math
 from pathlib import Path
+import re
+import struct
 import subprocess
 import sys
 
@@ -270,10 +273,10 @@ def test_all_zero_load_sections_are_omitted_and_check_sections_delegated():
 
 
 # --- §5, §6 options ------------------------------------------------------------------------------------------------
-def test_options_vertical_axis_z_and_unknown_tokens_are_refused():
-    data = mbf(options="HGRA,SI,Z")
+def test_unknown_option_tokens_are_refused():
+    # The vertical-axis option Z is read since tranche 2 (Z-vertical tests below).
+    data = mbf(options="HGRA,SI,QQ")
     refused(run(data), "MBF-IMPORT-OPTION-UNSUPPORTED", layout_line(data, "HGRA"))
-    refused(run(mbf(options="HGRA,SI,QQ")), "MBF-IMPORT-OPTION-UNSUPPORTED")
 
 
 def test_hanger_and_code_options_are_pass_through_only():
@@ -309,7 +312,9 @@ def test_optemp_and_opmisc_records():
 
 def test_the_gravitational_direction_is_refused_in_a_bound_import_too():
     data = mbf(extra=("OPMISC", "33,20,1,1,1,2,2,1,9.80665,1"))
-    sidecar = {"mbf_sha256": hashlib.sha256(data).hexdigest(), "node_map": {}}
+    sidecar = {"mbf_sha256": hashlib.sha256(data).hexdigest(),
+               **{name: {} for name in ("node_map", "element_map", "support_map", "load_case_map", "material_map",
+                                        "section_map", "load_map")}}  # a legacy sidecar holds the seven maps
     assert run(data, sidecar=sidecar).source["binding"] == "bound"
     refused(run(data, sidecar=sidecar), "MBF-IMPORT-TBD-17-04-005")
 
@@ -376,8 +381,7 @@ def test_a_bound_sidecar_origin_qualifies_and_a_rebound_one_does_not():
                                                              "magnitude": {"value": -1, "unit": "N"}, "dimension": "force"}]}]}
     written = render_caepipe_mbf_si(model, title="ORIGIN")
     data = written.text.encode()
-    sidecar = {**{key: value for key, value in written.to_dict().items() if key.endswith("_map")},
-               "mbf_sha256": hashlib.sha256(data).hexdigest()}
+    sidecar = written.sidecar(hashlib.sha256(data).hexdigest())
     bound = run(data, sidecar=sidecar, material_provenance=None)
     assert bound.status == "imported", bound.diagnostics
     assert bound.model["materials"][0]["id"] == "steel"
@@ -413,7 +417,7 @@ def test_zero_section_fields_are_written_as_absent():
 
 
 @pytest.mark.parametrize("record, code", [
-    ("L1,20,5,0", "MBF-IMPORT-PRESSURE-UNSUPPORTED"),
+    ("L1,20,-5,0", "MBF-IMPORT-PRESSURE-UNSUPPORTED"),  # negative (external) pressure; positive is read (§9.4)
     ("L1,20,0,1", "MBF-IMPORT-CONTENTS-UNSUPPORTED"),
     ("L1,20,0,0,150,0", "MBF-IMPORT-THERMAL-LOADS-UNSUPPORTED"),
     ("L1,20,0,0,,,,,3", "MBF-IMPORT-LOAD-FIELD-UNSUPPORTED"),
@@ -507,10 +511,14 @@ def test_unbound_imports_follow_the_base_rule_without_pd1(monkeypatch):
 
 # --- §12 supports, §13 point loads -------------------------------------------------------------------------------------
 def test_supports():
-    result = run(mbf("F10,KA,MM1,PP1,CL=L1,LA=0", "T20,X3000,CFIXD(1,0,1),FIXRY,TAG=invented guide-like"))
+    result = run(mbf("F10,KA,MM1,PP1,CL=L1,LA=0", "T20,X3000,CFIXD(1,0,1),TAG=invented guide-like"))
     assert [(item["id"], item["restraints"], item.get("family"), item["label"]) for item in result.model["supports"]] == [
         ("support:10", ["UX", "UY", "UZ", "RX", "RY", "RZ"], "anchor", "anchor at 10"),
-        ("support:20-restraint", ["UX", "UZ", "RY"], None, "invented guide-like")]
+        ("support:20-restraint", ["UX", "UZ"], None, "invented guide-like")]
+    # With FIXRY too, the restraint has fewer than six DOFs and no family, which the solve reads as a guide, and a
+    # guide restrains no rotation (SUPPORT_INPUT_INVALID, VER-002 r8): refused by support id.
+    partial = run(mbf("F10,KA,MM1,PP1,CL=L1,LA=0", "T20,X3000,CFIXD(1,0,1),FIXRY,TAG=invented guide-like"))
+    assert refused(partial, "MBF-IMPORT-SUPPORT-UNSUPPORTED")["location"] == "support:20-restraint"
     result = run(mbf("F10,KA,MM1,PP1,CL=L1", "T20,X3000", "T30,X10,CFIXD(1,1,1),FIXR(1,1,1)"))
     assert result.model["supports"][-1]["restraints"] == ["UX", "UY", "UZ", "RX", "RY", "RZ"]  # kept as written
     assert "family" not in result.model["supports"][-1]
@@ -686,8 +694,11 @@ def test_unbound_ids_are_formed_from_caepipe_names():
 def test_a_sidecar_with_another_hash_is_not_applied_unless_rebinding_is_requested():
     data = mbf(*L_BEND)
     sidecar = {"mbf_sha256": "0" * 64, "node_map": {"A": "10", "T1": "20A", "T2": "20B", "B": "30"},
-               "support_map": {"SA": {"node": "10", "restrained": ["UX", "UY", "UZ", "RX", "RY", "RZ"], "family": "anchor"},
-                               "GONE": {"node": "99", "restrained": ["UY"], "family": None}}}
+               "support_map": {"SA": {"node": "10", "caepipe_kind": "anchor",
+                                      "restrained": ["UX", "UY", "UZ", "RX", "RY", "RZ"], "family": "anchor"},
+                               "GONE": {"node": "99", "caepipe_kind": "restraint", "restrained": ["UY"],
+                                        "family": None}},
+               **{name: {} for name in ("element_map", "load_case_map", "material_map", "section_map", "load_map")}}
     plain = run(data, sidecar=sidecar)
     assert plain.source["binding"] == "unbound" and plain.model["nodes"][0]["id"] == "node:10"
     assert any(item["code"] == "MBF-IMPORT-SIDECAR-NOT-APPLIED" for item in plain.diagnostics)
@@ -697,8 +708,9 @@ def test_a_sidecar_with_another_hash_is_not_applied_unless_rebinding_is_requeste
     assert {"A", "T1", "T2", "B", "SA"} <= set(rebound.id_map["rebound_unconfirmed"])
     assert any(item["code"] == "MBF-IMPORT-SIDECAR-ENTRY-ABSENT" and "GONE" in item["location"]
                for item in rebound.loss_report)
-    conflict = {**sidecar, "node_map": {"A": "10", "B": "10"}}
-    refused(run(data, sidecar=conflict, rebind_by_node_number=True), "MBF-IMPORT-SIDECAR-CONFLICT")
+    conflict = {**sidecar, "node_map": {"A": "10", "B": "10"}}  # not one-to-one: refused by the sidecar parser
+    assert refused(run(data, sidecar=conflict, rebind_by_node_number=True),
+                   "MBF-IMPORT-SIDECAR-INVALID")["location"] == "node_map[B]"
     refused(run(data, rebind_by_node_number=True), "MBF-IMPORT-SIDECAR-INVALID")
 
 
@@ -722,7 +734,7 @@ def test_identical_inputs_give_identical_bytes_and_the_report_is_typed():
 
 
 def test_a_refused_import_reports_no_values_from_refused_records():
-    result = run(mbf(loads=("L1,20,12.345,0",)))
+    result = run(mbf(loads=("L1,20,-12.345,0",)))
     refused(result, "MBF-IMPORT-PRESSURE-UNSUPPORTED")
     assert "12.345" not in result.report_bytes().decode()
 
@@ -780,18 +792,17 @@ def test_a_bound_import_restores_straight_orientation_from_the_sidecar():
     written = render_caepipe_mbf_si(model, title="ORIENTATION")
     assert written.element_map["S"]["y_reference"] == {"x": 0.0, "y": 0.0, "z": 1.0}
     data = written.text.encode()
-    sidecar = {**{key: value for key, value in written.to_dict().items() if key.endswith("_map")},
-               "mbf_sha256": hashlib.sha256(data).hexdigest()}
+    sidecar = written.sidecar(hashlib.sha256(data).hexdigest())
     bound = run(data, sidecar=sidecar)
     assert bound.model["pipe_segments"][0]["y_reference"] == {"x": 0.0, "y": 0.0, "z": 1.0}
     assert "MBF-IMPORT-ORIENTATION-DEFAULTED" not in {item["code"] for item in bound.diagnostics}
     assert run(data).model["pipe_segments"][0]["y_reference"] == {"x": 0.0, "y": 1.0, "z": 0.0}  # unbound: default
-    # A sidecar orientation that is not a usable vector (here zero length) is not restored: the documented local y
-    # for a straight along +X is global Y, and the assignment is reported.
+    # A sidecar orientation that is not a usable vector (here zero length) is refused by name with the element, and
+    # nothing is substituted (lane manager, after VER-002 r6).
     sidecar["element_map"]["S"]["y_reference"] = {"x": 0.0, "y": 0.0, "z": 0.0}
     zero = run(data, sidecar=sidecar)
-    assert zero.model["pipe_segments"][0]["y_reference"] == {"x": 0.0, "y": 1.0, "z": 0.0}
-    assert "MBF-IMPORT-ORIENTATION-DEFAULTED" in {item["code"] for item in zero.diagnostics}
+    assert refused(zero, "MBF-IMPORT-ORIENTATION-UNUSABLE")["location"] == "S"
+    assert "MBF-IMPORT-ORIENTATION-DEFAULTED" not in {item["code"] for item in zero.diagnostics}
 
 
 # --- command line (§3, §16.4) -------------------------------------------------------------------------------------------
@@ -1062,3 +1073,435 @@ def test_the_documented_layout_refuses_other_accelerations(g, si, why):
 def test_the_export_layout_alone_reads_386_4():
     assert run(export_shaped()).status == "imported"  # 13 fields: 386.4 with direction (0, -1, 0)
     refused(run(export_shaped(opmisc="33,20,1,1,1,2,2,2,0,9.80665,0.00,-1.00,0.00")), "MBF-IMPORT-GRAVITY-UNSUPPORTED")
+
+
+# --- §9.4 pressure (tranche 2) --------------------------------------------------------------------------------------
+CLOSURE = {"closure_transfer": "transfers_to_wall", "provenance": "invented importer test declaration"}
+
+
+def regions_of(result, case: str = "case:mbf-sustained") -> list[tuple]:
+    found = next(item for item in result.model["load_cases"] if item["id"] == case)["pressure_regions"]
+    return [(region["id"], region["member_pipe_ids"], region["pressure"]["value"], region["pressure"]["unit"],
+             [(terminal["node_ref"], terminal["closure_transfer"]) for terminal in region["terminals"]])
+            for region in found]
+
+
+def test_pressure_1_becomes_an_exact_region_in_bar_with_the_file_allowance():
+    # 12.5 bar is kept in bar; the catalog reads it as 12.5 x 1e5 = 1.25e6 Pa exactly (1 bar = 1e5 Pa).
+    result = run(mbf(*L_BEND, loads=("L1,120,12.5,0",)), pressure_closure=CLOSURE)
+    assert result.status == "imported", result.diagnostics
+    assert result.model["pressure_contract"] == {"version": "3.0.0", "mode": "exact_pressure_v3",
+                                                 "shear_model": "timoshenko_annulus_energy_v1"}
+    assert regions_of(result) == [("region:mbf-10-30", ["pipe:10-20A", "pipe:20A-20B", "pipe:20B-30"], 12.5, "bar",
+                                   [("node:10", "transfers_to_wall"), ("node:30", "transfers_to_wall")])]
+    region = regions_of(result)[0]
+    assert Fraction(region[2]) * 10**5 == 1_250_000
+    sustained, expansion = result.model["load_cases"]
+    assert (sustained["primitive_loads"], expansion["pressure_regions"]) == ([], [])  # pressure only; T1 - 20 = 100
+    assert [load[4] for load in loads_of(result)] == [100.0, 100.0, 100.0]
+    region_record = sustained["pressure_regions"][0]
+    assert region_record["pressure_basis"] == "internal_differential_zero_external_v1"
+    assert "LOADS L1 line" in region_record["provenance"]
+    assert all(terminal["provenance"] == "closure transfer declared at import: invented importer test declaration"
+               for terminal in region_record["terminals"])
+    assert all(pipe["section"]["corrosion_allowance"] == {"value": 0.0, "unit": "mm"}
+               for pipe in result.model["pipe_segments"])
+    assert result.id_map["region_map"] == {"region:mbf-10-30": ["10-20A", "20A-20B", "20B-30"]}
+    assert result.summary["pressure_regions"] == 1
+    assert any("closure transfer at each real end (free end, tee, pressure or bore change) is the caller's "
+               "declaration" in note for note in result.assumptions)
+
+
+def test_english_pressure_stays_in_psi():
+    data = mbf("F10,KA,MM1,PP1,CL=L1", "T20,KA,X10", options="HGRA", optemp="70",
+               material=("M1,0,0.3,1,1,CS,invented", "M1,70,29000000,6.5e-06"), pipe=("P1,6.625,0.28,0,0,0,0,0,0",),
+               loads=("L1,70,150,0",))
+    result = run(data, pressure_closure=CLOSURE)
+    assert regions_of(result) == [("region:mbf-10-20", ["pipe:10-20"], 150.0, "psi",
+                                   [("node:10", "transfers_to_wall"), ("node:20", "transfers_to_wall")])]
+    assert result.model["project"]["units"]["pressure"] == "psi"
+    assert result.model["pipe_segments"][0]["section"]["corrosion_allowance"] == {"value": 0.0, "unit": "in"}
+
+
+def test_a_pressure_free_file_writes_no_contract_regions_or_allowance():
+    result = run(mbf(*L_BEND))
+    assert "pressure_contract" not in result.model and "region_map" not in result.id_map
+    assert all("pressure_regions" not in case for case in result.model["load_cases"])
+    assert all("corrosion_allowance" not in pipe["section"] for pipe in result.model["pipe_segments"])
+
+
+@pytest.mark.parametrize("rows, pipe, loads, expected", [
+    # A tee ends three regions at its node.
+    (("F10,KA,MM1,PP1,CL=L1", "T20,X3000", "T30,KA,X3000", "F20", "T40,KA,Z2000"), None, None,
+     [("region:mbf-10-20", ["pipe:10-20"]), ("region:mbf-20-30", ["pipe:20-30"]), ("region:mbf-20-40", ["pipe:20-40"])]),
+    # A straight-straight corner ends the region; collinear straights continue it.
+    (("F10,KA,MM1,PP1,CL=L1", "T20,X3000", "T30,KA,Z2000"), None, None,
+     [("region:mbf-10-20", ["pipe:10-20"]), ("region:mbf-20-30", ["pipe:20-30"])]),
+    (("F10,KA,MM1,PP1,CL=L1", "T20,X3000", "T30,KA,X2000"), None, None,
+     [("region:mbf-10-30", ["pipe:10-20", "pipe:20-30"])]),
+    # A pressure change, or a bore change, ends it; the same bore from another OD and wall does not.
+    (("F10,KA,MM1,PP1,CL=L1", "T20,X3000", "T30,KA,X2000,CL=L2"), None, ("L1,20,10,0", "L2,20,12,0"),
+     [("region:mbf-10-20", ["pipe:10-20"]), ("region:mbf-20-30", ["pipe:20-30"])]),
+    (("F10,KA,MM1,PP1,CL=L1", "T20,X3000", "T30,KA,X2000,PP2"), ("P1,168.3,7.11,0,0,0,0,0,0", "P2,168.3,8,0,0,0,0,0,0"),
+     None, [("region:mbf-10-20", ["pipe:10-20"]), ("region:mbf-20-30", ["pipe:20-30"])]),
+    # 168.3 - 2 x 7.11 = 154.08 = 170.3 - 2 x 8.11 exactly.
+    (("F10,KA,MM1,PP1,CL=L1", "T20,X3000", "T30,KA,X2000,PP2"), ("P1,168.3,7.11,0,0,0,0,0,0", "P2,170.3,8.11,0,0,0,0,0,0"),
+     None, [("region:mbf-10-30", ["pipe:10-20", "pipe:20-30"])]),
+    # An element with Pressure 1 = 0 belongs to no region.
+    (("F10,KA,MM1,PP1,CL=L1", "T20,X3000", "T30,KA,X2000,CL=L2"), None, ("L1,20,10,0", "L2,20,0,0"),
+     [("region:mbf-10-20", ["pipe:10-20"])]),
+])
+def test_regions_are_maximal_chains_of_equal_pressure_and_bore(rows, pipe, loads, expected):
+    result = run(mbf(*rows, pipe=pipe, loads=loads or ("L1,20,10,0",)), pressure_closure=CLOSURE)
+    assert result.status == "imported", result.diagnostics
+    assert [(region[0], region[1]) for region in regions_of(result)] == expected
+
+
+def test_the_closure_transfer_is_declared_never_inferred():
+    data = mbf("F10,KA,MM1,PP1,CL=L1", "T20,X3000", "T30,KA,X2000", loads=("L1,20,10,0",))
+    refused(run(data), "MBF-IMPORT-PRESSURE-CLOSURE-REQUIRED", layout_line(data, "LOADS"))
+    for declaration in ({"closure_transfer": "capped"}, {"closure_transfer": "transfers_to_wall", "provenance": " "},
+                        {**CLOSURE, "nodes": {"30": "open"}}, {**CLOSURE, "extra": 1}, "transfers_to_wall"):
+        refused(run(data, pressure_closure=declaration), "MBF-IMPORT-PRESSURE-CLOSURE-INVALID")
+    overridden = run(data, pressure_closure={**CLOSURE, "nodes": {"30": "separately_supported_or_compensated"}})
+    assert regions_of(overridden)[0][4] == [("node:10", "transfers_to_wall"),
+                                            ("node:30", "separately_supported_or_compensated")]
+    for node in ("99", "20"):  # unknown, or internal to the region: not a terminal
+        refused(run(data, pressure_closure={**CLOSURE, "nodes": {node: "transfers_to_wall"}}),
+                "MBF-IMPORT-PRESSURE-CLOSURE-INVALID")
+    pressure_free = mbf("F10,KA,MM1,PP1,CL=L1", "T20,X3000")
+    assert run(pressure_free).status == "imported"  # no declaration is needed without pressure
+
+
+@pytest.mark.parametrize("extra, effects", [
+    ((), "no OPPRES section"),
+    (("OPPRES", ""), "Bourdon effect (on by the blank-line default), pressure correction for bends (on by the "
+                     "blank-line default)"),
+    (("OPPRES", "0,1,0,1.00,0"), "OPPRES gives Bourdon effect (on);"),
+    (("OPPRES", "1,0,1"), "OPPRES gives pressure correction for bends (on);"),
+    (("OPPRES", "0"), "Bourdon effect (unstated), pressure correction for bends (unstated)"),
+    (("OPPRES", "0,0,0,1.00,0"), None),
+])
+def test_caepipe_pressure_effects_swbpipe_does_not_model_are_listed(extra, effects):
+    result = run(mbf("F10,KA,MM1,PP1,CL=L1", "T20,KA,X3000", loads=("L1,20,10,0",), extra=extra),
+                 pressure_closure=CLOSURE)
+    entries = [item for item in result.loss_report if item["code"] == "MBF-IMPORT-PRESSURE-EFFECTS-OMITTED"]
+    if effects is None:
+        assert entries == [] and result.status == "imported"
+    else:
+        assert [item["category"] for item in entries] == ["omitted"] and effects in entries[0]["reason"]
+        assert "DEL-04-07 D-3" in entries[0]["reason"]
+    without = run(mbf("F10,KA,MM1,PP1,CL=L1", "T20,KA,X3000", extra=extra))  # no pressure: OPPRES only passes through
+    assert "MBF-IMPORT-PRESSURE-EFFECTS-OMITTED" not in {item["code"] for item in without.loss_report}
+
+
+def test_pressure_refusals():
+    data = mbf("F10,KA,MM1,PP1,CL=L1", "T20,KA,X3000", loads=("L1,20,10,0",), extra=("OPPRES", "0,2,0"))
+    refused(run(data, pressure_closure=CLOSURE), "MBF-IMPORT-FIELD-UNDOCUMENTED", layout_line(data, "0,2,0"))
+    moved = mbf("F10,KA,MM1,PP1,CL=L1", "T20,KA,X3000,CD(0,5,0)", loads=("L1,20,10,0",))
+    refused(run(moved, pressure_closure=CLOSURE), "MBF-IMPORT-PRESSURE-DISPLACEMENT-UNSUPPORTED")
+    assert run(mbf("F10,KA,MM1,PP1,CL=L1", "T20,KA,X3000,CD(0,5,0)")).status == "imported"  # without pressure
+
+
+# --- §5.1 Z vertical (tranche 2) ------------------------------------------------------------------------------------
+def z_file(*rows: str, **options) -> bytes:
+    return mbf(*rows, options="HGRA,SI,Z", **options)
+
+
+def test_z_vertical_coordinates_are_rotated_exactly_and_take_the_z_vertical_local_axes():
+    # (X, Y, Z) -> (X, Z, -Y): node 20 at file (1000, 2000, 3000) is SWBPIPE (1000, 3000, -2000); node 30 one
+    # vertical 3000 above it is (1000, 6000, -2000).
+    # Skew local y by hand, in the file's axes: x = (1, 2, 3)/sqrt 14; local z = Z - (Z.x) x is along (-3, -6, 5);
+    # y = z x x = (-3, -6, 5) x (1, 2, 3) = (-28, 14, 0), unit (-2, 1, 0)/sqrt 5; rotated (-2, 0, -1)/sqrt 5.
+    # Vertical element: local y is the file's global Y, rotated (0, 0, -1).
+    result = run(z_file("F10,KA,MM1,PP1,CL=L1", "T20,X1000,Y2000,Z3000", "T30,KA,Z3000"))
+    assert result.status == "imported", result.diagnostics
+    assert [tuple(node["position"].values()) for node in result.model["nodes"]] == [
+        (0.0, 0.0, 0.0), (1000.0, 3000.0, -2000.0), (1000.0, 6000.0, -2000.0)]
+    skew, vertical = (tuple(pipe["y_reference"].values()) for pipe in result.model["pipe_segments"])
+    assert skew == pytest.approx((-2 / math.sqrt(5), 0.0, -1 / math.sqrt(5)), abs=1e-15)
+    assert vertical == (0.0, 0.0, -1.0)
+    assert result.source["vertical_axis"] == "Z"
+    defaulted = [item for item in result.diagnostics if item["code"] == "MBF-IMPORT-ORIENTATION-DEFAULTED"]
+    assert all("global Z vertical" in item["message"] for item in defaulted) and len(defaulted) == 2
+    assert any("(X, Y, Z) -> (X, Z, -Y)" in note for note in result.assumptions)
+
+
+@pytest.mark.parametrize("end, expected", [
+    ((3000.0, 0.0, 0.0), (0.0, 0.0, -1.0)),  # along x: local y = Z x X = file Y, rotated -z
+    ((0.0, 0.0, 3000.0), (1.0, 0.0, 0.0)),  # along z (file -Y): y = (x_z, 0, -x_x) = (1, 0, 0)
+    ((1000.0, 1000.0, 0.0), (0.0, 0.0, -1.0)),  # rising along x: still horizontal, perpendicular to x
+    ((0.0, 3000.0, 0.0), (0.0, 0.0, -1.0)),  # vertical: file global Y
+    ((0.0, -3000.0, 0.0), (0.0, 0.0, -1.0)),
+])
+def test_documented_local_y_of_a_straight_under_z_vertical(end, expected):
+    # CAEPIPE-LOCAL-AXES, global Z vertical: local z in the plane of local x and global Z toward +Z, y = z x x; a
+    # vertical element's y is global Y. In SWBPIPE's rotated axes y = (x_z, 0, -x_x) / |(x_x, x_z)|.
+    assert importer_module.local_y_reference((0.0, 0.0, 0.0), end, z_vertical=True) == pytest.approx(expected,
+                                                                                                    abs=1e-15)
+
+
+def test_z_vertical_loads_displacements_and_restraint_axes_are_rotated():
+    # Vectors (a, b, c) become (a, c, -b) for forces, moments, displacements and rotations alike (a proper
+    # rotation turns axial vectors like polar ones); restraint flags only move: file Y -> z, file Z -> y.
+    result = run(z_file("F10,KA,MM1,PP1,CL=L1", "T20,X3000,CFOR(10,20,30),MOM(1,2,3),FLC=1,FIXD(0,1,0)",
+                        "T30,X1000,CFIXDZ", "T40,X1000,KA,CD(4,5,6),ROT(0.1,0.2,0.3),FORY=7,FLC=1"))
+    assert result.status == "imported", result.diagnostics
+    assert loads_of(result) == [
+        ("case:mbf-sustained", "concentrated_force", "node:20", "global_x", 10.0, "N"),
+        ("case:mbf-sustained", "concentrated_force", "node:20", "global_y", 30.0, "N"),
+        ("case:mbf-sustained", "concentrated_force", "node:20", "global_z", -20.0, "N"),
+        ("case:mbf-sustained", "concentrated_moment", "node:20", "RX", 1.0, "N*m"),
+        ("case:mbf-sustained", "concentrated_moment", "node:20", "RY", 3.0, "N*m"),
+        ("case:mbf-sustained", "concentrated_moment", "node:20", "RZ", -2.0, "N*m"),
+        ("case:mbf-sustained", "concentrated_force", "node:40", "global_z", -7.0, "N"),
+        ("case:mbf-expansion-t1", "imposed_displacement", "support:40", "UX", 4.0, "mm"),
+        ("case:mbf-expansion-t1", "imposed_displacement", "support:40", "UY", 6.0, "mm"),
+        ("case:mbf-expansion-t1", "imposed_displacement", "support:40", "UZ", -5.0, "mm"),
+        ("case:mbf-expansion-t1", "imposed_displacement", "support:40", "RX", 0.1, "deg"),
+        ("case:mbf-expansion-t1", "imposed_displacement", "support:40", "RY", 0.3, "deg"),
+        ("case:mbf-expansion-t1", "imposed_displacement", "support:40", "RZ", -0.2, "deg"),
+    ]
+    restraints = {support["id"]: support["restraints"] for support in result.model["supports"]}
+    assert (restraints["support:20-restraint"], restraints["support:30-restraint"]) == (["UZ"], ["UY"])
+
+
+def test_a_bend_under_z_vertical():
+    # The file's L runs along +X then +Y (horizontal); rotated, the legs are +x and -z. By hand: TI (4000, 0, 0),
+    # t = 250 tan 45 deg = 250: near (3750, 0, 0), far (4000, 0, -250), node 30 (4000, 0, -3000);
+    # y_reference = unit(TI - chord middle) = unit((4000, 0, 0) - (3875, 0, -125)) = (1, 0, 1)/sqrt 2.
+    result = run(z_file("F10,KA,MM1,PP1,CL=L1", "T20,KI,B250,X4000,CFF=1", "T30,KA,Y3000"))
+    nodes = {node["id"]: tuple(node["position"].values()) for node in result.model["nodes"]}
+    assert nodes == {"node:10": (0.0, 0.0, 0.0), "node:20A": pytest.approx((3750.0, 0.0, 0.0), abs=1e-12),
+                     "node:20B": pytest.approx((4000.0, 0.0, -250.0), abs=1e-12), "node:30": (4000.0, 0.0, -3000.0)}
+    bend_pipe = result.model["pipe_segments"][1]
+    assert tuple(bend_pipe["y_reference"].values()) == pytest.approx((math.sqrt(0.5), 0.0, math.sqrt(0.5)), abs=1e-16)
+
+
+def test_z_vertical_gravity_and_weight():
+    # The export layout's earth setting is read in a Z-vertical file only along the file's -Z; the weight per
+    # length is the same as in a Y-vertical file and acts along SWBPIPE's -y.
+    material = ("M1,7850,0.3,1,1,CS,invented", "M1,20,200000,1.2e-05")
+    rows = ("F10,KA,MM1,PP1,CL=L1", "T20,KA,X3000")
+    down = z_file(*rows, material=material, extra=("OPMISC", "33,20,1,1,1,2,2,2,0,386.4,0.00,0.00,-1.00"))
+    z_weight, y_weight = (loads_of(run(data))[0] for data in (down, mbf(*rows, material=material)))
+    assert z_weight == y_weight and z_weight[3] == "global_y" and z_weight[4] < 0
+    sideways = z_file(*rows, material=material, extra=("OPMISC", "33,20,1,1,1,2,2,2,0,386.4,0.00,-1.00,0.00"))
+    refused(run(sideways), "MBF-IMPORT-GRAVITY-UNSUPPORTED", layout_line(sideways, "33,20"))
+
+
+def test_a_z_vertical_file_and_its_hand_rotated_y_vertical_twin_import_alike():
+    # The twin's offsets, force, restraint and displacement are the Z file's, rotated by hand: (a, b, c) -> (a, c, -b).
+    z = run(z_file("F10,KA,MM1,PP1,CL=L1", "T20,X1000,Y2000,Z3000,CFOR(10,20,30),FLC=1,FIXD(0,1,0)",
+                   "T30,KI,B250,X4000,CFF=1", "T40,KA,Z3000,CD(4,5,6)"))
+    y = run(mbf("F10,KA,MM1,PP1,CL=L1", "T20,X1000,Y3000,Z-2000,CFOR(10,30,-20),FLC=1,FIXD(0,0,1)",
+                "T30,KI,B250,X4000,CFF=1", "T40,KA,Y3000,CD(4,6,-5)"))
+    assert z.status == y.status == "imported", (z.diagnostics, y.diagnostics)
+
+    def strip(model):
+        model = json.loads(json.dumps(model))
+        for pipe in model["pipe_segments"]:
+            if pipe["id"] != "pipe:30A-30B":
+                pipe.pop("y_reference")  # straights take each convention's own local axes
+        return {key: value for key, value in model.items() if key in (
+            "nodes", "pipe_segments", "supports", "components", "materials", "load_cases")}
+
+    def unprovenanced(value):
+        if isinstance(value, dict):
+            return {key: unprovenanced(item) for key, item in value.items()
+                    if key not in ("provenance", "bend_geometry_source_reference", "source_reference",
+                                   "source_location")}  # these name each file's own hash
+        return [unprovenanced(item) for item in value] if isinstance(value, list) else value
+
+    assert unprovenanced(strip(z.model)) == unprovenanced(strip(y.model))  # bit-equal positions, bend and loads
+
+
+# --- §9.4 regions by the exact route's own collinearity check (VER-002 r1, item 1) ------------------------------------
+# Codex's reproduction: 16 rows each 1000 mm along X, with Y offsets k e-11 mm (k = 1..16). Each adjacent pair turns
+# by about 1e-14 rad, below 64 eps = 1.42e-14, but the run bows: its whole-span residual is about 2e-14.
+DRIFT = tuple(f"T{10 * (k + 1)},X1000,Y{k}e-11" for k in range(1, 16)) + ("T170,KA,X1000,Y16e-11",)
+# Two straights 1000 mm long meeting at 1.5e-11 mm off the line: they turn by 2 x 1.5e-14 = 3e-14 rad (above 64 eps),
+# but the middle node lies 1.5e-14 m / 2 m = 7.5e-15 of the span off the chord, within 64 eps.
+ZIGZAG = ("T20,X1000,Y1.5e-11", "T30,KA,X1000,Y-1.5e-11")
+
+
+def test_correctly_rounded_norm_and_the_ported_collinear_run():
+    assert importer_module.correct_norm3(3.0, 4.0, 0.0) == 5.0
+    assert importer_module.correct_norm3(1.0, 1.0, 1.0) == math.sqrt(3.0)  # sqrt is correctly rounded
+    # Squares below the binary64 range: the exact root of 2 x (1e-200)^2, to 60 digits, then rounded once.
+    with decimal.localcontext() as context:
+        context.prec = 60
+        expected = float(decimal.Decimal(1e-200) * decimal.Decimal(2).sqrt())
+    assert importer_module.correct_norm3(1e-200, 1e-200, 0.0) == expected
+    assert importer_module.REPRESENTATION_GUARD == 64 * 2.0 ** -52
+    collinear = importer_module.runtime_collinear
+    assert collinear([(0.0, 0.0, 0.0), (1.0, 1.5e-14, 0.0), (2.0, 0.0, 0.0)])  # residual 7.5e-15 <= 1.42e-14
+    assert not collinear([(0.0, 0.0, 0.0), (1.0, 3e-14, 0.0), (2.0, 0.0, 0.0)])  # 1.5e-14 > 1.42e-14
+    assert not collinear([(0.0, 0.0, 0.0), (2.0, 0.0, 0.0), (1.0, 0.0, 0.0)])  # passes its end: backtracks
+
+
+def test_a_run_the_exact_route_refuses_whole_is_refused_by_name_not_cut():
+    # Manager's rule (VER-002 r2): a region is never cut inside a straight run; DRIFT has no corner.
+    data = mbf("F10,KA,MM1,PP1,CL=L1", *DRIFT, loads=("L1,20,10,0",))
+    error = refused(run(data, pressure_closure=CLOSURE), "MBF-IMPORT-PRESSURE-RUN-NONCOLLINEAR")
+    assert error["location"] == "elements " + ", ".join(f"{10 * k}-{10 * (k + 1)}" for k in range(1, 17))
+    assert error["line"] == layout_line(data, "T20,")
+
+
+# Codex VER-002 r2: the first two straights alone fail (the middle node 3e-11 mm off a 2000 mm span: 3e-14 m / 2 m =
+# 1.5e-14 > 64 eps), but the whole run passes (3e-14 m / 10 m = 3e-15). The route checks the whole run.
+NONMONOTONIC = ("T20,X1000,Y3e-11", "T30,X1000,Y-3e-11", "T40,KA,X8000")
+
+
+def test_a_run_the_exact_route_admits_whole_stays_one_region_though_a_prefix_fails():
+    result = run(mbf("F10,KA,MM1,PP1,CL=L1", *NONMONOTONIC, loads=("L1,20,10,0",)), pressure_closure=CLOSURE)
+    assert [(region[0], region[1]) for region in regions_of(result)] == [
+        ("region:mbf-10-40", ["pipe:10-20", "pipe:20-30", "pipe:30-40"])]
+    collinear = importer_module.runtime_collinear
+    assert not collinear([(0.0, 0.0, 0.0), (1.0, 3e-14, 0.0), (2.0, 0.0, 0.0)])
+    assert collinear([(0.0, 0.0, 0.0), (1.0, 3e-14, 0.0), (2.0, 0.0, 0.0), (10.0, 0.0, 0.0)])
+
+
+@pytest.mark.parametrize("offset, regions", [
+    # A direction change of 2e-3 rad (> alpha_tan = 1e-3) is a corner: two regions.
+    ("Y2", ["region:mbf-10-20", "region:mbf-20-30"]),
+    # 5e-4 rad and 1e-4 rad are not corners, and the run fails the route's check whole: refused, not cut.
+    ("Y0.5", None), ("Y0.1", None),
+])
+def test_a_corner_is_a_direction_change_above_the_routes_mitre_threshold(offset, regions):
+    data = mbf("F10,KA,MM1,PP1,CL=L1", "T20,X1000", f"T30,KA,X1000,{offset}", loads=("L1,20,10,0",))
+    result = run(data, pressure_closure=CLOSURE)
+    if regions is None:
+        assert refused(result, "MBF-IMPORT-PRESSURE-RUN-NONCOLLINEAR")["location"] == "elements 10-20, 20-30"
+    else:
+        assert [region[0] for region in regions_of(result)] == regions
+
+
+def test_a_run_the_exact_route_admits_stays_one_region():
+    result = run(mbf("F10,KA,MM1,PP1,CL=L1", *ZIGZAG, loads=("L1,20,10,0",)), pressure_closure=CLOSURE)
+    assert [(region[0], region[1]) for region in regions_of(result)] == [
+        ("region:mbf-10-30", ["pipe:10-20", "pipe:20-30"])]
+    # The adjacent-pair test this replaces split it: the two unit directions differ by about 3e-14 > 64 eps.
+    a, b = (1000.0, 1.5e-11, 0.0), (1000.0, -1.5e-11, 0.0)
+    d1, d2 = (tuple(value / math.hypot(*v) for value in v) for v in (a, b))
+    assert abs(d1[0] * d2[1] - d1[1] * d2[0]) > importer_module.REPRESENTATION_GUARD
+
+
+# Run 1 (10 -> 30A) is straight along X; the bend at 30 turns to +Z; run 2 (30B -> 200) drifts in X like DRIFT.
+BEND_DRIFT = ("F10,KA,MM1,PP1,CL=L1", "T20,X1000", "T30,KI,B250,X2000,CFF=1",
+              *(f"T{10 * (k + 3)},Z1000,X{k}e-11" for k in range(1, 17)), "T200,KA,Z1000,X17e-11")
+
+
+def test_straight_runs_between_bends_are_checked_each_whole():
+    # Run 1 (10 -> 30A) passes; run 2 (30B -> 200) drifts like DRIFT and has no corner: refused, naming run 2 only.
+    data = mbf(*BEND_DRIFT, loads=("L1,20,10,0",))
+    error = refused(run(data, pressure_closure=CLOSURE), "MBF-IMPORT-PRESSURE-RUN-NONCOLLINEAR")
+    assert error["location"] == "elements 30B-40, " + ", ".join(f"{10 * k}-{10 * (k + 1)}" for k in range(4, 20))
+    straight = run(mbf(*BEND_DRIFT[:3], "T40,KA,Z1000", loads=("L1,20,10,0",)), pressure_closure=CLOSURE)
+    assert [region[1] for region in regions_of(straight)] == [["pipe:10-20", "pipe:20-30A", "pipe:30A-30B",
+                                                              "pipe:30B-40"]]
+
+
+# --- §9.4 corrosion allowance: field presence (VER-002 r1, item 2) ------------------------------------------------------
+@pytest.mark.parametrize("record", ["P1,168.3,7.11", "P1,168.3,7.11,,0"])
+def test_a_section_without_a_corrosion_allowance_is_refused_under_pressure(record):
+    # The manual's PIPE record documents no default for an omitted field, so none is supplied.
+    data = mbf("F10,KA,MM1,PP1,CL=L1", "T20,KA,X3000", pipe=(record,), loads=("L1,20,10,0",))
+    error = refused(run(data, pressure_closure=CLOSURE), "MBF-IMPORT-CORROSION-ALLOWANCE-MISSING",
+                    layout_line(data, "P1,"))
+    assert error["location"] == "PIPE P1 field 4"
+    assert run(mbf("F10,KA,MM1,PP1,CL=L1", "T20,KA,X3000", pipe=(record,))).status == "imported"  # no pressure
+
+
+def test_a_stated_allowance_is_carried_and_an_unused_section_needs_none():
+    result = run(mbf("F10,KA,MM1,PP1,CL=L1", "T20,KA,X3000", pipe=("P1,168.3,7.11,0", "P2,100,5"),
+                     loads=("L1,20,10,0",)), pressure_closure=CLOSURE)
+    assert result.status == "imported", result.diagnostics
+    assert result.model["pipe_segments"][0]["section"]["corrosion_allowance"] == {"value": 0.0, "unit": "mm"}
+    assert any("0 its PIPE record states in field 4" in note for note in result.assumptions)
+
+
+# --- VER-002 r2 items 3 and 4 ---------------------------------------------------------------------------------------
+def test_an_element_that_collapses_in_metres_is_refused():
+    # 31.500000000000004 mm and that plus 3.552713678800501e-15 mm differ in binary64, but x 0.001 (the catalog's
+    # mm factor) maps both to one value in m, where the solve reads them.
+    start, end = 31.500000000000004, 31.500000000000004 + 3.552713678800501e-15
+    assert start != end and start * 0.001 + 0.0 == end * 0.001 + 0.0
+    for loads in (("L1,20,10,0",), ("L1,20,0,0",)):  # with or without pressure
+        data = mbf("F10,KA,MM1,PP1,X31.500000000000004,CL=L1", "T20,KA,X3.552713678800501e-15", loads=loads)
+        error = refused(run(data, pressure_closure=CLOSURE), "MBF-IMPORT-GEOMETRY-ZERO-LENGTH", layout_line(data, "T20"))
+        assert "metres" in error["message"]
+
+
+def test_a_subnormal_norm_is_rounded_once_on_the_subnormal_lattice():
+    # Codex's chord, in m: both components are subnormal. The exact root, to 80 digits, rounded once by the
+    # correctly rounded decimal-to-binary conversion; rounding first to 53 bits and then to the lattice was one ulp high.
+    x, y = 5.562684977829851e-306 * 0.001 + 0.0, 1.6578092611e-313 * 0.001 + 0.0
+    assert 0 < x < 2.0 ** -1022
+    with decimal.localcontext() as context:
+        context.prec = 80
+        expected = float((decimal.Decimal(x) ** 2 + decimal.Decimal(y) ** 2).sqrt())
+    assert importer_module.correct_norm3(x, y, 0.0) == expected
+    assert importer_module.correct_norm3(2.0 ** -1074, 0.0, 0.0) == 2.0 ** -1074
+    assert importer_module.correct_norm3(3 * 2.0 ** -1074, 4 * 2.0 ** -1074, 0.0) == 5 * 2.0 ** -1074
+    result = run(mbf("F10,KA,MM1,PP1,CL=L1", "T20,KA,X5.562684977829851e-306,Y1.6578092611e-313",
+                     loads=("L1,20,10,0",)), pressure_closure=CLOSURE)
+    assert result.status == "imported", result.diagnostics
+
+
+# --- VER-002 r3: the route's bore guard and traversal order -------------------------------------------------------------
+# Codex's sections: 128.2 - 2 x 63.6 = 1 = 128.3 - 2 x 63.65 mm exactly in decimals, so one chain.
+BORE_PIPES = ("P1,128.2,63.6,0", "P2,128.3,63.65,0")
+BORE_ROWS = ("F10,KA,MM1,PP1,CL=L1", "T20,X1000", "T30,KA,X1000,PP2")
+
+
+def test_bores_equal_in_decimals_but_not_within_the_routes_guard_in_metres_are_refused_not_cut():
+    radius = importer_module.runtime_bore_radius_m
+    r1, r2 = radius(128.2, 63.6, 0.001), radius(128.3, 63.65, 0.001)
+    # In m: 0.1282 x 0.5 - 0.0636 and 0.1283 x 0.5 - 0.06365, each rounded, differ by about 5.55e-14 relative.
+    assert r1 != r2 and abs(r1 - r2) > importer_module.REPRESENTATION_GUARD * max(r1, r2)
+    assert not importer_module.runtime_bores_equal([r1, r2]) and not importer_module.runtime_bores_equal([r2, r1])
+    data = mbf(*BORE_ROWS, pipe=BORE_PIPES, loads=("L1,20,10,0",))
+    error = refused(run(data, pressure_closure=CLOSURE), "MBF-IMPORT-PRESSURE-BORE-MISMATCH", layout_line(data, "T20"))
+    assert error["location"] == "elements 10-20, 20-30"
+    assert run(mbf(*BORE_ROWS, pipe=BORE_PIPES)).status == "imported"  # without pressure there is no region
+    # The same bore from another OD and wall within the guard (168.3/7.11 and 170.3/8.11) stays one region.
+    same = run(mbf(*BORE_ROWS, pipe=("P1,168.3,7.11,0", "P2,170.3,8.11,0"), loads=("L1,20,10,0",)),
+               pressure_closure=CLOSURE)
+    assert [region[1] for region in regions_of(same)] == [["pipe:10-20", "pipe:20-30"]]
+
+
+# Codex's run: refused by the route traversed 10 -> 30, admitted 30 -> 10.
+REVERSED = ("F10,KA,MM1,PP1,CL=L1", "T20,X2,Y3.0000000000924", "T30,KA,X1998,Y2996.9999999999076")
+
+
+def test_a_region_the_route_admits_only_reversed_is_emitted_reversed():
+    positions = {"10": (0.0, 0.0, 0.0), "20": (2.0, 3.0000000000924, 0.0),
+                 "30": (2000.0, 3000.0, 0.0)}
+    metres = {name: tuple(value * 0.001 + 0.0 for value in point) for name, point in positions.items()}
+    assert not importer_module.runtime_collinear([metres["10"], metres["20"], metres["30"]])
+    assert importer_module.runtime_collinear([metres["30"], metres["20"], metres["10"]])
+    declaration = {**CLOSURE, "nodes": {"30": "separately_supported_or_compensated"}}
+    result = run(mbf(*REVERSED, pipe=("P1,168.3,7.11,0",), loads=("L1,20,10,0",)), pressure_closure=declaration)
+    assert result.status == "imported", result.diagnostics
+    assert [node["position"]["y"] for node in result.model["nodes"]] == [0.0, 3.0000000000924, 3000.0]
+    # Reversal changes only the order: the same members, and each terminal keeps its own node's closure transfer.
+    assert regions_of(result) == [("region:mbf-30-10", ["pipe:20-30", "pipe:10-20"], 10.0, "bar",
+                                   [("node:30", "separately_supported_or_compensated"),
+                                    ("node:10", "transfers_to_wall")])]
+
+
+def test_the_ported_arc_angle_matches_the_runtime_bit_for_bit():
+    # The tangency and arc-window decisions (VER-002 r6) read frame_kernel's libm-free 2 atan2(y, x). Its own test
+    # table freezes each row's correctly rounded binary64 bits, computed from a 90-digit arctangent; the port must
+    # give every row's bits.
+    source = (ROOT / "core" / "solver" / "frame_kernel" / "src" / "structural" / "arc_angle.rs").read_text()
+    table = source[source.index("FROZEN"):]
+    rows = re.findall(r"\(\s*(0x[0-9a-fA-F_]+)\s*,\s*(0x[0-9a-fA-F_]+)\s*,\s*(0x[0-9a-fA-F_]+)\s*\)", table)
+    value = lambda text: struct.unpack("<d", struct.pack("<Q", int(text.replace("_", ""), 16)))[0]  # noqa: E731
+    assert len(rows) > 40
+    for y, x, expected in rows:
+        assert importer_module.twice_atan2_nonnegative(value(y), value(x)) == value(expected), (y, x)
+    assert importer_module.twice_atan2_nonnegative(0.0, 0.0) is None
+    assert importer_module.twice_atan2_nonnegative(0.0, 2.0) == 0.0
+    assert importer_module.twice_atan2_nonnegative(2.0, 0.0) == math.pi

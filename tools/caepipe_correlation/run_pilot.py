@@ -322,8 +322,7 @@ def _run_case(case: Mapping[str, Any], config: HarnessConfig, *, runner: str, of
             return False
     in_dir = paths["caepipe_in"]
     write_private(root, in_dir / "model.mbf", mbf_text.encode("utf-8"))
-    _write_json(root, in_dir / "id_map.json", {**{key: value for key, value in mbf.to_dict().items()
-                                                   if key.endswith("_map")}, "mbf_sha256": mbf_sha256})
+    _write_json(root, in_dir / "id_map.json", mbf.sidecar(mbf_sha256))
     _write_json(root, in_dir / "mbf_render.json", {
         "profile_id": mbf.to_dict()["profile_id"], "status": mbf.status, "layout_row_count": mbf.layout_row_count,
         "diagnostics": mbf.diagnostics, "loss_report": mbf.loss_report, "assumptions": mbf.assumptions,
