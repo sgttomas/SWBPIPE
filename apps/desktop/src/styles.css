@@ -1377,6 +1377,23 @@ button:focus-visible {
 .viewport-result-scale-ticks { display: flex; flex-direction: column; justify-content: space-between; margin: -6px 0; padding: 0; list-style: none; }
 .viewport-legend-no-value { display: flex; align-items: center; gap: 6px; }
 .viewport-result-no-value-swatch { flex: 0 0 auto; width: 12px; height: 12px; border-radius: 2px; background: var(--canvas-unsolved); opacity: 0.6; }
+/* The result contour (A4): its controls in the legend, and the numbers drawn on the canvas in the
+   canvas label tokens of both themes. */
+.viewport-contour-controls { margin: 4px 0; }
+.viewport-legend-threshold { display: flex; align-items: center; gap: 6px; }
+.viewport-legend-threshold input[type="text"] { width: 72px; min-width: 0; font-size: 11px; }
+.viewport-value-labels { position: absolute; inset: 0; z-index: 2; overflow: hidden; pointer-events: none; }
+.viewport-value-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: var(--canvas-label);
+  background: var(--canvas-labelBg);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
 
 .viewport-deformation-status {
   display: grid;
@@ -2911,6 +2928,39 @@ fieldset.viewport-intent-controls {
   color: #25312f;
   font-size: 12px;
   overflow-wrap: anywhere;
+}
+
+/* A1: the results navigator (DEL-07-05 Design `results-navigator.md` §2). An end's button stays
+   focusable (aria-disabled), so it is dimmed here rather than by :disabled. */
+.results-navigator-axis {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.results-navigator-axis-label {
+  min-width: 112px;
+  color: #65716c;
+  font-size: 11px;
+}
+
+.results-navigator-axis button {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid #c8d0cb;
+  border-radius: 4px;
+  color: #25312f;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.results-navigator-axis button[aria-disabled="true"] {
+  color: #9aa39f;
+  cursor: not-allowed;
 }
 
 /* A2: the per-support load summary (DEL-07-05 Design `support-load-summary.md` §5). */

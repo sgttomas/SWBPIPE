@@ -9,7 +9,7 @@ import type { ReactNode } from "react";
 import { QuantityReadout } from "../display-units";
 import { semanticDimension, semanticLabels, type RowLabels } from "./resultSemantics";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import type { AnalysisRunEnvelope, DesignKnowledge, MechanicsGap, MechanicsResult, ResultInterpretation } from "../../types";
 import { buildResultInterpretation, mechanicsGaps } from "./resultInterpretation";
 import type { EntityRef } from "../../types";
@@ -17,6 +17,20 @@ import { numericalResultStanding } from "./resultStanding";
 import { badgeOf, locationText, numericalHealthView, readNumericalHealth, rowHealthState, type NumericalHealthBadge, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { DETAIL_SECTION_LABEL, LOCATED_CAUSES_LABEL, NUMERICAL_HEALTH_STATE_TEXT, SHOW_SOLVER_DIAGNOSTIC } from "./numericalHealthText";
 import { SECTION_BASIS_HEADLINES, WITHHELD_SECTION_BASIS_HEADLINE } from "../report/exactReportSections";
+import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
+import {
+  ALL_CASES,
+  NAVIGATOR_KEYS,
+  firstRowOf,
+  isNavigatorExcludedTarget,
+  navigatorCases,
+  navigatorEntities,
+  navigatorKeyStep,
+  rowCaseKey,
+  stepIndex,
+  type NavigatorAxis,
+  type NavigatorCase
+} from "./resultsNavigator";
 
 const RESULT_PAGE_SIZE_OPTIONS = [50, 100, 200] as const;
 const DEFAULT_RESULT_PAGE_SIZE = RESULT_PAGE_SIZE_OPTIONS[0];
@@ -106,13 +120,20 @@ export function ResultsPanel({
   );
   const frameCounts = useMemo(() => (result ? countResultFrames(result.results) : new Map<string, number>()), [result]);
   const activeFrame = frameFilter !== ALL_FRAMES && frameCounts.has(frameFilter) ? frameFilter : ALL_FRAMES;
+  // A1 (Design `results-navigator.md`): the case filter's list is every case the result's rows
+  // state, so it does not change with the other filters; a run without the chosen case shows all.
+  const cases = useMemo(() => (result ? navigatorCases(result.results) : []), [result]);
+  const [caseFilter, setCaseFilter] = useState<string>(ALL_CASES);
+  const activeCase = caseFilter !== ALL_CASES && cases.some((item) => item.key === caseFilter) ? caseFilter : ALL_CASES;
+  // The rows every filter but "Selected entity only" admits: the navigator's supports and elements.
+  const navigatorRows = useMemo(
+    () => (result && labels ? rowsUnderFilters(result.results, labels, { filterText, familyFilter, frame: activeFrame, caseKey: activeCase }) : []),
+    [activeCase, activeFrame, familyFilter, filterText, result, labels]
+  );
   const filteredResults = useMemo(() => {
-    const rows = result && labels ? filterResults(result.results, filterText, familyFilter, labels) : [];
     if (selectionOnlyWithoutEntity) return [];
-    return rows.filter((item) =>
-      (selectionFilterId === null || item.entity_ref === selectionFilterId) &&
-      (activeFrame === ALL_FRAMES || resultFrame(item) === activeFrame));
-  }, [activeFrame, familyFilter, filterText, result, labels, selectionFilterId, selectionOnlyWithoutEntity]);
+    return navigatorRows.filter((item) => selectionFilterId === null || item.entity_ref === selectionFilterId);
+  }, [navigatorRows, selectionFilterId, selectionOnlyWithoutEntity]);
   const page = useMemo(
     () => paginateResults(filteredResults, pageIndex, pageSize),
     [filteredResults, pageIndex, pageSize]
@@ -151,8 +172,109 @@ export function ResultsPanel({
     setPageIndex(0);
   }
 
+  /* ---- A1: the results navigator (Design `results-navigator.md`) ---- */
+  const kindIds = RESULT_FAMILY_OPTIONS
+    .filter((option) => option.id === "all" || familyCounts[option.id as ResultFamily] > 0)
+    .map((option) => option.id);
+  const caseKeys = [ALL_CASES, ...cases.map((item) => item.key)];
+  // The navigator's support or element: the one a step chose, else the session's. A newly
+  // selected result row, or a new selection, made anywhere moves it; a new run clears it.
+  const selectedRow = selectedResultId && result ? result.results.find((row) => row.id === selectedResultId) ?? null : null;
+  const [tracked, setTracked] = useState(() => ({ entity: selectedRow?.entity_ref ?? selectionEntityId, selection: selectionEntityId, resultId: selectedResultId, runId }));
+  let navEntity = tracked.entity;
+  if (tracked.selection !== selectionEntityId || tracked.resultId !== selectedResultId || tracked.runId !== runId) {
+    let entity = tracked.runId !== runId ? null : tracked.entity;
+    if (tracked.resultId !== selectedResultId && selectedRow) entity = selectedRow.entity_ref;
+    else if (tracked.selection !== selectionEntityId) entity = selectionEntityId;
+    navEntity = entity;
+    setTracked({ entity, selection: selectionEntityId, resultId: selectedResultId, runId });
+  }
+  const entities = useMemo(() => navigatorEntities(navigatorRows), [navigatorRows]);
+  const currentRow = selectedRow && selectedRow.entity_ref === navEntity && navigatorRows.includes(selectedRow)
+    ? selectedRow
+    : firstRowOf(navigatorRows, navEntity);
+  const [endNotice, setEndNotice] = useState<string | null>(null);
+  const [reveal, setReveal] = useState<{ rowId: string; focus: boolean } | null>(null);
+  const panelRef = useRef<HTMLElement>(null);
+
+  /** The step's target position on each axis; null where the axis cannot move. */
+  function stepTarget(axis: NavigatorAxis, delta: 1 | -1): number | null {
+    if (axis === "kind") return stepIndex(kindIds.length, kindIds.indexOf(familyFilter), delta);
+    if (axis === "case") return stepIndex(caseKeys.length, caseKeys.indexOf(activeCase), delta);
+    return stepIndex(entities.length, navEntity === null ? -1 : entities.indexOf(navEntity), delta);
+  }
+
+  /** Shows `entity`'s first row of `rows`: its page, its row in view, and the session's
+   * selection of it (through `onSelectResult`, as a click on the row). Nothing else changes.
+   * `focus` is the key step that came from a result row: focus moves to the new current row, or,
+   * when the destination has none, to that step's own button, which stays mounted and focusable,
+   * so focus never leaves the panel with the row being left. */
+  function follow(entity: string | null, rows: MechanicsResult["results"], focus: NavigatorStep | null) {
+    const at = entity === null ? -1 : rows.findIndex((row) => row.entity_ref === entity);
+    if (at < 0) {
+      setPageIndex(0);
+      if (focus) {
+        panelRef.current?.querySelector<HTMLElement>(`[data-testid="results-navigator-${focus.axis}-${focus.delta > 0 ? "next" : "previous"}"]`)?.focus();
+      }
+      return;
+    }
+    setTracked((current) => ({ ...current, entity }));
+    setPageIndex(selectionOnly ? 0 : Math.floor(at / pageSize));
+    setReveal({ rowId: rows[at].id, focus: focus !== null });
+    onSelectResult(rows[at].id);
+  }
+
+  function rowsFor(family: ResultFamilyFilter, caseKey: string) {
+    return result && labels ? rowsUnderFilters(result.results, labels, { filterText, familyFilter: family, frame: activeFrame, caseKey }) : [];
+  }
+
+  function chooseCase(caseKey: string, focus: NavigatorStep | null = null) {
+    setEndNotice(null);
+    setCaseFilter(caseKey);
+    follow(navEntity, rowsFor(familyFilter, caseKey), focus);
+  }
+
+  function navigate(axis: NavigatorAxis, delta: 1 | -1, fromRow = false) {
+    const focus = fromRow ? { axis, delta } : null;
+    const target = stepTarget(axis, delta);
+    if (target === null) {
+      setEndNotice(`${delta > 0 ? "Last" : "First"} ${NAVIGATOR_AXIS_NOUN[axis]} reached.`);
+      return;
+    }
+    setEndNotice(null);
+    if (axis === "kind") {
+      const family = kindIds[target];
+      setFamilyFilter(family);
+      follow(navEntity, rowsFor(family, activeCase), focus);
+    } else if (axis === "case") {
+      chooseCase(caseKeys[target], focus);
+    } else {
+      follow(entities[target], navigatorRows, focus);
+    }
+  }
+
+  function handleNavigatorKeyDown(event: KeyboardEvent<HTMLElement>) {
+    if (event.defaultPrevented || isNavigatorExcludedTarget(event.target)) return;
+    const step = navigatorKeyStep(event);
+    if (!step) return;
+    event.preventDefault();
+    // From a result row, focus moves with the current row so the row being left can unmount.
+    const fromRow = event.target instanceof Element && event.target.closest("tr[data-testid^='result-row-']") !== null;
+    navigate(step.axis, step.delta, fromRow);
+  }
+
+  useEffect(() => {
+    if (!reveal) return;
+    const row = [...(panelRef.current?.querySelectorAll<HTMLElement>("tr[data-testid^='result-row-']") ?? [])]
+      .find((element) => element.dataset.testid === `result-row-${reveal.rowId}`);
+    if (!row) return;
+    if (canSurfaceRevealNow(row)) row.scrollIntoView?.({ block: "nearest" });
+    if (reveal.focus) row.focus();
+    setReveal(null);
+  }, [reveal, page]);
+
   return (
-    <section className="panel results-panel" aria-label="Results" data-testid="results-panel">
+    <section className="panel results-panel" aria-label="Results" data-testid="results-panel" ref={panelRef} onKeyDown={handleNavigatorKeyDown}>
       <div className="panel-title">Results</div>
       {result ? (
         <>
@@ -184,6 +306,22 @@ export function ResultsPanel({
             frameCounts={frameCounts}
             frameFilter={activeFrame}
             onFrameFilterChange={(value) => { setFrameFilter(value); setPageIndex(0); }}
+          />
+          <ResultsNavigator
+            kinds={kindIds}
+            kind={familyFilter}
+            cases={cases}
+            caseKey={activeCase}
+            entities={entities}
+            entity={navEntity}
+            currentRowId={currentRow?.id ?? null}
+            rowCount={filteredResults.length}
+            selectionOnlyWithoutEntity={selectionOnlyWithoutEntity}
+            health={health}
+            endNotice={endNotice}
+            canStep={(axis, delta) => stepTarget(axis, delta) !== null}
+            onStep={(axis, delta) => navigate(axis, delta)}
+            onChooseCase={(caseKey) => chooseCase(caseKey)}
           />
           <ResultDetail interpretation={interpretation} result={result} />
           <GoverningRatioState ratioCount={0} />
@@ -636,6 +774,126 @@ function MechanicsGapLedger({ gaps }: { gaps: MechanicsGap[] }) {
       </div>
     </section>
   );
+}
+
+type NavigatorStep = Readonly<{ axis: NavigatorAxis; delta: 1 | -1 }>;
+const NAVIGATOR_AXIS_NOUN: Readonly<Record<NavigatorAxis, string>> = Object.freeze({
+  kind: "table kind",
+  case: "load case or combination",
+  entity: "support or element"
+});
+const NAVIGATOR_AXIS_LABEL: Readonly<Record<NavigatorAxis, string>> = Object.freeze({
+  kind: "Table",
+  case: "Case",
+  entity: "Support or element"
+});
+
+function kindLabel(kind: ResultFamilyFilter): string {
+  return kind === "all" ? "All kinds" : RESULT_FAMILY_OPTIONS.find((option) => option.id === kind)?.label ?? kind;
+}
+
+/** A case's label with its numerical health where the table badges rows and the case has not
+ * passed its checks, so a stepped-to case never reads as passed when it is not. */
+function navigatorCaseText(item: NavigatorCase | null, health: NumericalHealthView | null): string {
+  if (!item) return "All cases";
+  const state = item.basis ? rowHealthState(health, { basis_ref: item.basis }) : null;
+  return state && state !== "checks_passed" ? `${item.label} (numerical health: ${NUMERICAL_HEALTH_STATE_TEXT[state]})` : item.label;
+}
+
+/** A1: the results navigator's three steppers and its live position line (Design
+ * `results-navigator.md` §2 to §5). Each Previous and Next button is the visible route of its
+ * key chord; at an end the button stays focusable, is marked unavailable and does nothing. */
+function ResultsNavigator({
+  kinds, kind, cases, caseKey, entities, entity, currentRowId, rowCount, selectionOnlyWithoutEntity, health, endNotice, canStep, onStep, onChooseCase
+}: {
+  kinds: readonly ResultFamilyFilter[];
+  kind: ResultFamilyFilter;
+  cases: readonly NavigatorCase[];
+  caseKey: string;
+  entities: readonly string[];
+  entity: string | null;
+  currentRowId: string | null;
+  rowCount: number;
+  selectionOnlyWithoutEntity: boolean;
+  health: NumericalHealthView | null;
+  endNotice: string | null;
+  canStep: (axis: NavigatorAxis, delta: 1 | -1) => boolean;
+  onStep: (axis: NavigatorAxis, delta: 1 | -1) => void;
+  onChooseCase: (caseKey: string) => void;
+}) {
+  const chosenCase = cases.find((item) => item.key === caseKey) ?? null;
+  const caseText = navigatorCaseText(chosenCase, health);
+  const entityIndex = entity === null ? -1 : entities.indexOf(entity);
+  const positions: Readonly<Record<NavigatorAxis, string>> = {
+    kind: `${kindLabel(kind)} (${kinds.indexOf(kind) + 1} of ${kinds.length})`,
+    case: `${caseText} (${caseKey === ALL_CASES ? 1 : cases.indexOf(chosenCase!) + 2} of ${cases.length + 1})`,
+    entity: entity === null
+      ? `None chosen; ${entities.length} in this table`
+      : entityIndex < 0 ? `${entity}: no rows in this table` : `${entity} (${entityIndex + 1} of ${entities.length})`
+  };
+  const table = `${kindLabel(kind)}, ${caseText}`;
+  const where = selectionOnlyWithoutEntity
+    ? "No model entity is selected, so no rows are shown."
+    : rowCount === 0
+      ? `No rows of ${kind === "all" ? "any kind" : kindLabel(kind)} are stated for ${caseKey === ALL_CASES ? "any case" : caseText} under the current filters.`
+      : entity === null
+        ? `${table}: ${rowCount} rows.`
+        : currentRowId
+          ? `${table}: ${entity}, row ${currentRowId}.`
+          : `${table}: ${entity} has no rows here.`;
+  const stepper = (axis: NavigatorAxis, control?: ReactNode) => {
+    const button = (delta: 1 | -1) => {
+      const available = canStep(axis, delta);
+      const name = `${delta > 0 ? "Next" : "Previous"} ${NAVIGATOR_AXIS_NOUN[axis]}`;
+      const keys = delta > 0 ? NAVIGATOR_KEYS[axis].next : NAVIGATOR_KEYS[axis].previous;
+      return (
+        <button
+          type="button"
+          aria-label={name}
+          aria-keyshortcuts={keys}
+          aria-disabled={available ? undefined : true}
+          data-testid={`results-navigator-${axis}-${delta > 0 ? "next" : "previous"}`}
+          title={available ? `${name} (${keys})` : `${delta > 0 ? "Last" : "First"} ${NAVIGATOR_AXIS_NOUN[axis]} already shown (${keys})`}
+          onClick={() => onStep(axis, delta)}
+        >
+          {delta > 0 ? <ChevronRight size={14} aria-hidden="true" /> : <ChevronLeft size={14} aria-hidden="true" />}
+        </button>
+      );
+    };
+    return (
+      <div className="results-navigator-axis" role="group" aria-label={NAVIGATOR_AXIS_LABEL[axis]} data-testid={`results-navigator-${axis}`}>
+        <span className="results-navigator-axis-label">{NAVIGATOR_AXIS_LABEL[axis]}</span>
+        {button(-1)}
+        {control}
+        <span data-testid={`results-navigator-${axis}-position`}>{positions[axis]}</span>
+        {button(1)}
+      </div>
+    );
+  };
+  return (
+    <section className="result-controls results-navigator" aria-label="Results navigator" data-testid="results-navigator">
+      {stepper("kind")}
+      {stepper("case", cases.length > 0 ? (
+        <select aria-label="Load case or combination" data-testid="results-navigator-case-select" value={caseKey} onChange={(event) => onChooseCase(event.target.value)}>
+          <option value={ALL_CASES}>All cases</option>
+          {cases.map((item) => <option key={item.key} value={item.key}>{navigatorCaseText(item, health)}</option>)}
+        </select>
+      ) : null)}
+      {stepper("entity")}
+      <p className="muted" role="status" data-testid="results-navigator-status">{endNotice ? `${endNotice} ` : ""}{where}</p>
+    </section>
+  );
+}
+
+/** The rows the text, family, frame and case filters admit, in result order. */
+function rowsUnderFilters(
+  rows: MechanicsResult["results"],
+  labels: RowLabels,
+  filters: Readonly<{ filterText: string; familyFilter: ResultFamilyFilter; frame: string; caseKey: string }>
+): MechanicsResult["results"] {
+  return filterResults(rows, filters.filterText, filters.familyFilter, labels).filter((item) =>
+    (filters.frame === ALL_FRAMES || resultFrame(item) === filters.frame) &&
+    (filters.caseKey === ALL_CASES || rowCaseKey(item) === filters.caseKey));
 }
 
 function groupResults(resultItems: MechanicsResult["results"], labels: RowLabels) {
