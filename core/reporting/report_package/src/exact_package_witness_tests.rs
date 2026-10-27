@@ -359,3 +359,48 @@ fn positional_members_refuse_and_a_positional_request_assembles_the_same_package
         }
     }
 }
+
+/// DEL-08-01 Design `exact-route-report-sections.md` §3.6, §6.3 item 4: on an
+/// exact identity the report's Diagnostics are the source's projection
+/// (`bindings::check_report_diagnostics`, item 9), so the standing line's
+/// integrity lead is the result's. Through the production roots, each witness
+/// with its first integrity entry deleted, renamed or downgraded, or with a
+/// forged integrity entry appended after the result's, refuses with no
+/// package; the genuine witnesses assemble (above).
+#[test]
+fn an_edited_integrity_diagnostic_refuses_at_item_9() {
+    for (name, text) in WITNESSES {
+        let request = request_of(text);
+        let solver = linked(&request);
+        let diagnostics = request["report"]["report_sections"]["diagnostics"].as_array().unwrap().clone();
+        let at = diagnostics
+            .iter()
+            .position(|entry| entry["code"].as_str().is_some_and(|code| code.starts_with("NUMERICAL_INTEGRITY_")))
+            .unwrap_or_else(|| panic!("{name}: an integrity entry"));
+        let count = diagnostics.len();
+        let edits: Vec<(&str, Box<dyn Fn(&mut Vec<Value>)>, String)> = vec![
+            ("deleted", Box::new(move |d| { d.remove(at); }), "report diagnostics cover the source diagnostics".to_string()),
+            ("renamed", Box::new(move |d| d[at]["code"] = json!("NUMERICAL_CHECK_RENAMED")), format!("report diagnostic {at} code")),
+            ("another severity", Box::new(move |d| d[at]["severity"] = json!(if d[at]["severity"] == "info" { "warning" } else { "info" })), format!("report diagnostic {at} severity")),
+            (
+                "a forged integrity entry appended",
+                Box::new(move |d| {
+                    let mut forged = d[at].clone();
+                    forged["code"] = json!("NUMERICAL_INTEGRITY_SENSITIVE");
+                    d.push(forged);
+                }),
+                format!("report diagnostic {count} is an integrity code the source does not carry"),
+            ),
+        ];
+        for (label, edit, detail) in edits {
+            let mut variant = request.clone();
+            edit(variant["report"]["report_sections"]["diagnostics"].as_array_mut().unwrap());
+            let error = assemble_wire_request(typed(&variant), &identity(&solver)).map(drop).expect_err("refused");
+            assert_eq!(error, format!("REPORT-PACKAGE-BINDING-MISMATCH: {detail}"), "{name} {label}");
+            let typed_request = typed(&variant);
+            let audit = audit_manifest(typed_request.audit_manifest.clone(), &identity(&solver)).unwrap();
+            let error = check_request(&typed_request, &audit, &identity(&solver)).expect_err("refused");
+            assert_eq!(error, format!("REPORT-PACKAGE-BINDING-MISMATCH: {detail}"), "{name} {label}");
+        }
+    }
+}

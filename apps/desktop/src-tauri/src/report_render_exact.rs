@@ -32,17 +32,20 @@
 //! the host recorded, a priced parse under the command's lease, the native
 //! reader's eligible standing, and the re-derivation of the rows, their
 //! references and full-precision checksums, the unit display summary, the
-//! exact limitation entries and the `exact_route` section from the delivered
-//! result with the report package's own functions (`exact_source_binding.rs`). An
-//! input that carries the texts without `exact_route` refuses. Standard claim
-//! fence applies (claims taxonomy per DEC-081).
+//! Diagnostics, the exact limitation entries and the `exact_route` section
+//! from the delivered result with the report package's own functions
+//! (`exact_source_binding.rs`). An input that carries the texts without
+//! `exact_route` refuses. Standard claim fence applies (claims taxonomy per
+//! DEC-081).
 
 use crate::command_ingress::{text_parse_bytes, Args, ArgsDecoding, CommandError, REPORT_PACKAGE_WORKING_MEMORY_FACTOR};
 use crate::exact_source_binding::{self as binding, sections_mismatch, ExactRefusal};
 use crate::memory_pool::Lease;
 use crate::report_package_save::{MAX_INPUT_MANIFEST_TEXT_BYTES, MAX_MODEL_TEXT_BYTES, MAX_REQUEST_TEXT_BYTES, TOO_LARGE};
 use crate::solve_jobs::SolveJobRegistry;
-use open_pipe_stress_report_package::bindings::{check_report_result_refs, check_unit_display_summary, expected_report_result_rows};
+use open_pipe_stress_report_package::bindings::{
+    check_report_diagnostics, check_report_result_refs, check_unit_display_summary, expected_report_result_rows,
+};
 use open_pipe_stress_report_package::exact_sections::{check_exact_limitation_entries, expected_exact_limitations, expected_exact_route_core};
 use open_pipe_stress_result_export::semantic_contract::{PHYSICS_RETAINED_ID, PRESSURE_ID, PRESSURE_SOURCE_ID};
 use serde_json::Value;
@@ -197,8 +200,8 @@ fn check_render_text_sizes(texts: &ExactRenderTexts) -> Result<(), String> {
 
 /// The native source binding of an exact render (§3.6): steps 1-5, then the
 /// input manifest and the re-derivation of the rows, their references and
-/// checksums, the unit display summary, the exact limitation entries and the
-/// `exact_route` section from the delivered result. Refuses
+/// checksums, the unit display summary, the Diagnostics, the exact limitation
+/// entries and the `exact_route` section from the delivered result. Refuses
 /// with the first difference; the renderer's own checks (§3.2, §3.5) follow.
 fn bind_exact_render_input(
     input: &Value,
@@ -240,7 +243,9 @@ fn bind_exact_render_input(
 /// the rows' references and full-precision checksums, since the displayed
 /// rows are rounded (§3.7) and two sources can display the same rows; the
 /// unit display summary, so the display policy, its statement and
-/// `conversion_performed` are the delivered source's (§3.7); the exact
+/// `conversion_performed` are the delivered source's (§3.7); the Diagnostics
+/// (`check_report_diagnostics`, item 9's), so the integrity warnings the
+/// standing line names are the delivered result's (§6.3 item 4); the exact
 /// limitation entries with the profile reference; and the `exact_route`
 /// section. `input_manifest_ref` and
 /// `derivative_sha256` are checked for form here and against the report's own
@@ -253,6 +258,7 @@ fn rederive(input: &Value, source: &Value, model_sha256: &str, digests: &crate::
     }
     check_report_result_refs(input, source).map_err(|_| "result_export_refs".to_string())?;
     check_unit_display_summary(input, source).map_err(|_| "unit_display_summary".to_string())?;
+    check_report_diagnostics(input, source).map_err(|_| "diagnostics".to_string())?;
     let core = expected_exact_route_core(source).map_err(|_| "exact_route".to_string())?;
     let route = &input["exact_route"];
     let admission = &route["admission"];

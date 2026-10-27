@@ -206,6 +206,104 @@ pub fn check_unit_display_summary(report: &Value, source: &Value) -> Result<(), 
     require(display["result_units"] == json!(units.into_iter().collect::<Vec<_>>()), "unit display result_units")
 }
 
+/// The remediation text the desktop gives each result diagnostic in the
+/// report (`renderableReportInput.ts` `diagnosticsForSections`).
+pub const RESULT_DIAGNOSTIC_REMEDIATION: &str =
+    "Human review required: evaluate this diagnostic against its referenced results before any reliance.";
+/// The integrity code family (`report_renderer::INTEGRITY_CODE_PREFIX`): the
+/// renderer's standing line names every such warning in the Diagnostics.
+const INTEGRITY_CODE_PREFIX: &str = open_pipe_stress_report_renderer::INTEGRITY_CODE_PREFIX;
+/// The bound fields of a projected entry, in the order the check compares them.
+const DIAGNOSTIC_FIELDS: [&str; 7] = ["code", "class", "severity", "source", "affected_object", "message", "remediation"];
+
+/// The report's projection of the source's diagnostics (DEL-08-01 Design
+/// `exact-route-report-sections.md` §3.6): one entry per source diagnostic, in
+/// source order, mirroring the desktop's `diagnosticsForSections`
+/// (`apps/desktop/src/features/report/renderableReportInput.ts`), which builds
+/// the report; this is the check. Per entry: the code and message copied; a
+/// `blocking` or `error` severity becomes `blocking` with class
+/// `SOLVE_BLOCKING`, any other severity is copied with class
+/// `ASSUMPTION_WARNING`; the source `{diagnostic_source, source}`, or
+/// `core/product_physics` when the source is absent or null; the affected
+/// object `{affected_refs, …}` naming the affected refs joined by ", ", or,
+/// when that is empty, the id, or, when that is empty too, `diagnostic-<index>`;
+/// and [`RESULT_DIAGNOSTIC_REMEDIATION`]. The provenance is the desktop
+/// session's, not the result's, so it is not projected. A diagnostic whose
+/// fields are not of the producer's form refuses. Parity vectors:
+/// `fixtures/reports/invented/report_diagnostics_parity.json`.
+pub fn expected_report_diagnostics(source: &Value) -> Result<Vec<Value>, String> {
+    let diagnostics = source["diagnostics"].as_array().ok_or_else(|| mismatch("report diagnostics: the source has no diagnostics"))?;
+    diagnostics
+        .iter()
+        .enumerate()
+        .map(|(index, diagnostic)| {
+            let unreadable = |field: &str| mismatch(format!("report diagnostics: source diagnostic {index} has an unreadable {field}"));
+            let string = |field: &str| diagnostic[field].as_str().ok_or_else(|| unreadable(field));
+            let optional = |field: &str| match &diagnostic[field] {
+                Value::Null => Ok(None),
+                Value::String(text) => Ok(Some(text.as_str())),
+                _ => Err(unreadable(field)),
+            };
+            let (code, severity, message) = (string("code")?, string("severity")?, string("message")?);
+            let blocking = severity == "blocking" || severity == "error";
+            let joined = match &diagnostic["affected_refs"] {
+                Value::Null => String::new(),
+                Value::Array(refs) => refs
+                    .iter()
+                    .map(|item| item.as_str().ok_or_else(|| unreadable("affected_refs")))
+                    .collect::<Result<Vec<_>, _>>()?
+                    .join(", "),
+                _ => return Err(unreadable("affected_refs")),
+            };
+            let affected = match (joined.is_empty(), optional("id")?) {
+                (false, _) => joined,
+                (true, Some(id)) if !id.is_empty() => id.to_string(),
+                (true, _) => format!("diagnostic-{index}"),
+            };
+            Ok(json!({
+                "code": code,
+                "class": if blocking { "SOLVE_BLOCKING" } else { "ASSUMPTION_WARNING" },
+                "severity": if blocking { "blocking" } else { severity },
+                "source": reference("diagnostic_source", optional("source")?.unwrap_or("core/product_physics")),
+                "affected_object": reference("affected_refs", &affected),
+                "message": message,
+                "remediation": RESULT_DIAGNOSTIC_REMEDIATION,
+            }))
+        })
+        .collect()
+}
+
+/// The report's Diagnostics bound to the source's (DEL-08-01 Design
+/// `exact-route-report-sections.md` §3.6, §6.3 item 4): the first N entries of
+/// `report_sections.diagnostics` are the projection of the source's N
+/// diagnostics ([`expected_report_diagnostics`]), in order, on code, class,
+/// severity, source, affected object, message and remediation; the provenance
+/// is the desktop session's and is not bound. The entries the desktop appends
+/// after them (model and library provenance findings) are not derived from the
+/// result, and none of them may carry an integrity code. An integrity warning
+/// the result carries can therefore be neither removed, renamed, downgraded,
+/// edited nor moved, and none can be added, so the standing line's lead states
+/// the result's. Exact route only: the package's item 9 and the native exact
+/// render apply it; the pressure-free package and the runner profile do not
+/// (§6.3 item 4).
+pub fn check_report_diagnostics(report: &Value, source: &Value) -> Result<(), String> {
+    let expected = expected_report_diagnostics(source)?;
+    let found = array(report, "/report_sections/diagnostics");
+    require(found.len() >= expected.len(), "report diagnostics cover the source diagnostics")?;
+    for (index, (entry, projected)) in found.iter().zip(&expected).enumerate() {
+        for field in DIAGNOSTIC_FIELDS {
+            require(entry.get(field) == Some(&projected[field]), format!("report diagnostic {index} {field}"))?;
+        }
+    }
+    for (index, entry) in found.iter().enumerate().skip(expected.len()) {
+        require(
+            !entry["code"].as_str().is_some_and(|code| code.starts_with(INTEGRITY_CODE_PREFIX)),
+            format!("report diagnostic {index} is an integrity code the source does not carry"),
+        )?;
+    }
+    Ok(())
+}
+
 /// The safe-reference projection of the report's rule-pack checksum to its
 /// audit basis and payload reference (§2.4). Any other declared pair refuses,
 /// and so does a checksum whose payload reference names another rule pack:
@@ -574,6 +672,12 @@ pub(crate) fn check_request_in(
 
     // Item 9 (W-11 §3.5): an exact identity's sections are those of the source,
     // the document and the audit; no other identity carries them. Active since
-    // the owner opened exact-route packages (§5.1; 2026-10-26).
+    // the owner opened exact-route packages (§5.1; 2026-10-26). An exact
+    // identity's Diagnostics are also the source's (§3.6, §6.3 item 4), so the
+    // standing line's integrity lead is the result's; the pressure-free route
+    // is not bound here (a remaining item).
+    if exact_document {
+        check_report_diagnostics(report, source)?;
+    }
     exact_sections::check_exact_sections(source, document, audit_manifest, report)
 }

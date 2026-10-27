@@ -157,7 +157,12 @@ function mapObjectRef(ref: { object_type: string; ref: string } | undefined, fal
   return { ref_type: ref.object_type, ref_id: ref.ref };
 }
 
-function diagnosticsForSections(result: MechanicsResult, provenance: ReturnType<typeof sessionProvenance>) {
+/** The report's entry for each result diagnostic, in source order (DEL-08-01 Design
+ * `exact-route-report-sections.md` §3.6): the report's first Diagnostics entries. On an exact
+ * route the native render and the package's item 9 check them against the delivered result
+ * with the Rust mirror `report_package::bindings::expected_report_diagnostics`; parity vectors
+ * `fixtures/reports/invented/report_diagnostics_parity.json`. */
+export function diagnosticsForSections(result: Pick<MechanicsResult, "diagnostics">, provenance: ReturnType<typeof sessionProvenance>) {
   return result.diagnostics.map((diagnostic, index) => ({
     code: diagnostic.code,
     class:

@@ -820,6 +820,10 @@ exact identity:
   `binding`, `reader_verdict.rs:88,122`).
 - both are compared with the report, refusing with
   `REPORT-PACKAGE-EXACT-SECTIONS-MISMATCH`;
+- the report's Diagnostics are bound to the source's
+  (`bindings::check_report_diagnostics`, §6.3 item 4), for an exact identity
+  only, refusing with `REPORT-PACKAGE-BINDING-MISMATCH: report diagnostic…`.
+  The native render applies the same function (§3.6);
 - **One projection for both commands.** These functions are public in a new
   `report_package::exact_sections` module, beside `expected_report_result_rows`.
   The source-derived part, `expected_exact_route_core(source)`, covers the
@@ -1023,6 +1027,12 @@ Then each command finishes its own checks:
     prints, `conversion_performed` exactly when a displayed value is stored
     in `Pa`, and the stored result units
     (`REPORT-EXACT-SECTIONS-MISMATCH: unit_display_summary`);
+  - the Diagnostics (`check_report_diagnostics`, item 9's; §6.3 item 4), since
+    the standing line names every integrity warning in them (§3.2): the
+    report's first N entries are the projection of the source's N
+    diagnostics, in order, on code, class, severity, source, affected object,
+    message and remediation, and no entry after them carries a
+    `NUMERICAL_INTEGRITY_` code (`REPORT-EXACT-SECTIONS-MISMATCH: diagnostics`);
   - the exact limitation entries and the profile reference;
   - the `exact_route` section (`expected_exact_route_core`), with
     `model_sha256`, `native_job_id` and `received_bytes_sha256` from steps 2-5.
@@ -1079,8 +1089,8 @@ residual.
 - **Enforced.** After the checks, an exact report's source and model are the
   bytes that a solve job of this app delivered and received, while that job's
   result is in custody. The native host has read them at the native reader's
-  eligible standing. A standalone render's rows and exact sections are derived
-  from that result.
+  eligible standing. A standalone render's rows, Diagnostics and exact sections
+  are derived from that result.
 - **Input manifest.** The host keeps no record of the input manifest a session
   used. The render therefore binds the manifest digest to a manifest whose
   model is the solved model, not to the session's manifest.
@@ -1836,9 +1846,57 @@ differences, each fail-closed:
      `every_witness_shape_binds_natively_renders_and_saves_through_the_production_roots`
      (per shape, the native render's HTML and print view and the saved
      package's HTML member). The lead depends on the Diagnostics the report
-     carries; the native host does not re-derive the report's diagnostics from
-     the delivered result (§3.6 re-derives the rows and the exact sections),
-     as before this fix.
+     carries. A reviewer then showed that a request whose
+     `NUMERICAL_INTEGRITY_SENSITIVE` entry was deleted, renamed or replaced,
+     with genuine pressure-source-1 custody and texts, was still admitted by
+     the native render, its print view and the package save with the plain
+     "integrity checked" line.
+     **Bound on the exact route (diagnostics slice; HELP_HUMAN: "exact-only.
+     One shared Rust check binding the exact-route report's Diagnostics to
+     the delivered result, used by both the native render and the save.").**
+     One function, `report_package::bindings::check_report_diagnostics(report,
+     source)`, serves the native render's re-derivation (§3.6,
+     `REPORT-EXACT-SECTIONS-MISMATCH: diagnostics`) and the package's item 9
+     for an exact identity (§3.5, `REPORT-PACKAGE-BINDING-MISMATCH: report
+     diagnostic…`), so the save, which runs the shared producer on the
+     delivered source, refuses too. The rule:
+     - the report's first N `report_sections.diagnostics` entries equal
+       `expected_report_diagnostics(source)`, the projection of the source's
+       N `diagnostics`, entry for entry in order, on `code`, `class`,
+       `severity`, `source`, `affected_object`, `message` and `remediation`.
+       The projection mirrors the desktop's `diagnosticsForSections`
+       (`renderableReportInput.ts`), which builds the report: code and
+       message copied; `blocking` or `error` becomes `blocking` with class
+       `SOLVE_BLOCKING`, any other severity is copied with class
+       `ASSUMPTION_WARNING`; source `{diagnostic_source, source}`, or
+       `core/product_physics` when absent or null; affected object
+       `{affected_refs, …}` naming the refs joined by ", ", else the id,
+       else `diagnostic-<index>`; the fixed remediation text. A source
+       diagnostic not of the producer's form refuses. Parity vectors
+       (`fixtures/reports/invented/report_diagnostics_parity.json`, 23
+       vectors, each with its reason) are checked by vitest
+       `reportDiagnostics.parity.test.ts` and by `report_package`
+       `tests/report_diagnostics_parity.rs`;
+     - `provenance` is not bound: the desktop writes the session's record
+       (`sessionProvenance`), which the result does not carry;
+     - the entries the desktop appends after them (component, spring-hanger
+       and subject provenance findings, library findings) are not derived
+       from the result and are not bound, except that none may carry a
+       `NUMERICAL_INTEGRITY_` code, so a forged integrity entry cannot be
+       appended. None of the desktop's appended codes is of that family.
+
+     An integrity warning the result carries can therefore be neither
+     deleted, renamed, replaced, downgraded, edited nor moved, and none can
+     be added, so the standing line's lead is the delivered result's. All
+     five committed witness requests already equal the projection, so none is
+     regenerated, and their HTML, print view and PDF are unchanged. The lease
+     figures are unchanged (the test alone in a fresh process: the save
+     45,711,696 within 110,841,136 and the render 6,637,888 within
+     12,097,520; in the crate's full test run 40,416,304 and 6,076,848).
+     *Remaining:* the pressure-free package (whose report carries no standing
+     line) and the runner profile (which packages no exact identity, §3.5)
+     do not bind the report's Diagnostics to the source; extending the check
+     to them is not done here.
 - **Remaining item (Codex review round 3 of #1648, not changed).** A direct
   call of the low-level `pdf_emitter` library can emit a relabelled exact
   report under `public_report`; its production callers (the package assembly
@@ -2124,6 +2182,37 @@ differences, each fail-closed:
   `tests/test_report_sections_contract.py`.
 - The regenerated witnesses and the counting-allocator tests of the package
   request (`report_package_text_parse_stays_within_its_priced_growth`).
+
+**Diagnostics binding (§3.6, §6.3 item 4).**
+- `report_package` `tests/report_diagnostics_parity.rs`: the projection
+  against the shared vectors, a report carrying each vector's projection
+  passes, the vectors cover the stated edge cases, an unreadable source
+  diagnostic refuses (each field), and the check over invented entries
+  refuses each bound field edited, a deletion, a reordering, a truncation and
+  an appended integrity entry (the passed code included), while an appended
+  entry of another code and another provenance pass.
+- vitest `features/report/reportDiagnostics.parity.test.ts`: the desktop's
+  `diagnosticsForSections` against the same vectors, with the session
+  provenance carried unchanged.
+- `report_package` `exact_package_witness_tests.rs`
+  `an_edited_integrity_diagnostic_refuses_at_item_9`: for each of the five
+  witnesses, its first integrity entry deleted, renamed or given another
+  severity, and a forged integrity entry appended, refuse in
+  `assemble_wire_request` and `check_request` with the exact
+  `REPORT-PACKAGE-BINDING-MISMATCH` detail; the genuine witnesses assemble
+  (`each_witness_shape_assembles_and_reads_back_through_the_production_roots`).
+- `report_render_exact_tests.rs`
+  `the_render_and_the_save_bind_the_diagnostics_on_both_identities`: for
+  pressure-2 (straight; its `NUMERICAL_INTEGRITY_CHECKS_PASSED` entry) and
+  pressure-source-1 (its `NUMERICAL_INTEGRITY_SENSITIVE` entry), with genuine
+  custody and texts, the entry deleted, renamed, replaced by the other
+  integrity code and severity, given another severity, its message or
+  affected object edited, moved one place, and a forged integrity entry
+  appended, each refuse the native render (no body or print view; decoded
+  args and raw body) with `REPORT-EXACT-SECTIONS-MISMATCH: diagnostics` and
+  the save (decoded args and raw body) with the exact
+  `REPORT-PACKAGE-BINDING-MISMATCH` detail; the genuine witnesses render,
+  with their standing line in the HTML and the print view, and save.
 
 **Every slice.**
 - GEN-13: `python3 tools/validation/validate_claims_language.py --repo-root .`

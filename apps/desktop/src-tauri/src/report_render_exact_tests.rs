@@ -1705,6 +1705,82 @@ mod direct_native {
         }
     }
 
+    /// The Diagnostics bound to the delivered result on both identities
+    /// (DEL-08-01 Design `exact-route-report-sections.md` §3.6, §6.3 item 4):
+    /// the standing line names every integrity warning in the report's
+    /// Diagnostics, so with genuine custody and texts, an edit of the
+    /// witness's integrity entry (pressure-source-1's
+    /// `NUMERICAL_INTEGRITY_SENSITIVE`, pressure-2's
+    /// `NUMERICAL_INTEGRITY_CHECKS_PASSED`) refuses the render (no body or
+    /// print view), from the decoded args and the raw body, and the save, by
+    /// the package's own check (`bindings::check_report_diagnostics`): its
+    /// deletion, a renamed code, its replacement by the other integrity
+    /// code and severity, another severity, an edited message or affected
+    /// object, a reordering, and a forged integrity entry appended after the
+    /// result's. The genuine witnesses render and save.
+    #[test]
+    fn the_render_and_the_save_bind_the_diagnostics_on_both_identities() {
+        const PASSED: &str = "NUMERICAL_INTEGRITY_CHECKS_PASSED";
+        const SENSITIVE: &str = "NUMERICAL_INTEGRITY_SENSITIVE";
+        for (name, text, integrity_code) in [("pressure_2_straight", STRAIGHT, PASSED), ("pressure_source_1", SOURCE_1, SENSITIVE)] {
+            let w = witness(text);
+            let live = live(&w);
+            let genuine = bound(&w.request, &live.job);
+            let diagnostics = genuine["report"]["report_sections"]["diagnostics"].as_array().unwrap().clone();
+            let at = diagnostics.iter().position(|entry| entry["code"] == integrity_code).unwrap_or_else(|| panic!("{name}: {integrity_code}"));
+            let source_count = serde_json::from_str::<Value>(&w.result).unwrap()["diagnostics"].as_array().unwrap().len();
+            assert!(at + 1 < source_count, "{name}: a result entry follows the integrity entry");
+            let (other_code, other_severity) = if integrity_code == SENSITIVE { (PASSED, "info") } else { (SENSITIVE, "warning") };
+            let edits: Vec<(&str, Box<dyn Fn(&mut Vec<Value>)>, String)> = vec![
+                ("deleted", Box::new(move |d| { d.remove(at); }), "report diagnostics cover the source diagnostics".to_string()),
+                ("renamed", Box::new(move |d| d[at]["code"] = json!("NUMERICAL_CHECK_RENAMED")), format!("report diagnostic {at} code")),
+                (
+                    "replaced by the other integrity code and severity",
+                    Box::new(move |d| {
+                        d[at]["code"] = json!(other_code);
+                        d[at]["severity"] = json!(other_severity);
+                    }),
+                    format!("report diagnostic {at} code"),
+                ),
+                ("another severity", Box::new(move |d| d[at]["severity"] = json!(other_severity)), format!("report diagnostic {at} severity")),
+                (
+                    "an edited message",
+                    Box::new(move |d| {
+                        let message = format!("{} (edited)", d[at]["message"].as_str().unwrap());
+                        d[at]["message"] = json!(message);
+                    }),
+                    format!("report diagnostic {at} message"),
+                ),
+                ("an edited affected object", Box::new(move |d| d[at]["affected_object"]["ref_id"] = json!("case:invented")), format!("report diagnostic {at} affected_object")),
+                ("reordered", Box::new(move |d| d.swap(at, at + 1)), format!("report diagnostic {at} code")),
+                (
+                    "a forged integrity entry appended",
+                    Box::new(move |d| {
+                        let mut forged = d[at].clone();
+                        forged["code"] = json!(SENSITIVE);
+                        forged["severity"] = json!("warning");
+                        d.push(forged);
+                    }),
+                    format!("report diagnostic {} is an integrity code the source does not carry", diagnostics.len()),
+                ),
+            ];
+            for (label, edit, save_detail) in edits {
+                let mut request = genuine.clone();
+                edit(request["report"]["report_sections"]["diagnostics"].as_array_mut().unwrap());
+                let args = render_args(&request["report"], Some(&w.result), Some(&w.intake), Some(&canonical_json(&w.manifest)));
+                assert_eq!(render_refusal_both(&live, &args), format!("{SECTIONS_MISMATCH}: diagnostics"), "{name}: {label}");
+                let (code, message) = save_refusal_both(&live, &w, &request);
+                assert_eq!((code.as_str(), message), ("REPORT-PACKAGE-BINDING-MISMATCH", format!("REPORT-PACKAGE-BINDING-MISMATCH: {save_detail}")), "{name}: {label}");
+            }
+            // The genuine witness renders, with its standing line, and saves.
+            let rendered = production_render_on(&live, &genuine_render_args(&w, &live.job)).unwrap_or_else(|error| panic!("{name}: {error:?}"));
+            let standing = if integrity_code == SENSITIVE { SENSITIVE_STANDING } else { PLAIN_STANDING };
+            assert!(rendered["html"].as_str().unwrap().contains(standing), "{name}");
+            assert!(rendered["derived_print_html"].as_str().unwrap().contains(standing), "{name}");
+            save_admitted(&live, save_args(&genuine, &w, &w.model, Some(&w.result), Some(&w.intake)), name);
+        }
+    }
+
     #[test]
     fn the_save_refuses_when_custody_ends_during_its_dialog_and_writes_nothing() {
         use crate::report_package_save::test_support::{desktop_request, model, sandbox, save_request};
