@@ -14,6 +14,7 @@ import { ContextMenu, type ContextMenuEntry, type ContextMenuRequest } from "./C
 //   toolbar buttons (and H, I) do. They are session view state and never change the model.
 // - Queue removal queues the intent the inspector's Delete panel or Remove panel queues, for the
 //   same review and Apply. Opening the menu changes nothing.
+// - Change selected… (B2) opens the Bulk change panel on the selection, as its tab does.
 // The selection commands act on the selection. A menu opened from the keyboard on an entity
 // that is not selected leaves the selection alone, and these commands then say so.
 
@@ -34,6 +35,8 @@ export type EntityCommandEnvironment = Readonly<{
   fitSelectionAvailable?: boolean;
   operationBusy?: boolean;
   onQueueIntent?: (intent: EditorOperationIntent) => void;
+  /** Opens Bulk change on the selection (B2); without it the menu offers no Change selected… item. */
+  onChangeSelected?: () => void;
 }>;
 
 /** The viewport's own reason for Hide and Isolate. */
@@ -97,8 +100,18 @@ export function entityCommandEntries(env: EntityCommandEnvironment, target: Enti
     viewEntry("fit-selection", "Fit selection", { type: "fit-selection" }, viewReason(fittable, FIT_SELECTION_REASON)),
     viewEntry("show-all", "Show all", { type: "show-all" }, !view ? "The viewport is unavailable." : env.showAllAvailable ? null : SHOW_ALL_REASON),
     { kind: "separator", id: "separator-removal" },
+    ...changeSelectedEntries(env, target, selected),
     removalEntry(env, target, prepared)
   ];
+}
+
+/** B2: Change selected… opens Bulk change on the selection; it acts on the selection, so the
+ * B9 selection rule applies. */
+function changeSelectedEntries(env: EntityCommandEnvironment, target: EntityRef, selected: boolean): ContextMenuEntry[] {
+  const open = env.onChangeSelected;
+  if (!open) return [];
+  const reason = selected ? null : notSelectedReason(target);
+  return [{ kind: "command", id: "change-selected", label: "Change selected…", disabled: Boolean(reason), reason, run: () => open() }];
 }
 
 /** Prepares the guarded removal snapshot for a material, section or component, as the Remove panel does. */

@@ -10,6 +10,7 @@ import { resolveEntitySelection } from "./features/results/resultInterpretation"
 import { BoundaryAuthoringPanel } from "./features/boundary-authoring/BoundaryAuthoringPanel";
 import { DisplayUnitsProvider } from "./features/display-units";
 import { BatchReviewPanel } from "./features/toolkit/BatchReviewPanel";
+import { BulkChangePanel } from "./features/bulk-change/BulkChangePanel";
 import {
   Bot,
   ClipboardCheck,
@@ -75,7 +76,7 @@ import { LoadCaseManagerPanel } from "./features/load-cases/LoadCaseManagerPanel
 import { LocalFeaHandoffPanel } from "./features/local-fea-handoff/LocalFeaHandoffPanel";
 import { MissingDataBlockingPanel, countMissingDataBlockers } from "./features/missing-data/MissingDataBlockingPanel";
 import { professionalStatusToken, ruleCheckStatusToken, statusDisplay } from "./features/workspace/statusLabels";
-import { setSelectionFocus } from "./features/workspace/selectionState";
+import { entityRefFromKey, setSelectionFocus } from "./features/workspace/selectionState";
 import { solveProofStatus, type SolveProofEvidence } from "./features/workspace/solveProof";
 import {
   WORKSPACE_SECTIONS,
@@ -340,6 +341,19 @@ function AppSession() {
   // renders and remains the navigable, tested source of truth.
   const showInAppMenuBar = !isTauriRuntime();
 
+  // B2 (DEL-07-02 Design `bulk-change.md`): Bulk change acts on the ordered selection. Change
+  // selected… in the entity menus opens its tab and moves focus to the panel.
+  const bulkChangeScope = useMemo(
+    () => orderedSelection.orderedKeys.flatMap((key) => { const ref = entityRefFromKey(key); return ref ? [ref] : []; }),
+    [orderedSelection.orderedKeys]
+  );
+  const [bulkChangeFocusRequest, setBulkChangeFocusRequest] = useState(0);
+  const openBulkChange = () => {
+    setActiveSection("operations");
+    setOperationTab("bulk");
+    setBulkChangeFocusRequest((current) => current + 1);
+  };
+
   if (!model || !selection) {
     return <div className="loading-screen">Loading local SWBPIPE preview fixture.</div>;
   }
@@ -457,6 +471,7 @@ function AppSession() {
               operationBusy={operationBusy}
               viewCommandRef={viewportViewCommandRef}
               showAllAvailable={hiddenEntityKeys.size > 0 || isolationActive}
+              onChangeSelected={openBulkChange}
               onApplyCellIntent={async (intent) => {
                 const owned: { current?: Readonly<OperationOutcome> } = {};
                 const applied = await handleApplyIntent(intent, owned);
@@ -490,7 +505,7 @@ function AppSession() {
               {activeSection === "operations" || activatedExpensiveSections.has("operations") ? (
               <DormantSection active={activeSection === "operations"} guardGeneration={requestEpoch} sessionGeneration={projectSessionGeneration}>
               <nav className="operation-tabs" aria-label="Editing and review tools">
-                {[["review", "Review changes"], ["geometry", "Geometry"], ["supports", "Supports"], ["weight", "Self weight"], ["agent", "Agent"], ["records", "Model records"], ["details", "Details"]].map(([id, label]) => (
+                {[["review", "Review changes"], ["bulk", "Bulk change"], ["geometry", "Geometry"], ["supports", "Supports"], ["weight", "Self weight"], ["agent", "Agent"], ["records", "Model records"], ["details", "Details"]].map(([id, label]) => (
                   <button type="button" key={id} aria-pressed={operationTab === id} data-testid={`operation-tab-${id}`} onClick={() => setOperationTab(id)}>{label}</button>
                 ))}
               </nav>
@@ -509,6 +524,15 @@ function AppSession() {
                   </details>
                 ))}
               </section>
+              </div>
+              <div className="operation-tool-page" hidden={operationTab !== "bulk"}>
+              <BulkChangePanel
+                model={model}
+                scope={bulkChangeScope}
+                onQueueBatch={handleQueueOperationBatch}
+                busy={operationBusy}
+                focusRequest={bulkChangeFocusRequest}
+              />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "records"}>
               <AssumptionsPanel key={`assumptions:${projectSessionGeneration}`} model={model} selection={selection} queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
@@ -881,6 +905,7 @@ function AppSession() {
               onViewportInteractionStart={exposeViewportForNarrowInteraction}
               onInvalidateDraft={invalidateDirectDraftContext}
               onQueueIntent={handleQueueEditorIntent}
+              onChangeSelected={openBulkChange}
               operationBusy={operationBusy}
               onSelect={handleSelectEntity}
               queuedIntents={editorIntents}
