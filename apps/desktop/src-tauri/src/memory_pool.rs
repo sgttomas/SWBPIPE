@@ -20,9 +20,13 @@
 //! starts at the worker's process reserve plus the request's ingress bound and
 //! grows on demand, each step an atomic admission with a fresh headroom
 //! verdict, never above the budget (`crate::solve_worker`); and each
-//! interactive command's ingress lease (`crate::command_ingress`). Result and
-//! custody leases are bounded by the pool, a fresh headroom verdict and the
-//! retention/custody count limits, not by the budget.
+//! interactive command's ingress lease (`crate::command_ingress`), including
+//! its growth. [`Lease::grow_to`] and [`Lease::grow_resampling_with`] refuse
+//! an ingress lease grown above the budget `ingress_exceeds_budget` and a
+//! worker grant `worker_cap_exceeded`, under the admission's lock, before
+//! the headroom verdict. Result and custody leases are bounded by the pool, a
+//! fresh headroom verdict and the retention/custody count limits, not by the
+//! budget: a delivered result's 2R custody can exceed it.
 //!
 //! Every priced admission is atomic: under one lock it checks capacity, the
 //! pool's remaining bytes, a fresh host sample (age, pressure, headroom) and
@@ -479,7 +483,10 @@ impl MemoryPool {
         let mut state = self.lock();
         loop {
             let refusal = match self.verdict_locked(&mut state, bytes, purpose) {
-                Ok(()) => return Ok(self.record_locked(&mut state, bytes, purpose)),
+                Ok(()) => {
+                    let budget = state.invocation_budget_bytes;
+                    return Ok(self.record_locked(&mut state, bytes, purpose, budget));
+                }
                 Err(refusal) => refusal,
             };
             let remaining = deadline.map_or(Duration::ZERO, |deadline| deadline.saturating_duration_since(Instant::now()));
@@ -504,11 +511,22 @@ impl MemoryPool {
     }
 
     fn acquire_locked(self: &Arc<Self>, state: &mut PoolState, bytes: u64, purpose: LeasePurpose) -> Result<Lease, ResourceRefusal> {
+        let budget = state.invocation_budget_bytes;
+        self.acquire_locked_under(state, bytes, purpose, budget)
+    }
+
+    fn acquire_locked_under(
+        self: &Arc<Self>,
+        state: &mut PoolState,
+        bytes: u64,
+        purpose: LeasePurpose,
+        admitted_budget_bytes: u64,
+    ) -> Result<Lease, ResourceRefusal> {
         if let Err(refusal) = self.verdict_locked(state, bytes, purpose) {
             state.last_refusal = Some(refusal.clone());
             return Err(refusal);
         }
-        Ok(self.record_locked(state, bytes, purpose))
+        Ok(self.record_locked(state, bytes, purpose, admitted_budget_bytes))
     }
 
     /// The adaptive verdict for `bytes` more of `purpose` (worker leases are
@@ -522,7 +540,9 @@ impl MemoryPool {
     }
 
     /// Records an admitted adaptive lease.
-    fn record_locked(self: &Arc<Self>, state: &mut PoolState, bytes: u64, purpose: LeasePurpose) -> Lease {
+    /// `admitted_budget_bytes` is the budget the lease's invocation was
+    /// admitted under: the current budget, or a queued job's own snapshot.
+    fn record_locked(self: &Arc<Self>, state: &mut PoolState, bytes: u64, purpose: LeasePurpose, admitted_budget_bytes: u64) -> Lease {
         state.reserved[purpose as usize] += bytes;
         let worker_id = (purpose == LeasePurpose::Worker).then(|| {
             let id = state.next_worker_id;
@@ -530,7 +550,7 @@ impl MemoryPool {
             state.workers.insert(id, WorkerEntry { bytes, probe: None });
             id
         });
-        Lease { pool: Arc::clone(self), bytes, purpose, class: AdmissionClass::Adaptive, worker_id }
+        Lease { pool: Arc::clone(self), bytes, purpose, class: AdmissionClass::Adaptive, worker_id, admitted_budget_bytes }
     }
 
     /// Admits an interactive command's ingress lease of `bytes` in one
@@ -567,6 +587,7 @@ impl MemoryPool {
             purpose: LeasePurpose::Ingress,
             class: AdmissionClass::Interactive,
             worker_id: None,
+            admitted_budget_bytes: state.invocation_budget_bytes,
         })
     }
 
@@ -603,6 +624,7 @@ impl MemoryPool {
         self: &Arc<Self>,
         bytes: u64,
         purpose: LeasePurpose,
+        admitted_budget_bytes: Option<u64>,
         cancelled: &dyn Fn() -> bool,
         on_queued: &mut dyn FnMut(&ResourceRefusal),
     ) -> Result<Lease, WaitOutcome> {
@@ -612,7 +634,8 @@ impl MemoryPool {
             }
             let (verdict, generation) = {
                 let mut state = self.lock();
-                (self.acquire_locked(&mut state, bytes, purpose), state.generation)
+                let budget = admitted_budget_bytes.unwrap_or(state.invocation_budget_bytes);
+                (self.acquire_locked_under(&mut state, bytes, purpose, budget), state.generation)
             };
             match verdict {
                 Ok(lease) => return Ok(lease),
@@ -753,6 +776,10 @@ pub(crate) struct Lease {
     class: AdmissionClass,
     /// A worker lease's entry in the pool's worker ledger.
     worker_id: Option<u64>,
+    /// The per-invocation budget in force when this lease was admitted. Its
+    /// growth is bounded by it ([`Self::budget_verdict_locked`]): a budget
+    /// changed later applies to new invocations, not to this one.
+    admitted_budget_bytes: u64,
 }
 
 impl Lease {
@@ -765,7 +792,9 @@ impl Lease {
         self.purpose
     }
 
-    /// Admits only the delta, with the same atomic verdict as `acquire`.
+    /// Admits only the delta, with the same atomic verdict as `acquire`, after
+    /// the per-invocation budget's verdict on the enlarged lease
+    /// ([`Self::budget_verdict_locked`]) under the same lock.
     pub(crate) fn grow_to(&mut self, new_bytes: u64) -> Result<(), ResourceRefusal> {
         if new_bytes <= self.bytes {
             self.shrink_to(new_bytes);
@@ -774,7 +803,8 @@ impl Lease {
         let delta = new_bytes - self.bytes;
         let pool = Arc::clone(&self.pool);
         let mut state = pool.lock();
-        if let Err(refusal) = pool.admit_bytes_locked(&mut state, delta, self.class) {
+        let verdict = self.budget_verdict_locked(new_bytes).and_then(|()| pool.admit_bytes_locked(&mut state, delta, self.class));
+        if let Err(refusal) = verdict {
             state.last_refusal = Some(refusal.clone());
             return Err(refusal);
         }
@@ -786,8 +816,10 @@ impl Lease {
     /// above the current bytes) that the unchanged atomic verdict admits,
     /// re-sampling while the last target's refusal is `headroom_insufficient`
     /// (see the module docs): every attempt tries every target under one pool
-    /// lock. `stop` is called between attempts, outside the pool lock; `true`
-    /// ends the wait with [`ResampleStop::Cancelled`] and grows nothing.
+    /// lock. A target above the per-invocation budget is refused like any
+    /// other, so a last target above it stands at once and is never
+    /// re-sampled. `stop` is called between attempts, outside the pool lock;
+    /// `true` ends the wait with [`ResampleStop::Cancelled`] and grows nothing.
     /// Returns the admitted target. Only a refusal that stands is recorded.
     pub(crate) fn grow_resampling(&mut self, targets: &[u64], stop: &mut dyn FnMut() -> bool) -> Result<u64, ResampleStop> {
         debug_assert!(!targets.is_empty() && targets.iter().all(|&target| target > self.bytes));
@@ -819,7 +851,10 @@ impl Lease {
             }
             let mut refusal = None;
             for &target in targets.iter().filter(|&&target| target > self.bytes) {
-                match pool.admit_bytes_locked(&mut state, target - self.bytes, self.class) {
+                let verdict = self
+                    .budget_verdict_locked(target)
+                    .and_then(|()| pool.admit_bytes_locked(&mut state, target - self.bytes, self.class));
+                match verdict {
                     Ok(()) => {
                         self.record_growth_locked(&mut state, target);
                         return Ok(target);
@@ -850,6 +885,26 @@ impl Lease {
         }
     }
 
+    /// The per-invocation budget's verdict on this lease grown to `new_bytes`:
+    /// the budget in force when the lease was admitted, so a budget changed
+    /// while an invocation runs neither stops nor extends it. An ingress lease
+    /// above it is refused
+    /// `ingress_exceeds_budget` and a worker grant `worker_cap_exceeded`, as at
+    /// their admission and the worker's own cap. Result and custody leases are
+    /// bounded by the pool, not the budget (see the module docs): the 2R
+    /// custody of a result up to its grant can exceed it.
+    fn budget_verdict_locked(&self, new_bytes: u64) -> Result<(), ResourceRefusal> {
+        let budget_bytes = self.admitted_budget_bytes;
+        if new_bytes <= budget_bytes {
+            return Ok(());
+        }
+        match self.purpose {
+            LeasePurpose::Ingress => Err(ResourceRefusal::IngressExceedsBudget { required_bytes: new_bytes, budget_bytes }),
+            LeasePurpose::Worker => Err(ResourceRefusal::WorkerCapExceeded { cap_bytes: budget_bytes, requested_bytes: new_bytes }),
+            LeasePurpose::Result | LeasePurpose::Custody => Ok(()),
+        }
+    }
+
     fn record_growth_locked(&mut self, state: &mut PoolState, new_bytes: u64) {
         state.reserved[self.purpose as usize] += new_bytes - self.bytes;
         if let Some(entry) = self.worker_id.and_then(|id| state.workers.get_mut(&id)) {
@@ -863,6 +918,9 @@ impl Lease {
     /// Neither may be a worker lease.
     pub(crate) fn absorb(&mut self, mut other: Lease) {
         assert!(Arc::ptr_eq(&self.pool, &other.pool), "a lease absorbs only a lease of its own pool");
+        // Only a lease outside the budget absorbs: an ingress lease or a worker
+        // grant grows only through the budget's verdict (`grow_to`).
+        assert!(matches!(self.purpose, LeasePurpose::Result | LeasePurpose::Custody), "only a result or custody lease absorbs");
         debug_assert!(self.worker_id.is_none() && other.worker_id.is_none());
         let mut state = self.pool.lock();
         state.reserved[other.purpose as usize] -= other.bytes;
@@ -896,7 +954,16 @@ impl Lease {
         if purpose == self.purpose {
             return;
         }
-        debug_assert!(purpose != LeasePurpose::Worker && self.purpose != LeasePurpose::Worker);
+        // Forward only: an ingress lease becomes a result or custody, and a
+        // result becomes custody. No lease returns to a budget-bound purpose
+        // after growing outside the budget.
+        assert!(
+            matches!(
+                (self.purpose, purpose),
+                (LeasePurpose::Ingress, LeasePurpose::Result | LeasePurpose::Custody) | (LeasePurpose::Result, LeasePurpose::Custody)
+            ),
+            "a lease's purpose moves forward only"
+        );
         let mut state = self.pool.lock();
         state.reserved[self.purpose as usize] -= self.bytes;
         state.reserved[purpose as usize] += self.bytes;
@@ -1215,7 +1282,7 @@ mod tests {
         let waiter = pool.clone();
         let handle = std::thread::spawn(move || {
             let mut reasons = Vec::new();
-            let lease = waiter.wait_acquire(2 * GIB, LeasePurpose::Worker, &|| false, &mut |r| {
+            let lease = waiter.wait_acquire(2 * GIB, LeasePurpose::Worker, None, &|| false, &mut |r| {
                 reasons.push(r.clone());
                 let _ = refused_tx.send(());
             });
@@ -1235,7 +1302,7 @@ mod tests {
         let (waiter, flag) = (pool.clone(), cancel.clone());
         let handle = std::thread::spawn(move || {
             let mut last = None;
-            let outcome = waiter.wait_acquire(GIB, LeasePurpose::Worker, &|| flag.load(Ordering::SeqCst), &mut |r| {
+            let outcome = waiter.wait_acquire(GIB, LeasePurpose::Worker, None, &|| flag.load(Ordering::SeqCst), &mut |r| {
                 last = Some(r.clone());
                 let _ = refused_tx.send(());
             });
@@ -1288,7 +1355,7 @@ mod tests {
         let waiter = pool.clone();
         let handle = std::thread::spawn(move || {
             let mut reasons = Vec::new();
-            let lease = waiter.wait_acquire(GIB, LeasePurpose::Worker, &|| false, &mut |r| {
+            let lease = waiter.wait_acquire(GIB, LeasePurpose::Worker, None, &|| false, &mut |r| {
                 reasons.push(r.clone());
                 let _ = refused_tx.send(());
             });
@@ -2096,5 +2163,164 @@ mod tests {
         assert_eq!((grown, a.bytes(), pool.reserved(LeasePurpose::Ingress)), (5 * GIB, 5 * GIB, 5 * GIB));
         assert_eq!(a.grow_resampling_with(&mut || vec![6 * GIB, 4 * GIB], &mut || {}, &mut || false), Ok(5 * GIB), "the need is within the lease");
         assert_eq!(a.bytes(), 5 * GIB);
+    }
+
+    /// Codex review r2 of #1665 (the budget probe): with the budget at the
+    /// demo's admitted ingress lease (envelope(raw) + M + 4 KiB = 196,752 B,
+    /// M = 176,272 B), growing it by 8 M to 1,606,928 B was admitted, because
+    /// growth admitted only the delta. It is refused at the budget now.
+    #[test]
+    fn growing_an_interactive_ingress_lease_above_the_budget_is_refused() {
+        const BUDGET: u64 = 196_752;
+        const M: u64 = 176_272;
+        let host = ScriptedHost::with(Some(64 * GIB), Some(64 * GIB), PressureLevel::Normal);
+        let pool = pool(&host);
+        pool.configure(48 * GIB, BUDGET, false).unwrap();
+        let mut lease = pool.acquire_interactive(BUDGET).unwrap();
+        let refusal = lease.grow_to(lease.bytes() + 8 * M).unwrap_err();
+        assert_eq!(refusal, ResourceRefusal::IngressExceedsBudget { required_bytes: 1_606_928, budget_bytes: BUDGET });
+        assert_eq!((lease.bytes(), pool.reserved(LeasePurpose::Ingress)), (BUDGET, BUDGET), "the lease and the reservation are unchanged");
+        assert_eq!(pool.status(JobCounts::default()).last_refusal, Some(refusal));
+    }
+
+    /// A lease's growth is bounded by the budget in force when it was admitted:
+    /// lowering the budget afterwards does not stop it, and raising it does
+    /// not extend it. A lease admitted after the change takes the new budget.
+    #[test]
+    fn growth_is_bounded_by_the_budget_the_lease_was_admitted_under() {
+        let host = ScriptedHost::with(Some(64 * GIB), Some(64 * GIB), PressureLevel::Normal);
+        let pool = pool(&host);
+        pool.configure(48 * GIB, 4 * MIB, false).unwrap();
+        let mut ingress = pool.acquire_interactive(MIB).unwrap();
+        let mut worker = pool.acquire(MIB, LeasePurpose::Worker).unwrap();
+        pool.configure(48 * GIB, 2 * MIB, false).unwrap();
+        ingress.grow_to(4 * MIB).expect("lowering the budget does not stop a running invocation");
+        worker.grow_to(4 * MIB).expect("nor a running worker");
+        pool.configure(48 * GIB, 8 * MIB, false).unwrap();
+        assert_eq!(
+            ingress.grow_to(4 * MIB + 1).unwrap_err(),
+            ResourceRefusal::IngressExceedsBudget { required_bytes: 4 * MIB + 1, budget_bytes: 4 * MIB },
+            "raising the budget does not extend it"
+        );
+        assert_eq!(
+            worker.grow_to(4 * MIB + 1).unwrap_err(),
+            ResourceRefusal::WorkerCapExceeded { cap_bytes: 4 * MIB, requested_bytes: 4 * MIB + 1 }
+        );
+        let mut later = pool.acquire_interactive(MIB).unwrap();
+        later.grow_to(8 * MIB).expect("a lease admitted after the change takes the new budget");
+    }
+
+    /// A queued job's worker lease is bounded by the budget the job was
+    /// admitted under (its `max_grant`), even when the budget changes before
+    /// the worker is acquired: lowered, the worker still grows to it; raised,
+    /// it is not extended.
+    #[test]
+    fn a_worker_admitted_after_a_budget_change_keeps_its_jobs_budget() {
+        let host = ScriptedHost::with(Some(64 * GIB), Some(64 * GIB), PressureLevel::Normal);
+        let pool = pool(&host);
+        pool.configure(48 * GIB, 8 * MIB, false).unwrap();
+        let job_budget = 8 * MIB;
+        pool.configure(48 * GIB, 4 * MIB, false).unwrap();
+        let mut worker = pool.wait_acquire(MIB, LeasePurpose::Worker, Some(job_budget), &|| false, &mut |_| {}).unwrap();
+        worker.grow_to(6 * MIB).expect("lowered before the worker started: the job's budget still holds");
+        worker.grow_to(8 * MIB).unwrap();
+        pool.configure(48 * GIB, 16 * MIB, false).unwrap();
+        assert_eq!(
+            worker.grow_to(8 * MIB + 1).unwrap_err(),
+            ResourceRefusal::WorkerCapExceeded { cap_bytes: job_budget, requested_bytes: 8 * MIB + 1 }
+        );
+    }
+
+    #[test]
+    #[should_panic(expected = "only a result or custody lease absorbs")]
+    fn an_ingress_lease_cannot_absorb() {
+        let host = ScriptedHost::with(Some(64 * GIB), Some(64 * GIB), PressureLevel::Normal);
+        let pool = pool(&host);
+        pool.configure(48 * GIB, 4 * MIB, false).unwrap();
+        let mut a = pool.acquire_interactive(3 * MIB).unwrap();
+        a.absorb(pool.acquire(3 * MIB, LeasePurpose::Ingress).unwrap());
+    }
+
+    #[test]
+    #[should_panic(expected = "a lease's purpose moves forward only")]
+    fn a_result_lease_cannot_return_to_ingress() {
+        let host = ScriptedHost::with(Some(64 * GIB), Some(64 * GIB), PressureLevel::Normal);
+        let pool = pool(&host);
+        let mut lease = pool.acquire(MIB, LeasePurpose::Result).unwrap();
+        lease.set_purpose(LeasePurpose::Ingress);
+    }
+
+    /// `grow_to` admits an ingress lease or a worker grant grown exactly to
+    /// the budget and refuses one byte more with the purpose's code, leaving
+    /// the lease and the reservation unchanged. Result and custody leases are
+    /// bounded by the pool, not the budget.
+    #[test]
+    fn growth_to_the_budget_is_admitted_and_one_byte_more_is_refused_by_purpose() {
+        let host = ScriptedHost::with(Some(64 * GIB), Some(64 * GIB), PressureLevel::Normal);
+        let pool = pool(&host);
+        let budget = 4 * MIB;
+        pool.configure(48 * GIB, budget, false).unwrap();
+        let interactive = || pool.acquire_interactive(MIB).unwrap();
+        let adaptive = |purpose| pool.acquire(MIB, purpose).unwrap();
+        let ingress_over = ResourceRefusal::IngressExceedsBudget { required_bytes: budget + 1, budget_bytes: budget };
+        let worker_over = ResourceRefusal::WorkerCapExceeded { cap_bytes: budget, requested_bytes: budget + 1 };
+        let cases: [(&dyn Fn() -> Lease, LeasePurpose, ResourceRefusal); 3] = [
+            (&interactive, LeasePurpose::Ingress, ingress_over.clone()),
+            (&|| adaptive(LeasePurpose::Ingress), LeasePurpose::Ingress, ingress_over),
+            (&|| adaptive(LeasePurpose::Worker), LeasePurpose::Worker, worker_over),
+        ];
+        for (acquire, purpose, over) in cases {
+            let mut lease = acquire();
+            lease.grow_to(budget).unwrap();
+            assert_eq!((lease.bytes(), pool.reserved(purpose)), (budget, budget), "{purpose:?}: grown to the budget");
+            assert_eq!(lease.grow_to(budget + 1).unwrap_err(), over, "{purpose:?}");
+            assert_eq!((lease.bytes(), pool.reserved(purpose), pool.reserved_total()), (budget, budget, budget), "{purpose:?}: unchanged");
+            assert_eq!(pool.status(JobCounts::default()).last_refusal, Some(over));
+            if purpose == LeasePurpose::Worker {
+                assert_eq!(pool.lock().workers.values().map(|entry| entry.bytes).collect::<Vec<_>>(), vec![budget], "the worker ledger is unchanged");
+            }
+            drop(lease);
+            assert_eq!(pool.reserved_total(), 0);
+        }
+        for purpose in [LeasePurpose::Result, LeasePurpose::Custody] {
+            let mut lease = pool.acquire(MIB, purpose).unwrap();
+            lease.grow_to(2 * budget).unwrap();
+            assert_eq!((lease.bytes(), pool.reserved(purpose)), (2 * budget, 2 * budget), "{purpose:?}: not bounded by the budget");
+        }
+    }
+
+    /// The same for a re-sampling growth step: to the budget is admitted, one
+    /// byte more is refused at once with the purpose's code even while the
+    /// headroom is short (a budget refusal is never re-sampled), and a
+    /// preferred target above the budget falls back to a minimal one within it.
+    #[test]
+    fn a_growth_step_is_bounded_by_the_budget_and_its_refusal_never_waits() {
+        let host = ObservedHost::with(Some(128 * GIB), Some(100 * GIB), PressureLevel::Normal);
+        let pool = timed_pool(&host, Duration::from_secs(60), Duration::from_millis(10));
+        let budget = 4 * GIB;
+        pool.configure(96 * GIB, budget, false).unwrap();
+        for (purpose, over) in [
+            (LeasePurpose::Ingress, ResourceRefusal::IngressExceedsBudget { required_bytes: budget + 1, budget_bytes: budget }),
+            (LeasePurpose::Worker, ResourceRefusal::WorkerCapExceeded { cap_bytes: budget, requested_bytes: budget + 1 }),
+        ] {
+            host.set(|s| s.headroom_bytes = Some(100 * GIB));
+            let mut lease = pool.acquire(GIB, purpose).unwrap();
+            // A preferred target above the budget; the minimal one within it is admitted.
+            assert_eq!(lease.grow_resampling(&[2 * budget, 2 * GIB], &mut || false), Ok(2 * GIB), "{purpose:?}");
+            assert_eq!(lease.grow_resampling(&[budget], &mut || panic!("no wait")), Ok(budget), "{purpose:?}: to the budget");
+            assert_eq!(pool.reserved(purpose), budget);
+            // Headroom that would make any admission wait does not delay a budget refusal.
+            host.set(|s| s.headroom_bytes = Some(0));
+            let started = Instant::now();
+            let refusal = refused(
+                lease.grow_resampling_with(&mut || vec![2 * budget, budget + 1], &mut || panic!("no wait"), &mut || panic!("no wait")).unwrap_err(),
+            );
+            assert!(started.elapsed() < Duration::from_secs(5), "{:?}", started.elapsed());
+            assert_eq!(refusal, over, "{purpose:?}: the minimal target's refusal");
+            assert_eq!((lease.bytes(), pool.reserved(purpose), pool.reserved_total()), (budget, budget, budget), "{purpose:?}: unchanged");
+            assert_eq!(pool.status(JobCounts::default()).last_refusal, Some(over));
+            drop(lease);
+        }
+        assert_eq!(pool.reserved_total(), 0);
     }
 }

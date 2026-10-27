@@ -70,14 +70,24 @@ async fn save_report_package(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<ReportPackageSaveCommandError>> {
-    // The arguments are three canonical texts and two structs of scalars, moved.
-    let (mut args, mut lease) = command_ingress::admit(&registry, &invoke, "save_report_package", ArgsDecoding::Moved)?;
+    // The lease is held through admission, the save dialog and the write.
+    let (request, _lease) = admit_report_package_save(&registry, invoke.body(), invoke.headers())?;
+    respond(save_report_package_decoded(app, request).await.map_err(CommandError::Command))
+}
+
+/// The save's ingress: the arguments (three canonical texts and two structs of
+/// scalars) moved out of the admitted body, then the evidence shape, the size
+/// caps and the priced parse of the texts, by which the lease grows before any
+/// is parsed (DEL-08-01 Design `report-package-current-results.md` §2.6 items
+/// 1-3), within the per-invocation budget (`memory_pool::Lease::grow_to`).
+fn admit_report_package_save(
+    registry: &SolveJobRegistry,
+    body: &tauri::ipc::InvokeBody,
+    headers: &tauri::http::HeaderMap,
+) -> Result<(report_package_save::ReportPackageSaveRequest, memory_pool::Lease), CommandError<ReportPackageSaveCommandError>> {
+    let (mut args, mut lease) = command_ingress::admit_body(registry, body, headers, "save_report_package", ArgsDecoding::Moved)?;
     let request = report_package_save::save_report_package_args(&mut args)?;
     drop(args);
-    // Evidence shape, the size caps, then the priced parse of the three texts:
-    // the lease grows by their parse before any is parsed (DEL-08-01 Design
-    // `report-package-current-results.md` §2.6 items 1-3). The lease is held
-    // through admission, the save dialog and the write.
     let growth = report_package_save::validate_report_package_save_evidence(&request.screening, request.local_first.as_ref())
         .and_then(|()| {
             report_package_save::parse_lease_bytes_with_exact(
@@ -87,13 +97,10 @@ async fn save_report_package(
                 request.exact_result_text.as_deref(),
                 request.exact_intake_text.as_deref(),
             )
-        });
-    let growth = match growth {
-        Ok(growth) => growth,
-        Err(error) => return respond::<report_package_save::ReportPackageSaveReceipt, _>(Err(CommandError::Command(error))),
-    };
+        })
+        .map_err(CommandError::Command)?;
     lease.grow_to(lease.bytes().saturating_add(growth)).map_err(|refusal| registry.refuse(refusal))?;
-    respond(save_report_package_decoded(app, request).await.map_err(CommandError::Command))
+    Ok((request, lease))
 }
 
 async fn save_report_package_decoded(
