@@ -287,6 +287,8 @@ checks:
 - apps/desktop/src/features/toolkit/BatchReviewPanel.test.tsx
 - apps/desktop/src/features/workspace/reconnectPreviewGate.session.test.tsx
 - apps/desktop/src/features/workspace/batchApplyPublication.session.test.tsx
+- apps/desktop/src/features/workspace/modelPublicationOrder.session.test.tsx
+- apps/desktop/src/App.historyFailure.test.tsx
 - apps/desktop/e2e/pipe-reconnect.spec.ts
 - apps/desktop/src/features/viewport/PipeViewport.contextMenu.test.tsx
 - apps/desktop/src/features/viewport/PipeViewport.contour.test.tsx

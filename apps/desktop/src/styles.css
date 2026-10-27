@@ -4094,6 +4094,7 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .shell-toolbar-identity { display: flex; align-items: baseline; gap: var(--space-3); min-width: 0; flex: 0 1 auto; }
 .app-shell .shell-wordmark { margin: 0; font-size: var(--type-size-body); font-weight: 500; letter-spacing: 0.04em; color: var(--ui-muted); }
 .app-shell .shell-project-name { margin: 0; max-width: 220px; overflow: hidden; color: var(--ui-text); font-size: var(--type-size-body); text-overflow: ellipsis; white-space: nowrap; }
+.app-shell .shell-history-failure { max-width: 260px; overflow: hidden; padding: 0 var(--space-1); border: 1px solid var(--ui-error-border); border-radius: 4px; background: var(--ui-error-surface); color: var(--ui-error-text); font-size: var(--type-size-body); text-overflow: ellipsis; white-space: nowrap; }
 .app-shell .shell-toolbar-group, .app-shell .shell-view-switch, .app-shell .shell-toolbar-centre { display: flex; align-items: center; gap: var(--space-1); flex: 0 0 auto; }
 .app-shell .shell-toolbar-centre { flex: 1 1 auto; justify-content: center; gap: var(--space-3); }
 .app-shell .shell-toolbar button, .app-shell .shell-appearance > summary {
