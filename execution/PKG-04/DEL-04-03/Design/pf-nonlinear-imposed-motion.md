@@ -1,6 +1,6 @@
 # Imposed displacement with nonlinear supports (stage 2)
 
-**Status.** Stage 2 is built, R-a and R-b (§9). In a model with nonlinear
+**Status.** Stage 2 is built: R-a and R-b (§9), and R-d (§10). In a model with nonlinear
 supports, the pressure-free route carries a stage-1 primitive on a rigid
 anchor or restraint into the nonlinear active-set loop and its K-D5
 confirmation as a base prescribed value (R-a), and a primitive on a nonlinear
@@ -9,10 +9,10 @@ u_d − g_s, an active or sticking state prescribes the moved ground, and the
 support publishes a relative-displacement observation row.
 `IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` is retired.
 
-**Open items**, outside this design, still refused by name
-(`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`):
-- motion of a linear spring's base, which keeps its refusal (§3.3);
-- motion of the rigid restraints on mixed nonlinear records (§3.3).
+**The former open items** (Agent 0, under the owner's delegation of
+2026-10-27). R-d, a rigid restraint on a mixed nonlinear record moving, is
+built (§10). R-c, a linear spring's moving base, lands in a stacked PR; until
+then `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` refuses it (§3.3).
 
 This design extends imposed displacement on the pressure-free route (PF) to
 models with nonlinear supports: gap, one-way, lift-off and friction. It is
@@ -204,8 +204,10 @@ alone, `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` keeps refusing R-b targets.
 The order is: dimensional checks first, then each operand normalized
 independently by the same path the solve uses (PP `lib.rs` ~9265, ~9704), then
 these checks on the canonical binary64 values:
-- `IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH`: the target DOF is not the
-  record's `nonlinear.dof`.
+- `IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH` applies when a nonlinear
+  record's target DOF is neither its nonlinear DOF, its spring DOF nor one of
+  its rigid restraints. Until R-c, a spring DOF keeps
+  `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`.
 - `IMPOSED_DISPLACEMENT_GAP_CLOSURE_INEXACT`: the normalized c + σ·g_s is not
   finite, or has a nonzero TwoSum residual. A rounded closing position is never
   used silently. Checking authored magnitudes would be wrong: 1 m + 1 in is
@@ -220,16 +222,14 @@ derived-normal source, which is R-a on a rigid restraint, carried by R_n.
 Rigid restraints cannot overlap a nonlinear DOF
 (`SUPPORT_LINEAR_NONLINEAR_DOF_CONFLICT`).
 
-### 3.3 Still refused, and open
+### 3.3 The former open items
 
-- **Linear springs with a moving base.** The force k(u − g) adds a formed
-  load k·g. That needs a new ledger term, a K-D5 closure term in FK and the
-  same change on the linear route, so it is not a prescribed value and does
-  not fall out of this formulation. `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`
-  stays. It is open for a later unit.
-- **The rigid restraints on a mixed nonlinear record** (PP `lib.rs`
-  ~8316-8321). They keep `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` under R-a.
-  This is also open.
+- **Linear springs with a moving base (R-c).** The force k(u − g) adds a
+  formed load k·g. That needs a new ledger term, a K-D5 closure term in FK and
+  the same change on the linear route, so it is not a prescribed value and
+  does not fall out of this formulation. It lands in a stacked PR; until then
+  `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` stays.
+- **The rigid restraints on a mixed nonlinear record (R-d).** Built (§10).
 
 ## 4. Publication
 
@@ -439,7 +439,7 @@ neither seeing the other's findings, before any code.
 
 In DEL-04-07 `Design/pressure-contract.md`, the stage-2 bullet becomes:
 
-> **Stage 2:** imposed motion in a model with nonlinear supports, in two
+> **Stage 2:** imposed motion in a model with nonlinear supports, in
 > separable parts. (R-a) Rigid anchors and restraints carry stage-1 primitives
 > as nonzero base prescribed values in the nonlinear active-set loop and its
 > K-D5 confirmation; every nonlinear support's ground stays fixed. (R-b) A
@@ -447,7 +447,9 @@ In DEL-04-07 `Design/pressure-contract.md`, the stage-2 bullet becomes:
 > closure, lift-off and friction slip are measured on the displacement relative
 > to the moved ground, and an active or sticking state prescribes the moved
 > ground (plus or minus the clearance for a gap). Linear springs with a moving
-> base stay refused. Design: DEL-04-03 `Design/pf-nonlinear-imposed-motion.md`,
+> base stay refused until R-c lands. (R-d) A primitive on a mixed nonlinear
+> record's rigid restraint prescribes that restraint's base value. Design:
+> DEL-04-03 `Design/pf-nonlinear-imposed-motion.md`,
 > with dual numerical review and its own benchmarks; R-b may land as a later
 > slice.
 
@@ -497,9 +499,9 @@ In DEL-04-07 `Design/pressure-contract.md`, the stage-2 bullet becomes:
 - **PP.** `imposed_motion.rs`: the R-b checks (§3.2) after the dimensional
   check, on the operands normalized by the solve's own path;
   `case_ground_motion` feeds the loop, and `case_prescribed` no longer sees
-  nonlinear targets. A DOF of a mixed record that is one of its rigid
-  restraints keeps `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` (open, §3.3);
-  any other DOF is `IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH`.
+  nonlinear targets. R-d rigid targets enter the prescribed map; until R-c, a
+  spring DOF keeps `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`; other non-acting
+  DOFs retain `IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH`.
 - **Publication (a reading).** `nonlinear_support_final_relative_displacement`
   rows are appended after the published displacements are formed, one per
   ground entry. The K-D5 evidence clause is appended only to a case that
@@ -519,3 +521,160 @@ In DEL-04-07 `Design/pressure-contract.md`, the stage-2 bullet becomes:
   weak sticking boundary ("stick capacity not established"). Every B-2 case
   takes the exact strict-gap decisions and stays
   `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`; the equality is Active.
+
+## 10. R-d: the rigid restraints of a mixed nonlinear record
+
+Agent 0 adopted R-d with R-c on 2026-10-27, under the owner's delegation. R-c,
+a linear spring's moving base, lands in a stacked PR. Both are pressure-free
+only. The exact route keeps refusing every support-targeted primitive, and its
+`boundary_motion` law stays rigid-only.
+
+### 10.1 One action per target DOF
+
+A support record acts on each DOF in at most one way, decided per DOF:
+
+- **nonlinear:** the record's `nonlinear.dof`. A primitive moves that
+  support's ground g_s (R-b).
+- **spring:** the stiffness axis of a `spring` or `variable_spring_hanger`
+  record, chosen as PP `build_model` chooses it (the stiffness DOF, else the
+  first restraint). Until R-c, spring-family records without a nonlinear
+  field remain refused on every DOF; those with a nonlinear field remain
+  refused on their spring axis and nonlinear DOF. These targets receive
+  `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`. A non-acting DOF on a nonlinear
+  record receives `IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH`.
+- **rigid:** every other DOF in `restraints` of a record that is neither a
+  spring family nor a constant-effort device. This includes a mixed nonlinear
+  record. A primitive prescribes the base value g_b (stage 1, R-a, R-d).
+- Any other DOF is not an action of the record.
+
+A primitive moves the base of the one action it names and never another DOF
+of the record.
+
+Constant-effort records remain refused as motion targets, including records
+carrying a nonlinear field. Validation and both case resolvers classify the
+target DOF: only rigid targets enter `case_prescribed`, and only nonlinear
+targets enter `case_ground_motion`. Stage 1's record-level `is_rigid` still
+admits records without a nonlinear field.
+
+A spring and nonlinear law may share a record only on disjoint DOFs, using a
+supported spring family. Same-DOF spring/nonlinear action requires separate
+records. Existing stiffness-family, spring-axis and linear/nonlinear-overlap
+refusals remain unchanged. A record carrying spring stiffness cannot also
+carry additional rigid restraints.
+
+`build_model` assembles a nonlinear record's rigid restraints according to its
+family token. Under family `nonlinear` they form a guide, which holds
+translations only. A rotational restraint on such a record is therefore
+refused (`SUPPORT_INPUT_INVALID`), and this design does not change that.
+
+### 10.2 Mechanics and admission
+
+**Mechanics.** A mixed nonlinear record has `restraints` on DOFs other than
+its nonlinear DOF. PP `build_model` admits those restraints as a rigid linear
+support, so they are base-restrained DOFs of the loop. A primitive on one of
+them is an R-a base value g_b. It reaches the loop's `base_prescribed`, the
+K-D5 confirmation's intended map (§2.4) and the published displacement, bit
+for bit, and nothing else changes.
+
+Such a record still cannot be a derived friction normal source
+(`NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID`). Its restraints still cannot
+overlap its nonlinear DOF (`SUPPORT_LINEAR_NONLINEAR_DOF_CONFLICT`).
+
+It used to be refused only because stage 1's record-level rigid test counted
+the whole record as non-rigid. That test also kept its restraints out of the
+coincident-restraint count, so a coincidence there fell to the generic
+`SUPPORT_INPUT_INVALID`.
+
+**Admission (pressure-free).**
+
+| Code | R-d |
+|---|---|
+| `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` | Retired for a mixed record's rigid restraints. It still covers a constant-effort record (a nonlinear field included) on any DOF. Until R-c, spring-family records without a nonlinear field remain refused on every DOF; those with a nonlinear field remain refused on their spring axis and nonlinear DOF. These targets receive `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`. |
+| `IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH` | as §3.2 |
+| `IMPOSED_DISPLACEMENT_COINCIDENT_RESTRAINT` | A rigid target counts every rigid restraint on its node DOF, a mixed record's included, and is named ahead of the generic repeated-DOF refusal. A nonlinear target keeps R-b's check. |
+| `IMPOSED_DISPLACEMENT_DOF_DUPLICATE` | Duplicates are checked per base: (node, DOF) for rigid targets and (support, DOF) for spring and nonlinear targets. |
+| every other stage-1 and R-b code; `EXACT_IMPOSED_DISPLACEMENT_PRIMITIVE_UNSUPPORTED`; retained D1.7 | unchanged |
+
+### 10.3 Verification
+
+The independent references extend `validation/references/w16_nonlinear_motion/`.
+The generator, which runs no product code, now reads a mixed record's rigid
+restraints as rigid DOFs, and routes a primitive by its target DOF.
+
+- **D-1.** A cantilever runs along +X: 4 m, with a midspan node. Its tip mixed
+  record (family `nonlinear`) has a rotational lift-off on RY, in contact for
+  a positive moment, and rigid UY and UZ restraints. The tip's global UZ base
+  displacement is −s. The load is −P on UZ at midspan.
+  - The condensed tip coupling K[RY,UZ] is +6EI_y/L², so the active support
+    moment is R = PL/8 − 6EI_y·s/L² and s* = PL³/(48EI_y).
+  - At s*/2, R = PL/16.
+  - At 2s*, the support is Inactive, R = 0 and RY = 3(s − s*)/(2L) =
+    3s*/(2L).
+  - At s*, R = 0 is an exact weak boundary and must not receive a strict
+    certificate.
+  - A record whose rigid UZ stayed fixed would carry PL/8, so the motion is
+    observable.
+  - Deviation (accepted by Agent 0, 2026-10-27): rigid restraints on a
+    nonlinear record assemble as a guide, so D-1 uses a rotational lift-off
+    with a moving UZ base instead of a one-way UZ prop with a rotating rigid
+    RY.
+- **D-3.** D-1's record without UY. Its own ground rotates by global −g (R-b)
+  and its rigid UZ moves by −s (R-d).
+  - The active moment is R = PL/8 − 6EI_y·s/L² − 4EI_y·g/L.
+  - Cases: g alone, s alone, and both, which gives R = PL/16 at s = s*/4 and
+    g = 3s*/32. Then s = s* with g: Inactive, R = 0, RY = 0 and separation g.
+  - Each motion present is observable.
+- **The property.** D-1 translated rigidly in Y, moving the anchor's UY and
+  the mixed record's UY by t = 2^-8 m.
+- **Parity.** D-1's UY and UZ moved to a separate guide record carrying the
+  same primitive give every displacement and the support moment bit for bit.
+- **Negatives:**
+  - a non-acting DOF of the mixed record (`NONLINEAR_DOF_MISMATCH`);
+  - two primitives on one rigid restraint, with equal values (`DOF_DUPLICATE`);
+  - the mixed record's UZ coincident with a second rigid UZ, targeting either
+    record (`COINCIDENT_RESTRAINT`, not the generic refusal);
+  - a constant-effort record carrying a nonlinear field (`SUPPORT_NOT_RIGID`);
+  - a spring-family nonlinear record's spring axis (`SUPPORT_NOT_RIGID`, until
+    R-c);
+  - a restraint overlapping the nonlinear DOF
+    (`SUPPORT_LINEAR_NONLINEAR_DOF_CONFLICT`, unchanged).
+- **Byte identity.**
+  - Previously admitted cases containing no newly admitted primitive retain
+    their numerical output bytes. Declared refusal-text changes, newly named
+    coincident-restraint diagnostics and pricing pins are excluded.
+  - An authored zero on a mixed record's rigid restraint gives every row and
+    diagnostic of the no-motion case.
+  - The references for earlier requests, their 74 cross-checks among them,
+    are unchanged.
+
+Observed on the branch at `18db0ca3c5`, both solver modes:
+- D-1 and D-3: every certified group within B; the nonlinear slot,
+  mixed-record component and displacement errors are 0, apart from one
+  displacement at 2.9e-47 relative in D-3 Inactive (an exact-zero component).
+- D-1's boundary: the loop converges on either weak state and the
+  confirmation fails closed ("separation not established" or "contact force
+  sign not established").
+- 96 cross-checks agree.
+
+### 10.4 Retained-memory pricing (D3)
+
+No semantic-table, schema or reader content change is planned. D3 still
+reprices and re-registers the actual implementing source. Review every
+changed source, owner and lifetime, including the case resolvers and
+recovery-map plumbing; refresh all affected source/function/site bindings
+and regenerate displaced basis-text rows. The inventory below is a starting
+list, not a complete registration.
+
+- **New work behind W16-NS's zeros** (a support-targeted primitive, which
+  D1.7 refuses): the per-DOF classifier (`acting`, `target_acting`) in
+  validation and in both case resolvers, and the shared rigid-base checks.
+- **Changed source:** PP `imposed_motion.rs` only. PP `lib.rs`, NI and FK are
+  unchanged by R-d.
+- **Pins that bind `imposed_motion.rs`:**
+  - `w16_owners_model.py` `PIN`;
+  - the W16 sites in `o10_rules.py`;
+  - `linemap_resolutions.json`;
+  - `sq2_decisions_E.py`;
+  - `ordinary_caps.py`.
+  On the branch the W16 pricing guard reports the change ("imposed_motion.rs
+  changed; re-review the owners it prices"). That is left for D3.
