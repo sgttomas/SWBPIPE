@@ -1911,6 +1911,28 @@ mod direct_native {
         assert!(measured.peak_requested < check.peak_requested + (w.result.len() as u64) / 4, "nothing is parsed: {measured:?}, check {check:?}");
     }
 
+    /// The growth is bounded by the per-invocation budget, as the ingress
+    /// lease is (Codex review r2 of #1665): with the budget at the admitted
+    /// lease, it is refused `ingress_exceeds_budget` and the lease is unchanged.
+    #[test]
+    fn a_growth_above_the_budget_refuses_with_ingress_exceeds_budget() {
+        let w = witness(STRAIGHT);
+        let live = live_on(ScriptedHost::normal(), &w.intake, &w.mode, &w.result);
+        let (mut decoded, mut lease) = admit_json(&live.registry, "render_calculation_report", ArgsDecoding::Moved, &genuine_render_args(&w, &live.job)).unwrap();
+        let admitted_bytes = lease.bytes();
+        let growth = exact_render_growth_bytes(&w.result, &w.intake, &canonical_json(&w.manifest)).unwrap();
+        let (pool_bytes, _) = live.registry.pool().settings();
+        live.registry.configure_pool(pool_bytes, admitted_bytes, false).unwrap();
+        match crate::render_calculation_report_args(&mut decoded, &live.registry, &mut lease) {
+            Err(CommandError::Ingress(crate::solve_jobs::SolveJobError::ResourceUnavailable { refusal, .. })) => assert_eq!(
+                refusal,
+                crate::memory_pool::ResourceRefusal::IngressExceedsBudget { required_bytes: admitted_bytes + growth, budget_bytes: admitted_bytes }
+            ),
+            other => panic!("not the budget refusal: {other:?}"),
+        }
+        assert_eq!(lease.bytes(), admitted_bytes);
+    }
+
     /// The whole-command counting-allocator check of the genuine exact render
     /// (from the raw body through the ingress admission and the production
     /// root) and of the genuine exact save (through the shared producer's
