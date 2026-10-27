@@ -2913,6 +2913,39 @@ fieldset.viewport-intent-controls {
   overflow-wrap: anywhere;
 }
 
+/* A1: the results navigator (DEL-07-05 Design `results-navigator.md` §2). An end's button stays
+   focusable (aria-disabled), so it is dimmed here rather than by :disabled. */
+.results-navigator-axis {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.results-navigator-axis-label {
+  min-width: 112px;
+  color: #65716c;
+  font-size: 11px;
+}
+
+.results-navigator-axis button {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid #c8d0cb;
+  border-radius: 4px;
+  color: #25312f;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.results-navigator-axis button[aria-disabled="true"] {
+  color: #9aa39f;
+  cursor: not-allowed;
+}
+
 /* A2: the per-support load summary (DEL-07-05 Design `support-load-summary.md` §5). */
 .support-load-stepper {
   display: flex;
