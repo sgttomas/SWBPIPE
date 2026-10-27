@@ -140,6 +140,8 @@ use validation::validate_model_inputs;
 mod rigid_component;
 #[cfg(test)]
 mod w15_rigid_scaling_tests;
+#[cfg(test)]
+mod w15c_eccentric_offset_tests;
 
 #[cfg(test)]
 #[cfg(test)]
@@ -647,6 +649,13 @@ pub struct ComponentGeometryInput {
     pub pressure_thrust_reference: Option<String>,
     #[serde(default)]
     pub expansion_joint_source_reference: Option<String>,
+    /// W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §2): a
+    /// reducer's declared eccentric offset, a length vector in global axes
+    /// under the R-c1 convention (`rigid_component::eccentric_offset_ends`).
+    /// The solve checks it against the node geometry, which governs; it never
+    /// places, moves or re-forms anything.
+    #[serde(default, deserialize_with = "model_fields::closed_optional_vector_quantity")]
+    pub eccentric_offset: Option<VectorQuantity>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -2921,6 +2930,15 @@ fn run_linear_static_preview_observed_inner(
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
     }
+    // W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §3.2): a
+    // declared eccentric offset is checked against the normalized node
+    // geometry, which governs. The first pass returns before any index is
+    // built, and before the tolerance is read, when no component carries the
+    // slot. The tolerance was admitted by `validate_model_settings`.
+    rigid_component::append_eccentric_offset_refusals(&model, &mut diagnostics);
+    if has_blocking(&diagnostics) {
+        return blocked_envelope(model, diagnostics);
+    }
 
     let load_state = case_state::is_load_state(&model);
     // A 0.4.0 document never consumes a case-wide base pair: each member's
@@ -3393,6 +3411,9 @@ fn run_linear_static_preview_observed_inner(
     // applied-scale info and the precision warning name the members actually
     // formed with a scale; a refused or blocked model states none.
     rigid_component::append_formed_diagnostics(&model, &built.scaled_members, &mut diagnostics);
+    // W-15 slice c (Design `eccentric-reducer-offset.md` §3.4): the realized
+    // offset of each checked reducer, on a published result only.
+    rigid_component::append_eccentric_offset_realized(&model, &mut diagnostics);
     let mut envelope = MechanicsEnvelope {
         contract_evidence: connector_evidence.map(|connector| {
             let mut evidence = serde_json::json!({"pressure": pressure_evidence, "connector": connector, "exact_cases": exact_cases});
@@ -9745,6 +9766,21 @@ fn normalize_model_units(
                         diagnostics,
                     );
                 }
+                if let Some(offset) = &mut geometry.eccentric_offset {
+                    normalize_vector_quantity(
+                        offset,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:eccentric-offset",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "geometry.eccentric_offset".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
             }
             if is_expansion_joint {
                 if let Some(area) = &mut geometry.effective_area {
@@ -15422,7 +15458,7 @@ mod tests {
         const CONTROL:&str=include_str!("../../../validation/references/kd5_member_bound/two_body_request.json");
         let oracle:serde_json::Value=serde_json::from_str(include_str!("../../../validation/references/kd5_member_bound/two_body_oracle.json")).unwrap();
         assert_eq!(format!("{:x}",Sha256::digest(CONTROL.as_bytes())),oracle["control_request_sha256"].as_str().unwrap());
-        // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.7.0.
+        // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.8.0.
         let wire:serde_json::Value=crate::b7b_admission_tests::reauthor_current_request(serde_json::from_str(CONTROL).unwrap());
         let mut model:PreviewModel=serde_json::from_value(wire["model"].clone()).unwrap();let mut materials=model.materials.clone();let mut diagnostics=Vec::new();
         normalize_model_units(&mut model,&mut materials,&mut diagnostics);
@@ -15643,7 +15679,7 @@ mod tests {
     fn kd5_authored_uniform_weight_and_nodal_factors_keep_raw_operands() {
         use open_pipe_stress_frame_kernel::structural::{IntensityPrimitive,MassPrimitive};
         // B7b: the load/reference-state group keys on the current exact contract and
-        // the group's presence (0.7.0), never on a version string.
+        // the group's presence (0.8.0), never on a version string.
         let mut model=p5_beam_request().model;model.schema_version=crate::MODEL_SCHEMA_VERSION.into();
         model.pressure_contract=Some(PressureContractInput {version:Some("3.0.0".into()),mode:Some("exact_pressure_v3".into()),shear_model:Some("euler_bernoulli".into())});
         let case_id=model.load_cases[0].id.clone();
@@ -15707,7 +15743,7 @@ mod tests {
         let oracle:serde_json::Value=serde_json::from_str(include_str!("../../../validation/references/kd5_member_bound/oracle.json")).unwrap();
         assert_eq!(format!("{:x}",Sha256::digest(CONTROL.as_bytes())),oracle["control_request_sha256"].as_str().unwrap(),"the independent oracle binds the complete maintained control bytes");
         for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
-            // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.7.0.
+            // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.8.0.
             let mut wire:serde_json::Value=crate::b7b_admission_tests::reauthor_current_request(serde_json::from_str(CONTROL).unwrap());
             let mut model:PreviewModel=serde_json::from_value(wire["model"].clone()).unwrap();
             let mut materials=model.materials.clone();let mut diagnostics=Vec::new();
@@ -24842,7 +24878,7 @@ mod tests {
             .solver_consumption = Some("mechanics_geometry_only".to_string());
         for model in [&realized, &geometry_only] {
             assert_eq!(warnings(model), Vec::<String>::new(), "D-B");
-            for schema in ["0.3.0", "0.4.0", "0.1.0", "0.5.0", "0.6.0", "0.7.0"] {
+            for schema in ["0.3.0", "0.4.0", "0.1.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0"] {
                 let mut declared = model.clone();
                 v2(&mut declared, schema);
                 assert_eq!(warnings(&declared), Vec::<String>::new(), "no v2 condition at {schema}");

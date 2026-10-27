@@ -1,5 +1,5 @@
 //! Explicit U5a pressure-model replacement and (T4-U5b, DEL-04-07 Design
-//! `u4b-u5b-implementation.md` §5.2) hardware replacement on current 0.7.0
+//! `u4b-u5b-implementation.md` §5.2) hardware replacement on current 0.8.0
 //! exact-contract documents. Both are checked by the solver's own connector
 //! classifier (`validate_joint_pressure_authoring`): the pressure model by
 //! its U5a rules, the hardware by §3.1 (`untied` or `explicit_axial_rods_v1`
@@ -114,7 +114,7 @@ mod tests {
         let before =
             crate::canonical_json(&model["components"][0]["objective_connector"]["pressure_model"]);
         let payload = json!({"kind":"constant_effective_area_reference_v1","effective_area":{"value":0.004,"unit":"m^2"},"pressure_basis":"internal_differential_zero_external_v1","source_reference":"invented authoring control"});
-        for version in ["0.3.0", "0.4.0", "0.5.0", "0.6.0"] {
+        for version in ["0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0"] {
             model["schema_version"] = json!(version);
             assert!(resolve(
                 &model,
@@ -130,7 +130,7 @@ mod tests {
         }
         // This direct helper checks the authored joint slice; general 0.5
         // document activation and its required fields are B7b's responsibility.
-        model["schema_version"] = json!("0.7.0");
+        model["schema_version"] = json!("0.8.0");
         let edit = resolve(
             &model,
             "Component",
@@ -176,7 +176,7 @@ mod tests {
     }
 
     /// T4-U5b (§3.1, §5.2): the hardware edit path accepts valid rods on a
-    /// 0.7.0 exact document only, and refuses each §3.1 defect by name.
+    /// 0.8.0 exact document only, and refuses each §3.1 defect by name.
     #[test]
     fn u5b_hardware_edit_validates_the_rods_on_current_exact_documents_only() {
         let references: Value = serde_json::from_str(include_str!(
@@ -192,11 +192,11 @@ mod tests {
         let edit = |model: &Value, after: &Value| {
             resolve(model, "Component", &id, HARDWARE_PATH, &before, &after.to_string(), "none", "dimensionless")
         };
-        for version in ["0.3.0", "0.4.0", "0.5.0", "0.6.0"] {
+        for version in ["0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0"] {
             model["schema_version"] = json!(version);
             assert_eq!(edit(&model, &payload).unwrap_err().code, "OP-JOINT-HARDWARE-PAYLOAD-INVALID");
         }
-        model["schema_version"] = json!("0.7.0");
+        model["schema_version"] = json!("0.8.0");
         model["pressure_contract"] = json!({"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"});
         for pipe in model["pipe_segments"].as_array_mut().unwrap() {
             pipe["section"]["corrosion_allowance"] = json!({"value": 0.0, "unit": "m"});

@@ -8,11 +8,14 @@
  * Design `desktop-exact-outputs.md` §5.4).
  *
  * This function returns the route's shared refusal, whatever the surface: the reason a
- * gated route carries, or null. Its remaining product caller is the rendered report,
- * which every gated route refuses. The surfaces behind `LoadReferenceOutputGate` read
- * their own per-surface decision (`surfaceRouteRefusal`), and the Result Export and
- * Stress-Neutral Export panels read theirs (`surfaceOutputRefusal`), as does the report
- * package (its `report-package` cell, `reportPackageUnavailableReason`). The
+ * gated route carries, or null. It has no remaining product caller: the rendered
+ * report reads its own `rendered-report` cell, which admits pressure-2 and
+ * pressure-source-1 since W-11 (DEL-08-01 Design `exact-route-report-sections.md`
+ * §5.1; owner, 2026-10-26). The surfaces behind `LoadReferenceOutputGate` read
+ * their own per-surface decision (`surfaceRouteRefusal`), and the Result Export,
+ * Stress-Neutral Export and Rendered Report panels read theirs (`surfaceOutputRefusal`),
+ * as does the report package (its `report-package` cell,
+ * `reportPackageUnavailableReason`). The
  * statement is about the desktop route only: the result stays readable, and nothing
  * here is a finding about the result or its evidence. Text only; it never changes
  * standing, rows or bytes.

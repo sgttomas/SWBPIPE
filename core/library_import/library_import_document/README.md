@@ -15,6 +15,13 @@ It checks, at the already-parsed payload boundary:
 - redistribution and review disposition for public imports;
 - private-only data handling (private imports may remain local);
 - suspected protected-content **quarantine**;
+- disposition members no verdict can read, refused by name as
+  `MODEL-DISPOSITION-RECORD-MALFORMED` (`blocking`; the desktop export
+  screen's and library apply's code): a `redistribution_status` or
+  `review_status` holding an array or an object, or a `provenance` written as
+  an array, at any depth of the library metadata or a record. The finding
+  names the library and the record. An object-valued `classification` and
+  non-text scalars are not refused;
 - unit and value-level provenance metadata for imported numeric values;
 - PKG-02-style import-boundary diagnostic envelope projection.
 

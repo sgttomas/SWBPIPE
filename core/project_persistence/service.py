@@ -19,6 +19,24 @@ from typing import Any, Mapping, Sequence
 
 SCHEMA_VERSION = "0.1.0"
 DOCUMENT_KIND = "openpipestress.project_persistence"
+# Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.1, §3.3): the model payload's version is the
+# desktop's. Every non-current model document is refused by name on validate, create, save and open, with the
+# desktop's state, code and text (the applier's `model_document_version`, which src-tauri delegates to; the shared
+# table is fixtures/model_document/version_states.json): an older one as MODEL_SCHEMA_VERSION_RETIRED (then
+# RETIRED_PROJECT_RUNS_NOTE, as `refuse_model_document` appends it), a newer one as
+# MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED, and a missing, non-string or non-semver one as
+# MODEL_SCHEMA_VERSION_UNSUPPORTED. Nothing is migrated. The project's recorded runs are not gated here (owner ruling
+# "0.8.0 a2").
+MODEL_VERSION = "0.8.0"
+RETIRED_MODEL_VERSIONS = ("0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0")
+MODEL_SCHEMA_VERSION_RETIRED = "MODEL_SCHEMA_VERSION_RETIRED"
+MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED = "MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED"
+MODEL_SCHEMA_VERSION_UNSUPPORTED = "MODEL_SCHEMA_VERSION_UNSUPPORTED"
+RETIRED_PROJECT_RUNS_NOTE = (
+    "Recorded runs keep their own format and existing read and compare behaviour; this change adds no "
+    "model-document-version gate for recorded runs. Existing integrity checks and retained-precision/source-reader "
+    "restrictions still apply. Run history is listed for the active project's id, so this project's runs are reached "
+    "through a current project with the same project id, and run comparison keeps its eligibility rules.")
 PROJECT_SCHEMA_REF = "schemas/project_persistence.schema.yaml"
 MODEL_SCHEMA_REF = "schemas/model.schema.yaml"
 MODEL_STATE_SCHEMA_REF = "schemas/model_state.schema.json"
@@ -204,6 +222,10 @@ def validate_project_persistence_envelope(envelope: Mapping[str, Any]) -> list[d
 
     if not project.get("model_payload"):
         diagnostics.append(_diagnostic("PERSISTENCE_MODEL_PAYLOAD_MISSING", "SCHEMA_VALIDATION", "project.model_payload"))
+    else:
+        refusal = model_payload_version_refusal(project.get("model_payload"))
+        if refusal is not None:
+            diagnostics.append(refusal)
 
     if not _valid_private_data(project.get("private_data")):
         diagnostics.append(_diagnostic("PERSISTENCE_PRIVATE_DATA_BOUNDARY_INVALID", "PRIVATE_DATA", "project.private_data"))
@@ -235,6 +257,71 @@ def validate_project_persistence_envelope(envelope: Mapping[str, Any]) -> list[d
             diagnostics.append(_diagnostic("PERSISTENCE_HASH_MANIFEST_MISMATCH", "SCHEMA_VALIDATION", "hash.hash_manifest"))
 
     return sorted(diagnostics, key=canonical_json)
+
+
+def _semver(raw: Any) -> tuple[str, str, str] | None:
+    """`major.minor.patch`, each part one or more ASCII digits, with its leading zeros dropped.
+
+    The parts stay digit strings: nothing converts them to int (whose string conversion is bounded), so a part of
+    any length has a defined state, as in the applier's and the TS checks.
+    """
+
+    parts = raw.split(".") if isinstance(raw, str) else []
+    if len(parts) != 3 or not all(part and all("0" <= ch <= "9" for ch in part) for part in parts):
+        return None
+    major, minor, patch = (part.lstrip("0") or "0" for part in parts)
+    return major, minor, patch
+
+
+def _semver_compare(left: tuple[str, str, str], right: tuple[str, str, str]) -> int:
+    """-1, 0 or 1: parts compare as numbers, a longer part (no leading zeros) larger, then digit by digit."""
+
+    for a, b in zip(left, right):
+        key_a, key_b = (len(a), a), (len(b), b)
+        if key_a != key_b:
+            return 1 if key_a > key_b else -1
+    return 0
+
+
+def model_document_version_state(model_payload: Any) -> dict[str, Any]:
+    """The model document's version state, as the desktop gives it: status, versions, detail and refusal code."""
+
+    version = model_payload.get("schema_version") if isinstance(model_payload, Mapping) else None
+    raw = version if isinstance(version, str) else ""
+    if raw == MODEL_VERSION:
+        return {"status": "current", "source_schema_version": raw, "target_schema_version": raw, "code": None,
+                "detail": f"Model document {MODEL_VERSION} is the current version; a pressure contract, when present, "
+                          "and solve eligibility are validated separately."}
+    parsed = _semver(raw)
+    if parsed is None:
+        return {"status": "unsupported_schema", "source_schema_version": raw or "missing_schema_version",
+                "target_schema_version": MODEL_VERSION, "code": MODEL_SCHEMA_VERSION_UNSUPPORTED,
+                "detail": "Model document has no valid semver schema_version; refusing to open it for editing without "
+                          "coercion."}
+    if _semver_compare(parsed, _semver(MODEL_VERSION)) > 0:
+        return {"status": "newer_than_supported", "source_schema_version": raw, "target_schema_version": MODEL_VERSION,
+                "code": MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED,
+                "detail": f"Model document schema_version {raw} is newer than the current {MODEL_VERSION}; refusing to "
+                          "open it for editing (no down-migration)."}
+    detail = (f"model document {raw} is retired; re-author it as model document {MODEL_VERSION} (a pressure-free model "
+              "omits pressure_contract). Nothing is migrated." if raw in RETIRED_MODEL_VERSIONS else
+              f"model document {raw} is not a supported version; re-author it as model document {MODEL_VERSION}. "
+              "Nothing is migrated.")
+    return {"status": "retired_schema", "source_schema_version": raw, "target_schema_version": MODEL_VERSION,
+            "code": MODEL_SCHEMA_VERSION_RETIRED, "detail": f"{MODEL_SCHEMA_VERSION_RETIRED}: {detail}"}
+
+
+def model_payload_version_refusal(model_payload: Any) -> dict[str, Any] | None:
+    """The named refusal of a non-current model document, as the desktop states it; None for the current one."""
+
+    state = model_document_version_state(model_payload)
+    if state["code"] is None:
+        return None
+    diagnostic = _diagnostic(state["code"], "SCHEMA_VALIDATION", "project.model_payload.schema_version")
+    note = f" {RETIRED_PROJECT_RUNS_NOTE}" if state["status"] == "retired_schema" else ""
+    diagnostic["message"] = f"{state['detail']}{note}"
+    diagnostic["remediation"] = f"Re-author the model as model document {MODEL_VERSION}; nothing is migrated."
+    return diagnostic
 
 
 def canonical_json(value: Any) -> str:
@@ -344,16 +431,13 @@ def save_project_store(store_path: str | Path, envelope: Mapping[str, Any]) -> d
 def _version_status(raw: Any) -> str:
     """One current version (DEL-02-05 CLM-003): every other version is refused by name, never migrated."""
 
-    def parse(value: Any) -> tuple[int, ...] | None:
-        parts = value.split(".") if isinstance(value, str) else []
-        return tuple(int(part) for part in parts) if len(parts) == 3 and all(part.isdigit() for part in parts) else None
-
-    version, current = parse(raw), parse(SCHEMA_VERSION)
+    version = _semver(raw)
     if version is None:
         return "unsupported_schema"
-    if version == current:
+    order = _semver_compare(version, _semver(SCHEMA_VERSION))
+    if order == 0:
         return "current"
-    return "newer_than_supported" if version > current else "retired_schema"
+    return "newer_than_supported" if order > 0 else "retired_schema"
 
 
 def version_check_project_store(store_path: str | Path) -> dict[str, Any]:

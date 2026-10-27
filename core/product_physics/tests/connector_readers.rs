@@ -5,12 +5,12 @@
 //! the shared reader corpus (RE, Python) is generated here.
 //!
 //! The inputs are the frozen T4-I12 system documents (0.3.0 and 0.4.0), bytes
-//! unchanged; B7b re-authors each copy to the current 0.7.0 exact document
+//! unchanged; B7b re-authors each copy to the current 0.8.0 exact document
 //! (`common/current_model.rs`). Under pressure-2 the variable spring hanger's input review rows
 //! are model scoped (no load case), so the readers admit them (T4-U2).
 //!
 //! T4-U5b: the corpus also carries two connectors with explicit elastic tie
-//! rods, authored in 0.7.0 from the frozen t4_u5b case descriptions by the
+//! rods, authored in 0.8.0 from the frozen t4_u5b case descriptions by the
 //! shared builder (`common/t4_u5b.rs`): AS-F (a listed constant-effective-area
 //! joint with one offset rod) and MO-F (an unpressurized connector with two
 //! rods, no region).
@@ -35,7 +35,7 @@ const INPUTS: [(&str, &str, PreviewSolverMode, &str); 2] = [
     ("U3-SYS-DEMO-CONNECTOR-002-LR1", "document_v3_0.4.0", PreviewSolverMode::DenseScrutiny, "dense_scrutiny"),
 ];
 
-/// A frozen system document (bytes unchanged), its copy re-authored to 0.7.0.
+/// A frozen system document (bytes unchanged), its copy re-authored to 0.8.0.
 fn document(case: &str, key: &str) -> Value {
     let references: Value = serde_json::from_str(REFERENCES).unwrap();
     current_model::reauthor_request(references["cases"][case]["inputs"][key].clone())
@@ -186,7 +186,7 @@ const DERIVED_TIED_INPUTS: [(&str, PreviewSolverMode, &str); 3] = [
 
 /// The shared connector reader corpus (RE, Python): the 0.3.0
 /// system document in sparse mode and the 0.4.0 one in dense mode, each
-/// re-authored to 0.7.0, then (T4-U5b) the two tied requests built from
+/// re-authored to 0.8.0, then (T4-U5b) the two tied requests built from
 /// t4_u5b, captured entry. Regenerate with `T4_U3_WRITE_CORPUS=1`; otherwise the committed
 /// bytes must be current.
 #[test]
@@ -220,8 +220,8 @@ fn shared_connector_reader_corpus_is_current() {
     let corpus = json!({
         "corpus": "T4-U3 pressure-1 objective connector reader corpus",
         "generator": "core/product_physics/tests/connector_readers.rs::shared_connector_reader_corpus_is_current",
-        "inputs": ["validation/references/t4_i12/u3_reference_cases.json U3-SYS-DEMO-CONNECTOR-001 document_v3_0.3.0 and U3-SYS-DEMO-CONNECTOR-002-LR1 document_v3_0.4.0, bytes unchanged; each copy re-authored to model document 0.7.0 (exact_pressure_v3, euler_bernoulli, corrosion allowance 0 m) at test time",
-            "validation/references/t4_u5b cases AS-F and MO-F (SHA-bound case descriptions over their t4_u5a base requests), authored as model document 0.7.0 requests with explicit_axial_rods_v1 hardware at test time (core/product_physics/tests/common/t4_u5b.rs)",
+        "inputs": ["validation/references/t4_i12/u3_reference_cases.json U3-SYS-DEMO-CONNECTOR-001 document_v3_0.3.0 and U3-SYS-DEMO-CONNECTOR-002-LR1 document_v3_0.4.0, bytes unchanged; each copy re-authored to model document 0.8.0 (exact_pressure_v3, euler_bernoulli, corrosion allowance 0 m) at test time",
+            "validation/references/t4_u5b cases AS-F and MO-F (SHA-bound case descriptions over their t4_u5a base requests), authored as model document 0.8.0 requests with explicit_axial_rods_v1 hardware at test time (core/product_physics/tests/common/t4_u5b.rs)",
             "three requests derived at test time from t4_u5b MO-F, AS-F-R and AS-F (connector_readers.rs derived_tied): MO-F re-placed as a single-rod Q = I control, AS-F-R with a perpendicular rod, AS-F with a skewed one, the first two unpressurized and unloaded; invented controls, not references"],
         "cases": cases,
     });

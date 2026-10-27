@@ -27,11 +27,11 @@ const STEEL: f64 = 7850.0;
 const WATER: f64 = 1000.0;
 const GRAVITY: f64 = -9.80665;
 
-/// A minimal exact-contract 0.7.0 request: one straight member anchored at
+/// A minimal exact-contract 0.8.0 request: one straight member anchored at
 /// its root, with the given mill tolerance and allowance and no load case.
 fn document(mill: f64, allowance: f64) -> Value {
     json!({"materials": [], "model": {
-        "schema_version": "0.7.0",
+        "schema_version": "0.8.0",
         "document_kind": "openpipestress.product_preview.model",
         "project": {"id": "invented:d5-mass", "units": {"angle": "rad", "force": "N", "length": "m",
             "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},

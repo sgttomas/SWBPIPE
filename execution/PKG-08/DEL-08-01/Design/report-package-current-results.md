@@ -23,7 +23,9 @@ Standard claim fence applies (claims taxonomy per DEC-081).
 - **Ruling 10A (owner, 2026-10-21):** exact-route results stay refused for
   reports and the report package until DEL-08-01 designs their limitation
   sections. Opening them returns to the owner (W-11). This design does not open
-  them.
+  them. The owner opened the rendered report and the report package for
+  pressure-2 and pressure-source-1 on 2026-10-26 (DEL-08-01 Design
+  `exact-route-report-sections.md` §0).
 - **Scope of this design:** Save Report Package (local-private) for a Current
   pressure-free result (route `preview_physics`, identity
   `openpipestress.result_semantics/0.3.0/preview-physics-2`,
@@ -420,9 +422,12 @@ each with a named `REPORT-PACKAGE-…` code:
      reference `{unit_system, unit-system:dec-018-si-dual-display}`. The unit
      display summary is the complete projection of `renderableReportInput.ts:56-59,108-117`:
      - `storage_convention` is `entered_units_preserved`;
-     - `quantity_display_policy` is "display result-row values with their
-       explicit units; no report-time conversion";
-     - `conversion_performed` is `false`;
+     - `quantity_display_policy` is "display result-row values and stress
+       headlines with explicit units; values stored in Pa are shown in MPa
+       (1 MPa = 10^6 Pa, exact); displayed values are rounded to six
+       significant digits; stored values and units are unchanged";
+     - `conversion_performed` is `true` when a displayed result-row or
+       headline value is stored in `Pa`, and `false` otherwise;
      - `result_units` is the sorted distinct non-empty source-row unit list;
      - `model_units` equals the parsed model's `project.units` map, desktop
        only (§2.6 item 5), compared by keys and values in any property order.
@@ -430,7 +435,42 @@ each with a named `REPORT-PACKAGE-…` code:
      The renderer prints these verbatim (`report_renderer/src/lib.rs:636-665`),
      and the completeness checker does not restrict them
      (`report_generator/src/lib.rs:219-227`). These checks assert that the
-     recorded units are preserved. They do not assert a conversion.
+     recorded units are preserved and that the stated display scaling (Pa
+     shown as MPa) is the only conversion; stored values and units are
+     unchanged.
+
+     **Display resolution (2026-10-26).** Exact-route stress headlines and
+     some result rows are stored in `Pa`, and printed with every digit (for
+     example 41354908.75465696 Pa) they are hard to read. Agent 0, as
+     HELP_HUMAN, resolved this under the owner's delegation (owner,
+     2026-10-26: "units conversions that are routinely done in engineering
+     applications are permissible as a solution."; `loop/LOOP_INIT.md`): a
+     value stored in `Pa` is displayed in `MPa`, and every displayed
+     result-row and headline value is rounded to six significant digits.
+     Reason: engineers read stress in MPa, and the element stresses are
+     already stored in MPa, so the report shows its stresses on one scale.
+     1 MPa = 10^6 Pa is an exact SI prefix (DEC-018 D-01b; PRD §5.6 "report
+     unit conversions deterministically"), applied as a decimal shift on the
+     text, so no floating-point arithmetic enters. It is display only:
+     stored values and units, the package's machine-readable members, their
+     hashes and identifiers are unchanged, and `result_units` keeps the
+     stored units. The report JSON packet (`ReportPanel.tsx`), which displays
+     no values, keeps its own policy text and `conversion_performed: false`.
+     The report states the scaling and the rounding once, at
+     the start of its Results section (`report_renderer`
+     `DISPLAY_RULE_STATEMENT`, emitted when the report declares this
+     policy): "Displayed values: result values and stress headlines are
+     rounded for display to six significant digits, half away from zero, and
+     a value stored in Pa is displayed in MPa (1 MPa = 10^6 Pa, an exact
+     decimal shift). Stored values and units are unchanged; the stored units
+     are listed as Result units in the Model Input Summary." The rule is
+     implemented identically in `reportQuantityDisplay.ts` and
+     `report_package::quantity_display`, both checked against
+     `fixtures/reports/invented/report_quantity_display_parity.json` (each
+     vector with its reason: zero and negative zero, values below 1 Pa,
+     negatives, rounding carries in `Pa` and in other units, half-away-from-zero
+     ties, both ECMAScript exponent switches before and after the shift,
+     extreme exponents, the largest safe integer and binary noise).
    - **Status:** the document's rule tokens are exactly
      `[rule_check_aggregate]` when the aggregate is present, and a subset of
      `[solve_rule_check_status]` otherwise. These sets are equal:
@@ -451,7 +491,10 @@ each with a named `REPORT-PACKAGE-…` code:
    - `label` is `<kind> (<metadata.component>)`, or `<kind>` when there is no
      metadata;
    - `case_ref` is `<basis type>:<basis id>`, or `TBD`;
-   - `quantity_display` is `<value> <unit>`;
+   - `quantity_display` is `<display value> <display unit>`: the value's
+     canonical text (below), a `Pa` value shifted to `MPa` by six decimal
+     places, rounded to six significant digits, half away from zero, in
+     ECMAScript Number-to-String form;
    - `source_ref` is `result:<id>`.
 
    Two pure helpers implement it:
@@ -459,13 +502,16 @@ each with a named `REPORT-PACKAGE-…` code:
      `renderableReportInput.ts:671-676` into
      `apps/desktop/src/features/report/reportResultRows.ts` and called by
      `buildRenderableReportInput`. The value text is JavaScript's own
-     `${value}`.
+     `${value}`, then the display rule above, implemented identically in
+     both helpers. The TypeScript rule is `reportQuantityDisplay.ts`.
    - **Rust.** `report_package::bindings::expected_report_result_rows(source)`
      is used by the producer check and by the fixture generator. The value text
      is `open_pipe_stress_canonical_json::canonical_number`
      (`canonical_json/src/lib.rs:400`), the ECMAScript Number-to-String form,
      after `guard_json`, never Rust's `Display`, whose exponent and
-     negative-zero text differ.
+     negative-zero text differ; then the display rule above, implemented
+     identically in both helpers. The Rust rule is
+     `report_package::quantity_display`.
 
    **Row parity.** Both helpers are checked against the same committed
    vectors, `fixtures/reports/invented/report_result_rows_parity.json` (input
@@ -484,14 +530,17 @@ each with a named `REPORT-PACKAGE-…` code:
    - small exponent notation (`1e-7`, `1.5e-6`, `5e-324`); large exponent
      forms (from `1e21`) are integer-valued above 2^53 − 1, so `guard_json`
      refuses them before any row is formed, and the vectors record that;
-   - integer-valued binary64 values.
+   - integer-valued binary64 values;
+   - the display rule on rows (`display_rule_description` names the four
+     expected rows it changed and why); the rule's own edge cases are in
+     `report_quantity_display_parity.json`.
 
    A change to the projection updates the contract, both helpers and the
    vectors together.
 
    The package passes no numerical-health rows (`renderableReportInput.ts:486-490`),
    so the row lists match one for one. This is what keeps the rendered rows
-   equal to the result member's source values.
+   the display of the result member's source values.
 
    Handoff content: the handoff record set's `section_set_id` names the run,
    and the current sections are bound as in item 5. Comparison sections keep
@@ -1007,7 +1056,7 @@ with no list of paths to keep in step, and it builds no serialized copy.
   report's data held only during the check, priced within the existing
   leases: on the pressure-free witness the whole render command peaks at
   1,181,440 bytes within its 1,367,168-byte ingress lease and the whole save
-  admission at 11,762,688 bytes within its 29,998,576-byte lease (the parse
+  admission at 17,058,080 bytes within its 29,998,576-byte lease (the parse
   lease with its W M provision), each less the buffered body's envelope; the
   check alone peaks at 180,848 bytes. Counting-allocator figures for this
   input, not proven bounds (`object_form_tests.rs`
@@ -1315,8 +1364,8 @@ through the T3 wrappers.
     - on the runner profile, `e.run_ref` not equal to `request_run_ref`;
     - each current state reference and section id, and a duplicated or
       missing current section;
-    - `conversion_performed: true`, `storage_convention` and
-      `quantity_display_policy`;
+    - `conversion_performed` other than whether a displayed value is stored
+      in `Pa`, `storage_convention` and `quantity_display_policy`;
     - the model-summary `unit_system_ref`, and the desktop `e.unit_system_ref`;
   - **row parity:** the TypeScript and Rust row helpers both match
     `report_result_rows_parity.json`;

@@ -167,9 +167,14 @@ on either route. It needs no solve and no result.
       `Refuse`. A `redistribution_status` or `review_status` that is an array
       or an object, or a `provenance` that is an array, anywhere in the
       library object or a matching record is refused by name. The ordinary
-      private-library writer (`save_local_library_value`) stores such
-      members as `PRIVATE_LOCAL_ONLY`, so this is reachable without a hand
-      edit.
+      private-library writer (`save_local_library_value`) now refuses such
+      members with the same code (the library import's rule, DEL-03-02), and
+      library apply refuses to apply such a record (DEL-03-01
+      `apply-library-records.md` §2.5); the screen still covers a library
+      stored before that rule or written to the store by other means. Its
+      message names the library and the record (`kind:id#record`) and says
+      how to repair the store: open the library in the Library Manager,
+      correct and save it again, delete it, or remove the reference.
     - Save Handoff uses `Structural`. The shared screen still refuses, as
       `MODEL-DISPOSITION-RECORD-MALFORMED`, a positional `provenance` that
       its verdict judges: on the library object or a matching record, or on

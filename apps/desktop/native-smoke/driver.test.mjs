@@ -10,7 +10,7 @@ import vm from "node:vm";
 
 const source = readFileSync(new URL("./driver.js", import.meta.url), "utf8");
 
-function load({ shown = {}, record = null, pool = null, poolError = null, projectRows = [] } = {}) {
+function load({ shown = {}, record = null, pool = null, poolError = null, projectRows = [], onMenu = null } = {}) {
   const logs = [];
   const elements = new Map(Object.entries(shown).map(([id, value]) => [id, { textContent: value, getAttribute: () => null }]));
   // The model tree's project rows, `tree-row-project-<encoded id>`, in order; the
@@ -27,6 +27,7 @@ function load({ shown = {}, record = null, pool = null, poolError = null, projec
   const invoke = async (command, args) => {
     if (command === "native_smoke_log") { logs.push(args.line); return null; }
     if (command === "get_memory_pool_status") { if (poolError) throw new Error(poolError); return pool; }
+    if (command === "native_smoke_menu" && onMenu) { onMenu(args.commandId); return null; }
     throw new Error(`unexpected command ${command}`);
   };
   const hooks = {};
@@ -170,7 +171,7 @@ test("after New Blank's Create, the blank's id is read only once the blank has r
   const previous = "project:exact-pressure-connected-fixture";
   const blank = "project:blank-local-20261025t215818z";
   const projectRows = [previous];
-  const { hooks, elements } = load({ shown: { "local-project-message": "Opened model document exact_pressure_authoring_model.json (6826 bytes; schema_version 0.7.0, current)." }, projectRows });
+  const { hooks, elements } = load({ shown: { "local-project-message": "Opened model document exact_pressure_authoring_model.json (6826 bytes; schema_version 0.8.0, current)." }, projectRows });
   const status = elements.get("local-project-message");
   const waited = hooks.awaitBlankProject(previous, 5000);
   // The create is still in flight: the tree shows the previous project.
@@ -191,4 +192,112 @@ test("a blank create that failed ends the wait at once with its message; one tha
   const superseded = load({ shown: { "local-project-message": "Opened model document exact_pressure_authoring_model.json." }, projectRows: [previous] });
   await assert.rejects(superseded.hooks.awaitBlankProject(previous, 150),
     { message: `timed out after 150 ms waiting for blank project in the tree in place of ${previous}; message="Opened model document exact_pressure_authoring_model.json."; tree projects=["${previous}"]` });
+});
+
+// Run 1 of the A2 smoke at 594e437a09 (#1668): after the exact-route solve the driver
+// chose View > Report twice in a row. Choosing the open page again closes it, so the
+// second wait passed only when its first sample ran before the close was drawn; that
+// run's did not, and it timed out after 120 s.
+function sectionWindow(open) {
+  const sections = new Map(["results", "report"].map((id) => [id, { textContent: "", getAttribute: () => null, offsetParent: null }]));
+  const sent = [];
+  const show = (id) => { for (const [key, element] of sections) element.offsetParent = key === id ? {} : null; };
+  show(open);
+  // The product's View > section command: a closed page opens, the open page closes.
+  const onMenu = (commandId) => {
+    sent.push(commandId);
+    const id = commandId.slice("view.section.".length);
+    show(sections.get(id).offsetParent === null ? id : null);
+  };
+  const { hooks, elements, logs } = load({ onMenu });
+  for (const [id, element] of sections) elements.set(`workspace-section-${id}`, element);
+  return { hooks, sections, sent, logs };
+}
+
+test("showing a section that is already shown sends no command, so the open page is not closed", async () => {
+  const { hooks, sections, sent, logs } = sectionWindow("results");
+  await hooks.showSection("report");
+  await hooks.showSection("report");
+  assert.deepEqual(sent, ["view.section.report"]);
+  assert.notEqual(sections.get("report").offsetParent, null);
+  assert.deepEqual(logs, ["show section report", "show section report (already shown)"]);
+});
+
+test("showing a hidden section sends the command and waits until the section shows", async () => {
+  const sent = [];
+  const element = { textContent: "", getAttribute: () => null, offsetParent: null };
+  const { hooks, elements } = load({ onMenu: (commandId) => { sent.push(commandId); setTimeout(() => { element.offsetParent = {}; }, 250); } });
+  elements.set("workspace-section-report", element);
+  const started = Date.now();
+  await hooks.showSection("report");
+  assert.ok(Date.now() - started >= 200);
+  assert.deepEqual(sent, ["view.section.report"]);
+});
+
+// The from-blank load step of the smoke at 15c1996957 (#1679, run 1): queuing the load case
+// opened Review changes itself, but React draws a click's update in a microtask, after the
+// driver's synchronous code. showOperations sampled the Load Cases stage before that, found
+// no Review changes tab, and sent View > Review changes, which closes the open page: the wait
+// timed out after 120 s. The window here draws a queued navigation the way React does.
+function reviewWindow() {
+  const element = (extra = {}) => ({ textContent: "", getAttribute: () => null, offsetParent: null, disabled: false, ...extra });
+  const operations = element();
+  const reviewTab = element();
+  const sent = [];
+  const show = (open) => { operations.offsetParent = open ? {} : null; reviewTab.offsetParent = open ? {} : null; };
+  // The product's View > Review changes toggles the page, reading the state when it lands.
+  // It lands after the queue's own navigation and, in the failing run, before the driver's
+  // first sample (here: a microtask queued when the command is sent).
+  const onMenu = (commandId) => {
+    sent.push(commandId);
+    if (commandId === "view.section.operations") queueMicrotask(() => show(operations.offsetParent === null));
+  };
+  const { hooks, elements } = load({ onMenu });
+  elements.set("workspace-section-operations", operations);
+  elements.set("workspace-review", Object.assign(reviewTab, { click: () => { sent.push("click workspace-review"); show(true); } }));
+  // The Load Cases stage: no Review changes tab, and the page is closed.
+  show(false);
+  return { hooks, operations, reviewTab, sent, queueOpensReview: () => queueMicrotask(() => show(true)) };
+}
+
+test("Review changes that a queue has just opened is not toggled shut", { timeout: 5000 }, async () => {
+  const { hooks, operations, sent, queueOpensReview } = reviewWindow();
+  queueOpensReview();
+  await hooks.showOperations();
+  assert.deepEqual(sent, []);
+  assert.notEqual(operations.offsetParent, null);
+});
+
+test("Review changes that is closed opens through its tab, once, and is waited for", { timeout: 5000 }, async () => {
+  const { hooks, operations, sent, reviewTab } = reviewWindow();
+  // The Model stage's tree: the tab is shown, the page is not; the tab only opens, after a while.
+  reviewTab.offsetParent = {};
+  reviewTab.click = () => { sent.push("click workspace-review"); setTimeout(() => { operations.offsetParent = {}; }, 150); };
+  await hooks.showOperations();
+  assert.deepEqual(sent, ["click workspace-review"]);
+  assert.notEqual(operations.offsetParent, null);
+});
+
+test("closing a page waits until it has closed", { timeout: 5000 }, async () => {
+  const close = { textContent: "", getAttribute: () => null, disabled: false, offsetParent: {}, click: () => { setTimeout(() => { close.offsetParent = null; }, 400); } };
+  const { hooks, elements } = load();
+  elements.set("workspace-dock-close", close);
+  const started = Date.now();
+  await hooks.closeSection();
+  assert.equal(close.offsetParent, null);
+  assert.ok(Date.now() - started >= 350);
+});
+
+test("the Inspector is pressed once and waited for until open", { timeout: 5000 }, async () => {
+  let expanded = "false";
+  let presses = 0;
+  const toggle = { textContent: "", disabled: false, offsetParent: {}, getAttribute: (name) => (name === "aria-expanded" ? expanded : null),
+    click: () => { presses += 1; setTimeout(() => { expanded = expanded === "true" ? "false" : "true"; }, 400); } };
+  const { hooks, elements } = load();
+  elements.set("toggle-inspector", toggle);
+  await hooks.ensureInspector();
+  assert.equal(expanded, "true");
+  assert.equal(presses, 1);
+  await hooks.ensureInspector();
+  assert.equal(presses, 1);
 });

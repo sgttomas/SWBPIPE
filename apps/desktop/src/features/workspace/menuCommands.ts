@@ -24,6 +24,9 @@ export type MenuCommandId =
   | "view.issues"
   | "view.audit"
   | "view.close-panels"
+  // A6 key results: the browser menu's route. The native menu has no item for it yet, so it is
+  // not in NATIVE_MENU_COMMAND_IDS, and App handles it before the session's runMenuCommand.
+  | "view.key-results"
   | `view.section.${WorkspaceSectionId}`
   | ShellMenuCommandId
   | "insert.node"
@@ -33,7 +36,8 @@ export type MenuCommandId =
   | "insert.load"
   | "analyze.run"
   | "analyze.cancel"
-  | "analyze.rule-checks";
+  | "analyze.rule-checks"
+  | "analyze.check-model";
 
 /** Shell commands share IDs across native menu, browser menu and palette. */
 export type ShellMenuCommandId =
@@ -43,7 +47,9 @@ export type ShellMenuCommandId =
   | `view.density.${UiDensityPreference}`;
 
 export type MenuItemSpec =
-  | { kind: "command"; id: MenuCommandId; label: string; disabled?: boolean; active?: boolean; reason?: string | null }
+  | { kind: "command"; id: MenuCommandId; label: string; disabled?: boolean; active?: boolean; reason?: string | null;
+      /** The item's keyboard equivalent as shown, with its `aria-keyshortcuts` form. */
+      shortcut?: { label: string; aria: string } }
   | { kind: "separator" };
 
 const NATIVE_MENU_COMMAND_IDS: ReadonlySet<string> = new Set([
@@ -75,7 +81,8 @@ const NATIVE_MENU_COMMAND_IDS: ReadonlySet<string> = new Set([
   "insert.load",
   "analyze.run",
   "analyze.cancel",
-  "analyze.rule-checks"
+  "analyze.rule-checks",
+  "analyze.check-model"
 ]);
 
 export function isMenuCommandId(value: string): value is MenuCommandId {

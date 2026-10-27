@@ -38,8 +38,8 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "139cfdb7d960aa1c5a061ee21cbf48fa55b96f896dc40120b6576a9f8061781c", "a3a2fc6748be7deb006681b493cc858b065b000f3f3427a8dc3ce0f75d7750d8"),
-    ("dense_scrutiny", "7ce9946465092d416474faf1f455cb9466edd8fb84d3b8a3640a433b27d29d31", "fcb064918059448e3e2a671821a2924f69c4d1da3fabbad105cab9f483297168"),
+    ("sparse_interactive", "7fc66eeef48d03b64da78db705fe5b4d34f12e9b2b90ab0578eb5af9699d3c92", "c238347e1e0f32f1e484e84a0c0e4679be5c86546ab87af59da469cf560d6374"),
+    ("dense_scrutiny", "ce0f6a6a80a327fbcdf594b166290cc2c86ca8e91e852ce3de84303f54713357", "51f2d8b75c12305ac184cb4378dc6d543389e958655465032cee3161a89eee49"),
 ];
 
 fn sha(bytes: &[u8]) -> String {
@@ -974,8 +974,8 @@ pub(super) fn w_c2_case_c() -> Value {
     raw
 }
 /// PROBE §4's input sha256 of case C, and PROBE §2.3's of two-body case B (`serde_json::to_vec`).
-pub(super) const W_C2_CASE_C_INPUT_SHA256: &str = "776162892a21294d4911705325be7a148393ff5c54b87d29a425f7150b1d864f";
-const TWO_BODY_B_INPUT_SHA256: &str = "3e609a376d95fbe4462182ab08d7371083d9e60c9418d9d494eecb62fae2e9f6";
+pub(super) const W_C2_CASE_C_INPUT_SHA256: &str = "80656b336825fabfd6e7fac9bff27e43161f5cc9c68f9f8c294cb405de8099e6";
+const TWO_BODY_B_INPUT_SHA256: &str = "6f31e3ccb206c0e1e997fa48aef7af5934b8af361e37230896a66937ecbbc79e";
 /// The L = 0 base (PLAN §1.2): the milestone plus node N2 at (3, 0, 0), which no member
 /// references, with one rigid support restraining all six DOFs (the milestone's rigid-support
 /// shape, no family). Body 1 is a single node: extent 0.
@@ -1037,10 +1037,10 @@ fn u8_real_input_fallbacks_append_one_notice() {
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const U8_L0_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "8852f0890a87c9b5e2e3922dac29b344c1581d6765eebc62b5c7560e73119173", "abf1ef976af4d24fcc3f365f7408531a7c6513fa37561fb1c74bb81093a7a492",
-        "783eb74c14d5e0cd03df539d2a610dfb7f3a6f9fcb9471cb4059475b0bbceeb7"),
-    ("dense_scrutiny", "b4624c590ee17faa8ccd497d88019866eb8ca5f7bc8319404eb638461479c3f8", "d0587643f8b210e77990e1e8ac858b733ff6b2f21dc22c2beb675ad455d8dd0a",
-        "a9c43b6d03e9edffb89be50d7c7a8cff8aff0c3876beeeec9b7574dcb59e1909"),
+    ("sparse_interactive", "41c173da931cac35fcd16585e9c8409c93fca543d45ff8077db13060a98b1990", "8e2f57ebf68c286b7afa5088037f7a7a2e8becc7298bee297ae87ef2a8c72484",
+        "7621a2236ee2a9b765eb596538ddbf3708b77c5e97a453768d573202f47b63ea"),
+    ("dense_scrutiny", "d13b72efd7e48b92e5ee0b844852ad57adcf0409bf0a141d58c5de688cad2572", "8a2ce256551e7bc164c92235fb83407ec4a5b43276e9b3134e4aa32ec9aed271",
+        "852db671172e114943fe6b9e7f9bcad84849de764743a1b477903b2c9bf0f1e4"),
 ];
 /// The milestone's pinned successor documents (U1; the U5-verified reference rows for body 0).
 const U8_MILESTONE_DOCUMENTS: [&str; 2] = [
@@ -1946,8 +1946,8 @@ fn b1_sp_w_c2_through_retained_w1_publishes_t12() {
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// W-8 topology warning added; no number moved.
 const W_C2_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "ec058146bca971cfd25454023670bbfe1e1d6013f7bf01616e44ddf97ab25aa5", "2e4300b358acb3f4b35f007d94520358cd4dcfc6630711fdc05753bd43af8d08", "7049c00b7de1bf5ed6872f86caf3fc45ac09a2aae652155c7f6636c91f53c19e"),
-    ("dense_scrutiny", "4134680944eb7aeb6aa96448ffaa67c86c4f5ab51bf4b5047aad34b5f81e4890", "7180fe56b53d9607feedb05af047f2dc29e6f0c5fd97aae5aa056ce15bd8a330", "9d8845cf4869affd44fc1e3e3fee8b2b13f85f9a020e45f0aaf9f8a62d8c761f"),
+    ("sparse_interactive", "28c2f256366619ebe4e4896e52f1ad07cf5acfcd3d2c5865b7328a6f767488ec", "3c34cf9b6333413863f407eed2e27ea84ae7fdb86c4869ff5b421cf8ca0ab6fb", "db91c7ae58aa1dc5a49756c901e21f9b515fbabad270638b14f5edec7a5abd95"),
+    ("dense_scrutiny", "29c361e46c10b61b6574e1206629355458ff51ffe8f68d4218ff43ef02354eb4", "15f0ba01dd2f57f636d93752d7bf2c08270e0170df61e18dce036fa48b2eb60a", "81ce3b4795a62b6f5099ddb6b0c1df4779fa1fdfe3590f310f49c7c2294930de"),
 ];
 /// The W-C2 successor document, in U1's form.
 fn w_c2_document(name: &str, raw: &Value, successor: &Value) -> String {
@@ -2295,9 +2295,9 @@ fn w_c2_plus_a2(ids: &[&str]) -> Value {
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// W-8 topology warning added; no number moved.
 const CBA_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "b9050a6b3654b78a3ec7e9fb26ef66eb4bdd22b8b201586211f6158095ed69c4", "b78d80612278221ecec635c909ca1872037ed6275946901a7af85089b28c766e"),
+    ("sparse_interactive", "cad5a0c63b0505980ad7433b0d118362d0fa328eb096ae64611f46784d124092", "ff94e289fb678048bf6b6efd7c8da8ec0a447445505d3ad2fedcf424801d1cb9"),
     // Re-pinned by I109 (PR-N): W-C2 case C's correctly rounded `rigid:N0` magnitude; every platform.
-    ("dense_scrutiny", "aa25d74c557070e4fb9aad52bb7c89221178c66abb6044af21f993f543d62765", "5cd8a9e3f1d9bcb21ce225fb6ebf3c469c238be8e86adf5b86d5f69962d23022"),
+    ("dense_scrutiny", "d5b3b312ceacafb56f138be554f1146a034ecbfbf1b2474068c2b59eaa0930c1", "30fd9bf55860396b5b4059e0502b226ae587da817bb2da8cdb30811bb95908dd"),
 ];
 /// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
 /// at the K-D5 head; against main the successors differ only by the current maximum declaration
@@ -2306,8 +2306,8 @@ const CBA_PINNED: [(&str, &str, &str); 2] = [
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// W-8 topology warning added; no number moved.
 const AA2_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "57a9f304f69c6a132375be3dfa48336a43f95ec689cb831f7850de387acf6b40", "63c29c99fe7cf232dcd086f85876a4201d6f7bd1c595ef957c42074961297987"),
-    ("dense_scrutiny", "a0473d97274297ee87a962e009d9a757943177b800d7129566df6c448f4c403f", "d78956b8039c6cd617a1df67937e18794f34ca59dc626b8dc963fef5545034eb"),
+    ("sparse_interactive", "d784691d071031c9c95880bbe58aeadb2438810ef4081f28e9e03637f6c8cde6", "d04acaa13c04f511b07e356314921926da9b366595131ea078e87895a158076e"),
+    ("dense_scrutiny", "ffd42521fc86f429ad1dc5d03ccb30108003414dab90bea71fa1312e3277ed7b", "2f097b9fd1af63dd12482f7e183261f531ffd693cca67b601e273482c064626e"),
 ];
 
 /// RV109's SF-2 (RR "RV109 passes SP in RV-P round 2; …", ruling 2): two successors pinned in both
@@ -2407,8 +2407,8 @@ fn milestone_reversed() -> Value {
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const REVERSED_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "959cd27fc86e7ebd837ec8156de75fe41ff660946e86bb63310323490c91fc0b", "98a4e3fa50157879cc81e55fc17cd45b263172bd916157d0ea1fdf07b6a2511e"),
-    ("dense_scrutiny", "d10ab80ea981d54e76731ca2f102f64247ed74f48225201cc97f3890c080ecdb", "8a579c621f991f581f282b2f257ae238783ccde8abab9da3fd56ee641e87e29b"),
+    ("sparse_interactive", "aad35858346737e72cc0676fe7c571da0d3529c1225703013d80171835105a0f", "e02f442c2df98c0e58f3f749bbb799e4496a8b74df4875e1d9e7decd7a5ac569"),
+    ("dense_scrutiny", "2a6d9364bfcb56f4eecefd72ad23d1d4cdbcf518ce546081cace2893e1e9eefd", "a873439cb231d5764d3e9bf5463d758f41478984453e6eff97381d480329b52d"),
 ];
 
 /// The nodal-term ordinal (C2 `CONTRACT_DELTA`:104; RR "I98's B2-W verified; …"): a CaseSource's
@@ -2460,7 +2460,7 @@ fn b1_sp_constructor_ordinal_is_the_authored_index() {
 /// case. On the milestone this is B3-W's `m3x`. `tests/common/b1_sq_inputs.rs` transcribes it.
 fn exact3(mut raw: Value) -> Value {
     let m = &mut raw["model"];
-    m["schema_version"] = json!("0.7.0");
+    m["schema_version"] = json!("0.8.0");
     m["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
     for material in m["materials"].as_array_mut().unwrap() {
         material.as_object_mut().unwrap().remove("shear_modulus");
@@ -2499,7 +2499,7 @@ fn m3l() -> Value {
 }
 /// The committed physics-source requests: B3b's coexistence pins n05 and n06, and P-2's
 /// selection discriminator `fields` (RR "I99's B3-W verified; …", rulings 1 and 2).
-/// B7b: the current (0.7.0, v3) twins of the deleted v2 originals.
+/// B7b: the current (0.8.0, v3) twins of the deleted v2 originals.
 const N05_EXACT: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json");
 const N06_EXACT: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n06.request.json");
 const FIELDS_EXACT: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/fields.request.json");
@@ -2518,12 +2518,12 @@ fn b3b_witness_inputs_and_routes() {
     // B7b re-pinned the exact witnesses after their one re-authoring to 0.5.0
     // (v3, Euler-Bernoulli, zero corrosion allowance); `m3l` is a refusal
     // control in its retired form and keeps its pin.
-    assert_eq!(value_sha(&m3x()), "ed718c22c6aac5726b2c17ac444e469a91d8d2e078101f8bc26525db4e8e9dc6", "m3x");
-    assert_eq!(value_sha(&m3x_mix_anchor()), "343a4055ea77160dcd47d164b07b1cf4ad9679e8a61b161b60d8c968a7f60581", "m3x_mix_anchor");
+    assert_eq!(value_sha(&m3x()), "3acbea852d1333419abfb09b65c7f581b7c41e0a61151b45d523e7c1b30f149d", "m3x");
+    assert_eq!(value_sha(&m3x_mix_anchor()), "1b8e7769109f18ab394b327f5add6efae32aed4728444486c3847789a4b6d10d", "m3x_mix_anchor");
     assert_eq!(value_sha(&m3l()), "2f5ff465bfa97005a581d88e02c0a5478ea24da3bdc1c2eb9fcda491803fc0c3", "m3l");
-    for (name, text, file_sha) in [("n05", N05_EXACT, "ff62a7b12eedab4c1f4f09a2fc751c20b872b6950d5a822f5cadefd393a532b0"),
-        ("n06", N06_EXACT, "77dac13bc4e231f762ff96cbfeb907718da22132a12c828f4ee596c6d4028ba0"),
-        ("fields", FIELDS_EXACT, "78194f4dfafecf55bdb1245bf69189de3d19de2e903b7dabe607cb820d545617")] {
+    for (name, text, file_sha) in [("n05", N05_EXACT, "b19f05c4e18b26ab7fa9deb185f35178ee665d410821a70fbd30b52225d05a93"),
+        ("n06", N06_EXACT, "f0e76211c0d0f40ae339b92f30a2f58e4152c6a75ae0e74a5210ebb1e77904bc"),
+        ("fields", FIELDS_EXACT, "22f5085e243dcbb73cb6732b115780afcabc645a655e8dbb470a59d898600093")] {
         assert_eq!(sha(text.as_bytes()), file_sha, "{name}");
         assert_eq!(w1_route(&model_of(&serde_json::from_str(text).unwrap())), Some(R::Exact), "{name}");
     }
@@ -2535,12 +2535,12 @@ fn b3b_witness_inputs_and_routes() {
     four["model"]["schema_version"] = json!("0.4.0");
     assert_eq!(w1_route(&model_of(&four)), None, "retired 0.4.0: no W1 route");
     // B7b: a present null contract fails decoding, so the contract-absent control omits the
-    // key. Model 0.7.0 keys on what the document carries: without a contract it is
+    // key. Model 0.8.0 keys on what the document carries: without a contract it is
     // pressure-free (`model_format::is_pressure_free`), so its namespace branch is L; the
     // retired 0.3.0 form keeps HEAD's "no branch".
     let mut contractless = m3x();
     contractless["model"].as_object_mut().unwrap().remove("pressure_contract");
-    assert_eq!(w1_route(&model_of(&contractless)), Some(R::Preview), "0.7.0 without a contract: pressure-free, branch L");
+    assert_eq!(w1_route(&model_of(&contractless)), Some(R::Preview), "0.8.0 without a contract: pressure-free, branch L");
     contractless["model"]["schema_version"] = json!("0.3.0");
     assert_eq!(w1_route(&model_of(&contractless)), None, "retired 0.3.0 without a contract: no branch");
     // P-2: the exact route's budget is the ordinary route's.
@@ -2558,7 +2558,7 @@ fn b3b_witness_inputs_and_routes() {
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// B7b re-pin (D4 (a)/A6, registered at D3 3ce082a9bb): against the pre-B7b fixtures only the
-/// re-authored request (0.7.0, v3, Euler-Bernoulli, CA 0 m), the pressure-2 base's
+/// re-authored request (0.8.0, v3, Euler-Bernoulli, CA 0 m), the pressure-2 base's
 /// limitations and `profile_mode`, DEF-E's H in the preparation hash, the identity-byte
 /// counter that follows the compared profile text, and the hashes that bind them changed
 /// (B7b evidence `w1/evidence-exact-successors.txt`); every physical and certificate value is
@@ -2576,8 +2576,8 @@ fn b3b_witness_inputs_and_routes() {
 // W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation (identity bytes only).
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation and the hashes binding it.
-    ("sparse_interactive", "c00297d82811b5b262002ce04b415629615c7a061f5548919e22543c91f1807f", "3bd5a0396a0da66602828d80fe7e879fd8209bb4f6673baf9ee767a65f4fcc69", "268144bef456b04a1a84b177558cb98e6dfa4ef78a0e5f5b4aa9c09a2daf9cc6"),
-    ("dense_scrutiny", "44fe0350a5f00b7547ebf78c83a1e58b53ba0ac4db5710edbba89853d35a6aba", "a56c2ac102305e678c3d4774eb408805a7d4958a30ce690d45cebf275231f009", "9bc4351e7ee3eaa9dafc9567bec9200b9b8cb6826078e73ae2beb5a2a986e2d9"),
+    ("sparse_interactive", "85e38b97c9cea2579f7851e4c570923ba2ba1494c7226480847f46ca76802ab8", "20b803927df33f8fd7711a93456dc8c195ded62a32103a1f5ae9137fcec903fb", "df425e31871b43cc704ac44a33612936643a638987128ec655118b46972c51fb"),
+    ("dense_scrutiny", "aeb67070108feb991b68d0292cafc341442e789b36cf3a64a38ae24b3ad33e8d", "b7d67c35225103f8883105d2bce903c12513c1fb32e8692de885a64fc33f99e8", "3bb19d83cb9e2c9f3cbbaff82b68053c02a4ede07f11904127c91cacfc4f74c0"),
 ];
 /// The mixed exact base's pinned successor: (mode, receipt sha256, successor bytes sha256).
 /// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
@@ -2591,7 +2591,7 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
 /// it moved (with the old text these pins reproduce); read from this test's writer line.
 // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation (identity bytes only).
 // W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation (identity bytes only).
-const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "876f2b630028eba1a7b7322926aad3681263cb54f43308c533068d0894793db4", "dca3748a4354ea155a8c4c4e4e9778a5b31cc8913220e8b3b59588bfd361ef1a"),("dense_scrutiny", "42d2e48454d22f1278b26b8506fdf436139f7ca4d26503c4b8a83d03a8bec21c", "c1347973881044ad761ce355f31447d3cda8e5617a465d143531ae6e09c867ad")];
+const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "ec4efec7c106b89bba777da86c25bc102ba19edde1137f93067c9e0a6a3dccf3", "90a8149726fda81c7cdfbfac89edb0f7e09d05dacc2be2236033bc699fa5feff"),("dense_scrutiny", "480d78d2fe374d3a7b77d45a79cc90286e5abde3f0ab65cc73cce27670c6b0e0", "793061d926e872b7694ea6501d2ed5dff001fd864443755b4303c0f5e1d1f261")];
 /// The exact successor's fixture document (D-U6-5's form).
 fn exact_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
     serde_json::to_string_pretty(&json!({"id":format!("b3b_m3x_{}", mode.as_str()),"source":successor,
@@ -3132,13 +3132,13 @@ fn b3b_exact_observables_refuse_each_evidence_defect() {
 /// …"): `m3l`, B3a's former witness, is now its refusal witness. G-A refuses it at D1.3 with
 /// `PressureContract`, so it takes the ordinary route: the plain bytes, no W1, one run, in both
 /// modes and every build. B7b: model document 0.3.0 is retired, so the label is carried by
-/// `m3l`'s copy re-authored to 0.7.0 (the legacy label kept; it is not an exact contract, so no
+/// `m3l`'s copy re-authored to 0.8.0 (the legacy label kept; it is not an exact contract, so no
 /// allowance is added); the frozen 0.3.0 `m3l` itself is refused earlier, by `SchemaVersion`.
 #[test]
 fn b3a_dropped_m3l_takes_the_ordinary_route() {
     use super::retained_memory::{AdmissionRefusal, D1Clause, FamilyFact};
     let current = crate::b7b_admission_tests::reauthor_current_request(m3l());
-    assert_eq!(current["model"]["schema_version"], json!("0.7.0"));
+    assert_eq!(current["model"]["schema_version"], json!("0.8.0"));
     assert_eq!(current["model"]["pressure_contract"], json!({"version": "1.0.0", "mode": "legacy_pressure_v1"}));
     for (raw, fact) in [(current, FamilyFact::PressureContract), (m3l(), FamilyFact::SchemaVersion)] {
         for mode in MODES {
@@ -3625,10 +3625,10 @@ fn two_member_exact(reversed: bool) -> Value {
 // W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation (identity bytes only).
 // W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation (identity bytes only).
 const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
-    (false, "sparse_interactive", "a880c7bfcaafcd36b0fbb0cd207f9c81e633169d11e947b1315fc4f027ebc682"),
-    (false, "dense_scrutiny", "ee567982095068ab5cad5f2dc0f92c347b54b68b63e48160a885c5322ced18d8"),
-    (true, "sparse_interactive", "d90831bfc17035efeac534f670d6046154d5fe01bb11669f72bbd69633cd3c33"),
-    (true, "dense_scrutiny", "e204011e47713f8757e046635f0b0ee9bd2b4f10ba0ca9d4d608a5d679ba3e32")];
+    (false, "sparse_interactive", "6e51ec3ae70ec29902ed1b2bcc20c2897bd768a938921fa031d9c891d6708da2"),
+    (false, "dense_scrutiny", "b79d089cb5fe2692043cc03705352ddce0e8bc3f11cf3d8b0e02bd393791d3af"),
+    (true, "sparse_interactive", "1c86d73ff8a0c45d64b87c1800d5095e43c3865230d1857dd5b62f9dbc2d9fd7"),
+    (true, "dense_scrutiny", "24161f641d2c5fc06e9562b7e3b7163ebfeccccfd986743a372dad4a02de4240")];
 /// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
 /// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
 /// and M2's prepared section differs from its source annulus's in at least one value, so the
@@ -3677,8 +3677,8 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
 /// it moved (with the old text these pins reproduce); read from this test's writer line.
 // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation (identity bytes only).
 // W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation (identity bytes only).
-const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "9e4cfaaf2cc27f891d3163146a8574cb865456176b91bb802dc10241b7149ab9"),
-    ("dense_scrutiny", "a43c9b29d5b81f408b8ac9d67cddbb4ac1844a9bc38e7fe10798d23ab461b472")];
+const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "c2fe2ef5afc2d02bce091eb78780f2fdfb136fd9cb3bfb412db86839854a52f5"),
+    ("dense_scrutiny", "59320549ea9d70a357129e0713cc7e9b01874d8d24920ff235e1d685cdfe96f5")];
 /// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
 /// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
 /// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),
@@ -4364,46 +4364,46 @@ fn b2p_dispositions(name: &str) -> &'static [&'static str] {
 /// on the declared `diagnostics` member instead of an unknown root member (`sw_stressed`), so
 /// their four rows moved with the request-bound hashes only (scratch structural proof).
 const B2P_PINNED: [(&str, &str, &str, &str); 20] = [
-    ("w_cb1", "sparse_interactive", "2b27cb545cdc3b455aba16e4508ec321f287cbc10af665cfeb4e4dac7786dd0b",
-        "3aee43512cace5bd6c782b228cbe08338e2bc3e6bc21f14d692c5830883f4a94"),
-    ("w_cb1", "dense_scrutiny", "29342df33cceb98583831b120ddd737aed49226db3c52aebfbb682fdcccd767d",
-        "f53d543d6fa2f1563c5503a113fffb3323b71f24383579a281d789f5a840410d"),
-    ("w_cb1z", "sparse_interactive", "ede03147ffc0609c26534b5249650dc7d5862336379de5f93664fda260ce1f3e",
-        "19e4a2bfa69efe46e3fc2824fdbcbe074c5eaeea382fefe08c9e5f4f58316f2e"),
-    ("w_cb1z", "dense_scrutiny", "0533beeff2eb464a73716928af293640390fd8e54cf6f3743ddd43b5b6cfb99c",
-        "86f538015805210f7038e9e70969e5253805c283b3de6d0e5938300a73e2c4f1"),
-    ("w_cb2", "sparse_interactive", "214a0e2902eae52665d8f7b1b3cf0482c88d130816287c43c40b85ab1dc58815",
-        "f3c8d5258d4d22b378414bddb0ef36faa679a3b2889dbb0547b3a461fc6903d2"),
-    ("w_cb2", "dense_scrutiny", "c5fb85ebfcc4ba1cdbc3ffa4c86edd3ba4a0bff069672669bc00e4520be5a9d6",
-        "fe8da1fdc2fcd6d8d6d78dd629b6e90b61db99e5f8a95e612e93b7835b0feda9"),
-    ("w_cb3", "sparse_interactive", "47850a5ab8092c5009204837c8aa47bff1cd6301eb4befbcadcf7c52012b9a5e",
-        "50f2d87de34c99ff7671e962bf29c13f1838f8b51fc8dec5610a2ef07ef1f56c"),
-    ("w_cb3", "dense_scrutiny", "c7cf4310bc198bec10e73eeadb2d6a861aabf7c419b9daa1f42307bf76081171",
-        "a5eb7ec2bd1f5c1c02f0b35a0c79b9a74f436fadb8a8936261ca3c8d0e0925ed"),
-    ("w_cb4a", "sparse_interactive", "31c263a2053084fa281acdf5a240076c116113ded9daf0b1b26b0dfdf1dc0bab",
-        "e80ca87f32c37827fcc925f902cd759d5ec1a3fb7e4f39cdfee0442fa7f434bd"),
-    ("w_cb4a", "dense_scrutiny", "09bf538f1f78f5d07abc4613a9578ad9db072fa808bb41247dae81d6a65be3bb",
-        "da8576eaa4fc1b55f5e339e05c90654cfd5aaf074b155dcf6f56abda078a694e"),
-    ("w_cb4b", "sparse_interactive", "6f09070eb789d2c64b311e2c8428b40e47674484113140028de1d2ca74b9be8f",
-        "5e54f505b0b2ea43c3703a21069291b4d9d2d7748d3f23dd5a78ec0c9913fb86"),
-    ("w_cb4b", "dense_scrutiny", "f9cbc62a8df8cfd70d440c83346b33fc04ac1db1e68b17a339578e5d6a9c74a7",
-        "f0d55326c9e874362d6016ead7d2088b485f37c0915a58adde1804b68e58f3f9"),
-    ("w_cb5", "sparse_interactive", "8767d3cf42987f3f7f723b1ba00b2611626d27923e79f0f352f29f3ad63e9794",
-        "182cf73063bef55f74cf6d5191b63ae342196843347603b9816c6fc6c63f5b22"),
-    ("w_cb5", "dense_scrutiny", "7ef5ffbb867b3e611c3494d24a9d81e709b6dffd9397777cff696273663aea9f",
-        "2fbfe685977b7bd53ec4976b45c31db57302f308fabb06c464fd15a50d4728aa"),
-    ("c1_range_mechanics", "sparse_interactive", "1a952d4ccbcf403042507be2b96cbe1ec76dd8acfee083e5000f23005327f102",
-        "54d19a51903d2cfc298c559e90dcfb4c5ad8ba725e6a8e89db49731f5393d86b"),
-    ("c1_range_mechanics", "dense_scrutiny", "174a5ea218f020bcc79760f31cd68b484c706dd373b8a05f59156f7ba0cf13e4",
-        "d8670176471984ca64892e879218790ce3bfe247d7513bbd130dcfc5d63115ea"),
-    ("rv123_w_cb3_ba", "sparse_interactive", "54975731905334ab3359bc059b3a805b5a6dd9c250e8920bc0f0920eef1e8a91",
-        "0845074c3f046991c0b8847772740ec628729674fd8e7512b9e9855f7e505db2"),
-    ("rv123_w_cb3_ba", "dense_scrutiny", "3b160863145c0600e366f56a17e9ca3ab66c96706ffb49ba85079b4d2740ca1d",
-        "38d5a947a53672aba0b45cdf1bc7c6934716fe2f9e234aad485991eb91ff3316"),
-    ("rv123_c1_two_mechanics", "sparse_interactive", "35a45cfc8bec0867d48abd7b867438a818b93296cb02ccfdef9e2b7473a4b9a7",
-        "25e15da731e655505df8a5f58f30d2bfa0b0d2b1bc8d7abd801ff08f2fe8fa37"),
-    ("rv123_c1_two_mechanics", "dense_scrutiny", "e5be45c533441a7699d8ff9b0230e72d26dd7cd6170b81c65764baa2687c4201",
-        "f4480eaacebb13fba68e1569ed46757f62772ae64f07201c8f7cbdaa92b3806d"),
+    ("w_cb1", "sparse_interactive", "8f4b02e4c5adc01ff1eea18d8e2ddc2779b3ab3356b5c8dd565fdb1a0468ca79",
+        "40579ac85a335cacc6baf72b0be70b2be86a773b2ff21313ac58520b564fcffa"),
+    ("w_cb1", "dense_scrutiny", "e27384cfc8e9f51a6ae8c165330e9bd52fd4379e6ee3a24eed4c33a5e9af9810",
+        "885b1142ee34d44187897f71b3ac4044e2a354572a0d4204d60dbd69dc884535"),
+    ("w_cb1z", "sparse_interactive", "2991936e3eb330af9eba34764f7166f048fae4d3314e64687e86a73f80840502",
+        "be43c036bdf89b385ae16d736e2caa8646d79c7511a3643ab827d001c7d9d601"),
+    ("w_cb1z", "dense_scrutiny", "4ac030c7e9bf7d1a95a1886bd5ef4b70dd82a84bfad66ed7a89dca8288f5a04a",
+        "3499ce69249ab4db37959867e37cba7fbc7364e79b2ec0bc322b6f767f4dd3a9"),
+    ("w_cb2", "sparse_interactive", "ecd7c6426f20db3da643899d50d74f83f0db576dee17e74098a4f16cddda3e4e",
+        "1cbf653d11523a3bd4d289073966be19c806b36c16878b8ad46a3116062f308b"),
+    ("w_cb2", "dense_scrutiny", "c274423d7e592d80f5aaf43a33c9ce22e651e667121f2834c23acdb38a4b1650",
+        "6dca75b35477ad0e11908c76d53ec2e0b358927d9dad6fe23456b3b74001e726"),
+    ("w_cb3", "sparse_interactive", "244b628d92a6d1b5d6b114a1a20ce9c65e9ab30346844f62a50bfb19174a5cca",
+        "dcd13ae8451504e5f4fc08e2bb6002d41a2001061bc89149d0c591da4f18e611"),
+    ("w_cb3", "dense_scrutiny", "a08b3748fca9ba69396ccde79539aedea6cfbe37abb4d8a44b13d76371315718",
+        "6660d669aa02ada61a1b69f20125d516e6df4fde6222c87172306533419ce408"),
+    ("w_cb4a", "sparse_interactive", "f5de19368ee7b749465de4905d54c6f301b8fccf6eefa3136b0ee0621515ade9",
+        "0a412148e6b527339a98a04808b21175bfb7644cff60f028e666c4b553bf700b"),
+    ("w_cb4a", "dense_scrutiny", "3ac9ec39fb1a75a01abed799912de30ab989f44222cc69a5c733cdd01cd6117f",
+        "435bbfff6b4c861c69571237eaaa6c141eb4fa270c8a21c3951d24b6e95e3494"),
+    ("w_cb4b", "sparse_interactive", "bd2182159d47b0bbf24dee53323a1109c311caca82cb5606f8f874506801f143",
+        "209ba3c0e1ffc7091618b2fa5c7d3b576484ecf9fb4c78126d1603c6930d121e"),
+    ("w_cb4b", "dense_scrutiny", "c9b7599edd8b34e5d07ef804b9c8d1353e7b343d8754c43f4cb48a91306e1a35",
+        "4cecdba25cada956dd285212ddd8aba24ae2c135f2e631326de0b9b7a7e5762b"),
+    ("w_cb5", "sparse_interactive", "9204b9b1593b978e9d31a3b7ac0d4d381a9af1408777d29b6003f1a1f33db9b1",
+        "7cf32bebdfb5151924995a91d75eeb5914874fe0b80d370156440b7106fd1433"),
+    ("w_cb5", "dense_scrutiny", "458e8c47ac5379c056b30705cdcfd52069ee64a4a8202abf536892f1591c0285",
+        "6a8967d0f4c31fad856af09c064f979fd69414193be2066143c63444a9124915"),
+    ("c1_range_mechanics", "sparse_interactive", "1815b4a82b6d43b4ddff9295bb6913f119ec65eb8f0178b827f0d3a9eb180248",
+        "3a71acf00d24307c78d8c17adbc7222ee0ec63757f53fd5c4e7dbefd0736b7f2"),
+    ("c1_range_mechanics", "dense_scrutiny", "b9222ecd5bb04907a908683d95e944979d686bed9bcc23d313109cee9ad11455",
+        "54080b93c1bb9ee77afe269afb7e0b4a35c540801a6a6036fb170e974e1ccb01"),
+    ("rv123_w_cb3_ba", "sparse_interactive", "f454408adeb23b724378bff493a7d9a9662934d0e69e2719150173d4a8e5c23e",
+        "2812d49290854cefb987ee433bfd42ad61086054583ed1c6f442da0e52720726"),
+    ("rv123_w_cb3_ba", "dense_scrutiny", "6d05c040d9634b399069db5e3b7dbde78edb74a2c457ca5bfb09b117b30628f3",
+        "416d9ab7c7d3e3ac60bb1274fffe24613e7cda20d465bd27fda19e69589a9797"),
+    ("rv123_c1_two_mechanics", "sparse_interactive", "388030ba27eac0d3ea21f4af3b61322622b948f32957640bd6fa61f8fbd14772",
+        "2ec1675b393dbb09c60a9c1096cc51ae98baa1b7dbf33c9c42710f7cccae4496"),
+    ("rv123_c1_two_mechanics", "dense_scrutiny", "aded8e4de0455ed4f73dc31bb371cce0d2fd56091e5c6407d9c19431ec0b2e40",
+        "1f4d27246eee1b92495357f573f3ceca15327f500e8809da666e05689b15f3de"),
 ];
 /// B2-P's small witnesses: (name, request).
 fn b2p_witnesses() -> Vec<(&'static str, Value)> {
@@ -4428,8 +4428,8 @@ fn combination_document(raw: &Value, mode: PreviewSolverMode, successor: &Value)
 /// `r7_cb1_halfb` and `r7_cb1`, checked on the records, apart from the model version: B7a
 /// re-authored the witnesses' model to 0.5.0, T4-S1 to 0.6.0 and W-13 S1b to 0.7.0, each of which moved all four input pins;
 /// the silent-drop guard's `diagnostics` carrier moved W-CB1's and W-CB1z's).
-const W_CB1_INPUT_SHA256: &str = "a1b8f27b97240a2fbe921b68a09a06322543f0fa8de134a182057561fe0374be";
-const W_CB1Z_INPUT_SHA256: &str = "89ce33bd24aac402d90ae499644057d73ae0d0b3f21189979e7be5937f9577a7";
+const W_CB1_INPUT_SHA256: &str = "65dc0048b6cc494520946f8df23867b5ce1bfe271fbf34f361b8db2b6111d7d9";
+const W_CB1Z_INPUT_SHA256: &str = "162d71d020ca4cd590ee3a95a7f8d875c2955220258a630c9906addf4f2b8d77";
 /// The B2-P witnesses' inputs: W-CB2 and W-CB3 are I98's `r7_cb2` and `r7_cb3_v1`, W-CB1 and
 /// W-CB1z its `r7_cb1_halfb` and `r7_cb1` (JSON-equal, checked on the records); their Value
 /// sha256s. With `I105_B2P_OUT` set, W-CB1's and W-CB1z's requests are written there.
@@ -4438,8 +4438,8 @@ fn b2p_witness_inputs() {
     let out = std::env::var("I105_B2P_OUT").ok();
     let mut got = Vec::new();
     for (name, raw, expected) in [("w_cb1", w_cb1(), W_CB1_INPUT_SHA256), ("w_cb1z", w_cb1z(), W_CB1Z_INPUT_SHA256),
-        ("w_cb2", w_cb2(), "98759ca874b528166762e5bb2f415a35d9a8102d0d6a9d1a647a76f9d5fe894b"),
-        ("w_cb3", w_cb3(), "814e1344f1bcec6e7d5168931a7e738841076bf1b9e62029c4ea181b91e842d5")] {
+        ("w_cb2", w_cb2(), "fcb32d3d88d354e73f37996c5c2fc2b9edcf24f099b79051791ee6f6c8048fd3"),
+        ("w_cb3", w_cb3(), "12077ead49e5c6385ad62ef278ec550875d149e8d45fba1f5cafb78568fb3c61")] {
         let value_sha = sha(&serde_json::to_vec(&raw).unwrap());
         println!("B2P_INPUT {name} value_sha={value_sha}");
         if let (Some(dir), true) = (&out, name.starts_with("w_cb1")) {

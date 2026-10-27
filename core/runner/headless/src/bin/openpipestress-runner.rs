@@ -21,6 +21,8 @@ use open_pipe_stress_product_physics::{
     LinearStaticPreviewRequest, MechanicsEnvelope, PreviewSolverMode,
 };
 use open_pipe_stress_report_package::{
+    document_form::{producer_contract_id, ROUTE_NOT_ADMITTED},
+    exact_sections::is_exact_identity,
     wire::{assemble_wire_request, decode_report_package_request, LinkedSolverIdentity, ReportPackageRequest},
     ReportPackageContainerOutcome,
 };
@@ -490,6 +492,22 @@ fn execute_export_results(
             );
         }
     };
+
+    // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §5.4): the
+    // headless runner stays refused for exact-route results after the owner
+    // opened the desktop's rendered report and report package (2026-10-26).
+    // Only the desktop has the Export Result JSON admission and the native
+    // source binding, so the runner refuses a pressure-2 or pressure-source-1
+    // result document under any export profile, with the code its package
+    // path gave before opening.
+    if let Some(id) = payload.result_documents.iter().filter_map(producer_contract_id).find(|id| is_exact_identity(id)) {
+        diagnostics.push(blocking(
+            "HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_INVALID",
+            "runner_operation",
+            "export_results",
+            format!("export_results payload is invalid: {ROUTE_NOT_ADMITTED}: the headless runner packages no exact-route result; only the desktop builds and binds their sections; found {id}"),
+        ));
+    }
 
     if request_validation.has_blocking_diagnostics() || has_blocking(&diagnostics) {
         return (
@@ -1060,7 +1078,7 @@ mod tests {
             PreviewSolverMode::DenseScrutiny,
         ] {
             // B4/D1 (b): source blocks remain only on the exact route's composites
-            // (B7b: the current pressure-source-1 request, 0.7.0/v3).
+            // (B7b: the current pressure-source-1 request, 0.8.0/v3).
             let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
                 .join("../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json");
             let payload: Value = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();

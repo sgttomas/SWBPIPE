@@ -9,9 +9,9 @@ function model(version: string): PreviewModel {
   return { ...structuredClone(fixture), schema_version: version, pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3" },
     components: [{ id: "component:J", label: "Invented joint", kind: "expansion_joint", node: "node:A", provenance: "invented", objective_connector: { version: "1.0.0", pressure_model: { kind: "unpressurized" } } }] } as unknown as PreviewModel;
 }
-it("queues an explicit area model through the common edit seam on 0.7.0 only", async () => {
+it("queues an explicit area model through the common edit seam on 0.8.0 only", async () => {
   const queue = vi.fn();
-  render(<JointPressureModelEditor model={model("0.7.0")} selection={{ type: "component", id: "component:J" }} onQueueIntent={queue} />);
+  render(<JointPressureModelEditor model={model("0.8.0")} selection={{ type: "component", id: "component:J" }} onQueueIntent={queue} />);
   const change = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
   change("Joint pressure model kind", "constant_effective_area_reference_v1");
   change("Joint effective area value", "0.004"); change("Joint effective area unit", "m^2");

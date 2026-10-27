@@ -224,7 +224,7 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
                         "this pressure contract is retired; re-author the model with pressure_contract 3.0.0/exact_pressure_v3 (shear_model euler_bernoulli), an explicit corrosion_allowance on every pipe section, explicit pressure_regions (an explicit [] for an unpressurized case) and E/nu materials");
                 } else if ExactContract::of(model).is_none() {
                     problem(diagnostics, "PRESSURE_CONTRACT_UNSUPPORTED", &["pressure_contract"],
-                        "model document 0.7.0 accepts only 3.0.0/exact_pressure_v3; incomplete or unknown contracts never fall back");
+                        format!("model document {} accepts only 3.0.0/exact_pressure_v3; incomplete or unknown contracts never fall back", crate::MODEL_SCHEMA_VERSION));
                 } else {
                     match contract.shear_model.as_deref() {
                         None => problem(diagnostics, "EXACT_PRESSURE_SHEAR_MODEL_REQUIRED",
@@ -247,7 +247,7 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
             diagnostics,
             "PREVIEW_SCHEMA_VERSION_UNSUPPORTED",
             &["schema_version"],
-            "direct mechanics solves support exactly model version 0.7.0",
+            format!("direct mechanics solves support exactly model version {}", crate::MODEL_SCHEMA_VERSION),
         ),
     }
     if model.schema_version == crate::MODEL_SCHEMA_VERSION {
@@ -1764,7 +1764,7 @@ mod tests {
 
     fn input() -> Value {
         json!({
-            "schema_version":"0.7.0", "document_kind":"openpipestress.product_preview.model",
+            "schema_version":"0.8.0", "document_kind":"openpipestress.product_preview.model",
             "pressure_contract":{"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"},
             "project":{"id":"project:region-test","units":{"length":"m"}},
             "analysis_status":{"mechanics":"not_run","rule_check":"not_run","professional_acceptance":"not_requested"},
@@ -2074,7 +2074,7 @@ mod tests {
         assert_eq!(diagnostics[0].code, "PRESSURE_MODEL_REAUTHOR_REQUIRED");
         // B7b A5: the re-author text names the current contract.
         assert!(diagnostics[0].message.contains("3.0.0/exact_pressure_v3"), "{}", diagnostics[0].message);
-        // Without the primitive, the 0.7.0 document is pressure-free and admitted.
+        // Without the primitive, the 0.8.0 document is pressure-free and admitted.
         old["load_cases"][0]["primitive_loads"] = json!([]);
         diagnostics.clear();
         validate_profile(&parse(old.clone()), &mut diagnostics);
@@ -2102,7 +2102,7 @@ mod tests {
 
     /// U3 (D-2 A1): the retired 1.0.0/legacy_pressure_v1 label is refused with
     /// the re-author code; B7b: so is the retired 2.0.0/exact_straight_pressure_v2
-    /// label. Either can only appear on the current 0.7.0 document now.
+    /// label. Either can only appear on the current 0.8.0 document now.
     #[test]
     fn retired_legacy_pressure_label_takes_the_reauthor_code() {
         for label in [

@@ -819,6 +819,9 @@ pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<AssembledS
             }
             "results" => {
                 let mut blocks = Vec::new();
+                if let Some(statement) = display_rule_statement(input) {
+                    blocks.push(paragraph(statement));
+                }
                 if let Some(route) = &input.exact_route {
                     blocks.extend(exact_route_blocks(input, route));
                 }
@@ -857,14 +860,28 @@ pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<AssembledS
             }
             "warnings_assumptions_provenance" => {
                 let unresolved = unresolved_provenance_warnings(input);
+                // Diagnostic evidence (DEL-08-01 Design
+                // `exact-route-report-sections.md` §3.7): a numerical-integrity
+                // diagnostic or a long message is shown in the table by a short
+                // cell that names its evidence label, and verbatim in the
+                // section's last block.
+                let mut evidence: Vec<(String, &sections::Diagnostic)> = Vec::new();
                 let diagnostic_rows = sections::sorted_diagnostics(disclosure)
                     .into_iter()
                     .chain(unresolved.iter())
                     .map(|diagnostic| {
+                        let message = if diagnostic_message_is_evidence(diagnostic) {
+                            let label = format!("E{}", evidence.len() + 1);
+                            let cell = diagnostic_evidence_cell(diagnostic, &label);
+                            evidence.push((label, diagnostic));
+                            cell
+                        } else {
+                            diagnostic.message.clone()
+                        };
                         vec![
                             diagnostic.code.clone(),
                             severity_label(&diagnostic.severity).to_string(),
-                            diagnostic.message.clone(),
+                            message,
                             diagnostic.remediation.clone(),
                         ]
                     })
@@ -960,6 +977,13 @@ pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<AssembledS
                             })
                             .collect(),
                     ));
+                }
+                if !evidence.is_empty() {
+                    blocks.push(subheading(DIAGNOSTIC_EVIDENCE_SUBHEADING));
+                    for (label, diagnostic) in &evidence {
+                        blocks.push(meta_paragraph(&diagnostic_evidence_heading(diagnostic, label)));
+                        blocks.push(paragraph(&diagnostic.message));
+                    }
                 }
                 ("Warnings, Assumptions, And Provenance", blocks)
             }
@@ -1279,6 +1303,127 @@ sharing or publication.",
 }
 
 // ---------------------------------------------------------------------------
+// Readability (DEL-08-01 Design `exact-route-report-sections.md` §3.7, §6.3):
+// the display rule statement, the diagnostic evidence block and the run-name
+// note. Every route; the HTML and the PDF carry them alike.
+// ---------------------------------------------------------------------------
+
+/// The report's display policy (DEL-08-01 Design
+/// `report-package-current-results.md` §2.3 item 5). The desktop writes it
+/// (`renderableReportInput.ts` `QUANTITY_DISPLAY_POLICY`) and the report
+/// package's producer requires it (`report_package::bindings`).
+pub const QUANTITY_DISPLAY_POLICY: &str = "display result-row values and stress headlines with explicit units; values stored in Pa are shown in MPa (1 MPa = 10^6 Pa, exact); displayed values are rounded to six significant digits; stored values and units are unchanged";
+
+/// The display rule, stated once at the start of the Results section when
+/// the report declares [`QUANTITY_DISPLAY_POLICY`].
+pub const DISPLAY_RULE_STATEMENT: &str = "Displayed values: result values and stress headlines are rounded for display to six significant digits, half away from zero, and a value stored in Pa is displayed in MPa (1 MPa = 10^6 Pa, an exact decimal shift). Stored values and units are unchanged; the stored units are listed as Result units in the Model Input Summary.";
+
+/// The display rule statement, when the report declares the display policy
+/// that applies it. A report declaring another policy states none.
+pub fn display_rule_statement(input: &RenderableReportInput) -> Option<&'static str> {
+    input
+        .calculation_report
+        .model_input_summary
+        .unit_display_summary
+        .as_ref()
+        .filter(|summary| summary.quantity_display_policy == QUANTITY_DISPLAY_POLICY)
+        .map(|_| DISPLAY_RULE_STATEMENT)
+}
+
+/// A Diagnostics message longer than this many characters (Unicode scalar
+/// values) is shown in full in the diagnostic evidence block, not in the
+/// table. Every message of the producer's other diagnostics on the committed
+/// witnesses is shorter (the longest, 720 characters).
+pub const DIAGNOSTIC_MESSAGE_TABLE_LIMIT: usize = 1000;
+/// The last block of the "Warnings, Assumptions, And Provenance" section.
+pub const DIAGNOSTIC_EVIDENCE_SUBHEADING: &str = "Diagnostic Evidence (full text)";
+
+/// Whether a diagnostic's message is shown in the evidence block: every
+/// numerical-integrity diagnostic (its message is the producer's structural
+/// evidence record), and every message over [`DIAGNOSTIC_MESSAGE_TABLE_LIMIT`].
+pub fn diagnostic_message_is_evidence(diagnostic: &sections::Diagnostic) -> bool {
+    diagnostic.code.starts_with(INTEGRITY_CODE_PREFIX) || diagnostic.message.chars().count() > DIAGNOSTIC_MESSAGE_TABLE_LIMIT
+}
+
+/// The code as a phrase: lower case, words separated by spaces, the first
+/// letter capitalised (`NUMERICAL_INTEGRITY_CHECKS_PASSED` → "Numerical
+/// integrity checks passed").
+fn code_phrase(code: &str) -> String {
+    let words = code.to_lowercase().replace('_', " ");
+    let mut chars = words.chars();
+    match chars.next() {
+        Some(first) => first.to_uppercase().chain(chars).collect(),
+        None => String::new(),
+    }
+}
+
+/// What the diagnostic affects: the load case of the producer's
+/// per-load-case numerical-integrity diagnostic, otherwise its affected object.
+fn diagnostic_affected(diagnostic: &sections::Diagnostic) -> String {
+    if diagnostic.code.starts_with(INTEGRITY_CODE_PREFIX) {
+        format!("load case {}", diagnostic.affected_object.ref_id)
+    } else {
+        format!("affected: {}", diagnostic.affected_object.ref_id)
+    }
+}
+
+/// The Diagnostics table's Message cell for a diagnostic shown in the
+/// evidence block: "<code phrase> (<load case or affected object>); full
+/// text: Diagnostic evidence E<k>".
+pub fn diagnostic_evidence_cell(diagnostic: &sections::Diagnostic, label: &str) -> String {
+    format!(
+        "{} ({}); full text: Diagnostic evidence {label}",
+        code_phrase(&diagnostic.code),
+        diagnostic_affected(diagnostic)
+    )
+}
+
+/// The evidence entry's heading line: "E<k>: <code> (<severity>), <load case
+/// or affected object>". The message follows verbatim as its own paragraph.
+pub fn diagnostic_evidence_heading(diagnostic: &sections::Diagnostic, label: &str) -> String {
+    format!(
+        "{label}: {} ({}), {}",
+        diagnostic.code,
+        severity_label(&diagnostic.severity),
+        diagnostic_affected(diagnostic)
+    )
+}
+
+/// The run name the product producer gives every desktop solve
+/// (`core/product_physics/src/lib.rs`, `run_id`). Report, result and
+/// limitation identifiers derived from it repeat across desktop runs.
+pub const DESKTOP_FIXED_RUN_NAME: &str = "run:preview-linear-static-001";
+
+/// The header's run-name note (§6.3 item 2): on a report of a run named
+/// [`DESKTOP_FIXED_RUN_NAME`], it states that the name is the producer's fixed
+/// name and identifies this run by its received result's SHA-256, the
+/// checksum of the audit reference `result_envelope`
+/// `result-envelope:<run>` (on an exact-route report, the admission
+/// binding's `received_result_sha256`, which the renderer checks against
+/// it). `None` for any other run name.
+pub fn run_name_note_text(input: &RenderableReportInput) -> Option<String> {
+    let run = &input.report_sections.run_ref.ref_id;
+    if run != DESKTOP_FIXED_RUN_NAME {
+        return None;
+    }
+    let envelope = format!("result-envelope:{run}");
+    let received = input
+        .calculation_report
+        .audit_manifest_refs
+        .iter()
+        .find(|entry| entry.reference.ref_type == "result_envelope" && entry.reference.ref_id == envelope)
+        .map(|entry| entry.checksum.value.as_str())
+        .filter(|value| is_lower_hex_64(value));
+    let lead = format!(
+        "Run name: {run} is the producer's fixed run name for every desktop solve, not an identity of this run; the report, result and limitation identifiers derived from it repeat across runs."
+    );
+    Some(match received {
+        Some(sha256) => format!("{lead} This run is identified by its received result sha256 {sha256}."),
+        None => format!("{lead} This report records no received result sha256 that identifies the run."),
+    })
+}
+
+// ---------------------------------------------------------------------------
 // W-11: the exact-route result block, its admission binding and its limitation
 // entries (DEL-08-01 Design `exact-route-report-sections.md` §3.2-§3.5).
 // ---------------------------------------------------------------------------
@@ -1363,7 +1508,9 @@ pub fn exact_admission_mismatches(input: &RenderableReportInput, route: &ExactRo
 }
 
 /// The standing line composed from a binding that holds (§3.2). "integrity
-/// checked" is the session's label (`LoadReferenceStatesBlock.tsx`).
+/// checked" is the session's label (`LoadReferenceStatesBlock.tsx`). When the
+/// Diagnostics carry an integrity warning, the rendered line is preceded by
+/// [`exact_integrity_warning_lead`].
 pub fn exact_standing_line(binding: &ExactAdmissionBinding) -> String {
     format!(
         "integrity checked (the Rust reader's standing for the result Export Result JSON admitted in this session: \
@@ -1372,12 +1519,55 @@ received result sha256 {}, model sha256 {}, input manifest {} sha256 {})",
     )
 }
 
+/// The code family of the producer's per-load-case numerical-integrity
+/// diagnostic, `diagnostic:numerical-integrity:<case>` (`core/product_physics`:
+/// `append_integrity_report`, `append_integrity_failure`, `formation_guard::demote`).
+pub const INTEGRITY_CODE_PREFIX: &str = "NUMERICAL_INTEGRITY_";
+/// The one integrity code the producer publishes at `info`: the case's
+/// integrity checks passed. Every other integrity code is `warning`
+/// (`NUMERICAL_INTEGRITY_SENSITIVE`, `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`)
+/// or `blocking` (the failures).
+pub const INTEGRITY_CHECKS_PASSED: &str = "NUMERICAL_INTEGRITY_CHECKS_PASSED";
+/// Where the standing line points a reader for an integrity warning: the
+/// Diagnostics table of the "Warnings, Assumptions, And Provenance" section.
+pub const EXACT_INTEGRITY_WARNING_POINTER: &str = "see the Diagnostics table under Warnings, Assumptions, And Provenance";
+
+/// The integrity warnings among the report's Diagnostics (§3.2): each entry
+/// of `report_sections.diagnostics` whose code is of the integrity family and
+/// which is not `NUMERICAL_INTEGRITY_CHECKS_PASSED` at `info`. Codes in the
+/// Diagnostics table's order, each once.
+pub fn exact_integrity_warning_codes(input: &RenderableReportInput) -> Vec<String> {
+    let mut codes: Vec<String> = Vec::new();
+    for diagnostic in sections::sorted_diagnostics(&input.report_sections) {
+        let passed = diagnostic.code == INTEGRITY_CHECKS_PASSED && diagnostic.severity == sections::Severity::Info;
+        if diagnostic.code.starts_with(INTEGRITY_CODE_PREFIX) && !passed && !codes.contains(&diagnostic.code) {
+            codes.push(diagnostic.code.clone());
+        }
+    }
+    codes
+}
+
+/// The standing line's lead when the Diagnostics carry integrity warnings
+/// (§3.2): it names the codes and points to the Diagnostics table, so the line
+/// never reads only "integrity checked" beside an integrity warning. `None`
+/// without one.
+pub fn exact_integrity_warning_lead(codes: &[String]) -> Option<String> {
+    match codes.len() {
+        0 => None,
+        1 => Some(format!("integrity warning present in the Diagnostics: {} ({EXACT_INTEGRITY_WARNING_POINTER}); ", codes[0])),
+        _ => Some(format!("integrity warnings present in the Diagnostics: {} ({EXACT_INTEGRITY_WARNING_POINTER}); ", codes.join(", "))),
+    }
+}
+
 /// The exact-route block at the start of the Results section (§3.2). A
 /// binding that does not hold states no standing; the report is blocked.
 fn exact_route_blocks(input: &RenderableReportInput, route: &ExactRouteSection) -> Vec<SectionBlock> {
     let mismatches = exact_admission_mismatches(input, route);
     let standing = match mismatches.first() {
-        None => exact_standing_line(&route.admission),
+        None => {
+            let lead = exact_integrity_warning_lead(&exact_integrity_warning_codes(input)).unwrap_or_default();
+            format!("{lead}{}", exact_standing_line(&route.admission))
+        }
         Some(field) => format!("not stated ({EXACT_ADMISSION_BINDING_MISMATCH}: {field})"),
     };
     let mut blocks = vec![
@@ -1915,6 +2105,9 @@ pub fn render_calculation_report(input: &RenderableReportInput) -> RenderOutcome
         "<p class=\"meta\">{}</p>\n",
         escape_html(&report_meta_text(input)),
     ));
+    if let Some(note) = run_name_note_text(input) {
+        body.push_str(&format!("<p class=\"meta\">{}</p>\n", escape_html(&note)));
+    }
     body.push_str(&format!(
         "<div class=\"status-banner\">{}</div>\n",
         escape_html(&status_banner_text(input)),

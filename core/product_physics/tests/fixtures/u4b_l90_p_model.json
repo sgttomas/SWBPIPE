@@ -567,7 +567,7 @@
       "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data"
     }
   ],
-  "schema_version": "0.7.0",
+  "schema_version": "0.8.0",
   "supports": [
     {
       "family": "anchor",

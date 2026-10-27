@@ -23,6 +23,7 @@ export const NATIVE_INGRESS_COMMANDS = [
   "validate_model_operation_batch",
   "apply_model_operation_batch",
   "convert_display_quantities",
+  "check_preview_model",
   "create_local_project",
   "save_local_project",
   "validate_rule_pack",

@@ -622,6 +622,11 @@ if fnkey("fallback_circular_maximum", _CP):
     if fnkey("near_duplicate_nodes", PP_ + "topology.rs"):
         _primitive_minmax_callers["topology.rs"] = ["near_duplicate_nodes"] + (
             ["scaled_norm"] if fnkey("scaled_norm", PP_ + "topology.rs") else [])
+    # W15C-CG (W-15 slice c, the eccentric offset; retained-pricing-rules.md §8.26): arc_evidence's two min/max
+    # receivers are f64 (`(...).max(...)` of two angle differences and `(c - eps).max(0.0)`, and `(...).sqrt().min(1.0)`).
+    # Only where the offset check exists.
+    if fnkey("arc_evidence", PP_ + "rigid_component.rs"):
+        _primitive_minmax_callers["rigid_component.rs"] = ["arc_evidence"]
     for _file, _names in _primitive_minmax_callers.items():
         for _name in _names:
             _file = PP_ + _file if not _file.startswith(PP_) else _file
@@ -2286,6 +2291,12 @@ if fnkey("state_applied_branch_factors", _W8V):
 # Debug (24) by the inherited f64 classes. The diagnostic's message `error.message` is one of those texts, at most
 # 39 + 58 + 327 = 424 B, priced by its inherited class (8,192 B); its refs are the one path String (the default
 # vec! element, 24 + 128 B; the to_string site at the literal's bytes).
+# SM-MS (retained-pricing-rules.md §8.26, "The shear-model member"): model document 0.8.0's
+# `model_settings.shear_model` adds validate_model_settings' second blocking diagnostic, pushed when
+# `shear_model_refusal` refuses the authored member. D1 admits it as it admits the tolerance (no D1 clause names
+# `model_settings`; the decoder accepts any JSON value and allocates nothing), so the site keeps the chain's
+# multiplicity. Its three texts format only the three static literal constants (SM-PT), and its refs are the one
+# path String. The guard below reads both diagnostics, the call, the three templates and the decoder.
 _NP_MS = PP_ + "model_settings.rs"
 if fnkey("validate_model_settings", _W8V) and fnkey("tolerance_not_finite_message", _NP_MS):
     _NP_TEXT = _text_of(_NP_MS)
@@ -2298,18 +2309,45 @@ if fnkey("validate_model_settings", _W8V) and fnkey("tolerance_not_finite_messag
         "tolerance_zero_in_metres_message": 'format!("{NODE_PROXIMITY_TOLERANCE_PATH} is {value:?} {unit}, which is zero in metres; the tolerance must be greater than zero.")',
         "tolerance_not_finite_in_metres_message": 'format!("{NODE_PROXIMITY_TOLERANCE_PATH} is {value:?} {unit}, which is not finite in metres; a finite length greater than zero is required.")',
     }
+    # SM-MS: the shear-model refusal's three templates, each once in its function, and the three literal constants.
+    _SM_T = {
+        "shear_model_unknown_message": 'format!("{SHEAR_MODEL_PATH} must be `{SHEAR_MODEL_EULER_BERNOULLI}` or `{SHEAR_MODEL_TIMOSHENKO}`.")',
+        "shear_model_with_pressure_contract_message": 'format!("{SHEAR_MODEL_PATH} is set on a document that declares pressure_contract; that document\'s shear model is pressure_contract.shear_model, so remove {SHEAR_MODEL_PATH}.")',
+        "shear_model_timoshenko_unsupported_message": 'format!("{SHEAR_MODEL_PATH} `{SHEAR_MODEL_TIMOSHENKO}` is not yet solved on a pressure-free document; set `{SHEAR_MODEL_EULER_BERNOULLI}` or remove the member.")',
+    }
+    _SM_C = {n: _re.findall(r'^pub const ' + n + r': &str = "([^"\\{}]*)";$', _NP_TEXT, _re.M)
+             for n in ("SHEAR_MODEL_PATH", "SHEAR_MODEL_EULER_BERNOULLI", "SHEAR_MODEL_TIMOSHENKO")}
+    _SM_DEC = _fn_text("deserialize_shear_model", _NP_MS) if fnkey("deserialize_shear_model", _NP_MS) else ""
+    _SM_REF = _fn_text("shear_model_refusal", _NP_MS) if fnkey("shear_model_refusal", _NP_MS) else ""
+    _SM_DOC = _fn_text("shear_model_document_refusal", _NP_MS) if fnkey("shear_model_document_refusal", _NP_MS) else ""
     _np = (
         len(_NP_PATH) == 1,
         all(_fn_text(fn, _NP_MS).count(t) == 1 for fn, t in _NP_T.items()),
-        _re.sub(r"//[^\n]*", "", _NP_TEXT.split("#[cfg(test)]")[0]).count("format!(") == len(_NP_T),
-        _NP_VMS.count("diag(") == 1, _NP_VMS.count("error.message,") == 1, _NP_VMS.count("error.code,") == 1,
-        _NP_VMS.count('"blocking",') == 1, _NP_VMS.count('"diagnostic:model-settings:node-proximity-tolerance",') == 1,
+        _re.sub(r"//[^\n]*", "", _NP_TEXT.split("#[cfg(test)]")[0]).count("format!(") == len(_NP_T) + len(_SM_T),
+        _NP_VMS.count("diag(") == 2, _NP_VMS.count("error.message,") == 2, _NP_VMS.count("error.code,") == 2,
+        _NP_VMS.count('"blocking",') == 2, _NP_VMS.count('"diagnostic:model-settings:node-proximity-tolerance",') == 1,
         _NP_VMS.count("vec![crate::model_settings::NODE_PROXIMITY_TOLERANCE_PATH.to_string()],") == 1,
         _fn_text("validate_model_inputs", _W8V).count("validate_model_settings(model, diagnostics);") == 1,
         _text_of(_W8V).count("validate_model_settings(") == 2,
+        # SM-MS: the second diagnostic, its one refusal call, and the refusal chain's message calls.
+        _NP_VMS.count('"diagnostic:model-settings:shear-model",') == 1,
+        _NP_VMS.count("vec![crate::model_settings::SHEAR_MODEL_PATH.to_string()],") == 1,
+        _NP_VMS.count("crate::model_settings::shear_model_refusal(setting, model.pressure_contract.is_some())") == 1,
+        _text_of(_W8V).count("shear_model_refusal(") == 1,
+        all(fnkey(fn, _NP_MS) and _fn_text(fn, _NP_MS).count(t) == 1 for fn, t in _SM_T.items()),
+        all(len(v) == 1 for v in _SM_C.values()),
+        _SM_DOC.count("shear_model_unknown_message()") == 1 and _SM_DOC.count("shear_model_with_pressure_contract_message()") == 1,
+        _SM_REF.count("shear_model_document_refusal(setting, has_pressure_contract)") == 1,
+        _SM_REF.count("shear_model_timoshenko_unsupported_message()") == 1,
+        all(_re.sub(r"//[^\n]*", "", _NP_TEXT.split("#[cfg(test)]")[0]).count(fn + "()") == 2 for fn in _SM_T),  # def + one call
+        # The decoder builds no value: one visitor through deserialize_any, IgnoredAny draining, no owner.
+        _SM_DEC.count("deserializer.deserialize_any(ShearModelVisitor).map(Some)") == 1,
+        _SM_DEC.count("next_element::<serde::de::IgnoredAny>()") == 1,
+        _SM_DEC.count("next_entry::<serde::de::IgnoredAny, serde::de::IgnoredAny>()") == 1,
+        not any(t in _SM_DEC for t in ("Value::", "String", "to_string", "to_owned", "collect", "Vec", "Box", "format!", "clone")),
     )
     if not all(_np):
-        raise SystemExit(f"NP-MS: the node-proximity tolerance's refusal texts changed; re-review their bounds: {_np}")
+        raise SystemExit(f"NP-MS: the model-settings refusals' texts or calls changed; re-review their bounds: {_np}")
     _NP_PB = len(_NP_PATH[0].encode())                                                    # 39 (NP-PT)
     _NP_PT = {"NODE_PROXIMITY_TOLERANCE_PATH": {"bytes": _NP_PB, "source": O10 + f"NP-PT: the path constant, a static literal of {_NP_PB} B"}}
     for _fn, _t in _NP_T.items():
@@ -2317,9 +2355,16 @@ if fnkey("validate_model_settings", _W8V) and fnkey("tolerance_not_finite_messag
         if "{unit}" in _t:
             _audit["unit"] = IN
         O10_ID_AUDIT += [(site(_fn, _NP_MS, _t, full=True), _audit)]
-    O10_ID_AUDIT += [(site("validate_model_settings", _W8V, ".to_string()],", full=True),
+    O10_ID_AUDIT += [(site("validate_model_settings", _W8V, "NODE_PROXIMITY_TOLERANCE_PATH.to_string()],", full=True),
                       {"crate::model_settings::NODE_PROXIMITY_TOLERANCE_PATH":
                        {"bytes": _NP_PB, "source": O10 + f"NP-PT: the path constant, a static literal of {_NP_PB} B"}})]
+    # SM-PT: the shear-model constants are plain literals, audited at their bytes in the three texts and the refs.
+    _SM_A = {n: {"bytes": len(v[0].encode()), "source": O10 + f"SM-PT: {n}, a static literal of {len(v[0].encode())} B"}
+             for n, v in _SM_C.items()}
+    for _fn, _t in _SM_T.items():
+        O10_ID_AUDIT += [(site(_fn, _NP_MS, _t, full=True), {n: a for n, a in _SM_A.items() if "{" + n + "}" in _t})]
+    O10_ID_AUDIT += [(site("validate_model_settings", _W8V, "SHEAR_MODEL_PATH.to_string()],", full=True),
+                      {"crate::model_settings::SHEAR_MODEL_PATH": _SM_A["SHEAR_MODEL_PATH"]})]
 
 # ---- The silent-zero guard (DEL-04-07 Design pressure-contract.md, "Load cases that apply nothing";
 # retained-pricing-rules.md §8.15). Each rule applies only where the guard's code exists, so earlier revisions price as
@@ -2392,6 +2437,36 @@ if _S1B_MV is None:
 O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [
     {"re": r"^crate::MODEL_SCHEMA_VERSION$", "max": len(_S1B_MV.group(1).encode()),
      "why": O10 + "S1B-MV: the current model version constant, a static literal of " + str(len(_S1B_MV.group(1).encode())) + " B"}]
+
+# M08-VZ (model document 0.8.0, retained-pricing-rules.md §8.26): validate_profile's two current-version texts format
+# the shared constant (S1B-MV) where they were literals, so each is a TEXT site of its own. Neither is reached on D1:
+# D1.3 (family_clauses refuses whatever namespace_branch refuses) admits only the current version, pressure-free (L) or
+# with a (3.0.0, exact_pressure_v3) contract (E). So the `_` arm (a version neither current nor retired) never runs, and
+# on E ExactContract::of (the current version and that identity) is Some, so PRESSURE_CONTRACT_UNSUPPORTED's branch
+# never runs. A change to any of these texts stops the run.
+_M08_PR = PP_ + "pressure_runtime.rs"
+_M08_PROFILE = _fn_text("validate_profile", _M08_PR) if fnkey("validate_profile", _M08_PR) else ""
+_M08_TEXTS = ('format!("model document {} accepts only 3.0.0/exact_pressure_v3; incomplete or unknown contracts never fall back", crate::MODEL_SCHEMA_VERSION)',
+              'format!("direct mechanics solves support exactly model version {}", crate::MODEL_SCHEMA_VERSION)')
+if any(_t in _M08_PROFILE for _t in _M08_TEXTS):
+    _M08_BRANCH = _fn_text("namespace_branch", PP_ + "retained_memory.rs")
+    _m08_vz = (
+        all(_M08_PROFILE.count(_t) == 1 for _t in _M08_TEXTS),
+        _M08_PROFILE.count("} else if ExactContract::of(model).is_none() {\n                    problem(diagnostics, \"PRESSURE_CONTRACT_UNSUPPORTED\"") == 1,
+        _M08_PROFILE.count("version if crate::is_retired_model_schema_version(version) => problem(") == 1
+        and _M08_PROFILE.count("        _ => problem(\n            diagnostics,\n            \"PREVIEW_SCHEMA_VERSION_UNSUPPORTED\",") == 1,
+        _M08_BRANCH.count("if crate::model_format::is_pressure_free(m) {\n        return Ok(NamespaceBranch::Preview);") == 1,
+        _M08_BRANCH.count('(crate::MODEL_SCHEMA_VERSION, Some(c)) if contract_is(c, "3.0.0", "exact_pressure_v3") => Ok(NamespaceBranch::Exact),') == 1,
+        _M08_BRANCH.count("(crate::MODEL_SCHEMA_VERSION, _) => Err(FamilyFact::PressureContract),\n        _ => Err(FamilyFact::SchemaVersion),") == 1,
+        _fn_text("family_clauses", PP_ + "retained_memory.rs").count("Err(fact) => return refuse(C::Namespace, fact),") == 1,
+        _fn_text("of", PP_ + "exact_admission.rs").count("if model.schema_version != crate::MODEL_SCHEMA_VERSION {\n            return None;") == 1
+        if fnkey("of", PP_ + "exact_admission.rs") else False,
+    )
+    if not all(_m08_vz):
+        raise SystemExit(f"M08-VZ: validate_profile's version texts or D1.3's namespace changed; re-review: {_m08_vz}")
+    O10_SITE_ZERO += [(site("validate_profile", _M08_PR, _t), O10 + "M08-VZ: D1.3 admits only the current version, "
+                       "pressure-free or with the (3.0.0, exact_pressure_v3) contract, so this refusal is never formed")
+                      for _t in _M08_TEXTS]
 
 # ---- The silent-drop guard (DEL-04-07 Design pressure-contract.md, "Pressure-free input closure";
 # retained-pricing-rules.md §8.19). Each rule applies only where the guard's code exists, so earlier revisions price as
@@ -2926,6 +3001,68 @@ if fnkey("applied_scales", _W15_RC) or fnkey("source_bodies", _W15_CB):
         (site("fail", _W15_CB, 'format!("SOURCE_COMPONENT_BODY_{code}")', full=True), {"code": ST}),
     ]
 
+# ---- W-15 slice c: a reducer's declared eccentric offset (DEL-03-05 Design `eccentric-reducer-offset.md` §3, §8;
+# retained-pricing-rules.md §8.26). Both entry points return at their first statement when no component carries the
+# slot, before the tolerance is read or any index is built.
+if fnkey("append_eccentric_offset_refusals", _W15_RC):
+    _W15C_REFUSE = _fn_text("append_eccentric_offset_refusals", _W15_RC)
+    _W15C_REALIZE = _fn_text("append_eccentric_offset_realized", _W15_RC)
+    _w15c_first = ("{\n    if !model.components.iter().any(|component| eccentric_offset(component).is_some()) {\n"
+                   "        return;\n    }\n    let Ok(tolerance) = model.node_proximity_tolerance_m() else { return };\n")
+    # W15C-NO (guard): each entry point's body begins with the allocation-free scan of `model.components` and its
+    # return, then reads the tolerance; under P2 (`model.components` empty on D1) `any` is false, so each returns there.
+    # judge_all (Topology::of's maps and sets, the run-axis decision, the judgement) and the tolerance accessor are
+    # called only after it, once each (judge_all nowhere else); lib.rs calls each entry point once.
+    _w15c_no = (
+        _W15C_REFUSE.split(") {", 1)[1].startswith(_w15c_first[1:]) if ") {" in _W15C_REFUSE else False,
+        _W15C_REALIZE.split(") {", 1)[1].startswith(_w15c_first[1:]) if ") {" in _W15C_REALIZE else False,
+        _W15C_REFUSE.count("judge_all(") == 1 and _W15C_REALIZE.count("judge_all(") == 1,
+        _W15C_REFUSE.count("node_proximity_tolerance_m(") == 1 and _W15C_REALIZE.count("node_proximity_tolerance_m(") == 1,
+        _text_of(_W15_RC).count("judge_all(") == 2 and _text_of(_W15_RC).count("fn judge_all<") == 1,
+        _text_of(_LIB).count("rigid_component::append_eccentric_offset_refusals(&model, &mut diagnostics);") == 1,
+        _text_of(_LIB).count("rigid_component::append_eccentric_offset_realized(&model, &mut diagnostics);") == 1,
+    )
+    if not all(_w15c_no):
+        raise SystemExit(f"W15C-NO: the eccentric-offset entry points or their premise changed; re-review their zeros: {_w15c_no}")
+    _W15C_P2 = O10 + "W15C-NO: P2 (no component on D1): no component carries eccentric_offset, so the entry point returns at its first statement"
+    # The accessor's two definitions (the method and the quantity function it calls) share a name, so both are zeroed.
+    _w15c_callees = [fnkey("judge_all", _W15_RC)] + [
+        Resolved("model_settings.rs:" + _fn_n("node_proximity_tolerance_m", PP_ + "model_settings.rs", _n, 2).split(":")[1]
+                 + ":node_proximity_tolerance_m") for _n in (1, 2)]
+    O10_EDGE_ZERO += [(fnkey(_caller, _W15_RC), _callee, _W15C_P2)
+                      for _caller in ("append_eccentric_offset_refusals", "append_eccentric_offset_realized")
+                      for _callee in _w15c_callees]
+    # W15C-L1 (loops): each entry point's loops follow its return (0 by P2), each only in its own function.
+    O10_LOOPS_LAST += [
+        ("for (component, outcome) in judge_all(model, tolerance)", "0", _W15C_P2 + "; the judged reducers",
+         ["rigid_component.rs:append_eccentric_offset_refusals", "rigid_component.rs:append_eccentric_offset_realized"]),
+    ]
+    # The texts behind the return, at multiplicity 0 (their vector texts are vec_text's three f64 in LowerExp).
+    O10_SITE_ZERO += [(site(_fn, _W15_RC, _t), _W15C_P2) for _fn, _t in (
+        ("append_eccentric_offset_refusals", 'format!("reducer {} eccentric offset has an axial component'),
+        ("append_eccentric_offset_refusals", 'format!("reducer {} declares eccentric offset {} but its end nodes are separated transversely'),
+        ("append_eccentric_offset_realized", "which governs the solve; the eccentricity is carried by the body member"),
+        ("append_eccentric_offset_realized", "exceeds the node-proximity tolerance {tolerance:e} m and is accepted only within"),
+    )]
+    # W15C-ID: a vector text is vec_text's `({:e}, {:e}, {:e}) m`, three f64 bounded by the chain's f64_display class
+    # (327 B each) and 8 B of literal; decide_axis's candidates are a node's adjoining member ids, at most MEMBERS (32)
+    # ids (IN128) joined by ", ". Both are reached only behind W15C-NO's return (multiplicity 0); the classes are stated so
+    # every argument is classified.
+    _W15C_VEC = {"bytes": 3 * 327 + 8, "source": O10 + "W15C-ID: vec_text, three f64 (f64_display class, 327) and 8 B"}
+    O10_ID_AUDIT += [
+        (site("append_eccentric_offset_refusals", _W15_RC, 'format!("reducer {} eccentric offset has an axial component', full=True),
+         {"vec_text(m.axis)": _W15C_VEC}),
+        (site("append_eccentric_offset_refusals", _W15_RC, 'format!("reducer {} declares eccentric offset {} but its end nodes are separated transversely', full=True),
+         {"vec_text(m.transverse)": _W15C_VEC}),
+        (site("append_eccentric_offset_realized", _W15_RC, "which governs the solve; the eccentricity is carried by the body member", full=True),
+         {"vec_text(m.transverse)": _W15C_VEC}),
+        (site("append_eccentric_offset_realized", _W15_RC, "exceeds the node-proximity tolerance {tolerance:e} m and is accepted only within", full=True),
+         {"vec_text(m.transverse)": _W15C_VEC}),
+        (site("decide_axis", _W15_RC, 'format!("end {end} adjoins more than one member ({})", candidates.join(", "))', full=True),
+         {'candidates.join(",")': {"bytes": 32 * 128 + 31 * 2,
+                                    "source": O10 + "W15C-ID: at most MEMBERS (32) member ids (IN128) joined by \", \""}}),
+    ]
+
 # ---- W-15 slice b: a rigid component's weight and centre of gravity as nodal weight loads (DEL-03-05 Design
 # `rigid-component-stiffness-scaling.md` §3; retained-pricing-rules.md §8.22). The generator's new functions are reached
 # on the solve graph only from inspect_applied_self_weight's lineage check, after its `continue`.
@@ -3079,3 +3216,185 @@ if fnkey("case_prescribed", _W16_IM):
         (site_after("solve_prepared_load_case", _LIB, "if has_blocking(&diagnostics[before..]) {", "load_case_id: load_case.id.clone(),"),
          {"load_case.id": IN}),
     ]
+
+# ---- W-16 slices b and c: exact-route load combinations (DEL-05-02 Design `exact-combinations.md`) and exact-route
+# equivalent-static generation (DEL-05-01 Design `exact-equivalent-static.md`); retained-pricing-rules.md §8.27. D1
+# admits neither on a retained branch: D1.4's exact clause refuses every combination on route E and route L has no
+# exact contract (W16B-CB); D1.5 refuses every case with equivalent_static on both routes (W16C-ES). What the new code
+# reaches on D1 is the pressure-2 reader's combination test (W16B-RD); every by-name edge into the two new modules'
+# private functions is an unrelated name (W16BC-BN).
+_W16B_EC = PP_ + "exact_combinations.rs"
+_W16B_EV = RE_ + "exact_combination_evidence.rs"
+_W16_RM = PP_ + "retained_memory.rs"
+if fnkey("append", _W16B_EC):
+    _W16B_RUN = _fn_text("run_linear_static_preview_observed_inner", _LIB)
+    _W16B_FAMILY = _fn_text("family_clauses", _W16_RM)
+    _W16B_LIBP = _re.sub(r"//[^\n]*", "", _text_of(_LIB))   # lib.rs opens with #[cfg(test)] module declarations
+    # W16B-CB (guard): D1.4's exact clause (route E) and the one guarded append; the evidence member is inserted only
+    # from append's records, and state_operand_standing runs only on that member.
+    _w16b_cb = (
+        _W16B_FAMILY.count("    if exact && !m.combinations.is_empty() {\n        return refuse(C::Invocation, F::Combinations);\n    }") == 1,
+        _W16B_RUN.count("let exact_combinations = (pressure_runtime::is_exact(&model) && !model.combinations.is_empty()).then(|| {\n"
+                        "        exact_combinations::append(") == 1,
+        _W16B_LIBP.count("exact_combinations::append(") == 1,
+        _W16B_RUN.count("if let Some(records) = exact_combinations {\n                evidence[\"exact_combinations\"] = serde_json::json!(records);") == 1,
+        _W16B_LIBP.count('"exact_combinations"') == 2,
+        _W16B_RUN.count('if let Some(records) = envelope.contract_evidence.as_mut().and_then(|e| e.get_mut("exact_combinations"))'
+                        '.and_then(serde_json::Value::as_array_mut) {\n        exact_combinations::state_operand_standing(') == 1,
+        _W16B_LIBP.count("exact_combinations::state_operand_standing(") == 1,
+    )
+    if not all(_w16b_cb):
+        raise SystemExit(f"W16B-CB: the combination premise or its guards changed; re-review its zeros: {_w16b_cb}")
+    _W16B_CB = (O10 + "W16B-CB: exact_combinations::append runs only under `is_exact(&model) && !model.combinations.is_empty()`: "
+                "route E's D1.4 exact clause refuses every combination (family_clauses) and route L has no exact contract "
+                "(D1.3 branch L), so append never runs and the `exact_combinations` evidence member it alone feeds is absent")
+    O10_EDGE_ZERO += [
+        (fnkey("run_linear_static_preview_observed_inner", _LIB), fnkey("append", _W16B_EC), _W16B_CB),
+        (fnkey("run_linear_static_preview_observed_inner", _LIB), fnkey("state_operand_standing", _W16B_EC),
+         _W16B_CB + " (state_operand_standing runs only on that member)"),
+    ]
+if fnkey("validate", _W16B_EV) and fnkey("validate_direct_pressure_evidence", RE_ + "physics_evidence.rs"):
+    _W16B_VPE = _fn_text("validate_pressure_evidence", RE_ + "physics_evidence.rs")
+    _W16B_PRESENT = _fn_text("present", _W16B_EV)
+    # W16B-RD (guard): the reader enters its combination pass only when `present`; otherwise it runs the direct pass
+    # once and returns its Result.
+    _w16b_rd = (
+        _W16B_VPE.count("    if crate::exact_combination_evidence::present(source) {\n"
+                        "        let view = crate::exact_combination_evidence::direct_view(source)?;\n"
+                        "        validate_direct_pressure_evidence(&view)?;\n"
+                        "        return crate::exact_combination_evidence::validate(source);\n    }\n"
+                        "    validate_direct_pressure_evidence(source)\n}") == 1,
+        _W16B_VPE.count("validate_direct_pressure_evidence(") == 2,
+        _W16B_PRESENT.count('source["contract_evidence"].get("exact_combinations").is_some()\n'
+                            "        || items(&source[\"results\"]).iter().any(is_combination_row)") == 1,
+        _fn_text("is_combination_row", _W16B_EV).count('row["basis_ref"]["ref_type"] == "combination"') == 1,
+    )
+    if not all(_w16b_rd):
+        raise SystemExit(f"W16B-RD: the reader's combination dispatch changed; re-review its zeros: {_w16b_rd}")
+    _W16B_RD = (O10 + "W16B-RD: present(source) is false on D1: the successor carries no contract_evidence.exact_combinations "
+                "(W16B-CB) and no row whose basis_ref names a combination (route E has none, D1.4's exact clause; route L "
+                "never reaches this reader, R1), so the combination pass and its view never run")
+    O10_EDGE_ZERO += [(fnkey("validate_pressure_evidence", RE_ + "physics_evidence.rs"), fnkey(_n, _W16B_EV), _W16B_RD)
+                      for _n in ("direct_view", "validate")]
+    EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey("validate_pressure_evidence", RE_ + "physics_evidence.rs"),
+        fnkey("validate_direct_pressure_evidence", RE_ + "physics_evidence.rs"), "1",
+        O10 + "W16B-RD: of the two direct-pass calls, the `present` arm's returns and is unreached on D1; the other runs once")]
+_W16C_FAMILY = _fn_text("family_clauses", _W16_RM) if fnkey("family_clauses", _W16_RM) else ""
+if fnkey("exact_equivalent_static_record", _LIB):
+    _W16C_GEN = _fn_text("append_equivalent_static_generated_loads", _LIB)
+    _w16c_else = "    let Some(equivalent_static) = &load_case.equivalent_static else {\n        return;\n    };\n"
+    _W16C_INT = _fn_text("intensity", PP_ + "certified_loads.rs")
+    _w16c_int = "        if let Some(generation) = &case.equivalent_static {\n"
+    _W16C_PSB = _fn_text("physical_source_built", PP_ + "source_receipt/composite.rs")
+    _w16c_psb = '    if case.equivalent_static.is_some() {\n        expected_keys.insert("equivalent_static");\n'
+    _W16C_VP = _fn_text("validate_profile", PP_ + "pressure_runtime.rs")
+    _W16C_PEI = _fn_text("validate_physics_evidence_in", RE_ + "physics_evidence.rs")
+    _W16C_TMI = _fn_text("validate_transport_metadata_in", RE_ + "physics_source.rs")
+    _W16C_LIBP = _re.sub(r"//[^\n]*", "", _text_of(_LIB))   # lib.rs opens with #[cfg(test)] module declarations
+    _w16c_gen_calls = ("pressure_runtime::is_exact(", "joint::replaced_span_ids(", "pressure_runtime::selects_timoshenko(",
+                       "curved_bend_realized_pipe_ids(", "generation_mass_per_length(", "refuse_generated_id_collisions(",
+                       "wind_span_replaced(")
+    # W16C-ES (guard): D1.5's per-case refusal, and every new call behind a case's equivalent_static.
+    _w16c_es = (
+        _W16C_FAMILY.count("    for case in &m.load_cases {\n        let regions_in_domain = match &case.pressure_regions {\n") == 1,
+        _W16C_FAMILY.count("        if case.equivalent_static.is_some() {\n            return refuse(C::Case, F::EquivalentStatic);") == 1,
+        "\n    }\n" not in _W16C_FAMILY.split("    for case in &m.load_cases {\n        let regions_in_domain", 1)[-1].split(
+            "        if case.equivalent_static.is_some() {\n            return refuse(C::Case, F::EquivalentStatic);", 1)[0],
+        _W16C_GEN.count(_w16c_else) == 1
+        and not any(_c in _W16C_GEN.split(_w16c_else, 1)[0] for _c in _w16c_gen_calls),
+        _W16C_INT.count(_w16c_int) == 1 and _W16C_INT.count("is_generated_equivalent_static_load(") == 2
+        and _W16C_INT.count("pressure_runtime::is_exact(") == 1
+        and _W16C_INT.split(_w16c_int, 1)[0].count("is_generated_equivalent_static_load(") == 0
+        and _W16C_INT.split(_w16c_int, 1)[0].count("pressure_runtime::is_exact(") == 0,
+        _fn_text("solve_prepared_load_case", _LIB).count(
+            "        if load_case.equivalent_static.is_some() {\n"
+            "            evidence[\"equivalent_static\"] = exact_equivalent_static_record(load_case, &loads);") == 1,
+        _W16C_LIBP.count("exact_equivalent_static_record(") == 2 and _W16C_LIBP.count('evidence["equivalent_static"]') == 1,
+        _W16C_PSB.count(_w16c_psb) == 1 and _W16C_PSB.count("exact_equivalent_static_record(") == 1
+        and _W16C_PSB.count("build_load_case_primitive_loads(") == 1
+        and _W16C_PSB.split(_w16c_psb, 1)[0].count("build_load_case_primitive_loads(") == 0,
+        _W16C_VP.count("        if case.equivalent_static.is_some() {\n") == 1 and _W16C_VP.count("carries_fields(") == 1
+        and _W16C_VP.index("carries_fields(") > _W16C_VP.index("        if case.equivalent_static.is_some() {\n"),
+        _W16C_PEI.count('        let generation = case.get("equivalent_static").is_some();\n        if generation {\n'
+                        '            equivalent_static_record(case_id, &case["equivalent_static"])?;') == 1
+        and _W16C_PEI.count("equivalent_static_record(") == 1,
+        _W16C_TMI.count('        if let Some(generation) = exact.get("equivalent_static") {\n') == 1
+        and _W16C_TMI.count("equivalent_static_record(") == 1,
+    )
+    if not all(_w16c_es):
+        raise SystemExit(f"W16C-ES: the equivalent-static premise or its guards changed; re-review its zeros: {_w16c_es}")
+    _W16C_ES = (O10 + "W16C-ES: D1.5 refuses every case with equivalent_static on both routes (family_clauses, "
+                "F::EquivalentStatic), so no admitted case generates and no case evidence carries an equivalent_static record")
+    O10_EDGE_ZERO += [
+        (fnkey("append_equivalent_static_generated_loads", _LIB), fnkey(_n, _f), _W16C_ES + " (after the generator's let-else return)")
+        for _n, _f in (("is_exact", PP_ + "pressure_runtime.rs"), ("replaced_span_ids", PP_ + "joint.rs"),
+                       ("selects_timoshenko", PP_ + "pressure_runtime.rs"), ("curved_bend_realized_pipe_ids", _LIB),
+                       ("generation_mass_per_length", _LIB), ("refuse_generated_id_collisions", _LIB), ("wind_span_replaced", _LIB))
+    ] + [
+        (fnkey("intensity", PP_ + "certified_loads.rs"), fnkey(_n, _f), _W16C_ES + " (inside intensity's `if let Some(generation)` arm)")
+        for _n, _f in (("is_generated_equivalent_static_load", _LIB), ("is_exact", PP_ + "pressure_runtime.rs"))
+    ] + [
+        (fnkey("solve_prepared_load_case", _LIB), fnkey("exact_equivalent_static_record", _LIB),
+         _W16C_ES + " (the case evidence's record is formed only under `load_case.equivalent_static.is_some()`)"),
+        (fnkey("physical_source_built", PP_ + "source_receipt/composite.rs"), fnkey("exact_equivalent_static_record", _LIB),
+         _W16C_ES + " (the companion binding re-forms the record only under `case.equivalent_static.is_some()`)"),
+        (fnkey("physical_source_built", PP_ + "source_receipt/composite.rs"), fnkey("build_load_case_primitive_loads", _LIB),
+         _W16C_ES + " (the companion binding re-forms the record only under `case.equivalent_static.is_some()`)"),
+        (fnkey("validate_profile", PP_ + "pressure_runtime.rs"), fnkey("carries_fields", PP_ + "case_state/mod.rs"),
+         _W16C_ES + " (validate_profile's load/reference-state refusal is inside `case.equivalent_static.is_some()`)"),
+        (fnkey("validate_physics_evidence_in", RE_ + "physics_evidence.rs"), fnkey("equivalent_static_record", RE_ + "physics_evidence.rs"),
+         _W16C_ES + "; the producer writes the record only under `load_case.equivalent_static.is_some()` (solve_prepared_load_case)"),
+        (fnkey("validate_transport_metadata_in", RE_ + "physics_source.rs"), fnkey("equivalent_static_record", RE_ + "physics_evidence.rs"),
+         _W16C_ES + "; the producer writes the record only under `load_case.equivalent_static.is_some()` (solve_prepared_load_case)"),
+    ]
+# W16BC-BN: the call graph links a call by its name; these callers name a different function (a method, a binding or
+# a function of their own module) that shares a name with a private function of exact_combinations.rs or
+# exact_combination_evidence.rs. A private module-level function or method is visible only inside its module, so none
+# of these callers can call it. Guard: each callee is defined once, without `pub`.
+_W16BC_BN = []
+for _callee_file, _callee, _callers in (
+        (_W16B_EC, "evidence", (("run_linear_static_preview_observed_inner", _LIB), ("solve_prepared_load_case", _LIB),
+                                ("kernel_outcome", PP_ + "retained_wire.rs"), ("composite_exact", PP_ + "source_receipt/composite.rs"))),
+        (_W16B_EC, "with", (("tally", PP_ + "retained_tests_hooks/grant2.rs"),)),
+        (_W16B_EC, "stiffness", (("build_curved_bend_macro_elements", _LIB), ("check_captured_structure", PP_ + "retained_product.rs"))),
+        (_W16B_EV, "stiffness", (("build_curved_bend_macro_elements", _LIB), ("check_captured_structure", PP_ + "retained_product.rs"))),
+        (_W16B_EV, "text", (("identity_match", _W16_RM), ("pending_error_bytes", PP_ + "retained_product.rs"),
+                            ("expression_matches", RE_ + "retained_precision.rs"))),
+        (_W16B_EV, "add", tuple((_n, RE_ + "declared_member_load.rs") for _n in ("isqrt", "add", "rn", "sqrt", "div12", "declared"))),
+        (_W16B_EV, "signum", (("section_functionals", RE_ + "physics_source.rs"),))):
+    _k = fnkey(_callee, _callee_file)
+    if not _k:
+        continue
+    _def = _text_of(_callee_file).split("\n")[int(_k.split(":")[1]) - 1]
+    if not _re.match(r"\s*fn\s", _def):
+        raise SystemExit(f"W16BC-BN: {_callee_file}:{_callee} is no longer private; re-review its by-name zeros")
+    for _n, _f in _callers:
+        # Every definition of the caller's name in its file (an impl method may share it; `pub(in ..)` included).
+        _defs = [i + 1 for i, _l in enumerate(_text_of(_f).split("\n"))
+                 if _re.match(r"\s*(pub(\([^)]*\))?\s+)?fn\s+" + _re.escape(_n) + r"\b", _l)] if _os.path.exists(_os.path.join(_SNAP, _f)) else []
+        for _line in _defs:
+            _W16BC_BN.append((Resolved(f"{_f.split('/src/')[-1]}:{_line}:{_n}"), _k, O10 + f"W16BC-BN: by-name edge to the private `{_callee}` of "
+                              f"{_callee_file.split('/src/')[-1]}, which {_n} cannot call (its `{_callee}` is another function, method or binding)"))
+O10_EDGE_ZERO += _W16BC_BN
+# W16BC-ID: the new modules' unreached format sites keep their arguments' classes (the chain classifies every format
+# row before its multiplicity applies). A combination names at most three operand cases (D1.9: at most three terms or
+# range operands), each an IN128 id, joined by ", "; the envelope mode is one of four literals; an operand's modulus
+# reference is the case's modulus_basis_ref (IN128); a withheld reason is one of the reader's static constants.
+if fnkey("validate", _W16B_EV):
+    _W16_JOIN3 = {"bytes": 3 * 128 + 2 * len(", "), "source": O10 + "W16BC-ID: at most three IN128 operand case ids joined by \", \""}
+    _w16_modes = _re.findall(r'Mode::\w+ => "([a-z_]+)"', _fn_text("sign", _W16B_EV))
+    _w16_consts = [len(_c.encode()) for _c in _re.findall(r'const [A-Z_]+: &str = "((?:[^"\\]|\\.)*)";', _production(_W16B_EV))]
+    if len(_w16_modes) != 4 or not _w16_consts:
+        raise SystemExit(f"W16BC-ID: the envelope mode literals or the reader's constants changed; re-review: {_w16_modes}")
+    O10_ID_AUDIT += [
+        (site("validate", _W16B_EV, "is missing in operand case {cases}", full=True), {"cases": _W16_JOIN3}),
+        (site("sign", _W16B_EV, "mode-selected source result across", full=True, row="format!("),
+         {'matchmode{Mode::Min=>"min",Mode::Max=>"max",Mode::MinAbs=>"min_abs",Mode::MaxAbs=>"max_abs",}':
+          {"bytes": max(len(_m) for _m in _w16_modes), "source": O10 + "W16BC-ID: the longest envelope mode literal"}}),
+        (site("modulus_key", _W16B_EV, 'format!("exact:{}", text(r, "OPERAND_SHAPE")?)', full=True), {'text(r,"OPERAND_SHAPE")?': IN}),
+        (site("validate", _W16B_EV, 'w["reason"].as_str().unwrap_or_default()', full=True),
+         {'w["reason"].as_str().unwrap_or_default()': {"bytes": max(_w16_consts),
+          "source": O10 + "W16BC-ID: a withheld reason is a static constant of the reader (the longest bounds it)"}}),
+    ]
+if fnkey("append", _W16B_EC):
+    O10_ID_AUDIT += [(site("append", _W16B_EC, "is missing in operand case {cases}", full=True), {"cases": _W16_JOIN3})]

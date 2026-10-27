@@ -329,6 +329,17 @@ of `refuse` by cases·l (`EDGE_PER_CALL`), and audits the reachable node/element
 `rules/sq2_decisions_E.py` zeroes `validate` → `validate_pressure_free` on route E (EXACT). See the governing rules'
 §8.23 and `tests/test_w16_imposed_motion.py`.
 
+### W-16 slices b and c exact combinations and equivalent-static generation
+
+Slices b and c add no owner on D1, which admits neither feature on a retained branch: route E's D1.4 exact clause
+refuses every combination, route L has no exact contract, and D1.5 refuses every case with `equivalent_static` on both
+routes. `rules/o10_rules.py` zeroes, under source guards, the exact combination append and operand standing (W16B-CB),
+the pressure-2 reader's combination pass behind `present()` (W16B-RD, whose direct pass is counted once per call by
+`EDGE_PER_CALL`), the generator's new calls, the equivalent-static record and its two readers (W16C-ES), and the
+by-name edges into the two new modules' private functions (W16BC-BN); W16BC-ID classifies the new modules' unreached
+format arguments. `rules/sq2_decisions_E.py`'s B7b-LR zero follows the direct pass. See the governing rules' §8.27 and
+`tests/test_w16bc_combinations_equivalent_static.py`.
+
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual

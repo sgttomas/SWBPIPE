@@ -59,7 +59,7 @@ Revision 1. Revision 0 (9c150de821) is the governing design for the T4 unit that
 - **Prescribed values (review M1).** The loop prescribes every base-restrained DOF at 0. Imposed displacements cannot reach this route: the preview route takes support-targeted imposed displacement only in a model without nonlinear supports, and refuses it by name in a model with one (`IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS`, W-16 slice a stage 1; DEL-04-03 Design `pf-imposed-displacement.md`), until stage 2 measures the support states relative to the motion; the load-state route is exact-route only, where nonlinear supports are refused. The confirmation still checks the published u against the state's prescribed map bit for bit (§2.4).
 - **Convergence and qualification.** The governed residual is the state-change count. A converged result passes `product_selected_state_is_qualified`: zero changes and contact branches admissible; the classifier reproduces the non-friction final states from the final iterate; M03 original-equation equilibrium passes. Each iteration's solve is `AssemblyEvidence::solve_binary64`, with no formation check. A case that does not converge, or fails qualification, publishes `SOLVER_SYSTEM_BLOCKED` (or the integrity failure) and never reaches the confirmation (PP `append_nonlinear_support_loop_results`, and the `selected-state-unavailable` return in `solve_load_case_observed`).
 - **Gap scrutiny.** Every gap-bearing converged case publishes `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED` (both branches). The NGR02 containment tests pin it.
-- **Publication today.** A converged non-gap case publishes `append_integrity_report` from the last iteration's `StructuralReport` and its product-equilibrium report (PP `solve_load_case_observed`, the nonlinear branch). kd5 §5's sentence then demotes a would-be `CHECKS_PASSED` to Sensitive. Member rows are binary64 recoveries from the loop's u. Support rows come from the loop's reported reactions. Combinations of a nonlinear model are withheld.
+- **Publication today.** A converged non-gap case publishes `append_integrity_report` from the last iteration's `StructuralReport` and its product-equilibrium report (PP `solve_load_case_observed`, the nonlinear branch). kd5 §5's sentence then demotes a would-be `CHECKS_PASSED` to Sensitive. Member rows are binary64 recoveries from the loop's u. Support rows come from the loop's reported reactions. Mechanics combinations of a nonlinear model are withheld (`NONLINEAR_COMBINATION_REQUIRES_SOLVE`); result-state subtractions and range envelopes are formed from the cases' published rows, as derived inspection results without their own numerical enclosure.
 
 ## 1. The intended system at the converged active set
 
@@ -195,7 +195,7 @@ So u* with the state satisfies the intended contact and Coulomb conditions with 
 **Uniqueness (R5).**
 
 - **Frictionless states** (no friction support, or only inactive explicit-normal friction supports). The intended problem minimizes ½uᵀKu − fᵀu over the base-prescribed set with linear inequality constraints. For the exact-element model K is positive semidefinite, so every KKT point is a global minimizer; strict complementarity and the state's nonsingular reduced matrix make u* the unique one. This is a property of the exact-element model; positive semidefiniteness of the p-rounded K_int is not separately certified, so uniqueness is stated, not certified.
-- **States with active friction.** No uniqueness is claimed. Static Coulomb friction can admit several consistent states; the certificate establishes that the published state is one of them, in DEC-067's path-independent model.
+- **States with active friction.** No uniqueness is claimed. Static Coulomb friction can admit several consistent states; the certificate establishes that the published state is one of them, in DEC-067's static, history-free model.
 
 ### 2.4 Fail closed
 
@@ -250,7 +250,7 @@ A nonlinear case is pre-guard Passed when the last iteration's report is Passed 
 - **The explicit-normal sliding row (review I1).** fl(φ) equals the loop's applied force bit for bit, but today's published row is the reported reaction fl(K·u − f − φ⁰)_t + φ⁰, which adds the binary64 residual of the free row. The certified row therefore differs from today's by that residual.
 - **Groups.** Each nonlinear support is a support group of its body in the force or moment family by its DOF (kd5 §3.2), with its component vector and its separately published scalar magnitude. The friction-normal row is the source restraint's row.
 - **The predicate, the notice and the maximum** run unchanged over all groups (kd5 §3.2–3.3). An inactive support's zero group is zero-compatible, with a = 0 and B = 0. A demotion keeps the certified rows, as in (d).
-- **Combinations** of nonlinear models stay withheld.
+- **Combinations.** Mechanics combinations of nonlinear models stay withheld. Result-state subtractions and range envelopes are formed from the cases' published rows (the certified rows where a case is confirmed); they remain derived inspection results without their own numerical enclosure, and nothing in this design certifies them.
 
 ### 3.2 Criterion
 

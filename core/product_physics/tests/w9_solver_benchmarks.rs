@@ -259,7 +259,7 @@ fn request(reference: &Value, route: Route, density: Option<f64>, loads: Vec<Val
                         "direction": "global_x", "magnitude": qv(dt, "degC"), "dimension": "temperature_interval", "provenance": PROV}));
                 }
             }
-            json!({"model": {"schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
+            json!({"model": {"schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
                 "project": {"id": "project:w9", "units": units}, "analysis_status": status,
                 "nodes": nodes, "pipe_segments": pipes, "supports": supports, "components": [],
                 "materials": [{"id": "material:w9", "elastic_modulus": qv(s.e, "Pa"), "shear_modulus": qv(s.g, "Pa"),
@@ -295,7 +295,7 @@ fn request(reference: &Value, route: Route, density: Option<f64>, loads: Vec<Val
                 })
                 .collect();
             let members: Vec<Value> = f.pipes.iter().map(|(id, ..)| json!({"pipe_ref": id, "basis": {"kind": "direct_strain_reference"}, "fit": {"kind": "none"}, "provenance": PROV})).collect();
-            json!({"model": {"schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
+            json!({"model": {"schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
                 "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
                 "project": {"id": "project:w9", "units": units}, "analysis_status": status,
                 "nodes": nodes, "pipe_segments": pipes, "supports": supports, "components": [],

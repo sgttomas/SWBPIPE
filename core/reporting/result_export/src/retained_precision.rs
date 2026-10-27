@@ -22,7 +22,7 @@ pub const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
 /// H(`retained_precision_formation_v1`, DEF-E) (REVISION_01 §1.2). T4-U6: DEF-E
 /// states zero mill tolerance and lists the reduced-basis rows and both headlines.
 pub const EXACT_DEFINITION_HASH: &str =
-    "bd3c7de76f4ba2d1f7a72894c173e9c449e27f318359de648f912a192f7cb031";
+    "913d248b387ecba3dd668493aa2176719965715c20b7d419c63b35c7d7f3657f";
 const MAX_BITS: u64 = 0x7fef_ffff_ffff_ffff;
 /// B4/D1 W1 extension (b7-plan "Failed-ordinary successor rulings" (4)): the requested-mode
 /// basis row of a case whose ordinary attempt genuinely failed. It replaces
@@ -594,7 +594,7 @@ const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
 );
 const PRESSURE_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json");
-const EXACT_TABLE_HASH: &str = "ef0191ccc74a01a81ce0a5b603629f7e1166b10f87bf66334b2ebbeb1c133ac8";
+const EXACT_TABLE_HASH: &str = "33cc0c4dc1d7dea07e14c16e07f4ee3f93cc2f84e4dd0494e232397d4e3861c1";
 /// RV78-N1's policies (B3D-8): the receipt values XTABLE's `receipt_bindings`
 /// binds from version 1, keyed by the receipt body's own paths.
 fn receipt_bindings() -> Value {
@@ -4863,7 +4863,7 @@ fn exact_material(raw: &Value) -> VResult<(f64, f64, f64)> {
 /// §4.7), and an explicit, finite, length-valued allowance ≥ 0 with
 /// c_m + c_a < t on every pipe section (DEF-E G8; the producer's own refusals).
 fn exact_namespace(model: &Value) -> bool {
-    model["schema_version"].as_str() == Some("0.7.0")
+    model["schema_version"].as_str() == Some("0.8.0")
         && model.as_object().is_some_and(|object| !object.contains_key("shear_model"))
         && pressure_contract_is(&model["pressure_contract"], "3.0.0", "exact_pressure_v3")
         && section_allowances(model, true)
@@ -4945,13 +4945,13 @@ fn pressure_contract_is(v: &Value, version: &str, mode: &str) -> bool {
 }
 /// D1.3 on the preview branch, type-strict (B3-D REVISION_01 §3, N-4): branch
 /// L, a pressure-free document, keyed on the contract's absence (b7-plan
-/// "Model format, pressure-free half"): the current model version 0.7.0 with
-/// `pressure_contract` absent. Anything else (a 0.7.0 model with
+/// "Model format, pressure-free half"): the current model version 0.8.0 with
+/// `pressure_contract` absent. Anything else (a 0.8.0 model with
 /// any contract, `{}` or `false` included; the retired 0.1.0 and 0.2.0; any
 /// 0.3.0 or 0.4.0 model) is outside the namespace. B3a's branch L3 is dropped
 /// (the owner retired that contract product-wide); B3D-10's tightenings stay.
 fn preview_namespace(model: &Value) -> bool {
-    model["schema_version"].as_str() == Some("0.7.0")
+    model["schema_version"].as_str() == Some("0.8.0")
         && model.as_object().is_some_and(|object|
             !object.contains_key("pressure_contract") && !object.contains_key("shear_model"))
         && section_allowances(model, false)
@@ -7067,7 +7067,7 @@ mod b3b_table_binding_tests {
 
 /// B7a (b7-plan "Model format, pressure-free half"): G8's preview namespace keys
 /// on the pressure contract's absence on the current model version. Keying it on
-/// the version string alone (a 0.7.0 model with a contract would pass) or on the
+/// the version string alone (a 0.8.0 model with a contract would pass) or on the
 /// retired 0.1.0/0.2.0 fails this test.
 #[cfg(test)]
 mod b7a_preview_namespace_tests {
@@ -7081,22 +7081,22 @@ mod b7a_preview_namespace_tests {
             }
             m
         };
-        assert!(preview_namespace(&model("0.7.0", None)));
-        assert!(!preview_namespace(&model("0.7.0", Some(Value::Null))));
+        assert!(preview_namespace(&model("0.8.0", None)));
+        assert!(!preview_namespace(&model("0.8.0", Some(Value::Null))));
         for contract in [json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}), json!({}), json!(false)] {
-            assert!(!preview_namespace(&model("0.7.0", Some(contract.clone()))), "0.7.0 with {contract}");
+            assert!(!preview_namespace(&model("0.8.0", Some(contract.clone()))), "0.8.0 with {contract}");
         }
         for version in ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.5.1", "0.6.0"] {
             assert!(!preview_namespace(&model(version, None)), "{version}");
         }
         assert!(!preview_namespace(&json!({"project": {"id": "p"}})), "a missing version");
         let exact = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
-        assert!(exact_namespace(&model("0.7.0", Some(exact.clone()))));
+        assert!(exact_namespace(&model("0.8.0", Some(exact.clone()))));
         for value in [Value::Null, json!("euler_bernoulli"), json!(false), json!(1), json!([]), json!({})] {
-            let mut preview = model("0.7.0", None);
+            let mut preview = model("0.8.0", None);
             preview["shear_model"] = value.clone();
             assert!(!preview_namespace(&preview), "top-level shear {value}");
-            let mut pressure = model("0.7.0", Some(exact.clone()));
+            let mut pressure = model("0.8.0", Some(exact.clone()));
             pressure["shear_model"] = value.clone();
             assert!(!exact_namespace(&pressure), "top-level shear {value}");
         }
@@ -7929,7 +7929,7 @@ mod w1_member_reader_gate_tests {
         let source=json!({"retained_precision":{"body":{"sources":[]}}});
         let mut loads=vec![json!({"target":{"type":"node"}});128];
         loads.push(json!({"target":{"type":"element"},"category":"distributed_force","dimension":"force_per_length"}));
-        let inv=json!({"request":{"model":{"schema_version":"0.7.0","load_cases":[{"id":"c","primitive_loads":loads}]}}});
+        let inv=json!({"request":{"model":{"schema_version":"0.8.0","load_cases":[{"id":"c","primitive_loads":loads}]}}});
         let refuse=|s:&Value,i:&Value,exact| {
             let e=guard_member_g8(s,i,exact).unwrap_err();
             assert_eq!((e.gate,e.code.as_str()),("G8","RETAINED_PRECISION_PREPARATION_MISMATCH"));

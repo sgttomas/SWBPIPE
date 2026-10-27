@@ -278,6 +278,16 @@ W16_LIMITATION = (
     "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
     "Nonzero pressure is refused on this route.",
 )
+# Model document 0.8.0 (W-15 slice c) regenerated files again (version token and the digests binding
+# it) on top of W-15c's merge of main b4b26cdd82; the W-16 and W-7 checks read the files there, before
+# that regeneration, whose own evidence is the numerical-leaf comparison (token and digests only).
+W15C_BASE = "71300752ab86b86c568c24e308eb5a45761c924a"
+# W-16 slices b and c regenerated their files on the same main (b4b26cdd82), in parallel with W-15c; the two
+# changed no file in common. Before merging model document 0.8.0, the W-16 slices' head was W16BC_BASE, so the
+# W-16 and W-7 checks read a file W-16 b/c changed there, and every other file at W15C_BASE: together, the
+# merged tree before 0.8.0's regeneration (token and digests, the numerical-leaf comparison's evidence).
+W16BC_PRE_080_MAIN = "b4b26cdd82a195342ee4dea2be0d4a99b8ffab67"
+W16BC_BASE = "471ea86a7ff849baed50a0032202ff4708829df1"
 
 # The minimal old -> new segments of §3.3's three whole strings (the rest of
 # each string is unchanged); the whole strings are pinned in
@@ -416,6 +426,22 @@ def s1b_base_text(name: str) -> str:
     """A file's bytes at the S1b base, before model document 0.7.0 regenerated it."""
     return subprocess.run(
         ["git", "show", f"{S1B_BASE}:projects/chirality-piping/{name}"],
+        cwd=REPOSITORY, check=True, capture_output=True, text=True,
+    ).stdout
+
+
+def w15c_base_text(name: str) -> str:
+    """A file's bytes before model document 0.8.0 regenerated it: at W16BC_BASE for a file the W-16 slices b and
+    c changed, otherwise at the W-15c base."""
+    path = f"projects/chirality-piping/{name}"
+    w16bc = subprocess.run(["git", "diff", "--quiet", W16BC_PRE_080_MAIN, W16BC_BASE, "--", path],
+                           cwd=REPOSITORY, capture_output=True).returncode
+    assert w16bc in (0, 1), (name, "git diff")
+    if w16bc:
+        assert not subprocess.run(["git", "diff", "--quiet", W16BC_PRE_080_MAIN, W15C_BASE, "--", path],
+                                  cwd=REPOSITORY, capture_output=True).returncode, (name, "changed on both sides")
+    return subprocess.run(
+        ["git", "show", f"{W16BC_BASE if w16bc else W15C_BASE}:{path}"],
         cwd=REPOSITORY, check=True, capture_output=True, text=True,
     ).stdout
 
@@ -1113,7 +1139,7 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_w16
     exactly where its base stated W-15's pressure-2 identity (the six route-E exact bases), and with the
     identity field restated it differs only by binding hashes."""
     base = _w16_base_corpus()
-    now = (PROJECT / RETAINED_CORPUS).read_text() if current is None else current
+    now = w15c_base_text(RETAINED_CORPUS) if current is None else current
     for member in ("cases", "mutations", "must_pass"):
         before = _entries(base, member, _pair_id)
         after = _entries(now, member, _pair_id)
@@ -1137,7 +1163,7 @@ def test_o4_text_only_envelope_diff_w16_limitation_enumeration_refuses_other_mov
     """A value planted in a moved preview base or in an unmoved exact-route base fails the W-16
     enumeration."""
     from tests.retained_precision_corpus import _STORAGE as storage
-    committed = json.loads((PROJECT / RETAINED_CORPUS).read_text())
+    committed = json.loads(w15c_base_text(RETAINED_CORPUS))
     for ident in ("w_cb2_sparse_interactive", "o4_w1e_sparse_interactive"):
         document = storage.expand(committed)
         entry = next(e for e in document["cases"] if e.get("id") == ident)
@@ -1330,11 +1356,11 @@ def test_o4_text_only_envelope_diff_diagnostics_repair_refuses_other_moves():
 
 
 def _before_w7(name: str) -> str:
-    """The file as committed, or, for a file W-7 regenerated, its bytes before W-7 (`W7_BASE`)."""
+    """The file at the W-15c base, or, for a file W-7 regenerated, its bytes before W-7 (`W7_BASE`)."""
     if name in W7_REGENERATED:
         return subprocess.run(["git", "show", f"{W7_BASE}:projects/chirality-piping/{name}"],
                               cwd=REPOSITORY, check=True, capture_output=True, text=True).stdout
-    return (PROJECT / name).read_text()
+    return w15c_base_text(name)
 
 
 def _sz_code(diagnostic):
@@ -1470,7 +1496,7 @@ def test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current=
     hashes; J7 moves only the envelope and results digests of its ordinary pressure-2 entries."""
     for name in W7_ENVELOPES + W7_DERIVED:
         before = load(_before_w7(name))
-        after = load((PROJECT / name).read_text() if current is None or name not in current else current[name])
+        after = load(w15c_base_text(name) if current is None or name not in current else current[name])
         derived = name in W7_DERIVED
         # W-15 (DEL-03-05) on W-7: the exact envelopes and their carriers also restate the pressure-2 identity, at
         # each formulation basis's first limitation, exactly old -> new.
@@ -1498,7 +1524,7 @@ def test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current=
         found = classify(before, after)
         assert all(kind == "hash" for kind, _ in found), (name, [p for k, p in found if k != "hash"][:8])
     before = dict(load(_before_w7(W7_J7)))
-    after = dict(load((PROJECT / W7_J7).read_text() if current is None or W7_J7 not in current else current[W7_J7]))
+    after = dict(load(w15c_base_text(W7_J7) if current is None or W7_J7 not in current else current[W7_J7]))
     assert list(before) == list(after), W7_J7
     for member in before:
         if member != "entries":
@@ -1557,18 +1583,18 @@ def test_o4_text_only_envelope_diff_w7_enumeration_refuses_other_moves():
     """A changed number in a W-7 regenerated envelope or derived carrier, a moved J7 digest of a
     source publication, or a malformed added row fails at that file."""
     for name in (W7_ENVELOPES[0], W7_DERIVED[0]):
-        text = (PROJECT / name).read_text()
+        text = w15c_base_text(name)
         value = re.search(r'"(value|magnitude)": ?-?([1-9][0-9.eE+-]*)', text)
         assert value
         mutant = text[: value.start(2)] + "1" + text[value.start(2):]
         with pytest.raises(AssertionError, match=re.escape(name)):
             test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={name: mutant})
-    text = (PROJECT / W7_ENVELOPES[0]).read_text()
+    text = w15c_base_text(W7_ENVELOPES[0])
     mutant = text.replace(":end_i:fx", ":end_k:fx", 1)
     assert mutant != text
     with pytest.raises(AssertionError, match=re.escape(W7_ENVELOPES[0])):
         test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={W7_ENVELOPES[0]: mutant})
-    document = json.loads((PROJECT / W7_J7).read_text())
+    document = json.loads(w15c_base_text(W7_J7))
     entry = next(e for e in document["entries"] if e["public"].get("outcome") == "source_published")
     entry["public"]["results_sha256"] = "0" * 64
     with pytest.raises(AssertionError, match=re.escape(W7_J7)):

@@ -165,6 +165,35 @@ describe("the session's Compare… of two runs", () => {
     expect(hook.current.runComparison).toBeNull();
   });
 
+  // Owner ruling, 2026-10-26, "R-c1 A, 0.8.0 a2" (DEL-02-01 Design model-document-0.8.0.md §3.2):
+  // a run recorded on a 0.7.0 model is listed for the project id and compares with a 0.8.0 run
+  // exactly as two 0.8.0 runs do. No model-document-version gate is added for runs; the
+  // existing eligibility gate decides.
+  it("compares a run recorded on a 0.7.0 model with a 0.8.0 run under the existing gate alone", async () => {
+    const retired = { ...MODEL, schema_version: "0.7.0" } as PreviewModel;
+    const earlier = await recordedRead({ model: retired, source: SPARSE, mode: "sparse_interactive" }, EARLY, "Sparse");
+    const later = await recordedRead({ model: MODEL, source: DENSE, mode: "dense_scrutiny" }, LATE, "Dense");
+    expect(JSON.parse(earlier.input_manifest_canonical).model_basis.model_payload.schema_version).toBe("0.7.0");
+    expect(JSON.parse(later.input_manifest_canonical).model_basis.model_payload.schema_version).toBe(MODEL.schema_version);
+    const shownFor = async (reads: AnalysisRunRead[]) => {
+      invokeMock.mockReset();
+      await nativeStore(reads);
+      const { result: hook } = sessionHistory();
+      await act(async () => { await hook.current.refreshStates(PROJECT); });
+      let compared = false;
+      await act(async () => { compared = await hook.current.compareRuns(reads[0].run.recording_id, reads[1].run.recording_id); });
+      expect(compared, hook.current.historyMessage).toBe(true);
+      return hook.current.runComparison!;
+    };
+    const shown = await shownFor([later, earlier]);
+    expect([shown.left.id, shown.right.id]).toEqual([earlier.run.recording_id, later.run.recording_id]);
+    expect([shown.left.standing.status, shown.right.standing.status]).toEqual(["integrity_checked", "integrity_checked"]);
+    expect(shown.comparison.run_gate).toEqual([]);
+    const current = await recordedRead({ model: MODEL, source: SPARSE, mode: "sparse_interactive" }, EARLY, "Sparse");
+    const control = await shownFor([later, current]);
+    expect(shown.comparison).toEqual(control.comparison);
+  });
+
   it("compares a recorded run with the current run, on the right with its live verdict, counting its bytes at admission", async () => {
     const earlier = await recordedRead({ model: MODEL, source: SPARSE, mode: "sparse_interactive" }, EARLY, "Sparse");
     const current = await transientOf({ model: MODEL, source: DENSE, mode: "dense_scrutiny" });

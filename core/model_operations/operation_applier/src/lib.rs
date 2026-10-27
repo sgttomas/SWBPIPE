@@ -36,6 +36,11 @@ pub use retained_semantics_binding::retained_precision_semantics_json;
 mod load_state_authoring;
 mod numerical_health;
 pub use numerical_health::numerical_health_json;
+mod model_checks;
+pub use model_checks::{
+    model_checks, model_checks_owned, model_checks_text, MODEL_CHECKS_DOCUMENT_KIND, MODEL_CHECKS_INPUT_TOO_LARGE,
+    MODEL_CHECKS_MAX_BROWSER_INPUT_BYTES, MODEL_CHECKS_MAX_RESPONSE_BYTES, MODEL_CHECKS_MAX_TEXT_BYTES,
+};
 mod pressure_authoring;
 mod joint_pressure_authoring;
 mod section_bindings;
@@ -45,6 +50,8 @@ pub use atomic_batch::{apply_operation_batch, validate_operation_batch};
 pub use display_units::convert_display_quantities;
 pub use library_apply::derived_shear_modulus_pa;
 pub use document_validator::{validate_model_document, DocumentDiagnostic};
+pub mod model_document_version;
+pub use model_document_version::{evaluate_model_document_version, ModelDocumentVersion};
 
 pub const OPERATION_APPLIER_VERSION: &str = "0.1.0";
 pub const OUTCOME_DOCUMENT_KIND: &str = "openpipestress.desktop.operation_outcome";
@@ -652,6 +659,14 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                 field_path: "geometry.center_of_gravity",
                 kind: FieldKind::OptionalVectorQuantity { dimension: "length" },
             },
+            // W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §4):
+            // a reducer's eccentric offset, an explicit length vector like the
+            // centre of gravity; refused on other kinds in `resolve_field`. The
+            // solve checks it against the node geometry, which governs.
+            FieldRule {
+                field_path: "geometry.eccentric_offset",
+                kind: FieldKind::OptionalVectorQuantity { dimension: "length" },
+            },
             // W-15 slice b: the DEC-045 consumption mode of a rigid-family
             // component (other kinds are refused in `resolve_field`) and the
             // modifiers' source reference, which the stiffness scale needs.
@@ -1101,6 +1116,19 @@ mod wasm_api {
         }
     }
 
+    /// B11 on-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`):
+    /// the solve's own checks before stiffness formation, without solving.
+    /// Returns `model_checks_text`'s bounded report as JSON text: a model text
+    /// above the browser bound is refused unparsed, and a text that is not JSON
+    /// returns the input-error envelope.
+    #[wasm_bindgen]
+    pub fn model_checks_json(model_json: &str) -> String {
+        match super::model_checks_text(model_json) {
+            Ok(report) => report.to_string(),
+            Err(error) => input_error("model", error.to_string()),
+        }
+    }
+
     /// Display-only numeric conversion through the one accepted unit catalog.
     #[wasm_bindgen]
     pub fn convert_display_quantities_json(input_json: &str) -> String {
@@ -1416,6 +1444,24 @@ fn run_with_context(
     check_intent_structure(intent, &operation_id, &mut checker);
     check_audit_boundary(intent, &operation_id, &mut checker);
     check_kinds(&operation_kind, &change_kind, &operation_id, &mut checker);
+    // Model document 0.8.0 (DEL-02-01 Design `model-document-0.8.0.md` §3.1): the applier
+    // operates only on a current document. Any other version is refused by name with the
+    // desktop's state and code (`model_document_version`): an older one as
+    // MODEL_SCHEMA_VERSION_RETIRED with the re-author text, a newer one as
+    // MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED, and a missing, non-string or non-semver
+    // one as MODEL_SCHEMA_VERSION_UNSUPPORTED, before any change is checked or written;
+    // nothing is migrated. Every operation, single or in a batch, passes here.
+    let version = model_document_version::evaluate_model_document_version(model);
+    if let Some(code) = version.refusal_code() {
+        checker.schema_blocked = true;
+        checker.push(
+            code,
+            "blocking",
+            version.refusal_message().to_string(),
+            "Re-author the model as the current model document version; nothing is migrated.",
+            vec![target_ref.clone()],
+        );
+    }
 
     let mut model_basis = model_basis_evidence(model, claimed_model_hash);
     check_claimed_model_hash(
@@ -3543,7 +3589,31 @@ fn resolve_rigid_creation_geometry(
     ) {
         return None;
     }
-    Some(serde_json::json!({
+    // W-15 slice c (Design `eccentric-reducer-offset.md` §4): a reducer may be
+    // created with an optional explicit offset vector; it is never defaulted,
+    // and no other kind accepts one.
+    let eccentric_offset = match geometry.get("eccentric_offset") {
+        None => None,
+        Some(value) => {
+            let parsed = (kind == "reducer").then(|| parse_finite_vector_quantity(value)).flatten();
+            let Some(offset) = parsed else {
+                checker.push(
+                    "OP-CREATE-RIGID-COMPONENT-GEOMETRY-INVALID",
+                    "blocking",
+                    format!("{label} eccentric_offset must be an explicit finite {{x, y, z, unit}} length vector on a reducer only."),
+                    "Enter the reducer's offset as a vector with a length unit, or leave it out; no offset is defaulted.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            };
+            let probe = EnteredQuantity { value: 1.0, unit: offset.unit.clone() };
+            if !entered_quantity_has_dimension(&probe, Dimension::Length, target_ref, &format!("{label} eccentric offset"), checker) {
+                return None;
+            }
+            Some(offset)
+        }
+    };
+    let mut created = serde_json::json!({
         "rigid_pipe_ref": pipe_ref,
         "rigid_body_length": { "value": body_length.value, "unit": body_length.unit },
         "end_a_size": { "value": end_a_size.value, "unit": end_a_size.unit },
@@ -3559,7 +3629,11 @@ fn resolve_rigid_creation_geometry(
         "connection_end_b_reference": end_b_reference,
         "stiffness_behavior_reference": stiffness_reference,
         "rigid_component_source_reference": source,
-    }))
+    });
+    if let Some(offset) = eccentric_offset {
+        created["eccentric_offset"] = serde_json::json!({ "x": offset.x, "y": offset.y, "z": offset.z, "unit": offset.unit });
+    }
+    Some(created)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -7096,6 +7170,19 @@ fn resolve_field(
         return None;
     };
     if object_type == "Component"
+        && field_path == "geometry.eccentric_offset"
+        && entity.get("kind").and_then(Value::as_str) != Some("reducer")
+    {
+        checker.push(
+            "OP-FIELD-PATH-UNSUPPORTED",
+            "blocking",
+            format!("Field path `{field_path}` is a reducer slot; `{target_ref}` is not a reducer."),
+            "Enter an eccentric offset on a reducer only.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if object_type == "Component"
         && field_path == "mechanics_interface.solver_consumption"
         && !is_rigid_family_kind(entity.get("kind").and_then(Value::as_str).unwrap_or(""))
     {
@@ -9516,7 +9603,7 @@ mod tests {
 
     fn sample_model() -> Value {
         json!({
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": { "id": "project:test", "name": "Test", "units": { "length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "temperature": "degC" } },
             "materials": [
@@ -13953,6 +14040,49 @@ mod tests {
         }
     }
 
+    /// W-15 slice c: a reducer may be created with an explicit offset vector; a
+    /// valve or flange may not, and a malformed vector is refused.
+    #[test]
+    fn reducer_creation_accepts_an_explicit_eccentric_offset_and_other_kinds_refuse_it() {
+        for (kind, offset, ok) in [
+            ("reducer", json!({"x": 0.0, "y": -50.0, "z": 0.0, "unit": "mm"}), true),
+            ("valve", json!({"x": 0.0, "y": -50.0, "z": 0.0, "unit": "mm"}), false),
+            ("reducer", json!({"x": 0.0, "y": -50.0, "unit": "mm"}), false),
+            ("reducer", json!({"x": 0.0, "y": -50.0, "z": 0.0, "unit": "N"}), false),
+        ] {
+            let model = sample_model();
+            let component_id = format!("component:C-{kind}");
+            let payload = json!({
+                "id": component_id, "label": format!("User {kind}"), "kind": kind, "node": "node:N-2",
+                "geometry": {
+                    "rigid_pipe_ref": "pipe:P-1",
+                    "rigid_body_length": { "value": 320.0, "unit": "mm" },
+                    "end_a_size": { "value": 168.0, "unit": "mm" },
+                    "end_b_size": { "value": 114.0, "unit": "mm" },
+                    "weight": { "value": 420.0, "unit": "N" },
+                    "center_of_gravity": { "x": 120.0, "y": 0.0, "z": 0.0, "unit": "mm" },
+                    "eccentric_offset": offset,
+                    "connection_end_a_reference": "user_entered_end_a",
+                    "connection_end_b_reference": "user_entered_end_b",
+                    "stiffness_behavior_reference": "user_entered_rigid_behavior",
+                    "rigid_component_source_reference": "user_entered_component_form"
+                },
+                "provenance": "user_entered_local_preview"
+            });
+            let mut intent = modify_intent("Component", &component_id, "insert_component_symbol", "components", "not_present",
+                &payload.to_string(), "none", "dimensionless");
+            intent["operation_kind"] = json!("insert");
+            let outcome = apply_operation(&model, &intent, None);
+            if ok {
+                assert!(outcome.diagnostics.is_empty(), "{kind}: {:?}", outcome.diagnostics);
+                assert_eq!(outcome.applied_model.expect("applied")["components"][1], payload);
+            } else {
+                assert!(outcome.applied_model.is_none(), "{kind} {offset}");
+                assert!(codes(&outcome).iter().any(|c| c.starts_with("OP-CREATE-RIGID-COMPONENT-GEOMETRY-INVALID") || *c == "OP-UNIT-DIMENSION-MISMATCH" || c.starts_with("OP-UNIT")), "{kind} {offset}: {:?}", outcome.diagnostics);
+            }
+        }
+    }
+
     #[test]
     fn tee_and_rigid_component_creation_block_incomplete_or_disconnected_geometry() {
         let model = sample_model();
@@ -14035,24 +14165,26 @@ mod tests {
         let outcome = apply_operation(&model, &expansion_joint_intent(&not_annotation), None);
         assert_eq!(codes(&outcome), vec!["OP-CREATE-EXPANSION-JOINT-ANNOTATION-ONLY"]);
         // B7a: the contract's absence selects the annotation, not the version string. A
-        // 0.7.0 document that declares a contract, and a retired 0.1.0/0.2.0 document,
+        // 0.8.0 document that declares a contract, and a retired 0.1.0/0.2.0 document,
         // take neither form.
         let mut with_contract = model.clone();
         with_contract["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3"});
         let outcome = apply_operation(&with_contract, &expansion_joint_intent(&annotation), None);
         assert_eq!(codes(&outcome), vec!["OP-CREATE-EXPANSION-JOINT-CONTRACT-UNSUPPORTED"]);
+        // A retired document is refused by name before any operation is checked
+        // (model document 0.8.0, r6).
         for retired in ["0.1.0", "0.2.0"] {
             let mut retired_model = model.clone();
             retired_model["schema_version"] = json!(retired);
             let outcome = apply_operation(&retired_model, &expansion_joint_intent(&annotation), None);
-            assert_eq!(codes(&outcome), vec!["OP-CREATE-EXPANSION-JOINT-CONTRACT-UNSUPPORTED"], "{retired}");
+            assert_eq!(codes(&outcome), vec!["MODEL_SCHEMA_VERSION_RETIRED"], "{retired}");
         }
     }
 
     /// A v3 document: the objective connector for the replaced span between
     /// its end nodes.
     fn v3_model() -> Value {
-        // B7b: the current 0.7.0 exact document (sample_model is already 0.7.0).
+        // B7b: the current 0.8.0 exact document (sample_model is already 0.8.0).
         let mut model = sample_model();
         model["pressure_contract"] =
             json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
@@ -15170,6 +15302,36 @@ mod tests {
             "provenance": "invented_example"
         }));
         model
+    }
+
+    /// W-15 slice c: the sample model with a reducer at node:N-2 mapping pipe:P-1.
+    fn reducer_model() -> Value {
+        let mut model = valve_model();
+        model["components"][1]["kind"] = json!("reducer");
+        model["components"][1]["id"] = json!("component:R-1");
+        model
+    }
+
+    #[test]
+    fn eccentric_offset_is_an_explicit_vector_edit_on_a_reducer_only() {
+        let model = reducer_model();
+        let edit = |model: &Value, target: &str, before: &str, after: &str, unit: &str| {
+            apply_operation(model, &modify_intent("Component", target, "set_field", "geometry.eccentric_offset", before, after, unit, "length"), None)
+        };
+        let authored = edit(&model, "component:R-1", "TBD", r#"{"x":0,"y":-50,"z":0,"unit":"mm"}"#, "mm");
+        assert!(authored.diagnostics.is_empty(), "{:?}", authored.diagnostics);
+        let applied = authored.applied_model.unwrap();
+        assert_eq!(applied["components"][1]["geometry"]["eccentric_offset"], json!({"x": 0.0, "y": -50.0, "z": 0.0, "unit": "mm"}));
+        let edited = edit(&applied, "component:R-1", "0, -50, 0 mm", r#"{"x":0,"y":-0.05,"z":0,"unit":"m"}"#, "m");
+        assert!(edited.diagnostics.is_empty(), "{:?}", edited.diagnostics);
+        let stale = edit(&applied, "component:R-1", "0, -40, 0 mm", r#"{"x":0,"y":-0.05,"z":0,"unit":"m"}"#, "m");
+        assert!(codes(&stale).contains(&"OP-STALE-BEFORE-VALUE"));
+        let not_length = edit(&model, "component:R-1", "TBD", r#"{"x":0,"y":-50,"z":0,"unit":"N"}"#, "N");
+        assert!(codes(&not_length).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"), "{:?}", not_length.diagnostics);
+        // A valve does not take the slot.
+        let valve = edit(&valve_model(), "component:V-1", "TBD", r#"{"x":0,"y":-50,"z":0,"unit":"mm"}"#, "mm");
+        assert!(codes(&valve).contains(&"OP-FIELD-PATH-UNSUPPORTED"), "{:?}", valve.diagnostics);
+        assert!(valve.applied_model.is_none());
     }
 
     #[test]

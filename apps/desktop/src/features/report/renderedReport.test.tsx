@@ -11,9 +11,9 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 import { renderCalculationReport } from "../../services/reportRenderService";
-import { buildRenderableReportInput, type SessionRuleCheckRun } from "./renderableReportInput";
+import { buildRenderableReportInput, buildUnitDisplaySummary, QUANTITY_DISPLAY_POLICY, type SessionRuleCheckRun } from "./renderableReportInput";
 import { RenderedReportPanel } from "./RenderedReportPanel";
-import { ReportPanel } from "./ReportPanel";
+import { REPORT_PACKET_QUANTITY_DISPLAY_POLICY, ReportPanel, reportUnitSystemDisclosure } from "./ReportPanel";
 import { numericalHealthView, readNumericalHealth } from "../results/numericalHealth";
 import { numericalResultStanding } from "../results/resultStanding";
 import { readFileSync } from "node:fs";
@@ -42,7 +42,7 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test
 
 function inventedModel(): PreviewModel {
   return {
-    schema_version: "0.7.0",
+    schema_version: "0.8.0",
     document_kind: "openpipestress.product_preview.model",
     data_boundary: {},
     project: {
@@ -320,7 +320,8 @@ describe("buildRenderableReportInput", () => {
       model_units: { force: "N", length: "m" },
       result_units: ["m"],
       quantity_display_policy:
-        "display result-row values with their explicit units; no report-time conversion",
+        "display result-row values and stress headlines with explicit units; values stored in Pa are shown in MPa (1 MPa = 10^6 Pa, exact); displayed values are rounded to six significant digits; stored values and units are unchanged",
+      // No displayed value is stored in Pa (the only result unit is m).
       conversion_performed: false
     });
     expect(input.calculation_report.load_case_summary).toHaveLength(1);
@@ -1557,10 +1558,11 @@ describe("FR-REP-003 records (W-11 slice (c), §4.1)", () => {
 
   it("leaves an input without materials, sections, records or library references byte-identical", async () => {
     // Captured from the builder at 35f537355f (before slice (c)) for the same arguments;
-    // the model's components all carry a note, so no changed diagnostic text enters.
+    // the model's components all carry a note, so no changed diagnostic text enters. Model document
+    // 0.8.0 moved both by its version token only (the same input at 0.7.0 gives the former pins).
     const expected = {
-      public_report: "d1fb38303582b15517dac4ccc44942252f157568e2c724b8439dedb06cd52177",
-      local_private: "f612cf9d351462c5794eff15e8e150fcc8b4545adae8fd1e17555f8b607a73b0"
+      public_report: "81733787586ccdf1e4755b02678a935f52dbe488de5d7d17cf93bed3fbaecf7f",
+      local_private: "666230cd6e0f3cff74d684133ec73483aa9db9bc30ff5354ebb86df9e44d4ee8"
     } as const;
     for (const renderContext of [PUBLIC_CONTEXT, { exportContext: "local_private", generatedAt: null } as const]) {
       const model = inventedModel();
@@ -1568,7 +1570,15 @@ describe("FR-REP-003 records (W-11 slice (c), §4.1)", () => {
       const input = await buildFor(model, { renderContext });
       expect("library_references" in input).toBe(false);
       const { canonicalSha256Hex } = await import("../../services/hashService");
-      expect(await canonicalSha256Hex(input)).toBe(expected[renderContext.exportContext]);
+      // The readability slice (DEL-08-01 Design `exact-route-report-sections.md` §6.3 item 3)
+      // changed only the display policy text; with the earlier text the input is the captured one.
+      const summary = input.calculation_report.model_input_summary.unit_display_summary;
+      expect(summary.quantity_display_policy).toBe(QUANTITY_DISPLAY_POLICY);
+      expect(summary.conversion_performed).toBe(false);
+      const earlier = structuredClone(input);
+      earlier.calculation_report.model_input_summary.unit_display_summary.quantity_display_policy =
+        "display result-row values with their explicit units; no report-time conversion";
+      expect(await canonicalSha256Hex(earlier)).toBe(expected[renderContext.exportContext]);
     }
   });
 });
@@ -1836,5 +1846,29 @@ describe("schema check of representative records (W-11 slice (c), §7)", () => {
     }
     const committed = readFileSync(resolve(__dirname, "../../../../../fixtures/reports/invented", name), "utf8");
     expect(committed === content, `fixtures/reports/invented/${name} is stale; regenerate it with OPENPIPESTRESS_WRITE_REPORT_SECTIONS_PROVENANCE_RECORDS=<dir>`).toBe(true);
+  });
+});
+
+// The display rule (DEL-08-01 Design `report-package-current-results.md` §2.3 items 5-6):
+// `conversion_performed` is true only when the rendered report displays a value stored in Pa;
+// the report JSON packet displays no values and keeps its own disclosure.
+describe("the display rule's conversion disclosure", () => {
+  function withPaRow(): MechanicsResult {
+    const result = inventedResult();
+    result.results.push({ ...result.results[0], id: "result:stress:invented", kind: "stress", value: 41354908.75465696, unit: "Pa" });
+    return result;
+  }
+
+  it("states a conversion in the rendered report only for a displayed Pa value, with the stored units", async () => {
+    const model = inventedModel();
+    expect(buildUnitDisplaySummary(model, inventedResult())).toMatchObject({ quantity_display_policy: QUANTITY_DISPLAY_POLICY, conversion_performed: false, result_units: ["m"] });
+    expect(buildUnitDisplaySummary(model, withPaRow())).toMatchObject({ quantity_display_policy: QUANTITY_DISPLAY_POLICY, conversion_performed: true, result_units: ["Pa", "m"] });
+  });
+
+  it("keeps the report JSON packet's disclosure: its own policy and no conversion", () => {
+    const disclosure = reportUnitSystemDisclosure(inventedModel(), withPaRow());
+    expect(disclosure.quantity_display_policy).toBe(REPORT_PACKET_QUANTITY_DISPLAY_POLICY);
+    expect(disclosure.conversion_performed).toBe(false);
+    expect(disclosure.result_units).toEqual(["Pa", "m"]);
   });
 });

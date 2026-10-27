@@ -167,13 +167,16 @@ describe("project units section", () => {
     const item = await screen.findByTestId("project-units-section-diagnostic-OP-PROJECT-UNIT-NOT-CANONICAL");
     expect(item).toHaveTextContent("OP-PROJECT-UNIT-NOT-CANONICAL: `kgf_invented` is not a catalog unit symbol.");
     expect(byId("project-units-section-error")).toHaveTextContent("was refused by the operation engine; nothing was queued");
-    // An older document is refused by the engine too.
-    cleanup();
-    const old = { ...seven(), schema_version: "0.6.0" };
-    render(<ProjectUnitsSection model={old} onQueueIntent={(intent) => list.push(intent)} unitCatalogRoute={CATALOG} />);
-    fireEvent.change(byId("project-units-section-force"), { target: { value: "kN" } });
-    expect(await screen.findByTestId("project-units-section-diagnostic-OP-PROJECT-UNIT-DOCUMENT-INVALID")).toBeInTheDocument();
-    expect(list).toEqual([]);
+    // A retired document is refused by the engine too, by name (model document 0.8.0, r6),
+    // and a newer one as newer than supported (r7).
+    for (const [version, code] of [["0.6.0", "MODEL_SCHEMA_VERSION_RETIRED"], ["0.9.0", "MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED"]] as const) {
+      cleanup();
+      const old = { ...seven(), schema_version: version };
+      render(<ProjectUnitsSection model={old} onQueueIntent={(intent) => list.push(intent)} unitCatalogRoute={CATALOG} />);
+      fireEvent.change(byId("project-units-section-force"), { target: { value: "kN" } });
+      expect(await screen.findByTestId(`project-units-section-diagnostic-${code}`)).toBeInTheDocument();
+      expect(list).toEqual([]);
+    }
   });
 
   it("refuses a second pending change for one key, and allows one for another", async () => {

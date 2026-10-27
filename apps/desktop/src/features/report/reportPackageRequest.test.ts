@@ -27,6 +27,7 @@ import {
   buildReportPackageRequest,
   checkRulePacksAgree,
   reportPackageUnavailableReason,
+  REPORT_PACKAGE_ADMITTED_CONTRACT_IDS,
   REPORT_PACKAGE_DESKTOP_PROFILE,
   REPORT_PACKAGE_ROUTE_NOT_ADMITTED,
   REPORT_PACKAGE_RULE_CHECK_BINDING_MISMATCH,
@@ -114,7 +115,9 @@ describe("the route gate (§2.1): the output policy's report-package cell", () =
     expect(reportPackageUnavailableReason(null)).toBeNull();
   });
 
-  it("keeps a genuine exact-route source (pressure-2) refused with PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE (ruling 10A)", async () => {
+  // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §5.1; owner, 2026-10-26):
+  // the cell admits the exact routes to the builder's Export Result JSON admission.
+  it("admits a genuine exact-route source (pressure-2) to the builder's own checks (W-11 opening)", async () => {
     const { model } = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockImplementation(createNativeMechanicsReplay({ profile: "pressure" }).invoke);
@@ -122,15 +125,18 @@ describe("the route gate (§2.1): the output policy's report-package cell", () =
     expect(sourceContract(result)).toBe("pressure");
     expect(numericalResultStanding(result, model).eligible).toBe(true);
     const before = JSON.stringify(result);
-    expect(reportPackageUnavailableReason(result)).toBe(PRESSURE_2_OUTPUT_REFUSAL);
+    expect(reportPackageUnavailableReason(result)).toBeNull();
     const exportSpy = vi.spyOn(resultExportAdapter, "buildCurrentResultExport");
+    // Past the cell, the Export Result JSON admission refuses a source without its run's
+    // input manifest with the result-export builder's own code.
     await expect(buildReportPackageRequest({ model, result, analysisRun: null as never, inputManifest: null as never, projectSummary: null, comparison: null, ruleCheckAggregate: null, ruleCheckRun: null }))
-      .rejects.toThrow(new Error(PRESSURE_2_OUTPUT_REFUSAL));
-    expect(exportSpy).not.toHaveBeenCalled();
+      .rejects.toThrow("CURRENT_INPUT_MANIFEST_UNAVAILABLE");
+    expect(exportSpy).toHaveBeenCalled();
     expect(JSON.stringify(result)).toBe(before);
+    expect(PRESSURE_2_OUTPUT_REFUSAL.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE: ")).toBe(true);
   });
 
-  it("refuses an eligible registered pressure-source-1 source by its cell", async () => {
+  it("admits an eligible registered pressure-source-1 source past its cell (W-11 opening)", async () => {
     const root = resolve(__dirname, "../../../../../");
     const folder = "fixtures/product_preview/pressure_source/physics_source";
     const model = JSON.parse(readFileSync(resolve(root, `${folder}/n05.request.json`), "utf8")).model as PreviewModel;
@@ -143,10 +149,10 @@ describe("the route gate (§2.1): the output policy's report-package cell", () =
     const result = await runPreviewMechanics(model);
     expect(sourceContract(result)).toBe("pressure_source");
     expect(numericalResultStanding(result, model).eligible).toBe(true);
-    expect(reportPackageUnavailableReason(result)).toBe(PRESSURE_SOURCE_OUTPUT_REFUSAL);
+    expect(reportPackageUnavailableReason(result)).toBeNull();
     expect(PRESSURE_SOURCE_OUTPUT_REFUSAL.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE: ")).toBe(true);
     await expect(buildReportPackageRequest({ model, result, analysisRun: null as never, inputManifest: null as never, projectSummary: null, comparison: null, ruleCheckAggregate: null, ruleCheckRun: null }))
-      .rejects.toThrow(new Error(PRESSURE_SOURCE_OUTPUT_REFUSAL));
+      .rejects.toThrow("CURRENT_INPUT_MANIFEST_UNAVAILABLE");
   });
 
   it.each([
@@ -155,12 +161,14 @@ describe("the route gate (§2.1): the output policy's report-package cell", () =
     "fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json",
     "fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-dense_scrutiny.raw.json",
     "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json",
-  ])("refuses the load/reference-state result %s with its route's refusal, whatever its standing", path => {
+  ])("admits the load/reference-state result %s past its cell, whatever its standing (the admission reads it)", path => {
     const result = JSON.parse(readFileSync(resolve(__dirname, "../../../../../", path), "utf8")) as MechanicsResult;
     expect(["pressure", "pressure_source"]).toContain(sourceContract(result));
     const refusal = reportPackageUnavailableReason(result);
     expect(refusal).toBe(surfaceRouteRefusal(result, "report-package"));
-    expect(refusal?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE: ")).toBe(true);
+    expect(refusal).toBeNull();
+    // §5.4: the report JSON packet still refuses it.
+    expect(surfaceRouteRefusal(result, "report")?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE: ")).toBe(true);
   });
 });
 
@@ -216,15 +224,22 @@ describe("admission and the request's members (§2.1-§2.4)", () => {
     expect(JSON.stringify(session)).toBe(before);
   });
 
-  it("refuses a document whose identity is not preview-physics-2 (REPORT-PACKAGE-ROUTE-NOT-ADMITTED)", async () => {
+  it("refuses a document whose identity is not an admitted one (REPORT-PACKAGE-ROUTE-NOT-ADMITTED)", async () => {
     const session = await currentSession();
     const real = resultExportAdapter.buildCurrentResultExport;
     vi.spyOn(resultExportAdapter, "buildCurrentResultExport").mockImplementation(async (args) => {
       const document = await real(args);
-      document.result_envelope.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/pressure-2";
+      document.result_envelope.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/physics-retained-1";
       return document;
     });
-    await expect(buildReportPackageRequest(input(session))).rejects.toThrow(REPORT_PACKAGE_ROUTE_NOT_ADMITTED);
+    await expect(buildReportPackageRequest(input(session))).rejects.toThrow(
+      `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: the report package admits only ${REPORT_PACKAGE_ADMITTED_CONTRACT_IDS.join(", ")} results; this document is openpipestress.result_semantics/0.3.0/physics-retained-1.`
+    );
+    expect([...REPORT_PACKAGE_ADMITTED_CONTRACT_IDS]).toEqual([
+      PREVIEW_PHYSICS_CONTRACT_ID,
+      "openpipestress.result_semantics/0.3.0/pressure-2",
+      "openpipestress.result_semantics/0.3.0/pressure-source-1"
+    ]);
   });
 
   it("surfaces each result-export builder refusal with its own code", async () => {
@@ -430,5 +445,41 @@ describe("the report input the package carries", () => {
       quantity: { magnitude: 375, unit: "N", dimension: "force" }, required_for: ["reporting", "human_review"], missing_data_finding: false
     });
     expect(JSON.stringify(session)).toBe(before);
+  });
+
+  // Report-content correction (2026-10-27): the solver reads `spring_hanger` as a variable spring
+  // hanger (`is_variable_spring_hanger`, core/product_physics/src/lib.rs), so the report input the
+  // HTML/PDF renderer and the local-private package read carries its hanger value and provenance,
+  // by hanger type or by family alone.
+  it("carries a spring_hanger support's hanger value and provenance", async () => {
+    for (const spelling of ["hanger_type", "family"] as const) {
+      const model = structuredClone(demoModel) as PreviewModel;
+      const hanger = model.supports.find((support) => support.id === "support:SH-140")!;
+      hanger.family = "spring_hanger";
+      if (spelling === "hanger_type") hanger.hanger!.hanger_type = "spring_hanger";
+      else delete hanger.hanger!.hanger_type;
+      const session = await syntheticPreviewSession(model);
+      const report = await buildRenderableReportInput({ ...session, projectSummary: null, renderContext: { exportContext: "local_private", generatedAt: null } });
+      const sections = report.report_sections;
+      expect(sections.user_supplied_values.filter((item) => item.value_id.startsWith("spring-hanger:")).map((item) => item.value_id).sort())
+        .toEqual(["spring-hanger:support:CE-120", "spring-hanger:support:SH-140"]);
+      expect(sections.user_supplied_values.find((item) => item.value_id === "spring-hanger:support:SH-140")).toMatchObject({
+        value_category: "spring_hanger:spring_hanger",
+        source: { ref_type: "support", ref_id: "support:SH-140" },
+        quantity: { magnitude: 390, unit: "N", dimension: "force" }, required_for: ["reporting", "human_review"], missing_data_finding: false
+      });
+      const note = sections.provenance_notes.find((item) => item.source_name === "Invented variable spring hanger spring-hanger provenance");
+      expect(note?.source_location).toContain("support.family=spring_hanger");
+      expect(note?.source_location).toContain("hanger.source_reference=invented_user_entered_spring_hanger_values_no_catalog");
+    }
+    // ...and its missing provenance is reported, as for the other spellings.
+    const model = structuredClone(demoModel) as PreviewModel;
+    const hanger = model.supports.find((support) => support.id === "support:SH-140")!;
+    hanger.family = "spring_hanger";
+    hanger.hanger!.hanger_type = "spring_hanger";
+    hanger.provenance = "";
+    const report = await buildRenderableReportInput({ ...(await syntheticPreviewSession(model)), projectSummary: null, renderContext: { exportContext: "local_private", generatedAt: null } });
+    expect(report.report_sections.diagnostics.filter((item) => item.code === "SPRING_HANGER_PROVENANCE_MISSING").map((item) => item.affected_object.ref_id)).toEqual(["support:SH-140"]);
+    expect(report.report_sections.user_supplied_values.find((item) => item.value_id === "spring-hanger:support:SH-140")?.missing_data_finding).toBe(true);
   });
 });

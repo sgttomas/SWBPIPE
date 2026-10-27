@@ -3,7 +3,7 @@
 //! export, in both solver modes. W-16 slice b (DEL-05-02 Design
 //! `exact-combinations.md`) admits the combination (A1.6), which now solves and
 //! exports with its combination evidence. The input is PP's
-//! committed invented X0 fixture (the current 0.7.0 `3.0.0/exact_pressure_v3`
+//! committed invented X0 fixture (the current 0.8.0 `3.0.0/exact_pressure_v3`
 //! document).
 //!
 //! B7b: the retired `2.0.0/exact_straight_pressure_v2` route's composition and

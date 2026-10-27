@@ -56658,7 +56658,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.7.0",
+        "schema_version": "0.8.0",
         "supports": [
           {
             "family": "anchor",
@@ -88483,7 +88483,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.7.0",
+        "schema_version": "0.8.0",
         "supports": [
           {
             "family": "anchor",
@@ -109390,7 +109390,7 @@
             "length": "m"
           }
         },
-        "schema_version": "0.7.0",
+        "schema_version": "0.8.0",
         "supports": [
           {
             "family": "anchor",
@@ -129254,7 +129254,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.7.0",
+        "schema_version": "0.8.0",
         "supports": [
           {
             "family": "anchor",
@@ -147577,7 +147577,7 @@
             "provenance": "invented_load_reference_fixture_not_library_data"
           }
         ],
-        "schema_version": "0.7.0",
+        "schema_version": "0.8.0",
         "supports": [
           {
             "family": "anchor",

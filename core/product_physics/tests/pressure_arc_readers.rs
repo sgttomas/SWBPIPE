@@ -12,7 +12,7 @@
 //! - T4-U4b: the 0.4.0 L line with the directional SIF pair on its bend.
 //!
 //! B7b: the frozen sketches stay 0.3.0/0.4.0; each copy is re-authored to the
-//! current 0.7.0 exact document before it runs (the labels keep the frozen
+//! current 0.8.0 exact document before it runs (the labels keep the frozen
 //! version they were built from).
 //!
 //! Regenerate with `T4_U2_WRITE_ARC_CORPUS=1`; otherwise the committed bytes
@@ -31,7 +31,7 @@ const CORPUS_PATH: &str = "../../fixtures/results/pressure_v3_arc_reader_corpus.
 const PROVENANCE: &str = "invented T4-U2 phase-2 reader corpus input (from T4-I7's L line); not library, component, catalog or code-rule data";
 
 /// A frozen T4-I7 sketch document (bytes unchanged), its copy re-authored by
-/// B7b to the current 0.7.0 exact document (`common/current_model.rs`).
+/// B7b to the current 0.8.0 exact document (`common/current_model.rs`).
 fn i7(id: &str, version: &str) -> Value {
     let documents: Value = serde_json::from_str(I7_DOCUMENTS).unwrap();
     current_model::reauthor_request(documents["sketches"][id][version]["document"].clone())
@@ -217,7 +217,7 @@ fn shared_arc_reader_corpus_is_current() {
     let corpus = json!({
         "corpus": "T4-U2 pressure-1 realized-arc reader corpus",
         "generator": "core/product_physics/tests/pressure_arc_readers.rs::shared_arc_reader_corpus_is_current",
-        "inputs": ["validation/references/t4_i7/u2_document_sketches.json U2-L-ANCH-PTW-K2 (0.3.0, 0.4.0) and U2-L-KINK-ANCH-P-K2 (0.3.0); the L line with a connector tail and a replaced-span-only model, both built by the generator from U2-L-ANCH-PTW-K2 0.3.0; T4-U4b: U2-L-ANCH-PTW-K2 0.4.0 with an invented directional SIF pair on its bend and a 0.0005 m corrosion allowance on every pipe; every frozen sketch copy re-authored to model document 0.7.0 (exact_pressure_v3, euler_bernoulli, corrosion allowance 0 m unless stated) at test time, the frozen bytes unchanged"],
+        "inputs": ["validation/references/t4_i7/u2_document_sketches.json U2-L-ANCH-PTW-K2 (0.3.0, 0.4.0) and U2-L-KINK-ANCH-P-K2 (0.3.0); the L line with a connector tail and a replaced-span-only model, both built by the generator from U2-L-ANCH-PTW-K2 0.3.0; T4-U4b: U2-L-ANCH-PTW-K2 0.4.0 with an invented directional SIF pair on its bend and a 0.0005 m corrosion allowance on every pipe; every frozen sketch copy re-authored to model document 0.8.0 (exact_pressure_v3, euler_bernoulli, corrosion allowance 0 m unless stated) at test time, the frozen bytes unchanged"],
         "cases": cases,
     });
     let bytes = serde_json::to_string_pretty(&corpus).unwrap() + "\n";

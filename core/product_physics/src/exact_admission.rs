@@ -1,6 +1,6 @@
 //! The current exact route's contract identity and family admission seam.
 //!
-//! Model 0.7.0 declares `3.0.0/exact_pressure_v3` explicitly; an absent
+//! Model 0.8.0 declares `3.0.0/exact_pressure_v3` explicitly; an absent
 //! contract selects the pressure-free preview route. Straight circular members
 //! and linear restraints or springs are the base. Realized bends and objective
 //! connectors have their own mechanics, evidence and readers. W-15 (DEL-03-05
