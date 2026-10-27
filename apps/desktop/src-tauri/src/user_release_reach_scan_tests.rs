@@ -3,8 +3,8 @@
 //! taxonomy per DEC-081).
 
 use crate::user_release_reach_scan::{
-    build_configuration, cargo_configs, cargo_crate, crate_sources, expected_manifests, manifest_overrides, project_sources, repository_root, resolved_identities, scan, scan_reading, scan_reading_all, CrateTarget, Sources,
-    BUILD_DEPENDENCIES, CONSUMERS, CRATES, REPORTING_PACKAGES, TARGETS, TEST_PROOF_ITEMS,
+    build_configuration, build_script_findings, cargo_configs, cargo_crate, crate_sources, expected_manifests, in_repo_build_scripts, manifest_overrides, path_module_key, project_sources, repository_root, resolved_identities, scan, scan_reading,
+    scan_reading_all, CrateTarget, Sources, BUILD_DEPENDENCIES, BUILD_SCRIPTS, CONSUMERS, CRATES, REPORTING_PACKAGES, SHELL_DEPENDENCIES, SHELL_TEST_CALLERS, TARGETS, TEST_PROOF_ITEMS,
 };
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
@@ -364,7 +364,9 @@ pub fn run() {{
         )),
     );
     files.insert("src-tauri/src/main.rs".to_string(), file("fn main() {\n    println!(\"{}\", 1);\n}\n"));
-    files.insert("src-tauri/src/report_render_exact_tests.rs".to_string(), file("fn t() { open_pipe_stress_report_renderer::render_calculation_report(&i); }\n"));
+    // A test module that renders through the shell's own function (code
+    // review r7 at #1682: a test-only renderer call is a finding).
+    files.insert("src-tauri/src/report_render_exact_tests.rs".to_string(), file("fn t() { crate::render_calculation_report_value(json!({})); }\n"));
     files.insert("src-tauri/src/native_smoke.rs".to_string(), file("pub fn take_chosen_path() {}\n"));
     files.insert("src-tauri/src/host_memory.rs".to_string(), file("#[cfg(target_os = \"macos\")]\nmod mac {\n    pub fn sample() {}\n}\n"));
     files.insert(
@@ -392,7 +394,15 @@ fn admit_user_released(request: Value) -> Result<Outcome, String> {
         })
         .collect();
     let build_dependencies = BUILD_DEPENDENCIES.iter().map(|(key, names)| (key.to_string(), names.iter().map(|name| name.to_string()).collect())).collect();
-    Sources { files, targets, build_dependencies, bin_dirs: BTreeSet::new(), crate_dirs: BTreeMap::new() }
+    // Code review r7 at #1682: the pinned build script and dependency set.
+    let dependencies = BTreeMap::from([("src-tauri".to_string(), SHELL_DEPENDENCIES.iter().map(|dependency| dependency.to_string()).collect())]);
+    let build_scripts = BTreeMap::from([("src-tauri/build.rs".to_string(), real_build_script())]);
+    Sources { files, targets, build_dependencies, dependencies, build_scripts, bin_dirs: BTreeSet::new(), crate_dirs: BTreeMap::new() }
+}
+
+/// `src-tauri`'s real build script.
+fn real_build_script() -> String {
+    std::fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join("build.rs")).unwrap()
 }
 
 /// `invented()` with one exact edit (`old` must occur once in `file`).
@@ -995,7 +1005,11 @@ fn user_release_reach_scan_admits_the_review_r4_ordinary_forms() {
 fn cargo_reports_exactly_the_allow_listed_targets() {
     let project = project();
     for (key, root) in CRATES {
-        let (targets, build_dependencies) = cargo_crate(key, &project.join(root)).unwrap_or_else(|error| panic!("{key}: {error}"));
+        let (targets, build_dependencies, dependencies) = cargo_crate(key, &project.join(root)).unwrap_or_else(|error| panic!("{key}: {error}"));
+        if key == "src-tauri" {
+            // Code review r7 at #1682: the pinned dependency set is today's.
+            assert_eq!(dependencies, SHELL_DEPENDENCIES.iter().map(|dependency| dependency.to_string()).collect::<BTreeSet<_>>());
+        }
         let expected = TARGETS.iter().find(|(crate_key, _)| *crate_key == key).unwrap().1;
         let mut expected: Vec<CrateTarget> = expected.iter().map(|(kind, name, src_path)| CrateTarget { kind: kind.to_string(), name: name.to_string(), src_path: src_path.to_string() }).collect();
         expected.sort();
@@ -1554,4 +1568,328 @@ fn copy_dir(from: &Path, to: &Path) {
             std::fs::copy(&path, &target).unwrap();
         }
     }
+}
+
+// --- Code review r7 at #1682 -------------------------------------------------
+
+/// The reviewer's test-only renderer caller, with the production function
+/// that would call it in a build that sets `cfg(test)`.
+const R7_CALLER: &str = "#[cfg(test)]\nfn r7(input: &open_pipe_stress_report_renderer::RenderableReportInput) -> open_pipe_stress_report_renderer::RenderOutcome { open_pipe_stress_report_renderer::render_calculation_report(input) }\npub fn r7_entry(input: &open_pipe_stress_report_renderer::RenderableReportInput) -> open_pipe_stress_report_renderer::RenderOutcome { r7(input) }\n";
+const R7_CALL: &str = "render_calculation_report called in the test-only item r7";
+const PIN_DIFFERS: &str = "src-tauri/build.rs: the build script differs from its pin";
+const R7_BUILD_LINE: &str = "    println!(\"cargo:rustc-cfg=test\");\n";
+const TAURI_BUILD_CALL: &str = "    tauri_build::build()\n";
+
+/// Code review r7 at #1682 (P2, INSIDE): `src-tauri`'s `#[cfg(test)]` items
+/// are read under the caller-graph and renderer-call rules. The reviewer's
+/// test-only caller and the other forms of the class are each findings on the
+/// real sources; ordinary shell test code passes, and the real test modules,
+/// those loaded by `#[path]` included, are read.
+#[test]
+fn the_real_sources_find_the_review_r7_shell_test_forms() {
+    let base = project_sources(&project());
+    let forge_call = "fn t(i: &open_pipe_stress_report_renderer::RenderableReportInput) { let _ = open_pipe_stress_report_renderer::render_calculation_report(i); }\n";
+    let cases: Vec<(&str, String, Vec<(&str, &str)>, &str)> = vec![
+        ("the reviewer's test-only caller", R7_CALLER.to_string(), vec![], R7_CALL),
+        (
+            "a test module calling through a crate alias",
+            "#[cfg(test)]\nmod r7_tests {\n    use open_pipe_stress_report_renderer as r;\n    fn t(i: &r::RenderableReportInput) { let _ = r::render_calculation_report(i); }\n}\n".to_string(),
+            vec![],
+            "render_calculation_report called in the test-only item r7_tests::t",
+        ),
+        (
+            "a glob import of the renderer",
+            "#[cfg(test)]\nmod r7_tests {\n    use open_pipe_stress_report_renderer::*;\n    fn t(i: &RenderableReportInput) { let _ = render_calculation_report(i); }\n}\n".to_string(),
+            vec![],
+            "a glob import of open_pipe_stress_report_renderer in a src-tauri test-only item",
+        ),
+        (
+            "an import of the pair",
+            "#[cfg(test)]\nuse open_pipe_stress_report_renderer::render_calculation_report as render_pair;\n".to_string(),
+            vec![],
+            "binds the renderer or PDF crate or the renderer's pair",
+        ),
+        ("an import binding the crate", "#[cfg(test)]\nmod r7_tests {\n    use open_pipe_stress_report_renderer::{self as r};\n}\n".to_string(), vec![], "binds the renderer or PDF crate or the renderer's pair"),
+        (
+            "the pair as a value",
+            "#[cfg(test)]\nfn r7() { let f = open_pipe_stress_report_renderer::render_calculation_report; let _ = f; }\n".to_string(),
+            vec![],
+            "render_calculation_report named in a path other than a direct call in the test-only item r7",
+        ),
+        (
+            "the pair in a macro's tokens",
+            "#[cfg(test)]\nfn r7(i: &I) { assert!(open_pipe_stress_report_renderer::render_calculation_report(i).html.is_empty()); }\n".to_string(),
+            vec![],
+            "render_calculation_report named in a macro's or an attribute's tokens in the test-only item",
+        ),
+        (
+            "a test-only macro joining a renderer path",
+            "#[cfg(test)]\nmod r7_tests {\n    macro_rules! call { ($f:ident) => { open_pipe_stress_report_renderer::$f(&i) }; }\n    fn t() { call!(render_calculation_report); }\n}\n".to_string(),
+            vec![],
+            "the macro definition call in a src-tauri test-only item is not on the test macro allow-list",
+        ),
+        (
+            "a test-only redefinition of an allowed caller",
+            "#[cfg(test)]\nmod r7_tests {\n    fn render_calculation_report_value(i: &I) { let _ = open_pipe_stress_report_renderer::render_calculation_report(i); }\n}\n".to_string(),
+            vec![],
+            "render_calculation_report called in the test-only item r7_tests::render_calculation_report_value",
+        ),
+        ("an outlined test module", "#[cfg(test)]\nmod r7_tests;\n".to_string(), vec![("src-tauri/src/r7_tests.rs", forge_call)], "src-tauri/src/r7_tests.rs:1: render_calculation_report called in the test-only item t"),
+        (
+            "a #[path] test module",
+            "#[cfg(test)]\n#[path = \"r7_forge.rs\"]\nmod r7_tests;\n".to_string(),
+            vec![("src-tauri/src/r7_forge.rs", forge_call)],
+            "src-tauri/src/r7_forge.rs:1: render_calculation_report called in the test-only item t",
+        ),
+        (
+            "a #[path] test module in another crate's tree, read as src-tauri's",
+            "#[cfg(test)]\n#[path = \"../../../../core/reporting/report_package/tests/common/r7_forge.rs\"]\nmod r7_forge;\n".to_string(),
+            vec![("report_package/tests/common/r7_forge.rs", forge_call)],
+            "report_package/tests/common/r7_forge.rs:1: render_calculation_report called in the test-only item t",
+        ),
+        ("a #[path] outside the four crates", "#[cfg(test)]\n#[path = \"../../../../core/units/src/lib.rs\"]\nmod r7_units;\n".to_string(), vec![], "outside the four crates"),
+        ("an absolute #[path]", "#[cfg(test)]\n#[path = \"/tmp/r7.rs\"]\nmod r7_tests;\n".to_string(), vec![], "is not a relative path"),
+        (
+            "a #[path] inside an inline test module",
+            "#[cfg(test)]\nmod outer {\n    #[path = \"r7_forge.rs\"]\n    mod r7;\n}\n".to_string(),
+            vec![("src-tauri/src/r7_forge.rs", forge_call)],
+            "a #[path] on the src-tauri test module r7 that is not one string literal",
+        ),
+        (
+            "an outlined module in a #[path] file",
+            "#[cfg(test)]\n#[path = \"r7_forge.rs\"]\nmod r7_tests;\n".to_string(),
+            vec![("src-tauri/src/r7_forge.rs", "mod inner;\n"), ("src-tauri/src/inner.rs", "\n")],
+            "the outlined module inner in a file loaded by #[path]",
+        ),
+        ("include! in a test-only item", "#[cfg(test)]\nfn r7() { include!(\"r7.rs\"); }\n".to_string(), vec![], "include! brings in source the scan does not read"),
+        ("include_str! of an unlisted .rs file", "#[cfg(test)]\nconst R7: &str = include_str!(\"lib.rs\");\n".to_string(), vec![], "include_str! takes one string literal that names no .rs file"),
+    ];
+    for (case, text, files, expected) in &cases {
+        let mut sources = base.clone();
+        sources.files.get_mut(TAURI).unwrap().push_str(text);
+        for (file, file_text) in files {
+            sources.files.insert(file.to_string(), file_text.to_string());
+        }
+        let findings = scan(&sources);
+        assert!(findings.iter().any(|finding| finding.contains(expected)), "{case}: expected {expected:?} in {findings:#?}");
+    }
+    // A call of the bridge function and of the admitting entry, from test
+    // items in other files.
+    for (file, text, expected) in [
+        (SAVE, "#[cfg(test)]\nfn r7(request: Value) { let _ = crate::report_package_bridge::assemble_user_released_request(request); }\n", "assemble_user_released_request called in the test-only item r7"),
+        (BRIDGE, "#[cfg(test)]\nmod r7_tests {\n    fn t(request: Value) { let _ = open_pipe_stress_report_package::user_release::assemble_derived(request); }\n}\n", "assemble_derived called in the test-only item r7_tests::t"),
+    ] {
+        let mut sources = base.clone();
+        sources.files.get_mut(file).unwrap().push_str(text);
+        let findings = scan(&sources);
+        assert!(findings.iter().any(|finding| finding.contains(expected)), "{file}: expected {expected:?} in {findings:#?}");
+    }
+    // A changed pinned test macro, and an unlisted one beside it.
+    let ingress = "src-tauri/src/command_ingress.rs";
+    for (old, new, expected) in [
+        ("self.leaf(Node::Scalar(stringify!($method)))", "self.leaf(Node::Scalar(stringify!($method) ))", "the macro probe_scalars differs from its pinned text"),
+        ("    macro_rules! probe_unsupported {", "    macro_rules! probe_more { () => {}; }\n    macro_rules! probe_unsupported {", "the macro definition probe_more in a src-tauri test-only item is not on the test macro allow-list"),
+    ] {
+        let mut sources = base.clone();
+        let text = sources.files.get_mut(ingress).unwrap();
+        assert_eq!(text.matches(old).count(), 1, "{old}");
+        *text = text.replacen(old, new, 1);
+        let findings = scan(&sources);
+        assert!(findings.iter().any(|finding| finding.contains(expected)), "{expected:?} in {findings:#?}");
+    }
+    // Passing: ordinary shell test code (renderer items by name, the shell's
+    // own render function and command).
+    let mut sources = base.clone();
+    sources.files.get_mut(TAURI).unwrap().push_str(
+        "#[cfg(test)]\nmod r7_ordinary {\n    use open_pipe_stress_report_renderer::{decode_renderable_report_input, escape_html};\n    use super::*;\n    #[track_caller]\n    fn t(input: Value) { let _ = decode_renderable_report_input(input.clone()); let _ = escape_html(\"a\"); let _ = render_calculation_report_value(input); }\n}\n",
+    );
+    let findings = scan(&sources);
+    assert!(findings.is_empty(), "{findings:#?}");
+    // The real tree: no test caller is allow-listed, and the test modules,
+    // those loaded by #[path] from another crate included, are read.
+    assert!(SHELL_TEST_CALLERS.is_empty());
+    let (findings, production, test_only) = scan_reading_all(&base);
+    assert!(findings.is_empty(), "{findings:#?}");
+    for file in [
+        "src-tauri/src/user_release_reach_scan.rs",
+        "src-tauri/src/user_release_reach_scan_tests.rs",
+        "src-tauri/src/user_release_save_tests.rs",
+        "src-tauri/src/report_render_exact_tests.rs",
+        "src-tauri/src/object_form_tests.rs",
+        "src-tauri/src/analysis_runs_tests.rs",
+        "src-tauri/src/rule_solver_selection_tests.rs",
+        "src-tauri/src/user_release_admission_tests.rs",
+        "report_package/tests/common/package_basis.rs",
+        "report_package/src/forwarding_graph_scan.rs",
+    ] {
+        assert!(test_only.contains(file) && !production.contains(file), "{file}: {test_only:?}");
+    }
+    // The #[path] resolution.
+    assert_eq!(path_module_key(SAVE, "../../../../core/reporting/report_package/tests/common/package_basis.rs").unwrap(), "report_package/tests/common/package_basis.rs");
+    assert_eq!(path_module_key("src-tauri/src/analysis_runs.rs", "analysis_runs_tests.rs").unwrap(), "src-tauri/src/analysis_runs_tests.rs");
+    assert_eq!(path_module_key("src-tauri/src/analysis_runs.rs", "./x/../analysis_runs_tests.rs").unwrap(), "src-tauri/src/analysis_runs_tests.rs");
+    for literal in ["/abs.rs", "..\\x.rs", "", "C:x.rs", "../../../../../../../../x.rs"] {
+        assert!(path_module_key(SAVE, literal).is_err(), "{literal}");
+    }
+}
+
+/// Code review r7 at #1682: `src-tauri`'s build script is pinned by content,
+/// whatever `cargo:rustc-cfg` it would emit, and its normal and development
+/// dependency sets are pinned; on the real sources.
+#[test]
+fn the_real_sources_find_the_review_r7_build_inputs() {
+    let base = project_sources(&project());
+    assert_eq!(BUILD_SCRIPTS.len(), 1);
+    let real = real_build_script();
+    assert_eq!(base.build_scripts["src-tauri/build.rs"], real);
+    assert_eq!(real.matches(TAURI_BUILD_CALL).count(), 1);
+    for line in [
+        R7_BUILD_LINE,
+        "    println!(\"cargo::rustc-cfg=test\");\n",
+        "    println!(\"cargo:rustc-cfg=r7\");\n",
+        "    println!(\"cargo:rustc-cfg=feature=\\\"native-smoke\\\"\");\n",
+        "    println!(\"cargo:rustc-cfg=desktop\");\n",
+        "    // a comment\n",
+    ] {
+        let mut sources = base.clone();
+        sources.build_scripts.insert("src-tauri/build.rs".to_string(), real.replacen(TAURI_BUILD_CALL, &format!("{line}{TAURI_BUILD_CALL}"), 1));
+        let findings = scan(&sources);
+        assert!(findings.len() == 1 && findings[0].starts_with(PIN_DIFFERS), "{line}: {findings:#?}");
+    }
+    // An unread or unpinned build script.
+    let mut sources = base.clone();
+    sources.build_scripts.clear();
+    assert!(scan(&sources).iter().any(|finding| finding.contains("the build script src-tauri/build.rs was not read")));
+    let mut sources = base.clone();
+    sources.targets.get_mut("report_renderer").unwrap().push(CrateTarget { kind: "custom-build".to_string(), name: "build-script-build".to_string(), src_path: "report_renderer/build.rs".to_string() });
+    sources.build_scripts.insert("report_renderer/build.rs".to_string(), "fn main() {}\n".to_string());
+    let findings = scan(&sources);
+    for expected in ["report_renderer: Cargo builds the custom-build target build-script-build from report_renderer/build.rs, which is not on the target allow-list", "the build script report_renderer/build.rs is not on the build-script pin list"] {
+        assert!(findings.iter().any(|finding| finding.contains(expected)), "{expected}: {findings:#?}");
+    }
+    // The dependency move, and other changes to the pinned sets.
+    for (remove, add, expected) in [
+        (Some("dev syn"), Some("normal syn"), vec!["Cargo reports the dependency normal syn", "Cargo does not report the pinned dependency dev syn"]),
+        (Some("dev proc-macro2"), Some("normal proc-macro2"), vec!["Cargo reports the dependency normal proc-macro2", "Cargo does not report the pinned dependency dev proc-macro2"]),
+        (None, Some("normal open_pipe_stress_pdf_emitter"), vec!["Cargo reports the dependency normal open_pipe_stress_pdf_emitter"]),
+        (Some("normal serde"), Some("normal serde as serde_core"), vec!["Cargo reports the dependency normal serde as serde_core"]),
+    ] {
+        let mut sources = base.clone();
+        let set = sources.dependencies.get_mut("src-tauri").unwrap();
+        if let Some(remove) = remove {
+            assert!(set.remove(remove), "{remove}");
+        }
+        if let Some(add) = add {
+            set.insert(add.to_string());
+        }
+        let findings = scan(&sources);
+        for expected in &expected {
+            assert!(findings.iter().any(|finding| finding.contains(expected)), "{expected}: {findings:#?}");
+        }
+    }
+}
+
+/// A scratch copy of `src-tauri` that Cargo reads (its manifest with the path
+/// dependencies made absolute, lock, build script and `src/`), with the given
+/// edits, and the real sources with its part read from the copy.
+fn shell_copy(tree: &ScratchTree, build_line: bool, move_parsers: bool, append: Option<&str>) -> Sources {
+    let dir = tree.crate_copy("apps/desktop/src-tauri", "src-tauri", &[("build.rs", None)]);
+    copy_dir(&project().join("apps/desktop/src-tauri/src"), &dir.join("src"));
+    if build_line {
+        let text = std::fs::read_to_string(dir.join("build.rs")).unwrap();
+        assert_eq!(text.matches(TAURI_BUILD_CALL).count(), 1);
+        std::fs::write(dir.join("build.rs"), text.replacen(TAURI_BUILD_CALL, &format!("{R7_BUILD_LINE}{TAURI_BUILD_CALL}"), 1)).unwrap();
+    }
+    if move_parsers {
+        let manifest = std::fs::read_to_string(dir.join("Cargo.toml")).unwrap();
+        let parsers: Vec<&str> = manifest.lines().filter(|line| line.starts_with("syn = ") || line.starts_with("proc-macro2 = ")).collect();
+        assert_eq!(parsers.len(), 2);
+        let mut moved: String = manifest.lines().filter(|line| !parsers.contains(line)).map(|line| format!("{line}\n")).collect();
+        assert_eq!(moved.matches("[dependencies]\n").count(), 1);
+        moved = moved.replacen("[dependencies]\n", &format!("[dependencies]\n{}\n", parsers.join("\n")), 1);
+        std::fs::write(dir.join("Cargo.toml"), moved).unwrap();
+    }
+    if let Some(text) = append {
+        let mut lib = std::fs::read_to_string(dir.join("src/lib.rs")).unwrap();
+        lib.push_str(text);
+        std::fs::write(dir.join("src/lib.rs"), lib).unwrap();
+    }
+    let mut sources = project_sources(&project());
+    sources.files.retain(|file, _| !file.starts_with("src-tauri/"));
+    sources.build_scripts.retain(|file, _| !file.starts_with("src-tauri/"));
+    sources.bin_dirs.remove("src-tauri");
+    crate_sources("src-tauri", &dir, &mut sources);
+    sources
+}
+
+/// Code review r7 at #1682 (P2, INSIDE), on scratch copies of `src-tauri`
+/// that Cargo reads: the reviewer's full repro (a build script emitting
+/// `cargo:rustc-cfg=test`, `syn` and `proc-macro2` moved to normal
+/// dependencies, and a test-only renderer caller with a production entry)
+/// gives each finding, and each part alone gives its own; the unedited copy
+/// passes.
+#[test]
+fn the_review_r7_repro_in_scratch_copies() {
+    let dependency = "is not on the dependency pin list";
+    let missing = "Cargo does not report the pinned dependency";
+    let cases: [(&str, bool, bool, Option<&str>, &[&str]); 5] = [
+        ("unedited", false, false, None, &[]),
+        ("the full repro", true, true, Some(R7_CALLER), &[PIN_DIFFERS, dependency, missing, R7_CALL]),
+        ("the build script alone", true, false, None, &[PIN_DIFFERS]),
+        ("the dependency move alone", false, true, None, &[dependency, missing]),
+        ("the test-only caller alone", false, false, Some(R7_CALLER), &[R7_CALL]),
+    ];
+    for (case, build_line, move_parsers, append, expected) in cases {
+        let tree = ScratchTree::new();
+        let sources = shell_copy(&tree, build_line, move_parsers, append);
+        let findings = scan(&sources);
+        for expected in expected {
+            assert!(findings.iter().any(|finding| finding.contains(expected)), "{case}: expected {expected:?} in {findings:#?}");
+        }
+        // Each part gives only its own findings.
+        for finding in &findings {
+            assert!(expected.iter().any(|expected| finding.contains(expected)), "{case}: unexpected {finding:?}");
+        }
+        if move_parsers {
+            for name in ["syn", "proc-macro2"] {
+                assert!(findings.iter().any(|finding| finding.contains(&format!("the dependency normal {name},"))), "{case}: {name}: {findings:#?}");
+                assert!(findings.iter().any(|finding| finding.contains(&format!("pinned dependency dev {name}"))), "{case}: {name}: {findings:#?}");
+            }
+        }
+    }
+}
+
+/// Code review r7 at #1682: the consumers' in-repository build scripts are
+/// `src-tauri`'s, pinned, and `product_physics`'s, whose package depends on
+/// no reporting crate; a build script in a package that depends on one is a
+/// finding, on scratch packages Cargo reads.
+#[test]
+fn the_in_repository_build_scripts_are_known() {
+    let project = project();
+    let sources = project_sources(&project);
+    let expected = expected_manifests(&sources).unwrap();
+    let consumers: Vec<std::path::PathBuf> = CONSUMERS.iter().map(|(_, manifest, _)| project.join(manifest)).collect();
+    let scripts = in_repo_build_scripts(&consumers, &expected).unwrap();
+    let found: BTreeSet<(String, bool)> = scripts.iter().map(|script| (script.package.clone(), script.reaches_reporting)).collect();
+    assert_eq!(found, BTreeSet::from([("openpipestress-desktop".to_string(), true), ("open_pipe_stress_product_physics".to_string(), false)]), "{scripts:#?}");
+    let shell = std::fs::canonicalize(project.join(CONSUMERS[0].1)).unwrap();
+    assert!(build_script_findings(&scripts, &shell).is_empty());
+    // A consumer whose path dependency runs a build script and depends on
+    // report_package, beside one whose build script reaches nothing.
+    let tree = ScratchTree::new();
+    let package = std::fs::canonicalize(project.join("core/reporting/report_package")).unwrap();
+    tree.write("consumer/Cargo.toml", "[package]\nname = \"r7_consumer\"\nversion = \"0.1.0\"\nedition = \"2021\"\n\n[dependencies]\nr7_helper = { path = \"../helper\" }\nr7_leaf = { path = \"../leaf\" }\n");
+    tree.write("consumer/src/lib.rs", "\n");
+    tree.write("helper/Cargo.toml", &format!("[package]\nname = \"r7_helper\"\nversion = \"0.1.0\"\nedition = \"2021\"\n\n[dependencies]\nopen_pipe_stress_report_package = {{ path = \"{}\" }}\n", package.display()));
+    tree.write("helper/build.rs", &format!("fn main() {{\n{R7_BUILD_LINE}}}\n"));
+    tree.write("helper/src/lib.rs", "\n");
+    tree.write("leaf/Cargo.toml", "[package]\nname = \"r7_leaf\"\nversion = \"0.1.0\"\nedition = \"2021\"\n");
+    tree.write("leaf/build.rs", &format!("fn main() {{\n{R7_BUILD_LINE}}}\n"));
+    tree.write("leaf/src/lib.rs", "\n");
+    let scripts = in_repo_build_scripts(&[tree.base.join("consumer/Cargo.toml")], &expected).unwrap();
+    let found: BTreeSet<(String, bool)> = scripts.iter().map(|script| (script.package.clone(), script.reaches_reporting)).collect();
+    assert_eq!(found, BTreeSet::from([("r7_helper".to_string(), true), ("r7_leaf".to_string(), false)]), "{scripts:#?}");
+    let findings = build_script_findings(&scripts, &shell);
+    assert_eq!(findings.len(), 1, "{findings:#?}");
+    assert!(findings[0].starts_with("the in-repository package r7_helper runs the build script") && findings[0].contains("depends on a reporting crate"), "{findings:#?}");
 }

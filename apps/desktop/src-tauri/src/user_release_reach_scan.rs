@@ -12,7 +12,10 @@
 //!   integration tests by name and file. Any other binary, example, bench,
 //!   build script, proc-macro or test target, auto-discovered or declared,
 //!   and any other library root, is a finding; the build-dependencies are
-//!   pinned ([`BUILD_DEPENDENCIES`]).
+//!   pinned ([`BUILD_DEPENDENCIES`]). Since code review r7, `src-tauri`'s
+//!   build script is pinned by content ([`BUILD_SCRIPTS`]), so a
+//!   `cargo:rustc-cfg=test` or any other change is a finding, and its normal
+//!   and development dependencies are pinned ([`SHELL_DEPENDENCIES`]).
 //! - **Production source.** From each library and binary target's actual
 //!   root file (`src/lib.rs`, and `src-tauri`'s `src/main.rs`, when the
 //!   targets are as allow-listed) it follows every `mod` item, outlined and
@@ -21,8 +24,14 @@
 //!   `cfg`, is production. In the three reporting crates test-only items and
 //!   test modules are read under the construction, literal and naming rules,
 //!   the one allow-listed proof-writing test excepted ([`TEST_PROOF_ITEMS`];
-//!   code review r6 at #1682); in `src-tauri`, where neither proof type can
-//!   be named, they are not read. A `#[path]` on a production `mod`, a `cfg_attr`
+//!   code review r6 at #1682). In `src-tauri` they are read too (code review
+//!   r7 at #1682): a build that sets `cfg(test)` would compile them into the
+//!   app, so every occurrence of a scanned name or the renderer's pair there
+//!   is a finding ([`SHELL_TEST_CALLERS`], empty), as are a glob or crate
+//!   binding of the renderer or PDF crate, an import of the pair, and a macro
+//!   definition not pinned ([`SHELL_TEST_MACROS`]); a test module's
+//!   `#[path]` is followed ([`path_module_key`]) and the file read as the
+//!   shell's test code. A `#[path]` on a production `mod`, a `cfg_attr`
 //!   applying `path` at any depth and under any predicate (refused, not
 //!   followed: the scan does not evaluate predicates), any `include!`, an
 //!   `include_str!` that is not one string literal or names a `.rs` file,
@@ -106,7 +115,9 @@
 //!   repository paths; the headless runner declares `report_package` at that
 //!   directory; no `.cargo/config(.toml)` is in the repository tree
 //!   ([`CARGO_CONFIGS`], empty); and no checked manifest names `patch` or
-//!   `replace`.
+//!   `replace`. Since code review r7, no in-repository package of the
+//!   consumers' graphs but `src-tauri` runs a build script and depends on a
+//!   reporting crate ([`in_repo_build_scripts`]).
 //!
 //! What it does not establish: code that builds a document without calling
 //! the scanned functions, and a listed external macro whose version would
@@ -297,7 +308,7 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
     ("assemble_report_package_container_in", "assemble_report_package_container", Entry::General),
     ("check_request_in", "assemble_wire_request_in", Entry::Forwarded),
     ("assemble_report_package_container_in", "assemble_wire_request_in", Entry::Forwarded),
-    ("assemble_wire_request_in", "assemble_derived", Entry::UserRelease),
+    ("assemble_wire_request_in", "assemble_derived", Entry::Released),
 ];
 
 /// The one allowed macro definition: (file, name, SHA-256 of its text).
@@ -306,6 +317,96 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// `$parameter ::`, no scanned name added).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 1] =
     [("src-tauri/src/lib.rs", "app_invoke_handler", "cf2d34eb5102ed6d339c9ce067583bcd4e4ef3e1bb1faa63eb701c4f8ff8c1b5")];
+
+/// The macro definitions admitted in `src-tauri`'s test-only items (code
+/// review r7 at #1682; §2.8, "Test-only items"): (file, name, SHA-256 of its
+/// text, reason), pinned as [`MACRO_DEFINITIONS`] is. A test-only macro
+/// could assemble a renderer path from fragments the token screen cannot
+/// join (`open_pipe_stress_report_renderer::$f`), so any other definition in
+/// a `src-tauri` test-only item, and any change to one of these, is a
+/// finding until reviewed and re-pinned.
+const SHELL_TEST_MACROS: [(&str, &str, &str, &str); 2] = [
+    (
+        "src-tauri/src/command_ingress.rs",
+        "probe_scalars",
+        "5b80746536a75677810c3199902df7ff3611cb6df38fbde2e00488b53aeb1946",
+        // Reason: the ingress tests' serde probe declares one `Deserializer`
+        // method per listed name (`fn $method`, `stringify!($method)`); it
+        // names no path.
+        "the ingress tests' serde probe declares a Deserializer method per name and names no path",
+    ),
+    (
+        "src-tauri/src/command_ingress.rs",
+        "probe_unsupported",
+        "dc8a3e5894e98b0eb3ecf4dafaad96aade36b4cfc676631a3af7a0b642e16f1a",
+        // Reason: as `probe_scalars`, for the methods the probe refuses.
+        "the ingress tests' serde probe declares a Deserializer method per name and names no path",
+    ),
+];
+
+/// The test-only items in `src-tauri` that may name a scanned function or
+/// the renderer's pair (code review r7 at #1682; §2.8, "Test-only items"):
+/// (file, item path, name, reason). None does today: the shell's tests
+/// render through `render_calculation_report_value` and the save command,
+/// and never name the renderer's pair, the PDF crate's functions, the
+/// producer's internals or the bridge function. Any such occurrence in a
+/// `src-tauri` test-only item (a call, a definition, a value, an import, a
+/// macro's tokens) is a finding.
+pub(crate) const SHELL_TEST_CALLERS: [(&str, &str, &str, &str); 0] = [];
+
+/// The `include_str!` arguments naming a `.rs` file admitted in `src-tauri`'s
+/// test-only items (code review r7 at #1682): (file, literal, reason).
+/// `include_str!` yields a string literal and brings in no code; a `.rs`
+/// argument is still refused elsewhere, as in production.
+const SHELL_TEST_SOURCE_TEXTS: [(&str, &str, &str); 1] = [(
+    "src-tauri/src/solve_attestation.rs",
+    "solve_attestation.rs",
+    // Reason: `the_table_is_never_persisted_or_serialized` reads its own
+    // module's text, as a string, to assert what the production part names.
+    "the attestation test reads its own module's text as a string to assert what the production part names",
+)];
+
+/// The build scripts admitted, pinned by content (code review r7 at #1682;
+/// §2.8, "Build scripts"): (file, byte length, SHA-256). A build script's
+/// `cargo:rustc-cfg=test` sets `cfg(test)` for its own package, so it could
+/// compile `src-tauri`'s test-only items into the app; any change to the
+/// script, and any build script of a scanned crate not on this list
+/// ([`TARGETS`] admits only `src-tauri`'s), is a finding until reviewed and
+/// re-pinned.
+pub(crate) const BUILD_SCRIPTS: [(&str, usize, &str); 1] =
+    [("src-tauri/build.rs", 2078, "b803655933381e84626d8277ee6816d14a2db58634a52e70b7404419f14318f8")];
+
+/// `src-tauri`'s normal and development dependencies, exactly, as Cargo
+/// reports them (code review r7 at #1682): `<kind> <package>`, with ` as
+/// <name>` for a rename and ` (<platform>)` for a platform-specific one. The
+/// reach scan's parser crates are development dependencies only: as normal
+/// dependencies they would let a build that sets `cfg(test)` compile the
+/// scan's test modules, so moving one, like any other change here, is a
+/// finding until reviewed.
+pub(crate) const SHELL_DEPENDENCIES: [&str; 22] = [
+    "dev proc-macro2",
+    "dev syn",
+    "normal getrandom",
+    "normal libc (cfg(unix))",
+    "normal open_pipe_stress_audit_manifest",
+    "normal open_pipe_stress_canonical_json",
+    "normal open_pipe_stress_library_import_document",
+    "normal open_pipe_stress_operation_applier",
+    "normal open_pipe_stress_product_physics",
+    "normal open_pipe_stress_report_package",
+    "normal open_pipe_stress_report_renderer",
+    "normal open_pipe_stress_result_export",
+    "normal open_pipe_stress_rule_check_runner",
+    "normal open_pipe_stress_rule_pack_document",
+    "normal open_pipe_stress_self_weight_wasm",
+    "normal open_pipe_stress_units",
+    "normal rusqlite",
+    "normal serde",
+    "normal serde_json",
+    "normal sha2",
+    "normal tauri",
+    "normal tauri-plugin-dialog",
+];
 
 /// The macro invocations admitted, by path as written (§2.8 macro rule 2).
 const MACRO_INVOCATIONS: [&str; 22] = [
@@ -410,6 +511,10 @@ const ATTRIBUTES: [&str; 11] = ["cfg", "cfg_attr", "allow", "inline", "cold", "g
 /// The attributes a test-only item may carry besides [`ATTRIBUTES`] (code
 /// review r6 at #1682): the standard test harness's own.
 const TEST_ATTRIBUTES: [&str; 3] = ["test", "should_panic", "ignore"];
+/// The attributes a `src-tauri` test-only item may carry besides those (code
+/// review r7 at #1682): `#[track_caller]`, on today's test helpers, which
+/// only moves a panic's reported location.
+const SHELL_TEST_ATTRIBUTES: [&str; 1] = ["track_caller"];
 /// The derives a test-only item may write besides [`DERIVES`]: the same two
 /// `serde` derives by their crate path (code review r6 at #1682).
 const TEST_DERIVES: [&str; 2] = ["serde::Serialize", "serde::Deserialize"];
@@ -438,7 +543,10 @@ const LISTED_IMPORTS: [(&str, &str); 6] = [
 enum Entry {
     General,
     Forwarded,
-    UserRelease,
+    /// `&ProducerEntry::UserRelease(derived)`. Not named `UserRelease`: the
+    /// scan reads its own source as `src-tauri` test code (code review r7 at
+    /// #1682), where that name is a construction.
+    Released,
 }
 
 /// A lexical scope owner.
@@ -483,11 +591,16 @@ struct Occurrence {
 /// them ([`cargo_crate`]), whether it has a `src/bin` directory, and the
 /// canonical directory each crate was read from (code review r6 at #1682:
 /// the resolved reporting packages must be these, [`build_configuration`]).
+/// Since code review r7, also each build script's text by its target file
+/// ([`BUILD_SCRIPTS`]) and each crate's normal and development dependencies
+/// ([`SHELL_DEPENDENCIES`]).
 #[derive(Clone, Default)]
 pub(crate) struct Sources {
     pub(crate) files: BTreeMap<String, String>,
     pub(crate) targets: BTreeMap<String, Vec<CrateTarget>>,
     pub(crate) build_dependencies: BTreeMap<String, BTreeSet<String>>,
+    pub(crate) dependencies: BTreeMap<String, BTreeSet<String>>,
+    pub(crate) build_scripts: BTreeMap<String, String>,
     pub(crate) bin_dirs: BTreeSet<String>,
     pub(crate) crate_dirs: BTreeMap<String, PathBuf>,
 }
@@ -651,8 +764,9 @@ struct FileScan<'a> {
     findings: &'a mut Vec<String>,
     occurrences: &'a mut Vec<Occurrence>,
     /// Outlined modules to resolve: (declaring file, inline module path, name,
-    /// line, whether the module is test-only).
-    modules: &'a mut Vec<(String, Vec<String>, String, usize, bool)>,
+    /// line, whether the module is test-only, its `#[path]` literal when the
+    /// scan follows one: a `src-tauri` test module's, code review r7 at #1682).
+    modules: &'a mut Vec<(String, Vec<String>, String, usize, bool, Option<String>)>,
     owners: Vec<Owner>,
     inline: Vec<String>,
     /// Entry arguments seen at calls of the producer internals: (callee, caller owner, entry, line).
@@ -681,11 +795,24 @@ struct FileScan<'a> {
     /// naming rules apply; the rules that only govern production code's
     /// shape do not ([`Self::production_finding`]).
     test_only: bool,
+    /// The crate this file is compiled into: its own, or `src-tauri` for a
+    /// file a `src-tauri` test module loads by `#[path]` from another crate
+    /// (code review r7 at #1682). The crate rules follow it.
+    host: String,
 }
 
 impl FileScan<'_> {
     fn crate_key(&self) -> &str {
-        crate_of(&self.file)
+        &self.host
+    }
+
+    /// Whether this is `src-tauri` test-only code (code review r7 at #1682;
+    /// §2.8, "Test-only items"): unlike the reporting crates', whose root
+    /// guard stops a dependency build with `cfg(test)`, the shell is the
+    /// primary package of a product build, so its test-only items are held
+    /// to the caller-graph and renderer-call rules.
+    fn shell_test(&self) -> bool {
+        self.test_only && self.crate_key() == "src-tauri"
     }
 
     /// Whether this file is one of the three reporting crates, which hold no
@@ -794,10 +921,12 @@ impl FileScan<'_> {
 
     fn record(&mut self, name: &str, line: usize, kind: Kind) {
         let owner = self.owner();
-        // Code review r6 at #1682: in a test-only item only the occurrences of
-        // `DerivedUserRelease` and the definitions of a scanned function are
-        // read; its calls are a test's own (§2.8, "Test-only items").
-        if self.test_only && name != DERIVED && kind != Kind::Definition {
+        // Code review r6 at #1682: in a reporting crate's test-only item only
+        // the occurrences of `DerivedUserRelease` and the definitions of a
+        // scanned function are read; its calls are a test's own (§2.8,
+        // "Test-only items"). In `src-tauri` every occurrence is read (code
+        // review r7 at #1682).
+        if self.test_only && self.is_core() && name != DERIVED && kind != Kind::Definition {
             return;
         }
         let test = self.test_key();
@@ -927,7 +1056,7 @@ impl FileScan<'_> {
             self.finding(line, "a cfg_attr that applies #[path]");
             return;
         }
-        if !ATTRIBUTES.contains(&path.as_str()) && !(self.test_only && TEST_ATTRIBUTES.contains(&path.as_str())) {
+        if !ATTRIBUTES.contains(&path.as_str()) && !(self.test_only && TEST_ATTRIBUTES.contains(&path.as_str())) && !(self.shell_test() && SHELL_TEST_ATTRIBUTES.contains(&path.as_str())) {
             let via = if through { " (through cfg_attr)" } else { "" };
             self.finding(line, format!("the attribute #[{path}]{via} is not on the attribute list"));
             return;
@@ -1077,7 +1206,10 @@ impl FileScan<'_> {
             "include_str" if path != "include_str" => self.finding(line, format!("{path}! names include_str by a path other than its bare name")),
             "include_str" => {
                 let literal = syn::parse2::<syn::LitStr>(tokens.clone()).ok().map(|text| text.value());
-                if !literal.is_some_and(|text| !text.ends_with(".rs")) {
+                // A `src-tauri` test's own module text, as a string (code
+                // review r7 at #1682, [`SHELL_TEST_SOURCE_TEXTS`]).
+                let listed = self.shell_test() && literal.as_ref().is_some_and(|text| SHELL_TEST_SOURCE_TEXTS.iter().any(|(file, listed, _)| *file == self.file && listed == text));
+                if !listed && !literal.is_some_and(|text| !text.ends_with(".rs")) {
                     self.finding(line, format!("{path}! takes one string literal that names no .rs file"));
                 }
             }
@@ -1146,12 +1278,20 @@ impl FileScan<'_> {
             let to = byte_offset(self.text, end.line, end.column)?;
             self.text.get(from..to)
         });
-        let pinned = MACRO_DEFINITIONS.iter().find(|(file, macro_name, _)| *file == self.file && *macro_name == name);
+        // `src-tauri`'s test-only macros are pinned too (code review r7 at
+        // #1682, [`SHELL_TEST_MACROS`]).
+        let pinned = MACRO_DEFINITIONS.iter().find(|(file, macro_name, _)| *file == self.file && *macro_name == name).map(|(_, _, sha)| *sha).or_else(|| {
+            if self.shell_test() {
+                SHELL_TEST_MACROS.iter().find(|(file, macro_name, _, _)| *file == self.file && *macro_name == name).map(|(_, _, sha, _)| *sha)
+            } else {
+                None
+            }
+        });
         if pinned.is_none() && reserved_name(&name) {
             self.finding(line, format!("the macro definition {name} takes the reserved macro-path name {name}"));
         }
         match (pinned, text) {
-            (Some((_, _, sha)), Some(text)) if sha256_hex(text.as_bytes()) == *sha => {
+            (Some(sha), Some(text)) if sha256_hex(text.as_bytes()) == sha => {
                 self.macros.push((self.file.clone(), name.clone()));
                 // Admitted only with no `mod` token and no `$param ::`.
                 let mut admitted = true;
@@ -1180,6 +1320,7 @@ impl FileScan<'_> {
                 }
             }
             (Some(_), _) => self.finding(line, format!("the macro {name} differs from its pinned text (review it and replace its pin)")),
+            (None, _) if self.shell_test() => self.finding(line, format!("the macro definition {name} in a src-tauri test-only item is not on the test macro allow-list")),
             (None, _) => self.production_finding(line, format!("the macro definition {name} is not on the allow-list")),
         }
         self.with_owner(Owner::Macro, |scan| scan.screen_tokens(&item.mac.tokens, true));
@@ -1218,9 +1359,25 @@ impl FileScan<'_> {
         let crate_key = self.crate_key().to_string();
         for (path, rename, glob) in bound {
             let joined = path.join("::");
+            // Code review r7 at #1682: in `src-tauri`'s test-only items an
+            // import naming the renderer or PDF crate (any segment) may bind
+            // only one of its other items by name: a glob, the crate itself
+            // (`as` any name, or `self`), or the renderer's pair is a finding,
+            // so the pair is named there only through a path the scan reads.
+            let shell_crate_import = self.shell_test() && path.iter().any(|segment| segment == RENDERER_CRATE || segment == PDF_CRATE);
             if glob {
+                if shell_crate_import {
+                    self.finding(line, format!("a glob import of {joined} in a src-tauri test-only item"));
+                }
                 self.production_finding(line, format!("a glob import of {joined}"));
                 continue;
+            }
+            if shell_crate_import {
+                let last = path.last().map(String::as_str).unwrap_or_default();
+                let binds_crate = path.len() == 1 || last == "self" || last == RENDERER_CRATE || last == PDF_CRATE;
+                if binds_crate || path.iter().any(|segment| RENDERER_PAIR.contains(&segment.as_str())) {
+                    self.finding(line, format!("the import {joined} in a src-tauri test-only item binds the renderer or PDF crate or the renderer's pair"));
+                }
             }
             let last = path.last().cloned().unwrap_or_default();
             if let (Some(rename), "report_package") = (&rename, crate_key.as_str()) {
@@ -1310,7 +1467,7 @@ impl FileScan<'_> {
                         && call.args.len() == 1
                         && path_of(&call.args[0]).as_deref() == Some("derived") =>
                 {
-                    (Some(Entry::UserRelease), "&ProducerEntry::UserRelease(derived)".to_string())
+                    (Some(Entry::Released), "&ProducerEntry::UserRelease(derived)".to_string())
                 }
                 _ => (None, "another expression".to_string()),
             },
@@ -1339,10 +1496,10 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
             syn::Item::Use(i) => &i.attrs,
             _ => &[],
         };
+        // Test-only items are read in all four crates: the reporting crates'
+        // since code review r6, `src-tauri`'s since code review r7 at #1682.
         if is_test_only(attrs) && !self.test_only {
-            if self.is_core() {
-                self.as_test_only(|scan| scan.visit_item(item));
-            }
+            self.as_test_only(|scan| scan.visit_item(item));
             return;
         }
         match item {
@@ -1373,9 +1530,24 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
         if reserved_name(&name) {
             self.finding(line, format!("the module {name} takes the reserved macro-path name {name}"));
         }
+        let mut followed = None;
+        let paths = module.attrs.iter().filter(|attr| path_text(attr.path()) == "path").count();
         for attr in &module.attrs {
             if path_text(attr.path()) == "path" {
-                self.finding(line, format!("a #[path] on the production module {name}"));
+                // Code review r7 at #1682: a `src-tauri` test module's one
+                // `#[path = "<literal>"]`, on an outlined module outside any
+                // inline module, is followed ([`path_module_key`]) and the
+                // file read as that crate's test code; any other `#[path]` is
+                // a finding, as in production.
+                let literal = match &attr.meta {
+                    syn::Meta::NameValue(syn::MetaNameValue { value: syn::Expr::Lit(syn::ExprLit { lit: syn::Lit::Str(text), .. }), .. }) => Some(text.value()),
+                    _ => None,
+                };
+                match literal {
+                    Some(literal) if self.shell_test() && paths == 1 && module.content.is_none() && self.inline.is_empty() => followed = Some(literal),
+                    _ if self.shell_test() => self.finding(line, format!("a #[path] on the src-tauri test module {name} that is not one string literal on an outlined module outside inline modules")),
+                    _ => self.finding(line, format!("a #[path] on the production module {name}")),
+                }
             } else {
                 // A `path` applied through `cfg_attr` is refused there.
                 self.visit_attribute(attr);
@@ -1389,7 +1561,7 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
                 }
                 self.inline.pop();
             }
-            None => self.modules.push((self.file.clone(), self.inline.clone(), name, line, self.test_only)),
+            None => self.modules.push((self.file.clone(), self.inline.clone(), name, line, self.test_only, followed)),
         }
     }
 
@@ -1432,9 +1604,7 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
             _ => &[],
         };
         if is_test_only(attrs) && !self.test_only {
-            if self.is_core() {
-                self.as_test_only(|scan| visit::visit_impl_item(scan, item));
-            }
+            self.as_test_only(|scan| visit::visit_impl_item(scan, item));
         } else {
             visit::visit_impl_item(self, item);
         }
@@ -1461,9 +1631,7 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
 
     fn visit_trait_item_fn(&mut self, function: &'ast syn::TraitItemFn) {
         if is_test_only(&function.attrs) && !self.test_only {
-            if self.is_core() {
-                self.as_test_only(|scan| scan.visit_trait_item_fn(function));
-            }
+            self.as_test_only(|scan| scan.visit_trait_item_fn(function));
             return;
         }
         self.check_attributes(&function.attrs);
@@ -2003,6 +2171,44 @@ fn module_file(files: &BTreeMap<String, String>, roots: &BTreeSet<String>, decla
     }
 }
 
+/// The file a `src-tauri` test module's `#[path = "<literal>"]` loads (code
+/// review r7 at #1682), as a `<crate key>/...` path: on an outlined module
+/// outside inline modules, Rust resolves the literal from the declaring
+/// file's directory. The literal is joined in the project tree ([`CRATES`]),
+/// `.` and `..` resolved, and the result must lie in one of the four crates;
+/// an absolute literal, a backslash, or a file outside them is an error (a
+/// finding).
+pub(crate) fn path_module_key(declaring: &str, literal: &str) -> Result<String, String> {
+    let refuse = |why: &str| Err(format!("{declaring}: the #[path] {literal:?} {why}"));
+    if literal.is_empty() || literal.starts_with('/') || literal.contains('\\') || literal.contains(':') {
+        return refuse("is not a relative path");
+    }
+    let key = crate_of(declaring);
+    let Some((_, root)) = CRATES.iter().find(|(crate_key, _)| *crate_key == key) else { return refuse("is declared outside the four crates") };
+    let relative = &declaring[key.len()..];
+    let joined = format!("{root}{relative}");
+    let mut segments: Vec<String> = joined.split('/').map(str::to_string).collect();
+    segments.pop();
+    for segment in literal.split('/') {
+        match segment {
+            "" | "." => {}
+            ".." => {
+                if segments.pop().is_none() {
+                    return refuse("leaves the project tree");
+                }
+            }
+            other => segments.push(other.to_string()),
+        }
+    }
+    let resolved = segments.join("/");
+    for (crate_key, root) in CRATES {
+        if let Some(rest) = resolved.strip_prefix(&format!("{root}/")) {
+            return Ok(format!("{crate_key}/{rest}"));
+        }
+    }
+    refuse(&format!("loads {resolved}, outside the four crates"))
+}
+
 /// The scan over `sources`: every finding, as text. Empty when the boundary
 /// holds.
 pub(crate) fn scan(sources: &Sources) -> Vec<String> {
@@ -2064,6 +2270,36 @@ pub(crate) fn scan_reading_all(sources: &Sources) -> (Vec<String>, BTreeSet<Stri
         if sources.bin_dirs.contains(key) {
             findings.push(format!("{key} has a src/bin directory"));
         }
+        // Code review r7 at #1682: every build script Cargo reports is pinned
+        // by content ([`BUILD_SCRIPTS`]).
+        for target in actual.iter().filter(|target| target.kind.split(',').any(|kind| kind == "custom-build")) {
+            let pin = BUILD_SCRIPTS.iter().find(|(file, _, _)| *file == target.src_path);
+            match (pin, sources.build_scripts.get(&target.src_path)) {
+                (None, _) => findings.push(format!("{key}: the build script {} is not on the build-script pin list", target.src_path)),
+                (Some(_), None) => findings.push(format!("{key}: the build script {} was not read", target.src_path)),
+                (Some((file, length, sha)), Some(text)) => {
+                    if text.len() != *length || sha256_hex(text.as_bytes()) != *sha {
+                        findings.push(format!(
+                            "{file}: the build script differs from its pin ({} B, SHA-256 {}; pinned {length} B, {sha}): review it, a cargo:rustc-cfg line included, and replace its pin",
+                            text.len(),
+                            sha256_hex(text.as_bytes())
+                        ));
+                    }
+                }
+            }
+        }
+        // Code review r7 at #1682: `src-tauri`'s normal and development
+        // dependencies are exactly [`SHELL_DEPENDENCIES`].
+        if key == "src-tauri" {
+            let actual: BTreeSet<String> = sources.dependencies.get(key).cloned().unwrap_or_default();
+            let expected: BTreeSet<String> = SHELL_DEPENDENCIES.iter().map(|dependency| dependency.to_string()).collect();
+            for dependency in actual.difference(&expected) {
+                findings.push(format!("{key}: Cargo reports the dependency {dependency}, which is not on the dependency pin list"));
+            }
+            for dependency in expected.difference(&actual) {
+                findings.push(format!("{key}: Cargo does not report the pinned dependency {dependency}"));
+            }
+        }
     }
     let mut occurrences = Vec::new();
     let mut entries = Vec::new();
@@ -2072,14 +2308,21 @@ pub(crate) fn scan_reading_all(sources: &Sources) -> (Vec<String>, BTreeSet<Stri
     let mut type_names = TypeNames::default();
     let mut plain_literals = Vec::new();
     // Each file is read once as production and once as a test-only module,
-    // as its declarations load it.
-    let mut queue: Vec<(String, bool)> = roots.iter().rev().map(|root| (root.clone(), false)).collect();
+    // as its declarations load it, for each crate that compiles it (a file a
+    // `src-tauri` test module loads by `#[path]` from another crate is read
+    // as `src-tauri`'s too; code review r7 at #1682).
+    let mut queue: Vec<(String, bool, String)> = roots.iter().rev().map(|root| (root.clone(), false, crate_of(root).to_string())).collect();
     let mut read: BTreeSet<String> = BTreeSet::new();
     let mut test_read: BTreeSet<String> = BTreeSet::new();
-    while let Some((file, test_only)) = queue.pop() {
-        if !(if test_only { &mut test_read } else { &mut read }).insert(file.clone()) {
+    let mut hosted: BTreeSet<(String, bool, String)> = BTreeSet::new();
+    // Files loaded by `#[path]`, and the outlined modules each file declares.
+    let mut path_loaded: BTreeSet<String> = BTreeSet::new();
+    let mut outlined: BTreeMap<String, Vec<(String, usize)>> = BTreeMap::new();
+    while let Some((file, test_only, host)) = queue.pop() {
+        if !hosted.insert((file.clone(), test_only, host.clone())) {
             continue;
         }
+        (if test_only { &mut test_read } else { &mut read }).insert(file.clone());
         let Some(text) = sources.files.get(&file) else {
             findings.push(format!("{file}: missing"));
             continue;
@@ -2109,6 +2352,7 @@ pub(crate) fn scan_reading_all(sources: &Sources) -> (Vec<String>, BTreeSet<Stri
             in_type_alias: false,
             in_macro: false,
             test_only,
+            host: host.clone(),
         };
         if scan.is_core() {
             scan.token_rules();
@@ -2130,11 +2374,27 @@ pub(crate) fn scan_reading_all(sources: &Sources) -> (Vec<String>, BTreeSet<Stri
         for item in &parsed.items {
             scan.visit_item(item);
         }
-        for (declaring, inline, name, line, test_module) in modules {
-            match module_file(&sources.files, &roots, &declaring, &inline, &name) {
-                Ok(next) => queue.push((next, test_module)),
+        for (declaring, inline, name, line, test_module, followed) in modules {
+            outlined.entry(declaring.clone()).or_default().push((name.clone(), line));
+            let next = match followed {
+                Some(literal) => path_module_key(&declaring, &literal).map(|next| {
+                    path_loaded.insert(next.clone());
+                    next
+                }),
+                None => module_file(&sources.files, &roots, &declaring, &inline, &name),
+            };
+            match next {
+                Ok(next) => queue.push((next, test_module, host.clone())),
                 Err(error) => findings.push(format!("{error} (line {line})")),
             }
+        }
+    }
+    // A file loaded by `#[path]` declares no outlined module: Rust resolves
+    // such a module's file from the path-loaded file's own directory, which
+    // the scan does not model (code review r7 at #1682).
+    for file in &path_loaded {
+        for (name, line) in outlined.get(file).into_iter().flatten() {
+            findings.push(format!("{file}:{line}: the outlined module {name} in a file loaded by #[path]"));
         }
     }
 
@@ -2153,10 +2413,18 @@ pub(crate) fn scan_reading_all(sources: &Sources) -> (Vec<String>, BTreeSet<Stri
     // name of it but a type, and any definition of it or of a scanned
     // function, is a finding.
     let mut test_literals: BTreeMap<(String, String), usize> = BTreeMap::new();
+    let mut shell_test_calls: BTreeMap<(String, String, String), usize> = BTreeMap::new();
     for occurrence in &occurrences {
         let Occurrence { name, file, line, kind, owner, test } = occurrence;
         let at = format!("{file}:{line}");
         if let Some(item) = test {
+            // `src-tauri`'s test-only items (code review r7 at #1682): a
+            // scanned name only as listed ([`SHELL_TEST_CALLERS`]), exactly
+            // once each; with the list empty, every occurrence is a finding.
+            if name != DERIVED && SHELL_TEST_CALLERS.iter().any(|(listed_file, listed, listed_name, _)| listed_file == file && listed == item && listed_name == name) && *kind == Kind::Call {
+                *shell_test_calls.entry((file.clone(), item.clone(), name.clone())).or_default() += 1;
+                continue;
+            }
             match kind {
                 Kind::TypeUse if name == DERIVED => {}
                 Kind::Literal if TEST_PROOF_ITEMS.iter().any(|(listed_file, listed, _)| listed_file == file && listed == item) => {
@@ -2202,6 +2470,12 @@ pub(crate) fn scan_reading_all(sources: &Sources) -> (Vec<String>, BTreeSet<Stri
             }
         }
     }
+    for (file, item, name, _) in SHELL_TEST_CALLERS {
+        let count = shell_test_calls.get(&(file.to_string(), item.to_string(), name.to_string())).copied().unwrap_or(0);
+        if count != 1 {
+            findings.push(format!("{file}: the allow-listed src-tauri test item {item} calls {name} {count} times, not exactly once"));
+        }
+    }
     if definitions.get(DERIVED).copied().unwrap_or(0) != 1 {
         findings.push(format!("{DERIVED_FILE}: {DERIVED} is not defined there exactly once"));
     }
@@ -2209,7 +2483,7 @@ pub(crate) fn scan_reading_all(sources: &Sources) -> (Vec<String>, BTreeSet<Stri
         findings.push(format!("{DERIVED_FILE}: check_derived constructs no {DERIVED}"));
     }
     // Each pinned macro is defined exactly once.
-    for (file, name, _) in MACRO_DEFINITIONS {
+    for (file, name) in MACRO_DEFINITIONS.iter().map(|(file, name, _)| (file, name)).chain(SHELL_TEST_MACROS.iter().map(|(file, name, _, _)| (file, name))) {
         let count = macros.iter().filter(|(seen_file, seen)| seen_file == file && seen == name).count();
         if count > 1 {
             findings.push(format!("{file}: the pinned macro {name} is defined {count} times"));
@@ -2297,11 +2571,26 @@ pub(crate) fn crate_sources(key: &str, crate_dir: &Path, sources: &mut Sources) 
         }
     }
     read_dir(&crate_dir.join("src"), &format!("{key}/src"), &mut sources.files);
+    // Code review r7 at #1682: `tests/` too, which a `src-tauri` test module
+    // can load by `#[path]` (`report_package/tests/common/package_basis.rs`).
+    // Only files a crate root or a module declaration loads are read.
+    if crate_dir.join("tests").is_dir() {
+        read_dir(&crate_dir.join("tests"), &format!("{key}/tests"), &mut sources.files);
+    }
     sources.crate_dirs.insert(key.to_string(), std::fs::canonicalize(crate_dir).unwrap_or_else(|error| panic!("{}: {error}", crate_dir.display())));
     if crate_dir.join("src/bin").is_dir() {
         sources.bin_dirs.insert(key.to_string());
     }
-    let (targets, build_dependencies) = cargo_crate(key, crate_dir).unwrap_or_else(|error| panic!("{key}: {error}"));
+    let (targets, build_dependencies, dependencies) = cargo_crate(key, crate_dir).unwrap_or_else(|error| panic!("{key}: {error}"));
+    // Each build script's text, for its pin (code review r7 at #1682).
+    for target in targets.iter().filter(|target| target.kind.split(',').any(|kind| kind == "custom-build")) {
+        if let Some(relative) = target.src_path.strip_prefix(&format!("{key}/")) {
+            if let Ok(text) = std::fs::read_to_string(crate_dir.join(relative)) {
+                sources.build_scripts.insert(target.src_path.clone(), text);
+            }
+        }
+    }
+    sources.dependencies.insert(key.to_string(), dependencies);
     for target in targets.iter().filter(|target| is_scanned_target(&target.kind)) {
         if let Some(relative) = target.src_path.strip_prefix(&format!("{key}/")) {
             if !sources.files.contains_key(&target.src_path) {
@@ -2315,13 +2604,15 @@ pub(crate) fn crate_sources(key: &str, crate_dir: &Path, sources: &mut Sources) 
     sources.build_dependencies.insert(key.to_string(), build_dependencies);
 }
 
-/// The targets and build-dependency names Cargo reports for the crate in
+/// The targets, the build-dependency names, and the normal and development
+/// dependencies ([`SHELL_DEPENDENCIES`]'s form; code review r7 at #1682)
+/// Cargo reports for the crate in
 /// `crate_dir` (code review r5 at #1682), by `cargo metadata --format-version
 /// 1 --offline --locked --no-deps --manifest-path <crate>/Cargo.toml`, run
 /// with the `cargo` that runs this test (`CARGO`). Each target's source path
 /// is given relative to the crate directory under `key`, or absolute when it
 /// lies outside it.
-pub(crate) fn cargo_crate(key: &str, crate_dir: &Path) -> Result<(Vec<CrateTarget>, BTreeSet<String>), String> {
+pub(crate) fn cargo_crate(key: &str, crate_dir: &Path) -> Result<(Vec<CrateTarget>, BTreeSet<String>, BTreeSet<String>), String> {
     let cargo = std::env::var_os("CARGO").unwrap_or_else(|| env!("CARGO").into());
     let manifest = crate_dir.join("Cargo.toml");
     let output = std::process::Command::new(&cargo)
@@ -2360,7 +2651,24 @@ pub(crate) fn cargo_crate(key: &str, crate_dir: &Path) -> Result<(Vec<CrateTarge
         .filter(|dependency| dependency["kind"].as_str() == Some("build"))
         .map(|dependency| dependency["name"].as_str().unwrap_or("?").to_string())
         .collect();
-    Ok((targets, build_dependencies))
+    let mut dependencies = BTreeSet::new();
+    for dependency in package["dependencies"].as_array().ok_or("a package without dependencies")? {
+        let kind = match dependency["kind"].as_str() {
+            None => "normal",
+            Some("dev") => "dev",
+            Some("build") => continue,
+            Some(_) => "unknown",
+        };
+        let mut text = format!("{kind} {}", dependency["name"].as_str().unwrap_or("?"));
+        if let Some(rename) = dependency["rename"].as_str() {
+            text.push_str(&format!(" as {rename}"));
+        }
+        if let Some(platform) = dependency["target"].as_str() {
+            text.push_str(&format!(" ({platform})"));
+        }
+        dependencies.insert(text);
+    }
+    Ok((targets, build_dependencies, dependencies))
 }
 
 /// The consumers of the reporting crates whose Cargo resolution is checked
@@ -2444,7 +2752,121 @@ pub(crate) fn build_configuration(sources: &Sources, project: &Path) -> Vec<Stri
             Resolution::Declared => declared_identities(key, dir, &expected),
         });
     }
+    // Code review r7 at #1682: the build scripts of the consumers' in-repo
+    // path packages ([`in_repo_build_scripts`]).
+    let shell = canonical(&project.join(CONSUMERS[0].1).to_string_lossy());
+    match in_repo_build_scripts(&CONSUMERS.iter().map(|(_, manifest, _)| project.join(manifest)).collect::<Vec<_>>(), &expected) {
+        Ok(scripts) => findings.extend(build_script_findings(&scripts, &shell)),
+        Err(error) => findings.push(error),
+    }
     findings
+}
+
+/// A finding for each in-repository build script whose package can name a
+/// scanned function, other than the shell's (`shell`, its canonical
+/// manifest), which [`BUILD_SCRIPTS`] pins by content (code review r7 at
+/// #1682).
+pub(crate) fn build_script_findings(scripts: &[InRepoBuildScript], shell: &Path) -> Vec<String> {
+    scripts
+        .iter()
+        .filter(|script| script.reaches_reporting && script.manifest != shell)
+        .map(|script| {
+            format!(
+                "the in-repository package {} runs the build script {} and depends on a reporting crate: its cargo:rustc-cfg would apply to code that can name the scanned functions",
+                script.package,
+                script.script.display()
+            )
+        })
+        .collect()
+}
+
+/// One in-repository path package of a consumer's graph that runs a build
+/// script ([`in_repo_build_scripts`]).
+#[derive(Clone, Debug)]
+pub(crate) struct InRepoBuildScript {
+    pub(crate) package: String,
+    pub(crate) manifest: PathBuf,
+    pub(crate) script: PathBuf,
+    /// Whether the package is a reporting package or depends on one through
+    /// path dependencies, of any kind.
+    pub(crate) reaches_reporting: bool,
+}
+
+/// The in-repository build scripts of the consumers' graphs (code review r7
+/// at #1682; §2.8, "Build scripts"). A build script's `cargo:rustc-cfg`
+/// sets a `cfg` (`test` included) for its own package's crates only, so one
+/// matters here only when its package can name a scanned function: a
+/// reporting package (whose build scripts the target pin refuses), or a
+/// package that depends on one. `src-tauri`'s is pinned by content
+/// ([`BUILD_SCRIPTS`]); any other such package is a finding
+/// ([`build_configuration`]). The walk follows each manifest's path
+/// dependencies, of every kind, by `cargo metadata --format-version 1
+/// --offline --locked --no-deps` per manifest, which needs no download (a
+/// registry package cannot depend on a repository path). Every package with
+/// a build script is returned, whether or not it reaches a reporting one.
+pub(crate) fn in_repo_build_scripts(consumers: &[PathBuf], expected: &BTreeMap<String, PathBuf>) -> Result<Vec<InRepoBuildScript>, String> {
+    let reporting: BTreeSet<PathBuf> = expected.values().cloned().collect();
+    // Each package: (name, build script, path dependencies' manifests).
+    let mut packages: BTreeMap<PathBuf, (String, Option<PathBuf>, Vec<PathBuf>)> = BTreeMap::new();
+    let mut queue: Vec<PathBuf> = consumers.iter().map(|manifest| canonical(&manifest.to_string_lossy())).collect();
+    while let Some(manifest) = queue.pop() {
+        if packages.contains_key(&manifest) {
+            continue;
+        }
+        let Some(dir) = manifest.parent() else { return Err(format!("{}: no directory", manifest.display())) };
+        let output = std::process::Command::new(cargo())
+            .args(["metadata", "--format-version", "1", "--offline", "--locked", "--no-deps", "--manifest-path"])
+            .arg(&manifest)
+            .current_dir(dir)
+            .output()
+            .map_err(|error| format!("{}: cargo metadata did not run: {error}", manifest.display()))?;
+        if !output.status.success() {
+            return Err(format!("{}: cargo metadata failed: {}", manifest.display(), String::from_utf8_lossy(&output.stderr).trim()));
+        }
+        let metadata: serde_json::Value = serde_json::from_slice(&output.stdout).map_err(|error| format!("{}: cargo metadata output: {error}", manifest.display()))?;
+        let package = metadata["packages"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .find(|package| package["manifest_path"].as_str().map(canonical).as_ref() == Some(&manifest))
+            .ok_or_else(|| format!("{}: cargo metadata reports no package for it", manifest.display()))?;
+        let name = package["name"].as_str().unwrap_or("?").to_string();
+        let script = package["targets"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .find(|target| target["kind"].as_array().into_iter().flatten().any(|kind| kind.as_str() == Some("custom-build")))
+            .and_then(|target| target["src_path"].as_str())
+            .map(canonical);
+        let mut dependencies = Vec::new();
+        for dependency in package["dependencies"].as_array().into_iter().flatten() {
+            if let Some(path) = dependency["path"].as_str() {
+                let next = canonical(&Path::new(path).join("Cargo.toml").to_string_lossy());
+                queue.push(next.clone());
+                dependencies.push(next);
+            }
+        }
+        packages.insert(manifest, (name, script, dependencies));
+    }
+    // Which packages reach a reporting package through path dependencies.
+    let mut reaches: BTreeSet<PathBuf> = reporting.iter().filter(|manifest| packages.contains_key(*manifest)).cloned().collect();
+    loop {
+        let before = reaches.len();
+        for (manifest, (_, _, dependencies)) in &packages {
+            if dependencies.iter().any(|dependency| reaches.contains(dependency)) {
+                reaches.insert(manifest.clone());
+            }
+        }
+        if reaches.len() == before {
+            break;
+        }
+    }
+    Ok(packages
+        .iter()
+        .filter_map(|(manifest, (name, script, _))| {
+            script.as_ref().map(|script| InRepoBuildScript { package: name.clone(), manifest: manifest.clone(), script: script.clone(), reaches_reporting: reaches.contains(manifest) })
+        })
+        .collect())
 }
 
 /// Each reporting package's expected manifest: `Cargo.toml` in the
