@@ -1,17 +1,19 @@
 /** Sorted stress and ratio table (survey item A3; DEL-07-05 Design `stress-ratio-table.md`).
  *
  * Per stress category, the result locations sorted largest first: the user's rule-check outcomes
- * of each of the pack's stress categories by their ratio (computed value / limit) or by the
- * computed value's magnitude, and each emitted stress kind by the magnitude of its rows. A
- * threshold shows only the rows at or above it.
+ * of each of the pack's stress categories by their ratio (computed value / limit, or limit /
+ * computed value under a lower bound) or by the computed value's magnitude, and each emitted
+ * stress kind by the magnitude of its rows. A threshold shows only the rows at or above it.
  *
  * Pure post-processing of emitted rows and of the session's rule-check run: nothing here forms an
  * engineering quantity, a limit or a status. A ratio is formed only from the outcome's own computed
- * value and limit, stated in one unit, under an upper-bound relation (§3.1). The status is the
- * runner's own. FR-RULE-003: an incomplete outcome is pinned with its reason, never sorted and never
- * hidden by the threshold; a withheld or failed outcome is never hidden either. A row the numerical
- * standing withholds (the viewport overlays' rule, `overlayMayShowRow`) carries no value in the
- * view. Stored values and units are kept unchanged for an export (D2). */
+ * value and limit, stated in one unit: computed ÷ limit under an upper-bound relation and limit ÷
+ * computed under a lower-bound one, so a ratio above 1 means the computed value is past the limit in
+ * either direction (§3.1). The status is the runner's own. FR-RULE-003: an incomplete outcome is
+ * pinned with its reason, never sorted and never hidden by the threshold; a withheld or failed
+ * outcome is never hidden either. A row the numerical standing withholds (the viewport overlays'
+ * rule, `overlayMayShowRow`) carries no value in the view. Stored values and units are kept
+ * unchanged for an export (D2). */
 
 import type { MechanicsResult, PreviewModel, ResultBasisRef } from "../../types";
 import type { SessionRuleCheckRun } from "../report/renderableReportInput";
@@ -84,7 +86,8 @@ export type StressRatioOutcome = Readonly<{
   /** Null for a withheld row, and for an incomplete row whose case is withheld. */
   computed: StressRatioValue | null;
   limit: StressRatioValue | null;
-  /** computed / limit (§3.1), or null with `ratioNote` saying why none is formed. */
+  /** computed / limit, or limit / computed under a lower bound (§3.1; `ratioDirection`), or null
+   * with `ratioNote` saying why none is formed. */
   ratio: number | null;
   ratioNote: string | null;
   /** For an incomplete outcome: the missing inputs and the run's findings. */
@@ -145,11 +148,12 @@ export function stressRatioRunText(rulePackId: string, outcomeCount: number): st
   return `Rule-check run of pack ${rulePackId}: ${outcomeCount} outcome${outcomeCount === 1 ? "" : "s"}, one per check and load case or combination.`;
 }
 
-export const RATIO_NOTE_LOWER_BOUND = "Lower-bound relation; no ratio is formed";
 export const RATIO_NOTE_PREDICATE = "Predicate check; no ratio is formed";
 export const RATIO_NOTE_MISSING = "No computed value or limit; no ratio is formed";
 export const RATIO_NOTE_LIMIT_NOT_POSITIVE = "Limit is not positive; no ratio is formed";
 export const RATIO_NOTE_NOT_FINITE = "Ratio is not finite; none is formed";
+/** A lower-bound ratio divides by the computed value, which must be positive (§3.1). */
+export const RATIO_NOTE_COMPUTED_NOT_POSITIVE = "Computed value is not positive; no lower-bound ratio is formed";
 export function ratioNoteUnitsDiffer(computed: string, limit: string): string {
   return `Computed value and limit in different units (${computed}, ${limit}); no ratio is formed`;
 }
@@ -290,21 +294,37 @@ function valueOf(quantity: RuleCheckOutcome["computed_value"]): StressRatioValue
   return quantity && Number.isFinite(quantity.value) ? Object.freeze({ value: quantity.value, unit: quantity.unit_ref }) : null;
 }
 
-/** The ratio of §3.1, or why none is formed. */
+export type RatioDirection = "upper" | "lower";
+
+/** Which way a relation bounds the computed value: `upper` (less-than; ratio = computed ÷ limit),
+ * `lower` (greater-than; ratio = limit ÷ computed) or null (no ratio is formed). */
+export function ratioDirection(relation: string): RatioDirection | null {
+  return UPPER_BOUND_RELATIONS.has(relation) ? "upper" : LOWER_BOUND_RELATIONS.has(relation) ? "lower" : null;
+}
+
+/** The ratio of §3.1, or why none is formed. Under an upper bound, computed ÷ limit with a positive
+ * limit; under a lower bound, limit ÷ computed with a positive computed value and a positive limit
+ * (HELP_HUMAN, 2026-10-27). Either way the values are finite and in one unit and dimension, the
+ * quotient is finite, and a ratio above 1 means the computed value is past the limit. */
 export function outcomeRatio(outcome: Pick<RuleCheckOutcome, "acceptability_relation" | "computed_value" | "limit_value">): { ratio: number | null; note: string | null } {
   const relation = outcome.acceptability_relation;
   if (relation === "formula_predicate") return { ratio: null, note: RATIO_NOTE_PREDICATE };
-  if (LOWER_BOUND_RELATIONS.has(relation)) return { ratio: null, note: RATIO_NOTE_LOWER_BOUND };
+  const direction = ratioDirection(relation);
   const computed = outcome.computed_value;
   const limit = outcome.limit_value;
-  if (!UPPER_BOUND_RELATIONS.has(relation) || !computed || !limit || !Number.isFinite(computed.value) || !Number.isFinite(limit.value)) {
+  if (!direction || !computed || !limit || !Number.isFinite(computed.value) || !Number.isFinite(limit.value)) {
     return { ratio: null, note: RATIO_NOTE_MISSING };
   }
   if (computed.unit_ref !== limit.unit_ref || computed.dimension !== limit.dimension) {
     return { ratio: null, note: ratioNoteUnitsDiffer(computed.unit_ref, limit.unit_ref) };
   }
+  // A lower bound divides by the computed value: zero has no quotient, and a negative one would
+  // rank a value below the limit as the least critical.
+  if (direction === "lower" && !(computed.value > 0)) return { ratio: null, note: RATIO_NOTE_COMPUTED_NOT_POSITIVE };
+  // In either direction a limit at or below zero gives no ratio: a zero limit leaves no upper-bound
+  // quotient and makes every lower-bound one 0, and a negative limit reverses the quotients' order.
   if (!(limit.value > 0)) return { ratio: null, note: RATIO_NOTE_LIMIT_NOT_POSITIVE };
-  const ratio = computed.value / limit.value;
+  const ratio = direction === "upper" ? computed.value / limit.value : limit.value / computed.value;
   return Number.isFinite(ratio) ? { ratio, note: null } : { ratio: null, note: RATIO_NOTE_NOT_FINITE };
 }
 

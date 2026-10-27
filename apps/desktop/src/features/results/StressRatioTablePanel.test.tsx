@@ -10,13 +10,15 @@ import type { RuleCheckOutcome, RuleCheckStatus } from "../../services/ruleCheck
 import {
   RATIO_DISABLED_EMITTED,
   RATIO_DISABLED_NO_RUN,
+  RATIO_DIRECTION_TEXT,
   STRESS_RATIO_BOUNDARY_TEXT,
+  STRESS_RATIO_KEY_TEXT,
   STRESS_RATIO_KEY_TEXT_UNSORTED,
   STRESS_RATIO_PAGE,
   STRESS_RATIO_PINNED_TEXT,
   StressRatioTablePanel
 } from "./StressRatioTablePanel";
-import { INCOMPLETE_MESSAGES_NOTE, STRESS_RATIO_NO_RESULT, SUBJECT_UNDECLARED_STATUS, STRESS_RATIO_NO_RUN, THRESHOLD_INVALID_NOTE, stressRatioRunText, unitsDifferNote } from "./stressRatioTable";
+import { INCOMPLETE_MESSAGES_NOTE, RATIO_NOTE_COMPUTED_NOT_POSITIVE, STRESS_RATIO_NO_RESULT, SUBJECT_UNDECLARED_STATUS, STRESS_RATIO_NO_RUN, THRESHOLD_INVALID_NOTE, stressRatioRunText, unitsDifferNote } from "./stressRatioTable";
 import { supportLoadWithheldStateText } from "./supportLoadSummary";
 
 afterEach(cleanup);
@@ -190,6 +192,47 @@ describe("StressRatioTablePanel: rule-check outcomes", () => {
     expect(screen.getByTestId(`stress-ratio-value-${P1}`).textContent).toBe("0.333333");
     expect(screen.getByTestId(`stress-ratio-value-${P1}`).querySelector("span")!.getAttribute("title")).toBe(`0.333333 (computed ÷ limit; ${P1})`);
     expect(view.container.innerHTML).not.toContain("0.3333333");
+  });
+
+  // HELP_HUMAN, 2026-10-27: "label each ratio's direction" (Design §3.1, §7).
+  it("labels each ratio's direction, sorts both directions together and pins the incomplete check", () => {
+    const LB = JSON.stringify(["chk_lb", "load_case", "load:L-1"]);
+    const LB_NONE = JSON.stringify(["chk_lb", "load_case", "load:L-2"]);
+    const view = renderPanel({ ruleCheckRun: ruleRun([
+      outcome("chk_p1", "in_p1", "s:P-1:i", "USER_RULE_CHECKED", L1, { computed_value: quantity(1), limit_value: quantity(3) }),
+      outcome("chk_p2", "in_p2", null, "RULE_INPUTS_INCOMPLETE", L2),
+      outcome("chk_p2", "in_p2", "s:P-2:i", "USER_RULE_FAILED", L1, { computed_value: quantity(4.5), limit_value: quantity(3) }),
+      outcome("chk_lb", "in_p1", null, "USER_RULE_FAILED", L1, { acceptability_relation: "greater_than_or_equal", computed_value: quantity(3), limit_value: quantity(7) }),
+      outcome("chk_lb", "in_p1", null, "USER_RULE_CHECKED", L2, { acceptability_relation: "greater_than", computed_value: quantity(-2), limit_value: quantity(7) })
+    ]) });
+    expect(screen.getByTestId("stress-ratio-key").textContent).toBe(STRESS_RATIO_KEY_TEXT.ratio);
+    const table = screen.getByRole("table", { name: "Invented A (cat_a): sorted by ratio" });
+    expect(within(table).getAllByRole("columnheader").map((item) => item.textContent)).toEqual(["Rank", "Location", "Case", "Check", "Status", "Ratio", "Direction", "Relation"]);
+    // 7 / 3 (lower) above 4.5 / 3 (upper) above 1 / 3 (upper); the lower bound over -2 forms none.
+    expect(bodyRows().map((item) => [item.getAttribute("data-testid"), item.getAttribute("data-part")])).toEqual([
+      [`stress-ratio-row-${P2_L2}`, "pinned"], [`stress-ratio-row-${LB}`, "ranked"], [`stress-ratio-row-${P2_L1}`, "ranked"],
+      [`stress-ratio-row-${P1}`, "ranked"], [`stress-ratio-row-${LB_NONE}`, "unranked"]
+    ]);
+    expect(screen.getByTestId(`stress-ratio-value-${LB}`).textContent).toBe("2.33333");
+    expect(screen.getByTestId(`stress-ratio-value-${LB}`).querySelector("span")!.getAttribute("title")).toBe(`2.33333 (limit ÷ computed; ${LB})`);
+    expect(screen.getByTestId(`stress-ratio-value-${P2_L1}`).querySelector("span")!.getAttribute("title")).toBe(`1.5 (computed ÷ limit; ${P2_L1})`);
+    expect(screen.getByTestId(`stress-ratio-direction-${LB}`).textContent).toBe("Lower bound: limit ÷ computed");
+    expect(screen.getByTestId(`stress-ratio-direction-${P2_L1}`).textContent).toBe("Upper bound: computed ÷ limit");
+    expect(screen.getByTestId(`stress-ratio-direction-${P1}`).textContent).toBe(RATIO_DIRECTION_TEXT.upper);
+    expect(screen.getByTestId(`stress-ratio-value-${LB_NONE}`).textContent).toBe(RATIO_NOTE_COMPUTED_NOT_POSITIVE);
+    expect(within(screen.getByTestId(`stress-ratio-direction-${LB_NONE}`)).getByText("none")).toBeTruthy();
+    // The pinned row's reason spans the ratio, direction and relation columns.
+    expect(screen.getByTestId(`stress-ratio-reason-${P2_L2}`).getAttribute("colspan")).toBe("3");
+    expect(view.container.innerHTML).not.toContain("2.333333");
+    // A threshold of 2.4 hides no failed check of either direction.
+    fireEvent.change(screen.getByTestId("stress-ratio-threshold"), { target: { value: "2.4" } });
+    expect(bodyRows().map((item) => item.getAttribute("data-testid"))).toEqual([
+      `stress-ratio-row-${P2_L2}`, `stress-ratio-row-${LB}`, `stress-ratio-row-${P2_L1}`, `stress-ratio-row-${LB_NONE}`
+    ]);
+    // Stress mode has no direction column.
+    fireEvent.click(screen.getByTestId("stress-ratio-mode-stress"));
+    expect(screen.queryByTestId("stress-ratio-column-direction")).toBeNull();
+    expect(screen.getByTestId(`stress-ratio-reason-${P2_L2}`).getAttribute("colspan")).toBe("2");
   });
 
   it("keeps the incomplete and failed checks under a threshold above every ratio", () => {
