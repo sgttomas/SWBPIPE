@@ -229,6 +229,27 @@
     return record;
   }
 
+  // A3 (DEL-07-05 Design stress-ratio-table.md): the stress and ratio table's structure; no values are read.
+  function stressRatioStructure() {
+    const panel = byTestId("stress-ratio-panel");
+    if (!panel) return null;
+    const table = byTestId("stress-ratio-table");
+    const rows = table ? [...table.querySelectorAll("tbody tr[data-part]")] : [];
+    const group = byTestId("stress-ratio-group");
+    return {
+      table: Boolean(table),
+      group: group?.value ?? null,
+      mode: byTestId("stress-ratio-mode")?.getAttribute("data-mode") ?? null,
+      ratio_disabled: Boolean(byTestId("stress-ratio-mode-ratio")?.disabled),
+      rule_groups: group ? group.querySelectorAll('option[value^="rule:"]').length : 0,
+      stress_groups: group ? group.querySelectorAll('option[value^="stress:"]').length : 0,
+      rows: rows.length,
+      ranked: rows.filter((row) => row.getAttribute("data-part") === "ranked").length,
+      pinned_incomplete: rows.filter((row) => row.getAttribute("data-part") === "pinned" && row.getAttribute("data-status") === "RULE_INPUTS_INCOMPLETE").length,
+      sorted: Boolean(table?.querySelector('th[aria-sort="descending"]'))
+    };
+  }
+
   async function observe(label, projectId, probe) {
     await showSection("results");
     const standing = await waitFor("result standing", () => text("numerical-result-standing"));
@@ -268,7 +289,8 @@
           rows_stated: [...rows].filter((row) => row.getAttribute("data-standing") === "admitted" || row.querySelector('[data-testid^="support-load-withheld-"]')?.textContent?.trim()).length,
           extreme_rows: panel.querySelectorAll('[data-testid="support-load-extreme-max"], [data-testid="support-load-extreme-min"]').length
         };
-      })()
+      })(),
+      stress_ratio: stressRatioStructure()
     };
     if (probe) fill("result-filter-input", "");
     await log(`${label}: ${JSON.stringify(observation)}`);
@@ -686,6 +708,10 @@
     run.click();
     const aggregate = await waitFor(`${label}: rule-check aggregate`, () => text("rule-check-aggregate-status"), 120000);
     const observation = { label, aggregate, status: text("rule-check-run-status"), outcomes: text("rule-check-outcomes")?.slice(0, 600) ?? null };
+    // A3: the session's run reaches the Results section's stress and ratio table.
+    await showSection("results");
+    observation.stress_ratio = await waitFor(`${label}: stress and ratio table`, () => (stressRatioStructure()?.rule_groups > 0 ? stressRatioStructure() : null), 15000)
+      .catch(() => stressRatioStructure());
     await log(`${label}: ${JSON.stringify(observation)}`);
     return observation;
   }
