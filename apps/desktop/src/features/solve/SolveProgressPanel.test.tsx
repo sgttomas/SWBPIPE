@@ -44,6 +44,15 @@ function panel(job: SolveJobAuditState, running: boolean, onCancel = () => {}) {
   return <SolveProgressPanel solveJob={job} running={running} onCancel={onCancel} />;
 }
 
+/** Mounts the panel as the session does: idle on `before`, then a run starts
+ * and its first record `job` replaces it. */
+function renderRun(job: SolveJobAuditState, onCancel = () => {}, before: SolveJobAuditState = initialSolveJob()) {
+  const view = render(panel(before, false, onCancel));
+  view.rerender(panel(before, true, onCancel));
+  view.rerender(panel(job, true, onCancel));
+  return view;
+}
+
 describe("solve progress panel", () => {
   it("stays hidden until a run starts, so a restored or untouched record opens nothing", () => {
     const view = render(panel(initialSolveJob(), false));
@@ -55,7 +64,7 @@ describe("solve progress panel", () => {
 
   it("shows the live state, its latest event as the stage, every event in order, and no percentage or time", () => {
     const queued = startSolveJob(model, receipt);
-    const view = render(panel(queued, true));
+    const view = renderRun(queued);
     const region = screen.getByRole("region", { name: "Solve progress" });
     expect(region).toHaveAttribute("data-state", "queued");
     expect(screen.getByTestId("solve-progress-state")).toHaveAttribute("role", "status");
@@ -89,7 +98,7 @@ describe("solve progress panel", () => {
   it("offers Cancel as a focusable button; once requested it stays in place, aria-disabled, and keyboard focus moves to the state", () => {
     const onCancel = vi.fn();
     const running = progressSolveJob(startSolveJob(model, receipt), status({ state: "running" }));
-    const view = render(panel(running, true, onCancel));
+    const view = renderRun(running, onCancel);
     const cancel = screen.getByRole("button", { name: "Cancel solve" });
     expect(cancel.tagName).toBe("BUTTON");
     expect(cancel).toHaveAttribute("type", "button");
@@ -120,7 +129,7 @@ describe("solve progress panel", () => {
 
   it("shows a memory-pool refusal with its code, exact bytes and retry path, and no result", () => {
     const started = startSolveJob(model, receipt);
-    const view = render(panel(started, true));
+    const view = renderRun(started);
     const refused = refusedSolveJob(started, { kind: "headroom_insufficient", required_bytes: 68165632, available_bytes: 52641792 });
     view.rerender(panel(refused, false));
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Refused/);
@@ -136,7 +145,7 @@ describe("solve progress panel", () => {
 
   it("shows a worker failure by its existing reading", () => {
     const started = startSolveJob(model, receipt);
-    const view = render(panel(started, true));
+    const view = renderRun(started);
     view.rerender(panel(failSolveJob(started, new Error("SOLVE_WORKER_EXITED: invented exit")), false));
     expect(screen.getByTestId("solve-progress-failure")).toHaveTextContent(
       "The solve's worker process ended without returning a result. The solve failed; this is not a memory-pool refusal."
@@ -145,7 +154,7 @@ describe("solve progress panel", () => {
 
   it("shows completion with the rows and diagnostics the completed event carries; Close dismisses it until the next run", () => {
     const running = progressSolveJob(startSolveJob(model, receipt), status({ state: "running" }));
-    const view = render(panel(running, true));
+    const view = renderRun(running);
     const result = { results: [{}, {}, {}], diagnostics: [{}] } as unknown as MechanicsResult;
     const run = { analysis_run: { run_id: "analysis-run:invented-31", analysis_status: [] } } as unknown as AnalysisRunEnvelope;
     const completed = completeSolveJob(running, result, run);
@@ -155,17 +164,64 @@ describe("solve progress panel", () => {
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
     expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
     // The next run opens it again.
+    view.rerender(panel(completed, true));
     view.rerender(panel(startSolveJob(model, receipt), true));
     expect(screen.getByTestId("solve-progress-panel")).toHaveAttribute("data-state", "queued");
   });
 
   it("closes when the record no longer describes a job (the model changed)", () => {
     const running = progressSolveJob(startSolveJob(model, receipt), status({ state: "running" }));
-    const view = render(panel(running, true));
+    const view = renderRun(running);
     view.rerender(panel(modelChangedSolveJob({ operation_id: "op:invented-edit" } as never), false));
     expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
     // A later record the session did not run stays hidden.
     view.rerender(panel({ ...initialSolveJob(), state: "completed" }, false));
+    expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
+  });
+
+  it.each([
+    ["failed", () => failSolveJob(startSolveJob(model, receipt), new Error("invented first failure"))],
+    ["completed", () => completeSolveJob(progressSolveJob(startSolveJob(model, receipt), status({ state: "running" })),
+      { results: [{}], diagnostics: [] } as unknown as MechanicsResult,
+      { analysis_run: { run_id: "analysis-run:invented-first", analysis_status: [] } } as unknown as AnalysisRunEnvelope)]
+  ])("a rerun after a %s job never shows the previous job: Starting with Cancel until the new job reports (Codex r1 of #1665)", (_kind, first) => {
+    const onCancel = vi.fn();
+    const previous = first();
+    // The first run ends on `previous`, and the user closes the panel.
+    const view = renderRun(previous, onCancel);
+    view.rerender(panel(previous, false, onCancel));
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
+    // A new run starts; the session still holds the previous record until the start receipt.
+    view.rerender(panel(previous, true, onCancel));
+    const region = screen.getByRole("region", { name: "Solve progress" });
+    expect(region).toHaveAttribute("data-state", "starting");
+    expect(screen.queryByTestId("solve-progress-job")).toBeNull();
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent("Starting");
+    expect(screen.queryByTestId("solve-progress-failure")).toBeNull();
+    expect(screen.queryByTestId("solve-progress-completed")).toBeNull();
+    expect(within(screen.getByRole("list", { name: "Solve job events" })).queryAllByRole("listitem")).toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: "Cancel solve" }));
+    expect(onCancel).toHaveBeenCalledTimes(1);
+    // A cancellation before the start receipt records a new state over the previous events; only the new event is this run's.
+    const pending = { ...requestSolveCancellation(startSolveJob(model, receipt)), job_id: "job:preview-linear-static:pending-start-cancel",
+      events: [...previous.events, { event_id: "solve-preview-cancel-requested-before-backend-start", state: "cancelling" as const, message: "invented pending cancel", result_available: false, diagnostic_count: 0, result_row_count: 0, analysis_status: [] }] };
+    view.rerender(panel(pending, true, onCancel));
+    expect(within(screen.getByRole("list", { name: "Solve job events" })).getAllByRole("listitem").map((item) => item.getAttribute("data-event-id")))
+      .toEqual(["solve-preview-cancel-requested-before-backend-start"]);
+    // The new job's own record replaces it.
+    view.rerender(panel({ ...startSolveJob(model, { ...receipt, job_id: "backend-solve-job-32" }) }, true, onCancel));
+    expect(screen.getByTestId("solve-progress-job")).toHaveTextContent("backend-solve-job-32");
+    expect(screen.getByTestId("solve-progress-panel")).toHaveAttribute("data-state", "queued");
+  });
+
+  it("hides a later record of another job that no run produced (a restored run after the panel showed a run)", () => {
+    const running = progressSolveJob(startSolveJob(model, receipt), status({ state: "running" }));
+    const view = renderRun(running);
+    const failed = failSolveJob(running, new Error("invented failure"));
+    view.rerender(panel(failed, false));
+    expect(screen.getByTestId("solve-progress-panel")).toHaveAttribute("data-state", "failed");
+    view.rerender(panel({ ...initialSolveJob(), job_id: "job:preview-linear-static:restored:invented", state: "completed" }, false));
     expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
   });
 });

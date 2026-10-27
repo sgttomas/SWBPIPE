@@ -68,3 +68,45 @@ it("opens on a run, shows the job's live state, and cancels it from the panel", 
   fireEvent.click(within(region).getByRole("button", { name: "Close" }));
   expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
 });
+
+// Codex review r1 of #1665 (its probe, kept): `running` turns on before the
+// run's first record replaces the previous one; the panel must not show the
+// previous job as the new run's.
+it("a rerun after a failed job shows Starting with Cancel, never the previous job, until the new job reports", async () => {
+  let starts = 0;
+  let releaseSecond: (value: unknown) => void = () => {};
+  invokeMock.mockImplementation((command: string) => {
+    if (command === "sync_native_shell_state") return Promise.resolve(undefined);
+    if (command === "dispose_all_preview_mechanics_results") return Promise.resolve({ released_results: 0, released_bytes: 0, abandoned_jobs: 0 });
+    if (command === "start_preview_mechanics_job") {
+      starts++;
+      if (starts === 2) return new Promise((resolve) => { releaseSecond = resolve; });
+      return Promise.resolve({ job_id: "review-job-one", backend_cancellation_token: "review-token", state: "queued", cancellation_scope: "worker_process_terminated" });
+    }
+    if (command === "poll_preview_mechanics_job") {
+      return starts === 1
+        ? Promise.resolve({ job_id: "review-job-one", state: "failed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "worker_process_terminated", result_available: false, error_message: "review first worker failure" })
+        : Promise.resolve({ job_id: "review-job-two", state: "running", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "worker_process_terminated", result_available: false, error_message: null });
+    }
+    throw new Error(`Unexpected native command ${command}`);
+  });
+  render(<App />);
+  await screen.findByTestId("desktop-preview-shell");
+  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+  act(() => nativeMenuCommand("analyze.run"));
+  await waitFor(() => expect(screen.getByTestId("solve-progress-panel")).toHaveAttribute("data-state", "failed"));
+  fireEvent.click(screen.getByTestId("solve-progress-close"));
+  act(() => nativeMenuCommand("analyze.run"));
+  await waitFor(() => expect(starts).toBe(2));
+  const region = screen.getByRole("region", { name: "Solve progress" });
+  expect(region).toHaveAttribute("data-state", "starting");
+  expect(screen.queryByTestId("solve-progress-job")).toBeNull();
+  expect(screen.queryByTestId("solve-progress-failure")).toBeNull();
+  expect(within(region).getByRole("button", { name: "Cancel solve" })).toHaveAttribute("aria-disabled", "false");
+  await act(async () => {
+    releaseSecond({ job_id: "review-job-two", backend_cancellation_token: "review-token-two", state: "queued", cancellation_scope: "worker_process_terminated" });
+    await Promise.resolve();
+  });
+  await waitFor(() => expect(screen.getByTestId("solve-progress-job")).toHaveTextContent("review-job-two"));
+  expect(within(within(region).getByRole("list", { name: "Solve job events" })).getAllByRole("listitem").map((item) => item.getAttribute("data-event-id"))[0]).toBe("solve-preview-queued");
+});

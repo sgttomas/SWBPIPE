@@ -1,5 +1,5 @@
 import { Square, X } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useReducer, useRef } from "react";
 import type { SolveJobAuditState, SolveJobEvent } from "../../types";
 import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes, resourceRefusalCode } from "../../services/memoryPool";
 import { describeSolveRefusalRetry, solveRefusalPoint } from "../workspace/solveJobAudit";
@@ -22,15 +22,63 @@ export function solveJobStateLabel(state: SolveJobEvent["state"]): string {
   return STATE_LABELS[state];
 }
 
+/** What the panel shows: nothing, the current run before its job has reported,
+ * or the current run's job record. `earlier` is the record the session held
+ * when the run started; none of its events belong to this run. */
+type RunView =
+  | Readonly<{ kind: "hidden" }>
+  | Readonly<{ kind: "starting"; earlier: readonly SolveJobEvent[] }>
+  | Readonly<{ kind: "job"; job: SolveJobAuditState; earlier: readonly SolveJobEvent[] }>;
+
+type RunTracker = {
+  /** `running` at the previous render. */
+  wasRunning: boolean;
+  /** The record of the last render while no run was active. */
+  idle: SolveJobAuditState;
+  /** The record held when the current (or last) run started; null before any run. */
+  startedFrom: SolveJobAuditState | null;
+  /** The job id of the last record the current (or last) run produced. */
+  runJobId: string | null;
+  closed: boolean;
+};
+
+/**
+ * Binds the panel to the current run (Codex review r1 of #1665): the session
+ * turns `running` on before the run's first record replaces the previous one,
+ * so the record held at the start, and its events, are never shown as this
+ * run's. While the run is active the panel shows its records, or "Starting"
+ * until the first one; afterwards it keeps the run's last job until the user
+ * closes it or the session replaces it with another job's record.
+ */
+function runView(solveJob: SolveJobAuditState, running: boolean, tracker: RunTracker): RunView {
+  if (running && !tracker.wasRunning) {
+    tracker.startedFrom = tracker.idle;
+    tracker.runJobId = null;
+    tracker.closed = false;
+  }
+  if (tracker.startedFrom !== null && solveJob !== tracker.startedFrom && (running || tracker.wasRunning)) {
+    tracker.runJobId = solveJob.job_id;
+  }
+  if (solveJob.state === "not_started") tracker.runJobId = null;
+  if (!running) tracker.idle = solveJob;
+  tracker.wasRunning = running;
+
+  const startedFrom = tracker.startedFrom;
+  if (startedFrom === null || tracker.closed || solveJob.state === "not_started") return { kind: "hidden" };
+  const earlier = startedFrom.events;
+  if (running) return solveJob === startedFrom ? { kind: "starting", earlier } : { kind: "job", job: solveJob, earlier };
+  return tracker.runJobId !== null && solveJob.job_id === tracker.runJobId ? { kind: "job", job: solveJob, earlier } : { kind: "hidden" };
+}
+
 /**
  * The solve progress panel (DEL-07-07; Design `solve-progress-panel.md`). From
- * the moment a solve starts until the user closes it, the panel shows the job's
- * live record as the session's solve-job audit already holds it: the state, the
- * latest event's message (the stage), every event in order, the queue reason
- * and worker memory the native host reports, the cancellation status, and the
- * terminal completion, failure or refusal with its existing fields. It shows no
- * percentage, time estimate or elapsed time: the job reports states only
- * (`percentages_synthesized=false`) and its events carry no timestamps.
+ * the moment a solve starts until the user closes it, the panel shows that
+ * run's job record as the session's solve-job audit holds it: the state, the
+ * latest event's message (the stage), the run's events in order, the queue
+ * reason and worker memory the native host reports, the cancellation status,
+ * and the terminal completion, failure or refusal with its existing fields. It
+ * shows no percentage, time estimate or elapsed time: the job reports states
+ * only (`percentages_synthesized=false`) and its events carry no timestamps.
  */
 export function SolveProgressPanel({
   solveJob,
@@ -41,29 +89,28 @@ export function SolveProgressPanel({
   running: boolean;
   onCancel: () => void;
 }) {
-  const [open, setOpen] = useState(false);
   const titleId = useId();
   const stateRef = useRef<HTMLParagraphElement>(null);
-  // A run opens the panel; a record with no job (a model change, a new project) closes it.
-  useEffect(() => {
-    if (running) setOpen(true);
-  }, [running]);
-  useEffect(() => {
-    if (solveJob.state === "not_started") setOpen(false);
-  }, [solveJob.state]);
+  const [, rerender] = useReducer((count: number) => count + 1, 0);
+  const tracker = useRef<RunTracker>({ wasRunning: false, idle: solveJob, startedFrom: null, runJobId: null, closed: false });
+  const view = runView(solveJob, running, tracker.current);
 
-  if (!open || solveJob.state === "not_started") return null;
+  if (view.kind === "hidden") return null;
 
-  const state = solveJob.state;
-  const active = ACTIVE_STATES.has(state);
-  const latest = solveJob.events[solveJob.events.length - 1] ?? null;
-  const canCancel = running && (state === "queued" || state === "running");
-  const refusal = solveJob.resource.refusal;
-  const refusalPoint = solveRefusalPoint(solveJob);
-  const queueReason = solveJob.resource.queue_reason;
-  const workerFailure = state === "failed" ? describeSolveWorkerFailure(solveJob.error_message) : null;
-  const completed = state === "completed" ? [...solveJob.events].reverse().find((event) => event.state === "completed") ?? null : null;
-  const resource = solveJob.resource;
+  const job = view.kind === "job" ? view.job : null;
+  const events = job ? job.events.filter((event) => !view.earlier.includes(event)) : [];
+  const latest = events[events.length - 1] ?? null;
+  const state = job?.state ?? null;
+  const active = state === null || ACTIVE_STATES.has(state);
+  // Before the job reports, Cancel stops the run before its start (the session's handler).
+  const canCancel = running && (state === null || state === "queued" || state === "running");
+  const refusal = job?.resource.refusal ?? null;
+  const refusalPoint = job ? solveRefusalPoint(job) : null;
+  const queueReason = job?.resource.queue_reason ?? null;
+  const workerFailure = job && state === "failed" ? describeSolveWorkerFailure(job.error_message) : null;
+  const completed = state === "completed" ? [...events].reverse().find((event) => event.state === "completed") ?? null : null;
+  const resource = job?.resource ?? null;
+  const basis = job ?? solveJob;
 
   function cancel() {
     if (!canCancel) return;
@@ -72,17 +119,22 @@ export function SolveProgressPanel({
     stateRef.current?.focus();
   }
 
+  function close() {
+    tracker.current.closed = true;
+    rerender();
+  }
+
   return (
     <section
       aria-labelledby={titleId}
-      className={`solve-progress-panel ${state}`}
-      data-state={state}
+      className={`solve-progress-panel ${state ?? "starting"}`}
+      data-state={state ?? "starting"}
       data-testid="solve-progress-panel"
       role="region"
     >
       <header className="solve-progress-header">
         <h2 id={titleId}>Solve progress</h2>
-        <code data-testid="solve-progress-job">{solveJob.job_id}</code>
+        {job ? <code data-testid="solve-progress-job">{job.job_id}</code> : null}
       </header>
       <p
         aria-live="polite"
@@ -92,20 +144,21 @@ export function SolveProgressPanel({
         role="status"
         tabIndex={-1}
       >
-        <strong>{solveJobStateLabel(state)}</strong>
+        <strong>{state ? solveJobStateLabel(state) : "Starting"}</strong>
         {latest ? <span data-testid="solve-progress-stage">{latest.message}</span> : null}
+        {state === null ? <span data-testid="solve-progress-stage">The solve was requested; its job has not reported a state yet.</span> : null}
       </p>
       <p className="solve-progress-basis" data-testid="solve-progress-basis">
-        {solveJob.percentages_synthesized || solveJob.backend_percent_stream_available
-          ? `Progress basis: ${solveJob.progress_basis}.`
-          : `The solve job reports its state and events, not a percentage, a time estimate or a start time, so none is shown (progress basis: ${solveJob.progress_basis}).`}
+        {basis.percentages_synthesized || basis.backend_percent_stream_available
+          ? `Progress basis: ${basis.progress_basis}.`
+          : `The solve job reports its state and events, not a percentage, a time estimate or a start time, so none is shown (progress basis: ${basis.progress_basis}).`}
       </p>
       {queueReason && (state === "queued" || state === "cancelling") ? (
         <p className="memory-pool-message info" data-testid="solve-progress-queue-reason">
           Waiting in the queue: {describeResourceRefusal(queueReason)} Code: <code>{resourceRefusalCode(queueReason)}</code>
         </p>
       ) : null}
-      {active && resource.route_pricing === "ordinary_worker_capped" ? (
+      {active && resource?.route_pricing === "ordinary_worker_capped" ? (
         <p className="solve-progress-line" data-testid="solve-progress-worker">
           Worker memory: grant {resource.worker_grant_bytes === null ? "not yet held" : formatBytes(resource.worker_grant_bytes)}; peak grant{" "}
           {resource.worker_peak_grant_bytes === null ? "none" : formatBytes(resource.worker_peak_grant_bytes)}; peak footprint{" "}
@@ -113,9 +166,9 @@ export function SolveProgressPanel({
           {formatBytes(resource.invocation_budget_bytes)}
         </p>
       ) : null}
-      {solveJob.cancellation_requested ? (
+      {job?.cancellation_requested ? (
         <p className="solve-progress-line" data-testid="solve-progress-cancellation">
-          Cancellation requested: <code>{solveJob.cancellation_status}</code>
+          Cancellation requested: <code>{job.cancellation_status}</code>
         </p>
       ) : null}
       {completed ? (
@@ -135,11 +188,11 @@ export function SolveProgressPanel({
       ) : null}
       {state === "failed" ? (
         <p className="memory-pool-message error" data-testid="solve-progress-failure">
-          {workerFailure ?? solveJob.error_message ?? "The solve failed."}
+          {workerFailure ?? job?.error_message ?? "The solve failed."}
         </p>
       ) : null}
       <ol aria-label="Solve job events" className="solve-progress-events" data-testid="solve-progress-events">
-        {solveJob.events.map((event, index) => (
+        {events.map((event, index) => (
           <li data-event-id={event.event_id} data-state={event.state} key={`${event.event_id}-${index}`}>
             <strong>{solveJobStateLabel(event.state)}</strong> <span>{event.message}</span>
           </li>
@@ -159,7 +212,7 @@ export function SolveProgressPanel({
             {state === "cancelling" ? "Cancelling" : "Cancel solve"}
           </button>
         ) : (
-          <button className="secondary-action" data-testid="solve-progress-close" onClick={() => setOpen(false)} type="button">
+          <button className="secondary-action" data-testid="solve-progress-close" onClick={close} type="button">
             <X size={14} aria-hidden="true" />
             Close
           </button>
