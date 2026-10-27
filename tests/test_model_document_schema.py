@@ -59,9 +59,14 @@ RETIRED_VERSIONS = {"0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0
 # retires with its explicit controls; earlier versions keep the open rule. The 0.8.0
 # ripple's one committed 0.7.0 control is the handoff witness package as the 0.7.0
 # producer wrote it: its bytes still verify, and its model is refused by the open and
-# solve paths (MD8 §3.4, §12). Every other 0.7.0 refusal control is built in memory.
+# solve paths (MD8 §3.4, §12). The second (r6, MD8 §3.2) is the model of a pressure-2 run
+# recorded at 0.7.0, main's request at 2e4748eada verbatim beside its record and source:
+# the run keeps its read and compare, while the model itself is refused. Every other 0.7.0
+# refusal control is built in memory.
+RETIRED_0_7_0_CONTROLS = {"fixtures/handoff/retired_0_7_0_witness.swbhandoff/model/model.json",
+                          "fixtures/persistence/recorded_model_0_7_0/exact_pressure_connected_request.json"}
 EXPLICIT_RETIRED_CONTROLS: dict[str, set[str]] = {
-    "0.7.0": {"fixtures/handoff/retired_0_7_0_witness.swbhandoff/model/model.json"},
+    "0.7.0": set(RETIRED_0_7_0_CONTROLS),
 }
 
 
@@ -529,7 +534,7 @@ def test_an_explicitly_controlled_retired_version_admits_only_its_listed_control
     at it is not a refusal control. 0.7.0 is listed with no committed control, so an
     unswept 0.7.0 document is unclassified; the earlier versions keep the open rule."""
     assert set(EXPLICIT_RETIRED_CONTROLS) == {"0.7.0"}
-    assert EXPLICIT_RETIRED_CONTROLS["0.7.0"] == {"fixtures/handoff/retired_0_7_0_witness.swbhandoff/model/model.json"}
+    assert EXPLICIT_RETIRED_CONTROLS["0.7.0"] == RETIRED_0_7_0_CONTROLS
     assert not is_retired_refusal_control("0.7.0", "fixtures/any.json")
     assert is_retired_refusal_control("0.6.0", "fixtures/any.json")
     monkeypatch.setitem(EXPLICIT_RETIRED_CONTROLS, "0.7.0", {"fixtures/listed.json"})

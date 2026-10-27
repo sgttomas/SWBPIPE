@@ -494,6 +494,26 @@ _PRESSURE_SOURCE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure
 PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
 PRESSURE_CONTRACT_SHA256 = "a47626ed51791f984fbc07630732a046f8090ff645efdb56e73a284110e9c80c"
 _PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_2.json"
+# Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.2; owner ruling "0.8.0 a2": recorded runs keep
+# their existing read and compare behaviour). pressure-2's table changed only the model version token of its
+# admitted-families sentence; every row is the same. A run recorded under the 0.7.0-era table binds that exact digest,
+# read by the record validator only as the recorded basis of exactly this current table (id, recorded, current); the
+# builder binds the current table, and any other digest or a mixed binding is refused as before. The desktop's twin is
+# analysisRunCompatibility.ts RECORDED_RUN_TABLE_BASES.
+RECORDED_RUN_TABLE_BASES = (
+    (PRESSURE_CONTRACT_ID, "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d", PRESSURE_CONTRACT_SHA256),
+)
+
+
+def recorded_run_semantic_binding(recorded: Any, contract_id: str, contract_hash: str) -> dict[str, str]:
+    """The binding a record is checked against: the current table's, or the exact recorded basis it names."""
+    if isinstance(recorded, Mapping) and len(recorded) == 2:
+        for basis_id, recorded_hash, current_hash in RECORDED_RUN_TABLE_BASES:
+            if (contract_id, contract_hash) == (basis_id, current_hash) and recorded.get("id") == basis_id and recorded.get("sha256") == recorded_hash:
+                return {"id": basis_id, "sha256": recorded_hash}
+    return {"id": contract_id, "sha256": contract_hash}
+
+
 PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
 PREVIEW_PHYSICS_CONTRACT_SHA256 = "5a6630d9157ad1f4232c558d0cd57414677add8d1c95cc0a5d19a2579fb3a05b"
 _PREVIEW_PHYSICS_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_2.json"
@@ -840,7 +860,7 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
         raise ValueError("ANALYSIS_SOURCE_MODEL_MISMATCH")
     if run.get("run_id") != source.get("run_id"):
         raise ValueError("ANALYSIS_SOURCE_RUN_MISMATCH")
-    semantic = {"id": contract_id, "sha256": contract_hash}
+    semantic = recorded_run_semantic_binding(run.get("reproducibility", {}).get("semantic_contract"), contract_id, contract_hash)
     if run.get("reproducibility", {}).get("semantic_contract") != semantic:
         raise ValueError("ANALYSIS_SEMANTIC_CONTRACT_MISMATCH")
     hashes = [item for item in run.get("hashes", []) if item.get("payload_scope") == "received_result"]

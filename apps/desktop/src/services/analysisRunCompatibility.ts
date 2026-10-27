@@ -43,6 +43,28 @@ const RECORD_TABLES: Readonly<Record<string, RecordTable>> = Object.freeze({
   [previewPhysicsRetainedTable.semantic_contract_id]: previewPhysicsRetainedTable,
   [physicsRetainedTable.semantic_contract_id]: physicsRetainedTable,
 } as Record<string, RecordTable>);
+/** Model document 0.8.0 (DEL-02-01 Design `model-document-0.8.0.md` §3.2; owner ruling
+ * "0.8.0 a2": recorded runs keep their existing read and compare behaviour, with no
+ * model-document-version gate). pressure-2's table changed only the model version token of
+ * its admitted-families sentence (0.7.0 -> 0.8.0); every row, and so every row reading, is the
+ * same. A run recorded under the 0.7.0-era table binds that table's exact digest, which is
+ * read as the recorded basis of exactly this current table. Only the record validator reads
+ * it: the record builder and the export bind the current table, and any other digest, or a
+ * record binding the two tables at once, is refused as before. Python's twin is
+ * `compatibility.py` `RECORDED_RUN_TABLE_BASES`. */
+const RECORDED_RUN_TABLE_BASES: ReadonlyArray<Readonly<{ id: string; recorded: string; current: string }>> = Object.freeze([
+  { id: "openpipestress.result_semantics/0.3.0/pressure-2",
+    recorded: "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d",
+    current: "a47626ed51791f984fbc07630732a046f8090ff645efdb56e73a284110e9c80c" },
+]);
+/** The binding a record is checked against: the current table's, or the exact recorded basis
+ * the record names when it is one of `RECORDED_RUN_TABLE_BASES` for that current table. */
+export function recordedRunSemanticBinding(recorded: unknown, current: Readonly<{ id: string; sha256: string }>): { id: string; sha256: string } {
+  const named = recorded && typeof recorded === "object" ? recorded as Record<string, unknown> : null;
+  const basis = named && Object.keys(named).length === 2 ? RECORDED_RUN_TABLE_BASES.find(entry =>
+    entry.id === current.id && entry.current === current.sha256 && named.id === entry.id && named.sha256 === entry.recorded) : undefined;
+  return basis ? { id: basis.id, sha256: basis.recorded } : { id: current.id, sha256: current.sha256 };
+}
 function recordTable(source: MechanicsResult): RecordTable {
   const dispatch = readerDispatch(source);
   const table = dispatch.binding ? RECORD_TABLES[dispatch.binding.id] : undefined;
@@ -428,7 +450,7 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
   if (run.solver_version?.solver_name !== source.producer!.component_name || run.solver_version?.solver_version !== source.producer!.component_version) throw new Error("ANALYSIS_SOURCE_PRODUCER_MISMATCH");
   if (run.run_id !== source.run_id) throw new Error("ANALYSIS_SOURCE_RUN_MISMATCH");
   if (!recordedState && !same(run.model_state_ref, transientModelStateRef(source.model_ref))) throw new Error("ANALYSIS_SOURCE_MODEL_STATE_MISMATCH");
-  const contract = sourceSemanticBinding(source);
+  const contract = recordedRunSemanticBinding(run.reproducibility?.semantic_contract, sourceSemanticBinding(source));
   if (!same(run.reproducibility.semantic_contract, contract)) throw new Error("ANALYSIS_SEMANTIC_CONTRACT_MISMATCH");
   const checksum = async (scope: string, ref: ObjectRef, value: unknown) => ({algorithm: "sha256", canonicalization: CHECKED_PROFILE_V1, payload_ref: ref, payload_scope: scope, value: await canonicalSha256HexCheckedV1(value)});
   if (!same(run.hashes.filter(h => h.payload_scope === "received_result"), [await checksum("received_result", {object_type:"ResultEnvelope",ref:`result-envelope:${source.run_id}`}, source)])) throw new Error("ANALYSIS_RECEIVED_SOURCE_MISMATCH");
