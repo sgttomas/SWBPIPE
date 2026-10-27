@@ -715,13 +715,21 @@ function reportExportPacket({
   };
 }
 
-function reportUnitSystemDisclosure(model: PreviewModel, result: MechanicsResult) {
+/** The report JSON packet's unit disclosure. The packet displays no values: the rendered
+ * report's display rule (Pa shown in MPa, six significant digits; DEL-08-01 Design
+ * `report-package-current-results.md` §2.3 item 5) is not applied to it, so it keeps its own
+ * policy text and performs no conversion. */
+export const REPORT_PACKET_QUANTITY_DISPLAY_POLICY = "display result-row values with their explicit units; no report-time conversion";
+
+export function reportUnitSystemDisclosure(model: PreviewModel, result: MechanicsResult) {
   const displaySummary = buildUnitDisplaySummary(model, result);
   return {
     unit_system_ref: DEC018_UNIT_SYSTEM_REF,
     catalog_ref: DEC018_UNIT_SYSTEM_REF,
     catalog_status: "DEC-018 accepted catalog reference; report packet preserves entered/result units",
     ...displaySummary,
+    quantity_display_policy: REPORT_PACKET_QUANTITY_DISPLAY_POLICY,
+    conversion_performed: false,
     private_payload_included: false,
     protected_content_included: false,
     release_or_professional_claim: false

@@ -345,6 +345,12 @@ code_paths:
 - core/runner/headless/src/bin/openpipestress-runner.rs
 # Object form: the shared positional-struct check of the native render, the save and the shared producer.
 - core/reporting/report_renderer/src/object_form.rs
+# Readability slice (Design exact-route-report-sections.md §3.7): the report's display rule.
+- apps/desktop/src/features/report/reportQuantityDisplay.ts
+- core/reporting/report_package/src/quantity_display.rs
+- fixtures/reports/invented/report_quantity_display_parity.json
+# Diagnostics binding (Design exact-route-report-sections.md §3.6, §6.3 item 4): the projection's parity vectors.
+- fixtures/reports/invented/report_diagnostics_parity.json
 checks:
 - core/reporting/report_package/tests/container.rs
 - core/reporting/report_package/tests/reader.rs
@@ -378,3 +384,7 @@ checks:
 - apps/desktop/src-tauri/src/object_form_tests.rs
 - core/reporting/report_renderer/tests/object_form.rs
 - core/runner/headless/tests/object_form_cli.rs
+- core/reporting/report_package/tests/quantity_display_parity.rs
+- apps/desktop/src/features/report/reportQuantityDisplay.parity.test.ts
+- core/reporting/report_package/tests/report_diagnostics_parity.rs
+- apps/desktop/src/features/report/reportDiagnostics.parity.test.ts

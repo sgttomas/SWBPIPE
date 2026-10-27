@@ -966,9 +966,8 @@ mod tests {
                         ("length".to_string(), "m".to_string()),
                     ]),
                     result_units: vec!["MPa".to_string()],
-                    quantity_display_policy:
-                        "display result-row values with their explicit units; no report-time conversion"
-                            .to_string(),
+                    quantity_display_policy: "display result-row values and stress headlines with explicit units; values stored in Pa are shown in MPa (1 MPa = 10^6 Pa, exact); displayed values are rounded to six significant digits; stored values and units are unchanged"
+                        .to_string(),
                     conversion_performed: false,
                 }),
                 model_hash: checksum("model", "model-1"),

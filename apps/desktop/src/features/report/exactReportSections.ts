@@ -17,6 +17,7 @@ import { guardResultJson, resultDigest } from "../result-export/resultExportAdap
 import { PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID } from "../results/numericalResultQuality";
 import { loadReferenceDisclosure } from "../results/loadReferenceDisclosure";
 import { exactReportStatements } from "./exactReportLimitations";
+import { displayQuantity } from "./reportQuantityDisplay";
 
 /** The exact-route identities whose reports carry these sections. */
 export const EXACT_REPORT_CONTRACT_IDS: readonly string[] = Object.freeze([PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID]);
@@ -88,7 +89,7 @@ function headline(summary: Record<string, unknown>, entry: (typeof SECTION_BASIS
   ) {
     throw unreadable();
   }
-  return { basis: entry.basis, label: entry.label, value_display: `${item.value} ${item.unit}`, location_ref: item.location_ref, source_ref: item.result_ref };
+  return { basis: entry.basis, label: entry.label, value_display: displayQuantity(item.value, item.unit), location_ref: item.location_ref, source_ref: item.result_ref };
 }
 
 /** The source-derived part (§3.5): the identity, the run, the result envelope, the

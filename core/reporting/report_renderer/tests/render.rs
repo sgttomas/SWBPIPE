@@ -675,7 +675,7 @@ fn exact_block_and_library_records_render_with_the_composed_standing_line() {
         format!("integrity checked (the Rust reader's standing for the result Export Result JSON admitted in this session: received result sha256 {RECEIVED}, model sha256 {MODEL}, input manifest {} sha256 {MANIFEST})", binding.input_manifest_ref)
     );
     let block = format!(
-        "<h3>{EXACT_ROUTE_SUBHEADING}</h3>\n<p class=\"meta\">Semantic contract: {PRESSURE_2} · Numerical standing: {standing}</p>\n<p>{LOAD_REFERENCE_LINE}</p>\n<h3>{EXACT_HEADLINES_SUBHEADING}</h3>\n<table>\n<tr><th>Section basis</th><th>Stress maximum</th><th>Location</th><th>Source</th></tr>\n<tr><td>Nominal section (nominal wall)</td><td>41354908.75465696 Pa</td><td>pipe:invented-span</td><td>result:invented-nominal-maximum</td></tr>\n<tr><td>Reduced section (wall minus mill tolerance and corrosion allowance)</td><td>{WITHHELD}</td><td>{NOT_AVAILABLE}</td><td>{NOT_AVAILABLE}</td></tr>\n</table>\n<p>{EXACT_HEADLINES_PARAGRAPH}</p>\n"
+        "<h3>{EXACT_ROUTE_SUBHEADING}</h3>\n<p class=\"meta\">Semantic contract: {PRESSURE_2} · Numerical standing: {standing}</p>\n<p>{LOAD_REFERENCE_LINE}</p>\n<h3>{EXACT_HEADLINES_SUBHEADING}</h3>\n<table>\n<tr><th>Section basis</th><th>Stress maximum</th><th>Location</th><th>Source</th></tr>\n<tr><td>Nominal section (nominal wall)</td><td>41.3549 MPa</td><td>pipe:invented-span</td><td>result:invented-nominal-maximum</td></tr>\n<tr><td>Reduced section (wall minus mill tolerance and corrosion allowance)</td><td>{WITHHELD}</td><td>{NOT_AVAILABLE}</td><td>{NOT_AVAILABLE}</td></tr>\n</table>\n<p>{EXACT_HEADLINES_PARAGRAPH}</p>\n"
     );
     // At the start of the Results section, before the rows.
     assert!(html.contains(&format!("<h2>Results</h2>\n{block}<table>\n<tr><th>Result</th>")), "{html}");
@@ -1502,4 +1502,204 @@ fn the_value_free_decode_equals_the_whole_decode() {
     bad.as_object_mut().unwrap().remove("result_rows");
     assert_eq!(decode_renderable_report_input(bad).unwrap_err(), "RENDER-INPUT-INVALID: missing field at result_rows");
     assert_eq!(decode_renderable_report_input(serde_json::json!(long)).unwrap_err(), "RENDER-INPUT-INVALID: invalid type at the input");
+}
+
+// ---------------------------------------------------------------------------
+// Readability (DEL-08-01 Design `exact-route-report-sections.md` §3.7, §6.3
+// items 1-3): the Diagnostics evidence block, the display rule statement and
+// the run-name note, on every route; the HTML and the PDF's section model
+// carry them alike.
+// ---------------------------------------------------------------------------
+
+use open_pipe_stress_report_renderer::{
+    assemble_report_sections, diagnostic_evidence_cell, display_rule_statement, run_name_note_text, SectionBlock,
+    DESKTOP_FIXED_RUN_NAME, DIAGNOSTIC_EVIDENCE_SUBHEADING, DIAGNOSTIC_MESSAGE_TABLE_LIMIT, DISPLAY_RULE_STATEMENT,
+    QUANTITY_DISPLAY_POLICY,
+};
+
+fn invented_diagnostic(code: &str, severity: sections::Severity, affected: &str, message: String) -> sections::Diagnostic {
+    sections::Diagnostic {
+        code: code.to_string(),
+        class: sections::DiagnosticClass::AssumptionWarning,
+        severity,
+        source: sections::Reference::new("diagnostic_source", "core/product_physics"),
+        affected_object: sections::Reference::new("affected_refs", affected),
+        message,
+        remediation: "Human review required: evaluate this diagnostic against its referenced results before any reliance.".to_string(),
+        provenance: invented_section_provenance(),
+    }
+}
+
+fn section<'a>(sections: &'a [open_pipe_stress_report_renderer::AssembledSection], key: &str) -> &'a [SectionBlock] {
+    &sections.iter().find(|section| section.key == key).unwrap().blocks
+}
+
+#[test]
+fn integrity_and_long_diagnostics_show_a_short_cell_and_their_full_text_as_evidence() {
+    let integrity = format!("M03-INTEGRITY-v1 represented original-equation structural evidence for load case case:a: StructuralReport {{ {} }}", "x ".repeat(3000));
+    let long = "y".repeat(DIAGNOSTIC_MESSAGE_TABLE_LIMIT + 1);
+    let at_limit = "z".repeat(DIAGNOSTIC_MESSAGE_TABLE_LIMIT);
+    let mut input = fixture_input();
+    input.report_sections.diagnostics = vec![
+        invented_diagnostic("NUMERICAL_INTEGRITY_CHECKS_PASSED", sections::Severity::Info, "case:a", integrity.clone()),
+        invented_diagnostic("NUMERICAL_INTEGRITY_SENSITIVE", sections::Severity::Warning, "case:b", "short integrity text".to_string()),
+        invented_diagnostic("LONG_INVENTED_NOTE", sections::Severity::Warning, "component:C-1", long.clone()),
+        invented_diagnostic("AT_LIMIT_INVENTED_NOTE", sections::Severity::Warning, "component:C-2", at_limit.clone()),
+    ];
+    let outcome = render_calculation_report(&input);
+    let html = &outcome.html;
+    // The table order (sorted: class, affected object, code) numbers the evidence.
+    let assembled = assemble_report_sections(&input);
+    let blocks = section(&assembled, "warnings_assumptions_provenance");
+    let SectionBlock::Table { rows, .. } = &blocks[1] else { panic!("the Diagnostics table") };
+    let by_code = |code: &str| rows.iter().find(|row| row[0] == code).unwrap();
+    // Every code stays in the table (the standing line's pointer stays true).
+    assert_eq!(rows.len(), 4);
+    // Table order (non-blocking, class, affected object, code), which numbers the evidence.
+    let order: Vec<&str> = rows.iter().map(|row| row[0].as_str()).collect();
+    assert_eq!(order, ["NUMERICAL_INTEGRITY_CHECKS_PASSED", "NUMERICAL_INTEGRITY_SENSITIVE", "LONG_INVENTED_NOTE", "AT_LIMIT_INVENTED_NOTE"]);
+    let label_of = |code: &str| {
+        let cell = &by_code(code)[2];
+        cell.rsplit_once("full text: Diagnostic evidence ").map(|(_, label)| label.to_string())
+    };
+    let passed = label_of("NUMERICAL_INTEGRITY_CHECKS_PASSED").unwrap();
+    let sensitive = label_of("NUMERICAL_INTEGRITY_SENSITIVE").unwrap();
+    let long_label = label_of("LONG_INVENTED_NOTE").unwrap();
+    assert_eq!(label_of("AT_LIMIT_INVENTED_NOTE"), None, "a message at the limit stays in the table");
+    assert_eq!(by_code("AT_LIMIT_INVENTED_NOTE")[2], at_limit);
+    assert_eq!(by_code("NUMERICAL_INTEGRITY_CHECKS_PASSED")[2], format!("Numerical integrity checks passed (load case case:a); full text: Diagnostic evidence {passed}"));
+    assert_eq!(by_code("NUMERICAL_INTEGRITY_SENSITIVE")[2], format!("Numerical integrity sensitive (load case case:b); full text: Diagnostic evidence {sensitive}"));
+    assert_eq!(by_code("LONG_INVENTED_NOTE")[2], format!("Long invented note (affected: component:C-1); full text: Diagnostic evidence {long_label}"));
+    assert_eq!([passed.as_str(), sensitive.as_str(), long_label.as_str()], ["E1", "E2", "E3"]);
+    // The section's last block: the subheading, then per label its heading and the message verbatim.
+    let start = blocks.iter().position(|block| matches!(block, SectionBlock::Subheading { text } if text == DIAGNOSTIC_EVIDENCE_SUBHEADING)).unwrap();
+    assert_eq!(blocks.len(), start + 1 + 2 * 3, "the evidence block is the section's last");
+    for (index, (label, code, message, affected)) in [
+        ("E1", "NUMERICAL_INTEGRITY_CHECKS_PASSED (info)", integrity.as_str(), "load case case:a"),
+        ("E2", "NUMERICAL_INTEGRITY_SENSITIVE (warning)", "short integrity text", "load case case:b"),
+        ("E3", "LONG_INVENTED_NOTE (warning)", long.as_str(), "affected: component:C-1"),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        assert_eq!(blocks[start + 1 + 2 * index], SectionBlock::Paragraph { text: format!("{label}: {code}, {affected}"), meta: true });
+        assert_eq!(blocks[start + 2 + 2 * index], SectionBlock::Paragraph { text: message.to_string(), meta: false }, "verbatim");
+    }
+    // The HTML carries the full text verbatim and the short cell, once each.
+    assert!(html.contains(&format!("<h3>{DIAGNOSTIC_EVIDENCE_SUBHEADING}</h3>")));
+    assert_eq!(html.matches(&escape_html(&integrity)).count(), 1);
+    assert_eq!(html.matches(&long).count(), 1);
+    assert!(html.contains(&format!("<td>Numerical integrity checks passed (load case case:a); full text: Diagnostic evidence {passed}</td>")));
+    assert!(html.find(DIAGNOSTIC_EVIDENCE_SUBHEADING).unwrap() > html.find("<h3>Provenance Notes</h3>").unwrap());
+    assert!(html.find(DIAGNOSTIC_EVIDENCE_SUBHEADING).unwrap() < html.find("<h2>Audit Manifest</h2>").unwrap());
+    // No such diagnostic: no evidence block, and the table is as before.
+    let plain = fixture_input();
+    assert!(!render_calculation_report(&plain).html.contains(DIAGNOSTIC_EVIDENCE_SUBHEADING));
+    let mut short = fixture_input();
+    short.report_sections.diagnostics = vec![invented_diagnostic("SHORT_INVENTED_NOTE", sections::Severity::Warning, "component:C-1", "a short note".to_string())];
+    let short_html = render_calculation_report(&short).html;
+    assert!(short_html.contains("<tr><td>SHORT_INVENTED_NOTE</td><td>warning</td><td>a short note</td>"));
+    assert!(!short_html.contains(DIAGNOSTIC_EVIDENCE_SUBHEADING));
+    assert_eq!(
+        diagnostic_evidence_cell(&invented_diagnostic("NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED", sections::Severity::Warning, "case:c", String::new()), "E7"),
+        "Numerical integrity recovery basis unqualified (load case case:c); full text: Diagnostic evidence E7"
+    );
+}
+
+/// The committed pressure-source-1 witness: its integrity diagnostic's text
+/// is preserved verbatim in the evidence block, and the standing line's
+/// pointer still finds its code in the Diagnostics table.
+#[test]
+fn the_witness_integrity_evidence_is_preserved_verbatim() {
+    let input = pressure_source_1_report();
+    let outcome = render_calculation_report(&input);
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    let html = &outcome.html;
+    let sensitive = input.report_sections.diagnostics.iter().find(|item| item.code == "NUMERICAL_INTEGRITY_SENSITIVE").unwrap();
+    assert!(sensitive.message.contains("StructuralReport {"));
+    assert!(html.contains(&format!("<p>{}</p>", escape_html(&sensitive.message))));
+    let diagnostics = html.find("<h3>Diagnostics</h3>").unwrap();
+    let evidence = html.find(&format!("<h3>{DIAGNOSTIC_EVIDENCE_SUBHEADING}</h3>")).unwrap();
+    let table = &html[diagnostics..evidence];
+    assert!(table.contains("<tr><td>NUMERICAL_INTEGRITY_SENSITIVE</td><td>warning</td><td>Numerical integrity sensitive (load case "));
+    assert!(!table.contains("StructuralReport {"), "the table carries no evidence dump");
+    for diagnostic in &input.report_sections.diagnostics {
+        assert!(html.contains(&escape_html(&diagnostic.message)), "{}: full text kept", diagnostic.code);
+    }
+}
+
+#[test]
+fn the_display_rule_is_stated_once_near_the_results_when_the_report_declares_it() {
+    let mut input = exact_input();
+    input.calculation_report.model_input_summary.unit_display_summary.as_mut().unwrap().quantity_display_policy = QUANTITY_DISPLAY_POLICY.to_string();
+    assert_eq!(display_rule_statement(&input), Some(DISPLAY_RULE_STATEMENT));
+    let html = render_calculation_report(&input).html;
+    assert_eq!(html.matches(DISPLAY_RULE_STATEMENT).count(), 1);
+    // At the start of the Results section, before the exact block and the rows.
+    assert!(html.contains(&format!("<h2>Results</h2>\n<p>{}</p>\n<h3>{EXACT_ROUTE_SUBHEADING}</h3>", escape_html(DISPLAY_RULE_STATEMENT))));
+    let assembled = assemble_report_sections(&input);
+    assert_eq!(section(&assembled, "results")[0], SectionBlock::Paragraph { text: DISPLAY_RULE_STATEMENT.to_string(), meta: false });
+    // The policy text is shown verbatim in the Model Input Summary as before.
+    assert!(html.contains(&escape_html(QUANTITY_DISPLAY_POLICY)));
+    // A report declaring another policy (the committed invented fixture's) states none.
+    let other = fixture_input();
+    assert_eq!(display_rule_statement(&other), None);
+    assert!(!render_calculation_report(&other).html.contains(DISPLAY_RULE_STATEMENT));
+}
+
+#[test]
+fn the_fixed_desktop_run_name_is_stated_with_the_received_result_digest() {
+    // Exact route: the received-result digest is the admission binding's.
+    let mut input = fixture_input();
+    input.report_sections.run_ref.ref_id = DESKTOP_FIXED_RUN_NAME.to_string();
+    let exact = {
+        let mut exact = with_exact_route(input.clone());
+        exact.report_context = Some(invented_report_context(ReportExportContext::LocalPrivate));
+        exact
+    };
+    let note = run_name_note_text(&exact).unwrap();
+    assert_eq!(
+        note,
+        format!("Run name: {DESKTOP_FIXED_RUN_NAME} is the producer's fixed run name for every desktop solve, not an identity of this run; the report, result and limitation identifiers derived from it repeat across runs. This run is identified by its received result sha256 {RECEIVED}.")
+    );
+    let outcome = render_calculation_report(&exact);
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    assert!(outcome.html.contains(&format!("</p>\n<p class=\"meta\">{}</p>\n<div class=\"status-banner\">", escape_html(&note))), "in the header, after the meta line");
+    // Pressure-free route: the same audit reference (result_envelope
+    // result-envelope:<run>) carries the received result's digest.
+    let mut pressure_free = input.clone();
+    let mut received = pressure_free.calculation_report.audit_manifest_refs[0].clone();
+    received.reference = open_pipe_stress_report_generator::Reference::new("result_envelope", format!("result-envelope:{DESKTOP_FIXED_RUN_NAME}"));
+    received.checksum.value = MODEL.to_string();
+    pressure_free.calculation_report.audit_manifest_refs.push(received);
+    assert!(run_name_note_text(&pressure_free).unwrap().ends_with(&format!("This run is identified by its received result sha256 {MODEL}.")));
+    // Without that reference the note says so.
+    assert!(run_name_note_text(&input).unwrap().ends_with("This report records no received result sha256 that identifies the run."));
+    // Another run name: no note, bytes unchanged.
+    let other = fixture_input();
+    assert_eq!(run_name_note_text(&other), None);
+    assert_eq!(render_calculation_report(&other).sha256_hex, BASE_HTML_SHA256);
+}
+
+#[test]
+fn the_readability_texts_pass_the_claims_check() {
+    const LITANY: [&str; 11] = [
+        "certif", "seal", "authenticat", "code-compliance", "code compliance", "professional", "approval", "approve",
+        "endorse", "release-readiness", "production-readiness",
+    ];
+    let mut input = fixture_input();
+    input.report_sections.run_ref.ref_id = DESKTOP_FIXED_RUN_NAME.to_string();
+    let texts = [
+        DISPLAY_RULE_STATEMENT.to_string(),
+        QUANTITY_DISPLAY_POLICY.to_string(),
+        DIAGNOSTIC_EVIDENCE_SUBHEADING.to_string(),
+        run_name_note_text(&input).unwrap(),
+        diagnostic_evidence_cell(&invented_diagnostic("NUMERICAL_INTEGRITY_SENSITIVE", sections::Severity::Warning, "case:a", String::new()), "E1"),
+    ];
+    for text in texts {
+        let folded = text.to_lowercase();
+        assert!(!folded.contains("acceptance"), "{text}");
+        assert!(LITANY.iter().filter(|term| folded.contains(*term)).count() < 3, "{text}");
+        assert!(text.chars().all(|ch| (' '..='~').contains(&ch) || ('\u{a0}'..='\u{ff}').contains(&ch)), "{text}");
+    }
 }

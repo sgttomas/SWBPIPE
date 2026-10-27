@@ -20,7 +20,8 @@ import type { NumericalHealthView } from "../results/numericalHealth";
 import { reportLineText } from "../results/numericalHealthText";
 import { reportResultRows } from "./reportResultRows";
 import { checkExactReportAdmission, REPORT_EXACT_ADMISSION_BINDING_MISMATCH, type ExactReportAdmission } from "./exactReportAdmission";
-import { exactLimitationEntries, exactRouteCore, isExactReportSource } from "./exactReportSections";
+import { exactLimitationEntries, exactRouteCore, isExactReportSource, SECTION_BASIS_HEADLINES } from "./exactReportSections";
+import { isDisplayedScaled } from "./reportQuantityDisplay";
 
 // DEC-021 (A7): assemble the renderer input document from session state.
 // The frontend composes only references, disclosures, and display rows — the
@@ -110,6 +111,22 @@ export type UnitDisplaySummary = {
   conversion_performed: boolean;
 };
 
+/** The report's display policy (DEL-08-01 Design `report-package-current-results.md` §2.3
+ * item 5): the report package's producer requires this text (`report_package::bindings`), and
+ * the renderer states the display rule near the results when it reads it. */
+export const QUANTITY_DISPLAY_POLICY =
+  "display result-row values and stress headlines with explicit units; values stored in Pa are shown in MPa (1 MPa = 10^6 Pa, exact); displayed values are rounded to six significant digits; stored values and units are unchanged";
+
+/** Whether the report displays a value stored in `Pa` (`conversion_performed`, §2.3 item 5):
+ * a result row, or, on an exact-route source, a stress headline that is not withheld. The
+ * Rust producer's `quantity_display::source_displays_scaled_value` applies the same rule. */
+export function displaysScaledValue(result: Pick<MechanicsResult, "results" | "producer" | "summary">): boolean {
+  if (result.results.some((item) => isDisplayedScaled(item.unit))) return true;
+  if (!isExactReportSource(result as MechanicsResult)) return false;
+  const summary = result.summary as unknown as Record<string, { unit?: unknown } | null> | null | undefined;
+  return SECTION_BASIS_HEADLINES.some((entry) => isDisplayedScaled(summary?.[entry.key]?.unit));
+}
+
 export function buildUnitDisplaySummary(model: PreviewModel, result: MechanicsResult): UnitDisplaySummary {
   return {
     storage_convention: "entered_units_preserved",
@@ -117,8 +134,8 @@ export function buildUnitDisplaySummary(model: PreviewModel, result: MechanicsRe
       Object.entries(model.project.units).sort(([left], [right]) => left.localeCompare(right))
     ),
     result_units: Array.from(new Set(result.results.map((item) => item.unit).filter(Boolean))).sort(),
-    quantity_display_policy: "display result-row values with their explicit units; no report-time conversion",
-    conversion_performed: false
+    quantity_display_policy: QUANTITY_DISPLAY_POLICY,
+    conversion_performed: displaysScaledValue(result)
   };
 }
 
@@ -140,7 +157,12 @@ function mapObjectRef(ref: { object_type: string; ref: string } | undefined, fal
   return { ref_type: ref.object_type, ref_id: ref.ref };
 }
 
-function diagnosticsForSections(result: MechanicsResult, provenance: ReturnType<typeof sessionProvenance>) {
+/** The report's entry for each result diagnostic, in source order (DEL-08-01 Design
+ * `exact-route-report-sections.md` §3.6): the report's first Diagnostics entries. On an exact
+ * route the native render and the package's item 9 check them against the delivered result
+ * with the Rust mirror `report_package::bindings::expected_report_diagnostics`; parity vectors
+ * `fixtures/reports/invented/report_diagnostics_parity.json`. */
+export function diagnosticsForSections(result: Pick<MechanicsResult, "diagnostics">, provenance: ReturnType<typeof sessionProvenance>) {
   return result.diagnostics.map((diagnostic, index) => ({
     code: diagnostic.code,
     class:
