@@ -1848,6 +1848,12 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
+/// W-16 slices b and c at 3493838a8b (retained-pricing-rules.md §8.27): from the shear-model member's
+/// record below, the certified producer's two generated-id prefix formats, now behind the case's
+/// generation (W16C-ES), leave TAV_W and TAV_X (-223,488 B) and the shorter identity text and longer
+/// load/reference-state limitation add +690 B (-222,798 B each); the pressure-2 table and the
+/// source-recovery schema raise STATICS by 6,332 B + 18 Node(String,Value) + 294 s(Value) (+28,988 B
+/// here), so every phase falls by 193,810 B in both modes; W3 is still the maximum.
 /// Model document 0.8.0's shear-model member at 642e9737e4 (retained-pricing-rules.md §8.26, "The
 /// shear-model member"): from the unit factor-sum gate's record below (unchanged by §8.25 and §8.26's
 /// first registration), validate_model_settings' second blocking diagnostic and its three texts (SM-MS,
@@ -1916,8 +1922,8 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 /// second ordinary span. The build identity, atoms and native values are unchanged; reviewed-input
 /// registration is separate below.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_559_706_160, 6_901_700_721, 8_855_883_381, 8_644_043_808, 7_722_072_035, 8_607_308_868, 7_338_709_530, 7_011_999_406],
-    [6_618_837_504, 6_960_832_065, 8_915_014_725, 8_703_175_152, 7_781_203_379, 8_666_440_212, 7_397_840_874, 7_071_130_750],
+    [6_559_512_350, 6_901_506_911, 8_855_689_571, 8_643_849_998, 7_721_878_225, 8_607_115_058, 7_338_515_720, 7_011_805_596],
+    [6_618_643_694, 6_960_638_255, 8_914_820_915, 8_702_981_342, 7_781_009_569, 8_666_246_402, 7_397_647_064, 7_070_936_940],
 ];
 
 #[test]
