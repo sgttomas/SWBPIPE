@@ -81,7 +81,8 @@ fn timoshenko_is_refused_on_a_pressure_free_document() {
 #[test]
 fn unknown_and_null_values_are_refused_by_name() {
     let demo = json!({"model": serde_json::from_str::<Value>(DEMO).unwrap(), "materials": []});
-    for value in [json!(null), json!("timoshenko"), json!("Euler_Bernoulli"), json!(1), json!(true), json!({}), json!([])] {
+    for value in [json!(null), json!("timoshenko"), json!("Euler_Bernoulli"), json!(1), json!(-1), json!(1.5), json!(true),
+        json!({}), json!([]), json!({"a": [1, {"b": "euler_bernoulli"}]}), json!(["euler_bernoulli"])] {
         let request = with_shear_model(&demo, value.clone());
         for mode in MODES {
             refused_by(&solve(&request, mode), "MODEL-SETTING-SHEAR-MODEL-UNKNOWN");

@@ -72,8 +72,51 @@ impl ShearModelSetting {
 }
 
 /// Any present value, `null` included, decoded to its setting (absence is the field default).
+/// The visitor builds no value: a string is matched in place and dropped, and any other value
+/// (an array or object drained as `IgnoredAny`) is `Unknown`, so the decode allocates nothing.
 fn deserialize_shear_model<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Result<Option<ShearModelSetting>, D::Error> {
-    serde_json::Value::deserialize(deserializer).map(|value| Some(ShearModelSetting::of(&value)))
+    struct ShearModelVisitor;
+    impl<'de> serde::de::Visitor<'de> for ShearModelVisitor {
+        type Value = ShearModelSetting;
+
+        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+            formatter.write_str("any JSON value")
+        }
+        fn visit_str<E: serde::de::Error>(self, value: &str) -> Result<Self::Value, E> {
+            Ok(match value {
+                SHEAR_MODEL_EULER_BERNOULLI => ShearModelSetting::EulerBernoulli,
+                SHEAR_MODEL_TIMOSHENKO => ShearModelSetting::TimoshenkoAnnulusEnergyV1,
+                _ => ShearModelSetting::Unknown,
+            })
+        }
+        fn visit_bool<E: serde::de::Error>(self, _: bool) -> Result<Self::Value, E> {
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_i64<E: serde::de::Error>(self, _: i64) -> Result<Self::Value, E> {
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_u64<E: serde::de::Error>(self, _: u64) -> Result<Self::Value, E> {
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_f64<E: serde::de::Error>(self, _: f64) -> Result<Self::Value, E> {
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_unit<E: serde::de::Error>(self) -> Result<Self::Value, E> {
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_none<E: serde::de::Error>(self) -> Result<Self::Value, E> {
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_seq<A: serde::de::SeqAccess<'de>>(self, mut seq: A) -> Result<Self::Value, A::Error> {
+            while seq.next_element::<serde::de::IgnoredAny>()?.is_some() {}
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_map<A: serde::de::MapAccess<'de>>(self, mut map: A) -> Result<Self::Value, A::Error> {
+            while map.next_entry::<serde::de::IgnoredAny, serde::de::IgnoredAny>()?.is_some() {}
+            Ok(ShearModelSetting::Unknown)
+        }
+    }
+    deserializer.deserialize_any(ShearModelVisitor).map(Some)
 }
 
 /// The refusal message for a value that is not one of the two names.

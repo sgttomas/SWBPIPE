@@ -2291,6 +2291,12 @@ if fnkey("state_applied_branch_factors", _W8V):
 # Debug (24) by the inherited f64 classes. The diagnostic's message `error.message` is one of those texts, at most
 # 39 + 58 + 327 = 424 B, priced by its inherited class (8,192 B); its refs are the one path String (the default
 # vec! element, 24 + 128 B; the to_string site at the literal's bytes).
+# SM-MS (retained-pricing-rules.md §8.26, "The shear-model member"): model document 0.8.0's
+# `model_settings.shear_model` adds validate_model_settings' second blocking diagnostic, pushed when
+# `shear_model_refusal` refuses the authored member. D1 admits it as it admits the tolerance (no D1 clause names
+# `model_settings`; the decoder accepts any JSON value and allocates nothing), so the site keeps the chain's
+# multiplicity. Its three texts format only the three static literal constants (SM-PT), and its refs are the one
+# path String. The guard below reads both diagnostics, the call, the three templates and the decoder.
 _NP_MS = PP_ + "model_settings.rs"
 if fnkey("validate_model_settings", _W8V) and fnkey("tolerance_not_finite_message", _NP_MS):
     _NP_TEXT = _text_of(_NP_MS)
@@ -2303,18 +2309,45 @@ if fnkey("validate_model_settings", _W8V) and fnkey("tolerance_not_finite_messag
         "tolerance_zero_in_metres_message": 'format!("{NODE_PROXIMITY_TOLERANCE_PATH} is {value:?} {unit}, which is zero in metres; the tolerance must be greater than zero.")',
         "tolerance_not_finite_in_metres_message": 'format!("{NODE_PROXIMITY_TOLERANCE_PATH} is {value:?} {unit}, which is not finite in metres; a finite length greater than zero is required.")',
     }
+    # SM-MS: the shear-model refusal's three templates, each once in its function, and the three literal constants.
+    _SM_T = {
+        "shear_model_unknown_message": 'format!("{SHEAR_MODEL_PATH} must be `{SHEAR_MODEL_EULER_BERNOULLI}` or `{SHEAR_MODEL_TIMOSHENKO}`.")',
+        "shear_model_with_pressure_contract_message": 'format!("{SHEAR_MODEL_PATH} is set on a document that declares pressure_contract; that document\'s shear model is pressure_contract.shear_model, so remove {SHEAR_MODEL_PATH}.")',
+        "shear_model_timoshenko_unsupported_message": 'format!("{SHEAR_MODEL_PATH} `{SHEAR_MODEL_TIMOSHENKO}` is not yet solved on a pressure-free document; set `{SHEAR_MODEL_EULER_BERNOULLI}` or remove the member.")',
+    }
+    _SM_C = {n: _re.findall(r'^pub const ' + n + r': &str = "([^"\\{}]*)";$', _NP_TEXT, _re.M)
+             for n in ("SHEAR_MODEL_PATH", "SHEAR_MODEL_EULER_BERNOULLI", "SHEAR_MODEL_TIMOSHENKO")}
+    _SM_DEC = _fn_text("deserialize_shear_model", _NP_MS) if fnkey("deserialize_shear_model", _NP_MS) else ""
+    _SM_REF = _fn_text("shear_model_refusal", _NP_MS) if fnkey("shear_model_refusal", _NP_MS) else ""
+    _SM_DOC = _fn_text("shear_model_document_refusal", _NP_MS) if fnkey("shear_model_document_refusal", _NP_MS) else ""
     _np = (
         len(_NP_PATH) == 1,
         all(_fn_text(fn, _NP_MS).count(t) == 1 for fn, t in _NP_T.items()),
-        _re.sub(r"//[^\n]*", "", _NP_TEXT.split("#[cfg(test)]")[0]).count("format!(") == len(_NP_T),
-        _NP_VMS.count("diag(") == 1, _NP_VMS.count("error.message,") == 1, _NP_VMS.count("error.code,") == 1,
-        _NP_VMS.count('"blocking",') == 1, _NP_VMS.count('"diagnostic:model-settings:node-proximity-tolerance",') == 1,
+        _re.sub(r"//[^\n]*", "", _NP_TEXT.split("#[cfg(test)]")[0]).count("format!(") == len(_NP_T) + len(_SM_T),
+        _NP_VMS.count("diag(") == 2, _NP_VMS.count("error.message,") == 2, _NP_VMS.count("error.code,") == 2,
+        _NP_VMS.count('"blocking",') == 2, _NP_VMS.count('"diagnostic:model-settings:node-proximity-tolerance",') == 1,
         _NP_VMS.count("vec![crate::model_settings::NODE_PROXIMITY_TOLERANCE_PATH.to_string()],") == 1,
         _fn_text("validate_model_inputs", _W8V).count("validate_model_settings(model, diagnostics);") == 1,
         _text_of(_W8V).count("validate_model_settings(") == 2,
+        # SM-MS: the second diagnostic, its one refusal call, and the refusal chain's message calls.
+        _NP_VMS.count('"diagnostic:model-settings:shear-model",') == 1,
+        _NP_VMS.count("vec![crate::model_settings::SHEAR_MODEL_PATH.to_string()],") == 1,
+        _NP_VMS.count("crate::model_settings::shear_model_refusal(setting, model.pressure_contract.is_some())") == 1,
+        _text_of(_W8V).count("shear_model_refusal(") == 1,
+        all(fnkey(fn, _NP_MS) and _fn_text(fn, _NP_MS).count(t) == 1 for fn, t in _SM_T.items()),
+        all(len(v) == 1 for v in _SM_C.values()),
+        _SM_DOC.count("shear_model_unknown_message()") == 1 and _SM_DOC.count("shear_model_with_pressure_contract_message()") == 1,
+        _SM_REF.count("shear_model_document_refusal(setting, has_pressure_contract)") == 1,
+        _SM_REF.count("shear_model_timoshenko_unsupported_message()") == 1,
+        all(_re.sub(r"//[^\n]*", "", _NP_TEXT.split("#[cfg(test)]")[0]).count(fn + "()") == 2 for fn in _SM_T),  # def + one call
+        # The decoder builds no value: one visitor through deserialize_any, IgnoredAny draining, no owner.
+        _SM_DEC.count("deserializer.deserialize_any(ShearModelVisitor).map(Some)") == 1,
+        _SM_DEC.count("next_element::<serde::de::IgnoredAny>()") == 1,
+        _SM_DEC.count("next_entry::<serde::de::IgnoredAny, serde::de::IgnoredAny>()") == 1,
+        not any(t in _SM_DEC for t in ("Value::", "String", "to_string", "to_owned", "collect", "Vec", "Box", "format!", "clone")),
     )
     if not all(_np):
-        raise SystemExit(f"NP-MS: the node-proximity tolerance's refusal texts changed; re-review their bounds: {_np}")
+        raise SystemExit(f"NP-MS: the model-settings refusals' texts or calls changed; re-review their bounds: {_np}")
     _NP_PB = len(_NP_PATH[0].encode())                                                    # 39 (NP-PT)
     _NP_PT = {"NODE_PROXIMITY_TOLERANCE_PATH": {"bytes": _NP_PB, "source": O10 + f"NP-PT: the path constant, a static literal of {_NP_PB} B"}}
     for _fn, _t in _NP_T.items():
@@ -2322,9 +2355,16 @@ if fnkey("validate_model_settings", _W8V) and fnkey("tolerance_not_finite_messag
         if "{unit}" in _t:
             _audit["unit"] = IN
         O10_ID_AUDIT += [(site(_fn, _NP_MS, _t, full=True), _audit)]
-    O10_ID_AUDIT += [(site("validate_model_settings", _W8V, ".to_string()],", full=True),
+    O10_ID_AUDIT += [(site("validate_model_settings", _W8V, "NODE_PROXIMITY_TOLERANCE_PATH.to_string()],", full=True),
                       {"crate::model_settings::NODE_PROXIMITY_TOLERANCE_PATH":
                        {"bytes": _NP_PB, "source": O10 + f"NP-PT: the path constant, a static literal of {_NP_PB} B"}})]
+    # SM-PT: the shear-model constants are plain literals, audited at their bytes in the three texts and the refs.
+    _SM_A = {n: {"bytes": len(v[0].encode()), "source": O10 + f"SM-PT: {n}, a static literal of {len(v[0].encode())} B"}
+             for n, v in _SM_C.items()}
+    for _fn, _t in _SM_T.items():
+        O10_ID_AUDIT += [(site(_fn, _NP_MS, _t, full=True), {n: a for n, a in _SM_A.items() if "{" + n + "}" in _t})]
+    O10_ID_AUDIT += [(site("validate_model_settings", _W8V, "SHEAR_MODEL_PATH.to_string()],", full=True),
+                      {"crate::model_settings::SHEAR_MODEL_PATH": _SM_A["SHEAR_MODEL_PATH"]})]
 
 # ---- The silent-zero guard (DEL-04-07 Design pressure-contract.md, "Load cases that apply nothing";
 # retained-pricing-rules.md §8.15). Each rule applies only where the guard's code exists, so earlier revisions price as
