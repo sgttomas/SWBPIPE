@@ -171,6 +171,21 @@ surface that is attached, not under `[hidden]` or `[inert]`, and laid out
 layout, so `selectionReveal.test.tsx` injects a modelled visibility probe; the
 browser behaviour is covered by the review's Chromium probe (#1667).
 
+### No read-only mode while results are shown
+
+The survey item proposed a read-only editor while results are shown. It is
+not built. Agent 0's decision, verbatim: "B8: agreed, no read-only mode while
+results are shown. An applied edit, undo or redo already clears the results
+("Earlier solve output no longer describes the edited model document"), so
+results can never describe an edited model. A read-only mode would only slow
+the edit–solve loop."
+
+The code basis:
+- `apps/desktop/src/features/workspace/workspaceSession.ts:1687` clears the
+  result, the analysis run, the input manifest and the rule-check aggregate
+  when an edit is applied;
+- undo and redo clear them through `clearComputedModelState`.
+
 ## Evidence
 
 - `deflectedShape.test.ts`
