@@ -16,7 +16,10 @@ exactly with the case's prescribed values:
   R-a  a rigid anchor or restraint prescribed at its case value g_b;
   R-b  a nonlinear support's ground moved by g_s: its state is measured on
        delta_s = u_d - g_s, and an active or sticking state prescribes g_s
-       (g_s + sigma*c for an active gap, sigma = +1 closing in +, -1 in -).
+       (g_s + sigma*c for an active gap, sigma = +1 closing in +, -1 in -);
+  R-d  a rigid restraint on a mixed nonlinear record (a nonlinear record that
+       also restrains other DOFs rigidly) prescribed at its case value g_b,
+       as under R-a.
 
 It records every state that satisfies all DEC-067 conditions strictly, with
 its exact published rows, and every state that satisfies them only weakly
@@ -90,8 +93,10 @@ def spring(support_id, node_id, dof, k):
             "stiffness": {"dof": dof, "value": qv(k, "N/m")}, "provenance": PROV}
 
 
-def nonlinear(support_id, node_id, spec):
-    return {"id": support_id, "node": node_id, "family": "nonlinear", "restraints": [], "nonlinear": spec, "provenance": PROV}
+def nonlinear(support_id, node_id, spec, restraints=()):
+    """A nonlinear record; `restraints` are its rigid restraints on other DOFs (a mixed record, R-d)."""
+    return {"id": support_id, "node": node_id, "family": "nonlinear", "restraints": list(restraints), "nonlinear": spec,
+            "provenance": PROV}
 
 
 def force(load_id, node_id, axis, value):
@@ -261,6 +266,10 @@ class Model:
                         src_node = self.nodes.index(next(x for x in m["supports"] if x["id"] == src["support_ref"])["node"])
                         entry["source"] = 6 * src_node + DOFS.index(src["dof"])
                 self.nonlinear.append(entry)
+                # R-d: a mixed record's rigid restraints, which never include its nonlinear DOF.
+                assert s.get("family") == "nonlinear" and nl["dof"] not in s["restraints"]
+                for r in s["restraints"]:
+                    self.rigid.setdefault(s["id"], []).append(6 * nd + DOFS.index(r))
             elif s.get("family") == "spring":
                 st = s["stiffness"]
                 d = 6 * nd + DOFS.index(st["dof"])
@@ -282,8 +291,7 @@ class Model:
                 s = self.support_by_id[target["support"]]
                 d = 6 * self.nodes.index(s["node"]) + DOFS.index(target["dof"])
                 value = F(load["magnitude"]["value"])
-                if s.get("nonlinear"):
-                    assert s["nonlinear"]["dof"] == target["dof"]
+                if s.get("nonlinear") and s["nonlinear"]["dof"] == target["dof"]:
                     ground[s["id"]] = value
                 else:
                     assert d in self.rigid[s["id"]]
@@ -683,10 +691,8 @@ def translated(request, name, axis):
         loads = c["primitive_loads"]
         for s in m["supports"]:
             nl = s.get("nonlinear")
-            if nl is not None:
-                acts = nl["dof"] == dof
-            else:
-                acts = s.get("family") != "spring" and dof in s["restraints"]
+            # A nonlinear ground on its own DOF (R-b); a rigid restraint, a mixed record's included (R-d).
+            acts = (nl is not None and nl["dof"] == dof) or (s.get("family") != "spring" and dof in s["restraints"])
             if not acts:
                 continue
             existing = [l for l in loads if l["category"] == "imposed_displacement"
@@ -929,6 +935,119 @@ def b3_closed_form_for(px, label="B-3"):
     return closed
 
 
+# ----------------------------------------------------------------------------- R-d
+# A record of family "nonlinear" assembles its rigid restraints as a guide,
+# which holds translations only (a rotational restraint on it is refused), so
+# the moving rigid restraint is translational and the nonlinear support
+# rotational. Signs: the member runs along +X; the condensed tip coupling
+# K[RY, UZ] is +6EI/L^2.
+#
+# D-1: a 4 m cantilever (midspan node), midspan load -P; the tip record is
+# mixed: a rotational lift-off on RY (contact for a positive moment) with
+# rigid restraints on UY and UZ. The tip UZ drops by s. Held at RY = 0, the
+# tip carries the fixed-end moment PL/8 less the coupling 6EI s/L^2 (the
+# condensed 4 m cantilever), so the support lifts off at s* = PL^3/(48EI),
+# chosen dyadic; P follows exactly.
+S_STAR_D = F(1, 2 ** 10)
+V6 = 6 * E * I / F(16)  # 6EI/L^2 at L = 4 m
+K_THETA = 4 * E * I / F(4)  # 4EI/L
+P_D = 48 * E * I * S_STAR_D / length_cube(4)
+
+
+def d_nodes():
+    nodes = [node("node:A", 0.0, 0.0, 0.0), node("node:M", 2.0, 0.0, 0.0), node("node:T", 4.0, 0.0, 0.0)]
+    pipes = [pipe("pipe:AM", "node:A", "node:M", (0, 0, 1)), pipe("pipe:MT", "node:M", "node:T", (0, 0, 1))]
+    return nodes, pipes
+
+
+def tip_record(restraints):
+    return nonlinear("support:TIP", "node:T", {"behavior": "lift_off", "dof": "RY", "initial_state": "active",
+                                                "contact_when": "positive_reaction"}, restraints=restraints)
+
+
+def d1_request():
+    P = as_float(P_D)
+    nodes, pipes = d_nodes()
+    supports = [anchor("support:ANCHOR", "node:A"), tip_record(("UY", "UZ"))]
+    cases = []
+    for cid, sv in (("load:ACTIVE", S_STAR_D / 2), ("load:LIFTED", 2 * S_STAR_D), ("load:BOUNDARY", S_STAR_D)):
+        cases.append(case(cid, [force(cid + "-P", "node:M", "z", -P), motion(cid + "-S", "support:TIP", "UZ", as_float(-sv))]))
+    return document("d1", "W-16 stage 2 D-1 (R-d): a mixed tip record, rotational lift-off with rigid UY and UZ; UZ drops.",
+                    nodes, pipes, supports, cases)
+
+
+def tip_condensed(model, at):
+    """The condensed 4 m cantilever on the tip (UZ, RY), the anchor held: [[12EI/L^3, 6EI/L^2], [6EI/L^2, 4EI/L]]."""
+    tip = 6 * model.nodes.index("node:T")
+    (kzz, kzr), (krz, krr) = condensed(model, [tip + 2, tip + 4], set(model.rigid["support:ANCHOR"]))
+    check(f"{at}: the condensed tip stiffness is 12EI/L^3, 6EI/L^2 and 4EI/L",
+          kzz == 12 * E * I / length_cube(4) and kzr == krz == V6 and krr == K_THETA)
+    return tip
+
+
+def d1_closed_form(model, case_id, exact_states):
+    sv = {"load:ACTIVE": S_STAR_D / 2, "load:LIFTED": 2 * S_STAR_D, "load:BOUNDARY": S_STAR_D}[case_id]
+    tip = tip_condensed(model, f"D-1 {case_id}")
+    states = {(k, st["support:TIP"]): (u, r) for k, st, u, r in exact_states}
+    if sv < S_STAR_D:
+        u, r = states[("strict", "active")]
+        check(f"D-1 {case_id}: R = PL/8 - 6EI s/L^2 = PL/16, RY = 0 and UZ = -s (the base value)",
+              r[tip + 4] == P_D * 4 / 8 - V6 * sv == P_D * 4 / 16 and u[tip + 4] == 0 and u[tip + 2] == -sv)
+        # A record whose rigid UZ stayed fixed would carry the full fixed-end moment.
+        check(f"D-1 {case_id}: the motion is observable (R != PL/8)", r[tip + 4] != P_D * 4 / 8)
+    elif sv > S_STAR_D:
+        u, r = states[("strict", "inactive")]
+        check(f"D-1 {case_id}: R = 0, RY = 3(s - s*)/(2L) > 0 (separation) and UZ = -s",
+              r[tip + 4] == 0 and u[tip + 4] == 3 * (sv - S_STAR_D) / 8 and u[tip + 4] > 0 and u[tip + 2] == -sv)
+    else:
+        check(f"D-1 {case_id}: at s = s* both states are weak", set(states) == {("weak", "active"), ("weak", "inactive")})
+
+
+# D-3: D-1's record without UY, whose own ground rotates by -g (R-b) while its
+# rigid UZ drops by s (R-d): the record is classified per DOF. Each motion
+# alone, then both. Active: R = PL/8 - 6EI s/L^2 - 4EI g/L.
+G_D3 = 3 * S_STAR_D / 32  # 4EI g/L = PL/32
+D3_CASES = {"load:GROUND": (F(0), G_D3), "load:RIGID": (S_STAR_D / 4, F(0)),
+            "load:ACTIVE": (S_STAR_D / 4, G_D3), "load:LIFTED": (S_STAR_D, G_D3)}
+
+
+def d3_request():
+    P = as_float(P_D)
+    nodes, pipes = d_nodes()
+    supports = [anchor("support:ANCHOR", "node:A"), tip_record(("UZ",))]
+    cases = []
+    for cid, (sv, gv) in D3_CASES.items():
+        loads = [force(cid + "-P", "node:M", "z", -P)]
+        if gv:
+            loads.append(motion(cid + "-G", "support:TIP", "RY", as_float(-gv)))
+        if sv:
+            loads.append(motion(cid + "-S", "support:TIP", "UZ", as_float(-sv)))
+        cases.append(case(cid, loads))
+    return document("d3", "W-16 stage 2 D-3 (R-b and R-d on one record): a tip rotational lift-off whose ground rotates and whose rigid UZ drops, each alone and together.",
+                    nodes, pipes, supports, cases)
+
+
+def d3_closed_form(model, case_id, exact_states):
+    sv, gv = D3_CASES[case_id]
+    tip = tip_condensed(model, f"D-3 {case_id}")
+    states = {(k, st["support:TIP"]): (u, r) for k, st, u, r in exact_states}
+    fixed_end = P_D * 4 / 8
+    reaction = fixed_end - V6 * sv - K_THETA * gv
+    if case_id != "load:LIFTED":
+        u, r = states[("strict", "active")]
+        check(f"D-3 {case_id}: R = PL/8 - 6EI s/L^2 - 4EI g/L > 0, RY = -g and UZ = -s",
+              r[tip + 4] == reaction > 0 and u[tip + 4] == -gv and u[tip + 2] == -sv)
+        # Each motion present is observable: R differs without it.
+        check(f"D-3 {case_id}: each motion present is observable",
+              (sv == 0 or r[tip + 4] != fixed_end - K_THETA * gv) and (gv == 0 or r[tip + 4] != fixed_end - V6 * sv))
+        if sv and gv:
+            check(f"D-3 {case_id}: R = PL/16", r[tip + 4] == P_D * 4 / 16)
+    else:
+        u, r = states[("strict", "inactive")]
+        check(f"D-3 {case_id}: R = 0, RY = 3(s - s*)/(2L) = 0, separation RY - (-g) = g > 0, UZ = -s",
+              r[tip + 4] == 0 and reaction < 0 and u[tip + 4] == 0 and u[tip + 4] + gv == gv and u[tip + 2] == -sv)
+
+
 REQUESTS = [
     ("a1", "R-a", a1_request, a1_closed_form),
     ("a2", "R-a", a2_request, a2_closed_form),
@@ -946,10 +1065,14 @@ REQUESTS = [
     ("b3_explicit", "R-b", lambda: b3_request("explicit")[0], b3_closed_form_for(F(0), "B-3 explicit normal")),
     ("b3_px", "R-b", lambda: b3_request("derived", PX_B3)[0], b3_closed_form_for(PX_B3)),
     ("b3_translated", "R-b", lambda: translated(b3_request()[0], "b3_translated", "X"), None),
+    ("d1", "R-d", d1_request, d1_closed_form),
+    ("d3", "R-d", d3_request, d3_closed_form),
+    ("d1_translated", "R-d", lambda: translated(d1_request(), "d1_translated", "Y"), None),
 ]
 
 # The base of each translated request (the property).
-TRANSLATED = {"a2_translated": ("a2", 1), "b1_translated": ("b1", 2), "b2_translated": ("b2", 2), "b3_translated": ("b3", 0)}
+TRANSLATED = {"a2_translated": ("a2", 1), "b1_translated": ("b1", 2), "b2_translated": ("b2", 2), "b3_translated": ("b3", 0),
+              "d1_translated": ("d1", 1)}
 
 
 def encode(obj):

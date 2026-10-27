@@ -459,16 +459,9 @@ fn refused_whole(wire: &serde_json::Value, code: &str, at: &str) {
     }
 }
 
-/// The open items stay refused (§3.3): the mixed nonlinear record's rigid
-/// restraints and the linear spring's base.
+/// A linear spring's base stays refused (§10.3; R-c builds it separately).
 #[test]
-fn the_open_items_stay_refused() {
-    let mixed = a1_with(|m| {
-        let prop = m["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "support:PROP").unwrap();
-        prop["restraints"] = serde_json::json!(["UY"]);
-        m["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(motion_on("support:PROP", "UY", 1.0e-4));
-    });
-    refused_whole(&mixed, "IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID", "a rigid restraint of a mixed nonlinear record");
+fn a_linear_spring_base_stays_refused() {
     let spring = a1_with(|m| {
         m["supports"].as_array_mut().unwrap().push(serde_json::json!({"id": "support:K", "node": "node:M", "family": "spring",
             "restraints": ["UY"], "stiffness": {"dof": "UY", "value": {"value": 1.0e6, "unit": "N/m"}}, "provenance": "w16 invented"}));
@@ -589,6 +582,34 @@ pub(super) const R_B: [Request; 12] = [
         expected: B3,
     },
 ];
+
+/// §10.4 R-d: the rigid restraints of a mixed nonlinear record take base
+/// values. D-1 (a mixed tip record, a rotational lift-off with rigid UY and
+/// UZ; UZ drops), D-3 (one record moving its lift-off ground and its rigid
+/// UZ, each alone and together) and D-1 translated rigidly in Y (the
+/// anchor's and the mixed record's UY).
+pub(super) const R_D: [Request; 3] = [
+    Request {
+        name: "d1",
+        text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/d1.json"),
+        expected: D1,
+    },
+    Request {
+        name: "d3",
+        text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/d3.json"),
+        expected: &[("load:GROUND", Passed), ("load:RIGID", Passed), ("load:ACTIVE", Passed), ("load:LIFTED", Passed)],
+    },
+    Request {
+        name: "d1_translated",
+        text: include_str!("../../../validation/references/w16_nonlinear_motion/requests/d1_translated.json"),
+        expected: D1,
+    },
+];
+
+const TIP_WEAK: &[&str] = &["support support:TIP: separation not established", "support support:TIP: contact force sign not established"];
+// s = s*: zero reaction and zero separation; the loop converges on either
+// weak state and the confirmation fails closed (R3).
+const D1: &[(&str, Expect)] = &[("load:ACTIVE", Passed), ("load:LIFTED", Passed), ("load:BOUNDARY", NotEstablishedAny(TIP_WEAK))];
 
 /// §5 R-b: B-1 (with its spring and rotational twins), B-2 (both senses, the
 /// equality, cancellation and a negative effective clearance), B-3 (both
@@ -716,6 +737,170 @@ fn the_rust_reader_admits_the_relative_rows() {
                 }
             }
             assert!(for_source(&unlisted).is_err(), "{} {case} {mode:?}", R_B[index].name);
+        }
+    }
+}
+
+/// §10.4 R-d, both modes; each mixed record's signed support components
+/// (its rigid restraints' reactions and its nonlinear slot) within 1e-9
+/// relative of the exact rows.
+#[test]
+fn r_d_references_bind_and_match_in_both_modes() {
+    for request in &R_D {
+        let (wire, oracle) = bound_request(request);
+        assert_eq!(oracle["part"], "R-d");
+        leaves_match(&wire);
+        assert_eq!(oracle["cases"].as_object().unwrap().len(), request.expected.len(), "{}", request.name);
+        for &(case, expect) in request.expected {
+            for mode in MODES {
+                let (output, _) = run_case(request, &wire, &oracle, case, expect, mode);
+                let Some(state) = oracle["cases"][case]["strict_states"].as_array().unwrap().first() else { continue };
+                let at = format!("{} {case} {mode:?}", request.name);
+                let components = state["signed"]["support:TIP"]["components"].as_array().unwrap();
+                let mut worst = 0.0_f64;
+                for (index, pair) in components.iter().enumerate() {
+                    let (lo, hi) = bound_pair(pair);
+                    let exact = 0.5 * lo + 0.5 * hi;
+                    let observed = output
+                        .results
+                        .iter()
+                        .find(|r| r.kind == "support_reaction_component_v2" && r.entity_ref == "support:TIP"
+                            && r.metadata.as_ref().is_some_and(|m| m.component == SUPPORT_SLOT[index]))
+                        .unwrap_or_else(|| panic!("{at}: {}", SUPPORT_SLOT[index]))
+                        .value;
+                    let scale = components.iter().map(|p| bound_pair(p).1.abs().max(bound_pair(p).0.abs())).fold(0.0, f64::max);
+                    assert!((observed - exact).abs() <= 1e-9 * scale, "{at}: {} {observed:e} exact {exact:e}", SUPPORT_SLOT[index]);
+                    worst = worst.max((observed - exact).abs() / scale);
+                }
+                println!("W16-NL {at}: mixed record components max relative error {worst:.3e}");
+            }
+        }
+    }
+}
+
+/// The R-d boundary: the same motion on a separate rigid record (D-1 with
+/// its UY and UZ split from the lift-off) gives every displacement bit for bit,
+/// so a mixed record's rigid restraint is the rigid restraint of stage 1.
+#[test]
+fn a_mixed_record_restraint_moves_as_a_separate_rigid_record() {
+    let (wire, _) = bound_request(&R_D[0]);
+    for case in ["load:ACTIVE", "load:LIFTED"] {
+        let mixed = single_case(&wire, case);
+        let mut split = mixed.clone();
+        let supports = split["model"]["supports"].as_array_mut().unwrap();
+        supports.iter_mut().find(|s| s["id"] == "support:TIP").unwrap()["restraints"] = serde_json::json!([]);
+        supports.push(serde_json::json!({"id": "support:GUIDE", "node": "node:T", "family": "guide",
+            "restraints": ["UY", "UZ"], "provenance": "w16 invented"}));
+        for load in split["model"]["load_cases"][0]["primitive_loads"].as_array_mut().unwrap() {
+            if load["category"] == "imposed_displacement" {
+                load["target"]["support"] = serde_json::json!("support:GUIDE");
+            }
+        }
+        for mode in MODES {
+            let a = run_linear_static_preview_value_with_mode(mixed.clone(), mode).unwrap();
+            let b = run_linear_static_preview_value_with_mode(split.clone(), mode).unwrap();
+            assert_eq!(a.status.mechanics, "MECHANICS_SOLVED", "{case} {mode:?}: {:?}", a.diagnostics);
+            assert_eq!(b.status.mechanics, "MECHANICS_SOLVED", "{case} {mode:?}: {:?}", b.diagnostics);
+            let displacements = |o: &MechanicsEnvelope| {
+                o.results.iter().filter(|r| r.id.starts_with("result:disp:")).map(|r| (r.id.clone(), r.value.to_bits())).collect::<Vec<_>>()
+            };
+            assert!(!displacements(&a).is_empty());
+            assert_eq!(displacements(&a), displacements(&b), "{case} {mode:?}");
+            let reaction = |o: &MechanicsEnvelope| row(o, "nonlinear_support_final_reaction", "support:TIP").value.to_bits();
+            assert_eq!(reaction(&a), reaction(&b), "{case} {mode:?}");
+        }
+    }
+}
+
+/// §10.3 R-d admission: what stays refused on a nonlinear record, and the
+/// coincident-restraint count that now includes a mixed record's restraints.
+#[test]
+fn r_d_refusals_are_named() {
+    let (d1, _) = bound_request(&R_D[0]);
+    let with = |edit: &dyn Fn(&mut serde_json::Value)| {
+        let mut wire = single_case(&d1, "load:ACTIVE");
+        edit(&mut wire["model"]);
+        wire
+    };
+    // A DOF the mixed record neither restrains nor acts on.
+    let unrestrained = with(&|m| m["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(motion_on("support:TIP", "UX", 1.0e-4)));
+    refused_whole(&unrestrained, "IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH", "a DOF the mixed record does not hold");
+    // Two primitives on one rigid restraint of the record, equal values.
+    let duplicate = with(&|m| {
+        let loads = m["load_cases"][0]["primitive_loads"].as_array_mut().unwrap();
+        let mut again = loads.iter().find(|l| l["category"] == "imposed_displacement").unwrap().clone();
+        again["id"] = serde_json::json!("load:ACTIVE-R2");
+        loads.push(again);
+    });
+    refused_whole(&duplicate, "IMPOSED_DISPLACEMENT_DOF_DUPLICATE", "two values for the mixed record's UZ");
+    // The mixed record's UZ coincident with another rigid UZ at the node,
+    // targeting either record: named, ahead of the generic repeated-DOF refusal.
+    for target in ["support:TIP", "support:STOP"] {
+        let coincident = with(&|m| {
+            m["supports"].as_array_mut().unwrap().push(serde_json::json!({"id": "support:STOP", "node": "node:T", "family": "vertical_support",
+                "restraints": ["UZ"], "provenance": "w16 invented"}));
+            for load in m["load_cases"][0]["primitive_loads"].as_array_mut().unwrap() {
+                if load["category"] == "imposed_displacement" {
+                    load["target"]["support"] = serde_json::json!(target);
+                }
+            }
+        });
+        refused_whole(&coincident, "IMPOSED_DISPLACEMENT_COINCIDENT_RESTRAINT", target);
+        for mode in MODES {
+            let output = run_linear_static_preview_value_with_mode(coincident.clone(), mode).unwrap();
+            assert!(!codes(&output).contains(&"SUPPORT_INPUT_INVALID".to_string()), "{target} {mode:?}: the named check runs first");
+        }
+    }
+    // Unchanged refusals on a nonlinear record (§10.1): a constant-effort
+    // record carrying a nonlinear field, on any DOF; a spring-family record's
+    // spring axis (R-c is separate); a rigid restraint overlapping the
+    // record's own nonlinear DOF.
+    let constant = with(&|m| {
+        let tip = m["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "support:TIP").unwrap();
+        tip["family"] = serde_json::json!("constant_effort_support");
+        tip["hanger"] = serde_json::json!({"hanger_type": "constant_effort_support", "constant_load": {"value": 375.0, "unit": "N"},
+            "travel_range": {"value": 0.05, "unit": "m"}, "source_reference": "w16 invented"});
+    });
+    refused_whole(&constant, "IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID", "a constant-effort record with a nonlinear field");
+    let sprung = with(&|m| {
+        let tip = m["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "support:TIP").unwrap();
+        tip["family"] = serde_json::json!("spring");
+        tip["restraints"] = serde_json::json!(["UZ"]);
+        tip["stiffness"] = serde_json::json!({"dof": "UZ", "value": {"value": 1.0e6, "unit": "N/m"}});
+    });
+    refused_whole(&sprung, "IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID", "the spring axis of a nonlinear record");
+    let overlap = with(&|m| {
+        let tip = m["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "support:TIP").unwrap();
+        tip["restraints"] = serde_json::json!(["UY", "UZ", "RY"]);
+    });
+    for mode in MODES {
+        let output = run_linear_static_preview_value_with_mode(overlap.clone(), mode).unwrap();
+        assert!(codes(&output).contains(&"SUPPORT_LINEAR_NONLINEAR_DOF_CONFLICT".to_string()), "{mode:?}: {:?}", codes(&output));
+        assert!(output.results.is_empty(), "{mode:?}");
+    }
+    // The exact route refuses every support-targeted primitive before any
+    // target classification (`tests/w16_imposed_motion.rs`,
+    // the_exact_route_refuses_support_targeted_primitives); R-d does not
+    // change that path.
+}
+
+/// R-d byte identity: an authored zero on a mixed record's rigid restraint is
+/// the no-motion path, every row and diagnostic unchanged (D-1's model).
+#[test]
+fn an_authored_zero_on_a_mixed_restraint_keeps_every_output() {
+    let (wire, _) = bound_request(&R_D[0]);
+    for case in ["load:ACTIVE", "load:LIFTED"] {
+        let mut plain = single_case(&wire, case);
+        plain["model"]["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().retain(|l| l["category"] != "imposed_displacement");
+        let mut zero = plain.clone();
+        zero["model"]["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(motion_on("support:TIP", "UZ", 0.0));
+        for mode in MODES {
+            let a = serde_json::to_value(run_linear_static_preview_value_with_mode(plain.clone(), mode).unwrap()).unwrap();
+            let b = serde_json::to_value(run_linear_static_preview_value_with_mode(zero.clone(), mode).unwrap()).unwrap();
+            assert_eq!(a["status"]["mechanics"], "MECHANICS_SOLVED", "{case} {mode:?}");
+            assert_eq!(a["status"], b["status"], "{case} {mode:?}");
+            assert_eq!(a["results"], b["results"], "{case} {mode:?}");
+            assert_eq!(a["diagnostics"], b["diagnostics"], "{case} {mode:?}");
         }
     }
 }

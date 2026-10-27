@@ -14,17 +14,21 @@
 //! model with nonlinear supports the same map reaches the nonlinear active-set
 //! loop as base prescribed values on the rigid anchors and restraints. R-b: a
 //! primitive on a nonlinear support's own DOF moves that support's ground by
-//! g_s (`case_ground_motion`); its state is measured on u_d - g_s. Still
-//! refused, and open: the base of a linear spring, a spring or constant-effort
-//! device on the nonlinear record itself, and the rigid restraints of a mixed
-//! nonlinear record (`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`).
+//! g_s (`case_ground_motion`); its state is measured on u_d - g_s. R-d: a
+//! rigid restraint of a mixed nonlinear record (a nonlinear record that also
+//! restrains other DOFs rigidly) takes a base prescribed value as under R-a.
+//! Validation and the case resolvers classify the target DOF (`acting`):
+//! only rigid targets enter `case_prescribed`, only nonlinear targets enter
+//! `case_ground_motion`. Still refused (`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`):
+//! a constant-effort record, a nonlinear field included, and a linear
+//! spring's base (R-c is separate).
 //!
 //! The exact route refuses every support-targeted primitive by name; its form
 //! is `analysis_state.support_states[].boundary_motion`.
 use crate::{
     diag, dof_index, exact_source_identity, has_blocking, is_constant_effort_support,
     is_variable_spring_hanger, normalize_quantity, parse_dof, parse_gap_direction, pressure_runtime,
-    Diagnostic, LoadTargetInput, PreviewLoadCase, PreviewModel, PreviewPrimitiveLoad, PreviewSupport,
+    support_stiffness_input, Diagnostic, LoadTargetInput, PreviewLoadCase, PreviewModel, PreviewPrimitiveLoad, PreviewSupport,
     DOF_PER_NODE,
 };
 use open_pipe_stress_nonlinear_integration::exact_gap_closing_position;
@@ -51,20 +55,89 @@ pub(crate) fn is_support_target(load: &PreviewPrimitiveLoad) -> bool {
     matches!(load.target, LoadTargetInput::Support { .. })
 }
 
+/// Whether a record's `restraints` are rigid restraints, as `build_model`
+/// assembles them: not a spring or variable spring hanger (whose restraint is
+/// its spring axis) and not a constant-effort device (whose restraints are
+/// force axes). A nonlinear record's restraints are its rigid restraints on
+/// other DOFs (R-d); they never overlap its nonlinear DOF
+/// (`SUPPORT_LINEAR_NONLINEAR_DOF_CONFLICT`).
+fn restraints_rigid(support: &PreviewSupport) -> bool {
+    !is_spring_family(support) && !is_constant_effort_support(support)
+}
+
 /// The exact resolver's rigid-support rule (`case_state/resolve.rs`, `is_spring`
 /// and the `rigid` test of its boundary-motion loop): not a spring or variable
 /// spring hanger, not a nonlinear device and not a constant-effort device.
+/// Pressure-free admission of a record without a nonlinear support.
 fn is_rigid(support: &PreviewSupport) -> bool {
-    let spring = support.family.as_deref() == Some("spring") || is_variable_spring_hanger(support);
-    !spring && support.nonlinear.is_none() && !is_constant_effort_support(support)
+    restraints_rigid(support) && support.nonlinear.is_none()
+}
+
+/// How a record acts on one DOF (Design `pf-nonlinear-imposed-motion.md`
+/// §10.1); a support-targeted primitive moves the base of that action only.
+/// A constant-effort record has no base on any DOF and is refused as a
+/// target before classification.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Acting {
+    /// The record's nonlinear DOF: a primitive moves its ground (R-b).
+    Nonlinear,
+    /// The stiffness axis of a spring or variable spring hanger record,
+    /// chosen as `build_model` chooses it (refused here; R-c).
+    Spring,
+    /// A rigid restraint, a mixed nonlinear record's included: a base
+    /// prescribed value (stage 1, R-a, R-d).
+    Rigid,
+    /// None of the record's actions.
+    None,
+}
+
+/// The duplicate key's base (§10.2): a rigid target's base is its global node
+/// DOF, which one prescribed value holds; a nonlinear (or spring) target's base
+/// belongs to its support. Rigid and nonlinear targets never share a node DOF
+/// (`SUPPORT_LINEAR_NONLINEAR_DOF_CONFLICT`), and two nonlinear supports on
+/// one node DOF are refused first (`IMPOSED_DISPLACEMENT_COINCIDENT_RESTRAINT`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+enum Base {
+    NodeDof,
+    SupportDof,
+}
+
+fn is_spring_family(support: &PreviewSupport) -> bool {
+    support.family.as_deref() == Some("spring") || is_variable_spring_hanger(support)
+}
+
+fn acting(support: &PreviewSupport, dof: FrameDof) -> Acting {
+    let spring_axis = || {
+        support_stiffness_input(support)
+            .and_then(|input| parse_dof(&input.dof).ok())
+            .or_else(|| support.restraints.first().and_then(|token| parse_dof(token).ok()))
+    };
+    if nonlinear_dof(support) == Some(dof) {
+        Acting::Nonlinear
+    } else if is_spring_family(support) && spring_axis() == Some(dof) {
+        Acting::Spring
+    } else if restraints_rigid(support) && restrains(support, dof) > 0 {
+        Acting::Rigid
+    } else {
+        Acting::None
+    }
+}
+
+/// The action a support-targeted primitive addresses, for the case resolvers:
+/// `None` for a non-support target, an unknown support, an unparsed DOF or a
+/// constant-effort record.
+fn target_acting<'m>(model: &'m PreviewModel, load: &PreviewPrimitiveLoad) -> Option<(&'m PreviewSupport, FrameDof, Acting)> {
+    let LoadTargetInput::Support { support, dof } = &load.target else { return None };
+    let record = model.supports.iter().find(|record| &record.id == support)?;
+    let dof = parse_dof(dof).ok()?;
+    (!is_constant_effort_support(record)).then(|| (record, dof, acting(record, dof)))
 }
 
 /// R-b: a nonlinear record that is not also a spring, a variable spring
 /// hanger or a constant-effort device; a primitive on its own DOF moves its
 /// ground.
 fn moves_ground(support: &PreviewSupport) -> bool {
-    let spring = support.family.as_deref() == Some("spring") || is_variable_spring_hanger(support);
-    support.nonlinear.is_some() && !spring && !is_constant_effort_support(support)
+    support.nonlinear.is_some() && !is_spring_family(support) && !is_constant_effort_support(support)
 }
 
 /// The nonlinear DOF a record acts on, when its token parses.
@@ -158,7 +231,7 @@ pub(crate) fn validate(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
 
 fn validate_pressure_free(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
     for case in &model.load_cases {
-        let mut prescribed: HashMap<(&str, usize), &str> = HashMap::new();
+        let mut prescribed: HashMap<(Base, &str, usize), &str> = HashMap::new();
         for load in &case.primitive_loads {
             let LoadTargetInput::Support { support: support_id, dof } = &load.target else {
                 if load.category == CATEGORY {
@@ -205,28 +278,45 @@ fn validate_pressure_free(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic
                     Some(support_id));
                 continue;
             }
-            let name = dof.as_str().to_ascii_uppercase();
             if !dimension_valid(case, load, dof, support_id, diagnostics) {
                 continue;
             }
-            let holders = model
-                .supports
-                .iter()
-                .filter(|other| other.node == support.node && is_rigid(other))
-                .map(|other| restrains(other, dof))
-                .sum::<usize>();
-            if holders > 1 {
-                refuse(diagnostics, case, load, COINCIDENT_RESTRAINT,
-                    format!("load {} in {} imposes {name} on support {support_id}, but another rigid restraint also holds {name} at node {}; the prescribed DOF must be held by exactly one rigid restraint", load.id, case.id, support.node),
-                    Some(support_id));
-                continue;
-            }
-            if let Some(first) = prescribed.insert((support.node.as_str(), dof_index(dof)), load.id.as_str()) {
-                refuse(diagnostics, case, load, DOF_DUPLICATE,
-                    format!("loads {first} and {} in {} both prescribe {name} at node {}; one global DOF takes one prescribed value, even when the values are equal", load.id, case.id, support.node),
-                    Some(support_id));
-            }
+            validate_rigid_base(model, case, load, support, dof, &mut prescribed, diagnostics);
         }
+    }
+}
+
+/// A rigid restraint's base value (stage 1, R-a, R-d), after the target and
+/// dimension checks: exactly one rigid restraint holds the node DOF, counting
+/// the rigid restraints of mixed nonlinear records, and one prescribed value
+/// per global DOF.
+fn validate_rigid_base<'m>(
+    model: &'m PreviewModel,
+    case: &PreviewLoadCase,
+    load: &'m PreviewPrimitiveLoad,
+    support: &'m PreviewSupport,
+    dof: FrameDof,
+    prescribed: &mut HashMap<(Base, &'m str, usize), &'m str>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let support_id = support.id.as_str();
+    let name = dof.as_str().to_ascii_uppercase();
+    let holders = model
+        .supports
+        .iter()
+        .filter(|other| other.node == support.node && restraints_rigid(other))
+        .map(|other| restrains(other, dof))
+        .sum::<usize>();
+    if holders > 1 {
+        refuse(diagnostics, case, load, COINCIDENT_RESTRAINT,
+            format!("load {} in {} imposes {name} on support {support_id}, but another rigid restraint also holds {name} at node {}; the prescribed DOF must be held by exactly one rigid restraint", load.id, case.id, support.node),
+            Some(support_id));
+        return;
+    }
+    if let Some(first) = prescribed.insert((Base::NodeDof, support.node.as_str(), dof_index(dof)), load.id.as_str()) {
+        refuse(diagnostics, case, load, DOF_DUPLICATE,
+            format!("loads {first} and {} in {} both prescribe {name} at node {}; one global DOF takes one prescribed value, even when the values are equal", load.id, case.id, support.node),
+            Some(support_id));
     }
 }
 
@@ -253,18 +343,19 @@ fn dimension_valid(
     true
 }
 
-/// R-b (§3.2): a primitive on a nonlinear record. Dimensional checks first,
-/// then, on the canonical binary64 operands: the record's own DOF, a spring or
-/// constant-effort device on the record, the rigid restraints of a mixed
-/// record (open), the exact gap closing position, another nonlinear support on
-/// the same node DOF, and the duplicate.
+/// R-b (§3.2) and R-d (§10.3): a primitive on a nonlinear record. Dimensional
+/// checks first, then, on the canonical binary64 operands: a DOF other than
+/// the record's own is one of its rigid restraints (R-d, the rigid checks) or
+/// is refused; on its own DOF, a spring or constant-effort device on the
+/// record, the exact gap closing position, another nonlinear support on the
+/// same node DOF, and the duplicate.
 fn validate_ground_motion<'m>(
     model: &'m PreviewModel,
     case: &PreviewLoadCase,
     load: &'m PreviewPrimitiveLoad,
     support: &'m PreviewSupport,
     dof: FrameDof,
-    prescribed: &mut HashMap<(&'m str, usize), &'m str>,
+    prescribed: &mut HashMap<(Base, &'m str, usize), &'m str>,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
     let support_id = support.id.as_str();
@@ -272,19 +363,27 @@ fn validate_ground_motion<'m>(
     if !dimension_valid(case, load, dof, support_id, diagnostics) {
         return;
     }
-    let own = nonlinear_dof(support);
-    if own != Some(dof) {
-        if restrains(support, dof) > 0 {
-            refuse(diagnostics, case, load, SUPPORT_NOT_RIGID,
-                format!("load {} in {} imposes {name} on a rigid restraint of nonlinear record {support_id}; the rigid restraints of a mixed nonlinear record do not move (open), only the nonlinear support's own DOF does", load.id, case.id),
+    if is_constant_effort_support(support) {
+        refuse(diagnostics, case, load, SUPPORT_NOT_RIGID,
+            format!("load {} in {} imposes {name} on nonlinear record {support_id}, which is a constant-effort device; a constant-effort record has no base on any DOF and is not a motion target", load.id, case.id),
+            Some(support_id));
+        return;
+    }
+    match acting(support, dof) {
+        Acting::Nonlinear => {}
+        // R-d: a rigid restraint of a mixed nonlinear record.
+        Acting::Rigid => return validate_rigid_base(model, case, load, support, dof, prescribed, diagnostics),
+        Acting::Spring => {
+            return refuse(diagnostics, case, load, SUPPORT_NOT_RIGID,
+                format!("load {} in {} imposes {name} on the spring axis of nonlinear record {support_id}; a linear spring's base does not move", load.id, case.id),
                 Some(support_id));
-        } else {
-            refuse(diagnostics, case, load, NONLINEAR_DOF_MISMATCH,
-                format!("load {} in {} imposes {name} on nonlinear support {support_id}, which acts on {}; a moving ground applies only to the nonlinear support's own DOF", load.id, case.id,
+        }
+        Acting::None => {
+            return refuse(diagnostics, case, load, NONLINEAR_DOF_MISMATCH,
+                format!("load {} in {} imposes {name} on nonlinear support {support_id}, which acts on {}; a primitive on a nonlinear record moves its nonlinear DOF's ground or one of its rigid restraints", load.id, case.id,
                     support.nonlinear.as_ref().map_or("", |nonlinear| nonlinear.dof.as_str())),
                 Some(support_id));
         }
-        return;
     }
     if !moves_ground(support) {
         refuse(diagnostics, case, load, SUPPORT_NOT_RIGID,
@@ -308,7 +407,7 @@ fn validate_ground_motion<'m>(
             Some(support_id));
         return;
     }
-    if let Some(first) = prescribed.insert((support.node.as_str(), dof_index(dof)), load.id.as_str()) {
+    if let Some(first) = prescribed.insert((Base::SupportDof, support.id.as_str(), dof_index(dof)), load.id.as_str()) {
         refuse(diagnostics, case, load, DOF_DUPLICATE,
             format!("loads {first} and {} in {} both prescribe {name} at node {}; one global DOF takes one prescribed value, even when the values are equal", load.id, case.id, support.node),
             Some(support_id));
@@ -316,18 +415,14 @@ fn validate_ground_motion<'m>(
 }
 
 /// R-b: the case's ground offsets g_s (m or rad), by nonlinear support id, from
-/// its validated primitives on nonlinear records; empty when there are none.
-/// Called after unit normalization.
+/// its validated primitives on nonlinear supports' own DOFs; empty when there
+/// are none. Called after unit normalization.
 pub(crate) fn case_ground_motion(model: &PreviewModel, case: &PreviewLoadCase) -> Vec<(String, f64)> {
     case.primitive_loads
         .iter()
-        .filter_map(|load| {
-            let LoadTargetInput::Support { support, .. } = &load.target else { return None };
-            model
-                .supports
-                .iter()
-                .find(|record| &record.id == support && record.nonlinear.is_some())
-                .map(|record| (record.id.clone(), load.magnitude.value))
+        .filter_map(|load| match target_acting(model, load) {
+            Some((record, _, Acting::Nonlinear)) => Some((record.id.clone(), load.magnitude.value)),
+            _ => None,
         })
         .collect()
 }
@@ -353,9 +448,11 @@ pub(crate) fn case_prescribed(
     let mut any = false;
     for load in &case.primitive_loads {
         let LoadTargetInput::Support { support, dof } = &load.target else { continue };
-        // R-b: a primitive on a nonlinear record moves that support's ground
-        // (`case_ground_motion`); it is not a rigid boundary value.
-        if model.supports.iter().any(|record| &record.id == support && record.nonlinear.is_some()) {
+        // Only a rigid target is a prescribed value. A nonlinear DOF's
+        // primitive moves its ground (`case_ground_motion`, R-b); every other
+        // target is refused by `validate` and, if reached, is a blocking
+        // finding below.
+        if matches!(target_acting(model, load), Some((_, _, Acting::Nonlinear))) {
             continue;
         }
         any = true;
@@ -366,8 +463,10 @@ pub(crate) fn case_prescribed(
             .and_then(|record| node_index.get(record.node.as_str()))
             .zip(parse_dof(dof).ok())
             .map(|(&node, dof)| node * DOF_PER_NODE + dof_index(dof));
+        let rigid = matches!(target_acting(model, load), Some((_, _, Acting::Rigid)));
         let code = match global {
             None => Some(SUPPORT_UNKNOWN),
+            Some(_) if !rigid => Some(SUPPORT_NOT_RIGID),
             Some(global) if !restrained_dofs.contains(&global) => Some(DOF_UNRESTRAINED),
             Some(global) if prescribed.contains_key(&global) => Some(DOF_DUPLICATE),
             Some(global) => {

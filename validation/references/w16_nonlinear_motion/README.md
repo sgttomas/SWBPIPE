@@ -94,6 +94,20 @@ s* = 5PL³/(48EI) = 2^-10 m; P follows exactly. A-2 uses d = 2^-12 m, P =
 δ0 = d* = PL³/(3EI) = 2^-10 m and g* = μ|P_y|L/(EA) = 2^-12 m (μ = 1/2);
 each P follows exactly.
 
+**R-d (a rigid restraint on a mixed nonlinear record moves; Design §10).** A
+record of family `nonlinear` assembles its rigid restraints as a guide, which
+holds translations only, so the moving restraint is translational and the
+nonlinear support rotational. The member runs along +X; the condensed tip
+coupling K[RY, UZ] is +6EI/L².
+
+| Request | Model | Cases | Closed form checked |
+|---|---|---|---|
+| `d1` | 4 m cantilever, midspan load −P; the tip record is a rotational lift-off on RY (contact for a positive moment) with rigid UY and UZ; the tip UZ base moves by −s | s = s*/2 (Active), 2s* (Inactive), s* (weak) | R = PL/8 − 6EI·s/L² = PL/16 with RY = 0 and UZ = −s; Inactive: R = 0, RY = 3(s − s*)/(2L) > 0; at s = s* both states are weak |
+| `d3` | `d1`'s record without UY; its own ground rotates by −g (R-b) and its rigid UZ moves by −s (R-d) | g alone, s alone, both (Active), and s = s* with g (Inactive) | R = PL/8 − 6EI·s/L² − 4EI·g/L; each motion is observable; Inactive: RY = 0, separation g |
+| `d1_translated` | the property: the anchor's and the mixed record's UY moved by t = 2^-8 m | as `d1` | states and reactions unchanged; every UY shifted by t |
+
+s* = PL³/(48EI) = 2^-10 m and g = 3s*/32 (4EI·g/L = PL/32); P follows exactly.
+
 **A-3's reduced closed form.** With K = [[a, b], [b, d]] the condensed
 stiffness on (n, t) = (tip UY, tip UX) and u_n = g_n:
 α = (a − b²/d)·g_n + (b/d)·f_t − f_n, γ = b/d, c_f = −dir·μ·β,
