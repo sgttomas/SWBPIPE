@@ -12,7 +12,7 @@
  * export, and it persists and sends nothing. */
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import type { MechanicsResult, PreviewModel } from "../../types";
 import { displayQuantityParts } from "../report/reportQuantityDisplay";
 import type { ResultOverlayStanding } from "./numericalHealth";
@@ -81,6 +81,45 @@ function unusedText(data: DisplacementExtremes): string | null {
   return parts.length > 0 ? `Movement rows not used: ${parts.join(", ")}.` : null;
 }
 
+const UNSEEN = Symbol("unseen");
+
+/** The panel's paging state. `seen` is the selection last taken up (`UNSEEN` before the first);
+ * `pending` is a selection whose page is still to be shown. `filter`, `sort` and `caseKeys` are the
+ * inputs the page was set under: a change to any of them returns to the first page. */
+type PagingState = Readonly<{
+  page: number;
+  filter: string;
+  sort: DisplacementSort;
+  caseKeys: readonly string[];
+  seen: string | null | typeof UNSEEN;
+  pending: string | null;
+}>;
+
+/** The paging state for this render's inputs; `state` itself when nothing changes.
+ * - A new filter, sort or case choice (or a new derivation, which makes new case keys) lists from
+ *   the first page.
+ * - A selection that changes, or any selection while the derivation is unavailable, is pending.
+ * - A pending selection moves to its node's page once its row can be shown: a result is available,
+ *   at least one admitted case is chosen and the filter lists the node. It is then taken up, and
+ *   paging is the user's until the next change above. */
+function nextPaging(state: PagingState, input: {
+  filter: string; sort: DisplacementSort; caseKeys: readonly string[]; selectedNodeId: string | null;
+  data: DisplacementExtremes; view: DisplacementExtremesView;
+}): PagingState {
+  let next = state;
+  if (state.filter !== input.filter || state.sort !== input.sort || state.caseKeys !== input.caseKeys) {
+    next = { ...next, page: 0, filter: input.filter, sort: input.sort, caseKeys: input.caseKeys };
+  }
+  const available = input.data.state === "available";
+  if (input.selectedNodeId !== next.seen || (!available && next.pending !== input.selectedNodeId)) {
+    next = { ...next, seen: input.selectedNodeId, pending: input.selectedNodeId };
+  }
+  const target = next.pending;
+  if (target === null || !available || input.view.chosenCases.length === 0) return next;
+  const at = input.view.rows.findIndex((row) => row.nodeId === target);
+  return at < 0 ? next : { ...next, pending: null, page: Math.floor(at / DISPLACEMENT_EXTREMES_PAGE) };
+}
+
 export function DisplacementExtremesPanel({
   model, result, standing, selectedNodeId = null, onSelectNode, testIdPrefix = "displacement-extremes"
 }: DisplacementExtremesPanelProps) {
@@ -88,29 +127,19 @@ export function DisplacementExtremesPanel({
   const [unchosen, setUnchosen] = useState<ReadonlySet<string>>(() => new Set());
   const [filter, setFilter] = useState(FILTER_ALL);
   const [sort, setSort] = useState<DisplacementSort>("model");
-  const [page, setPage] = useState(0);
   const caseKeys = useMemo(() => data.cases.filter((item) => item.choosable && !unchosen.has(item.key)).map((item) => item.key), [data, unchosen]);
   const view = useMemo(() => displacementExtremesView(data, { caseKeys, filter, sort }), [data, caseKeys, filter, sort]);
+  // Paging and the selection's page are state adjusted during render, not effects: under React's
+  // development effect replay (StrictMode mount, Activity re-show) an effect would run again
+  // without its state being reset, and a remount starts from fresh state that re-derives the same
+  // result. `nextPaging` is a pure function of the stored state and this render's inputs, and the
+  // state is set only when it differs, so a repeated render settles at once (no loop).
+  const [paging, setPaging] = useState<PagingState>(() => ({ page: 0, filter, sort, caseKeys, seen: UNSEEN, pending: null }));
+  const next = nextPaging(paging, { filter, sort, caseKeys, selectedNodeId, data, view });
+  if (next !== paging) setPaging(next);
+  const setPage = (page: number) => setPaging((current) => ({ ...current, page }));
   const pageCount = Math.max(1, Math.ceil(view.rows.length / DISPLACEMENT_EXTREMES_PAGE));
-  const shownPage = Math.min(page, pageCount - 1);
-  // A new filter, sort or case choice lists from the first page again.
-  useEffect(() => setPage(0), [filter, sort, caseKeys]);
-  // The session's selected node moves the panel to its page once each time the selection changes.
-  // The move waits until the node's row can be shown (a result with an admitted chosen case, and
-  // the node listed under the filter); while there is no result it stays pending, so a result that
-  // arrives later shows the selection's page. Once applied, paging is the user's again.
-  const seenSelection = useRef<string | null>(null);
-  const pendingSelection = useRef<string | null>(null);
-  useEffect(() => {
-    if (selectedNodeId !== seenSelection.current || data.state !== "available") pendingSelection.current = selectedNodeId;
-    seenSelection.current = selectedNodeId;
-    const target = pendingSelection.current;
-    if (target === null || data.state !== "available" || view.chosenCases.length === 0) return;
-    const at = view.rows.findIndex((row) => row.nodeId === target);
-    if (at < 0) return;
-    pendingSelection.current = null;
-    setPage(Math.floor(at / DISPLACEMENT_EXTREMES_PAGE));
-  }, [selectedNodeId, data, view]);
+  const shownPage = Math.min(next.page, pageCount - 1);
   const tid = (suffix: string) => `${testIdPrefix}-${suffix}`;
   const health = standing?.health ?? null;
   const first = shownPage * DISPLACEMENT_EXTREMES_PAGE;

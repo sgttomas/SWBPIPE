@@ -178,8 +178,16 @@ Until then the selection stays pending. A selection made before results exist, o
 filter hides the node or no case is chosen, therefore shows its page when the row appears. While
 the derivation is unavailable (no result, mechanics not solved, no nodes or no movement rows),
 the session's selection is held pending again, so a result that returns shows its selection's
-page. Once the move is made, paging is the user's: only a new selection, or a result that
-returns after none was available, moves the page to the selection again.
+page. A panel that is shown again (a historical run hidden and shown) starts with its selection
+pending. Once the move is made, paging is the user's: only a new selection, a result that
+returns after none was available, or the panel being shown again moves the page to the
+selection again.
+
+The page, the pending selection and the inputs the page was set under are one state, adjusted
+during render by a pure function of that state and the render's inputs, and set only when it
+differs. No effect or ref carries them, so React's development effect replay (StrictMode's mount,
+unmount and mount, or an Activity shown again) neither loses a pending selection nor resets the
+user's page, and a repeated render settles at once.
 
 The derivation is linear in the result-row count R: it scans `result.results` for movement rows,
 `supportLoadCases` scans them again for the case list, and the kept movement rows are then
@@ -278,7 +286,10 @@ no limit and compares nothing with one, and it writes nothing.
   selecting a node by click and keyboard; the selected-node mark and its page; a selection made
   before results exist (a 123-node model then shows nodes 101–123), changed while results are
   absent, hidden by the filter or made while no case is chosen, each shown when its row appears;
-  manual paging kept after the move; a custom test-id prefix; and one derivation per input identity.
+  manual paging kept after the move; under StrictMode, the selected node's page on mount, again
+  after the panel is hidden and shown, and in the mount's one commit, and manual paging kept
+  across an Activity hidden and shown; a custom test-id prefix; and one derivation per input
+  identity.
 - `apps/desktop/src/features/report/springHangerSupport.test.ts` pins the shared hanger rule over
   every schema `SupportFamily` value and an absent, null, empty and unknown family, crossed with
   every `SpringHanger.hanger_type` value, no hanger record, a record without a type and an empty
