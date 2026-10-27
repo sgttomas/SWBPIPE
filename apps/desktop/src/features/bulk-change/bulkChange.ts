@@ -158,6 +158,33 @@ function sameSet(a: readonly string[], b: readonly string[]): boolean {
   return left.size === right.size && [...left].every((dof) => right.has(dof));
 }
 
+/** What `delete_support` refuses on (operation_applier lib.rs `resolve_delete_support`,
+ * OP-SUPPORT-DELETE-REFERENCED), in its order: primitive loads targeting the support, supports
+ * naming it as their normal-reaction source, and load-case `analysis_state.support_states`
+ * entries naming it (load_state_authoring.rs `support_references`). Keep the two in step. */
+export function supportDeleteReferences(model: PreviewModel, supportId: string): string[] {
+  const references: string[] = [];
+  const cases = (model.load_cases ?? []) as unknown as Array<Record<string, unknown>>;
+  for (const loadCase of cases) {
+    const loads = Array.isArray(loadCase.primitive_loads) ? (loadCase.primitive_loads as Array<Record<string, unknown>>) : [];
+    for (const load of loads) {
+      const target = load.target && typeof load.target === "object" ? (load.target as Record<string, unknown>) : null;
+      if (target?.support === supportId) references.push(typeof load.id === "string" ? load.id : "primitive_load:unknown");
+    }
+  }
+  for (const other of model.supports) {
+    if (other.nonlinear?.normal_reaction_source?.support_ref === supportId) references.push(typeof other.id === "string" ? other.id : "unknown nonlinear support");
+  }
+  for (const loadCase of cases) {
+    const state = loadCase.analysis_state && typeof loadCase.analysis_state === "object" ? (loadCase.analysis_state as Record<string, unknown>) : null;
+    const states = Array.isArray(state?.support_states) ? (state!.support_states as Array<Record<string, unknown>>) : [];
+    states.forEach((entry, index) => {
+      if (entry?.support_ref === supportId) references.push(`${typeof loadCase.id === "string" ? loadCase.id : "load_case:unknown"}.analysis_state.support_states.${index}.support_ref`);
+    });
+  }
+  return references;
+}
+
 /** The change's plan over the scope. Pure: it reads the model and writes nothing. */
 export function planBulkChange(model: PreviewModel, scope: readonly EntityRef[], request: BulkChangeRequest): BulkChangePlan {
   const plan: BulkChangePlan = { requestError: null, affected: [], unchanged: [], notMatched: [], refused: [] };
@@ -206,8 +233,8 @@ export function planBulkChange(model: PreviewModel, scope: readonly EntityRef[],
           continue;
         }
         if (!replace) {
-          const dependent = model.supports.find((other) => other.id !== support.id && other.nonlinear?.normal_reaction_source?.support_ref === support.id);
-          if (dependent) { plan.refused.push({ ref, reason: `Support ${dependent.id} names ${support.id} as its normal-reaction source.` }); continue; }
+          const references = supportDeleteReferences(model, support.id);
+          if (references.length) { plan.refused.push({ ref, reason: `Support ${support.id} is still referenced by ${references.join(", ")}; delete or retarget them first.` }); continue; }
           plan.affected.push({ ref, before: supportSummary(family, support.restraints), after: "removed" });
           continue;
         }

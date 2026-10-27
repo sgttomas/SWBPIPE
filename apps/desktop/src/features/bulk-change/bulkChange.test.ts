@@ -145,10 +145,22 @@ describe("family-aware validation", () => {
   it("refuses removal of a normal-reaction source and a realized bend's radius", () => {
     const withSource = bulkChangeModel();
     withSource.supports.push({ id: "support:F", label: "Friction", node: "node:B", restraints: [], nonlinear: { behavior: "friction", dof: "UX", normal_reaction_source: { support_ref: "support:B", dof: "UY" } }, provenance: "x" } as never);
-    expect(planBulkChange(withSource, [support("support:B")], { kind: "support-remove", family: "guide" }).refused[0].reason).toBe("Support support:F names support:B as its normal-reaction source.");
+    expect(planBulkChange(withSource, [support("support:B")], { kind: "support-remove", family: "guide" }).refused[0].reason).toBe("Support support:B is still referenced by support:F; delete or retarget them first.");
     const radius = planBulkChange(model, [pipe("pipe:P3")], { kind: "bend-radius", value: "3", unit: "m" });
     expect(radius.refused.map((entry) => entry.ref.id)).toEqual(["component:BEND-R"]);
     expect(radius.notMatched.map((entry) => entry.ref.id)).toEqual(["component:VALVE-C"]);
+  });
+
+  it("refuses removal on the applier's whole reference set, in its order", () => {
+    const referenced = bulkChangeModel();
+    referenced.load_cases[0] = { ...referenced.load_cases[0],
+      primitive_loads: [{ id: "load:settle-B", target: { type: "support", support: "support:B", dof: "UZ" } }],
+      analysis_state: { support_states: [{ support_ref: "support:C" }, { support_ref: "support:B" }] } } as never;
+    referenced.supports.push({ id: "support:F", label: "Friction", node: "node:B", restraints: [], nonlinear: { behavior: "friction", dof: "UX", normal_reaction_source: { support_ref: "support:B", dof: "UY" } }, provenance: "x" } as never);
+    expect(planBulkChange(referenced, [node("node:B"), node("node:C")], { kind: "support-remove", family: "guide" }).refused.map((entry) => entry.reason)).toEqual([
+      "Support support:B is still referenced by load:settle-B, support:F, case:w.analysis_state.support_states.1.support_ref; delete or retarget them first.",
+      "Support support:C is still referenced by case:w.analysis_state.support_states.0.support_ref; delete or retarget them first."
+    ]);
   });
 
   it("sorts reached entities into unchanged and not matched without refusing them", () => {

@@ -51,6 +51,11 @@ Each change reads the scope in its own family:
 
 Each entity reached once is listed once, in selection order.
 
+Keyboard focus on an engineering-table cell makes that cell's row the table's
+selection, as the table already does. "Change selected…" opened from a cell
+therefore acts on that one row. The row headers, the tree, the bulk grid and
+the viewport leave a multiple selection as it is.
+
 ## Family-aware validation
 
 Every entity reached falls into one of four lists:
@@ -73,8 +78,20 @@ Every entity reached falls into one of four lists:
     `hanger`, non-null `nonlinear`, `properties` or a `boundary_association`.
     Replacing its kind would discard data that the Support configuration form
     and Boundary authoring own, so it is changed there, one support at a time.
-  - Remove a support kind: a matched support that another support names as
-    its normal-reaction source, or that has a boundary association.
+  - Remove a support kind: a matched support with a boundary association, or
+    one that something still references. The references are the set the
+    applier's `delete_support` refuses on (`OP-SUPPORT-DELETE-REFERENCED`), in
+    its order:
+    - primitive loads that target the support;
+    - supports that name it as their normal-reaction source;
+    - load-case `analysis_state.support_states` entries that name it.
+
+    The reason names each reference. `supportDeleteReferences` in
+    `bulkChange.ts` mirrors `resolve_delete_support` in the applier's `lib.rs`
+    and `support_references` in `load_state_authoring.rs`, so a change to one
+    needs the same change to the other. It reads the model the plan was made
+    from, so a reference is refused even when the referencing entity is
+    removed in the same request.
   - Bend radius: a realized bend (`mechanics_interface.solver_consumption`
     `curved_bend_macro_element`). Its radius forms the arc between fixed
     tangent nodes, so it is changed in the inspector, one bend at a time.
@@ -85,8 +102,7 @@ a unit, and a tag must be non-empty, trimmed and at most 64 characters (the
 document's Tags rule).
 
 The applier still judges every operation when the batch is validated or
-applied, for example a stale shared-section cache or a primitive load that
-names a support being removed. Its findings appear in Batch review. The
+applied, for example a stale shared-section cache. Its findings appear in Batch review. The
 desktop checks above are a first refusal, not a replacement.
 
 ## No inferred restraints
@@ -192,8 +208,9 @@ panel shows the scope as the selection count.
   - a radius entered in millimetres or inches is written and stored as
     entered, unconverted, in the inspector field's shape;
   - an absent radius has the `TBD` before and applies;
-  - a normal-reaction source is refused before queuing;
-  - a support a primitive load names is queued, and the applier blocks it
+  - a normal-reaction source, and a support a primitive load targets, are
+    refused before queuing, with the reference named;
+  - the same removal queued by another route is blocked by the applier
     (`OP-SUPPORT-DELETE-REFERENCED`), leaving the model unchanged;
   - "Keep each support's restraints" writes them exactly.
 - `features/bulk-change/BulkChangeMenus.test.tsx`: Change selected… in the

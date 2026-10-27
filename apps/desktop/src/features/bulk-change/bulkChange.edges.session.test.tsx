@@ -4,7 +4,8 @@
  *   shape the inspector's Bend radius field writes;
  * - an absent radius has the `TBD` before the applier expects;
  * - a support that a load or another support names is not removed: the planner refuses a
- *   normal-reaction source before queuing, and the applier blocks a loaded support's batch;
+ *   normal-reaction source or a primitive load target before queuing, mirroring the applier's
+ *   OP-SUPPORT-DELETE-REFERENCED, which still blocks such a removal queued by another route;
  * - "Keep each support's restraints" writes the support's own restraints exactly. */
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -13,6 +14,7 @@ import { canonicalJsonString, computeModelHash } from "../../services/hashServic
 import { bulkChangeModel } from "../../test-support/bulkChangeModel";
 import type { EntityRef, PreviewModel } from "../../types";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
+import { buildDeleteSupportIntent } from "../model-tree/removalIntents";
 import { buildBulkChangeBatch, planBulkChange, type BulkChangeRequest } from "./bulkChange";
 
 async function session(model: PreviewModel) {
@@ -86,20 +88,34 @@ describe("a support another entity names is not removed", () => {
     const scope: EntityRef[] = [{ type: "node", id: "node:B" }];
     const request: BulkChangeRequest = { kind: "support-remove", family: "guide" };
     expect(planBulkChange(result.current.model.model!, scope, request).refused).toEqual([
-      { ref: { type: "support", id: "support:B" }, reason: "Support support:F names support:B as its normal-reaction source." }]);
+      { ref: { type: "support", id: "support:B" }, reason: "Support support:B is still referenced by support:F; delete or retarget them first." }]);
     await expect(buildBulkChangeBatch(result.current.model.model!, scope, request, canonicalJsonString, "bulk-refused")).rejects.toThrow("Nothing is queued while any entity is refused.");
     expect(result.current.operations.queuedBatches).toHaveLength(0);
   });
 
-  it("the applier blocks a loaded support's removal with its reason, and the whole batch leaves the model unchanged", async () => {
+  it("the planner refuses a support a primitive load targets, naming the load, so nothing is queued", async () => {
     const model = bulkChangeModel();
     model.load_cases[0].primitive_loads = [{ id: "load:settle-C", category: "imposed_displacement", target: { type: "support", support: "support:C", dof: "UZ" },
       direction: "UZ", magnitude: { value: -0.006, unit: "m" }, dimension: "displacement", provenance: "invented" }] as never;
     const result = await session(model);
+    const scope: EntityRef[] = [{ type: "node", id: "node:B" }, { type: "node", id: "node:C" }];
+    const request: BulkChangeRequest = { kind: "support-remove", family: "guide" };
+    const plan = planBulkChange(result.current.model.model!, scope, request);
+    expect(plan.affected.map((entry) => entry.ref.id)).toEqual(["support:B"]);
+    expect(plan.refused).toEqual([
+      { ref: { type: "support", id: "support:C" }, reason: "Support support:C is still referenced by load:settle-C; delete or retarget them first." }]);
+    await expect(buildBulkChangeBatch(result.current.model.model!, scope, request, canonicalJsonString, "bulk-refused")).rejects.toThrow("Nothing is queued while any entity is refused.");
+    expect(result.current.operations.queuedBatches).toHaveLength(0);
+
+    // Second guard: the same removal queued by another route is blocked by the applier with
+    // the reference the planner names, and the whole batch leaves the model unchanged.
     const original = structuredClone(result.current.model.model!);
     const originalHash = (await computeModelHash(original))!.value;
-    const { batch, outcome } = await queueValidate(result, [{ type: "node", id: "node:B" }, { type: "node", id: "node:C" }], { kind: "support-remove", family: "guide" });
-    expect(batch.operations.map((operation) => operation.target.ref)).toEqual(["support:B", "support:C"]);
+    const supports = original.supports.filter((support) => support.id === "support:B" || support.id === "support:C");
+    await act(async () => { await result.current.operations.handleQueueOperationBatch({ batch_id: "other-route", operations: supports.map((support) => buildDeleteSupportIntent(support, original)) }); });
+    const entry = result.current.operations.queuedBatches[0];
+    await act(async () => { await result.current.operations.handleRunOperationBatch(entry, false); });
+    const outcome = result.current.operations.batchOutcomes[entry.key];
     expect(outcome.validation.batch_validation_status).toBe("blocked");
     expect(blockingCodes(outcome)).toContain("OP-SUPPORT-DELETE-REFERENCED");
     expect(JSON.stringify(outcome)).toContain("Support `support:C` is still referenced by primitive loads: load:settle-C.");
