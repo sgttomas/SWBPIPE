@@ -29,9 +29,25 @@ Agent 0 (HELP_HUMAN) decided this change under that delegation on 2026-10-27. Ag
 
 ## What enters scope, and what does not
 
-- **In scope:** modal analysis of the linear model: the generalized eigenproblem of the restraint-reduced stiffness and a mass matrix on the self-weight basis. A mode count, a frequency cut-off or both is required as user input, with no default. Each mode's frequency, period, mass-normalized shape, translational participation factors and effective masses are published. Each extracted set gets integrity checks, a Sturm count for completeness among them, and the result refuses by name what it does not admit. The domain, decisions and sequence are in DEL-04-09's ScopeOfWork and Design.
+- **In scope:** modal analysis of the linear model: the generalized eigenproblem of the restraint-reduced stiffness and a mass matrix on the self-weight basis. A mode count, a frequency cut-off or both is required as user input, with no default. Each mode's frequency, period, shape normalized to unit maximum translation, generalized mass, translational participation factors and effective masses are published. Each extracted set gets integrity checks, a Sturm count for completeness among them, and the result refuses by name what it does not admit. The domain, decisions and sequence are in DEL-04-09's ScopeOfWork and Design.
 - **Not in this amendment:** response spectrum (F2), time history (F3), harmonic analysis and every other dynamic module. They stay deferred under DEC-078. Rotational participation, nonlinear supports linearized at a static state, Timoshenko mass (M4) and a concentrated-mass model field are later slices or later changes.
 - **Unchanged:** every other scope item, Deliverable mapping, dependency meaning and lifecycle state. The kernel, element, support, diagnostics, self-weight, component and solve-integration Deliverables keep their scope and are DEL-04-09's declared inputs. No lifecycle, release-readiness, professional, certification or code-compliance claim follows.
+
+## Priority
+
+FR-024 (v0.1, dynamic analysis modules) was **Could** (`execution/_Coordination/_DECISIONS/D-12_fr024_fr025_disposition.md`, v0.1 FR text). FR-SOL-016 is **Should**. The change is deliberate: modal analysis is a baseline capability of the industry tools named in the owner's hill-climb steer ("on par with or considered superior to CAEPIPE and other industry standard applications"), so it is prioritized above the other deferred dynamics, which keep FR-024's standing. The priority is part of Agent 0's scope decision under the owner's delegation; Agent 0 kept it as recorded on 2026-10-27, after the independent review raised it.
+
+## Published benchmarks and the data boundary
+
+PRD §12.9 requires comparison with published piping benchmarks. An earlier premise of this decision, that NUREG/CR reports are US-government works, was too broad. Agent 0 replaced it on 2026-10-27:
+
+> "Confirmed: the per-report condition. My premise was too broad. NRC sponsorship doesn't by itself make a contractor-authored NUREG/CR a US-government work. So:
+> - Transcribe from a report only with that report's own redistribution evidence (its rights statement and NRC distribution terms), recorded per fixture.
+> - Hold any report with uncertain rights for owner review, per IP_AND_DATA_BOUNDARY.
+> - Prefer sources whose rights are clear: original closed-form benchmarks we derive ourselves, and textbook formulas restated in our own words with citation.
+> - FR-SOL-016 stays partial until at least one published piping benchmark is compared with that evidence. Agreed."
+
+DEL-04-09's ScopeOfWork (REQ-009, REQ-010) and Design §4.4 carry it. The review of any held report is the owner's (`docs/IP_AND_DATA_BOUNDARY.md`).
 
 ## Consumer
 

@@ -524,7 +524,7 @@ Key needs:
 | FR-SOL-013 | Support expansion joints | Should | Expansion joints accept stiffnesses, effective pressure area, movement limits, and manufacturer provenance. |
 | FR-SOL-014 | Support nonlinear restraints | Should | Gaps, one-way supports, lift-off, and friction converge on validation cases and report diagnostics. |
 | FR-SOL-015 | Report numerical diagnostics | Must | Solver reports singularities, ill-conditioning, residuals, convergence issues, and invalid elements. |
-| FR-SOL-016 | Support modal analysis | Should | Natural frequencies, mass-normalized mode shapes, participation factors and effective masses of the linear model are computed on its self-weight mass basis from a user-entered mode count or frequency cut-off, each extracted set is checked for completeness, and closed-form modal benchmarks pass (§12.9). |
+| FR-SOL-016 | Support modal analysis | Should | Natural frequencies, normalized mode shapes with their generalized masses, participation factors and effective masses of the linear model are computed on its self-weight mass basis from a user-entered mode count or frequency cut-off, each extracted set is checked for completeness, closed-form modal benchmarks pass, and at least one published piping benchmark with recorded redistribution evidence is compared (§12.9). |
 
 ### 11.5 Rule-Pack and Private Data Requirements
 
@@ -801,11 +801,11 @@ Where its retained-precision method establishes them, the engine shall publish v
 The engine shall compute the natural frequencies and mode shapes of the linear model of §12.1 about its unloaded configuration:
 
 - solve the generalized eigenproblem of the restraint-reduced stiffness and a mass matrix on the self-weight basis: the pipe metal, contents and insulation mass from the user-entered section data, and the user-entered weights of rigid and semi-rigid components at their centres of gravity, converted to mass by a user-entered acceleration; no mass or acceleration is defaulted;
-- take a number of modes, a frequency cut-off or both as a required user input, with no default, and stop at whichever is reached first;
-- publish each mode's frequency, period and mass-normalized shape, its translational participation factors and effective masses, and the model's total and participating mass;
-- check each extracted set with a residual bound per mode, mass orthogonality and a Sturm count showing that no mode below the extraction bound is missing, and refuse a set whose count disagrees;
+- take a number of modes, a frequency cut-off or both as a required user input, with no default; report the lowest modes up to whichever bound is reached first, the cut-off inclusive, extending the set only to complete a group of equal eigenvalues at the boundary and disclosing that extension;
+- publish each mode's frequency, period and shape normalized to unit maximum translation, its generalized mass, its translational participation factors and effective masses, and the model's total and participating mass, each in a unit of the unit catalog;
+- check each extracted set with a residual bound per mode, mass orthogonality and a Sturm count showing that no mode within the reported interval is missing, and refuse a set whose count disagrees;
 - refuse by name what it does not admit, such as nonlinear supports, rather than linearizing it silently;
-- reproduce closed-form beam, rod and ring frequencies, and compare with published piping benchmarks at a stated tolerance.
+- reproduce closed-form beam, rod and ring frequencies, and compare with at least one published piping benchmark, transcribed only with that source's own redistribution evidence, at a stated tolerance, as comparison evidence.
 
 Response-spectrum, harmonic and time-history analysis are not required. A modal result is a numerical statement about the discrete model: it establishes neither physical correctness nor a code-compliance determination (§21.2).
 
