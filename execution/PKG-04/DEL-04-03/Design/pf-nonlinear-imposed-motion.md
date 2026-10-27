@@ -1,6 +1,6 @@
 # Imposed displacement with nonlinear supports (stage 2)
 
-**Status.** Stage 2 is built: R-a and R-b (§9), and R-d (§10). In a model with nonlinear
+**Status.** Stage 2 is built: R-a and R-b (§9), R-d (§10) and R-c (§11). In a model with nonlinear
 supports, the pressure-free route carries a stage-1 primitive on a rigid
 anchor or restraint into the nonlinear active-set loop and its K-D5
 confirmation as a base prescribed value (R-a), and a primitive on a nonlinear
@@ -11,8 +11,9 @@ support publishes a relative-displacement observation row.
 
 **The former open items** (Agent 0, under the owner's delegation of
 2026-10-27). R-d, a rigid restraint on a mixed nonlinear record moving, is
-built (§10). R-c, a linear spring's moving base, lands in a stacked PR; until
-then `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` refuses it (§3.3).
+built (§10). R-c, a linear spring's moving base, is built (§11). Only a
+constant-effort record stays refused as a target
+(`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`).
 
 This design extends imposed displacement on the pressure-free route (PF) to
 models with nonlinear supports: gap, one-way, lift-off and friction. It is
@@ -109,7 +110,8 @@ the R-b target refusal, and adds no relative row.
 5. **Reported reactions.** These (~1732-1742, ~2070-2074) are unchanged in
    form. u carries g on the constrained set C, so K·u includes K_·C·g. At an
    active R-b support with a parallel spring on a separate record, the
-   reaction includes k·g_s, because that spring's ground stays fixed.
+   reaction includes k·(g_s − g_k), with g_k that spring's base motion (0
+   unless the case moves it, §11).
 6. **Strict-gap proof** (`structural_adapter.rs` ~2819-2987).
    - R-a needs no change: the exact system takes the boundary map.
    - R-b passes σ·p_s = c + σ·g_s as the clearance to the gap proof
@@ -122,8 +124,9 @@ the R-b target refusal, and adds no relative row.
    ~6918-6929) receives the case's base motion from the PF map (~5006-5009)
    and the R-b ground map, and fills both input fields (~6963-6979).
    `imposed_motion::case_prescribed` (~204-244) separates R-b entries from
-   rigid DOFs. Motion is never a force: the loop force still equals the
-   ledger bit for bit (NI ~555-572).
+   rigid DOFs. Rigid prescribed values and nonlinear-ground offsets add no
+   load term. R-c adds each nonzero spring-base term k·g; the loop force
+   equals the complete ledger bit for bit.
 
 ## 2. The K-D5 certificate
 
@@ -146,7 +149,8 @@ These are revision-2 changes to DEL-04-01 `kd5-nonlinear-active-set.md`.
   (`confirmation.rs` ~583-590). An influence system that carries g_C is a
   mutant and is tested as one.
 - **§1.6 load closure.** "Prescribed values 0" becomes "prescribed values
-  u_C = (g_B, p_A)". No ledger term is added.
+  u_C = (g_B, p_A)". R-a, R-b and R-d add no ledger term; R-c adds the
+  spring-base term defined in §11.1.
 - **§2.2 strict conditions.** Every reaction, friction-normal and stick-margin
   condition is unchanged. These are shifted:
 
@@ -205,17 +209,17 @@ The order is: dimensional checks first, then each operand normalized
 independently by the same path the solve uses (PP `lib.rs` ~9265, ~9704), then
 these checks on the canonical binary64 values:
 - `IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH` applies when a nonlinear
-  record's target DOF is neither its nonlinear DOF, its spring DOF nor one of
-  its rigid restraints. Until R-c, a spring DOF keeps
-  `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`.
+  record's target DOF is neither its nonlinear DOF, its admitted spring DOF
+  nor one of its rigid restraints.
 - `IMPOSED_DISPLACEMENT_GAP_CLOSURE_INEXACT`: the normalized c + σ·g_s is not
   finite, or has a nonzero TwoSum residual. A rounded closing position is never
   used silently. Checking authored magnitudes would be wrong: 1 m + 1 in is
   exact as authored numbers, but 1.0 + 0.0254 is inexact in SI binary64.
 - `IMPOSED_DISPLACEMENT_COINCIDENT_RESTRAINT`: extended to another nonlinear
   support acting on the same node DOF.
-- `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` is kept for a spring on the same
-  nonlinear record. Moving that support's ground would also move the spring's.
+- A spring and nonlinear law may share a record only on disjoint DOFs (§10.1).
+  A primitive on the nonlinear DOF moves only that ground, and a primitive on
+  the spring DOF moves only the spring's base (R-c, §11).
 
 Friction tangential motion needs no refusal. Neither does a moving
 derived-normal source, which is R-a on a rigid restraint, carried by R_n.
@@ -227,8 +231,7 @@ Rigid restraints cannot overlap a nonlinear DOF
 - **Linear springs with a moving base (R-c).** The force k(u − g) adds a
   formed load k·g. That needs a new ledger term, a K-D5 closure term in FK and
   the same change on the linear route, so it is not a prescribed value and
-  does not fall out of this formulation. It lands in a stacked PR; until then
-  `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` stays.
+  does not fall out of this formulation. Built (§11).
 - **The rigid restraints on a mixed nonlinear record (R-d).** Built (§10).
 
 ## 4. Publication
@@ -351,8 +354,9 @@ criterion is the K-D5 ball bound, or 1e-9 relative for gap projections.
 translational DOFs, chosen so that every translated input stays exactly
 representable, moving every relevant ground (anchors and
 nonlinear grounds) with it. States and reactions are then unchanged and u
-shifts by t. Models with a fixed-ground parallel spring are excluded, because
-that spring's ground does not move under this scope.
+shifts by t. Every spring base on the translated axis moves with it (R-c,
+§11). A spring whose base is held while everything else moves is the B-1
+spring twin, not an instance of the property.
 
 **Exact boundaries.** Each boundary case is an exact boundary of the system
 formed from the normalized binary64 leaves. A rounded analytical threshold is
@@ -446,8 +450,9 @@ In DEL-04-07 `Design/pressure-contract.md`, the stage-2 bullet becomes:
 > primitive on a nonlinear support's own DOF moves that support's ground: gap
 > closure, lift-off and friction slip are measured on the displacement relative
 > to the moved ground, and an active or sticking state prescribes the moved
-> ground (plus or minus the clearance for a gap). Linear springs with a moving
-> base stay refused until R-c lands. (R-d) A primitive on a mixed nonlinear
+> ground (plus or minus the clearance for a gap). (R-c) A primitive on a
+> linear spring's DOF moves its base; the case gains k·g and the spring
+> publishes −k·(u−g). (R-d) A primitive on a mixed nonlinear
 > record's rigid restraint prescribes that restraint's base value. Design:
 > DEL-04-03 `Design/pf-nonlinear-imposed-motion.md`,
 > with dual numerical review and its own benchmarks; R-b may land as a later
@@ -499,9 +504,9 @@ In DEL-04-07 `Design/pressure-contract.md`, the stage-2 bullet becomes:
 - **PP.** `imposed_motion.rs`: the R-b checks (§3.2) after the dimensional
   check, on the operands normalized by the solve's own path;
   `case_ground_motion` feeds the loop, and `case_prescribed` no longer sees
-  nonlinear targets. R-d rigid targets enter the prescribed map; until R-c, a
-  spring DOF keeps `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`; other non-acting
-  DOFs retain `IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH`.
+  nonlinear targets. R-d rigid targets enter the prescribed map; admitted
+  spring targets enter the spring-base map; other non-acting DOFs retain
+  `IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH`.
 - **Publication (a reading).** `nonlinear_support_final_relative_displacement`
   rows are appended after the published displacements are formed, one per
   ground entry. The K-D5 evidence clause is appended only to a case that
@@ -525,7 +530,7 @@ In DEL-04-07 `Design/pressure-contract.md`, the stage-2 bullet becomes:
 ## 10. R-d: the rigid restraints of a mixed nonlinear record
 
 Agent 0 adopted R-d with R-c on 2026-10-27, under the owner's delegation. R-c,
-a linear spring's moving base, lands in a stacked PR. Both are pressure-free
+a linear spring's moving base, is built (§11). Both are pressure-free
 only. The exact route keeps refusing every support-targeted primitive, and its
 `boundary_motion` law stays rigid-only.
 
@@ -537,11 +542,7 @@ A support record acts on each DOF in at most one way, decided per DOF:
   support's ground g_s (R-b).
 - **spring:** the stiffness axis of a `spring` or `variable_spring_hanger`
   record, chosen as PP `build_model` chooses it (the stiffness DOF, else the
-  first restraint). Until R-c, spring-family records without a nonlinear
-  field remain refused on every DOF; those with a nonlinear field remain
-  refused on their spring axis and nonlinear DOF. These targets receive
-  `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`. A non-acting DOF on a nonlinear
-  record receives `IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH`.
+  first restraint). A primitive moves the spring's base g_k (R-c, §11).
 - **rigid:** every other DOF in `restraints` of a record that is neither a
   spring family nor a constant-effort device. This includes a mixed nonlinear
   record. A primitive prescribes the base value g_b (stage 1, R-a, R-d).
@@ -551,10 +552,10 @@ A primitive moves the base of the one action it names and never another DOF
 of the record.
 
 Constant-effort records remain refused as motion targets, including records
-carrying a nonlinear field. Validation and both case resolvers classify the
-target DOF: only rigid targets enter `case_prescribed`, and only nonlinear
-targets enter `case_ground_motion`. Stage 1's record-level `is_rigid` still
-admits records without a nonlinear field.
+carrying a nonlinear field. Validation and all three case resolvers classify
+the target DOF: only rigid targets enter `case_prescribed`, only nonlinear
+targets enter `case_ground_motion`, and only spring targets enter the
+spring-base map.
 
 A spring and nonlinear law may share a record only on disjoint DOFs, using a
 supported spring family. Same-DOF spring/nonlinear action requires separate
@@ -589,7 +590,7 @@ coincident-restraint count, so a coincidence there fell to the generic
 
 | Code | R-d |
 |---|---|
-| `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` | Retired for a mixed record's rigid restraints. It still covers a constant-effort record (a nonlinear field included) on any DOF. Until R-c, spring-family records without a nonlinear field remain refused on every DOF; those with a nonlinear field remain refused on their spring axis and nonlinear DOF. These targets receive `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`. |
+| `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` | Retired for a mixed record's rigid restraints (R-d) and for a spring or hanger axis (R-c, §11). It still covers a constant-effort record (a nonlinear field included) on any DOF. |
 | `IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH` | as §3.2 |
 | `IMPOSED_DISPLACEMENT_COINCIDENT_RESTRAINT` | A rigid target counts every rigid restraint on its node DOF, a mixed record's included, and is named ahead of the generic repeated-DOF refusal. A nonlinear target keeps R-b's check. |
 | `IMPOSED_DISPLACEMENT_DOF_DUPLICATE` | Duplicates are checked per base: (node, DOF) for rigid targets and (support, DOF) for spring and nonlinear targets. |
@@ -634,8 +635,8 @@ restraints as rigid DOFs, and routes a primitive by its target DOF.
   - the mixed record's UZ coincident with a second rigid UZ, targeting either
     record (`COINCIDENT_RESTRAINT`, not the generic refusal);
   - a constant-effort record carrying a nonlinear field (`SUPPORT_NOT_RIGID`);
-  - a spring-family nonlinear record's spring axis (`SUPPORT_NOT_RIGID`, until
-    R-c);
+  - At the R-d layer, a spring-family nonlinear record's spring axis was
+    refused with `SUPPORT_NOT_RIGID`; R-c retires this refusal (§11).
   - a restraint overlapping the nonlinear DOF
     (`SUPPORT_LINEAR_NONLINEAR_DOF_CONFLICT`, unchanged).
 - **Byte identity.**
@@ -678,3 +679,192 @@ list, not a complete registration.
   - `ordinary_caps.py`.
   On the branch the W16 pricing guard reports the change ("imposed_motion.rs
   changed; re-review the owners it prices"). That is left for D3.
+
+## 11. R-c: a linear spring with a moving base
+
+### 11.1 Mechanics
+
+A spring of stiffness k between DOF d and a base displaced by g acts on the
+pipe with −k(u_d − g). The global system gains the load k·g at d:
+
+  K·u = f + k·g·e_d,
+
+with K unchanged; k stays on K's diagonal.
+
+**Where the term goes.**
+- **Linear route.** The term joins the case force before the partitioned
+  reduction, so a spring at a free DOF gives
+  K_ff·u_f = f_f + k·g·e_f − K_fc·g_c. A spring at a rigidly prescribed DOF
+  changes only that DOF's reaction. Superposition holds, so linear
+  combinations take spring-motion cases under their existing gates.
+- **With nonlinear supports.** The term reaches the loop through the same
+  force. The loop's force must equal the ledger bit for bit (NI ~555-572), so
+  the loop, its qualification and its strict-gap proof need no change.
+- **A spring sharing a DOF with a nonlinear support** keeps its own base. That
+  spring must be on a separate record (§10.1). An active support's reaction
+  then includes k·(g_s − g_k).
+
+R-c covers every linear spring primitive: `spring` and
+`variable_spring_hanger` records, translational and rotational. Variable
+spring hangers use the same incremental spring law. Installed, cold and hot
+loads, travel ranges and movement limits remain authored review data; base
+motion neither recalculates them nor establishes preload, available travel or
+suitability.
+
+**The ledger term.** One formed term is added per moved spring, at d, with
+value fl(k·g):
+- Formation `RoundedProduct{k: 1, a: k, b: g}`;
+- summand `NodalProduct{global_dof: d, magnitude: k, factor: g}`, under the
+  identity (`spring_base_motion`, support id, 0).
+
+K-D5 re-forms it as the product of two binary64 operands at p, as it does
+the source-factor product, so FK gains no new load formula. `NodalProduct`'s
+documentation widens to "a product of two binary64 operands at one nodal DOF".
+
+**Zero.** When g compares equal to zero, of either sign, omit the ledger term
+and use the existing fixed-base arithmetic in ordinary, certified and W2
+recovery. Do not subtract the authored zero. Pin both zero signs with bit
+comparisons.
+
+**K-D5.**
+- On the linear route the closure covers the term like any formed term.
+- The certified row adds the exact product +k·g to the accumulator containing
+  −k·u, −k·w and −k·w₂; its evaluation scale includes |k·g|. No binary64 fold
+  of k·g or u−g is used. If implemented through `evaluate_row`, supply −k·g as
+  its load argument, because that helper subtracts the argument. FK
+  `certify_spring_reaction` takes g.
+- The nonlinear confirmation evaluates Stage A and Stage B on the ledger
+  force with the term, so R_n, contact reactions and slot rows include it with
+  no other change.
+
+**The force-scaled route (W2, K2b).** FK `force_scaled_spring_action` forms
+the exact sum −(k·2^b)u + (k·2^b)g, rounds that scaled action once, then uses
+the existing checked unscale for publication. When g compares equal to zero,
+the fixed-base arithmetic is retained. A nonzero spring-base term reaching
+product W2 admission is refused as `non_nodal_load_term`, unless an earlier
+gate has already refused the case. This preserves the existing F1b subset.
+Moving-base recovery is covered at FK level; no product W2 moving-base solve
+is claimed.
+
+### 11.2 Publication
+
+- The spring's support rows (`support_reaction_component_v2` and its
+  magnitudes) carry −k·(u − g). They are certified where the member bound
+  exists. On the ordinary route they are the binary64 −k·(u − g), and the
+  fixed-base expression is kept when g is zero.
+- When a spring shares a DOF with a rigid restraint, the existing
+  attribution rule withholds both records' signed rows. Displacements and
+  certified groups are still compared.
+- No row kind is added, and the sign convention text is unchanged. The
+  spring's relative displacement is −row/k and is not published.
+- R-b's `nonlinear_support_final_relative_displacement` stays a
+  nonlinear-support row, because its readers bind it to nonlinear support
+  identities.
+- The semantic tables, schemas and readers are unchanged.
+- **Units.** g is normalized like any motion primitive (m or rad). k·g is in
+  N for a translational spring and N·m for a rotational one.
+
+### 11.3 Admission
+
+`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` is retired for a spring or hanger
+axis, including a spring-family nonlinear record's spring DOF. Duplicates on a
+spring are keyed (support, DOF), so two springs on one node DOF may each move.
+No coincident-restraint refusal applies between parallel springs: each keeps
+its own base. Every other code is unchanged (§10.2).
+
+### 11.4 Verification
+
+The generator gains the spring base load k·g and a spring's support row
+−k(u − g).
+
+- **C-1, the axial spring.**
+  - A bar of length L runs from an anchor. A tip spring on UX of stiffness
+    k_s has a base that moves by g, and k_m = EA/L.
+  - Then u = k_s·g/(k_s + k_m), the spring row is k_s·k_m·g/(k_s + k_m), and
+    the anchor reaction is −k_m·u. With k_s = k_m, u = g/2.
+  - A torsional twin (RX, k_m = GJ/L) and a variable-spring-hanger twin are
+    run. The hanger twin's rows equal the spring twin's bit for bit. The RX
+    twin covers rotational spring motion.
+- **C-2, a loaded cantilever.** A tip load −P and a tip spring on UZ with
+  k_s = k_b = 3EI/L³, whose global UZ base displacement is g=−d, give
+  u = −(P + k_s·d)/(k_s + k_b). Both signs of d are run.
+- **C-3, parallel springs.** Two springs k₁, k₂ on one DOF with bases g₁, g₂
+  equal one spring k₁ + k₂ with base (k₁g₁ + k₂g₂)/(k₁ + k₂). The operands are
+  chosen so that k₁+k₂, both products, their sum and the equivalent base are
+  all exactly representable.
+- **C-4, force parity.** A spring-base case is run against the same model with
+  the nodal force k·g (exact in binary64) instead. Both give the same
+  displacement and member rows, bit for bit in both modes. The exact spring
+  actions differ by k·g. Compare published spring actions against their exact
+  references and certified bounds; assert an exact published difference only
+  for fixtures whose individual actions are exactly representable.
+  Certificate radii and evidence need not match the unfactored nodal-force
+  twin.
+- **C-5, with nonlinear supports.** B-1's spring twin with the spring base
+  moving with the lift-off ground (both by −d) gives R = P − k_b·d. The
+  property's B-1 instance then moves the spring base too.
+- **D-2.**
+  - D-3's record carries no UY. Add a separate UY spring at that tip, with
+    k = 3EI_z/L³ and base motion g; then u_y = g/2.
+  - The twin uses one spring-family record with nonlinear RY and spring UY,
+    and keeps the rigid UZ restraint on another record.
+- In both modes, test unequal spring/nonlinear grounds, a moved spring
+  sharing a rigid prescribed DOF, and a moved spring affecting a derived
+  friction-normal reaction. Test disjoint same-record motions independently;
+  retain overlap and constant-effort-with-nonlinear-field refusals. Include an
+  inexact k·g product and closure mutants for missing or wrongly bound
+  operands.
+- **W2.** FK unit tests cover `force_scaled_spring_action` with a base and
+  `certify_spring_reaction`'s exact addend, with both zero signs pinned.
+  PP `f1b_a_spring_base_term_is_not_admitted` pins the W2 admission refusal
+  (`non_nodal_load_term`) of a spring-base term.
+- **Negatives:**
+  - a spring record's non-axis DOF (`DOF_UNRESTRAINED`);
+  - two primitives on one spring DOF (`DOF_DUPLICATE`);
+  - the exact route's refusal, listed and unlisted;
+  - retained D1.7;
+  - a spring-motion combination: withheld in a nonlinear model, admitted and
+    superposed in a linear one.
+- **Byte identity.** Previously admitted cases containing no newly admitted
+  primitive retain their numerical output bytes. Declared refusal-text
+  changes, newly named coincident-restraint diagnostics and pricing pins are
+  excluded.
+
+### 11.5 Retained-memory pricing (D3)
+
+No semantic-table, schema or reader content change is planned. D3 still
+reprices and re-registers the actual implementing source. Review every
+changed source, owner and lifetime, including the case resolvers and
+recovery-map plumbing; refresh all affected source/function/site bindings
+and regenerate displaced basis-text rows. The inventory below is a starting
+list, not a complete registration.
+
+- **New work behind W16-NS's zeros:** spring-target classification, matching
+  and routing; one formed ledger term and its attached primitive per spring
+  whose base motion compares unequal to zero.
+- **New work outside the zeros:** for s prepared springs, each pressure-free
+  case allocates a ground `Vec<f64>` and a moved `Vec<bool>`, each of length
+  s, even without a spring target. The moved vector ends at resolver return;
+  ground remains through recovery. Load-state cases allocate the length-s
+  zero-ground vector directly. Each case also scans the prepared springs in
+  `spring_base_motion`; zero grounds emit no terms.
+- **FK:**
+  - `certify_spring_reaction`: one more parameter and the exact addend;
+  - its caller in PP `certified_publication.rs`;
+  - `force_scaled_spring_action`: one more parameter;
+  - its K2b caller in PP `lib.rs`;
+  - the `NodalProduct` doc comment.
+- **Pins that move:**
+  - `kd5_text_model.PRODUCTION_PINS`, and the function hashes in
+    `kd5_text_model.PINS` (`lib.rs` `solve_prepared_load_case`;
+    `certified_publication.rs` `support_record` itself is unchanged);
+  - `B7A_PRIMITIVE_LIB_SOURCE_PIN`, and `b7a_domain_model.py` `SOURCE_FILES`;
+  - `kd5_first_error_model`'s CPP file and prefix, and its solve-body pins;
+  - W1's certified-publication, certified-recovery and formation-check source
+    pins (`w1_reductions_model.py`);
+  - `w16_owners_model.py` `PIN`, and the W16 sites in `o10_rules.py`;
+  - `data/basis_text_rows.json`, for the FK rows that move.
+  - `batch5_model.PINS` for the changed case-solve body; carried
+    `b7a_formation_model.FIRST_RETURN_*`, `b7a_returning_errors.SITES` and
+    `b7a_owner_choices.PREIMAGES` helper-site bindings displaced by these
+    edits. Preserve unchanged function hashes.

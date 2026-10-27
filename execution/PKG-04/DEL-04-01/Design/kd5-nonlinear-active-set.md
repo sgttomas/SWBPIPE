@@ -82,7 +82,7 @@ Revision 2 carries imposed motion on the pressure-free route into this unit (W-1
 | Support, state | Row treatment | Term added | Closure class |
 |---|---|---|---|
 | Linear restraint | prescribed g_b (0 unless the case moves it; revision 2) | none | input (u_C) |
-| Ground spring | stiffness (`FormationSource::springs`) | none | stiffness primitive |
+| Ground spring | stiffness (`FormationSource::springs`) | k·g at its DOF when the case moves its base (revision 2) | stiffness primitive; the base term is **formed**: `NodalProduct` (k·g) |
 | One-way or lift-off (translational or rotational), Active | prescribed, u_d = g_s | none | input |
 | One-way or lift-off, Inactive | free | none | none |
 | Gap | not run (R1) | — | — |

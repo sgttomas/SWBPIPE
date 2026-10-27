@@ -97,8 +97,8 @@ withholds the whole document's results: the blocked envelope has `results: []`
 | Code (blocking) | When |
 |---|---|
 | `IMPOSED_DISPLACEMENT_SUPPORT_UNKNOWN` | the target support does not exist |
-| `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` | the target is a constant-effort device (a nonlinear field included). Until R-c, spring-family records without a nonlinear field remain refused on every DOF; those with a nonlinear field remain refused on their spring axis and nonlinear DOF. These targets receive `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`. Under stage 2 (`pf-nonlinear-imposed-motion.md`) a nonlinear record's own DOF moves its ground (R-b) and its rigid restraints take base values (R-d) |
-| `IMPOSED_DISPLACEMENT_DOF_UNRESTRAINED` | the target is a rigid record (no spring family, constant-effort device or nonlinear field) and the DOF is not among its rigid restraints. A non-acting DOF on a nonlinear record receives `IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH`. |
+| `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` | the target is a constant-effort device (a nonlinear field included). Under stage 2 (`pf-nonlinear-imposed-motion.md`) a spring's or hanger's axis moves its base (R-c), a nonlinear record's own DOF moves its ground (R-b) and its rigid restraints take base values (R-d) |
+| `IMPOSED_DISPLACEMENT_DOF_UNRESTRAINED` | An unrestrained target names none of the record's acting DOFs, subject to the nonlinear-record mismatch code. |
 | `IMPOSED_DISPLACEMENT_DOF_MISMATCH` | `target.dof` and `direction` disagree, or a DOF token is invalid |
 | `IMPOSED_DISPLACEMENT_DOF_DUPLICATE` | two primitives in one case address one base, even with equal values. Duplicates are checked per base: (node, DOF) for rigid targets and (support, DOF) for spring and nonlinear targets. No map insertion may overwrite another. |
 | `IMPOSED_DISPLACEMENT_COINCIDENT_RESTRAINT` | another rigid restraint holds the same global node DOF |

@@ -299,8 +299,9 @@ only route" statement is made.
   primitive on a nonlinear support's own DOF moves that support's ground: gap
   closure, lift-off and friction slip are measured on the displacement relative
   to the moved ground, and an active or sticking state prescribes the moved
-  ground (plus or minus the clearance for a gap). Linear springs with a moving
-  base stay refused until R-c lands. (R-d) A primitive on a mixed nonlinear
+  ground (plus or minus the clearance for a gap). (R-c) A primitive on a
+  linear spring's DOF moves its base; the case gains k·g and the spring
+  publishes −k·(u−g). (R-d) A primitive on a mixed nonlinear
   record's rigid restraint prescribes that restraint's base value. Design:
   DEL-04-03 `Design/pf-nonlinear-imposed-motion.md`,
   with dual numerical review and its own benchmarks; R-b may land as a later
@@ -330,8 +331,9 @@ refusals are `IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH`,
 `IMPOSED_DISPLACEMENT_COINCIDENT_RESTRAINT`. A primitive on a mixed nonlinear
 record's rigid restraint prescribes that restraint's base value (R-d). Still
 refused (`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`): a constant-effort record,
-a nonlinear field included, and, until R-c lands, the base of a linear
-spring. Evidence:
+a nonlinear field included. A primitive on a linear spring's DOF moves its
+base: the case gains the formed load k·g and the spring publishes
+−k·(u − g) (R-c). Evidence:
 `core/product_physics/src/w16_nonlinear_motion_tests.rs` against
-`validation/references/w16_nonlinear_motion/` (A-1 to A-3, B-1 to B-3, D-1,
-D-3 and the rigid-translation property, both modes).
+`validation/references/w16_nonlinear_motion/` (A-1 to A-3, B-1 to B-3, C-1 to
+C-5, D-1 to D-3 and the rigid-translation property, both modes).
