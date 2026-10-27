@@ -48,11 +48,11 @@ relative to `projects/chirality-piping/`.
   as built. An explicit user set of `euler_bernoulli` writes the member,
   matching the tolerance member's rule ("never written into a document the user
   did not author"). The product never writes the default unprompted, and clear
-  restores absence. Results and hashes are still byte-identical for absent
-  versus explicit EB, since both solve as EB. Keep the regression that proves
-  it." This corrects the member's first specification, which said "The applier
-  never writes the default". As §1.1 states it, the results are identical and
-  the model hash differs, because the document differs.
+  restores absence." Agent 0 confirmed the precision: "results identical,
+  model hash differs", because the document differs (§1.1). The regression
+  `euler_bernoulli_solves_exactly_as_absent` (§12) holds it. This corrects the
+  member's first specification, which said "The applier never writes the
+  default".
 
 ## 1. Version 0.8.0
 
