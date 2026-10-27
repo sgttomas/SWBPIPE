@@ -40,7 +40,7 @@ import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel";
 import { buildMissingDataBlockingPacket, MissingDataBlockingPanel } from "./features/missing-data/MissingDataBlockingPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
-import { ReportPanel } from "./features/report/ReportPanel";
+import { ReportPanel, formatSpringHangerSummary } from "./features/report/ReportPanel";
 import { KnowledgePanel } from "./features/knowledge/KnowledgePanel";
 import { buildStressNeutralExportPacket } from "./features/stress-neutral/StressNeutralExportPanel";
 import { NativePackagePanel, buildNativePackageReview } from "./features/native-package/NativePackagePanel";
@@ -10825,6 +10825,48 @@ describe("SWBPIPE desktop preview", () => {
     // C-120 fix: the demo drops the elbow-placed tee component:C-120 and its 4 intensified rows (P-120 end_i and P-110 end_j, 2 cases); no other row moved.
     expect(screen.getByTestId("run-audit-units")).toHaveTextContent("rows=837");
     expect(JSON.stringify(basis)).toBe(before);
+  });
+
+  // Report-content correction (2026-10-27): the solver reads `spring_hanger` as a variable spring
+  // hanger (`is_variable_spring_hanger`, core/product_physics/src/lib.rs) and emits the same review
+  // rows for it, so the demo's rows for support:SH-140 are its rows under either spelling. The
+  // report's hanger evidence now carries a `spring_hanger` support, by hanger type or by family.
+  it("carries a spring_hanger support's hanger evidence and review rows into the report packet", async () => {
+    const basis = await referenceAnalysis(), { result, analysisRun } = basis;
+    const knowledge = await loadDesignKnowledge(), comparison = buildPreviewComparison({ result, analysisRun });
+    const reviewRows = result.results.filter(row => row.kind === "spring_hanger_user_input_review" && row.entity_ref === "support:SH-140").map(row => row.id);
+    expect(reviewRows.length).toBeGreaterThan(0);
+    const policy = await import("./features/report/reportRedactionProjector"), actualControl = policy.controlReportDomAndJson;
+    for (const spelling of ["hanger_type", "family"] as const) {
+      const model = structuredClone(basis.model);
+      const hanger = model.supports.find(support => support.id === "support:SH-140")!;
+      expect([hanger.family, hanger.hanger?.hanger_type]).toEqual(["variable_spring_hanger", "variable_spring_hanger"]);
+      hanger.family = "spring_hanger";
+      if (spelling === "hanger_type") hanger.hanger!.hanger_type = "spring_hanger";
+      else delete hanger.hanger!.hanger_type;
+      let observed: any;
+      const spy = vi.spyOn(policy, "controlReportDomAndJson").mockImplementation(input => { observed = input; return actualControl(input); });
+      const { unmount } = render(<ReportPanel model={model} knowledge={knowledge} result={result} analysisRun={analysisRun} comparison={comparison} editorIntents={[]} projectOperation="reference_inspection" projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={null} />);
+      expect(observed).toBeDefined();
+      expect(observed.spring_hanger_evidence_count).toBe(2);
+      expect(observed.spring_hanger_evidence.map((item: { support_ref: string }) => item.support_ref).sort()).toEqual(["support:CE-120", "support:SH-140"]);
+      const evidence = observed.spring_hanger_evidence.find((item: { support_ref: string }) => item.support_ref === "support:SH-140");
+      expect(evidence).toEqual(expect.objectContaining({
+        support_family: "spring_hanger",
+        hanger_type: spelling === "hanger_type" ? "spring_hanger" : "not provided",
+        user_entered_stiffness: { value: 42000, unit: "N/m" },
+        installed_load: { value: 460, unit: "N" },
+        hot_load: { value: 390, unit: "N" },
+        result_refs: reviewRows,
+        protected_content_included: false
+      }));
+      const rows = observed.spring_hanger_evidence.reduce((count: number, item: { result_refs: string[] }) => count + item.result_refs.length, 0);
+      // The summary's variable/constant split reads the explicit hanger type, as before.
+      if (spelling === "hanger_type") expect(formatSpringHangerSummary(observed.spring_hanger_evidence)).toBe(`2 hanger records; variable=1; constant_effort=1; rows=${rows}`);
+      else expect(formatSpringHangerSummary(observed.spring_hanger_evidence)).toMatch(new RegExp(`^2 hanger records; .*; rows=${rows}$`));
+      spy.mockRestore();
+      unmount();
+    }
   });
 
   it("projects a branch record's header and branch SIF provenance into the report packet", async () => {

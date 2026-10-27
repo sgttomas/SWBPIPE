@@ -493,9 +493,10 @@ export function formatComponentStressModifierSummary(
   return parts.join("; ");
 }
 
-function formatSpringHangerSummary(records: ReturnType<typeof reportSpringHangerEvidence>): string {
+export function formatSpringHangerSummary(records: ReturnType<typeof reportSpringHangerEvidence>): string {
   if (records.length === 0) return "0 spring hanger records";
-  const variableCount = records.filter((item) => item.hanger_type === "variable_spring_hanger").length;
+  // `spring_hanger` is the schema's other spelling of a variable spring hanger (the solver's `is_variable_spring_hanger`).
+  const variableCount = records.filter((item) => item.hanger_type === "variable_spring_hanger" || item.hanger_type === "spring_hanger").length;
   const constantCount = records.filter((item) => item.hanger_type === "constant_effort_support").length;
   const rowCount = records.reduce((count, item) => count + item.result_refs.length, 0);
   return `${records.length} hanger record${records.length === 1 ? "" : "s"}; variable=${variableCount}; constant_effort=${constantCount}; rows=${rowCount}`;

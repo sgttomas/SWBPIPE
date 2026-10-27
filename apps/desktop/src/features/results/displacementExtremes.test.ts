@@ -283,8 +283,9 @@ describe("displacement extremes: support-kind filter", () => {
       const expected = family === "spring" ? ["node:spring", "node:hanger-record"] : [`node:${family}`];
       expect(view(everyData, { filter: familyFilterId(family) }).rows.map((item) => item.nodeId)).toEqual(expected);
     }
-    // "Hangers" is the report's rule (`isSpringHangerSupport`), which does not count `spring_hanger`.
-    expect(view(everyData, { filter: FILTER_HANGERS }).rows.map((item) => item.nodeId)).toEqual(["node:variable_spring_hanger", "node:constant_effort_support", "node:hanger-record"]);
+    // "Hangers" is the report's rule (`isSpringHangerSupport`), the solver's: `spring_hanger` counts.
+    expect(view(everyData, { filter: FILTER_HANGERS }).rows.map((item) => item.nodeId)).toEqual(["node:variable_spring_hanger", "node:spring_hanger", "node:constant_effort_support", "node:hanger-record"]);
+    expect(everyData.filters.find((item) => item.id === FILTER_HANGERS)?.nodeCount).toBe(4);
     expect(view(everyData, { filter: FILTER_FAMILY_NOT_STATED }).rows.map((item) => item.nodeId)).toEqual(["node:null"]);
     expect(view(everyData, { filter: familyFilterId("strut") }).rows.map((item) => item.nodeId)).toEqual(["node:odd"]);
     expect(everyData.filters.find((item) => item.id === familyFilterId("strut"))?.label).toBe('"strut" (as stated)');
