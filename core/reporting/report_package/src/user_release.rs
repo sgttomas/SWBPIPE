@@ -218,6 +218,36 @@ pub struct UserReleaseBasis<'a> {
     pub record: &'a UserReleaseRecord,
 }
 
+/// The bound basis without `S`: the admitting entry takes `S` from the
+/// request it admits (`/source_results/0`), which native admission has bound
+/// to this session's attested solve of `M` (§2.4, §2.5 step 7).
+pub struct UserReleaseInputs<'a> {
+    /// `M`.
+    pub model: &'a Value,
+    /// `m`, the attested solver mode.
+    pub solver_mode: &'a str,
+    /// `R`.
+    pub run_record: &'a Value,
+    /// `H`.
+    pub software: &'a SoftwareIdentity,
+    /// `U`.
+    pub record: &'a UserReleaseRecord,
+}
+
+impl<'a> UserReleaseInputs<'a> {
+    /// The basis with `source` as `S`.
+    pub fn with_source(&self, source: &'a Value) -> UserReleaseBasis<'a> {
+        UserReleaseBasis {
+            model: self.model,
+            source,
+            solver_mode: self.solver_mode,
+            run_record: self.run_record,
+            software: self.software,
+            record: self.record,
+        }
+    }
+}
+
 /// `E(M, S, m, I, R, H, U)`: the derived input manifest, its identity, and
 /// the derived request.
 #[derive(Clone, Debug, PartialEq)]
@@ -1003,22 +1033,24 @@ fn check_derived(basis: &UserReleaseBasis<'_>, input_manifest: &Value, request: 
 /// carries. Only then does it derive the request from `basis` and require the
 /// input manifest `input_manifest` and the whole `request` to equal the
 /// derivation (`REPORT-USER-RELEASE-CONTENT-NOT-DERIVED`, naming the first
-/// differing pointer). It then runs the shared producer under
-/// [`ProducerEntry::UserRelease`]. Native admission's route-010 branch is its
-/// one caller, through `report_package_bridge::assemble_user_released_request`
+/// differing pointer). `S` is the request's own `/source_results/0`. It then
+/// runs the shared producer under [`ProducerEntry::UserRelease`]. Native
+/// admission's route-010 branch is its one caller, through
+/// `report_package_bridge::assemble_user_released_request`
 /// (`user_release_reach_scan`). It records no user release; the user's record
 /// is the request's.
 pub fn assemble_derived(
     request: Value,
     linked: &LinkedSolverIdentity<'_>,
-    basis: &UserReleaseBasis<'_>,
+    inputs: &UserReleaseInputs<'_>,
     input_manifest: &Value,
 ) -> Result<crate::ReportPackageContainerOutcome, String> {
     for document in request.get("result_documents").and_then(Value::as_array).into_iter().flatten() {
         crate::document_form::check_route_admitted(document)?;
         crate::exact_sections::check_user_released_profile(USER_RELEASED_DESKTOP_PROFILE, document)?;
     }
-    let derived = check_derived(basis, input_manifest, &request)?;
+    let source = request.pointer("/source_results/0").unwrap_or(&Value::Null);
+    let derived = check_derived(&inputs.with_source(source), input_manifest, &request)?;
     let request = decode_report_package_request(request).map_err(|detail| format!("{PACKAGE_UNBOUND}: {detail}"))?;
     crate::wire::assemble_wire_request_in(request, linked, &ProducerEntry::UserRelease(derived), admitted::PRODUCTION)
 }

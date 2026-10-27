@@ -793,9 +793,15 @@ impl SolveJobRegistry {
     /// the user-release route's native admission (DEL-08-01 Design
     /// `report-user-release.md` §2.5 step 7), which computes the digests with
     /// [`SolveAttestation::of`]. Returns no digest and no job.
-    #[cfg_attr(not(test), allow(dead_code))]
     pub(crate) fn holds_attested_solve(&self, solver_mode: PreviewSolverMode, attestation: &SolveAttestation) -> bool {
         self.table().attested.holds(solver_mode, attestation)
+    }
+
+    /// Records an attested solve as publication does (route 010's admission
+    /// tests, which have no worker).
+    #[cfg(test)]
+    pub(crate) fn record_attested_solve_for_tests(&self, job_number: u64, solver_mode: PreviewSolverMode, attestation: SolveAttestation) {
+        self.table().attested.record(job_number, solver_mode, attestation);
     }
 
     /// The job's custody digests (§3.6), a copy, only while its result is

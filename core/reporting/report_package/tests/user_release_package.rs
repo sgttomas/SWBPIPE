@@ -19,7 +19,7 @@ use open_pipe_stress_report_package::bindings::{DESKTOP_PROFILE, RUNNER_PROFILE}
 use open_pipe_stress_report_package::document_form::ROUTE_NOT_ADMITTED;
 use open_pipe_stress_report_package::exact_sections::EXACT_RUNNER_PROFILE;
 use open_pipe_stress_report_package::user_release::{
-    assemble_derived, derive, SoftwareIdentity, UserReleaseBasis, CONTENT_NOT_DERIVED, EXACT_ROUTE_NOT_ADMITTED,
+    assemble_derived, derive, SoftwareIdentity, UserReleaseBasis, UserReleaseInputs, CONTENT_NOT_DERIVED, EXACT_ROUTE_NOT_ADMITTED,
     PACKAGE_NOT_ADMITTED, PACKAGE_UNBOUND, USER_RELEASED_CONTEXT, USER_RELEASED_DESKTOP_PROFILE,
 };
 use open_pipe_stress_report_package::wire::{assemble_wire_request, decode_report_package_request, LinkedSolverIdentity};
@@ -68,6 +68,16 @@ impl Case {
         }
     }
 
+    fn inputs(&self) -> UserReleaseInputs<'_> {
+        UserReleaseInputs {
+            model: &self.model,
+            solver_mode: self.vector["solver_mode"].as_str().unwrap(),
+            run_record: &self.vector["run_record"],
+            software: &self.software,
+            record: &self.record,
+        }
+    }
+
     fn input_manifest(&self) -> &Value {
         &self.vector["input_manifest"]
     }
@@ -79,7 +89,7 @@ impl Case {
     }
 
     fn assemble(&self, request: Value) -> Result<ReportPackageContainerOutcome, String> {
-        assemble_derived(request, &linked(), &self.basis(), self.input_manifest())
+        assemble_derived(request, &linked(), &self.inputs(), self.input_manifest())
     }
 }
 
@@ -219,6 +229,25 @@ fn local_private_package_bytes_unchanged_by_user_release() {
     assert_eq!(manifest["boundary_notes"].as_array().unwrap().len(), 3);
 }
 
+/// The committed coherent request that the headless runner's refusal tests
+/// submit (`core/runner/headless/tests/user_release_runner_refused.rs`,
+/// `tests/test_headless_runner_contract.py`) is the first vector's derived
+/// request, which the admitting entry admits. Set
+/// `OPENPIPESTRESS_UPDATE_USER_RELEASE_RUNNER_REQUEST=1` to rewrite it after a
+/// change to the derivation.
+#[test]
+fn the_committed_runner_refusal_request_is_the_derivation() {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/reports/invented/user_release_runner_refusal_request.json");
+    let case = case();
+    let request = case.request();
+    if std::env::var_os("OPENPIPESTRESS_UPDATE_USER_RELEASE_RUNNER_REQUEST").is_some() {
+        std::fs::write(&path, canonical_json(&request) + "\n").unwrap();
+    }
+    let committed: Value = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+    assert_eq!(open_pipe_stress_report_package::user_release::first_difference(&request, &committed), None, "canonically equal");
+    assert!(!case.assemble(committed).unwrap().export_blocked);
+}
+
 /// The committed invented record equals the first vector's.
 #[test]
 fn the_committed_record_is_the_vectors() {
@@ -282,7 +311,9 @@ fn the_admitting_entry_requires_the_whole_request_derived() {
         ("/report/report_title", |request| request["report"]["report_title"] = json!("Another title")),
         ("/package_id", |request| request["package_id"] = json!("desktop-user-released-report-other")),
         ("/report/report_sections/assumptions/0", |request| request["report"]["report_sections"]["assumptions"] = json!([{"invented": true}])),
-        ("/source_results/0/run_id", |request| request["source_results"][0]["run_id"] = json!("run:other")),
+        // `S` is the request's own source (native admission binds it to the
+        // attested solve): another run id derives another package id first.
+        ("/package_id", |request| request["source_results"][0]["run_id"] = json!("run:other")),
         ("/report/report_context/user_release/user_released_at", |request| {
             request["report"]["report_context"]["user_release"]["user_released_at"] = json!("2026-10-28T00:00:00Z")
         }),
@@ -296,7 +327,7 @@ fn the_admitting_entry_requires_the_whole_request_derived() {
     // The input manifest is bound before the request.
     let mut manifest = case.input_manifest().clone();
     manifest["external_assets"] = json!([{"asset": "invented"}]);
-    let error = assemble_derived(case.request(), &linked(), &case.basis(), &manifest).unwrap_err();
+    let error = assemble_derived(case.request(), &linked(), &case.inputs(), &manifest).unwrap_err();
     assert!(error.starts_with(&format!("{CONTENT_NOT_DERIVED}: the input manifest differs")), "{error}");
 }
 
@@ -320,14 +351,14 @@ fn the_producer_binds_each_record_member() {
         edit(&mut record);
         let basis = UserReleaseBasis { record: &record, ..case.basis() };
         let request = derive(&basis).unwrap().request;
-        let error = refused_with(assemble_derived(request, &linked(), &basis, case.input_manifest()), PACKAGE_UNBOUND);
+        let error = refused_with(assemble_derived(request, &linked(), &UserReleaseInputs { record: basis.record, ..case.inputs() }, case.input_manifest()), PACKAGE_UNBOUND);
         assert!(error.contains(member), "{member}: {error}");
     }
     // A record whose statement is altered is not of its form.
     let mut record = case.record.clone();
     record.standing = "issued".into();
     let basis = UserReleaseBasis { record: &record, ..case.basis() };
-    let error = refused_with(assemble_derived(derive(&basis).unwrap().request, &linked(), &basis, case.input_manifest()), PACKAGE_UNBOUND);
+    let error = refused_with(assemble_derived(derive(&basis).unwrap().request, &linked(), &UserReleaseInputs { record: basis.record, ..case.inputs() }, case.input_manifest()), PACKAGE_UNBOUND);
     assert!(error.contains("standing"), "{error}");
 }
 
@@ -600,7 +631,7 @@ fn user_release_same_source_member_substitution_refused() {
     let mut later = case.record.clone();
     later.user_released_at = "2026-10-28T09:30:00Z".to_string();
     let basis = UserReleaseBasis { record: &later, ..case.basis() };
-    let other = assemble_derived(derive(&basis).unwrap().request, &linked(), &basis, case.input_manifest()).unwrap();
+    let other = assemble_derived(derive(&basis).unwrap().request, &linked(), &UserReleaseInputs { record: basis.record, ..case.inputs() }, case.input_manifest()).unwrap();
     for (index, what) in [(1usize, "HTML"), (2, "PDF")] {
         let bytes = other.members[index].bytes.clone();
         let error = unbound(&repacked(&outcome, |members, _| members[index - 1].1 = bytes), what);
@@ -653,7 +684,7 @@ fn a_coherently_rewritten_package_is_accepted_as_a_documented_limit() {
     let mut later = case.record.clone();
     later.user_released_at = "2026-10-29T10:00:00Z".to_string();
     let basis = UserReleaseBasis { record: &later, ..case.basis() };
-    let rewritten = assemble_derived(derive(&basis).unwrap().request, &linked(), &basis, case.input_manifest()).unwrap();
+    let rewritten = assemble_derived(derive(&basis).unwrap().request, &linked(), &UserReleaseInputs { record: basis.record, ..case.inputs() }, case.input_manifest()).unwrap();
     assert_ne!(rewritten.container_bytes, outcome.container_bytes);
     assert!(read_report_package_container(&rewritten.container_bytes).is_ok());
     let _ = (USER_RELEASED_CONTEXT, digest(&json!(1)));

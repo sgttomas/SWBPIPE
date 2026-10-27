@@ -13,8 +13,12 @@
 //! - the run-record check ([`check_run_record`]): Record Run's binding checks
 //!   (`analysis_runs::check_record_for_values`) and route 010's own.
 //!
-//! Route 010's admission (slice (r2c)) calls them; nothing here admits,
-//! renders or writes anything, and nothing here records a user release. The
+//! Route 010's admission (`report_package_save`, slice (r2c)) calls them;
+//! nothing here admits, renders or writes anything, and nothing here records a
+//! user release. Rule 3 (b)'s growth is the command's own ingress lease
+//! ([`crate::memory_pool::Lease`]), refused above the budget the command was
+//! admitted under (`ingress_exceeds_budget`, DEL-04-07). The codes are the
+//! report package's route-010 vocabulary (`report_package::user_release`). The
 //! detector finds the marks library applies have written into a model; it
 //! cannot find a library origin a user has erased, and it does not show that
 //! any value is the user's own (the reliance limit, §2.7).
@@ -26,27 +30,17 @@
 //! parse (Codex round 1 P1).
 //! Standard claim fence applies (claims taxonomy per DEC-081).
 
-#![cfg_attr(not(test), allow(dead_code))]
-
 use crate::analysis_runs;
 use crate::command_ingress::{text_parse_bytes, ArgsDecoding};
+use crate::memory_pool::{Lease, ResourceRefusal};
 use crate::export_disposition_screen::{
     first_library_ref_member, first_member_hit, first_rule_pack_ref_member_site, holds_library_ref_member, library_ref_identity, stack_pointer, PathStep,
     StackPath,
 };
 use crate::stored_read::ReadMemory;
+pub(crate) use open_pipe_stress_report_package::user_release::{ANALYSIS_RECORD_UNBOUND, LIBRARY_REFERENCED, PRIVATE_CLASS, RULE_PACK_REFERENCED};
 use serde_json::{json, Value};
 use std::ops::ControlFlow;
-
-/// The model carries a detectable library reference (§2.7).
-pub(crate) const LIBRARY_REFERENCED: &str = "REPORT-USER-RELEASE-LIBRARY-REFERENCED";
-/// The model or its input manifest carries a rule-pack reference (§2.7).
-pub(crate) const RULE_PACK_REFERENCED: &str = "REPORT-USER-RELEASE-RULE-PACK-REFERENCED";
-/// An object carries a non-project private class (§2.7).
-pub(crate) const PRIVATE_CLASS: &str = "REPORT-USER-RELEASE-PRIVATE-CLASS";
-/// The run record fails a Record Run binding check or one of route 010's
-/// (§2.5 step 8).
-pub(crate) const ANALYSIS_RECORD_UNBOUND: &str = "REPORT-USER-RELEASE-ANALYSIS-RECORD-UNBOUND";
 
 /// Rule 2's library provenance prefixes (`libraryProvenanceString`,
 /// `libraryApply.ts`: `library:<kind>:<library id>#<record id>`).
@@ -112,19 +106,77 @@ pub(crate) struct LibrarySite {
 impl LibrarySite {
     /// The refusal: the code, the site's pointer, the rule, and the kind and
     /// id where the site states them. It never quotes the site's text.
+    ///
+    /// The message is written into one buffer sized to it before it is
+    /// written, so formatting holds the site and that one buffer
+    /// ([`refusal_bytes`] bounds it; slice (r2c) prices it within route 010's
+    /// lease).
     pub(crate) fn refusal(&self) -> String {
-        let library = match (&self.kind, &self.id) {
-            (Some(kind), Some(id)) => format!(", library {} {}", shown(kind), shown(id)),
-            (Some(kind), None) => format!(", library kind {}", shown(kind)),
-            (None, Some(id)) => format!(", library {}", shown(id)),
-            (None, None) => String::new(),
-        };
-        format!(
-            "{LIBRARY_REFERENCED}: {} holds a library origin (rule {}{library}). A shareable report package does not yet carry library record values, so it cannot be saved for this model; its local private package is unaffected.",
-            self.pointer,
-            self.rule.as_str()
-        )
+        use std::fmt::Write as _;
+        let (kind, id) = (self.kind.as_deref().map(shown), self.id.as_deref().map(shown));
+        let library_len = kind.as_ref().map_or(0, String::len) + id.as_ref().map_or(0, String::len) + 32;
+        let mut message = String::with_capacity(LIBRARY_REFERENCED.len() + self.pointer.len() + library_len + REFUSAL_TAIL.len() + 64);
+        let _ = write!(message, "{LIBRARY_REFERENCED}: {} holds a library origin (rule {}", self.pointer, self.rule.as_str());
+        match (&kind, &id) {
+            (Some(kind), Some(id)) => {
+                let _ = write!(message, ", library {kind} {id}");
+            }
+            (Some(kind), None) => {
+                let _ = write!(message, ", library kind {kind}");
+            }
+            (None, Some(id)) => {
+                let _ = write!(message, ", library {id}");
+            }
+            (None, None) => {}
+        }
+        message.push_str(REFUSAL_TAIL);
+        message
     }
+}
+
+/// The library refusal's fixed tail.
+const REFUSAL_TAIL: &str = "). A shareable report package does not yet carry library record values, so it cannot be saved for this model; its local private package is unaffected.";
+
+/// The most a refusal message naming a site whose pointer is `pointer_bytes`
+/// long can hold: the code, the pointer, the rule, two shown identities
+/// (`SHOWN_CHARS` characters and an ellipsis, at most 4 bytes each) and the
+/// fixed text.
+pub(crate) fn refusal_bytes(pointer_bytes: u64) -> u64 {
+    let identities = 2 * 4 * (SHOWN_CHARS as u64 + 1);
+    (LIBRARY_REFERENCED.len() + REFUSAL_TAIL.len() + 160) as u64 + pointer_bytes + identities
+}
+
+/// The longest JSON pointer a route-010 refusal can name in a text of
+/// `text_bytes`: each key's pointer segment is at most twice its bytes in the
+/// text (`~` and `/` escape to two bytes) plus its `/`, and an array index's
+/// segment is no longer than its elements' text, with 4,096 bytes of slack for
+/// the separators of the deepest path the parser admits.
+pub(crate) fn pointer_bound(text_bytes: u64) -> u64 {
+    text_bytes.saturating_mul(2).saturating_add(4096)
+}
+
+/// The refusal formatting allowance of route 010's ingress lease (W-18b,
+/// DEL-08-01 Design `report-user-release.md` §2.7 "Cost"; Codex round 2 at
+/// #1673): the detection walks allocate nothing per level and build only the
+/// reported site, which the growth-plus-site bound covers; formatting the
+/// refusal from the site then holds, at once, the site's pointer, the
+/// refusal message ([`LibrarySite::refusal`], one buffer sized before it is
+/// written) and the save error built from it (its finding's detail and its
+/// joined message, each sized before written,
+/// `report_package_save::refused_sized`). The pointer is in the model or the
+/// request, so it is bounded by the longer text ([`pointer_bound`]); each of
+/// the four live strings is priced at its allocation envelope.
+pub(crate) fn refusal_formatting_bytes(request_bytes: u64, model_bytes: u64) -> u64 {
+    let message = refusal_bytes(pointer_bound(request_bytes.max(model_bytes))).saturating_add(512);
+    crate::ingress::allocation_envelope(message).unwrap_or(u64::MAX).saturating_mul(4)
+}
+
+/// Why rule 1-3's refusal ended: a library site (the refusal message), or the
+/// command's lease refused rule 3 (b)'s growth.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) enum LibraryRefusal {
+    Referenced(String),
+    Lease(ResourceRefusal),
 }
 
 /// The first `SHOWN_CHARS + 1` characters of `text`: [`shown`] of it is
@@ -231,17 +283,18 @@ fn embedded_holds_legacy(parsed: &Value) -> bool {
 
 /// The first library site of the bound model `M` (§2.7): rule 1, then rule 2,
 /// then rule 3, each in document order. Rule 3 (b) first prescans every
-/// candidate (allocating nothing) and calls `grow` once with the largest
-/// checkable candidate's priced parse (`text_parse_bytes(·, Moved)`), the
-/// command's ingress-lease growth, before any embedded parse; it then parses
+/// candidate (allocating nothing) and grows the command's ingress `lease`
+/// once by the largest checkable candidate's priced parse
+/// (`text_parse_bytes(·, Moved)`), before any embedded parse; it then parses
 /// the candidates one at a time, dropping each before the next, so at most
-/// one embedded value is held beside `M`. `grow`'s refusal is returned as it
-/// is. No growth happens when rule 1 or 2 finds a site, or when no candidate
-/// is checkable. Every pass stops at its first site and allocates nothing per
+/// one embedded value is held beside `M`. The lease's refusal (a growth above
+/// the budget it was admitted under, `ingress_exceeds_budget`, or a pool
+/// refusal) is returned as it is, and nothing is parsed. No growth happens
+/// when rule 1 or 2 finds a site, or when no candidate is checkable. Every pass stops at its first site and allocates nothing per
 /// level; beyond the one embedded parse, the only allocation is the returned
 /// site (its pointer in `M`, and the kind and id kept to `SHOWN_CHARS + 1`
 /// characters).
-pub(crate) fn library_reference_site(model: &Value, grow: &mut dyn FnMut(u64) -> Result<(), String>) -> Result<Option<LibrarySite>, String> {
+pub(crate) fn library_reference_site(model: &Value, lease: &mut Lease) -> Result<Option<LibrarySite>, ResourceRefusal> {
     // Rule 1: every member named `library_ref`, whatever its value.
     if let Some(member) = first_library_ref_member(model) {
         let identity = member.reference.and_then(library_ref_identity);
@@ -275,7 +328,7 @@ pub(crate) fn library_reference_site(model: &Value, grow: &mut dyn FnMut(u64) ->
         ControlFlow::Continue(())
     });
     if let Some(bytes) = largest {
-        grow(bytes)?;
+        lease.grow_to(lease.bytes().saturating_add(bytes))?;
     }
     // Rule 3, in document order.
     let legacy = |path: Option<&StackPath<'_, '_>>, id: Option<String>| LibrarySite {
@@ -315,10 +368,11 @@ pub(crate) fn library_reference_site(model: &Value, grow: &mut dyn FnMut(u64) ->
 }
 
 /// Route 010's step 5, library half: `REPORT-USER-RELEASE-LIBRARY-REFERENCED`
-/// naming the first site ([`library_reference_site`]).
-pub(crate) fn refuse_library_referenced(model: &Value, grow: &mut dyn FnMut(u64) -> Result<(), String>) -> Result<(), String> {
-    match library_reference_site(model, grow)? {
-        Some(site) => Err(site.refusal()),
+/// naming the first site ([`library_reference_site`]), or the lease's refusal
+/// of rule 3 (b)'s growth.
+pub(crate) fn refuse_library_referenced(model: &Value, lease: &mut Lease) -> Result<(), LibraryRefusal> {
+    match library_reference_site(model, lease).map_err(LibraryRefusal::Lease)? {
+        Some(site) => Err(LibraryRefusal::Referenced(site.refusal())),
         None => Ok(()),
     }
 }

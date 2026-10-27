@@ -30,6 +30,8 @@ mod solve_attestation;
 mod solve_jobs;
 mod solve_worker;
 mod user_release_admission;
+#[cfg(test)]
+mod user_release_save_tests;
 mod worker_alloc;
 #[cfg(test)]
 mod rule_check_object_form_tests;
@@ -71,16 +73,23 @@ async fn save_report_package(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<ReportPackageSaveCommandError>> {
-    // The lease is held through admission, the save dialog and the write.
-    let (request, _lease) = admit_report_package_save(&registry, invoke.body(), invoke.headers())?;
-    respond(save_report_package_decoded(app, request).await.map_err(CommandError::Command))
+    // The lease is held through admission (which may grow it, W-18b route
+    // 010), the save dialog, the write and the response.
+    let (request, lease) = admit_report_package_save(&registry, invoke.body(), invoke.headers())?;
+    let (outcome, lease) = save_report_package_decoded(app, request, lease, registry.inner().clone()).await;
+    let response = respond(outcome);
+    drop(lease);
+    response
 }
 
-/// The save's ingress: the arguments (three canonical texts and two structs of
-/// scalars) moved out of the admitted body, then the evidence shape, the size
-/// caps and the priced parse of the texts, by which the lease grows before any
-/// is parsed (DEL-08-01 Design `report-package-current-results.md` §2.6 items
+/// The save's ingress: the arguments (the canonical texts and two structs of
+/// scalars) moved out of the admitted body, then the evidence, the size caps
+/// and the priced parse of the texts, by which the lease grows before any is
+/// parsed (DEL-08-01 Design `report-package-current-results.md` §2.6 items
 /// 1-3), within the per-invocation budget (`memory_pool::Lease::grow_to`).
+/// The growth is route-aware (`report_package_save::ingress_lease_bytes`;
+/// W-18b, DEL-08-01 Design `report-user-release.md` §2.5, "The outer
+/// command"): route 010 refuses the exact texts before they are priced.
 fn admit_report_package_save(
     registry: &SolveJobRegistry,
     body: &tauri::ipc::InvokeBody,
@@ -89,40 +98,60 @@ fn admit_report_package_save(
     let (mut args, mut lease) = command_ingress::admit_body(registry, body, headers, "save_report_package", ArgsDecoding::Moved)?;
     let request = report_package_save::save_report_package_args(&mut args)?;
     drop(args);
-    let growth = report_package_save::validate_report_package_save_evidence(&request.screening, request.local_first.as_ref())
-        .and_then(|()| {
-            report_package_save::parse_lease_bytes_with_exact(
-                &request.request_text,
-                &request.model_text,
-                &request.input_manifest_text,
-                request.exact_result_text.as_deref(),
-                request.exact_intake_text.as_deref(),
-            )
-        })
-        .map_err(CommandError::Command)?;
+    let growth = report_package_save::ingress_lease_bytes(&request).map_err(CommandError::Command)?;
     lease.grow_to(lease.bytes().saturating_add(growth)).map_err(|refusal| registry.refuse(refusal))?;
     Ok((request, lease))
 }
 
+/// Admission, the dialog and the write on a blocking worker, with the
+/// command's lease (route 010 grows it) and the registry (its attested
+/// solves); returns the lease so the response is serialized while it is held.
 async fn save_report_package_decoded(
     app: AppHandle,
     request: report_package_save::ReportPackageSaveRequest,
-) -> Result<report_package_save::ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
+    mut lease: memory_pool::Lease,
+    registry: SolveJobRegistry,
+) -> (Result<report_package_save::ReportPackageSaveReceipt, CommandError<ReportPackageSaveCommandError>>, Option<memory_pool::Lease>) {
     let info = app.package_info();
     let software = report_package_save::ExpectedSoftware { name: info.name.clone(), version: info.version.to_string() };
     tauri::async_runtime::spawn_blocking(move || {
         let mut lookup = library_store_lookup(&app);
-        let registry = app.state::<SolveJobRegistry>().inner().clone();
         let custody = |job: &str| registry.custody_binding(job);
-        save_report_package_with_picker(request, &software, &mut lookup, &custody, |file_name| choose_report_package_save_path(&app, file_name))
+        let outcome = {
+            let mut session = report_package_save::UserReleaseSession { registry: &registry, lease: &mut lease };
+            save_report_package_in_session(request, &software, &mut lookup, &custody, &mut session, |file_name| {
+                choose_report_package_save_path(&app, file_name)
+            })
+        };
+        let outcome = outcome.map_err(|refusal| match refusal {
+            report_package_save::SaveRefusal::Command(error) => CommandError::Command(error),
+            report_package_save::SaveRefusal::Resource(refusal) => CommandError::Ingress(registry.refuse(refusal)),
+        });
+        (outcome, Some(lease))
     })
     .await
     .unwrap_or_else(|_| {
-        Err(ReportPackageSaveCommandError::bridge(format!(
-            "{}: the save's worker did not complete; the destination may be unchanged.",
-            report_package_save::WORKER_FAILED
-        )))
+        (
+            Err(CommandError::Command(ReportPackageSaveCommandError::bridge(format!(
+                "{}: the save's worker did not complete; the destination may be unchanged.",
+                report_package_save::WORKER_FAILED
+            )))),
+            None,
+        )
     })
+}
+
+/// The command's admission (both routes, with the session) and the save.
+fn save_report_package_in_session(
+    request: report_package_save::ReportPackageSaveRequest,
+    software: &report_package_save::ExpectedSoftware,
+    lookup: &mut model_document_save::LibraryLookup<'_>,
+    custody: &report_package_save::CustodyLookup<'_>,
+    session: &mut report_package_save::UserReleaseSession<'_>,
+    choose: impl FnOnce(&str) -> Option<Result<PathBuf, String>>,
+) -> Result<report_package_save::ReportPackageSaveReceipt, report_package_save::SaveRefusal> {
+    let admitted = report_package_save::admit_report_package_session(request, software, lookup, custody, Some(session))?;
+    Ok(report_package_save::save_admitted_report_package_in(admitted, custody, choose)?)
 }
 
 fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<Result<PathBuf, String>> {
@@ -143,6 +172,7 @@ fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<R
 /// custody lookup for an exact-route request's native source binding, W-11),
 /// then the save dialog and the atomic write. `choose` is the save dialog (a
 /// counting seam in tests).
+#[cfg(test)]
 fn save_report_package_with_picker(
     request: report_package_save::ReportPackageSaveRequest,
     software: &report_package_save::ExpectedSoftware,
@@ -1600,7 +1630,32 @@ fn render_calculation_report_args(args: &mut Args, registry: &SolveJobRegistry, 
     report_render_exact::render_calculation_report_args_in(args, registry, lease, report_render_exact::PRODUCTION)
 }
 
+/// The render command's refusal of a user-released input (W-18b, DEL-08-01
+/// Design `report-user-release.md` §2.8): a user-released document is
+/// produced only inside route 010's admission, through the report package's
+/// one admitting entry.
+pub(crate) const RENDER_USER_RELEASE_PACKAGE_ONLY: &str = "RENDER-USER-RELEASE-PACKAGE-ONLY";
+
+/// Refuses, before the input is decoded or rendered, an input whose
+/// `report_context.export_context` is `user_released_report`, and,
+/// independently, one whose `report_context` has a `user_release` member,
+/// whatever its context or value. It reads those two members by key; a
+/// positional input is refused earlier by the object-form check.
+pub(crate) fn refuse_user_release_render(input: &Value) -> Result<(), String> {
+    let context = input.get("report_context");
+    let named = context.and_then(|context| context.get("export_context")).and_then(Value::as_str) == Some("user_released_report");
+    let record = context.and_then(Value::as_object).is_some_and(|context| context.contains_key("user_release"));
+    if named || record {
+        return Err(format!(
+            "{RENDER_USER_RELEASE_PACKAGE_ONLY}: a user-released report is rendered only inside Save Shareable Report Package (route DREP-PACKAGE-USER-RELEASE-010); this render carries {}.",
+            if named { "the user_released_report export context" } else { "a user_release record" }
+        ));
+    }
+    Ok(())
+}
+
 fn render_calculation_report_value(input: Value) -> Result<Value, String> {
+    refuse_user_release_render(&input)?;
     // DEC-021 (A7): deterministic hash-bound HTML rendering with the
     // three-point protected-content gates evaluated in the renderer crate.
     // The derived print view is non-hash-bound and names the canonical hash.

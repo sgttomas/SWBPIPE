@@ -71,9 +71,18 @@ use crate::export_disposition_screen::{
 };
 use crate::exact_source_binding::{self as exact_binding, ExactRefusal};
 use crate::report_package_bridge::{self, ReportPackageRequest};
-use crate::solve_jobs::{CustodyDigests, SolveJobError};
+use crate::memory_pool::{Lease, ResourceRefusal};
+use crate::solve_attestation::SolveAttestation;
+use crate::solve_jobs::{CustodyDigests, SolveJobError, SolveJobRegistry};
+use crate::user_release_admission::{self as user_release_native, LibraryRefusal};
 use open_pipe_stress_operation_applier::{canonical_json, sha256_hex};
+use open_pipe_stress_product_physics::PreviewSolverMode;
 use open_pipe_stress_report_package::bindings::{DESKTOP_PROFILE, REPORT_CONTEXT_NOT_LOCAL_PRIVATE};
+use open_pipe_stress_report_package::user_release::{
+    self as user_release, SoftwareIdentity, EXACT_ROUTE_NOT_ADMITTED, NOT_THIS_ROUTE, RECORD_INVALID, RESULT_NOT_ATTESTED,
+    UNBOUND, USER_RELEASED_CONTEXT, USER_RELEASED_DESKTOP_PROFILE,
+};
+use open_pipe_stress_report_renderer::UserReleaseRecord;
 use open_pipe_stress_report_package::ReportPackageContainerOutcome;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -82,6 +91,12 @@ use std::path::PathBuf;
 
 /// The governed local-first route of this save.
 pub const REPORT_PACKAGE_SAVE_ROUTE_ID: &str = "DREP-PACKAGE-SAVE-009";
+/// The governed route of a user-released save (W-18b, DEL-08-01 Design
+/// `report-user-release.md` §2.5, §3.3).
+pub const REPORT_PACKAGE_USER_RELEASE_ROUTE_ID: &str = "DREP-PACKAGE-USER-RELEASE-010";
+/// The run record text's cap on route 010: one model-document cap (§2.5
+/// step 2).
+pub const MAX_ANALYSIS_RUN_TEXT_BYTES: u64 = MAX_MODEL_DOCUMENT_BYTES;
 
 pub const REDACTION_EVIDENCE_INVALID: &str = "REPORT-PACKAGE-REDACTION-EVIDENCE-INVALID";
 pub const LOCAL_FIRST_EVIDENCE_INVALID: &str = "REPORT-PACKAGE-LOCAL-FIRST-EVIDENCE-INVALID";
@@ -139,6 +154,10 @@ pub struct ReportPackageSaveScreening {
     /// `sha256:<hex>` of the request text the webview screened; it must be the
     /// SHA-256 of the text admitted.
     pub payload_sha256: String,
+    /// The wrapper's user-release intent (W-18b §2.5 step 1): true only on
+    /// route 010, false (or absent) on route 009.
+    #[serde(default)]
+    pub explicit_user_release_intent: bool,
 }
 
 /// The metadata-only local-first route evidence (`enforceLocalFirstRoute`),
@@ -153,6 +172,9 @@ pub struct ReportPackageLocalFirstEvidence {
     pub blocked: bool,
     pub metadata_only: bool,
     pub explicit_local_private_intent: bool,
+    /// The wrapper's user-release intent (W-18b §2.5 step 1).
+    #[serde(default)]
+    pub explicit_user_release_intent: bool,
 }
 
 /// `{requestCanonicalText, modelCanonicalText, inputManifestCanonicalText,
@@ -169,6 +191,10 @@ pub struct ReportPackageSaveRequest {
     /// delivered and the model text the job was sent.
     pub exact_result_text: Option<String>,
     pub exact_intake_text: Option<String>,
+    /// W-18b (§2.5 step 2): on route 010 only, the solve's DEL-14-02 0.3.0
+    /// transient run record as its canonical text; a validation input only,
+    /// never saved.
+    pub analysis_run_text: Option<String>,
 }
 
 /// The custody lookup of the native source binding: the registry's
@@ -177,6 +203,7 @@ pub type CustodyLookup<'a> = dyn Fn(&str) -> Option<CustodyDigests> + 'a;
 
 /// A custody lookup that names no job: every exact-route request refuses at
 /// its custody binding.
+#[cfg_attr(not(test), allow(dead_code))]
 pub fn no_custody(_: &str) -> Option<CustodyDigests> {
     None
 }
@@ -192,6 +219,7 @@ pub(crate) fn save_report_package_args(args: &mut Args) -> Result<ReportPackageS
         local_first: args.decode("localFirstEvidence")?,
         exact_result_text: args.decode("exactResultText")?,
         exact_intake_text: args.decode("exactIntakeText")?,
+        analysis_run_text: args.decode("analysisRunCanonicalText")?,
     })
 }
 
@@ -242,6 +270,11 @@ pub struct ReportPackageSaveReceipt {
     /// Non-blocking findings of the native screen, e.g.
     /// `MODEL-LIBRARY-REF-UNRESOLVED`.
     pub warnings: Vec<Diagnostic>,
+    /// W-18b (§2.3): whether the package records the user's per-report user
+    /// release (route 010), and the model document SHA-256 it is bound to
+    /// ("" when not recorded).
+    pub user_release_recorded: bool,
+    pub user_release_model_document_sha256: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -323,36 +356,57 @@ fn refuse(code: &str, path: &str, message: impl Into<String>) -> ReportPackageSa
 }
 
 /// Re-checks the route evidence (§2.6 item 2): defence in depth, not caller
-/// authentication.
+/// authentication. The route id selects the branch (W-18b, DEL-08-01 Design
+/// `report-user-release.md` §2.5 step 1):
+/// - route 009: local-private, explicit local-private intent and no
+///   user-release intent, lossless, not withheld, exact payload, zero
+///   blocking; local-first evidence `local_private`, reason
+///   `PRIVATE_LOCAL_METADATA_ALLOWED`;
+/// - route 010: `user_released_report`, the wrapper's user-release intent and
+///   no local-private intent, lossless, not withheld, exact payload, zero
+///   blocking; local-first evidence with storage context `private_report`,
+///   reason `USER_RELEASE_METADATA_ALLOWED`;
+/// - any other route id: `REPORT-PACKAGE-REDACTION-EVIDENCE-INVALID`.
 pub fn validate_report_package_save_evidence(
     screening: &ReportPackageSaveScreening,
     local_first: Option<&ReportPackageLocalFirstEvidence>,
 ) -> Result<(), ReportPackageSaveCommandError> {
     let s = screening;
-    let screened = s.route_id == REPORT_PACKAGE_SAVE_ROUTE_ID
-        && s.export_context == "local_private"
-        && s.explicit_local_private_intent
-        && !s.blocked
-        && !s.materialization_withheld
-        && s.lossless_required
-        && s.exact_payload_match
-        && s.blocking_count == 0;
+    let common = !s.blocked && !s.materialization_withheld && s.lossless_required && s.exact_payload_match && s.blocking_count == 0;
+    let user_release = s.route_id == REPORT_PACKAGE_USER_RELEASE_ROUTE_ID;
+    let screened = common
+        && if user_release {
+            s.export_context == USER_RELEASED_CONTEXT && s.explicit_user_release_intent && !s.explicit_local_private_intent
+        } else {
+            s.route_id == REPORT_PACKAGE_SAVE_ROUTE_ID
+                && s.export_context == "local_private"
+                && s.explicit_local_private_intent
+                && !s.explicit_user_release_intent
+        };
     if !screened {
-        return Err(refuse(
-            REDACTION_EVIDENCE_INVALID,
-            "",
-            format!("{REPORT_PACKAGE_SAVE_ROUTE_ID} local-private, lossless controlled route evidence with explicit intent is missing or blocked."),
-        ));
+        let expected = if user_release {
+            format!("{REPORT_PACKAGE_USER_RELEASE_ROUTE_ID} user-released, lossless controlled route evidence with the wrapper's user-release intent")
+        } else {
+            format!("{REPORT_PACKAGE_SAVE_ROUTE_ID} local-private, lossless controlled route evidence with explicit intent")
+        };
+        return Err(refuse(REDACTION_EVIDENCE_INVALID, "", format!("{expected} is missing or blocked.")));
     }
     let local_first_ok = local_first.is_some_and(|l| {
-        l.route_id == REPORT_PACKAGE_SAVE_ROUTE_ID
-            && l.export_context == "local_private"
-            && l.storage_context == "local_private"
-            && l.action == "include_metadata_only"
-            && l.reason_code == "PRIVATE_LOCAL_METADATA_ALLOWED"
-            && !l.blocked
-            && l.metadata_only
-            && l.explicit_local_private_intent
+        let common = l.route_id == s.route_id && l.action == "include_metadata_only" && !l.blocked && l.metadata_only;
+        common
+            && if user_release {
+                l.export_context == USER_RELEASED_CONTEXT
+                    && l.storage_context == "private_report"
+                    && l.reason_code == "USER_RELEASE_METADATA_ALLOWED"
+                    && l.explicit_user_release_intent
+                    && !l.explicit_local_private_intent
+            } else {
+                l.export_context == "local_private"
+                    && l.storage_context == "local_private"
+                    && l.reason_code == "PRIVATE_LOCAL_METADATA_ALLOWED"
+                    && l.explicit_local_private_intent
+                    && !l.explicit_user_release_intent
+            }
     });
     if !local_first_ok {
         return Err(refuse(LOCAL_FIRST_EVIDENCE_INVALID, "", "Metadata-only local-first route evidence is missing or blocked."));
@@ -409,6 +463,83 @@ pub fn parse_lease_bytes_with_exact(
         }),
     };
     Ok(base.saturating_add(priced("exact_result", exact_result_text)?).saturating_add(priced("exact_intake", exact_intake_text)?))
+}
+
+/// Route 010 refuses the exact texts (W-18b §0, §2.5 "The outer command",
+/// step 2a), naming the member, before any size cap, prescan or pricing.
+fn refuse_exact_texts(exact_result_text: Option<&str>, exact_intake_text: Option<&str>) -> Result<(), ReportPackageSaveCommandError> {
+    for (member, text) in [("exact_result_text", exact_result_text), ("exact_intake_text", exact_intake_text)] {
+        if text.is_some() {
+            return Err(refuse(
+                EXACT_ROUTE_NOT_ADMITTED,
+                &format!("/{member}"),
+                format!("A shareable report package carries pressure-free (preview-physics-2) results only; the request carries {member}, which only an exact-route result's local private package resubmits."),
+            ));
+        }
+    }
+    Ok(())
+}
+
+/// The run record text of route 010 (§2.5 step 2): present, within
+/// [`MAX_ANALYSIS_RUN_TEXT_BYTES`].
+fn analysis_run_text_of(analysis_run_text: Option<&str>) -> Result<&str, ReportPackageSaveCommandError> {
+    let text = analysis_run_text.ok_or_else(|| {
+        refuse(user_release::ANALYSIS_RECORD_UNBOUND, "/analysis_run", "Route DREP-PACKAGE-USER-RELEASE-010 needs the solve's run record text (analysisRunCanonicalText).")
+    })?;
+    let bytes = text.len() as u64;
+    if bytes > MAX_ANALYSIS_RUN_TEXT_BYTES {
+        return Err(refuse(TOO_LARGE, "/analysis_run", format!("The analysis_run text is {bytes} bytes; at most {MAX_ANALYSIS_RUN_TEXT_BYTES} are admitted.")));
+    }
+    Ok(text)
+}
+
+/// The command's route-aware ingress lease growth (W-18b, DEL-08-01 Design
+/// `report-user-release.md` §2.5, "The outer command"), after the evidence:
+/// - route 009: [`parse_lease_bytes_with_exact`], unchanged; a run record text
+///   is refused (it is route 010's);
+/// - route 010, in order: the exact texts refused
+///   (`REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED`, before they are sized,
+///   prescanned or priced, so the lease stays at the ingress admission's
+///   bytes); then the ordinary reservation: [`parse_lease_bytes`] over the
+///   request, model and input-manifest texts and the run record text's
+///   priced parse after its cap; plus route 010's own working memory:
+///   - the derivation's request and input manifest, priced as one more
+///     parse of each text ([`crate::command_ingress::text_parse_bytes`]): the
+///     derived request canonically equals the admitted one, and the derived
+///     manifest the bound one;
+///   - the refusal formatting allowance
+///     ([`crate::user_release_admission::refusal_formatting_bytes`]): a
+///     route-010 refusal names a JSON pointer in the model or the request,
+///     whose length the texts bound (Codex round 2 at #1673).
+///
+/// Rule 3 (b)'s growth (§2.7) comes later, inside admission, by the largest
+/// embedded candidate's priced parse. Every growth is refused above the
+/// budget the command was admitted under (`ingress_exceeds_budget`).
+pub fn ingress_lease_bytes(request: &ReportPackageSaveRequest) -> Result<u64, ReportPackageSaveCommandError> {
+    validate_report_package_save_evidence(&request.screening, request.local_first.as_ref())?;
+    if request.screening.route_id != REPORT_PACKAGE_USER_RELEASE_ROUTE_ID {
+        if request.analysis_run_text.is_some() {
+            return Err(refuse(REQUEST_INVALID, "/analysis_run", "Only route DREP-PACKAGE-USER-RELEASE-010 carries a run record text."));
+        }
+        return parse_lease_bytes_with_exact(
+            &request.request_text,
+            &request.model_text,
+            &request.input_manifest_text,
+            request.exact_result_text.as_deref(),
+            request.exact_intake_text.as_deref(),
+        );
+    }
+    refuse_exact_texts(request.exact_result_text.as_deref(), request.exact_intake_text.as_deref())?;
+    let ordinary = parse_lease_bytes(&request.request_text, &request.model_text, &request.input_manifest_text)?;
+    let priced = |what: &str, text: &str| {
+        text_parse_bytes(text, ArgsDecoding::Moved).map_err(|invalid| {
+            refuse(NOT_CANONICAL, &format!("/{what}"), format!("The {what} text is not JSON ({} at byte {}).", invalid.reason, invalid.offset))
+        })
+    };
+    let run = priced("analysis_run", analysis_run_text_of(request.analysis_run_text.as_deref())?)?;
+    let derivation = priced("request", &request.request_text)?.saturating_add(priced("input_manifest", &request.input_manifest_text)?);
+    let formatting = user_release_native::refusal_formatting_bytes(request.request_text.len() as u64, request.model_text.len() as u64);
+    Ok(ordinary.saturating_add(run).saturating_add(derivation).saturating_add(formatting))
 }
 
 /// The ingress lease growth for parsing the three texts (§2.6 item 1, "a
@@ -502,6 +633,9 @@ pub struct AdmittedReportPackage {
     /// W-11 (§3.6): an exact-route request's job and the digests its binding
     /// checked, re-checked after the save dialog and before the write.
     pub exact_custody: Option<(String, CustodyDigests)>,
+    /// W-18b (§2.3): the model document SHA-256 a route-010 package's
+    /// user-release record is bound to; `None` on route 009.
+    pub user_release_model_document_sha256: Option<String>,
 }
 
 fn text_at<'a>(value: &'a Value, pointer: &str) -> Option<&'a str> {
@@ -559,17 +693,44 @@ fn screen_content(request: &Value, model: &Value, project_id: &str, lookup: &mut
     if blocking.is_empty() { Ok(warnings) } else { Err(ReportPackageSaveCommandError::refused(blocking)) }
 }
 
-/// The raw context and model-text bindings of §2.6 item 5.
-fn check_context(request: &Value, model: &Value, software: &ExpectedSoftware) -> Result<(), ReportPackageSaveCommandError> {
-    if text_at(request, "/report/report_context/export_context") != Some("local_private") {
-        return Err(refuse(
-            REPORT_CONTEXT_NOT_LOCAL_PRIVATE,
-            "/request/report/report_context/export_context",
-            "The report package renders under local_private only.",
-        ));
-    }
-    if text_at(request, "/export_profile_id") != Some(DESKTOP_PROFILE) {
-        return Err(refuse(PROFILE_NOT_DESKTOP, "/request/export_profile_id", format!("The desktop saves only the {DESKTOP_PROFILE} profile.")));
+/// The raw context and model-text bindings of §2.6 item 5, by route (W-18b
+/// §2.5 step 3): route 009 renders under `local_private` with the desktop
+/// profile and carries no user-release record
+/// (`REPORT-USER-RELEASE-NOT-THIS-ROUTE`); route 010 renders under
+/// `user_released_report` with the user-released profile and carries the
+/// record (`REPORT-USER-RELEASE-RECORD-INVALID` otherwise).
+fn check_context(request: &Value, model: &Value, software: &ExpectedSoftware, user_release_route: bool) -> Result<(), ReportPackageSaveCommandError> {
+    const CONTEXT: &str = "/request/report/report_context/export_context";
+    const RECORD: &str = "/request/report/report_context/user_release";
+    let record = request.pointer("/report/report_context").and_then(Value::as_object).and_then(|context| context.get("user_release"));
+    if user_release_route {
+        if text_at(request, "/report/report_context/export_context") != Some(USER_RELEASED_CONTEXT) {
+            return Err(refuse(RECORD_INVALID, CONTEXT, format!("Route {REPORT_PACKAGE_USER_RELEASE_ROUTE_ID} renders under {USER_RELEASED_CONTEXT} only.")));
+        }
+        if text_at(request, "/export_profile_id") != Some(USER_RELEASED_DESKTOP_PROFILE) {
+            return Err(refuse(
+                PROFILE_NOT_DESKTOP,
+                "/request/export_profile_id",
+                format!("Route {REPORT_PACKAGE_USER_RELEASE_ROUTE_ID} saves only the {USER_RELEASED_DESKTOP_PROFILE} profile."),
+            ));
+        }
+        if record.is_none() {
+            return Err(refuse(RECORD_INVALID, RECORD, "A shareable report package needs the user's user-release record in its report context."));
+        }
+    } else {
+        if text_at(request, "/report/report_context/export_context") != Some("local_private") {
+            return Err(refuse(REPORT_CONTEXT_NOT_LOCAL_PRIVATE, CONTEXT, "The report package renders under local_private only."));
+        }
+        if text_at(request, "/export_profile_id") != Some(DESKTOP_PROFILE) {
+            return Err(refuse(PROFILE_NOT_DESKTOP, "/request/export_profile_id", format!("The desktop saves only the {DESKTOP_PROFILE} profile.")));
+        }
+        if record.is_some() {
+            return Err(refuse(
+                NOT_THIS_ROUTE,
+                RECORD,
+                format!("A user-release record is saved only on route {REPORT_PACKAGE_USER_RELEASE_ROUTE_ID}; the local private package carries none."),
+            ));
+        }
     }
     let project_id = text_at(model, "/project/id");
     for pointer in ["/source_model_ref/ref_id", "/source_results/0/model_ref"] {
@@ -761,6 +922,7 @@ fn bind_exact_save_source(
 
 /// The admission of §2.6 items 2-6, before any file is chosen, with no
 /// custody: every exact-route request refuses at its custody binding (§3.6).
+#[cfg_attr(not(test), allow(dead_code))]
 pub fn admit_report_package(
     request: ReportPackageSaveRequest,
     software: &ExpectedSoftware,
@@ -769,20 +931,88 @@ pub fn admit_report_package(
     admit_report_package_in(request, software, lookup, &no_custody)
 }
 
-/// The admission of §2.6 items 2-6 with the registry's custody lookup (the
-/// command's), before any file is chosen.
+/// The admission of §2.6 items 2-6 with the registry's custody lookup, before
+/// any file is chosen, with no session: a route-010 request refuses at its
+/// solve attestation (`REPORT-USER-RELEASE-RESULT-NOT-ATTESTED`), since only
+/// the command's session ([`UserReleaseSession`]) holds attested solves.
+#[cfg_attr(not(test), allow(dead_code))]
 pub fn admit_report_package_in(
     request: ReportPackageSaveRequest,
     software: &ExpectedSoftware,
     lookup: &mut LibraryLookup<'_>,
     custody: &CustodyLookup<'_>,
 ) -> Result<AdmittedReportPackage, ReportPackageSaveCommandError> {
-    let ReportPackageSaveRequest { request_text, model_text, input_manifest_text, screening, local_first, exact_result_text, exact_intake_text } =
-        request;
+    admit_report_package_session(request, software, lookup, custody, None).map_err(|refusal| match refusal {
+        SaveRefusal::Command(error) => error,
+        SaveRefusal::Resource(refusal) => refuse("REPORT-PACKAGE-SAVE-RESOURCE-REFUSED", "", format!("{refusal:?}")),
+    })
+}
+
+/// What route 010's admission reads from the session (W-18b, DEL-08-01 Design
+/// `report-user-release.md` §2.4, §2.5): the registry, for this session's
+/// attested solves and the memory pool of the run record's check, and the
+/// command's ingress lease, which rule 3 (b) grows.
+pub struct UserReleaseSession<'a> {
+    pub registry: &'a SolveJobRegistry,
+    pub lease: &'a mut Lease,
+}
+
+/// A save admission's refusal: the command's own, or the memory pool's refusal
+/// of a lease growth (rule 3 (b)'s), which the command reports as an ingress
+/// refusal.
+#[derive(Debug)]
+pub enum SaveRefusal {
+    Command(ReportPackageSaveCommandError),
+    Resource(ResourceRefusal),
+}
+
+impl From<ReportPackageSaveCommandError> for SaveRefusal {
+    fn from(error: ReportPackageSaveCommandError) -> Self {
+        Self::Command(error)
+    }
+}
+
+/// The admission of both routes, before any file is chosen. The route id in
+/// the evidence selects the branch (W-18b §2.5). Every existing check runs on
+/// both routes in its order; route 010 adds the run record text (step 2), the
+/// exact-route refusal directly after the object-form check (step 2a), its
+/// context (step 3) and, after the rule-pack agreement, steps 4-9: the
+/// record's form and bindings, the library and rule-pack refusals, the
+/// private classes, the solve attestation, the run record and the one
+/// admitting producer entry, through
+/// [`report_package_bridge::assemble_user_released_request`].
+pub fn admit_report_package_session(
+    request: ReportPackageSaveRequest,
+    software: &ExpectedSoftware,
+    lookup: &mut LibraryLookup<'_>,
+    custody: &CustodyLookup<'_>,
+    session: Option<&mut UserReleaseSession<'_>>,
+) -> Result<AdmittedReportPackage, SaveRefusal> {
+    let ReportPackageSaveRequest {
+        request_text,
+        model_text,
+        input_manifest_text,
+        screening,
+        local_first,
+        exact_result_text,
+        exact_intake_text,
+        analysis_run_text,
+    } = request;
     validate_report_package_save_evidence(&screening, local_first.as_ref())?;
+    let user_release_route = screening.route_id == REPORT_PACKAGE_USER_RELEASE_ROUTE_ID;
     let local_first = local_first.expect("validated local-first evidence");
     check_text_sizes(&request_text, &model_text, &input_manifest_text)?;
-    check_exact_text_sizes(exact_result_text.as_deref(), exact_intake_text.as_deref())?;
+    if user_release_route {
+        // Step 2: the outer command has already refused these; a caller that
+        // did not come through it gets the same refusal (step 2a).
+        refuse_exact_texts(exact_result_text.as_deref(), exact_intake_text.as_deref())?;
+        analysis_run_text_of(analysis_run_text.as_deref())?;
+    } else {
+        check_exact_text_sizes(exact_result_text.as_deref(), exact_intake_text.as_deref())?;
+        if analysis_run_text.is_some() {
+            return Err(refuse(REQUEST_INVALID, "/analysis_run", "Only route DREP-PACKAGE-USER-RELEASE-010 carries a run record text.").into());
+        }
+    }
 
     // Canonical binding: the evidence names exactly this request text.
     let request_hex = sha256_hex(&request_text);
@@ -791,17 +1021,28 @@ pub fn admit_report_package_in(
             EVIDENCE_UNBOUND,
             "/request",
             format!("The screening evidence is for {}, not for this request text (sha256:{request_hex}).", screening.payload_sha256),
-        ));
+        )
+        .into());
     }
     let request_value = parse_canonical("request", &request_text)?;
     drop(request_text);
     check_request_object_form(&request_value)?;
+    // W-18b step 2a: route 010 refuses an exact-route request directly after
+    // the object-form check, before any custody query or exact-text parse.
+    if user_release_route && exact_request(&request_value) {
+        return Err(refuse(
+            EXACT_ROUTE_NOT_ADMITTED,
+            "/request/result_documents/0",
+            "A shareable report package carries pressure-free (preview-physics-2) results only; this exact-route result can be saved in a local private package.",
+        )
+        .into());
+    }
     // W-11 (§3.6): the native source binding of an exact-route request, before
     // the other content checks; a pressure-free request carries no texts.
     let exact_custody = if exact_request(&request_value) {
         Some(bind_exact_save_source(&request_value, &model_text, exact_result_text.as_deref(), exact_intake_text.as_deref(), custody)?)
     } else if exact_result_text.is_some() || exact_intake_text.is_some() {
-        return Err(exact_refused(exact_binding::sections_mismatch("exact_route"), "/request/report/exact_route"));
+        return Err(exact_refused(exact_binding::sections_mismatch("exact_route"), "/request/report/exact_route").into());
     } else {
         None
     };
@@ -815,7 +1056,8 @@ pub fn admit_report_package_in(
             MODEL_UNBOUND,
             "/request/audit_manifest/model_hash/value",
             format!("The request's audit model hash is not the model text's SHA-256 ({model_hex})."),
-        ));
+        )
+        .into());
     }
     // The run's input manifest: its SHA-256 is the audit input-manifest hash.
     let input_manifest_value = parse_canonical("input_manifest", &input_manifest_text)?;
@@ -826,17 +1068,30 @@ pub fn admit_report_package_in(
             INPUT_MANIFEST_UNBOUND,
             "/request/audit_manifest/input_manifest_hash/value",
             format!("The request's audit input-manifest hash is not the input-manifest text's SHA-256 ({input_manifest_hex})."),
-        ));
+        )
+        .into());
     }
     check_manifest_model(&input_manifest_value, &model_value, &model_hex)?;
     let solve_packs = solve_rule_packs(&input_manifest_value)?;
-    drop(input_manifest_value);
+    // Route 010 keeps the input manifest for its derivation (step 9).
+    let input_manifest_value = if user_release_route {
+        Some(input_manifest_value)
+    } else {
+        drop(input_manifest_value);
+        None
+    };
 
     // Disposition screening of both values, then the context bindings.
     let project_id = text_at(&model_value, "/project/id").unwrap_or("").to_string();
     let warnings = screen_content(&request_value, &model_value, &project_id, lookup)?;
-    check_context(&request_value, &model_value, software)?;
-    drop(model_value);
+    check_context(&request_value, &model_value, software, user_release_route)?;
+    // Route 010 keeps the model for its steps 4-9.
+    let model_value = if user_release_route {
+        Some(model_value)
+    } else {
+        drop(model_value);
+        None
+    };
     // The audit hash names the input manifest by the session's reference for
     // that hash and the (now bound) model, which the shared producer binds to
     // the document, the report and the handoff records; then §2.5's rule.
@@ -846,22 +1101,182 @@ pub fn admit_report_package_in(
             INPUT_MANIFEST_UNBOUND,
             "/request/audit_manifest/input_manifest_hash/payload_ref",
             format!("The request's audit input-manifest hash does not name the input-manifest text ({}).", manifest_ref["ref"].as_str().unwrap_or("")),
-        ));
+        )
+        .into());
     }
     check_rule_packs_agree(&request_value, &solve_packs)?;
     drop(solve_packs);
 
-    // Typed conversion and the shared producer (§2.3).
-    let package = report_package_bridge::assemble_request(typed_request(request_value)?).map_err(ReportPackageSaveCommandError::bridge)?;
+    let (package, user_release_model_document_sha256) = match (model_value, input_manifest_value) {
+        (Some(model_value), Some(input_manifest_value)) => {
+            let session = session.ok_or_else(|| {
+                SaveRefusal::from(refuse(RESULT_NOT_ATTESTED, "/request/source_results/0", "No session attestation table is available to this admission."))
+            })?;
+            let bound = UserReleaseBound {
+                model: model_value,
+                model_hex: &model_hex,
+                input_manifest: input_manifest_value,
+                input_manifest_hex: &input_manifest_hex,
+                input_manifest_ref: manifest_ref["ref"].as_str().unwrap_or(""),
+                project_id: &project_id,
+            };
+            let run_text = analysis_run_text.expect("checked at step 2");
+            (admit_user_released(request_value, bound, run_text, software, session)?, Some(model_hex.clone()))
+        }
+        _ => {
+            // Typed conversion and the shared producer (§2.3).
+            (report_package_bridge::assemble_request(typed_request(request_value)?).map_err(ReportPackageSaveCommandError::bridge)?, None)
+        }
+    };
     if package.export_blocked {
-        return Err(ReportPackageSaveCommandError::bridge(format!("{PRODUCER_BLOCKED}: {}", package.blocking_reasons.join(" | "))));
+        return Err(ReportPackageSaveCommandError::bridge(format!("{PRODUCER_BLOCKED}: {}", package.blocking_reasons.join(" | "))).into());
     }
-    Ok(AdmittedReportPackage { package, screening, local_first, warnings, exact_custody })
+    Ok(AdmittedReportPackage { package, screening, local_first, warnings, exact_custody, user_release_model_document_sha256 })
+}
+
+/// What route 010's steps 4-9 read, bound by the earlier steps.
+struct UserReleaseBound<'a> {
+    model: Value,
+    model_hex: &'a str,
+    input_manifest: Value,
+    input_manifest_hex: &'a str,
+    input_manifest_ref: &'a str,
+    project_id: &'a str,
+}
+
+/// A route-010 refusal whose message (`CODE: detail`) names its own code: the
+/// finding keeps the code and the detail, under `path`. The detail and the
+/// joined message are each written into one buffer sized before it is
+/// written, so a refusal naming a long JSON pointer holds the message, its
+/// detail and the joined message only, within route 010's refusal formatting
+/// allowance (`user_release_admission::refusal_formatting_bytes`).
+fn coded(path: &str, message: &str) -> ReportPackageSaveCommandError {
+    let (code, detail) = message.split_once(": ").unwrap_or(("REPORT-USER-RELEASE-REFUSED", message));
+    refused_sized(code, path, detail)
+}
+
+/// [`coded`], for the refusal-formatting price's regression.
+#[cfg(test)]
+pub(crate) fn coded_for_tests(path: &str, message: &str) -> ReportPackageSaveCommandError {
+    coded(path, message)
+}
+
+/// [`refuse`] with each string sized before it is written.
+fn refused_sized(code: &str, path: &str, detail: &str) -> ReportPackageSaveCommandError {
+    let mut owned = String::with_capacity(detail.len());
+    owned.push_str(detail);
+    let mut message = String::with_capacity(code.len() + path.len() + detail.len() + 6);
+    message.push_str(code);
+    if !path.is_empty() {
+        message.push_str(" at ");
+        message.push_str(path);
+    }
+    message.push_str(": ");
+    message.push_str(detail);
+    let diagnostics = vec![Diagnostic { code: code.to_string(), path: path.to_string(), message: owned }];
+    ReportPackageSaveCommandError::with_stage(code.to_string(), "admit", message, diagnostics)
+}
+
+/// Step 4 (§2.5): the record is of its form (§2.3; no `content_binding`) and
+/// each bound member equals a value admission itself computed or already
+/// bound, never another caller field alone.
+fn check_user_release_record(request: &Value, bound: &UserReleaseBound<'_>) -> Result<UserReleaseRecord, ReportPackageSaveCommandError> {
+    const RECORD: &str = "/request/report/report_context/user_release";
+    let value = request.pointer("/report/report_context/user_release").unwrap_or(&Value::Null);
+    let record: UserReleaseRecord = serde::Deserialize::deserialize(value)
+        .map_err(|_| refuse(RECORD_INVALID, RECORD, "The user-release record is not of its form (every member required, no other admitted)."))?;
+    if let Some(member) = record.form_defect() {
+        return Err(refuse(RECORD_INVALID, &format!("{RECORD}/{}", member.replace('.', "/")), format!("The user-release record's {member} is not of its form.")));
+    }
+    let run = text_at(request, "/source_results/0/run_id").unwrap_or("");
+    let envelope = request.pointer("/result_documents/0/result_envelope").unwrap_or(&Value::Null);
+    let b = &record.bound_to;
+    let package_id = format!("{}{}", user_release::USER_RELEASED_PACKAGE_PREFIX, user_release::safe_token(run, "report-package"));
+    let checks: [(&str, bool); 11] = [
+        ("bound_to.model_document_sha256", b.model_document_sha256 == bound.model_hex),
+        ("bound_to.model_ref", b.model_ref == bound.project_id && text_at(request, "/source_model_ref/ref_id") == Some(bound.project_id)),
+        ("bound_to.input_manifest_sha256", b.input_manifest_sha256 == bound.input_manifest_hex),
+        ("bound_to.input_manifest_ref", b.input_manifest_ref == bound.input_manifest_ref),
+        ("bound_to.analysis_run_ref", !run.is_empty() && b.analysis_run_ref == run),
+        ("bound_to.result_envelope_id", text_at(envelope, "/envelope_id") == Some(b.result_envelope_id.as_str())),
+        (
+            "bound_to.result_document_derivative_sha256",
+            text_at(envelope, "/reproducibility/derivative_hash/value") == Some(b.result_document_derivative_sha256.as_str()),
+        ),
+        ("scope.report_id", record.scope.report_id == format!("report:{}", b.analysis_run_ref)),
+        ("scope.report_id", text_at(request, "/report/calculation_report/report_id") == Some(record.scope.report_id.as_str())),
+        ("scope.package_id", text_at(request, "/package_id") == Some(record.scope.package_id.as_str())),
+        ("scope.package_id", record.scope.package_id == package_id),
+    ];
+    if let Some((member, _)) = checks.iter().find(|(_, holds)| !holds) {
+        return Err(refuse(
+            UNBOUND,
+            &format!("{RECORD}/{}", member.replace('.', "/")),
+            format!("The user-release record's {member} is not this save's: the record is bound to another model, run, result document or package."),
+        ));
+    }
+    Ok(record)
+}
+
+/// Route 010's steps 4-9 (W-18b, DEL-08-01 Design `report-user-release.md`
+/// §2.5), after the steps both routes share.
+fn admit_user_released(
+    request: Value,
+    bound: UserReleaseBound<'_>,
+    run_text: String,
+    software: &ExpectedSoftware,
+    session: &mut UserReleaseSession<'_>,
+) -> Result<open_pipe_stress_report_package::ReportPackageContainerOutcome, SaveRefusal> {
+    // Step 4: the record's form and bindings.
+    let record = check_user_release_record(&request, &bound)?;
+    // Step 5: the reference refusals (§2.7).
+    match user_release_native::refuse_library_referenced(&bound.model, session.lease) {
+        Ok(()) => {}
+        Err(LibraryRefusal::Referenced(message)) => return Err(coded("/model", &message).into()),
+        Err(LibraryRefusal::Lease(refusal)) => return Err(SaveRefusal::Resource(refusal)),
+    }
+    user_release_native::refuse_rule_pack_referenced(&bound.model, &bound.input_manifest).map_err(|message| coded("/model", &message))?;
+    // Step 6: private classes, in the request and the model.
+    user_release_native::refuse_private_classes(&request, "/request").map_err(|message| coded("/request", &message))?;
+    user_release_native::refuse_private_classes(&bound.model, "/model").map_err(|message| coded("/model", &message))?;
+    // Step 7: this session's solver produced S for M, in the manifest's mode.
+    let not_attested = |detail: &str| {
+        refuse(
+            RESULT_NOT_ATTESTED,
+            "/request/source_results/0",
+            format!("{detail} A shareable report package needs a result this session's solver produced for this model; solve the model again, then save."),
+        )
+    };
+    let mode_text = text_at(&bound.input_manifest, "/solver_basis/solver_mode").unwrap_or("");
+    let mode = PreviewSolverMode::from_wire(mode_text).ok_or_else(|| not_attested("The input manifest names no solver mode of this application."))?;
+    let source = request.pointer("/source_results/0").unwrap_or(&Value::Null);
+    let attestation = SolveAttestation::of(&bound.model, source).ok_or_else(|| not_attested("The model or the result is outside the checked profile, so it was never attested."))?;
+    if !session.registry.holds_attested_solve(mode, &attestation) {
+        return Err(not_attested("This session holds no attested solve of this model and result (it was solved in another session, or its attestation was evicted).").into());
+    }
+    // Step 8: the run record.
+    let run_record = parse_canonical("analysis_run", &run_text)?;
+    drop(run_text);
+    {
+        let memory = crate::stored_read::PoolReadMemory::new(session.registry, session.lease);
+        user_release_native::check_run_record(bound.project_id, &run_record, source, &bound.input_manifest, bound.input_manifest_hex, &memory)
+            .map_err(|message| coded("/analysis_run", &message))?;
+    }
+    // Step 9: the derivation and the producer, in one call.
+    let identity = SoftwareIdentity { name: software.name.clone(), version: software.version.clone() };
+    let inputs = user_release::UserReleaseInputs {
+        model: &bound.model,
+        solver_mode: mode_text,
+        run_record: &run_record,
+        software: &identity,
+        record: &record,
+    };
+    Ok(report_package_bridge::assemble_user_released_request(request, &inputs, &bound.input_manifest).map_err(ReportPackageSaveCommandError::bridge)?)
 }
 
 impl AdmittedReportPackage {
     fn receipt(self, outcome: &str, stage: &str, code: String, written: Option<atomic_report_package_save::AtomicSaveOutcome>) -> ReportPackageSaveReceipt {
-        let Self { package, screening, local_first, warnings, exact_custody: _ } = self;
+        let Self { package, screening, local_first, warnings, exact_custody: _, user_release_model_document_sha256 } = self;
         let byte_count = if written.is_some() { package.container_bytes.len() } else { 0 };
         let (replaced_existing, durability, selected_basename, path_containment, limitation) = match written {
             Some(save) => (save.replaced_existing, save.durability, save.selected_basename, save.path_containment, save.limitation),
@@ -909,6 +1324,8 @@ impl AdmittedReportPackage {
             path_containment,
             limitation,
             warnings,
+            user_release_recorded: user_release_model_document_sha256.is_some(),
+            user_release_model_document_sha256: user_release_model_document_sha256.unwrap_or_default(),
         }
     }
 }
@@ -916,6 +1333,7 @@ impl AdmittedReportPackage {
 /// The save dialog and the atomic write of an admitted package; `choose` is the
 /// dialog (a counting seam in tests): `None` is a cancel, `Some(Err)` an
 /// unusable path. No custody: an exact-route package refuses before the write.
+#[cfg_attr(not(test), allow(dead_code))]
 pub fn save_admitted_report_package(
     admitted: AdmittedReportPackage,
     choose: impl FnOnce(&str) -> Option<Result<PathBuf, String>>,
@@ -1077,6 +1495,7 @@ pub(crate) mod test_support {
             decision_count: 3,
             finding_count: 1,
             payload_sha256,
+            explicit_user_release_intent: false,
         }
     }
 
@@ -1090,6 +1509,7 @@ pub(crate) mod test_support {
             blocked: false,
             metadata_only: true,
             explicit_local_private_intent: true,
+            explicit_user_release_intent: false,
         }
     }
 
@@ -1112,6 +1532,7 @@ pub(crate) mod test_support {
             local_first: Some(local_first()),
             exact_result_text: None,
             exact_intake_text: None,
+            analysis_run_text: None,
         }
     }
 
