@@ -893,12 +893,15 @@ fn vec_text(v: V3) -> String {
 }
 
 /// §3.2-§3.4: the refusals of declared offsets. The first pass is
-/// allocation-free and returns when no component carries the slot; a
-/// non-reducer carrying it is refused before any reducer processing.
-pub(crate) fn append_eccentric_offset_refusals(model: &PreviewModel, tolerance: f64, diagnostics: &mut Vec<Diagnostic>) {
+/// allocation-free and returns, before the tolerance is read, when no
+/// component carries the slot; a non-reducer carrying it is refused before
+/// any reducer processing. An unadmitted tolerance is refused by
+/// `validate_model_settings`, so the check does not run on it.
+pub(crate) fn append_eccentric_offset_refusals(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
     if !model.components.iter().any(|component| eccentric_offset(component).is_some()) {
         return;
     }
+    let Ok(tolerance) = model.node_proximity_tolerance_m() else { return };
     for component in model.components.iter().filter(|c| eccentric_offset(c).is_some() && c.kind != "reducer") {
         diagnostics.push(diag(
             &format!("diagnostic:component:{}:eccentric-offset-invalid", stable_suffix(&component.id)),
@@ -936,10 +939,11 @@ fn v_norm_of(component: &PreviewComponent) -> f64 {
 
 /// §3.4: the realized offset of each checked reducer, on a published result
 /// only (called past the last blocked return).
-pub(crate) fn append_eccentric_offset_realized(model: &PreviewModel, tolerance: f64, diagnostics: &mut Vec<Diagnostic>) {
+pub(crate) fn append_eccentric_offset_realized(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
     if !model.components.iter().any(|component| eccentric_offset(component).is_some()) {
         return;
     }
+    let Ok(tolerance) = model.node_proximity_tolerance_m() else { return };
     for (component, outcome) in judge_all(model, tolerance) {
         let OffsetOutcome::Realized(m) = outcome else { continue };
         let length = (m.axial_length * m.axial_length + v_dot(m.transverse, m.transverse)).sqrt();

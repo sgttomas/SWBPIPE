@@ -2932,11 +2932,9 @@ fn run_linear_static_preview_observed_inner(
     // W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §3.2): a
     // declared eccentric offset is checked against the normalized node
     // geometry, which governs. The first pass returns before any index is
-    // built when no component carries the slot. The tolerance was admitted by
-    // `validate_model_settings`.
-    if let Ok(tolerance) = model.node_proximity_tolerance_m() {
-        rigid_component::append_eccentric_offset_refusals(&model, tolerance, &mut diagnostics);
-    }
+    // built, and before the tolerance is read, when no component carries the
+    // slot. The tolerance was admitted by `validate_model_settings`.
+    rigid_component::append_eccentric_offset_refusals(&model, &mut diagnostics);
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
     }
@@ -3396,9 +3394,7 @@ fn run_linear_static_preview_observed_inner(
     rigid_component::append_formed_diagnostics(&model, &built.scaled_members, &mut diagnostics);
     // W-15 slice c (Design `eccentric-reducer-offset.md` §3.4): the realized
     // offset of each checked reducer, on a published result only.
-    if let Ok(tolerance) = model.node_proximity_tolerance_m() {
-        rigid_component::append_eccentric_offset_realized(&model, tolerance, &mut diagnostics);
-    }
+    rigid_component::append_eccentric_offset_realized(&model, &mut diagnostics);
     let mut envelope = MechanicsEnvelope {
         contract_evidence: pressure_runtime::is_exact(&model).then(|| {
             let mut evidence = serde_json::json!({"pressure": pressure_evidence, "connector": joint::connector_evidence(&model, &built.connectors, &built.connector_records), "exact_cases": exact_cases});
