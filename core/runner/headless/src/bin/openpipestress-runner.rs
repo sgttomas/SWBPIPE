@@ -23,6 +23,7 @@ use open_pipe_stress_product_physics::{
 use open_pipe_stress_report_package::{
     document_form::{producer_contract_id, ROUTE_NOT_ADMITTED},
     exact_sections::is_exact_identity,
+    user_release::{user_release_marker, RUNNER_NOT_ADMITTED},
     wire::{assemble_wire_request, decode_report_package_request, LinkedSolverIdentity, ReportPackageRequest},
     ReportPackageContainerOutcome,
 };
@@ -506,6 +507,24 @@ fn execute_export_results(
             "runner_operation",
             "export_results",
             format!("export_results payload is invalid: {ROUTE_NOT_ADMITTED}: the headless runner packages no exact-route result; only the desktop builds and binds their sections; found {id}"),
+        ));
+    }
+    // W-18b (DEL-08-01 Design `report-user-release.md` §2.8, refusal 1): the
+    // headless runner packages no user-released report. Only the desktop's
+    // route DREP-PACKAGE-USER-RELEASE-010 builds one, after its model and
+    // reference screening, its solve attestation and its whole-request
+    // derivation, none of which the runner has. Any one user-release marker
+    // (the user-released profile, the user_released_report context, or a
+    // user_release member in the report context) is refused here, before the
+    // bindings and the producer, with or without
+    // --explicit-local-private-intent. The message names the marker's fixed
+    // path, never its value.
+    if let Some(marker) = user_release_marker(&payload.export_profile_id, &payload.report) {
+        diagnostics.push(blocking(
+            "HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_INVALID",
+            "runner_operation",
+            "export_results",
+            format!("{RUNNER_NOT_ADMITTED}: the headless runner packages no user-released report; only the desktop's route DREP-PACKAGE-USER-RELEASE-010 builds one (marker: {marker})"),
         ));
     }
 
