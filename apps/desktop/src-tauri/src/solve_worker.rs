@@ -20,8 +20,26 @@
 //!   doubling step, needed = counted heap + reserve; answered by
 //!   `GRNT {grant >= needed}` or `DENY`), `CAPX {needed_grant, max_grant}` or
 //!   `RFSD {needed_grant, grant}` (a final refusal, then exit
-//!   [`WORKER_CAP_EXIT`]), `RSLT {R, lifetime_max_footprint}` + R bytes (the
-//!   producer's exact bytes), `FAIL {n}` + n bytes (n <= 64 KiB).
+//!   [`WORKER_CAP_EXIT`]), `ATST {status, 0, 0}` + 64 bytes `d_M ‖ d_S` when
+//!   status is 1 and none when it is 0 (the solve attestation,
+//!   [`crate::solve_attestation`]; DEL-08-01 Design `report-user-release.md`
+//!   §2.4), directly followed by `RSLT {R, lifetime_max_footprint}` + R bytes
+//!   (the producer's exact bytes), or `FAIL {n}` + n bytes (n <= 64 KiB).
+//!   The parent reads an `ATST` body into a fixed 64-byte buffer. A result
+//!   without its `ATST`, an `ATST` followed by anything but `RSLT` (a second
+//!   `ATST` included), one with another status or nonzero `b`/`c`, or any
+//!   output after the result (a frame or not) is a protocol violation and
+//!   fails the job; the parent reads the channel to its end before the
+//!   result counts.
+//!
+//! The solve attestation: before the solve the worker digests the model value
+//! it materialized (`d_M`), and after the unchanged solve it parses the
+//! producer's bytes back into a value and digests it (`d_S`), each streamed
+//! through the checked canonical writer into SHA-256, holding no canonical
+//! text; the parsed value is dropped before the frames are sent. A value the
+//! checked profile refuses gives status 0; the solve and its bytes are
+//! unchanged either way. The parent hands the attestation to the registry
+//! with the result, and never to the webview.
 //!
 //! The grant (a [`LeasePurpose::Worker`] lease) starts at the process reserve
 //! plus the request's ingress bound, rounded up to 1 MiB, and grows on demand
@@ -93,9 +111,10 @@
 //! it is unreaped.
 
 use crate::memory_pool::{Lease, LeasePurpose, MemoryPool, ResampleStop, ResidencyProbe, ResourceRefusal};
+use crate::solve_attestation::{SolveAttestation, ATTESTATION_BYTES, SOLVED_MODEL_DOMAIN, SOLVED_RESULT_DOMAIN};
 use crate::worker_alloc::{
-    decode_frame, encode_frame, resident_envelope, FRAME_BYTES, TAG_CAP_EXCEEDED, TAG_DENIED, TAG_ERROR, TAG_GRANTED,
-    TAG_GROW, TAG_REFUSED, TAG_RESULT,
+    decode_frame, encode_frame, resident_envelope, FRAME_BYTES, TAG_ATTESTATION, TAG_CAP_EXCEEDED, TAG_DENIED, TAG_ERROR,
+    TAG_GRANTED, TAG_GROW, TAG_REFUSED, TAG_RESULT,
 };
 use open_pipe_stress_product_physics::PreviewSolverMode;
 use std::io::{Read, Write};
@@ -222,12 +241,7 @@ pub fn run_solve_worker() -> i32 {
         crate::worker_alloc::arm(request.initial_grant, request.max_grant, request.reserve);
         let outcome = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| workload(raw, request.mode)));
         let sent = match outcome {
-            Ok(Ok(result)) => crate::worker_alloc::send_frame(
-                TAG_RESULT,
-                result.len() as u64,
-                crate::worker_alloc::lifetime_max_footprint(),
-                result.as_bytes(),
-            ),
+            Ok(Ok((result, attestation))) => send_result(attestation, &result),
             Ok(Err(error)) => send_error(&error),
             Err(payload) => send_error(&format!("PREVIEW-SOLVE-PANICKED: {}", panic_message(payload.as_ref()))),
         };
@@ -251,6 +265,24 @@ pub(crate) fn panic_message(payload: &(dyn std::any::Any + Send)) -> String {
         .map(|s| s.to_string())
         .or_else(|| payload.downcast_ref::<String>().cloned())
         .unwrap_or_else(|| "non-string panic payload".to_string())
+}
+
+/// The `ATST` frame (status 1 with `d_M ‖ d_S`, or status 0 and no body),
+/// then the `RSLT` frame and the producer's bytes. Allocates nothing, so no
+/// growth exchange can come between the two frames.
+fn send_result(attestation: Option<SolveAttestation>, result: &str) -> bool {
+    let body = attestation.map(SolveAttestation::to_bytes);
+    let (status, body): (u64, &[u8]) = match &body {
+        Some(bytes) => (1, bytes),
+        None => (0, &[]),
+    };
+    crate::worker_alloc::send_frame(TAG_ATTESTATION, status, 0, body)
+        && crate::worker_alloc::send_frame(
+            TAG_RESULT,
+            result.len() as u64,
+            crate::worker_alloc::lifetime_max_footprint(),
+            result.as_bytes(),
+        )
 }
 
 fn send_error(message: &str) -> bool {
@@ -454,21 +486,43 @@ fn close_inherited_fds(keep: &[i32]) {
     }
 }
 
-fn workload(raw: Vec<u8>, mode: PreviewSolverMode) -> Result<String, String> {
+fn workload(raw: Vec<u8>, mode: PreviewSolverMode) -> Result<(String, Option<SolveAttestation>), String> {
     #[cfg(test)]
     if let Some(workload) = tests::scripted_workload() {
-        return tests::run_scripted(&workload, raw, mode);
+        return tests::run_scripted_attested(&workload, raw, mode);
     }
     ordinary_solve(raw, mode)
 }
 
-/// The ordinary solve, unchanged: materialize the model, release the raw
-/// bytes, produce the exact serialized bytes.
-fn ordinary_solve(raw: Vec<u8>, mode: PreviewSolverMode) -> Result<String, String> {
+/// The ordinary solve, unchanged, with its attestation: materialize the
+/// model, release the raw bytes, digest the model (`d_M`), produce the exact
+/// serialized bytes, then digest the result value they hold (`d_S`).
+fn ordinary_solve(raw: Vec<u8>, mode: PreviewSolverMode) -> Result<(String, Option<SolveAttestation>), String> {
     let model: serde_json::Value =
         serde_json::from_slice(&raw).map_err(|error| format!("PREVIEW-SOLVE-MODEL-INVALID: {error}"))?;
     drop(raw);
-    crate::solve_preview_mechanics_with_mode(model, mode)
+    attested_solve(model, mode)
+}
+
+/// [`ordinary_solve`] after the model is materialized.
+pub(crate) fn attested_solve(
+    model: serde_json::Value,
+    mode: PreviewSolverMode,
+) -> Result<(String, Option<SolveAttestation>), String> {
+    let model_sha256 = crate::solve_attestation::streamed_digest(SOLVED_MODEL_DOMAIN, &model);
+    let result = crate::solve_preview_mechanics_with_mode(model, mode)?;
+    let attestation = model_sha256
+        .and_then(|model_sha256| Some(SolveAttestation { model_sha256, result_sha256: result_digest(&result)? }));
+    Ok((result, attestation))
+}
+
+/// `d_S`: the solver entry returns a typed envelope, so the result value is
+/// the producer's exact bytes parsed back (the value the webview receives),
+/// digested streamed and dropped at once. `None` if the checked profile
+/// refuses it.
+pub(crate) fn result_digest(result: &str) -> Option<[u8; 32]> {
+    let value: serde_json::Value = serde_json::from_str(result).ok()?;
+    crate::solve_attestation::streamed_digest(SOLVED_RESULT_DOMAIN, &value)
 }
 
 // ---------------------------------------------------------------------------
@@ -697,9 +751,10 @@ fn measured_lifetime_max_footprint(pid: i32) -> u64 {
 /// How a worker job ended. The worker has been reaped before this is returned.
 #[derive(Debug)]
 pub(crate) enum WorkerOutcome {
-    /// The producer's exact bytes, in an exact-capacity buffer, and the result
-    /// lease acquired for them while the grant was still held.
-    Completed { result: Vec<u8>, lease: Lease },
+    /// The producer's exact bytes, in an exact-capacity buffer, the result
+    /// lease acquired for them while the grant was still held, and the solve
+    /// attestation from the `ATST` frame (none for status 0).
+    Completed { result: Vec<u8>, lease: Lease, attestation: Option<SolveAttestation> },
     Failed(String),
     Refused(ResourceRefusal),
     /// Killed on request (cancellation or session reset).
@@ -730,6 +785,22 @@ pub(crate) struct WorkerTerms<'a> {
 
 fn protocol(message: impl std::fmt::Display) -> WorkerOutcome {
     WorkerOutcome::Failed(format!("SOLVE_WORKER_PROTOCOL: {message}"))
+}
+
+/// Reads the channel after the result up to the worker's end of it (EOF, at
+/// its exit or kill): None if nothing followed the result, else the
+/// violation. The result lease and the grant stay held meanwhile, as they do
+/// until the reap.
+fn trailing_output(stdout: &mut ChildStdout) -> Option<String> {
+    let mut byte = [0u8; 1];
+    loop {
+        match stdout.read(&mut byte) {
+            Ok(0) => return None,
+            Ok(_) => return Some(format!("output after the result (byte 0x{:02x})", byte[0])),
+            Err(error) if error.kind() == std::io::ErrorKind::Interrupted => {}
+            Err(error) => return Some(format!("the channel after the result failed: {error}")),
+        }
+    }
 }
 
 /// How often the supervisor measures a worker's physical footprint while no
@@ -876,7 +947,9 @@ pub(crate) fn supervise(
 
     let mut verdict: Option<WorkerOutcome> = None;
     let mut refusal: Option<ResourceRefusal> = None;
-    let mut completed: Option<(Vec<u8>, Lease)> = None;
+    let mut completed: Option<(Vec<u8>, Lease, Option<SolveAttestation>)> = None;
+    // The `ATST` frame read so far: None before it, Some(status 0 or 1) after.
+    let mut attestation: Option<Option<SolveAttestation>> = None;
     let mut error: Option<String> = None;
     let mut frame = [0u8; FRAME_BYTES];
     loop {
@@ -982,6 +1055,36 @@ pub(crate) fn supervise(
             break;
         }
         match decode_frame(&frame) {
+            // An `ATST` is directly followed by the result; anything else
+            // after it (a second `ATST` included) is a violation.
+            (tag, _, _, _) if attestation.is_some() && tag != TAG_RESULT => {
+                verdict = end(protocol(format_args!(
+                    "an ATST frame followed by {:?}, not the result",
+                    String::from_utf8_lossy(&tag)
+                )));
+                break;
+            }
+            (TAG_ATTESTATION, status, b, c) => {
+                if b != 0 || c != 0 {
+                    verdict = end(protocol(format_args!("an ATST frame with fields {status}, {b}, {c}")));
+                    break;
+                }
+                match status {
+                    0 => attestation = Some(None),
+                    1 => {
+                        let mut body = [0u8; ATTESTATION_BYTES];
+                        if process.stdout.read_exact(&mut body).is_err() {
+                            verdict = end(protocol("the ATST frame was truncated"));
+                            break;
+                        }
+                        attestation = Some(Some(SolveAttestation::from_bytes(&body)));
+                    }
+                    other => {
+                        verdict = end(protocol(format_args!("an ATST frame with status {other}")));
+                        break;
+                    }
+                }
+            }
             (TAG_GROW, requested, needed, reported_footprint) => {
                 if needed <= child_grant || needed > requested || requested > terms.max_grant {
                     verdict = end(protocol(format_args!(
@@ -1035,6 +1138,10 @@ pub(crate) fn supervise(
             }
             (TAG_REFUSED, _, _, _) if refusal.is_some() => {}
             (TAG_RESULT, length, reported_peak, _) => {
+                let Some(attested) = attestation else {
+                    verdict = end(protocol("a result without its ATST frame"));
+                    break;
+                };
                 let current = grant.bytes();
                 if length > current {
                     verdict = end(protocol(format_args!(
@@ -1085,7 +1192,13 @@ pub(crate) fn supervise(
                     break;
                 }
                 lease.set_purpose(LeasePurpose::Result);
-                completed = Some((result, lease));
+                // Nothing follows the result (§2.4): a byte after it, a frame
+                // (a second `ATST` included) or not, is a violation.
+                if let Some(trailing) = trailing_output(&mut process.stdout) {
+                    verdict = end(protocol(trailing));
+                    break;
+                }
+                completed = Some((result, lease, attested));
                 break;
             }
             (TAG_ERROR, length, _, _) => {
@@ -1112,9 +1225,9 @@ pub(crate) fn supervise(
     if let Some(outcome) = verdict {
         return outcome;
     }
-    if let Some((result, lease)) = completed {
+    if let Some((result, lease, attestation)) = completed {
         return match status {
-            Ok(status) if status.success() => WorkerOutcome::Completed { result, lease },
+            Ok(status) if status.success() => WorkerOutcome::Completed { result, lease, attestation },
             _ if control.killed() => WorkerOutcome::Terminated,
             other => WorkerOutcome::Failed(format!("SOLVE_WORKER_EXITED: after its result, {}", describe(other))),
         };
@@ -1358,6 +1471,103 @@ pub(crate) mod tests {
         unsafe { info.assume_init() }.ri_lifetime_max_phys_footprint
     }
 
+    /// The attestation a scripted worker sends with `text`: `d_M` is the
+    /// SHA-256 of the text and `d_S` a constant, so each text has its own.
+    pub(crate) fn scripted_attestation(text: &str) -> SolveAttestation {
+        use sha2::Digest;
+        SolveAttestation { model_sha256: sha2::Sha256::digest(text.as_bytes()).into(), result_sha256: [0x5A; 32] }
+    }
+
+    /// Child side of the scripted workloads, with their attestation:
+    /// `attested:<text>`, or a gate released with `attested:<text>`, returns
+    /// `text` with [`scripted_attestation`]; every other workload is
+    /// unattested (status 0). The `atst_*` workloads write their frames
+    /// themselves.
+    pub(super) fn run_scripted_attested(
+        workload: &str,
+        raw: Vec<u8>,
+        mode: PreviewSolverMode,
+    ) -> Result<(String, Option<SolveAttestation>), String> {
+        let (name, args) = workload.split_once(':').unwrap_or((workload, ""));
+        let frame = |tag: [u8; 4], a: u64, b: u64, body: &[u8]| crate::worker_alloc::send_frame(tag, a, b, body);
+        let result = |text: &[u8]| frame(TAG_RESULT, text.len() as u64, 0, text);
+        let full = scripted_attestation("").to_bytes();
+        match name {
+            "attested" => Ok((args.to_string(), Some(scripted_attestation(args)))),
+            // Protocol violations: each ends in a sleep the supervisor's kill ends.
+            "atst_twice" => {
+                frame(TAG_ATTESTATION, 0, 0, &[]);
+                frame(TAG_ATTESTATION, 0, 0, &[]);
+                result(b"{}");
+                sleep_forever()
+            }
+            "atst_then_error" => {
+                frame(TAG_ATTESTATION, 1, 0, &full);
+                frame(TAG_ERROR, 2, 0, b"no");
+                sleep_forever()
+            }
+            "atst_then_growth" => {
+                frame(TAG_ATTESTATION, 0, 0, &[]);
+                frame(TAG_GROW, 1 << 40, 1 << 40, &[]);
+                sleep_forever()
+            }
+            "atst_status" => {
+                frame(TAG_ATTESTATION, 2, 0, &full);
+                result(b"{}");
+                sleep_forever()
+            }
+            "atst_field" => {
+                frame(TAG_ATTESTATION, 1, 64, &full);
+                result(b"{}");
+                sleep_forever()
+            }
+            // Status 0 with a body: the parent reads the body as frames.
+            "atst_body_on_status_0" => {
+                frame(TAG_ATTESTATION, 0, 0, &full);
+                result(b"{}");
+                sleep_forever()
+            }
+            // Status 1 with a short body, then the channel closes.
+            "atst_short_body" => {
+                frame(TAG_ATTESTATION, 1, 0, &full[..32]);
+                std::process::exit(0)
+            }
+            "result_without_atst" => {
+                result(b"{}");
+                sleep_forever()
+            }
+            // Output after a well-formed result, then a clean exit.
+            "trailing_atst" => {
+                frame(TAG_ATTESTATION, 1, 0, &full);
+                result(b"{}");
+                frame(TAG_ATTESTATION, 1, 0, &full);
+                std::process::exit(0)
+            }
+            "trailing_atst_status" => {
+                frame(TAG_ATTESTATION, 1, 0, &full);
+                result(b"{}");
+                frame(TAG_ATTESTATION, 2, 0, &full);
+                std::process::exit(0)
+            }
+            "trailing_result" => {
+                frame(TAG_ATTESTATION, 0, 0, &[]);
+                result(b"{}");
+                result(b"{}");
+                std::process::exit(0)
+            }
+            // A result frame of 2 bytes followed by 3 more bytes (no frame).
+            "trailing_bytes" => {
+                frame(TAG_ATTESTATION, 0, 0, &[]);
+                frame(TAG_RESULT, 2, 0, b"{}xyz");
+                std::process::exit(0)
+            }
+            _ => run_scripted(workload, raw, mode).map(|text| match text.strip_prefix("attested:") {
+                Some(text) => (text.to_string(), Some(scripted_attestation(text))),
+                None => (text, None),
+            }),
+        }
+    }
+
     /// Child side of the scripted workloads.
     pub(super) fn run_scripted(workload: &str, raw: Vec<u8>, mode: PreviewSolverMode) -> Result<String, String> {
         let (name, args) = workload.split_once(':').unwrap_or((workload, ""));
@@ -1422,6 +1632,7 @@ pub(crate) mod tests {
             "sleep" => sleep_forever(),
             "result" => Ok("x".repeat(arg(0) as usize)),
             "oversized_header" => {
+                crate::worker_alloc::send_frame(TAG_ATTESTATION, 0, 0, &[]);
                 crate::worker_alloc::send_frame(TAG_RESULT, arg(0), 0, &[]);
                 sleep_forever()
             }
@@ -1564,10 +1775,32 @@ pub(crate) mod tests {
                 let dir = std::path::Path::new(args.splitn(2, ':').nth(1).unwrap());
                 let pid = std::process::id();
                 std::fs::write(dir.join(format!("started-{pid}")), b"").unwrap();
+                crate::worker_alloc::send_frame(TAG_ATTESTATION, 0, 0, &[]);
                 crate::worker_alloc::send_frame(TAG_RESULT, 2, arg(0), b"{}");
                 std::thread::sleep(Duration::from_secs(10));
                 let _ = std::fs::write(dir.join(format!("unkilled-{pid}")), b"");
                 std::process::exit(1)
+            }
+            // The counted heap's peak and the grant (no footprint) after the
+            // worker's attested solve in both modes (`counted_plain`: the solve
+            // without the digest passes, for comparison).
+            "counted_attested" | "counted_plain" => {
+                let model: serde_json::Value = serde_json::from_slice(&raw).unwrap();
+                drop(raw);
+                let mut attested = Vec::new();
+                for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+                    attested.push(match name {
+                        "counted_attested" => attested_solve(model.clone(), mode)?.1.is_some(),
+                        _ => crate::solve_preview_mechanics_with_mode(model.clone(), mode).map(|_| false)?,
+                    });
+                }
+                drop(model);
+                Ok(serde_json::json!({
+                    "attested": attested,
+                    "peak_counted": crate::worker_alloc::peak_counted(),
+                    "grant": crate::worker_alloc::current_grant(),
+                })
+                .to_string())
             }
             // Evidence for the process reserve: footprints of a real worker.
             #[cfg(target_os = "macos")]
@@ -1577,8 +1810,11 @@ pub(crate) mod tests {
                 let model: serde_json::Value = serde_json::from_slice(&raw).unwrap();
                 drop(raw);
                 let mut lengths = Vec::new();
+                // The worker's own path, with the solve attestation's digest passes.
                 for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
-                    lengths.push(crate::solve_preview_mechanics_with_mode(model.clone(), mode)?.len());
+                    let (result, attestation) = attested_solve(model.clone(), mode)?;
+                    assert!(attestation.is_some(), "the demo is attested");
+                    lengths.push(result.len());
                 }
                 drop(model);
                 Ok(serde_json::json!({
@@ -1758,7 +1994,7 @@ pub(crate) mod tests {
         let pool = pool();
         let run = run(&pool, &*TestLauncher::scripted("echo"), BODY, 12 * GIB, PROCESS_RESERVE_BYTES);
         match run.outcome {
-            WorkerOutcome::Completed { result, lease } => {
+            WorkerOutcome::Completed { result, lease, .. } => {
                 assert_eq!(result, BODY);
                 assert_eq!(result.capacity(), BODY.len(), "an exact-capacity buffer");
                 assert_eq!(lease.bytes(), resident_envelope(BODY.len() as u64));
@@ -1917,6 +2153,153 @@ pub(crate) mod tests {
         assert_eq!(pool.reserved_total(), 0);
     }
 
+    /// W-18b (r2a), §2.4: the `ATST` frame carries the worker's attestation
+    /// into the outcome, read into a fixed buffer before the result; status 0
+    /// carries none and leaves the result unchanged.
+    #[test]
+    fn the_atst_frame_carries_the_attestation_before_the_result() {
+        let pool = pool();
+        let run = run(&pool, &*TestLauncher::scripted("attested:{\"a\":1}"), BODY, 12 * GIB, PROCESS_RESERVE_BYTES);
+        match run.outcome {
+            WorkerOutcome::Completed { result, attestation, lease } => {
+                assert_eq!(result, br#"{"a":1}"#);
+                assert_eq!(attestation, Some(scripted_attestation(r#"{"a":1}"#)));
+                drop(lease);
+            }
+            other => panic!("{other:?}"),
+        }
+        assert_reaped(run.pid);
+        let run = super::tests::run(&pool, &*TestLauncher::scripted("echo"), BODY, 12 * GIB, PROCESS_RESERVE_BYTES);
+        assert!(matches!(&run.outcome, WorkerOutcome::Completed { result, attestation: None, .. } if result == BODY), "{:?}", run.outcome);
+        drop(run);
+        assert_eq!(pool.reserved_total(), 0);
+    }
+
+    /// §2.4: an `ATST` anywhere but directly before the result, a second one,
+    /// another status, nonzero fields, a body that does not match the status,
+    /// a result without its `ATST`, and any output after the result (a second
+    /// `ATST` of either status, a second result, bytes that are no frame),
+    /// even from a worker that exits 0, are protocol violations: the job
+    /// fails, the worker is killed and reaped and every lease is released. A
+    /// well-formed run still completes.
+    #[test]
+    fn atst_protocol_violations_fail_the_job() {
+        let pool = pool();
+        for (workload, message) in [
+            ("atst_twice", "an ATST frame followed by \"ATST\""),
+            ("atst_then_error", "an ATST frame followed by \"FAIL\""),
+            ("atst_then_growth", "an ATST frame followed by \"GROW\""),
+            ("atst_status", "an ATST frame with status 2"),
+            ("atst_field", "an ATST frame with fields 1, 64, 0"),
+            ("atst_body_on_status_0", "an ATST frame followed by"),
+            ("atst_short_body", "the ATST frame was truncated"),
+            ("result_without_atst", "a result without its ATST frame"),
+            ("trailing_atst", "output after the result (byte 0x41)"),
+            ("trailing_atst_status", "output after the result (byte 0x41)"),
+            ("trailing_result", "output after the result (byte 0x52)"),
+            ("trailing_bytes", "output after the result (byte 0x78)"),
+        ] {
+            let run = run(&pool, &*TestLauncher::scripted(workload), BODY, 12 * GIB, PROCESS_RESERVE_BYTES);
+            match &run.outcome {
+                WorkerOutcome::Failed(m) => {
+                    assert!(m.starts_with(&format!("SOLVE_WORKER_PROTOCOL: {message}")), "{workload}: {m}")
+                }
+                other => panic!("{workload}: {other:?}"),
+            }
+            assert_reaped(run.pid);
+            assert_eq!(pool.reserved_total(), 0, "{workload}");
+        }
+        let run = run(&pool, &*TestLauncher::scripted("attested:{}"), BODY, 12 * GIB, PROCESS_RESERVE_BYTES);
+        let WorkerOutcome::Completed { result, attestation, lease } = run.outcome else { panic!("{:?}", run.outcome) };
+        assert_eq!((result.as_slice(), attestation), (&b"{}"[..], Some(scripted_attestation("{}"))));
+        drop(lease);
+        assert_reaped(run.pid);
+        assert_eq!(pool.reserved_total(), 0);
+    }
+
+    /// A demo variant whose solve the checked profile refuses: the moduli
+    /// scaled by 1e-20 (E/G kept), so the weight case's displacements exceed
+    /// 2^53 and are integral floats.
+    fn refuse_checked_profile(model: &mut serde_json::Value) {
+        let material = &mut model["materials"][0];
+        material["elastic_modulus"]["value"] = serde_json::json!(2e-9);
+        material["shear_modulus"]["value"] = serde_json::json!(7.7e-10);
+        assert!(crate::solve_attestation::streamed_digest(SOLVED_MODEL_DOMAIN, model).is_some(), "the model itself is admitted");
+    }
+
+    /// §2.4: the worker's attested solve gives the unchanged solve's exact
+    /// bytes, `d_M` over the model value and `d_S` over the value those bytes
+    /// hold; a solve whose result the checked profile refuses is delivered
+    /// unchanged and not attested.
+    #[test]
+    fn the_attested_solve_is_the_unchanged_solve_with_its_digests() {
+        use crate::solve_attestation::streamed_digest;
+        let model = crate::load_preview_model().unwrap();
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let direct = crate::solve_preview_mechanics_with_mode(model.clone(), mode).unwrap();
+            let (result, attestation) = attested_solve(model.clone(), mode).unwrap();
+            assert_eq!(result, direct, "the solve and its bytes are unchanged");
+            let parsed: serde_json::Value = serde_json::from_str(&result).unwrap();
+            assert_eq!(attestation, SolveAttestation::of(&model, &parsed));
+            assert_eq!(attestation.map(|a| a.model_sha256), streamed_digest(SOLVED_MODEL_DOMAIN, &model));
+            assert!(attestation.is_some());
+        }
+        let mut refused = model.clone();
+        refuse_checked_profile(&mut refused);
+        let direct = crate::solve_preview_mechanics_with_mode(refused.clone(), PreviewSolverMode::SparseInteractive).unwrap();
+        let (result, attestation) = attested_solve(refused, PreviewSolverMode::SparseInteractive).unwrap();
+        assert_eq!((result, attestation), (direct, None));
+    }
+
+    /// The real worker sends status 0 for a solve whose result the checked
+    /// profile refuses: it is delivered unchanged and not attested; the demo
+    /// is attested.
+    #[test]
+    fn a_real_worker_attests_the_demo_and_not_a_refused_model() {
+        let pool = pool();
+        let model = crate::load_preview_model().unwrap();
+        let body = serde_json::to_vec(&model).unwrap();
+        let run = run(&pool, &*TestLauncher::solve(), &body, 12 * GIB, PROCESS_RESERVE_BYTES);
+        let WorkerOutcome::Completed { result, attestation, lease } = run.outcome else { panic!("{:?}", run.outcome) };
+        drop(lease);
+        let parsed: serde_json::Value = serde_json::from_slice(&result).unwrap();
+        assert_eq!(attestation, SolveAttestation::of(&model, &parsed));
+        assert!(attestation.is_some());
+        let mut refused = model.clone();
+        refuse_checked_profile(&mut refused);
+        let body = serde_json::to_vec(&refused).unwrap();
+        let run = super::tests::run(&pool, &*TestLauncher::solve(), &body, 12 * GIB, PROCESS_RESERVE_BYTES);
+        let WorkerOutcome::Completed { result: refused_result, attestation, lease } = run.outcome else { panic!("{:?}", run.outcome) };
+        drop(lease);
+        assert_eq!(attestation, None);
+        assert_eq!(refused_result, crate::solve_preview_mechanics_with_mode(refused, PreviewSolverMode::SparseInteractive).unwrap().into_bytes());
+        assert_eq!(pool.reserved_total(), 0);
+    }
+
+    /// §6: the worker's counted peak with the digest passes stays within its
+    /// grant (the counting allocator's own peak in the real worker, not a
+    /// footprint), and the grant within the budget.
+    #[test]
+    fn the_workers_counted_peak_with_the_digest_passes_stays_within_its_grant() {
+        fn run_counted(pool: &Arc<MemoryPool>, workload: &str, body: &[u8]) -> serde_json::Value {
+            let run = run(pool, &*TestLauncher::scripted(workload), body, 12 * GIB, PROCESS_RESERVE_BYTES);
+            let WorkerOutcome::Completed { result, .. } = &run.outcome else { panic!("{:?}", run.outcome) };
+            serde_json::from_slice(result).unwrap()
+        }
+        let pool = pool();
+        let body = serde_json::to_vec(&crate::load_preview_model().unwrap()).unwrap();
+        let run = run(&pool, &*TestLauncher::scripted("counted_attested"), &body, 12 * GIB, PROCESS_RESERVE_BYTES);
+        let WorkerOutcome::Completed { result, .. } = run.outcome else { panic!("{:?}", run.outcome) };
+        let counted: serde_json::Value = serde_json::from_slice(&result).unwrap();
+        let plain = run_counted(&pool, "counted_plain", &body);
+        eprintln!("ATTESTATION worker counted peak: {counted}; without the digest passes: {plain}");
+        let field = |key: &str| counted[key].as_u64().unwrap();
+        assert_eq!(counted["attested"], serde_json::json!([true, true]));
+        assert!(field("peak_counted") > 0);
+        assert!(field("peak_counted") + PROCESS_RESERVE_BYTES <= field("grant"), "{counted}");
+        assert!(field("grant") <= 12 * GIB);
+    }
+
     /// A result within the grant is read into an exact buffer; its lease is
     /// refused (typed) when the host cannot cover it, and the child is killed.
     #[test]
@@ -1925,7 +2308,7 @@ pub(crate) mod tests {
         let pool = MemoryPool::with_wait_tick(host.clone(), Duration::from_millis(5));
         let run = run(&pool, &*TestLauncher::scripted(format!("result:{}", 3 * MIB)), BODY, 12 * GIB, PROCESS_RESERVE_BYTES);
         match run.outcome {
-            WorkerOutcome::Completed { result, lease } => {
+            WorkerOutcome::Completed { result, lease, .. } => {
                 assert_eq!((result.len(), result.capacity()), (3 << 20, 3 << 20));
                 assert_eq!(lease.bytes(), 3 * MIB);
             }
