@@ -221,7 +221,11 @@ needs:
     computed value, the limit, the relation and the bound solver rows. An
     incomplete outcome (RULE_INPUTS_INCOMPLETE) stays visible as incomplete
     with the run's own reason and is never ranked or hidden. The table forms no
-    status and reads no rule-pack value into any output.
+    status and reads no rule-pack value into any output. The result contour's
+    rule ratios (survey item A4, Design `result-contour.md` §2) are the table's
+    own ratios for each of the user's stress categories, placed on the pipe
+    and station their bound rows or selectors name; an incomplete or withheld
+    outcome colours nothing.
   gating: false
   evidence: execution/PKG-07/DEL-07-05/Design/stress-ratio-table.md
 - from: DEL-05-01
@@ -273,6 +277,9 @@ code_paths:
 - apps/desktop/src/features/viewport/reactionOverlay.ts
 - apps/desktop/src/features/viewport/viewportReactionArrows.ts
 - apps/desktop/src/features/viewport/ResultOverlayLegend.tsx
+- apps/desktop/src/features/viewport/resultContour.ts
+- apps/desktop/src/features/viewport/resultContourMesh.ts
+- apps/desktop/src/features/viewport/ResultValueLabels.tsx
 - apps/desktop/src/features/viewport/viewportResource.ts
 - apps/desktop/src/test-support/resultOverlayFixtures.ts
 - apps/desktop/e2e/result-overlays/
@@ -312,6 +319,10 @@ checks:
 - apps/desktop/src/features/viewport/viewportReactionArrows.test.ts
 - apps/desktop/src/features/viewport/viewportResultColour.test.ts
 - apps/desktop/src/features/viewport/PipeViewport.overlays.test.tsx
+- apps/desktop/src/features/viewport/resultContour.test.ts
+- apps/desktop/src/features/viewport/resultContourOverlay.test.ts
+- apps/desktop/src/features/viewport/resultContourMesh.test.ts
+- apps/desktop/src/features/viewport/PipeViewport.contour.test.tsx
 - apps/desktop/e2e/result-overlays.spec.ts
 - apps/desktop/src/features/workspace/selectionReveal.test.tsx
 - apps/desktop/src/features/viewport/deflectedShape.test.ts
