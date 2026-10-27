@@ -5,6 +5,7 @@ import { useTableGeometry } from "./tableGeometry";
 import { useEnumEditor } from "./useEnumEditor";
 import { VirtualList } from "../VirtualList";
 import type { EntityKey } from "../selectionState";
+import { canSurfaceRevealNow } from "../surfaceReveal";
 import {
   adjacentCell, capturedCellIsCurrent, sameCell,
   type CapturedCell, type CellAddress, type TableColumn, type TableEdit, type TableRow, type TableSort
@@ -120,11 +121,12 @@ export function EngineeringTable(props: Props) {
   // A selection made outside the table (the viewport, the tree, a result row)
   // becomes the table's current row, which the list scrolls into view. DOM focus
   // and the selection stay where they are; focus or an edit in the table keeps
-  // the table's own position. The request is kept while the table is hidden
-  // (another layout or family) or its row is filtered out, and done when the
-  // row can be shown.
+  // the table's own position. The request is kept while the table cannot show
+  // it (another layout or family, a hidden, inert or CSS-hidden pane:
+  // `canSurfaceRevealNow`) or its row is filtered out, and done when the row can
+  // be shown. The selection the table first mounts with is such a request.
   const revealedSelectionKey = useRef(selectedKey);
-  const pendingSelectionReveal = useRef<EntityKey | null>(null);
+  const pendingSelectionReveal = useRef<EntityKey | null>(selectedKey);
   useLayoutEffect(() => {
     if (revealedSelectionKey.current === selectedKey) return;
     revealedSelectionKey.current = selectedKey;
@@ -132,7 +134,7 @@ export function EngineeringTable(props: Props) {
   }, [selectedKey]);
   useLayoutEffect(() => {
     const key = pendingSelectionReveal.current;
-    if (key === null || !root.current || root.current.closest("[hidden], [inert]")) return;
+    if (key === null || !root.current || !canSurfaceRevealNow(root.current)) return;
     if (!viewRows.some((row) => row.key === key)) return;
     pendingSelectionReveal.current = null;
     if (editRef.current || root.current.contains(document.activeElement)) return;

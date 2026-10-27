@@ -141,11 +141,41 @@ but take no halo and no pick.
   entity selected, the table shows no rows and says so. Turning it off removes
   the selection restriction; the other table filters still apply.
 
+## Selection following (B8)
+
+The tree, the grid and the inspector share one ordered selection
+(`workspaceSession.ts`, `handleSelectEntity`). A selection made on one surface
+is revealed on the others:
+- the tree opens the selected row's group and makes it the current row;
+- the node, material and section tables, and the bulk grid families, scroll
+  to the selected row;
+- the results table can show only the selected entity's rows.
+
+DOM focus and the selection do not move. A reveal asked for while focus is
+in that surface's list, or in an edit, is dropped: that surface keeps its own
+position.
+
+A reveal is kept while its surface cannot show it, and is done once it can.
+This covers:
+- the other layout;
+- another grid family;
+- a filter that hides the row;
+- a pane that is hidden, inert or hidden by the stylesheet (the shell's
+  inactive panes are `display: none`);
+- a table that has not been opened yet: it opens on the selection.
+
+One helper decides "can this surface reveal now" for all three surfaces:
+`canSurfaceRevealNow` in `features/workspace/surfaceReveal.ts`. It passes a
+surface that is attached, not under `[hidden]` or `[inert]`, and laid out
+(`checkVisibility`, or client rectangles where that is absent). jsdom does no
+layout, so `selectionReveal.test.tsx` injects a modelled visibility probe; the
+browser behaviour is covered by the review's Chromium probe (#1667).
+
 ## Evidence
 
 - `deflectedShape.test.ts`
 - `PipeViewport.deflection.test.tsx`
 - `elementAxes.test.ts`
 - `PipeViewport.elementAxes.test.tsx`
-- `selectionReveal.test.tsx`
+- `selectionReveal.test.tsx` (selection following and the reveal rule)
 - `viewportPalette.test.ts` (the three element-axis roles take `canvas.axisX/Y/Z`)

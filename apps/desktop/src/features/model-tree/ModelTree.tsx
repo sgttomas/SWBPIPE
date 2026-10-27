@@ -6,6 +6,7 @@ import { useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useStat
 import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, PreviewModel } from "../../types";
 import { entityKey, type EntityKey, type OrderedSelectionState, type SelectionModifiers } from "../workspace/selectionState";
 import { modelIndexFor, type ModelIndex } from "../workspace/modelIndex";
+import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
 import { VirtualList } from "../workspace/VirtualList";
 import { OverflowRail, TableChromeContext } from "../workspace/table/OverflowRail";
 import { EngineeringTable, useTableBodyHeight, type TableApplyResult } from "../workspace/table/EngineeringTable";
@@ -123,12 +124,14 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
   // revealed here: its group opens and its row becomes the tree's current row,
   // which the list scrolls into view. Neither DOM focus nor the selection moves.
   // A selection made while focus is in the tree list is the tree's own and is
-  // left. The request is kept while the Tree layout is hidden, or while a filter
-  // hides the row, and done when the row can be shown.
+  // left. The request is kept while the tree list cannot show it (the Grid
+  // layout, a hidden, inert or CSS-hidden pane: `canSurfaceRevealNow`) or a
+  // filter hides the row, and done when the row can be shown.
   const treeRootRef = useRef<HTMLDivElement>(null);
   const primarySelectionKey = selectionState ? selectionState.primaryKey : entityKey(selection);
   const revealedSelectionKey = useRef(primarySelectionKey);
   const pendingTreeReveal = useRef<string | null>(null);
+  const [treeRevealRequest, setTreeRevealRequest] = useState(0);
   const focusInTreeList = () => Boolean(treeRootRef.current?.querySelector('[role="tree"]')?.contains(document.activeElement));
   useLayoutEffect(() => {
     if (revealedSelectionKey.current === primarySelectionKey) return;
@@ -138,6 +141,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
   useLayoutEffect(() => {
     const key = pendingTreeReveal.current;
     if (key === null || layoutMode !== "tree") return;
+    if (!canSurfaceRevealNow(treeRootRef.current?.querySelector('[role="tree"]'))) return;
     // Under a filter only a matching entity has a row to reveal.
     const filtering = Boolean(filterText.trim());
     const shown = filtering ? filteredTree : tree;
@@ -152,6 +156,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
       setExpandedGroups((current) => new Set(current).add(group.title));
     }
     setFocusedTreeKey(key);
+    setTreeRevealRequest((value) => value + 1);
     onFocusChange(key as EntityKey);
   });
 
@@ -333,6 +338,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
             role="tree"
             rowHeight={density === "compact" ? 28 : 34}
             pinIndex={focusedTreeIndex}
+            revealActiveRequest={treeRevealRequest}
             tabIndex={0}
             testId="model-tree-virtual"
           />
@@ -872,8 +878,9 @@ function EntityGrid({
   // rows (the node, material and section tables reveal their own). The reveal
   // is held as pending until this family's list holds the selected row, so a
   // grid opened after the selection, or a family the selection switches to,
-  // still reveals it. The request is also kept while the grid is hidden (the
-  // Tree layout), and done when the grid is shown: a hidden list cannot scroll.
+  // still reveals it. The request is also kept while the grid cannot show it
+  // (the Tree layout, a hidden, inert or CSS-hidden pane: `canSurfaceRevealNow`),
+  // and done when it can: a list that is not laid out cannot scroll.
   // Focus in the grid (an edit, or a row control) keeps its position: it drops
   // the pending reveal. The virtual list is asked once, by a one-shot index
   // cleared after it has scrolled.
@@ -893,7 +900,7 @@ function EntityGrid({
     if (key === null || commonFamily) return;
     const index = visibleRows.findIndex((row) => entityKey({ type: row.type, id: row.id }) === key);
     const host = bulkScrollRef.current;
-    if (index < 0 || !host || host.closest("[hidden], [inert]")) return;
+    if (index < 0 || !canSurfaceRevealNow(host)) return;
     pendingGridReveal.current = null;
     if (host.contains(document.activeElement)) return;
     if (virtualGrid) setVirtualReveal(index);

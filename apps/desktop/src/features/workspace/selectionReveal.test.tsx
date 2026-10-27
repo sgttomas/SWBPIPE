@@ -9,8 +9,9 @@ import { ModelTree } from "../model-tree/ModelTree";
 import { ResultsPanel } from "../results/ResultsPanel";
 import { currentCarrierHeader } from "../../test-support/currentCarrierHeader";
 import { entityKey } from "./selectionState";
+import { canSurfaceRevealNow, layoutVisibility, setSurfaceVisibilityProbeForTests } from "./surfaceReveal";
 
-function nodesModel(count: number, pipes = 1): PreviewModel {
+function nodesModel(count: number, pipes = 1, libraries = 0): PreviewModel {
   const nodes = Array.from({ length: count }, (_, index) => ({
     id: `n/${index}`, label: `Node ${index}`, position: { x: index, y: 0, z: 0 }, provenance: "invented"
   }));
@@ -21,18 +22,43 @@ function nodesModel(count: number, pipes = 1): PreviewModel {
     project: { id: "p", name: "Invented", description: "", units: { length: "m", angle: "rad" } },
     schema_version: "0.2.0",
     analysis_status: { mechanics: "NOT_RUN", rule_check: "NOT_RUN", professional_acceptance: "NOT_REVIEWED" },
-    materials: [], sections: [], nodes, pipe_segments: pipeSegments,
+    materials: Array.from({ length: libraries }, (_, index) => ({ id: `m/${index}`, label: `Material ${index}`, provenance: "invented" })),
+    sections: Array.from({ length: libraries }, (_, index) => ({ id: `s/${index}`, name: `Section ${index}`, section_type: "pipe", properties: {}, provenance: "invented" })),
+    nodes, pipe_segments: pipeSegments,
     supports: [], components: [], load_cases: [], combinations: [], diagnostics: []
   } as unknown as PreviewModel;
 }
 
-function tree(model: PreviewModel, selection: EntityRef, onFocusChange = vi.fn()) {
-  return <ModelTree model={model} onSelect={vi.fn()} onFocusChange={onFocusChange} selection={selection} />;
+function tree(model: PreviewModel, selection: EntityRef, onFocusChange = vi.fn(), boundedGrid = false) {
+  return <ModelTree boundedGrid={boundedGrid} model={model} onSelect={vi.fn()} onFocusChange={onFocusChange} selection={selection} />;
 }
 
+// jsdom does no layout: it has no `checkVisibility` and reports no client rectangles, so the
+// browser's visibility probe would say no surface can reveal. Each case models the browser's
+// visibility instead: attached, not under [hidden] or [inert], and not in a pane the shell's
+// stylesheet hides (`.shell-tree-host.inactive` is display: none). The browser itself is
+// covered by the review's Chromium probe (#1667 r3 and r4).
+const modelledVisibility = (element: Element) => element.isConnected && !element.closest("[hidden], [inert], .inactive");
+beforeEach(() => setSurfaceVisibilityProbeForTests(modelledVisibility));
 afterEach(() => {
+  setSurfaceVisibilityProbeForTests(null);
   vi.restoreAllMocks();
 });
+
+// A browser does not scroll an element that is not laid out; jsdom stores any scrollTop.
+function withBrowserScrolling() {
+  const native = Object.getOwnPropertyDescriptor(Element.prototype, "scrollTop")!;
+  beforeEach(() => {
+    Object.defineProperty(Element.prototype, "scrollTop", {
+      configurable: true,
+      get(this: Element) { return native.get!.call(this); },
+      set(this: Element, value: number) { if (!this.closest("[hidden], .inactive")) native.set!.call(this, value); }
+    });
+  });
+  afterEach(() => {
+    Object.defineProperty(Element.prototype, "scrollTop", native);
+  });
+}
 
 describe("the tree reveals a selection made elsewhere", () => {
   it("scrolls a far row into view and makes it the tree's current row", () => {
@@ -191,17 +217,7 @@ describe("the virtual bulk grid (review r1, #1667)", () => {
 // shown. jsdom does no layout and stores any scrollTop; a browser does not scroll an element under
 // [hidden] (display: none). These tests restore that browser behaviour for the duration.
 describe("a reveal asked for while the surface is hidden", () => {
-  const native = Object.getOwnPropertyDescriptor(Element.prototype, "scrollTop")!;
-  beforeEach(() => {
-    Object.defineProperty(Element.prototype, "scrollTop", {
-      configurable: true,
-      get(this: Element) { return native.get!.call(this); },
-      set(this: Element, value: number) { if (!this.closest("[hidden]")) native.set!.call(this, value); }
-    });
-  });
-  afterEach(() => {
-    Object.defineProperty(Element.prototype, "scrollTop", native);
-  });
+  withBrowserScrolling();
   const model = nodesModel(161, 160);
   const show = (layout: "grid" | "tree") => {
     fireEvent.click(screen.getByTestId(`layout-mode-${layout}`));
@@ -252,6 +268,126 @@ describe("a reveal asked for while the surface is hidden", () => {
     expect(list.scrollTop).toBeGreaterThan(0);
     expect(within(list).getByTestId("tree-row-node-n%2F150")).toHaveClass("focused");
   });
+});
+
+// Review r4 (#1667).
+describe("whether a surface can reveal now", () => {
+  it("asks the browser: attached, not hidden or inert, and laid out", () => {
+    const host = document.createElement("div");
+    expect(layoutVisibility(host)).toBe(false); // not attached
+    document.body.append(host);
+    try {
+      const check = vi.fn(() => true);
+      Object.assign(host, { checkVisibility: check });
+      expect(layoutVisibility(host)).toBe(true);
+      check.mockReturnValue(false);
+      expect(layoutVisibility(host)).toBe(false); // display: none on the element or an ancestor
+      check.mockReturnValue(true);
+      host.setAttribute("inert", "");
+      expect(layoutVisibility(host)).toBe(false);
+      host.removeAttribute("inert");
+      host.hidden = true;
+      expect(layoutVisibility(host)).toBe(false);
+      host.hidden = false;
+      // Without checkVisibility, a laid-out element has client rectangles.
+      Object.assign(host, { checkVisibility: undefined });
+      vi.spyOn(host, "getClientRects").mockReturnValue([{}] as unknown as DOMRectList);
+      expect(layoutVisibility(host)).toBe(true);
+      vi.spyOn(host, "getClientRects").mockReturnValue([] as unknown as DOMRectList);
+      expect(layoutVisibility(host)).toBe(false);
+    } finally {
+      host.remove();
+    }
+  });
+
+  it("uses the injected probe, and none without a host", () => {
+    const host = document.createElement("div");
+    setSurfaceVisibilityProbeForTests(() => true);
+    expect(canSurfaceRevealNow(host)).toBe(true);
+    expect(canSurfaceRevealNow(null)).toBe(false);
+    setSurfaceVisibilityProbeForTests(() => false);
+    expect(canSurfaceRevealNow(host)).toBe(false);
+  });
+});
+
+describe("a table opened for the first time shows the selection (review r4, #1667)", () => {
+  withBrowserScrolling();
+  const model = nodesModel(161, 160, 161);
+  const cases = [
+    { family: "node", type: "node" as const, id: "n/150", rows: "engineering-table-rows" },
+    { family: "material", type: "material" as const, id: "m/150", rows: "material-engineering-table-rows" },
+    { family: "section", type: "section" as const, id: "s/150", rows: "section-engineering-table-rows" }
+  ];
+  for (const bounded of [false, true]) {
+    for (const item of cases) {
+      it(`${item.family} table${bounded ? ", bounded" : ""}`, () => {
+        const view = render(tree(model, { type: item.type, id: `${item.id.slice(0, 2)}0` }, vi.fn(), bounded));
+        view.rerender(tree(model, { type: item.type, id: item.id }, vi.fn(), bounded));
+        fireEvent.click(screen.getByTestId("layout-mode-grid"));
+        const rows = screen.getAllByTestId(item.rows)[0];
+        expect(rows.scrollTop).toBeGreaterThan(0);
+        expect(within(rows).getAllByRole("row").some((row) => row.getAttribute("aria-selected") === "true" && row.textContent?.includes(item.id))).toBe(true);
+      });
+    }
+  }
+});
+
+describe("a pane the stylesheet hides, or an inert or hidden pane (review r4, #1667)", () => {
+  withBrowserScrolling();
+  const model = nodesModel(161, 160);
+  function pane(selection: EntityRef, wrapper: { inactive?: boolean; inert?: boolean; hidden?: boolean }, bounded = false) {
+    return (
+      <div className={wrapper.inactive ? "shell-tree-host inactive" : "shell-tree-host"} inert={wrapper.inert} hidden={wrapper.hidden}>
+        {tree(model, selection, vi.fn(), bounded)}
+      </div>
+    );
+  }
+  const open = (layout: "grid" | "tree") => {
+    fireEvent.click(screen.getByTestId(`layout-mode-${layout}`));
+    act(() => (document.activeElement as HTMLElement | null)?.blur());
+  };
+
+  for (const bounded of [false, true]) {
+    it(`pipe grid${bounded ? ", bounded" : ""}: reveals when the CSS-hidden pane is shown again`, () => {
+      const view = render(pane({ type: "pipe", id: "p/0" }, {}, bounded));
+      open("grid");
+      view.rerender(pane({ type: "pipe", id: "p/0" }, { inactive: true }, bounded));
+      // jsdom gives a bounded list no height, so opening at p/0 may already scroll one row.
+      const before = screen.getByTestId("entity-grid-virtual-rows").scrollTop;
+      view.rerender(pane({ type: "pipe", id: "p/150" }, { inactive: true }, bounded));
+      expect(screen.getByTestId("entity-grid-virtual-rows").scrollTop).toBe(before);
+      view.rerender(pane({ type: "pipe", id: "p/150" }, {}, bounded));
+      expect(screen.getByTestId("entity-grid-virtual-rows").scrollTop).toBeGreaterThan(100 * 30);
+      expect(screen.getByTestId("entity-grid-row-pipe-p-150")).toBeInTheDocument();
+    });
+
+    it(`node table${bounded ? ", bounded" : ""}: reveals when the CSS-hidden pane is shown again`, () => {
+      const view = render(pane({ type: "node", id: "n/0" }, {}, bounded));
+      open("grid");
+      view.rerender(pane({ type: "node", id: "n/0" }, { inactive: true }, bounded));
+      view.rerender(pane({ type: "node", id: "n/150" }, { inactive: true }, bounded));
+      const rows = screen.getAllByTestId("engineering-table-rows")[0];
+      const before = rows.scrollTop;
+      expect(before).toBeLessThan(100);
+      view.rerender(pane({ type: "node", id: "n/150" }, {}, bounded));
+      expect(rows.scrollTop).toBeGreaterThan(100 * 30);
+      expect(within(rows).getAllByRole("row").some((row) => row.getAttribute("aria-selected") === "true" && row.textContent?.includes("n/150"))).toBe(true);
+    });
+  }
+
+  for (const state of [{ inactive: true }, { inert: true }, { hidden: true }] as const) {
+    const name = Object.keys(state)[0];
+    it(`tree: waits while the pane is ${name}, and reveals when it is shown`, () => {
+      const view = render(pane({ type: "node", id: "n/0" }, {}));
+      view.rerender(pane({ type: "node", id: "n/150" }, state));
+      const list = screen.getByTestId("model-tree-virtual");
+      expect(list.scrollTop).toBe(0);
+      expect(within(list).queryByTestId("tree-row-node-n%2F150")).toBeNull();
+      view.rerender(pane({ type: "node", id: "n/150" }, {}));
+      expect(list.scrollTop).toBeGreaterThan(0);
+      expect(within(list).getByTestId("tree-row-node-n%2F150")).toHaveClass("focused");
+    });
+  }
 });
 
 describe("the results table follows the selected entity", () => {
