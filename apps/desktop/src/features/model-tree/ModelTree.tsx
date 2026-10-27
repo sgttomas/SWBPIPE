@@ -50,6 +50,8 @@ type Props = {
   viewCommandRef?: { current: ((command: ViewportViewCommand) => void) | null };
   /** Whether anything is hidden or isolated in the viewport, so that Show all has something to do. */
   showAllAvailable?: boolean;
+  /** Opens Bulk change on the selection, for the menus' Change selected… (B2). */
+  onChangeSelected?: () => void;
   // Tree-layout records beneath the tree rows (the Lines section). It stays
   // mounted, so drafts survive a layout switch, but only the Tree layout shows
   // it: the Grid layout owns the whole bounded host.
@@ -78,7 +80,7 @@ const GRID_ENTITY_TYPES: ReadonlyArray<{ id: GridEntityType; label: string }> = 
   { id: "combinations", label: "Combinations" }
 ];
 
-export function ModelTree({ boundedGrid = false, compactGrid = false, model, modelIndex, selection, selectionState, density = "comfortable", hiddenKeys = new Set(), projectSessionGeneration = 0, onSelect, onFocusChange = () => {}, onFilterPublication = () => {}, onQueueIntent, onApplyCellIntent, operationBusy, treeRecords, viewCommandRef, showAllAvailable = false }: Props) {
+export function ModelTree({ boundedGrid = false, compactGrid = false, model, modelIndex, selection, selectionState, density = "comfortable", hiddenKeys = new Set(), projectSessionGeneration = 0, onSelect, onFocusChange = () => {}, onFilterPublication = () => {}, onQueueIntent, onApplyCellIntent, operationBusy, treeRecords, viewCommandRef, showAllAvailable = false, onChangeSelected }: Props) {
   const [columnTarget, setColumnTarget] = useState<HTMLDivElement | null>(null);
   const [chromeOwner, setChromeOwner] = useState<string | null>(null);
   const [toolbarTarget, setToolbarTarget] = useState<HTMLDivElement | null>(null);
@@ -125,7 +127,8 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
     showAllAvailable,
     viewCommand,
     operationBusy,
-    onQueueIntent
+    onQueueIntent,
+    onChangeSelected
   };
   const [treeMenu, setTreeMenu] = useState<{ target: EntityRef; request: ContextMenuRequest; serial: number } | null>(null);
   const treeMenuSerial = useRef(0);
