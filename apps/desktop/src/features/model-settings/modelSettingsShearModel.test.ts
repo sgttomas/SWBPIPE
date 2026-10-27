@@ -1,6 +1,6 @@
 // Model document 0.8.0's `model_settings.shear_model` on the desktop (DEL-02-01 Design
 // model-document-0.8.0.md §1, §4): the type admits it, the intents reach the operation
-// engine, which writes `euler_bernoulli` and refuses by name, and the document validator
+// engine, which writes either value (DEL-05-03 pf-timoshenko.md §1) and refuses by name, and the document validator
 // (the wasm export open and load use) admits both names and refuses the rest. Invented data.
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -32,11 +32,22 @@ it("sets euler_bernoulli and clears it back to the absent form", async () => {
   expect(await canonicalJsonString(cleared.applied_model)).toBe(await canonicalJsonString(model));
 });
 
-it("refuses timoshenko, a pressure-contract document and an unknown name by name", async () => {
+it("sets timoshenko_annulus_energy_v1 and clears it back to the absent form", async () => {
+  const model = demo();
+  const set = await setShearModelIntent(canonicalJsonString, model, "timoshenko_annulus_energy_v1");
+  const applied = await applyModelOperation(model, set, await computeModelHash(model));
+  expect(blocking(applied.diagnostics)).toEqual([]);
+  const next = applied.applied_model as PreviewModel;
+  expect(next.model_settings?.shear_model).toBe("timoshenko_annulus_energy_v1");
+  const cleared = await applyModelOperation(next, await clearShearModelIntent(canonicalJsonString, next), await computeModelHash(next));
+  expect(await canonicalJsonString(cleared.applied_model)).toBe(await canonicalJsonString(model));
+});
+
+it("refuses a pressure-contract document and an unknown name by name", async () => {
   const model = demo();
   const outcome = async (document: PreviewModel, name: string) =>
     blocking((await validateModelOperation(document, await setShearModelIntent(canonicalJsonString, document, name), await computeModelHash(document))).diagnostics);
-  expect(await outcome(model, "timoshenko_annulus_energy_v1")).toEqual(["MODEL-SETTING-SHEAR-MODEL-TIMOSHENKO-UNSUPPORTED"]);
+  expect(await outcome(model, "timoshenko_annulus_energy_v1")).toEqual([]);
   expect(await outcome(model, "timoshenko")).toEqual(["MODEL-SETTING-SHEAR-MODEL-UNKNOWN"]);
   const exact = { ...model, pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" } } as PreviewModel;
   expect(await outcome(exact, "euler_bernoulli")).toEqual(["MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT"]);

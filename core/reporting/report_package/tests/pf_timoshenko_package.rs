@@ -41,7 +41,7 @@ fn timoshenko(source: &mut Value) {
     source["formulation_basis"]["limitations"] = preview_physics_timoshenko_contract()["supported_profile_limitations"].clone();
     source["diagnostics"].as_array_mut().unwrap().push(json!({
         "id": "diagnostic:preview-physics:pf-timoshenko:realized-arcs", "code": REALIZED_ARCS_DIAGNOSTIC,
-        "severity": "warning", "message": ARC_MESSAGE, "source": "core/product_physics", "affected_refs": ["pipe:fixture-span"]}));
+        "severity": "info", "message": ARC_MESSAGE, "source": "core/product_physics", "affected_refs": ["pipe:fixture-span"]}));
 }
 
 /// The desktop basis over `edit_source`'s source, its report carrying the

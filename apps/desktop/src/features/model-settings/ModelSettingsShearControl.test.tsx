@@ -86,21 +86,15 @@ describe("model settings: straight-member shear deformation", () => {
     expect(await computeModelHash(model)).toEqual(await computeModelHash(original));
   });
 
-  it("the Timoshenko choice sends timoshenko_annulus_energy_v1 to the operation engine", async () => {
-    const model = demo();
+  it("the Timoshenko choice writes timoshenko_annulus_energy_v1 as an explicit set", async () => {
+    let model = demo();
     const list: EditorOperationIntent[] = [];
     render(<ModelSettingsSection model={model} onQueueIntent={(intent) => list.push(intent)} />);
     fireEvent.click(byId("model-settings-shear-model-timoshenko_annulus_energy_v1"));
-    // The engine judges the choice. Until the product half removes 0.8.0's interim refusal
-    // (pf-timoshenko.md §1) it refuses this exact value by name and nothing is queued; once it
-    // is removed, the explicit set is queued. Either outcome shows the value the control sent.
-    await waitFor(() => expect(list.length > 0 || screen.queryByTestId("model-settings-shear-model-error") !== null).toBe(true));
-    if (list.length > 0) {
-      expect(list[0].change).toMatchObject({ change_kind: "set_model_setting", field_path: "model_settings.shear_model", before: "not_present", after: "timoshenko_annulus_energy_v1" });
-    } else {
-      expect(byId("model-settings-shear-model-diagnostics")).toHaveTextContent("MODEL-SETTING-SHEAR-MODEL-TIMOSHENKO-UNSUPPORTED");
-      expect(byId("model-settings-shear-model-error")).toHaveTextContent("was refused by the operation engine; nothing was queued");
-    }
+    const set = await queued(list, 1);
+    expect(set.change).toMatchObject({ change_kind: "set_model_setting", field_path: "model_settings.shear_model", before: "not_present", after: "timoshenko_annulus_energy_v1" });
+    model = await apply(model, set);
+    expect(model.model_settings).toEqual({ shear_model: "timoshenko_annulus_energy_v1" });
     // A Timoshenko document shows its choice.
     const selected = { ...demo(), model_settings: { shear_model: "timoshenko_annulus_energy_v1" } } as PreviewModel;
     cleanup();

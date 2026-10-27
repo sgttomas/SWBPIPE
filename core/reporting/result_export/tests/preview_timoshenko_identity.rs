@@ -196,7 +196,7 @@ fn a_blocked_timoshenko_envelope_is_read_under_its_identity() {
     blocked["summary"]["max_displacement"] = Value::Null;
     blocked["summary"]["component_stress_modifier_count"] = json!(0);
     blocked["contract_evidence"] = json!({"preview_cases": [], "combination_gates": []});
-    blocked["diagnostics"] = json!([{"id": "diagnostic:preview-physics:timoshenko-factor:6:pipe:P1", "code": "PF_TIMOSHENKO_SHEAR_FACTOR_OUT_OF_RANGE",
+    blocked["diagnostics"] = json!([{"id": "diagnostic:preview-physics:pf-timoshenko-factor:6:pipe:P1", "code": "PF_TIMOSHENKO_SHEAR_FACTOR_UNAVAILABLE",
         "severity": "blocking", "message": "hand-built blocked control", "source": "core/product_physics", "affected_refs": ["pipe:P1"]}]);
     let (table, _) = s::for_source(&blocked).unwrap();
     assert_eq!(table["semantic_contract_id"], s::PREVIEW_PHYSICS_TIMOSHENKO_ID);

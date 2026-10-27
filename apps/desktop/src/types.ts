@@ -548,8 +548,9 @@ export type PreviewModel = {
 
 /** `model_settings`: a closed record. `node_proximity_tolerance` is the near-duplicate node
  * tolerance, a length quantity; absent means 5 mm. `shear_model` (model document 0.8.0) is the
- * pressure-free document's beam theory, absent meaning Euler–Bernoulli; it is refused beside a
- * pressure contract, and in 0.8.0 `timoshenko_annulus_energy_v1` is refused at solve and authoring.
+ * pressure-free document's beam theory, absent meaning Euler–Bernoulli, or
+ * `timoshenko_annulus_energy_v1` (DEL-05-03 Design `pf-timoshenko.md`); it is refused beside a
+ * pressure contract.
  * The desktop never writes a default. */
 export type ModelSettings = {
   node_proximity_tolerance?: QuantityValue;
