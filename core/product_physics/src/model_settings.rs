@@ -10,11 +10,14 @@
 //! Model document 0.8.0 (DEL-02-01 Design `model-document-0.8.0.md` §1.1; Agent 0's
 //! decision in its §0) adds a second member, `shear_model`: `euler_bernoulli` or
 //! `timoshenko_annulus_energy_v1`, the exact contract's vocabulary. Absent means
-//! Euler–Bernoulli and is never written. It is refused on a document with
-//! `pressure_contract` (that document's choice is `pressure_contract.shear_model`),
-//! and in 0.8.0 `timoshenko_annulus_energy_v1` is refused by name at solve and at
-//! authoring; the document validator admits it as schema-valid. `euler_bernoulli`
-//! solves exactly as absent.
+//! Euler–Bernoulli. An explicit user set of `euler_bernoulli` writes the member, as
+//! for the tolerance; the product never writes the default into a document the
+//! user did not author, and clear restores the absent form (MD8 §0, R7-1). It is
+//! refused on a document with `pressure_contract` (that document's choice is
+//! `pressure_contract.shear_model`), and in 0.8.0 `timoshenko_annulus_energy_v1` is
+//! refused by name at solve and at authoring; the document validator admits it as
+//! schema-valid. `euler_bernoulli` solves exactly as absent: the same result rows and
+//! mechanics, while the model hash differs because the document differs.
 //!
 //! The topology check (`topology::append_topology_diagnostics`) reads it through
 //! [`PreviewModel::node_proximity_tolerance_m`]. The solve's validation

@@ -1,7 +1,9 @@
 //! Model document 0.8.0's `model_settings.shear_model` (DEL-02-01 Design
-//! `model-document-0.8.0.md` §1, §4; Agent 0's decision under MD8 §11), at
+//! `model-document-0.8.0.md` §1.1, §4; Agent 0's decisions in MD8 §0), at
 //! solve, through the public value and typed entries in both solver modes:
-//! - `euler_bernoulli` solves exactly as absent (the envelope is byte-identical);
+//! - `euler_bernoulli` solves exactly as absent: the solve envelope (result rows,
+//!   mechanics and diagnostics; it carries no model hash) is byte-identical, while
+//!   the two documents, and so their model hashes, differ;
 //! - the member on a document with `pressure_contract` is refused by name, for
 //!   either value (MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT);
 //! - `timoshenko_annulus_energy_v1` on a pressure-free document is refused by name
@@ -44,6 +46,8 @@ fn euler_bernoulli_solves_exactly_as_absent() {
     let demo = json!({"model": serde_json::from_str::<Value>(DEMO).unwrap(), "materials": []});
     assert!(demo["model"]["model_settings"].get("shear_model").is_none());
     let authored = with_shear_model(&demo, json!("euler_bernoulli"));
+    // The documents differ (so do their model hashes); only the results are compared.
+    assert_ne!(serde_json::to_string(&authored["model"]).unwrap(), serde_json::to_string(&demo["model"]).unwrap());
     for mode in MODES {
         let reference = solve(&demo, mode);
         assert_eq!(reference["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{mode:?}");

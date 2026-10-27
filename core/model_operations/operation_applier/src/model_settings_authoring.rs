@@ -4,8 +4,9 @@
 //! `clear_model_setting` on `model_settings.node_proximity_tolerance`.
 //!
 //! The owner ruled a 5 mm default "and give the user the means to change it".
-//! The product never writes the default: setting writes the value the user
-//! authored, with its unit, and clearing removes the member so the default
+//! The product never writes the default into a document the user did not
+//! author: setting writes the value the user authored, with its unit (an
+//! authored 5 mm included), and clearing removes the member so the default
 //! applies again.
 //!
 //! Wire (the `Project` singleton target, as DEL-02-02 Design
@@ -36,8 +37,10 @@
 //!   than the two names (`MODEL-SETTING-SHEAR-MODEL-UNKNOWN`), a document with
 //!   `pressure_contract` (`-WITH-PRESSURE-CONTRACT`) and, in 0.8.0,
 //!   `timoshenko_annulus_energy_v1` (`-TIMOSHENKO-UNSUPPORTED`) are refused by
-//!   name. Clear removes the member as for the tolerance. Nothing writes the
-//!   default unless the user sets it.
+//!   name. An explicit set of `euler_bernoulli` writes the member, as for the
+//!   tolerance (Agent 0, DEL-02-01 Design `model-document-0.8.0.md` §0, R7-1);
+//!   clear removes the member as for the tolerance. Nothing writes the default
+//!   unless the user sets it.
 //!
 //! Each operation's inverse is the other one, built from the diff row's
 //! `before`; the desktop undoes through its session checkpoint, which restores

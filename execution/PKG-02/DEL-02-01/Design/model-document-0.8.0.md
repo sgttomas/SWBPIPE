@@ -44,6 +44,15 @@ relative to `projects/chirality-piping/`.
   member to 0.8.0 before #1649 merges ... Why now: every model-document version
   step strands older projects (0.7.0 opens are refused by name), so we take this
   field in 0.8.0 rather than spend another step on it." The member is §1.1.
+- **Agent 0, 2026-10-27, setting the default (Codex r7 R7-1), option A:** "keep
+  as built. An explicit user set of `euler_bernoulli` writes the member,
+  matching the tolerance member's rule ("never written into a document the user
+  did not author"). The product never writes the default unprompted, and clear
+  restores absence. Results and hashes are still byte-identical for absent
+  versus explicit EB, since both solve as EB. Keep the regression that proves
+  it." This corrects the member's first specification, which said "The applier
+  never writes the default". As §1.1 states it, the results are identical and
+  the model hash differs, because the document differs.
 
 ## 1. Version 0.8.0
 
@@ -71,12 +80,18 @@ names the format.
 Agent 0, 2026-10-27): a string, one of `euler_bernoulli` or
 `timoshenko_annulus_energy_v1`, the exact contract's vocabulary
 (`pressure_contract.shear_model`).
-- **Absent means Euler–Bernoulli, and the product never writes it.** This is the
-  tolerance member's rule (`model-document-0.7.0.md` §3.8): an absent
-  `model_settings`, or an absent member, means the default. An authored `null`
-  is refused.
-- **`euler_bernoulli`** solves exactly as absent: the same mechanics and result
-  rows. Only the model hash differs, because the document differs.
+- **Absent means Euler–Bernoulli.** This is the tolerance member's rule
+  (`model-document-0.7.0.md` §3.8): an absent `model_settings`, or an absent
+  member, means the default, and an authored `null` is refused. As Agent 0
+  decided (§0, R7-1):
+  - an explicit user set of `euler_bernoulli` writes the member, as the
+    tolerance member's set writes an authored 5 mm;
+  - the product never writes the default into a document the user did not
+    author;
+  - clear restores the absent form.
+- **`euler_bernoulli`** solves exactly as absent: the result rows and the
+  mechanics are byte-identical. The model hash differs, because the document
+  differs.
 - **Refusals**, named in `core/product_physics/src/model_settings.rs`. The solve
   (`validation::validate_model_settings`) and the applier's document validator
   give the same code and message.
@@ -97,9 +112,9 @@ Agent 0, 2026-10-27): a string, one of `euler_bernoulli` or
   `PreviewModel::shear_model()` returns the effective choice (Euler–Bernoulli
   when absent); in 0.8.0 nothing consumes it beyond the refusals. The applier's
   `set_model_setting` and `clear_model_setting` accept
-  `model_settings.shear_model`: set admits `euler_bernoulli` and refuses the
-  other cases by name; clear removes the member, and the record when it becomes
-  empty. The top-level `shear_model` alias refusal (`lib.rs`
+  `model_settings.shear_model`: set admits `euler_bernoulli`, writing it, and
+  refuses the other cases by name; clear removes the member, and the record when
+  it becomes empty. The top-level `shear_model` alias refusal (`lib.rs`
   `SHEAR_MODEL_WITHOUT_PRESSURE_CONTRACT`) is unchanged.
 
 ## 2. Code
@@ -326,7 +341,9 @@ This design changes neither.
 - `$defs/ModelSettings` gains `shear_model` with
   `enum: [euler_bernoulli, timoshenko_annulus_energy_v1]` (§1.1). Both values
   are listed from the start, so the numerical unit needs no schema change. The
-  record stays closed.
+  record stays closed. Its description states §1.1's rule: absent means
+  Euler–Bernoulli, an explicit set writes the member, and the product never
+  writes the default into a document the user did not author.
 - The schema stays structural. The kind restriction and the geometry check
   belong to the solve, as do the shear member's refusals 2 and 3.
 
@@ -568,8 +585,9 @@ ripple lands joins 0.8.0 through Agent 0.
   each give the table's states.
 - **`model_settings.shear_model` (§1.1).** Every existing document gives
   byte-identical results (`pressure_free_byte_identity`), and `euler_bernoulli`
-  gives the rows and mechanics of its twin without the member
-  (`product_physics/tests/model_settings_shear_model.rs`). Each refusal is tested
+  gives the byte-identical solve envelope (rows, mechanics and diagnostics) of its
+  twin without the member, while the two documents, and so their model hashes,
+  differ (`model_settings_shear_model.rs` `euler_bernoulli_solves_exactly_as_absent`). Each refusal is tested
   at solve, and refusals 1 and 2 at the document validator; the applier sets,
   clears and refuses (`operation_applier/tests/model_settings_authoring.rs`); a
   set member saves and reopens byte for byte (src-tauri `model_document_save.rs`).
