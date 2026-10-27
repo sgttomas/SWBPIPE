@@ -46,7 +46,8 @@ SOURCE_FILES = {
     # RA-HS); j7_rf_census declares the #[cfg(test)] gating module. No formed-load or finding owner changes.
     # Pre-0.4 failure unification D3 (§8.14): read b6cc3a792a; the screen's and decline_withheld's doc comments are
     # route-neutral and RF-14's test is restated. No formed-load or finding owner changes.
-    "core/product_physics/src/source_recovery.rs": "0c38c5ebd6c51148b5d5d554a11504bbb3273b3e7899657eab88255ddcd2aac8",
+    # Model document 0.8.0 (§8.26): source_recovery.rs changes two comments (the current version); no owner changes.
+    "core/product_physics/src/source_recovery.rs": "e277cc8d1383d7e36272cf751aa1f72aee010f7f6f0b4ced2b17520f9ce3951a",
     "core/solver/frame_kernel/src/structural/sparse.rs": "e316bc9d2738285ef9a87392436436c667b60b9ab0a744f6650051fcf918f4fb",
 }
 RANGE_CONTENT = 59
