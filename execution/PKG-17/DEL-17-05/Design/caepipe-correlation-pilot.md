@@ -91,6 +91,8 @@ cases/<case_id>/
   swbpipe/                   solve request and SWBPIPE result envelope
   caepipe_in/                model.mbf, id_map.json, mbf_render.json (diagnostics, loss report, mapping assumptions)
   caepipe_out/               CSV, guest run log, .mod/.res as CAEPIPE wrote them        PRIVATE
+  caepipe_out/exported.mbf   CAEPIPE's MBF export of the solved model (DEL-17-04)        PRIVATE
+  imported/                  import outcome of exported.mbf, derived from CAEPIPE output PRIVATE
   parsed/                    normalized CAEPIPE results                                  PRIVATE
   comparison/                three-way comparison record                                 PRIVATE
 series/<hypothesis_id>.json  hypothesis series evaluation (§7)                          PRIVATE
@@ -319,3 +321,6 @@ classification. It never prints external-prover values outside the local run.
 - Non-unit bend flexibility factors are untested: the bend case uses k = 1.
 - CAEPIPE's pipe shear shape factor and default gravitational acceleration
   (CQ-17-01-010); κ = 0.5 stays an `ASSUMPTION` until answered.
+- Two-way iteration (CAEPIPE's MBF export of the solved model): a guest step that
+  writes `caepipe_out/exported.mbf` for DEL-17-04's private import regression
+  (DEL-17-04 `Design/caepipe-mbf-import.md` §18.3).

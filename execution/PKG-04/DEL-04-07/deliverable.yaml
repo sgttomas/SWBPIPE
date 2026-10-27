@@ -316,6 +316,10 @@ code_paths:
 # W-11 slice (b): the solve job's custody digests and the exact-route source binding's priced parses.
 - apps/desktop/src-tauri/src/solve_jobs.rs
 - apps/desktop/src-tauri/src/exact_source_binding.rs
+# W-18b slice (r2a): the solve worker's attestation, its ATST frame and the registry's attestation table.
+- apps/desktop/src-tauri/src/solve_attestation.rs
+- apps/desktop/src-tauri/src/solve_worker.rs
+- apps/desktop/src-tauri/src/worker_alloc.rs
 checks:
 - core/product_physics/tests/exact_admission_seam.rs
 - core/product_physics/tests/silent_zero_guard_runtime.rs
@@ -337,3 +341,5 @@ checks:
 - apps/desktop/src/test-support/demoReportPackageRequest.test.ts
 - apps/desktop/src-tauri/src/solve_jobs.rs
 - apps/desktop/src-tauri/src/report_render_exact_tests.rs
+- apps/desktop/src-tauri/src/solve_attestation.rs
+- apps/desktop/src-tauri/src/solve_worker.rs
