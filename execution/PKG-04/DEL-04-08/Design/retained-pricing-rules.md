@@ -1441,7 +1441,7 @@ The run at `642e9737e4` completes on all four points with exit 0, no unmapped he
 - the challenge binary's `W1_PHASE_BYTES` (6,559,706,160 and 6,618,837,504) and `MAX_PHASE_BYTES` (8,855,883,381 and 8,915,014,725);
 - the law tests' Text(diag_env), 274,415,016, and D_env, 28,775.
 
-The `retained_memory` lib tests (the `profile_` law tests among them) and the default `retained_memory_challenge` test pass in the registered build. The AC-004 stack-headroom witnesses wait for the exclusive lane; until they pass on this build, the earlier 6/6 above is superseded and AC-004 has no current run.
+The `retained_memory` lib tests (the `profile_` law tests among them) and the default `retained_memory_challenge` test pass in the registered build. The AC-004 stack-headroom witnesses wait for the exclusive lane; until they pass on this build, the earlier 6/6 above is superseded and AC-004 has no current run. The run at `95aacdf852` (the commit carrying the block and these pins) exits 0 with both o10 checks at zero, its tree is coefficient-identical to the run at `642e9737e4` (`identical_but_basis`, 1,586 coefficients), and `generate --check` of it with the basis line above reproduces the committed block.
 
 The merged tree at native atoms, against ⌊0.9M⌋:
 
