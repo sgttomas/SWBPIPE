@@ -198,9 +198,11 @@ def test_the_verifier_is_independent_and_test_only():
     # tests/verifiers/global_end.py; W-15 slice d (DEL-03-05 Design §5): the component-body checks live in
     # the sibling tests/verifiers/component_body.py; both standard library only too.
     # W-16 slice b (DEL-05-02 Design exact-combinations.md §6): the combination pass lives in the sibling
-    # tests/verifiers/exact_combinations.py, standard library only besides the section-basis bit comparison.
+    # tests/verifiers/exact_combinations.py, standard library only besides the section-basis bit comparison and
+    # (review r1) the verifier's own unit catalog, tests/verifiers/units.py, itself standard library only.
     assert _imports(VERIFIER) <= stdlib | {".component_body", ".exact_combinations", ".global_end", ".section_basis", ".u4b"}
-    assert _imports(VERIFIER.with_name("exact_combinations.py")) <= stdlib | {".section_basis"}
+    assert _imports(VERIFIER.with_name("exact_combinations.py")) <= stdlib | {"sys", ".section_basis", ".units"}
+    assert _imports(VERIFIER.with_name("units.py")) <= stdlib
     assert _imports(VERIFIER.with_name("section_basis.py")) <= stdlib | {".component_body"}
     assert _imports(VERIFIER.with_name("u4b.py")) <= stdlib
     assert _imports(VERIFIER.with_name("component_body.py")) <= stdlib
