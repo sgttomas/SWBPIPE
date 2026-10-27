@@ -255,6 +255,10 @@ fn emit_pdf_document(
         emitter.note(notice);
         emitter.banner(notice, true);
     }
+    if let Some(notice) = renderer::user_release_notice_text(input) {
+        emitter.note(&notice);
+        emitter.banner(&notice, true);
+    }
 
     if !blocking_reasons.is_empty() {
         let blocked_text = renderer::export_blocked_banner_text(blocking_reasons);
