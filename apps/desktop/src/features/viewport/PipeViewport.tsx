@@ -139,6 +139,8 @@ import {
   type UiDiagnosticsPublication
 } from "../workspace/uiDiagnostics";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
+import { DirectionEntry } from "../geometry-tools/DirectionEntry";
+import { exactCoordinateText, type Vec3 as EntryVec3 } from "../geometry-tools/directionArithmetic";
 import { componentDraftMissingUnitNotices, missingProjectUnitText, projectUnitMissing } from "../project-units/missingProjectUnit";
 
 export { buildDeformationOverlay, buildRotationOverlay } from "./deformationOverlay";
@@ -232,6 +234,8 @@ type Props = {
   onQueueIntent?: (intent: EditorOperationIntent) => void;
   /** Opens Bulk change on the selection, for the menus' Change selected… (B2). */
   onChangeSelected?: () => void;
+  /** Opens Split into equal parts on a pipe, for the menus' Split into N… (B5). */
+  onSplitPipe?: (pipeId: string) => void;
   /** An operation is validating or applying (the inspector's Remove panel waits for it). */
   operationBusy?: boolean;
   onBoxSelection?: (
@@ -441,6 +445,7 @@ export function PipeViewport({
   onViewportInteractionStart = () => {},
   onQueueIntent,
   onChangeSelected,
+  onSplitPipe,
   operationBusy = false,
   onBoxSelection = () => Object.freeze({ orderedKeys: [], primaryKey: null, rangeAnchorKey: null, focusKey: null, preparationEpoch: 0 }),
   onSelect,
@@ -866,6 +871,7 @@ export function PipeViewport({
     `length=${unitDimensionValidationStatus(unitCatalogRoute, nodeDraft.coordinateUnit, "length")}`
   );
   const routeDraft = routeDraftFromState(pipeDraft, routeEndMode, newEndDraft);
+  const routeStartNode = model.nodes.find((node) => node.id === pipeDraft.from.trim());
   const routeBuild = buildRouteSubmission(
     model,
     pendingViewportIntents,
@@ -1894,6 +1900,14 @@ export function PipeViewport({
     setNewEndDraft((current) => ({ ...current, [field]: value }));
   }
 
+  // B5: the length-and-direction entry fills the typed coordinates with the exact computed values,
+  // in the project length unit, so the create_node conversion is the identity.
+  function useDirectionEndPoint(position: EntryVec3, unit: string) {
+    clearPointerPlacement();
+    invalidateDraftReview();
+    setNewEndDraft((current) => ({ ...current, coordinateUnit: unit, x: exactCoordinateText(position.x), y: exactCoordinateText(position.y), z: exactCoordinateText(position.z) }));
+  }
+
   function updateComponentDraft<K extends keyof ComponentDraft>(field: K, value: ComponentDraft[K]) {
     setComponentDraft((current) => ({ ...current, [field]: value }));
   }
@@ -2456,7 +2470,8 @@ export function PipeViewport({
     fitSelectionAvailable: Boolean(fitSelectionBounds),
     operationBusy,
     onQueueIntent,
-    onChangeSelected
+    onChangeSelected,
+    onSplitPipe
   };
 
   function openEntityMenu(target: EntityRef, request: ContextMenuRequest) {
@@ -3133,6 +3148,14 @@ export function PipeViewport({
                 options={nodeLengthUnitOptions.map((option) => ({ value: option.symbol, label: option.symbol }))}
               /></label>
               <label><span>Provenance</span><input aria-label="Route end provenance" data-testid="viewport-route-end-provenance" value={newEndDraft.provenance} onChange={(event) => updateNewEndDraft("provenance", event.target.value)} /></label>
+              <DirectionEntry
+                context="Route end"
+                projectLengthUnit={model.project.units.length}
+                start={routeStartNode ? { id: routeStartNode.id, position: routeStartNode.position } : null}
+                startReason="Choose the From node first; the end point is measured from it."
+                disabled={routeEndMode !== "new"}
+                onUse={useDirectionEndPoint}
+              />
             </div>
             <VirtualTargetPicker label="New pipe material" testId="viewport-create-pipe-material" options={materialTargetOptions} value={pipeDraft.material} onChange={(value) => updatePipeDraft("material", value)} />
             <label>
