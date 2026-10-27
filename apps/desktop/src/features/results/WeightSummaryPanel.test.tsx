@@ -71,7 +71,12 @@ describe("WeightSummaryPanel", () => {
     expect(screen.getByTestId("weight-summary-cog-x")).toHaveTextContent(new RegExp(`^${String(Number(x.toPrecision(6)))}$`));
     expect(screen.getByTestId("weight-summary-cog-y")).toHaveTextContent(String(Number((1000 * 1000 / (123.4567891 * 3 + 1000)).toPrecision(6))));
     expect(screen.getByTestId("weight-summary-cog-z")).toHaveTextContent(/^0$/);
-    expect(screen.getByRole("columnheader", { name: "Centre of gravity (mm)" })).toBeVisible();
+    // P3 is not counted, so both values are labelled partial and the exclusion list is open.
+    expect(screen.getByRole("columnheader", { name: "Centre of gravity of the counted weights (partial) (mm)" })).toBeVisible();
+    expect(screen.getByRole("rowheader", { name: "Partial total (2 of 3 pipes counted)" })).toBeVisible();
+    expect(screen.getByTestId("weight-summary-partial")).toHaveTextContent("Partial: 2 of 3 pipes counted. The total and centre of gravity are those of the counted weights only");
+    expect(screen.getByTestId("weight-summary-not-counted")).toHaveAttribute("open");
+    expect(screen.queryByRole("rowheader", { name: "Total" })).toBeNull();
     expect(screen.getByTestId("weight-summary-basis")).toHaveTextContent("under gravity -9.80665 m/s^2 along Global Z");
     expect(screen.getByTestId("weight-summary-basis")).toHaveTextContent("Contents entered the mass of 1 of 1 counted pipes, insulation of 0.");
     const notCounted = screen.getByTestId("weight-summary-not-counted");
@@ -80,6 +85,67 @@ describe("WeightSummaryPanel", () => {
     expect(screen.queryByTestId("weight-summary-components-not-included")).toBeNull();
     // No stored value appears at full precision anywhere in the markup.
     expect(view.container.innerHTML).not.toMatch(/370\.370|1370\.370|2603\.60[0-9]{2}/);
+  });
+
+  it("labels the total and centre of gravity unqualified only when nothing is left out", async () => {
+    const generate = vi.fn(async (_m: PreviewModel, request: { pipe_refs: string[] }) => outcome(request.pipe_refs));
+    render(<WeightSummaryPanel model={model()} generate={generate} hash={hash} />);
+    enter("9.8");
+    fireEvent.change(screen.getByTestId("weight-summary-scope"), { target: { value: "line:line:main" } });
+    fireEvent.click(screen.getByTestId("weight-summary-compute"));
+    await screen.findByTestId("weight-summary-table");
+    expect(screen.getByRole("rowheader", { name: "Total" })).toBeVisible();
+    expect(screen.getByRole("columnheader", { name: "Centre of gravity (mm)" })).toBeVisible();
+    expect(screen.queryByTestId("weight-summary-partial")).toBeNull();
+    expect(screen.getByTestId("weight-summary-summary")).toHaveAttribute("data-partial", "false");
+  });
+
+  it("labels a partial summary for a component weight or an unresolved reference left out", async () => {
+    // The line holds P2, whose not-solver-consumed valve W the generator leaves out (P2's own weight is counted), and P9, which names no pipe.
+    const m = model();
+    m.lines = [{ id: "line:w", pipe_refs: ["P2", "P9"] }];
+    m.components = [{ id: "W", label: "W", kind: "valve", node: "B", provenance: "i", geometry: { rigid_pipe_ref: "P2", weight: { value: 5, unit: "N" } } }] as PreviewModel["components"];
+    const generate = vi.fn(async (): Promise<SelfWeightPlanOutcome> => ({ ...outcome(["P1"]),
+      plan: { source_model_hash: "sha256:x", changes: [], scope_label: "selected_pipe_mass_only", source_evidence: [{ method: PIPE_WEIGHT_METHOD, pipe_id: "P2", contents_absent: true, insulation_absent: true, generated_payload: { magnitude: { value: -2, unit: "N/m" } } }] } }));
+    render(<WeightSummaryPanel model={m} generate={generate} hash={hash} />);
+    enter("9.8");
+    fireEvent.change(screen.getByTestId("weight-summary-scope"), { target: { value: "line:line:w" } });
+    fireEvent.click(screen.getByTestId("weight-summary-compute"));
+    await screen.findByTestId("weight-summary-table");
+    expect(screen.getByRole("rowheader", { name: "Partial total (1 of 1 pipe counted; 1 component weight not included; 1 unresolved scope reference)" })).toBeVisible();
+    expect(within(screen.getByTestId("weight-summary-row-total")).getByText("2 N")).toBeVisible();
+    expect(screen.getByRole("columnheader", { name: "Centre of gravity of the counted weights (partial) (mm)" })).toBeVisible();
+    const omitted = screen.getByTestId("weight-summary-components-not-included");
+    expect(omitted).toHaveAttribute("open");
+    expect(omitted).toHaveTextContent("1 component weight not included");
+    expect(omitted).toHaveTextContent("W: The self-weight generator does not apply its stated weight; the distributed weight of its mapped pipe P2 is counted instead.");
+  });
+
+  it("states an out-of-range total instead of throwing", async () => {
+    const generate = vi.fn(async (): Promise<SelfWeightPlanOutcome> => ({ ...outcome(["P1"]),
+      plan: { source_model_hash: "sha256:x", changes: [], scope_label: "selected_pipe_mass_and_component_weight", source_evidence: [
+        { method: COMPONENT_WEIGHT_METHOD, component_id: "V", component_node: "A", omitted_pipe_id: "P1", weight_N: 1.193805208e308, center_of_gravity_m: [0, 0, 0], wrench_part: "force" },
+        { method: COMPONENT_WEIGHT_METHOD, component_id: "U", component_node: "B", omitted_pipe_id: "P2", weight_N: 1.193805208e308, center_of_gravity_m: [0, 0, 0], wrench_part: "force" }] } }));
+    render(<WeightSummaryPanel model={model()} generate={generate} hash={hash} />);
+    enter("9.8");
+    fireEvent.click(screen.getByTestId("weight-summary-compute"));
+    expect(await screen.findByTestId("weight-summary-unavailable")).toHaveTextContent("The summed weight is outside the representable range; no total or centre of gravity is formed.");
+    expect(screen.queryByTestId("weight-summary-table")).toBeNull();
+    expect(screen.queryByTestId("weight-summary-error")).toBeNull();
+  });
+
+  it("marks a summary stale when a selection gains an unresolved reference", async () => {
+    const generate = vi.fn(async (_m: PreviewModel, request: { pipe_refs: string[] }) => outcome(request.pipe_refs));
+    const m = model();
+    const view = render(<WeightSummaryPanel model={m} selectedPipeRefs={["P1"]} generate={generate} hash={hash} />);
+    enter("9.8");
+    fireEvent.change(screen.getByTestId("weight-summary-scope"), { target: { value: "selection" } });
+    fireEvent.click(screen.getByTestId("weight-summary-compute"));
+    await screen.findByTestId("weight-summary-table");
+    expect(screen.getByRole("rowheader", { name: "Total" })).toBeVisible();
+    view.rerender(<WeightSummaryPanel model={m} selectedPipeRefs={["P1", "missing"]} generate={generate} hash={hash} />);
+    expect(screen.queryByTestId("weight-summary-table")).toBeNull();
+    expect(screen.getByTestId("weight-summary-stale")).toBeVisible();
   });
 
   it("marks a summary stale when the gravity, scope or model changes", async () => {
@@ -136,6 +202,9 @@ describe("WeightSummaryPanel", () => {
     fireEvent.click(screen.getByTestId("weight-summary-compute"));
     await screen.findByTestId("weight-summary-table", undefined, { timeout: 10000 });
     expect(within(screen.getByTestId("weight-summary-row-total")).getByText("420 N")).toBeVisible();
+    // Three of the four pipes are not counted: the 420 N is labelled partial, with the list open.
+    expect(screen.getByRole("rowheader", { name: "Partial total (1 of 4 pipes counted)" })).toBeVisible();
+    expect(screen.getByTestId("weight-summary-partial")).toBeVisible();
     expect(screen.getByTestId("weight-summary-cog-x")).toHaveTextContent(/^7\.72$/);
     expect(screen.getByTestId("weight-summary-not-counted")).toHaveTextContent("3 of 4 pipes not counted");
   });

@@ -12,6 +12,7 @@ import {
   buildWeightSummary,
   collectSelfWeightEvidence,
   computeWeightSummary,
+  isPipeLocalDiagnostic,
   parseWeightGravity,
   planWeightSummary,
   weightSummaryCaseId,
@@ -113,7 +114,7 @@ describe("collecting the generator's weights", () => {
     expect(out).toMatchObject({ state: "collected", calls: 1, refused: [] });
   });
 
-  it("halves the pipes until each refusal is held by one pipe", async () => {
+  it("halves the pipes until each refusal is held by one pipe, then requests the accepted pipes together", async () => {
     const failing = new Set(["P2", "P4"]);
     const calls: string[][] = [];
     const out = await collectSelfWeightEvidence(["P1", "P2", "P3", "P4", "P5"], async (refs) => {
@@ -122,9 +123,70 @@ describe("collecting the generator's weights", () => {
     });
     if (out.state !== "collected") throw new Error("refused");
     expect(out.refused.map((item) => item.pipeRef)).toEqual(["P2", "P4"]);
-    expect(out.plans.map((item) => item.pipeRefs)).toEqual([["P1"], ["P3"], ["P5"]]);
+    expect(out.plans.map((item) => item.pipeRefs)).toEqual([["P1", "P3", "P5"]]);
     expect(out.calls).toBe(calls.length);
     expect(calls[0]).toEqual(["P1", "P2", "P3", "P4", "P5"]);
+    expect(calls.at(-1)).toEqual(["P1", "P3", "P5"]);
+    // At most 2n calls: 2n - 1 for the halving and one joint request.
+    expect(out.calls).toBeLessThanOrEqual(10);
+  });
+
+  it("splits only the allow-listed pipe-local refusals and keeps every other refusal of a multi-pipe request whole", () => {
+    const requested = new Set(["P1", "P2"]);
+    const components = new Set(["V"]);
+    const local = (code: string, refs: string[]) => isPipeLocalDiagnostic({ code, severity: "blocking", message: "m", remediation: "", affected_objects: refs }, requested, components);
+    // Pipe-local: one requested pipe, a per-pipe section field, a component's own range check, a mapping conflict on one member.
+    expect(local("SELF_WEIGHT_INPUT_INVALID", ["P1"])).toBe(true);
+    expect(local("SELF_WEIGHT_RANGE_INVALID", ["P2"])).toBe(true);
+    expect(local("SELF_WEIGHT_INPUT_INVALID", ["material_density"])).toBe(true);
+    expect(local("UNIT_CONVERSION_UNAVAILABLE", ["outside_diameter"])).toBe(true);
+    expect(local("SECTION_REFERENCE_INVALID", ["P1", "section:missing"])).toBe(true);
+    expect(local("PIPE_DIMENSION_INVALID", ["P1", "mill_tolerance"])).toBe(true);
+    expect(local("RIGID_COMPONENT_MAPPING_CONFLICT", ["P1", "V", "W"])).toBe(true);
+    expect(local("SELF_WEIGHT_RANGE_INVALID", ["V"])).toBe(true);
+    // Not pipe-local: an input refusal naming a component (its generated identity collision), two
+    // requested pipes, a request field, no reference, an unknown reference, an unlisted code.
+    expect(local("SELF_WEIGHT_INPUT_INVALID", ["V"])).toBe(false);
+    // A component whose id is also a requested pipe's: still the component's identity collision.
+    expect(isPipeLocalDiagnostic({ code: "SELF_WEIGHT_INPUT_INVALID", severity: "blocking", message: "m", remediation: "", affected_objects: ["P1"] }, requested, new Set(["P1"]))).toBe(false);
+    expect(local("SELF_WEIGHT_RANGE_INVALID", ["W"])).toBe(false);
+    expect(local("RIGID_COMPONENT_MAPPING_CONFLICT", ["P1", "P2"])).toBe(false);
+    expect(local("SELF_WEIGHT_INPUT_INVALID", ["gravity"])).toBe(false);
+    expect(local("SELF_WEIGHT_INPUT_INVALID", ["P1", "pipe_refs"])).toBe(false);
+    expect(local("SELF_WEIGHT_INPUT_INVALID", [])).toBe(false);
+    expect(local("SELF_WEIGHT_INPUT_INVALID", ["something:else"])).toBe(false);
+    expect(local("SECTION_BINDING_UNSUPPORTED", ["section:s"])).toBe(false);
+    expect(local("SELF-WEIGHT-PLAN-INVALID", ["P1"])).toBe(false);
+    expect(local("INVENTED_FUTURE_CODE", ["P1"])).toBe(false);
+  });
+
+  it("never resolves a refusal that is not pipe-local by splitting (Codex r1: a shared component identity)", async () => {
+    // Two components named V map P1 and P2: the generator refuses the pair, though each pipe alone is ready.
+    const collision = { code: "SELF_WEIGHT_INPUT_INVALID", severity: "blocking" as const, message: "generated primitive identity collision", remediation: "", affected_objects: ["V"] };
+    for (const diagnostics of [[collision], [collision, pipeFailure("material_density")], [{ ...collision, code: "INVENTED_FUTURE_CODE", affected_objects: ["P1"] }],
+      [{ ...collision, code: "SELF_WEIGHT_RANGE_INVALID", affected_objects: ["P1", "P2"] }]]) {
+      const calls: string[][] = [];
+      const out = await collectSelfWeightEvidence(["P1", "P2"], async (refs) => { calls.push([...refs]); return refs.length > 1 ? blocked(diagnostics) : ready(refs); }, { componentIds: ["V"] });
+      expect(out).toEqual({ state: "refused", diagnostics, calls: 1 });
+      expect(calls).toEqual([["P1", "P2"]]);
+    }
+  });
+
+  it("refuses the whole request when pipes accepted in parts are refused together", async () => {
+    // P0's pipe-local refusal comes first, as the engine returns its selection refusals before reading
+    // components; halving then accepts P1 and P2 separately, and the joint request finds their conflict.
+    const collision = { code: "SELF_WEIGHT_INPUT_INVALID", severity: "blocking" as const, message: "generated primitive identity collision", remediation: "", affected_objects: ["V"] };
+    const calls: string[][] = [];
+    const out = await collectSelfWeightEvidence(["P0", "P1", "P2"], async (refs) => {
+      calls.push([...refs]);
+      if (refs.includes("P0")) return blocked([pipeFailure("P0")]);
+      return refs.length > 1 ? blocked([collision]) : ready(refs);
+    }, { componentIds: ["V"] });
+    expect(out).toEqual({ state: "refused", diagnostics: [collision], calls: 6, combined: true });
+    expect(calls).toEqual([["P0", "P1", "P2"], ["P0", "P1"], ["P0"], ["P1"], ["P2"], ["P1", "P2"]]);
+    const summary = summarize(model(), out);
+    expect(summary).toMatchObject({ state: "unavailable", diagnostics: [collision] });
+    if (summary.state === "unavailable") expect(summary.reason).toContain("refused the pipes in scope taken together");
   });
 
   it("stops at a refusal of the request or document as a whole", async () => {
@@ -216,12 +278,107 @@ describe("sums and centre of gravity", () => {
       { componentId: "valve:loose", reason: "Its stated weight is applied by the self-weight generator to no counted member, so it is not included." }
     ]);
     expect(whole.total).toEqual({ weight: 23, unit: "N" });
-    // A selection subset sums only its own pipes; components outside the generator's evidence are listed for the whole model only.
+    expect([whole.partial, whole.countedPipeCount]).toEqual([true, 2]);
+    // A selection subset sums only its own pipes; a component that maps no pipe and names no bend span is listed for the whole model only.
     const subset = available(summarize(m, collection, "selection", ["P4", "P1"]));
     expect(subset.entities.map((item) => item.pipeRef)).toEqual(["P4", "P1"]);
     expect(subset.notCounted).toEqual([]);
     expect(subset.componentsNotIncluded.map((item) => item.componentId)).toEqual(["valve:warned"]);
     expect(subset.centreOfGravity!.x).toBeCloseTo((20 * 1 + 3 * 3.5) / 23, 12);
+  });
+
+  it("lists omitted component weights in every scope, from the model rather than the plan", () => {
+    // P2 is a bend span (named by bend:1, which states a weight); valve:honoured maps P1 but is not
+    // solver-consumed, so the generator counts P1's own weight; valve:refused maps the refused P3;
+    // valve:onBend maps the bend span P2; valve:counted maps P4 and is counted.
+    const m = model();
+    const valve = (id: string, pipe: string, node: string) => ({ id, label: id, kind: "valve", node, provenance: "i", geometry: { rigid_pipe_ref: pipe, weight: { value: 5, unit: "N" } } });
+    m.components = [{ id: "bend:1", label: "b", kind: "bend", node: "C", provenance: "i", geometry: { bend_pipe_ref: "P2", weight: { value: 3, unit: "N" } } },
+      valve("valve:honoured", "P1", "A"), valve("valve:refused", "P3", "C"), valve("valve:onBend", "P2", "B"), valve("valve:counted", "P4", "D")];
+    m.lines = [{ id: "line:a", pipe_refs: ["P1", "P2"] }, { id: "line:b", pipe_refs: ["P3", "P4"] }];
+    const collection = collected([plan([pipeEvidence("P1", -10), componentEvidence("valve:counted", "P4", "D", 5, [0, 0, 0])])], [{ pipeRef: "P3", code: "SELF_WEIGHT_INPUT_INVALID" }]);
+    const reasons = (summary: WeightSummary) => available(summary).componentsNotIncluded.map((item) => [item.componentId, item.reason]);
+    const honoured = ["valve:honoured", "The self-weight generator does not apply its stated weight; the distributed weight of its mapped pipe P1 is counted instead."];
+    const bend = ["bend:1", "It names bend span P2, which is not counted; its weight is not included."];
+    const onBend = ["valve:onBend", "Its mapped pipe P2 is a bend span, which is not counted; its weight is not included."];
+    const refused = ["valve:refused", "Its mapped pipe P3 is not counted (listed with the pipes not counted); its weight is not included."];
+    expect(reasons(summarize(m, collection))).toEqual([bend, honoured, refused, onBend]);
+    expect(reasons(summarize(m, collection, "line:line:a"))).toEqual([bend, honoured, onBend]);
+    expect(reasons(summarize(m, collection, "line:line:b"))).toEqual([refused]);
+    expect(reasons(summarize(m, collection, "selection", ["P1"]))).toEqual([honoured]);
+    expect(reasons(summarize(m, collection, "selection", ["P2"]))).toEqual([bend, onBend]);
+    expect(reasons(summarize(m, collection, "selection", ["P3"]))).toEqual([refused]);
+    const counted = available(summarize(m, collection, "selection", ["P4"]));
+    expect([counted.componentsNotIncluded, counted.partial, counted.countedPipeCount]).toEqual([[], false, 1]);
+    expect(available(summarize(m, collection, "selection", ["P1"])).partial).toBe(true);
+  });
+
+  it("marks a summary partial for any pipe, component weight or reference left out, and only then", () => {
+    const m = model();
+    const all = collected([plan([pipeEvidence("P1", -1), pipeEvidence("P2", -1), pipeEvidence("P3", -1), pipeEvidence("P4", -1)])]);
+    expect(available(summarize(m, all))).toMatchObject({ partial: false, countedPipeCount: 4 });
+    expect(available(summarize(m, all, "selection", ["P1", "P9"]))).toMatchObject({ partial: true, countedPipeCount: 1 });
+    expect(available(summarize(m, collected([plan([pipeEvidence("P1", -1)])]), "selection", ["P1", "P2"]))).toMatchObject({ partial: true, countedPipeCount: 1 });
+  });
+
+  it("refuses a total that leaves the binary64 range instead of displaying it (Codex r1)", () => {
+    const m = model();
+    const huge = 1.193805208e308;
+    const summary = summarize(m, collected([plan([componentEvidence("V", "P1", "A", huge, [0, 0, 0]), componentEvidence("W", "P2", "B", huge, [0, 0, 0])])]));
+    expect(summary).toEqual({ state: "unavailable", scope: weightSummaryScopes(m)[0], reason: "The summed weight is outside the representable range; no total or centre of gravity is formed.", diagnostics: [] });
+  });
+
+  it("keeps a subnormal weight's centre of gravity instead of underflowing it to zero (Codex r1)", () => {
+    // One span from 0 to 1e-200 m whose weight is about 5.969e-310 N: the centre is its midpoint, 5e-201 m.
+    const m = model();
+    m.nodes = [{ id: "A", label: "A", position: { x: 0, y: 0, z: 0 }, provenance: "i" }, { id: "B", label: "B", position: { x: 1e-200, y: 0, z: 0 }, provenance: "i" }] as PreviewModel["nodes"];
+    m.pipe_segments = m.pipe_segments.slice(0, 1);
+    const summary = available(summarize(m, collected([plan([pipeEvidence("P1", -5.969e-110)])])));
+    expect(summary.total!.weight).toBeGreaterThan(0);
+    expect(summary.total!.weight).toBeLessThan(2 ** -1022);
+    expect(summary.centreOfGravity!.x / 5e-201).toBeCloseTo(1, 14);
+    expect([summary.centreOfGravity!.y, summary.centreOfGravity!.z]).toEqual([0, 0]);
+    expect(summary.note).toBeNull();
+  });
+
+  it("forms the centre of gravity across mixed magnitudes, refusing only what binary64 cannot hold", () => {
+    const m = model();
+    const centre = (weights: number[], positions: [number, number, number][]) => summarize(m, collected([plan(weights.map((weight, index) =>
+      componentEvidence(`V${index}`, `P${index + 1}`, "A", weight, positions[index])))]));
+    // A large and a small weight: the large one governs.
+    expect(available(centre([1e300, 1], [[1, 0, 0], [2, 0, 0]])).centreOfGravity).toEqual({ x: 1, y: 0, z: 0 });
+    // Moments whose unscaled products overflow, with a finite total: formed now (the unscaled sum gave none).
+    const big = available(centre([1e308, 1e307], [[2, 0, 0], [4, 0, 0]]));
+    expect(big.centreOfGravity!.x).toBeCloseTo((2 * 10 + 4) / 11, 14);
+    expect(big.total).toEqual({ weight: 1e308 + 1e307, unit: "N" });
+    // Weights about 2^1022 apart: the lighter one's share leaves the normal range, so no centre is formed, with the reason.
+    const apart = available(centre([1e300, 1e-300], [[1, 0, 0], [2, 0, 0]]));
+    expect([apart.total, apart.centreOfGravity]).toEqual([{ weight: 1e300, unit: "N" }, null]);
+    expect(apart.note).toBe("A weighted position falls below the normal binary64 range, where it would lose precision; no centre of gravity is formed.");
+    // A coordinate whose weighted product leaves the range: refused, never Infinity.
+    const far = available(centre([3, 3], [[1.7e308, 0, 0], [1.7e308, 0, 0]]));
+    expect([far.centreOfGravity, far.note]).toEqual([null, "The centre of gravity is outside the representable range; none is formed."]);
+    // Two subnormal weights.
+    expect(available(centre([4e-310, 1e-309], [[1, 0, 0], [3, 0, 0]])).centreOfGravity!.x).toBeCloseTo((4 * 1 + 10 * 3) / 14, 12);
+  });
+
+  it("gives ordinary models bit-for-bit the unscaled centre of gravity", () => {
+    const m = model();
+    const sets: [number, [number, number, number]][][] = [
+      [[20, [1, 0, 0]], [20, [2, 2, 0]], [30, [2.1, 4, 0.2]], [6, [3.5, 4, 3]]],
+      [[370.3703673, [1500, 0, 0]], [1000, [3012.3456789, 1000, 0]]],
+      [[0.1, [0.3, -0.7, 1e-3]], [7.25e4, [-12.5, 3.3, 9.81]], [1.5e-3, [1e5, 2e5, -3e5]], [42, [0.1, 0.2, 0.3]]],
+      [[420, [7.72, 2.42, 0]]]
+    ];
+    for (const set of sets) {
+      const summary = available(summarize(m, collected([plan(set.map(([weight, position], index) =>
+        componentEvidence(`V${index}`, `P${index + 1}`, "A", weight, position)))])));
+      const total = set.reduce((sum, [weight]) => sum + weight, 0);
+      const naive = (axis: number) => set.reduce((sum, [weight, position]) => sum + weight * position[axis], 0) / total;
+      expect(summary.total!.weight).toBe(total);
+      expect(summary.centreOfGravity).toEqual({ x: naive(0), y: naive(1), z: naive(2) });
+      expect(Object.is(summary.centreOfGravity!.x, naive(0)) && Object.is(summary.centreOfGravity!.y, naive(1)) && Object.is(summary.centreOfGravity!.z, naive(2))).toBe(true);
+    }
   });
 
   it("is unavailable when the generator refuses the request", () => {
@@ -276,5 +433,91 @@ describe("through the actual candidate self-weight engine", () => {
     expect(summary.centreOfGravity!.x).toBeCloseTo((w1 * 1000 + w2 * 2000) / (w1 + w2), 6);
     expect(summary.centreOfGravity!.y).toBeCloseTo(w2 * 2000 / (w1 + w2), 6);
     expect([summary.contentsCount, summary.insulationCount, summary.engineCalls]).toEqual([1, 1, 1]);
+  });
+
+  // Invented three-pipe metre model for the engine: pipe:0 (c to d), pipe:1 (a to b), pipe:2 (b to c),
+  // each with an invented section, and valves that state 30 N at their node.
+  async function engineModel(): Promise<PreviewModel> {
+    const demo = await loadPreviewModel();
+    const m = structuredClone(demo);
+    const section = { outside_diameter: { value: 0.2, unit: "m" }, wall_thickness: { value: 0.01, unit: "m" }, material_density: { value: 8000, unit: "kg/m^3" } };
+    const node = (id: string, x: number, y: number) => ({ id, label: id, position: { x, y, z: 0 }, provenance: "invented" });
+    m.project.units = { ...m.project.units, length: "m" };
+    m.nodes = [node("n:a", 0, 0), node("n:b", 2, 0), node("n:c", 2, 4), node("n:d", 5, 4)];
+    m.pipe_segments = [
+      { ...demo.pipe_segments[0], id: "pipe:0", from: "n:c", to: "n:d", section },
+      { ...demo.pipe_segments[0], id: "pipe:1", from: "n:a", to: "n:b", section },
+      { ...demo.pipe_segments[0], id: "pipe:2", from: "n:b", to: "n:c", section }
+    ];
+    m.supports = []; m.load_cases = []; m.combinations = []; m.lines = [];
+    m.components = [];
+    return m;
+  }
+  const valve = (template: NonNullable<PreviewModel["components"]>[number], id: string, pipe: string, node: string) => ({
+    ...structuredClone(template), id, node,
+    geometry: { ...structuredClone(template.geometry), rigid_pipe_ref: pipe, weight: { value: 30, unit: "N" }, center_of_gravity: { x: 0, y: 0, z: 0, unit: "m" } }
+  });
+  const engineSummary = async (m: PreviewModel, scopeId = "model", selected: string[] = []) => computeWeightSummary({
+    model: m, scope: weightSummaryScopes(m, selected).find((item) => item.id === scopeId)!, gravity: { value: -9.81, unit: "m/s^2", axis: "global_z" },
+    hash: computeModelHash, generate: generateSelfWeightPlan });
+
+  it("refuses, never splits, two components that share an identity on different pipes (Codex r1 repro)", async () => {
+    const demo = await loadPreviewModel();
+    const template = demo.components!.find((item) => item.id === "component:C-130")!;
+    const m = await engineModel();
+    m.pipe_segments = m.pipe_segments.slice(1);
+    m.components = [valve(template, "V", "pipe:1", "n:a"), valve(template, "V", "pipe:2", "n:c")];
+    // Each pipe alone is ready with V's 30 N; the pair is refused.
+    for (const ref of ["pipe:1", "pipe:2"]) expect(available(await engineSummary(m, "selection", [ref])).total).toEqual({ weight: 30, unit: "N" });
+    const summary = await engineSummary(m);
+    expect(summary.state).toBe("unavailable");
+    if (summary.state !== "unavailable") return;
+    expect(summary.reason).toBe("The self-weight generator refused the request; no weight is summed.");
+    expect(summary.diagnostics).toEqual([expect.objectContaining({ code: "SELF_WEIGHT_INPUT_INVALID", message: "generated primitive identity collision", affected_objects: ["V"] })]);
+  });
+
+  it("refuses the whole request when an earlier pipe-local refusal hid the shared identity", async () => {
+    const demo = await loadPreviewModel();
+    const template = demo.components!.find((item) => item.id === "component:C-130")!;
+    const m = await engineModel();
+    m.pipe_segments[0] = { ...m.pipe_segments[0], provenance: "" };
+    m.components = [valve(template, "V", "pipe:1", "n:a"), valve(template, "V", "pipe:2", "n:c")];
+    const summary = await engineSummary(m);
+    expect(summary.state).toBe("unavailable");
+    if (summary.state !== "unavailable") return;
+    expect(summary.reason).toContain("refused the pipes in scope taken together");
+    expect(summary.diagnostics.map((item) => [item.message, item.affected_objects])).toEqual([["generated primitive identity collision", ["V"]]]);
+  });
+
+  it("splits a member mapped by two components, a pipe-local refusal, and counts the other pipes", async () => {
+    const demo = await loadPreviewModel();
+    const template = demo.components!.find((item) => item.id === "component:C-130")!;
+    const m = await engineModel();
+    m.components = [valve(template, "V", "pipe:1", "n:a"), valve(template, "W", "pipe:1", "n:b"), valve(template, "X", "pipe:2", "n:c")];
+    const summary = available(await engineSummary(m));
+    expect(summary.notCounted.map((item) => item.pipeRef)).toEqual(["pipe:1"]);
+    expect(summary.notCounted[0].reason).toContain("RIGID_COMPONENT_MAPPING_CONFLICT");
+    expect(summary.entities.map((item) => [item.kind, item.pipeRef, item.componentId])).toEqual([["pipe", "pipe:0", null], ["component", "pipe:2", "X"]]);
+    expect(summary.componentsNotIncluded.map((item) => item.componentId)).toEqual(["V", "W"]);
+    expect(summary.partial).toBe(true);
+  });
+
+  it("lists a not-solver-consumed valve's stated weight in the model, line and selection scopes (Codex r1)", async () => {
+    const demo = await loadPreviewModel();
+    const template = demo.components!.find((item) => item.id === "component:C-130")!;
+    const m = await engineModel();
+    const honoured = valve(template, "W", "pipe:1", "n:a");
+    honoured.mechanics_interface = { ...structuredClone(template.mechanics_interface), solver_consumption: "not_solver_consumed" };
+    m.components = [honoured];
+    m.lines = [{ id: "line:w", pipe_refs: ["pipe:1", "pipe:2"] }, { id: "line:other", pipe_refs: ["pipe:0"] }];
+    const reason = "The self-weight generator does not apply its stated weight; the distributed weight of its mapped pipe pipe:1 is counted instead.";
+    for (const [scopeId, selected] of [["model", []], ["line:line:w", []], ["selection", ["pipe:1"]]] as const) {
+      const summary = available(await engineSummary(m, scopeId, [...selected]));
+      expect(summary.entities.map((item) => [item.kind, item.pipeRef])).toContainEqual(["pipe", "pipe:1"]);
+      expect(summary.componentsNotIncluded).toEqual([{ componentId: "W", reason }]);
+      expect(summary.partial).toBe(true);
+    }
+    const other = available(await engineSummary(m, "line:line:other"));
+    expect([other.componentsNotIncluded, other.partial]).toEqual([[], false]);
   });
 });

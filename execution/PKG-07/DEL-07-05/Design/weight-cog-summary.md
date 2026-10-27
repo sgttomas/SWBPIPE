@@ -89,17 +89,48 @@ here would be a new geometry formula. Such a span is therefore not counted, and 
 bend components. The rule is conservative: it also sets aside a geometry-only bend span, which the
 solver keeps as a straight chord (§10).
 
-`collectSelfWeightEvidence(pipeRefs, run)` runs the generator. If every pipe is ready, one call
-covers them all. Any one refused pipe makes the generator refuse the whole request, so on a refusal
-the set is halved, and halved again, until each refusal is held by a single pipe. For k refused
-pipes among n, that takes about 2k·log₂n calls. The collector stops at once on a refusal of the
-request or document as a whole: the `SELF-WEIGHT-*` model, request, hash and JSON codes, an engine
-error, a refusal with no diagnostic, or a diagnostic whose `affected_objects` names a request field
-(`gravity`, `gravity.axis`, `case_id`, `label`, `provenance`, `source_model_hash` or `pipe_refs`).
-In that case the summary is unavailable and the panel shows the generator's diagnostics. Halving
-relies on each pipe's record depending only on that pipe, its section and its mapped component, as
-`generate_operations` computes them, so a set the generator accepts gives the same records as its
-pipes one by one.
+`collectSelfWeightEvidence(pipeRefs, run, { componentIds })` runs the generator. If every pipe is
+ready, one call covers them all. Any one refused pipe makes the generator refuse the whole request.
+A refusal is split only when every one of its diagnostics is known to belong to one requested pipe
+(`isPipeLocalDiagnostic`, an allow-list that fails closed). Such a refusal is halved, and halved
+again, until each is held by a single pipe, which is then not counted with the generator's
+diagnostics.
+
+**The pipe-local allow-list.** A diagnostic is pipe-local only when its code is one whose condition
+`generate_operations` evaluates for one selected pipe, its section or its mapped component, so that
+it recurs whenever that pipe is requested, alone or with others:
+`SELF_WEIGHT_INPUT_INVALID`, `SELF_WEIGHT_RANGE_INVALID`, `UNIT_CONVERSION_UNAVAILABLE`,
+`SECTION_REFERENCE_INVALID`, `SECTION_BINDING_UNSUPPORTED`, `SECTION_REFERENCE_CACHE_STALE`,
+`PIPE_DIMENSION_INVALID` and `RIGID_COMPONENT_MAPPING_CONFLICT`. Its `affected_objects` must then
+name exactly one requested pipe, or be exactly one per-pipe section field (`outside_diameter`,
+`wall_thickness`, `mill_tolerance`, `material_density`, `contents_density`,
+`insulation_thickness`, `insulation_density`, `corrosion_allowance`; the generator names the field,
+not the pipe, when it does not normalize) with an input, range or unit code, or be exactly one
+component with `SELF_WEIGHT_RANGE_INVALID` (the component's own centre-of-gravity, force and moment
+range checks). Everything else is not pipe-local: any other code, including future ones; no
+reference; a request field (`gravity`, `gravity.axis`, `case_id`, `label`, `provenance`,
+`source_model_hash` or `pipe_refs`); two requested pipes; and `SELF_WEIGHT_INPUT_INVALID` naming a
+component, which is the generator's "generated primitive identity collision" of two components that
+share an identity, even when a pipe shares that identity too.
+
+**Any other refusal is a refusal of the whole request.** The collector stops at once, never splits,
+and the summary is unavailable: no total and no centre of gravity, and the panel shows the
+generator's diagnostics. An engine error or a refusal with no diagnostic stops it too. Attributing a
+cross-entity refusal to entities and excluding them was considered and not adopted: the generator
+names the shared identity, not the pipes, and one of its pipes would have to be chosen.
+
+**The joint request.** The generator returns its selection refusals (pipe provenance, end nodes,
+span and a pipe's own load identity) before it reads any component, so a pipe-local refusal can hide
+a conflict between two other pipes' components. When halving has accepted the pipes in more than
+one part, one last call therefore requests every accepted pipe together, and the summary is built
+from that one plan. If the generator refuses it, the refusal is of the whole request ("The
+self-weight generator refused the pipes in scope taken together, though it accepted them in parts;
+…"). So every weight summed comes from one plan the generator accepted for exactly the counted
+pipes. A conflict between a refused pipe's component and a counted pipe's is not shown until the
+refused pipe's own refusal is resolved, when it refuses the whole request.
+
+For k refused pipes among n, the collection takes about 2k·log₂n calls, and at most 2n (2n − 1
+for halving and one joint call).
 
 ### 3.3 Entity weights and positions
 
@@ -111,20 +142,30 @@ pipes one by one.
   (`N/m` gives `N`). L is the straight distance between the pipe's end nodes, converted to metres.
   The weight acts at the span's midpoint. The intensity carries the entered gravity's sign, so its
   magnitude is taken. |intensity| × L is the resultant of a uniform load on a straight member, and
-  the solver's load preparation gives the same resultant
-  (`prepare_lumped_nodal_loads`, `core/loads/primitive_loads`: w × span split equally between the
-  ends, so it acts at the midpoint). This step adds the length. It is not a new mass or weight rule.
+  the solver's load preparation gives the same resultant: `add_uniform_element_loads`
+  (`core/product_physics/src/lib.rs`) forms a straight member's equivalent nodal loads with
+  `equivalent_global_nodal_loads_with_spans_formed` (`core/solver/straight_pipe/src/lib.rs`), w × L/2
+  at each end with equal and opposite fixed-end moments, so the resultant is w × L at the midpoint.
+  This step adds the length. It is not a new mass or weight rule.
 - **Otherwise, the pipe is not counted.** The panel states why: the generator's diagnostics for a
   refused pipe, or "returned no weight".
 
 An entity is also not counted, with its reason, in any of these cases: its weight is zero,
-negative or not finite; an intensity unit is not per metre; or an end node, a component node or
-the centre-of-gravity offset is missing. A pipe or component weight is never assumed.
+negative or not finite; an intensity unit is not per metre; an end node, a component node or the
+centre-of-gravity offset is missing; or a component's position (node plus offset) is not finite. A
+span's midpoint is (a + b)/2, or a/2 + b/2 where a + b would leave the binary64 range. A pipe or
+component weight is never assumed.
 
-**Components not included.** These are listed with their reasons: components that the generator's
-warnings name, and, in the whole-model scope only, any component with a stated `geometry.weight`
-that no evidence or warning names. The generator applies such a component's weight to no counted
-member, so the summary does not either.
+**Components not included.** They are read from the model, in every scope, independently of what
+the generator's plan states. A component with a stated `geometry.weight`, or one the generator's
+warnings name, is listed with its reason unless its weight is counted, when it maps
+(`geometry.rigid_pipe_ref`) or names as a bend span (`geometry.bend_pipe_ref`) a pipe in scope, and
+every such component in the whole-model scope. The reasons, in order: the generator's warning; its
+mapped pipe is a bend span; it names a bend span; its mapped pipe is not counted (refused, or
+otherwise listed with the pipes not counted); its mapped pipe's own distributed weight is counted
+instead (for example a `not_solver_consumed` component, which the generator honours with no
+warning); otherwise its weight is applied to no counted member. The summary does not include a
+weight the generator does not apply.
 
 ### 3.4 Sums and centre of gravity
 
@@ -135,9 +176,38 @@ The panel shows:
 - **Total.** The sum over every counted entity, formed only when all of them share one unit.
   Otherwise it states "Units differ (…); no total or centre of gravity is formed."
 - **Centre of gravity.** Σ(wᵢ·pᵢ)/Σwᵢ for each global axis, over the same counted entities, in
-  the model's length unit. It is formed only when the total is formed, positive and finite.
-  Otherwise the panel states why. With nothing counted, it reads "No weight is counted; no total
-  or centre of gravity is formed."
+  the model's length unit. It is formed only when the total is formed. Otherwise the panel states
+  why. With nothing counted, it reads "No weight is counted; no total or centre of gravity is
+  formed."
+
+**Range.** Each weight is finite and positive (§3.3), but sums and products can still leave the
+binary64 range. The derivation refuses rather than shows a non-finite or underflowed value:
+
+- If any category total or the total is not finite, the summary is unavailable: "The summed
+  weight is outside the representable range; no total or centre of gravity is formed."
+- The centre of gravity is formed range-safely. Every weight is first scaled by the one power of
+  two 2^s that brings the largest weight into [1, 2), and Σ(2^s·wᵢ·pᵢ)/Σ(2^s·wᵢ) is formed. The
+  scaling is exact, and a power of two commutes with binary64 rounding in the normal range, so
+  every model whose products and sums stay in the normal range gets bit-for-bit the unscaled
+  formula's result. The scaled sum of weights cannot overflow, and a subnormal weight no longer
+  underflows its products: a span from 0 to 10⁻²⁰⁰ m weighing about 5.969 × 10⁻³¹⁰ N has its
+  centre of gravity at 5 × 10⁻²⁰¹ m, not 0.
+- No centre of gravity is formed, with the reason, when a scaled weight, a product with a nonzero
+  coordinate, or a nonzero moment's quotient falls below the normal range ("A weighted position
+  falls below the normal binary64 range, where it would lose precision; …", which needs weights
+  about 2¹⁰²² apart or subnormal coordinates), or when a moment or the result is not finite ("The
+  centre of gravity is outside the representable range; none is formed."). The finite total is
+  still shown then, because it does not depend on the moments.
+
+Ordinary results do not change. The only changed results are those whose unscaled moments
+overflowed with a finite total, which had no centre of gravity before and now have the correct
+one, and those whose products underflowed, which had a wrong one before and now have the correct
+one or a stated refusal.
+
+**Partial.** The summary is partial when a scope pipe is not counted, a component weight is not
+included or a scope reference is unresolved. `countedPipeCount` is the scope pipes whose weight (or
+their component's) is counted, and `partial` says whether anything is left out. The total and
+centre of gravity are then those of the counted weights only.
 
 Weights and positions come from the same generator call, so the summary and the self-weight case
 the generator would write agree.
@@ -160,7 +230,7 @@ the generator would write agree.
 ## 5. Large models
 
 A clean model takes one generator call. Each call sends and hashes the whole model once. Halving
-bounds the calls when some pipes are refused. The panel renders three category rows and one
+and the joint request bound the calls at 2n when some pipes are refused (§3.2). The panel renders three category rows and one
 centre-of-gravity row. Each list of pipes not counted or components not included shows at most
 `WEIGHT_SUMMARY_LIST_LIMIT` = 50 entries, then "and n more". The panel computes when the user asks
 ("Compute summary"), not on every model change.
@@ -170,6 +240,8 @@ centre-of-gravity row. Each list of pipes not counted or components not included
 All values follow the report display rule, `displayQuantity` and `displayQuantityParts` in
 `features/report/reportQuantityDisplay.ts` (#1655). That covers weights, centre-of-gravity cells
 and their titles, and the echoed gravity. The centre-of-gravity header carries the length unit.
+The panel never throws while rendering: a value the rule cannot print (only a non-finite one, which
+§3.4 already refuses) reads "outside the representable range".
 
 `WeightSummaryPanel` (`apps/desktop/src/features/results/WeightSummaryPanel.tsx`) sits in the
 Results section below A8's panel.
@@ -177,8 +249,9 @@ Results section below A8's panel.
 - **Controls.** A Scope select, Gravity value and unit inputs, a Gravity direction select (Global
   X, Y or Z, with none chosen at first) and "Compute summary". Missing or invalid gravity gives an
   alert and no call.
-- **Currency.** A summary is shown only while its model (by identity), scope, scope pipes and
-  gravity inputs are unchanged. Otherwise the panel says "The model, scope or gravity has changed
+- **Currency.** A summary is shown only while its model (by identity), scope, scope pipes,
+  unresolved scope references and gravity inputs are unchanged. A selection that gains a reference
+  naming no pipe therefore makes the summary stale. Otherwise the panel says "The model, scope or gravity has changed
   since the last summary; compute it again." A later computation supersedes an earlier one that is
   still running.
 - **Summary.** A table labelled "Weight summary: {scope}", with Category, Counted and Weight
@@ -187,8 +260,15 @@ Results section below A8's panel.
   weights are taken, the contents and insulation counts, and that the generator gives no
   metal/contents/insulation split. Then either "Every pipe in scope is counted." or a disclosure
   "k of n pipes not counted" with each pipe's reason, the unresolved scope references, and a
-  disclosure of components with a stated weight not included. The boundary sentence closes the
-  panel.
+  disclosure "m component weight(s) not included" with each reason. Both disclosures are open. The
+  boundary sentence closes the panel.
+- **Partial labels.** The labels "Total" and "Centre of gravity" are used only when nothing is
+  left out. A partial summary (§3.4) has a visible note above the table, "Partial: {qualifier}. The
+  total and centre of gravity are those of the counted weights only; what is left out is listed
+  below.", the total row "Partial total ({qualifier})" and the centre-of-gravity header "Centre of
+  gravity of the counted weights (partial)". The qualifier is "c of n pipes counted", then "; m
+  component weight(s) not included" and "; u unresolved scope reference(s)" when there are any. The
+  bundled demo reads "Partial total (1 of 4 pipes counted)".
 
 ## 7. Composition contract (A6)
 
@@ -197,12 +277,15 @@ Results section below A8's panel.
 export function weightSummaryScopes(model: PreviewModel, selectedPipeRefs?: readonly string[]): WeightSummaryScope[];
 export function parseWeightGravity(input: { value: string; unit: string; axis: string }): { gravity: WeightGravity } | { error: string };
 export function planWeightSummary(model: PreviewModel, scope: WeightSummaryScope): WeightSummaryRequestPlan;
-export function collectSelfWeightEvidence(pipeRefs: readonly string[], run: SelfWeightEngineRun): Promise<SelfWeightEvidenceCollection>;
+export function isPipeLocalDiagnostic(item: EngineDiagnostic, requested: ReadonlySet<string>, componentIds?: ReadonlySet<string>): boolean;
+export function collectSelfWeightEvidence(pipeRefs: readonly string[], run: SelfWeightEngineRun,
+  options?: { componentIds?: Iterable<string> }): Promise<SelfWeightEvidenceCollection>;
 export function buildWeightSummary(input: { model; scope; gravity; request; collection }): WeightSummary;
 export function computeWeightSummary(input: { model; scope; gravity; hash; generate }): Promise<WeightSummary>;
 // WeightSummary = { state: "unavailable", scope, reason, diagnostics }
 //   | { state: "available", scope, gravity, lengthUnit, entities, pipes, components, total, centreOfGravity,
-//       note, notCounted, componentsNotIncluded, contentsCount, insulationCount, engineCalls }
+//       note, notCounted, componentsNotIncluded, countedPipeCount, partial, contentsCount, insulationCount,
+//       engineCalls }
 
 // WeightSummaryPanel.tsx
 export function WeightSummaryPanel(props: {
@@ -216,7 +299,8 @@ export function WeightSummaryPanel(props: {
 
 A key-results headline can call `computeWeightSummary` with the whole-model scope and read `total`
 and `centreOfGravity`. Beside those values it must give the gravity and the counts of pipes not
-counted and components not included. All outputs except the engine call's are frozen and
+counted and components not included, and when `partial` is true it must label them partial as §6
+does. All outputs except the engine call's are frozen and
 deterministic for their inputs.
 
 ## 8. Claims fence
@@ -233,24 +317,37 @@ changes no model, result or export and persists nothing.
     present and absent;
   - gravity parsing: missing, blank, zero, non-finite and unparsable values, and a bad axis;
   - bend spans set aside, and a case id that avoids existing case and load ids;
-  - collection: one call when ready, halving to single refused pipes with the call count, and a
-    stop on request-level refusals and engine errors;
+  - collection: one call when ready, halving to single refused pipes and one joint request with the
+    call count, the pipe-local allow-list (accepted and refused diagnostics, fail closed), a refusal
+    that is not pipe-local never split, a joint request refused as a whole, and a stop on
+    request-level refusals and engine errors;
   - sums and centre of gravity on invented geometry with a known answer;
   - metre, millimetre and foot models, and a refused unknown length unit;
   - nothing counted (no centre of gravity, with the note);
   - zero, negative and non-finite generator weights, and a signed intensity;
   - mixed units (no total, with the note);
-  - pipes not counted (bend span, refusal, no evidence) and components not included (warning, and
-    unnamed in the whole-model scope only);
+  - pipes not counted (bend span, refusal, no evidence) and components not included in the model,
+    line and selection scopes (warning, honoured, refused pipe, bend span, mapped bend span);
+  - partial and unqualified summaries;
+  - range: an overflowing total (unavailable), a subnormal span's centre of gravity, mixed
+    magnitudes, a coordinate whose product overflows, and bit-for-bit agreement with the unscaled
+    formula on ordinary sets;
   - a selection subset, and the unavailable states;
   - two tests through the actual candidate engines. The bundled demo: valve C-130's 420 N stands
     for `pipe:P-130` at (7.72, 2.42, 0) m, the other pipes state no density, 7 calls. An invented
-    two-pipe millimetre model with contents and insulation, checked against hand areas.
+    two-pipe millimetre model with contents and insulation, checked against hand areas. On an
+    invented three-pipe model: two components sharing identity `V` on different pipes refuse the
+    whole request (each pipe alone gives 30 N), the same behind another pipe's own refusal (joint
+    request), a member mapped by two components split as pipe-local, and a `not_solver_consumed`
+    valve listed in the model, line and selection scopes.
 - `apps/desktop/src/features/results/WeightSummaryPanel.test.tsx`:
   - the gravity alert, with no call;
   - the display rule in the weight and centre-of-gravity cells, with no full-precision value in the
     markup;
-  - the basis line, the not-counted disclosure, and staleness on gravity and model changes;
+  - the basis line, the not-counted disclosure, and staleness on gravity and model changes and on a
+    selection gaining an unresolved reference;
+  - partial labels for a pipe, a component weight and an unresolved reference left out, unqualified
+    labels when nothing is, and an out-of-range total stated instead of thrown;
   - line and selection scopes, unresolved references and a custom test-id prefix;
   - the generator's refusal;
   - the bundled demo through the actual candidate engines.

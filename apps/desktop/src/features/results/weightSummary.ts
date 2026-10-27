@@ -22,16 +22,26 @@ export const COMPONENT_WEIGHT_METHOD = "component_weight_at_center_of_gravity_gl
 /** The generator's warning when a mapping component's weight is not applied (`COMPONENT_WEIGHT_NOT_APPLIED`). */
 export const COMPONENT_WEIGHT_NOT_APPLIED = "SELF_WEIGHT_COMPONENT_WEIGHT_NOT_APPLIED";
 
-/** Refusals that concern the request or the document as a whole, not one pipe: the
- * collector stops at once instead of splitting the pipes further. */
-const REQUEST_LEVEL_CODES = new Set([
-  "SELF-WEIGHT-MODEL-SHAPE-INVALID",
-  "SELF-WEIGHT-REQUEST-SHAPE-INVALID",
-  "SELF-WEIGHT-SOURCE-HASH-MISMATCH",
-  "SELF-WEIGHT-JSON-INVALID",
-  "SELF-WEIGHT-ENGINE-ASSET-ABSENT"
-]);
+/** The request's own fields: a diagnostic naming one is never a pipe's. */
 const REQUEST_LEVEL_FIELDS = new Set(["case_id", "label", "provenance", "source_model_hash", "gravity", "gravity.axis", "pipe_refs"]);
+/** The allow-list of pipe-local refusals (Design §3.2): the engine codes whose condition is a
+ * property of one requested pipe, its section, or its mapped component, so it recurs whenever that
+ * pipe is requested, alone or with others. Any other code is never split. */
+export const PIPE_LOCAL_CODES: ReadonlySet<string> = new Set([
+  "SELF_WEIGHT_INPUT_INVALID",
+  "SELF_WEIGHT_RANGE_INVALID",
+  "UNIT_CONVERSION_UNAVAILABLE",
+  "SECTION_REFERENCE_INVALID",
+  "SECTION_BINDING_UNSUPPORTED",
+  "SECTION_REFERENCE_CACHE_STALE",
+  "PIPE_DIMENSION_INVALID",
+  "RIGID_COMPONENT_MAPPING_CONFLICT"
+]);
+/** The per-pipe section fields the engine names, in place of the pipe, when one of them does not
+ * normalize (`normalize` in `self_weight.rs`). */
+const SECTION_FIELDS = new Set(["outside_diameter", "wall_thickness", "mill_tolerance", "contents_density",
+  "insulation_thickness", "insulation_density", "material_density", "corrosion_allowance"]);
+const SECTION_FIELD_CODES = new Set(["SELF_WEIGHT_INPUT_INVALID", "SELF_WEIGHT_RANGE_INVALID", "UNIT_CONVERSION_UNAVAILABLE"]);
 
 export type WeightScopeKind = "model" | "line" | "selection";
 export type WeightSummaryScope = Readonly<{
@@ -151,41 +161,74 @@ export type SelfWeightEvidenceCollection =
       refused: readonly Readonly<{ pipeRef: string; diagnostics: readonly EngineDiagnostic[] }>[];
       calls: number;
     }>
-  | Readonly<{ state: "refused"; diagnostics: readonly EngineDiagnostic[]; calls: number }>;
+  | Readonly<{
+      state: "refused";
+      diagnostics: readonly EngineDiagnostic[];
+      calls: number;
+      /** True when the generator refused, taken together, pipes it had accepted in parts. */
+      combined?: boolean;
+    }>;
 
-function requestLevel(diagnostics: readonly EngineDiagnostic[]): boolean {
-  return diagnostics.length === 0 || diagnostics.some((item) =>
-    REQUEST_LEVEL_CODES.has(item.code) || (item.affected_objects ?? []).some((ref) => REQUEST_LEVEL_FIELDS.has(ref)));
+/** Whether one diagnostic is known to belong to one requested pipe (Design §3.2). Fail closed:
+ * an unlisted code, a request field, no reference, or references to two requested pipes are not
+ * pipe-local. A component reference is pipe-local only for the engine's per-component range
+ * checks (`SELF_WEIGHT_RANGE_INVALID`); an input refusal naming a component is its generated
+ * primitive identity collision, which depends on the other components requested with it. */
+export function isPipeLocalDiagnostic(item: EngineDiagnostic, requested: ReadonlySet<string>, componentIds: ReadonlySet<string> = new Set()): boolean {
+  if (!PIPE_LOCAL_CODES.has(item.code)) return false;
+  const refs = Array.isArray(item.affected_objects) ? item.affected_objects : [];
+  if (refs.length === 0 || refs.some((ref) => REQUEST_LEVEL_FIELDS.has(ref))) return false;
+  // An input refusal naming a component is its generated identity collision, even when a pipe shares the id.
+  if (item.code === "SELF_WEIGHT_INPUT_INVALID" && refs.some((ref) => componentIds.has(ref))) return false;
+  const pipes = refs.filter((ref) => requested.has(ref));
+  if (pipes.length > 0) return pipes.length === 1;
+  if (refs.length !== 1) return false;
+  if (SECTION_FIELDS.has(refs[0])) return SECTION_FIELD_CODES.has(item.code);
+  return item.code === "SELF_WEIGHT_RANGE_INVALID" && componentIds.has(refs[0]);
 }
 
-/** Runs the generator over the pipes. One call when every pipe is ready; otherwise the
- * set is halved until each refusal is held by a single pipe, so one pipe's missing input
- * does not hide the others' weights. A refusal of the request or document as a whole
- * stops the collection. */
-export async function collectSelfWeightEvidence(pipeRefs: readonly string[], run: SelfWeightEngineRun): Promise<SelfWeightEvidenceCollection> {
-  const plans: { pipeRefs: readonly string[]; plan: SelfWeightOperationPlan }[] = [];
+const PLAN_ABSENT: EngineDiagnostic = { code: "SELF-WEIGHT-PLAN-ABSENT", severity: "blocking",
+  message: "The self-weight generator returned no plan and no diagnostic.", remediation: "Compute again.", affected_objects: [] };
+
+/** Runs the generator over the pipes. One call when every pipe is ready. A refusal whose every
+ * diagnostic is pipe-local (`isPipeLocalDiagnostic`) is split in halves until each refusal is held
+ * by a single pipe, so one pipe's missing input does not hide the others' weights. Any other
+ * refusal, at any level, is a refusal of the whole request and stops the collection. When pipes
+ * were accepted in more than one part, one last call requests them together: the engine may have
+ * returned a pipe-local refusal first and not yet reached a conflict between pipes, and a
+ * refusal of that call is a refusal of the whole request. */
+export async function collectSelfWeightEvidence(
+  pipeRefs: readonly string[],
+  run: SelfWeightEngineRun,
+  options: Readonly<{ componentIds?: Iterable<string> }> = {}
+): Promise<SelfWeightEvidenceCollection> {
+  const componentIds = new Set(options.componentIds ?? []);
+  let plans: { pipeRefs: readonly string[]; plan: SelfWeightOperationPlan }[] = [];
   const refused: { pipeRef: string; diagnostics: readonly EngineDiagnostic[] }[] = [];
   let calls = 0;
   let stop: readonly EngineDiagnostic[] | null = null;
-  async function visit(refs: readonly string[]): Promise<void> {
-    if (refs.length === 0 || stop) return;
+  async function call(refs: readonly string[]): Promise<SelfWeightPlanOutcome | null> {
     calls += 1;
-    let outcome: SelfWeightPlanOutcome;
     try {
-      outcome = await run(refs);
+      return await run(refs);
     } catch (error) {
       stop = [{ code: "SELF-WEIGHT-ENGINE-UNAVAILABLE", severity: "blocking", message: error instanceof Error ? error.message : String(error),
         remediation: "Make the self-weight engine available and compute again.", affected_objects: [] }];
-      return;
+      return null;
     }
+  }
+  async function visit(refs: readonly string[]): Promise<void> {
+    if (refs.length === 0 || stop) return;
+    const outcome = await call(refs);
+    if (!outcome) return;
     if (outcome.status === "ready" && outcome.plan) {
       plans.push({ pipeRefs: Object.freeze([...refs]), plan: outcome.plan });
       return;
     }
-    const diagnostics = outcome.diagnostics ?? [];
-    if (requestLevel(diagnostics)) {
-      stop = diagnostics.length > 0 ? diagnostics : [{ code: "SELF-WEIGHT-PLAN-ABSENT", severity: "blocking",
-        message: "The self-weight generator returned no plan and no diagnostic.", remediation: "Compute again.", affected_objects: [] }];
+    const diagnostics = Array.isArray(outcome.diagnostics) ? outcome.diagnostics : [];
+    const requested = new Set(refs);
+    if (diagnostics.length === 0 || !diagnostics.every((item) => isPipeLocalDiagnostic(item, requested, componentIds))) {
+      stop = diagnostics.length > 0 ? diagnostics : [PLAN_ABSENT];
       return;
     }
     if (refs.length === 1) {
@@ -197,8 +240,24 @@ export async function collectSelfWeightEvidence(pipeRefs: readonly string[], run
     await visit(refs.slice(middle));
   }
   await visit(pipeRefs);
-  if (stop) return Object.freeze({ state: "refused" as const, diagnostics: Object.freeze([...(stop as readonly EngineDiagnostic[])]), calls });
-  return Object.freeze({ state: "collected" as const, plans: Object.freeze(plans), refused: Object.freeze(refused), calls });
+  let combined = false;
+  if (!stop && plans.length > 1) {
+    const accepted = new Set(plans.flatMap((item) => item.pipeRefs));
+    const together = pipeRefs.filter((ref) => accepted.has(ref));
+    const outcome = await call(together);
+    if (outcome?.status === "ready" && outcome.plan) {
+      plans = [{ pipeRefs: Object.freeze(together), plan: outcome.plan }];
+    } else if (outcome) {
+      const diagnostics = Array.isArray(outcome.diagnostics) ? outcome.diagnostics : [];
+      stop = diagnostics.length > 0 ? diagnostics : [PLAN_ABSENT];
+      combined = true;
+    }
+  }
+  if (stop) {
+    return Object.freeze({ state: "refused" as const, diagnostics: Object.freeze([...(stop as readonly EngineDiagnostic[])]), calls,
+      ...(combined ? { combined: true } : {}) });
+  }
+  return Object.freeze({ state: "collected" as const, plans: Object.freeze(plans.map((item) => Object.freeze(item))), refused: Object.freeze(refused), calls });
 }
 
 export type WeightEntity = Readonly<{
@@ -237,6 +296,11 @@ export type WeightSummary =
       note: string | null;
       notCounted: readonly NotCountedPipe[];
       componentsNotIncluded: readonly NotIncludedComponent[];
+      /** Scope pipes whose weight (their own or their component's) is counted. */
+      countedPipeCount: number;
+      /** True when a scope pipe, a component weight or a scope reference is left out: the total
+       * and centre of gravity are then those of the counted weights only. */
+      partial: boolean;
       contentsCount: number;
       insulationCount: number;
       engineCalls: number;
@@ -250,6 +314,16 @@ function finiteVector(value: unknown): [number, number, number] | null {
     ? [value[0], value[1], value[2]] : null;
 }
 
+function finitePosition(position: Vec3): boolean {
+  return Number.isFinite(position.x) && Number.isFinite(position.y) && Number.isFinite(position.z);
+}
+
+/** (a + b) / 2, or a / 2 + b / 2 when the sum leaves the binary64 range. */
+function midpoint(a: number, b: number): number {
+  const sum = (a + b) / 2;
+  return Number.isFinite(sum) ? sum : a / 2 + b / 2;
+}
+
 function diagnosticText(diagnostics: readonly EngineDiagnostic[]): string {
   return diagnostics.map((item) => `${item.code}: ${item.message}`).join(" ") || "The self-weight generator refused this pipe.";
 }
@@ -258,6 +332,105 @@ function sumByUnit(entities: readonly WeightEntity[]): Readonly<{ unit: string; 
   const totals = new Map<string, number>();
   for (const entity of entities) totals.set(entity.unit, (totals.get(entity.unit) ?? 0) + entity.weight);
   return [...totals].map(([unit, weight]) => Object.freeze({ unit, weight }));
+}
+
+const NORMAL_MIN = 2 ** -1022;
+const CENTRE_OVERFLOW = "The centre of gravity is outside the representable range; none is formed.";
+const CENTRE_UNDERFLOW = "A weighted position falls below the normal binary64 range, where it would lose precision; no centre of gravity is formed.";
+
+/** value × 2^exponent, in steps that stay representable (exact unless the result leaves the normal range). */
+function scaleByPowerOfTwo(value: number, exponent: number): number {
+  let scaled = value;
+  let rest = exponent;
+  while (rest > 1000) { scaled *= 2 ** 1000; rest -= 1000; }
+  while (rest < -1000) { scaled *= 2 ** -1000; rest += 1000; }
+  return scaled * 2 ** rest;
+}
+
+/** The e with 2^e ≤ value < 2^(e+1), for a positive finite value (subnormal included). */
+function binaryExponent(value: number): number {
+  let exponent = Math.floor(Math.log2(value));
+  if (scaleByPowerOfTwo(value, -exponent) >= 2) exponent += 1;
+  else if (scaleByPowerOfTwo(value, -exponent) < 1) exponent -= 1;
+  return exponent;
+}
+
+/** Σ(wᵢ·pᵢ)/Σwᵢ (Design §3.4), range-safe. Every weight is first scaled by the one power of two
+ * that brings the largest into [1, 2): the scaling is exact, so a model whose products and sums
+ * stay in the normal range gets bit-for-bit the unscaled formula's result, while Σwᵢ can no longer
+ * overflow and a subnormal weight no longer underflows its products. Refused, with a reason, when
+ * a scaled weight or a product with a nonzero coordinate falls below the normal range, or a
+ * moment or the result is not finite. */
+function weightedCentre(entities: readonly WeightEntity[]): { centre: Vec3 } | { reason: string } {
+  let largest = 0;
+  for (const entity of entities) largest = Math.max(largest, entity.weight);
+  const shift = -binaryExponent(largest);
+  let weights = 0;
+  const moments = { x: 0, y: 0, z: 0 };
+  for (const entity of entities) {
+    const weight = scaleByPowerOfTwo(entity.weight, shift);
+    if (!(weight >= NORMAL_MIN)) return { reason: CENTRE_UNDERFLOW };
+    weights += weight;
+    for (const axis of ["x", "y", "z"] as const) {
+      const coordinate = entity.position[axis];
+      const product = weight * coordinate;
+      if (!Number.isFinite(product)) return { reason: CENTRE_OVERFLOW };
+      if (coordinate !== 0 && Math.abs(product) < NORMAL_MIN) return { reason: CENTRE_UNDERFLOW };
+      moments[axis] += product;
+    }
+  }
+  const centre = { x: moments.x / weights, y: moments.y / weights, z: moments.z / weights };
+  for (const axis of ["x", "y", "z"] as const) {
+    if (!Number.isFinite(moments[axis]) || !Number.isFinite(centre[axis])) return { reason: CENTRE_OVERFLOW };
+    if (moments[axis] !== 0 && Math.abs(centre[axis]) < NORMAL_MIN) return { reason: CENTRE_UNDERFLOW };
+  }
+  return { centre: Object.freeze(centre) };
+}
+
+/** The components whose stated weight the summary does not include, in every scope (Design §3.3):
+ * components mapped (`geometry.rigid_pipe_ref`) onto a scope pipe or naming a scope bend span
+ * (`geometry.bend_pipe_ref`), every component in the whole-model scope, and every component the
+ * generator's warnings name. Read from the model, so a refused pipe or a bend span keeps its
+ * components in the list. A component counted as an entity is not listed. */
+function omittedComponents(
+  model: PreviewModel,
+  scope: WeightSummaryScope,
+  request: WeightSummaryRequestPlan,
+  entities: readonly WeightEntity[],
+  notCounted: readonly NotCountedPipe[],
+  warned: ReadonlyMap<string, string>
+): readonly NotIncludedComponent[] {
+  const inScope = new Set(scope.pipeRefs);
+  const bendSpans = new Set(request.bendSpans.map((item) => item.pipeRef));
+  const skipped = new Set(notCounted.map((item) => item.pipeRef));
+  const pipeCounted = new Set(entities.filter((entity) => entity.kind === "pipe").map((entity) => entity.pipeRef));
+  const componentCounted = new Set(entities.filter((entity) => entity.kind === "component").map((entity) => `${entity.componentId}\u0000${entity.pipeRef}`));
+  const componentCountedAnywhere = new Set(entities.filter((entity) => entity.kind === "component").map((entity) => entity.componentId));
+  const text = (value: unknown) => typeof value === "string" && value.trim() ? value : null;
+  const out: NotIncludedComponent[] = [];
+  const listed = new Set<string>();
+  for (const component of model.components ?? []) {
+    const mapped = text(component.geometry?.rigid_pipe_ref);
+    const bend = text(component.geometry?.bend_pipe_ref);
+    const counted = mapped === null ? componentCountedAnywhere.has(component.id) : componentCounted.has(`${component.id}\u0000${mapped}`);
+    const warning = warned.get(component.id);
+    if (counted || (component.geometry?.weight === undefined && warning === undefined)) continue;
+    const mappedInScope = mapped !== null && inScope.has(mapped);
+    const bendInScope = bend !== null && inScope.has(bend);
+    if (scope.kind !== "model" && !mappedInScope && !bendInScope && warning === undefined) continue;
+    let reason: string;
+    if (warning !== undefined) reason = warning;
+    else if (mappedInScope && bendSpans.has(mapped)) reason = `Its mapped pipe ${mapped} is a bend span, which is not counted; its weight is not included.`;
+    else if (bendInScope && bendSpans.has(bend)) reason = `It names bend span ${bend}, which is not counted; its weight is not included.`;
+    else if (mappedInScope && skipped.has(mapped)) reason = `Its mapped pipe ${mapped} is not counted (listed with the pipes not counted); its weight is not included.`;
+    else if (mappedInScope && pipeCounted.has(mapped)) reason = `The self-weight generator does not apply its stated weight; the distributed weight of its mapped pipe ${mapped} is counted instead.`;
+    else reason = "Its stated weight is applied by the self-weight generator to no counted member, so it is not included.";
+    const key = `${component.id}\u0000${mapped ?? ""}`;
+    if (listed.has(key)) continue;
+    listed.add(key);
+    out.push(Object.freeze({ componentId: component.id, reason }));
+  }
+  return Object.freeze(out);
 }
 
 /** Sums the generator's weights over the scope and forms the centre of gravity. Pure and
@@ -271,7 +444,11 @@ export function buildWeightSummary(input: {
 }): WeightSummary {
   const { model, scope, gravity, request, collection } = input;
   if (collection.state === "refused") {
-    return Object.freeze({ state: "unavailable" as const, scope, reason: "The self-weight generator refused the request; no weight is summed.", diagnostics: collection.diagnostics });
+    return Object.freeze({ state: "unavailable" as const, scope,
+      reason: collection.combined
+        ? "The self-weight generator refused the pipes in scope taken together, though it accepted them in parts; a refusal that does not belong to one pipe is not split, and no weight is summed."
+        : "The self-weight generator refused the request; no weight is summed.",
+      diagnostics: collection.diagnostics });
   }
   const lengthUnit = model.project?.units?.length;
   const millimetres = millimetersPerLengthUnit(lengthUnit);
@@ -288,7 +465,6 @@ export function buildWeightSummary(input: {
   const pipeEvidence = new Map<string, Record<string, unknown>>();
   const componentEvidence = new Map<string, Record<string, unknown>>();
   const warned = new Map<string, string>();
-  const named = new Set<string>();
   for (const { plan } of collection.plans) {
     for (const item of plan.source_evidence ?? []) {
       const evidence = record(item);
@@ -296,13 +472,12 @@ export function buildWeightSummary(input: {
       if (evidence.method === PIPE_WEIGHT_METHOD && typeof evidence.pipe_id === "string") pipeEvidence.set(evidence.pipe_id, evidence);
       if (evidence.method === COMPONENT_WEIGHT_METHOD && typeof evidence.omitted_pipe_id === "string" && evidence.wrench_part === "force") {
         componentEvidence.set(evidence.omitted_pipe_id, evidence);
-        if (typeof evidence.component_id === "string") named.add(evidence.component_id);
       }
     }
     for (const warning of plan.warnings ?? []) {
       if (warning.code !== COMPONENT_WEIGHT_NOT_APPLIED) continue;
       const componentId = warning.affected_refs?.[0];
-      if (componentId) { warned.set(componentId, warning.message); named.add(componentId); }
+      if (componentId) warned.set(componentId, warning.message);
     }
   }
   const refused = new Map(collection.refused.map((item) => [item.pipeRef, item.diagnostics]));
@@ -323,9 +498,11 @@ export function buildWeightSummary(input: {
       const weight = component.weight_N;
       if (typeof weight !== "number" || !Number.isFinite(weight) || weight <= 0) { skip(pipeRef, `The generator's weight of ${componentId} is not a finite positive value.`); continue; }
       if (!node || !offset) { skip(pipeRef, `The node or centre of gravity of ${componentId} is not available.`); continue; }
+      const position = { x: node.x + offset[0] * unitsPerMetre, y: node.y + offset[1] * unitsPerMetre, z: node.z + offset[2] * unitsPerMetre };
+      if (!finitePosition(position)) { skip(pipeRef, `The position of ${componentId}'s centre of gravity is outside the representable range.`); continue; }
       entities.push(Object.freeze({
         kind: "component" as const, pipeRef, componentId, weight, unit: "N",
-        position: Object.freeze({ x: node.x + offset[0] * unitsPerMetre, y: node.y + offset[1] * unitsPerMetre, z: node.z + offset[2] * unitsPerMetre }),
+        position: Object.freeze(position),
         contents: null, insulation: null
       }));
       continue;
@@ -347,7 +524,7 @@ export function buildWeightSummary(input: {
       if (!Number.isFinite(weight) || weight <= 0) { skip(pipeRef, "The pipe's weight is not a finite positive value."); continue; }
       entities.push(Object.freeze({
         kind: "pipe" as const, pipeRef, componentId: null, weight, unit: perLength[1],
-        position: Object.freeze({ x: (from.x + to.x) / 2, y: (from.y + to.y) / 2, z: (from.z + to.z) / 2 }),
+        position: Object.freeze({ x: midpoint(from.x, to.x), y: midpoint(from.y, to.y), z: midpoint(from.z, to.z) }),
         contents: evidence.contents_absent === false, insulation: evidence.insulation_absent === false
       }));
       continue;
@@ -356,17 +533,17 @@ export function buildWeightSummary(input: {
     skip(pipeRef, diagnostics ? diagnosticText(diagnostics) : "The self-weight generator returned no weight for this pipe.");
   }
 
-  const componentsNotIncluded: NotIncludedComponent[] = [...warned].map(([componentId, reason]) => Object.freeze({ componentId, reason }));
-  if (scope.kind === "model") {
-    for (const component of model.components ?? []) {
-      if (component.geometry?.weight === undefined || named.has(component.id)) continue;
-      componentsNotIncluded.push(Object.freeze({ componentId: component.id, reason: "Its stated weight is applied by the self-weight generator to no counted member, so it is not included." }));
-    }
-  }
+  const componentsNotIncluded = omittedComponents(model, scope, request, entities, notCounted, warned);
 
   const pipeEntities = entities.filter((entity) => entity.kind === "pipe");
   const componentEntities = entities.filter((entity) => entity.kind === "component");
   const all = sumByUnit(entities);
+  const pipeTotals = sumByUnit(pipeEntities);
+  const componentTotals = sumByUnit(componentEntities);
+  if ([...all, ...pipeTotals, ...componentTotals].some((item) => !Number.isFinite(item.weight))) {
+    return Object.freeze({ state: "unavailable" as const, scope,
+      reason: "The summed weight is outside the representable range; no total or centre of gravity is formed.", diagnostics: Object.freeze([]) });
+  }
   let total: { weight: number; unit: string } | null = null;
   let centreOfGravity: Vec3 | null = null;
   let note: string | null = null;
@@ -376,19 +553,9 @@ export function buildWeightSummary(input: {
     note = "No weight is counted; no total or centre of gravity is formed.";
   } else {
     total = Object.freeze({ weight: all[0].weight, unit: all[0].unit });
-    if (Number.isFinite(total.weight) && total.weight > 0) {
-      let x = 0, y = 0, z = 0;
-      for (const entity of entities) {
-        x += entity.weight * entity.position.x;
-        y += entity.weight * entity.position.y;
-        z += entity.weight * entity.position.z;
-      }
-      const cog = { x: x / total.weight, y: y / total.weight, z: z / total.weight };
-      if ([cog.x, cog.y, cog.z].every(Number.isFinite)) centreOfGravity = Object.freeze(cog);
-      else note = "The centre of gravity is outside the representable range; none is formed.";
-    } else {
-      note = "The total weight is not positive; no centre of gravity is formed.";
-    }
+    const centre = weightedCentre(entities);
+    if ("centre" in centre) centreOfGravity = centre.centre;
+    else note = centre.reason;
   }
   return Object.freeze({
     state: "available" as const,
@@ -396,13 +563,15 @@ export function buildWeightSummary(input: {
     gravity,
     lengthUnit: lengthUnit as string,
     entities: Object.freeze(entities),
-    pipes: Object.freeze({ count: pipeEntities.length, totals: Object.freeze(sumByUnit(pipeEntities)) }),
-    components: Object.freeze({ count: componentEntities.length, totals: Object.freeze(sumByUnit(componentEntities)) }),
+    pipes: Object.freeze({ count: pipeEntities.length, totals: Object.freeze(pipeTotals) }),
+    components: Object.freeze({ count: componentEntities.length, totals: Object.freeze(componentTotals) }),
     total,
     centreOfGravity,
     note,
     notCounted: Object.freeze(notCounted),
-    componentsNotIncluded: Object.freeze(componentsNotIncluded),
+    componentsNotIncluded,
+    countedPipeCount: scope.pipeRefs.length - notCounted.length,
+    partial: notCounted.length > 0 || componentsNotIncluded.length > 0 || scope.unresolved.length > 0,
     contentsCount: pipeEntities.filter((entity) => entity.contents).length,
     insulationCount: pipeEntities.filter((entity) => entity.insulation).length,
     engineCalls: collection.calls
@@ -433,6 +602,6 @@ export async function computeWeightSummary(input: {
     gravity: { value: gravity.value, unit: gravity.unit, axis: gravity.axis },
     provenance: "Weight and centre-of-gravity summary view; the plan is read, never queued or applied.",
     source_model_hash: hash.value
-  }));
+  }), { componentIds: (model.components ?? []).map((component) => component.id) });
   return buildWeightSummary({ model, scope, gravity, request, collection });
 }

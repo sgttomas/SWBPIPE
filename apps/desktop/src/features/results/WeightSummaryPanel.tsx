@@ -47,8 +47,35 @@ type Computed = { summary: WeightSummary; model: PreviewModel; scopeId: string; 
 
 const AXIS_LABELS = [["global_x", "Global X"], ["global_y", "Global Y"], ["global_z", "Global Z"]] as const;
 
+/** The display rule's text, or a statement in place of a value it cannot show: the panel never throws. */
+function safeQuantity(value: number, unit: string): string {
+  try {
+    return displayQuantity(value, unit);
+  } catch {
+    return "outside the representable range";
+  }
+}
+
+function safeNumber(value: number, unit: string): { number: string; unit: string } {
+  try {
+    return displayQuantityParts(value, unit);
+  } catch {
+    return { number: "outside the representable range", unit };
+  }
+}
+
 function totalsText(category: CategoryTotal): string {
-  return category.totals.length > 0 ? category.totals.map((item) => displayQuantity(item.weight, item.unit)).join("; ") : "none";
+  return category.totals.length > 0 ? category.totals.map((item) => safeQuantity(item.weight, item.unit)).join("; ") : "none";
+}
+
+const count = (value: number, word: string) => `${value} ${word}${value === 1 ? "" : "s"}`;
+
+/** What a partial summary leaves out, in one phrase (Design §6). */
+export function partialQualifier(summary: Extract<WeightSummary, { state: "available" }>): string {
+  const parts = [`${summary.countedPipeCount} of ${count(summary.scope.pipeRefs.length, "pipe")} counted`];
+  if (summary.componentsNotIncluded.length > 0) parts.push(`${count(summary.componentsNotIncluded.length, "component weight")} not included`);
+  if (summary.scope.unresolved.length > 0) parts.push(`${count(summary.scope.unresolved.length, "unresolved scope reference")}`);
+  return parts.join("; ");
 }
 
 export function WeightSummaryPanel({
@@ -61,7 +88,8 @@ export function WeightSummaryPanel({
   const [error, setError] = useState<string | null>(null);
   const token = useRef(0);
   const scope = scopes.find((item) => item.id === input.scopeId) ?? scopes[0];
-  const refsKey = scope.pipeRefs.join("\n");
+  // Resolved and unresolved references both: a newly unresolved reference changes the summary.
+  const refsKey = JSON.stringify([scope.pipeRefs, scope.unresolved]);
   const gravityKey = JSON.stringify([input.value.trim(), input.unit.trim(), input.axis]);
   const current = computed !== null && computed.model === model && computed.scopeId === scope.id
     && computed.refsKey === refsKey && computed.gravityKey === gravityKey;
@@ -134,13 +162,21 @@ export function WeightSummaryPanel({
 
 function SummaryView({ summary, tid }: { summary: Extract<WeightSummary, { state: "available" }>; tid: (suffix: string) => string }) {
   const counted = summary.pipes.count + summary.components.count;
-  const lengthUnit = displayQuantityParts(0, summary.lengthUnit).unit;
-  const gravity = displayQuantity(summary.gravity.value, summary.gravity.unit);
+  const lengthUnit = safeNumber(0, summary.lengthUnit).unit;
+  const gravity = safeQuantity(summary.gravity.value, summary.gravity.unit);
   const axis = AXIS_LABELS.find(([value]) => value === summary.gravity.axis)?.[1] ?? summary.gravity.axis;
   const notCounted = summary.notCounted;
   const notIncluded = summary.componentsNotIncluded;
+  const qualifier = summary.partial ? partialQualifier(summary) : null;
+  const totalLabel = qualifier ? `Partial total (${qualifier})` : "Total";
+  const cogLabel = qualifier ? "Centre of gravity of the counted weights (partial)" : "Centre of gravity";
   return (
-    <div data-testid={tid("summary")} data-scope={summary.scope.id}>
+    <div data-testid={tid("summary")} data-scope={summary.scope.id} data-partial={summary.partial ? "true" : "false"}>
+      {qualifier ? (
+        <p className="weight-summary-partial" role="note" data-testid={tid("partial")}>
+          Partial: {qualifier}. The total and centre of gravity are those of the counted weights only; what is left out is listed below.
+        </p>
+      ) : null}
       <table aria-label={`Weight summary: ${summary.scope.label}`} data-testid={tid("table")}>
         <thead>
           <tr><th scope="col">Category</th><th scope="col">Counted</th><th scope="col">Weight</th></tr>
@@ -157,22 +193,22 @@ function SummaryView({ summary, tid }: { summary: Extract<WeightSummary, { state
             <td>{totalsText(summary.components)}</td>
           </tr>
           <tr data-testid={tid("row-total")}>
-            <th scope="row">Total</th>
+            <th scope="row">{totalLabel}</th>
             <td>{counted}</td>
-            <td>{summary.total ? displayQuantity(summary.total.weight, summary.total.unit) : <small>{summary.note}</small>}</td>
+            <td>{summary.total ? safeQuantity(summary.total.weight, summary.total.unit) : <small>{summary.note}</small>}</td>
           </tr>
         </tbody>
       </table>
       {summary.centreOfGravity ? (
-        <table aria-label="Centre of gravity" data-testid={tid("cog")}>
+        <table aria-label={cogLabel} data-testid={tid("cog")}>
           <thead>
-            <tr><th scope="col">Centre of gravity ({lengthUnit})</th><th scope="col">X</th><th scope="col">Y</th><th scope="col">Z</th></tr>
+            <tr><th scope="col">{cogLabel} ({lengthUnit})</th><th scope="col">X</th><th scope="col">Y</th><th scope="col">Z</th></tr>
           </thead>
           <tbody>
             <tr>
               <th scope="row">Global</th>
               {(["x", "y", "z"] as const).map((axisKey) => {
-                const parts = displayQuantityParts(summary.centreOfGravity![axisKey], summary.lengthUnit);
+                const parts = safeNumber(summary.centreOfGravity![axisKey], summary.lengthUnit);
                 return <td key={axisKey} data-testid={tid(`cog-${axisKey}`)} title={`${parts.number} ${parts.unit}`}>{parts.number}</td>;
               })}
             </tr>
@@ -188,7 +224,7 @@ function SummaryView({ summary, tid }: { summary: Extract<WeightSummary, { state
         <small data-testid={tid("unresolved")}>{summary.scope.unresolved.length} scope reference{summary.scope.unresolved.length === 1 ? " names" : "s name"} no model pipe: {summary.scope.unresolved.join(", ")}.</small>
       ) : null}
       {notCounted.length > 0 ? (
-        <details data-testid={tid("not-counted")}>
+        <details open data-testid={tid("not-counted")}>
           <summary>{notCounted.length} of {summary.scope.pipeRefs.length} pipes not counted</summary>
           <ul>
             {notCounted.slice(0, WEIGHT_SUMMARY_LIST_LIMIT).map((item) => <li key={item.pipeRef}>{item.pipeRef}: {item.reason}</li>)}
@@ -199,10 +235,10 @@ function SummaryView({ summary, tid }: { summary: Extract<WeightSummary, { state
         <p data-testid={tid("all-counted")}>Every pipe in scope is counted.</p>
       )}
       {notIncluded.length > 0 ? (
-        <details data-testid={tid("components-not-included")}>
-          <summary>{notIncluded.length} component{notIncluded.length === 1 ? "" : "s"} with a stated weight not included</summary>
+        <details open data-testid={tid("components-not-included")}>
+          <summary>{count(notIncluded.length, "component weight")} not included</summary>
           <ul>
-            {notIncluded.slice(0, WEIGHT_SUMMARY_LIST_LIMIT).map((item) => <li key={item.componentId}>{item.componentId}: {item.reason}</li>)}
+            {notIncluded.slice(0, WEIGHT_SUMMARY_LIST_LIMIT).map((item, index) => <li key={`${item.componentId}-${index}`}>{item.componentId}: {item.reason}</li>)}
             {notIncluded.length > WEIGHT_SUMMARY_LIST_LIMIT ? <li>and {notIncluded.length - WEIGHT_SUMMARY_LIST_LIMIT} more</li> : null}
           </ul>
         </details>
