@@ -12,6 +12,7 @@ import {
   RESULT_COLOUR_HELD_REASON,
   RESULT_COLOUR_QUANTITIES,
   RESULT_STATION_FRACTIONS,
+  sectionSignFactor,
   resultColourTable,
   resultOverlayCases,
   stationFraction,
@@ -148,25 +149,84 @@ describe("result colour along members: the stated span, the governing row and si
     expect(contourValueLabels(overlay).labels.find((label) => label.fraction === 0)).toMatchObject({ value: 10, rowId: "large" });
   });
 
-  const signedRows = (values: [number, number], conventions: [string, string] = ["section", "section"]): Row[] => [
-    row("i", "element_local_bending_moment_z", "pipe:P-1", values[0], "N*m", { metadata: { ...at("quarter_1", "bending_moment_z"), sign_convention: conventions[0] } }),
-    row("j", "element_local_bending_moment_z", "pipe:P-1", values[1], "N*m", { metadata: { ...at("quarter_3", "bending_moment_z"), sign_convention: conventions[1] } })
-  ];
+  // The producer's own sign conventions (core/product_physics/src/lib.rs).
+  const I_END = "positive value follows the element-local DOF at the i-end force vector";
+  const J_END = "positive value follows the element-local DOF at the j-end force vector";
+  const SECTION = "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction";
+  const ENDPOINT_TORSION = "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions";
+  const STATION_TORSION = "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction";
+  const signedRow = (id: string, kind: string, location: string, value: number, convention: string, unit = "N"): Row =>
+    row(id, kind, "pipe:P-1", value, unit, { metadata: { ...at(location, "invented"), sign_convention: convention } });
+  const contour = (id: string, rows: Row[]) => {
+    const { overlay } = overlayFor(id, "station", rows);
+    const stations = overlay.members.get("pipe:P-1")!.stations;
+    return { overlay, stations, signs: stations.map((station) => station.sign) };
+  };
 
-  it("marks an interval between stations of opposite sign under one convention, and does not blend across it", () => {
-    const { overlay } = overlayFor("bending-moment-z", "station", signedRows([-3, 5]));
-    expect(overlay.members.get("pipe:P-1")!.stations.map((station) => [station.value, station.sign])).toEqual([[3, -1], [5, 1]]);
-    expect(overlay.signChangeIntervalCount).toBe(1);
-    expect(interpolateStations(overlay.members.get("pipe:P-1")!.stations, 0.5)).toBeNull();
+  it("negates an i-end force row into the section convention: +4 at end_i and +2 at quarter_1 are a sign change", () => {
+    const { overlay, stations, signs } = contour("axial-force", [
+      signedRow("i", "element_local_axial_force", "end_i", 4, I_END),
+      signedRow("q1", "element_local_axial_force", "quarter_1", 2, SECTION)
+    ]);
+    expect(signs).toEqual([-1, 1]);
+    expect(overlay.signGapIntervalCount).toBe(1);
+    expect(interpolateStations(stations, 0.125)).toBeNull();
+    expect(interpolateStations(stations, 0)).toBe(4);
   });
 
-  it("blends stations of the same sign, and does not compare signs stated under different conventions", () => {
-    const same = overlayFor("bending-moment-z", "station", signedRows([-3, -5])).overlay;
-    expect(same.signChangeIntervalCount).toBe(0);
-    expect(interpolateStations(same.members.get("pipe:P-1")!.stations, 0.5)).toBe(4);
-    const differing = overlayFor("bending-moment-z", "station", signedRows([-3, 5], ["i-end force", "section"])).overlay;
-    expect(differing.signChangeIntervalCount).toBe(0);
-    expect(interpolateStations(differing.members.get("pipe:P-1")!.stations, 0.5)).toBe(4);
+  it("keeps a j-end force row's sign: blended with a section station of the same sign, a gap against the opposite sign", () => {
+    const kept = contour("axial-force", [
+      signedRow("q3", "element_local_axial_force", "quarter_3", 2, SECTION),
+      signedRow("j", "element_local_axial_force", "end_j", 4, J_END)
+    ]);
+    expect(kept.signs).toEqual([1, 1]);
+    expect(kept.overlay.signGapIntervalCount).toBe(0);
+    expect(interpolateStations(kept.stations, 0.875)).toBe(3);
+    const flipped = contour("axial-force", [
+      signedRow("q3", "element_local_axial_force", "quarter_3", -2, SECTION),
+      signedRow("j", "element_local_axial_force", "end_j", 4, J_END)
+    ]);
+    expect(flipped.signs).toEqual([-1, 1]);
+    expect(interpolateStations(flipped.stations, 0.875)).toBeNull();
+  });
+
+  it("reads an endpoint torsional shear stress as already in the section convention", () => {
+    const change = contour("torsional-shear", [
+      signedRow("i", "element_local_torsional_shear_stress", "end_i", 3, ENDPOINT_TORSION, "MPa"),
+      signedRow("q1", "element_local_torsional_shear_stress", "quarter_1", -2, STATION_TORSION, "MPa")
+    ]);
+    expect(change.signs).toEqual([1, -1]);
+    expect(interpolateStations(change.stations, 0.125)).toBeNull();
+    const same = contour("torsional-shear", [
+      signedRow("i", "element_local_torsional_shear_stress", "end_i", 3, ENDPOINT_TORSION, "MPa"),
+      signedRow("q1", "element_local_torsional_shear_stress", "quarter_1", 1, STATION_TORSION, "MPa")
+    ]);
+    expect(same.signs).toEqual([1, 1]);
+    expect(interpolateStations(same.stations, 0.125)).toBe(2);
+  });
+
+  it("gives a no-value interval beside a signed row whose convention cannot be converted exactly", () => {
+    for (const [convention, location] of [["an invented convention", "end_i"], [I_END, "end_j"], [J_END, "end_i"]] as const) {
+      const { overlay, stations, signs } = contour("bending-moment-z", [
+        signedRow("a", "element_local_bending_moment_z", location, 4, convention, "N*m"),
+        signedRow("m", "element_local_bending_moment_z", "midspan", 2, SECTION, "N*m")
+      ]);
+      expect(signs[location === "end_i" ? 0 : 1], convention).toBeNull();
+      expect(overlay.signGapIntervalCount, convention).toBe(1);
+      expect(interpolateStations(stations, location === "end_i" ? 0.25 : 0.75), convention).toBeNull();
+    }
+    expect(sectionSignFactor(undefined, "end_i")).toBeNull();
+  });
+
+  it("takes a station's sign from its non-zero rows: {0, +2} is +, all zero is 0, {−1, +2} has none", () => {
+    const at2 = (values: [number, number]) => contour("bending-moment-z", [
+      signedRow("a", "element_local_bending_moment_z", "midspan", values[0], SECTION, "N*m"),
+      signedRow("b", "element_local_bending_moment_z", "midspan", values[1], SECTION, "N*m"),
+      signedRow("j", "element_local_bending_moment_z", "end_j", 1, J_END, "N*m")
+    ]).signs[0];
+    expect(at2([0, 2])).toBe(1);
+    expect(at2([0, 0])).toBe(0);
+    expect(at2([-1, 2])).toBeNull();
   });
 
   it("infers no sign for an unsigned magnitude or an extremum whose governing component may switch", () => {
@@ -179,7 +239,7 @@ describe("result colour along members: the stated span, the governing row and si
     ];
     const { overlay } = overlayFor("normal-stress-extreme", "station", rows);
     expect(overlay.members.get("pipe:P-1")!.stations.map((station) => station.sign)).toEqual([null, null]);
-    expect(overlay.signChangeIntervalCount).toBe(0);
+    expect(overlay.signGapIntervalCount).toBe(0);
     expect(interpolateStations(overlay.members.get("pipe:P-1")!.stations, 0.5)).toBe(4);
   });
 });

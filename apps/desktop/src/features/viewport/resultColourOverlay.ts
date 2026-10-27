@@ -33,9 +33,10 @@ export type ResultColourQuantity = Readonly<{
   attachment: ResultColourAttachment;
   /** Emitted rows (absent: rows), or the session rule-check run's outcomes of one stress category. */
   source?: "rows" | "rule_ratio";
-  /** Along members: true when each row states one signed value, so adjacent stations of opposite
-   * sign (under one stated sign convention) are not blended. Absent: an unsigned magnitude, or an
-   * extremum whose governing component may switch, whose sign is never inferred. */
+  /** Along members: true when each row states one signed value. Adjacent stations whose section
+   * signs are opposite, or cannot be established, are not blended (`signBreak`). Absent: an
+   * unsigned magnitude, or an extremum whose governing component may switch, whose sign is never
+   * inferred. */
   signed?: boolean;
 }>;
 
@@ -59,16 +60,43 @@ export function stationFraction(location: string | null | undefined): number | n
   return typeof location === "string" && Object.hasOwn(RESULT_STATION_FRACTIONS, location) ? RESULT_STATION_FRACTIONS[location] : null;
 }
 
+/** The producer's statement that an end row is the node-on-element action at its end. */
+const I_END_FORCE_SIGN = "positive value follows the element-local DOF at the i-end force vector";
+const J_END_FORCE_SIGN = "positive value follows the element-local DOF at the j-end force vector";
+/** The curved-bend section convention, stated without the words "j-side"; the producer forms its
+ * section resultants as the j-side cut action (`core/product_physics/src/lib.rs`, curved station
+ * resultants: "Negate all components together to express the j-side cut action"). */
+const CURVED_BEND_SECTION_SIGN =
+  "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions";
+
 /**
- * Whether two adjacent stated stations carry known opposite signs: both signs non-zero and
- * opposite, stated under one sign convention. The contour does not blend across such an interval.
+ * The factor that expresses a signed row's value in the section convention (the j-side section
+ * action), from the sign convention and location the row states, or null when it cannot be
+ * converted exactly. Force and moment end rows are node-on-element end actions: the i-end value is
+ * negated and the j-end value kept. A row that already states the j-side section action (the
+ * station rows, and the endpoint torsional shear stress) is kept. Anything else is not converted.
  */
-export function oppositeSigns(
-  a: Readonly<{ sign?: number | null; signConvention?: string | null }>,
-  b: Readonly<{ sign?: number | null; signConvention?: string | null }>
+export function sectionSignFactor(signConvention: string | null | undefined, location: string | null | undefined): 1 | -1 | null {
+  if (typeof signConvention !== "string") return null;
+  if (signConvention.startsWith(I_END_FORCE_SIGN)) return location === "end_i" ? -1 : null;
+  if (signConvention.startsWith(J_END_FORCE_SIGN)) return location === "end_j" ? 1 : null;
+  if (signConvention === CURVED_BEND_SECTION_SIGN) return 1;
+  if (signConvention.includes("j-side section action") && !signConvention.includes("minus")) return 1;
+  return null;
+}
+
+/**
+ * Whether the contour must not blend between two adjacent stated stations: for a signed quantity,
+ * when their section signs are opposite (both non-zero), or when either station's section sign
+ * cannot be established. An unsigned quantity always blends.
+ */
+export function signBreak(
+  a: Readonly<{ signed?: boolean; sign?: number | null }>,
+  b: Readonly<{ signed?: boolean; sign?: number | null }>
 ): boolean {
-  return typeof a.sign === "number" && typeof b.sign === "number" && a.sign * b.sign < 0 &&
-    typeof a.signConvention === "string" && a.signConvention === b.signConvention;
+  if (!a.signed && !b.signed) return false;
+  if (typeof a.sign !== "number" || typeof b.sign !== "number") return true;
+  return a.sign * b.sign < 0;
 }
 
 /** The ratio quantity id of a rule-check stress category group. */
@@ -210,12 +238,12 @@ export type ResultColourStation = Readonly<{
   /** The row that gives the station's value (its largest magnitude), or null without a value. */
   rowId: string | null;
   rowIds: readonly string[];
-  /** For a signed quantity: the sign every row stated there shares (0 when all are zero), or null
-   * when they differ or the quantity is not signed. */
+  /** Whether the quantity is signed (`ResultColourQuantity.signed`). */
+  signed: boolean;
+  /** For a signed quantity: the section sign (`sectionSignFactor`) its non-zero rows share, 0 when
+   * every row is zero, and null when the non-zero rows disagree or any row's convention cannot be
+   * converted. Null for an unsigned quantity. */
   sign: -1 | 0 | 1 | null;
-  /** The sign convention every row stated there shares, or null. Signs are compared only between
-   * stations with one convention. */
-  signConvention: string | null;
 }>;
 
 export type ResultColourMember = Readonly<{
@@ -250,9 +278,9 @@ export type ResultColourOverlay = Readonly<{
   stationMemberCount: number;
   /** Along members: stated stations with no colourable value; the tube is not coloured beside them. */
   gapStationCount: number;
-  /** Along members: intervals between adjacent stations of opposite sign under one sign convention;
-   * not coloured. */
-  signChangeIntervalCount: number;
+  /** Along members: intervals of a signed quantity not blended (`signBreak`): opposite section
+   * signs, or a sign that cannot be established. */
+  signGapIntervalCount: number;
   /** Along members: shown rows of a member drawn from its stations that state no station; not drawn. */
   unplacedRowCount: number;
   /** Rule ratio: outcomes that are incomplete or form no ratio, so colour nothing. */
@@ -273,7 +301,7 @@ function emptyOverlay(
   return Object.freeze({
     state, reason, quantity, case: overlayCase, resolution, unit: null, members: new Map(),
     memberCount: model.pipe_segments.length, noValueCount: model.pipe_segments.length,
-    heldRowCount: counts.heldRowCount ?? 0, stationMemberCount: 0, gapStationCount: 0, signChangeIntervalCount: 0, unplacedRowCount: 0,
+    heldRowCount: counts.heldRowCount ?? 0, stationMemberCount: 0, gapStationCount: 0, signGapIntervalCount: 0, unplacedRowCount: 0,
     noRatioCount: counts.noRatioCount ?? 0, minimum: null, maximum: null
   });
 }
@@ -290,6 +318,7 @@ type Contribution = Readonly<{
   unit: string;
   state: "shown" | "held" | "gap";
   signConvention: string | null;
+  location: string | null;
 }>;
 
 /** The fraction of a row's value along a member under the quantity's attachment, or null. */
@@ -328,7 +357,7 @@ function rowContributions(
     for (const member of members) {
       contributions.push({
         id: row.id, member, fraction: rowFraction(row, member, quantity.attachment, model, members), value: row.value, unit: row.unit, state,
-        signConvention: row.metadata?.sign_convention ?? null
+        signConvention: row.metadata?.sign_convention ?? null, location: row.metadata?.location ?? null
       });
     }
   }
@@ -355,7 +384,7 @@ function ruleContributions(
     else if (!hasRatio) noRatioCount += 1;
     contributions.push({
       id: row.key, member: place.member, fraction: place.fraction, value: hasRatio ? ratio! : Number.NaN, unit: "",
-      state: held ? "held" : hasRatio ? "shown" : "gap", signConvention: null
+      state: held ? "held" : hasRatio ? "shown" : "gap", signConvention: null, location: null
     });
   }
   return { contributions, heldRowCount, noRatioCount };
@@ -374,14 +403,19 @@ function largestOf(items: readonly Contribution[]): Largest | null {
 
 /** A member's stated stations: the largest magnitude at each fraction, or null where any value
  * stated there cannot colour. */
-/** The sign all of a station's rows share, and their shared sign convention, for a signed quantity. */
-function stationSign(at: readonly Contribution[], signed: boolean): { sign: -1 | 0 | 1 | null; signConvention: string | null } {
-  if (!signed || at.length === 0) return { sign: null, signConvention: null };
-  const conventions = new Set(at.map((item) => item.signConvention));
-  const signConvention = conventions.size === 1 ? [...conventions][0] : null;
-  const signs = new Set(at.map((item) => Math.sign(item.value)).filter((sign) => sign !== 0));
-  if (signs.size > 1) return { sign: null, signConvention };
-  return { sign: signs.size === 0 ? 0 : ([...signs][0] as -1 | 1), signConvention };
+/** A signed station's section sign: the sign its non-zero rows share once each is expressed in the
+ * section convention, 0 when every row is zero, null when they disagree or any row cannot be
+ * converted. */
+function stationSign(at: readonly Contribution[]): -1 | 0 | 1 | null {
+  const signs = new Set<number>();
+  for (const item of at) {
+    const factor = sectionSignFactor(item.signConvention, item.location);
+    if (factor === null) return null;
+    const sign = Math.sign(item.value * factor);
+    if (sign !== 0) signs.add(sign);
+  }
+  if (signs.size > 1) return null;
+  return signs.size === 0 ? 0 : ([...signs][0] as -1 | 1);
 }
 
 function memberStations(items: readonly Contribution[], signed: boolean): { stations: ResultColourStation[]; largest: Largest | null } {
@@ -395,10 +429,9 @@ function memberStations(items: readonly Contribution[], signed: boolean): { stat
     const colourable = at.every((item) => item.state === "shown");
     const best = colourable ? largestOf(at) : null;
     if (best && (!largest || best.value > largest.value)) largest = best;
-    const { sign, signConvention } = best ? stationSign(at, signed) : { sign: null, signConvention: null };
     return Object.freeze({
       fraction, value: best ? best.value : null, rowId: best ? best.rowId : null, rowIds: Object.freeze(at.map((item) => item.id)),
-      sign, signConvention
+      signed, sign: signed && best ? stationSign(at) : null
     });
   });
   return { stations, largest };
@@ -456,14 +489,15 @@ export function buildResultColourOverlay(input: {
   for (const item of contributions) byMember.set(item.member, [...(byMember.get(item.member) ?? []), item]);
   const drawn = new Map<string, { largest: Largest; stations: ResultColourStation[] }>();
   let gapStationCount = 0;
-  let signChangeIntervalCount = 0;
+  let signGapIntervalCount = 0;
   let unplacedRowCount = 0;
   for (const [member, items] of byMember) {
     if (resolution === "station") {
       const { stations, largest } = memberStations(items, quantity.signed === true);
       if (stations.length >= 2) {
         gapStationCount += stations.filter((station) => station.value === null).length;
-        signChangeIntervalCount += stations.filter((station, index) => index > 0 && oppositeSigns(stations[index - 1], station)).length;
+        signGapIntervalCount += stations.filter((station, index) => index > 0 && station.value !== null && stations[index - 1].value !== null &&
+          signBreak(stations[index - 1], station)).length;
         unplacedRowCount += items.filter((item) => item.fraction === null && item.state === "shown").length;
         // A member none of whose stations can colour has no value, as any other member without one.
         if (largest) drawn.set(member, { largest, stations });
@@ -493,7 +527,7 @@ export function buildResultColourOverlay(input: {
     noValueCount: model.pipe_segments.filter((pipe) => !members.has(pipe.id)).length,
     heldRowCount,
     stationMemberCount: [...members.values()].filter((member) => member.stations.length >= 2).length,
-    gapStationCount, signChangeIntervalCount, unplacedRowCount, noRatioCount, minimum, maximum
+    gapStationCount, signGapIntervalCount, unplacedRowCount, noRatioCount, minimum, maximum
   });
 }
 

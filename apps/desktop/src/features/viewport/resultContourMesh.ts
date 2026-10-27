@@ -19,6 +19,20 @@ import { resultNoValueHex, resultScaleHex, viewportRoleHex, type ViewportPalette
 export const CONTOUR_RADIUS_FACTOR = 1.12;
 export const CONTOUR_RADIAL_SEGMENTS = 8;
 
+/** The most a station band reaches either side of its station, as a fraction of the member: a
+ * sixteenth, so bands of the quarter-point grid never meet. */
+export const CONTOUR_BAND_MAX_HALF_FRACTION = 1 / 16;
+
+/**
+ * A station band's half-length as a fraction of the member: the sleeve's radius (so the band is
+ * one sleeve diameter long, a mark the size of the pipe it sits on), at most
+ * `CONTOUR_BAND_MAX_HALF_FRACTION` of the member.
+ */
+export function contourBandHalfFraction(tubeRadius: number, memberLength: number): number {
+  if (!(memberLength > 0) || !(tubeRadius > 0)) return 0;
+  return Math.min(CONTOUR_BAND_MAX_HALF_FRACTION, (tubeRadius * CONTOUR_RADIUS_FACTOR) / memberLength);
+}
+
 export type ContourMeshMember = Readonly<{
   key: EntityKey;
   from: Readonly<Vec3>;
@@ -52,9 +66,14 @@ export function contourMeshMembers(
     if (!from || !to) continue;
     const length = Math.hypot(to.x - from.x, to.y - from.y, to.z - from.z);
     if (!Number.isFinite(length) || length <= 0) continue;
-    const rings = contourRings(member.stations, { maximum: overlay.maximum, threshold: options.threshold ?? null });
+    const radius = options.radii.get(key) ?? options.defaultRadius;
+    const rings = contourRings(member.stations, {
+      maximum: overlay.maximum,
+      threshold: options.threshold ?? null,
+      bandHalfFraction: contourBandHalfFraction(radius, length)
+    });
     if (rings.length < 2) continue;
-    members.set(key, Object.freeze({ key, from, to, radius: options.radii.get(key) ?? options.defaultRadius, rings }));
+    members.set(key, Object.freeze({ key, from, to, radius, rings }));
   }
   return members;
 }

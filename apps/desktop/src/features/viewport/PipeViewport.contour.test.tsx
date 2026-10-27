@@ -69,7 +69,7 @@ describe("PipeViewport result contour", () => {
     expect(screen.getByTestId("viewport-result-contour-sign-rule")).toHaveTextContent("no sign is inferred");
     // A signed quantity states its rule.
     fireEvent.change(screen.getByTestId("viewport-overlay-quantity"), { target: { value: "bending-moment-z" } });
-    expect(screen.getByTestId("viewport-result-contour-sign-rule")).toHaveTextContent("This quantity is signed: between adjacent stations of opposite sign stated under one sign convention the tube has the no-value colour.");
+    expect(screen.getByTestId("viewport-result-contour-sign-rule")).toHaveTextContent("This quantity is signed: each row is expressed in the section convention (end-force rows at end i are negated), and between adjacent stations of opposite section sign, or of a sign that cannot be established, the tube has the no-value colour; each station's own value is shown as a short band.");
     expect(screen.getByTestId("viewport-result-contour-boundary")).toHaveTextContent("does not represent a signed result or its zero crossing");
   });
 

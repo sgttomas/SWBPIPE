@@ -26,7 +26,7 @@ export const RESULT_CONTOUR_BOUNDARY_TEXT =
   "Along members, colour between two stated stations is a straight-line graphical blend of adjacent stated magnitudes, which does not represent a signed result or its zero crossing. Outside the first and last stated stations the tube has the no-value colour.";
 /** For a quantity whose rows each state one signed value (`signed`). */
 export const RESULT_CONTOUR_SIGNED_TEXT =
-  "This quantity is signed: between adjacent stations of opposite sign stated under one sign convention the tube has the no-value colour. Signs stated under different conventions, such as the end-force and section conventions, are not compared.";
+  "This quantity is signed: each row is expressed in the section convention (end-force rows at end i are negated), and between adjacent stations of opposite section sign, or of a sign that cannot be established, the tube has the no-value colour; each station's own value is shown as a short band.";
 /** For an unsigned magnitude, or an extremum whose governing component may switch. */
 export const RESULT_CONTOUR_UNSIGNED_TEXT =
   "This quantity is shown as a magnitude whose sign is not stated or may switch between stations; no sign is inferred.";
@@ -271,9 +271,9 @@ export function ResultOverlayLegend({
                   {colour.gapStationCount} stated station{colour.gapStationCount === 1 ? "" : "s"} without a colourable value: the tube beside {colour.gapStationCount === 1 ? "it" : "them"} has the no-value colour
                 </p>
               ) : null}
-              {colour.signChangeIntervalCount > 0 ? (
+              {colour.signGapIntervalCount > 0 ? (
                 <p data-testid="viewport-result-contour-sign-changes">
-                  {colour.signChangeIntervalCount} interval{colour.signChangeIntervalCount === 1 ? "" : "s"} between stations of opposite sign: the no-value colour, with each station's own value at the station
+                  {colour.signGapIntervalCount} interval{colour.signGapIntervalCount === 1 ? "" : "s"} between stations of opposite or unknown section sign: the no-value colour, with each station's own value shown as a short band
                 </p>
               ) : null}
               {colour.unplacedRowCount > 0 ? (

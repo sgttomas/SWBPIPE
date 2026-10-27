@@ -6,8 +6,10 @@ import { buildResultColourOverlay, RESULT_COLOUR_QUANTITIES, resultOverlayCases,
 import { contourRings } from "./resultContour";
 import {
   buildResultContourMesh,
+  CONTOUR_BAND_MAX_HALF_FRACTION,
   CONTOUR_RADIAL_SEGMENTS,
   CONTOUR_RADIUS_FACTOR,
+  contourBandHalfFraction,
   contourMeshMembers,
   contourRingHex,
   paintResultContourTheme
@@ -18,7 +20,11 @@ import { ViewportOwnershipLedger, ViewportResource } from "./viewportResource";
 // The contour sleeves (A4; DEL-07-05 Design `result-contour.md` §3, §8, §9): which members get one,
 // their rings and colours in both themes, and the resource's theme repaint. Invented data only.
 
-const at = (location: string) => ({ component: "axial_force", coordinate_system: "element_local", location, basis: "invented", sign_convention: "invented" });
+// Rows in the producer's section convention, so the signed axial force blends where signs agree.
+const at = (location: string) => ({
+  component: "axial_force", coordinate_system: "element_local", location, basis: "invented",
+  sign_convention: "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+});
 const NODES = new Map([
   ["node:A", { x: 0, y: 0, z: 0 }],
   ["node:B", { x: 1, y: 0, z: 0 }],
@@ -57,7 +63,8 @@ describe("contour sleeve members", () => {
     expect([...drawn.keys()]).toEqual([P1, P2]);
     expect(drawn.get(P1)!.radius).toBe(0.05);
     expect(drawn.get(P2)!.radius).toBe(0.2);
-    expect(drawn.get(P1)!.rings).toEqual(contourRings(overlay().overlay.members.get("pipe:P-1")!.stations, { maximum: 10 }));
+    // Each station a band one sleeve diameter long (here the tube radius 0.05 on a member of length 1).
+    expect(drawn.get(P1)!.rings).toEqual(contourRings(overlay().overlay.members.get("pipe:P-1")!.stations, { maximum: 10, bandHalfFraction: contourBandHalfFraction(0.05, 1) }));
   });
 
   it("leave out hidden and dimmed members, one value per member, and an overlay that is held", () => {
@@ -71,10 +78,12 @@ describe("contour sleeve members", () => {
 
   it("carry the threshold into their rings", () => {
     const rings = members(overlay(), { threshold: 5 }).get(P1)!.rings;
-    expect(rings.filter((ring) => ring.fraction < 0.5).every((ring) => ring.kind === "below")).toBe(true);
-    // The midspan value equals the threshold: the hard edge is there, and above it everything is coloured.
-    expect(rings.filter((ring) => ring.fraction === 0.5).map((ring) => ring.kind)).toEqual(["below", "value"]);
-    expect(rings.filter((ring) => ring.fraction > 0.5).every((ring) => ring.kind === "value")).toBe(true);
+    // The midspan value equals the threshold: its band is plain, and the hard edge is at the band's
+    // far edge, where the blend rises above it; above it everything is coloured.
+    const edge = 0.5 + contourBandHalfFraction(0.05, 1);
+    expect(rings.filter((ring) => ring.fraction < edge).every((ring) => ring.kind === "below")).toBe(true);
+    expect(rings.filter((ring) => ring.fraction === edge).map((ring) => ring.kind)).toEqual(["below", "value"]);
+    expect(rings.filter((ring) => ring.fraction > edge).every((ring) => ring.kind === "value")).toBe(true);
     expect(members(overlay(), { threshold: 5 }).get(P2)!.rings.every((ring) => ring.kind === "below")).toBe(true);
   });
 });
@@ -134,6 +143,45 @@ describe("contour sleeve mesh", () => {
     expect(new THREE.Color().fromBufferAttribute(inLayer.geometry.getAttribute("color") as THREE.BufferAttribute, 0).getHex()).toBe(resultScaleHex("dark", 0));
     resource.setThemePresentation("light");
     expect(new THREE.Color().fromBufferAttribute(inLayer.geometry.getAttribute("color") as THREE.BufferAttribute, 0).getHex()).toBe(resultScaleHex("light", 0));
+  });
+
+  it("gives every stated station triangles of non-zero area in its own value colour, an isolated station between two gaps included", () => {
+    const model = overlayModel();
+    const sign = (location: string, convention: string) => ({ ...at(location), sign_convention: convention });
+    const SECTION = "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction";
+    const result = overlayResult([
+      // Section signs −, +, −: both intervals are gaps, and the midspan station sits between them.
+      row("i", "element_local_axial_force", "pipe:P-1", 4, "N", { metadata: sign("end_i", "positive value follows the element-local DOF at the i-end force vector") }),
+      row("m", "element_local_axial_force", "pipe:P-1", 2, "N", { metadata: sign("midspan", SECTION) }),
+      row("j", "element_local_axial_force", "pipe:P-1", -3, "N", { metadata: sign("end_j", "positive value follows the element-local DOF at the j-end force vector") })
+    ]);
+    const built = buildResultColourOverlay({
+      model, result, standing: healthStanding({ eligible: true }), resolution: "station",
+      quantity: RESULT_COLOUR_QUANTITIES.find((item) => item.id === "axial-force")!, overlayCase: resultOverlayCases(model, result)[0]
+    });
+    expect(built.signGapIntervalCount).toBe(2);
+    const drawn = [...contourMeshMembers(model, built, { nodes: NODES, radii: new Map(), defaultRadius: 0.05 }).values()];
+    const mesh = buildResultContourMesh(drawn, "light")!;
+    const position = mesh.geometry.getAttribute("position");
+    const colour = mesh.geometry.getAttribute("color") as THREE.BufferAttribute;
+    const index = mesh.geometry.getIndex()!;
+    const hex = (vertex: number) => new THREE.Color().fromBufferAttribute(colour, vertex).getHex();
+    const point = (vertex: number) => new THREE.Vector3().fromBufferAttribute(position, vertex);
+    const areaInColour = (target: number) => {
+      let area = 0;
+      for (let at = 0; at < index.count; at += 3) {
+        const [a, b, c] = [index.getX(at), index.getX(at + 1), index.getX(at + 2)];
+        if (hex(a) !== target || hex(b) !== target || hex(c) !== target) continue;
+        area += new THREE.Triangle(point(a), point(b), point(c)).getArea();
+      }
+      return area;
+    };
+    for (const [value, label] of [[4, "end_i"], [2, "midspan"], [3, "end_j"]] as const) {
+      expect(areaInColour(resultScaleHex("light", value / 4)), label).toBeGreaterThan(0);
+    }
+    // The band is one sleeve diameter long, at most a sixteenth of the member either side.
+    expect(contourBandHalfFraction(0.05, 1)).toBeCloseTo(0.05 * CONTOUR_RADIUS_FACTOR, 12);
+    expect(contourBandHalfFraction(1, 1)).toBe(CONTOUR_BAND_MAX_HALF_FRACTION);
   });
 
   it("leaves any other object alone when repainting", () => {

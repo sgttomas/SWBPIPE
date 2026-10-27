@@ -61,21 +61,25 @@ describe("interpolateStations", () => {
   });
 
   it("blends nothing between adjacent stations of known opposite sign, and keeps each station's own value", () => {
-    const opposite: StationPoint[] = [{ fraction: 0, value: 4, sign: -1, signConvention: "c" }, { fraction: 0.5, value: 2, sign: 1, signConvention: "c" }];
+    const opposite: StationPoint[] = [{ fraction: 0, value: 4, signed: true, sign: -1 }, { fraction: 0.5, value: 2, signed: true, sign: 1 }];
     expect(interpolateStations(opposite, 0)).toBe(4);
     expect(interpolateStations(opposite, 0.25)).toBeNull();
     expect(interpolateStations(opposite, 0.5)).toBe(2);
   });
 
-  it("blends adjacent stations of the same sign, and stations whose signs are not comparable", () => {
-    const same: StationPoint[] = [{ fraction: 0, value: 4, sign: 1, signConvention: "c" }, { fraction: 1, value: 2, sign: 1, signConvention: "c" }];
+  it("blends a signed quantity's stations of the same section sign or with a zero, and an unsigned quantity always", () => {
+    const same: StationPoint[] = [{ fraction: 0, value: 4, signed: true, sign: 1 }, { fraction: 1, value: 2, signed: true, sign: 1 }];
     expect(interpolateStations(same, 0.5)).toBe(3);
-    // Different stated conventions, a zero, or an unsigned magnitude: no sign is inferred.
-    const conventions: StationPoint[] = [{ fraction: 0, value: 4, sign: -1, signConvention: "i-end" }, { fraction: 1, value: 2, sign: 1, signConvention: "section" }];
-    expect(interpolateStations(conventions, 0.5)).toBe(3);
-    const zero: StationPoint[] = [{ fraction: 0, value: 0, sign: 0, signConvention: "c" }, { fraction: 1, value: 2, sign: 1, signConvention: "c" }];
+    const zero: StationPoint[] = [{ fraction: 0, value: 0, signed: true, sign: 0 }, { fraction: 1, value: 2, signed: true, sign: 1 }];
     expect(interpolateStations(zero, 0.5)).toBe(1);
     expect(interpolateStations([{ fraction: 0, value: 4 }, { fraction: 1, value: 2 }], 0.5)).toBe(3);
+  });
+
+  it("blends nothing beside a signed station whose section sign cannot be established", () => {
+    const unknown: StationPoint[] = [{ fraction: 0, value: 4, signed: true, sign: null }, { fraction: 1, value: 2, signed: true, sign: 1 }];
+    expect(interpolateStations(unknown, 0)).toBe(4);
+    expect(interpolateStations(unknown, 0.5)).toBeNull();
+    expect(interpolateStations(unknown, 1)).toBe(2);
   });
 
   it("refuses a fraction that is not finite", () => {
@@ -127,20 +131,22 @@ describe("contourRings", () => {
     }
   });
 
-  it("draws an interval beside a station with no value as one gap piece, never coloured", () => {
+  it("draws an interval beside a station with no value as one gap piece, never coloured, keeping each stated value", () => {
     const rings = contourRings([{ fraction: 0, value: 1 }, { fraction: 0.5, value: null }, { fraction: 1, value: 3 }], { maximum: 3 });
     expect(rings).toEqual([
+      { fraction: 0, kind: "value", position: 1 / 3 },
       { fraction: 0, kind: "gap", position: 0 },
       { fraction: 0.5, kind: "gap", position: 0 },
-      { fraction: 1, kind: "gap", position: 0 }
+      { fraction: 1, kind: "gap", position: 0 },
+      { fraction: 1, kind: "value", position: 1 }
     ]);
   });
 
-  it("draws a sign change as a gap piece, with each station's own value as a ring at the station", () => {
+  it("without a band, draws a sign change as a gap piece with each station's value as a ring at the station", () => {
     const rings = contourRings([
-      { fraction: 0, value: 4, sign: -1, signConvention: "c" },
-      { fraction: 0.5, value: 2, sign: 1, signConvention: "c" },
-      { fraction: 1, value: 2, sign: 1, signConvention: "c" }
+      { fraction: 0, value: 4, signed: true, sign: -1 },
+      { fraction: 0.5, value: 2, signed: true, sign: 1 },
+      { fraction: 1, value: 2, signed: true, sign: 1 }
     ], { maximum: 4 });
     expect(rings).toEqual([
       { fraction: 0, kind: "value", position: 1 },
@@ -149,6 +155,39 @@ describe("contourRings", () => {
       { fraction: 0.5, kind: "value", position: 0.5 },
       { fraction: 1, kind: "value", position: 0.5 }
     ]);
+  });
+
+  it("with a band, keeps every stated station visible: a band of non-zero length in its own colour, clipped to the span", () => {
+    // An isolated interior station between two gaps, and end stations beside gaps.
+    const stations: StationPoint[] = [
+      { fraction: 0, value: 4, signed: true, sign: -1 },
+      { fraction: 0.5, value: 2, signed: true, sign: 1 },
+      { fraction: 1, value: 3, signed: true, sign: -1 }
+    ];
+    const rings = contourRings(stations, { maximum: 4, bandHalfFraction: 0.05 });
+    expect(rings).toEqual([
+      { fraction: 0, kind: "value", position: 1 },
+      { fraction: 0.05, kind: "value", position: 1 },
+      { fraction: 0.05, kind: "gap", position: 0 },
+      { fraction: 0.45, kind: "gap", position: 0 },
+      { fraction: 0.45, kind: "value", position: 0.5 },
+      { fraction: 0.55, kind: "value", position: 0.5 },
+      { fraction: 0.55, kind: "gap", position: 0 },
+      { fraction: 0.95, kind: "gap", position: 0 },
+      { fraction: 0.95, kind: "value", position: 0.75 },
+      { fraction: 1, kind: "value", position: 0.75 }
+    ]);
+  });
+
+  it("with a band, meets the blend at the band's edge with the interpolated value", () => {
+    const rings = contourRings([{ fraction: 0, value: 0 }, { fraction: 1, value: 4 }], { maximum: 4, bandHalfFraction: 0.1 });
+    expect(rings.slice(0, 3)).toEqual([
+      { fraction: 0, kind: "value", position: 0 },
+      { fraction: 0.1, kind: "value", position: 0 },
+      { fraction: 0.1, kind: "value", position: 0.1 }
+    ]);
+    expect(rings[rings.length - 1]).toEqual({ fraction: 1, kind: "value", position: 1 });
+    for (const ring of rings.filter((item) => item.fraction > 0.1 && item.fraction < 0.9)) expect(ring.position * 4).toBeCloseTo(interpolateStations([{ fraction: 0, value: 0 }, { fraction: 1, value: 4 }], ring.fraction)!, 12);
   });
 
   it("has no rings for fewer than two stations", () => {
@@ -162,10 +201,10 @@ function overlayWith(members: Array<[string, number, Array<[number, number | nul
     members: new Map(members.map(([id, value, stations]) => [id, {
       value, rowId: `${id}:max`, position: 0,
       stations: stations.map(([fraction, stationValue]) => ({
-        fraction, value: stationValue, rowId: stationValue === null ? null : `${id}@${fraction}`, rowIds: [`${id}@${fraction}`], sign: null, signConvention: null
+        fraction, value: stationValue, rowId: stationValue === null ? null : `${id}@${fraction}`, rowIds: [`${id}@${fraction}`], signed: false, sign: null
       }))
     }])),
-    memberCount: members.length, noValueCount: 0, heldRowCount: 0, stationMemberCount: 0, gapStationCount: 0, signChangeIntervalCount: 0,
+    memberCount: members.length, noValueCount: 0, heldRowCount: 0, stationMemberCount: 0, gapStationCount: 0, signGapIntervalCount: 0,
     unplacedRowCount: 0, noRatioCount: 0, minimum: 0, maximum: 10
   };
 }

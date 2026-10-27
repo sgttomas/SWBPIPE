@@ -4,12 +4,12 @@
 // threshold in the overlay's unit. Nothing here forms an engineering quantity, a limit or a status,
 // and nothing writes to the model, the result or any export.
 
-import { aboveThreshold, oppositeSigns, type ResultColourOverlay } from "./resultColourOverlay";
+import { aboveThreshold, signBreak, type ResultColourOverlay } from "./resultColourOverlay";
 
 /** One stated station: its fraction along the member (0 at the From node, 1 at the To node) and
  * its value (a magnitude), or null where the station has no colourable value. A signed quantity's
- * station also carries the sign and sign convention of its rows (`oppositeSigns`). */
-export type StationPoint = Readonly<{ fraction: number; value: number | null; sign?: number | null; signConvention?: string | null }>;
+ * station also carries its section sign (`signBreak`). */
+export type StationPoint = Readonly<{ fraction: number; value: number | null; signed?: boolean; sign?: number | null }>;
 
 function colourable(value: number | null): value is number {
   return value !== null && Number.isFinite(value);
@@ -22,8 +22,9 @@ function colourable(value: number | null): value is number {
  * - before the first or after the last stated station (nothing is extrapolated);
  * - at a station with no colourable value (null or not finite), and anywhere between it and its
  *   neighbours (nothing is interpolated across it);
- * - strictly between two adjacent stations of known opposite sign (`oppositeSigns`): blending their
- *   magnitudes there would hide the zero crossing;
+ * - strictly between two adjacent stations of a signed quantity whose section signs are opposite,
+ *   or cannot be established (`signBreak`): blending their magnitudes would show a value where the
+ *   signed result may cross zero;
  * - for no stations, and away from the single station of a member with one.
  * `stations` are in increasing fraction, each fraction once. A display device only: it states no
  * value between stations that the result does not.
@@ -39,7 +40,7 @@ export function interpolateStations(stations: readonly StationPoint[], fraction:
     const next = stations[index + 1];
     if (!next || fraction > next.fraction) continue;
     if (fraction === next.fraction) continue;
-    if (!colourable(station.value) || !colourable(next.value) || next.fraction <= station.fraction || oppositeSigns(station, next)) return null;
+    if (!colourable(station.value) || !colourable(next.value) || next.fraction <= station.fraction || signBreak(station, next)) return null;
     const t = (fraction - station.fraction) / (next.fraction - station.fraction);
     return station.value + (next.value - station.value) * t;
   }
@@ -55,7 +56,7 @@ export type ContourRing = Readonly<{ fraction: number; kind: "value" | "below" |
  * scale, so its two end colours are close and the drawn blend between them follows the scale. */
 export const CONTOUR_PIECES_PER_SCALE = 12;
 /** The most pieces one interval between stations is drawn with. */
-export const CONTOUR_MAX_PIECES_PER_INTERVAL = 12;
+export const CONTOUR_MAX_PIECES_PER_INTERVAL = 8;
 
 function valueRing(fraction: number, value: number, maximum: number, threshold: number | null): ContourRing {
   return aboveThreshold(value, threshold)
@@ -65,56 +66,55 @@ function valueRing(fraction: number, value: number, maximum: number, threshold: 
 
 /**
  * The rings a member's contour tube is drawn with, from its first stated station to its last.
- * Each interval between stated stations with two colourable values is cut into pieces whose
- * values come from `interpolateStations`, finely enough that each piece spans at most
- * 1 / `CONTOUR_PIECES_PER_SCALE` of the scale. A threshold crossing inside an interval is placed
- * exactly, as a hard edge, including a crossing at an interval's end (a station value equal to the
- * threshold). An interval beside a station with no colourable value is one gap piece. An interval
- * between stations of known opposite sign is one gap piece too, with each station's own value kept
- * as a ring at the station, joined to the gap by a hard edge.
+ *
+ * - Each stated station with a value is a band of its own value colour, `bandHalfFraction` either
+ *   side of it, clipped to the stated span and to half the distance to each neighbour, so a
+ *   station stays visible beside a gap. With no band it is a single ring.
+ * - Between the bands of two stated stations with colourable values, the interval is cut into
+ *   pieces whose values come from `interpolateStations`, finely enough that each piece spans at
+ *   most 1 / `CONTOUR_PIECES_PER_SCALE` of the scale (at most `CONTOUR_MAX_PIECES_PER_INTERVAL`).
+ *   A band's edge meets the blend with a hard edge.
+ * - A threshold crossing is placed exactly, as a hard edge, including a crossing at a band's edge.
+ * - An interval beside a station with no colourable value, or between stations of a signed quantity
+ *   that `signBreak` separates, is one gap piece between the bands.
  */
 export function contourRings(
   stations: readonly StationPoint[],
-  options: { maximum: number; threshold?: number | null }
+  options: { maximum: number; threshold?: number | null; bandHalfFraction?: number }
 ): ContourRing[] {
   const threshold = options.threshold ?? null;
   const maximum = options.maximum;
+  const half = Number.isFinite(options.bandHalfFraction) && options.bandHalfFraction! > 0 ? options.bandHalfFraction! : 0;
   if (stations.length < 2) return [];
+  const first = stations[0].fraction;
+  const last = stations[stations.length - 1].fraction;
   const rings: ContourRing[] = [];
   const push = (ring: ContourRing) => {
     const previous = rings[rings.length - 1];
     if (previous && previous.fraction === ring.fraction && previous.kind === ring.kind && previous.position === ring.position) return;
     rings.push(Object.freeze(ring));
   };
-  for (let index = 0; index + 1 < stations.length; index += 1) {
-    const from = stations[index];
-    const to = stations[index + 1];
-    if (!colourable(from.value) || !colourable(to.value)) {
-      push({ fraction: from.fraction, kind: "gap", position: 0 });
-      push({ fraction: to.fraction, kind: "gap", position: 0 });
-      continue;
-    }
-    if (oppositeSigns(from, to)) {
-      push(valueRing(from.fraction, from.value, maximum, threshold));
-      push({ fraction: from.fraction, kind: "gap", position: 0 });
-      push({ fraction: to.fraction, kind: "gap", position: 0 });
-      push(valueRing(to.fraction, to.value, maximum, threshold));
-      continue;
-    }
-    const span = maximum > 0 ? Math.abs(to.value - from.value) / maximum : 0;
+  const band = (index: number): [number, number] => {
+    const station = stations[index];
+    const before = index > 0 ? (station.fraction - stations[index - 1].fraction) / 2 : 0;
+    const after = index + 1 < stations.length ? (stations[index + 1].fraction - station.fraction) / 2 : 0;
+    return [Math.max(first, station.fraction - Math.min(half, before)), Math.min(last, station.fraction + Math.min(half, after))];
+  };
+  /** A blended run from one fraction to another, its two end values from the interpolation. */
+  const blend = (start: number, end: number) => {
+    const startValue = interpolateStations(stations, start)!;
+    const endValue = interpolateStations(stations, end)!;
+    const span = maximum > 0 ? Math.abs(endValue - startValue) / maximum : 0;
     const pieces = Math.min(CONTOUR_MAX_PIECES_PER_INTERVAL, Math.max(1, Math.ceil(span * CONTOUR_PIECES_PER_SCALE)));
-    const fractions = Array.from({ length: pieces + 1 }, (_, piece) =>
-      piece === pieces ? to.fraction : from.fraction + (to.fraction - from.fraction) * (piece / pieces));
+    const fractions = Array.from({ length: pieces + 1 }, (_, piece) => piece === pieces ? end : start + (end - start) * (piece / pieces));
+    // A crossing wherever the run passes from at-or-below the threshold to above it, an end included.
     let crossing: number | null = null;
-    // A crossing wherever the interval passes from at-or-below the threshold to above it, an
-    // end included: a station value equal to the threshold puts the edge at that station.
-    if (threshold !== null && (from.value > threshold) !== (to.value > threshold)) {
-      crossing = from.fraction + (to.fraction - from.fraction) * ((threshold - from.value) / (to.value - from.value));
+    if (threshold !== null && (startValue > threshold) !== (endValue > threshold)) {
+      crossing = start + (end - start) * ((threshold - startValue) / (endValue - startValue));
     }
     for (const fraction of fractions) {
       if (crossing !== null && fraction >= crossing) {
-        // The two sides of the crossing, at the crossing itself, in the direction of travel.
-        const rising = to.value > from.value;
+        const rising = endValue > startValue;
         const below: ContourRing = { fraction: crossing, kind: "below", position: 0 };
         const above: ContourRing = { fraction: crossing, kind: "value", position: maximum > 0 ? threshold! / maximum : 0 };
         push(rising ? below : above);
@@ -126,7 +126,24 @@ export function contourRings(
       const value = interpolateStations(stations, fraction);
       push(value === null ? { fraction, kind: "gap", position: 0 } : valueRing(fraction, value, maximum, threshold));
     }
-  }
+  };
+  stations.forEach((station, index) => {
+    const [lo, hi] = band(index);
+    if (colourable(station.value)) {
+      push(valueRing(lo, station.value, maximum, threshold));
+      push(valueRing(hi, station.value, maximum, threshold));
+    }
+    const next = stations[index + 1];
+    if (!next) return;
+    const start = colourable(station.value) ? hi : station.fraction;
+    const end = colourable(next.value) ? band(index + 1)[0] : next.fraction;
+    if (!colourable(station.value) || !colourable(next.value) || signBreak(station, next)) {
+      push({ fraction: start, kind: "gap", position: 0 });
+      push({ fraction: end, kind: "gap", position: 0 });
+      return;
+    }
+    blend(start, end);
+  });
   return rings;
 }
 
