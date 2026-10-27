@@ -19,7 +19,7 @@ This deliverable computes the natural frequencies and mode shapes of the linear 
 - **OUT-002** — The modal request: its required extraction bound, modulus basis and weight-to-mass acceleration (REQ-002).
 - **OUT-003** — The eigen-solution paths, dense and sparse, and their integrity checks (REQ-003, REQ-004).
 - **OUT-004** — The modal results: the profile, the semantic table, the analysis-run record and the separate readers (REQ-005).
-- **OUT-005** — The admitted domain, the resource limits, the desktop and report surfaces, and the claim boundary (REQ-006 to REQ-009).
+- **OUT-005** — The admitted domain, the resource limits, the desktop and report surfaces, the claim boundary and the published-benchmark comparison (REQ-006 to REQ-010).
 
 ## Deliverable Definition — Ontology
 
@@ -29,14 +29,14 @@ F1 solves the generalized eigenproblem K_ff φ = ω² M_ff φ on the free degree
 - K_ff is the restraint-reduced stiffness of the PF static solve, without load-dependent terms.
 - M_ff is the restraint-reduced mass of the mass model (REQ-001).
 
-For each mode it publishes the frequency, circular frequency and period; the mass-normalized shape; and the translational participation factors, effective masses and effective-mass fractions. For each result it publishes the model's mass by category and the free-DOF mass. Response-spectrum, time-history and harmonic analysis are not part of this deliverable (SCA-013).
+For each mode it publishes the frequency, circular frequency and period; the shape, normalized to unit maximum translation, and its generalized mass; and the translational participation factors, effective masses and effective-mass fractions, with their cumulative sums. For each result it publishes the model's mass by category and the free-DOF mass. Response-spectrum, time-history and harmonic analysis are not part of this deliverable (SCA-013).
 
 ### CLM-002 — What this deliverable owns, and what it takes as input
 
 **This deliverable owns:**
 - the mass model and its weight-basis identity check;
 - the modal request, its refusals and disclosures;
-- the eigen-solution crate `core/solver/modal_eigen` (dense reduction, tridiagonal QL, shift-invert Lanczos, the Sturm count, residual bounds and participation);
+- the eigen-solution crate `core/solver/modal_eigen` (dense reduction, tridiagonal QL, shift-invert block Lanczos, the Sturm count, the modal formation check, residual bounds and participation);
 - the product module `core/product_physics/src/modal.rs` and the entry `run_modal_preview_with_mode`;
 - the modal profile, the `modal-1` semantic table and the modal analysis-run kind;
 - the Rust modal reader and its test-only Python mirror;
@@ -44,7 +44,7 @@ For each mode it publishes the frequency, circular frequency and period; the mas
 - the desktop modes view, the mode-shape view and the report's modal section, within the results viewer's and report generator's contracts.
 
 **Declared inputs** (`deliverable.yaml`):
-- DEL-04-01: kernel assembly, reduction, the curved-bend element, `sparse_direct` and K-D5;
+- DEL-04-01: kernel assembly, reduction, the curved-bend element, `sparse_direct` with one read-only observation accessor (M2), and K-D5's element re-formation through one read-only entry (M1b);
 - DEL-04-02: the straight pipe element and its uniform-load vector;
 - DEL-04-03: linear supports and imposed-displacement DOFs;
 - DEL-04-06: singular-model detection;
@@ -52,12 +52,12 @@ For each mode it publishes the frequency, circular frequency and period; the mas
 - DEL-05-01: the self-weight generator and its mass per length;
 - DEL-03-05: rigid-family components;
 - DEL-04-08: the retained-memory pricing law;
-- DEL-02-02: units;
+- DEL-02-02: units, including the unit families for modal quantities (frequency, angular frequency, rotation per length, length per rotation, mass moment of inertia), before M1b;
 - DEL-00-06: the diagnostics and result-envelope contract;
 - DEL-04-05, DEL-05-03, DEL-10-05: non-gating;
-- the NUREG/CR reports, as external sources.
+- published piping benchmarks, such as the NUREG/CR reports, as external sources, each only with its own redistribution evidence (REQ-009).
 
-These deliverables keep their scope. The code paths in `deliverable.yaml` indicate relevance only; most are planned and not yet present.
+These deliverables keep their scope. The two read-only seams are additions to DEL-04-01's code, made by F1's slices. The code paths in `deliverable.yaml` indicate relevance only; most are planned and not yet present. With these declarations the deliverable graph's one cycle has 11 members, DEL-04-09 and DEL-04-05 among them (Design §6).
 
 ### CLM-003 — Current reach and sequence
 
@@ -68,6 +68,7 @@ These deliverables keep their scope. The code paths in `deliverable.yaml` indica
   3. M2, the sparse path, with Sturm and inertia certification, where "the unpivoted-LDLᵀ inertia risk" is "a first-class test target";
   4. M3, UI.
 - **Start and queue.** The build starts after PF Timoshenko (#1663) is in review. D3 runs join the queue on Agent 0's go.
+- **FR-SOL-016 stays partial** until REQ-010's published-benchmark comparison is recorded, whatever the state of M1a to M3.
 - **Later slices, outside this deliverable's current commitments:** M4 (Timoshenko mass), M5 (nonlinear supports linearized at a named state) and M6 (the mass-point helper), and a concentrated-mass field (W-17).
 
 ## Completion and Reliance Basis — Epistemology
@@ -81,19 +82,25 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
   - **Inertia terms.** Contents are in all three translations and excluded from torsional and rotary inertia, which is disclosed.
   - **Realized arcs** carry two rigid-body half-arc lumps with the half-arcs' exact mass, centroid and second moments.
   - **Components.** An eligible rigid-family component carries a rigid-body lump of mass W/a at its centre of gravity, in place of the member's pipe mass. Eligibility is decided by the same function self-weight uses, called once per member. A component that self-weight does not apply keeps the pipe mass, with the same warning.
+  - **Range.** W and a must be positive normal binary64 numbers with W/a a normal binary64 number. Otherwise the request is refused by range (`MODAL_COMPONENT_MASS_OUT_OF_RANGE`, naming the component). Under that premise a·(W/a) differs from W by at most 2u + u² relative, u = 2⁻⁵³.
   - **Massless families.** Objective connectors, tie rods and constant-effort supports carry no mass, which is disclosed.
   - **Restrained DOFs.** Mass at restrained DOFs is excluded from M_ff and disclosed with the total model mass.
   - **No defaulted mass.** No density, mass or acceleration is defaulted; a missing required input refuses by name.
-  - **Weight-basis identity.** Every result runs a blocking check, the regression "g·M·1 = self-weight" (Agent 0, 2026-10-27). For each global direction k, a·M·r_k on the full mass is compared with the self-weight generator's loads at gravity a along k over all members. Straight members are compared nodally, against the consistent uniform-load vector. Every member and component is compared on the resultant force and moment. The comparison is within a tolerance measured under DEC-026 and only tightened. A failure refuses with `MODAL_MASS_WEIGHT_BASIS_MISMATCH`, naming the member or component.
+  - **Weight-basis identity.** Every result runs a blocking check, the regression "g·M·1 = self-weight" (Agent 0, 2026-10-27). For each global direction k, a·M·r_k on the full mass is compared with the self-weight generator's loads at gravity a along k over all members. The identity holds nodally for straight members, against the consistent uniform-load vector, and on the resultant force and moment for arcs and components, each within a measured tolerance; it is not literal vector equality for every family. The tolerance is measured in M1a on the frozen references, then pinned as a relative and absolute pair and only tightened (DEC-026); until then no modal result is published. A failure refuses with `MODAL_MASS_WEIGHT_BASIS_MISMATCH`, naming the member or component.
 - **AC-001** — On the frozen `f1_modal` mass references, for straights, arcs, an eligible component, a component with an offset centre of gravity, an ineligible component and the massless families:
   - the product mass matrices, totals by category and free-DOF masses agree with the references within their recorded tolerances;
-  - the identity check passes on each reference model;
-  - a mutated mass (a changed density, a dropped component, a component on the wrong node) is refused with `MODAL_MASS_WEIGHT_BASIS_MISMATCH`.
+  - the identity check passes on each reference model, within the tolerance pinned in M1a, whose measurement is recorded;
+  - a corrupted formed mass, with the model and its self-weight basis unchanged (a member's formed mass scaled as if its density differed, a component body dropped, a component body on the wrong node), is refused with `MODAL_MASS_WEIGHT_BASIS_MISMATCH`;
+  - a legitimate density edit to the model changes both bases together, and its result passes the identity;
+  - a component outside the range premise is refused with `MODAL_COMPONENT_MASS_OUT_OF_RANGE`.
 
 ### Request
 
 - **REQ-002** — *Required inputs, no defaults.*
-  - **Extraction bound.** It is a mode count, a frequency cut-off or both, and at least one is required. Extraction stops at whichever is reached first, and the result states which. The engine and the headless runner supply no value, and no code-derived cut-off ships. A request without one is refused (`MODAL_EXTRACTION_BOUND_REQUIRED`).
+  - **Extraction bound.** It is a mode count n, a frequency cut-off f_c or both, and at least one is required. The engine and the headless runner supply no value, and no code-derived cut-off ships. A request without one is refused (`MODAL_EXTRACTION_BOUND_REQUIRED`).
+  - **Reported set.** The lowest modes up to whichever bound stops first: the lowest n, or all modes with f ≤ f_c (the cut-off is inclusive). The result states which bound stopped it.
+  - **Clusters.** If the boundary falls inside a cluster (eigenvalues equal within the stated cluster tolerance), the set is extended to complete the cluster, and the result discloses the extension by count. A partial cluster is never published.
+  - **Cut-off at an eigenvalue.** The completeness count for a cut-off is taken at a shift a stated relative offset above f_c. If the factorization there is singular or rejected by the growth monitor, it is retried at a second, documented offset, which the result records; the offset never changes silently.
   - **Modulus basis.** It uses a load case's vocabulary and the existing resolver.
   - **Weight-to-mass acceleration.** `weight_to_mass_acceleration` is a positive acceleration, normalized through the unit catalog.
     - It is required when a component's weight enters the mass; without it the request is refused (`MODAL_WEIGHT_ACCELERATION_REQUIRED`, naming the components).
@@ -102,6 +109,8 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
 - **AC-002** — Maintained tests show:
   - each refusal for a request without a bound, without a required acceleration, or with a mismatched acceleration;
   - extraction stopping at the count, at the cut-off, and at whichever comes first when both are given, with the stopping bound stated;
+  - a mode exactly at the cut-off included, and the second offset used and recorded when the first is singular;
+  - a boundary inside a cluster extending the set to the whole cluster, disclosed by count, for both the count and the cut-off;
   - no default supplied on any entry: product, headless and desktop.
 
 ### Solution and integrity
@@ -109,15 +118,16 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
 - **REQ-003** — *Dense path and integrity checks.*
   - **Method.** The dense path reduces with K's Cholesky factor, tridiagonalizes and applies implicit QL, with no new numerical dependency.
   - **Checks.** Every published mode set carries:
-    - (1) the formation check of M, re-formed at 128 bits from the authored operands, beside K's K-D5 check;
-    - (2) each mode's residual bound on its eigenvalue;
-    - (3) the mass-orthogonality deviation of the published modes;
-    - (4) the Sturm count at a shift above the largest reported eigenvalue (or at the cut-off), which must equal the number of modes reported or below the cut-off;
-    - (5) cluster identifiers for repeated or nearly repeated eigenvalues, with the extraction boundary moved to include a whole cluster;
+    - (1) a modal formation check: K and M re-formed independently from their authored operands at 128 bits, and the formation difference (formed minus re-formed) measured as a norm;
+    - (2) each mode's residual bound on the re-formed pair, combining the eigensolver's residual and the formation difference. The relative bound on the eigenvalue is published only where λδ < 1. A Kato–Temple refinement is applied only across a gap certified by Sturm counts; otherwise the residual bound alone is published;
+    - (3) the mass-orthogonality deviation of the published modes, normalized by their generalized masses;
+    - (4) the Sturm count at a shift just above the last reported cluster and below the next eigenvalue (for a cut-off, at the shift of REQ-002), which must equal the number of modes reported, on the interval actually reported;
+    - (5) cluster identifiers for repeated or nearly repeated eigenvalues, with the reported set completed to whole clusters (REQ-002);
     - (6) the weight-basis identity (REQ-001).
   - **Standing.**
-    - A formation or residual breach that is not a completeness breach publishes the result as Sensitive.
-    - A Sturm mismatch refuses the set (`MODAL_STURM_COUNT_MISMATCH`), as do a weight-basis or acceleration mismatch and a non-positive-definite K.
+    - A mode whose bound exceeds the stated threshold, or an orthogonality breach, publishes the result as Sensitive when nothing refuses the set.
+    - A Sturm mismatch refuses the set (`MODAL_STURM_COUNT_MISMATCH`), as do an unavailable bound (`MODAL_FORMATION_BOUND_UNAVAILABLE`, `MODAL_RESIDUAL_BOUND_UNAVAILABLE`), a weight-basis or acceleration mismatch, a component mass out of range and a non-positive-definite K.
+    - K-D5's static criterion is not reused; only its element re-formation is, through a read-only entry.
   - **Tolerances.** They are measured and recorded under DEC-026, and only tightened.
   - **Determinism.** The output is deterministic for a fixed model, request, solver version and settings.
 - **AC-003** — On the frozen `f1_modal` references, the dense path:
@@ -125,16 +135,20 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
   - compares mode shapes and clusters by MAC or subspace angle;
   - agrees with the independent Jacobi control in tests;
   - passes each check (1) to (6) on the references;
-  - refuses or demotes each committed mutation at its named check;
+  - refuses or demotes each committed mutation at its named check, including a formed K or M perturbed away from its re-formation;
+  - applies no Kato–Temple refinement where the gap is not certified, shown on a case with a deliberately missed eigenvalue (K = I, M = diag(1, 2, 3));
   - publishes byte-identical results on repeated runs.
 - **REQ-004** — *Sparse path with Sturm and inertia certification.*
-  - **Method.** The sparse path uses shift-invert Lanczos with full mass-reorthogonalization, a fixed start vector and fixed operation order. It works on the existing `sparse_direct` factorization, through its public API, with an inertia-preserving diagonal scaling.
+  - **Method.** The sparse path uses shift-invert **block** Lanczos with full mass-reorthogonalization, a deterministic start block (block size 2, from the paired bending modes of an axisymmetric section), locking and deflation of converged pairs, breakdown handling and fixed operation order. Block size is an algorithm parameter, not an engineering default. It works on the existing `sparse_direct` factorization, with an inertia-preserving diagonal scaling.
+  - **Missed directions.** The Sturm count detects a missed direction. A deterministic restart with a larger block and a new seed recovers it. If the restarts are exhausted, the set is refused; a count disagreement is never published.
   - **Cut-off.** In cut-off mode it slices the spectrum until the Sturm count at the cut-off is exhausted.
-  - **Unpivoted-LDLᵀ inertia risk.** It records pivot growth, places shifts away from computed eigenvalues, and retries at a perturbed shift on excess growth. It refuses a set whose count it cannot confirm, and never publishes an unchecked count.
+  - **Unpivoted-LDLᵀ inertia risk.** It reads pivot growth (max|L_ij| and the pivot magnitudes) through one read-only accessor added to `sparse_direct`, with no mutation and no allocation; that change re-registers D3. It places shifts away from computed eigenvalues, and retries at a perturbed shift on excess growth. It refuses a set whose count it cannot confirm, and never publishes an unchecked count.
   - **Checks.** The REQ-003 checks apply unchanged.
 - **AC-004** — "The unpivoted-LDLᵀ inertia risk" is "a first-class test target":
   - maintained tests build models that provoke pivot growth (near-coincident eigenvalues, clusters, rigid-family scales from 1e3 to 1e6, shifts close to eigenvalues);
   - for each, the sparse path's eigenvalues and Sturm counts agree with the dense path and an independent count, within the dense guard, and the growth monitor's verdict is asserted;
+  - the sparse path recovers both modes of each exactly repeated pair (a straight circular cantilever), and a case with a multiplicity above the initial block size shows the Sturm count detecting the missed direction and the restart recovering it, or the set refused when restarts are exhausted;
+  - a test shows the observation accessor leaves the factorization unchanged and allocates nothing;
   - the sparse path reproduces the AC-003 references;
   - scale benchmarks are timed under `t3_exclusive.sh` with their build named.
 
@@ -142,14 +156,15 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
 
 - **REQ-005** — *Modal results and separate readers.*
   - **Publication.** Results are published under the profile `product_preview_modal_v1`, with its fixed limitation text, and the semantic table `openpipestress.result_semantics/0.3.0/modal-1`. Analysis runs record the modal run kind with the request.
-  - **Units and signs.** Frequencies are in Hz, circular frequencies in rad/s and periods in s. Shapes are mass-normalized in global axes, with restrained DOFs exactly 0, under a deterministic sign convention. Participation factors, effective masses and fractions are in kilograms.
+  - **Units and signs.** Frequencies are in Hz, circular frequencies in rad/s and periods in s. Shapes are in global axes, normalized to unit maximum translation (translations dimensionless, rotations in rad/m), with the largest translational component +1 and restrained DOFs exactly 0. A mode without a usable translation is normalized to unit maximum rotation, and says so. Each mode publishes its generalized mass m = φᵀMφ (kg), its participation factors Γ = φᵀM r / m (dimensionless), its effective masses (φᵀM r)²/m (kg) and its effective-mass fractions and their cumulative sums (dimensionless). Every unit has integer exponents in the unit catalog.
   - **Readers.** A Rust product reader and a test-only Python verifier that shares no code with the producer each check:
     - the profile and limitation against the request;
     - the total and free-DOF masses, rederived from the model;
     - that the effective masses do not exceed the free-DOF mass in any direction;
-    - the counts, ordering, sign convention and cluster structure.
+    - each mode's normalization and sign, and Γ²·m = m_eff;
+    - the counts, ordering, cluster structure and any cluster extension.
     They do not re-run the eigen-solve.
-- **AC-005** — The two readers return the same verdict for every committed modal result and every committed mutation of the profile, limitation, masses, counts, ordering, sign or clusters. A verifier-independence test shows that the Python verifier imports no producer code.
+- **AC-005** — The two readers return the same verdict for every committed modal result and every committed mutation of the profile, limitation, masses, normalization, counts, ordering, sign or clusters. A verifier-independence test shows that the Python verifier imports no producer code.
 
 ### Domain, limits and surfaces
 
@@ -164,11 +179,12 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
   - **Warning.** A member that is too coarsely discretized for the highest reported frequency is warned (`MODAL_MASS_DISCRETIZATION_COARSE`). Its factor is derived by benchmark and stated in the warning.
 - **AC-006** — Each refusal and disclosure in REQ-006 is exercised by a maintained test that asserts its code and named object. The discretization warning's factor is derived from a recorded benchmark.
 - **REQ-007** — *Resource limits and the retained route.*
-  - **Guards.** Before allocation, the dense path applies a memory guard (its live n² buffers against the provisional 6 GiB ceiling) and a work guard (9n³ against a budget measured in M1b). The sparse path applies a memory guard (8·(3P + n·q) bytes). Each refusal states its formula. A guard refuses; it never truncates the extraction.
+  - **Guards.** Before allocation, the dense path applies a memory guard (its live n² buffers against the provisional 6 GiB ceiling) and a work guard (9n³ against a budget measured in M1b). The sparse path applies a memory guard on its peak live allocation, 32P + 8n(q + b) + 24q² + c·n bytes: four profile value arrays (K, M, the shifted profile and its clone in the factor), the Lanczos workspace, the projected problem and the per-DOF metadata, with c stated by the implementation. It is rechecked whenever q or b grows. A cut-off-only request is sized from the Sturm count at the cut-off, taken before Lanczos. Each refusal states its formula. A guard refuses; it never truncates the extraction.
   - **Retained route.** F1 never enters the retained Direct entry or D1.
   - **Pricing.** Every change to a priced source or a reviewed input is re-registered under the retained pricing law (D3) in the change that makes it, and the AC-004 stack witnesses stay passing.
 - **AC-007** — Maintained tests show that:
   - each guard refuses with its formula before allocation, and admits at its limit;
+  - the sparse guard is rechecked and refuses when q grows past the limit, and a cut-off-only request is sized from its Sturm count;
   - the retained Direct entry is unreachable from the modal entry.
 
   On the head of each change that touches priced sources, the actual-source D3 registration passes and the AC-004 stack witnesses pass.
@@ -190,12 +206,16 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
 - **REQ-009** — *Claims and references.*
   - **Product texts.** They state the limit "numerical integrity does not establish physical correctness" and use the claims registry's vocabulary (`docs/claims_registry.md`). No product text states or implies a claim that PRD §21.2 prohibits.
   - **Reference independence.** References are derived and frozen by a TASK that reads no product code, and refuted by a second TASK before any product comparison.
-  - **NUREG/CR transcriptions.** A transcribed NUREG/CR problem is committed only with its per-reference provenance record (`docs/IP_AND_DATA_BOUNDARY.md` §4; Design §4.4). Copyrighted or adapted content inside a report, such as figures adapted from journals, is not transcribed.
+  - **Published benchmarks.** A problem is transcribed from a report, such as a NUREG/CR report, only with that report's own redistribution evidence (its rights statement and NRC distribution terms), recorded per fixture with the `docs/IP_AND_DATA_BOUNDARY.md` §4 provenance fields (Design §4.4). A report with uncertain rights is held for the owner's review under that policy, and nothing is transcribed from it. Copyrighted or adapted content inside a report, such as figures adapted from journals, is not transcribed. Sources with clear rights are preferred: closed-form benchmarks derived here, and textbook formulas restated with citation (Agent 0, 2026-10-27).
   - **Other sources.** No CAEPIPE output, licensed benchmark data or paywalled text is committed.
 - **AC-009** —
   - The modal product texts are pinned by maintained tests and reviewed against `docs/claims_registry.md`, and the claims-language lint (GEN-13) passes over the desktop texts.
   - Each committed reference package has its refutation record.
-  - Each transcribed NUREG/CR fixture has a complete provenance record listing what was excluded.
+  - Each transcribed published-benchmark fixture has a complete provenance record, with its report's rights statement and distribution terms and a list of what was excluded; no fixture exists from a held report.
+### Published benchmark
+
+- **REQ-010** — *A published piping benchmark.* Before FR-SOL-016 is reported complete, at least one published piping benchmark with recorded redistribution evidence (REQ-009) is compared with the product, after M1b, and the comparison is recorded as comparison evidence, not exact verification. Until a redistributable benchmark exists, FR-SOL-016 stays partial.
+- **AC-010** — A maintained test compares the product with at least one committed published piping benchmark, on frequencies and on normalization-invariant participation (effective masses), at a stated comparison tolerance, and its fixture's provenance record is complete. The comparison is labelled comparison evidence.
 
 ## Production and Verification Method — Praxeology
 
@@ -203,8 +223,8 @@ The checks named here are planned; they do not exist yet. Each slice registers i
 
 - **VER-001** — For REQ-001: Rust tests of `modal.rs` against the frozen `f1_modal` mass references, the identity check's pass and mutation cases, and the shared-eligibility tests (M1a).
 - **VER-002** — For REQ-002: refusal and stopping-rule tests at the product facade and the headless runner (M1a, M1b).
-- **VER-003** — For REQ-003: `modal_eigen` unit tests, including the Jacobi control. They are joined by product tests against the class (a) and (b) references, mutation tests for each integrity check, and a determinism test (M1b).
-- **VER-004** — For REQ-004: the inertia-risk suite, dense-against-sparse agreement within the dense guard, and scale benchmarks under `t3_exclusive.sh` (M2).
+- **VER-003** — For REQ-003: `modal_eigen` unit tests, including the Jacobi control and the uncertified-gap case. They are joined by product tests against the class (a) and (b) references, mutation tests for each integrity check, and a determinism test (M1b).
+- **VER-004** — For REQ-004: the repeated-mode and missed-direction tests, the accessor test, the inertia-risk suite, dense-against-sparse agreement within the dense guard, and scale benchmarks under `t3_exclusive.sh` (M2).
 - **VER-005** — For REQ-005: Rust reader tests, the Python verifier with its independence test, and the shared mutation corpus (M1b).
 - **VER-006** — For REQ-006: one maintained test per refusal and disclosure, and the discretization benchmark (M1a).
 - **VER-007** — For REQ-007:
@@ -216,7 +236,8 @@ The checks named here are planned; they do not exist yet. Each slice registers i
   - GEN-13 (`tools/validation/validate_claims_language.py`);
   - review of each product text against `docs/claims_registry.md`;
   - each reference package's refutation record;
-  - a check that every NUREG/CR fixture has its provenance record.
+  - a check that every published-benchmark fixture has its provenance record.
+- **VER-010** — For REQ-010: the published-benchmark comparison test and its provenance check (after M1b).
 
 Each slice also gets the independent review that the Root `AGENTS.md` requires for numerical changes.
 
@@ -228,7 +249,7 @@ Each slice also gets the independent review that the Root `AGENTS.md` requires f
 - **AX-004** — *No relaxation.* A check is never loosened to obtain a pass. Tolerances are measured under DEC-026 and only tightened. Frozen references are never altered to make an implementation pass.
 - **AX-005** — *Independent scrutiny.* Numerical changes get targeted regression checks and independent review by a separate agent (Root `AGENTS.md`).
 - **AX-006** — *Scope.* Modal analysis only. Response spectrum and time history stay deferred under DEC-078; any further dynamics scope needs its own scope change.
-- **AX-007** — *Held by the owner:* release, acceptance and issuance, risk acceptance and holds (F-PIP-3). This deliverable activates nothing beyond its own entry.
+- **AX-007** — *Held by the owner:* release, acceptance and issuance, risk acceptance and holds (F-PIP-3), and the review of any report held for uncertain rights. This deliverable activates nothing beyond its own entry.
 
 ## Output and Evaluation Matrix
 
@@ -238,4 +259,4 @@ Each slice also gets the independent review that the Root `AGENTS.md` requires f
 | OUT-002 | OBJ-003 SOW-081 | REQ-002 | AC-002 | VER-002 | Refusal and stopping-rule tests on every entry |
 | OUT-003 | OBJ-003 SOW-081 | REQ-003 REQ-004 | AC-003 AC-004 | VER-003 VER-004 | Reference, mutation, determinism, inertia-risk and dense-sparse agreement tests; timed scale runs |
 | OUT-004 | OBJ-003 SOW-081 | REQ-005 | AC-005 | VER-005 | Matching Rust and Python verdicts on the committed corpus; independence test |
-| OUT-005 | OBJ-003 SOW-081 | REQ-006 REQ-007 REQ-008 REQ-009 CLM-002 CLM-003 | AC-006 AC-007 AC-008 AC-009 | VER-006 VER-007 VER-008 VER-009 | Refusal and guard tests, D3 and stack witnesses on priced heads, desktop tests and native smoke, pinned texts, claims lint, refutation and provenance records |
+| OUT-005 | OBJ-003 SOW-081 | REQ-006 REQ-007 REQ-008 REQ-009 REQ-010 CLM-002 CLM-003 | AC-006 AC-007 AC-008 AC-009 AC-010 | VER-006 VER-007 VER-008 VER-009 VER-010 | Refusal and guard tests, D3 and stack witnesses on priced heads, desktop tests and native smoke, pinned texts, claims lint, refutation and provenance records, the published-benchmark comparison |

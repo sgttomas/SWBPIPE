@@ -5,12 +5,17 @@ needs:
   condition: >-
     DEL-04-09 forms K_ff by DEL-04-01's kernel assembly and partitioned restraint reduction
     (`reduce_system…`, `reduce_assembled_sparse_system`), including the curved-bend macro-element
-    (`curved_bend`, its arc length and `consistent_uniform_nodal_loads` for the arc resultant check). It
-    re-forms K by the K-D5 formation check (`formation_check.rs`, FORMATION_PRECISION 128, criterion 1e-9)
-    and evaluates residuals with `exact_sum`. The sparse path uses `sparse_direct`'s public API unchanged:
-    `reverse_cuthill_mckee`, `SymmetricProfileMatrix::from_entries_with_order`, `factorize_ldlt` with its
-    `nonpositive_pivot_count` and `first_nonpositive_pivot`, and `solve_ordered`. The Sturm count relies on
-    that count being the number of negative pivots of the unpivoted LDLᵀ (Design §3.3, §3.4).
+    (`curved_bend`, its arc length and `consistent_uniform_nodal_loads` for the arc resultant check). Its
+    modal formation check re-forms K at p128 through one new read-only frame_kernel entry exposing K-D5's
+    element re-formation (`intended_stiffness_pass`, `formation_check.rs`) without K-D5's D5C1 criterion,
+    which judges a static correction and is not reused (M1b), and evaluates residuals with `exact_sum`.
+    The sparse path uses `sparse_direct`'s public API (`reverse_cuthill_mckee`,
+    `SymmetricProfileMatrix::from_entries_with_order`, `factorize_ldlt` with its `nonpositive_pivot_count`
+    and `first_nonpositive_pivot`, and `solve_ordered`) plus one new read-only accessor on
+    `ProfileFactorization` returning max|L_ij| and the pivot magnitudes, with no mutation and no allocation
+    (M2). Both seams are additions to DEL-04-01's code in priced crates, re-registered under D3 in their
+    change. The Sturm count relies on `nonpositive_pivot_count` being the number of negative pivots of the
+    unpivoted LDLᵀ (Design §3.3, §3.4).
   gating: true
   evidence: core/solver/sparse_direct/src/lib.rs
 - from: DEL-04-02
@@ -63,7 +68,9 @@ needs:
   evidence: core/product_physics/src/rigid_component.rs
 - from: DEL-04-08
   condition: >-
-    F1 touches priced sources and the reviewed `core/product_physics/Cargo.lock`. Each such change is
+    F1 touches priced sources (PP `lib.rs`, `self_weight.rs`, the `sparse_direct` accessor, the frame_kernel
+    re-formation entry, and DEL-02-02's unit families in `core/units`) and the reviewed
+    `core/product_physics/Cargo.lock`. Each such change is
     re-registered under DEL-04-08's actual-source pricing law (D3, `tools/retained_pricing`) in the change
     that makes it, and keeps the AC-004 stack witnesses passing. F1 never enters the retained Direct entry
     or D1. D3 runs join the queue on Agent 0's go.
@@ -73,8 +80,13 @@ needs:
   condition: >-
     The extraction cut-off (frequency), the weight-to-mass acceleration and every mass input are
     normalized through DEL-02-02's unit catalog and dimension checks (`open_pipe_stress_units`); results
-    are displayed in project units. DEL-04-09 defines no unit or conversion of its own.
+    are displayed in project units. Every published modal quantity has integer unit exponents. The catalog
+    gains the families the modal results need and does not yet have: frequency (Hz canonical), angular
+    frequency (rad/s), rotation per length (rad/m), length per rotation (m/rad) and mass moment of inertia
+    (kg·m²); period uses the existing Time (s). DEL-02-02 makes that extension, a priced change under D3.
+    DEL-04-09 defines no unit or conversion of its own (Design §1.5).
   gating: true
+  when: The unit families before M1b publishes modal results.
   evidence: core/units/README.md
 - from: DEL-00-06
   condition: >-
@@ -106,11 +118,14 @@ needs:
   gating: false
 - from: external:nrc-nureg-cr
   condition: >-
-    Class-c comparison problems (first NUREG/CR-1677 Vol. 1) are transcribed from the NRC reports with a
-    per-reference provenance record under `docs/IP_AND_DATA_BOUNDARY.md` §4 (Agent 0, 2026-10-27: public
-    domain as US-government works); copyrighted or adapted content inside a report is excluded (Design
-    §4.4).
+    Class-c comparison problems (first, NUREG/CR-1677 Vol. 1) are transcribed from a report only with that
+    report's own redistribution evidence (its rights statement and NRC distribution terms), recorded per
+    fixture with the `docs/IP_AND_DATA_BOUNDARY.md` §4 fields. A report with uncertain rights is held for
+    the owner's review and nothing is transcribed from it; copyrighted or adapted content inside a report
+    is excluded (Agent 0, 2026-10-27; Design §4.4). At least one such comparison is required before
+    FR-SOL-016 is reported complete (ScopeOfWork REQ-010).
   gating: false
+  when: After M1b, for REQ-010.
 # Planned paths: none of these exists yet (Design §3.5, §5).
 code_paths:
 - core/solver/modal_eigen/**
