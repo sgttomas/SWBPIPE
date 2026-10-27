@@ -3027,6 +3027,20 @@ fieldset.viewport-intent-controls {
   cursor: pointer;
 }
 
+/* A9: the weight and centre-of-gravity summary (DEL-07-05 Design `weight-cog-summary.md` §6). */
+.weight-summary-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+
+.weight-summary td {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .endpoint-pair {
   display: grid;
   gap: 6px;
