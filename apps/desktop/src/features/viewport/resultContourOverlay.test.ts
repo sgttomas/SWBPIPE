@@ -168,10 +168,10 @@ describe("result colour along members: the stated span, the governing row and si
       signedRow("i", "element_local_axial_force", "end_i", 4, I_END),
       signedRow("q1", "element_local_axial_force", "quarter_1", 2, SECTION)
     ]);
-    expect(signs).toEqual([-1, 1]);
-    expect(overlay.signGapIntervalCount).toBe(1);
     expect(interpolateStations(stations, 0.125)).toBeNull();
     expect(interpolateStations(stations, 0)).toBe(4);
+    expect(signs).toEqual([-1, 1]);
+    expect(overlay.signGapIntervalCount).toBe(1);
   });
 
   it("keeps a j-end force row's sign: blended with a section station of the same sign, a gap against the opposite sign", () => {
@@ -179,15 +179,15 @@ describe("result colour along members: the stated span, the governing row and si
       signedRow("q3", "element_local_axial_force", "quarter_3", 2, SECTION),
       signedRow("j", "element_local_axial_force", "end_j", 4, J_END)
     ]);
-    expect(kept.signs).toEqual([1, 1]);
-    expect(kept.overlay.signGapIntervalCount).toBe(0);
     expect(interpolateStations(kept.stations, 0.875)).toBe(3);
     const flipped = contour("axial-force", [
       signedRow("q3", "element_local_axial_force", "quarter_3", -2, SECTION),
       signedRow("j", "element_local_axial_force", "end_j", 4, J_END)
     ]);
-    expect(flipped.signs).toEqual([-1, 1]);
     expect(interpolateStations(flipped.stations, 0.875)).toBeNull();
+    expect(kept.signs).toEqual([1, 1]);
+    expect(kept.overlay.signGapIntervalCount).toBe(0);
+    expect(flipped.signs).toEqual([-1, 1]);
   });
 
   it("reads an endpoint torsional shear stress as already in the section convention", () => {
@@ -195,14 +195,14 @@ describe("result colour along members: the stated span, the governing row and si
       signedRow("i", "element_local_torsional_shear_stress", "end_i", 3, ENDPOINT_TORSION, "MPa"),
       signedRow("q1", "element_local_torsional_shear_stress", "quarter_1", -2, STATION_TORSION, "MPa")
     ]);
-    expect(change.signs).toEqual([1, -1]);
     expect(interpolateStations(change.stations, 0.125)).toBeNull();
+    expect(change.signs).toEqual([1, -1]);
     const same = contour("torsional-shear", [
       signedRow("i", "element_local_torsional_shear_stress", "end_i", 3, ENDPOINT_TORSION, "MPa"),
       signedRow("q1", "element_local_torsional_shear_stress", "quarter_1", 1, STATION_TORSION, "MPa")
     ]);
-    expect(same.signs).toEqual([1, 1]);
     expect(interpolateStations(same.stations, 0.125)).toBe(2);
+    expect(same.signs).toEqual([1, 1]);
   });
 
   it("gives a no-value interval beside a signed row whose convention cannot be converted exactly", () => {
@@ -211,10 +211,13 @@ describe("result colour along members: the stated span, the governing row and si
         signedRow("a", "element_local_bending_moment_z", location, 4, convention, "N*m"),
         signedRow("m", "element_local_bending_moment_z", "midspan", 2, SECTION, "N*m")
       ]);
+      expect(interpolateStations(stations, location === "end_i" ? 0.25 : 0.75), convention).toBeNull();
       expect(signs[location === "end_i" ? 0 : 1], convention).toBeNull();
       expect(overlay.signGapIntervalCount, convention).toBe(1);
-      expect(interpolateStations(stations, location === "end_i" ? 0.25 : 0.75), convention).toBeNull();
     }
+  });
+
+  it("converts no convention it does not recognise", () => {
     expect(sectionSignFactor(undefined, "end_i")).toBeNull();
   });
 
@@ -238,9 +241,9 @@ describe("result colour along members: the stated span, the governing row and si
       row("j", "element_local_normal_stress_extreme", "pipe:P-1", 5, "MPa", { metadata: at("end_j", "sigma_plus") })
     ];
     const { overlay } = overlayFor("normal-stress-extreme", "station", rows);
+    expect(interpolateStations(overlay.members.get("pipe:P-1")!.stations, 0.5)).toBe(4);
     expect(overlay.members.get("pipe:P-1")!.stations.map((station) => station.sign)).toEqual([null, null]);
     expect(overlay.signGapIntervalCount).toBe(0);
-    expect(interpolateStations(overlay.members.get("pipe:P-1")!.stations, 0.5)).toBe(4);
   });
 });
 

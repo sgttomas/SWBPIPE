@@ -20,6 +20,11 @@ const FIVE: StationPoint[] = [
   { fraction: 1, value: 8 }
 ];
 
+/** A signed station. It also carries the earlier fixture shape (a shared sign convention), so a
+ * test reads the same against the code before section-sign conversion. */
+const signedAt = (fraction: number, value: number, sign: number | null) =>
+  ({ fraction, value, signed: true, sign, signConvention: "c" }) as StationPoint;
+
 describe("interpolateStations", () => {
   it("is the stated value exactly at each station, ends included", () => {
     for (const station of FIVE) expect(interpolateStations(FIVE, station.fraction)).toBe(station.value);
@@ -61,22 +66,22 @@ describe("interpolateStations", () => {
   });
 
   it("blends nothing between adjacent stations of known opposite sign, and keeps each station's own value", () => {
-    const opposite: StationPoint[] = [{ fraction: 0, value: 4, signed: true, sign: -1 }, { fraction: 0.5, value: 2, signed: true, sign: 1 }];
+    const opposite: StationPoint[] = [signedAt(0, 4, -1), signedAt(0.5, 2, 1)];
     expect(interpolateStations(opposite, 0)).toBe(4);
     expect(interpolateStations(opposite, 0.25)).toBeNull();
     expect(interpolateStations(opposite, 0.5)).toBe(2);
   });
 
   it("blends a signed quantity's stations of the same section sign or with a zero, and an unsigned quantity always", () => {
-    const same: StationPoint[] = [{ fraction: 0, value: 4, signed: true, sign: 1 }, { fraction: 1, value: 2, signed: true, sign: 1 }];
+    const same: StationPoint[] = [signedAt(0, 4, 1), signedAt(1, 2, 1)];
     expect(interpolateStations(same, 0.5)).toBe(3);
-    const zero: StationPoint[] = [{ fraction: 0, value: 0, signed: true, sign: 0 }, { fraction: 1, value: 2, signed: true, sign: 1 }];
+    const zero: StationPoint[] = [signedAt(0, 0, 0), signedAt(1, 2, 1)];
     expect(interpolateStations(zero, 0.5)).toBe(1);
     expect(interpolateStations([{ fraction: 0, value: 4 }, { fraction: 1, value: 2 }], 0.5)).toBe(3);
   });
 
   it("blends nothing beside a signed station whose section sign cannot be established", () => {
-    const unknown: StationPoint[] = [{ fraction: 0, value: 4, signed: true, sign: null }, { fraction: 1, value: 2, signed: true, sign: 1 }];
+    const unknown: StationPoint[] = [signedAt(0, 4, null), signedAt(1, 2, 1)];
     expect(interpolateStations(unknown, 0)).toBe(4);
     expect(interpolateStations(unknown, 0.5)).toBeNull();
     expect(interpolateStations(unknown, 1)).toBe(2);
@@ -144,9 +149,9 @@ describe("contourRings", () => {
 
   it("without a band, draws a sign change as a gap piece with each station's value as a ring at the station", () => {
     const rings = contourRings([
-      { fraction: 0, value: 4, signed: true, sign: -1 },
-      { fraction: 0.5, value: 2, signed: true, sign: 1 },
-      { fraction: 1, value: 2, signed: true, sign: 1 }
+      signedAt(0, 4, -1),
+      signedAt(0.5, 2, 1),
+      signedAt(1, 2, 1)
     ], { maximum: 4 });
     expect(rings).toEqual([
       { fraction: 0, kind: "value", position: 1 },
@@ -160,9 +165,9 @@ describe("contourRings", () => {
   it("with a band, keeps every stated station visible: a band of non-zero length in its own colour, clipped to the span", () => {
     // An isolated interior station between two gaps, and end stations beside gaps.
     const stations: StationPoint[] = [
-      { fraction: 0, value: 4, signed: true, sign: -1 },
-      { fraction: 0.5, value: 2, signed: true, sign: 1 },
-      { fraction: 1, value: 3, signed: true, sign: -1 }
+      signedAt(0, 4, -1),
+      signedAt(0.5, 2, 1),
+      signedAt(1, 3, -1)
     ];
     const rings = contourRings(stations, { maximum: 4, bandHalfFraction: 0.05 });
     expect(rings).toEqual([
