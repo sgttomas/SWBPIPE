@@ -158,20 +158,38 @@ function sameSet(a: readonly string[], b: readonly string[]): boolean {
   return left.size === right.size && [...left].every((dof) => right.has(dof));
 }
 
+const utf8 = new TextEncoder();
+function compareBytes(a: string, b: string): number {
+  const left = utf8.encode(a);
+  const right = utf8.encode(b);
+  for (let index = 0; index < Math.min(left.length, right.length); index += 1) {
+    if (left[index] !== right[index]) return left[index] - right[index];
+  }
+  return left.length - right.length;
+}
+function sortedUniqueByBytes(items: readonly string[]): string[] {
+  return [...items].sort(compareBytes).filter((item, index, sorted) => index === 0 || item !== sorted[index - 1]);
+}
+
 /** What `delete_support` refuses on (operation_applier lib.rs `resolve_delete_support`,
- * OP-SUPPORT-DELETE-REFERENCED), in its order: primitive loads targeting the support, supports
+ * OP-SUPPORT-DELETE-REFERENCED), in its order: primitive loads targeting the support (sorted by
+ * byte and deduplicated, as `support_primitive_load_references` does), supports
  * naming it as their normal-reaction source, and load-case `analysis_state.support_states`
  * entries naming it (load_state_authoring.rs `support_references`). Keep the two in step. */
 export function supportDeleteReferences(model: PreviewModel, supportId: string): string[] {
   const references: string[] = [];
+  const loadIds: string[] = [];
   const cases = (model.load_cases ?? []) as unknown as Array<Record<string, unknown>>;
   for (const loadCase of cases) {
     const loads = Array.isArray(loadCase.primitive_loads) ? (loadCase.primitive_loads as Array<Record<string, unknown>>) : [];
     for (const load of loads) {
       const target = load.target && typeof load.target === "object" ? (load.target as Record<string, unknown>) : null;
-      if (target?.support === supportId) references.push(typeof load.id === "string" ? load.id : "primitive_load:unknown");
+      if (target?.support === supportId) loadIds.push(typeof load.id === "string" ? load.id : "primitive_load:unknown");
     }
   }
+  // Rust's `references.sort(); references.dedup();`: byte order of the UTF-8 ids, then adjacent
+  // repeats removed. The other two categories keep model order, as in Rust.
+  references.push(...sortedUniqueByBytes(loadIds));
   for (const other of model.supports) {
     if (other.nonlinear?.normal_reaction_source?.support_ref === supportId) references.push(typeof other.id === "string" ? other.id : "unknown nonlinear support");
   }

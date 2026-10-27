@@ -15,7 +15,7 @@ import { bulkChangeModel } from "../../test-support/bulkChangeModel";
 import type { EntityRef, PreviewModel } from "../../types";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
 import { buildDeleteSupportIntent } from "../model-tree/removalIntents";
-import { buildBulkChangeBatch, planBulkChange, type BulkChangeRequest } from "./bulkChange";
+import { buildBulkChangeBatch, planBulkChange, supportDeleteReferences, type BulkChangeRequest } from "./bulkChange";
 
 async function session(model: PreviewModel) {
   vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(model);
@@ -123,6 +123,38 @@ describe("a support another entity names is not removed", () => {
     expect(result.current.model.model).toEqual(original);
     expect((await computeModelHash(result.current.model.model!))!.value).toBe(originalHash);
     expect(result.current.operations.undoStack).toHaveLength(0);
+  });
+});
+
+describe("the planner's references equal the engine's", () => {
+  it("in the engine's order: loads sorted by byte and deduplicated, then the other categories in model order", async () => {
+    const model = bulkChangeModel();
+    const load = (id: string) => ({ id, category: "imposed_displacement", target: { type: "support", support: "support:C", dof: "UZ" },
+      direction: "UZ", magnitude: { value: -0.001, unit: "m" }, dimension: "displacement", provenance: "invented" });
+    // Out of order, a repeat across cases, and ids whose UTF-16 order differs from their byte order.
+    model.load_cases[0].primitive_loads = [load("load:z"), load("load:\u{1F600}"), load("load:b")] as never;
+    model.load_cases.push({ ...structuredClone(model.load_cases[0]), id: "case:t", label: "Thermal",
+      primitive_loads: [load("load:b"), load("load:\uFF5E"), load("load:a")] } as never);
+    model.supports.push({ id: "support:F2", label: "Friction 2", node: "node:C", restraints: [], nonlinear: { behavior: "friction", dof: "UX", initial_state: "sticking",
+      friction_coefficient: { value: 0.3, unit: "1" }, normal_reaction_source: { support_ref: "support:C", dof: "UY" } }, provenance: "invented" } as never);
+    model.supports.push({ id: "support:F1", label: "Friction 1", node: "node:C", restraints: [], nonlinear: { behavior: "friction", dof: "UX", initial_state: "sticking",
+      friction_coefficient: { value: 0.3, unit: "1" }, normal_reaction_source: { support_ref: "support:C", dof: "UY" } }, provenance: "invented" } as never);
+    const planned = supportDeleteReferences(model, "support:C");
+    expect(planned.slice(0, 5)).toEqual(["load:a", "load:b", "load:z", "load:\uFF5E", "load:\u{1F600}"]);
+
+    const result = await session(model);
+    const current = result.current.model.model!;
+    const supportC = current.supports.find((support) => support.id === "support:C")!;
+    await act(async () => { await result.current.operations.handleQueueOperationBatch({ batch_id: "other-route", operations: [buildDeleteSupportIntent(supportC, current)] }); });
+    const entry = result.current.operations.queuedBatches[0];
+    await act(async () => { await result.current.operations.handleRunOperationBatch(entry, false); });
+    const outcome = result.current.operations.batchOutcomes[entry.key];
+    const referenced = [...outcome.diagnostics, ...outcome.operation_outcomes.flatMap((step) => step.diagnostics)].find((item) => item.code === "OP-SUPPORT-DELETE-REFERENCED")!;
+    const engine = referenced.message.replace("Support `support:C` is still referenced by primitive loads: ", "").replace(/\.$/u, "").split(", ");
+    expect(planned).toEqual(engine);
+    expect(planned).toEqual(["load:a", "load:b", "load:z", "load:\uFF5E", "load:\u{1F600}", "support:F2", "support:F1"]);
+    expect(planBulkChange(model, [{ type: "support", id: "support:C" }], { kind: "support-remove", family: "guide" }).refused[0].reason)
+      .toBe(`Support support:C is still referenced by ${engine.join(", ")}; delete or retarget them first.`);
   });
 });
 

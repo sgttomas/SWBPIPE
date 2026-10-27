@@ -82,9 +82,12 @@ Every entity reached falls into one of four lists:
     one that something still references. The references are the set the
     applier's `delete_support` refuses on (`OP-SUPPORT-DELETE-REFERENCED`), in
     its order:
-    - primitive loads that target the support;
+    - primitive loads that target the support, sorted by the bytes of their
+      ids with repeats dropped, as the applier sorts them;
     - supports that name it as their normal-reaction source;
     - load-case `analysis_state.support_states` entries that name it.
+
+    The last two keep model order, as in the applier.
 
     The reason names each reference. `supportDeleteReferences` in
     `bulkChange.ts` mirrors `resolve_delete_support` in the applier's `lib.rs`
