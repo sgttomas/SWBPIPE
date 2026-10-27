@@ -183,7 +183,7 @@ def length(value):
 
 
 def judged_request(doc, project_id, title):
-    """A frozen-unit case document (cases.json `document`) as a model 0.7.0 product request (README "Binding")."""
+    """A frozen-unit case document (cases.json `document`) as a model 0.8.0 product request (README "Binding")."""
     mat = doc["material"]
     model = {
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "professional_acceptance": "not_provided",
@@ -217,7 +217,7 @@ def judged_request(doc, project_id, title):
         "project": {"description": "Invented O4 declared-problem oracle document; no external project or library data.",
                     "id": project_id, "name": title,
                     "units": {"angle": "rad", "force": "N", "length": "m", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
-        "schema_version": "0.7.0",
+        "schema_version": "0.8.0",
         "supports": [],
     }
     for sup in doc["supports"]:
@@ -234,10 +234,10 @@ def judged_request(doc, project_id, title):
 
 
 def rf_twin(request, variant, theory, frozen):
-    """An RF census request re-authored with an explicit shear model and explicit allowances (model 0.7.0)."""
+    """An RF census request re-authored with an explicit shear model and explicit allowances (model 0.8.0)."""
     doc = json.loads(json.dumps(request))
     model = doc["model"]
-    model["schema_version"] = "0.7.0"
+    model["schema_version"] = "0.8.0"
     model["pressure_contract"] = {"mode": "exact_pressure_v3", "shear_model": THEORIES[theory], "version": "3.0.0"}
     values = {}
     for pipe in model["pipe_segments"]:

@@ -102,7 +102,7 @@ pub fn law_cap_maximal() -> Value {
         .collect();
     json!({
         "model": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
             "project": {"id": text("project:", 128), "units": {"length": "m", "force": "N"}},
@@ -438,7 +438,7 @@ pub fn b2_c1_range_mechanics() -> Value {
 /// Euler-Bernoulli and an explicit zero corrosion allowance on every pipe section.
 pub fn exact3(mut raw: Value) -> Value {
     let m = &mut raw["model"];
-    m["schema_version"] = json!("0.7.0");
+    m["schema_version"] = json!("0.8.0");
     m["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
     for material in m["materials"].as_array_mut().unwrap() {
         material.as_object_mut().unwrap().remove("shear_modulus");

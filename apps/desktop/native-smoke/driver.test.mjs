@@ -170,7 +170,7 @@ test("after New Blank's Create, the blank's id is read only once the blank has r
   const previous = "project:exact-pressure-connected-fixture";
   const blank = "project:blank-local-20261025t215818z";
   const projectRows = [previous];
-  const { hooks, elements } = load({ shown: { "local-project-message": "Opened model document exact_pressure_authoring_model.json (6826 bytes; schema_version 0.7.0, current)." }, projectRows });
+  const { hooks, elements } = load({ shown: { "local-project-message": "Opened model document exact_pressure_authoring_model.json (6826 bytes; schema_version 0.8.0, current)." }, projectRows });
   const status = elements.get("local-project-message");
   const waited = hooks.awaitBlankProject(previous, 5000);
   // The create is still in flight: the tree shows the previous project.

@@ -129,7 +129,7 @@ pub(super) fn cap_maximal() -> Value {
         .collect();
     json!({
         "model": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
             "project": {"id": text("project:", 128), "units": {"length": "m", "force": "N"}},
@@ -375,7 +375,13 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // `w1_member_reader_gate_tests` module's invocation version changed; no include, path
             // module, static or production entered the suffix, and the two production functions
             // after the resume are byte-identical.
-            complete_suffix_sha256: "8d44d9b5cc6353f0f65b8096f21b65872c80de673edeec5d5bea76ba8475ac90",
+            // Re-audited for model 0.8.0 (W-15 slice c): the same three places changed their
+            // version token only (0.7.0 -> 0.8.0, same length): the closed
+            // `b7a_preview_namespace_tests` module's current version and one doc comment, and,
+            // after the resume, the closed `w1_member_reader_gate_tests` module's invocation
+            // version; no include, path module, static or production entered the suffix, and
+            // the two production functions after the resume are byte-identical.
+            complete_suffix_sha256: "cc5e359afd4f725b62a1540cb749b40f3e3e385dea2a100aa2c9b2637e98f805",
             // Only the preceding closed test region is excluded. These two
             // trailing public functions are production and remain inspected.
             production_resume: Some("/// The reader's outcome as JSON, for callers outside Rust (the desktop's wasm"),
@@ -445,7 +451,10 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // Re-audited on W-15 merged with main c9517615af (W-7's closed module): against main's suffix
             // only the inspected production's `rule_binding_refusal` gains W-15's first check (seven
             // lines); the closed `b7b_current_table_tests` module and E14 are main's, byte for byte.
-            complete_suffix_sha256: "e7281f504c3d6bfaaa5d685e9e4f5318856310dce29d5a9c1c5a3a2935f10c80",
+            // Re-audited for model 0.8.0 (W-15 slice c): only the inspected production's
+            // current_header v2 re-author text changed its model version token (0.7.0 -> 0.8.0,
+            // same length); the closed `b7b_current_table_tests` module and E14 are byte-identical.
+            complete_suffix_sha256: "6dc09d339738a7ac30ef674a4d017d266433b3be8d95f7596d1b2fb23a420428",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
@@ -827,11 +836,11 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "7d59a8e7fa7b3b997d3809bd90b7efbdda6c91ad46c0fbe31420f11dc4350520",
         "5a6630d9157ad1f4232c558d0cd57414677add8d1c95cc0a5d19a2579fb3a05b",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
-        "8f1f308092121cfe56e08199703c681ba74fd7d6d359d4eafed05d86ef8645a4",
-        "d6d86dfc418978257d1d3370684e879ba9711465ceba1de72729eb48bb12ad3c",
-        "b5a4b0e585b9ec440d36144860baaf101b628498cfdab9a1de9248c2ed5069e7",
+        "c7bcf0ceb82372fbf5f9958446ffe3f9c1ca3eb2384c47663514d21f89a885bb",
+        "cb68467ede05cf7aeedca8951f4d8e2ba242ceb9a3efad7b93255be35df244ab",
+        "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c",
         "c35353167313f227fd90a5ef2332a80ff05f3f6dc15e1da9c0396eff90cd1779",
-        "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d",
+        "a47626ed51791f984fbc07630732a046f8090ff645efdb56e73a284110e9c80c",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
     let files: [&[u8]; build_identity::REVIEWED_INPUT_COUNT] = [
@@ -1062,12 +1071,12 @@ fn every_family_clause_refuses_with_its_fact() {
         change(&mut raw);
         domain(raw)
     };
-    // B3-D §4.1, after B7b (A4/A5, D4 (a)): branch E is 0.7.0 with the exact v3 contract, so
+    // B3-D §4.1, after B7b (A4/A5, D4 (a)): branch E is 0.8.0 with the exact v3 contract, so
     // 0.3.0 is retired with v2 and, like every schema in no branch, refuses with
-    // `SchemaVersion`; any other contract on 0.7.0 with `PressureContract`.
+    // `SchemaVersion`; any other contract on 0.8.0 with `PressureContract`.
     assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.3.0")), family(C::Namespace, F::SchemaVersion), "0.3.0 is retired");
     assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.4.0")), family(C::Namespace, F::SchemaVersion));
-    assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.7.0")), None, "0.7.0 without a contract is in the namespace");
+    assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.8.0")), None, "0.8.0 without a contract is in the namespace");
     assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.2.0")), family(C::Namespace, F::SchemaVersion), "0.2.0 is retired");
     assert_eq!(with(&|r| r["model"]["pressure_contract"] = json!({})), family(C::Namespace, F::PressureContract));
     assert_eq!(with(&|r| r["model"]["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3"})),
@@ -2226,7 +2235,7 @@ pub(super) fn k2a_partial_underflow() -> Value {
     let anchored: Vec<&str> = all.iter().copied().filter(|d| *d != "UY").collect();
     json!({
         "model": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "analysis_status": {
                 "mechanics": "ready_for_preview_diagnostics",
@@ -2691,7 +2700,7 @@ fn b1_sa_retained_error_text_reads_every_case_slot() {
 /// `raw` carrying the retired `legacy_pressure_v1` label with zero pressure: I99's `legacy3`
 /// (B3-W's `m3l` when `raw` is the milestone): the contract changes, nothing else. B3a is
 /// dropped, so this is a refusal witness. B7b retired 0.3.0 with v2, so the label is authored on
-/// the current 0.7.0 document, the one document it can still appear on (`m3l` at 0.3.0 is
+/// the current 0.8.0 document, the one document it can still appear on (`m3l` at 0.3.0 is
 /// refused by its version first; `b3a_dropped_d1_3_refuses_the_legacy_pressure_contract`).
 fn legacy3(mut raw: Value) -> Value {
     raw["model"]["schema_version"] = json!(crate::MODEL_SCHEMA_VERSION);
@@ -2704,12 +2713,12 @@ fn exact_contract() -> Value {
 }
 
 /// B7a (b7-plan "Model format, pressure-free half"): branch L keys on the pressure contract's
-/// absence, not on the version string. A current-version (0.7.0) document is on branch L only
+/// absence, not on the version string. A current-version (0.8.0) document is on branch L only
 /// while it carries no contract; B7b: with branch E's exact v3 contract it is on branch E, with
 /// any other contract it is refused by that contract (`PressureContract`), and every retired
 /// version (0.1.0–0.4.0) is on no branch (`SchemaVersion`), with or without a contract. An
 /// explicit null contract is not absence: the presence-keyed parse refuses it. Keying branch L
-/// on the version string alone (`schema == 0.7.0`) or on the retired versions fails this test.
+/// on the version string alone (`schema == 0.8.0`) or on the retired versions fails this test.
 #[test]
 fn b7a_branch_l_keys_on_the_contracts_absence_not_the_version() {
     use FamilyFact as F;
@@ -2728,17 +2737,17 @@ fn b7a_branch_l_keys_on_the_contracts_absence_not_the_version() {
     };
     assert_eq!(milestone()["model"]["schema_version"], json!(crate::MODEL_SCHEMA_VERSION), "the milestone is current");
     assert!(milestone()["model"].get("pressure_contract").is_none(), "the milestone carries no contract");
-    assert_eq!(branch("0.7.0", None), Ok(NamespaceBranch::Preview), "pressure-free 0.7.0");
-    assert_eq!(branch("0.7.0", Some(exact_contract())), Ok(NamespaceBranch::Exact), "0.7.0 with the exact v3 contract");
+    assert_eq!(branch("0.8.0", None), Ok(NamespaceBranch::Preview), "pressure-free 0.8.0");
+    assert_eq!(branch("0.8.0", Some(exact_contract())), Ok(NamespaceBranch::Exact), "0.8.0 with the exact v3 contract");
     for contract in [json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}), json!({"version": "3.0.0", "mode": "exact_pressure_v3"}),
         json!({"version": "1.0.0", "mode": "legacy_pressure_v1"})] {
-        assert_eq!(branch("0.7.0", Some(contract.clone())), Err(F::PressureContract), "0.7.0 with {contract}: the contract's presence leaves branch L");
+        assert_eq!(branch("0.8.0", Some(contract.clone())), Err(F::PressureContract), "0.8.0 with {contract}: the contract's presence leaves branch L");
     }
     for retired in crate::RETIRED_MODEL_SCHEMA_VERSIONS {
         assert_eq!(branch(retired, None), Err(F::SchemaVersion), "retired {retired} without a contract");
         assert_eq!(branch(retired, Some(exact_contract())), Err(F::SchemaVersion), "retired {retired} with the exact contract");
     }
-    assert!(CapturedInvocation::parse(authored("0.7.0", Some(Value::Null)), PreviewSolverMode::SparseInteractive).is_err(),
+    assert!(CapturedInvocation::parse(authored("0.8.0", Some(Value::Null)), PreviewSolverMode::SparseInteractive).is_err(),
         "an explicit null contract is present, and refused at parse");
 }
 
@@ -2746,7 +2755,7 @@ fn b7a_branch_l_keys_on_the_contracts_absence_not_the_version() {
 /// `PressureContract`, alone and with C cases, in both modes, and no build grants it a permit.
 /// Every contract that does not match its schema's branch refuses with `PressureContract`; a
 /// schema in no branch with `SchemaVersion` (B3-D §4.1's refusal map, L and E; B7b: 0.3.0, the
-/// historical `m3l` document, is retired, so the label is witnessed on 0.7.0). D1.3 refuses the
+/// historical `m3l` document, is retired, so the label is witnessed on 0.8.0). D1.3 refuses the
 /// label before D1.5's and D1.7's clauses are read.
 #[test]
 fn b3a_dropped_d1_3_refuses_the_legacy_pressure_contract() {
@@ -2776,18 +2785,18 @@ fn b3a_dropped_d1_3_refuses_the_legacy_pressure_contract() {
         domain(raw)
     };
     let legacy = json!({"version": "1.0.0", "mode": "legacy_pressure_v1"});
-    assert_eq!(contract("0.7.0", legacy.clone()), family(C::Namespace, F::PressureContract), "0.7.0 with the legacy contract");
+    assert_eq!(contract("0.8.0", legacy.clone()), family(C::Namespace, F::PressureContract), "0.8.0 with the legacy contract");
     // B3b, B7b D4 (a): the exact contract is branch E, whose D1.5 needs explicitly empty regions.
-    assert_eq!(contract("0.7.0", exact_contract()), family(C::Case, F::PressureRegions));
+    assert_eq!(contract("0.8.0", exact_contract()), family(C::Case, F::PressureRegions));
     for (label, schema, value, fact) in [
-        ("0.7.0 with no contract", "0.7.0", Value::Null, None),
-        ("0.7.0, version 1.0.1", "0.7.0", json!({"version": "1.0.1", "mode": "legacy_pressure_v1"}), Some(F::PressureContract)),
-        ("0.7.0, version absent", "0.7.0", json!({"mode": "legacy_pressure_v1"}), Some(F::PressureContract)),
-        ("0.7.0, mode absent", "0.7.0", json!({"version": "1.0.0"}), Some(F::PressureContract)),
-        ("0.7.0, empty contract", "0.7.0", json!({}), Some(F::PressureContract)),
-        ("0.7.0, another mode", "0.7.0", json!({"version": "1.0.0", "mode": "exact_straight_pressure_v2"}), Some(F::PressureContract)),
-        ("0.7.0, the mode's case", "0.7.0", json!({"version": "1.0.0", "mode": "Legacy_pressure_v1"}), Some(F::PressureContract)),
-        ("0.7.0 with the retired v2 contract", "0.7.0", json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}), Some(F::PressureContract)),
+        ("0.8.0 with no contract", "0.8.0", Value::Null, None),
+        ("0.8.0, version 1.0.1", "0.8.0", json!({"version": "1.0.1", "mode": "legacy_pressure_v1"}), Some(F::PressureContract)),
+        ("0.8.0, version absent", "0.8.0", json!({"mode": "legacy_pressure_v1"}), Some(F::PressureContract)),
+        ("0.8.0, mode absent", "0.8.0", json!({"version": "1.0.0"}), Some(F::PressureContract)),
+        ("0.8.0, empty contract", "0.8.0", json!({}), Some(F::PressureContract)),
+        ("0.8.0, another mode", "0.8.0", json!({"version": "1.0.0", "mode": "exact_straight_pressure_v2"}), Some(F::PressureContract)),
+        ("0.8.0, the mode's case", "0.8.0", json!({"version": "1.0.0", "mode": "Legacy_pressure_v1"}), Some(F::PressureContract)),
+        ("0.8.0 with the retired v2 contract", "0.8.0", json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}), Some(F::PressureContract)),
         ("0.3.0 with the legacy contract (retired: m3l)", "0.3.0", legacy.clone(), Some(F::SchemaVersion)),
         ("0.3.0 with the v2 contract (retired)", "0.3.0", json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}), Some(F::SchemaVersion)),
         ("0.3.0 with no contract (retired)", "0.3.0", Value::Null, Some(F::SchemaVersion)),
@@ -2834,7 +2843,7 @@ fn b3a_dropped_d1_3_refuses_the_legacy_pressure_contract() {
 
 /// B3a's drop on the Direct entry: `m3l`, and the label with another version, are refused at
 /// G-A with `PressureContract` and publish the exact ordinary bytes, with no W1 and no
-/// successor, in every build and both modes. B7b: the label is on 0.7.0; the historical 0.3.0
+/// successor, in every build and both modes. B7b: the label is on 0.8.0; the historical 0.3.0
 /// `m3l` is refused by its retired version (`SchemaVersion`) with the same exact ordinary bytes.
 #[test]
 fn b3a_dropped_direct_entry_refuses_m3l() {
@@ -3088,7 +3097,7 @@ fn b2_a_admitted_combinations_run_w1_and_publish_the_validated_successor() {
 /// `raw` authored as exact: I99's `exact` (B3-W's `m3x` when `raw` is the milestone): the exact
 /// contract, the common E/ν basis with E = 2e11 Pa and ν = 0.25 and no shear modulus, and
 /// explicitly empty pressure regions on every case. B7b re-authored it once, as
-/// `tests/common/b1_sq_inputs.rs`'s `exact3`: model 0.7.0 with `3.0.0/exact_pressure_v3`,
+/// `tests/common/b1_sq_inputs.rs`'s `exact3`: model 0.8.0 with `3.0.0/exact_pressure_v3`,
 /// shear model Euler-Bernoulli and an explicit zero corrosion allowance on every pipe section.
 fn exact3(mut raw: Value) -> Value {
     let m = &mut raw["model"];
@@ -3112,7 +3121,7 @@ fn exact3(mut raw: Value) -> Value {
 const N05: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json");
 const N06: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n06.request.json");
 
-/// B3-D §4.2's law tests: exact (B7b: 0.7.0 with the v3 contract) with `[]` on every case is
+/// B3-D §4.2's law tests: exact (B7b: 0.8.0 with the v3 contract) with `[]` on every case is
 /// inside D1 (alone, with C cases, and as B3-W's mixed base `m3x_mix_anchor`), with a permit in
 /// the registered build; refused: regions absent or with one region (`PressureRegions`), on any
 /// case; one combination (`Combinations`); a retired version (`SchemaVersion`); any other
@@ -3172,7 +3181,7 @@ fn b3b_d1_admits_the_exact_route_with_empty_regions() {
     assert_eq!(with(&|r| { r["model"]["pressure_contract"].as_object_mut().unwrap().remove("shear_model"); }), family(C::Namespace, F::PressureContract),
         "no shear model");
     assert_eq!(with(&|r| r["model"]["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"})),
-        family(C::Namespace, F::PressureContract), "the retired v2 contract on 0.7.0");
+        family(C::Namespace, F::PressureContract), "the retired v2 contract on 0.8.0");
     assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.2.0")), family(C::Namespace, F::SchemaVersion), "0.2.0 is retired");
     // A combination on L is still inside D1 (B2-C's clauses apply there only; B3a's L3 is dropped).
     let mut l = milestone();

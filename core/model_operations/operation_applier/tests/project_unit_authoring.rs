@@ -22,7 +22,7 @@ const US: [(&str, &str); 7] =
 /// A current model document with the SI preset and no nodes.
 fn blank() -> Value {
     let units: serde_json::Map<String, Value> = SI.iter().map(|(key, symbol)| (key.to_string(), json!(symbol))).collect();
-    json!({"schema_version":"0.7.0","document_kind":"openpipestress.product_preview.model",
+    json!({"schema_version":"0.8.0","document_kind":"openpipestress.product_preview.model",
         "project":{"id":PROJECT,"name":"Invented units project","units":units},
         "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
         "nodes":[],"pipe_segments":[],"supports":[],"components":[],"materials":[],"load_cases":[],"combinations":[]})

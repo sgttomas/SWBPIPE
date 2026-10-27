@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openpipestress.org/schemas/model.schema.yaml",
   "title": "OpenPipeStress model document",
-  "description": "The model document openpipestress.product_preview.model, version 0.7.0: the document the desktop opens, edits and saves and the solver reads. Coordinates, directions and orientation vectors are in one implicit global right-handed Cartesian frame (axes X, Y, Z; length unit project.units.length); the document declares no other coordinate system. The schema describes structure only: physical validity, unit admission and cross-references are the readers' and the applier's, which report named diagnostics. Every member a reader decodes or a writer emits is described, and every record is closed. The load/reference-state group (reference_configurations, material expansion_laws, load-case analysis_state) is defined in load_reference_state.schema.json. $defs/DesktopDocument is the desktop's open and save profile. The annotation and record slots (tags, notes, lines, unresolved_assumptions, rule_pack_refs, provenance_record, constraints, equipment_interfaces) are optional model data that no solve reads; absence means none, and nothing evaluates lines, constraints or equipment interfaces. Values are user-entered; the software supplies no code value and no acceptance.",
+  "description": "The model document openpipestress.product_preview.model, version 0.8.0: the document the desktop opens, edits and saves and the solver reads. Coordinates, directions and orientation vectors are in one implicit global right-handed Cartesian frame (axes X, Y, Z; length unit project.units.length); the document declares no other coordinate system. The schema describes structure only: physical validity, unit admission and cross-references are the readers' and the applier's, which report named diagnostics. Every member a reader decodes or a writer emits is described, and every record is closed. The load/reference-state group (reference_configurations, material expansion_laws, load-case analysis_state) is defined in load_reference_state.schema.json. $defs/DesktopDocument is the desktop's open and save profile. The annotation and record slots (tags, notes, lines, unresolved_assumptions, rule_pack_refs, provenance_record, constraints, equipment_interfaces) are optional model data that no solve reads; absence means none, and nothing evaluates lines, constraints or equipment interfaces. Values are user-entered; the software supplies no code value and no acceptance.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -16,10 +16,10 @@
   ],
   "properties": {
     "schema_version": {
-      "description": "Model document 0.7.0 is the one current version. Versions 0.1.0 to 0.6.0 are retired and refused by name with a re-author diagnostic; nothing is migrated.",
+      "description": "Model document 0.8.0 is the one current version: 0.7.0 plus a reducer's optional geometry.eccentric_offset. Versions 0.1.0 to 0.7.0 are retired and refused by name with a re-author diagnostic; nothing is migrated.",
       "type": "string",
       "enum": [
-        "0.7.0"
+        "0.8.0"
       ]
     },
     "document_kind": {

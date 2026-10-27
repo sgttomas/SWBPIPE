@@ -673,7 +673,7 @@ mod tests {
     }
 
     /// The committed model document schema (`schemas/model.schema.yaml`, JSON
-    /// syntax; model document 0.7.0) is the authoritative key list of each
+    /// syntax; model document 0.8.0) is the authoritative key list of each
     /// closed record.
     const MODEL_SCHEMA: &str = include_str!("../../../schemas/model.schema.yaml");
 
@@ -715,7 +715,7 @@ mod tests {
     fn the_key_lists_are_model_document_0_7_0s() {
         let schema = schema();
         assert_eq!(schema["properties"]["schema_version"]["enum"], serde_json::json!([crate::MODEL_SCHEMA_VERSION]));
-        assert_eq!(crate::MODEL_SCHEMA_VERSION, "0.7.0");
+        assert_eq!(crate::MODEL_SCHEMA_VERSION, "0.8.0");
         let fields = record_fields();
         for key in ROOT_0_7_0 {
             assert!(fields.model.contains(&key), "model root declares {key}");

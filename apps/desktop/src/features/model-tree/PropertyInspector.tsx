@@ -3318,5 +3318,10 @@ export const inspectorAuthoringPaths = {
   defaultSectionDraft,
   buildCreateSectionIntent,
   defaultSupportDraft,
-  buildCreateSupportIntent
+  buildCreateSupportIntent,
+  // W-15 slice c (DEL-02-01 Design model-document-0.8.0.md §5): the reducer's
+  // eccentric-offset field and the inspector's edit intent, for the emission golden.
+  eccentricOffsetField: (vector: { x: number; y: number; z: number; unit: string } | undefined, defaultUnit: string) =>
+    vectorField("Eccentric offset", "geometry.eccentric_offset", vector, defaultUnit, ECCENTRIC_OFFSET_CONVENTION),
+  buildOperationIntent
 };

@@ -230,7 +230,7 @@ fn w2b_input() -> Value {
 }
 /// The PROBE pins (R/I81/b1_probe_01, `input_sha` lines) of W2b's and W6's PHYS-R4 inputs, each
 /// moved with its version-only re-authoring (T4-S1: 0.6.0; W-13 S1b: 0.7.0; `w6_input` changes nothing else).
-const W2B_INPUT_SHA256: &str = "2b2f398d15da0832cff6294c776bda79bd83ef52495e2f31e72cd85d9312e9d1";
+const W2B_INPUT_SHA256: &str = "4bbbe484c3f97a9c067e86658147814888dba3426c2a6b29870bf03066d44a02";
 const W6_PHYS_R4_INPUT_SHA256: &str = "309f5cf526dc466a1d7ae3537c1258941915433e3f179bd3dc4d21e4c8e77cff";
 
 per_mode! {
@@ -245,16 +245,16 @@ per_mode! {
         // Selected source blocks require admitted E. Keep N05's physical
         // request frozen, and exercise the governed E counterpart.
         assert_eq!(format!("{:x}", sha2::Sha256::digest(file.as_bytes())),
-            "9a0caca31d6704bfb4a89eb91e225b750c8220f4277691a44f2e43465f1ceb67");
+            "c656d9a8d257fc968d0cda469a0277a7b2fba7463a52586eba977f3a2836dc3d");
         let original: Value = serde_json::from_str(file).unwrap();
-        assert_eq!(original["model"]["schema_version"], json!("0.7.0"));
+        assert_eq!(original["model"]["schema_version"], json!("0.8.0"));
         let (original_request, _) = CapturedInvocation::parse(original.clone(), mode).unwrap();
         assert_eq!(namespace_branch(&original_request.model), Ok(NamespaceBranch::Preview));
         let original_control = original.clone();
         assert_eq!(witness(&format!("W3 original L {mode:?}"), WITNESS_STACK,
             move || permitted_work(original_control, mode, |_| {})), Ran::Successor);
         // B7b D3 re-authored the E counterpart once from the retired 0.3.0/v2 declaration to the
-        // current one (D4 (a)): the same 0.7.0 document with `3.0.0/exact_pressure_v3`, shear
+        // current one (D4 (a)): the same 0.8.0 document with `3.0.0/exact_pressure_v3`, shear
         // model Euler-Bernoulli and an explicit zero corrosion allowance on each pipe section.
         let mut raw = original.clone();
         raw["model"]["pressure_contract"] = json!({"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"});
@@ -333,7 +333,7 @@ pub(super) fn w6_input() -> Value {
     let tip = f64::from_bits(0x0031fa182c40c60d);
     let p = "invented_t3_g5_witness_input_no_library_data";
     let raw = json!({"model": {
-        "schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
         "project": {"id": "project:section-oracle", "units": {"length": "m", "force": "N"}},
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed", "professional_acceptance": "not_provided"},
         "nodes": [{"id": a, "position": {"x": 0.0, "y": 0.0, "z": 0.0}, "provenance": p},
@@ -647,7 +647,7 @@ per_mode! {
 }
 
 per_mode! {
-    /// The exact successor (B3-W's `m3x`): the milestone authored as exact (B7b: 0.7.0 with the
+    /// The exact successor (B3-W's `m3x`): the milestone authored as exact (B7b: 0.8.0 with the
     /// v3 contract and a zero allowance). A successor.
     witness_m3x, |mode| {
         let raw = inputs::m3x();
@@ -659,7 +659,7 @@ per_mode! {
 
 per_mode! {
     /// The cap-maximal exact input: the cap-maximal three-case input (`i3_three_case`) authored as
-    /// exact (B7b: 0.7.0, v3), route E's priced shape (c = 3, z = 0) at the count caps.
+    /// exact (B7b: 0.8.0, v3), route E's priced shape (c = 3, z = 0) at the count caps.
     witness_exact_cap_maximal, |mode| {
         let raw = inputs::exact_cap_maximal();
         inside_d1("exact cap-maximal", &raw, mode, 3, 0, true);
@@ -926,7 +926,7 @@ fn source_selected_ties() -> Value {
             {"id": format!("{id}:moment"), "category": "concentrated_moment", "target": {"type": "node", "node": "S1"},
                 "direction": "RZ", "magnitude": {"value": f, "unit": "N*m"}, "dimension": "moment", "provenance": p}]});
     json!({"materials": [material], "model": {
-        "schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "professional_acceptance": "not_provided",
             "rule_check": "not_performed_user_rule_inputs_missing"},
         "project": {"id": "invented:t4-u6u8-reg2:source-selected-ties", "units": {"angle": "rad", "force": "N", "length": "m",

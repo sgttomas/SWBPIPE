@@ -48,14 +48,14 @@ const PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         SPARSE,
-        "139cfdb7d960aa1c5a061ee21cbf48fa55b96f896dc40120b6576a9f8061781c",
-        "a3a2fc6748be7deb006681b493cc858b065b000f3f3427a8dc3ce0f75d7750d8",
+        "7fc66eeef48d03b64da78db705fe5b4d34f12e9b2b90ab0578eb5af9699d3c92",
+        "c238347e1e0f32f1e484e84a0c0e4679be5c86546ab87af59da469cf560d6374",
     ),
     (
         "dense_scrutiny",
         DENSE,
-        "7ce9946465092d416474faf1f455cb9466edd8fb84d3b8a3640a433b27d29d31",
-        "fcb064918059448e3e2a671821a2924f69c4d1da3fabbad105cab9f483297168",
+        "ce0f6a6a80a327fbcdf594b166290cc2c86ca8e91e852ce3de84303f54713357",
+        "51f2d8b75c12305ac184cb4378dc6d543389e958655465032cee3161a89eee49",
     ),
 ];
 /// The committed goldens' file sha256 (= the documents' canonical digests).
@@ -79,14 +79,14 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "53df81b7f576e714816bccfc54d96baca3814a0e919b9823e5aa9bf29b97826c",
-        "0c7b14b6b08c689eee3be11ac164b0ec9296fd759c91595955eee7056dbc6ff4",
+        "65953bd4296bf2f4c281318f4147b95b3b6eeffa778b885ff35d597ef8842f5b",
+        "2cf168193edf2dfc00f668eee52adc0e8361b6a88c5e47ae1e207db2cf126845",
     ),
     (
         "dense_scrutiny",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "1a3f9eed3731e123264dcca1e7f46645434cc9b66b95656de837cce3f7a431ea",
-        "d9a6e8073a6207abd426c6d88f3cdae21c41a660a61230178921cfcd3260d872",
+        "b66082a3cac16ed740a0f3cc031e0f24ff4528ed635f95ebd97a5a161fb8527a",
+        "a27d1c0234024dfe2e9d5dc7b90c18cabff25bc61f5d2df2c15329b294465d2d",
     ),
 ];
 /// The committed exact goldens' file sha256.

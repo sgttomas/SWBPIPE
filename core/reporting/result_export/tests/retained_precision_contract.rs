@@ -2763,7 +2763,7 @@ fn d30_native_run_ref_on_nonselected_run() {
 }
 
 /// D31, as B7a keys it (b7-plan "Model format, pressure-free half"): G8's preview
-/// namespace is the current model version 0.7.0 without a pressure contract; the
+/// namespace is the current model version 0.8.0 without a pressure contract; the
 /// retired 0.1.0 and 0.2.0 are refused, and 0.4.0 stays excluded. B3a (B3-D §6.3,
 /// decision B3D-10): 0.3.0 without a contract is outside D1.3 (the producer cannot
 /// emit it, `PRESSURE_CONTRACT_REQUIRED`), so it is G8 INVOCATION_MISMATCH; 0.3.0
@@ -2780,7 +2780,7 @@ fn d31_model_schema_versions_at_g8() {
     };
     let mut misses = Vec::new();
     for (version, want) in [
-        ("0.7.0", Value::Null),
+        ("0.8.0", Value::Null),
         ("0.1.0", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
         ("0.2.0", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
         ("0.3.0", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
@@ -4870,7 +4870,7 @@ fn b1_i4p_transport_metadata_demands_alone() {
 
 /// B3a dropped (RR "Owner decisions: the legacy pressure contract is retired
 /// product-wide; ..."; formerly B3-D §6.3 and §6.4; REVISION_01 §3, N-4): G8's
-/// namespace predicate is type-strict. Only branch L (current 0.7.0,
+/// namespace predicate is type-strict. Only branch L (current 0.8.0,
 /// `pressure_contract` absent; B7a: a JSON null is present, so refused) is admitted; any other value is G8
 /// INVOCATION_MISMATCH. "L3" in the entry names is B3a's retired contract
 /// `{"version":"1.0.0","mode":"legacy_pressure_v1"}` on 0.3.0, now refused on
@@ -4923,8 +4923,8 @@ fn b3a_legacy_pressure_contract_namespace_at_g8() {
     }
     for (name, edits, want) in [
         // B7a: a present null contract is authored presence, outside branch L.
-        ("L: 0.7.0, contract null", vec![contract(Value::Null)], inv.clone()),
-        ("L: 0.7.0, contract absent", vec![schema("0.7.0"), no_contract()], Value::Null),
+        ("L: 0.8.0, contract null", vec![contract(Value::Null)], inv.clone()),
+        ("L: 0.8.0, contract absent", vec![schema("0.8.0"), no_contract()], Value::Null),
         ("L3: mode exact_straight_pressure_v2, version 1.0.0", vec![schema("0.3.0"), contract(with("mode", json!("exact_straight_pressure_v2")))], inv.clone()),
         ("L3: version 1.0.1", vec![schema("0.3.0"), contract(with("version", json!("1.0.1")))], inv.clone()),
         ("L3: the exact contract 2.0.0", vec![schema("0.3.0"), contract(json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}))], inv.clone()),
@@ -4937,14 +4937,14 @@ fn b3a_legacy_pressure_contract_namespace_at_g8() {
         ("L3: version a number", vec![schema("0.3.0"), contract(with("version", json!(1.0)))], inv.clone()),
         ("L3: mode null", vec![schema("0.3.0"), contract(with("mode", Value::Null))], inv.clone()),
         ("0.3.0, contract {}", vec![schema("0.3.0"), contract(json!({}))], inv.clone()),
-        ("0.7.0 keeping the L3 contract", vec![contract(l3.clone())], inv.clone()),
+        ("0.8.0 keeping the L3 contract", vec![contract(l3.clone())], inv.clone()),
         ("0.1.0 keeping the L3 contract", vec![schema("0.1.0"), contract(l3.clone())], inv.clone()),
         ("0.4.0 with the L3 contract", vec![schema("0.4.0"), contract(l3.clone())], inv.clone()),
-        ("N-4: 0.7.0, contract {}", vec![contract(json!({}))], inv.clone()),
-        ("N-4: 0.7.0, contract false", vec![contract(json!(false))], inv.clone()),
-        ("N-4: 0.7.0, contract []", vec![contract(json!([]))], inv.clone()),
-        ("N-4: 0.7.0, contract \"\"", vec![contract(json!(""))], inv.clone()),
-        ("N-4: 0.7.0, contract 0", vec![contract(json!(0))], inv.clone()),
+        ("N-4: 0.8.0, contract {}", vec![contract(json!({}))], inv.clone()),
+        ("N-4: 0.8.0, contract false", vec![contract(json!(false))], inv.clone()),
+        ("N-4: 0.8.0, contract []", vec![contract(json!([]))], inv.clone()),
+        ("N-4: 0.8.0, contract \"\"", vec![contract(json!(""))], inv.clone()),
+        ("N-4: 0.8.0, contract 0", vec![contract(json!(0))], inv.clone()),
         ("N-11: L3 with a zero-magnitude element pressure load", vec![schema("0.3.0"), contract(l3.clone()), zero_pressure(ORD)], inv.clone()),
     ] {
         entries.push((name.to_string(), ORD, edits, want));
@@ -5184,7 +5184,7 @@ fn d5_rows(source: &mut Value) {
 /// A reader-local synthetic exact successor (not producer output; lane P's
 /// `m3x` successors replace it as the witness): a shared preview base whose
 /// cases are all selected, re-stated on the exact route.
-/// - Invocation (B7b: the current exact document): model 0.7.0 with
+/// - Invocation (B7b: the current exact document): model 0.8.0 with
 ///   `{3.0.0, exact_pressure_v3, euler_bernoulli}` and an authored zero
 ///   `corrosion_allowance` on every pipe section, every case's
 ///   `pressure_regions` explicitly [], each material with `poisson_ratio`
@@ -5205,7 +5205,7 @@ fn exact_successor(shared: &Value, base: &str) -> (Value, Value) {
     let mut invocation = case["invocation"].clone();
     {
         let model = &mut invocation["request"]["model"];
-        model["schema_version"] = json!("0.7.0");
+        model["schema_version"] = json!("0.8.0");
         model["pressure_contract"] =
             json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
         for p in model["pipe_segments"].as_array_mut().unwrap() {
@@ -5328,15 +5328,15 @@ const M3X: [(&str, &str, &str, &str, &str); 2] = [
         "m3x_sparse_interactive",
         "<s1:m3x_sparse_interactive>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "53df81b7f576e714816bccfc54d96baca3814a0e919b9823e5aa9bf29b97826c",
-        "0c7b14b6b08c689eee3be11ac164b0ec9296fd759c91595955eee7056dbc6ff4",
+        "65953bd4296bf2f4c281318f4147b95b3b6eeffa778b885ff35d597ef8842f5b",
+        "2cf168193edf2dfc00f668eee52adc0e8361b6a88c5e47ae1e207db2cf126845",
     ),
     (
         "m3x_dense_scrutiny",
         "<s1:m3x_dense_scrutiny>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "1a3f9eed3731e123264dcca1e7f46645434cc9b66b95656de837cce3f7a431ea",
-        "d9a6e8073a6207abd426c6d88f3cdae21c41a660a61230178921cfcd3260d872",
+        "b66082a3cac16ed740a0f3cc031e0f24ff4528ed635f95ebd97a5a161fb8527a",
+        "a27d1c0234024dfe2e9d5dc7b90c18cabff25bc61f5d2df2c15329b294465d2d",
     ),
 ];
 fn exact_base(shared: &Value, base: &str) -> (Value, Value) {
@@ -5589,7 +5589,7 @@ fn b3b_repair03_n2b_physics_code_is_array_ordered_and_stable() {
 /// B7a's one corpus regeneration moved the bases again; the current digests are the ones the
 /// R1 reader-outcomes record (`fixtures/results/retained_precision_reader_outcomes.json`) states.
 /// B7b re-stated the synthetic exact construction and RV120's inputs on the current exact
-/// route (model 0.7.0, the complete v3 contract, a zero corrosion allowance, profile_mode
+/// route (model 0.8.0, the complete v3 contract, a zero corrosion allowance, profile_mode
 /// exact_pressure_v3; W1's `retained_precision_rv120_b3_inputs.json` and m3x successors), so
 /// all eight digests moved; each equals the R1 record's input digest for the same RV120 key.
 /// T4-U6 re-stated the synthetic exact successor on D-5 (both section bases, per-basis

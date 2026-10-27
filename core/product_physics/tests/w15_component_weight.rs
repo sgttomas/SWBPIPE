@@ -23,7 +23,7 @@ const HASH: &str = "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 fn model() -> Value {
     let section = json!({"outside_diameter": {"value": 0.2, "unit": "m"}, "wall_thickness": {"value": 0.01, "unit": "m"},
         "material_density": {"value": 7850, "unit": "kg/m^3"}});
-    json!({"schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
+    json!({"schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
         "project": {"id": "project:w15b", "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
         "nodes": [{"id": "a", "position": {"x": 0, "y": 0, "z": 0}, "provenance": PROV}, {"id": "b", "position": {"x": 1, "y": 0, "z": 0}, "provenance": PROV}, {"id": "c", "position": {"x": 2, "y": 0, "z": 0}, "provenance": PROV}],

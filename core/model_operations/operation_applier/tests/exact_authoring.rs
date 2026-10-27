@@ -6,7 +6,7 @@ use open_pipe_stress_product_physics::{
     run_linear_static_preview_with_mode, LinearStaticPreviewRequest, PreviewSolverMode,
 };
 use serde_json::{json, Value};
-/// The committed exact authoring document (B7b: the current 0.7.0 document
+/// The committed exact authoring document (B7b: the current 0.8.0 document
 /// with `3.0.0/exact_pressure_v3`, its explicit euler_bernoulli shear model and
 /// an explicit corrosion allowance): what authoring produces from its inputs.
 fn fixture() -> Value {
@@ -14,7 +14,7 @@ fn fixture() -> Value {
         "../../../../fixtures/model_operations/exact_pressure_authoring_model.json"
     ))
     .unwrap();
-    assert_eq!(model["schema_version"], "0.7.0");
+    assert_eq!(model["schema_version"], "0.8.0");
     assert_eq!(
         model["pressure_contract"],
         json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"})
@@ -58,7 +58,7 @@ fn projection(value: &Value, keys: &[&str]) -> Value {
 }
 fn legacy_authoring_model(expected: &Value) -> Value {
     let mut model = expected.clone();
-    model["schema_version"] = json!("0.7.0");
+    model["schema_version"] = json!("0.8.0");
     model.as_object_mut().unwrap().remove("pressure_contract");
     model["materials"][0]
         .as_object_mut()
@@ -108,7 +108,7 @@ fn exact_authoring_review_apply_serialization_and_real_solve() {
         "Model",
         expected["project"]["id"].as_str().unwrap(),
         "pressure_profile",
-        Some(&json!({"schema_version":"0.7.0"})),
+        Some(&json!({"schema_version":"0.8.0"})),
         &projection(&expected, &["schema_version", "pressure_contract"]),
     );
     model = apply(&model, &op);
@@ -376,7 +376,7 @@ fn exact_authoring_atomic_batch_late_invalid_profile_rolls_back_every_edit() {
             .any(|d| d["code"] == "OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED"));
     }
     assert_eq!(model, original);
-    assert_eq!(model["schema_version"], "0.7.0");
+    assert_eq!(model["schema_version"], "0.8.0");
     assert!(model["materials"][0].get("poisson_ratio").is_none());
     assert!(model["load_cases"]
         .as_array()
@@ -583,7 +583,7 @@ fn pressure_terminal_nodes_block_direct_and_batch_delete_in_incomplete_models() 
 /// contract. A retired v2 write is refused (as a downgrade and as a re-selection
 /// on a retired document), as is a v3 contract without its shear model; a
 /// retired v2 contract on a current document is replaced explicitly; a retired
-/// model version is never authored (B7b: 0.7.0 is the only current version).
+/// model version is never authored (B7b: 0.8.0 is the only current version).
 #[test]
 fn pressure_profile_writes_only_the_current_contract() {
     let v3 = fixture();
@@ -607,7 +607,7 @@ fn pressure_profile_writes_only_the_current_contract() {
     let upgraded = apply(&v2, &intent("Model", &id, "pressure_profile", Some(&profile(&v2)), &profile(&v3)));
     assert_eq!(canonical_json(&upgraded), canonical_json(&v3));
     // A retired model version is locked: neither authored on nor written to.
-    for retired in ["0.3.0", "0.4.0", "0.5.0", "0.6.0"] {
+    for retired in ["0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0"] {
         let mut old = v3.clone();
         old["schema_version"] = json!(retired);
         assert!(code(&old, &profile(&old), &profile(&v3))
@@ -643,9 +643,9 @@ fn pressure_profile_admits_both_shear_models_and_refuses_an_unknown_one() {
     let expected = fixture();
     let free = pressure_free(&expected);
     let id = expected["project"]["id"].as_str().unwrap().to_string();
-    let free_before = json!({"schema_version": "0.7.0"});
+    let free_before = json!({"schema_version": "0.8.0"});
     for shear_model in [TIMOSHENKO, EULER_BERNOULLI] {
-        let after = json!({"schema_version": "0.7.0", "pressure_contract": contract(json!(shear_model))});
+        let after = json!({"schema_version": "0.8.0", "pressure_contract": contract(json!(shear_model))});
         let activated = apply(&free, &intent("Model", &id, "pressure_profile", Some(&free_before), &after));
         assert_eq!(activated["pressure_contract"], contract(json!(shear_model)), "{shear_model}");
         // Only the contract is written: the result is the fixture with this selection.
@@ -662,13 +662,13 @@ fn pressure_profile_admits_both_shear_models_and_refuses_an_unknown_one() {
     // Unknown, misspelled, malformed and null values stay refused; so does an extra member.
     for shear_model in [json!("timoshenko"), json!("timoshenko_annulus_energy_v2"), json!("Euler_Bernoulli"),
         json!("cowper"), json!(""), json!(null), json!(5), json!({"model": TIMOSHENKO})] {
-        let after = json!({"schema_version": "0.7.0", "pressure_contract": contract(shear_model.clone())});
+        let after = json!({"schema_version": "0.8.0", "pressure_contract": contract(shear_model.clone())});
         let outcome = apply_operation(&free, &intent("Model", &id, "pressure_profile", Some(&free_before), &after), Some(&hash(&free)));
         assert!(outcome.applied_model.is_none(), "{shear_model}");
         let codes: Vec<_> = outcome.diagnostics.iter().map(|d| d.code.as_str()).collect();
         assert!(codes.contains(&"OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED"), "{shear_model}: {codes:?}");
     }
-    let mut extra = json!({"schema_version": "0.7.0", "pressure_contract": contract(json!(TIMOSHENKO))});
+    let mut extra = json!({"schema_version": "0.8.0", "pressure_contract": contract(json!(TIMOSHENKO))});
     extra["pressure_contract"]["shear_factor"] = json!(0.5);
     let outcome = apply_operation(&free, &intent("Model", &id, "pressure_profile", Some(&free_before), &extra), Some(&hash(&free)));
     assert!(outcome.diagnostics.iter().any(|d| d.code == "OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED"));

@@ -15,7 +15,7 @@
         "canonicalization": "rfc8785_jcs",
         "payload_kind": "model_json",
         "payload_ref": "project:precision-connected-fixture",
-        "value": "0e0cb0c64c70fce59457225361e19da72cfdf9fe3c56178badec9bf9f0124b45"
+        "value": "d5296f829b97b521f75575469ee40f96be09bbb981989b6bce8e388ef4ffd5c5"
       },
       "professional_boundary": {
         "human_review_required": true,
@@ -167,7 +167,7 @@
               "ref_id": "project:precision-connected-fixture",
               "ref_type": "model"
             },
-            "value": "0e0cb0c64c70fce59457225361e19da72cfdf9fe3c56178badec9bf9f0124b45"
+            "value": "d5296f829b97b521f75575469ee40f96be09bbb981989b6bce8e388ef4ffd5c5"
           },
           "model_ref": {
             "ref_id": "project:precision-connected-fixture",
@@ -4683,7 +4683,7 @@
                 "ref_type": "derivative_document"
               },
               "payload_scope": "derivative_document_excludes_own_hash",
-              "value": "779b2e79f2a8704768349f33f2df0049e3bd6a07786709d0ec3f1ed4ba3d97dc"
+              "value": "3f1337546650b29df5dea6f1222013e67815173748836f0ab9bd8496b9952385"
             },
             "derivative_hash_excludes": "result_envelope.reproducibility.derivative_hash",
             "deterministic_ordering": true,
@@ -4695,7 +4695,7 @@
                 "ref_type": "model_payload"
               },
               "payload_scope": "model_payload",
-              "value": "0e0cb0c64c70fce59457225361e19da72cfdf9fe3c56178badec9bf9f0124b45"
+              "value": "d5296f829b97b521f75575469ee40f96be09bbb981989b6bce8e388ef4ffd5c5"
             },
             "raw_source_hashes": [
               {
@@ -4764,7 +4764,7 @@
                   "value": "0c887f67dd73f507ce72d974fe3e265a6fa0f3cdab20f86dc09bc628073ea580"
                 },
                 "qualification_ref": {
-                  "ref_id": "run:headless-preview:del1005-export-results-invented:0a704c1a3359f0452637702b948db799febc14c5479466a78ee2fa93ee8575cc",
+                  "ref_id": "run:headless-preview:del1005-export-results-invented:d675513b30f1341c60f8acbc360eb2a6568df4b99846f5849e601d053472860b",
                   "ref_type": "private_solve_evidence"
                 },
                 "received_carrier_checksum": {
@@ -24377,7 +24377,7 @@
                     "ref": "state:project:precision-connected-fixture:preview"
                   },
                   "payload_scope": "model_state",
-                  "value": "0e0cb0c64c70fce59457225361e19da72cfdf9fe3c56178badec9bf9f0124b45"
+                  "value": "d5296f829b97b521f75575469ee40f96be09bbb981989b6bce8e388ef4ffd5c5"
                 }
               ],
               "limitations": [],

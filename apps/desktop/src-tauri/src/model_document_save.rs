@@ -643,7 +643,7 @@ mod tests {
     /// (retired, newer, missing) and the W-13 document validator.
     #[test]
     fn version_kind_and_validator_refusals_are_the_open_paths() {
-        for (version, code) in [("0.6.0", "MODEL-FILE-SCHEMA-REFUSED"), ("0.8.0", "MODEL-FILE-SCHEMA-REFUSED"), ("x", "MODEL-FILE-SCHEMA-REFUSED")] {
+        for (version, code) in [("0.6.0", "MODEL-FILE-SCHEMA-REFUSED"), ("0.7.0", "MODEL-FILE-SCHEMA-REFUSED"), ("0.9.0", "MODEL-FILE-SCHEMA-REFUSED"), ("x", "MODEL-FILE-SCHEMA-REFUSED")] {
             let (text, hash) = canonical_variant(|document| document["schema_version"] = json!(version));
             assert_eq!(codes(admit(text, &hash)), vec![(code.to_string(), "schema_version".to_string())], "{version}");
         }

@@ -3,7 +3,8 @@
 **Basis:** main `2d4b1bb4bb` (2026-10-26).
 
 **Status:** revision 2 of a design pass, PR #1649. It resolves Codex's design
-review r1 and applies Agent 0's rulings of 2026-10-26. Not built.
+review r1 and applies Agent 0's rulings of 2026-10-26. Built in #1649 on the
+merge of main `b4b26cdd82` (#1630); §13 records what the build settled.
 
 **Lineage:** it follows the 0.6.0 → 0.7.0 precedent of
 [`model-document-0.7.0.md`](model-document-0.7.0.md) §2 (W-13 S1b, #1564). The
@@ -480,3 +481,35 @@ ripple lands joins 0.8.0 through Agent 0.
   - the native smoke compared with main;
   - the hosted `harness` on the exact head.
 - **Independent review** of the regeneration and the registration.
+
+## 13. As built (the ripple, #1649)
+
+- **Refusal note.** §3.3's appended text is `RETIRED_PROJECT_RUNS_NOTE`
+  (src-tauri `model_document_version.rs`, mirrored in `modelSchemaVersion.ts`).
+  It is appended to a `retired_schema` refusal only: the project-store open,
+  create and save refusal (`refuse_model_document`), the saved-state save, open
+  and compare refusal (`model_states.rs` `refuse_version`), and the browser
+  store and saved-state open. A newer or non-semver document's refusal is
+  unchanged, since the note concerns stored work of a retired version.
+- **Literal guard (§5).** The independent readers' current-version gates and
+  texts (`physics_source.rs` 3, `retained_precision.rs` 2, `semantic_contract.rs`
+  1) stay token edits, as §2 and §7 plan. They are the guard's one listed
+  exception, `READER_TOKEN_SITES`, tied to the version it was taken at, so the
+  next ripple fails until it re-checks each. The Python verifiers and tools name
+  the version once each, as a module-level `MODEL_VERSION` that every gate and
+  message reads; the guard checks that every such definition is current.
+- **Committed 0.7.0 control (§5, §12 "Handoff").** One: the handoff witness
+  package as the 0.7.0 producer wrote it,
+  `fixtures/handoff/retired_0_7_0_witness.swbhandoff`. Its bytes verify; the open
+  path and the solve refuse its model by name. It is the only entry of
+  `EXPLICIT_RETIRED_CONTROLS["0.7.0"]`.
+- **DEF-E's domain hash (§7).** DEF-E's token edit moves its formation-definition
+  hash (`retained_wire.rs` `EXACT_DEFINITION_SHA256`, `bd3c7de7…` → `913d248b…`),
+  which physics-retained-1's `product_formation_definitions` and the readers
+  carry. The registration's four moved reviewed inputs are DEF-E (#7),
+  physics-retained-1 (#8), pressure-source-1 (#9) and pressure-2 (#11), counted
+  from 0.
+- **Ledger control.** As at 0.6.0 and 0.7.0, the `COMMITMENT_DOMAIN_SEPARATION`
+  ledger case copies the regenerated mixed source's functional-plan hash, so its
+  base reader outcome stays the named refusal.
+

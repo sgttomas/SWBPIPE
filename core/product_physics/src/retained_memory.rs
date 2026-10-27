@@ -814,10 +814,10 @@ fn census_complete_part(f: &DomainFacts<'_>) -> Result<(), AdmissionRefusal> {
 /// `PressureContract`, as any other contract outside L and E.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum NamespaceBranch {
-    /// L, the pressure-free preview route: a current-version (0.7.0) document that carries no
+    /// L, the pressure-free preview route: a current-version (0.8.0) document that carries no
     /// pressure contract (`model_format::is_pressure_free`). The contract's absence selects it.
     Preview,
-    /// E (B3b; B7b D4 (a); O4): a current-version (0.7.0) document declaring the exact
+    /// E (B3b; B7b D4 (a); O4): a current-version (0.8.0) document declaring the exact
     /// `3.0.0/exact_pressure_v3` contract with `shear_model` `euler_bernoulli` or
     /// `timoshenko_annulus_energy_v1`. Its own D1.4 and D1.5 clauses apply (B3-D §4.2).
     Exact,
@@ -881,8 +881,8 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     let refuse = |clause, fact| Err(AdmissionRefusal::Family(clause, fact));
     let m = &request.model;
     // D1.3: the namespace branch, decided once from (schema, contract) (B3-D §4.1–§4.3):
-    // branch L, a pressure-free 0.7.0 document (no pressure contract); or branch E (B3b; B7b
-    // D4 (a); O4 §4.1), 0.7.0 with exactly `{version "3.0.0", mode "exact_pressure_v3",
+    // branch L, a pressure-free 0.8.0 document (no pressure contract); or branch E (B3b; B7b
+    // D4 (a); O4 §4.1), 0.8.0 with exactly `{version "3.0.0", mode "exact_pressure_v3",
     // shear_model "euler_bernoulli" | "timoshenko_annulus_energy_v1"}` (the
     // load/reference-state group stays out). A retired schema refuses
     // with `SchemaVersion`, any other contract with `PressureContract`. Then, on every branch, no sections (S-4).
@@ -1242,7 +1242,7 @@ static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
     // previous registration. The one registered entry supplies G0; its genuine profile, input,
     // witness and resource checks still govern.
     identity: "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0",
-    reviewed_inputs: "v1;Cargo.lock=e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11;../../schemas/physics_source_recovery.schema.json=6bfa5ec9f0a7a4213c17ab3c1cbaef0780d0cec303ae3a950a407f0ba0f28c7a;../../schemas/retained_precision_mp_v2.schema.json=73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa;../../fixtures/results/retained_precision_prepared_ordinary_v1.json=a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08;../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json=7d59a8e7fa7b3b997d3809bd90b7efbdda6c91ad46c0fbe31420f11dc4350520;../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json=5a6630d9157ad1f4232c558d0cd57414677add8d1c95cc0a5d19a2579fb3a05b;../../fixtures/results/retained_precision_prepared_combination_v1.json=fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2;../../fixtures/results/retained_precision_prepared_exact_v1.json=8f1f308092121cfe56e08199703c681ba74fd7d6d359d4eafed05d86ef8645a4;../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json=d6d86dfc418978257d1d3370684e879ba9711465ceba1de72729eb48bb12ad3c;../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json=b5a4b0e585b9ec440d36144860baaf101b628498cfdab9a1de9248c2ed5069e7;../../schemas/results_pressure_2.v0.3.schema.json=c35353167313f227fd90a5ef2332a80ff05f3f6dc15e1da9c0396eff90cd1779;../../fixtures/results/semantic_contract_v0_3_pressure_2.json=3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d",
+    reviewed_inputs: "v1;Cargo.lock=e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11;../../schemas/physics_source_recovery.schema.json=6bfa5ec9f0a7a4213c17ab3c1cbaef0780d0cec303ae3a950a407f0ba0f28c7a;../../schemas/retained_precision_mp_v2.schema.json=73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa;../../fixtures/results/retained_precision_prepared_ordinary_v1.json=a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08;../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json=7d59a8e7fa7b3b997d3809bd90b7efbdda6c91ad46c0fbe31420f11dc4350520;../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json=5a6630d9157ad1f4232c558d0cd57414677add8d1c95cc0a5d19a2579fb3a05b;../../fixtures/results/retained_precision_prepared_combination_v1.json=fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2;../../fixtures/results/retained_precision_prepared_exact_v1.json=c7bcf0ceb82372fbf5f9958446ffe3f9c1ca3eb2384c47663514d21f89a885bb;../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json=cb68467ede05cf7aeedca8951f4d8e2ba242ceb9a3efad7b93255be35df244ab;../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json=609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c;../../schemas/results_pressure_2.v0.3.schema.json=c35353167313f227fd90a5ef2332a80ff05f3f6dc15e1da9c0396eff90cd1779;../../fixtures/results/semantic_contract_v0_3_pressure_2.json=a47626ed51791f984fbc07630732a046f8090ff645efdb56e73a284110e9c80c",
     reader_layouts: [
         TypeLayout { size: 56, align: 8 },
         TypeLayout { size: 64, align: 8 },

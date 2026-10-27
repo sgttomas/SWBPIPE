@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { invokeWithIngress } from "./nativeIngress";
-import { MODEL_SCHEMA_VERSION, RETIRED_MODEL_SCHEMA_VERSIONS } from "./modelSchemaVersion";
+import { MODEL_SCHEMA_VERSION, RETIRED_MODEL_SCHEMA_VERSIONS, RETIRED_PROJECT_RUNS_NOTE } from "./modelSchemaVersion";
 import { loadWasmEngine } from "./wasmEngine/loadWasmEngine";
 import { modelDocumentSlotValidation, projectUnitsShapeRefusal } from "../features/model-file/modelDocumentShape";
 import type {
@@ -142,8 +142,10 @@ export function modelDocumentVersionCheckDiagnostic(
 function requireEditableModelDocument(model: PreviewModel): ModelDocumentVersionStatus {
   const status = evaluateModelDocumentLocal(model);
   if (status.status !== "current") {
+    // A retired project: what it means for its recorded runs (MD8 §3.3, ruling a2).
+    const note = status.status === "retired_schema" ? ` ${RETIRED_PROJECT_RUNS_NOTE}` : "";
     throw new Error(
-      `Model document refused for editing: status=${status.status}; source_schema_version=${status.source_schema_version}; target_schema_version=${status.target_schema_version}; ${status.detail}`
+      `Model document refused for editing: status=${status.status}; source_schema_version=${status.source_schema_version}; target_schema_version=${status.target_schema_version}; ${status.detail}${note}`
     );
   }
   refuseMalformedModelSlots(model);

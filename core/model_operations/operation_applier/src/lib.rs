@@ -9565,7 +9565,7 @@ mod tests {
 
     fn sample_model() -> Value {
         json!({
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": { "id": "project:test", "name": "Test", "units": { "length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "temperature": "degC" } },
             "materials": [
@@ -14127,7 +14127,7 @@ mod tests {
         let outcome = apply_operation(&model, &expansion_joint_intent(&not_annotation), None);
         assert_eq!(codes(&outcome), vec!["OP-CREATE-EXPANSION-JOINT-ANNOTATION-ONLY"]);
         // B7a: the contract's absence selects the annotation, not the version string. A
-        // 0.7.0 document that declares a contract, and a retired 0.1.0/0.2.0 document,
+        // 0.8.0 document that declares a contract, and a retired 0.1.0/0.2.0 document,
         // take neither form.
         let mut with_contract = model.clone();
         with_contract["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3"});
@@ -14144,7 +14144,7 @@ mod tests {
     /// A v3 document: the objective connector for the replaced span between
     /// its end nodes.
     fn v3_model() -> Value {
-        // B7b: the current 0.7.0 exact document (sample_model is already 0.7.0).
+        // B7b: the current 0.8.0 exact document (sample_model is already 0.8.0).
         let mut model = sample_model();
         model["pressure_contract"] =
             json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});

@@ -1,7 +1,7 @@
 {
   "description": "Invented desktop model-document shape cases (DEL-15-01 W-6a). One schema-valid base document and, per case, edits applied to a copy of it in memory (each edit sets `value` at `path`, or removes the member when `remove` is true; `replace` stands in for the whole document). Read by src-tauri/src/model_document_shape.rs and the webview tests (src/test/shapeCorpus.ts) so the native and webview shape verdicts stay equal. Expected findings are written by hand; findings compare as sets. Not engineering data.",
   "base": {
-    "schema_version": "0.7.0",
+    "schema_version": "0.8.0",
     "document_kind": "openpipestress.product_preview.model",
     "data_boundary": {
       "classification": "invented_public_example"
