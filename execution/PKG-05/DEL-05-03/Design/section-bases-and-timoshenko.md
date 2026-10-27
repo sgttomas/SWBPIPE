@@ -1,6 +1,6 @@
 # T4-U6 and T4-U8: section bases and the Timoshenko straight member
 
-This is the technical design for the first post-T3 shared epoch (b7-plan, "After B7b", item 1). It applies the rulings in [section-and-shear-decisions.md](section-and-shear-decisions.md) and changes nothing they decide. Pressure-free documents (no `pressure_contract`) keep their single basis, their Euler–Bernoulli frame and their bytes (H-1).
+This is the technical design for the first post-T3 shared epoch (b7-plan, "After B7b", item 1). It applies the rulings in [section-and-shear-decisions.md](section-and-shear-decisions.md) and changes nothing they decide. Pressure-free documents (no `pressure_contract`) keep their single basis and their bytes (H-1); their straight members are Euler–Bernoulli unless `model_settings.shear_model` selects Timoshenko ([pf-timoshenko.md](pf-timoshenko.md)).
 
 Since the T4-U4b/U5b epoch (DEL-04-07 Design `u4b-u5b-implementation.md`), model 0.6.0 is current, the exact identity named `pressure-1` here is `pressure-2` (schema `results_pressure_2.v0.3.schema.json`, verifier `tests/verifiers/pressure_2.py`), and realized arcs publish per basis the toroidal hoop and radial rows and the arc maximum in place of §2.1's withholding. The sections below record T4-U6 and T4-U8 as built.
 

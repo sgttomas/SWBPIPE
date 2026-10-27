@@ -1,6 +1,6 @@
 # Opt-in Timoshenko straight members on the pressure-free route
 
-**Status: approved to build after Codex round 2 (Agent 0, 2026-10-27), with the rulings recorded below; not built.** The owner's steer of 2026-10-27 (#1662) asks for an app "on par with or considered superior to CAEPIPE and other industry standard applications... in terms of the modelling characteristics". Agent 0 adopted this unit under it: an explicit, opt-in choice of transverse shear deformation for straight members on the pressure-free (PF) route. The default stays Euler–Bernoulli, and every existing document, result, table hash and recorded run stays byte-identical. The unit reuses the exact route's Timoshenko element and shear-factor definition (D-6, [section-bases-and-timoshenko.md](section-bases-and-timoshenko.md) §3). Here, "the exact route" means documents with `pressure_contract`, and "PF" means documents without it. Codex rounds 1 (`b272696f71`), 2 (`6f2fcf675e`), 3 (`9be7209fa4`) and 4 (`1f1a2ab30c`) reviewed earlier drafts; this text answers their findings.
+**Status: approved to build after Codex round 2 (Agent 0, 2026-10-27), with the rulings recorded below; built in #1663 (product, readers, desktop and report on the merged halves), under review.** The owner's steer of 2026-10-27 (#1662) asks for an app "on par with or considered superior to CAEPIPE and other industry standard applications... in terms of the modelling characteristics". Agent 0 adopted this unit under it: an explicit, opt-in choice of transverse shear deformation for straight members on the pressure-free (PF) route. The default stays Euler–Bernoulli, and every existing document, result, table hash and recorded run stays byte-identical. The unit reuses the exact route's Timoshenko element and shear-factor definition (D-6, [section-bases-and-timoshenko.md](section-bases-and-timoshenko.md) §3). Here, "the exact route" means documents with `pressure_contract`, and "PF" means documents without it. Codex rounds 1 (`b272696f71`), 2 (`6f2fcf675e`), 3 (`9be7209fa4`) and 4 (`1f1a2ab30c`) reviewed earlier drafts; this text answers their findings.
 
 The CAEPIPE correlation pilot (DEL-17-05 Design `caepipe-correlation-pilot.md` §7) classified the SWBPIPE–CAEPIPE differences in seven of its eight cases as shear-deformation differences (`dd-shear-deformation`). Only hand calculations are public. CAEPIPE's shear factor for steel pipe is not established (CQ-17-01-010 is open). This unit gives PF the same element and factor definition as the exact route; it does not adopt CAEPIPE's factor.
 
@@ -34,8 +34,8 @@ The CAEPIPE correlation pilot (DEL-17-05 Design `caepipe-correlation-pilot.md` �
         - Each consumed basis's rebuild (~3160) forms its Timoshenko members on its own moduli. Its factor failures and ν warnings are local to that basis and are emitted only for the cases that select it.
         - No solved member ever takes a fallback factor or an Euler–Bernoulli leaf in place of a failed Timoshenko one.
       - Regressions cover a named-point selection and an interpolated selection with an out-of-range base ν, both with a nonlinear support; a document whose cases consume both the base and a selected basis; and an out-of-range selected ν, which is blocked by name.
-    - An authored `poisson_ratio`, which is optional on PF materials, is not consumed. If it is present and |ν_a − ν_d| > 1e-6·max(|ν_a|, |ν_d|), with ν_a authored and ν_d derived, the result carries a warning diagnostic, `PF_TIMOSHENKO_AUTHORED_POISSON_RATIO_NOT_USED`, naming the material, both values and the case basis. Two zeros, or two equal values, give no warning. The threshold is for disclosure only, separate from numerical tolerances. Its purpose matches the exact route's warning for its unused G, which is unconditional (`pressure_material.rs` ~84); the trigger differs. Euler–Bernoulli documents emit nothing new.
-    - A derived ν for which `annulus_energy_shear_factor` or `shear_area` refuses (not finite, or out of the factor's range) blocks the solve by name, as on the exact route. There is no default factor.
+    - An authored `poisson_ratio`, which is optional on PF materials, is not consumed. If the material's own `poisson_ratio` is present and |ν_a − ν_d| > 1e-6·max(|ν_a|, |ν_d|), with ν_a authored and ν_d derived, the result carries a warning diagnostic, `PF_TIMOSHENKO_AUTHORED_POISSON_RATIO_NOT_USED`, naming the material, both values and the case basis, once per material and basis. A temperature point's `poisson_ratio` is not compared (§8). Two zeros, or two equal values, give no warning. The threshold is for disclosure only, separate from numerical tolerances. Its purpose matches the exact route's warning for its unused G, which is unconditional (`pressure_material.rs` ~84); the trigger differs. Euler–Bernoulli documents emit nothing new.
+    - A derived ν for which `annulus_energy_shear_factor` or `shear_area` refuses (not finite, or out of the factor's range −1 < ν < 1/2) blocks the solve by name, `PF_TIMOSHENKO_SHEAR_FACTOR_UNAVAILABLE`, naming the member, the case basis and the factor's refusal, as on the exact route. There is no default factor.
 - **Load equivalents** (§3.4 there):
   - Full-span uniform loads (authored, self-weight and contents) keep the Euler–Bernoulli vector, which is identical for a prismatic member.
   - Thermal and fit eigenstrains, nodal loads, springs and prescribed motions are unchanged.
@@ -70,7 +70,7 @@ Changing the preview-physics-2 table would move its hash. Every recorded run bou
   - a new results profile, `product_preview_mechanics_timoshenko_v1`, whose schema `const` is that text.
 
   The table is derived mechanically from preview-physics-2 by `semantic_contract_tables.py` (a new `derive` step with `--check`), never hand-copied.
-- **Named arc disclosure** (Agent 0's condition: "never silent"). The identity's limitation text states the rule. In addition, a Timoshenko PF result that contains realized arcs carries one nonblocking `Diagnostic` in `MechanicsEnvelope.diagnostics` (`lib.rs` ~1111, ~2436), with code `PF_TIMOSHENKO_REALIZED_ARCS_EULER_BERNOULLI`.
+- **Named arc disclosure** (Agent 0's condition: "never silent"). The identity's limitation text states the rule. In addition, a Timoshenko PF result that contains realized arcs carries one nonblocking `Diagnostic` of severity `info` in `MechanicsEnvelope.diagnostics` (`lib.rs` ~1111, ~2436), with code `PF_TIMOSHENKO_REALIZED_ARCS_EULER_BERNOULLI`.
   - **Emission.** Once per result, model-wide.
   - **References.** The diagnostic's entity references are the realized-arc members.
   - **Message.** It gives the counts: n straight members with shear deformation, k realized arcs without. It names the arc ids in ascending code-point order, up to 32 ids, then "and N more". The whole message is bounded to 1,000 Unicode scalar values, the report renderer's evidence threshold (`report_renderer/src/lib.rs` ~1337). Ids beyond the bound are counted, never dropped silently.
@@ -161,7 +161,7 @@ Changing the preview-physics-2 table would move its hash. Every recorded run bou
 - **Refusals and warnings by name**, each with a test:
   - the interim refusal (its test becomes the admission test);
   - `PF_TIMOSHENKO_PARTIAL_SPAN_UNSUPPORTED`;
-  - the factor-range block;
+  - the factor-range block, `PF_TIMOSHENKO_SHEAR_FACTOR_UNAVAILABLE`;
   - `PF_TIMOSHENKO_AUTHORED_POISSON_RATIO_NOT_USED`;
   - the D1 decline (ordinary route, unchanged result);
   - `MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT`;
@@ -201,7 +201,7 @@ Changing the preview-physics-2 table would move its hash. Every recorded run bou
   - new: "Pressure-free documents keep their single section; their straight members are Euler–Bernoulli unless the document's `model_settings.shear_model` selects `timoshenko_annulus_energy_v1`, the same element and shear-factor definition with Poisson's ratio E/(2G) − 1, and their realized arcs are Euler–Bernoulli."
 
   DEL-04-01 ScopeOfWork ("per document … (D-6)"), DEL-05-05 ScopeOfWork:51 and DEL-04-08 ScopeOfWork:103 stay true as written. The PRD's FR-SOL-003 is neutral on beam theory.
-- **Design and description text, updated in the build PR:**
+- **Design and description text, updated in the build PR (#1663):**
   - `section-and-shear-decisions.md` §D-6 (a PF paragraph pointing here);
   - `section-bases-and-timoshenko.md` line 3;
   - DEL-04-07 `deliverable.yaml`'s kernel line;
@@ -211,6 +211,7 @@ Changing the preview-physics-2 table would move its hash. Every recorded run bou
 ## 8. Open
 
 - A per-member PF evidence record (case basis, ν, κ_E, A_s) that would let readers re-derive the factor.
+- Disclosure of a temperature point's authored `poisson_ratio`. The warning compares only the material's own `poisson_ratio`; a point-level value that differs from that point's E/(2G) − 1 is not used and not disclosed.
 - **The partial-span slice.** S11-G and K-D5 for Timoshenko partial spans, beside the exact-route partial-span item (one formation check). The solver lane's exact-route build (branch `claude/piping-w16t-timoshenko-partial-wind-20261027`, its design §2) adds two checks this slice can call unchanged once PF has Timoshenko members:
   - **TPS-G**, an S11-G guard. It holds the element's own binary64 L, T, φ_y and φ_z, interprets them exactly, and multiplies the defect by D = (1+φ_y)(1+φ_z), so that it is exactly computable.
     - The correction is ΔV₀ = φ/(1+φ)·(wL/2)·[g(a) − g(b)], with g(ξ) = ξ²(1−ξ)² and pattern [1, L/2, −1, L/2].

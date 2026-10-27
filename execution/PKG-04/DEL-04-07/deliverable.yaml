@@ -35,7 +35,9 @@ needs:
 - from: DEL-04-01
   condition: >-
     DEL-04-07 assembles and solves through DEL-04-01's kernel: frame elements (Euler-Bernoulli, or per
-    document since T4-U8 the Timoshenko `FrameSection` with `shear::annulus_energy_shear_factor`), the
+    document the Timoshenko `FrameSection` with `shear::annulus_energy_shear_factor`: on the exact route since
+    T4-U8, and on pressure-free straight members by `model_settings.shear_model` (DEL-05-03 Design
+    `pf-timoshenko.md`)), the
     objective connector element, the curved-bend element (`curved_bend`), the load ledger, K1's sparse
     representation and M03 gate, the in-repo sparse skyline solver (`sparse_direct`; sparse interactive by
     default under DEC-053) and the dense scrutiny path. Frame assembly and linear solving remain DEL-04-01's
