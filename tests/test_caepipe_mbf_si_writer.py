@@ -30,7 +30,7 @@ def q(value, unit):
 
 def model_shell(length_unit="m"):
     return {
-        "schema_version": "0.7.0",
+        "schema_version": "0.8.0",
         "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "invented", "rule_check": "not_performed", "professional_acceptance": "not_provided"},
         "project": {"id": "invented:mbf-si", "units": {"length": length_unit, "force": "N", "temperature": "degC"}},

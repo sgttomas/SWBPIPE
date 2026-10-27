@@ -52,7 +52,8 @@ READER_TOKEN_SITES = {
 # names the current version once, as a module-level `MODEL_VERSION` definition that every
 # gate and message reads; any other literal holding the current version, or naming a
 # model version in words, is refused. Docstrings and comments are free text.
-PYTHON_VERSION_ROOTS = (ROOT / "tests" / "verifiers", ROOT / "tools" / "validation", ROOT / "tools" / "fixtures")
+PYTHON_VERSION_ROOTS = (ROOT / "tests" / "verifiers", ROOT / "tools" / "validation", ROOT / "tools" / "fixtures",
+                        ROOT / "core" / "handoff")
 
 MODEL_WORDS = re.compile(r"(?i)\bmodel(?:[ _-]?(?:document|format|version|schema))*\s+v?0\.\d+\.\d+")
 VERSION = re.compile(r"^0\.\d+\.\d+$")

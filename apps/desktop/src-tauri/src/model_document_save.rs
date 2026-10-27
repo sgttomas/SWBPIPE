@@ -975,7 +975,7 @@ mod tests {
                 saved += 1;
             }
         }
-        assert_eq!(saved, 34);
+        assert_eq!(saved, 36); // 0.8.0 adds a reducer's eccentric offset to each golden
         fs::remove_dir_all(root).unwrap();
     }
 

@@ -1,7 +1,7 @@
 """SI CAEPIPE MBF text writer for the pilot subset (DEL-17-04).
 
 `render_caepipe_mbf_si` turns the SWBPIPE headless preview model (the
-`solve.preview_model.model` object, model document 0.7.0) into MBF text in the
+`solve.preview_model.model` object, the current model document) into MBF text in the
 SI unit set (mm, N, N*m, MPa, C), following the public CAEPIPE User's Manual
 appendix "Import MBF". Only a narrow pilot subset is written; everything else
 is refused by name and listed in the loss report, never silently dropped.
@@ -27,6 +27,8 @@ MBF_SI_PROFILE_ID = "caepipe-mbf-si-pilot-1"
 STANDARD_GRAVITY = 9.80665  # m/s^2; converts SWBPIPE weight per length to CAEPIPE weight density only.
 
 MBF_VERSION = "15.10"
+# The model document version this writer reads (DEL-02-01 Design model-document-0.8.0.md).
+MODEL_VERSION = "0.8.0"
 SUSTAINED_LABEL = "Sustained (W+P)"
 EXPANSION_LABEL = "Expansion (T1)"
 DOFS = ("UX", "UY", "UZ", "RX", "RY", "RZ")
@@ -235,9 +237,9 @@ class _Writer:
 
     def check_document(self) -> None:
         version = self.model.get("schema_version")
-        if version != "0.7.0":
+        if version != MODEL_VERSION:
             self.diag("MBF-SI-SCHEMA-VERSION", "warning", "model.schema_version",
-                      f"model schema_version {version!r} is not 0.7.0, the version this writer reads")
+                      f"model schema_version {version!r} is not {MODEL_VERSION}, the version this writer reads")
         if self.model.get("pressure_contract") is not None:
             self.refuse("MBF-SI-PRESSURE-UNSUPPORTED", "model.pressure_contract",
                         "pressure_contract is present; pressure is not exported by the pilot writer")

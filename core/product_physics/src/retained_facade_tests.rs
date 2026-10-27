@@ -2519,7 +2519,7 @@ fn b3b_witness_inputs_and_routes() {
     // (v3, Euler-Bernoulli, zero corrosion allowance); `m3l` is a refusal
     // control in its retired form and keeps its pin.
     assert_eq!(value_sha(&m3x()), "3acbea852d1333419abfb09b65c7f581b7c41e0a61151b45d523e7c1b30f149d", "m3x");
-    assert_eq!(value_sha(&m3x_mix_anchor()), "343a4055ea77160dcd47d164b07b1cf4ad9679e8a61b161b60d8c968a7f60581", "m3x_mix_anchor");
+    assert_eq!(value_sha(&m3x_mix_anchor()), "1b8e7769109f18ab394b327f5add6efae32aed4728444486c3847789a4b6d10d", "m3x_mix_anchor");
     assert_eq!(value_sha(&m3l()), "2f5ff465bfa97005a581d88e02c0a5478ea24da3bdc1c2eb9fcda491803fc0c3", "m3l");
     for (name, text, file_sha) in [("n05", N05_EXACT, "b19f05c4e18b26ab7fa9deb185f35178ee665d410821a70fbd30b52225d05a93"),
         ("n06", N06_EXACT, "f0e76211c0d0f40ae339b92f30a2f58e4152c6a75ae0e74a5210ebb1e77904bc"),
@@ -2589,7 +2589,7 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
 /// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] and the hashes that bind
 /// it moved (with the old text these pins reproduce); read from this test's writer line.
 // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation (identity bytes only).
-const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "0b91396b23ddbd50daf548505f57e5f857230998194b0665c9935d49d5b9abd5", "34f9d6f449f9ea353524fdf89ff51e2bd63d1aefe87417bbaebcb39a2e41189d"),("dense_scrutiny", "d1fc7e8518999d9cac74299ad7b78accc9e18e8ac9eb374957f814e8ae02a1d3", "8cdcfcfafb501d947ae11dd92c846cd05e33024a5657fd139b387280de50917d")];
+const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "0b91396b23ddbd50daf548505f57e5f857230998194b0665c9935d49d5b9abd5", "34f9d6f449f9ea353524fdf89ff51e2bd63d1aefe87417bbaebcb39a2e41189d"),("dense_scrutiny", "7e91dbee2c9583903383f6b2feb991cf54d71ae060b41abb053d29f2ab441ebf", "0f3a4e4348e02a9c1971bafbeced0414cc0f1a615f8b79dd281298fe8fb40ef6")];
 /// The exact successor's fixture document (D-U6-5's form).
 fn exact_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
     serde_json::to_string_pretty(&json!({"id":format!("b3b_m3x_{}", mode.as_str()),"source":successor,
@@ -3623,9 +3623,9 @@ fn two_member_exact(reversed: bool) -> Value {
 // W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation (identity bytes only).
 const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
     (false, "sparse_interactive", "5e3f544e3a4751d334d448f2a0e714371e218f3f3b29d19a84ae6a272e324705"),
-    (false, "dense_scrutiny", "3ff2dc2072b8bd3de7a768ce1f1ef0221df234360b6f6fc87da5917b7f2052c3"),
-    (true, "sparse_interactive", "501a97bfdb1ccb09869e71b1f5131d074a158f4ccccd1c526c73229127f19aee"),
-    (true, "dense_scrutiny", "fb85996717410da76f0ae7e0f2271525fbbd80a8c802d3c4b78b1a359e92b802")];
+    (false, "dense_scrutiny", "8424ea218c80b29cc6f5540cb00e24b791b73b77d76334906eb1bb032f8f9fdb"),
+    (true, "sparse_interactive", "63e039c418923e52c880739fd29c3ab30d1c36d99e3551a236f322aea372faa6"),
+    (true, "dense_scrutiny", "b804f15af4fa178acb6ae9f1bd6c3388654cd92d7e31c6f2716854f2de5cc00b")];
 /// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
 /// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
 /// and M2's prepared section differs from its source annulus's in at least one value, so the
@@ -3674,7 +3674,7 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
 /// it moved (with the old text these pins reproduce); read from this test's writer line.
 // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation (identity bytes only).
 const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "6c509ff3b198310b09f33eacbb80d2eda6c84a94749e449554f3866631e37c35"),
-    ("dense_scrutiny", "b63f38b7dff8e01cef9bce67bd06c9dd99b251668e3bf27245afb7c028610152")];
+    ("dense_scrutiny", "df976f4d3fc433c37413af4ea5d2569c500cabf4caae2bcd72194aa08aa2d4d9")];
 /// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
 /// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
 /// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),
@@ -4394,12 +4394,12 @@ const B2P_PINNED: [(&str, &str, &str, &str); 20] = [
         "54080b93c1bb9ee77afe269afb7e0b4a35c540801a6a6036fb170e974e1ccb01"),
     ("rv123_w_cb3_ba", "sparse_interactive", "f454408adeb23b724378bff493a7d9a9662934d0e69e2719150173d4a8e5c23e",
         "2812d49290854cefb987ee433bfd42ad61086054583ed1c6f442da0e52720726"),
-    ("rv123_w_cb3_ba", "dense_scrutiny", "3b160863145c0600e366f56a17e9ca3ab66c96706ffb49ba85079b4d2740ca1d",
-        "38d5a947a53672aba0b45cdf1bc7c6934716fe2f9e234aad485991eb91ff3316"),
-    ("rv123_c1_two_mechanics", "sparse_interactive", "35a45cfc8bec0867d48abd7b867438a818b93296cb02ccfdef9e2b7473a4b9a7",
-        "25e15da731e655505df8a5f58f30d2bfa0b0d2b1bc8d7abd801ff08f2fe8fa37"),
-    ("rv123_c1_two_mechanics", "dense_scrutiny", "e5be45c533441a7699d8ff9b0230e72d26dd7cd6170b81c65764baa2687c4201",
-        "f4480eaacebb13fba68e1569ed46757f62772ae64f07201c8f7cbdaa92b3806d"),
+    ("rv123_w_cb3_ba", "dense_scrutiny", "6d05c040d9634b399069db5e3b7dbde78edb74a2c457ca5bfb09b117b30628f3",
+        "416d9ab7c7d3e3ac60bb1274fffe24613e7cda20d465bd27fda19e69589a9797"),
+    ("rv123_c1_two_mechanics", "sparse_interactive", "388030ba27eac0d3ea21f4af3b61322622b948f32957640bd6fa61f8fbd14772",
+        "2ec1675b393dbb09c60a9c1096cc51ae98baa1b7dbf33c9c42710f7cccae4496"),
+    ("rv123_c1_two_mechanics", "dense_scrutiny", "aded8e4de0455ed4f73dc31bb371cce0d2fd56091e5c6407d9c19431ec0b2e40",
+        "1f4d27246eee1b92495357f573f3ceca15327f500e8809da666e05689b15f3de"),
 ];
 /// B2-P's small witnesses: (name, request).
 fn b2p_witnesses() -> Vec<(&'static str, Value)> {
