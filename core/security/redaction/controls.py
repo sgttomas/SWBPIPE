@@ -214,6 +214,23 @@ def assert_user_release_intent_context(
         )
 
 
+def _assert_redaction_walk_context(export_context: Any) -> None:
+    """Refuse ``user_released_report`` outright, in every call and before any walk
+    (§3.2), as the generic route exporter does.
+
+    The walk decides a value-bearing object as a whole and keeps an unlabelled
+    value, so in that context it would admit what the user-release screen refuses
+    (a marker or a non-project private class on a descendant of a labelled
+    object).  ``classify_export_item`` decides one item by the rule.
+    """
+
+    if export_context == USER_RELEASED_REPORT_CONTEXT:
+        raise ValueError(
+            "USER_RELEASE_ROUTE_REQUIRED: the redaction walk does not admit the "
+            f"{USER_RELEASED_REPORT_CONTEXT} context; only the user-release projector does"
+        )
+
+
 def redact_export_payload(
     payload: Any,
     *,
@@ -231,6 +248,7 @@ def redact_export_payload(
     if export_context not in EXPORT_CONTEXTS:
         raise ValueError(f"unsupported export_context: {export_context}")
     assert_user_release_intent_context(export_context, explicit_user_release_intent)
+    _assert_redaction_walk_context(export_context)
 
     decisions: list[RedactionDecision] = []
     findings: list[RedactionFinding] = []
@@ -239,7 +257,6 @@ def redact_export_payload(
         path="$",
         export_context=export_context,
         explicit_local_private_intent=explicit_local_private_intent,
-        explicit_user_release_intent=explicit_user_release_intent is True,
         decisions=decisions,
         findings=findings,
     )
@@ -279,10 +296,11 @@ def _walk(
     path: str,
     export_context: str,
     explicit_local_private_intent: bool,
-    explicit_user_release_intent: bool,
     decisions: list[RedactionDecision],
     findings: list[RedactionFinding],
 ) -> Any:
+    # The walk serves the five existing contexts only; ``redact_export_payload``
+    # refuses ``user_released_report`` before it is reached (§3.2).
     if isinstance(value, dict):
         if _is_value_bearing(value):
             decision, finding = _classify(
@@ -290,7 +308,7 @@ def _walk(
                 path=path,
                 export_context=export_context,
                 explicit_local_private_intent=explicit_local_private_intent,
-                explicit_user_release_intent=explicit_user_release_intent,
+                explicit_user_release_intent=False,
                 decision_index=len(decisions) + 1,
                 finding_index=len(findings) + 1,
             )
@@ -306,7 +324,6 @@ def _walk(
                 path=f"{path}.{key}",
                 export_context=export_context,
                 explicit_local_private_intent=explicit_local_private_intent,
-                explicit_user_release_intent=explicit_user_release_intent,
                 decisions=decisions,
                 findings=findings,
             )
@@ -322,33 +339,12 @@ def _walk(
                 path=f"{path}[{index}]",
                 export_context=export_context,
                 explicit_local_private_intent=explicit_local_private_intent,
-                explicit_user_release_intent=explicit_user_release_intent,
                 decisions=decisions,
                 findings=findings,
             )
             if child is not OMITTED_SENTINEL:
                 output_list.append(child)
         return output_list
-
-    # §3.2 step 13 in ``user_released_report`` only: a value the walk reaches
-    # outside every value-bearing object states no metadata, so it is decided as
-    # an item that states nothing (``block_export`` / ``USER_RELEASE_VALUE_UNBOUND``)
-    # and its value is redacted.  It is never left undecided there.  The five
-    # existing contexts keep the value as today.
-    if export_context == USER_RELEASED_REPORT_CONTEXT:
-        decision, finding = _classify(
-            {},
-            path=path,
-            export_context=export_context,
-            explicit_local_private_intent=explicit_local_private_intent,
-            explicit_user_release_intent=explicit_user_release_intent,
-            decision_index=len(decisions) + 1,
-            finding_index=len(findings) + 1,
-        )
-        decisions.append(decision)
-        if finding is not None:
-            findings.append(finding)
-        return REDACTED_VALUE
 
     return value
 

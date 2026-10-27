@@ -51,6 +51,55 @@ const corpus = JSON.parse(readFileSync(corpusPath, "utf8")) as {
   cases: ParityCase[];
 };
 
+/** The new context, passed past the walk's type the way a caller outside the type system could. */
+const WALK_RELEASED_CONTEXT = USER_RELEASED_REPORT_CONTEXT as unknown as RedactionExportContext;
+const WALK_REFUSAL = /^USER_RELEASE_ROUTE_REQUIRED: the redaction walk does not admit the user_released_report context/;
+
+/** The two new-context corpus items that state no privacy at all. The item rule decides them by
+ * step 13 (`USER_RELEASE_VALUE_UNBOUND`); on the user-release projector an object that states no
+ * privacy passes its leaves the default label, `private_project_data` / `private_only` (§3.2), so
+ * with the wrapper's intent they carry `USER_RELEASED_PROJECT_DATA`. */
+const PROJECTOR_DEFAULT_LABEL_CASES = new Set(["user-released-missing-metadata-blocked", "user-released-storage-metadata-only-unbound"]);
+
+/** A new-context corpus case on the user-release projector, as `{ item }` with an empty model:
+ * its first finding is the case's (the object's own steps 1-9 decision, else each leaf's under
+ * the item's label), every finding lies at or beneath the item, and the lossless route admits
+ * the request only for an include or a warning with the wrapper's intent. */
+function expectUserReleaseCorpusFindingOnProjector(parityCase: ParityCase): void {
+  const intent = parityCase.explicit_user_release_intent === true;
+  expect(() =>
+    redactExportPayload(
+      { item: parityCase.item },
+      { exportContext: WALK_RELEASED_CONTEXT, explicitUserReleaseIntent: intent }
+    )
+  ).toThrowError(WALK_REFUSAL);
+  const projected = controlUserReleasedReportPackageRequest({ item: parityCase.item }, {}, intent);
+  const defaultLabel = PROJECTOR_DEFAULT_LABEL_CASES.has(parityCase.case_id);
+  const expected: Pick<ParityCase["expected"], "action" | "reason_code" | "finding"> = defaultLabel
+    ? {
+        action: "warning_only",
+        reason_code: "USER_RELEASED_PROJECT_DATA",
+        finding: { class: "PRIVATE_DATA_WARNING", severity: "WARNING" }
+      }
+    : parityCase.expected;
+  if (defaultLabel) {
+    expect(intent, parityCase.case_id).toBe(true);
+    expect(projected.findings.every((finding) => finding.code === "USER_RELEASED_PROJECT_DATA"), parityCase.case_id).toBe(true);
+  }
+  expect(projected.findings.every((finding) => finding.path === "$.request.item" || finding.path.startsWith("$.request.item.")), parityCase.case_id).toBe(true);
+  if (expected.finding === null) {
+    expect(projected.findings, parityCase.case_id).toHaveLength(0);
+  } else {
+    expect(projected.findings.length, parityCase.case_id).toBeGreaterThan(0);
+    expect(projected.findings[0].code, parityCase.case_id).toBe(expected.reason_code);
+    expect(projected.findings[0].class, parityCase.case_id).toBe(expected.finding.class);
+    expect(projected.findings[0].severity, parityCase.case_id).toBe(expected.finding.severity);
+  }
+  const admitted = (expected.action === "include" || expected.action === "warning_only") && intent;
+  expect(projected.blocked, parityCase.case_id).toBe(!admitted);
+  expect(projected.payload, parityCase.case_id).toEqual(admitted ? { item: parityCase.item } : null);
+}
+
 describe("redactionExportControls parity with the core python contract", () => {
   it("loads the shared DEL-12-02 corpus", () => {
     expect(corpus.deliverable_id).toBe("DEL-12-02");
@@ -70,6 +119,12 @@ describe("redactionExportControls parity with the core python contract", () => {
       expect(decision.reason_code).toBe(parityCase.expected.reason_code);
       expect(decision.source_metadata_present).toBe(parityCase.expected.source_metadata_present);
 
+      if (parityCase.export_context === USER_RELEASED_REPORT_CONTEXT) {
+        // The redaction walk refuses the context (§3.2); the case's finding is checked on the
+        // user-release projector, the only payload entry for it.
+        expectUserReleaseCorpusFindingOnProjector(parityCase);
+        return;
+      }
       const run = redactExportPayload(
         { item: parityCase.item },
         {
@@ -729,13 +784,14 @@ describe("user-released context: owner property 1, the flag cannot leak private 
       item: privateItem({ ...carried, export_policy: { ...carried } }),
       nested: { deeper: [{ item: privateItem(carried) }] }
     };
-    const run = redactExportPayload(itemsPayload, {
-      exportContext: USER_RELEASED_REPORT_CONTEXT,
-      explicitLocalPrivateIntent: true
-    });
-    expect(run.blocked).toBe(true);
-    expect(run.decisions).toHaveLength(2);
-    expect(run.decisions.every((decision) => decision.reason_code === "USER_RELEASE_INTENT_REQUIRED")).toBe(true);
+    expect(() =>
+      redactExportPayload(itemsPayload, { exportContext: WALK_RELEASED_CONTEXT, explicitLocalPrivateIntent: true })
+    ).toThrowError(WALK_REFUSAL);
+    const itemsProjected = controlUserReleasedReportPackageRequest(itemsPayload, {}, false);
+    expect(itemsProjected.blocked).toBe(true);
+    expect(itemsProjected.payload).toBeNull();
+    expect(itemsProjected.decisions.length).toBeGreaterThan(0);
+    expect(itemsProjected.decisions.every((decision) => decision.reason_code === "USER_RELEASE_INTENT_REQUIRED")).toBe(true);
 
     // At the top level and at every depth of a request on the release projector.
     const payload = {
@@ -1367,71 +1423,173 @@ describe("existing_contexts_preserve_raw_intent_named_members (§3.3, §6)", () 
   });
 });
 
-describe("user-released context: the walk decides every unlabelled value by step 13 (§3.2)", () => {
-  const unbound = { action: "block_export", reason_code: "USER_RELEASE_VALUE_UNBOUND", source_metadata_present: false };
-  const released = (payload: unknown, explicitUserReleaseIntent = true) =>
-    redactExportPayload(payload, { exportContext: USER_RELEASED_REPORT_CONTEXT, explicitUserReleaseIntent });
+// Codex r3 of the r1 slice: the walk decided a value-bearing parent as a whole, so a labelled
+// parent hid restricted descendants (a nested secret marker, a nested non-project private class,
+// a non-project private parent's unredacted `rows`). The walk now refuses the context; the
+// user-release projector, which decides every node, is the only payload entry (§3.2).
 
-  it("blocks the review's unlabelled payload, with and without the wrapper's intent", () => {
-    for (const intent of [true, false]) {
-      const payload = { project_ref: { data: "INVENTED_RAW_VALUE" } };
-      const run = released(payload, intent);
-      expect(run.blocked).toBe(true);
-      expect(run.decisions).toHaveLength(1);
-      expect(run.decisions[0]).toMatchObject({ path: "$.project_ref.data", ...unbound });
-      expect(run.findings.map((finding) => [finding.code, finding.severity])).toEqual([["USER_RELEASE_VALUE_UNBOUND", "BLOCKING"]]);
-      expect(JSON.stringify(run.payload)).not.toContain("INVENTED_RAW_VALUE");
-      expect(payload).toEqual({ project_ref: { data: "INVENTED_RAW_VALUE" } });
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/** One steps-1-9 marker per row: the members, and the reason the projector records for an object
+ * that carries them. */
+const STEP_1_TO_9_MARKERS: Array<[Record<string, unknown>, RedactionReasonCode]> = [
+  [{ professional_claim: true }, "PROFESSIONAL_BOUNDARY_BLOCKED"],
+  [{ cloud_or_network_reference: true }, "CLOUD_OR_NETWORK_REFERENCE_BLOCKED"],
+  [{ remote_url: "invented://remote" }, "CLOUD_OR_NETWORK_REFERENCE_BLOCKED"],
+  [{ direct_sql_access: true }, "DIRECT_SQL_ACCESS_BLOCKED"],
+  [{ sql: "INVENTED_QUERY" }, "DIRECT_SQL_ACCESS_BLOCKED"],
+  [{ storage_bypass: true }, "STORAGE_BYPASS_BLOCKED"],
+  [{ application_service_bypass: "yes" }, "STORAGE_BYPASS_BLOCKED"],
+  [{ secret_material_present: true }, "SECRET_MATERIAL_BLOCKED"],
+  [{ password: "INVENTED_SECRET" }, "SECRET_MATERIAL_BLOCKED"],
+  [{ contains_payload: true }, "PAYLOAD_METADATA_ONLY_REQUIRED"],
+  [{ cache_payload: 1 }, "PAYLOAD_METADATA_ONLY_REQUIRED"],
+  [{ payload: "INVENTED_PAYLOAD" }, "PAYLOAD_METADATA_ONLY_REQUIRED"],
+  [{ concrete_path_present: true }, "CONCRETE_PATH_REDACTED"],
+  [{ file_path: "SYMBOLIC_INVENTED_PATH" }, "CONCRETE_PATH_REDACTED"],
+  [{ privacy_classification: "protected_suspected" }, "PROTECTED_CONTENT_BLOCKED"],
+  [{ redistribution_status: "protected_suspected" }, "PROTECTED_CONTENT_BLOCKED"],
+  [{ review_status: "quarantined" }, "PROTECTED_CONTENT_BLOCKED"],
+  [{ review_status: "rejected" }, "PROTECTED_CONTENT_BLOCKED"],
+  [{ provenance: { review_status: "quarantined" } }, "PROTECTED_CONTENT_BLOCKED"],
+  [{ provenance: { privacy_classification: "protected_suspected" } }, "PROTECTED_CONTENT_BLOCKED"]
+];
+
+const CODEX_R3_NESTED_REPRO = {
+  privacy_classification: "private_project_data",
+  redistribution_status: "private_only",
+  value: { privacy_classification: "private_rule_pack_data", secret_material_present: true, value: "INVENTED_NESTED" }
+};
+const CODEX_R3_SHALLOW_REPRO = {
+  privacy_classification: "private_rule_pack_data",
+  redistribution_status: "private_only",
+  rows: ["INVENTED_NONPROJECT"]
+};
+
+/** `child` beneath a labelled project-data parent, `depth` levels down, alternating objects and
+ * arrays (depth 0 is the parent's own `value`). */
+function underLabelledParent(child: unknown, depth: number): { payload: unknown; childPath: string } {
+  let node: unknown = child;
+  let suffix = "";
+  for (let level = depth; level > 0; level -= 1) {
+    if (level % 2 === 1) {
+      node = [{ note: "Invented sibling" }, node];
+      suffix = `[1]${suffix}`;
+    } else {
+      node = { [`level_${level}`]: node };
+      suffix = `.level_${level}${suffix}`;
     }
-  });
+  }
+  return { payload: { ...privateItem(), value: node }, childPath: `$.request.value${suffix}` };
+}
 
-  it("decides each unlabelled leaf under unlabelled parents and in arrays, of every scalar kind", () => {
-    const run = released({ section: { rows: [{ data: "INVENTED_A" }, 2, null, [true, { deeper: "INVENTED_B" }]], empty: {}, none: [] } });
-    expect(run.blocked).toBe(true);
-    expect(run.decisions.map((decision) => decision.path)).toEqual([
-      "$.section.rows[0].data",
-      "$.section.rows[1]",
-      "$.section.rows[2]",
-      "$.section.rows[3][0]",
-      "$.section.rows[3][1].deeper"
-    ]);
-    expect(run.decisions.every((decision) => decision.action === unbound.action && decision.reason_code === unbound.reason_code)).toBe(true);
-    expect(run.payload).toEqual({
-      section: { rows: [{ data: REDACTED_VALUE }, REDACTED_VALUE, REDACTED_VALUE, [REDACTED_VALUE, { deeper: REDACTED_VALUE }]], empty: {}, none: [] }
+/** The generated inputs: Codex's two repros, each steps-1-9 marker and each non-project private
+ * class nested at depths 0-3 beneath a labelled project-data parent (with and without its own
+ * privacy), and unlabelled values. */
+function generatedReleaseInputs(): Array<{ label: string; payload: unknown; refusedAt?: string; reason?: RedactionReasonCode }> {
+  const inputs: Array<{ label: string; payload: unknown; refusedAt?: string; reason?: RedactionReasonCode }> = [
+    { label: "codex-r3-nested", payload: CODEX_R3_NESTED_REPRO, refusedAt: "$.request.value", reason: "SECRET_MATERIAL_BLOCKED" },
+    { label: "codex-r3-shallow", payload: CODEX_R3_SHALLOW_REPRO, refusedAt: "$.request.rows[0]", reason: "PRIVATE_DATA_REDACTED" },
+    { label: "unlabelled", payload: { project_ref: { data: "INVENTED_RAW_VALUE" } } },
+    { label: "scalar", payload: "INVENTED_TOP" },
+    { label: "null", payload: null }
+  ];
+  for (let depth = 0; depth <= 3; depth += 1) {
+    STEP_1_TO_9_MARKERS.forEach(([marker, reason], index) => {
+      // An object's own privacy supersedes its provenance's (as `classifyExportItem` reads it), so
+      // the provenance-privacy marker is generated only without one.
+      const statesProvenancePrivacy = isRecord(marker.provenance) && "privacy_classification" in marker.provenance;
+      const ownPrivacies = statesProvenancePrivacy ? [undefined] : [undefined, "private_project_data", "private_rule_pack_data"];
+      for (const ownPrivacy of ownPrivacies) {
+        const child = { ...(ownPrivacy === undefined ? {} : { privacy_classification: ownPrivacy }), ...marker, value: "INVENTED_NESTED" };
+        const { payload, childPath } = underLabelledParent(child, depth);
+        inputs.push({ label: `marker-${index}-${ownPrivacy ?? "inherited"}-depth-${depth}`, payload, refusedAt: childPath, reason });
+      }
     });
-    for (const scalar of ["INVENTED_TOP", 0, false, null]) {
-      expect(released(scalar).decisions).toEqual([expect.objectContaining({ path: "$", ...unbound })]);
+    for (const privacy of NON_PROJECT_PRIVATE_CLASSES) {
+      const { payload, childPath } = underLabelledParent({ privacy_classification: privacy, rows: ["INVENTED_NONPROJECT", { cell: 1 }] }, depth);
+      inputs.push({ label: `private-${privacy}-depth-${depth}`, payload, refusedAt: `${childPath}.rows[0]`, reason: "PRIVATE_DATA_REDACTED" });
+    }
+  }
+  return inputs;
+}
+
+describe("user-released context: the redaction walk refuses the context; the projector decides every node (§3.2)", () => {
+  it("refuses Codex's two repros, the generated inputs and every corpus item at the walk, whatever the intent", () => {
+    const corpusItems = corpus.cases.map((parityCase) => ({ item: parityCase.item }));
+    const payloads = [...generatedReleaseInputs().map((input) => input.payload), ...corpusItems];
+    expect(payloads.length).toBeGreaterThan(300);
+    for (const payload of payloads) {
+      const before = structuredClone(payload);
+      for (const explicitUserReleaseIntent of [true, false, undefined]) {
+        for (const explicitLocalPrivateIntent of [true, false]) {
+          expect(() =>
+            redactExportPayload(payload, {
+              exportContext: WALK_RELEASED_CONTEXT,
+              explicitLocalPrivateIntent,
+              ...(explicitUserReleaseIntent === undefined ? {} : { explicitUserReleaseIntent })
+            })
+          ).toThrowError(WALK_REFUSAL);
+        }
+      }
+      expect(payload).toEqual(before);
     }
   });
 
-  it("leaves a leaf under a labelled parent to the parent's decision, beside an unlabelled sibling that blocks", () => {
-    const labelled = { ...privateItem(), rows: [{ data: "INVENTED_NESTED" }, 3] };
-    const alone = released({ section: labelled });
-    expect(alone.blocked).toBe(false);
-    expect(alone.decisions).toHaveLength(1);
-    expect(alone.decisions[0]).toMatchObject({ path: "$.section", reason_code: "USER_RELEASED_PROJECT_DATA" });
-    expect(alone.payload).toEqual({ section: labelled });
+  it("blocks Codex's nested repro and withholds the shallow one on the projector, with the wrapper's intent", () => {
+    const nested = controlUserReleasedReportPackageRequest(CODEX_R3_NESTED_REPRO, {}, true);
+    expect(nested.blocked).toBe(true);
+    expect(nested.payload).toBeNull();
+    expect(nested.decisions).toContainEqual(
+      expect.objectContaining({ path: "$.request.value", action: "block_export", reason_code: "SECRET_MATERIAL_BLOCKED" })
+    );
+    expect(nested.decisions).toContainEqual(
+      expect.objectContaining({ path: "$.request.value.value", action: "redact_value", reason_code: "PRIVATE_DATA_REDACTED" })
+    );
 
-    const mixed = released({ section: labelled, loose: { data: "INVENTED_LOOSE" } });
-    expect(mixed.blocked).toBe(true);
-    expect(mixed.decisions.map((decision) => [decision.path, decision.reason_code])).toEqual([
-      ["$.section", "USER_RELEASED_PROJECT_DATA"],
-      ["$.loose.data", "USER_RELEASE_VALUE_UNBOUND"]
+    const shallow = controlUserReleasedReportPackageRequest(CODEX_R3_SHALLOW_REPRO, {}, true);
+    expect(shallow.blocked).toBe(true);
+    expect(shallow.payload).toBeNull();
+    expect(shallow.summary.materialization_withheld).toBe(true);
+    expect(shallow.decisions.map((decision) => [decision.path, decision.reason_code])).toEqual([
+      ["$.request.privacy_classification", "PRIVATE_DATA_REDACTED"],
+      ["$.request.redistribution_status", "PRIVATE_DATA_REDACTED"],
+      ["$.request.rows[0]", "PRIVATE_DATA_REDACTED"]
     ]);
   });
 
-  it("decides every labelled corpus case of the new context by its item alone, as before", () => {
-    const cases = corpus.cases.filter((parityCase) => parityCase.export_context === USER_RELEASED_REPORT_CONTEXT);
-    expect(cases).toHaveLength(36);
-    for (const parityCase of cases) {
-      const run = redactExportPayload(
-        { item: parityCase.item },
-        { exportContext: USER_RELEASED_REPORT_CONTEXT, explicitUserReleaseIntent: parityCase.explicit_user_release_intent }
-      );
-      expect(run.decisions.map((decision) => [decision.path, decision.reason_code]), parityCase.case_id).toEqual([
-        ["$.item", parityCase.expected.reason_code]
-      ]);
+  it("refuses each steps-1-9 marker and each non-project private class beneath a labelled parent, in arrays and at depth", () => {
+    const refused = generatedReleaseInputs().filter((input) => input.refusedAt !== undefined);
+    expect(refused).toHaveLength(2 + 4 * ((STEP_1_TO_9_MARKERS.length - 1) * 3 + 1 + NON_PROJECT_PRIVATE_CLASSES.length));
+    for (const input of refused) {
+      for (const model of [{}, { privacy_classification: "private_project_data", redistribution_status: "private_only" }]) {
+        const projected = controlUserReleasedReportPackageRequest(input.payload, model, true);
+        expect(projected.blocked, input.label).toBe(true);
+        expect(projected.payload, input.label).toBeNull();
+        expect(
+          projected.decisions.some((decision) => decision.path === input.refusedAt && decision.reason_code === input.reason),
+          input.label
+        ).toBe(true);
+        // The same value, alone and labelled as the user's project data, is admitted: the refusal
+        // comes from the nested node, not from the parent.
+        expect(controlUserReleasedReportPackageRequest(privateItem(), model, true).blocked).toBe(false);
+      }
     }
+  });
+
+  it("keeps the user-release projector's admission of an unlabelled request with the wrapper's intent only", () => {
+    const payload = { project_ref: { data: "INVENTED_RAW_VALUE" } };
+    const admitted = controlUserReleasedReportPackageRequest(payload, {}, true);
+    expect(admitted.blocked).toBe(false);
+    expect(admitted.payload).toEqual(payload);
+    expect(admitted.decisions.map((decision) => [decision.path, decision.reason_code])).toEqual([
+      ["$.request.project_ref.data", "USER_RELEASED_PROJECT_DATA"]
+    ]);
+    const refused = controlUserReleasedReportPackageRequest(payload, {}, false);
+    expect(refused.blocked).toBe(true);
+    expect(refused.payload).toBeNull();
   });
 
   it("keeps an unlabelled value as today in each of the five existing contexts", () => {

@@ -794,13 +794,14 @@ export function classifyExportItem(
   }).decision;
 }
 
+/** The redaction walk serves the five existing contexts only; `redactExportPayload` refuses
+ * `user_released_report` before it is reached (§3.2). */
 function walk(
   value: unknown,
   args: {
     path: string;
-    exportContext: ControlExportContext;
+    exportContext: RedactionExportContext;
     explicitLocalPrivateIntent: boolean;
-    explicitUserReleaseIntent: boolean;
     decisions: RedactionDecision[];
     findings: RedactionFinding[];
   }
@@ -811,7 +812,7 @@ function walk(
         path: args.path,
         exportContext: args.exportContext,
         explicitLocalPrivateIntent: args.explicitLocalPrivateIntent,
-        explicitUserReleaseIntent: args.explicitUserReleaseIntent,
+        explicitUserReleaseIntent: false,
         decisionIndex: args.decisions.length + 1,
         findingIndex: args.findings.length + 1
       });
@@ -833,26 +834,6 @@ function walk(
       if (child !== OMITTED_SENTINEL) output.push(child);
     });
     return output;
-  }
-  // §3.2 step 13 in `user_released_report` only: a value the walk reaches outside every
-  // value-bearing object states no metadata, so it is decided as an item that states
-  // nothing (`block_export` / `USER_RELEASE_VALUE_UNBOUND`) and its value is redacted. It is
-  // never left undecided there. The five existing contexts keep the value as today.
-  if (args.exportContext === USER_RELEASED_REPORT_CONTEXT) {
-    const { decision, finding } = classify(
-      {},
-      {
-        path: args.path,
-        exportContext: args.exportContext,
-        explicitLocalPrivateIntent: args.explicitLocalPrivateIntent,
-        explicitUserReleaseIntent: args.explicitUserReleaseIntent,
-        decisionIndex: args.decisions.length + 1,
-        findingIndex: args.findings.length + 1
-      }
-    );
-    args.decisions.push(decision);
-    if (finding !== null) args.findings.push(finding);
-    return REDACTED_VALUE;
   }
   return value;
 }
@@ -889,23 +870,37 @@ function summarize(decisions: RedactionDecision[], findings: RedactionFinding[])
   };
 }
 
+/** The redaction walk refuses the `user_released_report` context outright, in every call and
+ * before any walk (§3.2), as the generic route exporter does. The walk decides a value-bearing
+ * object as a whole and keeps an unlabelled value, so in that context it would admit what the
+ * user-release screen refuses (a marker or a non-project private class on a descendant of a
+ * labelled object). `controlUserReleasedReportPackageRequest` is the only payload entry for
+ * the context; `classifyExportItem` decides one item by the rule. */
+function assertRedactionWalkContext(exportContext: unknown): void {
+  if (exportContext === USER_RELEASED_REPORT_CONTEXT) {
+    throw new Error(
+      `USER_RELEASE_ROUTE_REQUIRED: the redaction walk does not admit the ${USER_RELEASED_REPORT_CONTEXT} context; only the user-release projector does`
+    );
+  }
+}
+
 export function redactExportPayload(
   payload: unknown,
   options: {
-    exportContext: ControlExportContext;
+    exportContext: RedactionExportContext;
     explicitLocalPrivateIntent?: boolean;
     explicitUserReleaseIntent?: boolean;
   }
 ): RedactionRunResult {
   assertContext(options.exportContext);
   assertUserReleaseIntentContext(options.exportContext, options.explicitUserReleaseIntent);
+  assertRedactionWalkContext(options.exportContext);
   const decisions: RedactionDecision[] = [];
   const findings: RedactionFinding[] = [];
   const redacted = walk(structuredClone(payload), {
     path: "$",
     exportContext: options.exportContext,
     explicitLocalPrivateIntent: options.explicitLocalPrivateIntent ?? false,
-    explicitUserReleaseIntent: options.explicitUserReleaseIntent === true,
     decisions,
     findings
   });

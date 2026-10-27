@@ -19,6 +19,12 @@ from core.security.redaction import (  # noqa: E402
     control_route_export,
     redact_export_payload,
 )
+from core.security.redaction import controls  # noqa: E402
+
+WALK_REFUSAL = (
+    r"^USER_RELEASE_ROUTE_REQUIRED: the redaction walk does not admit the "
+    r"user_released_report context"
+)
 
 
 SCHEMA_PATH = ROOT / "schemas" / "redaction_export_controls.schema.yaml"
@@ -849,17 +855,40 @@ def test_shared_parity_fixture_matches_core_decisions():
         assert decision.source_metadata_present == expected["source_metadata_present"], case_id
         covered_reason_codes.add(decision.reason_code)
 
-        result = redact_export_payload(
-            {"item": case["item"]},
-            export_context=case["export_context"],
-            explicit_local_private_intent=case["explicit_local_private_intent"],
-            explicit_user_release_intent=case.get("explicit_user_release_intent", False),
-        )
-        if expected["finding"] is None:
-            assert not result.findings, case_id
+        if case["export_context"] == "user_released_report":
+            # The redaction walk refuses the context (§3.2), and no Python route uses
+            # the user-release projector, so the case's finding is checked on the item
+            # rule's own finding (``_classify``, the function the walk used).
+            with pytest.raises(ValueError, match=WALK_REFUSAL):
+                redact_export_payload(
+                    {"item": case["item"]},
+                    export_context=case["export_context"],
+                    explicit_local_private_intent=case["explicit_local_private_intent"],
+                    explicit_user_release_intent=case["explicit_user_release_intent"],
+                )
+            item_decision, item_finding = controls._classify(
+                case["item"],
+                path="$.item",
+                export_context=case["export_context"],
+                explicit_local_private_intent=case["explicit_local_private_intent"],
+                explicit_user_release_intent=case["explicit_user_release_intent"] is True,
+                decision_index=1,
+                finding_index=1,
+            )
+            assert item_decision.reason_code == expected["reason_code"], case_id
+            findings = () if item_finding is None else (item_finding,)
         else:
-            assert len(result.findings) == 1, case_id
-            finding = result.findings[0]
+            findings = redact_export_payload(
+                {"item": case["item"]},
+                export_context=case["export_context"],
+                explicit_local_private_intent=case["explicit_local_private_intent"],
+                explicit_user_release_intent=case.get("explicit_user_release_intent", False),
+            ).findings
+        if expected["finding"] is None:
+            assert not findings, case_id
+        else:
+            assert len(findings) == 1, case_id
+            finding = findings[0]
             assert finding.code == expected["reason_code"], case_id
             assert finding.severity == expected["finding"]["severity"], case_id
             assert finding.as_schema_dict()["class"] == expected["finding"]["class"], case_id
@@ -1034,16 +1063,18 @@ def test_payload_carried_intent_grants_nothing_in_the_user_released_context():
         "item": private_item(**carried, export_policy=dict(carried)),
         "nested": {"deeper": [{"item": private_item(**carried)}]},
     }
-    result = redact_export_payload(
-        payload,
-        export_context=USER_RELEASED_REPORT,
-        explicit_local_private_intent=True,
-    )
-    assert result.blocked is True
-    assert len(result.decisions) == 2
-    assert {decision.reason_code for decision in result.decisions} == {
-        "USER_RELEASE_INTENT_REQUIRED"
-    }
+    with pytest.raises(ValueError, match=WALK_REFUSAL):
+        redact_export_payload(
+            payload,
+            export_context=USER_RELEASED_REPORT,
+            explicit_local_private_intent=True,
+        )
+    # Each item is decided by step 11 without the wrapper's intent.
+    for item in (payload["item"], payload["nested"]["deeper"][0]["item"]):
+        decision = classify_export_item(
+            item, export_context=USER_RELEASED_REPORT, explicit_local_private_intent=True
+        )
+        assert decision.reason_code == "USER_RELEASE_INTENT_REQUIRED"
 
 
 @pytest.mark.parametrize("privacy", sorted(NON_PROJECT_PRIVATE_CLASSES))
@@ -1269,7 +1300,8 @@ def test_payload_carried_local_private_intent_is_not_read_in_the_user_released_c
         item, export_context=USER_RELEASED_REPORT, explicit_user_release_intent=False
     )
     assert decision.reason_code == "USER_RELEASE_INTENT_REQUIRED"
-    redact_export_payload({"item": item}, export_context=USER_RELEASED_REPORT)
+    with pytest.raises(ValueError, match=WALK_REFUSAL):
+        redact_export_payload({"item": item}, export_context=USER_RELEASED_REPORT)
     assert calls == []
     local = classify_export_item(item, export_context="local_private")
     assert local.reason_code == "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
@@ -1412,75 +1444,119 @@ def test_review_payload_marker_and_private_class_variants_are_refused_by_the_gen
         assert canonical_text(payload) == snapshot
 
 
-# Manager decision after Codex r2: in ``user_released_report`` the walk decides
-# every value it reaches outside a value-bearing object by step 13 (§3.2).
-UNBOUND = ("block_export", "USER_RELEASE_VALUE_UNBOUND", False)
+# Codex r3 of the r1 slice: the walk decided a value-bearing parent as a whole, so a
+# labelled parent hid restricted descendants.  The walk now refuses the context
+# outright (§3.2); the user-release projector (TypeScript) is the only payload entry.
+# Twins of the desktop generator in ``redactionExportControls.test.ts``.
+STEP_1_TO_9_MARKERS = (
+    {"professional_claim": True},
+    {"cloud_or_network_reference": True},
+    {"remote_url": "invented://remote"},
+    {"direct_sql_access": True},
+    {"sql": "INVENTED_QUERY"},
+    {"storage_bypass": True},
+    {"application_service_bypass": "yes"},
+    {"secret_material_present": True},
+    {"password": "INVENTED_SECRET"},
+    {"contains_payload": True},
+    {"cache_payload": 1},
+    {"payload": "INVENTED_PAYLOAD"},
+    {"concrete_path_present": True},
+    {"file_path": "SYMBOLIC_INVENTED_PATH"},
+    {"privacy_classification": "protected_suspected"},
+    {"redistribution_status": "protected_suspected"},
+    {"review_status": "quarantined"},
+    {"review_status": "rejected"},
+    {"provenance": {"review_status": "quarantined"}},
+    {"provenance": {"privacy_classification": "protected_suspected"}},
+)
+CODEX_R3_NESTED_REPRO = {
+    "privacy_classification": "private_project_data",
+    "redistribution_status": "private_only",
+    "value": {
+        "privacy_classification": "private_rule_pack_data",
+        "secret_material_present": True,
+        "value": "INVENTED_NESTED",
+    },
+}
+CODEX_R3_SHALLOW_REPRO = {
+    "privacy_classification": "private_rule_pack_data",
+    "redistribution_status": "private_only",
+    "rows": ["INVENTED_NONPROJECT"],
+}
 
 
-def _released(payload, intent=True):
-    return redact_export_payload(
-        payload, export_context=USER_RELEASED_REPORT, explicit_user_release_intent=intent
-    )
+def _under_labelled_parent(child, depth):
+    node = child
+    for level in range(depth, 0, -1):
+        node = [{"note": "Invented sibling"}, node] if level % 2 == 1 else {f"level_{level}": node}
+    return {**private_item(), "value": node}
 
 
-def _decided(result):
-    return [(d.path, d.action, d.reason_code, d.source_metadata_present) for d in result.decisions]
-
-
-@pytest.mark.parametrize("intent", (True, False))
-def test_user_released_walk_blocks_the_unlabelled_review_payload(intent):
-    payload = {"project_ref": {"data": "INVENTED_RAW_VALUE"}}
-    result = _released(payload, intent)
-    assert result.blocked is True
-    assert _decided(result) == [("$.project_ref.data", *UNBOUND)]
-    assert [(f.code, f.severity) for f in result.findings] == [("USER_RELEASE_VALUE_UNBOUND", "BLOCKING")]
-    assert "INVENTED_RAW_VALUE" not in canonical_text(result.payload)
-    assert payload == {"project_ref": {"data": "INVENTED_RAW_VALUE"}}
-
-
-def test_user_released_walk_decides_unlabelled_leaves_in_parents_and_arrays():
-    result = _released(
-        {"section": {"rows": [{"data": "INVENTED_A"}, 2, None, [True, {"deeper": "INVENTED_B"}]], "empty": {}, "none": []}}
-    )
-    assert result.blocked is True
-    assert _decided(result) == [
-        ("$.section.rows[0].data", *UNBOUND),
-        ("$.section.rows[1]", *UNBOUND),
-        ("$.section.rows[2]", *UNBOUND),
-        ("$.section.rows[3][0]", *UNBOUND),
-        ("$.section.rows[3][1].deeper", *UNBOUND),
+def _generated_release_inputs():
+    inputs = [
+        CODEX_R3_NESTED_REPRO,
+        CODEX_R3_SHALLOW_REPRO,
+        {"project_ref": {"data": "INVENTED_RAW_VALUE"}},
+        "INVENTED_TOP",
+        None,
     ]
-    assert result.payload == {
-        "section": {
-            "rows": [{"data": REDACTED_VALUE}, REDACTED_VALUE, REDACTED_VALUE, [REDACTED_VALUE, {"deeper": REDACTED_VALUE}]],
-            "empty": {},
-            "none": [],
-        }
-    }
-    for scalar in ("INVENTED_TOP", 0, False, None):
-        assert _decided(_released(scalar)) == [("$", *UNBOUND)]
+    for depth in range(4):
+        for marker in STEP_1_TO_9_MARKERS:
+            provenance_privacy = "privacy_classification" in marker.get("provenance", {})
+            for own in (None,) if provenance_privacy else (None, "private_project_data", "private_rule_pack_data"):
+                child = {**({} if own is None else {"privacy_classification": own}), **marker, "value": "INVENTED_NESTED"}
+                inputs.append(_under_labelled_parent(child, depth))
+        for privacy in sorted(NON_PROJECT_PRIVATE_CLASSES):
+            inputs.append(
+                _under_labelled_parent({"privacy_classification": privacy, "rows": ["INVENTED_NONPROJECT", {"cell": 1}]}, depth)
+            )
+    return inputs
 
 
-def test_user_released_walk_leaves_a_labelled_parent_to_its_own_decision():
-    labelled = {**private_item(), "rows": [{"data": "INVENTED_NESTED"}, 3]}
-    alone = _released({"section": labelled})
-    assert alone.blocked is False
-    assert [(d.path, d.reason_code) for d in alone.decisions] == [("$.section", "USER_RELEASED_PROJECT_DATA")]
-    assert alone.payload == {"section": labelled}
-    mixed = _released({"section": labelled, "loose": {"data": "INVENTED_LOOSE"}})
-    assert mixed.blocked is True
-    assert [(d.path, d.reason_code) for d in mixed.decisions] == [
-        ("$.section", "USER_RELEASED_PROJECT_DATA"),
-        ("$.loose.data", "USER_RELEASE_VALUE_UNBOUND"),
-    ]
+def test_user_released_walk_refuses_the_repros_generated_inputs_and_corpus_items():
+    corpus_items = [{"item": case["item"]} for case in load_json(PARITY_FIXTURE_PATH)["cases"]]
+    payloads = _generated_release_inputs() + corpus_items
+    assert len(payloads) == 5 + 4 * ((len(STEP_1_TO_9_MARKERS) - 1) * 3 + 1 + len(NON_PROJECT_PRIVATE_CLASSES)) + len(corpus_items)
+    for payload in payloads:
+        before = copy.deepcopy(payload)
+        for user_release in ({"explicit_user_release_intent": True}, {"explicit_user_release_intent": False}, {}):
+            for local_private in (True, False):
+                with pytest.raises(ValueError, match=WALK_REFUSAL):
+                    redact_export_payload(
+                        payload,
+                        export_context=USER_RELEASED_REPORT,
+                        explicit_local_private_intent=local_private,
+                        **user_release,
+                    )
+        assert payload == before
 
 
-def test_user_released_walk_decides_each_labelled_corpus_case_by_its_item_alone():
-    cases = [c for c in load_json(PARITY_FIXTURE_PATH)["cases"] if c["export_context"] == USER_RELEASED_REPORT]
-    assert len(cases) == 36
-    for case in cases:
-        result = _released({"item": case["item"]}, case["explicit_user_release_intent"])
-        assert [(d.path, d.reason_code) for d in result.decisions] == [("$.item", case["expected"]["reason_code"])], case["case_id"]
+def test_user_released_walk_refusal_follows_the_flag_assertion():
+    # Release intent with an existing context keeps its own refusal; the new context's
+    # walk refusal comes after it, so neither hides the other.
+    for context in EXISTING_CONTEXTS:
+        with pytest.raises(ValueError, match="admitted only in the user_released_report context"):
+            redact_export_payload(CODEX_R3_NESTED_REPRO, export_context=context, explicit_user_release_intent=True)
+    with pytest.raises(ValueError, match="unsupported export_context"):
+        redact_export_payload(CODEX_R3_NESTED_REPRO, export_context="cloud_sync")
+
+
+def test_user_released_item_rule_still_decides_the_nested_markers_by_item():
+    # The item rule is unchanged: each nested marker object, decided alone, blocks or
+    # redacts by steps 1-9, and Codex's nested object by its secret marker.
+    assert classify_export_item(
+        CODEX_R3_NESTED_REPRO["value"],
+        export_context=USER_RELEASED_REPORT,
+        explicit_user_release_intent=True,
+    ).reason_code == "SECRET_MATERIAL_BLOCKED"
+    for marker in STEP_1_TO_9_MARKERS:
+        decision = classify_export_item(
+            {**marker, "value": "INVENTED_NESTED"},
+            export_context=USER_RELEASED_REPORT,
+            explicit_user_release_intent=True,
+        )
+        assert decision.action in {"block_export", "redact_value"}, marker
 
 
 def test_existing_contexts_keep_an_unlabelled_value_undecided_as_today():

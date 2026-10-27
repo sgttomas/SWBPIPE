@@ -2148,12 +2148,7 @@ unknown-metadata branch:
     → `include` / `SAFE_PUBLIC_METADATA` (or `SAFE_INVENTED_PUBLIC_EXAMPLE`);
 13. anything else (missing metadata; unknown, `TBD` or null privacy or
     redistribution; `private_only` with a non-private privacy; any
-    unrecognized value) → `block_export` / `USER_RELEASE_VALUE_UNBOUND`. The
-    redaction walk (`redactExportPayload` / `redact_export_payload`) decides
-    by this step, in this context only, each value it reaches outside every
-    metadata-bearing object, and redacts it; a value inside such an object
-    takes that object's decision. No value is left undecided in the context.
-    The five existing contexts keep such a value as today.
+    unrecognized value) → `block_export` / `USER_RELEASE_VALUE_UNBOUND`.
 
 For the five existing contexts, step 10 onward is today's sequence, unchanged:
 missing metadata, unknown redistribution, unknown privacy, the safe include,
@@ -2174,6 +2169,31 @@ else `private_project_data` / `private_only`. So:
 
 There is no path-token labelling and no field table on this route. The
 webview's check is early; native admission's derivation decides (§2.6).
+
+**The redaction walk refuses the context (Codex r3 of the r1 slice).**
+`redactExportPayload` and `redact_export_payload` throw
+`USER_RELEASE_ROUTE_REQUIRED` for `user_released_report`, whatever the intent
+and the payload, after the context and user-release intent checks and before
+any walk, as the generic route exporters do (§3.3). The walk decides a
+value-bearing object as a whole and keeps an unlabelled value. In this context
+a labelled object would therefore hide a restricted descendant: a nested
+marker, protected or quarantined content, or a non-project private class. It
+would also leave a private object's members other than `value` and `text`
+unredacted. Sharing the projector's procedure was considered and not chosen,
+for three reasons:
+- Agreement with the projector on every input would need the projector's
+  default label. The walk would then admit an unlabelled value with the
+  wrapper's intent, which it blocked by step 13 before this change.
+- Python carries no user-release projector (§3.3).
+- Route 010 is lossless, so a redacted user-release payload has no consumer.
+
+The classification of one item (`classifyExportItem` /
+`classify_export_item`) still decides an item by steps 1-13; the shared corpus
+holds it there. The corpus's new-context finding checks run on the
+user-release projector in TypeScript, and on the item's own finding in
+Python. Two corpus items state no privacy: the item rule blocks them by step
+13, and on the projector they take the default label. The five existing
+contexts' walk is unchanged.
 
 ### 3.3 Context and route
 
@@ -2227,9 +2247,9 @@ Route tables and local-first admission:
   for route 010 in every context, after the context and user-release intent
   checks and before any projection, as they throw for an unsupported context.
   Their path-token projector would admit what the user-release screen
-  refuses. The user-release projector is therefore the only entry for the
-  context and the route. The redaction walk keeps the context for the shared
-  corpus and decides every unlabelled value there by step 13 (§3.2).
+  refuses. The redaction walk refuses the context in the same way (§3.2). The
+  user-release projector is therefore the only payload entry for the context
+  and the route.
 - The Rust mirror (`core/runner/headless/src/redaction_binding.rs:166,216-218`)
   implements the same rule so the shared corpus
   (`fixtures/redaction_export_controls/cases.json`, read at `:702-740`) holds.
