@@ -268,6 +268,8 @@ code_paths:
 - apps/desktop/src/features/report/reportQuantityDisplay.ts
 - apps/desktop/src/features/results/stressRatioTable.ts
 - apps/desktop/src/features/results/StressRatioTablePanel.tsx
+- apps/desktop/src/features/results/displacementExtremes.ts
+- apps/desktop/src/features/results/DisplacementExtremesPanel.tsx
 checks:
 - apps/desktop/src/features/results/ResultsPanel.test.tsx
 - apps/desktop/src/App.resultPaging.test.tsx
@@ -296,3 +298,6 @@ checks:
 - apps/desktop/src/features/results/stressRatioTable.test.ts
 - apps/desktop/src/features/results/StressRatioTablePanel.test.tsx
 - apps/desktop/src/features/results/StressRatioTablePanel.derivation.test.tsx
+- apps/desktop/src/features/results/displacementExtremes.test.ts
+- apps/desktop/src/features/results/DisplacementExtremesPanel.test.tsx
+- apps/desktop/src/features/results/DisplacementExtremesPanel.derivation.test.tsx

@@ -250,6 +250,26 @@
     };
   }
 
+  // A8 (DEL-07-05 Design displacement-extremes.md): the displacement extremes panel's structure; no values are read.
+  function displacementExtremesStructure() {
+    const panel = byTestId("displacement-extremes-panel");
+    if (!panel) return null;
+    const table = byTestId("displacement-extremes-table");
+    const rows = table ? [...table.querySelectorAll("tbody tr")] : [];
+    const cases = [...(byTestId("displacement-extremes-cases")?.querySelectorAll('input[type="checkbox"]') ?? [])];
+    return {
+      table: Boolean(table),
+      rows: rows.length,
+      cells_per_row: rows.map((row) => row.querySelectorAll('td[data-testid^="displacement-extremes-cell-"]').length),
+      page: text("displacement-extremes-page"),
+      cases: cases.length,
+      cases_chosen: cases.filter((input) => input.checked).length,
+      cases_disabled: cases.filter((input) => input.disabled).length,
+      no_case: Boolean(byTestId("displacement-extremes-no-case")),
+      filters: byTestId("displacement-extremes-filter")?.options.length ?? 0
+    };
+  }
+
   async function observe(label, projectId, probe) {
     await showSection("results");
     const standing = await waitFor("result standing", () => text("numerical-result-standing"));
@@ -290,7 +310,8 @@
           extreme_rows: panel.querySelectorAll('[data-testid="support-load-extreme-max"], [data-testid="support-load-extreme-min"]').length
         };
       })(),
-      stress_ratio: stressRatioStructure()
+      stress_ratio: stressRatioStructure(),
+      displacement_extremes: displacementExtremesStructure()
     };
     if (probe) fill("result-filter-input", "");
     await log(`${label}: ${JSON.stringify(observation)}`);

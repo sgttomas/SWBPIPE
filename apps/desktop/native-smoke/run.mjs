@@ -341,6 +341,15 @@ function checkObservation(prefix, seen, want, modelHash, supportCount) {
   const table = seen.stress_ratio;
   check(`${prefix}: stress and ratio table lists emitted stresses with no ratio while no rule-check run is held`,
     table?.table && table.mode === "stress" && table.ratio_disabled && table.rule_groups === 0 && table.stress_groups > 0 && table.rows > 0, table);
+  // A8 (DEL-07-05 Design displacement-extremes.md): structure only. Either the admitted cases are
+  // chosen and one page of node rows lists twelve extreme cells each, or no case is admitted and
+  // the panel says so with every case disabled. A model with supports offers support filters.
+  const extremes = seen.displacement_extremes;
+  check(`${prefix}: displacement extremes list one page of nodes with twelve extremes each, or state that no case is admitted`,
+    extremes && extremes.cases > 0 && extremes.filters >= (supportCount > 0 ? 2 : 1) && (extremes.table
+      ? extremes.cases_chosen > 0 && extremes.rows > 0 && extremes.rows <= 50 && extremes.cells_per_row.every((count) => count === 12)
+        && /^Nodes 1–\d+ of \d+$/.test(extremes.page ?? "") && !extremes.no_case
+      : extremes.no_case && extremes.cases_chosen === 0 && extremes.cases_disabled === extremes.cases), extremes && { ...extremes, cells_per_row: [...new Set(extremes.cells_per_row)] });
 }
 // A3: after the demo pack's rule checks (every outcome RULE_INPUTS_INCOMPLETE), the table opens on
 // the pack's category in ratio mode and lists every outcome pinned as incomplete (FR-RULE-003).
