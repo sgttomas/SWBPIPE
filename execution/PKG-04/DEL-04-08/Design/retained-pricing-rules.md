@@ -1496,7 +1496,7 @@ The run at `3493838a8b` completes on all four points with exit 0, no unmapped he
 - the law tests' phase record, every phase in both modes, −193,810 B;
 - the challenge binary's `W1_PHASE_BYTES` (6,559,512,350 and 6,618,643,694) and `MAX_PHASE_BYTES` (8,855,689,571 and 8,914,820,915).
 
-The `retained_memory` lib tests (the `profile_` law tests among them) pass in the registered build. The run at `30ae7db4c9` (the commit carrying the block and these pins) and the run at `3493838a8b` are coefficient-identical but for the basis line.
+The `retained_memory` lib tests (the `profile_` law tests among them) pass in the registered build. The run at `30ae7db4c9` (the commit carrying the block and these pins) and the run at `3493838a8b` are coefficient-identical but for the basis line. The six AC-004 stack-headroom witnesses (`witness_headroom_w1_at_one_mebibyte`, `witness_w2_deep_milestone_publishes` and `witness_w_c2_publishes`, each sparse and dense, one process each) passed 6/6 at head `ec40163ba6`, whose registered source is `30ae7db4c9`, on the exclusive host lane, by the command `python3 tools/release/check_release_readiness.py --profile stack-witnesses` builds. This is test evidence, not an acceptance.
 
 The merged tree at native atoms, against ⌊0.9M⌋:
 
