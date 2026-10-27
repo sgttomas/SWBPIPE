@@ -282,6 +282,12 @@ W16_LIMITATION = (
 # it) on top of W-15c's merge of main b4b26cdd82; the W-16 and W-7 checks read the files there, before
 # that regeneration, whose own evidence is the numerical-leaf comparison (token and digests only).
 W15C_BASE = "71300752ab86b86c568c24e308eb5a45761c924a"
+# W-16 slices b and c regenerated their files on the same main (b4b26cdd82), in parallel with W-15c; the two
+# changed no file in common. Before merging model document 0.8.0, the W-16 slices' head was W16BC_BASE, so the
+# W-16 and W-7 checks read a file W-16 b/c changed there, and every other file at W15C_BASE: together, the
+# merged tree before 0.8.0's regeneration (token and digests, the numerical-leaf comparison's evidence).
+W16BC_PRE_080_MAIN = "b4b26cdd82a195342ee4dea2be0d4a99b8ffab67"
+W16BC_BASE = "471ea86a7ff849baed50a0032202ff4708829df1"
 
 # The minimal old -> new segments of §3.3's three whole strings (the rest of
 # each string is unchanged); the whole strings are pinned in
@@ -425,9 +431,17 @@ def s1b_base_text(name: str) -> str:
 
 
 def w15c_base_text(name: str) -> str:
-    """A file's bytes at the W-15c base, before model document 0.8.0 regenerated it."""
+    """A file's bytes before model document 0.8.0 regenerated it: at W16BC_BASE for a file the W-16 slices b and
+    c changed, otherwise at the W-15c base."""
+    path = f"projects/chirality-piping/{name}"
+    w16bc = subprocess.run(["git", "diff", "--quiet", W16BC_PRE_080_MAIN, W16BC_BASE, "--", path],
+                           cwd=REPOSITORY, capture_output=True).returncode
+    assert w16bc in (0, 1), (name, "git diff")
+    if w16bc:
+        assert not subprocess.run(["git", "diff", "--quiet", W16BC_PRE_080_MAIN, W15C_BASE, "--", path],
+                                  cwd=REPOSITORY, capture_output=True).returncode, (name, "changed on both sides")
     return subprocess.run(
-        ["git", "show", f"{W15C_BASE}:projects/chirality-piping/{name}"],
+        ["git", "show", f"{W16BC_BASE if w16bc else W15C_BASE}:{path}"],
         cwd=REPOSITORY, check=True, capture_output=True, text=True,
     ).stdout
 
