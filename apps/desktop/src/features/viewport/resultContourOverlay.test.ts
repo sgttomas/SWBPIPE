@@ -17,6 +17,7 @@ import {
   stationFraction,
   type ResultColourResolution
 } from "./resultColourOverlay";
+import { contourValueLabels, interpolateStations } from "./resultContour";
 import { resultNoValueHex, resultScaleHex } from "./viewportPalette";
 
 // Result colour along members (A4; DEL-07-05 Design `result-contour.md` §2, §3, §6): values from
@@ -113,6 +114,73 @@ describe("result colour along members", () => {
     ]);
     expect(overlay.stationMemberCount).toBe(0);
     expect(overlay.gapStationCount).toBe(0);
+  });
+});
+
+describe("result colour along members: the stated span, the governing row and signs", () => {
+  it("leaves the member's own tube in the no-value colour, so nothing outside its stated stations is coloured", () => {
+    const rows: Row[] = [
+      row("q1", "element_local_axial_force", "pipe:P-1", 2, "N", { metadata: at("quarter_1", "axial_force") }),
+      row("q3", "element_local_axial_force", "pipe:P-1", 4, "N", { metadata: at("quarter_3", "axial_force") }),
+      row("one", "element_local_axial_force", "pipe:P-2", 3, "N", { metadata: at("midspan", "axial_force") })
+    ];
+    const { model, overlay } = overlayFor("axial-force", "station", rows);
+    expect(stationsOf(overlay, "pipe:P-1")).toEqual([[0.25, 2], [0.75, 4]]);
+    const table = resultColourTable(model, overlay)!;
+    const noValue = { light: resultNoValueHex("light"), dark: resultNoValueHex("dark") };
+    // The sleeve spans 0.25 to 0.75; the tube beneath, ends included, is not given the member's colour.
+    expect(table.get(entityKey({ type: "pipe", id: "pipe:P-1" }))).toEqual(noValue);
+    // A member shown as one value keeps its colour, as with one value per member.
+    expect(table.get(entityKey({ type: "pipe", id: "pipe:P-2" }))).toEqual({ light: resultScaleHex("light", 0.75), dark: resultScaleHex("dark", 0.75) });
+    // One value per member is unchanged.
+    const member = overlayFor("axial-force", "member", rows);
+    expect(resultColourTable(member.model, member.overlay)!.get(entityKey({ type: "pipe", id: "pipe:P-1" }))).toEqual({ light: resultScaleHex("light", 1), dark: resultScaleHex("dark", 1) });
+  });
+
+  it("keeps the row that gives a station's value, not the first row stated there", () => {
+    const rows: Row[] = [
+      row("small", "element_local_normal_stress_extreme", "pipe:P-1", 1, "MPa", { metadata: at("end_i", "sigma_minus") }),
+      row("large", "element_local_normal_stress_extreme", "pipe:P-1", 10, "MPa", { metadata: at("end_i", "sigma_plus") }),
+      row("j", "element_local_normal_stress_extreme", "pipe:P-1", 2, "MPa", { metadata: at("end_j") })
+    ];
+    const { overlay } = overlayFor("normal-stress-extreme", "station", rows);
+    expect(overlay.members.get("pipe:P-1")!.stations[0]).toMatchObject({ value: 10, rowId: "large", rowIds: ["small", "large"] });
+    expect(contourValueLabels(overlay).labels.find((label) => label.fraction === 0)).toMatchObject({ value: 10, rowId: "large" });
+  });
+
+  const signedRows = (values: [number, number], conventions: [string, string] = ["section", "section"]): Row[] => [
+    row("i", "element_local_bending_moment_z", "pipe:P-1", values[0], "N*m", { metadata: { ...at("quarter_1", "bending_moment_z"), sign_convention: conventions[0] } }),
+    row("j", "element_local_bending_moment_z", "pipe:P-1", values[1], "N*m", { metadata: { ...at("quarter_3", "bending_moment_z"), sign_convention: conventions[1] } })
+  ];
+
+  it("marks an interval between stations of opposite sign under one convention, and does not blend across it", () => {
+    const { overlay } = overlayFor("bending-moment-z", "station", signedRows([-3, 5]));
+    expect(overlay.members.get("pipe:P-1")!.stations.map((station) => [station.value, station.sign])).toEqual([[3, -1], [5, 1]]);
+    expect(overlay.signChangeIntervalCount).toBe(1);
+    expect(interpolateStations(overlay.members.get("pipe:P-1")!.stations, 0.5)).toBeNull();
+  });
+
+  it("blends stations of the same sign, and does not compare signs stated under different conventions", () => {
+    const same = overlayFor("bending-moment-z", "station", signedRows([-3, -5])).overlay;
+    expect(same.signChangeIntervalCount).toBe(0);
+    expect(interpolateStations(same.members.get("pipe:P-1")!.stations, 0.5)).toBe(4);
+    const differing = overlayFor("bending-moment-z", "station", signedRows([-3, 5], ["i-end force", "section"])).overlay;
+    expect(differing.signChangeIntervalCount).toBe(0);
+    expect(interpolateStations(differing.members.get("pipe:P-1")!.stations, 0.5)).toBe(4);
+  });
+
+  it("infers no sign for an unsigned magnitude or an extremum whose governing component may switch", () => {
+    expect(RESULT_COLOUR_QUANTITIES.filter((item) => item.signed).map((item) => item.id)).toEqual([
+      "torsional-shear", "axial-force", "shear-force-y", "shear-force-z", "torsional-moment", "bending-moment-y", "bending-moment-z"
+    ]);
+    const rows: Row[] = [
+      row("i", "element_local_normal_stress_extreme", "pipe:P-1", -3, "MPa", { metadata: at("end_i", "sigma_minus") }),
+      row("j", "element_local_normal_stress_extreme", "pipe:P-1", 5, "MPa", { metadata: at("end_j", "sigma_plus") })
+    ];
+    const { overlay } = overlayFor("normal-stress-extreme", "station", rows);
+    expect(overlay.members.get("pipe:P-1")!.stations.map((station) => station.sign)).toEqual([null, null]);
+    expect(overlay.signChangeIntervalCount).toBe(0);
+    expect(interpolateStations(overlay.members.get("pipe:P-1")!.stations, 0.5)).toBe(4);
   });
 });
 

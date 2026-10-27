@@ -71,7 +71,10 @@ describe("contour sleeve members", () => {
 
   it("carry the threshold into their rings", () => {
     const rings = members(overlay(), { threshold: 5 }).get(P1)!.rings;
-    expect(rings.filter((ring) => ring.fraction <= 0.5).every((ring) => ring.kind === "below")).toBe(true);
+    expect(rings.filter((ring) => ring.fraction < 0.5).every((ring) => ring.kind === "below")).toBe(true);
+    // The midspan value equals the threshold: the hard edge is there, and above it everything is coloured.
+    expect(rings.filter((ring) => ring.fraction === 0.5).map((ring) => ring.kind)).toEqual(["below", "value"]);
+    expect(rings.filter((ring) => ring.fraction > 0.5).every((ring) => ring.kind === "value")).toBe(true);
     expect(members(overlay(), { threshold: 5 }).get(P2)!.rings.every((ring) => ring.kind === "below")).toBe(true);
   });
 });

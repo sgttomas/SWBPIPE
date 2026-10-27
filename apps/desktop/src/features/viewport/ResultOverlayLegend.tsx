@@ -23,7 +23,13 @@ export const NUMERICAL_HEALTH_UNAVAILABLE_TEXT = "Numerical health is not availa
 export const RESULT_COLOUR_BOUNDARY_TEXT =
   "Colour shows the magnitude of emitted result rows, from 0 to the largest member value. It marks no limit.";
 export const RESULT_CONTOUR_BOUNDARY_TEXT =
-  "Along members, colour between two stated stations is a straight-line display blend of their values, not a result; nothing is drawn past the first or last stated station.";
+  "Along members, colour between two stated stations is a straight-line graphical blend of adjacent stated magnitudes, which does not represent a signed result or its zero crossing. Outside the first and last stated stations the tube has the no-value colour.";
+/** For a quantity whose rows each state one signed value (`signed`). */
+export const RESULT_CONTOUR_SIGNED_TEXT =
+  "This quantity is signed: between adjacent stations of opposite sign stated under one sign convention the tube has the no-value colour. Signs stated under different conventions, such as the end-force and section conventions, are not compared.";
+/** For an unsigned magnitude, or an extremum whose governing component may switch. */
+export const RESULT_CONTOUR_UNSIGNED_TEXT =
+  "This quantity is shown as a magnitude whose sign is not stated or may switch between stations; no sign is inferred.";
 export const RESULT_THRESHOLD_BOUNDARY_TEXT =
   "The threshold is the user's display filter. It is not a limit or an allowable.";
 export const REACTION_BOUNDARY_TEXT =
@@ -73,8 +79,8 @@ export type ResultContourControls = Readonly<{
   onThresholdTextChange: (text: string) => void;
   /** The applied threshold in the overlay's stored unit, or null (off, or not a number). */
   threshold: number | null;
-  /** The numbers display: how many stated values are drawn, of how many. */
-  numbers: Readonly<{ shown: number; candidates: number }> | null;
+  /** The numbers display: how many stated values are selected for labelling, of how many. */
+  numbers: Readonly<{ selected: number; candidates: number }> | null;
 }>;
 
 function ContourControlsBlock({ colour, controls }: { colour: ResultColourOverlay; controls: ResultContourControls }) {
@@ -265,6 +271,11 @@ export function ResultOverlayLegend({
                   {colour.gapStationCount} stated station{colour.gapStationCount === 1 ? "" : "s"} without a colourable value: the tube beside {colour.gapStationCount === 1 ? "it" : "them"} has the no-value colour
                 </p>
               ) : null}
+              {colour.signChangeIntervalCount > 0 ? (
+                <p data-testid="viewport-result-contour-sign-changes">
+                  {colour.signChangeIntervalCount} interval{colour.signChangeIntervalCount === 1 ? "" : "s"} between stations of opposite sign: the no-value colour, with each station's own value at the station
+                </p>
+              ) : null}
               {colour.unplacedRowCount > 0 ? (
                 <p data-testid="viewport-result-contour-unplaced">
                   {colour.unplacedRowCount} row{colour.unplacedRowCount === 1 ? "" : "s"} of members drawn from stations state no station and {colour.unplacedRowCount === 1 ? "is" : "are"} not drawn
@@ -279,7 +290,7 @@ export function ResultOverlayLegend({
               ) : null}
               {contour?.display === "numbers" && contour.numbers ? (
                 <p data-testid="viewport-result-numbers-summary">
-                  Numbers in place of colours: {contour.numbers.shown} of {contour.numbers.candidates} stated value{contour.numbers.candidates === 1 ? "" : "s"}, largest first; a number that would overlap another is not drawn
+                  Numbers in place of colours: {contour.numbers.selected} of {contour.numbers.candidates} stated value{contour.numbers.candidates === 1 ? "" : "s"} selected for labelling, largest first; a selected number outside the view or overlapping another is hidden
                 </p>
               ) : null}
               {focusMember && focus ? (
@@ -302,7 +313,12 @@ export function ResultOverlayLegend({
             </p>
           ) : null}
           <small>{RESULT_COLOUR_BOUNDARY_TEXT}</small>
-          {colour.resolution === "station" ? <small>{RESULT_CONTOUR_BOUNDARY_TEXT}</small> : null}
+          {colour.resolution === "station" ? (
+            <>
+              <small data-testid="viewport-result-contour-boundary">{RESULT_CONTOUR_BOUNDARY_TEXT}</small>
+              <small data-testid="viewport-result-contour-sign-rule">{colour.quantity?.signed ? RESULT_CONTOUR_SIGNED_TEXT : RESULT_CONTOUR_UNSIGNED_TEXT}</small>
+            </>
+          ) : null}
           {contour?.thresholdOn ? <small>{RESULT_THRESHOLD_BOUNDARY_TEXT}</small> : null}
         </div>
       ) : null}

@@ -2785,7 +2785,7 @@ export function PipeViewport({
               thresholdText: overlayThresholdText,
               onThresholdTextChange: setOverlayThresholdText,
               threshold: overlayThreshold,
-              numbers: contourValues && contourValueAnchors ? { shown: contourValueAnchors.length, candidates: contourValues.candidateCount } : null
+              numbers: contourValues && contourValueAnchors ? { selected: contourValueAnchors.length, candidates: contourValues.candidateCount } : null
             } : null}
           />
         ) : null}

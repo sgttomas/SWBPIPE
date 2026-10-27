@@ -59,9 +59,18 @@ describe("PipeViewport result contour", () => {
     fireEvent.change(screen.getByTestId("viewport-overlay-resolution"), { target: { value: "station" } });
     expect(legend()).toHaveAttribute("data-resolution", "station");
     expect(screen.getByTestId("viewport-result-contour-summary")).toHaveTextContent(`Along members: ${model.pipe_segments.length} members from stated stations`);
-    expect(legend()).toHaveTextContent("straight-line display blend");
+    // Displacement magnitude is unsigned: the blend of magnitudes is disclosed and no sign is inferred.
+    expect(screen.getByTestId("viewport-result-contour-boundary")).toHaveTextContent(
+      "a straight-line graphical blend of adjacent stated magnitudes, which does not represent a signed result or its zero crossing"
+    );
+    expect(screen.getByTestId("viewport-result-contour-sign-rule")).toHaveTextContent("no sign is inferred");
     fireEvent.change(screen.getByTestId("viewport-overlay-quantity"), { target: { value: "normal-stress-extreme" } });
     expect(screen.getByTestId("viewport-result-contour-summary")).toHaveTextContent(`Along members: ${model.pipe_segments.length} members from stated stations`);
+    expect(screen.getByTestId("viewport-result-contour-sign-rule")).toHaveTextContent("no sign is inferred");
+    // A signed quantity states its rule.
+    fireEvent.change(screen.getByTestId("viewport-overlay-quantity"), { target: { value: "bending-moment-z" } });
+    expect(screen.getByTestId("viewport-result-contour-sign-rule")).toHaveTextContent("This quantity is signed: between adjacent stations of opposite sign stated under one sign convention the tube has the no-value colour.");
+    expect(screen.getByTestId("viewport-result-contour-boundary")).toHaveTextContent("does not represent a signed result or its zero crossing");
   });
 
   it("applies a threshold typed in the legend's unit, and states it as a display filter, not a limit", async () => {
@@ -87,7 +96,7 @@ describe("PipeViewport result contour", () => {
     const layer = screen.getByTestId("viewport-result-values");
     const all = within(layer).getAllByTestId(/^viewport-result-value-\d+$/u);
     expect(all.length).toBeGreaterThan(0);
-    expect(screen.getByTestId("viewport-result-numbers-summary")).toHaveTextContent(`Numbers in place of colours: ${all.length} of ${all.length} stated values`);
+    expect(screen.getByTestId("viewport-result-numbers-summary")).toHaveTextContent(`Numbers in place of colours: ${all.length} of ${all.length} stated values selected for labelling, largest first; a selected number outside the view or overlapping another is hidden`);
     const values = all.map((label) => Number(/: (\S+) mm/u.exec(label.getAttribute("title") ?? "")![1]));
     expect(values).toEqual([...values].sort((a, b) => b - a));
     for (const label of all) expect(label).toHaveTextContent(/mm$/u);

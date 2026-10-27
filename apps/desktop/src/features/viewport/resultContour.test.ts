@@ -60,6 +60,24 @@ describe("interpolateStations", () => {
     }
   });
 
+  it("blends nothing between adjacent stations of known opposite sign, and keeps each station's own value", () => {
+    const opposite: StationPoint[] = [{ fraction: 0, value: 4, sign: -1, signConvention: "c" }, { fraction: 0.5, value: 2, sign: 1, signConvention: "c" }];
+    expect(interpolateStations(opposite, 0)).toBe(4);
+    expect(interpolateStations(opposite, 0.25)).toBeNull();
+    expect(interpolateStations(opposite, 0.5)).toBe(2);
+  });
+
+  it("blends adjacent stations of the same sign, and stations whose signs are not comparable", () => {
+    const same: StationPoint[] = [{ fraction: 0, value: 4, sign: 1, signConvention: "c" }, { fraction: 1, value: 2, sign: 1, signConvention: "c" }];
+    expect(interpolateStations(same, 0.5)).toBe(3);
+    // Different stated conventions, a zero, or an unsigned magnitude: no sign is inferred.
+    const conventions: StationPoint[] = [{ fraction: 0, value: 4, sign: -1, signConvention: "i-end" }, { fraction: 1, value: 2, sign: 1, signConvention: "section" }];
+    expect(interpolateStations(conventions, 0.5)).toBe(3);
+    const zero: StationPoint[] = [{ fraction: 0, value: 0, sign: 0, signConvention: "c" }, { fraction: 1, value: 2, sign: 1, signConvention: "c" }];
+    expect(interpolateStations(zero, 0.5)).toBe(1);
+    expect(interpolateStations([{ fraction: 0, value: 4 }, { fraction: 1, value: 2 }], 0.5)).toBe(3);
+  });
+
   it("refuses a fraction that is not finite", () => {
     expect(interpolateStations(FIVE, Number.NaN)).toBeNull();
   });
@@ -93,12 +111,43 @@ describe("contourRings", () => {
     expect(falling.filter((ring) => ring.fraction === 0.75).map((ring) => ring.kind)).toEqual(["value", "below"]);
   });
 
+  it("puts the hard edge at a station whose value equals the threshold, so every value above it is coloured", () => {
+    const rising = contourRings([{ fraction: 0, value: 5 }, { fraction: 1, value: 6 }], { maximum: 6, threshold: 5 });
+    expect(rising.filter((ring) => ring.fraction === 0)).toEqual([{ fraction: 0, kind: "below", position: 0 }, { fraction: 0, kind: "value", position: 5 / 6 }]);
+    expect(rising.filter((ring) => ring.fraction > 0).every((ring) => ring.kind === "value")).toBe(true);
+    const falling = contourRings([{ fraction: 0, value: 6 }, { fraction: 1, value: 5 }], { maximum: 6, threshold: 5 });
+    expect(falling.filter((ring) => ring.fraction === 1)).toEqual([{ fraction: 1, kind: "value", position: 5 / 6 }, { fraction: 1, kind: "below", position: 0 }]);
+    expect(falling.filter((ring) => ring.fraction < 1).every((ring) => ring.kind === "value")).toBe(true);
+    // No consecutive pair of rings at different fractions blends plain into colour.
+    for (const rings of [rising, falling]) {
+      rings.slice(1).forEach((ring, index) => {
+        const previous = rings[index];
+        if (previous.fraction !== ring.fraction) expect(new Set([previous.kind, ring.kind]).size, JSON.stringify([previous, ring])).toBe(1);
+      });
+    }
+  });
+
   it("draws an interval beside a station with no value as one gap piece, never coloured", () => {
     const rings = contourRings([{ fraction: 0, value: 1 }, { fraction: 0.5, value: null }, { fraction: 1, value: 3 }], { maximum: 3 });
     expect(rings).toEqual([
       { fraction: 0, kind: "gap", position: 0 },
       { fraction: 0.5, kind: "gap", position: 0 },
       { fraction: 1, kind: "gap", position: 0 }
+    ]);
+  });
+
+  it("draws a sign change as a gap piece, with each station's own value as a ring at the station", () => {
+    const rings = contourRings([
+      { fraction: 0, value: 4, sign: -1, signConvention: "c" },
+      { fraction: 0.5, value: 2, sign: 1, signConvention: "c" },
+      { fraction: 1, value: 2, sign: 1, signConvention: "c" }
+    ], { maximum: 4 });
+    expect(rings).toEqual([
+      { fraction: 0, kind: "value", position: 1 },
+      { fraction: 0, kind: "gap", position: 0 },
+      { fraction: 0.5, kind: "gap", position: 0 },
+      { fraction: 0.5, kind: "value", position: 0.5 },
+      { fraction: 1, kind: "value", position: 0.5 }
     ]);
   });
 
@@ -112,9 +161,11 @@ function overlayWith(members: Array<[string, number, Array<[number, number | nul
     state: "available", reason: null, quantity: null, case: null, resolution: "station", unit: "MPa",
     members: new Map(members.map(([id, value, stations]) => [id, {
       value, rowId: `${id}:max`, position: 0,
-      stations: stations.map(([fraction, stationValue]) => ({ fraction, value: stationValue, rowIds: [`${id}@${fraction}`] }))
+      stations: stations.map(([fraction, stationValue]) => ({
+        fraction, value: stationValue, rowId: stationValue === null ? null : `${id}@${fraction}`, rowIds: [`${id}@${fraction}`], sign: null, signConvention: null
+      }))
     }])),
-    memberCount: members.length, noValueCount: 0, heldRowCount: 0, stationMemberCount: 0, gapStationCount: 0,
+    memberCount: members.length, noValueCount: 0, heldRowCount: 0, stationMemberCount: 0, gapStationCount: 0, signChangeIntervalCount: 0,
     unplacedRowCount: 0, noRatioCount: 0, minimum: 0, maximum: 10
   };
 }

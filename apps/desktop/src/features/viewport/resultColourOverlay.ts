@@ -33,6 +33,10 @@ export type ResultColourQuantity = Readonly<{
   attachment: ResultColourAttachment;
   /** Emitted rows (absent: rows), or the session rule-check run's outcomes of one stress category. */
   source?: "rows" | "rule_ratio";
+  /** Along members: true when each row states one signed value, so adjacent stations of opposite
+   * sign (under one stated sign convention) are not blended. Absent: an unsigned magnitude, or an
+   * extremum whose governing component may switch, whose sign is never inferred. */
+  signed?: boolean;
 }>;
 
 /** How values reach the tube: one value per member, or along each member from its stated stations. */
@@ -55,6 +59,18 @@ export function stationFraction(location: string | null | undefined): number | n
   return typeof location === "string" && Object.hasOwn(RESULT_STATION_FRACTIONS, location) ? RESULT_STATION_FRACTIONS[location] : null;
 }
 
+/**
+ * Whether two adjacent stated stations carry known opposite signs: both signs non-zero and
+ * opposite, stated under one sign convention. The contour does not blend across such an interval.
+ */
+export function oppositeSigns(
+  a: Readonly<{ sign?: number | null; signConvention?: string | null }>,
+  b: Readonly<{ sign?: number | null; signConvention?: string | null }>
+): boolean {
+  return typeof a.sign === "number" && typeof b.sign === "number" && a.sign * b.sign < 0 &&
+    typeof a.signConvention === "string" && a.signConvention === b.signConvention;
+}
+
 /** The ratio quantity id of a rule-check stress category group. */
 export const RULE_RATIO_QUANTITY_PREFIX = "rule-ratio:";
 
@@ -68,13 +84,13 @@ export const RESULT_COLOUR_QUANTITIES: readonly ResultColourQuantity[] = Object.
   { id: "normal-stress-extreme", label: "Section normal-stress extreme |σ±|", kind: "element_local_normal_stress_extreme", dimension: "stress", attachment: "member" },
   { id: "intensified-bending", label: "Intensified bending stress", kind: "component_equal_factor_intensified_bending_stress_v1", dimension: "stress", attachment: "source_rows" },
   { id: "transverse-shear", label: "Transverse shear stress maximum", kind: "element_local_transverse_shear_stress_maximum", dimension: "stress", attachment: "member" },
-  { id: "torsional-shear", label: "Torsional shear stress |τ|", kind: "element_local_torsional_shear_stress", dimension: "stress", attachment: "member" },
-  { id: "axial-force", label: "Axial force |N|", kind: "element_local_axial_force", dimension: "force", attachment: "member" },
-  { id: "shear-force-y", label: "Shear force |Vy|", kind: "element_local_shear_force_y", dimension: "force", attachment: "member" },
-  { id: "shear-force-z", label: "Shear force |Vz|", kind: "element_local_shear_force_z", dimension: "force", attachment: "member" },
-  { id: "torsional-moment", label: "Torsional moment |T|", kind: "element_local_torsional_moment", dimension: "moment", attachment: "member" },
-  { id: "bending-moment-y", label: "Bending moment |My|", kind: "element_local_bending_moment_y", dimension: "moment", attachment: "member" },
-  { id: "bending-moment-z", label: "Bending moment |Mz|", kind: "element_local_bending_moment_z", dimension: "moment", attachment: "member" }
+  { id: "torsional-shear", label: "Torsional shear stress |τ|", kind: "element_local_torsional_shear_stress", dimension: "stress", attachment: "member", signed: true },
+  { id: "axial-force", label: "Axial force |N|", kind: "element_local_axial_force", dimension: "force", attachment: "member", signed: true },
+  { id: "shear-force-y", label: "Shear force |Vy|", kind: "element_local_shear_force_y", dimension: "force", attachment: "member", signed: true },
+  { id: "shear-force-z", label: "Shear force |Vz|", kind: "element_local_shear_force_z", dimension: "force", attachment: "member", signed: true },
+  { id: "torsional-moment", label: "Torsional moment |T|", kind: "element_local_torsional_moment", dimension: "moment", attachment: "member", signed: true },
+  { id: "bending-moment-y", label: "Bending moment |My|", kind: "element_local_bending_moment_y", dimension: "moment", attachment: "member", signed: true },
+  { id: "bending-moment-z", label: "Bending moment |Mz|", kind: "element_local_bending_moment_z", dimension: "moment", attachment: "member", signed: true }
 ].map((quantity) => Object.freeze(quantity as ResultColourQuantity)));
 
 /** Range-envelope rows pick each value separately; they are never one solved state, so neither
@@ -188,7 +204,19 @@ export function availableResultColourQuantities(
 /** One stated station of a member: its fraction from the From node, and its value in the overlay's
  * unit, or null when the station has no colourable value (a row the numerical standing withholds,
  * a non-finite row, or a rule outcome that is withheld, incomplete or forms no ratio). */
-export type ResultColourStation = Readonly<{ fraction: number; value: number | null; rowIds: readonly string[] }>;
+export type ResultColourStation = Readonly<{
+  fraction: number;
+  value: number | null;
+  /** The row that gives the station's value (its largest magnitude), or null without a value. */
+  rowId: string | null;
+  rowIds: readonly string[];
+  /** For a signed quantity: the sign every row stated there shares (0 when all are zero), or null
+   * when they differ or the quantity is not signed. */
+  sign: -1 | 0 | 1 | null;
+  /** The sign convention every row stated there shares, or null. Signs are compared only between
+   * stations with one convention. */
+  signConvention: string | null;
+}>;
 
 export type ResultColourMember = Readonly<{
   /** The largest absolute value over the member's rows, in the overlay's unit; along members, the
@@ -222,6 +250,9 @@ export type ResultColourOverlay = Readonly<{
   stationMemberCount: number;
   /** Along members: stated stations with no colourable value; the tube is not coloured beside them. */
   gapStationCount: number;
+  /** Along members: intervals between adjacent stations of opposite sign under one sign convention;
+   * not coloured. */
+  signChangeIntervalCount: number;
   /** Along members: shown rows of a member drawn from its stations that state no station; not drawn. */
   unplacedRowCount: number;
   /** Rule ratio: outcomes that are incomplete or form no ratio, so colour nothing. */
@@ -242,7 +273,7 @@ function emptyOverlay(
   return Object.freeze({
     state, reason, quantity, case: overlayCase, resolution, unit: null, members: new Map(),
     memberCount: model.pipe_segments.length, noValueCount: model.pipe_segments.length,
-    heldRowCount: counts.heldRowCount ?? 0, stationMemberCount: 0, gapStationCount: 0, unplacedRowCount: 0,
+    heldRowCount: counts.heldRowCount ?? 0, stationMemberCount: 0, gapStationCount: 0, signChangeIntervalCount: 0, unplacedRowCount: 0,
     noRatioCount: counts.noRatioCount ?? 0, minimum: null, maximum: null
   });
 }
@@ -258,6 +289,7 @@ type Contribution = Readonly<{
   value: number;
   unit: string;
   state: "shown" | "held" | "gap";
+  signConvention: string | null;
 }>;
 
 /** The fraction of a row's value along a member under the quantity's attachment, or null. */
@@ -294,7 +326,10 @@ function rowContributions(
     if (held) heldRowCount += 1;
     const state = held ? "held" : finite ? "shown" : "gap";
     for (const member of members) {
-      contributions.push({ id: row.id, member, fraction: rowFraction(row, member, quantity.attachment, model, members), value: row.value, unit: row.unit, state });
+      contributions.push({
+        id: row.id, member, fraction: rowFraction(row, member, quantity.attachment, model, members), value: row.value, unit: row.unit, state,
+        signConvention: row.metadata?.sign_convention ?? null
+      });
     }
   }
   return { contributions, heldRowCount };
@@ -320,7 +355,7 @@ function ruleContributions(
     else if (!hasRatio) noRatioCount += 1;
     contributions.push({
       id: row.key, member: place.member, fraction: place.fraction, value: hasRatio ? ratio! : Number.NaN, unit: "",
-      state: held ? "held" : hasRatio ? "shown" : "gap"
+      state: held ? "held" : hasRatio ? "shown" : "gap", signConvention: null
     });
   }
   return { contributions, heldRowCount, noRatioCount };
@@ -339,7 +374,17 @@ function largestOf(items: readonly Contribution[]): Largest | null {
 
 /** A member's stated stations: the largest magnitude at each fraction, or null where any value
  * stated there cannot colour. */
-function memberStations(items: readonly Contribution[]): { stations: ResultColourStation[]; largest: Largest | null } {
+/** The sign all of a station's rows share, and their shared sign convention, for a signed quantity. */
+function stationSign(at: readonly Contribution[], signed: boolean): { sign: -1 | 0 | 1 | null; signConvention: string | null } {
+  if (!signed || at.length === 0) return { sign: null, signConvention: null };
+  const conventions = new Set(at.map((item) => item.signConvention));
+  const signConvention = conventions.size === 1 ? [...conventions][0] : null;
+  const signs = new Set(at.map((item) => Math.sign(item.value)).filter((sign) => sign !== 0));
+  if (signs.size > 1) return { sign: null, signConvention };
+  return { sign: signs.size === 0 ? 0 : ([...signs][0] as -1 | 1), signConvention };
+}
+
+function memberStations(items: readonly Contribution[], signed: boolean): { stations: ResultColourStation[]; largest: Largest | null } {
   const byFraction = new Map<number, Contribution[]>();
   for (const item of items) {
     if (item.fraction === null) continue;
@@ -350,7 +395,11 @@ function memberStations(items: readonly Contribution[]): { stations: ResultColou
     const colourable = at.every((item) => item.state === "shown");
     const best = colourable ? largestOf(at) : null;
     if (best && (!largest || best.value > largest.value)) largest = best;
-    return Object.freeze({ fraction, value: best ? best.value : null, rowIds: Object.freeze(at.map((item) => item.id)) });
+    const { sign, signConvention } = best ? stationSign(at, signed) : { sign: null, signConvention: null };
+    return Object.freeze({
+      fraction, value: best ? best.value : null, rowId: best ? best.rowId : null, rowIds: Object.freeze(at.map((item) => item.id)),
+      sign, signConvention
+    });
   });
   return { stations, largest };
 }
@@ -407,12 +456,14 @@ export function buildResultColourOverlay(input: {
   for (const item of contributions) byMember.set(item.member, [...(byMember.get(item.member) ?? []), item]);
   const drawn = new Map<string, { largest: Largest; stations: ResultColourStation[] }>();
   let gapStationCount = 0;
+  let signChangeIntervalCount = 0;
   let unplacedRowCount = 0;
   for (const [member, items] of byMember) {
     if (resolution === "station") {
-      const { stations, largest } = memberStations(items);
+      const { stations, largest } = memberStations(items, quantity.signed === true);
       if (stations.length >= 2) {
         gapStationCount += stations.filter((station) => station.value === null).length;
+        signChangeIntervalCount += stations.filter((station, index) => index > 0 && oppositeSigns(stations[index - 1], station)).length;
         unplacedRowCount += items.filter((item) => item.fraction === null && item.state === "shown").length;
         // A member none of whose stations can colour has no value, as any other member without one.
         if (largest) drawn.set(member, { largest, stations });
@@ -442,7 +493,7 @@ export function buildResultColourOverlay(input: {
     noValueCount: model.pipe_segments.filter((pipe) => !members.has(pipe.id)).length,
     heldRowCount,
     stationMemberCount: [...members.values()].filter((member) => member.stations.length >= 2).length,
-    gapStationCount, unplacedRowCount, noRatioCount, minimum, maximum
+    gapStationCount, signChangeIntervalCount, unplacedRowCount, noRatioCount, minimum, maximum
   });
 }
 
@@ -462,7 +513,9 @@ export function aboveThreshold(value: number, threshold: number | null | undefin
 /**
  * The per-member colours the viewport draws, for both themes: a member with a value takes its
  * position on the result scale, every other member the no-value colour. Under a threshold a member
- * whose value is not above it is left out of the table, so it draws its plain pipe colour. Null
+ * whose value is not above it is left out of the table, so it draws its plain pipe colour. Along
+ * members, a member drawn from its stations has the no-value colour on its own tube, beneath and
+ * beyond its sleeve. Null
  * unless the overlay is available and shown as colours, so a held or unavailable overlay, or the
  * numbers display, leaves the figure neutral.
  */
@@ -475,6 +528,9 @@ export function resultColourTable(
   const noValue = Object.freeze({ light: resultNoValueHex("light"), dark: resultNoValueHex("dark") });
   return new Map(model.pipe_segments.flatMap((pipe) => {
     const member = overlay.members.get(pipe.id);
+    // Along members, a member drawn from its stations takes the no-value colour on its own tube:
+    // the sleeve shows the stated span, and nothing outside it is coloured.
+    if (member && member.stations.length >= 2) return [[entityKey({ type: "pipe", id: pipe.id }), noValue] as const];
     if (member && !aboveThreshold(member.value, options.threshold)) return [];
     const colour = member
       ? Object.freeze({ light: resultScaleHex("light", member.position), dark: resultScaleHex("dark", member.position) })
