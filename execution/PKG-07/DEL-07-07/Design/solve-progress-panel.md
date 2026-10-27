@@ -28,7 +28,7 @@ status poll, the cancellation receipt and the terminal transition).
 | Completion | the completed event's `result_row_count` and `diagnostic_count` |
 | Refusal | `resource.refusal`: its reading, the refusal point's retry path (`describeSolveRefusalRetry`) and its exact code with its byte fields |
 | Failure | `error_message`, or the worker-failure reading (`describeSolveWorkerFailure`) |
-| Events | every entry of `events`, in order, with its state and message |
+| Events | the run's entries of `events`, in order, with their state and message (entries of the record held when the run started are left out) |
 
 **No percentage, estimate or clock.** The job reports states and events only:
 `progress_basis` is `preview_service_event_state_only_no_percent_stream` and
@@ -41,13 +41,20 @@ panel.
 ## When it shows
 
 - A run opens it: the panel appears when the session's `running` flag turns
-  true, and follows the record from then on.
+  true. The session turns that flag on before the run's first record replaces
+  the previous one, so the panel keeps the record held at the start and never
+  shows it, or its events, as the new run's (Codex review r1 of #1665). Until
+  the new job reports, the panel reads **Starting** ("The solve was requested;
+  its job has not reported a state yet."), shows no job id and offers Cancel.
+  A record built over the previous record's events, such as a cancellation
+  before the start receipt, lists only its own events.
 - It stays open after the terminal state, so a completion, cancellation,
   failure or refusal remains readable. **Close** dismisses it until the next
   run.
-- A record that describes no job (`not_started`: a model edit, undo, a new
-  project) closes it. A completed record the session did not run, such as a
-  run restored from the project store, never opens it.
+- Afterwards it shows only the run's last job. A record of another job (a run
+  restored from the project store) or one that describes no job
+  (`not_started`: a model edit, undo, a new project) closes it, and a record
+  the session did not run never opens it.
 
 ## Cancel
 
@@ -80,3 +87,10 @@ job reports.
   panel opens on Analyze → Run, shows the running stage, and its Cancel sends
   exactly one `cancel_preview_mechanics_job` with the job's token. It then
   shows the cancelled state, and Close dismisses it.
+- The rerun regressions (Codex review r1 of #1665): in
+  `SolveProgressPanel.test.tsx`, a rerun after a failed and after a completed
+  job shows Starting with Cancel and none of the previous job; a pre-start
+  cancellation lists only its own event; a later restored record is hidden.
+  In `App.solveProgress.test.tsx`, Codex's probe: after a failed run and
+  Close, a second run whose start receipt is deferred shows Starting, no job
+  id and an enabled Cancel, then the new job once it reports.

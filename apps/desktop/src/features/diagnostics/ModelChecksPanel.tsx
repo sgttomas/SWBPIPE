@@ -23,12 +23,15 @@ const announcedRuns = new WeakSet<ModelCheckRun>();
 export function ModelChecksPanel({
   model,
   run,
+  busy = false,
   onRun,
   onSelectEntity
 }: {
   model: PreviewModel;
   /** The last run of the checks in this session; null before the first. */
   run: ModelCheckRun | null;
+  /** A run is in progress (the native check is admitted and running). */
+  busy?: boolean;
   onRun: () => void;
   onSelectEntity: (entity: EntityRef) => void;
 }) {
@@ -70,10 +73,11 @@ export function ModelChecksPanel({
           aria-keyshortcuts={MODEL_CHECKS_ARIA_SHORTCUTS}
           className="secondary-action"
           data-testid="model-checks-run"
-          onClick={onRun}
+          aria-disabled={busy}
+          onClick={() => { if (!busy) onRun(); }}
           type="button"
         >
-          {run ? "Run model checks again" : "Run model checks"}
+          {busy ? "Running model checks" : run ? "Run model checks again" : "Run model checks"}
         </button>
         <kbd>{MODEL_CHECKS_SHORTCUT}</kbd>
       </div>
@@ -83,6 +87,11 @@ export function ModelChecksPanel({
       {stale ? (
         <p className="memory-pool-message warning" data-testid="model-checks-stale">
           The model has changed since these checks ran; run them again to check the current model.
+        </p>
+      ) : null}
+      {run && run.notShown > 0 ? (
+        <p className="memory-pool-message info" data-testid="model-checks-not-shown">
+          {run.notShown} more {run.notShown === 1 ? "finding of the solve's checks is" : "findings of the solve's checks are"} not listed: the report is bounded. Correct the listed findings and run the checks again.
         </p>
       ) : null}
       {run && run.solve.kind !== "checked" ? (
@@ -133,6 +142,7 @@ function FindingButton({ finding, onSelectEntity }: { finding: ModelCheckFinding
       <strong>{diagnostic.code}</strong> <span className="muted">{diagnostic.severity}</span>
       <p>{diagnostic.message}</p>
       {entity ? <small>Selects {entity.id}</small> : null}
+      {(diagnostic as { truncated?: boolean }).truncated ? <small data-testid="model-check-truncated"> Text shortened in the bounded report.</small> : null}
     </button>
   );
 }

@@ -3065,11 +3065,22 @@ export function useWorkspaceSession() {
   // B11 on-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`):
   // the session's last run, shown in the Issues drawer. The checks read the
   // model as it stands and never change it.
+  // In the app the solve's checks run natively under the memory pool, so a run
+  // is asynchronous: a later request (or a new project session) supersedes it.
   const [modelCheckRun, setModelCheckRun] = useState<ModelCheckRun | null>(null);
-  function handleRunModelChecks() {
+  const [modelCheckBusy, setModelCheckBusy] = useState(false);
+  const modelCheckRequest = useRef(0);
+  async function handleRunModelChecks() {
     if (!model) return;
-    setModelCheckRun(runModelChecks(model, libraryRefDiagnostics(currentLibraryRefFindings(model))));
+    const request = ++modelCheckRequest.current;
+    const generation = projectSessionGenerationRef.current;
     setIssuesDrawerOpen(true);
+    setModelCheckBusy(true);
+    const run = await runModelChecks(model, libraryRefDiagnostics(currentLibraryRefFindings(model)));
+    if (request !== modelCheckRequest.current) return;
+    setModelCheckBusy(false);
+    if (generation !== projectSessionGenerationRef.current) return;
+    setModelCheckRun(run);
   }
 
   // Single command sink for both the in-DOM menu bar (tested) and the native
@@ -3158,7 +3169,7 @@ export function useWorkspaceSession() {
         setActiveSection("solve");
         break;
       case "analyze.check-model":
-        handleRunModelChecks();
+        void handleRunModelChecks();
         break;
       default: {
         const prefix = "view.section.";
@@ -3712,6 +3723,7 @@ export function useWorkspaceSession() {
       auditDrawerOpen, setAuditDrawerOpen,
       issuesDrawerOpen, setIssuesDrawerOpen,
       modelCheckRun,
+      modelCheckBusy,
       handleRunModelChecks,
       stageSurface,
       stageViewMemory, setStageViewMemory,

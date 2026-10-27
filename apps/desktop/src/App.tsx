@@ -309,6 +309,7 @@ function AppSession() {
     auditDrawerOpen, setAuditDrawerOpen,
     issuesDrawerOpen, setIssuesDrawerOpen,
     modelCheckRun,
+    modelCheckBusy,
     handleRunModelChecks,
     stageSurface,
     stageViewMemory,
@@ -1140,7 +1141,8 @@ function AppSession() {
           onClose={() => setIssuesDrawerOpen(false)}
           onSelectDiagnostic={handleSelectDiagnostic}
           modelCheckRun={modelCheckRun}
-          onRunModelChecks={handleRunModelChecks}
+          modelCheckBusy={modelCheckBusy}
+          onRunModelChecks={() => { void handleRunModelChecks(); }}
           onSelectEntity={(entity) => { handleSelectEntity(entity); }}
         />
       ) : null}
@@ -1582,6 +1584,7 @@ function IssuesHome({
   onClose,
   onSelectDiagnostic,
   modelCheckRun = null,
+  modelCheckBusy = false,
   onRunModelChecks = () => {},
   onSelectEntity = () => {}
 }: {
@@ -1595,6 +1598,7 @@ function IssuesHome({
   onSelectDiagnostic: (diagnosticId: string) => void;
   /** B11: the session's last on-demand model-check run and its command. */
   modelCheckRun?: ModelCheckRun | null;
+  modelCheckBusy?: boolean;
   onRunModelChecks?: () => void;
   onSelectEntity?: (entity: EntityRef) => void;
 }) {
@@ -1610,7 +1614,7 @@ function IssuesHome({
           Close
         </button>
       </div>
-      <ModelChecksPanel model={model} run={modelCheckRun} onRun={onRunModelChecks} onSelectEntity={onSelectEntity} />
+      <ModelChecksPanel model={model} run={modelCheckRun} busy={modelCheckBusy} onRun={onRunModelChecks} onSelectEntity={onSelectEntity} />
       {operationDiagnostics.length > 0 ? (
         <section className="panel issues-operation-list" aria-label="Operation diagnostics">
           <div className="panel-title">Operation diagnostics</div>

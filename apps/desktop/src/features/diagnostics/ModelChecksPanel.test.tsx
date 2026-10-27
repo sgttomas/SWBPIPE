@@ -11,6 +11,7 @@ const model = { diagnostics: [] } as unknown as PreviewModel;
 const run: ModelCheckRun = {
   model,
   solve: { kind: "checked" },
+  notShown: 0,
   findings: [
     { key: "solve:0:a", group: "solve", entity: { type: "node", id: "node:a" },
       diagnostic: { id: "diagnostic:topology:disconnected", code: "MODEL_TOPOLOGY_DISCONNECTED", severity: "warning", message: "invented two-part text", affected_refs: ["node:a", "node:c"] } },
@@ -94,5 +95,19 @@ describe("ModelChecksPanel", () => {
     expect(screen.getByTestId("model-checks-stale")).toHaveTextContent("The model has changed since these checks ran; run them again to check the current model.");
     expect(screen.getByTestId("model-checks-solve-unchecked")).toHaveTextContent("The solve's checks did not run: the solve cannot read this model (INVENTED_REFUSAL: text).");
     expect(screen.getByRole("list", { name: "Model check findings" })).toHaveTextContent("Solve input, restraint and topology checks not run");
+  });
+
+  it("states how many findings the bounded report left out, marks shortened text, and shows a run in progress", () => {
+    const bounded: ModelCheckRun = { ...run, notShown: 12, findings: [{ ...run.findings[0], diagnostic: { ...run.findings[0].diagnostic, truncated: true } as typeof run.findings[0]["diagnostic"] }] };
+    const onRun = vi.fn();
+    const view = render(<ModelChecksPanel model={model} run={bounded} onRun={onRun} onSelectEntity={() => {}} />);
+    expect(screen.getByTestId("model-checks-not-shown")).toHaveTextContent("12 more findings of the solve's checks are not listed: the report is bounded.");
+    expect(screen.getByTestId("model-check-truncated")).toHaveTextContent("Text shortened in the bounded report.");
+    view.rerender(<ModelChecksPanel model={model} run={bounded} busy onRun={onRun} onSelectEntity={() => {}} />);
+    const button = screen.getByTestId("model-checks-run");
+    expect(button).toHaveTextContent("Running model checks");
+    expect(button).toHaveAttribute("aria-disabled", "true");
+    fireEvent.click(button);
+    expect(onRun).not.toHaveBeenCalled();
   });
 });

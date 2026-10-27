@@ -52,3 +52,47 @@ fn a_model_the_solve_cannot_read_is_reported_unchecked_with_its_refusal() {
     assert_eq!(report["refusal"], json!(solve));
     assert!(report.get("diagnostics").is_none());
 }
+
+// Codex review r1 of #1665: the report is bounded whatever the model, and the
+// browser engine refuses a model text above its bound before parsing it.
+#[test]
+fn the_report_is_bounded_whatever_the_model() {
+    use open_pipe_stress_operation_applier::{
+        model_checks_text, MODEL_CHECKS_INPUT_TOO_LARGE, MODEL_CHECKS_MAX_BROWSER_INPUT_BYTES, MODEL_CHECKS_MAX_REFS,
+        MODEL_CHECKS_MAX_RESPONSE_BYTES, MODEL_CHECKS_MAX_TEXT_BYTES,
+    };
+    // 4,000 supports with long ids and an unknown family: one blocking finding each,
+    // whose references quote the long id (about 11.3 MB of findings unbounded).
+    let mut model: Value = serde_json::from_str(BUNDLED_DEMO).unwrap();
+    let node = model["nodes"][0]["id"].clone();
+    model["supports"] = Value::Array((0..4_000).map(|i| json!({"id": format!("support:review-{i}-{}", "é".repeat(400)), "node": node, "family": "review_unknown", "restraints": ["UX"], "provenance": "review_invented"})).collect());
+    let report = model_checks(&model);
+    let text = report.to_string();
+    assert!(text.len() <= MODEL_CHECKS_MAX_RESPONSE_BYTES + 512, "report {} bytes", text.len());
+    for finding in report["diagnostics"].as_array().unwrap() {
+        for key in ["id", "code", "severity", "message", "source"] {
+            assert!(finding[key].as_str().map_or(true, |text| text.len() <= MODEL_CHECKS_MAX_TEXT_BYTES), "{key}");
+        }
+        assert!(finding["affected_refs"].as_array().map_or(true, |refs| refs.len() <= MODEL_CHECKS_MAX_REFS));
+    }
+    let shown = report["diagnostics"].as_array().unwrap().len() as u64;
+    let solved = solve_diagnostics(&model);
+    assert_eq!(shown + report["diagnostics_not_shown"].as_u64().unwrap(), solved.len() as u64, "every finding is shown or counted");
+    let unbounded = serde_json::to_string(&solved).unwrap().len();
+    eprintln!("bounded report {} bytes, {shown} shown, {} not shown; unbounded findings {unbounded} bytes", text.len(), report["diagnostics_not_shown"]);
+    assert!(unbounded > MODEL_CHECKS_MAX_RESPONSE_BYTES, "the probe exceeds the bound unbounded");
+    assert!(report["diagnostics_not_shown"].as_u64().unwrap() > 0);
+
+    // A long text the solve quotes in its refusal is cut on a character boundary.
+    let long = json!("révïew".repeat(200_000));
+    let report = model_checks(&long);
+    assert_eq!(report["checked"], false);
+    assert!(report["refusal"].as_str().unwrap().len() <= MODEL_CHECKS_MAX_TEXT_BYTES);
+
+    // The browser bound: refused by name before any parse, at one byte over.
+    let over = format!("{}{}", " ".repeat(MODEL_CHECKS_MAX_BROWSER_INPUT_BYTES), "{}");
+    let report = model_checks_text(&over).unwrap();
+    assert_eq!((report["checked"].clone(), report["refusal_code"].clone()), (json!(false), json!(MODEL_CHECKS_INPUT_TOO_LARGE)));
+    assert!(model_checks_text(BUNDLED_DEMO).unwrap()["checked"] == true);
+    assert!(model_checks_text("{").is_err());
+}

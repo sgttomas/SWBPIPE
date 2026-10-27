@@ -1,7 +1,17 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const invokeMock = vi.hoisted(() => vi.fn());
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import { loadPreviewModel } from "../../services/previewService";
 import type { PreviewModel } from "../../types";
-import { runModelChecks } from "./modelChecks";
+import { loadedWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
+import { MODEL_CHECKS_MAX_BROWSER_INPUT_BYTES, runModelChecks } from "./modelChecks";
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  invokeMock.mockReset();
+  delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+});
 
 // DEL-04-06 Design `on-demand-model-checks.md`: the on-demand checks run the
 // solve's own pre-formation checks through the wasm engine, beside the
@@ -26,7 +36,7 @@ describe("on-demand model checks", () => {
   it("lists the solve's topology warning with its code and text, linked to the entity, and leaves the model unchanged", async () => {
     const model = withSecondLine(await loadPreviewModel());
     const before = JSON.stringify(model);
-    const run = runModelChecks(model);
+    const run = await runModelChecks(model);
     expect(JSON.stringify(model)).toBe(before);
     expect(run.model).toBe(model);
     expect(run.solve).toEqual({ kind: "checked" });
@@ -42,7 +52,7 @@ describe("on-demand model checks", () => {
   it("reports the solve's restraint pre-check as blocking, with no entity when it names none", async () => {
     const model = clone(await loadPreviewModel());
     model.supports = [];
-    const run = runModelChecks(model);
+    const run = await runModelChecks(model);
     const missing = run.findings.find((item) => item.diagnostic.code === "SUPPORT_INPUT_MISSING");
     expect(missing?.diagnostic).toMatchObject({ severity: "blocking", affected_refs: ["supports"] });
     expect(missing?.entity).toBeNull();
@@ -51,7 +61,7 @@ describe("on-demand model checks", () => {
   it("names a pipe end that points nowhere, linked to the pipe", async () => {
     const model = clone(await loadPreviewModel());
     model.pipe_segments[0] = { ...model.pipe_segments[0], to: "node:checks-missing" };
-    const run = runModelChecks(model);
+    const run = await runModelChecks(model);
     const unknown = run.findings.find((item) => item.group === "solve" && item.diagnostic.code === "PIPE_ENDPOINT_UNKNOWN");
     expect(unknown?.diagnostic.severity).toBe("blocking");
     expect(unknown?.entity).toEqual({ type: "pipe", id: model.pipe_segments[0].id });
@@ -60,9 +70,47 @@ describe("on-demand model checks", () => {
   it("states that the solve's checks did not run when the solve cannot read the model, with the solve's refusal", async () => {
     const model = clone(await loadPreviewModel());
     (model.nodes[0] as unknown as Record<string, unknown>).undeclared_member = true;
-    const run = runModelChecks(model);
+    const run = await runModelChecks(model);
     expect(run.solve.kind).toBe("refused");
     expect(run.solve.kind === "refused" && run.solve.refusal).toContain("undeclared_member");
     expect(run.findings.some((item) => item.group === "solve")).toBe(false);
+  });
+
+  // Codex review r1 of #1665: model-sized work runs under the native memory
+  // pool in the app, and under an explicit bound in the browser preview.
+  it("in the app, runs the solve's checks through the native command under ingress admission, never the wasm engine", async () => {
+    const model = withSecondLine(await loadPreviewModel());
+    const engine = loadedWasmEngine()!;
+    const wasm = vi.spyOn(engine, "modelChecksJson");
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue({ document_kind: "openpipestress.desktop.model_checks", checked: true, diagnostics_not_shown: 3,
+      diagnostics: [{ id: "diagnostic:topology:disconnected", code: "MODEL_TOPOLOGY_DISCONNECTED", severity: "warning", message: "invented native text", source: "core/product_physics", affected_refs: [model.nodes[0].id] }] });
+    const run = await runModelChecks(model);
+    // The test invoke decodes the raw args-json-v1 body: the command received exactly `{model}`.
+    expect(invokeMock).toHaveBeenCalledWith("check_preview_model", { model: JSON.parse(JSON.stringify(model)) });
+    expect(wasm).not.toHaveBeenCalled();
+    expect(run.solve).toEqual({ kind: "checked" });
+    expect(run.notShown).toBe(3);
+    expect(run.findings.find((item) => item.group === "solve")?.diagnostic.message).toBe("invented native text");
+  });
+
+  it("in the app, a native memory-pool refusal leaves the solve's checks not run, with the refusal named", async () => {
+    const model = clone(await loadPreviewModel());
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockRejectedValue({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "pool_exhausted", requested_bytes: 1024 ** 3, reserved_bytes: 12 * 1024 ** 3, pool_bytes: 12 * 1024 ** 3 } });
+    const run = await runModelChecks(model);
+    expect(run.solve).toEqual({ kind: "unavailable", reason: "Refused by the native memory pool: The memory pool is fully reserved: this request needs 1 GiB, and 12 GiB of the 12 GiB pool is already reserved." });
+    expect(run.findings.some((item) => item.group === "solve")).toBe(false);
+  });
+
+  it("in the browser preview, refuses a model text above the bound by name without passing it to the engine", async () => {
+    const model = clone(await loadPreviewModel());
+    model.nodes[0] = { ...model.nodes[0], provenance: "x".repeat(MODEL_CHECKS_MAX_BROWSER_INPUT_BYTES) };
+    const engine = loadedWasmEngine()!;
+    const wasm = vi.spyOn(engine, "modelChecksJson");
+    const run = await runModelChecks(model);
+    expect(wasm).not.toHaveBeenCalled();
+    expect(run.solve.kind).toBe("unavailable");
+    expect(run.solve.kind === "unavailable" && run.solve.reason).toMatch(/^MODEL-CHECKS-INPUT-TOO-LARGE: the browser preview checks a model text of at most 4194304 bytes/);
   });
 });

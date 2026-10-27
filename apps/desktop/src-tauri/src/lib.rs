@@ -2241,6 +2241,57 @@ fn convert_display_quantities_args(args: &mut Args) -> Result<Value, CommandErro
     Ok(open_pipe_stress_operation_applier::convert_display_quantities(&input))
 }
 
+/// The working memory the on-demand model checks may use beyond the ingress
+/// lease, as a multiple of the body's materialization bound M (DEL-04-07
+/// `memory-budget-decision.md`, "On-demand model checks"). The checks parse the
+/// model as the solve does (a checked canonical text, the invocation digest's
+/// copy and the typed request), then normalize and build it; the factor is a
+/// measured provision, not a proven bound (`model_checks_stay_within_their_lease`).
+pub(crate) const MODEL_CHECKS_WORKING_MEMORY_FACTOR: u64 = 8;
+
+/// B11 on-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`):
+/// `{model}` as a raw `args-json-v1` body, admitted and leased before it is
+/// parsed as every model-sized interactive command is. Before checking, the
+/// lease grows by [`MODEL_CHECKS_WORKING_MEMORY_FACTOR`] times M; a refused
+/// growth refuses the command with its typed `ResourceRefusal`. The bounded
+/// report (`operation_applier::model_checks_owned`) is serialized while the
+/// lease is held, off the main thread. Nothing is solved and the model is not
+/// written.
+#[tauri::command]
+async fn check_preview_model(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<NoCommandError>> {
+    let materialization = match invoke.body() {
+        tauri::ipc::InvokeBody::Raw(raw) => ingress::prescan(raw).map(|bound| bound.materialization_bytes).unwrap_or(0),
+        _ => 0,
+    };
+    let (mut args, mut lease) = command_ingress::admit(&registry, &invoke, "check_preview_model", ArgsDecoding::Moved)?;
+    let registry = registry.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let outcome = check_preview_model_args(&mut args, materialization, &registry, &mut lease);
+        let response = respond(outcome);
+        drop(lease);
+        response
+    })
+    .await
+    .unwrap_or_else(|_| Err(CommandError::Response("MODEL-CHECKS-WORKER-FAILED: the model checks' worker did not complete.".to_string())))
+}
+
+/// The check under `lease`, grown first by the working-memory provision for a
+/// body whose materialization bound is `materialization`.
+fn check_preview_model_args(
+    args: &mut Args,
+    materialization: u64,
+    registry: &SolveJobRegistry,
+    lease: &mut memory_pool::Lease,
+) -> Result<Value, CommandError<NoCommandError>> {
+    let model = args.value("model")?;
+    let growth = materialization.saturating_mul(MODEL_CHECKS_WORKING_MEMORY_FACTOR);
+    lease.grow_to(lease.bytes().saturating_add(growth)).map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))?;
+    Ok(open_pipe_stress_operation_applier::model_checks_owned(model))
+}
+
 #[tauri::command]
 fn get_local_storage_capability(app: AppHandle) -> Result<StorageCapability, String> {
     let path = app_store_path(&app)?;
@@ -5046,6 +5097,7 @@ macro_rules! app_invoke_handler {
             apply_model_operation_batch,
             get_unit_catalog,
             convert_display_quantities,
+            check_preview_model,
             get_local_storage_capability,
             create_local_project,
             open_local_project,
@@ -9533,6 +9585,73 @@ mod tests {
                 tauri::ipc::InvokeResponseBody::Json(text) => serde_json::from_str(&text).unwrap(),
                 tauri::ipc::InvokeResponseBody::Raw(_) => panic!("raw response"),
             }
+        }
+
+        /// B11 (Codex review r1 of #1665): the on-demand model checks run under
+        /// the interactive ingress lease grown by MODEL_CHECKS_WORKING_MEMORY_FACTOR
+        /// times M. Whole-command counting-allocator peaks, from the raw body
+        /// through admission, the check and the serialized response, are within
+        /// that lease less the buffered body's envelope, for each invented model
+        /// below (measured provisions for these inputs, not proven bounds). The
+        /// report equals the applier's.
+        #[test]
+        fn model_checks_stay_within_their_lease() {
+            use crate::command_ingress::test_support::headers;
+            use crate::command_ingress::{admit_body, INGRESS_ARGS_JSON_V1};
+            use tauri::ipc::InvokeBody;
+            let demo: Value = serde_json::from_str(BUNDLED_DEMO_MODEL).unwrap();
+            let node = demo["nodes"][0]["id"].clone();
+            let mut supports = demo.clone();
+            supports["supports"] = Value::Array((0..4_000).map(|i| json!({"id": format!("support:review-{i}-{}", "é".repeat(400)), "node": node, "family": "review_unknown", "restraints": ["UX"], "provenance": "review_invented"})).collect());
+            let mut chain = demo.clone();
+            let pipe = demo["pipe_segments"][0].clone();
+            chain["nodes"] = Value::Array((0..=6_000).map(|i| json!({"id": format!("node:chain-{i}"), "position": {"x": i as f64, "y": 0.0, "z": 0.0}, "provenance": "chain_invented"})).collect());
+            chain["pipe_segments"] = Value::Array((0..6_000).map(|i| { let mut p = pipe.clone(); p["id"] = json!(format!("pipe:chain-{i}")); p["from"] = json!(format!("node:chain-{i}")); p["to"] = json!(format!("node:chain-{}", i + 1)); p }).collect());
+            let mut anchor = demo["supports"][0].clone();
+            anchor["node"] = json!("node:chain-0");
+            chain["supports"] = json!([anchor]);
+            chain["components"] = json!([]);
+            let malformed = json!("review".repeat(200_000));
+            for (name, model) in [("demo", demo.clone()), ("4,000 long-id supports", supports), ("6,000-pipe chain", chain), ("a long string", malformed)] {
+                let raw = serde_json::to_vec(&json!({"model": model})).unwrap();
+                let bound = crate::ingress::prescan(&raw).unwrap();
+                let envelope = crate::ingress::allocation_envelope(raw.len() as u64).unwrap();
+                let ingress_lease = crate::command_ingress::lease_bytes(bound, ArgsDecoding::Moved).unwrap();
+                let body = InvokeBody::Raw(raw);
+                let registry = registry(ScriptedHost::normal());
+                let ((report, lease_bytes), measured) = crate::ingress::counting::measure(|| {
+                    let (mut args, mut lease) = admit_body(&registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1)), "check_preview_model", ArgsDecoding::Moved).unwrap();
+                    let response = respond(check_preview_model_args(&mut args, bound.materialization_bytes, &registry, &mut lease)).unwrap();
+                    drop(args);
+                    (response_json(response), lease.bytes())
+                });
+                assert_eq!(lease_bytes, ingress_lease + MODEL_CHECKS_WORKING_MEMORY_FACTOR * bound.materialization_bytes, "{name}");
+                assert_eq!(report, open_pipe_stress_operation_applier::model_checks(&model), "{name}");
+                assert!(report.to_string().len() <= open_pipe_stress_operation_applier::MODEL_CHECKS_MAX_RESPONSE_BYTES + 512, "{name}");
+                eprintln!(
+                    "model checks {name}: body {} B, M {} B, lease {} B, priced peak {} B ({:.2} M beyond the ingress lease)",
+                    body_len(&body), bound.materialization_bytes, lease_bytes - envelope, measured.peak_priced,
+                    measured.peak_priced.saturating_sub(ingress_lease - envelope) as f64 / bound.materialization_bytes as f64
+                );
+                assert!(measured.peak_priced <= lease_bytes - envelope, "{name}: priced peak {} exceeds its lease {}", measured.peak_priced, lease_bytes - envelope);
+            }
+            fn body_len(body: &InvokeBody) -> usize {
+                match body { InvokeBody::Raw(raw) => raw.len(), _ => 0 }
+            }
+        }
+
+        #[test]
+        fn model_checks_refuse_by_type_when_their_working_memory_is_not_admitted() {
+            let host = ScriptedHost::normal();
+            let registry = registry(host.clone());
+            let model: Value = serde_json::from_str(BUNDLED_DEMO_MODEL).unwrap();
+            let raw = serde_json::to_vec(&json!({"model": model})).unwrap();
+            let bound = crate::ingress::prescan(&raw).unwrap();
+            let (mut args, mut lease) = admit_json(&registry, "check_preview_model", ArgsDecoding::Moved, &json!({"model": model})).unwrap();
+            // Headroom falls after the ingress lease: the growth is refused, nothing is checked.
+            host.set(|script| script.headroom_bytes = Some(0));
+            let error = check_preview_model_args(&mut args, bound.materialization_bytes, &registry, &mut lease).unwrap_err();
+            assert!(matches!(error, CommandError::Ingress(SolveJobError::ResourceUnavailable { .. })), "{error:?}");
         }
 
         fn scratch_store(label: &str) -> PathBuf {
