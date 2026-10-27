@@ -1133,7 +1133,12 @@ function projectRouteValue(
     ) {
       return structuredClone(value);
     }
-    const directPrivacy = value.privacy_classification ?? value.classification;
+    // The `classification` alias is read only when `privacy_classification` is absent, as
+    // Python reads it: a present primary label, null included, is the label, so a null cannot
+    // let the alias lift a sibling into a public basis (HELP_HUMAN decision, 2026-10-27).
+    const directPrivacy = Object.prototype.hasOwnProperty.call(value, "privacy_classification")
+      ? value.privacy_classification
+      : value.classification;
     // A non-string label is a stated label that matches no class (input contract): `["public"]`
     // is not a public basis.
     const directRedistribution = value.redistribution_status;

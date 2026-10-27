@@ -352,6 +352,62 @@ fn classify_contract_item(
 
 /// A label the TypeScript and Python contracts read as unknown (`UNKNOWN_*` sets): absent,
 /// null, `unknown` or `TBD`.  Any other value, a non-string included, is a stated label.
+/// The generic route projector's direct public-basis reading of a record, as the
+/// TypeScript (`projectRouteValue`) and Python (`_declares_direct_public_basis`)
+/// projectors read it: its privacy is its own `privacy_classification`, or its
+/// `classification` alias only when `privacy_classification` is absent, so a present
+/// primary label, null included, is the label (HELP_HUMAN decision, 2026-10-27); a public
+/// basis is a safe privacy class with a public redistribution status, both strings. The
+/// record's provenance is not read. The runners do not project routes; this mirror holds
+/// the shared sweep's projector cases.
+#[cfg(test)]
+fn route_record_public_basis(record: &Map<String, Value>) -> bool {
+    let privacy = match record.get("privacy_classification") {
+        Some(stated) => Some(stated),
+        None => record.get("classification"),
+    };
+    matches!(
+        privacy.and_then(Value::as_str),
+        Some("public" | "public_metadata" | "invented_public_example")
+    ) && matches!(
+        record.get("redistribution_status").and_then(Value::as_str),
+        Some("public_permissive" | "invented_non_engineering_example")
+    )
+}
+
+/// The labelled leaf the route projector makes of a record's scalar member `key`, for a
+/// member the projector labels by its record's basis alone: a string other than `TBD`
+/// whose path holds no `tbd` and no private path token (such as the sweep's `note`).
+/// It is public metadata on a public basis, else unknown and pending. Other leaves are
+/// not mirrored.
+#[cfg(test)]
+fn route_basis_leaf(record: &Map<String, Value>, key: &str) -> Map<String, Value> {
+    let value = record.get(key).expect("record leaf");
+    assert!(
+        value.as_str().is_some_and(|text| text != "TBD")
+            && !key.to_ascii_lowercase().contains("tbd"),
+        "only a non-TBD string leaf is mirrored"
+    );
+    let (privacy, redistribution, review) = if route_record_public_basis(record) {
+        ("public_metadata", "public_permissive", "accepted")
+    } else {
+        ("unknown", "unknown", "pending")
+    };
+    Map::from_iter([
+        ("field_class".to_string(), serde_json::json!(key)),
+        (
+            "privacy_classification".to_string(),
+            serde_json::json!(privacy),
+        ),
+        (
+            "redistribution_status".to_string(),
+            serde_json::json!(redistribution),
+        ),
+        ("review_status".to_string(), serde_json::json!(review)),
+        ("value".to_string(), value.clone()),
+    ])
+}
+
 #[cfg(test)]
 fn unknown_label(value: Option<&Value>) -> bool {
     match value {
@@ -920,8 +976,9 @@ mod tests {
     /// The DEL-12-02 input-contract sweep, expanded by the same rule as
     /// `tests/security/test_redaction_input_contract_sweep.py` and
     /// `redactionInputContractSweep.test.ts`: items in family order labels, flags, claims,
-    /// each decided in the spec's twelve contexts in order.
-    const SWEEP_CASE_COUNT: usize = 74_760;
+    /// alias_items, each decided in the spec's twelve contexts in order; then the
+    /// alias_projector records, each decided in the projector's ten contexts in order.
+    const SWEEP_CASE_COUNT: usize = 82_600;
 
     struct SweepCase {
         family: &'static str,
@@ -929,6 +986,8 @@ mod tests {
         context: String,
         local_intent: bool,
         release_intent: bool,
+        /// The leaf of an `alias_projector` record, decided as the route projector labels it.
+        leaf_key: Option<String>,
     }
 
     fn sweep_json(text: &str) -> Value {
@@ -1027,6 +1086,43 @@ mod tests {
                 items.push(("claims", item));
             }
         }
+        let aliases = &spec["aliases"];
+        let alias_labels = |privacy: &Value, alias: &Value, redistribution: &Value| {
+            let mut labels = Map::new();
+            put(&mut labels, "privacy_classification", privacy);
+            put(&mut labels, "classification", alias);
+            put(&mut labels, "redistribution_status", redistribution);
+            labels
+        };
+        let mut alias_grid = Vec::new();
+        for privacy in list(&aliases["privacy_classification"]) {
+            for alias in list(&aliases["classification"]) {
+                for redistribution in list(&aliases["redistribution"]) {
+                    alias_grid.push((privacy.clone(), alias.clone(), redistribution));
+                }
+            }
+        }
+        for (privacy, alias, redistribution) in &alias_grid {
+            for placement in list(&aliases["item_placements"]) {
+                let labels = alias_labels(privacy, alias, redistribution);
+                let mut item = Map::from_iter([("value".to_string(), json!("x"))]);
+                match placement.as_str().expect("item placement") {
+                    "provenance" => {
+                        item.insert("provenance".to_string(), Value::Object(labels));
+                    }
+                    other => {
+                        item.extend(labels);
+                        if other == "item_private_provenance" {
+                            item.insert(
+                                "provenance".to_string(),
+                                aliases["private_provenance"].clone(),
+                            );
+                        }
+                    }
+                }
+                items.push(("alias_items", item));
+            }
+        }
         let contexts = list(&spec["contexts"]);
         let mut cases = Vec::with_capacity(items.len() * contexts.len());
         for (family, item) in items {
@@ -1037,19 +1133,53 @@ mod tests {
                     context: context[0].as_str().expect("context").to_string(),
                     local_intent: context[1].as_bool().expect("local intent"),
                     release_intent: context[2].as_bool().expect("release intent"),
+                    leaf_key: None,
                 });
+            }
+        }
+        let projector = &aliases["projector"];
+        let leaf_key = projector["leaf_key"].as_str().expect("leaf key");
+        for (privacy, alias, redistribution) in &alias_grid {
+            for placement in list(&projector["placements"]) {
+                let mut record = alias_labels(privacy, alias, redistribution);
+                if placement.as_str() == Some("record_public_provenance") {
+                    record.insert(
+                        "provenance".to_string(),
+                        projector["public_provenance"].clone(),
+                    );
+                }
+                record.insert(leaf_key.to_string(), projector["leaf_value"].clone());
+                for context in list(&projector["contexts"]) {
+                    cases.push(SweepCase {
+                        family: "alias_projector",
+                        item: record.clone(),
+                        context: context[0].as_str().expect("context").to_string(),
+                        local_intent: context[1].as_bool().expect("local intent"),
+                        release_intent: false,
+                        leaf_key: Some(leaf_key.to_string()),
+                    });
+                }
             }
         }
         cases
     }
 
     fn sweep_decision(case: &SweepCase) -> String {
-        let decided = classify_contract_item(
-            &case.item,
-            &case.context,
-            case.local_intent,
-            case.release_intent,
-        );
+        let decided = match &case.leaf_key {
+            // The route projector's decision on the record's one leaf.
+            Some(key) => classify_contract_item(
+                &route_basis_leaf(&case.item, key),
+                &case.context,
+                case.local_intent,
+                false,
+            ),
+            None => classify_contract_item(
+                &case.item,
+                &case.context,
+                case.local_intent,
+                case.release_intent,
+            ),
+        };
         format!("{}/{}", decided.action, decided.reason_code)
     }
 
@@ -1089,6 +1219,9 @@ mod tests {
     const ACTION_ORDER: [&str; 4] = ["include", "warning_only", "redact_value", "block_export"];
     const BEFORE_COLUMNS: [&str; 3] = ["python_before", "typescript_before", "rust_before"];
     const RAISED: &str = "raised/TypeError";
+    /// The Rust mirror had no route projector before the alias decision, so its frozen
+    /// column holds no decision for an alias_projector case.
+    const NOT_MIRRORED: &str = "not_mirrored/NO_ROUTE_PROJECTOR";
 
     fn strictness(code: &str) -> usize {
         let action = code.split('/').next().expect("action");
@@ -1109,16 +1242,18 @@ mod tests {
         assert_eq!(cases.len(), SWEEP_CASE_COUNT);
         assert_eq!(frozen["case_count"].as_u64(), Some(SWEEP_CASE_COUNT as u64));
         assert_eq!(frozen["action_order"], json!(ACTION_ORDER));
-        assert!(cases
-            .iter()
-            .all(|case| matches!(case.family, "labels" | "flags" | "claims")));
+        assert!(cases.iter().all(|case| matches!(
+            case.family,
+            "labels" | "flags" | "claims" | "alias_items" | "alias_projector"
+        )));
         (cases, frozen)
     }
 
     /// The ruling's proof obligation: every sweep case's decision is at least as strict as
     /// each implementation's frozen pre-contract decision.  Python's former TypeError on an
     /// array or object label is no decision; the case is held to the TypeScript and Rust
-    /// columns.
+    /// columns.  Nor is this mirror's `not_mirrored` on an alias_projector case; it is held
+    /// to the Python and TypeScript columns.
     #[test]
     fn sweep_decides_no_case_less_strictly_than_any_frozen_pre_contract_decision() {
         let (cases, frozen) = sweep_fixtures();
@@ -1131,7 +1266,10 @@ mod tests {
             let decided = sweep_decision(case);
             for (name, column) in &before {
                 assert_eq!(column.len(), SWEEP_CASE_COUNT, "{name}");
-                if column[index] != RAISED && strictness(&decided) < strictness(&column[index]) {
+                if column[index] != RAISED
+                    && column[index] != NOT_MIRRORED
+                    && strictness(&decided) < strictness(&column[index])
+                {
                     looser.push((index, *name, column[index].clone(), decided.clone()));
                 }
             }
@@ -1184,6 +1322,46 @@ mod tests {
             .iter()
             .all(|case| case.get("explicit_user_release_intent").is_some()));
         assert!(cases[cases.len() - 49..].iter().eq(added.into_iter()));
+    }
+
+    /// HELP_HUMAN decision, 2026-10-27: "A null primary label must not let an alias lift a
+    /// sibling into `public_report`."  The TypeScript projector read the `classification`
+    /// alias with `??` and so included `note`; Python reads it only when
+    /// `privacy_classification` is absent and redacts it, as all three now do.
+    #[test]
+    fn route_projector_reads_no_classification_alias_under_a_null_primary_label() {
+        let decide = |record: &Value| {
+            let record = record.as_object().expect("record");
+            let decided = classify_contract_item(
+                &route_basis_leaf(record, "note"),
+                "public_report",
+                false,
+                false,
+            );
+            (decided.action, decided.reason_code)
+        };
+        let mut record = json!({
+            "privacy_classification": null,
+            "classification": "public",
+            "redistribution_status": "public_permissive",
+            "note": "INVENTED"
+        });
+        assert!(!route_record_public_basis(
+            record.as_object().expect("record")
+        ));
+        assert_eq!(
+            decide(&record),
+            ("redact_value", "REDISTRIBUTION_STATUS_UNKNOWN")
+        );
+        // The alias is still the label when the primary member is absent.
+        record
+            .as_object_mut()
+            .expect("record")
+            .remove("privacy_classification");
+        assert!(route_record_public_basis(
+            record.as_object().expect("record")
+        ));
+        assert_eq!(decide(&record), ("include", "SAFE_PUBLIC_METADATA"));
     }
 
     /// Before the reorder `concrete_path_present: true` returned `redact_value` /

@@ -20,7 +20,8 @@ from core.security.redaction import classify_export_item, control_route_export  
 FIXTURE_DIR = ROOT / "fixtures" / "redaction_export_controls"
 SWEEP_PATH = FIXTURE_DIR / "input_contract_sweep.json"
 DECISIONS_PATH = FIXTURE_DIR / "input_contract_sweep_decisions.json"
-CASE_COUNT = 74_760
+CASE_COUNT = 82_600
+PROJECTOR = json.loads(SWEEP_PATH.read_text(encoding="utf-8"))["aliases"]["projector"]
 
 
 def load_json(path):
@@ -84,17 +85,72 @@ def expand_sweep(spec):
             item = {"value": "x", **base}
             put(item, "professional_claim", value)
             items.append(("claims", item))
-    return [
+    aliases = spec["aliases"]
+
+    def alias_labels(privacy, alias, redistribution):
+        labels = {}
+        put(labels, "privacy_classification", privacy)
+        put(labels, "classification", alias)
+        put(labels, "redistribution_status", redistribution)
+        return labels
+
+    alias_grid = [
+        (privacy, alias, redistribution)
+        for privacy in aliases["privacy_classification"]
+        for alias in aliases["classification"]
+        for redistribution in aliases["redistribution"]
+    ]
+    for privacy, alias, redistribution in alias_grid:
+        for placement in aliases["item_placements"]:
+            labels = alias_labels(privacy, alias, redistribution)
+            if placement == "provenance":
+                item = {"value": "x", "provenance": labels}
+            else:
+                item = {"value": "x", **labels}
+                if placement == "item_private_provenance":
+                    item["provenance"] = dict(aliases["private_provenance"])
+            items.append(("alias_items", item))
+    cases = [
         (family, item, context, local_intent, release_intent)
         for family, item in items
         for context, local_intent, release_intent in spec["contexts"]
     ]
+    projector = aliases["projector"]
+    for privacy, alias, redistribution in alias_grid:
+        for placement in projector["placements"]:
+            record = alias_labels(privacy, alias, redistribution)
+            if placement == "record_public_provenance":
+                record["provenance"] = dict(projector["public_provenance"])
+            record[projector["leaf_key"]] = projector["leaf_value"]
+            cases.extend(
+                ("alias_projector", record, context, local_intent, False)
+                for context, local_intent in projector["contexts"]
+            )
+    return cases
 
 
 def decide(case):
-    """The Python classifier's ``action/reason`` for one sweep case."""
+    """The Python ``action/reason`` for one sweep case: the classifier's for an item, the
+    route projector's for the one leaf of an ``alias_projector`` record."""
 
-    _family, item, context, local_intent, release_intent = case
+    family, item, context, local_intent, release_intent = case
+    if family == "alias_projector":
+        projector = PROJECTOR
+        controlled = control_route_export(
+            {projector["record_key"]: item},
+            route_id=projector["route_id"],
+            export_context=context,
+            explicit_local_private_intent=local_intent,
+        )
+        # A projected decision's path carries the projector's key prefix on each member.
+        leaf = f"$.{projector['record_key']}.{projector['leaf_key']}"
+        decided = [
+            f"{decision.action}/{decision.reason_code}"
+            for decision in controlled.decisions
+            if decision.path.replace("__route_key__", "") == leaf
+        ]
+        assert len(decided) == 1, (leaf, decided)
+        return decided[0]
     try:
         decision = classify_export_item(
             item,
@@ -122,6 +178,10 @@ def decoded_column(frozen, name):
 ACTION_ORDER = ("include", "warning_only", "redact_value", "block_export")
 BEFORE_COLUMNS = ("python_before", "typescript_before", "rust_before")
 RAISED = "raised/TypeError"
+# The Rust mirror had no route projector before the alias decision, so its frozen column
+# holds no decision for an alias_projector case.
+NOT_MIRRORED = "not_mirrored/NO_ROUTE_PROJECTOR"
+NO_DECISION = (RAISED, NOT_MIRRORED)
 
 
 def strictness(code):
@@ -141,7 +201,9 @@ def test_sweep_expands_to_the_pinned_case_count():
 def test_no_case_is_decided_less_strictly_than_before_in_any_implementation():
     """The ruling's proof obligation: every case's decision is at least as strict as each
     implementation's frozen pre-contract decision.  Python's former TypeError on an array or
-    object label is no decision; the case is held to the TypeScript and Rust columns."""
+    object label is no decision; the case is held to the TypeScript and Rust columns.  Nor is
+    the Rust column's ``not_mirrored`` on an alias_projector case; it is held to the Python
+    and TypeScript columns."""
 
     frozen = load_json(DECISIONS_PATH)
     cases = expand_sweep(load_json(SWEEP_PATH))
@@ -149,9 +211,9 @@ def test_no_case_is_decided_less_strictly_than_before_in_any_implementation():
     looser = []
     for index, case in enumerate(cases):
         decided = decide(case)
-        assert decided != RAISED, index
+        assert decided not in NO_DECISION, index
         for name, column in before.items():
-            if column[index] != RAISED and strictness(decided) < strictness(column[index]):
+            if column[index] not in NO_DECISION and strictness(decided) < strictness(column[index]):
                 looser.append((index, name, column[index], decided))
     assert looser == []
 
@@ -200,6 +262,38 @@ def test_route_projector_reads_an_array_label_as_no_public_basis():
         ("redact_value", "REDISTRIBUTION_STATUS_UNKNOWN")
     ]
     assert controlled.payload["record"]["note"] == "[REDACTED]"
+
+
+def test_route_projector_reads_no_classification_alias_under_a_null_primary_label():
+    """HELP_HUMAN decision, 2026-10-27: "A null primary label must not let an alias lift a
+    sibling into ``public_report``."  TypeScript read the ``classification`` alias with
+    ``??`` and so included ``note``; Python reads it only when ``privacy_classification`` is
+    absent and redacts it, as all three now do."""
+
+    record = {
+        "privacy_classification": None,
+        "classification": "public",
+        "redistribution_status": "public_permissive",
+        "note": "INVENTED",
+    }
+    controlled = control_route_export(
+        {"record": record}, route_id="DREP-JSON-002", export_context="public_report"
+    )
+    note = [decision for decision in controlled.decisions if decision.path.endswith("note")]
+    assert [(decision.action, decision.reason_code) for decision in note] == [
+        ("redact_value", "REDISTRIBUTION_STATUS_UNKNOWN")
+    ]
+    assert controlled.payload["record"]["note"] == "[REDACTED]"
+    # The alias is still the label when the primary member is absent.
+    del record["privacy_classification"]
+    controlled = control_route_export(
+        {"record": record}, route_id="DREP-JSON-002", export_context="public_report"
+    )
+    note = [decision for decision in controlled.decisions if decision.path.endswith("note")]
+    assert [(decision.action, decision.reason_code) for decision in note] == [
+        ("include", "SAFE_PUBLIC_METADATA")
+    ]
+    assert controlled.payload["record"]["note"] == "INVENTED"
 
 
 def test_concrete_path_never_turns_a_protected_block_into_a_redaction():
