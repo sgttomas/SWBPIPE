@@ -163,6 +163,26 @@ the legend says so in the product's words whenever Along member is selected:
 "a straight-line graphical blend of adjacent stated magnitudes, which does not
 represent a signed result or its zero crossing".
 
+### Sign changes: the rule and its reason
+
+**Rule.** Two adjacent stated stations of a signed quantity may carry opposite
+signs under one stated sign convention. The open interval between them is then
+a gap in the no-value colour, and each station keeps its own value at the
+station. An unsigned magnitude, or an extremum whose governing component may
+switch, carries no usable sign. Its stations are blended, and the legend
+discloses the blend explicitly.
+
+**Reason.** A signed result that changes sign between two stations must pass
+through zero somewhere between them. A straight-line blend of the two
+magnitudes stays above the smaller magnitude across the whole interval. It
+would therefore show a value at the place where the signed result must cross
+zero, overstating the result there. A gap shows only what the result states.
+For an unsigned quantity no such crossing is known, so the blend is kept, and
+the disclosure says it does not represent a signed result or its zero crossing.
+
+The rule was decided by the manager in review r1 and endorsed by Agent 0
+(2026-10-27).
+
 **One value per member** is the special case. Each member's value is the
 largest magnitude over all its rows, exactly as before this item. Its colour
 table, draw path and browser evidence are unchanged.
