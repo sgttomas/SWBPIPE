@@ -91,7 +91,8 @@ hard-coded model-version fixtures follow the 0.8.0 documents.
     budget whatever the model's shape, including the load-state fan-out Codex
     found in review r2. A refusal at intake, at the starting grant or while
     the worker runs leaves the checks not run, and the panel names it. The
-    check is not queued and has no job record;
+    starting grant waits for a worker slot or headroom as a solve's does, for
+    at most 2 s; the check has no job record;
   - in the browser preview, which has no pool, the wasm engine's
     `model_checks_json` checks a model text of at most 4 MiB, counted in UTF-8
     bytes, and refuses a longer one `MODEL-CHECKS-INPUT-TOO-LARGE` before

@@ -82,7 +82,7 @@ use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 /// Cancelling a running job kills its worker process (preemptive); a queued
 /// job exits before starting one.
@@ -353,6 +353,13 @@ pub(crate) struct ModelChecksInput {
     max_grant: u64,
 }
 
+/// How long an on-demand model check waits for its worker's starting grant, as
+/// a solve start waits in the queue (`MemoryPool::wait_acquire`): the same
+/// window as the intake and result leases' headroom re-sampling. A check has
+/// no job record to cancel, so the wait ends at this deadline, and the last
+/// queue reason stands as the check's refusal.
+pub(crate) const MODEL_CHECKS_START_WAIT: Duration = Duration::from_secs(2);
+
 /// How an on-demand model check did not produce its report.
 #[derive(Debug)]
 pub(crate) enum ModelChecksError {
@@ -369,7 +376,10 @@ pub(crate) enum ModelChecksError {
 pub(crate) struct ModelChecksOutput {
     pub report: Vec<u8>,
     pub lease: Lease,
+    /// Read by the worker-figure regressions; the command sends the report only.
+    #[cfg_attr(not(test), allow(dead_code))]
     pub peak_grant_bytes: u64,
+    #[cfg_attr(not(test), allow(dead_code))]
     pub peak_footprint_bytes: u64,
 }
 
@@ -677,17 +687,26 @@ impl SolveJobRegistry {
     }
 
     /// Runs an admitted model check in a capped worker process, as an ordinary
-    /// solve runs: its starting grant is admitted at once as a worker lease (a
-    /// refusal, including the worker count limit, stands; the check does not
-    /// queue), its grant grows on demand up to the per-invocation budget, and
+    /// solve runs: its starting grant is a worker lease taken by the solve's own
+    /// queue wait (`wait_acquire`: the worker count limit, the pool and a fresh
+    /// headroom verdict at each attempt), for at most [`MODEL_CHECKS_START_WAIT`],
+    /// after which the last queue reason stands as its typed refusal; its grant
+    /// grows on demand up to the per-invocation budget, and
     /// its report's bytes come back in a result lease, which the caller holds
     /// until it has sent them.
     pub(crate) fn run_model_checks(&self, input: ModelChecksInput) -> Result<ModelChecksOutput, ModelChecksError> {
         let ModelChecksInput { raw, lease, start_grant, max_grant } = input;
-        let mut grant = match self.pool.acquire(start_grant, LeasePurpose::Worker) {
+        let deadline = Instant::now() + MODEL_CHECKS_START_WAIT;
+        let mut queued: Option<ResourceRefusal> = None;
+        let waited = self.pool.wait_acquire(start_grant, LeasePurpose::Worker, &|| Instant::now() >= deadline, &mut |reason| {
+            queued = Some(reason.clone());
+        });
+        let mut grant = match waited {
             Ok(grant) => grant,
-            Err(refusal) => {
+            Err(WaitOutcome::Cancelled) => {
                 drop((raw, lease));
+                // The first attempt always precedes the deadline, so a reason was recorded.
+                let refusal = queued.unwrap_or(ResourceRefusal::HeadroomUnknown);
                 return Err(ModelChecksError::Unavailable(self.unavailable(refusal)));
             }
         };
@@ -2402,5 +2421,25 @@ mod tests {
         assert_eq!(reset.released_results, 0);
         assert!(registry.table().attested.job_numbers().is_empty());
         assert_eq!(registry.pool().reserved_total(), 0);
+    }
+
+    /// The starting grant waits in the solve's queue (`wait_acquire`, the
+    /// production entry a solve start uses) for at most the check's window,
+    /// then the queue reason stands: with no worker slot free the check is
+    /// refused `worker_limit_reached`, after the window, and nothing stays reserved.
+    #[test]
+    fn model_checks_wait_for_a_worker_slot_then_refuse_by_type() {
+        let host = ScriptedHost::normal();
+        let registry = registry(&host, TestLauncher::solve());
+        registry.pool().set_max_running_workers(0);
+        let demo: serde_json::Value = serde_json::from_str(crate::BUNDLED_DEMO_MODEL).unwrap();
+        let input = registry.admit_model_checks(&checks_body(&demo)).unwrap();
+        let started = std::time::Instant::now();
+        match registry.run_model_checks(input) {
+            Err(ModelChecksError::Unavailable(SolveJobError::ResourceUnavailable { refusal: ResourceRefusal::WorkerLimitReached { limit: 0, .. }, .. })) => {}
+            other => panic!("expected worker_limit_reached after the wait, got {other:?}"),
+        }
+        assert!(started.elapsed() >= MODEL_CHECKS_START_WAIT, "{:?}", started.elapsed());
+        assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
     }
 }
