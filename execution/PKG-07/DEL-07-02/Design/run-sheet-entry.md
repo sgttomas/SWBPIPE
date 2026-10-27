@@ -1,7 +1,7 @@
 # Run-sheet entry in the grid (B1)
 
 **Basis:** main `187b67bb6b` (2026-10-27). Design only; no product code.
-Revision 2, after Codex review r1 of `ebd9660fa1`.
+Revision 3, after Codex reviews r1 (`ebd9660fa1`) and r2 (`3bfc23653a`).
 Survey item B1 (`execution/_Coordination/PROPOSAL_2026-10-26_FEATURE_SURVEY.md`
 §Bundle B), adopted design-first under the owner's 2026-10-27 delegation
 (`loop/LOOP_INIT.md`). It serves FR-GUI-004 (`docs/PRD.md:503`, add and connect
@@ -352,8 +352,8 @@ available as an explicit, previewed command (open choice O1).
 from Pending changes returns them to draft. A draft row whose predecessor is
 queued waits for that batch to be applied.
 
-**Applied rows** (slice 4). Status comes from the row's history (§3.6), not
-from entity existence. An applied row shows stored values. Its increments read
+**Applied rows** (slice 4). Status comes from the history ledger and the
+reconciliation (§3.6), not from entity existence. An applied row shows stored values. Its increments read
 `stored(end) − stored(predecessor)`, converted to the sheet unit for display
 only.
 
@@ -445,47 +445,157 @@ are never deleted by the sheet.
 ### 3.6 Row lifecycle
 
 Entity existence cannot give a row's status. After an increment edit, the
-row's ids exist before the edit, after it, and after its Undo. The sheet
-therefore keeps transient history.
+row's ids exist before the edit, after it, and after its Undo. A row's status
+therefore combines two things:
+- a **history ledger** that mirrors the session's undo and redo stacks, which
+  says which of the row's actions are in effect;
+- a **reconciliation** against the model on every model revision, which says
+  whether the model still holds what those actions wrote.
 
-**History.** Each row holds:
-- its entered values;
-- a stack of **entries** `{batchId, action, basisHash, ownedIds, priorValues}`.
-  `action` is `create`, `edit`, `insert` or `delete`. `basisHash` is the model
-  hash the batch was queued on. `ownedIds` are the ids the action created.
-  `priorValues` are the entered values before an `edit`.
-- a **status**: `draft`, `queued`, `applied`, `deleted` or `detached`.
+**Row entries.** Each queued or applied action of a row is an entry
+`{batchId, action, ownedIds, valuesAfter, expected}`:
+- `action` is `create`, `edit`, `insert` or `delete`;
+- `ownedIds` are the ids the row owns after the action (§3.4);
+- `valuesAfter` are the row's entered values after the action;
+- `expected` maps each owned id to the JSON record the action's applied model
+  holds for it, or to "absent" for a deletion. It is captured from the batch
+  outcome's `applied_model` at the applied event.
 
-The workspace session reports these events to the sheet, keyed by `batch_id`,
-through one transient callback added in S2:
-- queued, with the basis hash;
-- validated or refused, with diagnostics;
-- applied, with `applied_model_backend_hash`;
-- withdrawn (Pending changes cleared, or the project changed);
-- undone and redone, with the checkpoint's `operation_id`.
+A row also keeps its `draftValues`, the entered values it had before its first
+entry.
+
+**The ledger.** The sheet keeps one ledger: a list of checkpoint records
+`{operationId, rowEntries}`, plus a cursor.
+- Records `[0, cursor)` are in effect, in apply order. Records
+  `[cursor, end)` are undone, and Redo takes them in list order from the
+  cursor.
+- So `ledger[cursor−1]` mirrors the top of the session's undo stack, and
+  `ledger[cursor]` mirrors the top of its redo stack.
+- **Every** session checkpoint has a record. A checkpoint from another surface
+  gets a **foreign** record with no row entries, so the ledger stays in step
+  with the session.
+
+A row's entries in effect are its entries in `ledger[0, cursor)`, in order.
+The last of them is its **current entry**. A row with none shows its
+`draftValues`. A row with one shows the current entry's `valuesAfter`.
+
+**Session events.** The workspace session reports these through one transient
+callback added in S2:
+
+| Event | When | Payload |
+|---|---|---|
+| `queued` | `handleQueueOperationBatch` registers a batch (`workspaceSession.ts:1277-1306`) | `batch_id`, registration key, basis revision and hash |
+| `validated` / `refused` | a validate or apply run returns | `batch_id`, outcome diagnostics |
+| `checkpoint` | any apply pushes an undo checkpoint (`workspaceSession.ts:1367`, 1506, 1569, 1664), before the model is committed | `operation_id`, and for a batch the outcome's `applied_model` |
+| `undone` / `redone` | `handleUndoSessionModelEdit` / `handleRedoSessionModelEdit` (`workspaceSession.ts:1720-1765`) | the checkpoint's `operation_id` |
+| `history-reset` | the session empties its stacks (`setUndoStack([])`: `workspaceSession.ts:1878`, 2190, 2277, 2405, 3475) | none |
+| `invalidated` | a registration is retired because the model changed (below) | `batch_id`, key, reason |
+| `withdrawn` | Pending changes cleared, or the project replaced (`handleClearReviewQueue`, `withdrawBatchRegistrations`, `workspaceSession.ts:1245-1275`) | `batch_id`, key |
+| `abandoned` | a run of a registered batch ends with neither an outcome nor a retirement | `batch_id`, key, reason |
 
 **Transitions.**
 
-| Event | From | To |
+| Event | Ledger | Rows |
 |---|---|---|
-| Queue | `draft`, or `applied` with an edit or delete pending | `queued`; the entry is pushed with `basisHash` |
-| Validation or apply refused (blocking finding, stale basis "The model changed", or a late step failing) | `queued` | the previous status; entry popped; diagnostics shown on the rows. The atomic batch publishes no model when any step fails (`atomic_batch.rs:166-170`, 192). |
-| Withdrawn | `queued` | the previous status; entry popped |
-| Applied | `queued` | `applied`, or `deleted` for a delete entry. The entry keeps the applied hash. |
-| Undone (`operation_id` = the row's top entry's `batchId`) | `applied` or `deleted` | `create` or `insert` → `draft` with the same ids and values; `edit` → `applied` with `priorValues` restored; `delete` → `applied` |
-| Redone (same `batchId`) | as left by Undo | the entry's applied status again |
-| A model change no entry explains removes an owned entity | `applied` | `detached`: read-only, shown with the reason "Changed outside the sheet"; it can be removed from the sheet without any operation |
+| Queue (the sheet) | — | Each row in the batch gets a **pending** entry, which is not in the ledger. Status `queued`. |
+| `refused`, `invalidated`, `withdrawn`, `abandoned` for a pending batch | — | The pending entry is dropped. The row's status is re-derived (reconciliation below). For `invalidated` and `abandoned`, the row is marked "Requeue needed". |
+| `checkpoint` with a pending batch's id | Dispose of records `[cursor, end)`, since the session cleared its redo stack. Append a record holding the pending entries, with `expected` filled from `applied_model`. Cursor + 1. | Pending entries are now in effect. |
+| `checkpoint` with any other id | Dispose of `[cursor, end)`; append a foreign record; cursor + 1 | — |
+| `undone` with `ledger[cursor−1].operationId` | Cursor − 1 | The record's rows fall back to their previous entry in effect, or to `draftValues`. |
+| `redone` with `ledger[cursor].operationId` | Cursor + 1 | The record's entries are in effect again. |
+| `undone` or `redone` with any other id, or `history-reset` | Fold the in-effect records into a permanent base. Discard the undone ones. Cursor = base length. | Each row keeps its current entry, which can no longer be undone from the sheet. |
 
+- **Disposal.** An entry in a disposed record is gone. A row whose entries
+  are all disposed returns to `draft` with its `draftValues` and ids. A row
+  that still has an earlier entry in effect keeps it.
+- **Worked example.** Apply create A, then edit B, then edit C; the cursor
+  is 3.
+  - Undo matches C at `ledger[2]`: cursor 2, and the row shows B's values.
+  - Undo matches B at `ledger[1]`: cursor 1, and the row shows A's values.
+  - Redo matches `ledger[1]` = B: cursor 2.
+  - Instead, after the second Undo, a new edit D disposes B and C, appends
+    D, and sets the cursor to 2. The row's entries are A, D.
+- **Cap.** The session keeps 25 checkpoints (`slice(0, 25)`). A checkpoint
+  dropped from the bottom can no longer be undone, so its record never moves
+  again. It needs no event.
+
+**Reconciliation.** The sheet re-derives the status of every row with a
+current entry on every model revision. This covers revisions from the sheet,
+other surfaces, Undo, Redo and opened states.
+- Look up each id in the current entry's `expected` in the current model.
+  - If every observed record equals its expected record, or is absent where
+    absence is expected, the status is `applied`, or `deleted` for a
+    deletion.
+  - Otherwise the status is `detached`. The row is read-only, shows stored
+    values, and lists the differing ids under "Changed outside the sheet".
+- A draft row whose reserved id now exists in the model gets the refusal
+  "Id ⟨id⟩ now exists in the model". It stays `draft`, and Queue is blocked.
+- A `detached` row offers:
+  - **Adopt current values**, only when every owned id exists: replace
+    `expected` with the current records, with no operation;
+  - **Remove from sheet**, with no operation.
+
+**Why reconciliation is exact.**
+- Undo and Redo commit a clone of the whole checkpoint model
+  (`commitModel(clonePreviewModel(checkpoint.model))`,
+  `workspaceSession.ts:1735`, 1758). Returning to the state some apply
+  produced therefore restores each owned record as the same JSON value that
+  was captured from that apply's `applied_model`.
+- The comparison is equality of JSON values: deep, independent of key order,
+  numbers by value. This is the same relation as equality of their RFC 8785
+  canonical texts. JCS is a function of the JSON value, and it prints +0 and
+  −0 alike, as the value comparison treats them.
+- So a row returns to `applied` exactly when its records are restored. That
+  holds whichever surface or checkpoint caused the change: for example,
+  Undo of another surface's deletion of a sheet-owned support. It needs no
+  tolerance and no matching of checkpoint ids. Any other difference keeps the
+  row `detached`.
+
+**Retiring stale registrations** (a session change, in S2's scope).
+- Today a queued batch whose basis revision is no longer current shows
+  disabled Validate and Apply buttons (`BatchReviewPanel.tsx:68-77`).
+  `handleRunOperationBatch` returns silently on a revision mismatch
+  (`workspaceSession.ts:1318`). So the hash refusal at
+  `workspaceSession.ts:1345` is never reached, and the queued rows would
+  never be released. S2 changes the session so that:
+  1. In the layout effect that advances `modelRevision`
+     (`workspaceSession.ts:668-672`), after the increment, every batch
+     registration whose `basisRevision` differs from the new revision is
+     revoked (removed from `batchRegistrations`). Its Pending changes entry
+     becomes a retired notice: "Prepared on an earlier model and withdrawn.
+     Prepare it again." Its only action is Dismiss. `invalidated` is emitted
+     once per registration. This applies to every producer's batches, since
+     none of them could run anyway. BatchReviewPanel's tests for the stale
+     state change with it.
+  2. An applied batch's registration is consumed before the model is
+     committed, and its `checkpoint` event comes first. So the revision step
+     never invalidates the batch that caused it.
+  3. In `handleRunOperationBatch`, every return after the registration lookup
+     that produces no outcome, and is not covered by step 1, emits
+     `abandoned` with its reason. These are the returns where
+     `stillCurrent()` fails. The plain "busy" return (`workspaceSession.ts:1318`)
+     is not an abandonment: the batch stays queued and its buttons stay
+     disabled until the request ends.
+  4. `handleClearReviewQueue` and `withdrawBatchRegistrations` emit
+     `withdrawn` for each registration they revoke.
+- **Requeue** is an ordinary Queue on the current model:
+  - it rebuilds the batch from the rows' entered values and the current
+    record projection;
+  - it uses a new `batch_id`, the current basis hash and `before` texts read
+    from the current model;
+  - it re-checks ids against the current reservations (the retired
+    registration no longer reserves anything) and reruns the sheet rules and
+    validation.
+
+  The retired batch's content is never resubmitted. If an applied-row edit's
+  target changed meanwhile, the requeued `set_field` takes the current stored
+  value as `before` and the user's entered value as `after`, and the diff
+  shows it.
+
+**Other rules.**
 - `deleted` rows are hidden, with a count and an "Undo restores" note. Queue
-  never emits operations for `deleted` or `detached` rows. So a deleted row
-  cannot turn back into a draft and be recreated, except by Undo of its
-  deletion.
-- **Stale basis.** At apply, the existing queue refuses a batch whose basis
-  hash differs from the current model (`workspaceSession.ts:1345`). Its
-  rows return to their previous status, and the sheet offers Requeue, which
-  rebuilds the batch on the current model.
-- A checkpoint pushed off the 25-entry undo stack leaves its rows `applied`
-  for the rest of the session.
+  never emits operations for `deleted` or `detached` rows. A deleted row can
+  return only through Undo of its deletion.
 
 ## 4. Validation and refusal
 
@@ -812,7 +922,9 @@ scrutiny).
   - code cells, the keyboard flow of §5.1–5.3 and row menus;
   - per-row refusals from both rule sets;
   - Queue to `handleQueueOperationBatch`;
-  - the row lifecycle of §3.6 for create batches, with the session callback.
+  - the session changes of §3.6: the event callback, the retirement of stale
+    registrations, `abandoned` and `withdrawn`;
+  - the ledger, the reconciliation, and Requeue (§3.6), for create batches.
 - **Tests.**
   - `RunSheet.test.tsx`:
     - the Enter fast path and row append;
@@ -831,8 +943,21 @@ scrutiny).
     - typing rows, Queue, the batch in Pending changes with its diff, Apply;
     - Undo returning the rows to `draft`, and Redo returning them to
       `applied`;
-    - **stale queue basis**: a model edit after Queue makes Apply refuse;
-      the rows return to `draft`, and Requeue succeeds;
+    - **multiple Undo and Redo**: two sheet batches with another surface's
+      checkpoint between them, undone three times and redone three times.
+      The ledger cursor and every row's status follow at each step;
+    - **restoration**: a sheet-owned support deleted in the inspector makes
+      its row `detached`. Undo of that deletion returns the row to `applied`.
+      Adopt current values and Remove from sheet also work;
+    - **history reset**: opening a saved state folds the ledger, and the rows
+      reconcile;
+    - **stale queue basis and Requeue**:
+      - a model edit on another surface after Queue retires the registration
+        and emits `invalidated`;
+      - the rows return to `draft`, marked "Requeue needed";
+      - Requeue queues a new batch on the current model and applies;
+      - a running batch abandoned by a revision change releases its rows
+        too;
     - **late-step rollback** in the UI: rows return to `draft` with the
       refusal on the failing row;
     - withdrawal by clearing Pending changes.
@@ -858,9 +983,12 @@ scrutiny).
   deep-equals it, and native and wasm apply it to the same expected model.
   - **Increment edit.** Downstream stored positions are unchanged, bit for
     bit.
-  - **Undo and Redo of an applied edit.** Undo restores the row's prior
-    entered values and status `applied`; Redo reapplies. Ids exist
-    throughout, and the status still follows the history.
+  - **Undo and Redo of applied edits.**
+    - Create A, edit B, edit C. Undo, Undo, Redo, Redo: the row shows C,
+      then B, A, B and C, and stays `applied`. Ids exist throughout.
+    - **Divergent edit.** After two Undos, a new edit D disposes B and C.
+      The row's entries are A, D, and a further Redo is unavailable in both
+      the session and the sheet.
   - **Shared-section insertion.** The inserted pipe carries `section_ref`, and
     a later shared-section edit propagates to it.
   - **Deleting the first row** (a `P` with no later rows) deletes its node and
