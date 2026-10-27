@@ -2,9 +2,10 @@
 
 **Basis:** main `ad03de4a0c` (2026-10-27). Design only; no product code.
 
-**Status:** revision 2, after Codex design review r1 (on `22dc6edcbd`: no P1; four P2s
-and the OC-3, OC-5 and OC-7 conditions, resolved here), for Agent 0's decisions
-(§6) before any implementation.
+**Status:** revision 3, after Codex design reviews r1 (on `22dc6edcbd`: no P1;
+four P2s and the OC-3, OC-5 and OC-7 conditions) and r2 (on `a87d8df6b8`: the
+canonical decimal, the rounding width and the zero result), all resolved here,
+for Agent 0's decisions (§6) before any implementation.
 Survey item C1 (operating-condition sets) with the solver lane's two 0.9.0
 members. Risk class: persistence and numerical meaning, so every build slice
 takes targeted regression checks and independent scrutiny by a separate agent
@@ -253,17 +254,49 @@ today's pipeline, unchanged, applied to the lowered model.
 
 This is normative, so that Rust (production), Python (the E3 reference) and
 TypeScript (with `BigInt`, should it ever compute ΔT; the desktop uses the wasm
-lowering) give the same bits.
+lowering) give the same bits. No step uses a language's float formatter.
 
-- **The decimal.** For a finite binary64 v, its shortest round-trip decimal is
-  the shortest decimal string that parses back to v, and the one nearest v when
-  several have that length: Rust `format!("{v:e}")`, Python `repr(v)` and
-  JavaScript `Number.prototype.toString` each produce it. Write it m·10^e with
-  m and e integers, m carrying no trailing zero (m = 0 gives e = 0).
-- **Admitted operand range.** |v| ≤ 10^6 in its own unit, and e ≥ −24. Typed
-  values (350.1, 20.3, 1e-5) are inside it. Every absolute temperature in a
-  condition set (each condition's, the installation, design and peak values) is
-  judged at document level; one outside the range is
+- **Width.** All arithmetic is exact on unsigned integers of at least 256 bits:
+  in Rust a fixed 256-bit type on the stack (no heap allocation, no new
+  arbitrary-precision dependency), in Python `int`, in TypeScript `BigInt`.
+  Every intermediate below is bounded under 2^192, so 256 bits leaves margin.
+- **The operand's decimal (the canonical decimal).** Why a decimal and not the
+  binary value itself: the user types a decimal, and the binary value of 20.3
+  minus that of 20.1 is 0.19999999999999928…, not 0.2. Every decimal with at
+  most 15 significant digits is recovered exactly by the rule below (binary64
+  keeps 15 decimal digits), so for typed values the operand is what the user
+  typed, whatever the tie rule. The tie rule matters only for 17-digit values,
+  and it is fixed here because Rust's formatter and Python's or JavaScript's
+  disagree on them.
+  1. **Binary pre-gate.** v = 0 gives the decimal 0. Otherwise v must satisfy
+     2^−80 ≤ |v| ≤ 2^20 (outside it,
+     `OPERATING_CONDITION_TEMPERATURE_RANGE_UNSUPPORTED`). Write
+     |v| = B·2^E exactly, with B ∈ [2^52, 2^53), so −132 ≤ E ≤ −32 (every
+     admitted value is normal).
+  2. **Decade.** p is the largest integer with 10^p ≤ |v|, found by integer
+     comparison; −25 ≤ p ≤ 6.
+  3. **Search.** For n = 1, 2, …, 17, let q = p − n + 1 and
+     d₀ = floor(|v| / 10^q), computed as floor(B·10^(−q) / 2^(−E)) for q ≤ 0,
+     or floor(B / (2^(−E)·10^q)) for q > 0. The candidates are d₀ and d₀ + 1.
+     A candidate d round-trips when X = d·10^q lies in the rounding interval of
+     |v|: below by half the lower gap and above by half the upper gap. The upper
+     gap is 2^E; the lower gap is 2^E, or 2^(E−1) when B = 2^52. X must lie
+     strictly inside, or on an end only when B is even (the parser's
+     ties-to-even). Comparisons are made on integers after multiplying by
+     2^(1−E)·10^max(0, −q).
+  4. **Choice.** The first n with a round-tripping candidate decides. If both
+     candidates round-trip, take the one closer to |v|; if they are equally
+     close, take the even d. This is the rule of Python's `repr` and of
+     ECMAScript's `Number::toString`; Rust's `format!("{v:e}")` takes the other
+     candidate on such ties.
+  5. **Form.** Strip trailing zeros: |v|'s decimal is m·10^e with m not divisible
+     by 10; restore the sign. Bound: d < 10^17, 10^(−q) ≤ 10^41 and
+     2^(1−E) ≤ 2^133, so every integer of this stage is below 2^192.
+- **Admitted operand range.** After the pre-gate, |v| ≤ 10^6 in its own unit
+  and e ≥ −24. The pre-gate only bounds the work and excludes nothing this
+  range admits: any v with |v| ≤ 10^6 and e ≥ −24 lies within [2^−80, 2^20]. Typed values (350.1, 20.3, 1e-5) are inside it. Every absolute
+  temperature in a condition set (each condition's, the installation, design and
+  peak values) is judged at document level; one outside the range is
   `OPERATING_CONDITION_TEMPERATURE_RANGE_UNSUPPORTED`, and one below zero kelvin
   is `OPERATING_CONDITION_QUANTITY_INVALID`.
 - **Integer form.** With D = 9·10^24 and M = m·10^(e+24) (an integer, as
@@ -273,24 +306,31 @@ lowering) give the same bits.
   - degF: N = 5·(M + 45967·10^22);
   - degR: N = 5·M.
 
-  In range, |M| ≤ 10^30, so |N| < 10^31 and the difference
-  N(T) − N(T₀) < 2·10^31, well inside a signed 128-bit integer (about
-  1.7·10^38). No intermediate leaves that range, and nothing can overflow.
+  In range |M| ≤ 10^30, so |N| < 10^31 < 2^104, and the difference
+  N(T) − N(T₀) has |N| < 2·10^31 < 2^105.
 - **Rounding.** ΔT = RN(N/D) with N = N(T) − N(T₀). If N = 0, ΔT = +0.0.
-  Otherwise, with a = |N|, let k = bitlen(a) − bitlen(D) − 53. Divide (a by
-  D·2^k if k ≥ 0, else a·2^−k by D) to get quotient q and remainder r; if
-  q ≥ 2^53, add 1 to k and divide again. Round up when 2r exceeds the divisor,
-  or equals it and q is odd. If q reaches 2^53, set q = 2^52 and add 1 to k.
-  ΔT = sign(N)·q·2^k.
-- **Result range.** A nonzero |N| ≥ 1 gives |ΔT| ≥ 1/D ≈ 1.1·10^−25, and in
-  range |ΔT| < 1.1·10^6. Every result is a normal binary64: never subnormal,
-  never overflowing. An exact tie cannot occur: a dyadic N/D has its lowest bit
-  at 2^−24 or above (D's power of two is 2^24), so 54 significant bits would
-  need |ΔT| ≥ 2^29, outside the range. Ties-to-even is stated for completeness.
-- **`exact_kelvin` is not extended.** Its bounded `i128` rationals refuse values
-  such as 1e-310, which the range above excludes too. Within the range it
-  computes the same rational, and S2 may call it or the integer form; E3 checks
-  that they agree.
+  Otherwise, with a = |N|, let k = bitlen(a) − bitlen(D) − 53; bitlen(D) = 83.
+  Since a < 2^105, k < 0 throughout the range. Divide a·2^(−k) by D to get
+  quotient q and remainder r; if q ≥ 2^53, add 1 to k and divide again. Round up
+  when 2r > D, or 2r = D and q is odd. If q reaches 2^53, set q = 2^52 and add 1
+  to k. ΔT = sign(N)·q·2^k. **Bound:** the shifted numerator a·2^(−k) has
+  bitlen(D) + 53 = 136 bits, so it is below 2^136 (it exceeds a signed 128-bit
+  integer; for 1e-24 K − 0 K, N = 9, k = −132 and a·2^(−k) = 9·2^132 ≈
+  4.9·10^40); 2r < 2D < 2^84.
+- **Result range.** Every nonzero result is a normal binary64: |N| ≥ 1 gives
+  |ΔT| ≥ 1/D ≈ 1.1·10^−25, and in range |ΔT| < 1.1·10^6, so it is never
+  subnormal and never overflows. An exact zero produces +0.0. An exact tie
+  cannot occur: a dyadic N/D has its lowest bit at 2^−24 or above (D's power of
+  two is 2^24), so 54 significant bits would need |ΔT| ≥ 2^29, outside the
+  range. Ties-to-even is stated for completeness.
+- **`exact_kelvin` is not used and not changed.** It takes the decimal from
+  Rust's formatter (`format!("{value:e}")`), which differs from the canonical
+  decimal on 17-digit ties (the `0x3f80010000000000` regression), and it uses
+  bounded `i128` rationals. C1's lowering uses only the rule above. The EX
+  route's temperature identity therefore keeps its own decimal on such ties.
+  Whether to align it with the canonical decimal is a separate numerical change
+  for DEL-04-07, reported here and not made by C1. E3 compares the two only on
+  rows where they agree, and lists the rows where they differ.
 
 Then, for every document: remove `condition_use` from each case,
 `condition_set_ref` from each pipe and `condition_sets` from the model; and
@@ -371,8 +411,9 @@ is `shear_model`'s "results identical, model hash differs" (0.8.0 §0).
 
 **What the temperature claim is, and is not.** ΔT is the exact difference of the
 two authored temperatures, rounded once.
-- For K and degC inputs it is the binary64 value of the decimal difference, so a
-  user's own ΔT typed in K or degC solves byte-identically too. Example:
+- For K and degC inputs typed with up to 15 significant digits, it is the
+  binary64 value of the decimal difference, so a user's own ΔT typed in K or
+  degC solves byte-identically too. Example:
   20.3 degC − 20.1 degC gives the binary64 nearest 0.2; the units crate's binary64 affine
   route (`temperature_difference`) gives 0.19999999999998863.
 - For degF and degR inputs the twin's ΔT is in K. A ΔT the user types in degF
@@ -398,10 +439,12 @@ decimal ΔT in K or degC matches exactly; a typed degF or degR ΔT may not.
 - **E2, envelope.** Solve D and T(D) on both solver modes; the envelopes are
   byte-identical after removing the hash-bound fields, which are listed.
 - **E3, ΔT.** A table of (T, unit, T₀, unit) → expected bits, generated by an
-  independent Python reference (`fractions.Fraction` of the shortest repr and
-  the exact unit definitions; `float()` of a Fraction rounds correctly), and
-  cross-checked against a Python transcription of §1.5.1's integer algorithm. It
-  covers:
+  independent Python reference (`fractions.Fraction` of `repr(v)`, which
+  follows the canonical decimal's tie rule, and the exact unit definitions;
+  `float()` of a Fraction rounds correctly). It is cross-checked against a
+  Python transcription of §1.5.1's integer algorithm, decimal stage included,
+  which also asserts every intermediate is below 2^192 (decimal stage) and 2^136
+  (rounding). It covers:
   - K, degC, degF and degR, and mixed units;
   - equal temperatures (+0.0) and negative ΔT;
   - the two examples above;
@@ -411,10 +454,23 @@ decimal ΔT in K or degC matches exactly; a typed degF or degR ΔT may not.
     `OPERATING_CONDITION_TEMPERATURE_RANGE_UNSUPPORTED`);
   - a value below zero kelvin (`OPERATING_CONDITION_QUANTITY_INVALID`);
   - near-halfway cases (an exact tie cannot occur in range, §1.5.1);
-  - agreement with `exact_kelvin` on every admitted row.
+  - **the decimal tie regression:** binary64 `0x3f80010000000000` has the
+    canonical decimal 0.007814407348632812 (m = 7814407348632812, e = −18),
+    not Rust's formatter's 7.814407348632813e-3; that value K − 0.007 K gives
+    ΔT bits `3f4aafbe76c8b435`, where the formatter's decimal would give
+    `3f4aafbe76c8b43e`;
+  - **the width regression:** 1e-24 K − 0 K, with N = 9, k = −132 and shifted
+    numerator 9·2^132 ≈ 4.9·10^40 (above signed `i128`), gives ΔT bits
+    `3af357c299a88ea7`;
+  - the decimal stage against `repr` (Python) and `Number#toString` (Node) on a
+    random sample of admitted values, and against Rust's formatter, listing the
+    tie rows where Rust differs;
+  - agreement with `exact_kelvin` on the rows where its decimal is the canonical
+    one, and a list of the rows where it is not.
 
   Mutants killed: the binary64 affine route; conversion of each temperature
-  before subtraction; truncation in place of rounding.
+  before subtraction; truncation in place of rounding; the formatter's decimal
+  in place of the canonical one; a 128-bit intermediate in the rounding.
 - **E4, order.** A case where authored and generated weight on one pipe sum
   differently in another order; a mutant that prepends generated primitives, or
   uses set order, changes E2's bytes.
@@ -765,7 +821,7 @@ per-element temperatures into condition sets (DEL-17-04).
 | OC-2 | **Stored or read-resolved** | (a) Assignment stored explicitly per pipe; inheritance in authoring tools (§1.4). (b) Values resolved at read by the lowering, not generated into cases | (a) Re-assigning a line is a bulk change; no topology rule is needed. Read-time inheritance would need a "run" or evaluated `lines[]` rule, ambiguous at tees. (b) One source of truth; authoring-time generation would duplicate values in every case and need a staleness check like self-weight's. |
 | OC-3 | **Coexistence with per-case values** | Exclusive per case for temperature, pressure and wind exposure; added weight additive (§1.7) | A case cannot mix condition and hand-typed temperatures; per-pipe exceptions are made with another set. Precedence would override stated values without a trace. |
 | OC-4 | **0.8.0 documents** | Retired, refused by name, nothing migrated (§3.2) | Same burden as at 0.8.0: users re-author by changing the token, using the recovery export for stored projects. A desktop rewrite action is migration code and changes DEL-02-05 CLM-003, an owner decision. |
-| OC-5 | **PF temperature basis: a new numerical policy for Agent 0's approval** | Absolute condition temperatures, the set's installation temperature, exact difference rounded once in kelvin within §1.5.1's range (§1.5, §1.8) | The twin carries 0.2, not 0.19999999999998863; equivalence is to the twin, not to today's absolute-temperature conversion route, so a per-case ΔT formed through the unit route (as 0.8.0-era documents carry) can differ by ulps from the condition route for the same temperatures. Needs a new correctly rounded rational → binary64 conversion, with the E3 reference. Alternatives: the units crate's `temperature_difference` (no new numerics; last-bit differences from the decimal ΔT, e.g. 0.19999999999998863 for 0.2); or storing ΔT in the condition (no arithmetic, but not an operating temperature, and EX needs absolutes). A model-level installation temperature in place of the per-set one is smaller but cannot express lines installed at different temperatures. |
+| OC-5 | **PF temperature basis: a new numerical policy for Agent 0's approval** | Absolute condition temperatures, the set's installation temperature, each operand read as its canonical decimal (the typed decimal for values of up to 15 significant digits; ties to the even digit), exact difference rounded once in kelvin within §1.5.1's range (§1.5, §1.8) | The twin carries 0.2, not 0.19999999999998863; equivalence is to the twin, not to today's absolute-temperature conversion route, so a per-case ΔT formed through the unit route (as 0.8.0-era documents carry) can differ by ulps from the condition route for the same temperatures. Needs a new canonical-decimal stage and a correctly rounded conversion on 256-bit integers, with the E3 reference; the EX route's `exact_kelvin` keeps the formatter's decimal on 17-digit ties unless DEL-04-07 aligns it. Alternatives: the units crate's `temperature_difference` (no new numerics; last-bit differences from the decimal ΔT, e.g. 0.19999999999998863 for 0.2); or storing ΔT in the condition (no arithmetic, but not an operating temperature, and EX needs absolutes). A model-level installation temperature in place of the per-set one is smaller but cannot express lines installed at different temperatures. |
 | OC-6 | **Key form** | String keys (REQ-02-01-03) | Typos are caught as `OPERATING_CONDITION_KEY_MISSING` at solve, not at entry. An integer index k is positional; a model-level key registry adds a member and catches typos earlier. |
 | OC-7 | **Members read by no solve in 0.9.0** | Carry per-condition `contents_density` with its case key (refused at solve), `design`, `peak`, `snow_ice` and `wave` now, each visibly labelled "not used by the solve in 0.9.0" wherever shown (§1.2) | Avoids a 0.10.0 step when their consumers come; the format is fixed before those consumers are designed. Omitting them keeps 0.9.0 smaller, and each later adoption is a version step that strands projects again. |
 | OC-8 | **A pipe without a set in a case that uses conditions** | Refuse the case by name | Every pipe needs a set (an ambient pipe states its temperature). Skipping would be a silent zero. |
