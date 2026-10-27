@@ -93,7 +93,9 @@ button and the chord run the same step; the tests compare the two routes step by
 - **Focus.** A button step leaves focus on the button. At an end, the button is marked
   `aria-disabled` and does nothing, but it stays focusable, so focus is not lost to the document
   when the end is reached. A key step from a result row moves focus to the new current row, since
-  the row being left may leave the page. A key step from anywhere else leaves focus where it is.
+  the row being left may leave the page. When the destination has no current row (an empty
+  table, or a table without the entity), focus moves instead to that step's own button, which
+  stays mounted, so the keys keep working. A key step from anywhere else leaves focus where it is.
 
 ## 4. Following the current row
 
@@ -131,9 +133,10 @@ same filters, and every case any row states. No list leaves out a row, a case or
 numerical standing, its health or its rule outcome.
 
 - **Numerical health.** Rows keep their health badges. Where the table badges rows (the generic
-  route), a case whose state is not "checks passed" carries it in the case stepper and the case
-  select, for example "Load case L-1 (numerical health: sensitive)", so a stepped-to case never
-  reads as passed. A withheld combination has no state and no badge, as in the table. The health
+  route), a case with a stated numerical-health state other than "checks passed" is named with
+  that state in the case stepper and the case select, for example "Load case L-1 (numerical
+  health: sensitive)", so a stepped-to case never reads as passed. Withheld combinations retain
+  the table's absence of a state and badge. The health
   header, the output sentence and the per-case detail are unchanged above the navigator.
 - **Standing.** The standing line (`numerical-result-standing`, from `resultStanding.ts` and the
   retained and source-route readers) stays above the navigator for every route, including
@@ -164,7 +167,8 @@ compliance or adequacy, compares nothing with a limit, and selects no governing 
   product's preview-physics-2 output for the invented unicode-ids vector: the labelled groups,
   buttons and chords; one support's reactions read case by case by key, with the selection, the
   table's case and focus following; key and button parity over a mixed sequence; ends that stop,
-  say so and keep focus; an empty table; an entity with no rows in the next table; the page and
+  say so and keep focus; focus kept in the panel when a key step from a row reaches an empty
+  table or a table without the entity; an empty table; an entity with no rows in the next table; the page and
   scroll following a far row; keys left to the filter field and selects; no result change and no
   callback but the row selection; a sensitive case named and its badges kept; a withheld
   combination's rows stepped with no badge; and an unsupported result stepped under its unchanged

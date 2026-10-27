@@ -205,16 +205,22 @@ export function ResultsPanel({
   }
 
   /** Shows `entity`'s first row of `rows`: its page, its row in view, and the session's
-   * selection of it (through `onSelectResult`, as a click on the row). Nothing else changes. */
-  function follow(entity: string | null, rows: MechanicsResult["results"], focus: boolean) {
+   * selection of it (through `onSelectResult`, as a click on the row). Nothing else changes.
+   * `focus` is the key step that came from a result row: focus moves to the new current row, or,
+   * when the destination has none, to that step's own button, which stays mounted and focusable,
+   * so focus never leaves the panel with the row being left. */
+  function follow(entity: string | null, rows: MechanicsResult["results"], focus: NavigatorStep | null) {
     const at = entity === null ? -1 : rows.findIndex((row) => row.entity_ref === entity);
     if (at < 0) {
       setPageIndex(0);
+      if (focus) {
+        panelRef.current?.querySelector<HTMLElement>(`[data-testid="results-navigator-${focus.axis}-${focus.delta > 0 ? "next" : "previous"}"]`)?.focus();
+      }
       return;
     }
     setTracked((current) => ({ ...current, entity }));
     setPageIndex(selectionOnly ? 0 : Math.floor(at / pageSize));
-    setReveal({ rowId: rows[at].id, focus });
+    setReveal({ rowId: rows[at].id, focus: focus !== null });
     onSelectResult(rows[at].id);
   }
 
@@ -222,13 +228,14 @@ export function ResultsPanel({
     return result && labels ? rowsUnderFilters(result.results, labels, { filterText, familyFilter: family, frame: activeFrame, caseKey }) : [];
   }
 
-  function chooseCase(caseKey: string, focus = false) {
+  function chooseCase(caseKey: string, focus: NavigatorStep | null = null) {
     setEndNotice(null);
     setCaseFilter(caseKey);
     follow(navEntity, rowsFor(familyFilter, caseKey), focus);
   }
 
-  function navigate(axis: NavigatorAxis, delta: 1 | -1, focus = false) {
+  function navigate(axis: NavigatorAxis, delta: 1 | -1, fromRow = false) {
+    const focus = fromRow ? { axis, delta } : null;
     const target = stepTarget(axis, delta);
     if (target === null) {
       setEndNotice(`${delta > 0 ? "Last" : "First"} ${NAVIGATOR_AXIS_NOUN[axis]} reached.`);
@@ -769,6 +776,7 @@ function MechanicsGapLedger({ gaps }: { gaps: MechanicsGap[] }) {
   );
 }
 
+type NavigatorStep = Readonly<{ axis: NavigatorAxis; delta: 1 | -1 }>;
 const NAVIGATOR_AXIS_NOUN: Readonly<Record<NavigatorAxis, string>> = Object.freeze({
   kind: "table kind",
   case: "load case or combination",

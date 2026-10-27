@@ -158,6 +158,49 @@ describe("the results navigator", () => {
     expect(onSelect).not.toHaveBeenCalled();
   });
 
+  it("keeps focus in the panel when a key step from a row reaches an empty table", () => {
+    const result = fixture();
+    const onSelect = vi.fn();
+    render(<Harness result={result} onSelect={onSelect} />);
+    stepUntil("kind", "Reaction");
+    stepUntil("entity", SUPPORT);
+    screen.getByTestId(`result-row-${onSelect.mock.lastCall![0]}`).focus();
+    for (const caseId of ["load:é", "load:𝔫", "combination:Σ"]) {
+      fireEvent.keyDown(document.activeElement!, key.case.next);
+      expect(position("case")).toContain(caseId);
+    }
+    // From the focused row, the next case ("No case stated") has no Reaction rows: the row leaves,
+    // and focus goes to the step's own button, not to the document.
+    expect(document.activeElement).toBe(screen.getByTestId(`result-row-${onSelect.mock.lastCall![0]}`));
+    const calls = onSelect.mock.calls.length;
+    fireEvent.keyDown(document.activeElement!, key.case.next);
+    expect(screen.getByTestId("result-filter-empty")).toBeInTheDocument();
+    expect(document.activeElement).toBe(button("case", "next"));
+    expect(onSelect).toHaveBeenCalledTimes(calls);
+    // The keys still work from there.
+    fireEvent.keyDown(document.activeElement!, key.case.previous);
+    expect(position("case")).toContain("combination:Σ");
+    expect(onSelect).toHaveBeenLastCalledWith(rowsOf(result, "reaction", SUPPORT, "combination:Σ")[0].id);
+  });
+
+  it("keeps focus in the panel when a key step from a row reaches a table without that entity", () => {
+    const result = fixture();
+    const onSelect = vi.fn();
+    render(<Harness result={result} onSelect={onSelect} />);
+    stepUntil("kind", "Reaction");
+    stepUntil("entity", SUPPORT);
+    const row = screen.getByTestId(`result-row-${onSelect.mock.lastCall![0]}`);
+    row.focus();
+    fireEvent.keyDown(row, key.kind.next);
+    expect(position("entity")).toBe(`${SUPPORT}: no rows in this table`);
+    expect(row.isConnected).toBe(false);
+    expect(document.activeElement).toBe(button("kind", "next"));
+    // The keys still work from there.
+    fireEvent.keyDown(document.activeElement!, key.kind.previous);
+    expect(position("kind")).toMatch(/^Reaction/);
+    expect(onSelect).toHaveBeenLastCalledWith(rowsOf(result, "reaction", SUPPORT, null)[0].id);
+  });
+
   it("keeps a support or element that has no rows in the next table, and says so", () => {
     const onSelect = vi.fn();
     render(<Harness result={fixture()} onSelect={onSelect} />);
@@ -176,7 +219,9 @@ describe("the results navigator", () => {
     render(<Harness result={result} onSelect={onSelect} />);
     expect(screen.getByTestId("result-page-summary")).toHaveTextContent("page 1 of 10");
     // From no position, Previous goes to the last support or element.
-    fireEvent.click(button("entity", "previous"));
+    const initiating = button("entity", "previous");
+    initiating.focus();
+    fireEvent.click(initiating);
     const id = onSelect.mock.lastCall![0] as string;
     const at = result.results.findIndex((row) => row.id === id);
     expect(at).toBeGreaterThanOrEqual(50);
@@ -184,7 +229,7 @@ describe("the results navigator", () => {
     const rowElement = screen.getByTestId(`result-row-${id}`);
     expect(scrolled).toEqual([rowElement]);
     // A button step leaves focus on its button.
-    expect(document.activeElement).not.toBe(rowElement);
+    expect(document.activeElement).toBe(initiating);
   });
 
   it("leaves keys in the filter field and the page-size select to them", () => {
