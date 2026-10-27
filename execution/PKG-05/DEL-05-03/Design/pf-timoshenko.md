@@ -205,6 +205,12 @@ Changing the preview-physics-2 table would move its hash. Every recorded run bou
 ## 8. Open
 
 - A per-member PF evidence record (case basis, ν, κ_E, A_s) that would let readers re-derive the factor.
-- The partial-span slice: S11-G and K-D5 for Timoshenko partial spans, beside the exact-route partial-span item (one formation check).
+- **The partial-span slice.** S11-G and K-D5 for Timoshenko partial spans, beside the exact-route partial-span item (one formation check). The solver lane's exact-route build (branch `claude/piping-w16t-timoshenko-partial-wind-20261027`, its design §2) adds two checks this slice can call unchanged once PF has Timoshenko members:
+  - **TPS-G**, an S11-G guard. It holds the element's own binary64 L, T, φ_y and φ_z, interprets them exactly, and multiplies the defect by D = (1+φ_y)(1+φ_z), so that it is exactly computable.
+    - The correction is ΔV₀ = φ/(1+φ)·(wL/2)·[g(a) − g(b)], with g(ξ) = ξ²(1−ξ)² and pattern [1, L/2, −1, L/2].
+    - Each slot is `Formation::Bounded` with a directed post-hoc bound. A range failure makes every slot `CannotBound` and demotes.
+  - **TPS-K**, the K-D5 re-formation. `uniform_straight_balls` forms φ from the frame's leaves in `frame_matrix`'s order and adds the correction in ball arithmetic. A ball failure gives `FormationCheckUnavailable` and demotes.
+
+  Neither adds a formation kind, ledger field or closure change. The full span bypasses both, bit for bit, and their interfaces are generic in φ and frame. The slice then removes `PF_TIMOSHENKO_PARTIAL_SPAN_UNSUPPORTED`, with PF references for partial spans.
 - A formulation-matched published benchmark for κ_E. This remains open, as for the exact route (§11 there).
 - CAEPIPE correlation after the change: re-running the pilot's shear-deformation series is the owner's private comparison (DEL-17-05 §8), not a repository record.
