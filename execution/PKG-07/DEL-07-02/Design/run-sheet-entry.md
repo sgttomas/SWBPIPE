@@ -1,8 +1,8 @@
 # Run-sheet entry in the grid (B1)
 
 **Basis:** main `187b67bb6b` (2026-10-27). Design only; no product code.
-Revision 4, after Codex reviews r1 (`ebd9660fa1`), r2 (`3bfc23653a`) and
-r3 (`7cd24fb5b1`).
+Revision 5, after Codex reviews r1 (`ebd9660fa1`), r2 (`3bfc23653a`), r3
+(`7cd24fb5b1`) and r4 (`28860397e2`).
 Survey item B1 (`execution/_Coordination/PROPOSAL_2026-10-26_FEATURE_SURVEY.md`
 §Bundle B), adopted design-first under the owner's 2026-10-27 delegation
 (`loop/LOOP_INIT.md`). It serves FR-GUI-004 (`docs/PRD.md:503`, add and connect
@@ -460,9 +460,17 @@ therefore combines two things:
   - `refresh`, for any other sheet row whose owned entities the batch
     changed (below).
 - `ownedIds` are the ids the row owns after the checkpoint (§3.4).
-- `removedIds` are the ids the checkpoint deleted from the row's ownership: a
-  deleted row's node, pipe and supports, or a support a later edit removes.
-  They are kept in the entry even though the row no longer owns them.
+- `removedIds` are the row's **outstanding tombstones**: every id the row once
+  owned and a sheet checkpoint removed, and that is not owned again. Examples
+  are a deleted row's node, pipe and supports, or a support an edit removed.
+  - They carry forward: `removedIds(new) = (removedIds(previous) ∪
+    removed by this checkpoint) \ ownedIds(new)`.
+  - Every later entry of the row, including a `refresh`, inherits them, so a
+    removal stays checked after any number of later checkpoints.
+  - A tombstone ends only when the id is owned again: by **Adopt current
+    values** (below), or by a sheet operation that creates the id. Ids are
+    never reused (§3.2), so in practice that is Adopt.
+  - **Remove from sheet** discards the row and its tombstones.
 - `valuesAfter` are the row's applied entered values after the checkpoint.
   A `refresh` copies them from the row's previous entry.
 - `expected` is the row's complete expectation after the checkpoint:
@@ -489,17 +497,25 @@ producer gets no `refresh`: the row correctly reads "Changed outside the
 sheet".
 
 **The edit buffer.** Each row also keeps a `buffer`: entered values that no
-in-effect entry holds.
-- For a draft row, the buffer is all its values.
-- For an applied row, the buffer is empty until the user edits a cell. It
-  then holds the edited values, shown as "edited, not applied" over the
-  stored values, which stay in the row's detail.
+in-effect entry holds. It has two layers:
+- `edits`: values the user typed;
+- `restored`: values an Undo put back into a draft row (below). They are
+  synthetic; the user did not type them in this state.
+
+The row shows `restored` overlaid by `edits`. Only `edits` count as "edited,
+not applied".
+- For a draft row that was never applied, `edits` holds all its values and
+  `restored` is empty.
+- For an applied row, both layers are empty until the user edits a cell.
+  The edited values are then shown as "edited, not applied" over the stored
+  values, which stay in the row's detail.
 - Queue builds the batch from the buffer over the current entry's
   `valuesAfter`. The pending marker refers to the buffer and never replaces
   it.
 - The buffer is cleared only:
   - when a checkpoint puts its values in effect;
-  - by **Discard edit**, which returns the row to its current entry's values.
+  - by **Discard edit**, which returns the row to its current entry's values;
+  - for the `restored` layer, by Redo (transitions below).
 - `refused`, `invalidated`, `withdrawn` and `abandoned` leave the buffer
   intact. Requeue reads it.
 
@@ -541,8 +557,8 @@ callback added in S2:
 | `refused`, `invalidated`, `withdrawn`, `abandoned` for a pending batch | — | The marker is dropped; the buffer is kept. The status is re-derived (reconciliation below). For `invalidated` and `abandoned`, the row is marked "Requeue needed". |
 | `checkpoint` with a pending batch's id | Dispose of records `[cursor, end)`, since the session cleared its redo stack. Append a record with an entry for every affected row (acting rows and `refresh` rows), each with its complete `expected` from `applied_model`. Cursor + 1. | The acting rows' buffers move into their entries' `valuesAfter` and are cleared. |
 | `checkpoint` with any other id | Dispose of `[cursor, end)`; append a foreign record; cursor + 1 | — |
-| `undone` with `ledger[cursor−1].operationId` | Cursor − 1 | Each of the record's rows falls back to its previous entry in effect. An acting row with none left is `draft`, and its buffer becomes its create entry's `valuesAfter`, with any buffered edits overlaid. |
-| `redone` with `ledger[cursor].operationId` | Cursor + 1 | The record's entries are in effect again. |
+| `undone` with `ledger[cursor−1].operationId` | Cursor − 1 | Each of the record's rows falls back to its previous entry in effect. An acting row with none left is `draft`. Its `restored` layer becomes its create entry's `valuesAfter`, and its `edits` are kept. |
+| `redone` with `ledger[cursor].operationId` | Cursor + 1 | The record's entries are in effect again. Each row's `restored` layer is cleared. Each `edits` value equal to the in-effect `valuesAfter` is dropped, and only real differences stay "edited, not applied". So create A, Undo, Redo reads `applied` with no edit marker. |
 | `undone` or `redone` with any other id, or `history-reset` | Fold the in-effect records into a permanent base. Discard the undone ones. Cursor = base length. | Each row keeps its current entry, which can no longer be undone from the sheet. |
 
 - **Disposal.** An entry in a disposed record is gone. A row whose entries
@@ -576,15 +592,24 @@ other surfaces, Undo, Redo and opened states.
   "Id ⟨id⟩ now exists in the model". It stays `draft`, and Queue is blocked.
 - A `detached` row offers:
   - **Adopt current values**, only when every owned id exists: replace
-    `expected` with the current records, with no operation. For a deleted
-    row whose removed ids all exist again, Adopt makes them owned again;
+    `expected` with the current records, with no operation. Tombstoned ids
+    that exist again become owned again and leave `removedIds`. Tombstones
+    still absent stay. For a deleted row, this applies once all its removed
+    ids exist again;
   - **Remove from sheet**, with no operation.
 
 **Cost.**
-- Reconciliation reads the cached model index
-  (`src/features/workspace/modelIndex.ts:33-66`; `entities` keyed by entity
-  key, cached per model object). It looks up each expected id there and never
-  scans a collection.
+- **Indexing is already paid per revision.** The session builds one index per
+  model revision: `activeModelIndex`, memoized on model, project session
+  generation and UI model revision (`modelSessionState.ts:36-39`). The tree
+  and viewport already consume it. `modelIndexFor` caches it per model object
+  and generation key (`modelIndex.ts:66-77`). A cold call with any other key
+  rebuilds it by scanning the model (`buildModelIndex`, `modelIndex.ts:79`).
+- The sheet therefore takes `activeModelIndex` as a prop, as `ModelTree` takes
+  `modelIndex`. It never calls `modelIndexFor` with a generation key of its
+  own, so it adds no index build.
+- Reconciliation looks up each expected id in that index's `entities` map
+  and never scans a collection.
 - Each revision therefore costs one map lookup and one JSON-value comparison
   per expected id, over the rows with a current entry. It is independent of
   the model's size. Rows without a current entry cost one reservation check
@@ -594,7 +619,11 @@ other surfaces, Undo, Redo and opened states.
   reports:
   - rows, expected ids and model entities;
   - median and 95th-percentile reconciliation time, with the host;
-  - the lookup count, asserted equal to the number of expected ids.
+  - the lookup count, asserted equal to the number of expected ids;
+  - **separately**, median and 95th-percentile cold `buildModelIndex` time
+    for the same model, as context, since every revision already pays it;
+  - the number of `buildModelIndex` calls per revision with the sheet
+    mounted, asserted equal to the number without it.
 
   A median above one 60 Hz frame (16.7 ms) is reported as a finding for
   Agent 0, not passed silently.
@@ -631,13 +660,45 @@ other surfaces, Undo, Redo and opened states.
      once per registration. This applies to every producer's batches, since
      none of them could run anyway. BatchReviewPanel's tests for the stale
      state change with it.
-  2. **A change to the apply order.** Today `handleRunOperationBatch` calls
-     `commitModel` first, then deletes the registration and filters the
-     queue (`workspaceSession.ts:1392-1395`). S2 reorders it, and the
-     equivalent steps of the other apply paths: emit `checkpoint`, delete
-     the registration, remove its queue entry, then `commitModel`. The
-     revision step then never sees the applied batch as stale, by
-     construction rather than through React's effect timing.
+  2. **Transactional publication: a change to the apply paths.**
+     - **Today.**
+       - `handleRunOperationBatch` pushes the undo checkpoint
+         (`workspaceSession.ts:1367-1372`), then calls `commitModel`, then
+         deletes the registration and filters the queue (1392-1395).
+       - `commitModel` itself runs external callbacks, such as the
+         viewport's `retire-box-gesture` (`workspaceSession.ts:720`) and
+         report-package invalidation, interleaved with ref writes and state
+         setters (716-762).
+       - So a throw part-way leaves a partial state. For example, an undo
+         checkpoint is pushed with no model change, and the catch (1400-1401)
+         restores nothing.
+     - **The change.** S2 splits every model-publishing path into three
+       phases. The paths are batch apply, single-intent apply, draft-review
+       apply, Undo and Redo.
+       1. **Prepare.** Fallible and side-effect free. It computes the next
+          model's commit plan: identity hash, revision numbers and index
+          generation. It computes the checkpoint object, and the sheet's
+          staged transition, a pure function of the event and the sheet
+          state that writes nothing. A throw here changes nothing:
+          - the model, stacks, registration, queue entry, ledger, cursor,
+            buffers and row statuses are all as before;
+          - the batch stays queued and can be applied again;
+          - the message is "Apply failed before publication; nothing
+            changed."
+       2. **Publish.** One synchronous block with no `await` and no external
+          callback: only ref assignments and React state setters, which do
+          not throw for prepared values. It publishes the model and
+          revision refs, the undo push and redo clear, the registration
+          delete and queue filter, and the sheet's staged transition (one
+          setter). React applies them in one batch, so no render or layout
+          effect sees some without the others. The revision step then
+          never sees the applied batch as stale.
+       3. **Notify.** After publication, the external callbacks run
+          (`retire-box-gesture`, selection pruning). Each runs in its own
+          `try`. A failure is reported as an error and does not unpublish.
+          These are view notifications, not state of record. Report-package
+          invalidation and the solve gates become state writes in Publish,
+          so no state of record depends on a callback.
   3. In `handleRunOperationBatch`, every return after the registration lookup
      that produces no outcome, and is not covered by step 1, emits
      `abandoned` with its reason. These are the returns where
@@ -1019,6 +1080,18 @@ scrutiny).
       Adopt current values and Remove from sheet also work;
     - **history reset**: opening a saved state folds the ledger, and the rows
       reconcile;
+    - **Redo after Undo of a create**: create A, Undo, Redo. The row reads
+      `applied` with no "edited, not applied" marker. A value typed while it
+      was draft survives Redo as an edit only if it differs;
+    - **injected failures** (test doubles that throw):
+      - in Prepare, via the sheet's staged transition, the identity hash or
+        the checkpoint clone: the model hash, both stacks, the
+        registration, the queue entry, the ledger cursor, every buffer and
+        every row status are unchanged, and a second Apply succeeds;
+      - in Notify, via the viewport's `retire-box-gesture`: everything is
+        published once, the error is reported once, and nothing is rolled
+        back;
+      - the same for an Undo and a Redo;
     - **apply order and retirement**:
       - the sheet's own apply emits `checkpoint` and no `invalidated` for
         its batch;
@@ -1080,6 +1153,12 @@ scrutiny).
     one of its entities on another surface (re-create the same id): the
     row is `detached`, "Restored outside the sheet". Undo of that outside
     change returns it to `deleted`.
+  - **Restoration after later checkpoints.**
+    - Clear an applied row's support code, so an edit deletes support S.
+    - Then apply an increment edit of the same row, and an insertion that
+      gives it a `refresh` entry.
+    - Re-create S on another surface: the row is `detached`. S stays in
+      every later entry's `removedIds` until Adopt.
   - **Shared-section insertion.** The inserted pipe carries `section_ref`, and
     a later shared-section edit propagates to it.
   - **Deleting the first row** (a `P` with no later rows) deletes its node and
