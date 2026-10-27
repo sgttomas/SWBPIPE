@@ -58,6 +58,8 @@ import { CaepipeMbfExportPanel } from "./features/caepipe-mbf/CaepipeMbfExportPa
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
 import { ComparisonPackageNotice } from "./features/comparison/ComparisonPackageNotice";
 import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel";
+import { MODEL_CHECKS_ARIA_SHORTCUTS, MODEL_CHECKS_SHORTCUT, ModelChecksPanel } from "./features/diagnostics/ModelChecksPanel";
+import type { ModelCheckRun } from "./features/diagnostics/modelChecks";
 import { DesignWorkspacePanel } from "./features/design-workspace/DesignWorkspacePanel";
 import { DiffPreviewPanel } from "./features/diff-preview/DiffPreviewPanel";
 import { EditorContractPanel } from "./features/editor-contract/EditorContractPanel";
@@ -306,6 +308,8 @@ function AppSession() {
     reviewDetailsOpen, setReviewDetailsOpen,
     auditDrawerOpen, setAuditDrawerOpen,
     issuesDrawerOpen, setIssuesDrawerOpen,
+    modelCheckRun,
+    handleRunModelChecks,
     stageSurface,
     stageViewMemory,
     narrowWindow,
@@ -1135,6 +1139,9 @@ function AppSession() {
           diagnosticFilterRequest={diagnosticFilterRequest}
           onClose={() => setIssuesDrawerOpen(false)}
           onSelectDiagnostic={handleSelectDiagnostic}
+          modelCheckRun={modelCheckRun}
+          onRunModelChecks={handleRunModelChecks}
+          onSelectEntity={(entity) => { handleSelectEntity(entity); }}
         />
       ) : null}
       <ReplaceProjectPrompt prompt={replaceProjectPrompt} />
@@ -1339,7 +1346,8 @@ function MenuBar({
         { kind: "command", id: "analyze.run", label: "Run Mechanics Preview", disabled: running },
         { kind: "command", id: "analyze.cancel", label: "Cancel Run", disabled: !running },
         { kind: "separator" },
-        { kind: "command", id: "analyze.rule-checks", label: "Rule Checks" }
+        { kind: "command", id: "analyze.rule-checks", label: "Rule Checks" },
+        { kind: "command", id: "analyze.check-model", label: "Check Model", shortcut: { label: MODEL_CHECKS_SHORTCUT, aria: MODEL_CHECKS_ARIA_SHORTCUTS } }
       ]
     }
   ];
@@ -1375,11 +1383,13 @@ function MenuBar({
                       className={item.active ? "app-menu-item active" : "app-menu-item"}
                       data-testid={`menu-item-${item.id}`}
                       aria-pressed={item.active ?? undefined}
+                      aria-keyshortcuts={item.shortcut?.aria}
                       disabled={item.disabled}
                       title={item.disabled && item.reason ? item.reason : undefined}
                       onClick={() => onCommand(item.id)}
                     >
                       {item.label}
+                      {item.shortcut ? <kbd className="app-menu-shortcut">{item.shortcut.label}</kbd> : null}
                       {item.disabled && item.reason ? <small className="app-menu-reason">{item.reason}</small> : null}
                     </button>
                   )
@@ -1570,7 +1580,10 @@ function IssuesHome({
   selectedDiagnosticId,
   diagnosticFilterRequest = null,
   onClose,
-  onSelectDiagnostic
+  onSelectDiagnostic,
+  modelCheckRun = null,
+  onRunModelChecks = () => {},
+  onSelectEntity = () => {}
 }: {
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
@@ -1580,6 +1593,10 @@ function IssuesHome({
   diagnosticFilterRequest?: DiagnosticFilterRequest | null;
   onClose: () => void;
   onSelectDiagnostic: (diagnosticId: string) => void;
+  /** B11: the session's last on-demand model-check run and its command. */
+  modelCheckRun?: ModelCheckRun | null;
+  onRunModelChecks?: () => void;
+  onSelectEntity?: (entity: EntityRef) => void;
 }) {
   const operationDiagnostics = Object.values(operationOutcomes).flatMap((outcome) => outcome.diagnostics);
   return (
@@ -1593,6 +1610,7 @@ function IssuesHome({
           Close
         </button>
       </div>
+      <ModelChecksPanel model={model} run={modelCheckRun} onRun={onRunModelChecks} onSelectEntity={onSelectEntity} />
       {operationDiagnostics.length > 0 ? (
         <section className="panel issues-operation-list" aria-label="Operation diagnostics">
           <div className="panel-title">Operation diagnostics</div>

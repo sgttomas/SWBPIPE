@@ -4403,3 +4403,11 @@ body { min-width: 760px; min-height: 540px; }
 .solve-progress-events { display: grid; gap: var(--space-2); margin: 0; padding-inline-start: var(--space-5); overflow-wrap: anywhere; }
 .solve-progress-actions { display: flex; justify-content: flex-end; gap: var(--space-3); }
 .solve-progress-actions [aria-disabled="true"] { opacity: 0.6; cursor: default; }
+
+/* On-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`). */
+.model-checks-actions { display: flex; align-items: center; gap: var(--space-3); }
+.model-checks-list { display: grid; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.model-checks-list ul { display: grid; gap: var(--space-2); margin: var(--space-2) 0 0; padding: 0; list-style: none; }
+.model-checks-list button.diagnostic { width: 100%; text-align: start; }
+.model-checks-list button[aria-disabled="true"] { cursor: default; }
+.app-menu-item .app-menu-shortcut { margin-inline-start: auto; padding-inline-start: var(--space-4); color: var(--ui-muted); font: inherit; }

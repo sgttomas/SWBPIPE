@@ -24771,3 +24771,8 @@ mod tests {
 /// (`core/model_operations/operation_applier`), which reaches it through this
 /// crate so that neither its own nor this crate's dependency set changes.
 pub use open_pipe_stress_result_export as result_export;
+
+/// On-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`): the
+/// solve's input checks before stiffness formation, without solving. Declared
+/// last so that no line above moves.
+pub mod model_checks;

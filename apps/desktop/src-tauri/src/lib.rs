@@ -54,7 +54,7 @@ use std::{
     sync::Arc,
     time::{SystemTime, UNIX_EPOCH},
 };
-use tauri::menu::{CheckMenuItemBuilder, MenuBuilder, MenuItemKind, SubmenuBuilder};
+use tauri::menu::{CheckMenuItemBuilder, MenuBuilder, MenuItemBuilder, MenuItemKind, SubmenuBuilder};
 use tauri::{AppHandle, Manager};
 use tauri_plugin_dialog::DialogExt;
 
@@ -4572,11 +4572,17 @@ fn build_app_menu<R: tauri::Runtime>(
         .text("insert.load", "Load Case")
         .build()?;
 
+    // B11: Check Model runs the model's existing checks on demand (DEL-04-06
+    // Design `on-demand-model-checks.md`); ⇧⌘M, as the in-app menu shows it.
+    let check_model = MenuItemBuilder::with_id("analyze.check-model", "Check Model")
+        .accelerator("CmdOrCtrl+Shift+M")
+        .build(handle)?;
     let analyze = SubmenuBuilder::new(handle, "Analyze")
         .text("analyze.run", "Run Mechanics Preview")
         .text("analyze.cancel", "Cancel Run")
         .separator()
         .text("analyze.rule-checks", "Rule Checks")
+        .item(&check_model)
         .build()?;
 
     MenuBuilder::new(handle)
