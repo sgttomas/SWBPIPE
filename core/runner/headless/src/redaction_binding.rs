@@ -116,10 +116,11 @@ struct ContractClassification {
 }
 
 /// The user-released export context (DEL-08-01 Design `report-user-release.md`
-/// §3.1).  No runner route uses it; the mirror carries its decision rule so the
-/// shared corpus holds.
+/// §3.1), the Rust single definition in `report_package::user_release`.  No
+/// runner route uses it; the mirror carries its decision rule so the shared
+/// corpus holds.
 #[cfg(test)]
-const USER_RELEASED_REPORT_CONTEXT: &str = "user_released_report";
+use open_pipe_stress_report_package::user_release::USER_RELEASED_CONTEXT as USER_RELEASED_REPORT_CONTEXT;
 
 /// Mirror the existing core contract's item classification without adding
 /// filesystem, transport, or side-effect behavior.  The runner route uses a
