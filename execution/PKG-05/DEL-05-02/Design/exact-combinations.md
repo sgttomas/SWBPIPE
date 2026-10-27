@@ -499,6 +499,12 @@ tables, which are static owners, and the identity TEXT.
 premises of §8.19 are kept: the first-missing-source rule, the withheld names
 and the whole support group.
 
-**Queue.** Re-pricing and re-registration, with independent review, queue
-behind the solver lane's W-15 and W-16a turns. Fit is not established until
-then.
+**As priced** (DEL-04-08 Design `retained-pricing-rules.md` §8.27, with
+slice c). The new code is zero on D1: the append and operand standing run only
+on an exact document with a combination (W16B-CB), and the reader's
+combination pass only when `present` finds one (W16B-RD). The pressure-2 table
+raises the resident statics by 6,332 B plus its parsed nodes; with slice c's
+changes every priced phase falls by 193,810 B in both modes, P_FINAL (78) and
+P_FINAL_EXACT (114) are unchanged, and all 80 native evaluations fit M =
+12 GiB (tightest: merged dense W3, +2,361,284,285 B against 0.9 M). The
+registration is recorded there.
