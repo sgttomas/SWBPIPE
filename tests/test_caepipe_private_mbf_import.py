@@ -169,9 +169,8 @@ def invented_exchange(tmp_path: Path, case: Mapping[str, Any]) -> Path:
     root = tmp_path / "exchange"
     writer, _, mbf_text = render_case_mbf(case)
     data = mbf_text.encode("ascii")
-    for layer, name, content in (("caepipe_in", "id_map.json", json.dumps({
-            **{key: value for key, value in writer.to_dict().items() if key.endswith("_map")},
-            "mbf_sha256": hashlib.sha256(data).hexdigest()})), ("caepipe_out", "exported.mbf", mbf_text),
+    for layer, name, content in (("caepipe_in", "id_map.json", json.dumps(
+            writer.sidecar(hashlib.sha256(data).hexdigest()))), ("caepipe_out", "exported.mbf", mbf_text),
             ("caepipe_out", "run_record.json", json.dumps({"mbf_export": {
                 "route": EXPORT_ROUTE, "exported_mbf": {"sha256": hashlib.sha256(data).hexdigest()}}}))):
         path = root / "cases" / case["case_id"] / layer

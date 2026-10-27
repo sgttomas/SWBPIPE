@@ -237,6 +237,15 @@ needs:
     plan is read, never queued or applied, and the summary computes no mass.
   gating: false
   evidence: execution/PKG-07/DEL-07-05/Design/weight-cog-summary.md
+- from: DEL-07-01
+  condition: >-
+    The results navigator (survey item A1) selects the current row through the
+    panel's existing `onSelectResult`, as a click on the row does. It relies on
+    the viewport highlighting the session's selection that `handleSelectResult`
+    sets from the row's entity, and on the tree and inspector showing it. The
+    navigator writes no model data, records no undo entry and moves no camera.
+  gating: false
+  evidence: execution/PKG-07/DEL-07-05/Design/results-navigator.md
 code_paths:
 - apps/desktop/package.json
 - apps/desktop/src/App.test.tsx
@@ -290,6 +299,8 @@ code_paths:
 - apps/desktop/src/features/results/weightSummary.ts
 - apps/desktop/src/features/results/WeightSummaryPanel.tsx
 - apps/desktop/src/features/report/springHangerSupport.ts
+- apps/desktop/src/features/results/resultsNavigator.ts
+- apps/desktop/src/App.resultsNavigator.test.tsx
 checks:
 - apps/desktop/src/features/results/ResultsPanel.test.tsx
 - apps/desktop/src/App.resultPaging.test.tsx
@@ -329,3 +340,6 @@ checks:
 - apps/desktop/src/features/results/weightSummary.test.ts
 - apps/desktop/src/features/results/WeightSummaryPanel.test.tsx
 - apps/desktop/src/features/report/springHangerSupport.test.ts
+- apps/desktop/src/features/results/resultsNavigator.test.ts
+- apps/desktop/src/features/results/ResultsPanel.navigator.test.tsx
+- apps/desktop/src/App.resultsNavigator.test.tsx
