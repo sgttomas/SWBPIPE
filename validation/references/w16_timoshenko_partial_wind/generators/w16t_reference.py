@@ -44,7 +44,7 @@ import hashlib
 import json
 import math
 import sys
-from decimal import Decimal, getcontext
+from decimal import ROUND_CEILING, ROUND_FLOOR, Decimal, getcontext, localcontext
 from fractions import Fraction as F
 from pathlib import Path
 
@@ -186,9 +186,17 @@ def record(v):
     rec = {"exact": v.text(), "decimal": v.decimal40(), "value": v.binary64()}
     if v.rational_k() is None:
         lo, hi = v.interval()
-        rec["interval"] = [format((Decimal(lo.numerator) / Decimal(lo.denominator)).__format__(".45e")),
-                           format((Decimal(hi.numerator) / Decimal(hi.denominator)).__format__(".45e"))]
+        rec["interval"] = [endpoint(lo, ROUND_FLOOR), endpoint(hi, ROUND_CEILING)]
+        # Self-check, exact: the serialized endpoints enclose the internal rational interval.
+        assert F(rec["interval"][0]) <= lo and hi <= F(rec["interval"][1]), (v.text(), rec["interval"])
     return rec
+
+
+def endpoint(q, rounding):
+    """q to 45 significant digits, rounded toward -inf (ROUND_FLOOR) or +inf (ROUND_CEILING)."""
+    with localcontext() as ctx:
+        ctx.rounding = rounding
+        return format(Decimal(q.numerator) / Decimal(q.denominator), ".45e")
 
 
 CROSS = []

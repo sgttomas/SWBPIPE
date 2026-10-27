@@ -30,8 +30,8 @@
 //! positive case.
 use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
 use open_pipe_stress_product_physics::{
-    run_linear_static_preview_value_with_mode, run_linear_static_preview_value_with_retained_direct, PreviewSolverMode,
-    RetainedByteLimit,
+    run_linear_static_preview_value_with_mode, run_linear_static_preview_value_with_retained_direct,
+    run_linear_static_preview_with_mode, LinearStaticPreviewRequest, PreviewSolverMode, RetainedByteLimit,
 };
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
@@ -622,6 +622,47 @@ fn a_partial_span_timoshenko_case_combines() {
         m3_judge(&pairs, 2.5, &what);
         println!("W16T {what}: {n} rows; max relative error {rel:.3e}");
     }
+}
+
+/// M3 C4 and the headlines, on every case in both modes: the typed entry's
+/// envelope equals the captured entry's; `max_open_formula_stress` is null
+/// and each per-basis headline is bound to a maximum row of its own basis,
+/// carrying that row's value and pipe, and no maximum row of that basis
+/// exceeds it.
+#[test]
+fn typed_equals_captured_and_headlines_bind_their_basis_maximum() {
+    let mut envelopes = 0;
+    let mut headlines = 0;
+    for reference in refs()["cases"].as_array().unwrap() {
+        let id = reference["id"].as_str().unwrap();
+        let wire = if id == "W16T-COMBINED" { combination_request(reference) } else { reference_request(reference) };
+        for mode in MODES {
+            let what = format!("{id} {}", mode.as_str());
+            let captured = solved(&wire, mode, &what);
+            let request: LinearStaticPreviewRequest = serde_json::from_value(wire.clone()).unwrap();
+            let typed = serde_json::to_value(run_linear_static_preview_with_mode(request, mode)).unwrap();
+            assert_eq!(typed, captured, "{what}: C4, typed and captured envelopes differ");
+            envelopes += 1;
+            let summary = &captured["summary"];
+            assert!(summary["max_open_formula_stress"].is_null(), "{what}: no governing basis is chosen");
+            for basis in BASES {
+                let headline = &summary[format!("max_open_formula_stress_{basis}")];
+                let row = rows(&captured).iter().find(|r| r["id"] == headline["result_ref"])
+                    .unwrap_or_else(|| panic!("{what}: {basis} headline {headline} binds no row"));
+                assert_eq!(row["kind"], "pipe_elastic_normal_stress_maximum_v2", "{what}: {basis}");
+                assert!(row["metadata"]["basis"].as_str().unwrap().ends_with(&format!("section_basis={basis}")), "{what}: {basis} headline bound across bases");
+                assert_eq!(row["value"], headline["value"], "{what}: {basis}");
+                assert_eq!(row["entity_ref"], headline["location_ref"], "{what}: {basis}");
+                let top = rows(&captured).iter()
+                    .filter(|r| r["kind"] == "pipe_elastic_normal_stress_maximum_v2"
+                        && r["metadata"]["basis"].as_str().unwrap().ends_with(&format!("section_basis={basis}")))
+                    .map(|r| r["value"].as_f64().unwrap()).fold(f64::NEG_INFINITY, f64::max);
+                assert_eq!(headline["value"].as_f64().unwrap(), top, "{what}: the {basis} headline is its basis's largest maximum");
+                headlines += 1;
+            }
+        }
+    }
+    assert_eq!((envelopes, headlines), (34, 68));
 }
 
 // ------------------------------------------------------------------ negatives
