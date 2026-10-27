@@ -1,16 +1,17 @@
-/** W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.1-§3.6, §5.5, §7):
- * the desktop's exact-route report sections and their Export Result JSON admission,
- * exercised BELOW the output gate. Every report surface still refuses an exact result
- * (the `rendered-report`, `report-package` and `report` cells, ruling 10A), and the
- * native render and the package's Rust boundary refuse every exact identity; these
- * tests reach the sections through the builder, the panel's build step
- * (`assembleExactReportBelowOutputGate`) and the package assembly
- * (`assembleReportPackageRequestBelowOutputGate`) under the native-capture test seams.
+/** W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.1-§3.6, §5.1, §5.5, §7):
+ * the desktop's exact-route report sections and their Export Result JSON admission.
+ * Since the owner opened the rendered report and the report package for pressure-2 and
+ * pressure-source-1 (§5.1; owner, 2026-10-26: "My two decisions are to approve your
+ * recommendations in both cases. Proceed accordingly."), these tests reach the sections
+ * through the production builder, the panel's build step (`assembleRenderedReport`) and
+ * the production package request (`buildReportPackageRequest`) under the native-capture
+ * test seams. (The file keeps its name, which the committed witness requests record as
+ * their generator.)
  *
  * - the projection against the shared vectors `exact_report_sections_parity.json`;
  * - the admission binding, same-run substitution, copies and asynchronous retirement;
  * - the panel and the package request send no IPC once the admission is retired;
- * - the still-refused surfaces;
+ * - the opened surfaces, and the report JSON packet, which still refuses (§5.4);
  * - the witness and substitute requests the native and Rust witnesses read
  *   (`fixtures/reports/invented/exact_report_package_requests/`, stale fails;
  *   `OPENPIPESTRESS_WRITE_EXACT_PACKAGE_REQUESTS=<dir>` writes them).
@@ -43,7 +44,7 @@ import { IngressRequestRetiredError } from "../../services/nativeIngress";
 import * as resultExportAdapter from "../result-export/resultExportAdapter";
 import { sourceContract, sourceSemanticBinding } from "../results/resultReader";
 import { numericalResultStanding } from "../results/resultStanding";
-import { OUTPUT_POLICY, OUTPUT_SURFACES, PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL, surfaceOutputRefusal } from "../results/outputPolicy";
+import { OUTPUT_POLICY, OUTPUT_SURFACES, PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL, surfaceOutputRefusal, surfaceRouteRefusal } from "../results/outputPolicy";
 import { PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID } from "../results/numericalResultQuality";
 import { controlReportPackageRequest } from "./reportRedactionProjector";
 import {
@@ -58,13 +59,11 @@ import { exactLimitationEntries, exactRouteCore, REPORT_EXACT_SECTIONS_MISMATCH 
 import { buildRenderableReportInput } from "./renderableReportInput";
 import { reportResultRows } from "./reportResultRows";
 import { numericalHealthView, readNumericalHealth } from "../results/numericalHealth";
-import { assembleExactReportBelowOutputGate } from "./renderedReportAssembly";
+import { assembleRenderedReport } from "./renderedReportAssembly";
 import { RenderedReportPanel } from "./RenderedReportPanel";
 import {
-  assembleReportPackageRequestBelowOutputGate,
   buildReportPackageRequest,
   REPORT_PACKAGE_ADMITTED_CONTRACT_IDS,
-  REPORT_PACKAGE_ROUTE_NOT_ADMITTED,
   reportPackageExactSubmission,
   type ReportPackageRequestInput
 } from "./reportPackageRequest";
@@ -179,7 +178,7 @@ describe("the exact-section projection against the shared vectors (§3.5)", () =
 
   it("names Rust's admitted set as the package's (REPORT_PACKAGE_ADMITTED_CONTRACT_IDS)", () => {
     expect([...REPORT_PACKAGE_ADMITTED_CONTRACT_IDS]).toEqual(parity.admitted_semantic_contracts);
-    expect([...REPORT_PACKAGE_ADMITTED_CONTRACT_IDS]).toEqual([PREVIEW_PHYSICS_CONTRACT_ID]);
+    expect([...REPORT_PACKAGE_ADMITTED_CONTRACT_IDS]).toEqual([...ALL_IDS]);
   });
 });
 
@@ -306,10 +305,10 @@ describe("admitExactReportSource (§3.1)", () => {
 /* -------------------------------------------------------------------------- *
  * The sections in the report, below the gate (§2.4, §3.2-§3.4)
  * -------------------------------------------------------------------------- */
-describe("the exact sections in the renderer input, below the gate", () => {
+describe("the exact sections in the renderer input", () => {
   async function assemble(session: Session) {
     const { model, result, analysisRun, inputManifest } = session;
-    return assembleExactReportBelowOutputGate({ model, result, analysisRun, inputManifest, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null });
+    return assembleRenderedReport({ model, result, analysisRun, inputManifest, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null });
   }
 
   it.each(SHAPES.map((item) => [item.name, item] as const))("%s: the exact block, the binding, the headlines, the rows and the limitation entries", async (_name, item) => {
@@ -370,7 +369,7 @@ describe("the exact sections in the renderer input, below the gate", () => {
     const health = numericalHealthView(readNumericalHealth(result, numericalResultStanding(result, model).findings), { eligible: true, verdictHold: false });
     expect(health?.route).toBe("generic");
     expect(health!.cases.length).toBeGreaterThan(0);
-    const assembly = await assembleExactReportBelowOutputGate({ model, result, analysisRun, inputManifest, projectSummary: null, ruleCheckRun: null, numericalHealth: health, context: "local_private", intent: true, generatedAt: null });
+    const assembly = await assembleRenderedReport({ model, result, analysisRun, inputManifest, projectSummary: null, ruleCheckRun: null, numericalHealth: health, context: "local_private", intent: true, generatedAt: null });
     const rows = (assembly.input as Json).result_rows as Json[];
     expect(rows).toEqual(reportResultRows(result));
     expect(rows.some((row) => String(row.row_id).startsWith("numerical-health:"))).toBe(false);
@@ -391,7 +390,7 @@ describe("retirement after the build sends no IPC", () => {
   it("the panel's build step: the pre-IPC re-check refuses and the render is not sent", async () => {
     const session = await solve(shape("pressure_2_straight"));
     const { model, result, analysisRun, inputManifest } = session;
-    const assembly = await assembleExactReportBelowOutputGate({ model, result, analysisRun, inputManifest, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null });
+    const assembly = await assembleRenderedReport({ model, result, analysisRun, inputManifest, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null });
     expect(() => assembly.exactSubmission!()).not.toThrow();
     await disposeDeliveredMechanicsResult(result);
     invokeMock.mockClear();
@@ -404,7 +403,7 @@ describe("retirement after the build sends no IPC", () => {
 
   it("the package request: the pre-IPC re-check refuses and the save is not sent", async () => {
     const session = await solve(shape("pressure_2_straight"));
-    const request = await assembleReportPackageRequestBelowOutputGate(packageInput(session), ALL_IDS);
+    const request = await buildReportPackageRequest(packageInput(session));
     expect(reportPackageExactSubmission(request)).toEqual({ exactResultText: session.rawText, exactIntakeText: session.intakeText });
     const controlled = controlReportPackageRequest(request, true);
     const prepared = await prepareReportPackageSave(controlled, session.model, request, session.inputManifest.manifest, reportPackageExactSubmission(request));
@@ -424,33 +423,36 @@ describe("retirement after the build sends no IPC", () => {
 });
 
 /* -------------------------------------------------------------------------- *
- * Still refused (§5.1, §7)
+ * Opened (§5.1, §7), and what stays refused (§5.4)
  * -------------------------------------------------------------------------- */
-describe("still refused: no exact-route result reaches a report output", () => {
-  it("the exact routes' cells: report, rendered-report and report-package refuse; only result-export, stress-neutral and rule-check admit", () => {
+describe("opened: the rendered report and the report package admit an exact-route result", () => {
+  it("the exact routes' cells: result-export, stress-neutral, rule-check, rendered-report and report-package admit; report and the other surfaces refuse", () => {
     for (const route of ["pressure", "pressure_source"] as const) {
       const policy = OUTPUT_POLICY[route];
       if (policy.gate !== "per_surface") throw new Error("gated");
-      expect(OUTPUT_SURFACES.filter((surface) => policy.surfaces[surface] !== "refused")).toEqual(["rule-check", "result-export", "stress-neutral"]);
-      for (const surface of ["report", "rendered-report", "report-package"] as const) expect(policy.surfaces[surface]).toBe("refused");
+      expect(OUTPUT_SURFACES.filter((surface) => policy.surfaces[surface] !== "refused")).toEqual(["rule-check", "rendered-report", "report-package", "result-export", "stress-neutral"]);
+      for (const surface of ["rendered-report", "report-package"] as const) expect(policy.surfaces[surface]).toBe("admitted");
+      for (const surface of ["report", "handoff"] as const) expect(policy.surfaces[surface]).toBe("refused");
       expect(policy.reason.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE: ")).toBe(true);
     }
   });
 
-  it.each(SHAPES.map((item) => [item.name, item] as const))("%s: the panel shows the refusal and no render control, and buildReportPackageRequest refuses the witness input", async (_name, item) => {
+  it.each(SHAPES.map((item) => [item.name, item] as const))("%s: the panel offers the render control, buildReportPackageRequest admits the witness input, and the report JSON packet still refuses", async (_name, item) => {
     const session = await solve(item);
     const { model, result, analysisRun } = session;
     const refusal = sourceContract(result) === "pressure" ? PRESSURE_2_OUTPUT_REFUSAL : PRESSURE_SOURCE_OUTPUT_REFUSAL;
-    expect(surfaceOutputRefusal(result, model, "rendered-report")).toBe(refusal);
+    expect(surfaceOutputRefusal(result, model, "rendered-report")).toBeNull();
+    expect(surfaceOutputRefusal(result, model, "report-package")).toBeNull();
     render(<RenderedReportPanel model={model} result={result} analysisRun={analysisRun} projectSummary={null} inputManifest={session.inputManifest} />);
-    expect(screen.getByTestId("rendered-report-load-reference-output-unavailable")).toHaveTextContent(refusal);
-    expect(screen.queryByTestId("rendered-report-render")).toBeNull();
-    const exportSpy = vi.spyOn(resultExportAdapter, "buildCurrentResultExport");
-    await expect(buildReportPackageRequest(packageInput(session))).rejects.toThrow(new Error(refusal));
-    expect(exportSpy).not.toHaveBeenCalled();
-    // Below the cell, the production admitted set still refuses the exact document by name.
-    await expect(assembleReportPackageRequestBelowOutputGate(packageInput(session), REPORT_PACKAGE_ADMITTED_CONTRACT_IDS))
-      .rejects.toThrow(new RegExp(`^${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: the report package admits only ${PREVIEW_PHYSICS_CONTRACT_ID} results; this document is ${result.producer!.semantic_contract_id}\\.`));
+    expect(screen.queryByTestId("rendered-report-load-reference-output-unavailable")).toBeNull();
+    expect(screen.getByTestId("rendered-report-render")).toBeInTheDocument();
+    const request = await buildReportPackageRequest(packageInput(session)) as Json;
+    expect(request.result_documents[0].result_envelope.producer.semantic_contract_id).toBe(result.producer!.semantic_contract_id);
+    expect(request.report.exact_route.semantic_contract_id).toBe(result.producer!.semantic_contract_id);
+    // What stays refused (§5.4): the report JSON packet and the handoff preview.
+    expect(surfaceRouteRefusal(result, "report")).toBe(refusal);
+    expect(surfaceOutputRefusal(result, model, "report")).toBe(refusal);
+    expect(surfaceRouteRefusal(result, "handoff")).toBe(refusal);
   });
 });
 
@@ -480,7 +482,7 @@ function witnessFile(item: Shape, session: Session, request: Json, extra: Record
   return `${writeLossless({
     schema_version: "1.0.0",
     generator: GENERATOR,
-    description: "W-11 slice (b) witness request (DEL-08-01 Design exact-route-report-sections.md section 5.5): the version 2.0.0 report-package request the desktop assembles below the output gate for an exact-route result, with the model, the run's input manifest and the texts the native host binds (the intake model text; the delivered result bytes are the committed raw file). Every production entry point refuses it (REPORT-PACKAGE-ROUTE-NOT-ADMITTED; the native save first at its custody binding). Job ids are invented; unit transport replay of committed producer bytes, not a native UI qualification witness.",
+    description: "W-11 witness request (DEL-08-01 Design exact-route-report-sections.md sections 5.1 and 5.5): the version 2.0.0 report-package request the desktop's buildReportPackageRequest assembles for an exact-route result, with the model, the run's input manifest and the texts the native host binds (the intake model text; the delivered result bytes are the committed raw file). The production entry points admit it since the owner opened exact-route packages (2026-10-26); the native save binds it to a live solve job first (its committed job id is invented and in no custody, so the save refuses it as committed). Job ids are invented; unit transport replay of committed producer bytes, not a native UI qualification witness.",
     shape: item.name,
     solver_mode: item.mode,
     raw_path: item.rawPath,
@@ -506,7 +508,7 @@ async function substituteRequest(genuine: Json) {
   raw.results[target].value = raw.results[target].value * (1 + 1e-6);
   const session = await solve(item, solveBytes(raw), "invented-w11b-substitute-job");
   expect(numericalResultStanding(session.result, session.model).eligible).toBe(true);
-  const request = await assembleReportPackageRequestBelowOutputGate(packageInput(session), ALL_IDS) as Json;
+  const request = await buildReportPackageRequest(packageInput(session)) as Json;
   for (const field of ["native_job_id", "received_bytes_sha256"]) request.report.exact_route.admission[field] = genuine.report.exact_route.admission[field];
   return { session, request, row: raw.results[target].id as string };
 }
@@ -546,14 +548,12 @@ describe("the witness requests (§5.5)", () => {
     let straight: Json = null;
     for (const item of SHAPES) {
       const session = await solve(item);
-      const request = await assembleReportPackageRequestBelowOutputGate(packageInput(session), ALL_IDS) as Json;
+      const request = await buildReportPackageRequest(packageInput(session)) as Json;
       expect(request.result_documents[0].result_envelope.producer.semantic_contract_id).toBe(session.result.producer!.semantic_contract_id);
       expect(request.report.exact_route.admission.native_job_id).toBe(deliveredMechanicsResultJob(session.result));
       // No rule-check run in the witness inputs (§1.7, §5.5).
       expect(request.report.user_rule_checks).toBeNull();
       expect(request.rule_check_aggregate).toBeNull();
-      // buildReportPackageRequest refuses the same input at its cell.
-      await expect(buildReportPackageRequest(packageInput(session))).rejects.toThrow(/^PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE: /);
       if (item.name === "pressure_2_straight") straight = request;
       const content = witnessFile(item, session, request);
       // The embedded producer output is the delivered bytes', number for number: the

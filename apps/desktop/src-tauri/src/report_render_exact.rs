@@ -1,9 +1,14 @@
 //! The native render's identity boundary (W-11, DEL-08-01 Design
 //! `exact-route-report-sections.md` §3.6 step 0 and §5.5).
 //!
-//! Owner ruling 10A keeps exact-route report outputs refused until the owner
-//! opens them. The report package enforces this at its Rust identity boundary
-//! (item 0); the native render command enforces it here. Step 0 runs first for
+//! Owner ruling 10A kept exact-route report outputs refused until the owner
+//! opened them; the owner opened the rendered report and the report package
+//! for pressure-2 and pressure-source-1 on 2026-10-26 (§5.1: "My two
+//! decisions are to approve your recommendations in both cases. Proceed
+//! accordingly."). The report package enforces its admitted set at its Rust
+//! identity boundary (item 0); the native render command enforces its own
+//! here, and still refuses every other exact identity (physics-retained-1).
+//! Step 0 runs first for
 //! every render input, on the argument value that `command_ingress::admit`
 //! already priced and decoded, before any further parse, custody query, lease
 //! growth or render, and it allocates nothing before it decides.
@@ -12,16 +17,16 @@
 //! defined paths, never by free text such as a load-case label.
 //!
 //! A [`RenderAdmittedSet`] names the exact identities the render admits. Its
-//! field is private to this module, so no other code can construct one. In a
-//! non-test build [`PRODUCTION`], which wraps the empty
-//! [`RENDER_ADMITTED_EXACT_CONTRACTS`], is the only value there is. The widened
-//! `EXACT_RENDER_WITNESS_ADMITTED` exists only in this crate's test build, for
-//! `report_render_exact_tests.rs`. The set reaches step 0 only along the graph
-//! that `report_render_exact_tests::render_admitted_set_forwarding_graph_is_closed`
-//! verifies.
+//! field is private to this module, so no other code can construct one.
+//! [`PRODUCTION`], which wraps [`RENDER_ADMITTED_EXACT_CONTRACTS`], is the only
+//! value there is, in every build, test builds included (the test-only witness
+//! set used before opening is removed). The set reaches step 0 only along the
+//! graph that
+//! `report_render_exact_tests::render_admitted_set_forwarding_graph_is_closed`
+//! verifies, which also asserts that no other set exists.
 //!
 //! Behind step 0 (slice (b), §3.6), an input with `exact_route` that step 0
-//! admits (before opening, only the witness set admits any) is bound to the
+//! admits is bound to the
 //! source natively before it is rendered: the named job's custody, the
 //! resubmitted result, intake and input-manifest texts against the digests
 //! the host recorded, a priced parse under the command's lease, the native
@@ -42,10 +47,10 @@ use open_pipe_stress_result_export::semantic_contract::{PHYSICS_RETAINED_ID, PRE
 use serde_json::Value;
 use std::fmt::Write as _;
 
-/// The exact identities whose `exact_route` the native render admits: none
-/// until the owner opens exact-route report outputs (ruling 10A). Opening adds
-/// `PRESSURE_ID` and `PRESSURE_SOURCE_ID` (§5.1).
-pub(crate) const RENDER_ADMITTED_EXACT_CONTRACTS: [&str; 0] = [];
+/// The exact identities whose `exact_route` the native render admits:
+/// pressure-2 and pressure-source-1, since the owner opened exact-route report
+/// outputs (§5.1; owner, 2026-10-26).
+pub(crate) const RENDER_ADMITTED_EXACT_CONTRACTS: [&str; 2] = [PRESSURE_ID, PRESSURE_SOURCE_ID];
 
 /// The exact-route identities step 0 recognizes at the input's identity
 /// fields.
@@ -53,11 +58,17 @@ pub(crate) const EXACT_IDENTITIES: [&str; 3] = [PRESSURE_ID, PRESSURE_SOURCE_ID,
 
 pub(crate) const RENDER_ROUTE_NOT_ADMITTED: &str = "REPORT-RENDER-ROUTE-NOT-ADMITTED";
 
+/// An exact-route render whose `report_context.export_context` is not
+/// `local_private` (Codex review round 1 of #1648): refused natively before
+/// the source binding and the render, whatever the input's provenance flags
+/// say, so no body or print view exists for it.
+pub(crate) const RENDER_EXACT_CONTEXT_NOT_LOCAL_PRIVATE: &str = "REPORT-RENDER-EXACT-CONTEXT-NOT-LOCAL-PRIVATE";
+
 /// A render input with a struct, at any depth, in positional (JSON array)
 /// form (found in Codex review rounds 2 and 3 of #1648). The renderer's
-/// decode reads it by field order, while step 0 and the source binding read
-/// members by key; the command refuses it before either. The webview always
-/// sends objects.
+/// decode reads it by field order, while step 0, the exact context check and
+/// the source binding read members by key; the command refuses it before any
+/// of them. The webview always sends objects.
 pub(crate) const RENDER_INPUT_POSITIONAL: &str = "REPORT-RENDER-INPUT-POSITIONAL";
 
 /// The exact identities step 0 admits.
@@ -70,13 +81,8 @@ impl RenderAdmittedSet {
     }
 }
 
-/// The production set: every build's only render set outside this crate's
-/// tests.
+/// The production set: every build's only render set.
 pub(crate) const PRODUCTION: RenderAdmittedSet = RenderAdmittedSet(&RENDER_ADMITTED_EXACT_CONTRACTS);
-
-/// The two identities the direct-native render tests admit (test build only).
-#[cfg(test)]
-pub(crate) const EXACT_RENDER_WITNESS_ADMITTED: RenderAdmittedSet = RenderAdmittedSet(&[PRESSURE_ID, PRESSURE_SOURCE_ID]);
 
 /// The render command's path after ingress: step 0 against `admitted`, then,
 /// for an input with `exact_route`, the native source binding (§3.6) under
@@ -97,6 +103,7 @@ pub(crate) fn render_calculation_report_args_in(
     };
     let exact = input.get("exact_route").is_some_and(|route| !route.is_null());
     if exact {
+        check_exact_render_context(&input).map_err(CommandError::Command)?;
         bind_exact_render_input(&input, &texts, registry, lease)?;
     } else if texts.any() {
         return Err(CommandError::Command(sections_mismatch("exact_route").message));
@@ -107,9 +114,9 @@ pub(crate) fn render_calculation_report_args_in(
 
 /// Object form: no struct, at any depth, is in positional (JSON array) form.
 /// The renderer's decode reads a positional struct by field order, while
-/// step 0 and the source binding read members by key, so the command refuses
-/// one before either, naming the fixed path only (no body or print view, the
-/// lease not grown). The check is the shared
+/// step 0, the exact context check and the source binding read members by
+/// key, so the command refuses one before any of them, naming the fixed path
+/// only (no body or print view, the lease not grown). The check is the shared
 /// `report_renderer::object_form` comparison of the decoded input with its
 /// JSON: collections and tuples are arrays on both sides and pass. An input
 /// that does not decode passes here and is refused by the render's decode.
@@ -117,6 +124,21 @@ pub(crate) fn check_object_form(input: &Value) -> Result<(), String> {
     match open_pipe_stress_report_renderer::object_form::report_positional_struct_path(input) {
         Some(path) => Err(format!("{RENDER_INPUT_POSITIONAL}: the render input writes a struct in positional (array) form at {path}.")),
         None => Ok(()),
+    }
+}
+
+/// An exact-route report renders only as a local private document (owner
+/// ruling of 2026-10-26, §5.1; DEL-08-01 Design `exact-route-report-sections.md`
+/// §6.3): its `report_context.export_context` must be `local_private`. The
+/// check reads that one field, never the provenance classifications, which
+/// the caller supplies; the refusal names no value from the input.
+pub(crate) fn check_exact_render_context(input: &Value) -> Result<(), String> {
+    match input.get("report_context").and_then(|context| context.get("export_context")) {
+        Some(Value::String(context)) if context == "local_private" => Ok(()),
+        found => Err(format!(
+            "{RENDER_EXACT_CONTEXT_NOT_LOCAL_PRIVATE}: an exact-route report renders only under the local_private export context; the input names {}.",
+            if found.is_none_or(Value::is_null) { "no export context" } else { "another export context" }
+        )),
     }
 }
 
@@ -307,6 +329,7 @@ pub(crate) fn check_render_route_admitted(input: &Value, admitted: RenderAdmitte
     }
 }
 
+/// The refusal message names the admitted set (§5.1 item 4).
 fn refusal(admitted: RenderAdmittedSet, found: &dyn std::fmt::Display) -> String {
     let mut message = format!("{RENDER_ROUTE_NOT_ADMITTED}: the rendered report admits ");
     if admitted.0.is_empty() {

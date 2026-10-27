@@ -91,7 +91,7 @@ it('shows both per-basis stress headlines of an exact result, labelled by basis,
  expect(block.textContent).toContain('no governing basis is chosen');
  expect(block.textContent).not.toMatch(/\bgoverning (basis|headline):/i);
  expect(JSON.stringify(result)).toBe(before);
- for(const surface of OUTPUT_SURFACES) expect(surfaceRouteRefusal(result,surface)).toBe(['result-export','stress-neutral','rule-check'].includes(surface)?null:PRESSURE_2_OUTPUT_REFUSAL);
+ for(const surface of OUTPUT_SURFACES) expect(surfaceRouteRefusal(result,surface)).toBe(['result-export','stress-neutral','rule-check','rendered-report','report-package'].includes(surface)?null:PRESSURE_2_OUTPUT_REFUSAL);
  cleanup();
  // A basis whose coverage is incomplete is shown withheld; the other keeps its headline.
  result.summary.max_open_formula_stress_reduced_section=null;

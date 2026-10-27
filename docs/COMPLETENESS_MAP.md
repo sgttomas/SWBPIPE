@@ -75,8 +75,9 @@ app at the basis.
   is refused by name. Each check runs once per mapped load case or combination,
   and the demo pack gives `RULE_INPUTS_INCOMPLETE` with the missing inputs
   named.
-- **Reports:** render a calculation report for a PF result as a local private
-  document. Tick "Include known private values in this local rendered report"
+- **Reports:** render a calculation report for a PF result, or for an EX
+  (pressure-2 or pressure-source-1) result that Export Result JSON admits, as a
+  local private document (W-11, opened by the owner on 2026-10-26). Tick "Include known private values in this local rendered report"
   and the render shows a preview and its canonical SHA-256, with Save canonical
   HTML and Print / PDF. The document carries rule-pack references, user-rule
   check outcomes, software and solver versions, the generation time, run
@@ -92,12 +93,15 @@ app at the basis.
 
 The biggest gaps:
 
-1. **No shareable report, no EX report or report package.** A public render of
+1. **No shareable report.** A public render of
    any session stays `blocked=true`, because session provenance is hard-coded
-   private (`renderableReportInput.ts:119-131`). EX results are refused for
-   every report and the report package (ruling 10A). Save Report Package saves
-   a local private package for a pressure-free result (W-18 (b2)). The report lacks materials,
-   sections and library records. Affected: FR-REP-001..004.
+   private (`renderableReportInput.ts:119-131`). The rendered report and Save
+   Report Package admit a PF result and, since the owner opened them on
+   2026-10-26 (W-11), an eligible EX (pressure-2 or pressure-source-1) result
+   that Export Result JSON admits, local private only; the report JSON packet
+   and the other unopened surfaces still refuse EX results (DEL-08-01 Design
+   `exact-route-report-sections.md` §5.4). The report records materials,
+   sections, components, supports and library references (W-11 (c)). Affected: FR-REP-001..004.
 2. **Saved-state and run comparisons are view-only; selected within-run comparison context is packaged.** Model states, run history and comparison are in v0.1 by OD-1. Named immutable states are in the desktop (W-12 S1, #1589): save, open, label and delete, kept only in the SQLite store. Runs are recorded against states (W-12 S2, #1596), with the model’s rule packs resolved at solve (#1602). Two saved states are compared in the desktop (W-12 S3a, #1605), and two runs (W-12 S3b, #1617). “Within this run” lets the user choose the load case and combination (W-12 S3c). The report line and JSON, preview handoff summary, export review and design-workspace downloads, and the saved local-private report package for a Current pressure-free result (W-18b2) carry the chosen comparison context. A combination whose rows include a kind with no declared dimension is refused by name (`ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED`); those consumers carry its bases, run and reason in a `comparison_unavailable` record. The saved `.swbhandoff` carries no comparison. Mapping editor, tolerance profiles, graphical diffs and DEL-14-05 comparison-output export remain v0.2. Affected: FR-CMP-001..004, -006, FR-GUI-007.
 3. **Rigid components: stiffness only.** OD-2 chose DEC-045 stiffness scaling.
    W-15 slices a and d (#1604) apply it on both routes, admit valve, flange,
@@ -202,9 +206,9 @@ class, the evidence, and the deliverables. Paths are under
 | FR-RULE-005 (534) | Must | D | `LibraryManagerPanel.tsx`; desktop `lib.rs:8593`; `tests/test_library_import_provenance.py`; `LibraryApplySection.tsx`, `libraryApply.ts`, applier `library_apply.rs`; tests `libraryApply.test.ts`, `operation_applier/tests/library_apply.rs` | DEL-03-01, DEL-03-07 | Records feed rule checks (desktop `lib.rs:3029`). Applying them to model entities (#1566): stored material and section records insert as new entities or apply to the selected one through one reviewed batch with one undo (material E/ν or E/G mode; a section apply updates its bound pipes). |
 | FR-RULE-006 (535) | Should | D | Same panel, component kind; `libraryApply.ts` `buildComponentApply` | DEL-03-02, DEL-03-07 | Applying records (#1566): stored component records apply to an existing component of the matching kind by a fixed source-kind table (apply only; no insert). |
 | FR-RULE-007 (536) | Must | D | `tests/test_invented_example_models.py`; `examples/rule_packs/invented_demo.yaml` | DEL-11-04, DEL-06-05 | |
-| FR-REP-001 (578) | Must | P | W-3: local-private render (`RenderedReportPanel.tsx`, `reportRenderService.ts`); rule-pack refs, user-rule outcomes, versions, date, settings and coordinate systems (`renderableReportInput.ts:362-470,637,685`; renderer test `render.rs:321`). Observed natively (§5) | DEL-08-01, DEL-08-06 | A public render is blocked for every session (provenance hard-coded private, `renderableReportInput.ts:119-131`). EX refused (10A). The report package is saved locally for a Current pressure-free result (W-18 (b2), `reportPackageRequest.ts`); EX packages are refused (10A). `assumptions: []`; build id and model coordinates "not recorded". |
-| FR-REP-002 (579) | Must | P | Rule-check section `report_renderer/src/lib.rs:845-904`; §19.3 notice and human-review record `:954-990`; test `render.rs:390` | DEL-08-01 | Reached only in the local-private PF render. |
-| FR-REP-003 (580) | Must | P | Provenance records for the session, components, spring hangers, materials, sections and supports with a `provenance_record`, under one provenance predicate, and the model's library references with the store's findings (W-11 slice (c); `renderableReportInput.ts` `subjectProvenance`, `libraryReferences`; renderer Library Records). Tests: `renderedReport.test.tsx` FR-REP-003 blocks, `report_renderer/tests/render.rs`, `tests/test_report_sections_provenance_records.py` | DEL-08-03 | Reached only in the local-private PF render and package. A record whose review status is `quarantined` or `rejected`, or whose redistribution status is `protected_suspected`, refuses the render and the package; an `unknown` or `TBD` status (including a `provenance_record` that records none) shows a non-blocking warning in a local-private report and blocks elsewhere (owner ruling "C1 b, C2 a", 2026-10-26); private records render only under `local_private` (DEL-08-01 Design `exact-route-report-sections.md` §6.2). |
+| FR-REP-001 (578) | Must | P | W-3: local-private render (`RenderedReportPanel.tsx`, `reportRenderService.ts`); rule-pack refs, user-rule outcomes, versions, date, settings and coordinate systems (`renderableReportInput.ts:362-470,637,685`; renderer test `render.rs:321`). Observed natively (§5) | DEL-08-01, DEL-08-06 | A public render is blocked for every session (provenance hard-coded private, `renderableReportInput.ts:119-131`). An eligible EX result that Export Result JSON admits renders with its exact-route sections and without numerical-health lines (W-11, opened by the owner 2026-10-26); the report JSON packet still refuses EX. The report package is saved locally for a Current pressure-free result (W-18 (b2), `reportPackageRequest.ts`) or such an EX result (W-11). `assumptions: []`; build id and model coordinates "not recorded". |
+| FR-REP-002 (579) | Must | P | Rule-check section `report_renderer/src/lib.rs:845-904`; §19.3 notice and human-review record `:954-990`; test `render.rs:390` | DEL-08-01 | Reached in the local-private render and package for PF and eligible EX results. |
+| FR-REP-003 (580) | Must | P | Provenance records for the session, components, spring hangers, materials, sections and supports with a `provenance_record`, under one provenance predicate, and the model's library references with the store's findings (W-11 slice (c); `renderableReportInput.ts` `subjectProvenance`, `libraryReferences`; renderer Library Records). Tests: `renderedReport.test.tsx` FR-REP-003 blocks, `report_renderer/tests/render.rs`, `tests/test_report_sections_provenance_records.py` | DEL-08-03 | Reached only in the local-private render and package (PF, and EX since W-11). A record whose review status is `quarantined` or `rejected`, or whose redistribution status is `protected_suspected`, refuses the render and the package; an `unknown` or `TBD` status (including a `provenance_record` that records none) shows a non-blocking warning in a local-private report and blocks elsewhere (owner ruling "C1 b, C2 a", 2026-10-26); private records render only under `local_private` (DEL-08-01 Design `exact-route-report-sections.md` §6.2). |
 | FR-REP-004 (581) | Should | P | Within-run comparison summary (`ReportPanel.tsx:210-214,663-665`) | DEL-08-06 | No comparison section in the renderer; a chosen within-run comparison travels in the local-private package's state/run and comparison sections (DEL-08-06). |
 | FR-REP-005 (582) | Must | D | `core/reporting/protected_content_linter`; `tests/test_report_protected_content_linter.py` | DEL-08-05 | |
 | §19.1 report types (no row before) | — | P | — | DEL-08-06 | No state-comparison, run-comparison or handoff-manifest report a user can reach. |
@@ -283,8 +287,8 @@ This map has 35 P, 41 D (including one bounded and one at repository level), 8 O
   combinations on PF only; the validation suite is headless.
 - **Not in the desktop:**
   - rigid elements (W-15);
-  - basic report generation (local-private PF render only; W-11 and the
-    package);
+  - basic report generation (local-private render and package only, for PF
+    and, since W-11, eligible EX results);
   - canonical model package export (the model document, W-6a; the handoff
     directory package with its manifest, W-6b).
 
@@ -493,7 +497,9 @@ v0.1 (`DEL-04-08 Design/b7-plan.md`); the W-10 reconnect limitation
 
 Opening exact-route reports and handoff needs no new decision to start. Ruling
 10A already directs DEL-08-01 to design their limitation sections. Opening the
-surfaces afterwards returns to the owner.
+surfaces afterwards returns to the owner; the owner opened the rendered report
+and the report package on 2026-10-26 (W-11 row); the handoff preview stays
+refused.
 
 ### 4.3 Units
 
@@ -547,7 +553,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 |---|---|---|---|---|---|---|
 | W-2 (rest) | Fresh R6 reproduction bundle at the validation basis, with the current procedure | S | run | heavy | the validation basis | Acceptance of the reproduction is the owner's |
 | W-6 | Canonical model export (save model document to file, independent of a solve; FR-HAND-001); schema-conformant handoff manifest with rule refs and hashes (FR-HAND-002) | M | desktop + schema | heavy | W-13 (0.7.0) | No |
-| W-11 | Exact-route reports: DEL-08-01 limitation sections (ruling 10A), then open; with it, the report's materials, sections and library records (FR-REP-003) | M–L | docs + desktop | heavy | W-3 (done) | Slice (a) (statement table, renderer sections, dormant package checks, native step 0) merged in #1632; slice (b) (desktop exact sections, Export Result JSON admission and the native source binding) built behind the gate, not opened; slice (c) (FR-REP-003 on every route: material, section, component and support records, library references and findings, and the renderer's disposition refusal) built. Opening returns to the owner |
+| W-11 | Exact-route reports: DEL-08-01 limitation sections (ruling 10A), then open; with it, the report's materials, sections and library records (FR-REP-003) | M–L | docs + desktop | heavy | W-3 (done) | Slice (a) (statement table, renderer sections, dormant package checks, native step 0) merged in #1632; slice (b) (desktop exact sections, Export Result JSON admission and the native source binding) built behind the gate, not opened; slice (c) (FR-REP-003 on every route: material, section, component and support records, library references and findings, and the renderer's disposition refusal) built. Opened by the owner's ruling (2026-10-26: "My two decisions are to approve your recommendations in both cases. Proceed accordingly."): the rendered report and the report package admit an eligible pressure-2 or pressure-source-1 result that Export Result JSON admits, local private only and without numerical-health lines; the report JSON packet, the handoff preview and the other surfaces, the headless runner included, still refuse (DEL-08-01 Design `exact-route-report-sections.md` §0, §5.1, §6.3) |
 | W-15 c | Eccentric reducer offset with the 0.8.0 model document (§12.3) | S–M | numerical + schema | heavy, scrutiny | #1604, #1608; the 0.8.0 coordination after slice a's D3 turn | No |
 | W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | — | No |
 | W-18 (new) | Report package for current results (FR-REP-001; formerly `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private). Slice (a), the Rust 2.0.0 producer, reader and runner witness, is on main (#1597); slice (b1), native admission and disposition screening of the save (`report_package_save.rs`, shared `export_disposition_screen.rs`), replaces its native hold; slice (b2), the desktop opening (`reportPackageRequest.ts`, the split save service, the solve/rule-check rule-pack agreement and a native smoke step), saves a local private package for a Current pressure-free result, and exact routes stay refused (DEL-08-01 Design `report-package-current-results.md` §6) | M | desktop + Rust | heavy | W-3 | Shareable path decided (owner, 2026-10-24, option B: a per-report user release, W-18b, after (a)–(b2)) |

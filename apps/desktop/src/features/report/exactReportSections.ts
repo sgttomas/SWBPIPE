@@ -7,9 +7,9 @@
  * the Rust projection and the vectors together.
  *
  * Nothing here admits a result to an output: the builder reaches these projections only
- * with a recorded Export Result JSON admission (`exactReportAdmission.ts`), and every
- * report surface keeps its output-policy refusal of the exact routes until the owner
- * opens them (ruling 10A). Limitation statements come only from the closed statement
+ * with a recorded Export Result JSON admission (`exactReportAdmission.ts`), and only the
+ * rendered report and the report package, which the owner opened on 2026-10-26 (§5.1),
+ * admit the exact routes; the report JSON packet keeps refusing them. Limitation statements come only from the closed statement
  * table (`exactReportLimitations.ts`). Standard claim fence applies (claims taxonomy per
  * DEC-081). */
 import type { MechanicsResult } from "../../types";

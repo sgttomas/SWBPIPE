@@ -16,13 +16,18 @@
  * a, through `LoadReferenceOutputGate`) and the report package keep refusing it.
  * The report package reads its own `report-package` cell (`reportPackageUnavailableReason`,
  * W-18; DEL-08-01 Design `report-package-current-results.md` §2.1): the pressure-free
- * route is ungated there, and its Rust boundary admits only preview-physics-2.
+ * route is ungated there, and its Rust boundary admits preview-physics-2, pressure-2
+ * and pressure-source-1.
  * Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md`; owner, 2026-10-21: "A accept
  * your recommendations for the entire set."): pressure-2 (`pressure`) and
  * pressure-source-1 (`pressure_source`) are `admitted` on the result JSON export, the
  * stress-neutral export and the rule check, where each surface takes the Rust reader's
- * verdict and standing, and refused on every other surface, the report package
- * included. A load/reference-state result, published under one of these identities
+ * verdict and standing. W-11 (DEL-08-01 Design `exact-route-report-sections.md` §5.1;
+ * owner, 2026-10-26: "My two decisions are to approve your recommendations in both
+ * cases. Proceed accordingly.") admits them on the rendered report and the report
+ * package too, where each takes the Export Result JSON admission and the native host's
+ * source binding and standing. Every other surface, the report JSON packet included,
+ * refuses them. A load/reference-state result, published under one of these identities
  * since B7b, follows the reader with no source-level step (ruling 11B, design §5.4): an
  * eligible pressure-2 one is admitted there, and a pressure-source-1 one is never
  * eligible. Ungated routes add no refusal here; each surface's own source and standing
@@ -40,12 +45,12 @@ import type { MechanicsResult, PreviewModel } from "../../types";
 
 export const PRESSURE_2_OUTPUT_NOT_YET_AVAILABLE = "PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE";
 /** Epoch 8 (design §5.3): reworded so that it no longer says every output is unavailable. */
-export const N_PRESSURE_2_OUTPUT = "This output of pressure-2 results (3.0.0/exact_pressure_v3) is not available on the desktop; only the result JSON and stress-neutral exports and the rule check admit a numerically eligible result. The result remains readable here; this is not a finding about the result.";
+export const N_PRESSURE_2_OUTPUT = "This output of pressure-2 results (3.0.0/exact_pressure_v3) is not available on the desktop; only the result JSON and stress-neutral exports, the rule check, the rendered report and the report package admit a numerically eligible result. The result remains readable here; this is not a finding about the result.";
 export const PRESSURE_2_OUTPUT_REFUSAL = `${PRESSURE_2_OUTPUT_NOT_YET_AVAILABLE}: ${N_PRESSURE_2_OUTPUT}`;
 /** b7-plan D6/MJ8: pressure-source-1 exports through the Rust derivative, which binds its
  * received v3 receipt. Epoch 8: the same surfaces as pressure-2 admit it, and every other
  * surface refuses under pressure-2's code. This policy adds no numerical standing. */
-export const N_PRESSURE_SOURCE_OUTPUT = "This output of pressure-source-1 results (3.0.0/exact_pressure_v3) is not available on the desktop; only the result JSON and stress-neutral exports and the rule check admit a numerically eligible result. The result remains readable here; this is not a finding about the result.";
+export const N_PRESSURE_SOURCE_OUTPUT = "This output of pressure-source-1 results (3.0.0/exact_pressure_v3) is not available on the desktop; only the result JSON and stress-neutral exports, the rule check, the rendered report and the report package admit a numerically eligible result. The result remains readable here; this is not a finding about the result.";
 export const PRESSURE_SOURCE_OUTPUT_REFUSAL = `${PRESSURE_2_OUTPUT_NOT_YET_AVAILABLE}: ${N_PRESSURE_SOURCE_OUTPUT}`;
 export const RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE = "RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE";
 /** Decision 12: reworded so that it no longer says every output is unavailable. */
@@ -80,22 +85,23 @@ export type RouteOutputPolicy =
   | { readonly gate: "per_surface"; readonly reason: string; readonly surfaces: Readonly<Record<OutputSurface, SurfaceDecision>> };
 
 const UNGATED: RouteOutputPolicy = Object.freeze({ gate: "none" });
-/** Epoch 8 (design §5.1): the exact routes' surfaces, `admitted` on the three opened
- * surfaces and refused on every other. */
-const EXACT_ADMITTED_SURFACES: readonly OutputSurface[] = Object.freeze(["result-export", "stress-neutral", "rule-check"]);
+/** Epoch 8 (design §5.1): the exact routes' surfaces, `admitted` on the opened surfaces
+ * and refused on every other. W-11 (DEL-08-01 Design `exact-route-report-sections.md`
+ * §5.1; owner, 2026-10-26) adds the rendered report and the report package. */
+const EXACT_ADMITTED_SURFACES: readonly OutputSurface[] = Object.freeze(["result-export", "stress-neutral", "rule-check", "rendered-report", "report-package"]);
 function exactRouteSurfaces(): Readonly<Record<OutputSurface, SurfaceDecision>> {
   return Object.freeze(Object.fromEntries(OUTPUT_SURFACES.map(surface => [surface, EXACT_ADMITTED_SURFACES.includes(surface) ? "admitted" : "refused"])) as Record<OutputSurface, SurfaceDecision>);
 }
 
 export const OUTPUT_POLICY: Readonly<Record<SourceContract, RouteOutputPolicy>> = Object.freeze({
-  // pressure-source-1 (with or without load/reference states): the three epoch 8
+  // pressure-source-1 (with or without load/reference states): the five opened
   // surfaces add no refusal; their own checks take Rust's standing, which is never
   // eligible with load/reference states or without the registered invocation.
   pressure_source: Object.freeze({ gate: "per_surface", reason: PRESSURE_SOURCE_OUTPUT_REFUSAL, surfaces: exactRouteSurfaces() }),
   preview_physics: UNGATED,
   // Each surface refuses an unsupported statement through its own contract check.
   unsupported: UNGATED,
-  // pressure-2 (likewise with or without load/reference states): the three epoch 8
+  // pressure-2 (likewise with or without load/reference states): the five opened
   // surfaces add no refusal; their own checks take Rust's standing.
   pressure: Object.freeze({ gate: "per_surface", reason: PRESSURE_2_OUTPUT_REFUSAL, surfaces: exactRouteSurfaces() }),
   // T6S (RR decisions 2 and 12): only the two T6 panels admit the preview successor.

@@ -44,11 +44,9 @@ pub(crate) struct Graph {
     pub(crate) set_type: &'static str,
     /// The module (and file stem) that defines the set, e.g. `admitted`.
     pub(crate) set_module: &'static str,
-    /// The widened test-only value, e.g. `EXACT_WITNESS_ADMITTED`.
-    pub(crate) witness: &'static str,
-    /// The test files that may name the widened value (the witness module and
-    /// the scan's own test file).
-    pub(crate) witness_files: &'static [&'static str],
+    /// The scan's own test files, whose invented sources (string literals)
+    /// construct sets; the "no other set" check skips them.
+    pub(crate) scanner_files: &'static [&'static str],
 }
 
 impl Graph {
@@ -333,28 +331,27 @@ pub(crate) fn scan(graph: &Graph, files: &BTreeMap<String, String>) -> Vec<Strin
             }
         }
     }
-    // 4: nowhere in non-test source; in the raw sources only in its
-    // `#[cfg(test)]` definition and the witness files.
-    let witness = graph.witness;
-    for (file, code) in &sources {
-        if code.contains(witness) {
-            findings.push(format!("{file}: {witness} in non-test source"));
-        }
-    }
-    let definition_line = format!("pub(crate) const {witness}: {set_type} = ");
+    // 4: no test-only set exists (W-11 opening, §5.1 item 8): in every source,
+    // its `#[cfg(test)]` items and test modules included, the set is
+    // constructed only in the struct and `PRODUCTION`'s definition, and no
+    // other constant of the set's type is declared. The scan's own test files
+    // are skipped: their invented sources are string literals.
+    let declaration = format!(": {set_type} =");
     for (file, text) in files {
-        if graph.witness_files.contains(&file.as_str()) {
+        if graph.scanner_files.contains(&file.as_str()) {
             continue;
         }
-        let lines: Vec<&str> = text.lines().collect();
-        for (index, line) in lines.iter().enumerate() {
-            if !code_of(line).contains(witness) {
+        for (index, line) in text.lines().enumerate() {
+            let code = code_of(line);
+            let declares = code.contains("const ") && code.contains(&declaration);
+            if !code.contains(&construction) && !declares {
                 continue;
             }
-            let definition =
-                *file == set_home && line.starts_with(&definition_line) && index > 0 && lines[index - 1] == "#[cfg(test)]";
-            if !definition {
-                findings.push(format!("{file}:{}: {witness} used outside the witness module", index + 1));
+            let allowed = *file == set_home
+                && (line.starts_with(&format!("pub(crate) struct {set_type}("))
+                    || line.starts_with(&format!("pub(crate) const PRODUCTION: {set_type} = {set_type}(")));
+            if !allowed {
+                findings.push(format!("{file}:{}: a set of type {set_type} other than PRODUCTION: {}", index + 1, line.trim()));
             }
         }
     }
