@@ -12,5 +12,7 @@ const sha256 = (file: string) => createHash("sha256").update(readFileSync(resolv
 export const PRESSURE_CONTRACT_SHA256 = sha256("semantic_contract_v0_3_pressure_2.json");
 export const PRESSURE_SOURCE_CONTRACT_SHA256 = sha256("semantic_contract_v0_3_pressure_source_1.json");
 export const PREVIEW_PHYSICS_CONTRACT_SHA256 = sha256("semantic_contract_v0_3_preview_physics_2.json");
+/** DEL-05-03 pf-timoshenko.md §4: the pressure-free Timoshenko identity's table. */
+export const PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_SHA256 = sha256("semantic_contract_v0_3_preview_physics_timoshenko_1.json");
 export const PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = sha256("semantic_contract_v0_3_preview_physics_retained_1.json");
 export const PHYSICS_RETAINED_CONTRACT_SHA256 = sha256("semantic_contract_v0_3_physics_retained_1.json");

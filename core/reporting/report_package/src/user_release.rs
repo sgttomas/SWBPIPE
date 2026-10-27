@@ -40,7 +40,7 @@ use crate::bindings::{
 use crate::quantity_display::{source_displays_scaled_value, QUANTITY_DISPLAY_POLICY};
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_result_export::derivative::{checksum, derive_document, digest, reference};
-use open_pipe_stress_result_export::semantic_contract::{PRESSURE_ID, PRESSURE_SOURCE_ID, PREVIEW_PHYSICS_ID, PREVIEW_PHYSICS_TIMOSHENKO_ID};
+use open_pipe_stress_result_export::semantic_contract::{PRESSURE_ID, PRESSURE_SOURCE_ID, PREVIEW_PHYSICS_ID};
 use serde_json::{json, Map, Value};
 use std::cmp::Ordering;
 use std::collections::BTreeSet;
@@ -706,12 +706,6 @@ fn check_pressure_free(source: &Value) -> Result<(), String> {
         Some(PREVIEW_PHYSICS_ID) => Ok(()),
         Some(id @ (PRESSURE_ID | PRESSURE_SOURCE_ID)) => Err(format!(
             "{EXACT_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results only; this exact-route result ({id}) can be saved in a local private package."
-        )),
-        // DEL-05-03 `pf-timoshenko.md` §4: the shareable derivation is a closed
-        // projection without the Timoshenko limitation entry, so a Timoshenko result is
-        // refused by name here; it can be saved in a local private package.
-        Some(PREVIEW_PHYSICS_TIMOSHENKO_ID) => Err(format!(
-            "{EXACT_ROUTE_NOT_ADMITTED}: a shareable report package carries Euler-Bernoulli pressure-free (preview-physics-2) results only; this Timoshenko result ({PREVIEW_PHYSICS_TIMOSHENKO_ID}) can be saved in a local private package."
         )),
         other => Err(invalid(format_args!("the source's identity {} is not preview-physics-2", other.unwrap_or("(none)")))),
     }
