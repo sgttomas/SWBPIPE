@@ -4538,6 +4538,44 @@ body { min-width: 760px; min-height: 540px; }
   overflow-wrap: anywhere;
 }
 
+/* Solve progress panel (DEL-07-07 Design `solve-progress-panel.md`): a raised
+   card over the workspace's bottom-right corner, above the status bar. */
+.solve-progress-panel {
+  position: fixed;
+  z-index: 55;
+  right: var(--space-5);
+  bottom: calc(var(--layout-statusBar) + var(--space-4));
+  display: grid;
+  gap: var(--space-3);
+  box-sizing: border-box;
+  width: min(420px, calc(100vw - 2 * var(--space-5)));
+  max-height: min(60vh, 520px);
+  overflow: auto;
+  padding: var(--space-4) var(--space-5);
+  color: var(--ui-text);
+  background: var(--surface-raised);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--elevation-2);
+  font-size: var(--type-size-chip);
+}
+.solve-progress-header { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.solve-progress-header h2 { margin: 0; font-size: var(--type-size-caption); }
+.solve-progress-header code { overflow: hidden; color: var(--ui-muted); text-overflow: ellipsis; white-space: nowrap; }
+.solve-progress-state { display: grid; gap: var(--space-1); margin: 0; overflow-wrap: anywhere; }
+.solve-progress-basis, .solve-progress-line { margin: 0; color: var(--ui-muted); overflow-wrap: anywhere; }
+.solve-progress-events { display: grid; gap: var(--space-2); margin: 0; padding-inline-start: var(--space-5); overflow-wrap: anywhere; }
+.solve-progress-actions { display: flex; justify-content: flex-end; gap: var(--space-3); }
+.solve-progress-actions [aria-disabled="true"] { opacity: 0.6; cursor: default; }
+
+/* On-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`). */
+.model-checks-actions { display: flex; align-items: center; gap: var(--space-3); }
+.model-checks-list { display: grid; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.model-checks-list ul { display: grid; gap: var(--space-2); margin: var(--space-2) 0 0; padding: 0; list-style: none; }
+.model-checks-list button.diagnostic { width: 100%; text-align: start; }
+.model-checks-list button[aria-disabled="true"] { cursor: default; }
+.app-menu-item .app-menu-shortcut { margin-inline-start: auto; padding-inline-start: var(--space-4); color: var(--ui-muted); font: inherit; }
+
 /* B9: the entity and cell context menu (ContextMenu.tsx). It is portalled to the shell, so it
    takes the shell's tokens, with the base tokens where it opens outside the shell. */
 .context-menu {

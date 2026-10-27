@@ -182,24 +182,7 @@ pub(crate) fn admit_body(
     command: &'static str,
     decoding: ArgsDecoding,
 ) -> Result<(Args, Lease), SolveJobError> {
-    match headers.get(INGRESS_HEADER) {
-        None => {
-            return Err(invalid_request(format!(
-                "INGRESS-HEADER-REQUIRED: `{command}` needs header `{INGRESS_HEADER}: {INGRESS_ARGS_JSON_V1}` and a raw body."
-            )))
-        }
-        Some(value) if value.as_bytes() != INGRESS_ARGS_JSON_V1.as_bytes() => {
-            return Err(invalid_request(format!(
-                "INGRESS-HEADER-UNKNOWN: `{command}` accepts only `{INGRESS_HEADER}: {INGRESS_ARGS_JSON_V1}`."
-            )))
-        }
-        Some(_) => {}
-    }
-    let InvokeBody::Raw(raw) = body else {
-        return Err(invalid_request(format!(
-            "INGRESS-RAW-BODY-REQUIRED: send `{command}`'s arguments as raw UTF-8 JSON bytes."
-        )));
-    };
+    let raw = raw_args_body(body, headers, command)?;
     let bound = ingress::prescan(raw).map_err(|invalid| {
         registry.refuse(ResourceRefusal::IngressInvalid { reason: format!("{} at byte {}", invalid.reason, invalid.offset) })
     })?;
@@ -220,6 +203,30 @@ pub(crate) fn admit_body(
             Err(registry.refuse(ResourceRefusal::IngressInvalid { reason: error.to_string() }))
         }
     }
+}
+
+/// The raw args body of a command sent with the ingress header, unparsed; the
+/// header's absence, another format or a JSON body is a typed invalid request.
+pub(crate) fn raw_args_body<'a>(body: &'a InvokeBody, headers: &HeaderMap, command: &'static str) -> Result<&'a [u8], SolveJobError> {
+    match headers.get(INGRESS_HEADER) {
+        None => {
+            return Err(invalid_request(format!(
+                "INGRESS-HEADER-REQUIRED: `{command}` needs header `{INGRESS_HEADER}: {INGRESS_ARGS_JSON_V1}` and a raw body."
+            )))
+        }
+        Some(value) if value.as_bytes() != INGRESS_ARGS_JSON_V1.as_bytes() => {
+            return Err(invalid_request(format!(
+                "INGRESS-HEADER-UNKNOWN: `{command}` accepts only `{INGRESS_HEADER}: {INGRESS_ARGS_JSON_V1}`."
+            )))
+        }
+        Some(_) => {}
+    }
+    let InvokeBody::Raw(raw) = body else {
+        return Err(invalid_request(format!(
+            "INGRESS-RAW-BODY-REQUIRED: send `{command}`'s arguments as raw UTF-8 JSON bytes."
+        )));
+    };
+    Ok(raw)
 }
 
 /// [`admit`] for a command whose arguments are small by contract: a raw body

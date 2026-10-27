@@ -74,7 +74,7 @@ use crate::memory_pool::{
 };
 use crate::solve_attestation::{AttestationTable, SolveAttestation};
 use crate::solve_worker::{
-    CurrentExeLauncher, SupervisorHooks, WorkerControl, WorkerLauncher, WorkerOutcome, WorkerTerms, PROCESS_RESERVE_BYTES,
+    CurrentExeLauncher, SupervisorHooks, WorkerControl, WorkerLauncher, WorkerOutcome, WorkerTask, WorkerTerms, PROCESS_RESERVE_BYTES,
 };
 use open_pipe_stress_product_physics::PreviewSolverMode;
 use serde::Serialize;
@@ -82,7 +82,7 @@ use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 /// Cancelling a running job kills its worker process (preemptive); a queued
 /// job exits before starting one.
@@ -343,6 +343,125 @@ struct AdmittedInput {
     max_grant: u64,
 }
 
+/// The admitted intake of an on-demand model check (`check_preview_model`):
+/// the raw `{model}` args body copied under its intake lease, and the worker's
+/// starting grant and cap.
+pub(crate) struct ModelChecksInput {
+    raw: Vec<u8>,
+    lease: Lease,
+    start_grant: u64,
+    max_grant: u64,
+    check: CheckRegistration,
+}
+
+/// The cancellation of one on-demand model check, as a solve job's record
+/// holds it: a flag the supervisor and the start wait read, and kill access to
+/// its worker while it may be unreaped.
+#[derive(Debug, Default)]
+struct CheckControl {
+    state: Mutex<CheckState>,
+}
+
+#[derive(Debug, Default)]
+struct CheckState {
+    cancelled: bool,
+    worker: Option<Arc<WorkerControl>>,
+}
+
+impl CheckControl {
+    fn lock(&self) -> MutexGuard<'_, CheckState> {
+        self.state.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+
+    fn cancelled(&self) -> bool {
+        self.lock().cancelled
+    }
+
+    /// Requests cancellation and kills the worker if one is attached; its
+    /// supervisor releases the grant after reaping it, as for a solve.
+    fn cancel(&self) {
+        let mut state = self.lock();
+        state.cancelled = true;
+        if let Some(worker) = &state.worker {
+            worker.kill();
+        }
+    }
+}
+
+/// The registry's current check (at most one; a newer request supersedes the
+/// older): dropping the registration clears the slot if it is still current.
+pub(crate) struct CheckRegistration {
+    slot: Arc<Mutex<Option<Arc<CheckControl>>>>,
+    control: Arc<CheckControl>,
+}
+
+impl Drop for CheckRegistration {
+    fn drop(&mut self) {
+        let mut slot = self.slot.lock().unwrap_or_else(PoisonError::into_inner);
+        if slot.as_ref().is_some_and(|current| Arc::ptr_eq(current, &self.control)) {
+            *slot = None;
+        }
+    }
+}
+
+/// How long an on-demand model check waits for its worker's starting grant, as
+/// a solve start waits in the queue (`MemoryPool::wait_acquire`): the same
+/// window as the intake and result leases' headroom re-sampling. A check has
+/// no job record to cancel, so the wait ends at this deadline, and the last
+/// queue reason stands as the check's refusal.
+pub(crate) const MODEL_CHECKS_START_WAIT: Duration = Duration::from_secs(2);
+
+/// How an on-demand model check did not produce its report.
+#[derive(Debug)]
+pub(crate) enum ModelChecksError {
+    /// A typed memory-pool refusal: at intake, at the worker's start grant, or
+    /// while it ran (its growth, cap or footprint).
+    Unavailable(SolveJobError),
+    /// The worker failed (a crash, a protocol violation or its own error).
+    Failed(String),
+    /// Cancelled by a session reset, a project-session change or a newer
+    /// check before it reported; its worker was killed and its grant released.
+    Cancelled,
+}
+
+/// A completed model check: the report's bytes in their result lease, and the
+/// worker's peak grant and peak measured footprint.
+#[derive(Debug)]
+pub(crate) struct ModelChecksOutput {
+    pub report: Vec<u8>,
+    pub lease: Lease,
+    /// Read by the worker-figure regressions; the command sends the report only.
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub peak_grant_bytes: u64,
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub peak_footprint_bytes: u64,
+}
+
+/// The model check's supervisor view: its cancellation (as [`JobHooks`] reads
+/// a job record's) and the worker's peak grant and footprint.
+struct ModelChecksHooks {
+    control: Arc<CheckControl>,
+    peak_grant: u64,
+    peak_footprint: u64,
+}
+
+impl SupervisorHooks for ModelChecksHooks {
+    fn attach(&mut self, control: Arc<WorkerControl>) -> bool {
+        let mut state = self.control.lock();
+        state.worker = Some(control);
+        !state.cancelled
+    }
+    fn cancelled(&self) -> bool {
+        self.control.cancelled()
+    }
+    fn grant_changed(&mut self, grant_bytes: u64) {
+        self.peak_grant = self.peak_grant.max(grant_bytes);
+    }
+    fn footprint_observed(&mut self, footprint_bytes: u64) {
+        self.peak_footprint = self.peak_footprint.max(footprint_bytes);
+    }
+}
+
 #[derive(Clone)]
 pub(crate) struct SolveJobRegistry {
     jobs: Arc<Mutex<SolveJobTable>>,
@@ -351,6 +470,8 @@ pub(crate) struct SolveJobRegistry {
     spawn: SpawnFn,
     /// The worker's process reserve (non-heap footprint allowance).
     reserve: u64,
+    /// The on-demand model check in progress, if any.
+    checks: Arc<Mutex<Option<Arc<CheckControl>>>>,
 }
 
 fn thread_spawn(job: Box<dyn FnOnce() + Send + 'static>) -> std::io::Result<()> {
@@ -423,7 +544,7 @@ impl SolveJobRegistry {
     }
 
     pub(crate) fn with_hooks(pool: Arc<MemoryPool>, launcher: Arc<dyn WorkerLauncher>, spawn: SpawnFn) -> Self {
-        Self { jobs: Arc::default(), pool, launcher, spawn, reserve: PROCESS_RESERVE_BYTES }
+        Self { jobs: Arc::default(), pool, launcher, spawn, reserve: PROCESS_RESERVE_BYTES, checks: Arc::default() }
     }
 
 
@@ -598,6 +719,122 @@ impl SolveJobRegistry {
         })
     }
 
+    /// Admits an on-demand model check's raw `{model}` args body as `start`
+    /// admits a solve (DEL-04-07 memory-budget decision, "On-demand model
+    /// checks"): the prescan, the worker's starting grant (process reserve plus
+    /// the intake bound) within the per-invocation budget, and the intake lease
+    /// before this process copies the bytes. A new check supersedes the one in
+    /// progress: that one is cancelled first, so its grant is released.
+    pub(crate) fn admit_model_checks(&self, body: &[u8]) -> Result<ModelChecksInput, SolveJobError> {
+        let check = self.register_model_check();
+        let bound = ingress::prescan(body).map_err(|invalid| {
+            self.unavailable(ResourceRefusal::IngressInvalid { reason: format!("{} at byte {}", invalid.reason, invalid.offset) })
+        })?;
+        let (_, budget) = self.pool.settings();
+        let start_grant = bound
+            .lease_bytes()
+            .and_then(|ingress| crate::solve_worker::initial_grant(self.reserve, ingress))
+            .unwrap_or(u64::MAX);
+        if start_grant > budget {
+            return Err(self.unavailable(ResourceRefusal::IngressExceedsBudget { required_bytes: start_grant, budget_bytes: budget }));
+        }
+        let ingress_bytes = ingress::allocation_envelope(bound.raw_len).unwrap_or(u64::MAX);
+        let lease = match self.pool.acquire_resampling(ingress_bytes, LeasePurpose::Ingress, &|| false) {
+            Ok(lease) => lease,
+            Err(ResampleStop::Refused(refusal)) => return Err(self.unavailable(refusal)),
+            Err(ResampleStop::Cancelled) => unreachable!("the intake wait is never cancelled"),
+        };
+        Ok(ModelChecksInput { raw: body.to_vec(), lease, start_grant, max_grant: budget, check })
+    }
+
+    /// Makes a new check the current one, cancelling the one it supersedes.
+    fn register_model_check(&self) -> CheckRegistration {
+        let control = Arc::new(CheckControl::default());
+        let previous = self.checks.lock().unwrap_or_else(PoisonError::into_inner).replace(control.clone());
+        if let Some(previous) = previous {
+            previous.cancel();
+            self.pool.wake_waiters();
+        }
+        CheckRegistration { slot: self.checks.clone(), control }
+    }
+
+    /// Cancels the model check in progress, if any (`cancel_model_checks`, on
+    /// a project-session change, and session reset): a check still waiting for
+    /// its starting grant stops waiting, a running check's worker is killed,
+    /// and its supervisor releases the grant after reaping it. Returns whether
+    /// a check was in progress.
+    pub(crate) fn cancel_model_checks(&self) -> bool {
+        let current = self.checks.lock().unwrap_or_else(PoisonError::into_inner).take();
+        let Some(current) = current else { return false };
+        current.cancel();
+        self.pool.wake_waiters();
+        true
+    }
+
+    /// Runs an admitted model check in a capped worker process, as an ordinary
+    /// solve runs: its starting grant is a worker lease taken by the solve's own
+    /// queue wait (`wait_acquire`: the worker count limit, the pool and a fresh
+    /// headroom verdict at each attempt), for at most [`MODEL_CHECKS_START_WAIT`],
+    /// after which the last queue reason stands as its typed refusal; its grant
+    /// grows on demand up to the budget the check was admitted under
+    /// (`max_grant`, as a queued solve's worker), and
+    /// its report's bytes come back in a result lease, which the caller holds
+    /// until it has sent them.
+    pub(crate) fn run_model_checks(&self, input: ModelChecksInput) -> Result<ModelChecksOutput, ModelChecksError> {
+        let ModelChecksInput { raw, lease, start_grant, max_grant, check } = input;
+        let control = check.control.clone();
+        let deadline = Instant::now() + MODEL_CHECKS_START_WAIT;
+        let mut queued: Option<ResourceRefusal> = None;
+        // As a solve's worker: bounded by the budget the check was admitted
+        // under (`max_grant`), not the budget when it leaves the queue.
+        let waited = self.pool.wait_acquire(
+            start_grant,
+            LeasePurpose::Worker,
+            Some(max_grant),
+            &|| control.cancelled() || Instant::now() >= deadline,
+            &mut |reason| queued = Some(reason.clone()),
+        );
+        let mut grant = match waited {
+            Ok(grant) => grant,
+            Err(WaitOutcome::Cancelled) if control.cancelled() => {
+                drop((raw, lease));
+                return Err(ModelChecksError::Cancelled);
+            }
+            Err(WaitOutcome::Cancelled) => {
+                drop((raw, lease));
+                // The first attempt always precedes the deadline, so a reason was recorded.
+                let refusal = queued.unwrap_or(ResourceRefusal::HeadroomUnknown);
+                return Err(ModelChecksError::Unavailable(self.unavailable(refusal)));
+            }
+        };
+        let terms = WorkerTerms { pool: &self.pool, launcher: &*self.launcher, task: WorkerTask::ModelChecks, max_grant, reserve: self.reserve };
+        let mut hooks = ModelChecksHooks { control: control.clone(), peak_grant: grant.bytes(), peak_footprint: 0 };
+        // The worker is reaped inside `supervise`, also while it unwinds; only
+        // then is the grant released.
+        let outcome = catch_unwind(AssertUnwindSafe(|| crate::solve_worker::supervise(&terms, &mut grant, (raw, lease), &mut hooks)));
+        control.lock().worker = None;
+        drop(grant);
+        drop(check);
+        if control.cancelled() {
+            // A report that arrived as it was cancelled answers a retired
+            // request; it and its result lease are released here.
+            drop(outcome);
+            return Err(ModelChecksError::Cancelled);
+        }
+        match outcome {
+            Err(payload) => Err(ModelChecksError::Failed(format!("MODEL-CHECKS-PANICKED: {}", crate::solve_worker::panic_message(payload.as_ref())))),
+            Ok(WorkerOutcome::Completed { result, lease, .. }) => Ok(ModelChecksOutput {
+                report: result,
+                lease,
+                peak_grant_bytes: hooks.peak_grant,
+                peak_footprint_bytes: hooks.peak_footprint,
+            }),
+            Ok(WorkerOutcome::Failed(error)) => Err(ModelChecksError::Failed(error)),
+            Ok(WorkerOutcome::Refused(refusal)) => Err(ModelChecksError::Unavailable(self.unavailable(refusal))),
+            Ok(WorkerOutcome::Terminated) => Err(ModelChecksError::Failed("MODEL-CHECKS-WORKER-TERMINATED: the check's worker was stopped.".to_string())),
+        }
+    }
+
     fn cancellation_requested(&self, job_id: &str) -> bool {
         self.table().records.get(job_id).is_none_or(|r| r.cancellation_requested)
     }
@@ -684,7 +921,7 @@ impl SolveJobRegistry {
             return;
         }
         let Some(input) = input.take() else { return };
-        let terms = WorkerTerms { pool: &self.pool, launcher: &*self.launcher, mode, max_grant, reserve: self.reserve };
+        let terms = WorkerTerms { pool: &self.pool, launcher: &*self.launcher, task: WorkerTask::Solve(mode), max_grant, reserve: self.reserve };
         // The worker is reaped inside `supervise`, also while it unwinds; only
         // then is the grant released.
         let outcome = catch_unwind(AssertUnwindSafe(|| {
@@ -960,6 +1197,9 @@ impl SolveJobRegistry {
         if abandoned_jobs > 0 {
             self.pool.wake_waiters();
         }
+        // An on-demand model check in progress belongs to the page that is gone.
+        drop(table);
+        self.cancel_model_checks();
         receipt
     }
 
@@ -2093,6 +2333,118 @@ mod tests {
         assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
     }
 
+    // ---- B11 on-demand model checks (Codex reviews r1 and r2 of #1665) ----
+
+    const FAN_OUT_BASE: &str = include_str!("../../../../core/product_physics/tests/fixtures/model_checks/load_state_fan_out_base.json");
+
+    /// Codex r2's adversarial shape (invented): a load-state model whose one
+    /// material carries 1.2 MB of provenance, shared by `pipes` members; the
+    /// load-state resolution copies the material into every resolved member.
+    fn fan_out_model(pipes: usize) -> serde_json::Value {
+        let mut model: serde_json::Value = serde_json::from_str(FAN_OUT_BASE).unwrap();
+        model["materials"][0]["provenance"] = serde_json::json!(format!("review_invented_{}", "a".repeat(1_200_000)));
+        let replicate = |value: &serde_json::Value| -> serde_json::Value {
+            let text = value.to_string();
+            serde_json::Value::Array((0..pipes).map(|i| serde_json::from_str(&text.replace("pipe:probe-0", &format!("pipe:probe-{i}"))).unwrap()).collect())
+        };
+        model["pipe_segments"] = replicate(&model["pipe_segments"][0]);
+        let members = replicate(&model["reference_configurations"][0]["member_references"][0]);
+        model["reference_configurations"][0]["member_references"] = members;
+        let states = replicate(&model["load_cases"][0]["analysis_state"]["element_states"][0]);
+        model["load_cases"][0]["analysis_state"]["element_states"] = states;
+        model
+    }
+
+    fn checks_body(model: &serde_json::Value) -> Vec<u8> {
+        serde_json::to_vec(&serde_json::json!({ "model": model })).unwrap()
+    }
+
+    /// The checks run in a capped worker process: Codex's 16- and 64-pipe
+    /// fan-out shapes complete with the applier's report, their grant grows
+    /// on demand and never passes the per-invocation budget, and every lease
+    /// is released afterwards.
+    #[test]
+    fn model_checks_run_in_a_capped_worker_whatever_the_fan_out() {
+        let host = ScriptedHost::normal();
+        let registry = registry(&host, TestLauncher::solve());
+        let (_, budget) = registry.pool().settings();
+        for pipes in [1, 16, 64] {
+            let model = fan_out_model(pipes);
+            let body = checks_body(&model);
+            let input = registry.admit_model_checks(&body).unwrap();
+            let start_grant = input.start_grant;
+            let output = registry.run_model_checks(input).unwrap();
+            let report: serde_json::Value = serde_json::from_slice(&output.report).unwrap();
+            assert_eq!(report, open_pipe_stress_operation_applier::model_checks(&model), "{pipes} pipes");
+            assert!(output.peak_grant_bytes <= budget, "{pipes} pipes: grant {} above the budget {budget}", output.peak_grant_bytes);
+            eprintln!(
+                "model checks fan-out {pipes} pipes: body {} B, starting grant {start_grant} B, peak grant {} B, peak footprint {} B, report {} B",
+                body.len(), output.peak_grant_bytes, output.peak_footprint_bytes, output.report.len()
+            );
+            drop(output);
+            assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0), "{pipes} pipes");
+        }
+    }
+
+    /// The per-invocation budget holds at the start and while the check runs
+    /// (Codex r2's budget probe): a budget below the starting grant refuses the
+    /// intake by type, and a budget the 64-pipe check outgrows ends its worker
+    /// with a typed worker refusal; nothing stays reserved.
+    #[test]
+    fn model_checks_refuse_by_type_at_the_invocation_budget() {
+        let host = ScriptedHost::normal();
+        let registry = registry(&host, TestLauncher::solve());
+        let pool_bytes = registry.pool().settings().0;
+        // Codex's probe: the budget set to the demo's admitted ingress amount.
+        let demo: serde_json::Value = serde_json::from_str(crate::BUNDLED_DEMO_MODEL).unwrap();
+        registry.configure_pool(pool_bytes, 196_752, false).unwrap();
+        let error = registry.admit_model_checks(&checks_body(&demo)).err().expect("refused at intake");
+        assert!(
+            matches!(&error, SolveJobError::ResourceUnavailable { refusal: ResourceRefusal::IngressExceedsBudget { budget_bytes: 196_752, .. }, .. }),
+            "{error:?}"
+        );
+        // A budget just above the 64-pipe check's starting grant: the worker outgrows it.
+        let body = checks_body(&fan_out_model(64));
+        registry.configure_pool(pool_bytes, 12 * GIB, false).unwrap();
+        let start_grant = registry.admit_model_checks(&body).unwrap().start_grant;
+        let budget = start_grant + 8 * (1 << 20);
+        registry.configure_pool(pool_bytes, budget, false).unwrap();
+        let input = registry.admit_model_checks(&body).unwrap();
+        match registry.run_model_checks(input) {
+            Err(ModelChecksError::Unavailable(SolveJobError::ResourceUnavailable { refusal, .. })) => assert!(
+                matches!(refusal, ResourceRefusal::WorkerCapExceeded { .. } | ResourceRefusal::WorkerFootprintExceeded { .. } | ResourceRefusal::WorkerGrowthRefused { .. }),
+                "{refusal:?}"
+            ),
+            other => panic!("expected a typed worker refusal at the budget, got {other:?}"),
+        }
+        assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
+    }
+
+    /// With #1676's budget rule: a check that waits for a worker slot keeps the
+    /// budget it was admitted under, as a queued solve does. Lowered to just
+    /// above the starting grant while it waits, the 64-pipe check still grows
+    /// past the lowered budget to its report, within the admitted one.
+    #[test]
+    fn a_check_admitted_before_a_budget_change_keeps_its_budget() {
+        let host = ScriptedHost::normal();
+        let registry = registry(&host, TestLauncher::solve());
+        let pool_bytes = registry.pool().settings().0;
+        registry.configure_pool(pool_bytes, 12 * GIB, false).unwrap();
+        registry.pool().set_max_running_workers(0);
+        let input = registry.admit_model_checks(&checks_body(&fan_out_model(64))).unwrap();
+        let lowered = input.start_grant + 8 * (1 << 20);
+        let waiting = {
+            let registry = registry.clone();
+            std::thread::spawn(move || registry.run_model_checks(input))
+        };
+        registry.configure_pool(pool_bytes, lowered, false).unwrap();
+        registry.pool().set_max_running_workers(1);
+        let output = joined(waiting).expect("the check keeps its admitted budget");
+        assert!(lowered < output.peak_grant_bytes && output.peak_grant_bytes <= 12 * GIB, "peak grant {} lowered budget {lowered}", output.peak_grant_bytes);
+        drop(output);
+        assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
+    }
+
     // --- W-18b (r2a): the attestation table (DEL-08-01 Design `report-user-release.md` §2.4) ---
 
     use crate::solve_attestation::MAX_ATTESTED_SOLVES;
@@ -2213,5 +2565,106 @@ mod tests {
         assert_eq!(reset.released_results, 0);
         assert!(registry.table().attested.job_numbers().is_empty());
         assert_eq!(registry.pool().reserved_total(), 0);
+    }
+
+    /// The starting grant waits in the solve's queue (`wait_acquire`, the
+    /// production entry a solve start uses) for at most the check's window,
+    /// then the queue reason stands: with no worker slot free the check is
+    /// refused `worker_limit_reached`, after the window, and nothing stays reserved.
+    #[test]
+    fn model_checks_wait_for_a_worker_slot_then_refuse_by_type() {
+        let host = ScriptedHost::normal();
+        let registry = registry(&host, TestLauncher::solve());
+        registry.pool().set_max_running_workers(0);
+        let demo: serde_json::Value = serde_json::from_str(crate::BUNDLED_DEMO_MODEL).unwrap();
+        let input = registry.admit_model_checks(&checks_body(&demo)).unwrap();
+        let started = std::time::Instant::now();
+        match registry.run_model_checks(input) {
+            Err(ModelChecksError::Unavailable(SolveJobError::ResourceUnavailable { refusal: ResourceRefusal::WorkerLimitReached { limit: 0, .. }, .. })) => {}
+            other => panic!("expected worker_limit_reached after the wait, got {other:?}"),
+        }
+        assert!(started.elapsed() >= MODEL_CHECKS_START_WAIT, "{:?}", started.elapsed());
+        assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
+    }
+
+    /// Runs one admitted check on its own thread, as `check_preview_model`'s
+    /// blocking task does.
+    fn spawn_check(registry: &SolveJobRegistry) -> std::thread::JoinHandle<Result<ModelChecksOutput, ModelChecksError>> {
+        let input = registry.admit_model_checks(&checks_body(&serde_json::json!({"project": {"id": "p"}}))).unwrap();
+        let registry = registry.clone();
+        std::thread::spawn(move || registry.run_model_checks(input))
+    }
+
+    /// The check's outcome, failing the test if it has not ended within 30 s.
+    fn joined(check: std::thread::JoinHandle<Result<ModelChecksOutput, ModelChecksError>>) -> Result<ModelChecksOutput, ModelChecksError> {
+        let deadline = std::time::Instant::now() + Duration::from_secs(30);
+        while !check.is_finished() {
+            assert!(std::time::Instant::now() < deadline, "the check did not end");
+            std::thread::sleep(Duration::from_millis(2));
+        }
+        check.join().unwrap()
+    }
+
+    /// Codex review r3 of #1665: a session reset (page load) cancels a running
+    /// check, as it abandons a solve: its worker is killed and, after the reap,
+    /// its grant released; nothing stays reserved.
+    #[test]
+    fn a_session_reset_cancels_a_running_check_and_releases_its_grant() {
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated(&host);
+        let check = spawn_check(&registry);
+        gate.wait_started(1);
+        assert_eq!(registry.pool().running_workers(), 1);
+        assert!(registry.pool().reserved_total() > 0);
+        registry.dispose_all_results();
+        assert!(matches!(joined(check), Err(ModelChecksError::Cancelled)));
+        assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
+        assert!(!registry.cancel_model_checks(), "the slot is clear once the check has ended");
+    }
+
+    /// A newer check supersedes the one in progress: admitting it cancels the
+    /// older check, whose worker is killed, and the newer one runs and reports.
+    #[test]
+    fn a_newer_check_cancels_the_one_in_progress() {
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated(&host);
+        let older = spawn_check(&registry);
+        gate.wait_started(1);
+        let newer = spawn_check(&registry);
+        assert!(matches!(joined(older), Err(ModelChecksError::Cancelled)));
+        gate.wait_started(2);
+        gate.release("{\"newer\":true}");
+        let output = joined(newer).unwrap_or_else(|e| panic!("{e:?}"));
+        assert_eq!(output.report, br#"{"newer":true}"#);
+        drop(output);
+        assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
+    }
+
+    /// A solve queued behind a running check (one worker slot) starts once the
+    /// project session's change cancels the check (`cancel_model_checks`); a
+    /// check still waiting for its starting grant stops waiting at once.
+    #[test]
+    fn a_solve_queued_behind_a_cancelled_check_starts() {
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated(&host);
+        registry.pool().set_max_running_workers(1);
+        let check = spawn_check(&registry);
+        gate.wait_started(1);
+        let receipt = registry.start(MODEL, None).unwrap();
+        let queued = wait_for(&registry, &receipt.job_id, |s| s.queue_reason.is_some());
+        assert_eq!(queued.state, "queued", "{queued:?}");
+        // A second check waits for the slot too; it is cancelled before its window ends.
+        let waiting = spawn_check(&registry);
+        assert!(matches!(joined(check), Err(ModelChecksError::Cancelled)), "superseded");
+        let cancelled_at = std::time::Instant::now();
+        assert!(registry.cancel_model_checks());
+        assert!(matches!(joined(waiting), Err(ModelChecksError::Cancelled)));
+        assert!(cancelled_at.elapsed() < MODEL_CHECKS_START_WAIT, "{:?}", cancelled_at.elapsed());
+        gate.wait_started(2);
+        assert_eq!(wait_for(&registry, &receipt.job_id, |s| s.state == "running").state, "running");
+        gate.release("{}");
+        assert_eq!(wait_terminal(&registry, &receipt.job_id).state, "completed");
+        registry.dispose_all_results();
+        assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
     }
 }
