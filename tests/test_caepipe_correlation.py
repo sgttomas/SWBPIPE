@@ -857,6 +857,9 @@ def test_offline_bound_csv_is_compared_and_stdout_carries_status_only(tmp_path, 
                      "cases/cpc-01-cantilever-force/comparison/comparison.json"]
     stored = json.loads((paths["comparison"] / "comparison.json").read_text(encoding="utf-8"))
     assert "by_outcome" in stored["summary"]
+    id_map = json.loads((paths["caepipe_in"] / "id_map.json").read_text(encoding="utf-8"))
+    assert id_map["mbf_sha256"] == sha  # binds the sidecar to the MBF bytes for the importer
+    assert {"node_map", "element_map", "support_map", "load_map", "material_map"} <= set(id_map)
 
 
 # --------------------------------------------------------------------------

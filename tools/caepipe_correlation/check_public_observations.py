@@ -564,6 +564,7 @@ _CONVERTED = r"(?:in|inch|inches|ft|feet|foot|lb|lbs|lbf|lbm|kip|kips|psi|ksi|°
 # Unit definitions (`1 in = 25.4 mm`, `1 kgf = 9.80665 N`): one unit equals a number of a different unit.
 EQUATION = re.compile(r"(?<![\w.])1\s*(" + _CONVERTED + r")\s*=\s*\d+(?:[.,]\d+)?(?:[eE][-+]?\d+)?\s*("
                       + _CONVERTED + r")(?![\w])")
+AGREEMENT = _alternation(r"agree[sd]?", r"agreements?", r"match(?:e[sd])?")
 SIGN = re.compile(r"(?:(?<=^)|(?<=[\s(=:]))[-+−](?=\d)")
 _COUNTED = r"(?:quantities|quantity|cases?|values?|checks?|nodes?|results?|records?|reactions?|displacements?|members?)"
 RESULT_NUMBER = re.compile(
@@ -600,8 +601,11 @@ def scan(label: str, lines: dict[int, str], terms: dict[str, list[str]], added: 
         for pattern in names:
             masked = pattern.sub(lambda m: "@" * len(m.group()), masked)
         # Unit conversions (`1 in = 25.4 mm`) are format facts; a sign before a number (`-3 mm`) is kept
-        # apart from ids (`REQ-018`) by requiring a space, bracket or start before it.
-        masked = EQUATION.sub(lambda m: " " * len(m.group()) if m.group(1) != m.group(2) else m.group(), masked)
+        # apart from ids (`REQ-018`) by requiring a space, bracket or start before it. An equation in a sentence
+        # with an agreement or match word is kept: there it may state a cross-tool agreement.
+        agreeing = {sentences[m.start()] for m in AGREEMENT.finditer(text)}
+        masked = EQUATION.sub(lambda m: " " * len(m.group()) if m.group(1) != m.group(2)
+                              and sentences[m.start()] not in agreeing else m.group(), masked)
         masked = SIGN.sub(" ", masked)
         numbers = [(_span(owners, m.start(), m.end()), sentences[m.start()]) for m in RESULT_NUMBER.finditer(masked)]
 

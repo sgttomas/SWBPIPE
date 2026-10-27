@@ -554,3 +554,14 @@ def test_a_reference_image_keeps_its_own_line_context(tmp_path):
 def test_a_precision_clause_is_not_a_mapping(tmp_path):
     text = "Acmepipe matches all 12 values to 3 decimal places in the output fields.\n"
     assert run(tmp_path, {"doc/a.md": text}) == ["doc/a.md:1: result about the target tool"]
+
+
+def test_an_equation_stated_as_cross_tool_agreement_is_a_result(tmp_path):
+    # Invented sentences: a unit definition used as an agreement statement is screened; one beside a difference
+    # word stays a format fact.
+    assert run(tmp_path / "a", {"doc/a.md": "Acmepipe and Otherpipe agree: 1 mm = 0.1 cm.\n"}) == [
+        "doc/a.md:1: result about the target tool"]
+    for index, word in enumerate(("agrees", "agreed", "agreement", "match", "matches", "matched")):
+        findings = run(tmp_path / f"w{index}", {"doc/a.md": f"Acmepipe {word} here: 1 mm = 0.1 cm.\n"})
+        assert findings == ["doc/a.md:1: result about the target tool"], word
+    assert run(tmp_path / "d", {"doc/a.md": "Acmepipe units differ: 1 in = 25.4 mm.\n"}) == []
