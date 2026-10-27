@@ -192,7 +192,7 @@
             "source_name": "Invented DEL-10-05 report-package witness"
           },
           "unit_display_summary": {
-            "conversion_performed": false,
+            "conversion_performed": true,
             "model_units": {
               "angle": "rad",
               "force": "N",
@@ -201,7 +201,7 @@
               "stress": "Pa",
               "temperature": "degC"
             },
-            "quantity_display_policy": "display result-row values with their explicit units; no report-time conversion",
+            "quantity_display_policy": "display result-row values and stress headlines with explicit units; values stored in Pa are shown in MPa (1 MPa = 10^6 Pa, exact); displayed values are rounded to six significant digits; stored values and units are unchanged",
             "result_units": [
               "MPa",
               "N",
@@ -3649,7 +3649,7 @@
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "displacement_magnitude",
-          "quantity_display": "1.1608090399600846 mm",
+          "quantity_display": "1.16081 mm",
           "row_id": "row:result:disp:node-fixture-tip",
           "source_ref": "result:result:disp:node-fixture-tip"
         },
@@ -3698,42 +3698,42 @@
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "global_nodal_displacement_x (nodal_displacement_x)",
-          "quantity_display": "0.00144686311901723 mm",
+          "quantity_display": "0.00144686 mm",
           "row_id": "row:result:disp:node-fixture-tip:ux",
           "source_ref": "result:result:disp:node-fixture-tip:ux"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "global_nodal_displacement_y (nodal_displacement_y)",
-          "quantity_display": "0.917137277628408 mm",
+          "quantity_display": "0.917137 mm",
           "row_id": "row:result:disp:node-fixture-tip:uy",
           "source_ref": "result:result:disp:node-fixture-tip:uy"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "global_nodal_displacement_z (nodal_displacement_z)",
-          "quantity_display": "-0.7115720257461787 mm",
+          "quantity_display": "-0.711572 mm",
           "row_id": "row:result:disp:node-fixture-tip:uz",
           "source_ref": "result:result:disp:node-fixture-tip:uz"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "global_nodal_rotation_x (nodal_rotation_x)",
-          "quantity_display": "0.0004928637407765739 rad",
+          "quantity_display": "0.000492864 rad",
           "row_id": "row:result:disp:node-fixture-tip:rx",
           "source_ref": "result:result:disp:node-fixture-tip:rx"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "global_nodal_rotation_y (nodal_rotation_y)",
-          "quantity_display": "0.0009487627009949048 rad",
+          "quantity_display": "0.000948763 rad",
           "row_id": "row:result:disp:node-fixture-tip:ry",
           "source_ref": "result:result:disp:node-fixture-tip:ry"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "global_nodal_rotation_z (nodal_rotation_z)",
-          "quantity_display": "0.0015180203215918477 rad",
+          "quantity_display": "0.00151802 rad",
           "row_id": "row:result:disp:node-fixture-tip:rz",
           "source_ref": "result:result:disp:node-fixture-tip:rz"
         },
@@ -3782,14 +3782,14 @@
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "support_reaction_force_magnitude_v2 (force_magnitude)",
-          "quantity_display": "3741.657386773941 N",
+          "quantity_display": "3741.66 N",
           "row_id": "row:result:support-action:23:case:six-component-load:20:support:fixture-root:force_magnitude",
           "source_ref": "result:result:support-action:23:case:six-component-load:20:support:fixture-root:force_magnitude"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "support_reaction_moment_magnitude_v2 (moment_magnitude)",
-          "quantity_display": "3629.049462324811 N*m",
+          "quantity_display": "3629.05 N*m",
           "row_id": "row:result:support-action:23:case:six-component-load:20:support:fixture-root:moment_magnitude",
           "source_ref": "result:result:support-action:23:case:six-component-load:20:support:fixture-root:moment_magnitude"
         },
@@ -4006,147 +4006,147 @@
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_axial_normal_stress (axial_normal_stress)",
-          "quantity_display": "0.28937262380344597 MPa",
+          "quantity_display": "0.289373 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-i:axial-normal",
           "source_ref": "result:result:stress:pipe-fixture-span:end-i:axial-normal"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_bending_normal_stress_y (bending_normal_stress_y)",
-          "quantity_display": "28.462881029847143 MPa",
+          "quantity_display": "28.4629 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-i:bending-normal-y",
           "source_ref": "result:result:stress:pipe-fixture-span:end-i:bending-normal-y"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_bending_normal_stress_z (bending_normal_stress_z)",
-          "quantity_display": "29.60139627104103 MPa",
+          "quantity_display": "29.6014 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-i:bending-normal-z",
           "source_ref": "result:result:stress:pipe-fixture-span:end-i:bending-normal-z"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_torsional_shear_stress (torsional_shear_stress)",
-          "quantity_display": "2.2770304823877714 MPa",
+          "quantity_display": "2.27703 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-i:torsional-shear",
           "source_ref": "result:result:stress:pipe-fixture-span:end-i:torsional-shear"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_axial_normal_stress (axial_normal_stress)",
-          "quantity_display": "0.28937262380344597 MPa",
+          "quantity_display": "0.289373 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-j:axial-normal",
           "source_ref": "result:result:stress:pipe-fixture-span:end-j:axial-normal"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_bending_normal_stress_y (bending_normal_stress_y)",
-          "quantity_display": "-5.692576205969429 MPa",
+          "quantity_display": "-5.69258 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-j:bending-normal-y",
           "source_ref": "result:result:stress:pipe-fixture-span:end-j:bending-normal-y"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_bending_normal_stress_z (bending_normal_stress_z)",
-          "quantity_display": "6.831091447163314 MPa",
+          "quantity_display": "6.83109 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-j:bending-normal-z",
           "source_ref": "result:result:stress:pipe-fixture-span:end-j:bending-normal-z"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_torsional_shear_stress (torsional_shear_stress)",
-          "quantity_display": "2.2770304823877714 MPa",
+          "quantity_display": "2.27703 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-j:torsional-shear",
           "source_ref": "result:result:stress:pipe-fixture-span:end-j:torsional-shear"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_axial_normal_stress (axial_normal_stress)",
-          "quantity_display": "0.28937262380344597 MPa",
+          "quantity_display": "0.289373 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-1:axial-normal",
           "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:axial-normal"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_bending_normal_stress_y (bending_normal_stress_y)",
-          "quantity_display": "19.924016720893 MPa",
+          "quantity_display": "19.924 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-1:bending-normal-y",
           "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:bending-normal-y"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_bending_normal_stress_z (bending_normal_stress_z)",
-          "quantity_display": "23.908820065071602 MPa",
+          "quantity_display": "23.9088 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-1:bending-normal-z",
           "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:bending-normal-z"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_torsional_shear_stress (torsional_shear_stress)",
-          "quantity_display": "2.2770304823877714 MPa",
+          "quantity_display": "2.27703 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-1:torsional-shear",
           "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:torsional-shear"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_axial_normal_stress (axial_normal_stress)",
-          "quantity_display": "0.28937262380344597 MPa",
+          "quantity_display": "0.289373 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:midspan:axial-normal",
           "source_ref": "result:result:stress:pipe-fixture-span:midspan:axial-normal"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_bending_normal_stress_y (bending_normal_stress_y)",
-          "quantity_display": "11.385152411938858 MPa",
+          "quantity_display": "11.3852 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:midspan:bending-normal-y",
           "source_ref": "result:result:stress:pipe-fixture-span:midspan:bending-normal-y"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_bending_normal_stress_z (bending_normal_stress_z)",
-          "quantity_display": "18.21624385910217 MPa",
+          "quantity_display": "18.2162 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:midspan:bending-normal-z",
           "source_ref": "result:result:stress:pipe-fixture-span:midspan:bending-normal-z"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_torsional_shear_stress (torsional_shear_stress)",
-          "quantity_display": "2.2770304823877714 MPa",
+          "quantity_display": "2.27703 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:midspan:torsional-shear",
           "source_ref": "result:result:stress:pipe-fixture-span:midspan:torsional-shear"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_axial_normal_stress (axial_normal_stress)",
-          "quantity_display": "0.28937262380344597 MPa",
+          "quantity_display": "0.289373 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-3:axial-normal",
           "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:axial-normal"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_bending_normal_stress_y (bending_normal_stress_y)",
-          "quantity_display": "2.8462881029847145 MPa",
+          "quantity_display": "2.84629 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-3:bending-normal-y",
           "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:bending-normal-y"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_bending_normal_stress_z (bending_normal_stress_z)",
-          "quantity_display": "12.523667653132742 MPa",
+          "quantity_display": "12.5237 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-3:bending-normal-z",
           "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:bending-normal-z"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_torsional_shear_stress (torsional_shear_stress)",
-          "quantity_display": "2.2770304823877714 MPa",
+          "quantity_display": "2.27703 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-3:torsional-shear",
           "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:torsional-shear"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "pipe_elastic_normal_stress_maximum_v2 (maximum_absolute_normal_stress)",
-          "quantity_display": "41354908.75465695 Pa",
+          "quantity_display": "41.3549 MPa",
           "row_id": "row:result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span",
           "source_ref": "result:result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span"
         },
@@ -4237,105 +4237,105 @@
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_normal_stress_extreme (sigma_plus)",
-          "quantity_display": "41.35490875465694 MPa",
+          "quantity_display": "41.3549 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-i:sigma-plus",
           "source_ref": "result:result:stress:pipe-fixture-span:end-i:sigma-plus"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_normal_stress_extreme (sigma_minus)",
-          "quantity_display": "-40.77616350705005 MPa",
+          "quantity_display": "-40.7762 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-i:sigma-minus",
           "source_ref": "result:result:stress:pipe-fixture-span:end-i:sigma-minus"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_transverse_shear_stress_maximum (tau_v_max)",
-          "quantity_display": "2.2315670778768544 MPa",
+          "quantity_display": "2.23157 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-i:transverse-shear-max",
           "source_ref": "result:result:stress:pipe-fixture-span:end-i:transverse-shear-max"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_normal_stress_extreme (sigma_plus)",
-          "quantity_display": "9.181460917352778 MPa",
+          "quantity_display": "9.18146 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-j:sigma-plus",
           "source_ref": "result:result:stress:pipe-fixture-span:end-j:sigma-plus"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_normal_stress_extreme (sigma_minus)",
-          "quantity_display": "-8.602715669745885 MPa",
+          "quantity_display": "-8.60272 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-j:sigma-minus",
           "source_ref": "result:result:stress:pipe-fixture-span:end-j:sigma-minus"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_transverse_shear_stress_maximum (tau_v_max)",
-          "quantity_display": "2.2315670778768544 MPa",
+          "quantity_display": "2.23157 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-j:transverse-shear-max",
           "source_ref": "result:result:stress:pipe-fixture-span:end-j:transverse-shear-max"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_normal_stress_extreme (sigma_plus)",
-          "quantity_display": "31.41168165122611 MPa",
+          "quantity_display": "31.4117 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-1:sigma-plus",
           "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:sigma-plus"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_normal_stress_extreme (sigma_minus)",
-          "quantity_display": "-30.83293640361922 MPa",
+          "quantity_display": "-30.8329 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-1:sigma-minus",
           "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:sigma-minus"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_transverse_shear_stress_maximum (tau_v_max)",
-          "quantity_display": "2.2315670778768544 MPa",
+          "quantity_display": "2.23157 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-1:transverse-shear-max",
           "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:transverse-shear-max"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_normal_stress_extreme (sigma_plus)",
-          "quantity_display": "21.77083523176743 MPa",
+          "quantity_display": "21.7708 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:midspan:sigma-plus",
           "source_ref": "result:result:stress:pipe-fixture-span:midspan:sigma-plus"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_normal_stress_extreme (sigma_minus)",
-          "quantity_display": "-21.19208998416054 MPa",
+          "quantity_display": "-21.1921 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:midspan:sigma-minus",
           "source_ref": "result:result:stress:pipe-fixture-span:midspan:sigma-minus"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_transverse_shear_stress_maximum (tau_v_max)",
-          "quantity_display": "2.2315670778768544 MPa",
+          "quantity_display": "2.23157 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:midspan:transverse-shear-max",
           "source_ref": "result:result:stress:pipe-fixture-span:midspan:transverse-shear-max"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_normal_stress_extreme (sigma_plus)",
-          "quantity_display": "13.13240993790153 MPa",
+          "quantity_display": "13.1324 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-3:sigma-plus",
           "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:sigma-plus"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_normal_stress_extreme (sigma_minus)",
-          "quantity_display": "-12.553664690294637 MPa",
+          "quantity_display": "-12.5537 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-3:sigma-minus",
           "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:sigma-minus"
         },
         {
           "case_ref": "load_case:case:six-component-load",
           "label": "element_local_transverse_shear_stress_maximum (tau_v_max)",
-          "quantity_display": "2.2315670778768544 MPa",
+          "quantity_display": "2.23157 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-3:transverse-shear-max",
           "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:transverse-shear-max"
         }

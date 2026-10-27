@@ -1,4 +1,5 @@
 import type { MechanicsResult } from "../../types";
+import { displayQuantity } from "./reportQuantityDisplay";
 
 export const REPORT_ROW_SECTION_BASIS_UNREADABLE = "REPORT-ROW-SECTION-BASIS-UNREADABLE";
 
@@ -39,13 +40,16 @@ export type ReportResultRow = {
  *
  * W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.4): a row whose
  * `metadata.basis` names its section basis adds it to the label (`sectionBasisSuffix`);
- * no preview-physics-2 row carries the token, so its rows are unchanged. */
+ * no preview-physics-2 row carries the token, so its rows are unchanged.
+ *
+ * `quantity_display` is the report's display rule (`reportQuantityDisplay.ts`): a `Pa` value
+ * shown in `MPa`, rounded to six significant digits; the stored value and unit are unchanged. */
 export function reportResultRows(result: Pick<MechanicsResult, "results">): ReportResultRow[] {
   return result.results.map((item) => ({
     row_id: `row:${item.id}`,
     label: item.metadata ? `${item.kind} (${item.metadata.component})${sectionBasisSuffix(item.id, item.metadata)}` : item.kind,
     case_ref: item.basis_ref ? `${item.basis_ref.ref_type}:${item.basis_ref.ref_id}` : "TBD",
-    quantity_display: `${item.value} ${item.unit}`,
+    quantity_display: displayQuantity(item.value, item.unit),
     source_ref: `result:${item.id}`
   }));
 }

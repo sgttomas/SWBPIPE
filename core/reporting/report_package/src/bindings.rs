@@ -14,9 +14,9 @@
 use crate::admitted::{self, AdmittedSet};
 use crate::document_form;
 use crate::exact_sections;
+use crate::quantity_display::{display_quantity, source_displays_scaled_value, QUANTITY_DISPLAY_POLICY};
 use crate::wire::{LinkedSolverIdentity, ReportPackageRequest};
 use open_pipe_stress_audit_manifest as audit;
-use open_pipe_stress_canonical_json::canonical_number;
 use open_pipe_stress_result_export::derivative::{digest, guard_json, validate_document};
 use open_pipe_stress_result_export::semantic_contract::for_source;
 use serde_json::{json, Value};
@@ -46,7 +46,6 @@ const DERIVATIVE_LABEL: &str = "openpipestress_jcs_ijson_v1";
 const RULE_TOKENS: [&str; 3] = ["RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED"];
 const DEC018_UNIT_SYSTEM: &str = "unit-system:dec-018-si-dual-display";
 const STORAGE_CONVENTION: &str = "entered_units_preserved";
-const QUANTITY_DISPLAY_POLICY: &str = "display result-row values with their explicit units; no report-time conversion";
 
 fn mismatch(what: impl std::fmt::Display) -> String {
     format!("{BINDING_MISMATCH}: {what}")
@@ -123,9 +122,10 @@ fn section_basis_suffix(id: &str, metadata: &Value) -> Result<&'static str, Stri
 /// The report-row contract (§2.3 item 6): one row per source row, in order,
 /// with the desktop's five-field projection
 /// (`apps/desktop/src/features/report/reportResultRows.ts`). The value text is
-/// the ECMAScript Number-to-String form (`canonical_number`), after
-/// `guard_json`. Parity vectors:
-/// `fixtures/reports/invented/report_result_rows_parity.json`.
+/// the report's display rule ([`display_quantity`]) over the ECMAScript
+/// Number-to-String form (`canonical_number`), after `guard_json`. Parity
+/// vectors: `fixtures/reports/invented/report_result_rows_parity.json` and
+/// `fixtures/reports/invented/report_quantity_display_parity.json`.
 pub fn expected_report_result_rows(source: &Value) -> Result<Vec<Value>, String> {
     guard_json(source).map_err(|detail| format!("{REPORT_ROWS_MISMATCH}: {detail}"))?;
     let rows = source["results"]
@@ -137,8 +137,8 @@ pub fn expected_report_result_rows(source: &Value) -> Result<Vec<Value>, String>
                 row[key].as_str().ok_or_else(|| format!("{REPORT_ROWS_MISMATCH}: a source row has no string {key}"))
             };
             let (id, kind, unit) = (field("id")?, field("kind")?, field("unit")?);
-            let value = match &row["value"] {
-                Value::Number(number) => canonical_number(number),
+            let quantity = match &row["value"] {
+                Value::Number(number) => display_quantity(number, unit),
                 _ => return Err(format!("{REPORT_ROWS_MISMATCH}: source row {id} has no numeric value")),
             };
             let label = match row.get("metadata") {
@@ -159,7 +159,7 @@ pub fn expected_report_result_rows(source: &Value) -> Result<Vec<Value>, String>
                 "row_id": format!("row:{id}"),
                 "label": label,
                 "case_ref": case_ref,
-                "quantity_display": format!("{value} {unit}"),
+                "quantity_display": quantity,
                 "source_ref": format!("result:{id}"),
             }))
         })
@@ -470,7 +470,9 @@ pub(crate) fn check_request_in(
         require(audit_manifest.manifest_id == input.payload_ref, "desktop audit manifest id is not the input-manifest reference")?;
     }
 
-    // Unit system and the complete no-conversion display policy.
+    // Unit system and the complete display policy: values stored in Pa are
+    // displayed in MPa, so `conversion_performed` is whether the report
+    // displays such a value (a result row, or an exact headline).
     require(text(e, "/unit_system_ref/ref_id") == Some(audit_manifest.unit_system_ref.as_str()), "audit unit system")?;
     if desktop {
         require(e["unit_system_ref"] == reference("unit_system", &format!("{model}:units")), "desktop unit system")?;
@@ -479,7 +481,7 @@ pub(crate) fn check_request_in(
     let display = &summary["unit_display_summary"];
     require(display["storage_convention"] == STORAGE_CONVENTION, "unit display storage_convention")?;
     require(display["quantity_display_policy"] == QUANTITY_DISPLAY_POLICY, "unit display quantity_display_policy")?;
-    require(display["conversion_performed"] == false, "unit display conversion_performed")?;
+    require(display["conversion_performed"] == source_displays_scaled_value(source), "unit display conversion_performed")?;
     let units: BTreeSet<&str> = rows.iter().filter_map(|row| row["unit"].as_str()).filter(|unit| !unit.is_empty()).collect();
     require(display["result_units"] == json!(units.into_iter().collect::<Vec<_>>()), "unit display result_units")?;
 

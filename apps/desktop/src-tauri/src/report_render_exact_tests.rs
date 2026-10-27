@@ -978,7 +978,25 @@ mod direct_native {
             assert!(rendered["derived_print_html"].as_str().is_some_and(|print| print.contains(EXACT_ROUTE_SUBHEADING) && print.contains(standing)), "{name}");
             let admitted = save_admitted(&live, save_args(&bound(&w.request, &live.job), &w, &w.model, Some(&w.result), Some(&w.intake)), name);
             let member = admitted.package.members.iter().find(|member| member.role == open_pipe_stress_report_package::ROLE_REPORT_HTML).unwrap();
-            assert!(String::from_utf8(member.bytes.clone()).unwrap().contains(standing), "{name}: the package's HTML member");
+            let package_html = String::from_utf8(member.bytes.clone()).unwrap();
+            assert!(package_html.contains(standing), "{name}: the package's HTML member");
+            // Readability (DEL-08-01 Design `exact-route-report-sections.md` §3.7, §6.3
+            // items 1-3), in the native render and the saved package alike: the display
+            // rule statement, the headlines in MPa, the run-name note with this run's
+            // received-result digest, and the integrity evidence in full text.
+            let received = w.request["report"]["exact_route"]["admission"]["received_result_sha256"].as_str().unwrap();
+            let note = format!("This run is identified by its received result sha256 {received}.");
+            for document in [html, package_html.as_str()] {
+                assert!(document.contains(open_pipe_stress_report_renderer::DISPLAY_RULE_STATEMENT), "{name}");
+                assert!(document.contains(&note) && document.contains("Run name: run:preview-linear-static-001 is the producer&#39;s fixed run name"), "{name}");
+                assert!(document.contains(&format!("<h3>{}</h3>", open_pipe_stress_report_renderer::DIAGNOSTIC_EVIDENCE_SUBHEADING)), "{name}");
+                assert!(document.contains("full text: Diagnostic evidence E1"), "{name}");
+                assert!(!document.contains(" Pa</td>"), "{name}: no value is displayed in Pa");
+            }
+            for diagnostic in w.request["report"]["report_sections"]["diagnostics"].as_array().unwrap() {
+                let message = open_pipe_stress_report_renderer::escape_html(diagnostic["message"].as_str().unwrap());
+                assert!(html.contains(&message) && package_html.contains(&message), "{name}: {} kept verbatim", diagnostic["code"]);
+            }
         }
     }
 

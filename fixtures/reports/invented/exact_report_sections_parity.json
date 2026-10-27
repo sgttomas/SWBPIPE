@@ -124,14 +124,14 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "pipe:fixture-span",
               "source_ref": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span:nominal_section",
-              "value_display": "41354908.75465696 Pa"
+              "value_display": "41.3549 MPa"
             },
             {
               "basis": "reduced_section",
               "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
               "location_ref": "pipe:fixture-span",
               "source_ref": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span:reduced_section",
-              "value_display": "41354908.75465696 Pa"
+              "value_display": "41.3549 MPa"
             }
           ],
           "load_reference_states": null,
@@ -144,14 +144,14 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "pipe:fixture-span",
               "source_ref": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span:nominal_section",
-              "value_display": "41354908.75465696 Pa"
+              "value_display": "41.3549 MPa"
             },
             {
               "basis": "reduced_section",
               "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
               "location_ref": "pipe:fixture-span",
               "source_ref": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span:reduced_section",
-              "value_display": "41354908.75465696 Pa"
+              "value_display": "41.3549 MPa"
             }
           ],
           "load_reference_states": null,
@@ -323,14 +323,14 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "pipe:first",
               "source_ref": "result:elastic-maximum:17:case:hot-pressure:10:pipe:first:nominal_section",
-              "value_display": "228884210.5263158 Pa"
+              "value_display": "228.884 MPa"
             },
             {
               "basis": "reduced_section",
               "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
               "location_ref": "pipe:first",
               "source_ref": "result:elastic-maximum:17:case:hot-pressure:10:pipe:first:reduced_section",
-              "value_display": "228884210.5263158 Pa"
+              "value_display": "228.884 MPa"
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases case:cold-pressure, case:hot-pressure; history independent_equilibrium). Their published limitations are listed under Limitations.",
@@ -343,14 +343,14 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "pipe:first",
               "source_ref": "result:elastic-maximum:17:case:hot-pressure:10:pipe:first:nominal_section",
-              "value_display": "228884210.5263158 Pa"
+              "value_display": "228.884 MPa"
             },
             {
               "basis": "reduced_section",
               "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
               "location_ref": "pipe:first",
               "source_ref": "result:elastic-maximum:17:case:hot-pressure:10:pipe:first:reduced_section",
-              "value_display": "228884210.5263158 Pa"
+              "value_display": "228.884 MPa"
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases case:cold-pressure, case:hot-pressure; history independent_equilibrium). Their published limitations are listed under Limitations.",
@@ -582,14 +582,14 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "pipe:S1",
               "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:nominal_section",
-              "value_display": "55241960.76929271 Pa"
+              "value_display": "55.242 MPa"
             },
             {
               "basis": "reduced_section",
               "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
               "location_ref": "pipe:S1",
               "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:reduced_section",
-              "value_display": "62444385.00754263 Pa"
+              "value_display": "62.4444 MPa"
             }
           ],
           "load_reference_states": null,
@@ -602,14 +602,14 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "pipe:S1",
               "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:nominal_section",
-              "value_display": "55241960.76929271 Pa"
+              "value_display": "55.242 MPa"
             },
             {
               "basis": "reduced_section",
               "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
               "location_ref": "pipe:S1",
               "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:reduced_section",
-              "value_display": "62444385.00754263 Pa"
+              "value_display": "62.4444 MPa"
             }
           ],
           "load_reference_states": null,
@@ -793,14 +793,14 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "pipe:S1",
               "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:nominal_section",
-              "value_display": "55241960.76929271 Pa"
+              "value_display": "55.242 MPa"
             },
             {
               "basis": "reduced_section",
               "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
               "location_ref": "pipe:S1",
               "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:reduced_section",
-              "value_display": "62444385.00754263 Pa"
+              "value_display": "62.4444 MPa"
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases case:u2; history independent_equilibrium). Their published limitations are listed under Limitations.",
@@ -813,14 +813,14 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "pipe:S1",
               "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:nominal_section",
-              "value_display": "55241960.76929271 Pa"
+              "value_display": "55.242 MPa"
             },
             {
               "basis": "reduced_section",
               "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
               "location_ref": "pipe:S1",
               "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:reduced_section",
-              "value_display": "62444385.00754263 Pa"
+              "value_display": "62.4444 MPa"
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases case:u2; history independent_equilibrium). Their published limitations are listed under Limitations.",
@@ -1064,14 +1064,14 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "pipe:S1",
               "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:nominal_section",
-              "value_display": "34084189.59861994 Pa"
+              "value_display": "34.0842 MPa"
             },
             {
               "basis": "reduced_section",
               "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
               "location_ref": "pipe:S1",
               "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:reduced_section",
-              "value_display": "38336716.02953078 Pa"
+              "value_display": "38.3367 MPa"
             }
           ],
           "load_reference_states": null,
@@ -1084,14 +1084,14 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "pipe:S1",
               "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:nominal_section",
-              "value_display": "34084189.59861994 Pa"
+              "value_display": "34.0842 MPa"
             },
             {
               "basis": "reduced_section",
               "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
               "location_ref": "pipe:S1",
               "source_ref": "result:elastic-maximum:7:case:u2:7:pipe:S1:reduced_section",
-              "value_display": "38336716.02953078 Pa"
+              "value_display": "38.3367 MPa"
             }
           ],
           "load_reference_states": null,
@@ -1287,14 +1287,14 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "pipe:P-110",
               "source_ref": "result:elastic-maximum:10:load:L-100:10:pipe:P-110:nominal_section",
-              "value_display": "5627483.882909764 Pa"
+              "value_display": "5.62748 MPa"
             },
             {
               "basis": "reduced_section",
               "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
               "location_ref": "pipe:P-110",
               "source_ref": "result:elastic-maximum:10:load:L-100:10:pipe:P-110:reduced_section",
-              "value_display": "5627483.882909764 Pa"
+              "value_display": "5.62748 MPa"
             }
           ],
           "load_reference_states": null,
@@ -1307,14 +1307,14 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "pipe:P-110",
               "source_ref": "result:elastic-maximum:10:load:L-100:10:pipe:P-110:nominal_section",
-              "value_display": "5627483.882909764 Pa"
+              "value_display": "5.62748 MPa"
             },
             {
               "basis": "reduced_section",
               "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
               "location_ref": "pipe:P-110",
               "source_ref": "result:elastic-maximum:10:load:L-100:10:pipe:P-110:reduced_section",
-              "value_display": "5627483.882909764 Pa"
+              "value_display": "5.62748 MPa"
             }
           ],
           "load_reference_states": null,
@@ -1498,14 +1498,14 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "pipe:P-110",
               "source_ref": "result:elastic-maximum:10:load:L-100:10:pipe:P-110:nominal_section",
-              "value_display": "5627483.882909764 Pa"
+              "value_display": "5.62748 MPa"
             },
             {
               "basis": "reduced_section",
               "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
               "location_ref": "pipe:P-110",
               "source_ref": "result:elastic-maximum:10:load:L-100:10:pipe:P-110:reduced_section",
-              "value_display": "5627483.882909764 Pa"
+              "value_display": "5.62748 MPa"
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases load:L-100, load:L-200, load:L-300; history independent_equilibrium). Their published limitations are listed under Limitations.",
@@ -1518,14 +1518,14 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "pipe:P-110",
               "source_ref": "result:elastic-maximum:10:load:L-100:10:pipe:P-110:nominal_section",
-              "value_display": "5627483.882909764 Pa"
+              "value_display": "5.62748 MPa"
             },
             {
               "basis": "reduced_section",
               "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
               "location_ref": "pipe:P-110",
               "source_ref": "result:elastic-maximum:10:load:L-100:10:pipe:P-110:reduced_section",
-              "value_display": "5627483.882909764 Pa"
+              "value_display": "5.62748 MPa"
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases load:L-100, load:L-200, load:L-300; history independent_equilibrium). Their published limitations are listed under Limitations.",
@@ -1769,14 +1769,14 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "independent-member",
               "source_ref": "result:elastic-maximum:4:case:18:independent-member:nominal_section",
-              "value_display": "0 Pa"
+              "value_display": "0 MPa"
             },
             {
               "basis": "reduced_section",
               "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
               "location_ref": "independent-member",
               "source_ref": "result:elastic-maximum:4:case:18:independent-member:reduced_section",
-              "value_display": "0 Pa"
+              "value_display": "0 MPa"
             }
           ],
           "load_reference_states": null,
@@ -1789,14 +1789,14 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "independent-member",
               "source_ref": "result:elastic-maximum:4:case:18:independent-member:nominal_section",
-              "value_display": "0 Pa"
+              "value_display": "0 MPa"
             },
             {
               "basis": "reduced_section",
               "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
               "location_ref": "independent-member",
               "source_ref": "result:elastic-maximum:4:case:18:independent-member:reduced_section",
-              "value_display": "0 Pa"
+              "value_display": "0 MPa"
             }
           ],
           "load_reference_states": null,
@@ -1968,14 +1968,14 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "independent-member",
               "source_ref": "result:elastic-maximum:4:case:18:independent-member:nominal_section",
-              "value_display": "26.713693785790383 Pa"
+              "value_display": "0.0000267137 MPa"
             },
             {
               "basis": "reduced_section",
               "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
               "location_ref": "independent-member",
               "source_ref": "result:elastic-maximum:4:case:18:independent-member:reduced_section",
-              "value_display": "26.713693785790383 Pa"
+              "value_display": "0.0000267137 MPa"
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:companion; load cases case; history independent_equilibrium). Their published limitations are listed under Limitations.",
@@ -1988,14 +1988,14 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "independent-member",
               "source_ref": "result:elastic-maximum:4:case:18:independent-member:nominal_section",
-              "value_display": "26.713693785790383 Pa"
+              "value_display": "0.0000267137 MPa"
             },
             {
               "basis": "reduced_section",
               "label": "Reduced section (wall minus mill tolerance and corrosion allowance)",
               "location_ref": "independent-member",
               "source_ref": "result:elastic-maximum:4:case:18:independent-member:reduced_section",
-              "value_display": "26.713693785790383 Pa"
+              "value_display": "0.0000267137 MPa"
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:companion; load cases case; history independent_equilibrium). Their published limitations are listed under Limitations.",
@@ -2227,7 +2227,7 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "pipe:fixture-span",
               "source_ref": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span:nominal_section",
-              "value_display": "41354908.75465696 Pa"
+              "value_display": "41.3549 MPa"
             },
             {
               "basis": "reduced_section",
@@ -2247,7 +2247,7 @@
               "label": "Nominal section (nominal wall)",
               "location_ref": "pipe:fixture-span",
               "source_ref": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span:nominal_section",
-              "value_display": "41354908.75465696 Pa"
+              "value_display": "41.3549 MPa"
             },
             {
               "basis": "reduced_section",

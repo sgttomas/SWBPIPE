@@ -6060,10 +6060,12 @@ mod tests {
         let row_id = result["id"].as_str().unwrap_or("result:unknown");
         let kind = result["kind"].as_str().unwrap_or("result");
         let unit = result["unit"].as_str().unwrap_or("unit");
-        let value = result["value"]
-            .as_f64()
-            .map(|number| number.to_string())
-            .unwrap_or_else(|| "TBD".to_string());
+        // The report's display rule, as the desktop's rows (DEL-08-01 Design
+        // `report-package-current-results.md` §2.3 item 6).
+        let quantity = match &result["value"] {
+            Value::Number(number) => open_pipe_stress_report_package::quantity_display::display_quantity(number, unit),
+            _ => format!("TBD {unit}"),
+        };
         let case_ref = result
             .get("basis_ref")
             .and_then(Value::as_object)
@@ -6082,7 +6084,7 @@ mod tests {
             "row_id": format!("row:{row_id}"),
             "label": kind,
             "case_ref": case_ref,
-            "quantity_display": format!("{value} {unit}"),
+            "quantity_display": quantity,
             "source_ref": format!("result:{row_id}")
         })
     }
@@ -6134,8 +6136,8 @@ mod tests {
             "storage_convention": "entered_units_preserved",
             "model_units": model_units,
             "result_units": result_units,
-            "quantity_display_policy": "display result-row values with their explicit units; no report-time conversion",
-            "conversion_performed": false
+            "quantity_display_policy": open_pipe_stress_report_package::quantity_display::QUANTITY_DISPLAY_POLICY,
+            "conversion_performed": open_pipe_stress_report_package::quantity_display::source_displays_scaled_value(solved)
         });
         fixture["calculation_report"]["model_input_summary"]["provenance"] = provenance.clone();
         fixture["calculation_report"]["load_case_summary"] = Value::Array(

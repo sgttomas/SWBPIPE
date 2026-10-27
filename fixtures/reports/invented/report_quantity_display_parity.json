@@ -1,0 +1,282 @@
+{
+  "schema_version": "1.0.0",
+  "description": "Shared parity vectors for the report's display rule (DEL-08-01 Design report-package-current-results.md section 2.3 item 6 and its display resolution; exact-route-report-sections.md section 3.3): the desktop's displayQuantity (apps/desktop/src/features/report/reportQuantityDisplay.ts, vitest reportQuantityDisplay.parity.test.ts) and the report package's quantity_display::display_quantity (core/reporting/report_package/src/quantity_display.rs, test tests/quantity_display_parity.rs) must both turn value and unit into display. The rule starts from the value's ECMAScript Number-to-String text; a value stored in Pa is shifted six decimal places as text and labelled MPa; the decimal significand is rounded to six significant digits, half away from zero, on its digits; the result is printed in the ECMAScript Number-to-String layout; 0 and -0 print 0. No floating-point arithmetic. Each vector states its reason. Values are binary64 numbers both readers parse alike (no integer above 2^53 - 1 that is not a float literal, which Rust would keep exactly and JavaScript would round). Hand-written; invented values only, except the witness headlines, which are the committed witnesses' stored values.",
+  "vectors": [
+    {
+      "value": 41354908.75465696,
+      "unit": "Pa",
+      "display": "41.3549 MPa",
+      "reason": "Witness headline (pressure-2 straight): Pa shown in MPa, rounded to six significant digits; the seventh digit 0 rounds down."
+    },
+    {
+      "value": 228884210.5263158,
+      "unit": "Pa",
+      "display": "228.884 MPa",
+      "reason": "Witness headline (pressure-2 load/reference states): Pa shown in MPa; seventh digit 2 rounds down."
+    },
+    {
+      "value": 26.713693785790383,
+      "unit": "Pa",
+      "display": "0.0000267137 MPa",
+      "reason": "Witness headline (pressure-source-1 load/reference): a value of a few Pa stays plain decimal in MPa (decimal point position -4); seventh digit 9 rounds up."
+    },
+    {
+      "value": 28.462881029847143,
+      "unit": "MPa",
+      "display": "28.4629 MPa",
+      "reason": "A stored MPa element stress (pressure-free route) is not scaled; rounded to six significant digits."
+    },
+    {
+      "value": 12.5,
+      "unit": "MPa",
+      "display": "12.5 MPa",
+      "reason": "Fewer than six significant digits: unchanged."
+    },
+    {
+      "value": 0,
+      "unit": "Pa",
+      "display": "0 MPa",
+      "reason": "Zero in Pa prints 0, labelled MPa."
+    },
+    {
+      "value": -0.0,
+      "unit": "Pa",
+      "display": "0 MPa",
+      "reason": "Negative zero prints 0 (as ECMAScript Number-to-String)."
+    },
+    {
+      "value": -0.0,
+      "unit": "rad",
+      "display": "0 rad",
+      "reason": "Negative zero in an unscaled unit prints 0."
+    },
+    {
+      "value": 1,
+      "unit": "Pa",
+      "display": "0.000001 MPa",
+      "reason": "1 Pa is 0.000001 MPa: the last plain-decimal position (decimal point position -5)."
+    },
+    {
+      "value": 0.1,
+      "unit": "Pa",
+      "display": "1e-7 MPa",
+      "reason": "Below 1 Pa the shifted value falls under 1e-6 MPa and switches to the exponent form."
+    },
+    {
+      "value": 0.9999995,
+      "unit": "Pa",
+      "display": "0.000001 MPa",
+      "reason": "Rounding carry across the small exponent switch: 9.999995e-7 MPa rounds up to 1e-6 MPa, which is plain decimal again."
+    },
+    {
+      "value": 9.999995e-07,
+      "unit": "N",
+      "display": "0.000001 N",
+      "reason": "The same carry unscaled: 9.999995e-7 rounds to 0.000001."
+    },
+    {
+      "value": 1e-07,
+      "unit": "N",
+      "display": "1e-7 N",
+      "reason": "Unscaled value below 1e-6 keeps the ECMAScript exponent form."
+    },
+    {
+      "value": 1e-06,
+      "unit": "N",
+      "display": "0.000001 N",
+      "reason": "Unscaled 1e-6 is plain decimal (ECMAScript)."
+    },
+    {
+      "value": 1e-07,
+      "unit": "Pa",
+      "display": "1e-13 MPa",
+      "reason": "A value below 1 Pa: shifted six places as text."
+    },
+    {
+      "value": -250,
+      "unit": "Pa",
+      "display": "-0.00025 MPa",
+      "reason": "Negative Pa value: sign kept, shifted."
+    },
+    {
+      "value": 999999.5,
+      "unit": "Pa",
+      "display": "1 MPa",
+      "reason": "Rounding carry in Pa: 0.9999995 MPa rounds half away from zero to 1 MPa."
+    },
+    {
+      "value": 999999.4,
+      "unit": "Pa",
+      "display": "0.999999 MPa",
+      "reason": "Just below the carry: the seventh digit 4 rounds down."
+    },
+    {
+      "value": -999999.5,
+      "unit": "Pa",
+      "display": "-1 MPa",
+      "reason": "Negative rounding carry: half away from zero on the magnitude."
+    },
+    {
+      "value": 999999.5,
+      "unit": "N",
+      "display": "1000000 N",
+      "reason": "Rounding carry in a unit that is not Pa: 999999.5 rounds to 1000000."
+    },
+    {
+      "value": 1.000005,
+      "unit": "N",
+      "display": "1.00001 N",
+      "reason": "Half-way tie (seventh digit 5, nothing after): rounds away from zero."
+    },
+    {
+      "value": -1.000005,
+      "unit": "N",
+      "display": "-1.00001 N",
+      "reason": "Negative tie rounds away from zero."
+    },
+    {
+      "value": 12.34565,
+      "unit": "N",
+      "display": "12.3457 N",
+      "reason": "Tie on an even sixth digit: half away from zero gives 12.3457 (half-to-even would give 12.3456)."
+    },
+    {
+      "value": 12.34555,
+      "unit": "N",
+      "display": "12.3456 N",
+      "reason": "Tie on an odd sixth digit rounds up."
+    },
+    {
+      "value": 1.0000049999,
+      "unit": "N",
+      "display": "1 N",
+      "reason": "Below the tie: rounds down, trailing zeros dropped."
+    },
+    {
+      "value": 0.1234565,
+      "unit": "N",
+      "display": "0.123457 N",
+      "reason": "Tie with the decimal point before the first digit."
+    },
+    {
+      "value": 0.30000000000000004,
+      "unit": "N*m",
+      "display": "0.3 N*m",
+      "reason": "Binary-to-decimal noise is rounded away; the stored value is unchanged."
+    },
+    {
+      "value": 0.30000000000000004,
+      "unit": "Pa",
+      "display": "3e-7 MPa",
+      "reason": "The same value in Pa shifts below 1e-6 MPa: exponent form."
+    },
+    {
+      "value": 9007199254740991,
+      "unit": "N",
+      "display": "9007200000000000 N",
+      "reason": "Largest safe integer: rounded to six significant digits, zeros fill the integer part."
+    },
+    {
+      "value": 9007199254740991,
+      "unit": "Pa",
+      "display": "9007200000 MPa",
+      "reason": "Largest safe integer in Pa: shifted and rounded."
+    },
+    {
+      "value": -123456789.125,
+      "unit": "kN",
+      "display": "-123457000 kN",
+      "reason": "Negative value with nine integer digits rounds to six significant digits."
+    },
+    {
+      "value": 5e-324,
+      "unit": "N",
+      "display": "5e-324 N",
+      "reason": "Smallest subnormal: exponent form unchanged."
+    },
+    {
+      "value": 5e-324,
+      "unit": "Pa",
+      "display": "5e-330 MPa",
+      "reason": "Smallest subnormal in Pa: the shift is exact on the text, beyond binary64's range."
+    },
+    {
+      "value": 1e+21,
+      "unit": "N",
+      "display": "1e+21 N",
+      "reason": "At 1e21 ECMAScript switches to the exponent form with an explicit sign."
+    },
+    {
+      "value": 9.999999999999999e+20,
+      "unit": "N",
+      "display": "1e+21 N",
+      "reason": "Rounding carry across the large exponent switch: 9.999999999999999e20 rounds to 1e21, exponent form."
+    },
+    {
+      "value": 1e+20,
+      "unit": "N",
+      "display": "100000000000000000000 N",
+      "reason": "Just below the large switch: plain decimal with 21 digits."
+    },
+    {
+      "value": 1e+21,
+      "unit": "Pa",
+      "display": "1000000000000000 MPa",
+      "reason": "1e21 Pa is 1e15 MPa, plain decimal after the shift."
+    },
+    {
+      "value": 1e+26,
+      "unit": "Pa",
+      "display": "100000000000000000000 MPa",
+      "reason": "1e26 Pa is 1e20 MPa: plain decimal, 21 digits."
+    },
+    {
+      "value": 1e+27,
+      "unit": "Pa",
+      "display": "1e+21 MPa",
+      "reason": "1e27 Pa is 1e21 MPa: the exponent form after the shift."
+    },
+    {
+      "value": 9.999995e+26,
+      "unit": "Pa",
+      "display": "1e+21 MPa",
+      "reason": "Rounding carry across the large switch after the shift: 9.999995e20 MPa rounds to 1e21 MPa."
+    },
+    {
+      "value": 1.7976931348623157e+308,
+      "unit": "N",
+      "display": "1.79769e+308 N",
+      "reason": "Largest binary64: rounded in exponent form."
+    },
+    {
+      "value": 1.7976931348623157e+308,
+      "unit": "Pa",
+      "display": "1.79769e+302 MPa",
+      "reason": "Largest binary64 in Pa: shifted in the exponent."
+    },
+    {
+      "value": 123456,
+      "unit": "N",
+      "display": "123456 N",
+      "reason": "Six significant digits: unchanged."
+    },
+    {
+      "value": 1234567,
+      "unit": "N",
+      "display": "1234570 N",
+      "reason": "Seven integer digits: rounded, a zero fills the integer part."
+    },
+    {
+      "value": 7,
+      "unit": "1",
+      "display": "7 1",
+      "reason": "A dimensionless count keeps its unit text."
+    },
+    {
+      "value": 1.5e-06,
+      "unit": "°C",
+      "display": "0.0000015 °C",
+      "reason": "A non-ASCII unit is kept verbatim; plain decimal."
+    }
+  ]
+}

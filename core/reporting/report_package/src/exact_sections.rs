@@ -16,8 +16,8 @@
 
 use crate::bindings::RUNNER_PROFILE;
 use crate::document_form::producer_contract_id;
+use crate::quantity_display::display_quantity;
 use open_pipe_stress_audit_manifest as audit;
-use open_pipe_stress_canonical_json::canonical_number;
 use open_pipe_stress_report_renderer::exact_statements::{exact_statement_for, producer_sha256};
 use open_pipe_stress_report_renderer::{ExactAdmissionBinding, ExactRouteSection, ReportHeadline};
 use open_pipe_stress_result_export::derivative::{digest, guard_json};
@@ -137,7 +137,8 @@ fn load_reference_line(source: &Value) -> Option<String> {
     ))
 }
 
-/// One basis's headline (§3.3) from `summary.<key>`.
+/// One basis's headline (§3.3) from `summary.<key>`; its value is shown by
+/// the report's display rule (`quantity_display`), as the result rows'.
 fn headline(summary: &Value, basis: &str, label: &str) -> Result<ReportHeadline, String> {
     let unreadable = || format!("{EXACT_HEADLINE_UNREADABLE}: the {basis} headline is missing or not readable.");
     let key = format!("max_open_formula_stress_{basis}");
@@ -162,7 +163,7 @@ fn headline(summary: &Value, basis: &str, label: &str) -> Result<ReportHeadline,
             Ok(ReportHeadline {
                 basis: basis.to_string(),
                 label: label.to_string(),
-                value_display: format!("{} {unit}", canonical_number(value)),
+                value_display: display_quantity(value, unit),
                 location_ref: Some(location.to_string()),
                 source_ref: Some(result.to_string()),
             })

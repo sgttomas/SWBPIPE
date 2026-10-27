@@ -264,9 +264,26 @@ fn the_vectors_state_the_table_statements_and_the_section_texts() {
                 assert_eq!(headline["value_display"], WITHHELD_HEADLINE);
                 assert!(headline["location_ref"].is_null() && headline["source_ref"].is_null());
             } else {
+                // The display rule (DEL-08-01 Design `report-package-current-results.md`
+                // §2.3 item 6), checked independently in binary64: a Pa value is shown
+                // in MPa, within half a unit of its sixth significant digit, with at
+                // most six significant digits.
                 let (number, unit) = headline["value_display"].as_str().unwrap().split_once(' ').unwrap();
-                assert_eq!(number.parse::<f64>().unwrap(), summary["value"].as_f64().unwrap());
-                assert_eq!(unit, summary["unit"].as_str().unwrap());
+                let stored = summary["value"].as_f64().unwrap();
+                let (shown_unit, scale) = match summary["unit"].as_str().unwrap() {
+                    "Pa" => ("MPa", 1e-6),
+                    other => (other, 1.0),
+                };
+                assert_eq!(unit, shown_unit, "{name}");
+                let (shown, wanted) = (number.parse::<f64>().unwrap(), stored * scale);
+                if wanted == 0.0 {
+                    assert_eq!(number, "0", "{name}");
+                } else {
+                    let half_unit = 0.5 * 10f64.powi(wanted.abs().log10().floor() as i32 - 5);
+                    assert!((shown - wanted).abs() <= half_unit * (1.0 + 1e-9), "{name}: {number} for {stored}");
+                }
+                let significand = number.trim_start_matches('-').split('e').next().unwrap().replace('.', "");
+                assert!(significand.trim_start_matches('0').len() <= 6, "{name}: {number}");
                 assert_eq!(headline["source_ref"], summary["result_ref"]);
             }
         }

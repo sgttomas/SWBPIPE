@@ -56,11 +56,12 @@ import {
   type ExactReportAdmission
 } from "./exactReportAdmission";
 import { exactLimitationEntries, exactRouteCore, REPORT_EXACT_SECTIONS_MISMATCH } from "./exactReportSections";
-import { buildRenderableReportInput } from "./renderableReportInput";
+import { buildRenderableReportInput, QUANTITY_DISPLAY_POLICY } from "./renderableReportInput";
 import { reportResultRows } from "./reportResultRows";
 import { numericalHealthView, readNumericalHealth } from "../results/numericalHealth";
 import { assembleRenderedReport } from "./renderedReportAssembly";
 import { RenderedReportPanel } from "./RenderedReportPanel";
+import { displayQuantity } from "./reportQuantityDisplay";
 import {
   buildReportPackageRequest,
   REPORT_PACKAGE_ADMITTED_CONTRACT_IDS,
@@ -332,8 +333,18 @@ describe("the exact sections in the renderer input", () => {
     for (const headline of input.exact_route.headlines) {
       const published = (result.summary as Json)[`max_open_formula_stress_${headline.basis}`];
       if (published === null) expect(headline).toMatchObject({ location_ref: null, source_ref: null });
-      else expect(headline).toMatchObject({ value_display: `${published.value} ${published.unit}`, location_ref: published.location_ref, source_ref: published.result_ref });
+      else {
+        // The report's display rule (vectors `report_quantity_display_parity.json`): Pa shown in MPa.
+        expect(headline).toMatchObject({ value_display: displayQuantity(published.value, published.unit), location_ref: published.location_ref, source_ref: published.result_ref });
+        if (published.unit === "Pa") expect(headline.value_display).toMatch(/ MPa$/);
+      }
     }
+    // `conversion_performed` (DEL-08-01 Design `report-package-current-results.md` §2.3 item 5):
+    // the exact headlines are stored in Pa and displayed in MPa; the stored units are unchanged.
+    const display = input.calculation_report.model_input_summary.unit_display_summary;
+    expect(display.conversion_performed).toBe(true);
+    expect(display.quantity_display_policy).toBe(QUANTITY_DISPLAY_POLICY);
+    expect(display.result_units).toEqual(Array.from(new Set(result.results.map((row) => row.unit).filter(Boolean))).sort());
     // The load/reference line only for a load/reference-state result.
     const states = (result.contract_evidence as Json)?.load_reference_states;
     if (Array.isArray(states) && states.length) expect(input.exact_route.load_reference_states).toMatch(/Their published limitations are listed under Limitations\.$/);
@@ -505,7 +516,11 @@ async function substituteRequest(genuine: Json) {
   // A nodal rotation row, which no section-basis pair or magnitude row repeats.
   const target = raw.results.findIndex((row: Json) => row.kind === "global_nodal_rotation_x" && row.value !== 0);
   expect(target).toBeGreaterThanOrEqual(0);
-  raw.results[target].value = raw.results[target].value * (1 + 1e-6);
+  // A relative change of 1e-3 shows at the report's six-significant-digit display
+  // (`reportQuantityDisplay.ts`), so the substitute's displayed row differs from the genuine
+  // row and the native render's row re-derivation refuses it; a change of 1e-6 (the factor
+  // before the display rule) is no longer visible in the displayed rows.
+  raw.results[target].value = raw.results[target].value * (1 + 1e-3);
   const session = await solve(item, solveBytes(raw), "invented-w11b-substitute-job");
   expect(numericalResultStanding(session.result, session.model).eligible).toBe(true);
   const request = await buildReportPackageRequest(packageInput(session)) as Json;

@@ -377,7 +377,11 @@ fn binding_cases() -> Vec<(&'static str, RequestEdit, &'static str)> {
         // Units and display policy.
         ("audit unit system", |r| *at(r, "/audit_manifest/unit_system_ref") = json!("invented-other:units"), BINDING_MISMATCH),
         ("summary unit_system_ref", |r| *at(r, "/report/calculation_report/model_input_summary/unit_system_ref/ref_id") = json!("unit-system:invented-other"), BINDING_MISMATCH),
-        ("conversion_performed", |r| *at(r, "/report/calculation_report/model_input_summary/unit_display_summary/conversion_performed") = json!(true), BINDING_MISMATCH),
+        // §2.3 item 5: `conversion_performed` is whether a displayed value is stored in Pa; the other value refuses.
+        ("conversion_performed", |r| {
+            let flag = at(r, "/report/calculation_report/model_input_summary/unit_display_summary/conversion_performed");
+            *flag = json!(flag != &json!(true));
+        }, BINDING_MISMATCH),
         ("storage_convention", |r| *at(r, "/report/calculation_report/model_input_summary/unit_display_summary/storage_convention") = json!("converted_to_si"), BINDING_MISMATCH),
         ("quantity_display_policy", |r| *at(r, "/report/calculation_report/model_input_summary/unit_display_summary/quantity_display_policy") = json!("display converted values"), BINDING_MISMATCH),
         ("result_units", |r| *at(r, "/report/calculation_report/model_input_summary/unit_display_summary/result_units") = json!([]), BINDING_MISMATCH),
@@ -1054,11 +1058,21 @@ fn round3_rendered_rule_pack_checksum_must_name_the_pack_type() {
 /// DEL-10-05 witness basis and its preview result carry PF's LIMITATIONS[1], which
 /// drops its 69-byte support-displacement clause, with the hashes binding it (was
 /// 351f041b…/91575116… and aa96dee4…/8fbfe6bb…); the report crates are unchanged.
+///
+/// Readability slice (DEL-08-01 Design `exact-route-report-sections.md` §6.3
+/// items 1-3) re-pinned both: the report's display rule (a Pa value shown in
+/// MPa, six significant digits), the display rule statement and the
+/// Diagnostics evidence block change the report rows, the policy text and
+/// `conversion_performed` (the witness has Pa rows) and the rendered HTML and
+/// PDF members, so the manifest and the container change (were
+/// b1f0eaae…/12618f50… and 0c939ae9…/99e34b89…, captured at `1ee5d0e5dc`);
+/// the stored-data members keep their bytes
+/// (`the_stored_data_members_keep_their_bytes`).
 #[test]
 fn current_requests_assemble_the_same_bytes_as_before_the_exact_sections() {
     for (request, container, identity) in [
-        (runner(), "b1f0eaaea6c1987366e2dfa9066125e2ba14ecee2611be945b56a995388957df", "12618f502ae0e541495347f9c7014c7eaee0b570c020a76c912b9e3fce39f8c4"),
-        (desktop(), "0c939ae9d07add6678a265d1aeb538b6fa284677744164c3c399de7fe0908292", "99e34b89f6fce79545cf36aaf9516abcd2a54f42d57633c3de28979f1d79519a"),
+        (runner(), "03c2efe5f76687e49b0974c6427770a8cf3b6b494546617a9a40f1d46d0295ec", "be1af3aaa73d7f6eee8f101bdf08af8ad1c5673bd292036f5ba83d197c44490c"),
+        (desktop(), "4c1d7234f5b33528e40f7c71b04b552cd3c041ed9626fd0f948858deb6bf8984", "d2e64decb4cc40627ec1d8255eaeb705ca99bfd4b11d0cfc7f0e48541b7bc9fb"),
     ] {
         let outcome = unblocked(&request);
         assert_eq!(outcome.container_sha256_hex, container);
@@ -1091,5 +1105,47 @@ fn a_positional_report_struct_refuses_the_shared_producer() {
             let error = refused(&edited, REQUEST_POSITIONAL, pointer);
             assert!(!error.contains("quarantined"), "{error}");
         }
+    }
+}
+
+/// Readability slice (DEL-08-01 Design `exact-route-report-sections.md` §6.3
+/// items 1-3; the display resolution of `report-package-current-results.md`
+/// §2.3): the display rule changes only the human-readable report. The
+/// stored-data members (the audit manifest, the result export document and
+/// the state/comparison/handoff sections) keep their bytes; their hashes are
+/// the ones captured at `1ee5d0e5dc`, before the slice. Only the rendered
+/// HTML and PDF members, and the manifest that hashes them, change.
+#[test]
+fn the_stored_data_members_keep_their_bytes() {
+    const RUNNER: [(&str, &str); 3] = [
+        ("audit_manifest", "403ec89b894f40cf17d8e1269797e874ad85cdcd7e3b3f395c6fcdfe22d36c1d"),
+        ("result_export", "ceda3c22346586c90dd94adbdc8634976da820bdc0c3a68eda69159f51be43db"),
+        ("state_comparison_handoff_sections", "01ff4873cd547fb12819d1574cc056a85d8782e65ca80552547569dd8d4c9365"),
+    ];
+    const DESKTOP: [(&str, &str); 3] = [
+        ("audit_manifest", "08231e628761b3235cab83726be4cff60e7dd793966609cdc294053020205c33"),
+        ("result_export", "ed9d1a8f93247c6fbcae035ecb5ed1a770699bf34d39c6fb15b16c2d643c4673"),
+        ("state_comparison_handoff_sections", "fc77b7bf7fbb72b0d8de41af07a4230f305c3a18be259a03a57b2bc6afa75462"),
+    ];
+    const BEFORE_HTML: [&str; 2] = [
+        "630f6439d35832d1dc54922d5334e0f411b9635e8fb42aa1ae42d486863ed19e",
+        "f92278d84c311b37dbc519822ced4301e36d0948759c60b5aa479393577a0110",
+    ];
+    for ((request, stored), before_html) in [(runner(), RUNNER), (desktop(), DESKTOP)].into_iter().zip(BEFORE_HTML) {
+        let outcome = unblocked(&request);
+        let found: Vec<(&str, &str)> = outcome
+            .members
+            .iter()
+            .filter(|member| ![ROLE_REPORT_HTML, ROLE_REPORT_PDF, "package_manifest"].contains(&member.role.as_str()))
+            .map(|member| (member.role.as_str(), member.sha256_hex.as_str()))
+            .collect();
+        assert_eq!(found, stored);
+        let html = outcome.members.iter().find(|member| member.role == ROLE_REPORT_HTML).unwrap();
+        assert_ne!(html.sha256_hex, before_html, "the rendered report carries the display rule");
+        let text = String::from_utf8(html.bytes.clone()).unwrap();
+        assert!(text.contains(open_pipe_stress_report_package::quantity_display::QUANTITY_DISPLAY_POLICY));
+        assert!(text.contains("Displayed values: result values and stress headlines are rounded for display"));
+        // The witness has rows stored in Pa, so a conversion is performed for display.
+        assert!(text.contains("<tr><td>Report-time conversion</td><td>true</td></tr>"));
     }
 }
